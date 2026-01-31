@@ -49,7 +49,7 @@ class EntryPointDiscovery(PluginDiscovery[_PluginDefinitionT]):
         self._entry_point_group = entry_point_group
 
     @override
-    async def discover(self, services: ServiceLevel, /) -> Iterable[_PluginDefinitionT]:
+    async def discover(self, *, services: ServiceLevel) -> Iterable[_PluginDefinitionT]:
         return [
             cast(_PluginDefinitionT, resolve_definition(entry_point.load()))
             for entry_point in metadata.entry_points(group=self._entry_point_group)

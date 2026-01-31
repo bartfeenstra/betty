@@ -8,8 +8,8 @@ from typing_extensions import override
 
 from betty.extension import Extension, ExtensionDefinition
 from betty.project import Project
-from betty.project.factory import require_project
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.requirement import require_project
 from betty.test_utils.config import DummyConfigurable
 from betty.test_utils.data import DummyData
 from betty.test_utils.definition.human_facing import HumanFacingDefinitionTestBase
@@ -39,7 +39,7 @@ class _DummyExtension(ServiceLevelDependentSelfFactory, Extension):
     @override
     @classmethod
     @require_project
-    async def new_for_services(cls, project: Project, /) -> Self:
+    async def new_for_services(cls, *, project: Project) -> Self:
         return cls(project=project)
 
 

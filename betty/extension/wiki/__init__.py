@@ -17,10 +17,10 @@ from betty.extension.wiki.jobs import PopulateEntity
 from betty.jinja2 import Filters, Globals, Jinja2Provider, context_localizer
 from betty.locale import negotiate_locale, resolve_locale
 from betty.locale.localizable.gettext import _
-from betty.project.factory import require_project
 from betty.project.load import PostLoader
 from betty.service.container import service
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.requirement import require_project
 from betty.typing import private
 from betty.wiki import NotAPageError, parse_page_url
 from betty.wiki import populator as populator_api
@@ -37,6 +37,7 @@ if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
     from betty.project import Project
     from betty.project.job import ProjectContext
+    from betty.service.level import ServiceLevel
 
 
 @final
@@ -51,8 +52,8 @@ if TYPE_CHECKING:
 class Wiki(
     PostLoader,
     Configurable[WikiConfiguration],
-    Jinja2Provider,
     ServiceLevelDependentSelfFactory,
+    Jinja2Provider,
     Extension,
 ):
     """
@@ -90,11 +91,16 @@ class Wiki(
     def __init__(
         self,
         *,
-        configuration: WikiConfiguration,
+        configuration: WikiConfiguration | None = None,
         project: Project,
         wikipedia_contributors_copyright_notice: CopyrightNotice,
     ):
-        super().__init__(configuration=configuration, project=project)
+        super().__init__(
+            configuration=WikiConfiguration()
+            if configuration is None
+            else configuration,
+            project=project,
+        )
         self._wikipedia_contributors_copyright_notice = (
             wikipedia_contributors_copyright_notice
         )
@@ -106,11 +112,18 @@ class Wiki(
 
     @override
     @classmethod
+    async def new_for_services(cls, *, services: ServiceLevel) -> Self:
+        return await cls.new_for_configuration(services=services)
+
+    @override
+    @classmethod
     @require_project
-    async def new_for_services(cls, project: Project, /) -> Self:
+    async def new_for_configuration(
+        cls, *, project: Project, configuration: WikiConfiguration | None = None
+    ) -> Self:
         copyright_notices = await project.plugins(CopyrightNoticeDefinition)
         return cls(
-            configuration=WikiConfiguration(),
+            configuration=configuration,
             project=project,
             wikipedia_contributors_copyright_notice=await project.new_target(
                 copyright_notices["wikipedia-contributors"].cls

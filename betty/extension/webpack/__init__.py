@@ -22,10 +22,10 @@ from betty.html import CssProvider, JsProvider
 from betty.jinja2 import Filters, Jinja2Provider
 from betty.npm import new_npm_requirement
 from betty.project import Project
-from betty.project.factory import require_project
 from betty.project.generate import Generator
 from betty.requirement import AllRequirements, Requirement
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.requirement import require_project
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -59,7 +59,7 @@ class Webpack(
     @override
     @classmethod
     @require_project
-    async def new_for_services(cls, project: Project, /) -> Self:
+    async def new_for_services(cls, *, project: Project) -> Self:
         return cls(project=project)
 
     @override

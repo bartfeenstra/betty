@@ -91,6 +91,12 @@ class Porter(ABC, Generic[_DataClsT, _PortableDataT]):
         Dump data to its portable form.
         """
 
+    def copy(self, data: _DataClsT) -> _DataClsT:
+        """
+        Deep-copy data into a new instance.
+        """
+        return self.load(self.dump(data))
+
 
 @final
 class CallbackPorter(Porter[_DataClsT, _PortableDataT]):

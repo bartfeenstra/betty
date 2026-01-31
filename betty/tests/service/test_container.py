@@ -4,7 +4,9 @@ from typing import Any, Self, TypeVar
 import pytest
 from typing_extensions import override
 
+from betty.data import Data
 from betty.locale.localizable import ResolvableLocalizable
+from betty.portable import PortableData
 from betty.requirement import Requirement, StaticRequirement
 from betty.service.bootstrap import NotBootstrappedError
 from betty.service.container import (
@@ -22,6 +24,7 @@ from betty.service.level.factory import ServiceLevelTarget
 from betty.service.level.universal import universe
 from betty.test_utils.config import DummyConfigurable
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
+from betty.typing import Void
 
 _T = TypeVar("_T")
 
@@ -35,7 +38,12 @@ class _ServiceContainer(ServiceContainer):
         return StaticRequirement(DUMMY_LOCALIZABLE)
 
     @override
-    async def _new_target(self, target: ServiceLevelTarget[_T]) -> _T:
+    async def _new_target(
+        self,
+        target: ServiceLevelTarget[_T],
+        configuration: Data | PortableData | Void = Void(),  # noqa: B008
+        /,
+    ) -> _T:
         return await universe.new_target(target)
 
 

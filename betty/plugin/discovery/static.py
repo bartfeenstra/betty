@@ -32,5 +32,5 @@ class StaticDiscovery(PluginDiscovery[_PluginDefinitionT]):
         self._plugins = tuple(resolve_definition(plugin) for plugin in plugins)
 
     @override
-    async def discover(self, services: ServiceLevel, /) -> Iterable[_PluginDefinitionT]:
+    async def discover(self, *, services: ServiceLevel) -> Iterable[_PluginDefinitionT]:
         return self._plugins  # ty:ignore[invalid-return-type]

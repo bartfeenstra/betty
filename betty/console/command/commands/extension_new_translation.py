@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Self, final
 
 from typing_extensions import override
 
-from betty.app.factory import require_app
 from betty.argparse import assertion_to_argument_type
 from betty.assertion import assert_locale
 from betty.console.command import Command, CommandDefinition, CommandFunction
@@ -13,6 +12,7 @@ from betty.locale.localizable.gettext import _
 from betty.locale.translation.project import extension as extension_translation
 from betty.locale.translation.project import extension as translation_project_extension
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.requirement import require_app
 
 if TYPE_CHECKING:
     import argparse
@@ -37,7 +37,7 @@ class ExtensionNewTranslation(ServiceLevelDependentSelfFactory, Command):
     @override
     @classmethod
     @require_app
-    async def new_for_services(cls, app: App, /) -> Self:
+    async def new_for_services(cls, *, app: App) -> Self:
         return cls(app)
 
     @override

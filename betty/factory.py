@@ -34,8 +34,6 @@ Target: TypeAlias = (
 """
 #. If ``target`` subclasses :py:class:`betty.factory.SelfFactory`, this will return ``target``'s
    ``new()``'s return value.
-#. Else, if ``target`` is a class, ``target()`` will be called without arguments, and the resulting
-   instance will be returned.
 #. Else, ``target`` is called as a function. If its return value is an :py:class:`collections.Awaitable`,
    it is awaited and then returned. Otherwise, the return value is returned directly.
 """

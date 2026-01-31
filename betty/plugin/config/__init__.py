@@ -17,7 +17,6 @@ from betty.assertion import (
     assert_or,
     assert_record,
 )
-from betty.config import new_target
 from betty.data import Data
 from betty.data.aggregate.record import PortableRecord
 from betty.data.aggregate.record.object import ObjectDefinition
@@ -210,9 +209,7 @@ class PluginConfiguration(PortableRecord[Attr], Generic[_PluginDefinitionT, _Plu
         Create a new instance of the configured plugin.
         """
         return await services.new_target(
-            new_target(
-                (await services.plugins(plugin_type))[self.id].cls, self.configuration
-            )
+            (await services.plugins(plugin_type))[self.id].cls, self.configuration
         )
 
 

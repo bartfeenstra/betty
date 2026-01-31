@@ -36,7 +36,9 @@ if TYPE_CHECKING:
 
     from ty_extensions import Intersection
 
+    from betty.data import Data
     from betty.locale.localizable import ResolvableLocalizable
+    from betty.portable import PortableData
     from betty.service.level import ServiceLevel
     from betty.service.level.factory import ServiceLevelTarget
 
@@ -133,7 +135,12 @@ class ServiceContainer(Bootstrapped, Shutdownable):
         return None
 
     @abstractmethod
-    async def _new_target(self, target: ServiceLevelTarget[_T]) -> _T:
+    async def _new_target(
+        self,
+        target: ServiceLevelTarget[_T],
+        configuration: Data | PortableData | Void = Void(),  # noqa: B008
+        /,
+    ) -> _T:
         pass
 
 

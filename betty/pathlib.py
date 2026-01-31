@@ -30,5 +30,5 @@ class FilePathDefinition(DataDefinition[Path]):
         )
 
     @override
-    async def hydrate(self, services: ServiceLevel, data: _DataClsT, /) -> None:
+    async def hydrate(self, *, services: ServiceLevel, data: _DataClsT) -> None:
         assert_file_path()(data)

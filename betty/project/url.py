@@ -11,8 +11,8 @@ from typing_extensions import override
 
 from betty.media_type.media_types import HTML, JSON, JSON_LD
 from betty.model import Entity, EntityDefinition
-from betty.project.factory import require_project
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.requirement import require_project
 from betty.string import camel_case_to_kebab_case
 from betty.url import (
     PassthroughUrlGenerator,
@@ -52,7 +52,7 @@ class _ProjectUrlGenerator(ServiceLevelDependentSelfFactory):
     @override
     @classmethod
     @require_project
-    async def new_for_services(cls, project: Project, /) -> Self:
+    async def new_for_services(cls, *, project: Project) -> Self:
         """
         Create a new instance using the given project.
         """
@@ -147,13 +147,13 @@ async def new_project_url_generator(project: Project, /) -> UrlGenerator:
     """
     Generate URLs for all resources provided by a Betty project.
     """
-    entity_url_generator = await _EntityUrlGenerator.new_for_services(project)
+    entity_url_generator = await _EntityUrlGenerator.new_for_services(services=project)
     return ProxyUrlGenerator(
-        await _EntityTypeUrlGenerator.new_for_services(project),
+        await _EntityTypeUrlGenerator.new_for_services(services=project),
         entity_url_generator,
         _EntityUrlUrlGenerator(project.ancestry, entity_url_generator),
-        await _LocalizedPathUrlUrlGenerator.new_for_services(project),
-        await _StaticPathUrlUrlGenerator.new_for_services(project),
+        await _LocalizedPathUrlUrlGenerator.new_for_services(services=project),
+        await _StaticPathUrlUrlGenerator.new_for_services(services=project),
         PassthroughUrlGenerator(),
     )
 

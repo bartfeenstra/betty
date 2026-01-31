@@ -33,7 +33,7 @@ class _DummyData(Portable, Hydratable, Data):
         return self.value
 
     @override
-    async def hydrate(self, services: ServiceLevel, /) -> None:
+    async def hydrate(self, *, services: ServiceLevel) -> None:
         raise HumanFacingException("Uh-oh!")
 
 
@@ -97,7 +97,7 @@ class TestDataDefinition:
 
     async def test_hydrate(self) -> None:
         sut = DataDefinition(cls=object, label=DUMMY_LOCALIZABLE)
-        await sut.hydrate(universe, object())
+        await sut.hydrate(services=universe, data=object())
 
 
 class TestOptionalDefinition:
@@ -117,10 +117,10 @@ class TestOptionalDefinition:
             DataDefinition(cls=_DummyData, label=DUMMY_LOCALIZABLE)
         )
         with pytest.raises(HumanFacingException):
-            await sut.hydrate(universe, _DummyData("Hello, world!"))
+            await sut.hydrate(services=universe, data=_DummyData("Hello, world!"))
 
     async def test_hydrate__with_none(self) -> None:
         sut = OptionalDefinition(
             DataDefinition(cls=_DummyData, label=DUMMY_LOCALIZABLE)
         )
-        await sut.hydrate(universe, None)
+        await sut.hydrate(services=universe, data=None)

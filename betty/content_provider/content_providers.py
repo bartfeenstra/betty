@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, Self, final
 
 from typing_extensions import override
 
-from betty.config import ConfigurationDependentSelfFactory
+from betty.config import Configurable
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.data import Data, Sample
 from betty.data.aggregate.record.object import ObjectDefinition
@@ -25,13 +25,11 @@ from betty.plugin.config import (
 )
 from betty.plugin.config.property import PluginConfigurationSequenceProperty
 from betty.project import Project
-from betty.project.factory import require_project
 from betty.requirement import HasRequirement, Requirement
 from betty.service.level.factory import (
-    CallbackServiceLevelDependentFactory,
     ServiceLevelDependentSelfFactory,
-    ServiceLevelTarget,
 )
+from betty.service.requirement import require_project
 from betty.typing import private
 
 if TYPE_CHECKING:
@@ -72,11 +70,7 @@ class RenderConfiguration(Data):
 
 
 @ContentProviderDefinition("render", label=_("Rendered content"))
-class Render(
-    ConfigurationDependentSelfFactory[RenderConfiguration],
-    ContentProvider,
-    HasRequirement,
-):
+class Render(Configurable[RenderConfiguration], ContentProvider, HasRequirement):
     """
     .. plugin:: content-provider:render.
     """
@@ -100,14 +94,11 @@ class Render(
 
     @override
     @classmethod
-    def new_for_configuration(
-        cls, configuration: RenderConfiguration
-    ) -> ServiceLevelTarget[Self]:
-        @require_project
-        async def _callback(project: Project) -> Self:
-            return cls(configuration=configuration, renderer=await project.renderer)
-
-        return CallbackServiceLevelDependentFactory(_callback)
+    @require_project
+    async def new_for_configuration(
+        cls, *, project: Project, configuration: RenderConfiguration
+    ) -> Self:
+        return cls(configuration=configuration, renderer=await project.renderer)
 
     @override
     async def provide(self, *, document: Document) -> str | None:
@@ -155,8 +146,8 @@ class Notes(Template, ServiceLevelDependentSelfFactory):
     @override
     @classmethod
     @require_project
-    async def new_for_services(cls, services: Project, /) -> Self:
-        return cls(jinja2_environment=await services.jinja2_environment)
+    async def new_for_services(cls, *, project: Project) -> Self:
+        return cls(jinja2_environment=await project.jinja2_environment)
 
 
 @final
@@ -225,7 +216,7 @@ class BoxConfiguration(Data):
 
 @final
 @ContentProviderDefinition("box", label=_("Box"))
-class Box(Template, ConfigurationDependentSelfFactory[BoxConfiguration]):
+class Box(Template, Configurable[BoxConfiguration]):
     """
     .. plugin:: content-provider:box.
     """
@@ -237,17 +228,14 @@ class Box(Template, ConfigurationDependentSelfFactory[BoxConfiguration]):
 
     @override
     @classmethod
-    def new_for_configuration(
-        cls, configuration: BoxConfiguration
-    ) -> ServiceLevelTarget[Self]:
-        @require_project
-        async def _factory(project: Project) -> Self:
-            return cls(
-                configuration=configuration,
-                jinja2_environment=await project.jinja2_environment,
-            )
-
-        return CallbackServiceLevelDependentFactory(_factory)
+    @require_project
+    async def new_for_configuration(
+        cls, *, project: Project, configuration: BoxConfiguration
+    ) -> Self:
+        return cls(
+            configuration=configuration,
+            jinja2_environment=await project.jinja2_environment,
+        )
 
     @override
     async def _provide_data(self, document: Document) -> Mapping[str, Any]:

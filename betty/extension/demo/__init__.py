@@ -24,10 +24,10 @@ from betty.extension.wiki import Wiki
 from betty.html import NavigationLink, NavigationLinkProvider
 from betty.locale.localizable.gettext import _
 from betty.project import generate
-from betty.project.factory import require_project
 from betty.project.job import ProjectContext
 from betty.project.load import Loader, load
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.requirement import require_project
 from betty.typing import internal
 
 if TYPE_CHECKING:
@@ -88,7 +88,7 @@ class Demo(NavigationLinkProvider, Loader, ServiceLevelDependentSelfFactory, Ext
     @override
     @classmethod
     @require_project
-    async def new_for_services(cls, project: Project, /) -> Self:
+    async def new_for_services(cls, *, project: Project) -> Self:
         return cls(project=project)
 
     @override

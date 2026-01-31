@@ -34,27 +34,27 @@ class TestJinja2Provider:
 class TestEnvironment:
     async def test_context_class(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            sut = await Environment.new_for_services(project)
+            sut = await Environment.new_for_services(services=project)
             context_class = sut.context_class
             context_class(sut, {}, "", {}, {})
 
     async def test_project(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            sut = await Environment.new_for_services(project)
+            sut = await Environment.new_for_services(services=project)
             assert sut.project is project
 
     async def test_new_for_services_with_debug(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.debug = True
             async with project:
-                sut = await Environment.new_for_services(project)
+                sut = await Environment.new_for_services(services=project)
                 assert "jinja2.ext.DebugExtension" in sut.extensions
 
     async def test_make_copy_function__www_directory(
         self, isolated_app: App, tmp_path: Path
     ) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            sut = await Environment.new_for_services(project)
+            sut = await Environment.new_for_services(services=project)
             source_file_path = tmp_path / "source.test.j2"
             async with aiofiles.open(source_file_path, "w") as f:
                 await f.write("{{ document.resource }}\n{{ document.resource_url }}")
@@ -75,7 +75,7 @@ class TestEnvironment:
         self, isolated_app: App, tmp_path: Path
     ) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            sut = await Environment.new_for_services(project)
+            sut = await Environment.new_for_services(services=project)
             source_file_path = tmp_path / "source.test.j2"
             async with aiofiles.open(source_file_path, "w") as f:
                 await f.write("{{ document.resource }}\n{{ document.resource_url }}")
@@ -95,7 +95,7 @@ class TestEnvironment:
         self, isolated_app: App, tmp_path: Path
     ) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            sut = await Environment.new_for_services(project)
+            sut = await Environment.new_for_services(services=project)
             source_file_path = tmp_path / "source.test.j2"
             async with aiofiles.open(source_file_path, "w") as f:
                 await f.write("{{ document.resource }}\n{{ document.resource_url }}")
@@ -123,7 +123,7 @@ class Test_CacheTagExtension:
     async def test_tag__without_job_context(self, isolated_app: App) -> None:
         counter = Counter()
         async with Project.new_isolated(isolated_app) as project, project:
-            sut = await Environment.new_for_services(project)
+            sut = await Environment.new_for_services(services=project)
             template = sut.from_string(
                 "{% cache 'my-first-cache-key' %}{% do count() %}{% endcache %}"
             )
@@ -135,7 +135,7 @@ class Test_CacheTagExtension:
         counter = Counter()
         job_context = JobContext()
         async with Project.new_isolated(isolated_app) as project, project:
-            sut = await Environment.new_for_services(project)
+            sut = await Environment.new_for_services(services=project)
             template = sut.from_string(
                 "{% cache 'my-first-cache-key' %}{% do count() %}{% endcache %}"
             )

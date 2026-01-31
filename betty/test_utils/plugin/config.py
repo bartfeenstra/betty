@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, Self, final
 
 from typing_extensions import override
 
-from betty.config import ConfigurationDependentSelfFactory
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.discovery.callback import CallbackDiscovery
 from betty.test_utils.config import DummyConfigurable
@@ -16,13 +15,11 @@ from betty.test_utils.data import DummyData
 from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
 
 if TYPE_CHECKING:
-    from betty.service.level.factory import ServiceLevelTarget
+    from betty.service.level import ServiceLevel
 
 
 class ConfigurableDummyPlugin(
-    DummyConfigurable,
-    ConfigurationDependentSelfFactory[DummyData],
-    Plugin["ConfigurableDummyPluginDefinition"],
+    DummyConfigurable, Plugin["ConfigurableDummyPluginDefinition"]
 ):
     """
     A configurable dummy plugin.
@@ -35,10 +32,10 @@ class ConfigurableDummyPlugin(
 
     @override
     @classmethod
-    def new_for_configuration(
-        cls, configuration: DummyData
-    ) -> ServiceLevelTarget[Self]:
-        return lambda: cls(configuration=configuration)
+    async def new_for_configuration(
+        cls, *, services: ServiceLevel, configuration: DummyData | None = None
+    ) -> Self:
+        return cls(configuration=configuration)
 
 
 @PluginTypeDefinition(

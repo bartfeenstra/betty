@@ -11,7 +11,6 @@ import aiohttp
 from aiohttp import ClientSession
 from typing_extensions import override
 
-from betty.app.factory import require_app
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.locale import DEFAULT_LOCALE, resolve_locale
 from betty.locale.error import LocaleError
@@ -19,8 +18,8 @@ from betty.locale.localizable.gettext import _
 from betty.locale.localizable.plain import Plain
 from betty.locale.localizable.resolve import resolve_localizable
 from betty.locale.localizable.static import StaticTranslations
-from betty.project.factory import require_project
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.requirement import require_app, require_project
 
 if TYPE_CHECKING:
     from betty.app import App
@@ -42,7 +41,7 @@ class ProjectAuthor(ServiceLevelDependentSelfFactory, CopyrightNotice):
     @override
     @classmethod
     @require_project
-    async def new_for_services(cls, project: Project, /) -> Self:
+    async def new_for_services(cls, *, project: Project) -> Self:
         return cls(project.configuration.author)
 
     @property
@@ -147,7 +146,7 @@ class WikipediaContributors(ServiceLevelDependentSelfFactory, CopyrightNotice):
     @override
     @classmethod
     @require_app
-    async def new_for_services(cls, app: App, /) -> Self:
+    async def new_for_services(cls, *, app: App) -> Self:
         return await cls.new(http_client=await app.http_client)
 
     @override

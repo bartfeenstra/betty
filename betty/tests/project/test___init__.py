@@ -14,11 +14,11 @@ from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin.discovery.static import StaticDiscovery
 from betty.project import Project, ProjectExtensions
 from betty.project.config import LocaleConfiguration, ProjectConfiguration
-from betty.project.factory import require_project
 from betty.requirement import Requirement, StaticRequirement, UnmetRequirement
 from betty.serde import SerializationError
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
 from betty.service.level.universal import universe
+from betty.service.requirement import require_project
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.plugin import DummyPluginDefinition
 from betty.test_utils.project.extension import DummyExtensionOne, DummyExtensionTwo
@@ -34,7 +34,7 @@ class _DummyExtension(ServiceLevelDependentSelfFactory, Extension):
     @override
     @classmethod
     @require_project
-    async def new_for_services(cls, project: Project, /) -> Self:
+    async def new_for_services(cls, *, project: Project) -> Self:
         return cls(project=project)
 
 
@@ -65,28 +65,6 @@ class _DummyExtensionA(_DummyExtension):
 @ExtensionDefinition("dummy-b", label=DUMMY_LOCALIZABLE)
 class _DummyExtensionB(_DummyExtension):
     pass
-
-
-class _ServiceLevelDependentSelfFactory(ServiceLevelDependentSelfFactory):
-    def __init__(self, app: App):
-        self.app = app
-
-    @override
-    @classmethod
-    @require_project
-    async def new_for_services(cls, app: App, /) -> Self:
-        return cls(app)
-
-
-class _ServiceLevelDependentSelfFactory(ServiceLevelDependentSelfFactory):
-    def __init__(self, project: Project):
-        self.project = project
-
-    @override
-    @classmethod
-    @require_project
-    async def new_for_services(cls, project: Project, /) -> Self:
-        return cls(project)
 
 
 class TestProject:

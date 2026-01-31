@@ -37,7 +37,7 @@ class TestSearchUi:
             async with project:
                 await generate(project)
                 async with await serve.BuiltinProjectServer.new_for_services(
-                    project
+                    services=project
                 ) as server:
                     yield project, server
 
