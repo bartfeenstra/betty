@@ -44,8 +44,8 @@ if TYPE_CHECKING:
     from betty.ancestry.event_type import EventType
     from betty.ancestry.file_reference import FileReference
     from betty.ancestry.note import Note
-    from betty.date import DateLike
-    from betty.locale.localizable import Localizable, LocalizableLike
+    from betty.date import ResolvableDate
+    from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.portable import PortableMapping
     from betty.project import Project
 
@@ -100,15 +100,15 @@ class Event(
         *,
         id: str | None = None,  # noqa: A002
         event_type: EventType | None = None,
-        date: DateLike | None = None,
+        date: ResolvableDate | None = None,
         file_references: ToManyAssociates[FileReference] | None = None,
         citations: ToManyAssociates[Citation] | None = None,
         notes: ToManyAssociates[Note] | None = None,
         privacy: Privacy | None = None,
         place: ToZeroOrOneAssociate[Place] = None,
-        description: LocalizableLike | None = None,
+        description: ResolvableLocalizable | None = None,
         presences: ToManyAssociates[Presence] | None = None,
-        name: LocalizableLike | None = None,
+        name: ResolvableLocalizable | None = None,
     ):
         super().__init__(
             id,
@@ -140,7 +140,7 @@ class Event(
         if self.name:
             return self.name
 
-        format_kwargs: Mapping[str, LocalizableLike] = {
+        format_kwargs: Mapping[str, ResolvableLocalizable] = {
             "event_type": self._event_type.plugin().label,
         }
         subjects = [

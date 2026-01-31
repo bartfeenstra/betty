@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import TypeVar, override
 
-from betty.asyncio import ensure_await
+from betty.asyncio import resolve_await
 from betty.plugin import PluginDefinition
 from betty.plugin.discovery import PluginDiscovery
 from betty.plugin.resolve import ResolvableId, resolve_id
@@ -49,4 +49,4 @@ class ExtensionDiscovery(PluginDiscovery[_PluginDefinitionT]):
         extensions = await services.extensions
         if self._extension_id not in extensions:
             return ()
-        return await ensure_await(self._discovery(extensions[self._extension_id]))
+        return await resolve_await(self._discovery(extensions[self._extension_id]))

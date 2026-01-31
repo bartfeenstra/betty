@@ -6,7 +6,7 @@ from babel import Locale
 
 from betty.ancestry import Ancestry
 from betty.app import App
-from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, LocaleLike
+from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, ResolvableLocale
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML, JSON
 from betty.model import EntityDefinition
@@ -176,7 +176,7 @@ class Test_LocalizedPathUrlUrlGenerator:
         resource: str,
         media_type: MediaType,
         absolute: bool,
-        locale: LocaleLike | None,
+        locale: ResolvableLocale | None,
         additional_project_locale: Locale | None,
         isolated_app: App,
     ) -> None:
@@ -277,7 +277,7 @@ class Test_StaticPathUrlUrlGenerator:
         resource: str,
         media_type: MediaType,
         absolute: bool,
-        locale: LocaleLike | None,
+        locale: ResolvableLocale | None,
         additional_project_locale: Locale | None,
         fragment: str | None,
         query: Mapping[str, Sequence[str]] | None,
@@ -379,7 +379,7 @@ async def test_new_project_url_generator__generate(
     resource: str,
     media_type: MediaType,
     absolute: bool,
-    locale: LocaleLike | None,
+    locale: ResolvableLocale | None,
     additional_project_locale: Locale | None,
     isolated_app: App,
 ) -> None:

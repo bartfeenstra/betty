@@ -8,11 +8,11 @@ from betty.locale.localizable import (
     CountableLocalizable,
     CountableLocalizableLike,
     Localizable,
-    LocalizableLike,
+    ResolvableLocalizable,
 )
 
 
-def ensure_localizable(localizable: LocalizableLike) -> Localizable:
+def resolve_localizable(localizable: ResolvableLocalizable) -> Localizable:
     """
     Ensure that a localizable-like value is or is made to be an actual localizable.
     """
@@ -27,7 +27,7 @@ def ensure_localizable(localizable: LocalizableLike) -> Localizable:
     return StaticTranslations(localizable)
 
 
-def ensure_countable_localizable(
+def resolve_countable_localizable(
     localizable: CountableLocalizableLike,
 ) -> CountableLocalizable:
     """

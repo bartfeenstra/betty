@@ -9,12 +9,12 @@ from typing import TYPE_CHECKING, Any, Generic, Self, final
 
 from typing_extensions import TypeVar
 
-from betty.locale.localizable.ensure import ensure_localizable
+from betty.locale.localizable.resolve import resolve_localizable
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
 
-    from betty.locale.localizable import Localizable, LocalizableLike
+    from betty.locale.localizable import Localizable, ResolvableLocalizable
 
 _DataClsT = TypeVar("_DataClsT", default=Any)
 
@@ -42,13 +42,13 @@ class Sample(Generic[_DataClsT]):
         self,
         data: _DataClsT,
         *,
-        label: LocalizableLike,
-        description: LocalizableLike | None = None,
+        label: ResolvableLocalizable,
+        description: ResolvableLocalizable | None = None,
         size: Size = Size.INTERMEDIATE,
     ):
         self._data = data
-        self._label = ensure_localizable(label)
-        self._description = ensure_localizable(description) if description else None
+        self._label = resolve_localizable(label)
+        self._description = resolve_localizable(description) if description else None
         self._size = size
 
     @property

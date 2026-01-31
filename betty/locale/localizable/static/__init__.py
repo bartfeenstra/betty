@@ -15,10 +15,10 @@ from betty.exception import reraise_with_indicator
 from betty.locale import (
     HasLocale,
     HasLocaleStr,
-    LocaleLike,
-    ensure_locale,
+    ResolvableLocale,
     negotiate_locale,
     plural_tags,
+    resolve_locale,
     to_language_tag,
 )
 from betty.locale.localizable import (
@@ -78,11 +78,11 @@ class CountableStaticTranslations(CountableLocalizable, Portable):
         return dict(self._translations)
 
     def _ensure_locale(
-        self, locale: LocaleLike, translations: Mapping[str, str]
+        self, locale: ResolvableLocale, translations: Mapping[str, str]
     ) -> Locale:
         from betty.assertion import assert_len
 
-        locale = ensure_locale(locale)
+        locale = resolve_locale(locale)
         with reraise_with_indicator(Key(to_language_tag(locale))):
             for plural_tag, translation in translations.items():
                 with reraise_with_indicator(Key(plural_tag)):
@@ -265,7 +265,7 @@ class StaticTranslations(Localizable, Portable):
             {None: translations}
             if isinstance(translations, str)
             else {
-                None if locale is None else ensure_locale(locale): translation
+                None if locale is None else resolve_locale(locale): translation
                 for locale, translation in translations.items()
             }
         )
@@ -291,9 +291,7 @@ class StaticTranslations(Localizable, Portable):
         return HasLocaleStr(translation, locale=locale)
 
     @classmethod
-    def from_localizable(
-        cls, other: Localizable, localizers: Iterable[Localizer], /
-    ) -> Self:
+    def resolve(cls, other: Localizable, localizers: Iterable[Localizer], /) -> Self:
         """
         Create a new instance from another :py:class`betty.locale.localizable.Localizable`.
         """

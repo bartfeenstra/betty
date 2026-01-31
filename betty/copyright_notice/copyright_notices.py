@@ -13,18 +13,18 @@ from typing_extensions import override
 
 from betty.app.factory import require_app
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
-from betty.locale import DEFAULT_LOCALE, ensure_locale
+from betty.locale import DEFAULT_LOCALE, resolve_locale
 from betty.locale.error import LocaleError
-from betty.locale.localizable.ensure import ensure_localizable
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.plain import Plain
+from betty.locale.localizable.resolve import resolve_localizable
 from betty.locale.localizable.static import StaticTranslations
 from betty.project.factory import require_project
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
 
 if TYPE_CHECKING:
     from betty.app import App
-    from betty.locale.localizable import Localizable, LocalizableLike
+    from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.project import Project
 
 
@@ -35,9 +35,9 @@ class ProjectAuthor(ServiceLevelDependentSelfFactory, CopyrightNotice):
     .. plugin:: copyright-notice:project-author.
     """
 
-    def __init__(self, author: LocalizableLike | None):
+    def __init__(self, author: ResolvableLocalizable | None):
         super().__init__()
-        self._author = None if author is None else ensure_localizable(author)
+        self._author = None if author is None else resolve_localizable(author)
 
     @override
     @classmethod
@@ -114,9 +114,9 @@ class WikipediaContributors(ServiceLevelDependentSelfFactory, CopyrightNotice):
     .. plugin:: copyright-notice:wikipedia-contributors.
     """
 
-    def __init__(self, url: LocalizableLike):
+    def __init__(self, url: ResolvableLocalizable):
         super().__init__()
-        self._url = ensure_localizable(url)
+        self._url = resolve_localizable(url)
 
     @classmethod
     async def new(cls, *, http_client: ClientSession) -> Self:
@@ -139,7 +139,7 @@ class WikipediaContributors(ServiceLevelDependentSelfFactory, CopyrightNotice):
             ]:  # typing: ignore[index]
                 # Wikipedia uses some languages that are not valid ISO codes, such as "simple".
                 with suppress(LocaleError):
-                    urls[ensure_locale(link["lang"])] = _copyright_url(
+                    urls[resolve_locale(link["lang"])] = _copyright_url(
                         link["lang"], link["title"]
                     )
         return cls(StaticTranslations(urls))

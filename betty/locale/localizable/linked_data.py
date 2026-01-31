@@ -19,7 +19,7 @@ def dump_linked_data(
     """
     return {
         to_language_tag(locale): translation
-        for locale, translation in StaticTranslations.from_localizable(
+        for locale, translation in StaticTranslations.resolve(
             localizable, localizers
         ).translations.items()
     }

@@ -15,7 +15,7 @@ from betty.plugin.repository.provider.service import (
 from betty.service.level import ServiceLevel
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import LocalizableLike
+    from betty.locale.localizable import ResolvableLocalizable
     from betty.machine_name import MachineName
     from betty.plugin.repository import PluginRepository
 
@@ -33,7 +33,7 @@ class _UniversalServiceLevel(ServiceLevel):
 
     @classmethod
     async def requires(
-        cls, services: ServiceLevel, subject: LocalizableLike, /
+        cls, services: ServiceLevel, subject: ResolvableLocalizable, /
     ) -> Self:
         return universe  # ty:ignore[invalid-return-type]
 

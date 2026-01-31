@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from betty.locale.localizable import (
         CountableLocalizable,
         Localizable,
-        LocalizableLike,
+        ResolvableLocalizable,
     )
     from betty.plugin.discovery import PluginDiscovery
 
@@ -115,10 +115,10 @@ class PluginTypeDefinition(
         self,
         id: MachineName,  # noqa: A002
         *,
-        label: LocalizableLike,
-        label_plural: LocalizableLike,
+        label: ResolvableLocalizable,
+        label_plural: ResolvableLocalizable,
         label_countable: CountableLocalizable,
-        description: LocalizableLike | None = None,
+        description: ResolvableLocalizable | None = None,
         discovery: Collection[PluginDiscovery[_PluginDefinitionT]]
         | PluginDiscovery[_PluginDefinitionT]
         | None = None,

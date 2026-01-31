@@ -10,12 +10,12 @@ from betty.locale import (
     DEFAULT_LOCALE,
     HasLocale,
     HasLocaleStr,
-    LocaleLike,
-    ensure_locale,
+    ResolvableLocale,
     from_language_tag,
     negotiate_has_locales,
     negotiate_locale,
     plural_tags,
+    resolve_locale,
     to_language_tag,
 )
 from betty.locale.error import InvalidLocale, UnknownLocale
@@ -80,8 +80,8 @@ async def test_negotiate_locale(
         (Locale("nl"), Locale("nl")),
     ],
 )
-def test_ensure_locale(expected: Locale, locale: LocaleLike) -> None:
-    assert ensure_locale(locale) == expected
+def test_resolve_locale(expected: Locale, locale: ResolvableLocale) -> None:
+    assert resolve_locale(locale) == expected
 
 
 @pytest.mark.parametrize(

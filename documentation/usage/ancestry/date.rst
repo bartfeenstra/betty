@@ -3,7 +3,7 @@ Dates
 
 Dates can be expressed in three different ways: :py:class:`Date <betty.date.Date>`,
 :py:class:`DateRange <betty.date.DateRange>`, and
-:py:class:`DateLike <betty.date.DateLike>` (which are either dates or date ranges).
+:py:class:`ResolvableDate <betty.date.ResolvableDate>` (which are either dates or date ranges).
 
 Dates
 -----

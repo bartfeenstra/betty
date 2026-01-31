@@ -10,7 +10,7 @@ from itertools import chain
 from time import time
 from typing import TYPE_CHECKING, Any, Generic, ParamSpec, TypeVar, final
 
-from betty.asyncio import ensure_await
+from betty.asyncio import resolve_await
 from betty.typing import Void
 
 if TYPE_CHECKING:
@@ -73,11 +73,11 @@ class Do(Generic[_DoFP, _DoFReturnT]):
         while True:
             retries -= 1
             try:
-                do_result = await ensure_await(
+                do_result = await resolve_await(
                     self._do(*self._do_args, **self._do_kwargs)
                 )
                 for condition in conditions:
-                    if await ensure_await(condition(do_result)) is False:
+                    if await resolve_await(condition(do_result)) is False:
                         raise RuntimeError(
                             f"Condition {condition} was not met for {do_result}."
                         )

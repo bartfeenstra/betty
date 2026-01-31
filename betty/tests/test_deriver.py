@@ -16,7 +16,7 @@ from betty.ancestry.event_type import (
 from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
-from betty.date import Date, DateLike, DateRange
+from betty.date import Date, DateRange, ResolvableDate
 from betty.deriver import Deriver
 from betty.model.collections import record_added
 from betty.plugin.discovery.static import StaticDiscovery
@@ -277,7 +277,7 @@ class TestDeriver:
         assert derivable_event.date is None
 
     @pytest.mark.parametrize(
-        ("expected_date_like", "before_date_like", "derivable_date_like"),
+        ("expected_date", "before_date", "derivable_date"),
         [
             (None, None, None),
             (Date(2000, 1, 1), Date(1970, 1, 1), Date(2000, 1, 1)),
@@ -464,9 +464,9 @@ class TestDeriver:
     )
     async def test_derive__update_comes_before(
         self,
-        expected_date_like: DateLike | None,
-        before_date_like: DateLike | None,
-        derivable_date_like: DateLike | None,
+        expected_date: ResolvableDate | None,
+        before_date: ResolvableDate | None,
+        derivable_date: ResolvableDate | None,
         new_project: NewProject,
     ) -> None:
         async with new_project(
@@ -489,12 +489,12 @@ class TestDeriver:
                 Subject(),
                 Event(
                     event_type=ComesBeforeReference(),
-                    date=before_date_like,
+                    date=before_date,
                 ),
             )
             derivable_event = Event(
                 event_type=ComesBefore(),
-                date=derivable_date_like,
+                date=derivable_date,
             )
             Presence(person, Subject(), derivable_event)
             project.ancestry.add(person)
@@ -503,11 +503,11 @@ class TestDeriver:
                 await Deriver(project).derive()
 
             assert len(added) == 0
-            if expected_date_like is None:
-                assert expected_date_like == derivable_event.date
+            if expected_date is None:
+                assert expected_date == derivable_event.date
 
     @pytest.mark.parametrize(
-        ("expected_date_like", "before_date_like"),
+        ("expected_date", "before_date"),
         [
             (
                 None,
@@ -541,8 +541,8 @@ class TestDeriver:
     )
     async def test_derive__create_comes_before(
         self,
-        expected_date_like: DateLike | None,
-        before_date_like: DateLike | None,
+        expected_date: ResolvableDate | None,
+        before_date: ResolvableDate | None,
         new_project: NewProject,
     ) -> None:
         async with new_project(
@@ -565,7 +565,7 @@ class TestDeriver:
                 Subject(),
                 Event(
                     event_type=ComesBeforeReference(),
-                    date=before_date_like,
+                    date=before_date,
                 ),
             )
             project.ancestry.add(person)
@@ -573,7 +573,7 @@ class TestDeriver:
             with record_added(project.ancestry) as added:
                 await Deriver(project).derive()
 
-            if expected_date_like is None:
+            if expected_date is None:
                 assert len(added) == 0
             else:
                 assert len(added[Event]) > 0
@@ -588,10 +588,10 @@ class TestDeriver:
                         derived_presence.event.event_type,
                         ComesBeforeShouldExist,
                     )
-                    assert expected_date_like == derived_presence.event.date
+                    assert expected_date == derived_presence.event.date
 
     @pytest.mark.parametrize(
-        ("expected_date_like", "after_date_like", "derivable_date_like"),
+        ("expected_date", "after_date", "derivable_date"),
         [
             (None, None, None),
             (Date(2000, 1, 1), Date(1970, 1, 1), Date(2000, 1, 1)),
@@ -778,9 +778,9 @@ class TestDeriver:
     )
     async def test_derive__update_comes_after(
         self,
-        expected_date_like: DateLike | None,
-        after_date_like: DateLike | None,
-        derivable_date_like: DateLike | None,
+        expected_date: ResolvableDate | None,
+        after_date: ResolvableDate | None,
+        derivable_date: ResolvableDate | None,
         new_project: NewProject,
     ) -> None:
         async with new_project(
@@ -803,12 +803,12 @@ class TestDeriver:
                 Subject(),
                 Event(
                     event_type=ComesAfterReference(),
-                    date=after_date_like,
+                    date=after_date,
                 ),
             )
             derivable_event = Event(
                 event_type=ComesAfter(),
-                date=derivable_date_like,
+                date=derivable_date,
             )
             Presence(person, Subject(), derivable_event)
             project.ancestry.add(person)
@@ -817,11 +817,11 @@ class TestDeriver:
                 await Deriver(project).derive()
 
             assert len(added) == 0
-            if expected_date_like is None:
-                assert expected_date_like == derivable_event.date
+            if expected_date is None:
+                assert expected_date == derivable_event.date
 
     @pytest.mark.parametrize(
-        ("expected_date_like", "after_date_like"),
+        ("expected_date", "after_date"),
         [
             (None, None),
             (None, Date()),
@@ -844,8 +844,8 @@ class TestDeriver:
     )
     async def test_derive__create_comes_after(
         self,
-        expected_date_like: DateLike | None,
-        after_date_like: DateLike | None,
+        expected_date: ResolvableDate | None,
+        after_date: ResolvableDate | None,
         new_project: NewProject,
     ) -> None:
         async with new_project(
@@ -868,7 +868,7 @@ class TestDeriver:
                 Subject(),
                 Event(
                     event_type=ComesAfterReference(),
-                    date=after_date_like,
+                    date=after_date,
                 ),
             )
             project.ancestry.add(person)
@@ -876,7 +876,7 @@ class TestDeriver:
             with record_added(project.ancestry) as added:
                 await Deriver(project).derive()
 
-            if expected_date_like is None:
+            if expected_date is None:
                 assert len(added) == 0
             else:
                 assert len(added[Event]) > 0
@@ -891,10 +891,10 @@ class TestDeriver:
                         derived_presence.event.event_type,
                         ComesAfterShouldExist,
                     )
-                    assert expected_date_like == derived_presence.event.date
+                    assert expected_date == derived_presence.event.date
 
     @pytest.mark.parametrize(
-        "after_date_like",
+        "after_date",
         [
             None,
             Date(),
@@ -906,7 +906,7 @@ class TestDeriver:
         ],
     )
     async def test_derive__should_not_exist(
-        self, after_date_like: DateLike | None, new_project: NewProject
+        self, after_date, new_project: NewProject
     ) -> None:
         async with new_project(
             {
@@ -923,7 +923,7 @@ class TestDeriver:
                 Subject(),
                 Event(
                     event_type=ComesAfterReference(),
-                    date=after_date_like,
+                    date=after_date,
                 ),
             )
             project.ancestry.add(person)

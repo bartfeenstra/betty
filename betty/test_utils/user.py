@@ -11,9 +11,9 @@ from typing import TypeVar, overload
 from typing_extensions import override
 
 from betty.assertion import Assertion
-from betty.locale.localizable import LocalizableLike
+from betty.locale.localizable import ResolvableLocalizable
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.locale.localize.ensure import ensure_localized
+from betty.locale.localize.resolve import resolve_localized
 from betty.progress import Progress
 from betty.progress.no_op import NoOpProgress
 from betty.typing import Void, internal
@@ -40,11 +40,11 @@ class StaticUser(User):  # pragma: no cover
         self._inputs = iter([] if inputs is None else inputs)
         self.connected = False
         self._messages_exception: MutableSequence[BaseException] = []
-        self._messages_error: MutableSequence[LocalizableLike] = []
-        self._messages_warning: MutableSequence[LocalizableLike] = []
-        self._messages_information: MutableSequence[LocalizableLike] = []
-        self._messages_information_details: MutableSequence[LocalizableLike] = []
-        self._messages_debug: MutableSequence[LocalizableLike] = []
+        self._messages_error: MutableSequence[ResolvableLocalizable] = []
+        self._messages_warning: MutableSequence[ResolvableLocalizable] = []
+        self._messages_information: MutableSequence[ResolvableLocalizable] = []
+        self._messages_information_details: MutableSequence[ResolvableLocalizable] = []
+        self._messages_debug: MutableSequence[ResolvableLocalizable] = []
         self._messages_log: MutableSequence[logging.LogRecord] = []
         self._log_formatter = logging.Formatter()
 
@@ -90,7 +90,7 @@ class StaticUser(User):  # pragma: no cover
             fragments,
             message_type,
             [
-                ensure_localized(message, localizer=DEFAULT_LOCALIZER)
+                resolve_localized(message, localizer=DEFAULT_LOCALIZER)
                 for message in getattr(self, f"_messages_{message_type}")
             ],
         )
@@ -164,7 +164,7 @@ class StaticUser(User):  # pragma: no cover
             fragments,
             message_type,
             [
-                ensure_localized(message, localizer=DEFAULT_LOCALIZER)
+                resolve_localized(message, localizer=DEFAULT_LOCALIZER)
                 for message in getattr(self, f"_messages_{message_type}")
             ],
         )
@@ -224,23 +224,25 @@ class StaticUser(User):  # pragma: no cover
         self._messages_exception.append(exception)
 
     @override
-    async def message_error(self, message: LocalizableLike, /) -> None:
+    async def message_error(self, message: ResolvableLocalizable, /) -> None:
         self._messages_error.append(message)
 
     @override
-    async def message_warning(self, message: LocalizableLike, /) -> None:
+    async def message_warning(self, message: ResolvableLocalizable, /) -> None:
         self._messages_warning.append(message)
 
     @override
-    async def message_information(self, message: LocalizableLike, /) -> None:
+    async def message_information(self, message: ResolvableLocalizable, /) -> None:
         self._messages_information.append(message)
 
     @override
-    async def message_information_details(self, message: LocalizableLike, /) -> None:
+    async def message_information_details(
+        self, message: ResolvableLocalizable, /
+    ) -> None:
         self._messages_information_details.append(message)
 
     @override
-    async def message_debug(self, message: LocalizableLike, /) -> None:
+    async def message_debug(self, message: ResolvableLocalizable, /) -> None:
         self._messages_debug.append(message)
 
     @override
@@ -250,13 +252,13 @@ class StaticUser(User):  # pragma: no cover
     @override
     @asynccontextmanager
     async def message_progress(
-        self, message: LocalizableLike, /
+        self, message: ResolvableLocalizable, /
     ) -> AsyncIterator[Progress]:
         yield NoOpProgress()
 
     @override
     async def ask_confirmation(
-        self, statement: LocalizableLike, *, default: bool = False
+        self, statement: ResolvableLocalizable, *, default: bool = False
     ) -> bool:
         confirmation = next(self._confirmations)
         if confirmation is None:
@@ -266,7 +268,7 @@ class StaticUser(User):  # pragma: no cover
     @overload
     async def ask_input(
         self,
-        question: LocalizableLike,
+        question: ResolvableLocalizable,
         *,
         default: str | Void = Void(),  # noqa: B008
     ) -> str:
@@ -275,7 +277,7 @@ class StaticUser(User):  # pragma: no cover
     @overload
     async def ask_input(
         self,
-        question: LocalizableLike,
+        question: ResolvableLocalizable,
         *,
         assertion: Assertion[str, _T],
         default: str | Void = Void(),  # noqa: B008
@@ -285,7 +287,7 @@ class StaticUser(User):  # pragma: no cover
     @override
     async def ask_input(
         self,
-        question: LocalizableLike,
+        question: ResolvableLocalizable,
         *,
         assertion: Assertion[str, _T] | None = None,
         default: str | _T | Void = Void(),  # noqa: B008

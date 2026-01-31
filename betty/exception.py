@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Never
 from typing_extensions import override
 
 from betty.data.indicator.selector import Selectors
-from betty.locale.localizable import Localizable, LocalizableLike
+from betty.locale.localizable import Localizable, ResolvableLocalizable
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
@@ -52,14 +52,17 @@ class HumanFacingException(Exception, Localizable):
     """
 
     def __init__(
-        self, message: LocalizableLike, *, indicators: Sequence[Indicator] | None = None
+        self,
+        message: ResolvableLocalizable,
+        *,
+        indicators: Sequence[Indicator] | None = None,
     ):
         from betty.locale.localize import DEFAULT_LOCALIZER
-        from betty.locale.localize.ensure import ensure_localized
+        from betty.locale.localize.resolve import resolve_localized
 
         super().__init__(
             # Provide a default localization so this exception can be displayed like any other.
-            ensure_localized(message, localizer=DEFAULT_LOCALIZER),
+            resolve_localized(message, localizer=DEFAULT_LOCALIZER),
         )
         self._localizable_message = message
         self._indicators = [] if indicators is None else list(indicators)

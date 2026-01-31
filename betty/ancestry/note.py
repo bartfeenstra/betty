@@ -21,7 +21,7 @@ from betty.privacy import HasPrivacy, Privacy, is_public
 if TYPE_CHECKING:
     from betty.ancestry.has_notes import HasNotes
     from betty.json.linked_data import JsonLdObject
-    from betty.locale.localizable import Localizable, LocalizableLike
+    from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.portable import PortableMapping
     from betty.project import Project
 
@@ -55,7 +55,7 @@ class Note(HasPrivacy, HasLinks, HasMediaType):
 
     def __init__(
         self,
-        text: LocalizableLike,
+        text: ResolvableLocalizable,
         *,
         id: str | None = None,  # noqa: A002
         entity: ToZeroOrOneAssociate[HasNotes] | None = None,

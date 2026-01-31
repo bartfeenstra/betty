@@ -22,7 +22,7 @@ from betty.content_provider.content_providers import (
 from betty.document import Document
 from betty.job import Context as JobContext
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
-from betty.locale.localizable import LocalizableLike
+from betty.locale.localizable import ResolvableLocalizable
 from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localize import Localizer
 from betty.plugin.config import PluginConfiguration
@@ -89,7 +89,7 @@ class TestRender(
         ],
     )
     async def test_provide(
-        self, expected: str, content: LocalizableLike, locale: str
+        self, expected: str, content: ResolvableLocalizable, locale: str
     ) -> None:
         sut = Render(
             configuration=RenderConfiguration(content),

@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from betty.locale.localizable import (
         CountableLocalizable,
         Localizable,
-        LocalizableLike,
+        ResolvableLocalizable,
     )
     from betty.machine_name import MachineName
     from betty.portable import PortableMapping
@@ -156,10 +156,10 @@ class EntityDefinition(CountableHumanFacingDefinition, PluginDefinition[Entity])
         self,
         plugin_id: MachineName,
         *,
-        label: LocalizableLike,
-        label_plural: LocalizableLike,
+        label: ResolvableLocalizable,
+        label_plural: ResolvableLocalizable,
         label_countable: CountableLocalizable,
-        description: LocalizableLike | None = None,
+        description: ResolvableLocalizable | None = None,
         public_facing: bool = True,
     ):
         super().__init__(

@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 _T = TypeVar("_T")
 
 
-async def ensure_await(value: Awaitable[_T] | _T) -> _T:
+async def resolve_await(value: Awaitable[_T] | _T) -> _T:
     """
     Return a value, but await it first if it is awaitable.
     """

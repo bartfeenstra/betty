@@ -34,7 +34,12 @@ from betty.data.str import StrDefinition
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.exception import HumanFacingException
 from betty.license import License, LicenseDefinition
-from betty.locale import DEFAULT_LOCALE, LocaleLike, ensure_locale, to_language_tag
+from betty.locale import (
+    DEFAULT_LOCALE,
+    ResolvableLocale,
+    resolve_locale,
+    to_language_tag,
+)
 from betty.locale.data import LocaleDefinition
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import LocalizableProperty
@@ -61,7 +66,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from pathlib import Path
 
-    from betty.locale.localizable import Localizable, LocalizableLike
+    from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.service.level import ServiceLevel
 
 DEFAULT_LIFETIME_THRESHOLD = 123
@@ -163,7 +168,7 @@ class LocaleConfiguration(Data["ObjectDefinition"]):
     .. data:: betty.project.config:LocaleConfiguration
     """
 
-    locale = Property(LocaleDefinition(), label=_("Locale"), resolver=ensure_locale)
+    locale = Property(LocaleDefinition(), label=_("Locale"), resolver=resolve_locale)
     """
     The locale.
     """
@@ -179,7 +184,7 @@ class LocaleConfiguration(Data["ObjectDefinition"]):
     A shorthand alias to use instead of the full language tag, such as when rendering URLs.
     """
 
-    def __init__(self, /, locale: LocaleLike, *, alias: str | None = None):
+    def __init__(self, /, locale: ResolvableLocale, *, alias: str | None = None):
         super().__init__()
         self.locale = locale
         self.alias = alias
@@ -222,7 +227,11 @@ class CopyrightNoticeDefinitionConfiguration(
     text = LocalizableProperty(label=_("Text"))
 
     def __init__(
-        self, *, summary: LocalizableLike, text: LocalizableLike, **kwargs: Any
+        self,
+        *,
+        summary: ResolvableLocalizable,
+        text: ResolvableLocalizable,
+        **kwargs: Any,
     ):
         super().__init__(**kwargs)
         self.summary = summary
@@ -279,7 +288,11 @@ class LicenseDefinitionConfiguration(
     text = LocalizableProperty(label=_("Text"))
 
     def __init__(
-        self, *, summary: LocalizableLike, text: LocalizableLike, **kwargs: Any
+        self,
+        *,
+        summary: ResolvableLocalizable,
+        text: ResolvableLocalizable,
+        **kwargs: Any,
     ):
         super().__init__(**kwargs)
         self.summary = summary
@@ -720,10 +733,10 @@ class ProjectConfiguration(Data):
         default=lambda: KeyedCollection(
             [DEFAULT_LOCALE],
             key=lambda item: item.locale,
-            key_resolver=ensure_locale,
+            key_resolver=resolve_locale,
             value_resolver=lambda value: value
             if isinstance(value, LocaleConfiguration)
-            else LocaleConfiguration(ensure_locale(value)),
+            else LocaleConfiguration(resolve_locale(value)),
             resolver=lambda items: [DEFAULT_LOCALE] if not len(items) else items,
         ),
     )
@@ -763,9 +776,9 @@ class ProjectConfiguration(Data):
     def __init__(
         self,
         *,
-        title: LocalizableLike,
+        title: ResolvableLocalizable,
         url: str,
-        author: LocalizableLike | None = None,
+        author: ResolvableLocalizable | None = None,
         clean_urls: bool = False,
         copyright_notice: PluginConfiguration[
             CopyrightNoticeDefinition, CopyrightNotice
@@ -785,7 +798,7 @@ class ProjectConfiguration(Data):
         license: PluginConfiguration[LicenseDefinition, License] | None = None,  # noqa: A002
         licenses: Iterable[LicenseDefinitionConfiguration] | None = None,
         lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,
-        locales: Iterable[LocaleLike | LocaleConfiguration] | None = None,
+        locales: Iterable[ResolvableLocale | LocaleConfiguration] | None = None,
         logo: Path | None = None,
         name: MachineName | None = None,
         place_types: Iterable[PlaceTypeDefinitionConfiguration] | None = None,

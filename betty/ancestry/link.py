@@ -23,7 +23,7 @@ from betty.privacy import HasPrivacy, Privacy, merge_privacies
 if TYPE_CHECKING:
     from betty.ancestry.has_links import HasLinks
     from betty.json.linked_data import JsonLdObject
-    from betty.locale.localizable import Localizable, LocalizableLike
+    from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.media_type import MediaType
     from betty.portable import PortableMapping
     from betty.project import Project
@@ -61,11 +61,11 @@ class Link(HasMediaType, HasDescription, HasPrivacy, Entity):
 
     def __init__(
         self,
-        url: LocalizableLike,
+        url: ResolvableLocalizable,
         *,
         relationship: str | None = None,
-        label: LocalizableLike | None = None,
-        description: LocalizableLike | None = None,
+        label: ResolvableLocalizable | None = None,
+        description: ResolvableLocalizable | None = None,
         media_type: MediaType | None = None,
         owner: HasLinks | None = None,
         privacy: Privacy | None = None,
@@ -87,7 +87,7 @@ class Link(HasMediaType, HasDescription, HasPrivacy, Entity):
         return self._url
 
     @url.setter
-    def url(self, url: LocalizableLike) -> None:
+    def url(self, url: ResolvableLocalizable) -> None:
         self._url = url
 
     @override
@@ -99,7 +99,7 @@ class Link(HasMediaType, HasDescription, HasPrivacy, Entity):
         return self.url if self._label is None else self._label
 
     @label.setter
-    def label(self, label: LocalizableLike | None) -> None:
+    def label(self, label: ResolvableLocalizable | None) -> None:
         self._label = label
 
     @label.deleter

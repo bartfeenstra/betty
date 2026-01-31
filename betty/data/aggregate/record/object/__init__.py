@@ -17,13 +17,13 @@ from betty.data.aggregate.record import FieldDefinition, RecordDefinition
 from betty.data.indicator.selector import Attr as AttrElement
 from betty.data.indicator.selector import Element
 from betty.importlib import fully_qualified_name
-from betty.locale.localizable.ensure import ensure_localizable
+from betty.locale.localizable.resolve import resolve_localizable
 
 if TYPE_CHECKING:
     from collections.abc import Callable, MutableMapping
 
     from betty.data import Data
-    from betty.locale.localizable import Localizable, LocalizableLike
+    from betty.locale.localizable import Localizable, ResolvableLocalizable
 
 _FunctionTypeT = TypeVar("_FunctionTypeT", bound=FunctionType)
 _DataClsT = TypeVar("_DataClsT")
@@ -54,15 +54,15 @@ class AttrDefinition(Generic[_DataClsT]):
         self,
         data: DataDefinition[_DataClsT] | type[Data[DataDefinition[_DataClsT]]],
         *,
-        label: LocalizableLike | None = None,
-        description: LocalizableLike | None = None,
+        label: ResolvableLocalizable | None = None,
+        description: ResolvableLocalizable | None = None,
         omit_load: bool | None = None,
         omit_dump: Callable[[_DataClsT], bool] | None = None,
     ):
         self._data = data if isinstance(data, DataDefinition) else data.data()
-        self._label = None if label is None else ensure_localizable(label)
+        self._label = None if label is None else resolve_localizable(label)
         self._description = (
-            None if description is None else ensure_localizable(description)
+            None if description is None else resolve_localizable(description)
         )
         self._omit_load = omit_load
         self._omit_dump = omit_dump

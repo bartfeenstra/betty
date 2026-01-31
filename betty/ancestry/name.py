@@ -15,9 +15,9 @@ from betty.locale.localizable.property import LocalizableProperty
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
 
 if TYPE_CHECKING:
-    from betty.date import DateLike
+    from betty.date import ResolvableDate
     from betty.json.linked_data import JsonLdObject
-    from betty.locale.localizable import LocalizableLike
+    from betty.locale.localizable import ResolvableLocalizable
     from betty.portable import PortableMapping
     from betty.project import Project
 
@@ -34,9 +34,9 @@ class Name(HasDate):
 
     def __init__(
         self,
-        name: LocalizableLike,
+        name: ResolvableLocalizable,
         *,
-        date: DateLike | None = None,
+        date: ResolvableDate | None = None,
     ):
         super().__init__(date=date)
         self.name = name

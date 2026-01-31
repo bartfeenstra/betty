@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any
 from babel import Locale
 
 from betty.ancestry.has_locale import HasLocale
-from betty.locale import ensure_locale
+from betty.locale import resolve_locale
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 
 if TYPE_CHECKING:
@@ -36,7 +36,7 @@ class TestHasLocale:
 
     async def test_dump_linked_data__with_locale(self) -> None:
         locale = "en-US"
-        sut = HasLocale(locale=ensure_locale(locale))
+        sut = HasLocale(locale=resolve_locale(locale))
         expected: Mapping[str, Any] = {
             "locale": locale,
         }

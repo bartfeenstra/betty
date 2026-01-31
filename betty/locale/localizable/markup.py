@@ -11,9 +11,9 @@ from typing import TYPE_CHECKING, ClassVar, final
 from typing_extensions import override
 
 from betty.locale import HasLocale, HasLocaleStr
-from betty.locale.localizable import Localizable, LocalizableLike
-from betty.locale.localizable.ensure import ensure_localizable
+from betty.locale.localizable import Localizable, ResolvableLocalizable
 from betty.locale.localizable.gettext import _
+from betty.locale.localizable.resolve import resolve_localizable
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -37,8 +37,8 @@ class LocalizableSequence(ABC):
 
 
 class _LocalizableSequence(LocalizableSequence):
-    def __init__(self, *localizables: LocalizableLike):
-        self._localizables = tuple(map(ensure_localizable, localizables))
+    def __init__(self, *localizables: ResolvableLocalizable):
+        self._localizables = tuple(map(resolve_localizable, localizables))
 
     @override
     @property

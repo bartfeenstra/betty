@@ -20,7 +20,7 @@ from betty.privacy import HasPrivacy, Privacy, merge_privacies
 if TYPE_CHECKING:
     from betty.ancestry.citation import Citation
     from betty.ancestry.person import Person
-    from betty.locale import LocaleLike
+    from betty.locale import ResolvableLocale
     from betty.locale.localizable import Localizable
     from betty.portable import PortableMapping
     from betty.project import Project
@@ -56,7 +56,7 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
         individual: str | None = None,
         affiliation: str | None = None,
         privacy: Privacy | None = None,
-        locale: LocaleLike | None = None,
+        locale: ResolvableLocale | None = None,
         citations: ToManyAssociates[Citation] | None = None,
     ):
         if not individual and not affiliation:

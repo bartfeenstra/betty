@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     from betty.copyright_notice import CopyrightNotice
     from betty.json.linked_data import JsonLdObject
     from betty.license import License
-    from betty.locale.localizable import Localizable, LocalizableLike
+    from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.media_type import MediaType
     from betty.portable import PortableMapping
     from betty.project import Project
@@ -85,7 +85,7 @@ class File(
         id: str | None = None,  # noqa: A002
         name: str | None = None,
         media_type: MediaType | None = None,
-        description: LocalizableLike | None = None,
+        description: ResolvableLocalizable | None = None,
         notes: ToManyAssociates[Note] | None = None,
         citations: ToManyAssociates[Citation] | None = None,
         privacy: Privacy | None = None,

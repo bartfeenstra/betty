@@ -12,12 +12,12 @@ if TYPE_CHECKING:
     from ty_extensions import Intersection
 
     from betty.locale import HasLocale
-    from betty.locale.localizable import LocalizableLike
+    from betty.locale.localizable import ResolvableLocalizable
     from betty.locale.localize import Localizer
 
 
-def ensure_localized(
-    localizable: LocalizableLike, *, localizer: Localizer
+def resolve_localized(
+    localizable: ResolvableLocalizable, *, localizer: Localizer
 ) -> Intersection[HasLocale, str]:
     """
     Ensure that a localizable-like value is or is made to be localized.

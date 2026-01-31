@@ -27,7 +27,7 @@ from betty.plugin.config import (
 from betty.plugin.data import PluginConfigurationSequenceDefinition
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import LocalizableLike
+    from betty.locale.localizable import ResolvableLocalizable
 
 _PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 _PluginDefinitionT = TypeVar(
@@ -53,8 +53,8 @@ class PluginConfigurationSequenceProperty(
         self,
         plugin_type: type[_PluginDefinitionT],
         *,
-        label: LocalizableLike | None = None,
-        description: LocalizableLike | None = None,
+        label: ResolvableLocalizable | None = None,
+        description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
             PluginConfigurationSequenceDefinition(plugin_type),
@@ -76,8 +76,8 @@ class PluginDefinitionConfigurationsProperty(KeyedCollectionProperty):
         plugin_type: type[_PluginDefinitionT],
         item: type[PluginDefinitionConfiguration[_PluginDefinitionT]],
         *,
-        label: LocalizableLike | None = None,
-        description: LocalizableLike | None = None,
+        label: ResolvableLocalizable | None = None,
+        description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
             KeyedCollectionDefinition(

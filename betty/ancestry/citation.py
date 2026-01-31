@@ -29,9 +29,9 @@ from betty.privacy import HasPrivacy, Privacy, is_public, merge_secondary_privac
 if TYPE_CHECKING:
     from betty.ancestry.file_reference import FileReference
     from betty.ancestry.has_citations import HasCitations
-    from betty.date import DateLike
+    from betty.date import ResolvableDate
     from betty.json.linked_data import JsonLdObject
-    from betty.locale.localizable import Localizable, LocalizableLike
+    from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.portable import PortableMapping
     from betty.project import Project
 
@@ -81,8 +81,8 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
         source: ToOneAssociate[Source],
         id: str | None = None,  # noqa: A002
         facts: ToManyAssociates[HasCitations] | None = None,
-        location: LocalizableLike | None = None,
-        date: DateLike | None = None,
+        location: ResolvableLocalizable | None = None,
+        date: ResolvableDate | None = None,
         file_references: ToManyAssociates[FileReference] | None = None,
         privacy: Privacy | None = None,
     ):

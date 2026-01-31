@@ -13,7 +13,7 @@ from warnings import warn
 from babel import Locale
 from typing_extensions import override
 
-from betty.locale import HasLocale, HasLocaleStr, LocaleLike
+from betty.locale import HasLocale, HasLocaleStr, ResolvableLocale
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 
 if TYPE_CHECKING:
@@ -24,7 +24,7 @@ _T = TypeVar("_T")
 
 class _Localizable(ABC, Generic[_T]):
     @abstractmethod
-    def format(self, **format_kwargs: LocalizableLike) -> _T:
+    def format(self, **format_kwargs: ResolvableLocalizable) -> _T:
         """
         Apply string formatting to the eventual localized string.
 
@@ -49,7 +49,7 @@ class Localizable(_Localizable["Localizable"]):
         """
 
     @override
-    def format(self, **format_kwargs: LocalizableLike) -> Localizable:
+    def format(self, **format_kwargs: ResolvableLocalizable) -> Localizable:
         return _FormattedLocalizable(self, format_kwargs)
 
     @override
@@ -84,7 +84,7 @@ class CountableLocalizable(_Localizable["CountableLocalizable"]):
         """
 
     @override
-    def format(self, **format_kwargs: LocalizableLike) -> CountableLocalizable:
+    def format(self, **format_kwargs: ResolvableLocalizable) -> CountableLocalizable:
         return _FormattedCountableLocalizable(self, format_kwargs)
 
 
@@ -92,14 +92,14 @@ class _FormattedLocalizable(Localizable):
     def __init__(
         self,
         localizable: Localizable,
-        format_kwargs: Mapping[str, LocalizableLike],
+        format_kwargs: Mapping[str, ResolvableLocalizable],
         /,
     ):
         self._localizable = localizable
         self._format_kwargs = dict(format_kwargs)
 
     @override
-    def format(self, **format_kwargs: LocalizableLike) -> Localizable:
+    def format(self, **format_kwargs: ResolvableLocalizable) -> Localizable:
         self._format_kwargs.update(format_kwargs)
         return self
 
@@ -121,7 +121,7 @@ class _FormattedCountableLocalizable(CountableLocalizable):
     def __init__(
         self,
         localizable: CountableLocalizable,
-        format_kwargs: Mapping[str, LocalizableLike],
+        format_kwargs: Mapping[str, ResolvableLocalizable],
         /,
     ):
         self._localizable = localizable
@@ -146,7 +146,7 @@ See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 
 
 ShorthandStaticTranslations: TypeAlias = (
-    MutableMapping[LocaleLike | None, str] | str | StaticTranslationsMapping
+    MutableMapping[ResolvableLocale | None, str] | str | StaticTranslationsMapping
 )
 """
 Static translations for :py:class:`betty.locale.localizable.static.StaticTranslations`.
@@ -170,7 +170,7 @@ See :py:func:`betty.locale.localizable.assertion.assert_countable_static_transla
 
 
 ShorthandCountableStaticTranslations: TypeAlias = MutableMapping[
-    LocaleLike, MutableMapping[str, str]
+    ResolvableLocale, MutableMapping[str, str]
 ]
 """
 Static translations for :py:class:`betty.locale.localizable.static.StaticTranslations`.
@@ -181,7 +181,7 @@ See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 """
 
 
-LocalizableLike: TypeAlias = Localizable | ShorthandStaticTranslations
+ResolvableLocalizable: TypeAlias = Localizable | ShorthandStaticTranslations
 """
 A localizable, or a type that can be converted into a localizable with :py:func:`betty.locale.localizable.ensure_localizable`.
 """

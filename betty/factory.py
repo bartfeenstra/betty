@@ -10,7 +10,7 @@ from typing import Self, TypeAlias
 
 from typing_extensions import TypeVar
 
-from betty.asyncio import ensure_await
+from betty.asyncio import resolve_await
 
 _T = TypeVar("_T")
 
@@ -59,7 +59,7 @@ async def new_target(target: Target[_T], /) -> _T:
                 return await target.new()  # ty:ignore[invalid-return-type]
             return target()
         if callable(target):
-            return await ensure_await(target())
+            return await resolve_await(target())
         raise FactoryError(target)
     except Exception as error:
         raise FactoryError(target) from error

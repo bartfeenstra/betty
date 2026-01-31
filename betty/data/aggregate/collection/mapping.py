@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from ty_extensions import Intersection
 
     from betty.data import Data, DataDefinition
-    from betty.locale.localizable import LocalizableLike
+    from betty.locale.localizable import ResolvableLocalizable
 
 _DataKeyT = TypeVar("_DataKeyT")
 _DataItemT = TypeVar("_DataItemT")
@@ -38,8 +38,8 @@ class MappingDefinition(CollectionDefinition[_MutableMappingT, Key]):
         ],
         key: DataDefinition[_DataKeyT],
         value: DataDefinition[_DataItemT] | type[Intersection[_DataItemT, Data]],
-        label: LocalizableLike,
-        description: LocalizableLike | None = None,
+        label: ResolvableLocalizable,
+        description: ResolvableLocalizable | None = None,
         factory: Callable[[Mapping[str, _DataItemT]], _MutableMappingT] | None = None,
         porter: Porter[_MutableMappingT] | None = None,
     ):

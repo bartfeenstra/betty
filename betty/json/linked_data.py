@@ -18,7 +18,7 @@ from betty.string import snake_case_to_lower_camel_case
 
 if TYPE_CHECKING:
     from betty.ancestry.link import Link
-    from betty.locale.localizable import LocalizableLike
+    from betty.locale.localizable import ResolvableLocalizable
     from betty.project import Project
 
 
@@ -79,8 +79,8 @@ class JsonLdObject(Object):
         self,
         *,
         def_name: str | None = None,
-        title: LocalizableLike | None = None,
-        description: LocalizableLike | None = None,
+        title: ResolvableLocalizable | None = None,
+        description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
             def_name=def_name,

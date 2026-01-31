@@ -11,7 +11,7 @@ from betty.locale import (
 )
 from betty.locale.localizable.plain import Plain
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
-from betty.locale.localize.ensure import ensure_localized
+from betty.locale.localize.resolve import resolve_localized
 
 if TYPE_CHECKING:
     from betty.locale.localizable import (
@@ -20,19 +20,20 @@ if TYPE_CHECKING:
     )
 
 
-def test_ensure_localized__with_localizable() -> None:
+def test_resolve_localized__with_localizable() -> None:
     localizable = "My First Localizable"
     assert (
-        ensure_localized(Plain(localizable), localizer=DEFAULT_LOCALIZER) == localizable
+        resolve_localized(Plain(localizable), localizer=DEFAULT_LOCALIZER)
+        == localizable
     )
 
 
-def test_ensure_localized__with_str() -> None:
+def test_resolve_localized__with_str() -> None:
     localizable = "My First Localizable"
-    assert ensure_localized(localizable, localizer=DEFAULT_LOCALIZER) == localizable
+    assert resolve_localized(localizable, localizer=DEFAULT_LOCALIZER) == localizable
 
 
-def test_ensure_localized__with_static_translations_mapping() -> None:
+def test_resolve_localized__with_static_translations_mapping() -> None:
     locale = "nl"
     localizer = Localizer(locale, NullTranslations())
     localized = "Mijn Eerste, Ja, Wat Eigenlijk?"
@@ -40,10 +41,10 @@ def test_ensure_localized__with_static_translations_mapping() -> None:
         DEFAULT_LOCALE: "My First Localizable",
         Locale(locale): localized,
     }
-    assert ensure_localized(localizable, localizer=localizer) == localized
+    assert resolve_localized(localizable, localizer=localizer) == localized
 
 
-def test_ensure_localized__with_shorthand_static_translations_mapping() -> None:
+def test_resolve_localized__with_shorthand_static_translations_mapping() -> None:
     locale = "nl-NL"
     localizer = Localizer(locale, NullTranslations())
     localized = "Mijn Eerste, Ja, Wat Eigenlijk?"
@@ -51,4 +52,4 @@ def test_ensure_localized__with_shorthand_static_translations_mapping() -> None:
         DEFAULT_LOCALE_TAG: "My First Localizable",
         locale: localized,
     }
-    assert ensure_localized(localizable, localizer=localizer) == localized
+    assert resolve_localized(localizable, localizer=localizer) == localized

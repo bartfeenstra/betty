@@ -21,7 +21,7 @@ from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.privacy import is_public
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import LocalizableLike
+    from betty.locale.localizable import ResolvableLocalizable
     from betty.portable import PortableMapping
     from betty.project import Project
 
@@ -39,7 +39,7 @@ class HasDescription(LinkedDataDumpableWithSchemaJsonLdObject):
     def __init__(
         self,
         *args: Any,
-        description: LocalizableLike | None = None,
+        description: ResolvableLocalizable | None = None,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)

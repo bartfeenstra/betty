@@ -15,7 +15,7 @@ from betty.data.indicator.selector import Element
 
 if TYPE_CHECKING:
     from betty.data import Data
-    from betty.locale.localizable import LocalizableLike
+    from betty.locale.localizable import ResolvableLocalizable
     from betty.portable import Porter
 
 _CollectionT = TypeVar("_CollectionT", bound=Collection)
@@ -32,8 +32,8 @@ class CollectionDefinition(AggregateDefinition[_CollectionT, _ElementCoT]):
         *,
         cls: type[_CollectionT] | None = None,
         item: DataDefinition | type[Data],
-        label: LocalizableLike,
-        description: LocalizableLike | None = None,
+        label: ResolvableLocalizable,
+        description: ResolvableLocalizable | None = None,
         porter: Porter[_CollectionT] | None = None,
     ):
         super().__init__(cls=cls, label=label, description=description, porter=porter)

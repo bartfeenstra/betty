@@ -10,7 +10,7 @@ from betty.json.schema import Object
 from betty.locale.localizable.markup import Paragraph
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import LocalizableLike
+    from betty.locale.localizable import ResolvableLocalizable
 
 
 class StaticTranslationsSchema(Object):
@@ -21,8 +21,8 @@ class StaticTranslationsSchema(Object):
     def __init__(
         self,
         *,
-        title: LocalizableLike = "Static translations",
-        description: LocalizableLike | None = None,
+        title: ResolvableLocalizable = "Static translations",
+        description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
             title=title,

@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Generic, Protocol, Self, TypeAlias, final, ove
 
 from typing_extensions import TypeVar, override
 
-from betty.asyncio import ensure_await
+from betty.asyncio import resolve_await
 from betty.factory import Target
 
 if TYPE_CHECKING:
@@ -76,7 +76,7 @@ class CallbackServiceLevelDependentFactory(ServiceLevelDependentFactory[_T]):
 
     @override
     async def new_for_services(self, services: ServiceLevel, /) -> _T:
-        return await ensure_await(self._callback(services))
+        return await resolve_await(self._callback(services))
 
 
 ServiceLevelTarget: TypeAlias = (

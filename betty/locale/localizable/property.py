@@ -11,15 +11,15 @@ from betty.locale.localizable import (
     CountableLocalizable,
     CountableLocalizableLike,
     Localizable,
-    LocalizableLike,
+    ResolvableLocalizable,
 )
 from betty.locale.localizable.data import (
     CountableLocalizableDefinition,
     LocalizableDefinition,
 )
-from betty.locale.localizable.ensure import (
-    ensure_countable_localizable,
-    ensure_localizable,
+from betty.locale.localizable.resolve import (
+    resolve_countable_localizable,
+    resolve_localizable,
 )
 
 _ValueGetT = TypeVar("_ValueGetT")
@@ -27,7 +27,7 @@ _ValueSetT = TypeVar("_ValueSetT")
 
 
 @final
-class LocalizableProperty(Property[Localizable, LocalizableLike]):
+class LocalizableProperty(Property[Localizable, ResolvableLocalizable]):
     """
     A property containing a :py:class:`betty.locale.localizable.Localizable`.
     """
@@ -35,14 +35,14 @@ class LocalizableProperty(Property[Localizable, LocalizableLike]):
     def __init__(
         self,
         *,
-        label: LocalizableLike,
-        description: LocalizableLike | None = None,
+        label: ResolvableLocalizable,
+        description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
             LocalizableDefinition(),
             label=label,
             description=description,
-            resolver=ensure_localizable,
+            resolver=resolve_localizable,
         )
 
 
@@ -57,12 +57,12 @@ class CountableLocalizableProperty(
     def __init__(
         self,
         *,
-        label: LocalizableLike,
-        description: LocalizableLike | None = None,
+        label: ResolvableLocalizable,
+        description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
             CountableLocalizableDefinition(),
             label=label,
             description=description,
-            resolver=ensure_countable_localizable,
+            resolver=resolve_countable_localizable,
         )

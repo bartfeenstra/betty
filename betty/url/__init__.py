@@ -10,7 +10,12 @@ from urllib.parse import urlencode, urlparse
 
 from typing_extensions import override
 
-from betty.locale import LocaleLike, ensure_locale, negotiate_locale, to_language_tag
+from betty.locale import (
+    ResolvableLocale,
+    negotiate_locale,
+    resolve_locale,
+    to_language_tag,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -68,7 +73,7 @@ class UrlGenerator(ABC):
         *,
         absolute: bool = False,
         fragment: str | None = None,
-        locale: LocaleLike | None = None,
+        locale: ResolvableLocale | None = None,
         media_type: MediaType | None = None,
         query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
@@ -101,7 +106,7 @@ class PassthroughUrlGenerator(UrlGenerator):
         *,
         absolute: bool = False,
         fragment: str | None = None,
-        locale: LocaleLike | None = None,
+        locale: ResolvableLocale | None = None,
         media_type: MediaType | None = None,
         query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
@@ -117,7 +122,7 @@ def generate_from_path(
     root_path: str,
     absolute: bool = False,
     fragment: str | None = None,
-    locale: LocaleLike | None = None,
+    locale: ResolvableLocale | None = None,
     locale_slugs: Mapping[Locale, str],
     query: Mapping[str, Sequence[str]] | None = None,
 ) -> str:
@@ -131,7 +136,7 @@ def generate_from_path(
     )
     path = path.strip("/")
     if locale and len(locale_slugs) > 1:
-        locale = ensure_locale(locale)
+        locale = resolve_locale(locale)
         try:
             negotiated_locale = negotiate_locale(locale, list(locale_slugs))
             if negotiated_locale is None:

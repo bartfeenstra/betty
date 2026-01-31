@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from collections.abc import Set
     from pathlib import Path
 
-    from betty.locale.localizable import LocalizableLike
+    from betty.locale.localizable import ResolvableLocalizable
     from betty.machine_name import MachineName
     from betty.plugin.resolve import ResolvableId
     from betty.project import Project
@@ -46,7 +46,7 @@ class Extension(ServiceContainer, HasRequirement, Plugin["ExtensionDefinition"])
     @override
     @classmethod
     async def requires(
-        cls, services: ServiceLevel, subject: LocalizableLike, /
+        cls, services: ServiceLevel, subject: ResolvableLocalizable, /
     ) -> Requirement | Self:
         from betty.project import Project
 
@@ -108,8 +108,8 @@ class ExtensionDefinition(HumanFacingDefinition, DependentPluginDefinition[Exten
         self,
         plugin_id: MachineName,
         *,
-        label: LocalizableLike,
-        description: LocalizableLike | None = None,
+        label: ResolvableLocalizable,
+        description: ResolvableLocalizable | None = None,
         comes_before: Set[ResolvableId] | None = None,
         comes_after: Set[ResolvableId] | None = None,
         depends_on: Set[ResolvableId] | None = None,

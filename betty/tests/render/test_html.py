@@ -4,7 +4,7 @@ from typing import Any
 import pytest
 from typing_extensions import override
 
-from betty.locale import LocaleLike
+from betty.locale import ResolvableLocale
 from betty.media_type import MediaType
 from betty.render import Renderer
 from betty.render.html import Html
@@ -24,7 +24,7 @@ class _TestHtmlUrlGenerator(UrlGenerator):
         *,
         absolute: bool = False,
         fragment: str | None = None,
-        locale: LocaleLike | None = None,
+        locale: ResolvableLocale | None = None,
         media_type: MediaType | None = None,
         query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:

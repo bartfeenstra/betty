@@ -11,12 +11,12 @@ from uuid import uuid4
 
 from markupsafe import escape
 
-from betty.locale.localizable.ensure import ensure_localizable
+from betty.locale.localizable.resolve import resolve_localizable
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from betty.locale.localizable import Localizable, LocalizableLike
+    from betty.locale.localizable import Localizable, ResolvableLocalizable
 
 
 class CssProvider(ABC):
@@ -49,9 +49,9 @@ class NavigationLink:
     A navigation link.
     """
 
-    def __init__(self, url: LocalizableLike, label: LocalizableLike):
-        self._url = ensure_localizable(url)
-        self._label = ensure_localizable(label)
+    def __init__(self, url: ResolvableLocalizable, label: ResolvableLocalizable):
+        self._url = resolve_localizable(url)
+        self._label = resolve_localizable(label)
 
     @property
     def url(self) -> Localizable:
