@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable
-from typing import Self, TypeAlias
+from typing import Any, Never, Self, TypeAlias, overload
 
 from typing_extensions import TypeVar
 
@@ -29,7 +29,7 @@ class SelfFactory(ABC):
 
 
 Target: TypeAlias = (
-    type[SelfFactory] | type[_T] | Callable[[], Awaitable[_T]] | Callable[[], _T]
+    type[SelfFactory] | Callable[[], Awaitable[_T]] | Callable[[], _T] | Any
 )
 """
 #. If ``target`` subclasses :py:class:`betty.factory.SelfFactory`, this will return ``target``'s
@@ -47,17 +47,25 @@ class FactoryError(Exception):
     """
 
 
+@overload
 async def new_target(target: Target[_T], /) -> _T:
+    pass
+
+
+@overload
+async def new_target(target: Any, /) -> Never:
+    pass
+
+
+async def new_target(target):
     """
     Create a new instance.
 
     :raises FactoryError: raised when ``target`` could not be instantiated.
     """
     try:
-        if isinstance(target, type):
-            if issubclass(target, SelfFactory):
-                return await target.new()  # ty:ignore[invalid-return-type]
-            return target()
+        if isinstance(target, type) and issubclass(target, SelfFactory):
+            return await target.new()
         if callable(target):
             return await resolve_await(target())
         raise FactoryError(target)

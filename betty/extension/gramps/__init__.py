@@ -337,7 +337,7 @@ class Gramps(
     @classmethod
     def new_for_configuration(
         cls, configuration: GrampsConfiguration
-    ) -> ServiceLevelTarget[Self]:  # ty:ignore[invalid-method-override]
+    ) -> ServiceLevelTarget[Self]:
         return CallbackServiceLevelDependentFactory(
             require_project(
                 lambda project: cls(configuration=configuration, project=project)

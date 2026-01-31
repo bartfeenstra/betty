@@ -80,7 +80,7 @@ class ServiceLevel(ServiceContainer, PluginRepositoryProvider):
                         requirement.localize(DEFAULT_LOCALIZER)
                     ) from error
             raise
-        return await new_target(target)  # ty:ignore[invalid-argument-type]
+        return await new_target(target)
 
     @override
     async def _post_bootstrap(self) -> None:

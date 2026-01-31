@@ -46,7 +46,7 @@ class _RequiredDummyConfigurable(
     @classmethod
     def new_for_configuration(
         cls, configuration: _DummyConfiguration
-    ) -> ServiceLevelTarget[Self]:  # ty:ignore[invalid-method-override]
+    ) -> ServiceLevelTarget[Self]:
         return lambda: cls(configuration=configuration)
 
 

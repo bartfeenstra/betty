@@ -81,7 +81,7 @@ async def _get_serializers() -> Sequence[Serializer]:
                 await project.plugins(SerializerDefinition, check_requirements=False),
                 key=cmp_to_key(_cmp_formats),
             )
-        ]  # ty:ignore[invalid-return-type]
+        ]
 
 
 def _build_definition_list(
