@@ -9,10 +9,13 @@ from typing import TypeAlias
 from typing_extensions import TypeVar
 
 from betty.machine_name import MachineName
-from betty.plugin import Plugin, PluginDefinition
+from betty.plugin import Plugin, PluginClsDefinition, PluginDefinition
 
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
+)
+_PluginClsDefinitionT = TypeVar(
+    "_PluginClsDefinitionT", bound=PluginClsDefinition, default=PluginClsDefinition
 )
 
 ResolvableDefinition: TypeAlias = _PluginDefinitionT | type[Plugin[_PluginDefinitionT]]
@@ -32,7 +35,7 @@ def resolve_definition(
     """
     Resolve a plugin definition.
     """
-    if isinstance(definition, PluginDefinition):
+    if isinstance(definition, PluginClsDefinition):
         return definition  # ty:ignore[invalid-return-type]
     return definition.plugin()
 

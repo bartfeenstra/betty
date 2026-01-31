@@ -4,7 +4,7 @@ Generic plugin API errors.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, final
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import TypeVar
 
@@ -48,7 +48,7 @@ class PluginNotFound(PluginUnavailable):
 
     def __init__(
         self,
-        plugin_type: PluginTypeDefinition[Any, _PluginDefinitionT],
+        plugin_type: PluginTypeDefinition[_PluginDefinitionT],
         plugin_not_found: MachineName,
         available_plugins: Sequence[ResolvableId[_PluginDefinitionT]],
         /,

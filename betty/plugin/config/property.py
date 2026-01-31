@@ -15,7 +15,7 @@ from betty.data.aggregate.record.object.property import (
     SequenceProperty,
 )
 from betty.data.indicator.selector import Attr
-from betty.plugin import Plugin, PluginDefinition
+from betty.plugin import Plugin, PluginClsDefinition, PluginDefinition
 from betty.plugin.config import (
     PluginConfiguration,
     PluginDefinitionConfiguration,
@@ -33,16 +33,19 @@ _PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
 )
+_PluginClsDefinitionT = TypeVar(
+    "_PluginClsDefinitionT", bound=PluginClsDefinition, default=PluginClsDefinition
+)
 
 
 @final
 class PluginConfigurationSequenceProperty(
     SequenceProperty[
         ResolvingMutableSequence[
-            PluginConfiguration[_PluginDefinitionT, _PluginT],
-            ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT],
+            PluginConfiguration[_PluginClsDefinitionT, _PluginT],
+            ResolvablePluginConfiguration[_PluginClsDefinitionT, _PluginT],
         ],
-        ResolvablePluginConfigurationSequence[_PluginDefinitionT, _PluginT],
+        ResolvablePluginConfigurationSequence[_PluginClsDefinitionT, _PluginT],
     ]
 ):
     """
@@ -51,7 +54,7 @@ class PluginConfigurationSequenceProperty(
 
     def __init__(
         self,
-        plugin_type: type[_PluginDefinitionT],
+        plugin_type: type[_PluginClsDefinitionT],
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,

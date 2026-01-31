@@ -20,13 +20,12 @@ if TYPE_CHECKING:
     from betty.plugin.repository import PluginRepository
 
 
-_BaseClsCoT = TypeVar("_BaseClsCoT", default=object, covariant=True)
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
 )
 
 
-class OrderedPluginDefinition(PluginDefinition[_BaseClsCoT]):
+class OrderedPluginDefinition(PluginDefinition):
     """
     A definition of plugin that can declare its order with respect to other plugins.
     """

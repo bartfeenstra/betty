@@ -33,7 +33,7 @@ from betty.gramps.loader import (
 )
 from betty.locale.localizable.gettext import _
 from betty.pathlib import FilePathDefinition
-from betty.plugin import Plugin, PluginDefinition
+from betty.plugin import Plugin, PluginClsDefinition
 from betty.plugin.config import (
     PluginConfiguration,
     ResolvablePluginConfiguration,
@@ -49,23 +49,23 @@ if TYPE_CHECKING:
     from betty.ancestry.presence_role import PresenceRole
     from betty.locale.localizable import ResolvableLocalizable
 _PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
-_PluginDefinitionT = TypeVar(
-    "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
+_PluginClsDefinitionT = TypeVar(
+    "_PluginClsDefinitionT", bound=PluginClsDefinition, default=PluginClsDefinition
 )
 
 
 class _PluginMappingProperty(
     MappingProperty[
-        MutableMapping[str, PluginConfiguration[_PluginDefinitionT, _PluginT]],
-        Mapping[str, ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT]],
+        MutableMapping[str, PluginConfiguration[_PluginClsDefinitionT, _PluginT]],
+        Mapping[str, ResolvablePluginConfiguration[_PluginClsDefinitionT, _PluginT]],
     ]
 ):
     def __init__(
         self,
-        plugin_type: type[_PluginDefinitionT],
+        plugin_type: type[_PluginClsDefinitionT],
         gramps_label: ResolvableLocalizable,
         default: Mapping[
-            str, ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT]
+            str, ResolvablePluginConfiguration[_PluginClsDefinitionT, _PluginT]
         ],
     ):
         super().__init__(

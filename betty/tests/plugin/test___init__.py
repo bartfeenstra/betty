@@ -16,7 +16,7 @@ from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
 )
-from betty.test_utils.plugin import DummyPlugin, DummyPluginOne, DummyPluginTwo
+from betty.test_utils.plugin import DummyPluginOne, DummyPluginTwo
 
 
 @PluginTypeDefinition(
@@ -25,7 +25,7 @@ from betty.test_utils.plugin import DummyPlugin, DummyPluginOne, DummyPluginTwo
     label_plural="_OrderedPluginDefinitions",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
-class _OrderedPluginDefinition(OrderedPluginDefinition[DummyPlugin]):
+class _OrderedPluginDefinition(OrderedPluginDefinition):
     pass
 
 
@@ -64,7 +64,7 @@ _ORDERED_PLUGIN_HAS_COMES_AFTER_BIDIRECTIONAL = _OrderedPluginDefinition(
     label_plural="_DependentPluginDefinition",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
-class _DependentPluginDefinition(DependentPluginDefinition[DummyPlugin]):
+class _DependentPluginDefinition(DependentPluginDefinition):
     pass
 
 
@@ -179,7 +179,7 @@ class TestPluginDefinition:
             label_plural=DUMMY_LOCALIZABLE,
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
         )
-        class _PluginDefinition(PluginDefinition[DummyPlugin]):
+        class _PluginDefinition(PluginDefinition):
             pass
 
         id = "my-first-plugin"  # noqa: A001

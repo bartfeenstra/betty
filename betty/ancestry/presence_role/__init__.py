@@ -8,7 +8,8 @@ from typing import final
 
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
+from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin.cls import PluginClsDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.discovery.project import ProjectDiscovery
 
@@ -36,7 +37,7 @@ class PresenceRole(Plugin["PresenceRoleDefinition"]):
     ],
 )
 class PresenceRoleDefinition(
-    CountableHumanFacingDefinition, PluginDefinition[PresenceRole]
+    CountableHumanFacingDefinition, PluginClsDefinition[PresenceRole]
 ):
     """
     .. plugin_type:: presence-role.

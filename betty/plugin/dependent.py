@@ -19,10 +19,7 @@ if TYPE_CHECKING:
     from betty.plugin.repository import PluginRepository
 
 
-_BaseClsCoT = TypeVar("_BaseClsCoT", default=object, covariant=True)
-
-
-class DependentPluginDefinition(OrderedPluginDefinition[_BaseClsCoT]):
+class DependentPluginDefinition(OrderedPluginDefinition):
     """
     A definition of a plugin that can declare its dependency on other plugins.
     """

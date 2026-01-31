@@ -28,11 +28,13 @@ from betty.locale.localizable.property import (
     LocalizableProperty,
 )
 from betty.machine_name import MachineName, MachineNameDefinition, assert_machine_name
-from betty.plugin import Plugin, PluginDefinition
+from betty.plugin import Plugin, PluginClsDefinition, PluginDefinition
 from betty.plugin.resolve import ResolvableId, resolve_definition, resolve_id
 from betty.typing import Void
 
 if TYPE_CHECKING:
+    from ty_extensions import Intersection
+
     from betty.locale.localizable import CountableLocalizableLike, ResolvableLocalizable
     from betty.portable import PortableData
     from betty.service.level import ServiceLevel
@@ -41,6 +43,9 @@ _T = TypeVar("_T")
 _PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
+)
+_PluginClsDefinitionT = TypeVar(
+    "_PluginClsDefinitionT", bound=PluginClsDefinition, default=PluginClsDefinition
 )
 
 
@@ -126,7 +131,9 @@ class CountableHumanFacingPluginDefinitionConfiguration(
 
 
 @final
-class PluginConfiguration(PortableRecord[Attr], Generic[_PluginDefinitionT, _PluginT]):
+class PluginConfiguration(
+    PortableRecord[Attr], Generic[_PluginClsDefinitionT, _PluginT]
+):
     """
     Configure a single plugin instance.
 
@@ -135,7 +142,7 @@ class PluginConfiguration(PortableRecord[Attr], Generic[_PluginDefinitionT, _Plu
 
     def __init__(
         self,
-        id: ResolvableId[_PluginDefinitionT],  # noqa: A002
+        id: ResolvableId[_PluginClsDefinitionT],  # noqa: A002
         configuration: Data | PortableData | Void = Void(),  # noqa: B008
         /,
     ):
@@ -203,7 +210,12 @@ class PluginConfiguration(PortableRecord[Attr], Generic[_PluginDefinitionT, _Plu
         }
 
     async def new_plugin(
-        self, services: ServiceLevel, plugin_type: type[_PluginDefinitionT], /
+        self,
+        services: ServiceLevel,
+        plugin_type: type[
+            Intersection[_PluginClsDefinitionT, PluginClsDefinition[_PluginT]]
+        ],
+        /,
     ) -> _PluginT:
         """
         Create a new instance of the configured plugin.
@@ -214,13 +226,16 @@ class PluginConfiguration(PortableRecord[Attr], Generic[_PluginDefinitionT, _Plu
 
 
 ResolvablePluginConfiguration: TypeAlias = (
-    ResolvableId[_PluginDefinitionT] | PluginConfiguration[_PluginDefinitionT, _PluginT]
+    ResolvableId[_PluginClsDefinitionT]
+    | PluginConfiguration[_PluginClsDefinitionT, _PluginT]
 )
 
 
 def resolve_plugin_configuration(
-    plugin_configuration: ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT],
-) -> PluginConfiguration[_PluginDefinitionT, _PluginT]:
+    plugin_configuration: ResolvablePluginConfiguration[
+        _PluginClsDefinitionT, _PluginT
+    ],
+) -> PluginConfiguration[_PluginClsDefinitionT, _PluginT]:
     """
     Resolve a value to a plugin configuration.
     """
@@ -228,20 +243,20 @@ def resolve_plugin_configuration(
         return plugin_configuration
     if isinstance(plugin_configuration, str):
         return PluginConfiguration(plugin_configuration)
-    return PluginConfiguration(resolve_definition(plugin_configuration).id)  # ty:ignore[invalid-argument-type]
+    return PluginConfiguration(resolve_definition(plugin_configuration).id)
 
 
 ResolvablePluginConfigurationSequence: TypeAlias = (
-    ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT]
-    | Iterable[ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT]]
+    ResolvablePluginConfiguration[_PluginClsDefinitionT, _PluginT]
+    | Iterable[ResolvablePluginConfiguration[_PluginClsDefinitionT, _PluginT]]
 )
 
 
 def resolve_plugin_configuration_sequence(
     plugin_configurations: ResolvablePluginConfigurationSequence[
-        _PluginDefinitionT, _PluginT
+        _PluginClsDefinitionT, _PluginT
     ],
-) -> MutableSequence[PluginConfiguration[_PluginDefinitionT, _PluginT]]:
+) -> MutableSequence[PluginConfiguration[_PluginClsDefinitionT, _PluginT]]:
     """
     Resolve a value to a sequence of plugin configurations.
     """
@@ -252,15 +267,15 @@ def resolve_plugin_configuration_sequence(
         or isinstance(plugin_configurations, type)
         and issubclass(plugin_configurations, Plugin)
     ):
-        return [resolve_plugin_configuration(plugin_configurations)]  # ty:ignore[invalid-argument-type]
+        return [resolve_plugin_configuration(plugin_configurations)]
     return list(map(resolve_plugin_configuration, plugin_configurations))  # ty:ignore[invalid-argument-type]
 
 
 def resolve_plugin_configuration_mapping(
     plugin_configurations: Mapping[
-        _T, ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT]
+        _T, ResolvablePluginConfiguration[_PluginClsDefinitionT, _PluginT]
     ],
-) -> MutableMapping[_T, PluginConfiguration[_PluginDefinitionT, _PluginT]]:
+) -> MutableMapping[_T, PluginConfiguration[_PluginClsDefinitionT, _PluginT]]:
     """
     Resolve a value to a mapping of plugin configurations.
     """

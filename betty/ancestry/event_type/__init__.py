@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, final
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin.cls import PluginClsDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.discovery.project import ProjectDiscovery
 from betty.plugin.ordered import OrderedPluginDefinition
@@ -60,7 +61,9 @@ class ShouldExistEventType(EventType, ABC):
     ],
 )
 class EventTypeDefinition(
-    CountableHumanFacingDefinition, OrderedPluginDefinition[EventType]
+    CountableHumanFacingDefinition,
+    OrderedPluginDefinition,
+    PluginClsDefinition[EventType],
 ):
     """
     .. plugin_type:: event-type.

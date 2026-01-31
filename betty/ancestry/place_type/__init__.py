@@ -8,7 +8,8 @@ from typing import final
 
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
+from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin.cls import PluginClsDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.discovery.project import ProjectDiscovery
 
@@ -35,7 +36,9 @@ class PlaceType(Plugin["PlaceTypeDefinition"]):
         ),
     ],
 )
-class PlaceTypeDefinition(CountableHumanFacingDefinition, PluginDefinition[PlaceType]):
+class PlaceTypeDefinition(
+    CountableHumanFacingDefinition, PluginClsDefinition[PlaceType]
+):
     """
     .. plugin_type:: place-type.
     """

@@ -12,7 +12,8 @@ from betty.exception import HumanFacingException
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.markup import AnyEnumeration
 from betty.locale.localizable.plain import Plain
-from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
+from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin.cls import PluginClsDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 
 if TYPE_CHECKING:
@@ -64,7 +65,7 @@ class Serializer(ABC, Plugin["SerializerDefinition"]):
     label_countable=ngettext("{count} serializer", "{count} serializers"),
     discovery=EntryPointDiscovery("betty.serializer"),
 )
-class SerializerDefinition(HumanFacingDefinition, PluginDefinition[Serializer]):
+class SerializerDefinition(HumanFacingDefinition, PluginClsDefinition[Serializer]):
     """
     .. plugin_type:: serializer.
     """

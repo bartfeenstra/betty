@@ -11,16 +11,11 @@ import pytest
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.machine_name import assert_machine_name
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
+from betty.plugin.cls import PluginClsDefinition
 from betty.plugin.discovery.callback import CallbackDiscovery
 from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
 
 _PluginT = TypeVar("_PluginT", bound=Plugin)
-
-
-def _assert_cls_is_public(cls: type) -> None:
-    assert not cls.__name__.startswith("_"), (
-        f"Failed asserting that plugin class {cls} is public (its name must not start with an underscore)"
-    )
 
 
 class PluginTestBase(Generic[_PluginT]):
@@ -85,12 +80,6 @@ class PluginDefinitionTestBase:
         """
         assert_machine_name()(sut.id)
 
-    def test_cls(self, sut: PluginDefinition) -> None:
-        """
-        Tests the :py:attr:`betty.plugin.PluginDefinition.cls` value.
-        """
-        _assert_cls_is_public(sut.cls)
-
 
 class DummyPlugin(Plugin["DummyPluginDefinition"]):
     """
@@ -112,7 +101,7 @@ class DummyPlugin(Plugin["DummyPluginDefinition"]):
         ]
     ),
 )
-class DummyPluginDefinition(PluginDefinition[DummyPlugin]):
+class DummyPluginDefinition(PluginClsDefinition[DummyPlugin]):
     """
     A definition of a dummy plugin.
     """

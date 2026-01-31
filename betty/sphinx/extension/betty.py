@@ -25,6 +25,7 @@ from betty.functools import Result
 from betty.importlib import import_any
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin import plugin_types
+from betty.plugin.cls import PluginClsDefinition
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.project import Project
@@ -144,11 +145,6 @@ class _PluginDirective(SphinxDirective):
     def _build_metadata(
         self, plugin: PluginDefinition, plugins: PluginRepository[PluginDefinition]
     ) -> list[nodes.Node]:
-        cls = plugin.cls
-        if issubclass(cls, Configurable):
-            configuration_content = f":py:class:`{cls.configuration_cls().__name__} <{cls.configuration_cls().__module__}.{cls.configuration_cls().__qualname__}>`"
-        else:
-            configuration_content = "*not configurable*"
         content = f"""
 .. list-table::
    :widths: 20 10
@@ -156,6 +152,14 @@ class _PluginDirective(SphinxDirective):
 
    * - Plugin ID
      - ``{plugin.id}``
+"""
+        if isinstance(plugin, PluginClsDefinition):
+            cls = plugin.cls
+            if issubclass(cls, Configurable):
+                configuration_content = f":py:class:`{cls.configuration_cls().__name__} <{cls.configuration_cls().__module__}.{cls.configuration_cls().__qualname__}>`"
+            else:
+                configuration_content = "*not configurable*"
+            content = f"""
    * - Class
      - :py:class:`{plugin.cls.__name__} <{plugin.cls.__module__}.{plugin.cls.__qualname__}>`
    * - Configuration
@@ -197,6 +201,7 @@ class _PluginDirective(SphinxDirective):
         contents = [
             f":py:class:`{plugin.id} <{plugin.cls.__module__}.{plugin.cls.__qualname__}>`"
             for plugin in sorted(plugins, key=lambda plugin: plugin.id)
+            if isinstance(plugin, PluginClsDefinition)
         ]
         if not contents:
             return ""
@@ -275,9 +280,10 @@ class _PluginTypeDirective(SphinxDirective):
     def _build_builtin_plugin_definition(
         self, plugin: PluginDefinition
     ) -> tuple[NodesLike, NodesLike]:
-        term_nodes, _ = self.parse_inline(
-            f"{plugin.id} (:py:class:`{plugin.cls.__name__} <{plugin.cls.__module__}.{plugin.cls.__qualname__}>`)"
-        )
+        term = plugin.id
+        if isinstance(plugin, PluginClsDefinition):
+            term += f" (:py:class:`{plugin.cls.__name__} <{plugin.cls.__module__}.{plugin.cls.__qualname__}>`)"
+        term_nodes, _ = self.parse_inline(term)
         definition_nodes: MutableSequence[nodes.Node] | None = None
         if isinstance(plugin, HumanFacingDefinition):
             definition_nodes = [nodes.Text(plugin.label.localize(DEFAULT_LOCALIZER))]

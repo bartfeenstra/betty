@@ -16,7 +16,8 @@ from betty.json.linked_data import (
 from betty.json.schema import JsonSchemaReference, String
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
+from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin.cls import PluginClsDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.string import kebab_case_to_lower_camel_case
 
@@ -147,7 +148,7 @@ class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Plugin["EntityDefinition"
     ),
     discovery=EntryPointDiscovery("betty.entity_type"),
 )
-class EntityDefinition(CountableHumanFacingDefinition, PluginDefinition[Entity]):
+class EntityDefinition(CountableHumanFacingDefinition, PluginClsDefinition[Entity]):
     """
     .. plugin_type:: entity.
     """

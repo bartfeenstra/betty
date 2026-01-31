@@ -9,6 +9,7 @@ import pytest
 from betty.app import App
 from betty.importlib import fully_qualified_name
 from betty.plugin import PluginDefinition, plugin_types
+from betty.plugin.cls import PluginClsDefinition
 from betty.project import Project
 
 
@@ -48,12 +49,11 @@ class PluginDocumentationTestBase:
         )
 
     def _test_plugin(self, plugin: PluginDefinition) -> None:
-        if not self._match_module(plugin.cls):
-            return
         if plugin.id.startswith("-"):
             return
-        docstring = plugin.cls.__doc__ or ""
-        directive = f".. plugin:: {plugin.type().id}:{plugin.id}"
-        assert directive in docstring, (
-            f'Failed to find the "{directive}" directive in the docstring for {fully_qualified_name(plugin.cls)}'
-        )
+        if isinstance(plugin, PluginClsDefinition) and self._match_module(plugin.cls):
+            docstring = plugin.cls.__doc__ or ""
+            directive = f".. plugin:: {plugin.type().id}:{plugin.id}"
+            assert directive in docstring, (
+                f'Failed to find the "{directive}" directive in the docstring for {fully_qualified_name(plugin.cls)}'
+            )

@@ -19,9 +19,9 @@ from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.importlib import fully_qualified_name
 from betty.locale.localizable.gettext import _
 from betty.machine_name import InvalidMachineName, MachineName, validate_machine_name
+from betty.plugin.cls import PluginClsDefinition
 
 if TYPE_CHECKING:
-    import builtins
     from collections.abc import Collection, Iterator, Mapping, MutableSequence
 
     from betty.locale.localizable import (
@@ -32,10 +32,7 @@ if TYPE_CHECKING:
     from betty.plugin.discovery import PluginDiscovery
 
 
-_BaseClsCoT = TypeVar("_BaseClsCoT", default=object, covariant=True)
-
-
-class PluginDefinition(ClsDefinition[_BaseClsCoT], Generic[_BaseClsCoT]):
+class PluginDefinition:
     """
     A plugin definition.
     """
@@ -47,7 +44,7 @@ class PluginDefinition(ClsDefinition[_BaseClsCoT], Generic[_BaseClsCoT]):
         self._id = plugin_id
 
     @classmethod
-    def type(cls) -> PluginTypeDefinition[_BaseClsCoT, Self]:
+    def type(cls) -> PluginTypeDefinition[Self]:
         """
         The plugin type definition.
         """
@@ -66,11 +63,6 @@ class PluginDefinition(ClsDefinition[_BaseClsCoT], Generic[_BaseClsCoT]):
         - Different plugin repositories **MAY** each have a plugin with the same ID.
         """
         return self._id
-
-    @override
-    def _set_cls(self, cls: builtins.type[_BaseClsCoT]) -> None:
-        super()._set_cls(cls)
-        cls.plugin = staticmethod(update_wrapper(lambda: self, cls.plugin))  # ty:ignore[unresolved-attribute]
 
     @property
     def reference_label(self) -> Localizable:
@@ -99,13 +91,15 @@ _PluginDefinitionCoT = TypeVar(
     default=PluginDefinition,
     covariant=True,
 )
+# @todo covariant?
+_PluginClsDefinitionT = TypeVar(
+    "_PluginClsDefinitionT", bound=PluginClsDefinition, default=PluginClsDefinition
+)
 
 
 @final
 class PluginTypeDefinition(
-    CountableHumanFacingDefinition,
-    ClsDefinition[_PluginDefinitionT],
-    Generic[_BaseClsCoT, _PluginDefinitionT],
+    CountableHumanFacingDefinition, ClsDefinition[_PluginDefinitionT]
 ):
     """
     A plugin type definition.
@@ -198,7 +192,7 @@ class PluginTypeDefinition(
         return self._defined_discovery != self._active_discovery
 
 
-class Plugin(Generic[_PluginDefinitionCoT]):
+class Plugin(Generic[_PluginClsDefinitionT]):
     """
     A plugin class.
 
@@ -207,7 +201,7 @@ class Plugin(Generic[_PluginDefinitionCoT]):
     """
 
     @classmethod
-    def plugin(cls) -> _PluginDefinitionCoT:
+    def plugin(cls) -> _PluginClsDefinitionT:
         """
         The plugin definition.
         """

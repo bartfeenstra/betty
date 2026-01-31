@@ -9,7 +9,8 @@ from typing import TYPE_CHECKING, final
 
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
+from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin.cls import PluginClsDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 
 if TYPE_CHECKING:
@@ -37,7 +38,7 @@ class ContentProvider(ABC, Plugin["ContentProviderDefinition"]):
     discovery=EntryPointDiscovery("betty.content_provider"),
 )
 class ContentProviderDefinition(
-    HumanFacingDefinition, PluginDefinition[ContentProvider]
+    HumanFacingDefinition, PluginClsDefinition[ContentProvider]
 ):
     """
     .. plugin_type:: content-provider.

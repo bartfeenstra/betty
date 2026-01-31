@@ -1,4 +1,5 @@
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
+from betty.plugin.cls import PluginClsDefinition
 from betty.plugin.resolve import resolve_definition, resolve_id
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
@@ -16,7 +17,7 @@ class _PluginCls(Plugin["_PluginDefinition"]):
     label_plural=DUMMY_LOCALIZABLE,
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
-class _PluginDefinition(PluginDefinition[_PluginCls]):
+class _PluginDefinition(PluginClsDefinition[_PluginCls]):
     pass
 
 

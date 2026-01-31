@@ -11,7 +11,8 @@ from typing import TYPE_CHECKING, TypeAlias, final
 from betty import about
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
+from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin.cls import PluginClsDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 
 if TYPE_CHECKING:
@@ -43,7 +44,7 @@ class Command(Plugin["CommandDefinition"]):
     label_countable=ngettext("{count} command", "{count} commands"),
     discovery=EntryPointDiscovery("betty.command"),
 )
-class CommandDefinition(HumanFacingDefinition, PluginDefinition[Command]):
+class CommandDefinition(HumanFacingDefinition, PluginClsDefinition[Command]):
     """
     .. plugin_type:: command.
     """
