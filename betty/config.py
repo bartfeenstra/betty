@@ -100,7 +100,5 @@ def new_target(
             ).configuration_cls()
             if issubclass(configuration_cls, Data):
                 configuration = configuration_cls.data().porter.load(configuration)
-            else:
-                configuration = configuration_cls.load(configuration)
-        return target.new_for_configuration(configuration)  # ty:ignore[invalid-return-type, invalid-argument-type]
-    return target  # ty:ignore[invalid-return-type]
+        return target.new_for_configuration(configuration)  # ty:ignore[invalid-argument-type]
+    return target

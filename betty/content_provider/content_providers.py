@@ -102,7 +102,7 @@ class Render(
     @classmethod
     def new_for_configuration(
         cls, configuration: RenderConfiguration
-    ) -> ServiceLevelTarget[Self]:  # ty:ignore[invalid-method-override]
+    ) -> ServiceLevelTarget[Self]:
         @require_project
         async def _callback(project: Project) -> Self:
             return cls(configuration=configuration, renderer=await project.renderer)
@@ -239,7 +239,7 @@ class Box(Template, ConfigurationDependentSelfFactory[BoxConfiguration]):
     @classmethod
     def new_for_configuration(
         cls, configuration: BoxConfiguration
-    ) -> ServiceLevelTarget[Self]:  # ty:ignore[invalid-method-override]
+    ) -> ServiceLevelTarget[Self]:
         @require_project
         async def _factory(project: Project) -> Self:
             return cls(

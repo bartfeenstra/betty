@@ -179,7 +179,7 @@ class Section(
     @classmethod
     def new_for_configuration(
         cls, configuration: SectionConfiguration
-    ) -> ServiceLevelTarget[Self]:  # ty:ignore[invalid-method-override]
+    ) -> ServiceLevelTarget[Self]:
         @require_project
         async def _factory(project: Project) -> Self:
             return cls(
@@ -230,7 +230,7 @@ class EntityCard(Template, ConfigurationDependentSelfFactory[EntityReference], _
     @classmethod
     def new_for_configuration(
         cls, configuration: EntityReference
-    ) -> ServiceLevelTarget[Self]:  # ty:ignore[invalid-method-override]
+    ) -> ServiceLevelTarget[Self]:
         @require_project
         async def _factory(project: Project) -> Self:
             return cls(
@@ -359,7 +359,7 @@ class ColorStyle(
     @classmethod
     def new_for_configuration(
         cls, configuration: ColorStyleConfiguration
-    ) -> ServiceLevelTarget[Self]:  # ty:ignore[invalid-method-override]
+    ) -> ServiceLevelTarget[Self]:
         @require_project
         async def _factory(project: Project) -> Self:
             return cls(
@@ -518,7 +518,7 @@ class Presences(
     @classmethod
     def new_for_configuration(
         cls, configuration: PresencesConfiguration
-    ) -> ServiceLevelTarget[Self]:  # ty:ignore[invalid-method-override]
+    ) -> ServiceLevelTarget[Self]:
         @require_project
         async def _factory(project: Project) -> Self:
             return cls(
@@ -732,7 +732,7 @@ class Columns(Template, _Base, ConfigurationDependentSelfFactory[ColumnsConfigur
     @classmethod
     def new_for_configuration(
         cls, configuration: ColumnsConfiguration
-    ) -> ServiceLevelTarget[Self]:  # ty:ignore[invalid-method-override]
+    ) -> ServiceLevelTarget[Self]:
         @require_project
         async def _factory(project: Project) -> Self:
             return cls(

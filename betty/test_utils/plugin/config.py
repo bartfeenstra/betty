@@ -37,7 +37,7 @@ class ConfigurableDummyPlugin(
     @classmethod
     def new_for_configuration(
         cls, configuration: DummyData
-    ) -> ServiceLevelTarget[Self]:  # ty:ignore[invalid-method-override]
+    ) -> ServiceLevelTarget[Self]:
         return lambda: cls(configuration=configuration)
 
 
