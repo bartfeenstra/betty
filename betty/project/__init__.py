@@ -19,7 +19,7 @@ import betty
 import betty.dirs
 from betty.ancestry import Ancestry
 from betty.asset import AssetRepository, ProxyAssetRepository, StaticAssetRepository
-from betty.config import Configurable, new_target
+from betty.config import HasConfiguration
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.document import Document, DocumentProvider
 from betty.extension import Extension, ExtensionDefinition
@@ -73,7 +73,7 @@ _PluginDefinitionT = TypeVar(
 
 
 @final
-class Project(Configurable[ProjectConfiguration], ServiceLevel):
+class Project(HasConfiguration[ProjectConfiguration], ServiceLevel):
     """
     Define a Betty project.
 
@@ -320,7 +320,7 @@ class Project(Configurable[ProjectConfiguration], ServiceLevel):
         """
         from betty.jinja2 import Environment
 
-        return await Environment.new_for_services(self)
+        return await Environment.new_for_services(services=self)
 
     @service
     async def renderer(self) -> RenderDispatcher:
@@ -369,9 +369,7 @@ class Project(Configurable[ProjectConfiguration], ServiceLevel):
                         enabled_extension_id
                     ].new_plugin(self, ExtensionDefinition)
                 else:
-                    extension = await self.new_target(
-                        new_target(enabled_extension_definition.cls)
-                    )
+                    extension = await self.new_target(enabled_extension_definition.cls)
                 enabled_extension_batch.append(extension)
                 extensions_sorter.done(enabled_extension_id)
             enabled_extensions.append(

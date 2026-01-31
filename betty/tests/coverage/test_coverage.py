@@ -118,17 +118,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "release": MissingReason.ABSTRACT,
         },
     },
-    "betty/config/__init__.py": {
-        "Configuration": {
-            "__eq__": MissingReason.ABSTRACT,
-            "dump": MissingReason.ABSTRACT,
-            "load": MissingReason.ABSTRACT,
-            "validator": MissingReason.STATIC_CONTENT_ONLY,
-        },
-    },
-    "betty/config.py": {
-        "ConfigurationDependentSelfFactory": MissingReason.ABSTRACT,
-    },
     "betty/content_provider/__init__.py": {
         "ContentProvider": MissingReason.ABSTRACT,
     },
@@ -175,6 +164,14 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/service/level/__init__.py": MissingReason.ABSTRACT,
     "betty/service/level/factory.py": MissingReason.ABSTRACT,
+    "betty/service/requirement.py": {
+        "RequireAppKwargs": MissingReason.TYPED_DICT,
+        "RequireConfigKwargs": MissingReason.TYPED_DICT,
+        "RequireConfigServiceLevelKwargs": MissingReason.TYPED_DICT,
+        "RequireExtensionKwargs": MissingReason.TYPED_DICT,
+        "RequireProjectKwargs": MissingReason.TYPED_DICT,
+        "ServiceLevelKwargs": MissingReason.TYPED_DICT,
+    },
     "betty/data/__init__.py": {
         "Data": MissingReason.ABSTRACT,
     },
@@ -401,6 +398,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/ancestry/presence_role/__init__.py": {
         "PresenceRole": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/config.py": {
+        "Configurable": MissingReason.ABSTRACT,
     },
     "betty/copyright_notice/__init__.py": {
         "CopyrightNotice": MissingReason.STATIC_CONTENT_ONLY,

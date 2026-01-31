@@ -17,7 +17,7 @@ from betty.assertion import (
     assert_or,
     assert_sequence,
 )
-from betty.config import ConfigurationDependentSelfFactory
+from betty.config import Configurable
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.content_provider.content_providers import (
     Render,
@@ -53,12 +53,11 @@ from betty.plugin.config.property import PluginConfigurationSequenceProperty
 from betty.plugin.data import PluginConfigurationSequenceDefinition, PluginIdDefinition
 from betty.plugin.resolve import resolve_id
 from betty.portable import CallbackPorter
-from betty.project.factory import require_project
 from betty.requirement import HasRequirement, Requirement
 from betty.service.level.factory import (
-    CallbackServiceLevelDependentFactory,
     ServiceLevelDependentSelfFactory,
 )
+from betty.service.requirement import require_project
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.typing import private
 
@@ -73,9 +72,6 @@ if TYPE_CHECKING:
     from betty.plugin.resolve import ResolvableId
     from betty.project import Project
     from betty.service.level import ServiceLevel
-    from betty.service.level.factory import (
-        ServiceLevelTarget,
-    )
 
 
 class _Base(HasRequirement, Plugin[ContentProviderDefinition]):
@@ -164,7 +160,7 @@ class SectionConfiguration(Data):
 class Section(
     Template,
     _Base,
-    ConfigurationDependentSelfFactory[SectionConfiguration],
+    Configurable[SectionConfiguration],
 ):
     """
     .. plugin:: content-provider:raspberry-mint-section.
@@ -177,17 +173,14 @@ class Section(
 
     @override
     @classmethod
-    def new_for_configuration(
-        cls, configuration: SectionConfiguration
-    ) -> ServiceLevelTarget[Self]:
-        @require_project
-        async def _factory(project: Project) -> Self:
-            return cls(
-                configuration=configuration,
-                jinja2_environment=await project.jinja2_environment,
-            )
-
-        return CallbackServiceLevelDependentFactory(_factory)
+    @require_project
+    async def new_for_configuration(
+        cls, *, project: Project, configuration: SectionConfiguration
+    ) -> Self:
+        return cls(
+            configuration=configuration,
+            jinja2_environment=await project.jinja2_environment,
+        )
 
     @override
     async def _provide_data(self, document: Document) -> Mapping[str, Any]:
@@ -200,7 +193,7 @@ class Section(
 
 
 @ContentProviderDefinition("raspberry-mint-entity-card", label=_("Entity card"))
-class EntityCard(Template, ConfigurationDependentSelfFactory[EntityReference], _Base):
+class EntityCard(Template, Configurable[EntityReference], _Base):
     """
     A card featuring an entity.
     """
@@ -228,19 +221,16 @@ class EntityCard(Template, ConfigurationDependentSelfFactory[EntityReference], _
 
     @override
     @classmethod
-    def new_for_configuration(
-        cls, configuration: EntityReference
-    ) -> ServiceLevelTarget[Self]:
-        @require_project
-        async def _factory(project: Project) -> Self:
-            return cls(
-                ancestry=project.ancestry,
-                configuration=configuration,
-                entity_types=await project.plugins(EntityDefinition),
-                jinja2_environment=await project.jinja2_environment,
-            )
-
-        return CallbackServiceLevelDependentFactory(_factory)
+    @require_project
+    async def new_for_configuration(
+        cls, *, project: Project, configuration: EntityReference
+    ) -> Self:
+        return cls(
+            ancestry=project.ancestry,
+            configuration=configuration,
+            entity_types=await project.plugins(EntityDefinition),
+            jinja2_environment=await project.jinja2_environment,
+        )
 
     @override
     async def _provide_data(self, document: Document) -> Mapping[str, Any]:
@@ -260,7 +250,7 @@ class Families(Template, _Base, ServiceLevelDependentSelfFactory):
     @override
     @classmethod
     @require_project
-    async def new_for_services(cls, project: Project, /) -> Self:
+    async def new_for_services(cls, *, project: Project) -> Self:
         return cls(jinja2_environment=await project.jinja2_environment)
 
 
@@ -277,7 +267,7 @@ class Media(Template, _Base, ServiceLevelDependentSelfFactory):
     @override
     @classmethod
     @require_project
-    async def new_for_services(cls, project: Project, /) -> Self:
+    async def new_for_services(cls, *, project: Project) -> Self:
         return cls(jinja2_environment=await project.jinja2_environment)
 
 
@@ -294,7 +284,7 @@ class MediaGallery(Template, _Base, ServiceLevelDependentSelfFactory):
     @override
     @classmethod
     @require_project
-    async def new_for_services(cls, project: Project, /) -> Self:
+    async def new_for_services(cls, *, project: Project) -> Self:
         return cls(jinja2_environment=await project.jinja2_environment)
 
 
@@ -343,9 +333,7 @@ class ColorStyleConfiguration(Data):
 
 
 @ContentProviderDefinition("raspberry-mint-color-style", label=_("Color style"))
-class ColorStyle(
-    Template, _Base, ConfigurationDependentSelfFactory[ColorStyleConfiguration]
-):
+class ColorStyle(Template, _Base, Configurable[ColorStyleConfiguration]):
     """
     Change the color style for all containing content.
     """
@@ -357,17 +345,14 @@ class ColorStyle(
 
     @override
     @classmethod
-    def new_for_configuration(
-        cls, configuration: ColorStyleConfiguration
-    ) -> ServiceLevelTarget[Self]:
-        @require_project
-        async def _factory(project: Project) -> Self:
-            return cls(
-                configuration=configuration,
-                jinja2_environment=await project.jinja2_environment,
-            )
-
-        return CallbackServiceLevelDependentFactory(_factory)
+    @require_project
+    async def new_for_configuration(
+        cls, *, project: Project, configuration: ColorStyleConfiguration
+    ) -> Self:
+        return cls(
+            configuration=configuration,
+            jinja2_environment=await project.jinja2_environment,
+        )
 
     @override
     async def _provide_data(self, document: Document) -> Mapping[str, Any]:
@@ -386,7 +371,7 @@ class ExternalLinks(Template, _Base, ServiceLevelDependentSelfFactory):
     @override
     @classmethod
     @require_project
-    async def new_for_services(cls, project: Project, /) -> Self:
+    async def new_for_services(cls, *, project: Project) -> Self:
         return cls(jinja2_environment=await project.jinja2_environment)
 
 
@@ -399,7 +384,7 @@ class Timeline(Template, _Base, ServiceLevelDependentSelfFactory):
     @override
     @classmethod
     @require_project
-    async def new_for_services(cls, project: Project, /) -> Self:
+    async def new_for_services(cls, *, project: Project) -> Self:
         return cls(jinja2_environment=await project.jinja2_environment)
 
 
@@ -418,7 +403,7 @@ class Facts(Template, _Base, ServiceLevelDependentSelfFactory):
     @override
     @classmethod
     @require_project
-    async def new_for_services(cls, project: Project, /) -> Self:
+    async def new_for_services(cls, *, project: Project) -> Self:
         return cls(jinja2_environment=await project.jinja2_environment)
 
 
@@ -486,9 +471,7 @@ class PresencesConfiguration(Data):
 
 
 @ContentProviderDefinition("raspberry-mint-presences", label=_("Presences"))
-class Presences(
-    Template, _Base, ConfigurationDependentSelfFactory[PresencesConfiguration]
-):
+class Presences(Template, _Base, Configurable[PresencesConfiguration]):
     """
     People's presences at an event.
     """
@@ -516,18 +499,15 @@ class Presences(
 
     @override
     @classmethod
-    def new_for_configuration(
-        cls, configuration: PresencesConfiguration
-    ) -> ServiceLevelTarget[Self]:
-        @require_project
-        async def _factory(project: Project) -> Self:
-            return cls(
-                configuration=configuration,
-                jinja2_environment=await project.jinja2_environment,
-                presence_roles=await project.plugins(PresenceRoleDefinition),
-            )
-
-        return CallbackServiceLevelDependentFactory(_factory)
+    @require_project
+    async def new_for_configuration(
+        cls, *, project: Project, configuration: PresencesConfiguration
+    ) -> Self:
+        return cls(
+            configuration=configuration,
+            jinja2_environment=await project.jinja2_environment,
+            presence_roles=await project.plugins(PresenceRoleDefinition),
+        )
 
     @override
     async def _provide_data(self, document: Document) -> Mapping[str, Any]:
@@ -718,7 +698,7 @@ class ColumnsConfiguration(Data):
 
 
 @ContentProviderDefinition("raspberry-mint-columns", label=_("Columns"))
-class Columns(Template, _Base, ConfigurationDependentSelfFactory[ColumnsConfiguration]):
+class Columns(Template, _Base, Configurable[ColumnsConfiguration]):
     """
     A container with one or more columns.
     """
@@ -730,17 +710,14 @@ class Columns(Template, _Base, ConfigurationDependentSelfFactory[ColumnsConfigur
 
     @override
     @classmethod
-    def new_for_configuration(
-        cls, configuration: ColumnsConfiguration
-    ) -> ServiceLevelTarget[Self]:
-        @require_project
-        async def _factory(project: Project) -> Self:
-            return cls(
-                configuration=configuration,
-                jinja2_environment=await project.jinja2_environment,
-            )
-
-        return CallbackServiceLevelDependentFactory(_factory)
+    @require_project
+    async def new_for_configuration(
+        cls, *, project: Project, configuration: ColumnsConfiguration
+    ) -> Self:
+        return cls(
+            configuration=configuration,
+            jinja2_environment=await project.jinja2_environment,
+        )
 
     @override
     async def _provide_data(self, document: Document) -> Mapping[str, Any]:
@@ -763,7 +740,7 @@ class Enclosees(Template, _Base, ServiceLevelDependentSelfFactory):
     @override
     @classmethod
     @require_project
-    async def new_for_services(cls, project: Project, /) -> Self:
+    async def new_for_services(cls, *, project: Project) -> Self:
         return cls(jinja2_environment=await project.jinja2_environment)
 
 
@@ -776,7 +753,7 @@ class FileReferees(Template, _Base, ServiceLevelDependentSelfFactory):
     @override
     @classmethod
     @require_project
-    async def new_for_services(cls, project: Project, /) -> Self:
+    async def new_for_services(cls, *, project: Project) -> Self:
         return cls(jinja2_environment=await project.jinja2_environment)
 
 
@@ -789,5 +766,5 @@ class Citations(Template, _Base, ServiceLevelDependentSelfFactory):
     @override
     @classmethod
     @require_project
-    async def new_for_services(cls, project: Project, /) -> Self:
+    async def new_for_services(cls, *, project: Project) -> Self:
         return cls(jinja2_environment=await project.jinja2_environment)

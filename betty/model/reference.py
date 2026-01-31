@@ -18,12 +18,12 @@ from betty.model import EntityDefinition
 from betty.plugin.assertion import assert_plugin
 from betty.plugin.data import PluginIdDefinition
 from betty.plugin.resolve import resolve_id
-from betty.requirement import Requirement
 from betty.service.hydrate import Hydratable
+from betty.service.requirement import require_project
 
 if TYPE_CHECKING:
     from betty.plugin.resolve import ResolvableId
-    from betty.service.level import ServiceLevel
+    from betty.project import Project
 
 
 @final
@@ -63,12 +63,8 @@ class EntityReference(Data, Hydratable):
         self.id = id
 
     @override
-    async def hydrate(self, services: ServiceLevel, /) -> None:
-        from betty.project import Project
-
-        project = await Project.requires(services, repr(self))
-        if isinstance(project, Requirement):
-            raise HumanFacingException(project)
+    @require_project
+    async def hydrate(self, *, project: Project) -> None:
         entity_type = assert_plugin(await project.plugins(EntityDefinition))(self.type)
         try:
             project.ancestry[self.type][self.id]

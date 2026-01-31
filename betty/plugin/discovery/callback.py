@@ -37,5 +37,5 @@ class CallbackDiscovery(PluginDiscovery[_PluginDefinitionT]):
         self._discovery = discovery
 
     @override
-    async def discover(self, services: ServiceLevel, /) -> Iterable[_PluginDefinitionT]:
+    async def discover(self, *, services: ServiceLevel) -> Iterable[_PluginDefinitionT]:
         return await resolve_await(self._discovery())

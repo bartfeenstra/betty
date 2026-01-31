@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Self, final
 
 from typing_extensions import override
 
-from betty.config import ConfigurationDependentSelfFactory
+from betty.config import Configurable
 from betty.extension import ExtensionDefinition
 from betty.extension._theme import jinja2_filters
 from betty.extension.maps import Maps
@@ -20,12 +20,9 @@ from betty.extension.webpack import Webpack
 from betty.extension.webpack.build import EntryPointProvider
 from betty.jinja2 import Filters, Jinja2Provider
 from betty.model import EntityDefinition
-from betty.project.factory import require_project
 from betty.project.generate import Generator
-from betty.service.level.factory import (
-    CallbackServiceLevelDependentFactory,
-    ServiceLevelDependentSelfFactory,
-)
+from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.requirement import require_project
 from betty.typing import private
 
 if TYPE_CHECKING:
@@ -34,7 +31,7 @@ if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
     from betty.project import Project
     from betty.project.job import ProjectContext
-    from betty.service.level.factory import ServiceLevelTarget
+    from betty.service.level import ServiceLevel
 
 
 @final
@@ -50,7 +47,7 @@ if TYPE_CHECKING:
     assets_directory_path=Path(__file__).parent / "assets",
 )
 class RaspberryMint(
-    ConfigurationDependentSelfFactory[RaspberryMintConfiguration],
+    Configurable[RaspberryMintConfiguration],
     ServiceLevelDependentSelfFactory,
     Jinja2Provider,
     Generator,
@@ -110,20 +107,19 @@ class RaspberryMint(
 
     @override
     @classmethod
-    @require_project
-    async def new_for_services(cls, project: Project, /) -> Self:
-        return cls(project=project)
+    async def new_for_services(cls, *, services: ServiceLevel) -> Self:
+        return await cls.new_for_configuration(services=services)
 
     @override
     @classmethod
-    def new_for_configuration(
-        cls, configuration: RaspberryMintConfiguration
-    ) -> ServiceLevelTarget[Self]:
-        return CallbackServiceLevelDependentFactory(
-            require_project(
-                lambda project: cls(configuration=configuration, project=project)
-            )
-        )
+    @require_project
+    async def new_for_configuration(
+        cls,
+        *,
+        project: Project,
+        configuration: RaspberryMintConfiguration | None = None,
+    ) -> Self:
+        return cls(configuration=configuration, project=project)
 
     @override
     async def generate(self, scheduler: Scheduler[ProjectContext]) -> None:

@@ -12,9 +12,9 @@ from betty.extension.trees.jobs import _GeneratePeopleJson
 from betty.extension.webpack import Webpack
 from betty.extension.webpack.build import EntryPointProvider
 from betty.locale.localizable.gettext import _
-from betty.project.factory import require_project
 from betty.project.generate import Generator
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.requirement import require_project
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -40,7 +40,7 @@ class Trees(Generator, EntryPointProvider, ServiceLevelDependentSelfFactory):
     @override
     @classmethod
     @require_project
-    async def new_for_services(cls, project: Project, /) -> Self:
+    async def new_for_services(cls, *, project: Project) -> Self:
         return cls(project=project)
 
     @override

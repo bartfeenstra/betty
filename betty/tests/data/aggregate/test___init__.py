@@ -15,7 +15,7 @@ from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 class _AggregateDefinitionTestData(Hydratable):
     @override
-    async def hydrate(self, services: ServiceLevel, /) -> None:
+    async def hydrate(self, *, services: ServiceLevel) -> None:
         raise HumanFacingException("Uh-oh!")
 
 
@@ -40,5 +40,7 @@ class TestAggregateDefinition:
 
         sut = _Sut()
         with pytest.raises(HumanFacingException) as exc_info:
-            await sut.hydrate(universe, {"key": _AggregateDefinitionTestData()})
+            await sut.hydrate(
+                services=universe, data={"key": _AggregateDefinitionTestData()}
+            )
         assert exc_info.value.indicators == [Key("key")]

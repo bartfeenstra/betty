@@ -22,10 +22,10 @@ class TestFilePathDefinition:
     async def test_hydrate(self) -> None:
         file_path = ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png"
         sut = FilePathDefinition()
-        await sut.hydrate(universe, str(file_path))
+        await sut.hydrate(services=universe, data=str(file_path))
 
     async def test_hydrate__with_non_existent_file(self, tmp_path: Path) -> None:
         file_path = tmp_path / "non-existent-file"
         sut = FilePathDefinition()
         with pytest.raises(FileNotFound):
-            await sut.hydrate(universe, file_path)
+            await sut.hydrate(services=universe, data=file_path)

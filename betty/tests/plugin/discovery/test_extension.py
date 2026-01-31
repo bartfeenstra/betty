@@ -46,7 +46,7 @@ class TestExtensionDiscovery:
     ) -> None:
         expected, discovery = sut_params
         sut = ExtensionDiscovery(DummyExtensionOne, discovery)
-        assert not list(await sut.discover(universe))
+        assert not list(await sut.discover(services=universe))
 
     async def test_discover__with_app(
         self,
@@ -55,7 +55,7 @@ class TestExtensionDiscovery:
     ) -> None:
         expected, discovery = sut_params
         sut = ExtensionDiscovery(DummyExtensionOne, discovery)
-        assert not list(await sut.discover(isolated_app))
+        assert not list(await sut.discover(services=isolated_app))
 
     async def test_discover__with_project_without_extension(
         self,
@@ -65,7 +65,7 @@ class TestExtensionDiscovery:
         expected, discovery = sut_params
         async with Project.new_isolated(isolated_app) as project, project:
             sut = ExtensionDiscovery(DummyExtensionOne, discovery)
-            assert not list(await sut.discover(project))
+            assert not list(await sut.discover(services=project))
 
     async def test_discover__with_project_with_extension(
         self,
@@ -80,4 +80,4 @@ class TestExtensionDiscovery:
                 project.configuration.extensions.add(DummyExtensionOne)
                 async with project:
                     sut = ExtensionDiscovery(DummyExtensionOne, discovery)
-                    assert await sut.discover(project) == expected
+                    assert await sut.discover(services=project) == expected

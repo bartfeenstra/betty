@@ -36,13 +36,13 @@ class TestEntityReference(DataTestBase[EntityReference]):
             EntityDefinition.type().override_discovery(StaticDiscovery(DummyEntityOne)),
             pytest.raises(HumanFacingException),
         ):
-            await sut.hydrate(universe)
+            await sut.hydrate(services=universe)
 
     async def test_hydrate__with_unknown_entity_type(self, isolated_app: App) -> None:
         sut = EntityReference(DummyEntityOne, "unknown-entity")
         async with Project.new_isolated(isolated_app) as project, project:
             with pytest.raises(HumanFacingException):
-                await sut.hydrate(project)
+                await sut.hydrate(services=project)
 
     async def test_hydrate__with_unknown_entity(self, isolated_app: App) -> None:
         sut = EntityReference(DummyEntityOne, "unknown-entity")
@@ -51,7 +51,7 @@ class TestEntityReference(DataTestBase[EntityReference]):
                 StaticDiscovery(DummyEntityOne)
             ):
                 with pytest.raises(HumanFacingException):
-                    await sut.hydrate(project)
+                    await sut.hydrate(services=project)
 
     async def test_hydrate__with_known_entity(self, isolated_app: App) -> None:
         entity_id = "my-first-entity"
@@ -62,4 +62,4 @@ class TestEntityReference(DataTestBase[EntityReference]):
                 with EntityDefinition.type().override_discovery(
                     StaticDiscovery(DummyEntityOne)
                 ):
-                    await sut.hydrate(project)
+                    await sut.hydrate(services=project)

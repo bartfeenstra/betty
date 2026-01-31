@@ -12,9 +12,9 @@ from betty.locale.localizable.markup import AllEnumeration
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML
 from betty.project import Project
-from betty.project.factory import require_project
 from betty.render import Renderer, RendererDefinition
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.requirement import require_project
 from betty.typing import private
 from betty.url import UrlGenerator
 
@@ -40,7 +40,7 @@ class Html(ServiceLevelDependentSelfFactory, Renderer):
     @override
     @classmethod
     @require_project
-    async def new_for_services(cls, project: Project, /) -> Self:
+    async def new_for_services(cls, *, project: Project) -> Self:
         return cls(url_generator=await project.url_generator)
 
     @override

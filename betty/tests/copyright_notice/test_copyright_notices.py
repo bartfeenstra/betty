@@ -116,5 +116,5 @@ class TestWikipediaContributors(CopyrightNoticeTestBase):
             "https://en.wikipedia.org/w/api.php?action=query&titles=Wikipedia:Copyrights&prop=langlinks&lllimit=500&format=json&formatversion=2",
             body=dumps(response_json),
         )
-        sut = await WikipediaContributors.new_for_services(isolated_app)
+        sut = await WikipediaContributors.new_for_services(services=isolated_app)
         assert sut.url.localize(DEFAULT_LOCALIZER)

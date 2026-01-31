@@ -1,6 +1,5 @@
 from gettext import NullTranslations
 from pathlib import Path
-from typing import cast
 
 import aiofiles
 import pytest
@@ -9,7 +8,6 @@ from typing_extensions import override
 
 from betty.ancestry.note import Note
 from betty.app import App
-from betty.config import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.content_provider.content_providers import (
     Box,
@@ -30,7 +28,6 @@ from betty.project import Project
 from betty.render import RenderDispatcher
 from betty.render.plain_text import PlainText
 from betty.test_utils.ancestry.has_notes import DummyHasNotes
-from betty.test_utils.config.factory import ConfigurationDependentSelfFactoryTestBase
 from betty.test_utils.content_provider import ContentProviderTestBase
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
@@ -45,10 +42,7 @@ class TestRenderConfiguration(DataTestBase[RenderConfiguration]):
         assert sut.content is content
 
 
-class TestRender(
-    ConfigurationDependentSelfFactoryTestBase[RenderConfiguration],
-    ContentProviderTestBase,
-):
+class TestRender(ContentProviderTestBase):
     @override
     @pytest.fixture
     async def sut(self) -> ContentProvider:
@@ -56,20 +50,6 @@ class TestRender(
             configuration=RenderConfiguration("Hello, world!"),
             renderer=RenderDispatcher(PlainText()),
         )
-
-    @override
-    @pytest.fixture
-    async def configuration_dependent_self_factory_sut(
-        self,
-    ) -> type[ConfigurationDependentSelfFactory[RenderConfiguration]]:
-        return Render
-
-    @override
-    @pytest.fixture(params=RenderConfiguration.data().samples)
-    def configuration_dependent_self_factory_sut_configuration(
-        self, request: pytest.FixtureRequest
-    ) -> RenderConfiguration:
-        return cast(RenderConfiguration, request.param)
 
     @pytest.mark.parametrize(
         ("expected", "content", "locale"),
@@ -154,14 +134,14 @@ class TestNotes(ContentProviderTestBase):
 
     async def test_provide__without_has_notes_resource(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            sut = await Notes.new_for_services(project)
+            sut = await Notes.new_for_services(services=project)
             assert await sut.provide(document=Document()) is None
 
     async def test_provide__without_notes(self, isolated_app: App) -> None:
         has_notes = DummyHasNotes()
         async with Project.new_isolated(isolated_app) as project, project:
             project.ancestry.add(has_notes)
-            sut = await Notes.new_for_services(project)
+            sut = await Notes.new_for_services(services=project)
             assert await sut.provide(document=Document(has_notes)) is None
 
     async def test_provide__with_notes(self, isolated_app: App) -> None:
@@ -169,7 +149,7 @@ class TestNotes(ContentProviderTestBase):
         has_notes = DummyHasNotes(notes=[Note(note_text)])
         async with Project.new_isolated(isolated_app) as project, project:
             project.ancestry.add(has_notes)
-            sut = await Notes.new_for_services(project)
+            sut = await Notes.new_for_services(services=project)
             actual = await sut.provide(document=Document(has_notes))
             assert actual is not None
             assert note_text in actual
@@ -188,26 +168,20 @@ class TestBox(ContentProviderTestBase):
     @pytest.fixture
     async def sut(self, isolated_app: App) -> ContentProvider:
         async with Project.new_isolated(isolated_app) as project, project:
-            return await project.new_target(
-                Box.new_for_configuration(
-                    BoxConfiguration(
-                        PluginConfiguration(
-                            Render, RenderConfiguration(DUMMY_LOCALIZABLE)
-                        )  # ty:ignore[invalid-argument-type]
-                    )
-                )
+            return await Box.new_for_configuration(
+                services=project,
+                configuration=BoxConfiguration(
+                    PluginConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE))  # ty:ignore[invalid-argument-type]
+                ),
             )
 
     async def test_provide__minimal(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            sut = await project.new_target(
-                Box.new_for_configuration(
-                    BoxConfiguration(
-                        PluginConfiguration(
-                            Render, RenderConfiguration(DUMMY_LOCALIZABLE)
-                        )  # ty:ignore[invalid-argument-type]
-                    )
-                )
+            sut = await Box.new_for_configuration(
+                services=project,
+                configuration=BoxConfiguration(
+                    PluginConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE))  # ty:ignore[invalid-argument-type]
+                ),
             )
             actual = await sut.provide(document=Document())
         assert actual is not None
@@ -215,20 +189,17 @@ class TestBox(ContentProviderTestBase):
 
     async def test_provide__full(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            sut = await project.new_target(
-                Box.new_for_configuration(
-                    BoxConfiguration(
-                        PluginConfiguration(
-                            Render, RenderConfiguration(DUMMY_LOCALIZABLE)
-                        ),  # ty:ignore[invalid-argument-type]
-                        min_height="MIN_HEIGHT",
-                        max_height="MAX_HEIGHT",
-                        height="HEIGHT",
-                        min_width="MIN_WIDTH",
-                        max_width="MAX_WIDTH",
-                        width="WIDTH",
-                    )
-                )
+            sut = await Box.new_for_configuration(
+                services=project,
+                configuration=BoxConfiguration(
+                    PluginConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE)),  # ty:ignore[invalid-argument-type]
+                    min_height="MIN_HEIGHT",
+                    max_height="MAX_HEIGHT",
+                    height="HEIGHT",
+                    min_width="MIN_WIDTH",
+                    max_width="MAX_WIDTH",
+                    width="WIDTH",
+                ),
             )
             actual = await sut.provide(document=Document())
         assert actual is not None

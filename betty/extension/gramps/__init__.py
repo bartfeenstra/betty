@@ -8,24 +8,19 @@ from typing import TYPE_CHECKING, Self, final
 
 from typing_extensions import override
 
-from betty.config import ConfigurationDependentSelfFactory
+from betty.config import Configurable
 from betty.extension import Extension, ExtensionDefinition
 from betty.extension.gramps.config import GrampsConfiguration
 from betty.extension.gramps.jobs import LoadAncestry
 from betty.locale.localizable.gettext import _
-from betty.project.factory import require_project
 from betty.project.load import Loader
-from betty.service.level.factory import (
-    CallbackServiceLevelDependentFactory,
-    ServiceLevelDependentSelfFactory,
-)
+from betty.service.requirement import require_project
 from betty.typing import private
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
     from betty.project import Project
     from betty.project.job import ProjectContext
-    from betty.service.level.factory import ServiceLevelTarget
 
 
 @final
@@ -34,12 +29,7 @@ if TYPE_CHECKING:
     label="Gramps",
     description=_("Load Gramps family trees."),
 )
-class Gramps(
-    Loader,
-    ConfigurationDependentSelfFactory[GrampsConfiguration],
-    ServiceLevelDependentSelfFactory,
-    Extension,
-):
+class Gramps(Loader, Configurable[GrampsConfiguration], Extension):
     """
     .. plugin:: extension:gramps.
 
@@ -330,19 +320,10 @@ class Gramps(
     @override
     @classmethod
     @require_project
-    async def new_for_services(cls, project: Project, /) -> Self:
-        return cls(project=project)
-
-    @override
-    @classmethod
-    def new_for_configuration(
-        cls, configuration: GrampsConfiguration
-    ) -> ServiceLevelTarget[Self]:
-        return CallbackServiceLevelDependentFactory(
-            require_project(
-                lambda project: cls(configuration=configuration, project=project)
-            )
-        )
+    async def new_for_configuration(
+        cls, *, project: Project, configuration: GrampsConfiguration | None = None
+    ) -> Self:
+        return cls(configuration=configuration, project=project)
 
     @override
     async def load(self, scheduler: Scheduler[ProjectContext]) -> None:

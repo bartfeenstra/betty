@@ -1,6 +1,5 @@
 import gzip
 from pathlib import Path
-from typing import cast
 
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
@@ -16,7 +15,6 @@ from betty.ancestry.place_type.place_types import City
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.app import App
-from betty.config import ConfigurationDependentSelfFactory
 from betty.extension import Extension
 from betty.extension.gramps import Gramps
 from betty.extension.gramps.config import (
@@ -26,34 +24,15 @@ from betty.extension.gramps.config import (
 from betty.plugin.config import PluginConfiguration
 from betty.project import Project
 from betty.project.load import load
-from betty.test_utils.config.factory import (
-    ConfigurationDependentSelfFactoryTestBase,
-)
 from betty.test_utils.project.extension import ExtensionTestBase
 
 
-class TestGramps(
-    ExtensionTestBase, ConfigurationDependentSelfFactoryTestBase[GrampsConfiguration]
-):
+class TestGramps(ExtensionTestBase):
     @override
     @pytest.fixture
     async def sut(self, isolated_app: App) -> Extension:
         async with Project.new_isolated(isolated_app) as project, project:
             return Gramps(project=project)
-
-    @override
-    @pytest.fixture
-    async def configuration_dependent_self_factory_sut(
-        self,
-    ) -> type[ConfigurationDependentSelfFactory[GrampsConfiguration]]:
-        return Gramps
-
-    @override
-    @pytest.fixture(params=GrampsConfiguration.data().samples)
-    def configuration_dependent_self_factory_sut_configuration(
-        self, request: pytest.FixtureRequest
-    ) -> GrampsConfiguration:
-        return cast(GrampsConfiguration, request.param)
 
     async def test_load__with_event_type_mapping(
         self, isolated_app: App, tmp_path: Path

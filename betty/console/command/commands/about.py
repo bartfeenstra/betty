@@ -9,7 +9,6 @@ from rich.table import Table
 from typing_extensions import override
 
 from betty import about
-from betty.app.factory import require_app
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.console.project import add_project_argument
 from betty.definition.human_facing import HumanFacingDefinition
@@ -18,6 +17,7 @@ from betty.plugin import plugin_types
 from betty.plugin.requirement import get_requirement
 from betty.rich.user import RichUser
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.requirement import require_app
 
 if TYPE_CHECKING:
     import argparse
@@ -44,7 +44,7 @@ class About(ServiceLevelDependentSelfFactory, Command):
     @override
     @classmethod
     @require_app
-    async def new_for_services(cls, app: App, /) -> Self:
+    async def new_for_services(cls, *, app: App) -> Self:
         return cls(app)
 
     @override

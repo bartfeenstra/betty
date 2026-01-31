@@ -11,8 +11,8 @@ from typing_extensions import override
 from betty.json.schema import JsonSchemaReference, Schema
 from betty.model import EntityDefinition
 from betty.model.schema import ToManySchema
-from betty.project.factory import require_project
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.requirement import require_project
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
@@ -52,7 +52,7 @@ class ProjectSchema(ServiceLevelDependentSelfFactory, Schema):
     @override
     @classmethod
     @require_project
-    async def new_for_services(cls, project: Project, /) -> Self:
+    async def new_for_services(cls, *, project: Project) -> Self:
         schema = cls()
         schema._schema["$id"] = await cls.url(project)
 

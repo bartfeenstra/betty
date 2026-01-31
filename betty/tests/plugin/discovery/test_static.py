@@ -8,5 +8,5 @@ from betty.test_utils.plugin import DummyPluginOne
 class TestStaticDiscovery:
     async def test_discover(self) -> None:
         sut = StaticDiscovery(DummyPluginOne)
-        plugins = await sut.discover(universe)
+        plugins = await sut.discover(services=universe)
         assert DummyPluginOne.plugin() in plugins

@@ -105,7 +105,7 @@ class TestEntityTypeConfiguration(DataTestBase[EntityTypeConfiguration]):
             ),
             pytest.raises(HumanFacingException),
         ):
-            await sut.hydrate(universe)
+            await sut.hydrate(services=universe)
 
 
 class TestProjectConfiguration(DataTestBase[ProjectConfiguration]):

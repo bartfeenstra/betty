@@ -29,7 +29,7 @@ class PluginDiscovery(ABC, Generic[_PluginDefinitionT]):
     """
 
     @abstractmethod
-    async def discover(self, services: ServiceLevel, /) -> Iterable[_PluginDefinitionT]:
+    async def discover(self, *, services: ServiceLevel) -> Iterable[_PluginDefinitionT]:
         """
         Get the definitions for this plugin type.
         """
@@ -45,5 +45,5 @@ async def discover(
     return [
         plugin
         for discovery in discoveries
-        for plugin in await discovery.discover(services)
+        for plugin in await discovery.discover(services=services)
     ]

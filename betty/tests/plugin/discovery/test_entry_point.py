@@ -32,7 +32,7 @@ class TestEntryPointDiscovery:
             ),
         )
         sut = EntryPointDiscovery(entry_point_group)
-        plugins = await sut.discover(universe)
+        plugins = await sut.discover(services=universe)
         assert DummyPluginOne.plugin() in plugins
         assert DummyPluginTwo.plugin() in plugins
         m_entry_points.assert_called_once_with(group=entry_point_group)

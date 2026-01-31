@@ -53,7 +53,9 @@ class TestBuiltinProjectServer:
                 project.www_directory_path / "index.html", "w"
             ) as f:
                 await f.write(content)
-            async with await BuiltinProjectServer.new_for_services(project) as server:
+            async with await BuiltinProjectServer.new_for_services(
+                services=project
+            ) as server:
 
                 def _assert_response(response: Response) -> None:
                     assert response.status_code == 200

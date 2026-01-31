@@ -26,11 +26,11 @@ from betty.plugin.config import (
     resolve_plugin_configuration_sequence,
 )
 from betty.plugin.data import PluginConfigurationSequenceDefinition
-from betty.requirement import Requirement
 from betty.service.hydrate import Hydratable
+from betty.service.requirement import require_extension
 
 if TYPE_CHECKING:
-    from betty.service.level import ServiceLevel
+    from betty.extension.raspberry_mint import RaspberryMint
 
 ResolvableRegionalContent: TypeAlias = Mapping[
     str,
@@ -147,13 +147,9 @@ class RaspberryMintConfiguration(Data, Hydratable):
             )
 
     @override
-    async def hydrate(self, services: ServiceLevel, /) -> None:
-        from betty.extension.raspberry_mint import RaspberryMint
-
-        raspberry_mint = await RaspberryMint.requires(services, repr(self))
-        if isinstance(raspberry_mint, Requirement):
-            raise HumanFacingException(raspberry_mint)
-        available_regions = await raspberry_mint.regions
+    @require_extension("raspberry-mint")
+    async def hydrate(self, *, extension: RaspberryMint) -> None:
+        available_regions = await extension.regions
         with reraise_with_indicator(Attr("regional_content")):
             for region in self.regional_content:
                 with reraise_with_indicator(Key(region)):

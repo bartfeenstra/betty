@@ -19,7 +19,7 @@ from betty.app.config import AppConfiguration
 from betty.asset import AssetRepository, StaticAssetRepository
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
-from betty.config import Configurable
+from betty.config import HasConfiguration
 from betty.dirs import CACHE_DIRECTORY_PATH
 from betty.http_client import ClientErrorToUserMessageMiddleware
 from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
@@ -68,7 +68,7 @@ _PluginDefinitionT = TypeVar(
 
 @final
 @threadsafe
-class App(Configurable[AppConfiguration], ServiceLevel):
+class App(HasConfiguration[AppConfiguration], ServiceLevel):
     """
     The Betty application.
 

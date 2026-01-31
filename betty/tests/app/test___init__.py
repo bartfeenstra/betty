@@ -5,12 +5,12 @@ from typing import Self
 from typing_extensions import override
 
 from betty.app import App
-from betty.app.factory import require_app
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.project import Project
 from betty.requirement import Requirement
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
 from betty.service.level.universal import universe
+from betty.service.requirement import require_app
 from betty.test_utils.plugin import DummyPluginDefinition
 from betty.test_utils.user import StaticUser
 
@@ -22,7 +22,7 @@ class _ServiceLevelDependentSelfFactory(ServiceLevelDependentSelfFactory):
     @override
     @classmethod
     @require_app
-    async def new_for_services(cls, app: App, /) -> Self:
+    async def new_for_services(cls, *, app: App) -> Self:
         return cls(app)
 
 

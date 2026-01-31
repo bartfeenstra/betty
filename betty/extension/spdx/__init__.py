@@ -12,9 +12,9 @@ from betty.license.licenses import SpdxLicenseBuilder
 from betty.locale.localizable.gettext import _
 from betty.plugin.discovery.extension import ExtensionDiscovery
 from betty.plugin.repository.static import StaticPluginRepository
-from betty.project.factory import require_project
 from betty.service.container import service
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.requirement import require_project
 
 if TYPE_CHECKING:
     from betty.plugin.repository import PluginRepository
@@ -37,7 +37,7 @@ class Spdx(ServiceLevelDependentSelfFactory, Extension):
     @override
     @classmethod
     @require_project
-    async def new_for_services(cls, project: Project, /) -> Self:
+    async def new_for_services(cls, *, project: Project) -> Self:
         return cls(project=project)
 
     @service

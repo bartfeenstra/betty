@@ -23,7 +23,7 @@ class TestWebpack(ExtensionTestBase):
         async with (
             Project.new_isolated(isolated_app) as project,
             project,
-            await Webpack.new_for_services(project) as sut,
+            await Webpack.new_for_services(services=project) as sut,
         ):
             yield sut
 
@@ -60,5 +60,5 @@ class TestWebpack(ExtensionTestBase):
 
     async def test_new_document_vars(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            sut = await Webpack.new_for_services(project)
+            sut = await Webpack.new_for_services(services=project)
             assert sut.new_document_vars()

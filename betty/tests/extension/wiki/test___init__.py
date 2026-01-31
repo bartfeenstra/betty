@@ -26,7 +26,7 @@ class TestWiki(ExtensionTestBase):
     @pytest.fixture
     async def sut(self, isolated_app: App) -> Extension:
         async with Project.new_isolated(isolated_app) as project, project:
-            return await Wiki.new_for_services(project)
+            return await Wiki.new_for_configuration(services=project)
 
     async def test_filters(self, sut: Wiki) -> None:
         assert sut.filters

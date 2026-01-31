@@ -14,15 +14,17 @@ from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.requirement import new_dependencies_requirement
 from betty.requirement import HasRequirement, Requirement, StaticRequirement
 from betty.service.container import ServiceContainer
-from betty.typing import private
+from betty.typing import Void, private
 
 if TYPE_CHECKING:
     from collections.abc import Set
     from pathlib import Path
 
+    from betty.data import Data
     from betty.locale.localizable import ResolvableLocalizable
     from betty.machine_name import MachineName
     from betty.plugin.resolve import ResolvableId
+    from betty.portable import PortableData
     from betty.project import Project
     from betty.service.level import ServiceLevel
     from betty.service.level.factory import ServiceLevelTarget
@@ -80,8 +82,13 @@ class Extension(ServiceContainer, HasRequirement, Plugin["ExtensionDefinition"])
         )
 
     @override
-    async def _new_target(self, target: ServiceLevelTarget[_T]) -> _T:
-        return await self._project.new_target(target)
+    async def _new_target(
+        self,
+        target: ServiceLevelTarget[_T],
+        configuration: Data | PortableData | Void = Void(),  # noqa: B008
+        /,
+    ) -> _T:
+        return await self._project.new_target(target, configuration)
 
 
 @final
