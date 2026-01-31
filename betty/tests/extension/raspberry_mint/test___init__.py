@@ -19,7 +19,7 @@ from betty.tests.conftest import check_skip_webpack_entry_point_provider
 
 if TYPE_CHECKING:
     from betty.app import App
-    from betty.config.factory import ConfigurationDependentSelfFactory
+    from betty.config import ConfigurationDependentSelfFactory
     from betty.extension import Extension
 
 

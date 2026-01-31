@@ -1,27 +1,54 @@
 """
-Integrate the configuration and factory APIs.
+The Configuration API.
 """
 
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Self, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Generic, Self, cast
 
-from betty.config import Configurable
+from typing_extensions import TypeVar
+
 from betty.data import Data
 from betty.exception import HumanFacingException
 from betty.factory import FactoryError
 from betty.importlib import fully_qualified_name
 from betty.locale.localizable.gettext import _
+from betty.portable import PortableData
 from betty.typing import Void
 
 if TYPE_CHECKING:
-    from betty.portable import PortableData
     from betty.service.level.factory import ServiceLevelTarget
+
+_PortableDataT = TypeVar("_PortableDataT", bound=PortableData, default=PortableData)
 
 
 _T = TypeVar("_T")
 _DataT = TypeVar("_DataT", bound=Data)
+
+
+class Configurable(ABC, Generic[_DataT]):
+    """
+    Any configurable object.
+    """
+
+    def __init__(self, *args: Any, configuration: _DataT, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+        self._configuration = configuration
+
+    @property
+    def configuration(self) -> _DataT:
+        """
+        The object's configuration.
+        """
+        return self._configuration
+
+    @classmethod
+    @abstractmethod
+    def configuration_cls(cls) -> type[_DataT]:
+        """
+        The object's configuration class.
+        """
 
 
 class ConfigurationDependentSelfFactory(Configurable[_DataT], ABC):

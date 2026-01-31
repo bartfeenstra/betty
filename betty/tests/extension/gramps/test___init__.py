@@ -16,7 +16,7 @@ from betty.ancestry.place_type.place_types import City
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.app import App
-from betty.config.factory import ConfigurationDependentSelfFactory
+from betty.config import ConfigurationDependentSelfFactory
 from betty.extension import Extension
 from betty.extension.gramps import Gramps
 from betty.extension.gramps.config import (

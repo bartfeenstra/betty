@@ -19,7 +19,7 @@ import betty
 import betty.dirs
 from betty.ancestry import Ancestry
 from betty.asset import AssetRepository, ProxyAssetRepository, StaticAssetRepository
-from betty.config import Configurable
+from betty.config import Configurable, new_target
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.document import Document, DocumentProvider
 from betty.extension import Extension, ExtensionDefinition
@@ -339,8 +339,6 @@ class Project(Configurable[ProjectConfiguration], ServiceLevel):
         """
         The enabled extensions.
         """
-        from betty.config.factory import new_target
-
         extensions = await self.plugins(ExtensionDefinition)
         configured_extension_definitions = []
         configured_extension_configurations = {}

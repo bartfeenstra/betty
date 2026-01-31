@@ -17,7 +17,7 @@ from betty.ancestry.presence_role import PresenceRoleDefinition
 from betty.ancestry.presence_role.presence_roles import Subject, Witness
 from betty.ancestry.source import Source
 from betty.app import App
-from betty.config.factory import ConfigurationDependentSelfFactory
+from betty.config import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.content_provider.content_providers import Render, RenderConfiguration
 from betty.date import Date

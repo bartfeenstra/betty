@@ -17,7 +17,7 @@ from betty.assertion import (
     assert_or,
     assert_sequence,
 )
-from betty.config.factory import ConfigurationDependentSelfFactory
+from betty.config import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.content_provider.content_providers import (
     Render,

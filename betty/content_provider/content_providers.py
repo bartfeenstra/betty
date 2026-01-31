@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, Self, final
 
 from typing_extensions import override
 
-from betty.config.factory import ConfigurationDependentSelfFactory
+from betty.config import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.data import Data, Sample
 from betty.data.aggregate.record.object import ObjectDefinition

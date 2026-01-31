@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Self, final
 
 from typing_extensions import override
 
-from betty.config.factory import ConfigurationDependentSelfFactory
+from betty.config import ConfigurationDependentSelfFactory
 from betty.extension import ExtensionDefinition
 from betty.extension._theme import jinja2_filters
 from betty.extension.maps import Maps
