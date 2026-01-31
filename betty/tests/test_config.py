@@ -3,12 +3,24 @@ from typing import Self
 import pytest
 from typing_extensions import override
 
-from betty.config import Configurable
-from betty.config.factory import ConfigurationDependentSelfFactory, new_target
+from betty.config import Configurable, ConfigurationDependentSelfFactory, new_target
 from betty.factory import FactoryError
 from betty.service.level.factory import ServiceLevelTarget
 from betty.service.level.universal import universe
 from betty.test_utils.data import DummyData
+
+
+class TestConfigurable:
+    class _DummyConfigurable(Configurable[DummyData]):
+        @override
+        @classmethod
+        def configuration_cls(cls) -> type[DummyData]:
+            return DummyData
+
+    def test_configuration(self) -> None:
+        configuration = DummyData()
+        sut = self._DummyConfigurable(configuration=configuration)
+        assert sut.configuration is configuration
 
 
 class _DummyConfiguration(DummyData):

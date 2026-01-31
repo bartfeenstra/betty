@@ -17,7 +17,7 @@ from betty.assertion import (
     assert_or,
     assert_record,
 )
-from betty.config.factory import new_target
+from betty.config import new_target
 from betty.data import Data
 from betty.data.aggregate.record import PortableRecord
 from betty.data.aggregate.record.object import ObjectDefinition

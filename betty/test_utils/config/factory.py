@@ -1,5 +1,5 @@
 """
-Test utilities for :py:mod:`betty.config.factory`.
+Test utilities for :py:mod:`betty.config`.
 """
 
 from typing import Generic, TypeVar
@@ -7,7 +7,7 @@ from typing import Generic, TypeVar
 import pytest
 
 from betty.app import App
-from betty.config.factory import ConfigurationDependentSelfFactory
+from betty.config import ConfigurationDependentSelfFactory
 from betty.data import Data
 from betty.factory import FactoryError
 from betty.project import Project
@@ -19,7 +19,7 @@ _ConfigurationT = TypeVar("_ConfigurationT", bound=Data)
 
 class ConfigurationDependentSelfFactoryTestBase(Generic[_ConfigurationT]):
     """
-    A base class for testing :py:class:`betty.config.factory.ConfigurationDependentSelfFactory` implementations.
+    A base class for testing :py:class:`betty.config.ConfigurationDependentSelfFactory` implementations.
     """
 
     @pytest.fixture
@@ -48,7 +48,7 @@ class ConfigurationDependentSelfFactoryTestBase(Generic[_ConfigurationT]):
         configuration_dependent_self_factory_sut_configuration: _ConfigurationT,
     ) -> None:
         """
-        Tests :py:meth:`betty.config.factory.ConfigurationDependentSelfFactory.new_for_configuration` implementations.
+        Tests :py:meth:`betty.config.ConfigurationDependentSelfFactory.new_for_configuration` implementations.
         """
         try:
             sut = await universe.new_target(
@@ -81,7 +81,7 @@ class ConfigurationDependentSelfFactoryTestBase(Generic[_ConfigurationT]):
         isolated_app: App,
     ) -> None:
         """
-        Tests :py:meth:`betty.config.factory.ConfigurationDependentSelfFactory.new_for_configuration` implementations.
+        Tests :py:meth:`betty.config.ConfigurationDependentSelfFactory.new_for_configuration` implementations.
         """
         try:
             await isolated_app.new_target(
@@ -111,7 +111,7 @@ class ConfigurationDependentSelfFactoryTestBase(Generic[_ConfigurationT]):
         isolated_app: App,
     ) -> None:
         """
-        Tests :py:meth:`betty.config.factory.ConfigurationDependentSelfFactory.new_for_configuration` implementations.
+        Tests :py:meth:`betty.config.ConfigurationDependentSelfFactory.new_for_configuration` implementations.
         """
         async with Project.new_isolated(isolated_app) as project, project:
             try:

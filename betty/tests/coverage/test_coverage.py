@@ -126,8 +126,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "validator": MissingReason.STATIC_CONTENT_ONLY,
         },
     },
-    "betty/config/collections/__init__.py": MissingReason.ABSTRACT,
-    "betty/config/factory.py": {
+    "betty/config.py": {
         "ConfigurationDependentSelfFactory": MissingReason.ABSTRACT,
     },
     "betty/content_provider/__init__.py": {

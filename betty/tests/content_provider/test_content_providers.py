@@ -9,7 +9,7 @@ from typing_extensions import override
 
 from betty.ancestry.note import Note
 from betty.app import App
-from betty.config.factory import ConfigurationDependentSelfFactory
+from betty.config import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.content_provider.content_providers import (
     Box,
