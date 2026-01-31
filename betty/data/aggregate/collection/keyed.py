@@ -13,7 +13,7 @@ from betty.data import Data, DataDefinition
 from betty.data.aggregate.collection import CollectionDefinition
 from betty.data.aggregate.record import RecordDefinition
 from betty.data.indicator.selector import Element, Key
-from betty.locale.localizable import LocalizableLike
+from betty.locale.localizable import ResolvableLocalizable
 from betty.portable import (
     CallbackPorter,
     PortableData,
@@ -41,8 +41,8 @@ class KeyedCollectionDefinition(
         value: RecordDefinition[_ValueT] | type[Data[RecordDefinition]],
         key: Element[str],
         ordered: bool,
-        label: LocalizableLike,
-        description: LocalizableLike | None = None,
+        label: ResolvableLocalizable,
+        description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
             cls=KeyedCollection,

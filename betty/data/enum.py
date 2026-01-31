@@ -11,7 +11,7 @@ from betty.data import DataDefinition
 from betty.portable import CallbackPorter
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import LocalizableLike
+    from betty.locale.localizable import ResolvableLocalizable
 
 _EnumT = TypeVar("_EnumT", bound=Enum)
 
@@ -26,8 +26,8 @@ class EnumDefinition(DataDefinition[_EnumT]):
         self,
         *,
         cls: type[_EnumT],
-        label: LocalizableLike,
-        description: LocalizableLike | None = None,
+        label: ResolvableLocalizable,
+        description: ResolvableLocalizable | None = None,
     ):
         from betty.assertion import assert_enum
 

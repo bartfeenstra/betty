@@ -5,7 +5,7 @@ from typing import Any
 import pytest
 from typing_extensions import override
 
-from betty.locale import LocaleLike
+from betty.locale import ResolvableLocale
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML, JSON
 from betty.url import UnsupportedResource, UrlGenerator
@@ -25,7 +25,7 @@ class TestProxyUrlGenerator:
             *,
             absolute: bool = False,
             fragment: str | None = None,
-            locale: LocaleLike | None = None,
+            locale: ResolvableLocale | None = None,
             media_type: MediaType | None = None,
             query: Mapping[str, Sequence[str]] | None = None,
         ) -> str:
@@ -52,7 +52,7 @@ class TestProxyUrlGenerator:
             *,
             absolute: bool = False,
             fragment: str | None = None,
-            locale: LocaleLike | None = None,
+            locale: ResolvableLocale | None = None,
             media_type: MediaType | None = None,
             query: Mapping[str, Sequence[str]] | None = None,
         ) -> str:
@@ -145,7 +145,7 @@ class TestProxyUrlGenerator:
         resource: Any,
         media_type: MediaType,
         absolute: bool,
-        locale: LocaleLike | None,
+        locale: ResolvableLocale | None,
         fragment: str | None,
         query: Mapping[str, Sequence[str]] | None,
     ) -> None:

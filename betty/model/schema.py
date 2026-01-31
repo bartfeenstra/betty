@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from betty.json.schema import Array, Null, OneOf, String
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import LocalizableLike
+    from betty.locale.localizable import ResolvableLocalizable
 
 
 class ToZeroOrOneSchema(OneOf):
@@ -20,8 +20,8 @@ class ToZeroOrOneSchema(OneOf):
     def __init__(
         self,
         *,
-        title: LocalizableLike | None = None,
-        description: LocalizableLike | None = None,
+        title: ResolvableLocalizable | None = None,
+        description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
             String(
@@ -42,8 +42,8 @@ class ToOneSchema(String):
     def __init__(
         self,
         *,
-        title: LocalizableLike | None = None,
-        description: LocalizableLike | None = None,
+        title: ResolvableLocalizable | None = None,
+        description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
             title=title or "Associate entity",
@@ -61,8 +61,8 @@ class ToManySchema(Array):
     def __init__(
         self,
         *,
-        title: LocalizableLike | None = None,
-        description: LocalizableLike | None = None,
+        title: ResolvableLocalizable | None = None,
+        description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
             ToOneSchema(),

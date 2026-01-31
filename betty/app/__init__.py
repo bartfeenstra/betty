@@ -55,7 +55,7 @@ if TYPE_CHECKING:
     import aiohttp
 
     from betty.cache import Cache
-    from betty.locale.localizable import LocalizableLike
+    from betty.locale.localizable import ResolvableLocalizable
     from betty.machine_name import MachineName
     from betty.plugin.repository import PluginRepository
     from betty.user import User
@@ -114,7 +114,7 @@ class App(Configurable[AppConfiguration], ServiceLevel):
     @override
     @classmethod
     async def requires(
-        cls, services: ServiceLevel, subject: LocalizableLike, /
+        cls, services: ServiceLevel, subject: ResolvableLocalizable, /
     ) -> Requirement | Self:
         from betty.project import Project
 

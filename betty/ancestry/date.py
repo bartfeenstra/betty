@@ -8,12 +8,12 @@ from typing import TYPE_CHECKING, Any
 
 from typing_extensions import override
 
-from betty.date import Date, DateLike
+from betty.date import Date, ResolvableDate
 from betty.date.linked_data import (
     dump_linked_data_for_date,
     dump_linked_data_for_date_range,
 )
-from betty.date.schema import DateLikeSchema
+from betty.date.schema import ResolvableDateSchema
 from betty.json.linked_data import (
     JsonLdObject,
     LinkedDataDumpableWithSchemaJsonLdObject,
@@ -33,7 +33,7 @@ class HasDate(LinkedDataDumpableWithSchemaJsonLdObject):
     def __init__(
         self,
         *args: Any,
-        date: DateLike | None = None,
+        date: ResolvableDate | None = None,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
@@ -72,5 +72,5 @@ class HasDate(LinkedDataDumpableWithSchemaJsonLdObject):
     @classmethod
     async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
-        schema.add_property("date", DateLikeSchema(), False)
+        schema.add_property("date", ResolvableDateSchema(), False)
         return schema

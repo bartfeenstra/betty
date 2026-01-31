@@ -14,7 +14,7 @@ from betty.ancestry.event_type.event_types import Birth, Death
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.presence_role.presence_roles import Subject
-from betty.date import Date, DateLike
+from betty.date import Date, ResolvableDate
 from betty.functools import unique
 from betty.model import persistent_id
 from betty.privacy import is_public
@@ -165,7 +165,7 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
 
     if start_date is None or end_date is None:
         reference_dates = sorted(
-            cast(DateLike, presence.event.date)
+            cast(ResolvableDate, presence.event.date)
             for presence in person.presences
             if _is_person_timeline_presence(presence)
         )

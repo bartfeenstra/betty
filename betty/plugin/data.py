@@ -22,7 +22,7 @@ from betty.plugin.config import PluginConfiguration, _PluginDefinitionT
 from betty.portable import CallbackPorter
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import LocalizableLike
+    from betty.locale.localizable import ResolvableLocalizable
     from betty.plugin import PluginDefinition
     from betty.service.level import ServiceLevel
 
@@ -97,7 +97,7 @@ class PluginConfigurationSequenceDefinition(SequenceDefinition):
         self,
         plugin_type: type[_PluginDefinitionT],
         *,
-        label: LocalizableLike | None = None,
+        label: ResolvableLocalizable | None = None,
     ):
         super().__init__(
             cls=list,

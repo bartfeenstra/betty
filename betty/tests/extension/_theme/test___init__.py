@@ -18,7 +18,7 @@ from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.presence_role.presence_roles import Unknown as UnknownPresenceRole
 from betty.ancestry.source import Source
-from betty.date import Date, DateLike, DateRange
+from betty.date import Date, DateRange, ResolvableDate
 from betty.extension._theme import (
     associated_file_references,
     person_timeline_events,
@@ -51,10 +51,10 @@ def _parameterize_with_associated_events() -> Iterator[
         str | None,
         Privacy,
         EventType,
-        DateLike | None,
+        ResolvableDate | None,
         Privacy,
         EventType,
-        DateLike | None,
+        ResolvableDate | None,
     ]
 ]:
     ids = (
@@ -65,7 +65,7 @@ def _parameterize_with_associated_events() -> Iterator[
         (True, Privacy.PUBLIC),
         (False, Privacy.PRIVATE),
     )
-    person_event_reference_date_like = (
+    person_event_reference_resolvable_date = (
         *((True, reference_date) for reference_date in _REFERENCE_DATES),
         (False, None),
     )
@@ -77,7 +77,7 @@ def _parameterize_with_associated_events() -> Iterator[
         (True, Birth()),
         (False, UnknownEventType()),
     )
-    event_date_like_and_person_reference_event_types = (
+    event_resolvable_date_and_person_reference_event_types = (
         (True, _AFTER_REFERENCE_DATE, Birth()),
         (False, _BEFORE_REFERENCE_DATE, Birth()),
         (True, _BEFORE_REFERENCE_DATE, Death()),
@@ -90,18 +90,18 @@ def _parameterize_with_associated_events() -> Iterator[
                 person_reference_event_privacy,
             ) in privacies:
                 for (
-                    person_reference_event_date_like_expected,
-                    person_reference_event_date_like,
-                ) in person_event_reference_date_like:
+                    person_reference_event_resolvable_date_expected,
+                    person_reference_event_resolvable_date,
+                ) in person_event_reference_resolvable_date:
                     for (
                         person_presence_role_expected,
                         person_presence_role,
                     ) in person_presence_roles:
                         for (
-                            event_date_like_and_person_reference_event_type_expected,
-                            event_date_like,
+                            event_resolvable_date_and_person_reference_event_type_expected,
+                            event_resolvable_date,
                             person_reference_event_type,
-                        ) in event_date_like_and_person_reference_event_types:
+                        ) in event_resolvable_date_and_person_reference_event_types:
                             for event_type_expected, event_type in event_types:
                                 yield (
                                     all(
@@ -110,25 +110,25 @@ def _parameterize_with_associated_events() -> Iterator[
                                             event_id_expected,
                                             event_privacy_expected,
                                             event_type_expected,
-                                            event_date_like_and_person_reference_event_type_expected,
+                                            event_resolvable_date_and_person_reference_event_type_expected,
                                             person_reference_event_privacy_expected,
-                                            person_reference_event_date_like_expected,
+                                            person_reference_event_resolvable_date_expected,
                                         )
                                     ),
                                     person_presence_role,
                                     event_id,
                                     event_privacy,
                                     event_type,
-                                    event_date_like,
+                                    event_resolvable_date,
                                     person_reference_event_privacy,
                                     person_reference_event_type,
-                                    person_reference_event_date_like,
+                                    person_reference_event_resolvable_date,
                                 )
 
 
 class TestPersonLifetimeEvents:
     @pytest.mark.parametrize(
-        ("expected", "event_id", "event_privacy", "event_date_like"),
+        ("expected", "event_id", "event_privacy", "event_date"),
         [
             # Events without dates are omitted from timelines.
             (False, "E1", Privacy.PUBLIC, None),
@@ -146,13 +146,13 @@ class TestPersonLifetimeEvents:
         expected: bool,
         event_id: str | None,
         event_privacy: Privacy,
-        event_date_like: DateLike | None,
+        event_date: ResolvableDate | None,
     ) -> None:
         person = Person()
         event = Event(
             id=event_id,
             event_type=UnknownEventType(),
-            date=event_date_like,
+            date=event_date,
             privacy=event_privacy,
         )
         Presence(person, UnknownPresenceRole(), event)
@@ -166,10 +166,10 @@ class TestPersonLifetimeEvents:
             "event_id",
             "event_privacy",
             "event_type",
-            "event_date_like",
+            "event_date",
             "person_reference_event_privacy",
             "person_reference_event_type",
-            "person_reference_event_date_like",
+            "person_reference_event_date",
         ),
         _parameterize_with_associated_events(),
     )
@@ -180,10 +180,10 @@ class TestPersonLifetimeEvents:
         event_id: str | None,
         event_privacy: Privacy,
         event_type: EventType,
-        event_date_like: DateLike | None,
+        event_date: ResolvableDate | None,
         person_reference_event_privacy: Privacy,
         person_reference_event_type: EventType,
-        person_reference_event_date_like: DateLike | None,
+        person_reference_event_date: ResolvableDate | None,
     ) -> None:
         event_ids = 0
 
@@ -201,7 +201,7 @@ class TestPersonLifetimeEvents:
         person_reference_event = Event(
             id=_event_id(event_id),
             event_type=person_reference_event_type,
-            date=person_reference_event_date_like,
+            date=person_reference_event_date,
             privacy=person_reference_event_privacy,
         )
         Presence(person, Subject(), person_reference_event)
@@ -215,7 +215,7 @@ class TestPersonLifetimeEvents:
         ancestor3_event = Event(
             id=_event_id(event_id),
             event_type=event_type,
-            date=event_date_like,
+            date=event_date,
             privacy=event_privacy,
         )
         Presence(ancestor3, presence_role, ancestor3_event)
@@ -229,7 +229,7 @@ class TestPersonLifetimeEvents:
         descendant3_event = Event(
             id=_event_id(event_id),
             event_type=event_type,
-            date=event_date_like,
+            date=event_date,
             privacy=event_privacy,
         )
         Presence(descendant3, presence_role, descendant3_event)
@@ -239,7 +239,7 @@ class TestPersonLifetimeEvents:
         sibling_event = Event(
             id=_event_id(event_id),
             event_type=event_type,
-            date=event_date_like,
+            date=event_date,
             privacy=event_privacy,
         )
         Presence(sibling, presence_role, sibling_event)

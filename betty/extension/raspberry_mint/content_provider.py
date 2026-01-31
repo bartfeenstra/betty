@@ -68,7 +68,7 @@ if TYPE_CHECKING:
     from betty.ancestry import Ancestry
     from betty.document import Document
     from betty.jinja2 import Environment
-    from betty.locale.localizable import LocalizableLike
+    from betty.locale.localizable import ResolvableLocalizable
     from betty.plugin.repository import PluginRepository
     from betty.plugin.resolve import ResolvableId
     from betty.project import Project
@@ -149,7 +149,7 @@ class SectionConfiguration(Data):
             ContentProviderDefinition, ContentProvider
         ],
         *,
-        heading: LocalizableLike,
+        heading: ResolvableLocalizable,
         name: MachineName | None = None,
         visually_hide_heading: bool = False,
     ):

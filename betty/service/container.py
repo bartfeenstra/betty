@@ -36,7 +36,7 @@ if TYPE_CHECKING:
 
     from ty_extensions import Intersection
 
-    from betty.locale.localizable import LocalizableLike
+    from betty.locale.localizable import ResolvableLocalizable
     from betty.service.level import ServiceLevel
     from betty.service.level.factory import ServiceLevelTarget
 
@@ -114,7 +114,7 @@ class ServiceContainer(Bootstrapped, Shutdownable):
     @classmethod
     @abstractmethod
     async def requires(
-        cls, services: ServiceLevel, subject: LocalizableLike, /
+        cls, services: ServiceLevel, subject: ResolvableLocalizable, /
     ) -> Requirement | Self:
         """
         Check that a service level is an instance of ``cls``.
@@ -122,7 +122,7 @@ class ServiceContainer(Bootstrapped, Shutdownable):
 
     @classmethod
     async def requirement_for(
-        cls, services: ServiceLevel, subject: LocalizableLike, /
+        cls, services: ServiceLevel, subject: ResolvableLocalizable, /
     ) -> Requirement | None:
         """
         Check that a service level is an instance of ``cls``.

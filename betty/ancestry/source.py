@@ -34,8 +34,8 @@ if TYPE_CHECKING:
     from betty.ancestry.file_reference import FileReference
     from betty.ancestry.link import Link
     from betty.ancestry.note import Note
-    from betty.date import DateLike
-    from betty.locale.localizable import Localizable, LocalizableLike
+    from betty.date import ResolvableDate
+    from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.portable import PortableMapping
     from betty.project import Project
 
@@ -99,15 +99,15 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
 
     def __init__(
         self,
-        name: LocalizableLike | None = None,
+        name: ResolvableLocalizable | None = None,
         *,
         id: str | None = None,  # noqa: A002
-        author: LocalizableLike | None = None,
-        publisher: LocalizableLike | None = None,
+        author: ResolvableLocalizable | None = None,
+        publisher: ResolvableLocalizable | None = None,
         contained_by: ToZeroOrOneAssociate[Source] = None,
         contains: ToManyAssociates[Source] | None = None,
         notes: ToManyAssociates[Note] | None = None,
-        date: DateLike | None = None,
+        date: ResolvableDate | None = None,
         file_references: ToManyAssociates[FileReference] | None = None,
         links: MutableSequence[Link] | None = None,
         privacy: Privacy | None = None,

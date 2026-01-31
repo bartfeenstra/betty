@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import TypeVar, override
 
-from betty.asyncio import ensure_await
+from betty.asyncio import resolve_await
 from betty.plugin import PluginDefinition
 from betty.plugin.discovery import PluginDiscovery
 from betty.typing import internal
@@ -45,5 +45,5 @@ class ProjectDiscovery(PluginDiscovery[_PluginDefinitionT]):
 
         project = await Project.requires(services, repr(self))
         if isinstance(project, Project):
-            return await ensure_await(self._discovery(project))
+            return await resolve_await(self._discovery(project))
         return ()

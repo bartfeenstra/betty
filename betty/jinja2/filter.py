@@ -41,7 +41,7 @@ from betty.image import (
 from betty.locale import (
     HasLocale,
     HasLocaleStr,
-    LocaleLike,
+    ResolvableLocale,
     negotiate_locale,
     to_language_tag,
 )
@@ -68,7 +68,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from betty.ancestry.date import HasDate
-    from betty.date import DateLike
+    from betty.date import ResolvableDate
     from betty.locale.localizable import Localizable
     from betty.plugin.config import PluginConfiguration
 
@@ -79,7 +79,7 @@ _T = TypeVar("_T")
 async def filter_url(
     context: Context,
     resource: Any,
-    locale: LocaleLike | None = None,
+    locale: ResolvableLocale | None = None,
     media_type: str | None = None,
     **kwargs: Any,
 ) -> str:
@@ -479,7 +479,7 @@ def filter_select_has_locales(
 
 @pass_context
 def filter_negotiate_has_dates(
-    context: Context, has_dates: Iterable[HasDate], date: DateLike | None
+    context: Context, has_dates: Iterable[HasDate], date: ResolvableDate | None
 ) -> HasDate | None:
     """
     Try to find an object whose date falls in the given date.
@@ -493,7 +493,7 @@ def filter_negotiate_has_dates(
 
 @pass_context
 def filter_select_has_dates(
-    context: Context, has_dates: Iterable[HasDate], date: DateLike | None
+    context: Context, has_dates: Iterable[HasDate], date: ResolvableDate | None
 ) -> Iterator[HasDate]:
     """
     Select all objects whose date falls in the given date.

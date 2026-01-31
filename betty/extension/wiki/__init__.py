@@ -15,7 +15,7 @@ from betty.extension import Extension, ExtensionDefinition
 from betty.extension.wiki.config import WikiConfiguration
 from betty.extension.wiki.jobs import PopulateEntity
 from betty.jinja2 import Filters, Globals, Jinja2Provider, context_localizer
-from betty.locale import ensure_locale, negotiate_locale
+from betty.locale import negotiate_locale, resolve_locale
 from betty.locale.localizable.gettext import _
 from betty.project.factory import require_project
 from betty.project.load import PostLoader
@@ -195,7 +195,9 @@ class Wiki(
         except NotAPageError:
             return None
         if (
-            negotiate_locale(locale, list(filter(None, [ensure_locale(page_language)])))
+            negotiate_locale(
+                locale, list(filter(None, [resolve_locale(page_language)]))
+            )
             is None
         ):
             return None

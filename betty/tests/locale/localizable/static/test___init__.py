@@ -4,7 +4,7 @@ import pytest
 from babel import Locale
 
 from betty.exception import HumanFacingException
-from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, ensure_locale
+from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, resolve_locale
 from betty.locale.error import UnknownLocale
 from betty.locale.localizable import (
     LocalizableCount,
@@ -219,7 +219,7 @@ class TestCountableStaticTranslations:
         sut = CountableStaticTranslations(translations)
         assert (
             sut.count(count).localize(
-                Localizer(ensure_locale(locale), NullTranslations())
+                Localizer(resolve_locale(locale), NullTranslations())
             )
             == expected
         )

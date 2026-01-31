@@ -13,14 +13,14 @@ from betty.assertion import OptionalField, assert_mapping
 from betty.data import DataDefinition, OptionalDefinition, Sample, Samples
 from betty.data.aggregate import AggregateDefinition
 from betty.data.indicator.selector import Element
-from betty.locale.localizable.ensure import ensure_localizable
+from betty.locale.localizable.resolve import resolve_localizable
 from betty.portable import Portable, PortableData, PortablePorter, Porter
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, MutableSequence, Sequence
 
     from betty.data import Data
-    from betty.locale.localizable import Localizable, LocalizableLike
+    from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.portable import PortableMapping
 
 _DataClsT = TypeVar("_DataClsT", default=Any)
@@ -43,16 +43,16 @@ class FieldDefinition(Generic[_ElementCoT, _DataClsT]):
         selector: _ElementCoT,
         data: DataDefinition[_DataClsT] | type[Data[DataDefinition[_DataClsT]]],
         *,
-        label: LocalizableLike | None = None,
-        description: LocalizableLike | None = None,
+        label: ResolvableLocalizable | None = None,
+        description: ResolvableLocalizable | None = None,
         omit_load: bool | None = None,
         omit_dump: Callable[[_DataClsT], bool] | None = None,
     ):
         self._selector = selector
         self._data = data if isinstance(data, DataDefinition) else data.data()
-        self._label = None if label is None else ensure_localizable(label)
+        self._label = None if label is None else resolve_localizable(label)
         self._description = (
-            None if description is None else ensure_localizable(description)
+            None if description is None else resolve_localizable(description)
         )
         self._omit_load = omit_load
         self._omit_dump = omit_dump
@@ -240,9 +240,9 @@ class RecordDefinition(AggregateDefinition[_DataClsT, _ElementStrCoT]):
         self,
         *,
         cls: type[_DataClsT] | None = None,
-        label: LocalizableLike,
+        label: ResolvableLocalizable,
         fields: Sequence[FieldDefinition[_ElementStrCoT, Any]] | None = None,
-        description: LocalizableLike | None = None,
+        description: ResolvableLocalizable | None = None,
         samples: Iterable[Callable[[], Sample[_DataClsT]] | Samples] | None = None,
         factory: Callable[..., _DataClsT] | None = None,
         porter: RecordPorter[_DataClsT] | None = None,

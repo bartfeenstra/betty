@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from ty_extensions import Intersection
 
     from betty.data import Data, DataDefinition
-    from betty.locale.localizable import LocalizableLike
+    from betty.locale.localizable import ResolvableLocalizable
 
 
 _ValueGetT = TypeVar("_ValueGetT")
@@ -100,8 +100,8 @@ class Property(_Property[_ValueGetT, _ValueSetT]):
         self,
         data: DataDefinition[_ValueGetT] | type[Data[DataDefinition[_ValueGetT]]],
         *,
-        label: LocalizableLike | None = None,
-        description: LocalizableLike | None = None,
+        label: ResolvableLocalizable | None = None,
+        description: ResolvableLocalizable | None = None,
         omit_load: bool | None = None,
         omit_dump: Callable[[_ValueGetT], bool] | None = None,
         resolver: Callable[[_ValueSetT | _ValueGetT], _ValueGetT] = passthrough,
@@ -208,8 +208,8 @@ class MappingProperty(Property[_MutableMappingT, _ValueSetT]):
         data: Intersection[DataDefinition[_MutableMappingT], _MappingDefinitionT]
         | Data[Intersection[DataDefinition[_MutableMappingT], _MappingDefinitionT]],
         *,
-        label: LocalizableLike | None = None,
-        description: LocalizableLike | None = None,
+        label: ResolvableLocalizable | None = None,
+        description: ResolvableLocalizable | None = None,
         omit_load: bool | None = None,
         omit_dump: Callable[[_MutableMappingT], bool] | None = None,
         resolver: Callable[
@@ -248,8 +248,8 @@ class SequenceProperty(Property[_MutableSequenceT, _ValueSetT]):
         data: Intersection[DataDefinition[_MutableSequenceT], _SequenceDefinitionT]
         | Data[Intersection[DataDefinition[_MutableSequenceT], _SequenceDefinitionT]],
         *,
-        label: LocalizableLike | None = None,
-        description: LocalizableLike | None = None,
+        label: ResolvableLocalizable | None = None,
+        description: ResolvableLocalizable | None = None,
         omit_load: bool | None = None,
         omit_dump: Callable[[_MutableSequenceT], bool] | None = None,
         resolver: Callable[
@@ -287,8 +287,8 @@ class KeyedCollectionProperty(Property[KeyedCollection, _ValueSetT]):
         self,
         data: DataDefinition[KeyedCollectionDefinition],
         *,
-        label: LocalizableLike | None = None,
-        description: LocalizableLike | None = None,
+        label: ResolvableLocalizable | None = None,
+        description: ResolvableLocalizable | None = None,
         omit_load: bool | None = None,
         omit_dump: Callable[[KeyedCollection], bool] | None = None,
         resolver: Callable[

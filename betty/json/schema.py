@@ -13,11 +13,11 @@ from typing_extensions import override
 
 from betty.classtools import Singleton
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.locale.localize.ensure import ensure_localized
+from betty.locale.localize.resolve import resolve_localized
 from betty.portable import PortableData, PortableMapping
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import LocalizableLike
+    from betty.locale.localizable import ResolvableLocalizable
 
 
 class Schema:
@@ -33,8 +33,8 @@ class Schema:
         self,
         *,
         def_name: str | None = None,
-        title: LocalizableLike | None = None,
-        description: LocalizableLike | None = None,
+        title: ResolvableLocalizable | None = None,
+        description: ResolvableLocalizable | None = None,
     ):
         self._def_name = def_name
         self._schema: PortableMapping = {
@@ -71,8 +71,8 @@ class Schema:
             return None
 
     @title.setter
-    def title(self, title: LocalizableLike) -> None:
-        self._schema["title"] = ensure_localized(title, localizer=DEFAULT_LOCALIZER)
+    def title(self, title: ResolvableLocalizable) -> None:
+        self._schema["title"] = resolve_localized(title, localizer=DEFAULT_LOCALIZER)
 
     @property
     def description(self) -> str | None:
@@ -85,8 +85,8 @@ class Schema:
             return None
 
     @description.setter
-    def description(self, description: LocalizableLike) -> None:
-        self._schema["description"] = ensure_localized(
+    def description(self, description: ResolvableLocalizable) -> None:
+        self._schema["description"] = resolve_localized(
             description, localizer=DEFAULT_LOCALIZER
         )
 
@@ -140,8 +140,8 @@ class _Type(Schema):
         self,
         *,
         def_name: str | None = None,
-        title: LocalizableLike | None = None,
-        description: LocalizableLike | None = None,
+        title: ResolvableLocalizable | None = None,
+        description: ResolvableLocalizable | None = None,
     ):
         super().__init__(def_name=def_name, title=title, description=description)
         self._schema["type"] = self._type
@@ -183,8 +183,8 @@ class String(_Type):
         self,
         *,
         def_name: str | None = None,
-        title: LocalizableLike | None = None,
-        description: LocalizableLike | None = None,
+        title: ResolvableLocalizable | None = None,
+        description: ResolvableLocalizable | None = None,
         min_length: int | None = None,
         max_length: int | None = None,
         pattern: str | None = None,
@@ -248,8 +248,8 @@ class Object(_Type):
         self,
         *,
         def_name: str | None = None,
-        title: LocalizableLike | None = None,
-        description: LocalizableLike | None = None,
+        title: ResolvableLocalizable | None = None,
+        description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
             def_name=def_name,
@@ -286,8 +286,8 @@ class Array(_Type):
         items: Schema,
         *,
         def_name: str | None = None,
-        title: LocalizableLike | None = None,
-        description: LocalizableLike | None = None,
+        title: ResolvableLocalizable | None = None,
+        description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
             def_name=def_name,
@@ -304,8 +304,8 @@ class _Container(Schema):
         self,
         *items: Schema,
         def_name: str | None = None,
-        title: LocalizableLike | None = None,
-        description: LocalizableLike | None = None,
+        title: ResolvableLocalizable | None = None,
+        description: ResolvableLocalizable | None = None,
     ):
         super().__init__(def_name=def_name, title=title, description=description)
         self._schema[self._type] = [item.embed(self) for item in items]
@@ -345,8 +345,8 @@ class Const(Schema):
         const: PortableData,
         *,
         def_name: str | None = None,
-        title: LocalizableLike | None = None,
-        description: LocalizableLike | None = None,
+        title: ResolvableLocalizable | None = None,
+        description: ResolvableLocalizable | None = None,
     ):
         super().__init__(def_name=def_name, title=title, description=description)
         self._schema["const"] = const
@@ -361,8 +361,8 @@ class Enum(Schema):
         self,
         *values: PortableData,
         def_name: str | None = None,
-        title: LocalizableLike | None = None,
-        description: LocalizableLike | None = None,
+        title: ResolvableLocalizable | None = None,
+        description: ResolvableLocalizable | None = None,
     ):
         super().__init__(def_name=def_name, title=title, description=description)
         self._schema["enum"] = list(values)

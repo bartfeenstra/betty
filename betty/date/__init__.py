@@ -158,7 +158,7 @@ class Date(Localizable):
             selfish = selfish.to_range()
         return comparator(selfish, other)
 
-    def __contains__(self, other: DateLike) -> bool:
+    def __contains__(self, other: ResolvableDate) -> bool:
         if isinstance(other, Date):
             return self == other
         return self in other
@@ -318,7 +318,7 @@ class DateRange(Localizable):
             and self.end.comparable
         )
 
-    def __contains__(self, other: DateLike) -> bool:
+    def __contains__(self, other: ResolvableDate) -> bool:
         if not self.comparable:
             return False
 
@@ -520,4 +520,4 @@ class DateRange(Localizable):
         )
 
 
-DateLike: TypeAlias = Date | DateRange
+ResolvableDate: TypeAlias = Date | DateRange

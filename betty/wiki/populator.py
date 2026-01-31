@@ -16,7 +16,7 @@ from betty.ancestry.link import Link
 from betty.ancestry.place import Place
 from betty.concurrent import AsynchronizedLock, Lock
 from betty.functools import map_suppress
-from betty.locale import ensure_locale, negotiate_locale
+from betty.locale import negotiate_locale, resolve_locale
 from betty.locale.error import LocaleError
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
@@ -107,7 +107,7 @@ class Populator:
             # Most Wikipedia languages are based on ISO 639-1 and ISO 639-3
             # (https://en.wikipedia.org/wiki/List_of_Wikipedias). However, some languages such as "simple" are not.
             translation_page_locales = list(
-                map_suppress(ensure_locale, LocaleError, page_translations)
+                map_suppress(resolve_locale, LocaleError, page_translations)
             )
 
             locales_to_page_languages = {}

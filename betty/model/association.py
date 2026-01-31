@@ -25,7 +25,7 @@ from typing_extensions import override
 from betty.importlib import fully_qualified_name, import_any
 from betty.json.linked_data import LinkedDataDumper
 from betty.json.schema import Array, Null, OneOf, Schema
-from betty.locale.localizable.ensure import ensure_localizable
+from betty.locale.localizable.resolve import resolve_localizable
 from betty.model import Entity, persistent_id
 from betty.model.collections import (
     EntityCollection,
@@ -37,7 +37,7 @@ from betty.model.schema import ToManySchema, ToZeroOrOneSchema
 if TYPE_CHECKING:
     from ty_extensions import Intersection
 
-    from betty.locale.localizable import LocalizableLike
+    from betty.locale.localizable import ResolvableLocalizable
     from betty.portable import PortableData
     from betty.project import Project
 
@@ -144,15 +144,15 @@ class _Association(LinkedDataDumper[_OwnerT], Generic[_OwnerT, _AssociateT]):
         self,
         associate_type_name: str,
         *,
-        label: LocalizableLike,
-        description: LocalizableLike | None = None,
+        label: ResolvableLocalizable,
+        description: ResolvableLocalizable | None = None,
         linked_data_embedded: bool = False,
     ):
         self._associate_type_name = associate_type_name
         self._linked_data_embedded = linked_data_embedded
-        self._label = ensure_localizable(label)
+        self._label = resolve_localizable(label)
         self._description = (
-            None if description is None else ensure_localizable(description)
+            None if description is None else resolve_localizable(description)
         )
 
     def __set_name__(self, owner: type[_OwnerT], name: str) -> None:
@@ -462,9 +462,9 @@ class _BidirectionalAssociation(_Association[_OwnerT, _AssociateT]):
         associate_type_name: str,
         associate_attr_name: str,
         *,
-        label: LocalizableLike,
+        label: ResolvableLocalizable,
         linked_data_embedded: bool = False,
-        description: LocalizableLike | None = None,
+        description: ResolvableLocalizable | None = None,
     ):
         self._associate_attr_name = associate_attr_name
         super().__init__(

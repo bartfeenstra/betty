@@ -15,7 +15,7 @@ from typing_extensions import override
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.content_provider.content_providers import Render, RenderConfiguration
-from betty.date import Date, DateLike, DateRange
+from betty.date import Date, DateRange, ResolvableDate
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.document import Document
 from betty.job import Context as JobContext
@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 
 
 class _DummyHasDate(DummyHasDate):
-    def __init__(self, value: str, date: DateLike | None = None):
+    def __init__(self, value: str, date: ResolvableDate | None = None):
         super().__init__(date=date)
         self.value = value
 

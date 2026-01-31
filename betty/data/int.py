@@ -12,7 +12,7 @@ from betty.functools import passthrough
 from betty.portable import CallbackPorter
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import LocalizableLike
+    from betty.locale.localizable import ResolvableLocalizable
 
 
 @final
@@ -24,8 +24,8 @@ class IntDefinition(DataDefinition[int]):
     def __init__(
         self,
         *,
-        label: LocalizableLike,
-        description: LocalizableLike | None = None,
+        label: ResolvableLocalizable,
+        description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
             cls=int,

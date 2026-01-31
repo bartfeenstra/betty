@@ -11,8 +11,8 @@ from betty.locale import (
     DEFAULT_LOCALE,
     HasLocale,
     HasLocaleStr,
-    LocaleLike,
-    ensure_locale,
+    ResolvableLocale,
+    resolve_locale,
 )
 from betty.typing import threadsafe
 
@@ -32,9 +32,9 @@ class Localizer:
     """
 
     def __init__(
-        self, locale: LocaleLike, translations: gettext_api.NullTranslations, /
+        self, locale: ResolvableLocale, translations: gettext_api.NullTranslations, /
     ):
-        self._locale = ensure_locale(locale)
+        self._locale = resolve_locale(locale)
         self._translations = translations
 
     @property
@@ -111,11 +111,11 @@ class LocalizerRepository:
         self._translations = translations
         self._localizers: MutableMapping[Locale, Localizer] = {}
 
-    def get(self, locale: LocaleLike, /) -> Localizer:
+    def get(self, locale: ResolvableLocale, /) -> Localizer:
         """
         Get the localizer for the given locale.
         """
-        locale = ensure_locale(locale)
+        locale = resolve_locale(locale)
         try:
             return self._localizers[locale]
         except KeyError:

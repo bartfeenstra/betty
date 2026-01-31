@@ -22,9 +22,9 @@ import betty.dirs
 from betty.hashid import hashid_file_meta
 from betty.locale import (
     DEFAULT_LOCALE,
-    LocaleLike,
-    ensure_locale,
+    ResolvableLocale,
     from_language_tag,
+    resolve_locale,
     to_language_tag,
 )
 from betty.locale.babel import run_babel
@@ -137,7 +137,7 @@ async def _update_translations(
         await makedirs(output_po_file_path.parent, exist_ok=True)
         output_po_file_path.touch()
 
-        locale = ensure_locale(output_po_file_path.parent.name)
+        locale = resolve_locale(output_po_file_path.parent.name)
         await run_babel(
             "",
             "update",
@@ -185,7 +185,7 @@ class TranslationRepository(ABC):
         """
 
     @abstractmethod
-    def get(self, locale: LocaleLike) -> gettext.NullTranslations:
+    def get(self, locale: ResolvableLocale) -> gettext.NullTranslations:
         """
         Get the translations for the given locale.
         """
@@ -206,8 +206,8 @@ class StaticTranslationRepository(TranslationRepository):
         return self._translations.keys()
 
     @override
-    def get(self, locale: LocaleLike) -> gettext.NullTranslations:
-        locale = ensure_locale(locale)
+    def get(self, locale: ResolvableLocale) -> gettext.NullTranslations:
+        locale = resolve_locale(locale)
         try:
             return self._translations[locale]
         except KeyError:
@@ -239,8 +239,8 @@ class ProxyTranslationRepository(TranslationRepository):
             yield from upstream.locales
 
     @override
-    def get(self, locale: LocaleLike) -> gettext.NullTranslations:
-        locale = ensure_locale(locale)
+    def get(self, locale: ResolvableLocale) -> gettext.NullTranslations:
+        locale = resolve_locale(locale)
         try:
             return self._translations[locale]
         except KeyError:
@@ -294,8 +294,8 @@ class AssetTranslationRepository(TranslationRepository):
         return self._locales
 
     @override
-    def get(self, locale: LocaleLike) -> gettext.NullTranslations:
-        locale = ensure_locale(locale)
+    def get(self, locale: ResolvableLocale) -> gettext.NullTranslations:
+        locale = resolve_locale(locale)
         try:
             return self._translations[locale]
         except KeyError:
@@ -341,14 +341,14 @@ class AssetTranslationRepository(TranslationRepository):
             "-o",
             str(mo_file_path),
             "-l",
-            str(ensure_locale(locale)),
+            str(resolve_locale(locale)),
             "-D",
             "betty",
         )
         async with aiofiles.open(mo_file_path, "rb") as f:
             return gettext.GNUTranslations(BytesIO(await f.read()))
 
-    async def coverage(self, locale: LocaleLike) -> tuple[int, int]:
+    async def coverage(self, locale: ResolvableLocale) -> tuple[int, int]:
         """
         Get the translation coverage for the given locale.
 
@@ -358,7 +358,7 @@ class AssetTranslationRepository(TranslationRepository):
         translatables = {
             translatable async for translatable in self._get_translatables()
         }
-        locale = ensure_locale(locale)
+        locale = resolve_locale(locale)
         if locale == DEFAULT_LOCALE:
             return len(translatables), len(translatables)
         translations = {

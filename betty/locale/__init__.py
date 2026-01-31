@@ -32,13 +32,13 @@ The `IETF BCP 47 <https://tools.ietf.org/html/bcp47>`_ language tag for Betty's 
 """
 
 
-LocaleLike: TypeAlias = Locale | str
+ResolvableLocale: TypeAlias = Locale | str
 """
 A locale or a locale identifier.
 """
 
 
-def ensure_locale(locale: LocaleLike, /) -> Locale:
+def resolve_locale(locale: ResolvableLocale, /) -> Locale:
     """
     Ensure that the given value is a locale.
 
@@ -131,9 +131,11 @@ class HasLocale:
     A resource that has a locale, e.g. contains information in a specific locale.
     """
 
-    def __init__(self, *args: Any, locale: LocaleLike | None = None, **kwargs: Any):
+    def __init__(
+        self, *args: Any, locale: ResolvableLocale | None = None, **kwargs: Any
+    ):
         super().__init__(*args, **kwargs)
-        self._locale = None if locale is None else ensure_locale(locale)
+        self._locale = None if locale is None else resolve_locale(locale)
 
     @property
     def locale(self) -> Locale | None:

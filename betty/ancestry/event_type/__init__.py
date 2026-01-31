@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from collections.abc import Set
 
     from betty.ancestry.person import Person
-    from betty.locale.localizable import CountableLocalizable, LocalizableLike
+    from betty.locale.localizable import CountableLocalizable, ResolvableLocalizable
     from betty.machine_name import MachineName
     from betty.project import Project
 
@@ -70,10 +70,10 @@ class EventTypeDefinition(
         self,
         plugin_id: MachineName,
         *,
-        label: LocalizableLike,
-        label_plural: LocalizableLike,
+        label: ResolvableLocalizable,
+        label_plural: ResolvableLocalizable,
         label_countable: CountableLocalizable,
-        description: LocalizableLike | None = None,
+        description: ResolvableLocalizable | None = None,
         comes_before: Set[ResolvableId] | None = None,
         comes_after: Set[ResolvableId] | None = None,
         indicates: ResolvableId[EventTypeDefinition] | None = None,

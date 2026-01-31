@@ -4,7 +4,7 @@ from typing import Any, Self, TypeVar
 import pytest
 from typing_extensions import override
 
-from betty.locale.localizable import LocalizableLike
+from betty.locale.localizable import ResolvableLocalizable
 from betty.requirement import Requirement, StaticRequirement
 from betty.service.bootstrap import NotBootstrappedError
 from betty.service.container import (
@@ -30,7 +30,7 @@ class _ServiceContainer(ServiceContainer):
     @override
     @classmethod
     async def requires(
-        cls, services: ServiceLevel, subject: LocalizableLike, /
+        cls, services: ServiceLevel, subject: ResolvableLocalizable, /
     ) -> Requirement | Self:
         return StaticRequirement(DUMMY_LOCALIZABLE)
 

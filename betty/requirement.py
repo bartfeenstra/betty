@@ -10,10 +10,10 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty.exception import HumanFacingException
-from betty.locale.localizable import Localizable, LocalizableLike
-from betty.locale.localizable.ensure import ensure_localizable
+from betty.locale.localizable import Localizable, ResolvableLocalizable
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Lines, UnorderedList
+from betty.locale.localizable.resolve import resolve_localizable
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence, Sequence
@@ -74,7 +74,7 @@ class _RequirementCollection(Requirement, ABC):
     _DEFAULT_SUMMARY: Localizable
 
     def __init__(
-        self, *requirements: Requirement, summary: LocalizableLike | None = None
+        self, *requirements: Requirement, summary: ResolvableLocalizable | None = None
     ):
         super().__init__()
         assert len(requirements)
@@ -86,7 +86,7 @@ class _RequirementCollection(Requirement, ABC):
             else:
                 self._requirements.append(requirement)
         self._summary = (
-            self._DEFAULT_SUMMARY if summary is None else ensure_localizable(summary)
+            self._DEFAULT_SUMMARY if summary is None else resolve_localizable(summary)
         )
 
     @classmethod
@@ -98,7 +98,9 @@ class _RequirementCollection(Requirement, ABC):
 
     @classmethod
     def new(
-        cls, *requirements: Requirement | None, summary: LocalizableLike | None = None
+        cls,
+        *requirements: Requirement | None,
+        summary: ResolvableLocalizable | None = None,
     ) -> Requirement | None:
         filtered_requirements = cls._filter(requirements)
         if not filtered_requirements:
@@ -164,10 +166,13 @@ class StaticRequirement(Requirement):
     """
 
     def __init__(
-        self, summary: LocalizableLike, details: LocalizableLike | None = None, /
+        self,
+        summary: ResolvableLocalizable,
+        details: ResolvableLocalizable | None = None,
+        /,
     ):
-        self._summary = ensure_localizable(summary)
-        self._details = None if details is None else ensure_localizable(details)
+        self._summary = resolve_localizable(summary)
+        self._details = None if details is None else resolve_localizable(details)
 
     @property
     @override

@@ -62,7 +62,7 @@ if TYPE_CHECKING:
     from betty.app import App
     from betty.jinja2 import Environment
     from betty.license import License
-    from betty.locale.localizable import LocalizableLike
+    from betty.locale.localizable import ResolvableLocalizable
     from betty.machine_name import MachineName
     from betty.plugin.repository import PluginRepository
     from betty.url import UrlGenerator
@@ -110,7 +110,7 @@ class Project(Configurable[ProjectConfiguration], ServiceLevel):
     @override
     @classmethod
     async def requires(
-        cls, services: ServiceLevel, subject: LocalizableLike, /
+        cls, services: ServiceLevel, subject: ResolvableLocalizable, /
     ) -> Requirement | Self:
         if not isinstance(services, cls):
             return StaticRequirement(

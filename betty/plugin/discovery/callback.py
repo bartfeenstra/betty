@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import TypeVar, override
 
-from betty.asyncio import ensure_await
+from betty.asyncio import resolve_await
 from betty.plugin import PluginDefinition
 from betty.plugin.discovery import PluginDiscovery
 
@@ -38,4 +38,4 @@ class CallbackDiscovery(PluginDiscovery[_PluginDefinitionT]):
 
     @override
     async def discover(self, services: ServiceLevel, /) -> Iterable[_PluginDefinitionT]:
-        return await ensure_await(self._discovery())
+        return await resolve_await(self._discovery())

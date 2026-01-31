@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
     from ty_extensions import Intersection
 
-    from betty.locale.localizable import LocalizableLike
+    from betty.locale.localizable import ResolvableLocalizable
     from betty.service.level import ServiceLevel
 
 _DataClsT = TypeVar("_DataClsT", default=Any)
@@ -39,8 +39,8 @@ class DataDefinition(
         self,
         *,
         cls: type[_DataClsT] | None = None,
-        label: LocalizableLike,
-        description: LocalizableLike | None = None,
+        label: ResolvableLocalizable,
+        description: ResolvableLocalizable | None = None,
         porter: Porter[_DataClsT] | None = None,
         samples: Iterable[Callable[[], Sample[_DataClsT]] | Samples] | None = None,
     ):

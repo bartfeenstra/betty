@@ -47,9 +47,9 @@ class DateRangeSchema(Singleton, JsonLdObject):
 
 
 @final
-class DateLikeSchema(Singleton, OneOf):
+class ResolvableDateSchema(Singleton, OneOf):
     """
-    A JSON Schema for :py:type:`betty.date.DateLike`.
+    A JSON Schema for :py:type:`betty.date.ResolvableDate`.
     """
 
     def __init__(self):

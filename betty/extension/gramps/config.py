@@ -47,7 +47,7 @@ if TYPE_CHECKING:
     from betty.ancestry.event_type import EventType
     from betty.ancestry.place_type import PlaceType
     from betty.ancestry.presence_role import PresenceRole
-    from betty.locale.localizable import LocalizableLike
+    from betty.locale.localizable import ResolvableLocalizable
 _PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
@@ -63,7 +63,7 @@ class _PluginMappingProperty(
     def __init__(
         self,
         plugin_type: type[_PluginDefinitionT],
-        gramps_label: LocalizableLike,
+        gramps_label: ResolvableLocalizable,
         default: Mapping[
             str, ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT]
         ],

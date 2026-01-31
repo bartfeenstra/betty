@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any, Concatenate, ParamSpec, overload
 from typing_extensions import TypeVar
 
 from betty.app import App
-from betty.asyncio import ensure_await
+from betty.asyncio import resolve_await
 from betty.factory import FactoryError
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.requirement import Requirement
@@ -59,6 +59,6 @@ def require_app(factory, /):
         services = await App.requires(services, repr(factory))
         if isinstance(services, Requirement):
             raise FactoryError(services.localize(DEFAULT_LOCALIZER))
-        return await ensure_await(factory(*args, services))
+        return await resolve_await(factory(*args, services))
 
     return _require_app

@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 
     from betty.document import Document
     from betty.jinja2 import Environment
-    from betty.locale.localizable import LocalizableLike
+    from betty.locale.localizable import ResolvableLocalizable
     from betty.render import RenderDispatcher
     from betty.service.level import ServiceLevel
 
@@ -63,7 +63,9 @@ class RenderConfiguration(Data):
     content = LocalizableProperty(label=_("Content"))
     media_type = Property(MediaType, default=lambda: PLAIN_TEXT, omit_load=True)
 
-    def __init__(self, /, content: LocalizableLike, media_type: MediaType = PLAIN_TEXT):
+    def __init__(
+        self, /, content: ResolvableLocalizable, media_type: MediaType = PLAIN_TEXT
+    ):
         super().__init__()
         self.content = content
         self.media_type = media_type

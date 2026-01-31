@@ -50,7 +50,7 @@ def regional_content(*, localizers: Collection[Localizer]) -> ResolvableRegional
     """
 
     def _make_dumpable(localizable: Localizable) -> StaticTranslations:
-        return StaticTranslations.from_localizable(localizable, localizers)
+        return StaticTranslations.resolve(localizable, localizers)
 
     return {
         "entity-page-content": [

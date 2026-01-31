@@ -99,7 +99,7 @@ from betty.ancestry.presence_role.presence_roles import (
 from betty.ancestry.presence_role.presence_roles import Unknown as UnknownPresenceRole
 from betty.ancestry.source import Source
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
-from betty.date import Date, DateLike, DateRange
+from betty.date import Date, DateRange, ResolvableDate
 from betty.error import FileNotFound
 from betty.gramps.error import GrampsError, UserFacingGrampsError
 from betty.license import License, LicenseDefinition
@@ -661,7 +661,7 @@ class GrampsLoader:
     _DATE_PATTERN = re.compile(r"^.{4}((-.{2})?-.{2})?$")
     _DATE_PART_PATTERN = re.compile(r"^\d+$")
 
-    def _load_date(self, element: ElementTree.Element) -> DateLike | None:
+    def _load_date(self, element: ElementTree.Element) -> ResolvableDate | None:
         with suppress(XPathError):
             dateval_element = self._xpath1(element, "./ns:dateval")
             if dateval_element.get("cformat") is None:

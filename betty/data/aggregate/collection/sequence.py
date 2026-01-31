@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from ty_extensions import Intersection
 
     from betty.data import Data, DataDefinition
-    from betty.locale.localizable import LocalizableLike
+    from betty.locale.localizable import ResolvableLocalizable
 
 _DataItemT = TypeVar("_DataItemT")
 _MutableSequenceT = TypeVar("_MutableSequenceT", bound=MutableSequence[Any])
@@ -33,8 +33,8 @@ class SequenceDefinition(CollectionDefinition[_MutableSequenceT, Index]):
         *,
         cls: type[_MutableSequenceT],
         value: DataDefinition[_DataItemT] | type[Intersection[_DataItemT, Data]],
-        label: LocalizableLike,
-        description: LocalizableLike | None = None,
+        label: ResolvableLocalizable,
+        description: ResolvableLocalizable | None = None,
         factory: Callable[[Iterable[_DataItemT]], _MutableSequenceT] | None = None,
     ):
         super().__init__(

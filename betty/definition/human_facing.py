@@ -8,13 +8,13 @@ from typing import TYPE_CHECKING, Any
 
 from typing_extensions import TypeVar
 
-from betty.locale.localizable.ensure import ensure_localizable
+from betty.locale.localizable.resolve import resolve_localizable
 
 if TYPE_CHECKING:
     from betty.locale.localizable import (
         CountableLocalizable,
         Localizable,
-        LocalizableLike,
+        ResolvableLocalizable,
     )
 
 _BaseClsCoT = TypeVar("_BaseClsCoT", default=object, covariant=True)
@@ -28,14 +28,14 @@ class HumanFacingDefinition:
     def __init__(
         self,
         *args: Any,
-        label: LocalizableLike,
-        description: LocalizableLike | None = None,
+        label: ResolvableLocalizable,
+        description: ResolvableLocalizable | None = None,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
-        self._label = ensure_localizable(label)
+        self._label = resolve_localizable(label)
         self._description = (
-            None if description is None else ensure_localizable(description)
+            None if description is None else resolve_localizable(description)
         )
 
     @property
@@ -61,14 +61,14 @@ class CountableHumanFacingDefinition(HumanFacingDefinition):
     def __init__(
         self,
         *args: Any,
-        label: LocalizableLike,
-        label_plural: LocalizableLike,
+        label: ResolvableLocalizable,
+        label_plural: ResolvableLocalizable,
         label_countable: CountableLocalizable,
-        description: LocalizableLike | None = None,
+        description: ResolvableLocalizable | None = None,
         **kwargs: Any,
     ):
         super().__init__(*args, label=label, description=description, **kwargs)
-        self._label_plural = ensure_localizable(label_plural)
+        self._label_plural = resolve_localizable(label_plural)
         self._label_countable = label_countable
 
     @property

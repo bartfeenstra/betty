@@ -5,7 +5,7 @@ import pytest
 from typing_extensions import override
 
 from betty.html.url import generate_urls
-from betty.locale import LocaleLike
+from betty.locale import ResolvableLocale
 from betty.media_type import MediaType
 from betty.url import UrlGenerator
 
@@ -22,7 +22,7 @@ class _GenerateUrlsUrlGenerator(UrlGenerator):
         *,
         absolute: bool = False,
         fragment: str | None = None,
-        locale: LocaleLike | None = None,
+        locale: ResolvableLocale | None = None,
         media_type: MediaType | None = None,
         query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
