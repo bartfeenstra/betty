@@ -11,7 +11,6 @@ import pytest
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.machine_name import assert_machine_name
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
-from betty.plugin.discovery.callback import CallbackDiscovery
 from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
 
 _PluginT = TypeVar("_PluginT", bound=Plugin)
@@ -103,14 +102,14 @@ class DummyPlugin(Plugin["DummyPluginDefinition"]):
     label=" dummy plugin",
     label_plural=" dummy plugin",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    discovery=CallbackDiscovery(
-        lambda: [
-            DummyPluginOne.plugin(),
-            DummyPluginTwo.plugin(),
-            DummyPluginThree.plugin(),
-            DummyPluginFour.plugin(),
+    discovery=[
+        lambda **_: [
+            DummyPluginOne,
+            DummyPluginTwo,
+            DummyPluginThree,
+            DummyPluginFour,
         ]
-    ),
+    ],
 )
 class DummyPluginDefinition(PluginDefinition[DummyPlugin]):
     """

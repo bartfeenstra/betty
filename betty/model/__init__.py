@@ -145,7 +145,7 @@ class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Plugin["EntityDefinition"
     description=_(
         "Entities represent the information in your ancestry, such as people and places."
     ),
-    discovery=EntryPointDiscovery("betty.entity_type"),
+    discovery=[EntryPointDiscovery("betty.entity_type")],
 )
 class EntityDefinition(CountableHumanFacingDefinition, PluginDefinition[Entity]):
     """

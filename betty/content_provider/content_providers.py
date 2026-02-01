@@ -27,7 +27,7 @@ from betty.plugin.config.property import PluginConfigurationSequenceProperty
 from betty.service.level.factory import (
     ServiceLevelDependentSelfFactory,
 )
-from betty.service.requirement import require_project
+from betty.service.requirement.project import require_project
 from betty.typing import private
 
 if TYPE_CHECKING:

@@ -7,7 +7,6 @@ import pytest
 from betty.exception import HumanFacingException
 from betty.model import EntityDefinition
 from betty.model.reference import EntityReference
-from betty.plugin.discovery.static import StaticDiscovery
 from betty.project import Project
 from betty.service.level.universal import universe
 from betty.test_utils.data import DataTestBase
@@ -33,7 +32,7 @@ class TestEntityReference(DataTestBase[EntityReference]):
     async def test_hydrate__without_project(self) -> None:
         sut = EntityReference(DummyEntityOne, "unknown-entity")
         with (
-            EntityDefinition.type().override_discovery(StaticDiscovery(DummyEntityOne)),
+            EntityDefinition.type().discoverer.override(DummyEntityOne),
             pytest.raises(HumanFacingException),
         ):
             await sut.hydrate(services=universe)
@@ -47,9 +46,7 @@ class TestEntityReference(DataTestBase[EntityReference]):
     async def test_hydrate__with_unknown_entity(self, isolated_app: App) -> None:
         sut = EntityReference(DummyEntityOne, "unknown-entity")
         async with Project.new_isolated(isolated_app) as project, project:
-            with EntityDefinition.type().override_discovery(
-                StaticDiscovery(DummyEntityOne)
-            ):
+            with EntityDefinition.type().discoverer.override(DummyEntityOne):
                 with pytest.raises(HumanFacingException):
                     await sut.hydrate(services=project)
 
@@ -59,7 +56,5 @@ class TestEntityReference(DataTestBase[EntityReference]):
         async with Project.new_isolated(isolated_app) as project:
             project.ancestry[DummyEntityOne].add(DummyEntityOne(entity_id))
             async with project:
-                with EntityDefinition.type().override_discovery(
-                    StaticDiscovery(DummyEntityOne)
-                ):
+                with EntityDefinition.type().discoverer.override(DummyEntityOne):
                     await sut.hydrate(services=project)

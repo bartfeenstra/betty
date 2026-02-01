@@ -14,7 +14,7 @@ from betty.extension.gramps.config import GrampsConfiguration
 from betty.extension.gramps.jobs import LoadAncestry
 from betty.locale.localizable.gettext import _
 from betty.project.load import Loader
-from betty.service.requirement import require_project
+from betty.service.requirement.project import require_project
 from betty.typing import private
 
 if TYPE_CHECKING:

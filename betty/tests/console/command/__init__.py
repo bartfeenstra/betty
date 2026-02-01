@@ -5,7 +5,6 @@ import pytest
 
 from betty.app import App
 from betty.extension import Extension, ExtensionDefinition
-from betty.plugin.discovery.static import StaticDiscovery
 
 
 class ExtensionTranslationTestBase:
@@ -25,10 +24,8 @@ class ExtensionTranslationTestBase:
         class _DummyWithAssetsDirectoryExtension(Extension):
             pass
 
-        with ExtensionDefinition.type().override_discovery(
-            StaticDiscovery(
-                _DummyWithoutAssetsDirectoryExtension,
-                _DummyWithAssetsDirectoryExtension,
-            )
+        with ExtensionDefinition.type().discoverer.override(
+            _DummyWithoutAssetsDirectoryExtension,
+            _DummyWithAssetsDirectoryExtension,
         ):
             yield isolated_app

@@ -7,7 +7,6 @@ from typing_extensions import override
 
 from betty.extension.raspberry_mint import RaspberryMint
 from betty.model import EntityDefinition
-from betty.plugin.discovery.static import StaticDiscovery
 from betty.project import Project
 from betty.project.config import EntityTypeConfiguration
 from betty.project.generate import generate
@@ -34,9 +33,7 @@ class TestRaspberryMint(EntryPointProviderTestBase):
     async def test_generate__html_list_for_third_party_entity(
         self, isolated_app: App
     ) -> None:
-        with EntityDefinition.type().override_discovery(
-            StaticDiscovery(DummyEntityOne)
-        ):
+        with EntityDefinition.type().discoverer.override(DummyEntityOne):
             async with Project.new_isolated(isolated_app) as project:
                 project.configuration.extensions.add(RaspberryMint)
                 project.configuration.entity_types.add(

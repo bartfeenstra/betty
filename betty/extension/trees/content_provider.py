@@ -11,7 +11,7 @@ from betty.content_provider.content_providers import Template
 from betty.extension.trees import Trees
 from betty.locale.localizable.gettext import _
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
-from betty.service.requirement import require_extension
+from betty.service.requirement.extension import require_extension
 
 
 @ContentProviderDefinition("trees-tree", label=_("Family tree"))

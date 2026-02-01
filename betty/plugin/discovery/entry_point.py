@@ -11,7 +11,7 @@ from typing_extensions import TypeVar, override
 
 from betty.plugin import PluginDefinition
 from betty.plugin.discovery import PluginDiscovery
-from betty.plugin.resolve import resolve_definition
+from betty.plugin.resolve import ResolvableDefinition
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -49,8 +49,10 @@ class EntryPointDiscovery(PluginDiscovery[_PluginDefinitionT]):
         self._entry_point_group = entry_point_group
 
     @override
-    async def discover(self, *, services: ServiceLevel) -> Iterable[_PluginDefinitionT]:
+    async def discover(
+        self, *, services: ServiceLevel
+    ) -> Iterable[ResolvableDefinition[_PluginDefinitionT]]:
         return [
-            cast(_PluginDefinitionT, resolve_definition(entry_point.load()))
+            cast(ResolvableDefinition[_PluginDefinitionT], entry_point.load())
             for entry_point in metadata.entry_points(group=self._entry_point_group)
         ]

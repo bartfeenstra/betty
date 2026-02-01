@@ -14,7 +14,7 @@ from betty.extension.webpack.build import EntryPointProvider
 from betty.locale.localizable.gettext import _
 from betty.project.generate import Generator
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
-from betty.service.requirement import require_project
+from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

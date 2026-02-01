@@ -10,7 +10,7 @@ from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
-from betty.plugin.discovery.project import ProjectDiscovery
+from betty.service.requirement.project import require_project
 
 
 class Gender(Plugin["GenderDefinition"]):
@@ -27,8 +27,8 @@ class Gender(Plugin["GenderDefinition"]):
     label_countable=ngettext("{count} gender", "{count} genders"),
     discovery=[
         EntryPointDiscovery("betty.gender"),
-        ProjectDiscovery(
-            lambda project: (
+        require_project(
+            lambda *, project: (
                 configuration.new_plugin()
                 for configuration in project.configuration.genders
             )

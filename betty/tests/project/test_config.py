@@ -10,7 +10,6 @@ from betty.extension import Extension, ExtensionDefinition
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.plain import Plain
 from betty.model import EntityDefinition
-from betty.plugin.discovery.static import StaticDiscovery
 from betty.project.config import (
     CopyrightNoticeDefinitionConfiguration,
     EntityTypeConfiguration,
@@ -100,9 +99,7 @@ class TestEntityTypeConfiguration(DataTestBase[EntityTypeConfiguration]):
             entity_type=DummyNonPublicFacingEntityOne, generate_html_list=True
         )
         with (
-            EntityDefinition.type().override_discovery(
-                StaticDiscovery(DummyNonPublicFacingEntityOne)
-            ),
+            EntityDefinition.type().discoverer.override(DummyNonPublicFacingEntityOne),
             pytest.raises(HumanFacingException),
         ):
             await sut.hydrate(services=universe)

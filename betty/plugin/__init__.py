@@ -7,7 +7,6 @@ to Betty.
 
 from __future__ import annotations
 
-from contextlib import contextmanager
 from functools import update_wrapper
 from importlib import metadata
 from typing import TYPE_CHECKING, Any, Final, Generic, Self, final
@@ -22,15 +21,14 @@ from betty.machine_name import InvalidMachineName, MachineName, validate_machine
 
 if TYPE_CHECKING:
     import builtins
-    from collections.abc import Collection, Iterator, Mapping, MutableSequence
+    from collections.abc import Iterable, Iterator, Mapping
 
     from betty.locale.localizable import (
         CountableLocalizable,
         Localizable,
         ResolvableLocalizable,
     )
-    from betty.plugin.discovery import PluginDiscovery
-
+    from betty.plugin.discovery import Discoverer, ResolvableDiscovery
 
 _BaseClsCoT = TypeVar("_BaseClsCoT", default=object, covariant=True)
 
@@ -119,11 +117,9 @@ class PluginTypeDefinition(
         label_plural: ResolvableLocalizable,
         label_countable: CountableLocalizable,
         description: ResolvableLocalizable | None = None,
-        discovery: Collection[PluginDiscovery[_PluginDefinitionT]]
-        | PluginDiscovery[_PluginDefinitionT]
-        | None = None,
+        discovery: Iterable[ResolvableDiscovery[_PluginDefinitionT]] | None = None,
     ):
-        from betty.plugin.discovery import PluginDiscovery
+        from betty.plugin.discovery import Discoverer
 
         super().__init__(
             label=label,
@@ -135,20 +131,7 @@ class PluginTypeDefinition(
         if not validate_machine_name(id):
             raise InvalidMachineName(id)
         self._id = id
-        if discovery is None:
-            discovery = []
-        elif isinstance(discovery, PluginDiscovery):
-            discovery = [discovery]  # ty:ignore[invalid-assignment]
-        else:
-            discovery = list(
-                discovery,  # ty:ignore[invalid-argument-type]
-            )
-        self._defined_discovery: MutableSequence[
-            PluginDiscovery[_PluginDefinitionT]
-        ] = discovery
-        self._active_discovery: Collection[PluginDiscovery[_PluginDefinitionT]] = (
-            self._defined_discovery
-        )
+        self._discoverer = Discoverer[_PluginDefinitionT](discovery)
 
     @property
     def id(self) -> MachineName:
@@ -163,39 +146,13 @@ class PluginTypeDefinition(
         cls.type = staticmethod(update_wrapper(lambda: self, cls.type))  # ty:ignore[invalid-assignment]
 
     @property
-    def discovery(
+    def discoverer(
         self,
-    ) -> Collection[PluginDiscovery[_PluginDefinitionT]]:
+    ) -> Discoverer[_PluginDefinitionT]:
         """
-        The plugin discoveries for this type.
+        The plugin discoverer for this type.
         """
-        return self._active_discovery
-
-    def add_discovery(self, *discoveries: PluginDiscovery[_PluginDefinitionT]) -> None:
-        """
-        Add a plugin discovery for this type.
-        """
-        self._defined_discovery.extend(discoveries)
-
-    @contextmanager
-    def override_discovery(
-        self, *discoveries: PluginDiscovery[_PluginDefinitionT]
-    ) -> Iterator[None]:
-        """
-        Temporarily override the discoveries for this plugin type with the given plugins.
-        """
-        self._active_discovery = discoveries
-        try:
-            yield
-        finally:
-            self._active_discovery = self._defined_discovery
-
-    @property
-    def discovery_overridden(self) -> bool:
-        """
-        Whether the discoveries are currently overridden.
-        """
-        return self._defined_discovery != self._active_discovery
+        return self._discoverer
 
 
 class Plugin(Generic[_PluginDefinitionCoT]):

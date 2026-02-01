@@ -19,7 +19,7 @@ from betty.plugin.assertion import assert_plugin
 from betty.plugin.data import PluginIdDefinition
 from betty.plugin.resolve import resolve_id
 from betty.service.hydrate import Hydratable
-from betty.service.requirement import require_project
+from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from betty.plugin.resolve import ResolvableId

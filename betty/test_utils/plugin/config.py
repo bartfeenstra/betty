@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, Self, final
 from typing_extensions import override
 
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
-from betty.plugin.discovery.callback import CallbackDiscovery
 from betty.test_utils.config import DummyConfigurable
 from betty.test_utils.data import DummyData
 from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
@@ -43,11 +42,7 @@ class ConfigurableDummyPlugin(
     label="Configurable dummy plugin",
     label_plural="Configurable dummy plugins",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    discovery=CallbackDiscovery(
-        lambda: [
-            ConfigurableDummyPluginOne.plugin(),
-        ]
-    ),
+    discovery=[lambda **_: [ConfigurableDummyPluginOne]],
 )
 class ConfigurableDummyPluginDefinition(PluginDefinition[ConfigurableDummyPlugin]):
     """

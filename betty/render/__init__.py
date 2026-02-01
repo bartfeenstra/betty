@@ -42,7 +42,7 @@ class Renderer(ABC, Plugin["RendererDefinition"]):
     label=_("Renderer"),
     label_plural=_("Renderers"),
     label_countable=ngettext("{count} renderer", "{count} renderers"),
-    discovery=EntryPointDiscovery("betty.renderer"),
+    discovery=[EntryPointDiscovery("betty.renderer")],
 )
 class RendererDefinition(HumanFacingDefinition, PluginDefinition[Renderer]):
     """

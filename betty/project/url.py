@@ -12,7 +12,7 @@ from typing_extensions import override
 from betty.media_type.media_types import HTML, JSON, JSON_LD
 from betty.model import Entity, EntityDefinition
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
-from betty.service.requirement import require_project
+from betty.service.requirement.project import require_project
 from betty.string import camel_case_to_kebab_case
 from betty.url import (
     PassthroughUrlGenerator,

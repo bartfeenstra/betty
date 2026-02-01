@@ -16,7 +16,7 @@ from betty.document import Document
 from betty.extension.maps import Maps
 from betty.locale.localizable.gettext import _
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
-from betty.service.requirement import require_extension
+from betty.service.requirement.extension import require_extension
 
 
 @ContentProviderDefinition("maps-map", label=_("Map"))

@@ -10,7 +10,7 @@ from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
-from betty.plugin.discovery.project import ProjectDiscovery
+from betty.service.requirement.project import require_project
 
 
 class PresenceRole(Plugin["PresenceRoleDefinition"]):
@@ -27,8 +27,8 @@ class PresenceRole(Plugin["PresenceRoleDefinition"]):
     label_countable=ngettext("{count} presence role", "{count} presence roles"),
     discovery=[
         EntryPointDiscovery("betty.presence_role"),
-        ProjectDiscovery(
-            lambda project: (
+        require_project(
+            lambda *, project: (
                 configuration.new_plugin()
                 for configuration in project.configuration.presence_roles
             )

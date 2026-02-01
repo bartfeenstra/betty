@@ -34,7 +34,7 @@ class ContentProvider(ABC, Plugin["ContentProviderDefinition"]):
     label=_("Content provider"),
     label_plural=_("Content providers"),
     label_countable=ngettext("{count} content provider", "{count} content providers"),
-    discovery=EntryPointDiscovery("betty.content_provider"),
+    discovery=[EntryPointDiscovery("betty.content_provider")],
 )
 class ContentProviderDefinition(
     HumanFacingDefinition, PluginDefinition[ContentProvider]

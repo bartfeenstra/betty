@@ -15,7 +15,7 @@ from betty.console.project import add_project_argument
 from betty.locale.localizable.gettext import _
 from betty.locale.translation import project as translation_project
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
-from betty.service.requirement import require_app
+from betty.service.requirement.app import require_app
 
 if TYPE_CHECKING:
     import argparse

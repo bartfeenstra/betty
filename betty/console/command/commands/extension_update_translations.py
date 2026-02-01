@@ -14,7 +14,7 @@ from betty.locale.translation.project.extension import (
     assert_extension_has_assets_directory_path,
 )
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
-from betty.service.requirement import require_app
+from betty.service.requirement.app import require_app
 
 if TYPE_CHECKING:
     import argparse

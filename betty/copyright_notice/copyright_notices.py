@@ -19,7 +19,8 @@ from betty.locale.localizable.plain import Plain
 from betty.locale.localizable.resolve import resolve_localizable
 from betty.locale.localizable.static import StaticTranslations
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
-from betty.service.requirement import require_app, require_project
+from betty.service.requirement.app import require_app
+from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from betty.app import App
