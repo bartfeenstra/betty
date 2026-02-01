@@ -3,7 +3,7 @@ from typing import Any
 import pytest
 
 from betty.assertion import assert_str
-from betty.collections import KeyedCollection
+from betty.collections import MutableDictKeyedCollection
 from betty.data import Data, DataDefinition, OptionalDefinition
 from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.data.aggregate.collection.mapping import MappingDefinition
@@ -152,8 +152,8 @@ class TestKeyedCollectionProperty:
                 value=_Item.data(),
                 key=AttrSelector("attr"),
                 ordered=False,
-            ),  # ty:ignore[invalid-argument-type]
-            default=lambda: KeyedCollection(key=lambda item: item.upper()),
+            ),
+            default=lambda: MutableDictKeyedCollection(key=lambda item: item.upper()),
         )
 
     def test_set(self) -> None:
