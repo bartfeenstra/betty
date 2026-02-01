@@ -50,7 +50,6 @@ from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.model.reference import EntityReference
 from betty.plugin.config import PluginConfiguration
-from betty.plugin.discovery.static import StaticDiscovery
 from betty.plugin.repository.static import StaticPluginRepository
 from betty.project import Project
 from betty.test_utils.ancestry.has_citations import DummyHasCitations
@@ -140,9 +139,7 @@ class TestSection(ContentProviderTestBase):
             )
 
     async def test_provide__without_content(self, isolated_app: App) -> None:
-        with ContentProviderDefinition.type().override_discovery(
-            StaticDiscovery(NoOpContentProvider)
-        ):
+        with ContentProviderDefinition.type().discoverer.override(NoOpContentProvider):
             async with Project.new_isolated(isolated_app) as project:
                 project.configuration.extensions.add(RaspberryMint)
                 async with project:
@@ -359,9 +356,7 @@ class TestColorStyle(ContentProviderTestBase):
                 )
 
     async def test_provide__without_content(self, isolated_app: App) -> None:
-        with ContentProviderDefinition.type().override_discovery(
-            StaticDiscovery(NoOpContentProvider)
-        ):
+        with ContentProviderDefinition.type().discoverer.override(NoOpContentProvider):
             async with Project.new_isolated(isolated_app) as project:
                 project.configuration.extensions.add(RaspberryMint)
                 async with project:

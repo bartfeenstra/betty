@@ -11,7 +11,7 @@ from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
-from betty.plugin.discovery.project import ProjectDiscovery
+from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from betty.locale.localizable import Localizable
@@ -54,8 +54,8 @@ class CopyrightNotice(Plugin["CopyrightNoticeDefinition"]):
     label_countable=ngettext("{count} copyright notice", "{count} copyright notices"),
     discovery=[
         EntryPointDiscovery("betty.copyright_notice"),
-        ProjectDiscovery(
-            lambda project: (
+        require_project(
+            lambda *, project: (
                 configuration.new_plugin()
                 for configuration in project.configuration.copyright_notices
             )

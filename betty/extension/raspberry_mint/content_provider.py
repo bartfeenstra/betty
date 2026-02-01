@@ -55,7 +55,7 @@ from betty.portable import CallbackPorter
 from betty.service.level.factory import (
     ServiceLevelDependentSelfFactory,
 )
-from betty.service.requirement import require_extension
+from betty.service.requirement.extension import require_extension
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.typing import private
 

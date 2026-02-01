@@ -19,7 +19,6 @@ from betty.ancestry.presence_role.presence_roles import Subject
 from betty.date import Date, DateRange, ResolvableDate
 from betty.deriver import Deriver
 from betty.model.collections import record_added
-from betty.plugin.discovery.static import StaticDiscovery
 from betty.plugin.resolve import ResolvableDefinition
 from betty.project import Project
 from betty.test_utils.locale.localizable import (
@@ -207,9 +206,7 @@ class TestDeriver:
         async def _new_project(
             event_types: Iterable[ResolvableDefinition[EventTypeDefinition]],
         ) -> AsyncIterator[Project]:
-            with EventTypeDefinition.type().override_discovery(
-                StaticDiscovery(*event_types)
-            ):
+            with EventTypeDefinition.type().discoverer.override(*event_types):
                 async with Project.new_isolated(isolated_app) as project, project:
                     yield project
 

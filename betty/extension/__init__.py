@@ -58,7 +58,7 @@ class Extension(ServiceContainer, Plugin["ExtensionDefinition"]):
     label=_("Extension"),
     label_plural=_("Extensions"),
     label_countable=ngettext("{count} extension", "{count} extensions"),
-    discovery=EntryPointDiscovery("betty.extension"),
+    discovery=[EntryPointDiscovery("betty.extension")],
 )
 class ExtensionDefinition(HumanFacingDefinition, DependentPluginDefinition[Extension]):
     """

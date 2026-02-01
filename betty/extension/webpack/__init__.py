@@ -22,7 +22,7 @@ from betty.html import CssProvider, JsProvider
 from betty.jinja2 import Filters, Jinja2Provider
 from betty.project.generate import Generator
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
-from betty.service.requirement import require_project
+from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

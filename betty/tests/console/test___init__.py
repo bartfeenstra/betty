@@ -13,7 +13,6 @@ from betty.console import SystemExitCode, call_command_func, main_standalone
 from betty.console.command import Command, CommandDefinition
 from betty.exception import HumanFacingException
 from betty.functools import Result, suppress
-from betty.plugin.discovery.static import StaticDiscovery
 from betty.portable.file import dump_file
 from betty.project import Project
 from betty.test_utils.console import run
@@ -84,7 +83,7 @@ async def test_main__with_unknown_command(isolated_app: App) -> None:
 async def test_main__with_user_facing_exception(
     expected: SystemExitCode, command: CommandDefinition, isolated_app: App
 ) -> None:
-    with CommandDefinition.type().override_discovery(StaticDiscovery(command)):
+    with CommandDefinition.type().discoverer.override(command):
         await run(
             isolated_app,
             command.id,
@@ -110,7 +109,7 @@ def test_main_standalone(
 ) -> None:
     def _target() -> None:
         mocker.patch("sys.argv", new=["betty", command.id])
-        with CommandDefinition.type().override_discovery(StaticDiscovery(command)):
+        with CommandDefinition.type().discoverer.override(command):
             main_standalone()
 
     # Run this in a thread so as not to conflict with pytest-playwright-asyncio's session-scoped event loop.
@@ -138,7 +137,7 @@ class TestVerbosity:
     async def test(
         self, expected: Verbosity, isolated_app: App, verbosity: str | None
     ) -> None:
-        with CommandDefinition.type().override_discovery(StaticDiscovery(_NoOpCommand)):
+        with CommandDefinition.type().discoverer.override(_NoOpCommand):
             async with Project.new_isolated(isolated_app) as project:
                 await dump_file(
                     project.configuration.data().porter.dump(project.configuration),

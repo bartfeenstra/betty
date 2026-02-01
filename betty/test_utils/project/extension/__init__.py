@@ -9,7 +9,7 @@ from typing_extensions import override
 from betty.extension import Extension, ExtensionDefinition
 from betty.project import Project
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
-from betty.service.requirement import require_project
+from betty.service.requirement.project import require_project
 from betty.test_utils.config import DummyConfigurable
 from betty.test_utils.data import DummyData
 from betty.test_utils.definition.human_facing import HumanFacingDefinitionTestBase

@@ -10,11 +10,11 @@ from betty.extension import Extension, ExtensionDefinition
 from betty.license import LicenseDefinition
 from betty.license.licenses import SpdxLicenseBuilder
 from betty.locale.localizable.gettext import _
-from betty.plugin.discovery.extension import ExtensionDiscovery
 from betty.plugin.repository.static import StaticPluginRepository
 from betty.service.container import service
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
-from betty.service.requirement import require_project
+from betty.service.requirement.extension import require_extension
+from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from betty.plugin.repository import PluginRepository
@@ -60,6 +60,6 @@ class Spdx(ServiceLevelDependentSelfFactory, Extension):
         )
 
 
-LicenseDefinition.type().add_discovery(
-    ExtensionDiscovery(Spdx, lambda spdx: spdx.license_repository),
+LicenseDefinition.type().discoverer.add(
+    require_extension(Spdx)(lambda *, extension: extension.license_repository),
 )

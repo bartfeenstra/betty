@@ -41,7 +41,7 @@ class Command(Plugin["CommandDefinition"]):
     label=_("Command"),
     label_plural=_("Commands"),
     label_countable=ngettext("{count} command", "{count} commands"),
-    discovery=EntryPointDiscovery("betty.command"),
+    discovery=[EntryPointDiscovery("betty.command")],
 )
 class CommandDefinition(HumanFacingDefinition, PluginDefinition[Command]):
     """
@@ -50,4 +50,6 @@ class CommandDefinition(HumanFacingDefinition, PluginDefinition[Command]):
 
 
 if about.IS_DEVELOPMENT:
-    CommandDefinition.type().add_discovery(EntryPointDiscovery("betty.dev.command"))
+    CommandDefinition.type().discoverer.add(
+        EntryPointDiscovery[CommandDefinition]("betty.dev.command")
+    )

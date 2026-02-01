@@ -13,7 +13,7 @@ from betty.extension.privatizer.jobs import PrivatizeAncestry
 from betty.locale.localizable.gettext import _
 from betty.project.load import PostLoader
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
-from betty.service.requirement import require_project
+from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler

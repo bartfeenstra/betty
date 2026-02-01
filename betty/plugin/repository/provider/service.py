@@ -12,7 +12,6 @@ from typing_extensions import TypeVar, override
 from betty import plugin
 from betty.concurrent import AsynchronizedLock, Ledger
 from betty.plugin import PluginDefinition
-from betty.plugin.discovery import discover
 from betty.plugin.repository.provider import PluginRepositoryProvider
 from betty.plugin.repository.static import StaticPluginRepository
 from betty.typing import internal
@@ -58,7 +57,7 @@ class ServiceLevelPluginRepositoryProvider(PluginRepositoryProvider):
                 plugin.plugin_types[plugin_type],
             )
         repository: PluginRepository[_PluginDefinitionT] | None
-        if plugin_type.type().discovery_overridden:
+        if plugin_type.type().discoverer.overridden:
             return await self._new(plugin_type)
         # If the repository exists already, return it immediately so we avoid acquiring locks.
         repository = self._get(plugin_type)
@@ -85,5 +84,5 @@ class ServiceLevelPluginRepositoryProvider(PluginRepositoryProvider):
     ) -> PluginRepository[_PluginDefinitionT]:
         return StaticPluginRepository(
             plugin_type,
-            *await discover(self._services, *plugin_type.type().discovery),
+            *await plugin_type.type().discoverer.discover(services=self._services),
         )

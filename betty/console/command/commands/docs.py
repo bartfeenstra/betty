@@ -9,7 +9,7 @@ from betty import documentation
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.locale.localizable.gettext import _
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
-from betty.service.requirement import require_app
+from betty.service.requirement.app import require_app
 
 if TYPE_CHECKING:
     import argparse

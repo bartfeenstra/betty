@@ -24,7 +24,7 @@ from betty.exception import HumanFacingException
 from betty.functools import Do
 from betty.locale.localizable.gettext import _
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
-from betty.service.requirement import require_project
+from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from types import TracebackType

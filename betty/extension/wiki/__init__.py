@@ -20,7 +20,7 @@ from betty.locale.localizable.gettext import _
 from betty.project.load import PostLoader
 from betty.service.container import service
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
-from betty.service.requirement import require_project
+from betty.service.requirement.project import require_project
 from betty.typing import private
 from betty.wiki import NotAPageError, parse_page_url
 from betty.wiki import populator as populator_api

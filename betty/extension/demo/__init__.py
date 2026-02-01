@@ -27,7 +27,7 @@ from betty.project import generate
 from betty.project.job import ProjectContext
 from betty.project.load import Loader, load
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
-from betty.service.requirement import require_project
+from betty.service.requirement.project import require_project
 from betty.typing import internal
 
 if TYPE_CHECKING:

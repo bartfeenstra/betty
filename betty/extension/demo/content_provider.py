@@ -10,7 +10,7 @@ from betty.content_provider import ContentProviderDefinition
 from betty.content_provider.content_providers import Template
 from betty.project import Project
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
-from betty.service.requirement import require_project
+from betty.service.requirement.project import require_project
 
 
 @ContentProviderDefinition(

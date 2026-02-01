@@ -96,7 +96,7 @@ class RateLimit(Plugin["RateLimitDefinition"]):
     description=_(
         "Rate limits ensure that Betty's HTTP client does not make more requests to a web service than that service supports or allows, by enforcing a maximum number of requests per timeframe."
     ),
-    discovery=EntryPointDiscovery("betty.http_rate_limit"),
+    discovery=[EntryPointDiscovery("betty.http_rate_limit")],
 )
 class RateLimitDefinition(OrderedPluginDefinition[RateLimit]):
     """

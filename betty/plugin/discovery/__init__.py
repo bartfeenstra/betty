@@ -5,15 +5,21 @@ Plugin discovery.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Generic
+from asyncio import gather
+from collections.abc import Awaitable, Callable, Collection, Iterable
+from contextlib import contextmanager
+from typing import TYPE_CHECKING, Generic, TypeAlias, Unpack, final
 
+import typing_extensions
 from typing_extensions import TypeVar
 
-from betty.plugin import PluginDefinition
-from betty.typing import internal
+from betty.asyncio import resolve_await
+from betty.plugin import Plugin, PluginDefinition
+from betty.plugin.resolve import ResolvableDefinition
+from betty.service.requirement import ServiceLevelKwargs
 
 if TYPE_CHECKING:
-    from collections.abc import Collection, Iterable
+    from collections.abc import Iterator
 
     from betty.service.level import ServiceLevel
 
@@ -22,28 +28,109 @@ _PluginDefinitionT = TypeVar(
 )
 
 
-@internal
 class PluginDiscovery(ABC, Generic[_PluginDefinitionT]):
     """
-    A plugin discovery definition.
+    A plugin definition discovery.
     """
 
     @abstractmethod
-    async def discover(self, *, services: ServiceLevel) -> Iterable[_PluginDefinitionT]:
+    async def discover(
+        self, *, services: ServiceLevel
+    ) -> Iterable[ResolvableDiscovery[_PluginDefinitionT]]:
         """
-        Get the definitions for this plugin type.
+        Discover the plugin definitions.
         """
+
+
+ResolvableDiscovery: TypeAlias = (
+    PluginDiscovery[_PluginDefinitionT]
+    | Callable[
+        [Unpack[ServiceLevelKwargs]],
+        Awaitable[Iterable["ResolvableDiscovery[_PluginDefinitionT]"]]
+        | Iterable["ResolvableDiscovery[_PluginDefinitionT]"],
+    ]
+    | ResolvableDefinition[_PluginDefinitionT]
+)
 
 
 async def discover(
-    services: ServiceLevel,
-    *discoveries: PluginDiscovery[_PluginDefinitionT],
-) -> Collection[_PluginDefinitionT]:
+    *discoveries: ResolvableDiscovery[_PluginDefinitionT], services: ServiceLevel
+) -> Iterable[_PluginDefinitionT]:
     """
-    Discover plugins from multiple discoveries.
+    Discover plugins definitions.
     """
     return [
         plugin
-        for discovery in discoveries
-        for plugin in await discovery.discover(services=services)
+        for plugins in await gather(
+            *[_discover(discovery, services) for discovery in discoveries]
+        )
+        for plugin in plugins
     ]
+
+
+async def _discover(
+    discovery: ResolvableDiscovery[_PluginDefinitionT], services: ServiceLevel
+) -> Iterable[_PluginDefinitionT]:
+    from betty.service.requirement import UnmetRequirement
+
+    try:
+        if isinstance(discovery, PluginDiscovery):
+            return await discover(
+                *await discovery.discover(services=services), services=services
+            )  # ty:ignore[invalid-return-type]
+        if isinstance(discovery, PluginDefinition):
+            return [discovery]  # ty:ignore[invalid-return-type]
+        if isinstance(discovery, type) and issubclass(discovery, Plugin):
+            return [discovery.plugin()]  # ty:ignore[invalid-return-type]
+        return await discover(
+            *await resolve_await(discovery(services=services)), services=services
+        )  # ty:ignore[invalid-return-type]
+    except UnmetRequirement:
+        return ()
+
+
+@final
+class Discoverer(PluginDiscovery[_PluginDefinitionT]):
+    """
+    A plugin discoverer.
+    """
+
+    def __init__(
+        self,
+        discovery: Iterable[ResolvableDiscovery[_PluginDefinitionT]] | None = None,
+        /,
+    ):
+        self._defined = [] if discovery is None else list(discovery)
+        self._active: Collection[ResolvableDiscovery[_PluginDefinitionT]] = (
+            self._defined
+        )
+
+    def add(self, *discoveries: ResolvableDiscovery[_PluginDefinitionT]) -> None:
+        """
+        Add discoveries.
+        """
+        self._defined.extend(discoveries)
+
+    @contextmanager
+    def override(
+        self, *discoveries: ResolvableDiscovery[_PluginDefinitionT]
+    ) -> Iterator[None]:
+        """
+        Temporarily override the defined discoveries with the given discoveries.
+        """
+        self._active = discoveries
+        try:
+            yield
+        finally:
+            self._active = self._defined
+
+    @property
+    def overridden(self) -> bool:
+        """
+        Whether the defined discoveries are currently overridden.
+        """
+        return self._defined != self._active
+
+    @typing_extensions.override
+    async def discover(self, *, services: ServiceLevel) -> Iterable[_PluginDefinitionT]:
+        return await discover(*self._active, services=services)  # ty:ignore[invalid-return-type]

@@ -27,7 +27,7 @@ from betty.plugin.config import (
 )
 from betty.plugin.data import PluginConfigurationSequenceDefinition
 from betty.service.hydrate import Hydratable
-from betty.service.requirement import require_extension
+from betty.service.requirement.extension import require_extension
 
 if TYPE_CHECKING:
     from betty.extension.raspberry_mint import RaspberryMint

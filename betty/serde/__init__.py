@@ -62,7 +62,7 @@ class Serializer(ABC, Plugin["SerializerDefinition"]):
     label=_("Serializer"),
     label_plural=_("Serializers"),
     label_countable=ngettext("{count} serializer", "{count} serializers"),
-    discovery=EntryPointDiscovery("betty.serializer"),
+    discovery=[EntryPointDiscovery("betty.serializer")],
 )
 class SerializerDefinition(HumanFacingDefinition, PluginDefinition[Serializer]):
     """
