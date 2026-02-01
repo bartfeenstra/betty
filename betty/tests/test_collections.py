@@ -44,32 +44,6 @@ class TestDictKeyedCollection:
 
 
 class TestMutableDictKeyedCollection:
-    def test___contains__(self) -> None:
-        sut = MutableDictKeyedCollection(["one"], key=lambda value: value.upper())
-        assert "ONE" in sut
-
-    def test___contains____with_resolved_key(self) -> None:
-        sut = MutableDictKeyedCollection[str, str, bool, str](
-            ["True"], key=passthrough, key_resolver=str
-        )
-        assert True in sut
-
-    def test___contains____with_invalid_value(self) -> None:
-        sut = MutableDictKeyedCollection[str, str, bool, str](
-            ["True"], key=passthrough, key_resolver=str
-        )
-        assert object() not in sut
-
-    def test___getitem__(self) -> None:
-        sut = MutableDictKeyedCollection(["one"], key=lambda value: value.upper())
-        assert sut["ONE"] == "one"
-
-    def test___getitem____with_resolved_key(self) -> None:
-        sut = MutableDictKeyedCollection[str, Any, bool, str](
-            ["True"], key=passthrough, key_resolver=str
-        )
-        assert sut[True] == "True"
-
     def test___delitem__(self) -> None:
         sut = MutableDictKeyedCollection(["one"], key=lambda value: value.upper())
         del sut["ONE"]
@@ -79,14 +53,6 @@ class TestMutableDictKeyedCollection:
             ["True"], key=passthrough, key_resolver=str
         )
         del sut[True]
-
-    def test___iter__(self) -> None:
-        sut = MutableDictKeyedCollection(["one"], key=lambda value: value.upper())
-        assert list(iter(sut)) == ["one"]
-
-    def test___len__(self) -> None:
-        sut = MutableDictKeyedCollection(["one"], key=lambda value: value.upper())
-        assert len(sut) == 1
 
     def test_add__with_new_key(self) -> None:
         sut = MutableDictKeyedCollection[str, str, str, str](
@@ -131,10 +97,6 @@ class TestMutableDictKeyedCollection:
         sut.clear()
         assert list(sut) == []
 
-    def test_keys(self) -> None:
-        sut = MutableDictKeyedCollection(["one"], key=lambda value: value.upper())
-        assert list(sut.keys()) == ["ONE"]
-
 
 class TestResolvedSequenceProxy:
     def test___getitem__(self) -> None:
@@ -159,31 +121,31 @@ class TestResolvedSequenceProxy:
 
 class TestMutableResolvedSequenceProxy:
     def test_insert(self) -> None:
-        decorated = []
-        sut = MutableResolvedSequenceProxy(decorated, value_resolver=str)
+        upstream = []
+        sut = MutableResolvedSequenceProxy(upstream, value_resolver=str)
         sut.insert(3, True)
-        assert decorated == ["True"]
+        assert upstream == ["True"]
 
     def test_extend(self) -> None:
-        decorated = ["False"]
-        sut = MutableResolvedSequenceProxy(decorated, value_resolver=str)
+        upstream = ["False"]
+        sut = MutableResolvedSequenceProxy(upstream, value_resolver=str)
         sut.extend([True])
-        assert decorated == ["False", "True"]
+        assert upstream == ["False", "True"]
 
     def test___setitem____with_index(self) -> None:
-        decorated = ["True"]
-        sut = MutableResolvedSequenceProxy(decorated, value_resolver=str)
+        upstream = ["True"]
+        sut = MutableResolvedSequenceProxy(upstream, value_resolver=str)
         sut[0] = False
-        assert decorated[0] == "False"
+        assert upstream[0] == "False"
 
     def test___setitem____with_slice(self) -> None:
-        decorated = ["True", "True", "True"]
-        sut = MutableResolvedSequenceProxy(decorated, value_resolver=str)
+        upstream = ["True", "True", "True"]
+        sut = MutableResolvedSequenceProxy(upstream, value_resolver=str)
         sut[1:3] = [False, False]
-        assert decorated == ["True", "False", "False"]
+        assert upstream == ["True", "False", "False"]
 
     def test___delitem__(self) -> None:
-        decorated = ["one"]
-        sut = MutableResolvedSequenceProxy(decorated, value_resolver=passthrough)
+        upstream = ["one"]
+        sut = MutableResolvedSequenceProxy(upstream, value_resolver=passthrough)
         del sut[0]
-        assert not decorated
+        assert not upstream
