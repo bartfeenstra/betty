@@ -4,10 +4,10 @@ from typing import TypeAlias, Unpack
 import pytest
 
 from betty.app import App
+from betty.exception import HumanFacingException
 from betty.extension import ExtensionDefinition
 from betty.plugin.discovery.static import StaticDiscovery
 from betty.project import Project
-from betty.requirement import UnmetRequirement
 from betty.service.level.universal import universe
 from betty.service.requirement import (
     ServiceLevelKwargs,
@@ -58,7 +58,7 @@ _TestRequireAppTarget: TypeAlias = Callable[
 
 @_test_require_app_targets
 async def test_require_app__with_universe(target: _TestRequireAppTarget) -> None:
-    with pytest.raises(UnmetRequirement):
+    with pytest.raises(HumanFacingException):
         await target(services=universe)
 
 
@@ -119,7 +119,7 @@ _TestRequireProjectTarget: TypeAlias = Callable[
 async def test_require_project__with_universe(
     target: _TestRequireProjectTarget,
 ) -> None:
-    with pytest.raises(UnmetRequirement):
+    with pytest.raises(HumanFacingException):
         await target(services=universe)
 
 
@@ -127,7 +127,7 @@ async def test_require_project__with_universe(
 async def test_require_project__with_app(
     isolated_app: App, target: _TestRequireProjectTarget
 ) -> None:
-    with pytest.raises(UnmetRequirement):
+    with pytest.raises(HumanFacingException):
         await target(services=isolated_app)
 
 
@@ -189,7 +189,7 @@ async def test_require_extension__with_universe(
         ExtensionDefinition.type().override_discovery(
             StaticDiscovery(DummyExtensionOne)
         ),
-        pytest.raises(UnmetRequirement),
+        pytest.raises(HumanFacingException),
     ):
         await target(services=universe)
 
@@ -202,7 +202,7 @@ async def test_require_extension__with_app(
         ExtensionDefinition.type().override_discovery(
             StaticDiscovery(DummyExtensionOne)
         ),
-        pytest.raises(UnmetRequirement),
+        pytest.raises(HumanFacingException),
     ):
         await target(services=isolated_app)
 
@@ -215,7 +215,7 @@ async def test_require_extension__with_project(
         StaticDiscovery(DummyExtensionOne)
     ):
         async with Project.new_isolated(isolated_app) as project, project:
-            with pytest.raises(UnmetRequirement):
+            with pytest.raises(HumanFacingException):
                 await target(services=project)
 
 

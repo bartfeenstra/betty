@@ -10,14 +10,11 @@ from betty.ancestry import Ancestry
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.extension import Extension, ExtensionDefinition
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
-from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin.discovery.static import StaticDiscovery
 from betty.project import Project, ProjectExtensions
 from betty.project.config import LocaleConfiguration, ProjectConfiguration
-from betty.requirement import Requirement, StaticRequirement, UnmetRequirement
 from betty.serde import SerializationError
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
-from betty.service.level.universal import universe
 from betty.service.requirement import require_project
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.plugin import DummyPluginDefinition
@@ -27,7 +24,6 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.app import App
-    from betty.service.level import ServiceLevel
 
 
 class _DummyExtension(ServiceLevelDependentSelfFactory, Extension):
@@ -49,14 +45,6 @@ class _DummyExtensionWithAssetsDirectory(_DummyExtension):
     pass
 
 
-@ExtensionDefinition("dummy-unmet-requirement", label=DUMMY_LOCALIZABLE)
-class _DummyExtensionWithUnmetRequirement(_DummyExtension):
-    @override
-    @classmethod
-    async def requirement(cls, level: ServiceLevel, /) -> Requirement | None:
-        return StaticRequirement(DUMMY_LOCALIZABLE)
-
-
 @ExtensionDefinition("dummy-a", label=DUMMY_LOCALIZABLE)
 class _DummyExtensionA(_DummyExtension):
     pass
@@ -68,22 +56,6 @@ class _DummyExtensionB(_DummyExtension):
 
 
 class TestProject:
-    async def test_requires_project__with_universe(self) -> None:
-        subject = "My First Subject"
-        requires = await Project.requires(universe, subject)
-        assert isinstance(requires, Requirement)
-        assert subject in requires.localize(DEFAULT_LOCALIZER)
-
-    async def test_requires_project__with_app(self, isolated_app: App) -> None:
-        subject = "My First Subject"
-        requires = await Project.requires(isolated_app, subject)
-        assert isinstance(requires, Requirement)
-        assert subject in requires.localize(DEFAULT_LOCALIZER)
-
-    async def test_requires_project__with_project(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project, project:
-            assert await Project.requires(project, "") is project
-
     async def test_plugins(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as sut, sut:
             await sut.plugins(DummyPluginDefinition)
@@ -148,18 +120,6 @@ class TestProject:
             for betty_extension in await isolated_app.plugins(ExtensionDefinition):
                 if betty_extension.id.startswith("betty-"):
                     assert betty_extension.id in extensions
-
-    async def test_extensions__should_assert_requirement(
-        self, isolated_app: App
-    ) -> None:
-        with ExtensionDefinition.type().override_discovery(
-            StaticDiscovery(_DummyExtensionWithUnmetRequirement)
-        ):
-            async with Project.new_isolated(isolated_app) as sut:
-                sut.configuration.extensions.add(_DummyExtensionWithUnmetRequirement)
-                with pytest.raises(UnmetRequirement):
-                    async with sut:
-                        pass
 
     @pytest.mark.parametrize(
         "enable",

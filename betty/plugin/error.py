@@ -13,18 +13,15 @@ from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Paragraph, do_you_mean
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.resolve import (
-    ResolvableDefinition,
     ResolvableId,
-    resolve_definition,
     resolve_id,
 )
-from betty.requirement import UnmetRequirement as GenericUnmetRequirement
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.machine_name import MachineName
-    from betty.requirement import Requirement
+
 
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
@@ -68,20 +65,4 @@ class PluginNotFound(PluginUnavailable):
                     ]
                 ),
             )
-        )
-
-
-@final
-class UnmetRequirement(PluginUnavailable, GenericUnmetRequirement):
-    """
-    Raised when a plugin has unmet requirements.
-    """
-
-    def __init__(self, plugin_type: ResolvableDefinition, requirement: Requirement, /):
-        plugin_type = resolve_definition(plugin_type)
-        super().__init__(
-            requirement,
-            summary=_('{plugin_type} "{plugin_id}" has unmet requirements').format(
-                plugin_type=plugin_type.type().label, plugin_id=plugin_type.id
-            ),
         )

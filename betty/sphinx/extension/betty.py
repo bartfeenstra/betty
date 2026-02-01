@@ -57,7 +57,7 @@ async def _get_plugins(plugin_type_id: str) -> PluginRepository:
         Project.new_isolated(app) as project,
         project,
     ):
-        return await project.plugins(plugin_type_id, check_requirements=False)
+        return await project.plugins(plugin_type_id)
 
 
 def _cmp_formats(left: PluginDefinition, right: PluginDefinition) -> int:
@@ -78,7 +78,7 @@ async def _get_serializers() -> Sequence[Serializer]:
         return [
             await project.new_target(serializer.cls)
             for serializer in sorted(
-                await project.plugins(SerializerDefinition, check_requirements=False),
+                await project.plugins(SerializerDefinition),
                 key=cmp_to_key(_cmp_formats),
             )
         ]

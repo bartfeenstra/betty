@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-31 23:39+0000\n"
+"POT-Creation-Date: 2026-02-01 02:51+0000\n"
 "PO-Revision-Date: 2025-12-30 16:01+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de_DE\n"
@@ -108,9 +108,6 @@ msgstr ""
 
 msgid "All caches cleared."
 msgstr "Alle Caches gelöscht."
-
-msgid "All of these requirements must be met"
-msgstr "Alle dieser Anforderungen müssen erfüllt sein"
 
 msgid "All rights reserved"
 msgstr "Alle Rechte vorbehalten"
@@ -1184,9 +1181,6 @@ msgstr "Beruf"
 msgid "Occupations"
 msgstr ""
 
-msgid "One or more of these requirements must be met"
-msgstr "Eine oder mehrere dieser Anforderungen müssen erfüllt sein"
-
 msgid "Operating system"
 msgstr ""
 
@@ -2062,9 +2056,6 @@ msgstr ""
 "installierte Node.js packages voraussetzen. Stelle sicher, dass das "
 "Programm `npm` in deinem `PATH` aufgeführt ist."
 
-msgid "npm is not available"
-msgstr "npm ist nicht verfügbar"
-
 msgid "private"
 msgstr "anonym"
 
@@ -2620,10 +2611,6 @@ msgid "{date}"
 msgstr "{date}"
 
 #, python-brace-format
-msgid "{dependent} depends on {dependencies}."
-msgstr ""
-
-#, python-brace-format
 msgid "{entity_type} {entity_id}"
 msgstr "{entity_type} {entity_id}"
 
@@ -2653,10 +2640,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "{plugin_type} \"{plugin_id}\""
-msgstr ""
-
-#, python-brace-format
-msgid "{plugin_type} \"{plugin_id}\" has unmet requirements"
 msgstr ""
 
 #, python-brace-format

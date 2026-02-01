@@ -24,8 +24,6 @@ from betty.plugin.config import (
     ResolvablePluginConfigurationSequence,
 )
 from betty.plugin.config.property import PluginConfigurationSequenceProperty
-from betty.project import Project
-from betty.requirement import HasRequirement, Requirement
 from betty.service.level.factory import (
     ServiceLevelDependentSelfFactory,
 )
@@ -38,8 +36,8 @@ if TYPE_CHECKING:
     from betty.document import Document
     from betty.jinja2 import Environment
     from betty.locale.localizable import ResolvableLocalizable
+    from betty.project import Project
     from betty.render import RenderDispatcher
-    from betty.service.level import ServiceLevel
 
 
 @final
@@ -70,7 +68,7 @@ class RenderConfiguration(Data):
 
 
 @ContentProviderDefinition("render", label=_("Rendered content"))
-class Render(Configurable[RenderConfiguration], ContentProvider, HasRequirement):
+class Render(Configurable[RenderConfiguration], ContentProvider):
     """
     .. plugin:: content-provider:render.
     """
@@ -81,11 +79,6 @@ class Render(Configurable[RenderConfiguration], ContentProvider, HasRequirement)
     ):
         super().__init__(configuration=configuration)
         self._renderer = renderer
-
-    @override
-    @classmethod
-    async def requirement(cls, services: ServiceLevel, /) -> Requirement | None:
-        return await Project.requirement_for(services, str(cls))
 
     @override
     @classmethod

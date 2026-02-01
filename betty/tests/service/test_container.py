@@ -1,13 +1,11 @@
 from collections.abc import Awaitable
-from typing import Any, Self, TypeVar
+from typing import Any, TypeVar
 
 import pytest
 from typing_extensions import override
 
 from betty.data import Data
-from betty.locale.localizable import ResolvableLocalizable
 from betty.portable import PortableData
-from betty.requirement import Requirement, StaticRequirement
 from betty.service.bootstrap import NotBootstrappedError
 from betty.service.container import (
     ServiceContainer,
@@ -19,24 +17,15 @@ from betty.service.container import (
     _SynchronousServiceManager,
     service,
 )
-from betty.service.level import ServiceLevel
 from betty.service.level.factory import ServiceLevelTarget
 from betty.service.level.universal import universe
 from betty.test_utils.config import DummyConfigurable
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.typing import Void
 
 _T = TypeVar("_T")
 
 
 class _ServiceContainer(ServiceContainer):
-    @override
-    @classmethod
-    async def requires(
-        cls, services: ServiceLevel, subject: ResolvableLocalizable, /
-    ) -> Requirement | Self:
-        return StaticRequirement(DUMMY_LOCALIZABLE)
-
     @override
     async def _new_target(
         self,

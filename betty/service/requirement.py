@@ -5,15 +5,16 @@ Requirements for services.
 from __future__ import annotations
 
 from functools import wraps
-from typing import TYPE_CHECKING, Concatenate, Generic
+from typing import TYPE_CHECKING, Concatenate, Generic, final
 
 from typing_extensions import ParamSpec, TypedDict, TypeVar
 
 from betty.asyncio import resolve_await
+from betty.exception import HumanFacingException
 from betty.extension import Extension, ExtensionDefinition
 from betty.importlib import fully_qualified_name
+from betty.locale.localizable.gettext import _
 from betty.plugin.resolve import ResolvableId, resolve_id
-from betty.requirement import Requirement, UnmetRequirement
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
@@ -25,6 +26,13 @@ if TYPE_CHECKING:
 _T = TypeVar("_T")
 _P = ParamSpec("_P")
 _ExtensionT = TypeVar("_ExtensionT", bound=Extension, default=Extension)
+
+
+@final
+class UnmetRequirement(HumanFacingException):
+    """
+    Raised when a requirement is not met.
+    """
 
 
 class ServiceLevelKwargs(TypedDict):
@@ -59,10 +67,14 @@ def require_app(
 
         if isinstance(services, Project):
             app = services.app
+        elif isinstance(services, App):
+            app = services
         else:
-            app = await App.requires(services, fully_qualified_name(f))
-            if isinstance(app, Requirement):
-                raise UnmetRequirement(app)
+            raise UnmetRequirement(
+                _("{subject} requires a running app.").format(
+                    subject=fully_qualified_name(f)
+                )
+            )
         return await resolve_await(f(*args, app=app, **kwargs))
 
     return _require_app
@@ -89,10 +101,11 @@ def require_project(
     ) -> _T:
         from betty.project import Project
 
-        project = await Project.requires(services, fully_qualified_name(f))
-        if isinstance(project, Requirement):
-            raise UnmetRequirement(project)
-        return await resolve_await(f(*args, project=project, **kwargs))
+        if isinstance(services, Project):
+            return await resolve_await(f(*args, project=services, **kwargs))
+        raise UnmetRequirement(
+            _("{subject} requires a project.").format(subject=fully_qualified_name(f))
+        )
 
     return _require_project
 
@@ -123,13 +136,19 @@ def require_extension(
         async def __require_extension(
             *args: _P.args, project: Project, **kwargs: _P.kwargs
         ) -> _T:
-            extension_cls = (await project.plugins(ExtensionDefinition))[
+            extension = (await project.plugins(ExtensionDefinition))[
                 resolve_id(extension_id)
-            ].cls
-            extension = await extension_cls.requires(project, fully_qualified_name(f))
-            if isinstance(extension, Requirement):
-                raise UnmetRequirement(extension)
-            return await resolve_await(f(*args, extension=extension, **kwargs))
+            ]
+            extensions = await project.extensions
+            if extension_id not in extensions:
+                raise UnmetRequirement(
+                    _(
+                        "{subject} requires the {extension} extension. Enable it in your project configuration, and try again."
+                    ).format(subject=fully_qualified_name(f), extension=extension.label)
+                )
+            return await resolve_await(
+                f(*args, extension=extensions[extension], **kwargs)
+            )
 
         return __require_extension
 

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, TypeVar, final
+from typing import TYPE_CHECKING, TypeVar, final
 
 from typing_extensions import override
 
@@ -11,8 +11,6 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
-from betty.plugin.requirement import new_dependencies_requirement
-from betty.requirement import HasRequirement, Requirement, StaticRequirement
 from betty.service.container import ServiceContainer
 from betty.typing import Void, private
 
@@ -26,14 +24,13 @@ if TYPE_CHECKING:
     from betty.plugin.resolve import ResolvableId
     from betty.portable import PortableData
     from betty.project import Project
-    from betty.service.level import ServiceLevel
     from betty.service.level.factory import ServiceLevelTarget
 
 
 _T = TypeVar("_T")
 
 
-class Extension(ServiceContainer, HasRequirement, Plugin["ExtensionDefinition"]):
+class Extension(ServiceContainer, Plugin["ExtensionDefinition"]):
     """
     Integrate optional functionality with Betty :py:class:`projects <betty.project.Project>`.
 
@@ -44,42 +41,6 @@ class Extension(ServiceContainer, HasRequirement, Plugin["ExtensionDefinition"])
     def __init__(self, *, project: Project):
         super().__init__()
         self._project = project
-
-    @override
-    @classmethod
-    async def requires(
-        cls, services: ServiceLevel, subject: ResolvableLocalizable, /
-    ) -> Requirement | Self:
-        from betty.project import Project
-
-        project = await Project.requires(services, subject)
-        if isinstance(project, Requirement):
-            return project
-
-        extensions = await project.extensions
-        if cls not in extensions:
-            return StaticRequirement(
-                _(
-                    "{subject} requires the {extension} extension. Enable it in your project configuration, and try again."
-                ).format(subject=subject, extension=cls.plugin().reference_label)
-            )
-        return extensions[cls]
-
-    @override
-    @classmethod
-    async def requirement(cls, services: ServiceLevel, /) -> Requirement | None:
-        from betty.project import Project
-
-        project = await Project.requires(
-            services, cls.plugin().reference_label_with_type
-        )
-        if isinstance(project, Requirement):
-            return project
-        return await new_dependencies_requirement(
-            cls.plugin(),
-            await project.plugins(ExtensionDefinition, check_requirements=False),
-            services=project,
-        )
 
     @override
     async def _new_target(

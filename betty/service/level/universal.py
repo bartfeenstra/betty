@@ -4,7 +4,7 @@ The universal service level.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Final, Self, final
+from typing import TYPE_CHECKING, Final, final
 
 from typing_extensions import TypeVar, override
 
@@ -15,7 +15,6 @@ from betty.plugin.repository.provider.service import (
 from betty.service.level import ServiceLevel
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import ResolvableLocalizable
     from betty.machine_name import MachineName
     from betty.plugin.repository import PluginRepository
 
@@ -31,22 +30,11 @@ class _UniversalServiceLevel(ServiceLevel):
         super().__init__()
         self._plugin_repository_provider = ServiceLevelPluginRepositoryProvider(self)
 
-    @classmethod
-    async def requires(
-        cls, services: ServiceLevel, subject: ResolvableLocalizable, /
-    ) -> Self:
-        return universe  # ty:ignore[invalid-return-type]
-
     @override
     async def plugins(
-        self,
-        plugin_type: type[_PluginDefinitionT] | MachineName,
-        *,
-        check_requirements: bool = True,
+        self, plugin_type: type[_PluginDefinitionT] | MachineName, /
     ) -> PluginRepository[_PluginDefinitionT]:
-        return await self._plugin_repository_provider.plugins(
-            plugin_type, check_requirements=check_requirements
-        )  # ty:ignore[invalid-return-type]
+        return await self._plugin_repository_provider.plugins(plugin_type)  # ty:ignore[invalid-return-type]
 
 
 universe: Final[ServiceLevel] = _UniversalServiceLevel()

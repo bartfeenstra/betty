@@ -11,8 +11,7 @@ from typing_extensions import TypeVar, override
 from betty.asyncio import resolve_await
 from betty.plugin import PluginDefinition
 from betty.plugin.discovery import PluginDiscovery
-from betty.requirement import UnmetRequirement
-from betty.service.requirement import require_project
+from betty.service.requirement import UnmetRequirement, require_project
 from betty.typing import internal
 
 if TYPE_CHECKING:

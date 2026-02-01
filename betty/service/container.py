@@ -25,7 +25,6 @@ from typing import (
 from typing_extensions import override
 
 from betty.concurrent import AsynchronizedLock, Lock
-from betty.requirement import Requirement
 from betty.service import ServiceError
 from betty.service.bootstrap import Bootstrapped, Shutdownable, ShutdownStack
 from betty.typing import Void, internal, public
@@ -37,9 +36,7 @@ if TYPE_CHECKING:
     from ty_extensions import Intersection
 
     from betty.data import Data
-    from betty.locale.localizable import ResolvableLocalizable
     from betty.portable import PortableData
-    from betty.service.level import ServiceLevel
     from betty.service.level.factory import ServiceLevelTarget
 
 
@@ -112,27 +109,6 @@ class ServiceContainer(Bootstrapped, Shutdownable):
         exc_tb: TracebackType | None,
     ) -> None:
         await self.shutdown(wait=exc_val is None)
-
-    @classmethod
-    @abstractmethod
-    async def requires(
-        cls, services: ServiceLevel, subject: ResolvableLocalizable, /
-    ) -> Requirement | Self:
-        """
-        Check that a service level is an instance of ``cls``.
-        """
-
-    @classmethod
-    async def requirement_for(
-        cls, services: ServiceLevel, subject: ResolvableLocalizable, /
-    ) -> Requirement | None:
-        """
-        Check that a service level is an instance of ``cls``.
-        """
-        requires = await cls.requires(services, subject)
-        if isinstance(requires, Requirement):
-            return requires
-        return None
 
     @abstractmethod
     async def _new_target(

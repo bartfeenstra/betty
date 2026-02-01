@@ -171,6 +171,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "RequireExtensionKwargs": MissingReason.TYPED_DICT,
         "RequireProjectKwargs": MissingReason.TYPED_DICT,
         "ServiceLevelKwargs": MissingReason.TYPED_DICT,
+        "UnmetRequirement": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/data/__init__.py": {
         "Data": MissingReason.ABSTRACT,
@@ -486,6 +487,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/extension/__init__.py": {
+        "Extension": MissingReason.SHOULD_BE_COVERED,
         "ExtensionError": MissingReason.STATIC_CONTENT_ONLY,
         "ExtensionTypeError": MissingReason.STATIC_CONTENT_ONLY,
         "ExtensionTypeInvalidError": MissingReason.SHOULD_BE_COVERED,
