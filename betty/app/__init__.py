@@ -24,7 +24,6 @@ from betty.dirs import CACHE_DIRECTORY_PATH
 from betty.http_client import ClientErrorToUserMessageMiddleware
 from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable.gettext import _
 from betty.locale.localize import Localizer, LocalizerRepository
 from betty.locale.translation import (
     DEFAULT_TRANSLATION_REPOSITORY,
@@ -38,7 +37,6 @@ from betty.plugin.repository.provider.service import (
     ServiceLevelPluginRepositoryProvider,
 )
 from betty.portable.file import assert_load_file
-from betty.requirement import Requirement, StaticRequirement
 from betty.service.container import (
     ServiceFactory,
     StaticService,
@@ -55,7 +53,6 @@ if TYPE_CHECKING:
     import aiohttp
 
     from betty.cache import Cache
-    from betty.locale.localizable import ResolvableLocalizable
     from betty.machine_name import MachineName
     from betty.plugin.repository import PluginRepository
     from betty.user import User
@@ -112,30 +109,10 @@ class App(HasConfiguration[AppConfiguration], ServiceLevel):
         return AppConfiguration
 
     @override
-    @classmethod
-    async def requires(
-        cls, services: ServiceLevel, subject: ResolvableLocalizable, /
-    ) -> Requirement | Self:
-        from betty.project import Project
-
-        if isinstance(services, Project):
-            services = services.app
-        if isinstance(services, cls):
-            return services
-        return StaticRequirement(
-            _("{subject} requires a running app.").format(subject=subject)
-        )
-
-    @override
     async def plugins(
-        self,
-        plugin_type: type[_PluginDefinitionT] | MachineName,
-        *,
-        check_requirements: bool = True,
+        self, plugin_type: type[_PluginDefinitionT] | MachineName, /
     ) -> PluginRepository[_PluginDefinitionT]:
-        return await self._plugin_repository_provider.plugins(
-            plugin_type, check_requirements=check_requirements
-        )  # ty:ignore[invalid-return-type]
+        return await self._plugin_repository_provider.plugins(plugin_type)  # ty:ignore[invalid-return-type]
 
     @classmethod
     @asynccontextmanager

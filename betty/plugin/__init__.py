@@ -185,8 +185,10 @@ class PluginTypeDefinition(
         Temporarily override the discoveries for this plugin type with the given plugins.
         """
         self._active_discovery = discoveries
-        yield
-        self._active_discovery = self._defined_discovery
+        try:
+            yield
+        finally:
+            self._active_discovery = self._defined_discovery
 
     @property
     def discovery_overridden(self) -> bool:

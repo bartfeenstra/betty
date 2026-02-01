@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-31 23:39+0000\n"
+"POT-Creation-Date: 2026-02-01 02:51+0000\n"
 "PO-Revision-Date: 2025-12-16 20:00+0000\n"
 "Last-Translator: Mateus Liberale Gomes <sergiogomes209403@gmail.com>\n"
 "Language: pt_BR\n"
@@ -112,9 +112,6 @@ msgstr ""
 
 msgid "All caches cleared."
 msgstr "Todos os caches foram limpos."
-
-msgid "All of these requirements must be met"
-msgstr "Todos esses requisitos devem ser atendidos"
 
 msgid "All rights reserved"
 msgstr "Todos os direitos reservados"
@@ -1203,9 +1200,6 @@ msgstr ""
 msgid "Occupations"
 msgstr ""
 
-msgid "One or more of these requirements must be met"
-msgstr ""
-
 msgid "Operating system"
 msgstr ""
 
@@ -2066,9 +2060,6 @@ msgid ""
 "available in your `PATH`."
 msgstr ""
 
-msgid "npm is not available"
-msgstr ""
-
 msgid "private"
 msgstr ""
 
@@ -2624,10 +2615,6 @@ msgid "{date}"
 msgstr ""
 
 #, python-brace-format
-msgid "{dependent} depends on {dependencies}."
-msgstr ""
-
-#, python-brace-format
 msgid "{entity_type} {entity_id}"
 msgstr ""
 
@@ -2657,10 +2644,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "{plugin_type} \"{plugin_id}\""
-msgstr ""
-
-#, python-brace-format
-msgid "{plugin_type} \"{plugin_id}\" has unmet requirements"
 msgstr ""
 
 #, python-brace-format

@@ -15,24 +15,23 @@ from betty.content_provider.content_providers import Template
 from betty.document import Document
 from betty.extension.maps import Maps
 from betty.locale.localizable.gettext import _
-from betty.project import Project
-from betty.requirement import HasRequirement, Requirement
-from betty.service.level import ServiceLevel
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
-from betty.service.requirement import require_project
+from betty.service.requirement import require_extension
 
 
 @ContentProviderDefinition("maps-map", label=_("Map"))
-class Map(Template, ServiceLevelDependentSelfFactory, HasRequirement):
+class Map(Template, ServiceLevelDependentSelfFactory):
     """
     An interactive map.
+
+    .. plugin:: content-provider:maps-map
     """
 
     @override
     @classmethod
-    @require_project
-    async def new_for_services(cls, *, project: Project) -> Self:
-        return cls(jinja2_environment=await project.jinja2_environment)
+    @require_extension(Maps)
+    async def new_for_services(cls, *, extension: Maps) -> Self:
+        return cls(jinja2_environment=await extension._project.jinja2_environment)
 
     @override
     async def _provide_data(self, document: Document) -> Mapping[str, Any]:
@@ -56,29 +55,17 @@ class Map(Template, ServiceLevelDependentSelfFactory, HasRequirement):
             "places": places,
         }
 
-    @override
-    @classmethod
-    async def requirement(cls, services: ServiceLevel, /) -> Requirement | None:
-        return await Maps.requirement_for(
-            services, cls.plugin().reference_label_with_type
-        )
-
 
 @ContentProviderDefinition("maps-map-attribution", label=_("Map attribution"))
-class MapAttribution(Template, ServiceLevelDependentSelfFactory, HasRequirement):
+class MapAttribution(Template, ServiceLevelDependentSelfFactory):
     """
     The attribution for an interactive map.
+
+    .. plugin:: content-provider:maps-map-attribution
     """
 
     @override
     @classmethod
-    @require_project
-    async def new_for_services(cls, *, project: Project) -> Self:
-        return cls(jinja2_environment=await project.jinja2_environment)
-
-    @override
-    @classmethod
-    async def requirement(cls, services: ServiceLevel, /) -> Requirement | None:
-        return await Maps.requirement_for(
-            services, cls.plugin().reference_label_with_type
-        )
+    @require_extension(Maps)
+    async def new_for_services(cls, *, extension: Maps) -> Self:
+        return cls(jinja2_environment=await extension._project.jinja2_environment)

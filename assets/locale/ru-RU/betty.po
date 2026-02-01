@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-31 23:39+0000\n"
+"POT-Creation-Date: 2026-02-01 02:51+0000\n"
 "PO-Revision-Date: 2025-12-08 19:00+0000\n"
 "Last-Translator: Artur Kalagov "
 "<artur.kalagov@users.noreply.hosted.weblate.org>\n"
@@ -112,9 +112,6 @@ msgstr ""
 
 msgid "All caches cleared."
 msgstr "Все кэши очищены."
-
-msgid "All of these requirements must be met"
-msgstr "Все эти требования должны быть выполнены"
 
 msgid "All rights reserved"
 msgstr "Все права защищены"
@@ -1213,9 +1210,6 @@ msgstr "Занятие"
 msgid "Occupations"
 msgstr ""
 
-msgid "One or more of these requirements must be met"
-msgstr "Одно или несколько из этих требований должны быть выполнены"
-
 msgid "Operating system"
 msgstr ""
 
@@ -2107,9 +2101,6 @@ msgstr ""
 "установки пакетов Node.js. Убедитесь, что исполняемый файл \"npm\" "
 "доступен в вашем `PATH`."
 
-msgid "npm is not available"
-msgstr "npm не доступен"
-
 msgid "private"
 msgstr "скрыто"
 
@@ -2748,10 +2739,6 @@ msgid "{date}"
 msgstr "{date}"
 
 #, python-brace-format
-msgid "{dependent} depends on {dependencies}."
-msgstr ""
-
-#, python-brace-format
 msgid "{entity_type} {entity_id}"
 msgstr "{entity_type} {entity_id}"
 
@@ -2781,10 +2768,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "{plugin_type} \"{plugin_id}\""
-msgstr ""
-
-#, python-brace-format
-msgid "{plugin_type} \"{plugin_id}\" has unmet requirements"
 msgstr ""
 
 #, python-brace-format

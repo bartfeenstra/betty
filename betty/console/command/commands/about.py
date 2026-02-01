@@ -14,7 +14,6 @@ from betty.console.project import add_project_argument
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _
 from betty.plugin import plugin_types
-from betty.plugin.requirement import get_requirement
 from betty.rich.user import RichUser
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
 from betty.service.requirement import require_app
@@ -100,7 +99,7 @@ class About(ServiceLevelDependentSelfFactory, Command):
             plugin_types,
             key=lambda plugin_type: plugin_type.type().label.localize(user.localizer),
         ):
-            repository = await services.plugins(plugin_type, check_requirements=False)
+            repository = await services.plugins(plugin_type)
             for index, plugin in enumerate(
                 sorted(repository, key=lambda plugin: plugin.id)
             ):
@@ -112,11 +111,6 @@ class About(ServiceLevelDependentSelfFactory, Command):
                 third_column_lines: MutableSequence[str] = []
                 if isinstance(plugin, HumanFacingDefinition):
                     third_column_lines.append(plugin.label.localize(user.localizer))
-                requirement = await get_requirement(plugin, services)
-                if requirement:
-                    third_column_lines.append(
-                        "[yellow]" + requirement.localize(user.localizer)
-                    )
                 about_plugins.add_row(
                     first_column,
                     plugin.id,

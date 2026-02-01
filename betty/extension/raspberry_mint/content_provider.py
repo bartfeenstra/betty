@@ -43,7 +43,6 @@ from betty.locale.localizable.property import LocalizableProperty
 from betty.machine_name import MachineName, MachineNameDefinition
 from betty.model import EntityDefinition
 from betty.model.reference import EntityReference
-from betty.plugin import Plugin
 from betty.plugin.config import (
     PluginConfiguration,
     ResolvablePluginConfigurationSequence,
@@ -53,11 +52,10 @@ from betty.plugin.config.property import PluginConfigurationSequenceProperty
 from betty.plugin.data import PluginConfigurationSequenceDefinition, PluginIdDefinition
 from betty.plugin.resolve import resolve_id
 from betty.portable import CallbackPorter
-from betty.requirement import HasRequirement, Requirement
 from betty.service.level.factory import (
     ServiceLevelDependentSelfFactory,
 )
-from betty.service.requirement import require_project
+from betty.service.requirement import require_extension
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.typing import private
 
@@ -70,17 +68,6 @@ if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
     from betty.plugin.repository import PluginRepository
     from betty.plugin.resolve import ResolvableId
-    from betty.project import Project
-    from betty.service.level import ServiceLevel
-
-
-class _Base(HasRequirement, Plugin[ContentProviderDefinition]):
-    @override
-    @classmethod
-    async def requirement(cls, services: ServiceLevel, /) -> Requirement | None:
-        return await RaspberryMint.requirement_for(
-            services, cls.plugin().reference_label_with_type
-        )
 
 
 @final
@@ -157,11 +144,7 @@ class SectionConfiguration(Data):
 
 
 @ContentProviderDefinition("raspberry-mint-section", label=_("Section"))
-class Section(
-    Template,
-    _Base,
-    Configurable[SectionConfiguration],
-):
+class Section(Template, Configurable[SectionConfiguration]):
     """
     .. plugin:: content-provider:raspberry-mint-section.
     """
@@ -173,13 +156,13 @@ class Section(
 
     @override
     @classmethod
-    @require_project
+    @require_extension(RaspberryMint)
     async def new_for_configuration(
-        cls, *, project: Project, configuration: SectionConfiguration
+        cls, *, extension: RaspberryMint, configuration: SectionConfiguration
     ) -> Self:
         return cls(
             configuration=configuration,
-            jinja2_environment=await project.jinja2_environment,
+            jinja2_environment=await extension._project.jinja2_environment,
         )
 
     @override
@@ -193,9 +176,11 @@ class Section(
 
 
 @ContentProviderDefinition("raspberry-mint-entity-card", label=_("Entity card"))
-class EntityCard(Template, Configurable[EntityReference], _Base):
+class EntityCard(Template, Configurable[EntityReference]):
     """
     A card featuring an entity.
+
+    .. plugin:: content-provider:raspberry-mint-entity-card
     """
 
     @private
@@ -221,15 +206,15 @@ class EntityCard(Template, Configurable[EntityReference], _Base):
 
     @override
     @classmethod
-    @require_project
+    @require_extension(RaspberryMint)
     async def new_for_configuration(
-        cls, *, project: Project, configuration: EntityReference
+        cls, *, extension: RaspberryMint, configuration: EntityReference
     ) -> Self:
         return cls(
-            ancestry=project.ancestry,
+            ancestry=extension._project.ancestry,
             configuration=configuration,
-            entity_types=await project.plugins(EntityDefinition),
-            jinja2_environment=await project.jinja2_environment,
+            entity_types=await extension._project.plugins(EntityDefinition),
+            jinja2_environment=await extension._project.jinja2_environment,
         )
 
     @override
@@ -242,16 +227,18 @@ class EntityCard(Template, Configurable[EntityReference], _Base):
 
 
 @ContentProviderDefinition("raspberry-mint-families", label=_("Families"))
-class Families(Template, _Base, ServiceLevelDependentSelfFactory):
+class Families(Template, ServiceLevelDependentSelfFactory):
     """
     A person's families.
+
+    .. plugin:: content-provider:raspberry-mint-families
     """
 
     @override
     @classmethod
-    @require_project
-    async def new_for_services(cls, *, project: Project) -> Self:
-        return cls(jinja2_environment=await project.jinja2_environment)
+    @require_extension(RaspberryMint)
+    async def new_for_services(cls, *, extension: RaspberryMint) -> Self:
+        return cls(jinja2_environment=await extension._project.jinja2_environment)
 
 
 @ContentProviderDefinition(
@@ -259,16 +246,18 @@ class Families(Template, _Base, ServiceLevelDependentSelfFactory):
     label=_("Media"),
     description=_("A single file in a media display"),
 )
-class Media(Template, _Base, ServiceLevelDependentSelfFactory):
+class Media(Template, ServiceLevelDependentSelfFactory):
     """
     A single file in a media display.
+
+    .. plugin:: content-provider:raspberry-mint-media
     """
 
     @override
     @classmethod
-    @require_project
-    async def new_for_services(cls, *, project: Project) -> Self:
-        return cls(jinja2_environment=await project.jinja2_environment)
+    @require_extension(RaspberryMint)
+    async def new_for_services(cls, *, extension: RaspberryMint) -> Self:
+        return cls(jinja2_environment=await extension._project.jinja2_environment)
 
 
 @ContentProviderDefinition(
@@ -276,16 +265,18 @@ class Media(Template, _Base, ServiceLevelDependentSelfFactory):
     label=_("Media gallery"),
     description=_("Multiple files in a media gallery display"),
 )
-class MediaGallery(Template, _Base, ServiceLevelDependentSelfFactory):
+class MediaGallery(Template, ServiceLevelDependentSelfFactory):
     """
     Multiple files in a media gallery display.
+
+    .. plugin:: content-provider:raspberry-mint-media-gallery
     """
 
     @override
     @classmethod
-    @require_project
-    async def new_for_services(cls, *, project: Project) -> Self:
-        return cls(jinja2_environment=await project.jinja2_environment)
+    @require_extension(RaspberryMint)
+    async def new_for_services(cls, *, extension: RaspberryMint) -> Self:
+        return cls(jinja2_environment=await extension._project.jinja2_environment)
 
 
 @final
@@ -333,9 +324,11 @@ class ColorStyleConfiguration(Data):
 
 
 @ContentProviderDefinition("raspberry-mint-color-style", label=_("Color style"))
-class ColorStyle(Template, _Base, Configurable[ColorStyleConfiguration]):
+class ColorStyle(Template, Configurable[ColorStyleConfiguration]):
     """
     Change the color style for all containing content.
+
+    .. plugin:: content-provider:raspberry-mint-color-style
     """
 
     @override
@@ -345,13 +338,13 @@ class ColorStyle(Template, _Base, Configurable[ColorStyleConfiguration]):
 
     @override
     @classmethod
-    @require_project
+    @require_extension(RaspberryMint)
     async def new_for_configuration(
-        cls, *, project: Project, configuration: ColorStyleConfiguration
+        cls, *, extension: RaspberryMint, configuration: ColorStyleConfiguration
     ) -> Self:
         return cls(
             configuration=configuration,
-            jinja2_environment=await project.jinja2_environment,
+            jinja2_environment=await extension._project.jinja2_environment,
         )
 
     @override
@@ -363,29 +356,33 @@ class ColorStyle(Template, _Base, Configurable[ColorStyleConfiguration]):
 
 
 @ContentProviderDefinition("raspberry-mint-external-links", label=_("External links"))
-class ExternalLinks(Template, _Base, ServiceLevelDependentSelfFactory):
+class ExternalLinks(Template, ServiceLevelDependentSelfFactory):
     """
     External links.
+
+    .. plugin:: content-provider:raspberry-mint-external-links
     """
 
     @override
     @classmethod
-    @require_project
-    async def new_for_services(cls, *, project: Project) -> Self:
-        return cls(jinja2_environment=await project.jinja2_environment)
+    @require_extension(RaspberryMint)
+    async def new_for_services(cls, *, extension: RaspberryMint) -> Self:
+        return cls(jinja2_environment=await extension._project.jinja2_environment)
 
 
 @ContentProviderDefinition("raspberry-mint-timeline", label=_("Timeline"))
-class Timeline(Template, _Base, ServiceLevelDependentSelfFactory):
+class Timeline(Template, ServiceLevelDependentSelfFactory):
     """
     A timeline of events.
+
+    .. plugin:: content-provider:raspberry-mint-timeline
     """
 
     @override
     @classmethod
-    @require_project
-    async def new_for_services(cls, *, project: Project) -> Self:
-        return cls(jinja2_environment=await project.jinja2_environment)
+    @require_extension(RaspberryMint)
+    async def new_for_services(cls, *, extension: RaspberryMint) -> Self:
+        return cls(jinja2_environment=await extension._project.jinja2_environment)
 
 
 @ContentProviderDefinition(
@@ -395,16 +392,18 @@ class Timeline(Template, _Base, ServiceLevelDependentSelfFactory):
         "Other entities that reference a citation or source to back up their claims."
     ),
 )
-class Facts(Template, _Base, ServiceLevelDependentSelfFactory):
+class Facts(Template, ServiceLevelDependentSelfFactory):
     """
     A list of facts.
+
+    .. plugin:: content-provider:raspberry-mint-facts
     """
 
     @override
     @classmethod
-    @require_project
-    async def new_for_services(cls, *, project: Project) -> Self:
-        return cls(jinja2_environment=await project.jinja2_environment)
+    @require_extension(RaspberryMint)
+    async def new_for_services(cls, *, extension: RaspberryMint) -> Self:
+        return cls(jinja2_environment=await extension._project.jinja2_environment)
 
 
 @final
@@ -471,9 +470,11 @@ class PresencesConfiguration(Data):
 
 
 @ContentProviderDefinition("raspberry-mint-presences", label=_("Presences"))
-class Presences(Template, _Base, Configurable[PresencesConfiguration]):
+class Presences(Template, Configurable[PresencesConfiguration]):
     """
     People's presences at an event.
+
+    .. plugin:: content-provider:raspberry-mint-presences
     """
 
     @private
@@ -499,14 +500,14 @@ class Presences(Template, _Base, Configurable[PresencesConfiguration]):
 
     @override
     @classmethod
-    @require_project
+    @require_extension(RaspberryMint)
     async def new_for_configuration(
-        cls, *, project: Project, configuration: PresencesConfiguration
+        cls, *, extension: RaspberryMint, configuration: PresencesConfiguration
     ) -> Self:
         return cls(
             configuration=configuration,
-            jinja2_environment=await project.jinja2_environment,
-            presence_roles=await project.plugins(PresenceRoleDefinition),
+            jinja2_environment=await extension._project.jinja2_environment,
+            presence_roles=await extension._project.plugins(PresenceRoleDefinition),
         )
 
     @override
@@ -698,9 +699,11 @@ class ColumnsConfiguration(Data):
 
 
 @ContentProviderDefinition("raspberry-mint-columns", label=_("Columns"))
-class Columns(Template, _Base, Configurable[ColumnsConfiguration]):
+class Columns(Template, Configurable[ColumnsConfiguration]):
     """
     A container with one or more columns.
+
+    .. plugin:: content-provider:raspberry-mint-columns
     """
 
     @override
@@ -710,13 +713,13 @@ class Columns(Template, _Base, Configurable[ColumnsConfiguration]):
 
     @override
     @classmethod
-    @require_project
+    @require_extension(RaspberryMint)
     async def new_for_configuration(
-        cls, *, project: Project, configuration: ColumnsConfiguration
+        cls, *, extension: RaspberryMint, configuration: ColumnsConfiguration
     ) -> Self:
         return cls(
             configuration=configuration,
-            jinja2_environment=await project.jinja2_environment,
+            jinja2_environment=await extension._project.jinja2_environment,
         )
 
     @override
@@ -732,39 +735,45 @@ class Columns(Template, _Base, Configurable[ColumnsConfiguration]):
 
 
 @ContentProviderDefinition("raspberry-mint-enclosees", label=_("Enclosees"))
-class Enclosees(Template, _Base, ServiceLevelDependentSelfFactory):
+class Enclosees(Template, ServiceLevelDependentSelfFactory):
     """
     Show the places enclosed by a place document resource.
+
+    .. plugin:: content-provider:raspberry-mint-enclosees
     """
 
     @override
     @classmethod
-    @require_project
-    async def new_for_services(cls, *, project: Project) -> Self:
-        return cls(jinja2_environment=await project.jinja2_environment)
+    @require_extension(RaspberryMint)
+    async def new_for_services(cls, *, extension: RaspberryMint) -> Self:
+        return cls(jinja2_environment=await extension._project.jinja2_environment)
 
 
 @ContentProviderDefinition("raspberry-mint-file-referees", label=_("File referees"))
-class FileReferees(Template, _Base, ServiceLevelDependentSelfFactory):
+class FileReferees(Template, ServiceLevelDependentSelfFactory):
     """
     Show the entities referencing a document resource that is a file.
+
+    .. plugin:: content-provider:raspberry-mint-file-referees
     """
 
     @override
     @classmethod
-    @require_project
-    async def new_for_services(cls, *, project: Project) -> Self:
-        return cls(jinja2_environment=await project.jinja2_environment)
+    @require_extension(RaspberryMint)
+    async def new_for_services(cls, *, extension: RaspberryMint) -> Self:
+        return cls(jinja2_environment=await extension._project.jinja2_environment)
 
 
 @ContentProviderDefinition("raspberry-mint-citations", label=_("Citations"))
-class Citations(Template, _Base, ServiceLevelDependentSelfFactory):
+class Citations(Template, ServiceLevelDependentSelfFactory):
     """
     The citations for a document resource that is an entity.
+
+    .. plugin:: content-provider:raspberry-mint-citations
     """
 
     @override
     @classmethod
-    @require_project
-    async def new_for_services(cls, *, project: Project) -> Self:
-        return cls(jinja2_environment=await project.jinja2_environment)
+    @require_extension(RaspberryMint)
+    async def new_for_services(cls, *, extension: RaspberryMint) -> Self:
+        return cls(jinja2_environment=await extension._project.jinja2_environment)

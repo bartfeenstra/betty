@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-31 23:39+0000\n"
+"POT-Creation-Date: 2026-02-01 02:51+0000\n"
 "PO-Revision-Date: 2025-08-27 20:02+0000\n"
 "Last-Translator: \"David D.\" <dadu042@users.noreply.hosted.weblate.org>\n"
 "Language: fr_FR\n"
@@ -107,9 +107,6 @@ msgid "Alias"
 msgstr ""
 
 msgid "All caches cleared."
-msgstr ""
-
-msgid "All of these requirements must be met"
 msgstr ""
 
 msgid "All rights reserved"
@@ -1173,9 +1170,6 @@ msgstr "Profession"
 msgid "Occupations"
 msgstr ""
 
-msgid "One or more of these requirements must be met"
-msgstr ""
-
 msgid "Operating system"
 msgstr ""
 
@@ -2061,9 +2055,6 @@ msgid ""
 "available in your `PATH`."
 msgstr ""
 
-msgid "npm is not available"
-msgstr "npm n'est pas disponible"
-
 msgid "private"
 msgstr "privé"
 
@@ -2625,10 +2616,6 @@ msgid "{date}"
 msgstr ""
 
 #, python-brace-format
-msgid "{dependent} depends on {dependencies}."
-msgstr ""
-
-#, python-brace-format
 msgid "{entity_type} {entity_id}"
 msgstr ""
 
@@ -2658,10 +2645,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "{plugin_type} \"{plugin_id}\""
-msgstr ""
-
-#, python-brace-format
-msgid "{plugin_type} \"{plugin_id}\" has unmet requirements"
 msgstr ""
 
 #, python-brace-format

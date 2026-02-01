@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from betty.plugin.error import PluginNotFound, UnmetRequirement
-from betty.requirement import StaticRequirement
-from betty.test_utils.plugin import DummyPluginDefinition, DummyPluginOne
+from betty.plugin.error import PluginNotFound
+from betty.test_utils.plugin import DummyPluginDefinition
 
 
 class TestPluginNotFound:
@@ -19,12 +18,3 @@ class TestPluginNotFound:
         )
         assert unknown_plugin in str(sut)
         assert available_plugin in str(sut)
-
-
-class TestUnmetRequirement:
-    def test_new(self) -> None:
-        requirement_summary = "My First Requirement"
-        sut = UnmetRequirement(DummyPluginOne, StaticRequirement(requirement_summary))
-        actual = str(sut)
-        assert DummyPluginOne.plugin().id in actual
-        assert requirement_summary in actual

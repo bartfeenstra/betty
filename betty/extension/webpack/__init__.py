@@ -9,7 +9,7 @@ from __future__ import annotations
 from asyncio import to_thread
 from pathlib import Path
 from shutil import copytree
-from typing import TYPE_CHECKING, ClassVar, Literal, Self, final
+from typing import TYPE_CHECKING, Self, final
 
 from typing_extensions import override
 
@@ -20,10 +20,7 @@ from betty.extension.webpack.build import EntryPointProvider
 from betty.extension.webpack.jinja2.filter import FILTERS
 from betty.html import CssProvider, JsProvider
 from betty.jinja2 import Filters, Jinja2Provider
-from betty.npm import new_npm_requirement
-from betty.project import Project
 from betty.project.generate import Generator
-from betty.requirement import AllRequirements, Requirement
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
 from betty.service.requirement import require_project
 
@@ -31,8 +28,8 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.job.scheduler import Scheduler
+    from betty.project import Project
     from betty.project.job import ProjectContext
-    from betty.service.level import ServiceLevel
 
 
 @final
@@ -54,8 +51,6 @@ class Webpack(
     .. plugin:: extension:webpack.
     """
 
-    _npm_requirement: ClassVar[Requirement | None | Literal[False]] = False
-
     @override
     @classmethod
     @require_project
@@ -67,24 +62,6 @@ class Webpack(
         from betty.extension.webpack.jobs import _GenerateAssets
 
         await scheduler.add(_GenerateAssets())
-
-    @override
-    @classmethod
-    async def requirement(cls, services: ServiceLevel, /) -> Requirement | None:
-        project = await Project.requires(
-            services, cls.plugin().reference_label_with_type
-        )
-        if isinstance(project, Requirement):
-            return project
-        npm_requirement = cls._npm_requirement
-        if npm_requirement is False:
-            npm_requirement = cls._npm_requirement = await new_npm_requirement(
-                user=project.app.user
-            )
-        return AllRequirements.new(
-            await super().requirement(project),
-            npm_requirement,
-        )
 
     @override
     async def get_public_css_paths(self) -> Sequence[str]:

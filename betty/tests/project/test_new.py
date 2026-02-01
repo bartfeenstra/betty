@@ -1,7 +1,6 @@
 from pathlib import Path
 
 from babel import Locale
-from pytest_mock import MockerFixture
 
 from betty.data import Data
 from betty.extension.gramps import Gramps
@@ -24,11 +23,8 @@ async def _assert_new(configuration_file_path: Path) -> ProjectConfiguration:
 
 
 async def test_new__minimal(
-    mocker: MockerFixture,
-    isolated_app_factory: IsolatedAppFactory,
-    tmp_path: Path,
+    isolated_app_factory: IsolatedAppFactory, tmp_path: Path
 ) -> None:
-    mocker.patch("betty.extension.webpack.Webpack.requirement").return_value = None
     configuration_file_path = tmp_path / "betty.json"
     title = "My First Project"
     machine_name = "my-first-project"
@@ -59,11 +55,8 @@ async def test_new__minimal(
 
 
 async def test_new__with_project_directory(
-    mocker: MockerFixture,
-    isolated_app_factory: IsolatedAppFactory,
-    tmp_path: Path,
+    isolated_app_factory: IsolatedAppFactory, tmp_path: Path
 ) -> None:
-    mocker.patch("betty.extension.webpack.Webpack.requirement").return_value = None
     title = "My First Project"
     machine_name = "my-first-project"
     author = "My First Author"

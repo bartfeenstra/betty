@@ -68,10 +68,13 @@ class TestEntityCard(ContentProviderTestBase):
     @override
     @pytest.fixture
     async def sut(self, isolated_app: App) -> ContentProvider:
-        async with Project.new_isolated(isolated_app) as project, project:
-            return await EntityCard.new_for_configuration(
-                services=project, configuration=EntityReference(DummyEntityOne, "abc")
-            )
+        async with Project.new_isolated(isolated_app) as project:
+            project.configuration.extensions.add(RaspberryMint)
+            async with project:
+                return await EntityCard.new_for_configuration(
+                    services=project,
+                    configuration=EntityReference(DummyEntityOne, "abc"),
+                )
 
     async def test_provide(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
@@ -342,16 +345,18 @@ class TestColorStyle(ContentProviderTestBase):
     @override
     @pytest.fixture
     async def sut(self, isolated_app: App) -> ContentProvider:
-        async with Project.new_isolated(isolated_app) as project, project:
-            return await ColorStyle.new_for_configuration(
-                services=project,
-                configuration=ColorStyleConfiguration(
-                    PluginConfiguration(
-                        Render, RenderConfiguration("My First Content")
-                    ),  # ty:ignore[invalid-argument-type]
-                    style=ColorStyleOption.DARK,
-                ),
-            )
+        async with Project.new_isolated(isolated_app) as project:
+            project.configuration.extensions.add(RaspberryMint)
+            async with project:
+                return await ColorStyle.new_for_configuration(
+                    services=project,
+                    configuration=ColorStyleConfiguration(
+                        PluginConfiguration(
+                            Render, RenderConfiguration("My First Content")
+                        ),  # ty:ignore[invalid-argument-type]
+                        style=ColorStyleOption.DARK,
+                    ),
+                )
 
     async def test_provide__without_content(self, isolated_app: App) -> None:
         with ContentProviderDefinition.type().override_discovery(
@@ -481,8 +486,10 @@ class TestFacts(ContentProviderTestBase):
     @override
     @pytest.fixture
     async def sut(self, isolated_app: App) -> ContentProvider:
-        async with Project.new_isolated(isolated_app) as project, project:
-            return Facts(jinja2_environment=await project.jinja2_environment)
+        async with Project.new_isolated(isolated_app) as project:
+            project.configuration.extensions.add(RaspberryMint)
+            async with project:
+                return Facts(jinja2_environment=await project.jinja2_environment)
 
     @pytest.mark.parametrize(
         "resource",
@@ -805,8 +812,10 @@ class TestEnclosees(ContentProviderTestBase):
     @override
     @pytest.fixture
     async def sut(self, isolated_app: App) -> ContentProvider:
-        async with Project.new_isolated(isolated_app) as project, project:
-            return Enclosees(jinja2_environment=await project.jinja2_environment)
+        async with Project.new_isolated(isolated_app) as project:
+            project.configuration.extensions.add(RaspberryMint)
+            async with project:
+                return Enclosees(jinja2_environment=await project.jinja2_environment)
 
     @pytest.mark.parametrize(
         "resource",
@@ -843,8 +852,10 @@ class TestFileReferees(ContentProviderTestBase):
     @override
     @pytest.fixture
     async def sut(self, isolated_app: App) -> ContentProvider:
-        async with Project.new_isolated(isolated_app) as project, project:
-            return FileReferees(jinja2_environment=await project.jinja2_environment)
+        async with Project.new_isolated(isolated_app) as project:
+            project.configuration.extensions.add(RaspberryMint)
+            async with project:
+                return FileReferees(jinja2_environment=await project.jinja2_environment)
 
     @pytest.mark.parametrize(
         "resource",
@@ -882,8 +893,10 @@ class TestCitations(ContentProviderTestBase):
     @override
     @pytest.fixture
     async def sut(self, isolated_app: App) -> ContentProvider:
-        async with Project.new_isolated(isolated_app) as project, project:
-            return await project.new_target(Citations)
+        async with Project.new_isolated(isolated_app) as project:
+            project.configuration.extensions.add(RaspberryMint)
+            async with project:
+                return await project.new_target(Citations)
 
     @pytest.mark.parametrize(
         "resource",

@@ -41,7 +41,6 @@ from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.privacy.privatizer import Privatizer
 from betty.project.config import ProjectConfiguration
 from betty.render import RenderDispatcher, RendererDefinition
-from betty.requirement import Requirement, StaticRequirement
 from betty.serde import SerializerDefinition, serializer_for
 from betty.service.container import service
 from betty.service.level import ServiceLevel
@@ -62,7 +61,6 @@ if TYPE_CHECKING:
     from betty.app import App
     from betty.jinja2 import Environment
     from betty.license import License
-    from betty.locale.localizable import ResolvableLocalizable
     from betty.machine_name import MachineName
     from betty.plugin.repository import PluginRepository
     from betty.url import UrlGenerator
@@ -108,26 +106,10 @@ class Project(HasConfiguration[ProjectConfiguration], ServiceLevel):
         return ProjectConfiguration
 
     @override
-    @classmethod
-    async def requires(
-        cls, services: ServiceLevel, subject: ResolvableLocalizable, /
-    ) -> Requirement | Self:
-        if not isinstance(services, cls):
-            return StaticRequirement(
-                _("{subject} requires a project.").format(subject=subject)
-            )
-        return services
-
-    @override
     async def plugins(
-        self,
-        plugin_type: type[_PluginDefinitionT] | MachineName,
-        *,
-        check_requirements: bool = True,
+        self, plugin_type: type[_PluginDefinitionT] | MachineName, /
     ) -> PluginRepository[_PluginDefinitionT]:
-        return await self._plugin_repository_provider.plugins(
-            plugin_type, check_requirements=check_requirements
-        )  # ty:ignore[invalid-return-type]
+        return await self._plugin_repository_provider.plugins(plugin_type)  # ty:ignore[invalid-return-type]
 
     @classmethod
     @asynccontextmanager

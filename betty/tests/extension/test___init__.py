@@ -3,17 +3,10 @@ from pathlib import Path
 import pytest
 from typing_extensions import override
 
-from betty.app import App
 from betty.extension import ExtensionDefinition
-from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin import PluginDefinition
-from betty.plugin.discovery.static import StaticDiscovery
-from betty.project import Project
-from betty.requirement import Requirement
-from betty.service.level.universal import universe
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.plugin import PluginDefinitionClassTestBase
-from betty.test_utils.project.extension import DummyExtensionOne
 
 
 class TestExtensionDefinition(PluginDefinitionClassTestBase):
@@ -32,38 +25,3 @@ class TestExtensionDefinition(PluginDefinitionClassTestBase):
     def test_theme(self) -> None:
         sut = ExtensionDefinition("-", theme=True, label=DUMMY_LOCALIZABLE)
         assert sut.theme
-
-
-class TestExtension:
-    async def test_requires__with_universe(self) -> None:
-        subject = "My First Subject"
-        requires = await DummyExtensionOne.requires(universe, subject)
-        assert isinstance(requires, Requirement)
-        assert subject in requires.localize(DEFAULT_LOCALIZER)
-
-    async def test_requires__with_app(self, isolated_app: App) -> None:
-        subject = "My First Subject"
-        requires = await DummyExtensionOne.requires(isolated_app, subject)
-        assert isinstance(requires, Requirement)
-        assert subject in requires.localize(DEFAULT_LOCALIZER)
-
-    async def test_requires__with_project_without_extension(
-        self, isolated_app: App
-    ) -> None:
-        subject = "My First Subject"
-        async with Project.new_isolated(isolated_app) as project, project:
-            requires = await DummyExtensionOne.requires(project, subject)
-        assert isinstance(requires, Requirement)
-        assert subject in requires.localize(DEFAULT_LOCALIZER)
-
-    async def test_requires__with_project_with_extension(
-        self, isolated_app: App
-    ) -> None:
-        with ExtensionDefinition.type().override_discovery(
-            StaticDiscovery(DummyExtensionOne)
-        ):
-            async with Project.new_isolated(isolated_app) as project:
-                project.configuration.extensions.add(DummyExtensionOne)
-                async with project:
-                    requires = await DummyExtensionOne.requires(project, "")
-        assert isinstance(requires, DummyExtensionOne)
