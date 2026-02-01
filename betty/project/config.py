@@ -53,7 +53,6 @@ from betty.plugin.config import (
     PluginConfiguration,
     ResolvablePluginConfigurationSequence,
     resolve_plugin_configuration,
-    resolve_plugin_configuration_sequence,
 )
 from betty.plugin.config.ordered import OrderedPluginDefinitionConfiguration
 from betty.plugin.config.property import PluginDefinitionConfigurationsProperty
@@ -817,7 +816,7 @@ class ProjectConfiguration(Data):
         if event_types is not None:
             self.event_types = event_types
         if extensions is not None:
-            self.extensions.add(*resolve_plugin_configuration_sequence(extensions))  # ty:ignore[invalid-argument-type]
+            self.extensions = extensions
         if genders is not None:
             self.genders = genders
         if license is not None:
@@ -834,7 +833,7 @@ class ProjectConfiguration(Data):
         if presence_roles is not None:
             self.presence_roles = presence_roles
         self.title = title
-        self._url = url
+        self.url = url
 
     @classmethod
     def _default_copyright_notice(
