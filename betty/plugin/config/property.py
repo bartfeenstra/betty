@@ -11,7 +11,7 @@ from typing_extensions import TypeVar
 from betty.collections import (
     MutableDictKeyedCollection,
     MutableResolvedSequence,
-    MutableResolvedSequenceDecorator,
+    MutableResolvedSequenceProxy,
 )
 from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.data.aggregate.record.object.property import (
@@ -65,7 +65,7 @@ class PluginConfigurationSequenceProperty(
             label=label,
             description=description,
             resolver=resolve_plugin_configuration_sequence,
-            default=lambda: MutableResolvedSequenceDecorator(
+            default=lambda: MutableResolvedSequenceProxy(
                 [], value_resolver=resolve_plugin_configuration
             ),
         )

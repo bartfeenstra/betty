@@ -3,7 +3,8 @@ from typing import Any
 from betty.collections import (
     DictKeyedCollection,
     MutableDictKeyedCollection,
-    MutableResolvedSequenceDecorator,
+    MutableResolvedSequenceProxy,
+    ResolvedSequenceProxy,
 )
 from betty.functools import passthrough
 
@@ -135,52 +136,54 @@ class TestMutableDictKeyedCollection:
         assert list(sut.keys()) == ["ONE"]
 
 
-class TestMutableResolvedSequenceDecorator:
-    def test_insert(self) -> None:
-        decorated = []
-        sut = MutableResolvedSequenceDecorator(decorated, value_resolver=str)
-        sut.insert(3, True)
-        assert decorated == ["True"]
-
-    def test_extend(self) -> None:
-        decorated = ["False"]
-        sut = MutableResolvedSequenceDecorator(decorated, value_resolver=str)
-        sut.extend([True])
-        assert decorated == ["False", "True"]
-
+class TestResolvedSequenceProxy:
     def test___getitem__(self) -> None:
-        sut = MutableResolvedSequenceDecorator(["True"], value_resolver=str)
+        sut = ResolvedSequenceProxy(["True"], value_resolver=str)
         assert sut[0] == "True"
 
-    def test___setitem____with_index(self) -> None:
-        decorated = ["True"]
-        sut = MutableResolvedSequenceDecorator(decorated, value_resolver=str)
-        sut[0] = False
-        assert decorated[0] == "False"
-
-    def test___setitem____with_slice(self) -> None:
-        decorated = ["True", "True", "True"]
-        sut = MutableResolvedSequenceDecorator(decorated, value_resolver=str)
-        sut[1:3] = [False, False]
-        assert decorated == ["True", "False", "False"]
-
-    def test___delitem__(self) -> None:
-        decorated = ["one"]
-        sut = MutableResolvedSequenceDecorator(decorated, value_resolver=passthrough)
-        del sut[0]
-        assert not decorated
-
     def test___len__(self) -> None:
-        sut = MutableResolvedSequenceDecorator(["one"], value_resolver=passthrough)
+        sut = ResolvedSequenceProxy(["one"], value_resolver=passthrough)
         assert len(sut) == 1
 
     def test___contains__(self) -> None:
-        sut = MutableResolvedSequenceDecorator(["True"], value_resolver=str)
+        sut = ResolvedSequenceProxy(["True"], value_resolver=str)
         assert True in sut
 
     def test___contains____with_invalid_value(self) -> None:
         def _resolver(value: Any) -> Any:
             raise Exception
 
-        sut = MutableResolvedSequenceDecorator([], value_resolver=_resolver)
+        sut = ResolvedSequenceProxy([], value_resolver=_resolver)
         assert object() not in sut
+
+
+class TestMutableResolvedSequenceProxy:
+    def test_insert(self) -> None:
+        decorated = []
+        sut = MutableResolvedSequenceProxy(decorated, value_resolver=str)
+        sut.insert(3, True)
+        assert decorated == ["True"]
+
+    def test_extend(self) -> None:
+        decorated = ["False"]
+        sut = MutableResolvedSequenceProxy(decorated, value_resolver=str)
+        sut.extend([True])
+        assert decorated == ["False", "True"]
+
+    def test___setitem____with_index(self) -> None:
+        decorated = ["True"]
+        sut = MutableResolvedSequenceProxy(decorated, value_resolver=str)
+        sut[0] = False
+        assert decorated[0] == "False"
+
+    def test___setitem____with_slice(self) -> None:
+        decorated = ["True", "True", "True"]
+        sut = MutableResolvedSequenceProxy(decorated, value_resolver=str)
+        sut[1:3] = [False, False]
+        assert decorated == ["True", "False", "False"]
+
+    def test___delitem__(self) -> None:
+        decorated = ["one"]
+        sut = MutableResolvedSequenceProxy(decorated, value_resolver=passthrough)
+        del sut[0]
+        assert not decorated
