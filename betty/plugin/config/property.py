@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import TypeVar
 
-from betty.collections import KeyedCollection, ResolvingMutableSequence
+from betty.collections import MutableDictKeyedCollection, ResolvingMutableSequence
 from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.data.aggregate.record.object.property import (
     KeyedCollectionProperty,
@@ -85,10 +85,10 @@ class PluginDefinitionConfigurationsProperty(KeyedCollectionProperty):
                 label=plugin_type.type().label_plural,
                 key=Attr("id"),
                 ordered=False,
-            ),  # ty:ignore[invalid-argument-type]
+            ),
             label=label,
             description=description,
             omit_load=True,
             omit_dump=lambda data: not len(data),
-            default=lambda: KeyedCollection(key=lambda item: item.id),
+            default=lambda: MutableDictKeyedCollection(key=lambda item: item.id),
         )

@@ -404,6 +404,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/ancestry/presence_role/__init__.py": {
         "PresenceRole": MissingReason.STATIC_CONTENT_ONLY,
     },
+    "betty/collections.py": {
+        "KeyedCollection": MissingReason.ABSTRACT,
+        "MutableCollection": MissingReason.ABSTRACT,
+        "MutableKeyedCollection": MissingReason.ABSTRACT,
+    },
     "betty/config.py": {
         "Configurable": MissingReason.ABSTRACT,
     },

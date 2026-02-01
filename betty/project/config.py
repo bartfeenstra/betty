@@ -16,7 +16,7 @@ from betty.ancestry.person import Person
 from betty.ancestry.place_type import PlaceType, PlaceTypeDefinition
 from betty.ancestry.presence_role import PresenceRole, PresenceRoleDefinition
 from betty.assertion import assert_number
-from betty.collections import KeyedCollection
+from betty.collections import MutableDictKeyedCollection
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.data import Data, Sample
 from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
@@ -636,10 +636,10 @@ class ProjectConfiguration(Data):
             label=_("Entity types"),
             key=Attr("entity_type"),
             ordered=False,
-        ),  # ty:ignore[invalid-argument-type]
+        ),
         omit_load=True,
         omit_dump=lambda data: not len(data),
-        default=lambda: KeyedCollection(
+        default=lambda: MutableDictKeyedCollection(
             key=lambda item: item.entity_type,
             value_resolver=lambda data: data
             if isinstance(data, EntityTypeConfiguration)
@@ -663,10 +663,10 @@ class ProjectConfiguration(Data):
             label=ExtensionDefinition.type().label_plural,
             key=Attr("id"),
             ordered=False,
-        ),  # ty:ignore[invalid-argument-type]
+        ),
         omit_load=True,
         omit_dump=lambda data: not len(data),
-        default=lambda: KeyedCollection(
+        default=lambda: MutableDictKeyedCollection(
             key=lambda data: data.id,
             key_resolver=resolve_id,
             value_resolver=resolve_plugin_configuration,
@@ -726,10 +726,10 @@ class ProjectConfiguration(Data):
             label=_("Locales"),
             key=Attr("locale"),
             ordered=True,
-        ),  # ty:ignore[invalid-argument-type]
+        ),
         omit_load=True,
         omit_dump=lambda data: not len(data),
-        default=lambda: KeyedCollection(
+        default=lambda: MutableDictKeyedCollection(
             [DEFAULT_LOCALE],
             key=lambda item: item.locale,
             key_resolver=resolve_locale,
