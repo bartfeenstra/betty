@@ -14,7 +14,7 @@ from betty.date import DateRange
 from betty.image import is_supported_media_type
 from betty.json.linked_data import LinkedDataDumpableWithSchema
 from betty.model import persistent_id
-from betty.plugin import Plugin, PluginDefinition
+from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.privacy import is_private, is_public
 from betty.service.level import universe
 from betty.string import kebab_case_to_snake_case
@@ -41,14 +41,14 @@ class PluginTester:
     Provides tests for a specific plugin type.
     """
 
-    def __init__(self, plugin_type: type[PluginDefinition], /):
+    def __init__(self, plugin_type: PluginTypeDefinition, /):
         self._plugin_type = plugin_type
 
     def tests(self) -> Mapping[str, Callable[..., bool]]:
         """
         Get the available tests, keyed by test name.
         """
-        return {f"{kebab_case_to_snake_case(self._plugin_type.type().id)}_plugin": self}
+        return {f"{kebab_case_to_snake_case(self._plugin_type.id)}_plugin": self}
 
     def __call__(self, /, value: Any, plugin_id: MachineName | None = None) -> bool:
         """
@@ -56,7 +56,7 @@ class PluginTester:
         """
         if not isinstance(value, Plugin):
             return False
-        if not isinstance(value.plugin(), self._plugin_type):
+        if not isinstance(value.plugin(), self._plugin_type.cls):
             return False
         return not (plugin_id is not None and value.plugin().id != plugin_id)
 
@@ -122,6 +122,6 @@ async def tests() -> Mapping[str, Callable[..., bool]]:
         "private": is_private,
         "public": is_public,
     }
-    for plugin in universe.plugins.types:
-        tests.update(PluginTester(plugin).tests())
+    for plugin_type in universe.plugins.types:
+        tests.update(PluginTester(plugin_type).tests())
     return tests

@@ -10,4 +10,4 @@ class TestSpdx:
             project,
             await Spdx.new_for_services(services=project) as sut,
         ):
-            await sut.license_repository
+            await sut.licenses

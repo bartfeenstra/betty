@@ -18,6 +18,7 @@ from betty.functools import passthrough
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName, assert_machine_name
 from betty.plugin import PluginDefinition
+from betty.plugin.assertion import assert_plugin
 from betty.plugin.config import PluginConfiguration, resolve_plugin_configuration
 from betty.portable import CallbackPorter
 
@@ -48,7 +49,7 @@ class PluginIdDefinition(DataDefinition[MachineName]):
     @override
     async def hydrate(self, *, services: ServiceLevel, data: MachineName) -> None:
         if self._plugin_type is not None:
-            (await services.plugins.plugins(self._plugin_type)).get(data)
+            assert_plugin(await services.plugins.plugins(self._plugin_type))(data)
 
 
 @final

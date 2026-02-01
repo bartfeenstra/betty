@@ -1,12 +1,10 @@
 from __future__ import annotations
 
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.model import EntityDefinition
 from betty.plugin import (
     Plugin,
     PluginDefinition,
     PluginTypeDefinition,
-    PluginTypeRepository,
     resolve_definition,
     resolve_id,
 )
@@ -139,20 +137,6 @@ class TestPluginDefinition:
         actual = sut.reference_label_with_type.localize(DEFAULT_LOCALIZER)
         assert id in actual
         assert plugin_type_label in actual
-
-
-class TestPluginTypeRepository:
-    def test___contains__(self) -> None:
-        sut = PluginTypeRepository()
-        assert "entity" in sut
-
-    def test___getitem__(self) -> None:
-        sut = PluginTypeRepository()
-        assert sut["entity"].type().id == "entity"
-
-    def test___iter__(self) -> None:
-        sut = PluginTypeRepository()
-        assert EntityDefinition in list(iter(sut))
 
 
 class _PluginCls(Plugin["_PluginDefinition"]):

@@ -10,14 +10,13 @@ from betty.extension import Extension, ExtensionDefinition
 from betty.license import LicenseDefinition
 from betty.license.licenses import SpdxLicenseBuilder
 from betty.locale.localizable.gettext import _
-from betty.plugin.repository.static import StaticPluginRepository
+from betty.plugin.collections import PluginDefinitions, new_plugin_definitions
 from betty.service.container import service
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
 from betty.service.requirement.extension import require_extension
 from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
-    from betty.plugin.repository import PluginRepository
     from betty.project import Project
 
 
@@ -41,13 +40,12 @@ class Spdx(ServiceLevelDependentSelfFactory, Extension):
         return cls(project=project)
 
     @service
-    async def license_repository(self) -> PluginRepository[LicenseDefinition]:
+    async def licenses(self) -> PluginDefinitions[LicenseDefinition]:
         """
         The SPDX licenses.
         """
-        return StaticPluginRepository(
-            LicenseDefinition,
-            *[
+        return new_plugin_definitions(
+            *(
                 license
                 async for license in SpdxLicenseBuilder(  # noqa: A001
                     binary_file_cache=self._project.app.binary_file_cache.with_scope(
@@ -56,10 +54,10 @@ class Spdx(ServiceLevelDependentSelfFactory, Extension):
                     http_client=await self._project.app.http_client,
                     user=self._project.app.user,
                 ).build()
-            ],
+            ),
         )
 
 
 LicenseDefinition.type().discoverer.add(
-    require_extension(Spdx)(lambda *, extension: extension.license_repository),
+    require_extension(Spdx)(lambda *, extension: extension.licenses),
 )

@@ -34,8 +34,9 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
 
-    from betty.plugin import PluginDefinition
-    from betty.plugin.repository import PluginRepository
+    from betty.collections import KeyedCollection
+    from betty.machine_name import MachineName
+    from betty.plugin import PluginDefinition, PluginTypeDefinition, ResolvableId
     from betty.serde import Serializer
 
 _T = TypeVar("_T")
@@ -50,7 +51,9 @@ def _to_thread(target: Callable[[], _T]) -> _T:
     return result.result()
 
 
-async def _get_plugins(plugin_type_id: str) -> PluginRepository:
+async def _get_plugins(
+    plugin_type_id: str,
+) -> KeyedCollection[MachineName, ResolvableId, PluginDefinition]:
     async with (
         App.new_isolated() as app,
         app,
@@ -142,7 +145,9 @@ class _PluginDirective(SphinxDirective):
         return nodes.paragraph("", "", *summary_nodes)
 
     def _build_metadata(
-        self, plugin: PluginDefinition, plugins: PluginRepository[PluginDefinition]
+        self,
+        plugin: PluginDefinition,
+        plugins: KeyedCollection[MachineName, ResolvableId, PluginDefinition],
     ) -> list[nodes.Node]:
         cls = plugin.cls
         if issubclass(cls, Configurable):
@@ -163,7 +168,7 @@ class _PluginDirective(SphinxDirective):
 """
         if isinstance(plugin, DependentPluginDefinition) and (
             depends_on_content := self._build_other_plugins_references(
-                [plugins.get(plugin_id) for plugin_id in plugin.depends_on]
+                [plugins[plugin_id] for plugin_id in plugin.depends_on]
             )
         ):
             content += f"""
@@ -172,14 +177,14 @@ class _PluginDirective(SphinxDirective):
 """
         if isinstance(plugin, OrderedPluginDefinition):
             if comes_before_content := self._build_other_plugins_references(
-                [plugins.get(plugin_id) for plugin_id in plugin.comes_before]
+                [plugins[plugin_id] for plugin_id in plugin.comes_before]
             ):
                 content += f"""
    * - Comes before
 {comes_before_content}
 """
             if comes_after_content := self._build_other_plugins_references(
-                [plugins.get(plugin_id) for plugin_id in plugin.comes_after]
+                [plugins[plugin_id] for plugin_id in plugin.comes_after]
             ):
                 content += f"""
    * - Comes after
@@ -223,21 +228,21 @@ class _PluginTypeDirective(SphinxDirective):
             *self._build_builtin_plugins(plugin_type, plugins),
         ]
 
-    def _build_summary(self, plugin_type: type[PluginDefinition]) -> nodes.Node:
+    def _build_summary(self, plugin_type: PluginTypeDefinition) -> nodes.Node:
         summary_node = nodes.paragraph(
             "",
             "",
             nodes.Text(
-                f"The {plugin_type.type().label.localize(DEFAULT_LOCALIZER).lower()} plugin type."
+                f"The {plugin_type.label.localize(DEFAULT_LOCALIZER).lower()} plugin type."
             ),
         )
-        description = plugin_type.type().description
+        description = plugin_type.description
         if description:
             summary_node.append(nodes.Text(" "))
             summary_node.append(nodes.Text(description.localize(DEFAULT_LOCALIZER)))
         return summary_node
 
-    def _build_metadata(self, plugin_type: type[PluginDefinition]) -> list[nodes.Node]:
+    def _build_metadata(self, plugin_type: PluginTypeDefinition) -> list[nodes.Node]:
         return nested_parse_to_nodes(
             self.state,
             f"""
@@ -246,22 +251,24 @@ class _PluginTypeDirective(SphinxDirective):
    :header-rows: 0
 
    * - Plugin type ID
-     - ``{plugin_type.type().id}``
+     - ``{plugin_type.id}``
    * - Definition
-     - :py:class:`@{plugin_type.__name__}(...) <{plugin_type.__module__}.{plugin_type.__qualname__}>`
+     - :py:class:`@{plugin_type.cls.__name__}(...) <{plugin_type.cls.__module__}.{plugin_type.cls.__qualname__}>`
 """,
             offset=self.content_offset,
         )
 
     def _build_builtin_plugins(
-        self, plugin_type: type[PluginDefinition], plugins: PluginRepository
+        self,
+        plugin_type: PluginTypeDefinition,
+        plugins: KeyedCollection[MachineName, ResolvableId, PluginDefinition],
     ) -> list[nodes.Node]:
         return [
             nodes.paragraph(
                 "",
                 "",
                 nodes.Text(
-                    f"Built-in {plugin_type.type().label_plural.localize(DEFAULT_LOCALIZER).lower()}:"
+                    f"Built-in {plugin_type.label_plural.localize(DEFAULT_LOCALIZER).lower()}:"
                 ),
             ),
             _build_definition_list(
@@ -306,12 +313,12 @@ class _PluginTypesDirective(SphinxDirective):
         ]
 
     def _build_builtin_plugin_type_definition(
-        self, plugin_type: type[PluginDefinition]
+        self, plugin_type: PluginTypeDefinition
     ) -> tuple[NodesLike, NodesLike]:
         term_nodes, _ = self.parse_inline(
-            f":py:class:`{plugin_type.type().label.localize(DEFAULT_LOCALIZER)} <{plugin_type.__module__}.{plugin_type.__qualname__}>` (``{plugin_type.type().id}``)"
+            f":py:class:`{plugin_type.label.localize(DEFAULT_LOCALIZER)} <{plugin_type.cls.__module__}.{plugin_type.cls.__qualname__}>` (``{plugin_type.id}``)"
         )
-        description = plugin_type.type().description
+        description = plugin_type.description
         if description:
             return term_nodes, nodes.Text(description.localize(DEFAULT_LOCALIZER))
         return term_nodes, None

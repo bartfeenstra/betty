@@ -24,12 +24,16 @@ from betty.typing import Void
 
 _T = TypeVar("_T")
 _KeyT = TypeVar("_KeyT")
+_KeyCoT = TypeVar("_KeyCoT")
 _ValueT = TypeVar("_ValueT")
 _ResolvableKeyT = TypeVar("_ResolvableKeyT")
+_ResolvableKeyCoT = TypeVar("_ResolvableKeyCoT")
 _ResolvableValueT = TypeVar("_ResolvableValueT")
 
 
-class KeyedCollection(Collection[_ValueT], Generic[_KeyT, _ResolvableKeyT, _ValueT]):
+class KeyedCollection(
+    Collection[_ValueT], Generic[_KeyCoT, _ResolvableKeyCoT, _ValueT]
+):
     """
     A collection of values that are accessible by their primary keys.
     """
@@ -58,9 +62,9 @@ class MutableCollection(Collection[_ValueT]):
 
 
 class MutableKeyedCollection(
-    KeyedCollection[_KeyT, _ResolvableKeyT, _ValueT],
+    KeyedCollection[_KeyCoT, _ResolvableKeyCoT, _ValueT],
     MutableCollection[_ValueT],
-    Generic[_KeyT, _ResolvableKeyT, _ValueT, _ResolvableValueT],
+    Generic[_KeyCoT, _ResolvableKeyCoT, _ValueT, _ResolvableValueT],
 ):
     """
     A mutable collection of values that are accessible by their primary keys.
@@ -73,18 +77,22 @@ class MutableKeyedCollection(
         """
 
     @abstractmethod
-    def __delitem__(self, key: _ResolvableKeyT) -> None:
+    def __delitem__(self, key: _ResolvableKeyCoT) -> None:
         pass
 
 
-class _DictKeyedCollection(KeyedCollection[_KeyT, _ResolvableKeyT, _ValueT]):
+class _DictKeyedCollection(KeyedCollection[_KeyCoT, _ResolvableKeyCoT, _ValueT]):
     def __init__(
         self,
-        values: Mapping[_KeyT, _ValueT] | None = None,
+        values: Mapping[_KeyCoT | _ResolvableKeyCoT, _ValueT] | None = None,
         *,
-        key_resolver: Callable[[_ResolvableKeyT | _KeyT], _KeyT] = passthrough,
+        key_resolver: Callable[[_ResolvableKeyCoT | _KeyCoT], _KeyCoT] = passthrough,
     ):
-        self._values = {} if values is None else dict(values)
+        self._values = (
+            {}
+            if values is None
+            else {key_resolver(key): value for key, value in values.items()}
+        )
         self._key_resolver = key_resolver
 
     @override
@@ -102,16 +110,16 @@ class _DictKeyedCollection(KeyedCollection[_KeyT, _ResolvableKeyT, _ValueT]):
         return key in self._values
 
     @override
-    def __getitem__(self, key: _ResolvableKeyT) -> _ValueT:
+    def __getitem__(self, key: _ResolvableKeyCoT) -> _ValueT:
         return self._values[self._key_resolver(key)]
 
     @override
-    def keys(self) -> Iterable[_KeyT]:
+    def keys(self) -> Iterable[_KeyCoT]:
         return self._values.keys()
 
 
 @final
-class DictKeyedCollection(_DictKeyedCollection[_KeyT, _ResolvableKeyT, _ValueT]):
+class DictKeyedCollection(_DictKeyedCollection[_KeyCoT, _ResolvableKeyCoT, _ValueT]):
     """
     A keyed collection backed by a dictionary.
     """
@@ -119,8 +127,8 @@ class DictKeyedCollection(_DictKeyedCollection[_KeyT, _ResolvableKeyT, _ValueT])
 
 @final
 class MutableDictKeyedCollection(
-    _DictKeyedCollection[_KeyT, _ResolvableKeyT, _ValueT],
-    MutableKeyedCollection[_KeyT, _ResolvableKeyT, _ValueT, _ResolvableValueT],
+    _DictKeyedCollection[_KeyCoT, _ResolvableKeyCoT, _ValueT],
+    MutableKeyedCollection[_KeyCoT, _ResolvableKeyCoT, _ValueT, _ResolvableValueT],
 ):
     """
     A mutable keyed collection backed by a dictionary.
@@ -130,9 +138,9 @@ class MutableDictKeyedCollection(
         self,
         values: Iterable[_ResolvableValueT] | None = None,
         *,
-        key: Callable[[_ValueT], _KeyT],
-        key_resolver: Callable[[_ResolvableKeyT | _KeyT], _KeyT] = passthrough,
-        value_resolver: Callable[[_ResolvableValueT | _KeyT], _ValueT] = passthrough,
+        key: Callable[[_ValueT], _KeyCoT],
+        key_resolver: Callable[[_ResolvableKeyCoT | _KeyCoT], _KeyCoT] = passthrough,
+        value_resolver: Callable[[_ResolvableValueT | _KeyCoT], _ValueT] = passthrough,
         resolver: Callable[
             [Sequence[_ValueT]], Sequence[_ValueT | _ResolvableValueT]
         ] = passthrough,
@@ -145,7 +153,7 @@ class MutableDictKeyedCollection(
             self.add(*values)
 
     @override
-    def __delitem__(self, key: _ResolvableKeyT) -> None:
+    def __delitem__(self, key: _ResolvableKeyCoT) -> None:
         del self._values[self._key_resolver(key)]
 
     @override

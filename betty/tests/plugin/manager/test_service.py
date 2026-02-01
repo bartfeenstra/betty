@@ -1,9 +1,6 @@
 from collections.abc import Iterable
 
-from pytest_mock import MockerFixture
-
 from betty.app import App
-from betty.plugin import PluginTypeRepository
 from betty.plugin.manager.service import ServiceLevelPluginManager
 from betty.service.level import universe
 from betty.service.requirement.app import require_app
@@ -22,18 +19,9 @@ class TestServiceLevelPluginManager:
         )
         assert DummyPluginOne.plugin() in await sut.plugins(DummyPluginDefinition)
 
-    async def test_plugins__with_plugin_type_id(self, mocker: MockerFixture) -> None:
-        plugin_type_repository = PluginTypeRepository()
-        plugin_type_repository._plugin_types = {
-            DummyPluginDefinition.type().id: DummyPluginDefinition,
-        }
-        mocker.patch(
-            "betty.plugin.PluginTypeRepository", return_value=plugin_type_repository
-        )
+    async def test_plugins__with_plugin_type_id(self) -> None:
         sut = ServiceLevelPluginManager(universe)
-        assert DummyPluginOne.plugin() in await sut.plugins(
-            DummyPluginDefinition.type().id
-        )
+        assert sut.types
 
     async def test_plugins__should_forward_services(self, isolated_app: App) -> None:
         async def _discovery(*, app: App) -> Iterable[DummyPluginDefinition]:

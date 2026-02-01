@@ -8,8 +8,7 @@ to Betty.
 from __future__ import annotations
 
 from functools import update_wrapper
-from importlib import metadata
-from typing import TYPE_CHECKING, Any, Generic, Self, TypeAlias, final
+from typing import TYPE_CHECKING, Generic, Self, TypeAlias, final
 
 from typing_extensions import TypeVar, override
 
@@ -21,7 +20,7 @@ from betty.machine_name import InvalidMachineName, MachineName, validate_machine
 
 if TYPE_CHECKING:
     import builtins
-    from collections.abc import Iterable, Iterator, Mapping
+    from collections.abc import Iterable
 
     from betty.locale.localizable import (
         CountableLocalizable,
@@ -171,37 +170,6 @@ class Plugin(Generic[_PluginDefinitionCoT]):
         raise NotImplementedError(
             f"{fully_qualified_name(cls)} was not decorated with a {fully_qualified_name(PluginDefinition)} subclass."
         )
-
-
-_PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
-
-
-@final
-class PluginTypeRepository:
-    """
-    A repository of available plugin types.
-    """
-
-    def __init__(self):
-        self._plugin_types: Mapping[MachineName, type[PluginDefinition]] | None = None
-
-    def _get_plugin_types(self) -> Mapping[MachineName, type[PluginDefinition]]:
-        if self._plugin_types is None:
-            self._plugin_types = {
-                plugin.type().id: plugin
-                for entry_point in metadata.entry_points(group="betty.plugin")
-                if (plugin := entry_point.load())
-            }
-        return self._plugin_types
-
-    def __contains__(self, value: Any) -> bool:
-        return value in self._get_plugin_types()
-
-    def __getitem__(self, plugin_type_id: MachineName, /) -> type[PluginDefinition]:
-        return self._get_plugin_types()[plugin_type_id]
-
-    def __iter__(self) -> Iterator[type[PluginDefinition]]:
-        return iter(self._get_plugin_types().values())
 
 
 ResolvableDefinition: TypeAlias = _PluginDefinitionT | type[Plugin[_PluginDefinitionT]]

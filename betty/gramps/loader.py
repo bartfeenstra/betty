@@ -65,6 +65,7 @@ from betty.event_type.event_types import (
     Will,
 )
 from betty.event_type.event_types import Unknown as UnknownEventType
+from betty.exception import HumanFacingException
 from betty.gender import GenderDefinition
 from betty.gender.genders import Man, NonBinary, Woman
 from betty.gender.genders import Unknown as UnknownGender
@@ -106,8 +107,7 @@ from betty.plugin.config import (
     PluginConfiguration,
     resolve_plugin_configuration_mapping,
 )
-from betty.plugin.error import PluginUnavailable
-from betty.presence_role import PresenceRole, PresenceRoleDefinition
+from betty.presence_role import PresenceRoleDefinition
 from betty.presence_role.presence_roles import (
     Attendee,
     Celebrant,
@@ -121,12 +121,7 @@ from betty.typing import internal, private
 
 if TYPE_CHECKING:
     from asyncio.subprocess import Process
-    from collections.abc import (
-        Iterable,
-        Mapping,
-        MutableMapping,
-        Sequence,
-    )
+    from collections.abc import Iterable, Mapping, MutableMapping, Sequence
     from xml.etree import ElementTree
 
     from babel import Locale
@@ -805,7 +800,7 @@ class GrampsLoader:
                 ](copyright_notice_id).new_plugin(
                     self._services, CopyrightNoticeDefinition
                 )
-            except PluginUnavailable:
+            except HumanFacingException:
                 await self._user.message_warning(
                     _(
                         'Betty is unfamiliar with Gramps file "{file_id}"\'s copyright notice ID of "{copyright_notice_id}" and ignored it.',
@@ -817,7 +812,7 @@ class GrampsLoader:
                 file.license = await PluginConfiguration[LicenseDefinition, License](
                     license_id
                 ).new_plugin(self._services, LicenseDefinition)
-            except PluginUnavailable:
+            except HumanFacingException:
                 await self._user.message_warning(
                     _(
                         'Betty is unfamiliar with Gramps file "{file_id}"\'s license ID of "{license_id}" and ignored it.',
@@ -855,7 +850,7 @@ class GrampsLoader:
                         gender_id
                     ].cls
                 )
-            except PluginUnavailable:
+            except HumanFacingException:
                 await self._user.message_warning(
                     _(
                         'Betty is unfamiliar with Gramps file "{person_id}"\'s gender ID of "{gender_id}" and ignored it.',

@@ -42,7 +42,7 @@ from betty.locale.localizable.property import LocalizableProperty
 from betty.machine_name import MachineName, MachineNameDefinition
 from betty.model import EntityDefinition
 from betty.model.reference import EntityReference
-from betty.plugin import resolve_id
+from betty.plugin import ResolvableDefinition, resolve_definition, resolve_id
 from betty.plugin.config import (
     PluginConfiguration,
     ResolvablePluginConfigurationSequence,
@@ -67,7 +67,7 @@ if TYPE_CHECKING:
     from betty.jinja2 import Environment
     from betty.locale.localizable import ResolvableLocalizable
     from betty.plugin import ResolvableId
-    from betty.plugin.repository import PluginRepository
+    from betty.plugin.collections import PluginDefinitions
 
 
 @final
@@ -189,7 +189,7 @@ class EntityCard(Template, Configurable[EntityReference]):
         *,
         ancestry: Ancestry,
         configuration: EntityReference,
-        entity_types: PluginRepository[EntityDefinition],
+        entity_types: PluginDefinitions[EntityDefinition],
         jinja2_environment: Environment,
     ):
         super().__init__(
@@ -220,7 +220,7 @@ class EntityCard(Template, Configurable[EntityReference]):
     @override
     async def _provide_data(self, document: Document) -> Mapping[str, Any]:
         return {
-            "entity": self._ancestry[self._entity_types.get(self.configuration.type)][
+            "entity": self._ancestry[self._entity_types[self.configuration.type]][
                 self.configuration.id
             ],
         }
@@ -482,7 +482,7 @@ class Presences(Template, Configurable[PresencesConfiguration]):
         self,
         *,
         jinja2_environment: Environment,
-        presence_roles: PluginRepository[PresenceRoleDefinition],
+        presence_roles: Iterable[ResolvableDefinition[PresenceRoleDefinition]],
         configuration: PresencesConfiguration | None = None,
     ):
         super().__init__(
@@ -491,7 +491,7 @@ class Presences(Template, Configurable[PresencesConfiguration]):
             else configuration,
             jinja2_environment=jinja2_environment,
         )
-        self._presence_roles = presence_roles
+        self._presence_roles = list(map(resolve_definition, presence_roles))
 
     @override
     @classmethod

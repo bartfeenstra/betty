@@ -97,16 +97,14 @@ class About(ServiceLevelDependentSelfFactory, Command):
         about_plugins.add_column(user.localizer._("Label"))
         for plugin_type in sorted(
             universe.plugins.types,
-            key=lambda plugin_type: plugin_type.type().label.localize(user.localizer),
+            key=lambda plugin_type: plugin_type.label.localize(user.localizer),
         ):
-            repository = await services.plugins.plugins(plugin_type)
+            repository = await services.plugins.plugins(plugin_type.cls)
             for index, plugin in enumerate(
                 sorted(repository, key=lambda plugin: plugin.id)
             ):
                 first_column = (
-                    plugin_type.type().label.localize(user.localizer)
-                    if index == 0
-                    else ""
+                    plugin_type.label.localize(user.localizer) if index == 0 else ""
                 )
                 third_column_lines: MutableSequence[str] = []
                 if isinstance(plugin, HumanFacingDefinition):

@@ -4,12 +4,12 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from betty.plugin.collections import new_plugin_definitions
 from betty.plugin.dependent import (
     DependentPluginDefinition,
     expand_plugin_dependencies,
     sort_dependent_plugin_graph,
 )
-from betty.plugin.repository.static import StaticPluginRepository
 from betty.tests.plugin.test___init__ import (
     _DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT,
     _DEPENDENT_PLUGIN_ISOLATED,
@@ -98,8 +98,7 @@ async def test_expand_plugin_dependencies(
     plugins: set[_DependentPluginDefinition],
 ) -> None:
     actual = await expand_plugin_dependencies(
-        StaticPluginRepository(
-            _DependentPluginDefinition,
+        new_plugin_definitions(
             _DEPENDENT_PLUGIN_ISOLATED,
             _DEPENDENT_PLUGIN_UPSTREAM_DEPENDENT,
             _DEPENDENT_PLUGIN_UPSTREAM_AND_DOWNSTREAM_DEPENDENT,
@@ -167,8 +166,7 @@ async def test_expand_plugin_dependencies(
 async def test_sort_dependent_plugin_graph(
     expected: list[MachineName], plugins: Iterable[_DependentPluginDefinition]
 ) -> None:
-    plugin_repository = StaticPluginRepository(
-        _DependentPluginDefinition,
+    plugin_repository = new_plugin_definitions(
         _DEPENDENT_PLUGIN_ISOLATED,
         _DEPENDENT_PLUGIN_UPSTREAM_DEPENDENT,
         _DEPENDENT_PLUGIN_UPSTREAM_AND_DOWNSTREAM_DEPENDENT,

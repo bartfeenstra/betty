@@ -47,8 +47,6 @@ from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.model.reference import EntityReference
 from betty.plugin.config import PluginConfiguration
-from betty.plugin.repository.static import StaticPluginRepository
-from betty.presence_role import PresenceRoleDefinition
 from betty.presence_role.presence_roles import Subject, Witness
 from betty.project import Project
 from betty.test_utils.ancestry.has_citations import DummyHasCitations
@@ -482,9 +480,7 @@ class TestPresences:
             async with project:
                 sut = Presences(
                     jinja2_environment=await project.jinja2_environment,
-                    presence_roles=StaticPluginRepository(
-                        PresenceRoleDefinition, Subject
-                    ),
+                    presence_roles=[Subject],
                 )
                 assert await sut.provide(document=Document(resource)) is None
 
@@ -497,9 +493,7 @@ class TestPresences:
             async with project:
                 sut = Presences(
                     jinja2_environment=await project.jinja2_environment,
-                    presence_roles=StaticPluginRepository(
-                        PresenceRoleDefinition, Subject
-                    ),
+                    presence_roles=[Subject],
                 )
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
@@ -519,9 +513,7 @@ class TestPresences:
                 sut = Presences(
                     configuration=PresencesConfiguration(include=[Subject]),
                     jinja2_environment=await project.jinja2_environment,
-                    presence_roles=StaticPluginRepository(
-                        PresenceRoleDefinition, Subject
-                    ),
+                    presence_roles=[Subject],
                 )
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
@@ -542,9 +534,7 @@ class TestPresences:
                 sut = Presences(
                     configuration=PresencesConfiguration(exclude=[Witness]),
                     jinja2_environment=await project.jinja2_environment,
-                    presence_roles=StaticPluginRepository(
-                        PresenceRoleDefinition, Subject
-                    ),
+                    presence_roles=[Subject],
                 )
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None

@@ -4,13 +4,13 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from betty.plugin.collections import new_plugin_definitions
 from betty.plugin.ordered import (
     OrderedPluginDefinition,
     get_comes_after,
     get_comes_before,
     sort_ordered_plugin_graph,
 )
-from betty.plugin.repository.static import StaticPluginRepository
 from betty.tests.plugin.test___init__ import (
     _ORDERED_PLUGIN_COMES_AFTER_TARGET,
     _ORDERED_PLUGIN_COMES_BEFORE_TARGET,
@@ -86,8 +86,7 @@ def test_sort_ordered_plugin_graph(
     plugins: Iterable[_OrderedPluginDefinition],
 ) -> None:
     sorter = sort_ordered_plugin_graph(
-        StaticPluginRepository(
-            _OrderedPluginDefinition,
+        new_plugin_definitions(
             _ORDERED_PLUGIN_COMES_BEFORE_TARGET,
             _ORDERED_PLUGIN_HAS_COMES_BEFORE,
             _ORDERED_PLUGIN_COMES_AFTER_TARGET,
@@ -125,8 +124,7 @@ def test_get_comes_after(
 ) -> None:
     assert (
         get_comes_after(
-            StaticPluginRepository(
-                _OrderedPluginDefinition,
+            new_plugin_definitions(
                 _ORDERED_PLUGIN_COMES_BEFORE_TARGET,
                 _ORDERED_PLUGIN_HAS_COMES_BEFORE,
                 _ORDERED_PLUGIN_COMES_AFTER_TARGET,
@@ -167,8 +165,7 @@ def test_get_comes_before(
 ) -> None:
     assert (
         get_comes_before(
-            StaticPluginRepository(
-                _OrderedPluginDefinition,
+            new_plugin_definitions(
                 _ORDERED_PLUGIN_COMES_BEFORE_TARGET,
                 _ORDERED_PLUGIN_HAS_COMES_BEFORE,
                 _ORDERED_PLUGIN_COMES_AFTER_TARGET,

@@ -9,14 +9,13 @@ from betty.exception import HumanFacingException
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Paragraph, do_you_mean
 from betty.plugin import PluginDefinition
-from betty.plugin.error import PluginNotFound
-from betty.plugin.repository import PluginRepository
+from betty.plugin.collections import PluginDefinitions
 
 _PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
 
 
 def assert_plugin(
-    plugins: PluginRepository[_PluginDefinitionT],
+    plugins: PluginDefinitions[_PluginDefinitionT],
 ) -> AssertionChain[Any, _PluginDefinitionT]:
     """
     Assert that a value is a plugin ID.
@@ -28,7 +27,7 @@ def assert_plugin(
         plugin_id = assert_str()(value)
         try:
             return plugins[plugin_id]
-        except PluginNotFound:
+        except KeyError:
             raise HumanFacingException(
                 Paragraph(
                     _('Unknown plugin "{plugin_id}".').format(plugin_id=plugin_id),
