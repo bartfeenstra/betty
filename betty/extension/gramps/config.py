@@ -13,6 +13,7 @@ from typing_extensions import TypeVar
 from betty.ancestry.event_type import EventTypeDefinition
 from betty.ancestry.place_type import PlaceTypeDefinition
 from betty.ancestry.presence_role import PresenceRoleDefinition
+from betty.collections import MutableResolvedMapping, MutableResolvedMappingProxy
 from betty.data import Data, Sample
 from betty.data.aggregate.collection.mapping import MappingDefinition
 from betty.data.aggregate.collection.sequence import SequenceDefinition
@@ -37,6 +38,7 @@ from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.config import (
     PluginConfiguration,
     ResolvablePluginConfiguration,
+    resolve_plugin_configuration,
     resolve_plugin_configuration_mapping,
 )
 from betty.plugin.data import PluginConfigurationDefinition
@@ -70,12 +72,19 @@ class _PluginMappingProperty(
     ):
         super().__init__(
             MappingDefinition(
-                cls=dict,
+                cls=MutableResolvedMapping,
+                factory=lambda items: MutableResolvedMappingProxy(
+                    resolve_plugin_configuration_mapping(items),
+                    value_resolver=resolve_plugin_configuration,
+                ),
                 key=StrDefinition(label=gramps_label),
                 value=PluginConfigurationDefinition(plugin_type),
                 label=plugin_type.type().label_plural,
             ),
-            default=lambda: resolve_plugin_configuration_mapping(default),  # ty:ignore[invalid-argument-type]
+            default=lambda: MutableResolvedMappingProxy(
+                resolve_plugin_configuration_mapping(default),  # ty:ignore[invalid-argument-type]
+                value_resolver=resolve_plugin_configuration,
+            ),
         )
 
 
