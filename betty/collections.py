@@ -165,7 +165,7 @@ class MutableDictKeyedCollection(
             self._values[self._key(value)] = value
 
 
-class ResolvedMutableSequence(
+class MutableResolvedSequence(
     MutableSequence[_ValueT], Generic[_ValueT, _ResolvableValueT]
 ):
     """
@@ -198,8 +198,8 @@ class ResolvedMutableSequence(
 
 
 @final
-class ResolvedMutableSequenceDecorator(
-    ResolvedMutableSequence[_ValueT, _ResolvableValueT]
+class MutableResolvedSequenceDecorator(
+    MutableResolvedSequence[_ValueT, _ResolvableValueT]
 ):
     """
     Decorate another sequence to resolve any values before forwarding them.
