@@ -4,7 +4,7 @@ Sequence data types.
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable, MutableSequence, Sequence
+from collections.abc import Callable, MutableSequence, Sequence
 from typing import TYPE_CHECKING, Any, TypeVar
 
 from typing_extensions import override
@@ -35,7 +35,7 @@ class SequenceDefinition(CollectionDefinition[_MutableSequenceT, Index]):
         value: DataDefinition[_DataItemT] | type[Intersection[_DataItemT, Data]],
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
-        factory: Callable[[Iterable[_DataItemT]], _MutableSequenceT] | None = None,
+        factory: Callable[[Sequence[_DataItemT]], _MutableSequenceT] | None = None,
     ):
         super().__init__(
             cls=cls,

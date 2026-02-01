@@ -6,25 +6,28 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
-from typing_extensions import override
+from typing_extensions import TypeVar, override
 
+from betty.collections import MutableResolvedSequence, MutableResolvedSequenceProxy
 from betty.data import DataDefinition, Sample, Size
 from betty.data.aggregate.collection.sequence import SequenceDefinition
-from betty.data.aggregate.record import (
-    FieldDefinition,
-)
+from betty.data.aggregate.record import FieldDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.indicator.selector import Attr
 from betty.functools import passthrough
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName, assert_machine_name
-from betty.plugin.config import PluginConfiguration, _PluginDefinitionT
+from betty.plugin import PluginDefinition
+from betty.plugin.config import PluginConfiguration, resolve_plugin_configuration
 from betty.portable import CallbackPorter
 
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
-    from betty.plugin import PluginDefinition
     from betty.service.level import ServiceLevel
+
+_PluginDefinitionT = TypeVar(
+    "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
+)
 
 
 @final
@@ -100,7 +103,10 @@ class PluginConfigurationSequenceDefinition(SequenceDefinition):
         label: ResolvableLocalizable | None = None,
     ):
         super().__init__(
-            cls=list,
+            cls=MutableResolvedSequence,
+            factory=lambda values: MutableResolvedSequenceProxy(
+                list(values), value_resolver=resolve_plugin_configuration
+            ),
             value=PluginConfigurationDefinition(plugin_type),
             label=plugin_type.type().label_plural if label is None else label,
         )
