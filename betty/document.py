@@ -29,7 +29,7 @@ from typing_extensions import override
 from betty.json.linked_data import LinkedDataDumpable
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 from betty.media_type.media_types import HTML
-from betty.plugin.resolve import ResolvableId, resolve_id
+from betty.plugin.resolve import ResolvableClsId, resolve_id
 from betty.portable import PortableMapping
 
 if TYPE_CHECKING:
@@ -37,7 +37,7 @@ if TYPE_CHECKING:
     from betty.job import Context as JobContext
     from betty.locale.localizable import Localizable
     from betty.machine_name import MachineName
-    from betty.model import Entity
+    from betty.model import Entity, EntityDefinition
     from betty.project import Project
 
 DocumentVars: TypeAlias = Mapping[str, Any]
@@ -318,7 +318,9 @@ class EntityContexts:
         for entity in entities:
             self._contexts[entity.plugin().id] = entity
 
-    def __getitem__(self, entity_type: ResolvableId) -> Entity | None:
+    def __getitem__(
+        self, entity_type: ResolvableClsId[EntityDefinition]
+    ) -> Entity | None:
         return self._contexts[resolve_id(entity_type)]
 
     def __call__(self, *entities: Entity) -> EntityContexts:

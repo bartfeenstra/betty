@@ -20,7 +20,7 @@ from betty.date import Date, DateRange, ResolvableDate
 from betty.deriver import Deriver
 from betty.model.collections import record_added
 from betty.plugin.discovery.static import StaticDiscovery
-from betty.plugin.resolve import ResolvableDefinition
+from betty.plugin.resolve import ResolvableClsDefinition
 from betty.project import Project
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
@@ -33,7 +33,7 @@ if TYPE_CHECKING:
     from betty.app import App
 
 NewProject: TypeAlias = Callable[
-    [Iterable[ResolvableDefinition[EventTypeDefinition]]],
+    [Iterable[ResolvableClsDefinition[EventTypeDefinition]]],
     AbstractAsyncContextManager[Project],
 ]
 
@@ -205,7 +205,7 @@ class TestDeriver:
     def new_project(self, isolated_app: App) -> NewProject:
         @asynccontextmanager
         async def _new_project(
-            event_types: Iterable[ResolvableDefinition[EventTypeDefinition]],
+            event_types: Iterable[ResolvableClsDefinition[EventTypeDefinition]],
         ) -> AsyncIterator[Project]:
             with EventTypeDefinition.type().override_discovery(
                 StaticDiscovery(*event_types)

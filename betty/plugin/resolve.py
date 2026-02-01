@@ -4,7 +4,7 @@ Tools to resolve wide varieties of generic plugin API types to specific types or
 
 from __future__ import annotations
 
-from typing import TypeAlias
+from typing import TypeAlias, overload
 
 from typing_extensions import TypeVar
 
@@ -18,25 +18,49 @@ _PluginClsDefinitionT = TypeVar(
     "_PluginClsDefinitionT", bound=PluginClsDefinition, default=PluginClsDefinition
 )
 
-ResolvableDefinition: TypeAlias = _PluginDefinitionT | type[Plugin[_PluginDefinitionT]]
+ResolvableDefinition: TypeAlias = PluginDefinition | type[Plugin]
 """
 Use :py:func:`betty.plugin.resolve.resolve_definition` to resolve this to a :py:class:`betty.plugin.PluginDefinition`
 """
 
-ResolvableId: TypeAlias = MachineName | ResolvableDefinition[_PluginDefinitionT]
+ResolvableClsDefinition: TypeAlias = (
+    _PluginClsDefinitionT | type[Plugin[_PluginClsDefinitionT]]
+)
+"""
+Use :py:func:`betty.plugin.resolve.resolve_definition` to resolve this to a :py:class:`betty.plugin.PluginDefinition`
+"""
+
+ResolvableId: TypeAlias = MachineName | ResolvableDefinition
+"""
+Use :py:func:`betty.plugin.resolve.resolve_id` to resolve this to a plugin ID.
+"""
+
+ResolvableClsId: TypeAlias = (
+    MachineName | ResolvableClsDefinition[_PluginClsDefinitionT]
+)
 """
 Use :py:func:`betty.plugin.resolve.resolve_id` to resolve this to a plugin ID.
 """
 
 
+@overload
 def resolve_definition(
-    definition: ResolvableDefinition[_PluginDefinitionT], /
-) -> _PluginDefinitionT:
+    definition: ResolvableClsDefinition[_PluginClsDefinitionT], /
+) -> _PluginClsDefinitionT:
+    pass
+
+
+@overload
+def resolve_definition(definition: ResolvableDefinition, /) -> PluginDefinition:
+    pass
+
+
+def resolve_definition(definition):
     """
     Resolve a plugin definition.
     """
-    if isinstance(definition, PluginClsDefinition):
-        return definition  # ty:ignore[invalid-return-type]
+    if isinstance(definition, PluginDefinition):
+        return definition
     return definition.plugin()
 
 

@@ -91,7 +91,6 @@ _PluginDefinitionCoT = TypeVar(
     default=PluginDefinition,
     covariant=True,
 )
-# @todo covariant?
 _PluginClsDefinitionT = TypeVar(
     "_PluginClsDefinitionT", bound=PluginClsDefinition, default=PluginClsDefinition
 )
