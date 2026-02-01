@@ -53,7 +53,6 @@ from betty.plugin.config import (
     PluginConfiguration,
     ResolvablePluginConfigurationSequence,
     resolve_plugin_configuration,
-    resolve_plugin_configuration_sequence,
 )
 from betty.plugin.config.ordered import OrderedPluginDefinitionConfiguration
 from betty.plugin.config.property import PluginDefinitionConfigurationsProperty
