@@ -8,7 +8,11 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import TypeVar
 
-from betty.collections import MutableDictKeyedCollection, ResolvingMutableSequence
+from betty.collections import (
+    MutableDictKeyedCollection,
+    ResolvedMutableSequence,
+    ResolvedMutableSequenceDecorator,
+)
 from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.data.aggregate.record.object.property import (
     KeyedCollectionProperty,
@@ -38,7 +42,7 @@ _PluginDefinitionT = TypeVar(
 @final
 class PluginConfigurationSequenceProperty(
     SequenceProperty[
-        ResolvingMutableSequence[
+        ResolvedMutableSequence[
             PluginConfiguration[_PluginDefinitionT, _PluginT],
             ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT],
         ],
@@ -61,7 +65,9 @@ class PluginConfigurationSequenceProperty(
             label=label,
             description=description,
             resolver=resolve_plugin_configuration_sequence,
-            default=lambda: ResolvingMutableSequence([], resolve_plugin_configuration),
+            default=lambda: ResolvedMutableSequenceDecorator(
+                [], value_resolver=resolve_plugin_configuration
+            ),
         )
 
 

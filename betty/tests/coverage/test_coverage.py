@@ -408,6 +408,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "KeyedCollection": MissingReason.ABSTRACT,
         "MutableCollection": MissingReason.ABSTRACT,
         "MutableKeyedCollection": MissingReason.ABSTRACT,
+        "ResolvedMutableSequence": MissingReason.ABSTRACT,
     },
     "betty/config.py": {
         "Configurable": MissingReason.ABSTRACT,
