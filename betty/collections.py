@@ -40,7 +40,7 @@ class KeyedCollection(Collection[_ValueT], Generic[_KeyT, _ResolvableKeyT, _Valu
         pass
 
 
-class MutableCollection(Collection[_ValueT], Generic[_ValueT, _ResolvableValueT]):
+class MutableCollection(Collection[_ValueT]):
     """
     A mutable collection of values.
     """
@@ -51,21 +51,21 @@ class MutableCollection(Collection[_ValueT], Generic[_ValueT, _ResolvableValueT]
         Remove all values from the collection.
         """
 
-    @abstractmethod
-    def add(self, *values: _ResolvableValueT) -> None:
-        """
-        Add a value to the collection.
-        """
-
 
 class MutableKeyedCollection(
     KeyedCollection[_KeyT, _ResolvableKeyT, _ValueT],
-    MutableCollection[_ValueT, _ResolvableValueT],
+    MutableCollection[_ValueT],
     Generic[_KeyT, _ResolvableKeyT, _ValueT, _ResolvableValueT],
 ):
     """
     A mutable collection of values that are accessible by their primary keys.
     """
+
+    @abstractmethod
+    def add(self, *values: _ResolvableValueT) -> None:
+        """
+        Add a value to the collection.
+        """
 
     @abstractmethod
     def __delitem__(self, key: _ResolvableKeyT) -> None:
@@ -166,7 +166,9 @@ class MutableDictKeyedCollection(
 
 
 class MutableResolvedSequence(
-    MutableSequence[_ValueT], Generic[_ValueT, _ResolvableValueT]
+    MutableSequence[_ValueT],
+    MutableCollection[_ValueT],
+    Generic[_ValueT, _ResolvableValueT],
 ):
     """
     A mutable sequence of resolved values.
