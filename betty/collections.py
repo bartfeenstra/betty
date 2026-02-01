@@ -135,7 +135,7 @@ class MutableDictKeyedCollection(
         key_resolver: Callable[[_ResolvableKeyT | _KeyT], _KeyT] = passthrough,
         value_resolver: Callable[[_ResolvableValueT | _KeyT], _ValueT] = passthrough,
         resolver: Callable[
-            [Sequence[_ValueT]], Sequence[_ResolvableValueT | _ValueT]
+            [Sequence[_ValueT]], Sequence[_ValueT | _ResolvableValueT]
         ] = passthrough,
     ):
         super().__init__(key_resolver=key_resolver)
@@ -165,26 +165,58 @@ class MutableDictKeyedCollection(
             self._values[self._key(value)] = value
 
 
-@final
-class ResolvingMutableSequence(
+class ResolvedMutableSequence(
     MutableSequence[_ValueT], Generic[_ValueT, _ResolvableValueT]
 ):
     """
-    A sequence of values.
+    A mutable sequence of resolved values.
+    """
+
+    @override
+    @abstractmethod
+    def insert(self, index: int, value: _ValueT | _ResolvableValueT) -> None:
+        pass
+
+    @overload
+    def __setitem__(self, index: int, value: _ValueT | _ResolvableValueT) -> None:
+        pass
+
+    @overload
+    def __setitem__(
+        self, index: slice, value: Iterable[_ValueT | _ResolvableValueT]
+    ) -> None:
+        pass
+
+    @abstractmethod
+    def __setitem__(self, index, value):
+        pass
+
+    @override
+    @abstractmethod
+    def extend(self, values: Iterable[_ValueT | _ResolvableValueT]) -> None:
+        pass
+
+
+@final
+class ResolvedMutableSequenceDecorator(
+    ResolvedMutableSequence[_ValueT, _ResolvableValueT]
+):
+    """
+    Decorate another sequence to resolve any values before forwarding them.
     """
 
     def __init__(
         self,
         decorated: MutableSequence[_ValueT],
-        resolver: Callable[[_ResolvableValueT | _ValueT], _ValueT],
-        /,
+        *,
+        value_resolver: Callable[[_ValueT | _ResolvableValueT], _ValueT],
     ):
         self._decorated = decorated
-        self._resolver = resolver
+        self._value_resolver = value_resolver
 
     @override
-    def insert(self, index: int, value: _ResolvableValueT | _ValueT) -> None:
-        self._decorated.insert(index, self._resolver(value))
+    def insert(self, index: int, value: _ValueT | _ResolvableValueT) -> None:
+        self._decorated.insert(index, self._value_resolver(value))
 
     @overload
     def __getitem__(self, index: int) -> _ValueT:
@@ -198,18 +230,18 @@ class ResolvingMutableSequence(
         return self._decorated[index]
 
     @overload
-    def __setitem__(self, index: int, value: _ResolvableValueT | _ValueT) -> None: ...
+    def __setitem__(self, index: int, value: _ValueT | _ResolvableValueT) -> None: ...
 
     @overload
     def __setitem__(
-        self, index: slice, value: Iterable[_ResolvableValueT | _ValueT]
+        self, index: slice, value: Iterable[_ValueT | _ResolvableValueT]
     ) -> None: ...
 
     def __setitem__(self, index, value):
         if isinstance(index, int):
-            self._decorated[index] = self._resolver(value)
+            self._decorated[index] = self._value_resolver(value)
         else:
-            self._decorated[index] = map(self._resolver, value)
+            self._decorated[index] = map(self._value_resolver, value)
 
     def __delitem__(self, index: int | slice) -> None:
         del self._decorated[index]
@@ -220,7 +252,7 @@ class ResolvingMutableSequence(
     def __contains__(self, value: object) -> bool:
         try:
             return (
-                self._resolver(
+                self._value_resolver(
                     value,  # ty:ignore[invalid-argument-type]
                 )
                 in self._decorated
@@ -230,4 +262,4 @@ class ResolvingMutableSequence(
 
     @override
     def extend(self, values: Iterable[_ValueT | _ResolvableValueT]) -> None:
-        self._decorated.extend(map(self._resolver, values))
+        self._decorated.extend(map(self._value_resolver, values))
