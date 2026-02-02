@@ -10,9 +10,6 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import TypeVar
 
-from betty.ancestry.event_type import EventTypeDefinition
-from betty.ancestry.place_type import PlaceTypeDefinition
-from betty.ancestry.presence_role import PresenceRoleDefinition
 from betty.collections import MutableResolvedMapping, MutableResolvedMappingProxy
 from betty.data import Data, Sample
 from betty.data.aggregate.collection.mapping import MappingDefinition
@@ -25,6 +22,7 @@ from betty.data.aggregate.record.object.property import (
     SequenceProperty,
 )
 from betty.data.str import StrDefinition
+from betty.event_type import EventTypeDefinition
 from betty.exception import HumanFacingException
 from betty.gramps.loader import (
     DEFAULT_EVENT_TYPE_MAPPING,
@@ -33,6 +31,7 @@ from betty.gramps.loader import (
 )
 from betty.locale.localizable.gettext import _
 from betty.pathlib import FilePathDefinition
+from betty.place_type import PlaceTypeDefinition
 from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.config import (
     PluginConfiguration,
@@ -41,15 +40,16 @@ from betty.plugin.config import (
     resolve_plugin_configuration_mapping,
 )
 from betty.plugin.data import PluginConfigurationDefinition
+from betty.presence_role import PresenceRoleDefinition
 from betty.sample import Size
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from betty.ancestry.event_type import EventType
-    from betty.ancestry.place_type import PlaceType
-    from betty.ancestry.presence_role import PresenceRole
+    from betty.event_type import EventType
     from betty.locale.localizable import ResolvableLocalizable
+    from betty.place_type import PlaceType
+    from betty.presence_role import PresenceRole
 _PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition

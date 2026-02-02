@@ -1,8 +1,9 @@
 import pytest
 from typing_extensions import override
 
-from betty.ancestry.presence_role import PresenceRole
-from betty.ancestry.presence_role.presence_roles import (
+from betty.plugin import PluginDefinition
+from betty.presence_role import PresenceRole
+from betty.presence_role.presence_roles import (
     Attendee,
     Beneficiary,
     Celebrant,
@@ -13,7 +14,6 @@ from betty.ancestry.presence_role.presence_roles import (
     Unknown,
     Witness,
 )
-from betty.plugin import PluginDefinition
 from betty.test_utils.ancestry.presence_role import (
     PresenceRoleDefinitionTestBase,
     PresenceRoleTestBase,

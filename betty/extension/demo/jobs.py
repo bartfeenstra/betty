@@ -12,33 +12,33 @@ from typing_extensions import override
 from betty.ancestry.citation import Citation
 from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.event import Event
-from betty.ancestry.event_type.event_types import Birth, Death, Marriage
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
-from betty.ancestry.gender.genders import Man, Woman
 from betty.ancestry.link import Link
 from betty.ancestry.name import Name
 from betty.ancestry.note import Note
 from betty.ancestry.person import Person
 from betty.ancestry.person_name import PersonName
 from betty.ancestry.place import Place
-from betty.ancestry.place_type.place_types import (
-    Country,
-    Municipality,
-    Province,
-    Village,
-)
 from betty.ancestry.presence import Presence
-from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.copyright_notice.copyright_notices import Streetmix
 from betty.date import Date, DateRange
 from betty.dirs import ASSETS_DIRECTORY_PATH
+from betty.event_type.event_types import Birth, Death, Marriage
+from betty.gender.genders import Man, Woman
 from betty.job import Job
 from betty.license import LicenseDefinition
 from betty.license.licenses import spdx_license_id_to_license_id
 from betty.locale.localizable.gettext import _
 from betty.media_type.media_types import SVG
+from betty.place_type.place_types import (
+    Country,
+    Municipality,
+    Province,
+    Village,
+)
+from betty.presence_role.presence_roles import Subject
 from betty.project.job import ProjectContext
 
 if TYPE_CHECKING:

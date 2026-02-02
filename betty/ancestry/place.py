@@ -13,12 +13,12 @@ from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.name import Name
-from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.json.schema import Array, Number, Object
 from betty.locale.localizable.gettext import _, ngettext
 from betty.model import EntityDefinition
 from betty.model.association import BidirectionalToManySingleType, ToManyAssociates
+from betty.place_type.place_types import Unknown as UnknownPlaceType
 from betty.privacy import HasPrivacy
 
 if TYPE_CHECKING:
@@ -30,8 +30,8 @@ if TYPE_CHECKING:
     from betty.ancestry.event import Event
     from betty.ancestry.link import Link
     from betty.ancestry.note import Note
-    from betty.ancestry.place_type import PlaceType
     from betty.locale.localizable import Localizable
+    from betty.place_type import PlaceType
     from betty.portable import PortableMapping
     from betty.privacy import Privacy
     from betty.project import Project

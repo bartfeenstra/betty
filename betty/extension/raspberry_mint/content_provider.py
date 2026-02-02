@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, Any, Self, TypeAlias, final
 
 from typing_extensions import override
 
-from betty.ancestry.presence_role import PresenceRoleDefinition
 from betty.assertion import (
     assert_enum,
     assert_int,
@@ -52,6 +51,7 @@ from betty.plugin.config.property import PluginConfigurationSequenceProperty
 from betty.plugin.data import PluginConfigurationSequenceDefinition, PluginIdDefinition
 from betty.plugin.resolve import resolve_id
 from betty.portable import CallbackPorter
+from betty.presence_role import PresenceRoleDefinition
 from betty.service.level.factory import (
     ServiceLevelDependentSelfFactory,
 )

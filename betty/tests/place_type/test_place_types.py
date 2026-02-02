@@ -1,8 +1,8 @@
 import pytest
 from typing_extensions import override
 
-from betty.ancestry.place_type import PlaceType
-from betty.ancestry.place_type.place_types import (
+from betty.place_type import PlaceType
+from betty.place_type.place_types import (
     Borough,
     Building,
     Cemetery,

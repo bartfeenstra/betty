@@ -8,12 +8,12 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
-from betty.ancestry.event_type import (
+from betty.classtools import Singleton
+from betty.event_type import (
     EventType,
     EventTypeDefinition,
     ShouldExistEventType,
 )
-from betty.classtools import Singleton
 from betty.locale.localizable.gettext import _, ngettext
 
 if TYPE_CHECKING:

@@ -1,13 +1,13 @@
 from pathlib import Path
 
-from betty.ancestry.event_type.event_types import Birth
-from betty.ancestry.place_type.place_types import Borough
-from betty.ancestry.presence_role.presence_roles import Attendee
+from betty.event_type.event_types import Birth
 from betty.extension.gramps.config import (
     FamilyTreeConfiguration,
     GrampsConfiguration,
 )
+from betty.place_type.place_types import Borough
 from betty.plugin.config import PluginConfiguration
+from betty.presence_role.presence_roles import Attendee
 from betty.test_utils.data import DataTestBase
 
 

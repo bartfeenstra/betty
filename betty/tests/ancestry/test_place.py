@@ -8,15 +8,15 @@ from typing_extensions import override
 
 from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.event import Event
-from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.link import Link
 from betty.ancestry.name import Name
 from betty.ancestry.place import Place
-from betty.ancestry.place_type.place_types import Hamlet
-from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
+from betty.event_type.event_types import Birth
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, to_language_tag
 from betty.model import Entity
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
+from betty.place_type.place_types import Hamlet
+from betty.place_type.place_types import Unknown as UnknownPlaceType
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
 

@@ -12,13 +12,13 @@ from uuid import NAMESPACE_URL, uuid5
 from typing_extensions import override
 
 from betty.ancestry.event import Event
-from betty.ancestry.event_type import EventTypeDefinition, ShouldExistEventType
 from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
-from betty.ancestry.presence_role.presence_roles import Subject
 from betty.date import Date, DateRange
+from betty.event_type import EventTypeDefinition, ShouldExistEventType
 from betty.locale.localizable.gettext import _
 from betty.plugin.ordered import get_comes_after, get_comes_before
+from betty.presence_role.presence_roles import Subject
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterable, Sequence

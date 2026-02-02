@@ -10,13 +10,13 @@ from collections import defaultdict
 from typing import TYPE_CHECKING, cast
 
 from betty.ancestry.event import Event
-from betty.ancestry.event_type.event_types import Birth, Death
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
-from betty.ancestry.presence_role.presence_roles import Subject
 from betty.date import Date, ResolvableDate
+from betty.event_type.event_types import Birth, Death
 from betty.functools import unique
 from betty.model import persistent_id
+from betty.presence_role.presence_roles import Subject
 from betty.privacy import is_public
 
 if TYPE_CHECKING:

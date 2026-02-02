@@ -9,20 +9,16 @@ import pytest
 from betty.ancestry.citation import Citation
 from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.event import Event
-from betty.ancestry.event_type.event_types import Birth, Death, Marriage
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.presence import Presence
-from betty.ancestry.presence_role.presence_roles import (
-    Subject,
-)
-from betty.ancestry.presence_role.presence_roles import (
-    Unknown as UnknownPresenceRole,
-)
 from betty.ancestry.source import Source
 from betty.date import Date, DateRange
+from betty.event_type.event_types import Birth, Death, Marriage
+from betty.presence_role.presence_roles import Subject
+from betty.presence_role.presence_roles import Unknown as UnknownPresenceRole
 from betty.privacy import Privacy
 from betty.privacy.privatizer import Privatizer
 from betty.project.config import DEFAULT_LIFETIME_THRESHOLD

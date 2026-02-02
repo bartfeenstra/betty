@@ -9,18 +9,18 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Any, TypeAlias
 
 from betty.ancestry.event import Event
-from betty.ancestry.event_type.event_types import Death
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.presence import Presence
-from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.date import Date, DateRange
+from betty.event_type.event_types import Death
 from betty.locale.localizable.gettext import _
 from betty.model import Entity
+from betty.presence_role.presence_roles import Subject
 from betty.privacy import HasPrivacy, Privacy
 
 if TYPE_CHECKING:

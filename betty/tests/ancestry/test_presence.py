@@ -6,11 +6,11 @@ import pytest
 from typing_extensions import override
 
 from betty.ancestry.event import Event
-from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
-from betty.ancestry.presence_role.presence_roles import Subject
-from betty.ancestry.presence_role.presence_roles import Unknown as UnknownPresenceRole
+from betty.event_type.event_types import Unknown as UnknownEventType
+from betty.presence_role.presence_roles import Subject
+from betty.presence_role.presence_roles import Unknown as UnknownPresenceRole
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase

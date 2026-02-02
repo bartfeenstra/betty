@@ -6,7 +6,10 @@ import pytest
 from typing_extensions import override
 
 from betty.ancestry.event import Event
-from betty.ancestry.event_type.event_types import (
+from betty.ancestry.person import Person
+from betty.ancestry.presence import Presence
+from betty.date import Date
+from betty.event_type.event_types import (
     Adoption,
     Baptism,
     BarMitzvah,
@@ -33,10 +36,7 @@ from betty.ancestry.event_type.event_types import (
     Unknown,
     Will,
 )
-from betty.ancestry.person import Person
-from betty.ancestry.presence import Presence
-from betty.ancestry.presence_role.presence_roles import Subject
-from betty.date import Date
+from betty.presence_role.presence_roles import Subject
 from betty.project import Project
 from betty.test_utils.ancestry.event_type import (
     EventTypeDefinitionTestBase,
@@ -44,8 +44,8 @@ from betty.test_utils.ancestry.event_type import (
 )
 
 if TYPE_CHECKING:
-    from betty.ancestry.event_type import EventType
     from betty.app import App
+    from betty.event_type import EventType
     from betty.plugin import PluginDefinition
 
 
