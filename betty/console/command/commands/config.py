@@ -12,7 +12,7 @@ from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.locale import DEFAULT_LOCALE, to_language_tag
 from betty.locale.localizable.gettext import _
 from betty.portable.file import dump_file
-from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.level import Manufacturable
 from betty.service.requirement.app import require_app
 
 if TYPE_CHECKING:
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 @final
 @CommandDefinition("config", label=_("Configure Betty"))
-class Config(ServiceLevelDependentSelfFactory, Command):
+class Config(Manufacturable, Command):
     """
     .. plugin:: command:config.
     """

@@ -31,7 +31,7 @@ from betty.jinja2.filter import filters
 from betty.jinja2.test import tests
 from betty.media_type import UnsupportedMediaType, match_extension
 from betty.media_type.media_types import JINJA2
-from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.level import Manufacturable
 from betty.service.requirement.project import require_project
 from betty.typing import private
 from betty.warnings import deprecate
@@ -131,7 +131,7 @@ class Jinja2Provider:
         return {}
 
 
-class Environment(ServiceLevelDependentSelfFactory, Jinja2Environment):
+class Environment(Manufacturable, Jinja2Environment):
     """
     Betty's Jinja2 environment.
     """

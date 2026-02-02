@@ -13,7 +13,7 @@ from betty.extension.webpack import Webpack
 from betty.extension.webpack.build import EntryPointProvider
 from betty.locale.localizable.gettext import _
 from betty.project.generate import Generator
-from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.level import Manufacturable
 from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     depends_on={Webpack},
     assets_directory=Path(__file__).parent / "assets",
 )
-class Trees(Generator, EntryPointProvider, ServiceLevelDependentSelfFactory):
+class Trees(Generator, EntryPointProvider, Manufacturable):
     """
     .. plugin:: extension:trees.
     """

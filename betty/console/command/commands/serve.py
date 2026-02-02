@@ -8,7 +8,7 @@ from typing_extensions import override
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.console.project import add_project_argument
 from betty.locale.localizable.gettext import _
-from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.level import Manufacturable
 from betty.service.requirement.app import require_app
 
 if TYPE_CHECKING:
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     label=_("Serve a generated site"),
     description=_("This will open your web browser."),
 )
-class Serve(ServiceLevelDependentSelfFactory, Command):
+class Serve(Manufacturable, Command):
     """
     .. plugin:: command:serve.
     """

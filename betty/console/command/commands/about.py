@@ -14,8 +14,7 @@ from betty.console.project import add_project_argument
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _
 from betty.rich.user import RichUser
-from betty.service.level import universe
-from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.level import Manufacturable, universe
 from betty.service.requirement.app import require_app
 
 if TYPE_CHECKING:
@@ -30,7 +29,7 @@ if TYPE_CHECKING:
 @CommandDefinition(
     "about", label=_("Output information about Betty, and optionally your project")
 )
-class About(ServiceLevelDependentSelfFactory, Command):
+class About(Manufacturable, Command):
     """
     .. plugin:: command:about.
     """

@@ -158,9 +158,6 @@ class PluginTypeDefinition(
 class Plugin(Generic[_PluginDefinitionCoT]):
     """
     A plugin class.
-
-    ``__init__()`` is considered private to the :py:mod:`factory <betty.factory>` API. That means you MUST use the
-    factory API to create new instances.
     """
 
     @classmethod

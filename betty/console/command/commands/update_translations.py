@@ -14,7 +14,7 @@ from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.console.project import add_project_argument
 from betty.locale.localizable.gettext import _
 from betty.locale.translation import project as translation_project
-from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.level import Manufacturable
 from betty.service.requirement.app import require_app
 
 if TYPE_CHECKING:
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 
 @final
 @CommandDefinition("update-translations", label=_("Update all existing translations"))
-class UpdateTranslations(ServiceLevelDependentSelfFactory, Command):
+class UpdateTranslations(Manufacturable, Command):
     """
     .. plugin:: command:update-translations.
     """

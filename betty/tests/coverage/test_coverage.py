@@ -238,8 +238,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Hydratable": MissingReason.ABSTRACT,
         "Hydrator": MissingReason.ABSTRACT,
     },
-    "betty/service/level/__init__.py": MissingReason.ABSTRACT,
-    "betty/service/level/factory.py": MissingReason.ABSTRACT,
+    "betty/service/level.py": {
+        "Manufacturable": MissingReason.ABSTRACT,
+    },
     "betty/service/requirement/__init__.py": {
         "ServiceLevelKwargs": MissingReason.TYPED_DICT,
         "UnmetRequirement": MissingReason.STATIC_CONTENT_ONLY,
@@ -300,10 +301,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "HumanFacingException": {
             "indicators": MissingReason.COVERED_ELSEWHERE,
         },
-    },
-    "betty/factory.py": {
-        "Factory": MissingReason.PROTOCOL,
-        "SelfFactory": MissingReason.ABSTRACT,
     },
     "betty/functools.py": {
         "Result": {

@@ -21,7 +21,7 @@ from betty.extension.webpack.build import EntryPointProvider
 from betty.jinja2 import Filters, Jinja2Provider
 from betty.model import EntityDefinition
 from betty.project.generate import Generator
-from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.level import Manufacturable
 from betty.service.requirement.project import require_project
 from betty.typing import private
 
@@ -48,7 +48,7 @@ if TYPE_CHECKING:
 )
 class RaspberryMint(
     Configurable[RaspberryMintConfiguration],
-    ServiceLevelDependentSelfFactory,
+    Manufacturable,
     Jinja2Provider,
     Generator,
     EntryPointProvider,

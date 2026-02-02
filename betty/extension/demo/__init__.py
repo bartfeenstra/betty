@@ -26,7 +26,7 @@ from betty.locale.localizable.gettext import _
 from betty.project import generate
 from betty.project.job import ProjectContext
 from betty.project.load import Loader, load
-from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.level import Manufacturable
 from betty.service.requirement.project import require_project
 from betty.typing import internal
 
@@ -80,7 +80,7 @@ async def generate_with_cleanup(
     },
     assets_directory=Path(__file__).parent / "assets",
 )
-class Demo(NavigationLinkProvider, Loader, ServiceLevelDependentSelfFactory, Extension):
+class Demo(NavigationLinkProvider, Loader, Manufacturable, Extension):
     """
     .. plugin:: extension:demo.
     """

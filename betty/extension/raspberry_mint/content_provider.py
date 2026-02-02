@@ -52,9 +52,7 @@ from betty.plugin.config.property import PluginConfigurationSequenceProperty
 from betty.plugin.data import PluginConfigurationSequenceDefinition, PluginIdDefinition
 from betty.portable import CallbackPorter
 from betty.presence_role import PresenceRoleDefinition
-from betty.service.level.factory import (
-    ServiceLevelDependentSelfFactory,
-)
+from betty.service.level import Manufacturable
 from betty.service.requirement.extension import require_extension
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.typing import private
@@ -227,7 +225,7 @@ class EntityCard(Template, Configurable[EntityReference]):
 
 
 @ContentProviderDefinition("raspberry-mint-families", label=_("Families"))
-class Families(Template, ServiceLevelDependentSelfFactory):
+class Families(Template, Manufacturable):
     """
     A person's families.
 
@@ -246,7 +244,7 @@ class Families(Template, ServiceLevelDependentSelfFactory):
     label=_("Media"),
     description=_("A single file in a media display"),
 )
-class Media(Template, ServiceLevelDependentSelfFactory):
+class Media(Template, Manufacturable):
     """
     A single file in a media display.
 
@@ -265,7 +263,7 @@ class Media(Template, ServiceLevelDependentSelfFactory):
     label=_("Media gallery"),
     description=_("Multiple files in a media gallery display"),
 )
-class MediaGallery(Template, ServiceLevelDependentSelfFactory):
+class MediaGallery(Template, Manufacturable):
     """
     Multiple files in a media gallery display.
 
@@ -356,7 +354,7 @@ class ColorStyle(Template, Configurable[ColorStyleConfiguration]):
 
 
 @ContentProviderDefinition("raspberry-mint-external-links", label=_("External links"))
-class ExternalLinks(Template, ServiceLevelDependentSelfFactory):
+class ExternalLinks(Template, Manufacturable):
     """
     External links.
 
@@ -371,7 +369,7 @@ class ExternalLinks(Template, ServiceLevelDependentSelfFactory):
 
 
 @ContentProviderDefinition("raspberry-mint-timeline", label=_("Timeline"))
-class Timeline(Template, ServiceLevelDependentSelfFactory):
+class Timeline(Template, Manufacturable):
     """
     A timeline of events.
 
@@ -392,7 +390,7 @@ class Timeline(Template, ServiceLevelDependentSelfFactory):
         "Other entities that reference a citation or source to back up their claims."
     ),
 )
-class Facts(Template, ServiceLevelDependentSelfFactory):
+class Facts(Template, Manufacturable):
     """
     A list of facts.
 
@@ -737,7 +735,7 @@ class Columns(Template, Configurable[ColumnsConfiguration]):
 
 
 @ContentProviderDefinition("raspberry-mint-enclosees", label=_("Enclosees"))
-class Enclosees(Template, ServiceLevelDependentSelfFactory):
+class Enclosees(Template, Manufacturable):
     """
     Show the places enclosed by a place document resource.
 
@@ -752,7 +750,7 @@ class Enclosees(Template, ServiceLevelDependentSelfFactory):
 
 
 @ContentProviderDefinition("raspberry-mint-file-referees", label=_("File referees"))
-class FileReferees(Template, ServiceLevelDependentSelfFactory):
+class FileReferees(Template, Manufacturable):
     """
     Show the entities referencing a document resource that is a file.
 
@@ -767,7 +765,7 @@ class FileReferees(Template, ServiceLevelDependentSelfFactory):
 
 
 @ContentProviderDefinition("raspberry-mint-citations", label=_("Citations"))
-class Citations(Template, ServiceLevelDependentSelfFactory):
+class Citations(Template, Manufacturable):
     """
     The citations for a document resource that is an entity.
 

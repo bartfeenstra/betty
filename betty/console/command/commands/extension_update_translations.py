@@ -13,7 +13,7 @@ from betty.locale.translation.project import extension as translation_project_ex
 from betty.locale.translation.project.extension import (
     assert_extension_has_assets_directory_path,
 )
-from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.level import Manufacturable
 from betty.service.requirement.app import require_app
 
 if TYPE_CHECKING:
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     "extension-update-translations",
     label=_("Update all existing translations for an extension"),
 )
-class ExtensionUpdateTranslations(ServiceLevelDependentSelfFactory, Command):
+class ExtensionUpdateTranslations(Manufacturable, Command):
     """
     .. plugin:: command:extension-update-translations.
     """

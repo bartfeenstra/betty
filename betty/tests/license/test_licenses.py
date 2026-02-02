@@ -11,7 +11,6 @@ from aioresponses import aioresponses
 from typing_extensions import override
 
 from betty.cache.file import BinaryFileCache
-from betty.factory import new_target
 from betty.license import License
 from betty.license.licenses import (
     AllRightsReserved,
@@ -20,6 +19,7 @@ from betty.license.licenses import (
     spdx_license_id_to_license_id,
 )
 from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.service.level import universe
 from betty.test_utils.license import LicenseTestBase
 from betty.test_utils.user import StaticUser
 
@@ -195,7 +195,7 @@ class TestSpdxLicenseBuilder:
         assert (
             zero_bsd_type.label.localize(DEFAULT_LOCALIZER) == "BSD Zero Clause License"
         )
-        zero_bsd = await new_target(zero_bsd_type.cls)
+        zero_bsd = await universe.new_target(zero_bsd_type.cls)
         assert zero_bsd.summary.localize(DEFAULT_LOCALIZER) == "BSD Zero Clause License"
         assert (
             zero_bsd.text.localize(DEFAULT_LOCALIZER)

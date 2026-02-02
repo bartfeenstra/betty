@@ -13,7 +13,6 @@ from aiofiles.os import makedirs
 from betty.assertion import AssertionChain, assert_file_path
 from betty.data.indicator import Path as DataPath
 from betty.exception import reraise_with_indicator
-from betty.factory import new_target
 from betty.serde import SerializerDefinition, serializer_for
 from betty.service.level import universe
 
@@ -28,7 +27,7 @@ async def assert_load_file() -> AssertionChain[Path, PortableData]:
     An assertion to load a dump from a file.
     """
     available_formats = {
-        available_format: await new_target(available_format.cls)
+        available_format: await universe.new_target(available_format.cls)
         for available_format in await universe.plugins.plugins(SerializerDefinition)
     }
 
@@ -53,7 +52,7 @@ async def dump_file(portable: PortableData, file_path: Path, /) -> None:
     """
     Write a dump to a file.
     """
-    serializer = await new_target(
+    serializer = await universe.new_target(
         serializer_for(
             list(await universe.plugins.plugins(SerializerDefinition)), file_path.suffix
         ).cls
