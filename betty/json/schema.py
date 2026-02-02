@@ -12,8 +12,7 @@ from referencing import Registry, Resource
 from typing_extensions import override
 
 from betty.classtools import Singleton
-from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.locale.localize.resolve import resolve_localized
+from betty.locale.localize import DEFAULT_LOCALIZER, resolve_localized
 from betty.portable import PortableData, PortableMapping
 
 if TYPE_CHECKING:

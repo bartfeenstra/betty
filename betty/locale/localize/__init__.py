@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from babel import Locale
     from ty_extensions import Intersection
 
+    from betty.locale.localizable import ResolvableLocalizable
     from betty.locale.translation import TranslationRepository
 
 
@@ -127,3 +128,20 @@ class LocalizerRepository:
                 translations = gettext_api.NullTranslations()
             self._localizers[locale] = Localizer(locale, translations)
             return self._localizers[locale]
+
+
+def resolve_localized(
+    localizable: ResolvableLocalizable, *, localizer: Localizer
+) -> Intersection[HasLocale, str]:
+    """
+    Ensure that a localizable-like value is or is made to be localized.
+    """
+    from betty.locale.localizable import Localizable
+
+    if isinstance(localizable, str):
+        return HasLocaleStr(localizable)
+    if not isinstance(localizable, Localizable):
+        from betty.locale.localizable.static import StaticTranslations
+
+        localizable = StaticTranslations(localizable)
+    return localizable.localize(localizer)

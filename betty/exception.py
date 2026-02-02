@@ -11,6 +11,7 @@ from typing_extensions import override
 
 from betty.data.indicator.selector import Selectors
 from betty.locale.localizable import Localizable, ResolvableLocalizable
+from betty.locale.localize import resolve_localized
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
@@ -58,7 +59,6 @@ class HumanFacingException(Exception, Localizable):
         indicators: Sequence[Indicator] | None = None,
     ):
         from betty.locale.localize import DEFAULT_LOCALIZER
-        from betty.locale.localize.resolve import resolve_localized
 
         super().__init__(
             # Provide a default localization so this exception can be displayed like any other.
