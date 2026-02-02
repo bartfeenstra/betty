@@ -11,9 +11,12 @@ from typing import TYPE_CHECKING, ClassVar, final
 from typing_extensions import override
 
 from betty.locale import HasLocale, HasLocaleStr
-from betty.locale.localizable import Localizable, ResolvableLocalizable
+from betty.locale.localizable import (
+    Localizable,
+    ResolvableLocalizable,
+    resolve_localizable,
+)
 from betty.locale.localizable.gettext import _
-from betty.locale.localizable.resolve import resolve_localizable
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

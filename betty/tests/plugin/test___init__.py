@@ -3,9 +3,12 @@ from __future__ import annotations
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.model import EntityDefinition
 from betty.plugin import (
+    Plugin,
     PluginDefinition,
     PluginTypeDefinition,
     PluginTypeRepository,
+    resolve_definition,
+    resolve_id,
 )
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
@@ -150,3 +153,52 @@ class TestPluginTypeRepository:
     def test___iter__(self) -> None:
         sut = PluginTypeRepository()
         assert EntityDefinition in list(iter(sut))
+
+
+class _PluginCls(Plugin["_PluginDefinition"]):
+    pass
+
+
+@PluginTypeDefinition(
+    "-",
+    label=DUMMY_LOCALIZABLE,
+    label_plural=DUMMY_LOCALIZABLE,
+    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+)
+class _PluginDefinition(PluginDefinition[_PluginCls]):
+    pass
+
+
+def test_resolve_definition__with_plugin_cls() -> None:
+    plugin_id = "my-first-plugin-id"
+
+    @_PluginDefinition(plugin_id)
+    class _Plugin(_PluginCls):
+        pass
+
+    assert resolve_definition(_Plugin) is _Plugin.plugin()
+
+
+def test_resolve_definition__with_plugin_definition() -> None:
+    definition = PluginDefinition("my-first-plugin-id")
+    assert resolve_definition(definition) is definition
+
+
+def test_resolve_id__with_plugin_cls() -> None:
+    plugin_id = "my-first-plugin-id"
+
+    @_PluginDefinition(plugin_id)
+    class _Plugin(_PluginCls):
+        pass
+
+    assert resolve_id(_Plugin) == plugin_id
+
+
+def test_resolve_id__with_plugin_definition() -> None:
+    plugin_id = "my-first-plugin-id"
+    assert resolve_id(PluginDefinition(plugin_id)) == plugin_id
+
+
+def test_resolve_id__with_plugin_id() -> None:
+    plugin_id = "my-first-plugin-id"
+    assert resolve_id(plugin_id) == plugin_id

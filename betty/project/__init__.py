@@ -32,9 +32,8 @@ from betty.locale.translation import (
     ProxyTranslationRepository,
     TranslationRepository,
 )
-from betty.plugin import PluginDefinition
+from betty.plugin import PluginDefinition, ResolvableId, resolve_id
 from betty.plugin.dependent import sort_dependent_plugin_graph
-from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.privacy.privatizer import Privatizer
 from betty.project.config import ProjectConfiguration
 from betty.render import RenderDispatcher, RendererDefinition

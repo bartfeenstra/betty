@@ -49,6 +49,7 @@ from betty.model import EntityDefinition
 from betty.pathlib import FilePathDefinition
 from betty.place_type import PlaceTypeDefinition
 from betty.place_type.config import PlaceTypeDefinitionConfiguration
+from betty.plugin import ResolvableId, resolve_id
 from betty.plugin.config import (
     PluginConfiguration,
     ResolvablePluginConfigurationSequence,
@@ -56,7 +57,6 @@ from betty.plugin.config import (
 )
 from betty.plugin.config.property import PluginDefinitionConfigurationsProperty
 from betty.plugin.data import PluginConfigurationDefinition, PluginIdDefinition
-from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.presence_role import PresenceRoleDefinition
 from betty.presence_role.config import PresenceRoleDefinitionConfiguration
 from betty.project import Extension, ExtensionDefinition

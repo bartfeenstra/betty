@@ -8,10 +8,9 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import TypeVar, override
 
-from betty.plugin import PluginDefinition
+from betty.plugin import PluginDefinition, ResolvableDefinition, resolve_definition
 from betty.plugin.error import PluginNotFound
 from betty.plugin.repository import PluginRepository
-from betty.plugin.resolve import ResolvableDefinition, resolve_definition
 
 if TYPE_CHECKING:
     from collections.abc import Iterator

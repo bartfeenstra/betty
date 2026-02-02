@@ -14,9 +14,9 @@ from typing_extensions import override
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.locale import DEFAULT_LOCALE, resolve_locale
 from betty.locale.error import LocaleError
+from betty.locale.localizable import resolve_localizable
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.plain import Plain
-from betty.locale.localizable.resolve import resolve_localizable
 from betty.locale.localizable.static import StaticTranslations
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
 from betty.service.requirement.app import require_app

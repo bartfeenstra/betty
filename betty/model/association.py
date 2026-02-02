@@ -25,7 +25,7 @@ from typing_extensions import override
 from betty.importlib import fully_qualified_name, import_any
 from betty.json.linked_data import LinkedDataDumper
 from betty.json.schema import Array, Null, OneOf, Schema
-from betty.locale.localizable.resolve import resolve_localizable
+from betty.locale.localizable import resolve_localizable
 from betty.model import Entity, persistent_id
 from betty.model.collections import (
     EntityCollection,

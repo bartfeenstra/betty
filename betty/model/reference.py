@@ -15,14 +15,14 @@ from betty.exception import HumanFacingException
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineNameDefinition
 from betty.model import EntityDefinition
+from betty.plugin import resolve_id
 from betty.plugin.assertion import assert_plugin
 from betty.plugin.data import PluginIdDefinition
-from betty.plugin.resolve import resolve_id
 from betty.service.hydrate import Hydratable
 from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
-    from betty.plugin.resolve import ResolvableId
+    from betty.plugin import ResolvableId
     from betty.project import Project
 
 

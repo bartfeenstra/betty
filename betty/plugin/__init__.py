@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from functools import update_wrapper
 from importlib import metadata
-from typing import TYPE_CHECKING, Any, Generic, Self, final
+from typing import TYPE_CHECKING, Any, Generic, Self, TypeAlias, final
 
 from typing_extensions import TypeVar, override
 
@@ -202,3 +202,35 @@ class PluginTypeRepository:
 
     def __iter__(self) -> Iterator[type[PluginDefinition]]:
         return iter(self._get_plugin_types().values())
+
+
+ResolvableDefinition: TypeAlias = _PluginDefinitionT | type[Plugin[_PluginDefinitionT]]
+"""
+Use :py:func:`betty.plugin.resolve.resolve_definition` to resolve this to a :py:class:`betty.plugin.PluginDefinition`
+"""
+
+
+ResolvableId: TypeAlias = MachineName | ResolvableDefinition[_PluginDefinitionT]
+"""
+Use :py:func:`betty.plugin.resolve.resolve_id` to resolve this to a plugin ID.
+"""
+
+
+def resolve_definition(
+    definition: ResolvableDefinition[_PluginDefinitionT], /
+) -> _PluginDefinitionT:
+    """
+    Resolve a plugin definition.
+    """
+    if isinstance(definition, PluginDefinition):
+        return definition  # ty:ignore[invalid-return-type]
+    return definition.plugin()
+
+
+def resolve_id(plugin_id: ResolvableId, /) -> MachineName:
+    """
+    Resolve a plugin identifier to a plugin ID.
+    """
+    if isinstance(plugin_id, str):
+        return plugin_id
+    return resolve_definition(plugin_id).id

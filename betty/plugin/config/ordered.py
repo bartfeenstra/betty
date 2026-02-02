@@ -11,15 +11,12 @@ from typing_extensions import TypeVar
 from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.data.aggregate.record.object.property import SequenceProperty
 from betty.locale.localizable.gettext import _
-from betty.plugin import PluginDefinition
+from betty.plugin import PluginDefinition, ResolvableId, resolve_id
 from betty.plugin.config import PluginDefinitionConfiguration
 from betty.plugin.data import PluginIdDefinition
-from betty.plugin.resolve import resolve_id
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
-
-    from betty.plugin.resolve import ResolvableId
 
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition

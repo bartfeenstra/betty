@@ -9,10 +9,9 @@ from typing import TYPE_CHECKING, final
 
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin import Plugin, PluginTypeDefinition, ResolvableId, resolve_id
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.ordered import OrderedPluginDefinition
-from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:

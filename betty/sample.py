@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Generic, Self, final
 
 from typing_extensions import TypeVar
 
-from betty.locale.localizable.resolve import resolve_localizable
+from betty.locale.localizable import resolve_localizable
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator

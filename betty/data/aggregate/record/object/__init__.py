@@ -17,7 +17,7 @@ from betty.data.aggregate.record import FieldDefinition, RecordDefinition
 from betty.data.indicator.selector import Attr as AttrElement
 from betty.data.indicator.selector import Element
 from betty.importlib import fully_qualified_name
-from betty.locale.localizable.resolve import resolve_localizable
+from betty.locale.localizable import resolve_localizable
 
 if TYPE_CHECKING:
     from collections.abc import Callable, MutableMapping
