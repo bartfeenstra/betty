@@ -44,7 +44,7 @@ if TYPE_CHECKING:
         Trees,
     },
     theme=True,
-    assets_directory_path=Path(__file__).parent / "assets",
+    assets_directory=Path(__file__).parent / "assets",
 )
 class RaspberryMint(
     Configurable[RaspberryMintConfiguration],

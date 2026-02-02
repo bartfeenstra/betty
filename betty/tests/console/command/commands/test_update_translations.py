@@ -38,13 +38,13 @@ class TestUpdateTranslations(CommandTestBase):
         async with Project.new_isolated(isolated_app) as project, project:
             await dump_file(
                 project.configuration.data().porter.dump(project.configuration),
-                project.configuration_file_path,
+                project.configuration_file,
             )
             await run(
                 isolated_app,
                 "update-translations",
                 "--project",
-                str(project.configuration_file_path),
+                str(project.configuration_file),
             )
         m_update_project_translations.assert_awaited_once_with(ANY, None, None)
 
@@ -59,13 +59,13 @@ class TestUpdateTranslations(CommandTestBase):
         async with Project.new_isolated(isolated_app) as project, project:
             await dump_file(
                 project.configuration.data().porter.dump(project.configuration),
-                project.configuration_file_path,
+                project.configuration_file,
             )
             await run(
                 isolated_app,
                 "update-translations",
                 "--project",
-                str(project.configuration_file_path),
+                str(project.configuration_file),
                 "--source",
                 str(source),
             )
@@ -85,13 +85,13 @@ class TestUpdateTranslations(CommandTestBase):
         async with Project.new_isolated(isolated_app) as project, project:
             await dump_file(
                 project.configuration.data().porter.dump(project.configuration),
-                project.configuration_file_path,
+                project.configuration_file,
             )
             await run(
                 isolated_app,
                 "update-translations",
                 "--project",
-                str(project.configuration_file_path),
+                str(project.configuration_file),
                 *[arg for exclude in excludes for arg in ("--exclude", str(exclude))],
             )
         m_update_project_translations.assert_awaited_once_with(ANY, None, set(excludes))

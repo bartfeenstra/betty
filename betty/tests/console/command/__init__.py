@@ -19,7 +19,7 @@ class ExtensionTranslationTestBase:
         @ExtensionDefinition(
             "dummy-with-assets",
             label="Dummy with assets",
-            assets_directory_path=tmp_path / "assets",
+            assets_directory=tmp_path / "assets",
         )
         class _DummyWithAssetsDirectoryExtension(Extension):
             pass

@@ -30,6 +30,4 @@ class _GenerateAssets(Job[ProjectContext]):
             job_context=context
         )
         context._webpack_build_directory_path = build_directory_path  # ty:ignore[unresolved-attribute]
-        await webpack._copy_build_directory(
-            build_directory_path, project.www_directory_path
-        )
+        await webpack._copy_build_directory(build_directory_path, project.www_directory)

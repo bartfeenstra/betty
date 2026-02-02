@@ -251,7 +251,7 @@ class BuiltinProjectServer(ProjectServer):
     def __init__(self, project: Project) -> None:
         super().__init__(project)
         self._server = BuiltinServer(
-            project.www_directory_path,
+            project.www_directory,
             root_path=project.configuration.root_path,
             user=project.app.user,
         )
@@ -263,7 +263,7 @@ class BuiltinProjectServer(ProjectServer):
 
     @override
     async def start(self) -> None:
-        await makedirs(self._project.www_directory_path, exist_ok=True)
+        await makedirs(self._project.www_directory, exist_ok=True)
         await self._server.start()
 
     @override

@@ -47,7 +47,7 @@ class ProjectSchema(ServiceLevelDependentSelfFactory, Schema):
         """
         Get the path to the schema file in a site's public WWW directory.
         """
-        return project.www_directory_path / "schema.json"
+        return project.www_directory / "schema.json"
 
     @override
     @classmethod

@@ -35,7 +35,7 @@ class TestNewTranslation(CommandTestBase):
         async with Project.new_isolated(isolated_app) as project, project:
             await dump_file(
                 project.configuration.data().porter.dump(project.configuration),
-                project.configuration_file_path,
+                project.configuration_file,
             )
             locale = "nl"
             m_new_translation = mocker.patch(
@@ -45,7 +45,7 @@ class TestNewTranslation(CommandTestBase):
                 isolated_app,
                 "new-translation",
                 "--project",
-                str(project.configuration_file_path),
+                str(project.configuration_file),
                 locale,
             )
             m_new_translation.assert_awaited_once_with(Locale(locale), ANY, user=ANY)

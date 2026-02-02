@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 async def test_create_project(isolated_app: App, tmp_path: Path) -> None:
     project = await create_project(isolated_app, tmp_path)
     async with project:
-        assert project.project_directory_path == tmp_path
+        assert project.directory == tmp_path
         assert Demo in await project.extensions
 
 

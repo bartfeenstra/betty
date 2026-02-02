@@ -83,7 +83,7 @@ class Project(HasConfiguration[ProjectConfiguration], ServiceLevel):
     def __init__(
         self,
         app: App,
-        configuration_file_path: Path,
+        configuration_file: Path,
         /,
         *,
         configuration: ProjectConfiguration,
@@ -91,7 +91,7 @@ class Project(HasConfiguration[ProjectConfiguration], ServiceLevel):
     ):
         super().__init__(configuration=configuration)
         self._app = app
-        self._configuration_file_path = configuration_file_path
+        self._configuration_file = configuration_file
         self._ancestry = Ancestry() if ancestry is None else ancestry
 
     @override
@@ -107,7 +107,7 @@ class Project(HasConfiguration[ProjectConfiguration], ServiceLevel):
         *,
         ancestry: Ancestry | None = None,
         configuration: ProjectConfiguration | None = None,
-        configuration_file_path: Path | None = None,
+        configuration_file: Path | None = None,
     ) -> AsyncIterator[Self]:
         """
         Creat a new, isolated, temporary project.
@@ -116,14 +116,14 @@ class Project(HasConfiguration[ProjectConfiguration], ServiceLevel):
         global Betty functionality such as caches.
         """
         async with AsyncExitStack() as stack:
-            if configuration_file_path is None:
-                configuration_file_path = (
+            if configuration_file is None:
+                configuration_file = (
                     Path(await stack.enter_async_context(TemporaryDirectory()))
                     / "betty.json"
                 )
             yield cls(
                 app,
-                configuration_file_path,
+                configuration_file,
                 configuration=ProjectConfiguration(
                     title="Betty", url="https://example.com"
                 )
@@ -144,64 +144,62 @@ class Project(HasConfiguration[ProjectConfiguration], ServiceLevel):
             raise
 
     @property
-    def configuration_file_path(self) -> Path:
+    def configuration_file(self) -> Path:
         """
         The path to the configuration's file.
         """
-        return self._configuration_file_path
+        return self._configuration_file
 
-    async def set_configuration_file_path(
-        self, configuration_file_path: Path, /
-    ) -> None:
+    async def set_configuration_file(self, configuration_file: Path, /) -> None:
         """
         Set the path to the configuration's file.
         """
-        if configuration_file_path == self._configuration_file_path:
+        if configuration_file == self._configuration_file:
             return
         serializer_for(
             list(await universe.plugins.plugins(SerializerDefinition)),
-            configuration_file_path.suffix,
+            configuration_file.suffix,
         )
-        self._configuration_file_path = configuration_file_path
+        self._configuration_file = configuration_file
 
     @property
-    def project_directory_path(self) -> Path:
+    def directory(self) -> Path:
         """
         The project directory path.
 
         Betty will look for resources in this directory, and place generated artifacts there. It is expected
         that no other applications or projects share this same directory.
         """
-        return self.configuration_file_path.parent
+        return self.configuration_file.parent
 
     @property
-    def output_directory_path(self) -> Path:
+    def output_directory(self) -> Path:
         """
         The output directory path.
         """
-        return self.project_directory_path / "output"
+        return self.directory / "output"
 
     @property
-    def assets_directory_path(self) -> Path:
+    def assets_directory(self) -> Path:
         """
         The :doc:`assets directory path </usage/assets>`.
         """
-        return self.project_directory_path / "assets"
+        return self.directory / "assets"
 
     @property
-    def www_directory_path(self) -> Path:
+    def www_directory(self) -> Path:
         """
         The WWW directory path.
         """
-        return self.output_directory_path / "www"
+        return self.output_directory / "www"
 
-    def localize_www_directory_path(self, locale: Locale) -> Path:
+    def localize_www_directory(self, locale: Locale) -> Path:
         """
         Get the WWW directory path for a locale.
         """
         if self.configuration.multilingual:
-            return self.www_directory_path / self.configuration.locales[locale].slug
-        return self.www_directory_path
+            return self.www_directory / self.configuration.locales[locale].slug
+        return self.www_directory
 
     @property
     def app(self) -> App:
@@ -218,7 +216,7 @@ class Project(HasConfiguration[ProjectConfiguration], ServiceLevel):
         If no project name was configured, this defaults to the hash of the configuration file path.
         """
         if self._configuration.name is None:
-            return hashid(str(self.configuration_file_path))
+            return hashid(str(self.configuration_file))
         return self._configuration.name
 
     @property
@@ -230,11 +228,11 @@ class Project(HasConfiguration[ProjectConfiguration], ServiceLevel):
 
     @service
     async def _project_assets(self) -> AssetRepository:
-        asset_paths = [self.assets_directory_path]
+        asset_paths = [self.assets_directory]
         extensions = await self.extensions
         for project_extension in extensions.flatten():
             extension_assets_directory_path = (
-                project_extension.plugin().assets_directory_path
+                project_extension.plugin().assets_directory
             )
             if extension_assets_directory_path is not None:
                 asset_paths.append(extension_assets_directory_path)

@@ -81,7 +81,7 @@ async def _generate_search_index_for_locale(
         ],
     }
     search_index_json = json.dumps(search_index)
-    www_directory_path = project.localize_www_directory_path(locale)
+    www_directory_path = project.localize_www_directory(locale)
     await makedirs(www_directory_path, exist_ok=True)
     async with aiofiles.open(www_directory_path / "search-index.json", mode="w") as f:
         await f.write(search_index_json)

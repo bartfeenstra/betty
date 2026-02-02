@@ -29,7 +29,7 @@ if TYPE_CHECKING:
         "Display the HTTP API documentation in a user-friendly way using Swagger UI."
     ),
     depends_on={Webpack},
-    assets_directory_path=Path(__file__).parent / "assets",
+    assets_directory=Path(__file__).parent / "assets",
 )
 class HttpApiDoc(
     EntryPointProvider, NavigationLinkProvider, ServiceLevelDependentSelfFactory

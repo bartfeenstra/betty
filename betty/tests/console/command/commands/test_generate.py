@@ -36,13 +36,13 @@ class TestGenerate(CommandTestBase):
         async with Project.new_isolated(isolated_app) as project:
             await dump_file(
                 project.configuration.data().porter.dump(project.configuration),
-                project.configuration_file_path,
+                project.configuration_file,
             )
             await run(
                 isolated_app,
                 "generate",
                 "--project",
-                str(project.configuration_file_path),
+                str(project.configuration_file),
             )
 
             m_load.assert_called_once()
@@ -50,13 +50,13 @@ class TestGenerate(CommandTestBase):
             assert await_args is not None
             load_args, _ = await_args
             assert (
-                load_args[0].configuration_file_path
-                == project.configuration_file_path.expanduser().resolve()
+                load_args[0].configuration_file
+                == project.configuration_file.expanduser().resolve()
             )
 
             m_generate.assert_called_once()
             generate_args, _ = m_generate.call_args
             assert (
-                generate_args[0].configuration_file_path
-                == project.configuration_file_path.expanduser().resolve()
+                generate_args[0].configuration_file
+                == project.configuration_file.expanduser().resolve()
             )

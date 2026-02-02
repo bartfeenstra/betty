@@ -81,7 +81,7 @@ class ExtensionDefinition(HumanFacingDefinition, DependentPluginDefinition[Exten
         comes_before: Set[ResolvableId] | None = None,
         comes_after: Set[ResolvableId] | None = None,
         depends_on: Set[ResolvableId] | None = None,
-        assets_directory_path: Path | None = None,
+        assets_directory: Path | None = None,
         theme: bool = False,
     ):
         super().__init__(
@@ -92,15 +92,15 @@ class ExtensionDefinition(HumanFacingDefinition, DependentPluginDefinition[Exten
             comes_after=comes_after,
             depends_on=depends_on,
         )
-        self._assets_directory_path = assets_directory_path
+        self._assets_directory = assets_directory
         self._theme = theme
 
     @property
-    def assets_directory_path(self) -> Path | None:
+    def assets_directory(self) -> Path | None:
         """
         The path on disk where the extension's assets are located.
         """
-        return self._assets_directory_path
+        return self._assets_directory
 
     @property
     def theme(self) -> bool:

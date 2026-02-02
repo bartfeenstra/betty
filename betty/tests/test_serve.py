@@ -48,10 +48,8 @@ class TestBuiltinProjectServer:
         mocker.patch("webbrowser.open_new_tab")
         content = "Hello, and welcome to my site!"
         async with Project.new_isolated(isolated_app) as project, project:
-            await makedirs(project.www_directory_path)
-            async with aiofiles.open(
-                project.www_directory_path / "index.html", "w"
-            ) as f:
+            await makedirs(project.www_directory)
+            async with aiofiles.open(project.www_directory / "index.html", "w") as f:
                 await f.write(content)
             async with await BuiltinProjectServer.new_for_services(
                 services=project

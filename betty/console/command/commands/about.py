@@ -69,7 +69,7 @@ class About(ServiceLevelDependentSelfFactory, Command):
     async def _about_project(self, user: RichUser, project: Project) -> None:
         about_project = Table(
             title=user.localizer._("Your project at {file}").format(
-                file=str(project.configuration_file_path.parent)
+                file=str(project.configuration_file.parent)
             ),
             show_header=False,
         )
@@ -77,15 +77,15 @@ class About(ServiceLevelDependentSelfFactory, Command):
         about_project.add_column("")
         about_project.add_row(
             user.localizer._("Configuration file"),
-            str(project.configuration_file_path),
+            str(project.configuration_file),
         )
         about_project.add_row(
             user.localizer._("Assets directory"),
-            str(project.assets_directory_path),
+            str(project.assets_directory),
         )
         about_project.add_row(
             user.localizer._("Output directory"),
-            str(project.output_directory_path),
+            str(project.output_directory),
         )
         user.console.print(about_project)
 
