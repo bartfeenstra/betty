@@ -119,7 +119,7 @@ class _PrimaryKeyCollection(KeyedCollection[_KeyT, _ResolvableKeyT, _ValueT]):
 @final
 class PrimaryKeyCollection(_PrimaryKeyCollection[_KeyT, _ResolvableKeyT, _ValueT]):
     """
-    A keyed collection backed by a dictionary.
+    A collection of values that are accessible by their primary keys.
     """
 
 
@@ -129,7 +129,7 @@ class MutablePrimaryKeyCollection(
     MutableKeyedCollection[_KeyT, _ResolvableKeyT, _ValueT, _ResolvableValueT],
 ):
     """
-    A mutable keyed collection backed by a dictionary.
+    A mutable collection of values that are accessible by their primary keys.
     """
 
     def __init__(

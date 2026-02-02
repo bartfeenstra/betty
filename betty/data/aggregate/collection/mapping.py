@@ -10,7 +10,10 @@ from typing import TYPE_CHECKING, Any, TypeVar, final
 from typing_extensions import override
 
 from betty.assertion import assert_mapping, assert_sequence
-from betty.collections import KeyedCollection, PrimaryKeyCollection
+from betty.collections import (
+    KeyedCollection,
+    MutablePrimaryKeyCollection,
+)
 from betty.data.aggregate.collection import CollectionDefinition
 from betty.data.indicator.selector import Element, Key
 from betty.portable import (
@@ -82,11 +85,11 @@ class MappingDefinition(CollectionDefinition[_MutableMappingT, Key]):
 
 
 @final
-class KeyedCollectionDefinition(
+class PrimaryKeyCollectionDefinition(
     CollectionDefinition[KeyedCollection[Any, Any, _DataValueT, Any], Key]
 ):
     """
-    A definition for :py:class:`betty.collections.KeyedCollection`.
+    A definition for :py:class:`betty.collections.PrimaryKeyCollection`.
     """
 
     _item: RecordDefinition[_DataValueT, Key]
@@ -101,7 +104,7 @@ class KeyedCollectionDefinition(
         description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
-            cls=KeyedCollection,
+            cls=MutablePrimaryKeyCollection,
             label=label,
             description=description,
             porter=CallbackPorter(self._load, self._dump),
@@ -112,13 +115,13 @@ class KeyedCollectionDefinition(
 
     @override
     def elements(
-        self, data: KeyedCollection[Any, Any, _DataValueT, Any]
+        self, data: MutablePrimaryKeyCollection[Any, Any, _DataValueT, Any]
     ) -> Sequence[tuple[Key, DataDefinition]]:
         return [(Key(self._key.get(item_data)), self.item) for item_data in data]
 
     def _load(
         self, portable: PortableData, /
-    ) -> KeyedCollection[str, str, _DataValueT, Any]:
+    ) -> MutablePrimaryKeyCollection[str, str, _DataValueT, Any]:
         if self._ordered:
             items = assert_sequence(self._item.porter.load)(portable)
         else:
@@ -127,10 +130,10 @@ class KeyedCollectionDefinition(
                 for portable_key, portable_item in assert_mapping()(portable).items()
             ]
 
-        return PrimaryKeyCollection(items, key=self._key.get)
+        return MutablePrimaryKeyCollection(items, key=self._key.get)
 
     def _dump(
-        self, data: KeyedCollection[str, str, _DataValueT, Any]
+        self, data: MutablePrimaryKeyCollection[str, str, _DataValueT, Any]
     ) -> PortableMapping | PortableSequence:
         if self._ordered:
             return [self._item.porter.dump(value) for value in data]

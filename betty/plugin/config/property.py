@@ -13,9 +13,9 @@ from betty.collections import (
     MutableResolvedSequenceProxy,
     PrimaryKeyCollection,
 )
-from betty.data.aggregate.collection.mapping import KeyedCollectionDefinition
+from betty.data.aggregate.collection.mapping import PrimaryKeyCollectionDefinition
 from betty.data.aggregate.record.object.property import (
-    KeyedCollectionProperty,
+    PrimaryKeyCollectionProperty,
     SequenceProperty,
 )
 from betty.data.indicator.selector import Attr
@@ -72,7 +72,7 @@ class PluginConfigurationSequenceProperty(
 
 
 @final
-class PluginDefinitionConfigurationsProperty(KeyedCollectionProperty):
+class PluginDefinitionConfigurationsProperty(PrimaryKeyCollectionProperty):
     """
     A property containing a :py:class:`betty.collections.KeyedCollection` of :py:class:`betty.plugin.config.PluginDefinitionConfiguration`.
     """
@@ -86,7 +86,7 @@ class PluginDefinitionConfigurationsProperty(KeyedCollectionProperty):
         description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
-            KeyedCollectionDefinition(
+            PrimaryKeyCollectionDefinition(
                 value=item,
                 label=plugin_type.type().label_plural,
                 key=Attr("id"),

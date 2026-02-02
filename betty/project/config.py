@@ -19,11 +19,11 @@ from betty.assertion import assert_number
 from betty.collections import PrimaryKeyCollection
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.data import Data, Sample
-from betty.data.aggregate.collection.mapping import KeyedCollectionDefinition
+from betty.data.aggregate.collection.mapping import PrimaryKeyCollectionDefinition
 from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
 from betty.data.aggregate.record.object.property import (
-    KeyedCollectionProperty,
     Optional,
+    PrimaryKeyCollectionProperty,
     Property,
 )
 from betty.data.bool import BoolDefinition
@@ -630,8 +630,8 @@ class ProjectConfiguration(Data):
     - job artifacts (e.g. generated sites)
     """
 
-    entity_types = KeyedCollectionProperty(
-        KeyedCollectionDefinition(
+    entity_types = PrimaryKeyCollectionProperty(
+        PrimaryKeyCollectionDefinition(
             value=EntityTypeConfiguration,
             label=_("Entity types"),
             key=Attr("entity_type"),
@@ -657,8 +657,8 @@ class ProjectConfiguration(Data):
     The :py:class:`betty.ancestry.event_type.EventType` plugins created by this project.
     """
 
-    extensions = KeyedCollectionProperty(
-        KeyedCollectionDefinition(
+    extensions = PrimaryKeyCollectionProperty(
+        PrimaryKeyCollectionDefinition(
             value=PluginConfigurationDefinition(ExtensionDefinition),
             label=ExtensionDefinition.type().label_plural,
             key=Attr("id"),
@@ -720,8 +720,8 @@ class ProjectConfiguration(Data):
     presumed to have died.
     """
 
-    locales = KeyedCollectionProperty(
-        KeyedCollectionDefinition(
+    locales = PrimaryKeyCollectionProperty(
+        PrimaryKeyCollectionDefinition(
             value=LocaleConfiguration,
             label=_("Locales"),
             key=Attr("locale"),
