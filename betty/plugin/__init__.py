@@ -174,13 +174,13 @@ class Plugin(Generic[_PluginDefinitionCoT]):
 
 ResolvableDefinition: TypeAlias = _PluginDefinitionT | type[Plugin[_PluginDefinitionT]]
 """
-Use :py:func:`betty.plugin.resolve.resolve_definition` to resolve this to a :py:class:`betty.plugin.PluginDefinition`
+Use :py:func:`betty.plugin.resolve_definition` to resolve this to a :py:class:`betty.plugin.PluginDefinition`
 """
 
 
 ResolvableId: TypeAlias = MachineName | ResolvableDefinition[_PluginDefinitionT]
 """
-Use :py:func:`betty.plugin.resolve.resolve_id` to resolve this to a plugin ID.
+Use :py:func:`betty.plugin.resolve_id` to resolve this to a plugin ID.
 """
 
 

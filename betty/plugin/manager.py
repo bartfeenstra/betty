@@ -11,14 +11,13 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import TypeVar
 
 from betty.concurrent import AsynchronizedLock, Ledger
-from betty.plugin import PluginDefinition
+from betty.plugin import PluginDefinition, resolve_type_definition
 from betty.plugin.collections import (
     PluginDefinitions,
     PluginTypeDefinitions,
     new_plugin_definitions,
     new_plugin_type_definitions,
 )
-from betty.plugin.resolve import resolve_type_definition
 
 if TYPE_CHECKING:
     from collections.abc import MutableMapping
