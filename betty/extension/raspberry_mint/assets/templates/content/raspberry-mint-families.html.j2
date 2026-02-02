@@ -1,5 +1,0 @@
-{% if document.resource is entity_plugin('person') %}
-    {% with person = document.resource %}
-        {% include 'component/families.html.j2' %}
-    {% endwith %}
-{% endif %}

@@ -1,0 +1,9 @@
+{% set ns = namespace(people = []) %}
+{% for presence in presences | select('public') %}
+    {% set ns.people = ns.people + [presence.person] %}
+{% endfor %}
+{% if ns.people | length > 0 %}
+    {% with entities = ns.people %}
+        {% include ['entity/list--person.html.j2', 'entity/list.html.j2'] %}
+    {% endwith %}
+{% endif %}

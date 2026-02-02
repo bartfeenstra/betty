@@ -22,7 +22,7 @@ from betty.place_type.place_types import Unknown as UnknownPlaceType
 from betty.privacy import HasPrivacy
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, MutableSequence
+    from collections.abc import MutableSequence
 
     from geopy import Point
 
@@ -105,15 +105,6 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
         if enclosees is not None:
             self.enclosees = enclosees
         self._place_type = place_type or UnknownPlaceType()
-
-    @property
-    def walk_enclosees(self) -> Iterator[Enclosure]:
-        """
-        All enclosed places.
-        """
-        for enclosure in self.enclosees:
-            yield enclosure
-            yield from enclosure.enclosee.walk_enclosees
 
     @property
     def place_type(self) -> PlaceType:

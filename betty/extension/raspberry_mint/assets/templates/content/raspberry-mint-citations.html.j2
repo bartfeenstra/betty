@@ -1,6 +1,0 @@
-{% if document.resource is has_citations %}
-    {% set citations = document.resource.citations | select('public') | list %}
-    {% if citations %}
-        {%- include 'component/reference.html.j2' -%}
-    {% endif %}
-{% endif %}

@@ -1,0 +1,3 @@
+{% for note in notes | select('public') %}
+    {% include 'note.html.j2' %}
+{% endfor %}

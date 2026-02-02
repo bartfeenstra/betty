@@ -1,0 +1,4 @@
+{% set citations = citations | select('public') | list %}
+{% if citations %}
+    {%- include 'component/reference.html.j2' -%}
+{% endif %}

@@ -224,3 +224,16 @@ def jinja2_filters(project: Project) -> Filters:
         "person_descendant_families": person_descendant_families,
         "associated_file_references": associated_file_references,
     }
+
+
+def place_timeline_events(place: Place, /) -> Iterable[Event]:
+    """
+    Gather all events for a person's timeline.
+    """
+    yield from unique(_place_timeline_events(place))
+
+
+def _place_timeline_events(place: Place, /) -> Iterable[Event]:
+    yield from place.events
+    for enclosee in place.enclosees:
+        yield from enclosee.enclosee.events

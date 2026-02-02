@@ -104,18 +104,6 @@ class TestPlace(EntityTestBase):
         with pytest.raises(AssociationRequired):
             enclosure.encloser  # noqa: B018
 
-    def test_walk_enclosees__without_enclosees(self) -> None:
-        sut = Place()
-        assert list(sut.walk_enclosees) == []
-
-    def test_walk_enclosees__with_enclosees(self) -> None:
-        sut = Place()
-        child_enclosee = Place()
-        enclosure = Enclosure(child_enclosee, sut)
-        grandchild_enclosee = Place()
-        child_enclosure = Enclosure(grandchild_enclosee, child_enclosee)
-        assert list(sut.walk_enclosees) == [enclosure, child_enclosure]
-
     def test_id(self) -> None:
         place_id = "C1"
         sut = Place(id=place_id)

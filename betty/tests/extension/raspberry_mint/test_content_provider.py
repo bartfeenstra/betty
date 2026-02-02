@@ -59,7 +59,7 @@ from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 class TestEntityCard:
-    async def test_provide(self, isolated_app: App) -> None:
+    async def test_provide_template(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             entity = Person(id="my-first-entity")
@@ -111,7 +111,7 @@ class TestSectionConfiguration(DataTestBase[SectionConfiguration]):
 
 
 class TestSection:
-    async def test_provide__without_content(self, isolated_app: App) -> None:
+    async def test_provide_template__without_content(self, isolated_app: App) -> None:
         with ContentProviderDefinition.type().discoverer.override(NoOpContentProvider):
             async with Project.new_isolated(isolated_app) as project:
                 project.configuration.extensions.add(RaspberryMint)
@@ -125,7 +125,7 @@ class TestSection:
                     )
                     assert await sut.provide(document=Document()) is None
 
-    async def test_provide__with_content(self, isolated_app: App) -> None:
+    async def test_provide_template__with_content(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
@@ -144,7 +144,7 @@ class TestSection:
         assert "My First Section" in actual
         assert "My First Content" in actual
 
-    async def test_provide__with_name(self, isolated_app: App) -> None:
+    async def test_provide_template__with_name(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
@@ -163,7 +163,9 @@ class TestSection:
         assert actual is not None
         assert "my-first-section" in actual
 
-    async def test_provide__with_visually_hide_heading(self, isolated_app: App) -> None:
+    async def test_provide_template__with_visually_hide_heading(
+        self, isolated_app: App
+    ) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
@@ -193,7 +195,7 @@ class TestFamilies:
             Event(),
         ],
     )
-    async def test_provide__without_person(
+    async def test_provide_template__without_person(
         self, resource: object, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
@@ -202,7 +204,7 @@ class TestFamilies:
                 sut = await Families.new_for_services(services=project)
         assert await sut.provide(document=Document(resource)) is None
 
-    async def test_provide__with_person(self, isolated_app: App) -> None:
+    async def test_provide_template__with_person(self, isolated_app: App) -> None:
         parent = Person(id="parent")
         resource = Person(id="resource", parents=[parent])
         child = Person(id="child", parents=[resource])
@@ -218,14 +220,14 @@ class TestFamilies:
 
 
 class TestMedia:
-    async def test_provide__without_file(self, isolated_app: App) -> None:
+    async def test_provide_template__without_file(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = await Media.new_for_services(services=project)
                 assert await sut.provide(document=Document(object())) is None
 
-    async def test_provide__with_file(self, isolated_app: App) -> None:
+    async def test_provide_template__with_file(self, isolated_app: App) -> None:
         resource = File(
             ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-16x16.png",
             media_type=MediaType("image/png"),
@@ -240,7 +242,7 @@ class TestMedia:
 
 
 class TestMediaGallery:
-    async def test_provide__without_has_file_references(
+    async def test_provide_template__without_has_file_references(
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
@@ -249,7 +251,7 @@ class TestMediaGallery:
                 sut = await MediaGallery.new_for_services(services=project)
                 assert await sut.provide(document=Document(object())) is None
 
-    async def test_provide__with_has_file_references_without_file_references(
+    async def test_provide_template__with_has_file_references_without_file_references(
         self, isolated_app: App
     ) -> None:
         resource = Person()
@@ -259,7 +261,7 @@ class TestMediaGallery:
                 sut = await MediaGallery.new_for_services(services=project)
                 assert await sut.provide(document=Document(resource)) is None
 
-    async def test_provide__with_has_file_references_with_file_references(
+    async def test_provide_template__with_has_file_references_with_file_references(
         self, isolated_app: App
     ) -> None:
         resource = Person()
@@ -294,7 +296,7 @@ class TestColorStyleConfiguration(DataTestBase[ColorStyleConfiguration]):
 
 
 class TestColorStyle:
-    async def test_provide__without_content(self, isolated_app: App) -> None:
+    async def test_provide_template__without_content(self, isolated_app: App) -> None:
         with ContentProviderDefinition.type().discoverer.override(NoOpContentProvider):
             async with Project.new_isolated(isolated_app) as project:
                 project.configuration.extensions.add(RaspberryMint)
@@ -308,7 +310,7 @@ class TestColorStyle:
                     )
                     assert await sut.provide(document=Document()) is None
 
-    async def test_provide__with_content(self, isolated_app: App) -> None:
+    async def test_provide_template__with_content(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
@@ -327,7 +329,7 @@ class TestColorStyle:
 
 
 class TestExternalLinks:
-    async def test_provide__without_has_links(self, isolated_app: App) -> None:
+    async def test_provide_template__without_has_links(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
@@ -335,7 +337,7 @@ class TestExternalLinks:
                 provided_content = await sut.provide(document=Document(object()))
         assert provided_content is None
 
-    async def test_provide__with_has_links_without_links(
+    async def test_provide_template__with_has_links_without_links(
         self, isolated_app: App
     ) -> None:
         resource = Person()
@@ -345,7 +347,9 @@ class TestExternalLinks:
                 sut = await ExternalLinks.new_for_services(services=project)
                 assert await sut.provide(document=Document(resource)) is None
 
-    async def test_provide__with_has_links_with_links(self, isolated_app: App) -> None:
+    async def test_provide_template__with_has_links_with_links(
+        self, isolated_app: App
+    ) -> None:
         url = "betty:///my-first-page"
         resource = Person(links=[Link(url)])
         async with Project.new_isolated(isolated_app) as project:
@@ -367,7 +371,7 @@ class TestTimeline:
             Place(),
         ],
     )
-    async def test_provide__without_associated_events(
+    async def test_provide_template__without_associated_events(
         self, resource: object, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
@@ -376,7 +380,7 @@ class TestTimeline:
                 sut = await Timeline.new_for_services(services=project)
         assert await sut.provide(document=Document(resource)) is None
 
-    async def test_provide__with_person(self, isolated_app: App) -> None:
+    async def test_provide_template__with_person(self, isolated_app: App) -> None:
         event = Event(id="E0", date=Date(1970, 1, 1))
         resource = Person()
         Presence(resource, Subject(), event)
@@ -388,7 +392,7 @@ class TestTimeline:
         assert actual is not None
         assert event.public_id in actual
 
-    async def test_provide__with_place(self, isolated_app: App) -> None:
+    async def test_provide_template__with_place(self, isolated_app: App) -> None:
         enclosee_event = Event(id="E0", date=Date(1970, 1, 1))
         enclosee = Place(events=[enclosee_event])
         event = Event(id="E0", date=Date(1970, 1, 1))
@@ -414,7 +418,7 @@ class TestFacts:
             Place(),
         ],
     )
-    async def test_provide__without_associated_facts(
+    async def test_provide_template__without_associated_facts(
         self, resource: object, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
@@ -423,7 +427,7 @@ class TestFacts:
                 sut = await Facts.new_for_services(services=project)
         assert await sut.provide(document=Document(resource)) is None
 
-    async def test_provide__with_citation(self, isolated_app: App) -> None:
+    async def test_provide_template__with_citation(self, isolated_app: App) -> None:
         resource = Citation(source=Source())
         fact = DummyHasCitations(citations=[resource])
         async with Project.new_isolated(isolated_app) as project:
@@ -434,7 +438,7 @@ class TestFacts:
         assert actual is not None
         assert fact.public_id in actual
 
-    async def test_provide__with_source(self, isolated_app: App) -> None:
+    async def test_provide_template__with_source(self, isolated_app: App) -> None:
         resource = Source()
         citation = Citation(source=resource)
         fact = DummyHasCitations(citations=[citation])
@@ -474,7 +478,7 @@ class TestPresences:
             Event(),
         ],
     )
-    async def test_provide__without_presences(
+    async def test_provide_template__without_presences(
         self, resource: object, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
@@ -488,7 +492,7 @@ class TestPresences:
                 )
                 assert await sut.provide(document=Document(resource)) is None
 
-    async def test_provide__with_presences(self, isolated_app: App) -> None:
+    async def test_provide_template__with_presences(self, isolated_app: App) -> None:
         person = Person(id="P1")
         resource = Event()
         Presence(person, Subject(), resource)
@@ -505,7 +509,7 @@ class TestPresences:
         assert actual is not None
         assert person.public_id in actual
 
-    async def test_provide__with_presences_with_include(
+    async def test_provide_template__with_presences_with_include(
         self, isolated_app: App
     ) -> None:
         person_include = Person(id="P1")
@@ -528,7 +532,7 @@ class TestPresences:
         assert person_include.public_id in actual
         assert person_exclude.public_id not in actual
 
-    async def test_provide__with_presences_with_exclude(
+    async def test_provide_template__with_presences_with_exclude(
         self, isolated_app: App
     ) -> None:
         person_include = Person(id="P1")
@@ -590,7 +594,7 @@ class TestColumnsConfiguration(DataTestBase[ColumnsConfiguration]):
 
 
 class TestColumns:
-    async def test_provide__minimal(self, isolated_app: App) -> None:
+    async def test_provide_template__minimal(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
@@ -610,7 +614,7 @@ class TestColumns:
         assert actual is not None
         assert "col col-12" in actual
 
-    async def test_provide__single_column_multiple_breakpoints(
+    async def test_provide_template__single_column_multiple_breakpoints(
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
@@ -633,7 +637,7 @@ class TestColumns:
         assert actual is not None
         assert "col col-12 col-lg-6" in actual
 
-    async def test_provide__multiple_columns_single_breakpoint(
+    async def test_provide_template__multiple_columns_single_breakpoint(
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
@@ -664,7 +668,7 @@ class TestColumns:
         assert "col col-8" in actual
         assert "col col-4" in actual
 
-    async def test_provide__multiple_columns_multiple_breakpoints(
+    async def test_provide_template__multiple_columns_multiple_breakpoints(
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
@@ -706,7 +710,7 @@ class TestEnclosees:
             Place(),
         ],
     )
-    async def test_provide__without_enclosees(
+    async def test_provide_template__without_enclosees(
         self, resource: object, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
@@ -715,7 +719,7 @@ class TestEnclosees:
                 sut = await Enclosees.new_for_services(services=project)
         assert await sut.provide(document=Document(resource)) is None
 
-    async def test_provide__with_enclosee(self, isolated_app: App) -> None:
+    async def test_provide_template__with_enclosee(self, isolated_app: App) -> None:
         enclosee = Place()
         resource = Place()
         Enclosure(enclosee, resource)
@@ -739,7 +743,7 @@ class TestFileReferees:
             File(Path(__file__)),
         ],
     )
-    async def test_provide__without_referees(
+    async def test_provide_template__without_referees(
         self, resource: object, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
@@ -748,7 +752,7 @@ class TestFileReferees:
                 sut = await FileReferees.new_for_services(services=project)
         assert await sut.provide(document=Document(resource)) is None
 
-    async def test_provide__with_referee(self, isolated_app: App) -> None:
+    async def test_provide_template__with_referee(self, isolated_app: App) -> None:
         referee = DummyHasFileReferences()
         resource = File(Path(__file__))
         FileReference(referee, resource)
@@ -772,7 +776,7 @@ class TestCitations:
             DummyHasCitations(),
         ],
     )
-    async def test_provide__without_citations(
+    async def test_provide_template__without_citations(
         self, resource: object, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
@@ -781,7 +785,7 @@ class TestCitations:
                 sut = await project.new_target(Citations)
         assert await sut.provide(document=Document(resource)) is None
 
-    async def test_provide__with_citation(self, isolated_app: App) -> None:
+    async def test_provide_template__with_citation(self, isolated_app: App) -> None:
         citation = Citation(source=Source())
         resource = DummyHasCitations(citations=[citation])
         async with Project.new_isolated(isolated_app) as project:

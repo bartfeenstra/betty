@@ -209,6 +209,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "RenderConfiguration": {
             "media_type": MissingReason.INHERITED,
         },
+        "Template": {
+            "provide_template": MissingReason.ABSTRACT,
+        },
     },
     "betty/contextlib.py": {
         "SynchronizedContextManager": {
@@ -805,7 +808,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Map": {
             "plugin": MissingReason.INHERITED,
         },
-        "MapAttribution": {
+        "Attribution": {
             "plugin": MissingReason.INHERITED,
         },
     },

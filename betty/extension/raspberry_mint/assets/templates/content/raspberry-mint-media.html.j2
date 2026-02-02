@@ -1,5 +1,0 @@
-{% if document.resource is entity_plugin('file') %}
-    {% with file = document.resource %}
-        {% include 'component/media.html.j2' %}
-    {% endwith %}
-{% endif %}

@@ -11,14 +11,16 @@ from betty.ancestry.presence import Presence
 from betty.app import App
 from betty.document import Document
 from betty.extension.maps import Maps
-from betty.extension.maps.content_provider import Map, MapAttribution
+from betty.extension.maps.content_provider import Attribution, Map
 from betty.model import Entity
 from betty.presence_role.presence_roles import Subject
 from betty.project import Project
 
 
 class TestMap:
-    async def test_provide__without_supported_entity(self, isolated_app: App) -> None:
+    async def test_provide_template__without_supported_entity(
+        self, isolated_app: App
+    ) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(Maps)
             async with project:
@@ -33,7 +35,7 @@ class TestMap:
             Place(),
         ],
     )
-    async def test_provide__with_entity_without_places(
+    async def test_provide_template__with_entity_without_places(
         self, has_associated_places: Entity, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
@@ -66,7 +68,7 @@ class TestMap:
     def has_map_entities(self, request: pytest.FixtureRequest) -> tuple[Entity, Place]:
         return cast(tuple[Entity, Place], request.param)
 
-    async def test_provide__with_entity_with_places(
+    async def test_provide_template__with_entity_with_places(
         self, has_map_entities: tuple[Entity, Place], isolated_app: App
     ) -> None:
         has_associated_places, place = has_map_entities
@@ -84,11 +86,11 @@ class TestMap:
         assert "maps" in document["webpack_js_entry_points"]
 
 
-class TestMapAttribution:
-    async def test_provide(self, isolated_app: App) -> None:
+class TestAttribution:
+    async def test_provide_template(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(Maps)
             async with project:
-                sut = await MapAttribution.new_for_services(services=project)
+                sut = await Attribution.new_for_services(services=project)
                 actual = await sut.provide(document=Document())
         assert actual

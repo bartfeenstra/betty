@@ -2,7 +2,7 @@
 {% block page_content %}
     <div style="height: 500px; width: 500px;">
         {% with places = project.ancestry['place'] %}
-            {% include 'maps/map.html.j2' %}
+            {% include 'component/maps/map.html.j2' %}
         {% endwith %}
     </div>
 {% endblock %}

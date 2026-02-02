@@ -87,16 +87,6 @@ class TestSource(EntityTestBase):
         sut.contains = [contains_source]
         assert list(sut.contains) == [contains_source]
 
-    def test_walk_contains__without_contains(self) -> None:
-        sut = Source()
-        assert list(sut.walk_contains) == []
-
-    def test_walk_contains__with_contains(self) -> None:
-        sut = Source()
-        contains = Source(contained_by=sut)
-        contains_contains = Source(contained_by=contains)
-        assert list(sut.walk_contains) == [contains, contains_contains]
-
     def test_citations(self) -> None:
         sut = Source()
         assert list(sut.citations) == []

@@ -2,7 +2,7 @@
 Map content.
 """
 
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from typing import Any, Self
 
 from typing_extensions import override
@@ -34,34 +34,38 @@ class Map(Template, Manufacturable):
         return cls(jinja2_environment=await extension._project.jinja2_environment)
 
     @override
-    async def _provide_data(self, document: Document) -> Mapping[str, Any]:
+    async def provide_template(
+        self, document: Document
+    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
         places = []
-        if isinstance(document.resource, Event):
-            places = [document.resource.place] if document.resource.place else []
+        if isinstance(document.resource, Event) and document.resource.place:
+            places.append(document.resource.place)
         elif isinstance(document.resource, Person):
-            places = [
+            places.extend(
                 presence.event.place
                 for presence in document.resource.presences
                 if presence.public
                 and presence.event.public
                 and presence.event.place
                 and presence.event.place.public
-            ]
+            )
         elif isinstance(document.resource, Place):
-            places = [
+            places.append(
                 document.resource,
-            ]
-        return {
-            "places": places,
-        }
+            )
+        if places:
+            return "component/maps/map.html.j2", {
+                "places": places,
+            }
+        return None
 
 
-@ContentProviderDefinition("maps-map-attribution", label=_("Map attribution"))
-class MapAttribution(Template, Manufacturable):
+@ContentProviderDefinition("maps-attribution", label=_("Map attribution"))
+class Attribution(Template, Manufacturable):
     """
     The attribution for an interactive map.
 
-    .. plugin:: content-provider:maps-map-attribution
+    .. plugin:: content-provider:maps-attribution
     """
 
     @override
@@ -69,3 +73,9 @@ class MapAttribution(Template, Manufacturable):
     @require_extension(Maps)
     async def new_for_services(cls, *, extension: Maps) -> Self:
         return cls(jinja2_environment=await extension._project.jinja2_environment)
+
+    @override
+    async def provide_template(
+        self, document: Document
+    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+        return "component/maps/attribution.html.j2"

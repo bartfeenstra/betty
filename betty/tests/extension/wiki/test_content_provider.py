@@ -11,14 +11,16 @@ from betty.wiki.client import Summary
 
 
 class TestWikipediaSummary:
-    async def test_provide__without_has_links_resource(self, isolated_app: App) -> None:
+    async def test_provide_template__without_has_links_resource(
+        self, isolated_app: App
+    ) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(Wiki)
             async with project:
                 sut = await WikipediaSummary.new_for_services(services=project)
                 assert await sut.provide(document=Document()) is None
 
-    async def test_provide__with_has_links_resource(
+    async def test_provide_template__with_has_links_resource(
         self, mocker: MockerFixture, isolated_app: App
     ) -> None:
         url = "https://en.wikipedia.org/wiki/Amsterdam"

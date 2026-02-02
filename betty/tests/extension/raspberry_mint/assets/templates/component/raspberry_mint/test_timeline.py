@@ -15,7 +15,7 @@ async def test_minimal() -> None:
             "events": [],
         },
         extensions={RaspberryMint},
-        template="component/timeline.html.j2",
+        template="component/raspberry-mint/timeline.html.j2",
     ) as (actual, _):
         assert actual == ""
 
@@ -28,7 +28,7 @@ async def test_with_minimal_event() -> None:
             "events": [event],
         },
         extensions={RaspberryMint},
-        template="component/timeline.html.j2",
+        template="component/raspberry-mint/timeline.html.j2",
     ) as (actual, _):
         assert name in actual
 
@@ -41,7 +41,7 @@ async def test_with_private_event() -> None:
             "events": [event],
         },
         extensions={RaspberryMint},
-        template="component/timeline.html.j2",
+        template="component/raspberry-mint/timeline.html.j2",
     ) as (actual, _):
         assert actual == ""
 
@@ -54,7 +54,7 @@ async def test_with_event_without_date() -> None:
             "events": [event],
         },
         extensions={RaspberryMint},
-        template="component/timeline.html.j2",
+        template="component/raspberry-mint/timeline.html.j2",
     ) as (actual, _):
         assert actual == ""
 
@@ -67,7 +67,7 @@ async def test_with_event_without_comparable_date() -> None:
             "events": [event],
         },
         extensions={RaspberryMint},
-        template="component/timeline.html.j2",
+        template="component/raspberry-mint/timeline.html.j2",
     ) as (actual, _):
         assert actual == ""
 
@@ -83,7 +83,7 @@ async def test_with_subject_attendee() -> None:
             "document": Document(entity_contexts=EntityContexts(person)),
         },
         extensions={RaspberryMint},
-        template="component/timeline.html.j2",
+        template="component/raspberry-mint/timeline.html.j2",
     ) as (actual, _):
         assert "timeline-attendee--subject" in actual
 
@@ -99,6 +99,6 @@ async def test_with_other_attendee() -> None:
             "document": Document(entity_contexts=EntityContexts(person)),
         },
         extensions={RaspberryMint},
-        template="component/timeline.html.j2",
+        template="component/raspberry-mint/timeline.html.j2",
     ) as (actual, _):
         assert "timeline-attendee" in actual

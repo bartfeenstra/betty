@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from betty.content_provider.content_providers import Box, BoxConfiguration, Notes
-from betty.extension.maps.content_provider import Map, MapAttribution
+from betty.extension.maps.content_provider import Attribution, Map
 from betty.extension.raspberry_mint import SINGLE_COLUMN_TEXT_WIDTH
 from betty.extension.raspberry_mint import ColorStyle as ColorStyleOption
 from betty.extension.raspberry_mint.content_provider import (
@@ -83,7 +83,7 @@ def regional_content(*, localizers: Collection[Localizer]) -> ResolvableRegional
                 ColorStyleConfiguration(
                     PluginConfiguration(
                         Columns,
-                        ColumnsConfiguration([[MapAttribution]]),
+                        ColumnsConfiguration([[Attribution]]),
                     ),  # ty:ignore[invalid-argument-type]
                     style=ColorStyleOption.LIGHT_CONTRAST,
                 ),
