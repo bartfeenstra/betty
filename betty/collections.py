@@ -23,17 +23,20 @@ from betty.typing import Void
 
 class KeyedCollection[KeyT, ResolvableKeyT, ValueT](Collection[ValueT]):
     """
-    A collection of values that are accessible by their primary keys.
+    A collection of values that are accessible by their keys.
+
+    This is different from a mapping in that iteration takes place over values, not keys, and that callers cannot
+    necessarily associate keys with values themselves (this may be done automatically by implementations).
     """
 
     @abstractmethod
     def keys(self) -> Iterable[KeyT]:
         """
-        Get an iterable over the collection's primary keys.
+        Get an iterable over the collection's keys.
         """
 
     @abstractmethod
-    def __getitem__(self, key: ResolvableKeyT) -> ValueT:
+    def __getitem__(self, key: KeyT | ResolvableKeyT) -> ValueT:
         pass
 
 
@@ -54,21 +57,27 @@ class MutableKeyedCollection[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
     MutableCollection[ValueT],
 ):
     """
-    A mutable collection of values that are accessible by their primary keys.
+    A mutable ordered collection of values that are accessible by their keys.
     """
 
     @abstractmethod
-    def add(self, *values: ResolvableValueT) -> None:
+    def add(self, *values: ValueT | ResolvableValueT) -> None:
         """
-        Add a value to the collection.
+        Add one or more values to the collection.
         """
 
     @abstractmethod
-    def __delitem__(self, key: ResolvableKeyT) -> None:
+    def remove(self, *keys: KeyT | ResolvableKeyT) -> None:
+        """
+        Remove one or more keys from the collection.
+        """
+
+    @abstractmethod
+    def __delitem__(self, key: KeyT | ResolvableKeyT) -> None:
         pass
 
 
-class _DictKeyedCollection[KeyT, ResolvableKeyT, ValueT](
+class _PrimaryKeyCollection[KeyT, ResolvableKeyT, ValueT](
     KeyedCollection[KeyT, ResolvableKeyT, ValueT]
 ):
     def __init__(
@@ -95,7 +104,7 @@ class _DictKeyedCollection[KeyT, ResolvableKeyT, ValueT](
         return key in self._values
 
     @override
-    def __getitem__(self, key: ResolvableKeyT) -> ValueT:
+    def __getitem__(self, key: KeyT | ResolvableKeyT) -> ValueT:
         return self._values[self._key_resolver(key)]
 
     @override
@@ -104,21 +113,21 @@ class _DictKeyedCollection[KeyT, ResolvableKeyT, ValueT](
 
 
 @final
-class DictKeyedCollection[KeyT, ResolvableKeyT, ValueT](
-    _DictKeyedCollection[KeyT, ResolvableKeyT, ValueT]
+class PrimaryKeyCollection[KeyT, ResolvableKeyT, ValueT](
+    _PrimaryKeyCollection[KeyT, ResolvableKeyT, ValueT]
 ):
     """
-    A keyed collection backed by a dictionary.
+    A collection of values that are accessible by their primary keys.
     """
 
 
 @final
-class MutableDictKeyedCollection[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
-    _DictKeyedCollection[KeyT, ResolvableKeyT, ValueT],
+class MutablePrimaryKeyCollection[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
+    _PrimaryKeyCollection[KeyT, ResolvableKeyT, ValueT],
     MutableKeyedCollection[KeyT, ResolvableKeyT, ValueT, ResolvableValueT],
 ):
     """
-    A mutable keyed collection backed by a dictionary.
+    A mutable ordered collection of values that are accessible by their primary keys.
     """
 
     def __init__(
@@ -140,7 +149,21 @@ class MutableDictKeyedCollection[KeyT, ResolvableKeyT, ValueT, ResolvableValueT]
             self.add(*values)
 
     @override
-    def __delitem__(self, key: ResolvableKeyT) -> None:
+    def remove(self, *keys: KeyT | ResolvableKeyT) -> None:
+        values = dict(self._values)
+        for key in keys:
+            del values[self._key_resolver(key)]
+        self._values.clear()
+        for value in map(
+            self._value_resolver,
+            self._resolver(
+                tuple(values.values()),
+            ),  # ty:ignore[invalid-argument-type]
+        ):
+            self._values[self._key(value)] = value
+
+    @override
+    def __delitem__(self, key: KeyT | ResolvableKeyT) -> None:
         del self._values[self._key_resolver(key)]
 
     @override
@@ -148,9 +171,14 @@ class MutableDictKeyedCollection[KeyT, ResolvableKeyT, ValueT, ResolvableValueT]
         self._values.clear()
 
     @override
-    def add(self, *values: ResolvableValueT) -> None:
+    def add(self, *values: ValueT | ResolvableValueT) -> None:
         # Resolve the values, so the collection resolver won't have to and can stay small.
-        resolved_values = list(map(self._value_resolver, values))
+        resolved_values = list(
+            map(
+                self._value_resolver,  # ty:ignore[invalid-argument-type]
+                values,
+            )
+        )
         # Allow the collection resolver to change the collection or raise (validation) errors.
         twice_resolved_values = self._resolver(resolved_values)
         # Resolve the values again, so the collection resolver won't have to and can stay small.

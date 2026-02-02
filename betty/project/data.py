@@ -11,7 +11,7 @@ from babel import Locale
 
 from betty.ancestry.person import Person
 from betty.assertion import assert_number
-from betty.collections import MutableDictKeyedCollection
+from betty.collections import MutablePrimaryKeyCollection
 from betty.copyright_notice import (
     CopyrightNotice,
     CopyrightNoticeDefinition,
@@ -19,11 +19,11 @@ from betty.copyright_notice import (
 )
 from betty.copyright_notice.data import CopyrightNoticeDefinitionConfiguration
 from betty.data import Data, Sample
-from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
+from betty.data.aggregate.collection.keyed import PrimaryKeyCollectionDefinition
 from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
 from betty.data.aggregate.record.object.property import (
-    KeyedCollectionProperty,
     Optional,
+    PrimaryKeyCollectionProperty,
     Property,
 )
 from betty.data.bool import BoolDefinition
@@ -327,8 +327,8 @@ class ProjectConfiguration(Data):
     - job artifacts (e.g. generated sites)
     """
 
-    entity_types = KeyedCollectionProperty(
-        KeyedCollectionDefinition(
+    entity_types = PrimaryKeyCollectionProperty(
+        PrimaryKeyCollectionDefinition(
             value=EntityTypeConfiguration,
             label=_("Entity types"),
             key=Attr("entity_type"),
@@ -336,7 +336,7 @@ class ProjectConfiguration(Data):
         ),
         omit_load=True,
         omit_dump=lambda data: not len(data),
-        default=lambda: MutableDictKeyedCollection(
+        default=lambda: MutablePrimaryKeyCollection(
             key=lambda item: item.entity_type,
             value_resolver=lambda data: (
                 data
@@ -356,8 +356,8 @@ class ProjectConfiguration(Data):
     The :py:class:`betty.event_type.EventType` plugins created by this project.
     """
 
-    extensions = KeyedCollectionProperty(
-        KeyedCollectionDefinition(
+    extensions = PrimaryKeyCollectionProperty(
+        PrimaryKeyCollectionDefinition(
             value=ExtensionManufacturer,
             label=ExtensionDefinition.type().label_plural,
             key=Attr("plugin_id"),
@@ -365,7 +365,7 @@ class ProjectConfiguration(Data):
         ),
         omit_load=True,
         omit_dump=lambda data: not len(data),
-        default=lambda: MutableDictKeyedCollection(
+        default=lambda: MutablePrimaryKeyCollection(
             key=lambda data: data.plugin_id,
             key_resolver=resolve_id,
             value_resolver=ExtensionManufacturer.resolve,
@@ -420,8 +420,8 @@ class ProjectConfiguration(Data):
     presumed to have died.
     """
 
-    locales = KeyedCollectionProperty(
-        KeyedCollectionDefinition(
+    locales = PrimaryKeyCollectionProperty(
+        PrimaryKeyCollectionDefinition(
             value=ProjectLocale,
             label=_("Locales"),
             key=Attr("locale"),
@@ -429,7 +429,7 @@ class ProjectConfiguration(Data):
         ),
         omit_load=True,
         omit_dump=lambda data: not len(data),
-        default=lambda: MutableDictKeyedCollection(
+        default=lambda: MutablePrimaryKeyCollection(
             [DEFAULT_LOCALE],
             key=lambda item: item.locale,
             key_resolver=resolve_locale,

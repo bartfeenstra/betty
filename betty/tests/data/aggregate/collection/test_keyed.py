@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 
-from betty.collections import MutableDictKeyedCollection
-from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
+from betty.collections import MutablePrimaryKeyCollection
+from betty.data.aggregate.collection.keyed import PrimaryKeyCollectionDefinition
 from betty.data.aggregate.record import FieldDefinition
 from betty.data.aggregate.record.mapping import TypedMappingDefinition
 from betty.data.indicator.selector import Key
@@ -10,7 +10,7 @@ from betty.portable import PortableData
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
-class TestKeyedCollectionDefinition:
+class TestPrimaryKeyCollectionDefinition:
     _item = TypedMappingDefinition[dict[str, str]](
         cls=dict,
         label=DUMMY_LOCALIZABLE,
@@ -21,13 +21,13 @@ class TestKeyedCollectionDefinition:
             ),
         ],
     )
-    _sut_unordered = KeyedCollectionDefinition[dict[str, str]](
+    _sut_unordered = PrimaryKeyCollectionDefinition[dict[str, str]](
         value=_item,
         key=Key("key"),
         ordered=False,
         label=DUMMY_LOCALIZABLE,
     )
-    _sut_ordered = KeyedCollectionDefinition[dict[str, str]](
+    _sut_ordered = PrimaryKeyCollectionDefinition[dict[str, str]](
         value=_item,
         key=Key("key"),
         ordered=True,
@@ -53,20 +53,20 @@ class TestKeyedCollectionDefinition:
 
     def test_load__unordered(self) -> None:
         data = self._sut_unordered.porter.load(self._portable_unordered)
-        assert isinstance(data, MutableDictKeyedCollection)
+        assert isinstance(data, MutablePrimaryKeyCollection)
         assert data["my_first_key"]["key"] == "my_first_key"
         assert data["my_first_key"]["other_element"] == "my_first_other_element"
 
     def test_load__ordered(self) -> None:
         data = self._sut_ordered.porter.load(self._portable_ordered)
-        assert isinstance(data, MutableDictKeyedCollection)
+        assert isinstance(data, MutablePrimaryKeyCollection)
         assert data["my_first_key"]["key"] == "my_first_key"
         assert data["my_first_key"]["other_element"] == "my_first_other_element"
 
     def test_dump__unordered(self) -> None:
-        data = MutableDictKeyedCollection(self._values, key=lambda value: value["key"])
+        data = MutablePrimaryKeyCollection(self._values, key=lambda value: value["key"])
         assert self._sut_unordered.porter.dump(data) == self._portable_unordered
 
     def test_dump__ordered(self) -> None:
-        data = MutableDictKeyedCollection(self._values, key=lambda value: value["key"])
+        data = MutablePrimaryKeyCollection(self._values, key=lambda value: value["key"])
         assert self._sut_ordered.porter.dump(data) == self._portable_ordered

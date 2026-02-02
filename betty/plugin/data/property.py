@@ -7,13 +7,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final
 
 from betty.collections import (
-    MutableDictKeyedCollection,
+    MutablePrimaryKeyCollection,
     MutableResolvedSequence,
     MutableResolvedSequenceProxy,
 )
-from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
+from betty.data.aggregate.collection.keyed import PrimaryKeyCollectionDefinition
 from betty.data.aggregate.record.object.property import (
-    KeyedCollectionProperty,
+    PrimaryKeyCollectionProperty,
     SequenceProperty,
 )
 from betty.data.indicator.selector import Attr
@@ -67,7 +67,7 @@ class PluginManufacturerSequenceProperty[
 
 @final
 class PluginDefinitionConfigurationsProperty[PluginDefinitionT: PluginDefinition](
-    KeyedCollectionProperty
+    PrimaryKeyCollectionProperty
 ):
     """
     A property containing a :py:class:`betty.collections.KeyedCollection` of :py:class:`betty.plugin.data.PluginDefinitionConfiguration`.
@@ -82,7 +82,7 @@ class PluginDefinitionConfigurationsProperty[PluginDefinitionT: PluginDefinition
         description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
-            KeyedCollectionDefinition(
+            PrimaryKeyCollectionDefinition(
                 value=item,
                 label=plugin_type.type().label_plural,
                 key=Attr("id"),
@@ -92,5 +92,5 @@ class PluginDefinitionConfigurationsProperty[PluginDefinitionT: PluginDefinition
             description=description,
             omit_load=True,
             omit_dump=lambda data: not len(data),
-            default=lambda: MutableDictKeyedCollection(key=lambda item: item.id),
+            default=lambda: MutablePrimaryKeyCollection(key=lambda item: item.id),
         )
