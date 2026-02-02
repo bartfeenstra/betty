@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING
 import pytest
 
 from betty.data import Sample
-from betty.data.sample import SampleNotFound, Samples, Size
 from betty.locale.localizable.plain import Plain
+from betty.sample import SampleNotFound, Samples, Size
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 if TYPE_CHECKING:
@@ -19,10 +19,10 @@ _sample_minimal = Sample(object(), label=DUMMY_LOCALIZABLE, size=Size.MINIMAL)
 
 
 class TestSample:
-    def test_data(self) -> None:
+    def test_subject(self) -> None:
         data = object()
         sut = Sample(data, label=DUMMY_LOCALIZABLE)
-        assert sut.data is data
+        assert sut.subject is data
 
     def test_label(self) -> None:
         label = Plain("-")

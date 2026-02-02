@@ -60,7 +60,7 @@ class DataTestBase(Generic[_DataT]):
         samples = list(self.sut_cls.data().samples)
         for sample in samples:
             with subtests.test(str(sample.label.localize(DEFAULT_LOCALIZER))):
-                portable = self.sut_cls.data().porter.dump(sample.data)
+                portable = self.sut_cls.data().porter.dump(sample.subject)
                 loaded = self.sut_cls.data().porter.load(portable)
                 dumped = self.sut_cls.data().porter.dump(loaded)
                 assert self.sut_cls.data().porter.dump(loaded) == dumped, (
@@ -70,7 +70,7 @@ class DataTestBase(Generic[_DataT]):
                     if other_sample is sample:
                         continue
                     assert (
-                        self.sut_cls.data().porter.dump(other_sample.data) != dumped
+                        self.sut_cls.data().porter.dump(other_sample.subject) != dumped
                     ), (
                         f'Failed asserting that sample "{sample.label.localize(DEFAULT_LOCALIZER)}" instance is not equal to sample "{other_sample.label.localize(DEFAULT_LOCALIZER)}"'
                     )
@@ -98,7 +98,7 @@ class DataTestBase(Generic[_DataT]):
         samples = list(self.sut_cls.data().samples)
         for sample in samples:
             with subtests.test(str(sample.label.localize(DEFAULT_LOCALIZER))):
-                assert sample.data != other
+                assert sample.subject != other
 
     def test___eq____with_samples(self, subtests: pytest.Subtests) -> None:
         """
@@ -107,13 +107,13 @@ class DataTestBase(Generic[_DataT]):
         samples = list(self.sut_cls.data().samples)
         for sample in samples:
             with subtests.test(str(sample.label.localize(DEFAULT_LOCALIZER))):
-                assert sample.data == sample.data, (
+                assert sample.subject == sample.subject, (
                     f'Failed asserting that sample "{sample.label.localize(DEFAULT_LOCALIZER)}" instance is equal to itself'
                 )
                 for other_sample in samples:
                     if other_sample is sample:
                         continue
-                    assert sample.data != other_sample.data, (
+                    assert sample.subject != other_sample.subject, (
                         f'Failed asserting that sample "{sample.label.localize(DEFAULT_LOCALIZER)}" instance is not equal to sample "{other_sample.label.localize(DEFAULT_LOCALIZER)}"'
                     )
 

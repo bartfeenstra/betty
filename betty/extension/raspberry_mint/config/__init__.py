@@ -16,7 +16,6 @@ from betty.data.aggregate.collection.mapping import MappingDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.aggregate.record.object.property import Property
 from betty.data.indicator.selector import Attr, Key
-from betty.data.sample import Size
 from betty.data.str import StrDefinition
 from betty.exception import HumanFacingException, reraise_with_indicator
 from betty.locale.localizable.gettext import _
@@ -26,6 +25,7 @@ from betty.plugin.config import (
     resolve_plugin_configuration_sequence,
 )
 from betty.plugin.data import PluginConfigurationSequenceDefinition
+from betty.sample import Size
 from betty.service.hydrate import Hydratable
 from betty.service.requirement.extension import require_extension
 
@@ -47,9 +47,9 @@ ResolvableRegionalContent: TypeAlias = Mapping[
         ),
         lambda: Sample(
             RaspberryMintConfiguration(
-                primary_color=ColorDefinition().samples.get(Size.MINIMAL).data,
-                secondary_color=ColorDefinition().samples.get(Size.MINIMAL).data,
-                tertiary_color=ColorDefinition().samples.get(Size.MINIMAL).data,
+                primary_color=ColorDefinition().samples.get(Size.MINIMAL).subject,
+                secondary_color=ColorDefinition().samples.get(Size.MINIMAL).subject,
+                tertiary_color=ColorDefinition().samples.get(Size.MINIMAL).subject,
             ),
             label="Custom colors",
         ),

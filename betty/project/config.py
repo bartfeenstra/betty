@@ -29,7 +29,6 @@ from betty.data.aggregate.record.object.property import (
 from betty.data.bool import BoolDefinition
 from betty.data.indicator.selector import Attr
 from betty.data.int import IntDefinition
-from betty.data.sample import Size
 from betty.data.str import StrDefinition
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.exception import HumanFacingException
@@ -59,6 +58,7 @@ from betty.plugin.config.property import PluginDefinitionConfigurationsProperty
 from betty.plugin.data import PluginConfigurationDefinition, PluginIdDefinition
 from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.project import Extension, ExtensionDefinition
+from betty.sample import Size
 from betty.service.hydrate import Hydratable
 
 if TYPE_CHECKING:
@@ -524,39 +524,43 @@ class GenderDefinitionConfiguration(
                 clean_urls=True,
                 copyright_notice=ProjectConfiguration.copyright_notice.attr.data.samples.get(
                     Size.FULL
-                ).data,
+                ).subject,
                 copyright_notices=[
                     CopyrightNoticeDefinitionConfiguration.data()
                     .samples.get(Size.FULL)
-                    .data
+                    .subject
                 ],
                 debug=True,
                 entity_types=[
-                    EntityTypeConfiguration.data().samples.get(Size.FULL).data
+                    EntityTypeConfiguration.data().samples.get(Size.FULL).subject
                 ],
                 event_types=[
-                    EventTypeDefinitionConfiguration.data().samples.get(Size.FULL).data
+                    EventTypeDefinitionConfiguration.data()
+                    .samples.get(Size.FULL)
+                    .subject
                 ],
                 genders=[
-                    GenderDefinitionConfiguration.data().samples.get(Size.FULL).data
+                    GenderDefinitionConfiguration.data().samples.get(Size.FULL).subject
                 ],
                 logo=ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png",
                 license=ProjectConfiguration.license.attr.data.samples.get(
                     Size.FULL
-                ).data,
+                ).subject,
                 licenses=[
-                    LicenseDefinitionConfiguration.data().samples.get(Size.FULL).data
+                    LicenseDefinitionConfiguration.data().samples.get(Size.FULL).subject
                 ],
                 lifetime_threshold=123,
-                locales=[LocaleConfiguration.data().samples.get(Size.FULL).data],
+                locales=[LocaleConfiguration.data().samples.get(Size.FULL).subject],
                 name="betty-ancestry",
                 place_types=[
-                    PlaceTypeDefinitionConfiguration.data().samples.get(Size.FULL).data
+                    PlaceTypeDefinitionConfiguration.data()
+                    .samples.get(Size.FULL)
+                    .subject
                 ],
                 presence_roles=[
                     PresenceRoleDefinitionConfiguration.data()
                     .samples.get(Size.FULL)
-                    .data
+                    .subject
                 ],
                 title="Betty's ancestry",
                 url="https://ancestry.example.com/betty",

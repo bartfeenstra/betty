@@ -180,10 +180,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/data/__init__.py": {
         "Data": MissingReason.ABSTRACT,
     },
-    "betty/data/sample.py": {
-        "SampleNotFound": MissingReason.STATIC_CONTENT_ONLY,
-        "Size": MissingReason.ENUM,
-    },
     "betty/data/aggregate/__init__.py": {
         "AggregateDefinition": {
             "elements": MissingReason.ABSTRACT,
@@ -582,6 +578,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "RichUser": {
             "disconnect": MissingReason.COVERED_ELSEWHERE,
         },
+    },
+    "betty/sample.py": {
+        "SampleNotFound": MissingReason.STATIC_CONTENT_ONLY,
+        "Size": MissingReason.ENUM,
     },
     "betty/serde/__init__.py": {
         "Serializer": MissingReason.ABSTRACT,

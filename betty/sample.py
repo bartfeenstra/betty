@@ -1,11 +1,11 @@
 """
-Data sample helpers.
+Samples are used to generate documentation about various parts of Betty.
 """
 
 from __future__ import annotations
 
 from enum import IntEnum, auto
-from typing import TYPE_CHECKING, Any, Generic, Self, final
+from typing import TYPE_CHECKING, Generic, Self, final
 
 from typing_extensions import TypeVar
 
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
     from betty.locale.localizable import Localizable, ResolvableLocalizable
 
-_DataClsT = TypeVar("_DataClsT", default=Any)
+_T = TypeVar("_T")
 
 
 @final
@@ -31,32 +31,32 @@ class Size(IntEnum):
 
 
 @final
-class Sample(Generic[_DataClsT]):
+class Sample(Generic[_T]):
     """
-    A data sample.
+    A sample.
 
     Samples are useful for generating documentation and tests.
     """
 
     def __init__(
         self,
-        data: _DataClsT,
+        subject: _T,
         *,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
         size: Size = Size.INTERMEDIATE,
     ):
-        self._data = data
+        self._subject = subject
         self._label = resolve_localizable(label)
         self._description = resolve_localizable(description) if description else None
         self._size = size
 
     @property
-    def data(self) -> _DataClsT:
+    def subject(self) -> _T:
         """
-        The sample data.
+        The sample subject.
         """
-        return self._data
+        return self._subject
 
     @property
     def label(self) -> Localizable:
@@ -81,18 +81,18 @@ class Sample(Generic[_DataClsT]):
 
 
 @final
-class Samples(Generic[_DataClsT]):
+class Samples(Generic[_T]):
     """
     A set of samples.
     """
 
     def __init__(
         self,
-        samples: Iterable[Callable[[], Sample[_DataClsT]] | Self],
+        samples: Iterable[Callable[[], Sample[_T]] | Self],
     ):
         self._samples = list(samples)
 
-    def __iter__(self) -> Iterator[Sample[_DataClsT]]:
+    def __iter__(self) -> Iterator[Sample[_T]]:
         for sample in self._samples:
             if isinstance(sample, Samples):
                 yield from sample

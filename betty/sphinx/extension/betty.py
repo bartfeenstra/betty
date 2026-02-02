@@ -337,7 +337,7 @@ Data
             for field in sorted(
                 data.fields,
                 key=lambda field: (
-                    isinstance(field.data, OptionalDefinition),
+                    isinstance(field.subject, OptionalDefinition),
                     field.selector.element,
                 ),
             ):
@@ -391,7 +391,7 @@ Data
 .. tab-set::
 
 """
-                portable = data.dump(sample.data)
+                portable = data.dump(sample.subject)
                 for serializer in serializers:
                     serialized = serializer.dump(portable)
                     example_content += f"""
