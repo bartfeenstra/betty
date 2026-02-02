@@ -2,24 +2,27 @@
 Test utilities for :py:mod:`betty.serde`.
 """
 
+from typing import Generic, TypeVar
+
 import pytest
 
 from betty.portable import PortableData
 from betty.serde import Serializer
-from betty.test_utils.definition.human_facing import HumanFacingDefinitionTestBase
-from betty.test_utils.plugin import PluginTestBase
+
+_SerializerT = TypeVar("_SerializerT", bound=Serializer)
 
 
-class SerializerDefinitionTestBase(HumanFacingDefinitionTestBase):
-    """
-    A base class for testing :py:class:`betty.serde.SerializerDefinition` subclasses.
-    """
-
-
-class SerializerTestBase(PluginTestBase[Serializer]):
+class SerializerTestBase(Generic[_SerializerT]):
     """
     A base class for testing :py:class:`betty.serde.Serializer` implementations.
     """
+
+    @pytest.fixture
+    def sut(self) -> type[_SerializerT]:
+        """
+        Provide the system(s) under test.
+        """
+        raise NotImplementedError
 
     @pytest.mark.parametrize(
         "portable",
@@ -35,7 +38,7 @@ class SerializerTestBase(PluginTestBase[Serializer]):
             ["value"],
         ],
     )
-    def test_dump_and_load(self, portable: PortableData, sut: Serializer) -> None:
+    def test_dump_and_load(self, portable: PortableData, sut: _SerializerT) -> None:
         """
         Tests :py:meth:`betty.serde.Serializer.load` and :py:meth:`betty.serde.Serializer.dump` implementations.
         """
@@ -43,5 +46,5 @@ class SerializerTestBase(PluginTestBase[Serializer]):
 
     def test_load(self) -> None:
         """
-        Satisfy ``TestCoverage``.
+        Satisfy :py:class:`betty.tests.coverage.test_coverage.TestCoverage`.
         """

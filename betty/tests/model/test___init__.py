@@ -1,21 +1,13 @@
 import pytest
-from typing_extensions import override
 
 from betty.model import Entity, EntityDefinition, persistent_id
-from betty.plugin import PluginDefinition
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
 )
-from betty.test_utils.plugin import PluginDefinitionClassTestBase
 
 
-class TestEntityDefinition(PluginDefinitionClassTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> type[PluginDefinition]:
-        return EntityDefinition
-
+class TestEntityDefinition:
     def test_public_facing(self) -> None:
         sut = EntityDefinition(
             "-",

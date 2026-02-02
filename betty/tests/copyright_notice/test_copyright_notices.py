@@ -14,18 +14,7 @@ from betty.copyright_notice.copyright_notices import (
 )
 from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.plugin import PluginDefinition
-from betty.test_utils.copyright_notice import (
-    CopyrightNoticeDefinitionTestBase,
-    CopyrightNoticeTestBase,
-)
-
-
-class TestProjectAuthorDefinition(CopyrightNoticeDefinitionTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> PluginDefinition:
-        return ProjectAuthor.plugin()
+from betty.test_utils.copyright_notice import CopyrightNoticeTestBase
 
 
 class TestProjectAuthor(CopyrightNoticeTestBase):
@@ -40,13 +29,6 @@ class TestProjectAuthor(CopyrightNoticeTestBase):
         return ProjectAuthor(request.param)
 
 
-class TestPublicDomainDefinition(CopyrightNoticeDefinitionTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> PluginDefinition:
-        return PublicDomain.plugin()
-
-
 class TestPublicDomain(CopyrightNoticeTestBase):
     @override
     @pytest.fixture
@@ -54,25 +36,11 @@ class TestPublicDomain(CopyrightNoticeTestBase):
         return PublicDomain()
 
 
-class TestStreetmixDefinition(CopyrightNoticeDefinitionTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> PluginDefinition:
-        return Streetmix.plugin()
-
-
 class TestStreetmix(CopyrightNoticeTestBase):
     @override
     @pytest.fixture
     def sut(self) -> CopyrightNotice:
         return Streetmix()
-
-
-class TestWikipediaContributorsDefinition(CopyrightNoticeDefinitionTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> PluginDefinition:
-        return WikipediaContributors.plugin()
 
 
 class TestWikipediaContributors(CopyrightNoticeTestBase):

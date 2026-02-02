@@ -20,19 +20,11 @@ from betty.license.licenses import (
     spdx_license_id_to_license_id,
 )
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.plugin import PluginDefinition
-from betty.test_utils.license import LicenseDefinitionTestBase, LicenseTestBase
+from betty.test_utils.license import LicenseTestBase
 from betty.test_utils.user import StaticUser
 
 if TYPE_CHECKING:
     from betty.portable import PortableMapping
-
-
-class TestAllRightsReservedDefinition(LicenseDefinitionTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> PluginDefinition:
-        return AllRightsReserved.plugin()
 
 
 class TestAllRightsReserved(LicenseTestBase):
@@ -40,13 +32,6 @@ class TestAllRightsReserved(LicenseTestBase):
     @pytest.fixture
     def sut(self) -> License:
         return AllRightsReserved()
-
-
-class TestPublicDomainDefinition(LicenseDefinitionTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> PluginDefinition:
-        return PublicDomain.plugin()
 
 
 class TestPublicDomain(LicenseTestBase):

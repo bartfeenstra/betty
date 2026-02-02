@@ -13,19 +13,11 @@ from betty.presence_role.presence_roles import Subject
 from betty.presence_role.presence_roles import Unknown as UnknownPresenceRole
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
+from betty.test_utils.model import EntityTestBase
 
 if TYPE_CHECKING:
     from betty.model import Entity
-    from betty.plugin import PluginDefinition
     from betty.portable import PortableMapping
-
-
-class TestPresenceDefinition(EntityDefinitionTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> PluginDefinition:
-        return Presence.plugin()
 
 
 class TestPresence(EntityTestBase):

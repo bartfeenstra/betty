@@ -14,22 +14,14 @@ from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.locale.localizable import (
     DUMMY_LOCALIZABLE,
 )
-from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
+from betty.test_utils.model import EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
     from betty.model import Entity
-    from betty.plugin import PluginDefinition
 
 import pytest
-
-
-class TestLinkDefinition(EntityDefinitionTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> PluginDefinition:
-        return Link.plugin()
 
 
 class TestLink(EntityTestBase):

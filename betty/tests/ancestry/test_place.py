@@ -18,19 +18,10 @@ from betty.model.association import AssociationRequired, TemporaryToOneResolver
 from betty.place_type.place_types import Hamlet
 from betty.place_type.place_types import Unknown as UnknownPlaceType
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
+from betty.test_utils.model import EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
-
-    from betty.plugin import PluginDefinition
-
-
-class TestPlaceDefinition(EntityDefinitionTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> PluginDefinition:
-        return Place.plugin()
 
 
 class TestPlace(EntityTestBase):

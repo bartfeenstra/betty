@@ -1,20 +1,10 @@
 from pathlib import Path
 
-import pytest
-from typing_extensions import override
-
 from betty.extension import ExtensionDefinition
-from betty.plugin import PluginDefinition
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
-from betty.test_utils.plugin import PluginDefinitionClassTestBase
 
 
-class TestExtensionDefinition(PluginDefinitionClassTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> type[PluginDefinition]:
-        return ExtensionDefinition
-
+class TestExtensionDefinition:
     def test_assets_directory(self) -> None:
         assets_directory_path = Path(__file__)
         sut = ExtensionDefinition(

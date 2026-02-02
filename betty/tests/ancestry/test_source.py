@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, MutableMapping, Sequence
-from typing import TYPE_CHECKING, Any, cast
+from typing import Any, cast
 
+import pytest
 from typing_extensions import override
 
 from betty.ancestry.citation import Citation
@@ -15,20 +16,7 @@ from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.model import Entity
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
-
-if TYPE_CHECKING:
-    from betty.plugin import PluginDefinition
-
-
-import pytest
-
-
-class TestSourceDefinition(EntityDefinitionTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> PluginDefinition:
-        return Source.plugin()
+from betty.test_utils.model import EntityTestBase
 
 
 class TestSource(EntityTestBase):

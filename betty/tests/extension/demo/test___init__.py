@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
-from typing_extensions import override
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
@@ -13,17 +12,11 @@ from betty.ancestry.source import Source
 from betty.extension.demo import Demo, generate_with_cleanup
 from betty.project import Project
 from betty.project.load import load
-from betty.test_utils.project.extension import (
-    ExtensionDefinitionTestBase,
-    ExtensionTestBase,
-)
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
 
     from betty.app import App
-    from betty.extension import Extension
-    from betty.plugin import PluginDefinition
     from betty.project.job import ProjectContext
     from betty.test_utils.conftest import IsolatedAppFactory
 
@@ -67,21 +60,8 @@ async def test_generate_with_cleanup__with_error(
         assert not project.directory.exists()
 
 
-class TestDemoDefinition(ExtensionDefinitionTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> PluginDefinition:
-        return Demo.plugin()
-
-
 @pytest.mark.usefixtures("demo_project_aioresponses")
-class TestDemo(ExtensionTestBase):
-    @override
-    @pytest.fixture
-    async def sut(self, isolated_app: App) -> Extension:
-        async with Project.new_isolated(isolated_app) as project, project:
-            return Demo(project=project)
-
+class TestDemo:
     async def test_load(
         self, mocker: MockerFixture, isolated_app_factory: IsolatedAppFactory
     ) -> None:

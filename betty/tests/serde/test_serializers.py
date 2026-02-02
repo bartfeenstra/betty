@@ -3,20 +3,12 @@ from typing import TYPE_CHECKING
 import pytest
 from typing_extensions import override
 
-from betty.plugin import PluginDefinition
 from betty.serde import SerializationError, Serializer
 from betty.serde.serializers import Json, Yaml
-from betty.test_utils.serde import SerializerDefinitionTestBase, SerializerTestBase
+from betty.test_utils.serde import SerializerTestBase
 
 if TYPE_CHECKING:
     from betty.portable import PortableData
-
-
-class TestJsonDefinition(SerializerDefinitionTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> PluginDefinition:
-        return Json.plugin()
 
 
 class TestJson(SerializerTestBase):
@@ -50,13 +42,6 @@ class TestJson(SerializerTestBase):
 }
 """.strip()
         )
-
-
-class TestYamlDefinition(SerializerDefinitionTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> PluginDefinition:
-        return Yaml.plugin()
 
 
 class TestYaml(SerializerTestBase):

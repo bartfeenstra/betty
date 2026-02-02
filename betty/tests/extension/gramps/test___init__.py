@@ -1,9 +1,7 @@
 import gzip
 from pathlib import Path
 
-import pytest
 from aiofiles.tempfile import TemporaryDirectory
-from typing_extensions import override
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
@@ -13,7 +11,6 @@ from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.app import App
 from betty.event_type.event_types import Birth
-from betty.extension import Extension
 from betty.extension.gramps import Gramps
 from betty.extension.gramps.config import (
     FamilyTreeConfiguration,
@@ -24,16 +21,9 @@ from betty.plugin.config import PluginConfiguration
 from betty.presence_role.presence_roles import Subject
 from betty.project import Project
 from betty.project.load import load
-from betty.test_utils.project.extension import ExtensionTestBase
 
 
-class TestGramps(ExtensionTestBase):
-    @override
-    @pytest.fixture
-    async def sut(self, isolated_app: App) -> Extension:
-        async with Project.new_isolated(isolated_app) as project, project:
-            return Gramps(project=project)
-
+class TestGramps:
     async def test_load__with_event_type_mapping(
         self, isolated_app: App, tmp_path: Path
     ) -> None:

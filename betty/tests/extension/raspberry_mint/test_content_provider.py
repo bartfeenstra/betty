@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import pytest
-from typing_extensions import override
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.enclosure import Enclosure
@@ -54,27 +53,12 @@ from betty.presence_role.presence_roles import Subject, Witness
 from betty.project import Project
 from betty.test_utils.ancestry.has_citations import DummyHasCitations
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
-from betty.test_utils.content_provider import (
-    ContentProviderTestBase,
-    NoOpContentProvider,
-)
+from betty.test_utils.content_provider import NoOpContentProvider
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
-from betty.test_utils.model import DummyEntityOne
 
 
-class TestEntityCard(ContentProviderTestBase):
-    @override
-    @pytest.fixture
-    async def sut(self, isolated_app: App) -> ContentProvider:
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(RaspberryMint)
-            async with project:
-                return await EntityCard.new_for_configuration(
-                    services=project,
-                    configuration=EntityReference(DummyEntityOne, "abc"),
-                )
-
+class TestEntityCard:
     async def test_provide(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
@@ -126,18 +110,7 @@ class TestSectionConfiguration(DataTestBase[SectionConfiguration]):
         assert sut.visually_hide_heading
 
 
-class TestSection(ContentProviderTestBase):
-    @override
-    @pytest.fixture
-    async def sut(self, isolated_app: App) -> ContentProvider:
-        async with Project.new_isolated(isolated_app) as project, project:
-            return Section(
-                configuration=SectionConfiguration(
-                    content=[], heading=DUMMY_LOCALIZABLE
-                ),
-                jinja2_environment=await project.jinja2_environment,
-            )
-
+class TestSection:
     async def test_provide__without_content(self, isolated_app: App) -> None:
         with ContentProviderDefinition.type().discoverer.override(NoOpContentProvider):
             async with Project.new_isolated(isolated_app) as project:
@@ -210,13 +183,7 @@ class TestSection(ContentProviderTestBase):
         assert "visually-hidden" in actual
 
 
-class TestFamilies(ContentProviderTestBase):
-    @override
-    @pytest.fixture
-    async def sut(self, isolated_app: App) -> ContentProvider:
-        async with Project.new_isolated(isolated_app) as project, project:
-            return Families(jinja2_environment=await project.jinja2_environment)
-
+class TestFamilies:
     @pytest.mark.parametrize(
         "resource",
         [
@@ -250,13 +217,7 @@ class TestFamilies(ContentProviderTestBase):
         assert child.public_id in actual
 
 
-class TestMedia(ContentProviderTestBase):
-    @override
-    @pytest.fixture
-    async def sut(self, isolated_app: App) -> ContentProvider:
-        async with Project.new_isolated(isolated_app) as project, project:
-            return Media(jinja2_environment=await project.jinja2_environment)
-
+class TestMedia:
     async def test_provide__without_file(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
@@ -278,13 +239,7 @@ class TestMedia(ContentProviderTestBase):
         assert resource.label.localize(DEFAULT_LOCALIZER) in actual
 
 
-class TestMediaGallery(ContentProviderTestBase):
-    @override
-    @pytest.fixture
-    async def sut(self, isolated_app: App) -> ContentProvider:
-        async with Project.new_isolated(isolated_app) as project, project:
-            return MediaGallery(jinja2_environment=await project.jinja2_environment)
-
+class TestMediaGallery:
     async def test_provide__without_has_file_references(
         self, isolated_app: App
     ) -> None:
@@ -338,23 +293,7 @@ class TestColorStyleConfiguration(DataTestBase[ColorStyleConfiguration]):
         assert sut.style == style
 
 
-class TestColorStyle(ContentProviderTestBase):
-    @override
-    @pytest.fixture
-    async def sut(self, isolated_app: App) -> ContentProvider:
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(RaspberryMint)
-            async with project:
-                return await ColorStyle.new_for_configuration(
-                    services=project,
-                    configuration=ColorStyleConfiguration(
-                        PluginConfiguration(
-                            Render, RenderConfiguration("My First Content")
-                        ),  # ty:ignore[invalid-argument-type]
-                        style=ColorStyleOption.DARK,
-                    ),
-                )
-
+class TestColorStyle:
     async def test_provide__without_content(self, isolated_app: App) -> None:
         with ContentProviderDefinition.type().discoverer.override(NoOpContentProvider):
             async with Project.new_isolated(isolated_app) as project:
@@ -387,13 +326,7 @@ class TestColorStyle(ContentProviderTestBase):
         assert "My First Content" in actual
 
 
-class TestExternalLinks(ContentProviderTestBase):
-    @override
-    @pytest.fixture
-    async def sut(self, isolated_app: App) -> ContentProvider:
-        async with Project.new_isolated(isolated_app) as project, project:
-            return ExternalLinks(jinja2_environment=await project.jinja2_environment)
-
+class TestExternalLinks:
     async def test_provide__without_has_links(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
@@ -424,13 +357,7 @@ class TestExternalLinks(ContentProviderTestBase):
         assert url in actual
 
 
-class TestTimeline(ContentProviderTestBase):
-    @override
-    @pytest.fixture
-    async def sut(self, isolated_app: App) -> ContentProvider:
-        async with Project.new_isolated(isolated_app) as project, project:
-            return Timeline(jinja2_environment=await project.jinja2_environment)
-
+class TestTimeline:
     @pytest.mark.parametrize(
         "resource",
         [
@@ -477,15 +404,7 @@ class TestTimeline(ContentProviderTestBase):
         assert enclosee_event.public_id in actual
 
 
-class TestFacts(ContentProviderTestBase):
-    @override
-    @pytest.fixture
-    async def sut(self, isolated_app: App) -> ContentProvider:
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(RaspberryMint)
-            async with project:
-                return Facts(jinja2_environment=await project.jinja2_environment)
-
+class TestFacts:
     @pytest.mark.parametrize(
         "resource",
         [
@@ -544,16 +463,7 @@ class TestPresencesConfiguration(DataTestBase[PresencesConfiguration]):
         assert list(sut.exclude) == exclude
 
 
-class TestPresences(ContentProviderTestBase):
-    @override
-    @pytest.fixture
-    async def sut(self, isolated_app: App) -> ContentProvider:
-        async with Project.new_isolated(isolated_app) as project, project:
-            return Presences(
-                jinja2_environment=await project.jinja2_environment,
-                presence_roles=StaticPluginRepository(PresenceRoleDefinition, Subject),
-            )
-
+class TestPresences:
     @pytest.mark.parametrize(
         "resource",
         [
@@ -679,24 +589,7 @@ class TestColumnsConfiguration(DataTestBase[ColumnsConfiguration]):
         assert sut.justify_content == justify_content
 
 
-class TestColumns(ContentProviderTestBase):
-    @override
-    @pytest.fixture
-    async def sut(self, isolated_app: App) -> ContentProvider:
-        async with Project.new_isolated(isolated_app) as project, project:
-            return Columns(
-                configuration=ColumnsConfiguration(
-                    [
-                        [
-                            PluginConfiguration(
-                                Render, RenderConfiguration(DUMMY_LOCALIZABLE)
-                            )
-                        ]
-                    ]
-                ),
-                jinja2_environment=await project.jinja2_environment,
-            )
-
+class TestColumns:
     async def test_provide__minimal(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
@@ -803,15 +696,7 @@ class TestColumns(ContentProviderTestBase):
         assert "col col-4 col-lg-5" in actual
 
 
-class TestEnclosees(ContentProviderTestBase):
-    @override
-    @pytest.fixture
-    async def sut(self, isolated_app: App) -> ContentProvider:
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(RaspberryMint)
-            async with project:
-                return Enclosees(jinja2_environment=await project.jinja2_environment)
-
+class TestEnclosees:
     @pytest.mark.parametrize(
         "resource",
         [
@@ -843,15 +728,7 @@ class TestEnclosees(ContentProviderTestBase):
         assert enclosee.public_id in actual
 
 
-class TestFileReferees(ContentProviderTestBase):
-    @override
-    @pytest.fixture
-    async def sut(self, isolated_app: App) -> ContentProvider:
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(RaspberryMint)
-            async with project:
-                return FileReferees(jinja2_environment=await project.jinja2_environment)
-
+class TestFileReferees:
     @pytest.mark.parametrize(
         "resource",
         [
@@ -884,15 +761,7 @@ class TestFileReferees(ContentProviderTestBase):
         assert referee.public_id in actual
 
 
-class TestCitations(ContentProviderTestBase):
-    @override
-    @pytest.fixture
-    async def sut(self, isolated_app: App) -> ContentProvider:
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(RaspberryMint)
-            async with project:
-                return await project.new_target(Citations)
-
+class TestCitations:
     @pytest.mark.parametrize(
         "resource",
         [
