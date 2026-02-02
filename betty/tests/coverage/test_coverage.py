@@ -447,8 +447,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "get": MissingReason.ABSTRACT,
         },
     },
-    "betty/plugin/repository/provider/__init__.py": {
-        "PluginRepositoryProvider": MissingReason.ABSTRACT,
+    "betty/plugin/manager/__init__.py": {
+        "PluginManager": MissingReason.ABSTRACT,
     },
     "betty/plugin/discovery/__init__.py": {
         "PluginDiscovery": MissingReason.ABSTRACT,

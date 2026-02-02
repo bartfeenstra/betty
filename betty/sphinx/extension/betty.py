@@ -24,11 +24,11 @@ from betty.definition.human_facing import HumanFacingDefinition
 from betty.functools import Result
 from betty.importlib import import_any
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.plugin import plugin_types
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.project import Project
 from betty.serde import SerializerDefinition
+from betty.service.level import universe
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -57,7 +57,7 @@ async def _get_plugins(plugin_type_id: str) -> PluginRepository:
         Project.new_isolated(app) as project,
         project,
     ):
-        return await project.plugins(plugin_type_id)
+        return await project.plugins.plugins(plugin_type_id)
 
 
 def _cmp_formats(left: PluginDefinition, right: PluginDefinition) -> int:
@@ -78,7 +78,7 @@ async def _get_serializers() -> Sequence[Serializer]:
         return [
             await project.new_target(serializer.cls)
             for serializer in sorted(
-                await project.plugins(SerializerDefinition),
+                await project.plugins.plugins(SerializerDefinition),
                 key=cmp_to_key(_cmp_formats),
             )
         ]
@@ -215,7 +215,7 @@ class _PluginTypeDirective(SphinxDirective):
     def run(self) -> list[nodes.Node]:
         # Right-strip periods to avoid D400 and D415 violations.
         plugin_type_id = self.arguments[0].rstrip(".")
-        plugin_type = plugin_types[plugin_type_id]
+        plugin_type = universe.plugins.types[plugin_type_id]
         plugins = _to_thread(lambda: run(_get_plugins(plugin_type_id)))
         return [
             self._build_summary(plugin_type),
@@ -296,7 +296,7 @@ class _PluginTypesDirective(SphinxDirective):
                 [
                     self._build_builtin_plugin_type_definition(plugin_type)
                     for plugin_type in sorted(
-                        plugin_types,
+                        universe.plugins.types,
                         key=lambda plugin_type: plugin_type.type().label.localize(
                             DEFAULT_LOCALIZER
                         ),

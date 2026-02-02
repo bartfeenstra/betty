@@ -8,8 +8,9 @@ import pytest
 
 from betty.app import App
 from betty.importlib import fully_qualified_name
-from betty.plugin import PluginDefinition, plugin_types
+from betty.plugin import PluginDefinition
 from betty.project import Project
+from betty.service.level import universe
 
 
 class PluginDocumentationTestBase:
@@ -29,10 +30,10 @@ class PluginDocumentationTestBase:
         Test the plugin and plugin type documentation.
         """
         async with Project.new_isolated(isolated_app) as project, project:
-            for plugin_type in plugin_types:
+            for plugin_type in universe.plugins.types:
                 with subtests.test():
                     self._test_plugin_type(plugin_type)
-                for plugin in await project.plugins(plugin_type):
+                for plugin in await project.plugins.plugins(plugin_type):
                     with subtests.test():
                         self._test_plugin(plugin)
 

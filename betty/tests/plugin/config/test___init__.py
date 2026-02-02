@@ -18,7 +18,7 @@ from betty.plugin.config import (
     resolve_plugin_configuration_mapping,
     resolve_plugin_configuration_sequence,
 )
-from betty.service.level.universal import universe
+from betty.service.level import universe
 from betty.test_utils.data import DummyData
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,

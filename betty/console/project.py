@@ -18,7 +18,7 @@ from betty.portable.file import assert_load_file
 from betty.project import Project
 from betty.project.config import ProjectConfiguration
 from betty.serde import SerializerDefinition
-from betty.service.level.universal import universe
+from betty.service.level import universe
 from betty.user import User
 
 
@@ -46,7 +46,7 @@ async def add_project_argument(
         help=localizer._(
             "The path to a Betty project directory or configuration file. Defaults to {default} in the current working directory."
         ).format(
-            default=f"betty.{'|'.join(extension[1:] for serializer in await app.plugins(SerializerDefinition) for extension in serializer.cls.media_type().extensions)}"
+            default=f"betty.{'|'.join(extension[1:] for serializer in await app.plugins.plugins(SerializerDefinition) for extension in serializer.cls.media_type().extensions)}"
         ),
         type=assertion_to_argument_type(assert_path(), localizer=localizer),
     )
@@ -82,7 +82,7 @@ async def _read_project_configuration(
     if provided_configuration_file_path_str is None:
         try_configuration_file_paths = [
             project_directory_path / f"betty{extension}"
-            for serializer in await universe.plugins(SerializerDefinition)
+            for serializer in await universe.plugins.plugins(SerializerDefinition)
             for extension in serializer.cls.media_type().extensions
         ]
         for try_configuration_file_path in try_configuration_file_paths:

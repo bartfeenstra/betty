@@ -12,7 +12,7 @@ from betty.plugin.discovery import (
     ResolvableDiscovery,
     discover,
 )
-from betty.service.level.universal import universe
+from betty.service.level import universe
 from betty.test_utils.plugin import (
     DummyPluginDefinition,
     DummyPluginOne,

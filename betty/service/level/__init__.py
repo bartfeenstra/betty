@@ -4,7 +4,7 @@ Service levels.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Any, Final, final
 
 from typing_extensions import TypeVar, override
 
@@ -14,18 +14,19 @@ from betty.exception import HumanFacingException
 from betty.factory import new_target
 from betty.importlib import fully_qualified_name
 from betty.locale.localizable.gettext import _
-from betty.plugin.repository.provider import PluginRepositoryProvider
+from betty.plugin.manager.service import ServiceLevelPluginManager
 from betty.service.container import ServiceContainer
 from betty.typing import Void
 
 if TYPE_CHECKING:
+    from betty.plugin.manager import PluginManager
     from betty.portable import PortableData
     from betty.service.level.factory import ServiceLevelTarget
 
 _T = TypeVar("_T")
 
 
-class ServiceLevel(ServiceContainer, PluginRepositoryProvider):
+class ServiceLevel(ServiceContainer):
     """
     A service level.
 
@@ -38,7 +39,7 @@ class ServiceLevel(ServiceContainer, PluginRepositoryProvider):
 
        * - Level
          - Container(s)
-       * - :py:data:`betty.service.level.universal.universe`
+       * - :py:data:`betty.service.level.universe`
          - *N/A*
        * - :py:class:`betty.app.App`
          - :py:class:`betty.app.App`
@@ -47,6 +48,10 @@ class ServiceLevel(ServiceContainer, PluginRepositoryProvider):
        * - :py:class:`betty.project.Project`
          - :py:class:`betty.extension.Extension`
     """
+
+    def __init__(self, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+        self._plugins = ServiceLevelPluginManager(self)
 
     @final
     async def new_target(
@@ -102,3 +107,16 @@ class ServiceLevel(ServiceContainer, PluginRepositoryProvider):
                     services=self,
                     data=configuration,  # ty:ignore[invalid-argument-type]
                 )
+
+    @property
+    def plugins(self) -> PluginManager:
+        """
+        The plugin manager.
+        """
+        return self._plugins
+
+
+universe: Final[ServiceLevel] = ServiceLevel()
+"""
+The universal service level.
+"""

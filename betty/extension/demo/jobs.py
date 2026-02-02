@@ -475,7 +475,7 @@ class LoadAncestry(Job[ProjectContext]):
         self,
         project: Project,
     ) -> tuple[Mapping[MachineName, Sequence[File]], Sequence[File]]:
-        licenses = await project.plugins(LicenseDefinition)
+        licenses = await project.plugins.plugins(LicenseDefinition)
         license = await project.new_target(  # noqa: A001
             licenses[spdx_license_id_to_license_id("AGPL-3.0-or-later")].cls
         )

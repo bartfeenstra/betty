@@ -8,7 +8,7 @@ from betty.exception import HumanFacingException
 from betty.model import EntityDefinition
 from betty.model.reference import EntityReference
 from betty.project import Project
-from betty.service.level.universal import universe
+from betty.service.level import universe
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.model import DummyEntityOne
 

@@ -65,7 +65,9 @@ class EntityReference(Data, Hydratable):
     @override
     @require_project
     async def hydrate(self, *, project: Project) -> None:
-        entity_type = assert_plugin(await project.plugins(EntityDefinition))(self.type)
+        entity_type = assert_plugin(await project.plugins.plugins(EntityDefinition))(
+            self.type
+        )
         try:
             project.ancestry[self.type][self.id]
         except KeyError:

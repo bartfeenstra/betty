@@ -13,8 +13,8 @@ from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.console.project import add_project_argument
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _
-from betty.plugin import plugin_types
 from betty.rich.user import RichUser
+from betty.service.level import universe
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
 from betty.service.requirement.app import require_app
 
@@ -96,10 +96,10 @@ class About(ServiceLevelDependentSelfFactory, Command):
         about_plugins.add_column(user.localizer._("ID"))
         about_plugins.add_column(user.localizer._("Label"))
         for plugin_type in sorted(
-            plugin_types,
+            universe.plugins.types,
             key=lambda plugin_type: plugin_type.type().label.localize(user.localizer),
         ):
-            repository = await services.plugins(plugin_type)
+            repository = await services.plugins.plugins(plugin_type)
             for index, plugin in enumerate(
                 sorted(repository, key=lambda plugin: plugin.id)
             ):

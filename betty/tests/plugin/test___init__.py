@@ -9,7 +9,7 @@ from betty.plugin import (
 )
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
-from betty.service.level.universal import universe
+from betty.service.level import universe
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,

@@ -169,7 +169,7 @@ class Index:
         """
         Build the search index.
         """
-        entity_types = await self._project.plugins(EntityDefinition)
+        entity_types = await self._project.plugins.plugins(EntityDefinition)
         specialized_indexers: Mapping[type[Entity], _EntityTypeIndexer[Entity]] = {
             File: _FileIndexer(self._project),
             Person: _PersonIndexer(self._project),

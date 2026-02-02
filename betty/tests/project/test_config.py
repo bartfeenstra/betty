@@ -21,7 +21,7 @@ from betty.project.config import (
     PresenceRoleDefinitionConfiguration,
     ProjectConfiguration,
 )
-from betty.service.level.universal import universe
+from betty.service.level import universe
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
