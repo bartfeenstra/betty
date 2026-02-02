@@ -11,7 +11,7 @@ from betty.extension import ExtensionDefinition
 from betty.locale.localizable.gettext import _
 from betty.locale.translation.project import extension as extension_translation
 from betty.locale.translation.project import extension as translation_project_extension
-from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.level import Manufacturable
 from betty.service.requirement.app import require_app
 
 if TYPE_CHECKING:
@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 @CommandDefinition(
     "extension-new-translation", label=_("Create a new translation for an extension")
 )
-class ExtensionNewTranslation(ServiceLevelDependentSelfFactory, Command):
+class ExtensionNewTranslation(Manufacturable, Command):
     """
     .. plugin:: command:extension-new-translation.
     """

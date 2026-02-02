@@ -13,7 +13,7 @@ from betty.media_type import MediaType
 from betty.media_type.media_types import HTML
 from betty.project import Project
 from betty.render import Renderer, RendererDefinition
-from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.level import Manufacturable
 from betty.service.requirement.project import require_project
 from betty.typing import private
 from betty.url import UrlGenerator
@@ -28,7 +28,7 @@ _ATTRIBUTES = ("href", "src")
         "The values of the following HTML attributes will automatically be replaced with the URLs generated from them where possible: {attributes}"
     ).format(attributes=AllEnumeration(*_ATTRIBUTES)),
 )
-class Html(ServiceLevelDependentSelfFactory, Renderer):
+class Html(Manufacturable, Renderer):
     """
     .. plugin:: renderer:html.
     """

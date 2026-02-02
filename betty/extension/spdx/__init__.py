@@ -12,7 +12,7 @@ from betty.license.licenses import SpdxLicenseBuilder
 from betty.locale.localizable.gettext import _
 from betty.plugin.repository.static import StaticPluginRepository
 from betty.service.container import service
-from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.level import Manufacturable
 from betty.service.requirement.extension import require_extension
 from betty.service.requirement.project import require_project
 
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
         "Provide license plugins from the SPDX License List (https://spdx.org/licenses/) "
     ),
 )
-class Spdx(ServiceLevelDependentSelfFactory, Extension):
+class Spdx(Manufacturable, Extension):
     """
     .. plugin:: extension:spdx.
     """

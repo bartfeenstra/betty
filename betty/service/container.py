@@ -35,10 +35,6 @@ if TYPE_CHECKING:
 
     from ty_extensions import Intersection
 
-    from betty.data import Data
-    from betty.portable import PortableData
-    from betty.service.level.factory import ServiceLevelTarget
-
 
 _T = TypeVar("_T")
 _ServiceT = TypeVar("_ServiceT")
@@ -109,15 +105,6 @@ class ServiceContainer(Bootstrapped, Shutdownable):
         exc_tb: TracebackType | None,
     ) -> None:
         await self.shutdown(wait=exc_val is None)
-
-    @abstractmethod
-    async def _new_target(
-        self,
-        target: ServiceLevelTarget[_T],
-        configuration: Data | PortableData | Void = Void(),  # noqa: B008
-        /,
-    ) -> _T:
-        pass
 
 
 _ServiceProviderT = TypeVar("_ServiceProviderT", bound=ServiceContainer)

@@ -15,12 +15,12 @@ from betty.content_provider.content_providers import Template
 from betty.document import Document
 from betty.extension.maps import Maps
 from betty.locale.localizable.gettext import _
-from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.level import Manufacturable
 from betty.service.requirement.extension import require_extension
 
 
 @ContentProviderDefinition("maps-map", label=_("Map"))
-class Map(Template, ServiceLevelDependentSelfFactory):
+class Map(Template, Manufacturable):
     """
     An interactive map.
 
@@ -57,7 +57,7 @@ class Map(Template, ServiceLevelDependentSelfFactory):
 
 
 @ContentProviderDefinition("maps-map-attribution", label=_("Map attribution"))
-class MapAttribution(Template, ServiceLevelDependentSelfFactory):
+class MapAttribution(Template, Manufacturable):
     """
     The attribution for an interactive map.
 

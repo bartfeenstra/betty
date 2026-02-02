@@ -10,7 +10,7 @@ from typing_extensions import override
 
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.locale.localizable.gettext import _
-from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.level import Manufacturable
 from betty.service.requirement.app import require_app
 
 if TYPE_CHECKING:
@@ -23,7 +23,7 @@ _LEGACY_CACHE_DIRECTORY_PATH = Path.home() / ".betty" / "cache"
 
 @final
 @CommandDefinition("clear-caches", label=_("Clear all caches"))
-class ClearCaches(ServiceLevelDependentSelfFactory, Command):
+class ClearCaches(Manufacturable, Command):
     """
     .. plugin:: command:clear-caches.
     """

@@ -12,7 +12,7 @@ from betty.extension.deriver.jobs import DeriveAncestry
 from betty.extension.privatizer.jobs import PrivatizeAncestry
 from betty.locale.localizable.gettext import _
 from betty.project.load import PostLoader
-from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.level import Manufacturable
 from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     ),
     comes_after={Deriver},
 )
-class Privatizer(PostLoader, ServiceLevelDependentSelfFactory, Extension):
+class Privatizer(PostLoader, Manufacturable, Extension):
     """
     .. plugin:: extension:privatizer.
 

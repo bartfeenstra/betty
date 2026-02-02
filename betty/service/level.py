@@ -4,14 +4,15 @@ Service levels.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Final, final
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, Any, Final, Self, overload
 
 from typing_extensions import TypeVar, override
 
+from betty.asyncio import resolve_await
 from betty.config import Configurable
 from betty.data import Data
 from betty.exception import HumanFacingException
-from betty.factory import new_target
 from betty.importlib import fully_qualified_name
 from betty.locale.localizable.gettext import _
 from betty.plugin.manager.service import ServiceLevelPluginManager
@@ -19,9 +20,10 @@ from betty.service.container import ServiceContainer
 from betty.typing import Void
 
 if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
+
     from betty.plugin.manager import PluginManager
     from betty.portable import PortableData
-    from betty.service.level.factory import ServiceLevelTarget
 
 _T = TypeVar("_T")
 
@@ -53,36 +55,49 @@ class ServiceLevel(ServiceContainer):
         super().__init__(*args, **kwargs)
         self._plugins = ServiceLevelPluginManager(self)
 
-    @final
+    @overload
     async def new_target(
         self,
-        target: ServiceLevelTarget[_T],
+        target: type[_ServiceLevelManufacturableT],
+        configuration: Data | PortableData | Void = Void(),  # noqa: B008
+        /,
+    ) -> _ServiceLevelManufacturableT:
+        pass
+
+    @overload
+    async def new_target(
+        self,
+        target: Callable[[], Awaitable[_T] | _T],
         configuration: Data | PortableData | Void = Void(),  # noqa: B008
         /,
     ) -> _T:
+        pass
+
+    @overload
+    async def new_target(
+        self,
+        target: type[_T],
+        configuration: Data | PortableData | Void = Void(),  # noqa: B008
+        /,
+    ) -> _T:
+        pass
+
+    async def new_target(
+        self,
+        target,
+        configuration=Void(),  # noqa: B008
+    ):
         """
         Create a new instance.
 
         :raises FactoryError: raised when ``target`` could not be called.
         """
-        return await self._new_target(target, configuration)
-
-    @final
-    @override
-    async def _new_target(
-        self,
-        target: ServiceLevelTarget[_T],
-        configuration: Data | PortableData | Void = Void(),  # noqa: B008
-        /,
-    ) -> _T:
-        from betty.service.level.factory import ServiceLevelDependentSelfFactory
-
         if configuration is Void():
-            if isinstance(target, type) and issubclass(
-                target, ServiceLevelDependentSelfFactory
-            ):
-                return await target.new_for_services(services=self)  # ty:ignore[invalid-return-type]
-            return await new_target(target)
+            if isinstance(target, type) and issubclass(target, Manufacturable):
+                return await target.new_for_services(services=self)
+            if callable(target):
+                return await resolve_await(target())
+            raise RuntimeError(f"Cannot create a new instance of {target}")
         if not isinstance(target, type) or not issubclass(target, Configurable):
             raise HumanFacingException(
                 _(
@@ -90,11 +105,11 @@ class ServiceLevel(ServiceContainer):
                 ).format(target=fully_qualified_name(target))
             )
         if not isinstance(configuration, Data):
-            configuration = target.configuration_cls().data().porter.load(configuration)  # ty:ignore[unresolved-attribute]
+            configuration = target.configuration_cls().data().porter.load(configuration)
         return await target.new_for_configuration(
             services=self,
-            configuration=configuration,  # ty:ignore[invalid-argument-type]
-        )  # ty:ignore[invalid-return-type]
+            configuration=configuration,
+        )
 
     @override
     async def _post_bootstrap(self) -> None:
@@ -120,3 +135,21 @@ universe: Final[ServiceLevel] = ServiceLevel()
 """
 The universal service level.
 """
+
+
+class Manufacturable(ABC):
+    """
+    Allow this type to be instantiated using a :py:class:`betty.service.level.ServiceLevel`.
+    """
+
+    @classmethod
+    @abstractmethod
+    async def new_for_services(cls, *, services: ServiceLevel) -> Self:
+        """
+        Create a new instance using the given service level.
+        """
+
+
+_ServiceLevelManufacturableT = TypeVar(
+    "_ServiceLevelManufacturableT", bound=Manufacturable
+)

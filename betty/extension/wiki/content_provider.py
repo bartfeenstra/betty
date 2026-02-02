@@ -10,12 +10,12 @@ from betty.content_provider import ContentProviderDefinition
 from betty.content_provider.content_providers import Template
 from betty.extension.wiki import Wiki
 from betty.locale.localizable.gettext import _
-from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.level import Manufacturable
 from betty.service.requirement.extension import require_extension
 
 
 @ContentProviderDefinition("wiki-wikipedia-summary", label=_("Wikipedia summary"))
-class WikipediaSummary(Template, ServiceLevelDependentSelfFactory):
+class WikipediaSummary(Template, Manufacturable):
     """
     A Wikipedia summary.
 

@@ -18,7 +18,7 @@ from betty.locale.localizable import resolve_localizable
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.plain import Plain
 from betty.locale.localizable.static import StaticTranslations
-from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.level import Manufacturable
 from betty.service.requirement.app import require_app
 from betty.service.requirement.project import require_project
 
@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 
 @final
 @CopyrightNoticeDefinition("project-author", label=_("Project author"))
-class ProjectAuthor(ServiceLevelDependentSelfFactory, CopyrightNotice):
+class ProjectAuthor(Manufacturable, CopyrightNotice):
     """
     .. plugin:: copyright-notice:project-author.
     """
@@ -109,7 +109,7 @@ def _copyright_url(language: str, page: str) -> str:
 
 @final
 @CopyrightNoticeDefinition("wikipedia-contributors", label=_("Wikipedia contributors"))
-class WikipediaContributors(ServiceLevelDependentSelfFactory, CopyrightNotice):
+class WikipediaContributors(Manufacturable, CopyrightNotice):
     """
     .. plugin:: copyright-notice:wikipedia-contributors.
     """

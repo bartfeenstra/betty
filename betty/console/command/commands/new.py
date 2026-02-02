@@ -7,7 +7,7 @@ from typing_extensions import override
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.locale.localizable.gettext import _
 from betty.project import new
-from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.level import Manufacturable
 from betty.service.requirement.app import require_app
 
 if TYPE_CHECKING:
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 @final
 @CommandDefinition("new", label=_("Create a new project"))
-class New(ServiceLevelDependentSelfFactory, Command):
+class New(Manufacturable, Command):
     """
     .. plugin:: command:new.
     """

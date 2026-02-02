@@ -19,7 +19,7 @@ from betty.locale import negotiate_locale, resolve_locale
 from betty.locale.localizable.gettext import _
 from betty.project.load import PostLoader
 from betty.service.container import service
-from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.level import Manufacturable
 from betty.service.requirement.project import require_project
 from betty.typing import private
 from betty.wiki import NotAPageError, parse_page_url
@@ -52,7 +52,7 @@ if TYPE_CHECKING:
 class Wiki(
     PostLoader,
     Configurable[WikiConfiguration],
-    ServiceLevelDependentSelfFactory,
+    Manufacturable,
     Jinja2Provider,
     Extension,
 ):

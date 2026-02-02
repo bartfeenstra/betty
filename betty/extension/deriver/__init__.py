@@ -12,7 +12,7 @@ from betty.extension import Extension, ExtensionDefinition
 from betty.extension.deriver.jobs import DeriveAncestry
 from betty.locale.localizable.gettext import _
 from betty.project.load import PostLoader
-from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.level import Manufacturable
 from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
         "Create events such as births and deaths by deriving their details from existing information."
     ),
 )
-class Deriver(PostLoader, ServiceLevelDependentSelfFactory, Extension):
+class Deriver(PostLoader, Manufacturable, Extension):
     """
     .. plugin:: extension:deriver.
 

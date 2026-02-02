@@ -13,7 +13,7 @@ from betty.dirs import DEV_OUTPUT_DIRECTORY_PATH
 from betty.extension.demo import generate_with_cleanup
 from betty.extension.demo.project import create_project
 from betty.project.job import ProjectContext
-from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.level import Manufacturable
 from betty.service.requirement.app import require_app
 
 if TYPE_CHECKING:
@@ -54,7 +54,7 @@ def _print(stats: YFuncStats, sort_column: str, sort_direction: str) -> None:
 @CommandDefinition(
     "dev-profile-demo", label="Profile the generation of the demonstration site"
 )
-class DevProfileDemo(ServiceLevelDependentSelfFactory, Command):
+class DevProfileDemo(Manufacturable, Command):
     """
     .. plugin:: command:dev-profile-demo.
     """

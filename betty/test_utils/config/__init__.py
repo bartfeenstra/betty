@@ -16,7 +16,9 @@ class DummyConfigurable(Configurable[DummyData]):
     A dummy :py:class:`betty.config.Configurable` implementation.
     """
 
-    def __init__(self, *args: Any, configuration: DummyData | None, **kwargs: Any):
+    def __init__(
+        self, *args: Any, configuration: DummyData | None = None, **kwargs: Any
+    ):
         super().__init__(
             *args,
             configuration=DummyData() if configuration is None else configuration,

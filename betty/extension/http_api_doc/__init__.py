@@ -12,7 +12,7 @@ from betty.extension.webpack import Webpack
 from betty.extension.webpack.build import EntryPointProvider
 from betty.html import NavigationLink, NavigationLinkProvider
 from betty.locale.localizable.gettext import _
-from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.level import Manufacturable
 from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
@@ -31,9 +31,7 @@ if TYPE_CHECKING:
     depends_on={Webpack},
     assets_directory=Path(__file__).parent / "assets",
 )
-class HttpApiDoc(
-    EntryPointProvider, NavigationLinkProvider, ServiceLevelDependentSelfFactory
-):
+class HttpApiDoc(EntryPointProvider, NavigationLinkProvider, Manufacturable):
     """
     .. plugin:: extension:http-api-doc.
     """

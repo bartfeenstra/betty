@@ -21,7 +21,7 @@ from betty.extension.webpack.jinja2.filter import FILTERS
 from betty.html import CssProvider, JsProvider
 from betty.jinja2 import Filters, Jinja2Provider
 from betty.project.generate import Generator
-from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.level import Manufacturable
 from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
@@ -45,7 +45,7 @@ class Webpack(
     JsProvider,
     Jinja2Provider,
     DocumentProvider,
-    ServiceLevelDependentSelfFactory,
+    Manufacturable,
 ):
     """
     .. plugin:: extension:webpack.

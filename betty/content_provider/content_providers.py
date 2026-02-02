@@ -24,9 +24,7 @@ from betty.plugin.config import (
 )
 from betty.plugin.config.property import PluginConfigurationSequenceProperty
 from betty.sample import Size
-from betty.service.level.factory import (
-    ServiceLevelDependentSelfFactory,
-)
+from betty.service.level import Manufacturable
 from betty.service.requirement.project import require_project
 from betty.typing import private
 
@@ -131,7 +129,7 @@ class Template(ContentProvider):
 
 
 @ContentProviderDefinition("notes", label=_("Notes"))
-class Notes(Template, ServiceLevelDependentSelfFactory):
+class Notes(Template, Manufacturable):
     """
     .. plugin:: content-provider:notes.
     """
