@@ -4,11 +4,10 @@ Service containers.
 
 from __future__ import annotations
 
-from _warnings import warn
 from abc import abstractmethod
 from collections.abc import Awaitable, Callable
 from functools import update_wrapper
-from inspect import getmembers, iscoroutinefunction
+from inspect import iscoroutinefunction
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -21,19 +20,21 @@ from typing import (
     final,
     overload,
 )
+from warnings import warn
 
 from typing_extensions import override
 
 from betty.concurrent import AsynchronizedLock, Lock
 from betty.service import ServiceError
 from betty.service.bootstrap import Bootstrapped, Shutdownable, ShutdownStack
-from betty.typing import Void, internal, public
+from betty.typing import Void, internal
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
     from types import FunctionType, TracebackType
 
     from ty_extensions import Intersection
+
+    from betty.service.level import ServiceLevel
 
 
 _T = TypeVar("_T")
@@ -41,8 +42,10 @@ _ServiceT = TypeVar("_ServiceT")
 _ServiceGetT = TypeVar("_ServiceGetT")
 
 
-@internal
-class ServiceContainer(Bootstrapped, Shutdownable):
+# @todo Do we need this still?
+# @todo
+# @todo
+class ServiceContainer:
     """
     A service container.
 
@@ -50,11 +53,13 @@ class ServiceContainer(Bootstrapped, Shutdownable):
     :py:func:`betty.service.container.service`, and manage their resources by being bootstrapped and shut down.
     """
 
-    def __init__(self, *args: Any, **kwargs: Any):
+
+class EphemeralServiceContainer(Bootstrapped, Shutdownable, ServiceContainer):
+    def __init__(self, *args: Any, services: ServiceLevel, **kwargs: Any):
         super().__init__(*args, **kwargs)
+        self._services = services
         self._shutdown_stack = ShutdownStack()
 
-    @public
     async def bootstrap(self) -> None:
         """
         Bootstrap the component.
@@ -68,15 +73,13 @@ class ServiceContainer(Bootstrapped, Shutdownable):
         pass
 
     async def _post_bootstrap(self) -> None:
-        pass
+        from betty.config import Configurable
 
-    @classmethod
-    def _service_managers(cls) -> Iterable[ServiceManager[Self, Any, Any]]:
-        for _, value in getmembers(cls):
-            if isinstance(value, ServiceManager):
-                yield value
+        if isinstance(self, Configurable):
+            await self.configuration.data().hydrate(
+                services=self._services, data=self.configuration
+            )
 
-    @public
     @override
     async def shutdown(self, *, wait: bool = True) -> None:
         self.assert_bootstrapped()
@@ -90,13 +93,11 @@ class ServiceContainer(Bootstrapped, Shutdownable):
         if self.bootstrapped:
             warn(f"{self} was bootstrapped, but never shut down.", stacklevel=2)
 
-    @public
     @final
     async def __aenter__(self) -> Self:
         await self.bootstrap()
         return self
 
-    @public
     @final
     async def __aexit__(
         self,
@@ -197,6 +198,9 @@ class ServiceManager(Generic[_ServiceContainerT, _ServiceGetT, _ServiceT]):
     def __init__(
         self,
         factory: Intersection[
+            # @todo If we use __set_name__(), we can accept more types than just functions.
+            # @todo
+            # @todo
             ServiceFactory[_ServiceContainerT, _ServiceGetT], FunctionType
         ],
         /,
@@ -240,7 +244,8 @@ class ServiceManager(Generic[_ServiceContainerT, _ServiceGetT, _ServiceT]):
         """
         Get the service from an instance.
         """
-        instance.assert_bootstrapped()
+        if isinstance(instance, EphemeralServiceContainer):
+            instance.assert_bootstrapped()
 
         return self._get(instance)
 

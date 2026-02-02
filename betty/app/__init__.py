@@ -39,7 +39,12 @@ from betty.service.container import (
     StaticService,
     service,
 )
-from betty.service.level import Configurable, ServiceLevel, universe
+from betty.service.level import (
+    Configurable,
+    EphemeralServiceLevel,
+    ServiceLevel,
+    universe,
+)
 from betty.typing import threadsafe
 from betty.user.no_op import NoOpUser
 
@@ -60,7 +65,7 @@ _PluginDefinitionT = TypeVar(
 
 @final
 @threadsafe
-class App(Configurable[AppConfiguration], ServiceLevel):
+class App(Configurable[AppConfiguration], EphemeralServiceLevel):
     """
     The Betty application.
 

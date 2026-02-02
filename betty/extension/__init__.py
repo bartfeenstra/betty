@@ -11,7 +11,7 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition, ResolvableId
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
-from betty.service.container import ServiceContainer
+from betty.service.container import EphemeralServiceContainer
 from betty.service.level import ServiceLevel
 from betty.typing import private
 
@@ -29,12 +29,13 @@ _ServiceLevelCoT = TypeVar(
 
 
 class Extension(
-    ServiceContainer, Plugin["ExtensionDefinition"], Generic[_ServiceLevelCoT]
+    EphemeralServiceContainer, Plugin["ExtensionDefinition"], Generic[_ServiceLevelCoT]
 ):
     """
     Integrate custom services with a :py:class:`service level <betty.service.level.ServiceLevel>`.
     """
 
+    # @todo Remove this now? Or generalize to any ServiceLevel?
     @private
     def __init__(self, *, services: _ServiceLevelCoT):
         super().__init__()

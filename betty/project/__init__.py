@@ -39,7 +39,12 @@ from betty.project.config import ProjectConfiguration
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.serde import SerializerDefinition, serializer_for
 from betty.service.container import service
-from betty.service.level import Configurable, ServiceLevel, universe
+from betty.service.level import (
+    Configurable,
+    EphemeralServiceLevel,
+    ServiceLevel,
+    universe,
+)
 from betty.typing import internal
 
 if TYPE_CHECKING:
@@ -65,7 +70,7 @@ _PluginDefinitionT = TypeVar(
 
 
 @final
-class Project(Configurable[ProjectConfiguration], ServiceLevel):
+class Project(Configurable[ProjectConfiguration], EphemeralServiceLevel):
     """
     Define a Betty project.
 

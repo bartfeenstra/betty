@@ -5,7 +5,7 @@ Service levels.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Final, Generic, Self, overload
+from typing import TYPE_CHECKING, Final, Generic, Self, overload
 
 from typing_extensions import TypeVar
 
@@ -15,7 +15,7 @@ from betty.exception import HumanFacingException
 from betty.importlib import fully_qualified_name
 from betty.locale.localizable.gettext import _
 from betty.plugin.manager.service import ServiceLevelPluginManager
-from betty.service.container import ServiceContainer
+from betty.service.container import EphemeralServiceContainer, ServiceContainer, service
 from betty.typing import Void
 
 if TYPE_CHECKING:
@@ -51,11 +51,6 @@ class ServiceLevel(ServiceContainer):
          - :py:class:`betty.extension.Extension`
     """
 
-    def __init__(self, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
-        self._plugins = ServiceLevelPluginManager(self)
-
-    @overload
     async def new_target(
         self,
         target: type[_ServiceLevelManufacturableT],
@@ -111,12 +106,23 @@ class ServiceLevel(ServiceContainer):
             configuration=configuration,
         )
 
-    @property
+    @service
     def plugins(self) -> PluginManager:
         """
         The plugin manager.
         """
-        return self._plugins
+        return ServiceLevelPluginManager(self)
+
+
+# @todo Finetune the name
+# @todo
+# @todo
+# @todo
+# @todo
+# @todo Also we need a mixin with parts of this, for Extensions, which have all the cool async service handling but none of the service level
+# @todo
+class EphemeralServiceLevel(EphemeralServiceContainer, ServiceLevel):
+    pass
 
 
 universe: Final[ServiceLevel] = ServiceLevel()
