@@ -16,13 +16,13 @@ from betty.ancestry.person import Person
 from betty.ancestry.place_type import PlaceType, PlaceTypeDefinition
 from betty.ancestry.presence_role import PresenceRole, PresenceRoleDefinition
 from betty.assertion import assert_number
-from betty.collections import PrimaryKeyMapping
+from betty.collections import PrimaryKeyCollection
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.data import Data, Sample
-from betty.data.aggregate.collection.mapping import AutoMappingDefinition
+from betty.data.aggregate.collection.mapping import KeyedCollectionDefinition
 from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
 from betty.data.aggregate.record.object.property import (
-    AutoMappingProperty,
+    KeyedCollectionProperty,
     Optional,
     Property,
 )
@@ -630,8 +630,8 @@ class ProjectConfiguration(Data):
     - job artifacts (e.g. generated sites)
     """
 
-    entity_types = AutoMappingProperty(
-        AutoMappingDefinition(
+    entity_types = KeyedCollectionProperty(
+        KeyedCollectionDefinition(
             value=EntityTypeConfiguration,
             label=_("Entity types"),
             key=Attr("entity_type"),
@@ -639,7 +639,7 @@ class ProjectConfiguration(Data):
         ),
         omit_load=True,
         omit_dump=lambda data: not len(data),
-        default=lambda: PrimaryKeyMapping(
+        default=lambda: PrimaryKeyCollection(
             key=lambda item: item.entity_type,
             value_resolver=lambda data: data
             if isinstance(data, EntityTypeConfiguration)
@@ -657,8 +657,8 @@ class ProjectConfiguration(Data):
     The :py:class:`betty.ancestry.event_type.EventType` plugins created by this project.
     """
 
-    extensions = AutoMappingProperty(
-        AutoMappingDefinition(
+    extensions = KeyedCollectionProperty(
+        KeyedCollectionDefinition(
             value=PluginConfigurationDefinition(ExtensionDefinition),
             label=ExtensionDefinition.type().label_plural,
             key=Attr("id"),
@@ -666,7 +666,7 @@ class ProjectConfiguration(Data):
         ),
         omit_load=True,
         omit_dump=lambda data: not len(data),
-        default=lambda: PrimaryKeyMapping(
+        default=lambda: PrimaryKeyCollection(
             key=lambda data: data.id,
             key_resolver=resolve_id,
             value_resolver=resolve_plugin_configuration,
@@ -720,8 +720,8 @@ class ProjectConfiguration(Data):
     presumed to have died.
     """
 
-    locales = AutoMappingProperty(
-        AutoMappingDefinition(
+    locales = KeyedCollectionProperty(
+        KeyedCollectionDefinition(
             value=LocaleConfiguration,
             label=_("Locales"),
             key=Attr("locale"),
@@ -729,7 +729,7 @@ class ProjectConfiguration(Data):
         ),
         omit_load=True,
         omit_dump=lambda data: not len(data),
-        default=lambda: PrimaryKeyMapping(
+        default=lambda: PrimaryKeyCollection(
             [DEFAULT_LOCALE],
             key=lambda item: item.locale,
             key_resolver=resolve_locale,

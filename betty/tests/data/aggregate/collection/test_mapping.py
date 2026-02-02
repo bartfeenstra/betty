@@ -2,10 +2,10 @@ from collections.abc import Sequence
 
 import pytest
 
-from betty.collections import PrimaryKeyMapping
+from betty.collections import PrimaryKeyCollection
 from betty.data import DataDefinition
 from betty.data.aggregate.collection.mapping import (
-    AutoMappingDefinition,
+    KeyedCollectionDefinition,
     MappingDefinition,
 )
 from betty.data.aggregate.record import FieldDefinition
@@ -108,7 +108,7 @@ class TestMappingDefinition:
             sut.porter.dump({"hello": "Hello, world!"})
 
 
-class TestAutoMappingDefinition:
+class TestKeyedCollectionDefinition:
     _item = TypedMappingDefinition[dict[str, str]](
         cls=dict,
         label=DUMMY_LOCALIZABLE,
@@ -119,13 +119,13 @@ class TestAutoMappingDefinition:
             ),
         ],
     )
-    _sut_unordered = AutoMappingDefinition[dict[str, str]](
+    _sut_unordered = KeyedCollectionDefinition[dict[str, str]](
         value=_item,
         key=Key("key"),
         ordered=False,
         label=DUMMY_LOCALIZABLE,
     )
-    _sut_ordered = AutoMappingDefinition[dict[str, str]](
+    _sut_ordered = KeyedCollectionDefinition[dict[str, str]](
         value=_item,
         key=Key("key"),
         ordered=True,
@@ -152,26 +152,26 @@ class TestAutoMappingDefinition:
     def test_elements(self) -> None:
         assert list(
             self._sut_ordered.elements(
-                PrimaryKeyMapping(self._values, key=lambda value: value["key"])
+                PrimaryKeyCollection(self._values, key=lambda value: value["key"])
             )
         ) == [(Key("my_first_key"), self._item)]
 
     def test_load__unordered(self) -> None:
         data = self._sut_unordered.porter.load(self._portable_unordered)
-        assert isinstance(data, PrimaryKeyMapping)
+        assert isinstance(data, PrimaryKeyCollection)
         assert data["my_first_key"]["key"] == "my_first_key"
         assert data["my_first_key"]["other_element"] == "my_first_other_element"
 
     def test_load__ordered(self) -> None:
         data = self._sut_ordered.porter.load(self._portable_ordered)
-        assert isinstance(data, PrimaryKeyMapping)
+        assert isinstance(data, PrimaryKeyCollection)
         assert data["my_first_key"]["key"] == "my_first_key"
         assert data["my_first_key"]["other_element"] == "my_first_other_element"
 
     def test_dump__unordered(self) -> None:
-        data = PrimaryKeyMapping(self._values, key=lambda value: value["key"])
+        data = PrimaryKeyCollection(self._values, key=lambda value: value["key"])
         assert self._sut_unordered.porter.dump(data) == self._portable_unordered
 
     def test_dump__ordered(self) -> None:
-        data = PrimaryKeyMapping(self._values, key=lambda value: value["key"])
+        data = PrimaryKeyCollection(self._values, key=lambda value: value["key"])
         assert self._sut_ordered.porter.dump(data) == self._portable_ordered

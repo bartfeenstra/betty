@@ -11,11 +11,11 @@ from typing_extensions import TypeVar
 from betty.collections import (
     MutableResolvedSequence,
     MutableResolvedSequenceProxy,
-    PrimaryKeyMapping,
+    PrimaryKeyCollection,
 )
-from betty.data.aggregate.collection.mapping import AutoMappingDefinition
+from betty.data.aggregate.collection.mapping import KeyedCollectionDefinition
 from betty.data.aggregate.record.object.property import (
-    AutoMappingProperty,
+    KeyedCollectionProperty,
     SequenceProperty,
 )
 from betty.data.indicator.selector import Attr
@@ -72,7 +72,7 @@ class PluginConfigurationSequenceProperty(
 
 
 @final
-class PluginDefinitionConfigurationsProperty(AutoMappingProperty):
+class PluginDefinitionConfigurationsProperty(KeyedCollectionProperty):
     """
     A property containing a :py:class:`betty.collections.KeyedCollection` of :py:class:`betty.plugin.config.PluginDefinitionConfiguration`.
     """
@@ -86,7 +86,7 @@ class PluginDefinitionConfigurationsProperty(AutoMappingProperty):
         description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
-            AutoMappingDefinition(
+            KeyedCollectionDefinition(
                 value=item,
                 label=plugin_type.type().label_plural,
                 key=Attr("id"),
@@ -96,5 +96,5 @@ class PluginDefinitionConfigurationsProperty(AutoMappingProperty):
             description=description,
             omit_load=True,
             omit_dump=lambda data: not len(data),
-            default=lambda: PrimaryKeyMapping(key=lambda item: item.id),
+            default=lambda: PrimaryKeyCollection(key=lambda item: item.id),
         )
