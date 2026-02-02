@@ -387,19 +387,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "dated_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
         },
     },
-    "betty/ancestry/event_type/__init__.py": {
-        "EventType": MissingReason.STATIC_CONTENT_ONLY,
-        "ShouldExistEventType": MissingReason.ABSTRACT,
-    },
-    "betty/ancestry/gender/__init__.py": {
-        "Gender": MissingReason.STATIC_CONTENT_ONLY,
-    },
-    "betty/ancestry/place_type/__init__.py": {
-        "PlaceType": MissingReason.STATIC_CONTENT_ONLY,
-    },
-    "betty/ancestry/presence_role/__init__.py": {
-        "PresenceRole": MissingReason.STATIC_CONTENT_ONLY,
-    },
     "betty/collections.py": {
         "KeyedCollection": MissingReason.ABSTRACT,
         "MutableCollection": MissingReason.ABSTRACT,
@@ -414,8 +401,35 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/copyright_notice/__init__.py": {
         "CopyrightNotice": MissingReason.STATIC_CONTENT_ONLY,
     },
+    "betty/copyright_notice/config.py": {
+        "CopyrightNoticeDefinitionConfiguration": {
+            "data": MissingReason.INHERITED,
+        },
+    },
+    "betty/event_type/__init__.py": {
+        "EventType": MissingReason.STATIC_CONTENT_ONLY,
+        "ShouldExistEventType": MissingReason.ABSTRACT,
+    },
+    "betty/event_type/config.py": {
+        "EventTypeDefinitionConfiguration": {
+            "data": MissingReason.INHERITED,
+        },
+    },
     "betty/license/__init__.py": {
         "License": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/license/config.py": {
+        "LicenseDefinitionConfiguration": {
+            "data": MissingReason.INHERITED,
+        },
+    },
+    "betty/gender/__init__.py": {
+        "Gender": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/gender/config.py": {
+        "GenderDefinitionConfiguration": {
+            "data": MissingReason.INHERITED,
+        },
     },
     "betty/npm.py": {
         "is_available": MissingReason.SHOULD_BE_COVERED,
@@ -426,6 +440,14 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/multiprocessing.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/openapi.py": {
         "SpecificationSchema": {"__annotate_func__": MissingReason.DATACLASS},
+    },
+    "betty/place_type/__init__.py": {
+        "PlaceType": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/place_type/config.py": {
+        "PlaceTypeDefinitionConfiguration": {
+            "data": MissingReason.INHERITED,
+        },
     },
     "betty/plugin/__init__.py": {
         "Plugin": MissingReason.ABSTRACT,
@@ -459,6 +481,14 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/portable/error.py": {
         "NotPortable": MissingReason.STATIC_CONTENT_ONLY,
     },
+    "betty/presence_role/__init__.py": {
+        "PresenceRole": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/presence_role/config.py": {
+        "PresenceRoleDefinitionConfiguration": {
+            "data": MissingReason.INHERITED,
+        },
+    },
     "betty/privacy/__init__.py": {
         "Privacy": MissingReason.ENUM,
     },
@@ -471,27 +501,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Progress": MissingReason.ABSTRACT,
     },
     "betty/project/config.py": {
-        "CopyrightNoticeDefinitionConfiguration": {
-            "data": MissingReason.INHERITED,
-        },
-        "EventTypeDefinitionConfiguration": {
-            "data": MissingReason.INHERITED,
-        },
-        "GenderDefinitionConfiguration": {
-            "data": MissingReason.INHERITED,
-        },
-        "LicenseDefinitionConfiguration": {
-            "data": MissingReason.INHERITED,
-        },
-        "PlaceTypeDefinitionConfiguration": {
-            "data": MissingReason.INHERITED,
-        },
         "ProjectConfiguration": {
             "copyright_notice": MissingReason.INHERITED,
             "license": MissingReason.INHERITED,
-        },
-        "PresenceRoleDefinitionConfiguration": {
-            "data": MissingReason.INHERITED,
         },
     },
     "betty/extension/__init__.py": {

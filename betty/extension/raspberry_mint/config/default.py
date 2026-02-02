@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.ancestry.presence_role.presence_roles import Subject, Witness
 from betty.content_provider.content_providers import Box, BoxConfiguration, Notes
 from betty.extension.maps.content_provider import Map, MapAttribution
 from betty.extension.raspberry_mint import SINGLE_COLUMN_TEXT_WIDTH
@@ -35,6 +34,7 @@ from betty.extension.wiki.content_provider import WikipediaSummary
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
 from betty.plugin.config import PluginConfiguration
+from betty.presence_role.presence_roles import Subject, Witness
 
 if TYPE_CHECKING:
     from collections.abc import Collection

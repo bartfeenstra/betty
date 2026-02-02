@@ -7,21 +7,21 @@ from typing_extensions import override
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
-from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.note import Note
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
-from betty.ancestry.place_type.place_types import City
-from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.app import App
+from betty.event_type.event_types import Birth
 from betty.extension import Extension
 from betty.extension.gramps import Gramps
 from betty.extension.gramps.config import (
     FamilyTreeConfiguration,
     GrampsConfiguration,
 )
+from betty.place_type.place_types import City
 from betty.plugin.config import PluginConfiguration
+from betty.presence_role.presence_roles import Subject
 from betty.project import Project
 from betty.project.load import load
 from betty.test_utils.project.extension import ExtensionTestBase

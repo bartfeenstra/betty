@@ -9,13 +9,13 @@ from urllib.parse import quote
 
 from typing_extensions import override
 
-from betty.ancestry.gender import GenderDefinition
-from betty.ancestry.gender.genders import Unknown as UnknownGender
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.has_notes import HasNotes
 from betty.functools import unique
+from betty.gender import GenderDefinition
+from betty.gender.genders import Unknown as UnknownGender
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable.gettext import _, ngettext
 from betty.model import EntityDefinition, persistent_id
@@ -29,11 +29,11 @@ if TYPE_CHECKING:
 
     from betty.ancestry.citation import Citation
     from betty.ancestry.file_reference import FileReference
-    from betty.ancestry.gender import Gender
     from betty.ancestry.link import Link
     from betty.ancestry.note import Note
     from betty.ancestry.person_name import PersonName
     from betty.ancestry.presence import Presence
+    from betty.gender import Gender
     from betty.locale.localizable import Localizable
     from betty.portable import PortableMapping
     from betty.project import Project

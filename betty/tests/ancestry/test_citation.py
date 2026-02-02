@@ -6,8 +6,8 @@ from typing_extensions import override
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
-from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.source import Source
+from betty.event_type.event_types import Birth
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.model import Entity

@@ -53,7 +53,7 @@ class Gramps(Loader, Configurable[GrampsConfiguration], Extension):
     Gender
     ^^^^^^
     To set a person's gender to a gender that is available in Betty, but not in Gramps, add a ``betty:gender`` attribute,
-    whose value is the ID of the :py:class:`gender plugin <betty.ancestry.gender.GenderDefinition>` you want to use.
+    whose value is the ID of the :py:class:`gender plugin <betty.gender.GenderDefinition>` you want to use.
 
     Event names
     ^^^^^^^^^^^

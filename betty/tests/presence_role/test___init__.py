@@ -1,13 +1,13 @@
 import pytest
 from typing_extensions import override
 
-from betty.ancestry.gender import GenderDefinition
 from betty.plugin import PluginDefinition
+from betty.presence_role import PresenceRoleDefinition
 from betty.test_utils.plugin import PluginDefinitionClassTestBase
 
 
-class TestGenderDefinition(PluginDefinitionClassTestBase):
+class TestPresenceRoleDefinition(PluginDefinitionClassTestBase):
     @override
     @pytest.fixture
     def sut(self) -> type[PluginDefinition]:
-        return GenderDefinition
+        return PresenceRoleDefinition

@@ -1,8 +1,8 @@
 import pytest
 from typing_extensions import override
 
-from betty.ancestry.gender import Gender
-from betty.ancestry.gender.genders import Man, NonBinary, Unknown, Woman
+from betty.gender import Gender
+from betty.gender.genders import Man, NonBinary, Unknown, Woman
 from betty.plugin import PluginDefinition
 from betty.test_utils.ancestry.gender import GenderDefinitionTestBase, GenderTestBase
 

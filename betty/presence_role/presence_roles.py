@@ -4,9 +4,9 @@ Provide presence role implementations.
 
 from typing import final
 
-from betty.ancestry.presence_role import PresenceRole, PresenceRoleDefinition
 from betty.classtools import Singleton
 from betty.locale.localizable.gettext import _, ngettext
+from betty.presence_role import PresenceRole, PresenceRoleDefinition
 
 
 @final
@@ -33,7 +33,7 @@ class Beneficiary(PresenceRole):
     """
     .. plugin:: presence-role:beneficiary.
 
-    Someone was a `benificiary <https://en.wikipedia.org/wiki/Beneficiary>`_ in the event, such as a :py:class:`betty.ancestry.event_type.event_types.Will`.
+    Someone was a `benificiary <https://en.wikipedia.org/wiki/Beneficiary>`_ in the event, such as a :py:class:`betty.event_type.event_types.Will`.
     """
 
 
@@ -111,8 +111,8 @@ class Subject(PresenceRole):
     .. plugin:: presence-role:subject.
 
     The meaning of this role depends on the event type. For example, for
-    :py:class:`betty.ancestry.event_type.event_types.Marriage`, the subjects are the people who got married. For
-    :py:class:`betty.ancestry.event_type.event_types.Death` it is the person who died.
+    :py:class:`betty.event_type.event_types.Marriage`, the subjects are the people who got married. For
+    :py:class:`betty.event_type.event_types.Death` it is the person who died.
     """
 
 

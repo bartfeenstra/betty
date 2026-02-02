@@ -27,8 +27,22 @@ from betty import subprocess
 from betty.ancestry.citation import Citation
 from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.event import Event
-from betty.ancestry.event_type import EventTypeDefinition
-from betty.ancestry.event_type.event_types import (
+from betty.ancestry.file import File
+from betty.ancestry.file_reference import FileReference
+from betty.ancestry.has_links import HasLinks
+from betty.ancestry.link import Link
+from betty.ancestry.name import Name
+from betty.ancestry.note import Note
+from betty.ancestry.person import Person
+from betty.ancestry.person_name import PersonName
+from betty.ancestry.place import Place
+from betty.ancestry.presence import Presence
+from betty.ancestry.source import Source
+from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
+from betty.date import Date, DateRange, ResolvableDate
+from betty.error import FileNotFound
+from betty.event_type import EventTypeDefinition
+from betty.event_type.event_types import (
     Adoption,
     Baptism,
     BarMitzvah,
@@ -50,21 +64,21 @@ from betty.ancestry.event_type.event_types import (
     Retirement,
     Will,
 )
-from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
-from betty.ancestry.file import File
-from betty.ancestry.file_reference import FileReference
-from betty.ancestry.gender import GenderDefinition
-from betty.ancestry.gender.genders import Man, NonBinary, Woman
-from betty.ancestry.gender.genders import Unknown as UnknownGender
-from betty.ancestry.has_links import HasLinks
-from betty.ancestry.link import Link
-from betty.ancestry.name import Name
-from betty.ancestry.note import Note
-from betty.ancestry.person import Person
-from betty.ancestry.person_name import PersonName
-from betty.ancestry.place import Place
-from betty.ancestry.place_type import PlaceTypeDefinition
-from betty.ancestry.place_type.place_types import (
+from betty.event_type.event_types import Unknown as UnknownEventType
+from betty.gender import GenderDefinition
+from betty.gender.genders import Man, NonBinary, Woman
+from betty.gender.genders import Unknown as UnknownGender
+from betty.gramps.error import GrampsError, UserFacingGrampsError
+from betty.license import License, LicenseDefinition
+from betty.locale import from_language_tag
+from betty.locale.error import LocaleError
+from betty.locale.localizable.gettext import _
+from betty.locale.localizable.static import StaticTranslations
+from betty.media_type import InvalidMediaType, MediaType
+from betty.model import Entity
+from betty.model.association import ToManyResolver, ToOneResolver, resolve
+from betty.place_type import PlaceTypeDefinition
+from betty.place_type.place_types import (
     Borough,
     Building,
     City,
@@ -86,36 +100,22 @@ from betty.ancestry.place_type.place_types import (
     Town,
     Village,
 )
-from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
-from betty.ancestry.presence import Presence
-from betty.ancestry.presence_role import PresenceRoleDefinition
-from betty.ancestry.presence_role.presence_roles import (
-    Attendee,
-    Celebrant,
-    Informant,
-    Subject,
-    Witness,
-)
-from betty.ancestry.presence_role.presence_roles import Unknown as UnknownPresenceRole
-from betty.ancestry.source import Source
-from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
-from betty.date import Date, DateRange, ResolvableDate
-from betty.error import FileNotFound
-from betty.gramps.error import GrampsError, UserFacingGrampsError
-from betty.license import License, LicenseDefinition
-from betty.locale import from_language_tag
-from betty.locale.error import LocaleError
-from betty.locale.localizable.gettext import _
-from betty.locale.localizable.static import StaticTranslations
-from betty.media_type import InvalidMediaType, MediaType
-from betty.model import Entity
-from betty.model.association import ToManyResolver, ToOneResolver, resolve
+from betty.place_type.place_types import Unknown as UnknownPlaceType
 from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.config import (
     PluginConfiguration,
     resolve_plugin_configuration_mapping,
 )
 from betty.plugin.error import PluginUnavailable
+from betty.presence_role import PresenceRole, PresenceRoleDefinition
+from betty.presence_role.presence_roles import (
+    Attendee,
+    Celebrant,
+    Informant,
+    Subject,
+    Witness,
+)
+from betty.presence_role.presence_roles import Unknown as UnknownPresenceRole
 from betty.privacy import HasPrivacy
 from betty.typing import internal, private
 
@@ -133,16 +133,16 @@ if TYPE_CHECKING:
     from ty_extensions import Intersection
 
     from betty.ancestry import Ancestry
-    from betty.ancestry.event_type import EventType
-    from betty.ancestry.gender import Gender
     from betty.ancestry.has_citations import HasCitations
     from betty.ancestry.has_file_references import HasFileReferences
     from betty.ancestry.has_notes import HasNotes
-    from betty.ancestry.place_type import PlaceType
-    from betty.ancestry.presence_role import PresenceRole
+    from betty.event_type import EventType
+    from betty.gender import Gender
     from betty.locale.localizable import StaticTranslationsMapping
     from betty.machine_name import MachineName
+    from betty.place_type import PlaceType
     from betty.plugin.config import ResolvablePluginConfiguration
+    from betty.presence_role import PresenceRole
     from betty.service.level import ServiceLevel
     from betty.user import User
 

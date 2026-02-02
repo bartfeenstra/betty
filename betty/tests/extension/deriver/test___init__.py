@@ -6,13 +6,13 @@ import pytest
 from typing_extensions import override
 
 from betty.ancestry.event import Event
-from betty.ancestry.event_type.event_types import Birth, Death, Residence
 from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
-from betty.ancestry.presence_role.presence_roles import Subject
 from betty.date import Date, DateRange
+from betty.event_type.event_types import Birth, Death, Residence
 from betty.extension.deriver import Deriver
 from betty.model.collections import record_added
+from betty.presence_role.presence_roles import Subject
 from betty.project import Project
 from betty.project.load import load
 from betty.test_utils.project.extension import ExtensionTestBase

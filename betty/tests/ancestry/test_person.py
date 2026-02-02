@@ -7,18 +7,18 @@ from typing_extensions import override
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
-from betty.ancestry.event_type.event_types import Birth
-from betty.ancestry.gender.genders import NonBinary
-from betty.ancestry.gender.genders import Unknown as UnknownGender
 from betty.ancestry.link import Link
 from betty.ancestry.person import Person
 from betty.ancestry.person_name import PersonName
 from betty.ancestry.presence import Presence
-from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
+from betty.event_type.event_types import Birth
+from betty.gender.genders import NonBinary
+from betty.gender.genders import Unknown as UnknownGender
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, to_language_tag
 from betty.model import Entity
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
+from betty.presence_role.presence_roles import Subject
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase

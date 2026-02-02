@@ -9,13 +9,13 @@ from betty.ancestry.event import Event
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.presence import Presence
-from betty.ancestry.presence_role.presence_roles import Subject
 from betty.app import App
 from betty.content_provider import ContentProvider
 from betty.document import Document
 from betty.extension.maps import Maps
 from betty.extension.maps.content_provider import Map, MapAttribution
 from betty.model import Entity
+from betty.presence_role.presence_roles import Subject
 from betty.project import Project
 from betty.test_utils.content_provider import ContentProviderTestBase
 

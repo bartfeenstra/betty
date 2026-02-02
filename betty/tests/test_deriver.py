@@ -8,18 +8,18 @@ import pytest
 from typing_extensions import override
 
 from betty.ancestry.event import Event
-from betty.ancestry.event_type import (
+from betty.ancestry.person import Person
+from betty.ancestry.presence import Presence
+from betty.date import Date, DateRange, ResolvableDate
+from betty.deriver import Deriver
+from betty.event_type import (
     EventType,
     EventTypeDefinition,
     ShouldExistEventType,
 )
-from betty.ancestry.person import Person
-from betty.ancestry.presence import Presence
-from betty.ancestry.presence_role.presence_roles import Subject
-from betty.date import Date, DateRange, ResolvableDate
-from betty.deriver import Deriver
 from betty.model.collections import record_added
 from betty.plugin.resolve import ResolvableDefinition
+from betty.presence_role.presence_roles import Subject
 from betty.project import Project
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,

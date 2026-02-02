@@ -14,33 +14,28 @@ from babel import Locale
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
-from betty.ancestry.event_type.event_types import (
-    Birth,
-    Death,
-)
-from betty.ancestry.event_type.event_types import (
-    Unknown as UnknownEventType,
-)
 from betty.ancestry.file import File
-from betty.ancestry.gender.genders import NonBinary
-from betty.ancestry.gender.genders import Unknown as UnknownGender
 from betty.ancestry.note import Note
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
-from betty.ancestry.place_type.place_types import City
-from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
-from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.app import App
 from betty.copyright_notice.copyright_notices import (
     PublicDomain as PublicDomainCopyrightNotice,
 )
 from betty.date import Date, DateRange
+from betty.event_type.event_types import Birth, Death
+from betty.event_type.event_types import Unknown as UnknownEventType
+from betty.gender.genders import NonBinary
+from betty.gender.genders import Unknown as UnknownGender
 from betty.gramps.error import UserFacingGrampsError
 from betty.gramps.loader import GrampsFileNotFound, GrampsLoader, LoaderUsedAlready
 from betty.license.licenses import PublicDomain as PublicDomainLicense
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 from betty.media_type import MediaType
+from betty.place_type.place_types import City
+from betty.place_type.place_types import Unknown as UnknownPlaceType
+from betty.presence_role.presence_roles import Subject
 from betty.privacy import Privacy
 from betty.project import Project
 from betty.subprocess import CalledSubprocessError
@@ -52,10 +47,10 @@ if TYPE_CHECKING:
     from pytest_mock import MockerFixture
 
     from betty.ancestry import Ancestry
-    from betty.ancestry.event_type import EventType, EventTypeDefinition
-    from betty.ancestry.place_type import PlaceType, PlaceTypeDefinition
-    from betty.ancestry.presence_role import PresenceRole, PresenceRoleDefinition
+    from betty.event_type import EventType, EventTypeDefinition
+    from betty.place_type import PlaceType, PlaceTypeDefinition
     from betty.plugin.config import ResolvablePluginConfiguration
+    from betty.presence_role import PresenceRole, PresenceRoleDefinition
 
 __MINIMAL_XML = """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML {version}//EN"

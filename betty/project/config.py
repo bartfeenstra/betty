@@ -4,20 +4,17 @@ Provide project configuration.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, final
+from typing import TYPE_CHECKING, final
 from urllib.parse import urlparse
 
 from babel import Locale
 from typing_extensions import override
 
-from betty.ancestry.event_type import EventType, EventTypeDefinition
-from betty.ancestry.gender import Gender, GenderDefinition
 from betty.ancestry.person import Person
-from betty.ancestry.place_type import PlaceType, PlaceTypeDefinition
-from betty.ancestry.presence_role import PresenceRole, PresenceRoleDefinition
 from betty.assertion import assert_number
 from betty.collections import MutableDictKeyedCollection
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
+from betty.copyright_notice.config import CopyrightNoticeDefinitionConfiguration
 from betty.data import Data, Sample
 from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
@@ -31,8 +28,13 @@ from betty.data.indicator.selector import Attr
 from betty.data.int import IntDefinition
 from betty.data.str import StrDefinition
 from betty.dirs import ASSETS_DIRECTORY_PATH
+from betty.event_type import EventTypeDefinition
+from betty.event_type.config import EventTypeDefinitionConfiguration
 from betty.exception import HumanFacingException
+from betty.gender import GenderDefinition
+from betty.gender.config import GenderDefinitionConfiguration
 from betty.license import License, LicenseDefinition
+from betty.license.config import LicenseDefinitionConfiguration
 from betty.locale import (
     DEFAULT_LOCALE,
     ResolvableLocale,
@@ -42,21 +44,21 @@ from betty.locale import (
 from betty.locale.data import LocaleDefinition
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import LocalizableProperty
-from betty.locale.localizable.static import CountableStaticTranslations
 from betty.machine_name import MachineName, MachineNameDefinition, assert_machine_name
 from betty.model import EntityDefinition
 from betty.pathlib import FilePathDefinition
+from betty.place_type import PlaceTypeDefinition
+from betty.place_type.config import PlaceTypeDefinitionConfiguration
 from betty.plugin.config import (
-    CountableHumanFacingPluginDefinitionConfiguration,
-    HumanFacingPluginDefinitionConfiguration,
     PluginConfiguration,
     ResolvablePluginConfigurationSequence,
     resolve_plugin_configuration,
 )
-from betty.plugin.config.ordered import OrderedPluginDefinitionConfiguration
 from betty.plugin.config.property import PluginDefinitionConfigurationsProperty
 from betty.plugin.data import PluginConfigurationDefinition, PluginIdDefinition
 from betty.plugin.resolve import ResolvableId, resolve_id
+from betty.presence_role import PresenceRoleDefinition
+from betty.presence_role.config import PresenceRoleDefinitionConfiguration
 from betty.project import Extension, ExtensionDefinition
 from betty.sample import Size
 from betty.service.hydrate import Hydratable
@@ -65,7 +67,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from pathlib import Path
 
-    from betty.locale.localizable import Localizable, ResolvableLocalizable
+    from betty.locale.localizable import ResolvableLocalizable
     from betty.service.level import ServiceLevel
 
 DEFAULT_LIFETIME_THRESHOLD = 123
@@ -198,315 +200,6 @@ class LocaleConfiguration(Data["ObjectDefinition"]):
         if self.alias is None:
             return to_language_tag(self.locale)
         return self.alias
-
-
-@final
-@ObjectDefinition(
-    label=_("Copyright notice configuration"),
-    samples=[
-        lambda: Sample(
-            CopyrightNoticeDefinitionConfiguration(
-                id="my-first-copyright-notice",
-                label="My First Copyright Notice",
-                summary="My First Copyright Notice is my first copyright notice",
-                text="My First Copyright Notice is my first copyright notice, all rights are reserved.",
-            ),
-            label="Default",
-        )
-    ],
-)
-class CopyrightNoticeDefinitionConfiguration(
-    HumanFacingPluginDefinitionConfiguration[CopyrightNoticeDefinition]
-):
-    """
-    Configure a :py:class:`betty.copyright_notice.CopyrightNoticeDefinition`.
-
-    .. data:: betty.project.config:CopyrightNoticeDefinitionConfiguration
-    """
-
-    summary = LocalizableProperty(label=_("Summary"))
-    text = LocalizableProperty(label=_("Text"))
-
-    def __init__(
-        self,
-        *,
-        summary: ResolvableLocalizable,
-        text: ResolvableLocalizable,
-        **kwargs: Any,
-    ):
-        super().__init__(**kwargs)
-        self.summary = summary
-        self.text = text
-
-    @override
-    def new_plugin(self) -> CopyrightNoticeDefinition:
-        configuration = self
-
-        @CopyrightNoticeDefinition(
-            self.id,
-            label=self.label,
-            description=self.description,
-        )
-        class _ProjectConfigurationCopyrightNotice(CopyrightNotice):
-            @override
-            @property
-            def summary(self) -> Localizable:
-                return configuration.summary
-
-            @override
-            @property
-            def text(self) -> Localizable:
-                return configuration.text
-
-        return _ProjectConfigurationCopyrightNotice.plugin()
-
-
-@final
-@ObjectDefinition(
-    label=_("License configuration"),
-    samples=[
-        lambda: Sample(
-            LicenseDefinitionConfiguration(
-                id="my-first-license",
-                label="My First License",
-                summary="My First License is my first license",
-                text="My First License is my first license, and allows you o...",
-            ),
-            label="Default",
-        )
-    ],
-)
-class LicenseDefinitionConfiguration(
-    HumanFacingPluginDefinitionConfiguration[LicenseDefinition]
-):
-    """
-    Configure a :py:class:`betty.license.LicenseDefinition`.
-
-    .. data:: betty.project.config:LicenseDefinitionConfiguration
-    """
-
-    summary = LocalizableProperty(label=_("Summary"))
-    text = LocalizableProperty(label=_("Text"))
-
-    def __init__(
-        self,
-        *,
-        summary: ResolvableLocalizable,
-        text: ResolvableLocalizable,
-        **kwargs: Any,
-    ):
-        super().__init__(**kwargs)
-        self.summary = summary
-        self.text = text
-
-    @override
-    def new_plugin(self) -> LicenseDefinition:
-        configuration = self
-
-        @LicenseDefinition(
-            self.id,
-            label=self.label,
-            description=self.description,
-        )
-        class _ProjectConfigurationLicense(License):
-            @override
-            @property
-            def summary(self) -> Localizable:
-                return configuration.summary
-
-            @override
-            @property
-            def text(self) -> Localizable:
-                return configuration.text
-
-        return _ProjectConfigurationLicense.plugin()
-
-
-@final
-@ObjectDefinition(
-    label=_("Event type configuration"),
-    samples=[
-        lambda: Sample(
-            EventTypeDefinitionConfiguration(
-                id="moon-landing",
-                label="Moon landing",
-                label_plural="Moon landings",
-                label_countable=CountableStaticTranslations(
-                    {
-                        DEFAULT_LOCALE: {
-                            "one": "{count} moon landing",
-                            "other": "{count} moon landings",
-                        }
-                    }
-                ),
-            ),
-            label="Default",
-        )
-    ],
-)
-class EventTypeDefinitionConfiguration(
-    CountableHumanFacingPluginDefinitionConfiguration[EventTypeDefinition],
-    OrderedPluginDefinitionConfiguration[EventTypeDefinition],
-):
-    """
-    Configure a :py:class:`betty.ancestry.event_type.EventTypeDefinition`.
-
-    .. data:: betty.project.config:EventTypeDefinitionConfiguration
-    """
-
-    @override
-    def new_plugin(self) -> EventTypeDefinition:
-        @EventTypeDefinition(
-            self.id,
-            label=self.label,
-            label_plural=self.label_plural,
-            label_countable=self.label_countable,
-            description=self.description,
-            comes_before=set(self.comes_before),
-            comes_after=set(self.comes_after),
-        )
-        class _ProjectConfigurationEventType(EventType):
-            pass
-
-        return _ProjectConfigurationEventType.plugin()
-
-
-@final
-@ObjectDefinition(
-    label=_("Place type configuration"),
-    samples=[
-        lambda: Sample(
-            PlaceTypeDefinitionConfiguration(
-                id="moon",
-                label="Moon",
-                label_plural="Moons",
-                label_countable=CountableStaticTranslations(
-                    {
-                        DEFAULT_LOCALE: {
-                            "one": "{count} moon",
-                            "other": "{count} moons",
-                        }
-                    }
-                ),
-            ),
-            label="Default",
-        )
-    ],
-)
-class PlaceTypeDefinitionConfiguration(
-    CountableHumanFacingPluginDefinitionConfiguration[PlaceTypeDefinition]
-):
-    """
-    Configure a :py:class:`betty.ancestry.place_type.PlaceTypeDefinition`.
-
-    .. data:: betty.project.config:PlaceTypeDefinitionConfiguration
-    """
-
-    @override
-    def new_plugin(self) -> PlaceTypeDefinition:
-        @PlaceTypeDefinition(
-            self.id,
-            label=self.label,
-            label_plural=self.label_plural,
-            label_countable=self.label_countable,
-            description=self.description,
-        )
-        class _ProjectConfigurationPlaceType(PlaceType):
-            pass
-
-        return _ProjectConfigurationPlaceType.plugin()
-
-
-@final
-@ObjectDefinition(
-    label=_("Presence role configuration"),
-    samples=[
-        lambda: Sample(
-            PresenceRoleDefinitionConfiguration(
-                id="astronaut",
-                label="Astronaut",
-                label_plural="Astronauts",
-                label_countable=CountableStaticTranslations(
-                    {
-                        DEFAULT_LOCALE: {
-                            "one": "{count} astronaut",
-                            "other": "{count} astronauts",
-                        }
-                    }
-                ),
-            ),
-            label="Default",
-        )
-    ],
-)
-class PresenceRoleDefinitionConfiguration(
-    CountableHumanFacingPluginDefinitionConfiguration[PresenceRoleDefinition]
-):
-    """
-    Configure a :py:class:`betty.ancestry.presence_role.PresenceRoleDefinition`.
-
-    .. data:: betty.project.config:PresenceRoleDefinitionConfiguration
-    """
-
-    @override
-    def new_plugin(self) -> PresenceRoleDefinition:
-        @PresenceRoleDefinition(
-            self.id,
-            label=self.label,
-            label_plural=self.label_plural,
-            label_countable=self.label_countable,
-            description=self.description,
-        )
-        class _ProjectConfigurationPresenceRole(PresenceRole):
-            pass
-
-        return _ProjectConfigurationPresenceRole.plugin()
-
-
-@final
-@ObjectDefinition(
-    label=_("Gender configuration"),
-    samples=[
-        lambda: Sample(
-            GenderDefinitionConfiguration(
-                id="genderqueer",
-                label="Genderqueer",
-                label_plural="Genderqueers",
-                label_countable=CountableStaticTranslations(
-                    {
-                        DEFAULT_LOCALE: {
-                            "one": "{count} genderqueer",
-                            "other": "{count} genderqueers",
-                        }
-                    }
-                ),
-            ),
-            label="Default",
-        )
-    ],
-)
-class GenderDefinitionConfiguration(
-    CountableHumanFacingPluginDefinitionConfiguration[GenderDefinition]
-):
-    """
-    Configure a :py:class:`betty.ancestry.gender.GenderDefinition`.
-
-    .. data:: betty.project.config:GenderDefinitionConfiguration
-    """
-
-    @override
-    def new_plugin(self) -> GenderDefinition:
-        @GenderDefinition(
-            self.id,
-            label=self.label,
-            label_plural=self.label_plural,
-            label_countable=self.label_countable,
-            description=self.description,
-        )
-        class _ProjectConfigurationGender(Gender):
-            pass
-
-        return _ProjectConfigurationGender.plugin()
 
 
 @final
@@ -660,7 +353,7 @@ class ProjectConfiguration(Data):
         EventTypeDefinition, EventTypeDefinitionConfiguration
     )
     """
-    The :py:class:`betty.ancestry.event_type.EventType` plugins created by this project.
+    The :py:class:`betty.event_type.EventType` plugins created by this project.
     """
 
     extensions = KeyedCollectionProperty(
@@ -763,14 +456,14 @@ class ProjectConfiguration(Data):
         PlaceTypeDefinition, PlaceTypeDefinitionConfiguration
     )
     """
-    The :py:class:`betty.ancestry.place_type.PlaceType` plugins created by this project.
+    The :py:class:`betty.place_type.PlaceType` plugins created by this project.
     """
 
     presence_roles = PluginDefinitionConfigurationsProperty(
         PresenceRoleDefinition, PresenceRoleDefinitionConfiguration
     )
     """
-    The :py:class:`betty.ancestry.presence_role.PresenceRole` plugins created by this project.
+    The :py:class:`betty.presence_role.PresenceRole` plugins created by this project.
     """
 
     title = LocalizableProperty(label=_("Title"))

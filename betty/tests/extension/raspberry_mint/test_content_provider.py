@@ -12,8 +12,6 @@ from betty.ancestry.link import Link
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.presence import Presence
-from betty.ancestry.presence_role import PresenceRoleDefinition
-from betty.ancestry.presence_role.presence_roles import Subject, Witness
 from betty.ancestry.source import Source
 from betty.app import App
 from betty.content_provider import ContentProvider, ContentProviderDefinition
@@ -51,6 +49,8 @@ from betty.media_type import MediaType
 from betty.model.reference import EntityReference
 from betty.plugin.config import PluginConfiguration
 from betty.plugin.repository.static import StaticPluginRepository
+from betty.presence_role import PresenceRoleDefinition
+from betty.presence_role.presence_roles import Subject, Witness
 from betty.project import Project
 from betty.test_utils.ancestry.has_citations import DummyHasCitations
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences

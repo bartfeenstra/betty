@@ -1,11 +1,11 @@
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
-from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.name import Name
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.date import Date
 from betty.document import Document, EntityContexts
+from betty.event_type.event_types import Birth
 from betty.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja2 import assert_template_file
 
