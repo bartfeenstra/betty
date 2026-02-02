@@ -53,7 +53,7 @@ def require_extension(
         async def __require_extension(
             *args: _P.args, project: Project, **kwargs: _P.kwargs
         ) -> _T:
-            extension = (await project.plugins(ExtensionDefinition))[
+            extension = (await project.plugins.plugins(ExtensionDefinition))[
                 resolve_id(extension_id)
             ]
             extensions = await project.extensions

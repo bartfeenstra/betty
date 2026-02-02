@@ -134,14 +134,15 @@ class File(
             "copyrightNotice",
             PluginIdSchema(
                 CopyrightNoticeDefinition.type(),
-                await project.plugins(CopyrightNoticeDefinition),
+                await project.plugins.plugins(CopyrightNoticeDefinition),
             ),
             False,
         )
         schema.add_property(
             "license",
             PluginIdSchema(
-                LicenseDefinition.type(), await project.plugins(LicenseDefinition)
+                LicenseDefinition.type(),
+                await project.plugins.plugins(LicenseDefinition),
             ),
             False,
         )

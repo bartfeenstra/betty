@@ -99,7 +99,7 @@ class Presence(HasPrivacy, Entity):
             "role",
             PluginIdSchema(
                 PresenceRoleDefinition.type(),
-                await project.plugins(PresenceRoleDefinition),
+                await project.plugins.plugins(PresenceRoleDefinition),
             ),
             False,
         )

@@ -8,8 +8,7 @@ from betty.data.aggregate import AggregateDefinition
 from betty.data.indicator.selector import Key
 from betty.exception import HumanFacingException
 from betty.service.hydrate import Hydratable
-from betty.service.level import ServiceLevel
-from betty.service.level.universal import universe
+from betty.service.level import ServiceLevel, universe
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 

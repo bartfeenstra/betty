@@ -3,7 +3,7 @@ import pytest
 from betty.machine_name import InvalidMachineName
 from betty.plugin.data import PluginIdDefinition
 from betty.plugin.error import PluginNotFound
-from betty.service.level.universal import universe
+from betty.service.level import universe
 from betty.test_utils.plugin import DummyPluginDefinition, DummyPluginOne
 
 

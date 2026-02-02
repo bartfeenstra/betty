@@ -213,7 +213,7 @@ class EntityCard(Template, Configurable[EntityReference]):
         return cls(
             ancestry=extension._project.ancestry,
             configuration=configuration,
-            entity_types=await extension._project.plugins(EntityDefinition),
+            entity_types=await extension._project.plugins.plugins(EntityDefinition),
             jinja2_environment=await extension._project.jinja2_environment,
         )
 
@@ -507,7 +507,9 @@ class Presences(Template, Configurable[PresencesConfiguration]):
         return cls(
             configuration=configuration,
             jinja2_environment=await extension._project.jinja2_environment,
-            presence_roles=await extension._project.plugins(PresenceRoleDefinition),
+            presence_roles=await extension._project.plugins.plugins(
+                PresenceRoleDefinition
+            ),
         )
 
     @override

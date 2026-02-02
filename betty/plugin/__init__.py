@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from functools import update_wrapper
 from importlib import metadata
-from typing import TYPE_CHECKING, Any, Final, Generic, Self, final
+from typing import TYPE_CHECKING, Any, Generic, Self, final
 
 from typing_extensions import TypeVar, override
 
@@ -202,9 +202,3 @@ class PluginTypeRepository:
 
     def __iter__(self) -> Iterator[type[PluginDefinition]]:
         return iter(self._get_plugin_types().values())
-
-
-plugin_types: Final[PluginTypeRepository] = PluginTypeRepository()
-"""
-The available plugin types.
-"""

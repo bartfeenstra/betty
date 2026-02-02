@@ -851,7 +851,9 @@ class GrampsLoader:
         else:
             try:
                 gender = await self._services.new_target(
-                    (await self._services.plugins(GenderDefinition))[gender_id].cls
+                    (await self._services.plugins.plugins(GenderDefinition))[
+                        gender_id
+                    ].cls
                 )
             except PluginUnavailable:
                 await self._user.message_warning(

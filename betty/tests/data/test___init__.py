@@ -12,7 +12,7 @@ from betty.exception import HumanFacingException
 from betty.portable import CallbackPorter, OptionalPorter, Portable, PortableData
 from betty.portable.error import NotPortable
 from betty.service.hydrate import Hydratable
-from betty.service.level.universal import universe
+from betty.service.level import universe
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 if TYPE_CHECKING:

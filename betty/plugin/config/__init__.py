@@ -209,7 +209,8 @@ class PluginConfiguration(PortableRecord[Attr], Generic[_PluginDefinitionT, _Plu
         Create a new instance of the configured plugin.
         """
         return await services.new_target(
-            (await services.plugins(plugin_type))[self.id].cls, self.configuration
+            (await services.plugins.plugins(plugin_type))[self.id].cls,
+            self.configuration,
         )
 
 

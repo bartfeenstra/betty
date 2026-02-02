@@ -6,7 +6,7 @@ import pytest
 from betty.app import App
 from betty.exception import HumanFacingException
 from betty.project import Project
-from betty.service.level.universal import universe
+from betty.service.level import universe
 from betty.service.requirement import ServiceLevelKwargs
 from betty.service.requirement.app import require_app
 

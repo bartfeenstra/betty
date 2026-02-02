@@ -4,7 +4,7 @@ from importlib.metadata import EntryPoint, EntryPoints
 from typing import TYPE_CHECKING
 
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
-from betty.service.level.universal import universe
+from betty.service.level import universe
 from betty.test_utils.plugin import DummyPluginOne, DummyPluginTwo
 
 if TYPE_CHECKING:

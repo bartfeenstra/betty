@@ -7,7 +7,7 @@ from betty.app import App
 from betty.exception import HumanFacingException
 from betty.extension import ExtensionDefinition
 from betty.project import Project
-from betty.service.level.universal import universe
+from betty.service.level import universe
 from betty.service.requirement import ServiceLevelKwargs
 from betty.service.requirement.extension import require_extension
 from betty.test_utils.project.extension import DummyExtensionOne

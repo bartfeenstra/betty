@@ -34,17 +34,13 @@ from betty.locale.translation import (
 )
 from betty.plugin import PluginDefinition
 from betty.plugin.dependent import sort_dependent_plugin_graph
-from betty.plugin.repository.provider.service import (
-    ServiceLevelPluginRepositoryProvider,
-)
 from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.privacy.privatizer import Privatizer
 from betty.project.config import ProjectConfiguration
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.serde import SerializerDefinition, serializer_for
 from betty.service.container import service
-from betty.service.level import ServiceLevel
-from betty.service.level.universal import universe
+from betty.service.level import ServiceLevel, universe
 from betty.typing import internal
 
 if TYPE_CHECKING:
@@ -62,7 +58,6 @@ if TYPE_CHECKING:
     from betty.jinja2 import Environment
     from betty.license import License
     from betty.machine_name import MachineName
-    from betty.plugin.repository import PluginRepository
     from betty.url import UrlGenerator
 
 _PluginDefinitionT = TypeVar(
@@ -98,18 +93,11 @@ class Project(HasConfiguration[ProjectConfiguration], ServiceLevel):
         self._app = app
         self._configuration_file_path = configuration_file_path
         self._ancestry = Ancestry() if ancestry is None else ancestry
-        self._plugin_repository_provider = ServiceLevelPluginRepositoryProvider(self)
 
     @override
     @classmethod
     def configuration_cls(cls) -> type[ProjectConfiguration]:
         return ProjectConfiguration
-
-    @override
-    async def plugins(
-        self, plugin_type: type[_PluginDefinitionT] | MachineName, /
-    ) -> PluginRepository[_PluginDefinitionT]:
-        return await self._plugin_repository_provider.plugins(plugin_type)  # ty:ignore[invalid-return-type]
 
     @classmethod
     @asynccontextmanager
@@ -171,7 +159,7 @@ class Project(HasConfiguration[ProjectConfiguration], ServiceLevel):
         if configuration_file_path == self._configuration_file_path:
             return
         serializer_for(
-            list(await universe.plugins(SerializerDefinition)),
+            list(await universe.plugins.plugins(SerializerDefinition)),
             configuration_file_path.suffix,
         )
         self._configuration_file_path = configuration_file_path
@@ -312,7 +300,7 @@ class Project(HasConfiguration[ProjectConfiguration], ServiceLevel):
         return RenderDispatcher(
             *[
                 await self.new_target(plugin.cls)
-                for plugin in await self.plugins(RendererDefinition)
+                for plugin in await self.plugins.plugins(RendererDefinition)
             ]
         )
 
@@ -321,7 +309,7 @@ class Project(HasConfiguration[ProjectConfiguration], ServiceLevel):
         """
         The enabled extensions.
         """
-        extensions = await self.plugins(ExtensionDefinition)
+        extensions = await self.plugins.plugins(ExtensionDefinition)
         configured_extension_definitions = []
         configured_extension_configurations = {}
         for extension_configuration in self.configuration.extensions:

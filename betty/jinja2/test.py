@@ -14,8 +14,9 @@ from betty.date import DateRange
 from betty.image import is_supported_media_type
 from betty.json.linked_data import LinkedDataDumpableWithSchema
 from betty.model import persistent_id
-from betty.plugin import Plugin, PluginDefinition, plugin_types
+from betty.plugin import Plugin, PluginDefinition
 from betty.privacy import is_private, is_public
+from betty.service.level import universe
 from betty.string import kebab_case_to_snake_case
 from betty.typing import internal
 
@@ -121,6 +122,6 @@ async def tests() -> Mapping[str, Callable[..., bool]]:
         "private": is_private,
         "public": is_public,
     }
-    for plugin in plugin_types:
+    for plugin in universe.plugins.types:
         tests.update(PluginTester(plugin).tests())
     return tests

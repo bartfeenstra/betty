@@ -121,7 +121,7 @@ class Wiki(
     async def new_for_configuration(
         cls, *, project: Project, configuration: WikiConfiguration | None = None
     ) -> Self:
-        copyright_notices = await project.plugins(CopyrightNoticeDefinition)
+        copyright_notices = await project.plugins.plugins(CopyrightNoticeDefinition)
         return cls(
             configuration=configuration,
             project=project,

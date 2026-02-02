@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 
 from typing_extensions import TypeVar
 
-from betty.plugin import PluginDefinition
+from betty.plugin import PluginDefinition, PluginTypeRepository
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
@@ -22,9 +22,9 @@ _PluginDefinitionT = TypeVar(
 
 
 @threadsafe
-class PluginRepositoryProvider(ABC):
+class PluginManager(ABC):
     """
-    Provide plugin repositories.
+    Find plugin types and plugins.
     """
 
     @abstractmethod
@@ -32,5 +32,12 @@ class PluginRepositoryProvider(ABC):
         self, plugin_type: type[_PluginDefinitionT] | MachineName, /
     ) -> PluginRepository[_PluginDefinitionT]:
         """
-        Get the plugin repository for a plugin type.
+        Get the available plugins for the given type.
+        """
+
+    @property
+    @abstractmethod
+    def types(self) -> PluginTypeRepository:
+        """
+        Get the available plugin types.
         """

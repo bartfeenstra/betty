@@ -17,8 +17,8 @@ from betty.service.container import (
     _SynchronousServiceManager,
     service,
 )
+from betty.service.level import universe
 from betty.service.level.factory import ServiceLevelTarget
-from betty.service.level.universal import universe
 from betty.test_utils.config import DummyConfigurable
 from betty.typing import Void
 

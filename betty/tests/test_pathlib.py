@@ -5,7 +5,7 @@ import pytest
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.error import FileNotFound
 from betty.pathlib import FilePathDefinition
-from betty.service.level.universal import universe
+from betty.service.level import universe
 
 
 class TestFilePathDefinition:

@@ -33,9 +33,6 @@ from betty.locale.translation import (
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.ordered import sort_ordered_plugin_graph
-from betty.plugin.repository.provider.service import (
-    ServiceLevelPluginRepositoryProvider,
-)
 from betty.portable.file import assert_load_file
 from betty.service.container import (
     ServiceFactory,
@@ -53,8 +50,6 @@ if TYPE_CHECKING:
     import aiohttp
 
     from betty.cache import Cache
-    from betty.machine_name import MachineName
-    from betty.plugin.repository import PluginRepository
     from betty.user import User
 
 _PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
@@ -101,18 +96,11 @@ class App(HasConfiguration[AppConfiguration], ServiceLevel):
             self,
             cache_factory,  # ty:ignore[invalid-argument-type]
         )
-        self._plugin_repository_provider = ServiceLevelPluginRepositoryProvider(self)
 
     @override
     @classmethod
     def configuration_cls(cls) -> type[AppConfiguration]:
         return AppConfiguration
-
-    @override
-    async def plugins(
-        self, plugin_type: type[_PluginDefinitionT] | MachineName, /
-    ) -> PluginRepository[_PluginDefinitionT]:
-        return await self._plugin_repository_provider.plugins(plugin_type)  # ty:ignore[invalid-return-type]
 
     @classmethod
     @asynccontextmanager
@@ -220,7 +208,7 @@ class App(HasConfiguration[AppConfiguration], ServiceLevel):
         """
         The HTTP client.
         """
-        http_rate_limits = await self.plugins(RateLimitDefinition)
+        http_rate_limits = await self.plugins.plugins(RateLimitDefinition)
         rate_limit_sorter = sort_ordered_plugin_graph(
             http_rate_limits, http_rate_limits
         )

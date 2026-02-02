@@ -57,7 +57,7 @@ class _DummyExtensionB(_DummyExtension):
 class TestProject:
     async def test_plugins(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as sut, sut:
-            await sut.plugins(DummyPluginDefinition)
+            await sut.plugins.plugins(DummyPluginDefinition)
 
     async def test_new__without_ancestry(
         self, isolated_app: App, tmp_path: Path
@@ -114,7 +114,9 @@ class TestProject:
         async with Project.new_isolated(isolated_app) as sut, sut:
             extensions = await sut.extensions
 
-            for betty_extension in await isolated_app.plugins(ExtensionDefinition):
+            for betty_extension in await isolated_app.plugins.plugins(
+                ExtensionDefinition
+            ):
                 if betty_extension.id.startswith("betty-"):
                     assert betty_extension.id in extensions
 

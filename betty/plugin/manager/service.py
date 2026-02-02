@@ -12,9 +12,8 @@ from typing_extensions import TypeVar, override
 from betty import plugin
 from betty.concurrent import AsynchronizedLock, Ledger
 from betty.plugin import PluginDefinition
-from betty.plugin.repository.provider import PluginRepositoryProvider
+from betty.plugin.manager import PluginManager
 from betty.plugin.repository.static import StaticPluginRepository
-from betty.typing import internal
 
 if TYPE_CHECKING:
     from collections.abc import MutableMapping
@@ -30,32 +29,31 @@ _PluginDefinitionT = TypeVar(
 )
 
 
-@internal
 @final
-class ServiceLevelPluginRepositoryProvider(PluginRepositoryProvider):
+class ServiceLevelPluginManager(PluginManager):
     """
-    Provide plugin repositories for service levels.
+    Manage plugins for a service level.
     """
 
     def __init__(self, services: ServiceLevel, /):
         self._services = services
+        self._types = plugin.PluginTypeRepository()
         self._plugin_repositories: MutableMapping[
             type[PluginDefinition], PluginRepository[Any] | None
         ] = defaultdict(None)
         self._ledger = Ledger(AsynchronizedLock.new_threadsafe())
 
     @override
+    @property
+    def types(self) -> plugin.PluginTypeRepository:
+        return self._types
+
+    @override
     async def plugins(
         self, plugin_type: type[_PluginDefinitionT] | MachineName, /
     ) -> PluginRepository[_PluginDefinitionT]:
-        """
-        Get the plugin repository for a plugin type.
-        """
         if isinstance(plugin_type, str):
-            plugin_type = cast(
-                type[_PluginDefinitionT],
-                plugin.plugin_types[plugin_type],
-            )
+            plugin_type = cast(type[_PluginDefinitionT], self.types[plugin_type])
         repository: PluginRepository[_PluginDefinitionT] | None
         if plugin_type.type().discoverer.overridden:
             return await self._new(plugin_type)

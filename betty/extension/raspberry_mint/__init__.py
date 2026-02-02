@@ -165,7 +165,7 @@ class RaspberryMint(
             "entity-page-content",
             *{
                 f"entity-page-content--{entity_type.id}"
-                for entity_type in await self._project.plugins(EntityDefinition)
+                for entity_type in await self._project.plugins.plugins(EntityDefinition)
                 if entity_type.public_facing
             },
         }
