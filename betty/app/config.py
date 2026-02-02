@@ -8,11 +8,11 @@ from typing import TYPE_CHECKING, final
 
 from betty.data import Data, OptionalDefinition, Sample
 from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
-from betty.data.sample import Size
 from betty.dirs import APP_CONFIG_DIRECTORY_PATH
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.data import LocaleDefinition
 from betty.locale.localizable.gettext import _
+from betty.sample import Size
 
 if TYPE_CHECKING:
     from babel import Locale

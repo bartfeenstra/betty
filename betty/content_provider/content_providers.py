@@ -13,7 +13,6 @@ from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.data import Data, Sample
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.aggregate.record.object.property import Optional, Property
-from betty.data.sample import Size
 from betty.data.str import StrDefinition
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import LocalizableProperty
@@ -24,6 +23,7 @@ from betty.plugin.config import (
     ResolvablePluginConfigurationSequence,
 )
 from betty.plugin.config.property import PluginConfigurationSequenceProperty
+from betty.sample import Size
 from betty.service.level.factory import (
     ServiceLevelDependentSelfFactory,
 )

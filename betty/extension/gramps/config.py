@@ -24,7 +24,6 @@ from betty.data.aggregate.record.object.property import (
     Property,
     SequenceProperty,
 )
-from betty.data.sample import Size
 from betty.data.str import StrDefinition
 from betty.exception import HumanFacingException
 from betty.gramps.loader import (
@@ -42,6 +41,7 @@ from betty.plugin.config import (
     resolve_plugin_configuration_mapping,
 )
 from betty.plugin.data import PluginConfigurationDefinition
+from betty.sample import Size
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

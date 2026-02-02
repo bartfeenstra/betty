@@ -7,8 +7,8 @@ from typing import final
 from betty.data import Data, Sample
 from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
 from betty.data.bool import BoolDefinition
-from betty.data.sample import Size
 from betty.locale.localizable.gettext import _
+from betty.sample import Size
 
 
 @final

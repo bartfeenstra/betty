@@ -9,12 +9,12 @@ from typing import TYPE_CHECKING, Any, Generic, Self, final
 
 from typing_extensions import TypeVar, override
 
-from betty.data.sample import Sample, Samples, Size
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.importlib import fully_qualified_name
 from betty.portable import OptionalPorter, Portable, PortablePorter, Porter
 from betty.portable.error import NotPortable
+from betty.sample import Sample, Samples, Size
 from betty.service.hydrate import Hydratable, Hydrator
 
 if TYPE_CHECKING:
