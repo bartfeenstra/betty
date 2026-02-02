@@ -458,7 +458,7 @@ class AutoMapping(
     Generic[_KeyT, _ResolvableKeyT, _ValueT, _ResolvableValueT],
 ):
     """
-    A mutable mapping of values that are automatically keyed.
+    A mutable mapping of values that are automatically keyed, e.g. the association cannot be determined by the caller.
     """
 
     @abstractmethod
@@ -479,12 +479,12 @@ class AutoMapping(
 
 
 @final
-class AutoDict(
+class PrimaryKeyMapping(
     _ResolvedMappingProxy[_KeyT, _ResolvableKeyT, _ValueT],
     AutoMapping[_KeyT, _ResolvableKeyT, _ValueT, _ResolvableValueT],
 ):
     """
-    A mutable mapping of values that are automatically keyed, backed by a dictionary.
+    A mutable mapping of values that are automatically keyed by their primary key.
     """
 
     _upstream: MutableMapping[_KeyT, _ValueT]

@@ -9,11 +9,11 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import TypeVar
 
 from betty.collections import (
-    AutoDict,
     MutableResolvedSequence,
     MutableResolvedSequenceProxy,
+    PrimaryKeyMapping,
 )
-from betty.data.aggregate.collection.keyed import AutoMappingDefinition
+from betty.data.aggregate.collection.mapping import AutoMappingDefinition
 from betty.data.aggregate.record.object.property import (
     AutoMappingProperty,
     SequenceProperty,
@@ -96,5 +96,5 @@ class PluginDefinitionConfigurationsProperty(AutoMappingProperty):
             description=description,
             omit_load=True,
             omit_dump=lambda data: not len(data),
-            default=lambda: AutoDict(key=lambda item: item.id),
+            default=lambda: PrimaryKeyMapping(key=lambda item: item.id),
         )

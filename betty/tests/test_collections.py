@@ -3,22 +3,22 @@ from typing import Any
 import pytest
 
 from betty.collections import (
-    AutoDict,
     MutableResolvedMappingProxy,
     MutableResolvedSequenceProxy,
+    PrimaryKeyMapping,
     ResolvedMappingProxy,
     ResolvedSequenceProxy,
 )
 from betty.functools import passthrough
 
 
-class TestAutoDict:
+class TestPrimaryKeyMapping:
     def test___contains__(self) -> None:
-        sut = AutoDict(["one"], key=lambda value: value.upper())
+        sut = PrimaryKeyMapping(["one"], key=lambda value: value.upper())
         assert "ONE" in sut
 
     def test___contains____with_resolved_key(self) -> None:
-        sut = AutoDict(
+        sut = PrimaryKeyMapping(
             ["True"],
             key=lambda value: value.upper(),
             key_resolver=lambda key: str(key).upper(),
@@ -26,17 +26,17 @@ class TestAutoDict:
         assert True in sut
 
     def test___contains____with_invalid_value(self) -> None:
-        sut = AutoDict(
+        sut = PrimaryKeyMapping(
             {"True": "True"}, key=lambda value: value.upper(), key_resolver=str
         )
         assert object() not in sut
 
     def test___getitem__(self) -> None:
-        sut = AutoDict(["one"], key=lambda value: value.upper())
+        sut = PrimaryKeyMapping(["one"], key=lambda value: value.upper())
         assert sut["ONE"] == "one"
 
     def test___getitem____with_resolved_key(self) -> None:
-        sut = AutoDict(
+        sut = PrimaryKeyMapping(
             ["True"],
             key=lambda value: value.upper(),
             key_resolver=lambda key: str(key).upper(),
@@ -44,47 +44,51 @@ class TestAutoDict:
         assert sut[True] == "True"
 
     def test___iter__(self) -> None:
-        sut = AutoDict(["one"], key=lambda value: value.upper())
+        sut = PrimaryKeyMapping(["one"], key=lambda value: value.upper())
         assert list(iter(sut)) == ["ONE"]
 
     def test___len__(self) -> None:
-        sut = AutoDict(["one"], key=lambda value: value.upper())
+        sut = PrimaryKeyMapping(["one"], key=lambda value: value.upper())
         assert len(sut) == 1
 
     def test_keys(self) -> None:
-        sut = AutoDict(["one"], key=lambda value: value.upper())
+        sut = PrimaryKeyMapping(["one"], key=lambda value: value.upper())
         assert list(sut.keys()) == ["ONE"]
 
     def test_remove(self) -> None:
-        sut = AutoDict(["one"], key=lambda value: value.upper())
+        sut = PrimaryKeyMapping(["one"], key=lambda value: value.upper())
         sut.remove("ONE")
         assert not sut
 
     def test___delitem__(self) -> None:
-        sut = AutoDict(["one"], key=lambda value: value.upper())
+        sut = PrimaryKeyMapping(["one"], key=lambda value: value.upper())
         del sut["ONE"]
 
     def test___delitem____with_resolved_key(self) -> None:
-        sut = AutoDict[str, Any, bool, str](["True"], key=passthrough, key_resolver=str)
+        sut = PrimaryKeyMapping[str, Any, bool, str](
+            ["True"], key=passthrough, key_resolver=str
+        )
         del sut[True]
 
     def test_add__with_new_key(self) -> None:
-        sut = AutoDict[str, str, str, str]([], key=lambda value: value.upper())
+        sut = PrimaryKeyMapping[str, str, str, str]([], key=lambda value: value.upper())
         sut.add("one")
         assert sut["ONE"] == "one"
 
     def test_add__with_existing_key(self) -> None:
-        sut = AutoDict(["one"], key=lambda value: value.upper())
+        sut = PrimaryKeyMapping(["one"], key=lambda value: value.upper())
         sut.add("ONE")
         assert sut["ONE"] == "ONE"
 
     def test_add__with_value_resolver(self) -> None:
-        sut = AutoDict[str, str, str, bool]([], key=passthrough, value_resolver=str)
+        sut = PrimaryKeyMapping[str, str, str, bool](
+            [], key=passthrough, value_resolver=str
+        )
         sut.add(True)
         assert sut["True"] == "True"
 
     def test_add__with_resolver(self) -> None:
-        sut = AutoDict[str, str, str, bool](
+        sut = PrimaryKeyMapping[str, str, str, bool](
             [],
             key=passthrough,
             resolver=reversed,  # ty:ignore[invalid-argument-type]
@@ -93,7 +97,7 @@ class TestAutoDict:
         assert list(sut) == [False, True]
 
     def test_add__with_value_resolver_and_resolver(self) -> None:
-        sut = AutoDict[str, str, str, bool](
+        sut = PrimaryKeyMapping[str, str, str, bool](
             [],
             key=passthrough,
             value_resolver=str,
@@ -103,7 +107,7 @@ class TestAutoDict:
         assert list(sut) == ["False", "True"]
 
     def test_clear(self) -> None:
-        sut = AutoDict(["one"], key=passthrough)
+        sut = PrimaryKeyMapping(["one"], key=passthrough)
         sut.clear()
         assert list(sut) == []
 

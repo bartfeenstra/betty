@@ -3,10 +3,12 @@ from typing import Any
 import pytest
 
 from betty.assertion import assert_str
-from betty.collections import AutoDict
+from betty.collections import PrimaryKeyMapping
 from betty.data import Data, DataDefinition, OptionalDefinition
-from betty.data.aggregate.collection.keyed import AutoMappingDefinition
-from betty.data.aggregate.collection.mapping import MappingDefinition
+from betty.data.aggregate.collection.mapping import (
+    AutoMappingDefinition,
+    MappingDefinition,
+)
 from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.aggregate.record.object.property import (
@@ -153,7 +155,7 @@ class TestAutoMappingProperty:
                 key=AttrSelector("attr"),
                 ordered=False,
             ),
-            default=lambda: AutoDict(key=lambda item: item.upper()),
+            default=lambda: PrimaryKeyMapping(key=lambda item: item.upper()),
         )
 
     def test_set(self) -> None:

@@ -12,8 +12,10 @@ from typing_extensions import TypeVar, override
 
 from betty.collections import AutoMapping
 from betty.data import OptionalDefinition
-from betty.data.aggregate.collection.keyed import AutoMappingDefinition
-from betty.data.aggregate.collection.mapping import MappingDefinition
+from betty.data.aggregate.collection.mapping import (
+    AutoMappingDefinition,
+    MappingDefinition,
+)
 from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.data.aggregate.record.object import Attr, AttrDefinition
 from betty.functools import passthrough
@@ -281,7 +283,7 @@ class SequenceProperty(Property[_MutableSequenceT, _ValueSetT]):
 
 class AutoMappingProperty(Property[_AutoMappingT, Iterable[_ValueSetT]]):
     """
-    A property that contains a :py:class:`betty.collections.MutableKeyedCollection`.
+    A property that contains an :py:class:`betty.collections.AutoMapping`.
     """
 
     def __init__(

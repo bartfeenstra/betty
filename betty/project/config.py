@@ -16,10 +16,10 @@ from betty.ancestry.person import Person
 from betty.ancestry.place_type import PlaceType, PlaceTypeDefinition
 from betty.ancestry.presence_role import PresenceRole, PresenceRoleDefinition
 from betty.assertion import assert_number
-from betty.collections import AutoDict
+from betty.collections import PrimaryKeyMapping
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.data import Data, Sample
-from betty.data.aggregate.collection.keyed import AutoMappingDefinition
+from betty.data.aggregate.collection.mapping import AutoMappingDefinition
 from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
 from betty.data.aggregate.record.object.property import (
     AutoMappingProperty,
@@ -639,7 +639,7 @@ class ProjectConfiguration(Data):
         ),
         omit_load=True,
         omit_dump=lambda data: not len(data),
-        default=lambda: AutoDict(
+        default=lambda: PrimaryKeyMapping(
             key=lambda item: item.entity_type,
             value_resolver=lambda data: data
             if isinstance(data, EntityTypeConfiguration)
@@ -666,7 +666,7 @@ class ProjectConfiguration(Data):
         ),
         omit_load=True,
         omit_dump=lambda data: not len(data),
-        default=lambda: AutoDict(
+        default=lambda: PrimaryKeyMapping(
             key=lambda data: data.id,
             key_resolver=resolve_id,
             value_resolver=resolve_plugin_configuration,
@@ -729,7 +729,7 @@ class ProjectConfiguration(Data):
         ),
         omit_load=True,
         omit_dump=lambda data: not len(data),
-        default=lambda: AutoDict(
+        default=lambda: PrimaryKeyMapping(
             [DEFAULT_LOCALE],
             key=lambda item: item.locale,
             key_resolver=resolve_locale,
