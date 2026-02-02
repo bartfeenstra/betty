@@ -14,7 +14,7 @@ from betty.definition.human_facing import HumanFacingDefinition
 from betty.importlib import fully_qualified_name
 from betty.portable import OptionalPorter, Portable, PortablePorter, Porter
 from betty.portable.error import NotPortable
-from betty.sample import Sample, Samples, Size
+from betty.sample import Samplable, Sample, Samples, Size
 from betty.service.hydrate import Hydratable, Hydrator
 
 if TYPE_CHECKING:
@@ -42,11 +42,16 @@ class DataDefinition(
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
         porter: Porter[_DataClsT] | None = None,
-        samples: Iterable[Callable[[], Sample[_DataClsT]] | Samples] | None = None,
+        samples: Iterable[
+            Callable[[], Sample[_DataClsT]]
+            | Samples[_DataClsT]
+            | type[Intersection[_DataClsT, Samplable]]
+        ]
+        | None = None,
     ):
         super().__init__(cls=cls, label=label, description=description)
         self._porter = porter
-        self._samples = Samples(() if samples is None else samples)
+        self._samples = samples
 
     @property
     def porter(self) -> Porter[_DataClsT]:
@@ -72,7 +77,11 @@ class DataDefinition(
         """
         Any samples for this data.
         """
-        return self._samples
+        if self._samples is None:
+            if issubclass(self.cls, Samplable):
+                return Samples([self.cls])
+            return Samples(())
+        return Samples(self._samples)
 
     @override
     async def hydrate(self, *, services: ServiceLevel, data: _DataClsT) -> None:

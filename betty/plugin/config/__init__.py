@@ -30,6 +30,7 @@ from betty.locale.localizable.property import (
 from betty.machine_name import MachineName, MachineNameDefinition, assert_machine_name
 from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.resolve import ResolvableId, resolve_definition, resolve_id
+from betty.sample import Samplable, Sample, Samples, Size
 from betty.typing import Void
 
 if TYPE_CHECKING:
@@ -126,7 +127,9 @@ class CountableHumanFacingPluginDefinitionConfiguration(
 
 
 @final
-class PluginConfiguration(PortableRecord[Attr], Generic[_PluginDefinitionT, _PluginT]):
+class PluginConfiguration(
+    PortableRecord[Attr], Samplable, Generic[_PluginDefinitionT, _PluginT]
+):
     """
     Configure a single plugin instance.
 
@@ -211,6 +214,29 @@ class PluginConfiguration(PortableRecord[Attr], Generic[_PluginDefinitionT, _Plu
         return await services.new_target(
             (await services.plugins.plugins(plugin_type))[self.id].cls,
             self.configuration,
+        )
+
+    @override
+    @classmethod
+    def samples(cls) -> Samples[Self]:
+        return Samples(
+            [
+                lambda: Sample(
+                    cls("my-first-plugin-id"),
+                    label="Minimal",
+                    size=Size.MINIMAL,
+                ),
+                lambda: Sample(
+                    cls(
+                        "my-first-plugin-id",
+                        {
+                            "configuration-key": "configuration-value",
+                        },
+                    ),
+                    label="Full",
+                    size=Size.FULL,
+                ),
+            ]
         )
 
 

@@ -961,6 +961,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/sample.py": {
+        "Samplable": MissingReason.ABSTRACT,
         "SampleNotFound": MissingReason.STATIC_CONTENT_ONLY,
         "Size": MissingReason.ENUM,
     },

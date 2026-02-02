@@ -4,6 +4,7 @@ Samples are used to generate documentation about various parts of Betty.
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from enum import IntEnum, auto
 from typing import TYPE_CHECKING, Generic, Self, final
 
@@ -14,9 +15,11 @@ from betty.locale.localizable.resolve import resolve_localizable
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
 
+    from ty_extensions import Intersection
+
     from betty.locale.localizable import Localizable, ResolvableLocalizable
 
-_T = TypeVar("_T")
+_CoT = TypeVar("_CoT", covariant=True)
 
 
 @final
@@ -31,7 +34,7 @@ class Size(IntEnum):
 
 
 @final
-class Sample(Generic[_T]):
+class Sample(Generic[_CoT]):
     """
     A sample.
 
@@ -40,7 +43,7 @@ class Sample(Generic[_T]):
 
     def __init__(
         self,
-        subject: _T,
+        subject: _CoT,
         *,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
@@ -52,7 +55,7 @@ class Sample(Generic[_T]):
         self._size = size
 
     @property
-    def subject(self) -> _T:
+    def subject(self) -> _CoT:
         """
         The sample subject.
         """
@@ -81,21 +84,27 @@ class Sample(Generic[_T]):
 
 
 @final
-class Samples(Generic[_T]):
+class Samples(Generic[_CoT]):
     """
     A set of samples.
     """
 
     def __init__(
         self,
-        samples: Iterable[Callable[[], Sample[_T]] | Self],
+        samples: Iterable[
+            Callable[[], Sample[_CoT]]
+            | Samples[_CoT]
+            | type[Intersection[_CoT, Samplable]]
+        ],
     ):
         self._samples = list(samples)
 
-    def __iter__(self) -> Iterator[Sample[_T]]:
+    def __iter__(self) -> Iterator[Sample[_CoT]]:
         for sample in self._samples:
             if isinstance(sample, Samples):
                 yield from sample
+            elif isinstance(sample, type) and issubclass(sample, Samplable):
+                yield from sample.samples()
             else:
                 yield sample()
 
@@ -107,6 +116,19 @@ class Samples(Generic[_T]):
         if samples:
             return samples[0]
         raise SampleNotFound
+
+
+class Samplable(ABC):
+    """
+    Allow a class to provide its own samples.
+    """
+
+    @classmethod
+    @abstractmethod
+    def samples(cls) -> Samples[Self]:
+        """
+        Get the samples.
+        """
 
 
 class SampleNotFound(Exception):
