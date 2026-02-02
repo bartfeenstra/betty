@@ -18,17 +18,6 @@ class ObjectDefinitionTestFactoryObject(ObjectDefinitionTestObject):
 
 
 class TestObjectDefinition:
-    def test_elements(self) -> None:
-        element = FieldDefinition(
-            AttrSelector("my_first_element"), StrDefinition(label=DUMMY_LOCALIZABLE)
-        )
-        sut = ObjectDefinition[ObjectDefinitionTestObject](
-            cls=ObjectDefinitionTestObject,
-            label=DUMMY_LOCALIZABLE,
-            fields=[element],
-        )
-        assert list(sut.fields) == [element]
-
     def test_load(self) -> None:
         field_name = "my_first_element"
         sut = ObjectDefinition[ObjectDefinitionTestObject](

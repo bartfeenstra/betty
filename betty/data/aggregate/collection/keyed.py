@@ -1,5 +1,5 @@
 """
-Keyed collection data types.
+Keyed collection definitions.
 """
 
 from __future__ import annotations
@@ -7,8 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, final
 
 from betty.assertion import assert_mapping, assert_sequence
-from betty.collections import MutableDictKeyedCollection, MutableKeyedCollection
-from betty.data import Data
+from betty.collections import KeyedCollection, MutablePrimaryKeyCollection
 from betty.data.aggregate.collection import CollectionDefinition
 from betty.data.indicator.selector import Element
 from betty.portable import (
@@ -27,11 +26,11 @@ if TYPE_CHECKING:
 
 
 @final
-class KeyedCollectionDefinition[ValueT, ElementT: Element[str] = Element[str]](
-    CollectionDefinition[MutableKeyedCollection[Any, Any, ValueT, Any], ElementT]
+class PrimaryKeyCollectionDefinition[ValueT, ElementT: Element[str] = Element[str]](
+    CollectionDefinition[KeyedCollection[Any, Any, ValueT], ElementT]
 ):
     """
-    A definition for :py:class:`betty.collections.MutableKeyedCollection`.
+    A definition for :py:class:`betty.collections.PrimaryKeyCollection`.
     """
 
     _item: RecordDefinition[ValueT, ElementT]
@@ -47,7 +46,7 @@ class KeyedCollectionDefinition[ValueT, ElementT: Element[str] = Element[str]](
         description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
-            cls=MutableKeyedCollection,
+            cls=MutablePrimaryKeyCollection,
             label=label,
             description=description,
             porter=CallbackPorter(self._load, self._dump),
@@ -58,7 +57,7 @@ class KeyedCollectionDefinition[ValueT, ElementT: Element[str] = Element[str]](
 
     def _load(
         self, portable: PortableData, /
-    ) -> MutableKeyedCollection[str, str, ValueT, Any]:
+    ) -> MutablePrimaryKeyCollection[str, str, ValueT, Any]:
         if self._ordered:
             items = assert_sequence(self._item.porter.load)(portable)
         else:
@@ -67,10 +66,10 @@ class KeyedCollectionDefinition[ValueT, ElementT: Element[str] = Element[str]](
                 for portable_key, portable_item in assert_mapping()(portable).items()
             ]
 
-        return MutableDictKeyedCollection(items, key=self._key.get)
+        return MutablePrimaryKeyCollection(items, key=self._key.get)
 
     def _dump(
-        self, data: MutableKeyedCollection[str, str, ValueT, Any]
+        self, data: MutablePrimaryKeyCollection[str, str, ValueT, Any]
     ) -> PortableMapping | PortableSequence:
         if self._ordered:
             return [self._item.porter.dump(value) for value in data]
