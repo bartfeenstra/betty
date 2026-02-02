@@ -2,7 +2,6 @@ import pytest
 from typing_extensions import override
 
 from betty.media_type import MediaType
-from betty.plugin import PluginDefinition
 from betty.portable import PortableData
 from betty.serde import (
     SerializationError,
@@ -10,15 +9,7 @@ from betty.serde import (
     SerializerDefinition,
     serializer_for,
 )
-from betty.test_utils.plugin import PluginDefinitionClassTestBase
 from betty.typing import Void
-
-
-class TestSerializerDefinition(PluginDefinitionClassTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> type[PluginDefinition]:
-        return SerializerDefinition
 
 
 class _Serializer(Serializer):

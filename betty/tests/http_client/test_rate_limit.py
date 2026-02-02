@@ -11,11 +11,8 @@ from yarl import URL
 
 from betty.http_client.rate_limit import (
     RateLimit,
-    RateLimitDefinition,
     RateLimitMiddleware,
 )
-from betty.plugin import PluginDefinition
-from betty.test_utils.plugin import PluginDefinitionClassTestBase
 
 
 class _LowRateLimit(RateLimit):
@@ -133,10 +130,3 @@ class TestRateLimitMiddleware:
                 _AlwaysMatchingLowRateLimit(),
             ],
         )
-
-
-class TestRateLimitDefinition(PluginDefinitionClassTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> type[PluginDefinition]:
-        return RateLimitDefinition

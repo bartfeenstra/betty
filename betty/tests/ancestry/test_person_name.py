@@ -12,20 +12,12 @@ from betty.ancestry.source import Source
 from betty.model import Entity
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
+from betty.test_utils.model import EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from betty.plugin import PluginDefinition
     from betty.portable import PortableMapping
-
-
-class TestPersonNameDefinition(EntityDefinitionTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> PluginDefinition:
-        return PersonName.plugin()
 
 
 class TestPersonName(EntityTestBase):

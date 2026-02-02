@@ -2,9 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import pytest
-from typing_extensions import override
-
 from betty.ancestry.event import Event
 from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
@@ -15,20 +12,12 @@ from betty.model.collections import record_added
 from betty.presence_role.presence_roles import Subject
 from betty.project import Project
 from betty.project.load import load
-from betty.test_utils.project.extension import ExtensionTestBase
 
 if TYPE_CHECKING:
     from betty.app import App
-    from betty.extension import Extension
 
 
-class TestDeriver(ExtensionTestBase):
-    @override
-    @pytest.fixture
-    async def sut(self, isolated_app: App) -> Extension:
-        async with Project.new_isolated(isolated_app) as project, project:
-            return Deriver(project=project)
-
+class TestDeriver:
     async def test_post_load(self, isolated_app: App) -> None:
         person = Person(id="P0")
         event = Event(

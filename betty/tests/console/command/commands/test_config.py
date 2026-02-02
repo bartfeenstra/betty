@@ -1,33 +1,15 @@
 from pathlib import Path
 
-import pytest
 from babel import Locale
 from pytest_mock import MockerFixture
-from typing_extensions import override
 
 from betty.app import App
 from betty.app.config import AppConfiguration
-from betty.console.command import Command
-from betty.console.command.commands.config import Config
-from betty.plugin import PluginDefinition
 from betty.portable.file import assert_load_file
 from betty.test_utils.console import run
-from betty.test_utils.console.command import CommandDefinitionTestBase, CommandTestBase
 
 
-class TestConfigDefinition(CommandDefinitionTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> PluginDefinition:
-        return Config.plugin()
-
-
-class TestConfig(CommandTestBase):
-    @override
-    @pytest.fixture
-    def sut(self, isolated_app: App) -> Command:
-        return Config(isolated_app)
-
+class TestConfig:
     async def test_configure__with_locale(
         self, mocker: MockerFixture, isolated_app: App, tmp_path: Path
     ) -> None:

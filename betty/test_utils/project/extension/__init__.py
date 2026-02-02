@@ -12,27 +12,7 @@ from betty.service.level.factory import ServiceLevelDependentSelfFactory
 from betty.service.requirement.project import require_project
 from betty.test_utils.config import DummyConfigurable
 from betty.test_utils.data import DummyData
-from betty.test_utils.definition.human_facing import HumanFacingDefinitionTestBase
-from betty.test_utils.plugin import PluginTestBase
-from betty.test_utils.plugin.dependent import DependentPluginDefinitionTestBase
-from betty.test_utils.plugin.ordered import OrderedPluginDefinitionTestBase
 from betty.typing import private
-
-
-class ExtensionDefinitionTestBase(
-    HumanFacingDefinitionTestBase,
-    DependentPluginDefinitionTestBase,
-    OrderedPluginDefinitionTestBase,
-):
-    """
-    A base class for testing :py:class:`betty.extension.ExtensionDefinition` implementations.
-    """
-
-
-class ExtensionTestBase(PluginTestBase[Extension]):
-    """
-    A base class for testing :py:class:`betty.extension.Extension` implementations.
-    """
 
 
 class _DummyExtension(ServiceLevelDependentSelfFactory, Extension):

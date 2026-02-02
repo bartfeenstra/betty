@@ -2,32 +2,26 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import pytest
-from typing_extensions import override
-
 from betty.extension.raspberry_mint import RaspberryMint
 from betty.model import EntityDefinition
 from betty.project import Project
 from betty.project.config import EntityTypeConfiguration
 from betty.project.generate import generate
 from betty.test_utils.model import DummyEntityOne
-from betty.test_utils.project.extension.webpack.build import EntryPointProviderTestBase
 from betty.tests.conftest import check_skip_webpack_entry_point_provider
 
 if TYPE_CHECKING:
     from betty.app import App
-    from betty.extension import Extension
 
 
-class TestRaspberryMint(EntryPointProviderTestBase):
-    @override
-    @pytest.fixture
-    async def sut(self, isolated_app: App) -> Extension:
-        async with Project.new_isolated(isolated_app) as project, project:
-            return await RaspberryMint.new_for_configuration(services=project)
-
-    async def test_filters(self, sut: RaspberryMint) -> None:
-        assert sut.filters
+class TestRaspberryMint:
+    async def test_filters(self, isolated_app: App) -> None:
+        async with (
+            Project.new_isolated(isolated_app) as project,
+            project,
+            await RaspberryMint.new_for_services(services=project) as sut,
+        ):
+            assert sut.filters
 
     @check_skip_webpack_entry_point_provider
     async def test_generate__html_list_for_third_party_entity(

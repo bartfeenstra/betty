@@ -4,34 +4,35 @@ Test utilities for :py:mod:`betty.model`.
 
 from __future__ import annotations
 
-from typing import final
+from typing import Generic, TypeVar, final
+
+import pytest
 
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.static import CountableStaticTranslations
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.model import Entity, EntityDefinition
-from betty.test_utils.definition.human_facing import (
-    CountableHumanFacingDefinitionTestBase,
-)
-from betty.test_utils.plugin import PluginTestBase
+
+_EntityT = TypeVar("_EntityT", bound=Entity)
 
 
-class EntityTestBase(PluginTestBase[Entity]):
+class EntityTestBase(Generic[_EntityT]):
     """
     A base class for testing :py:class:`betty.model.Entity` implementations.
     """
 
-    async def test_label(self, sut: Entity) -> None:
+    @pytest.fixture
+    def sut(self) -> type[_EntityT]:
+        """
+        Provide the system(s) under test.
+        """
+        raise NotImplementedError
+
+    async def test_label(self, sut: _EntityT) -> None:
         """
         Tests :py:meth:`betty.model.Entity.label` implementations.
         """
         assert sut.label.localize(DEFAULT_LOCALIZER)
-
-
-class EntityDefinitionTestBase(CountableHumanFacingDefinitionTestBase):
-    """
-    A base class for testing :py:class:`betty.model.EntityDefinition` implementations.
-    """
 
 
 @final

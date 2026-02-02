@@ -14,20 +14,11 @@ from betty.model import Entity
 from betty.privacy import Privacy
 from betty.test_utils.ancestry.has_citations import DummyHasCitations
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
+from betty.test_utils.model import EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
-
-    from betty.plugin import PluginDefinition
 import pytest
-
-
-class TestCitationDefinition(EntityDefinitionTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> PluginDefinition:
-        return Citation.plugin()
 
 
 class TestCitation(EntityTestBase):

@@ -2,34 +2,28 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import pytest
-from typing_extensions import override
-
 from betty.ancestry.link import Link
 from betty.document import Document
 from betty.extension.wiki import Wiki
 from betty.job import Context as JobContext
 from betty.project import Project
 from betty.project.load import load
-from betty.test_utils.project.extension import ExtensionTestBase
 from betty.wiki.client import Summary
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
 
     from betty.app import App
-    from betty.extension import Extension
 
 
-class TestWiki(ExtensionTestBase):
-    @override
-    @pytest.fixture
-    async def sut(self, isolated_app: App) -> Extension:
-        async with Project.new_isolated(isolated_app) as project, project:
-            return await Wiki.new_for_configuration(services=project)
-
-    async def test_filters(self, sut: Wiki) -> None:
-        assert sut.filters
+class TestWiki:
+    async def test_filters(self, isolated_app: App) -> None:
+        async with (
+            Project.new_isolated(isolated_app) as project,
+            project,
+            await Wiki.new_for_services(services=project) as sut,
+        ):
+            assert sut.filters
 
     async def test_filter_wikipedia_summary_links(
         self, mocker: MockerFixture, isolated_app: App

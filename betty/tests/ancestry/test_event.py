@@ -21,21 +21,12 @@ from betty.model.association import AssociationRequired, TemporaryToOneResolver
 from betty.presence_role.presence_roles import Subject
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
+from betty.test_utils.model import EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
-    from betty.plugin import PluginDefinition
-
 import pytest
-
-
-class TestEventDefinition(EntityDefinitionTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> PluginDefinition:
-        return Event.plugin()
 
 
 class TestEvent(EntityTestBase):

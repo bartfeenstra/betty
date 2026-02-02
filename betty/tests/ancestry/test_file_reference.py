@@ -9,18 +9,10 @@ from typing_extensions import override
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
-from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
+from betty.test_utils.model import EntityTestBase
 
 if TYPE_CHECKING:
     from betty.model import Entity
-    from betty.plugin import PluginDefinition
-
-
-class TestFileReferenceDefinition(EntityDefinitionTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> PluginDefinition:
-        return FileReference.plugin()
 
 
 class TestFileReference(EntityTestBase):

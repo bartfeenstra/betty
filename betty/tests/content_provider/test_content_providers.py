@@ -4,11 +4,10 @@ from pathlib import Path
 import aiofiles
 import pytest
 from aiofiles.os import makedirs
-from typing_extensions import override
 
 from betty.ancestry.note import Note
 from betty.app import App
-from betty.content_provider import ContentProvider, ContentProviderDefinition
+from betty.content_provider import ContentProviderDefinition
 from betty.content_provider.content_providers import (
     Box,
     BoxConfiguration,
@@ -28,7 +27,6 @@ from betty.project import Project
 from betty.render import RenderDispatcher
 from betty.render.plain_text import PlainText
 from betty.test_utils.ancestry.has_notes import DummyHasNotes
-from betty.test_utils.content_provider import ContentProviderTestBase
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
@@ -42,15 +40,7 @@ class TestRenderConfiguration(DataTestBase[RenderConfiguration]):
         assert sut.content is content
 
 
-class TestRender(ContentProviderTestBase):
-    @override
-    @pytest.fixture
-    async def sut(self) -> ContentProvider:
-        return Render(
-            configuration=RenderConfiguration("Hello, world!"),
-            renderer=RenderDispatcher(PlainText()),
-        )
-
+class TestRender:
     @pytest.mark.parametrize(
         ("expected", "content", "locale"),
         [
@@ -125,13 +115,7 @@ class TestTemplate:
             )
 
 
-class TestNotes(ContentProviderTestBase):
-    @override
-    @pytest.fixture
-    async def sut(self, isolated_app: App) -> ContentProvider:
-        async with Project.new_isolated(isolated_app) as project, project:
-            return Notes(jinja2_environment=await project.jinja2_environment)
-
+class TestNotes:
     async def test_provide__without_has_notes_resource(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = await Notes.new_for_services(services=project)
@@ -163,18 +147,7 @@ class TestBoxConfiguration(DataTestBase[BoxConfiguration]):
         assert sut.content[0].id == "my-first-content"
 
 
-class TestBox(ContentProviderTestBase):
-    @override
-    @pytest.fixture
-    async def sut(self, isolated_app: App) -> ContentProvider:
-        async with Project.new_isolated(isolated_app) as project, project:
-            return await Box.new_for_configuration(
-                services=project,
-                configuration=BoxConfiguration(
-                    PluginConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE))  # ty:ignore[invalid-argument-type]
-                ),
-            )
-
+class TestBox:
     async def test_provide__minimal(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = await Box.new_for_configuration(

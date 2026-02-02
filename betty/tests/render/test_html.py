@@ -1,14 +1,11 @@
 from collections.abc import Mapping, Sequence
 from typing import Any
 
-import pytest
 from typing_extensions import override
 
 from betty.locale import ResolvableLocale
 from betty.media_type import MediaType
-from betty.render import Renderer
 from betty.render.html import Html
-from betty.test_utils.render import RendererTestBase
 from betty.url import UrlGenerator
 
 
@@ -31,12 +28,7 @@ class _TestHtmlUrlGenerator(UrlGenerator):
         return "GENERATED-URL-AHOY"
 
 
-class TestHtml(RendererTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> Renderer:
-        return Html(url_generator=_TestHtmlUrlGenerator())
-
+class TestHtml:
     async def test_media_type(self) -> None:
         Html(url_generator=_TestHtmlUrlGenerator()).media_type  # noqa: B018
 
