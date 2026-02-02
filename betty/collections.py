@@ -9,16 +9,20 @@ from collections.abc import (
     Iterable,
     Iterator,
     Mapping,
+    MutableMapping,
     MutableSequence,
     Sequence,
 )
 from contextlib import suppress
+from itertools import chain
 from typing import Any, Generic, TypeVar, final, overload
 
 from typing_extensions import override
 
 from betty.functools import passthrough
+from betty.typing import Void
 
+_T = TypeVar("_T")
 _KeyT = TypeVar("_KeyT")
 _ValueT = TypeVar("_ValueT")
 _ResolvableKeyT = TypeVar("_ResolvableKeyT")
@@ -286,3 +290,285 @@ class MutableResolvedSequenceProxy(
     @override
     def extend(self, values: Iterable[_ValueT | _ResolvableValueT]) -> None:
         self._upstream.extend(map(self._value_resolver, values))
+
+
+class ResolvedMapping(
+    Mapping[_KeyT, _ValueT], Generic[_KeyT, _ResolvableKeyT, _ValueT]
+):
+    """
+    A mutable mapping of resolved keys.
+    """
+
+    @override
+    @abstractmethod
+    def __getitem__(self, key: _KeyT | _ResolvableKeyT) -> _ValueT:
+        pass
+
+    @overload
+    def get(self, key: _KeyT | _ResolvableKeyT, default: _T, /) -> _ValueT | _T:
+        pass
+
+    @overload
+    def get(
+        self, key: _KeyT | _ResolvableKeyT, default: None = None, /
+    ) -> _ValueT | None:
+        pass
+
+    @override
+    @abstractmethod
+    def get(
+        self, key: _KeyT | _ResolvableKeyT, default: _T | None = None, /
+    ) -> _ValueT | None:
+        pass
+
+
+class MutableResolvedMapping(
+    MutableMapping[_KeyT, _ValueT],
+    MutableCollection[_KeyT],
+    ResolvedMapping[_KeyT, _ResolvableKeyT, _ValueT],
+    Generic[_KeyT, _ResolvableKeyT, _ValueT, _ResolvableValueT],
+):
+    """
+    A mutable mapping of resolved keys and values.
+    """
+
+    @abstractmethod
+    def __setitem__(
+        self, key: _KeyT | _ResolvableKeyT, value: _ValueT | _ResolvableValueT
+    ) -> None:
+        pass
+
+    @abstractmethod
+    def __delitem__(self, key: _KeyT | _ResolvableKeyT) -> None:
+        pass
+
+    @overload
+    def update(
+        self,
+        other: Mapping[_KeyT | _ResolvableKeyT, _ValueT | _ResolvableValueT]
+        | Iterable[tuple[_KeyT | _ResolvableKeyT, _ValueT | _ResolvableValueT]],
+        /,
+        **kwargs: _ValueT | _ResolvableValueT,
+    ) -> None:
+        pass
+
+    @overload
+    def update(self, **kwargs: _ValueT | _ResolvableValueT) -> None:
+        pass
+
+    @override
+    @abstractmethod
+    def update(self, other=None, **kwargs) -> None:  # ty:ignore[invalid-method-override]
+        pass
+
+    @overload
+    def setdefault(
+        self: MutableMapping[_KeyT, _T | None],
+        key: _KeyT | _ResolvableKeyT,
+        default: None = None,
+        /,
+    ) -> _T | None:
+        pass
+
+    @overload
+    def setdefault(
+        self, key: _KeyT | _ResolvableKeyT, default: _ValueT | _ResolvableValueT, /
+    ) -> _ValueT:
+        pass
+
+    @override
+    @abstractmethod
+    def setdefault(self, key, default):
+        pass
+
+    @overload
+    def pop(self, key: _KeyT | _ResolvableKeyT, /) -> _ValueT:
+        pass
+
+    @overload
+    def pop(
+        self, key: _KeyT | _ResolvableKeyT, /, default: _ValueT | _ResolvableValueT
+    ) -> _ValueT:
+        pass
+
+    @overload
+    def pop(self, key: _KeyT | _ResolvableKeyT, /, default: _T) -> _ValueT | _T:
+        pass
+
+    @override
+    @abstractmethod
+    def pop(self, key, default):
+        pass
+
+    @override
+    @abstractmethod
+    def popitem(self) -> tuple[_KeyT, _ValueT]:
+        pass
+
+
+class _ResolvedMappingProxy(ResolvedMapping[_KeyT, _ResolvableKeyT, _ValueT]):
+    def __init__(
+        self,
+        upstream: Mapping[_KeyT, _ValueT],
+        *,
+        key_resolver: Callable[[_KeyT | _ResolvableKeyT], _KeyT] = passthrough,
+    ):
+        self._upstream = upstream
+        self._key_resolver = key_resolver
+
+    @final
+    @override
+    def __getitem__(self, key: _KeyT | _ResolvableKeyT) -> _ValueT:
+        return self._upstream[self._key_resolver(key)]
+
+    @overload
+    def get(self, key: _KeyT | _ResolvableKeyT, default: _T, /) -> _ValueT | _T:
+        pass
+
+    @overload
+    def get(
+        self, key: _KeyT | _ResolvableKeyT, default: None = None, /
+    ) -> _ValueT | None:
+        pass
+
+    @final
+    @override
+    def get(self, key, default=None):
+        return self._upstream.get(self._key_resolver(key), default)
+
+    @final
+    @override
+    def __iter__(self) -> Iterator[_KeyT]:
+        return iter(self._upstream)
+
+    @final
+    @override
+    def __len__(self) -> int:
+        return len(self._upstream)
+
+    @final
+    @override
+    def __contains__(self, key: Any) -> bool:
+        with suppress(Exception):
+            key = self._key_resolver(key)
+        return key in self._upstream
+
+
+@final
+class ResolvedMappingProxy(_ResolvedMappingProxy[_KeyT, _ResolvableKeyT, _ValueT]):
+    """
+    Decorate another mapping to resolve any values before proxying them.
+    """
+
+
+@final
+class MutableResolvedMappingProxy(
+    _ResolvedMappingProxy[_KeyT, _ResolvableKeyT, _ValueT],
+    MutableResolvedMapping[_KeyT, _ResolvableKeyT, _ValueT, _ResolvableValueT],
+):
+    """
+    Decorate another mapping to resolve any values before proxying them.
+    """
+
+    _upstream: MutableMapping[_KeyT, _ValueT]
+
+    def __init__(
+        self,
+        upstream: MutableMapping[_KeyT, _ValueT],
+        *,
+        key_resolver: Callable[[_KeyT | _ResolvableKeyT], _KeyT] = passthrough,
+        value_resolver: Callable[[_ValueT | _ResolvableValueT], _ValueT] = passthrough,
+    ):
+        super().__init__(upstream, key_resolver=key_resolver)
+        self._value_resolver = value_resolver
+
+    def __setitem__(
+        self, key: _KeyT | _ResolvableKeyT, value: _ValueT | _ResolvableValueT
+    ) -> None:
+        self._upstream[self._key_resolver(key)] = self._value_resolver(value)
+
+    def __delitem__(self, key: _KeyT | _ResolvableKeyT) -> None:
+        del self._upstream[self._key_resolver(key)]
+
+    @overload
+    def update(
+        self,
+        other: Mapping[_KeyT | _ResolvableKeyT, _ValueT | _ResolvableValueT]
+        | Iterable[tuple[_KeyT | _ResolvableKeyT, _ValueT | _ResolvableValueT]],
+        /,
+        **kwargs: _ValueT | _ResolvableValueT,
+    ) -> None:
+        pass
+
+    @overload
+    def update(self, **kwargs: _ValueT | _ResolvableValueT) -> None:
+        pass
+
+    @override
+    def update(self, other=None, **kwargs) -> None:
+        items = kwargs.items()
+        if isinstance(other, Mapping):
+            items = chain(items, other.items())
+        elif isinstance(other, Sequence):
+            items = chain(items, other)
+        self._upstream.update(
+            {
+                self._key_resolver(key): self._value_resolver(value)  # ty:ignore[invalid-argument-type]
+                for key, value in items
+            }
+        )
+
+    @overload
+    def setdefault(
+        self: MutableMapping[_KeyT, _T | None],
+        key: _KeyT | _ResolvableKeyT,
+        default: None = None,
+        /,
+    ) -> _T | None:
+        pass
+
+    @overload
+    def setdefault(
+        self, key: _KeyT | _ResolvableKeyT, default: _ValueT | _ResolvableValueT, /
+    ) -> _ValueT:
+        pass
+
+    @override
+    def setdefault(
+        self,
+        key,
+        default=Void(),  # noqa: B008
+    ):
+        return self._upstream.setdefault(
+            self._key_resolver(key),
+            None if default is Void() else self._value_resolver(default),  # ty:ignore[invalid-argument-type]
+        )  # ty:ignore[no-matching-overload]
+
+    @overload
+    def pop(self, key: _KeyT | _ResolvableKeyT, /) -> _ValueT:
+        pass
+
+    @overload
+    def pop(
+        self, key: _KeyT | _ResolvableKeyT, /, default: _ValueT | _ResolvableValueT
+    ) -> _ValueT:
+        pass
+
+    @overload
+    def pop(self, key: _KeyT | _ResolvableKeyT, /, default: _T) -> _ValueT | _T:
+        pass
+
+    @override
+    def pop(
+        self,
+        key,
+        default=Void(),  # noqa: B008
+    ):
+        key = self._key_resolver(key)
+        if default is Void():
+            return self._upstream.pop(key)
+        return self._upstream.pop(key, default)
+
+    @override
+    def popitem(self) -> tuple[_KeyT, _ValueT]:
+        return self._upstream.popitem()
