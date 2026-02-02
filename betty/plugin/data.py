@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import TypeVar, override
 
 from betty.collections import MutableResolvedSequence, MutableResolvedSequenceProxy
-from betty.data import DataDefinition, Sample, Size
+from betty.data import DataDefinition
 from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.data.aggregate.record import FieldDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
@@ -68,23 +68,6 @@ class PluginConfigurationDefinition(ObjectDefinition):
                 FieldDefinition(
                     Attr("configuration"),
                     DataDefinition(cls=object, label=_("Plugin configuration")),
-                ),
-            ],
-            samples=[
-                lambda: Sample(
-                    PluginConfiguration("my-first-plugin-id"),
-                    label="Minimal",
-                    size=Size.MINIMAL,
-                ),
-                lambda: Sample(
-                    PluginConfiguration(
-                        "my-first-plugin-id",
-                        {
-                            "configuration-key": "configuration-value",
-                        },
-                    ),
-                    label="Full",
-                    size=Size.FULL,
                 ),
             ],
         )

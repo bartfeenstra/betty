@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 import pytest
+from typing_extensions import override
 
 from betty.data import Sample
 from betty.locale.localizable.plain import Plain
-from betty.sample import SampleNotFound, Samples, Size
+from betty.sample import Samplable, SampleNotFound, Samples, Size
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 if TYPE_CHECKING:
@@ -39,6 +40,19 @@ class TestSample:
         assert sut.size is Size.MINIMAL
 
 
+class _Samplable(Samplable):
+    @override
+    @classmethod
+    def samples(cls) -> Samples[Self]:
+        return Samples(
+            [
+                lambda: _sample_full,
+                lambda: _sample_intermediate,
+                lambda: _sample_minimal,
+            ]
+        )
+
+
 class TestSamples:
     def test___iter__(self) -> None:
         assert list(
@@ -48,10 +62,18 @@ class TestSamples:
                         lambda: _sample_minimal,
                         Samples([lambda: _sample_intermediate]),
                         lambda: _sample_full,
+                        _Samplable,
                     ]
                 )
             )
-        ) == [_sample_minimal, _sample_intermediate, _sample_full]
+        ) == [
+            _sample_minimal,
+            _sample_intermediate,
+            _sample_full,
+            _sample_full,
+            _sample_intermediate,
+            _sample_minimal,
+        ]
 
     @pytest.mark.parametrize(
         ("expected", "samples"),

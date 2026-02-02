@@ -11,6 +11,7 @@ from betty.data.bool import BoolDefinition
 from betty.exception import HumanFacingException
 from betty.portable import CallbackPorter, OptionalPorter, Portable, PortableData
 from betty.portable.error import NotPortable
+from betty.sample import Samplable, Samples
 from betty.service.hydrate import Hydratable
 from betty.service.level import universe
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
@@ -52,11 +53,27 @@ class TestDataDefinition:
         sut = DataDefinition(cls=_DummyData, label=DUMMY_LOCALIZABLE)
         sut.porter  # noqa: B018
 
-    def test_samples(self) -> None:
+    def test_samples__without_samples(self) -> None:
+        sut = DataDefinition(cls=object, label=DUMMY_LOCALIZABLE)
+        assert list(sut.samples) == []
+
+    def test_samples__with_samples(self) -> None:
         sample = Sample(object(), label=DUMMY_LOCALIZABLE)
         sut = DataDefinition(
             cls=object, label=DUMMY_LOCALIZABLE, samples=[lambda: sample]
         )
+        assert list(sut.samples) == [sample]
+
+    def test_samples__with_samplable(self) -> None:
+        sample = Sample(object(), label=DUMMY_LOCALIZABLE)
+
+        class _Samplable(Samplable):
+            @override
+            @classmethod
+            def samples(cls) -> Samples[Self]:
+                return Samples([lambda: sample])
+
+        sut = DataDefinition(cls=_Samplable, label=DUMMY_LOCALIZABLE)
         assert list(sut.samples) == [sample]
 
     def test_load__with_porter(self) -> None:
