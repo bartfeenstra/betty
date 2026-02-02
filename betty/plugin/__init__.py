@@ -8,7 +8,7 @@ to Betty.
 from __future__ import annotations
 
 from functools import update_wrapper
-from typing import TYPE_CHECKING, Generic, Self, TypeAlias, final
+from typing import TYPE_CHECKING, Generic, Self, TypeAlias, final, overload
 
 from typing_extensions import TypeVar, override
 
@@ -17,10 +17,13 @@ from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.importlib import fully_qualified_name
 from betty.locale.localizable.gettext import _
 from betty.machine_name import InvalidMachineName, MachineName, validate_machine_name
+from betty.service.level import universe
 
 if TYPE_CHECKING:
     import builtins
     from collections.abc import Iterable
+
+    from ty_extensions import Intersection
 
     from betty.locale.localizable import (
         CountableLocalizable,
@@ -154,6 +157,9 @@ class PluginTypeDefinition(
         return self._discoverer
 
 
+_PluginTypeDefinitionT = TypeVar("_PluginTypeDefinitionT", bound=PluginTypeDefinition)
+
+
 class Plugin(Generic[_PluginDefinitionCoT]):
     """
     A plugin class.
@@ -172,6 +178,8 @@ class Plugin(Generic[_PluginDefinitionCoT]):
         )
 
 
+_PluginT = TypeVar("_PluginT", bound=Plugin)
+
 ResolvableDefinition: TypeAlias = _PluginDefinitionT | type[Plugin[_PluginDefinitionT]]
 """
 Use :py:func:`betty.plugin.resolve_definition` to resolve this to a :py:class:`betty.plugin.PluginDefinition`
@@ -182,6 +190,49 @@ ResolvableId: TypeAlias = MachineName | ResolvableDefinition[_PluginDefinitionT]
 """
 Use :py:func:`betty.plugin.resolve_id` to resolve this to a plugin ID.
 """
+
+
+@overload
+def resolve_type_definition(
+    definition: _PluginTypeDefinitionT,
+    /,
+) -> _PluginTypeDefinitionT:
+    pass
+
+
+@overload
+def resolve_type_definition(
+    definition: type[
+        Intersection[
+            _PluginDefinitionT,
+            PluginDefinition[Plugin[_PluginDefinitionT]],
+            PluginDefinition[_PluginT],
+        ]
+    ],
+    /,
+) -> PluginTypeDefinition[
+    Intersection[Plugin[_PluginDefinitionT], _PluginT], _PluginDefinitionT
+]:
+    pass
+
+
+@overload
+def resolve_type_definition(
+    definition: MachineName,
+    /,
+) -> PluginTypeDefinition:
+    pass
+
+
+def resolve_type_definition(definition):
+    """
+    Resolve a plugin type definition.
+    """
+    if isinstance(definition, PluginTypeDefinition):
+        return definition
+    if isinstance(definition, str):
+        return universe.plugins.types[definition]
+    return definition.type()
 
 
 def resolve_definition(

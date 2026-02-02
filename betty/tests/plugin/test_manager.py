@@ -1,8 +1,8 @@
 from collections.abc import Iterable
 
 from betty.app import App
-from betty.plugin.manager import PluginManager
 from betty.service.level import universe
+from betty.service.plugin import PluginManager
 from betty.service.requirement.app import require_app
 from betty.test_utils.plugin import DummyPlugin, DummyPluginDefinition, DummyPluginOne
 

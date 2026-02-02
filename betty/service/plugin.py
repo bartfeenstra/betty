@@ -76,8 +76,7 @@ class PluginManager:
                 _PluginDefinitionCoT,
                 PluginDefinition[Plugin[_PluginDefinitionCoT]],
             ]
-        ]
-        | MachineName,
+        ],
         /,
     ) -> PluginDefinitions[_PluginDefinitionCoT]:
         """

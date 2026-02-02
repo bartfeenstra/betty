@@ -24,6 +24,7 @@ _PluginDefinitionT = TypeVar(
 PluginDefinitions: TypeAlias = KeyedCollection[
     MachineName, ResolvableId[_PluginDefinitionT], _PluginDefinitionT
 ]
+
 PluginTypeDefinitions: TypeAlias = KeyedCollection[
     MachineName, MachineName, PluginTypeDefinition
 ]
@@ -35,7 +36,9 @@ def new_plugin_definitions(
     """
     Create a new collection of plugin definitions.
     """
-    return DictKeyedCollection(
+    return DictKeyedCollection[
+        MachineName, ResolvableId[_PluginDefinitionT], _PluginDefinitionT
+    ](
         {resolve_id(plugin.id): plugin for plugin in map(resolve_definition, plugins)},
         key_resolver=resolve_id,
     )

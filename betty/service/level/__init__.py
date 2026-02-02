@@ -14,13 +14,13 @@ from betty.exception import HumanFacingException
 from betty.factory import new_target
 from betty.importlib import fully_qualified_name
 from betty.locale.localizable.gettext import _
-from betty.plugin.manager import PluginManager
 from betty.service.container import ServiceContainer
 from betty.typing import Void
 
 if TYPE_CHECKING:
     from betty.portable import PortableData
     from betty.service.level.factory import ServiceLevelTarget
+    from betty.service.plugin import PluginManager
 
 _T = TypeVar("_T")
 
@@ -50,7 +50,7 @@ class ServiceLevel(ServiceContainer):
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        self._plugins = PluginManager(self)
+        self._plugins: PluginManager | None = None
 
     @final
     async def new_target(
@@ -112,6 +112,10 @@ class ServiceLevel(ServiceContainer):
         """
         The plugin manager.
         """
+        from betty.service.plugin import PluginManager
+
+        if self._plugins is None:
+            self._plugins = PluginManager(self)
         return self._plugins
 
 
