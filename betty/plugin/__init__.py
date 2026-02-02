@@ -101,8 +101,8 @@ _PluginDefinitionCoT = TypeVar(
 @final
 class PluginTypeDefinition(
     CountableHumanFacingDefinition,
-    ClsDefinition[_PluginDefinitionT],
-    Generic[_BaseClsCoT, _PluginDefinitionT],
+    ClsDefinition[_PluginDefinitionCoT],
+    Generic[_BaseClsCoT, _PluginDefinitionCoT],
 ):
     """
     A plugin type definition.
@@ -116,7 +116,7 @@ class PluginTypeDefinition(
         label_plural: ResolvableLocalizable,
         label_countable: CountableLocalizable,
         description: ResolvableLocalizable | None = None,
-        discovery: Iterable[ResolvableDiscovery[_PluginDefinitionT]] | None = None,
+        discovery: Iterable[ResolvableDiscovery[_PluginDefinitionCoT]] | None = None,
     ):
         from betty.plugin.discovery import Discoverer
 
@@ -130,7 +130,7 @@ class PluginTypeDefinition(
         if not validate_machine_name(id):
             raise InvalidMachineName(id)
         self._id = id
-        self._discoverer = Discoverer[_PluginDefinitionT](discovery)
+        self._discoverer = Discoverer[_PluginDefinitionCoT](discovery)
 
     @property
     def id(self) -> MachineName:
@@ -140,14 +140,14 @@ class PluginTypeDefinition(
         return self._id
 
     @override
-    def _set_cls(self, cls: type[_PluginDefinitionT]) -> None:
+    def _set_cls(self, cls: type[_PluginDefinitionCoT]) -> None:
         super()._set_cls(cls)
         cls.type = staticmethod(update_wrapper(lambda: self, cls.type))  # ty:ignore[invalid-assignment]
 
     @property
     def discoverer(
         self,
-    ) -> Discoverer[_PluginDefinitionT]:
+    ) -> Discoverer[_PluginDefinitionCoT]:
         """
         The plugin discoverer for this type.
         """

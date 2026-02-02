@@ -1,7 +1,7 @@
 from collections.abc import Iterable
 
 from betty.app import App
-from betty.plugin.manager.service import ServiceLevelPluginManager
+from betty.plugin.manager import PluginManager
 from betty.service.level import universe
 from betty.service.requirement.app import require_app
 from betty.test_utils.plugin import DummyPlugin, DummyPluginDefinition, DummyPluginOne
@@ -9,18 +9,18 @@ from betty.test_utils.plugin import DummyPlugin, DummyPluginDefinition, DummyPlu
 
 class TestServiceLevelPluginManager:
     def test_types(self) -> None:
-        sut = ServiceLevelPluginManager(universe)
+        sut = PluginManager(universe)
         assert len(list(sut.types))
 
     async def test_plugins__with_plugin_type(self) -> None:
-        sut = ServiceLevelPluginManager(universe)
+        sut = PluginManager(universe)
         assert await sut.plugins(DummyPluginDefinition) is await sut.plugins(
             DummyPluginDefinition
         )
         assert DummyPluginOne.plugin() in await sut.plugins(DummyPluginDefinition)
 
     async def test_plugins__with_plugin_type_id(self) -> None:
-        sut = ServiceLevelPluginManager(universe)
+        sut = PluginManager(universe)
         assert sut.types
 
     async def test_plugins__should_forward_services(self, isolated_app: App) -> None:
@@ -28,7 +28,7 @@ class TestServiceLevelPluginManager:
             assert app is isolated_app
             return ()
 
-        sut = ServiceLevelPluginManager(isolated_app)
+        sut = PluginManager(isolated_app)
         with DummyPluginDefinition.type().discoverer.override(require_app(_discovery)):
             await sut.plugins(DummyPluginDefinition)
 
@@ -37,7 +37,7 @@ class TestServiceLevelPluginManager:
         class _Plugin(DummyPlugin):
             pass
 
-        sut = ServiceLevelPluginManager(universe)
+        sut = PluginManager(universe)
         with DummyPluginDefinition.type().discoverer.override(_Plugin):
             assert _Plugin.plugin() in await sut.plugins(DummyPluginDefinition)
         assert _Plugin.plugin() not in await sut.plugins(DummyPluginDefinition)
