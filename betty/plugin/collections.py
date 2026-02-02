@@ -20,9 +20,15 @@ from betty.plugin import (
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
 )
+_PluginDefinitionCoT = TypeVar(
+    "_PluginDefinitionCoT",
+    bound=PluginDefinition,
+    default=PluginDefinition,
+    covariant=True,
+)
 
 PluginDefinitions: TypeAlias = KeyedCollection[
-    MachineName, ResolvableId[_PluginDefinitionT], _PluginDefinitionT
+    MachineName, ResolvableId[_PluginDefinitionCoT], _PluginDefinitionCoT
 ]
 
 PluginTypeDefinitions: TypeAlias = KeyedCollection[

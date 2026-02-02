@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from importlib import metadata
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, final, overload
 
 from typing_extensions import TypeVar
 
@@ -66,12 +66,20 @@ class PluginManager:
 
         return self._types
 
+    @overload
     async def plugins(
         self,
         plugin_type: PluginTypeDefinition[
             Plugin[_PluginDefinitionCoT], _PluginDefinitionCoT
-        ]
-        | type[
+        ],
+        /,
+    ) -> PluginDefinitions[_PluginDefinitionCoT]:
+        pass
+
+    @overload
+    async def plugins(
+        self,
+        plugin_type: type[
             Intersection[
                 _PluginDefinitionCoT,
                 PluginDefinition[Plugin[_PluginDefinitionCoT]],
@@ -79,6 +87,9 @@ class PluginManager:
         ],
         /,
     ) -> PluginDefinitions[_PluginDefinitionCoT]:
+        pass
+
+    async def plugins(self, plugin_type):
         """
         Get the available plugins for the given type.
         """
