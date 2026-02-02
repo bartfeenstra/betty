@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     label="Maps",
     description=_("Display interactive maps"),
     depends_on={Webpack},
-    assets_directory_path=Path(__file__).parent / "assets",
+    assets_directory=Path(__file__).parent / "assets",
 )
 class Maps(Generator, EntryPointProvider, ServiceLevelDependentSelfFactory):
     """

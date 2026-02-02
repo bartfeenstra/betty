@@ -41,12 +41,12 @@ class TestAbout(CommandTestBase):
         ):
             await dump_file(
                 project.configuration.data().porter.dump(project.configuration),
-                project.configuration_file_path,
+                project.configuration_file,
             )
             result = await run(
                 app,
                 "about",
                 "--project",
-                str(project.configuration_file_path),
+                str(project.configuration_file),
             )
             assert "Betty" in result.stdout

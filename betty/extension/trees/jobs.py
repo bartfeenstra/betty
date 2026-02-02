@@ -58,9 +58,9 @@ class _GeneratePeopleJson(Job[ProjectContext]):
             for person in project.ancestry[Person]
         }
         people_json = json.dumps(people)
-        await makedirs(project.localize_www_directory_path(locale), exist_ok=True)
+        await makedirs(project.localize_www_directory(locale), exist_ok=True)
         async with aiofiles.open(
-            project.localize_www_directory_path(locale) / "people.json",
+            project.localize_www_directory(locale) / "people.json",
             mode="w",
         ) as f:
             await f.write(people_json)

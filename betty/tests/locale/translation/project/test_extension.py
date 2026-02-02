@@ -17,7 +17,7 @@ from betty.test_utils.project.extension import DummyExtensionOne
 @ExtensionDefinition(
     "dummy-with-assets-directory",
     label=DUMMY_LOCALIZABLE,
-    assets_directory_path=Path(__file__),
+    assets_directory=Path(__file__),
 )
 class _DummyExtensionWithAssetsDirectory(Extension):
     pass
@@ -33,7 +33,7 @@ def test_assert_extension_assets_directory_path__with_assets_directory() -> None
         assert_extension_assets_directory_path(
             _DummyExtensionWithAssetsDirectory.plugin()
         )
-        == _DummyExtensionWithAssetsDirectory.plugin().assets_directory_path
+        == _DummyExtensionWithAssetsDirectory.plugin().assets_directory
     )
 
 

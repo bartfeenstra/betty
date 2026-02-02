@@ -53,9 +53,7 @@ class TestWebpack(ExtensionTestBase):
             async with project:
                 await generate(project)
 
-                async with aiofiles.open(
-                    project.www_directory_path / self._SENTINEL
-                ) as f:
+                async with aiofiles.open(project.www_directory / self._SENTINEL) as f:
                     assert await f.read() == self._SENTINEL
 
     async def test_new_document_vars(self, isolated_app: App) -> None:

@@ -36,9 +36,7 @@ class _DummyExtension(ServiceLevelDependentSelfFactory, Extension):
 @ExtensionDefinition(
     "dummy-with-assets-directory",
     label=DUMMY_LOCALIZABLE,
-    assets_directory_path=Path(__file__).parent
-    / "dummy-with-assets-directory"
-    / "assets",
+    assets_directory=Path(__file__).parent / "dummy-with-assets-directory" / "assets",
 )
 class _DummyExtensionWithAssetsDirectory(_DummyExtension):
     pass
@@ -163,7 +161,7 @@ class TestProject:
     async def test_assets__without_extensions(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as sut, sut:
             assets = await sut.assets
-            assert len(assets.assets_directory_paths) == 2
+            assert len(assets.directories) == 2
 
     async def test_assets__with_extension_without_assets_directory(
         self, isolated_app: App
@@ -173,7 +171,7 @@ class TestProject:
                 sut.configuration.extensions.add(DummyExtensionOne)
                 async with sut:
                     assets = await sut.assets
-                    assert len(assets.assets_directory_paths) == 2
+                    assert len(assets.directories) == 2
 
     async def test_assets__with_extension_with_assets_directory(
         self, isolated_app: App, tmp_path: Path
@@ -185,7 +183,7 @@ class TestProject:
                 sut.configuration.extensions.add(_DummyExtensionWithAssetsDirectory)
                 async with sut:
                     assets = await sut.assets
-                    assert len(assets.assets_directory_paths) == 3
+                    assert len(assets.directories) == 3
 
     async def test_jinja2_environment(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as sut, sut:
@@ -242,9 +240,7 @@ class TestProject:
         async with Project.new_isolated(isolated_app) as sut, sut:
             await sut.new_document()
 
-    async def test_configuration_file_path(
-        self, isolated_app: App, tmp_path: Path
-    ) -> None:
+    async def test_configuration_file(self, isolated_app: App, tmp_path: Path) -> None:
         configuration_file_path = tmp_path / "init.json"
         sut = Project(
             isolated_app,
@@ -253,9 +249,9 @@ class TestProject:
                 title="Betty", url="https://example.com"
             ),
         )
-        assert sut.configuration_file_path == configuration_file_path
+        assert sut.configuration_file == configuration_file_path
 
-    async def test_set_configuration_file_path(
+    async def test_set_configuration_file(
         self, isolated_app: App, tmp_path: Path
     ) -> None:
         sut = Project(
@@ -266,11 +262,11 @@ class TestProject:
             ),
         )
         configuration_file_path = tmp_path / "set.json"
-        await sut.set_configuration_file_path(configuration_file_path)
+        await sut.set_configuration_file(configuration_file_path)
         # Assert that setting the path to its existing value is a no-op.
-        await sut.set_configuration_file_path(configuration_file_path)
+        await sut.set_configuration_file(configuration_file_path)
 
-    async def test_set_configuration_file_path__with_unsupported_format(
+    async def test_set_configuration_file__with_unsupported_format(
         self, isolated_app: App, tmp_path: Path
     ) -> None:
         sut = Project(
@@ -282,9 +278,49 @@ class TestProject:
         )
         configuration_file_path = tmp_path / "set"
         with pytest.raises(SerializationError):
-            await sut.set_configuration_file_path(configuration_file_path)
+            await sut.set_configuration_file(configuration_file_path)
 
-    async def test_project_directory_path(
+    async def test_directory(self, isolated_app: App, tmp_path: Path) -> None:
+        sut = Project(
+            isolated_app,
+            tmp_path / "betty.json",
+            configuration=ProjectConfiguration(
+                title="Betty", url="https://example.com"
+            ),
+        )
+        assert sut.directory == tmp_path
+
+    async def test_output_directory(self, isolated_app: App, tmp_path: Path) -> None:
+        sut = Project(
+            isolated_app,
+            tmp_path / "betty.json",
+            configuration=ProjectConfiguration(
+                title="Betty", url="https://example.com"
+            ),
+        )
+        assert tmp_path in sut.output_directory.parents
+
+    async def test_assets_directory(self, isolated_app: App, tmp_path: Path) -> None:
+        sut = Project(
+            isolated_app,
+            tmp_path / "betty.json",
+            configuration=ProjectConfiguration(
+                title="Betty", url="https://example.com"
+            ),
+        )
+        assert tmp_path in sut.assets_directory.parents
+
+    async def test_www_directory(self, isolated_app: App, tmp_path: Path) -> None:
+        sut = Project(
+            isolated_app,
+            tmp_path / "betty.json",
+            configuration=ProjectConfiguration(
+                title="Betty", url="https://example.com"
+            ),
+        )
+        assert tmp_path in sut.www_directory.parents
+
+    async def test_localize_www_directory__monolingual(
         self, isolated_app: App, tmp_path: Path
     ) -> None:
         sut = Project(
@@ -294,57 +330,11 @@ class TestProject:
                 title="Betty", url="https://example.com"
             ),
         )
-        assert sut.project_directory_path == tmp_path
-
-    async def test_output_directory_path(
-        self, isolated_app: App, tmp_path: Path
-    ) -> None:
-        sut = Project(
-            isolated_app,
-            tmp_path / "betty.json",
-            configuration=ProjectConfiguration(
-                title="Betty", url="https://example.com"
-            ),
-        )
-        assert tmp_path in sut.output_directory_path.parents
-
-    async def test_assets_directory_path(
-        self, isolated_app: App, tmp_path: Path
-    ) -> None:
-        sut = Project(
-            isolated_app,
-            tmp_path / "betty.json",
-            configuration=ProjectConfiguration(
-                title="Betty", url="https://example.com"
-            ),
-        )
-        assert tmp_path in sut.assets_directory_path.parents
-
-    async def test_www_directory_path(self, isolated_app: App, tmp_path: Path) -> None:
-        sut = Project(
-            isolated_app,
-            tmp_path / "betty.json",
-            configuration=ProjectConfiguration(
-                title="Betty", url="https://example.com"
-            ),
-        )
-        assert tmp_path in sut.www_directory_path.parents
-
-    async def test_localize_www_directory_path__monolingual(
-        self, isolated_app: App, tmp_path: Path
-    ) -> None:
-        sut = Project(
-            isolated_app,
-            tmp_path / "betty.json",
-            configuration=ProjectConfiguration(
-                title="Betty", url="https://example.com"
-            ),
-        )
-        actual = sut.localize_www_directory_path(DEFAULT_LOCALE)
+        actual = sut.localize_www_directory(DEFAULT_LOCALE)
         assert tmp_path in actual.parents
         assert DEFAULT_LOCALE_TAG not in str(actual)
 
-    async def test_localize_www_directory_path__multilingual(
+    async def test_localize_www_directory__multilingual(
         self, isolated_app: App, tmp_path: Path
     ) -> None:
         sut = Project(
@@ -355,7 +345,7 @@ class TestProject:
             ),
         )
         sut.configuration.locales.add(LocaleConfiguration("nl-NL"))
-        actual = sut.localize_www_directory_path(DEFAULT_LOCALE)
+        actual = sut.localize_www_directory(DEFAULT_LOCALE)
         assert tmp_path in actual.parents
         assert DEFAULT_LOCALE_TAG in str(actual)
 

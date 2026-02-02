@@ -29,7 +29,7 @@ def assert_extension_assets_directory_path(extension: ExtensionDefinition) -> Pa
     """
     Check that the given extension has an assets directory, and return its path.
     """
-    assets_directory_path = extension.assets_directory_path
+    assets_directory_path = extension.assets_directory
     if assets_directory_path is None:
         raise HumanFacingException(
             _("{extension} does not have an assets directory.").format(

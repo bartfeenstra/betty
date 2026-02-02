@@ -65,7 +65,7 @@ class GenerateStaticPublicAssets(Job[ProjectContext]):
         jinja2_environment = await project.jinja2_environment
         copy_function = jinja2_environment.make_copy_function(
             document=await project.new_document(job_context=scheduler.context),
-            www_directory_path=project.www_directory_path,
+            www_directory_path=project.www_directory,
             is_localized_and_multilingual=project.configuration.multilingual,
         )
         await gather(
@@ -83,7 +83,7 @@ class GenerateStaticPublicAssets(Job[ProjectContext]):
     ) -> None:
         project = scheduler.context.project
         assets = await project.assets
-        file_destination_path = project.www_directory_path / asset_path.relative_to(
+        file_destination_path = project.www_directory / asset_path.relative_to(
             Path("public") / "static"
         )
         await makedirs(file_destination_path.parent, exist_ok=True)
@@ -136,7 +136,7 @@ class GenerateSitemap(Job[ProjectContext]):
         url_generator = await project.url_generator
 
         await to_thread(
-            project.www_directory_path.mkdir,
+            project.www_directory.mkdir,
             exist_ok=True,
             parents=True,
         )
@@ -185,7 +185,7 @@ class GenerateSitemap(Job[ProjectContext]):
                 ),
             )
             async with aiofiles.open(
-                project.www_directory_path / f"sitemap-{sitemap_batch_index}.xml",
+                project.www_directory / f"sitemap-{sitemap_batch_index}.xml",
                 "w",
             ) as f:
                 await f.write(rendered_sitemap_batch)
@@ -197,7 +197,7 @@ class GenerateSitemap(Job[ProjectContext]):
                 for sitemap_url in sitemap_urls
             ),
         )
-        async with aiofiles.open(project.www_directory_path / "sitemap.xml", "w") as f:
+        async with aiofiles.open(project.www_directory / "sitemap.xml", "w") as f:
             await f.write(rendered_sitemap)
 
 
@@ -228,13 +228,11 @@ class GenerateRobotsTxt(Job[ProjectContext]):
             url_generator.generate("betty-static:///sitemap.xml", absolute=True),
         )
         await to_thread(
-            project.www_directory_path.mkdir,
+            project.www_directory.mkdir,
             exist_ok=True,
             parents=True,
         )
-        async with aiofiles.open(
-            project.www_directory_path / "robots.txt", mode="w"
-        ) as f:
+        async with aiofiles.open(project.www_directory / "robots.txt", mode="w") as f:
             await f.write(rendered_robots_txt)
 
 
@@ -257,7 +255,7 @@ class GenerateOpenApi(Job[ProjectContext]):
     @override
     async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
         project = scheduler.context.project
-        api_directory_path = project.www_directory_path / "api"
+        api_directory_path = project.www_directory / "api"
         rendered_json = dumps(await Specification(project).build())
         async with create_json_resource(api_directory_path) as f:
             await f.write(rendered_json)
@@ -295,7 +293,7 @@ class GenerateLocalizedPublicAssets(Job[ProjectContext]):
                     job_context=scheduler.context,
                     localizer=localizers.get(locale),
                 ),
-                www_directory_path=project.www_directory_path,
+                www_directory_path=project.www_directory,
                 is_localized_and_multilingual=project.configuration.multilingual,
             )
             for locale in project.configuration.locales.keys()  # noqa: SIM118
@@ -317,7 +315,7 @@ class GenerateLocalizedPublicAssets(Job[ProjectContext]):
     ) -> None:
         project = scheduler.context.project
         assets = await project.assets
-        file_destination_path = project.localize_www_directory_path(
+        file_destination_path = project.localize_www_directory(
             locale
         ) / asset_path.relative_to(Path("public") / "localized")
         await makedirs(file_destination_path.parent, exist_ok=True)
@@ -380,9 +378,7 @@ class GenerateJsonErrorResponses(Job[ProjectContext]):
         ]:
             for locale in project.configuration.locales.keys():  # noqa: SIM118
                 async with create_file(
-                    project.localize_www_directory_path(locale)
-                    / ".error"
-                    / f"{code}.json"
+                    project.localize_www_directory(locale) / ".error" / f"{code}.json"
                 ) as f:
                     await f.write(
                         dumps(
@@ -417,7 +413,7 @@ class GenerateFavicon(Job[ProjectContext]):
         project = scheduler.context.project
 
         await to_thread(
-            project.www_directory_path.mkdir,
+            project.www_directory.mkdir,
             exist_ok=True,
             parents=True,
         )
@@ -428,7 +424,7 @@ class GenerateFavicon(Job[ProjectContext]):
         favicon = BytesIO()
         image.save(favicon, format="ICO")
         async with aiofiles.open(
-            project.www_directory_path / "favicon.ico", "wb"
+            project.www_directory / "favicon.ico", "wb"
         ) as favicon_f:
             await favicon_f.write(favicon.getbuffer())
 
@@ -475,7 +471,7 @@ class _GenerateEntityTypeJson(Job[ProjectContext]):
     async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
         project = scheduler.context.project
         url_generator = await project.url_generator
-        entity_type_path = project.www_directory_path / self._entity_type.id
+        entity_type_path = project.www_directory / self._entity_type.id
         data: PortableMapping = {
             "$schema": await ProjectSchema.def_url(
                 project,
@@ -594,9 +590,7 @@ class _GenerateEntityTypeHtml(Job[ProjectContext]):
                 + self._per_page
             ],
         )
-        page_path = (
-            project.localize_www_directory_path(self._locale) / self._entity_type.id
-        )
+        page_path = project.localize_www_directory(self._locale) / self._entity_type.id
         if self._page > 0:
             page_path /= f"page-{self._page + 1}"
         async with create_html_resource(page_path) as f:
@@ -647,9 +641,7 @@ class _GenerateEntityJson(Job[ProjectContext]):
     async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
         project = scheduler.context.project
         entity = project.ancestry[self._entity_type.cls][self._entity_id]
-        entity_path = (
-            project.www_directory_path / self._entity_type.id / entity.public_id
-        )
+        entity_path = project.www_directory / self._entity_type.id / entity.public_id
         rendered_json = dumps(await entity.dump_linked_data(project))
         async with create_json_resource(entity_path) as f:
             await f.write(rendered_json)
@@ -708,7 +700,7 @@ class _GenerateEntityHtml(Job[ProjectContext]):
         jinja2_environment = await project.jinja2_environment
         entity = project.ancestry[self._entity_type.cls][self._entity_id]
         entity_path = (
-            project.localize_www_directory_path(self._locale)
+            project.localize_www_directory(self._locale)
             / self._entity_type.id
             / entity.public_id
         )

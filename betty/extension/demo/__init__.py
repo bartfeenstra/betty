@@ -49,16 +49,16 @@ async def generate_with_cleanup(
         # Add a phantom value to the progress so it can never jump to 100% before we are entirely done here.
         await job_context.progress.add()
 
-    if project.www_directory_path.exists():
+    if project.www_directory.exists():
         return
     await load(project, job_context=job_context)
     with suppress(FileNotFoundError):
-        await to_thread(rmtree, project.project_directory_path)
+        await to_thread(rmtree, project.directory)
     try:
         await generate.generate(project, job_context=job_context)
     except BaseException:
         with suppress(FileNotFoundError):
-            await to_thread(rmtree, project.project_directory_path)
+            await to_thread(rmtree, project.directory)
         raise
 
     if job_context:
@@ -78,7 +78,7 @@ async def generate_with_cleanup(
         Trees,
         Wiki,
     },
-    assets_directory_path=Path(__file__).parent / "assets",
+    assets_directory=Path(__file__).parent / "assets",
 )
 class Demo(NavigationLinkProvider, Loader, ServiceLevelDependentSelfFactory, Extension):
     """

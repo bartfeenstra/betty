@@ -47,7 +47,7 @@ if TYPE_CHECKING:
     description=_(
         "Enrich your ancestry with information from Wikipedia and Wikimedia Commons"
     ),
-    assets_directory_path=Path(__file__).parent / "assets",
+    assets_directory=Path(__file__).parent / "assets",
 )
 class Wiki(
     PostLoader,

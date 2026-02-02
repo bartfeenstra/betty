@@ -163,7 +163,7 @@ class TestGenerateEntitiesHtml:
                 await do(ProjectContext(project), GenerateEntitiesHtml())
 
                 assert not (
-                    project.www_directory_path
+                    project.www_directory
                     / entity.plugin().id
                     / entity.public_id
                     / "index.html"
@@ -219,7 +219,7 @@ class TestGenerateEntitiesJson:
                 await do(ProjectContext(project), GenerateEntitiesJson())
 
                 assert not (
-                    project.www_directory_path
+                    project.www_directory
                     / entity.plugin().id
                     / entity.public_id
                     / "index.json"
@@ -235,7 +235,7 @@ class TestGenerateSitemap:
                 Path(__file__).parent / "test_jobs_assets" / "sitemap.xsd"
             )
             schema = etree.XMLSchema(schema_doc)
-            sitemap_doc = etree.parse(project.www_directory_path / "sitemap.xml")
+            sitemap_doc = etree.parse(project.www_directory / "sitemap.xml")
             schema.validate(sitemap_doc)
 
 
@@ -294,7 +294,7 @@ class TestGenerateRobotsTxt:
         async with Project.new_isolated(isolated_app) as project, project:
             await do(ProjectContext(project), GenerateRobotsTxt())
 
-            assert (project.www_directory_path / "robots.txt").is_file()
+            assert (project.www_directory / "robots.txt").is_file()
 
 
 class TestGenerateOpenApi:
@@ -302,7 +302,7 @@ class TestGenerateOpenApi:
         async with Project.new_isolated(isolated_app) as project, project:
             await do(ProjectContext(project), GenerateOpenApi())
 
-            with open(project.www_directory_path / "api" / "index.json") as f:
+            with open(project.www_directory / "api" / "index.json") as f:
                 SpecificationSchema().validate(json.loads(f.read()))
 
 
@@ -311,7 +311,7 @@ class TestGenerateJsonSchema:
         async with Project.new_isolated(isolated_app) as project, project:
             await do(ProjectContext(project), GenerateJsonSchema())
 
-            with open(project.www_directory_path / "schema.json") as f:
+            with open(project.www_directory / "schema.json") as f:
                 JsonSchemaSchema().validate(json.loads(f.read()))
 
 
@@ -320,7 +320,7 @@ class TestGenerateFavicon:
         async with Project.new_isolated(isolated_app) as project, project:
             await do(ProjectContext(project), GenerateFavicon())
 
-            assert (project.www_directory_path / "favicon.ico").is_file()
+            assert (project.www_directory / "favicon.ico").is_file()
 
 
 class TestGenerateJsonErrorResponses:

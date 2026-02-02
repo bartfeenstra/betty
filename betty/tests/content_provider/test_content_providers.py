@@ -97,7 +97,7 @@ class TestTemplate:
 """
         job_context = JobContext()
         async with Project.new_isolated(isolated_app) as project, project:
-            templates_directory_path = project.assets_directory_path / "templates"
+            templates_directory_path = project.assets_directory / "templates"
             await makedirs(templates_directory_path)
             template_file_path = templates_directory_path / template_path
             await makedirs(template_file_path.parent)

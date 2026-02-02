@@ -48,21 +48,21 @@ class AssetRepository(ABC):
 
     @property
     @abstractmethod
-    def assets_directory_paths(self) -> Sequence[Path]:
+    def directories(self) -> Sequence[Path]:
         """
         The paths to the individual virtual layers.
         """
 
     @abstractmethod
-    def walk(self, asset_directory_path: Path | None = None) -> AsyncIterable[Path]:
+    def walk(self, directory: Path | None = None, /) -> AsyncIterable[Path]:
         """
         Get virtual paths to available assets.
 
-        :param asset_directory_path: If given, only asses under the directory are returned.
+        :param directory: If given, only asses under the directory are returned.
         """
 
     @abstractmethod
-    async def get(self, path: Path) -> Path:
+    async def get(self, path: Path, /) -> Path:
         """
         Get the path to a single asset file.
 
@@ -81,30 +81,24 @@ class ProxyAssetRepository(AssetRepository):
 
     @override
     @property
-    def assets_directory_paths(self) -> Sequence[Path]:
-        return [
-            path
-            for upstream in self._upstreams
-            for path in upstream.assets_directory_paths
-        ]
+    def directories(self) -> Sequence[Path]:
+        return [path for upstream in self._upstreams for path in upstream.directories]
 
     @override
-    async def walk(
-        self, asset_directory_path: Path | None = None
-    ) -> AsyncIterable[Path]:
+    async def walk(self, directory: Path | None = None, /) -> AsyncIterable[Path]:
         seen = set()
         for upstream in self._upstreams:
-            async for path in upstream.walk(asset_directory_path):
+            async for path in upstream.walk(directory):
                 if path not in seen:
                     seen.add(path)
                     yield path
 
     @override
-    async def get(self, path: Path) -> Path:
+    async def get(self, path: Path, /) -> Path:
         for upstream in self._upstreams:
             with suppress(Exception):
                 return await upstream.get(path)
-        raise UnknownAsset(path, self.assets_directory_paths)
+        raise UnknownAsset(path, self.directories)
 
 
 class StaticAssetRepository(AssetRepository):
@@ -112,11 +106,11 @@ class StaticAssetRepository(AssetRepository):
     Manages static assets.
     """
 
-    def __init__(self, *assets_directory_paths: Path):
+    def __init__(self, *directories: Path):
         """
-        :param assets_directory_paths: Earlier paths have priority over later paths.
+        :param directories: Earlier paths have priority over later paths.
         """
-        self._assets_directory_paths = assets_directory_paths
+        self._directories = directories
         self.__assets: Mapping[Path, Path] | None = None
         self._lock = AsynchronizedLock.new_threadsafe()
 
@@ -132,30 +126,28 @@ class StaticAssetRepository(AssetRepository):
                 directory_path
             )
             / file_name
-            for assets_directory_path in reversed(self._assets_directory_paths)
+            for assets_directory_path in reversed(self._directories)
             for directory_path, _, file_names in walk(assets_directory_path)
             for file_name in file_names
         }
 
     @override
     @property
-    def assets_directory_paths(self) -> Sequence[Path]:
-        return self._assets_directory_paths
+    def directories(self) -> Sequence[Path]:
+        return self._directories
 
     @override
-    async def walk(
-        self, asset_directory_path: Path | None = None
-    ) -> AsyncIterable[Path]:
-        asset_directory_path_str = str(asset_directory_path)
+    async def walk(self, directory: Path | None = None, /) -> AsyncIterable[Path]:
+        asset_directory_path_str = str(directory)
         for asset_path in await self._assets():
-            if asset_directory_path is None or str(asset_path).startswith(
+            if directory is None or str(asset_path).startswith(
                 asset_directory_path_str
             ):
                 yield asset_path
 
     @override
-    async def get(self, path: Path) -> Path:
+    async def get(self, path: Path, /) -> Path:
         try:
             return (await self._assets())[path]
         except KeyError:
-            raise UnknownAsset(path, self.assets_directory_paths) from None
+            raise UnknownAsset(path, self.directories) from None

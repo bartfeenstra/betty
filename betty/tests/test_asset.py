@@ -14,10 +14,10 @@ from betty.asset import (
 class TestUnknownAsset:
     def test_new(self) -> None:
         path = Path("my-first-path")
-        assets_directory_paths = (Path("my-first-assets"), Path("my-second-assets"))
-        sut = UnknownAsset(path, assets_directory_paths)
+        directories = (Path("my-first-assets"), Path("my-second-assets"))
+        sut = UnknownAsset(path, directories)
         assert str(path) in str(sut)
-        for assets_directory_path in assets_directory_paths:
+        for assets_directory_path in directories:
             assert str(assets_directory_path) in str(sut)
 
 
@@ -48,13 +48,13 @@ class TestStaticAssetRepository:
             source_path_2,
         )
 
-    async def test_assets_directory_paths(self) -> None:
+    async def test_directories(self) -> None:
         async with TemporaryDirectory() as source_path_str_1:
             source_path_1 = Path(source_path_str_1)
             async with TemporaryDirectory() as source_path_str_2:
                 source_path_2 = Path(source_path_str_2)
                 sut = StaticAssetRepository(source_path_1, source_path_2)
-                assert sut.assets_directory_paths == (source_path_1, source_path_2)
+                assert sut.directories == (source_path_1, source_path_2)
 
     async def test_get(self, sut_data: tuple[AssetRepository, Path, Path]) -> None:
         sut, source_path_1, source_path_2 = sut_data
@@ -102,7 +102,7 @@ class TestStaticAssetRepository:
 
 
 class TestProxyAssetRepository:
-    def test_assets_directory_paths(self, tmp_path: Path) -> None:
+    def test_directories(self, tmp_path: Path) -> None:
         assets_directory_path_one = tmp_path / "one"
         assets_directory_path_two = tmp_path / "two"
 
@@ -110,14 +110,14 @@ class TestProxyAssetRepository:
         upstream_two = StaticAssetRepository(assets_directory_path_two)
         sut = ProxyAssetRepository(upstream_one, upstream_two)
 
-        assert list(sut.assets_directory_paths) == [
+        assert list(sut.directories) == [
             assets_directory_path_one,
             assets_directory_path_two,
         ]
 
-    def test_assets_directory_paths__without_upstreams(self) -> None:
+    def test_directories__without_upstreams(self) -> None:
         sut = ProxyAssetRepository()
-        assert not sut.assets_directory_paths
+        assert not sut.directories
 
     async def test_walk(self, tmp_path: Path) -> None:
         assets_directory_path_one = tmp_path / "one"

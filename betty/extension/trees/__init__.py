@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     label="Trees",
     description=_("Display interactive family trees using Cytoscape."),
     depends_on={Webpack},
-    assets_directory_path=Path(__file__).parent / "assets",
+    assets_directory=Path(__file__).parent / "assets",
 )
 class Trees(Generator, EntryPointProvider, ServiceLevelDependentSelfFactory):
     """

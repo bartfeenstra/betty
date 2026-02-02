@@ -36,7 +36,7 @@ if TYPE_CHECKING:
 @ExtensionDefinition(
     "webpack",
     label="Webpack",
-    assets_directory_path=Path(__file__).parent / "assets",
+    assets_directory=Path(__file__).parent / "assets",
 )
 class Webpack(
     Generator,

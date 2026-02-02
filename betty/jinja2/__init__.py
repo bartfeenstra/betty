@@ -151,7 +151,7 @@ class Environment(ServiceLevelDependentSelfFactory, Jinja2Environment):
         tests: Mapping[str, Callable[..., bool]],
     ):
         template_directory_paths = [
-            str(path / "templates") for path in assets.assets_directory_paths
+            str(path / "templates") for path in assets.directories
         ]
         super().__init__(
             loader=FileSystemLoader(template_directory_paths),
