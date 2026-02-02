@@ -3,8 +3,7 @@ from typing import Any
 import pytest
 
 from betty.collections import (
-    DictKeyedCollection,
-    MutableDictKeyedCollection,
+    AutoDict,
     MutableResolvedMappingProxy,
     MutableResolvedSequenceProxy,
     ResolvedMappingProxy,
@@ -13,72 +12,79 @@ from betty.collections import (
 from betty.functools import passthrough
 
 
-class TestDictKeyedCollection:
+class TestAutoDict:
     def test___contains__(self) -> None:
-        sut = DictKeyedCollection({"ONE": "one"})
+        sut = AutoDict(["one"], key=lambda value: value.upper())
         assert "ONE" in sut
 
     def test___contains____with_resolved_key(self) -> None:
-        sut = DictKeyedCollection[str, Any, str]({"True": "True"}, key_resolver=str)
+        sut = AutoDict(
+            ["True"],
+            key=lambda value: value.upper(),
+            key_resolver=lambda key: str(key).upper(),
+        )
         assert True in sut
 
     def test___contains____with_invalid_value(self) -> None:
-        sut = DictKeyedCollection[str, Any, str]({"True": "True"}, key_resolver=str)
+        sut = AutoDict(
+            {"True": "True"}, key=lambda value: value.upper(), key_resolver=str
+        )
         assert object() not in sut
 
     def test___getitem__(self) -> None:
-        sut = DictKeyedCollection({"ONE": "one"})
+        sut = AutoDict(["one"], key=lambda value: value.upper())
         assert sut["ONE"] == "one"
 
     def test___getitem____with_resolved_key(self) -> None:
-        sut = DictKeyedCollection[str, Any, str]({"True": "True"}, key_resolver=str)
+        sut = AutoDict(
+            ["True"],
+            key=lambda value: value.upper(),
+            key_resolver=lambda key: str(key).upper(),
+        )
         assert sut[True] == "True"
 
     def test___iter__(self) -> None:
-        sut = DictKeyedCollection({"ONE": "one"})
-        assert list(iter(sut)) == ["one"]
+        sut = AutoDict(["one"], key=lambda value: value.upper())
+        assert list(iter(sut)) == ["ONE"]
 
     def test___len__(self) -> None:
-        sut = DictKeyedCollection({"ONE": "one"})
+        sut = AutoDict(["one"], key=lambda value: value.upper())
         assert len(sut) == 1
 
     def test_keys(self) -> None:
-        sut = DictKeyedCollection({"ONE": "one"})
+        sut = AutoDict(["one"], key=lambda value: value.upper())
         assert list(sut.keys()) == ["ONE"]
 
+    def test_remove(self) -> None:
+        sut = AutoDict(["one"], key=lambda value: value.upper())
+        sut.remove("ONE")
+        assert not sut
 
-class TestMutableDictKeyedCollection:
     def test___delitem__(self) -> None:
-        sut = MutableDictKeyedCollection(["one"], key=lambda value: value.upper())
+        sut = AutoDict(["one"], key=lambda value: value.upper())
         del sut["ONE"]
 
     def test___delitem____with_resolved_key(self) -> None:
-        sut = MutableDictKeyedCollection[str, Any, bool, str](
-            ["True"], key=passthrough, key_resolver=str
-        )
+        sut = AutoDict[str, Any, bool, str](["True"], key=passthrough, key_resolver=str)
         del sut[True]
 
     def test_add__with_new_key(self) -> None:
-        sut = MutableDictKeyedCollection[str, str, str, str](
-            [], key=lambda value: value.upper()
-        )
+        sut = AutoDict[str, str, str, str]([], key=lambda value: value.upper())
         sut.add("one")
         assert sut["ONE"] == "one"
 
     def test_add__with_existing_key(self) -> None:
-        sut = MutableDictKeyedCollection(["one"], key=lambda value: value.upper())
+        sut = AutoDict(["one"], key=lambda value: value.upper())
         sut.add("ONE")
         assert sut["ONE"] == "ONE"
 
     def test_add__with_value_resolver(self) -> None:
-        sut = MutableDictKeyedCollection[str, str, str, bool](
-            [], key=passthrough, value_resolver=str
-        )
+        sut = AutoDict[str, str, str, bool]([], key=passthrough, value_resolver=str)
         sut.add(True)
         assert sut["True"] == "True"
 
     def test_add__with_resolver(self) -> None:
-        sut = MutableDictKeyedCollection[str, str, str, bool](
+        sut = AutoDict[str, str, str, bool](
             [],
             key=passthrough,
             resolver=reversed,  # ty:ignore[invalid-argument-type]
@@ -87,7 +93,7 @@ class TestMutableDictKeyedCollection:
         assert list(sut) == [False, True]
 
     def test_add__with_value_resolver_and_resolver(self) -> None:
-        sut = MutableDictKeyedCollection[str, str, str, bool](
+        sut = AutoDict[str, str, str, bool](
             [],
             key=passthrough,
             value_resolver=str,
@@ -97,7 +103,7 @@ class TestMutableDictKeyedCollection:
         assert list(sut) == ["False", "True"]
 
     def test_clear(self) -> None:
-        sut = MutableDictKeyedCollection(["one"], key=passthrough)
+        sut = AutoDict(["one"], key=passthrough)
         sut.clear()
         assert list(sut) == []
 

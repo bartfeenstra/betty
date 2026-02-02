@@ -10,9 +10,9 @@ from typing import TYPE_CHECKING, Any, Generic, Self, cast, final, overload
 
 from typing_extensions import TypeVar, override
 
-from betty.collections import MutableKeyedCollection
+from betty.collections import AutoMapping
 from betty.data import OptionalDefinition
-from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
+from betty.data.aggregate.collection.keyed import AutoMappingDefinition
 from betty.data.aggregate.collection.mapping import MappingDefinition
 from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.data.aggregate.record.object import Attr, AttrDefinition
@@ -36,13 +36,9 @@ _MutableSequenceT = TypeVar("_MutableSequenceT", bound=MutableSequence[Any])
 _MappingDefinitionT = TypeVar("_MappingDefinitionT", bound=MappingDefinition)
 _SequenceDefinitionT = TypeVar("_SequenceDefinitionT", bound=SequenceDefinition)
 _KeyedCollectionDefinitionT = TypeVar(
-    "_KeyedCollectionDefinitionT", bound=KeyedCollectionDefinition
+    "_KeyedCollectionDefinitionT", bound=AutoMappingDefinition
 )
-_MutableKeyedCollectionT = TypeVar(
-    "_MutableKeyedCollectionT",
-    bound=MutableKeyedCollection,
-    default=MutableKeyedCollection,
-)
+_AutoMappingT = TypeVar("_AutoMappingT", bound=AutoMapping)
 
 
 class _Property(Attr[_ValueGetT], ABC, Generic[_ValueGetT, _ValueSetT]):
@@ -283,28 +279,28 @@ class SequenceProperty(Property[_MutableSequenceT, _ValueSetT]):
         return resolved_value
 
 
-class KeyedCollectionProperty(Property[_MutableKeyedCollectionT, Iterable[_ValueSetT]]):
+class AutoMappingProperty(Property[_AutoMappingT, Iterable[_ValueSetT]]):
     """
     A property that contains a :py:class:`betty.collections.MutableKeyedCollection`.
     """
 
     def __init__(
         self,
-        data: KeyedCollectionDefinition[
+        data: AutoMappingDefinition[
             Intersection[
-                _MutableKeyedCollectionT,
-                MutableKeyedCollection[Any, Any, Any, _ValueSetT],
+                _AutoMappingT,
+                AutoMapping[Any, Any, Any, _ValueSetT],
             ]
         ],
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
         omit_load: bool | None = None,
-        omit_dump: Callable[[_MutableKeyedCollectionT], bool] | None = None,
+        omit_dump: Callable[[_AutoMappingT], bool] | None = None,
         resolver: Callable[
-            [_ValueSetT | _MutableKeyedCollectionT], Iterable[_ValueGetT]
+            [_ValueSetT | _AutoMappingT], Iterable[_ValueGetT]
         ] = passthrough,
-        default: Callable[[], MutableKeyedCollection] | None = None,
+        default: Callable[[], AutoMapping] | None = None,
     ):
         super().__init__(
             data,
@@ -318,8 +314,8 @@ class KeyedCollectionProperty(Property[_MutableKeyedCollectionT, Iterable[_Value
 
     @override
     def set(
-        self, instance: Any, value: Iterable[_ValueSetT] | _MutableKeyedCollectionT
-    ) -> _MutableKeyedCollectionT:
+        self, instance: Any, value: Iterable[_ValueSetT] | _AutoMappingT
+    ) -> _AutoMappingT:
         collection = self.get(instance)
         collection.clear()
         resolved_value = self._resolver(value)

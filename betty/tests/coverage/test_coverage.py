@@ -405,7 +405,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "PresenceRole": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/collections.py": {
-        "KeyedCollection": MissingReason.ABSTRACT,
+        "AutoMapping": MissingReason.ABSTRACT,
         "MutableCollection": MissingReason.ABSTRACT,
         "MutableKeyedCollection": MissingReason.ABSTRACT,
         "MutableResolvedMapping": MissingReason.ABSTRACT,

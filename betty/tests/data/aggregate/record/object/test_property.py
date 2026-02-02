@@ -3,14 +3,14 @@ from typing import Any
 import pytest
 
 from betty.assertion import assert_str
-from betty.collections import MutableDictKeyedCollection
+from betty.collections import AutoDict
 from betty.data import Data, DataDefinition, OptionalDefinition
-from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
+from betty.data.aggregate.collection.keyed import AutoMappingDefinition
 from betty.data.aggregate.collection.mapping import MappingDefinition
 from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.aggregate.record.object.property import (
-    KeyedCollectionProperty,
+    AutoMappingProperty,
     MappingProperty,
     Optional,
     Property,
@@ -139,21 +139,21 @@ class TestOptional:
         assert optional_data.wrapped is data
 
 
-class TestKeyedCollectionProperty:
+class TestAutoMappingProperty:
     @ObjectDefinition(label=DUMMY_LOCALIZABLE)
     class _Owner(Data):
         @ObjectDefinition(label=DUMMY_LOCALIZABLE)
         class _Item(Data["ObjectDefinition"]):
             attr: Any
 
-        keyed_collection = KeyedCollectionProperty(
-            KeyedCollectionDefinition(
+        keyed_collection = AutoMappingProperty(
+            AutoMappingDefinition(
                 label=DUMMY_LOCALIZABLE,
                 value=_Item.data(),
                 key=AttrSelector("attr"),
                 ordered=False,
             ),
-            default=lambda: MutableDictKeyedCollection(key=lambda item: item.upper()),
+            default=lambda: AutoDict(key=lambda item: item.upper()),
         )
 
     def test_set(self) -> None:
