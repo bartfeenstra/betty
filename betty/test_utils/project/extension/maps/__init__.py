@@ -16,7 +16,7 @@ from betty import serve
 from betty.ancestry.name import Name
 from betty.ancestry.place import Place
 from betty.app import App
-from betty.plugin.resolve import ResolvableId
+from betty.plugin import ResolvableId
 from betty.project import Project
 from betty.extension import ExtensionDefinition
 from betty.extension.maps import Maps

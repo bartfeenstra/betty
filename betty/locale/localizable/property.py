@@ -9,17 +9,15 @@ from typing import TypeVar, final
 from betty.data.aggregate.record.object.property import Property
 from betty.locale.localizable import (
     CountableLocalizable,
-    CountableLocalizableLike,
     Localizable,
+    ResolvableCountableLocalizable,
     ResolvableLocalizable,
+    resolve_countable_localizable,
+    resolve_localizable,
 )
 from betty.locale.localizable.data import (
     CountableLocalizableDefinition,
     LocalizableDefinition,
-)
-from betty.locale.localizable.resolve import (
-    resolve_countable_localizable,
-    resolve_localizable,
 )
 
 _ValueGetT = TypeVar("_ValueGetT")
@@ -48,7 +46,7 @@ class LocalizableProperty(Property[Localizable, ResolvableLocalizable]):
 
 @final
 class CountableLocalizableProperty(
-    Property[CountableLocalizable, CountableLocalizableLike]
+    Property[CountableLocalizable, ResolvableCountableLocalizable]
 ):
     """
     A property containing a :py:class:`betty.locale.localizable.CountableLocalizable`.

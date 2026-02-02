@@ -11,8 +11,9 @@ from typing_extensions import TypeVar
 from betty.exception import HumanFacingException
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Paragraph, do_you_mean
-from betty.plugin import PluginDefinition, PluginTypeDefinition
-from betty.plugin.resolve import (
+from betty.plugin import (
+    PluginDefinition,
+    PluginTypeDefinition,
     ResolvableId,
     resolve_id,
 )

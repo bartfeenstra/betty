@@ -8,7 +8,9 @@ from typing import TYPE_CHECKING, Any
 
 from typing_extensions import TypeVar
 
-from betty.locale.localizable.resolve import resolve_localizable
+from betty.locale.localizable import (
+    resolve_localizable,
+)
 
 if TYPE_CHECKING:
     from betty.locale.localizable import (

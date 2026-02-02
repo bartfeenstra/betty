@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING, Any
 
 from typing_extensions import TypeVar
 
+from betty.plugin import ResolvableId, resolve_id
 from betty.plugin.ordered import OrderedPluginDefinition, sort_ordered_plugin_graph
-from betty.plugin.resolve import ResolvableId, resolve_id
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Set

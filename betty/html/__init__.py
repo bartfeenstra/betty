@@ -11,7 +11,7 @@ from uuid import uuid4
 
 from markupsafe import escape
 
-from betty.locale.localizable.resolve import resolve_localizable
+from betty.locale.localizable import resolve_localizable
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

@@ -13,7 +13,7 @@ from betty.asyncio import resolve_await
 from betty.extension import Extension, ExtensionDefinition
 from betty.importlib import fully_qualified_name
 from betty.locale.localizable.gettext import _
-from betty.plugin.resolve import ResolvableId, resolve_id
+from betty.plugin import ResolvableId, resolve_id
 from betty.service.requirement import ServiceLevelKwargs, UnmetRequirement
 from betty.service.requirement.project import require_project
 

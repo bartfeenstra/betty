@@ -11,8 +11,7 @@ from typing import TYPE_CHECKING, Any
 from typing_extensions import TypeVar
 
 from betty.machine_name import MachineName
-from betty.plugin import PluginDefinition
-from betty.plugin.resolve import ResolvableId, resolve_id
+from betty.plugin import PluginDefinition, ResolvableId, resolve_id
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Mapping, Set

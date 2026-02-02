@@ -9,9 +9,8 @@ from typing import TYPE_CHECKING, cast, final
 
 from typing_extensions import TypeVar, override
 
-from betty.plugin import PluginDefinition
+from betty.plugin import PluginDefinition, ResolvableDefinition
 from betty.plugin.discovery import PluginDiscovery
-from betty.plugin.resolve import ResolvableDefinition
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

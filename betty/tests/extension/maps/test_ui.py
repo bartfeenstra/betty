@@ -3,7 +3,7 @@ from collections.abc import Iterable
 from typing_extensions import override
 
 from betty.extension import ExtensionDefinition
-from betty.plugin.resolve import ResolvableId
+from betty.plugin import ResolvableId
 from betty.test_utils.project.extension.maps import MapsTestBase
 
 

@@ -28,13 +28,21 @@ from betty.locale.localizable.property import (
     LocalizableProperty,
 )
 from betty.machine_name import MachineName, MachineNameDefinition, assert_machine_name
-from betty.plugin import Plugin, PluginDefinition
-from betty.plugin.resolve import ResolvableId, resolve_definition, resolve_id
+from betty.plugin import (
+    Plugin,
+    PluginDefinition,
+    ResolvableId,
+    resolve_definition,
+    resolve_id,
+)
 from betty.sample import Samplable, Sample, Samples, Size
 from betty.typing import Void
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import CountableLocalizableLike, ResolvableLocalizable
+    from betty.locale.localizable import (
+        ResolvableCountableLocalizable,
+        ResolvableLocalizable,
+    )
     from betty.portable import PortableData
     from betty.service.level import ServiceLevel
 
@@ -118,7 +126,7 @@ class CountableHumanFacingPluginDefinitionConfiguration(
         self,
         *,
         label_plural: ResolvableLocalizable,
-        label_countable: CountableLocalizableLike,
+        label_countable: ResolvableCountableLocalizable,
         **kwargs: Any,
     ):
         super().__init__(**kwargs)

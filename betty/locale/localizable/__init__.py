@@ -187,9 +187,37 @@ A localizable, or a type that can be converted into a localizable with :py:func:
 """
 
 
-CountableLocalizableLike: TypeAlias = (
+ResolvableCountableLocalizable: TypeAlias = (
     CountableLocalizable | ShorthandCountableStaticTranslations
 )
 """
 A countable localizable, or a type that can be converted into a countable localizable with :py:func:`betty.locale.localizable.ensure_countable_localizable`.
 """
+
+
+def resolve_localizable(localizable: ResolvableLocalizable) -> Localizable:
+    """
+    Ensure that a localizable-like value is or is made to be an actual localizable.
+    """
+    if isinstance(localizable, Localizable):
+        return localizable
+    if isinstance(localizable, str):
+        from betty.locale.localizable.plain import Plain
+
+        return Plain(localizable)
+    from betty.locale.localizable.static import StaticTranslations
+
+    return StaticTranslations(localizable)
+
+
+def resolve_countable_localizable(
+    localizable: ResolvableCountableLocalizable,
+) -> CountableLocalizable:
+    """
+    Ensure that a countable-localizable-like value is or is made to be an actual countable localizable.
+    """
+    if isinstance(localizable, CountableLocalizable):
+        return localizable
+    from betty.locale.localizable.static import CountableStaticTranslations
+
+    return CountableStaticTranslations(localizable)

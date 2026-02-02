@@ -8,7 +8,7 @@ from typing_extensions import override
 
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin import Plugin, PluginTypeDefinition, ResolvableId
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.service.container import ServiceContainer
@@ -21,7 +21,6 @@ if TYPE_CHECKING:
     from betty.data import Data
     from betty.locale.localizable import ResolvableLocalizable
     from betty.machine_name import MachineName
-    from betty.plugin.resolve import ResolvableId
     from betty.portable import PortableData
     from betty.project import Project
     from betty.service.level.factory import ServiceLevelTarget

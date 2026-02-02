@@ -42,6 +42,7 @@ from betty.locale.localizable.property import LocalizableProperty
 from betty.machine_name import MachineName, MachineNameDefinition
 from betty.model import EntityDefinition
 from betty.model.reference import EntityReference
+from betty.plugin import resolve_id
 from betty.plugin.config import (
     PluginConfiguration,
     ResolvablePluginConfigurationSequence,
@@ -49,7 +50,6 @@ from betty.plugin.config import (
 )
 from betty.plugin.config.property import PluginConfigurationSequenceProperty
 from betty.plugin.data import PluginConfigurationSequenceDefinition, PluginIdDefinition
-from betty.plugin.resolve import resolve_id
 from betty.portable import CallbackPorter
 from betty.presence_role import PresenceRoleDefinition
 from betty.service.level.factory import (
@@ -66,8 +66,8 @@ if TYPE_CHECKING:
     from betty.document import Document
     from betty.jinja2 import Environment
     from betty.locale.localizable import ResolvableLocalizable
+    from betty.plugin import ResolvableId
     from betty.plugin.repository import PluginRepository
-    from betty.plugin.resolve import ResolvableId
 
 
 @final

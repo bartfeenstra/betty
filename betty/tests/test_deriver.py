@@ -18,7 +18,7 @@ from betty.event_type import (
     ShouldExistEventType,
 )
 from betty.model.collections import record_added
-from betty.plugin.resolve import ResolvableDefinition
+from betty.plugin import ResolvableDefinition
 from betty.presence_role.presence_roles import Subject
 from betty.project import Project
 from betty.test_utils.locale.localizable import (

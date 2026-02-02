@@ -14,8 +14,7 @@ import typing_extensions
 from typing_extensions import TypeVar
 
 from betty.asyncio import resolve_await
-from betty.plugin import Plugin, PluginDefinition
-from betty.plugin.resolve import ResolvableDefinition
+from betty.plugin import Plugin, PluginDefinition, ResolvableDefinition
 from betty.service.requirement import ServiceLevelKwargs
 
 if TYPE_CHECKING:
