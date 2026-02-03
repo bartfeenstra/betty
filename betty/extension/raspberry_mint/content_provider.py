@@ -9,6 +9,15 @@ from typing import TYPE_CHECKING, Any, Self, TypeAlias, final
 
 from typing_extensions import override
 
+from betty.ancestry.citation import Citation
+from betty.ancestry.event import Event
+from betty.ancestry.file import File
+from betty.ancestry.has_citations import HasCitations
+from betty.ancestry.has_file_references import HasFileReferences
+from betty.ancestry.has_links import HasLinks
+from betty.ancestry.person import Person
+from betty.ancestry.place import Place
+from betty.ancestry.source import Source
 from betty.assertion import (
     assert_enum,
     assert_int,
@@ -31,16 +40,22 @@ from betty.data.aggregate.record.object.property import Optional, Property
 from betty.data.bool import BoolDefinition
 from betty.data.enum import EnumDefinition
 from betty.data.int import IntDefinition
+from betty.extension._theme import (
+    associated_file_references,
+    person_timeline_events,
+    place_timeline_events,
+)
 from betty.extension.raspberry_mint import (
     Breakpoint,
     JustifyContent,
     RaspberryMint,
 )
 from betty.extension.raspberry_mint import ColorStyle as RaspberryMintColorStyle
+from betty.functools import unique
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import LocalizableProperty
 from betty.machine_name import MachineName, MachineNameDefinition
-from betty.model import EntityDefinition
+from betty.model import Entity, EntityDefinition
 from betty.model.reference import EntityReference
 from betty.plugin import resolve_id
 from betty.plugin.config import (
@@ -52,6 +67,7 @@ from betty.plugin.config.property import PluginConfigurationSequenceProperty
 from betty.plugin.data import PluginConfigurationSequenceDefinition, PluginIdDefinition
 from betty.portable import CallbackPorter
 from betty.presence_role import PresenceRoleDefinition
+from betty.privacy import is_public
 from betty.service.level import Manufacturable
 from betty.service.requirement.extension import require_extension
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
@@ -164,8 +180,10 @@ class Section(Template, Configurable[SectionConfiguration]):
         )
 
     @override
-    async def _provide_data(self, document: Document) -> Mapping[str, Any]:
-        return {
+    async def provide_template(
+        self, document: Document
+    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+        return "component/raspberry-mint/section.html.j2", {
             "section_name": self.configuration.name,
             "section_heading": self.configuration.heading,
             "section_visually_hide_heading": self.configuration.visually_hide_heading,
@@ -216,8 +234,13 @@ class EntityCard(Template, Configurable[EntityReference]):
         )
 
     @override
-    async def _provide_data(self, document: Document) -> Mapping[str, Any]:
-        return {
+    async def provide_template(
+        self, document: Document
+    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+        return [
+            "entity/card--" + self.configuration.type + ".html.j2",
+            "entity/card.html.j2",
+        ], {
             "entity": self._ancestry[self._entity_types.get(self.configuration.type)][
                 self.configuration.id
             ],
@@ -238,6 +261,16 @@ class Families(Template, Manufacturable):
     async def new_for_services(cls, *, extension: RaspberryMint) -> Self:
         return cls(jinja2_environment=await extension._project.jinja2_environment)
 
+    @override
+    async def provide_template(
+        self, document: Document
+    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+        if isinstance(document.resource, Person):
+            return "component/raspberry-mint/families.html.j2", {
+                "person": document.resource,
+            }
+        return None
+
 
 @ContentProviderDefinition(
     "raspberry-mint-media",
@@ -257,6 +290,16 @@ class Media(Template, Manufacturable):
     async def new_for_services(cls, *, extension: RaspberryMint) -> Self:
         return cls(jinja2_environment=await extension._project.jinja2_environment)
 
+    @override
+    async def provide_template(
+        self, document: Document
+    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+        if isinstance(document.resource, File):
+            return "component/raspberry-mint/media.html.j2", {
+                "file": document.resource,
+            }
+        return None
+
 
 @ContentProviderDefinition(
     "raspberry-mint-media-gallery",
@@ -275,6 +318,16 @@ class MediaGallery(Template, Manufacturable):
     @require_extension(RaspberryMint)
     async def new_for_services(cls, *, extension: RaspberryMint) -> Self:
         return cls(jinja2_environment=await extension._project.jinja2_environment)
+
+    @override
+    async def provide_template(
+        self, document: Document
+    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+        if isinstance(document.resource, HasFileReferences):
+            return "component/raspberry-mint/media-gallery.html.j2", {
+                "file_references": list(associated_file_references(document.resource))
+            }
+        return None
 
 
 @final
@@ -346,8 +399,10 @@ class ColorStyle(Template, Configurable[ColorStyleConfiguration]):
         )
 
     @override
-    async def _provide_data(self, document: Document) -> Mapping[str, Any]:
-        return {
+    async def provide_template(
+        self, document: Document
+    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+        return "component/raspberry-mint/color-style.html.j2", {
             "color_style": self.configuration.style.value,
             "color_style_content_provider_configurations": self.configuration.content,
         }
@@ -367,6 +422,16 @@ class ExternalLinks(Template, Manufacturable):
     async def new_for_services(cls, *, extension: RaspberryMint) -> Self:
         return cls(jinja2_environment=await extension._project.jinja2_environment)
 
+    @override
+    async def provide_template(
+        self, document: Document
+    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+        if isinstance(document.resource, HasLinks):
+            return "component/raspberry-mint/links.html.j2", {
+                "links": document.resource.links
+            }
+        return None
+
 
 @ContentProviderDefinition("raspberry-mint-timeline", label=_("Timeline"))
 class Timeline(Template, Manufacturable):
@@ -376,11 +441,33 @@ class Timeline(Template, Manufacturable):
     .. plugin:: content-provider:raspberry-mint-timeline
     """
 
+    def __init__(self, *, jinja2_environment: Environment, lifetime_threshold: int):
+        super().__init__(jinja2_environment=jinja2_environment)
+        self._lifetime_threshold = lifetime_threshold
+
     @override
     @classmethod
     @require_extension(RaspberryMint)
     async def new_for_services(cls, *, extension: RaspberryMint) -> Self:
-        return cls(jinja2_environment=await extension._project.jinja2_environment)
+        return cls(
+            jinja2_environment=await extension._project.jinja2_environment,
+            lifetime_threshold=extension._project.configuration.lifetime_threshold,
+        )
+
+    @override
+    async def provide_template(
+        self, document: Document
+    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+        events = []
+        if isinstance(document.resource, Person):
+            events.extend(
+                person_timeline_events(document.resource, self._lifetime_threshold)
+            )
+        elif isinstance(document.resource, Place):
+            events.extend(place_timeline_events(document.resource))
+        if events:
+            return "component/raspberry-mint/timeline.html.j2", {"events": events}
+        return None
 
 
 @ContentProviderDefinition(
@@ -402,6 +489,25 @@ class Facts(Template, Manufacturable):
     @require_extension(RaspberryMint)
     async def new_for_services(cls, *, extension: RaspberryMint) -> Self:
         return cls(jinja2_environment=await extension._project.jinja2_environment)
+
+    @override
+    async def provide_template(
+        self, document: Document
+    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+        entities = []
+        if isinstance(document.resource, Citation):
+            entities.extend(document.resource.facts)
+        if isinstance(document.resource, Source):
+            entities.extend(unique(self._source_facts(document.resource)))
+        if entities:
+            return "entity/list.html.j2", {"entities": entities}
+        return None
+
+    def _source_facts(self, source: Source) -> Iterable[Entity]:
+        for citation in filter(is_public, source.citations):
+            yield from citation.facts
+        for contained in source.contains:
+            yield from self._source_facts(contained)
 
 
 @final
@@ -511,17 +617,25 @@ class Presences(Template, Configurable[PresencesConfiguration]):
         )
 
     @override
-    async def _provide_data(self, document: Document) -> Mapping[str, Any]:
-        include: Collection[MachineName]
-        if self.configuration.include is not None:
-            include = self.configuration.include
-        else:
-            include = {role.id for role in self._presence_roles}
-            if self.configuration.exclude is not None:
-                include -= set(self.configuration.exclude)
-        return {
-            "include": include,
-        }
+    async def provide_template(
+        self, document: Document
+    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+        if isinstance(document.resource, Event):
+            include: Collection[MachineName]
+            if self.configuration.include is not None:
+                include = self.configuration.include
+            else:
+                include = {role.id for role in self._presence_roles}
+                if self.configuration.exclude is not None:
+                    include -= set(self.configuration.exclude)
+            return "component/raspberry-mint/presences.html.j2", {
+                "presences": [
+                    presence
+                    for presence in document.resource.presences
+                    if presence.role.plugin().id in include
+                ]
+            }
+        return None
 
 
 ColumnsWidth: TypeAlias = Mapping[Breakpoint, Sequence[int]]
@@ -723,11 +837,13 @@ class Columns(Template, Configurable[ColumnsConfiguration]):
         )
 
     @override
-    async def _provide_data(self, document: Document) -> Mapping[str, Any]:
-        return {
-            "content": self.configuration.content,
-            "justify_content": self.configuration.justify_content,
-            "width": {
+    async def provide_template(
+        self, document: Document
+    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+        return "component/raspberry-mint/columns.html.j2", {
+            "columns_content": self.configuration.content,
+            "columns_justify_content": self.configuration.justify_content,
+            "columns_width": {
                 breakpoint.value: widths
                 for breakpoint, widths in self.configuration.width.items()  # noqa: A001
             },
@@ -748,6 +864,21 @@ class Enclosees(Template, Manufacturable):
     async def new_for_services(cls, *, extension: RaspberryMint) -> Self:
         return cls(jinja2_environment=await extension._project.jinja2_environment)
 
+    @override
+    async def provide_template(
+        self, document: Document
+    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+        if isinstance(document.resource, Place):
+            return "component/raspberry-mint/enclosees.html.j2", {
+                "enclosees": list(self._enclosees(document.resource))
+            }
+        return None
+
+    def _enclosees(self, place: Place) -> Iterable[Place]:
+        for enclosure in place.enclosees:
+            yield enclosure.enclosee
+            yield from self._enclosees(enclosure.enclosee)
+
 
 @ContentProviderDefinition("raspberry-mint-file-referees", label=_("File referees"))
 class FileReferees(Template, Manufacturable):
@@ -763,6 +894,16 @@ class FileReferees(Template, Manufacturable):
     async def new_for_services(cls, *, extension: RaspberryMint) -> Self:
         return cls(jinja2_environment=await extension._project.jinja2_environment)
 
+    @override
+    async def provide_template(
+        self, document: Document
+    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+        if isinstance(document.resource, File):
+            return "entity/list.html.j2", {
+                "entities": [referee.referee for referee in document.resource.referees]
+            }
+        return None
+
 
 @ContentProviderDefinition("raspberry-mint-citations", label=_("Citations"))
 class Citations(Template, Manufacturable):
@@ -777,3 +918,13 @@ class Citations(Template, Manufacturable):
     @require_extension(RaspberryMint)
     async def new_for_services(cls, *, extension: RaspberryMint) -> Self:
         return cls(jinja2_environment=await extension._project.jinja2_environment)
+
+    @override
+    async def provide_template(
+        self, document: Document
+    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+        if isinstance(document.resource, HasCitations):
+            return "component/raspberry-mint/citations.html.j2", {
+                "citations": document.resource.citations
+            }
+        return None

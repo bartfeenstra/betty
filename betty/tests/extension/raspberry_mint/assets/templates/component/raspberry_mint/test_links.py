@@ -27,7 +27,7 @@ async def test_minimal() -> None:
             "links": [],
         },
         extensions={RaspberryMint},
-        template="component/external-links.html.j2",
+        template="component/raspberry-mint/links.html.j2",
     ) as (actual, _):
         assert actual == ""
 
@@ -41,7 +41,7 @@ async def test_with_link_without_locale() -> None:
             "links": [link],
         },
         extensions={RaspberryMint},
-        template="component/external-links.html.j2",
+        template="component/raspberry-mint/links.html.j2",
     ) as (actual, _):
         assert link_url in actual
         assert link_label in actual
@@ -56,7 +56,7 @@ async def test_with_link() -> None:
             "links": [link],
         },
         extensions={RaspberryMint},
-        template="component/external-links.html.j2",
+        template="component/raspberry-mint/links.html.j2",
     ) as (actual, _):
         assert link_url in actual
         assert link_label in actual

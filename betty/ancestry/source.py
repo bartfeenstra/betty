@@ -28,7 +28,7 @@ from betty.model.association import (
 from betty.privacy import HasPrivacy, Privacy, is_public, merge_privacies
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, MutableSequence
+    from collections.abc import MutableSequence
 
     from betty.ancestry.citation import Citation  # noqa: F401
     from betty.ancestry.file_reference import FileReference
@@ -134,15 +134,6 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
         if self.contained_by:
             return merge_privacies(privacy, self.contained_by)
         return privacy
-
-    @property
-    def walk_contains(self) -> Iterator[Source]:
-        """
-        All directly and indirectly contained sources.
-        """
-        for source in self.contains:
-            yield source
-            yield from source.contains
 
     @override
     @property

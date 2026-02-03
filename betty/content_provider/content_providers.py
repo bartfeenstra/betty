@@ -4,10 +4,12 @@ Dynamic content.
 
 from __future__ import annotations
 
+from abc import abstractmethod
 from typing import TYPE_CHECKING, Any, Self, final
 
 from typing_extensions import override
 
+from betty.ancestry.has_notes import HasNotes
 from betty.config import Configurable
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.data import Data, Sample
@@ -29,7 +31,7 @@ from betty.service.requirement.project import require_project
 from betty.typing import private
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import Iterable, Mapping, MutableSequence
 
     from betty.document import Document
     from betty.jinja2 import Environment
@@ -111,21 +113,46 @@ class Template(ContentProvider):
 
     @override
     async def provide(self, *, document: Document) -> str | None:
+        config = await self.provide_template(document)
+        if config is None:
+            return None
+        templates: MutableSequence[str]
+        if isinstance(config, str):
+            templates = [config]
+            data = {}
+        elif isinstance(config, tuple):
+            templates = [config[0]] if isinstance(config[0], str) else config[0]  # ty:ignore[invalid-assignment]
+            data = config[1]
+        else:
+            templates = config  # ty:ignore[invalid-assignment]
+            data = {}
+        assert templates, "At least one template must be specified"
         jinja2_environment = self._jinja2_environment
         rendered_content = (
-            await jinja2_environment.get_template(
-                f"content/{self.plugin().id}.html.j2"
-            ).render_async(
+            await jinja2_environment.select_template(templates).render_async(
                 document=document,
-                **await self._provide_data(document),
+                **data,  # ty:ignore[invalid-argument-type]
             )
         ).strip()
         if rendered_content:
             return rendered_content
         return None
 
-    async def _provide_data(self, document: Document) -> Mapping[str, Any]:
-        return {}
+    def _resolve_templates(self, templates: str | Iterable[str]) -> Iterable[str]:
+        if isinstance(templates, str):
+            return [templates]
+        return templates
+
+    @abstractmethod
+    async def provide_template(
+        self, document: Document
+    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+        """
+        Provide template data.
+
+        Return a template name, a tuple of a template name and template date to render it. Return ``None`` to prevent
+        anything from being rendered at all.
+        """
 
 
 @ContentProviderDefinition("notes", label=_("Notes"))
@@ -139,6 +166,14 @@ class Notes(Template, Manufacturable):
     @require_project
     async def new_for_services(cls, *, project: Project) -> Self:
         return cls(jinja2_environment=await project.jinja2_environment)
+
+    @override
+    async def provide_template(
+        self, document: Document
+    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+        if isinstance(document.resource, HasNotes):
+            return "component/notes.html.j2", {"notes": document.resource.notes}
+        return None
 
 
 @final
@@ -229,7 +264,15 @@ class Box(Template, Configurable[BoxConfiguration]):
         )
 
     @override
-    async def _provide_data(self, document: Document) -> Mapping[str, Any]:
-        return {
-            "box_configuration": self.configuration,
+    async def provide_template(
+        self, document: Document
+    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+        return "component/box.html.j2", {
+            "box_content": self.configuration.content,
+            "box_min_height": self.configuration.min_height,
+            "box_max_height": self.configuration.max_height,
+            "box_height": self.configuration.height,
+            "box_min_width": self.configuration.min_width,
+            "box_max_width": self.configuration.max_width,
+            "box_width": self.configuration.width,
         }

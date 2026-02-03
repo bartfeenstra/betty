@@ -14,7 +14,9 @@ from betty.project import Project
 
 
 class TestTree:
-    async def test_provide__without_supported_entity(self, isolated_app: App) -> None:
+    async def test_provide_template__without_supported_entity(
+        self, isolated_app: App
+    ) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(Trees)
             async with project:
@@ -28,7 +30,7 @@ class TestTree:
             Place(),
         ],
     )
-    async def test_provide__without_trees(
+    async def test_provide_template__without_trees(
         self, resource: Entity, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
@@ -41,7 +43,7 @@ class TestTree:
                     is None
                 )
 
-    async def test_provide__with_person_with_relationships(
+    async def test_provide_template__with_person_with_relationships(
         self, isolated_app: App
     ) -> None:
         person = Person()

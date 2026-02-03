@@ -7,7 +7,7 @@
         {{ preview }}
     {% else %}
         {% with places = [entity], embedded = true %}
-            {% include 'maps/map.html.j2' %}
+            {% include 'component/maps/map.html.j2' %}
         {% endwith %}
     {% endif %}
 {% endblock %}

@@ -2,12 +2,15 @@
 Dynamic content.
 """
 
-from typing import Self
+from collections.abc import Iterable, Mapping
+from typing import Any, Self
 
 from typing_extensions import override
 
+from betty.ancestry.has_links import HasLinks
 from betty.content_provider import ContentProviderDefinition
 from betty.content_provider.content_providers import Template
+from betty.document import Document
 from betty.extension.wiki import Wiki
 from betty.locale.localizable.gettext import _
 from betty.service.level import Manufacturable
@@ -27,3 +30,13 @@ class WikipediaSummary(Template, Manufacturable):
     @require_extension(Wiki)
     async def new_for_services(cls, *, extension: Wiki) -> Self:
         return cls(jinja2_environment=await extension._project.jinja2_environment)
+
+    @override
+    async def provide_template(
+        self, document: Document
+    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+        if isinstance(document.resource, HasLinks):
+            return "component/wiki/wikipedia-summary.html.j2", {
+                "links": document.resource.links
+            }
+        return None

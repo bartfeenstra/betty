@@ -6,7 +6,7 @@
         {% if "maps" in project.extensions %}
             {% set map -%}
                 {% with places = project.ancestry['place'] %}
-                    {% include 'maps/map.html.j2' %}
+                    {% include 'component/maps/map.html.j2' %}
                 {% endwith %}
             {%- endset %}
             {% if map %}
@@ -19,7 +19,7 @@
                             <div class="col-12 col-lg-8">
                                 <p>
                                     <small>
-                                        {% include 'maps/attribution.html.j2' %}
+                                        {% include 'component/maps/attribution.html.j2' %}
                                     </small>
                                 </p>
                             </div>

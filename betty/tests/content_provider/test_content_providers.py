@@ -1,9 +1,12 @@
+from collections.abc import Iterable, Mapping
 from gettext import NullTranslations
 from pathlib import Path
+from typing import Any
 
 import aiofiles
 import pytest
 from aiofiles.os import makedirs
+from typing_extensions import override
 
 from betty.ancestry.note import Note
 from betty.app import App
@@ -78,7 +81,7 @@ class TestTemplate:
         self,
         isolated_app: App,
     ) -> None:
-        template_name = "content/my-first-template.html.j2"
+        template_name = "my/first/template.html.j2"
         template_path = Path(*template_name.split("/"))
         template = """
 {{ document.localizer.locale }}
@@ -95,12 +98,19 @@ class TestTemplate:
                 await f.write(template)
 
             @ContentProviderDefinition("my-first-template", label=DUMMY_LOCALIZABLE)
-            class _Jinja2TemplateContentProvider(Template):
-                pass
+            class _Template(Template):
+                @override
+                async def provide_template(
+                    self, document: Document
+                ) -> (
+                    str
+                    | Iterable[str]
+                    | tuple[str | Iterable[str], Mapping[str, Any]]
+                    | None
+                ):
+                    return template_name
 
-            sut = _Jinja2TemplateContentProvider(
-                jinja2_environment=await project.jinja2_environment
-            )
+            sut = _Template(jinja2_environment=await project.jinja2_environment)
             provided_content = await sut.provide(
                 document=Document(
                     "my-first-page-resource",
@@ -116,19 +126,21 @@ class TestTemplate:
 
 
 class TestNotes:
-    async def test_provide__without_has_notes_resource(self, isolated_app: App) -> None:
+    async def test_provide_template__without_has_notes_resource(
+        self, isolated_app: App
+    ) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = await Notes.new_for_services(services=project)
             assert await sut.provide(document=Document()) is None
 
-    async def test_provide__without_notes(self, isolated_app: App) -> None:
+    async def test_provide_template__without_notes(self, isolated_app: App) -> None:
         has_notes = DummyHasNotes()
         async with Project.new_isolated(isolated_app) as project, project:
             project.ancestry.add(has_notes)
             sut = await Notes.new_for_services(services=project)
             assert await sut.provide(document=Document(has_notes)) is None
 
-    async def test_provide__with_notes(self, isolated_app: App) -> None:
+    async def test_provide_template__with_notes(self, isolated_app: App) -> None:
         note_text = "Hello, world!"
         has_notes = DummyHasNotes(notes=[Note(note_text)])
         async with Project.new_isolated(isolated_app) as project, project:
@@ -148,7 +160,7 @@ class TestBoxConfiguration(DataTestBase[BoxConfiguration]):
 
 
 class TestBox:
-    async def test_provide__minimal(self, isolated_app: App) -> None:
+    async def test_provide_template__minimal(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = await Box.new_for_configuration(
                 services=project,
@@ -160,7 +172,7 @@ class TestBox:
         assert actual is not None
         assert "<div>" in actual
 
-    async def test_provide__full(self, isolated_app: App) -> None:
+    async def test_provide_template__full(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = await Box.new_for_configuration(
                 services=project,

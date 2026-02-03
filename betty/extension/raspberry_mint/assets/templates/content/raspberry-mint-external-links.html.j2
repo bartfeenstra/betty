@@ -1,5 +1,0 @@
-{% if document.resource is has_links %}
-    {% with links = document.resource.links %}
-        {% include 'component/external-links.html.j2' %}
-    {% endwith %}
-{% endif %}

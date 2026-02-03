@@ -2,12 +2,14 @@
 Content providers for the demonstration site.
 """
 
-from typing import Self
+from collections.abc import Iterable, Mapping
+from typing import Any, Self
 
 from typing_extensions import override
 
 from betty.content_provider import ContentProviderDefinition
 from betty.content_provider.content_providers import Template
+from betty.document import Document
 from betty.project import Project
 from betty.service.level import Manufacturable
 from betty.service.requirement.project import require_project
@@ -22,3 +24,9 @@ class _IncompleteTranslationWarning(Template, Manufacturable):
     @require_project
     async def new_for_services(cls, *, project: Project) -> Self:
         return cls(jinja2_environment=await project.jinja2_environment)
+
+    @override
+    async def provide_template(
+        self, document: Document
+    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+        return "component/demo/-demo-incomplete-translation-warning.html.j2"

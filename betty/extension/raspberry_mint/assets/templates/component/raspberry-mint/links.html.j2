@@ -1,5 +1,5 @@
-{% set links = links | list %}
-{% if links | length > 0 %}
+{% set links = links | select('public') | list %}
+{% if links | length %}
     <ul>
         {% for link in links %}
             {% set link_url = link.url | localize %}

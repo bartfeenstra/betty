@@ -56,7 +56,7 @@ class _GeneratePlacePreview(Job[ProjectContext]):
             / place.public_id
         )
         rendered_html = await jinja2_environment.get_template(
-            "maps/selected-place-preview.html.j2",
+            "component/maps/selected-place-preview.html.j2",
         ).render_async(
             document=await project.new_document(
                 job_context=context,
