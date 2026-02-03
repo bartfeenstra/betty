@@ -257,7 +257,7 @@ class ColorConfiguration(Configuration):
         """
         return self._hex
 
-    @hex.setter
+    @hex.setter  # noqa: A003
     def hex(self, hex_value: str) -> None:
         self.assert_mutable()
         self._assert_hex(hex_value)

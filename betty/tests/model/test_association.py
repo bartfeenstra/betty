@@ -98,9 +98,11 @@ class TestAssociationRegistry:
             len(
                 list(
                     filter(
-                        lambda association: association.owner_type is self._OwnerBase
-                        and association.owner_attr_name == "base_associate"
-                        and association.associate_type is self._Associate,
+                        lambda association: (
+                            association.owner_type is self._OwnerBase
+                            and association.owner_attr_name == "base_associate"
+                            and association.associate_type is self._Associate
+                        ),
                         actual,
                     )
                 )
@@ -117,9 +119,11 @@ class TestAssociationRegistry:
             len(
                 list(
                     filter(
-                        lambda association: association.owner_type is self._OwnerBase
-                        and association.owner_attr_name == "base_associate"
-                        and association.associate_type is self._Associate,
+                        lambda association: (
+                            association.owner_type is self._OwnerBase
+                            and association.owner_attr_name == "base_associate"
+                            and association.associate_type is self._Associate
+                        ),
                         actual,
                     )
                 )
@@ -130,9 +134,11 @@ class TestAssociationRegistry:
             len(
                 list(
                     filter(
-                        lambda association: association.owner_type is self._Owner
-                        and association.owner_attr_name == "associate"
-                        and association.associate_type is self._Associate,
+                        lambda association: (
+                            association.owner_type is self._Owner
+                            and association.owner_attr_name == "associate"
+                            and association.associate_type is self._Associate
+                        ),
                         actual,
                     )
                 )
