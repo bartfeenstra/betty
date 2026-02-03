@@ -21,7 +21,7 @@ class TestWiki:
         async with (
             Project.new_isolated(isolated_app) as project,
             project,
-            await Wiki.new_for_services(services=project) as sut,
+            await Wiki.new(services=project) as sut,
         ):
             assert sut.filters
 

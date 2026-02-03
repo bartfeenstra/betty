@@ -40,7 +40,7 @@ class Html(Manufacturable, Renderer):
     @override
     @classmethod
     @require_project
-    async def new_for_services(cls, *, project: Project) -> Self:
+    async def new(cls, *, project: Project) -> Self:
         return cls(url_generator=await project.url_generator)
 
     @override

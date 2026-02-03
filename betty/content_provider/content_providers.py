@@ -87,9 +87,7 @@ class Render(Configurable[RenderConfiguration], ContentProvider):
     @override
     @classmethod
     @require_project
-    async def new_for_configuration(
-        cls, *, project: Project, configuration: RenderConfiguration
-    ) -> Self:
+    async def new(cls, *, project: Project, configuration: RenderConfiguration) -> Self:
         return cls(configuration=configuration, renderer=await project.renderer)
 
     @override
@@ -162,7 +160,7 @@ class Notes(Template, Manufacturable):
     @override
     @classmethod
     @require_project
-    async def new_for_services(cls, *, project: Project) -> Self:
+    async def new(cls, *, project: Project) -> Self:
         return cls(jinja=await project.jinja)
 
     @override
@@ -257,9 +255,7 @@ class Box(Template, Configurable[BoxConfiguration]):
     @override
     @classmethod
     @require_project
-    async def new_for_configuration(
-        cls, *, project: Project, configuration: BoxConfiguration
-    ) -> Self:
+    async def new(cls, *, project: Project, configuration: BoxConfiguration) -> Self:
         return cls(
             configuration=configuration,
             jinja=await project.jinja,

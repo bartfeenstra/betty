@@ -8,6 +8,6 @@ class TestSpdx:
         async with (
             Project.new_isolated(isolated_app) as project,
             project,
-            await Spdx.new_for_services(services=project) as sut,
+            await Spdx.new(services=project) as sut,
         ):
             await sut.license_repository

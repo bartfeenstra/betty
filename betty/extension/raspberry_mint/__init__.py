@@ -30,7 +30,6 @@ if TYPE_CHECKING:
 
     from betty.job.scheduler import Scheduler
     from betty.project.job import ProjectContext
-    from betty.service.level import ServiceLevel
 
 
 @final
@@ -111,13 +110,8 @@ class RaspberryMint(
 
     @override
     @classmethod
-    async def new_for_services(cls, *, services: ServiceLevel) -> Self:
-        return await cls.new_for_configuration(services=services)
-
-    @override
-    @classmethod
     @require_project
-    async def new_for_configuration(
+    async def new(
         cls,
         *,
         project: Project,

@@ -28,7 +28,7 @@ class Tree(Template, Manufacturable):
     @override
     @classmethod
     @require_extension(Trees)
-    async def new_for_services(cls, *, extension: Trees) -> Self:
+    async def new(cls, *, extension: Trees) -> Self:
         return cls(jinja=await extension.services.jinja)
 
     @override

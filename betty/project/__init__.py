@@ -107,8 +107,8 @@ class Project(Configurable[ProjectConfiguration], ServiceLevel):
 
     @override
     @classmethod
-    async def new_for_configuration(
-        cls, *, services: ServiceLevel, configuration: ProjectConfiguration
+    async def new(
+        cls, *, services: ServiceLevel = universe, configuration: ProjectConfiguration
     ) -> Self:
         raise NotImplementedError(
             f"Creating a new {fully_qualified_name(cls)} from its configuration is not yet supported."
@@ -310,7 +310,7 @@ class Project(Configurable[ProjectConfiguration], ServiceLevel):
         """
         from betty.jinja2 import Environment
 
-        return await Environment.new_for_services(services=self)
+        return await Environment.new(services=self)
 
     @service
     async def renderer(self) -> RenderDispatcher:

@@ -13,7 +13,7 @@ from betty.extension.gramps.config import GrampsConfiguration
 from betty.extension.gramps.jobs import LoadAncestry
 from betty.locale.localizable.gettext import _
 from betty.project.load import Loader
-from betty.service.level import Configurable, ServiceLevel, universe
+from betty.service.level import Configurable, Manufacturable, ServiceLevel, universe
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     label="Gramps",
     description=_("Load Gramps family trees."),
 )
-class Gramps(Loader, Configurable[GrampsConfiguration], Extension):
+class Gramps(Loader, Configurable[GrampsConfiguration], Manufacturable, Extension):
     """
     .. plugin:: extension:gramps.
 
@@ -318,8 +318,11 @@ class Gramps(Loader, Configurable[GrampsConfiguration], Extension):
 
     @override
     @classmethod
-    async def new_for_configuration(
-        cls, *, services: ServiceLevel, configuration: GrampsConfiguration | None = None
+    async def new(
+        cls,
+        *,
+        services: ServiceLevel = universe,
+        configuration: GrampsConfiguration | None = None,
     ) -> Self:
         return cls(configuration=configuration)
 

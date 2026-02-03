@@ -8,7 +8,6 @@ from contextlib import suppress
 from typing import TYPE_CHECKING, Self, final
 
 import aiohttp
-from aiohttp import ClientSession
 from typing_extensions import override
 
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
@@ -42,7 +41,7 @@ class ProjectAuthor(Manufacturable, CopyrightNotice):
     @override
     @classmethod
     @require_project
-    async def new_for_services(cls, *, project: Project) -> Self:
+    async def new(cls, *, project: Project) -> Self:
         return cls(project.configuration.author)
 
     @property
@@ -118,11 +117,11 @@ class WikipediaContributors(Manufacturable, CopyrightNotice):
         super().__init__()
         self._url = resolve_localizable(url)
 
+    @override
     @classmethod
-    async def new(cls, *, http_client: ClientSession) -> Self:
-        """
-        Create a new instance.
-        """
+    @require_app
+    async def new(cls, *, app: App) -> Self:
+        http_client = await app.http_client
         urls = {
             DEFAULT_LOCALE: _copyright_url("en", "Wikipedia:Copyrights"),
         }
@@ -143,12 +142,6 @@ class WikipediaContributors(Manufacturable, CopyrightNotice):
                         link["lang"], link["title"]
                     )
         return cls(StaticTranslations(urls))
-
-    @override
-    @classmethod
-    @require_app
-    async def new_for_services(cls, *, app: App) -> Self:
-        return await cls.new(http_client=await app.http_client)
 
     @override
     @property
