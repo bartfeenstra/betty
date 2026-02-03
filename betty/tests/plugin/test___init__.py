@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import final
+
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.model import EntityDefinition
 from betty.plugin import (
@@ -20,6 +22,7 @@ from betty.test_utils.locale.localizable import (
 from betty.test_utils.plugin import DummyPlugin, DummyPluginTwo
 
 
+@final
 @PluginTypeDefinition(
     "ordered-plugin",
     label="_OrderedPluginDefinition",
@@ -59,6 +62,7 @@ _ORDERED_PLUGIN_HAS_COMES_AFTER_BIDIRECTIONAL = _OrderedPluginDefinition(
 )
 
 
+@final
 @PluginTypeDefinition(
     "dependent",
     label="_DependentPluginDefinition",
@@ -125,6 +129,7 @@ class TestPluginDefinition:
     def test_reference_label_with_type(self) -> None:
         plugin_type_label = "My First Plugin Type"
 
+        @final
         @PluginTypeDefinition(
             "my-first-plugin-type",
             label=plugin_type_label,
@@ -159,6 +164,7 @@ class _PluginCls(Plugin["_PluginDefinition"]):
     pass
 
 
+@final
 @PluginTypeDefinition(
     "-",
     label=DUMMY_LOCALIZABLE,
