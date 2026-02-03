@@ -37,6 +37,7 @@ class ConfigurableDummyPlugin(
         return cls(configuration=configuration)
 
 
+@final
 @PluginTypeDefinition(
     "configurable-dummy-plugin",
     label="Configurable dummy plugin",

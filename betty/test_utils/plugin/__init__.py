@@ -16,6 +16,7 @@ class DummyPlugin(Plugin["DummyPluginDefinition"]):
     """
 
 
+@final
 @PluginTypeDefinition(
     "dummy-plugin",
     label=" dummy plugin",
