@@ -65,7 +65,7 @@ class TestEntityCard:
             entity = Person(id="my-first-entity")
             project.ancestry.add(entity)
             async with project:
-                sut = await EntityCard.new_for_configuration(
+                sut = await EntityCard.new(
                     services=project,
                     configuration=EntityReference(entity.plugin(), entity.id),
                 )
@@ -116,7 +116,7 @@ class TestSection:
             async with Project.new_isolated(isolated_app) as project:
                 project.configuration.extensions.add(RaspberryMint)
                 async with project:
-                    sut = await Section.new_for_configuration(
+                    sut = await Section.new(
                         services=project,
                         configuration=SectionConfiguration(
                             PluginConfiguration(NoOpContentProvider),  # ty:ignore[invalid-argument-type]
@@ -129,7 +129,7 @@ class TestSection:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = await Section.new_for_configuration(
+                sut = await Section.new(
                     services=project,
                     configuration=SectionConfiguration(
                         PluginConfiguration(
@@ -148,7 +148,7 @@ class TestSection:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = await Section.new_for_configuration(
+                sut = await Section.new(
                     services=project,
                     configuration=SectionConfiguration(
                         PluginConfiguration(
@@ -169,7 +169,7 @@ class TestSection:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = await Section.new_for_configuration(
+                sut = await Section.new(
                     services=project,
                     configuration=SectionConfiguration(
                         PluginConfiguration(
@@ -201,7 +201,7 @@ class TestFamilies:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = await Families.new_for_services(services=project)
+                sut = await Families.new(services=project)
         assert await sut.provide(document=Document(resource)) is None
 
     async def test_provide_template__with_person(self, isolated_app: App) -> None:
@@ -212,7 +212,7 @@ class TestFamilies:
             project.configuration.extensions.add(RaspberryMint)
             project.ancestry.add(resource)
             async with project:
-                sut = await Families.new_for_services(services=project)
+                sut = await Families.new(services=project)
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
         assert parent.public_id in actual
@@ -224,7 +224,7 @@ class TestMedia:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = await Media.new_for_services(services=project)
+                sut = await Media.new(services=project)
                 assert await sut.provide(document=Document(object())) is None
 
     async def test_provide_template__with_file(self, isolated_app: App) -> None:
@@ -235,7 +235,7 @@ class TestMedia:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = await Media.new_for_services(services=project)
+                sut = await Media.new(services=project)
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
         assert resource.label.localize(DEFAULT_LOCALIZER) in actual
@@ -248,7 +248,7 @@ class TestMediaGallery:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = await MediaGallery.new_for_services(services=project)
+                sut = await MediaGallery.new(services=project)
                 assert await sut.provide(document=Document(object())) is None
 
     async def test_provide_template__with_has_file_references_without_file_references(
@@ -258,7 +258,7 @@ class TestMediaGallery:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = await MediaGallery.new_for_services(services=project)
+                sut = await MediaGallery.new(services=project)
                 assert await sut.provide(document=Document(resource)) is None
 
     async def test_provide_template__with_has_file_references_with_file_references(
@@ -270,7 +270,7 @@ class TestMediaGallery:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = await MediaGallery.new_for_services(services=project)
+                sut = await MediaGallery.new(services=project)
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
         assert file.label.localize(DEFAULT_LOCALIZER) in actual
@@ -301,7 +301,7 @@ class TestColorStyle:
             async with Project.new_isolated(isolated_app) as project:
                 project.configuration.extensions.add(RaspberryMint)
                 async with project:
-                    sut = await ColorStyle.new_for_configuration(
+                    sut = await ColorStyle.new(
                         services=project,
                         configuration=ColorStyleConfiguration(
                             PluginConfiguration(NoOpContentProvider),  # ty:ignore[invalid-argument-type]
@@ -314,7 +314,7 @@ class TestColorStyle:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = await ColorStyle.new_for_configuration(
+                sut = await ColorStyle.new(
                     services=project,
                     configuration=ColorStyleConfiguration(
                         PluginConfiguration(
@@ -333,7 +333,7 @@ class TestExternalLinks:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = await ExternalLinks.new_for_services(services=project)
+                sut = await ExternalLinks.new(services=project)
                 provided_content = await sut.provide(document=Document(object()))
         assert provided_content is None
 
@@ -344,7 +344,7 @@ class TestExternalLinks:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = await ExternalLinks.new_for_services(services=project)
+                sut = await ExternalLinks.new(services=project)
                 assert await sut.provide(document=Document(resource)) is None
 
     async def test_provide_template__with_has_links_with_links(
@@ -355,7 +355,7 @@ class TestExternalLinks:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = await ExternalLinks.new_for_services(services=project)
+                sut = await ExternalLinks.new(services=project)
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
         assert url in actual
@@ -377,7 +377,7 @@ class TestTimeline:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = await Timeline.new_for_services(services=project)
+                sut = await Timeline.new(services=project)
         assert await sut.provide(document=Document(resource)) is None
 
     async def test_provide_template__with_person(self, isolated_app: App) -> None:
@@ -387,7 +387,7 @@ class TestTimeline:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = await Timeline.new_for_services(services=project)
+                sut = await Timeline.new(services=project)
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
         assert event.public_id in actual
@@ -401,7 +401,7 @@ class TestTimeline:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = await Timeline.new_for_services(services=project)
+                sut = await Timeline.new(services=project)
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
         assert event.public_id in actual
@@ -424,7 +424,7 @@ class TestFacts:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = await Facts.new_for_services(services=project)
+                sut = await Facts.new(services=project)
         assert await sut.provide(document=Document(resource)) is None
 
     async def test_provide_template__with_citation(self, isolated_app: App) -> None:
@@ -433,7 +433,7 @@ class TestFacts:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = await Facts.new_for_services(services=project)
+                sut = await Facts.new(services=project)
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
         assert fact.public_id in actual
@@ -445,7 +445,7 @@ class TestFacts:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = await Facts.new_for_services(services=project)
+                sut = await Facts.new(services=project)
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
         assert fact.public_id in actual
@@ -716,7 +716,7 @@ class TestEnclosees:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = await Enclosees.new_for_services(services=project)
+                sut = await Enclosees.new(services=project)
         assert await sut.provide(document=Document(resource)) is None
 
     async def test_provide_template__with_enclosee(self, isolated_app: App) -> None:
@@ -726,7 +726,7 @@ class TestEnclosees:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = await Enclosees.new_for_services(services=project)
+                sut = await Enclosees.new(services=project)
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
         assert enclosee.public_id in actual
@@ -749,7 +749,7 @@ class TestFileReferees:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = await FileReferees.new_for_services(services=project)
+                sut = await FileReferees.new(services=project)
         assert await sut.provide(document=Document(resource)) is None
 
     async def test_provide_template__with_referee(self, isolated_app: App) -> None:
@@ -759,7 +759,7 @@ class TestFileReferees:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = await FileReferees.new_for_services(services=project)
+                sut = await FileReferees.new(services=project)
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
         assert referee.public_id in actual

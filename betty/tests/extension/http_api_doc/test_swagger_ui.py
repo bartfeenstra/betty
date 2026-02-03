@@ -28,7 +28,7 @@ class TestSwaggerUi:
             project.configuration.extensions.add(HttpApiDoc)
             async with project:
                 await generate(project)
-                async with await serve.BuiltinProjectServer.new_for_services(
+                async with await serve.BuiltinProjectServer.new(
                     services=project
                 ) as server:
                     yield project, server

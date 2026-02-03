@@ -42,7 +42,7 @@ class About(Manufacturable, Command):
     @override
     @classmethod
     @require_app
-    async def new_for_services(cls, *, app: App) -> Self:
+    async def new(cls, *, app: App) -> Self:
         return cls(app)
 
     @override

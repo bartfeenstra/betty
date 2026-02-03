@@ -51,9 +51,7 @@ class TestBuiltinProjectServer:
             await makedirs(project.www_directory)
             async with aiofiles.open(project.www_directory / "index.html", "w") as f:
                 await f.write(content)
-            async with await BuiltinProjectServer.new_for_services(
-                services=project
-            ) as server:
+            async with await BuiltinProjectServer.new(services=project) as server:
 
                 def _assert_response(response: Response) -> None:
                     assert response.status_code == 200

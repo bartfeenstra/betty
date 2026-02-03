@@ -341,7 +341,7 @@ class GenerateJsonSchema(Job[ProjectContext]):
     @override
     async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
         project = scheduler.context.project
-        schema = await ProjectSchema.new_for_services(services=project)
+        schema = await ProjectSchema.new(services=project)
         rendered_json = dumps(schema.schema)
         async with create_file(ProjectSchema.www_path(project)) as f:
             await f.write(rendered_json)

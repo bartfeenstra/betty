@@ -16,7 +16,7 @@ class TestWebpack:
         async with (
             Project.new_isolated(isolated_app) as project,
             project,
-            await Webpack.new_for_services(services=project) as sut,
+            await Webpack.new(services=project) as sut,
         ):
             assert await sut.get_public_js_paths()
 
@@ -24,7 +24,7 @@ class TestWebpack:
         async with (
             Project.new_isolated(isolated_app) as project,
             project,
-            await Webpack.new_for_services(services=project) as sut,
+            await Webpack.new(services=project) as sut,
         ):
             assert sut.filters
 
@@ -32,7 +32,7 @@ class TestWebpack:
         async with (
             Project.new_isolated(isolated_app) as project,
             project,
-            await Webpack.new_for_services(services=project) as sut,
+            await Webpack.new(services=project) as sut,
         ):
             assert await sut.get_public_css_paths()
 
@@ -58,5 +58,5 @@ class TestWebpack:
 
     async def test_new_document_vars(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            sut = await Webpack.new_for_services(services=project)
+            sut = await Webpack.new(services=project)
             assert sut.new_document_vars()

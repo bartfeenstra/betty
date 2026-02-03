@@ -41,7 +41,7 @@ class TestProjectSchema(SchemaTestBase):
             project.configuration.clean_urls = clean_urls
             async with project:
                 return (
-                    await ProjectSchema.new_for_services(services=project),
+                    await ProjectSchema.new(services=project),
                     [
                         await Person().dump_linked_data(project),
                         await Place().dump_linked_data(project),
@@ -57,9 +57,9 @@ class TestProjectSchema(SchemaTestBase):
             False,
         ],
     )
-    async def test_new_for_services(self, clean_urls: bool, isolated_app: App) -> None:
+    async def test_new(self, clean_urls: bool, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            sut = await ProjectSchema.new_for_services(services=project)
+            sut = await ProjectSchema.new(services=project)
         JsonSchemaSchema().validate(sut.schema)
 
     async def test_def_url(self, isolated_app: App) -> None:

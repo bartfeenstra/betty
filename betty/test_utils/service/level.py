@@ -6,11 +6,11 @@ from typing import Any, Self
 
 from typing_extensions import override
 
-from betty.service.level import Configurable, ServiceLevel
+from betty.service.level import Configurable, Manufacturable, ServiceLevel, universe
 from betty.test_utils.data import DummyData
 
 
-class DummyConfigurable(Configurable[DummyData]):
+class DummyConfigurable(Configurable[DummyData], Manufacturable):
     """
     A dummy :py:class:`betty.service.level.Configurable` implementation.
     """
@@ -28,7 +28,10 @@ class DummyConfigurable(Configurable[DummyData]):
 
     @override
     @classmethod
-    async def new_for_configuration(
-        cls, *, services: ServiceLevel, configuration: DummyData | None = None
+    async def new(
+        cls,
+        *,
+        services: ServiceLevel = universe,
+        configuration: DummyData | None = None,
     ) -> Self:
         return cls(configuration=configuration)
