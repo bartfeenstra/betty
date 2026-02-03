@@ -11,13 +11,13 @@ from typing_extensions import override
 from betty.extension import Extension, ExtensionDefinition
 from betty.extension.deriver.jobs import DeriveAncestry
 from betty.locale.localizable.gettext import _
+from betty.project import Project
 from betty.project.load import PostLoader
 from betty.service.level import Manufacturable
 from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
-    from betty.project import Project
     from betty.project.job import ProjectContext
 
 
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
         "Create events such as births and deaths by deriving their details from existing information."
     ),
 )
-class Deriver(PostLoader, Manufacturable, Extension):
+class Deriver(PostLoader, Manufacturable, Extension[Project]):
     """
     .. plugin:: extension:deriver.
 
@@ -47,7 +47,7 @@ class Deriver(PostLoader, Manufacturable, Extension):
     @classmethod
     @require_project
     async def new_for_services(cls, *, project: Project) -> Self:
-        return cls(project=project)
+        return cls(services=project)
 
     @override
     async def post_load(self, scheduler: Scheduler[ProjectContext]) -> None:

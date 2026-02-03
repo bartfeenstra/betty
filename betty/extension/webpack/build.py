@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, cast
 
 import aiofiles
 from aiofiles.os import makedirs
+from typing_extensions import TypeVar
 
 from betty import npm
 from betty.dirs import ROOT_DIRECTORY_PATH
@@ -23,6 +24,7 @@ from betty.document import Document
 from betty.extension import Extension
 from betty.hashid import hashid, hashid_file_content, hashid_sequence
 from betty.portable import PortableMapping
+from betty.service.level import ServiceLevel
 
 if TYPE_CHECKING:
     from collections.abc import MutableMapping, Sequence
@@ -33,8 +35,12 @@ if TYPE_CHECKING:
 
 _NPM_PROJECT_DIRECTORIES_PATH = Path(__file__).parent / "webpack"
 
+_ServiceLevelCoT = TypeVar(
+    "_ServiceLevelCoT", bound=ServiceLevel, default=ServiceLevel, covariant=True
+)
 
-class EntryPointProvider(Extension):
+
+class EntryPointProvider(Extension[_ServiceLevelCoT]):
     """
     An extension that provides Webpack entry points.
     """

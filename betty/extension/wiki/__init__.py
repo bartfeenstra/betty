@@ -17,6 +17,7 @@ from betty.extension.wiki.jobs import PopulateEntity
 from betty.jinja2 import Filters, Globals, Jinja2Provider, context_localizer
 from betty.locale import negotiate_locale, resolve_locale
 from betty.locale.localizable.gettext import _
+from betty.project import Project
 from betty.project.load import PostLoader
 from betty.service.container import service
 from betty.service.level import Manufacturable
@@ -35,7 +36,6 @@ if TYPE_CHECKING:
     from betty.ancestry.link import Link
     from betty.copyright_notice import CopyrightNotice
     from betty.job.scheduler import Scheduler
-    from betty.project import Project
     from betty.project.job import ProjectContext
     from betty.service.level import ServiceLevel
 
@@ -54,7 +54,7 @@ class Wiki(
     Configurable[WikiConfiguration],
     Manufacturable,
     Jinja2Provider,
-    Extension,
+    Extension[Project],
 ):
     """
     .. plugin:: extension:wiki.
@@ -99,7 +99,7 @@ class Wiki(
             configuration=WikiConfiguration()
             if configuration is None
             else configuration,
-            project=project,
+            services=project,
         )
         self._wikipedia_contributors_copyright_notice = (
             wikipedia_contributors_copyright_notice
@@ -142,11 +142,11 @@ class Wiki(
         The API client.
         """
         return Client(
-            download_directory_path=self._project.app.binary_file_cache.with_scope(
+            download_directory_path=self.services.app.binary_file_cache.with_scope(
                 "wiki-client"
             ).path,
-            http_client=await self._project.app.http_client,
-            user=self._project.app.user,
+            http_client=await self.services.app.http_client,
+            user=self.services.app.user,
         )
 
     @service
@@ -155,12 +155,12 @@ class Wiki(
         The ancestry populator.
         """
         return populator_api.Populator(
-            self._project.ancestry,
-            list(self._project.configuration.locales.keys()),
-            await self._project.localizers,
+            self.services.ancestry,
+            list(self.services.configuration.locales.keys()),
+            await self.services.localizers,
             await self.client,
             self._wikipedia_contributors_copyright_notice,
-            user=self._project.app.user,
+            user=self.services.app.user,
         )
 
     @override
@@ -200,7 +200,7 @@ class Wiki(
     async def _filter_wikipedia_summary_link(
         self, locale: Locale, link: Link
     ) -> Summary | None:
-        localizers = await self._project.app.localizers
+        localizers = await self.services.app.localizers
         try:
             page_language, page_name = parse_page_url(
                 link.url.localize(localizers.get(locale))

@@ -20,6 +20,7 @@ from betty.extension.webpack import Webpack
 from betty.extension.webpack.build import EntryPointProvider
 from betty.jinja2 import Filters, Jinja2Provider
 from betty.model import EntityDefinition
+from betty.project import Project
 from betty.project.generate import Generator
 from betty.service.level import Manufacturable
 from betty.service.requirement.project import require_project
@@ -29,7 +30,6 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.job.scheduler import Scheduler
-    from betty.project import Project
     from betty.project.job import ProjectContext
     from betty.service.level import ServiceLevel
 
@@ -51,7 +51,7 @@ class RaspberryMint(
     Manufacturable,
     Jinja2Provider,
     Generator,
-    EntryPointProvider,
+    EntryPointProvider[Project],
 ):
     """
     .. plugin:: extension:raspberry-mint.
@@ -97,7 +97,7 @@ class RaspberryMint(
             configuration=RaspberryMintConfiguration()
             if configuration is None
             else configuration,
-            project=project,
+            services=project,
         )
 
     @override
@@ -143,7 +143,7 @@ class RaspberryMint(
     @override
     def webpack_entry_point_cache_keys(self) -> Sequence[str]:
         return (
-            self._project.configuration.root_path,
+            self.services.configuration.root_path,
             self._configuration.primary_color,
             self._configuration.secondary_color,
             self._configuration.tertiary_color,
@@ -152,7 +152,7 @@ class RaspberryMint(
     @override
     @property
     def filters(self) -> Filters:
-        return jinja2_filters(self._project)
+        return jinja2_filters(self.services)
 
     @property
     async def regions(self) -> set[str]:
@@ -165,7 +165,7 @@ class RaspberryMint(
             "entity-page-content",
             *{
                 f"entity-page-content--{entity_type.id}"
-                for entity_type in await self._project.plugins.plugins(EntityDefinition)
+                for entity_type in await self.services.plugins.plugins(EntityDefinition)
                 if entity_type.public_facing
             },
         }

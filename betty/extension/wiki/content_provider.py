@@ -29,7 +29,7 @@ class WikipediaSummary(Template, Manufacturable):
     @classmethod
     @require_extension(Wiki)
     async def new_for_services(cls, *, extension: Wiki) -> Self:
-        return cls(jinja=await extension._project.jinja)
+        return cls(jinja=await extension.services.jinja)
 
     @override
     async def provide_template(

@@ -20,6 +20,7 @@ from betty.extension.webpack.build import EntryPointProvider
 from betty.extension.webpack.jinja2.filter import FILTERS
 from betty.html import CssProvider, JsProvider
 from betty.jinja2 import Filters, Jinja2Provider
+from betty.project import Project
 from betty.project.generate import Generator
 from betty.service.level import Manufacturable
 from betty.service.requirement.project import require_project
@@ -28,7 +29,6 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.job.scheduler import Scheduler
-    from betty.project import Project
     from betty.project.job import ProjectContext
 
 
@@ -40,7 +40,7 @@ if TYPE_CHECKING:
 )
 class Webpack(
     Generator,
-    Extension,
+    Extension[Project],
     CssProvider,
     JsProvider,
     Jinja2Provider,
@@ -55,7 +55,7 @@ class Webpack(
     @classmethod
     @require_project
     async def new_for_services(cls, *, project: Project) -> Self:
-        return cls(project=project)
+        return cls(services=project)
 
     @override
     async def generate(self, scheduler: Scheduler[ProjectContext]) -> None:
@@ -94,7 +94,7 @@ class Webpack(
     async def _project_entry_point_providers(
         self,
     ) -> Sequence[EntryPointProvider]:
-        extensions = await self._project.extensions
+        extensions = await self.services.extensions
         return [
             extension
             for extension in extensions.flatten()
@@ -110,11 +110,11 @@ class Webpack(
         return build.Builder(
             working_directory_path,
             await self._project_entry_point_providers(),
-            self._project.configuration.debug,
-            await self._project.jinja,
-            self._project.configuration.root_path,
+            self.services.configuration.debug,
+            await self.services.jinja,
+            self.services.configuration.root_path,
             job_context=job_context,
-            user=self._project.app.user,
+            user=self.services.app.user,
         )
 
     async def _copy_build_directory(
@@ -133,7 +133,7 @@ class Webpack(
         job_context: ProjectContext,
     ) -> Path:
         builder = await self._new_builder(
-            self._project.app.binary_file_cache.with_scope("webpack").path,
+            self.services.app.binary_file_cache.with_scope("webpack").path,
             job_context=job_context,
         )
         return await builder.build()

@@ -15,12 +15,12 @@ from betty.test_utils.data import DummyData
 from betty.typing import private
 
 
-class _DummyExtension(Manufacturable, Extension):
+class _DummyExtension(Manufacturable, Extension[Project]):
     @override
     @classmethod
     @require_project
     async def new_for_services(cls, *, project: Project) -> Self:
-        return cls(project=project)
+        return cls(services=project)
 
 
 @final

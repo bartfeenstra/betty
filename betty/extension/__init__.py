@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeVar, final
+from typing import TYPE_CHECKING, Generic, final
+
+from typing_extensions import TypeVar
 
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
@@ -10,6 +12,7 @@ from betty.plugin import Plugin, PluginTypeDefinition, ResolvableId
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.service.container import ServiceContainer
+from betty.service.level import ServiceLevel
 from betty.typing import private
 
 if TYPE_CHECKING:
@@ -18,20 +21,31 @@ if TYPE_CHECKING:
 
     from betty.locale.localizable import ResolvableLocalizable
     from betty.machine_name import MachineName
-    from betty.project import Project
 
 _T = TypeVar("_T")
+_ServiceLevelCoT = TypeVar(
+    "_ServiceLevelCoT", bound=ServiceLevel, default=ServiceLevel, covariant=True
+)
 
 
-class Extension(ServiceContainer, Plugin["ExtensionDefinition"]):
+class Extension(
+    ServiceContainer, Plugin["ExtensionDefinition"], Generic[_ServiceLevelCoT]
+):
     """
-    Integrate optional functionality with Betty :py:class:`projects <betty.project.Project>`.
+    Integrate custom services with a :py:class:`service level <betty.service.level.ServiceLevel>`.
     """
 
     @private
-    def __init__(self, *, project: Project):
+    def __init__(self, *, services: _ServiceLevelCoT):
         super().__init__()
-        self._project = project
+        self._services = services
+
+    @property
+    def services(self) -> _ServiceLevelCoT:
+        """
+        The service level this extension is attached to.
+        """
+        return self._services
 
 
 @final
