@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, Self, final
 
 from typing_extensions import override
 
-from betty.config import Configurable
 from betty.extension import ExtensionDefinition
 from betty.extension._theme import jinja2_filters
 from betty.extension.maps import Maps
@@ -22,7 +21,7 @@ from betty.jinja2 import Filters, Jinja2Provider
 from betty.model import EntityDefinition
 from betty.project import Project
 from betty.project.generate import Generator
-from betty.service.level import Manufacturable
+from betty.service.level import Configurable, Manufacturable
 from betty.service.requirement.project import require_project
 from betty.typing import private
 
@@ -93,17 +92,22 @@ class RaspberryMint(
         project: Project,
         configuration: RaspberryMintConfiguration | None = None,
     ):
-        super().__init__(
-            configuration=RaspberryMintConfiguration()
-            if configuration is None
-            else configuration,
-            services=project,
+        super().__init__(services=project)
+        self._configuration = (
+            RaspberryMintConfiguration() if configuration is None else configuration
         )
 
     @override
     @classmethod
     def configuration_cls(cls) -> type[RaspberryMintConfiguration]:
         return RaspberryMintConfiguration
+
+    @property
+    def configuration(self) -> RaspberryMintConfiguration:
+        """
+        The configuration.
+        """
+        return self._configuration
 
     @override
     @classmethod

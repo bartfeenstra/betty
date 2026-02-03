@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.extension.raspberry_mint import RaspberryMint
+from betty.extension.raspberry_mint import RaspberryMint, RaspberryMintConfiguration
 from betty.model import EntityDefinition
 from betty.project import Project
 from betty.project.config import EntityTypeConfiguration
@@ -15,6 +15,12 @@ if TYPE_CHECKING:
 
 
 class TestRaspberryMint:
+    async def test_configuration(self, isolated_app: App) -> None:
+        configuration = RaspberryMintConfiguration()
+        async with Project.new_isolated(isolated_app) as project, project:
+            sut = RaspberryMint(project=project, configuration=configuration)
+            assert sut.configuration is configuration
+
     async def test_filters(self, isolated_app: App) -> None:
         async with (
             Project.new_isolated(isolated_app) as project,

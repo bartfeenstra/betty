@@ -10,9 +10,6 @@ from betty.extension import Extension, ExtensionDefinition
 from betty.project import Project
 from betty.service.level import Manufacturable
 from betty.service.requirement.project import require_project
-from betty.test_utils.config import DummyConfigurable
-from betty.test_utils.data import DummyData
-from betty.typing import private
 
 
 class _DummyExtension(Manufacturable, Extension[Project]):
@@ -37,15 +34,3 @@ class DummyExtensionTwo(_DummyExtension):
     """
     A dummy :py:class:`betty.extension.Extension` implementation.
     """
-
-
-@final
-@ExtensionDefinition("dummy-configurable", label="Dummy Configurable")
-class DummyConfigurableExtension(DummyConfigurable, _DummyExtension):
-    """
-    A dummy :py:class:`betty.config.Configurable` and :py:class:`betty.extension.Extension` implementation.
-    """
-
-    @private
-    def __init__(self, project: Project):
-        super().__init__(configuration=DummyData(), project=project)

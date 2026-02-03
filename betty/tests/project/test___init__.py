@@ -53,6 +53,16 @@ class _DummyExtensionB(_DummyExtension):
 
 
 class TestProject:
+    async def test_configuration(self, isolated_app: App) -> None:
+        configuration = ProjectConfiguration(
+            title=DUMMY_LOCALIZABLE, url="https://example.com"
+        )
+        async with (
+            Project.new_isolated(isolated_app, configuration=configuration) as sut,
+            sut,
+        ):
+            assert sut.configuration is configuration
+
     async def test_plugins(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as sut, sut:
             await sut.plugins.plugins(DummyPluginDefinition)

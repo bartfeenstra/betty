@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, Self, final
 from jinja2 import pass_context
 from typing_extensions import override
 
-from betty.config import Configurable
 from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.extension import Extension, ExtensionDefinition
 from betty.extension.wiki.config import WikiConfiguration
@@ -20,7 +19,7 @@ from betty.locale.localizable.gettext import _
 from betty.project import Project
 from betty.project.load import PostLoader
 from betty.service.container import service
-from betty.service.level import Manufacturable
+from betty.service.level import Configurable, Manufacturable
 from betty.service.requirement.project import require_project
 from betty.typing import private
 from betty.wiki import NotAPageError, parse_page_url
@@ -95,11 +94,9 @@ class Wiki(
         project: Project,
         wikipedia_contributors_copyright_notice: CopyrightNotice,
     ):
-        super().__init__(
-            configuration=WikiConfiguration()
-            if configuration is None
-            else configuration,
-            services=project,
+        super().__init__(services=project)
+        self._configuration = (
+            WikiConfiguration() if configuration is None else configuration
         )
         self._wikipedia_contributors_copyright_notice = (
             wikipedia_contributors_copyright_notice

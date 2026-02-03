@@ -1,29 +1,25 @@
 """
-Test utilities for :py:mod:`betty.config`.
+Test utilities for :py:mod:`betty.service.level`.
 """
 
 from typing import Any, Self
 
 from typing_extensions import override
 
-from betty.config import Configurable
-from betty.service.level import ServiceLevel
+from betty.service.level import Configurable, ServiceLevel
 from betty.test_utils.data import DummyData
 
 
 class DummyConfigurable(Configurable[DummyData]):
     """
-    A dummy :py:class:`betty.config.Configurable` implementation.
+    A dummy :py:class:`betty.service.level.Configurable` implementation.
     """
 
     def __init__(
         self, *args: Any, configuration: DummyData | None = None, **kwargs: Any
     ):
-        super().__init__(
-            *args,
-            configuration=DummyData() if configuration is None else configuration,
-            **kwargs,
-        )
+        super().__init__(*args, **kwargs)
+        self.configuration = DummyData() if configuration is None else configuration
 
     @override
     @classmethod

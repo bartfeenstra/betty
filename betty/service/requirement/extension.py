@@ -14,6 +14,7 @@ from betty.extension import Extension, ExtensionDefinition
 from betty.importlib import fully_qualified_name
 from betty.locale.localizable.gettext import _
 from betty.plugin import ResolvableId, resolve_id
+from betty.plugin.error import PluginNotFound
 from betty.service.requirement import ServiceLevelKwargs, UnmetRequirement
 from betty.service.requirement.project import require_project
 
@@ -53,9 +54,11 @@ def require_extension(
         async def __require_extension(
             *args: _P.args, project: Project, **kwargs: _P.kwargs
         ) -> _T:
-            extension = (await project.plugins.plugins(ExtensionDefinition))[
-                resolve_id(extension_id)
-            ]
+            extensions = await project.plugins.plugins(ExtensionDefinition)
+            try:
+                extension = extensions[resolve_id(extension_id)]
+            except PluginNotFound as error:
+                raise UnmetRequirement(error) from error
             extensions = await project.extensions
             if extension_id not in extensions:
                 raise UnmetRequirement(

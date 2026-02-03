@@ -15,7 +15,7 @@ from betty.service.container import (
     _SynchronousServiceManager,
     service,
 )
-from betty.test_utils.config import DummyConfigurable
+from betty.test_utils.service.level import DummyConfigurable
 
 _T = TypeVar("_T")
 
