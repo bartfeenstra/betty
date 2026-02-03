@@ -17,7 +17,6 @@ from sphinx.util.parsing import nested_parse_to_nodes
 from typing_extensions import override
 
 from betty.app import App
-from betty.config import Configurable
 from betty.data import Data, OptionalDefinition
 from betty.data.aggregate.record import RecordDefinition
 from betty.definition.human_facing import HumanFacingDefinition
@@ -28,7 +27,7 @@ from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.project import Project
 from betty.serde import SerializerDefinition
-from betty.service.level import universe
+from betty.service.level import Configurable, universe
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx

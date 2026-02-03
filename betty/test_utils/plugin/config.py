@@ -9,9 +9,9 @@ from typing import TYPE_CHECKING, Self, final
 from typing_extensions import override
 
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
-from betty.test_utils.config import DummyConfigurable
 from betty.test_utils.data import DummyData
 from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
+from betty.test_utils.service.level import DummyConfigurable
 
 if TYPE_CHECKING:
     from betty.service.level import ServiceLevel

@@ -242,6 +242,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Hydrator": MissingReason.ABSTRACT,
     },
     "betty/service/level.py": {
+        "Configurable": MissingReason.ABSTRACT,
         "Manufacturable": MissingReason.ABSTRACT,
     },
     "betty/service/requirement/__init__.py": {
@@ -538,9 +539,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "MutableResolvedMapping": MissingReason.ABSTRACT,
         "MutableResolvedSequence": MissingReason.ABSTRACT,
         "ResolvedMapping": MissingReason.ABSTRACT,
-    },
-    "betty/config.py": {
-        "Configurable": MissingReason.ABSTRACT,
     },
     "betty/copyright_notice/__init__.py": {
         "CopyrightNotice": MissingReason.STATIC_CONTENT_ONLY,

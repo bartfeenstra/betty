@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, Any, Self, final
 from typing_extensions import override
 
 from betty.ancestry.has_notes import HasNotes
-from betty.config import Configurable
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.data import Data, Sample
 from betty.data.aggregate.record.object import ObjectDefinition
@@ -26,7 +25,7 @@ from betty.plugin.config import (
 )
 from betty.plugin.config.property import PluginConfigurationSequenceProperty
 from betty.sample import Size
-from betty.service.level import Manufacturable
+from betty.service.level import Configurable, Manufacturable
 from betty.service.requirement.project import require_project
 from betty.typing import private
 
@@ -77,7 +76,7 @@ class Render(Configurable[RenderConfiguration], ContentProvider):
     def __init__(
         self, *, configuration: RenderConfiguration, renderer: RenderDispatcher
     ):
-        super().__init__(configuration=configuration)
+        self._configuration = configuration
         self._renderer = renderer
 
     @override
@@ -96,8 +95,8 @@ class Render(Configurable[RenderConfiguration], ContentProvider):
     @override
     async def provide(self, *, document: Document) -> str | None:
         return await self._renderer.render(
-            self.configuration.content.localize(document.localizer),
-            self.configuration.media_type,
+            self._configuration.content.localize(document.localizer),
+            self._configuration.media_type,
         )
 
 
@@ -246,6 +245,10 @@ class Box(Template, Configurable[BoxConfiguration]):
     .. plugin:: content-provider:box.
     """
 
+    def __init__(self, *, configuration: BoxConfiguration, jinja: Environment):
+        super().__init__(jinja=jinja)
+        self._configuration = configuration
+
     @override
     @classmethod
     def configuration_cls(cls) -> type[BoxConfiguration]:
@@ -267,11 +270,11 @@ class Box(Template, Configurable[BoxConfiguration]):
         self, document: Document
     ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
         return "component/box.html.j2", {
-            "box_content": self.configuration.content,
-            "box_min_height": self.configuration.min_height,
-            "box_max_height": self.configuration.max_height,
-            "box_height": self.configuration.height,
-            "box_min_width": self.configuration.min_width,
-            "box_max_width": self.configuration.max_width,
-            "box_width": self.configuration.width,
+            "box_content": self._configuration.content,
+            "box_min_height": self._configuration.min_height,
+            "box_max_height": self._configuration.max_height,
+            "box_height": self._configuration.height,
+            "box_min_width": self._configuration.min_width,
+            "box_max_width": self._configuration.max_width,
+            "box_width": self._configuration.width,
         }

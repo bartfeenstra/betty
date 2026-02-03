@@ -12,10 +12,7 @@ from betty.ancestry.source import Source
 from betty.app import App
 from betty.event_type.event_types import Birth
 from betty.extension.gramps import Gramps
-from betty.extension.gramps.config import (
-    FamilyTreeConfiguration,
-    GrampsConfiguration,
-)
+from betty.extension.gramps.config import FamilyTreeConfiguration, GrampsConfiguration
 from betty.place_type.place_types import City
 from betty.plugin.config import PluginConfiguration
 from betty.presence_role.presence_roles import Subject
@@ -24,6 +21,11 @@ from betty.project.load import load
 
 
 class TestGramps:
+    def test_configuration(self) -> None:
+        configuration = GrampsConfiguration()
+        sut = Gramps(configuration=configuration)
+        assert sut.configuration is configuration
+
     async def test_load__with_event_type_mapping(
         self, isolated_app: App, tmp_path: Path
     ) -> None:

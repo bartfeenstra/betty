@@ -5,12 +5,11 @@ Service levels.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Final, Self, overload
+from typing import TYPE_CHECKING, Any, Final, Generic, Self, overload
 
-from typing_extensions import TypeVar, override
+from typing_extensions import TypeVar
 
 from betty.asyncio import resolve_await
-from betty.config import Configurable
 from betty.data import Data
 from betty.exception import HumanFacingException
 from betty.importlib import fully_qualified_name
@@ -26,6 +25,7 @@ if TYPE_CHECKING:
     from betty.portable import PortableData
 
 _T = TypeVar("_T")
+_DataT = TypeVar("_DataT", bound=Data)
 
 
 class ServiceLevel(ServiceContainer):
@@ -111,18 +111,6 @@ class ServiceLevel(ServiceContainer):
             configuration=configuration,
         )
 
-    @override
-    async def _post_bootstrap(self) -> None:
-        from betty.config import Configurable
-
-        if isinstance(self, Configurable):
-            configuration = self.configuration
-            if isinstance(configuration, Data):
-                await configuration.data().hydrate(
-                    services=self,
-                    data=configuration,  # ty:ignore[invalid-argument-type]
-                )
-
     @property
     def plugins(self) -> PluginManager:
         """
@@ -153,3 +141,25 @@ class Manufacturable(ABC):
 _ServiceLevelManufacturableT = TypeVar(
     "_ServiceLevelManufacturableT", bound=Manufacturable
 )
+
+
+class Configurable(ABC, Generic[_DataT]):
+    """
+    Any configurable object.
+    """
+
+    @classmethod
+    @abstractmethod
+    async def new_for_configuration(
+        cls, *, services: ServiceLevel, configuration: _DataT
+    ) -> Self:
+        """
+        Create a new instance using the given service level and configuration.
+        """
+
+    @classmethod
+    @abstractmethod
+    def configuration_cls(cls) -> type[_DataT]:
+        """
+        The object's configuration class.
+        """

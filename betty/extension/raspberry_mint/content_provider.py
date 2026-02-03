@@ -25,7 +25,6 @@ from betty.assertion import (
     assert_or,
     assert_sequence,
 )
-from betty.config import Configurable
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.content_provider.content_providers import (
     Render,
@@ -68,7 +67,7 @@ from betty.plugin.data import PluginConfigurationSequenceDefinition, PluginIdDef
 from betty.portable import CallbackPorter
 from betty.presence_role import PresenceRoleDefinition
 from betty.privacy import is_public
-from betty.service.level import Manufacturable
+from betty.service.level import Configurable, Manufacturable
 from betty.service.requirement.extension import require_extension
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.typing import private
@@ -163,6 +162,16 @@ class Section(Template, Configurable[SectionConfiguration]):
     .. plugin:: content-provider:raspberry-mint-section.
     """
 
+    @private
+    def __init__(
+        self,
+        *,
+        jinja: Environment,
+        configuration: SectionConfiguration,
+    ):
+        super().__init__(jinja=jinja)
+        self._configuration = configuration
+
     @override
     @classmethod
     def configuration_cls(cls) -> type[SectionConfiguration]:
@@ -184,10 +193,10 @@ class Section(Template, Configurable[SectionConfiguration]):
         self, document: Document
     ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
         return "component/raspberry-mint/section.html.j2", {
-            "section_name": self.configuration.name,
-            "section_heading": self.configuration.heading,
-            "section_visually_hide_heading": self.configuration.visually_hide_heading,
-            "section_content_provider_configurations": self.configuration.content,
+            "section_name": self._configuration.name,
+            "section_heading": self._configuration.heading,
+            "section_visually_hide_heading": self._configuration.visually_hide_heading,
+            "section_content_provider_configurations": self._configuration.content,
         }
 
 
@@ -208,10 +217,8 @@ class EntityCard(Template, Configurable[EntityReference]):
         entity_types: PluginRepository[EntityDefinition],
         jinja: Environment,
     ):
-        super().__init__(
-            configuration=configuration,
-            jinja=jinja,
-        )
+        super().__init__(jinja=jinja)
+        self._configuration = configuration
         self._ancestry = ancestry
         self._entity_types = entity_types
 
@@ -238,11 +245,11 @@ class EntityCard(Template, Configurable[EntityReference]):
         self, document: Document
     ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
         return [
-            "entity/card--" + self.configuration.type + ".html.j2",
+            "entity/card--" + self._configuration.type + ".html.j2",
             "entity/card.html.j2",
         ], {
-            "entity": self._ancestry[self._entity_types.get(self.configuration.type)][
-                self.configuration.id
+            "entity": self._ancestry[self._entity_types.get(self._configuration.type)][
+                self._configuration.id
             ],
         }
 
@@ -382,6 +389,16 @@ class ColorStyle(Template, Configurable[ColorStyleConfiguration]):
     .. plugin:: content-provider:raspberry-mint-color-style
     """
 
+    @private
+    def __init__(
+        self,
+        *,
+        jinja: Environment,
+        configuration: ColorStyleConfiguration,
+    ):
+        super().__init__(jinja=jinja)
+        self._configuration = configuration
+
     @override
     @classmethod
     def configuration_cls(cls) -> type[ColorStyleConfiguration]:
@@ -403,8 +420,8 @@ class ColorStyle(Template, Configurable[ColorStyleConfiguration]):
         self, document: Document
     ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
         return "component/raspberry-mint/color-style.html.j2", {
-            "color_style": self.configuration.style.value,
-            "color_style_content_provider_configurations": self.configuration.content,
+            "color_style": self._configuration.style.value,
+            "color_style_content_provider_configurations": self._configuration.content,
         }
 
 
@@ -589,11 +606,9 @@ class Presences(Template, Configurable[PresencesConfiguration]):
         presence_roles: PluginRepository[PresenceRoleDefinition],
         configuration: PresencesConfiguration | None = None,
     ):
-        super().__init__(
-            configuration=PresencesConfiguration()
-            if configuration is None
-            else configuration,
-            jinja=jinja,
+        super().__init__(jinja=jinja)
+        self._configuration = (
+            PresencesConfiguration() if configuration is None else configuration
         )
         self._presence_roles = presence_roles
 
@@ -622,12 +637,12 @@ class Presences(Template, Configurable[PresencesConfiguration]):
     ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
         if isinstance(document.resource, Event):
             include: Collection[MachineName]
-            if self.configuration.include is not None:
-                include = self.configuration.include
+            if self._configuration.include is not None:
+                include = self._configuration.include
             else:
                 include = {role.id for role in self._presence_roles}
-                if self.configuration.exclude is not None:
-                    include -= set(self.configuration.exclude)
+                if self._configuration.exclude is not None:
+                    include -= set(self._configuration.exclude)
             return "component/raspberry-mint/presences.html.j2", {
                 "presences": [
                     presence
@@ -820,6 +835,10 @@ class Columns(Template, Configurable[ColumnsConfiguration]):
     .. plugin:: content-provider:raspberry-mint-columns
     """
 
+    def __init__(self, *, configuration: ColumnsConfiguration, jinja: Environment):
+        super().__init__(jinja=jinja)
+        self._configuration = configuration
+
     @override
     @classmethod
     def configuration_cls(cls) -> type[ColumnsConfiguration]:
@@ -841,11 +860,11 @@ class Columns(Template, Configurable[ColumnsConfiguration]):
         self, document: Document
     ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
         return "component/raspberry-mint/columns.html.j2", {
-            "columns_content": self.configuration.content,
-            "columns_justify_content": self.configuration.justify_content,
+            "columns_content": self._configuration.content,
+            "columns_justify_content": self._configuration.justify_content,
             "columns_width": {
                 breakpoint.value: widths
-                for breakpoint, widths in self.configuration.width.items()  # noqa: A001
+                for breakpoint, widths in self._configuration.width.items()  # noqa: A001
             },
         }
 

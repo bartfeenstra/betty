@@ -2,8 +2,8 @@ import pytest
 
 from betty.exception import HumanFacingException
 from betty.service.level import ServiceLevel
-from betty.test_utils.config import DummyConfigurable
 from betty.test_utils.data import DummyData
+from betty.test_utils.service.level import DummyConfigurable
 
 
 class _TargetType:

@@ -19,10 +19,10 @@ from betty.app.config import AppConfiguration
 from betty.asset import AssetRepository, StaticAssetRepository
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
-from betty.config import HasConfiguration
 from betty.dirs import CACHE_DIRECTORY_PATH
 from betty.http_client import ClientErrorToUserMessageMiddleware
 from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
+from betty.importlib import fully_qualified_name
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localize import Localizer, LocalizerRepository
 from betty.locale.translation import (
@@ -39,7 +39,7 @@ from betty.service.container import (
     StaticService,
     service,
 )
-from betty.service.level import ServiceLevel
+from betty.service.level import Configurable, ServiceLevel
 from betty.typing import threadsafe
 from betty.user.no_op import NoOpUser
 
@@ -60,7 +60,7 @@ _PluginDefinitionT = TypeVar(
 
 @final
 @threadsafe
-class App(HasConfiguration[AppConfiguration], ServiceLevel):
+class App(Configurable[AppConfiguration], ServiceLevel):
     """
     The Betty application.
 
@@ -85,7 +85,8 @@ class App(HasConfiguration[AppConfiguration], ServiceLevel):
         from betty.rich.user import RichUser
 
         cls = type(self)
-        super().__init__(configuration=configuration)
+        super().__init__()
+        self._configuration = configuration
         self._user = user or RichUser()
         if process_pool is not None:
             cls.process_pool.override(self, process_pool)
@@ -101,6 +102,15 @@ class App(HasConfiguration[AppConfiguration], ServiceLevel):
     @classmethod
     def configuration_cls(cls) -> type[AppConfiguration]:
         return AppConfiguration
+
+    @override
+    @classmethod
+    async def new_for_configuration(
+        cls, *, services: ServiceLevel, configuration: AppConfiguration
+    ) -> Self:
+        raise NotImplementedError(
+            f"Creating a new {fully_qualified_name(cls)} from its configuration is not yet supported."
+        )
 
     @classmethod
     @asynccontextmanager
@@ -160,6 +170,9 @@ class App(HasConfiguration[AppConfiguration], ServiceLevel):
     @override
     async def _post_bootstrap(self) -> None:
         self._user.localizer = await self.localizer
+        await self._configuration.data().hydrate(
+            services=self, data=self._configuration
+        )
 
     @override
     async def shutdown(self, *, wait: bool = True) -> None:
@@ -194,7 +207,7 @@ class App(HasConfiguration[AppConfiguration], ServiceLevel):
         """
         Get the application's user-facing localizer.
         """
-        return (await self.localizers).get(self.configuration.locale or DEFAULT_LOCALE)
+        return (await self.localizers).get(self._configuration.locale or DEFAULT_LOCALE)
 
     @service
     async def localizers(self) -> LocalizerRepository:

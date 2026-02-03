@@ -77,11 +77,20 @@ async def test_require_extension__with_app(
 
 
 @_test_require_extension_targets
-async def test_require_extension__with_project(
+async def test_require_extension__with_project_with_extension_plugin_not_found(
     isolated_app: App, target: _TestRequireExtensionTarget
 ) -> None:
-    with ExtensionDefinition.type().discoverer.override(DummyExtensionOne):
-        async with Project.new_isolated(isolated_app) as project, project:
+    async with Project.new_isolated(isolated_app) as project, project:
+        with pytest.raises(HumanFacingException):
+            await target(services=project)
+
+
+@_test_require_extension_targets
+async def test_require_extension__with_project_without_extension(
+    isolated_app: App, target: _TestRequireExtensionTarget
+) -> None:
+    async with Project.new_isolated(isolated_app) as project, project:
+        with ExtensionDefinition.type().discoverer.override(DummyExtensionOne):
             with pytest.raises(HumanFacingException):
                 await target(services=project)
 
@@ -90,8 +99,8 @@ async def test_require_extension__with_project(
 async def test_require_extension__with_extension(
     isolated_app: App, target: _TestRequireExtensionTarget
 ) -> None:
-    with ExtensionDefinition.type().discoverer.override(DummyExtensionOne):
-        async with Project.new_isolated(isolated_app) as project:
+    async with Project.new_isolated(isolated_app) as project:
+        with ExtensionDefinition.type().discoverer.override(DummyExtensionOne):
             project.configuration.extensions.add(DummyExtensionOne)
             async with project:
                 assert isinstance(await target(services=project), DummyExtensionOne)

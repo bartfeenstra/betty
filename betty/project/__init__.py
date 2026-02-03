@@ -19,11 +19,11 @@ import betty
 import betty.dirs
 from betty.ancestry import Ancestry
 from betty.asset import AssetRepository, ProxyAssetRepository, StaticAssetRepository
-from betty.config import HasConfiguration
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.document import Document, DocumentProvider
 from betty.extension import Extension, ExtensionDefinition
 from betty.hashid import hashid
+from betty.importlib import fully_qualified_name
 from betty.license import LicenseDefinition
 from betty.locale.localizable.gettext import _
 from betty.locale.localize import Localizer, LocalizerRepository
@@ -39,7 +39,7 @@ from betty.project.config import ProjectConfiguration
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.serde import SerializerDefinition, serializer_for
 from betty.service.container import service
-from betty.service.level import ServiceLevel, universe
+from betty.service.level import Configurable, ServiceLevel, universe
 from betty.typing import internal
 
 if TYPE_CHECKING:
@@ -65,7 +65,7 @@ _PluginDefinitionT = TypeVar(
 
 
 @final
-class Project(HasConfiguration[ProjectConfiguration], ServiceLevel):
+class Project(Configurable[ProjectConfiguration], ServiceLevel):
     """
     Define a Betty project.
 
@@ -88,15 +88,38 @@ class Project(HasConfiguration[ProjectConfiguration], ServiceLevel):
         configuration: ProjectConfiguration,
         ancestry: Ancestry | None = None,
     ):
-        super().__init__(configuration=configuration)
+        super().__init__()
         self._app = app
+        self._configuration = configuration
         self._configuration_file = configuration_file
         self._ancestry = Ancestry() if ancestry is None else ancestry
+
+    @override
+    async def _post_bootstrap(self) -> None:
+        await self._configuration.data().hydrate(
+            services=self, data=self._configuration
+        )
 
     @override
     @classmethod
     def configuration_cls(cls) -> type[ProjectConfiguration]:
         return ProjectConfiguration
+
+    @override
+    @classmethod
+    async def new_for_configuration(
+        cls, *, services: ServiceLevel, configuration: ProjectConfiguration
+    ) -> Self:
+        raise NotImplementedError(
+            f"Creating a new {fully_qualified_name(cls)} from its configuration is not yet supported."
+        )
+
+    @property
+    def configuration(self) -> ProjectConfiguration:
+        """
+        The project configuration.
+        """
+        return self._configuration
 
     @classmethod
     @asynccontextmanager
