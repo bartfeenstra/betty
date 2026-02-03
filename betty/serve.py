@@ -201,13 +201,13 @@ class BuiltinServer(Server):
             with contextlib.suppress(OSError):
                 self._http_server = HTTPServer(
                     ("", self._port),
-                    lambda request,
-                    client_address,
-                    server: _BuiltinServerRequestHandler(
-                        request,
-                        client_address,
-                        server,
-                        directory=str(www_directory_path),
+                    lambda request, client_address, server: (
+                        _BuiltinServerRequestHandler(
+                            request,
+                            client_address,
+                            server,
+                            directory=str(www_directory_path),
+                        )
                     ),
                 )
                 break

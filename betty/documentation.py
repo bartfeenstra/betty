@@ -53,10 +53,10 @@ async def _build(
     # as methods resulting in errors being raised because said descriptors are not callable and do not have a signature.
     original_can_document_member = MethodDocumenter.can_document_member
     MethodDocumenter.can_document_member = (  # ty:ignore[invalid-assignment]
-        lambda member, membername, isattr, parent: original_can_document_member(
-            member, membername, isattr, parent
+        lambda member, membername, isattr, parent: (
+            original_can_document_member(member, membername, isattr, parent)
+            and callable(member)
         )
-        and callable(member)
     )
     try:
         sphinx_app.build()

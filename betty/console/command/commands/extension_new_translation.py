@@ -47,8 +47,10 @@ class ExtensionNewTranslation(Manufacturable, Command):
         parser.add_argument(
             "extension",
             type=assertion_to_argument_type(
-                lambda extension_id: translation_project_extension.assert_extension_has_assets_directory_path(
-                    extensions[extension_id]
+                lambda extension_id: (
+                    translation_project_extension.assert_extension_has_assets_directory_path(
+                        extensions[extension_id]
+                    )
                 ),
                 localizer=localizer,
             ),
