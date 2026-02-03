@@ -485,7 +485,7 @@ class TestPresences:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = Presences(
-                    jinja2_environment=await project.jinja2_environment,
+                    jinja=await project.jinja,
                     presence_roles=StaticPluginRepository(
                         PresenceRoleDefinition, Subject
                     ),
@@ -500,7 +500,7 @@ class TestPresences:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = Presences(
-                    jinja2_environment=await project.jinja2_environment,
+                    jinja=await project.jinja,
                     presence_roles=StaticPluginRepository(
                         PresenceRoleDefinition, Subject
                     ),
@@ -522,7 +522,7 @@ class TestPresences:
             async with project:
                 sut = Presences(
                     configuration=PresencesConfiguration(include=[Subject]),
-                    jinja2_environment=await project.jinja2_environment,
+                    jinja=await project.jinja,
                     presence_roles=StaticPluginRepository(
                         PresenceRoleDefinition, Subject
                     ),
@@ -545,7 +545,7 @@ class TestPresences:
             async with project:
                 sut = Presences(
                     configuration=PresencesConfiguration(exclude=[Witness]),
-                    jinja2_environment=await project.jinja2_environment,
+                    jinja=await project.jinja,
                     presence_roles=StaticPluginRepository(
                         PresenceRoleDefinition, Subject
                     ),
@@ -608,7 +608,7 @@ class TestColumns:
                             ]
                         ]
                     ),
-                    jinja2_environment=await project.jinja2_environment,
+                    jinja=await project.jinja,
                 )
                 actual = await sut.provide(document=Document())
         assert actual is not None
@@ -631,7 +631,7 @@ class TestColumns:
                         ],
                         width={Breakpoint.XS: 12, Breakpoint.LG: 6},
                     ),
-                    jinja2_environment=await project.jinja2_environment,
+                    jinja=await project.jinja,
                 )
                 actual = await sut.provide(document=Document())
         assert actual is not None
@@ -661,7 +661,7 @@ class TestColumns:
                         ],
                         width=[8, 4],
                     ),
-                    jinja2_environment=await project.jinja2_environment,
+                    jinja=await project.jinja,
                 )
                 actual = await sut.provide(document=Document())
         assert actual is not None
@@ -692,7 +692,7 @@ class TestColumns:
                         ],
                         width={Breakpoint.XS: [8, 4], Breakpoint.LG: [7, 5]},
                     ),
-                    jinja2_environment=await project.jinja2_environment,
+                    jinja=await project.jinja,
                 )
                 actual = await sut.provide(document=Document())
         assert actual is not None

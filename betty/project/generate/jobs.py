@@ -62,8 +62,8 @@ class GenerateStaticPublicAssets(Job[ProjectContext]):
     async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
         project = scheduler.context.project
         assets = await project.assets
-        jinja2_environment = await project.jinja2_environment
-        copy_function = jinja2_environment.make_copy_function(
+        jinja = await project.jinja
+        copy_function = jinja.make_copy_function(
             document=await project.new_document(job_context=scheduler.context),
             www_directory_path=project.www_directory,
             is_localized_and_multilingual=project.configuration.multilingual,
@@ -286,9 +286,9 @@ class GenerateLocalizedPublicAssets(Job[ProjectContext]):
         project = scheduler.context.project
         assets = await project.assets
         localizers = await project.localizers
-        jinja2_environment = await project.jinja2_environment
+        jinja = await project.jinja
         copy_functions = {
-            locale: jinja2_environment.make_copy_function(
+            locale: jinja.make_copy_function(
                 document=await project.new_document(
                     job_context=scheduler.context,
                     localizer=localizers.get(locale),
@@ -566,8 +566,8 @@ class _GenerateEntityTypeHtml(Job[ProjectContext]):
         context = scheduler.context
         project = context.project
         localizers = await project.localizers
-        jinja2_environment = await project.jinja2_environment
-        template = jinja2_environment.select_template(
+        jinja = await project.jinja
+        template = jinja.select_template(
             [
                 f"entity/page-list--{self._entity_type.id}.html.j2",
                 "entity/page-list.html.j2",
@@ -697,14 +697,14 @@ class _GenerateEntityHtml(Job[ProjectContext]):
         context = scheduler.context
         project = context.project
         localizers = await project.localizers
-        jinja2_environment = await project.jinja2_environment
+        jinja = await project.jinja
         entity = project.ancestry[self._entity_type.cls][self._entity_id]
         entity_path = (
             project.localize_www_directory(self._locale)
             / self._entity_type.id
             / entity.public_id
         )
-        rendered_html = await jinja2_environment.select_template(
+        rendered_html = await jinja.select_template(
             [
                 f"entity/page--{self._entity_type.id}.html.j2",
                 "entity/page.html.j2",

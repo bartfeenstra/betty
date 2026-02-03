@@ -281,7 +281,7 @@ class Project(HasConfiguration[ProjectConfiguration], ServiceLevel):
         return await new_project_url_generator(self)
 
     @service
-    async def jinja2_environment(self) -> Environment:
+    async def jinja(self) -> Environment:
         """
         The Jinja2 environment.
         """

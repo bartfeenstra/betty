@@ -69,7 +69,7 @@ class TestBuilder:
                         else []
                     ),
                     debug,
-                    await project.jinja2_environment,
+                    await project.jinja,
                     root_path,
                     job_context=job_context,
                     user=StaticUser(),
@@ -107,12 +107,12 @@ class TestBuilder:
         m_npm.side_effect = NpmUnavailable()
 
         job_context = Context()
-        m_jinja2_environment = mocker.AsyncMock()
+        m_jinja = mocker.AsyncMock()
         sut = Builder(
             tmp_path,
             [],
             False,
-            m_jinja2_environment,
+            m_jinja,
             "",
             job_context=job_context,
             user=StaticUser(),

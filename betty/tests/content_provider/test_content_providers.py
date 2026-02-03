@@ -110,7 +110,7 @@ class TestTemplate:
                 ):
                     return template_name
 
-            sut = _Template(jinja2_environment=await project.jinja2_environment)
+            sut = _Template(jinja=await project.jinja)
             provided_content = await sut.provide(
                 document=Document(
                     "my-first-page-resource",

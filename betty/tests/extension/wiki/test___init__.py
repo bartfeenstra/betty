@@ -49,8 +49,8 @@ class TestWiki:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(Wiki)
             async with project:
-                jinja2_environment = await project.jinja2_environment
-                actual = await jinja2_environment.from_string(
+                jinja = await project.jinja
+                actual = await jinja.from_string(
                     "{% for entry in (links | wikipedia_summary) %}{{ entry.content }}{% endfor %}"
                 ).render_async(document=Document(job_context=JobContext()), links=links)
 

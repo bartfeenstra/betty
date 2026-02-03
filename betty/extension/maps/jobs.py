@@ -49,13 +49,13 @@ class _GeneratePlacePreview(Job[ProjectContext]):
         place = project.ancestry[Place][self._place_id]
         app = project.app
         localizers = await app.localizers
-        jinja2_environment = await project.jinja2_environment
+        jinja = await project.jinja
         place_path = (
             project.localize_www_directory(self._locale)
             / place.plugin().id
             / place.public_id
         )
-        rendered_html = await jinja2_environment.get_template(
+        rendered_html = await jinja.get_template(
             "component/maps/selected-place-preview.html.j2",
         ).render_async(
             document=await project.new_document(

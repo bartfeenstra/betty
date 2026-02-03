@@ -31,7 +31,7 @@ class Map(Template, Manufacturable):
     @classmethod
     @require_extension(Maps)
     async def new_for_services(cls, *, extension: Maps) -> Self:
-        return cls(jinja2_environment=await extension._project.jinja2_environment)
+        return cls(jinja=await extension._project.jinja)
 
     @override
     async def provide_template(
@@ -72,7 +72,7 @@ class Attribution(Template, Manufacturable):
     @classmethod
     @require_extension(Maps)
     async def new_for_services(cls, *, extension: Maps) -> Self:
-        return cls(jinja2_environment=await extension._project.jinja2_environment)
+        return cls(jinja=await extension._project.jinja)
 
     @override
     async def provide_template(

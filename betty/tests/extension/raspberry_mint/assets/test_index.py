@@ -47,7 +47,7 @@ async def test_regional_content_front_page_summary(
         )
 
         async with project:
-            environment = await project.jinja2_environment
+            environment = await project.jinja
             actual = await environment.from_string(file).render_async(
                 document=await project.new_document()
             )
@@ -75,7 +75,7 @@ async def test_regional_content_front_page_content(
         )
 
         async with project:
-            environment = await project.jinja2_environment
+            environment = await project.jinja
             actual = await environment.from_string(file).render_async(
                 document=await project.new_document()
             )

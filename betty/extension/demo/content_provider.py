@@ -23,7 +23,7 @@ class _IncompleteTranslationWarning(Template, Manufacturable):
     @classmethod
     @require_project
     async def new_for_services(cls, *, project: Project) -> Self:
-        return cls(jinja2_environment=await project.jinja2_environment)
+        return cls(jinja=await project.jinja)
 
     @override
     async def provide_template(
