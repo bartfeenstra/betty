@@ -185,9 +185,9 @@ class TestProject:
                     assets = await sut.assets
                     assert len(assets.directories) == 3
 
-    async def test_jinja2_environment(self, isolated_app: App) -> None:
+    async def test_jinja(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as sut, sut:
-            await sut.jinja2_environment
+            await sut.jinja
 
     async def test_localizers(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as sut, sut:

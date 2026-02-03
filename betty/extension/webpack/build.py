@@ -123,7 +123,7 @@ class Builder:
         working_directory_path: Path,
         entry_point_providers: Sequence[EntryPointProvider],
         debug: bool,
-        jinja2_environment: Environment,
+        jinja: Environment,
         root_path: str,
         *,
         job_context: JobContext,
@@ -132,7 +132,7 @@ class Builder:
         self._working_directory_path = working_directory_path
         self._entry_point_providers = entry_point_providers
         self._debug = debug
-        self._jinja2_environment = jinja2_environment
+        self._jinja = jinja
         self._root_path = root_path
         self._job_context = job_context
         self._user = user
@@ -178,7 +178,7 @@ class Builder:
             / "packages"
             / _package_name_to_path(cast(str, package_json["name"]))
         )
-        copy_function = self._jinja2_environment.make_copy_function(
+        copy_function = self._jinja.make_copy_function(
             document=Document(job_context=self._job_context)
         )
         copies = []

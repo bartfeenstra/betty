@@ -49,12 +49,10 @@ async def _assert_template(
                 data = {}
             if "document" not in data:
                 data["document"] = await project.new_document()
-            jinja2_environment = await project.jinja2_environment
+            jinja = await project.jinja
             if autoescape is not None:
-                jinja2_environment.autoescape = autoescape
-            rendered = await template_factory(
-                jinja2_environment, template
-            ).render_async(**data)
+                jinja.autoescape = autoescape
+            rendered = await template_factory(jinja, template).render_async(**data)
             yield rendered, project
 
 

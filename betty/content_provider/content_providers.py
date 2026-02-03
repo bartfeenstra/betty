@@ -107,9 +107,9 @@ class Template(ContentProvider):
     """
 
     @private
-    def __init__(self, *args: Any, jinja2_environment: Environment, **kwargs: Any):
+    def __init__(self, *args: Any, jinja: Environment, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        self._jinja2_environment = jinja2_environment
+        self._jinja = jinja
 
     @override
     async def provide(self, *, document: Document) -> str | None:
@@ -127,9 +127,8 @@ class Template(ContentProvider):
             templates = config  # ty:ignore[invalid-assignment]
             data = {}
         assert templates, "At least one template must be specified"
-        jinja2_environment = self._jinja2_environment
         rendered_content = (
-            await jinja2_environment.select_template(templates).render_async(
+            await self._jinja.select_template(templates).render_async(
                 document=document,
                 **data,  # ty:ignore[invalid-argument-type]
             )
@@ -165,7 +164,7 @@ class Notes(Template, Manufacturable):
     @classmethod
     @require_project
     async def new_for_services(cls, *, project: Project) -> Self:
-        return cls(jinja2_environment=await project.jinja2_environment)
+        return cls(jinja=await project.jinja)
 
     @override
     async def provide_template(
@@ -260,7 +259,7 @@ class Box(Template, Configurable[BoxConfiguration]):
     ) -> Self:
         return cls(
             configuration=configuration,
-            jinja2_environment=await project.jinja2_environment,
+            jinja=await project.jinja,
         )
 
     @override

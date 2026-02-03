@@ -216,8 +216,8 @@ class Index:
         return _Entry(entity.plugin().id, await self._render_entity(entity), text)
 
     async def _render_entity(self, entity: Entity) -> str:
-        jinja2_environment = await self._project.jinja2_environment
-        return await jinja2_environment.select_template(
+        jinja = await self._project.jinja
+        return await jinja.select_template(
             [
                 f"search/result--{entity.plugin().id}.html.j2",
                 "search/result.html.j2",
