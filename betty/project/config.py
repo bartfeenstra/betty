@@ -340,9 +340,11 @@ class ProjectConfiguration(Data):
         omit_dump=lambda data: not len(data),
         default=lambda: MutableDictKeyedCollection(
             key=lambda item: item.entity_type,
-            value_resolver=lambda data: data
-            if isinstance(data, EntityTypeConfiguration)
-            else EntityTypeConfiguration(entity_type=data),
+            value_resolver=lambda data: (
+                data
+                if isinstance(data, EntityTypeConfiguration)
+                else EntityTypeConfiguration(entity_type=data)
+            ),
         ),
     )
     """
@@ -432,9 +434,11 @@ class ProjectConfiguration(Data):
             [DEFAULT_LOCALE],
             key=lambda item: item.locale,
             key_resolver=resolve_locale,
-            value_resolver=lambda value: value
-            if isinstance(value, LocaleConfiguration)
-            else LocaleConfiguration(resolve_locale(value)),
+            value_resolver=lambda value: (
+                value
+                if isinstance(value, LocaleConfiguration)
+                else LocaleConfiguration(resolve_locale(value))
+            ),
             resolver=lambda items: [DEFAULT_LOCALE] if not len(items) else items,
         ),
     )

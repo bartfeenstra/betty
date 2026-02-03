@@ -503,9 +503,9 @@ def filter_select_has_dates(
     if date is None:
         date = context.resolve_or_missing("today")
     return filter(
-        lambda dated: dated.date is None
-        or dated.date.comparable
-        and dated.date in date,
+        lambda dated: (
+            dated.date is None or dated.date.comparable and dated.date in date
+        ),
         has_dates,
     )
 

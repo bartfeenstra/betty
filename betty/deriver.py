@@ -112,8 +112,9 @@ class Deriver:
         if not derivable_events:
             if list(
                 filter(
-                    lambda presence: presence.event.event_type.plugin().id
-                    == derivable_event_type.id,
+                    lambda presence: (
+                        presence.event.event_type.plugin().id == derivable_event_type.id
+                    ),
                     person.presences,
                 )
             ):
