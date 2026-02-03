@@ -29,13 +29,15 @@ class PotFileTestBase:
     async def _readlines(self, assets_directory_path: Path) -> Iterator[str]:
         async with aiofiles.open(assets_directory_path / "locale" / "betty.pot") as f:
             return filter(
-                lambda line: not line.startswith(
-                    (
-                        "# Copyright (C) ",
-                        "# FIRST AUTHOR <EMAIL@ADDRESS>, ",
-                        '"POT-Creation-Date: ',
-                        '"PO-Revision-Date: ',
-                        '"Generated-By: ',
+                lambda line: (
+                    not line.startswith(
+                        (
+                            "# Copyright (C) ",
+                            "# FIRST AUTHOR <EMAIL@ADDRESS>, ",
+                            '"POT-Creation-Date: ',
+                            '"PO-Revision-Date: ',
+                            '"Generated-By: ',
+                        )
                     )
                 ),
                 await f.readlines(),

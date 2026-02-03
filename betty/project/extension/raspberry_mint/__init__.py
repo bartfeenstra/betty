@@ -51,9 +51,11 @@ _RESULT_CONTAINER_TEMPLATE = plain("""
 """)
 
 _RESULTS_CONTAINER_TEMPLATE = call(
-    lambda localizer: '<ul class="entity-list"><h3 class="h2">'
-    + localizer._("Results ({{{ betty-search-results-count }}})")
-    + "</h3>{{{ betty-search-results }}}</ul>"
+    lambda localizer: (
+        '<ul class="entity-list"><h3 class="h2">'
+        + localizer._("Results ({{{ betty-search-results-count }}})")
+        + "</h3>{{{ betty-search-results }}}</ul>"
+    )
 )
 
 
