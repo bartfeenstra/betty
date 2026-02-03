@@ -309,7 +309,7 @@ class Gramps(Loader, Configurable[GrampsConfiguration], Extension):
             configuration=GrampsConfiguration()
             if configuration is None
             else configuration,
-            project=project,
+            services=project,
         )
 
     @override

@@ -30,7 +30,7 @@ class _DummyExtension(Manufacturable, Extension):
     @classmethod
     @require_project
     async def new_for_services(cls, *, project: Project) -> Self:
-        return cls(project=project)
+        return cls(services=project)
 
 
 @ExtensionDefinition(
@@ -361,7 +361,7 @@ class TestProjectExtensions:
 
     async def test___contains____with_known_extension(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            sut = ProjectExtensions([[DummyExtensionOne(project=project)]])
+            sut = ProjectExtensions([[DummyExtensionOne(services=project)]])
             assert DummyExtensionOne in sut
 
     async def test___getitem____without_extensions(self) -> None:
@@ -376,7 +376,7 @@ class TestProjectExtensions:
 
     async def test___getitem____with_known_extension(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            sut = ProjectExtensions([[DummyExtensionOne(project=project)]])
+            sut = ProjectExtensions([[DummyExtensionOne(services=project)]])
             sut[DummyExtensionOne]
 
     async def test___iter____without_extensions(self) -> None:
@@ -387,8 +387,8 @@ class TestProjectExtensions:
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            extension_one = DummyExtensionOne(project=project)
-            extension_two = DummyExtensionTwo(project=project)
+            extension_one = DummyExtensionOne(services=project)
+            extension_two = DummyExtensionTwo(services=project)
             sut = ProjectExtensions([[extension_one, extension_two]])
             actual = [list(batch) for batch in iter(sut)]
             assert len(actual) == 1
@@ -400,8 +400,8 @@ class TestProjectExtensions:
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            extension_one = DummyExtensionOne(project=project)
-            extension_two = DummyExtensionTwo(project=project)
+            extension_one = DummyExtensionOne(services=project)
+            extension_two = DummyExtensionTwo(services=project)
             sut = ProjectExtensions([[extension_one], [extension_two]])
             actual = [list(batch) for batch in iter(sut)]
             assert len(actual) == 2
@@ -418,8 +418,8 @@ class TestProjectExtensions:
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            extension_one = DummyExtensionOne(project=project)
-            extension_two = DummyExtensionTwo(project=project)
+            extension_one = DummyExtensionOne(services=project)
+            extension_two = DummyExtensionTwo(services=project)
             sut = ProjectExtensions([[extension_one, extension_two]])
             actual = list(sut.flatten())
             assert len(actual) == 2
@@ -430,8 +430,8 @@ class TestProjectExtensions:
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            extension_one = DummyExtensionOne(project=project)
-            extension_two = DummyExtensionTwo(project=project)
+            extension_one = DummyExtensionOne(services=project)
+            extension_two = DummyExtensionTwo(services=project)
             sut = ProjectExtensions([[extension_one], [extension_two]])
             actual = list(sut.flatten())
             assert len(actual) == 2

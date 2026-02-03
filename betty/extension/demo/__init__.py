@@ -23,7 +23,7 @@ from betty.extension.trees import Trees
 from betty.extension.wiki import Wiki
 from betty.html import NavigationLink, NavigationLinkProvider
 from betty.locale.localizable.gettext import _
-from betty.project import generate
+from betty.project import Project, generate
 from betty.project.job import ProjectContext
 from betty.project.load import Loader, load
 from betty.service.level import Manufacturable
@@ -34,7 +34,6 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.job.scheduler import Scheduler
-    from betty.project import Project
     from betty.project.job import ProjectContext
 
 
@@ -80,7 +79,7 @@ async def generate_with_cleanup(
     },
     assets_directory=Path(__file__).parent / "assets",
 )
-class Demo(NavigationLinkProvider, Loader, Manufacturable, Extension):
+class Demo(NavigationLinkProvider, Loader, Manufacturable, Extension[Project]):
     """
     .. plugin:: extension:demo.
     """
@@ -89,7 +88,7 @@ class Demo(NavigationLinkProvider, Loader, Manufacturable, Extension):
     @classmethod
     @require_project
     async def new_for_services(cls, *, project: Project) -> Self:
-        return cls(project=project)
+        return cls(services=project)
 
     @override
     async def load(self, scheduler: Scheduler[ProjectContext]) -> None:
