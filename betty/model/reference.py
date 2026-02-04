@@ -11,9 +11,9 @@ from typing_extensions import override
 from betty.data import Data, Sample
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.aggregate.record.object.property import Property
+from betty.data.str import StrDefinition
 from betty.exception import HumanFacingException
 from betty.locale.localizable.gettext import _
-from betty.machine_name import MachineNameDefinition
 from betty.model import EntityDefinition
 from betty.plugin import resolve_id
 from betty.plugin.assertion import assert_plugin
@@ -47,7 +47,7 @@ class EntityReference(Data, Hydratable):
     The type of the referenced entity. 
     """
 
-    id = Property(MachineNameDefinition(), label=_("Entity ID"))
+    id = Property(StrDefinition(label=_("Entity ID")))
     """
     The ID of the referenced entity.
     """

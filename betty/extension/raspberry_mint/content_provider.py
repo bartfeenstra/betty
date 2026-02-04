@@ -54,7 +54,6 @@ from betty.functools import unique
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import LocalizableProperty
 from betty.machine_name import MachineName, MachineNameDefinition
-from betty.model import Entity, EntityDefinition
 from betty.model.reference import EntityReference
 from betty.plugin import resolve_id
 from betty.plugin.config import (
@@ -79,6 +78,7 @@ if TYPE_CHECKING:
     from betty.document import Document
     from betty.jinja2 import Environment
     from betty.locale.localizable import ResolvableLocalizable
+    from betty.model import Entity
     from betty.plugin import ResolvableId
     from betty.plugin.repository import PluginRepository
 
@@ -208,19 +208,12 @@ class EntityCard(Template, Configurable[EntityReference]):
     .. plugin:: content-provider:raspberry-mint-entity-card
     """
 
-    @private
     def __init__(
-        self,
-        *,
-        ancestry: Ancestry,
-        configuration: EntityReference,
-        entity_types: PluginRepository[EntityDefinition],
-        jinja: Environment,
+        self, *, ancestry: Ancestry, entity: EntityReference, jinja: Environment
     ):
         super().__init__(jinja=jinja)
-        self._configuration = configuration
+        self._entity = entity
         self._ancestry = ancestry
-        self._entity_types = entity_types
 
     @override
     @classmethod
@@ -235,8 +228,7 @@ class EntityCard(Template, Configurable[EntityReference]):
     ) -> Self:
         return cls(
             ancestry=extension.services.ancestry,
-            configuration=configuration,
-            entity_types=await extension.services.plugins.plugins(EntityDefinition),
+            entity=configuration,
             jinja=await extension.services.jinja,
         )
 
@@ -244,14 +236,11 @@ class EntityCard(Template, Configurable[EntityReference]):
     async def provide_template(
         self, document: Document
     ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+        entity = self._ancestry[self._entity.type][self._entity.id]
         return [
-            "entity/card--" + self._configuration.type + ".html.j2",
+            "entity/card--" + entity.plugin().id + ".html.j2",
             "entity/card.html.j2",
-        ], {
-            "entity": self._ancestry[self._entity_types.get(self._configuration.type)][
-                self._configuration.id
-            ],
-        }
+        ], {"entity": entity}
 
 
 @ContentProviderDefinition("raspberry-mint-families", label=_("Families"))
