@@ -283,7 +283,7 @@ def main_standalone() -> None:
 
 
 async def _main_standalone() -> None:
-    async with App.new_from_environment() as app, app:
+    async with await App.new_from_environment() as app:
         await main(app, sys.argv[1:])
 
 

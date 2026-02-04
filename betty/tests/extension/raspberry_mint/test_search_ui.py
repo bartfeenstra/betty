@@ -26,9 +26,7 @@ class TestSearchUi:
         PersonName(individual=self.INDIVIDUAL_NAME, person=person)
         async with (
             TemporaryDirectory() as cache_directory_path_str,
-            App.new_isolated(
-                cache_directory_path=Path(cache_directory_path_str)
-            ) as app,
+            App.new_isolated(cache_directory=Path(cache_directory_path_str)) as app,
             app,
             Project.new_isolated(app) as project,
         ):

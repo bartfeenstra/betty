@@ -21,10 +21,9 @@ from betty.cache.no_op import NoOpCache
 from betty.dirs import CACHE_DIRECTORY_PATH
 from betty.http_client import ClientErrorToUserMessageMiddleware
 from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
-from betty.importlib import fully_qualified_name
 from betty.life_cycle import LifeCycle
 from betty.life_cycle.manage import ManagedLifeCycle
-from betty.locale import DEFAULT_LOCALE
+from betty.locale import DEFAULT_LOCALE, ResolvableLocale, resolve_locale
 from betty.locale.localize import Localizer, LocalizerRepository
 from betty.locale.translation import (
     DEFAULT_TRANSLATION_REPOSITORY,
@@ -35,12 +34,9 @@ from betty.multiprocessing import ProcessPoolExecutor
 from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.ordered import sort_ordered_plugin_graph
 from betty.portable.file import assert_load_file
-from betty.service.container import (
-    ServiceFactory,
-    service,
-)
+from betty.service.container import ServiceFactory, service
 from betty.service.factory import DataManufacturable
-from betty.service.level import ServiceLevel
+from betty.service.level import UNIVERSE, ServiceLevel
 from betty.typing import threadsafe
 from betty.user.no_op import NoOpUser
 
@@ -75,20 +71,20 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ManagedLifeCycle):
 
     def __init__(
         self,
-        configuration: AppConfiguration,
-        cache_directory_path: Path,
         *,
-        user: User | None = None,
-        cache_factory: ServiceFactory[Self, Cache[Any]],
+        cache_directory: Path | None = None,
+        cache_factory: ServiceFactory[Self, Cache[Any]] | None = None,
+        locale: ResolvableLocale | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
         translations: TranslationRepository | None = None,
+        user: User | None = None,
     ):
         from betty.rich.user import RichUser
 
         cls = type(self)
         super().__init__()
         self.life_cycle.on_bootstrap(self._bootstrap_localizer)
-        self._configuration = configuration
+        self._locale = DEFAULT_LOCALE if locale is None else resolve_locale(locale)
         self._user = user or RichUser()
         if isinstance(self._user, LifeCycle):
             self.life_cycle.attach(self._user)
@@ -96,10 +92,16 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ManagedLifeCycle):
             cls.process_pool.override(self, process_pool)
         if translations is not None:
             cls.translations.override(self, translations)
-        self._cache_directory_path = cache_directory_path
+        self._cache_directory = (
+            Path(environ.get("BETTY_CACHE_DIRECTORY", CACHE_DIRECTORY_PATH))
+            if cache_directory is None
+            else cache_directory
+        )
         cls.cache.override_factory(
             self,
-            cache_factory,  # ty:ignore[invalid-argument-type]
+            (lambda _: PickledFileCache[Any](self._cache_directory))
+            if cache_factory is None
+            else cache_factory,  # ty:ignore[invalid-argument-type]
         )
 
     async def _bootstrap_localizer(self) -> None:
@@ -113,13 +115,10 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ManagedLifeCycle):
     @override
     @classmethod
     async def new(cls, services: ServiceLevel, data: AppConfiguration, /) -> Self:
-        raise NotImplementedError(
-            f"Creating a new {fully_qualified_name(cls)} from its configuration is not yet supported."
-        )
+        return cls(locale=data.locale)
 
     @classmethod
-    @asynccontextmanager
-    async def new_from_environment(cls) -> AsyncIterator[Self]:
+    async def new_from_environment(cls) -> Self:
         """
         Create a new application from the environment.
         """
@@ -127,20 +126,15 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ManagedLifeCycle):
             configuration = AppConfiguration.data().porter.load(
                 (await assert_load_file())(AppConfiguration.FILE)
             )
-        else:
-            configuration = AppConfiguration()
-        yield cls(
-            configuration,
-            Path(environ.get("BETTY_CACHE_DIRECTORY", CACHE_DIRECTORY_PATH)),
-            cache_factory=lambda app: PickledFileCache[Any](app._cache_directory_path),
-        )
+            return await cls.new(UNIVERSE, configuration)
+        return cls()
 
     @classmethod
     @asynccontextmanager
     async def new_isolated(
         cls,
         *,
-        cache_directory_path: Path | None = None,
+        cache_directory: Path | None = None,
         cache_factory: ServiceFactory[Self, Cache[Any]] | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
         user: User | None = None,
@@ -153,16 +147,15 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ManagedLifeCycle):
         any traces on the system.
         """
         async with AsyncExitStack() as exit_stack:
-            if cache_directory_path is None:
-                cache_directory_path = Path(
+            if cache_directory is None:
+                cache_directory = Path(
                     await exit_stack.enter_async_context(TemporaryDirectory())
                 )
             yield cls(
-                AppConfiguration(),
-                cache_directory_path,
-                cache_factory=lambda _: (
-                    NoOpCache() if cache_factory is None else cache_factory
-                ),
+                cache_directory=cache_directory,
+                cache_factory=(lambda _: NoOpCache())
+                if cache_factory is None
+                else cache_factory,
                 process_pool=process_pool,
                 user=NoOpUser() if user is None else user,
                 translations=DEFAULT_TRANSLATION_REPOSITORY
@@ -198,7 +191,7 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ManagedLifeCycle):
         """
         Get the application's user-facing localizer.
         """
-        return (await self.localizers).get(self._configuration.locale or DEFAULT_LOCALE)
+        return (await self.localizers).get(self._locale)
 
     @service
     async def localizers(self) -> LocalizerRepository:
@@ -251,7 +244,7 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ManagedLifeCycle):
         """
         The binary file cache.
         """
-        return BinaryFileCache(self._cache_directory_path)
+        return BinaryFileCache(self._cache_directory)
 
     @service
     def process_pool(self) -> futures.ProcessPoolExecutor:

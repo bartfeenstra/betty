@@ -40,7 +40,7 @@ from betty.locale import (
     resolve_locale,
     to_language_tag,
 )
-from betty.locale.data import LocaleDefinition
+from betty.locale.data import LocaleProperty
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import LocalizableProperty
 from betty.machine_name import MachineName, MachineNameProperty, ResolvableMachineName
@@ -169,7 +169,7 @@ class ProjectLocale(Data["ObjectDefinition"]):
     .. data:: betty.project.data:ProjectLocale
     """
 
-    locale = Property(LocaleDefinition(), label=_("Locale"), resolver=resolve_locale)
+    locale = LocaleProperty()
     """
     The locale.
     """

@@ -6,18 +6,17 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Final, final
 
-from betty.data import Data, OptionalDefinition, Sample
-from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
+from betty.data import Data, Sample
+from betty.data.aggregate.record.object import ObjectDefinition
+from betty.data.aggregate.record.object.property import Optional
 from betty.dirs import APP_CONFIG_DIRECTORY_PATH
-from betty.locale import DEFAULT_LOCALE
-from betty.locale.data import LocaleDefinition
+from betty.locale import DEFAULT_LOCALE, ResolvableLocale, resolve_locale
+from betty.locale.data import LocaleProperty
 from betty.locale.localizable.gettext import _
 from betty.sample import Size
 
 if TYPE_CHECKING:
     from pathlib import Path
-
-    from babel import Locale
 
 
 @final
@@ -39,21 +38,10 @@ class AppConfiguration(Data):
 
     FILE: Final[Path] = APP_CONFIG_DIRECTORY_PATH / "app.json"
 
-    def __init__(
-        self,
-        *,
-        locale: Locale | None = None,
-    ):
-        self._locale: Locale | None = locale
+    locale = Optional(LocaleProperty())
+    """
+    The application locale.
+    """
 
-    @property
-    @AttrDefinition(OptionalDefinition(LocaleDefinition()))
-    def locale(self) -> Locale | None:
-        """
-        The application locale.
-        """
-        return self._locale
-
-    @locale.setter
-    def locale(self, locale: Locale | None) -> None:
-        self._locale = locale
+    def __init__(self, *, locale: ResolvableLocale | None = None):
+        self.locale = None if locale is None else resolve_locale(locale)
