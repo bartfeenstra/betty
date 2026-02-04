@@ -14,6 +14,7 @@ import typing_extensions
 from typing_extensions import TypeVar
 
 from betty.asyncio import resolve_await
+from betty.machine_name import MachineName
 from betty.plugin import Plugin, PluginDefinition, ResolvableDefinition
 from betty.service.requirement import ServiceLevelKwargs
 
@@ -41,6 +42,11 @@ class PluginDiscovery(ABC, Generic[_PluginDefinitionT]):
         """
 
 
+ResolvableDiscoveredDefinition: TypeAlias = (
+    ResolvableDefinition[_PluginDefinitionT]
+    | tuple[MachineName, Callable[[], Awaitable[_PluginDefinitionT]]]
+)
+
 ResolvableDiscovery: TypeAlias = (
     PluginDiscovery[_PluginDefinitionT]
     | Callable[
@@ -48,7 +54,7 @@ ResolvableDiscovery: TypeAlias = (
         Awaitable[Iterable["ResolvableDiscovery[_PluginDefinitionT]"]]
         | Iterable["ResolvableDiscovery[_PluginDefinitionT]"],
     ]
-    | ResolvableDefinition[_PluginDefinitionT]
+    | ResolvableDiscoveredDefinition[_PluginDefinitionT]
 )
 
 
@@ -131,5 +137,7 @@ class Discoverer(PluginDiscovery[_PluginDefinitionT]):
         return self._defined != self._active
 
     @typing_extensions.override
-    async def discover(self, *, services: ServiceLevel) -> Iterable[_PluginDefinitionT]:
+    async def discover(
+        self, *, services: ServiceLevel
+    ) -> Iterable[ResolvableDiscoveredDefinition[_PluginDefinitionT]]:
         return await discover(*self._active, services=services)  # ty:ignore[invalid-return-type]
