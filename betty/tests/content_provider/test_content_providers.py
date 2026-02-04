@@ -64,10 +64,7 @@ class TestRender:
     async def test_provide(
         self, expected: str, content: ResolvableLocalizable, locale: str
     ) -> None:
-        sut = Render(
-            configuration=RenderConfiguration(content),
-            renderer=RenderDispatcher(PlainText()),
-        )
+        sut = Render(content=content, renderer=RenderDispatcher(PlainText()))
         assert (
             await sut.provide(
                 document=Document(localizer=Localizer(locale, NullTranslations()))
