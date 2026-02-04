@@ -17,6 +17,7 @@ from betty.data.aggregate.record.object.property import Optional, Property
 from betty.data.str import StrDefinition
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import LocalizableProperty
+from betty.locale.localize import resolve_localized
 from betty.media_type import MediaType
 from betty.media_type.media_types import PLAIN_TEXT
 from betty.plugin.config import (
@@ -74,9 +75,14 @@ class Render(Configurable[RenderConfiguration], ContentProvider):
 
     @private
     def __init__(
-        self, *, configuration: RenderConfiguration, renderer: RenderDispatcher
+        self,
+        *,
+        content: ResolvableLocalizable,
+        renderer: RenderDispatcher,
+        media_type: MediaType = PLAIN_TEXT,
     ):
-        self._configuration = configuration
+        self._content = content
+        self._media_type = media_type
         self._renderer = renderer
 
     @override
@@ -88,13 +94,17 @@ class Render(Configurable[RenderConfiguration], ContentProvider):
     @classmethod
     @require_project
     async def new(cls, *, project: Project, configuration: RenderConfiguration) -> Self:
-        return cls(configuration=configuration, renderer=await project.renderer)
+        return cls(
+            content=configuration.content,
+            media_type=configuration.media_type,
+            renderer=await project.renderer,
+        )
 
     @override
     async def provide(self, *, document: Document) -> str | None:
         return await self._renderer.render(
-            self._configuration.content.localize(document.localizer),
-            self._configuration.media_type,
+            resolve_localized(self._content, localizer=document.localizer),
+            self._media_type,
         )
 
 
