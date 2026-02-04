@@ -86,7 +86,7 @@ class TestEntityTypeConfiguration(DataTestBase[EntityTypeConfiguration]):
             EntityDefinition.type().discoverer.override(DummyNonPublicFacingEntityOne),
             pytest.raises(HumanFacingException),
         ):
-            await sut.hydrate(services=universe)
+            await sut.hydrate(universe)
 
 
 class TestProjectConfiguration(DataTestBase[ProjectConfiguration]):

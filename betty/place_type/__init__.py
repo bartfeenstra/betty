@@ -28,7 +28,7 @@ class PlaceType(Plugin["PlaceTypeDefinition"]):
     discovery=[
         EntryPointDiscovery("betty.place_type"),
         require_project(
-            lambda *, project: (
+            lambda project: (
                 configuration.new_plugin()
                 for configuration in project.configuration.place_types
             )

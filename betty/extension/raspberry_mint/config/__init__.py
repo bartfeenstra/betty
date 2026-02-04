@@ -148,8 +148,8 @@ class RaspberryMintConfiguration(Data, Hydratable):
 
     @override
     @require_extension("raspberry-mint")
-    async def hydrate(self, *, extension: RaspberryMint) -> None:
-        available_regions = await extension.regions
+    async def hydrate(self, raspberry_mint: RaspberryMint, /) -> None:
+        available_regions = await raspberry_mint.regions
         with reraise_with_indicator(Attr("regional_content")):
             for region in self.regional_content:
                 with reraise_with_indicator(Key(region)):

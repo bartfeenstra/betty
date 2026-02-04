@@ -20,7 +20,7 @@ class TestTree:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(Trees)
             async with project:
-                sut = await Tree.new(services=project)
+                sut = await Tree.new(project)
                 assert await sut.provide(document=Document()) is None
 
     @pytest.mark.parametrize(
@@ -37,7 +37,7 @@ class TestTree:
             project.configuration.extensions.add(Trees)
             async with project:
                 project.ancestry.add(resource)
-                sut = await Tree.new(services=project)
+                sut = await Tree.new(project)
                 assert (
                     await sut.provide(document=await project.new_document(resource))
                     is None
@@ -52,7 +52,7 @@ class TestTree:
             project.configuration.extensions.add(Trees)
             async with project:
                 project.ancestry.add(person)
-                sut = await Tree.new(services=project)
+                sut = await Tree.new(project)
                 document = await project.new_document(person)
                 actual = await sut.provide(document=document)
         assert actual is not None

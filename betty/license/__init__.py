@@ -55,7 +55,7 @@ class License(Plugin["LicenseDefinition"]):
     discovery=[
         EntryPointDiscovery("betty.license"),
         require_project(
-            lambda *, project: (
+            lambda project: (
                 configuration.new_plugin()
                 for configuration in project.configuration.licenses
             )

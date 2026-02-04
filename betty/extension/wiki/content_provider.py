@@ -13,8 +13,10 @@ from betty.content_provider.content_providers import Template
 from betty.document import Document
 from betty.extension.wiki import Wiki
 from betty.locale.localizable.gettext import _
+from betty.project import Project
 from betty.service.level import Manufacturable
 from betty.service.requirement.extension import require_extension
+from betty.service.requirement.project import require_project
 
 
 @ContentProviderDefinition("wiki-wikipedia-summary", label=_("Wikipedia summary"))
@@ -27,9 +29,10 @@ class WikipediaSummary(Template, Manufacturable):
 
     @override
     @classmethod
-    @require_extension(Wiki)
-    async def new(cls, *, extension: Wiki) -> Self:
-        return cls(jinja=await extension.services.jinja)
+    @require_project
+    async def new(cls, project: Project, /) -> Self:
+        await require_extension(Wiki, project)
+        return cls(jinja=await project.jinja)
 
     @override
     async def provide_template(

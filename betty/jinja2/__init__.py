@@ -186,7 +186,7 @@ class Environment(Manufacturable, Jinja2Environment):
     @override
     @classmethod
     @require_project
-    async def new(cls, *, project: Project) -> Self:
+    async def new(cls, project: Project, /) -> Self:
         extensions = list((await project.extensions).flatten())
         return cls(
             project,

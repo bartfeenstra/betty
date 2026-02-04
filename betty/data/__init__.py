@@ -84,9 +84,9 @@ class DataDefinition(
         return Samples(self._samples)
 
     @override
-    async def hydrate(self, *, services: ServiceLevel, data: _DataClsT) -> None:
+    async def hydrate(self, services: ServiceLevel, data: _DataClsT, /) -> None:
         if isinstance(data, Hydratable):
-            await data.hydrate(services=services)
+            await data.hydrate(services)
 
 
 _DataDefinitionT = TypeVar(
@@ -142,6 +142,6 @@ class OptionalDefinition(DataDefinition[_DataClsT | None]):
         return self._wrapped
 
     @override
-    async def hydrate(self, *, services: ServiceLevel, data: _DataClsT | None) -> None:
+    async def hydrate(self, services: ServiceLevel, data: _DataClsT | None, /) -> None:
         if data is not None:
-            await self.wrapped.hydrate(services=services, data=data)
+            await self.wrapped.hydrate(services, data)

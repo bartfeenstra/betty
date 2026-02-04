@@ -36,7 +36,7 @@ class TestServiceLevelPluginManager:
         )
 
     async def test_plugins__should_forward_services(self, isolated_app: App) -> None:
-        async def _discovery(*, app: App) -> Iterable[DummyPluginDefinition]:
+        async def _discovery(app: App) -> Iterable[DummyPluginDefinition]:
             assert app is isolated_app
             return ()
 

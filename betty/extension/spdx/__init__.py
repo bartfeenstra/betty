@@ -37,7 +37,7 @@ class Spdx(Manufacturable, Extension[App]):
     @override
     @classmethod
     @require_app
-    async def new(cls, *, app: App) -> Self:
+    async def new(cls, app: App, /) -> Self:
         return cls(services=app)
 
     @service
@@ -61,5 +61,5 @@ class Spdx(Manufacturable, Extension[App]):
 
 
 LicenseDefinition.type().discoverer.add(
-    require_extension(Spdx)(lambda *, extension: extension.license_repository),
+    require_extension(Spdx)(lambda spdx: spdx.license_repository),
 )

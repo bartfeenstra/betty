@@ -25,7 +25,7 @@ class ConfigurableDummyPlugin(
     label="Configurable dummy plugin",
     label_plural="Configurable dummy plugins",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    discovery=[lambda **_: [ConfigurableDummyPluginOne]],
+    discovery=[lambda _: [ConfigurableDummyPluginOne]],
 )
 class ConfigurableDummyPluginDefinition(PluginDefinition[ConfigurableDummyPlugin]):
     """

@@ -28,7 +28,7 @@ class Gender(Plugin["GenderDefinition"]):
     discovery=[
         EntryPointDiscovery("betty.gender"),
         require_project(
-            lambda *, project: (
+            lambda project: (
                 configuration.new_plugin()
                 for configuration in project.configuration.genders
             )

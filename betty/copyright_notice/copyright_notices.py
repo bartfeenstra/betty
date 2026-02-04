@@ -41,7 +41,7 @@ class ProjectAuthor(Manufacturable, CopyrightNotice):
     @override
     @classmethod
     @require_project
-    async def new(cls, *, project: Project) -> Self:
+    async def new(cls, project: Project, /) -> Self:
         return cls(project.configuration.author)
 
     @property
@@ -120,7 +120,7 @@ class WikipediaContributors(Manufacturable, CopyrightNotice):
     @override
     @classmethod
     @require_app
-    async def new(cls, *, app: App) -> Self:
+    async def new(cls, app: App, /) -> Self:
         http_client = await app.http_client
         urls = {
             DEFAULT_LOCALE: _copyright_url("en", "Wikipedia:Copyrights"),

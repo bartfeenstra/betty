@@ -49,7 +49,7 @@ class EntryPointDiscovery(PluginDiscovery[_PluginDefinitionT]):
 
     @override
     async def discover(
-        self, *, services: ServiceLevel
+        self, services: ServiceLevel, /
     ) -> Iterable[ResolvableDefinition[_PluginDefinitionT]]:
         return [
             cast(ResolvableDefinition[_PluginDefinitionT], entry_point.load())

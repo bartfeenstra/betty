@@ -20,7 +20,7 @@ class Hydratable(ABC):
     """
 
     @abstractmethod
-    async def hydrate(self, *, services: ServiceLevel) -> None:
+    async def hydrate(self, services: ServiceLevel, /) -> None:
         """
         Hydrate ``self``.
 
@@ -34,7 +34,7 @@ class Hydrator(Generic[_T]):
     An object capable of hydrating other data.
     """
 
-    async def hydrate(self, *, services: ServiceLevel, data: _T) -> None:
+    async def hydrate(self, services: ServiceLevel, data: _T, /) -> None:
         """
         Hydrate data.
 

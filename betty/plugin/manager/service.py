@@ -81,6 +81,5 @@ class ServiceLevelPluginManager(PluginManager):
         self, plugin_type: type[_PluginDefinitionT]
     ) -> PluginRepository[_PluginDefinitionT]:
         return StaticPluginRepository(
-            plugin_type,
-            *await plugin_type.type().discoverer.discover(services=self._services),
+            plugin_type, *await plugin_type.type().discoverer.discover(self._services)
         )

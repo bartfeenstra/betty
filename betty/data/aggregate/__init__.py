@@ -36,8 +36,8 @@ class AggregateDefinition(
         """
 
     @override
-    async def hydrate(self, *, services: ServiceLevel, data: _DataClsT) -> None:
+    async def hydrate(self, services: ServiceLevel, data: _DataClsT, /) -> None:
         for selector, element in self.elements(data):
             with reraise_with_indicator(selector):
-                await element.hydrate(services=services, data=selector.get(data))
-        await super().hydrate(services=services, data=data)
+                await element.hydrate(services, selector.get(data))
+        await super().hydrate(services, data)

@@ -6,7 +6,7 @@ from typing import Any, Self
 
 from typing_extensions import override
 
-from betty.service.level import Configurable, Manufacturable, ServiceLevel, universe
+from betty.service.level import Configurable, Manufacturable, ServiceLevel
 from betty.test_utils.data import DummyData
 
 
@@ -29,9 +29,6 @@ class DummyConfigurable(Configurable[DummyData], Manufacturable):
     @override
     @classmethod
     async def new(
-        cls,
-        *,
-        services: ServiceLevel = universe,
-        configuration: DummyData | None = None,
+        cls, services: ServiceLevel, configuration: DummyData | None = None, /
     ) -> Self:
         return cls(configuration=configuration)

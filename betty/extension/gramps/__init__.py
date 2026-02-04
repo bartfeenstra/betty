@@ -319,10 +319,7 @@ class Gramps(Loader, Configurable[GrampsConfiguration], Manufacturable, Extensio
     @override
     @classmethod
     async def new(
-        cls,
-        *,
-        services: ServiceLevel = universe,
-        configuration: GrampsConfiguration | None = None,
+        cls, services: ServiceLevel, configuration: GrampsConfiguration | None = None, /
     ) -> Self:
         return cls(configuration=configuration)
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-02-01 02:51+0000\n"
+"POT-Creation-Date: 2026-02-04 19:03+0000\n"
 "PO-Revision-Date: 2026-01-18 18:06+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: es_ES\n"
@@ -17,7 +17,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.17.0\n"
+"Generated-By: Babel 2.18.0\n"
 
 #, python-brace-format
 msgid "\"{color}\" is not a valid hexadecimal color, such as #ffc0cb."
@@ -2614,16 +2614,16 @@ msgid "{plugin_type} configuration"
 msgstr ""
 
 #, python-brace-format
-msgid "{subject} requires a project."
+msgid "{target} requires a project."
 msgstr ""
 
 #, python-brace-format
-msgid "{subject} requires a running app."
+msgid "{target} requires a running app."
 msgstr ""
 
 #, python-brace-format
 msgid ""
-"{subject} requires the {extension} extension. Enable it in your project "
+"{target} requires the {extension} extension. Enable it in your project "
 "configuration, and try again."
 msgstr ""
 

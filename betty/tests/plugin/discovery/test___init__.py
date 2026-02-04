@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Unpack
+from typing import TYPE_CHECKING
 
 import pytest
 from typing_extensions import TypeVar, override
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable, Set
 
     from betty.service.level import ServiceLevel
-    from betty.service.requirement import ServiceLevelKwargs
+
 
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
@@ -36,14 +36,14 @@ class _StaticDiscovery(PluginDiscovery[_PluginDefinitionT]):
 
     @override
     async def discover(
-        self, *, services: ServiceLevel
+        self, services: ServiceLevel, /
     ) -> Iterable[ResolvableDiscovery[_PluginDefinitionT]]:
         return self._discoveries
 
 
 class TestDiscoverer:
     async def _discover(self, sut: Discoverer):
-        return list(await sut.discover(services=universe))
+        return list(await sut.discover(universe))
 
     async def test_discover(self) -> None:
         sut = Discoverer([DummyPluginTwo])
@@ -78,11 +78,9 @@ class TestDiscoverer:
 
 def _new_static_discovery_sync(
     *discoveries: ResolvableDiscovery[DummyPluginDefinition],
-) -> Callable[
-    [Unpack[ServiceLevelKwargs]], Iterable[ResolvableDiscovery[DummyPluginDefinition]]
-]:
+) -> Callable[[ServiceLevel], Iterable[ResolvableDiscovery[DummyPluginDefinition]]]:
     def _static_discovery_sync(
-        *, services: ServiceLevel
+        services: ServiceLevel,
     ) -> Iterable[ResolvableDiscovery[DummyPluginDefinition]]:
         return discoveries
 
@@ -92,11 +90,11 @@ def _new_static_discovery_sync(
 def _new_static_discovery_async(
     *discoveries: ResolvableDiscovery[DummyPluginDefinition],
 ) -> Callable[
-    [Unpack[ServiceLevelKwargs]],
+    [ServiceLevel],
     Awaitable[Iterable[ResolvableDiscovery[DummyPluginDefinition]]],
 ]:
     async def _static_discovery_async(
-        *, services: ServiceLevel
+        services: ServiceLevel,
     ) -> Iterable[ResolvableDiscovery[DummyPluginDefinition]]:
         return discoveries
 
@@ -127,4 +125,4 @@ async def test_discover(
     expected: Set[DummyPluginDefinition],
     discoveries: Iterable[ResolvableDiscovery[DummyPluginDefinition]],
 ) -> None:
-    assert set(await discover(*discoveries, services=universe)) == expected
+    assert set(await discover(universe, *discoveries)) == expected

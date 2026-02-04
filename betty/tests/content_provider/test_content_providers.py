@@ -127,14 +127,14 @@ class TestNotes:
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            sut = await Notes.new(services=project)
+            sut = await Notes.new(project)
             assert await sut.provide(document=Document()) is None
 
     async def test_provide_template__without_notes(self, isolated_app: App) -> None:
         has_notes = DummyHasNotes()
         async with Project.new_isolated(isolated_app) as project, project:
             project.ancestry.add(has_notes)
-            sut = await Notes.new(services=project)
+            sut = await Notes.new(project)
             assert await sut.provide(document=Document(has_notes)) is None
 
     async def test_provide_template__with_notes(self, isolated_app: App) -> None:
@@ -142,7 +142,7 @@ class TestNotes:
         has_notes = DummyHasNotes(notes=[Note(note_text)])
         async with Project.new_isolated(isolated_app) as project, project:
             project.ancestry.add(has_notes)
-            sut = await Notes.new(services=project)
+            sut = await Notes.new(project)
             actual = await sut.provide(document=Document(has_notes))
             assert actual is not None
             assert note_text in actual
@@ -160,8 +160,8 @@ class TestBox:
     async def test_provide_template__minimal(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = await Box.new(
-                services=project,
-                configuration=BoxConfiguration(
+                project,
+                BoxConfiguration(
                     PluginConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE))  # ty:ignore[invalid-argument-type]
                 ),
             )
@@ -172,8 +172,8 @@ class TestBox:
     async def test_provide_template__full(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = await Box.new(
-                services=project,
-                configuration=BoxConfiguration(
+                project,
+                BoxConfiguration(
                     PluginConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE)),  # ty:ignore[invalid-argument-type]
                     min_height="MIN_HEIGHT",
                     max_height="MAX_HEIGHT",

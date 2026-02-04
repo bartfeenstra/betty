@@ -108,7 +108,7 @@ class Wiki(
     @classmethod
     @require_project
     async def new(
-        cls, *, project: Project, configuration: WikiConfiguration | None = None
+        cls, project: Project, configuration: WikiConfiguration | None = None, /
     ) -> Self:
         copyright_notices = await project.plugins.plugins(CopyrightNoticeDefinition)
         return cls(
