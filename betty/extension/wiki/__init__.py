@@ -89,14 +89,12 @@ class Wiki(
     def __init__(
         self,
         *,
-        configuration: WikiConfiguration | None = None,
         project: Project,
         wikipedia_contributors_copyright_notice: CopyrightNotice,
+        populate_images: bool = True,
     ):
         super().__init__(services=project)
-        self._configuration = (
-            WikiConfiguration() if configuration is None else configuration
-        )
+        self._populate_images = populate_images
         self._wikipedia_contributors_copyright_notice = (
             wikipedia_contributors_copyright_notice
         )
@@ -114,7 +112,9 @@ class Wiki(
     ) -> Self:
         copyright_notices = await project.plugins.plugins(CopyrightNoticeDefinition)
         return cls(
-            configuration=configuration,
+            populate_images=True
+            if configuration is None
+            else configuration.populate_images,
             project=project,
             wikipedia_contributors_copyright_notice=await project.new_target(
                 copyright_notices["wikipedia-contributors"].cls

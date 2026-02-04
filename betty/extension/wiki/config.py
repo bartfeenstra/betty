@@ -5,7 +5,8 @@ Configuration for the Wikipedia extension.
 from typing import final
 
 from betty.data import Data, Sample
-from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
+from betty.data.aggregate.record.object import ObjectDefinition
+from betty.data.aggregate.record.object.property import Property
 from betty.data.bool import BoolDefinition
 from betty.locale.localizable.gettext import _
 from betty.sample import Size
@@ -28,11 +29,7 @@ class WikiConfiguration(Data):
     .. data:: betty.extension.wiki.config:WikiConfiguration
     """
 
-    def __init__(self, *, populate_images: bool = True):
-        self._populate_images = populate_images
-
-    @property
-    @AttrDefinition(
+    populate_images = Property(
         BoolDefinition(
             label=_("Populate images"),
             description=_(
@@ -42,12 +39,9 @@ class WikiConfiguration(Data):
         omit_load=True,
         omit_dump=lambda data: data is True,
     )
-    def populate_images(self) -> bool:
-        """
-        Whether to populate entities with Wikimedia images after loading ancestries.
-        """
-        return self._populate_images
+    """
+    Whether to populate entities with Wikimedia images after loading ancestries.
+    """
 
-    @populate_images.setter
-    def populate_images(self, populate_images: bool) -> None:
-        self._populate_images = populate_images
+    def __init__(self, *, populate_images: bool = True):
+        self.populate_images = populate_images
