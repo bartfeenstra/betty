@@ -6,7 +6,7 @@ from typing import final
 
 from betty.data import Data, Sample
 from betty.data.aggregate.record.object import ObjectDefinition
-from betty.data.aggregate.record.object.property import Property
+from betty.data.aggregate.record.object.property import Optional, Property
 from betty.data.bool import BoolDefinition
 from betty.locale.localizable.gettext import _
 from betty.sample import Size
@@ -29,15 +29,17 @@ class WikiConfiguration(Data):
     .. data:: betty.extension.wiki.config:WikiConfiguration
     """
 
-    populate_images = Property(
-        BoolDefinition(
-            label=_("Populate images"),
-            description=_(
-                "Whether to download additional images found through Wikipedia links in the ancestry"
+    populate_images = Optional(
+        Property(
+            BoolDefinition(
+                label=_("Populate images"),
+                description=_(
+                    "Whether to download additional images found through Wikipedia links in the ancestry"
+                ),
             ),
-        ),
-        omit_load=True,
-        omit_dump=lambda data: data is True,
+            omit_load=True,
+            omit_dump=lambda data: data is True,
+        )
     )
     """
     Whether to populate entities with Wikimedia images after loading ancestries.
