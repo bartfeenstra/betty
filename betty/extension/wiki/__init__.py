@@ -91,10 +91,10 @@ class Wiki(
         *,
         project: Project,
         wikipedia_contributors_copyright_notice: CopyrightNotice,
-        populate_images: bool = True,
+        populate_images: bool | None = None,
     ):
         super().__init__(services=project)
-        self._populate_images = populate_images
+        self._populate_images = True if populate_images is None else populate_images
         self._wikipedia_contributors_copyright_notice = (
             wikipedia_contributors_copyright_notice
         )
@@ -112,7 +112,7 @@ class Wiki(
     ) -> Self:
         copyright_notices = await project.plugins.plugins(CopyrightNoticeDefinition)
         return cls(
-            populate_images=True
+            populate_images=None
             if configuration is None
             else configuration.populate_images,
             project=project,
