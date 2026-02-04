@@ -39,7 +39,7 @@ from betty.service.container import (
     StaticService,
     service,
 )
-from betty.service.level import Configurable, ServiceLevel, universe
+from betty.service.level import Configurable, ServiceLevel
 from betty.typing import threadsafe
 from betty.user.no_op import NoOpUser
 
@@ -106,7 +106,7 @@ class App(Configurable[AppConfiguration], ServiceLevel):
     @override
     @classmethod
     async def new(
-        cls, *, services: ServiceLevel = universe, configuration: AppConfiguration
+        cls, services: ServiceLevel, configuration: AppConfiguration, /
     ) -> Self:
         raise NotImplementedError(
             f"Creating a new {fully_qualified_name(cls)} from its configuration is not yet supported."
@@ -170,9 +170,7 @@ class App(Configurable[AppConfiguration], ServiceLevel):
     @override
     async def _post_bootstrap(self) -> None:
         self._user.localizer = await self.localizer
-        await self._configuration.data().hydrate(
-            services=self, data=self._configuration
-        )
+        await self._configuration.data().hydrate(self, self._configuration)
 
     @override
     async def shutdown(self, *, wait: bool = True) -> None:

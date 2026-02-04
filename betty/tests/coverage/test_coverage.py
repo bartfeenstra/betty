@@ -246,17 +246,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Manufacturable": MissingReason.ABSTRACT,
     },
     "betty/service/requirement/__init__.py": {
-        "ServiceLevelKwargs": MissingReason.TYPED_DICT,
+        "CallableRequirement": {
+            "__get__": MissingReason.COVERED_ELSEWHERE,
+        },
         "UnmetRequirement": MissingReason.STATIC_CONTENT_ONLY,
-    },
-    "betty/service/requirement/app.py": {
-        "RequireAppKwargs": MissingReason.TYPED_DICT,
-    },
-    "betty/service/requirement/extension.py": {
-        "RequireExtensionKwargs": MissingReason.TYPED_DICT,
-    },
-    "betty/service/requirement/project.py": {
-        "RequireProjectKwargs": MissingReason.TYPED_DICT,
     },
     "betty/data/__init__.py": {
         "Data": MissingReason.ABSTRACT,

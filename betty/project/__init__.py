@@ -96,9 +96,7 @@ class Project(Configurable[ProjectConfiguration], ServiceLevel):
 
     @override
     async def _post_bootstrap(self) -> None:
-        await self._configuration.data().hydrate(
-            services=self, data=self._configuration
-        )
+        await self._configuration.data().hydrate(self, self._configuration)
 
     @override
     @classmethod
@@ -108,7 +106,7 @@ class Project(Configurable[ProjectConfiguration], ServiceLevel):
     @override
     @classmethod
     async def new(
-        cls, *, services: ServiceLevel = universe, configuration: ProjectConfiguration
+        cls, services: ServiceLevel, configuration: ProjectConfiguration, /
     ) -> Self:
         raise NotImplementedError(
             f"Creating a new {fully_qualified_name(cls)} from its configuration is not yet supported."
@@ -310,7 +308,7 @@ class Project(Configurable[ProjectConfiguration], ServiceLevel):
         """
         from betty.jinja2 import Environment
 
-        return await Environment.new(services=self)
+        return await Environment.new(self)
 
     @service
     async def renderer(self) -> RenderDispatcher:

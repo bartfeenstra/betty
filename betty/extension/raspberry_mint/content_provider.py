@@ -68,6 +68,7 @@ from betty.presence_role import PresenceRoleDefinition
 from betty.privacy import is_public
 from betty.service.level import Configurable, Manufacturable
 from betty.service.requirement.extension import require_extension
+from betty.service.requirement.project import require_project
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.typing import private
 
@@ -81,6 +82,7 @@ if TYPE_CHECKING:
     from betty.model import Entity
     from betty.plugin import ResolvableId
     from betty.plugin.repository import PluginRepository
+    from betty.project import Project
 
 
 @final
@@ -181,11 +183,11 @@ class Section(Template, Configurable[SectionConfiguration]):
     @classmethod
     @require_extension(RaspberryMint)
     async def new(
-        cls, *, extension: RaspberryMint, configuration: SectionConfiguration
+        cls, raspberry_mint: RaspberryMint, configuration: SectionConfiguration, /
     ) -> Self:
         return cls(
             configuration=configuration,
-            jinja=await extension.services.jinja,
+            jinja=await raspberry_mint.services.jinja,
         )
 
     @override
@@ -224,7 +226,7 @@ class EntityCard(Template, Configurable[EntityReference]):
     @classmethod
     @require_extension(RaspberryMint)
     async def new(
-        cls, *, extension: RaspberryMint, configuration: EntityReference
+        cls, extension: RaspberryMint, configuration: EntityReference, /
     ) -> Self:
         return cls(
             ancestry=extension.services.ancestry,
@@ -254,8 +256,8 @@ class Families(Template, Manufacturable):
     @override
     @classmethod
     @require_extension(RaspberryMint)
-    async def new(cls, *, extension: RaspberryMint) -> Self:
-        return cls(jinja=await extension.services.jinja)
+    async def new(cls, raspberry_mint: RaspberryMint, /) -> Self:
+        return cls(jinja=await raspberry_mint.services.jinja)
 
     @override
     async def provide_template(
@@ -283,8 +285,8 @@ class Media(Template, Manufacturable):
     @override
     @classmethod
     @require_extension(RaspberryMint)
-    async def new(cls, *, extension: RaspberryMint) -> Self:
-        return cls(jinja=await extension.services.jinja)
+    async def new(cls, raspberry_mint: RaspberryMint, /) -> Self:
+        return cls(jinja=await raspberry_mint.services.jinja)
 
     @override
     async def provide_template(
@@ -311,9 +313,10 @@ class MediaGallery(Template, Manufacturable):
 
     @override
     @classmethod
-    @require_extension(RaspberryMint)
-    async def new(cls, *, extension: RaspberryMint) -> Self:
-        return cls(jinja=await extension.services.jinja)
+    @require_project
+    async def new(cls, project: Project, /) -> Self:
+        await require_extension(RaspberryMint, project)
+        return cls(jinja=await project.jinja)
 
     @override
     async def provide_template(
@@ -395,14 +398,12 @@ class ColorStyle(Template, Configurable[ColorStyleConfiguration]):
 
     @override
     @classmethod
-    @require_extension(RaspberryMint)
+    @require_project
     async def new(
-        cls, *, extension: RaspberryMint, configuration: ColorStyleConfiguration
+        cls, project: Project, configuration: ColorStyleConfiguration, /
     ) -> Self:
-        return cls(
-            configuration=configuration,
-            jinja=await extension.services.jinja,
-        )
+        await require_extension(RaspberryMint, project)
+        return cls(configuration=configuration, jinja=await project.jinja)
 
     @override
     async def provide_template(
@@ -425,8 +426,8 @@ class ExternalLinks(Template, Manufacturable):
     @override
     @classmethod
     @require_extension(RaspberryMint)
-    async def new(cls, *, extension: RaspberryMint) -> Self:
-        return cls(jinja=await extension.services.jinja)
+    async def new(cls, raspberry_mint: RaspberryMint, /) -> Self:
+        return cls(jinja=await raspberry_mint.services.jinja)
 
     @override
     async def provide_template(
@@ -454,10 +455,10 @@ class Timeline(Template, Manufacturable):
     @override
     @classmethod
     @require_extension(RaspberryMint)
-    async def new(cls, *, extension: RaspberryMint) -> Self:
+    async def new(cls, raspberry_mint: RaspberryMint, /) -> Self:
         return cls(
-            jinja=await extension.services.jinja,
-            lifetime_threshold=extension.services.configuration.lifetime_threshold,
+            jinja=await raspberry_mint.services.jinja,
+            lifetime_threshold=raspberry_mint.services.configuration.lifetime_threshold,
         )
 
     @override
@@ -493,8 +494,8 @@ class Facts(Template, Manufacturable):
     @override
     @classmethod
     @require_extension(RaspberryMint)
-    async def new(cls, *, extension: RaspberryMint) -> Self:
-        return cls(jinja=await extension.services.jinja)
+    async def new(cls, raspberry_mint: RaspberryMint, /) -> Self:
+        return cls(jinja=await raspberry_mint.services.jinja)
 
     @override
     async def provide_template(
@@ -610,12 +611,12 @@ class Presences(Template, Configurable[PresencesConfiguration]):
     @classmethod
     @require_extension(RaspberryMint)
     async def new(
-        cls, *, extension: RaspberryMint, configuration: PresencesConfiguration
+        cls, raspberry_mint: RaspberryMint, configuration: PresencesConfiguration, /
     ) -> Self:
         return cls(
             configuration=configuration,
-            jinja=await extension.services.jinja,
-            presence_roles=await extension.services.plugins.plugins(
+            jinja=await raspberry_mint.services.jinja,
+            presence_roles=await raspberry_mint.services.plugins.plugins(
                 PresenceRoleDefinition
             ),
         )
@@ -837,11 +838,11 @@ class Columns(Template, Configurable[ColumnsConfiguration]):
     @classmethod
     @require_extension(RaspberryMint)
     async def new(
-        cls, *, extension: RaspberryMint, configuration: ColumnsConfiguration
+        cls, raspberry_mint: RaspberryMint, configuration: ColumnsConfiguration, /
     ) -> Self:
         return cls(
             configuration=configuration,
-            jinja=await extension.services.jinja,
+            jinja=await raspberry_mint.services.jinja,
         )
 
     @override
@@ -869,8 +870,8 @@ class Enclosees(Template, Manufacturable):
     @override
     @classmethod
     @require_extension(RaspberryMint)
-    async def new(cls, *, extension: RaspberryMint) -> Self:
-        return cls(jinja=await extension.services.jinja)
+    async def new(cls, raspberry_mint: RaspberryMint, /) -> Self:
+        return cls(jinja=await raspberry_mint.services.jinja)
 
     @override
     async def provide_template(
@@ -899,8 +900,8 @@ class FileReferees(Template, Manufacturable):
     @override
     @classmethod
     @require_extension(RaspberryMint)
-    async def new(cls, *, extension: RaspberryMint) -> Self:
-        return cls(jinja=await extension.services.jinja)
+    async def new(cls, raspberry_mint: RaspberryMint, /) -> Self:
+        return cls(jinja=await raspberry_mint.services.jinja)
 
     @override
     async def provide_template(
@@ -924,8 +925,8 @@ class Citations(Template, Manufacturable):
     @override
     @classmethod
     @require_extension(RaspberryMint)
-    async def new(cls, *, extension: RaspberryMint) -> Self:
-        return cls(jinja=await extension.services.jinja)
+    async def new(cls, raspberry_mint: RaspberryMint, /) -> Self:
+        return cls(jinja=await raspberry_mint.services.jinja)
 
     @override
     async def provide_template(

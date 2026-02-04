@@ -17,7 +17,7 @@ class TestWikipediaSummary:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(Wiki)
             async with project:
-                sut = await WikipediaSummary.new(services=project)
+                sut = await WikipediaSummary.new(project)
                 assert await sut.provide(document=Document()) is None
 
     async def test_provide_template__with_has_links_resource(
@@ -34,7 +34,7 @@ class TestWikipediaSummary:
             project.configuration.extensions.add(Wiki)
             async with project:
                 project.ancestry.add(resource)
-                sut = await WikipediaSummary.new(services=project)
+                sut = await WikipediaSummary.new(project)
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
         assert url in actual

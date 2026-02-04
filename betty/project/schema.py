@@ -52,7 +52,7 @@ class ProjectSchema(Manufacturable, Schema):
     @override
     @classmethod
     @require_project
-    async def new(cls, *, project: Project) -> Self:
+    async def new(cls, project: Project, /) -> Self:
         schema = cls()
         schema._schema["$id"] = await cls.url(project)
 

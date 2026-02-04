@@ -52,7 +52,7 @@ class _ProjectUrlGenerator(Manufacturable):
     @override
     @classmethod
     @require_project
-    async def new(cls, *, project: Project) -> Self:
+    async def new(cls, project: Project, /) -> Self:
         """
         Create a new instance using the given project.
         """
@@ -147,13 +147,13 @@ async def new_project_url_generator(project: Project, /) -> UrlGenerator:
     """
     Generate URLs for all resources provided by a Betty project.
     """
-    entity_url_generator = await _EntityUrlGenerator.new(services=project)
+    entity_url_generator = await _EntityUrlGenerator.new(project)
     return ProxyUrlGenerator(
-        await _EntityTypeUrlGenerator.new(services=project),
+        await _EntityTypeUrlGenerator.new(project),
         entity_url_generator,
         _EntityUrlUrlGenerator(project.ancestry, entity_url_generator),
-        await _LocalizedPathUrlUrlGenerator.new(services=project),
-        await _StaticPathUrlUrlGenerator.new(services=project),
+        await _LocalizedPathUrlUrlGenerator.new(project),
+        await _StaticPathUrlUrlGenerator.new(project),
         PassthroughUrlGenerator(),
     )
 

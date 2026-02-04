@@ -23,7 +23,7 @@ class DummyPlugin(Plugin["DummyPluginDefinition"]):
     label_plural=" dummy plugin",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     discovery=[
-        lambda **_: [
+        lambda _: [
             DummyPluginOne,
             DummyPluginTwo,
             DummyPluginThree,

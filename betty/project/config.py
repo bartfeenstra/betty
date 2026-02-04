@@ -138,7 +138,7 @@ class EntityTypeConfiguration(
         self._generate_html_list = generate_html_list
 
     @override
-    async def hydrate(self, *, services: ServiceLevel) -> None:
+    async def hydrate(self, services: ServiceLevel, /) -> None:
         entity_type = (await services.plugins.plugins(EntityDefinition)).get(
             self._entity_type
         )

@@ -109,7 +109,7 @@ class TestPluginTypeDefinition:
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
             discovery=[DummyPluginTwo],
         )
-        assert list(await sut.discoverer.discover(services=universe)) == [
+        assert list(await sut.discoverer.discover(universe)) == [
             DummyPluginTwo.plugin()
         ]
 

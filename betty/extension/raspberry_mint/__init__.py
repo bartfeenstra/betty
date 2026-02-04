@@ -113,9 +113,9 @@ class RaspberryMint(
     @require_project
     async def new(
         cls,
-        *,
         project: Project,
         configuration: RaspberryMintConfiguration | None = None,
+        /,
     ) -> Self:
         return cls(configuration=configuration, project=project)
 

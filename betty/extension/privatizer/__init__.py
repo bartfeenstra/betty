@@ -79,7 +79,7 @@ class Privatizer(PostLoader, Manufacturable, Extension[Project]):
     @override
     @classmethod
     @require_project
-    async def new(cls, *, project: Project) -> Self:
+    async def new(cls, project: Project, /) -> Self:
         return cls(services=project)
 
     @override

@@ -94,7 +94,7 @@ class ServiceLevel(ServiceContainer):
         """
         if configuration is Void():
             if isinstance(target, type) and issubclass(target, Manufacturable):
-                return await target.new(services=self)
+                return await target.new(self)
             if callable(target):
                 return await resolve_await(target())
             raise RuntimeError(f"Cannot create a new instance of {target}")
@@ -106,10 +106,7 @@ class ServiceLevel(ServiceContainer):
             )
         if not isinstance(configuration, Data):
             configuration = target.configuration_cls().data().porter.load(configuration)
-        return await target.new(
-            services=self,
-            configuration=configuration,
-        )
+        return await target.new(self, configuration)
 
     @property
     def plugins(self) -> PluginManager:
@@ -132,7 +129,7 @@ class Manufacturable(ABC):
 
     @classmethod
     @abstractmethod
-    async def new(cls, *, services: ServiceLevel = universe) -> Self:
+    async def new(cls, services: ServiceLevel, /) -> Self:
         """
         Create a new instance using the given service level.
         """
@@ -150,9 +147,7 @@ class Configurable(ABC, Generic[_DataT]):
 
     @classmethod
     @abstractmethod
-    async def new(
-        cls, *, services: ServiceLevel = universe, configuration: _DataT
-    ) -> Self:
+    async def new(cls, services: ServiceLevel, configuration: _DataT, /) -> Self:
         """
         Create a new instance using the given service level and configuration.
         """

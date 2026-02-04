@@ -28,9 +28,7 @@ class TestSwaggerUi:
             project.configuration.extensions.add(HttpApiDoc)
             async with project:
                 await generate(project)
-                async with await serve.BuiltinProjectServer.new(
-                    services=project
-                ) as server:
+                async with await serve.BuiltinProjectServer.new(project) as server:
                     yield project, server
 
     @pytest.mark.asyncio(loop_scope="session")
