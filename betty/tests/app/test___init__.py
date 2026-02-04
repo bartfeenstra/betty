@@ -1,12 +1,22 @@
 from __future__ import annotations
 
-from typing import Self, override
+from json import dumps
+from typing import TYPE_CHECKING, Self, override
 
-from betty.app import App
+import aiofiles
+from babel import Locale
+
+from betty.app import App, AppConfiguration
 from betty.service.factory import Manufacturable
+from betty.service.level import UNIVERSE
 from betty.service.requirement.app import require_app
 from betty.test_utils.plugin import DummyPluginDefinition
 from betty.test_utils.user import StaticUser
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from pytest_mock import MockerFixture
 
 
 class _Manufacturable(Manufacturable):
@@ -21,11 +31,31 @@ class _Manufacturable(Manufacturable):
 
 
 class TestApp:
+    async def test_new(self) -> None:
+        locale = Locale("nl", "NL")
+        async with await App.new(UNIVERSE, AppConfiguration(locale=locale)) as sut:
+            localizer = await sut.localizer
+            assert localizer.locale == locale
+
+    async def test_new_from_environment__without_configuration_file(
+        self, mocker: MockerFixture, tmp_path: Path
+    ) -> None:
+        mocker.patch("betty.app.data.AppConfiguration.FILE", tmp_path / "app.json")
+        await App.new_from_environment()
+
+    async def test_new_from_environment__with_configuration_file(
+        self, mocker: MockerFixture, tmp_path: Path
+    ) -> None:
+        configuration_file = tmp_path / "app.json"
+        async with aiofiles.open(tmp_path / "app.json", mode="w") as f:
+            await f.write(dumps({"locale": "nl-NL"}))
+        mocker.patch("betty.app.data.AppConfiguration.FILE", configuration_file)
+        async with await App.new_from_environment() as sut:
+            localizer = await sut.localizer
+            assert localizer.locale == Locale("nl", "NL")
+
     async def test_plugins(self, isolated_app: App) -> None:
         await isolated_app.plugins.plugins(DummyPluginDefinition)
-
-    async def test_new_from_environment(self, isolated_app: App) -> None:
-        assert isolated_app.cache is isolated_app.cache
 
     async def test_bootstrap__should_set_user_localizer(
         self, isolated_app: App
