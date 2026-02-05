@@ -31,5 +31,8 @@ class IntDefinition(DataDefinition[int]):
             cls=int,
             label=label,
             description=description,
-            porter=CallbackPorter(assert_int(), passthrough),  # ty:ignore[invalid-argument-type]
+            porter=CallbackPorter(
+                assert_int(),  # ty:ignore[invalid-argument-type]
+                passthrough,
+            ),
         )

@@ -4,7 +4,7 @@ Test utilities for :py:mod:`betty.json.linked_data`.
 
 from __future__ import annotations
 
-from collections.abc import Awaitable, Callable, Mapping, Sequence
+from collections.abc import Awaitable, Callable, MutableMapping, MutableSequence
 from typing import TYPE_CHECKING
 
 from typing_extensions import TypeVar
@@ -71,13 +71,13 @@ async def assert_linked_data_dump(
 
 
 def _normalize(portable: _PortableDataT) -> _PortableDataT:
-    if isinstance(portable, Mapping):
+    if isinstance(portable, MutableMapping):
         return {
             key: _normalize(value)
             for key, value in portable.items()
             if not key.startswith("$")
         }  # ty:ignore[invalid-return-type]
-    if isinstance(portable, Sequence) and not isinstance(portable, str):
+    if isinstance(portable, MutableSequence) and not isinstance(portable, str):
         return list(
             map(
                 _normalize,
