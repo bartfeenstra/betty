@@ -107,7 +107,7 @@ class EntityCollection(ABC, Generic[_TargetT]):
                 yield entity
 
 
-_EntityCollectionT = TypeVar("_EntityCollectionT", bound=EntityCollection[_EntityT])
+_EntityCollectionT = TypeVar("_EntityCollectionT", bound=EntityCollection[Any])
 
 
 class SingleTypeEntityCollection(EntityCollection[_TargetT], Generic[_TargetT]):

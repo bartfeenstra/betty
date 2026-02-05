@@ -45,7 +45,7 @@ _T = TypeVar("_T")
 _EntityT = TypeVar("_EntityT", bound=Entity)
 _OwnerT = TypeVar("_OwnerT", bound=Entity)
 _AssociateT = TypeVar("_AssociateT", bound=Entity)
-_EntityCollectionT = TypeVar("_EntityCollectionT", bound=EntityCollection[_AssociateT])
+_EntityCollectionT = TypeVar("_EntityCollectionT", bound=EntityCollection[Any])
 
 
 async def _generate_associate_url(project: Project, associate: Entity, /) -> str | None:
@@ -392,24 +392,18 @@ class _ToManyAssociation(
         if isinstance(value, _Resolver):
             setattr(instance, self._internal_owner_attr_name, value)
         else:
-            self.__get__(instance, type(instance)).replace(
-                *value,  # ty:ignore[invalid-argument-type]
-            )
+            self.__get__(instance, type(instance)).replace(*value)
 
     def __delete__(self, instance: _OwnerT) -> None:
         self.__get__(instance, type(instance)).clear()
 
     @override
     def associate(self, owner: _OwnerT, associate: _AssociateT, /) -> None:
-        self.__get__(owner, type(owner)).add(
-            associate,  # ty:ignore[invalid-argument-type]
-        )
+        self.__get__(owner, type(owner)).add(associate)
 
     @override
     def disassociate(self, owner: _OwnerT, associate: _AssociateT, /) -> None:
-        self.__get__(owner, type(owner)).remove(
-            associate,  # ty:ignore[invalid-argument-type]
-        )
+        self.__get__(owner, type(owner)).remove(associate)
 
     @override
     def get_associates(self, owner: _OwnerT, /) -> Iterable[_AssociateT]:
@@ -566,7 +560,7 @@ class BidirectionalToOne(
 
 @final
 class BidirectionalToManySingleType(
-    _ToManyAssociation[_OwnerT, _AssociateT, SingleTypeEntityCollection[_AssociateT]],  # ty:ignore[invalid-type-arguments]
+    _ToManyAssociation[_OwnerT, _AssociateT, SingleTypeEntityCollection[_AssociateT]],
     _BidirectionalAssociation[_OwnerT, _AssociateT],
 ):
     r"""
@@ -583,7 +577,7 @@ class BidirectionalToManySingleType(
 @final
 class BidirectionalToManyMultipleTypes(
     _ToManyAssociation[
-        _OwnerT, _AssociateT, MultipleTypesEntityCollection[_AssociateT]  # ty:ignore[invalid-type-arguments]
+        _OwnerT, _AssociateT, MultipleTypesEntityCollection[_AssociateT]
     ],
     _BidirectionalAssociation[_OwnerT, _AssociateT],
 ):
@@ -631,7 +625,7 @@ class UnidirectionalToOne(_ToOneAssociation[_OwnerT, _AssociateT]):
 
 @final
 class UnidirectionalToManySingleType(
-    _ToManyAssociation[_OwnerT, _AssociateT, SingleTypeEntityCollection[_AssociateT]],  # ty:ignore[invalid-type-arguments]
+    _ToManyAssociation[_OwnerT, _AssociateT, SingleTypeEntityCollection[_AssociateT]]
 ):
     """
     A unidirectional to-many entity type association where all associates are of the same entity type.
@@ -647,7 +641,7 @@ class UnidirectionalToManySingleType(
 @final
 class UnidirectionalToManyMultipleTypes(
     _ToManyAssociation[
-        _OwnerT, _AssociateT, MultipleTypesEntityCollection[_AssociateT]  # ty:ignore[invalid-type-arguments]
+        _OwnerT, _AssociateT, MultipleTypesEntityCollection[_AssociateT]
     ],
 ):
     """
