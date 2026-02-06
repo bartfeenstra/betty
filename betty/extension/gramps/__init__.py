@@ -13,7 +13,7 @@ from betty.extension.gramps.config import GrampsConfiguration
 from betty.extension.gramps.jobs import LoadAncestry
 from betty.locale.localizable.gettext import _
 from betty.project.load import Loader
-from betty.service.level import Configurable, Manufacturable, ServiceLevel, universe
+from betty.service.level import UNIVERSE, Configurable, Manufacturable, ServiceLevel
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
@@ -299,7 +299,7 @@ class Gramps(Loader, Configurable[GrampsConfiguration], Manufacturable, Extensio
     """
 
     def __init__(self, *, configuration: GrampsConfiguration | None = None):
-        super().__init__(services=universe)
+        super().__init__(services=UNIVERSE)
         self._configuration = (
             GrampsConfiguration() if configuration is None else configuration
         )

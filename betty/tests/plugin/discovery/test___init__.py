@@ -12,7 +12,7 @@ from betty.plugin.discovery import (
     ResolvableDiscovery,
     discover,
 )
-from betty.service.level import universe
+from betty.service.level import UNIVERSE
 from betty.test_utils.plugin import (
     DummyPluginDefinition,
     DummyPluginOne,
@@ -43,7 +43,7 @@ class _StaticDiscovery(PluginDiscovery[_PluginDefinitionT]):
 
 class TestDiscoverer:
     async def _discover(self, sut: Discoverer):
-        return list(await sut.discover(universe))
+        return list(await sut.discover(UNIVERSE))
 
     async def test_discover(self) -> None:
         sut = Discoverer([DummyPluginTwo])
@@ -125,4 +125,4 @@ async def test_discover(
     expected: Set[DummyPluginDefinition],
     discoveries: Iterable[ResolvableDiscovery[DummyPluginDefinition]],
 ) -> None:
-    assert set(await discover(universe, *discoveries)) == expected
+    assert set(await discover(UNIVERSE, *discoveries)) == expected

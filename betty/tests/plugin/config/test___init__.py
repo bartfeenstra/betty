@@ -18,7 +18,7 @@ from betty.plugin.config import (
     resolve_plugin_configuration_mapping,
     resolve_plugin_configuration_sequence,
 )
-from betty.service.level import universe
+from betty.service.level import UNIVERSE
 from betty.test_utils.data import DummyData
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
@@ -291,7 +291,7 @@ class TestPluginConfiguration:
         sut = PluginConfiguration[
             ConfigurableDummyPluginDefinition, ConfigurableDummyPlugin
         ](ConfigurableDummyPluginOne.plugin(), configuration)
-        plugin = await sut.new_plugin(universe, ConfigurableDummyPluginDefinition)
+        plugin = await sut.new_plugin(UNIVERSE, ConfigurableDummyPluginDefinition)
         assert isinstance(plugin, ConfigurableDummyPluginOne)
         assert plugin.configuration is configuration
 

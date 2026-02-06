@@ -4,7 +4,7 @@ from betty.app import App
 from betty.exception import HumanFacingException
 from betty.extension import ExtensionDefinition
 from betty.project import Project
-from betty.service.level import universe
+from betty.service.level import UNIVERSE
 from betty.service.requirement.extension import require_extension
 from betty.test_utils.project.extension import DummyExtensionOne
 
@@ -19,7 +19,7 @@ async def test_require_extension__with_universe() -> None:
         ExtensionDefinition.type().discoverer.override(DummyExtensionOne),
         pytest.raises(HumanFacingException),
     ):
-        await _require_extension_target(universe)
+        await _require_extension_target(UNIVERSE)
 
 
 async def test_require_extension__with_app(isolated_app: App) -> None:

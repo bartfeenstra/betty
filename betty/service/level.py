@@ -41,7 +41,7 @@ class ServiceLevel(ServiceContainer):
 
        * - Level
          - Container(s)
-       * - :py:data:`betty.service.level.universe`
+       * - :py:data:`betty.service.level.UNIVERSE`
          - *N/A*
        * - :py:class:`betty.app.App`
          - :py:class:`betty.app.App`
@@ -116,7 +116,7 @@ class ServiceLevel(ServiceContainer):
         return self._plugins
 
 
-universe: Final[ServiceLevel] = ServiceLevel()
+UNIVERSE: Final[ServiceLevel] = ServiceLevel()
 """
 The universal service level.
 """
