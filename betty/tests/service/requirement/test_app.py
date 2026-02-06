@@ -3,7 +3,7 @@ import pytest
 from betty.app import App
 from betty.exception import HumanFacingException
 from betty.project import Project
-from betty.service.level import universe
+from betty.service.level import UNIVERSE
 from betty.service.requirement.app import require_app
 
 
@@ -14,7 +14,7 @@ def _require_app_target(app: App, /) -> App:
 
 async def test_require_app__with_universe() -> None:
     with pytest.raises(HumanFacingException):
-        await _require_app_target(universe)
+        await _require_app_target(UNIVERSE)
 
 
 async def test_require_app__with_app(isolated_app: App) -> None:

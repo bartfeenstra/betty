@@ -14,7 +14,7 @@ from betty.project.config import (
     LocaleConfiguration,
     ProjectConfiguration,
 )
-from betty.service.level import universe
+from betty.service.level import UNIVERSE
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.model import DummyEntityOne, DummyNonPublicFacingEntityOne
 
@@ -86,7 +86,7 @@ class TestEntityTypeConfiguration(DataTestBase[EntityTypeConfiguration]):
             EntityDefinition.type().discoverer.override(DummyNonPublicFacingEntityOne),
             pytest.raises(HumanFacingException),
         ):
-            await sut.hydrate(universe)
+            await sut.hydrate(UNIVERSE)
 
 
 class TestProjectConfiguration(DataTestBase[ProjectConfiguration]):

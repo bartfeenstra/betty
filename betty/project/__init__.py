@@ -39,7 +39,7 @@ from betty.project.config import ProjectConfiguration
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.serde import SerializerDefinition, serializer_for
 from betty.service.container import service
-from betty.service.level import Configurable, ServiceLevel, universe
+from betty.service.level import UNIVERSE, Configurable, ServiceLevel
 from betty.typing import internal
 
 if TYPE_CHECKING:
@@ -177,7 +177,7 @@ class Project(Configurable[ProjectConfiguration], ServiceLevel):
         if configuration_file == self._configuration_file:
             return
         serializer_for(
-            list(await universe.plugins.plugins(SerializerDefinition)),
+            list(await UNIVERSE.plugins.plugins(SerializerDefinition)),
             configuration_file.suffix,
         )
         self._configuration_file = configuration_file

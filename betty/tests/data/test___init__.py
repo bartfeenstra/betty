@@ -13,7 +13,7 @@ from betty.portable import CallbackPorter, OptionalPorter, Portable, PortableDat
 from betty.portable.error import NotPortable
 from betty.sample import Samplable, Samples
 from betty.service.hydrate import Hydratable
-from betty.service.level import universe
+from betty.service.level import UNIVERSE
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 if TYPE_CHECKING:
@@ -114,7 +114,7 @@ class TestDataDefinition:
 
     async def test_hydrate(self) -> None:
         sut = DataDefinition(cls=object, label=DUMMY_LOCALIZABLE)
-        await sut.hydrate(universe, object())
+        await sut.hydrate(UNIVERSE, object())
 
 
 class TestOptionalDefinition:
@@ -134,10 +134,10 @@ class TestOptionalDefinition:
             DataDefinition(cls=_DummyData, label=DUMMY_LOCALIZABLE)
         )
         with pytest.raises(HumanFacingException):
-            await sut.hydrate(universe, _DummyData("Hello, world!"))
+            await sut.hydrate(UNIVERSE, _DummyData("Hello, world!"))
 
     async def test_hydrate__with_none(self) -> None:
         sut = OptionalDefinition(
             DataDefinition(cls=_DummyData, label=DUMMY_LOCALIZABLE)
         )
-        await sut.hydrate(universe, None)
+        await sut.hydrate(UNIVERSE, None)

@@ -8,7 +8,7 @@ from betty.exception import HumanFacingException
 from betty.model import EntityDefinition
 from betty.model.reference import EntityReference
 from betty.project import Project
-from betty.service.level import universe
+from betty.service.level import UNIVERSE
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.model import DummyEntityOne
 
@@ -35,7 +35,7 @@ class TestEntityReference(DataTestBase[EntityReference]):
             EntityDefinition.type().discoverer.override(DummyEntityOne),
             pytest.raises(HumanFacingException),
         ):
-            await sut.hydrate(universe)
+            await sut.hydrate(UNIVERSE)
 
     async def test_hydrate__with_unknown_entity_type(self, isolated_app: App) -> None:
         sut = EntityReference(DummyEntityOne, "unknown-entity")

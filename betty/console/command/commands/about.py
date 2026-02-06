@@ -14,7 +14,7 @@ from betty.console.project import add_project_argument
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _
 from betty.rich.user import RichUser
-from betty.service.level import Manufacturable, universe
+from betty.service.level import UNIVERSE, Manufacturable
 from betty.service.requirement.app import require_app
 
 if TYPE_CHECKING:
@@ -95,7 +95,7 @@ class About(Manufacturable, Command):
         about_plugins.add_column(user.localizer._("ID"))
         about_plugins.add_column(user.localizer._("Label"))
         for plugin_type in sorted(
-            universe.plugins.types,
+            UNIVERSE.plugins.types,
             key=lambda plugin_type: plugin_type.type().label.localize(user.localizer),
         ):
             repository = await services.plugins.plugins(plugin_type)

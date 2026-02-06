@@ -8,7 +8,7 @@ from betty.data.aggregate import AggregateDefinition
 from betty.data.indicator.selector import Key
 from betty.exception import HumanFacingException
 from betty.service.hydrate import Hydratable
-from betty.service.level import ServiceLevel, universe
+from betty.service.level import UNIVERSE, ServiceLevel
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
@@ -39,5 +39,5 @@ class TestAggregateDefinition:
 
         sut = _Sut()
         with pytest.raises(HumanFacingException) as exc_info:
-            await sut.hydrate(universe, {"key": _AggregateDefinitionTestData()})
+            await sut.hydrate(UNIVERSE, {"key": _AggregateDefinitionTestData()})
         assert exc_info.value.indicators == [Key("key")]

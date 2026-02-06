@@ -4,7 +4,7 @@ from importlib.metadata import EntryPoint, EntryPoints
 from typing import TYPE_CHECKING
 
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
-from betty.service.level import universe
+from betty.service.level import UNIVERSE
 from betty.test_utils.plugin import DummyPluginOne, DummyPluginTwo
 
 if TYPE_CHECKING:
@@ -32,7 +32,7 @@ class TestEntryPointDiscovery:
             ),
         )
         sut = EntryPointDiscovery(entry_point_group)
-        plugins = await sut.discover(universe)
+        plugins = await sut.discover(UNIVERSE)
         assert DummyPluginOne in plugins
         assert DummyPluginTwo in plugins
         m_entry_points.assert_called_once_with(group=entry_point_group)
