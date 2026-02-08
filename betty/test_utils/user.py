@@ -37,7 +37,6 @@ class StaticUser(User):  # pragma: no cover
     ):
         self._confirmations = iter([] if confirmations is None else confirmations)
         self._inputs = iter([] if inputs is None else inputs)
-        self.connected = False
         self._messages_exception: MutableSequence[BaseException] = []
         self._messages_error: MutableSequence[ResolvableLocalizable] = []
         self._messages_warning: MutableSequence[ResolvableLocalizable] = []
@@ -50,14 +49,6 @@ class StaticUser(User):  # pragma: no cover
     @override
     async def set_verbosity(self, verbosity: Verbosity, /) -> None:
         self.verbosity = verbosity
-
-    @override
-    async def connect(self) -> None:
-        self.connected = True
-
-    @override
-    async def disconnect(self) -> None:
-        self.connected = False
 
     def _format_fragments(self, fragments: str | Iterable[str]) -> str:
         if isinstance(fragments, str):

@@ -20,15 +20,6 @@ class TestNoOpUser:
         sut = NoOpUser()
         await sut.set_verbosity(verbosity)
 
-    async def test_connect__and_disconnect(self) -> None:
-        sut = NoOpUser()
-        await sut.connect()
-        await sut.disconnect()
-
-    async def test___aenter___and___aexit__(self) -> None:
-        async with NoOpUser():
-            pass
-
     async def test_message_exception(self) -> None:
         sut = NoOpUser()
         await sut.message_exception()

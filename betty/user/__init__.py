@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from enum import IntEnum
-from typing import TYPE_CHECKING, Self, TypeVar, final, overload
+from typing import TYPE_CHECKING, TypeVar, overload
 
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.typing import Void
@@ -14,7 +14,6 @@ from betty.typing import Void
 if TYPE_CHECKING:
     import logging
     from contextlib import AbstractAsyncContextManager
-    from types import TracebackType
 
     from betty.assertion import Assertion
     from betty.locale.localizable import ResolvableLocalizable
@@ -74,32 +73,6 @@ class User(ABC):
     """
 
     localizer: Localizer = DEFAULT_LOCALIZER
-
-    async def connect(self) -> None:
-        """
-        Connect to the current user.
-        """
-        return
-
-    async def disconnect(self) -> None:
-        """
-        Disconnect from the current user.
-        """
-        return
-
-    @final
-    async def __aenter__(self) -> Self:
-        await self.connect()
-        return self
-
-    @final
-    async def __aexit__(
-        self,
-        exc_type: type[BaseException] | None,
-        exc_val: BaseException | None,
-        exc_tb: TracebackType | None,
-    ) -> None:
-        await self.disconnect()
 
     @property
     @abstractmethod

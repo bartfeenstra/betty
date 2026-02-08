@@ -22,6 +22,7 @@ from betty.dirs import CACHE_DIRECTORY_PATH
 from betty.http_client import ClientErrorToUserMessageMiddleware
 from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
 from betty.importlib import fully_qualified_name
+from betty.life_cycle import LifeCycle
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localize import Localizer, LocalizerRepository
 from betty.locale.translation import (
@@ -85,8 +86,14 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel):
 
         cls = type(self)
         super().__init__()
+        self.life_cycle.on_bootstrap(self._bootstrap_localizer)
+        self.life_cycle.on_bootstrap(
+            lambda: self._configuration.data().hydrate(self, self._configuration)
+        )
         self._configuration = configuration
         self._user = user or RichUser()
+        if isinstance(self._user, LifeCycle):
+            self.life_cycle.attach(self._user)
         if process_pool is not None:
             cls.process_pool.override(self, process_pool)
         if translations is not None:
@@ -96,6 +103,9 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel):
             self,
             cache_factory,  # ty:ignore[invalid-argument-type]
         )
+
+    async def _bootstrap_localizer(self) -> None:
+        self._user.localizer = await self.localizer
 
     @override
     @classmethod
@@ -160,20 +170,6 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel):
                 else translations,
             )
 
-    @override
-    async def _bootstrap(self) -> None:
-        await self._user.connect()
-
-    @override
-    async def _post_bootstrap(self) -> None:
-        self._user.localizer = await self.localizer
-        await self._configuration.data().hydrate(self, self._configuration)
-
-    @override
-    async def shutdown(self, *, wait: bool = True) -> None:
-        await self._user.disconnect()
-        await super().shutdown(wait=wait)
-
     @property
     def user(self) -> User:
         """
@@ -237,10 +233,7 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel):
             ],
         )
 
-        async def _shutdown(wait: bool) -> None:
-            await http_client.close()
-
-        self._shutdown_stack.append(_shutdown)
+        self.life_cycle.on_shutdown(lambda wait: http_client.close())
 
         return http_client
 
@@ -268,9 +261,7 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel):
         Use this to run CPU/computationally-heavy tasks in other processes.
         """
         process_pool = ProcessPoolExecutor()
-
-        async def _shutdown(wait: bool) -> None:
-            process_pool.shutdown(wait, cancel_futures=not wait)
-
-        self._shutdown_stack.append(_shutdown)
+        self.life_cycle.on_shutdown(
+            lambda wait: process_pool.shutdown(wait, cancel_futures=not wait)
+        )
         return process_pool

@@ -4,11 +4,10 @@ Service containers.
 
 from __future__ import annotations
 
-from _warnings import warn
 from abc import abstractmethod
 from collections.abc import Awaitable, Callable
 from functools import update_wrapper
-from inspect import getmembers, iscoroutinefunction
+from inspect import iscoroutinefunction
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -18,20 +17,18 @@ from typing import (
     TypeAlias,
     TypeVar,
     cast,
-    final,
     overload,
 )
 
 from typing_extensions import override
 
 from betty.concurrent import AsynchronizedLock, Lock
+from betty.life_cycle.manage import ManagedLifeCycle
 from betty.service import ServiceError
-from betty.service.bootstrap import Bootstrapped, Shutdownable, ShutdownStack
-from betty.typing import Void, internal, public
+from betty.typing import Void, internal
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-    from types import FunctionType, TracebackType
+    from types import FunctionType
 
     from ty_extensions import Intersection
 
@@ -39,105 +36,37 @@ if TYPE_CHECKING:
 _T = TypeVar("_T")
 _ServiceT = TypeVar("_ServiceT")
 _ServiceGetT = TypeVar("_ServiceGetT")
+_ManagedLifeCycleT = TypeVar("_ManagedLifeCycleT", bound=ManagedLifeCycle)
 
 
-@internal
-class ServiceContainer(Bootstrapped, Shutdownable):
-    """
-    A service container.
-
-    Service containers make up a running Betty 'application'. They can provide services through
-    :py:func:`betty.service.container.service`, and manage their resources by being bootstrapped and shut down.
-    """
-
-    def __init__(self, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
-        self._shutdown_stack = ShutdownStack()
-
-    @public
-    async def bootstrap(self) -> None:
-        """
-        Bootstrap the component.
-        """
-        self.assert_not_bootstrapped()
-        self._bootstrapped = True
-        await self._bootstrap()
-        await self._post_bootstrap()
-
-    async def _bootstrap(self) -> None:
-        pass
-
-    async def _post_bootstrap(self) -> None:
-        pass
-
-    @classmethod
-    def _service_managers(cls) -> Iterable[ServiceManager[Self, Any, Any]]:
-        for _, value in getmembers(cls):
-            if isinstance(value, ServiceManager):
-                yield value
-
-    @public
-    @override
-    async def shutdown(self, *, wait: bool = True) -> None:
-        self.assert_bootstrapped()
-        self._bootstrapped = False
-        await self._shutdown(wait=wait)
-
-    async def _shutdown(self, *, wait: bool = True) -> None:
-        await self._shutdown_stack.shutdown(wait=wait)
-
-    def __del__(self) -> None:
-        if self.bootstrapped:
-            warn(f"{self} was bootstrapped, but never shut down.", stacklevel=2)
-
-    @public
-    @final
-    async def __aenter__(self) -> Self:
-        await self.bootstrap()
-        return self
-
-    @public
-    @final
-    async def __aexit__(
-        self,
-        exc_type: type[BaseException] | None,
-        exc_val: BaseException | None,
-        exc_tb: TracebackType | None,
-    ) -> None:
-        await self.shutdown(wait=exc_val is None)
-
-
-_ServiceContainerT = TypeVar("_ServiceContainerT", bound=ServiceContainer)
-
-
-ServiceFactory: TypeAlias = Callable[[_ServiceContainerT], _ServiceT]
+ServiceFactory: TypeAlias = Callable[[_ManagedLifeCycleT], _ServiceT]
 
 
 class _ServiceDecorator(Protocol):
     @overload
     def __call__(
-        self, factory: Callable[[_ServiceContainerT], _ServiceT], /
-    ) -> _SynchronousServiceManager[_ServiceContainerT, _ServiceT]:
+        self, factory: Callable[[_ManagedLifeCycleT], _ServiceT], /
+    ) -> _SynchronousServiceManager[_ManagedLifeCycleT, _ServiceT]:
         pass
 
     @overload
     def __call__(
-        self, factory: Callable[[_ServiceContainerT], Awaitable[_ServiceT]], /
-    ) -> _AsynchronousServiceManager[_ServiceContainerT, _ServiceT]:
+        self, factory: Callable[[_ManagedLifeCycleT], Awaitable[_ServiceT]], /
+    ) -> _AsynchronousServiceManager[_ManagedLifeCycleT, _ServiceT]:
         pass
 
 
 @overload
 def service(
-    factory: Callable[[_ServiceContainerT], Awaitable[_ServiceT]], /
-) -> _AsynchronousServiceManager[_ServiceContainerT, _ServiceT]:
+    factory: Callable[[_ManagedLifeCycleT], Awaitable[_ServiceT]], /
+) -> _AsynchronousServiceManager[_ManagedLifeCycleT, _ServiceT]:
     pass
 
 
 @overload
 def service(
-    factory: Callable[[_ServiceContainerT], _ServiceT], /
-) -> _SynchronousServiceManager[_ServiceContainerT, _ServiceT]:
+    factory: Callable[[_ManagedLifeCycleT], _ServiceT], /
+) -> _SynchronousServiceManager[_ManagedLifeCycleT, _ServiceT]:
     pass
 
 
@@ -157,8 +86,8 @@ def service(factory):
     """
 
     def _service(
-        factory: Callable[[_ServiceContainerT], _ServiceGetT], /
-    ) -> ServiceManager[_ServiceContainerT, _ServiceGetT, Any]:
+        factory: Callable[[_ManagedLifeCycleT], _ServiceGetT], /
+    ) -> ServiceManager[_ManagedLifeCycleT, _ServiceGetT, Any]:
         if iscoroutinefunction(factory):
             return _AsynchronousServiceManager(
                 factory,  # ty:ignore[invalid-argument-type]
@@ -173,7 +102,7 @@ def service(factory):
 
 
 @internal
-class StaticService(Generic[_ServiceContainerT, _ServiceT]):
+class StaticService(Generic[_ManagedLifeCycleT, _ServiceT]):
     """
     A service factory that returns a static, predefined service.
     """
@@ -181,7 +110,7 @@ class StaticService(Generic[_ServiceContainerT, _ServiceT]):
     def __init__(self, service: _ServiceT, /):
         self._service = service
 
-    def __call__(self, services: _ServiceContainerT, /) -> _ServiceT:
+    def __call__(self, services: _ManagedLifeCycleT, /) -> _ServiceT:
         """
         Return the service.
         """
@@ -189,7 +118,7 @@ class StaticService(Generic[_ServiceContainerT, _ServiceT]):
 
 
 @internal
-class ServiceManager(Generic[_ServiceContainerT, _ServiceGetT, _ServiceT]):
+class ServiceManager(Generic[_ManagedLifeCycleT, _ServiceGetT, _ServiceT]):
     """
     Manages a single service for a service container.
     """
@@ -197,7 +126,7 @@ class ServiceManager(Generic[_ServiceContainerT, _ServiceGetT, _ServiceT]):
     def __init__(
         self,
         factory: Intersection[
-            ServiceFactory[_ServiceContainerT, _ServiceGetT], FunctionType
+            ServiceFactory[_ManagedLifeCycleT, _ServiceGetT], FunctionType
         ],
         /,
     ):
@@ -219,56 +148,56 @@ class ServiceManager(Generic[_ServiceContainerT, _ServiceGetT, _ServiceT]):
         return self._service_name
 
     @overload
-    def __get__(self, instance: None, owner: type[_ServiceContainerT]) -> Self:
+    def __get__(self, instance: None, owner: type[_ManagedLifeCycleT]) -> Self:
         pass
 
     @overload
     def __get__(
-        self, instance: _ServiceContainerT, owner: type[_ServiceContainerT]
+        self, instance: _ManagedLifeCycleT, owner: type[_ManagedLifeCycleT]
     ) -> _ServiceGetT:
         pass
 
     def __get__(
-        self, instance: _ServiceContainerT | None, owner: type[_ServiceContainerT]
+        self, instance: _ManagedLifeCycleT | None, owner: type[_ManagedLifeCycleT]
     ) -> _ServiceGetT | Self:
         if instance is None:
             return self
 
         return self.get(instance)
 
-    def get(self, instance: _ServiceContainerT, /) -> _ServiceGetT:
+    def get(self, instance: _ManagedLifeCycleT, /) -> _ServiceGetT:
         """
         Get the service from an instance.
         """
-        instance.assert_bootstrapped()
+        instance.assert_alive()
 
         return self._get(instance)
 
     @abstractmethod
-    def _get(self, instance: _ServiceContainerT, /) -> _ServiceGetT:
+    def _get(self, instance: _ManagedLifeCycleT, /) -> _ServiceGetT:
         pass
 
-    def _get_attr(self, instance: _ServiceContainerT, /) -> _ServiceT | Void:
+    def _get_attr(self, instance: _ManagedLifeCycleT, /) -> _ServiceT | Void:
         return getattr(instance, self._service_attr_name, Void())
 
     def _get_factory(
-        self, instance: _ServiceContainerT, /
-    ) -> ServiceFactory[_ServiceContainerT, _ServiceGetT]:
+        self, instance: _ManagedLifeCycleT, /
+    ) -> ServiceFactory[_ManagedLifeCycleT, _ServiceGetT]:
         factory = cast(
-            "ServiceFactory[_ServiceContainerT, _ServiceGetT] | None",
+            "ServiceFactory[_ManagedLifeCycleT, _ServiceGetT] | None",
             getattr(instance, self._factory_override_attr_name, None),
         )
         if factory is not None:
             return factory
         return self._factory
 
-    def _assert_not_initialized(self, instance: _ServiceContainerT, /):
+    def _assert_not_initialized(self, instance: _ManagedLifeCycleT, /):
         if not isinstance(self._get_attr(instance), Void):
             raise ServiceInitializedError(
                 f"{instance}.{self._service_name} was initialized already."
             )
 
-    def override(self, instance: _ServiceContainerT, service: _ServiceT, /) -> None:
+    def override(self, instance: _ManagedLifeCycleT, service: _ServiceT, /) -> None:
         """
         Override the service for the given instance.
 
@@ -282,8 +211,8 @@ class ServiceManager(Generic[_ServiceContainerT, _ServiceGetT, _ServiceT]):
 
     def override_factory(
         self,
-        instance: _ServiceContainerT,
-        factory: ServiceFactory[_ServiceContainerT, _ServiceGetT],
+        instance: _ManagedLifeCycleT,
+        factory: ServiceFactory[_ManagedLifeCycleT, _ServiceGetT],
         /,
     ) -> None:
         """
@@ -297,10 +226,10 @@ class ServiceManager(Generic[_ServiceContainerT, _ServiceGetT, _ServiceT]):
 
 
 class _AsynchronousServiceManager(
-    Generic[_ServiceContainerT, _ServiceT],
-    ServiceManager[_ServiceContainerT, Awaitable[_ServiceT], _ServiceT],
+    Generic[_ManagedLifeCycleT, _ServiceT],
+    ServiceManager[_ManagedLifeCycleT, Awaitable[_ServiceT], _ServiceT],
 ):
-    def _lock(self, instance: _ServiceContainerT, /) -> Lock:
+    def _lock(self, instance: _ManagedLifeCycleT, /) -> Lock:
         lock_attr_name = f"_{self._service_attr_name}_lock"
         try:
             return cast(Lock, getattr(instance, lock_attr_name))
@@ -310,7 +239,7 @@ class _AsynchronousServiceManager(
             return lock
 
     @override
-    async def _get(self, instance: _ServiceContainerT, /) -> _ServiceT:
+    async def _get(self, instance: _ManagedLifeCycleT, /) -> _ServiceT:
         async with self._lock(instance):
             service = self._get_attr(instance)
 
@@ -323,11 +252,11 @@ class _AsynchronousServiceManager(
 
 
 class _SynchronousServiceManager(
-    Generic[_ServiceContainerT, _ServiceT],
-    ServiceManager[_ServiceContainerT, _ServiceT, _ServiceT],
+    Generic[_ManagedLifeCycleT, _ServiceT],
+    ServiceManager[_ManagedLifeCycleT, _ServiceT, _ServiceT],
 ):
     @override
-    def _get(self, instance: _ServiceContainerT, /) -> _ServiceT:
+    def _get(self, instance: _ManagedLifeCycleT, /) -> _ServiceT:
         service = self._get_attr(instance)
         if not isinstance(service, Void):
             return service

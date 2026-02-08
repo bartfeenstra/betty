@@ -89,14 +89,13 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel):
         ancestry: Ancestry | None = None,
     ):
         super().__init__()
+        self.life_cycle.on_bootstrap(
+            lambda: self._configuration.data().hydrate(self, self._configuration)
+        )
         self._app = app
         self._configuration = configuration
         self._configuration_file = configuration_file
         self._ancestry = Ancestry() if ancestry is None else ancestry
-
-    @override
-    async def _post_bootstrap(self) -> None:
-        await self._configuration.data().hydrate(self, self._configuration)
 
     @override
     @classmethod
@@ -149,17 +148,6 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel):
                 else configuration,
                 ancestry=ancestry,
             )
-
-    @override
-    async def _bootstrap(self) -> None:
-        try:
-            for project_extension_batch in await self.extensions:
-                for project_extension in project_extension_batch:
-                    await project_extension.bootstrap()
-                    self._shutdown_stack.append(project_extension)
-        except BaseException:
-            await self.shutdown()
-            raise
 
     @property
     def configuration_file(self) -> Path:
@@ -356,8 +344,10 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel):
                     ].new_plugin(self, ExtensionDefinition)
                 else:
                     extension = await self.new_target(enabled_extension_definition.cls)
+                await extension.bootstrap()
                 enabled_extension_batch.append(extension)
                 extensions_sorter.done(enabled_extension_id)
+            self.life_cycle.attach(*enabled_extension_batch)
             enabled_extensions.append(
                 sorted(
                     enabled_extension_batch,

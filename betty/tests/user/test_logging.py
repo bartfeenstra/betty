@@ -32,9 +32,6 @@ class TestUserHandler:
         message = "Hello, world!"
         sut = UserHandler(user)
         logger.addHandler(sut)
-        await sut.start()
-        try:
+        async with sut:
             logger.log(log_level, message)
-        finally:
-            await sut.stop()
         user.assert_message_log(message)
