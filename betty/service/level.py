@@ -13,9 +13,9 @@ from betty.asyncio import resolve_await
 from betty.data import Data
 from betty.exception import HumanFacingException
 from betty.importlib import fully_qualified_name
+from betty.life_cycle.manage import ManagedLifeCycle
 from betty.locale.localizable.gettext import _
 from betty.plugin.manager.service import ServiceLevelPluginManager
-from betty.service.container import ServiceContainer
 from betty.typing import Void
 
 if TYPE_CHECKING:
@@ -28,7 +28,7 @@ _T = TypeVar("_T")
 _DataT = TypeVar("_DataT", bound=Data)
 
 
-class ServiceLevel(ServiceContainer):
+class ServiceLevel(ManagedLifeCycle):
     """
     A service level.
 

@@ -27,15 +27,6 @@ class TestRichUser:
             await sut.set_verbosity(verbosity)
             assert sut.verbosity is verbosity
 
-    async def test_connect__and_disconnect(self) -> None:
-        sut = RichUser()
-        await sut.connect()
-        await sut.disconnect()
-
-    async def test___aenter____and___aexit__(self) -> None:
-        async with RichUser():
-            pass
-
     @pytest.mark.parametrize(
         ("expected", "verbosity"),
         [

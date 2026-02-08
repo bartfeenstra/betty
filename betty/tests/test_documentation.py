@@ -117,14 +117,18 @@ class TestDocumentationSphinxReferences:
         await _assert_sphinx_references(file_path, documentation, subtests)
 
 
+def _normalize_sphinx_ref(ref: str) -> str:
+    return ref.lstrip("~")
+
+
 def _sphinx_refs(source: str, ref_tag: str) -> Iterator[tuple[str, str]]:
     for match in re.finditer(
         f"(:{ref_tag}:`[^`]+?<([^`]+?)>`)|(:{ref_tag}:`([^`]+?)`)", source
     ):
         if match.group(1) is None:
-            yield match.group(3), match.group(4)
+            yield match.group(3), _normalize_sphinx_ref(match.group(4))
         else:
-            yield match.group(1), match.group(2)
+            yield match.group(1), _normalize_sphinx_ref(match.group(2))
 
 
 async def _assert_sphinx_references(

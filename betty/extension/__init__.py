@@ -7,11 +7,11 @@ from typing import TYPE_CHECKING, Generic, final
 from typing_extensions import TypeVar
 
 from betty.definition.human_facing import HumanFacingDefinition
+from betty.life_cycle.manage import ManagedLifeCycle
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition, ResolvableId
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
-from betty.service.container import ServiceContainer
 from betty.service.level import ServiceLevel
 from betty.typing import private
 
@@ -29,7 +29,7 @@ _ServiceLevelCoT = TypeVar(
 
 
 class Extension(
-    ServiceContainer, Plugin["ExtensionDefinition"], Generic[_ServiceLevelCoT]
+    ManagedLifeCycle, Plugin["ExtensionDefinition"], Generic[_ServiceLevelCoT]
 ):
     """
     Integrate custom services with a :py:class:`service level <betty.service.level.ServiceLevel>`.

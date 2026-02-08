@@ -222,19 +222,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/service/__init__.py": {
         "ServiceError": MissingReason.ABSTRACT,
     },
-    "betty/service/bootstrap.py": {
-        "BootstrappedError": MissingReason.ABSTRACT,
-        "NotBootstrappedError": MissingReason.ABSTRACT,
-        "Shutdownable": MissingReason.ABSTRACT,
-        "ShutdownCallbackKwargs": MissingReason.TYPED_DICT,
-        "ShutdownStack": {
-            "append": MissingReason.COVERED_ELSEWHERE,
-        },
-    },
     "betty/service/container.py": {
-        "ServiceContainer": {
-            "new_target": MissingReason.ABSTRACT,
-        },
         "ServiceInitializedError": MissingReason.ABSTRACT,
     },
     "betty/service/hydrate.py": {
@@ -380,6 +368,13 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Schema": {
             "validate": MissingReason.SHOULD_BE_COVERED,
         },
+    },
+    "betty/life_cycle/__init__.py": {
+        "AlreadyBootstrapped": MissingReason.STATIC_CONTENT_ONLY,
+        "AlreadyShutDown": MissingReason.STATIC_CONTENT_ONLY,
+        "LifeCycleError": MissingReason.STATIC_CONTENT_ONLY,
+        "NotYetBootstrapped": MissingReason.STATIC_CONTENT_ONLY,
+        "ShutdownerKwargs": MissingReason.TYPED_DICT,
     },
     "betty/link.py": MissingReason.ABSTRACT,
     "betty/locale/babel.py": {
