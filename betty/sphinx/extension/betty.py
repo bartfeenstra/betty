@@ -27,7 +27,7 @@ from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.project import Project
 from betty.serde import SerializerDefinition
-from betty.service.level import UNIVERSE, Configurable
+from betty.service.level import UNIVERSE, DataManufacturable
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -144,8 +144,8 @@ class _PluginDirective(SphinxDirective):
         self, plugin: PluginDefinition, plugins: PluginRepository[PluginDefinition]
     ) -> list[nodes.Node]:
         cls = plugin.cls
-        if issubclass(cls, Configurable):
-            configuration_content = f":py:class:`{cls.configuration_cls().__name__} <{cls.configuration_cls().__module__}.{cls.configuration_cls().__qualname__}>`"
+        if issubclass(cls, DataManufacturable):
+            configuration_content = f":py:class:`{cls.new_data_cls().__name__} <{cls.new_data_cls().__module__}.{cls.new_data_cls().__qualname__}>`"
         else:
             configuration_content = "*not configurable*"
         content = f"""

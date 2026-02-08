@@ -19,7 +19,7 @@ from betty.locale.localizable.gettext import _
 from betty.project import Project
 from betty.project.load import PostLoader
 from betty.service.container import service
-from betty.service.level import Configurable, Manufacturable
+from betty.service.level import DataManufacturable, Manufacturable
 from betty.service.requirement.project import require_project
 from betty.typing import private
 from betty.wiki import NotAPageError, parse_page_url
@@ -49,7 +49,7 @@ if TYPE_CHECKING:
 )
 class Wiki(
     PostLoader,
-    Configurable[WikiConfiguration],
+    DataManufacturable[WikiConfiguration],
     Manufacturable,
     Jinja2Provider,
     Extension[Project],
@@ -101,20 +101,18 @@ class Wiki(
 
     @override
     @classmethod
-    def configuration_cls(cls) -> type[WikiConfiguration]:
+    def new_data_cls(cls) -> type[WikiConfiguration]:
         return WikiConfiguration
 
     @override
     @classmethod
     @require_project
     async def new(
-        cls, project: Project, configuration: WikiConfiguration | None = None, /
+        cls, project: Project, data: WikiConfiguration | None = None, /
     ) -> Self:
         copyright_notices = await project.plugins.plugins(CopyrightNoticeDefinition)
         return cls(
-            populate_images=None
-            if configuration is None
-            else configuration.populate_images,
+            populate_images=None if data is None else data.populate_images,
             project=project,
             wikipedia_contributors_copyright_notice=await project.new_target(
                 copyright_notices["wikipedia-contributors"].cls

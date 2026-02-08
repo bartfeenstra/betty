@@ -25,7 +25,7 @@ from betty.test_utils.locale.localizable import (
     DUMMY_LOCALIZABLE,
 )
 from betty.test_utils.plugin import DummyPlugin, DummyPluginDefinition, DummyPluginOne
-from betty.test_utils.service.level import DummyConfigurable
+from betty.test_utils.service.level import DummyDataManufacturable
 from betty.typing import Void
 
 if TYPE_CHECKING:
@@ -36,27 +36,29 @@ _PluginDefinitionT = TypeVar(
 )
 
 
-class _ConfigurableDummyPlugin(
-    DummyConfigurable, Plugin["_ConfigurableDummyPluginDefinition"]
+class _DataManufacturableDummyPlugin(
+    DummyDataManufacturable, Plugin["_DataManufacturableDummyPluginDefinition"]
 ):
     pass
 
 
 @final
 @PluginTypeDefinition(
-    "configurable-dummy-plugin",
-    label="Configurable dummy plugin",
-    label_plural="Configurable dummy plugins",
+    "data-manufacturable-dummy-plugin",
+    label="DataManufacturable dummy plugin",
+    label_plural="DataManufacturable dummy plugins",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    discovery=[lambda _: [_ConfigurableDummyPluginOne]],
+    discovery=[lambda _: [_DataManufacturableDummyPluginOne]],
 )
-class _ConfigurableDummyPluginDefinition(PluginDefinition[_ConfigurableDummyPlugin]):
+class _DataManufacturableDummyPluginDefinition(
+    PluginDefinition[_DataManufacturableDummyPlugin]
+):
     pass
 
 
 @final
-@_ConfigurableDummyPluginDefinition("configurable-dummy-plugin-one")
-class _ConfigurableDummyPluginOne(_ConfigurableDummyPlugin):
+@_DataManufacturableDummyPluginDefinition("data-manufacturable-dummy-plugin-one")
+class _DataManufacturableDummyPluginOne(_DataManufacturableDummyPlugin):
     pass
 
 
@@ -182,15 +184,15 @@ class TestPluginConfiguration:
     def test_configuration__with_configuration(self) -> None:
         configuration = DummyData()
         sut = PluginConfiguration[
-            _ConfigurableDummyPluginDefinition, _ConfigurableDummyPlugin
-        ](_ConfigurableDummyPluginOne.plugin(), configuration)
+            _DataManufacturableDummyPluginDefinition, _DataManufacturableDummyPlugin
+        ](_DataManufacturableDummyPluginOne.plugin(), configuration)
         assert sut.configuration is configuration
 
     def test_configuration__with_portable_configuration(self) -> None:
         configuration = DummyData.data().porter.dump(DummyData())
         sut = PluginConfiguration[
-            _ConfigurableDummyPluginDefinition, _ConfigurableDummyPlugin
-        ](_ConfigurableDummyPluginOne.plugin(), configuration)
+            _DataManufacturableDummyPluginDefinition, _DataManufacturableDummyPlugin
+        ](_DataManufacturableDummyPluginOne.plugin(), configuration)
         assert sut.configuration == sut.configuration
         assert sut.configuration == configuration
 
@@ -217,14 +219,14 @@ class TestPluginConfiguration:
             "check": True,
         }
         sut = PluginConfiguration[
-            _ConfigurableDummyPluginDefinition, _ConfigurableDummyPlugin
+            _DataManufacturableDummyPluginDefinition, _DataManufacturableDummyPlugin
         ].load(
             {
-                "id": _ConfigurableDummyPluginOne.plugin().id,
+                "id": _DataManufacturableDummyPluginOne.plugin().id,
                 "configuration": configuration,
             }
         )
-        assert sut.id == _ConfigurableDummyPluginOne.plugin().id
+        assert sut.id == _DataManufacturableDummyPluginOne.plugin().id
         assert sut.configuration == configuration
 
     def test_load_key(self) -> None:
@@ -239,28 +241,28 @@ class TestPluginConfiguration:
             "check": True,
         }
         sut = PluginConfiguration[
-            _ConfigurableDummyPluginDefinition, _ConfigurableDummyPlugin
+            _DataManufacturableDummyPluginDefinition, _DataManufacturableDummyPlugin
         ].load_key(
             {"configuration": configuration},
             Attr("id"),
-            _ConfigurableDummyPluginOne.plugin().id,
+            _DataManufacturableDummyPluginOne.plugin().id,
         )
-        assert sut.id == _ConfigurableDummyPluginOne.plugin().id
+        assert sut.id == _DataManufacturableDummyPluginOne.plugin().id
         assert sut.configuration == configuration
 
     def test_dump__minimal(self) -> None:
-        sut = PluginConfiguration[_ConfigurableDummyPluginDefinition, DummyPlugin](
-            _ConfigurableDummyPluginOne.plugin()
-        )
-        assert sut.dump() == _ConfigurableDummyPluginOne.plugin().id
+        sut = PluginConfiguration[
+            _DataManufacturableDummyPluginDefinition, DummyPlugin
+        ](_DataManufacturableDummyPluginOne.plugin())
+        assert sut.dump() == _DataManufacturableDummyPluginOne.plugin().id
 
     def test_dump__with_configuration(self) -> None:
         value = "Hello, world!"
         sut = PluginConfiguration[
-            _ConfigurableDummyPluginDefinition, _ConfigurableDummyPlugin
-        ](_ConfigurableDummyPluginOne.plugin(), DummyData(value))
+            _DataManufacturableDummyPluginDefinition, _DataManufacturableDummyPlugin
+        ](_DataManufacturableDummyPluginOne.plugin(), DummyData(value))
         assert sut.dump() == {
-            "id": _ConfigurableDummyPluginOne.plugin().id,
+            "id": _DataManufacturableDummyPluginOne.plugin().id,
             "configuration": {
                 "value": value,
             },
@@ -271,26 +273,29 @@ class TestPluginConfiguration:
             "value": "Hello, world!",
         }
         sut = PluginConfiguration[
-            _ConfigurableDummyPluginDefinition, _ConfigurableDummyPlugin
-        ](_ConfigurableDummyPluginOne.plugin(), portable_configuration)
+            _DataManufacturableDummyPluginDefinition, _DataManufacturableDummyPlugin
+        ](_DataManufacturableDummyPluginOne.plugin(), portable_configuration)
         assert sut.dump() == {
-            "id": _ConfigurableDummyPluginOne.plugin().id,
+            "id": _DataManufacturableDummyPluginOne.plugin().id,
             "configuration": portable_configuration,
         }
 
     def test_dump_key__minimal(self) -> None:
-        sut = PluginConfiguration[_ConfigurableDummyPluginDefinition, DummyPlugin](
-            _ConfigurableDummyPluginOne.plugin()
+        sut = PluginConfiguration[
+            _DataManufacturableDummyPluginDefinition, DummyPlugin
+        ](_DataManufacturableDummyPluginOne.plugin())
+        assert sut.dump_key(Attr("id")) == (
+            _DataManufacturableDummyPluginOne.plugin().id,
+            {},
         )
-        assert sut.dump_key(Attr("id")) == (_ConfigurableDummyPluginOne.plugin().id, {})
 
     def test_dump_key__with_configuration(self) -> None:
         value = "Hello, world!"
-        sut = PluginConfiguration[_ConfigurableDummyPluginDefinition, DummyPlugin](
-            _ConfigurableDummyPluginOne.plugin(), DummyData(value)
-        )
+        sut = PluginConfiguration[
+            _DataManufacturableDummyPluginDefinition, DummyPlugin
+        ](_DataManufacturableDummyPluginOne.plugin(), DummyData(value))
         assert sut.dump_key(Attr("id")) == (
-            _ConfigurableDummyPluginOne.plugin().id,
+            _DataManufacturableDummyPluginOne.plugin().id,
             {
                 "configuration": {
                     "value": value,
@@ -302,21 +307,23 @@ class TestPluginConfiguration:
         portable_configuration = {
             "value": "Hello, world!",
         }
-        sut = PluginConfiguration[_ConfigurableDummyPluginDefinition, DummyPlugin](
-            _ConfigurableDummyPluginOne.plugin(), portable_configuration
-        )
+        sut = PluginConfiguration[
+            _DataManufacturableDummyPluginDefinition, DummyPlugin
+        ](_DataManufacturableDummyPluginOne.plugin(), portable_configuration)
         assert sut.dump_key(Attr("id")) == (
-            _ConfigurableDummyPluginOne.plugin().id,
+            _DataManufacturableDummyPluginOne.plugin().id,
             {"configuration": portable_configuration},
         )
 
     async def test_new_plugin(self) -> None:
         configuration = DummyData()
         sut = PluginConfiguration[
-            _ConfigurableDummyPluginDefinition, _ConfigurableDummyPlugin
-        ](_ConfigurableDummyPluginOne.plugin(), configuration)
-        plugin = await sut.new_plugin(UNIVERSE, _ConfigurableDummyPluginDefinition)
-        assert isinstance(plugin, _ConfigurableDummyPluginOne)
+            _DataManufacturableDummyPluginDefinition, _DataManufacturableDummyPlugin
+        ](_DataManufacturableDummyPluginOne.plugin(), configuration)
+        plugin = await sut.new_plugin(
+            UNIVERSE, _DataManufacturableDummyPluginDefinition
+        )
+        assert isinstance(plugin, _DataManufacturableDummyPluginOne)
         assert plugin.configuration is configuration
 
 

@@ -66,7 +66,7 @@ from betty.plugin.data import PluginConfigurationSequenceDefinition, PluginIdDef
 from betty.portable import CallbackPorter
 from betty.presence_role import PresenceRoleDefinition
 from betty.privacy import is_public
-from betty.service.level import Configurable, Manufacturable
+from betty.service.level import DataManufacturable, Manufacturable
 from betty.service.requirement.extension import require_extension
 from betty.service.requirement.project import require_project
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
@@ -159,7 +159,7 @@ class SectionConfiguration(Data):
 
 
 @ContentProviderDefinition("raspberry-mint-section", label=_("Section"))
-class Section(Template, Configurable[SectionConfiguration]):
+class Section(Template, DataManufacturable[SectionConfiguration]):
     """
     .. plugin:: content-provider:raspberry-mint-section.
     """
@@ -176,17 +176,17 @@ class Section(Template, Configurable[SectionConfiguration]):
 
     @override
     @classmethod
-    def configuration_cls(cls) -> type[SectionConfiguration]:
+    def new_data_cls(cls) -> type[SectionConfiguration]:
         return SectionConfiguration
 
     @override
     @classmethod
     @require_extension(RaspberryMint)
     async def new(
-        cls, raspberry_mint: RaspberryMint, configuration: SectionConfiguration, /
+        cls, raspberry_mint: RaspberryMint, data: SectionConfiguration, /
     ) -> Self:
         return cls(
-            configuration=configuration,
+            configuration=data,
             jinja=await raspberry_mint.services.jinja,
         )
 
@@ -203,7 +203,7 @@ class Section(Template, Configurable[SectionConfiguration]):
 
 
 @ContentProviderDefinition("raspberry-mint-entity-card", label=_("Entity card"))
-class EntityCard(Template, Configurable[EntityReference]):
+class EntityCard(Template, DataManufacturable[EntityReference]):
     """
     A card featuring an entity.
 
@@ -219,18 +219,16 @@ class EntityCard(Template, Configurable[EntityReference]):
 
     @override
     @classmethod
-    def configuration_cls(cls) -> type[EntityReference]:
+    def new_data_cls(cls) -> type[EntityReference]:
         return EntityReference
 
     @override
     @classmethod
     @require_extension(RaspberryMint)
-    async def new(
-        cls, extension: RaspberryMint, configuration: EntityReference, /
-    ) -> Self:
+    async def new(cls, extension: RaspberryMint, data: EntityReference, /) -> Self:
         return cls(
             ancestry=extension.services.ancestry,
-            entity=configuration,
+            entity=data,
             jinja=await extension.services.jinja,
         )
 
@@ -374,7 +372,7 @@ class ColorStyleConfiguration(Data):
 
 
 @ContentProviderDefinition("raspberry-mint-color-style", label=_("Color style"))
-class ColorStyle(Template, Configurable[ColorStyleConfiguration]):
+class ColorStyle(Template, DataManufacturable[ColorStyleConfiguration]):
     """
     Change the color style for all containing content.
 
@@ -393,17 +391,15 @@ class ColorStyle(Template, Configurable[ColorStyleConfiguration]):
 
     @override
     @classmethod
-    def configuration_cls(cls) -> type[ColorStyleConfiguration]:
+    def new_data_cls(cls) -> type[ColorStyleConfiguration]:
         return ColorStyleConfiguration
 
     @override
     @classmethod
     @require_project
-    async def new(
-        cls, project: Project, configuration: ColorStyleConfiguration, /
-    ) -> Self:
+    async def new(cls, project: Project, data: ColorStyleConfiguration, /) -> Self:
         await require_extension(RaspberryMint, project)
-        return cls(configuration=configuration, jinja=await project.jinja)
+        return cls(configuration=data, jinja=await project.jinja)
 
     @override
     async def provide_template(
@@ -581,7 +577,7 @@ class PresencesConfiguration(Data):
 
 
 @ContentProviderDefinition("raspberry-mint-presences", label=_("Presences"))
-class Presences(Template, Configurable[PresencesConfiguration]):
+class Presences(Template, DataManufacturable[PresencesConfiguration]):
     """
     People's presences at an event.
 
@@ -604,17 +600,17 @@ class Presences(Template, Configurable[PresencesConfiguration]):
 
     @override
     @classmethod
-    def configuration_cls(cls) -> type[PresencesConfiguration]:
+    def new_data_cls(cls) -> type[PresencesConfiguration]:
         return PresencesConfiguration
 
     @override
     @classmethod
     @require_extension(RaspberryMint)
     async def new(
-        cls, raspberry_mint: RaspberryMint, configuration: PresencesConfiguration, /
+        cls, raspberry_mint: RaspberryMint, data: PresencesConfiguration, /
     ) -> Self:
         return cls(
-            configuration=configuration,
+            configuration=data,
             jinja=await raspberry_mint.services.jinja,
             presence_roles=await raspberry_mint.services.plugins.plugins(
                 PresenceRoleDefinition
@@ -818,7 +814,7 @@ class ColumnsConfiguration(Data):
 
 
 @ContentProviderDefinition("raspberry-mint-columns", label=_("Columns"))
-class Columns(Template, Configurable[ColumnsConfiguration]):
+class Columns(Template, DataManufacturable[ColumnsConfiguration]):
     """
     A container with one or more columns.
 
@@ -831,17 +827,17 @@ class Columns(Template, Configurable[ColumnsConfiguration]):
 
     @override
     @classmethod
-    def configuration_cls(cls) -> type[ColumnsConfiguration]:
+    def new_data_cls(cls) -> type[ColumnsConfiguration]:
         return ColumnsConfiguration
 
     @override
     @classmethod
     @require_extension(RaspberryMint)
     async def new(
-        cls, raspberry_mint: RaspberryMint, configuration: ColumnsConfiguration, /
+        cls, raspberry_mint: RaspberryMint, data: ColumnsConfiguration, /
     ) -> Self:
         return cls(
-            configuration=configuration,
+            configuration=data,
             jinja=await raspberry_mint.services.jinja,
         )
 

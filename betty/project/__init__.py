@@ -39,7 +39,7 @@ from betty.project.data import ProjectConfiguration
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.serde import SerializerDefinition, serializer_for
 from betty.service.container import service
-from betty.service.level import UNIVERSE, Configurable, ServiceLevel
+from betty.service.level import UNIVERSE, DataManufacturable, ServiceLevel
 from betty.typing import internal
 
 if TYPE_CHECKING:
@@ -65,7 +65,7 @@ _PluginDefinitionT = TypeVar(
 
 
 @final
-class Project(Configurable[ProjectConfiguration], ServiceLevel):
+class Project(DataManufacturable[ProjectConfiguration], ServiceLevel):
     """
     Define a Betty project.
 
@@ -100,14 +100,12 @@ class Project(Configurable[ProjectConfiguration], ServiceLevel):
 
     @override
     @classmethod
-    def configuration_cls(cls) -> type[ProjectConfiguration]:
+    def new_data_cls(cls) -> type[ProjectConfiguration]:
         return ProjectConfiguration
 
     @override
     @classmethod
-    async def new(
-        cls, services: ServiceLevel, configuration: ProjectConfiguration, /
-    ) -> Self:
+    async def new(cls, services: ServiceLevel, data: ProjectConfiguration, /) -> Self:
         raise NotImplementedError(
             f"Creating a new {fully_qualified_name(cls)} from its configuration is not yet supported."
         )
