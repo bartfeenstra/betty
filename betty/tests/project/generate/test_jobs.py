@@ -22,7 +22,7 @@ from betty.openapi.schema import SpecificationSchema
 from betty.presence_role.presence_roles import Unknown as UnknownPresenceRole
 from betty.privacy import Privacy
 from betty.project import Project
-from betty.project.config import EntityTypeConfiguration, LocaleConfiguration
+from betty.project.data import EntityTypeConfiguration, ProjectLocale
 from betty.project.generate.jobs import (
     GenerateEntitiesHtml,
     GenerateEntitiesJson,
@@ -243,11 +243,11 @@ class TestGenerateStaticPublicAssets:
     async def test_do(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.locales = [
-                LocaleConfiguration(
+                ProjectLocale(
                     "nl-NL",
                     alias="nl",
                 ),
-                LocaleConfiguration(
+                ProjectLocale(
                     "en-US",
                     alias="en",
                 ),
@@ -269,11 +269,11 @@ class TestGenerateLocalizedPublicAssets:
     async def test_do(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.locales = [
-                LocaleConfiguration(
+                ProjectLocale(
                     "nl-NL",
                     alias="nl",
                 ),
-                LocaleConfiguration(
+                ProjectLocale(
                     "en-US",
                     alias="en",
                 ),

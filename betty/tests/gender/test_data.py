@@ -1,19 +1,19 @@
 from __future__ import annotations
 
+from betty.gender.data import GenderDefinitionConfiguration
 from betty.locale.localizable.plain import Plain
-from betty.place_type.config import PlaceTypeDefinitionConfiguration
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
 )
 
 
-class TestPlaceTypeDefinitionConfiguration:
+class TestGenderDefinitionConfiguration:
     def test_new_plugin__minimal(self) -> None:
-        plugin_id = "my-first-place-type"
+        plugin_id = "my-first-gender"
         label = Plain("-")
         label_plural = Plain("-")
-        sut = PlaceTypeDefinitionConfiguration(
+        sut = GenderDefinitionConfiguration(
             id=plugin_id,
             label=label,
             label_plural=label_plural,
@@ -27,8 +27,8 @@ class TestPlaceTypeDefinitionConfiguration:
 
     def test_new_plugin__full(self) -> None:
         description = Plain("-")
-        sut = PlaceTypeDefinitionConfiguration(
-            id="my-first-place-type",
+        sut = GenderDefinitionConfiguration(
+            id="my-first-gender",
             label=DUMMY_LOCALIZABLE,
             label_plural=DUMMY_LOCALIZABLE,
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,

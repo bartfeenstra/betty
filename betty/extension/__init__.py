@@ -65,7 +65,7 @@ class ExtensionDefinition(HumanFacingDefinition, DependentPluginDefinition[Exten
 
     Some extensions are configurable. That means that other than enabling them, you can set the configuration options
     that determine how the extension should work. This can be done in your project's
-    :py:class:`configuration <betty.project.config.ProjectConfiguration>`.
+    :py:class:`configuration <betty.project.data.ProjectConfiguration>`.
     """
 
     def __init__(

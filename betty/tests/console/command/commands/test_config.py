@@ -4,7 +4,7 @@ from babel import Locale
 from pytest_mock import MockerFixture
 
 from betty.app import App
-from betty.app.config import AppConfiguration
+from betty.app.data import AppConfiguration
 from betty.portable.file import assert_load_file
 from betty.test_utils.console import run
 
@@ -15,7 +15,7 @@ class TestConfig:
     ) -> None:
         configuration_file_path = tmp_path / "app.json"
         mocker.patch(
-            "betty.app.config.CONFIGURATION_FILE_PATH",
+            "betty.app.data.AppConfiguration.FILE",
             new=configuration_file_path,
         )
 

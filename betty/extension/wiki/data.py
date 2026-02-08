@@ -1,5 +1,5 @@
 """
-Configuration for the Wikipedia extension.
+Data for the Wikipedia extension.
 """
 
 from typing import final
@@ -26,7 +26,7 @@ class WikiConfiguration(Data):
     """
     Configuration for the :py:class:`betty.extension.wiki.Wiki` extension.
 
-    .. data:: betty.extension.wiki.config:WikiConfiguration
+    .. data:: betty.extension.wiki.data:WikiConfiguration
     """
 
     populate_images = Optional(

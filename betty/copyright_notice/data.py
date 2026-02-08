@@ -40,7 +40,7 @@ class CopyrightNoticeDefinitionConfiguration(
     """
     Configure a :py:class:`betty.copyright_notice.CopyrightNoticeDefinition`.
 
-    .. data:: betty.project.config:CopyrightNoticeDefinitionConfiguration
+    .. data:: betty.project.data:CopyrightNoticeDefinitionConfiguration
     """
 
     summary = LocalizableProperty(label=_("Summary"))

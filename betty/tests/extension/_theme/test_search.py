@@ -15,7 +15,7 @@ from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.privacy import Privacy
 from betty.project import Project
-from betty.project.config import LocaleConfiguration
+from betty.project.data import ProjectLocale
 
 
 class TestIndex:
@@ -24,7 +24,7 @@ class TestIndex:
             project.configuration.extensions.add(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.add(
-                LocaleConfiguration(
+                ProjectLocale(
                     "nl-NL",
                     alias="nl",
                 )
@@ -42,7 +42,7 @@ class TestIndex:
             project.configuration.extensions.add(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.add(
-                LocaleConfiguration(
+                ProjectLocale(
                     "nl-NL",
                     alias="nl",
                 )
@@ -69,7 +69,7 @@ class TestIndex:
             project.configuration.extensions.add(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.add(
-                LocaleConfiguration(
+                ProjectLocale(
                     "nl-NL",
                     alias="nl",
                 )
@@ -102,7 +102,7 @@ class TestIndex:
             project.configuration.extensions.add(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.add(
-                LocaleConfiguration(
+                ProjectLocale(
                     "nl-NL",
                     alias="nl",
                 )
@@ -137,7 +137,7 @@ class TestIndex:
             project.configuration.extensions.add(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.add(
-                LocaleConfiguration(
+                ProjectLocale(
                     "nl-NL",
                     alias="nl",
                 )
@@ -178,7 +178,7 @@ class TestIndex:
             project.configuration.extensions.add(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.add(
-                LocaleConfiguration(
+                ProjectLocale(
                     "nl-NL",
                     alias="nl",
                 )
@@ -232,7 +232,7 @@ class TestIndex:
             project.configuration.extensions.add(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.add(
-                LocaleConfiguration(
+                ProjectLocale(
                     "nl-NL",
                     alias="nl",
                 )
@@ -344,7 +344,7 @@ class TestIndex:
             project.configuration.extensions.add(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.add(
-                LocaleConfiguration(
+                ProjectLocale(
                     "nl-NL",
                     alias="nl",
                 )

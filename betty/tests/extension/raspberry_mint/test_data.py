@@ -7,7 +7,7 @@ import pytest
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.exception import HumanFacingException
 from betty.extension.raspberry_mint import RaspberryMint
-from betty.extension.raspberry_mint.config import (
+from betty.extension.raspberry_mint.data import (
     RaspberryMintConfiguration,
     ResolvableRegionalContent,
 )

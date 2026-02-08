@@ -25,7 +25,7 @@ from betty.model import persistent_id
 from betty.presence_role.presence_roles import Subject
 from betty.presence_role.presence_roles import Unknown as UnknownPresenceRole
 from betty.privacy import Privacy
-from betty.project.config import DEFAULT_LIFETIME_THRESHOLD
+from betty.project.data import DEFAULT_LIFETIME_THRESHOLD
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 
 if TYPE_CHECKING:

@@ -1,4 +1,4 @@
-from betty.extension.raspberry_mint.config.default import regional_content
+from betty.extension.raspberry_mint.default import regional_content
 from betty.locale.localize import DEFAULT_LOCALIZER
 
 

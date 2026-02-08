@@ -11,7 +11,7 @@ from betty.media_type import MediaType
 from betty.media_type.media_types import HTML, JSON
 from betty.model import EntityDefinition
 from betty.project import Project
-from betty.project.config import LocaleConfiguration
+from betty.project.data import ProjectLocale
 from betty.project.url import (
     _EntityUrlGenerator,
     _EntityUrlUrlGenerator,
@@ -182,7 +182,7 @@ class Test_LocalizedPathUrlUrlGenerator:
         async with Project.new_isolated(isolated_app) as project:
             if additional_project_locale:
                 project.configuration.locales.add(
-                    LocaleConfiguration(additional_project_locale)
+                    ProjectLocale(additional_project_locale)
                 )
             async with project:
                 sut = await _LocalizedPathUrlUrlGenerator.new(project)
@@ -386,7 +386,7 @@ async def test_new_project_url_generator__generate(
         async with Project.new_isolated(isolated_app) as project:
             if additional_project_locale:
                 project.configuration.locales.add(
-                    LocaleConfiguration(additional_project_locale)
+                    ProjectLocale(additional_project_locale)
                 )
             project.configuration.clean_urls = clean_urls
             async with project:

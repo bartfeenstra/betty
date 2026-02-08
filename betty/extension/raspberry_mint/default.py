@@ -1,5 +1,5 @@
 """
-Configuration for the Raspberry Mint extension.
+Defaults for the Raspberry Mint extension.
 """
 
 from __future__ import annotations
@@ -39,7 +39,7 @@ from betty.presence_role.presence_roles import Subject, Witness
 if TYPE_CHECKING:
     from collections.abc import Collection
 
-    from betty.extension.raspberry_mint.config import ResolvableRegionalContent
+    from betty.extension.raspberry_mint.data import ResolvableRegionalContent
     from betty.locale.localizable import Localizable
     from betty.locale.localize import Localizer
 

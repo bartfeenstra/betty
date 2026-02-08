@@ -1,5 +1,5 @@
 """
-Configuration for the :py:class:`betty.extension.gramps.Gramps` extension.
+Data for the :py:class:`betty.extension.gramps.Gramps` extension.
 """
 
 from __future__ import annotations
@@ -90,20 +90,18 @@ class _PluginMappingProperty(
 
 @final
 @ObjectDefinition(
-    label=_("Family tree configuration"),
+    label=_("Family tree"),
     samples=[
         lambda: Sample(
-            FamilyTreeConfiguration(name="my-gramps-family-tree"),
-            label="Minimal",
-            size=Size.MINIMAL,
+            FamilyTree(name="my-gramps-family-tree"), label="Minimal", size=Size.MINIMAL
         )
     ],
 )
-class FamilyTreeConfiguration(Data):
+class FamilyTree(Data):
     """
-    Configure a single Gramps family tree.
+    A Gramps family tree.
 
-    .. data:: betty.extension.gramps.config:FamilyTreeConfiguration
+    .. data:: betty.extension.gramps.data:FamilyTree
     """
 
     event_types = _PluginMappingProperty(
@@ -199,7 +197,7 @@ class FamilyTreeConfiguration(Data):
         lambda: Sample(
             GrampsConfiguration(
                 family_trees=[
-                    FamilyTreeConfiguration(file=Path("./gramps.gpkg")),
+                    FamilyTree(file=Path("./gramps.gpkg")),
                 ]
             ),
             label="Load a family tree from a file",
@@ -207,7 +205,7 @@ class FamilyTreeConfiguration(Data):
         lambda: Sample(
             GrampsConfiguration(
                 family_trees=[
-                    FamilyTreeConfiguration(name="my-family-tree"),
+                    FamilyTree(name="my-family-tree"),
                 ]
             ),
             label="Load a family tree by its name directly from Gramps",
@@ -215,7 +213,7 @@ class FamilyTreeConfiguration(Data):
         lambda: Sample(
             GrampsConfiguration(
                 family_trees=[
-                    FamilyTreeConfiguration(
+                    FamilyTree(
                         name="my-family-tree",
                         event_types={
                             "GrampsEventType": PluginConfiguration("betty-event-type"),
@@ -228,7 +226,7 @@ class FamilyTreeConfiguration(Data):
         lambda: Sample(
             GrampsConfiguration(
                 family_trees=[
-                    FamilyTreeConfiguration(
+                    FamilyTree(
                         name="my-family-tree",
                         place_types={
                             "GrampsPlaceType": PluginConfiguration("betty-place-type"),
@@ -241,7 +239,7 @@ class FamilyTreeConfiguration(Data):
         lambda: Sample(
             GrampsConfiguration(
                 family_trees=[
-                    FamilyTreeConfiguration(
+                    FamilyTree(
                         name="my-family-tree",
                         event_types={
                             "GrampsRole": PluginConfiguration("betty-presence-role"),
@@ -257,13 +255,11 @@ class GrampsConfiguration(Data):
     """
     Configuration for the :py:class:`betty.extension.gramps.Gramps` extension.
 
-    .. data:: betty.extension.gramps.config:GrampsConfiguration
+    .. data:: betty.extension.gramps.data:GrampsConfiguration
     """
 
     family_trees = SequenceProperty(
-        SequenceDefinition(
-            cls=list, value=FamilyTreeConfiguration, label=_("Family trees")
-        ),
+        SequenceDefinition(cls=list, value=FamilyTree, label=_("Family trees")),
         default=list,
         omit_load=True,
         omit_dump=lambda data: not len(data),
@@ -282,7 +278,7 @@ class GrampsConfiguration(Data):
     def __init__(
         self,
         *,
-        family_trees: Iterable[FamilyTreeConfiguration] | None = None,
+        family_trees: Iterable[FamilyTree] | None = None,
         executable: Path | None = None,
     ):
         super().__init__()

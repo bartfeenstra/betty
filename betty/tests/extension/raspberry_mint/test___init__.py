@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from betty.extension.raspberry_mint import RaspberryMint, RaspberryMintConfiguration
 from betty.model import EntityDefinition
 from betty.project import Project
-from betty.project.config import EntityTypeConfiguration
+from betty.project.data import EntityTypeConfiguration
 from betty.project.generate import generate
 from betty.test_utils.model import DummyEntityOne
 from betty.tests.conftest import check_skip_webpack_entry_point_provider

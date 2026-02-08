@@ -9,27 +9,27 @@ from betty.exception import HumanFacingException
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.plain import Plain
 from betty.model import EntityDefinition
-from betty.project.config import (
+from betty.project.data import (
     EntityTypeConfiguration,
-    LocaleConfiguration,
     ProjectConfiguration,
+    ProjectLocale,
 )
 from betty.service.level import UNIVERSE
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.model import DummyEntityOne, DummyNonPublicFacingEntityOne
 
 
-class TestLocaleConfiguration(DataTestBase[LocaleConfiguration]):
-    sut_cls = LocaleConfiguration
+class TestProjectLocale(DataTestBase[ProjectLocale]):
+    sut_cls = ProjectLocale
 
     def test_locale(self) -> None:
         locale = Locale("nl")
-        sut = LocaleConfiguration(locale)
+        sut = ProjectLocale(locale)
         assert sut.locale is locale
 
     def test_alias(self) -> None:
         alias = "nl"
-        sut = LocaleConfiguration(
+        sut = ProjectLocale(
             DEFAULT_LOCALE,
             alias=alias,
         )
@@ -38,16 +38,16 @@ class TestLocaleConfiguration(DataTestBase[LocaleConfiguration]):
     def test_alias__invalid(self) -> None:
         alias = "nl/NL"
         with pytest.raises(HumanFacingException):
-            LocaleConfiguration("nl-NL", alias=alias)
+            ProjectLocale("nl-NL", alias=alias)
 
     def test_slug__without_alias(self) -> None:
         locale = "nl-NL"
-        sut = LocaleConfiguration(locale)
+        sut = ProjectLocale(locale)
         assert sut.slug == locale
 
     def test_slug__with_alias(self) -> None:
         alias = "my-first-locale"
-        sut = LocaleConfiguration("nl-NL", alias=alias)
+        sut = ProjectLocale("nl-NL", alias=alias)
         assert sut.slug == alias
 
 

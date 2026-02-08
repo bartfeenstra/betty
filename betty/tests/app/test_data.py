@@ -1,6 +1,6 @@
 from babel import Locale
 
-from betty.app.config import AppConfiguration
+from betty.app.data import AppConfiguration
 from betty.test_utils.data import DataTestBase
 
 

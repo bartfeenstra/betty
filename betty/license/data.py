@@ -40,7 +40,7 @@ class LicenseDefinitionConfiguration(
     """
     Configure a :py:class:`betty.license.LicenseDefinition`.
 
-    .. data:: betty.project.config:LicenseDefinitionConfiguration
+    .. data:: betty.project.data:LicenseDefinitionConfiguration
     """
 
     summary = LocalizableProperty(label=_("Summary"))
