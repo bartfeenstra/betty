@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-02-04 19:03+0000\n"
+"POT-Creation-Date: 2026-02-08 20:06+0000\n"
 "PO-Revision-Date: 2024-11-30 19:00+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ar\n"
@@ -715,9 +715,6 @@ msgstr "أسرة"
 msgid "Family tree"
 msgstr ""
 
-msgid "Family tree configuration"
-msgstr ""
-
 msgid "Family tree configuration must either have a \"file\" or a \"name\""
 msgstr ""
 
@@ -996,9 +993,6 @@ msgid "Locale"
 msgstr ""
 
 msgid "Locale aliases must not contain slashes."
-msgstr ""
-
-msgid "Locale configuration"
 msgstr ""
 
 #, python-brace-format
@@ -1344,6 +1338,9 @@ msgid "Project author"
 msgstr ""
 
 msgid "Project configuration"
+msgstr ""
+
+msgid "Project locale"
 msgstr ""
 
 msgid ""

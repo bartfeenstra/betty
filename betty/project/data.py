@@ -1,5 +1,5 @@
 """
-Provide project configuration.
+Project data.
 """
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ from betty.ancestry.person import Person
 from betty.assertion import assert_number
 from betty.collections import MutableDictKeyedCollection
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
-from betty.copyright_notice.config import CopyrightNoticeDefinitionConfiguration
+from betty.copyright_notice.data import CopyrightNoticeDefinitionConfiguration
 from betty.data import Data, Sample
 from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
@@ -29,12 +29,12 @@ from betty.data.int import IntDefinition
 from betty.data.str import StrDefinition
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.event_type import EventTypeDefinition
-from betty.event_type.config import EventTypeDefinitionConfiguration
+from betty.event_type.data import EventTypeDefinitionConfiguration
 from betty.exception import HumanFacingException
 from betty.gender import GenderDefinition
-from betty.gender.config import GenderDefinitionConfiguration
+from betty.gender.data import GenderDefinitionConfiguration
 from betty.license import License, LicenseDefinition
-from betty.license.config import LicenseDefinitionConfiguration
+from betty.license.data import LicenseDefinitionConfiguration
 from betty.locale import (
     DEFAULT_LOCALE,
     ResolvableLocale,
@@ -48,7 +48,7 @@ from betty.machine_name import MachineName, MachineNameDefinition, assert_machin
 from betty.model import EntityDefinition
 from betty.pathlib import FilePathDefinition
 from betty.place_type import PlaceTypeDefinition
-from betty.place_type.config import PlaceTypeDefinitionConfiguration
+from betty.place_type.data import PlaceTypeDefinitionConfiguration
 from betty.plugin import ResolvableId, resolve_id
 from betty.plugin.config import (
     PluginConfiguration,
@@ -58,7 +58,7 @@ from betty.plugin.config import (
 from betty.plugin.config.property import PluginDefinitionConfigurationsProperty
 from betty.plugin.data import PluginConfigurationDefinition, PluginIdDefinition
 from betty.presence_role import PresenceRoleDefinition
-from betty.presence_role.config import PresenceRoleDefinitionConfiguration
+from betty.presence_role.data import PresenceRoleDefinitionConfiguration
 from betty.project import Extension, ExtensionDefinition
 from betty.sample import Size
 from betty.service.hydrate import Hydratable
@@ -101,7 +101,7 @@ class EntityTypeConfiguration(
     """
     Configure a single entity type for a project.
 
-    .. data:: betty.project.config:EntityTypeConfiguration
+    .. data:: betty.project.data:EntityTypeConfiguration
     """
 
     def __init__(
@@ -152,23 +152,23 @@ class EntityTypeConfiguration(
 
 @final
 @ObjectDefinition(
-    label=_("Locale configuration"),
+    label=_("Project locale"),
     samples=[
         lambda: Sample(
-            LocaleConfiguration(Locale("nl", "NL")), label="Minimal", size=Size.MINIMAL
+            ProjectLocale(Locale("nl", "NL")), label="Minimal", size=Size.MINIMAL
         ),
         lambda: Sample(
-            LocaleConfiguration(Locale("nl", "NL"), alias="nl"),
+            ProjectLocale(Locale("nl", "NL"), alias="nl"),
             label="Full",
             size=Size.FULL,
         ),
     ],
 )
-class LocaleConfiguration(Data["ObjectDefinition"]):
+class ProjectLocale(Data["ObjectDefinition"]):
     """
-    Configure a single project locale.
+    A locale to use for a project.
 
-    .. data:: betty.project.config:LocaleConfiguration
+    .. data:: betty.project.data:ProjectLocale
     """
 
     locale = Property(LocaleDefinition(), label=_("Locale"), resolver=resolve_locale)
@@ -243,7 +243,7 @@ class LocaleConfiguration(Data["ObjectDefinition"]):
                     LicenseDefinitionConfiguration.data().samples.get(Size.FULL).subject
                 ],
                 lifetime_threshold=123,
-                locales=[LocaleConfiguration.data().samples.get(Size.FULL).subject],
+                locales=[ProjectLocale.data().samples.get(Size.FULL).subject],
                 name="betty-ancestry",
                 place_types=[
                     PlaceTypeDefinitionConfiguration.data()
@@ -267,7 +267,7 @@ class ProjectConfiguration(Data):
     """
     Configuration for a :py:class:`betty.project.Project`.
 
-    .. data:: betty.project.config:ProjectConfiguration
+    .. data:: betty.project.data:ProjectConfiguration
     """
 
     author = Optional(LocalizableProperty(label=_("Author")))
@@ -415,7 +415,7 @@ class ProjectConfiguration(Data):
     """
     The lifetime threshold indicates when people are considered dead.
 
-    This setting defaults to :py:const:`betty.project.config.DEFAULT_LIFETIME_THRESHOLD`.
+    This setting defaults to :py:const:`betty.project.data.DEFAULT_LIFETIME_THRESHOLD`.
 
     The value is an integer expressing the age in years over which people are
     presumed to have died.
@@ -423,7 +423,7 @@ class ProjectConfiguration(Data):
 
     locales = KeyedCollectionProperty(
         KeyedCollectionDefinition(
-            value=LocaleConfiguration,
+            value=ProjectLocale,
             label=_("Locales"),
             key=Attr("locale"),
             ordered=True,
@@ -436,8 +436,8 @@ class ProjectConfiguration(Data):
             key_resolver=resolve_locale,
             value_resolver=lambda value: (
                 value
-                if isinstance(value, LocaleConfiguration)
-                else LocaleConfiguration(resolve_locale(value))
+                if isinstance(value, ProjectLocale)
+                else ProjectLocale(resolve_locale(value))
             ),
             resolver=lambda items: [DEFAULT_LOCALE] if not len(items) else items,
         ),
@@ -500,7 +500,7 @@ class ProjectConfiguration(Data):
         license: PluginConfiguration[LicenseDefinition, License] | None = None,  # noqa: A002
         licenses: Iterable[LicenseDefinitionConfiguration] | None = None,
         lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,
-        locales: Iterable[ResolvableLocale | LocaleConfiguration] | None = None,
+        locales: Iterable[ResolvableLocale | ProjectLocale] | None = None,
         logo: Path | None = None,
         name: MachineName | None = None,
         place_types: Iterable[PlaceTypeDefinitionConfiguration] | None = None,
@@ -605,7 +605,7 @@ class ProjectConfiguration(Data):
         return urlparse(self.url).path.rstrip("/")
 
     @property
-    def default_locale(self) -> LocaleConfiguration:
+    def default_locale(self) -> ProjectLocale:
         """
         The default locale.
         """

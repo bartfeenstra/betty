@@ -47,7 +47,7 @@ class EventTypeDefinitionConfiguration(
     """
     Configure a :py:class:`betty.event_type.EventTypeDefinition`.
 
-    .. data:: betty.project.config:EventTypeDefinitionConfiguration
+    .. data:: betty.project.data:EventTypeDefinitionConfiguration
     """
 
     @override

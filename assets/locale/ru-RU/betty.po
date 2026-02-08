@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-02-04 19:03+0000\n"
+"POT-Creation-Date: 2026-02-08 20:06+0000\n"
 "PO-Revision-Date: 2025-12-08 19:00+0000\n"
 "Last-Translator: Artur Kalagov "
 "<artur.kalagov@users.noreply.hosted.weblate.org>\n"
@@ -761,9 +761,6 @@ msgstr "Семья"
 msgid "Family tree"
 msgstr ""
 
-msgid "Family tree configuration"
-msgstr ""
-
 msgid "Family tree configuration must either have a \"file\" or a \"name\""
 msgstr ""
 
@@ -1046,9 +1043,6 @@ msgstr ""
 
 msgid "Locale aliases must not contain slashes."
 msgstr "Языковые псевдонимы не должны содержать символ \"/\"."
-
-msgid "Locale configuration"
-msgstr ""
 
 #, python-brace-format
 msgid "Locale {locale} is not known by your system."
@@ -1400,6 +1394,9 @@ msgid "Project author"
 msgstr "Автор проекта"
 
 msgid "Project configuration"
+msgstr ""
+
+msgid "Project locale"
 msgstr ""
 
 msgid ""

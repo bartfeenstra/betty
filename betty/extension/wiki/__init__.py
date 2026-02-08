@@ -11,7 +11,7 @@ from typing_extensions import override
 
 from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.extension import Extension, ExtensionDefinition
-from betty.extension.wiki.config import WikiConfiguration
+from betty.extension.wiki.data import WikiConfiguration
 from betty.extension.wiki.jobs import PopulateEntity
 from betty.jinja2 import Filters, Globals, Jinja2Provider, context_localizer
 from betty.locale import negotiate_locale, resolve_locale

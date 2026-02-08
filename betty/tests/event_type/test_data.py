@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from betty.event_type.config import EventTypeDefinitionConfiguration
+from betty.event_type.data import EventTypeDefinitionConfiguration
 from betty.locale.localizable.plain import Plain
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,

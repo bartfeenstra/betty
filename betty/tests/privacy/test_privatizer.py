@@ -21,7 +21,7 @@ from betty.presence_role.presence_roles import Subject
 from betty.presence_role.presence_roles import Unknown as UnknownPresenceRole
 from betty.privacy import Privacy
 from betty.privacy.privatizer import Privatizer
-from betty.project.config import DEFAULT_LIFETIME_THRESHOLD
+from betty.project.data import DEFAULT_LIFETIME_THRESHOLD
 from betty.test_utils.user import StaticUser
 
 if TYPE_CHECKING:

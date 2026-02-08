@@ -1,5 +1,5 @@
 """
-Configuration for the Raspberry Mint extension.
+Data for the Raspberry Mint extension.
 """
 
 from __future__ import annotations
@@ -72,7 +72,7 @@ class RaspberryMintConfiguration(Data, Hydratable):
     """
     Configuration for the :py:class:`betty.extension.raspberry_mint.RaspberryMint` extension.
 
-    .. data:: betty.extension.raspberry_mint.config:RaspberryMintConfiguration
+    .. data:: betty.extension.raspberry_mint.data:RaspberryMintConfiguration
     """
 
     DEFAULT_PRIMARY_COLOR = "#b3446c"

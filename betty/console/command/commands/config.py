@@ -4,9 +4,7 @@ from typing import TYPE_CHECKING, Self, final
 
 from typing_extensions import override
 
-from betty.app import config
-from betty.app import config as app_config
-from betty.app.config import AppConfiguration
+from betty.app.data import AppConfiguration
 from betty.argparse import assertion_to_argument_type
 from betty.assertion import assert_locale
 from betty.console.command import Command, CommandDefinition, CommandFunction
@@ -56,9 +54,9 @@ class Config(Manufacturable, Command):
     async def _command_function(self, *, locale: Locale) -> None:
         localizers = await self._app.localizers
 
-        if config.CONFIGURATION_FILE_PATH.exists():
+        if AppConfiguration.FILE.exists():
             updated_configuration = AppConfiguration.data().porter.load(
-                (await assert_load_file())(config.CONFIGURATION_FILE_PATH)
+                (await assert_load_file())(AppConfiguration.FILE)
             )
         else:
             updated_configuration = AppConfiguration()
@@ -72,5 +70,5 @@ class Config(Manufacturable, Command):
 
         await dump_file(
             AppConfiguration.data().porter.dump(updated_configuration),
-            app_config.CONFIGURATION_FILE_PATH,
+            AppConfiguration.FILE,
         )

@@ -12,7 +12,7 @@ from betty.ancestry.source import Source
 from betty.app import App
 from betty.event_type.event_types import Birth
 from betty.extension.gramps import Gramps
-from betty.extension.gramps.config import FamilyTreeConfiguration, GrampsConfiguration
+from betty.extension.gramps.data import FamilyTree, GrampsConfiguration
 from betty.place_type.place_types import City
 from betty.plugin.config import PluginConfiguration
 from betty.presence_role.presence_roles import Subject
@@ -57,7 +57,7 @@ class TestGramps:
                     Gramps.plugin(),
                     GrampsConfiguration(
                         family_trees=[
-                            FamilyTreeConfiguration(
+                            FamilyTree(
                                 gramps_family_tree_path,
                                 event_types={"Birth": PluginConfiguration("birth")},
                             )
@@ -98,7 +98,7 @@ class TestGramps:
                     Gramps.plugin(),
                     GrampsConfiguration(
                         family_trees=[
-                            FamilyTreeConfiguration(
+                            FamilyTree(
                                 gramps_family_tree_path,
                                 place_types={"City": PluginConfiguration("city")},
                             )
@@ -147,7 +147,7 @@ class TestGramps:
                     Gramps.plugin(),
                     GrampsConfiguration(
                         family_trees=[
-                            FamilyTreeConfiguration(
+                            FamilyTree(
                                 gramps_family_tree_path,
                                 presence_roles={
                                     "MyFirstRole": PluginConfiguration("subject")
@@ -274,8 +274,8 @@ class TestGramps:
                         Gramps.plugin(),
                         GrampsConfiguration(
                             family_trees=[
-                                FamilyTreeConfiguration(gramps_family_tree_one_path),
-                                FamilyTreeConfiguration(gramps_family_tree_two_path),
+                                FamilyTree(gramps_family_tree_one_path),
+                                FamilyTree(gramps_family_tree_two_path),
                             ]
                         ),
                     )

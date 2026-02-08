@@ -12,12 +12,7 @@ from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.content_provider.content_providers import Render, RenderConfiguration
 from betty.extension.demo.content_provider import _IncompleteTranslationWarning
-from betty.extension.raspberry_mint import (
-    Breakpoint,
-    RaspberryMint,
-)
-from betty.extension.raspberry_mint.config import RaspberryMintConfiguration
-from betty.extension.raspberry_mint.config.default import regional_content
+from betty.extension.raspberry_mint import Breakpoint, RaspberryMint
 from betty.extension.raspberry_mint.content_provider import (
     Columns,
     ColumnsConfiguration,
@@ -25,6 +20,8 @@ from betty.extension.raspberry_mint.content_provider import (
     Section,
     SectionConfiguration,
 )
+from betty.extension.raspberry_mint.data import RaspberryMintConfiguration
+from betty.extension.raspberry_mint.default import regional_content
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Chain
@@ -33,7 +30,7 @@ from betty.media_type.media_types import HTML
 from betty.model.reference import EntityReference
 from betty.plugin.config import PluginConfiguration
 from betty.project import Project
-from betty.project.config import ProjectConfiguration
+from betty.project.data import ProjectConfiguration
 
 if TYPE_CHECKING:
     from pathlib import Path

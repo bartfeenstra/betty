@@ -11,7 +11,7 @@ from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.extension import Extension, ExtensionDefinition
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
 from betty.project import Project, ProjectExtensions
-from betty.project.config import LocaleConfiguration, ProjectConfiguration
+from betty.project.data import ProjectConfiguration, ProjectLocale
 from betty.serde import SerializationError
 from betty.service.level import Manufacturable
 from betty.service.requirement.project import require_project
@@ -354,7 +354,7 @@ class TestProject:
                 title="Betty", url="https://example.com"
             ),
         )
-        sut.configuration.locales.add(LocaleConfiguration("nl-NL"))
+        sut.configuration.locales.add(ProjectLocale("nl-NL"))
         actual = sut.localize_www_directory(DEFAULT_LOCALE)
         assert tmp_path in actual.parents
         assert DEFAULT_LOCALE_TAG in str(actual)

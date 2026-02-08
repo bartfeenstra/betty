@@ -35,7 +35,7 @@ from betty.locale.translation import (
 from betty.plugin import PluginDefinition, ResolvableId, resolve_id
 from betty.plugin.dependent import sort_dependent_plugin_graph
 from betty.privacy.privatizer import Privatizer
-from betty.project.config import ProjectConfiguration
+from betty.project.data import ProjectConfiguration
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.serde import SerializerDefinition, serializer_for
 from betty.service.container import service
@@ -76,7 +76,7 @@ class Project(Configurable[ProjectConfiguration], ServiceLevel):
        :header-rows: 0
 
        * - Configuration
-         - :py:class:`betty.project.config.ProjectConfiguration`
+         - :py:class:`betty.project.data.ProjectConfiguration`
     """
 
     def __init__(

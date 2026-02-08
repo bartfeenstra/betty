@@ -5,7 +5,7 @@ import aiofiles
 from betty.ancestry.person import Person
 from betty.app import App
 from betty.project import Project
-from betty.project.config import LocaleConfiguration
+from betty.project.data import ProjectLocale
 from betty.project.generate import generate
 from betty.test_utils.jinja2 import assert_betty_html
 
@@ -14,7 +14,7 @@ async def test_generate__html_lang(isolated_app: App) -> None:
     async with Project.new_isolated(isolated_app) as project:
         project.configuration.locales["en-US"].alias = "en"
         project.configuration.locales.add(
-            LocaleConfiguration(
+            ProjectLocale(
                 "nl-NL",
                 alias="nl",
             )
@@ -31,11 +31,11 @@ async def test_generate__html_lang(isolated_app: App) -> None:
 async def test_generate__links(isolated_app: App) -> None:
     async with Project.new_isolated(isolated_app) as project:
         project.configuration.locales = [
-            LocaleConfiguration(
+            ProjectLocale(
                 "nl-NL",
                 alias="nl",
             ),
-            LocaleConfiguration(
+            ProjectLocale(
                 "en-US",
                 alias="en",
             ),
@@ -71,11 +71,11 @@ async def test_generate__links(isolated_app: App) -> None:
 async def test_generate__links_for_entity_pages(isolated_app: App) -> None:
     async with Project.new_isolated(isolated_app) as project:
         project.configuration.locales = [
-            LocaleConfiguration(
+            ProjectLocale(
                 "nl-NL",
                 alias="nl",
             ),
-            LocaleConfiguration(
+            ProjectLocale(
                 "en-US",
                 alias="en",
             ),

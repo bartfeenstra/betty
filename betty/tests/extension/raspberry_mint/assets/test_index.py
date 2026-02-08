@@ -4,7 +4,7 @@ from betty.app import App
 from betty.content_provider.content_providers import Render, RenderConfiguration
 from betty.dirs import ROOT_DIRECTORY_PATH
 from betty.extension.raspberry_mint import RaspberryMint
-from betty.extension.raspberry_mint.config import RaspberryMintConfiguration
+from betty.extension.raspberry_mint.data import RaspberryMintConfiguration
 from betty.plugin.config import (
     PluginConfiguration,
 )

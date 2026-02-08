@@ -13,7 +13,7 @@ from typing_extensions import override
 from betty.extension import ExtensionDefinition
 from betty.extension._theme import jinja2_filters
 from betty.extension.maps import Maps
-from betty.extension.raspberry_mint.config import RaspberryMintConfiguration
+from betty.extension.raspberry_mint.data import RaspberryMintConfiguration
 from betty.extension.trees import Trees
 from betty.extension.webpack import Webpack
 from betty.extension.webpack.build import EntryPointProvider

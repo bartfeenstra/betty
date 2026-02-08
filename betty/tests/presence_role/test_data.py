@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from betty.locale.localizable.plain import Plain
-from betty.presence_role.config import PresenceRoleDefinitionConfiguration
+from betty.presence_role.data import PresenceRoleDefinitionConfiguration
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,

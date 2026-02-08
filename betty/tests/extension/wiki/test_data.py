@@ -1,4 +1,4 @@
-from betty.extension.wiki.config import WikiConfiguration
+from betty.extension.wiki.data import WikiConfiguration
 from betty.test_utils.data import DataTestBase
 
 

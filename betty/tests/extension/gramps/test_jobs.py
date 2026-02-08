@@ -2,8 +2,8 @@ from pytest_mock import MockerFixture
 
 from betty.app import App
 from betty.extension.gramps import Gramps
-from betty.extension.gramps.config import (
-    FamilyTreeConfiguration,
+from betty.extension.gramps.data import (
+    FamilyTree,
     GrampsConfiguration,
 )
 from betty.extension.gramps.jobs import LoadAncestry
@@ -22,7 +22,7 @@ class TestLoadAncestry:
                 PluginConfiguration(
                     Gramps.plugin(),
                     GrampsConfiguration(
-                        family_trees=[FamilyTreeConfiguration(name=family_tree_name)]
+                        family_trees=[FamilyTree(name=family_tree_name)]
                     ),
                 )
             )

@@ -14,8 +14,7 @@ from typing_extensions import TypeVar, override
 
 import betty
 import betty.dirs
-from betty.app import config
-from betty.app.config import AppConfiguration
+from betty.app.data import AppConfiguration
 from betty.asset import AssetRepository, StaticAssetRepository
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
@@ -69,7 +68,7 @@ class App(Configurable[AppConfiguration], ServiceLevel):
        :header-rows: 0
 
        * - Configuration
-         - :py:class:`betty.app.config.AppConfiguration`
+         - :py:class:`betty.app.data.AppConfiguration`
     """
 
     def __init__(
@@ -118,9 +117,9 @@ class App(Configurable[AppConfiguration], ServiceLevel):
         """
         Create a new application from the environment.
         """
-        if config.CONFIGURATION_FILE_PATH.exists():
+        if AppConfiguration.FILE.exists():
             configuration = AppConfiguration.data().porter.load(
-                (await assert_load_file())(config.CONFIGURATION_FILE_PATH)
+                (await assert_load_file())(AppConfiguration.FILE)
             )
         else:
             configuration = AppConfiguration()

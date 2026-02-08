@@ -1,10 +1,10 @@
 """
-Provide application configuration.
+Data for applications.
 """
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Final, final
 
 from betty.data import Data, OptionalDefinition, Sample
 from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
@@ -15,9 +15,9 @@ from betty.locale.localizable.gettext import _
 from betty.sample import Size
 
 if TYPE_CHECKING:
-    from babel import Locale
+    from pathlib import Path
 
-CONFIGURATION_FILE_PATH = APP_CONFIG_DIRECTORY_PATH / "app.json"
+    from babel import Locale
 
 
 @final
@@ -34,8 +34,10 @@ class AppConfiguration(Data):
     """
     Configuration for :py:class:`betty.app.App`.
 
-    .. data:: betty.app.config:AppConfiguration
+    .. data:: betty.app.data:AppConfiguration
     """
+
+    FILE: Final[Path] = APP_CONFIG_DIRECTORY_PATH / "app.json"
 
     def __init__(
         self,

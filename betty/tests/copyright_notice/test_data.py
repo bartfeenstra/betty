@@ -1,31 +1,31 @@
 from __future__ import annotations
 
-from betty.license.config import LicenseDefinitionConfiguration
+from betty.copyright_notice.data import CopyrightNoticeDefinitionConfiguration
 from betty.locale.localizable.plain import Plain
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
-class TestLicenseDefinitionConfiguration:
+class TestCopyrightNoticeDefinitionConfiguration:
     def test_summary(self) -> None:
         summary = Plain("My First Summary")
-        sut = LicenseDefinitionConfiguration(
+        sut = CopyrightNoticeDefinitionConfiguration(
             id="-", label=DUMMY_LOCALIZABLE, summary=summary, text=DUMMY_LOCALIZABLE
         )
         assert sut.summary is summary
 
     def test_text(self) -> None:
         text = Plain("My First Summary")
-        sut = LicenseDefinitionConfiguration(
+        sut = CopyrightNoticeDefinitionConfiguration(
             id="-", label=DUMMY_LOCALIZABLE, summary=DUMMY_LOCALIZABLE, text=text
         )
         assert sut.text is text
 
     def test_new_plugin__minimal(self) -> None:
-        plugin_id = "my-first-license"
+        plugin_id = "my-first-copyright-notice"
         label = Plain("-")
         summary = Plain("-")
         text = Plain("-")
-        sut = LicenseDefinitionConfiguration(
+        sut = CopyrightNoticeDefinitionConfiguration(
             id=plugin_id,
             label=label,
             summary=summary,
@@ -39,8 +39,8 @@ class TestLicenseDefinitionConfiguration:
 
     def test_new_plugin__full(self) -> None:
         description = Plain("-")
-        sut = LicenseDefinitionConfiguration(
-            id="my-first-license",
+        sut = CopyrightNoticeDefinitionConfiguration(
+            id="my-first-copyright-notice",
             label=DUMMY_LOCALIZABLE,
             description=description,
             summary=DUMMY_LOCALIZABLE,
