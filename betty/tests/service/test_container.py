@@ -15,12 +15,12 @@ from betty.service.container import (
     _SynchronousServiceManager,
     service,
 )
-from betty.test_utils.service.level import DummyConfigurable
+from betty.test_utils.service.level import DummyDataManufacturable
 
 _T = TypeVar("_T")
 
 
-class _ConfigurableServiceContainer(DummyConfigurable, ServiceContainer):
+class _DataManufacturableServiceContainer(DummyDataManufacturable, ServiceContainer):
     pass
 
 

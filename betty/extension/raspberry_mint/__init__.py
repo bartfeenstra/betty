@@ -21,7 +21,7 @@ from betty.jinja2 import Filters, Jinja2Provider
 from betty.model import EntityDefinition
 from betty.project import Project
 from betty.project.generate import Generator
-from betty.service.level import Configurable, Manufacturable
+from betty.service.level import DataManufacturable, Manufacturable
 from betty.service.requirement.project import require_project
 from betty.typing import private
 
@@ -45,7 +45,7 @@ if TYPE_CHECKING:
     assets_directory=Path(__file__).parent / "assets",
 )
 class RaspberryMint(
-    Configurable[RaspberryMintConfiguration],
+    DataManufacturable[RaspberryMintConfiguration],
     Manufacturable,
     Jinja2Provider,
     Generator,
@@ -98,7 +98,7 @@ class RaspberryMint(
 
     @override
     @classmethod
-    def configuration_cls(cls) -> type[RaspberryMintConfiguration]:
+    def new_data_cls(cls) -> type[RaspberryMintConfiguration]:
         return RaspberryMintConfiguration
 
     @property
@@ -114,10 +114,10 @@ class RaspberryMint(
     async def new(
         cls,
         project: Project,
-        configuration: RaspberryMintConfiguration | None = None,
+        data: RaspberryMintConfiguration | None = None,
         /,
     ) -> Self:
-        return cls(configuration=configuration, project=project)
+        return cls(configuration=data, project=project)
 
     @override
     async def generate(self, scheduler: Scheduler[ProjectContext]) -> None:

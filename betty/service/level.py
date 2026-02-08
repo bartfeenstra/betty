@@ -98,14 +98,14 @@ class ServiceLevel(ServiceContainer):
             if callable(target):
                 return await resolve_await(target())
             raise RuntimeError(f"Cannot create a new instance of {target}")
-        if not isinstance(target, type) or not issubclass(target, Configurable):
+        if not isinstance(target, type) or not issubclass(target, DataManufacturable):
             raise HumanFacingException(
                 _(
                     '"{target}" is not configurable, but configuration was given.'
                 ).format(target=fully_qualified_name(target))
             )
         if not isinstance(configuration, Data):
-            configuration = target.configuration_cls().data().porter.load(configuration)
+            configuration = target.new_data_cls().data().porter.load(configuration)
         return await target.new(self, configuration)
 
     @property
@@ -140,21 +140,21 @@ _ServiceLevelManufacturableT = TypeVar(
 )
 
 
-class Configurable(ABC, Generic[_DataT]):
+class DataManufacturable(ABC, Generic[_DataT]):
     """
-    Any configurable object.
+    A class that can be initialized using defined data.
     """
 
     @classmethod
     @abstractmethod
-    async def new(cls, services: ServiceLevel, configuration: _DataT, /) -> Self:
+    async def new(cls, services: ServiceLevel, data: _DataT, /) -> Self:
         """
-        Create a new instance using the given service level and configuration.
+        Create a new instance using the given service level and defined data.
         """
 
     @classmethod
     @abstractmethod
-    def configuration_cls(cls) -> type[_DataT]:
+    def new_data_cls(cls) -> type[_DataT]:
         """
-        The object's configuration class.
+        The object's defined data class.
         """

@@ -38,7 +38,7 @@ from betty.service.container import (
     StaticService,
     service,
 )
-from betty.service.level import Configurable, ServiceLevel
+from betty.service.level import DataManufacturable, ServiceLevel
 from betty.typing import threadsafe
 from betty.user.no_op import NoOpUser
 
@@ -59,7 +59,7 @@ _PluginDefinitionT = TypeVar(
 
 @final
 @threadsafe
-class App(Configurable[AppConfiguration], ServiceLevel):
+class App(DataManufacturable[AppConfiguration], ServiceLevel):
     """
     The Betty application.
 
@@ -99,14 +99,12 @@ class App(Configurable[AppConfiguration], ServiceLevel):
 
     @override
     @classmethod
-    def configuration_cls(cls) -> type[AppConfiguration]:
+    def new_data_cls(cls) -> type[AppConfiguration]:
         return AppConfiguration
 
     @override
     @classmethod
-    async def new(
-        cls, services: ServiceLevel, configuration: AppConfiguration, /
-    ) -> Self:
+    async def new(cls, services: ServiceLevel, data: AppConfiguration, /) -> Self:
         raise NotImplementedError(
             f"Creating a new {fully_qualified_name(cls)} from its configuration is not yet supported."
         )

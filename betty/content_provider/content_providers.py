@@ -26,7 +26,7 @@ from betty.plugin.config import (
 )
 from betty.plugin.config.property import PluginConfigurationSequenceProperty
 from betty.sample import Size
-from betty.service.level import Configurable, Manufacturable
+from betty.service.level import DataManufacturable, Manufacturable
 from betty.service.requirement.project import require_project
 from betty.typing import private
 
@@ -68,7 +68,7 @@ class RenderConfiguration(Data):
 
 
 @ContentProviderDefinition("render", label=_("Rendered content"))
-class Render(Configurable[RenderConfiguration], ContentProvider):
+class Render(DataManufacturable[RenderConfiguration], ContentProvider):
     """
     .. plugin:: content-provider:render.
     """
@@ -87,16 +87,16 @@ class Render(Configurable[RenderConfiguration], ContentProvider):
 
     @override
     @classmethod
-    def configuration_cls(cls) -> type[RenderConfiguration]:
+    def new_data_cls(cls) -> type[RenderConfiguration]:
         return RenderConfiguration
 
     @override
     @classmethod
     @require_project
-    async def new(cls, project: Project, configuration: RenderConfiguration, /) -> Self:
+    async def new(cls, project: Project, data: RenderConfiguration, /) -> Self:
         return cls(
-            content=configuration.content,
-            media_type=configuration.media_type,
+            content=data.content,
+            media_type=data.media_type,
             renderer=await project.renderer,
         )
 
@@ -248,7 +248,7 @@ class BoxConfiguration(Data):
 
 @final
 @ContentProviderDefinition("box", label=_("Box"))
-class Box(Template, Configurable[BoxConfiguration]):
+class Box(Template, DataManufacturable[BoxConfiguration]):
     """
     .. plugin:: content-provider:box.
     """
@@ -278,21 +278,21 @@ class Box(Template, Configurable[BoxConfiguration]):
 
     @override
     @classmethod
-    def configuration_cls(cls) -> type[BoxConfiguration]:
+    def new_data_cls(cls) -> type[BoxConfiguration]:
         return BoxConfiguration
 
     @override
     @classmethod
     @require_project
-    async def new(cls, project: Project, configuration: BoxConfiguration, /) -> Self:
+    async def new(cls, project: Project, data: BoxConfiguration, /) -> Self:
         return cls(
-            content=configuration.content,
-            min_height=configuration.min_height,
-            max_height=configuration.max_height,
-            height=configuration.height,
-            min_width=configuration.min_width,
-            max_width=configuration.max_width,
-            width=configuration.width,
+            content=data.content,
+            min_height=data.min_height,
+            max_height=data.max_height,
+            height=data.height,
+            min_width=data.min_width,
+            max_width=data.max_width,
+            width=data.width,
             jinja=await project.jinja,
         )
 
