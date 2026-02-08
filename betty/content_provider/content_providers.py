@@ -253,9 +253,28 @@ class Box(Template, Configurable[BoxConfiguration]):
     .. plugin:: content-provider:box.
     """
 
-    def __init__(self, *, configuration: BoxConfiguration, jinja: Environment):
+    def __init__(
+        self,
+        *,
+        content: ResolvablePluginConfigurationSequence[
+            ContentProviderDefinition, ContentProvider
+        ],
+        jinja: Environment,
+        min_height: str | None = None,
+        max_height: str | None = None,
+        height: str | None = None,
+        min_width: str | None = None,
+        max_width: str | None = None,
+        width: str | None = None,
+    ):
         super().__init__(jinja=jinja)
-        self._configuration = configuration
+        self._content = content
+        self._min_height = min_height
+        self._max_height = max_height
+        self._height = height
+        self._min_width = min_width
+        self._max_width = max_width
+        self._width = width
 
     @override
     @classmethod
@@ -267,7 +286,13 @@ class Box(Template, Configurable[BoxConfiguration]):
     @require_project
     async def new(cls, project: Project, configuration: BoxConfiguration, /) -> Self:
         return cls(
-            configuration=configuration,
+            content=configuration.content,
+            min_height=configuration.min_height,
+            max_height=configuration.max_height,
+            height=configuration.height,
+            min_width=configuration.min_width,
+            max_width=configuration.max_width,
+            width=configuration.width,
             jinja=await project.jinja,
         )
 
@@ -276,11 +301,11 @@ class Box(Template, Configurable[BoxConfiguration]):
         self, document: Document
     ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
         return "component/box.html.j2", {
-            "box_content": self._configuration.content,
-            "box_min_height": self._configuration.min_height,
-            "box_max_height": self._configuration.max_height,
-            "box_height": self._configuration.height,
-            "box_min_width": self._configuration.min_width,
-            "box_max_width": self._configuration.max_width,
-            "box_width": self._configuration.width,
+            "box_content": self._content,
+            "box_min_height": self._min_height,
+            "box_max_height": self._max_height,
+            "box_height": self._height,
+            "box_min_width": self._min_width,
+            "box_max_width": self._max_width,
+            "box_width": self._width,
         }
