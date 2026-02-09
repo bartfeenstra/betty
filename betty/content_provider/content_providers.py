@@ -9,6 +9,7 @@ from asyncio import gather
 from collections.abc import Iterable, Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeAlias, final
 
+from markupsafe import Markup
 from typing_extensions import override
 
 from betty.ancestry.has_notes import HasNotes
@@ -258,8 +259,9 @@ class Box(Template, DataManufacturable[BoxConfiguration]):
 
     def __init__(
         self,
-        *,
+        /,
         content: Iterable[ContentProvider],
+        *,
         jinja: Environment,
         min_height: str | None = None,
         max_height: str | None = None,
@@ -305,7 +307,14 @@ class Box(Template, DataManufacturable[BoxConfiguration]):
     @override
     async def provide_template(self, document: Document) -> ProvidedTemplate:
         return "component/box.html.j2", {
-            "box_content": self._content,
+            "box_content": Markup(
+                "".join(
+                    [
+                        await content.provide(document=document) or ""
+                        for content in self._content
+                    ]
+                )
+            ),
             "box_min_height": self._min_height,
             "box_max_height": self._max_height,
             "box_height": self._height,

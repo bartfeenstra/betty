@@ -1,5 +1,4 @@
-{% set provided_content = box_content | provide_content %}
-{% if provided_content %}
+{% if box_content | trim | length %}
     {% set styles = [] %}
     {% if box_min_height %}
         {% do styles.append('min-height: ' ~ box_min_height ~ ';') %}
@@ -20,6 +19,6 @@
         {% do styles.append('width: ' ~ box_width ~ ';') %}
     {% endif %}
     <div{% if styles %} style="{{ styles | join }}"{% endif %}>
-        {{ provided_content }}
+        {{ box_content }}
     </div>
 {% endif %}
