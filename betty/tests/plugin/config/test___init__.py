@@ -14,6 +14,7 @@ from betty.plugin.config import (
     PluginDefinitionConfiguration,
     ResolvablePluginConfiguration,
     ResolvablePluginConfigurationSequence,
+    new_plugins,
     resolve_plugin_configuration,
     resolve_plugin_configuration_mapping,
     resolve_plugin_configuration_sequence,
@@ -24,7 +25,11 @@ from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
 )
-from betty.test_utils.plugin import DummyPlugin, DummyPluginDefinition, DummyPluginOne
+from betty.test_utils.plugin import (
+    DummyPlugin,
+    DummyPluginDefinition,
+    DummyPluginOne,
+)
 from betty.test_utils.service.level import DummyDataManufacturable
 from betty.typing import Void
 
@@ -399,3 +404,23 @@ def test_resolve_plugin_configuration_mapping(
     value: Mapping[Any, ResolvablePluginConfiguration],
 ) -> None:
     assert dict(resolve_plugin_configuration_mapping(value)) == expected
+
+
+async def test_new_plugins() -> None:
+    actual = list(
+        await new_plugins(
+            UNIVERSE,
+            DummyPluginDefinition,
+            [
+                DummyPluginOne,
+                DummyPluginOne.plugin(),
+                DummyPluginOne.plugin().id,
+                PluginConfiguration(DummyPluginOne),
+                PluginConfiguration(DummyPluginOne.plugin()),
+                PluginConfiguration(DummyPluginOne.plugin().id),
+            ],  # ty:ignore[invalid-argument-type]
+        )
+    )
+    assert len(actual) == 6
+    for plugin in actual:
+        assert isinstance(plugin, DummyPluginOne)

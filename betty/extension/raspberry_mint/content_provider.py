@@ -25,7 +25,11 @@ from betty.assertion import (
     assert_or,
     assert_sequence,
 )
-from betty.content_provider import ContentProvider, ContentProviderDefinition
+from betty.content_provider import (
+    ContentProvider,
+    ContentProviderDefinition,
+    provide_content,
+)
 from betty.content_provider.content_providers import (
     ProvidedTemplate,
     Render,
@@ -60,6 +64,7 @@ from betty.plugin import resolve_id
 from betty.plugin.config import (
     PluginConfiguration,
     ResolvablePluginConfigurationSequence,
+    new_plugins,
     resolve_plugin_configuration_sequence,
 )
 from betty.plugin.config.property import PluginConfigurationSequenceProperty
@@ -133,6 +138,7 @@ class SectionConfiguration(Data):
     visually_hide_heading = Optional(
         Property(
             BoolDefinition(label=_("Visually hide heading")),
+            omit_load=True,
             omit_dump=lambda data: data is False,
         )
     )
@@ -150,7 +156,7 @@ class SectionConfiguration(Data):
         *,
         heading: ResolvableLocalizable,
         name: MachineName | None = None,
-        visually_hide_heading: bool = False,
+        visually_hide_heading: bool | None = None,
     ):
         super().__init__()
         self.content = content
@@ -168,12 +174,19 @@ class Section(Template, DataManufacturable[SectionConfiguration]):
     @private
     def __init__(
         self,
+        /,
+        content: Iterable[ContentProvider],
         *,
+        heading: ResolvableLocalizable,
+        name: MachineName | None = None,
+        visually_hide_heading: bool | None = None,
         jinja: Environment,
-        configuration: SectionConfiguration,
     ):
         super().__init__(jinja=jinja)
-        self._configuration = configuration
+        self._content = tuple(content)
+        self._heading = heading
+        self._name = name
+        self._visually_hide_heading = bool(visually_hide_heading)
 
     @override
     @classmethod
@@ -182,22 +195,31 @@ class Section(Template, DataManufacturable[SectionConfiguration]):
 
     @override
     @classmethod
-    @require_extension(RaspberryMint)
-    async def new(
-        cls, raspberry_mint: RaspberryMint, data: SectionConfiguration, /
-    ) -> Self:
+    @require_project
+    async def new(cls, project: Project, data: SectionConfiguration, /) -> Self:
+        await require_extension(RaspberryMint, project)
         return cls(
-            configuration=data,
-            jinja=await raspberry_mint.services.jinja,
+            content=await new_plugins(  # ty:ignore[invalid-argument-type]
+                project,
+                ContentProviderDefinition,
+                data.content,  # ty:ignore[invalid-argument-type]
+            ),
+            heading=data.heading,
+            jinja=await project.jinja,
+            name=data.name,
+            visually_hide_heading=data.visually_hide_heading,
         )
 
     @override
     async def provide_template(self, document: Document) -> ProvidedTemplate:
+        content = await provide_content(document, self._content)
+        if content is None:
+            return None
         return "component/raspberry-mint/section.html.j2", {
-            "section_name": self._configuration.name,
-            "section_heading": self._configuration.heading,
-            "section_visually_hide_heading": self._configuration.visually_hide_heading,
-            "section_content_provider_configurations": self._configuration.content,
+            "section_content": content,
+            "section_heading": self._heading,
+            "section_name": self._name,
+            "section_visually_hide_heading": self._visually_hide_heading,
         }
 
 

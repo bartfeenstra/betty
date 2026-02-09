@@ -5,15 +5,17 @@ Dynamic content.
 from __future__ import annotations
 
 from abc import abstractmethod
-from asyncio import gather
 from collections.abc import Iterable, Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeAlias, final
 
-from markupsafe import Markup
 from typing_extensions import override
 
 from betty.ancestry.has_notes import HasNotes
-from betty.content_provider import ContentProvider, ContentProviderDefinition
+from betty.content_provider import (
+    ContentProvider,
+    ContentProviderDefinition,
+    provide_content,
+)
 from betty.data import Data, Sample
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.aggregate.record.object.property import Optional, Property
@@ -26,6 +28,7 @@ from betty.media_type.media_types import PLAIN_TEXT
 from betty.plugin.config import (
     PluginConfiguration,
     ResolvablePluginConfigurationSequence,
+    new_plugins,
 )
 from betty.plugin.config.property import PluginConfigurationSequenceProperty
 from betty.sample import Size
@@ -271,7 +274,7 @@ class Box(Template, DataManufacturable[BoxConfiguration]):
         width: str | None = None,
     ):
         super().__init__(jinja=jinja)
-        self._content = list(content)
+        self._content = tuple(content)
         self._min_height = min_height
         self._max_height = max_height
         self._height = height
@@ -289,11 +292,10 @@ class Box(Template, DataManufacturable[BoxConfiguration]):
     @require_project
     async def new(cls, project: Project, data: BoxConfiguration, /) -> Self:
         return cls(
-            content=await gather(
-                *[
-                    content.new_plugin(project, ContentProviderDefinition)
-                    for content in data.content
-                ]
+            content=await new_plugins(  # ty:ignore[invalid-argument-type]
+                project,
+                ContentProviderDefinition,
+                data.content,  # ty:ignore[invalid-argument-type]
             ),
             min_height=data.min_height,
             max_height=data.max_height,
@@ -306,15 +308,11 @@ class Box(Template, DataManufacturable[BoxConfiguration]):
 
     @override
     async def provide_template(self, document: Document) -> ProvidedTemplate:
+        content = await provide_content(document, self._content)
+        if content is None:
+            return None
         return "component/box.html.j2", {
-            "box_content": Markup(
-                "".join(
-                    [
-                        await content.provide(document=document) or ""
-                        for content in self._content
-                    ]
-                )
-            ),
+            "box_content": content,
             "box_min_height": self._min_height,
             "box_max_height": self._max_height,
             "box_height": self._height,
