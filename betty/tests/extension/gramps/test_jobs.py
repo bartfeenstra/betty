@@ -1,12 +1,10 @@
-from pytest_mock import MockerFixture
+from unittest.mock import AsyncMock
 
 from betty.app import App
 from betty.extension.gramps import Gramps
-from betty.extension.gramps.data import (
-    FamilyTree,
-    GrampsConfiguration,
-)
+from betty.extension.gramps.data import FamilyTree, GrampsConfiguration
 from betty.extension.gramps.jobs import LoadAncestry
+from betty.gramps.loader import GrampsLoader
 from betty.plugin.config import PluginConfiguration
 from betty.project import Project
 from betty.project.job import ProjectContext
@@ -14,8 +12,8 @@ from betty.test_utils.job import do
 
 
 class TestLoadAncestry:
-    async def test_do(self, mocker: MockerFixture, isolated_app: App) -> None:
-        m_load_name = mocker.patch("betty.gramps.loader.GrampsLoader.load_name")
+    async def test_do(self, isolated_app: App) -> None:
+        m_gramps_loader = AsyncMock(spec=GrampsLoader)
         family_tree_name = "my-first-family-tree"
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(
@@ -27,5 +25,8 @@ class TestLoadAncestry:
                 )
             )
             async with project:
-                await do(ProjectContext(project), LoadAncestry())
-        m_load_name.assert_awaited_once_with(family_tree_name)
+                await do(
+                    ProjectContext(project),
+                    LoadAncestry(loader=m_gramps_loader, source=family_tree_name),
+                )
+        m_gramps_loader.load_name.assert_awaited_once_with(family_tree_name)

@@ -9,16 +9,24 @@ from typing import TYPE_CHECKING, Self, final
 from typing_extensions import override
 
 from betty.extension import Extension, ExtensionDefinition
-from betty.extension.gramps.data import GrampsConfiguration
+from betty.extension.gramps.data import FamilyTree, GrampsConfiguration
 from betty.extension.gramps.jobs import LoadAncestry
+from betty.gramps.loader import GrampsLoader
 from betty.locale.localizable.gettext import _
 from betty.project.load import Loader
 from betty.service.factory import DataManufacturable, Manufacturable
-from betty.service.level import UNIVERSE, ServiceLevel
+from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from pathlib import Path
+
+    from betty.ancestry import Ancestry
+    from betty.job import Context
     from betty.job.scheduler import Scheduler
-    from betty.project.job import ProjectContext
+    from betty.project import Project
+    from betty.service.level import ServiceLevel
+    from betty.user import User
 
 
 @final
@@ -301,31 +309,57 @@ class Gramps(
 
     """
 
-    def __init__(self, *, configuration: GrampsConfiguration | None = None):
-        super().__init__(services=UNIVERSE)
-        self._configuration = (
-            GrampsConfiguration() if configuration is None else configuration
-        )
+    def __init__(
+        self,
+        *,
+        ancestry: Ancestry,
+        services: ServiceLevel,
+        user: User,
+        attribute_prefix_key: str | None = None,
+        executable: Path | None = None,
+        family_trees: Iterable[FamilyTree] | None = None,
+    ):
+        super().__init__(services=services)
+        self._ancestry = ancestry
+        self._attribute_prefix_key = attribute_prefix_key
+        self._executable = executable
+        self._family_trees = () if family_trees is None else list(family_trees)
+        self._user = user
 
     @override
     @classmethod
     def new_data_cls(cls) -> type[GrampsConfiguration]:
         return GrampsConfiguration
 
-    @property
-    def configuration(self) -> GrampsConfiguration:
-        """
-        The configuration.
-        """
-        return self._configuration
-
     @override
     @classmethod
+    @require_project
     async def new(
-        cls, services: ServiceLevel, data: GrampsConfiguration | None = None, /
+        cls, project: Project, data: GrampsConfiguration | None = None, /
     ) -> Self:
-        return cls(configuration=data)
+        return cls(
+            ancestry=project.ancestry,
+            executable=None if data is None else data.executable,
+            family_trees=None if data is None else data.family_trees,
+            services=project,
+            user=project.app.user,
+        )
 
     @override
-    async def load(self, scheduler: Scheduler[ProjectContext]) -> None:
-        await scheduler.add(LoadAncestry())
+    async def load(self, scheduler: Scheduler[Context]) -> None:
+        for family_tree in self._family_trees:
+            await scheduler.add(
+                LoadAncestry(
+                    loader=GrampsLoader(
+                        self._ancestry,
+                        services=self._services,
+                        attribute_prefix_key=self._attribute_prefix_key,
+                        user=self._user,
+                        event_type_mapping=family_tree.event_types,  # ty:ignore[invalid-argument-type]
+                        place_type_mapping=family_tree.place_types,  # ty:ignore[invalid-argument-type]
+                        presence_role_mapping=family_tree.presence_roles,  # ty:ignore[invalid-argument-type]
+                        executable=self._executable,
+                    ),
+                    source=family_tree.source,
+                )
+            )
