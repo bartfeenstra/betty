@@ -5,6 +5,7 @@ Provide plugin configuration.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from asyncio import gather
 from collections.abc import Iterable, Mapping, MutableMapping, MutableSequence
 from typing import TYPE_CHECKING, Any, Generic, Self, TypeAlias, final
 
@@ -39,6 +40,8 @@ from betty.sample import Samplable, Sample, Samples, Size
 from betty.typing import Void
 
 if TYPE_CHECKING:
+    from ty_extensions import Intersection
+
     from betty.locale.localizable import (
         ResolvableCountableLocalizable,
         ResolvableLocalizable,
@@ -303,3 +306,24 @@ def resolve_plugin_configuration_mapping(
         key: resolve_plugin_configuration(plugin_configuration)
         for key, plugin_configuration in plugin_configurations.items()
     }
+
+
+async def new_plugins(
+    services: ServiceLevel,
+    plugin_type: type[Intersection[_PluginDefinitionT, PluginDefinition[_PluginT]]],
+    plugins: ResolvablePluginConfigurationSequence[
+        Intersection[_PluginDefinitionT, PluginDefinition[_PluginT]], _PluginT
+    ],
+    /,
+) -> Iterable[_PluginT]:
+    """
+    Create new instances of the configured plugins.
+    """
+    return await gather(
+        *[
+            plugin.new_plugin(services, plugin_type)
+            for plugin in resolve_plugin_configuration_sequence(
+                plugins,  # ty:ignore[invalid-argument-type]
+            )
+        ]
+    )
