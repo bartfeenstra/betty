@@ -13,7 +13,7 @@ from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
 from betty.project import Project, ProjectExtensions
 from betty.project.data import ProjectConfiguration, ProjectLocale
 from betty.serde import SerializationError
-from betty.service.level import Manufacturable
+from betty.service.factory import Manufacturable
 from betty.service.requirement.project import require_project
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.plugin import DummyPluginDefinition

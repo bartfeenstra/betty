@@ -11,7 +11,7 @@ from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.extension.demo.project import create_project
 from betty.locale.localizable.gettext import _
 from betty.project.job import ProjectContext
-from betty.service.level import Manufacturable
+from betty.service.factory import Manufacturable
 from betty.service.requirement.app import require_app
 
 if TYPE_CHECKING:

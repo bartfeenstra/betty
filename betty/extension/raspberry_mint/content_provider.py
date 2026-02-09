@@ -66,7 +66,7 @@ from betty.plugin.data import PluginConfigurationSequenceDefinition, PluginIdDef
 from betty.portable import CallbackPorter
 from betty.presence_role import PresenceRoleDefinition
 from betty.privacy import is_public
-from betty.service.level import DataManufacturable, Manufacturable
+from betty.service.factory import DataManufacturable, Manufacturable
 from betty.service.requirement.extension import require_extension
 from betty.service.requirement.project import require_project
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE

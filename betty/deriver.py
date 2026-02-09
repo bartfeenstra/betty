@@ -127,7 +127,7 @@ class Deriver:
                     (
                         Event(
                             id=_derive_event_id(derivable_event_type, person),
-                            event_type=await self._project.new_target(
+                            event_type=await self._project.factory.new(
                                 derivable_event_type.cls
                             ),
                         ),

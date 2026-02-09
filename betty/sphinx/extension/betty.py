@@ -27,7 +27,8 @@ from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.project import Project
 from betty.serde import SerializerDefinition
-from betty.service.level import UNIVERSE, DataManufacturable
+from betty.service.factory import DataManufacturable
+from betty.service.level import UNIVERSE
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -75,7 +76,7 @@ async def _get_serializers() -> Sequence[Serializer]:
         project,
     ):
         return [
-            await project.new_target(serializer.cls)
+            await project.factory.new(serializer.cls)
             for serializer in sorted(
                 await project.plugins.plugins(SerializerDefinition),
                 key=cmp_to_key(_cmp_formats),

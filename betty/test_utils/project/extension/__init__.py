@@ -8,7 +8,7 @@ from typing_extensions import override
 
 from betty.extension import Extension, ExtensionDefinition
 from betty.project import Project
-from betty.service.level import Manufacturable
+from betty.service.factory import Manufacturable
 from betty.service.requirement.project import require_project
 
 

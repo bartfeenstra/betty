@@ -21,7 +21,7 @@ from betty.jinja2 import Filters, Jinja2Provider
 from betty.model import EntityDefinition
 from betty.project import Project
 from betty.project.generate import Generator
-from betty.service.level import DataManufacturable, Manufacturable
+from betty.service.factory import DataManufacturable, Manufacturable
 from betty.service.requirement.project import require_project
 from betty.typing import private
 

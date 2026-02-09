@@ -11,7 +11,7 @@ from typing_extensions import override
 from betty.json.schema import JsonSchemaReference, Schema
 from betty.model import EntityDefinition
 from betty.model.schema import ToManySchema
-from betty.service.level import Manufacturable
+from betty.service.factory import Manufacturable
 from betty.service.requirement.project import require_project
 from betty.string import kebab_case_to_lower_camel_case
 

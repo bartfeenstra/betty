@@ -14,7 +14,7 @@ from betty.extension.webpack.build import EntryPointProvider
 from betty.locale.localizable.gettext import _
 from betty.project import Project
 from betty.project.generate import Generator
-from betty.service.level import Manufacturable
+from betty.service.factory import Manufacturable
 from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:

@@ -13,7 +13,7 @@ from betty.media_type import MediaType
 from betty.media_type.media_types import HTML
 from betty.project import Project
 from betty.render import Renderer, RendererDefinition
-from betty.service.level import Manufacturable
+from betty.service.factory import Manufacturable
 from betty.service.requirement.project import require_project
 from betty.typing import private
 from betty.url import UrlGenerator

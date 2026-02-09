@@ -26,7 +26,7 @@ from betty.plugin.config import (
 )
 from betty.plugin.config.property import PluginConfigurationSequenceProperty
 from betty.sample import Size
-from betty.service.level import DataManufacturable, Manufacturable
+from betty.service.factory import DataManufacturable, Manufacturable
 from betty.service.requirement.project import require_project
 from betty.typing import private
 

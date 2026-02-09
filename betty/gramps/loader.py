@@ -850,7 +850,7 @@ class GrampsLoader:
             )
         else:
             try:
-                gender = await self._services.new_target(
+                gender = await self._services.factory.new(
                     (await self._services.plugins.plugins(GenderDefinition))[
                         gender_id
                     ].cls

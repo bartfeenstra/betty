@@ -219,7 +219,7 @@ class PluginConfiguration(
         """
         Create a new instance of the configured plugin.
         """
-        return await services.new_target(
+        return await services.factory.new(
             (await services.plugins.plugins(plugin_type))[self.id].cls,
             self.configuration,
         )
