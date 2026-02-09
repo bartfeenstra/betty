@@ -513,8 +513,9 @@ def filter_select_has_dates(
 @pass_context
 async def filter_provide_content(
     context: Context,
-    content_provider_configurations: Iterable[
-        PluginConfiguration[ContentProviderDefinition, ContentProvider]
+    content_providers: Iterable[
+        ContentProvider
+        | PluginConfiguration[ContentProviderDefinition, ContentProvider]
     ],
 ) -> str:
     """
@@ -527,12 +528,14 @@ async def filter_provide_content(
         "".join(
             [
                 await (
-                    await content_provider_configuration.new_plugin(
+                    content_provider
+                    if isinstance(content_provider, ContentProvider)
+                    else await content_provider.new_plugin(
                         project, ContentProviderDefinition
                     )
                 ).provide(document=context_document(context))
                 or ""
-                for content_provider_configuration in content_provider_configurations
+                for content_provider in content_providers
             ]
         )
     )

@@ -2,8 +2,7 @@
 Map content.
 """
 
-from collections.abc import Iterable, Mapping
-from typing import Any, Self
+from typing import Self
 
 from typing_extensions import override
 
@@ -11,7 +10,7 @@ from betty.ancestry.event import Event
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.content_provider import ContentProviderDefinition
-from betty.content_provider.content_providers import Template
+from betty.content_provider.content_providers import ProvidedTemplate, Template
 from betty.document import Document
 from betty.extension.maps import Maps
 from betty.locale.localizable.gettext import _
@@ -34,9 +33,7 @@ class Map(Template, Manufacturable):
         return cls(jinja=await maps.services.jinja)
 
     @override
-    async def provide_template(
-        self, document: Document
-    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+    async def provide_template(self, document: Document) -> ProvidedTemplate:
         places = []
         if isinstance(document.resource, Event) and document.resource.place:
             places.append(document.resource.place)
@@ -75,7 +72,5 @@ class Attribution(Template, Manufacturable):
         return cls(jinja=await maps.services.jinja)
 
     @override
-    async def provide_template(
-        self, document: Document
-    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+    async def provide_template(self, document: Document) -> ProvidedTemplate:
         return "component/maps/attribution.html.j2"

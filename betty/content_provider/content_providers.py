@@ -5,7 +5,9 @@ Dynamic content.
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Any, Self, final
+from asyncio import gather
+from collections.abc import Iterable, Mapping
+from typing import TYPE_CHECKING, Any, Self, TypeAlias, final
 
 from typing_extensions import override
 
@@ -31,7 +33,7 @@ from betty.service.requirement.project import require_project
 from betty.typing import private
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping, MutableSequence
+    from collections.abc import MutableSequence
 
     from betty.document import Document
     from betty.jinja2 import Environment
@@ -108,6 +110,11 @@ class Render(DataManufacturable[RenderConfiguration], ContentProvider):
         )
 
 
+ProvidedTemplate: TypeAlias = (
+    str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None
+)
+
+
 class Template(ContentProvider):
     """
     Provides content by rendering a Jinja2 template.
@@ -150,9 +157,7 @@ class Template(ContentProvider):
         return templates
 
     @abstractmethod
-    async def provide_template(
-        self, document: Document
-    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+    async def provide_template(self, document: Document) -> ProvidedTemplate:
         """
         Provide template data.
 
@@ -174,9 +179,7 @@ class Notes(Template, Manufacturable):
         return cls(jinja=await project.jinja)
 
     @override
-    async def provide_template(
-        self, document: Document
-    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+    async def provide_template(self, document: Document) -> ProvidedTemplate:
         if isinstance(document.resource, HasNotes):
             return "component/notes.html.j2", {"notes": document.resource.notes}
         return None
@@ -256,9 +259,7 @@ class Box(Template, DataManufacturable[BoxConfiguration]):
     def __init__(
         self,
         *,
-        content: ResolvablePluginConfigurationSequence[
-            ContentProviderDefinition, ContentProvider
-        ],
+        content: Iterable[ContentProvider],
         jinja: Environment,
         min_height: str | None = None,
         max_height: str | None = None,
@@ -268,7 +269,7 @@ class Box(Template, DataManufacturable[BoxConfiguration]):
         width: str | None = None,
     ):
         super().__init__(jinja=jinja)
-        self._content = content
+        self._content = list(content)
         self._min_height = min_height
         self._max_height = max_height
         self._height = height
@@ -286,7 +287,12 @@ class Box(Template, DataManufacturable[BoxConfiguration]):
     @require_project
     async def new(cls, project: Project, data: BoxConfiguration, /) -> Self:
         return cls(
-            content=data.content,
+            content=await gather(
+                *[
+                    content.new_plugin(project, ContentProviderDefinition)
+                    for content in data.content
+                ]
+            ),
             min_height=data.min_height,
             max_height=data.max_height,
             height=data.height,
@@ -297,9 +303,7 @@ class Box(Template, DataManufacturable[BoxConfiguration]):
         )
 
     @override
-    async def provide_template(
-        self, document: Document
-    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+    async def provide_template(self, document: Document) -> ProvidedTemplate:
         return "component/box.html.j2", {
             "box_content": self._content,
             "box_min_height": self._min_height,

@@ -5,7 +5,7 @@ Dynamic content.
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping, Sequence
-from typing import TYPE_CHECKING, Any, Self, TypeAlias, final
+from typing import TYPE_CHECKING, Self, TypeAlias, final
 
 from typing_extensions import override
 
@@ -27,6 +27,7 @@ from betty.assertion import (
 )
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.content_provider.content_providers import (
+    ProvidedTemplate,
     Render,
     RenderConfiguration,
     Template,
@@ -191,9 +192,7 @@ class Section(Template, DataManufacturable[SectionConfiguration]):
         )
 
     @override
-    async def provide_template(
-        self, document: Document
-    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+    async def provide_template(self, document: Document) -> ProvidedTemplate:
         return "component/raspberry-mint/section.html.j2", {
             "section_name": self._configuration.name,
             "section_heading": self._configuration.heading,
@@ -233,9 +232,7 @@ class EntityCard(Template, DataManufacturable[EntityReference]):
         )
 
     @override
-    async def provide_template(
-        self, document: Document
-    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+    async def provide_template(self, document: Document) -> ProvidedTemplate:
         entity = self._ancestry[self._entity.type][self._entity.id]
         return [
             "entity/card--" + entity.plugin().id + ".html.j2",
@@ -258,9 +255,7 @@ class Families(Template, Manufacturable):
         return cls(jinja=await raspberry_mint.services.jinja)
 
     @override
-    async def provide_template(
-        self, document: Document
-    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+    async def provide_template(self, document: Document) -> ProvidedTemplate:
         if isinstance(document.resource, Person):
             return "component/raspberry-mint/families.html.j2", {
                 "person": document.resource,
@@ -287,9 +282,7 @@ class Media(Template, Manufacturable):
         return cls(jinja=await raspberry_mint.services.jinja)
 
     @override
-    async def provide_template(
-        self, document: Document
-    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+    async def provide_template(self, document: Document) -> ProvidedTemplate:
         if isinstance(document.resource, File):
             return "component/raspberry-mint/media.html.j2", {
                 "file": document.resource,
@@ -317,9 +310,7 @@ class MediaGallery(Template, Manufacturable):
         return cls(jinja=await project.jinja)
 
     @override
-    async def provide_template(
-        self, document: Document
-    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+    async def provide_template(self, document: Document) -> ProvidedTemplate:
         if isinstance(document.resource, HasFileReferences):
             return "component/raspberry-mint/media-gallery.html.j2", {
                 "file_references": list(associated_file_references(document.resource))
@@ -402,9 +393,7 @@ class ColorStyle(Template, DataManufacturable[ColorStyleConfiguration]):
         return cls(configuration=data, jinja=await project.jinja)
 
     @override
-    async def provide_template(
-        self, document: Document
-    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+    async def provide_template(self, document: Document) -> ProvidedTemplate:
         return "component/raspberry-mint/color-style.html.j2", {
             "color_style": self._configuration.style.value,
             "color_style_content_provider_configurations": self._configuration.content,
@@ -426,9 +415,7 @@ class ExternalLinks(Template, Manufacturable):
         return cls(jinja=await raspberry_mint.services.jinja)
 
     @override
-    async def provide_template(
-        self, document: Document
-    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+    async def provide_template(self, document: Document) -> ProvidedTemplate:
         if isinstance(document.resource, HasLinks):
             return "component/raspberry-mint/links.html.j2", {
                 "links": document.resource.links
@@ -458,9 +445,7 @@ class Timeline(Template, Manufacturable):
         )
 
     @override
-    async def provide_template(
-        self, document: Document
-    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+    async def provide_template(self, document: Document) -> ProvidedTemplate:
         events = []
         if isinstance(document.resource, Person):
             events.extend(
@@ -494,9 +479,7 @@ class Facts(Template, Manufacturable):
         return cls(jinja=await raspberry_mint.services.jinja)
 
     @override
-    async def provide_template(
-        self, document: Document
-    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+    async def provide_template(self, document: Document) -> ProvidedTemplate:
         entities = []
         if isinstance(document.resource, Citation):
             entities.extend(document.resource.facts)
@@ -618,9 +601,7 @@ class Presences(Template, DataManufacturable[PresencesConfiguration]):
         )
 
     @override
-    async def provide_template(
-        self, document: Document
-    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+    async def provide_template(self, document: Document) -> ProvidedTemplate:
         if isinstance(document.resource, Event):
             include: Collection[MachineName]
             if self._configuration.include is not None:
@@ -842,9 +823,7 @@ class Columns(Template, DataManufacturable[ColumnsConfiguration]):
         )
 
     @override
-    async def provide_template(
-        self, document: Document
-    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+    async def provide_template(self, document: Document) -> ProvidedTemplate:
         return "component/raspberry-mint/columns.html.j2", {
             "columns_content": self._configuration.content,
             "columns_justify_content": self._configuration.justify_content,
@@ -870,9 +849,7 @@ class Enclosees(Template, Manufacturable):
         return cls(jinja=await raspberry_mint.services.jinja)
 
     @override
-    async def provide_template(
-        self, document: Document
-    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+    async def provide_template(self, document: Document) -> ProvidedTemplate:
         if isinstance(document.resource, Place):
             return "component/raspberry-mint/enclosees.html.j2", {
                 "enclosees": list(self._enclosees(document.resource))
@@ -900,9 +877,7 @@ class FileReferees(Template, Manufacturable):
         return cls(jinja=await raspberry_mint.services.jinja)
 
     @override
-    async def provide_template(
-        self, document: Document
-    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+    async def provide_template(self, document: Document) -> ProvidedTemplate:
         if isinstance(document.resource, File):
             return "entity/list.html.j2", {
                 "entities": [referee.referee for referee in document.resource.referees]
@@ -925,9 +900,7 @@ class Citations(Template, Manufacturable):
         return cls(jinja=await raspberry_mint.services.jinja)
 
     @override
-    async def provide_template(
-        self, document: Document
-    ) -> str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None:
+    async def provide_template(self, document: Document) -> ProvidedTemplate:
         if isinstance(document.resource, HasCitations):
             return "component/raspberry-mint/citations.html.j2", {
                 "citations": document.resource.citations
