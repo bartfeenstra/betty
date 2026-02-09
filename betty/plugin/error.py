@@ -19,7 +19,7 @@ from betty.plugin import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Collection
 
     from betty.machine_name import MachineName
 
@@ -51,7 +51,7 @@ class PluginNotFound(PluginUnavailable):
         self,
         plugin_type: PluginTypeDefinition[Any, _PluginDefinitionT],
         plugin_not_found: MachineName,
-        available_plugins: Sequence[ResolvableId[_PluginDefinitionT]],
+        available_plugins: Collection[ResolvableId[_PluginDefinitionT]],
         /,
     ):
         super().__init__(

@@ -1,5 +1,5 @@
 """
-Access discovered plugins.
+Access plugins.
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ _PluginDefinitionT = TypeVar(
 
 class PluginRepository(ABC, Generic[_PluginDefinitionT]):
     """
-    Access discovered plugins.
+    Access the plugins of a given type.
     """
 
     def __init__(self, plugin_type: builtins.type[_PluginDefinitionT], /):
@@ -51,11 +51,11 @@ class PluginRepository(ABC, Generic[_PluginDefinitionT]):
         :raises PluginUnavailable: if no plugin can be found for the given ID.
         """
 
-    @abstractmethod
     async def plugins(self) -> Collection[_PluginDefinitionT]:
         """
         Get all plugins.
         """
+        return tuple(plugin async for plugin in self)
 
     @abstractmethod
     def __aiter__(self) -> AsyncIterator[_PluginDefinitionT]:

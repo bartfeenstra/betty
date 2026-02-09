@@ -15,6 +15,14 @@ from betty.plugin import PluginDefinition
 _PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
 
 
+# @todo As this is right now, it's just an 'assert the value is one of theses statically defined values', which is not
+# @todo at all specific to plugins.
+# @todo
+# @todo However, we do need the original version of this assertion (which returned PluginDefinition) for things like
+# @todo assert_extension_has_assets_directory_path()
+# @todo
+# @todo
+# @todo
 def assert_plugin(
     plugins: Collection[MachineName], /
 ) -> AssertionChain[Any, MachineName]:

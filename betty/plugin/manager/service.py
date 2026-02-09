@@ -12,6 +12,7 @@ from betty import plugin
 from betty.concurrent import AsynchronizedLock, Ledger
 from betty.plugin import PluginDefinition
 from betty.plugin.manager import PluginManager
+from betty.plugin.repository.discovery import DiscoveryPluginRepository
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -52,7 +53,7 @@ class ServiceLevelPluginManager(PluginManager):
             plugin_type = cast(type[_PluginDefinitionT], self.types[plugin_type])
         if self._plugins is None:
             self._plugins = {
-                plugin_type: DiscoverablePluginRepository(plugin_type)
+                plugin_type: DiscoveryPluginRepository(plugin_type)
                 for plugin_type in self.types
             }
-        return self._plugins[plugin_type]
+        return self._plugins[plugin_type]  # ty:ignore[invalid-return-type]

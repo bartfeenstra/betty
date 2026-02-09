@@ -17,15 +17,7 @@ from enum import Enum
 from functools import lru_cache
 from pathlib import Path
 from types import NoneType
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Generic,
-    TypeAlias,
-    TypeVar,
-    final,
-    overload,
-)
+from typing import TYPE_CHECKING, Any, Generic, TypeAlias, TypeVar, final, overload
 
 from betty.data.indicator.selector import Index, Key
 from betty.error import FileNotFound
@@ -40,9 +32,9 @@ if TYPE_CHECKING:
 
     from betty.locale.localizable import Localizable
 
+_T = TypeVar("_T")
 Number: TypeAlias = int | float
 _NumberT = TypeVar("_NumberT", bound=Number)
-
 _EnumT = TypeVar("_EnumT", bound=Enum)
 _AssertionValueT = TypeVar("_AssertionValueT")
 _AssertionReturnT = TypeVar("_AssertionReturnT")
@@ -535,20 +527,26 @@ def assert_len(
     return AssertionChain(_assert_len)
 
 
+def assert_option(*options: _T) -> AssertionChain[Any, _T]:
+    """
+    Assert that a value is one of the given options.
+    """
+
+    def _assert_option(value: Any) -> _T:
+        if value not in options:
+            raise HumanFacingException(
+                Paragraph(
+                    _("Invalid option {value}.").format(value=str(value)),
+                    do_you_mean(*map(str, options)),
+                )
+            )
+        return value
+
+    return AssertionChain(_assert_option)
+
+
 def assert_enum(options: type[_EnumT]) -> AssertionChain[Any, _EnumT]:
     """
     Assert that a value is allowed by an enum, and return the enum value.
     """
-
-    def _assert_enum(value: Any) -> Any:
-        try:
-            return options(value)
-        except ValueError:
-            raise HumanFacingException(
-                Paragraph(
-                    _("Invalid option {value}.").format(value=str(value)),
-                    do_you_mean(*[option.value for option in options]),
-                )
-            ) from None
-
-    return AssertionChain(_assert_enum)
+    return assert_option(*(option.value for option in options))

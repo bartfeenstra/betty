@@ -13,7 +13,7 @@ from betty.plugin.error import PluginNotFound
 from betty.plugin.repository import PluginRepository
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator
+    from collections.abc import AsyncIterator, Collection
 
     from betty.machine_name import MachineName
 
@@ -47,5 +47,10 @@ class StaticPluginRepository(PluginRepository[_PluginDefinitionT]):
             ) from None
 
     @override
-    def __aiter__(self) -> AsyncIterator[_PluginDefinitionT]:
-        yield from self._plugins.values()
+    async def __aiter__(self) -> AsyncIterator[_PluginDefinitionT]:
+        for value in self._plugins.values():
+            yield value
+
+    @override
+    async def ids(self) -> Collection[MachineName]:
+        return list(self._plugins)
