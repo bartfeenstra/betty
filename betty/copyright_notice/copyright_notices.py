@@ -17,7 +17,7 @@ from betty.locale.localizable import resolve_localizable
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.plain import Plain
 from betty.locale.localizable.static import StaticTranslations
-from betty.service.level import Manufacturable
+from betty.service.factory import Manufacturable
 from betty.service.requirement.app import require_app
 from betty.service.requirement.project import require_project
 

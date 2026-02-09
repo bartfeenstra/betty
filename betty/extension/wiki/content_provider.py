@@ -14,7 +14,7 @@ from betty.document import Document
 from betty.extension.wiki import Wiki
 from betty.locale.localizable.gettext import _
 from betty.project import Project
-from betty.service.level import Manufacturable
+from betty.service.factory import Manufacturable
 from betty.service.requirement.extension import require_extension
 from betty.service.requirement.project import require_project
 

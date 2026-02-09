@@ -6,20 +6,19 @@ from typing import Any, Self
 
 from typing_extensions import override
 
-from betty.service.level import DataManufacturable, Manufacturable, ServiceLevel
+from betty.service.factory import DataManufacturable, Manufacturable
+from betty.service.level import ServiceLevel
 from betty.test_utils.data import DummyData
 
 
 class DummyDataManufacturable(DataManufacturable[DummyData], Manufacturable):
     """
-    A dummy :py:class:`betty.service.level.DataManufacturable` implementation.
+    A dummy :py:class:`betty.service.factory.DataManufacturable` implementation.
     """
 
-    def __init__(
-        self, *args: Any, configuration: DummyData | None = None, **kwargs: Any
-    ):
+    def __init__(self, *args: Any, data: DummyData | None = None, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        self.configuration = DummyData() if configuration is None else configuration
+        self.data = DummyData() if data is None else data
 
     @override
     @classmethod
@@ -31,4 +30,4 @@ class DummyDataManufacturable(DataManufacturable[DummyData], Manufacturable):
     async def new(
         cls, services: ServiceLevel, data: DummyData | None = None, /
     ) -> Self:
-        return cls(configuration=data)
+        return cls(data=data)

@@ -39,7 +39,8 @@ from betty.service.container import (
     StaticService,
     service,
 )
-from betty.service.level import DataManufacturable, ServiceLevel
+from betty.service.factory import DataManufacturable
+from betty.service.level import ServiceLevel
 from betty.typing import threadsafe
 from betty.user.no_op import NoOpUser
 
@@ -226,7 +227,7 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel):
                 ClientErrorToUserMessageMiddleware(self.user),
                 RateLimitMiddleware(
                     [
-                        await self.new_target(http_rate_limits[rate_limit_id].cls)
+                        await self.factory.new(http_rate_limits[rate_limit_id].cls)
                         for rate_limit_id in rate_limit_sorter.static_order()
                     ]
                 ),

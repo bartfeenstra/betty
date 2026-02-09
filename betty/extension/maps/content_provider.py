@@ -15,7 +15,7 @@ from betty.content_provider.content_providers import Template
 from betty.document import Document
 from betty.extension.maps import Maps
 from betty.locale.localizable.gettext import _
-from betty.service.level import Manufacturable
+from betty.service.factory import Manufacturable
 from betty.service.requirement.extension import require_extension
 
 

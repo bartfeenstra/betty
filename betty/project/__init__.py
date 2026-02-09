@@ -39,7 +39,8 @@ from betty.project.data import ProjectConfiguration
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.serde import SerializerDefinition, serializer_for
 from betty.service.container import service
-from betty.service.level import UNIVERSE, DataManufacturable, ServiceLevel
+from betty.service.factory import DataManufacturable
+from betty.service.level import UNIVERSE, ServiceLevel
 from betty.typing import internal
 
 if TYPE_CHECKING:
@@ -303,7 +304,7 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel):
         """
         return RenderDispatcher(
             *[
-                await self.new_target(plugin.cls)
+                await self.factory.new(plugin.cls)
                 for plugin in await self.plugins.plugins(RendererDefinition)
             ]
         )
@@ -343,7 +344,7 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel):
                         enabled_extension_id
                     ].new_plugin(self, ExtensionDefinition)
                 else:
-                    extension = await self.new_target(enabled_extension_definition.cls)
+                    extension = await self.factory.new(enabled_extension_definition.cls)
                 await extension.bootstrap()
                 enabled_extension_batch.append(extension)
                 extensions_sorter.done(enabled_extension_id)

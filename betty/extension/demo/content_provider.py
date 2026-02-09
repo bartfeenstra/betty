@@ -11,7 +11,7 @@ from betty.content_provider import ContentProviderDefinition
 from betty.content_provider.content_providers import Template
 from betty.document import Document
 from betty.project import Project
-from betty.service.level import Manufacturable
+from betty.service.factory import Manufacturable
 from betty.service.requirement.project import require_project
 
 

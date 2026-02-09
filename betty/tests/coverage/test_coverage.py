@@ -225,12 +225,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/service/container.py": {
         "ServiceInitializedError": MissingReason.ABSTRACT,
     },
-    "betty/service/hydrate.py": {
-        "Hydratable": MissingReason.ABSTRACT,
-    },
-    "betty/service/level.py": {
+    "betty/service/factory.py": {
         "DataManufacturable": MissingReason.ABSTRACT,
         "Manufacturable": MissingReason.ABSTRACT,
+    },
+    "betty/service/hydrate.py": {
+        "Hydratable": MissingReason.ABSTRACT,
     },
     "betty/service/requirement/__init__.py": {
         "CallableRequirement": {

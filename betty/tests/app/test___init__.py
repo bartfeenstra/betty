@@ -5,7 +5,7 @@ from typing import Self
 from typing_extensions import override
 
 from betty.app import App
-from betty.service.level import Manufacturable
+from betty.service.factory import Manufacturable
 from betty.service.requirement.app import require_app
 from betty.test_utils.plugin import DummyPluginDefinition
 from betty.test_utils.user import StaticUser

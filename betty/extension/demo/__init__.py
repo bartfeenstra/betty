@@ -26,7 +26,7 @@ from betty.locale.localizable.gettext import _
 from betty.project import Project, generate
 from betty.project.job import ProjectContext
 from betty.project.load import Loader, load
-from betty.service.level import Manufacturable
+from betty.service.factory import Manufacturable
 from betty.service.requirement.project import require_project
 from betty.typing import internal
 

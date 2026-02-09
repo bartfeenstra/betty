@@ -13,12 +13,8 @@ from betty.extension.gramps.data import GrampsConfiguration
 from betty.extension.gramps.jobs import LoadAncestry
 from betty.locale.localizable.gettext import _
 from betty.project.load import Loader
-from betty.service.level import (
-    UNIVERSE,
-    DataManufacturable,
-    Manufacturable,
-    ServiceLevel,
-)
+from betty.service.factory import DataManufacturable, Manufacturable
+from betty.service.level import UNIVERSE, ServiceLevel
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler

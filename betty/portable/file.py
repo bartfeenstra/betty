@@ -27,7 +27,7 @@ async def assert_load_file() -> AssertionChain[Path, PortableData]:
     An assertion to load a dump from a file.
     """
     available_formats = {
-        available_format: await UNIVERSE.new_target(available_format.cls)
+        available_format: await UNIVERSE.factory.new(available_format.cls)
         for available_format in await UNIVERSE.plugins.plugins(SerializerDefinition)
     }
 
@@ -52,7 +52,7 @@ async def dump_file(portable: PortableData, file_path: Path, /) -> None:
     """
     Write a dump to a file.
     """
-    serializer = await UNIVERSE.new_target(
+    serializer = await UNIVERSE.factory.new(
         serializer_for(
             list(await UNIVERSE.plugins.plugins(SerializerDefinition)), file_path.suffix
         ).cls

@@ -781,7 +781,7 @@ class TestCitations:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = await project.new_target(Citations)
+                sut = await project.factory.new(Citations)
         assert await sut.provide(document=Document(resource)) is None
 
     async def test_provide_template__with_citation(self, isolated_app: App) -> None:
@@ -790,7 +790,7 @@ class TestCitations:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = await project.new_target(Citations)
+                sut = await project.factory.new(Citations)
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
         assert 'href="#reference-1"' in actual

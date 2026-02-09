@@ -23,7 +23,7 @@ from typing_extensions import override
 from betty.exception import HumanFacingException
 from betty.functools import Do
 from betty.locale.localizable.gettext import _
-from betty.service.level import Manufacturable
+from betty.service.factory import Manufacturable
 from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:

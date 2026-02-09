@@ -13,7 +13,7 @@ from betty.dirs import DEV_OUTPUT_DIRECTORY_PATH
 from betty.extension.demo import generate_with_cleanup
 from betty.extension.demo.project import create_project
 from betty.project.job import ProjectContext
-from betty.service.level import Manufacturable
+from betty.service.factory import Manufacturable
 from betty.service.requirement.app import require_app
 
 if TYPE_CHECKING:

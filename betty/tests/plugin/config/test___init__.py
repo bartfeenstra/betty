@@ -324,7 +324,7 @@ class TestPluginConfiguration:
             UNIVERSE, _DataManufacturableDummyPluginDefinition
         )
         assert isinstance(plugin, _DataManufacturableDummyPluginOne)
-        assert plugin.configuration is configuration
+        assert plugin.data is configuration
 
 
 @pytest.mark.parametrize(

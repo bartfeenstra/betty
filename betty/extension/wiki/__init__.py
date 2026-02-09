@@ -19,7 +19,7 @@ from betty.locale.localizable.gettext import _
 from betty.project import Project
 from betty.project.load import PostLoader
 from betty.service.container import service
-from betty.service.level import DataManufacturable, Manufacturable
+from betty.service.factory import DataManufacturable, Manufacturable
 from betty.service.requirement.project import require_project
 from betty.typing import private
 from betty.wiki import NotAPageError, parse_page_url
@@ -114,7 +114,7 @@ class Wiki(
         return cls(
             populate_images=None if data is None else data.populate_images,
             project=project,
-            wikipedia_contributors_copyright_notice=await project.new_target(
+            wikipedia_contributors_copyright_notice=await project.factory.new(
                 copyright_notices["wikipedia-contributors"].cls
             ),
         )

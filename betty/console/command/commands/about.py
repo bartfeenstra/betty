@@ -14,7 +14,8 @@ from betty.console.project import add_project_argument
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _
 from betty.rich.user import RichUser
-from betty.service.level import UNIVERSE, Manufacturable
+from betty.service.factory import Manufacturable
+from betty.service.level import UNIVERSE
 from betty.service.requirement.app import require_app
 
 if TYPE_CHECKING:
