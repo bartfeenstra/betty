@@ -61,8 +61,5 @@ class Spdx(Manufacturable, Extension[App]):
 
 
 LicenseDefinition.type().discoverer.add(
-    # @todo The repo is now aiter, not iter.
-    # @todo We could really use a helper at this point.
-    # @todo
-    require_extension(Spdx)(lambda spdx: spdx.license_repository),
+    require_extension(Spdx)(lambda spdx: spdx.license_repository.plugins()),
 )

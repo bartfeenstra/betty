@@ -22,6 +22,13 @@ _PluginDefinitionT = TypeVar(
 )
 
 
+# @todo Can we make this entire class obsolete?
+# @todo Make both methods separate properties on ServiceLevel.
+# @todo Move any code we still need from ServiceLevelPluginManager to betty.service
+# @todo
+# @todo
+# @todo
+# @todo
 @threadsafe
 class PluginManager(ABC):
     """
