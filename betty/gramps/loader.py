@@ -107,7 +107,7 @@ from betty.plugin.config import (
     resolve_plugin_configuration_mapping,
 )
 from betty.plugin.error import PluginUnavailable
-from betty.presence_role import PresenceRole, PresenceRoleDefinition
+from betty.presence_role import PresenceRoleDefinition
 from betty.presence_role.presence_roles import (
     Attendee,
     Celebrant,
@@ -851,9 +851,11 @@ class GrampsLoader:
         else:
             try:
                 gender = await self._services.factory.new(
-                    (await self._services.plugins.plugins(GenderDefinition))[
-                        gender_id
-                    ].cls
+                    (
+                        await self._services.plugin.plugins(GenderDefinition).plugin(
+                            gender_id
+                        )
+                    ).cls
                 )
             except PluginUnavailable:
                 await self._user.message_warning(
@@ -866,7 +868,7 @@ class GrampsLoader:
         person = Person(id=element.get("id"), gender=gender)  # ty:ignore[invalid-argument-type]
 
         name_elements = sorted(
-            self._xpath(element, "./ns:name"), key=lambda x: x.get("alt") == "1"
+            self._xpath(element, "./ns:name"), key=lambda x: x.plugin("alt") == "1"
         )
         person_names = []
         for name_element in name_elements:

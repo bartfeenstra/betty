@@ -65,14 +65,17 @@ class EntityReference(Data, Hydratable):
     @override
     @require_project
     async def hydrate(self, project: Project, /) -> None:
-        entity_type = assert_plugin(await project.plugins.plugins(EntityDefinition))(
-            self.type
-        )
+        entity_type = assert_plugin(
+            [
+                entity_type.id
+                async for entity_type in project.plugin.plugins(EntityDefinition)
+            ]
+        )(self.type)
         try:
             project.ancestry[self.type][self.id]
         except KeyError:
             raise HumanFacingException(
                 _(
                     'No {entity_type} with ID "{entity_id}" exists in your ancestry.'
-                ).format(entity_type=entity_type.label, entity_id=self.id)
+                ).format(entity_type=entity_type, entity_id=self.id)
             ) from None

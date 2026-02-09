@@ -8,7 +8,6 @@ from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.assertion import assert_locale, assert_path, assert_str
-from betty.extension import Extension, ExtensionDefinition
 from betty.extension.deriver import Deriver
 from betty.extension.gramps import Gramps
 from betty.extension.gramps.data import FamilyTree, GrampsConfiguration
@@ -36,6 +35,7 @@ if TYPE_CHECKING:
     from babel import Locale
 
     from betty.app import App
+    from betty.extension import Extension, ExtensionDefinition
     from betty.locale.localizable import Localizable
     from betty.user import User
 
@@ -44,7 +44,6 @@ async def new(app: App) -> None:
     """
     Create a new project.
     """
-    await app.plugins.plugins(ExtensionDefinition)
     localizers = await app.localizers
 
     configuration_file_path = await app.user.ask_input(
@@ -82,7 +81,7 @@ async def new(app: App) -> None:
             RaspberryMint,
             RaspberryMintConfiguration(
                 regional_content=regional_content(
-                    localizers=[localizers.get(locale) for locale in locales]
+                    localizers=[localizers.plugin(locale) for locale in locales]
                 )
             ),
         ),
@@ -98,7 +97,7 @@ async def new(app: App) -> None:
 
     name = await app.user.ask_input(
         _("What is your project's machine name?"),
-        default=str(machinify(title.localize(localizers.get(locales[0])))),
+        default=str(machinify(title.localize(localizers.plugin(locales[0])))),
         assertion=assert_machine_name(),
     )
 

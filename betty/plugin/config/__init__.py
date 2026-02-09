@@ -185,7 +185,7 @@ class PluginConfiguration(
                 OptionalField("configuration"),
             ),
         )(portable)
-        return cls(record["id"], record.get("configuration", Void()))
+        return cls(record["id"], record.plugin("configuration", Void()))
 
     @override
     @classmethod
@@ -220,7 +220,7 @@ class PluginConfiguration(
         Create a new instance of the configured plugin.
         """
         return await services.factory.new(
-            (await services.plugins.plugins(plugin_type))[self.id].cls,
+            (await services.plugin.plugins(plugin_type).plugin(self.id)).cls,
             self.configuration,
         )
 

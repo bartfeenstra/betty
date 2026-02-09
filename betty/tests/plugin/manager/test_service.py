@@ -17,10 +17,11 @@ class TestServiceLevelPluginManager:
 
     async def test_plugins__with_plugin_type(self) -> None:
         sut = ServiceLevelPluginManager(UNIVERSE)
-        assert await sut.plugins(DummyPluginDefinition) is await sut.plugins(
-            DummyPluginDefinition
+        assert sut.plugins(DummyPluginDefinition) is sut.plugins(DummyPluginDefinition)
+        assert (
+            DummyPluginOne.plugin()
+            in await sut.plugins(DummyPluginDefinition).plugins()
         )
-        assert DummyPluginOne.plugin() in await sut.plugins(DummyPluginDefinition)
 
     async def test_plugins__with_plugin_type_id(self, mocker: MockerFixture) -> None:
         plugin_type_repository = PluginTypeRepository()
@@ -31,8 +32,9 @@ class TestServiceLevelPluginManager:
             "betty.plugin.PluginTypeRepository", return_value=plugin_type_repository
         )
         sut = ServiceLevelPluginManager(UNIVERSE)
-        assert DummyPluginOne.plugin() in await sut.plugins(
-            DummyPluginDefinition.type().id
+        assert (
+            DummyPluginOne.plugin()
+            in await sut.plugins(DummyPluginDefinition.type().id).plugins()
         )
 
     async def test_plugins__should_forward_services(self, isolated_app: App) -> None:
@@ -42,7 +44,7 @@ class TestServiceLevelPluginManager:
 
         sut = ServiceLevelPluginManager(isolated_app)
         with DummyPluginDefinition.type().discoverer.override(require_app(_discovery)):
-            await sut.plugins(DummyPluginDefinition)
+            await sut.plugins(DummyPluginDefinition).plugins()
 
     async def test_plugins__with_overridden_discoveries(self) -> None:
         @DummyPluginDefinition("dummy-plugin-override")
@@ -51,5 +53,9 @@ class TestServiceLevelPluginManager:
 
         sut = ServiceLevelPluginManager(UNIVERSE)
         with DummyPluginDefinition.type().discoverer.override(_Plugin):
-            assert _Plugin.plugin() in await sut.plugins(DummyPluginDefinition)
-        assert _Plugin.plugin() not in await sut.plugins(DummyPluginDefinition)
+            assert (
+                _Plugin.plugin() in await sut.plugins(DummyPluginDefinition).plugins()
+            )
+        assert (
+            _Plugin.plugin() not in await sut.plugins(DummyPluginDefinition).plugins()
+        )

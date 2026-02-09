@@ -7,7 +7,6 @@ from typing_extensions import override
 from betty.app import App
 from betty.service.factory import Manufacturable
 from betty.service.requirement.app import require_app
-from betty.test_utils.plugin import DummyPluginDefinition
 from betty.test_utils.user import StaticUser
 
 
@@ -23,9 +22,6 @@ class _Manufacturable(Manufacturable):
 
 
 class TestApp:
-    async def test_plugins(self, isolated_app: App) -> None:
-        await isolated_app.plugins.plugins(DummyPluginDefinition)
-
     async def test_new_from_environment(self, isolated_app: App) -> None:
         assert isolated_app.cache is isolated_app.cache
 

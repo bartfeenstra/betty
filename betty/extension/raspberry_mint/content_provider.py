@@ -612,7 +612,7 @@ class Presences(Template, DataManufacturable[PresencesConfiguration]):
         return cls(
             configuration=data,
             jinja=await raspberry_mint.services.jinja,
-            presence_roles=await raspberry_mint.services.plugins.plugins(
+            presence_roles=raspberry_mint.services.plugin.plugins(
                 PresenceRoleDefinition
             ),
         )
@@ -626,7 +626,7 @@ class Presences(Template, DataManufacturable[PresencesConfiguration]):
             if self._configuration.include is not None:
                 include = self._configuration.include
             else:
-                include = {role.id for role in self._presence_roles}
+                include = {role.id async for role in self._presence_roles}
                 if self._configuration.exclude is not None:
                     include -= set(self._configuration.exclude)
             return "component/raspberry-mint/presences.html.j2", {

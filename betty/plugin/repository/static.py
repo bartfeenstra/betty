@@ -13,7 +13,7 @@ from betty.plugin.error import PluginNotFound
 from betty.plugin.repository import PluginRepository
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import AsyncIterator
 
     from betty.machine_name import MachineName
 
@@ -38,12 +38,14 @@ class StaticPluginRepository(PluginRepository[_PluginDefinitionT]):
         }
 
     @override
-    def get(self, plugin_id: MachineName, /) -> _PluginDefinitionT:
+    async def plugin(self, plugin_id: MachineName, /) -> _PluginDefinitionT:
         try:
             return self._plugins[plugin_id]  # ty:ignore[invalid-return-type]
         except KeyError:
-            raise PluginNotFound(self.type.type(), plugin_id, list(self)) from None
+            raise PluginNotFound(
+                self.type.type(), plugin_id, await self.plugins()
+            ) from None
 
     @override
-    def __iter__(self) -> Iterator[_PluginDefinitionT]:
+    def __aiter__(self) -> AsyncIterator[_PluginDefinitionT]:
         yield from self._plugins.values()

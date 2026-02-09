@@ -16,7 +16,7 @@ from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Collection
 
     from betty.media_type import MediaType
     from betty.portable import PortableData
@@ -71,7 +71,7 @@ class SerializerDefinition(HumanFacingDefinition, PluginDefinition[Serializer]):
 
 
 def serializer_for(
-    available_serializers: Sequence[SerializerDefinition], extension: str, /
+    available_serializers: Collection[SerializerDefinition], extension: str, /
 ) -> SerializerDefinition:
     """
     Get the serializer for the given file extension.

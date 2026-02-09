@@ -96,12 +96,12 @@ class About(Manufacturable, Command):
         about_plugins.add_column(user.localizer._("ID"))
         about_plugins.add_column(user.localizer._("Label"))
         for plugin_type in sorted(
-            UNIVERSE.plugins.types,
+            UNIVERSE.plugin.types,
             key=lambda plugin_type: plugin_type.type().label.localize(user.localizer),
         ):
-            repository = await services.plugins.plugins(plugin_type)
+            repository = services.plugin.plugins(plugin_type)
             for index, plugin in enumerate(
-                sorted(repository, key=lambda plugin: plugin.id)
+                sorted(await repository.plugins(), key=lambda plugin: plugin.id)
             ):
                 first_column = (
                     plugin_type.type().label.localize(user.localizer)

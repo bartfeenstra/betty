@@ -67,7 +67,7 @@ async def _generate_search_index_for_locale(
     job_context: Context,
 ) -> None:
     localizers = await project.localizers
-    localizer = localizers.get(locale)
+    localizer = localizers.plugin(locale)
     search_index = {
         "resultContainerTemplate": result_container_template.localize(localizer),
         "resultsContainerTemplate": results_container_template.localize(localizer),
@@ -169,7 +169,7 @@ class Index:
         """
         Build the search index.
         """
-        entity_types = await self._project.plugins.plugins(EntityDefinition)
+        entity_types = self._project.plugin.plugins(EntityDefinition)
         specialized_indexers: Mapping[type[Entity], _EntityTypeIndexer[Entity]] = {
             File: _FileIndexer(self._project),
             Person: _PersonIndexer(self._project),
@@ -186,7 +186,7 @@ class Index:
                     self._build_entities(
                         _FallbackIndexer(self._project), entity_type.cls
                     )
-                    for entity_type in entity_types
+                    async for entity_type in entity_types
                     if entity_type.public_facing
                     and entity_type.cls not in specialized_indexers
                 ],

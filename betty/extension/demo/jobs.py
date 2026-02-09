@@ -475,9 +475,13 @@ class LoadAncestry(Job[ProjectContext]):
         self,
         project: Project,
     ) -> tuple[Mapping[MachineName, Sequence[File]], Sequence[File]]:
-        licenses = await project.plugins.plugins(LicenseDefinition)
+        licenses = project.plugin.plugins(LicenseDefinition)
         license = await project.factory.new(  # noqa: A001
-            licenses[spdx_license_id_to_license_id("AGPL-3.0-or-later")].cls
+            (
+                await licenses.plugin(
+                    spdx_license_id_to_license_id("AGPL-3.0-or-later")
+                )
+            ).cls
         )
         copyright_notice = await project.factory.new(Streetmix)
         streetmix_image_directory_path = ASSETS_DIRECTORY_PATH / "vendor" / "streetmix"

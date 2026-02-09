@@ -31,7 +31,7 @@ class ServiceLevel:
         return self._factory
 
     @property
-    def plugins(self) -> PluginManager:
+    def plugin(self) -> PluginManager:
         """
         The plugin manager.
         """

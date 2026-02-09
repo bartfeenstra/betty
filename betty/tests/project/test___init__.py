@@ -16,7 +16,6 @@ from betty.serde import SerializationError
 from betty.service.factory import Manufacturable
 from betty.service.requirement.project import require_project
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
-from betty.test_utils.plugin import DummyPluginDefinition
 from betty.test_utils.project.extension import DummyExtensionOne, DummyExtensionTwo
 
 if TYPE_CHECKING:
@@ -62,10 +61,6 @@ class TestProject:
             sut,
         ):
             assert sut.configuration is configuration
-
-    async def test_plugins(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as sut, sut:
-            await sut.plugins.plugins(DummyPluginDefinition)
 
     async def test_new__without_ancestry(
         self, isolated_app: App, tmp_path: Path
@@ -122,9 +117,9 @@ class TestProject:
         async with Project.new_isolated(isolated_app) as sut, sut:
             extensions = await sut.extensions
 
-            for betty_extension in await isolated_app.plugins.plugins(
+            for betty_extension in await isolated_app.plugin.plugins(
                 ExtensionDefinition
-            ):
+            ).plugins():
                 if betty_extension.id.startswith("betty-"):
                     assert betty_extension.id in extensions
 

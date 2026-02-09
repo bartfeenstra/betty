@@ -87,7 +87,7 @@ class GenerateStaticPublicAssets(Job[ProjectContext]):
             Path("public") / "static"
         )
         await makedirs(file_destination_path.parent, exist_ok=True)
-        await copy_function(await assets.get(asset_path), file_destination_path)
+        await copy_function(await assets.plugin(asset_path), file_destination_path)
 
 
 @final
@@ -291,7 +291,7 @@ class GenerateLocalizedPublicAssets(Job[ProjectContext]):
             locale: jinja.make_copy_function(
                 document=await project.new_document(
                     job_context=scheduler.context,
-                    localizer=localizers.get(locale),
+                    localizer=localizers.plugin(locale),
                 ),
                 www_directory_path=project.www_directory,
                 is_localized_and_multilingual=project.configuration.multilingual,
@@ -319,7 +319,7 @@ class GenerateLocalizedPublicAssets(Job[ProjectContext]):
             locale
         ) / asset_path.relative_to(Path("public") / "localized")
         await makedirs(file_destination_path.parent, exist_ok=True)
-        await copy_function(await assets.get(asset_path), file_destination_path)
+        await copy_function(await assets.plugin(asset_path), file_destination_path)
 
 
 @final
@@ -450,7 +450,7 @@ class GenerateEntityTypesJson(Job[ProjectContext]):
         await gather(
             *[
                 scheduler.add(_GenerateEntityTypeJson(entity_type))
-                for entity_type in await scheduler.context.project.plugins.plugins(
+                async for entity_type in scheduler.context.project.plugin.plugins(
                     EntityDefinition
                 )
             ]
@@ -519,7 +519,7 @@ class GenerateEntityTypesHtml(Job[ProjectContext]):
                         entity_type, locale, page, self._per_page, page_count
                     )
                 )
-                for entity_type in await project.plugins.plugins(EntityDefinition)
+                async for entity_type in project.plugin.plugins(EntityDefinition)
                 if entity_type.public_facing
                 and (
                     entity_type.id in project.configuration.entity_types
@@ -578,7 +578,7 @@ class _GenerateEntityTypeHtml(Job[ProjectContext]):
                 self._entity_type,
                 self._entity_type,
                 job_context=context,
-                localizer=localizers.get(self._locale),
+                localizer=localizers.plugin(self._locale),
             ),
             page=self._page,
             per_page=self._per_page,
@@ -619,7 +619,7 @@ class GenerateEntitiesJson(Job[ProjectContext]):
         await gather(
             *[
                 scheduler.add(_GenerateEntityJson(entity_type, entity.id))
-                for entity_type in await project.plugins.plugins(EntityDefinition)
+                async for entity_type in project.plugin.plugins(EntityDefinition)
                 for entity in project.ancestry[entity_type.cls]
                 if persistent_id(entity)
             ]
@@ -669,7 +669,7 @@ class GenerateEntitiesHtml(Job[ProjectContext]):
         await gather(
             *[
                 scheduler.add(_GenerateEntityHtml(entity_type, entity.id, locale))
-                for entity_type in await project.plugins.plugins(EntityDefinition)
+                async for entity_type in project.plugin.plugins(EntityDefinition)
                 if entity_type.public_facing
                 for entity in project.ancestry[entity_type.cls]
                 if persistent_id(entity) and is_public(entity)
@@ -714,7 +714,7 @@ class _GenerateEntityHtml(Job[ProjectContext]):
                 entity,
                 entity,
                 job_context=context,
-                localizer=localizers.get(self._locale),
+                localizer=localizers.plugin(self._locale),
             )
         )
         async with create_html_resource(entity_path) as f:

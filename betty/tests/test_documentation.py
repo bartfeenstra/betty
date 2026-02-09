@@ -43,7 +43,7 @@ class TestDocumentation:
             ROOT_DIRECTORY_PATH / "documentation" / "usage" / "console.rst"
         ) as f:
             actual = await f.read()
-        for command in await isolated_app.plugins.plugins(CommandDefinition):
+        async for command in isolated_app.plugin.plugins(CommandDefinition):
             assert command.id in actual
             assert command.label.localize(DEFAULT_LOCALIZER) in actual
 

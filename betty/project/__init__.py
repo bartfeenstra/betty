@@ -165,7 +165,7 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
         if configuration_file == self._configuration_file:
             return
         serializer_for(
-            list(await UNIVERSE.plugins.plugins(SerializerDefinition)),
+            await UNIVERSE.plugin.plugins(SerializerDefinition).plugins(),
             configuration_file.suffix,
         )
         self._configuration_file = configuration_file
@@ -278,7 +278,7 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
         The public localizers.
         """
         localizers = await self.localizers
-        return [localizers.get(locale) for locale in self.configuration.locales.keys()]  # noqa: SIM118
+        return [localizers.plugin(locale) for locale in self.configuration.locales]  # noqa: SIM118
 
     @service
     async def url_generator(self) -> UrlGenerator:
@@ -306,7 +306,7 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
         return RenderDispatcher(
             *[
                 await self.factory.new(plugin.cls)
-                for plugin in await self.plugins.plugins(RendererDefinition)
+                async for plugin in self.plugin.plugins(RendererDefinition)
             ]
         )
 
@@ -315,12 +315,12 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
         """
         The enabled extensions.
         """
-        extensions = await self.plugins.plugins(ExtensionDefinition)
+        extensions = self.plugin.plugins(ExtensionDefinition)
         configured_extension_definitions = []
         configured_extension_configurations = {}
         for extension_configuration in self.configuration.extensions:
             configured_extension_definitions.append(
-                extensions[extension_configuration.id]
+                await extensions.plugin(extension_configuration.id)
             )
             configured_extension_configurations[extension_configuration.id] = (
                 extension_configuration
@@ -337,7 +337,9 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
             enabled_extension_ids_batch = extensions_sorter.get_ready()
             enabled_extension_batch: MutableSequence[Extension] = []
             for enabled_extension_id in enabled_extension_ids_batch:
-                enabled_extension_definition = extensions[enabled_extension_id]
+                enabled_extension_definition = await extensions.plugin(
+                    enabled_extension_id
+                )
                 if enabled_extension_definition.theme:
                     theme_count += 1
                 if enabled_extension_id in configured_extension_configurations:

@@ -56,7 +56,7 @@ class TestPluginDefinitionConfigurationsProperty:
     def test_load(self) -> None:
         plugin_id = "my-first-plugin"
         owner = self._Owner.data().porter.load({"plugins": {plugin_id: {}}})
-        assert owner.plugins[plugin_id].id == plugin_id
+        assert owner.plugin[plugin_id].id == plugin_id
 
     def test_dump__minimal(self) -> None:
         assert self._Owner.data().porter.dump(self._Owner()) == {}

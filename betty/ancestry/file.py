@@ -134,7 +134,7 @@ class File(
             "copyrightNotice",
             PluginIdSchema(
                 CopyrightNoticeDefinition.type(),
-                await project.plugins.plugins(CopyrightNoticeDefinition),
+                await project.plugin.plugins(CopyrightNoticeDefinition).plugins(),
             ),
             False,
         )
@@ -142,7 +142,7 @@ class File(
             "license",
             PluginIdSchema(
                 LicenseDefinition.type(),
-                await project.plugins.plugins(LicenseDefinition),
+                await project.plugin.plugins(LicenseDefinition).plugins(),
             ),
             False,
         )

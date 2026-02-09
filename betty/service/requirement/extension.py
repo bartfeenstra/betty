@@ -70,9 +70,9 @@ async def _require_extension(
     target: str,
     extension_id: type[_ExtensionT] | ResolvableId[ExtensionDefinition],
 ) -> _ExtensionT:
-    extensions = await project.plugins.plugins(ExtensionDefinition)
+    extensions = project.plugin.plugins(ExtensionDefinition)
     try:
-        extension = extensions[resolve_id(extension_id)]
+        extension = await extensions.plugin(resolve_id(extension_id))
     except PluginNotFound as error:
         raise UnmetRequirement(error) from error
     project_extensions = await project.extensions

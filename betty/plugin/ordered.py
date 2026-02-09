@@ -74,7 +74,7 @@ _OrderedPluginDefinitionT = TypeVar(
 )
 
 
-def sort_ordered_plugin_graph(
+async def sort_ordered_plugin_graph(
     plugin_repository: PluginRepository[_OrderedPluginDefinitionT],
     plugins: Iterable[_OrderedPluginDefinitionT],
     /,
@@ -87,17 +87,17 @@ def sort_ordered_plugin_graph(
     for plugin in plugins:
         sorter.add(plugin.id)
         for before_identifier in map(resolve_id, plugin.comes_before):
-            before = plugin_repository[before_identifier]
+            before = await plugin_repository.plugin(before_identifier)
             if before in plugins:
                 sorter.add(before.id, plugin.id)
         for after_identifier in map(resolve_id, plugin.comes_after):
-            after = plugin_repository[after_identifier]
+            after = await plugin_repository.plugin(after_identifier)
             if after in plugins:
                 sorter.add(plugin.id, after.id)
     return sorter
 
 
-def get_comes_before(
+async def get_comes_before(
     plugin_repository: PluginRepository[_OrderedPluginDefinitionT],
     origin: _OrderedPluginDefinitionT,
     /,
@@ -106,17 +106,17 @@ def get_comes_before(
     Get all other plugins the given plugin comes before.
     """
     graph = defaultdict(set)
-    for plugin in plugin_repository:
+    async for plugin in plugin_repository:
         for comes_before_id in plugin.comes_before:
-            comes_before = plugin_repository[comes_before_id]
+            comes_before = await plugin_repository.plugin(comes_before_id)
             graph[plugin].add(comes_before)
         for comes_after_id in plugin.comes_after:
-            comes_after = plugin_repository[comes_after_id]
+            comes_after = await plugin_repository.plugin(comes_after_id)
             graph[comes_after].add(plugin)
     return set(_collect_plugin_graph(graph, origin))
 
 
-def get_comes_after(
+async def get_comes_after(
     plugin_repository: PluginRepository[_OrderedPluginDefinitionT],
     origin: _OrderedPluginDefinitionT,
     /,
@@ -125,12 +125,12 @@ def get_comes_after(
     Get all other plugins the given plugin comes after.
     """
     graph = defaultdict(set)
-    for plugin in plugin_repository:
+    async for plugin in plugin_repository:
         for comes_after_id in plugin.comes_after:
-            comes_after = plugin_repository[comes_after_id]
+            comes_after = await plugin_repository.plugin(comes_after_id)
             graph[plugin].add(comes_after)
         for comes_before_id in plugin.comes_before:
-            comes_before = plugin_repository[comes_before_id]
+            comes_before = await plugin_repository.plugin(comes_before_id)
             graph[comes_before].add(plugin)
     return set(_collect_plugin_graph(graph, origin))
 

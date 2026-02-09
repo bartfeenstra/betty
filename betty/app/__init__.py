@@ -200,7 +200,9 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ManagedLifeCycle):
         """
         Get the application's user-facing localizer.
         """
-        return (await self.localizers).get(self._configuration.locale or DEFAULT_LOCALE)
+        return (await self.localizers).plugin(
+            self._configuration.locale or DEFAULT_LOCALE
+        )
 
     @service
     async def localizers(self) -> LocalizerRepository:
@@ -214,9 +216,10 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ManagedLifeCycle):
         """
         The HTTP client.
         """
-        http_rate_limits = await self.plugins.plugins(RateLimitDefinition)
-        rate_limit_sorter = sort_ordered_plugin_graph(
-            http_rate_limits, http_rate_limits
+        http_rate_limits = self.plugin.plugins(RateLimitDefinition)
+        rate_limit_sorter = await sort_ordered_plugin_graph(
+            http_rate_limits,
+            [http_rate_limit async for http_rate_limit in http_rate_limits],
         )
 
         http_client: aiohttp.ClientSession = CachedSession(
@@ -228,7 +231,9 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ManagedLifeCycle):
                 ClientErrorToUserMessageMiddleware(self.user),
                 RateLimitMiddleware(
                     [
-                        await self.factory.new(http_rate_limits[rate_limit_id].cls)
+                        await self.factory.new(
+                            (await http_rate_limits.plugin(rate_limit_id)).cls
+                        )
                         for rate_limit_id in rate_limit_sorter.static_order()
                     ]
                 ),

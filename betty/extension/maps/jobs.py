@@ -60,7 +60,7 @@ class _GeneratePlacePreview(Job[ProjectContext]):
         ).render_async(
             document=await project.new_document(
                 job_context=context,
-                localizer=localizers.get(self._locale),
+                localizer=localizers.plugin(self._locale),
             ),
             place=place,
         )

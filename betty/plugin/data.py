@@ -48,7 +48,7 @@ class PluginIdDefinition(DataDefinition[MachineName]):
     @override
     async def hydrate(self, services: ServiceLevel, data: MachineName, /) -> None:
         if self._plugin_type is not None:
-            (await services.plugins.plugins(self._plugin_type)).get(data)
+            await services.plugin.plugins(self._plugin_type).plugin(data)
 
 
 @final

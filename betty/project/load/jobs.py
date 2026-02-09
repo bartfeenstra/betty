@@ -87,7 +87,7 @@ class PopulateLink(Job[ProjectContext]):
     ) -> None:
         http_client = await project.app.http_client
         try:
-            response = await http_client.get(url)
+            response = await http_client.plugin(url)
         except ClientError:
             return
         try:

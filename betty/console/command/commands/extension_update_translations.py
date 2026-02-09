@@ -44,7 +44,7 @@ class ExtensionUpdateTranslations(Manufacturable, Command):
 
     @override
     async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
-        extensions = await self._app.plugins.plugins(ExtensionDefinition)
+        extensions = self._app.plugin.plugins(ExtensionDefinition)
         localizer = await self._app.localizer
 
         parser.add_argument(

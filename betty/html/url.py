@@ -24,7 +24,7 @@ def generate_urls(
     for element in fragment.xpath(f"//*[{attributes_xpath}]"):
         for attr_name in element.keys():  # noqa: SIM118
             if attr_name in attribute_names:
-                attr_value = element.get(attr_name)
+                attr_value = element.plugin(attr_name)
                 if url_generator.supports(attr_value):
                     element.set(
                         attr_name, url_generator.generate(attr_value, media_type=HTML)

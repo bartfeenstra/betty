@@ -126,7 +126,7 @@ class WikipediaContributors(Manufacturable, CopyrightNotice):
             DEFAULT_LOCALE: _copyright_url("en", "Wikipedia:Copyrights"),
         }
         try:
-            response = await http_client.get(
+            response = await http_client.plugin(
                 "https://en.wikipedia.org/w/api.php?action=query&titles=Wikipedia:Copyrights&prop=langlinks&lllimit=500&format=json&formatversion=2"
             )
             response_json = await response.json()

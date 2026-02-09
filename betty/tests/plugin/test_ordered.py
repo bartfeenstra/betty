@@ -81,11 +81,11 @@ class TestOrderedPluginDefinition:
         ),
     ],
 )
-def test_sort_ordered_plugin_graph(
+async def test_sort_ordered_plugin_graph(
     expected: list[MachineName],
     plugins: Iterable[_OrderedPluginDefinition],
 ) -> None:
-    sorter = sort_ordered_plugin_graph(
+    sorter = await sort_ordered_plugin_graph(
         StaticPluginRepository(
             _OrderedPluginDefinition,
             _ORDERED_PLUGIN_COMES_BEFORE_TARGET,

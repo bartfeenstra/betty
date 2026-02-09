@@ -110,12 +110,12 @@ class Wiki(
     async def new(
         cls, project: Project, data: WikiConfiguration | None = None, /
     ) -> Self:
-        copyright_notices = await project.plugins.plugins(CopyrightNoticeDefinition)
+        copyright_notices = project.plugin.plugins(CopyrightNoticeDefinition)
         return cls(
             populate_images=None if data is None else data.populate_images,
             project=project,
             wikipedia_contributors_copyright_notice=await project.factory.new(
-                copyright_notices["wikipedia-contributors"].cls
+                (await copyright_notices.plugin("wikipedia-contributors")).cls
             ),
         )
 
@@ -192,7 +192,7 @@ class Wiki(
         localizers = await self.services.app.localizers
         try:
             page_language, page_name = parse_page_url(
-                link.url.localize(localizers.get(locale))
+                link.url.localize(localizers.plugin(locale))
             )
         except NotAPageError:
             return None

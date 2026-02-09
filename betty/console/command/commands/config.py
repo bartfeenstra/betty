@@ -61,7 +61,7 @@ class Config(Manufacturable, Command):
         else:
             updated_configuration = AppConfiguration()
         updated_configuration.locale = locale
-        self._app.user.localizer = localizers.get(locale)
+        self._app.user.localizer = localizers.plugin(locale)
         await self._app.user.message_information(
             _("Betty will talk to you in {locale}").format(
                 locale=locale.get_display_name() or to_language_tag(locale)

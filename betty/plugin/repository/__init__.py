@@ -13,7 +13,7 @@ from betty.plugin import PluginDefinition
 
 if TYPE_CHECKING:
     import builtins
-    from collections.abc import Iterator
+    from collections.abc import AsyncIterator, Collection
 
     from betty.machine_name import MachineName
 
@@ -27,7 +27,7 @@ class PluginRepository(ABC, Generic[_PluginDefinitionT]):
     Access discovered plugins.
     """
 
-    def __init__(self, plugin_type: builtins.type[_PluginDefinitionT]):
+    def __init__(self, plugin_type: builtins.type[_PluginDefinitionT], /):
         self._type = plugin_type
 
     @property
@@ -38,19 +38,25 @@ class PluginRepository(ABC, Generic[_PluginDefinitionT]):
         return self._type
 
     @abstractmethod
-    def get(self, plugin_id: MachineName, /) -> _PluginDefinitionT:
+    async def ids(self) -> Collection[MachineName]:
+        """
+        Get the IDs of all plugins.
+        """
+
+    @abstractmethod
+    async def plugin(self, plugin_id: MachineName, /) -> _PluginDefinitionT:
         """
         Get a single plugin by its ID.
 
         :raises PluginUnavailable: if no plugin can be found for the given ID.
         """
 
-    def __len__(self) -> int:
-        return len(list(self.__iter__()))
+    @abstractmethod
+    async def plugins(self) -> Collection[_PluginDefinitionT]:
+        """
+        Get all plugins.
+        """
 
     @abstractmethod
-    def __iter__(self) -> Iterator[_PluginDefinitionT]:
+    def __aiter__(self) -> AsyncIterator[_PluginDefinitionT]:
         pass
-
-    def __getitem__(self, plugin_id: MachineName) -> _PluginDefinitionT:
-        return self.get(plugin_id)

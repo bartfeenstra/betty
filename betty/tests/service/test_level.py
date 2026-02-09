@@ -8,7 +8,7 @@ class _TargetType:
 class TestServiceLevel:
     def test_plugins(self) -> None:
         sut = ServiceLevel()
-        assert len(list(sut.plugins.types))
+        assert len(list(sut.plugin.types))
 
     async def test_factory(self) -> None:
         sut = ServiceLevel()

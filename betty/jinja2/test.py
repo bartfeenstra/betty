@@ -122,6 +122,6 @@ async def tests() -> Mapping[str, Callable[..., bool]]:
         "private": is_private,
         "public": is_public,
     }
-    for plugin in UNIVERSE.plugins.types:
+    for plugin in UNIVERSE.plugin.types:
         tests.update(PluginTester(plugin).tests())
     return tests
