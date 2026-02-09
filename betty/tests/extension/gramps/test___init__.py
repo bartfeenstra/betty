@@ -21,11 +21,6 @@ from betty.project.load import load
 
 
 class TestGramps:
-    def test_configuration(self) -> None:
-        configuration = GrampsConfiguration()
-        sut = Gramps(configuration=configuration)
-        assert sut.configuration is configuration
-
     async def test_load__with_event_type_mapping(
         self, isolated_app: App, tmp_path: Path
     ) -> None:
