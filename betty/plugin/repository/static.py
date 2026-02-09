@@ -47,6 +47,10 @@ class StaticPluginRepository(PluginRepository[_PluginDefinitionT]):
             ) from None
 
     @override
+    async def plugins(self) -> Collection[_PluginDefinitionT]:
+        return list(self._plugins.values())
+
+    @override
     async def __aiter__(self) -> AsyncIterator[_PluginDefinitionT]:
         for value in self._plugins.values():
             yield value

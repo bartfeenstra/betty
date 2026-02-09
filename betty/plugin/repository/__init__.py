@@ -51,11 +51,11 @@ class PluginRepository(ABC, Generic[_PluginDefinitionT]):
         :raises PluginUnavailable: if no plugin can be found for the given ID.
         """
 
+    @abstractmethod
     async def plugins(self) -> Collection[_PluginDefinitionT]:
         """
         Get all plugins.
         """
-        return tuple(plugin async for plugin in self)
 
     @abstractmethod
     def __aiter__(self) -> AsyncIterator[_PluginDefinitionT]:
