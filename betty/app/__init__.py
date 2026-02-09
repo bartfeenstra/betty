@@ -23,6 +23,7 @@ from betty.http_client import ClientErrorToUserMessageMiddleware
 from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
 from betty.importlib import fully_qualified_name
 from betty.life_cycle import LifeCycle
+from betty.life_cycle.manage import ManagedLifeCycle
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localize import Localizer, LocalizerRepository
 from betty.locale.translation import (
@@ -61,7 +62,7 @@ _PluginDefinitionT = TypeVar(
 
 @final
 @threadsafe
-class App(DataManufacturable[AppConfiguration], ServiceLevel):
+class App(DataManufacturable[AppConfiguration], ServiceLevel, ManagedLifeCycle):
     """
     The Betty application.
 
