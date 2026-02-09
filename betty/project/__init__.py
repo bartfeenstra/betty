@@ -25,6 +25,7 @@ from betty.extension import Extension, ExtensionDefinition
 from betty.hashid import hashid
 from betty.importlib import fully_qualified_name
 from betty.license import LicenseDefinition
+from betty.life_cycle.manage import ManagedLifeCycle
 from betty.locale.localizable.gettext import _
 from betty.locale.localize import Localizer, LocalizerRepository
 from betty.locale.translation import (
@@ -66,7 +67,7 @@ _PluginDefinitionT = TypeVar(
 
 
 @final
-class Project(DataManufacturable[ProjectConfiguration], ServiceLevel):
+class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLifeCycle):
     """
     Define a Betty project.
 
