@@ -1,8 +1,5 @@
-{% set color_style_content -%}
-    {{ color_style_content_provider_configurations | provide_content }}
-{%- endset %}
 {% if color_style_content %}
     <div data-bs-theme="{{ color_style }}">
-        {{ color_style_content | safe }}
+        {{ color_style_content }}
     </div>
 {% endif %}

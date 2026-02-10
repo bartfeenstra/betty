@@ -395,12 +395,15 @@ class ColorStyle(Template, DataManufacturable[ColorStyleConfiguration]):
     @private
     def __init__(
         self,
+        /,
+        content: Iterable[ContentProvider],
         *,
         jinja: Environment,
-        configuration: ColorStyleConfiguration,
+        style: RaspberryMintColorStyle,
     ):
         super().__init__(jinja=jinja)
-        self._configuration = configuration
+        self._content = tuple(content)
+        self._style = style
 
     @override
     @classmethod
@@ -412,13 +415,24 @@ class ColorStyle(Template, DataManufacturable[ColorStyleConfiguration]):
     @require_project
     async def new(cls, project: Project, data: ColorStyleConfiguration, /) -> Self:
         await require_extension(RaspberryMint, project)
-        return cls(configuration=data, jinja=await project.jinja)
+        return cls(
+            content=await new_plugins(  # ty:ignore[invalid-argument-type]
+                project,
+                ContentProviderDefinition,
+                data.content,  # ty:ignore[invalid-argument-type]
+            ),
+            jinja=await project.jinja,
+            style=data.style,
+        )
 
     @override
     async def provide_template(self, document: Document) -> ProvidedTemplate:
+        content = await provide_content(document, self._content)
+        if content is None:
+            return None
         return "component/raspberry-mint/color-style.html.j2", {
-            "color_style": self._configuration.style.value,
-            "color_style_content_provider_configurations": self._configuration.content,
+            "color_style": self._style.value,
+            "color_style_content": content,
         }
 
 
