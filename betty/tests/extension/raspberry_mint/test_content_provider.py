@@ -47,8 +47,6 @@ from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.model.reference import EntityReference
 from betty.plugin.config import PluginConfiguration
-from betty.plugin.repository.static import StaticPluginRepository
-from betty.presence_role import PresenceRoleDefinition
 from betty.presence_role.presence_roles import Subject, Witness
 from betty.project import Project
 from betty.test_utils.ancestry.has_citations import DummyHasCitations
@@ -483,12 +481,7 @@ class TestPresences:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = Presences(
-                    jinja=await project.jinja,
-                    presence_roles=StaticPluginRepository(
-                        PresenceRoleDefinition, Subject
-                    ),
-                )
+                sut = Presences(jinja=await project.jinja)
                 assert await sut.provide(document=Document(resource)) is None
 
     async def test_provide_template__with_presences(self, isolated_app: App) -> None:
@@ -498,12 +491,7 @@ class TestPresences:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = Presences(
-                    jinja=await project.jinja,
-                    presence_roles=StaticPluginRepository(
-                        PresenceRoleDefinition, Subject
-                    ),
-                )
+                sut = Presences(jinja=await project.jinja)
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
         assert person.public_id in actual
@@ -519,13 +507,7 @@ class TestPresences:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = Presences(
-                    configuration=PresencesConfiguration(include=[Subject]),
-                    jinja=await project.jinja,
-                    presence_roles=StaticPluginRepository(
-                        PresenceRoleDefinition, Subject
-                    ),
-                )
+                sut = Presences(include=[Subject], jinja=await project.jinja)
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
         assert person_include.public_id in actual
@@ -542,12 +524,8 @@ class TestPresences:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = Presences(
-                    configuration=PresencesConfiguration(exclude=[Witness]),
-                    jinja=await project.jinja,
-                    presence_roles=StaticPluginRepository(
-                        PresenceRoleDefinition, Subject
-                    ),
+                sut = await Presences.new(
+                    project, PresencesConfiguration(exclude=[Witness])
                 )
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
