@@ -49,7 +49,7 @@ if TYPE_CHECKING:
     from betty.ancestry import Ancestry
     from betty.event_type import EventType, EventTypeDefinition
     from betty.place_type import PlaceType, PlaceTypeDefinition
-    from betty.plugin.config import ResolvablePluginConfiguration
+    from betty.plugin.factory import ResolvablePluginManufacturer
     from betty.presence_role import PresenceRole, PresenceRoleDefinition
 
 __MINIMAL_XML = """<?xml version="1.0" encoding="UTF-8"?>
@@ -328,15 +328,15 @@ class TestGrampsLoader:
         xml: str,
         *,
         event_type_mapping: Mapping[
-            str, ResolvablePluginConfiguration[EventTypeDefinition, EventType]
+            str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
         ]
         | None = None,
         place_type_mapping: Mapping[
-            str, ResolvablePluginConfiguration[PlaceTypeDefinition, PlaceType]
+            str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
         ]
         | None = None,
         presence_role_mapping: Mapping[
-            str, ResolvablePluginConfiguration[PresenceRoleDefinition, PresenceRole]
+            str, ResolvablePluginManufacturer[PresenceRoleDefinition, PresenceRole]
         ]
         | None = None,
     ) -> Ancestry:
@@ -365,15 +365,15 @@ class TestGrampsLoader:
         *,
         media_path: Path | None = None,
         event_type_mapping: Mapping[
-            str, ResolvablePluginConfiguration[EventTypeDefinition, EventType]
+            str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
         ]
         | None = None,
         place_type_mapping: Mapping[
-            str, ResolvablePluginConfiguration[PlaceTypeDefinition, PlaceType]
+            str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
         ]
         | None = None,
         presence_role_mapping: Mapping[
-            str, ResolvablePluginConfiguration[PresenceRoleDefinition, PresenceRole]
+            str, ResolvablePluginManufacturer[PresenceRoleDefinition, PresenceRole]
         ]
         | None = None,
     ) -> Ancestry:

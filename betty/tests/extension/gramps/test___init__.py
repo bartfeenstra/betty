@@ -10,11 +10,14 @@ from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.app import App
+from betty.event_type import EventTypeManufacturer
 from betty.event_type.event_types import Birth
+from betty.extension import ExtensionManufacturer
 from betty.extension.gramps import Gramps
 from betty.extension.gramps.data import FamilyTree, GrampsConfiguration
+from betty.place_type import PlaceTypeManufacturer
 from betty.place_type.place_types import City
-from betty.plugin.config import PluginConfiguration
+from betty.presence_role import PresenceRoleManufacturer
 from betty.presence_role.presence_roles import Subject
 from betty.project import Project
 from betty.project.load import load
@@ -48,13 +51,13 @@ class TestGramps:
 
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(
-                PluginConfiguration(
+                ExtensionManufacturer(
                     Gramps.plugin(),
                     GrampsConfiguration(
                         family_trees=[
                             FamilyTree(
                                 gramps_family_tree_path,
-                                event_types={"Birth": PluginConfiguration("birth")},
+                                event_types={"Birth": EventTypeManufacturer("birth")},
                             )
                         ]
                     ),
@@ -89,13 +92,13 @@ class TestGramps:
 
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(
-                PluginConfiguration(
+                ExtensionManufacturer(
                     Gramps.plugin(),
                     GrampsConfiguration(
                         family_trees=[
                             FamilyTree(
                                 gramps_family_tree_path,
-                                place_types={"City": PluginConfiguration("city")},
+                                place_types={"City": PlaceTypeManufacturer("city")},
                             )
                         ]
                     ),
@@ -138,14 +141,14 @@ class TestGramps:
 
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(
-                PluginConfiguration(
+                ExtensionManufacturer(
                     Gramps.plugin(),
                     GrampsConfiguration(
                         family_trees=[
                             FamilyTree(
                                 gramps_family_tree_path,
                                 presence_roles={
-                                    "MyFirstRole": PluginConfiguration("subject")
+                                    "MyFirstRole": PresenceRoleManufacturer("subject")
                                 },
                             )
                         ]
@@ -265,7 +268,7 @@ class TestGramps:
 
             async with Project.new_isolated(isolated_app) as project:
                 project.configuration.extensions.add(
-                    PluginConfiguration(
+                    ExtensionManufacturer(
                         Gramps.plugin(),
                         GrampsConfiguration(
                             family_trees=[

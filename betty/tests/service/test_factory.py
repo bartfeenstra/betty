@@ -2,7 +2,7 @@ import pytest
 
 from betty.exception import HumanFacingException
 from betty.service.factory import Factory
-from betty.service.level import UNIVERSE
+from betty.service.level import UNIVERSE, ServiceLevel
 from betty.test_utils.data import DummyData
 from betty.test_utils.service.level import DummyDataManufacturable
 
@@ -11,11 +11,21 @@ class _TargetType:
     pass
 
 
-def _sync_callable_target() -> _TargetType:
+def _sync_callable_target_without_services() -> _TargetType:
     return _TargetType()
 
 
-async def _async_callable_target() -> _TargetType:
+def _sync_callable_target_with_services(services: ServiceLevel, /) -> _TargetType:
+    return _TargetType()
+
+
+async def _async_callable_target_without_services() -> _TargetType:
+    return _TargetType()
+
+
+async def _async_callable_target_with_services(
+    services: ServiceLevel, /
+) -> _TargetType:
     return _TargetType()
 
 
@@ -24,13 +34,29 @@ class TestFactory:
         sut = Factory(UNIVERSE)
         assert isinstance(await sut.new(_TargetType), _TargetType)
 
-    async def test_new__with_sync_callable(self) -> None:
+    async def test_new__with_sync_callable_without_services(self) -> None:
         sut = Factory(UNIVERSE)
-        assert isinstance(await sut.new(_sync_callable_target), _TargetType)
+        assert isinstance(
+            await sut.new(_sync_callable_target_without_services), _TargetType
+        )
 
-    async def test_new__with_async_callable(self) -> None:
+    async def test_new__with_sync_callable_with_services(self) -> None:
         sut = Factory(UNIVERSE)
-        assert isinstance(await sut.new(_async_callable_target), _TargetType)
+        assert isinstance(
+            await sut.new(_sync_callable_target_with_services), _TargetType
+        )
+
+    async def test_new__with_async_callable_without_services(self) -> None:
+        sut = Factory(UNIVERSE)
+        assert isinstance(
+            await sut.new(_async_callable_target_without_services), _TargetType
+        )
+
+    async def test_new__with_async_callable_with_services(self) -> None:
+        sut = Factory(UNIVERSE)
+        assert isinstance(
+            await sut.new(_async_callable_target_with_services), _TargetType
+        )
 
     async def test_new__with_data_manufacturable_without_data(
         self,
@@ -45,7 +71,7 @@ class TestFactory:
         """
         We don't really test for errors here, except for this one.
 
-        This allows code such as :py:class:`betty.plugin.config.PluginConfiguration` to forward their target and
+        This allows code such as :py:class:`betty.plugin.factory.PluginManufacturer` to forward their target and
         data straight into new() for it to handle.
         """
         sut = Factory(UNIVERSE)

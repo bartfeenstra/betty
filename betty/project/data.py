@@ -12,7 +12,11 @@ from babel import Locale
 from betty.ancestry.person import Person
 from betty.assertion import assert_number
 from betty.collections import MutableDictKeyedCollection
-from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
+from betty.copyright_notice import (
+    CopyrightNotice,
+    CopyrightNoticeDefinition,
+    CopyrightNoticeManufacturer,
+)
 from betty.copyright_notice.data import CopyrightNoticeDefinitionConfiguration
 from betty.data import Data, Sample
 from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
@@ -30,9 +34,10 @@ from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.event_type import EventTypeDefinition
 from betty.event_type.data import EventTypeDefinitionConfiguration
 from betty.exception import HumanFacingException
+from betty.extension import ExtensionManufacturer
 from betty.gender import GenderDefinition
 from betty.gender.data import GenderDefinitionConfiguration
-from betty.license import License, LicenseDefinition
+from betty.license import License, LicenseDefinition, LicenseManufacturer
 from betty.license.data import LicenseDefinitionConfiguration
 from betty.locale import (
     DEFAULT_LOCALE,
@@ -49,13 +54,7 @@ from betty.pathlib import FilePathDefinition
 from betty.place_type import PlaceTypeDefinition
 from betty.place_type.data import PlaceTypeDefinitionConfiguration
 from betty.plugin import ResolvableId, resolve_id
-from betty.plugin.config import (
-    PluginConfiguration,
-    ResolvablePluginConfigurationSequence,
-    resolve_plugin_configuration,
-)
 from betty.plugin.config.property import PluginDefinitionConfigurationsProperty
-from betty.plugin.data import PluginConfigurationDefinition
 from betty.presence_role import PresenceRoleDefinition
 from betty.presence_role.data import PresenceRoleDefinitionConfiguration
 from betty.project import Extension, ExtensionDefinition
@@ -66,6 +65,10 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from betty.locale.localizable import ResolvableLocalizable
+    from betty.plugin.factory import (
+        ResolvablePluginManufacturer,
+        ResolvablePluginManufacturerSequence,
+    )
     from betty.service.level import ServiceLevel
 
 DEFAULT_LIFETIME_THRESHOLD = 123
@@ -213,9 +216,9 @@ class ProjectLocale(Data["ObjectDefinition"]):
             ProjectConfiguration(
                 author="Bart Feenstra",
                 clean_urls=True,
-                copyright_notice=ProjectConfiguration.copyright_notice.attr.data.samples.get(
-                    Size.FULL
-                ).subject,
+                copyright_notice=CopyrightNoticeManufacturer.data()
+                .samples.get(Size.FULL)
+                .subject,
                 copyright_notices=[
                     CopyrightNoticeDefinitionConfiguration.data()
                     .samples.get(Size.FULL)
@@ -234,9 +237,7 @@ class ProjectLocale(Data["ObjectDefinition"]):
                     GenderDefinitionConfiguration.data().samples.get(Size.FULL).subject
                 ],
                 logo=ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png",
-                license=ProjectConfiguration.license.attr.data.samples.get(
-                    Size.FULL
-                ).subject,
+                license=LicenseManufacturer.data().samples.get(Size.FULL).subject,
                 licenses=[
                     LicenseDefinitionConfiguration.data().samples.get(Size.FULL).subject
                 ],
@@ -290,10 +291,11 @@ class ProjectConfiguration(Data):
     """
 
     copyright_notice = Property(
-        PluginConfigurationDefinition(CopyrightNoticeDefinition),
+        CopyrightNoticeManufacturer,
         omit_load=True,
         omit_dump=lambda data: data == ProjectConfiguration._default_copyright_notice(),
         default=lambda: ProjectConfiguration._default_copyright_notice(),
+        resolver=CopyrightNoticeManufacturer.resolve,
     )
     """
     The project-wide copyright notice.
@@ -358,17 +360,17 @@ class ProjectConfiguration(Data):
 
     extensions = KeyedCollectionProperty(
         KeyedCollectionDefinition(
-            value=PluginConfigurationDefinition(ExtensionDefinition),
+            value=ExtensionManufacturer,
             label=ExtensionDefinition.type().label_plural,
-            key=Attr("id"),
+            key=Attr("plugin_id"),
             ordered=False,
         ),
         omit_load=True,
         omit_dump=lambda data: not len(data),
         default=lambda: MutableDictKeyedCollection(
-            key=lambda data: data.id,
+            key=lambda data: data.plugin_id,
             key_resolver=resolve_id,
-            value_resolver=resolve_plugin_configuration,
+            value_resolver=ExtensionManufacturer.resolve,
         ),
     )
     """
@@ -383,10 +385,11 @@ class ProjectConfiguration(Data):
     """
 
     license = Property(
-        PluginConfigurationDefinition(LicenseDefinition),
+        LicenseManufacturer,
         omit_load=True,
         omit_dump=lambda data: data == ProjectConfiguration._default_license(),
         default=lambda: ProjectConfiguration._default_license(),
+        resolver=LicenseManufacturer.resolve,
     )
     """
     The project-wide license.
@@ -480,7 +483,7 @@ class ProjectConfiguration(Data):
         url: str,
         author: ResolvableLocalizable | None = None,
         clean_urls: bool = False,
-        copyright_notice: PluginConfiguration[
+        copyright_notice: ResolvablePluginManufacturer[
             CopyrightNoticeDefinition, CopyrightNotice
         ]
         | None = None,
@@ -490,12 +493,10 @@ class ProjectConfiguration(Data):
         entity_types: Iterable[EntityTypeConfiguration | ResolvableId[EntityDefinition]]
         | None = None,
         event_types: Iterable[EventTypeDefinitionConfiguration] | None = None,
-        extensions: ResolvablePluginConfigurationSequence[
-            ExtensionDefinition, Extension
-        ]
+        extensions: ResolvablePluginManufacturerSequence[ExtensionDefinition, Extension]
         | None = None,
         genders: Iterable[GenderDefinitionConfiguration] | None = None,
-        license: PluginConfiguration[LicenseDefinition, License] | None = None,  # noqa: A002
+        license: ResolvablePluginManufacturer[LicenseDefinition, License] | None = None,  # noqa: A002
         licenses: Iterable[LicenseDefinitionConfiguration] | None = None,
         lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,
         locales: Iterable[ResolvableLocale | ProjectLocale] | None = None,
@@ -508,7 +509,9 @@ class ProjectConfiguration(Data):
         self.author = author
         self.clean_urls = clean_urls
         if copyright_notice is not None:
-            self.copyright_notice = copyright_notice
+            self.copyright_notice = CopyrightNoticeManufacturer.resolve(
+                copyright_notice
+            )
         if copyright_notices is not None:
             self.copyright_notices = copyright_notices
         self.debug = debug
@@ -521,7 +524,7 @@ class ProjectConfiguration(Data):
         if genders is not None:
             self.genders = genders
         if license is not None:
-            self.license = license
+            self.license = LicenseManufacturer.resolve(license)
         if licenses is not None:
             self.licenses = licenses
         self.lifetime_threshold = lifetime_threshold
@@ -537,22 +540,16 @@ class ProjectConfiguration(Data):
         self.url = url
 
     @classmethod
-    def _default_copyright_notice(
-        cls,
-    ) -> PluginConfiguration[CopyrightNoticeDefinition, CopyrightNotice]:
+    def _default_copyright_notice(cls) -> CopyrightNoticeManufacturer:
         from betty.copyright_notice.copyright_notices import ProjectAuthor
 
-        return PluginConfiguration[CopyrightNoticeDefinition, CopyrightNotice](
-            ProjectAuthor
-        )
+        return CopyrightNoticeManufacturer(ProjectAuthor)
 
     @classmethod
-    def _default_license(
-        cls,
-    ) -> PluginConfiguration[LicenseDefinition, License]:
+    def _default_license(cls) -> LicenseManufacturer:
         from betty.license.licenses import AllRightsReserved
 
-        return PluginConfiguration[LicenseDefinition, License](AllRightsReserved)
+        return LicenseManufacturer(AllRightsReserved)
 
     @property
     @AttrDefinition(

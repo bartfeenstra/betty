@@ -4,13 +4,17 @@ Provide Betty's ancestry genders.
 
 from __future__ import annotations
 
-from typing import final
+from typing import TYPE_CHECKING, final, override
 
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
+from betty.plugin.factory import PluginManufacturer
 from betty.service.requirement.project import require_project
+
+if TYPE_CHECKING:
+    import builtins
 
 
 class Gender(Plugin["GenderDefinition"]):
@@ -44,3 +48,15 @@ class GenderDefinition(CountableHumanFacingDefinition, PluginDefinition[Gender])
         Gender includes the social, psychological, cultural and behavioral aspects of being a man, woman, or other gender
         identity.
     """
+
+
+@final
+class GenderManufacturer(PluginManufacturer[GenderDefinition, Gender]):
+    """
+    The gender manufacturer.
+    """
+
+    @override
+    @classmethod
+    def type(cls) -> builtins.type[GenderDefinition]:
+        return GenderDefinition

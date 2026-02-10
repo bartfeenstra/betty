@@ -187,6 +187,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/content_provider/__init__.py": {
         "ContentProvider": MissingReason.ABSTRACT,
         "ContentProviderDefinition": MissingReason.STATIC_CONTENT_ONLY,
+        "ContentProviderManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/content_provider/content_providers.py": {
         "Box": {
@@ -530,6 +531,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/copyright_notice/__init__.py": {
         "CopyrightNotice": MissingReason.STATIC_CONTENT_ONLY,
         "CopyrightNoticeDefinition": MissingReason.STATIC_CONTENT_ONLY,
+        "CopyrightNoticeManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/copyright_notice/data.py": {
         "CopyrightNoticeDefinitionConfiguration": {
@@ -555,6 +557,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "EventTypeDefinition": {
             "type": MissingReason.INHERITED,
         },
+        "EventTypeManufacturer": MissingReason.INHERITED,
         "ShouldExistEventType": MissingReason.ABSTRACT,
     },
     "betty/event_type/data.py": {
@@ -594,6 +597,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/license/__init__.py": {
         "License": MissingReason.STATIC_CONTENT_ONLY,
         "LicenseDefinition": MissingReason.STATIC_CONTENT_ONLY,
+        "LicenseManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/license/data.py": {
         "LicenseDefinitionConfiguration": {
@@ -611,6 +615,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/gender/__init__.py": {
         "Gender": MissingReason.STATIC_CONTENT_ONLY,
         "GenderDefinition": MissingReason.STATIC_CONTENT_ONLY,
+        "GenderManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/gender/data.py": {
         "GenderDefinitionConfiguration": {
@@ -636,6 +641,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/place_type/__init__.py": {
         "PlaceType": MissingReason.STATIC_CONTENT_ONLY,
         "PlaceTypeDefinition": MissingReason.STATIC_CONTENT_ONLY,
+        "PlaceTypeManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/place_type/data.py": {
         "PlaceTypeDefinitionConfiguration": {
@@ -701,6 +707,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/presence_role/__init__.py": {
         "PresenceRole": MissingReason.STATIC_CONTENT_ONLY,
         "PresenceRoleDefinition": MissingReason.STATIC_CONTENT_ONLY,
+        "PresenceRoleManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/presence_role/data.py": {
         "PresenceRoleDefinitionConfiguration": {
@@ -740,6 +747,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ExtensionDefinition": {
             "type": MissingReason.INHERITED,
         },
+        "ExtensionManufacturer": MissingReason.INHERITED,
         "ExtensionError": MissingReason.STATIC_CONTENT_ONLY,
         "ExtensionTypeError": MissingReason.STATIC_CONTENT_ONLY,
         "ExtensionTypeInvalidError": MissingReason.SHOULD_BE_COVERED,

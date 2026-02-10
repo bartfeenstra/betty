@@ -27,8 +27,9 @@ class SequenceDefinition[MutableSequenceT: MutableSequence[Any]](
 
     def __init__[ValueT](
         self,
-        *,
+        /,
         cls: type[MutableSequenceT],
+        *,
         value: DataDefinition[ValueT] | type[Intersection[ValueT, Data]],
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,

@@ -7,7 +7,7 @@ from __future__ import annotations
 import json as stdjson
 import re
 import warnings
-from asyncio import get_running_loop, run
+from asyncio import gather, get_running_loop, run
 from contextlib import suppress
 from io import BytesIO
 from typing import TYPE_CHECKING, Any
@@ -33,6 +33,7 @@ from betty.ancestry.file_reference import FileReference
 from betty.content_provider import (
     ContentProvider,
     ContentProviderDefinition,
+    ContentProviderManufacturer,
     provide_content,
 )
 from betty.hashid import hashid, hashid_file_meta
@@ -52,7 +53,6 @@ from betty.locale import (
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML, SVG
 from betty.os import link_or_copy
-from betty.plugin.config import new_plugins
 from betty.string import (
     camel_case_to_kebab_case,
     camel_case_to_snake_case,
@@ -75,7 +75,7 @@ if TYPE_CHECKING:
     from betty.ancestry.date import HasDate
     from betty.date import ResolvableDate
     from betty.locale.localizable import Localizable
-    from betty.plugin.config import PluginConfiguration
+    from betty.plugin.factory import ResolvablePluginManufacturer
 
 
 @pass_context
@@ -519,7 +519,7 @@ def filter_select_has_dates(
 async def filter_provide_content(
     context: Context,
     content_providers: Iterable[
-        PluginConfiguration[ContentProviderDefinition, ContentProvider]
+        ResolvablePluginManufacturer[ContentProviderDefinition, ContentProvider]
     ],
 ) -> Markup:
     """
@@ -527,10 +527,14 @@ async def filter_provide_content(
     """
     from betty.jinja import context_document, context_project
 
+    project = context_project(context)
     return await provide_content(
         context_document(context),
-        await new_plugins(
-            context_project(context), ContentProviderDefinition, content_providers
+        await gather(
+            *map(
+                project.factory.new,
+                ContentProviderManufacturer.resolve_sequence(content_providers),
+            )
         ),
     ) or Markup("")
 

@@ -10,7 +10,9 @@ from betty.ancestry.event import Event
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
+from betty.content_provider import ContentProviderManufacturer
 from betty.content_provider.content_providers import Render, RenderConfiguration
+from betty.extension import ExtensionManufacturer
 from betty.extension.demo.content_provider import _IncompleteTranslationWarning
 from betty.extension.raspberry_mint import Breakpoint, RaspberryMint
 from betty.extension.raspberry_mint.content_provider import (
@@ -22,13 +24,13 @@ from betty.extension.raspberry_mint.content_provider import (
 )
 from betty.extension.raspberry_mint.data import RaspberryMintConfiguration
 from betty.extension.raspberry_mint.default import regional_content
+from betty.license import LicenseManufacturer
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Chain
 from betty.locale.localize import LocalizerRepository
 from betty.media_type.media_types import HTML
 from betty.model.reference import EntityReference
-from betty.plugin.config import PluginConfiguration
 from betty.project import Project
 from betty.project.data import ProjectConfiguration
 
@@ -50,31 +52,31 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
 
     configuration = ProjectConfiguration(
         name=Demo.plugin().id,
-        license=PluginConfiguration("spdx-gpl-3--0-or-later"),
+        license=LicenseManufacturer("spdx-gpl-3--0-or-later"),
         title=_("A Betty demonstration"),
         author=_("Bart Feenstra and contributors"),
         url="https://example.com",
         extensions=[
-            PluginConfiguration(Demo),
-            PluginConfiguration(
+            ExtensionManufacturer(Demo),
+            ExtensionManufacturer(
                 RaspberryMint,
                 RaspberryMintConfiguration(
                     regional_content={
                         **regional_content(localizers=localizers),
                         "front-page-content": [
-                            PluginConfiguration(
+                            ContentProviderManufacturer(
                                 Columns,
                                 ColumnsConfiguration([[_IncompleteTranslationWarning]]),
                             ),
-                            PluginConfiguration(
+                            ContentProviderManufacturer(
                                 Section,
                                 SectionConfiguration(
-                                    PluginConfiguration(
+                                    ContentProviderManufacturer(
                                         Columns,
                                         ColumnsConfiguration(
                                             [
                                                 [
-                                                    PluginConfiguration(
+                                                    ContentProviderManufacturer(
                                                         Render,
                                                         RenderConfiguration(
                                                             Chain(
@@ -95,7 +97,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                                     ),
                                                 ],
                                                 [
-                                                    PluginConfiguration(
+                                                    ContentProviderManufacturer(
                                                         Render,
                                                         RenderConfiguration(
                                                             Chain(
@@ -121,15 +123,15 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                     visually_hide_heading=True,
                                 ),
                             ),
-                            PluginConfiguration(
+                            ContentProviderManufacturer(
                                 Section,
                                 SectionConfiguration(
-                                    PluginConfiguration(
+                                    ContentProviderManufacturer(
                                         Columns,
                                         ColumnsConfiguration(
                                             [
                                                 [
-                                                    PluginConfiguration(
+                                                    ContentProviderManufacturer(
                                                         EntityCard,
                                                         EntityReference(
                                                             Place,
@@ -138,7 +140,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                                     )
                                                 ],
                                                 [
-                                                    PluginConfiguration(
+                                                    ContentProviderManufacturer(
                                                         EntityCard,
                                                         EntityReference(
                                                             Person,
@@ -147,7 +149,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                                     )
                                                 ],
                                                 [
-                                                    PluginConfiguration(
+                                                    ContentProviderManufacturer(
                                                         EntityCard,
                                                         EntityReference(
                                                             Place,
@@ -168,7 +170,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                             ),
                         ],
                         "front-page-summary": [
-                            PluginConfiguration(
+                            ContentProviderManufacturer(
                                 Render,
                                 RenderConfiguration(
                                     _(

@@ -9,7 +9,10 @@ from aiofiles.os import makedirs
 
 from betty.ancestry.note import Note
 from betty.app import App
-from betty.content_provider import ContentProviderDefinition
+from betty.content_provider import (
+    ContentProviderDefinition,
+    ContentProviderManufacturer,
+)
 from betty.content_provider.content_providers import (
     Box,
     BoxConfiguration,
@@ -24,7 +27,6 @@ from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
 from betty.locale.localizable import ResolvableLocalizable
 from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localize import Localizer
-from betty.plugin.config import PluginConfiguration
 from betty.project import Project
 from betty.render import RenderDispatcher
 from betty.render.plain_text import PlainText
@@ -152,7 +154,7 @@ class TestBoxConfiguration(DataTestBase[BoxConfiguration]):
 
     def test_content(self) -> None:
         sut = BoxConfiguration("my-first-content")
-        assert sut.content[0].id == "my-first-content"
+        assert sut.content[0].plugin_id == "my-first-content"
 
 
 class TestBox:
@@ -161,7 +163,9 @@ class TestBox:
             sut = await Box.new(
                 project,
                 BoxConfiguration(
-                    PluginConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE))
+                    ContentProviderManufacturer(
+                        Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+                    )
                 ),
             )
             actual = await sut.provide(document=Document())
@@ -173,7 +177,9 @@ class TestBox:
             sut = await Box.new(
                 project,
                 BoxConfiguration(
-                    PluginConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE)),
+                    ContentProviderManufacturer(
+                        Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+                    ),
                     min_height="MIN_HEIGHT",
                     max_height="MAX_HEIGHT",
                     height="HEIGHT",

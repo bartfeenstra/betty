@@ -28,8 +28,9 @@ class MappingDefinition[MutableMappingT: MutableMapping[Any, Any]](
 
     def __init__[KeyT, ValueT](
         self,
-        *,
+        /,
         cls: type[Intersection[MutableMappingT, MutableMapping[KeyT, ValueT]]],
+        *,
         key: DataDefinition[KeyT],
         value: DataDefinition[ValueT] | type[Intersection[ValueT, Data]],
         label: ResolvableLocalizable,

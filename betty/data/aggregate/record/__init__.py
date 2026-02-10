@@ -242,8 +242,9 @@ class RecordDefinition[DataClsT = Any, ElementT: Element[str] = Element[str]](
 
     def __init__(
         self,
-        *,
+        /,
         cls: type[DataClsT] | None = None,
+        *,
         label: ResolvableLocalizable,
         fields: Sequence[FieldDefinition[ElementT, Any]] | None = None,
         description: ResolvableLocalizable | None = None,

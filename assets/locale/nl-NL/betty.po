@@ -7,23 +7,23 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-02-16 18:52+0000\n"
+"POT-Creation-Date: 2026-02-18 12:26+0000\n"
 "PO-Revision-Date: 2026-02-17 19:37+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
-"Language-Team: Dutch <https://hosted.weblate.org/projects/betty/betty-0-5-x/"
-"nl/>\n"
-"Language: nl-NL\n"
+"Language: nl_NL\n"
+"Language-Team: Dutch "
+"<https://hosted.weblate.org/projects/betty/betty-0-5-x/nl/>\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.16.1-dev\n"
 "Generated-By: Babel 2.18.0\n"
 
 #, python-brace-format
 msgid "\"{color}\" is not a valid hexadecimal color, such as #ffc0cb."
 msgstr ""
-"\"{color}\" is geen geldige hexadecimale kleur, zoals bijvoorbeeld #ffc0cb."
+"\"{color}\" is geen geldige hexadecimale kleur, zoals bijvoorbeeld "
+"#ffc0cb."
 
 #, python-brace-format
 msgid "\"{invalid_locale}\" is not a valid IETF BCP 47 language tag."
@@ -40,7 +40,8 @@ msgstr "\"{plugin_id}\""
 #, python-brace-format
 msgid "\"{target}\" is not configurable, but configuration was given."
 msgstr ""
-"\"{target}\" is niet configureerbaar, maar toch was er configuratie gegeven."
+"\"{target}\" is niet configureerbaar, maar toch was er configuratie "
+"gegeven."
 
 #, python-brace-format
 msgid "\"{value}\" is not a valid machine name."
@@ -291,10 +292,11 @@ msgid ""
 " sample of her family history. You can browse the pages about her and "
 "some of her family to get an idea of what a Betty site looks like."
 msgstr ""
-"Betty is vernoemd naar <a href=\"betty-entity://person/betty-demo-liberta-"
-"lankester\">Liberta 'Betty' Lankester</a>, en deze website laat een kleine "
-"greep uit haar familiegeschiedenis zien. Blader door de pagina's over haar "
-"en haar familie om een idee te krijgen hoe een Betty-site eruit ziet."
+"Betty is vernoemd naar <a href=\"betty-entity://person/betty-demo-"
+"liberta-lankester\">Liberta 'Betty' Lankester</a>, en deze website laat "
+"een kleine greep uit haar familiegeschiedenis zien. Blader door de "
+"pagina's over haar en haar familie om een idee te krijgen hoe een Betty-"
+"site eruit ziet."
 
 #, python-brace-format
 msgid "Betty will talk to you in {locale}"
@@ -580,6 +582,9 @@ msgstr "Crematie"
 msgid "Cremations"
 msgstr "Crematies"
 
+msgid "Data"
+msgstr ""
+
 msgid "Death"
 msgstr "Overlijden"
 
@@ -774,8 +779,7 @@ msgid "Family tree"
 msgstr "Stamboom"
 
 msgid "Family tree configuration must either have a \"file\" or a \"name\""
-msgstr ""
-"Stamboomconfiguratie moet \"file\" of \"name\" bevatten, maar niet beide"
+msgstr "Stamboomconfiguratie moet \"file\" of \"name\" bevatten, maar niet beide"
 
 msgid "Family trees"
 msgstr "Stambomen"
@@ -1320,9 +1324,6 @@ msgstr "Platte tekst"
 
 msgid "Plugin ID"
 msgstr "Plugin-ID"
-
-msgid "Plugin configuration"
-msgstr "Pluginconfiguratie"
 
 msgid "Plugins"
 msgstr "Plugins"
@@ -1880,8 +1881,8 @@ msgid ""
 "Unsupported file \"{unsupported_type}\". Supported types are: "
 "{available_types}."
 msgstr ""
-"Niet ondersteund bestand \"{unsupported_type}\". Ondersteunde bestandstypes "
-"zijn: {available_types}."
+"Niet ondersteund bestand \"{unsupported_type}\". Ondersteunde "
+"bestandstypes zijn: {available_types}."
 
 #, python-brace-format
 msgid "Untranslated locale {locale}."
@@ -2696,10 +2697,6 @@ msgid "{plugin_type} \"{plugin_id}\""
 msgstr "{plugin_type} \"{plugin_id}\""
 
 #, python-brace-format
-msgid "{plugin_type} configuration"
-msgstr "{plugin_type}-configuratie"
-
-#, python-brace-format
 msgid "{target} requires a project."
 msgstr ""
 
@@ -2719,3 +2716,4 @@ msgstr "© Copyright de auteur, tenzij anders vermeld"
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Copyright {author}, tenzij anders vermeld"
+

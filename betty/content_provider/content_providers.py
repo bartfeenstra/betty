@@ -5,6 +5,7 @@ Dynamic content.
 from __future__ import annotations
 
 from abc import abstractmethod
+from asyncio import gather
 from collections.abc import Iterable, Mapping
 from typing import TYPE_CHECKING, Any, Self, final, override
 
@@ -12,6 +13,7 @@ from betty.ancestry.has_notes import HasNotes
 from betty.content_provider import (
     ContentProvider,
     ContentProviderDefinition,
+    ContentProviderManufacturer,
     provide_content,
 )
 from betty.data import Data, Sample
@@ -23,12 +25,7 @@ from betty.locale.localizable.property import LocalizableProperty
 from betty.locale.localize import resolve_localized
 from betty.media_type import MediaType
 from betty.media_type.media_types import PLAIN_TEXT
-from betty.plugin.config import (
-    PluginConfiguration,
-    ResolvablePluginConfigurationSequence,
-    new_plugins,
-)
-from betty.plugin.config.property import PluginConfigurationSequenceProperty
+from betty.plugin.config.property import PluginManufacturerSequenceProperty
 from betty.sample import Size
 from betty.service.factory import DataManufacturable, Manufacturable
 from betty.service.requirement.project import require_project
@@ -40,6 +37,7 @@ if TYPE_CHECKING:
     from betty.document import Document
     from betty.jinja import Environment
     from betty.locale.localizable import ResolvableLocalizable
+    from betty.plugin.factory import ResolvablePluginManufacturerSequence
     from betty.project import Project
     from betty.render import RenderDispatcher
 
@@ -194,7 +192,11 @@ class Notes(Template, Manufacturable):
         lambda: Sample(BoxConfiguration([]), label="Minimal", size=Size.MINIMAL),
         lambda: Sample(
             BoxConfiguration(
-                [PluginConfiguration(Render, RenderConfiguration("Hello, world!"))],
+                [
+                    ContentProviderManufacturer(
+                        Render, RenderConfiguration("Hello, world!")
+                    )
+                ],
                 min_height="100px",
                 max_height="1000px",
                 height="500px",
@@ -214,9 +216,9 @@ class BoxConfiguration(Data):
     .. data:: betty.content_provider.content_providers:BoxConfiguration
     """
 
-    content = PluginConfigurationSequenceProperty[
+    content = PluginManufacturerSequenceProperty[
         ContentProviderDefinition, ContentProvider
-    ](ContentProviderDefinition, label=_("Content"))
+    ](ContentProviderManufacturer, label=_("Content"))
     """
     The content within this box.
     """
@@ -230,7 +232,7 @@ class BoxConfiguration(Data):
 
     def __init__(
         self,
-        content: ResolvablePluginConfigurationSequence[
+        content: ResolvablePluginManufacturerSequence[
             ContentProviderDefinition, ContentProvider
         ],
         *,
@@ -289,15 +291,24 @@ class Box(Template, DataManufacturable[BoxConfiguration]):
     @classmethod
     @require_project
     async def new(cls, project: Project, data: BoxConfiguration, /) -> Self:
+        content, jinja = await gather(
+            gather(
+                *map(
+                    project.factory.new,
+                    map(ContentProviderManufacturer.resolve, data.content),
+                )
+            ),
+            project.jinja,
+        )
         return cls(
-            content=await new_plugins(project, ContentProviderDefinition, data.content),
+            content=content,
             min_height=data.min_height,
             max_height=data.max_height,
             height=data.height,
             min_width=data.min_width,
             max_width=data.max_width,
             width=data.width,
-            jinja=await project.jinja,
+            jinja=jinja,
         )
 
     @override

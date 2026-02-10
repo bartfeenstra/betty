@@ -8,7 +8,11 @@ from collections.abc import Iterable, Mapping
 from typing import TYPE_CHECKING, final
 
 from betty.color import ColorDefinition
-from betty.content_provider import ContentProvider, ContentProviderDefinition
+from betty.content_provider import (
+    ContentProvider,
+    ContentProviderDefinition,
+    ContentProviderManufacturer,
+)
 from betty.data import Data, Sample
 from betty.data.aggregate.collection.mapping import MappingDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
@@ -18,11 +22,8 @@ from betty.data.str import StrDefinition
 from betty.exception import HumanFacingException, reraise_with_indicator
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Paragraph, do_you_mean
-from betty.plugin.config import (
-    ResolvablePluginConfiguration,
-    resolve_plugin_configuration_sequence,
-)
-from betty.plugin.data import PluginConfigurationSequenceDefinition
+from betty.plugin.data import PluginManufacturerSequenceDefinition
+from betty.plugin.factory import ResolvablePluginManufacturer
 from betty.sample import Size
 from betty.service.requirement.extension import require_extension
 
@@ -31,7 +32,7 @@ if TYPE_CHECKING:
 
 type ResolvableRegionalContent = Mapping[
     str,
-    Iterable[ResolvablePluginConfiguration[ContentProviderDefinition, ContentProvider]],
+    Iterable[ResolvablePluginManufacturer[ContentProviderDefinition, ContentProvider]],
 ]
 
 
@@ -108,8 +109,8 @@ class RaspberryMintConfiguration(Data):
             cls=dict,
             label=_("Regions"),
             key=StrDefinition(label=_("Region")),
-            value=PluginConfigurationSequenceDefinition(
-                ContentProviderDefinition, label=_("Regional content")
+            value=PluginManufacturerSequenceDefinition(
+                ContentProviderManufacturer, label=_("Regional content")
             ),
         ),
         default=dict,
@@ -138,7 +139,7 @@ class RaspberryMintConfiguration(Data):
         if regional_content is not None:
             self.regional_content.update(
                 {
-                    region: resolve_plugin_configuration_sequence(content)
+                    region: ContentProviderManufacturer.resolve_sequence(content)
                     for region, content in regional_content.items()
                 }
             )

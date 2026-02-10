@@ -4,13 +4,17 @@ Provide presence roles.
 
 from __future__ import annotations
 
-from typing import final
+from typing import TYPE_CHECKING, final, override
 
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
+from betty.plugin.factory import PluginManufacturer
 from betty.service.requirement.project import require_project
+
+if TYPE_CHECKING:
+    import builtins
 
 
 class PresenceRole(Plugin["PresenceRoleDefinition"]):
@@ -41,3 +45,17 @@ class PresenceRoleDefinition(
     """
     .. plugin_type:: presence-role.
     """
+
+
+@final
+class PresenceRoleManufacturer(
+    PluginManufacturer[PresenceRoleDefinition, PresenceRole]
+):
+    """
+    The presence role manufacturer.
+    """
+
+    @override
+    @classmethod
+    def type(cls) -> builtins.type[PresenceRoleDefinition]:
+        return PresenceRoleDefinition

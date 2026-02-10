@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from betty.content_provider import ContentProviderManufacturer
 from betty.content_provider.content_providers import Box, BoxConfiguration, Notes
 from betty.extension.maps.content_provider import Attribution, Map
 from betty.extension.raspberry_mint import SINGLE_COLUMN_TEXT_WIDTH
@@ -33,7 +34,6 @@ from betty.extension.trees.content_provider import Tree
 from betty.extension.wiki.content_provider import WikipediaSummary
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
-from betty.plugin.config import PluginConfiguration
 from betty.presence_role.presence_roles import Subject, Witness
 
 if TYPE_CHECKING:
@@ -55,10 +55,10 @@ def regional_content(*, localizers: Collection[Localizer]) -> ResolvableRegional
     return {
         "entity-page-content": [
             Media,
-            PluginConfiguration(
+            ContentProviderManufacturer(
                 Section,
                 SectionConfiguration(
-                    PluginConfiguration(
+                    ContentProviderManufacturer(
                         Columns,
                         ColumnsConfiguration(
                             [[WikipediaSummary]], width=SINGLE_COLUMN_TEXT_WIDTH
@@ -68,27 +68,29 @@ def regional_content(*, localizers: Collection[Localizer]) -> ResolvableRegional
                     name="wikipedia",
                 ),
             ),
-            PluginConfiguration(
+            ContentProviderManufacturer(
                 Box,
                 BoxConfiguration(
                     Map, min_height="500px", height="75vh", max_height="1000px"
                 ),
             ),
-            PluginConfiguration(
+            ContentProviderManufacturer(
                 ColorStyle,
                 ColorStyleConfiguration(
-                    PluginConfiguration(Columns, ColumnsConfiguration([[Attribution]])),
+                    ContentProviderManufacturer(
+                        Columns, ColumnsConfiguration([[Attribution]])
+                    ),
                     style=ColorStyleOption.LIGHT_CONTRAST,
                 ),
             ),
-            PluginConfiguration(
+            ContentProviderManufacturer(
                 Columns,
                 ColumnsConfiguration([[Enclosees]], width=SINGLE_COLUMN_TEXT_WIDTH),
             ),
-            PluginConfiguration(
+            ContentProviderManufacturer(
                 Section,
                 SectionConfiguration(
-                    PluginConfiguration(
+                    ContentProviderManufacturer(
                         Columns,
                         ColumnsConfiguration([[Notes]], width=SINGLE_COLUMN_TEXT_WIDTH),
                     ),
@@ -96,30 +98,30 @@ def regional_content(*, localizers: Collection[Localizer]) -> ResolvableRegional
                     name="notes",
                 ),
             ),
-            PluginConfiguration(
+            ContentProviderManufacturer(
                 Section,
                 SectionConfiguration(
-                    PluginConfiguration(
+                    ContentProviderManufacturer(
                         Presences, PresencesConfiguration(include=[Subject])
                     ),
                     heading=_make_dumpable(_("Subjects")),
                     name="attendees-subject",
                 ),
             ),
-            PluginConfiguration(
+            ContentProviderManufacturer(
                 Section,
                 SectionConfiguration(
-                    PluginConfiguration(
+                    ContentProviderManufacturer(
                         Presences, PresencesConfiguration(include=[Witness])
                     ),
                     heading=_make_dumpable(_("Witnesses")),
                     name="attendees-witness",
                 ),
             ),
-            PluginConfiguration(
+            ContentProviderManufacturer(
                 Section,
                 SectionConfiguration(
-                    PluginConfiguration(
+                    ContentProviderManufacturer(
                         Presences,
                         PresencesConfiguration(exclude=[Subject, Witness]),
                     ),
@@ -127,30 +129,32 @@ def regional_content(*, localizers: Collection[Localizer]) -> ResolvableRegional
                     name="attendees-other",
                 ),
             ),
-            PluginConfiguration(
+            ContentProviderManufacturer(
                 Section,
                 SectionConfiguration(
                     Families, heading=_make_dumpable(_("Family")), name="family"
                 ),
             ),
-            PluginConfiguration(
+            ContentProviderManufacturer(
                 Box,
                 BoxConfiguration(
                     Tree, min_height="500px", height="75vh", max_height="1000px"
                 ),
             ),
-            PluginConfiguration(
+            ContentProviderManufacturer(
                 Section,
                 SectionConfiguration(
-                    PluginConfiguration(Columns, ColumnsConfiguration([[Timeline]])),
+                    ContentProviderManufacturer(
+                        Columns, ColumnsConfiguration([[Timeline]])
+                    ),
                     heading=_make_dumpable(_("Timeline")),
                     name="timeline",
                 ),
             ),
-            PluginConfiguration(
+            ContentProviderManufacturer(
                 Section,
                 SectionConfiguration(
-                    PluginConfiguration(
+                    ContentProviderManufacturer(
                         Columns,
                         ColumnsConfiguration([[Facts]], width=SINGLE_COLUMN_TEXT_WIDTH),
                     ),
@@ -158,10 +162,10 @@ def regional_content(*, localizers: Collection[Localizer]) -> ResolvableRegional
                     name="facts",
                 ),
             ),
-            PluginConfiguration(
+            ContentProviderManufacturer(
                 ColorStyle,
                 ColorStyleConfiguration(
-                    PluginConfiguration(
+                    ContentProviderManufacturer(
                         Section,
                         SectionConfiguration(
                             MediaGallery,
@@ -172,10 +176,10 @@ def regional_content(*, localizers: Collection[Localizer]) -> ResolvableRegional
                     style=ColorStyleOption.DARK,
                 ),
             ),
-            PluginConfiguration(
+            ContentProviderManufacturer(
                 Section,
                 SectionConfiguration(
-                    PluginConfiguration(
+                    ContentProviderManufacturer(
                         Columns,
                         ColumnsConfiguration(
                             [[FileReferees]], width=SINGLE_COLUMN_TEXT_WIDTH
@@ -185,10 +189,10 @@ def regional_content(*, localizers: Collection[Localizer]) -> ResolvableRegional
                     name="appearances",
                 ),
             ),
-            PluginConfiguration(
+            ContentProviderManufacturer(
                 Section,
                 SectionConfiguration(
-                    PluginConfiguration(
+                    ContentProviderManufacturer(
                         Columns,
                         ColumnsConfiguration(
                             [[Citations]], width=SINGLE_COLUMN_TEXT_WIDTH
@@ -198,10 +202,10 @@ def regional_content(*, localizers: Collection[Localizer]) -> ResolvableRegional
                     name="citations",
                 ),
             ),
-            PluginConfiguration(
+            ContentProviderManufacturer(
                 Section,
                 SectionConfiguration(
-                    PluginConfiguration(
+                    ContentProviderManufacturer(
                         Columns,
                         ColumnsConfiguration(
                             [[ExternalLinks]], width=SINGLE_COLUMN_TEXT_WIDTH

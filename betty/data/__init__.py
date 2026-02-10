@@ -29,8 +29,9 @@ class DataDefinition[DataClsT](HumanFacingDefinition, ClsDefinition[DataClsT]):
 
     def __init__(
         self,
-        *,
+        /,
         cls: type[DataClsT] | None = None,
+        *,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
         porter: Porter[DataClsT] | None = None,

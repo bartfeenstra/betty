@@ -18,51 +18,49 @@ from betty.data.aggregate.record.object.property import (
 )
 from betty.data.indicator.selector import Attr
 from betty.plugin import Plugin, PluginDefinition
-from betty.plugin.config import (
-    PluginConfiguration,
-    PluginDefinitionConfiguration,
-    ResolvablePluginConfiguration,
-    ResolvablePluginConfigurationSequence,
-    resolve_plugin_configuration,
-    resolve_plugin_configuration_sequence,
+from betty.plugin.data import PluginManufacturerSequenceDefinition
+from betty.plugin.factory import (
+    PluginManufacturer,
+    ResolvablePluginManufacturer,
+    ResolvablePluginManufacturerSequence,
 )
-from betty.plugin.data import PluginConfigurationSequenceDefinition
 
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
+    from betty.plugin.config import PluginDefinitionConfiguration
 
 
 @final
-class PluginConfigurationSequenceProperty[
+class PluginManufacturerSequenceProperty[
     PluginDefinitionT: PluginDefinition,
     PluginT: Plugin,
 ](
     SequenceProperty[
         MutableResolvedSequence[
-            PluginConfiguration[PluginDefinitionT, PluginT],
-            ResolvablePluginConfiguration[PluginDefinitionT, PluginT],
+            PluginManufacturer[PluginDefinitionT, PluginT],
+            ResolvablePluginManufacturer[PluginDefinitionT, PluginT],
         ],
-        ResolvablePluginConfigurationSequence[PluginDefinitionT, PluginT],
+        ResolvablePluginManufacturerSequence[PluginDefinitionT, PluginT],
     ]
 ):
     """
-    A property containing a sequence of :py:class:`betty.plugin.config.PluginConfiguration`.
+    A property containing a sequence of :py:class:`betty.plugin.factory.PluginManufacturer`.
     """
 
     def __init__(
         self,
-        plugin_type: type[PluginDefinitionT],
+        manufacturer: type[PluginManufacturer[PluginDefinitionT, PluginT]],
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
-            PluginConfigurationSequenceDefinition(plugin_type),
+            PluginManufacturerSequenceDefinition(manufacturer),
             label=label,
             description=description,
-            resolver=resolve_plugin_configuration_sequence,
+            resolver=manufacturer.resolve_sequence,
             default=lambda: MutableResolvedSequenceProxy(
-                [], value_resolver=resolve_plugin_configuration
+                [], value_resolver=manufacturer.resolve
             ),
         )
 

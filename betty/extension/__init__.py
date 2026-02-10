@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, final, override
 
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.life_cycle.manage import ManagedLifeCycle
@@ -10,10 +10,12 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition, ResolvableId
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
+from betty.plugin.factory import PluginManufacturer
 from betty.service.level import ServiceLevel
 from betty.typing import private
 
 if TYPE_CHECKING:
+    import builtins
     from collections.abc import Set
     from pathlib import Path
 
@@ -97,3 +99,15 @@ class ExtensionDefinition(HumanFacingDefinition, DependentPluginDefinition[Exten
         Whether this extension is a theme.
         """
         return self._theme
+
+
+@final
+class ExtensionManufacturer(PluginManufacturer[ExtensionDefinition, Extension]):
+    """
+    The extension manufacturer.
+    """
+
+    @override
+    @classmethod
+    def type(cls) -> builtins.type[ExtensionDefinition]:
+        return ExtensionDefinition

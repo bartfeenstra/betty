@@ -37,10 +37,10 @@ from betty.ancestry.person_name import PersonName
 from betty.ancestry.place import Place
 from betty.ancestry.presence import Presence
 from betty.ancestry.source import Source
-from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
+from betty.copyright_notice import CopyrightNoticeManufacturer
 from betty.date import Date, DateRange, ResolvableDate
 from betty.error import FileNotFound
-from betty.event_type import EventTypeDefinition
+from betty.event_type import EventTypeManufacturer
 from betty.event_type.event_types import (
     Adoption,
     Baptism,
@@ -64,11 +64,11 @@ from betty.event_type.event_types import (
     Will,
 )
 from betty.event_type.event_types import Unknown as UnknownEventType
-from betty.gender import GenderDefinition
+from betty.gender import GenderDefinition, GenderManufacturer
 from betty.gender.genders import Man, NonBinary, Woman
 from betty.gender.genders import Unknown as UnknownGender
 from betty.gramps.error import GrampsError, UserFacingGrampsError
-from betty.license import License, LicenseDefinition
+from betty.license import LicenseManufacturer
 from betty.locale import from_language_tag
 from betty.locale.error import LocaleError
 from betty.locale.localizable.gettext import _
@@ -76,7 +76,7 @@ from betty.locale.localizable.static import StaticTranslations
 from betty.media_type import InvalidMediaType, MediaType
 from betty.model import Entity
 from betty.model.association import ToManyResolver, ToOneResolver, resolve
-from betty.place_type import PlaceTypeDefinition
+from betty.place_type import PlaceTypeManufacturer
 from betty.place_type.place_types import (
     Borough,
     Building,
@@ -101,12 +101,8 @@ from betty.place_type.place_types import (
 )
 from betty.place_type.place_types import Unknown as UnknownPlaceType
 from betty.plugin import Plugin, PluginDefinition
-from betty.plugin.config import (
-    PluginConfiguration,
-    resolve_plugin_configuration_mapping,
-)
 from betty.plugin.error import PluginUnavailable
-from betty.presence_role import PresenceRoleDefinition
+from betty.presence_role import PresenceRoleDefinition, PresenceRoleManufacturer
 from betty.presence_role.presence_roles import (
     Attendee,
     Celebrant,
@@ -135,13 +131,16 @@ if TYPE_CHECKING:
     from betty.ancestry.has_citations import HasCitations
     from betty.ancestry.has_file_references import HasFileReferences
     from betty.ancestry.has_notes import HasNotes
-    from betty.event_type import EventType
+    from betty.event_type import EventType, EventTypeDefinition
     from betty.gender import Gender
     from betty.locale.localizable import StaticTranslationsMapping
     from betty.machine_name import ResolvableMachineName
-    from betty.place_type import PlaceType
-    from betty.plugin.config import ResolvablePluginConfiguration
-    from betty.presence_role import PresenceRole
+    from betty.place_type import PlaceType, PlaceTypeDefinition
+    from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
+    from betty.presence_role import (
+        PresenceRole,
+        PresenceRoleDefinition,
+    )
     from betty.service.level import ServiceLevel
     from betty.user import User
 
@@ -213,7 +212,7 @@ class _ToManyResolver[EntityT: Entity](ToManyResolver[EntityT]):
 
 
 DEFAULT_GENDER_MAPPING: Mapping[
-    str, ResolvablePluginConfiguration[GenderDefinition, Gender]
+    str, ResolvablePluginManufacturer[GenderDefinition, Gender]
 ] = {
     "F": Woman,
     "M": Man,
@@ -222,7 +221,7 @@ DEFAULT_GENDER_MAPPING: Mapping[
 }
 
 DEFAULT_EVENT_TYPE_MAPPING: Mapping[
-    str, ResolvablePluginConfiguration[EventTypeDefinition, EventType]
+    str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
 ] = {
     "Adopted": Adoption,
     "Adult Christening": Baptism,
@@ -250,7 +249,7 @@ DEFAULT_EVENT_TYPE_MAPPING: Mapping[
 
 
 DEFAULT_PLACE_TYPE_MAPPING: Mapping[
-    str, ResolvablePluginConfiguration[PlaceTypeDefinition, PlaceType]
+    str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
 ] = {
     "Borough": Borough,
     "Building": Building,
@@ -277,7 +276,7 @@ DEFAULT_PLACE_TYPE_MAPPING: Mapping[
 
 
 DEFAULT_PRESENCE_ROLE_MAPPING: Mapping[
-    str, ResolvablePluginConfiguration[PresenceRoleDefinition, PresenceRole]
+    str, ResolvablePluginManufacturer[PresenceRoleDefinition, PresenceRole]
 ] = {
     "Aide": Attendee,
     "Bride": Subject,
@@ -317,19 +316,23 @@ _GRAMPS_EXTENSIONS_IMPORT = (
 _GRAMPS_EXTENSIONS = (*_GRAMPS_EXTENSIONS_NATIVE, *_GRAMPS_EXTENSIONS_IMPORT)
 
 
-def _resolve_plugin_configuration_mapping[
+def _resolve_plugin_manufacturer_mapping[
     T,
     PluginDefinitionT: PluginDefinition,
     PluginT: Plugin,
 ](
-    plugin_configurations: Mapping[
-        T, ResolvablePluginConfiguration[PluginDefinitionT, PluginT]
+    manufacturer: type[PluginManufacturer[PluginDefinitionT, PluginT]],
+    resolvable_manufacturers: Mapping[
+        T, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]
     ]
     | None,
-) -> MutableMapping[T, PluginConfiguration[PluginDefinitionT, PluginT]]:
-    if plugin_configurations is None:
+) -> MutableMapping[T, PluginManufacturer[PluginDefinitionT, PluginT]]:
+    if resolvable_manufacturers is None:
         return {}
-    return resolve_plugin_configuration_mapping(plugin_configurations)
+    return {
+        gramps_type: manufacturer.resolve(resolvable_manufacturer)
+        for gramps_type, resolvable_manufacturer in resolvable_manufacturers.items()
+    }
 
 
 @internal
@@ -348,15 +351,15 @@ class GrampsLoader:
         services: ServiceLevel,
         attribute_prefix_key: str | None = None,
         event_type_mapping: Mapping[
-            str, ResolvablePluginConfiguration[EventTypeDefinition, EventType]
+            str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
         ]
         | None = None,
         place_type_mapping: Mapping[
-            str, ResolvablePluginConfiguration[PlaceTypeDefinition, PlaceType]
+            str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
         ]
         | None = None,
         presence_role_mapping: Mapping[
-            str, ResolvablePluginConfiguration[PresenceRoleDefinition, PresenceRole]
+            str, ResolvablePluginManufacturer[PresenceRoleDefinition, PresenceRole]
         ]
         | None = None,
         executable: Path | str | None = None,
@@ -372,17 +375,17 @@ class GrampsLoader:
         self._tree_xml_namespace: dict[str, str]
         self._loaded = False
         self._user = user
-        self._event_type_mapping = _resolve_plugin_configuration_mapping(
-            event_type_mapping
+        self._event_type_mapping = _resolve_plugin_manufacturer_mapping(
+            EventTypeManufacturer, event_type_mapping
         )
-        self._gender_mapping = resolve_plugin_configuration_mapping(
-            DEFAULT_GENDER_MAPPING
+        self._gender_mapping = _resolve_plugin_manufacturer_mapping(
+            GenderManufacturer, DEFAULT_GENDER_MAPPING
         )
-        self._place_type_mapping = _resolve_plugin_configuration_mapping(
-            place_type_mapping
+        self._place_type_mapping = _resolve_plugin_manufacturer_mapping(
+            PlaceTypeManufacturer, place_type_mapping
         )
-        self._presence_role_mapping = _resolve_plugin_configuration_mapping(
-            presence_role_mapping
+        self._presence_role_mapping = _resolve_plugin_manufacturer_mapping(
+            PresenceRoleManufacturer, presence_role_mapping
         )
         self._gramps_executable = executable or _DEFAULT_GRAMPS_EXECUTABLE
         self._services = services
@@ -798,11 +801,9 @@ class GrampsLoader:
         )
         if copyright_notice_id:
             try:
-                file.copyright_notice = await PluginConfiguration[
-                    CopyrightNoticeDefinition, CopyrightNotice
-                ](copyright_notice_id).new_plugin(
-                    self._services, CopyrightNoticeDefinition
-                )
+                file.copyright_notice = await CopyrightNoticeManufacturer(
+                    copyright_notice_id
+                )(self._services)
             except PluginUnavailable:
                 await self._user.message_warning(
                     _(
@@ -812,9 +813,7 @@ class GrampsLoader:
         license_id = self._load_attribute("license", element, "attribute")
         if license_id:
             try:
-                file.license = await PluginConfiguration[LicenseDefinition, License](
-                    license_id
-                ).new_plugin(self._services, LicenseDefinition)
+                file.license = await LicenseManufacturer(license_id)(self._services)
             except PluginUnavailable:
                 await self._user.message_warning(
                     _(
@@ -843,9 +842,7 @@ class GrampsLoader:
         if gender_id is None:
             gramps_gender = self._xpath1(element, "./ns:gender").text
             assert gramps_gender is not None
-            gender = await self._gender_mapping[gramps_gender].new_plugin(
-                self._services, GenderDefinition
-            )
+            gender = await self._gender_mapping[gramps_gender](self._services)
         else:
             try:
                 gender = await self._services.factory.new(
@@ -952,7 +949,7 @@ class GrampsLoader:
 
         presence_role: PresenceRole
         try:
-            presence_role_configuration = self._presence_role_mapping[
+            presence_role_manufacturer = self._presence_role_mapping[
                 gramps_presence_role
             ]
         except KeyError:
@@ -970,9 +967,7 @@ class GrampsLoader:
                 )
             )
         else:
-            presence_role = await presence_role_configuration.new_plugin(
-                self._services, PresenceRoleDefinition
-            )
+            presence_role = await presence_role_manufacturer(self._services)
         presence = Presence(
             person,
             presence_role,
@@ -1017,7 +1012,7 @@ class GrampsLoader:
 
         place_type: PlaceType
         try:
-            place_type_configuration = self._place_type_mapping[gramps_type]
+            place_type_manufacturer = self._place_type_mapping[gramps_type]
         except KeyError:
             place_type = UnknownPlaceType()
             await self._user.message_warning(
@@ -1032,9 +1027,7 @@ class GrampsLoader:
                 )
             )
         else:
-            place_type = await place_type_configuration.new_plugin(
-                self._services, PlaceTypeDefinition
-            )
+            place_type = await place_type_manufacturer(self._services)
 
         place = Place(
             id=place_id,
@@ -1089,7 +1082,7 @@ class GrampsLoader:
 
         event_type: EventType
         try:
-            event_type_configuration = self._event_type_mapping[gramps_type]
+            event_type_manufacturer = self._event_type_mapping[gramps_type]
         except KeyError:
             event_type = UnknownEventType()
             await self._user.message_warning(
@@ -1104,9 +1097,7 @@ class GrampsLoader:
                 )
             )
         else:
-            event_type = await event_type_configuration.new_plugin(
-                self._services, EventTypeDefinition
-            )
+            event_type = await event_type_manufacturer(self._services)
 
         event = Event(
             id=event_id,

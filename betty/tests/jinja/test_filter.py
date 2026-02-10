@@ -13,6 +13,7 @@ from puremagic import what
 
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
+from betty.content_provider import ContentProviderManufacturer
 from betty.content_provider.content_providers import Render, RenderConfiguration
 from betty.date import Date, DateRange, ResolvableDate
 from betty.dirs import ASSETS_DIRECTORY_PATH
@@ -23,7 +24,6 @@ from betty.locale.localizable.plain import Plain
 from betty.locale.localize import Localizer
 from betty.media_type import MediaType
 from betty.media_type.media_types import SVG
-from betty.plugin.config import PluginConfiguration
 from betty.test_utils.ancestry.date import DummyHasDate
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 from betty.test_utils.jinja import assert_template_string
@@ -33,6 +33,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, MutableMapping, Sequence
 
     from betty.content_provider import ContentProvider, ContentProviderDefinition
+    from betty.plugin.factory import PluginManufacturer
 
 
 class _DummyHasDate(DummyHasDate):
@@ -789,14 +790,14 @@ async def test_filter_negotiate_has_locales() -> None:
         ("", []),
         (
             "<p>Hello, world!</p>",
-            [PluginConfiguration(Render, RenderConfiguration("Hello, world!"))],
+            [ContentProviderManufacturer(Render, RenderConfiguration("Hello, world!"))],
         ),
     ],
 )
 async def test_filter_provide_content(
     expected: str,
     content_provider_configurations: Iterable[
-        PluginConfiguration[ContentProviderDefinition, ContentProvider]
+        PluginManufacturer[ContentProviderDefinition, ContentProvider]
     ],
 ) -> None:
     template = "{{ data | provide_content }}"

@@ -20,7 +20,7 @@ from betty.data.aggregate.record.object.property import (
     SequenceProperty,
 )
 from betty.data.str import StrDefinition
-from betty.event_type import EventTypeDefinition
+from betty.event_type import EventTypeDefinition, EventTypeManufacturer
 from betty.exception import HumanFacingException
 from betty.gramps.loader import (
     DEFAULT_EVENT_TYPE_MAPPING,
@@ -29,16 +29,10 @@ from betty.gramps.loader import (
 )
 from betty.locale.localizable.gettext import _
 from betty.pathlib import FilePathDefinition
-from betty.place_type import PlaceTypeDefinition
+from betty.place_type import PlaceTypeDefinition, PlaceTypeManufacturer
 from betty.plugin import Plugin, PluginDefinition
-from betty.plugin.config import (
-    PluginConfiguration,
-    ResolvablePluginConfiguration,
-    resolve_plugin_configuration,
-    resolve_plugin_configuration_mapping,
-)
-from betty.plugin.data import PluginConfigurationDefinition
-from betty.presence_role import PresenceRoleDefinition
+from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
+from betty.presence_role import PresenceRoleDefinition, PresenceRoleManufacturer
 from betty.sample import Size
 
 if TYPE_CHECKING:
@@ -52,32 +46,42 @@ if TYPE_CHECKING:
 
 class _PluginMappingProperty[PluginDefinitionT: PluginDefinition, PluginT: Plugin](
     MappingProperty[
-        MutableMapping[str, PluginConfiguration[PluginDefinitionT, PluginT]],
-        Mapping[str, ResolvablePluginConfiguration[PluginDefinitionT, PluginT]],
+        MutableMapping[str, PluginManufacturer[PluginDefinitionT, PluginT]],
+        Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]],
     ]
 ):
     def __init__(
         self,
-        plugin_type: type[PluginDefinitionT],
+        manufacturer: type[PluginManufacturer[PluginDefinitionT, PluginT]],
         gramps_label: ResolvableLocalizable,
-        default: Mapping[
-            str, ResolvablePluginConfiguration[PluginDefinitionT, PluginT]
-        ],
+        default: Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]],
     ):
         super().__init__(
             MappingDefinition(
                 cls=MutableResolvedMapping,
                 factory=lambda items: MutableResolvedMappingProxy(
-                    resolve_plugin_configuration_mapping(items),
-                    value_resolver=resolve_plugin_configuration,
+                    dict(
+                        zip(
+                            items.keys(),
+                            manufacturer.resolve_sequence(items.values()),
+                            strict=False,
+                        )
+                    ),
+                    value_resolver=manufacturer.resolve,
                 ),
                 key=StrDefinition(label=gramps_label),
-                value=PluginConfigurationDefinition(plugin_type),
-                label=plugin_type.type().label_plural,
+                value=manufacturer,
+                label=manufacturer.type().type().label_plural,
             ),
             default=lambda: MutableResolvedMappingProxy(
-                resolve_plugin_configuration_mapping(default),
-                value_resolver=resolve_plugin_configuration,
+                dict(
+                    zip(
+                        default.keys(),
+                        manufacturer.resolve_sequence(default.values()),
+                        strict=False,
+                    )
+                ),
+                value_resolver=manufacturer.resolve,
             ),
         )
 
@@ -99,7 +103,7 @@ class FamilyTree(Data):
     """
 
     event_types = _PluginMappingProperty(
-        EventTypeDefinition, _("Gramps event type"), DEFAULT_EVENT_TYPE_MAPPING
+        EventTypeManufacturer, _("Gramps event type"), DEFAULT_EVENT_TYPE_MAPPING
     )
     """
     How to map event types.
@@ -116,14 +120,14 @@ class FamilyTree(Data):
     """
 
     place_types = _PluginMappingProperty(
-        PlaceTypeDefinition, _("Gramps place type"), DEFAULT_PLACE_TYPE_MAPPING
+        PlaceTypeManufacturer, _("Gramps place type"), DEFAULT_PLACE_TYPE_MAPPING
     )
     """
     How to map place types.
     """
 
     presence_roles = _PluginMappingProperty(
-        PresenceRoleDefinition, _("Gramps role"), DEFAULT_PRESENCE_ROLE_MAPPING
+        PresenceRoleManufacturer, _("Gramps role"), DEFAULT_PRESENCE_ROLE_MAPPING
     )
     """
     How to map presence roles.
@@ -134,15 +138,15 @@ class FamilyTree(Data):
         file: Path | None = None,
         name: str | None = None,
         event_types: Mapping[
-            str, ResolvablePluginConfiguration[EventTypeDefinition, EventType]
+            str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
         ]
         | None = None,
         place_types: Mapping[
-            str, ResolvablePluginConfiguration[PlaceTypeDefinition, PlaceType]
+            str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
         ]
         | None = None,
         presence_roles: Mapping[
-            str, ResolvablePluginConfiguration[PresenceRoleDefinition, PresenceRole]
+            str, ResolvablePluginManufacturer[PresenceRoleDefinition, PresenceRole]
         ]
         | None = None,
     ):
@@ -183,19 +187,11 @@ class FamilyTree(Data):
             label="A custom Gramps executable",
         ),
         lambda: Sample(
-            GrampsConfiguration(
-                family_trees=[
-                    FamilyTree(file=Path("./gramps.gpkg")),
-                ]
-            ),
+            GrampsConfiguration(family_trees=[FamilyTree(file=Path("./gramps.gpkg"))]),
             label="Load a family tree from a file",
         ),
         lambda: Sample(
-            GrampsConfiguration(
-                family_trees=[
-                    FamilyTree(name="my-family-tree"),
-                ]
-            ),
+            GrampsConfiguration(family_trees=[FamilyTree(name="my-family-tree")]),
             label="Load a family tree by its name directly from Gramps",
         ),
         lambda: Sample(
@@ -203,9 +199,7 @@ class FamilyTree(Data):
                 family_trees=[
                     FamilyTree(
                         name="my-family-tree",
-                        event_types={
-                            "GrampsEventType": PluginConfiguration("betty-event-type"),
-                        },
+                        event_types={"GrampsEventType": "betty-event-type"},
                     ),
                 ]
             ),
@@ -216,9 +210,7 @@ class FamilyTree(Data):
                 family_trees=[
                     FamilyTree(
                         name="my-family-tree",
-                        place_types={
-                            "GrampsPlaceType": PluginConfiguration("betty-place-type"),
-                        },
+                        place_types={"GrampsPlaceType": "betty-place-type"},
                     ),
                 ]
             ),
@@ -229,9 +221,7 @@ class FamilyTree(Data):
                 family_trees=[
                     FamilyTree(
                         name="my-family-tree",
-                        event_types={
-                            "GrampsRole": PluginConfiguration("betty-presence-role"),
-                        },
+                        event_types={"GrampsRole": "betty-presence-role"},
                     ),
                 ]
             ),

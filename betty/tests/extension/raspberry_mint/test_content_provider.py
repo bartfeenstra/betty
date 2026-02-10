@@ -13,7 +13,10 @@ from betty.ancestry.place import Place
 from betty.ancestry.presence import Presence
 from betty.ancestry.source import Source
 from betty.app import App
-from betty.content_provider import ContentProvider, ContentProviderDefinition
+from betty.content_provider import (
+    ContentProviderDefinition,
+    ContentProviderManufacturer,
+)
 from betty.content_provider.content_providers import Render, RenderConfiguration
 from betty.date import Date
 from betty.dirs import ASSETS_DIRECTORY_PATH
@@ -46,7 +49,6 @@ from betty.locale.localizable.plain import Plain
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.model.reference import EntityReference
-from betty.plugin.config import PluginConfiguration
 from betty.presence_role.presence_roles import Subject, Witness
 from betty.project import Project
 from betty.test_utils.ancestry.has_citations import DummyHasCitations
@@ -77,20 +79,20 @@ class TestSectionConfiguration(DataTestBase[SectionConfiguration]):
 
     def test_content(self) -> None:
         sut = SectionConfiguration(
-            PluginConfiguration("my-first-content"), heading=DUMMY_LOCALIZABLE
+            ContentProviderManufacturer("my-first-content"), heading=DUMMY_LOCALIZABLE
         )
-        assert sut.content[0].id == "my-first-content"
+        assert sut.content[0].plugin_id == "my-first-content"
 
     def test_heading(self) -> None:
         heading = Plain("My First Section")
         sut = SectionConfiguration(
-            PluginConfiguration("my-first-content"), heading=heading
+            ContentProviderManufacturer("my-first-content"), heading=heading
         )
         assert sut.heading is heading
 
     def test_name(self) -> None:
         sut = SectionConfiguration(
-            PluginConfiguration("my-first-content"),
+            ContentProviderManufacturer("my-first-content"),
             name="my-first-section",
             heading=DUMMY_LOCALIZABLE,
         )
@@ -98,7 +100,7 @@ class TestSectionConfiguration(DataTestBase[SectionConfiguration]):
 
     def test_visually_hide_heading(self) -> None:
         sut = SectionConfiguration(
-            PluginConfiguration("my-first-content"),
+            ContentProviderManufacturer("my-first-content"),
             heading=DUMMY_LOCALIZABLE,
             visually_hide_heading=True,
         )
@@ -114,7 +116,7 @@ class TestSection:
                     sut = await Section.new(
                         project,
                         SectionConfiguration(
-                            PluginConfiguration(NoOpContentProvider),
+                            ContentProviderManufacturer(NoOpContentProvider),
                             heading="My First Section",
                         ),
                     )
@@ -127,7 +129,7 @@ class TestSection:
                 sut = await Section.new(
                     project,
                     SectionConfiguration(
-                        PluginConfiguration(
+                        ContentProviderManufacturer(
                             Render,
                             RenderConfiguration("My First Content"),
                         ),
@@ -146,7 +148,7 @@ class TestSection:
                 sut = await Section.new(
                     project,
                     SectionConfiguration(
-                        PluginConfiguration(
+                        ContentProviderManufacturer(
                             Render,
                             RenderConfiguration("My First Content"),
                         ),
@@ -167,7 +169,7 @@ class TestSection:
                 sut = await Section.new(
                     project,
                     SectionConfiguration(
-                        PluginConfiguration(
+                        ContentProviderManufacturer(
                             Render,
                             RenderConfiguration("My First Content"),
                         ),
@@ -276,14 +278,14 @@ class TestColorStyleConfiguration(DataTestBase[ColorStyleConfiguration]):
 
     def test_content(self) -> None:
         sut = ColorStyleConfiguration(
-            PluginConfiguration("my-first-content"), style=ColorStyleOption.DARK
+            ContentProviderManufacturer("my-first-content"), style=ColorStyleOption.DARK
         )
-        assert sut.content[0].id == "my-first-content"
+        assert sut.content[0].plugin_id == "my-first-content"
 
     def test_style(self) -> None:
         style = ColorStyleOption.DARK_SECONDARY
         sut = ColorStyleConfiguration(
-            PluginConfiguration("my-first-content"), style=style
+            ContentProviderManufacturer("my-first-content"), style=style
         )
         assert sut.style == style
 
@@ -297,7 +299,7 @@ class TestColorStyle:
                     sut = await ColorStyle.new(
                         project,
                         ColorStyleConfiguration(
-                            PluginConfiguration(NoOpContentProvider),
+                            ContentProviderManufacturer(NoOpContentProvider),
                             style=ColorStyleOption.DARK,
                         ),
                     )
@@ -310,7 +312,7 @@ class TestColorStyle:
                 sut = await ColorStyle.new(
                     project,
                     ColorStyleConfiguration(
-                        PluginConfiguration(
+                        ContentProviderManufacturer(
                             Render, RenderConfiguration("My First Content")
                         ),
                         style=ColorStyleOption.DARK,
@@ -533,7 +535,7 @@ class TestColumnsConfiguration(DataTestBase[ColumnsConfiguration]):
     sut_cls = ColumnsConfiguration
 
     def test_content(self) -> None:
-        content = PluginConfiguration[ContentProviderDefinition, ContentProvider](
+        content = ContentProviderManufacturer(
             Render, RenderConfiguration(DUMMY_LOCALIZABLE)
         )
         sut = ColumnsConfiguration([content])
@@ -551,7 +553,13 @@ class TestColumnsConfiguration(DataTestBase[ColumnsConfiguration]):
     def test_width(self, expected: ColumnsWidth, width: ShorthandColumnsWidth) -> None:
         assert (
             ColumnsConfiguration(
-                [[PluginConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE))]],
+                [
+                    [
+                        ContentProviderManufacturer(
+                            Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+                        )
+                    ]
+                ],
                 width=width,
             ).width
             == expected
@@ -560,7 +568,13 @@ class TestColumnsConfiguration(DataTestBase[ColumnsConfiguration]):
     def test_justify_content(self) -> None:
         justify_content = JustifyContent.CENTER
         sut = ColumnsConfiguration(
-            [[PluginConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE))]],
+            [
+                [
+                    ContentProviderManufacturer(
+                        Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+                    )
+                ]
+            ],
             justify_content=justify_content,
         )
         assert sut.justify_content == justify_content
@@ -576,7 +590,7 @@ class TestColumns:
                     ColumnsConfiguration(
                         [
                             [
-                                PluginConfiguration(
+                                ContentProviderManufacturer(
                                     Render, RenderConfiguration(DUMMY_LOCALIZABLE)
                                 )
                             ]
@@ -598,7 +612,7 @@ class TestColumns:
                     ColumnsConfiguration(
                         [
                             [
-                                PluginConfiguration(
+                                ContentProviderManufacturer(
                                     Render, RenderConfiguration(DUMMY_LOCALIZABLE)
                                 )
                             ]
@@ -621,12 +635,12 @@ class TestColumns:
                     ColumnsConfiguration(
                         [
                             [
-                                PluginConfiguration(
+                                ContentProviderManufacturer(
                                     Render, RenderConfiguration(DUMMY_LOCALIZABLE)
                                 )
                             ],
                             [
-                                PluginConfiguration(
+                                ContentProviderManufacturer(
                                     Render, RenderConfiguration(DUMMY_LOCALIZABLE)
                                 )
                             ],
@@ -650,12 +664,12 @@ class TestColumns:
                     ColumnsConfiguration(
                         [
                             [
-                                PluginConfiguration(
+                                ContentProviderManufacturer(
                                     Render, RenderConfiguration(DUMMY_LOCALIZABLE)
                                 )
                             ],
                             [
-                                PluginConfiguration(
+                                ContentProviderManufacturer(
                                     Render, RenderConfiguration(DUMMY_LOCALIZABLE)
                                 )
                             ],
