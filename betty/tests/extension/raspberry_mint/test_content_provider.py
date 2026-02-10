@@ -575,8 +575,9 @@ class TestColumns:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = Columns(
-                    configuration=ColumnsConfiguration(
+                sut = await Columns.new(
+                    project,
+                    ColumnsConfiguration(
                         [
                             [
                                 PluginConfiguration(
@@ -585,7 +586,6 @@ class TestColumns:
                             ]
                         ]
                     ),
-                    jinja=await project.jinja,
                 )
                 actual = await sut.provide(document=Document())
         assert actual is not None
@@ -597,8 +597,9 @@ class TestColumns:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = Columns(
-                    configuration=ColumnsConfiguration(
+                sut = await Columns.new(
+                    project,
+                    ColumnsConfiguration(
                         [
                             [
                                 PluginConfiguration(
@@ -608,7 +609,6 @@ class TestColumns:
                         ],
                         width={Breakpoint.XS: 12, Breakpoint.LG: 6},
                     ),
-                    jinja=await project.jinja,
                 )
                 actual = await sut.provide(document=Document())
         assert actual is not None
@@ -620,8 +620,9 @@ class TestColumns:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = Columns(
-                    configuration=ColumnsConfiguration(
+                sut = await Columns.new(
+                    project,
+                    ColumnsConfiguration(
                         [
                             [
                                 PluginConfiguration(
@@ -638,7 +639,6 @@ class TestColumns:
                         ],
                         width=[8, 4],
                     ),
-                    jinja=await project.jinja,
                 )
                 actual = await sut.provide(document=Document())
         assert actual is not None
@@ -651,8 +651,9 @@ class TestColumns:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
-                sut = Columns(
-                    configuration=ColumnsConfiguration(
+                sut = await Columns.new(
+                    project,
+                    ColumnsConfiguration(
                         [
                             [
                                 PluginConfiguration(
@@ -669,7 +670,6 @@ class TestColumns:
                         ],
                         width={Breakpoint.XS: [8, 4], Breakpoint.LG: [7, 5]},
                     ),
-                    jinja=await project.jinja,
                 )
                 actual = await sut.provide(document=Document())
         assert actual is not None
