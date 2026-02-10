@@ -1,7 +1,7 @@
 from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.place import Place
 from betty.extension.raspberry_mint import RaspberryMint
-from betty.test_utils.jinja2 import assert_template_string
+from betty.test_utils.jinja import assert_template_string
 
 
 async def test_minimal() -> None:

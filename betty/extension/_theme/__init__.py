@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from betty.ancestry.file_reference import FileReference
     from betty.ancestry.has_file_references import HasFileReferences
     from betty.ancestry.presence import Presence
-    from betty.jinja2 import Filters
+    from betty.jinja import Filters
     from betty.project import Project
 
 
@@ -216,7 +216,7 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
                 yield associated_presence.event
 
 
-def jinja2_filters(project: Project) -> Filters:
+def jinja_filters(project: Project) -> Filters:
     return {
         "person_timeline_events": lambda person: person_timeline_events(
             person, project.configuration.lifetime_threshold

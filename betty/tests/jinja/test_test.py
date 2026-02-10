@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any
 import pytest
 
 from betty.date import Date, DateRange
-from betty.jinja2.test import PluginTester
+from betty.jinja.test import PluginTester
 from betty.json.linked_data import LinkedDataDumpableWithSchemaJsonLdObject
 from betty.media_type import MediaType
 from betty.media_type.media_types import PDF, SVG
@@ -13,7 +13,7 @@ from betty.test_utils.ancestry.has_citations import DummyHasCitations
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 from betty.test_utils.ancestry.has_links import DummyHasLinks
 from betty.test_utils.ancestry.has_notes import DummyHasNotes
-from betty.test_utils.jinja2 import assert_template_string
+from betty.test_utils.jinja import assert_template_string
 from betty.test_utils.plugin import (
     DummyPluginDefinition,
     DummyPluginOne,

@@ -40,7 +40,7 @@ if TYPE_CHECKING:
     from collections.abc import MutableSequence
 
     from betty.document import Document
-    from betty.jinja2 import Environment
+    from betty.jinja import Environment
     from betty.locale.localizable import ResolvableLocalizable
     from betty.project import Project
     from betty.render import RenderDispatcher

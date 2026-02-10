@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from betty.ancestry.event import Event
 from betty.extension.raspberry_mint import RaspberryMint
-from betty.test_utils.jinja2 import assert_template_file
+from betty.test_utils.jinja import assert_template_file
 
 
 async def test_minimal() -> None:

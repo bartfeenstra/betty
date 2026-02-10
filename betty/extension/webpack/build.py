@@ -29,7 +29,7 @@ from betty.service.level import ServiceLevel
 if TYPE_CHECKING:
     from collections.abc import MutableMapping, Sequence
 
-    from betty.jinja2 import Environment
+    from betty.jinja import Environment
     from betty.job import Context as JobContext
     from betty.user import User
 

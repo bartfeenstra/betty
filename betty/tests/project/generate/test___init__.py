@@ -7,7 +7,7 @@ from betty.app import App
 from betty.project import Project
 from betty.project.data import ProjectLocale
 from betty.project.generate import generate
-from betty.test_utils.jinja2 import assert_betty_html
+from betty.test_utils.jinja import assert_betty_html
 
 
 async def test_generate__html_lang(isolated_app: App) -> None:

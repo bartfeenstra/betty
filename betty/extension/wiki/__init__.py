@@ -13,7 +13,7 @@ from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.extension import Extension, ExtensionDefinition
 from betty.extension.wiki.data import WikiConfiguration
 from betty.extension.wiki.jobs import PopulateEntity
-from betty.jinja2 import Filters, Globals, Jinja2Provider, context_localizer
+from betty.jinja import Filters, Globals, JinjaProvider, context_localizer
 from betty.locale import negotiate_locale, resolve_locale
 from betty.locale.localizable.gettext import _
 from betty.project import Project
@@ -51,7 +51,7 @@ class Wiki(
     PostLoader,
     DataManufacturable[WikiConfiguration],
     Manufacturable,
-    Jinja2Provider,
+    JinjaProvider,
     Extension[Project],
 ):
     """

@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 
     from babel import Locale
 
-    from betty.jinja2 import CopyFunction
+    from betty.jinja import CopyFunction
     from betty.job.scheduler import Scheduler
     from betty.portable import PortableMapping
 

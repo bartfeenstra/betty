@@ -17,9 +17,9 @@ from betty.document import DocumentProvider, DocumentVars
 from betty.extension import Extension, ExtensionDefinition
 from betty.extension.webpack import build
 from betty.extension.webpack.build import EntryPointProvider
-from betty.extension.webpack.jinja2.filter import FILTERS
+from betty.extension.webpack.jinja.filter import FILTERS
 from betty.html import CssProvider, JsProvider
-from betty.jinja2 import Filters, Jinja2Provider
+from betty.jinja import Filters, JinjaProvider
 from betty.project import Project
 from betty.project.generate import Generator
 from betty.service.factory import Manufacturable
@@ -43,7 +43,7 @@ class Webpack(
     Extension[Project],
     CssProvider,
     JsProvider,
-    Jinja2Provider,
+    JinjaProvider,
     DocumentProvider,
     Manufacturable,
 ):

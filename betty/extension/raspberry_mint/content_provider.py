@@ -82,7 +82,7 @@ from betty.typing import private
 if TYPE_CHECKING:
     from betty.ancestry import Ancestry
     from betty.document import Document
-    from betty.jinja2 import Environment
+    from betty.jinja import Environment
     from betty.locale.localizable import ResolvableLocalizable
     from betty.model import Entity
     from betty.plugin import ResolvableId

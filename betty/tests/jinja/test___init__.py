@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 import aiofiles
 
 from betty.document import Document
-from betty.jinja2 import Environment, Jinja2Provider
+from betty.jinja import Environment, JinjaProvider
 from betty.job import Context as JobContext
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.project import Project
@@ -17,17 +17,17 @@ if TYPE_CHECKING:
     from betty.app import App
 
 
-class TestJinja2Provider:
+class TestJinjaProvider:
     async def test_globals(self) -> None:
-        sut = Jinja2Provider()
+        sut = JinjaProvider()
         assert isinstance(sut.globals, dict)
 
     async def test_filters(self) -> None:
-        sut = Jinja2Provider()
+        sut = JinjaProvider()
         assert isinstance(sut.filters, dict)
 
     async def test_tests(self) -> None:
-        sut = Jinja2Provider()
+        sut = JinjaProvider()
         assert isinstance(sut.tests, dict)
 
 

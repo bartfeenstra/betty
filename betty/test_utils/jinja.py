@@ -13,7 +13,7 @@ from lxml.etree import ParserError
 from lxml.html import document_fromstring
 
 from betty.app import App
-from betty.jinja2 import Environment
+from betty.jinja import Environment
 from betty.json.schema import AllOf, Ref
 from betty.plugin import ResolvableId
 from betty.project import Project

@@ -322,17 +322,17 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "plugin": MissingReason.INHERITED,
         },
     },
-    "betty/jinja2/__init__.py": {
+    "betty/jinja/__init__.py": {
         "context_job_context": MissingReason.SHOULD_BE_COVERED,
         "context_localizer": MissingReason.SHOULD_BE_COVERED,
         "context_project": MissingReason.SHOULD_BE_COVERED,
         "context_document": MissingReason.SHOULD_BE_COVERED,
         "Environment": {},
     },
-    "betty/jinja2/filter.py": {
+    "betty/jinja/filter.py": {
         "filters": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/jinja2/test.py": {
+    "betty/jinja/test.py": {
         "tests": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/job/__init__.py": {
@@ -881,8 +881,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "EntryPointProvider": MissingReason.ABSTRACT,
         "webpack_build_id": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/extension/webpack/jinja2/__init__.py": MissingReason.SHOULD_BE_COVERED,
-    "betty/extension/webpack/jinja2/filter.py": MissingReason.SHOULD_BE_COVERED,
+    "betty/extension/webpack/jinja/__init__.py": MissingReason.SHOULD_BE_COVERED,
+    "betty/extension/webpack/jinja/filter.py": MissingReason.SHOULD_BE_COVERED,
     "betty/extension/wiki/__init__.py": {
         "Wiki": {
             "plugin": MissingReason.INHERITED,

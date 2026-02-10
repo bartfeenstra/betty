@@ -11,13 +11,13 @@ from typing import TYPE_CHECKING, Self, final
 from typing_extensions import override
 
 from betty.extension import ExtensionDefinition
-from betty.extension._theme import jinja2_filters
+from betty.extension._theme import jinja_filters
 from betty.extension.maps import Maps
 from betty.extension.raspberry_mint.data import RaspberryMintConfiguration
 from betty.extension.trees import Trees
 from betty.extension.webpack import Webpack
 from betty.extension.webpack.build import EntryPointProvider
-from betty.jinja2 import Filters, Jinja2Provider
+from betty.jinja import Filters, JinjaProvider
 from betty.model import EntityDefinition
 from betty.project import Project
 from betty.project.generate import Generator
@@ -47,7 +47,7 @@ if TYPE_CHECKING:
 class RaspberryMint(
     DataManufacturable[RaspberryMintConfiguration],
     Manufacturable,
-    Jinja2Provider,
+    JinjaProvider,
     Generator,
     EntryPointProvider[Project],
 ):
@@ -150,7 +150,7 @@ class RaspberryMint(
     @override
     @property
     def filters(self) -> Filters:
-        return jinja2_filters(self.services)
+        return jinja_filters(self.services)
 
     @property
     async def regions(self) -> set[str]:

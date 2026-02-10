@@ -8,12 +8,12 @@ from typing import TYPE_CHECKING
 
 from jinja2 import pass_context
 
-from betty.extension.webpack.jinja2 import _context_js_entry_points
+from betty.extension.webpack.jinja import _context_js_entry_points
 
 if TYPE_CHECKING:
     from jinja2.runtime import Context
 
-    from betty.jinja2 import Filters
+    from betty.jinja import Filters
 
 
 @pass_context
