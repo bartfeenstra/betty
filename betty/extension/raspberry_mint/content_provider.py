@@ -79,15 +79,12 @@ from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.typing import private
 
 if TYPE_CHECKING:
-    from collections.abc import Collection
-
     from betty.ancestry import Ancestry
     from betty.document import Document
     from betty.jinja2 import Environment
     from betty.locale.localizable import ResolvableLocalizable
     from betty.model import Entity
     from betty.plugin import ResolvableId
-    from betty.plugin.repository import PluginRepository
     from betty.project import Project
 
 
@@ -596,7 +593,7 @@ class PresencesConfiguration(Data):
 
 
 @ContentProviderDefinition("raspberry-mint-presences", label=_("Presences"))
-class Presences(Template, DataManufacturable[PresencesConfiguration]):
+class Presences(Template, DataManufacturable[PresencesConfiguration], Manufacturable):
     """
     People's presences at an event.
 
@@ -607,15 +604,11 @@ class Presences(Template, DataManufacturable[PresencesConfiguration]):
     def __init__(
         self,
         *,
+        include: Iterable[ResolvableId[PresenceRoleDefinition]] | None = None,
         jinja: Environment,
-        presence_roles: PluginRepository[PresenceRoleDefinition],
-        configuration: PresencesConfiguration | None = None,
     ):
         super().__init__(jinja=jinja)
-        self._configuration = (
-            PresencesConfiguration() if configuration is None else configuration
-        )
-        self._presence_roles = presence_roles
+        self._include = None if include is None else tuple(map(resolve_id, include))
 
     @override
     @classmethod
@@ -624,34 +617,38 @@ class Presences(Template, DataManufacturable[PresencesConfiguration]):
 
     @override
     @classmethod
-    @require_extension(RaspberryMint)
+    @require_project
     async def new(
-        cls, raspberry_mint: RaspberryMint, data: PresencesConfiguration, /
+        cls, project: Project, data: PresencesConfiguration | None = None, /
     ) -> Self:
-        return cls(
-            configuration=data,
-            jinja=await raspberry_mint.services.jinja,
-            presence_roles=await raspberry_mint.services.plugins.plugins(
-                PresenceRoleDefinition
-            ),
-        )
+        await require_extension(RaspberryMint, project)
+
+        if data is None:
+            raise NotImplementedError
+        include: Iterable[ResolvableId[PresenceRoleDefinition]] | None
+        if data.include is not None:
+            include = data.include
+        else:
+            presence_roles = await project.plugins.plugins(PresenceRoleDefinition)
+            include = {role.id for role in presence_roles}
+            if data.exclude is not None:
+                include -= set(data.exclude)
+        return cls(include=include, jinja=await project.jinja)
 
     @override
     async def provide_template(self, document: Document) -> ProvidedTemplate:
         if isinstance(document.resource, Event):
-            include: Collection[MachineName]
-            if self._configuration.include is not None:
-                include = self._configuration.include
-            else:
-                include = {role.id for role in self._presence_roles}
-                if self._configuration.exclude is not None:
-                    include -= set(self._configuration.exclude)
-            return "component/raspberry-mint/presences.html.j2", {
-                "presences": [
+            presences = document.resource.presences
+            if self._include is not None:
+                presences = tuple(
                     presence
-                    for presence in document.resource.presences
-                    if presence.role.plugin().id in include
-                ]
+                    for presence in presences
+                    if presence.role.plugin().id in self._include
+                )
+            if not len(presences):
+                return None
+            return "component/raspberry-mint/presences.html.j2", {
+                "presences": presences
             }
         return None
 
