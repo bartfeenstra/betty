@@ -1,19 +1,11 @@
-{% set ns = namespace(provided_content=[], has_content=false) %}
-{% for column_content in columns_content %}
-    {% set provided_column_content = column_content | provide_content %}
-    {% if provided_column_content %}
-        {% set ns.has_content = true %}
-    {% endif %}
-    {% do ns.provided_content.append(provided_column_content) %}
-{% endfor %}
-{% if ns.has_content %}
+{% if columns_content | reject('none') | list %}
     <div class="container">
         <div class="row{% if columns_justify_content is not none %} justify-content-{{ columns_justify_content }}{% endif %}">
-            {% for provided_column_content in ns.provided_content %}
-                {% if provided_column_content %}
+            {% for column_content in columns_content %}
+                {% if column_content %}
                     {% set column_index = loop.index0 %}
                     <div class="col{% for breakpoint in columns_width %} col-{% if breakpoint != "xs" %}{{ breakpoint }}-{% endif %}{{ columns_width[breakpoint][column_index] }}{% endfor %}">
-                        {{ provided_column_content }}
+                        {{ column_content }}
                     </div>
                 {% endif %}
             {% endfor %}

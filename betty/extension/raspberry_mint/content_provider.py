@@ -4,6 +4,7 @@ Dynamic content.
 
 from __future__ import annotations
 
+from asyncio import gather
 from collections.abc import Iterable, Mapping, Sequence
 from typing import TYPE_CHECKING, Self, TypeAlias, final
 
@@ -835,9 +836,19 @@ class Columns(Template, DataManufacturable[ColumnsConfiguration]):
     .. plugin:: content-provider:raspberry-mint-columns
     """
 
-    def __init__(self, *, configuration: ColumnsConfiguration, jinja: Environment):
+    def __init__(
+        self,
+        /,
+        content: Iterable[Iterable[ContentProvider]],
+        *,
+        width: ColumnsWidth,
+        jinja: Environment,
+        justify_content: JustifyContent | None = None,
+    ):
         super().__init__(jinja=jinja)
-        self._configuration = configuration
+        self._content = tuple(map(tuple, content))
+        self._justify_content = justify_content
+        self._width = width
 
     @override
     @classmethod
@@ -846,23 +857,35 @@ class Columns(Template, DataManufacturable[ColumnsConfiguration]):
 
     @override
     @classmethod
-    @require_extension(RaspberryMint)
-    async def new(
-        cls, raspberry_mint: RaspberryMint, data: ColumnsConfiguration, /
-    ) -> Self:
+    @require_project
+    async def new(cls, project: Project, data: ColumnsConfiguration, /) -> Self:
+        await require_extension(RaspberryMint, project)
         return cls(
-            configuration=data,
-            jinja=await raspberry_mint.services.jinja,
+            content=await gather(
+                *[
+                    new_plugins(project, ContentProviderDefinition, column_content)
+                    for column_content in data.content
+                ]
+            ),
+            jinja=await project.jinja,
+            justify_content=data.justify_content,
+            width=data.width,
         )
 
     @override
     async def provide_template(self, document: Document) -> ProvidedTemplate:
+        content = [
+            await provide_content(document, column_content)
+            for column_content in self._content
+        ]
+        if not any(content):
+            return None
         return "component/raspberry-mint/columns.html.j2", {
-            "columns_content": self._configuration.content,
-            "columns_justify_content": self._configuration.justify_content,
+            "columns_content": content,
+            "columns_justify_content": self._justify_content,
             "columns_width": {
                 breakpoint.value: widths
-                for breakpoint, widths in self._configuration.width.items()  # noqa: A001
+                for breakpoint, widths in self._width.items()  # noqa: A001
             },
         }
 
