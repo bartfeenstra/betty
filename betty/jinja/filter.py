@@ -91,7 +91,7 @@ async def filter_url(
     """
     Generate a URL for a resource.
     """
-    from betty.jinja2 import context_localizer, context_project
+    from betty.jinja import context_localizer, context_project
 
     url_generator = await context_project(context).url_generator
     return url_generator.generate(
@@ -110,7 +110,7 @@ def filter_localize(
     """
     Localize a value using the context's current localizer.
     """
-    from betty.jinja2 import context_localizer
+    from betty.jinja import context_localizer
 
     return localizable.localize(context_localizer(context))
 
@@ -126,7 +126,7 @@ def filter_html_lang(context: Context, has_locale: str) -> str | Markup:
     """
     Optionally add the necessary HTML to indicate the localized string has a different locale than the surrounding HTML.
     """
-    from betty.jinja2 import context_localizer
+    from betty.jinja import context_localizer
 
     if not isinstance(has_locale, HasLocaleStr):
         return has_locale
@@ -230,7 +230,7 @@ async def filter_file(context: Context, file: File) -> str:
 
     :return: A ``betty-static://`` URL resource from which a public URL can be generated.
     """
-    from betty.jinja2 import context_job_context, context_project
+    from betty.jinja import context_job_context, context_project
 
     project = context_project(context)
     job_context = context_job_context(context)
@@ -266,7 +266,7 @@ async def filter_image_resize_cover(
 
     :return: A ``betty-static://`` URL resource from which a public URL can be generated.
     """
-    from betty.jinja2 import context_job_context, context_project
+    from betty.jinja import context_job_context, context_project
 
     file = filey if isinstance(filey, File) else filey.file
     assert file is not None
@@ -426,7 +426,7 @@ def filter_negotiate_has_locales(
     """
     Try to find an object whose locale matches the context's current locale.
     """
-    from betty.jinja2 import context_localizer
+    from betty.jinja import context_localizer
 
     return locale.negotiate_has_locales(
         context_localizer(context).locale, list(has_locales)
@@ -466,7 +466,7 @@ def filter_select_has_locales(
 
     :param include_unspecified: If True, the return value includes all objects that do not have a locale specified.
     """
-    from betty.jinja2 import context_localizer
+    from betty.jinja import context_localizer
 
     localizer = context_localizer(context)
     for has_locale in has_locales:
@@ -525,7 +525,7 @@ async def filter_provide_content(
     """
     Provide content from content provider configuration.
     """
-    from betty.jinja2 import context_document, context_project
+    from betty.jinja import context_document, context_project
 
     return await provide_content(
         context_document(context),
@@ -542,7 +542,7 @@ def filter_format_datetime_datetime(
     """
     Format a datetime date to a human-readable string.
     """
-    from betty.jinja2 import context_localizer
+    from betty.jinja import context_localizer
 
     localizer = context_localizer(context)
     return format_date(datetime_datetime, "long", locale=localizer.locale)

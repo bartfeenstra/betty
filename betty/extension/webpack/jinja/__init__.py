@@ -6,7 +6,7 @@ from collections.abc import MutableSet
 
 from jinja2.runtime import Context
 
-from betty.jinja2 import context_document
+from betty.jinja import context_document
 
 
 def _context_js_entry_points(context: Context) -> MutableSet[str]:

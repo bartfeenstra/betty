@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from betty.test_utils.jinja2 import assert_template_string
+from betty.test_utils.jinja import assert_template_string
 from betty.typing import internal
 from betty.warnings import BettyDeprecationWarning
 

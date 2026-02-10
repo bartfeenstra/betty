@@ -12,12 +12,12 @@ from typing import TYPE_CHECKING, Any, Self, TypeAlias, cast
 
 import aiofiles
 from aiofiles.os import makedirs
-from jinja2 import Environment as Jinja2Environment
+from jinja2 import Environment as JinjaEnvironment
 from jinja2 import FileSystemLoader, pass_context, select_autoescape
 from jinja2.async_utils import auto_await
-from jinja2.ext import Extension as Jinja2Extension
+from jinja2.ext import Extension as JinjaExtension
 from jinja2.nodes import CallBlock, ContextReference, Node
-from jinja2.runtime import Context as Jinja2Context
+from jinja2.runtime import Context as JinjaContext
 from jinja2.runtime import DebugUndefined, StrictUndefined
 from jinja2.utils import missing
 from typing_extensions import override
@@ -27,8 +27,8 @@ from betty.cache import CacheItem
 from betty.date import Date
 from betty.html import CssProvider, JsProvider, NavigationLinkProvider, generate_html_id
 from betty.html.attributes import Attributes
-from betty.jinja2.filter import filters
-from betty.jinja2.test import tests
+from betty.jinja.filter import filters
+from betty.jinja.test import tests
 from betty.media_type import UnsupportedMediaType, match_extension
 from betty.media_type.media_types import JINJA2
 from betty.service.factory import Manufacturable
@@ -52,14 +52,14 @@ if TYPE_CHECKING:
 CopyFunction: TypeAlias = Callable[[Path, Path], Awaitable[None]]
 
 
-def context_project(context: Jinja2Context) -> Project:
+def context_project(context: JinjaContext) -> Project:
     """
     Get the current project from the Jinja2 context.
     """
     return cast(Environment, context.environment).project
 
 
-def context_document(context: Jinja2Context) -> Document:
+def context_document(context: JinjaContext) -> Document:
     """
     Get the current document from the Jinja2 context.
     """
@@ -71,7 +71,7 @@ def context_document(context: Jinja2Context) -> Document:
     return document
 
 
-def context_job_context(context: Jinja2Context) -> JobContext | None:
+def context_job_context(context: JinjaContext) -> JobContext | None:
     """
     Get the current job context from the Jinja2 context.
     """
@@ -81,7 +81,7 @@ def context_job_context(context: Jinja2Context) -> JobContext | None:
         return None
 
 
-def context_localizer(context: Jinja2Context) -> Localizer:
+def context_localizer(context: JinjaContext) -> Localizer:
     """
     Get the current localizer from the Jinja2 context.
     """
@@ -98,7 +98,7 @@ Filters: TypeAlias = Mapping[str, Callable[..., Any]]
 Tests: TypeAlias = Mapping[str, Callable[..., bool]]
 
 
-class Jinja2Provider:
+class JinjaProvider:
     """
     Integrate an :py:class:`betty.extension.Extension` with the Jinja2 API.
     """
@@ -131,7 +131,7 @@ class Jinja2Provider:
         return {}
 
 
-class Environment(Manufacturable, Jinja2Environment):
+class Environment(Manufacturable, JinjaEnvironment):
     """
     Betty's Jinja2 environment.
     """
@@ -229,25 +229,25 @@ class Environment(Manufacturable, Jinja2Environment):
         self.policies["ext.i18n.trimmed"] = True
 
     @pass_context
-    def _gettext(self, context: Jinja2Context, message: str) -> str:
+    def _gettext(self, context: JinjaContext, message: str) -> str:
         return context_localizer(context).gettext(message)
 
     @pass_context
     def _ngettext(
-        self, context: Jinja2Context, message_singular: str, message_plural: str, n: int
+        self, context: JinjaContext, message_singular: str, message_plural: str, n: int
     ) -> str:
         return context_localizer(context).ngettext(message_singular, message_plural, n)
 
     @pass_context
     def _pgettext(
-        self, context: Jinja2Context, gettext_context: str, message: str
+        self, context: JinjaContext, gettext_context: str, message: str
     ) -> str:
         return context_localizer(context).pgettext(gettext_context, message)
 
     @pass_context
     def _npgettext(
         self,
-        context: Jinja2Context,
+        context: JinjaContext,
         gettext_context: str,
         message_singular: str,
         message_plural: str,
@@ -281,7 +281,7 @@ class Environment(Manufacturable, Jinja2Environment):
 
     def _init_extensions(self) -> None:
         for extension in self._extensions:
-            if isinstance(extension, Jinja2Provider):
+            if isinstance(extension, JinjaProvider):
                 self.globals.update(extension.globals)
                 self.filters.update(extension.filters)
                 self.tests.update(extension.tests)
@@ -344,7 +344,7 @@ class Environment(Manufacturable, Jinja2Environment):
 _CacheExtensionMap: TypeAlias = MutableMapping[str, str]
 
 
-class _CacheTagExtension(Jinja2Extension):
+class _CacheTagExtension(JinjaExtension):
     tags = {"cache"}
 
     @override
@@ -360,7 +360,7 @@ class _CacheTagExtension(Jinja2Extension):
         ).set_lineno(lineno)
 
     async def _cache(
-        self, cache_key: str, context: Jinja2Context, caller: Callable[[], str]
+        self, cache_key: str, context: JinjaContext, caller: Callable[[], str]
     ) -> str:
         job_context = context_job_context(context)
         if job_context is None:

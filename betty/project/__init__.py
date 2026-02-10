@@ -56,7 +56,7 @@ if TYPE_CHECKING:
     from babel import Locale
 
     from betty.app import App
-    from betty.jinja2 import Environment
+    from betty.jinja import Environment
     from betty.license import License
     from betty.machine_name import MachineName
     from betty.url import UrlGenerator
@@ -294,7 +294,7 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
         """
         The Jinja2 environment.
         """
-        from betty.jinja2 import Environment
+        from betty.jinja import Environment
 
         return await Environment.new(self)
 
