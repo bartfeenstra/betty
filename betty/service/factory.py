@@ -75,7 +75,7 @@ class Factory:
     async def new(
         self,
         target: type[_ManufacturableT],
-        configuration: Data | PortableData | Void = Void(),  # noqa: B008
+        data: Data | PortableData | Void = Void(),  # noqa: B008
         /,
     ) -> _ManufacturableT:
         pass
@@ -84,7 +84,7 @@ class Factory:
     async def new(
         self,
         target: Callable[[], Awaitable[_T] | _T],
-        configuration: Data | PortableData | Void = Void(),  # noqa: B008
+        data: Data | PortableData | Void = Void(),  # noqa: B008
         /,
     ) -> _T:
         pass
@@ -93,7 +93,7 @@ class Factory:
     async def new(
         self,
         target: type[_T],
-        configuration: Data | PortableData | Void = Void(),  # noqa: B008
+        data: Data | PortableData | Void = Void(),  # noqa: B008
         /,
     ) -> _T:
         pass
@@ -101,14 +101,14 @@ class Factory:
     async def new(
         self,
         target,
-        configuration=Void(),  # noqa: B008
+        data=Void(),  # noqa: B008
     ):
         """
         Create a new instance.
 
         :raises FactoryError: raised when ``target`` could not be called.
         """
-        if configuration is Void():
+        if data is Void():
             if isinstance(target, type) and issubclass(target, Manufacturable):
                 return await target.new(self._services)
             if callable(target):
@@ -120,6 +120,6 @@ class Factory:
                     '"{target}" is not configurable, but configuration was given.'
                 ).format(target=fully_qualified_name(target))
             )
-        if not isinstance(configuration, Data):
-            configuration = target.new_data_cls().data().porter.load(configuration)
-        return await target.new(self._services, configuration)
+        if not isinstance(data, Data):
+            data = target.new_data_cls().data().porter.load(data)
+        return await target.new(self._services, data)
