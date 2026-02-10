@@ -7,10 +7,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Final
 
 from betty.plugin.manager.service import ServiceLevelPluginManager
-from betty.service.factory import Factory
 
 if TYPE_CHECKING:
     from betty.plugin.manager import PluginManager
+    from betty.service.factory import Factory
 
 
 class ServiceLevel:
@@ -19,6 +19,8 @@ class ServiceLevel:
     """
 
     def __init__(self, *args: Any, **kwargs: Any):
+        from betty.service.factory import Factory
+
         super().__init__(*args, **kwargs)
         self._factory = Factory(self)
         self._plugins = ServiceLevelPluginManager(self)

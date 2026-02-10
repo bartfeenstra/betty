@@ -18,12 +18,10 @@ import betty
 import betty.dirs
 from betty.ancestry import Ancestry
 from betty.asset import AssetRepository, ProxyAssetRepository, StaticAssetRepository
-from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.document import Document, DocumentProvider
 from betty.extension import Extension, ExtensionDefinition
 from betty.hashid import hashid
 from betty.importlib import fully_qualified_name
-from betty.license import LicenseDefinition
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.locale.localizable.gettext import _
 from betty.locale.localize import Localizer, LocalizerRepository
@@ -56,6 +54,7 @@ if TYPE_CHECKING:
     from babel import Locale
 
     from betty.app import App
+    from betty.copyright_notice import CopyrightNotice
     from betty.jinja import Environment
     from betty.license import License
     from betty.url import UrlGenerator
@@ -314,13 +313,13 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
         """
         extensions = await self.plugins.plugins(ExtensionDefinition)
         configured_extension_definitions = []
-        configured_extension_configurations = {}
-        for extension_configuration in self.configuration.extensions:
+        configured_extension_manufacturers = {}
+        for extension_manufacturer in self.configuration.extensions:
             configured_extension_definitions.append(
-                extensions[extension_configuration.id]
+                extensions[extension_manufacturer.plugin_id]
             )
-            configured_extension_configurations[extension_configuration.id] = (
-                extension_configuration
+            configured_extension_manufacturers[extension_manufacturer.plugin_id] = (
+                extension_manufacturer
             )
 
         extensions_sorter = await sort_dependent_plugin_graph(
@@ -337,10 +336,10 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
                 enabled_extension_definition = extensions[enabled_extension_id]
                 if enabled_extension_definition.theme:
                     theme_count += 1
-                if enabled_extension_id in configured_extension_configurations:
-                    extension = await configured_extension_configurations[
+                if enabled_extension_id in configured_extension_manufacturers:
+                    extension = await configured_extension_manufacturers[
                         enabled_extension_id
-                    ].new_plugin(self, ExtensionDefinition)
+                    ](self)
                 else:
                     extension = await self.factory.new(enabled_extension_definition.cls)
                 await extension.bootstrap()
@@ -384,16 +383,14 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
         """
         The overall project copyright.
         """
-        return await self.configuration.copyright_notice.new_plugin(
-            self, CopyrightNoticeDefinition
-        )
+        return await self.factory.new(self.configuration.copyright_notice)
 
     @service
     async def license(self) -> License:
         """
         The overall project license.
         """
-        return await self.configuration.license.new_plugin(self, LicenseDefinition)
+        return await self.factory.new(self.configuration.license)
 
     @service
     def privatizer(self) -> Privatizer:

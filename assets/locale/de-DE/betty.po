@@ -7,17 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-02-16 18:52+0000\n"
+"POT-Creation-Date: 2026-02-18 12:26+0000\n"
 "PO-Revision-Date: 2026-02-17 18:12+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
-"Language-Team: German <https://hosted.weblate.org/projects/betty/betty-0-5-x/"
-"de/>\n"
-"Language: de-DE\n"
+"Language: de_DE\n"
+"Language-Team: German "
+"<https://hosted.weblate.org/projects/betty/betty-0-5-x/de/>\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.16.1-dev\n"
 "Generated-By: Babel 2.18.0\n"
 
 #, python-brace-format
@@ -553,6 +552,9 @@ msgid "Cremation"
 msgstr "Feuerbestattung"
 
 msgid "Cremations"
+msgstr ""
+
+msgid "Data"
 msgstr ""
 
 msgid "Death"
@@ -1278,9 +1280,6 @@ msgid "Plain text"
 msgstr ""
 
 msgid "Plugin ID"
-msgstr ""
-
-msgid "Plugin configuration"
 msgstr ""
 
 msgid "Plugins"
@@ -2640,10 +2639,6 @@ msgid "{plugin_type} \"{plugin_id}\""
 msgstr ""
 
 #, python-brace-format
-msgid "{plugin_type} configuration"
-msgstr ""
-
-#, python-brace-format
 msgid "{target} requires a project."
 msgstr ""
 
@@ -2663,3 +2658,4 @@ msgstr ""
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Copyright {author}, außer anders erwähnt"
+

@@ -8,7 +8,7 @@ from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.assertion import assert_locale, assert_path, assert_str
-from betty.extension import Extension, ExtensionDefinition
+from betty.extension import Extension, ExtensionDefinition, ExtensionManufacturer
 from betty.extension.deriver import Deriver
 from betty.extension.gramps import Gramps
 from betty.extension.gramps.data import FamilyTree, GrampsConfiguration
@@ -25,7 +25,6 @@ from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
 from betty.machine_name import MachineName
-from betty.plugin.config import PluginConfiguration, ResolvablePluginConfiguration
 from betty.portable.file import dump_file
 from betty.project.data import ProjectConfiguration
 from betty.typing import Void
@@ -38,6 +37,7 @@ if TYPE_CHECKING:
 
     from betty.app import App
     from betty.locale.localizable import Localizable
+    from betty.plugin.factory import ResolvablePluginManufacturer
     from betty.user import User
 
 
@@ -73,13 +73,13 @@ async def new(app: App) -> None:
         )
 
     extensions: MutableSequence[
-        ResolvablePluginConfiguration[ExtensionDefinition, Extension]
+        ResolvablePluginManufacturer[ExtensionDefinition, Extension]
     ] = [
         Deriver,
         HttpApiDoc,
         Maps,
         Privatizer,
-        PluginConfiguration(
+        ExtensionManufacturer(
             RaspberryMint,
             RaspberryMintConfiguration(
                 regional_content=regional_content(
@@ -116,7 +116,7 @@ async def new(app: App) -> None:
 
     if await app.user.ask_confirmation(_("Do you want to load a Gramps family tree?")):
         extensions.append(
-            PluginConfiguration(
+            ExtensionManufacturer(
                 Gramps,
                 GrampsConfiguration(
                     family_trees=[

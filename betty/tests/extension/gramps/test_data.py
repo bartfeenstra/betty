@@ -1,12 +1,14 @@
 from pathlib import Path
 
+from betty.event_type import EventTypeManufacturer
 from betty.event_type.event_types import Birth
 from betty.extension.gramps.data import (
     FamilyTree,
     GrampsConfiguration,
 )
+from betty.place_type import PlaceTypeManufacturer
 from betty.place_type.place_types import Borough
-from betty.plugin.config import PluginConfiguration
+from betty.presence_role import PresenceRoleManufacturer
 from betty.presence_role.presence_roles import Attendee
 from betty.test_utils.data import DataTestBase
 
@@ -29,30 +31,30 @@ class TestFamilyTree(DataTestBase[FamilyTree]):
         plugin_id = "my-first-betty-plugin-id"
         sut = FamilyTree(
             name="my-first-family-tree",
-            event_types={gramps_type: PluginConfiguration(plugin_id)},
+            event_types={gramps_type: EventTypeManufacturer(plugin_id)},
         )
-        assert sut.event_types[gramps_type].id == plugin_id
-        assert sut.event_types["Birth"].id == Birth.plugin().id
+        assert sut.event_types[gramps_type].plugin_id == plugin_id
+        assert sut.event_types["Birth"].plugin_id == Birth.plugin().id
 
     def test___init____with_place_types(self) -> None:
         gramps_type = "my-first-gramps-type"
         plugin_id = "my-first-betty-plugin-id"
         sut = FamilyTree(
             name="my-first-family-tree",
-            place_types={gramps_type: PluginConfiguration(plugin_id)},
+            place_types={gramps_type: PlaceTypeManufacturer(plugin_id)},
         )
-        assert sut.place_types[gramps_type].id == plugin_id
-        assert sut.place_types["Borough"].id == Borough.plugin().id
+        assert sut.place_types[gramps_type].plugin_id == plugin_id
+        assert sut.place_types["Borough"].plugin_id == Borough.plugin().id
 
     def test___init____with_presence_roles(self) -> None:
         gramps_type = "my-first-gramps-type"
         plugin_id = "my-first-betty-plugin-id"
         sut = FamilyTree(
             name="my-first-family-tree",
-            presence_roles={gramps_type: PluginConfiguration(plugin_id)},
+            presence_roles={gramps_type: PresenceRoleManufacturer(plugin_id)},
         )
-        assert sut.presence_roles[gramps_type].id == plugin_id
-        assert sut.presence_roles["Aide"].id == Attendee.plugin().id
+        assert sut.presence_roles[gramps_type].plugin_id == plugin_id
+        assert sut.presence_roles["Aide"].plugin_id == Attendee.plugin().id
 
     def test_source(self) -> None:
         name = "my-first-family-tree"

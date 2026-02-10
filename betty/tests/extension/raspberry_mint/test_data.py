@@ -4,15 +4,12 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.content_provider import ContentProvider, ContentProviderDefinition
+from betty.content_provider import ContentProviderManufacturer
 from betty.exception import HumanFacingException
 from betty.extension.raspberry_mint import RaspberryMint
 from betty.extension.raspberry_mint.data import (
     RaspberryMintConfiguration,
     ResolvableRegionalContent,
-)
-from betty.plugin.config import (
-    PluginConfiguration,
 )
 from betty.project import Project
 from betty.test_utils.data import DataTestBase
@@ -52,9 +49,7 @@ class TestRaspberryMintConfiguration(DataTestBase[RaspberryMintConfiguration]):
         assert sut.tertiary_color == color
 
     def test_regional_content__from___init__(self) -> None:
-        content_provider = PluginConfiguration[
-            ContentProviderDefinition, ContentProvider
-        ]("my-first-plugin")
+        content_provider = ContentProviderManufacturer("my-first-plugin")
         regional_content: ResolvableRegionalContent = {
             "front": content_provider,
         }  # ty:ignore[invalid-assignment]

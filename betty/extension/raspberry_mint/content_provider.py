@@ -27,6 +27,7 @@ from betty.assertion import (
 from betty.content_provider import (
     ContentProvider,
     ContentProviderDefinition,
+    ContentProviderManufacturer,
     provide_content,
 )
 from betty.content_provider.content_providers import (
@@ -60,14 +61,8 @@ from betty.locale.localizable.property import LocalizableProperty
 from betty.machine_name import MachineName, MachineNameProperty, ResolvableMachineName
 from betty.model.reference import EntityReference
 from betty.plugin import resolve_id
-from betty.plugin.config import (
-    PluginConfiguration,
-    ResolvablePluginConfigurationSequence,
-    new_plugins,
-    resolve_plugin_configuration_sequence,
-)
-from betty.plugin.config.property import PluginConfigurationSequenceProperty
-from betty.plugin.data import PluginConfigurationSequenceDefinition
+from betty.plugin.config.property import PluginManufacturerSequenceProperty
+from betty.plugin.data import PluginManufacturerSequenceDefinition
 from betty.portable import CallbackPorter
 from betty.presence_role import PresenceRoleDefinition
 from betty.privacy import is_public
@@ -84,6 +79,7 @@ if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
     from betty.model import Entity
     from betty.plugin import ResolvableId
+    from betty.plugin.factory import ResolvablePluginManufacturerSequence
     from betty.project import Project
 
 
@@ -93,7 +89,7 @@ if TYPE_CHECKING:
     samples=[
         lambda: Sample(
             SectionConfiguration(
-                PluginConfiguration("my-first-content"),
+                ContentProviderManufacturer("my-first-content"),
                 heading=DUMMY_LOCALIZABLE,
             ),
             label="Minimal",
@@ -108,9 +104,9 @@ class SectionConfiguration(Data):
     .. data:: betty.extension.raspberry_mint.content_provider:SectionConfiguration
     """
 
-    content = PluginConfigurationSequenceProperty[
+    content = PluginManufacturerSequenceProperty[
         ContentProviderDefinition, ContentProvider
-    ](ContentProviderDefinition, label=_("Content"))
+    ](ContentProviderManufacturer, label=_("Content"))
     """
     The content within this section.
     """
@@ -140,7 +136,7 @@ class SectionConfiguration(Data):
 
     def __init__(
         self,
-        content: ResolvablePluginConfigurationSequence[
+        content: ResolvablePluginManufacturerSequence[
             ContentProviderDefinition, ContentProvider
         ],
         *,
@@ -188,10 +184,19 @@ class Section(Template, DataManufacturable[SectionConfiguration]):
     @require_project
     async def new(cls, project: Project, data: SectionConfiguration, /) -> Self:
         await require_extension(RaspberryMint, project)
+        content, jinja = await gather(
+            gather(
+                *map(
+                    project.factory.new,
+                    map(ContentProviderManufacturer.resolve, data.content),
+                )
+            ),
+            project.jinja,
+        )
         return cls(
-            content=await new_plugins(project, ContentProviderDefinition, data.content),
+            content=content,
             heading=data.heading,
-            jinja=await project.jinja,
+            jinja=jinja,
             name=data.name,
             visually_hide_heading=data.visually_hide_heading,
         )
@@ -345,9 +350,9 @@ class ColorStyleConfiguration(Data):
     .. data:: betty.extension.raspberry_mint.content_provider:ColorStyleConfiguration
     """
 
-    content = PluginConfigurationSequenceProperty[
+    content = PluginManufacturerSequenceProperty[
         ContentProviderDefinition, ContentProvider
-    ](ContentProviderDefinition, label=_("Content"))
+    ](ContentProviderManufacturer, label=_("Content"))
     """
     The content within this color style.
     """
@@ -359,7 +364,7 @@ class ColorStyleConfiguration(Data):
 
     def __init__(
         self,
-        content: ResolvablePluginConfigurationSequence[
+        content: ResolvablePluginManufacturerSequence[
             ContentProviderDefinition, ContentProvider
         ],
         *,
@@ -401,11 +406,16 @@ class ColorStyle(Template, DataManufacturable[ColorStyleConfiguration]):
     @require_project
     async def new(cls, project: Project, data: ColorStyleConfiguration, /) -> Self:
         await require_extension(RaspberryMint, project)
-        return cls(
-            content=await new_plugins(project, ContentProviderDefinition, data.content),
-            jinja=await project.jinja,
-            style=data.style,
+        content, jinja = await gather(
+            gather(
+                *map(
+                    project.factory.new,
+                    map(ContentProviderManufacturer.resolve, data.content),
+                )
+            ),
+            project.jinja,
         )
+        return cls(content=content, jinja=jinja, style=data.style)
 
     @override
     async def provide_template(self, document: Document) -> ProvidedTemplate:
@@ -638,21 +648,33 @@ type ShorthandColumnsWidth = (
     samples=[
         lambda: Sample(
             ColumnsConfiguration(
-                [PluginConfiguration(Render, RenderConfiguration("Hello, world!"))]
+                [
+                    ContentProviderManufacturer(
+                        Render, RenderConfiguration("Hello, world!")
+                    )
+                ]
             ),
             label="Minimal",
             size=Size.MINIMAL,
         ),
         lambda: Sample(
             ColumnsConfiguration(
-                [PluginConfiguration(Render, RenderConfiguration("Hello, world!"))],
+                [
+                    ContentProviderManufacturer(
+                        Render, RenderConfiguration("Hello, world!")
+                    )
+                ],
                 justify_content=JustifyContent.CENTER,
             ),
             label="Justify content",
         ),
         lambda: Sample(
             ColumnsConfiguration(
-                [PluginConfiguration(Render, RenderConfiguration("Hello, world!"))],
+                [
+                    ContentProviderManufacturer(
+                        Render, RenderConfiguration("Hello, world!")
+                    )
+                ],
                 width=6,
             ),
             label="A single column with a fixed, non-responsive width",
@@ -661,12 +683,12 @@ type ShorthandColumnsWidth = (
             ColumnsConfiguration(
                 [
                     [
-                        PluginConfiguration(
+                        ContentProviderManufacturer(
                             Render, RenderConfiguration("Hello, world!")
                         ),
                     ],
                     [
-                        PluginConfiguration(
+                        ContentProviderManufacturer(
                             Render, RenderConfiguration("How are you?")
                         ),
                     ],
@@ -677,7 +699,11 @@ type ShorthandColumnsWidth = (
         ),
         lambda: Sample(
             ColumnsConfiguration(
-                [PluginConfiguration(Render, RenderConfiguration("Hello, world!"))],
+                [
+                    ContentProviderManufacturer(
+                        Render, RenderConfiguration("Hello, world!")
+                    )
+                ],
                 width={
                     Breakpoint.XS: 12,
                     Breakpoint.MD: 6,
@@ -689,12 +715,12 @@ type ShorthandColumnsWidth = (
             ColumnsConfiguration(
                 [
                     [
-                        PluginConfiguration(
+                        ContentProviderManufacturer(
                             Render, RenderConfiguration("Hello, world!")
                         ),
                     ],
                     [
-                        PluginConfiguration(
+                        ContentProviderManufacturer(
                             Render, RenderConfiguration("How are you?")
                         ),
                     ],
@@ -721,8 +747,8 @@ class ColumnsConfiguration(Data):
     content = Property(
         SequenceDefinition(
             cls=list,
-            value=PluginConfigurationSequenceDefinition(
-                ContentProviderDefinition, label=_("Column content")
+            value=PluginManufacturerSequenceDefinition(
+                ContentProviderManufacturer, label=_("Column content")
             ),
             label=_("Columns"),
         )
@@ -776,7 +802,7 @@ class ColumnsConfiguration(Data):
         self,
         /,
         content: Sequence[
-            ResolvablePluginConfigurationSequence[
+            ResolvablePluginManufacturerSequence[
                 ContentProviderDefinition, ContentProvider
             ]
         ],
@@ -785,7 +811,7 @@ class ColumnsConfiguration(Data):
         justify_content: JustifyContent | None = None,
     ):
         super().__init__()
-        self.content = list(map(resolve_plugin_configuration_sequence, content))
+        self.content = list(map(ContentProviderManufacturer.resolve_sequence, content))
         if width is None:
             self._width = self._DEFAULT_WIDTH
         elif isinstance(width, int):
@@ -832,14 +858,23 @@ class Columns(Template, DataManufacturable[ColumnsConfiguration]):
     @require_project
     async def new(cls, project: Project, data: ColumnsConfiguration, /) -> Self:
         await require_extension(RaspberryMint, project)
-        return cls(
-            content=await gather(
+        content, jinja = await gather(
+            gather(
                 *[
-                    new_plugins(project, ContentProviderDefinition, column_content)
+                    gather(
+                        *map(
+                            project.factory.new,
+                            map(ContentProviderManufacturer.resolve, column_content),
+                        )
+                    )
                     for column_content in data.content
                 ]
             ),
-            jinja=await project.jinja,
+            project.jinja,
+        )
+        return cls(
+            content=content,
+            jinja=jinja,
             justify_content=data.justify_content,
             width=data.width,
         )

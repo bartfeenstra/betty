@@ -4,7 +4,9 @@ Object factories.
 
 from __future__ import annotations
 
+import inspect
 from abc import ABC, abstractmethod
+from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, Self, final, overload
 
 from betty.asyncio import resolve_await
@@ -12,13 +14,11 @@ from betty.data import Data
 from betty.exception import HumanFacingException
 from betty.importlib import fully_qualified_name
 from betty.locale.localizable.gettext import _
+from betty.service.level import ServiceLevel
 from betty.typing import Void
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable, Callable
-
     from betty.portable import PortableData
-    from betty.service.level import ServiceLevel
 
 
 class Manufacturable(ABC):
@@ -32,6 +32,11 @@ class Manufacturable(ABC):
         """
         Create a new instance using the given service level.
         """
+
+
+type Manufacturer[T] = (
+    Callable[[ServiceLevel], Awaitable[T] | T] | Callable[[], Awaitable[T] | T]
+)
 
 
 class DataManufacturable[DataT: Data](ABC):
@@ -75,7 +80,7 @@ class Factory:
     @overload
     async def new[T](
         self,
-        target: Callable[[], Awaitable[T] | T],
+        target: Manufacturer[T],
         data: Data | PortableData | Void = Void(),  # noqa: B008
         /,
     ) -> T:
@@ -104,7 +109,15 @@ class Factory:
             if isinstance(target, type) and issubclass(target, Manufacturable):
                 return await target.new(self._services)
             if callable(target):
-                return await resolve_await(target())
+                signature = inspect.signature(target)
+                # If there is (at least) one positional argument, call the target with the service level.
+                try:
+                    signature.bind("")
+                except TypeError:
+                    result = target()
+                else:
+                    result = target(self._services)
+                return await resolve_await(result)
             raise RuntimeError(f"Cannot create a new instance of {target}")
         if not isinstance(target, type) or not issubclass(target, DataManufacturable):
             raise HumanFacingException(

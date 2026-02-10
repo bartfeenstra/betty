@@ -22,8 +22,9 @@ class EnumDefinition[EnumT: Enum](DataDefinition[EnumT]):
 
     def __init__(
         self,
-        *,
+        /,
         cls: type[EnumT],
+        *,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
     ):

@@ -26,8 +26,9 @@ class CollectionDefinition[CollectionT: Collection, ElementT: Element[Any]](
 
     def __init__(
         self,
-        *,
+        /,
         cls: type[CollectionT] | None = None,
+        *,
         item: DataDefinition | type[Data],
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,

@@ -5,16 +5,18 @@ Provide Betty's ancestry event types.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, final, override
 
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition, ResolvableId, resolve_id
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
+from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
+    import builtins
     from collections.abc import Set
 
     from betty.ancestry.person import Person
@@ -94,3 +96,15 @@ class EventTypeDefinition(
         Return whether events of this type (approximately) indicate that an event of the retuned type has happened.
         """
         return self._indicates
+
+
+@final
+class EventTypeManufacturer(PluginManufacturer[EventTypeDefinition, EventType]):
+    """
+    The event type manufacturer.
+    """
+
+    @override
+    @classmethod
+    def type(cls) -> builtins.type[EventTypeDefinition]:
+        return EventTypeDefinition

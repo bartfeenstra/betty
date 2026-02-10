@@ -4,10 +4,14 @@ Test utilities for :py:mod:`betty.plugin`.
 
 from __future__ import annotations
 
-from typing import final
+from typing import TYPE_CHECKING, final, override
 
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
+from betty.plugin.factory import PluginManufacturer
 from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
+
+if TYPE_CHECKING:
+    import builtins
 
 
 class DummyPlugin(Plugin["DummyPluginDefinition"]):
@@ -67,3 +71,15 @@ class DummyPluginFour(DummyPlugin):
     """
     A dummy plugin (four).
     """
+
+
+@final
+class DummyPluginManufacturer(PluginManufacturer[DummyPluginDefinition, DummyPlugin]):
+    """
+    The dummy plugin manufacturer.
+    """
+
+    @override
+    @classmethod
+    def type(cls) -> builtins.type[DummyPluginDefinition]:
+        return DummyPluginDefinition

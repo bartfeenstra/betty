@@ -1,11 +1,11 @@
 from unittest.mock import AsyncMock
 
 from betty.app import App
+from betty.extension import ExtensionManufacturer
 from betty.extension.gramps import Gramps
 from betty.extension.gramps.data import FamilyTree, GrampsConfiguration
 from betty.extension.gramps.jobs import LoadAncestry
 from betty.gramps.loader import GrampsLoader
-from betty.plugin.config import PluginConfiguration
 from betty.project import Project
 from betty.project.job import ProjectContext
 from betty.test_utils.job import do
@@ -17,7 +17,7 @@ class TestLoadAncestry:
         family_tree_name = "my-first-family-tree"
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(
-                PluginConfiguration(
+                ExtensionManufacturer(
                     Gramps.plugin(),
                     GrampsConfiguration(
                         family_trees=[FamilyTree(name=family_tree_name)]

@@ -1,6 +1,6 @@
-class TestPluginConfigurationDefinition:
+class TestPluginManufacturerDefinition:
     pass
 
 
-class TestPluginConfigurationSequenceDefinition:
+class TestPluginManufacturerSequenceDefinition:
     pass
