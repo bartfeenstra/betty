@@ -31,8 +31,5 @@ class StrDefinition(DataDefinition[str]):
             cls=str,
             label=label,
             description=description,
-            porter=CallbackPorter(
-                assert_str(),  # ty:ignore[invalid-argument-type]
-                passthrough,
-            ),
+            porter=CallbackPorter(assert_str(), passthrough),
         )

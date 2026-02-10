@@ -162,7 +162,7 @@ class TestBox:
             sut = await Box.new(
                 project,
                 BoxConfiguration(
-                    PluginConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE))  # ty:ignore[invalid-argument-type]
+                    PluginConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE))
                 ),
             )
             actual = await sut.provide(document=Document())
@@ -174,7 +174,7 @@ class TestBox:
             sut = await Box.new(
                 project,
                 BoxConfiguration(
-                    PluginConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE)),  # ty:ignore[invalid-argument-type]
+                    PluginConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE)),
                     min_height="MIN_HEIGHT",
                     max_height="MAX_HEIGHT",
                     height="HEIGHT",

@@ -77,22 +77,20 @@ class TestSectionConfiguration(DataTestBase[SectionConfiguration]):
 
     def test_content(self) -> None:
         sut = SectionConfiguration(
-            PluginConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
-            heading=DUMMY_LOCALIZABLE,
+            PluginConfiguration("my-first-content"), heading=DUMMY_LOCALIZABLE
         )
         assert sut.content[0].id == "my-first-content"
 
     def test_heading(self) -> None:
         heading = Plain("My First Section")
         sut = SectionConfiguration(
-            PluginConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
-            heading=heading,
+            PluginConfiguration("my-first-content"), heading=heading
         )
         assert sut.heading is heading
 
     def test_name(self) -> None:
         sut = SectionConfiguration(
-            PluginConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
+            PluginConfiguration("my-first-content"),
             name="my-first-section",
             heading=DUMMY_LOCALIZABLE,
         )
@@ -100,7 +98,7 @@ class TestSectionConfiguration(DataTestBase[SectionConfiguration]):
 
     def test_visually_hide_heading(self) -> None:
         sut = SectionConfiguration(
-            PluginConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
+            PluginConfiguration("my-first-content"),
             heading=DUMMY_LOCALIZABLE,
             visually_hide_heading=True,
         )
@@ -116,7 +114,7 @@ class TestSection:
                     sut = await Section.new(
                         project,
                         SectionConfiguration(
-                            PluginConfiguration(NoOpContentProvider),  # ty:ignore[invalid-argument-type]
+                            PluginConfiguration(NoOpContentProvider),
                             heading="My First Section",
                         ),
                     )
@@ -132,7 +130,7 @@ class TestSection:
                         PluginConfiguration(
                             Render,
                             RenderConfiguration("My First Content"),
-                        ),  # ty:ignore[invalid-argument-type]
+                        ),
                         heading="My First Section",
                     ),
                 )
@@ -151,7 +149,7 @@ class TestSection:
                         PluginConfiguration(
                             Render,
                             RenderConfiguration("My First Content"),
-                        ),  # ty:ignore[invalid-argument-type]
+                        ),
                         name="my-first-section",
                         heading="My First Section",
                     ),
@@ -172,7 +170,7 @@ class TestSection:
                         PluginConfiguration(
                             Render,
                             RenderConfiguration("My First Content"),
-                        ),  # ty:ignore[invalid-argument-type]
+                        ),
                         visually_hide_heading=True,
                         heading="My First Section",
                     ),
@@ -278,16 +276,14 @@ class TestColorStyleConfiguration(DataTestBase[ColorStyleConfiguration]):
 
     def test_content(self) -> None:
         sut = ColorStyleConfiguration(
-            PluginConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
-            style=ColorStyleOption.DARK,
+            PluginConfiguration("my-first-content"), style=ColorStyleOption.DARK
         )
         assert sut.content[0].id == "my-first-content"
 
     def test_style(self) -> None:
         style = ColorStyleOption.DARK_SECONDARY
         sut = ColorStyleConfiguration(
-            PluginConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
-            style=style,
+            PluginConfiguration("my-first-content"), style=style
         )
         assert sut.style == style
 
@@ -301,7 +297,7 @@ class TestColorStyle:
                     sut = await ColorStyle.new(
                         project,
                         ColorStyleConfiguration(
-                            PluginConfiguration(NoOpContentProvider),  # ty:ignore[invalid-argument-type]
+                            PluginConfiguration(NoOpContentProvider),
                             style=ColorStyleOption.DARK,
                         ),
                     )
@@ -316,7 +312,7 @@ class TestColorStyle:
                     ColorStyleConfiguration(
                         PluginConfiguration(
                             Render, RenderConfiguration("My First Content")
-                        ),  # ty:ignore[invalid-argument-type]
+                        ),
                         style=ColorStyleOption.DARK,
                     ),
                 )
@@ -626,14 +622,12 @@ class TestColumns:
                         [
                             [
                                 PluginConfiguration(
-                                    Render,
-                                    RenderConfiguration(DUMMY_LOCALIZABLE),
+                                    Render, RenderConfiguration(DUMMY_LOCALIZABLE)
                                 )
                             ],
                             [
                                 PluginConfiguration(
-                                    Render,
-                                    RenderConfiguration(DUMMY_LOCALIZABLE),
+                                    Render, RenderConfiguration(DUMMY_LOCALIZABLE)
                                 )
                             ],
                         ],
@@ -657,14 +651,12 @@ class TestColumns:
                         [
                             [
                                 PluginConfiguration(
-                                    Render,
-                                    RenderConfiguration(DUMMY_LOCALIZABLE),
+                                    Render, RenderConfiguration(DUMMY_LOCALIZABLE)
                                 )
                             ],
                             [
                                 PluginConfiguration(
-                                    Render,
-                                    RenderConfiguration(DUMMY_LOCALIZABLE),
+                                    Render, RenderConfiguration(DUMMY_LOCALIZABLE)
                                 )
                             ],
                         ],

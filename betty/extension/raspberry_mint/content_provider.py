@@ -95,7 +95,7 @@ if TYPE_CHECKING:
     samples=[
         lambda: Sample(
             SectionConfiguration(
-                PluginConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
+                PluginConfiguration("my-first-content"),
                 heading=DUMMY_LOCALIZABLE,
             ),
             label="Minimal",
@@ -666,21 +666,21 @@ ShorthandColumnsWidth: TypeAlias = (
     samples=[
         lambda: Sample(
             ColumnsConfiguration(
-                [PluginConfiguration(Render, RenderConfiguration("Hello, world!"))]  # ty:ignore[invalid-argument-type]
+                [PluginConfiguration(Render, RenderConfiguration("Hello, world!"))]
             ),
             label="Minimal",
             size=Size.MINIMAL,
         ),
         lambda: Sample(
             ColumnsConfiguration(
-                [PluginConfiguration(Render, RenderConfiguration("Hello, world!"))],  # ty:ignore[invalid-argument-type]
+                [PluginConfiguration(Render, RenderConfiguration("Hello, world!"))],
                 justify_content=JustifyContent.CENTER,
             ),
             label="Justify content",
         ),
         lambda: Sample(
             ColumnsConfiguration(
-                [PluginConfiguration(Render, RenderConfiguration("Hello, world!"))],  # ty:ignore[invalid-argument-type]
+                [PluginConfiguration(Render, RenderConfiguration("Hello, world!"))],
                 width=6,
             ),
             label="A single column with a fixed, non-responsive width",
@@ -705,7 +705,7 @@ ShorthandColumnsWidth: TypeAlias = (
         ),
         lambda: Sample(
             ColumnsConfiguration(
-                [PluginConfiguration(Render, RenderConfiguration("Hello, world!"))],  # ty:ignore[invalid-argument-type]
+                [PluginConfiguration(Render, RenderConfiguration("Hello, world!"))],
                 width={
                     Breakpoint.XS: 12,
                     Breakpoint.MD: 6,

@@ -116,7 +116,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                                 Breakpoint.LG: [4, 7],
                                             },
                                         ),
-                                    ),  # ty:ignore[invalid-argument-type]
+                                    ),
                                     heading=_("Welcome"),
                                     visually_hide_heading=True,
                                 ),
@@ -162,7 +162,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                                 Breakpoint.LG: [4, 4, 4],
                                             },
                                         ),
-                                    ),  # ty:ignore[invalid-argument-type]
+                                    ),
                                     heading=_("Explore a family history..."),
                                 ),
                             ),

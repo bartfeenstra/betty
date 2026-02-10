@@ -56,7 +56,7 @@ class SequenceDefinition(CollectionDefinition[_MutableSequenceT, Index]):
         from betty.assertion import assert_sequence
 
         factory = self.cls if not self._factory else self._factory
-        return factory(assert_sequence(self._item.porter.load)(portable))
+        return factory(assert_sequence(self._item.porter.load)(portable))  # ty:ignore[too-many-positional-arguments]
 
     def _dump(self, data: _MutableSequenceT) -> PortableData:
         return [self._item.porter.dump(item) for item in data]
