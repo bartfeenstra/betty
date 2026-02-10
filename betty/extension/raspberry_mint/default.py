@@ -61,10 +61,9 @@ def regional_content(*, localizers: Collection[Localizer]) -> ResolvableRegional
                     PluginConfiguration(
                         Columns,
                         ColumnsConfiguration(
-                            [[WikipediaSummary]],
-                            width=SINGLE_COLUMN_TEXT_WIDTH,
+                            [[WikipediaSummary]], width=SINGLE_COLUMN_TEXT_WIDTH
                         ),
-                    ),  # ty:ignore[invalid-argument-type]
+                    ),
                     heading=_make_dumpable(_("Wikipedia says...")),
                     name="wikipedia",
                 ),
@@ -72,19 +71,13 @@ def regional_content(*, localizers: Collection[Localizer]) -> ResolvableRegional
             PluginConfiguration(
                 Box,
                 BoxConfiguration(
-                    Map,
-                    min_height="500px",
-                    height="75vh",
-                    max_height="1000px",
+                    Map, min_height="500px", height="75vh", max_height="1000px"
                 ),
             ),
             PluginConfiguration(
                 ColorStyle,
                 ColorStyleConfiguration(
-                    PluginConfiguration(
-                        Columns,
-                        ColumnsConfiguration([[Attribution]]),
-                    ),  # ty:ignore[invalid-argument-type]
+                    PluginConfiguration(Columns, ColumnsConfiguration([[Attribution]])),
                     style=ColorStyleOption.LIGHT_CONTRAST,
                 ),
             ),
@@ -97,11 +90,8 @@ def regional_content(*, localizers: Collection[Localizer]) -> ResolvableRegional
                 SectionConfiguration(
                     PluginConfiguration(
                         Columns,
-                        ColumnsConfiguration(
-                            [[Notes]],
-                            width=SINGLE_COLUMN_TEXT_WIDTH,
-                        ),
-                    ),  # ty:ignore[invalid-argument-type]
+                        ColumnsConfiguration([[Notes]], width=SINGLE_COLUMN_TEXT_WIDTH),
+                    ),
                     heading=_make_dumpable(_("Notes")),
                     name="notes",
                 ),
@@ -111,7 +101,7 @@ def regional_content(*, localizers: Collection[Localizer]) -> ResolvableRegional
                 SectionConfiguration(
                     PluginConfiguration(
                         Presences, PresencesConfiguration(include=[Subject])
-                    ),  # ty:ignore[invalid-argument-type]
+                    ),
                     heading=_make_dumpable(_("Subjects")),
                     name="attendees-subject",
                 ),
@@ -121,7 +111,7 @@ def regional_content(*, localizers: Collection[Localizer]) -> ResolvableRegional
                 SectionConfiguration(
                     PluginConfiguration(
                         Presences, PresencesConfiguration(include=[Witness])
-                    ),  # ty:ignore[invalid-argument-type]
+                    ),
                     heading=_make_dumpable(_("Witnesses")),
                     name="attendees-witness",
                 ),
@@ -132,7 +122,7 @@ def regional_content(*, localizers: Collection[Localizer]) -> ResolvableRegional
                     PluginConfiguration(
                         Presences,
                         PresencesConfiguration(exclude=[Subject, Witness]),
-                    ),  # ty:ignore[invalid-argument-type]
+                    ),
                     heading=_make_dumpable(_("Other attendees")),
                     name="attendees-other",
                 ),
@@ -146,16 +136,13 @@ def regional_content(*, localizers: Collection[Localizer]) -> ResolvableRegional
             PluginConfiguration(
                 Box,
                 BoxConfiguration(
-                    Tree,
-                    min_height="500px",
-                    height="75vh",
-                    max_height="1000px",
+                    Tree, min_height="500px", height="75vh", max_height="1000px"
                 ),
             ),
             PluginConfiguration(
                 Section,
                 SectionConfiguration(
-                    PluginConfiguration(Columns, ColumnsConfiguration([[Timeline]])),  # ty:ignore[invalid-argument-type]
+                    PluginConfiguration(Columns, ColumnsConfiguration([[Timeline]])),
                     heading=_make_dumpable(_("Timeline")),
                     name="timeline",
                 ),
@@ -166,7 +153,7 @@ def regional_content(*, localizers: Collection[Localizer]) -> ResolvableRegional
                     PluginConfiguration(
                         Columns,
                         ColumnsConfiguration([[Facts]], width=SINGLE_COLUMN_TEXT_WIDTH),
-                    ),  # ty:ignore[invalid-argument-type]
+                    ),
                     heading=_make_dumpable(_("Facts")),
                     name="facts",
                 ),
@@ -181,7 +168,7 @@ def regional_content(*, localizers: Collection[Localizer]) -> ResolvableRegional
                             heading=_make_dumpable(_("Media")),
                             name="media",
                         ),
-                    ),  # ty:ignore[invalid-argument-type]
+                    ),
                     style=ColorStyleOption.DARK,
                 ),
             ),
@@ -193,7 +180,7 @@ def regional_content(*, localizers: Collection[Localizer]) -> ResolvableRegional
                         ColumnsConfiguration(
                             [[FileReferees]], width=SINGLE_COLUMN_TEXT_WIDTH
                         ),
-                    ),  # ty:ignore[invalid-argument-type]
+                    ),
                     heading=_make_dumpable(_("Appearances")),
                     name="appearances",
                 ),
@@ -206,7 +193,7 @@ def regional_content(*, localizers: Collection[Localizer]) -> ResolvableRegional
                         ColumnsConfiguration(
                             [[Citations]], width=SINGLE_COLUMN_TEXT_WIDTH
                         ),
-                    ),  # ty:ignore[invalid-argument-type]
+                    ),
                     heading=_make_dumpable(_("Citations")),
                     name="citations",
                 ),
@@ -219,7 +206,7 @@ def regional_content(*, localizers: Collection[Localizer]) -> ResolvableRegional
                         ColumnsConfiguration(
                             [[ExternalLinks]], width=SINGLE_COLUMN_TEXT_WIDTH
                         ),
-                    ),  # ty:ignore[invalid-argument-type]
+                    ),
                     heading=_make_dumpable(_("External links")),
                     name="external-links",
                 ),

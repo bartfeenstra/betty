@@ -220,17 +220,17 @@ def _assert_number(
     minimum: Number | None = None, maximum: Number | None = None
 ) -> AssertionChain[_NumberT, _NumberT]:
     def __assert_number(value: _NumberT) -> _NumberT:
-        if minimum is not None and value < minimum:  # ty:ignore[unsupported-operator]
+        if minimum is not None and value < minimum:
             raise HumanFacingException(
                 _("This must be at least {minimum}.").format(minimum=str(minimum))
             )
-        if maximum is not None and value > maximum:  # ty:ignore[unsupported-operator]
+        if maximum is not None and value > maximum:
             raise HumanFacingException(
                 _("This must be at most {maximum}.").format(maximum=str(maximum))
             )
         return value
 
-    return AssertionChain(__assert_number)  # ty:ignore[invalid-return-type]
+    return AssertionChain(__assert_number)
 
 
 def assert_int(

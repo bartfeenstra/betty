@@ -62,7 +62,7 @@ class MappingDefinition(CollectionDefinition[_MutableMappingT, Key]):
 
         factory = self.cls if not self._factory else self._factory
         return factory(
-            assert_mapping(self._item.porter.load, self._key.porter.load)(portable)
+            assert_mapping(self._item.porter.load, self._key.porter.load)(portable)  # ty:ignore[too-many-positional-arguments]
         )
 
     def _dump(self, data: _MutableMappingT) -> PortableData:
