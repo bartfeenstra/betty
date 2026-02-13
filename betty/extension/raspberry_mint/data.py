@@ -141,7 +141,7 @@ class RaspberryMintConfiguration(Data, Hydratable):
         if regional_content is not None:
             self.regional_content.update(
                 {
-                    region: resolve_plugin_configuration_sequence(content)  # ty:ignore[invalid-argument-type]
+                    region: resolve_plugin_configuration_sequence(content)
                     for region, content in regional_content.items()
                 }
             )

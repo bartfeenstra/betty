@@ -30,7 +30,7 @@ async def assert_dumps_linked_data(
     """
     Dump an object's linked data and assert it is valid.
     """
-    return await assert_linked_data_dump(sut.linked_data_schema, sut.dump_linked_data)  # ty:ignore[invalid-return-type]
+    return await assert_linked_data_dump(sut.linked_data_schema, sut.dump_linked_data)
 
 
 async def assert_dumps_linked_data_for(
@@ -43,7 +43,7 @@ async def assert_dumps_linked_data_for(
     async def _dump(project: Project) -> _PortableDataT:
         return await sut.dump_linked_data_for(project, target)
 
-    return await assert_linked_data_dump(sut.linked_data_schema_for, _dump)  # ty:ignore[invalid-return-type]
+    return await assert_linked_data_dump(sut.linked_data_schema_for, _dump)
 
 
 async def assert_linked_data_dump(
