@@ -117,7 +117,7 @@ class TestCountableHumanFacingPluginDefinitionConfiguration:
     def test_label_plural(self) -> None:
         label_plural = DUMMY_LOCALIZABLE
         sut = self._Sut(
-            id="-",
+            id="-dummy",
             label="-",
             label_plural=label_plural,
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
@@ -127,7 +127,7 @@ class TestCountableHumanFacingPluginDefinitionConfiguration:
     def test_label_countable(self) -> None:
         label_countable = DUMMY_COUNTABLE_LOCALIZABLE
         sut = self._Sut(
-            id="-", label="-", label_plural="-", label_countable=label_countable
+            id="-dummy", label="-", label_plural="-", label_countable=label_countable
         )
         assert sut.label_countable is label_countable
 

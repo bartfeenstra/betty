@@ -103,7 +103,7 @@ class TestPluginTypeDefinition:
 
     async def test_discoverer(self) -> None:
         sut = PluginTypeDefinition(
-            "-",
+            "-dummy",
             label=DUMMY_LOCALIZABLE,
             label_plural=DUMMY_LOCALIZABLE,
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
@@ -166,7 +166,7 @@ class _PluginCls(Plugin["_PluginDefinition"]):
 
 @final
 @PluginTypeDefinition(
-    "-",
+    "-dummy",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,

@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Any, Generic, Self, TypeAlias, final
 from typing_extensions import TypeVar, override
 
 from betty.assertion import (
+    AssertionChain,
     OptionalField,
     RequiredField,
     assert_mapping,
@@ -21,14 +22,14 @@ from betty.assertion import (
 from betty.data import Data
 from betty.data.aggregate.record import PortableRecord
 from betty.data.aggregate.record.object import ObjectDefinition
-from betty.data.aggregate.record.object.property import Optional, Property
+from betty.data.aggregate.record.object.property import Optional
 from betty.data.indicator.selector import Attr
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import (
     CountableLocalizableProperty,
     LocalizableProperty,
 )
-from betty.machine_name import MachineName, MachineNameDefinition, assert_machine_name
+from betty.machine_name import MachineName, MachineNameProperty, ResolvableMachineName
 from betty.plugin import (
     Plugin,
     PluginDefinition,
@@ -67,9 +68,7 @@ class PluginDefinitionConfiguration(
     .. data:: betty.plugin.config:PluginDefinitionConfiguration
     """
 
-    id = Property(
-        MachineNameDefinition(), label=_("Plugin ID"), resolver=assert_machine_name()
-    )
+    id = MachineNameProperty(label=_("Plugin ID"))
     """
     The plugin ID.
     """
@@ -77,7 +76,7 @@ class PluginDefinitionConfiguration(
     def __init__(
         self,
         *,
-        id: MachineName,  # noqa: A002
+        id: ResolvableMachineName,  # noqa: A002
     ):
         super().__init__()
         self.id = id
@@ -154,7 +153,7 @@ class PluginConfiguration(
         /,
     ):
         super().__init__()
-        self._id = assert_machine_name()(resolve_id(id))
+        self._id = resolve_id(id)
         self._configuration = configuration
 
     @override
@@ -180,11 +179,10 @@ class PluginConfiguration(
     @override
     @classmethod
     def load(cls, portable: PortableData, /) -> Self:
-        id_assertion = assert_machine_name()
         record = assert_or(
-            id_assertion | (lambda plugin_id: {"id": plugin_id}),
+            AssertionChain(MachineName.load) | (lambda plugin_id: {"id": plugin_id}),
             assert_record(
-                RequiredField("id", id_assertion),
+                RequiredField("id", MachineName.load),
                 OptionalField("configuration"),
             ),
         )(portable)

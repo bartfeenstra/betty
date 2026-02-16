@@ -10,7 +10,7 @@ from betty.test_utils.locale.localizable import (
 class TestEntityDefinition:
     def test_public_facing(self) -> None:
         sut = EntityDefinition(
-            "-",
+            "-dummy",
             public_facing=True,
             label=DUMMY_LOCALIZABLE,
             label_plural=DUMMY_LOCALIZABLE,

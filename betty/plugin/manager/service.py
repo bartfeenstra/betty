@@ -18,7 +18,7 @@ from betty.plugin.repository.static import StaticPluginRepository
 if TYPE_CHECKING:
     from collections.abc import MutableMapping
 
-    from betty.machine_name import MachineName
+    from betty.machine_name import ResolvableMachineName
     from betty.plugin.repository import PluginRepository
     from betty.service.level import ServiceLevel
 
@@ -50,7 +50,7 @@ class ServiceLevelPluginManager(PluginManager):
 
     @override
     async def plugins(
-        self, plugin_type: type[_PluginDefinitionT] | MachineName, /
+        self, plugin_type: type[_PluginDefinitionT] | ResolvableMachineName, /
     ) -> PluginRepository[_PluginDefinitionT]:
         if isinstance(plugin_type, str):
             plugin_type = cast(type[_PluginDefinitionT], self.types[plugin_type])

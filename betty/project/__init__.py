@@ -33,6 +33,7 @@ from betty.locale.translation import (
     ProxyTranslationRepository,
     TranslationRepository,
 )
+from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition, ResolvableId, resolve_id
 from betty.plugin.dependent import sort_dependent_plugin_graph
 from betty.privacy.privatizer import Privatizer
@@ -58,7 +59,6 @@ if TYPE_CHECKING:
     from betty.app import App
     from betty.jinja import Environment
     from betty.license import License
-    from betty.machine_name import MachineName
     from betty.url import UrlGenerator
 
 _PluginDefinitionT = TypeVar(
@@ -226,7 +226,7 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
         If no project name was configured, this defaults to the hash of the configuration file path.
         """
         if self._configuration.name is None:
-            return hashid(str(self.configuration_file))
+            return MachineName(hashid(str(self.configuration_file)))
         return self._configuration.name
 
     @property

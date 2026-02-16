@@ -13,7 +13,7 @@ from betty.plugin import PluginDefinition, PluginTypeRepository
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
-    from betty.machine_name import MachineName
+    from betty.machine_name import ResolvableMachineName
     from betty.plugin.repository import PluginRepository
 
 _PluginDefinitionT = TypeVar(
@@ -29,7 +29,7 @@ class PluginManager(ABC):
 
     @abstractmethod
     async def plugins(
-        self, plugin_type: type[_PluginDefinitionT] | MachineName, /
+        self, plugin_type: type[_PluginDefinitionT] | ResolvableMachineName, /
     ) -> PluginRepository[_PluginDefinitionT]:
         """
         Get the available plugins for the given type.

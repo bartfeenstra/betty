@@ -9,7 +9,6 @@ from betty.serde import (
     SerializerDefinition,
     serializer_for,
 )
-from betty.typing import Void
 
 
 class _Serializer(Serializer):
@@ -18,7 +17,7 @@ class _Serializer(Serializer):
         return None  # pragma: nocover
 
     @override
-    def dump(self, portable: PortableData | Void, /) -> str:
+    def dump(self, portable: PortableData, /) -> str:
         return ""  # pragma: nocover
 
 

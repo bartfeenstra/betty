@@ -14,12 +14,10 @@ from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.data.aggregate.record import FieldDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.indicator.selector import Attr
-from betty.functools import passthrough
 from betty.locale.localizable.gettext import _
-from betty.machine_name import MachineName, assert_machine_name
+from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
 from betty.plugin.config import PluginConfiguration, resolve_plugin_configuration
-from betty.portable import CallbackPorter
 
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
@@ -27,22 +25,6 @@ if TYPE_CHECKING:
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
 )
-
-
-@final
-class PluginIdDefinition(DataDefinition[MachineName]):
-    """
-    Define data that represents a plugin ID.
-    """
-
-    def __init__(self, plugin_type: type[PluginDefinition] | None = None):
-        super().__init__(
-            cls=MachineName,
-            label=_("Plugin ID") if plugin_type is None else plugin_type.type().label,
-            description=None if plugin_type is None else _("Plugin ID"),
-            porter=CallbackPorter[str](assert_machine_name(), passthrough),
-        )
-        self._plugin_type = plugin_type
 
 
 @final
@@ -58,7 +40,7 @@ class PluginConfigurationDefinition(ObjectDefinition):
                 plugin_type=plugin_type.type().label
             ),
             fields=[
-                FieldDefinition(Attr("id"), PluginIdDefinition(plugin_type)),
+                FieldDefinition(Attr("id"), MachineName),
                 FieldDefinition(
                     Attr("configuration"),
                     DataDefinition(cls=object, label=_("Plugin configuration")),

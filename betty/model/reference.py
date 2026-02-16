@@ -11,11 +11,11 @@ from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.aggregate.record.object.property import Property
 from betty.data.str import StrDefinition
 from betty.locale.localizable.gettext import _
-from betty.model import EntityDefinition
+from betty.machine_name import MachineNameProperty
 from betty.plugin import resolve_id
-from betty.plugin.data import PluginIdDefinition
 
 if TYPE_CHECKING:
+    from betty.model import EntityDefinition
     from betty.plugin import ResolvableId
 
 
@@ -33,7 +33,7 @@ class EntityReference(Data):
     .. data:: betty.model.reference:EntityReference
     """
 
-    type = Property(PluginIdDefinition(EntityDefinition), label=_("Entity type"))
+    type = MachineNameProperty(label=_("Entity type"))
     """
     The type of the referenced entity. 
     """

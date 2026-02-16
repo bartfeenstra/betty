@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
     from betty.ancestry.person import Person
     from betty.locale.localizable import CountableLocalizable, ResolvableLocalizable
-    from betty.machine_name import MachineName
+    from betty.machine_name import MachineName, ResolvableMachineName
     from betty.project import Project
 
 
@@ -67,7 +67,7 @@ class EventTypeDefinition(
 
     def __init__(
         self,
-        plugin_id: MachineName,
+        plugin_id: ResolvableMachineName,
         *,
         label: ResolvableLocalizable,
         label_plural: ResolvableLocalizable,

@@ -24,10 +24,11 @@ from betty.extension.wiki import Wiki
 from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
-from betty.machine_name import assert_machine_name, machinify
+from betty.machine_name import MachineName
 from betty.plugin.config import PluginConfiguration, ResolvablePluginConfiguration
 from betty.portable.file import dump_file
 from betty.project.data import ProjectConfiguration
+from betty.typing import Void
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence, Sequence
@@ -98,8 +99,9 @@ async def new(app: App) -> None:
 
     name = await app.user.ask_input(
         _("What is your project's machine name?"),
-        default=str(machinify(title.localize(localizers.get(locales[0])))),
-        assertion=assert_machine_name(),
+        default=MachineName.machinify(title.localize(localizers.get(locales[0])))
+        or Void(),
+        assertion=MachineName,
     )
 
     author = await _user_input_static_translations(

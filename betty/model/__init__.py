@@ -28,7 +28,7 @@ if TYPE_CHECKING:
         Localizable,
         ResolvableLocalizable,
     )
-    from betty.machine_name import MachineName
+    from betty.machine_name import ResolvableMachineName
     from betty.portable import PortableMapping
     from betty.project import Project
 
@@ -154,7 +154,7 @@ class EntityDefinition(CountableHumanFacingDefinition, PluginDefinition[Entity])
 
     def __init__(
         self,
-        plugin_id: MachineName,
+        plugin_id: ResolvableMachineName,
         *,
         label: ResolvableLocalizable,
         label_plural: ResolvableLocalizable,

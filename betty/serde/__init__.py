@@ -20,7 +20,6 @@ if TYPE_CHECKING:
 
     from betty.media_type import MediaType
     from betty.portable import PortableData
-    from betty.typing import Void
 
 
 class SerializationError(HumanFacingException):
@@ -50,7 +49,7 @@ class Serializer(ABC, Plugin["SerializerDefinition"]):
         """
 
     @abstractmethod
-    def dump(self, portable: PortableData | Void, /) -> str:
+    def dump(self, portable: PortableData, /) -> str:
         """
         Serialize data.
         """
