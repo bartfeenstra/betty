@@ -11,9 +11,9 @@ from typing_extensions import TypeVar
 from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.data.aggregate.record.object.property import SequenceProperty
 from betty.locale.localizable.gettext import _
+from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition, ResolvableId, resolve_id
 from betty.plugin.config import PluginDefinitionConfiguration
-from betty.plugin.data import PluginIdDefinition
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -33,17 +33,13 @@ class OrderedPluginDefinitionConfiguration(
     """
 
     comes_before = SequenceProperty(
-        SequenceDefinition(
-            cls=list, label=_("Comes before"), value=PluginIdDefinition()
-        ),
+        SequenceDefinition(cls=list, label=_("Comes before"), value=MachineName),
         omit_load=True,
         omit_dump=lambda data: not len(data),
         default=list,
     )
     comes_after = SequenceProperty(
-        SequenceDefinition(
-            cls=list, label=_("Comes after"), value=PluginIdDefinition()
-        ),
+        SequenceDefinition(cls=list, label=_("Comes after"), value=MachineName),
         omit_load=True,
         omit_dump=lambda data: not len(data),
         default=list,

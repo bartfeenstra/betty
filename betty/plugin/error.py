@@ -21,8 +21,7 @@ from betty.plugin import (
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from betty.machine_name import MachineName
-
+    from betty.machine_name import ResolvableMachineName
 
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
@@ -50,7 +49,7 @@ class PluginNotFound(PluginUnavailable):
     def __init__(
         self,
         plugin_type: PluginTypeDefinition[Any, _PluginDefinitionT],
-        plugin_not_found: MachineName,
+        plugin_not_found: ResolvableMachineName,
         available_plugins: Sequence[ResolvableId[_PluginDefinitionT]],
         /,
     ):

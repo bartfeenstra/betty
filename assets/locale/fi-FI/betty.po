@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-02-16 15:45+0000\n"
+"POT-Creation-Date: 2026-02-16 18:52+0000\n"
 "PO-Revision-Date: 2026-01-25 12:19+0000\n"
 "Last-Translator: Kieli Puoli <kielipuoli@gmail.com>\n"
 "Language: fi_FI\n"
@@ -40,12 +40,8 @@ msgid "\"{target}\" is not configurable, but configuration was given."
 msgstr ""
 
 #, python-brace-format
-msgid ""
-"\"{value}\" is not a valid machine name: only lowercase letters, digits, "
-"and hyphens (-) are allowed."
+msgid "\"{value}\" is not a valid machine name."
 msgstr ""
-"\"{value}\" ei ole kelvollinen koneen nimi: nimissä saa olla vain pieniä "
-"kirjaimia, numeroita ja viivoja (-)."
 
 #, python-format
 msgid "%(date)s in %(place)s"
@@ -77,6 +73,11 @@ msgid "A hexadecimal color, such as #ff0000"
 msgstr ""
 
 msgid "A localizable string"
+msgstr ""
+
+msgid ""
+"A machine name is an identifier of at most 250 characters long, made up "
+"of lowercase letters, numbers, and/or hyphens (-)."
 msgstr ""
 
 msgid "A person's presence at an event."

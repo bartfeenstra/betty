@@ -139,7 +139,7 @@ if TYPE_CHECKING:
     from betty.event_type import EventType
     from betty.gender import Gender
     from betty.locale.localizable import StaticTranslationsMapping
-    from betty.machine_name import MachineName
+    from betty.machine_name import ResolvableMachineName
     from betty.place_type import PlaceType
     from betty.plugin.config import ResolvablePluginConfiguration
     from betty.presence_role import PresenceRole
@@ -839,7 +839,7 @@ class GrampsLoader:
         assert person_handle is not None
         person_id = element.get("id")
         assert person_id is not None
-        gender_id: MachineName | None = self._load_attribute(
+        gender_id: ResolvableMachineName | None = self._load_attribute(
             "gender", element, "attribute"
         )
         if gender_id is None:

@@ -5,6 +5,7 @@ Common serializers.
 from __future__ import annotations
 
 import json
+from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING, cast, final
 
 import yaml
@@ -17,7 +18,6 @@ from betty.serde import SerializationError, Serializer, SerializerDefinition
 
 if TYPE_CHECKING:
     from betty.media_type import MediaType
-    from betty.typing import Void
 
 
 @final
@@ -42,7 +42,7 @@ class Json(Serializer):
             ) from None
 
     @override
-    def dump(self, portable: PortableData | Void, /) -> str:
+    def dump(self, portable: PortableData, /) -> str:
         return json.dumps(portable, indent=2, sort_keys=True)
 
 
@@ -68,5 +68,21 @@ class Yaml(Serializer):
             ) from None
 
     @override
-    def dump(self, portable: PortableData | Void, /) -> str:
-        return yaml.safe_dump(portable)
+    def dump(self, portable: PortableData, /) -> str:
+        return yaml.safe_dump(self._safe_str(portable))
+
+    def _safe_str(self, value: PortableData) -> PortableData:
+        # Work around a bug where ``str`` subclasses cannot be serialized to YAML.
+        if isinstance(value, str):
+            return str(value)
+        if isinstance(value, Mapping):
+            return dict(
+                zip(
+                    map(self._safe_str, value.keys()),  # ty:ignore[invalid-argument-type]
+                    map(self._safe_str, value.values()),  # ty:ignore[invalid-argument-type]
+                    strict=False,
+                )
+            )
+        if isinstance(value, Sequence):
+            return list(map(self._safe_str, value))  # ty:ignore[invalid-argument-type]
+        return value

@@ -59,7 +59,7 @@ from betty.extension.raspberry_mint import ColorStyle as RaspberryMintColorStyle
 from betty.functools import unique
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import LocalizableProperty
-from betty.machine_name import MachineName, MachineNameDefinition
+from betty.machine_name import MachineName, MachineNameProperty, ResolvableMachineName
 from betty.model.reference import EntityReference
 from betty.plugin import resolve_id
 from betty.plugin.config import (
@@ -69,7 +69,7 @@ from betty.plugin.config import (
     resolve_plugin_configuration_sequence,
 )
 from betty.plugin.config.property import PluginConfigurationSequenceProperty
-from betty.plugin.data import PluginConfigurationSequenceDefinition, PluginIdDefinition
+from betty.plugin.data import PluginConfigurationSequenceDefinition
 from betty.portable import CallbackPorter
 from betty.presence_role import PresenceRoleDefinition
 from betty.privacy import is_public
@@ -122,13 +122,7 @@ class SectionConfiguration(Data):
     The section heading.
     """
 
-    name = Optional(
-        Property(
-            MachineNameDefinition(),
-            label=_("Name"),
-            omit_dump=lambda data: data is None,
-        )
-    )
+    name = Optional(MachineNameProperty())
     """
     The section's machine name, used to generate permanent links.
     """
@@ -153,7 +147,7 @@ class SectionConfiguration(Data):
         ],
         *,
         heading: ResolvableLocalizable,
-        name: MachineName | None = None,
+        name: ResolvableMachineName | None = None,
         visually_hide_heading: bool | None = None,
     ):
         super().__init__()
@@ -555,26 +549,14 @@ class PresencesConfiguration(Data):
     """
 
     exclude = Optional(
-        Property(
-            SequenceDefinition(
-                cls=list,
-                value=PluginIdDefinition(PresenceRoleDefinition),
-                label=_("Exclude"),
-            )
-        )
+        Property(SequenceDefinition(cls=list, value=MachineName, label=_("Exclude")))
     )
     """
     The presence roles for which to exclude presences.
     """
 
     include = Optional(
-        Property(
-            SequenceDefinition(
-                cls=list,
-                value=PluginIdDefinition(PresenceRoleDefinition),
-                label=_("Include"),
-            )
-        )
+        Property(SequenceDefinition(cls=list, value=MachineName, label=_("Include")))
     )
     """
     The presence roles for which to include presences.

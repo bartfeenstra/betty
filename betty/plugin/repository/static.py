@@ -15,7 +15,7 @@ from betty.plugin.repository import PluginRepository
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-    from betty.machine_name import MachineName
+    from betty.machine_name import ResolvableMachineName
 
 _PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
 
@@ -38,7 +38,7 @@ class StaticPluginRepository(PluginRepository[_PluginDefinitionT]):
         }
 
     @override
-    def get(self, plugin_id: MachineName, /) -> _PluginDefinitionT:
+    def get(self, plugin_id: ResolvableMachineName, /) -> _PluginDefinitionT:
         try:
             return self._plugins[plugin_id]  # ty:ignore[invalid-return-type]
         except KeyError:

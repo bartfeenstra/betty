@@ -17,7 +17,7 @@ from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.importlib import fully_qualified_name
 from betty.locale.localizable.gettext import _
-from betty.machine_name import InvalidMachineName, MachineName, validate_machine_name
+from betty.machine_name import MachineName, ResolvableMachineName
 
 if TYPE_CHECKING:
     import builtins
@@ -38,11 +38,9 @@ class PluginDefinition(ClsDefinition[_BaseClsCoT], Generic[_BaseClsCoT]):
     A plugin definition.
     """
 
-    def __init__(self, plugin_id: MachineName, /):
+    def __init__(self, plugin_id: ResolvableMachineName, /):
         super().__init__()
-        if not validate_machine_name(plugin_id):
-            raise InvalidMachineName(plugin_id)
-        self._id = plugin_id
+        self._id = MachineName.resolve(plugin_id)
 
     @classmethod
     def type(cls) -> PluginTypeDefinition[_BaseClsCoT, Self]:
@@ -111,7 +109,7 @@ class PluginTypeDefinition(
 
     def __init__(
         self,
-        id: MachineName,  # noqa: A002
+        plugin_type_id: ResolvableMachineName,
         *,
         label: ResolvableLocalizable,
         label_plural: ResolvableLocalizable,
@@ -128,9 +126,7 @@ class PluginTypeDefinition(
             description=description,
         )
 
-        if not validate_machine_name(id):
-            raise InvalidMachineName(id)
-        self._id = id
+        self._id = MachineName.resolve(plugin_type_id)
         self._discoverer = Discoverer[_PluginDefinitionT](discovery)
 
     @property
@@ -180,9 +176,9 @@ class PluginTypeRepository:
     """
 
     def __init__(self):
-        self._plugin_types: Mapping[MachineName, type[PluginDefinition]] | None = None
+        self._plugin_types: Mapping[str, type[PluginDefinition]] | None = None
 
-    def _get_plugin_types(self) -> Mapping[MachineName, type[PluginDefinition]]:
+    def _get_plugin_types(self) -> Mapping[str, type[PluginDefinition]]:
         if self._plugin_types is None:
             self._plugin_types = {
                 plugin.type().id: plugin
@@ -194,7 +190,9 @@ class PluginTypeRepository:
     def __contains__(self, value: Any) -> bool:
         return value in self._get_plugin_types()
 
-    def __getitem__(self, plugin_type_id: MachineName, /) -> type[PluginDefinition]:
+    def __getitem__(
+        self, plugin_type_id: ResolvableMachineName, /
+    ) -> type[PluginDefinition]:
         return self._get_plugin_types()[plugin_type_id]
 
     def __iter__(self) -> Iterator[type[PluginDefinition]]:
@@ -207,7 +205,9 @@ Use :py:func:`betty.plugin.resolve.resolve_definition` to resolve this to a :py:
 """
 
 
-ResolvableId: TypeAlias = MachineName | ResolvableDefinition[_PluginDefinitionT]
+ResolvableId: TypeAlias = (
+    ResolvableMachineName | ResolvableDefinition[_PluginDefinitionT]
+)
 """
 Use :py:func:`betty.plugin.resolve.resolve_id` to resolve this to a plugin ID.
 """
@@ -228,6 +228,8 @@ def resolve_id(plugin_id: ResolvableId, /) -> MachineName:
     """
     Resolve a plugin identifier to a plugin ID.
     """
-    if isinstance(plugin_id, str):
+    if isinstance(plugin_id, MachineName):
         return plugin_id
+    if isinstance(plugin_id, str):
+        return MachineName.resolve(plugin_id)
     return resolve_definition(plugin_id).id

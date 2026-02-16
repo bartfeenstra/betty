@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any
 
 from typing_extensions import TypeVar
 
-from betty.machine_name import MachineName
+from betty.machine_name import MachineName, ResolvableMachineName
 from betty.plugin import PluginDefinition, ResolvableId, resolve_id
 
 if TYPE_CHECKING:
@@ -32,7 +32,7 @@ class OrderedPluginDefinition(PluginDefinition[_BaseClsCoT]):
 
     def __init__(
         self,
-        plugin_id: MachineName,
+        plugin_id: ResolvableMachineName,
         *,
         comes_before: Set[ResolvableId] | None = None,
         comes_after: Set[ResolvableId] | None = None,

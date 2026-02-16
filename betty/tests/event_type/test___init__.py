@@ -9,7 +9,7 @@ class TestEventTypeDefinition:
     def test_indicates(self) -> None:
         indicates = "my-other-event-type"
         sut = EventTypeDefinition(
-            "-",
+            "-dummy",
             indicates=indicates,
             label=DUMMY_LOCALIZABLE,
             label_plural=DUMMY_LOCALIZABLE,

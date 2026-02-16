@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Set
     from graphlib import TopologicalSorter
 
-    from betty.machine_name import MachineName
+    from betty.machine_name import MachineName, ResolvableMachineName
     from betty.plugin.repository import PluginRepository
 
 
@@ -29,7 +29,7 @@ class DependentPluginDefinition(OrderedPluginDefinition[_BaseClsCoT]):
 
     def __init__(
         self,
-        plugin_id: MachineName,
+        plugin_id: ResolvableMachineName,
         *,
         comes_before: Set[ResolvableId] | None = None,
         comes_after: Set[ResolvableId] | None = None,

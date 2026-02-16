@@ -9,14 +9,17 @@ class TestLicenseDefinitionConfiguration:
     def test_summary(self) -> None:
         summary = Plain("My First Summary")
         sut = LicenseDefinitionConfiguration(
-            id="-", label=DUMMY_LOCALIZABLE, summary=summary, text=DUMMY_LOCALIZABLE
+            id="-dummy",
+            label=DUMMY_LOCALIZABLE,
+            summary=summary,
+            text=DUMMY_LOCALIZABLE,
         )
         assert sut.summary is summary
 
     def test_text(self) -> None:
         text = Plain("My First Summary")
         sut = LicenseDefinitionConfiguration(
-            id="-", label=DUMMY_LOCALIZABLE, summary=DUMMY_LOCALIZABLE, text=text
+            id="-dummy", label=DUMMY_LOCALIZABLE, summary=DUMMY_LOCALIZABLE, text=text
         )
         assert sut.text is text
 

@@ -16,7 +16,7 @@ from betty.test_utils.plugin import (
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-    from betty.machine_name import MachineName
+    from betty.machine_name import ResolvableMachineName
 
 
 class TestPluginRepository:
@@ -26,7 +26,7 @@ class TestPluginRepository:
             self._plugins = {plugin.id: plugin for plugin in plugins}
 
         @override
-        def get(self, plugin_id: MachineName, /) -> DummyPluginDefinition:
+        def get(self, plugin_id: ResolvableMachineName, /) -> DummyPluginDefinition:
             try:
                 return self._plugins[plugin_id]
             except KeyError:

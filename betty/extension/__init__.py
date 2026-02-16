@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from betty.locale.localizable import ResolvableLocalizable
-    from betty.machine_name import MachineName
+    from betty.machine_name import ResolvableMachineName
 
 _T = TypeVar("_T")
 _ServiceLevelCoT = TypeVar(
@@ -70,7 +70,7 @@ class ExtensionDefinition(HumanFacingDefinition, DependentPluginDefinition[Exten
 
     def __init__(
         self,
-        plugin_id: MachineName,
+        plugin_id: ResolvableMachineName,
         *,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,

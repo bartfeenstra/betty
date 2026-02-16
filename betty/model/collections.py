@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
     from ty_extensions import Intersection
 
-    from betty.machine_name import MachineName
+    from betty.machine_name import ResolvableMachineName
 
 _EntityT = TypeVar("_EntityT", bound=Entity, default=Entity)
 _TargetT = TypeVar("_TargetT")
@@ -176,17 +176,17 @@ class MultipleTypesEntityCollection(EntityCollection[_TargetT], Generic[_TargetT
 
     def __init__(self, *entities: Intersection[_TargetT, Entity]):
         super().__init__()
-        self._collections: MutableMapping[
-            MachineName, SingleTypeEntityCollection[Entity]
-        ] = defaultdict(SingleTypeEntityCollection)
+        self._collections: MutableMapping[str, SingleTypeEntityCollection[Entity]] = (
+            defaultdict(SingleTypeEntityCollection)
+        )
         self.add(*entities)
 
     def _get_collection(
-        self, entity_type: type[_EntityT] | EntityDefinition | MachineName, /
+        self, entity_type: type[_EntityT] | EntityDefinition | ResolvableMachineName, /
     ) -> SingleTypeEntityCollection[_EntityT]:
         if isinstance(entity_type, EntityDefinition):
             entity_type = entity_type.id
-        if not isinstance(entity_type, str):
+        if isinstance(entity_type, type):
             entity_type = entity_type.plugin().id
         return cast(
             SingleTypeEntityCollection[_EntityT], self._collections[entity_type]
@@ -194,7 +194,7 @@ class MultipleTypesEntityCollection(EntityCollection[_TargetT], Generic[_TargetT
 
     def __getitem__(
         self,
-        key: type[_EntityT] | EntityDefinition | MachineName,
+        key: type[_EntityT] | EntityDefinition | ResolvableMachineName,
     ) -> SingleTypeEntityCollection[_EntityT]:
         return self._get_collection(key)
 

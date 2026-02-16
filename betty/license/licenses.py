@@ -73,7 +73,9 @@ def spdx_license_id_to_license_id(spdx_license_id: str) -> MachineName:
     """
     Get the Betty license plugin ID for the given SPDX license ID.
     """
-    return f"spdx-{_SPDX_LICENSE_ID_PATTERN.sub('--', spdx_license_id.lower())}"
+    return MachineName(
+        f"spdx-{_SPDX_LICENSE_ID_PATTERN.sub('--', spdx_license_id.lower())}"
+    )
 
 
 class SpdxLicenseBuilder:

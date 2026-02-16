@@ -43,7 +43,7 @@ from betty.locale import (
 from betty.locale.data import LocaleDefinition
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import LocalizableProperty
-from betty.machine_name import MachineName, MachineNameDefinition, assert_machine_name
+from betty.machine_name import MachineName, MachineNameProperty, ResolvableMachineName
 from betty.model import EntityDefinition
 from betty.pathlib import FilePathDefinition
 from betty.place_type import PlaceTypeDefinition
@@ -55,7 +55,7 @@ from betty.plugin.config import (
     resolve_plugin_configuration,
 )
 from betty.plugin.config.property import PluginDefinitionConfigurationsProperty
-from betty.plugin.data import PluginConfigurationDefinition, PluginIdDefinition
+from betty.plugin.data import PluginConfigurationDefinition
 from betty.presence_role import PresenceRoleDefinition
 from betty.presence_role.data import PresenceRoleDefinitionConfiguration
 from betty.project import Extension, ExtensionDefinition
@@ -110,7 +110,7 @@ class EntityTypeConfiguration(Data[ObjectDefinition["EntityTypeConfiguration"]])
         self.generate_html_list = generate_html_list
 
     @property
-    @AttrDefinition(PluginIdDefinition(EntityDefinition))
+    @AttrDefinition(MachineName)
     def entity_type(self) -> MachineName:
         """
         The ID of the configured entity type.
@@ -449,7 +449,7 @@ class ProjectConfiguration(Data):
     The project logo.
     """
 
-    name = Optional(Property(MachineNameDefinition(), resolver=assert_machine_name()))
+    name = Optional(MachineNameProperty())
     """
     The project's machine name.
     """
@@ -500,7 +500,7 @@ class ProjectConfiguration(Data):
         lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,
         locales: Iterable[ResolvableLocale | ProjectLocale] | None = None,
         logo: Path | None = None,
-        name: MachineName | None = None,
+        name: ResolvableMachineName | None = None,
         place_types: Iterable[PlaceTypeDefinitionConfiguration] | None = None,
         presence_roles: Iterable[PresenceRoleDefinitionConfiguration] | None = None,
     ):
