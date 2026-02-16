@@ -76,7 +76,7 @@ class TestEntityTypeConfiguration(DataTestBase[EntityTypeConfiguration]):
         sut.generate_html_list = generate_html_list
         assert sut.generate_html_list == generate_html_list
 
-    async def test_hydrate__with_generate_html_list_with_non_public_facing_entity_type_should_error(
+    async def test_validate__with_generate_html_list_with_non_public_facing_entity_type_should_error(
         self,
     ) -> None:
         sut = EntityTypeConfiguration(
@@ -86,7 +86,7 @@ class TestEntityTypeConfiguration(DataTestBase[EntityTypeConfiguration]):
             EntityDefinition.type().discoverer.override(DummyNonPublicFacingEntityOne),
             pytest.raises(HumanFacingException),
         ):
-            await sut.hydrate(UNIVERSE)
+            await sut.validate(UNIVERSE)
 
 
 class TestProjectConfiguration(DataTestBase[ProjectConfiguration]):

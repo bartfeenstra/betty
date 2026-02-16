@@ -5,13 +5,12 @@ File path tools.
 from pathlib import Path
 from typing import Any, final
 
-from typing_extensions import TypeVar, override
+from typing_extensions import TypeVar
 
-from betty.assertion import assert_file_path, assert_path
+from betty.assertion import assert_path
 from betty.data import DataDefinition
 from betty.locale.localizable.gettext import _
 from betty.portable import CallbackPorter
-from betty.service.level import ServiceLevel
 
 _DataClsT = TypeVar("_DataClsT", default=Any)
 
@@ -28,7 +27,3 @@ class FilePathDefinition(DataDefinition[Path]):
             label=_("File path"),
             porter=CallbackPorter[Path](assert_path(), str),
         )
-
-    @override
-    async def hydrate(self, services: ServiceLevel, data: _DataClsT, /) -> None:
-        assert_file_path()(data)

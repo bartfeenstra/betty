@@ -7,8 +7,6 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping
 from typing import TYPE_CHECKING, TypeAlias, final
 
-from typing_extensions import override
-
 from betty.color import ColorDefinition
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.data import Data, Sample
@@ -26,7 +24,6 @@ from betty.plugin.config import (
 )
 from betty.plugin.data import PluginConfigurationSequenceDefinition
 from betty.sample import Size
-from betty.service.hydrate import Hydratable
 from betty.service.requirement.extension import require_extension
 
 if TYPE_CHECKING:
@@ -68,7 +65,7 @@ ResolvableRegionalContent: TypeAlias = Mapping[
         ),
     ],
 )
-class RaspberryMintConfiguration(Data, Hydratable):
+class RaspberryMintConfiguration(Data):
     """
     Configuration for the :py:class:`betty.extension.raspberry_mint.RaspberryMint` extension.
 
@@ -146,9 +143,11 @@ class RaspberryMintConfiguration(Data, Hydratable):
                 }
             )
 
-    @override
     @require_extension("raspberry-mint")
-    async def hydrate(self, raspberry_mint: RaspberryMint, /) -> None:
+    async def validate(self, raspberry_mint: RaspberryMint, /) -> None:
+        """
+        Validate the configuration.
+        """
         available_regions = await raspberry_mint.regions
         with reraise_with_indicator(Attr("regional_content")):
             for region in self.regional_content:

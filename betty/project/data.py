@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, final
 from urllib.parse import urlparse
 
 from babel import Locale
-from typing_extensions import override
 
 from betty.ancestry.person import Person
 from betty.assertion import assert_number
@@ -61,7 +60,6 @@ from betty.presence_role import PresenceRoleDefinition
 from betty.presence_role.data import PresenceRoleDefinitionConfiguration
 from betty.project import Extension, ExtensionDefinition
 from betty.sample import Size
-from betty.service.hydrate import Hydratable
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -95,9 +93,7 @@ the oldest verified person to ever have lived.
         ),
     ],
 )
-class EntityTypeConfiguration(
-    Data[ObjectDefinition["EntityTypeConfiguration"]], Hydratable
-):
+class EntityTypeConfiguration(Data[ObjectDefinition["EntityTypeConfiguration"]]):
     """
     Configure a single entity type for a project.
 
@@ -137,8 +133,10 @@ class EntityTypeConfiguration(
     def generate_html_list(self, generate_html_list: bool) -> None:
         self._generate_html_list = generate_html_list
 
-    @override
-    async def hydrate(self, services: ServiceLevel, /) -> None:
+    async def validate(self, services: ServiceLevel, /) -> None:
+        """
+        Validate the configuration.
+        """
         entity_type = (await services.plugins.plugins(EntityDefinition)).get(
             self._entity_type
         )

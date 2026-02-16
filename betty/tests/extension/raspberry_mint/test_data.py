@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 class TestRaspberryMintConfiguration(DataTestBase[RaspberryMintConfiguration]):
     sut_cls = RaspberryMintConfiguration
 
-    async def test_hydrate__should_validate_featured_entities_configuration(
+    async def test_validate__should_validate_featured_entities_configuration(
         self, isolated_app: App, tmp_path: Path
     ) -> None:
         sut = RaspberryMintConfiguration(regional_content={"unknown-region": []})
@@ -33,7 +33,7 @@ class TestRaspberryMintConfiguration(DataTestBase[RaspberryMintConfiguration]):
             project.configuration.extensions.add(RaspberryMint)
             async with project:
                 with pytest.raises(HumanFacingException) as exc_info:
-                    await sut.hydrate(project)
+                    await sut.validate(project)
         assert 'data.regional_content["unknown-region"]' in str(exc_info.value)
 
     def test_primary_color__from___init__(self) -> None:

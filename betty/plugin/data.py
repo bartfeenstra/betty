@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
-from typing_extensions import TypeVar, override
+from typing_extensions import TypeVar
 
 from betty.collections import MutableResolvedSequence, MutableResolvedSequenceProxy
 from betty.data import DataDefinition
@@ -23,7 +23,6 @@ from betty.portable import CallbackPorter
 
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
-    from betty.service.level import ServiceLevel
 
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
@@ -44,11 +43,6 @@ class PluginIdDefinition(DataDefinition[MachineName]):
             porter=CallbackPorter[str](assert_machine_name(), passthrough),
         )
         self._plugin_type = plugin_type
-
-    @override
-    async def hydrate(self, services: ServiceLevel, data: MachineName, /) -> None:
-        if self._plugin_type is not None:
-            (await services.plugins.plugins(self._plugin_type)).get(data)
 
 
 @final

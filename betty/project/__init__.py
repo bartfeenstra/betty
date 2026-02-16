@@ -91,13 +91,15 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
         ancestry: Ancestry | None = None,
     ):
         super().__init__()
-        self.life_cycle.on_bootstrap(
-            lambda: self._configuration.data().hydrate(self, self._configuration)
-        )
+        self.life_cycle.on_bootstrap(self._validate)
         self._app = app
         self._configuration = configuration
         self._configuration_file = configuration_file
         self._ancestry = Ancestry() if ancestry is None else ancestry
+
+    async def _validate(self) -> None:
+        for entity_type in self._configuration.entity_types:
+            await entity_type.validate(self)
 
     @override
     @classmethod

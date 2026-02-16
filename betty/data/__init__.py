@@ -15,7 +15,6 @@ from betty.importlib import fully_qualified_name
 from betty.portable import OptionalPorter, Portable, PortablePorter, Porter
 from betty.portable.error import NotPortable
 from betty.sample import Samplable, Sample, Samples, Size
-from betty.service.hydrate import Hydratable
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
@@ -23,7 +22,6 @@ if TYPE_CHECKING:
     from ty_extensions import Intersection
 
     from betty.locale.localizable import ResolvableLocalizable
-    from betty.service.level import ServiceLevel
 
 _DataClsT = TypeVar("_DataClsT", default=Any)
 
@@ -81,16 +79,6 @@ class DataDefinition(HumanFacingDefinition, ClsDefinition[_DataClsT]):
             return Samples(())
         return Samples(self._samples)
 
-    async def hydrate(self, services: ServiceLevel, data: _DataClsT, /) -> None:
-        """
-        Hydrate data.
-
-        Hydration allows data definitions to require a :py:type:`betty.service.level.ServiceLevel` to perform tasks
-        such as validation or enhancing the data using information or functionality from the service level.
-        """
-        if isinstance(data, Hydratable):
-            await data.hydrate(services)
-
 
 _DataDefinitionT = TypeVar(
     "_DataDefinitionT", bound=DataDefinition, default=DataDefinition, covariant=True
@@ -143,8 +131,3 @@ class OptionalDefinition(DataDefinition[_DataClsT | None]):
         The wrapped, required (non-optional) data definition.
         """
         return self._wrapped
-
-    @override
-    async def hydrate(self, services: ServiceLevel, data: _DataClsT | None, /) -> None:
-        if data is not None:
-            await self.wrapped.hydrate(services, data)

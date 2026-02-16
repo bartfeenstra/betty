@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self
+from typing import Self
 
 import pytest
 from typing_extensions import override
@@ -8,19 +8,13 @@ from typing_extensions import override
 from betty.assertion import assert_str
 from betty.data import Data, DataDefinition, OptionalDefinition, Sample
 from betty.data.bool import BoolDefinition
-from betty.exception import HumanFacingException
 from betty.portable import CallbackPorter, OptionalPorter, Portable, PortableData
 from betty.portable.error import NotPortable
 from betty.sample import Samplable, Samples
-from betty.service.hydrate import Hydratable
-from betty.service.level import UNIVERSE
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
-if TYPE_CHECKING:
-    from betty.service.level import ServiceLevel
 
-
-class _DummyData(Portable, Hydratable, Data):
+class _DummyData(Portable, Data):
     def __init__(self, value: str):
         self.value = value
 
@@ -32,10 +26,6 @@ class _DummyData(Portable, Hydratable, Data):
     @override
     def dump(self) -> PortableData:
         return self.value
-
-    @override
-    async def hydrate(self, services: ServiceLevel, /) -> None:
-        raise HumanFacingException("Uh-oh!")
 
 
 class TestDataDefinition:
@@ -112,10 +102,6 @@ class TestDataDefinition:
         with pytest.raises(NotPortable):
             sut.porter.dump(None)
 
-    async def test_hydrate(self) -> None:
-        sut = DataDefinition(cls=object, label=DUMMY_LOCALIZABLE)
-        await sut.hydrate(UNIVERSE, object())
-
 
 class TestOptionalDefinition:
     def test_wrapped(self) -> None:
@@ -128,16 +114,3 @@ class TestOptionalDefinition:
             DataDefinition(cls=_DummyData, label=DUMMY_LOCALIZABLE)
         )
         assert isinstance(sut.porter, OptionalPorter)
-
-    async def test_hydrate__without_none(self) -> None:
-        sut = OptionalDefinition(
-            DataDefinition(cls=_DummyData, label=DUMMY_LOCALIZABLE)
-        )
-        with pytest.raises(HumanFacingException):
-            await sut.hydrate(UNIVERSE, _DummyData("Hello, world!"))
-
-    async def test_hydrate__with_none(self) -> None:
-        sut = OptionalDefinition(
-            DataDefinition(cls=_DummyData, label=DUMMY_LOCALIZABLE)
-        )
-        await sut.hydrate(UNIVERSE, None)
