@@ -229,9 +229,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "DataManufacturable": MissingReason.ABSTRACT,
         "Manufacturable": MissingReason.ABSTRACT,
     },
-    "betty/service/hydrate.py": {
-        "Hydratable": MissingReason.ABSTRACT,
-    },
     "betty/service/requirement/__init__.py": {
         "CallableRequirement": {
             "__get__": MissingReason.COVERED_ELSEWHERE,
@@ -242,9 +239,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Data": MissingReason.ABSTRACT,
     },
     "betty/data/aggregate/__init__.py": {
-        "AggregateDefinition": {
-            "elements": MissingReason.ABSTRACT,
-        },
+        "AggregateDefinition": MissingReason.ABSTRACT,
     },
     "betty/data/aggregate/collection/__init__.py": {
         "CollectionDefinition": MissingReason.ABSTRACT,

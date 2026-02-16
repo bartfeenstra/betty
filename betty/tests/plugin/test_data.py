@@ -2,8 +2,6 @@ import pytest
 
 from betty.machine_name import InvalidMachineName
 from betty.plugin.data import PluginIdDefinition
-from betty.plugin.error import PluginNotFound
-from betty.service.level import UNIVERSE
 from betty.test_utils.plugin import DummyPluginDefinition, DummyPluginOne
 
 
@@ -22,15 +20,6 @@ class TestPluginIdDefinition:
         plugin_id = DummyPluginOne.plugin().id
         sut = PluginIdDefinition(DummyPluginDefinition)
         assert sut.porter.dump(plugin_id) == plugin_id
-
-    async def test_hydrate(self) -> None:
-        sut = PluginIdDefinition(DummyPluginDefinition)
-        await sut.hydrate(UNIVERSE, DummyPluginOne.plugin().id)
-
-    async def test_hydrate__plugin_not_found(self) -> None:
-        sut = PluginIdDefinition(DummyPluginDefinition)
-        with pytest.raises(PluginNotFound):
-            await sut.hydrate(UNIVERSE, "non-existent-plugin-id")
 
 
 class TestPluginConfigurationDefinition:

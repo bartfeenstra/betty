@@ -89,9 +89,6 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ManagedLifeCycle):
         cls = type(self)
         super().__init__()
         self.life_cycle.on_bootstrap(self._bootstrap_localizer)
-        self.life_cycle.on_bootstrap(
-            lambda: self._configuration.data().hydrate(self, self._configuration)
-        )
         self._configuration = configuration
         self._user = user or RichUser()
         if isinstance(self._user, LifeCycle):

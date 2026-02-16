@@ -7,16 +7,13 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Generic
 
-from typing_extensions import TypeVar, override
+from typing_extensions import TypeVar
 
 from betty.data import DataDefinition
 from betty.data.indicator.selector import Element
-from betty.exception import reraise_with_indicator
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-
-    from betty.service.level import ServiceLevel
 
 _DataClsT = TypeVar("_DataClsT")
 _ElementT = TypeVar("_ElementT", bound=Element[Any], default=Element[Any])
@@ -34,10 +31,3 @@ class AggregateDefinition(
         """
         The selectors and definitions for all elements contained by the data.
         """
-
-    @override
-    async def hydrate(self, services: ServiceLevel, data: _DataClsT, /) -> None:
-        for selector, element in self.elements(data):
-            with reraise_with_indicator(selector):
-                await element.hydrate(services, selector.get(data))
-        await super().hydrate(services, data)
