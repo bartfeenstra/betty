@@ -10,10 +10,9 @@ from __future__ import annotations
 
 from contextlib import AsyncExitStack, asynccontextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Self, final, overload, override
+from typing import TYPE_CHECKING, Self, TypeVar, final, overload, override
 
 from aiofiles.tempfile import TemporaryDirectory
-from typing_extensions import TypeVar
 
 import betty
 import betty.dirs

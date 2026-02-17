@@ -4,9 +4,7 @@ Generic plugin API errors.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, final
-
-from typing_extensions import TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, final
 
 from betty.exception import HumanFacingException
 from betty.locale.localizable.gettext import _

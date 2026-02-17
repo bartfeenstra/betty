@@ -8,7 +8,7 @@ import datetime
 from collections.abc import Awaitable, Callable, Mapping, MutableMapping
 from pathlib import Path
 from shutil import copy2
-from typing import TYPE_CHECKING, Any, Self, TypeAlias, cast
+from typing import TYPE_CHECKING, Any, Self, TypeAlias, cast, override
 
 import aiofiles
 from aiofiles.os import makedirs
@@ -20,7 +20,6 @@ from jinja2.nodes import CallBlock, ContextReference, Node
 from jinja2.runtime import Context as JinjaContext
 from jinja2.runtime import DebugUndefined, StrictUndefined
 from jinja2.utils import missing
-from typing_extensions import override
 
 from betty import about
 from betty.cache import CacheItem

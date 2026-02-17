@@ -28,10 +28,6 @@ jobs:
             os: ubuntu-latest
             nodejs: 25.x
             python: '3.13'
-          - name: 'Python 3.12'
-            os: ubuntu-latest
-            nodejs: 25.x
-            python: '3.12'
           - name: 'macOS'
             os: macos-latest
             nodejs: 25.x

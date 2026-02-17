@@ -5,9 +5,7 @@ Object factories.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Generic, Self, final, overload
-
-from typing_extensions import TypeVar
+from typing import TYPE_CHECKING, Generic, Self, TypeVar, final, overload
 
 from betty.asyncio import resolve_await
 from betty.data import Data

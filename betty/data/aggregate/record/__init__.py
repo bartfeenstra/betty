@@ -5,9 +5,7 @@ Record data types.
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Any, Generic, Self, final, override
-
-from typing_extensions import TypeVar
+from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar, final, override
 
 from betty.assertion import OptionalField, assert_mapping
 from betty.data import DataDefinition, OptionalDefinition, Sample, Samples

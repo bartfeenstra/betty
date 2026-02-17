@@ -5,9 +5,7 @@ Collection data types.
 from __future__ import annotations
 
 from collections.abc import Collection
-from typing import TYPE_CHECKING, Any
-
-from typing_extensions import TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from betty.data import DataDefinition
 from betty.data.aggregate import AggregateDefinition

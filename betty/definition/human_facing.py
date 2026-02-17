@@ -4,9 +4,7 @@ Definitions that are human-facing and provide human-friendly information.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
-
-from typing_extensions import TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from betty.locale.localizable import (
     resolve_localizable,

@@ -5,9 +5,7 @@ Tools to automatically provide repositories for plugin types.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
-
-from typing_extensions import TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 from betty.plugin import PluginDefinition, PluginTypeRepository
 from betty.typing import threadsafe

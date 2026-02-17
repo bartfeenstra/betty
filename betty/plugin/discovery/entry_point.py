@@ -5,9 +5,7 @@ Discover plugins defined as distribution package entry points.
 from __future__ import annotations
 
 from importlib import metadata
-from typing import TYPE_CHECKING, cast, final, override
-
-from typing_extensions import TypeVar
+from typing import TYPE_CHECKING, TypeVar, cast, final, override
 
 from betty.plugin import PluginDefinition, ResolvableDefinition
 from betty.plugin.discovery import PluginDiscovery

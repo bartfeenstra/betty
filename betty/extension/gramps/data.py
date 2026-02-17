@@ -6,9 +6,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, MutableMapping
 from pathlib import Path
-from typing import TYPE_CHECKING, final
-
-from typing_extensions import TypeVar
+from typing import TYPE_CHECKING, TypeVar, final
 
 from betty.collections import MutableResolvedMapping, MutableResolvedMappingProxy
 from betty.data import Data, Sample

@@ -10,11 +10,10 @@ from typing import (
     Concatenate,
     Generic,
     ParamSpec,
+    TypeVar,
     final,
     overload,
 )
-
-from typing_extensions import TypeVar
 
 from betty.asyncio import resolve_await
 from betty.exception import HumanFacingException

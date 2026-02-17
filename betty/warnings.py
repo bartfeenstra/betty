@@ -5,8 +5,6 @@ Provide utilities for raising warnings.
 import warnings
 from typing import LiteralString
 
-import typing_extensions
-
 
 class BettyDeprecationWarning(DeprecationWarning):
     """
@@ -21,11 +19,11 @@ def deprecate(message: str, stacklevel: int = 1):
     warnings.warn(message, category=BettyDeprecationWarning, stacklevel=stacklevel + 1)
 
 
-class deprecated(typing_extensions.deprecated):
+class deprecated(warnings.deprecated):
     """
     Decorate a class, function, or overload to indicate that it is deprecated.
 
-    This is identical to :py:class:`typing_extensions.deprecated`, but raises a Betty
+    This is identical to :py:class:`warnings.deprecated`, but raises a Betty
     deprecation warning.
     """
 

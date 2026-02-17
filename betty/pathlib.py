@@ -3,9 +3,7 @@ File path tools.
 """
 
 from pathlib import Path
-from typing import Any, final
-
-from typing_extensions import TypeVar
+from typing import Any, TypeVar, final
 
 from betty.assertion import assert_path
 from betty.data import DataDefinition

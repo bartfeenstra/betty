@@ -2,9 +2,7 @@
 Class-based definitions.
 """
 
-from typing import Any, Generic
-
-from typing_extensions import TypeVar
+from typing import Any, Generic, TypeVar
 
 from betty.importlib import fully_qualified_name
 

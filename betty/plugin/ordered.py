@@ -6,9 +6,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from graphlib import TopologicalSorter
-from typing import TYPE_CHECKING, Any
-
-from typing_extensions import TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from betty.machine_name import MachineName, ResolvableMachineName
 from betty.plugin import PluginDefinition, ResolvableId, resolve_id

@@ -6,9 +6,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Generic, final, override
-
-from typing_extensions import TypeVar
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, final, override
 
 from betty.data.indicator import Indicator
 

@@ -17,7 +17,7 @@ You must use one of these desktop operating systems to be able to run Betty.
 Python
 ^^^^^^
 
-Betty requires `Python <https://www.python.org/>`_ 3.12 or higher.
+Betty requires `Python <https://www.python.org/>`_ 3.13 or higher.
 
 .. _installation-requirements-nodejs:
 

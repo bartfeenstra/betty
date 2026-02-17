@@ -14,7 +14,7 @@ license-files = ['LICENSE.txt']
 authors = [
   {name = 'Bart Feenstra', email = 'bar@bartfeenstra.com'},
 ]
-requires-python = '~= 3.12'
+requires-python = '~= 3.13'
 dependencies = [
     'aiofiles ~= 25.1',
     'aiohttp ~= 3.12',
@@ -38,7 +38,6 @@ dependencies = [
     'shibuya == 2026.1.9',
     'sphinx ~= 8.2',
     'sphinx-design ~= 0.7.0',
-    'typing_extensions ~= 4.12',
 ]
 classifiers = [
     'Environment :: Console',
@@ -46,7 +45,6 @@ classifiers = [
     'Intended Audience :: End Users/Desktop',
     'Intended Audience :: Science/Research',
     'Programming Language :: JavaScript',
-    'Programming Language :: Python :: 3.12',
     'Programming Language :: Python :: 3.13',
     'Programming Language :: Python :: 3.14',
     'Operating System :: MacOS :: MacOS X',

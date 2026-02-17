@@ -3,14 +3,13 @@ from __future__ import annotations
 import datetime
 from gettext import NullTranslations
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, override
 
 import aiofiles
 import pytest
 from babel import Locale
 from PIL import Image
 from puremagic import what
-from typing_extensions import override
 
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference

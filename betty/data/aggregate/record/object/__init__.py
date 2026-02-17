@@ -8,9 +8,7 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 from inspect import getmembers
 from types import FunctionType
-from typing import TYPE_CHECKING, Any, Generic, final, override
-
-from typing_extensions import TypeVar
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, final, override
 
 from betty.data import DataDefinition
 from betty.data.aggregate.record import FieldDefinition, RecordDefinition
