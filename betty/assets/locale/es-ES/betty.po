@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-04-24 14:22+0100\n"
-"PO-Revision-Date: 2026-01-18 18:06+0000\n"
+"PO-Revision-Date: 2026-02-18 18:09+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
-"Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty/es/>"
-"\n"
+"Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-4-"
+"x/es/>\n"
 "Language: es-ES\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.15.2\n"
+"X-Generator: Weblate 5.16.1-dev\n"
 "Generated-By: Babel 2.17.0\n"
 
 #, python-brace-format
@@ -740,14 +740,14 @@ msgid ""
 msgstr ""
 
 msgid "Presence"
-msgstr ""
+msgstr "Presencia"
 
 #, python-brace-format
 msgid "Presence of {person} at {event}"
 msgstr ""
 
 msgid "Presences"
-msgstr ""
+msgstr "Presencias"
 
 #, python-brace-format
 msgid ""
@@ -1315,8 +1315,8 @@ msgstr[1] "{count} lugares"
 #, python-brace-format
 msgid "{count} presence"
 msgid_plural "{count} presences"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} presencia"
+msgstr[1] "{count} presencias"
 
 #, python-brace-format
 msgid "{count} source"
