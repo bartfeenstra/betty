@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from collections.abc import Iterable, Mapping
-from typing import TYPE_CHECKING, Any, Self, TypeAlias, final, override
+from typing import TYPE_CHECKING, Any, Self, final, override
 
 from betty.ancestry.has_notes import HasNotes
 from betty.content_provider import (
@@ -112,7 +112,7 @@ class Render(DataManufacturable[RenderConfiguration], ContentProvider):
         )
 
 
-ProvidedTemplate: TypeAlias = (
+type ProvidedTemplate = (
     str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None
 )
 
@@ -290,11 +290,7 @@ class Box(Template, DataManufacturable[BoxConfiguration]):
     @require_project
     async def new(cls, project: Project, data: BoxConfiguration, /) -> Self:
         return cls(
-            content=await new_plugins(  # ty:ignore[invalid-argument-type]
-                project,
-                ContentProviderDefinition,
-                data.content,  # ty:ignore[invalid-argument-type]
-            ),
+            content=await new_plugins(project, ContentProviderDefinition, data.content),
             min_height=data.min_height,
             max_height=data.max_height,
             height=data.height,

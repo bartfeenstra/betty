@@ -4,16 +4,13 @@ Test utilities for :py:mod:`betty.cache`.
 
 from collections.abc import Iterator, Sequence
 from contextlib import AbstractAsyncContextManager
-from typing import Generic, TypeVar
 
 import pytest
 
 from betty.cache import Cache, CacheItem
 
-_CacheItemValueT = TypeVar("_CacheItemValueT")
 
-
-class CacheTestBase(Generic[_CacheItemValueT]):
+class CacheTestBase[CacheItemValueT]:
     """
     A base class for tests of :py:class:`betty.cache.Cache` implementations.
     """
@@ -22,10 +19,10 @@ class CacheTestBase(Generic[_CacheItemValueT]):
         self,
         *,
         scopes: Sequence[str] | None = None,
-    ) -> AbstractAsyncContextManager[Cache[_CacheItemValueT]]:
+    ) -> AbstractAsyncContextManager[Cache[CacheItemValueT]]:
         raise NotImplementedError
 
-    def _values(self) -> Iterator[_CacheItemValueT]:
+    def _values(self) -> Iterator[CacheItemValueT]:
         raise NotImplementedError
 
     @staticmethod

@@ -5,7 +5,7 @@ Data for the Raspberry Mint extension.
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
-from typing import TYPE_CHECKING, TypeAlias, final
+from typing import TYPE_CHECKING, final
 
 from betty.color import ColorDefinition
 from betty.content_provider import ContentProvider, ContentProviderDefinition
@@ -29,7 +29,7 @@ from betty.service.requirement.extension import require_extension
 if TYPE_CHECKING:
     from betty.extension.raspberry_mint import RaspberryMint
 
-ResolvableRegionalContent: TypeAlias = Mapping[
+type ResolvableRegionalContent = Mapping[
     str,
     Iterable[ResolvablePluginConfiguration[ContentProviderDefinition, ContentProvider]],
 ]

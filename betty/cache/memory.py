@@ -5,7 +5,7 @@ Provide caching that stores cache items in volatile memory.
 from __future__ import annotations
 
 from collections.abc import MutableMapping, Sequence
-from typing import TYPE_CHECKING, Generic, Self, TypeAlias, TypeVar, final, override
+from typing import TYPE_CHECKING, Self, final, override
 
 from betty.cache import CacheItem
 from betty.cache._base import _CommonCacheBase, _CommonCacheBaseState, _StaticCacheItem
@@ -14,24 +14,22 @@ from betty.typing import threadsafe
 if TYPE_CHECKING:
     from betty.concurrent import AsynchronizedLock, Ledger
 
-_CacheItemValueContraT = TypeVar("_CacheItemValueContraT", contravariant=True)
 
-_MemoryCacheStore: TypeAlias = MutableMapping[
+type _MemoryCacheStore[CacheItemValueT] = MutableMapping[
     tuple[str, ...],
-    "CacheItem[_CacheItemValueContraT] | None | _MemoryCacheStore[_CacheItemValueContraT]",
+    "CacheItem[CacheItemValueT] | None | _MemoryCacheStore[CacheItemValueT]",
 ]
 
 
 @final
-class _MemoryCacheState(
-    _CommonCacheBaseState["MemoryCache[_CacheItemValueContraT]"],
-    Generic[_CacheItemValueContraT],
+class _MemoryCacheState[CacheItemValueT](
+    _CommonCacheBaseState["MemoryCache[CacheItemValueT]"],
 ):
     def __init__(
         self,
         cache_lock: AsynchronizedLock,
         cache_item_lock_ledger: Ledger,
-        store: _MemoryCacheStore[_CacheItemValueContraT],
+        store: _MemoryCacheStore[CacheItemValueT],
     ):
         super().__init__(cache_lock, cache_item_lock_ledger)
         self.store = store
@@ -39,20 +37,18 @@ class _MemoryCacheState(
 
 @final
 @threadsafe
-class MemoryCache(
-    _CommonCacheBase[_CacheItemValueContraT], Generic[_CacheItemValueContraT]
-):
+class MemoryCache[CacheItemValueT](_CommonCacheBase[CacheItemValueT]):
     """
     Provide a cache that stores cache items in volatile memory.
     """
 
-    _store: _MemoryCacheStore[_CacheItemValueContraT]
+    _store: _MemoryCacheStore[CacheItemValueT]
 
     def __init__(
         self,
         *,
         scopes: Sequence[str] | None = None,
-        state: _MemoryCacheState[_CacheItemValueContraT] | None = None,
+        state: _MemoryCacheState[CacheItemValueT] | None = None,
     ):
         super().__init__(scopes=scopes, state=state)
         if state is None:
@@ -64,7 +60,7 @@ class MemoryCache(
     def with_scope(self, scope: str, /) -> Self:
         return type(self)(
             scopes=(*self._scopes, scope),
-            state=_MemoryCacheState[_CacheItemValueContraT](
+            state=_MemoryCacheState[CacheItemValueT](
                 self._cache_lock, self._cache_item_lock_ledger, self._store
             ),
         )
@@ -73,19 +69,17 @@ class MemoryCache(
         return *self._scopes, cache_item_id
 
     @override
-    async def get(
-        self, cache_item_id: str, /
-    ) -> CacheItem[_CacheItemValueContraT] | None:
+    async def get(self, cache_item_id: str, /) -> CacheItem[CacheItemValueT] | None:
         cache_item = self._store.get(self._cache_item_key(cache_item_id), None)
         if isinstance(cache_item, CacheItem):
-            return cache_item
+            return cache_item  # ty:ignore[invalid-return-type]
         return None
 
     @override
     async def set(
         self,
         cache_item_id: str,
-        value: _CacheItemValueContraT,
+        value: CacheItemValueT,
         *,
         modified: int | float | None = None,
     ) -> None:

@@ -5,7 +5,7 @@ Machine names.
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Self, TypeAlias, final, override
+from typing import TYPE_CHECKING, Self, final, override
 
 from betty.assertion import assert_str
 from betty.data import Data, DataDefinition
@@ -82,7 +82,7 @@ class MachineName(Portable[str], str, Data):
         return cls(machine_name)
 
 
-ResolvableMachineName: TypeAlias = MachineName | str
+type ResolvableMachineName = MachineName | str
 
 
 @final

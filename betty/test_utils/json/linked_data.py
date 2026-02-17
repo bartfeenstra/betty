@@ -5,7 +5,7 @@ Test utilities for :py:mod:`betty.json.linked_data`.
 from __future__ import annotations
 
 from collections.abc import Awaitable, Callable, MutableMapping, MutableSequence
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING
 
 from betty.app import App
 from betty.json.schema import Schema
@@ -18,36 +18,33 @@ if TYPE_CHECKING:
         LinkedDataDumper,
     )
 
-_T = TypeVar("_T")
-_PortableDataT = TypeVar("_PortableDataT", bound=PortableData, default=PortableData)
 
-
-async def assert_dumps_linked_data(
-    sut: LinkedDataDumpableWithSchema[Schema, _PortableDataT],
-) -> _PortableDataT:
+async def assert_dumps_linked_data[PortableDataT: PortableData](
+    sut: LinkedDataDumpableWithSchema[Schema, PortableDataT],
+) -> PortableDataT:
     """
     Dump an object's linked data and assert it is valid.
     """
     return await assert_linked_data_dump(sut.linked_data_schema, sut.dump_linked_data)
 
 
-async def assert_dumps_linked_data_for(
-    sut: LinkedDataDumper[_T, Schema, _PortableDataT], target: _T
-) -> _PortableDataT:
+async def assert_dumps_linked_data_for[PortableDataT: PortableData, T](
+    sut: LinkedDataDumper[T, Schema, PortableDataT], target: T
+) -> PortableDataT:
     """
     Dump an object's linked data and assert it is valid.
     """
 
-    async def _dump(project: Project) -> _PortableDataT:
+    async def _dump(project: Project) -> PortableDataT:
         return await sut.dump_linked_data_for(project, target)
 
     return await assert_linked_data_dump(sut.linked_data_schema_for, _dump)
 
 
-async def assert_linked_data_dump(
+async def assert_linked_data_dump[PortableDataT: PortableData](
     schema: Callable[[Project], Awaitable[Schema]] | Schema,
-    portable: Callable[[Project], Awaitable[_PortableDataT]] | _PortableDataT,
-) -> _PortableDataT:
+    portable: Callable[[Project], Awaitable[PortableDataT]] | PortableDataT,
+) -> PortableDataT:
     """
     Assert that dumped linked data is valid against a schema.
     """
@@ -68,7 +65,7 @@ async def assert_linked_data_dump(
         return _normalize(actual)
 
 
-def _normalize(portable: _PortableDataT) -> _PortableDataT:
+def _normalize[PortableDataT: PortableData](portable: PortableDataT) -> PortableDataT:
     if isinstance(portable, MutableMapping):
         return {
             key: _normalize(value)

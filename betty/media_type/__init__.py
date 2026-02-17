@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from email.message import EmailMessage
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Self, TypeAlias, final, override
+from typing import TYPE_CHECKING, Any, Self, final, override
 
 from betty.assertion import assert_str
 from betty.data import Data, DataDefinition
@@ -138,13 +138,13 @@ class MediaType(Data, Portable):
         return self._str
 
 
-ExtensionIndicator: TypeAlias = Path | str
+type ExtensionIndicator = Path | str
 """
 A file path or name that includes a file extension.
 """
 
 
-MediaTypeIndicator: TypeAlias = MediaType | ExtensionIndicator
+type MediaTypeIndicator = MediaType | ExtensionIndicator
 """
 A media type, or a file path or name that indicates a media type through its file extension.
 """

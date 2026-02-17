@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Generic, TypeVar, final, override
+from typing import TYPE_CHECKING, Any, final, override
 
 from betty.data.indicator import Indicator
 
@@ -14,9 +14,6 @@ if TYPE_CHECKING:
     from collections.abc import Iterator, MutableSequence, Sequence
 
     from betty.assertion import Assertion
-
-_T = TypeVar("_T")
-_ElementT = TypeVar("_ElementT")
 
 
 @final
@@ -42,7 +39,7 @@ class Selector(Indicator, ABC):
             raise SelectorError(self) from error
 
     @final
-    def get(self, data: Any, assertion: Assertion[Any, _T] | None = None, /) -> _T:
+    def get[T](self, data: Any, assertion: Assertion[Any, T] | None = None, /) -> T:
         """
         Get the value for this selector.
 
@@ -140,12 +137,12 @@ class Selectors(Selector):
         self._selectors[-1].delete(data)
 
 
-class Element(Selector, Generic[_ElementT]):
+class Element[ElementT](Selector):
     """
     An aggregate element selector.
     """
 
-    def __init__(self, element: _ElementT, /):
+    def __init__(self, element: ElementT, /):
         self._element = element
 
     def __eq__(self, other: Any) -> bool:
@@ -154,7 +151,7 @@ class Element(Selector, Generic[_ElementT]):
         return self._element == other._element
 
     @property
-    def element(self) -> _ElementT:
+    def element(self) -> ElementT:
         """
         The element.
         """

@@ -10,13 +10,9 @@ from asyncio import sleep
 from collections.abc import AsyncIterator, Hashable, MutableMapping
 from math import floor
 from types import TracebackType
-from typing import Self, TypeVar, final, override
+from typing import Self, final, override
 
 from betty.typing import threadsafe
-
-_KeyT = TypeVar("_KeyT")
-_ValueT = TypeVar("_ValueT")
-
 
 MAX_STRANDS = 64
 

@@ -5,15 +5,7 @@ Life cycle and resource management.
 from __future__ import annotations
 
 from collections.abc import Awaitable, Callable
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Self,
-    TypeAlias,
-    TypedDict,
-    Unpack,
-    final,
-)
+from typing import TYPE_CHECKING, Any, Self, TypedDict, Unpack, final
 from warnings import warn
 
 if TYPE_CHECKING:
@@ -146,7 +138,7 @@ class LifeCycle:
             warn(f"{self} was bootstrapped, but never shut down.", stacklevel=2)
 
 
-Bootstrapper: TypeAlias = Callable[[], Awaitable[None] | None]
+type Bootstrapper = Callable[[], Awaitable[None] | None]
 """
 A callback to bootstrap resources.
 """
@@ -163,7 +155,7 @@ class ShutdownerKwargs(TypedDict):
     """
 
 
-Shutdowner: TypeAlias = Callable[[Unpack[ShutdownerKwargs]], Awaitable[None] | None]
+type Shutdowner = Callable[[Unpack[ShutdownerKwargs]], Awaitable[None] | None]
 """
 A callback to shut down resources.
 """

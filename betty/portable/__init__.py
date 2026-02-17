@@ -8,19 +8,16 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable, MutableMapping, MutableSequence
-from typing import Generic, Self, TypeAlias, TypeVar, final, override
+from typing import Any, Self, final, override
 
-_DataClsT = TypeVar("_DataClsT")
-
-
-PortableData: TypeAlias = (
+type PortableData = (
     bool
     | int
     | float
     | str
     | None
-    | MutableSequence["PortableData"]
-    | MutableMapping[str, "PortableData"]
+    | MutableSequence[PortableData]
+    | MutableMapping[str, PortableData]
 )
 """
 Portable data.
@@ -29,16 +26,13 @@ Data of this type is portable and can easily be persisted or transmitted.
 """
 
 
-_PortableDataT = TypeVar("_PortableDataT", bound=PortableData, default=PortableData)
-
-
-PortableSequence: TypeAlias = MutableSequence[_PortableDataT]
+type PortableSequence[PortableDataT: PortableData] = MutableSequence[PortableDataT]
 """
 A sequence of portable data.
 """
 
 
-PortableMapping: TypeAlias = MutableMapping[str, _PortableDataT]
+type PortableMapping[PortableDataT: PortableData] = MutableMapping[str, PortableDataT]
 """
 A key-value mapping of portable data.
 
@@ -46,7 +40,7 @@ Keys are strings.
 """
 
 
-class Portable(ABC, Generic[_PortableDataT]):
+class Portable[PortableDataT: PortableData](ABC):
     """
     A class that can be dumped to and loaded from portable data.
     """
@@ -61,7 +55,7 @@ class Portable(ABC, Generic[_PortableDataT]):
         """
 
     @abstractmethod
-    def dump(self) -> _PortableDataT:
+    def dump(self) -> PortableDataT:
         """
         Dump the instance to portable data.
 
@@ -69,27 +63,24 @@ class Portable(ABC, Generic[_PortableDataT]):
         """
 
 
-_PortableT = TypeVar("_PortableT", bound=Portable)
-
-
-class Porter(ABC, Generic[_DataClsT, _PortableDataT]):
+class Porter[DataClsT = Any, PortableDataT: PortableData = PortableData](ABC):
     """
     An object capable of dumping and loading data to and from portable data.
     """
 
     @abstractmethod
-    def load(self, portable: PortableData, /) -> _DataClsT:
+    def load(self, portable: PortableData, /) -> DataClsT:
         """
         Load data from its portable form.
         """
 
     @abstractmethod
-    def dump(self, data: _DataClsT, /) -> _PortableDataT:
+    def dump(self, data: DataClsT, /) -> PortableDataT:
         """
         Dump data to its portable form.
         """
 
-    def copy(self, data: _DataClsT) -> _DataClsT:
+    def copy(self, data: DataClsT) -> DataClsT:
         """
         Deep-copy data into a new instance.
         """
@@ -97,66 +88,69 @@ class Porter(ABC, Generic[_DataClsT, _PortableDataT]):
 
 
 @final
-class CallbackPorter(Porter[_DataClsT, _PortableDataT]):
+class CallbackPorter[DataClsT, PortableDataT: PortableData = PortableData](
+    Porter[DataClsT, PortableDataT]
+):
     """
     Make data portable using a separate loader and dumper.
     """
 
     def __init__(
         self,
-        loader: Callable[[PortableData], _DataClsT],
-        dumper: Callable[[_DataClsT], _PortableDataT],
+        loader: Callable[[PortableData], DataClsT],
+        dumper: Callable[[DataClsT], PortableDataT],
         /,
     ):
         self._loader = loader
         self._dumper = dumper
 
     @override
-    def load(self, portable: PortableData) -> _DataClsT:
+    def load(self, portable: PortableData) -> DataClsT:
         return self._loader(portable)
 
     @override
-    def dump(self, data: _DataClsT) -> _PortableDataT:
+    def dump(self, data: DataClsT) -> PortableDataT:
         return self._dumper(data)
 
 
-class PortablePorter(Porter[_PortableT, _PortableDataT]):
+class PortablePorter[PortableT: Portable, PortableDataT: PortableData = PortableData](
+    Porter[PortableT, PortableDataT]
+):
     """
     Expose a portable data type as a porter.
     """
 
-    def __init__(self, cls: type[_PortableT]):
+    def __init__(self, cls: type[PortableT]):
         self._cls = cls
 
     @override
-    def load(self, portable: PortableData) -> _PortableT:
+    def load(self, portable: PortableData) -> PortableT:
         return self._cls.load(portable)
 
     @override
-    def dump(self, data: _PortableT) -> _PortableDataT:
-        return data.dump()  # ty:ignore[invalid-return-type]
+    def dump(self, data: PortableT) -> PortableDataT:
+        return data.dump()
 
 
 @final
-class OptionalPorter(
-    Porter[_PortableT | None, _PortableDataT | None],
-    Generic[_PortableT, _PortableDataT],
+class OptionalPorter[PortableT: Portable, PortableDataT: PortableData = PortableData](
+    Porter[PortableT | None, PortableDataT | None]
 ):
     """
     Add optional (``None``) support to another porter.
     """
 
-    def __init__(self, upstream: Porter[_PortableT, _PortableDataT]):
+    def __init__(self, upstream: Porter[PortableT, PortableDataT]):
         self._upstream = upstream
 
     @override
-    def load(self, portable: PortableData) -> _PortableT | None:
+    def load(self, portable: PortableData) -> PortableT | None:
         if portable is None:
             return None
         return self._upstream.load(portable)
 
     @override
-    def dump(self, data: _PortableT | None) -> _PortableDataT | None:
+    def dump(self, data: PortableT | None) -> PortableDataT | None:
         if data is None:
             return None
         return self._upstream.dump(data)

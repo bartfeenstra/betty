@@ -2,16 +2,14 @@
 Keyed collection data types.
 """
 
-from collections.abc import Sequence
-from typing import Any, TypeVar, final, override
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, final, override
 
 from betty.assertion import assert_mapping, assert_sequence
 from betty.collections import MutableDictKeyedCollection, MutableKeyedCollection
-from betty.data import Data, DataDefinition
 from betty.data.aggregate.collection import CollectionDefinition
-from betty.data.aggregate.record import RecordDefinition
-from betty.data.indicator.selector import Element, Key
-from betty.locale.localizable import ResolvableLocalizable
+from betty.data.indicator.selector import Element
 from betty.portable import (
     CallbackPorter,
     PortableData,
@@ -19,24 +17,31 @@ from betty.portable import (
     PortableSequence,
 )
 
-_ValueT = TypeVar("_ValueT")
-_ElementT = TypeVar("_ElementT")
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from ty_extensions import Intersection
+
+    from betty.data import Data, DataDefinition
+    from betty.data.aggregate.record import RecordDefinition
+    from betty.locale.localizable import ResolvableLocalizable
 
 
 @final
-class KeyedCollectionDefinition(
-    CollectionDefinition[MutableKeyedCollection[Any, Any, _ValueT, Any], Key]
+class KeyedCollectionDefinition[ValueT, ElementT: Element[str] = Element[str]](
+    CollectionDefinition[MutableKeyedCollection[Any, Any, ValueT, Any], ElementT]
 ):
     """
     A definition for :py:class:`betty.collections.MutableKeyedCollection`.
     """
 
-    _item: RecordDefinition[_ValueT, Key]
+    _item: RecordDefinition[ValueT, ElementT]
 
     def __init__(
         self,
         *,
-        value: RecordDefinition[_ValueT] | type[Data[RecordDefinition]],
+        value: RecordDefinition[ValueT, ElementT]
+        | type[Intersection[ValueT, Data[RecordDefinition[Any, ElementT]]]],
         key: Element[str],
         ordered: bool,
         label: ResolvableLocalizable,
@@ -54,13 +59,15 @@ class KeyedCollectionDefinition(
 
     @override
     def elements(
-        self, data: MutableKeyedCollection[Any, Any, _ValueT, Any]
-    ) -> Sequence[tuple[Key, DataDefinition]]:
-        return [(Key(self._key.get(item_data)), self.item) for item_data in data]
+        self, data: MutableKeyedCollection[Any, Any, ValueT, Any]
+    ) -> Sequence[tuple[ElementT, DataDefinition]]:
+        return [
+            (type(self._key)(self._key.get(item_data)), self.item) for item_data in data
+        ]  # ty:ignore[invalid-return-type]
 
     def _load(
         self, portable: PortableData, /
-    ) -> MutableKeyedCollection[str, str, _ValueT, Any]:
+    ) -> MutableKeyedCollection[str, str, ValueT, Any]:
         if self._ordered:
             items = assert_sequence(self._item.porter.load)(portable)
         else:
@@ -72,7 +79,7 @@ class KeyedCollectionDefinition(
         return MutableDictKeyedCollection(items, key=self._key.get)
 
     def _dump(
-        self, data: MutableKeyedCollection[str, str, _ValueT, Any]
+        self, data: MutableKeyedCollection[str, str, ValueT, Any]
     ) -> PortableMapping | PortableSequence:
         if self._ordered:
             return [self._item.porter.dump(value) for value in data]

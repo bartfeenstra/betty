@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Self, TypeAlias, TypeVar, final, override
+from typing import TYPE_CHECKING, Any, Self, final, override
 from uuid import uuid4
 
 from betty.definition.human_facing import CountableHumanFacingDefinition
@@ -177,7 +177,7 @@ class EntityDefinition(CountableHumanFacingDefinition, PluginDefinition[Entity])
         return self._public_facing
 
 
-AncestryEntityId: TypeAlias = tuple[type[Entity], str]
+type AncestryEntityId = tuple[type[Entity], str]
 
 
 def persistent_id(entity_or_id: Entity | str, /) -> bool:
@@ -190,6 +190,3 @@ def persistent_id(entity_or_id: Entity | str, /) -> bool:
         entity_or_id if isinstance(entity_or_id, str) else entity_or_id.id,
         NonPersistentId,
     )
-
-
-_EntityT = TypeVar("_EntityT", bound=Entity)

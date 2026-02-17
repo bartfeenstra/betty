@@ -4,7 +4,7 @@ Handle requirements on extensions.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Concatenate, ParamSpec, TypeVar, overload
+from typing import TYPE_CHECKING, Any, Concatenate, overload
 
 from betty.extension import Extension, ExtensionDefinition
 from betty.locale.localizable.gettext import _
@@ -19,34 +19,30 @@ if TYPE_CHECKING:
     from betty.project import Project
     from betty.service.level import ServiceLevel
 
-_ReturnT = TypeVar("_ReturnT")
-_P = ParamSpec("_P")
-_ExtensionT = TypeVar("_ExtensionT", bound=Extension, default=Extension)
-
 
 @overload
-def require_extension(
-    extension_id: type[_ExtensionT] | ResolvableId[ExtensionDefinition], /
-) -> Requirement[_ExtensionT]:
+def require_extension[ExtensionT: Extension](
+    extension_id: type[ExtensionT] | ResolvableId[ExtensionDefinition], /
+) -> Requirement[ExtensionT]:
     pass
 
 
 @overload
-def require_extension(
-    extension_id: type[_ExtensionT] | ResolvableId[ExtensionDefinition],
-    f: Callable[Concatenate[_ExtensionT, _P], Awaitable[_ReturnT] | _ReturnT]
-    | Callable[Concatenate[Any, _ExtensionT, _P], Awaitable[_ReturnT] | _ReturnT],
+def require_extension[ExtensionT: Extension, **P, ReturnT](
+    extension_id: type[ExtensionT] | ResolvableId[ExtensionDefinition],
+    f: Callable[Concatenate[ExtensionT, P], Awaitable[ReturnT] | ReturnT]
+    | Callable[Concatenate[Any, ExtensionT, P], Awaitable[ReturnT] | ReturnT],
     /,
-) -> CallableRequirement[_ExtensionT, _P, _ReturnT]:
+) -> CallableRequirement[ExtensionT, P, ReturnT]:
     pass
 
 
 @overload
-def require_extension(
-    extension_id: type[_ExtensionT] | ResolvableId[ExtensionDefinition],
+def require_extension[ExtensionT: Extension](
+    extension_id: type[ExtensionT] | ResolvableId[ExtensionDefinition],
     services: ServiceLevel,
     /,
-) -> Awaitable[_ExtensionT]:
+) -> Awaitable[ExtensionT]:
     pass
 
 
@@ -63,11 +59,11 @@ def require_extension(extension_id, f=None):
 
 
 @require_project
-async def _require_extension(
+async def _require_extension[ExtensionT: Extension](
     project: Project,
     target: str,
-    extension_id: type[_ExtensionT] | ResolvableId[ExtensionDefinition],
-) -> _ExtensionT:
+    extension_id: type[ExtensionT] | ResolvableId[ExtensionDefinition],
+) -> ExtensionT:
     extensions = await project.plugins.plugins(ExtensionDefinition)
     try:
         extension = extensions[resolve_id(extension_id)]

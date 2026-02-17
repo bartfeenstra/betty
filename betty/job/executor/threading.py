@@ -18,8 +18,6 @@ if TYPE_CHECKING:
     from collections.abc import MutableSequence
     from concurrent.futures import Future
 
-    from betty.job import Context
-
 
 @final
 class ThreadPoolExecutor(Executor):
@@ -29,7 +27,7 @@ class ThreadPoolExecutor(Executor):
 
     def __init__(
         self,
-        scheduler: Scheduler[Context],
+        scheduler: Scheduler,
         *,
         async_concurrency: int = 1,
         threading_concurrency: int = 1,

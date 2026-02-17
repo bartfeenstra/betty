@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Generic, TypeVar, final
+from typing import TYPE_CHECKING, final
 
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.life_cycle.manage import ManagedLifeCycle
@@ -20,26 +20,21 @@ if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
 
-_T = TypeVar("_T")
-_ServiceLevelCoT = TypeVar(
-    "_ServiceLevelCoT", bound=ServiceLevel, default=ServiceLevel, covariant=True
-)
 
-
-class Extension(
-    ManagedLifeCycle, Plugin["ExtensionDefinition"], Generic[_ServiceLevelCoT]
+class Extension[ServiceLevelT: ServiceLevel](
+    ManagedLifeCycle, Plugin["ExtensionDefinition"]
 ):
     """
     Integrate custom services with a :py:class:`service level <betty.service.level.ServiceLevel>`.
     """
 
     @private
-    def __init__(self, *, services: _ServiceLevelCoT):
+    def __init__(self, *, services: ServiceLevelT):
         super().__init__()
         self._services = services
 
     @property
-    def services(self) -> _ServiceLevelCoT:
+    def services(self) -> ServiceLevelT:
         """
         The service level this extension is attached to.
         """

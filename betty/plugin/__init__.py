@@ -9,16 +9,7 @@ from __future__ import annotations
 
 from functools import update_wrapper
 from importlib import metadata
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Generic,
-    Self,
-    TypeAlias,
-    TypeVar,
-    final,
-    override,
-)
+from typing import TYPE_CHECKING, Any, Self, final, override
 
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import CountableHumanFacingDefinition
@@ -37,10 +28,8 @@ if TYPE_CHECKING:
     )
     from betty.plugin.discovery import Discoverer, ResolvableDiscovery
 
-_BaseClsCoT = TypeVar("_BaseClsCoT", default=object, covariant=True)
 
-
-class PluginDefinition(ClsDefinition[_BaseClsCoT], Generic[_BaseClsCoT]):
+class PluginDefinition[BaseClsT](ClsDefinition[BaseClsT]):
     """
     A plugin definition.
     """
@@ -50,7 +39,7 @@ class PluginDefinition(ClsDefinition[_BaseClsCoT], Generic[_BaseClsCoT]):
         self._id = MachineName.resolve(plugin_id)
 
     @classmethod
-    def type(cls) -> PluginTypeDefinition[_BaseClsCoT, Self]:
+    def type(cls) -> PluginTypeDefinition[BaseClsT, Self]:
         """
         The plugin type definition.
         """
@@ -71,7 +60,7 @@ class PluginDefinition(ClsDefinition[_BaseClsCoT], Generic[_BaseClsCoT]):
         return self._id
 
     @override
-    def _set_cls(self, cls: builtins.type[_BaseClsCoT]) -> None:
+    def _set_cls(self, cls: builtins.type[BaseClsT]) -> None:
         super()._set_cls(cls)
         cls.plugin = staticmethod(update_wrapper(lambda: self, cls.plugin))  # ty:ignore[unresolved-attribute]
 
@@ -93,22 +82,9 @@ class PluginDefinition(ClsDefinition[_BaseClsCoT], Generic[_BaseClsCoT]):
         )
 
 
-_PluginDefinitionT = TypeVar(
-    "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
-)
-_PluginDefinitionCoT = TypeVar(
-    "_PluginDefinitionCoT",
-    bound=PluginDefinition,
-    default=PluginDefinition,
-    covariant=True,
-)
-
-
 @final
-class PluginTypeDefinition(
-    CountableHumanFacingDefinition,
-    ClsDefinition[_PluginDefinitionT],
-    Generic[_BaseClsCoT, _PluginDefinitionT],
+class PluginTypeDefinition[BaseClsT, PluginDefinitionT: PluginDefinition](
+    CountableHumanFacingDefinition, ClsDefinition[PluginDefinitionT]
 ):
     """
     A plugin type definition.
@@ -122,7 +98,7 @@ class PluginTypeDefinition(
         label_plural: ResolvableLocalizable,
         label_countable: CountableLocalizable,
         description: ResolvableLocalizable | None = None,
-        discovery: Iterable[ResolvableDiscovery[_PluginDefinitionT]] | None = None,
+        discovery: Iterable[ResolvableDiscovery[PluginDefinitionT]] | None = None,
     ):
         from betty.plugin.discovery import Discoverer
 
@@ -134,7 +110,7 @@ class PluginTypeDefinition(
         )
 
         self._id = MachineName.resolve(plugin_type_id)
-        self._discoverer = Discoverer[_PluginDefinitionT](discovery)
+        self._discoverer = Discoverer[PluginDefinitionT](discovery)
 
     @property
     def id(self) -> MachineName:
@@ -144,36 +120,33 @@ class PluginTypeDefinition(
         return self._id
 
     @override
-    def _set_cls(self, cls: type[_PluginDefinitionT]) -> None:
+    def _set_cls(self, cls: type[PluginDefinitionT]) -> None:
         super()._set_cls(cls)
         cls.type = staticmethod(update_wrapper(lambda: self, cls.type))  # ty:ignore[invalid-assignment]
 
     @property
     def discoverer(
         self,
-    ) -> Discoverer[_PluginDefinitionT]:
+    ) -> Discoverer[PluginDefinitionT]:
         """
         The plugin discoverer for this type.
         """
         return self._discoverer
 
 
-class Plugin(Generic[_PluginDefinitionCoT]):
+class Plugin[PluginDefinitionT: PluginDefinition]:
     """
     A plugin class.
     """
 
     @classmethod
-    def plugin(cls) -> _PluginDefinitionCoT:
+    def plugin(cls) -> PluginDefinitionT:
         """
         The plugin definition.
         """
         raise NotImplementedError(
             f"{fully_qualified_name(cls)} was not decorated with a {fully_qualified_name(PluginDefinition)} subclass."
         )
-
-
-_PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 
 
 @final
@@ -206,23 +179,25 @@ class PluginTypeRepository:
         return iter(self._get_plugin_types().values())
 
 
-ResolvableDefinition: TypeAlias = _PluginDefinitionT | type[Plugin[_PluginDefinitionT]]
+type ResolvableDefinition[PluginDefinitionT: PluginDefinition = PluginDefinition] = (
+    PluginDefinitionT | type[Plugin[PluginDefinitionT]]
+)
 """
 Use :py:func:`betty.plugin.resolve.resolve_definition` to resolve this to a :py:class:`betty.plugin.PluginDefinition`
 """
 
 
-ResolvableId: TypeAlias = (
-    ResolvableMachineName | ResolvableDefinition[_PluginDefinitionT]
+type ResolvableId[PluginDefinitionT: PluginDefinition = PluginDefinition] = (
+    ResolvableMachineName | ResolvableDefinition[PluginDefinitionT]
 )
 """
 Use :py:func:`betty.plugin.resolve.resolve_id` to resolve this to a plugin ID.
 """
 
 
-def resolve_definition(
-    definition: ResolvableDefinition[_PluginDefinitionT], /
-) -> _PluginDefinitionT:
+def resolve_definition[PluginDefinitionT: PluginDefinition](
+    definition: ResolvableDefinition[PluginDefinitionT], /
+) -> PluginDefinitionT:
     """
     Resolve a plugin definition.
     """

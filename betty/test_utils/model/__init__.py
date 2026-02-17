@@ -4,7 +4,7 @@ Test utilities for :py:mod:`betty.model`.
 
 from __future__ import annotations
 
-from typing import Generic, TypeVar, final
+from typing import final
 
 import pytest
 
@@ -13,22 +13,20 @@ from betty.locale.localizable.static import CountableStaticTranslations
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.model import Entity, EntityDefinition
 
-_EntityT = TypeVar("_EntityT", bound=Entity)
 
-
-class EntityTestBase(Generic[_EntityT]):
+class EntityTestBase[EntityT: Entity]:
     """
     A base class for testing :py:class:`betty.model.Entity` implementations.
     """
 
     @pytest.fixture
-    def sut(self) -> type[_EntityT]:
+    def sut(self) -> type[EntityT]:
         """
         Provide the system(s) under test.
         """
         raise NotImplementedError
 
-    async def test_label(self, sut: _EntityT) -> None:
+    async def test_label(self, sut: EntityT) -> None:
         """
         Tests :py:meth:`betty.model.Entity.label` implementations.
         """

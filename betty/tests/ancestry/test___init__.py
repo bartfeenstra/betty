@@ -62,7 +62,7 @@ class _TestAncestry_OneToOne_Right(Entity):
 class TestAncestry(EntityCollectionTestBase[Entity]):
     @override
     @pytest.fixture
-    def sut(self) -> EntityCollection[Entity]:
+    def sut(self) -> EntityCollection:
         return Ancestry()
 
     @override

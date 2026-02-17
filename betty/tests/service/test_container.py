@@ -1,5 +1,5 @@
 from collections.abc import Awaitable
-from typing import Any, TypeVar, override
+from typing import Any, override
 
 import pytest
 
@@ -14,8 +14,6 @@ from betty.service.container import (
     service,
 )
 from betty.test_utils.service.level import DummyDataManufacturable
-
-_T = TypeVar("_T")
 
 
 class _DataManufacturableManagedLifeCycle(DummyDataManufacturable, ManagedLifeCycle):

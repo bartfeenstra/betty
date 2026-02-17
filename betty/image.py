@@ -4,7 +4,6 @@ Manipulate images.
 
 import math
 from pathlib import Path
-from typing import TypeAlias
 
 from PIL import UnidentifiedImageError
 from PIL.Image import EXTENSION, Image, init, preinit
@@ -12,12 +11,12 @@ from PIL.Image import EXTENSION, Image, init, preinit
 from betty.media_type import MediaType
 from betty.media_type.media_types import PDF
 
-Percentage: TypeAlias = int
-Pixel: TypeAlias = int
-OneDimensionalSize: TypeAlias = tuple[Pixel, None] | tuple[None, Pixel]
-TwoDimensionalSize: TypeAlias = tuple[Pixel, Pixel]
-Size: TypeAlias = OneDimensionalSize | TwoDimensionalSize
-FocusArea: TypeAlias = tuple[Percentage, Percentage, Percentage, Percentage]
+type Percentage = int
+type Pixel = int
+type OneDimensionalSize = tuple[Pixel, None] | tuple[None, Pixel]
+type TwoDimensionalSize = tuple[Pixel, Pixel]
+type Size = OneDimensionalSize | TwoDimensionalSize
+type FocusArea = tuple[Percentage, Percentage, Percentage, Percentage]
 
 
 def is_supported_media_type(media_type: MediaType) -> bool:

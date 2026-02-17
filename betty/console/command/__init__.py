@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from collections.abc import Awaitable, Callable
-from typing import TYPE_CHECKING, TypeAlias, final
+from typing import TYPE_CHECKING, final
 
 from betty import about
 from betty.definition.human_facing import HumanFacingDefinition
@@ -17,7 +17,7 @@ from betty.plugin.discovery.entry_point import EntryPointDiscovery
 if TYPE_CHECKING:
     import argparse
 
-CommandFunction: TypeAlias = Callable[..., Awaitable[None]]
+type CommandFunction = Callable[..., Awaitable[None]]
 
 
 class Command(Plugin["CommandDefinition"]):

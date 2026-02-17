@@ -8,7 +8,7 @@ import contextlib
 from asyncio import sleep
 from itertools import chain
 from time import time
-from typing import TYPE_CHECKING, Any, Generic, ParamSpec, TypeVar, final
+from typing import TYPE_CHECKING, Any, final
 
 from betty.asyncio import resolve_await
 from betty.typing import Void
@@ -16,17 +16,13 @@ from betty.typing import Void
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable, Iterator
 
-_T = TypeVar("_T")
-_U = TypeVar("_U")
-_P = ParamSpec("_P")
 
-
-def map_suppress(
-    raising_map: Callable[[_T], _U],
+def map_suppress[T, U](
+    raising_map: Callable[[T], U],
     exception_type: type[BaseException],
-    items: Iterable[_T],
+    items: Iterable[T],
     /,
-) -> Iterator[_U]:
+) -> Iterator[U]:
     """
     Map values, skipping those for which the application of `raising_map` raises errors.
     """
@@ -37,20 +33,16 @@ def map_suppress(
             continue
 
 
-_DoFReturnT = TypeVar("_DoFReturnT")
-_DoFP = ParamSpec("_DoFP")
-
-
-class Do(Generic[_DoFP, _DoFReturnT]):
+class Do[**DoFP, DoFReturnT]:
     """
     A functional implementation of do-while functionality, with retries and timeouts.
     """
 
     def __init__(
         self,
-        do: Callable[_DoFP, _DoFReturnT | Awaitable[_DoFReturnT]],
-        *do_args: _DoFP.args,
-        **do_kwargs: _DoFP.kwargs,
+        do: Callable[DoFP, DoFReturnT | Awaitable[DoFReturnT]],
+        *do_args: DoFP.args,
+        **do_kwargs: DoFP.kwargs,
     ):
         self._do = do
         self._do_args = do_args
@@ -58,11 +50,11 @@ class Do(Generic[_DoFP, _DoFReturnT]):
 
     async def until(
         self,
-        *conditions: Callable[[_DoFReturnT], None | bool | Awaitable[None | bool]],
+        *conditions: Callable[[DoFReturnT], None | bool | Awaitable[None | bool]],
         retries: int = 5,
         timeout: int = 300,
         interval: int | float = 0.1,
-    ) -> _DoFReturnT:
+    ) -> DoFReturnT:
         """
         Perform the 'do' until it succeeds or as long as the given arguments allow.
 
@@ -91,13 +83,9 @@ class Do(Generic[_DoFP, _DoFReturnT]):
                 return do_result
 
 
-_ValueT = TypeVar("_ValueT")
-_KeyT = TypeVar("_KeyT")
-
-
-def unique(
-    *values: Iterable[_ValueT], key: Callable[[_ValueT], Any] | None = None
-) -> Iterator[_ValueT]:
+def unique[ValueT](
+    *values: Iterable[ValueT], key: Callable[[ValueT], Any] | None = None
+) -> Iterator[ValueT]:
     """
     Yield the first occurrences of values in a sequence.
 
@@ -116,21 +104,21 @@ def unique(
             yield value
 
 
-def passthrough(value: _T, /) -> _T:
+def passthrough[T](value: T, /) -> T:
     """
     Return the value.
     """
     return value
 
 
-def suppress(
-    target: Callable[_P, _T], *exceptions: type[BaseException]
-) -> Callable[_P, _T | Void]:
+def suppress[**P, T](
+    target: Callable[P, T], *exceptions: type[BaseException]
+) -> Callable[P, T | Void]:
     """
     Return the value, but suppress any errors.
     """
 
-    def _suppress(*target_args: _P.args, **target_kwargs: _P.kwargs) -> _T | Void:
+    def _suppress(*target_args: P.args, **target_kwargs: P.kwargs) -> T | Void:
         with contextlib.suppress(*exceptions):
             return target(*target_args, **target_kwargs)
         return Void()
@@ -150,19 +138,19 @@ class ResultUnavailable(RuntimeError):
 
 
 @final
-class Result(Generic[_P, _T]):
+class Result[**P, T]:
     """
     Decorate a callable and store its return value or raised exception.
     """
 
     __slots__ = "_error", "_result", "_target"
     _error: BaseException
-    _result: _T
+    _result: T
 
-    def __init__(self, target: Callable[_P, _T], /):
+    def __init__(self, target: Callable[P, T], /):
         self._target = target
 
-    def __call__(self, *args: _P.args, **kwargs: _P.kwargs) -> _T:
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> T:
         """
         Call the target.
         """
@@ -173,7 +161,7 @@ class Result(Generic[_P, _T]):
             self._error = error
             raise
 
-    def result(self) -> _T:
+    def result(self) -> T:
         """
         Get the target's return value.
 

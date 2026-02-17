@@ -15,35 +15,29 @@ from collections.abc import (
 )
 from contextlib import suppress
 from itertools import chain
-from typing import Any, Generic, TypeVar, final, overload, override
+from typing import Any, final, overload, override
 
 from betty.functools import passthrough
 from betty.typing import Void
 
-_T = TypeVar("_T")
-_KeyT = TypeVar("_KeyT")
-_ValueT = TypeVar("_ValueT")
-_ResolvableKeyT = TypeVar("_ResolvableKeyT")
-_ResolvableValueT = TypeVar("_ResolvableValueT")
 
-
-class KeyedCollection(Collection[_ValueT], Generic[_KeyT, _ResolvableKeyT, _ValueT]):
+class KeyedCollection[KeyT, ResolvableKeyT, ValueT](Collection[ValueT]):
     """
     A collection of values that are accessible by their primary keys.
     """
 
     @abstractmethod
-    def keys(self) -> Iterable[_KeyT]:
+    def keys(self) -> Iterable[KeyT]:
         """
         Get an iterable over the collection's primary keys.
         """
 
     @abstractmethod
-    def __getitem__(self, key: _ResolvableKeyT) -> _ValueT:
+    def __getitem__(self, key: ResolvableKeyT) -> ValueT:
         pass
 
 
-class MutableCollection(Collection[_ValueT]):
+class MutableCollection[ValueT](Collection[ValueT]):
     """
     A mutable collection of values.
     """
@@ -55,32 +49,33 @@ class MutableCollection(Collection[_ValueT]):
         """
 
 
-class MutableKeyedCollection(
-    KeyedCollection[_KeyT, _ResolvableKeyT, _ValueT],
-    MutableCollection[_ValueT],
-    Generic[_KeyT, _ResolvableKeyT, _ValueT, _ResolvableValueT],
+class MutableKeyedCollection[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
+    KeyedCollection[KeyT, ResolvableKeyT, ValueT],
+    MutableCollection[ValueT],
 ):
     """
     A mutable collection of values that are accessible by their primary keys.
     """
 
     @abstractmethod
-    def add(self, *values: _ResolvableValueT) -> None:
+    def add(self, *values: ResolvableValueT) -> None:
         """
         Add a value to the collection.
         """
 
     @abstractmethod
-    def __delitem__(self, key: _ResolvableKeyT) -> None:
+    def __delitem__(self, key: ResolvableKeyT) -> None:
         pass
 
 
-class _DictKeyedCollection(KeyedCollection[_KeyT, _ResolvableKeyT, _ValueT]):
+class _DictKeyedCollection[KeyT, ResolvableKeyT, ValueT](
+    KeyedCollection[KeyT, ResolvableKeyT, ValueT]
+):
     def __init__(
         self,
-        values: Mapping[_KeyT, _ValueT] | None = None,
+        values: Mapping[KeyT, ValueT] | None = None,
         *,
-        key_resolver: Callable[[_ResolvableKeyT | _KeyT], _KeyT] = passthrough,
+        key_resolver: Callable[[ResolvableKeyT | KeyT], KeyT] = passthrough,
     ):
         self._values = {} if values is None else dict(values)
         self._key_resolver = key_resolver
@@ -90,7 +85,7 @@ class _DictKeyedCollection(KeyedCollection[_KeyT, _ResolvableKeyT, _ValueT]):
         return self._values.__len__()
 
     @override
-    def __iter__(self) -> Iterator[_ValueT]:
+    def __iter__(self) -> Iterator[ValueT]:
         yield from self._values.values()
 
     @override
@@ -100,25 +95,27 @@ class _DictKeyedCollection(KeyedCollection[_KeyT, _ResolvableKeyT, _ValueT]):
         return key in self._values
 
     @override
-    def __getitem__(self, key: _ResolvableKeyT) -> _ValueT:
+    def __getitem__(self, key: ResolvableKeyT) -> ValueT:
         return self._values[self._key_resolver(key)]
 
     @override
-    def keys(self) -> Iterable[_KeyT]:
+    def keys(self) -> Iterable[KeyT]:
         return self._values.keys()
 
 
 @final
-class DictKeyedCollection(_DictKeyedCollection[_KeyT, _ResolvableKeyT, _ValueT]):
+class DictKeyedCollection[KeyT, ResolvableKeyT, ValueT](
+    _DictKeyedCollection[KeyT, ResolvableKeyT, ValueT]
+):
     """
     A keyed collection backed by a dictionary.
     """
 
 
 @final
-class MutableDictKeyedCollection(
-    _DictKeyedCollection[_KeyT, _ResolvableKeyT, _ValueT],
-    MutableKeyedCollection[_KeyT, _ResolvableKeyT, _ValueT, _ResolvableValueT],
+class MutableDictKeyedCollection[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
+    _DictKeyedCollection[KeyT, ResolvableKeyT, ValueT],
+    MutableKeyedCollection[KeyT, ResolvableKeyT, ValueT, ResolvableValueT],
 ):
     """
     A mutable keyed collection backed by a dictionary.
@@ -126,13 +123,13 @@ class MutableDictKeyedCollection(
 
     def __init__(
         self,
-        values: Iterable[_ResolvableValueT] | None = None,
+        values: Iterable[ResolvableValueT] | None = None,
         *,
-        key: Callable[[_ValueT], _KeyT],
-        key_resolver: Callable[[_ResolvableKeyT | _KeyT], _KeyT] = passthrough,
-        value_resolver: Callable[[_ResolvableValueT | _KeyT], _ValueT] = passthrough,
+        key: Callable[[ValueT], KeyT],
+        key_resolver: Callable[[ResolvableKeyT | KeyT], KeyT] = passthrough,
+        value_resolver: Callable[[ResolvableValueT | KeyT], ValueT] = passthrough,
         resolver: Callable[
-            [Sequence[_ValueT]], Sequence[_ValueT | _ResolvableValueT]
+            [Sequence[ValueT]], Sequence[ValueT | ResolvableValueT]
         ] = passthrough,
     ):
         super().__init__(key_resolver=key_resolver)
@@ -143,7 +140,7 @@ class MutableDictKeyedCollection(
             self.add(*values)
 
     @override
-    def __delitem__(self, key: _ResolvableKeyT) -> None:
+    def __delitem__(self, key: ResolvableKeyT) -> None:
         del self._values[self._key_resolver(key)]
 
     @override
@@ -151,7 +148,7 @@ class MutableDictKeyedCollection(
         self._values.clear()
 
     @override
-    def add(self, *values: _ResolvableValueT) -> None:
+    def add(self, *values: ResolvableValueT) -> None:
         # Resolve the values, so the collection resolver won't have to and can stay small.
         resolved_values = list(map(self._value_resolver, values))
         # Allow the collection resolver to change the collection or raise (validation) errors.
@@ -162,10 +159,9 @@ class MutableDictKeyedCollection(
             self._values[self._key(value)] = value
 
 
-class MutableResolvedSequence(
-    MutableSequence[_ValueT],
-    MutableCollection[_ValueT],
-    Generic[_ValueT, _ResolvableValueT],
+class MutableResolvedSequence[ValueT, ResolvableValueT](
+    MutableSequence[ValueT],
+    MutableCollection[ValueT],
 ):
     """
     A mutable sequence of resolved values.
@@ -173,16 +169,16 @@ class MutableResolvedSequence(
 
     @override
     @abstractmethod
-    def insert(self, index: int, value: _ValueT | _ResolvableValueT) -> None:
+    def insert(self, index: int, value: ValueT | ResolvableValueT) -> None:
         pass
 
     @overload
-    def __setitem__(self, index: int, value: _ValueT | _ResolvableValueT) -> None:
+    def __setitem__(self, index: int, value: ValueT | ResolvableValueT) -> None:
         pass
 
     @overload
     def __setitem__(
-        self, index: slice, value: Iterable[_ValueT | _ResolvableValueT]
+        self, index: slice, value: Iterable[ValueT | ResolvableValueT]
     ) -> None:
         pass
 
@@ -192,26 +188,26 @@ class MutableResolvedSequence(
 
     @override
     @abstractmethod
-    def extend(self, values: Iterable[_ValueT | _ResolvableValueT]) -> None:
+    def extend(self, values: Iterable[ValueT | ResolvableValueT]) -> None:
         pass
 
 
-class _ResolvedSequenceProxy(Sequence[_ValueT], Generic[_ValueT, _ResolvableValueT]):
+class _ResolvedSequenceProxy[ValueT, ResolvableValueT](Sequence[ValueT]):
     def __init__(
         self,
-        upstream: Sequence[_ValueT],
+        upstream: Sequence[ValueT],
         *,
-        value_resolver: Callable[[_ValueT | _ResolvableValueT], _ValueT],
+        value_resolver: Callable[[ValueT | ResolvableValueT], ValueT],
     ):
         self._upstream = upstream
         self._value_resolver = value_resolver
 
     @overload
-    def __getitem__(self, index: int) -> _ValueT:
+    def __getitem__(self, index: int) -> ValueT:
         pass
 
     @overload
-    def __getitem__(self, index: slice) -> MutableSequence[_ValueT]:
+    def __getitem__(self, index: slice) -> MutableSequence[ValueT]:
         pass
 
     @final
@@ -237,42 +233,44 @@ class _ResolvedSequenceProxy(Sequence[_ValueT], Generic[_ValueT, _ResolvableValu
 
 
 @final
-class ResolvedSequenceProxy(_ResolvedSequenceProxy[_ValueT, _ResolvableValueT]):
+class ResolvedSequenceProxy[ValueT, ResolvableValueT](
+    _ResolvedSequenceProxy[ValueT, ResolvableValueT]
+):
     """
     Decorate another sequence to resolve any values before proxying them.
     """
 
 
 @final
-class MutableResolvedSequenceProxy(
-    _ResolvedSequenceProxy[_ValueT, _ResolvableValueT],
-    MutableResolvedSequence[_ValueT, _ResolvableValueT],
+class MutableResolvedSequenceProxy[ValueT, ResolvableValueT](
+    _ResolvedSequenceProxy[ValueT, ResolvableValueT],
+    MutableResolvedSequence[ValueT, ResolvableValueT],
 ):
     """
     Decorate another sequence to resolve any values before proxying them.
     """
 
-    _upstream: MutableSequence[_ValueT]
+    _upstream: MutableSequence[ValueT]
 
     def __init__(
         self,
-        upstream: MutableSequence[_ValueT],
+        upstream: MutableSequence[ValueT],
         *,
-        value_resolver: Callable[[_ValueT | _ResolvableValueT], _ValueT],
+        value_resolver: Callable[[ValueT | ResolvableValueT], ValueT],
     ):
         super().__init__(upstream, value_resolver=value_resolver)
 
     @override
-    def insert(self, index: int, value: _ValueT | _ResolvableValueT) -> None:
+    def insert(self, index: int, value: ValueT | ResolvableValueT) -> None:
         self._upstream.insert(index, self._value_resolver(value))
 
     @overload
-    def __setitem__(self, index: int, value: _ValueT | _ResolvableValueT) -> None:
+    def __setitem__(self, index: int, value: ValueT | ResolvableValueT) -> None:
         pass
 
     @overload
     def __setitem__(
-        self, index: slice, value: Iterable[_ValueT | _ResolvableValueT]
+        self, index: slice, value: Iterable[ValueT | ResolvableValueT]
     ) -> None:
         pass
 
@@ -286,45 +284,40 @@ class MutableResolvedSequenceProxy(
         del self._upstream[index]
 
     @override
-    def extend(self, values: Iterable[_ValueT | _ResolvableValueT]) -> None:
+    def extend(self, values: Iterable[ValueT | ResolvableValueT]) -> None:
         self._upstream.extend(map(self._value_resolver, values))
 
 
-class ResolvedMapping(
-    Mapping[_KeyT, _ValueT], Generic[_KeyT, _ResolvableKeyT, _ValueT]
-):
+class ResolvedMapping[KeyT, ResolvableKeyT, ValueT](Mapping[KeyT, ValueT]):
     """
     A mutable mapping of resolved keys.
     """
 
     @override
     @abstractmethod
-    def __getitem__(self, key: _KeyT | _ResolvableKeyT) -> _ValueT:
+    def __getitem__(self, key: KeyT | ResolvableKeyT) -> ValueT:
         pass
 
     @overload
-    def get(self, key: _KeyT | _ResolvableKeyT, default: _T, /) -> _ValueT | _T:
+    def get[T](self, key: KeyT | ResolvableKeyT, default: T, /) -> ValueT | T:
         pass
 
     @overload
-    def get(
-        self, key: _KeyT | _ResolvableKeyT, default: None = None, /
-    ) -> _ValueT | None:
+    def get(self, key: KeyT | ResolvableKeyT, default: None = None, /) -> ValueT | None:
         pass
 
     @override
     @abstractmethod
-    def get(
-        self, key: _KeyT | _ResolvableKeyT, default: _T | None = None, /
-    ) -> _ValueT | None:
+    def get[T](
+        self, key: KeyT | ResolvableKeyT, default: T | None = None, /
+    ) -> ValueT | None:
         pass
 
 
-class MutableResolvedMapping(
-    MutableMapping[_KeyT, _ValueT],
-    MutableCollection[_KeyT],
-    ResolvedMapping[_KeyT, _ResolvableKeyT, _ValueT],
-    Generic[_KeyT, _ResolvableKeyT, _ValueT, _ResolvableValueT],
+class MutableResolvedMapping[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
+    MutableMapping[KeyT, ValueT],
+    MutableCollection[KeyT],
+    ResolvedMapping[KeyT, ResolvableKeyT, ValueT],
 ):
     """
     A mutable mapping of resolved keys and values.
@@ -332,26 +325,26 @@ class MutableResolvedMapping(
 
     @abstractmethod
     def __setitem__(
-        self, key: _KeyT | _ResolvableKeyT, value: _ValueT | _ResolvableValueT
+        self, key: KeyT | ResolvableKeyT, value: ValueT | ResolvableValueT
     ) -> None:
         pass
 
     @abstractmethod
-    def __delitem__(self, key: _KeyT | _ResolvableKeyT) -> None:
+    def __delitem__(self, key: KeyT | ResolvableKeyT) -> None:
         pass
 
     @overload
     def update(
         self,
-        other: Mapping[_KeyT | _ResolvableKeyT, _ValueT | _ResolvableValueT]
-        | Iterable[tuple[_KeyT | _ResolvableKeyT, _ValueT | _ResolvableValueT]],
+        other: Mapping[KeyT | ResolvableKeyT, ValueT | ResolvableValueT]
+        | Iterable[tuple[KeyT | ResolvableKeyT, ValueT | ResolvableValueT]],
         /,
-        **kwargs: _ValueT | _ResolvableValueT,
+        **kwargs: ValueT | ResolvableValueT,
     ) -> None:
         pass
 
     @overload
-    def update(self, **kwargs: _ValueT | _ResolvableValueT) -> None:
+    def update(self, **kwargs: ValueT | ResolvableValueT) -> None:
         pass
 
     @override
@@ -360,18 +353,18 @@ class MutableResolvedMapping(
         pass
 
     @overload
-    def setdefault(
-        self: MutableMapping[_KeyT, _T | None],
-        key: _KeyT | _ResolvableKeyT,
+    def setdefault[T](
+        self: MutableMapping[KeyT, T | None],
+        key: KeyT | ResolvableKeyT,
         default: None = None,
         /,
-    ) -> _T | None:
+    ) -> T | None:
         pass
 
     @overload
-    def setdefault(
-        self, key: _KeyT | _ResolvableKeyT, default: _ValueT | _ResolvableValueT, /
-    ) -> _ValueT:
+    def setdefault[T](
+        self, key: KeyT | ResolvableKeyT, default: ValueT | ResolvableValueT, /
+    ) -> ValueT:
         pass
 
     @override
@@ -380,17 +373,17 @@ class MutableResolvedMapping(
         pass
 
     @overload
-    def pop(self, key: _KeyT | _ResolvableKeyT, /) -> _ValueT:
+    def pop(self, key: KeyT | ResolvableKeyT, /) -> ValueT:
         pass
 
     @overload
     def pop(
-        self, key: _KeyT | _ResolvableKeyT, /, default: _ValueT | _ResolvableValueT
-    ) -> _ValueT:
+        self, key: KeyT | ResolvableKeyT, /, default: ValueT | ResolvableValueT
+    ) -> ValueT:
         pass
 
     @overload
-    def pop(self, key: _KeyT | _ResolvableKeyT, /, default: _T) -> _ValueT | _T:
+    def pop[T](self, key: KeyT | ResolvableKeyT, /, default: T) -> ValueT | T:
         pass
 
     @override
@@ -400,33 +393,33 @@ class MutableResolvedMapping(
 
     @override
     @abstractmethod
-    def popitem(self) -> tuple[_KeyT, _ValueT]:
+    def popitem(self) -> tuple[KeyT, ValueT]:
         pass
 
 
-class _ResolvedMappingProxy(ResolvedMapping[_KeyT, _ResolvableKeyT, _ValueT]):
+class _ResolvedMappingProxy[KeyT, ResolvableKeyT, ValueT](
+    ResolvedMapping[KeyT, ResolvableKeyT, ValueT]
+):
     def __init__(
         self,
-        upstream: Mapping[_KeyT, _ValueT],
+        upstream: Mapping[KeyT, ValueT],
         *,
-        key_resolver: Callable[[_KeyT | _ResolvableKeyT], _KeyT] = passthrough,
+        key_resolver: Callable[[KeyT | ResolvableKeyT], KeyT] = passthrough,
     ):
         self._upstream = upstream
         self._key_resolver = key_resolver
 
     @final
     @override
-    def __getitem__(self, key: _KeyT | _ResolvableKeyT) -> _ValueT:
+    def __getitem__(self, key: KeyT | ResolvableKeyT) -> ValueT:
         return self._upstream[self._key_resolver(key)]
 
     @overload
-    def get(self, key: _KeyT | _ResolvableKeyT, default: _T, /) -> _ValueT | _T:
+    def get[T](self, key: KeyT | ResolvableKeyT, default: T, /) -> ValueT | T:
         pass
 
     @overload
-    def get(
-        self, key: _KeyT | _ResolvableKeyT, default: None = None, /
-    ) -> _ValueT | None:
+    def get(self, key: KeyT | ResolvableKeyT, default: None = None, /) -> ValueT | None:
         pass
 
     @final
@@ -436,7 +429,7 @@ class _ResolvedMappingProxy(ResolvedMapping[_KeyT, _ResolvableKeyT, _ValueT]):
 
     @final
     @override
-    def __iter__(self) -> Iterator[_KeyT]:
+    def __iter__(self) -> Iterator[KeyT]:
         return iter(self._upstream)
 
     @final
@@ -453,53 +446,55 @@ class _ResolvedMappingProxy(ResolvedMapping[_KeyT, _ResolvableKeyT, _ValueT]):
 
 
 @final
-class ResolvedMappingProxy(_ResolvedMappingProxy[_KeyT, _ResolvableKeyT, _ValueT]):
+class ResolvedMappingProxy[KeyT, ResolvableKeyT, ValueT](
+    _ResolvedMappingProxy[KeyT, ResolvableKeyT, ValueT]
+):
     """
     Decorate another mapping to resolve any values before proxying them.
     """
 
 
 @final
-class MutableResolvedMappingProxy(
-    _ResolvedMappingProxy[_KeyT, _ResolvableKeyT, _ValueT],
-    MutableResolvedMapping[_KeyT, _ResolvableKeyT, _ValueT, _ResolvableValueT],
+class MutableResolvedMappingProxy[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
+    _ResolvedMappingProxy[KeyT, ResolvableKeyT, ValueT],
+    MutableResolvedMapping[KeyT, ResolvableKeyT, ValueT, ResolvableValueT],
 ):
     """
     Decorate another mapping to resolve any values before proxying them.
     """
 
-    _upstream: MutableMapping[_KeyT, _ValueT]
+    _upstream: MutableMapping[KeyT, ValueT]
 
     def __init__(
         self,
-        upstream: MutableMapping[_KeyT, _ValueT],
+        upstream: MutableMapping[KeyT, ValueT],
         *,
-        key_resolver: Callable[[_KeyT | _ResolvableKeyT], _KeyT] = passthrough,
-        value_resolver: Callable[[_ValueT | _ResolvableValueT], _ValueT] = passthrough,
+        key_resolver: Callable[[KeyT | ResolvableKeyT], KeyT] = passthrough,
+        value_resolver: Callable[[ValueT | ResolvableValueT], ValueT] = passthrough,
     ):
         super().__init__(upstream, key_resolver=key_resolver)
         self._value_resolver = value_resolver
 
     def __setitem__(
-        self, key: _KeyT | _ResolvableKeyT, value: _ValueT | _ResolvableValueT
+        self, key: KeyT | ResolvableKeyT, value: ValueT | ResolvableValueT
     ) -> None:
         self._upstream[self._key_resolver(key)] = self._value_resolver(value)
 
-    def __delitem__(self, key: _KeyT | _ResolvableKeyT) -> None:
+    def __delitem__(self, key: KeyT | ResolvableKeyT) -> None:
         del self._upstream[self._key_resolver(key)]
 
     @overload
     def update(
         self,
-        other: Mapping[_KeyT | _ResolvableKeyT, _ValueT | _ResolvableValueT]
-        | Iterable[tuple[_KeyT | _ResolvableKeyT, _ValueT | _ResolvableValueT]],
+        other: Mapping[KeyT | ResolvableKeyT, ValueT | ResolvableValueT]
+        | Iterable[tuple[KeyT | ResolvableKeyT, ValueT | ResolvableValueT]],
         /,
-        **kwargs: _ValueT | _ResolvableValueT,
+        **kwargs: ValueT | ResolvableValueT,
     ) -> None:
         pass
 
     @overload
-    def update(self, **kwargs: _ValueT | _ResolvableValueT) -> None:
+    def update(self, **kwargs: ValueT | ResolvableValueT) -> None:
         pass
 
     @override
@@ -517,18 +512,18 @@ class MutableResolvedMappingProxy(
         )
 
     @overload
-    def setdefault(
-        self: MutableMapping[_KeyT, _T | None],
-        key: _KeyT | _ResolvableKeyT,
+    def setdefault[T](
+        self: MutableMapping[KeyT, T | None],
+        key: KeyT | ResolvableKeyT,
         default: None = None,
         /,
-    ) -> _T | None:
+    ) -> T | None:
         pass
 
     @overload
     def setdefault(
-        self, key: _KeyT | _ResolvableKeyT, default: _ValueT | _ResolvableValueT, /
-    ) -> _ValueT:
+        self, key: KeyT | ResolvableKeyT, default: ValueT | ResolvableValueT, /
+    ) -> ValueT:
         pass
 
     @override
@@ -543,17 +538,17 @@ class MutableResolvedMappingProxy(
         )  # ty:ignore[no-matching-overload]
 
     @overload
-    def pop(self, key: _KeyT | _ResolvableKeyT, /) -> _ValueT:
+    def pop(self, key: KeyT | ResolvableKeyT, /) -> ValueT:
         pass
 
     @overload
     def pop(
-        self, key: _KeyT | _ResolvableKeyT, /, default: _ValueT | _ResolvableValueT
-    ) -> _ValueT:
+        self, key: KeyT | ResolvableKeyT, /, default: ValueT | ResolvableValueT
+    ) -> ValueT:
         pass
 
     @overload
-    def pop(self, key: _KeyT | _ResolvableKeyT, /, default: _T) -> _ValueT | _T:
+    def pop[T](self, key: KeyT | ResolvableKeyT, /, default: T) -> ValueT | T:
         pass
 
     @override
@@ -568,5 +563,5 @@ class MutableResolvedMappingProxy(
         return self._upstream.pop(key, default)
 
     @override
-    def popitem(self) -> tuple[_KeyT, _ValueT]:
+    def popitem(self) -> tuple[KeyT, ValueT]:
         return self._upstream.popitem()

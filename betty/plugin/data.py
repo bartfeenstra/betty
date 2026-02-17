@@ -4,7 +4,7 @@ Data types for plugins.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeVar, final
+from typing import TYPE_CHECKING, final
 
 from betty.collections import MutableResolvedSequence, MutableResolvedSequenceProxy
 from betty.data import DataDefinition
@@ -14,15 +14,11 @@ from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.indicator.selector import Attr
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName
-from betty.plugin import PluginDefinition
 from betty.plugin.config import PluginConfiguration, resolve_plugin_configuration
 
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
-
-_PluginDefinitionT = TypeVar(
-    "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
-)
+    from betty.plugin import PluginDefinition
 
 
 @final
@@ -55,7 +51,7 @@ class PluginConfigurationSequenceDefinition(SequenceDefinition):
 
     def __init__(
         self,
-        plugin_type: type[_PluginDefinitionT],
+        plugin_type: type[PluginDefinition],
         *,
         label: ResolvableLocalizable | None = None,
     ):

@@ -29,7 +29,7 @@ class _Progress(Progress):
         self.total -= done
 
 
-class TestDefaultScheduler(SchedulerTestBase[SchedulerTestBaseContext]):
+class TestDefaultScheduler(SchedulerTestBase):
     @pytest.fixture
     @override
     def sut(self) -> Scheduler[SchedulerTestBaseContext]:

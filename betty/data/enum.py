@@ -5,7 +5,7 @@ Enumerated data types.
 from __future__ import annotations
 
 from enum import Enum
-from typing import TYPE_CHECKING, TypeVar, final
+from typing import TYPE_CHECKING, final
 
 from betty.data import DataDefinition
 from betty.portable import CallbackPorter
@@ -13,11 +13,9 @@ from betty.portable import CallbackPorter
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
 
-_EnumT = TypeVar("_EnumT", bound=Enum)
-
 
 @final
-class EnumDefinition(DataDefinition[_EnumT]):
+class EnumDefinition[EnumT: Enum](DataDefinition[EnumT]):
     """
     An enum data definition.
     """
@@ -25,7 +23,7 @@ class EnumDefinition(DataDefinition[_EnumT]):
     def __init__(
         self,
         *,
-        cls: type[_EnumT],
+        cls: type[EnumT],
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
     ):

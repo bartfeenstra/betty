@@ -5,7 +5,7 @@ Test utilities for :py:mod:`betty.job.executor`.
 from __future__ import annotations
 
 from asyncio import sleep
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -18,8 +18,6 @@ if TYPE_CHECKING:
 
     from betty.job.executor import Executor
 
-_ContextCoT = TypeVar("_ContextCoT", bound=Context, covariant=True)
-
 
 async def _sleep() -> None:
     await sleep(999)
@@ -31,14 +29,14 @@ class ExecutorTestBase:
     """
 
     @pytest.fixture
-    async def new_sut(self) -> Callable[[Scheduler[Context]], Executor]:
+    async def new_sut(self) -> Callable[[Scheduler], Executor]:
         """
         Provide the systems under test.
         """
         raise NotImplementedError
 
     async def test___aexit___with_scheduler_cancelled(
-        self, new_sut: Callable[[Scheduler[Context]], Executor]
+        self, new_sut: Callable[[Scheduler], Executor]
     ) -> None:
         """
         Tests :py:meth:`betty.job.executor.Executor.__aexit__` implementations.
@@ -48,7 +46,7 @@ class ExecutorTestBase:
             pass
 
     async def test___aexit___with_scheduler_completed(
-        self, new_sut: Callable[[Scheduler[Context]], Executor]
+        self, new_sut: Callable[[Scheduler], Executor]
     ) -> None:
         """
         Tests :py:meth:`betty.job.executor.Executor.__aexit__` implementations.
@@ -58,7 +56,7 @@ class ExecutorTestBase:
             pass
 
     async def test___aexit___with_arbitrary_exception(
-        self, new_sut: Callable[[Scheduler[Context]], Executor]
+        self, new_sut: Callable[[Scheduler], Executor]
     ) -> None:
         """
         Tests :py:meth:`betty.job.executor.Executor.__aexit__` implementations.
@@ -70,9 +68,7 @@ class ExecutorTestBase:
                 raise exception
         assert exc_info.value is exception
 
-    async def test_start(
-        self, new_sut: Callable[[Scheduler[Context]], Executor]
-    ) -> None:
+    async def test_start(self, new_sut: Callable[[Scheduler], Executor]) -> None:
         """
         Tests :py:meth:`betty.job.executor.Executor.start` implementations.
         """
@@ -82,7 +78,7 @@ class ExecutorTestBase:
         await sut.complete()
 
     async def test_start__when_started(
-        self, new_sut: Callable[[Scheduler[Context]], Executor]
+        self, new_sut: Callable[[Scheduler], Executor]
     ) -> None:
         """
         Tests :py:meth:`betty.job.executor.Executor.start` implementations.
@@ -101,7 +97,7 @@ class ExecutorTestBase:
         ],
     )
     async def test_complete(
-        self, batch_count: int, new_sut: Callable[[Scheduler[Context]], Executor]
+        self, batch_count: int, new_sut: Callable[[Scheduler], Executor]
     ) -> None:
         """
         Tests :py:meth:`betty.job.executor.Executor.complete` implementations.
@@ -125,7 +121,7 @@ class ExecutorTestBase:
         assert actual == expected
 
     async def test_complete__when_not_started(
-        self, new_sut: Callable[[Scheduler[Context]], Executor]
+        self, new_sut: Callable[[Scheduler], Executor]
     ) -> None:
         """
         Tests :py:meth:`betty.job.executor.Executor.complete` implementations.
@@ -135,7 +131,7 @@ class ExecutorTestBase:
         await sut.complete()
 
     async def test_complete__when_completed(
-        self, new_sut: Callable[[Scheduler[Context]], Executor]
+        self, new_sut: Callable[[Scheduler], Executor]
     ) -> None:
         """
         Tests :py:meth:`betty.job.executor.Executor.complete` implementations.
@@ -146,9 +142,7 @@ class ExecutorTestBase:
         await sut.complete()
         await sut.complete()
 
-    async def test_cancel(
-        self, new_sut: Callable[[Scheduler[Context]], Executor]
-    ) -> None:
+    async def test_cancel(self, new_sut: Callable[[Scheduler], Executor]) -> None:
         """
         Tests :py:meth:`betty.job.executor.Executor.cancel` implementations.
         """
@@ -158,7 +152,7 @@ class ExecutorTestBase:
         await sut.cancel()
 
     async def test_cancel__when_not_started(
-        self, new_sut: Callable[[Scheduler[Context]], Executor]
+        self, new_sut: Callable[[Scheduler], Executor]
     ) -> None:
         """
         Tests :py:meth:`betty.job.executor.Executor.cancel` implementations.
@@ -168,7 +162,7 @@ class ExecutorTestBase:
         await sut.cancel()
 
     async def test_cancel__when_cancelled(
-        self, new_sut: Callable[[Scheduler[Context]], Executor]
+        self, new_sut: Callable[[Scheduler], Executor]
     ) -> None:
         """
         Tests :py:meth:`betty.job.executor.Executor.cancel` implementations.

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from asyncio import gather
 from collections.abc import Iterable, Mapping, Sequence
-from typing import TYPE_CHECKING, Self, TypeAlias, final, override
+from typing import TYPE_CHECKING, Self, final, override
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
@@ -189,11 +189,7 @@ class Section(Template, DataManufacturable[SectionConfiguration]):
     async def new(cls, project: Project, data: SectionConfiguration, /) -> Self:
         await require_extension(RaspberryMint, project)
         return cls(
-            content=await new_plugins(  # ty:ignore[invalid-argument-type]
-                project,
-                ContentProviderDefinition,
-                data.content,  # ty:ignore[invalid-argument-type]
-            ),
+            content=await new_plugins(project, ContentProviderDefinition, data.content),
             heading=data.heading,
             jinja=await project.jinja,
             name=data.name,
@@ -406,11 +402,7 @@ class ColorStyle(Template, DataManufacturable[ColorStyleConfiguration]):
     async def new(cls, project: Project, data: ColorStyleConfiguration, /) -> Self:
         await require_extension(RaspberryMint, project)
         return cls(
-            content=await new_plugins(  # ty:ignore[invalid-argument-type]
-                project,
-                ContentProviderDefinition,
-                data.content,  # ty:ignore[invalid-argument-type]
-            ),
+            content=await new_plugins(project, ContentProviderDefinition, data.content),
             jinja=await project.jinja,
             style=data.style,
         )
@@ -634,8 +626,8 @@ class Presences(Template, DataManufacturable[PresencesConfiguration], Manufactur
         return None
 
 
-ColumnsWidth: TypeAlias = Mapping[Breakpoint, Sequence[int]]
-ShorthandColumnsWidth: TypeAlias = (
+type ColumnsWidth = Mapping[Breakpoint, Sequence[int]]
+type ShorthandColumnsWidth = (
     int | Sequence[int] | Mapping[Breakpoint, int] | ColumnsWidth
 )
 

@@ -4,11 +4,9 @@ Definitions that are human-facing and provide human-friendly information.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any
 
-from betty.locale.localizable import (
-    resolve_localizable,
-)
+from betty.locale.localizable import resolve_localizable
 
 if TYPE_CHECKING:
     from betty.locale.localizable import (
@@ -16,8 +14,6 @@ if TYPE_CHECKING:
         Localizable,
         ResolvableLocalizable,
     )
-
-_BaseClsCoT = TypeVar("_BaseClsCoT", default=object, covariant=True)
 
 
 class HumanFacingDefinition:

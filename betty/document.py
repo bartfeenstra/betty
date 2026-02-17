@@ -20,7 +20,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Self,
-    TypeAlias,
     final,
     override,
 )
@@ -39,7 +38,7 @@ if TYPE_CHECKING:
     from betty.model import Entity
     from betty.project import Project
 
-DocumentVars: TypeAlias = Mapping[str, Any]
+type DocumentVars = Mapping[str, Any]
 
 
 @final

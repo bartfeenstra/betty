@@ -2,31 +2,26 @@ from collections.abc import AsyncIterator, Sequence
 from contextlib import asynccontextmanager
 from datetime import datetime
 from functools import partial
-from typing import Any, Generic, Self, TypeVar, override
+from typing import Any, Self, override
 
 from betty.cache import Cache, CacheItem, CacheItemValueSetter
 from betty.concurrent import AsynchronizedLock, Ledger
 from betty.typing import threadsafe
 
-_T = TypeVar("_T")
-_CacheT = TypeVar("_CacheT", bound=Cache[Any])
-_CacheItemValueCoT = TypeVar("_CacheItemValueCoT", covariant=True)
-_CacheItemValueContraT = TypeVar("_CacheItemValueContraT", contravariant=True)
 
-
-class _StaticCacheItem(CacheItem[_CacheItemValueCoT], Generic[_CacheItemValueCoT]):
+class _StaticCacheItem[CacheItemValueT](CacheItem[CacheItemValueT]):
     __slots__ = "_value", "_modified"
 
     def __init__(
         self,
-        value: _CacheItemValueCoT,
+        value: CacheItemValueT,
         modified: int | float | None = None,
     ):
         self._value = value
         self._modified = datetime.now().timestamp() if modified is None else modified
 
     @override
-    async def value(self) -> _CacheItemValueCoT:
+    async def value(self) -> CacheItemValueT:
         return self._value
 
     @override
@@ -35,7 +30,7 @@ class _StaticCacheItem(CacheItem[_CacheItemValueCoT], Generic[_CacheItemValueCoT
         return self._modified
 
 
-class _CommonCacheBaseState(Generic[_CacheT]):
+class _CommonCacheBaseState[CacheT: Cache[Any]]:
     def __init__(
         self,
         cache_lock: AsynchronizedLock,
@@ -46,7 +41,7 @@ class _CommonCacheBaseState(Generic[_CacheT]):
 
 
 @threadsafe
-class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueContraT]):
+class _CommonCacheBase[CacheItemValueT](Cache[CacheItemValueT]):
     def __init__(
         self,
         *,
@@ -65,7 +60,7 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
     @asynccontextmanager
     async def hasset(
         self, cache_item_id: str, /
-    ) -> AsyncIterator[CacheItemValueSetter[_CacheItemValueContraT] | None]:
+    ) -> AsyncIterator[CacheItemValueSetter[CacheItemValueT] | None]:
         if await self.has(cache_item_id):
             yield None
             return
@@ -80,7 +75,7 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
     async def getset(
         self, cache_item_id: str, /
     ) -> AsyncIterator[
-        CacheItemValueSetter[_CacheItemValueContraT] | CacheItem[_CacheItemValueContraT]
+        CacheItemValueSetter[CacheItemValueT] | CacheItem[CacheItemValueT]
     ]:
         if cache_item := await self.get(cache_item_id):
             yield cache_item

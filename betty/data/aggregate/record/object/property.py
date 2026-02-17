@@ -6,23 +6,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Iterable, MutableMapping, MutableSequence
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Generic,
-    Self,
-    TypeVar,
-    cast,
-    final,
-    overload,
-    override,
-)
+from typing import TYPE_CHECKING, Any, Self, cast, final, overload, override
 
 from betty.collections import MutableKeyedCollection
 from betty.data import OptionalDefinition
-from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
-from betty.data.aggregate.collection.mapping import MappingDefinition
-from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.data.aggregate.record.object import Attr, AttrDefinition
 from betty.functools import passthrough
 from betty.importlib import fully_qualified_name
@@ -34,33 +21,20 @@ if TYPE_CHECKING:
     from ty_extensions import Intersection
 
     from betty.data import Data, DataDefinition
+    from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
+    from betty.data.aggregate.collection.mapping import MappingDefinition
+    from betty.data.aggregate.collection.sequence import SequenceDefinition
     from betty.locale.localizable import ResolvableLocalizable
 
 
-_ValueGetT = TypeVar("_ValueGetT")
-_ValueSetT = TypeVar("_ValueSetT")
-_MutableMappingT = TypeVar("_MutableMappingT", bound=MutableMapping[Any, Any])
-_MutableSequenceT = TypeVar("_MutableSequenceT", bound=MutableSequence[Any])
-_MappingDefinitionT = TypeVar("_MappingDefinitionT", bound=MappingDefinition)
-_SequenceDefinitionT = TypeVar("_SequenceDefinitionT", bound=SequenceDefinition)
-_KeyedCollectionDefinitionT = TypeVar(
-    "_KeyedCollectionDefinitionT", bound=KeyedCollectionDefinition
-)
-_MutableKeyedCollectionT = TypeVar(
-    "_MutableKeyedCollectionT",
-    bound=MutableKeyedCollection,
-    default=MutableKeyedCollection,
-)
-
-
-class _Property(Attr[_ValueGetT], ABC, Generic[_ValueGetT, _ValueSetT]):
+class _Property[ValueGetT, ValueSetT](Attr[ValueGetT], ABC):
     _attr_name: str
 
     def __init__(
         self,
-        attr: AttrDefinition[_ValueGetT],
+        attr: AttrDefinition[ValueGetT],
         *,
-        resolver: Callable[[_ValueSetT | _ValueGetT], _ValueGetT] = passthrough,
+        resolver: Callable[[ValueSetT | ValueGetT], ValueGetT] = passthrough,
     ):
         self._attr = attr
         self._resolver = resolver
@@ -70,7 +44,7 @@ class _Property(Attr[_ValueGetT], ABC, Generic[_ValueGetT, _ValueSetT]):
 
     @override
     @property
-    def attr(self) -> AttrDefinition[_ValueGetT]:
+    def attr(self) -> AttrDefinition[ValueGetT]:
         return self._attr
 
     @overload
@@ -78,7 +52,7 @@ class _Property(Attr[_ValueGetT], ABC, Generic[_ValueGetT, _ValueSetT]):
         pass
 
     @overload
-    def __get__(self, instance: Any, owner: type[Any], /) -> _ValueGetT:
+    def __get__(self, instance: Any, owner: type[Any], /) -> ValueGetT:
         pass
 
     def __get__(self, instance, owner):
@@ -86,16 +60,16 @@ class _Property(Attr[_ValueGetT], ABC, Generic[_ValueGetT, _ValueSetT]):
             return self
         return self.get(instance)
 
-    def __set__(self, instance: Any, value: _ValueSetT | _ValueGetT) -> None:
+    def __set__(self, instance: Any, value: ValueSetT | ValueGetT) -> None:
         self.set(instance, value)
 
     @abstractmethod
-    def get(self, instance: Any) -> _ValueGetT:
+    def get(self, instance: Any) -> ValueGetT:
         """
         Get the property value from the instance.
         """
 
-    def set(self, instance: Any, value: _ValueSetT | _ValueGetT) -> _ValueGetT:
+    def set(self, instance: Any, value: ValueSetT | ValueGetT) -> ValueGetT:
         """
         Set the value on the instance.
         """
@@ -104,21 +78,21 @@ class _Property(Attr[_ValueGetT], ABC, Generic[_ValueGetT, _ValueSetT]):
         return resolved_value
 
 
-class Property(_Property[_ValueGetT, _ValueSetT]):
+class Property[ValueGetT, ValueSetT](_Property[ValueGetT, ValueSetT]):
     """
     An object attribute with a definition.
     """
 
     def __init__(
         self,
-        data: DataDefinition[_ValueGetT] | type[Data[DataDefinition[_ValueGetT]]],
+        data: DataDefinition[ValueGetT] | type[Data[DataDefinition[ValueGetT]]],
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
         omit_load: bool | None = None,
-        omit_dump: Callable[[_ValueGetT], bool] | None = None,
-        resolver: Callable[[_ValueSetT | _ValueGetT], _ValueGetT] = passthrough,
-        default: Callable[[], _ValueGetT] | None = None,
+        omit_dump: Callable[[ValueGetT], bool] | None = None,
+        resolver: Callable[[ValueSetT | ValueGetT], ValueGetT] = passthrough,
+        default: Callable[[], ValueGetT] | None = None,
     ):
         super().__init__(
             AttrDefinition(
@@ -136,9 +110,9 @@ class Property(_Property[_ValueGetT, _ValueSetT]):
         self._default = default
 
     @override
-    def get(self, instance: Any) -> _ValueGetT:
+    def get(self, instance: Any) -> ValueGetT:
         value = cast(
-            _ValueGetT | Void,
+            ValueGetT | Void,
             getattr(instance, self._attr_name, Void()),
         )
         if isinstance(value, Void):
@@ -160,13 +134,13 @@ class PropertyNotInitialized(ValueError):
 
 
 @final
-class Optional(_Property[_ValueGetT | None, _ValueSetT | None]):
+class Optional[ValueGetT, ValueSetT](_Property[ValueGetT | None, ValueSetT | None]):
     """
     Make another property optional, e.g. allow ``None``.
     """
 
-    def __init__(self, required_property: Property[_ValueGetT, _ValueSetT], /):
-        def _omit_dump(data: _ValueGetT | None) -> bool:
+    def __init__(self, required_property: Property[ValueGetT, ValueSetT], /):
+        def _omit_dump(data: ValueGetT | None) -> bool:
             if data is None:
                 return True
             if required_property.attr.omit_dump is None:
@@ -189,14 +163,14 @@ class Optional(_Property[_ValueGetT | None, _ValueSetT | None]):
         self._required_property.__set_name__(owner, name)
 
     @override
-    def get(self, instance: Any) -> _ValueGetT | None:
+    def get(self, instance: Any) -> ValueGetT | None:
         try:
             return self._required_property.get(instance)
         except PropertyNotInitialized:
             return self.set(instance, None)
 
     @override
-    def set(self, instance: Any, value: _ValueSetT | _ValueGetT | None) -> _ValueGetT:
+    def set(self, instance: Any, value: ValueSetT | ValueGetT | None) -> ValueGetT:
         if value is None:
             return super().set(instance, value)
         return self._required_property.set(instance, value)
@@ -211,24 +185,26 @@ class Optional(_Property[_ValueGetT | None, _ValueSetT | None]):
         self.set(instance, None)
 
 
-class MappingProperty(Property[_MutableMappingT, _ValueSetT]):
+class MappingProperty[MutableMappingT: MutableMapping[Any, Any], ValueSetT](
+    Property[MutableMappingT, ValueSetT]
+):
     """
     A property that contains a :py:class:`collections.abc.MutableMapping`.
     """
 
     def __init__(
         self,
-        data: Intersection[DataDefinition[_MutableMappingT], _MappingDefinitionT]
-        | Data[Intersection[DataDefinition[_MutableMappingT], _MappingDefinitionT]],
+        data: Intersection[DataDefinition[MutableMappingT], MappingDefinition]
+        | Data[Intersection[DataDefinition[MutableMappingT], MappingDefinition]],
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
         omit_load: bool | None = None,
-        omit_dump: Callable[[_MutableMappingT], bool] | None = None,
+        omit_dump: Callable[[MutableMappingT], bool] | None = None,
         resolver: Callable[
-            [_ValueSetT | _MutableMappingT], _MutableMappingT
+            [ValueSetT | MutableMappingT], MutableMappingT
         ] = passthrough,
-        default: Callable[[], _MutableMappingT] | None = None,
+        default: Callable[[], MutableMappingT] | None = None,
     ):
         super().__init__(
             data,
@@ -241,9 +217,7 @@ class MappingProperty(Property[_MutableMappingT, _ValueSetT]):
         )
 
     @override
-    def set(
-        self, instance: Any, value: _ValueSetT | _MutableMappingT
-    ) -> _MutableMappingT:
+    def set(self, instance: Any, value: ValueSetT | MutableMappingT) -> MutableMappingT:
         configurations = self.get(instance)
         configurations.clear()
         resolved_value = self._resolver(value)
@@ -251,24 +225,26 @@ class MappingProperty(Property[_MutableMappingT, _ValueSetT]):
         return resolved_value
 
 
-class SequenceProperty(Property[_MutableSequenceT, _ValueSetT]):
+class SequenceProperty[MutableSequenceT: MutableSequence[Any], ValueSetT](
+    Property[MutableSequenceT, ValueSetT]
+):
     """
     A property that contains a :py:class:`collections.abc.MutableSequence`.
     """
 
     def __init__(
         self,
-        data: Intersection[DataDefinition[_MutableSequenceT], _SequenceDefinitionT]
-        | Data[Intersection[DataDefinition[_MutableSequenceT], _SequenceDefinitionT]],
+        data: Intersection[DataDefinition[MutableSequenceT], SequenceDefinition]
+        | Data[Intersection[DataDefinition[MutableSequenceT], SequenceDefinition]],
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
         omit_load: bool | None = None,
-        omit_dump: Callable[[_MutableSequenceT], bool] | None = None,
+        omit_dump: Callable[[MutableSequenceT], bool] | None = None,
         resolver: Callable[
-            [_ValueSetT | _MutableSequenceT], _MutableSequenceT
+            [ValueSetT | MutableSequenceT], MutableSequenceT
         ] = passthrough,
-        default: Callable[[], _MutableSequenceT] | None = None,
+        default: Callable[[], MutableSequenceT] | None = None,
     ):
         super().__init__(
             data,
@@ -282,8 +258,8 @@ class SequenceProperty(Property[_MutableSequenceT, _ValueSetT]):
 
     @override
     def set(
-        self, instance: Any, value: _ValueSetT | _MutableSequenceT
-    ) -> _MutableSequenceT:
+        self, instance: Any, value: ValueSetT | MutableSequenceT
+    ) -> MutableSequenceT:
         configurations = self.get(instance)
         configurations.clear()
         resolved_value = self._resolver(value)
@@ -291,26 +267,29 @@ class SequenceProperty(Property[_MutableSequenceT, _ValueSetT]):
         return resolved_value
 
 
-class KeyedCollectionProperty(Property[_MutableKeyedCollectionT, Iterable[_ValueSetT]]):
+class KeyedCollectionProperty[
+    MutableKeyedCollectionT: MutableKeyedCollection,
+    ValueSetT,
+](Property[MutableKeyedCollectionT, Iterable[ValueSetT]]):
     """
     A property that contains a :py:class:`betty.collections.MutableKeyedCollection`.
     """
 
-    def __init__(
+    def __init__[ValueGetT](
         self,
         data: KeyedCollectionDefinition[
             Intersection[
-                _MutableKeyedCollectionT,
-                MutableKeyedCollection[Any, Any, Any, _ValueSetT],
+                MutableKeyedCollectionT,
+                MutableKeyedCollection[Any, Any, ValueGetT, ValueSetT],
             ]
         ],
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
         omit_load: bool | None = None,
-        omit_dump: Callable[[_MutableKeyedCollectionT], bool] | None = None,
+        omit_dump: Callable[[MutableKeyedCollectionT], bool] | None = None,
         resolver: Callable[
-            [_ValueSetT | _MutableKeyedCollectionT], Iterable[_ValueGetT]
+            [ValueSetT | MutableKeyedCollectionT], Iterable[ValueGetT]
         ] = passthrough,
         default: Callable[[], MutableKeyedCollection] | None = None,
     ):
@@ -326,8 +305,8 @@ class KeyedCollectionProperty(Property[_MutableKeyedCollectionT, Iterable[_Value
 
     @override
     def set(
-        self, instance: Any, value: Iterable[_ValueSetT] | _MutableKeyedCollectionT
-    ) -> _MutableKeyedCollectionT:
+        self, instance: Any, value: Iterable[ValueSetT] | MutableKeyedCollectionT
+    ) -> MutableKeyedCollectionT:
         collection = self.get(instance)
         collection.clear()
         resolved_value = self._resolver(value)

@@ -6,15 +6,13 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Generic, TypeAlias, TypeVar
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 from betty.cache.memory import MemoryCache
 from betty.progress.no_op import NoOpProgress
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable, Callable
-
     from betty.cache import Cache
     from betty.job.scheduler import Scheduler
     from betty.progress import Progress
@@ -64,11 +62,7 @@ class Context:
         return self._progress
 
 
-_ContextCoT = TypeVar("_ContextCoT", bound=Context, covariant=True)
-JobFunction: TypeAlias = "Callable[[Job[_ContextCoT]], Awaitable[None]]"
-
-
-class Job(ABC, Generic[_ContextCoT]):
+class Job[ContextT: Context = Context](ABC):
     """
     A job.
     """
@@ -116,7 +110,7 @@ class Job(ABC, Generic[_ContextCoT]):
         return self._priority
 
     @abstractmethod
-    async def do(self, scheduler: Scheduler[_ContextCoT], /) -> None:
+    async def do(self, scheduler: Scheduler[ContextT], /) -> None:
         """
         Do the job.
         """

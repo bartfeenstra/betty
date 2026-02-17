@@ -5,7 +5,7 @@ Describe, access, and manipulate arbitrary data.
 from __future__ import annotations
 
 from functools import update_wrapper
-from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar, final, override
+from typing import TYPE_CHECKING, Any, Self, final, override
 
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
@@ -21,10 +21,8 @@ if TYPE_CHECKING:
 
     from betty.locale.localizable import ResolvableLocalizable
 
-_DataClsT = TypeVar("_DataClsT", default=Any)
 
-
-class DataDefinition(HumanFacingDefinition, ClsDefinition[_DataClsT]):
+class DataDefinition[DataClsT](HumanFacingDefinition, ClsDefinition[DataClsT]):
     """
     A data definition.
     """
@@ -32,14 +30,14 @@ class DataDefinition(HumanFacingDefinition, ClsDefinition[_DataClsT]):
     def __init__(
         self,
         *,
-        cls: type[_DataClsT] | None = None,
+        cls: type[DataClsT] | None = None,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
-        porter: Porter[_DataClsT] | None = None,
+        porter: Porter[DataClsT] | None = None,
         samples: Iterable[
-            Callable[[], Sample[_DataClsT]]
-            | Samples[_DataClsT]
-            | type[Intersection[_DataClsT, Samplable]]
+            Callable[[], Sample[DataClsT]]
+            | Samples[DataClsT]
+            | type[Intersection[DataClsT, Samplable]]
         ]
         | None = None,
     ):
@@ -48,7 +46,7 @@ class DataDefinition(HumanFacingDefinition, ClsDefinition[_DataClsT]):
         self._samples = samples
 
     @property
-    def porter(self) -> Porter[_DataClsT]:
+    def porter(self) -> Porter[DataClsT]:
         """
         The porter for the data.
         """
@@ -61,7 +59,7 @@ class DataDefinition(HumanFacingDefinition, ClsDefinition[_DataClsT]):
         return self._porter
 
     @override
-    def _set_cls(self, cls: type[_DataClsT]) -> None:
+    def _set_cls(self, cls: type[DataClsT]) -> None:
         super()._set_cls(cls)
         if issubclass(cls, Data):
             cls.data = staticmethod(update_wrapper(lambda: self, cls.data))  # ty:ignore[invalid-assignment]
@@ -78,18 +76,13 @@ class DataDefinition(HumanFacingDefinition, ClsDefinition[_DataClsT]):
         return Samples(self._samples)
 
 
-_DataDefinitionT = TypeVar(
-    "_DataDefinitionT", bound=DataDefinition, default=DataDefinition, covariant=True
-)
-
-
-class Data(Generic[_DataDefinitionT]):
+class Data[DataDefinitionT: DataDefinition = DataDefinition]:
     """
     A class that defines data for its instances.
     """
 
     @classmethod
-    def data(cls) -> Intersection[_DataDefinitionT, DataDefinition[Self]]:
+    def data(cls) -> Intersection[DataDefinitionT, DataDefinition[Self]]:
         """
         Define the data for instances of this class.
         """
@@ -105,12 +98,12 @@ class Data(Generic[_DataDefinitionT]):
 
 
 @final
-class OptionalDefinition(DataDefinition[_DataClsT | None]):
+class OptionalDefinition[DataClsT](DataDefinition[DataClsT | None]):
     """
     Wrap another data definition to make it optional, e.g. allow ``None``.
     """
 
-    def __init__(self, wrapped: DataDefinition[_DataClsT], /):
+    def __init__(self, wrapped: DataDefinition[DataClsT], /):
         super().__init__(
             cls=wrapped.cls,
             label=wrapped.label,
@@ -124,7 +117,7 @@ class OptionalDefinition(DataDefinition[_DataClsT | None]):
         self._wrapped = wrapped
 
     @property
-    def wrapped(self) -> DataDefinition[_DataClsT]:
+    def wrapped(self) -> DataDefinition[DataClsT]:
         """
         The wrapped, required (non-optional) data definition.
         """

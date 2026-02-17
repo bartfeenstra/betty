@@ -12,14 +12,7 @@ from contextlib import asynccontextmanager, suppress
 from functools import partial
 from os import utime
 from pickle import dumps, loads
-from typing import (
-    TYPE_CHECKING,
-    Generic,
-    Self,
-    TypeVar,
-    final,
-    override,
-)
+from typing import TYPE_CHECKING, Self, final, override
 
 import aiofiles
 from aiofiles.os import makedirs, remove
@@ -34,11 +27,8 @@ if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Sequence
     from pathlib import Path
 
-_CacheItemValueCoT = TypeVar("_CacheItemValueCoT", covariant=True)
-_CacheItemValueContraT = TypeVar("_CacheItemValueContraT", contravariant=True)
 
-
-class _FileCacheItem(CacheItem[_CacheItemValueCoT], Generic[_CacheItemValueCoT]):
+class _FileCacheItem[CacheItemValueT](CacheItem[CacheItemValueT]):
     __slots__ = "_modified", "_path"
 
     def __init__(
@@ -55,22 +45,20 @@ class _FileCacheItem(CacheItem[_CacheItemValueCoT], Generic[_CacheItemValueCoT])
         return self._modified
 
     @override
-    async def value(self) -> _CacheItemValueCoT:
+    async def value(self) -> CacheItemValueT:
         async with aiofiles.open(self._path, "rb") as f:
             value_bytes = await f.read()
         return await self._load_value(value_bytes)
 
     @abstractmethod
-    async def _load_value(self, value_bytes: bytes) -> _CacheItemValueCoT:
+    async def _load_value(self, value_bytes: bytes) -> CacheItemValueT:
         pass
 
 
 @final
-class _PickledFileCacheItem(
-    _FileCacheItem[_CacheItemValueCoT], Generic[_CacheItemValueCoT]
-):
+class _PickledFileCacheItem[CacheItemValueT](_FileCacheItem[CacheItemValueT]):
     @override
-    async def _load_value(self, value_bytes: bytes) -> _CacheItemValueCoT:
+    async def _load_value(self, value_bytes: bytes) -> CacheItemValueT:
         return loads(value_bytes)
 
 
@@ -81,14 +69,12 @@ class _BinaryFileCacheItem(_FileCacheItem[bytes]):
         return value_bytes
 
 
-class _FileCache(
-    _CommonCacheBase[_CacheItemValueContraT], Generic[_CacheItemValueContraT]
-):
+class _FileCache[CacheItemValueT](_CommonCacheBase[CacheItemValueT]):
     """
     Provide a cache that persists cache items on a file system.
     """
 
-    _cache_item_cls: type[_FileCacheItem[_CacheItemValueContraT]]
+    _cache_item_cls: type[_FileCacheItem[CacheItemValueT]]
 
     def __init__(
         self,
@@ -120,7 +106,7 @@ class _FileCache(
         return cache_item_file_path
 
     @abstractmethod
-    def _dump_value(self, value: _CacheItemValueContraT) -> bytes:
+    def _dump_value(self, value: CacheItemValueT) -> bytes:
         pass
 
     @override
@@ -130,7 +116,7 @@ class _FileCache(
     @override
     async def get(
         self, cache_item_id: str, *, suffix: str | None = None
-    ) -> CacheItem[_CacheItemValueContraT] | None:
+    ) -> CacheItem[CacheItemValueT] | None:
         try:
             cache_item_file_path = self._cache_item_file_path(cache_item_id, suffix)
             return self._cache_item_cls(
@@ -144,7 +130,7 @@ class _FileCache(
     async def set(
         self,
         cache_item_id: str,
-        value: _CacheItemValueContraT,
+        value: CacheItemValueT,
         *,
         suffix: str | None = None,
         modified: int | float | None = None,
@@ -186,7 +172,7 @@ class _FileCache(
     @asynccontextmanager
     async def hasset(
         self, cache_item_id: str, *, suffix: str | None = None
-    ) -> AsyncIterator[CacheItemValueSetter[_CacheItemValueContraT] | None]:
+    ) -> AsyncIterator[CacheItemValueSetter[CacheItemValueT] | None]:
         if await self.has(cache_item_id, suffix=suffix):
             yield None
             return
@@ -202,7 +188,7 @@ class _FileCache(
     async def getset(
         self, cache_item_id: str, *, suffix: str | None = None
     ) -> AsyncIterator[
-        CacheItemValueSetter[_CacheItemValueContraT] | CacheItem[_CacheItemValueContraT]
+        CacheItemValueSetter[CacheItemValueT] | CacheItem[CacheItemValueT]
     ]:
         if cache_item := await self.get(cache_item_id):
             yield cache_item
@@ -217,9 +203,7 @@ class _FileCache(
 
 @final
 @threadsafe
-class PickledFileCache(
-    _FileCache[_CacheItemValueContraT], Generic[_CacheItemValueContraT]
-):
+class PickledFileCache[CacheItemValueT](_FileCache[CacheItemValueT]):
     """
     Provide a cache that pickles values and persists them to files.
     """
@@ -227,7 +211,7 @@ class PickledFileCache(
     _cache_item_cls = _PickledFileCacheItem
 
     @override
-    def _dump_value(self, value: _CacheItemValueContraT) -> bytes:
+    def _dump_value(self, value: CacheItemValueT) -> bytes:
         return dumps(value)
 
 

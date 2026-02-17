@@ -1,5 +1,5 @@
 from collections.abc import Awaitable, Callable, Iterable, Sequence
-from typing import Any, Literal, TypeVar
+from typing import Any, Literal
 
 import pytest
 
@@ -13,8 +13,6 @@ from betty.functools import (
     unique,
 )
 from betty.typing import Void
-
-_T = TypeVar("_T")
 
 
 class TestDo:
@@ -113,10 +111,10 @@ class TestDo:
         ),
     ],
 )
-async def test_unique(
-    expected: Sequence[_T],
-    values: Iterable[Iterable[_T]],
-    key: Callable[[_T], Any] | None,
+async def test_unique[T](
+    expected: Sequence[T],
+    values: Iterable[Iterable[T]],
+    key: Callable[[T], Any] | None,
 ) -> None:
     sut = unique(*values, key=key)
     assert list(sut) == expected

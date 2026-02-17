@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeVar, override
+from typing import TYPE_CHECKING, override
 
 import pytest
 
@@ -38,33 +38,31 @@ if TYPE_CHECKING:
     from betty.app import App
     from betty.portable import PortableMapping
 
-_EntityT = TypeVar("_EntityT", bound=Entity)
 
-
-class _PassthroughToOneResolver(ToOneResolver[_EntityT]):
-    def __init__(self, entity: _EntityT):
+class _PassthroughToOneResolver[EntityT: Entity](ToOneResolver[EntityT]):
+    def __init__(self, entity: EntityT):
         self._entity = entity
 
     @override
-    def resolve(self) -> _EntityT:
+    def resolve(self) -> EntityT:
         return self._entity
 
 
-class _PassthroughToZeroOrOneResolver(ToZeroOrOneResolver[_EntityT]):
-    def __init__(self, entity: _EntityT | None):
+class _PassthroughToZeroOrOneResolver[EntityT: Entity](ToZeroOrOneResolver[EntityT]):
+    def __init__(self, entity: EntityT | None):
         self._entity = entity
 
     @override
-    def resolve(self) -> _EntityT | None:
+    def resolve(self) -> EntityT | None:
         return self._entity
 
 
-class _PassthroughToManyResolver(ToManyResolver[_EntityT]):
-    def __init__(self, *entities: _EntityT):
+class _PassthroughToManyResolver[EntityT: Entity](ToManyResolver[EntityT]):
+    def __init__(self, *entities: EntityT):
         self._entities = entities
 
     @override
-    def resolve(self) -> Iterable[_EntityT]:
+    def resolve(self) -> Iterable[EntityT]:
         return self._entities
 
 

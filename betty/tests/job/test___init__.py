@@ -39,9 +39,9 @@ class TestContext:
         sut.progress  # noqa: B018
 
 
-class _Job(Job[Context]):
+class _Job(Job):
     @override
-    async def do(self, scheduler: Scheduler[Context], /) -> None:
+    async def do(self, scheduler: Scheduler, /) -> None:
         pass
 
 

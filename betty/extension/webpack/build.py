@@ -7,12 +7,11 @@ from __future__ import annotations
 import json
 from abc import abstractmethod
 from asyncio import gather, to_thread
-from collections.abc import Sequence
 from json import dumps, loads
 from os import walk
 from pathlib import Path
 from shutil import copy2, copytree
-from typing import TYPE_CHECKING, TypeVar, cast
+from typing import TYPE_CHECKING, cast
 
 import aiofiles
 from aiofiles.os import makedirs
@@ -34,12 +33,8 @@ if TYPE_CHECKING:
 
 _NPM_PROJECT_DIRECTORIES_PATH = Path(__file__).parent / "webpack"
 
-_ServiceLevelCoT = TypeVar(
-    "_ServiceLevelCoT", bound=ServiceLevel, default=ServiceLevel, covariant=True
-)
 
-
-class EntryPointProvider(Extension[_ServiceLevelCoT]):
+class EntryPointProvider[ServiceLevelT: ServiceLevel](Extension[ServiceLevelT]):
     """
     An extension that provides Webpack entry points.
     """

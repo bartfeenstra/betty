@@ -5,7 +5,7 @@ Console user sessions.
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import TextIO, TypeVar, cast, final, overload, override
+from typing import TextIO, cast, final, overload, override
 
 from rich.console import Console
 from rich.progress import BarColumn, TaskProgressColumn, TextColumn, TimeElapsedColumn
@@ -23,8 +23,6 @@ from betty.rich.progress import RichProgress
 from betty.typing import Void, internal
 from betty.user import User, Verbosity
 from betty.user.logging import UserHandler
-
-_T = TypeVar("_T")
 
 
 @internal
@@ -190,25 +188,25 @@ class RichUser(ManagedLifeCycle, User):
         pass
 
     @overload
-    async def ask_input(
+    async def ask_input[T](
         self,
         question: ResolvableLocalizable,
         *,
-        assertion: Assertion[str, _T],
+        assertion: Assertion[str, T],
         default: str | Void = Void(),  # noqa: B008
         stdin: TextIO | None = None,
-    ) -> _T:
+    ) -> T:
         pass
 
     @override
-    async def ask_input(
+    async def ask_input[T](
         self,
         question: ResolvableLocalizable,
         *,
-        assertion: Assertion[str, _T] | None = None,
+        assertion: Assertion[str, T] | None = None,
         default: str | Void = Void(),  # noqa: B008
         stdin: TextIO | None = None,
-    ) -> str | _T:
+    ) -> str | T:
         self.assert_alive()
         ask_kwargs = {}
         if not isinstance(default, Void):

@@ -8,7 +8,7 @@ import datetime
 from collections.abc import Awaitable, Callable, Mapping, MutableMapping
 from pathlib import Path
 from shutil import copy2
-from typing import TYPE_CHECKING, Any, Self, TypeAlias, cast, override
+from typing import TYPE_CHECKING, Any, Self, cast, override
 
 import aiofiles
 from aiofiles.os import makedirs
@@ -48,7 +48,7 @@ if TYPE_CHECKING:
     from betty.project import Project
 
 
-CopyFunction: TypeAlias = Callable[[Path, Path], Awaitable[None]]
+type CopyFunction = Callable[[Path, Path], Awaitable[None]]
 
 
 def context_project(context: JinjaContext) -> Project:
@@ -92,9 +92,9 @@ def context_localizer(context: JinjaContext) -> Localizer:
         ) from None
 
 
-Globals: TypeAlias = Mapping[str, Any]
-Filters: TypeAlias = Mapping[str, Callable[..., Any]]
-Tests: TypeAlias = Mapping[str, Callable[..., bool]]
+type Globals = Mapping[str, Any]
+type Filters = Mapping[str, Callable[..., Any]]
+type Tests = Mapping[str, Callable[..., bool]]
 
 
 class JinjaProvider:
@@ -340,7 +340,7 @@ class Environment(Manufacturable, JinjaEnvironment):
         return _copy_function
 
 
-_CacheExtensionMap: TypeAlias = MutableMapping[str, str]
+type _CacheExtensionMap = MutableMapping[str, str]
 
 
 class _CacheTagExtension(JinjaExtension):

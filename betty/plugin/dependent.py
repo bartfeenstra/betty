@@ -4,7 +4,7 @@ Plugins that can declare dependencies on other plugins.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any
 
 from betty.plugin import ResolvableId, resolve_id
 from betty.plugin.ordered import OrderedPluginDefinition, sort_ordered_plugin_graph
@@ -17,10 +17,7 @@ if TYPE_CHECKING:
     from betty.plugin.repository import PluginRepository
 
 
-_BaseClsCoT = TypeVar("_BaseClsCoT", default=object, covariant=True)
-
-
-class DependentPluginDefinition(OrderedPluginDefinition[_BaseClsCoT]):
+class DependentPluginDefinition[BaseClsT = Any](OrderedPluginDefinition[BaseClsT]):
     """
     A definition of a plugin that can declare its dependency on other plugins.
     """
@@ -54,16 +51,13 @@ class DependentPluginDefinition(OrderedPluginDefinition[_BaseClsCoT]):
         return self._depends_on
 
 
-_DependentPluginDefinitionT = TypeVar(
-    "_DependentPluginDefinitionT", bound=DependentPluginDefinition
-)
-
-
-async def expand_plugin_dependencies(
-    plugin_repository: PluginRepository[_DependentPluginDefinitionT],
-    plugins: Iterable[_DependentPluginDefinitionT],
+async def expand_plugin_dependencies[
+    DependentPluginDefinitionT: DependentPluginDefinition
+](
+    plugin_repository: PluginRepository[DependentPluginDefinitionT],
+    plugins: Iterable[DependentPluginDefinitionT],
     /,
-) -> Set[_DependentPluginDefinitionT]:
+) -> Set[DependentPluginDefinitionT]:
     """
     Expand a collection of plugins to include their dependencies.
     """
@@ -79,9 +73,11 @@ async def expand_plugin_dependencies(
     return dependencies
 
 
-async def sort_dependent_plugin_graph(
-    plugin_repository: PluginRepository[_DependentPluginDefinitionT],
-    plugins: Iterable[_DependentPluginDefinitionT],
+async def sort_dependent_plugin_graph[
+    DependentPluginDefinitionT: DependentPluginDefinition
+](
+    plugin_repository: PluginRepository[DependentPluginDefinitionT],
+    plugins: Iterable[DependentPluginDefinitionT],
     /,
 ) -> TopologicalSorter[MachineName]:
     """

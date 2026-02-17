@@ -20,7 +20,6 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from betty.ancestry import Ancestry
-    from betty.job import Context
     from betty.job.scheduler import Scheduler
     from betty.project import Project
     from betty.service.level import ServiceLevel
@@ -344,7 +343,7 @@ class Gramps(
         )
 
     @override
-    async def load(self, scheduler: Scheduler[Context]) -> None:
+    async def load(self, scheduler: Scheduler) -> None:
         for family_tree in self._family_trees:
             await scheduler.add(
                 LoadAncestry(
@@ -353,9 +352,9 @@ class Gramps(
                         services=self._services,
                         attribute_prefix_key=self._attribute_prefix_key,
                         user=self._user,
-                        event_type_mapping=family_tree.event_types,  # ty:ignore[invalid-argument-type]
-                        place_type_mapping=family_tree.place_types,  # ty:ignore[invalid-argument-type]
-                        presence_role_mapping=family_tree.presence_roles,  # ty:ignore[invalid-argument-type]
+                        event_type_mapping=family_tree.event_types,
+                        place_type_mapping=family_tree.place_types,
+                        presence_role_mapping=family_tree.presence_roles,
                         executable=self._executable,
                     ),
                     source=family_tree.source,

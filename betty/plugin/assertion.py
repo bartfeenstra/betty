@@ -2,7 +2,7 @@
 Provide plugin assertions.
 """
 
-from typing import Any, TypeVar
+from typing import Any
 
 from betty.assertion import AssertionChain, assert_str
 from betty.exception import HumanFacingException
@@ -12,19 +12,17 @@ from betty.plugin import PluginDefinition
 from betty.plugin.error import PluginNotFound
 from betty.plugin.repository import PluginRepository
 
-_PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
 
-
-def assert_plugin(
-    plugins: PluginRepository[_PluginDefinitionT],
-) -> AssertionChain[Any, _PluginDefinitionT]:
+def assert_plugin[PluginDefinitionT: PluginDefinition](
+    plugins: PluginRepository[PluginDefinitionT],
+) -> AssertionChain[Any, PluginDefinitionT]:
     """
     Assert that a value is a plugin ID.
     """
 
     def _assert(
         value: Any,
-    ) -> _PluginDefinitionT:
+    ) -> PluginDefinitionT:
         plugin_id = assert_str()(value)
         try:
             return plugins[plugin_id]

@@ -10,7 +10,7 @@ import warnings
 from asyncio import get_running_loop, run
 from contextlib import suppress
 from io import BytesIO
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any
 from urllib.parse import quote
 
 import aiofiles
@@ -77,8 +77,6 @@ if TYPE_CHECKING:
     from betty.locale.localizable import Localizable
     from betty.plugin.config import PluginConfiguration
 
-_T = TypeVar("_T")
-
 
 @pass_context
 async def filter_url(
@@ -115,7 +113,7 @@ def filter_localize(
     return localizable.localize(context_localizer(context))
 
 
-_CHARACTER_ORDER_TO_HTML_LANG_MAP = {
+_CHARACTER_ORDERTO_HTML_LANG_MAP = {
     "left-to-right": "ltr",
     "right-to-left": "rtl",
 }
@@ -134,13 +132,13 @@ def filter_html_lang(context: Context, has_locale: str) -> str | Markup:
     localizer = context_localizer(context)
     result: str | Markup = has_locale
     if has_locale.locale != localizer.locale:
-        localizer_dir = _CHARACTER_ORDER_TO_HTML_LANG_MAP[
+        localizer_dir = _CHARACTER_ORDERTO_HTML_LANG_MAP[
             localizer.locale.character_order
         ]
         if has_locale.locale is None:
             has_locale_dir = "auto"
         else:
-            has_locale_dir = _CHARACTER_ORDER_TO_HTML_LANG_MAP[
+            has_locale_dir = _CHARACTER_ORDERTO_HTML_LANG_MAP[
                 has_locale.locale.character_order
             ]
         dir_attribute = (
@@ -166,7 +164,9 @@ def filter_json_load(data: str) -> Any:
     return stdjson.loads(data)
 
 
-async def filter_flatten(values_of_values: Iterable[Iterable[_T]]) -> AsyncIterator[_T]:
+async def filter_flatten[T](
+    values_of_values: Iterable[Iterable[T]],
+) -> AsyncIterator[T]:
     """
     Flatten an iterable of iterables into a single iterable.
     """
@@ -195,7 +195,7 @@ def filter_format_degrees(degrees: int) -> str:
     return DEGREES_FORMAT % format_dict
 
 
-async def filter_unique(values: Iterable[_T]) -> AsyncIterator[_T]:
+async def filter_unique[T](values: Iterable[T]) -> AsyncIterator[T]:
     """
     Iterate over an iterable of values and only yield those values that have not been yielded before.
     """

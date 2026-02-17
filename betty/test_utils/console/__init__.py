@@ -5,12 +5,10 @@ Test utilities for :py:mod:`betty.console`.
 from contextlib import redirect_stderr, redirect_stdout
 from dataclasses import dataclass
 from io import StringIO
-from typing import TypeVar, final
+from typing import final
 
 from betty.app import App
 from betty.console import SystemExitCode, main
-
-_T = TypeVar("_T")
 
 
 @final

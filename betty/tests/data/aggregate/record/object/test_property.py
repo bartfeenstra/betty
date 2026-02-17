@@ -149,7 +149,7 @@ class TestKeyedCollectionProperty:
         keyed_collection = KeyedCollectionProperty(
             KeyedCollectionDefinition(
                 label=DUMMY_LOCALIZABLE,
-                value=_Item.data(),
+                value=_Item,
                 key=AttrSelector("attr"),
                 ordered=False,
             ),

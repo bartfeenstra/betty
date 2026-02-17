@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, MutableMapping
 from pathlib import Path
-from typing import TYPE_CHECKING, TypeVar, final
+from typing import TYPE_CHECKING, final
 
 from betty.collections import MutableResolvedMapping, MutableResolvedMappingProxy
 from betty.data import Data, Sample
@@ -48,24 +48,20 @@ if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
     from betty.place_type import PlaceType
     from betty.presence_role import PresenceRole
-_PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
-_PluginDefinitionT = TypeVar(
-    "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
-)
 
 
-class _PluginMappingProperty(
+class _PluginMappingProperty[PluginDefinitionT: PluginDefinition, PluginT: Plugin](
     MappingProperty[
-        MutableMapping[str, PluginConfiguration[_PluginDefinitionT, _PluginT]],
-        Mapping[str, ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT]],
+        MutableMapping[str, PluginConfiguration[PluginDefinitionT, PluginT]],
+        Mapping[str, ResolvablePluginConfiguration[PluginDefinitionT, PluginT]],
     ]
 ):
     def __init__(
         self,
-        plugin_type: type[_PluginDefinitionT],
+        plugin_type: type[PluginDefinitionT],
         gramps_label: ResolvableLocalizable,
         default: Mapping[
-            str, ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT]
+            str, ResolvablePluginConfiguration[PluginDefinitionT, PluginT]
         ],
     ):
         super().__init__(
@@ -80,7 +76,7 @@ class _PluginMappingProperty(
                 label=plugin_type.type().label_plural,
             ),
             default=lambda: MutableResolvedMappingProxy(
-                resolve_plugin_configuration_mapping(default),  # ty:ignore[invalid-argument-type]
+                resolve_plugin_configuration_mapping(default),
                 value_resolver=resolve_plugin_configuration,
             ),
         )
@@ -103,9 +99,7 @@ class FamilyTree(Data):
     """
 
     event_types = _PluginMappingProperty(
-        EventTypeDefinition,
-        _("Gramps event type"),
-        DEFAULT_EVENT_TYPE_MAPPING,  # ty:ignore[invalid-argument-type]
+        EventTypeDefinition, _("Gramps event type"), DEFAULT_EVENT_TYPE_MAPPING
     )
     """
     How to map event types.
@@ -122,18 +116,14 @@ class FamilyTree(Data):
     """
 
     place_types = _PluginMappingProperty(
-        PlaceTypeDefinition,
-        _("Gramps place type"),
-        DEFAULT_PLACE_TYPE_MAPPING,  # ty:ignore[invalid-argument-type]
+        PlaceTypeDefinition, _("Gramps place type"), DEFAULT_PLACE_TYPE_MAPPING
     )
     """
     How to map place types.
     """
 
     presence_roles = _PluginMappingProperty(
-        PresenceRoleDefinition,
-        _("Gramps role"),
-        DEFAULT_PRESENCE_ROLE_MAPPING,  # ty:ignore[invalid-argument-type]
+        PresenceRoleDefinition, _("Gramps role"), DEFAULT_PRESENCE_ROLE_MAPPING
     )
     """
     How to map presence roles.

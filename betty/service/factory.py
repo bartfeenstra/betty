@@ -5,7 +5,7 @@ Object factories.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Generic, Self, TypeVar, final, overload
+from typing import TYPE_CHECKING, Self, final, overload
 
 from betty.asyncio import resolve_await
 from betty.data import Data
@@ -19,9 +19,6 @@ if TYPE_CHECKING:
 
     from betty.portable import PortableData
     from betty.service.level import ServiceLevel
-
-_T = TypeVar("_T")
-_DataT = TypeVar("_DataT", bound=Data)
 
 
 class Manufacturable(ABC):
@@ -37,24 +34,21 @@ class Manufacturable(ABC):
         """
 
 
-_ManufacturableT = TypeVar("_ManufacturableT", bound=Manufacturable)
-
-
-class DataManufacturable(ABC, Generic[_DataT]):
+class DataManufacturable[DataT: Data](ABC):
     """
     A class that can be initialized using defined data.
     """
 
     @classmethod
     @abstractmethod
-    async def new(cls, services: ServiceLevel, data: _DataT, /) -> Self:
+    async def new(cls, services: ServiceLevel, data: DataT, /) -> Self:
         """
         Create a new instance using the given service level and defined data.
         """
 
     @classmethod
     @abstractmethod
-    def new_data_cls(cls) -> type[_DataT]:
+    def new_data_cls(cls) -> type[DataT]:
         """
         The object's defined data class.
         """
@@ -70,30 +64,30 @@ class Factory:
         self._services = services
 
     @overload
-    async def new(
+    async def new[ManufacturableT](
         self,
-        target: type[_ManufacturableT],
+        target: type[ManufacturableT],
         data: Data | PortableData | Void = Void(),  # noqa: B008
         /,
-    ) -> _ManufacturableT:
+    ) -> ManufacturableT:
         pass
 
     @overload
-    async def new(
+    async def new[T](
         self,
-        target: Callable[[], Awaitable[_T] | _T],
+        target: Callable[[], Awaitable[T] | T],
         data: Data | PortableData | Void = Void(),  # noqa: B008
         /,
-    ) -> _T:
+    ) -> T:
         pass
 
     @overload
-    async def new(
+    async def new[T](
         self,
-        target: type[_T],
+        target: type[T],
         data: Data | PortableData | Void = Void(),  # noqa: B008
         /,
-    ) -> _T:
+    ) -> T:
         pass
 
     async def new(

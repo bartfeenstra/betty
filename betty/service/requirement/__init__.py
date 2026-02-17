@@ -5,15 +5,7 @@ Requirements for services.
 from __future__ import annotations
 
 from functools import partial, update_wrapper
-from typing import (
-    TYPE_CHECKING,
-    Concatenate,
-    Generic,
-    ParamSpec,
-    TypeVar,
-    final,
-    overload,
-)
+from typing import TYPE_CHECKING, Any, Concatenate, final, overload
 
 from betty.asyncio import resolve_await
 from betty.exception import HumanFacingException
@@ -23,47 +15,40 @@ from betty.service.level import ServiceLevel
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
 
-_RequirementT = TypeVar("_RequirementT")
-_ReturnT = TypeVar("_ReturnT")
-_MagicT = TypeVar("_MagicT")
-_P = ParamSpec("_P")
-
 
 @final
-class Requirement(Generic[_RequirementT]):
+class Requirement[RequirementT]:
     """
     A service level requirement.
     """
 
     def __init__(
-        self, require: Callable[[ServiceLevel, str], Awaitable[_RequirementT]], /
+        self, require: Callable[[ServiceLevel, str], Awaitable[RequirementT]], /
     ):
 
         self._require = require
 
     @overload
-    def __call__(self, f: ServiceLevel, /) -> Awaitable[_RequirementT]:
+    def __call__(self, f: ServiceLevel, /) -> Awaitable[RequirementT]:
         pass
 
     @overload
-    def __call__(
+    def __call__[**P, ReturnT](
         self,
-        f: Callable[Concatenate[_RequirementT, _P], Awaitable[_ReturnT] | _ReturnT],
-    ) -> Callable[Concatenate[ServiceLevel, _P], Awaitable[_ReturnT]]:
+        f: Callable[Concatenate[RequirementT, P], Awaitable[ReturnT] | ReturnT],
+    ) -> Callable[Concatenate[ServiceLevel, P], Awaitable[ReturnT]]:
         pass
 
     @overload
-    def __call__(
+    def __call__[**P, ReturnT, MagicT](
         self,
-        f: Callable[
-            Concatenate[_MagicT, _RequirementT, _P], Awaitable[_ReturnT] | _ReturnT
-        ],
-    ) -> Callable[Concatenate[_MagicT, ServiceLevel, _P], Awaitable[_ReturnT]]:
+        f: Callable[Concatenate[MagicT, RequirementT, P], Awaitable[ReturnT] | ReturnT],
+    ) -> Callable[Concatenate[MagicT, ServiceLevel, P], Awaitable[ReturnT]]:
         pass
 
-    def __call__(
+    def __call__[**P, ReturnT](
         self, f
-    ) -> CallableRequirement[_RequirementT, _P, _ReturnT] | Awaitable[_RequirementT]:
+    ) -> CallableRequirement[RequirementT, P, ReturnT] | Awaitable[RequirementT]:
         """
         Decorate a callable with this requirement.
         """
@@ -73,18 +58,16 @@ class Requirement(Generic[_RequirementT]):
 
 
 @final
-class CallableRequirement(Generic[_RequirementT, _P, _ReturnT]):
+class CallableRequirement[RequirementT, **P, ReturnT, MagicT = Any]:
     """
     A requirement that can be called or used as a descriptor.
     """
 
     def __init__(
         self,
-        require: Callable[[ServiceLevel, str], Awaitable[_RequirementT]],
-        f: Callable[Concatenate[_RequirementT, _P], Awaitable[_ReturnT] | _ReturnT]
-        | Callable[
-            Concatenate[_MagicT, _RequirementT, _P], Awaitable[_ReturnT] | _ReturnT
-        ],
+        require: Callable[[ServiceLevel, str], Awaitable[RequirementT]],
+        f: Callable[Concatenate[RequirementT, P], Awaitable[ReturnT] | ReturnT]
+        | Callable[Concatenate[MagicT, RequirementT, P], Awaitable[ReturnT] | ReturnT],
     ):
         self._require = require
         update_wrapper(self, f)
@@ -97,21 +80,21 @@ class CallableRequirement(Generic[_RequirementT, _P, _ReturnT]):
 
     @overload
     async def __call__(
-        self, requirement: _RequirementT, *args: _P.args, **kwargs: _P.kwargs
-    ) -> _ReturnT:
+        self, requirement: RequirementT, *args: P.args, **kwargs: P.kwargs
+    ) -> ReturnT:
         pass
 
     @overload
     async def __call__(
         self,
-        magic: _MagicT,
-        requirement: _RequirementT,
-        *args: _P.args,
-        **kwargs: _P.kwargs,
-    ) -> _ReturnT:
+        magic: MagicT,
+        requirement: RequirementT,
+        *args: P.args,
+        **kwargs: P.kwargs,
+    ) -> ReturnT:
         pass
 
-    async def __call__(self, *args, **kwargs) -> _ReturnT:
+    async def __call__(self, *args, **kwargs) -> ReturnT:
         """
         Call the decorated callable.
         """
