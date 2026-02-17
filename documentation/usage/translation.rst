@@ -7,7 +7,7 @@ translations of the built-in US English messages to any language of your choice.
 
 .. seealso::
 
-   View the available translations on `Weblate <https://hosted.weblate.org/projects/betty/betty/>`_.
+   View the available translations on `Weblate <https://hosted.weblate.org/projects/betty/>`_.
 
 Each time a message is translated, Betty finds the translation as follows:
 

@@ -19,7 +19,7 @@ Run ``betty dev-update-translations`` to update the translations files with the 
 Translating Betty
 -----------------
 
-The Betty community uses `Weblate <https://hosted.weblate.org/projects/betty/betty/>`_ to coordinate translations
+The Betty community uses `Weblate <https://hosted.weblate.org/projects/betty/>`_ to coordinate translations
 of its built-in translatable strings. To add or improve translations, create a Weblate account, navigate to the
 Betty translation you want to contribute to, and start translating.
 
