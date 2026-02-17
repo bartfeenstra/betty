@@ -9,9 +9,16 @@ from __future__ import annotations
 
 from functools import update_wrapper
 from importlib import metadata
-from typing import TYPE_CHECKING, Any, Generic, Self, TypeAlias, final, override
-
-from typing_extensions import TypeVar
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Generic,
+    Self,
+    TypeAlias,
+    TypeVar,
+    final,
+    override,
+)
 
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import CountableHumanFacingDefinition

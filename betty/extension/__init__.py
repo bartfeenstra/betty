@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Generic, final
-
-from typing_extensions import TypeVar
+from typing import TYPE_CHECKING, Generic, TypeVar, final
 
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.life_cycle.manage import ManagedLifeCycle

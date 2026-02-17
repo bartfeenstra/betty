@@ -4,9 +4,7 @@ Access discovered plugins.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Generic, final
-
-from typing_extensions import TypeVar
+from typing import TYPE_CHECKING, Generic, TypeVar, final
 
 from betty.json.schema import Enum
 from betty.locale.localize import DEFAULT_LOCALIZER

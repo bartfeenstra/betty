@@ -4,9 +4,7 @@ Configuration for ordered plugins.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
-
-from typing_extensions import TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.data.aggregate.record.object.property import SequenceProperty

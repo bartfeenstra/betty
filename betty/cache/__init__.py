@@ -6,9 +6,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable
-from typing import TYPE_CHECKING, Generic, Self, TypeAlias
-
-from typing_extensions import TypeVar
+from typing import TYPE_CHECKING, Generic, Self, TypeAlias, TypeVar
 
 from betty.typing import threadsafe
 

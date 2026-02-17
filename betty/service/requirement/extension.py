@@ -4,9 +4,7 @@ Handle requirements on extensions.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Concatenate, ParamSpec, overload
-
-from typing_extensions import TypeVar
+from typing import TYPE_CHECKING, Any, Concatenate, ParamSpec, TypeVar, overload
 
 from betty.extension import Extension, ExtensionDefinition
 from betty.locale.localizable.gettext import _

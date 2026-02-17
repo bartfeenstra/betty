@@ -2,10 +2,9 @@
 Test utilities for :py:mod:`betty.data`.
 """
 
-from typing import Any, Generic
+from typing import Any, Generic, TypeVar
 
 import pytest
-from typing_extensions import TypeVar
 
 from betty.data import Data
 from betty.data.aggregate.record.object import ObjectDefinition

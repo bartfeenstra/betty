@@ -7,9 +7,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import MutableSequence
 from inspect import getmembers
-from typing import TYPE_CHECKING, Generic, cast, final, override
-
-from typing_extensions import TypeVar
+from typing import TYPE_CHECKING, Generic, TypeVar, cast, final, override
 
 from betty.classtools import Singleton
 from betty.json.schema import Object, Schema

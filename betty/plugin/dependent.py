@@ -4,9 +4,7 @@ Plugins that can declare dependencies on other plugins.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
-
-from typing_extensions import TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from betty.plugin import ResolvableId, resolve_id
 from betty.plugin.ordered import OrderedPluginDefinition, sort_ordered_plugin_graph

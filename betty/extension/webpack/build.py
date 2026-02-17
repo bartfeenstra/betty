@@ -12,11 +12,10 @@ from json import dumps, loads
 from os import walk
 from pathlib import Path
 from shutil import copy2, copytree
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, TypeVar, cast
 
 import aiofiles
 from aiofiles.os import makedirs
-from typing_extensions import TypeVar
 
 from betty import npm
 from betty.dirs import ROOT_DIRECTORY_PATH

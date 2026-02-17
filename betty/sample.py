@@ -6,9 +6,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from enum import IntEnum, auto
-from typing import TYPE_CHECKING, Generic, Self, final
-
-from typing_extensions import TypeVar
+from typing import TYPE_CHECKING, Generic, Self, TypeVar, final
 
 from betty.locale.localizable import resolve_localizable
 

@@ -4,9 +4,7 @@ Data types for plugins.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final
-
-from typing_extensions import TypeVar
+from typing import TYPE_CHECKING, TypeVar, final
 
 from betty.collections import MutableResolvedSequence, MutableResolvedSequenceProxy
 from betty.data import DataDefinition

@@ -4,9 +4,7 @@ Provide static plugin management.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final, override
-
-from typing_extensions import TypeVar
+from typing import TYPE_CHECKING, TypeVar, final, override
 
 from betty.plugin import PluginDefinition, ResolvableDefinition, resolve_definition
 from betty.plugin.error import PluginNotFound

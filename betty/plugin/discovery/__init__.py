@@ -4,14 +4,12 @@ Plugin discovery.
 
 from __future__ import annotations
 
+import typing
 from abc import ABC, abstractmethod
 from asyncio import gather
 from collections.abc import Awaitable, Callable, Collection, Iterable
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Generic, TypeAlias, final
-
-import typing_extensions
-from typing_extensions import TypeVar
+from typing import TYPE_CHECKING, Generic, TypeAlias, TypeVar, final
 
 from betty.asyncio import resolve_await
 from betty.plugin import Plugin, PluginDefinition, ResolvableDefinition
@@ -126,6 +124,6 @@ class Discoverer(PluginDiscovery[_PluginDefinitionT]):
         """
         return self._defined != self._active
 
-    @typing_extensions.override
+    @typing.override
     async def discover(self, services: ServiceLevel, /) -> Iterable[_PluginDefinitionT]:
         return await discover(services, *self._active)  # ty:ignore[invalid-return-type]

@@ -5,9 +5,7 @@ Aggregate data types.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Generic
-
-from typing_extensions import TypeVar
+from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 from betty.data import DataDefinition
 from betty.data.indicator.selector import Element

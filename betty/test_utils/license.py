@@ -4,10 +4,9 @@ Test utilities for :py:mod:`betty.license`.
 
 from __future__ import annotations
 
-from typing import Generic
+from typing import Generic, TypeVar
 
 import pytest
-from typing_extensions import TypeVar
 
 from betty.license import License
 from betty.locale.localize import DEFAULT_LOCALIZER

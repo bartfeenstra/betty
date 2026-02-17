@@ -5,12 +5,11 @@ from __future__ import annotations
 from contextlib import AsyncExitStack, asynccontextmanager
 from os import environ
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Self, final, override
+from typing import TYPE_CHECKING, Any, Literal, Self, TypeVar, final, override
 
 from aiofiles.tempfile import TemporaryDirectory
 from aiohttp_client_cache.backends.filesystem import FileBackend
 from aiohttp_client_cache.session import CachedSession
-from typing_extensions import TypeVar
 
 import betty
 import betty.dirs

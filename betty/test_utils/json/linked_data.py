@@ -5,9 +5,7 @@ Test utilities for :py:mod:`betty.json.linked_data`.
 from __future__ import annotations
 
 from collections.abc import Awaitable, Callable, MutableMapping, MutableSequence
-from typing import TYPE_CHECKING
-
-from typing_extensions import TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 from betty.app import App
 from betty.json.schema import Schema

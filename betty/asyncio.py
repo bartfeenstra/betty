@@ -18,5 +18,5 @@ async def resolve_await(value: Awaitable[_T] | _T) -> _T:
     Return a value, but await it first if it is awaitable.
     """
     if isawaitable(value):
-        return await value
+        return await value  # ty:ignore[invalid-return-type]
     return value
