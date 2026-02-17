@@ -3,10 +3,9 @@ from __future__ import annotations  # noqa: D100
 import platform
 import sys
 from importlib import metadata
-from typing import TYPE_CHECKING, Self, final
+from typing import TYPE_CHECKING, Self, final, override
 
 from rich.table import Table
-from typing_extensions import override
 
 from betty import about
 from betty.console.command import Command, CommandDefinition, CommandFunction

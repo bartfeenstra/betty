@@ -6,11 +6,10 @@ from __future__ import annotations
 
 import difflib
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, override
 
 import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
-from typing_extensions import override
 
 from betty.app import App
 from betty.locale.translation.project import update_project_translations

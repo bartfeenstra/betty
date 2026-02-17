@@ -1,8 +1,8 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, final
+from typing import TYPE_CHECKING, Any, final, override
 
 import pytest
-from typing_extensions import TypeVar, override
+from typing_extensions import TypeVar
 
 from betty.data.indicator.selector import Attr
 from betty.exception import HumanFacingException

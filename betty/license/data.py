@@ -4,9 +4,7 @@ License configuration.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, final
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, Any, final, override
 
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.license import License, LicenseDefinition

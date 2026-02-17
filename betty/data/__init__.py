@@ -5,9 +5,9 @@ Describe, access, and manipulate arbitrary data.
 from __future__ import annotations
 
 from functools import update_wrapper
-from typing import TYPE_CHECKING, Any, Generic, Self, final
+from typing import TYPE_CHECKING, Any, Generic, Self, final, override
 
-from typing_extensions import TypeVar, override
+from typing_extensions import TypeVar
 
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition

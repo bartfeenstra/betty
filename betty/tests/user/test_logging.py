@@ -1,7 +1,7 @@
 import logging
+from typing import override
 
 import pytest
-from typing_extensions import override
 
 from betty.test_utils.user import StaticUser
 from betty.user.logging import UserHandler

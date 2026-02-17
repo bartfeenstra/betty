@@ -5,9 +5,7 @@ Sequence data types.
 from __future__ import annotations
 
 from collections.abc import Callable, MutableSequence, Sequence
-from typing import TYPE_CHECKING, Any, TypeVar
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, Any, TypeVar, override
 
 from betty.data.aggregate.collection import CollectionDefinition
 from betty.data.indicator.selector import Index

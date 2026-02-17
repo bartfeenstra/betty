@@ -1,8 +1,7 @@
 from collections.abc import Iterable
-from typing import cast
+from typing import cast, override
 
 import pytest
-from typing_extensions import override
 
 from betty.model.schema import ToManySchema, ToOneSchema, ToZeroOrOneSchema
 from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut

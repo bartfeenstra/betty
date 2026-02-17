@@ -1,7 +1,7 @@
 from gettext import NullTranslations
+from typing import override
 
 from babel import Locale
-from typing_extensions import override
 
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
 from betty.locale.localizable import (

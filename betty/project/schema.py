@@ -4,9 +4,7 @@ JSON schemas for the project API.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, final
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, Self, final, override
 
 from betty.json.schema import JsonSchemaReference, Schema
 from betty.model import EntityDefinition

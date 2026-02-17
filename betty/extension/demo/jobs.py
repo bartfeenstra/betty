@@ -5,9 +5,7 @@ Jobs.
 from __future__ import annotations
 
 from random import choice
-from typing import TYPE_CHECKING
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, override
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.enclosure import Enclosure

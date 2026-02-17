@@ -4,9 +4,7 @@ Provide the Note entity type and utilities.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, final, override
 
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.media_type import HasMediaType

@@ -5,11 +5,10 @@ Provide JSON utilities.
 from __future__ import annotations
 
 import enum
-from typing import TYPE_CHECKING, Any, cast, final
+from typing import TYPE_CHECKING, Any, cast, final, override
 
 from jsonschema.validators import Draft202012Validator
 from referencing import Registry, Resource
-from typing_extensions import override
 
 from betty.classtools import Singleton
 from betty.locale.localize import DEFAULT_LOCALIZER, resolve_localized

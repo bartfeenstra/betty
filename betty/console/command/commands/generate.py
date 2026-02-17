@@ -1,8 +1,6 @@
 from __future__ import annotations  # noqa: D100
 
-from typing import TYPE_CHECKING, Self, final
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, Self, final, override
 
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.console.project import add_project_argument

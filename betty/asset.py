@@ -9,9 +9,7 @@ from asyncio import to_thread
 from contextlib import suppress
 from os import walk
 from pathlib import Path
-from typing import TYPE_CHECKING
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, override
 
 from betty.concurrent import AsynchronizedLock
 from betty.typing import threadsafe

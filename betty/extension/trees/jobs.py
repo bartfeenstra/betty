@@ -6,11 +6,10 @@ from __future__ import annotations
 
 import json
 from asyncio import gather
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, override
 
 import aiofiles
 from aiofiles.os import makedirs
-from typing_extensions import override
 
 from betty.ancestry.person import Person
 from betty.job import Job

@@ -8,9 +8,7 @@ import asyncio
 from asyncio import Task, gather, get_running_loop
 from concurrent import futures
 from contextlib import suppress
-from typing import TYPE_CHECKING, final
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, final, override
 
 from betty.job.executor import Executor
 from betty.job.executor.asyncio import AsyncExecutor

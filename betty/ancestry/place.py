@@ -5,9 +5,7 @@ Provide the place entity.
 from __future__ import annotations
 
 from contextlib import suppress
-from typing import TYPE_CHECKING, final
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, final, override
 
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_links import HasLinks

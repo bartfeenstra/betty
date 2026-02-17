@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, override
 
 import pytest
-from typing_extensions import override
 
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference

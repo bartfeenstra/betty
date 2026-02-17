@@ -6,11 +6,10 @@ from __future__ import annotations
 
 from asyncio import gather
 from collections import defaultdict
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, final, override
 
 from aiohttp import ClientError
 from lxml.html import HtmlElement, document_fromstring
-from typing_extensions import override
 
 from betty.job import Job
 from betty.locale.localizable.static import StaticTranslations

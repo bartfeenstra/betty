@@ -4,9 +4,7 @@ Data types that have a locale.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, override
 
 from betty.json.linked_data import (
     JsonLdObject,

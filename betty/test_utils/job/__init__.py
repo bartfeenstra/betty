@@ -2,9 +2,7 @@
 Test utilities for :py:mod:`betty.job`.
 """
 
-from typing import TypeVar, final
-
-from typing_extensions import override
+from typing import TypeVar, final, override
 
 from betty.job import Context, Job
 from betty.job.executor.asyncio import AsyncExecutor

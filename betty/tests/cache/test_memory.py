@@ -1,8 +1,6 @@
 from collections.abc import AsyncIterator, Iterator, Sequence
 from contextlib import asynccontextmanager
-from typing import Any
-
-from typing_extensions import override
+from typing import Any, override
 
 from betty.cache.memory import MemoryCache
 from betty.test_utils.cache import CacheTestBase

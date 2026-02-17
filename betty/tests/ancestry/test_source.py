@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, MutableMapping, Sequence
-from typing import Any, cast
+from typing import Any, cast, override
 
 import pytest
-from typing_extensions import override
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.link import Link

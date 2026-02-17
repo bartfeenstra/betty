@@ -6,9 +6,7 @@ from __future__ import annotations
 
 from asyncio import gather
 from collections.abc import Iterable, Mapping, Sequence
-from typing import TYPE_CHECKING, Self, TypeAlias, final
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, Self, TypeAlias, final, override
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event

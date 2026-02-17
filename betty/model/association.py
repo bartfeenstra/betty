@@ -17,10 +17,9 @@ from typing import (
     cast,
     final,
     overload,
+    override,
 )
 from urllib.parse import quote
-
-from typing_extensions import override
 
 from betty.importlib import fully_qualified_name, import_any
 from betty.json.linked_data import LinkedDataDumper

@@ -7,11 +7,10 @@ from __future__ import annotations
 import decimal
 from abc import ABC, abstractmethod
 from collections.abc import Mapping, MutableMapping
-from typing import TYPE_CHECKING, Generic, TypeAlias, TypeVar
+from typing import TYPE_CHECKING, Generic, TypeAlias, TypeVar, override
 from warnings import warn
 
 from babel import Locale
-from typing_extensions import override
 
 from betty.locale import HasLocale, HasLocaleStr, ResolvableLocale
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer

@@ -6,9 +6,7 @@ from __future__ import annotations
 
 from asyncio import CancelledError, Task, as_completed, get_running_loop
 from contextlib import suppress
-from typing import TYPE_CHECKING, TypeVar, final
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, TypeVar, final, override
 
 from betty.job import Context
 from betty.job.executor import Executor

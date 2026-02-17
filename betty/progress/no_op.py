@@ -2,7 +2,7 @@
 Progress tracking that does nothing.
 """
 
-from typing_extensions import override
+from typing import override
 
 from betty.progress import Progress
 

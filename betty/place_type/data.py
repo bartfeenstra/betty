@@ -4,9 +4,7 @@ Place type configuration.
 
 from __future__ import annotations
 
-from typing import final
-
-from typing_extensions import override
+from typing import final, override
 
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.locale import DEFAULT_LOCALE

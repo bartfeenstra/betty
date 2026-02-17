@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Self, override
 
 import pytest
-from typing_extensions import override
 
 from betty.data import Sample
 from betty.locale.localizable.plain import Plain

@@ -1,5 +1,6 @@
+from typing import override
+
 import pytest
-from typing_extensions import override
 
 from betty.media_type import MediaType
 from betty.portable import PortableData

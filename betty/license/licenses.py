@@ -10,11 +10,10 @@ from contextlib import contextmanager
 from io import BytesIO
 from json import loads
 from pathlib import Path
-from typing import final
+from typing import final, override
 
 import aiofiles
 from aiohttp import ClientError, ClientSession
-from typing_extensions import override
 
 from betty.cache.file import BinaryFileCache
 from betty.exception import HumanFacingException

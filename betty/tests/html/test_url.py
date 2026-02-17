@@ -1,8 +1,7 @@
 from collections.abc import Mapping, Sequence
-from typing import Any
+from typing import Any, override
 
 import pytest
-from typing_extensions import override
 
 from betty.html.url import generate_urls
 from betty.locale import ResolvableLocale

@@ -7,9 +7,9 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Generic, cast
+from typing import TYPE_CHECKING, Any, Generic, cast, override
 
-from typing_extensions import TypeVar, override
+from typing_extensions import TypeVar
 
 from betty.functools import unique
 from betty.model import Entity, EntityDefinition

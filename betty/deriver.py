@@ -6,10 +6,8 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import TYPE_CHECKING, cast, final
+from typing import TYPE_CHECKING, cast, final, override
 from uuid import NAMESPACE_URL, uuid5
-
-from typing_extensions import override
 
 from betty.ancestry.event import Event
 from betty.ancestry.person import Person

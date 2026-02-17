@@ -18,12 +18,12 @@ from typing import (
     Self,
     TypeVar,
     final,
+    override,
 )
 
 import aiofiles
 from aiofiles.os import makedirs, remove
 from aiofiles.ospath import getmtime
-from typing_extensions import override
 
 from betty.cache import CacheItem, CacheItemValueSetter
 from betty.cache._base import _CommonCacheBase, _CommonCacheBaseState

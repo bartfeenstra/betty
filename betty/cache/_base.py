@@ -2,9 +2,7 @@ from collections.abc import AsyncIterator, Sequence
 from contextlib import asynccontextmanager
 from datetime import datetime
 from functools import partial
-from typing import Any, Generic, Self, TypeVar
-
-from typing_extensions import override
+from typing import Any, Generic, Self, TypeVar, override
 
 from betty.cache import Cache, CacheItem, CacheItemValueSetter
 from betty.concurrent import AsynchronizedLock, Ledger

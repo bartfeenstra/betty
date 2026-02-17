@@ -5,9 +5,7 @@ Provide caching that stores cache items in volatile memory.
 from __future__ import annotations
 
 from collections.abc import MutableMapping, Sequence
-from typing import TYPE_CHECKING, Generic, Self, TypeAlias, TypeVar, final
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, Generic, Self, TypeAlias, TypeVar, final, override
 
 from betty.cache import CacheItem
 from betty.cache._base import _CommonCacheBase, _CommonCacheBaseState, _StaticCacheItem

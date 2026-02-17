@@ -6,9 +6,7 @@ from __future__ import annotations
 
 from email.message import EmailMessage
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Self, TypeAlias, final
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, Any, Self, TypeAlias, final, override
 
 from betty.assertion import assert_str
 from betty.data import Data, DataDefinition

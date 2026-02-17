@@ -6,9 +6,9 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Iterable, MutableMapping, MutableSequence
-from typing import TYPE_CHECKING, Any, Generic, Self, cast, final, overload
+from typing import TYPE_CHECKING, Any, Generic, Self, cast, final, overload, override
 
-from typing_extensions import TypeVar, override
+from typing_extensions import TypeVar
 
 from betty.collections import MutableKeyedCollection
 from betty.data import OptionalDefinition

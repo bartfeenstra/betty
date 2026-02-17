@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, override
 
 import pytest
-from typing_extensions import TypeVar, override
+from typing_extensions import TypeVar
 
 from betty.plugin import PluginDefinition
 from betty.plugin.discovery import (

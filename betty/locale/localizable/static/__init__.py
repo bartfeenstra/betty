@@ -5,9 +5,7 @@ Static translations.
 from __future__ import annotations
 
 from contextlib import suppress
-from typing import TYPE_CHECKING, Self, final
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, Self, final, override
 
 from betty.assertion import assert_locale, assert_mapping, assert_or, assert_str
 from betty.data.indicator.selector import Key

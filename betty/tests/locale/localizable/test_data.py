@@ -1,5 +1,6 @@
+from typing import override
+
 import pytest
-from typing_extensions import override
 
 from betty.exception import HumanFacingException
 from betty.locale import DEFAULT_LOCALE_TAG

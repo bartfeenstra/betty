@@ -1,6 +1,5 @@
 from collections.abc import Iterable
-
-from typing_extensions import override
+from typing import override
 
 from betty.extension import ExtensionDefinition
 from betty.plugin import ResolvableId

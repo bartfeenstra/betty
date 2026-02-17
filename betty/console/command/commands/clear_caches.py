@@ -4,9 +4,7 @@ import shutil
 from asyncio import gather, to_thread
 from contextlib import suppress
 from pathlib import Path
-from typing import TYPE_CHECKING, Self, final
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, Self, final, override
 
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.locale.localizable.gettext import _

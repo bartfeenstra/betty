@@ -2,10 +2,9 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterable
 from contextlib import AbstractAsyncContextManager, asynccontextmanager
-from typing import TYPE_CHECKING, TypeAlias, final
+from typing import TYPE_CHECKING, TypeAlias, final, override
 
 import pytest
-from typing_extensions import override
 
 from betty.ancestry.event import Event
 from betty.ancestry.person import Person

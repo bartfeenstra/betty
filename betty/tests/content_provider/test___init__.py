@@ -1,8 +1,8 @@
 from collections.abc import Iterable
+from typing import override
 
 import pytest
 from markupsafe import Markup
-from typing_extensions import override
 
 from betty.content_provider import ContentProvider, provide_content
 from betty.document import Document

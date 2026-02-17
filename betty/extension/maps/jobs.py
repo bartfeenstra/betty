@@ -4,9 +4,7 @@ Jobs for the Maps extension.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, override
 
 from betty.ancestry.place import Place
 from betty.job import Job

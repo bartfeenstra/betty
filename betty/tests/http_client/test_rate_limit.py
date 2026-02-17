@@ -1,12 +1,11 @@
 import time
 from asyncio import gather
 from collections.abc import AsyncIterator, Awaitable, Callable, Sequence
-from typing import TypeAlias
+from typing import TypeAlias, override
 from unittest.mock import AsyncMock
 
 import pytest
 from aiohttp.client_reqrep import ClientRequest, ClientResponse
-from typing_extensions import override
 from yarl import URL
 
 from betty.http_client.rate_limit import (

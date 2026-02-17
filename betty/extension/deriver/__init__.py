@@ -4,9 +4,7 @@ Expand an ancestry by deriving additional data from existing data.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, final
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, Self, final, override
 
 from betty.extension import Extension, ExtensionDefinition
 from betty.extension.deriver.jobs import DeriveAncestry

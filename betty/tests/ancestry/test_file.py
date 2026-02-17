@@ -2,9 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import TYPE_CHECKING, Any, cast
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, Any, cast, override
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.file import File

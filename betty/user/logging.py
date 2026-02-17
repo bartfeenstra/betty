@@ -15,9 +15,7 @@ from collections.abc import Callable, Coroutine
 from functools import partial
 from queue import Empty, Queue
 from time import sleep
-from typing import final
-
-from typing_extensions import override
+from typing import final, override
 
 from betty.functools import Result, ResultUnavailable, suppress
 from betty.life_cycle.manage import ManagedLifeCycle

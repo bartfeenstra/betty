@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Self, override
 
 import pytest
-from typing_extensions import override
 
 from betty.ancestry import Ancestry
 from betty.dirs import ASSETS_DIRECTORY_PATH

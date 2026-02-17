@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from typing import Self
+from typing import Self, override
 
 import pytest
-from typing_extensions import override
 
 from betty.assertion import assert_str
 from betty.data import Data, DataDefinition, OptionalDefinition, Sample

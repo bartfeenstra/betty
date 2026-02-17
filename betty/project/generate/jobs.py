@@ -9,12 +9,11 @@ from io import BytesIO
 from json import dumps
 from math import ceil
 from pathlib import Path
-from typing import TYPE_CHECKING, cast, final
+from typing import TYPE_CHECKING, cast, final, override
 
 import aiofiles
 from aiofiles.os import makedirs
 from PIL import Image
-from typing_extensions import override
 
 from betty.job import Job
 from betty.locale.localizable.gettext import _

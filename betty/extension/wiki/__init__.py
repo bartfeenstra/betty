@@ -4,10 +4,9 @@ from __future__ import annotations
 
 from asyncio import gather
 from pathlib import Path
-from typing import TYPE_CHECKING, Self, final
+from typing import TYPE_CHECKING, Self, final, override
 
 from jinja2 import pass_context
-from typing_extensions import override
 
 from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.extension import Extension, ExtensionDefinition

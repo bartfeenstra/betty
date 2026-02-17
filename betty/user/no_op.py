@@ -5,9 +5,7 @@ User sessions that do nothing.
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import TypeVar, final, overload
-
-from typing_extensions import override
+from typing import TypeVar, final, overload, override
 
 from betty.assertion import Assertion
 from betty.locale.localizable import ResolvableLocalizable

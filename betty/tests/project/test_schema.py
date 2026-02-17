@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, override
 
 import pytest
-from typing_extensions import override
 
 from betty.ancestry.event import Event
 from betty.ancestry.person import Person

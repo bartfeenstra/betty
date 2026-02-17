@@ -8,9 +8,7 @@ from collections import defaultdict
 from collections.abc import Iterable
 from contextlib import asynccontextmanager
 from graphlib import CycleError, TopologicalSorter
-from typing import TYPE_CHECKING, Generic, TypeVar, cast, final
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, Generic, TypeVar, cast, final, override
 
 from betty.classtools import Singleton
 from betty.concurrent import AsynchronizedLock, backoff

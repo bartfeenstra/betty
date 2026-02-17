@@ -1,9 +1,8 @@
 from collections.abc import Mapping, Sequence
 from json import dumps, loads
-from typing import Any
+from typing import Any, override
 
 import pytest
-from typing_extensions import override
 
 from betty.locale import ResolvableLocale
 from betty.media_type import MediaType

@@ -2,9 +2,7 @@
 Render HTML.
 """
 
-from typing import Self
-
-from typing_extensions import override
+from typing import Self, override
 
 from betty.html.url import generate_urls
 from betty.locale.localizable.gettext import _

@@ -1,8 +1,7 @@
 from collections.abc import Awaitable
-from typing import Any, TypeVar
+from typing import Any, TypeVar, override
 
 import pytest
-from typing_extensions import override
 
 from betty.life_cycle import NotYetBootstrapped
 from betty.life_cycle.manage import ManagedLifeCycle

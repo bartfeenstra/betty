@@ -6,10 +6,9 @@ from __future__ import annotations
 
 from asyncio import create_task, sleep
 from collections.abc import Iterator, MutableSequence
-from typing import TYPE_CHECKING, Generic, Self, TypeVar, cast, final
+from typing import TYPE_CHECKING, Generic, Self, TypeVar, cast, final, override
 
 import pytest
-from typing_extensions import override
 
 from betty.job import Context, Job
 from betty.job.executor.asyncio import AsyncExecutor

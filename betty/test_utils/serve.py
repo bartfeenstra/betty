@@ -2,9 +2,7 @@
 Test utilities for :py:mod:`betty.serve`.
 """
 
-from typing import Any
-
-from typing_extensions import override
+from typing import Any, override
 
 from betty.serve import ProjectServer, Server
 from betty.test_utils.user import StaticUser

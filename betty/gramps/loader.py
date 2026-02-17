@@ -14,14 +14,13 @@ from contextlib import ExitStack, suppress
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Generic, TypeVar, cast, final
+from typing import TYPE_CHECKING, Generic, TypeVar, cast, final, override
 from uuid import uuid4
 from xml.etree.ElementTree import tostring
 
 from aiofiles import tempfile
 from geopy import Point
 from lxml import etree
-from typing_extensions import override
 
 from betty import subprocess
 from betty.ancestry.citation import Citation

@@ -3,9 +3,7 @@ Provide proxy URL generators.
 """
 
 from collections.abc import Mapping, Sequence
-from typing import Any, final
-
-from typing_extensions import override
+from typing import Any, final, override
 
 from betty.locale import ResolvableLocale
 from betty.media_type import MediaType

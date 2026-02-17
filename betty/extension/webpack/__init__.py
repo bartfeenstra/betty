@@ -9,9 +9,7 @@ from __future__ import annotations
 from asyncio import to_thread
 from pathlib import Path
 from shutil import copytree
-from typing import TYPE_CHECKING, Self, final
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, Self, final, override
 
 from betty.document import DocumentProvider, DocumentVars
 from betty.extension import Extension, ExtensionDefinition

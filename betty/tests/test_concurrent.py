@@ -2,12 +2,11 @@ import asyncio
 import threading
 import time
 from asyncio import create_task, gather, run, sleep, wait_for
-from typing import TypeVar
+from typing import TypeVar, override
 from unittest.mock import call
 
 import pytest
 from pytest_mock import MockerFixture
-from typing_extensions import override
 
 from betty.concurrent import AsynchronizedLock, Ledger, Lock, RateLimiter, backoff
 

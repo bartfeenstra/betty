@@ -1,8 +1,7 @@
 from collections.abc import Sequence
-from typing import Any
+from typing import Any, override
 
 import pytest
-from typing_extensions import override
 
 from betty.data.indicator import Indicator
 from betty.data.indicator.selector import (

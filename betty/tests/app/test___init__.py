@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-from typing import Self
-
-from typing_extensions import override
+from typing import Self, override
 
 from betty.app import App
 from betty.service.factory import Manufacturable

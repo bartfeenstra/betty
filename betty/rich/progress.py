@@ -2,10 +2,9 @@
 Output progress to Rich.
 """
 
-from typing import final
+from typing import final, override
 
 from rich.progress import Progress as _RichProgress
-from typing_extensions import override
 
 from betty.concurrent import AsynchronizedLock
 from betty.progress import Progress

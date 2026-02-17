@@ -1,7 +1,6 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, override
 
 import pytest
-from typing_extensions import override
 
 from betty.serde import SerializationError, Serializer
 from betty.serde.serializers import Json, Yaml

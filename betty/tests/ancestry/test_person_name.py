@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, cast, override
 
 import pytest
-from typing_extensions import override
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.person import Person

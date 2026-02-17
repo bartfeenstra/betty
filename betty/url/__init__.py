@@ -5,10 +5,8 @@ Provide a URL generation API.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, override
 from urllib.parse import urlencode, urlparse
-
-from typing_extensions import override
 
 from betty.locale import (
     ResolvableLocale,

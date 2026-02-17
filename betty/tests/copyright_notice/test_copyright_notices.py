@@ -1,8 +1,8 @@
 from json import dumps
+from typing import override
 
 import pytest
 from aioresponses import aioresponses
-from typing_extensions import override
 
 from betty.app import App
 from betty.copyright_notice import CopyrightNotice

@@ -2,9 +2,7 @@
 Tools to create classes.
 """
 
-from typing import Self, final
-
-from typing_extensions import override
+from typing import Self, final, override
 
 
 class Singleton:

@@ -1,10 +1,10 @@
 from collections.abc import Sequence
 from pathlib import Path
+from typing import override
 
 import aiofiles
 import pytest
 from pytest_mock import MockerFixture
-from typing_extensions import override
 
 from betty.app import App
 from betty.extension import Extension, ExtensionDefinition

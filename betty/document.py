@@ -22,9 +22,8 @@ from typing import (
     Self,
     TypeAlias,
     final,
+    override,
 )
-
-from typing_extensions import override
 
 from betty.json.linked_data import LinkedDataDumpable
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
