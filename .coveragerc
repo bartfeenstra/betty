@@ -1,4 +1,6 @@
 [run]
+omit =
+    betty/sphinx/extension/betty.py
 branch = True
 concurrency =
     multiprocessing
@@ -7,6 +9,8 @@ parallel = True
 source = betty
 
 [report]
+omit =
+    betty/sphinx/extension/betty.py
 exclude_also =
     ^\s*pragma: no cover$
     ^\s*def __repr__
