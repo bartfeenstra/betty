@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from contextlib import AsyncExitStack, asynccontextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Self, TypeVar, final, overload, override
+from typing import TYPE_CHECKING, Self, final, overload, override
 
 from aiofiles.tempfile import TemporaryDirectory
 
@@ -33,7 +33,7 @@ from betty.locale.translation import (
     TranslationRepository,
 )
 from betty.machine_name import MachineName
-from betty.plugin import PluginDefinition, ResolvableId, resolve_id
+from betty.plugin import ResolvableId, resolve_id
 from betty.plugin.dependent import sort_dependent_plugin_graph
 from betty.privacy.privatizer import Privatizer
 from betty.project.data import ProjectConfiguration
@@ -59,10 +59,6 @@ if TYPE_CHECKING:
     from betty.jinja import Environment
     from betty.license import License
     from betty.url import UrlGenerator
-
-_PluginDefinitionT = TypeVar(
-    "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
-)
 
 
 @final
@@ -429,9 +425,6 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
         )
 
 
-_ExtensionT = TypeVar("_ExtensionT", bound=Extension)
-
-
 @internal
 @final
 class ProjectExtensions:
@@ -444,7 +437,9 @@ class ProjectExtensions:
         self._project_extensions = project_extensions
 
     @overload
-    def __getitem__(self, extension: type[_ExtensionT]) -> _ExtensionT:
+    def __getitem__[ExensionT: Extension](
+        self, extension: type[ExensionT]
+    ) -> ExensionT:
         pass
 
     @overload

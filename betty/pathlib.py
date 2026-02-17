@@ -3,14 +3,12 @@ File path tools.
 """
 
 from pathlib import Path
-from typing import Any, TypeVar, final
+from typing import final
 
 from betty.assertion import assert_path
 from betty.data import DataDefinition
 from betty.locale.localizable.gettext import _
 from betty.portable import CallbackPorter
-
-_DataClsT = TypeVar("_DataClsT", default=Any)
 
 
 @final

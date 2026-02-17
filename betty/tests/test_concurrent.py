@@ -2,15 +2,13 @@ import asyncio
 import threading
 import time
 from asyncio import create_task, gather, run, sleep, wait_for
-from typing import TypeVar, override
+from typing import override
 from unittest.mock import call
 
 import pytest
 from pytest_mock import MockerFixture
 
 from betty.concurrent import AsynchronizedLock, Ledger, Lock, RateLimiter, backoff
-
-_KeyT = TypeVar("_KeyT")
 
 
 class _LockTestDummyLock(Lock):

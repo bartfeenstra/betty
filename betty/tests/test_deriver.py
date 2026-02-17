@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterable
 from contextlib import AbstractAsyncContextManager, asynccontextmanager
-from typing import TYPE_CHECKING, TypeAlias, final, override
+from typing import TYPE_CHECKING, final, override
 
 import pytest
 
@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 
     from betty.app import App
 
-NewProject: TypeAlias = Callable[
+type NewProject = Callable[
     [Iterable[ResolvableDefinition[EventTypeDefinition]]],
     AbstractAsyncContextManager[Project],
 ]

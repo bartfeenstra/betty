@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from enum import IntEnum
-from typing import TYPE_CHECKING, TypeVar, overload
+from typing import TYPE_CHECKING, overload
 
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.typing import Void
@@ -19,9 +19,6 @@ if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
     from betty.locale.localize import Localizer
     from betty.progress import Progress
-
-
-_T = TypeVar("_T")
 
 
 class Verbosity(IntEnum):
@@ -188,23 +185,23 @@ class User(ABC):
         pass
 
     @overload
-    async def ask_input(
+    async def ask_input[T](
         self,
         question: ResolvableLocalizable,
         *,
-        assertion: Assertion[str, _T],
+        assertion: Assertion[str, T],
         default: str | Void = Void(),  # noqa: B008
-    ) -> _T:
+    ) -> T:
         pass
 
     @abstractmethod
-    async def ask_input(
+    async def ask_input[T](
         self,
         question: ResolvableLocalizable,
         *,
-        assertion: Assertion[str, _T] | None = None,
-        default: str | _T | Void = Void(),  # noqa: B008
-    ) -> str | _T:
+        assertion: Assertion[str, T] | None = None,
+        default: str | T | Void = Void(),  # noqa: B008
+    ) -> str | T:
         """
         Ask the user to input text.
 

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from contextlib import suppress
-from typing import TYPE_CHECKING, Any, TypeAlias, override
+from typing import TYPE_CHECKING, Any, override
 
 from babel import Locale
 from babel.core import UnknownLocaleError
@@ -31,7 +31,7 @@ The `IETF BCP 47 <https://tools.ietf.org/html/bcp47>`_ language tag for Betty's 
 """
 
 
-ResolvableLocale: TypeAlias = Locale | str
+type ResolvableLocale = Locale | str
 """
 A locale or a locale identifier.
 """

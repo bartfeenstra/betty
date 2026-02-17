@@ -17,7 +17,7 @@ from importlib import import_module
 from inspect import getmembers, isclass, isdatadescriptor, isfunction
 from os import walk
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Protocol, TypeAlias, cast
+from typing import TYPE_CHECKING, Any, Protocol, cast
 
 import aiofiles
 import pytest
@@ -58,13 +58,13 @@ class MissingReason(Enum):
     INHERITED = "This testable is inherited"
 
 
-_ModuleFunctionExistsIgnore: TypeAlias = None
-_ModuleFunctionIgnore = _ModuleFunctionExistsIgnore | MissingReason
-_ModuleClassExistsIgnore = Mapping[str, _ModuleFunctionIgnore]
-_ModuleClassIgnore = _ModuleClassExistsIgnore | MissingReason
-_ModuleMemberIgnore = _ModuleFunctionIgnore | _ModuleClassIgnore
-_ModuleExistsIgnore = Mapping[str, _ModuleMemberIgnore]
-_ModuleIgnore = _ModuleExistsIgnore | MissingReason
+type _ModuleFunctionExistsIgnore = None
+type _ModuleFunctionIgnore = _ModuleFunctionExistsIgnore | MissingReason
+type _ModuleClassExistsIgnore = Mapping[str, _ModuleFunctionIgnore]
+type _ModuleClassIgnore = _ModuleClassExistsIgnore | MissingReason
+type _ModuleMemberIgnore = _ModuleFunctionIgnore | _ModuleClassIgnore
+type _ModuleExistsIgnore = Mapping[str, _ModuleMemberIgnore]
+type _ModuleIgnore = _ModuleExistsIgnore | MissingReason
 
 # Keys are paths to module files with ignore rules. These paths area relative to the project root directory.
 # This baseline MUST NOT be extended. It SHOULD decrease in size as more coverage is added to Betty over time.

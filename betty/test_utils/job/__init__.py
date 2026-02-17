@@ -2,7 +2,7 @@
 Test utilities for :py:mod:`betty.job`.
 """
 
-from typing import TypeVar, final, override
+from typing import final, override
 
 from betty.job import Context, Job
 from betty.job.executor.asyncio import AsyncExecutor
@@ -11,21 +11,19 @@ from betty.job.scheduler.default import DefaultScheduler
 from betty.progress.no_op import NoOpProgress
 from betty.user.no_op import NoOpUser
 
-_ContextT = TypeVar("_ContextT", bound=Context)
-
 
 @final
-class NoOpJob(Job[Context]):
+class NoOpJob(Job):
     """
     A job that does nothing.
     """
 
     @override
-    async def do(self, scheduler: Scheduler[Context], /) -> None:
+    async def do(self, scheduler: Scheduler, /) -> None:
         pass
 
 
-async def do(context: _ContextT, *jobs: Job[_ContextT]) -> None:
+async def do[ContextT: Context](context: ContextT, *jobs: Job[ContextT]) -> None:
     """
     Do a number of jobs.
     """

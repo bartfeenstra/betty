@@ -8,11 +8,9 @@ from abc import ABC, abstractmethod
 from collections.abc import Mapping, MutableMapping, MutableSequence, Sequence
 from typing import (
     Any,
-    Generic,
     NotRequired,
     Self,
     TypedDict,
-    TypeVar,
     Unpack,
     cast,
     final,
@@ -20,16 +18,10 @@ from typing import (
     override,
 )
 
-from betty.string import (
-    kebab_case_to_snake_case,
-    snake_case_to_kebab_case,
-)
-
-_AttributeGetT = TypeVar("_AttributeGetT")
-_AttributeSetT = TypeVar("_AttributeSetT")
+from betty.string import kebab_case_to_snake_case, snake_case_to_kebab_case
 
 
-class _Attribute(Generic[_AttributeGetT, _AttributeSetT], ABC):
+class _Attribute[AttributeGetT, AttributeSetT](ABC):
     def __init__(self, html_name: str):
         self._html_name = html_name
         self._attr_name = f"html_{kebab_case_to_snake_case(html_name)}"
@@ -39,41 +31,41 @@ class _Attribute(Generic[_AttributeGetT, _AttributeSetT], ABC):
         pass
 
     @overload
-    def __get__(self, instance: Attributes, owner: type[Attributes]) -> _AttributeGetT:
+    def __get__(self, instance: Attributes, owner: type[Attributes]) -> AttributeGetT:
         pass
 
     def __get__(
         self, instance: Attributes | None, owner: type[Attributes]
-    ) -> _AttributeGetT | Self:
+    ) -> AttributeGetT | Self:
         if instance is None:
             return self
         return self.get(instance)
 
-    def get(self, instance: Attributes) -> _AttributeGetT:
+    def get(self, instance: Attributes) -> AttributeGetT:
         try:
-            return cast(_AttributeGetT, instance._attributes[self._attr_name])
+            return cast(AttributeGetT, instance._attributes[self._attr_name])
         except KeyError:
             value = self._new_default()
             instance._attributes[self._attr_name] = value
             return value
 
-    def __set__(self, instance: Attributes, value: _AttributeSetT) -> None:
+    def __set__(self, instance: Attributes, value: AttributeSetT) -> None:
         self.set(instance, value)
 
     @abstractmethod
-    def set(self, instance: Attributes, value: _AttributeSetT) -> None:
+    def set(self, instance: Attributes, value: AttributeSetT) -> None:
         pass
 
-    def setdefault(self, instance: Attributes, value: _AttributeSetT) -> None:
+    def setdefault(self, instance: Attributes, value: AttributeSetT) -> None:
         if self._attr_name not in instance._attributes:
             self.set(instance, value)
 
     @abstractmethod
-    def _new_default(self) -> _AttributeGetT:
+    def _new_default(self) -> AttributeGetT:
         pass
 
     @abstractmethod
-    def format(self, value: _AttributeGetT) -> str:
+    def format(self, value: AttributeGetT) -> str:
         """
         Format the attribute to a string.
         """

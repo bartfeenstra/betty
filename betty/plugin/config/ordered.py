@@ -4,7 +4,7 @@ Configuration for ordered plugins.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any
 
 from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.data.aggregate.record.object.property import SequenceProperty
@@ -16,13 +16,9 @@ from betty.plugin.config import PluginDefinitionConfiguration
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-_PluginDefinitionT = TypeVar(
-    "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
-)
 
-
-class OrderedPluginDefinitionConfiguration(
-    PluginDefinitionConfiguration[_PluginDefinitionT]
+class OrderedPluginDefinitionConfiguration[PluginDefinitionT: PluginDefinition](
+    PluginDefinitionConfiguration[PluginDefinitionT]
 ):
     """
     Configure a :py:class:`betty.plugin.ordered.OrderedPluginDefinition`.

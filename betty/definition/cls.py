@@ -2,25 +2,23 @@
 Class-based definitions.
 """
 
-from typing import Any, Generic, TypeVar
+from typing import Any
 
 from betty.importlib import fully_qualified_name
 
-_ClsCoT = TypeVar("_ClsCoT", default=object, covariant=True)
 
-
-class ClsDefinition(Generic[_ClsCoT]):
+class ClsDefinition[ClsT = Any]:
     """
     A definition for a Python class.
     """
 
-    def __init__(self, *args: Any, cls: type[_ClsCoT] | None = None, **kwargs: Any):
-        self._cls: type[_ClsCoT] | None = None
+    def __init__(self, *args: Any, cls: type[ClsT] | None = None, **kwargs: Any):
+        self._cls: type[ClsT] | None = None
         if cls is not None:
             self._set_cls(cls)
 
     @property
-    def cls(self) -> type[_ClsCoT]:
+    def cls(self) -> type[ClsT]:
         """
         The class.
 
@@ -31,7 +29,7 @@ class ClsDefinition(Generic[_ClsCoT]):
         assert self._cls is not None
         return self._cls
 
-    def __call__(self, cls: type[_ClsCoT]) -> type[_ClsCoT]:
+    def __call__(self, cls: type[ClsT]) -> type[ClsT]:
         """
         Decorate a class and set it on this definition.
 
@@ -40,7 +38,7 @@ class ClsDefinition(Generic[_ClsCoT]):
         self._set_cls(cls)
         return cls
 
-    def _set_cls(self, cls: type[_ClsCoT]) -> None:
+    def _set_cls(self, cls: type[ClsT]) -> None:
         if self._cls is not None:
             raise ValueError(
                 f"This definition already has a class: {fully_qualified_name(self._cls)}."

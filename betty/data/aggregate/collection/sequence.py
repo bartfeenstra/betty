@@ -5,7 +5,7 @@ Sequence data types.
 from __future__ import annotations
 
 from collections.abc import Callable, MutableSequence, Sequence
-from typing import TYPE_CHECKING, Any, TypeVar, override
+from typing import TYPE_CHECKING, Any, override
 
 from betty.data.aggregate.collection import CollectionDefinition
 from betty.data.indicator.selector import Index
@@ -17,23 +17,22 @@ if TYPE_CHECKING:
     from betty.data import Data, DataDefinition
     from betty.locale.localizable import ResolvableLocalizable
 
-_DataItemT = TypeVar("_DataItemT")
-_MutableSequenceT = TypeVar("_MutableSequenceT", bound=MutableSequence[Any])
 
-
-class SequenceDefinition(CollectionDefinition[_MutableSequenceT, Index]):
+class SequenceDefinition[MutableSequenceT: MutableSequence[Any]](
+    CollectionDefinition[MutableSequenceT, Index]
+):
     """
     A sequence data definition.
     """
 
-    def __init__(
+    def __init__[ValueT](
         self,
         *,
-        cls: type[_MutableSequenceT],
-        value: DataDefinition[_DataItemT] | type[Intersection[_DataItemT, Data]],
+        cls: type[MutableSequenceT],
+        value: DataDefinition[ValueT] | type[Intersection[ValueT, Data]],
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
-        factory: Callable[[Sequence[_DataItemT]], _MutableSequenceT] | None = None,
+        factory: Callable[[Sequence[ValueT]], MutableSequenceT] | None = None,
     ):
         super().__init__(
             cls=cls,
@@ -46,15 +45,20 @@ class SequenceDefinition(CollectionDefinition[_MutableSequenceT, Index]):
 
     @override
     def elements(
-        self, data: _MutableSequenceT
+        self, data: MutableSequenceT
     ) -> Sequence[tuple[Index, DataDefinition]]:
         return [(Index(index), self.item) for index, item_data in enumerate(data)]
 
-    def _load(self, portable: PortableData, /) -> _MutableSequenceT:
+    def _load(self, portable: PortableData, /) -> MutableSequenceT:
         from betty.assertion import assert_sequence
 
         factory = self.cls if not self._factory else self._factory
         return factory(assert_sequence(self._item.porter.load)(portable))  # ty:ignore[too-many-positional-arguments]
 
-    def _dump(self, data: _MutableSequenceT) -> PortableData:
-        return [self._item.porter.dump(item) for item in data]
+    def _dump(self, data: MutableSequenceT) -> PortableData:
+        return [
+            self._item.porter.dump(
+                item,
+            )  # ty:ignore[invalid-argument-type]
+            for item in data
+        ]  # ty:ignore[invalid-return-type]

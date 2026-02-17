@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeVar, override
+from typing import TYPE_CHECKING, override
 
 import pytest
 
@@ -24,19 +24,16 @@ if TYPE_CHECKING:
     from betty.service.level import ServiceLevel
 
 
-_PluginDefinitionT = TypeVar(
-    "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
-)
-
-
-class _StaticDiscovery(PluginDiscovery[_PluginDefinitionT]):
-    def __init__(self, *discoveries: ResolvableDiscovery[_PluginDefinitionT]):
+class _StaticDiscovery[PluginDefinitionT: PluginDefinition](
+    PluginDiscovery[PluginDefinitionT]
+):
+    def __init__(self, *discoveries: ResolvableDiscovery[PluginDefinitionT]):
         self._discoveries = discoveries
 
     @override
     async def discover(
         self, services: ServiceLevel, /
-    ) -> Iterable[ResolvableDiscovery[_PluginDefinitionT]]:
+    ) -> Iterable[ResolvableDiscovery[PluginDefinitionT]]:
         return self._discoveries
 
 

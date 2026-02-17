@@ -14,7 +14,7 @@ from contextlib import ExitStack, suppress
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Generic, TypeVar, cast, final, override
+from typing import TYPE_CHECKING, cast, final, override
 from uuid import uuid4
 from xml.etree.ElementTree import tostring
 
@@ -106,7 +106,7 @@ from betty.plugin.config import (
     resolve_plugin_configuration_mapping,
 )
 from betty.plugin.error import PluginUnavailable
-from betty.presence_role import PresenceRole, PresenceRoleDefinition
+from betty.presence_role import PresenceRoleDefinition
 from betty.presence_role.presence_roles import (
     Attendee,
     Celebrant,
@@ -144,11 +144,6 @@ if TYPE_CHECKING:
     from betty.presence_role import PresenceRole
     from betty.service.level import ServiceLevel
     from betty.user import User
-
-_T = TypeVar("_T")
-_EntityT = TypeVar("_EntityT", bound=Entity)
-_PluginT = TypeVar("_PluginT", bound=Plugin)
-_PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
 
 
 class LoaderUsedAlready(GrampsError):
@@ -196,25 +191,25 @@ class GrampsEntityReference:
         return f"{self.entity_type.value} ({self.entity_id})"
 
 
-class _ToOneResolver(ToOneResolver[_EntityT], Generic[_EntityT]):
+class _ToOneResolver[EntityT: Entity](ToOneResolver[EntityT]):
     def __init__(self, handles_to_entities: Mapping[str, Entity], handle: str):
         self._handles_to_entities = handles_to_entities
         self._handle = handle
 
     @override
-    def resolve(self) -> _EntityT:
-        return cast(_EntityT, self._handles_to_entities[self._handle])
+    def resolve(self) -> EntityT:
+        return cast(EntityT, self._handles_to_entities[self._handle])
 
 
-class _ToManyResolver(ToManyResolver[_EntityT], Generic[_EntityT]):
+class _ToManyResolver[EntityT: Entity](ToManyResolver[EntityT]):
     def __init__(self, handles_to_entities: Mapping[str, Entity], *handles: str):
         self._handles_to_entities = handles_to_entities
         self._handles = handles
 
     @override
-    def resolve(self) -> Iterable[_EntityT]:
+    def resolve(self) -> Iterable[EntityT]:
         for handle in self._handles:
-            yield cast(_EntityT, self._handles_to_entities[handle])
+            yield cast(EntityT, self._handles_to_entities[handle])
 
 
 DEFAULT_GENDER_MAPPING: Mapping[
@@ -322,12 +317,16 @@ _GRAMPS_EXTENSIONS_IMPORT = (
 _GRAMPS_EXTENSIONS = (*_GRAMPS_EXTENSIONS_NATIVE, *_GRAMPS_EXTENSIONS_IMPORT)
 
 
-def _resolve_plugin_configuration_mapping(
+def _resolve_plugin_configuration_mapping[
+    T,
+    PluginDefinitionT: PluginDefinition,
+    PluginT: Plugin,
+](
     plugin_configurations: Mapping[
-        _T, ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT]
+        T, ResolvablePluginConfiguration[PluginDefinitionT, PluginT]
     ]
     | None,
-) -> MutableMapping[_T, PluginConfiguration[_PluginDefinitionT, _PluginT]]:
+) -> MutableMapping[T, PluginConfiguration[PluginDefinitionT, PluginT]]:
     if plugin_configurations is None:
         return {}
     return resolve_plugin_configuration_mapping(plugin_configurations)
@@ -377,7 +376,7 @@ class GrampsLoader:
             event_type_mapping
         )
         self._gender_mapping = resolve_plugin_configuration_mapping(
-            DEFAULT_GENDER_MAPPING  # ty:ignore[invalid-argument-type]
+            DEFAULT_GENDER_MAPPING
         )
         self._place_type_mapping = _resolve_plugin_configuration_mapping(
             place_type_mapping
@@ -626,14 +625,14 @@ class GrampsLoader:
             return False
         return not version[2] < self._SUPPORTED_GRAMPS_XML_VERSION[2]
 
-    def _resolve1(
-        self, entity_type: type[_EntityT], handle: str
-    ) -> _ToOneResolver[_EntityT]:
+    def _resolve1[EntityT: Entity](
+        self, entity_type: type[EntityT], handle: str
+    ) -> _ToOneResolver[EntityT]:
         return _ToOneResolver(self._handles_to_entities, handle)
 
-    def _resolve(
-        self, entity_type: type[_EntityT], *handles: str
-    ) -> _ToManyResolver[_EntityT]:
+    def _resolve[EntityT: Entity](
+        self, entity_type: type[EntityT], *handles: str
+    ) -> _ToManyResolver[EntityT]:
         return _ToManyResolver(self._handles_to_entities, *handles)
 
     def _add_entity(self, entity: Entity, handle: str | None = None) -> None:
@@ -862,7 +861,7 @@ class GrampsLoader:
                 )
                 gender = None
 
-        person = Person(id=element.get("id"), gender=gender)  # ty:ignore[invalid-argument-type]
+        person = Person(id=element.get("id"), gender=gender)
 
         name_elements = sorted(
             self._xpath(element, "./ns:name"), key=lambda x: x.get("alt") == "1"
@@ -1327,7 +1326,7 @@ class GrampsLoader:
             )
         )
 
-    _STATIC_TRANSLATION_ATTRIBUTE_SUFFIX_PATTERN = re.compile(r"^:[^:]+$")
+    _STATICTRANSLATION_ATTRIBUTE_SUFFIX_PATTERN = re.compile(r"^:[^:]+$")
 
     async def _parse_attribute_static_translations(
         self, element: ElementTree.Element, tag: str, name: str
@@ -1340,7 +1339,7 @@ class GrampsLoader:
             if attribute_key == name:
                 translations[None] = attribute_value
             elif (
-                self._STATIC_TRANSLATION_ATTRIBUTE_SUFFIX_PATTERN.fullmatch(
+                self._STATICTRANSLATION_ATTRIBUTE_SUFFIX_PATTERN.fullmatch(
                     attribute_key[name_length:]
                 )
                 is not None

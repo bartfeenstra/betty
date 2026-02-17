@@ -1,7 +1,7 @@
 import time
 from asyncio import gather
 from collections.abc import AsyncIterator, Awaitable, Callable, Sequence
-from typing import TypeAlias, override
+from typing import override
 from unittest.mock import AsyncMock
 
 import pytest
@@ -44,7 +44,7 @@ class _AlwaysMatchingHighRateLimit(RateLimit):
         return 999999999, 1
 
 
-DoAssert: TypeAlias = Callable[[int, int, Sequence[RateLimit]], Awaitable[None]]
+type DoAssert = Callable[[int, int, Sequence[RateLimit]], Awaitable[None]]
 
 
 class TestRateLimitMiddleware:

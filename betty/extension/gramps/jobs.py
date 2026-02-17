@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, override
 
-from betty.job import Context, Job
+from betty.job import Job
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
 
 
-class LoadAncestry(Job[Context]):
+class LoadAncestry(Job):
     """
     Load Gramps data into an ancestry.
     """
@@ -33,7 +33,7 @@ class LoadAncestry(Job[Context]):
         return f"gramps:load-ancestry:{id(type(source))}:{str(source)}"
 
     @override
-    async def do(self, scheduler: Scheduler[Context], /) -> None:
+    async def do(self, scheduler: Scheduler, /) -> None:
         if isinstance(self._source, str):
             await self._loader.load_name(self._source)
         else:

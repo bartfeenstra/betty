@@ -4,7 +4,7 @@ Provide static plugin management.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeVar, final, override
+from typing import TYPE_CHECKING, final, override
 
 from betty.plugin import PluginDefinition, ResolvableDefinition, resolve_definition
 from betty.plugin.error import PluginNotFound
@@ -15,19 +15,19 @@ if TYPE_CHECKING:
 
     from betty.machine_name import ResolvableMachineName
 
-_PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
-
 
 @final
-class StaticPluginRepository(PluginRepository[_PluginDefinitionT]):
+class StaticPluginRepository[PluginDefinitionT: PluginDefinition](
+    PluginRepository[PluginDefinitionT]
+):
     """
     A repository that is given a static collection of plugins, and exposes those.
     """
 
     def __init__(
         self,
-        plugin_type: type[_PluginDefinitionT],  # noqa: A002
-        *plugins: ResolvableDefinition[_PluginDefinitionT],
+        plugin_type: type[PluginDefinitionT],  # noqa: A002
+        *plugins: ResolvableDefinition[PluginDefinitionT],
     ):
         super().__init__(plugin_type)
         self._plugins = {
@@ -36,12 +36,12 @@ class StaticPluginRepository(PluginRepository[_PluginDefinitionT]):
         }
 
     @override
-    def get(self, plugin_id: ResolvableMachineName, /) -> _PluginDefinitionT:
+    def get(self, plugin_id: ResolvableMachineName, /) -> PluginDefinitionT:
         try:
-            return self._plugins[plugin_id]  # ty:ignore[invalid-return-type]
+            return self._plugins[plugin_id]
         except KeyError:
             raise PluginNotFound(self.type.type(), plugin_id, list(self)) from None
 
     @override
-    def __iter__(self) -> Iterator[_PluginDefinitionT]:
+    def __iter__(self) -> Iterator[PluginDefinitionT]:
         yield from self._plugins.values()

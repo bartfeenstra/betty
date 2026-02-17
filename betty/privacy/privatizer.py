@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from contextlib import suppress
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, TypeAlias
+from typing import TYPE_CHECKING, Any
 
 from betty.ancestry.event import Event
 from betty.ancestry.has_citations import HasCitations
@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     from betty.user import User
 
 
-_Expirable: TypeAlias = Person | Event | Date | None
+type _Expirable = Person | Event | Date | None
 
 
 class Privatizer:

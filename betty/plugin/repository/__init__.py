@@ -5,7 +5,7 @@ Access discovered plugins.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Generic, TypeVar
+from typing import TYPE_CHECKING
 
 from betty.plugin import PluginDefinition
 
@@ -15,28 +15,24 @@ if TYPE_CHECKING:
 
     from betty.machine_name import ResolvableMachineName
 
-_PluginDefinitionT = TypeVar(
-    "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
-)
 
-
-class PluginRepository(ABC, Generic[_PluginDefinitionT]):
+class PluginRepository[PluginDefinitionT: PluginDefinition = PluginDefinition](ABC):
     """
     Access discovered plugins.
     """
 
-    def __init__(self, plugin_type: builtins.type[_PluginDefinitionT]):
+    def __init__(self, plugin_type: builtins.type[PluginDefinitionT]):
         self._type = plugin_type
 
     @property
-    def type(self) -> builtins.type[_PluginDefinitionT]:
+    def type(self) -> builtins.type[PluginDefinitionT]:
         """
         The plugin type contained by this repository.
         """
         return self._type
 
     @abstractmethod
-    def get(self, plugin_id: ResolvableMachineName, /) -> _PluginDefinitionT:
+    def get(self, plugin_id: ResolvableMachineName, /) -> PluginDefinitionT:
         """
         Get a single plugin by its ID.
 
@@ -47,8 +43,8 @@ class PluginRepository(ABC, Generic[_PluginDefinitionT]):
         return len(list(self.__iter__()))
 
     @abstractmethod
-    def __iter__(self) -> Iterator[_PluginDefinitionT]:
+    def __iter__(self) -> Iterator[PluginDefinitionT]:
         pass
 
-    def __getitem__(self, plugin_id: ResolvableMachineName) -> _PluginDefinitionT:
+    def __getitem__(self, plugin_id: ResolvableMachineName) -> PluginDefinitionT:
         return self.get(plugin_id)

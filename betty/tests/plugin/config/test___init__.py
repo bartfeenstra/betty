@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, final, override
+from typing import TYPE_CHECKING, Any, final, override
 
 import pytest
 
@@ -35,10 +35,6 @@ from betty.typing import Void
 if TYPE_CHECKING:
     from betty.portable import PortableData
 
-_PluginDefinitionT = TypeVar(
-    "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
-)
-
 
 class _DataManufacturableDummyPlugin(
     DummyDataManufacturable, Plugin["_DataManufacturableDummyPluginDefinition"]
@@ -66,9 +62,11 @@ class _DataManufacturableDummyPluginOne(_DataManufacturableDummyPlugin):
     pass
 
 
-class _DummyPluginDefinitionConfiguration(PluginDefinitionConfiguration):
+class _DummyPluginDefinitionConfiguration(
+    PluginDefinitionConfiguration[DummyPluginDefinition]
+):
     @override
-    def new_plugin(self) -> _PluginDefinitionT:
+    def new_plugin(self) -> DummyPluginDefinition:
         raise NotImplementedError
 
 
@@ -87,9 +85,7 @@ class TestHumanFacingPluginDefinitionConfiguration:
     class _Sut(
         HumanFacingPluginDefinitionConfiguration, _DummyPluginDefinitionConfiguration
     ):
-        @override
-        def new_plugin(self) -> _PluginDefinitionT:
-            raise NotImplementedError
+        pass
 
     def test_label(self) -> None:
         label = DUMMY_LOCALIZABLE
@@ -109,9 +105,7 @@ class TestCountableHumanFacingPluginDefinitionConfiguration:
         CountableHumanFacingPluginDefinitionConfiguration,
         _DummyPluginDefinitionConfiguration,
     ):
-        @override
-        def new_plugin(self) -> _PluginDefinitionT:
-            raise NotImplementedError
+        pass
 
     def test_label_plural(self) -> None:
         label_plural = DUMMY_LOCALIZABLE
@@ -417,7 +411,7 @@ async def test_new_plugins() -> None:
                 PluginConfiguration(DummyPluginOne),
                 PluginConfiguration(DummyPluginOne.plugin()),
                 PluginConfiguration(DummyPluginOne.plugin().id),
-            ],  # ty:ignore[invalid-argument-type]
+            ],
         )
     )
     assert len(actual) == 6

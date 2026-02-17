@@ -4,7 +4,7 @@ Access discovered plugins.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Generic, TypeVar, final
+from typing import TYPE_CHECKING, final
 
 from betty.json.schema import Enum
 from betty.locale.localize import DEFAULT_LOCALIZER
@@ -14,22 +14,20 @@ from betty.string import kebab_case_to_lower_camel_case
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-_PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
-_PluginDefinitionT = TypeVar(
-    "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
-)
-
 
 @final
-class PluginIdSchema(Enum, Generic[_PluginDefinitionT, _PluginT]):
+class PluginIdSchema[
+    PluginDefinitionT: PluginDefinition = PluginDefinition,
+    PluginT: Plugin = Plugin,
+](Enum):
     """
     The JSON schema for the IDs of the plugins in this repository.
     """
 
     def __init__(
         self,
-        plugin_type: PluginTypeDefinition[_PluginT, _PluginDefinitionT],
-        plugins: Iterable[PluginDefinition[_PluginT]],
+        plugin_type: PluginTypeDefinition[PluginT, PluginDefinitionT],
+        plugins: Iterable[PluginDefinition[PluginT]],
         /,
     ):
         label = plugin_type.label.localize(DEFAULT_LOCALIZER)

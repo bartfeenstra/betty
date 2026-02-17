@@ -4,12 +4,10 @@ Providing typing utilities.
 
 from __future__ import annotations
 
-from typing import Any, TypeVar, final
+from typing import Any, final
 
 from betty.classtools import Singleton
 from betty.docstring import append
-
-_T = TypeVar("_T")
 
 
 def _should_mark(target: Any, key: str, /) -> bool:
@@ -20,7 +18,7 @@ def _should_mark(target: Any, key: str, /) -> bool:
     return True
 
 
-def _internal(target: _T, /) -> _T:
+def _internal[T](target: T, /) -> T:
     if _should_mark(target, "internal"):
         target.__doc__ = append(
             target.__doc__ or "",
@@ -30,7 +28,7 @@ def _internal(target: _T, /) -> _T:
 
 
 @_internal
-def internal(target: _T, /) -> _T:
+def internal[T](target: T, /) -> T:
     """
     Mark a target as internal to Betty.
 
@@ -41,7 +39,7 @@ def internal(target: _T, /) -> _T:
 
 
 @internal
-def public(target: _T, /) -> _T:
+def public[T](target: T, /) -> T:
     """
     Mark a target as publicly usable.
 
@@ -52,7 +50,7 @@ def public(target: _T, /) -> _T:
     return target
 
 
-def private(target: _T, /) -> _T:
+def private[T](target: T, /) -> T:
     """
     Mark a target as private to its containing scope.
 
@@ -66,7 +64,7 @@ def private(target: _T, /) -> _T:
     return target
 
 
-def threadsafe(target: _T, /) -> _T:
+def threadsafe[T](target: T, /) -> T:
     """
     Mark a target as thread-safe.
     """

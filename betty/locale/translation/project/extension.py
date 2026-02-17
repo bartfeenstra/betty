@@ -4,7 +4,7 @@ Manage translations for project extensions.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING
 
 from betty.exception import HumanFacingException
 from betty.extension import ExtensionDefinition
@@ -22,8 +22,6 @@ if TYPE_CHECKING:
 
     from betty.user import User
 
-_ExtensionPluginT = TypeVar("_ExtensionPluginT", bound=ExtensionDefinition)
-
 
 def assert_extension_assets_directory_path(extension: ExtensionDefinition) -> Path:
     """
@@ -39,9 +37,9 @@ def assert_extension_assets_directory_path(extension: ExtensionDefinition) -> Pa
     return assets_directory_path
 
 
-def assert_extension_has_assets_directory_path(
-    extension: _ExtensionPluginT,
-) -> _ExtensionPluginT:
+def assert_extension_has_assets_directory_path[
+    ExtensionDefinitionT: ExtensionDefinition
+](extension: ExtensionDefinitionT) -> ExtensionDefinitionT:
     """
     Check that the given extension has an assets directory, and return it.
     """

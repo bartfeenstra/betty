@@ -2,7 +2,7 @@
 Test utilities for :py:mod:`betty.data`.
 """
 
-from typing import Any, Generic, TypeVar
+from typing import Any
 
 import pytest
 
@@ -14,15 +14,13 @@ from betty.importlib import fully_qualified_name
 from betty.locale.localizable.plain import Plain
 from betty.locale.localize import DEFAULT_LOCALIZER
 
-_DataT = TypeVar("_DataT", bound=Data, covariant=True)
 
-
-class DataTestBase(Generic[_DataT]):
+class DataTestBase[DataT: Data]:
     """
     A base class for testing :py:class:`betty.data.Data` subclasses.
     """
 
-    sut_cls: type[_DataT]
+    sut_cls: type[DataT]
     """
     The system under test.
     """

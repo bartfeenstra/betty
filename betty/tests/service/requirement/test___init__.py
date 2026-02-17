@@ -1,5 +1,4 @@
 from collections.abc import Awaitable, Callable
-from typing import TypeAlias
 
 import pytest
 
@@ -51,7 +50,7 @@ _targets = pytest.mark.parametrize(
         _RequireTargetInstanceMethod().target,
     ],
 )
-_Target: TypeAlias = Callable[[ServiceLevel], Awaitable[_RequiredServiceLevel]]
+type _Target = Callable[[ServiceLevel], Awaitable[_RequiredServiceLevel]]
 
 
 class TestRequirement:

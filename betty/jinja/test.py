@@ -4,7 +4,7 @@ Provide Betty's default Jinja2 tests.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any
 
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
@@ -25,8 +25,6 @@ if TYPE_CHECKING:
 
     from betty.machine_name import MachineName
     from betty.media_type import MediaType
-
-_PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
 
 
 def test_linked_data_dumpable(value: Any) -> bool:

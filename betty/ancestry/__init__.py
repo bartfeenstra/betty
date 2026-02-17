@@ -7,16 +7,17 @@ from __future__ import annotations
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, final, override
 
-from betty.model import Entity
 from betty.model.association import AssociationRegistry
 from betty.model.collections import MultipleTypesEntityCollection
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
 
+    from betty.model import Entity
+
 
 @final
-class Ancestry(MultipleTypesEntityCollection[Entity]):
+class Ancestry(MultipleTypesEntityCollection):
     """
     An ancestry contains all the entities of a single family tree/genealogical data set.
     """

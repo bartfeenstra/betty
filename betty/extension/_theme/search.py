@@ -5,7 +5,6 @@ Provide search functionality.
 from __future__ import annotations
 
 import json
-from abc import ABC
 from asyncio import gather
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Generic, TypeVar, final, override
@@ -31,9 +30,6 @@ if TYPE_CHECKING:
     from betty.locale.localize import Localizer
     from betty.machine_name import MachineName
     from betty.project import Project
-
-_EntityT = TypeVar("_EntityT", bound=Entity)
-_EntityCoT = TypeVar("_EntityCoT", bound=Entity, covariant=True)
 
 
 async def generate_search_index(
@@ -86,11 +82,18 @@ async def _generate_search_index_for_locale(
         await f.write(search_index_json)
 
 
-class _EntityTypeIndexer(ABC, Generic[_EntityCoT]):
+_EntityTypeIndexerEntityT = TypeVar(
+    "_EntityTypeIndexerEntityT", bound=Entity, default=Entity, covariant=True
+)
+
+
+class EntityTypeIndexer(Generic[_EntityTypeIndexerEntityT]):
     def __init__(self, project: Project):
         self._project = project
 
-    async def text(self, localizer: Localizer, entity: _EntityCoT) -> set[str]:
+    async def text(
+        self, localizer: Localizer, entity: _EntityTypeIndexerEntityT
+    ) -> set[str]:
         text = {entity.id.lower()}
 
         # Each note is owned by a single other entity, so index it as part of that entity.
@@ -101,7 +104,7 @@ class _EntityTypeIndexer(ABC, Generic[_EntityCoT]):
         return text
 
 
-class _FallbackIndexer(_EntityTypeIndexer[Entity]):
+class _FallbackIndexer(EntityTypeIndexer[Entity]):
     @override
     async def text(self, localizer: Localizer, entity: Entity) -> set[str]:
         text = await super().text(localizer, entity)
@@ -109,7 +112,7 @@ class _FallbackIndexer(_EntityTypeIndexer[Entity]):
         return text
 
 
-class _PersonIndexer(_EntityTypeIndexer[Person]):
+class _PersonIndexer(EntityTypeIndexer[Person]):
     @override
     async def text(self, localizer: Localizer, entity: Person) -> set[str]:
         text = await super().text(localizer, entity)
@@ -121,7 +124,7 @@ class _PersonIndexer(_EntityTypeIndexer[Person]):
         return text
 
 
-class _PlaceIndexer(_EntityTypeIndexer[Place]):
+class _PlaceIndexer(EntityTypeIndexer[Place]):
     @override
     async def text(self, localizer: Localizer, entity: Place) -> set[str]:
         text = await super().text(localizer, entity)
@@ -130,7 +133,7 @@ class _PlaceIndexer(_EntityTypeIndexer[Place]):
         return text
 
 
-class _FileIndexer(_EntityTypeIndexer[File]):
+class _FileIndexer(EntityTypeIndexer[File]):
     @override
     async def text(self, localizer: Localizer, entity: File) -> set[str]:
         text = await super().text(localizer, entity)
@@ -169,7 +172,7 @@ class Index:
         Build the search index.
         """
         entity_types = await self._project.plugins.plugins(EntityDefinition)
-        specialized_indexers: Mapping[type[Entity], _EntityTypeIndexer[Entity]] = {
+        specialized_indexers: Mapping[type[Entity], EntityTypeIndexer[Entity]] = {
             File: _FileIndexer(self._project),
             Person: _PersonIndexer(self._project),
             Place: _PlaceIndexer(self._project),
@@ -194,8 +197,8 @@ class Index:
             if entry is not None
         ]
 
-    async def _build_entities(
-        self, indexer: _EntityTypeIndexer[_EntityT], entity_type: type[_EntityT]
+    async def _build_entities[EntityT: Entity](
+        self, indexer: EntityTypeIndexer[EntityT], entity_type: type[EntityT]
     ) -> Iterable[_Entry | None]:
         return await gather(
             *(
@@ -204,8 +207,8 @@ class Index:
             )
         )
 
-    async def _build_entity(
-        self, indexer: _EntityTypeIndexer[_EntityT], entity: _EntityT
+    async def _build_entity[EntityT: Entity](
+        self, indexer: EntityTypeIndexer[EntityT], entity: EntityT
     ) -> _Entry | None:
         if is_private(entity):
             return None

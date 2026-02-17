@@ -5,16 +5,16 @@ Key-value mapping record data types.
 from __future__ import annotations
 
 from collections.abc import MutableMapping
-from typing import Any, TypeVar, final
+from typing import Any, final
 
 from betty.data.aggregate.record import RecordDefinition
 from betty.data.indicator.selector import Key
 
-_MutableMappingT = TypeVar("_MutableMappingT", bound=MutableMapping[str, Any])
-
 
 @final
-class TypedMappingDefinition(RecordDefinition[_MutableMappingT, Key]):
+class TypedMappingDefinition[MutableMappingT: MutableMapping[str, Any]](
+    RecordDefinition[MutableMappingT, Key]
+):
     """
     A typed mapping definition.
 

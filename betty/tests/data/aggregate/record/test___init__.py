@@ -263,7 +263,7 @@ class TestMappingPorter:
         assert sut.dump_key(data, Attr(field_name)) == (value, {})
 
 
-class PortableRecordPorterTestPortable(PortableRecord[Attr]):
+class PortableRecordPorterTestPortableRecord(PortableRecord[Attr]):
     def __init__(self, key: str, value: str):
         self.key = key
         self.value = value
@@ -289,7 +289,7 @@ class PortableRecordPorterTestPortable(PortableRecord[Attr]):
 
 class TestPortableRecordPorter:
     def test_load_key(self) -> None:
-        sut = PortableRecordPorter(PortableRecordPorterTestPortable)
+        sut = PortableRecordPorter(PortableRecordPorterTestPortableRecord)
         key = "hello-world"
         value = "Hello, world!"
         data = sut.load_key({"value": value}, Attr("key"), key)
@@ -297,8 +297,8 @@ class TestPortableRecordPorter:
         assert data.value == value
 
     def test_dump_key(self) -> None:
-        sut = PortableRecordPorter(PortableRecordPorterTestPortable)
+        sut = PortableRecordPorter(PortableRecordPorterTestPortableRecord)
         key = "hello-world"
         value = "Hello, world!"
-        data = PortableRecordPorterTestPortable(key, value)
+        data = PortableRecordPorterTestPortableRecord(key, value)
         assert sut.dump_key(data, Attr("key")) == (key, {"value": value})

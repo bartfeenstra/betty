@@ -6,19 +6,15 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable
-from typing import TYPE_CHECKING, Generic, Self, TypeAlias, TypeVar
+from typing import TYPE_CHECKING, Self
 
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
     from contextlib import AbstractAsyncContextManager
 
-_CacheItemValueT = TypeVar("_CacheItemValueT")
-_CacheItemValueCoT = TypeVar("_CacheItemValueCoT", covariant=True)
-_CacheItemValueContraT = TypeVar("_CacheItemValueContraT", contravariant=True)
 
-
-class CacheItem(ABC, Generic[_CacheItemValueCoT]):
+class CacheItem[CacheItemValueT](ABC):
     """
     A cache item.
     """
@@ -31,17 +27,19 @@ class CacheItem(ABC, Generic[_CacheItemValueCoT]):
         """
 
     @abstractmethod
-    async def value(self) -> _CacheItemValueCoT:
+    async def value(self) -> CacheItemValueT:
         """
         Get this cache item's value.
         """
 
 
-CacheItemValueSetter: TypeAlias = Callable[[_CacheItemValueT], Awaitable[None]]
+type CacheItemValueSetter[_CacheItemValueT] = Callable[
+    [_CacheItemValueT], Awaitable[None]
+]
 
 
 @threadsafe
-class Cache(ABC, Generic[_CacheItemValueContraT]):
+class Cache[CacheItemValueT](ABC):
     """
     A cache.
 
@@ -63,17 +61,13 @@ class Cache(ABC, Generic[_CacheItemValueContraT]):
     @abstractmethod
     def hasset(
         self, cache_item_id: str, /
-    ) -> AbstractAsyncContextManager[
-        CacheItemValueSetter[_CacheItemValueContraT] | None
-    ]:
+    ) -> AbstractAsyncContextManager[CacheItemValueSetter[CacheItemValueT] | None]:
         """
         Check if a cache item with the given ID exists, and if not, provide a setter to add or update it within the same atomic operation.
         """
 
     @abstractmethod
-    async def get(
-        self, cache_item_id: str, /
-    ) -> CacheItem[_CacheItemValueContraT] | None:
+    async def get(self, cache_item_id: str, /) -> CacheItem[CacheItemValueT] | None:
         """
         Get the cache item with the given ID.
         """
@@ -82,7 +76,7 @@ class Cache(ABC, Generic[_CacheItemValueContraT]):
     async def set(
         self,
         cache_item_id: str,
-        value: _CacheItemValueContraT,
+        value: CacheItemValueT,
         *,
         modified: int | float | None = None,
     ) -> None:
@@ -94,7 +88,7 @@ class Cache(ABC, Generic[_CacheItemValueContraT]):
     def getset(
         self, cache_item_id: str, /
     ) -> AbstractAsyncContextManager[
-        CacheItemValueSetter[_CacheItemValueContraT] | CacheItem[_CacheItemValueContraT]
+        CacheItemValueSetter[CacheItemValueT] | CacheItem[CacheItemValueT]
     ]:
         """
         Get the cache item with the given ID, or provide a setter to add it within the same atomic operation.

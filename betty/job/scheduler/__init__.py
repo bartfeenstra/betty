@@ -6,15 +6,15 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable, Sequence
-from typing import TYPE_CHECKING, Generic, Self, TypeAlias, final
+from typing import TYPE_CHECKING, Self, final
 
-from betty.job import Job, _ContextCoT
+from betty.job import Context, Job
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
     from types import TracebackType
 
-ScheduledJobBatch: TypeAlias = Callable[[], Awaitable[None]]
+type ScheduledJobBatch = Callable[[], Awaitable[None]]
 """
 A callable to call one or more jobs.
 
@@ -81,23 +81,23 @@ class Completed(Closed):
     """
 
 
-class Scheduler(ABC, Generic[_ContextCoT]):
+class Scheduler[ContextT: Context = Context](ABC):
     """
     A job scheduler.
     """
 
-    def __init__(self, context: _ContextCoT, /):
+    def __init__(self, context: ContextT, /):
         self._context = context
 
     @property
-    def context(self) -> _ContextCoT:
+    def context(self) -> ContextT:
         """
         The context for all jobs in this scheduler.
         """
         return self._context
 
     @abstractmethod
-    async def add(self, *jobs: Job[_ContextCoT]) -> None:
+    async def add(self, *jobs: Job[ContextT]) -> None:
         """
         Add a new job.
         """

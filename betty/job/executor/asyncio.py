@@ -6,16 +6,13 @@ from __future__ import annotations
 
 from asyncio import CancelledError, Task, as_completed, get_running_loop
 from contextlib import suppress
-from typing import TYPE_CHECKING, TypeVar, final, override
+from typing import TYPE_CHECKING, final, override
 
-from betty.job import Context
 from betty.job.executor import Executor
 from betty.job.scheduler import Cancelled, Completed
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
-
-_ContextCoT = TypeVar("_ContextCoT", bound=Context, covariant=True)
 
 
 @final
@@ -24,7 +21,7 @@ class AsyncExecutor(Executor):
     A job executor using async/await.
     """
 
-    def __init__(self, scheduler: Scheduler[_ContextCoT], *, concurrency: int = 1):
+    def __init__(self, scheduler: Scheduler, *, concurrency: int = 1):
         assert concurrency > 0
         self._scheduler = scheduler
         self._concurrency = concurrency

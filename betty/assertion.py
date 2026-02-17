@@ -17,15 +17,7 @@ from enum import Enum
 from functools import lru_cache
 from pathlib import Path
 from types import NoneType
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Generic,
-    TypeAlias,
-    TypeVar,
-    final,
-    overload,
-)
+from typing import TYPE_CHECKING, Any, final, overload
 
 from betty.data.indicator.selector import Index, Key
 from betty.error import FileNotFound
@@ -40,27 +32,12 @@ if TYPE_CHECKING:
 
     from betty.locale.localizable import Localizable
 
-Number: TypeAlias = int | float
-_NumberT = TypeVar("_NumberT", bound=Number)
+type Number = int | float
 
-_EnumT = TypeVar("_EnumT", bound=Enum)
-_AssertionValueT = TypeVar("_AssertionValueT")
-_AssertionReturnT = TypeVar("_AssertionReturnT")
-_AssertionReturnU = TypeVar("_AssertionReturnU")
-_AssertionKeyT = TypeVar("_AssertionKeyT")
-
-Assertion: TypeAlias = Callable[
-    [
-        _AssertionValueT,
-    ],
-    _AssertionReturnT,
-]
-
-_AssertionsExtendReturnT = TypeVar("_AssertionsExtendReturnT")
-_AssertionsIntermediateValueReturnT = TypeVar("_AssertionsIntermediateValueReturnT")
+type Assertion[ValueT, ReturnT] = Callable[[ValueT], ReturnT]
 
 
-class AssertionChain(Generic[_AssertionValueT, _AssertionReturnT]):
+class AssertionChain[ValueT, ReturnT]:
     """
     An assertion chain.
 
@@ -76,23 +53,23 @@ class AssertionChain(Generic[_AssertionValueT, _AssertionReturnT]):
     can confirm that all assertions in any given chain are compatible with each other.
     """
 
-    def __init__(self, _assertion: Assertion[_AssertionValueT, _AssertionReturnT], /):
+    def __init__(self, _assertion: Assertion[ValueT, ReturnT], /):
         self._assertion = _assertion
 
-    def chain(
-        self, assertion: Assertion[_AssertionReturnT, _AssertionsExtendReturnT], /
-    ) -> AssertionChain[_AssertionValueT, _AssertionsExtendReturnT]:
+    def chain[AssertionsExtendReturnT](
+        self, assertion: Assertion[ReturnT, AssertionsExtendReturnT], /
+    ) -> AssertionChain[ValueT, AssertionsExtendReturnT]:
         """
         Extend the chain with the given assertion.
         """
         return AssertionChain(lambda value: assertion(self(value)))
 
-    def __or__(
-        self, _assertion: Assertion[_AssertionReturnT, _AssertionsExtendReturnT]
-    ) -> AssertionChain[_AssertionValueT, _AssertionsExtendReturnT]:
+    def __or__[AssertionsExtendReturnT](
+        self, _assertion: Assertion[ReturnT, AssertionsExtendReturnT]
+    ) -> AssertionChain[ValueT, AssertionsExtendReturnT]:
         return self.chain(_assertion)
 
-    def __call__(self, value: _AssertionValueT) -> _AssertionReturnT:
+    def __call__(self, value: ValueT) -> ReturnT:
         """
         Invoke the chain with a value.
 
@@ -106,7 +83,7 @@ class AssertionChain(Generic[_AssertionValueT, _AssertionReturnT]):
 
 @internal
 @dataclass(frozen=True)
-class Field(Generic[_AssertionValueT, _AssertionReturnT]):
+class Field[ValueT, ReturnT]:
     """
     A key-value mapping field.
 
@@ -115,16 +92,13 @@ class Field(Generic[_AssertionValueT, _AssertionReturnT]):
     """
 
     name: str
-    assertion: Assertion[_AssertionValueT, _AssertionReturnT] | None = None
+    assertion: Assertion[ValueT, ReturnT] | None = None
     as_name: str | None = None
 
 
 @final
 @dataclass(frozen=True)
-class RequiredField(
-    Generic[_AssertionValueT, _AssertionReturnT],
-    Field[_AssertionValueT, _AssertionReturnT],
-):
+class RequiredField[ValueT, ReturnT](Field[ValueT, ReturnT]):
     """
     A required key-value mapping field.
     """
@@ -132,24 +106,22 @@ class RequiredField(
 
 @final
 @dataclass(frozen=True)
-class OptionalField(
-    Generic[_AssertionValueT, _AssertionReturnT],
-    Field[_AssertionValueT, _AssertionReturnT],
-):
+class OptionalField[ValueT, ReturnT](Field[ValueT, ReturnT]):
     """
     An optional key-value mapping field.
     """
 
 
-_AssertionBuilderFunction = Callable[[_AssertionValueT], _AssertionReturnT]
-_AssertionBuilderMethod = Callable[[object, _AssertionValueT], _AssertionReturnT]
-_AssertionBuilder = "_AssertionBuilderFunction[ValueT, ReturnT] | _AssertionBuilderMethod[ValueT, ReturnT]"
+type _AssertionBuilderFunction[ValueT, ReturnT] = Callable[[ValueT], ReturnT]
+type _AssertionBuilderMethod[ValueT, ReturnT] = Callable[[object, ValueT], ReturnT]
+type _AssertionBuilder[ValueT, ReturnT] = (
+    "_AssertionBuilderFunction[ValueT, ReturnT] | _AssertionBuilderMethod[ValueT, ReturnT]"
+)
 
 
-AssertTypeType: TypeAlias = (
+type AssertTypeType = (
     bool | float | int | Mapping[Any, Any] | None | Sequence[Any] | str
 )
-_AssertTypeTypeT = TypeVar("_AssertTypeTypeT", bound=AssertTypeType)
 
 
 _ASSERT_TYPES: Mapping[type[AssertTypeType], tuple[type[Any] | None, Localizable]] = {
@@ -164,14 +136,14 @@ _ASSERT_TYPES: Mapping[type[AssertTypeType], tuple[type[Any] | None, Localizable
 
 
 @lru_cache
-def assert_type(
-    value_type: type[_AssertTypeTypeT], /
-) -> AssertionChain[Any, _AssertTypeTypeT]:
+def assert_type[AssertTypeTypeT: AssertTypeType](
+    value_type: type[AssertTypeTypeT], /
+) -> AssertionChain[Any, AssertTypeTypeT]:
     """
     Assert that a value is of the specified built-in type.
     """
 
-    def _assert_type(value: Any, /) -> _AssertTypeTypeT:
+    def _assert_type(value: Any, /) -> AssertTypeTypeT:
         value_is_not_type, error_message = _ASSERT_TYPES[value_type]
         if isinstance(value, value_type) and (
             value_is_not_type is None or not isinstance(value, value_is_not_type)
@@ -182,16 +154,16 @@ def assert_type(
     return AssertionChain(_assert_type)
 
 
-def assert_or(
-    if_assertion: Assertion[_AssertionValueT, _AssertionReturnT],
-    else_assertion: Assertion[_AssertionValueT, _AssertionReturnU],
+def assert_or[ValueT, ReturnT, AssertionReturnU](
+    if_assertion: Assertion[ValueT, ReturnT],
+    else_assertion: Assertion[ValueT, AssertionReturnU],
     /,
-) -> AssertionChain[_AssertionValueT, _AssertionReturnT | _AssertionReturnU]:
+) -> AssertionChain[ValueT, ReturnT | AssertionReturnU]:
     """
     Assert that at least one of the given assertions passed.
     """
 
-    def _assert_or(value: Any, /) -> _AssertionReturnT | _AssertionReturnU:
+    def _assert_or(value: Any, /) -> ReturnT | AssertionReturnU:
         assertions = (if_assertion, else_assertion)
         errors = []
         for assertion in assertions:
@@ -216,10 +188,10 @@ Assert that a value is a Python ``bool``.
 """
 
 
-def _assert_number(
+def _assert_number[NumberT: Number](
     minimum: Number | None = None, maximum: Number | None = None
-) -> AssertionChain[_NumberT, _NumberT]:
-    def __assert_number(value: _NumberT) -> _NumberT:
+) -> AssertionChain[NumberT, NumberT]:
+    def __assert_number(value: NumberT) -> NumberT:
         if minimum is not None and value < minimum:
             raise HumanFacingException(
                 _("This must be at least {minimum}.").format(minimum=str(minimum))
@@ -304,22 +276,20 @@ def assert_sequence(
 
 
 @overload
-def assert_sequence(
-    value_assertion: Assertion[Any, _AssertionReturnT], /
-) -> AssertionChain[Any, MutableSequence[_AssertionReturnT]]:
+def assert_sequence[ReturnT](
+    value_assertion: Assertion[Any, ReturnT], /
+) -> AssertionChain[Any, MutableSequence[ReturnT]]:
     pass
 
 
-def assert_sequence(
-    value_assertion: Assertion[Any, _AssertionReturnT] | None = None, /
-):
+def assert_sequence[ReturnT](value_assertion: Assertion[Any, ReturnT] | None = None, /):
     """
     Assert that a value is a sequence.
 
     Optionally assert that values are of a given type.
     """
 
-    def _assert_sequence(value: Any, /) -> MutableSequence[_AssertionReturnT]:
+    def _assert_sequence(value: Any, /) -> MutableSequence[ReturnT]:
         sequence = assert_type(Sequence)(value)
         if value_assertion is None:
             return list(sequence)
@@ -340,31 +310,31 @@ def assert_mapping(
 
 
 @overload
-def assert_mapping(
-    value_assertion: Assertion[Any, _AssertionReturnT], key_assertion: None = None, /
-) -> AssertionChain[Any, MutableMapping[Any, _AssertionReturnT]]:
+def assert_mapping[ReturnT](
+    value_assertion: Assertion[Any, ReturnT], key_assertion: None = None, /
+) -> AssertionChain[Any, MutableMapping[Any, ReturnT]]:
     pass
 
 
 @overload
-def assert_mapping(
-    value_assertion: None, key_assertion: Assertion[Any, _AssertionKeyT], /
-) -> AssertionChain[Any, MutableMapping[_AssertionKeyT, Any]]:
+def assert_mapping[AssertionKeyT](
+    value_assertion: None, key_assertion: Assertion[Any, AssertionKeyT], /
+) -> AssertionChain[Any, MutableMapping[AssertionKeyT, Any]]:
     pass
 
 
 @overload
-def assert_mapping(
-    value_assertion: Assertion[Any, _AssertionReturnT],
-    key_assertion: Assertion[Any, _AssertionKeyT],
+def assert_mapping[ReturnT, AssertionKeyT](
+    value_assertion: Assertion[Any, ReturnT],
+    key_assertion: Assertion[Any, AssertionKeyT],
     /,
-) -> AssertionChain[Any, MutableMapping[_AssertionKeyT, _AssertionReturnT]]:
+) -> AssertionChain[Any, MutableMapping[AssertionKeyT, ReturnT]]:
     pass
 
 
-def assert_mapping(
-    value_assertion: Assertion[Any, _AssertionReturnT] | None = None,
-    key_assertion: Assertion[Any, _AssertionKeyT] | None = None,
+def assert_mapping[ReturnT, AssertionKeyT](
+    value_assertion: Assertion[Any, ReturnT] | None = None,
+    key_assertion: Assertion[Any, AssertionKeyT] | None = None,
     /,
 ):
     """
@@ -373,9 +343,7 @@ def assert_mapping(
     Optionally assert that keys and/or values are of a given type.
     """
 
-    def _assert_mapping(
-        value: Any, /
-    ) -> MutableMapping[_AssertionKeyT, _AssertionReturnT]:
+    def _assert_mapping(value: Any, /) -> MutableMapping[AssertionKeyT, ReturnT]:
         mapping = assert_type(Mapping)(value)
         if value_assertion is None and key_assertion is None:
             return dict(mapping)
@@ -436,9 +404,7 @@ def assert_record(
     return assert_mapping() | _assert_record
 
 
-def assert_isinstance(
-    alleged_type: type[_AssertionValueT], /
-) -> Assertion[Any, _AssertionValueT]:
+def assert_isinstance[ValueT](alleged_type: type[ValueT], /) -> Assertion[Any, ValueT]:
     """
     Assert that a value is an instance of the given type.
 
@@ -446,7 +412,7 @@ def assert_isinstance(
     because Python types are not user-facing.
     """
 
-    def _assert(value: Any, /) -> _AssertionValueT:
+    def _assert(value: Any, /) -> ValueT:
         if isinstance(value, alleged_type):
             return value
         raise HumanFacingException(f"{value} must be an instance of {alleged_type}.")
@@ -496,12 +462,9 @@ def assert_locale() -> AssertionChain[Any, Locale]:
     return assert_str() | from_language_tag
 
 
-_SizedT = TypeVar("_SizedT", bound=Sized)
-
-
-def assert_len(
+def assert_len[SizedT: Sized](
     exact: int | None = None, *, minimum: int | None = None, maximum: int | None = None
-) -> AssertionChain[_SizedT, _SizedT]:
+) -> AssertionChain[SizedT, SizedT]:
     """
     Assert the length of a value.
 
@@ -510,7 +473,7 @@ def assert_len(
     - with minimum and/or maximum bounds (inclusive)
     """
 
-    def _assert_len(value: _SizedT, /) -> _SizedT:
+    def _assert_len(value: SizedT, /) -> SizedT:
         actual = len(value)
         if exact is not None and actual != exact:
             raise HumanFacingException(
@@ -535,7 +498,7 @@ def assert_len(
     return AssertionChain(_assert_len)
 
 
-def assert_enum(options: type[_EnumT]) -> AssertionChain[Any, _EnumT]:
+def assert_enum[EnumT: Enum](options: type[EnumT]) -> AssertionChain[Any, EnumT]:
     """
     Assert that a value is allowed by an enum, and return the enum value.
     """

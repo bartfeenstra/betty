@@ -5,7 +5,7 @@ from __future__ import annotations
 from contextlib import AsyncExitStack, asynccontextmanager
 from os import environ
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Self, TypeVar, final, override
+from typing import TYPE_CHECKING, Any, Literal, Self, final, override
 
 from aiofiles.tempfile import TemporaryDirectory
 from aiohttp_client_cache.backends.filesystem import FileBackend
@@ -30,7 +30,6 @@ from betty.locale.translation import (
     TranslationRepository,
 )
 from betty.multiprocessing import ProcessPoolExecutor
-from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.ordered import sort_ordered_plugin_graph
 from betty.portable.file import assert_load_file
 from betty.service.container import ServiceFactory, service
@@ -47,11 +46,6 @@ if TYPE_CHECKING:
 
     from betty.cache import Cache
     from betty.user import User
-
-_PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
-_PluginDefinitionT = TypeVar(
-    "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
-)
 
 
 @final

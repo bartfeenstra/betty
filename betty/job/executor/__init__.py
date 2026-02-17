@@ -5,14 +5,10 @@ Job execution.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Self, TypeVar
-
-from betty.job import Context
+from typing import TYPE_CHECKING, Self
 
 if TYPE_CHECKING:
     from types import TracebackType
-
-_ContextCoT = TypeVar("_ContextCoT", bound=Context, covariant=True)
 
 
 class Executor(ABC):

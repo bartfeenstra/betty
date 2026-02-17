@@ -4,7 +4,7 @@ Generic plugin API errors.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, TypeVar, final
+from typing import TYPE_CHECKING, Any, final
 
 from betty.exception import HumanFacingException
 from betty.locale.localizable.gettext import _
@@ -20,10 +20,6 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.machine_name import ResolvableMachineName
-
-_PluginDefinitionT = TypeVar(
-    "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
-)
 
 
 class PluginError(Exception):
@@ -44,11 +40,11 @@ class PluginNotFound(PluginUnavailable):
     Raised when a plugin cannot be found.
     """
 
-    def __init__(
+    def __init__[PluginDefinitionT: PluginDefinition](
         self,
-        plugin_type: PluginTypeDefinition[Any, _PluginDefinitionT],
+        plugin_type: PluginTypeDefinition[Any, PluginDefinitionT],
         plugin_not_found: ResolvableMachineName,
-        available_plugins: Sequence[ResolvableId[_PluginDefinitionT]],
+        available_plugins: Sequence[ResolvableId[PluginDefinitionT]],
         /,
     ):
         super().__init__(

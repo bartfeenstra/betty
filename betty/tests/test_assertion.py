@@ -5,7 +5,7 @@ from enum import Enum
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from types import NoneType
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any
 
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
@@ -43,8 +43,6 @@ from betty.locale.localizable.static import StaticTranslations
 
 if TYPE_CHECKING:
     from collections.abc import Sized
-
-_T = TypeVar("_T")
 
 
 class TestAssertionChain:

@@ -2,23 +2,19 @@
 Test utilities for :py:mod:`betty.serde`.
 """
 
-from typing import Generic, TypeVar
-
 import pytest
 
 from betty.portable import PortableData
 from betty.serde import Serializer
 
-_SerializerT = TypeVar("_SerializerT", bound=Serializer)
 
-
-class SerializerTestBase(Generic[_SerializerT]):
+class SerializerTestBase[SerializerT: Serializer]:
     """
     A base class for testing :py:class:`betty.serde.Serializer` implementations.
     """
 
     @pytest.fixture
-    def sut(self) -> type[_SerializerT]:
+    def sut(self) -> type[SerializerT]:
         """
         Provide the system(s) under test.
         """
@@ -38,7 +34,7 @@ class SerializerTestBase(Generic[_SerializerT]):
             ["value"],
         ],
     )
-    def test_dump_and_load(self, portable: PortableData, sut: _SerializerT) -> None:
+    def test_dump_and_load(self, portable: PortableData, sut: SerializerT) -> None:
         """
         Tests :py:meth:`betty.serde.Serializer.load` and :py:meth:`betty.serde.Serializer.dump` implementations.
         """

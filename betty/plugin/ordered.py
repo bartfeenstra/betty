@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from graphlib import TopologicalSorter
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any
 
 from betty.machine_name import MachineName, ResolvableMachineName
 from betty.plugin import PluginDefinition, ResolvableId, resolve_id
@@ -17,13 +17,7 @@ if TYPE_CHECKING:
     from betty.plugin.repository import PluginRepository
 
 
-_BaseClsCoT = TypeVar("_BaseClsCoT", default=object, covariant=True)
-_PluginDefinitionT = TypeVar(
-    "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
-)
-
-
-class OrderedPluginDefinition(PluginDefinition[_BaseClsCoT]):
+class OrderedPluginDefinition[BaseClsT](PluginDefinition[BaseClsT]):
     """
     A definition of plugin that can declare its order with respect to other plugins.
     """
@@ -67,14 +61,9 @@ class OrderedPluginDefinition(PluginDefinition[_BaseClsCoT]):
         return self._comes_after
 
 
-_OrderedPluginDefinitionT = TypeVar(
-    "_OrderedPluginDefinitionT", bound=OrderedPluginDefinition
-)
-
-
-def sort_ordered_plugin_graph(
-    plugin_repository: PluginRepository[_OrderedPluginDefinitionT],
-    plugins: Iterable[_OrderedPluginDefinitionT],
+def sort_ordered_plugin_graph[OrderedPluginDefinitionT: OrderedPluginDefinition](
+    plugin_repository: PluginRepository[OrderedPluginDefinitionT],
+    plugins: Iterable[OrderedPluginDefinitionT],
     /,
 ) -> TopologicalSorter[MachineName]:
     """
@@ -95,11 +84,11 @@ def sort_ordered_plugin_graph(
     return sorter
 
 
-def get_comes_before(
-    plugin_repository: PluginRepository[_OrderedPluginDefinitionT],
-    origin: _OrderedPluginDefinitionT,
+def get_comes_before[OrderedPluginDefinitionT: OrderedPluginDefinition](
+    plugin_repository: PluginRepository[OrderedPluginDefinitionT],
+    origin: OrderedPluginDefinitionT,
     /,
-) -> Set[_OrderedPluginDefinitionT]:
+) -> Set[OrderedPluginDefinitionT]:
     """
     Get all other plugins the given plugin comes before.
     """
@@ -114,11 +103,11 @@ def get_comes_before(
     return set(_collect_plugin_graph(graph, origin))
 
 
-def get_comes_after(
-    plugin_repository: PluginRepository[_OrderedPluginDefinitionT],
-    origin: _OrderedPluginDefinitionT,
+def get_comes_after[OrderedPluginDefinitionT: OrderedPluginDefinition](
+    plugin_repository: PluginRepository[OrderedPluginDefinitionT],
+    origin: OrderedPluginDefinitionT,
     /,
-) -> Set[_OrderedPluginDefinitionT]:
+) -> Set[OrderedPluginDefinitionT]:
     """
     Get all other plugins the given plugin comes after.
     """
@@ -133,10 +122,10 @@ def get_comes_after(
     return set(_collect_plugin_graph(graph, origin))
 
 
-def _collect_plugin_graph(
-    graph: Mapping[_PluginDefinitionT, Set[_PluginDefinitionT]],
-    origin: _PluginDefinitionT,
-) -> Iterator[_PluginDefinitionT]:
+def _collect_plugin_graph[PluginDefinitionT: PluginDefinition](
+    graph: Mapping[PluginDefinitionT, Set[PluginDefinitionT]],
+    origin: PluginDefinitionT,
+) -> Iterator[PluginDefinitionT]:
     yield from graph[origin]
     for target in graph[origin]:
         yield from _collect_plugin_graph(graph, target)

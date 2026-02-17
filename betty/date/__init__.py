@@ -9,7 +9,7 @@ import datetime
 import operator
 from contextlib import suppress
 from functools import total_ordering
-from typing import TYPE_CHECKING, Any, TypeAlias, override
+from typing import TYPE_CHECKING, Any, override
 
 from babel import dates
 
@@ -524,4 +524,4 @@ class DateRange(Localizable):
         )
 
 
-ResolvableDate: TypeAlias = Date | DateRange
+type ResolvableDate = Date | DateRange

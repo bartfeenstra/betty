@@ -8,12 +8,11 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 from inspect import getmembers
 from types import FunctionType
-from typing import TYPE_CHECKING, Any, Generic, TypeVar, final, override
+from typing import TYPE_CHECKING, final, override
 
 from betty.data import DataDefinition
 from betty.data.aggregate.record import FieldDefinition, RecordDefinition
 from betty.data.indicator.selector import Attr as AttrElement
-from betty.data.indicator.selector import Element
 from betty.importlib import fully_qualified_name
 from betty.locale.localizable import resolve_localizable
 
@@ -23,16 +22,12 @@ if TYPE_CHECKING:
     from betty.data import Data
     from betty.locale.localizable import Localizable, ResolvableLocalizable
 
-_FunctionTypeT = TypeVar("_FunctionTypeT", bound=FunctionType)
-_DataClsT = TypeVar("_DataClsT")
-_ElementCoT = TypeVar("_ElementCoT", bound=Element[Any], covariant=True)
-
 
 _attrs: MutableMapping[str, MutableMapping[str, AttrDefinition]] = defaultdict(dict)
 
 
 @final
-class AttrDefinition(Generic[_DataClsT]):
+class AttrDefinition[DataClsT]:
     """
     Define an object attribute.
 
@@ -50,12 +45,12 @@ class AttrDefinition(Generic[_DataClsT]):
 
     def __init__(
         self,
-        data: DataDefinition[_DataClsT] | type[Data[DataDefinition[_DataClsT]]],
+        data: DataDefinition[DataClsT] | type[Data[DataDefinition[DataClsT]]],
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
         omit_load: bool | None = None,
-        omit_dump: Callable[[_DataClsT], bool] | None = None,
+        omit_dump: Callable[[DataClsT], bool] | None = None,
     ):
         self._data = data if isinstance(data, DataDefinition) else data.data()
         self._label = None if label is None else resolve_localizable(label)
@@ -78,7 +73,9 @@ class AttrDefinition(Generic[_DataClsT]):
             omit_dump=self._omit_dump,
         )
 
-    def __call__(self, attribute: _FunctionTypeT) -> _FunctionTypeT:
+    def __call__[FunctionTypeT: FunctionType](
+        self, attribute: FunctionTypeT
+    ) -> FunctionTypeT:
         """
         Decorate an attribute.
         """
@@ -92,7 +89,7 @@ class AttrDefinition(Generic[_DataClsT]):
         return attribute
 
     @property
-    def data(self) -> DataDefinition[_DataClsT]:
+    def data(self) -> DataDefinition[DataClsT]:
         """
         The attribute's data definition.
         """
@@ -120,27 +117,27 @@ class AttrDefinition(Generic[_DataClsT]):
         return self._omit_load
 
     @property
-    def omit_dump(self) -> Callable[[_DataClsT], bool] | None:
+    def omit_dump(self) -> Callable[[DataClsT], bool] | None:
         """
         Check if the field may be omitted from the parent when dumping to portable data.
         """
         return self._omit_dump
 
 
-class Attr(ABC, Generic[_DataClsT]):
+class Attr[DataClsT](ABC):
     """
     A class attribute that exposes its data definition.
     """
 
     @property
     @abstractmethod
-    def attr(self) -> AttrDefinition[_DataClsT]:
+    def attr(self) -> AttrDefinition[DataClsT]:
         """
         The attribute's data definition.
         """
 
 
-class ObjectDefinition(RecordDefinition[_DataClsT, AttrElement]):
+class ObjectDefinition[DataClsT](RecordDefinition[DataClsT, AttrElement]):
     """
     Define an object with attributes.
 
@@ -149,7 +146,7 @@ class ObjectDefinition(RecordDefinition[_DataClsT, AttrElement]):
     """
 
     @override
-    def _set_cls(self, cls: type[_DataClsT]) -> None:
+    def _set_cls(self, cls: type[DataClsT]) -> None:
         global _attrs
         super()._set_cls(cls)
         cls_name = fully_qualified_name(cls)

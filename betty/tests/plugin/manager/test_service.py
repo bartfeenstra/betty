@@ -41,7 +41,7 @@ class TestServiceLevelPluginManager:
             return ()
 
         sut = ServiceLevelPluginManager(isolated_app)
-        with DummyPluginDefinition.type().discoverer.override(require_app(_discovery)):
+        with DummyPluginDefinition.type().discoverer.override(require_app(_discovery)):  # ty:ignore[invalid-argument-type]
             await sut.plugins(DummyPluginDefinition)
 
     async def test_plugins__with_overridden_discoveries(self) -> None:

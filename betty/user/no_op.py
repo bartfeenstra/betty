@@ -5,7 +5,7 @@ User sessions that do nothing.
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import TypeVar, final, overload, override
+from typing import final, overload, override
 
 from betty.assertion import Assertion
 from betty.locale.localizable import ResolvableLocalizable
@@ -13,8 +13,6 @@ from betty.progress import Progress
 from betty.progress.no_op import NoOpProgress
 from betty.typing import Void
 from betty.user import User, UserTimeoutError, Verbosity
-
-_T = TypeVar("_T")
 
 
 @final
@@ -82,21 +80,21 @@ class NoOpUser(User):
         pass
 
     @overload
-    async def ask_input(
+    async def ask_input[T](
         self,
         question: ResolvableLocalizable,
         *,
-        assertion: Assertion[str, _T],
+        assertion: Assertion[str, T],
         default: str | Void = Void(),  # noqa: B008
-    ) -> _T:
+    ) -> T:
         pass
 
     @override
-    async def ask_input(
+    async def ask_input[T](
         self,
         question: ResolvableLocalizable,
         *,
-        assertion: Assertion[str, _T] | None = None,
-        default: str | _T | Void = Void(),  # noqa: B008
-    ) -> str | _T:
+        assertion: Assertion[str, T] | None = None,
+        default: str | T | Void = Void(),  # noqa: B008
+    ) -> str | T:
         raise UserTimeoutError

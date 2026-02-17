@@ -7,7 +7,7 @@ import sys
 from asyncio import CancelledError, run
 from collections.abc import Iterable, Sequence
 from enum import IntEnum
-from typing import Any, TypeVar, cast, final, override
+from typing import Any, cast, final, override
 
 import rich  # noqa: F401
 import rich_argparse
@@ -18,8 +18,6 @@ from betty.exception import HumanFacingException
 from betty.locale.localizable.gettext import _
 from betty.locale.localize import Localizer
 from betty.user import Verbosity
-
-_T = TypeVar("_T")
 
 
 @final

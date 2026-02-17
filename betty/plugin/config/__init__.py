@@ -7,16 +7,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from asyncio import gather
 from collections.abc import Iterable, Mapping, MutableMapping, MutableSequence
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Generic,
-    Self,
-    TypeAlias,
-    TypeVar,
-    final,
-    override,
-)
+from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar, final, override
 
 from betty.assertion import (
     AssertionChain,
@@ -57,18 +48,10 @@ if TYPE_CHECKING:
     from betty.portable import PortableData
     from betty.service.level import ServiceLevel
 
-_T = TypeVar("_T")
-_PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
-_PluginDefinitionT = TypeVar(
-    "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
-)
 
-
-class PluginDefinitionConfiguration(
-    Data[ObjectDefinition["PluginDefinitionConfiguration"]],
-    ABC,
-    Generic[_PluginDefinitionT],
-):
+class PluginDefinitionConfiguration[
+    PluginDefinitionT: PluginDefinition = PluginDefinition
+](Data[ObjectDefinition["PluginDefinitionConfiguration"]], ABC):
     """
     Configure a :py:class:`betty.plugin.PluginDefinition`.
 
@@ -89,15 +72,15 @@ class PluginDefinitionConfiguration(
         self.id = id
 
     @abstractmethod
-    def new_plugin(self) -> _PluginDefinitionT:
+    def new_plugin(self) -> PluginDefinitionT:
         """
         Create a new plugin from this configuration.
         """
 
 
-class HumanFacingPluginDefinitionConfiguration(
-    PluginDefinitionConfiguration[_PluginDefinitionT]
-):
+class HumanFacingPluginDefinitionConfiguration[
+    PluginDefinitionT: PluginDefinition = PluginDefinition
+](PluginDefinitionConfiguration[PluginDefinitionT]):
     """
     Configure a :py:class:`betty.definition.human_facing.HumanFacingDefinition`.
 
@@ -119,9 +102,9 @@ class HumanFacingPluginDefinitionConfiguration(
         self.description = description
 
 
-class CountableHumanFacingPluginDefinitionConfiguration(
-    HumanFacingPluginDefinitionConfiguration[_PluginDefinitionT]
-):
+class CountableHumanFacingPluginDefinitionConfiguration[
+    PluginDefinitionT: PluginDefinition = PluginDefinition
+](HumanFacingPluginDefinitionConfiguration[PluginDefinitionT]):
     """
     Configure a :py:class:`betty.definition.human_facing.CountableHumanFacingDefinition`.
 
@@ -143,9 +126,19 @@ class CountableHumanFacingPluginDefinitionConfiguration(
         self.label_countable = label_countable
 
 
+_PluginConfigurationPluginT = TypeVar(
+    "_PluginConfigurationPluginT", bound=Plugin, covariant=True
+)
+_PluginConfigurationPluginDefinitionT = TypeVar(
+    "_PluginConfigurationPluginDefinitionT", bound=PluginDefinition
+)
+
+
 @final
 class PluginConfiguration(
-    PortableRecord[Attr], Samplable, Generic[_PluginDefinitionT, _PluginT]
+    PortableRecord[Attr],
+    Samplable,
+    Generic[_PluginConfigurationPluginDefinitionT, _PluginConfigurationPluginT],  # noqa: UP046
 ):
     """
     Configure a single plugin instance.
@@ -155,7 +148,7 @@ class PluginConfiguration(
 
     def __init__(
         self,
-        id: ResolvableId[_PluginDefinitionT],  # noqa: A002
+        id: ResolvableId[_PluginConfigurationPluginDefinitionT],  # noqa: A002
         configuration: Data | PortableData | Void = Void(),  # noqa: B008
         /,
     ):
@@ -202,7 +195,9 @@ class PluginConfiguration(
 
     def _dump_configuration(self, configuration: Data | PortableData) -> PortableData:
         if isinstance(configuration, Data):
-            return configuration.data().porter.dump(configuration)  # ty:ignore[invalid-argument-type]
+            return configuration.data().porter.dump(
+                configuration,  # ty:ignore[invalid-argument-type]
+            )  # ty:ignore[invalid-argument-type, invalid-return-type]
         return configuration
 
     @override
@@ -222,8 +217,11 @@ class PluginConfiguration(
         }
 
     async def new_plugin(
-        self, services: ServiceLevel, plugin_type: type[_PluginDefinitionT], /
-    ) -> _PluginT:
+        self,
+        services: ServiceLevel,
+        plugin_type: type[_PluginConfigurationPluginDefinitionT],
+        /,
+    ) -> _PluginConfigurationPluginT:
         """
         Create a new instance of the configured plugin.
         """
@@ -256,14 +254,15 @@ class PluginConfiguration(
         )
 
 
-ResolvablePluginConfiguration: TypeAlias = (
-    ResolvableId[_PluginDefinitionT] | PluginConfiguration[_PluginDefinitionT, _PluginT]
-)
+type ResolvablePluginConfiguration[
+    PluginDefinitionT: PluginDefinition = PluginDefinition,
+    PluginT: Plugin = Plugin,
+] = ResolvableId[PluginDefinitionT] | PluginConfiguration[PluginDefinitionT, PluginT]
 
 
-def resolve_plugin_configuration(
-    plugin_configuration: ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT],
-) -> PluginConfiguration[_PluginDefinitionT, _PluginT]:
+def resolve_plugin_configuration[PluginDefinitionT: PluginDefinition, PluginT: Plugin](
+    plugin_configuration: ResolvablePluginConfiguration[PluginDefinitionT, PluginT],
+) -> PluginConfiguration[PluginDefinitionT, PluginT]:
     """
     Resolve a value to a plugin configuration.
     """
@@ -271,20 +270,26 @@ def resolve_plugin_configuration(
         return plugin_configuration
     if isinstance(plugin_configuration, str):
         return PluginConfiguration(plugin_configuration)
-    return PluginConfiguration(resolve_definition(plugin_configuration).id)  # ty:ignore[invalid-argument-type]
+    return PluginConfiguration(resolve_definition(plugin_configuration).id)
 
 
-ResolvablePluginConfigurationSequence: TypeAlias = (
-    ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT]
-    | Iterable[ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT]]
+type ResolvablePluginConfigurationSequence[
+    PluginDefinitionT: PluginDefinition = PluginDefinition,
+    PluginT: Plugin = Plugin,
+] = (
+    ResolvablePluginConfiguration[PluginDefinitionT, PluginT]
+    | Iterable[ResolvablePluginConfiguration[PluginDefinitionT, PluginT]]
 )
 
 
-def resolve_plugin_configuration_sequence(
+def resolve_plugin_configuration_sequence[
+    PluginDefinitionT: PluginDefinition,
+    PluginT: Plugin,
+](
     plugin_configurations: ResolvablePluginConfigurationSequence[
-        _PluginDefinitionT, _PluginT
+        PluginDefinitionT, PluginT
     ],
-) -> MutableSequence[PluginConfiguration[_PluginDefinitionT, _PluginT]]:
+) -> MutableSequence[PluginConfiguration[PluginDefinitionT, PluginT]]:
     """
     Resolve a value to a sequence of plugin configurations.
     """
@@ -295,15 +300,23 @@ def resolve_plugin_configuration_sequence(
         or isinstance(plugin_configurations, type)
         and issubclass(plugin_configurations, Plugin)
     ):
-        return [resolve_plugin_configuration(plugin_configurations)]  # ty:ignore[invalid-argument-type]
+        return [
+            resolve_plugin_configuration(
+                plugin_configurations,  # ty:ignore[invalid-argument-type]
+            )
+        ]
     return list(map(resolve_plugin_configuration, plugin_configurations))  # ty:ignore[invalid-argument-type]
 
 
-def resolve_plugin_configuration_mapping(
+def resolve_plugin_configuration_mapping[
+    PluginDefinitionT: PluginDefinition,
+    PluginT: Plugin,
+    KeyT,
+](
     plugin_configurations: Mapping[
-        _T, ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT]
+        KeyT, ResolvablePluginConfiguration[PluginDefinitionT, PluginT]
     ],
-) -> MutableMapping[_T, PluginConfiguration[_PluginDefinitionT, _PluginT]]:
+) -> MutableMapping[KeyT, PluginConfiguration[PluginDefinitionT, PluginT]]:
     """
     Resolve a value to a mapping of plugin configurations.
     """
@@ -313,22 +326,20 @@ def resolve_plugin_configuration_mapping(
     }
 
 
-async def new_plugins(
+async def new_plugins[PluginDefinitionT: PluginDefinition, PluginT: Plugin](
     services: ServiceLevel,
-    plugin_type: type[Intersection[_PluginDefinitionT, PluginDefinition[_PluginT]]],
+    plugin_type: type[Intersection[PluginDefinitionT, PluginDefinition[PluginT]]],
     plugins: ResolvablePluginConfigurationSequence[
-        Intersection[_PluginDefinitionT, PluginDefinition[_PluginT]], _PluginT
+        Intersection[PluginDefinitionT, PluginDefinition[PluginT]], PluginT
     ],
     /,
-) -> Iterable[_PluginT]:
+) -> Iterable[PluginT]:
     """
     Create new instances of the configured plugins.
     """
     return await gather(
         *[
             plugin.new_plugin(services, plugin_type)
-            for plugin in resolve_plugin_configuration_sequence(
-                plugins,  # ty:ignore[invalid-argument-type]
-            )
+            for plugin in resolve_plugin_configuration_sequence(plugins)
         ]
     )

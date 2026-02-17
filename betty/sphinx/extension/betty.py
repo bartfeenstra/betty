@@ -9,7 +9,7 @@ from collections.abc import Callable, Iterable, MutableSequence, Sequence
 from functools import cmp_to_key
 from textwrap import indent
 from threading import Thread
-from typing import TYPE_CHECKING, TypeAlias, TypeVar, override
+from typing import TYPE_CHECKING, override
 
 from docutils import nodes
 from sphinx.util.docutils import SphinxDirective
@@ -37,11 +37,11 @@ if TYPE_CHECKING:
     from betty.plugin.repository import PluginRepository
     from betty.serde import Serializer
 
-_T = TypeVar("_T")
-NodesLike: TypeAlias = nodes.Node | Iterable[nodes.Node] | None
+
+type NodesLike = nodes.Node | Iterable[nodes.Node] | None
 
 
-def _to_thread(target: Callable[[], _T]) -> _T:
+def _to_thread[T](target: Callable[[], T]) -> T:
     result = Result(target)
     thread = Thread(target=result)
     thread.start()

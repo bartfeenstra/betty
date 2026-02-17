@@ -17,8 +17,6 @@ if TYPE_CHECKING:
 
     from betty.locale.localizable import Localizable, ResolvableLocalizable
 
-_CoT = TypeVar("_CoT", covariant=True)
-
 
 @final
 class Size(IntEnum):
@@ -32,7 +30,7 @@ class Size(IntEnum):
 
 
 @final
-class Sample(Generic[_CoT]):
+class Sample[T]:
     """
     A sample.
 
@@ -41,7 +39,7 @@ class Sample(Generic[_CoT]):
 
     def __init__(
         self,
-        subject: _CoT,
+        subject: T,
         *,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
@@ -53,7 +51,7 @@ class Sample(Generic[_CoT]):
         self._size = size
 
     @property
-    def subject(self) -> _CoT:
+    def subject(self) -> T:
         """
         The sample subject.
         """
@@ -81,8 +79,13 @@ class Sample(Generic[_CoT]):
         return self._size
 
 
+_SampleT = TypeVar("_SampleT", covariant=True)
+
+
 @final
-class Samples(Generic[_CoT]):
+class Samples(
+    Generic[_SampleT],  # noqa: UP046
+):
     """
     A set of samples.
     """
@@ -90,14 +93,14 @@ class Samples(Generic[_CoT]):
     def __init__(
         self,
         samples: Iterable[
-            Callable[[], Sample[_CoT]]
-            | Samples[_CoT]
-            | type[Intersection[_CoT, Samplable]]
+            Callable[[], Sample[_SampleT]]
+            | Samples[_SampleT]
+            | type[Intersection[_SampleT, Samplable]]
         ],
     ):
         self._samples = list(samples)
 
-    def __iter__(self) -> Iterator[Sample[_CoT]]:
+    def __iter__(self) -> Iterator[Sample[_SampleT]]:
         for sample in self._samples:
             if isinstance(sample, Samples):
                 yield from sample

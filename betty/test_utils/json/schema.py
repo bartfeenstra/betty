@@ -3,7 +3,6 @@ Test utilities for :py:mod:`betty.json.schema`.
 """
 
 from collections.abc import MutableMapping, Sequence
-from typing import TypeAlias
 
 import pytest
 from jsonschema.exceptions import ValidationError
@@ -30,9 +29,7 @@ DUMMY_SCHEMAS: Sequence[
 )
 
 
-SchemaTestBaseSut: TypeAlias = tuple[
-    Schema, Sequence[PortableData], Sequence[PortableData]
-]
+type SchemaTestBaseSut = tuple[Schema, Sequence[PortableData], Sequence[PortableData]]
 
 
 class SchemaTestBase:

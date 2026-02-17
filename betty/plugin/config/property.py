@@ -4,7 +4,7 @@ Plugin configuration properties.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeVar, final
+from typing import TYPE_CHECKING, final
 
 from betty.collections import (
     MutableDictKeyedCollection,
@@ -31,20 +31,18 @@ from betty.plugin.data import PluginConfigurationSequenceDefinition
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
 
-_PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
-_PluginDefinitionT = TypeVar(
-    "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
-)
-
 
 @final
-class PluginConfigurationSequenceProperty(
+class PluginConfigurationSequenceProperty[
+    PluginDefinitionT: PluginDefinition,
+    PluginT: Plugin,
+](
     SequenceProperty[
         MutableResolvedSequence[
-            PluginConfiguration[_PluginDefinitionT, _PluginT],
-            ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT],
+            PluginConfiguration[PluginDefinitionT, PluginT],
+            ResolvablePluginConfiguration[PluginDefinitionT, PluginT],
         ],
-        ResolvablePluginConfigurationSequence[_PluginDefinitionT, _PluginT],
+        ResolvablePluginConfigurationSequence[PluginDefinitionT, PluginT],
     ]
 ):
     """
@@ -53,7 +51,7 @@ class PluginConfigurationSequenceProperty(
 
     def __init__(
         self,
-        plugin_type: type[_PluginDefinitionT],
+        plugin_type: type[PluginDefinitionT],
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
@@ -70,15 +68,17 @@ class PluginConfigurationSequenceProperty(
 
 
 @final
-class PluginDefinitionConfigurationsProperty(KeyedCollectionProperty):
+class PluginDefinitionConfigurationsProperty[PluginDefinitionT: PluginDefinition](
+    KeyedCollectionProperty
+):
     """
     A property containing a :py:class:`betty.collections.KeyedCollection` of :py:class:`betty.plugin.config.PluginDefinitionConfiguration`.
     """
 
     def __init__(
         self,
-        plugin_type: type[_PluginDefinitionT],
-        item: type[PluginDefinitionConfiguration[_PluginDefinitionT]],
+        plugin_type: type[PluginDefinitionT],
+        item: type[PluginDefinitionConfiguration[PluginDefinitionT]],
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,

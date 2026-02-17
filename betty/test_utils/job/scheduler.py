@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from asyncio import create_task, sleep
 from collections.abc import Iterator, MutableSequence
-from typing import TYPE_CHECKING, Generic, Self, TypeVar, cast, final, override
+from typing import TYPE_CHECKING, Self, cast, final, override
 
 import pytest
 
@@ -28,16 +28,13 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
 
-_ContextCoT = TypeVar("_ContextCoT", bound=Context, covariant=True)
-
-
-class StaticScheduler(Scheduler[_ContextCoT], Generic[_ContextCoT]):
+class StaticScheduler[ContextT: Context](Scheduler[ContextT]):
     """
     A scheduler that issues static job batches.
     """
 
     def __init__(
-        self, context: _ContextCoT, batches: Sequence[ScheduledJobBatch | Closed]
+        self, context: ContextT, batches: Sequence[ScheduledJobBatch | Closed]
     ):
         self._context = context
         self._batches: Iterable[ScheduledJobBatch | Closed] | Closed = iter(batches)
@@ -58,7 +55,7 @@ class StaticScheduler(Scheduler[_ContextCoT], Generic[_ContextCoT]):
             return batch
 
     @override
-    async def add(self, *jobs: Job[_ContextCoT]) -> None:
+    async def add(self, *jobs: Job[ContextT]) -> None:
         raise NotImplementedError
 
     @override
@@ -78,7 +75,7 @@ class StaticScheduler(Scheduler[_ContextCoT], Generic[_ContextCoT]):
 
     @override
     @property
-    def context(self) -> _ContextCoT:
+    def context(self) -> ContextT:
         return self._context
 
 
@@ -92,17 +89,12 @@ class SchedulerTestBaseContext(Context):
         self.jobs: MutableSequence[Job[Self]] = []
 
 
-_SchedulerTestBaseContextCoT = TypeVar(
-    "_SchedulerTestBaseContextCoT", bound=SchedulerTestBaseContext, covariant=True
-)
-
-
-class _Job(Job[_SchedulerTestBaseContextCoT]):
+class _Job(Job[SchedulerTestBaseContext]):
     def __init__(
         self,
         job_id: str,
         *,
-        additional_jobs: Sequence[_Job[_SchedulerTestBaseContextCoT]] | None = None,
+        additional_jobs: Sequence[_Job[SchedulerTestBaseContext]] | None = None,
         dependencies: set[str] | None = None,
         dependents: set[str] | None = None,
         priority: bool = False,
@@ -113,25 +105,25 @@ class _Job(Job[_SchedulerTestBaseContextCoT]):
         self._additional_jobs = additional_jobs
 
     @override
-    async def do(self, scheduler: Scheduler[_SchedulerTestBaseContextCoT], /) -> None:
+    async def do(self, scheduler: Scheduler[SchedulerTestBaseContext], /) -> None:
         if self._additional_jobs is not None:
             for additional_job in self._additional_jobs:
                 await scheduler.add(additional_job)
-        scheduler.context.jobs.append(self)  # ty:ignore[invalid-argument-type]
+        scheduler.context.jobs.append(self)
 
 
 @final
-class Sleep(Job[_SchedulerTestBaseContextCoT]):
+class Sleep(Job[SchedulerTestBaseContext]):
     """
     A job that sleeps for a long, long time.
     """
 
     @override
-    async def do(self, scheduler: Scheduler[_SchedulerTestBaseContextCoT], /) -> None:
+    async def do(self, scheduler: Scheduler[SchedulerTestBaseContext], /) -> None:
         await sleep(999999999)
 
 
-class Raise(Job[_SchedulerTestBaseContextCoT]):
+class Raise(Job[SchedulerTestBaseContext]):
     """
     A job that raises an exception.
     """
@@ -151,24 +143,24 @@ class Raise(Job[_SchedulerTestBaseContextCoT]):
         self._reason = reason
 
     @override
-    async def do(self, scheduler: Scheduler[_SchedulerTestBaseContextCoT], /) -> None:
+    async def do(self, scheduler: Scheduler[SchedulerTestBaseContext], /) -> None:
         raise self._reason
 
 
-class SchedulerTestBase(Generic[_SchedulerTestBaseContextCoT]):
+class SchedulerTestBase:
     """
     A base class for testing :py:class:`betty.job.scheduler.Scheduler` implementations.
     """
 
     @pytest.fixture
-    def sut(self) -> Scheduler[_SchedulerTestBaseContextCoT]:
+    def sut(self) -> Scheduler[SchedulerTestBaseContext]:
         """
         Provide the systems under test.
         """
         raise NotImplementedError
 
     async def test___aexit___with_exception(
-        self, sut: Scheduler[_SchedulerTestBaseContextCoT]
+        self, sut: Scheduler[SchedulerTestBaseContext]
     ) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.__aexit__` implementations.
@@ -179,14 +171,14 @@ class SchedulerTestBase(Generic[_SchedulerTestBaseContextCoT]):
                 raise exception
         assert exc_info.value is exception
 
-    async def test_add(self, sut: Scheduler[_SchedulerTestBaseContextCoT]) -> None:
+    async def test_add(self, sut: Scheduler[SchedulerTestBaseContext]) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.add` implementations.
         """
         await sut.add(_Job("job"))
 
     async def test_add__with_duplicate_job(
-        self, sut: Scheduler[_SchedulerTestBaseContextCoT]
+        self, sut: Scheduler[SchedulerTestBaseContext]
     ) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.add` implementations.
@@ -196,7 +188,7 @@ class SchedulerTestBase(Generic[_SchedulerTestBaseContextCoT]):
             await sut.add(_Job("job"))
 
     async def test_add__with_dependent_post_release(
-        self, sut: Scheduler[_SchedulerTestBaseContextCoT]
+        self, sut: Scheduler[SchedulerTestBaseContext]
     ) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.add` implementations.
@@ -207,7 +199,7 @@ class SchedulerTestBase(Generic[_SchedulerTestBaseContextCoT]):
                 _Job("dependent"), _Job("dependency", dependents={"dependent"})
             )
 
-    async def test_release(self, sut: Scheduler[_SchedulerTestBaseContextCoT]) -> None:
+    async def test_release(self, sut: Scheduler[SchedulerTestBaseContext]) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.release` implementations.
         """
@@ -306,9 +298,9 @@ class SchedulerTestBase(Generic[_SchedulerTestBaseContextCoT]):
     async def test_get__returns_job(
         self,
         expected: set[str] | Sequence[str],
-        pre_release_jobs: Sequence[Job[_SchedulerTestBaseContextCoT]],
-        post_release_jobs: Sequence[Job[_SchedulerTestBaseContextCoT]],
-        sut: Scheduler[_SchedulerTestBaseContextCoT],
+        pre_release_jobs: Sequence[Job[SchedulerTestBaseContext]],
+        post_release_jobs: Sequence[Job[SchedulerTestBaseContext]],
+        sut: Scheduler[SchedulerTestBaseContext],
     ) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.get` implementations.
@@ -325,7 +317,7 @@ class SchedulerTestBase(Generic[_SchedulerTestBaseContextCoT]):
 
     async def test_get__raises_when_unknown_dependency(
         self,
-        sut: Scheduler[_SchedulerTestBaseContextCoT],
+        sut: Scheduler[SchedulerTestBaseContext],
     ) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.get` implementations.
@@ -337,7 +329,7 @@ class SchedulerTestBase(Generic[_SchedulerTestBaseContextCoT]):
                     pass
 
     async def test_get__raises_when_cyclic(
-        self, sut: Scheduler[_SchedulerTestBaseContextCoT]
+        self, sut: Scheduler[SchedulerTestBaseContext]
     ) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.get` implementations.
@@ -349,7 +341,7 @@ class SchedulerTestBase(Generic[_SchedulerTestBaseContextCoT]):
                 await sut.get()
 
     async def test_get__raises_when_cancelled(
-        self, sut: Scheduler[_SchedulerTestBaseContextCoT]
+        self, sut: Scheduler[SchedulerTestBaseContext]
     ) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.get` implementations.
@@ -359,7 +351,7 @@ class SchedulerTestBase(Generic[_SchedulerTestBaseContextCoT]):
             await sut.get()
 
     async def test_get__raises_when_completed(
-        self, sut: Scheduler[_SchedulerTestBaseContextCoT]
+        self, sut: Scheduler[SchedulerTestBaseContext]
     ) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.get` implementations.
@@ -369,7 +361,7 @@ class SchedulerTestBase(Generic[_SchedulerTestBaseContextCoT]):
             await sut.get()
 
     async def test_get___job_exception_should_cancel(
-        self, sut: Scheduler[_SchedulerTestBaseContextCoT]
+        self, sut: Scheduler[SchedulerTestBaseContext]
     ) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.get` implementations.
@@ -383,7 +375,7 @@ class SchedulerTestBase(Generic[_SchedulerTestBaseContextCoT]):
         assert exc_info.value.__cause__ is reason
 
     async def test_get___done_when_cancelled(
-        self, sut: Scheduler[_SchedulerTestBaseContextCoT]
+        self, sut: Scheduler[SchedulerTestBaseContext]
     ) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.get` implementations.
@@ -398,9 +390,7 @@ class SchedulerTestBase(Generic[_SchedulerTestBaseContextCoT]):
         actual = [job.id for job in sut.context.jobs]
         assert actual == ["one"]
 
-    async def test___aiter__(
-        self, sut: Scheduler[_SchedulerTestBaseContextCoT]
-    ) -> None:
+    async def test___aiter__(self, sut: Scheduler[SchedulerTestBaseContext]) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.__aiter__` implementations.
         """
@@ -409,7 +399,7 @@ class SchedulerTestBase(Generic[_SchedulerTestBaseContextCoT]):
         await completion
 
     async def test_complete__when_completed(
-        self, sut: Scheduler[_SchedulerTestBaseContextCoT]
+        self, sut: Scheduler[SchedulerTestBaseContext]
     ) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.complete` implementations.
@@ -418,7 +408,7 @@ class SchedulerTestBase(Generic[_SchedulerTestBaseContextCoT]):
         await sut.complete()
 
     async def test_complete__when_cancelled(
-        self, sut: Scheduler[_SchedulerTestBaseContextCoT]
+        self, sut: Scheduler[SchedulerTestBaseContext]
     ) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.complete` implementations.
@@ -427,7 +417,7 @@ class SchedulerTestBase(Generic[_SchedulerTestBaseContextCoT]):
         with pytest.raises(Cancelled):
             await sut.complete()
 
-    async def test_cancel(self, sut: Scheduler[_SchedulerTestBaseContextCoT]) -> None:
+    async def test_cancel(self, sut: Scheduler[SchedulerTestBaseContext]) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.cancel` implementations.
         """
@@ -437,7 +427,7 @@ class SchedulerTestBase(Generic[_SchedulerTestBaseContextCoT]):
             await sut.get()
 
     async def test_cancel__with_exception(
-        self, sut: Scheduler[_SchedulerTestBaseContextCoT]
+        self, sut: Scheduler[SchedulerTestBaseContext]
     ) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.cancel` implementations.
@@ -451,7 +441,7 @@ class SchedulerTestBase(Generic[_SchedulerTestBaseContextCoT]):
         assert exc_info.value.__cause__ is reason
 
     async def test_cancel__when_cancelled(
-        self, sut: Scheduler[_SchedulerTestBaseContextCoT]
+        self, sut: Scheduler[SchedulerTestBaseContext]
     ) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.cancel` implementations.
@@ -460,7 +450,7 @@ class SchedulerTestBase(Generic[_SchedulerTestBaseContextCoT]):
         await sut.cancel()
 
     async def test_cancel__when_completed(
-        self, sut: Scheduler[_SchedulerTestBaseContextCoT]
+        self, sut: Scheduler[SchedulerTestBaseContext]
     ) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.cancel` implementations.
@@ -468,7 +458,7 @@ class SchedulerTestBase(Generic[_SchedulerTestBaseContextCoT]):
         await sut.complete()
         await sut.cancel()
 
-    async def test_context(self, sut: Scheduler[_SchedulerTestBaseContextCoT]) -> None:
+    async def test_context(self, sut: Scheduler[SchedulerTestBaseContext]) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.context` implementations.
         """

@@ -4,7 +4,7 @@ Localizable attributes.
 
 from __future__ import annotations
 
-from typing import TypeVar, final
+from typing import final
 
 from betty.data.aggregate.record.object.property import Property
 from betty.locale.localizable import (
@@ -19,9 +19,6 @@ from betty.locale.localizable.data import (
     CountableLocalizableDefinition,
     LocalizableDefinition,
 )
-
-_ValueGetT = TypeVar("_ValueGetT")
-_ValueSetT = TypeVar("_ValueSetT")
 
 
 @final
