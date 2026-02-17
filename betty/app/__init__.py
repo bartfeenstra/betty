@@ -37,7 +37,6 @@ from betty.plugin.ordered import sort_ordered_plugin_graph
 from betty.portable.file import assert_load_file
 from betty.service.container import (
     ServiceFactory,
-    StaticService,
     service,
 )
 from betty.service.factory import DataManufacturable
@@ -161,7 +160,9 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ManagedLifeCycle):
             yield cls(
                 AppConfiguration(),
                 cache_directory_path,
-                cache_factory=cache_factory or StaticService(NoOpCache()),
+                cache_factory=lambda _: (
+                    NoOpCache() if cache_factory is None else cache_factory
+                ),
                 process_pool=process_pool,
                 user=NoOpUser() if user is None else user,
                 translations=DEFAULT_TRANSLATION_REPOSITORY

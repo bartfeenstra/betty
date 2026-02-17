@@ -10,7 +10,6 @@ from betty.service.container import (
     ServiceFactory,
     ServiceInitializedError,
     ServiceManager,
-    StaticService,
     _AsynchronousServiceManager,
     _SynchronousServiceManager,
     service,
@@ -103,14 +102,6 @@ class _DummyServiceManager(ServiceManager[Any, None, None]):
 class TestManagedLifeCycle:
     def test(self) -> None:
         ManagedLifeCycle()
-
-
-class TestStaticService:
-    def test___call__(self) -> None:
-        service = object()
-        services = ManagedLifeCycle()
-        sut = StaticService[ManagedLifeCycle, object](service)
-        assert sut(services) is service
 
 
 class TestServiceManager:
