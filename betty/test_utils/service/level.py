@@ -2,9 +2,7 @@
 Test utilities for :py:mod:`betty.service.level`.
 """
 
-from typing import Any, Self
-
-from typing_extensions import override
+from typing import Any, Self, override
 
 from betty.service.factory import DataManufacturable, Manufacturable
 from betty.service.level import ServiceLevel

@@ -4,9 +4,7 @@ Copyright notice configuration.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, final
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, Any, final, override
 
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.data.aggregate.record.object import ObjectDefinition

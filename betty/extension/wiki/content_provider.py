@@ -2,9 +2,7 @@
 Dynamic content.
 """
 
-from typing import Self
-
-from typing_extensions import override
+from typing import Self, override
 
 from betty.ancestry.has_links import HasLinks
 from betty.content_provider import ContentProviderDefinition

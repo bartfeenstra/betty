@@ -8,9 +8,7 @@ from asyncio import to_thread
 from contextlib import suppress
 from pathlib import Path
 from shutil import rmtree
-from typing import TYPE_CHECKING, Self, final
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, Self, final, override
 
 from betty.extension import Extension, ExtensionDefinition
 from betty.extension.demo.jobs import LoadAncestry

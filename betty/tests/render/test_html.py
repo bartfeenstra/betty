@@ -1,7 +1,5 @@
 from collections.abc import Mapping, Sequence
-from typing import Any
-
-from typing_extensions import override
+from typing import Any, override
 
 from betty.locale import ResolvableLocale
 from betty.media_type import MediaType

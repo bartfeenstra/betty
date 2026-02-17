@@ -7,12 +7,11 @@ from asyncio import to_thread
 from contextlib import AsyncExitStack
 from pathlib import Path
 from shutil import copytree
-from typing import final
+from typing import final, override
 
 from aiofiles.os import makedirs
 from sphinx.application import Sphinx
 from sphinx.ext.autodoc import MethodDocumenter
-from typing_extensions import override
 
 from betty import serve
 from betty.dirs import ROOT_DIRECTORY_PATH

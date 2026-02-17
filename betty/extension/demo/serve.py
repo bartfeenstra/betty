@@ -5,9 +5,7 @@ Tools to serve demonstration sites.
 from __future__ import annotations
 
 from contextlib import AsyncExitStack
-from typing import TYPE_CHECKING, final
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, final, override
 
 from betty import serve
 from betty.extension.demo import generate_with_cleanup

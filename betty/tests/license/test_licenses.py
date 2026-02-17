@@ -3,12 +3,11 @@ from collections.abc import AsyncIterator
 from io import BytesIO
 from json import dumps
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, override
 
 import pytest
 from aiohttp import ClientSession
 from aioresponses import aioresponses
-from typing_extensions import override
 
 from betty.cache.file import BinaryFileCache
 from betty.license import License

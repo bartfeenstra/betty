@@ -5,9 +5,7 @@ Provide exception handling utilities.
 from __future__ import annotations
 
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Never
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, Never, override
 
 from betty.data.indicator.selector import Selectors
 from betty.locale.localizable import Localizable, ResolvableLocalizable

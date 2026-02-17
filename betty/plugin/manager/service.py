@@ -5,9 +5,9 @@ Provide plugin repositories for service levels.
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import TYPE_CHECKING, Any, cast, final
+from typing import TYPE_CHECKING, Any, cast, final, override
 
-from typing_extensions import TypeVar, override
+from typing_extensions import TypeVar
 
 from betty import plugin
 from betty.concurrent import AsynchronizedLock, Ledger

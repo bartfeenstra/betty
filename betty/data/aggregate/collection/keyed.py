@@ -3,9 +3,7 @@ Keyed collection data types.
 """
 
 from collections.abc import Sequence
-from typing import Any, TypeVar, final
-
-from typing_extensions import override
+from typing import Any, TypeVar, final, override
 
 from betty.assertion import assert_mapping, assert_sequence
 from betty.collections import MutableDictKeyedCollection, MutableKeyedCollection

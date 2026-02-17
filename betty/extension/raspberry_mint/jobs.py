@@ -5,10 +5,9 @@ Jobs for the Raspberry Mint extension.
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, override
 
 import aiofiles
-from typing_extensions import override
 
 from betty.extension._theme.search import generate_search_index
 from betty.extension.raspberry_mint import RaspberryMint

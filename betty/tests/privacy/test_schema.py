@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, cast, override
 
 import pytest
-from typing_extensions import override
 
 from betty.privacy.schema import PrivacySchema
 from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut

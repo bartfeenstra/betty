@@ -5,9 +5,7 @@ Provide Betty's main data model.
 from __future__ import annotations
 
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, final
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, final, override
 
 from betty.model import Entity
 from betty.model.association import AssociationRegistry

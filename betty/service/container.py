@@ -18,9 +18,8 @@ from typing import (
     TypeVar,
     cast,
     overload,
+    override,
 )
-
-from typing_extensions import override
 
 from betty.concurrent import AsynchronizedLock, Lock
 from betty.life_cycle.manage import ManagedLifeCycle

@@ -9,12 +9,11 @@ from collections.abc import Callable, Iterable, MutableSequence, Sequence
 from functools import cmp_to_key
 from textwrap import indent
 from threading import Thread
-from typing import TYPE_CHECKING, TypeAlias, TypeVar
+from typing import TYPE_CHECKING, TypeAlias, TypeVar, override
 
 from docutils import nodes
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.parsing import nested_parse_to_nodes
-from typing_extensions import override
 
 from betty.app import App
 from betty.data import Data, OptionalDefinition

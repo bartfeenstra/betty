@@ -4,9 +4,7 @@ Data types to describe people's names.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, final, override
 
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_locale import HasLocale

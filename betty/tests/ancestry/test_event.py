@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, Any, cast, override
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event

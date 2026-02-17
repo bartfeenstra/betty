@@ -5,10 +5,9 @@ Provide :py:class:`betty.copyright_notice.CopyrightNotice` plugins.
 from __future__ import annotations
 
 from contextlib import suppress
-from typing import TYPE_CHECKING, Self, final
+from typing import TYPE_CHECKING, Self, final, override
 
 import aiohttp
-from typing_extensions import override
 
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.locale import DEFAULT_LOCALE, resolve_locale

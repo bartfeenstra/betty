@@ -15,9 +15,7 @@ from collections.abc import (
 )
 from contextlib import suppress
 from itertools import chain
-from typing import Any, Generic, TypeVar, final, overload
-
-from typing_extensions import override
+from typing import Any, Generic, TypeVar, final, overload, override
 
 from betty.functools import passthrough
 from betty.typing import Void

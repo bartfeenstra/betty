@@ -6,9 +6,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from textwrap import indent
-from typing import TYPE_CHECKING, ClassVar, final
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, ClassVar, final, override
 
 from betty.locale import HasLocale, HasLocaleStr
 from betty.locale.localizable import (

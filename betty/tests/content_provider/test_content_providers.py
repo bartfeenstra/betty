@@ -1,12 +1,11 @@
 from collections.abc import Iterable, Mapping
 from gettext import NullTranslations
 from pathlib import Path
-from typing import Any
+from typing import Any, override
 
 import aiofiles
 import pytest
 from aiofiles.os import makedirs
-from typing_extensions import override
 
 from betty.ancestry.note import Note
 from betty.app import App

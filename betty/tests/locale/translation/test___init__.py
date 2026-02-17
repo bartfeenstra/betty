@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 import gettext
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, override
 
 import aiofiles
 import pytest
 from babel import Locale
-from typing_extensions import override
 
 from betty.asset import StaticAssetRepository
 from betty.cache.file import BinaryFileCache

@@ -4,10 +4,8 @@ URL generators for project resources.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Self, final
+from typing import TYPE_CHECKING, Any, Self, final, override
 from urllib.parse import urlparse
-
-from typing_extensions import override
 
 from betty.media_type.media_types import HTML, JSON, JSON_LD
 from betty.model import Entity, EntityDefinition

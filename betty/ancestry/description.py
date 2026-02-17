@@ -4,9 +4,7 @@ Data types with human-readable description texts.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, Any, override
 
 from betty.data.aggregate.record.object.property import Optional
 from betty.json.linked_data import (

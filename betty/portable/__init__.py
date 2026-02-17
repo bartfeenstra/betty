@@ -8,9 +8,9 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable, MutableMapping, MutableSequence
-from typing import Generic, Self, TypeAlias, final
+from typing import Generic, Self, TypeAlias, final, override
 
-from typing_extensions import TypeVar, override
+from typing_extensions import TypeVar
 
 _DataClsT = TypeVar("_DataClsT")
 

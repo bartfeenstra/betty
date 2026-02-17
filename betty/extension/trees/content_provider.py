@@ -2,9 +2,7 @@
 Tree content.
 """
 
-from typing import Self
-
-from typing_extensions import override
+from typing import Self, override
 
 from betty.ancestry.person import Person
 from betty.content_provider import ContentProviderDefinition

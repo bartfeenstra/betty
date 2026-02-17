@@ -13,12 +13,11 @@ from http.client import HTTPConnection
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from io import StringIO
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Self, final
+from typing import TYPE_CHECKING, Any, Self, final, override
 from urllib.parse import urlparse
 
 from aiofiles.os import makedirs, symlink
 from aiofiles.tempfile import AiofilesContextManagerTempDir, TemporaryDirectory
-from typing_extensions import override
 
 from betty.exception import HumanFacingException
 from betty.functools import Do

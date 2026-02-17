@@ -17,9 +17,8 @@ from typing import (
     cast,
     final,
     overload,
+    override,
 )
-
-from typing_extensions import override
 
 from betty.string import (
     kebab_case_to_snake_case,

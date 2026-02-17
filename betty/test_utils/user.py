@@ -6,9 +6,7 @@ import logging
 import sys
 from collections.abc import AsyncIterator, Collection, Iterable, MutableSequence
 from contextlib import asynccontextmanager
-from typing import TypeVar, overload
-
-from typing_extensions import override
+from typing import TypeVar, overload, override
 
 from betty.assertion import Assertion
 from betty.locale.localizable import ResolvableLocalizable

@@ -4,10 +4,8 @@ Data types describing persons.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, final, override
 from urllib.parse import quote
-
-from typing_extensions import override
 
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences

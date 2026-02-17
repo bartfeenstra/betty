@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, override
 
 import pytest
-from typing_extensions import override
 
 from betty.ancestry import Ancestry
 from betty.model import Entity, EntityDefinition

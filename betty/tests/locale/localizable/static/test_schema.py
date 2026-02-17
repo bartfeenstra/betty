@@ -1,8 +1,7 @@
 from collections.abc import Iterable, Sequence
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, cast, override
 
 import pytest
-from typing_extensions import override
 
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localizable.static.schema import StaticTranslationsSchema

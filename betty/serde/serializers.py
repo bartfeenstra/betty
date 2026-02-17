@@ -6,10 +6,9 @@ from __future__ import annotations
 
 import json
 from collections.abc import Mapping, Sequence
-from typing import TYPE_CHECKING, cast, final
+from typing import TYPE_CHECKING, cast, final, override
 
 import yaml
-from typing_extensions import override
 
 from betty.locale.localizable.gettext import _
 from betty.media_type.media_types import JSON, YAML

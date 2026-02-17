@@ -5,9 +5,7 @@ The Privacy API.
 from __future__ import annotations
 
 import enum
-from typing import TYPE_CHECKING, Any, Literal
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, Any, Literal, override
 
 from betty.json.linked_data import (
     JsonLdObject,

@@ -5,13 +5,12 @@ Console user sessions.
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import TextIO, TypeVar, cast, final, overload
+from typing import TextIO, TypeVar, cast, final, overload, override
 
 from rich.console import Console
 from rich.progress import BarColumn, TaskProgressColumn, TextColumn, TimeElapsedColumn
 from rich.progress import Progress as _RichProgress
 from rich.prompt import Confirm, Prompt
-from typing_extensions import override
 
 from betty.assertion import Assertion
 from betty.life_cycle.manage import ManagedLifeCycle

@@ -1,4 +1,4 @@
-from typing_extensions import override
+from typing import override
 
 from betty.plugin.config.ordered import OrderedPluginDefinitionConfiguration
 from betty.plugin.ordered import OrderedPluginDefinition

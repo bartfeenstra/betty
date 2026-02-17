@@ -1,6 +1,4 @@
-from typing import ClassVar
-
-from typing_extensions import override
+from typing import ClassVar, override
 
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML

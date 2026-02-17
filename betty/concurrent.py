@@ -10,9 +10,7 @@ from asyncio import sleep
 from collections.abc import AsyncIterator, Hashable, MutableMapping
 from math import floor
 from types import TracebackType
-from typing import Self, TypeVar, final
-
-from typing_extensions import override
+from typing import Self, TypeVar, final, override
 
 from betty.typing import threadsafe
 

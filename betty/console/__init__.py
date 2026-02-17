@@ -7,11 +7,10 @@ import sys
 from asyncio import CancelledError, run
 from collections.abc import Iterable, Sequence
 from enum import IntEnum
-from typing import Any, TypeVar, cast, final
+from typing import Any, TypeVar, cast, final, override
 
 import rich  # noqa: F401
 import rich_argparse
-from typing_extensions import override
 
 from betty.app import App
 from betty.console.command import CommandDefinition, CommandFunction

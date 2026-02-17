@@ -6,11 +6,10 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from contextlib import suppress
-from typing import TYPE_CHECKING, Any, TypeAlias
+from typing import TYPE_CHECKING, Any, TypeAlias, override
 
 from babel import Locale
 from babel.core import UnknownLocaleError
-from typing_extensions import override
 
 import betty.dirs
 

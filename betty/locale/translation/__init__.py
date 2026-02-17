@@ -9,13 +9,12 @@ from abc import ABC, abstractmethod
 from contextlib import redirect_stdout, suppress
 from io import BytesIO, StringIO
 from pathlib import Path
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, final, override
 
 import aiofiles
 from aiofiles.os import makedirs
 from aiofiles.ospath import exists
 from polib import pofile
-from typing_extensions import override
 
 import betty
 import betty.dirs

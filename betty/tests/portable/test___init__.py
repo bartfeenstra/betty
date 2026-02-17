@@ -1,6 +1,4 @@
-from typing import Self
-
-from typing_extensions import override
+from typing import Self, override
 
 from betty.assertion import assert_str
 from betty.portable import (

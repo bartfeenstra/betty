@@ -7,9 +7,9 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from asyncio import gather
 from collections.abc import Iterable, Mapping, MutableMapping, MutableSequence
-from typing import TYPE_CHECKING, Any, Generic, Self, TypeAlias, final
+from typing import TYPE_CHECKING, Any, Generic, Self, TypeAlias, final, override
 
-from typing_extensions import TypeVar, override
+from typing_extensions import TypeVar
 
 from betty.assertion import (
     AssertionChain,

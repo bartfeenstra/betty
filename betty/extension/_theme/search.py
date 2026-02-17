@@ -8,11 +8,10 @@ import json
 from abc import ABC
 from asyncio import gather
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Generic, TypeVar, final
+from typing import TYPE_CHECKING, Generic, TypeVar, final, override
 
 import aiofiles
 from aiofiles.os import makedirs
-from typing_extensions import override
 
 from betty.ancestry.file import File
 from betty.ancestry.has_notes import HasNotes

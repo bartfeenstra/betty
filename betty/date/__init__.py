@@ -9,10 +9,9 @@ import datetime
 import operator
 from contextlib import suppress
 from functools import total_ordering
-from typing import TYPE_CHECKING, Any, TypeAlias
+from typing import TYPE_CHECKING, Any, TypeAlias, override
 
 from babel import dates
-from typing_extensions import override
 
 from betty.locale.localizable import Localizable
 from betty.locale.localizable.gettext import _

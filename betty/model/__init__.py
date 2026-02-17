@@ -2,10 +2,8 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Self, TypeAlias, TypeVar, final
+from typing import TYPE_CHECKING, Any, Self, TypeAlias, TypeVar, final, override
 from uuid import uuid4
-
-from typing_extensions import override
 
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.hashid import hashid

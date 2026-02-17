@@ -1,11 +1,10 @@
 from __future__ import annotations  # noqa: D100
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Self, final
+from typing import TYPE_CHECKING, Self, final, override
 
 from aiofiles.os import makedirs
 from aiofiles.tempfile import TemporaryDirectory
-from typing_extensions import override
 
 from betty.app import App
 from betty.console.command import Command, CommandDefinition, CommandFunction

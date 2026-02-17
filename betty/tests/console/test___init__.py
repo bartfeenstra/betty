@@ -2,11 +2,10 @@ import argparse
 from asyncio import CancelledError
 from collections.abc import Awaitable, Callable
 from threading import Thread
-from typing import Any
+from typing import Any, override
 
 import pytest
 from pytest_mock import MockerFixture
-from typing_extensions import override
 
 from betty.app import App
 from betty.console import SystemExitCode, call_command_func, main_standalone

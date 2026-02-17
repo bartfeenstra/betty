@@ -5,9 +5,7 @@ Provide no-op caching.
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING, Any, Self, final
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, Any, Self, final, override
 
 from betty.cache import Cache, CacheItem, CacheItemValueSetter
 from betty.typing import threadsafe

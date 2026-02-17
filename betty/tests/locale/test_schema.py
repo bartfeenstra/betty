@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from typing import override
+
 import pytest
-from typing_extensions import override
 
 from betty.locale.schema import LocaleSchema
 from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut

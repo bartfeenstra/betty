@@ -1,8 +1,7 @@
 from collections.abc import Iterable, Sequence
-from typing import cast
+from typing import cast, override
 
 import pytest
-from typing_extensions import override
 
 from betty.json.schema import (
     AllOf,

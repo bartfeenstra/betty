@@ -1,8 +1,7 @@
-from typing import Self
+from typing import Self, override
 from unittest.mock import Mock
 
 import pytest
-from typing_extensions import override
 
 from betty.data import DataDefinition, OptionalDefinition
 from betty.data.aggregate.record import (

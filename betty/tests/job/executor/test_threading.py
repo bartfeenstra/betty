@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING, TypeVar, override
 
 import pytest
-from typing_extensions import override
 
 from betty.job import Context
 from betty.job.executor.threading import ThreadPoolExecutor

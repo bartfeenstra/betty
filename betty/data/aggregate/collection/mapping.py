@@ -5,9 +5,7 @@ Key-value mapping data types.
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping, MutableMapping, Sequence
-from typing import TYPE_CHECKING, Any, TypeVar, final
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, Any, TypeVar, final, override
 
 from betty.data.aggregate.collection import CollectionDefinition
 from betty.data.indicator.selector import Key

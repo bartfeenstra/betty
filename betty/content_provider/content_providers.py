@@ -6,9 +6,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from collections.abc import Iterable, Mapping
-from typing import TYPE_CHECKING, Any, Self, TypeAlias, final
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, Any, Self, TypeAlias, final, override
 
 from betty.ancestry.has_notes import HasNotes
 from betty.content_provider import (

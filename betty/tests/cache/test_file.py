@@ -1,11 +1,10 @@
 from collections.abc import AsyncIterator, Iterator, Sequence
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any
+from typing import Any, override
 
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
-from typing_extensions import override
 
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.test_utils.cache import CacheTestBase

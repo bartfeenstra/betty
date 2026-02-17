@@ -2,7 +2,7 @@
 Render plain text to HTML.
 """
 
-from typing_extensions import override
+from typing import override
 
 from betty.html import plain_text_to_html
 from betty.locale.localizable.gettext import _
