@@ -2,23 +2,12 @@ import pytest
 
 from betty.data import DataDefinition
 from betty.data.aggregate.collection.mapping import MappingDefinition
-from betty.data.indicator.selector import Key
 from betty.data.str import StrDefinition
 from betty.portable.error import NotPortable
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 class TestMappingDefinition:
-    def test_elements(self) -> None:
-        item = StrDefinition(label=DUMMY_LOCALIZABLE)
-        sut = MappingDefinition[dict[str, str]](
-            cls=dict,
-            key=StrDefinition(label=DUMMY_LOCALIZABLE),
-            value=item,
-            label=DUMMY_LOCALIZABLE,
-        )
-        assert list(sut.elements({"key": "value"})) == [(Key("key"), item)]
-
     def test_item(self) -> None:
         item = StrDefinition(label=DUMMY_LOCALIZABLE)
         sut = MappingDefinition[dict[str, str]](

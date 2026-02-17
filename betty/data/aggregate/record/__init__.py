@@ -291,7 +291,3 @@ class RecordDefinition[DataClsT = Any, ElementT: Element[str] = Element[str]](
         The definitions of the fields contained by this record.
         """
         return self._fields
-
-    @override
-    def elements(self, data: DataClsT) -> Sequence[tuple[ElementT, DataDefinition]]:
-        return [(field.selector, field.data) for field in self.fields]  # ty:ignore[invalid-return-type]

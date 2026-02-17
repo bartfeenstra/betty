@@ -146,17 +146,6 @@ class TestRecordDefinition:
         )
         assert list(sut.fields) == [field]
 
-    def test_elements(self) -> None:
-        selector = Attr("my_first_element")
-        data = StrDefinition(label=DUMMY_LOCALIZABLE)
-        field = FieldDefinition(selector, data)
-        sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
-            cls=RecordDefinitionTestRecord,
-            label=DUMMY_LOCALIZABLE,
-            fields=[field],
-        )
-        assert list(sut.elements(RecordDefinitionTestRecord())) == [(selector, data)]
-
 
 class TestMappingPorter:
     def test_load__with_value(self) -> None:

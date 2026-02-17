@@ -4,10 +4,11 @@ Keyed collection data types.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, final, override
+from typing import TYPE_CHECKING, Any, final
 
 from betty.assertion import assert_mapping, assert_sequence
 from betty.collections import MutableDictKeyedCollection, MutableKeyedCollection
+from betty.data import Data
 from betty.data.aggregate.collection import CollectionDefinition
 from betty.data.indicator.selector import Element
 from betty.portable import (
@@ -18,11 +19,9 @@ from betty.portable import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-
     from ty_extensions import Intersection
 
-    from betty.data import Data, DataDefinition
+    from betty.data import Data
     from betty.data.aggregate.record import RecordDefinition
     from betty.locale.localizable import ResolvableLocalizable
 
@@ -56,14 +55,6 @@ class KeyedCollectionDefinition[ValueT, ElementT: Element[str] = Element[str]](
         )
         self._key = key
         self._ordered = ordered
-
-    @override
-    def elements(
-        self, data: MutableKeyedCollection[Any, Any, ValueT, Any]
-    ) -> Sequence[tuple[ElementT, DataDefinition]]:
-        return [
-            (type(self._key)(self._key.get(item_data)), self.item) for item_data in data
-        ]  # ty:ignore[invalid-return-type]
 
     def _load(
         self, portable: PortableData, /

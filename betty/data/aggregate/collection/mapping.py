@@ -4,8 +4,8 @@ Key-value mapping data types.
 
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping, MutableMapping, Sequence
-from typing import TYPE_CHECKING, Any, final, override
+from collections.abc import Callable, Mapping, MutableMapping
+from typing import TYPE_CHECKING, Any, final
 
 from betty.data.aggregate.collection import CollectionDefinition
 from betty.data.indicator.selector import Key
@@ -46,10 +46,6 @@ class MappingDefinition[MutableMappingT: MutableMapping[Any, Any]](
         )
         self._key = key
         self._factory = factory
-
-    @override
-    def elements(self, data: MutableMappingT) -> Sequence[tuple[Key, DataDefinition]]:
-        return [(Key(key), self.item) for key, item_data in data.items()]
 
     def _load(self, portable: PortableData, /) -> MutableMappingT:
         from betty.assertion import assert_mapping
