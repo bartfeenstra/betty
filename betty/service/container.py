@@ -102,22 +102,6 @@ def service(factory):
 
 
 @internal
-class StaticService(Generic[_ManagedLifeCycleT, _ServiceT]):
-    """
-    A service factory that returns a static, predefined service.
-    """
-
-    def __init__(self, service: _ServiceT, /):
-        self._service = service
-
-    def __call__(self, services: _ManagedLifeCycleT, /) -> _ServiceT:
-        """
-        Return the service.
-        """
-        return self._service
-
-
-@internal
 class ServiceManager(Generic[_ManagedLifeCycleT, _ServiceGetT, _ServiceT]):
     """
     Manages a single service for a service container.
