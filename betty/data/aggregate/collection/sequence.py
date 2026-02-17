@@ -5,7 +5,7 @@ Sequence data types.
 from __future__ import annotations
 
 from collections.abc import Callable, MutableSequence, Sequence
-from typing import TYPE_CHECKING, Any, override
+from typing import TYPE_CHECKING, Any
 
 from betty.data.aggregate.collection import CollectionDefinition
 from betty.data.indicator.selector import Index
@@ -42,12 +42,6 @@ class SequenceDefinition[MutableSequenceT: MutableSequence[Any]](
             porter=CallbackPorter(self._load, self._dump),
         )
         self._factory = factory
-
-    @override
-    def elements(
-        self, data: MutableSequenceT
-    ) -> Sequence[tuple[Index, DataDefinition]]:
-        return [(Index(index), self.item) for index, item_data in enumerate(data)]
 
     def _load(self, portable: PortableData, /) -> MutableSequenceT:
         from betty.assertion import assert_sequence

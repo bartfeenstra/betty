@@ -51,13 +51,6 @@ class TestKeyedCollectionDefinition:
         }
     ]
 
-    def test_elements(self) -> None:
-        assert list(
-            self._sut_ordered.elements(
-                MutableDictKeyedCollection(self._values, key=lambda value: value["key"])
-            )
-        ) == [(Key("my_first_key"), self._item)]
-
     def test_load__unordered(self) -> None:
         data = self._sut_unordered.porter.load(self._portable_unordered)
         assert isinstance(data, MutableDictKeyedCollection)
