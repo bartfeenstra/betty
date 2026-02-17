@@ -8,17 +8,17 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-02-16 18:52+0000\n"
-"PO-Revision-Date: 2025-12-08 19:00+0000\n"
-"Last-Translator: Artur Kalagov "
-"<artur.kalagov@users.noreply.hosted.weblate.org>\n"
-"Language: ru_RU\n"
-"Language-Team: Russian "
-"<https://hosted.weblate.org/projects/betty/betty/ru/>\n"
-"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"PO-Revision-Date: 2026-02-17 18:12+0000\n"
+"Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
+"Language-Team: Russian <https://hosted.weblate.org/projects/betty/betty-0-5-"
+"x/ru/>\n"
+"Language: ru-RU\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: Weblate 5.16.1-dev\n"
 "Generated-By: Babel 2.18.0\n"
 
 #, python-brace-format
@@ -131,7 +131,7 @@ msgid "Also show log messages"
 msgstr ""
 
 msgid "Amsterdam"
-msgstr ""
+msgstr "Амстердам"
 
 msgid "An IETF BCP 47 language tag, such as \"nl-NL\"."
 msgstr ""
@@ -1160,7 +1160,7 @@ msgid "Neighborhoods"
 msgstr ""
 
 msgid "Netherlands"
-msgstr ""
+msgstr "Нидерланды"
 
 msgid "Next page"
 msgstr ""
@@ -1181,7 +1181,7 @@ msgid "Non-binary person"
 msgstr ""
 
 msgid "North Holland"
-msgstr ""
+msgstr "Северная Голландия"
 
 msgid "Note"
 msgstr "Заметка"
@@ -2788,4 +2788,3 @@ msgstr "© Авторские права принадлежат владельц
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Авторские права принадлежат {author}, если не указано иное"
-
