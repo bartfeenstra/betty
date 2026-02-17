@@ -1323,14 +1323,14 @@ msgid "Positional arguments"
 msgstr ""
 
 msgid "Presence"
-msgstr ""
+msgstr "Presencia"
 
 #, python-brace-format
 msgid "Presence of {person} at {event}"
 msgstr ""
 
 msgid "Presences"
-msgstr ""
+msgstr "Presencias"
 
 msgid "Presences configuration"
 msgstr ""
@@ -2568,8 +2568,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} presence"
 msgid_plural "{count} presences"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} presencia"
+msgstr[1] "{count} presencias"
 
 #, python-brace-format
 msgid "{count} province"
