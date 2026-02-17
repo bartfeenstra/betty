@@ -8,15 +8,16 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-02-16 18:52+0000\n"
-"PO-Revision-Date: 2026-01-18 18:06+0000\n"
+"PO-Revision-Date: 2026-02-17 18:12+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
-"Language: es_ES\n"
-"Language-Team: Spanish "
-"<https://hosted.weblate.org/projects/betty/betty/es/>\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-5-"
+"x/es/>\n"
+"Language: es-ES\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.16.1-dev\n"
 "Generated-By: Babel 2.18.0\n"
 
 #, python-brace-format
@@ -129,7 +130,7 @@ msgid "Also show log messages"
 msgstr ""
 
 msgid "Amsterdam"
-msgstr ""
+msgstr "Ámsterdam"
 
 msgid "An IETF BCP 47 language tag, such as \"nl-NL\"."
 msgstr ""
@@ -847,7 +848,7 @@ msgid "Help improve the translations"
 msgstr ""
 
 msgid "Home"
-msgstr ""
+msgstr "Portada"
 
 msgid "I'm sorry, dear, but it seems there is nothing to show."
 msgstr ""
@@ -1036,7 +1037,7 @@ msgid "Machine name"
 msgstr ""
 
 msgid "Man"
-msgstr ""
+msgstr "Hombre"
 
 msgid "Map"
 msgstr ""
@@ -1116,7 +1117,7 @@ msgid "Neighborhoods"
 msgstr ""
 
 msgid "Netherlands"
-msgstr ""
+msgstr "Países Bajos"
 
 msgid "Next page"
 msgstr ""
@@ -1134,7 +1135,7 @@ msgid "Non-binary person"
 msgstr ""
 
 msgid "North Holland"
-msgstr ""
+msgstr "Holanda Septentrional"
 
 msgid "Note"
 msgstr "Nota"
@@ -1918,7 +1919,7 @@ msgid "Witnesses"
 msgstr "Testigues"
 
 msgid "Woman"
-msgstr ""
+msgstr "Mujer"
 
 msgid "Women"
 msgstr ""
@@ -2362,8 +2363,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} man"
 msgid_plural "{count} men"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} hombre"
+msgstr[1] "{count} hombres"
 
 #, python-brace-format
 msgid "{count} marriage"
@@ -2566,8 +2567,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} woman"
 msgid_plural "{count} women"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} mujer"
+msgstr[1] "{count} mujeres"
 
 #, python-brace-format
 msgid "{date}"
@@ -2629,4 +2630,3 @@ msgstr "© Derechos de autor al autore, a menos que se indique lo contrario"
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Derechos de autor {author}, a menos que se indique lo contrario"
-
