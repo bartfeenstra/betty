@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-02-16 18:52+0000\n"
-"PO-Revision-Date: 2026-02-17 17:39+0000\n"
+"PO-Revision-Date: 2026-02-17 18:12+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/betty/betty-0-5-x/"
 "nl/>\n"
@@ -57,7 +57,7 @@ msgid "%(event)s with %(subjects)s"
 msgstr "%(event)s met %(subjects)s"
 
 msgid "A Betty demonstration"
-msgstr ""
+msgstr "Een Betty-demonstratie"
 
 msgid "A countable localizable string"
 msgstr ""
@@ -130,7 +130,7 @@ msgid "Also show log messages"
 msgstr ""
 
 msgid "Amsterdam"
-msgstr ""
+msgstr "Amsterdam"
 
 msgid "An IETF BCP 47 language tag, such as \"nl-NL\"."
 msgstr ""
@@ -199,7 +199,7 @@ msgid "Bar mitzvahs"
 msgstr ""
 
 msgid "Bart Feenstra and contributors"
-msgstr ""
+msgstr "Bart Feenstra en samenwerkers"
 
 msgid "Bat mitzvah"
 msgstr "Bat mitswa"
@@ -287,6 +287,10 @@ msgid ""
 " sample of her family history. You can browse the pages about her and "
 "some of her family to get an idea of what a Betty site looks like."
 msgstr ""
+"Betty is vernoemd naar <a href=\"betty-entity://person/betty-demo-liberta-"
+"lankester\">Liberta 'Betty' Lankester</a>, en deze website laat een kleine "
+"greep uit haar familiegeschiedenis zien. Blader door de pagina's over haar "
+"en haar familie om een idee te krijgen hoe een Betty-site eruit ziet."
 
 #, python-brace-format
 msgid "Betty will talk to you in {locale}"
@@ -430,10 +434,10 @@ msgid "Comes before"
 msgstr ""
 
 msgid "Command"
-msgstr ""
+msgstr "Commando"
 
 msgid "Commands"
-msgstr ""
+msgstr "Commando's"
 
 msgid "Conference"
 msgstr "Conferentie"
@@ -736,7 +740,7 @@ msgid "Explore a demonstration site"
 msgstr "Verken een demonstratiesite"
 
 msgid "Explore a family history..."
-msgstr ""
+msgstr "Ontdek een familiegeschiedenis..."
 
 msgid "Extension"
 msgstr ""
@@ -829,7 +833,7 @@ msgid "Generating site..."
 msgstr ""
 
 msgid "Get started"
-msgstr ""
+msgstr "Ga van start"
 
 msgid "Go to the front page"
 msgstr "Ga naar de voorpagina"
@@ -885,10 +889,10 @@ msgid "Height"
 msgstr ""
 
 msgid "Help improve the translations"
-msgstr ""
+msgstr "Help mee aan de vertalingen"
 
 msgid "Home"
-msgstr ""
+msgstr "Home"
 
 msgid "I'm sorry, dear, but it seems there is nothing to show."
 msgstr "Het spijt me, schat, maar het lijkt erop dat er niets is om te laten zien."
@@ -908,7 +912,7 @@ msgid "ID"
 msgstr ""
 
 msgid "Ilpendam"
-msgstr ""
+msgstr "Ilpendam"
 
 msgid "Immigration"
 msgstr "Immigratie"
@@ -1079,7 +1083,7 @@ msgid "Machine name"
 msgstr ""
 
 msgid "Man"
-msgstr ""
+msgstr "Man"
 
 msgid "Map"
 msgstr ""
@@ -1159,7 +1163,7 @@ msgid "Neighborhoods"
 msgstr ""
 
 msgid "Netherlands"
-msgstr ""
+msgstr "Nederland"
 
 msgid "Next page"
 msgstr ""
@@ -1180,7 +1184,7 @@ msgid "Non-binary person"
 msgstr ""
 
 msgid "North Holland"
-msgstr ""
+msgstr "Noord-Holland"
 
 msgid "Note"
 msgstr "Aantekening"
@@ -1437,10 +1441,10 @@ msgid "Read more on Wikipedia."
 msgstr "Lees meer op Wikipedia."
 
 msgid "Read the Betty documentation"
-msgstr "Lees de Bettydocumentatie"
+msgstr "Lees de Betty-documentatie"
 
 msgid "Read the documentation"
-msgstr ""
+msgstr "Lees de documentatie"
 
 msgid "Referee"
 msgstr ""
@@ -1533,7 +1537,7 @@ msgid ""
 msgstr ""
 
 msgid "Show all available commands"
-msgstr ""
+msgstr "Laat alle beschikbare commando's zien"
 
 msgid "Show this help message"
 msgstr ""
@@ -1575,7 +1579,7 @@ msgid "Style"
 msgstr ""
 
 msgid "Subcommands"
-msgstr ""
+msgstr "Subcommando's"
 
 msgid "Subject"
 msgstr "Onderwerp"
@@ -1899,7 +1903,7 @@ msgid "View original"
 msgstr "Bekijk origineel"
 
 msgid "View the code"
-msgstr ""
+msgstr "Bekijk de code"
 
 msgid "View the documentation"
 msgstr "Bekijk de documentatie"
@@ -1983,7 +1987,7 @@ msgid "Witnesses"
 msgstr "Getuigen"
 
 msgid "Woman"
-msgstr ""
+msgstr "Vrouw"
 
 msgid "Women"
 msgstr ""
@@ -2254,8 +2258,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} command"
 msgid_plural "{count} commands"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} commando"
+msgstr[1] "{count} commando's"
 
 #, python-brace-format
 msgid "{count} conference"
@@ -2434,8 +2438,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} man"
 msgid_plural "{count} men"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} man"
+msgstr[1] "{count} mannen"
 
 #, python-brace-format
 msgid "{count} marriage"
@@ -2638,8 +2642,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} woman"
 msgid_plural "{count} women"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} vrouw"
+msgstr[1] "{count} vrouwen"
 
 #, python-brace-format
 msgid "{date}"
