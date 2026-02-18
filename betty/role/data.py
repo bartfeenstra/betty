@@ -10,7 +10,7 @@ from betty.data.aggregate.record.object import ObjectDefinition
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import CountableStaticTranslations
-from betty.plugin.config import CountableHumanFacingPluginDefinitionConfiguration
+from betty.plugin.data import CountableHumanFacingPluginDefinitionConfiguration
 from betty.role import Role, RoleDefinition
 from betty.sample import Sample
 

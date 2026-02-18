@@ -4,8 +4,8 @@ from typing import override
 from betty.collections import MutableResolvedSequenceProxy
 from betty.data import Data
 from betty.data.aggregate.record.object import ObjectDefinition
-from betty.plugin.config import PluginDefinitionConfiguration
-from betty.plugin.config.property import (
+from betty.plugin.data import PluginDefinitionConfiguration
+from betty.plugin.data.property import (
     PluginDefinitionConfigurationsProperty,
     PluginManufacturerSequenceProperty,
 )

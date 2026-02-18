@@ -11,7 +11,7 @@ from betty.data.aggregate.record.object.property import SequenceProperty
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition, ResolvableId, resolve_id
-from betty.plugin.config import PluginDefinitionConfiguration
+from betty.plugin.data import PluginDefinitionConfiguration
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

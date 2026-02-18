@@ -27,7 +27,7 @@ from betty.plugin.factory import (
 
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
-    from betty.plugin.config import PluginDefinitionConfiguration
+    from betty.plugin.data import PluginDefinitionConfiguration
 
 
 @final
@@ -70,7 +70,7 @@ class PluginDefinitionConfigurationsProperty[PluginDefinitionT: PluginDefinition
     KeyedCollectionProperty
 ):
     """
-    A property containing a :py:class:`betty.collections.KeyedCollection` of :py:class:`betty.plugin.config.PluginDefinitionConfiguration`.
+    A property containing a :py:class:`betty.collections.KeyedCollection` of :py:class:`betty.plugin.data.PluginDefinitionConfiguration`.
     """
 
     def __init__(

@@ -11,7 +11,7 @@ from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import CountableStaticTranslations
 from betty.place_type import PlaceType, PlaceTypeDefinition
-from betty.plugin.config import CountableHumanFacingPluginDefinitionConfiguration
+from betty.plugin.data import CountableHumanFacingPluginDefinitionConfiguration
 from betty.sample import Sample
 
 

@@ -11,8 +11,8 @@ from betty.event_type import EventType, EventTypeDefinition
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import CountableStaticTranslations
-from betty.plugin.config import CountableHumanFacingPluginDefinitionConfiguration
-from betty.plugin.config.ordered import OrderedPluginDefinitionConfiguration
+from betty.plugin.data import CountableHumanFacingPluginDefinitionConfiguration
+from betty.plugin.data.ordered import OrderedPluginDefinitionConfiguration
 from betty.sample import Sample
 
 

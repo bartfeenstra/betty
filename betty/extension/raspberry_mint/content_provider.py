@@ -61,8 +61,8 @@ from betty.locale.localizable.property import LocalizableProperty
 from betty.machine_name import MachineName, MachineNameProperty, ResolvableMachineName
 from betty.model.reference import EntityReference
 from betty.plugin import resolve_id
-from betty.plugin.config.property import PluginManufacturerSequenceProperty
 from betty.plugin.data import PluginManufacturerSequenceDefinition
+from betty.plugin.data.property import PluginManufacturerSequenceProperty
 from betty.portable import CallbackPorter
 from betty.privacy import is_public
 from betty.role import RoleDefinition
