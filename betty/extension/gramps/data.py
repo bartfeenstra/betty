@@ -25,14 +25,14 @@ from betty.exception import HumanFacingException
 from betty.gramps.loader import (
     DEFAULT_EVENT_TYPE_MAPPING,
     DEFAULT_PLACE_TYPE_MAPPING,
-    DEFAULT_PRESENCE_ROLE_MAPPING,
+    DEFAULT_ROLE_MAPPING,
 )
 from betty.locale.localizable.gettext import _
 from betty.pathlib import FilePathDefinition
 from betty.place_type import PlaceTypeDefinition, PlaceTypeManufacturer
 from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
-from betty.presence_role import PresenceRoleDefinition, PresenceRoleManufacturer
+from betty.role import RoleDefinition, RoleManufacturer
 from betty.sample import Size
 
 if TYPE_CHECKING:
@@ -41,7 +41,7 @@ if TYPE_CHECKING:
     from betty.event_type import EventType
     from betty.locale.localizable import ResolvableLocalizable
     from betty.place_type import PlaceType
-    from betty.presence_role import PresenceRole
+    from betty.role import Role
 
 
 class _PluginMappingProperty[PluginDefinitionT: PluginDefinition, PluginT: Plugin](
@@ -126,8 +126,8 @@ class FamilyTree(Data):
     How to map place types.
     """
 
-    presence_roles = _PluginMappingProperty(
-        PresenceRoleManufacturer, _("Gramps role"), DEFAULT_PRESENCE_ROLE_MAPPING
+    roles = _PluginMappingProperty(
+        RoleManufacturer, _("Gramps role"), DEFAULT_ROLE_MAPPING
     )
     """
     How to map presence roles.
@@ -145,9 +145,7 @@ class FamilyTree(Data):
             str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
         ]
         | None = None,
-        presence_roles: Mapping[
-            str, ResolvablePluginManufacturer[PresenceRoleDefinition, PresenceRole]
-        ]
+        roles: Mapping[str, ResolvablePluginManufacturer[RoleDefinition, Role]]
         | None = None,
     ):
         super().__init__()
@@ -158,8 +156,8 @@ class FamilyTree(Data):
             self.event_types.update(event_types)  # ty:ignore[no-matching-overload]
         if place_types is not None:
             self.place_types.update(place_types)  # ty:ignore[no-matching-overload]
-        if presence_roles is not None:
-            self.presence_roles.update(presence_roles)  # ty:ignore[no-matching-overload]
+        if roles is not None:
+            self.roles.update(roles)  # ty:ignore[no-matching-overload]
 
     @property
     def source(self) -> Path | str:
@@ -221,11 +219,11 @@ class FamilyTree(Data):
                 family_trees=[
                     FamilyTree(
                         name="my-family-tree",
-                        event_types={"GrampsRole": "betty-presence-role"},
+                        event_types={"GrampsRole": "betty-role"},
                     ),
                 ]
             ),
-            label="Map a Gramps role to a Betty presence role",
+            label="Map a Gramps role to a Betty role",
         ),
     ],
 )

@@ -22,17 +22,17 @@ from betty.extension._theme import (
     person_timeline_events,
 )
 from betty.model import persistent_id
-from betty.presence_role.presence_roles import Subject
-from betty.presence_role.presence_roles import Unknown as UnknownPresenceRole
 from betty.privacy import Privacy
 from betty.project.data import DEFAULT_LIFETIME_THRESHOLD
+from betty.role.roles import Subject
+from betty.role.roles import Unknown as UnknownRole
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
     from betty.event_type import EventType
-    from betty.presence_role import PresenceRole
+    from betty.role import Role
 
 __REFERENCE_DATE = Date(1970, 1, 1)
 _REFERENCE_DATES = (
@@ -47,7 +47,7 @@ _AFTER_REFERENCE_DATE = Date(2000, 1, 1)
 def _parameterize_with_associated_events() -> Iterator[
     tuple[
         bool,
-        PresenceRole,
+        Role,
         str | None,
         Privacy,
         EventType,
@@ -69,9 +69,9 @@ def _parameterize_with_associated_events() -> Iterator[
         *((True, reference_date) for reference_date in _REFERENCE_DATES),
         (False, None),
     )
-    person_presence_roles = (
+    person_roles = (
         (True, Subject()),
-        (False, UnknownPresenceRole()),
+        (False, UnknownRole()),
     )
     event_types = (
         (True, Birth()),
@@ -94,9 +94,9 @@ def _parameterize_with_associated_events() -> Iterator[
                     person_reference_event_resolvable_date,
                 ) in person_event_reference_resolvable_date:
                     for (
-                        person_presence_role_expected,
-                        person_presence_role,
-                    ) in person_presence_roles:
+                        person_role_expected,
+                        person_role,
+                    ) in person_roles:
                         for (
                             event_resolvable_date_and_person_reference_event_type_expected,
                             event_resolvable_date,
@@ -106,7 +106,7 @@ def _parameterize_with_associated_events() -> Iterator[
                                 yield (
                                     all(
                                         (
-                                            person_presence_role_expected,
+                                            person_role_expected,
                                             event_id_expected,
                                             event_privacy_expected,
                                             event_type_expected,
@@ -115,7 +115,7 @@ def _parameterize_with_associated_events() -> Iterator[
                                             person_reference_event_resolvable_date_expected,
                                         )
                                     ),
-                                    person_presence_role,
+                                    person_role,
                                     event_id,
                                     event_privacy,
                                     event_type,
@@ -155,14 +155,14 @@ class TestPersonLifetimeEvents:
             date=event_date,
             privacy=event_privacy,
         )
-        Presence(person, UnknownPresenceRole(), event)
+        Presence(person, UnknownRole(), event)
         actual = list(person_timeline_events(person, DEFAULT_LIFETIME_THRESHOLD))
         assert expected is (event in actual)
 
     @pytest.mark.parametrize(
         (
             "expected",
-            "presence_role",
+            "role",
             "event_id",
             "event_privacy",
             "event_type",
@@ -176,7 +176,7 @@ class TestPersonLifetimeEvents:
     async def test_with_associated_events(
         self,
         expected: bool,
-        presence_role: PresenceRole,
+        role: Role,
         event_id: str | None,
         event_privacy: Privacy,
         event_type: EventType,
@@ -218,7 +218,7 @@ class TestPersonLifetimeEvents:
             date=event_date,
             privacy=event_privacy,
         )
-        Presence(ancestor3, presence_role, ancestor3_event)
+        Presence(ancestor3, role, ancestor3_event)
 
         descendant1 = Person()
         descendant1.parents.add(person)
@@ -232,7 +232,7 @@ class TestPersonLifetimeEvents:
             date=event_date,
             privacy=event_privacy,
         )
-        Presence(descendant3, presence_role, descendant3_event)
+        Presence(descendant3, role, descendant3_event)
 
         sibling = Person()
         sibling.parents.add(ancestor1)
@@ -242,7 +242,7 @@ class TestPersonLifetimeEvents:
             date=event_date,
             privacy=event_privacy,
         )
-        Presence(sibling, presence_role, sibling_event)
+        Presence(sibling, role, sibling_event)
 
         actual = list(person_timeline_events(person, DEFAULT_LIFETIME_THRESHOLD))
         assert expected is (ancestor3_event in actual)

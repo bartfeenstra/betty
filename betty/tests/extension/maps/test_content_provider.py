@@ -13,8 +13,8 @@ from betty.document import Document
 from betty.extension.maps import Maps
 from betty.extension.maps.content_provider import Attribution, Map
 from betty.model import Entity
-from betty.presence_role.presence_roles import Subject
 from betty.project import Project
+from betty.role.roles import Subject
 
 
 class TestMap:

@@ -19,7 +19,6 @@ from betty.app import App
 from betty.json.schema import JsonSchemaSchema
 from betty.model import Entity
 from betty.openapi.schema import SpecificationSchema
-from betty.presence_role.presence_roles import Unknown as UnknownPresenceRole
 from betty.privacy import Privacy
 from betty.project import Project
 from betty.project.data import EntityTypeConfiguration, ProjectLocale
@@ -38,6 +37,7 @@ from betty.project.generate.jobs import (
     GenerateStaticPublicAssets,
 )
 from betty.project.job import ProjectContext
+from betty.role.roles import Unknown as UnknownRole
 from betty.string import kebab_case_to_lower_camel_case
 from betty.test_utils.jinja import assert_betty_html, assert_betty_json
 from betty.test_utils.job import do
@@ -147,7 +147,7 @@ class TestGenerateEntitiesHtml:
             Person(),
             Person(id="ID", privacy=Privacy.PRIVATE),
             PersonName(individual="Jane", person=Person()),
-            Presence(Person(), UnknownPresenceRole(), Event()),
+            Presence(Person(), UnknownRole(), Event()),
             Place(),
             Place(id="ID", privacy=Privacy.PRIVATE),
             Source(),
@@ -205,7 +205,7 @@ class TestGenerateEntitiesJson:
             Note(DUMMY_LOCALIZABLE),
             Person(),
             PersonName(individual="Jane", person=Person()),
-            Presence(Person(), UnknownPresenceRole(), Event()),
+            Presence(Person(), UnknownRole(), Event()),
             Place(),
             Source(),
         ],

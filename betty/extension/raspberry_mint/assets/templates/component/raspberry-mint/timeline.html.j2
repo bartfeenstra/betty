@@ -8,7 +8,7 @@
                 {% for presence in entity.presences %}
                     {% if presence.person == person_context %}
                         {% set ns.is_attendee = True %}
-                        {% if presence.role is presence_role_plugin('subject') %}
+                        {% if presence.role is role_plugin('subject') %}
                             {% set ns.is_subject = True %}
                         {% endif %}
                     {% endif %}

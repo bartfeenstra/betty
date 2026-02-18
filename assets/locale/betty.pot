@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-02-18 12:26+0000\n"
+"POT-Creation-Date: 2026-02-18 13:51+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -248,10 +248,9 @@ msgstr ""
 
 #, python-brace-format
 msgid ""
-"Betty is unfamiliar with person \"{person_id}\"'s Gramps presence role of "
-"\"{gramps_presence_role}\" for the event with Gramps handle "
-"\"{event_handle}\". The role was imported, but set to "
-"\"{betty_presence_role}\"."
+"Betty is unfamiliar with person \"{person_id}\"'s Gramps role of "
+"\"{gramps_role}\" for the event with Gramps handle \"{event_handle}\". The"
+" role was imported, but set to \"{betty_role}\"."
 msgstr ""
 
 msgid ""
@@ -1266,15 +1265,6 @@ msgstr ""
 msgid "Presence of {person} at {event}"
 msgstr ""
 
-msgid "Presence role"
-msgstr ""
-
-msgid "Presence role configuration"
-msgstr ""
-
-msgid "Presence roles"
-msgstr ""
-
 msgid "Presences"
 msgstr ""
 
@@ -1424,6 +1414,15 @@ msgid "Retirement"
 msgstr ""
 
 msgid "Retirements"
+msgstr ""
+
+msgid "Role"
+msgstr ""
+
+msgid "Role configuration"
+msgstr ""
+
+msgid "Roles"
 msgstr ""
 
 #, python-brace-format
@@ -2448,12 +2447,6 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, python-brace-format
-msgid "{count} presence role"
-msgid_plural "{count} presence roles"
-msgstr[0] ""
-msgstr[1] ""
-
-#, python-brace-format
 msgid "{count} province"
 msgid_plural "{count} provinces"
 msgstr[0] ""
@@ -2480,6 +2473,12 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} retirement"
 msgid_plural "{count} retirements"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} role"
+msgid_plural "{count} roles"
 msgstr[0] ""
 msgstr[1] ""
 

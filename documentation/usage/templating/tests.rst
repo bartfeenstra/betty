@@ -26,7 +26,7 @@ In addition to Jinja2's built-in tests, Betty provides the following:
 - :py:func:`linked_data_dumpable <betty.jinja.test.test_linked_data_dumpable>`
 - :py:func:`persistent_entity_id <betty.model.persistent_id>`
 - :py:func:`place_type_plugin <betty.jinja.test.PluginTester.__call__>`
-- :py:func:`presence_role_plugin <betty.jinja.test.PluginTester.__call__>`
+- :py:func:`role_plugin <betty.jinja.test.PluginTester.__call__>`
 - :py:func:`private <betty.privacy.is_private>`
 - :py:func:`public <betty.privacy.is_public>`
 - :py:func:`renderer_plugin <betty.jinja.test.PluginTester.__call__>`

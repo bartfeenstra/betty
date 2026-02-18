@@ -64,8 +64,8 @@ from betty.plugin import resolve_id
 from betty.plugin.config.property import PluginManufacturerSequenceProperty
 from betty.plugin.data import PluginManufacturerSequenceDefinition
 from betty.portable import CallbackPorter
-from betty.presence_role import PresenceRoleDefinition
 from betty.privacy import is_public
+from betty.role import RoleDefinition
 from betty.service.factory import DataManufacturable, Manufacturable
 from betty.service.requirement.extension import require_extension
 from betty.service.requirement.project import require_project
@@ -565,8 +565,8 @@ class PresencesConfiguration(Data):
     def __init__(
         self,
         *,
-        include: Iterable[ResolvableId[PresenceRoleDefinition]] | None = None,
-        exclude: Iterable[ResolvableId[PresenceRoleDefinition]] | None = None,
+        include: Iterable[ResolvableId[RoleDefinition]] | None = None,
+        exclude: Iterable[ResolvableId[RoleDefinition]] | None = None,
     ):
         super().__init__()
         if include is not None:
@@ -587,7 +587,7 @@ class Presences(Template, DataManufacturable[PresencesConfiguration], Manufactur
     def __init__(
         self,
         *,
-        include: Iterable[ResolvableId[PresenceRoleDefinition]] | None = None,
+        include: Iterable[ResolvableId[RoleDefinition]] | None = None,
         jinja: Environment,
     ):
         super().__init__(jinja=jinja)
@@ -608,12 +608,12 @@ class Presences(Template, DataManufacturable[PresencesConfiguration], Manufactur
 
         if data is None:
             raise NotImplementedError
-        include: Iterable[ResolvableId[PresenceRoleDefinition]] | None
+        include: Iterable[ResolvableId[RoleDefinition]] | None
         if data.include is not None:
             include = data.include
         else:
-            presence_roles = await project.plugins.plugins(PresenceRoleDefinition)
-            include = {role.id for role in presence_roles}
+            roles = await project.plugins.plugins(RoleDefinition)
+            include = {role.id for role in roles}
             if data.exclude is not None:
                 include -= set(data.exclude)
         return cls(include=include, jinja=await project.jinja)

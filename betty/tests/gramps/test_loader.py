@@ -35,9 +35,9 @@ from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 from betty.media_type import MediaType
 from betty.place_type.place_types import City
 from betty.place_type.place_types import Unknown as UnknownPlaceType
-from betty.presence_role.presence_roles import Subject
 from betty.privacy import Privacy
 from betty.project import Project
+from betty.role.roles import Subject
 from betty.subprocess import CalledSubprocessError
 from betty.test_utils.user import StaticUser
 
@@ -50,7 +50,7 @@ if TYPE_CHECKING:
     from betty.event_type import EventType, EventTypeDefinition
     from betty.place_type import PlaceType, PlaceTypeDefinition
     from betty.plugin.factory import ResolvablePluginManufacturer
-    from betty.presence_role import PresenceRole, PresenceRoleDefinition
+    from betty.role import Role, RoleDefinition
 
 __MINIMAL_XML = """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML {version}//EN"
@@ -335,9 +335,7 @@ class TestGrampsLoader:
             str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
         ]
         | None = None,
-        presence_role_mapping: Mapping[
-            str, ResolvablePluginManufacturer[PresenceRoleDefinition, PresenceRole]
-        ]
+        role_mapping: Mapping[str, ResolvablePluginManufacturer[RoleDefinition, Role]]
         | None = None,
     ) -> Ancestry:
         async with (
@@ -354,7 +352,7 @@ class TestGrampsLoader:
                     attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
                     event_type_mapping=event_type_mapping,
                     place_type_mapping=place_type_mapping,
-                    presence_role_mapping=presence_role_mapping,
+                    role_mapping=role_mapping,
                 )
                 await loader.load_xml(xml.strip())
                 return project.ancestry
@@ -372,9 +370,7 @@ class TestGrampsLoader:
             str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
         ]
         | None = None,
-        presence_role_mapping: Mapping[
-            str, ResolvablePluginManufacturer[PresenceRoleDefinition, PresenceRole]
-        ]
+        role_mapping: Mapping[str, ResolvablePluginManufacturer[RoleDefinition, Role]]
         | None = None,
     ) -> Ancestry:
         mediapath = "" if media_path is None else f"<mediapath>{media_path}</mediapath>"
@@ -395,7 +391,7 @@ class TestGrampsLoader:
 """,
             event_type_mapping=event_type_mapping,
             place_type_mapping=place_type_mapping,
-            presence_role_mapping=presence_role_mapping,
+            role_mapping=role_mapping,
         )
 
     async def test_load_xml(self, isolated_app: App) -> None:
@@ -682,7 +678,7 @@ class TestGrampsLoader:
     </event>
 </events>
 """,
-            presence_role_mapping={"MyFirstRole": Subject},
+            role_mapping={"MyFirstRole": Subject},
         )
         event = list(ancestry[Person]["I0000"].presences)[0].event
         assert event is not None
@@ -962,7 +958,7 @@ class TestGrampsLoader:
     </event>
 </events>
 """,
-            presence_role_mapping={"Primary": Subject},
+            role_mapping={"Primary": Subject},
         )
         event = ancestry[Event]["E0000"]
         father = ancestry[Person]["I0000"]
@@ -2096,7 +2092,7 @@ class TestGrampsLoader:
         source = ancestry[Source]["S0000"]
         assert citation.source is source
 
-    async def test__load_eventref_should_map_presence_role(self) -> None:
+    async def test__load_eventref_should_map_role(self) -> None:
         ancestry = await self._load_partial(
             """
 <people>
@@ -2112,7 +2108,7 @@ class TestGrampsLoader:
     </event>
 </events>
 """,
-            presence_role_mapping={"MyFirstRole": Subject},
+            role_mapping={"MyFirstRole": Subject},
         )
         person = ancestry[Person]["I0000"]
         presence = list(person.presences)[0]

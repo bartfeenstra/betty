@@ -1,5 +1,5 @@
 """
-Provide presence roles.
+Presence roles.
 """
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     import builtins
 
 
-class PresenceRole(Plugin["PresenceRoleDefinition"]):
+class Role(Plugin["RoleDefinition"]):
     """
     A person's role at an event.
     """
@@ -25,37 +25,33 @@ class PresenceRole(Plugin["PresenceRoleDefinition"]):
 
 @final
 @PluginTypeDefinition(
-    "presence-role",
-    label=_("Presence role"),
-    label_plural=_("Presence roles"),
-    label_countable=ngettext("{count} presence role", "{count} presence roles"),
+    "role",
+    label=_("Role"),
+    label_plural=_("Roles"),
+    label_countable=ngettext("{count} role", "{count} roles"),
     discovery=[
-        EntryPointDiscovery("betty.presence_role"),
+        EntryPointDiscovery("betty.role"),
         require_project(
             lambda project: (
                 configuration.new_plugin()
-                for configuration in project.configuration.presence_roles
+                for configuration in project.configuration.roles
             )
         ),
     ],
 )
-class PresenceRoleDefinition(
-    CountableHumanFacingDefinition, PluginDefinition[PresenceRole]
-):
+class RoleDefinition(CountableHumanFacingDefinition, PluginDefinition[Role]):
     """
-    .. plugin_type:: presence-role.
+    .. plugin_type:: role.
     """
 
 
 @final
-class PresenceRoleManufacturer(
-    PluginManufacturer[PresenceRoleDefinition, PresenceRole]
-):
+class RoleManufacturer(PluginManufacturer[RoleDefinition, Role]):
     """
-    The presence role manufacturer.
+    The role manufacturer.
     """
 
     @override
     @classmethod
-    def type(cls) -> builtins.type[PresenceRoleDefinition]:
-        return PresenceRoleDefinition
+    def type(cls) -> builtins.type[RoleDefinition]:
+        return RoleDefinition

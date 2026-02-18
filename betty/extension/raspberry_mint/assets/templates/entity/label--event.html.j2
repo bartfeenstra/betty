@@ -13,7 +13,7 @@
         <a href="{{ entity | url }}">{{ formatted_event }}</a>
     {%- endset -%}
 {%- endif -%}
-{%- set subjects = entity.presences | select('public') | selectattr('role', 'presence_role_plugin', 'subject') | map(attribute='person') | select('public') | list -%}
+{%- set subjects = entity.presences | select('public') | selectattr('role', 'role_plugin', 'subject') | map(attribute='person') | select('public') | list -%}
 {%- set non_context_subjects = subjects | reject('eq', person_context) | list -%}
 {%- set formatted_subjects = non_context_subjects | map(person_label) | join(', ') %}
 {%- if non_context_subjects | length == 0 -%}

@@ -17,8 +17,8 @@ from betty.gender.genders import Unknown as UnknownGender
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, to_language_tag
 from betty.model import Entity
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
-from betty.presence_role.presence_roles import Subject
 from betty.privacy import Privacy
+from betty.role.roles import Subject
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
 

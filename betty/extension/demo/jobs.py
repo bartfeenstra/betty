@@ -36,8 +36,8 @@ from betty.place_type.place_types import (
     Province,
     Village,
 )
-from betty.presence_role.presence_roles import Subject
 from betty.project.job import ProjectContext
+from betty.role.roles import Subject
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence

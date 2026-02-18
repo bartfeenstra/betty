@@ -10,8 +10,8 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.model import Entity, EntityDefinition
 from betty.model.association import BidirectionalToOne, ToOneAssociate
 from betty.plugin.schema import PluginIdSchema
-from betty.presence_role import PresenceRoleDefinition
 from betty.privacy import HasPrivacy, Privacy, is_public, merge_secondary_privacies
+from betty.role import RoleDefinition
 
 if TYPE_CHECKING:
     from betty.ancestry.event import Event
@@ -19,8 +19,8 @@ if TYPE_CHECKING:
     from betty.json.linked_data import JsonLdObject
     from betty.locale.localizable import Localizable
     from betty.portable import PortableMapping
-    from betty.presence_role import PresenceRole
     from betty.project import Project
+    from betty.role import Role
 
 
 @final
@@ -55,7 +55,7 @@ class Presence(HasPrivacy, Entity):
     The event the person was present at.
     """
 
-    role: PresenceRole
+    role: Role
     """
     The role the person performed at the event.
     """
@@ -63,7 +63,7 @@ class Presence(HasPrivacy, Entity):
     def __init__(
         self,
         person: ToOneAssociate[Person],
-        role: PresenceRole,
+        role: Role,
         event: ToOneAssociate[Event],
         *,
         privacy: Privacy | None = None,
@@ -96,8 +96,8 @@ class Presence(HasPrivacy, Entity):
         schema.add_property(
             "role",
             PluginIdSchema(
-                PresenceRoleDefinition.type(),
-                await project.plugins.plugins(PresenceRoleDefinition),
+                RoleDefinition.type(),
+                await project.plugins.plugins(RoleDefinition),
             ),
             False,
         )

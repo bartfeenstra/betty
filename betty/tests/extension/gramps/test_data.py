@@ -8,8 +8,8 @@ from betty.extension.gramps.data import (
 )
 from betty.place_type import PlaceTypeManufacturer
 from betty.place_type.place_types import Borough
-from betty.presence_role import PresenceRoleManufacturer
-from betty.presence_role.presence_roles import Attendee
+from betty.role import RoleManufacturer
+from betty.role.roles import Attendee
 from betty.test_utils.data import DataTestBase
 
 
@@ -46,15 +46,15 @@ class TestFamilyTree(DataTestBase[FamilyTree]):
         assert sut.place_types[gramps_type].plugin_id == plugin_id
         assert sut.place_types["Borough"].plugin_id == Borough.plugin().id
 
-    def test___init____with_presence_roles(self) -> None:
+    def test___init____with_roles(self) -> None:
         gramps_type = "my-first-gramps-type"
         plugin_id = "my-first-betty-plugin-id"
         sut = FamilyTree(
             name="my-first-family-tree",
-            presence_roles={gramps_type: PresenceRoleManufacturer(plugin_id)},
+            roles={gramps_type: RoleManufacturer(plugin_id)},
         )
-        assert sut.presence_roles[gramps_type].plugin_id == plugin_id
-        assert sut.presence_roles["Aide"].plugin_id == Attendee.plugin().id
+        assert sut.roles[gramps_type].plugin_id == plugin_id
+        assert sut.roles["Aide"].plugin_id == Attendee.plugin().id
 
     def test_source(self) -> None:
         name = "my-first-family-tree"

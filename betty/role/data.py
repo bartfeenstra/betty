@@ -1,5 +1,5 @@
 """
-Presence role configuration.
+Role configuration.
 """
 
 from __future__ import annotations
@@ -11,16 +11,16 @@ from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import CountableStaticTranslations
 from betty.plugin.config import CountableHumanFacingPluginDefinitionConfiguration
-from betty.presence_role import PresenceRole, PresenceRoleDefinition
+from betty.role import Role, RoleDefinition
 from betty.sample import Sample
 
 
 @final
 @ObjectDefinition(
-    label=_("Presence role configuration"),
+    label=_("Role configuration"),
     samples=[
         lambda: Sample(
-            PresenceRoleDefinitionConfiguration(
+            RoleDefinitionConfiguration(
                 id="astronaut",
                 label="Astronaut",
                 label_plural="Astronauts",
@@ -37,25 +37,25 @@ from betty.sample import Sample
         )
     ],
 )
-class PresenceRoleDefinitionConfiguration(
-    CountableHumanFacingPluginDefinitionConfiguration[PresenceRoleDefinition]
+class RoleDefinitionConfiguration(
+    CountableHumanFacingPluginDefinitionConfiguration[RoleDefinition]
 ):
     """
-    Configure a :py:class:`betty.presence_role.PresenceRoleDefinition`.
+    Configure a :py:class:`betty.role.RoleDefinition`.
 
-    .. data:: betty.project.data:PresenceRoleDefinitionConfiguration
+    .. data:: betty.project.data:RoleDefinitionConfiguration
     """
 
     @override
-    def new_plugin(self) -> PresenceRoleDefinition:
-        @PresenceRoleDefinition(
+    def new_plugin(self) -> RoleDefinition:
+        @RoleDefinition(
             self.id,
             label=self.label,
             label_plural=self.label_plural,
             label_countable=self.label_countable,
             description=self.description,
         )
-        class _ProjectConfigurationPresenceRole(PresenceRole):
+        class _ProjectConfigurationRole(Role):
             pass
 
-        return _ProjectConfigurationPresenceRole.plugin()
+        return _ProjectConfigurationRole.plugin()

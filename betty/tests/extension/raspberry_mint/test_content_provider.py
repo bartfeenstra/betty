@@ -49,8 +49,8 @@ from betty.locale.localizable.plain import Plain
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.model.reference import EntityReference
-from betty.presence_role.presence_roles import Subject, Witness
 from betty.project import Project
+from betty.role.roles import Subject, Witness
 from betty.test_utils.ancestry.has_citations import DummyHasCitations
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 from betty.test_utils.content_provider import NoOpContentProvider
