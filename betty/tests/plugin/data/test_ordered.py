@@ -1,6 +1,6 @@
 from typing import override
 
-from betty.plugin.config.ordered import OrderedPluginDefinitionConfiguration
+from betty.plugin.data.ordered import OrderedPluginDefinitionConfiguration
 from betty.plugin.ordered import OrderedPluginDefinition
 
 

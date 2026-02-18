@@ -54,7 +54,7 @@ from betty.pathlib import FilePathDefinition
 from betty.place_type import PlaceTypeDefinition
 from betty.place_type.data import PlaceTypeDefinitionConfiguration
 from betty.plugin import ResolvableId, resolve_id
-from betty.plugin.config.property import PluginDefinitionConfigurationsProperty
+from betty.plugin.data.property import PluginDefinitionConfigurationsProperty
 from betty.project import Extension, ExtensionDefinition
 from betty.role import RoleDefinition
 from betty.role.data import RoleDefinitionConfiguration

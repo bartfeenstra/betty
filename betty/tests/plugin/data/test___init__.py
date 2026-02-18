@@ -1,6 +1,6 @@
 from typing import override
 
-from betty.plugin.config import (
+from betty.plugin.data import (
     CountableHumanFacingPluginDefinitionConfiguration,
     HumanFacingPluginDefinitionConfiguration,
     PluginDefinitionConfiguration,
@@ -75,3 +75,11 @@ class TestCountableHumanFacingPluginDefinitionConfiguration:
             id="-dummy", label="-", label_plural="-", label_countable=label_countable
         )
         assert sut.label_countable is label_countable
+
+
+class TestPluginManufacturerDefinition:
+    pass
+
+
+class TestPluginManufacturerSequenceDefinition:
+    pass
