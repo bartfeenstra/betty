@@ -70,7 +70,6 @@ from betty.service.factory import DataManufacturable, Manufacturable
 from betty.service.requirement.extension import require_extension
 from betty.service.requirement.project import require_project
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
-from betty.typing import private
 
 if TYPE_CHECKING:
     from betty.ancestry import Ancestry
@@ -157,7 +156,6 @@ class Section(Template, DataManufacturable[SectionConfiguration]):
     .. plugin:: content-provider:raspberry-mint-section.
     """
 
-    @private
     def __init__(
         self,
         /,
@@ -383,7 +381,6 @@ class ColorStyle(Template, DataManufacturable[ColorStyleConfiguration]):
     .. plugin:: content-provider:raspberry-mint-color-style
     """
 
-    @private
     def __init__(
         self,
         /,
@@ -583,7 +580,6 @@ class Presences(Template, DataManufacturable[PresencesConfiguration], Manufactur
     .. plugin:: content-provider:raspberry-mint-presences
     """
 
-    @private
     def __init__(
         self,
         *,

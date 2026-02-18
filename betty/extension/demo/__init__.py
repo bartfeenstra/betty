@@ -26,7 +26,6 @@ from betty.project.job import ProjectContext
 from betty.project.load import Loader, load
 from betty.service.factory import Manufacturable
 from betty.service.requirement.project import require_project
-from betty.typing import internal
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -35,7 +34,6 @@ if TYPE_CHECKING:
     from betty.project.job import ProjectContext
 
 
-@internal
 async def generate_with_cleanup(
     project: Project, *, job_context: ProjectContext | None = None
 ) -> None:

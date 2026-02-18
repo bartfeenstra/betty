@@ -18,7 +18,6 @@ from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.model import Entity, EntityDefinition
 from betty.privacy import is_private
-from betty.typing import internal
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
@@ -151,7 +150,6 @@ class _Entry:
     text: set[str]
 
 
-@internal
 class Index:
     """
     Build search indexes.

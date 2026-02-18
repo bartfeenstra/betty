@@ -25,7 +25,6 @@ from betty.exception import HumanFacingException, reraise_with_indicator
 from betty.locale import from_language_tag
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Paragraph, Paragraphs, do_you_mean
-from betty.typing import internal
 
 if TYPE_CHECKING:
     from babel import Locale
@@ -81,7 +80,6 @@ class AssertionChain[ValueT, ReturnT]:
         return self._assertion(value)
 
 
-@internal
 @dataclass(frozen=True)
 class Field[ValueT, ReturnT]:
     """

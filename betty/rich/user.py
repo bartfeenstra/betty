@@ -20,12 +20,11 @@ from betty.progress import Progress
 from betty.progress.no_op import NoOpProgress
 from betty.rich import Theme
 from betty.rich.progress import RichProgress
-from betty.typing import Void, internal
+from betty.typing import Void
 from betty.user import User, Verbosity
 from betty.user.logging import UserHandler
 
 
-@internal
 @final
 class RichUser(ManagedLifeCycle, User):
     """

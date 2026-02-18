@@ -13,11 +13,10 @@ from betty.locale.localizable import ResolvableLocalizable
 from betty.locale.localize import DEFAULT_LOCALIZER, resolve_localized
 from betty.progress import Progress
 from betty.progress.no_op import NoOpProgress
-from betty.typing import Void, internal
+from betty.typing import Void
 from betty.user import User, UserTimeoutError, Verbosity
 
 
-@internal
 class StaticUser(User):  # pragma: no cover
     """
     A static user with predefined responses.

@@ -32,7 +32,6 @@ from betty.media_type import UnsupportedMediaType, match_extension
 from betty.media_type.media_types import JINJA2
 from betty.service.factory import Manufacturable
 from betty.service.requirement.project import require_project
-from betty.typing import private
 from betty.warnings import deprecate
 
 if TYPE_CHECKING:
@@ -139,7 +138,6 @@ class Environment(Manufacturable, JinjaEnvironment):
     filters: dict[str, Callable[..., Any]]
     tests: dict[str, Callable[..., bool]]
 
-    @private
     def __init__(
         self,
         project: Project,

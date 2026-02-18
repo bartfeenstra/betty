@@ -12,7 +12,6 @@ from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.factory import PluginManufacturer
 from betty.service.level import ServiceLevel
-from betty.typing import private
 
 if TYPE_CHECKING:
     import builtins
@@ -30,7 +29,6 @@ class Extension[ServiceLevelT: ServiceLevel](
     Integrate custom services with a :py:class:`service level <betty.service.level.ServiceLevel>`.
     """
 
-    @private
     def __init__(self, *, services: ServiceLevelT):
         super().__init__()
         self._services = services

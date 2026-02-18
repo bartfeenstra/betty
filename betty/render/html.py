@@ -13,7 +13,6 @@ from betty.project import Project
 from betty.render import Renderer, RendererDefinition
 from betty.service.factory import Manufacturable
 from betty.service.requirement.project import require_project
-from betty.typing import private
 from betty.url import UrlGenerator
 
 _ATTRIBUTES = ("href", "src")
@@ -31,7 +30,6 @@ class Html(Manufacturable, Renderer):
     .. plugin:: renderer:html.
     """
 
-    @private
     def __init__(self, *, url_generator: UrlGenerator):
         self._url_generator = url_generator
 

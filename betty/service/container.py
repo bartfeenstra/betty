@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any, Protocol, Self, cast, overload, override
 from betty.concurrent import AsynchronizedLock, Lock
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.service import ServiceError
-from betty.typing import Void, internal
+from betty.typing import Void
 
 if TYPE_CHECKING:
     from types import FunctionType
@@ -85,7 +85,6 @@ def service(factory):
     return _service(factory)
 
 
-@internal
 class ServiceManager[ManagedLifeCycleT: ManagedLifeCycle, ServiceGetT, ServiceT]:
     """
     Manages a single service for a service container.
@@ -232,7 +231,6 @@ class _SynchronousServiceManager[ManagedLifeCycleT: ManagedLifeCycle, ServiceT](
         return new_service
 
 
-@internal
 class ServiceInitializedError(ServiceError):
     """
     A service was unexpectedly initialized already.
