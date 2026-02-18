@@ -21,7 +21,6 @@ from betty.project import Project
 from betty.project.generate import Generator
 from betty.service.factory import DataManufacturable, Manufacturable
 from betty.service.requirement.project import require_project
-from betty.typing import private
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -82,7 +81,6 @@ class RaspberryMint(
 
     """
 
-    @private
     def __init__(
         self,
         *,

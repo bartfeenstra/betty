@@ -29,7 +29,6 @@ from betty.plugin.config.property import PluginManufacturerSequenceProperty
 from betty.sample import Size
 from betty.service.factory import DataManufacturable, Manufacturable
 from betty.service.requirement.project import require_project
-from betty.typing import private
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence
@@ -75,7 +74,6 @@ class Render(DataManufacturable[RenderConfiguration], ContentProvider):
     .. plugin:: content-provider:render.
     """
 
-    @private
     def __init__(
         self,
         *,
@@ -120,7 +118,6 @@ class Template(ContentProvider):
     Provides content by rendering a Jinja2 template.
     """
 
-    @private
     def __init__(self, *args: Any, jinja: Environment, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self._jinja = jinja

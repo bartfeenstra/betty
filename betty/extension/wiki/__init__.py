@@ -20,7 +20,6 @@ from betty.project.load import PostLoader
 from betty.service.container import service
 from betty.service.factory import DataManufacturable, Manufacturable
 from betty.service.requirement.project import require_project
-from betty.typing import private
 from betty.wiki import NotAPageError, parse_page_url
 from betty.wiki import populator as populator_api
 from betty.wiki.client import Client, ClientError, Summary
@@ -84,7 +83,6 @@ class Wiki(
 
     """
 
-    @private
     def __init__(
         self,
         *,

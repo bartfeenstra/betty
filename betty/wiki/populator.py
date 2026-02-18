@@ -21,7 +21,7 @@ from betty.locale.error import LocaleError
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
 from betty.media_type.media_types import HTML
-from betty.typing import private, threadsafe
+from betty.typing import threadsafe
 from betty.wiki import NotAPageError, parse_page_link
 from betty.wiki.client import ClientError
 
@@ -45,7 +45,6 @@ class Populator:
     Populate an ancestry with information from Wikipedia and Wikimedia.
     """
 
-    @private
     def __init__(
         self,
         ancestry: Ancestry,

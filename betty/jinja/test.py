@@ -18,7 +18,6 @@ from betty.plugin import Plugin, PluginDefinition
 from betty.privacy import is_private, is_public
 from betty.service.level import UNIVERSE
 from betty.string import kebab_case_to_snake_case
-from betty.typing import internal
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping, MutableMapping
@@ -103,7 +102,6 @@ def test_image_supported_media_type(media_type: MediaType | None) -> bool:
     return is_supported_media_type(media_type)
 
 
-@internal
 async def tests() -> Mapping[str, Callable[..., bool]]:
     """
     Define the available tests.

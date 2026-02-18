@@ -22,7 +22,6 @@ from betty.exception import HumanFacingException, reraise_with_indicator
 from betty.hashid import hashid
 from betty.locale.localizable.gettext import _
 from betty.media_type import MediaType
-from betty.typing import internal
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterator, Mapping, MutableMapping
@@ -72,7 +71,6 @@ class Image:
     name: str
 
 
-@internal
 class Client:
     """
     Fetch information from the Wikipedia Query API.

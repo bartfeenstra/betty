@@ -40,7 +40,6 @@ from betty.serde import SerializerDefinition, serializer_for
 from betty.service.container import service
 from betty.service.factory import DataManufacturable
 from betty.service.level import UNIVERSE, ServiceLevel
-from betty.typing import internal
 
 if TYPE_CHECKING:
     from collections.abc import (
@@ -422,7 +421,6 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
         )
 
 
-@internal
 @final
 class ProjectExtensions:
     """

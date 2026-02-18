@@ -112,7 +112,6 @@ from betty.role.roles import (
     Witness,
 )
 from betty.role.roles import Unknown as UnknownRole
-from betty.typing import internal, private
 
 if TYPE_CHECKING:
     from asyncio.subprocess import Process
@@ -335,7 +334,6 @@ def _resolve_plugin_manufacturer_mapping[
     }
 
 
-@internal
 class GrampsLoader:
     """
     Load Gramps family history data into a project.
@@ -1334,7 +1332,6 @@ class GrampsLoader:
                 ] = attribute_value
         return translations
 
-    @private
     async def load_locale(self, locale: str) -> Locale | None:
         """
         Load a locale.

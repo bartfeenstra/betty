@@ -58,7 +58,6 @@ from betty.string import (
     camel_case_to_snake_case,
     upper_camel_case_to_lower_camel_case,
 )
-from betty.typing import internal
 
 if TYPE_CHECKING:
     import datetime
@@ -552,7 +551,6 @@ def filter_format_datetime_datetime(
     return format_date(datetime_datetime, "long", locale=localizer.locale)
 
 
-@internal
 async def filters() -> Mapping[str, Callable[..., Any]]:
     """
     Define the available filters.
