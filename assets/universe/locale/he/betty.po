@@ -307,7 +307,7 @@ msgid "Breakpoint"
 msgstr ""
 
 msgid "Breakpoints"
-msgstr ""
+msgstr "נקודות עצירה"
 
 msgid "Building"
 msgstr ""
