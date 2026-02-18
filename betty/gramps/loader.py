@@ -102,16 +102,16 @@ from betty.place_type.place_types import (
 from betty.place_type.place_types import Unknown as UnknownPlaceType
 from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.error import PluginUnavailable
-from betty.presence_role import PresenceRoleDefinition, PresenceRoleManufacturer
-from betty.presence_role.presence_roles import (
+from betty.privacy import HasPrivacy
+from betty.role import RoleDefinition, RoleManufacturer
+from betty.role.roles import (
     Attendee,
     Celebrant,
     Informant,
     Subject,
     Witness,
 )
-from betty.presence_role.presence_roles import Unknown as UnknownPresenceRole
-from betty.privacy import HasPrivacy
+from betty.role.roles import Unknown as UnknownRole
 from betty.typing import internal, private
 
 if TYPE_CHECKING:
@@ -137,9 +137,9 @@ if TYPE_CHECKING:
     from betty.machine_name import ResolvableMachineName
     from betty.place_type import PlaceType, PlaceTypeDefinition
     from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
-    from betty.presence_role import (
-        PresenceRole,
-        PresenceRoleDefinition,
+    from betty.role import (
+        Role,
+        RoleDefinition,
     )
     from betty.service.level import ServiceLevel
     from betty.user import User
@@ -275,8 +275,8 @@ DEFAULT_PLACE_TYPE_MAPPING: Mapping[
 }
 
 
-DEFAULT_PRESENCE_ROLE_MAPPING: Mapping[
-    str, ResolvablePluginManufacturer[PresenceRoleDefinition, PresenceRole]
+DEFAULT_ROLE_MAPPING: Mapping[
+    str, ResolvablePluginManufacturer[RoleDefinition, Role]
 ] = {
     "Aide": Attendee,
     "Bride": Subject,
@@ -286,7 +286,7 @@ DEFAULT_PRESENCE_ROLE_MAPPING: Mapping[
     "Groom": Subject,
     "Informant": Informant,
     "Primary": Subject,
-    "Unknown": UnknownPresenceRole,
+    "Unknown": UnknownRole,
     "Witness": Witness,
 }
 
@@ -358,9 +358,7 @@ class GrampsLoader:
             str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
         ]
         | None = None,
-        presence_role_mapping: Mapping[
-            str, ResolvablePluginManufacturer[PresenceRoleDefinition, PresenceRole]
-        ]
+        role_mapping: Mapping[str, ResolvablePluginManufacturer[RoleDefinition, Role]]
         | None = None,
         executable: Path | str | None = None,
     ):
@@ -384,8 +382,8 @@ class GrampsLoader:
         self._place_type_mapping = _resolve_plugin_manufacturer_mapping(
             PlaceTypeManufacturer, place_type_mapping
         )
-        self._presence_role_mapping = _resolve_plugin_manufacturer_mapping(
-            PresenceRoleManufacturer, presence_role_mapping
+        self._role_mapping = _resolve_plugin_manufacturer_mapping(
+            RoleManufacturer, role_mapping
         )
         self._gramps_executable = executable or _DEFAULT_GRAMPS_EXECUTABLE
         self._services = services
@@ -945,32 +943,28 @@ class GrampsLoader:
     ) -> None:
         event_handle = eventref.get("hlink")
         assert event_handle is not None
-        gramps_presence_role = cast(str, eventref.get("role"))
+        gramps_role = cast(str, eventref.get("role"))
 
-        presence_role: PresenceRole
+        role: Role
         try:
-            presence_role_manufacturer = self._presence_role_mapping[
-                gramps_presence_role
-            ]
+            role_manufacturer = self._role_mapping[gramps_role]
         except KeyError:
-            presence_role = UnknownPresenceRole()
+            role = UnknownRole()
             await self._user.message_warning(
                 _(
-                    'Betty is unfamiliar with person "{person_id}"\'s Gramps presence role of "{gramps_presence_role}" for the event with Gramps handle "{event_handle}". The role was imported, but set to "{betty_presence_role}".',
+                    'Betty is unfamiliar with person "{person_id}"\'s Gramps role of "{gramps_role}" for the event with Gramps handle "{event_handle}". The role was imported, but set to "{betty_role}".',
                 ).format(
                     person_id=person.id,
                     event_handle=event_handle,
-                    gramps_presence_role=gramps_presence_role,
-                    betty_presence_role=presence_role.plugin().label.localize(
-                        self._user.localizer
-                    ),
+                    gramps_role=gramps_role,
+                    betty_role=role.plugin().label.localize(self._user.localizer),
                 )
             )
         else:
-            presence_role = await presence_role_manufacturer(self._services)
+            role = await role_manufacturer(self._services)
         presence = Presence(
             person,
-            presence_role,
+            role,
             self._resolve1(Event, event_handle),
         )
         if eventref.get("priv") == "1":

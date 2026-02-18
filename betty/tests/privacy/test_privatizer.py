@@ -17,11 +17,11 @@ from betty.ancestry.presence import Presence
 from betty.ancestry.source import Source
 from betty.date import Date, DateRange
 from betty.event_type.event_types import Birth, Death, Marriage
-from betty.presence_role.presence_roles import Subject
-from betty.presence_role.presence_roles import Unknown as UnknownPresenceRole
 from betty.privacy import Privacy
 from betty.privacy.privatizer import Privatizer
 from betty.project.data import DEFAULT_LIFETIME_THRESHOLD
+from betty.role.roles import Subject
+from betty.role.roles import Unknown as UnknownRole
 from betty.test_utils.user import StaticUser
 
 if TYPE_CHECKING:
@@ -299,7 +299,7 @@ class TestPrivatizer:
         FileReference(person, file)
         presence_as_subject = Presence(person, Subject(), Event(event_type=Birth()))
         presence_as_unknown = Presence(
-            person, UnknownPresenceRole(), Event(event_type=Marriage())
+            person, UnknownRole(), Event(event_type=Marriage())
         )
         await Privatizer(DEFAULT_LIFETIME_THRESHOLD, user=StaticUser()).privatize(
             person
@@ -318,7 +318,7 @@ class TestPrivatizer:
         FileReference(person, file)
         presence_as_subject = Presence(person, Subject(), Event(event_type=Birth()))
         presence_as_unknown = Presence(
-            person, UnknownPresenceRole(), Event(event_type=Marriage())
+            person, UnknownRole(), Event(event_type=Marriage())
         )
         await Privatizer(DEFAULT_LIFETIME_THRESHOLD, user=StaticUser()).privatize(
             person

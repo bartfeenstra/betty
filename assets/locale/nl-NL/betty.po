@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-02-18 12:26+0000\n"
+"POT-Creation-Date: 2026-02-18 13:51+0000\n"
 "PO-Revision-Date: 2026-02-17 19:37+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -277,14 +277,10 @@ msgstr ""
 
 #, python-brace-format
 msgid ""
-"Betty is unfamiliar with person \"{person_id}\"'s Gramps presence role of"
-" \"{gramps_presence_role}\" for the event with Gramps handle "
-"\"{event_handle}\". The role was imported, but set to "
-"\"{betty_presence_role}\"."
+"Betty is unfamiliar with person \"{person_id}\"'s Gramps role of "
+"\"{gramps_role}\" for the event with Gramps handle \"{event_handle}\". "
+"The role was imported, but set to \"{betty_role}\"."
 msgstr ""
-"Betty kent de Gramps-rol \"{gramps_presence_role}\" van persoon "
-"\"{person_id}\" voor de gebeurtenis met Gramps-handle \"{event_handle}\" "
-"niet. De rol is geladen, maar het type is nu \"{betty_presence_role}\"."
 
 msgid ""
 "Betty was named after <a href=\"betty-entity://person/betty-demo-liberta-"
@@ -1341,15 +1337,6 @@ msgstr "Aanwezigheid"
 msgid "Presence of {person} at {event}"
 msgstr "Aanwezigheid van {person} bij {event}"
 
-msgid "Presence role"
-msgstr ""
-
-msgid "Presence role configuration"
-msgstr ""
-
-msgid "Presence roles"
-msgstr ""
-
 msgid "Presences"
 msgstr "Aanwezigheden"
 
@@ -1506,6 +1493,15 @@ msgid "Retirement"
 msgstr "Pensioen"
 
 msgid "Retirements"
+msgstr ""
+
+msgid "Role"
+msgstr ""
+
+msgid "Role configuration"
+msgstr ""
+
+msgid "Roles"
 msgstr ""
 
 #, python-brace-format
@@ -2553,12 +2549,6 @@ msgstr[0] "{count} aanwezigheid"
 msgstr[1] "{count} aanwezigheden"
 
 #, python-brace-format
-msgid "{count} presence role"
-msgid_plural "{count} presence roles"
-msgstr[0] ""
-msgstr[1] ""
-
-#, python-brace-format
 msgid "{count} province"
 msgid_plural "{count} provinces"
 msgstr[0] "{count} provincie"
@@ -2585,6 +2575,12 @@ msgstr[1] "{count} woonplaatsen"
 #, python-brace-format
 msgid "{count} retirement"
 msgid_plural "{count} retirements"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} role"
+msgid_plural "{count} roles"
 msgstr[0] ""
 msgstr[1] ""
 

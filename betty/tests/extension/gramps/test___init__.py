@@ -17,10 +17,10 @@ from betty.extension.gramps import Gramps
 from betty.extension.gramps.data import FamilyTree, GrampsConfiguration
 from betty.place_type import PlaceTypeManufacturer
 from betty.place_type.place_types import City
-from betty.presence_role import PresenceRoleManufacturer
-from betty.presence_role.presence_roles import Subject
 from betty.project import Project
 from betty.project.load import load
+from betty.role import RoleManufacturer
+from betty.role.roles import Subject
 
 
 class TestGramps:
@@ -108,9 +108,7 @@ class TestGramps:
                 await load(project)
             assert isinstance(project.ancestry[Place]["P0001"].place_type, City)
 
-    async def test_load__with_presence_role_map(
-        self, isolated_app: App, tmp_path: Path
-    ) -> None:
+    async def test_load__with_role_map(self, isolated_app: App, tmp_path: Path) -> None:
         family_tree_xml = """
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML 1.7.1//EN"
@@ -147,9 +145,7 @@ class TestGramps:
                         family_trees=[
                             FamilyTree(
                                 gramps_family_tree_path,
-                                presence_roles={
-                                    "MyFirstRole": PresenceRoleManufacturer("subject")
-                                },
+                                roles={"MyFirstRole": RoleManufacturer("subject")},
                             )
                         ]
                     ),

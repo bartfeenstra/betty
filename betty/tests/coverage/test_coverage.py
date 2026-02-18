@@ -704,17 +704,17 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/portable/error.py": {
         "NotPortable": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/presence_role/__init__.py": {
-        "PresenceRole": MissingReason.STATIC_CONTENT_ONLY,
-        "PresenceRoleDefinition": MissingReason.STATIC_CONTENT_ONLY,
-        "PresenceRoleManufacturer": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/role/__init__.py": {
+        "Role": MissingReason.STATIC_CONTENT_ONLY,
+        "RoleDefinition": MissingReason.STATIC_CONTENT_ONLY,
+        "RoleManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/presence_role/data.py": {
-        "PresenceRoleDefinitionConfiguration": {
+    "betty/role/data.py": {
+        "RoleDefinitionConfiguration": {
             "data": MissingReason.INHERITED,
         },
     },
-    "betty/presence_role/presence_roles.py": {
+    "betty/role/roles.py": {
         "Attendee": MissingReason.STATIC_CONTENT_ONLY,
         "Beneficiary": MissingReason.STATIC_CONTENT_ONLY,
         "Celebrant": MissingReason.STATIC_CONTENT_ONLY,
@@ -782,7 +782,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "file": MissingReason.INHERITED,
             "name": MissingReason.INHERITED,
             "place_types": MissingReason.INHERITED,
-            "presence_roles": MissingReason.INHERITED,
+            "roles": MissingReason.INHERITED,
         },
     },
     "betty/extension/http_api_doc/__init__.py": {

@@ -1,19 +1,19 @@
 from __future__ import annotations
 
 from betty.locale.localizable.plain import Plain
-from betty.presence_role.data import PresenceRoleDefinitionConfiguration
+from betty.role.data import RoleDefinitionConfiguration
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
 )
 
 
-class TestPresenceRoleDefinitionConfiguration:
+class TestRoleDefinitionConfiguration:
     def test_new_plugin__minimal(self) -> None:
-        plugin_id = "my-first-presence-role"
+        plugin_id = "my-first-role"
         label = Plain("-")
         label_plural = Plain("-")
-        sut = PresenceRoleDefinitionConfiguration(
+        sut = RoleDefinitionConfiguration(
             id=plugin_id,
             label=label,
             label_plural=label_plural,
@@ -27,8 +27,8 @@ class TestPresenceRoleDefinitionConfiguration:
 
     def test_new_plugin__full(self) -> None:
         description = Plain("-")
-        sut = PresenceRoleDefinitionConfiguration(
-            id="my-first-presence-role",
+        sut = RoleDefinitionConfiguration(
+            id="my-first-role",
             label=DUMMY_LOCALIZABLE,
             label_plural=DUMMY_LOCALIZABLE,
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,

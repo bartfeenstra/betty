@@ -16,7 +16,7 @@ from betty.date import Date, DateRange
 from betty.event_type import EventTypeDefinition, ShouldExistEventType
 from betty.locale.localizable.gettext import _
 from betty.plugin.ordered import get_comes_after, get_comes_before
-from betty.presence_role.presence_roles import Subject
+from betty.role.roles import Subject
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterable, Sequence

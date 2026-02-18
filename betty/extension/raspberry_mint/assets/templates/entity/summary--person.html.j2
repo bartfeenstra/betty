@@ -20,7 +20,7 @@
         {%- if alternative_names -%}
             <span class="aka">{%- trans names = alternative_names | map(_embedded_person_name_label if embedded else _person_name_label) | list | join(', ') -%}Also known as {{ names }}{%- endtrans -%}</span>
         {%- endif -%}
-        {% set events = entity.presences | selectattr('role', 'presence_role_plugin', 'subject') | map(attribute='event') | reject('none') | select('public') | list %}
+        {% set events = entity.presences | selectattr('role', 'role_plugin', 'subject') | map(attribute='event') | reject('none') | select('public') | list %}
         {% set ns = namespace(birth_indicators=[]) %}
         {% for event in events %}
             {% if event.event_type.plugin().id == 'birth' or event.event_type.plugin().indicates == 'birth' %}

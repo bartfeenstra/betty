@@ -34,7 +34,7 @@ from betty.extension.trees.content_provider import Tree
 from betty.extension.wiki.content_provider import WikipediaSummary
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
-from betty.presence_role.presence_roles import Subject, Witness
+from betty.role.roles import Subject, Witness
 
 if TYPE_CHECKING:
     from collections.abc import Collection

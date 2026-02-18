@@ -32,8 +32,8 @@ from betty.model.association import (
     ToZeroOrOneAssociate,
 )
 from betty.plugin.schema import PluginIdSchema
-from betty.presence_role.presence_roles import Subject
 from betty.privacy import HasPrivacy, Privacy
+from betty.role.roles import Subject
 
 if TYPE_CHECKING:
     from collections.abc import Mapping

@@ -55,9 +55,9 @@ from betty.place_type import PlaceTypeDefinition
 from betty.place_type.data import PlaceTypeDefinitionConfiguration
 from betty.plugin import ResolvableId, resolve_id
 from betty.plugin.config.property import PluginDefinitionConfigurationsProperty
-from betty.presence_role import PresenceRoleDefinition
-from betty.presence_role.data import PresenceRoleDefinitionConfiguration
 from betty.project import Extension, ExtensionDefinition
+from betty.role import RoleDefinition
+from betty.role.data import RoleDefinitionConfiguration
 from betty.sample import Size
 
 if TYPE_CHECKING:
@@ -249,10 +249,8 @@ class ProjectLocale(Data["ObjectDefinition"]):
                     .samples.get(Size.FULL)
                     .subject
                 ],
-                presence_roles=[
-                    PresenceRoleDefinitionConfiguration.data()
-                    .samples.get(Size.FULL)
-                    .subject
+                roles=[
+                    RoleDefinitionConfiguration.data().samples.get(Size.FULL).subject
                 ],
                 title="Betty's ancestry",
                 url="https://ancestry.example.com/betty",
@@ -464,11 +462,11 @@ class ProjectConfiguration(Data):
     The :py:class:`betty.place_type.PlaceType` plugins created by this project.
     """
 
-    presence_roles = PluginDefinitionConfigurationsProperty(
-        PresenceRoleDefinition, PresenceRoleDefinitionConfiguration
+    roles = PluginDefinitionConfigurationsProperty(
+        RoleDefinition, RoleDefinitionConfiguration
     )
     """
-    The :py:class:`betty.presence_role.PresenceRole` plugins created by this project.
+    The :py:class:`betty.role.Role` plugins created by this project.
     """
 
     title = LocalizableProperty(label=_("Title"))
@@ -503,7 +501,7 @@ class ProjectConfiguration(Data):
         logo: Path | None = None,
         name: ResolvableMachineName | None = None,
         place_types: Iterable[PlaceTypeDefinitionConfiguration] | None = None,
-        presence_roles: Iterable[PresenceRoleDefinitionConfiguration] | None = None,
+        roles: Iterable[RoleDefinitionConfiguration] | None = None,
     ):
         super().__init__()
         self.author = author
@@ -534,8 +532,8 @@ class ProjectConfiguration(Data):
         self.name = name
         if place_types is not None:
             self.place_types = place_types
-        if presence_roles is not None:
-            self.presence_roles = presence_roles
+        if roles is not None:
+            self.roles = roles
         self.title = title
         self.url = url
 

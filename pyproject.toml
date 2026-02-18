@@ -87,8 +87,8 @@ betty = 'betty.console:main_standalone'
 'http-rate-limit' = 'betty.http_client.rate_limit:RateLimitDefinition'
 'license' = 'betty.license:LicenseDefinition'
 'place-type' = 'betty.place_type:PlaceTypeDefinition'
-'presence-role' = 'betty.presence_role:PresenceRoleDefinition'
 'renderer' = 'betty.render:RendererDefinition'
+'role' = 'betty.role:RoleDefinition'
 'serializer' = 'betty.serde:SerializerDefinition'
 
 [project.entry-points.'betty.command']
@@ -203,16 +203,16 @@ betty = 'betty.console:main_standalone'
 'unknown' = 'betty.place_type.place_types:Unknown'
 'village' = 'betty.place_type.place_types:Village'
 
-[project.entry-points.'betty.presence_role']
-'attendee' = 'betty.presence_role.presence_roles:Attendee'
-'beneficiary' = 'betty.presence_role.presence_roles:Beneficiary'
-'celebrant' = 'betty.presence_role.presence_roles:Celebrant'
-'informant' = 'betty.presence_role.presence_roles:Informant'
-'organizer' = 'betty.presence_role.presence_roles:Organizer'
-'speaker' = 'betty.presence_role.presence_roles:Speaker'
-'subject' = 'betty.presence_role.presence_roles:Subject'
-'unknown' = 'betty.presence_role.presence_roles:Unknown'
-'witness' = 'betty.presence_role.presence_roles:Witness'
+[project.entry-points.'betty.role']
+'attendee' = 'betty.role.roles:Attendee'
+'beneficiary' = 'betty.role.roles:Beneficiary'
+'celebrant' = 'betty.role.roles:Celebrant'
+'informant' = 'betty.role.roles:Informant'
+'organizer' = 'betty.role.roles:Organizer'
+'speaker' = 'betty.role.roles:Speaker'
+'subject' = 'betty.role.roles:Subject'
+'unknown' = 'betty.role.roles:Unknown'
+'witness' = 'betty.role.roles:Witness'
 
 [project.entry-points.'betty.http_rate_limit']
 'wikipedia-action-api' = 'betty.http_client.rate_limits:WikipediaActionApi'

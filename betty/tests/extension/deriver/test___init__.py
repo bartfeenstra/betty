@@ -9,9 +9,9 @@ from betty.date import Date, DateRange
 from betty.event_type.event_types import Birth, Death, Residence
 from betty.extension.deriver import Deriver
 from betty.model.collections import record_added
-from betty.presence_role.presence_roles import Subject
 from betty.project import Project
 from betty.project.load import load
+from betty.role.roles import Subject
 
 if TYPE_CHECKING:
     from betty.app import App

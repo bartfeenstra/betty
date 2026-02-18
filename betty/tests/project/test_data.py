@@ -242,9 +242,9 @@ class TestProjectConfiguration(DataTestBase[ProjectConfiguration]):
         sut = ProjectConfiguration(title="Betty", url="https://example.com")
         assert sut.place_types is sut.place_types
 
-    def test_presence_roles(self) -> None:
+    def test_roles(self) -> None:
         sut = ProjectConfiguration(title="Betty", url="https://example.com")
-        assert sut.presence_roles is sut.presence_roles
+        assert sut.roles is sut.roles
 
     def test_genders(self) -> None:
         sut = ProjectConfiguration(title="Betty", url="https://example.com")

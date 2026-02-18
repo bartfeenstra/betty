@@ -8,9 +8,9 @@ from betty.ancestry.event import Event
 from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
 from betty.event_type.event_types import Unknown as UnknownEventType
-from betty.presence_role.presence_roles import Subject
-from betty.presence_role.presence_roles import Unknown as UnknownPresenceRole
 from betty.privacy import Privacy
+from betty.role.roles import Subject
+from betty.role.roles import Unknown as UnknownRole
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
 
@@ -23,7 +23,7 @@ class TestPresence(EntityTestBase):
     @override
     @pytest.fixture
     def sut(self) -> Entity:
-        return Presence(Person(), UnknownPresenceRole(), Event())
+        return Presence(Person(), UnknownRole(), Event())
 
     def test_person(self) -> None:
         person = Person()

@@ -253,17 +253,17 @@ class Gramps(
        * - ``Village``
          - ``village``
 
-    Presence roles
-    --------------
+    Roles
+    -----
 
-    Betty supports the following Gramps presence roles without any additional configuration:
+    Betty supports the following Gramps roles without any additional configuration:
 
-    .. list-table:: Presence roles
+    .. list-table:: Roles
        :align: left
        :header-rows: 1
 
        * - Gramps role
-         - Betty presence role
+         - Betty role
        * - ``Aide``
          - ``attendee``
        * - ``Bride``
@@ -354,7 +354,7 @@ class Gramps(
                         user=self._user,
                         event_type_mapping=family_tree.event_types,
                         place_type_mapping=family_tree.place_types,
-                        presence_role_mapping=family_tree.presence_roles,
+                        role_mapping=family_tree.roles,
                         executable=self._executable,
                     ),
                     source=family_tree.source,
