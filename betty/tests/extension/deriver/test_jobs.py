@@ -3,7 +3,6 @@ from pytest_mock import MockerFixture
 from betty.app import App
 from betty.extension.deriver.jobs import DeriveAncestry
 from betty.project import Project
-from betty.project.job import ProjectContext
 from betty.test_utils.job import do
 
 
@@ -18,5 +17,5 @@ class TestDeriveAncestry:
             Project.new_isolated(isolated_app) as project,
             project,
         ):
-            await do(ProjectContext(project), DeriveAncestry())
+            await do(DeriveAncestry(project=project))
         m_derive.assert_awaited_once()

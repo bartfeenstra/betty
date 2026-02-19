@@ -7,11 +7,11 @@ from asyncio import gather
 
 from betty.ancestry.link import Link
 from betty.concurrent import MAX_STRANDS
+from betty.job import Context
 from betty.job.executor.asyncio import AsyncExecutor
 from betty.job.scheduler import Scheduler
 from betty.job.scheduler.default import DefaultScheduler
 from betty.project import Project
-from betty.project.job import ProjectContext
 from betty.project.load.jobs import PopulateLink
 
 
@@ -21,7 +21,7 @@ class Loader(ABC):
     """
 
     @abstractmethod
-    async def load(self, scheduler: Scheduler[ProjectContext]) -> None:
+    async def load(self, scheduler: Scheduler) -> None:
         """
         Load ancestry data into a project.
         """
@@ -33,23 +33,25 @@ class PostLoader(ABC):
     """
 
     @abstractmethod
-    async def post_load(self, scheduler: Scheduler[ProjectContext]) -> None:
+    async def post_load(self, scheduler: Scheduler) -> None:
         """
         Postprocess ancestry data after it has been loaded.
         """
 
 
-async def load(project: Project, *, job_context: ProjectContext | None = None) -> None:
+async def load(project: Project, *, context: Context | None = None) -> None:
     """
     Load an ancestry.
     """
-    if job_context is None:
-        job_context = ProjectContext(project)
+    if context is None:
+        context = Context()
+
+    app = project.app
+    http_client = await app.http_client
+    localizers = await project.public_localizers
 
     extensions = await project.extensions
-    load_scheduler = DefaultScheduler(
-        job_context, progress=job_context.progress, user=project.app.user
-    )
+    load_scheduler = DefaultScheduler(context=context, user=project.app.user)
     async with AsyncExecutor(load_scheduler, concurrency=MAX_STRANDS):
         await gather(
             *(
@@ -61,9 +63,7 @@ async def load(project: Project, *, job_context: ProjectContext | None = None) -
         )
         await load_scheduler.release()
         await load_scheduler.complete()
-    post_load_scheduler = DefaultScheduler(
-        job_context, progress=job_context.progress, user=project.app.user
-    )
+    post_load_scheduler = DefaultScheduler(context=context, user=project.app.user)
     async with AsyncExecutor(post_load_scheduler, concurrency=MAX_STRANDS):
         await gather(
             *(
@@ -75,6 +75,9 @@ async def load(project: Project, *, job_context: ProjectContext | None = None) -
         )
         await post_load_scheduler.release()
         await post_load_scheduler.add(
-            *(PopulateLink(link) for link in project.ancestry[Link]),
+            *(
+                PopulateLink(link, http_client=http_client, localizers=localizers)
+                for link in project.ancestry[Link]
+            ),
         )
         await post_load_scheduler.complete()

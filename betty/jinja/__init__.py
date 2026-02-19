@@ -69,12 +69,12 @@ def context_document(context: JinjaContext) -> Document:
     return document
 
 
-def context_job_context(context: JinjaContext) -> JobContext | None:
+def context_context(context: JinjaContext) -> JobContext | None:
     """
     Get the current job context from the Jinja2 context.
     """
     try:
-        return context_document(context).job_context
+        return context_document(context).context
     except (KeyError, RuntimeError):
         return None
 
@@ -359,7 +359,7 @@ class _CacheTagExtension(JinjaExtension):
     async def _cache(
         self, cache_key: str, context: JinjaContext, caller: Callable[[], str]
     ) -> str:
-        job_context = context_job_context(context)
+        job_context = context_context(context)
         if job_context is None:
             return await auto_await(caller())
         async with job_context.cache.getset(f"jinja2_cache_tag:{cache_key}") as result:

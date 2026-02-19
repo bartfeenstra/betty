@@ -5,8 +5,8 @@ Test utilities for :py:mod:`betty.job.scheduler`.
 from __future__ import annotations
 
 from asyncio import create_task, sleep
-from collections.abc import Iterator, MutableSequence
-from typing import TYPE_CHECKING, Self, cast, final, override
+from collections.abc import Callable, Iterator, MutableSequence
+from typing import TYPE_CHECKING, cast, final, override
 
 import pytest
 
@@ -28,15 +28,13 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
 
-class StaticScheduler[ContextT: Context](Scheduler[ContextT]):
+class StaticScheduler(Scheduler):
     """
     A scheduler that issues static job batches.
     """
 
-    def __init__(
-        self, context: ContextT, batches: Sequence[ScheduledJobBatch | Closed]
-    ):
-        self._context = context
+    def __init__(self, context: Context, batches: Sequence[ScheduledJobBatch | Closed]):
+        super().__init__(context)
         self._batches: Iterable[ScheduledJobBatch | Closed] | Closed = iter(batches)
 
     @override
@@ -55,7 +53,7 @@ class StaticScheduler[ContextT: Context](Scheduler[ContextT]):
             return batch
 
     @override
-    async def add(self, *jobs: Job[ContextT]) -> None:
+    async def add(self, *jobs: Job) -> None:
         raise NotImplementedError
 
     @override
@@ -75,26 +73,18 @@ class StaticScheduler[ContextT: Context](Scheduler[ContextT]):
 
     @override
     @property
-    def context(self) -> ContextT:
+    def context(self) -> Context:
         return self._context
 
 
-class SchedulerTestBaseContext(Context):
-    """
-    A job context for :py:class:`betty.test_utils.job.scheduler.SchedulerTestBase`.
-    """
-
-    def __init__(self):
-        super().__init__()
-        self.jobs: MutableSequence[Job[Self]] = []
-
-
-class _Job(Job[SchedulerTestBaseContext]):
+class _Job(Job):
     def __init__(
         self,
         job_id: str,
+        carrier: MutableSequence[_Job] | None = None,
         *,
-        additional_jobs: Sequence[_Job[SchedulerTestBaseContext]] | None = None,
+        additional_jobs: Sequence[Callable[[MutableSequence[_Job]], _Job]]
+        | None = None,
         dependencies: set[str] | None = None,
         dependents: set[str] | None = None,
         priority: bool = False,
@@ -102,28 +92,30 @@ class _Job(Job[SchedulerTestBaseContext]):
         super().__init__(
             job_id, dependencies=dependencies, dependents=dependents, priority=priority
         )
+        self.carrier = [] if carrier is None else carrier
         self._additional_jobs = additional_jobs
 
     @override
-    async def do(self, scheduler: Scheduler[SchedulerTestBaseContext], /) -> None:
+    async def do(self, scheduler: Scheduler, /) -> None:
         if self._additional_jobs is not None:
             for additional_job in self._additional_jobs:
-                await scheduler.add(additional_job)
-        scheduler.context.jobs.append(self)
+                await scheduler.add(additional_job(self.carrier))
+        if self.carrier is not None:
+            self.carrier.append(self)
 
 
 @final
-class Sleep(Job[SchedulerTestBaseContext]):
+class Sleep(Job):
     """
     A job that sleeps for a long, long time.
     """
 
     @override
-    async def do(self, scheduler: Scheduler[SchedulerTestBaseContext], /) -> None:
+    async def do(self, scheduler: Scheduler, /) -> None:
         await sleep(999999999)
 
 
-class Raise(Job[SchedulerTestBaseContext]):
+class Raise(Job):
     """
     A job that raises an exception.
     """
@@ -143,7 +135,7 @@ class Raise(Job[SchedulerTestBaseContext]):
         self._reason = reason
 
     @override
-    async def do(self, scheduler: Scheduler[SchedulerTestBaseContext], /) -> None:
+    async def do(self, scheduler: Scheduler, /) -> None:
         raise self._reason
 
 
@@ -153,15 +145,13 @@ class SchedulerTestBase:
     """
 
     @pytest.fixture
-    def sut(self) -> Scheduler[SchedulerTestBaseContext]:
+    def sut(self) -> Scheduler:
         """
         Provide the systems under test.
         """
         raise NotImplementedError
 
-    async def test___aexit___with_exception(
-        self, sut: Scheduler[SchedulerTestBaseContext]
-    ) -> None:
+    async def test___aexit___with_exception(self, sut: Scheduler) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.__aexit__` implementations.
         """
@@ -171,15 +161,13 @@ class SchedulerTestBase:
                 raise exception
         assert exc_info.value is exception
 
-    async def test_add(self, sut: Scheduler[SchedulerTestBaseContext]) -> None:
+    async def test_add(self, sut: Scheduler) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.add` implementations.
         """
         await sut.add(_Job("job"))
 
-    async def test_add__with_duplicate_job(
-        self, sut: Scheduler[SchedulerTestBaseContext]
-    ) -> None:
+    async def test_add__with_duplicate_job(self, sut: Scheduler) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.add` implementations.
         """
@@ -187,9 +175,7 @@ class SchedulerTestBase:
         with pytest.raises(DuplicateJobError):
             await sut.add(_Job("job"))
 
-    async def test_add__with_dependent_post_release(
-        self, sut: Scheduler[SchedulerTestBaseContext]
-    ) -> None:
+    async def test_add__with_dependent_post_release(self, sut: Scheduler) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.add` implementations.
         """
@@ -199,7 +185,7 @@ class SchedulerTestBase:
                 _Job("dependent"), _Job("dependency", dependents={"dependent"})
             )
 
-    async def test_release(self, sut: Scheduler[SchedulerTestBaseContext]) -> None:
+    async def test_release(self, sut: Scheduler) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.release` implementations.
         """
@@ -216,56 +202,73 @@ class SchedulerTestBase:
                 ["isolated"],
                 [],
                 [
-                    _Job("isolated"),
+                    lambda carrier: _Job("isolated", carrier),
                 ],
             ),
             (
                 {f"isolated:{index}" for index in range(999)},
                 [],
-                [_Job(f"isolated:{index}") for index in range(999)],
+                [
+                    lambda carrier, index=index: _Job(f"isolated:{index}", carrier)
+                    for index in range(999)
+                ],
             ),
             # A simple dependency, provided in different orders.
             (
                 ["dependency", "dependent"],
                 [],
                 [
-                    _Job("dependency"),
-                    _Job("dependent", dependencies={"dependency"}),
+                    lambda carrier: _Job("dependency", carrier),
+                    lambda carrier: _Job(
+                        "dependent", carrier, dependencies={"dependency"}
+                    ),
                 ],
             ),
             (
                 ["dependency", "dependent"],
                 [],
                 [
-                    _Job("dependent", dependencies={"dependency"}),
-                    _Job("dependency"),
+                    lambda carrier: _Job(
+                        "dependent", carrier, dependencies={"dependency"}
+                    ),
+                    lambda carrier: _Job("dependency", carrier),
                 ],
             ),
             # A simple dependent.
             (
                 ["dependency", "dependent"],
                 [
-                    _Job("dependency", dependents={"dependent"}),
+                    lambda carrier: _Job(
+                        "dependency", carrier, dependents={"dependent"}
+                    ),
                 ],
                 [
-                    _Job("dependent"),
+                    lambda carrier: _Job("dependent", carrier),
                 ],
             ),
             # One job adding another, isolated job
             (
                 ["one", "other"],
                 [],
-                [_Job("one", additional_jobs=[_Job("other")])],
+                [
+                    lambda carrier: _Job(
+                        "one",
+                        carrier,
+                        additional_jobs=[lambda carrier: _Job("other", carrier)],
+                    )
+                ],
             ),
             # Diamond-shaped dependencies.
             (
                 {"one", "two-one", "two-two", "three"},
                 [],
                 [
-                    _Job("one"),
-                    _Job("two-one", dependencies={"one"}),
-                    _Job("two-two", dependencies={"one"}),
-                    _Job("three", dependencies={"two-one", "two-two"}),
+                    lambda carrier: _Job("one", carrier),
+                    lambda carrier: _Job("two-one", carrier, dependencies={"one"}),
+                    lambda carrier: _Job("two-two", carrier, dependencies={"one"}),
+                    lambda carrier: _Job(
+                        "three", carrier, dependencies={"two-one", "two-two"}
+                    ),
                 ],
             ),
             # One job adding another job as a dependent by being its dependency.
@@ -273,12 +276,12 @@ class SchedulerTestBase:
                 ["dependency", "dependent"],
                 [],
                 [
-                    _Job(
+                    lambda carrier: _Job(
                         "dependency",
+                        carrier,
                         additional_jobs=[
-                            _Job(
-                                "dependent",
-                                dependencies={"dependency"},
+                            lambda carrier: _Job(
+                                "dependent", carrier, dependencies={"dependency"}
                             )
                         ],
                     )
@@ -289,8 +292,8 @@ class SchedulerTestBase:
                 ["priority", "no-priority"],
                 [],
                 [
-                    _Job("no-priority", priority=False),
-                    _Job("priority", priority=True),
+                    lambda carrier: _Job("no-priority", carrier, priority=False),
+                    lambda carrier: _Job("priority", carrier, priority=True),
                 ],
             ),
         ],
@@ -298,26 +301,27 @@ class SchedulerTestBase:
     async def test_get__returns_job(
         self,
         expected: set[str] | Sequence[str],
-        pre_release_jobs: Sequence[Job[SchedulerTestBaseContext]],
-        post_release_jobs: Sequence[Job[SchedulerTestBaseContext]],
-        sut: Scheduler[SchedulerTestBaseContext],
+        pre_release_jobs: Sequence[Callable[[MutableSequence[_Job]], _Job]],
+        post_release_jobs: Sequence[Callable[[MutableSequence[_Job]], _Job]],
+        sut: Scheduler,
     ) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.get` implementations.
         """
+        carrier = []
         async with AsyncExecutor(sut):
-            await sut.add(*pre_release_jobs)
+            await sut.add(*(job(carrier) for job in pre_release_jobs))
             await sut.release()
-            await sut.add(*post_release_jobs)
+            await sut.add(*(job(carrier) for job in post_release_jobs))
             await sut.complete()
 
-        actual_ids = (job.id for job in sut.context.jobs)
+        actual_ids = (job.id for job in carrier)
         actual = set(actual_ids) if isinstance(expected, set) else list(actual_ids)
         assert actual == expected
 
     async def test_get__raises_when_unknown_dependency(
         self,
-        sut: Scheduler[SchedulerTestBaseContext],
+        sut: Scheduler,
     ) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.get` implementations.
@@ -328,9 +332,7 @@ class SchedulerTestBase:
                 async with sut:
                     pass
 
-    async def test_get__raises_when_cyclic(
-        self, sut: Scheduler[SchedulerTestBaseContext]
-    ) -> None:
+    async def test_get__raises_when_cyclic(self, sut: Scheduler) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.get` implementations.
         """
@@ -340,9 +342,7 @@ class SchedulerTestBase:
             async with sut:
                 await sut.get()
 
-    async def test_get__raises_when_cancelled(
-        self, sut: Scheduler[SchedulerTestBaseContext]
-    ) -> None:
+    async def test_get__raises_when_cancelled(self, sut: Scheduler) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.get` implementations.
         """
@@ -350,9 +350,7 @@ class SchedulerTestBase:
         with pytest.raises(Cancelled):
             await sut.get()
 
-    async def test_get__raises_when_completed(
-        self, sut: Scheduler[SchedulerTestBaseContext]
-    ) -> None:
+    async def test_get__raises_when_completed(self, sut: Scheduler) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.get` implementations.
         """
@@ -360,9 +358,7 @@ class SchedulerTestBase:
         with pytest.raises(Completed):
             await sut.get()
 
-    async def test_get___job_exception_should_cancel(
-        self, sut: Scheduler[SchedulerTestBaseContext]
-    ) -> None:
+    async def test_get___job_exception_should_cancel(self, sut: Scheduler) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.get` implementations.
         """
@@ -374,23 +370,22 @@ class SchedulerTestBase:
                 await batch()
         assert exc_info.value.__cause__ is reason
 
-    async def test_get___done_when_cancelled(
-        self, sut: Scheduler[SchedulerTestBaseContext]
-    ) -> None:
+    async def test_get___done_when_cancelled(self, sut: Scheduler) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.get` implementations.
         """
-        await sut.add(_Job("one"))
+        carrier = []
+        job = _Job("one", carrier)
+        await sut.add(job)
         with pytest.raises(Cancelled):  # noqa: PT012
             async with sut:
                 batch = await sut.get()
                 await sut.cancel()
                 await batch()
 
-        actual = [job.id for job in sut.context.jobs]
-        assert actual == ["one"]
+        assert carrier == [job]
 
-    async def test___aiter__(self, sut: Scheduler[SchedulerTestBaseContext]) -> None:
+    async def test___aiter__(self, sut: Scheduler) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.__aiter__` implementations.
         """
@@ -398,18 +393,14 @@ class SchedulerTestBase:
         assert [batch async for batch in sut] == []
         await completion
 
-    async def test_complete__when_completed(
-        self, sut: Scheduler[SchedulerTestBaseContext]
-    ) -> None:
+    async def test_complete__when_completed(self, sut: Scheduler) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.complete` implementations.
         """
         await sut.complete()
         await sut.complete()
 
-    async def test_complete__when_cancelled(
-        self, sut: Scheduler[SchedulerTestBaseContext]
-    ) -> None:
+    async def test_complete__when_cancelled(self, sut: Scheduler) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.complete` implementations.
         """
@@ -417,7 +408,7 @@ class SchedulerTestBase:
         with pytest.raises(Cancelled):
             await sut.complete()
 
-    async def test_cancel(self, sut: Scheduler[SchedulerTestBaseContext]) -> None:
+    async def test_cancel(self, sut: Scheduler) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.cancel` implementations.
         """
@@ -426,9 +417,7 @@ class SchedulerTestBase:
         with pytest.raises(Cancelled):
             await sut.get()
 
-    async def test_cancel__with_exception(
-        self, sut: Scheduler[SchedulerTestBaseContext]
-    ) -> None:
+    async def test_cancel__with_exception(self, sut: Scheduler) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.cancel` implementations.
         """
@@ -440,25 +429,21 @@ class SchedulerTestBase:
             await sut.get()
         assert exc_info.value.__cause__ is reason
 
-    async def test_cancel__when_cancelled(
-        self, sut: Scheduler[SchedulerTestBaseContext]
-    ) -> None:
+    async def test_cancel__when_cancelled(self, sut: Scheduler) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.cancel` implementations.
         """
         await sut.cancel()
         await sut.cancel()
 
-    async def test_cancel__when_completed(
-        self, sut: Scheduler[SchedulerTestBaseContext]
-    ) -> None:
+    async def test_cancel__when_completed(self, sut: Scheduler) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.cancel` implementations.
         """
         await sut.complete()
         await sut.cancel()
 
-    async def test_context(self, sut: Scheduler[SchedulerTestBaseContext]) -> None:
+    async def test_context(self, sut: Scheduler) -> None:
         """
         Tests :py:meth:`betty.job.scheduler.Scheduler.context` implementations.
         """

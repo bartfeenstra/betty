@@ -33,7 +33,6 @@ if TYPE_CHECKING:
     from betty.ancestry.link import Link
     from betty.copyright_notice import CopyrightNotice
     from betty.job.scheduler import Scheduler
-    from betty.project.job import ProjectContext
 
 
 @final
@@ -117,9 +116,12 @@ class Wiki(
         )
 
     @override
-    async def post_load(self, scheduler: Scheduler[ProjectContext]) -> None:
+    async def post_load(self, scheduler: Scheduler) -> None:
         await scheduler.add(
-            *(PopulateEntity(entity) for entity in scheduler.context.project.ancestry)
+            *(
+                PopulateEntity(entity, project=self.services)
+                for entity in self.services.ancestry
+            )
         )
 
     @service

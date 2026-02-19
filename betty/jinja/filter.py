@@ -229,10 +229,10 @@ async def filter_file(context: Context, file: File) -> str:
 
     :return: A ``betty-static://`` URL resource from which a public URL can be generated.
     """
-    from betty.jinja import context_job_context, context_project
+    from betty.jinja import context_context, context_project
 
     project = context_project(context)
-    job_context = context_job_context(context)
+    job_context = context_context(context)
 
     execute_filter = True
     if job_context:
@@ -265,7 +265,7 @@ async def filter_image_resize_cover(
 
     :return: A ``betty-static://`` URL resource from which a public URL can be generated.
     """
-    from betty.jinja import context_job_context, context_project
+    from betty.jinja import context_context, context_project
 
     file = filey if isinstance(filey, File) else filey.file
     assert file is not None
@@ -283,7 +283,7 @@ async def filter_image_resize_cover(
         return await filter_file(context, file)
 
     project = context_project(context)
-    job_context = context_job_context(context)
+    job_context = context_context(context)
 
     destination_name = f"{file.id}-"
     if size is not None:

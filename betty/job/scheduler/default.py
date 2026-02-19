@@ -35,17 +35,16 @@ if TYPE_CHECKING:
         Sequence,
     )
 
-    from betty.progress import Progress
     from betty.user import User
 
 
-class _ScheduledJobBatch[ContextT: Context]:
+class _ScheduledJobBatch:
     def __init__(
         self,
-        scheduler: Scheduler[ContextT],
+        scheduler: Scheduler,
         user: User,
         done: Callable[[Sequence[str]], Awaitable[None]],
-        jobs: Sequence[Job[ContextT]],
+        jobs: Sequence[Job],
         /,
     ):
         self._scheduler = scheduler
@@ -71,40 +70,31 @@ class _UnknownJob(Singleton):
 
 @final
 @threadsafe
-class DefaultScheduler[ContextT: Context](Scheduler[ContextT]):
+class DefaultScheduler(Scheduler):
     """
     Betty's default job scheduler.
     """
 
     def __init__(
         self,
-        context: ContextT,
         *,
-        progress: Progress,
         user: User,
+        context: Context | None = None,
     ):
-        self._context = context
-        self._progress = progress
+        super().__init__(context)
         self._user = user
         self._lock = AsynchronizedLock.new_threadsafe()
         self._released = False
         self._cancelled = False
         self._cancelled_reason: BaseException | None = None
         self._completed = False
-        self._jobs: MutableMapping[str, Job[ContextT] | _UnknownJob] = defaultdict(
-            _UnknownJob
-        )
+        self._jobs: MutableMapping[str, Job | _UnknownJob] = defaultdict(_UnknownJob)
         self._job_dependencies: MutableMapping[str, set[str]] = defaultdict(set)
         self._scheduled_jobs: set[str] = set()
         self._releasable_jobs_queue: MutableSequence[str] = []
         self._releasable_jobs_sorter: TopologicalSorter[str] | None = None
         self._released_jobs: set[str] = set()
         self._done_jobs: set[str] = set()
-
-    @override
-    @property
-    def context(self) -> ContextT:
-        return self._context
 
     def _is_open(self) -> bool:
         return not self._cancelled and not self._completed
@@ -124,7 +114,7 @@ class DefaultScheduler[ContextT: Context](Scheduler[ContextT]):
             raise Completed
 
     @override
-    async def add(self, *jobs: Job[ContextT]) -> None:
+    async def add(self, *jobs: Job) -> None:
         async with self._lock:
             self._assert_open()
             self._releasable_jobs_sorter = None
@@ -141,7 +131,7 @@ class DefaultScheduler[ContextT: Context](Scheduler[ContextT]):
                 self._job_dependencies[job.id].update(
                     job.dependencies - self._done_jobs
                 )
-            await self._progress.add(len(jobs))
+            await self._context.progress.add(len(jobs))
 
     @override
     async def release(self) -> None:
@@ -180,7 +170,7 @@ class DefaultScheduler[ContextT: Context](Scheduler[ContextT]):
                 job.id
                 for job in sorted(
                     cast(
-                        Iterable[Job[ContextT]],
+                        Iterable[Job],
                         (
                             self._jobs[job_id]
                             for job_id in {
@@ -217,7 +207,7 @@ class DefaultScheduler[ContextT: Context](Scheduler[ContextT]):
             return None
         self._update_releasable_jobs()
 
-        jobs: MutableSequence[Job[ContextT]] = []
+        jobs: MutableSequence[Job] = []
         index = 0
         releasable_job_count = len(self._releasable_jobs_queue)
         while len(jobs) <= 9 and index < releasable_job_count:
@@ -244,7 +234,7 @@ class DefaultScheduler[ContextT: Context](Scheduler[ContextT]):
                     self._job_dependencies.pop(job_id)
                     for job_dependencies in self._job_dependencies.values():
                         job_dependencies.discard(job_id)
-            await self._progress.done(len(job_ids))
+            await self._context.progress.done(len(job_ids))
 
     @asynccontextmanager
     async def _cancel_on_exception(self) -> AsyncIterator[None]:

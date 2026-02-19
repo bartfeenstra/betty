@@ -1,21 +1,16 @@
 import pytest
+from aiohttp import ClientSession
 from aioresponses import aioresponses
 
 from betty.ancestry.link import Link
-from betty.app import App
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.project import Project
-from betty.project.job import ProjectContext
 from betty.project.load.jobs import PopulateLink
-from betty.test_utils.ancestry.has_links import DummyHasLinks
 from betty.test_utils.job import do
 
 
 class TestPopulateLink:
     async def test_do__should_fetch_link_with_unsupported_content_type(
-        self,
-        http_client_mock: aioresponses,
-        isolated_app: App,
+        self, http_client_mock: aioresponses
     ) -> None:
         link_url = "https://example.com"
         link = Link(link_url)
@@ -26,13 +21,14 @@ class TestPopulateLink:
                 "Content-Type": "text/plain",
             },
         )
-        async with Project.new_isolated(isolated_app) as project:
-            project.ancestry.add(DummyHasLinks(links=[link]))
-            async with project:
-                await do(ProjectContext(project), PopulateLink(link))
+        await do(
+            PopulateLink(
+                link, http_client=ClientSession(), localizers=[DEFAULT_LOCALIZER]
+            )
+        )
 
-            assert not link.has_label
-            assert not link.description
+        assert not link.has_label
+        assert not link.description
 
     @pytest.mark.parametrize(
         ("link_page_content_type"),
@@ -42,10 +38,7 @@ class TestPopulateLink:
         ],
     )
     async def test_do__should_fetch_link_with_invalid_html(
-        self,
-        link_page_content_type: str,
-        http_client_mock: aioresponses,
-        isolated_app: App,
+        self, link_page_content_type: str, http_client_mock: aioresponses
     ) -> None:
         link_url = "https://example.com"
         link_page_html = "<html></html>"
@@ -55,13 +48,14 @@ class TestPopulateLink:
             body=link_page_html,
             headers={"Content-Type": link_page_content_type},
         )
-        async with Project.new_isolated(isolated_app) as project:
-            project.ancestry.add(DummyHasLinks(links=[link]))
-            async with project:
-                await do(ProjectContext(project), PopulateLink(link))
+        await do(
+            PopulateLink(
+                link, http_client=ClientSession(), localizers=[DEFAULT_LOCALIZER]
+            )
+        )
 
-            assert not link.has_label
-            assert not link.description
+        assert not link.has_label
+        assert not link.description
 
     @pytest.mark.parametrize(
         ("link_page_content_type"),
@@ -71,10 +65,7 @@ class TestPopulateLink:
         ],
     )
     async def test_do__should_fetch_link_label_from_valid_html_with_title(
-        self,
-        link_page_content_type: str,
-        http_client_mock: aioresponses,
-        isolated_app: App,
+        self, link_page_content_type: str, http_client_mock: aioresponses
     ) -> None:
         link_url = "https://example.com"
         link_page_title = "Hello, world!"
@@ -87,12 +78,13 @@ class TestPopulateLink:
             body=link_page_html,
             headers={"Content-Type": link_page_content_type},
         )
-        async with Project.new_isolated(isolated_app) as project:
-            project.ancestry.add(DummyHasLinks(links=[link]))
-            async with project:
-                await do(ProjectContext(project), PopulateLink(link))
+        await do(
+            PopulateLink(
+                link, http_client=ClientSession(), localizers=[DEFAULT_LOCALIZER]
+            )
+        )
 
-            assert link.label.localize(DEFAULT_LOCALIZER) == link_page_title
+        assert link.label.localize(DEFAULT_LOCALIZER) == link_page_title
 
     @pytest.mark.parametrize(
         ("link_page_content_type"),
@@ -102,10 +94,7 @@ class TestPopulateLink:
         ],
     )
     async def test_do__should_fetch_link_label_with_valid_html_without_title(
-        self,
-        link_page_content_type: str,
-        http_client_mock: aioresponses,
-        isolated_app: App,
+        self, link_page_content_type: str, http_client_mock: aioresponses
     ) -> None:
         link_url = "https://example.com"
         link_page_html = "<html><head></head><body></body></html>"
@@ -115,12 +104,15 @@ class TestPopulateLink:
             body=link_page_html,
             headers={"Content-Type": link_page_content_type},
         )
-        async with Project.new_isolated(isolated_app) as project:
-            project.ancestry.add(DummyHasLinks(links=[link]))
-            async with project:
-                await do(ProjectContext(project), PopulateLink(link))
+        await do(
+            PopulateLink(
+                link,
+                http_client=ClientSession(),
+                localizers=[DEFAULT_LOCALIZER],
+            )
+        )
 
-            assert not link.has_label
+        assert not link.has_label
 
     @pytest.mark.parametrize(
         ("link_page_content_type", "meta_attr_name", "meta_attr_value"),
@@ -137,7 +129,6 @@ class TestPopulateLink:
         meta_attr_name: str,
         meta_attr_value: str,
         http_client_mock: aioresponses,
-        isolated_app: App,
     ) -> None:
         link_url = "https://example.com"
         link_page_meta_description = "'Hello, world!' is a common internet greeting."
@@ -148,13 +139,15 @@ class TestPopulateLink:
             body=link_page_html,
             headers={"Content-Type": link_page_content_type},
         )
-        async with Project.new_isolated(isolated_app) as project:
-            project.ancestry.add(DummyHasLinks(links=[link]))
-            async with project:
-                await do(ProjectContext(project), PopulateLink(link))
-
-            assert link.description is not None
-            assert (
-                link.description.localize(DEFAULT_LOCALIZER)
-                == link_page_meta_description
+        await do(
+            PopulateLink(
+                link,
+                http_client=ClientSession(),
+                localizers=[DEFAULT_LOCALIZER],
             )
+        )
+
+        assert link.description is not None
+        assert (
+            link.description.localize(DEFAULT_LOCALIZER) == link_page_meta_description
+        )

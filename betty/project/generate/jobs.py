@@ -27,7 +27,6 @@ from betty.project.generate.file import (
     create_html_resource,
     create_json_resource,
 )
-from betty.project.job import ProjectContext
 from betty.project.schema import ProjectSchema
 from betty.string import kebab_case_to_lower_camel_case
 
@@ -39,16 +38,18 @@ if TYPE_CHECKING:
     from betty.jinja import CopyFunction
     from betty.job.scheduler import Scheduler
     from betty.portable import PortableMapping
+    from betty.project import Project
 
 
 @final
-class GenerateStaticPublicAssets(Job[ProjectContext]):
+class GenerateStaticPublicAssets(Job):
     """
     Generate a site's static public assets.
     """
 
-    def __init__(self):
+    def __init__(self, *, project: Project):
         super().__init__(self.id_for(), priority=True)
+        self._project = project
 
     @classmethod
     def id_for(cls) -> str:
@@ -58,14 +59,14 @@ class GenerateStaticPublicAssets(Job[ProjectContext]):
         return "generate-static-public-assets"
 
     @override
-    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
-        project = scheduler.context.project
-        assets = await project.assets
-        jinja = await project.jinja
+    async def do(self, scheduler: Scheduler, /) -> None:
+
+        assets = await self._project.assets
+        jinja = await self._project.jinja
         copy_function = jinja.make_copy_function(
-            document=await project.new_document(job_context=scheduler.context),
-            www_directory_path=project.www_directory,
-            is_localized_and_multilingual=project.configuration.multilingual,
+            document=await self._project.new_document(context=scheduler.context),
+            www_directory_path=self._project.www_directory,
+            is_localized_and_multilingual=self._project.configuration.multilingual,
         )
         await gather(
             *[
@@ -76,13 +77,13 @@ class GenerateStaticPublicAssets(Job[ProjectContext]):
 
     async def _generate(
         self,
-        scheduler: Scheduler[ProjectContext],
+        scheduler: Scheduler,
         asset_path: Path,
         copy_function: CopyFunction,
     ) -> None:
-        project = scheduler.context.project
-        assets = await project.assets
-        file_destination_path = project.www_directory / asset_path.relative_to(
+
+        assets = await self._project.assets
+        file_destination_path = self._project.www_directory / asset_path.relative_to(
             Path("public") / "static"
         )
         await makedirs(file_destination_path.parent, exist_ok=True)
@@ -90,7 +91,7 @@ class GenerateStaticPublicAssets(Job[ProjectContext]):
 
 
 @final
-class GenerateSitemap(Job[ProjectContext]):
+class GenerateSitemap(Job):
     """
     Generate a site's sitemap.
     """
@@ -118,8 +119,9 @@ class GenerateSitemap(Job[ProjectContext]):
     </sitemapindex>
     """
 
-    def __init__(self):
+    def __init__(self, *, project: Project):
         super().__init__(self.id_for())
+        self._project = project
 
     @classmethod
     def id_for(cls) -> str:
@@ -129,13 +131,13 @@ class GenerateSitemap(Job[ProjectContext]):
         return "generate-sitemap"
 
     @override
-    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
+    async def do(self, scheduler: Scheduler, /) -> None:
         context = scheduler.context
-        project = context.project
-        url_generator = await project.url_generator
+
+        url_generator = await self._project.url_generator
 
         await to_thread(
-            project.www_directory.mkdir,
+            self._project.www_directory.mkdir,
             exist_ok=True,
             parents=True,
         )
@@ -144,8 +146,8 @@ class GenerateSitemap(Job[ProjectContext]):
         sitemap_batch_urls: MutableSequence[str] = []
         sitemap_batch_urls_length = 0
         sitemap_batches.append(sitemap_batch_urls)
-        for locale in project.configuration.locales.keys():  # noqa: SIM118
-            for entity in project.ancestry:
+        for locale in self._project.configuration.locales.keys():  # noqa: SIM118
+            for entity in self._project.ancestry:
                 if not persistent_id(entity):
                     continue
                 if not entity.plugin().public_facing:
@@ -184,7 +186,7 @@ class GenerateSitemap(Job[ProjectContext]):
                 ),
             )
             async with aiofiles.open(
-                project.www_directory / f"sitemap-{sitemap_batch_index}.xml",
+                self._project.www_directory / f"sitemap-{sitemap_batch_index}.xml",
                 "w",
             ) as f:
                 await f.write(rendered_sitemap_batch)
@@ -196,20 +198,21 @@ class GenerateSitemap(Job[ProjectContext]):
                 for sitemap_url in sitemap_urls
             ),
         )
-        async with aiofiles.open(project.www_directory / "sitemap.xml", "w") as f:
+        async with aiofiles.open(self._project.www_directory / "sitemap.xml", "w") as f:
             await f.write(rendered_sitemap)
 
 
 @final
-class GenerateRobotsTxt(Job[ProjectContext]):
+class GenerateRobotsTxt(Job):
     """
     Generate a site's robots.txt.
     """
 
     _ROBOTS_TXT_TEMPLATE = """Sitemap: {{{ sitemap }}}"""
 
-    def __init__(self):
+    def __init__(self, *, project: Project):
         super().__init__(self.id_for())
+        self._project = project
 
     @classmethod
     def id_for(cls) -> str:
@@ -219,30 +222,33 @@ class GenerateRobotsTxt(Job[ProjectContext]):
         return "generate-robots-txt"
 
     @override
-    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
-        project = scheduler.context.project
-        url_generator = await project.url_generator
+    async def do(self, scheduler: Scheduler, /) -> None:
+
+        url_generator = await self._project.url_generator
         rendered_robots_txt = self._ROBOTS_TXT_TEMPLATE.replace(
             "{{{ sitemap }}}",
             url_generator.generate("betty-static:///sitemap.xml", absolute=True),
         )
         await to_thread(
-            project.www_directory.mkdir,
+            self._project.www_directory.mkdir,
             exist_ok=True,
             parents=True,
         )
-        async with aiofiles.open(project.www_directory / "robots.txt", mode="w") as f:
+        async with aiofiles.open(
+            self._project.www_directory / "robots.txt", mode="w"
+        ) as f:
             await f.write(rendered_robots_txt)
 
 
 @final
-class GenerateOpenApi(Job[ProjectContext]):
+class GenerateOpenApi(Job):
     """
     Generate a site's OpenAPI specification.
     """
 
-    def __init__(self):
+    def __init__(self, *, project: Project):
         super().__init__(self.id_for())
+        self._project = project
 
     @classmethod
     def id_for(cls) -> str:
@@ -252,26 +258,27 @@ class GenerateOpenApi(Job[ProjectContext]):
         return "generate-openapi"
 
     @override
-    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
-        project = scheduler.context.project
-        api_directory_path = project.www_directory / "api"
-        rendered_json = dumps(await Specification(project).build())
+    async def do(self, scheduler: Scheduler, /) -> None:
+
+        api_directory_path = self._project.www_directory / "api"
+        rendered_json = dumps(await Specification(self._project).build())
         async with create_json_resource(api_directory_path) as f:
             await f.write(rendered_json)
 
 
 @final
-class GenerateLocalizedPublicAssets(Job[ProjectContext]):
+class GenerateLocalizedPublicAssets(Job):
     """
     Generate a site's localized public assets.
     """
 
-    def __init__(self):
+    def __init__(self, *, project: Project):
         super().__init__(
             self.id_for(),
             dependencies={GenerateStaticPublicAssets.id_for()},
             priority=True,
         )
+        self._project = project
 
     @classmethod
     def id_for(cls) -> str:
@@ -281,40 +288,40 @@ class GenerateLocalizedPublicAssets(Job[ProjectContext]):
         return "generate-localized-public-assets"
 
     @override
-    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
-        project = scheduler.context.project
-        assets = await project.assets
-        localizers = await project.localizers
-        jinja = await project.jinja
+    async def do(self, scheduler: Scheduler, /) -> None:
+
+        assets = await self._project.assets
+        localizers = await self._project.localizers
+        jinja = await self._project.jinja
         copy_functions = {
             locale: jinja.make_copy_function(
-                document=await project.new_document(
-                    job_context=scheduler.context,
+                document=await self._project.new_document(
+                    context=scheduler.context,
                     localizer=localizers.get(locale),
                 ),
-                www_directory_path=project.www_directory,
-                is_localized_and_multilingual=project.configuration.multilingual,
+                www_directory_path=self._project.www_directory,
+                is_localized_and_multilingual=self._project.configuration.multilingual,
             )
-            for locale in project.configuration.locales.keys()  # noqa: SIM118
+            for locale in self._project.configuration.locales.keys()  # noqa: SIM118
         }
         await gather(
             *[
                 self._generate(scheduler, asset_path, copy_functions[locale], locale)
                 async for asset_path in assets.walk(Path("public") / "localized")
-                for locale in project.configuration.locales.keys()  # noqa: SIM118
+                for locale in self._project.configuration.locales.keys()  # noqa: SIM118
             ]
         )
 
     async def _generate(
         self,
-        scheduler: Scheduler[ProjectContext],
+        scheduler: Scheduler,
         asset_path: Path,
         copy_function: CopyFunction,
         locale: Locale,
     ) -> None:
-        project = scheduler.context.project
-        assets = await project.assets
-        file_destination_path = project.localize_www_directory(
+
+        assets = await self._project.assets
+        file_destination_path = self._project.localize_www_directory(
             locale
         ) / asset_path.relative_to(Path("public") / "localized")
         await makedirs(file_destination_path.parent, exist_ok=True)
@@ -322,13 +329,14 @@ class GenerateLocalizedPublicAssets(Job[ProjectContext]):
 
 
 @final
-class GenerateJsonSchema(Job[ProjectContext]):
+class GenerateJsonSchema(Job):
     """
     Generate the JSON schema for a site.
     """
 
-    def __init__(self):
+    def __init__(self, *, project: Project):
         super().__init__(self.id_for())
+        self._project = project
 
     @classmethod
     def id_for(cls) -> str:
@@ -338,22 +346,23 @@ class GenerateJsonSchema(Job[ProjectContext]):
         return "generate-json-schema"
 
     @override
-    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
-        project = scheduler.context.project
-        schema = await ProjectSchema.new(project)
+    async def do(self, scheduler: Scheduler, /) -> None:
+
+        schema = await ProjectSchema.new(self._project)
         rendered_json = dumps(schema.schema)
-        async with create_file(ProjectSchema.www_path(project)) as f:
+        async with create_file(ProjectSchema.www_path(self._project)) as f:
             await f.write(rendered_json)
 
 
 @final
-class GenerateJsonErrorResponses(Job[ProjectContext]):
+class GenerateJsonErrorResponses(Job):
     """
     Generate JSON HTTP error responses.
     """
 
-    def __init__(self):
+    def __init__(self, *, project: Project):
         super().__init__(self.id_for())
+        self._project = project
 
     @classmethod
     def id_for(cls) -> str:
@@ -363,8 +372,8 @@ class GenerateJsonErrorResponses(Job[ProjectContext]):
         return "generate-json-error-responses"
 
     @override
-    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
-        project = scheduler.context.project
+    async def do(self, scheduler: Scheduler, /) -> None:
+
         for code, message in [
             (401, _("I'm sorry, dear, but it seems you're not logged in.")),
             (
@@ -375,15 +384,17 @@ class GenerateJsonErrorResponses(Job[ProjectContext]):
             ),
             (404, _("I'm sorry, dear, but it seems this page does not exist.")),
         ]:
-            for locale in project.configuration.locales.keys():  # noqa: SIM118
+            for locale in self._project.configuration.locales.keys():  # noqa: SIM118
                 async with create_file(
-                    project.localize_www_directory(locale) / ".error" / f"{code}.json"
+                    self._project.localize_www_directory(locale)
+                    / ".error"
+                    / f"{code}.json"
                 ) as f:
                     await f.write(
                         dumps(
                             {
                                 "$schema": await ProjectSchema.def_url(
-                                    project, "errorResponse"
+                                    self._project, "errorResponse"
                                 ),
                                 "message": message.localize(DEFAULT_LOCALIZER),
                             }
@@ -392,13 +403,14 @@ class GenerateJsonErrorResponses(Job[ProjectContext]):
 
 
 @final
-class GenerateFavicon(Job[ProjectContext]):
+class GenerateFavicon(Job):
     """
     Generate a site's favicon.
     """
 
-    def __init__(self):
+    def __init__(self, *, project: Project):
         super().__init__(self.id_for())
+        self._project = project
 
     @classmethod
     def id_for(cls) -> str:
@@ -408,34 +420,34 @@ class GenerateFavicon(Job[ProjectContext]):
         return "generate-favicon"
 
     @override
-    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
-        project = scheduler.context.project
+    async def do(self, scheduler: Scheduler, /) -> None:
 
         await to_thread(
-            project.www_directory.mkdir,
+            self._project.www_directory.mkdir,
             exist_ok=True,
             parents=True,
         )
 
-        async with aiofiles.open(project.logo, "rb") as logo_f:
+        async with aiofiles.open(self._project.logo, "rb") as logo_f:
             logo = BytesIO(await logo_f.read())
         image = Image.open(logo)
         favicon = BytesIO()
         image.save(favicon, format="ICO")
         async with aiofiles.open(
-            project.www_directory / "favicon.ico", "wb"
+            self._project.www_directory / "favicon.ico", "wb"
         ) as favicon_f:
             await favicon_f.write(favicon.getbuffer())
 
 
 @final
-class GenerateEntityTypesJson(Job[ProjectContext]):
+class GenerateEntityTypesJson(Job):
     """
     Generate JSON resources for entity types.
     """
 
-    def __init__(self):
+    def __init__(self, *, project: Project):
         super().__init__(self.id_for(), priority=True)
+        self._project = project
 
     @classmethod
     def id_for(cls) -> str:
@@ -445,21 +457,20 @@ class GenerateEntityTypesJson(Job[ProjectContext]):
         return "generate-entity-types-json"
 
     @override
-    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
+    async def do(self, scheduler: Scheduler, /) -> None:
         await gather(
             *[
-                scheduler.add(_GenerateEntityTypeJson(entity_type))
-                for entity_type in await scheduler.context.project.plugins.plugins(
-                    EntityDefinition
-                )
+                scheduler.add(_GenerateEntityTypeJson(self._project, entity_type))
+                for entity_type in await self._project.plugins.plugins(EntityDefinition)
             ]
         )
 
 
 @final
-class _GenerateEntityTypeJson(Job[ProjectContext]):
-    def __init__(self, entity_type: EntityDefinition):
+class _GenerateEntityTypeJson(Job):
+    def __init__(self, project: Project, entity_type: EntityDefinition):
         super().__init__(self.id_for(entity_type))
+        self._project = project
         self._entity_type = entity_type
 
     @classmethod
@@ -467,18 +478,18 @@ class _GenerateEntityTypeJson(Job[ProjectContext]):
         return f"generate-entity-type-json:{entity_type.id}"
 
     @override
-    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
-        project = scheduler.context.project
-        url_generator = await project.url_generator
-        entity_type_path = project.www_directory / self._entity_type.id
+    async def do(self, scheduler: Scheduler, /) -> None:
+
+        url_generator = await self._project.url_generator
+        entity_type_path = self._project.www_directory / self._entity_type.id
         data: PortableMapping = {
             "$schema": await ProjectSchema.def_url(
-                project,
+                self._project,
                 f"{kebab_case_to_lower_camel_case(self._entity_type.id)}EntityCollectionResponse",
             ),
             "collection": [],
         }
-        for entity in project.ancestry[self._entity_type.cls]:
+        for entity in self._project.ancestry[self._entity_type.cls]:
             cast("MutableSequence[str]", data["collection"]).append(
                 url_generator.generate(
                     entity,
@@ -492,13 +503,14 @@ class _GenerateEntityTypeJson(Job[ProjectContext]):
 
 
 @final
-class GenerateEntityTypesHtml(Job[ProjectContext]):
+class GenerateEntityTypesHtml(Job):
     """
     Generate HTML pages for entity types.
     """
 
-    def __init__(self, *, per_page: int = 50):
+    def __init__(self, *, per_page: int = 50, project: Project):
         super().__init__(self.id_for(), priority=True)
+        self._project = project
         self._per_page = per_page
 
     @classmethod
@@ -509,40 +521,46 @@ class GenerateEntityTypesHtml(Job[ProjectContext]):
         return "generate-entity-types-html"
 
     @override
-    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
-        project = scheduler.context.project
+    async def do(self, scheduler: Scheduler, /) -> None:
+
         await gather(
             *[
                 scheduler.add(
                     _GenerateEntityTypeHtml(
-                        entity_type, locale, page, self._per_page, page_count
+                        self._project,
+                        entity_type,
+                        locale,
+                        page,
+                        self._per_page,
+                        page_count,
                     )
                 )
-                for entity_type in await project.plugins.plugins(EntityDefinition)
+                for entity_type in await self._project.plugins.plugins(EntityDefinition)
                 if entity_type.public_facing
                 and (
-                    entity_type.id in project.configuration.entity_types
-                    and project.configuration.entity_types[
+                    entity_type.id in self._project.configuration.entity_types
+                    and self._project.configuration.entity_types[
                         entity_type.id
                     ].generate_html_list
                 )
                 and (
                     page_count := ceil(
-                        len(project.ancestry[entity_type]) / self._per_page
+                        len(self._project.ancestry[entity_type]) / self._per_page
                     )
                     # Always show at least the first page, even if there are no entities.
                     or 1
                 )
                 for page in range(page_count)
-                for locale in project.configuration.locales.keys()  # noqa: SIM118
+                for locale in self._project.configuration.locales.keys()  # noqa: SIM118
             ]
         )
 
 
 @final
-class _GenerateEntityTypeHtml(Job[ProjectContext]):
+class _GenerateEntityTypeHtml(Job):
     def __init__(
         self,
+        project: Project,
         entity_type: EntityDefinition,
         locale: Locale,
         page: int,
@@ -550,6 +568,7 @@ class _GenerateEntityTypeHtml(Job[ProjectContext]):
         page_count: int,
     ):
         super().__init__(self.id_for(entity_type, locale, page))
+        self._project = project
         self._entity_type = entity_type
         self._locale = locale
         self._page = page
@@ -561,11 +580,11 @@ class _GenerateEntityTypeHtml(Job[ProjectContext]):
         return f"generate-entity-type-html:{entity_type.id}:{locale}:{page}"
 
     @override
-    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
+    async def do(self, scheduler: Scheduler, /) -> None:
         context = scheduler.context
-        project = context.project
-        localizers = await project.localizers
-        jinja = await project.jinja
+
+        localizers = await self._project.localizers
+        jinja = await self._project.jinja
         template = jinja.select_template(
             [
                 f"entity/page-list--{self._entity_type.id}.html.j2",
@@ -573,23 +592,25 @@ class _GenerateEntityTypeHtml(Job[ProjectContext]):
             ]
         )
         rendered_html = await template.render_async(
-            document=await project.new_document(
+            document=await self._project.new_document(
                 self._entity_type,
                 self._entity_type,
-                job_context=context,
+                context=context,
                 localizer=localizers.get(self._locale),
             ),
             page=self._page,
             per_page=self._per_page,
             page_count=self._page_count,
             page_entities=list(
-                filter(is_public, project.ancestry[self._entity_type.cls])
+                filter(is_public, self._project.ancestry[self._entity_type.cls])
             )[
                 self._per_page * self._page : self._per_page * self._page
                 + self._per_page
             ],
         )
-        page_path = project.localize_www_directory(self._locale) / self._entity_type.id
+        page_path = (
+            self._project.localize_www_directory(self._locale) / self._entity_type.id
+        )
         if self._page > 0:
             page_path /= f"page-{self._page + 1}"
         async with create_html_resource(page_path) as f:
@@ -597,13 +618,14 @@ class _GenerateEntityTypeHtml(Job[ProjectContext]):
 
 
 @final
-class GenerateEntitiesJson(Job[ProjectContext]):
+class GenerateEntitiesJson(Job):
     """
     Generate JSON resources for entities.
     """
 
-    def __init__(self):
+    def __init__(self, *, project: Project):
         super().__init__(self.id_for(), priority=True)
+        self._project = project
 
     @classmethod
     def id_for(cls) -> str:
@@ -613,22 +635,25 @@ class GenerateEntitiesJson(Job[ProjectContext]):
         return "generate-entities-json"
 
     @override
-    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
-        project = scheduler.context.project
+    async def do(self, scheduler: Scheduler, /) -> None:
+
         await gather(
             *[
-                scheduler.add(_GenerateEntityJson(entity_type, entity.id))
-                for entity_type in await project.plugins.plugins(EntityDefinition)
-                for entity in project.ancestry[entity_type.cls]
+                scheduler.add(
+                    _GenerateEntityJson(self._project, entity_type, entity.id)
+                )
+                for entity_type in await self._project.plugins.plugins(EntityDefinition)
+                for entity in self._project.ancestry[entity_type.cls]
                 if persistent_id(entity)
             ]
         )
 
 
 @final
-class _GenerateEntityJson(Job[ProjectContext]):
-    def __init__(self, entity_type: EntityDefinition, entity_id: str):
+class _GenerateEntityJson(Job):
+    def __init__(self, project: Project, entity_type: EntityDefinition, entity_id: str):
         super().__init__(self.id_for(entity_type, entity_id))
+        self._project = project
         self._entity_type = entity_type
         self._entity_id = entity_id
 
@@ -637,23 +662,26 @@ class _GenerateEntityJson(Job[ProjectContext]):
         return f"generate-entity-json:{entity_type.id}:{entity_id}"
 
     @override
-    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
-        project = scheduler.context.project
-        entity = project.ancestry[self._entity_type.cls][self._entity_id]
-        entity_path = project.www_directory / self._entity_type.id / entity.public_id
-        rendered_json = dumps(await entity.dump_linked_data(project))
+    async def do(self, scheduler: Scheduler, /) -> None:
+
+        entity = self._project.ancestry[self._entity_type.cls][self._entity_id]
+        entity_path = (
+            self._project.www_directory / self._entity_type.id / entity.public_id
+        )
+        rendered_json = dumps(await entity.dump_linked_data(self._project))
         async with create_json_resource(entity_path) as f:
             await f.write(rendered_json)
 
 
 @final
-class GenerateEntitiesHtml(Job[ProjectContext]):
+class GenerateEntitiesHtml(Job):
     """
     Generate HTML pages for entities.
     """
 
-    def __init__(self):
+    def __init__(self, *, project: Project):
         super().__init__(self.id_for(), priority=True)
+        self._project = project
 
     @classmethod
     def id_for(cls) -> str:
@@ -663,24 +691,33 @@ class GenerateEntitiesHtml(Job[ProjectContext]):
         return "generate-entities-html"
 
     @override
-    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
-        project = scheduler.context.project
+    async def do(self, scheduler: Scheduler, /) -> None:
+
         await gather(
             *[
-                scheduler.add(_GenerateEntityHtml(entity_type, entity.id, locale))
-                for entity_type in await project.plugins.plugins(EntityDefinition)
+                scheduler.add(
+                    _GenerateEntityHtml(self._project, entity_type, entity.id, locale)
+                )
+                for entity_type in await self._project.plugins.plugins(EntityDefinition)
                 if entity_type.public_facing
-                for entity in project.ancestry[entity_type.cls]
+                for entity in self._project.ancestry[entity_type.cls]
                 if persistent_id(entity) and is_public(entity)
-                for locale in project.configuration.locales.keys()  # noqa: SIM118
+                for locale in self._project.configuration.locales.keys()  # noqa: SIM118
             ]
         )
 
 
 @final
-class _GenerateEntityHtml(Job[ProjectContext]):
-    def __init__(self, entity_type: EntityDefinition, entity_id: str, locale: Locale):
+class _GenerateEntityHtml(Job):
+    def __init__(
+        self,
+        project: Project,
+        entity_type: EntityDefinition,
+        entity_id: str,
+        locale: Locale,
+    ):
         super().__init__(self.id_for(entity_type, entity_id, locale))
+        self._project = project
         self._entity_type = entity_type
         self._entity_id = entity_id
         self._locale = locale
@@ -692,14 +729,14 @@ class _GenerateEntityHtml(Job[ProjectContext]):
         return f"generate-entity-html:{entity_type.id}:{entity_id}:{locale}"
 
     @override
-    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
+    async def do(self, scheduler: Scheduler, /) -> None:
         context = scheduler.context
-        project = context.project
-        localizers = await project.localizers
-        jinja = await project.jinja
-        entity = project.ancestry[self._entity_type.cls][self._entity_id]
+
+        localizers = await self._project.localizers
+        jinja = await self._project.jinja
+        entity = self._project.ancestry[self._entity_type.cls][self._entity_id]
         entity_path = (
-            project.localize_www_directory(self._locale)
+            self._project.localize_www_directory(self._locale)
             / self._entity_type.id
             / entity.public_id
         )
@@ -709,10 +746,10 @@ class _GenerateEntityHtml(Job[ProjectContext]):
                 "entity/page.html.j2",
             ]
         ).render_async(
-            document=await project.new_document(
+            document=await self._project.new_document(
                 entity,
                 entity,
-                job_context=context,
+                context=context,
                 localizer=localizers.get(self._locale),
             )
         )

@@ -7,7 +7,6 @@ from betty.extension.gramps.data import FamilyTree, GrampsConfiguration
 from betty.extension.gramps.jobs import LoadAncestry
 from betty.gramps.loader import GrampsLoader
 from betty.project import Project
-from betty.project.job import ProjectContext
 from betty.test_utils.job import do
 
 
@@ -26,7 +25,6 @@ class TestLoadAncestry:
             )
             async with project:
                 await do(
-                    ProjectContext(project),
                     LoadAncestry(loader=m_gramps_loader, source=family_tree_name),
                 )
         m_gramps_loader.load_name.assert_awaited_once_with(family_tree_name)

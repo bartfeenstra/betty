@@ -11,7 +11,7 @@ from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.dirs import DEV_OUTPUT_DIRECTORY_PATH
 from betty.extension.demo import generate_with_cleanup
 from betty.extension.demo.project import create_project
-from betty.project.job import ProjectContext
+from betty.job import Context
 from betty.service.factory import Manufacturable
 from betty.service.requirement.app import require_app
 
@@ -31,9 +31,7 @@ async def _target(user: User) -> None:
     ):
         project = await create_project(app, Path(project_directory_path_str))
         async with project, user.message_progress("Generating site...") as progress:
-            await generate_with_cleanup(
-                project, job_context=ProjectContext(project, progress=progress)
-            )
+            await generate_with_cleanup(project, context=Context(progress=progress))
 
 
 def _print(stats: YFuncStats, sort_column: str, sort_direction: str) -> None:

@@ -8,13 +8,12 @@ from asyncio import gather
 from collections import defaultdict
 from typing import TYPE_CHECKING, final, override
 
-from aiohttp import ClientError
+from aiohttp import ClientError, ClientSession
 from lxml.html import HtmlElement, document_fromstring
 
 from betty.job import Job
 from betty.locale.localizable.static import StaticTranslations
 from betty.media_type import InvalidMediaType, MediaType
-from betty.project.job import ProjectContext
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -24,18 +23,22 @@ if TYPE_CHECKING:
     from betty.ancestry.link import Link
     from betty.job.scheduler import Scheduler
     from betty.locale.localizable import StaticTranslationsMapping
-    from betty.project import Project
+    from betty.locale.localize import Localizer
 
 
 @final
-class PopulateLink(Job[ProjectContext]):
+class PopulateLink(Job):
     """
     Populate a link with information from its URL.
     """
 
-    def __init__(self, link: Link):
+    def __init__(
+        self, link: Link, *, http_client: ClientSession, localizers: Iterable[Localizer]
+    ):
         super().__init__(self.id_for(link), priority=True)
         self._link = link
+        self._http_client = http_client
+        self._localizers = localizers
 
     @classmethod
     def id_for(cls, link: Link) -> str:
@@ -45,15 +48,11 @@ class PopulateLink(Job[ProjectContext]):
         return f"populate-link:{link.id}"
 
     @override
-    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
+    async def do(self, scheduler: Scheduler, /) -> None:
         if self._link.has_label and self._link.description:
             return
 
-        project = scheduler.context.project
-
-        urls = StaticTranslations.resolve(
-            self._link.url, await project.public_localizers
-        )
+        urls = StaticTranslations.resolve(self._link.url, self._localizers)
         urls_to_locales = defaultdict(set)
         for locale, url in urls.translations.items():
             urls_to_locales[url].add(locale)
@@ -62,9 +61,8 @@ class PopulateLink(Job[ProjectContext]):
         await gather(
             *(
                 self._populate_link_from_url(
-                    project,
                     url,
-                    project.configuration.locales.keys(),
+                    [localizer.locale for localizer in self._localizers],
                     labels,
                     descriptions,
                 )
@@ -78,15 +76,13 @@ class PopulateLink(Job[ProjectContext]):
 
     async def _populate_link_from_url(
         self,
-        project: Project,
         url: str,
         locales: Iterable[Locale],
         labels: StaticTranslationsMapping,
         descriptions: StaticTranslationsMapping,
     ) -> None:
-        http_client = await project.app.http_client
         try:
-            response = await http_client.get(url)
+            response = await self._http_client.get(url)
         except ClientError:
             return
         try:

@@ -18,26 +18,26 @@ from betty.locale.localizable.markup import Chain
 from betty.locale.localizable.plain import Plain
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.os import link_or_copy
-from betty.project.job import ProjectContext
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
+    from betty.project import Project
 
 
-class _GenerateLogo(Job[ProjectContext]):
-    def __init__(self):
+class _GenerateLogo(Job):
+    def __init__(self, *, project: Project):
         super().__init__("raspberry-mint:generate-logo")
+        self._project = project
 
     @override
-    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
-        project = scheduler.context.project
+    async def do(self, scheduler: Scheduler, /) -> None:
         await link_or_copy(
-            project.logo,
-            project.www_directory / ("logo" + project.logo.suffix),
+            self._project.logo,
+            self._project.www_directory / ("logo" + self._project.logo.suffix),
         )
 
 
-class _GenerateSearchIndex(Job[ProjectContext]):
+class _GenerateSearchIndex(Job):
     _RESULT_CONTAINER_TEMPLATE = Plain("""
     <li class="d-flex gap-2 search-result">
         {{{ betty-search-result }}}
@@ -50,39 +50,43 @@ class _GenerateSearchIndex(Job[ProjectContext]):
         "</h3>{{{ betty-search-results }}}</ul>",
     )
 
-    def __init__(self):
+    def __init__(self, *, project: Project):
         super().__init__("raspberry-mint:generate-search-index")
+        self._project = project
 
     @override
-    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
-        context = scheduler.context
+    async def do(self, scheduler: Scheduler, /) -> None:
         await generate_search_index(
-            context.project,
+            self._project,
             self._RESULT_CONTAINER_TEMPLATE,
             self._RESULTS_CONTAINER_TEMPLATE,
-            job_context=context,
+            context=scheduler.context,
         )
 
 
-class _GenerateWebmanifest(Job[ProjectContext]):
-    def __init__(self):
+class _GenerateWebmanifest(Job):
+    def __init__(self, *, project: Project):
         super().__init__("raspberry-mint:generate-webmanifest")
+        self._project = project
 
     @override
-    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
-        project = scheduler.context.project
-        extensions = await project.extensions
+    async def do(self, scheduler: Scheduler, /) -> None:
+        extensions = await self._project.extensions
         webmanifest = json.dumps(
             {
-                "name": project.configuration.title.localize(DEFAULT_LOCALIZER),
+                "name": self._project.configuration.title.localize(DEFAULT_LOCALIZER),
                 "icons": [
-                    {"src": "/logo" + project.logo.suffix},
+                    {"src": "/logo" + self._project.logo.suffix},
                 ],
-                "lang": to_language_tag(project.configuration.default_locale.locale),
+                "lang": to_language_tag(
+                    self._project.configuration.default_locale.locale
+                ),
                 "theme_color": extensions[RaspberryMint].configuration.secondary_color,
                 "background_color": "#ffffff",
                 "display": "fullscreen",
             }
         )
-        async with aiofiles.open(project.www_directory / "betty.webmanifest", "w") as f:
+        async with aiofiles.open(
+            self._project.www_directory / "betty.webmanifest", "w"
+        ) as f:
             await f.write(webmanifest)

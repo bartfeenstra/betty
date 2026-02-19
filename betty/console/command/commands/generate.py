@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.console.project import add_project_argument
+from betty.job import Context
 from betty.locale.localizable.gettext import _
-from betty.project.job import ProjectContext
 from betty.service.factory import Manufacturable
 from betty.service.requirement.app import require_app
 
@@ -46,8 +46,8 @@ class Generate(Manufacturable, Command):
             # Add a phantom value to the progress so it can never jump to 100% before we are entirely done here.
             await progress.add()
 
-            job_context = ProjectContext(project, progress=progress)
-            await load.load(project, job_context=job_context)
-            await generate.generate(project, job_context=job_context)
+            context = Context(progress=progress)
+            await load.load(project, context=context)
+            await generate.generate(project, context=context)
 
             await progress.done()

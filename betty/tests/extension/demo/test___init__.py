@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from pytest_mock import MockerFixture
 
     from betty.app import App
-    from betty.project.job import ProjectContext
+    from betty.job import Context
     from betty.test_utils.conftest import IsolatedAppFactory
 
 
@@ -25,9 +25,7 @@ if TYPE_CHECKING:
 async def test_generate_with_cleanup__without_error(
     mocker: MockerFixture, isolated_app: App
 ) -> None:
-    async def _generate(
-        project: Project, *, job_context: ProjectContext | None = None
-    ) -> None:
+    async def _generate(project: Project, *, context: Context | None = None) -> None:
         project.output_directory.mkdir(parents=True)
 
     m_generate = mocker.patch("betty.project.generate.generate")
@@ -46,9 +44,7 @@ async def test_generate_with_cleanup__with_error(
 ) -> None:
     error_message = "generation error"
 
-    async def _generate(
-        project: Project, *, job_context: ProjectContext | None = None
-    ) -> None:
+    async def _generate(project: Project, *, context: Context | None = None) -> None:
         project.output_directory.mkdir(parents=True)
         raise RuntimeError(error_message)
 

@@ -14,33 +14,33 @@ from aiofiles.os import makedirs
 from betty.ancestry.person import Person
 from betty.job import Job
 from betty.media_type.media_types import HTML
-from betty.project.job import ProjectContext
 
 if TYPE_CHECKING:
     from babel import Locale
 
     from betty.job.scheduler import Scheduler
+    from betty.project import Project
 
 
-class _GeneratePeopleJson(Job[ProjectContext]):
-    def __init__(self):
+class _GeneratePeopleJson(Job):
+    def __init__(self, *, project: Project):
         super().__init__("trees:generate-people-json")
+        self._project = project
 
     @override
-    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
+    async def do(self, scheduler: Scheduler, /) -> None:
         await gather(
             *(
                 self._generate_people_json_for_locale(scheduler, locale)
-                for locale in scheduler.context.project.configuration.locales.keys()  # noqa: SIM118
+                for locale in self._project.configuration.locales.keys()  # noqa: SIM118
             )
         )
 
     async def _generate_people_json_for_locale(
-        self, scheduler: Scheduler[ProjectContext], locale: Locale
+        self, scheduler: Scheduler, locale: Locale
     ) -> None:
-        project = scheduler.context.project
-        url_generator = await project.url_generator
-        localizers = await project.localizers
+        url_generator = await self._project.url_generator
+        localizers = await self._project.localizers
         localizer = localizers.get(locale)
         private_label = localizer._("private")
         people = {
@@ -54,12 +54,12 @@ class _GeneratePeopleJson(Job[ProjectContext]):
                 "childIds": [child.id for child in person.children],
                 "private": person.private,
             }
-            for person in project.ancestry[Person]
+            for person in self._project.ancestry[Person]
         }
         people_json = json.dumps(people)
-        await makedirs(project.localize_www_directory(locale), exist_ok=True)
+        await makedirs(self._project.localize_www_directory(locale), exist_ok=True)
         async with aiofiles.open(
-            project.localize_www_directory(locale) / "people.json",
+            self._project.localize_www_directory(locale) / "people.json",
             mode="w",
         ) as f:
             await f.write(people_json)

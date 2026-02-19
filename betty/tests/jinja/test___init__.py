@@ -6,7 +6,7 @@ import aiofiles
 
 from betty.document import Document
 from betty.jinja import Environment, JinjaProvider
-from betty.job import Context as JobContext
+from betty.job import Context
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.project import Project
 from betty.test_utils import Counter
@@ -120,7 +120,7 @@ class TestEnvironment:
 
 
 class Test_CacheTagExtension:
-    async def test_tag__without_job_context(self, isolated_app: App) -> None:
+    async def test_tag__without_context(self, isolated_app: App) -> None:
         counter = Counter()
         async with Project.new_isolated(isolated_app) as project, project:
             sut = await Environment.new(project)
@@ -131,18 +131,18 @@ class Test_CacheTagExtension:
             await template.render_async(count=counter)
         assert counter.count == 2
 
-    async def test_tag__with_job_context(self, isolated_app: App) -> None:
+    async def test_tag__with_context(self, isolated_app: App) -> None:
         counter = Counter()
-        job_context = JobContext()
+        context = Context()
         async with Project.new_isolated(isolated_app) as project, project:
             sut = await Environment.new(project)
             template = sut.from_string(
                 "{% cache 'my-first-cache-key' %}{% do count() %}{% endcache %}"
             )
             await template.render_async(
-                count=counter, document=Document(job_context=job_context)
+                count=counter, document=Document(context=context)
             )
             await template.render_async(
-                count=counter, document=Document(job_context=job_context)
+                count=counter, document=Document(context=context)
             )
         assert counter.count == 1

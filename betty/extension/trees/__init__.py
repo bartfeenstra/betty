@@ -19,7 +19,6 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.job.scheduler import Scheduler
-    from betty.project.job import ProjectContext
 
 
 @final
@@ -42,8 +41,8 @@ class Trees(Generator, EntryPointProvider[Project], Manufacturable):
         return cls(services=project)
 
     @override
-    async def generate(self, scheduler: Scheduler[ProjectContext]) -> None:
-        await scheduler.add(_GeneratePeopleJson())
+    async def generate(self, scheduler: Scheduler) -> None:
+        await scheduler.add(_GeneratePeopleJson(project=self.services))
 
     @override
     @classmethod

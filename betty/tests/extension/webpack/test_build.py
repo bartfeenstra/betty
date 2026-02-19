@@ -59,10 +59,9 @@ class TestBuilder:
         root_path: str,
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            job_context = Context()
+            context = Context()
             async with project:
                 sut = Builder(
-                    tmp_path,
                     (
                         [DummyEntryPointProviderExtension(services=project)]
                         if with_entry_point_provider
@@ -71,12 +70,13 @@ class TestBuilder:
                     debug,
                     await project.jinja,
                     root_path,
-                    job_context=job_context,
                     user=StaticUser(),
                 )
                 # Build twice, to test with warm caches as well.
-                await sut.build()
-                webpack_build_directory_path = await sut.build()
+                await sut.build(tmp_path, context=context)
+                webpack_build_directory_path = await sut.build(
+                    tmp_path, context=context
+                )
             assert (
                 webpack_build_directory_path / "css" / "webpack" / "webpack-vendor.css"
             ).exists()
@@ -106,16 +106,14 @@ class TestBuilder:
         m_npm = mocker.patch("betty.npm.npm")
         m_npm.side_effect = NpmUnavailable()
 
-        job_context = Context()
+        context = Context()
         m_jinja = mocker.AsyncMock()
         sut = Builder(
-            tmp_path,
             [],
             False,
             m_jinja,
             "",
-            job_context=job_context,
             user=StaticUser(),
         )
         with pytest.raises(NpmUnavailable):
-            await sut.build()
+            await sut.build(tmp_path, context=context)

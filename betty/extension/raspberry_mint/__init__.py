@@ -26,7 +26,6 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.job.scheduler import Scheduler
-    from betty.project.job import ProjectContext
 
 
 @final
@@ -116,7 +115,7 @@ class RaspberryMint(
         return cls(configuration=data, project=project)
 
     @override
-    async def generate(self, scheduler: Scheduler[ProjectContext]) -> None:
+    async def generate(self, scheduler: Scheduler) -> None:
         from betty.extension.raspberry_mint.jobs import (
             _GenerateLogo,
             _GenerateSearchIndex,
@@ -124,9 +123,9 @@ class RaspberryMint(
         )
 
         await scheduler.add(
-            _GenerateLogo(),
-            _GenerateSearchIndex(),
-            _GenerateWebmanifest(),
+            _GenerateLogo(project=self.services),
+            _GenerateSearchIndex(project=self.services),
+            _GenerateWebmanifest(project=self.services),
         )
 
     @override

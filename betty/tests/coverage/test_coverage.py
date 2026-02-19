@@ -319,7 +319,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/jinja/__init__.py": {
-        "context_job_context": MissingReason.SHOULD_BE_COVERED,
+        "context_context": MissingReason.SHOULD_BE_COVERED,
         "context_localizer": MissingReason.SHOULD_BE_COVERED,
         "context_project": MissingReason.SHOULD_BE_COVERED,
         "context_document": MissingReason.SHOULD_BE_COVERED,

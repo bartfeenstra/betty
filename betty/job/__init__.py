@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, final
 from uuid import uuid4
 
 from betty.cache.memory import MemoryCache
@@ -18,16 +18,15 @@ if TYPE_CHECKING:
     from betty.progress import Progress
 
 
+@final
 class Context:
     """
     A job context.
     """
 
-    def __init__(
-        self, *, cache: Cache[Any] | None = None, progress: Progress | None = None
-    ):
+    def __init__(self, *, progress: Progress | None = None):
         self._id = str(uuid4())
-        self._cache = cache or MemoryCache()
+        self._cache = MemoryCache()
         self._start = datetime.now()
         self._progress = progress or NoOpProgress()
 
@@ -62,7 +61,7 @@ class Context:
         return self._progress
 
 
-class Job[ContextT: Context = Context](ABC):
+class Job(ABC):
     """
     A job.
     """
@@ -110,7 +109,7 @@ class Job[ContextT: Context = Context](ABC):
         return self._priority
 
     @abstractmethod
-    async def do(self, scheduler: Scheduler[ContextT], /) -> None:
+    async def do(self, scheduler: Scheduler, /) -> None:
         """
         Do the job.
         """
