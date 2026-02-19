@@ -32,7 +32,7 @@ from betty.portable import PortableMapping
 
 if TYPE_CHECKING:
     from betty.ancestry.citation import Citation
-    from betty.job import Context as JobContext
+    from betty.job import Context
     from betty.locale.localizable import Localizable
     from betty.machine_name import MachineName
     from betty.model import Entity
@@ -55,7 +55,7 @@ class Document:
         breadcrumbs: Breadcrumbs | None = None,
         citer: Citer | None = None,
         entity_contexts: EntityContexts | None = None,
-        job_context: JobContext | None = None,
+        context: Context | None = None,
         localizer: Localizer | None = None,
         title: Localizable | None = None,
         **vars: Any,  # noqa: A002
@@ -63,7 +63,7 @@ class Document:
         self._resource = resource
         self._resource_url = resource_url
         self._entity_contexts = entity_contexts if entity_contexts else EntityContexts()
-        self._job_context = job_context
+        self._context = context
         self._localizer = localizer if localizer else DEFAULT_LOCALIZER
         self._title = title
         self._vars = vars
@@ -92,11 +92,11 @@ class Document:
         return self._entity_contexts
 
     @property
-    def job_context(self) -> JobContext | None:
+    def context(self) -> Context | None:
         """
         The job context.
         """
-        return self._job_context
+        return self._context
 
     @property
     def localizer(self) -> Localizer:
@@ -143,7 +143,7 @@ class Document:
                 "breadcrumbs": self._breadcrumbs,
                 "citer": self._citer,
                 "entity_contexts": self._entity_contexts,
-                "job_context": self._job_context,
+                "context": self._context,
                 "localizer": self._localizer,
                 "title": self._title,
                 **vars,
@@ -167,7 +167,7 @@ class Document:
             self._resource == other._resource
             and self._resource_url == other._resource_url
             and self._entity_contexts == other._entity_contexts
-            and self._job_context == other._job_context
+            and self._context == other._context
             and self._localizer == other._localizer
             and self._title == other._title
             and self._breadcrumbs == other._breadcrumbs

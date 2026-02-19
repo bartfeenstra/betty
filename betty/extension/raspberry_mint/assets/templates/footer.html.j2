@@ -11,9 +11,9 @@
                     </p>
                 </div>
                 <div class="col col-12 col-lg-6 p-3">
-                    {% if document.job_context %}
+                    {% if document.context %}
                         <p>
-                            {% trans last_modified = document.job_context.start | format_datetime_datetime -%}
+                            {% trans last_modified = document.context.start | format_datetime_datetime -%}
                                 Last modified on {{ last_modified }}
                             {%- endtrans %}
                         </p>

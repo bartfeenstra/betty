@@ -7,8 +7,8 @@ from typing import TYPE_CHECKING, Self, final, override
 import betty.extension.demo as stddemo
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.extension.demo.project import create_project
+from betty.job import Context
 from betty.locale.localizable.gettext import _
-from betty.project.job import ProjectContext
 from betty.service.factory import Manufacturable
 from betty.service.requirement.app import require_app
 
@@ -62,5 +62,5 @@ class Demo(Manufacturable, Command):
                 project,
                 project.app.user.message_progress(_("Generating site...")) as progress,
             ):
-                job_context = ProjectContext(project, progress=progress)
-                await stddemo.generate_with_cleanup(project, job_context=job_context)
+                context = Context(progress=progress)
+                await stddemo.generate_with_cleanup(project, context=context)

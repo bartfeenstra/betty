@@ -7,9 +7,8 @@ import pytest
 from betty.job import Context
 from betty.job.scheduler.default import DefaultScheduler
 from betty.progress import Progress
-from betty.progress.no_op import NoOpProgress
 from betty.test_utils.job import NoOpJob
-from betty.test_utils.job.scheduler import SchedulerTestBase, SchedulerTestBaseContext
+from betty.test_utils.job.scheduler import SchedulerTestBase
 from betty.user.no_op import NoOpUser
 
 if TYPE_CHECKING:
@@ -32,15 +31,13 @@ class _Progress(Progress):
 class TestDefaultScheduler(SchedulerTestBase):
     @pytest.fixture
     @override
-    def sut(self) -> Scheduler[SchedulerTestBaseContext]:
-        return DefaultScheduler(
-            SchedulerTestBaseContext(), progress=NoOpProgress(), user=NoOpUser()
-        )
+    def sut(self) -> Scheduler:
+        return DefaultScheduler(user=NoOpUser())
 
     async def test_progress(self) -> None:
         progress = _Progress()
         async with DefaultScheduler(
-            Context(), progress=progress, user=NoOpUser()
+            context=Context(progress=progress), user=NoOpUser()
         ) as sut:
             await sut.add(NoOpJob("job"))
             assert progress.total == 1

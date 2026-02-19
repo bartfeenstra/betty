@@ -8,11 +8,13 @@ from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable, Sequence
 from typing import TYPE_CHECKING, Self, final
 
-from betty.job import Context, Job
+from betty.job import Context
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
     from types import TracebackType
+
+    from betty.job import Job
 
 type ScheduledJobBatch = Callable[[], Awaitable[None]]
 """
@@ -81,23 +83,23 @@ class Completed(Closed):
     """
 
 
-class Scheduler[ContextT: Context = Context](ABC):
+class Scheduler(ABC):
     """
     A job scheduler.
     """
 
-    def __init__(self, context: ContextT, /):
-        self._context = context
+    def __init__(self, context: Context | None = None, /):
+        self._context = Context() if context is None else context
 
     @property
-    def context(self) -> ContextT:
+    def context(self) -> Context:
         """
         The context for all jobs in this scheduler.
         """
         return self._context
 
     @abstractmethod
-    async def add(self, *jobs: Job[ContextT]) -> None:
+    async def add(self, *jobs: Job) -> None:
         """
         Add a new job.
         """

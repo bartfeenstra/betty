@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from collections.abc import MutableMapping, Sequence
 
     from betty.jinja import Environment
-    from betty.job import Context as JobContext
+    from betty.job import Context
     from betty.user import User
 
 _NPM_PROJECT_DIRECTORIES_PATH = Path(__file__).parent / "webpack"
@@ -120,21 +120,17 @@ class Builder:
 
     def __init__(
         self,
-        working_directory_path: Path,
         entry_point_providers: Sequence[EntryPointProvider],
         debug: bool,
         jinja: Environment,
         root_path: str,
         *,
-        job_context: JobContext,
         user: User,
     ) -> None:
-        self._working_directory_path = working_directory_path
         self._entry_point_providers = entry_point_providers
         self._debug = debug
         self._jinja = jinja
         self._root_path = root_path
-        self._job_context = job_context
         self._user = user
 
     async def _prepare_betty(self, npm_project_directory_path: Path) -> None:
@@ -164,6 +160,7 @@ class Builder:
 
     async def _prepare_webpack_entry_point_provider(
         self,
+        context: Context,
         npm_project_directory_path: Path,
         package_json: PortableMapping,
         entry_point_provider: type[EntryPointProvider],
@@ -179,7 +176,7 @@ class Builder:
             / _package_name_to_path(cast(str, package_json["name"]))
         )
         copy_function = self._jinja.make_copy_function(
-            document=Document(job_context=self._job_context)
+            document=Document(context=context)
         )
         copies = []
         for directory_path, _, file_names in walk(entry_point_directory_path):
@@ -277,7 +274,10 @@ class Builder:
         )
 
     async def _prepare_npm_project_directory(
-        self, npm_project_directory_path: Path, webpack_build_directory_path: Path
+        self,
+        context: Context,
+        npm_project_directory_path: Path,
+        webpack_build_directory_path: Path,
     ) -> None:
         package_paths = [
             ROOT_DIRECTORY_PATH / "js",
@@ -311,6 +311,7 @@ class Builder:
             self._prepare_webpack_extension(npm_project_directory_path),
             *(
                 self._prepare_webpack_entry_point_provider(
+                    context,
                     npm_project_directory_path,
                     package_jsons_by_package_path[
                         entry_point_provider.webpack_entry_point_directory_path()
@@ -335,7 +336,7 @@ class Builder:
                 ),
                 "debug": self._debug,
                 "entry": webpack_entry,
-                "jobContextId": self._job_context.id,
+                "jobContextId": context.id,
             }
         )
         async with aiofiles.open(
@@ -377,7 +378,7 @@ class Builder:
             ).touch
         )
 
-    async def build(self) -> Path:
+    async def build(self, working_directory: Path, *, context: Context) -> Path:
         """
         Build the Webpack assets.
 
@@ -385,7 +386,7 @@ class Builder:
             final destination.
         """
         npm_project_directory_path = await _npm_project_directory_path(
-            self._working_directory_path, self._entry_point_providers
+            working_directory, self._entry_point_providers
         )
         webpack_build_directory_path = _webpack_build_directory_path(
             npm_project_directory_path, self._entry_point_providers, self._debug
@@ -394,7 +395,7 @@ class Builder:
             return webpack_build_directory_path
         npm_install_required = not npm_project_directory_path.exists()
         await self._prepare_npm_project_directory(
-            npm_project_directory_path, webpack_build_directory_path
+            context, npm_project_directory_path, webpack_build_directory_path
         )
         if npm_install_required:
             await self._npm_install(npm_project_directory_path)

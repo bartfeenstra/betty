@@ -36,7 +36,7 @@ async def generate_search_index(
     result_container_template: Localizable,
     results_container_template: Localizable,
     *,
-    job_context: Context,
+    context: Context,
 ) -> None:
     await gather(
         *(
@@ -45,7 +45,7 @@ async def generate_search_index(
                 result_container_template,
                 results_container_template,
                 locale,
-                job_context=job_context,
+                context=context,
             )
             for locale in project.configuration.locales.keys()  # noqa: SIM118
         )
@@ -58,7 +58,7 @@ async def _generate_search_index_for_locale(
     results_container_template: Localizable,
     locale: Locale,
     *,
-    job_context: Context,
+    context: Context,
 ) -> None:
     localizers = await project.localizers
     localizer = localizers.get(locale)
@@ -71,7 +71,7 @@ async def _generate_search_index_for_locale(
                 "text": " ".join(entry.text),
                 "result": entry.result,
             }
-            for entry in await Index(project, job_context, localizer).build()
+            for entry in await Index(project, context, localizer).build()
         ],
     }
     search_index_json = json.dumps(search_index)
@@ -158,11 +158,11 @@ class Index:
     def __init__(
         self,
         project: Project,
-        job_context: Context | None,
+        context: Context | None,
         localizer: Localizer,
     ):
         self._project = project
-        self._job_context = job_context
+        self._context = context
         self._localizer = localizer
 
     async def build(self) -> Sequence[_Entry]:
@@ -224,7 +224,7 @@ class Index:
             ]
         ).render_async(
             document=await self._project.new_document(
-                job_context=self._job_context,
+                context=self._context,
                 localizer=self._localizer,
             ),
             entity=entity,

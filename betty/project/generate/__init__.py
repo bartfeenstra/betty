@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING
 from aiofiles.os import makedirs
 
 from betty.concurrent import MAX_STRANDS
+from betty.job import Context
 from betty.job.executor.threading import ThreadPoolExecutor
 from betty.job.scheduler.default import DefaultScheduler
 from betty.project.generate.jobs import (
@@ -34,7 +35,6 @@ from betty.project.generate.jobs import (
     GenerateSitemap,
     GenerateStaticPublicAssets,
 )
-from betty.project.job import ProjectContext
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
@@ -47,30 +47,26 @@ class Generator(ABC):
     """
 
     @abstractmethod
-    async def generate(self, scheduler: Scheduler[ProjectContext]) -> None:
+    async def generate(self, scheduler: Scheduler) -> None:
         """
         Generate (part of) a project's site.
         """
 
 
-async def generate(
-    project: Project, *, job_context: ProjectContext | None = None
-) -> None:
+async def generate(project: Project, *, context: Context | None = None) -> None:
     """
     Generate a new site.
     """
-    if job_context is None:
-        job_context = ProjectContext(project)
+    if context is None:
+        context = Context()
 
-    await job_context.progress.add(2)
+    await context.progress.add(2)
 
     await _preprocess(project)
-    await job_context.progress.done()
+    await context.progress.done()
 
     threading_concurrency = cpu_count() or 2
-    scheduler = DefaultScheduler(
-        job_context, progress=job_context.progress, user=project.app.user
-    )
+    scheduler = DefaultScheduler(context=context, user=project.app.user)
     async with ThreadPoolExecutor(
         scheduler,
         async_concurrency=ceil(MAX_STRANDS / threading_concurrency),
@@ -86,23 +82,23 @@ async def generate(
         )
         await scheduler.release()
         await scheduler.add(
-            GenerateStaticPublicAssets(),
-            GenerateSitemap(),
-            GenerateRobotsTxt(),
-            GenerateOpenApi(),
-            GenerateLocalizedPublicAssets(),
-            GenerateJsonSchema(),
-            GenerateJsonErrorResponses(),
-            GenerateFavicon(),
-            GenerateEntityTypesJson(),
-            GenerateEntityTypesHtml(),
-            GenerateEntitiesJson(),
-            GenerateEntitiesHtml(),
+            GenerateStaticPublicAssets(project=project),
+            GenerateSitemap(project=project),
+            GenerateRobotsTxt(project=project),
+            GenerateOpenApi(project=project),
+            GenerateLocalizedPublicAssets(project=project),
+            GenerateJsonSchema(project=project),
+            GenerateJsonErrorResponses(project=project),
+            GenerateFavicon(project=project),
+            GenerateEntityTypesJson(project=project),
+            GenerateEntityTypesHtml(project=project),
+            GenerateEntitiesJson(project=project),
+            GenerateEntitiesHtml(project=project),
         )
         await scheduler.complete()
 
     await _postprocess(project)
-    await job_context.progress.done()
+    await context.progress.done()
 
 
 async def _preprocess(project: Project) -> None:

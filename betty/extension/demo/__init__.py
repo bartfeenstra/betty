@@ -10,6 +10,7 @@ from pathlib import Path
 from shutil import rmtree
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.copyright_notice.copyright_notices import Streetmix
 from betty.extension import Extension, ExtensionDefinition
 from betty.extension.demo.jobs import LoadAncestry
 from betty.extension.deriver import Deriver
@@ -20,9 +21,10 @@ from betty.extension.spdx import Spdx
 from betty.extension.trees import Trees
 from betty.extension.wiki import Wiki
 from betty.html import NavigationLink, NavigationLinkProvider
+from betty.license import LicenseDefinition
+from betty.license.licenses import spdx_license_id_to_license_id
 from betty.locale.localizable.gettext import _
 from betty.project import Project, generate
-from betty.project.job import ProjectContext
 from betty.project.load import Loader, load
 from betty.service.factory import Manufacturable
 from betty.service.requirement.project import require_project
@@ -30,34 +32,34 @@ from betty.service.requirement.project import require_project
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from betty.job import Context
     from betty.job.scheduler import Scheduler
-    from betty.project.job import ProjectContext
 
 
 async def generate_with_cleanup(
-    project: Project, *, job_context: ProjectContext | None = None
+    project: Project, *, context: Context | None = None
 ) -> None:
     """
     Generate a demonstration site, and clean up the project directory on any errors.
     """
-    if job_context:
+    if context:
         # Add a phantom value to the progress so it can never jump to 100% before we are entirely done here.
-        await job_context.progress.add()
+        await context.progress.add()
 
     if project.www_directory.exists():
         return
-    await load(project, job_context=job_context)
+    await load(project, context=context)
     with suppress(FileNotFoundError):
         await to_thread(rmtree, project.directory)
     try:
-        await generate.generate(project, job_context=job_context)
+        await generate.generate(project, context=context)
     except BaseException:
         with suppress(FileNotFoundError):
             await to_thread(rmtree, project.directory)
         raise
 
-    if job_context:
-        await job_context.progress.done()
+    if context:
+        await context.progress.done()
 
 
 @final
@@ -87,8 +89,18 @@ class Demo(NavigationLinkProvider, Loader, Manufacturable, Extension[Project]):
         return cls(services=project)
 
     @override
-    async def load(self, scheduler: Scheduler[ProjectContext]) -> None:
-        await scheduler.add(LoadAncestry())
+    async def load(self, scheduler: Scheduler) -> None:
+        licenses = await self.services.plugins.plugins(LicenseDefinition)
+        await scheduler.add(
+            LoadAncestry(
+                ancestry=self.services.ancestry,
+                factory=self.services.factory,
+                streetmix_copyright_notice=await self.services.factory.new(Streetmix),
+                streetmix_license=await self.services.factory.new(
+                    licenses[spdx_license_id_to_license_id("AGPL-3.0-or-later")].cls
+                ),
+            )
+        )
 
     @override
     def secondary_navigation_links(self) -> Sequence[NavigationLink]:

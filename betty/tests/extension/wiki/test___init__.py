@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from betty.ancestry.link import Link
 from betty.document import Document
 from betty.extension.wiki import Wiki
-from betty.job import Context as JobContext
+from betty.job import Context
 from betty.project import Project
 from betty.project.load import load
 from betty.wiki.client import Summary
@@ -52,7 +52,7 @@ class TestWiki:
                 jinja = await project.jinja
                 actual = await jinja.from_string(
                     "{% for entry in (links | wikipedia_summary) %}{{ entry.content }}{% endfor %}"
-                ).render_async(document=Document(job_context=JobContext()), links=links)
+                ).render_async(document=Document(context=Context()), links=links)
 
             m_get_summary.assert_called_once()
             assert actual == extract

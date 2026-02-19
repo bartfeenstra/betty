@@ -22,7 +22,7 @@ from betty.content_provider.content_providers import (
     Template,
 )
 from betty.document import Document
-from betty.job import Context as JobContext
+from betty.job import Context
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
 from betty.locale.localizable import ResolvableLocalizable
 from betty.locale.localizable.static import StaticTranslations
@@ -84,9 +84,9 @@ class TestTemplate:
         template = """
 {{ document.localizer.locale }}
 {{ document.resource }}
-{{ document.job_context.id }}
+{{ document.context.id }}
 """
-        job_context = JobContext()
+        context = Context()
         async with Project.new_isolated(isolated_app) as project, project:
             templates_directory_path = project.assets_directory / "templates"
             await makedirs(templates_directory_path)
@@ -113,13 +113,13 @@ class TestTemplate:
                 document=Document(
                     "my-first-page-resource",
                     localizer=Localizer("nl-NL", NullTranslations()),
-                    job_context=job_context,
+                    context=context,
                 )
             )
             assert provided_content is not None
             assert (
                 provided_content.strip()
-                == f"nl_NL\nmy-first-page-resource\n{job_context.id}"
+                == f"nl_NL\nmy-first-page-resource\n{context.id}"
             )
 
 

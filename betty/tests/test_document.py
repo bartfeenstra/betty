@@ -14,7 +14,7 @@ from betty.document import (
     Document,
     EntityContexts,
 )
-from betty.job import Context as JobContext
+from betty.job import Context
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.plain import Plain
 from betty.locale.localize import Localizer
@@ -149,7 +149,7 @@ class TestDocument:
         "resource": object(),
         "resource_url": object(),
         "entity_contexts": EntityContexts(),
-        "job_context": JobContext(),
+        "context": Context(),
         "localizer": Localizer(DEFAULT_LOCALE, NullTranslations()),
         "title": Plain("-"),
         "vars": {
@@ -167,9 +167,9 @@ class TestDocument:
         resource_url = "betty:///"
         assert Document(None, resource_url).resource_url is resource_url
 
-    def test_job_context__from___init___(self) -> None:
-        job_context = JobContext()
-        assert Document(job_context=job_context).job_context is job_context
+    def test_context__from___init___(self) -> None:
+        context = Context()
+        assert Document(context=context).context is context
 
     def test_breadcrumbs__from___init___(self) -> None:
         breadcrumbs = Breadcrumbs()
@@ -235,7 +235,7 @@ class TestDocument:
             (
                 False,
                 {
-                    "job_context": JobContext(),
+                    "context": Context(),
                 },
             ),
             (

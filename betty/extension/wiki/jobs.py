@@ -8,26 +8,27 @@ from typing import TYPE_CHECKING, override
 
 from betty.ancestry.link import Link
 from betty.job import Job
-from betty.project.job import ProjectContext
 from betty.project.load.jobs import PopulateLink
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
     from betty.model import Entity
+    from betty.project import Project
 
 
-class PopulateEntity(Job[ProjectContext]):
+class PopulateEntity(Job):
     """
     Populate an entity.
     """
 
-    def __init__(self, entity: Entity):
+    def __init__(self, entity: Entity, *, project: Project):
         super().__init__(
             self.id_for(entity),
             dependents={PopulateLink.id_for(entity)}
             if isinstance(entity, Link)
             else None,
         )
+        self._project = project
         self._entity = entity
 
     @classmethod
@@ -38,10 +39,9 @@ class PopulateEntity(Job[ProjectContext]):
         return f"wiki:populate:{entity.plugin().id}:{entity.id}"
 
     @override
-    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
+    async def do(self, scheduler: Scheduler, /) -> None:
         from betty.extension.wiki import Wiki
 
-        project = scheduler.context.project
-        extensions = await project.extensions
+        extensions = await self._project.extensions
         populator = await extensions[Wiki].populator
         await populator.populate(self._entity)

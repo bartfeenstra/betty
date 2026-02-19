@@ -20,14 +20,11 @@ from betty.ancestry.person_name import PersonName
 from betty.ancestry.place import Place
 from betty.ancestry.presence import Presence
 from betty.ancestry.source import Source
-from betty.copyright_notice.copyright_notices import Streetmix
 from betty.date import Date, DateRange
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.event_type.event_types import Birth, Death, Marriage
 from betty.gender.genders import Man, Woman
 from betty.job import Job
-from betty.license import LicenseDefinition
-from betty.license.licenses import spdx_license_id_to_license_id
 from betty.locale.localizable.gettext import _
 from betty.media_type.media_types import SVG
 from betty.place_type.place_types import (
@@ -36,34 +33,44 @@ from betty.place_type.place_types import (
     Province,
     Village,
 )
-from betty.project.job import ProjectContext
 from betty.role.roles import Subject
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
+    from betty.ancestry import Ancestry
+    from betty.copyright_notice import CopyrightNotice
     from betty.job.scheduler import Scheduler
+    from betty.license import License
     from betty.machine_name import MachineName
-    from betty.project import Project
+    from betty.service.factory import Factory
 
 
-class LoadAncestry(Job[ProjectContext]):
+class LoadAncestry(Job):
     """
     Load the demonstration data into an ancestry.
     """
 
-    def __init__(self):
+    def __init__(
+        self,
+        *,
+        ancestry: Ancestry,
+        factory: Factory,
+        streetmix_copyright_notice: CopyrightNotice,
+        streetmix_license: License,
+    ):
         super().__init__("demo:load-ancestry")
+        self._ancestry = ancestry
+        self._factory = factory
+        self._streetmix_copyright_notice = streetmix_copyright_notice
+        self._streetmix_license = streetmix_license
 
     @override
-    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
-        project = scheduler.context.project
-        ancestry = project.ancestry
-
+    async def do(self, scheduler: Scheduler, /) -> None:
         (
             streetmix_files_per_gender,
             fallback_streetmix_files,
-        ) = await self._load_streetmix_images(project)
+        ) = await self._load_streetmix_images()
 
         def _streetmix_image(person: Person) -> None:
             if person.file_references:
@@ -74,7 +81,7 @@ class LoadAncestry(Job[ProjectContext]):
             except KeyError:
                 streetmix_files = fallback_streetmix_files
             streetmix_file = choice(streetmix_files)
-            ancestry.add(FileReference(person, streetmix_file))
+            self._ancestry.add(FileReference(person, streetmix_file))
 
         netherlands = Place(
             id="betty-demo-netherlands",
@@ -84,7 +91,7 @@ class LoadAncestry(Job[ProjectContext]):
             links=[Link("https://en.wikipedia.org/wiki/Netherlands")],
             place_type=Country(),
         )
-        ancestry.add(netherlands)
+        self._ancestry.add(netherlands)
 
         north_holland = Place(
             id="betty-demo-north-holland",
@@ -97,8 +104,8 @@ class LoadAncestry(Job[ProjectContext]):
             ],
             place_type=Province(),
         )
-        ancestry.add(Enclosure(enclosee=north_holland, encloser=netherlands))
-        ancestry.add(north_holland)
+        self._ancestry.add(Enclosure(enclosee=north_holland, encloser=netherlands))
+        self._ancestry.add(north_holland)
 
         amsterdam_note = Note(
             _(
@@ -118,8 +125,8 @@ class LoadAncestry(Job[ProjectContext]):
             notes=[amsterdam_note],
             place_type=Municipality(),
         )
-        ancestry.add(Enclosure(enclosee=amsterdam, encloser=north_holland))
-        ancestry.add(amsterdam)
+        self._ancestry.add(Enclosure(enclosee=amsterdam, encloser=north_holland))
+        self._ancestry.add(amsterdam)
 
         ilpendam = Place(
             id="betty-demo-ilpendam",
@@ -129,28 +136,28 @@ class LoadAncestry(Job[ProjectContext]):
             links=[Link("https://nl.wikipedia.org/wiki/Ilpendam")],
             place_type=Village(),
         )
-        ancestry.add(Enclosure(enclosee=ilpendam, encloser=north_holland))
-        ancestry.add(ilpendam)
+        self._ancestry.add(Enclosure(enclosee=ilpendam, encloser=north_holland))
+        self._ancestry.add(ilpendam)
 
         personal_accounts = Source(
             id="betty-demo-personal-accounts",
             name=_("Personal accounts"),
         )
-        ancestry.add(personal_accounts)
+        self._ancestry.add(personal_accounts)
 
         cite_first_person_account = Citation(
             id="betty-demo-first-person-account",
             source=personal_accounts,
             location="Bart Feenstra",
         )
-        ancestry.add(cite_first_person_account)
+        self._ancestry.add(cite_first_person_account)
 
         noord_hollands_archief = Source(
             id="betty-demo-noord-hollands-archief",
             name="Noord-Hollands Archief",
             links=[Link("https://noord-hollandsarchief.nl/")],
         )
-        ancestry.add(noord_hollands_archief)
+        self._ancestry.add(noord_hollands_archief)
 
         bevolkingsregister_amsterdam = Source(
             id="betty-demo-bevolkingsregister-amsterdam",
@@ -159,13 +166,13 @@ class LoadAncestry(Job[ProjectContext]):
             publisher=_("Gemeente Amsterdam"),
             contained_by=noord_hollands_archief,
         )
-        ancestry.add(bevolkingsregister_amsterdam)
+        self._ancestry.add(bevolkingsregister_amsterdam)
 
         david_marinus_lankester = Person(
             id="betty-demo-david-marinus-lankester", gender=Man()
         )
         _streetmix_image(david_marinus_lankester)
-        ancestry.add(
+        self._ancestry.add(
             PersonName(
                 person=david_marinus_lankester,
                 individual="David Marinus",
@@ -178,7 +185,7 @@ class LoadAncestry(Job[ProjectContext]):
             id="betty-demo-geertruida-van-ling", gender=Woman()
         )
         _streetmix_image(geertruida_van_ling)
-        ancestry.add(
+        self._ancestry.add(
             PersonName(
                 person=geertruida_van_ling,
                 individual="Geertruida",
@@ -193,7 +200,7 @@ class LoadAncestry(Job[ProjectContext]):
             date=Date(1922, 7, 4),
             place=ilpendam,
         )
-        ancestry.add(marriage_of_dirk_jacobus_lankester_and_jannigje_palsen)
+        self._ancestry.add(marriage_of_dirk_jacobus_lankester_and_jannigje_palsen)
 
         birth_of_dirk_jacobus_lankester = Event(
             id="betty-demo-birth-of-dirk-jacobus-lankester",
@@ -201,7 +208,7 @@ class LoadAncestry(Job[ProjectContext]):
             date=Date(1897, 8, 25),
             place=amsterdam,
         )
-        ancestry.add(birth_of_dirk_jacobus_lankester)
+        self._ancestry.add(birth_of_dirk_jacobus_lankester)
 
         death_of_dirk_jacobus_lankester = Event(
             id="betty-demo-death-of-dirk-jacobus-lankester",
@@ -209,7 +216,7 @@ class LoadAncestry(Job[ProjectContext]):
             date=Date(1986, 8, 18),
             place=amsterdam,
         )
-        ancestry.add(death_of_dirk_jacobus_lankester)
+        self._ancestry.add(death_of_dirk_jacobus_lankester)
 
         dirk_jacobus_lankester = Person(
             id="betty-demo-dirk-jacobus-lankester",
@@ -217,7 +224,7 @@ class LoadAncestry(Job[ProjectContext]):
             parents=[david_marinus_lankester, geertruida_van_ling],
         )
         _streetmix_image(dirk_jacobus_lankester)
-        ancestry.add(
+        self._ancestry.add(
             PersonName(
                 person=dirk_jacobus_lankester,
                 individual="Dirk Jacobus",
@@ -235,7 +242,7 @@ class LoadAncestry(Job[ProjectContext]):
                 marriage_of_dirk_jacobus_lankester_and_jannigje_palsen,
             ),
         )
-        ancestry.add(dirk_jacobus_lankester)
+        self._ancestry.add(dirk_jacobus_lankester)
 
         birth_of_marinus_david_lankester = Event(
             id="betty-demo-birth-of-marinus-david",
@@ -248,7 +255,7 @@ class LoadAncestry(Job[ProjectContext]):
             ),
             place=amsterdam,
         )
-        ancestry.add(birth_of_marinus_david_lankester)
+        self._ancestry.add(birth_of_marinus_david_lankester)
 
         death_of_marinus_david_lankester = Event(
             id="betty-demo-death-of-marinus-david",
@@ -256,7 +263,7 @@ class LoadAncestry(Job[ProjectContext]):
             date=Date(1971),
             place=amsterdam,
         )
-        ancestry.add(death_of_marinus_david_lankester)
+        self._ancestry.add(death_of_marinus_david_lankester)
 
         marinus_david_lankester = Person(
             id="betty-demo-marinus-david-lankester",
@@ -264,7 +271,7 @@ class LoadAncestry(Job[ProjectContext]):
             parents=[david_marinus_lankester, geertruida_van_ling],
         )
         _streetmix_image(marinus_david_lankester)
-        ancestry.add(
+        self._ancestry.add(
             PersonName(
                 person=marinus_david_lankester,
                 individual="Marinus David",
@@ -277,7 +284,7 @@ class LoadAncestry(Job[ProjectContext]):
                 marinus_david_lankester, Subject(), death_of_marinus_david_lankester
             ),
         )
-        ancestry.add(marinus_david_lankester)
+        self._ancestry.add(marinus_david_lankester)
 
         birth_of_jacoba_gesina_lankester = Event(
             id="betty-demo-birth-of-jacoba-gesina",
@@ -285,7 +292,7 @@ class LoadAncestry(Job[ProjectContext]):
             date=Date(1900, 3, 14),
             place=amsterdam,
         )
-        ancestry.add(birth_of_jacoba_gesina_lankester)
+        self._ancestry.add(birth_of_jacoba_gesina_lankester)
 
         jacoba_gesina_lankester = Person(
             id="betty-demo-jacoba-gesina-lankester",
@@ -293,7 +300,7 @@ class LoadAncestry(Job[ProjectContext]):
             parents=[david_marinus_lankester, geertruida_van_ling],
         )
         _streetmix_image(jacoba_gesina_lankester)
-        ancestry.add(
+        self._ancestry.add(
             PersonName(
                 person=jacoba_gesina_lankester,
                 individual="Jacoba Gesina",
@@ -303,11 +310,11 @@ class LoadAncestry(Job[ProjectContext]):
                 jacoba_gesina_lankester, Subject(), birth_of_jacoba_gesina_lankester
             ),
         )
-        ancestry.add(jacoba_gesina_lankester)
+        self._ancestry.add(jacoba_gesina_lankester)
 
         jannigje_palsen = Person(id="betty-demo-jannigje-palsen", gender=Woman())
         _streetmix_image(jannigje_palsen)
-        ancestry.add(
+        self._ancestry.add(
             PersonName(
                 person=jannigje_palsen,
                 individual="Jannigje",
@@ -327,7 +334,7 @@ class LoadAncestry(Job[ProjectContext]):
             date=Date(1953, 6, 19),
             place=amsterdam,
         )
-        ancestry.add(marriage_of_johan_de_boer_and_liberta_lankester)
+        self._ancestry.add(marriage_of_johan_de_boer_and_liberta_lankester)
 
         cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam = Citation(
             id="betty-demo-birth-of-liberta-lankester-from-bevolkingsregister-amsterdam",
@@ -335,7 +342,9 @@ class LoadAncestry(Job[ProjectContext]):
             location=_("Amsterdam"),
             date=DateRange(None, Date(2000, 1, 1), end_is_boundary=True),
         )
-        ancestry.add(cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam)
+        self._ancestry.add(
+            cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam
+        )
 
         birth_of_liberta_lankester = Event(
             id="betty-demo-birth-of-liberta-lankester",
@@ -346,7 +355,7 @@ class LoadAncestry(Job[ProjectContext]):
                 cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam
             ],
         )
-        ancestry.add(birth_of_liberta_lankester)
+        self._ancestry.add(birth_of_liberta_lankester)
 
         death_of_liberta_lankester = Event(
             id="betty-demo-death-of-liberta-lankester",
@@ -355,7 +364,7 @@ class LoadAncestry(Job[ProjectContext]):
             place=amsterdam,
             citations=[cite_first_person_account],
         )
-        ancestry.add(death_of_liberta_lankester)
+        self._ancestry.add(death_of_liberta_lankester)
 
         liberta_lankester_note = Note(
             _('Did you know that Liberta "Betty" Lankester is Betty\'s namesake?')
@@ -368,7 +377,7 @@ class LoadAncestry(Job[ProjectContext]):
             notes=[liberta_lankester_note],
         )
         _streetmix_image(liberta_lankester)
-        ancestry.add(
+        self._ancestry.add(
             PersonName(
                 person=liberta_lankester,
                 individual="Liberta",
@@ -387,7 +396,7 @@ class LoadAncestry(Job[ProjectContext]):
                 marriage_of_johan_de_boer_and_liberta_lankester,
             ),
         )
-        ancestry.add(liberta_lankester)
+        self._ancestry.add(liberta_lankester)
 
         birth_of_johan_de_boer = Event(
             id="betty-demo-birth-of-johan-de-boer",
@@ -395,7 +404,7 @@ class LoadAncestry(Job[ProjectContext]):
             date=Date(1930, 6, 20),
             place=amsterdam,
         )
-        ancestry.add(birth_of_johan_de_boer)
+        self._ancestry.add(birth_of_johan_de_boer)
 
         death_of_johan_de_boer = Event(
             id="betty-demo-death-of-johan-de-boer",
@@ -404,11 +413,11 @@ class LoadAncestry(Job[ProjectContext]):
             place=amsterdam,
             citations=[cite_first_person_account],
         )
-        ancestry.add(death_of_johan_de_boer)
+        self._ancestry.add(death_of_johan_de_boer)
 
         johan_de_boer = Person(id="betty-demo-johan-de-boer", gender=Man())
         _streetmix_image(johan_de_boer)
-        ancestry.add(
+        self._ancestry.add(
             PersonName(
                 person=johan_de_boer,
                 individual="Johan",
@@ -433,13 +442,13 @@ class LoadAncestry(Job[ProjectContext]):
             parents=[johan_de_boer, liberta_lankester],
         )
         _streetmix_image(parent_of_bart_feenstra_child_of_liberta_lankester)
-        ancestry.add(
+        self._ancestry.add(
             PersonName(
                 person=parent_of_bart_feenstra_child_of_liberta_lankester,
                 individual="Bart's parent",
             )
         )
-        ancestry.add(parent_of_bart_feenstra_child_of_liberta_lankester)
+        self._ancestry.add(parent_of_bart_feenstra_child_of_liberta_lankester)
 
         birth_of_bart_feenstra = Event(
             id="betty-demo-birth-of-bart-feenstra",
@@ -451,7 +460,7 @@ class LoadAncestry(Job[ProjectContext]):
                 "The 'birth of the author', so to speak.",
             ),
         )
-        ancestry.add(birth_of_johan_de_boer)
+        self._ancestry.add(birth_of_johan_de_boer)
 
         bart_feenstra = Person(
             id="betty-demo-bart-feenstra",
@@ -460,24 +469,18 @@ class LoadAncestry(Job[ProjectContext]):
         )
         Presence(bart_feenstra, Subject(), birth_of_bart_feenstra)
         _streetmix_image(bart_feenstra)
-        ancestry.add(
+        self._ancestry.add(
             PersonName(
                 person=bart_feenstra,
                 individual="Bart",
                 affiliation="Feenstra",
             )
         )
-        ancestry.add(bart_feenstra)
+        self._ancestry.add(bart_feenstra)
 
     async def _load_streetmix_images(
         self,
-        project: Project,
     ) -> tuple[Mapping[MachineName, Sequence[File]], Sequence[File]]:
-        licenses = await project.plugins.plugins(LicenseDefinition)
-        license = await project.factory.new(  # noqa: A001
-            licenses[spdx_license_id_to_license_id("AGPL-3.0-or-later")].cls
-        )
-        copyright_notice = await project.factory.new(Streetmix)
         streetmix_image_directory_path = ASSETS_DIRECTORY_PATH / "vendor" / "streetmix"
         masculine: Sequence[File] = []
         feminine: Sequence[File] = []
@@ -510,11 +513,11 @@ class LoadAncestry(Job[ProjectContext]):
                 streetmix_image_directory_path / file_name,
                 id=f"streetmix-{file_name}",
                 media_type=SVG,
-                copyright_notice=copyright_notice,
-                license=license,
+                copyright_notice=self._streetmix_copyright_notice,
+                license=self._streetmix_license,
             )
             appearance.append(file)
-            project.ancestry.add(file)
+            self._ancestry.add(file)
 
         return {
             Woman.plugin().id: feminine + androgynous,

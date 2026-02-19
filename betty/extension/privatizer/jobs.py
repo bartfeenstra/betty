@@ -11,7 +11,6 @@ from betty.ancestry.person import Person
 from betty.job import Job
 from betty.locale.localizable.gettext import _, ngettext
 from betty.privacy import HasPrivacy
-from betty.project.job import ProjectContext
 
 if TYPE_CHECKING:
     from collections.abc import MutableMapping, MutableSequence
@@ -21,15 +20,17 @@ if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
     from betty.machine_name import MachineName
     from betty.model import Entity
+    from betty.project import Project
 
 
-class PrivatizeAncestry(Job[ProjectContext]):
+class PrivatizeAncestry(Job):
     """
     Privatize an ancestry.
     """
 
-    def __init__(self, dependencies: set[str] | None = None):
+    def __init__(self, dependencies: set[str] | None = None, *, project: Project):
         super().__init__(self.id_for(), dependencies=dependencies)
+        self._project = project
 
     @classmethod
     def id_for(cls) -> str:
@@ -39,21 +40,20 @@ class PrivatizeAncestry(Job[ProjectContext]):
         return "privatizer:privatize"
 
     @override
-    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
-        project = scheduler.context.project
-        await project.app.localizer
-        user = project.app.user
+    async def do(self, scheduler: Scheduler, /) -> None:
+        await self._project.app.localizer
+        user = self._project.app.user
 
         newly_privatized: MutableMapping[MachineName, int] = defaultdict(lambda: 0)
         entities: MutableSequence[Intersection[HasPrivacy, Entity]] = []
-        for entity in project.ancestry:
+        for entity in self._project.ancestry:
             if isinstance(entity, HasPrivacy):
                 entities.append(entity)
                 if entity.private:
                     newly_privatized[entity.plugin().id] -= 1
 
         for entity in entities:
-            await project.privatizer.privatize(entity)
+            await self._project.privatizer.privatize(entity)
 
         for entity in entities:
             if entity.private:

@@ -10,8 +10,8 @@ from typing import TYPE_CHECKING, final, override
 from betty import serve
 from betty.extension.demo import generate_with_cleanup
 from betty.extension.demo.project import create_project
+from betty.job import Context
 from betty.locale.localizable.gettext import _
-from betty.project.job import ProjectContext
 from betty.serve import NoPublicUrlBecauseServerNotStartedError, Server
 
 if TYPE_CHECKING:
@@ -47,8 +47,7 @@ class DemoServer(Server):
             async with project.app.user.message_progress(
                 _("Generating site...")
             ) as progress:
-                job_context = ProjectContext(project, progress=progress)
-                await generate_with_cleanup(project, job_context=job_context)
+                await generate_with_cleanup(project, context=Context(progress=progress))
             self._server = await serve.BuiltinProjectServer.new(project)
             await self._exit_stack.enter_async_context(self._server)
         except BaseException:

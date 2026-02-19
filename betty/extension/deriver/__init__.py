@@ -16,7 +16,6 @@ from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
-    from betty.project.job import ProjectContext
 
 
 @final
@@ -48,5 +47,5 @@ class Deriver(PostLoader, Manufacturable, Extension[Project]):
         return cls(services=project)
 
     @override
-    async def post_load(self, scheduler: Scheduler[ProjectContext]) -> None:
-        await scheduler.add(DeriveAncestry())
+    async def post_load(self, scheduler: Scheduler) -> None:
+        await scheduler.add(DeriveAncestry(project=self.services))

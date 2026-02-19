@@ -19,7 +19,6 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.job.scheduler import Scheduler
-    from betty.project.job import ProjectContext
 
 
 @final
@@ -51,5 +50,5 @@ class Maps(Generator, EntryPointProvider[Project], Manufacturable):
         return ()
 
     @override
-    async def generate(self, scheduler: Scheduler[ProjectContext]) -> None:
-        await scheduler.add(_GeneratePlacePreviews())
+    async def generate(self, scheduler: Scheduler) -> None:
+        await scheduler.add(_GeneratePlacePreviews(project=self.services))

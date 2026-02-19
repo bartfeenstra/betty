@@ -4,11 +4,10 @@ Test utilities for :py:mod:`betty.job`.
 
 from typing import final, override
 
-from betty.job import Context, Job
+from betty.job import Job
 from betty.job.executor.asyncio import AsyncExecutor
 from betty.job.scheduler import Scheduler
 from betty.job.scheduler.default import DefaultScheduler
-from betty.progress.no_op import NoOpProgress
 from betty.user.no_op import NoOpUser
 
 
@@ -23,11 +22,11 @@ class NoOpJob(Job):
         pass
 
 
-async def do[ContextT: Context](context: ContextT, *jobs: Job[ContextT]) -> None:
+async def do(*jobs: Job) -> None:
     """
     Do a number of jobs.
     """
-    scheduler = DefaultScheduler(context, progress=NoOpProgress(), user=NoOpUser())
+    scheduler = DefaultScheduler(user=NoOpUser())
     async with AsyncExecutor(scheduler):
         await scheduler.add(*jobs)
         async with scheduler:

@@ -36,7 +36,6 @@ from betty.project.generate.jobs import (
     GenerateSitemap,
     GenerateStaticPublicAssets,
 )
-from betty.project.job import ProjectContext
 from betty.role.roles import Unknown as UnknownRole
 from betty.string import kebab_case_to_lower_camel_case
 from betty.test_utils.jinja import assert_betty_html, assert_betty_json
@@ -62,7 +61,7 @@ class TestGenerateEntityTypesHtml:
                 )
             )
             async with project:
-                await do(ProjectContext(project), GenerateEntityTypesHtml())
+                await do(GenerateEntityTypesHtml(project=project))
 
                 await assert_betty_html(
                     project, f"/{entity_type.plugin().id}/index.html"
@@ -77,7 +76,7 @@ class TestGenerateEntityTypesHtml:
             place_two = Place(id="P2")
             project.ancestry.add(place_one, place_two)
             async with project:
-                await do(ProjectContext(project), GenerateEntityTypesHtml(per_page=1))
+                await do(GenerateEntityTypesHtml(per_page=1, project=project))
 
                 await assert_betty_html(project, "/place/page-2/index.html")
 
@@ -100,7 +99,7 @@ class TestGenerateEntityTypesJson:
     )
     async def test_do(self, entity_type: type[Entity], isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            await do(ProjectContext(project), GenerateEntityTypesJson())
+            await do(GenerateEntityTypesJson(project=project))
 
             await assert_betty_json(
                 project,
@@ -126,7 +125,7 @@ class TestGenerateEntitiesHtml:
         async with Project.new_isolated(isolated_app) as project:
             project.ancestry.add(entity)
             async with project:
-                await do(ProjectContext(project), GenerateEntitiesHtml())
+                await do(GenerateEntitiesHtml(project=project))
 
                 await assert_betty_html(
                     project, f"/{entity.plugin().id}/{entity.public_id}/index.html"
@@ -160,7 +159,7 @@ class TestGenerateEntitiesHtml:
         async with Project.new_isolated(isolated_app) as project:
             project.ancestry.add(entity)
             async with project:
-                await do(ProjectContext(project), GenerateEntitiesHtml())
+                await do(GenerateEntitiesHtml(project=project))
 
                 assert not (
                     project.www_directory
@@ -187,7 +186,7 @@ class TestGenerateEntitiesJson:
         async with Project.new_isolated(isolated_app) as project:
             project.ancestry.add(entity)
             async with project:
-                await do(ProjectContext(project), GenerateEntitiesJson())
+                await do(GenerateEntitiesJson(project=project))
 
                 await assert_betty_json(
                     project,
@@ -216,7 +215,7 @@ class TestGenerateEntitiesJson:
         async with Project.new_isolated(isolated_app) as project:
             project.ancestry.add(entity)
             async with project:
-                await do(ProjectContext(project), GenerateEntitiesJson())
+                await do(GenerateEntitiesJson(project=project))
 
                 assert not (
                     project.www_directory
@@ -229,7 +228,7 @@ class TestGenerateEntitiesJson:
 class TestGenerateSitemap:
     async def test_do(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            await do(ProjectContext(project), GenerateSitemap())
+            await do(GenerateSitemap(project=project))
 
             schema_doc = etree.parse(
                 Path(__file__).parent / "test_jobs_assets" / "sitemap.xsd"
@@ -254,7 +253,7 @@ class TestGenerateStaticPublicAssets:
             ]
 
             async with project:
-                await do(ProjectContext(project), GenerateStaticPublicAssets())
+                await do(GenerateStaticPublicAssets(project=project))
 
                 async with aiofiles.open(
                     await assert_betty_html(project, "/index.html")
@@ -280,9 +279,8 @@ class TestGenerateLocalizedPublicAssets:
             ]
             async with project:
                 await do(
-                    ProjectContext(project),
-                    GenerateStaticPublicAssets(),
-                    GenerateLocalizedPublicAssets(),
+                    GenerateStaticPublicAssets(project=project),
+                    GenerateLocalizedPublicAssets(project=project),
                 )
 
                 await assert_betty_html(project, "/nl/index.html")
@@ -292,7 +290,7 @@ class TestGenerateLocalizedPublicAssets:
 class TestGenerateRobotsTxt:
     async def test_do(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            await do(ProjectContext(project), GenerateRobotsTxt())
+            await do(GenerateRobotsTxt(project=project))
 
             assert (project.www_directory / "robots.txt").is_file()
 
@@ -300,7 +298,7 @@ class TestGenerateRobotsTxt:
 class TestGenerateOpenApi:
     async def test_do(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            await do(ProjectContext(project), GenerateOpenApi())
+            await do(GenerateOpenApi(project=project))
 
             with open(project.www_directory / "api" / "index.json") as f:
                 SpecificationSchema().validate(json.loads(f.read()))
@@ -309,7 +307,7 @@ class TestGenerateOpenApi:
 class TestGenerateJsonSchema:
     async def test_do(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            await do(ProjectContext(project), GenerateJsonSchema())
+            await do(GenerateJsonSchema(project=project))
 
             with open(project.www_directory / "schema.json") as f:
                 JsonSchemaSchema().validate(json.loads(f.read()))
@@ -318,7 +316,7 @@ class TestGenerateJsonSchema:
 class TestGenerateFavicon:
     async def test_do(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            await do(ProjectContext(project), GenerateFavicon())
+            await do(GenerateFavicon(project=project))
 
             assert (project.www_directory / "favicon.ico").is_file()
 
@@ -326,7 +324,7 @@ class TestGenerateFavicon:
 class TestGenerateJsonErrorResponses:
     async def test_do(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            await do(ProjectContext(project), GenerateJsonErrorResponses())
+            await do(GenerateJsonErrorResponses(project=project))
 
             for code in [401, 403, 404]:
                 await assert_betty_json(project, f".error/{code}.json", "errorResponse")

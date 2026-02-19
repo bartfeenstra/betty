@@ -16,7 +16,6 @@ from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
-    from betty.project.job import ProjectContext
 
 
 @final
@@ -81,11 +80,12 @@ class Privatizer(PostLoader, Manufacturable, Extension[Project]):
         return cls(services=project)
 
     @override
-    async def post_load(self, scheduler: Scheduler[ProjectContext]) -> None:
+    async def post_load(self, scheduler: Scheduler) -> None:
         await scheduler.add(
             PrivatizeAncestry(
                 dependencies={DeriveAncestry.id_for()}
-                if Deriver.plugin().id in await scheduler.context.project.extensions
-                else set()
+                if Deriver.plugin().id in await self.services.extensions
+                else set(),
+                project=self.services,
             )
         )

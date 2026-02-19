@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, override
 
-from betty.cache.no_op import NoOpCache
 from betty.job import Context, Job
 from betty.progress.no_op import NoOpProgress
 
@@ -17,11 +16,6 @@ class TestContext:
         assert sut.id != Context().id
 
     def test_cache(self) -> None:
-        cache = NoOpCache()
-        sut = Context(cache=cache)
-        assert sut.cache is cache
-
-    def test_cache__default(self) -> None:
         sut = Context()
         sut.cache  # noqa: B018
 

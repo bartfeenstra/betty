@@ -18,7 +18,7 @@ from betty.content_provider.content_providers import Render, RenderConfiguration
 from betty.date import Date, DateRange, ResolvableDate
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.document import Document
-from betty.job import Context as JobContext
+from betty.job import Context
 from betty.locale import HasLocale, HasLocaleStr
 from betty.locale.localizable.plain import Plain
 from betty.locale.localize import Localizer
@@ -91,14 +91,14 @@ async def test_filter_file(expected: str, template: str, file: File) -> None:
 @pytest.mark.parametrize(
     _TEST_FILTER_FILE_PARAMETER_ARGNAMES, _TEST_FILTER_FILE_PARAMETER_ARGVALUES
 )
-async def test_filter_file__with_job_context(
+async def test_filter_file__with_context(
     expected: str, template: str, file: File
 ) -> None:
     async with assert_template_string(
         template=template,
         data={
             "file": file,
-            "job_context": JobContext(),
+            "context": Context(),
         },
     ) as (actual, project):
         assert actual == expected
@@ -280,14 +280,14 @@ async def test_filter_image_resize_cover(
     _TEST_FILTER_IMAGE_RESIZE_COVER_PARAMETER_ARGNAMES,
     _TEST_FILTER_IMAGE_RESIZE_COVER_PARAMETER_ARGVALUES,
 )
-async def test_filter_image_resize_cover__with_job_context(
+async def test_filter_image_resize_cover__with_context(
     expected: str, template: str, filey: File
 ) -> None:
     async with assert_template_string(
         template=template,
         data={
             "filey": filey,
-            "job_context": JobContext(),
+            "context": Context(),
         },
     ) as (actual, project):
         assert actual == expected
