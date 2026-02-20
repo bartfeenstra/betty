@@ -31,11 +31,11 @@ class MappingDefinition[MutableMappingT: MutableMapping[Any, Any]](
         /,
         cls: type[Intersection[MutableMappingT, MutableMapping[KeyT, ValueT]]],
         *,
-        key: DataDefinition[KeyT],
+        key: DataDefinition[KeyT, str],
         value: DataDefinition[ValueT] | type[Intersection[ValueT, Data]],
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
-        factory: Callable[[Mapping[str, ValueT]], MutableMappingT] | None = None,
+        factory: Callable[[Mapping[KeyT, ValueT]], MutableMappingT] | None = None,
         porter: Porter[MutableMappingT] | None = None,
     ):
         super().__init__(
@@ -58,8 +58,6 @@ class MappingDefinition[MutableMappingT: MutableMapping[Any, Any]](
 
     def _dump(self, data: MutableMappingT) -> PortableData:
         return {
-            self._key.porter.dump(key): self._item.porter.dump(
-                item,
-            )  # ty:ignore[invalid-argument-type]
+            self._key.porter.dump(key): self._item.porter.dump(item)
             for key, item in data.items()
-        }  # ty:ignore[invalid-return-type]
+        }

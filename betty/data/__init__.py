@@ -10,7 +10,13 @@ from typing import TYPE_CHECKING, Any, Self, final, override
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.importlib import fully_qualified_name
-from betty.portable import OptionalPorter, Portable, PortablePorter, Porter
+from betty.portable import (
+    OptionalPorter,
+    Portable,
+    PortableData,
+    PortablePorter,
+    Porter,
+)
 from betty.portable.error import NotPortable
 from betty.sample import Samplable, Sample, Samples, Size
 
@@ -22,7 +28,9 @@ if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
 
 
-class DataDefinition[DataClsT](HumanFacingDefinition, ClsDefinition[DataClsT]):
+class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
+    HumanFacingDefinition, ClsDefinition[DataClsT]
+):
     """
     A data definition.
     """
@@ -34,7 +42,7 @@ class DataDefinition[DataClsT](HumanFacingDefinition, ClsDefinition[DataClsT]):
         *,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
-        porter: Porter[DataClsT] | None = None,
+        porter: Porter[DataClsT, PortableDataT] | None = None,
         samples: Iterable[
             Callable[[], Sample[DataClsT]]
             | Samples[DataClsT]
@@ -47,7 +55,7 @@ class DataDefinition[DataClsT](HumanFacingDefinition, ClsDefinition[DataClsT]):
         self._samples = samples
 
     @property
-    def porter(self) -> Porter[DataClsT]:
+    def porter(self) -> Porter[DataClsT, PortableDataT]:
         """
         The porter for the data.
         """
@@ -57,7 +65,7 @@ class DataDefinition[DataClsT](HumanFacingDefinition, ClsDefinition[DataClsT]):
                     f"This definition does not have a porter. Either make the data class {fully_qualified_name(self.cls)} subclass {fully_qualified_name(Portable)}, or provide a porter when initializing the definition."
                 )
             self._porter = PortablePorter(self.cls)
-        return self._porter
+        return self._porter  # ty:ignore[invalid-return-type]
 
     @override
     def _set_cls(self, cls: type[DataClsT]) -> None:

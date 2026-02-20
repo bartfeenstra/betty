@@ -70,9 +70,7 @@ class PluginManufacturer[
                 Void()
                 if self.plugin_data is Void()
                 else dumps(
-                    self.plugin_data.data().porter.dump(
-                        self.plugin_data,  # ty:ignore[invalid-argument-type]
-                    )  # ty:ignore[invalid-argument-type]
+                    self.plugin_data.data().porter.dump(self.plugin_data)
                     if isinstance(self.plugin_data, Data)
                     else self.plugin_data,
                 ),
@@ -144,9 +142,7 @@ class PluginManufacturer[
     @final
     def _dump_configuration(self, configuration: Data | PortableData) -> PortableData:
         if isinstance(configuration, Data):
-            return configuration.data().porter.dump(
-                configuration,  # ty:ignore[invalid-argument-type]
-            )  # ty:ignore[invalid-argument-type, invalid-return-type]
+            return configuration.data().porter.dump(configuration)
         return configuration
 
     @final
