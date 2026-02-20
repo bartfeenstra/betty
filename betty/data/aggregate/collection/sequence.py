@@ -51,9 +51,4 @@ class SequenceDefinition[MutableSequenceT: MutableSequence[Any]](
         return factory(assert_sequence(self._item.porter.load)(portable))  # ty:ignore[too-many-positional-arguments]
 
     def _dump(self, data: MutableSequenceT) -> PortableData:
-        return [
-            self._item.porter.dump(
-                item,
-            )  # ty:ignore[invalid-argument-type]
-            for item in data
-        ]  # ty:ignore[invalid-return-type]
+        return [self._item.porter.dump(item) for item in data]

@@ -763,7 +763,10 @@ class ColumnsConfiguration(Data):
     width = Property(
         MappingDefinition(
             cls=dict,
-            key=EnumDefinition(cls=Breakpoint, label=_("Breakpoint")),
+            key=EnumDefinition(
+                cls=Breakpoint,
+                label=_("Breakpoint"),
+            ),  # ty:ignore[invalid-argument-type]
             value=SequenceDefinition(
                 cls=list,
                 label=_("Column widths"),

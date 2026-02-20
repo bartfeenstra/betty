@@ -54,7 +54,7 @@ async def assert_linked_data_dump[PortableDataT: PortableData](
         Project.new_isolated(app) as project,
         project,
     ):
-        actual = await portable(project) if callable(portable) else portable
+        actual = await portable(project) if callable(portable) else portable  # ty:ignore[call-top-callable]
 
         # Validate the raw dump.
         sut_schema = schema if isinstance(schema, Schema) else await schema(project)
