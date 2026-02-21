@@ -24,7 +24,7 @@
     <div class="container">
         <div class="row">
             <div class="col">
-                <a href="{{ file | file | url }}" class="file-view-original">{% trans %}View original{% endtrans %}</a>
+                <a href="{{ file | file | url }}" class="file-view-original">{% trans %}View original size{% endtrans %}</a>
             </div>
         </div>
         {% if file.copyright_notice is not none or file.license is not none %}
