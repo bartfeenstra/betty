@@ -9,7 +9,7 @@ import aiofiles
 import pytest
 from babel import Locale
 from PIL import Image
-from puremagic import what
+from puremagic import from_file
 
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
@@ -287,8 +287,8 @@ async def test_filter_image_resize_cover__with_pdf(tmp_path: Path) -> None:
         assert actual == "betty-static:///file/F1-.jpg"
         for public_file_path in actual.split("#"):
             file_path = project.www_directory / public_file_path[16:]
-            assert (file_path).exists()
-            assert what(file_path) == "jpeg"
+            assert file_path.exists()
+            assert from_file(file_path, True) == "image/jpeg"
 
 
 async def test_filter_image_resize_cover__with_invalid_image(tmp_path: Path) -> None:
