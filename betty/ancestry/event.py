@@ -14,7 +14,6 @@ from betty.ancestry.has_links import HasLinks
 from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.place import Place
 from betty.ancestry.presence import Presence
-from betty.data.aggregate.record.object.property import Optional
 from betty.event_type import EventTypeDefinition
 from betty.event_type.event_types import Unknown as UnknownEventType
 from betty.json.linked_data import JsonLdObject, dump_context
@@ -33,6 +32,7 @@ from betty.model.association import (
 )
 from betty.plugin.schema import PluginIdSchema
 from betty.privacy import HasPrivacy, Privacy
+from betty.property import Optional
 from betty.role.roles import Subject
 
 if TYPE_CHECKING:

@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.ancestry.description import HasDescription
 from betty.ancestry.media_type import HasMediaType
-from betty.data.aggregate.record.object.property import Optional
 from betty.json.schema import String
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
@@ -17,6 +16,7 @@ from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.model import Entity, EntityDefinition
 from betty.model.association import BidirectionalToZeroOrOne
 from betty.privacy import HasPrivacy, Privacy, merge_privacies
+from betty.property import Optional
 
 if TYPE_CHECKING:
     from betty.ancestry.has_links import HasLinks

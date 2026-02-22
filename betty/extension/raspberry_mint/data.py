@@ -16,7 +16,6 @@ from betty.content_provider import (
 from betty.data import Data, Sample
 from betty.data.aggregate.collection.mapping import MappingDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
-from betty.data.aggregate.record.object.property import Property
 from betty.data.indicator.selector import Attr, Key
 from betty.data.str import StrDefinition
 from betty.exception import HumanFacingException, reraise_with_indicator
@@ -24,6 +23,7 @@ from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Paragraph, do_you_mean
 from betty.plugin.data import PluginManufacturerSequenceDefinition
 from betty.plugin.factory import ResolvablePluginManufacturer
+from betty.property import Property
 from betty.sample import Size
 from betty.service.requirement.extension import require_extension
 

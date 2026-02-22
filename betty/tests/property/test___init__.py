@@ -1,26 +1,15 @@
-from typing import Any
-
 import pytest
 
 from betty.assertion import assert_str
-from betty.collection.keyed.adapter import MutableKeyedCollectionAdapter
-from betty.data import Data, DataDefinition, OptionalDefinition
-from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
-from betty.data.aggregate.collection.mapping import MappingDefinition
-from betty.data.aggregate.collection.sequence import SequenceDefinition
-from betty.data.aggregate.record.object import ObjectDefinition
-from betty.data.aggregate.record.object.property import (
-    KeyedCollectionProperty,
-    MappingProperty,
-    Optional,
-    Property,
-    PropertyNotInitialized,
-    SequenceProperty,
-)
-from betty.data.indicator.selector import Attr as AttrSelector
+from betty.data import DataDefinition, OptionalDefinition
 from betty.data.str import StrDefinition
 from betty.functools import passthrough
 from betty.portable import CallbackPorter
+from betty.property import (
+    Optional,
+    Property,
+    PropertyNotInitialized,
+)
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
@@ -137,68 +126,3 @@ class TestOptional:
         optional_data = _Owner.my_first_property.attr.data
         assert isinstance(optional_data, OptionalDefinition)
         assert optional_data.wrapped is data
-
-
-class TestKeyedCollectionProperty:
-    @ObjectDefinition(label=DUMMY_LOCALIZABLE)
-    class _Owner(Data):
-        @ObjectDefinition(label=DUMMY_LOCALIZABLE)
-        class _Item(Data["ObjectDefinition"]):
-            attr: Any
-
-        keyed_collection = KeyedCollectionProperty(
-            KeyedCollectionDefinition(
-                label=DUMMY_LOCALIZABLE,
-                value=_Item,
-                key=AttrSelector("attr"),
-                factory=lambda: MutableKeyedCollectionAdapter(
-                    key=lambda item: item.upper()
-                ),
-            ),
-        )
-
-    def test_set(self) -> None:
-        owner = self._Owner()
-        keyed_collection = owner.keyed_collection
-        owner.keyed_collection = ["Hello,", "world!"]
-        assert owner.keyed_collection is keyed_collection
-        assert list(owner.keyed_collection) == ["Hello,", "world!"]
-
-
-class TestMappingProperty:
-    @ObjectDefinition(label=DUMMY_LOCALIZABLE)
-    class _Owner(Data):
-        mapping = MappingProperty(
-            MappingDefinition(
-                cls=dict,
-                label=DUMMY_LOCALIZABLE,
-                key=StrDefinition(label=DUMMY_LOCALIZABLE),
-                value=StrDefinition(label=DUMMY_LOCALIZABLE),
-            )
-        )
-
-    def test_set(self) -> None:
-        owner = self._Owner()
-        mapping = owner.mapping
-        owner.mapping = {"hello": "World!"}
-        assert owner.mapping is mapping
-        assert owner.mapping == {"hello": "World!"}
-
-
-class TestSequenceProperty:
-    @ObjectDefinition(label=DUMMY_LOCALIZABLE)
-    class _Owner(Data):
-        sequence = SequenceProperty(
-            SequenceDefinition(
-                cls=list,
-                label=DUMMY_LOCALIZABLE,
-                value=StrDefinition(label=DUMMY_LOCALIZABLE),
-            ),
-        )
-
-    def test_set(self) -> None:
-        owner = self._Owner()
-        sequence = owner.sequence
-        owner.sequence = ["Hello,", "world!"]
-        assert owner.sequence is sequence
-        assert owner.sequence == ["Hello,", "world!"]

@@ -10,10 +10,10 @@ from babel import Locale
 
 from betty.assertion import assert_locale
 from betty.data import DataDefinition
-from betty.data.aggregate.record.object.property import Property
 from betty.locale import resolve_locale, to_language_tag
 from betty.locale.localizable.gettext import _
 from betty.portable import CallbackPorter
+from betty.property import Property
 
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable

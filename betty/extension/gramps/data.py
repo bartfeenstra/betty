@@ -14,12 +14,6 @@ from betty.data import Data, Sample
 from betty.data.aggregate.collection.mapping import MappingDefinition
 from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
-from betty.data.aggregate.record.object.property import (
-    MappingProperty,
-    Optional,
-    Property,
-    SequenceProperty,
-)
 from betty.data.str import StrDefinition
 from betty.event_type import EventTypeDefinition, EventTypeManufacturer
 from betty.exception import HumanFacingException
@@ -33,6 +27,12 @@ from betty.pathlib import FilePathDefinition
 from betty.place_type import PlaceTypeDefinition, PlaceTypeManufacturer
 from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
+from betty.property import (
+    Optional,
+    Property,
+)
+from betty.property.collection.mapping import MappingProperty
+from betty.property.collection.sequence import SequenceProperty
 from betty.role import RoleDefinition, RoleManufacturer
 from betty.sample import Size
 

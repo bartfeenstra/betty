@@ -7,11 +7,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from betty.data.aggregate.collection.sequence import SequenceDefinition
-from betty.data.aggregate.record.object.property import SequenceProperty
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition, ResolvableId, resolve_id
 from betty.plugin.data import PluginDefinitionConfiguration
+from betty.property.collection.sequence import SequenceProperty
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

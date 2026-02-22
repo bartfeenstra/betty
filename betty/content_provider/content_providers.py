@@ -18,7 +18,6 @@ from betty.content_provider import (
 )
 from betty.data import Data, Sample
 from betty.data.aggregate.record.object import ObjectDefinition
-from betty.data.aggregate.record.object.property import Optional, Property
 from betty.data.str import StrDefinition
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import LocalizableProperty
@@ -26,6 +25,7 @@ from betty.locale.localize import resolve_localized
 from betty.media_type import MediaType
 from betty.media_type.media_types import PLAIN_TEXT
 from betty.plugin.data.property import PluginManufacturerSequenceProperty
+from betty.property import Optional, Property
 from betty.sample import Size
 from betty.service.factory import DataManufacturable, Manufacturable
 from betty.service.requirement.project import require_project

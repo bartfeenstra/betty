@@ -11,10 +11,6 @@ from betty.collection.sequence import (
     MutableResolvedSequence,
 )
 from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
-from betty.data.aggregate.record.object.property import (
-    KeyedCollectionProperty,
-    SequenceProperty,
-)
 from betty.data.indicator.selector import Attr
 from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.data import PluginManufacturerSequenceDefinition
@@ -23,6 +19,8 @@ from betty.plugin.factory import (
     ResolvablePluginManufacturer,
     ResolvablePluginManufacturerSequence,
 )
+from betty.property.collection.keyed import KeyedCollectionProperty
+from betty.property.collection.sequence import SequenceProperty
 
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
