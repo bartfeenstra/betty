@@ -30,13 +30,11 @@ class OrderedPluginDefinitionConfiguration[PluginDefinitionT: PluginDefinition](
         SequenceDefinition(cls=list, label=_("Comes before"), value=MachineName),
         omit_load=True,
         omit_dump=lambda data: not len(data),
-        default=list,
     )
     comes_after = SequenceProperty(
         SequenceDefinition(cls=list, label=_("Comes after"), value=MachineName),
         omit_load=True,
         omit_dump=lambda data: not len(data),
-        default=list,
     )
 
     def __init__(

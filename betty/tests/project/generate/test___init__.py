@@ -12,7 +12,12 @@ from betty.test_utils.jinja import assert_betty_html
 
 async def test_generate__html_lang(isolated_app: App) -> None:
     async with Project.new_isolated(isolated_app) as project:
-        project.configuration.locales["en-US"].alias = "en"
+        project.configuration.locales.add(
+            ProjectLocale(
+                "en-US",
+                alias="en",
+            )
+        )
         project.configuration.locales.add(
             ProjectLocale(
                 "nl-NL",

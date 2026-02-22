@@ -3,16 +3,16 @@ from typing import Any
 import pytest
 
 from betty.assertion import assert_str
-from betty.collections import MutablePrimaryKeyCollection
+from betty.collection.keyed.adapter import MutableKeyedCollectionAdapter
 from betty.data import Data, DataDefinition, OptionalDefinition
-from betty.data.aggregate.collection.keyed import PrimaryKeyCollectionDefinition
+from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.data.aggregate.collection.mapping import MappingDefinition
 from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.aggregate.record.object.property import (
+    KeyedCollectionProperty,
     MappingProperty,
     Optional,
-    PrimaryKeyCollectionProperty,
     Property,
     PropertyNotInitialized,
     SequenceProperty,
@@ -139,21 +139,22 @@ class TestOptional:
         assert optional_data.wrapped is data
 
 
-class TestPrimaryKeyCollectionProperty:
+class TestKeyedCollectionProperty:
     @ObjectDefinition(label=DUMMY_LOCALIZABLE)
     class _Owner(Data):
         @ObjectDefinition(label=DUMMY_LOCALIZABLE)
         class _Item(Data["ObjectDefinition"]):
             attr: Any
 
-        keyed_collection = PrimaryKeyCollectionProperty(
-            PrimaryKeyCollectionDefinition(
+        keyed_collection = KeyedCollectionProperty(
+            KeyedCollectionDefinition(
                 label=DUMMY_LOCALIZABLE,
                 value=_Item,
                 key=AttrSelector("attr"),
-                ordered=False,
+                factory=lambda: MutableKeyedCollectionAdapter(
+                    key=lambda item: item.upper()
+                ),
             ),
-            default=lambda: MutablePrimaryKeyCollection(key=lambda item: item.upper()),
         )
 
     def test_set(self) -> None:
@@ -169,12 +170,11 @@ class TestMappingProperty:
     class _Owner(Data):
         mapping = MappingProperty(
             MappingDefinition(
-                cls=list,
+                cls=dict,
                 label=DUMMY_LOCALIZABLE,
                 key=StrDefinition(label=DUMMY_LOCALIZABLE),
                 value=StrDefinition(label=DUMMY_LOCALIZABLE),
-            ),
-            default=dict,
+            )
         )
 
     def test_set(self) -> None:
@@ -194,7 +194,6 @@ class TestSequenceProperty:
                 label=DUMMY_LOCALIZABLE,
                 value=StrDefinition(label=DUMMY_LOCALIZABLE),
             ),
-            default=list,
         )
 
     def test_set(self) -> None:

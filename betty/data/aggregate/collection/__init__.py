@@ -4,7 +4,7 @@ Collection data types.
 
 from __future__ import annotations
 
-from collections.abc import Collection
+from collections.abc import Callable, Collection
 from typing import TYPE_CHECKING, Any
 
 from betty.data import DataDefinition
@@ -33,9 +33,11 @@ class CollectionDefinition[CollectionT: Collection, ElementT: Element[Any]](
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
         porter: Porter[CollectionT] | None = None,
+        factory: Callable[[], CollectionT] | None = None,
     ):
         super().__init__(cls=cls, label=label, description=description, porter=porter)
         self._item = item if isinstance(item, DataDefinition) else item.data()
+        self._factory = factory
 
     @property
     def item(self) -> DataDefinition:
@@ -43,3 +45,9 @@ class CollectionDefinition[CollectionT: Collection, ElementT: Element[Any]](
         The definition of the items contained by this collection.
         """
         return self._item
+
+    def new(self) -> CollectionT:
+        """
+        Create a new collection.
+        """
+        return (self.cls if not self._factory else self._factory)()

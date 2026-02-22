@@ -183,7 +183,7 @@ class Test_LocalizedPathUrlUrlGenerator:
         async with Project.new_isolated(isolated_app) as project:
             if additional_project_locale:
                 project.configuration.locales.add(
-                    ProjectLocale(additional_project_locale)
+                    DEFAULT_LOCALE, ProjectLocale(additional_project_locale)
                 )
             async with project:
                 sut = await _LocalizedPathUrlUrlGenerator.new(project)

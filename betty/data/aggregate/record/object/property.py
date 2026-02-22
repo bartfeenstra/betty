@@ -5,10 +5,9 @@ Object properties.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Iterable, MutableMapping, MutableSequence
+from collections.abc import Iterable, Mapping, MutableMapping, MutableSequence
 from typing import TYPE_CHECKING, Any, Self, cast, final, overload, override
 
-from betty.collections import KeyedCollection, MutablePrimaryKeyCollection
 from betty.data import OptionalDefinition
 from betty.data.aggregate.record.object import Attr, AttrDefinition
 from betty.functools import passthrough
@@ -20,8 +19,9 @@ if TYPE_CHECKING:
 
     from ty_extensions import Intersection
 
+    from betty.collection.keyed import MutableKeyedCollection
     from betty.data import Data, DataDefinition
-    from betty.data.aggregate.collection.keyed import PrimaryKeyCollectionDefinition
+    from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
     from betty.data.aggregate.collection.mapping import MappingDefinition
     from betty.data.aggregate.collection.sequence import SequenceDefinition
     from betty.locale.localizable import ResolvableLocalizable
@@ -192,6 +192,8 @@ class MappingProperty[MutableMappingT: MutableMapping[Any, Any], ValueSetT](
     A property that contains a :py:class:`collections.abc.MutableMapping`.
     """
 
+    _data: MappingDefinition[MutableMappingT]
+
     def __init__(
         self,
         data: Intersection[DataDefinition[MutableMappingT], MappingDefinition]
@@ -201,10 +203,7 @@ class MappingProperty[MutableMappingT: MutableMapping[Any, Any], ValueSetT](
         description: ResolvableLocalizable | None = None,
         omit_load: bool | None = None,
         omit_dump: Callable[[MutableMappingT], bool] | None = None,
-        resolver: Callable[
-            [ValueSetT | MutableMappingT], MutableMappingT
-        ] = passthrough,
-        default: Callable[[], MutableMappingT] | None = None,
+        default: Callable[[], Mapping] = dict,
     ):
         super().__init__(
             data,
@@ -212,17 +211,21 @@ class MappingProperty[MutableMappingT: MutableMapping[Any, Any], ValueSetT](
             description=description,
             omit_load=omit_load,
             omit_dump=omit_dump,
-            resolver=resolver,
-            default=default,
+            default=self._new_default,
         )
+        self._default_values = default
+
+    def _new_default(self) -> MutableMappingT:
+        new = self._data.new()
+        new.update(self._default_values())
+        return new
 
     @override
     def set(self, instance: Any, value: ValueSetT | MutableMappingT) -> MutableMappingT:
-        configurations = self.get(instance)
-        configurations.clear()
-        resolved_value = self._resolver(value)
-        configurations.update(resolved_value)
-        return resolved_value
+        data = self.get(instance)
+        data.clear()
+        data.update(self._resolver(value))
+        return data
 
 
 class SequenceProperty[MutableSequenceT: MutableSequence[Any], ValueSetT](
@@ -231,6 +234,8 @@ class SequenceProperty[MutableSequenceT: MutableSequence[Any], ValueSetT](
     """
     A property that contains a :py:class:`collections.abc.MutableSequence`.
     """
+
+    _data: SequenceDefinition[MutableSequenceT]
 
     def __init__(
         self,
@@ -242,9 +247,9 @@ class SequenceProperty[MutableSequenceT: MutableSequence[Any], ValueSetT](
         omit_load: bool | None = None,
         omit_dump: Callable[[MutableSequenceT], bool] | None = None,
         resolver: Callable[
-            [ValueSetT | MutableSequenceT], MutableSequenceT
+            [ValueSetT | Iterable[ValueSetT]], Iterable[ValueSetT]
         ] = passthrough,
-        default: Callable[[], MutableSequenceT] | None = None,
+        default: Callable[[], ValueSetT | Iterable[ValueSetT]] = list,
     ):
         super().__init__(
             data,
@@ -252,46 +257,48 @@ class SequenceProperty[MutableSequenceT: MutableSequence[Any], ValueSetT](
             description=description,
             omit_load=omit_load,
             omit_dump=omit_dump,
-            resolver=resolver,
-            default=default,
+            default=self._new_default,
         )
+        self._values_resolver = resolver
+        self._default_values = default
+
+    def _new_default(self) -> MutableSequenceT:
+        new = self._data.new()
+        new.extend(self._values_resolver(self._default_values()))
+        return new
 
     @override
     def set(
         self, instance: Any, value: ValueSetT | MutableSequenceT
     ) -> MutableSequenceT:
-        configurations = self.get(instance)
-        configurations.clear()
-        resolved_value = self._resolver(value)
-        configurations.extend(resolved_value)
-        return resolved_value
+        data = self.get(instance)
+        data.clear()
+        data.extend(self._values_resolver(value))
+        return data
 
 
-class PrimaryKeyCollectionProperty[
-    MutablePrimaryKeyCollectionT: MutablePrimaryKeyCollection,
+class KeyedCollectionProperty[
+    MutableKeyedCollectionT: MutableKeyedCollection,
     ValueSetT,
-](Property[MutablePrimaryKeyCollectionT, Iterable[ValueSetT]]):
+](Property[MutableKeyedCollectionT, Iterable[ValueSetT]]):
     """
-    A property that contains an :py:class:`betty.collections.PrimaryKeyCollection`.
+    A property that contains an :py:class:`betty.collection.keyed.KeyedCollection`.
     """
 
-    def __init__[ValueGetT](
+    _data: KeyedCollectionDefinition[MutableKeyedCollectionT]
+
+    def __init__(
         self,
-        data: PrimaryKeyCollectionDefinition[
-            Intersection[
-                MutablePrimaryKeyCollectionT,
-                MutablePrimaryKeyCollection[Any, Any, ValueGetT, ValueSetT],
-            ]
-        ],
+        data: KeyedCollectionDefinition[MutableKeyedCollectionT],
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
         omit_load: bool | None = None,
-        omit_dump: Callable[[MutablePrimaryKeyCollectionT], bool] | None = None,
+        omit_dump: Callable[[MutableKeyedCollectionT], bool] | None = None,
         resolver: Callable[
-            [ValueSetT | MutablePrimaryKeyCollectionT], Iterable[ValueGetT]
+            [ValueSetT | Iterable[ValueSetT]], Iterable[ValueSetT]
         ] = passthrough,
-        default: Callable[[], KeyedCollection] | None = None,
+        default: Callable[[], ValueSetT | Iterable[ValueSetT]] = list,
     ):
         super().__init__(
             data,
@@ -299,17 +306,21 @@ class PrimaryKeyCollectionProperty[
             description=description,
             omit_load=omit_load,
             omit_dump=omit_dump,
-            resolver=resolver,
-            default=default,
+            default=self._new_default,
         )
+        self._values_resolver = resolver
+        self._default_values = default
+
+    def _new_default(self) -> MutableKeyedCollectionT:
+        new = self._data.new()
+        new.add(*self._values_resolver(self._default_values()))
+        return new
 
     @override
     def set(
-        self, instance: Any, value: Iterable[ValueSetT] | MutablePrimaryKeyCollectionT
-    ) -> MutablePrimaryKeyCollectionT:
-        collection = self.get(instance)
-        collection.clear()
-        resolved_value = self._resolver(value)
-        for resolved_item_value in resolved_value:
-            collection.add(resolved_item_value)
-        return resolved_value
+        self, instance: Any, value: Iterable[ValueSetT] | MutableKeyedCollectionT
+    ) -> MutableKeyedCollectionT:
+        data = self.get(instance)
+        data.clear()
+        data.add(*self._values_resolver(value))
+        return data

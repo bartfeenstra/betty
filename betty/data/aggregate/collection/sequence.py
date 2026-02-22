@@ -4,7 +4,7 @@ Sequence data types.
 
 from __future__ import annotations
 
-from collections.abc import Callable, MutableSequence, Sequence
+from collections.abc import Callable, MutableSequence
 from typing import TYPE_CHECKING, Any
 
 from betty.data.aggregate.collection import CollectionDefinition
@@ -28,12 +28,13 @@ class SequenceDefinition[MutableSequenceT: MutableSequence[Any]](
     def __init__[ValueT](
         self,
         /,
-        cls: type[MutableSequenceT],
+        cls: type[Intersection[MutableSequenceT, MutableSequence[ValueT]]]
+        | None = None,
         *,
         value: DataDefinition[ValueT] | type[Intersection[ValueT, Data]],
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
-        factory: Callable[[Sequence[ValueT]], MutableSequenceT] | None = None,
+        factory: Callable[[], MutableSequenceT] | None = None,
     ):
         super().__init__(
             cls=cls,
@@ -47,8 +48,9 @@ class SequenceDefinition[MutableSequenceT: MutableSequence[Any]](
     def _load(self, portable: PortableData, /) -> MutableSequenceT:
         from betty.assertion import assert_sequence
 
-        factory = self.cls if not self._factory else self._factory
-        return factory(assert_sequence(self._item.porter.load)(portable))  # ty:ignore[too-many-positional-arguments]
+        loaded = self.new()
+        loaded.extend(assert_sequence(self._item.porter.load)(portable))
+        return loaded
 
     def _dump(self, data: MutableSequenceT) -> PortableData:
         return [self._item.porter.dump(item) for item in data]

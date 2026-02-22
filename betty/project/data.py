@@ -11,7 +11,7 @@ from babel import Locale
 
 from betty.ancestry.person import Person
 from betty.assertion import assert_number
-from betty.collections import MutablePrimaryKeyCollection
+from betty.collection.keyed.adapter import MutableKeyedCollectionAdapter
 from betty.copyright_notice import (
     CopyrightNotice,
     CopyrightNoticeDefinition,
@@ -19,11 +19,11 @@ from betty.copyright_notice import (
 )
 from betty.copyright_notice.data import CopyrightNoticeDefinitionConfiguration
 from betty.data import Data, Sample
-from betty.data.aggregate.collection.keyed import PrimaryKeyCollectionDefinition
+from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
 from betty.data.aggregate.record.object.property import (
+    KeyedCollectionProperty,
     Optional,
-    PrimaryKeyCollectionProperty,
     Property,
 )
 from betty.data.bool import BoolDefinition
@@ -327,23 +327,22 @@ class ProjectConfiguration(Data):
     - job artifacts (e.g. generated sites)
     """
 
-    entity_types = PrimaryKeyCollectionProperty(
-        PrimaryKeyCollectionDefinition(
+    entity_types = KeyedCollectionProperty(
+        KeyedCollectionDefinition(
             value=EntityTypeConfiguration,
             label=_("Entity types"),
             key=Attr("entity_type"),
-            ordered=False,
-        ),
-        omit_load=True,
-        omit_dump=lambda data: not len(data),
-        default=lambda: MutablePrimaryKeyCollection(
-            key=lambda item: item.entity_type,
-            value_resolver=lambda data: (
-                data
-                if isinstance(data, EntityTypeConfiguration)
-                else EntityTypeConfiguration(entity_type=data)
+            factory=lambda: MutableKeyedCollectionAdapter(
+                key=lambda item: item.entity_type,
+                value_resolver=lambda data: (
+                    data
+                    if isinstance(data, EntityTypeConfiguration)
+                    else EntityTypeConfiguration(entity_type=data)
+                ),
             ),
         ),
+        omit_load=True,
+        omit_dump=lambda data: not data,
     )
     """
     The available entity types.
@@ -356,20 +355,19 @@ class ProjectConfiguration(Data):
     The :py:class:`betty.event_type.EventType` plugins created by this project.
     """
 
-    extensions = PrimaryKeyCollectionProperty(
-        PrimaryKeyCollectionDefinition(
+    extensions = KeyedCollectionProperty(
+        KeyedCollectionDefinition(
             value=ExtensionManufacturer,
             label=ExtensionDefinition.type().label_plural,
             key=Attr("plugin_id"),
-            ordered=False,
+            factory=lambda: MutableKeyedCollectionAdapter(
+                key=lambda data: data.plugin_id,
+                key_resolver=resolve_id,
+                value_resolver=ExtensionManufacturer.resolve,
+            ),
         ),
         omit_load=True,
-        omit_dump=lambda data: not len(data),
-        default=lambda: MutablePrimaryKeyCollection(
-            key=lambda data: data.plugin_id,
-            key_resolver=resolve_id,
-            value_resolver=ExtensionManufacturer.resolve,
-        ),
+        omit_dump=lambda data: not data,
     )
     """
     The extensions to enable for the project.
@@ -420,26 +418,25 @@ class ProjectConfiguration(Data):
     presumed to have died.
     """
 
-    locales = PrimaryKeyCollectionProperty(
-        PrimaryKeyCollectionDefinition(
+    locales = KeyedCollectionProperty(
+        KeyedCollectionDefinition(
             value=ProjectLocale,
             label=_("Locales"),
             key=Attr("locale"),
-            ordered=True,
+            order_dump=True,
+            factory=lambda: MutableKeyedCollectionAdapter(
+                key=lambda item: item.locale,
+                key_resolver=resolve_locale,
+                value_resolver=lambda value: (
+                    value
+                    if isinstance(value, ProjectLocale)
+                    else ProjectLocale(resolve_locale(value))
+                ),
+            ),
         ),
         omit_load=True,
-        omit_dump=lambda data: not len(data),
-        default=lambda: MutablePrimaryKeyCollection(
-            [DEFAULT_LOCALE],
-            key=lambda item: item.locale,
-            key_resolver=resolve_locale,
-            value_resolver=lambda value: (
-                value
-                if isinstance(value, ProjectLocale)
-                else ProjectLocale(resolve_locale(value))
-            ),
-            resolver=lambda items: [DEFAULT_LOCALE] if not len(items) else items,
-        ),
+        omit_dump=lambda data: not data,
+        default=lambda: [DEFAULT_LOCALE],
     )
     """
     The configured locales.

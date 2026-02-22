@@ -772,7 +772,7 @@ class ColumnsConfiguration(Data):
             key=EnumDefinition(
                 cls=Breakpoint,
                 label=_("Breakpoint"),
-            ),  # ty:ignore[invalid-argument-type]
+            ),
             value=SequenceDefinition(
                 cls=list,
                 label=_("Column widths"),

@@ -22,7 +22,12 @@ class TestIndex:
     async def test_build_empty(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
-            project.configuration.locales["en-US"].alias = "en"
+            project.configuration.locales.add(
+                ProjectLocale(
+                    "en-US",
+                    alias="en",
+                )
+            )
             project.configuration.locales.add(
                 ProjectLocale(
                     "nl-NL",
@@ -40,7 +45,12 @@ class TestIndex:
 
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
-            project.configuration.locales["en-US"].alias = "en"
+            project.configuration.locales.add(
+                ProjectLocale(
+                    "en-US",
+                    alias="en",
+                )
+            )
             project.configuration.locales.add(
                 ProjectLocale(
                     "nl-NL",
@@ -67,7 +77,12 @@ class TestIndex:
 
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
-            project.configuration.locales["en-US"].alias = "en"
+            project.configuration.locales.add(
+                ProjectLocale(
+                    "en-US",
+                    alias="en",
+                )
+            )
             project.configuration.locales.add(
                 ProjectLocale(
                     "nl-NL",
@@ -100,7 +115,12 @@ class TestIndex:
 
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
-            project.configuration.locales["en-US"].alias = "en"
+            project.configuration.locales.add(
+                ProjectLocale(
+                    "en-US",
+                    alias="en",
+                )
+            )
             project.configuration.locales.add(
                 ProjectLocale(
                     "nl-NL",
@@ -135,7 +155,12 @@ class TestIndex:
 
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
-            project.configuration.locales["en-US"].alias = "en"
+            project.configuration.locales.add(
+                ProjectLocale(
+                    "en-US",
+                    alias="en",
+                )
+            )
             project.configuration.locales.add(
                 ProjectLocale(
                     "nl-NL",
@@ -176,7 +201,12 @@ class TestIndex:
 
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
-            project.configuration.locales["en-US"].alias = "en"
+            project.configuration.locales.add(
+                ProjectLocale(
+                    "en-US",
+                    alias="en",
+                )
+            )
             project.configuration.locales.add(
                 ProjectLocale(
                     "nl-NL",
@@ -230,7 +260,12 @@ class TestIndex:
 
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
-            project.configuration.locales["en-US"].alias = "en"
+            project.configuration.locales.add(
+                ProjectLocale(
+                    "en-US",
+                    alias="en",
+                )
+            )
             project.configuration.locales.add(
                 ProjectLocale(
                     "nl-NL",
@@ -261,7 +296,12 @@ class TestIndex:
 
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
-            project.configuration.locales["en-US"].alias = "en"
+            project.configuration.locales.add(
+                ProjectLocale(
+                    "en-US",
+                    alias="en",
+                )
+            )
             project.ancestry.add(place)
             async with project:
                 actual = await Index(
@@ -342,7 +382,12 @@ class TestIndex:
 
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
-            project.configuration.locales["en-US"].alias = "en"
+            project.configuration.locales.add(
+                ProjectLocale(
+                    "en-US",
+                    alias="en",
+                )
+            )
             project.configuration.locales.add(
                 ProjectLocale(
                     "nl-NL",
@@ -372,7 +417,12 @@ class TestIndex:
 
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
-            project.configuration.locales["en-US"].alias = "en"
+            project.configuration.locales.add(
+                ProjectLocale(
+                    "en-US",
+                    alias="en",
+                )
+            )
             project.ancestry.add(file)
             async with project:
                 actual = await Index(
