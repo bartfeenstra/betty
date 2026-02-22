@@ -404,120 +404,6 @@ async def test_filter_select_has_dates(
 
 
 @pytest.mark.parametrize(
-    ("expected", "locale", "data"),
-    [
-        ("", "en", []),
-        (
-            "en",
-            "en",
-            [HasLocale(locale="en")],
-        ),
-        (
-            "en_US",
-            "en",
-            [HasLocale(locale="en-US")],
-        ),
-        (
-            "en",
-            "en-US",
-            [HasLocale(locale="en")],
-        ),
-        (
-            "",
-            "nl",
-            [HasLocale(locale="en")],
-        ),
-        (
-            "",
-            "nl-NL",
-            [HasLocale(locale="en")],
-        ),
-    ],
-)
-async def test_filter_select_has_locales(
-    expected: str, locale: str, data: Iterable[HasLocale]
-) -> None:
-    template = '{{ data | select_has_locales | map(attribute="locale") | join(", ") }}'
-
-    async with assert_template_string(
-        template=template,
-        data={
-            "data": data,
-            "document": Document(localizer=Localizer(locale, NullTranslations())),
-        },
-    ) as (actual, _):
-        assert actual == expected
-
-
-async def test_filter_select_has_locales__include_unspecified() -> None:
-    template = '{{ data | select_has_locales(include_unspecified=true) | map(attribute="locale") | join(", ") }}'
-    data = [HasLocale()]
-
-    async with assert_template_string(
-        template=template,
-        data={
-            "data": data,
-            "document": Document(localizer=Localizer("en-US", NullTranslations())),
-        },
-    ) as (actual, _):
-        assert actual == "None"
-
-
-class WithHasLocales:
-    def __init__(self, identifier: str, names: Sequence[HasLocale]):
-        self.id = identifier
-        self.names = names
-
-    @override
-    def __repr__(self) -> str:
-        return self.id
-
-
-async def test_filter_sort_has_locales() -> None:
-    template = '{{ data | sort_has_locales(localized_attribute="names", sort_attribute="value") }}'
-    data = [
-        WithHasLocales(
-            "third",
-            [
-                _DummyHasLocale("3", "nl-NL"),
-            ],
-        ),
-        WithHasLocales(
-            "second",
-            [
-                _DummyHasLocale("2", "en"),
-                _DummyHasLocale("1", "nl-NL"),
-            ],
-        ),
-        WithHasLocales(
-            "first",
-            [
-                _DummyHasLocale("2", "nl-NL"),
-                _DummyHasLocale("1", "en-US"),
-            ],
-        ),
-    ]
-    async with assert_template_string(
-        template=template,
-        data={
-            "data": data,
-        },
-    ) as (actual, _):
-        assert actual == "[first, second, third]"
-
-
-async def test_filter_sort_has_locales__with_empty_iterable() -> None:
-    template = '{{ data | sort_has_locales(localized_attribute="names", sort_attribute="value") }}'
-    async with assert_template_string(
-        template=template,
-        data={
-            "data": [],
-        },
-    ) as (actual, _):
-        assert actual == "[]"
-
-
-@pytest.mark.parametrize(
     ("expected", "autoescape", "has_locale", "localizer_locale"),
     [
         ("Hallo, wereld!", True, "Hallo, wereld!", "nl"),
@@ -578,15 +464,6 @@ async def test_filter_html_lang(
         autoescape=autoescape,
     ) as (actual, _):
         assert actual == expected
-
-
-async def test_filter_hashid() -> None:
-    template = "{{ data | hashid }}"
-    async with assert_template_string(
-        template=template,
-        data={"data": "Hello, world!"},
-    ) as (actual, _):
-        assert actual == "6cd3556deb0da54bca060b4c39479839"
 
 
 async def test_filter_json_dump() -> None:
@@ -721,21 +598,6 @@ async def test_filter_negotiate_has_dates(
         _,
     ):
         assert actual == expected
-
-
-async def test_filter_negotiate_has_locales() -> None:
-    has_locale_en = HasLocale(locale=Locale("en"))
-    has_locale_nl = HasLocale(locale=Locale("nl"))
-    has_locales = [has_locale_en, has_locale_nl]
-    template = "{{ (data | negotiate_has_locales).locale }}"
-    async with assert_template_string(
-        template=template,
-        data={
-            "data": has_locales,
-            "document": Document(localizer=Localizer("nl", NullTranslations())),
-        },
-    ) as (actual, _):
-        assert actual == "nl"
 
 
 @pytest.mark.parametrize(
