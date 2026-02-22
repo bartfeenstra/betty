@@ -5,7 +5,7 @@ Provide rendering utilities using `Jinja2 <https://jinja.palletsprojects.com>`_.
 from __future__ import annotations
 
 import datetime
-from collections.abc import Awaitable, Callable, Mapping, MutableMapping
+from collections.abc import Awaitable, Callable, Iterable, Mapping, MutableMapping
 from pathlib import Path
 from shutil import copy2
 from typing import TYPE_CHECKING, Any, Self, cast, override
@@ -35,8 +35,6 @@ from betty.service.requirement.project import require_project
 from betty.warnings import deprecate
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-
     from jinja2.parser import Parser
 
     from betty.asset import AssetRepository
@@ -141,7 +139,7 @@ class Environment(Manufacturable, JinjaEnvironment):
     def __init__(
         self,
         project: Project,
-        extensions: Sequence[Extension],
+        extensions: Iterable[Extension],
         assets: AssetRepository,
         globals: Mapping[str, Any],  # noqa: A002
         filters: Mapping[str, Callable[..., Any]],
@@ -168,7 +166,7 @@ class Environment(Manufacturable, JinjaEnvironment):
         )
 
         self._project = project
-        self._extensions = extensions
+        self._extensions = tuple(extensions)
 
         if project.configuration.debug:
             self.add_extension("jinja2.ext.debug")
@@ -184,7 +182,7 @@ class Environment(Manufacturable, JinjaEnvironment):
     @classmethod
     @require_project
     async def new(cls, project: Project, /) -> Self:
-        extensions = list((await project.extensions).flatten())
+        extensions = await project.extensions
         return cls(
             project,
             extensions,

@@ -56,7 +56,6 @@ async def load(project: Project, *, context: Context | None = None) -> None:
         await gather(
             *(
                 extension.load(load_scheduler)
-                for extensions in extensions
                 for extension in extensions
                 if isinstance(extension, Loader)
             )
@@ -68,7 +67,6 @@ async def load(project: Project, *, context: Context | None = None) -> None:
         await gather(
             *(
                 extension.post_load(post_load_scheduler)
-                for extensions in extensions
                 for extension in extensions
                 if isinstance(extension, PostLoader)
             )

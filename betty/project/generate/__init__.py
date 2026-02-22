@@ -75,8 +75,7 @@ async def generate(project: Project, *, context: Context | None = None) -> None:
         await gather(
             *(
                 extension.generate(scheduler)
-                for extensions in await project.extensions
-                for extension in extensions
+                for extension in await project.extensions
                 if isinstance(extension, Generator)
             )
         )

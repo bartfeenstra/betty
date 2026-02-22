@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from contextlib import AsyncExitStack, asynccontextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Self, final, overload, override
+from typing import TYPE_CHECKING, Self, final, override
 
 from aiofiles.tempfile import TemporaryDirectory
 
@@ -32,7 +32,6 @@ from betty.locale.translation import (
     TranslationRepository,
 )
 from betty.machine_name import MachineName
-from betty.plugin import ResolvableId, resolve_id
 from betty.plugin.dependent import sort_dependent_plugin_graph
 from betty.privacy.privatizer import Privatizer
 from betty.project.data import ProjectConfiguration
@@ -40,15 +39,14 @@ from betty.render import RenderDispatcher, RendererDefinition
 from betty.serde import SerializerDefinition, serializer_for
 from betty.service.factory import DataManufacturable
 from betty.service.level import UNIVERSE, ServiceLevel
+from betty.service.plugin import PluginCollection
 from betty.service.provider import service
 
 if TYPE_CHECKING:
     from collections.abc import (
         AsyncIterator,
         Collection,
-        Iterator,
         MutableSequence,
-        Sequence,
     )
 
     from babel import Locale
@@ -242,8 +240,7 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
     @service
     async def _project_assets(self) -> AssetRepository:
         asset_paths = [self.assets_directory]
-        extensions = await self.extensions
-        for project_extension in extensions.flatten():
+        for project_extension in await self.extensions:
             extension_assets_directory_path = (
                 project_extension.plugin().assets_directory
             )
@@ -316,7 +313,7 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
         )
 
     @service
-    async def extensions(self) -> ProjectExtensions:
+    async def extensions(self) -> PluginCollection[ExtensionDefinition, Extension]:
         """
         The enabled extensions.
         """
@@ -361,7 +358,7 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
                     key=lambda extension: extension.plugin().id,
                 )
             )
-        initialized_extensions = ProjectExtensions(enabled_extensions)
+        initialized_extensions = PluginCollection(enabled_extensions)
 
         # Users may not realize no theme is enabled, and be confused by their site looking bare.
         # Warn them out of courtesy.
@@ -417,73 +414,14 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
         """
         Create a new document.
         """
-        extensions = await self.extensions
         return Document(
             resource,
             resource_url,
             **{
                 key: value
-                for extension in extensions.flatten()
+                for extension in await self.extensions
                 if isinstance(extension, DocumentProvider)
                 for (key, value) in extension.new_document_vars().items()
             },
             **kwargs,
         )
-
-
-@final
-class ProjectExtensions:
-    """
-    Manage the extensions running within the :py:class:`betty.project.Project`.
-    """
-
-    def __init__(self, project_extensions: Sequence[Sequence[Extension]]):
-        super().__init__()
-        self._project_extensions = project_extensions
-
-    @overload
-    def __getitem__[ExensionT: Extension](
-        self, extension: type[ExensionT]
-    ) -> ExensionT:
-        pass
-
-    @overload
-    def __getitem__(self, extension: ResolvableId[ExtensionDefinition]) -> Extension:
-        pass
-
-    def __getitem__(self, extension: ResolvableId[ExtensionDefinition]) -> Extension:
-        extension_id = resolve_id(extension)
-        for project_extension in self.flatten():
-            if project_extension.plugin().id == extension_id:
-                return project_extension
-        raise KeyError(f'Unknown extension of type "{extension_id}"')
-
-    def __iter__(self) -> Iterator[Iterator[Extension]]:
-        """
-        Iterate over all extensions, in topologically sorted batches.
-
-        Each item is a batch of extensions. Items are ordered because later items depend
-        on earlier items. The extensions in each item do not depend on each other and their
-        order has no meaning. However, implementations SHOULD sort the extensions in each
-        item in a stable fashion for reproducability.
-        """
-        # Use a generator so we discourage calling code from storing the result.
-        for batch in self._project_extensions:
-            yield (project_extension for project_extension in batch)
-
-    def flatten(self) -> Iterator[Extension]:
-        """
-        Get a sequence of topologically sorted extensions.
-        """
-        for batch in self:
-            yield from batch
-
-    def __contains__(self, extension: ResolvableId[ExtensionDefinition]) -> bool:
-        if isinstance(extension, type) and issubclass(extension, Extension):
-            extension = extension.plugin()
-        try:
-            self[resolve_id(extension)]
-        except KeyError:
-            return False
-        else:
-            return True
