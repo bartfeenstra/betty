@@ -5,18 +5,9 @@ from typing import TYPE_CHECKING, override
 import pytest
 
 from betty.plugin import PluginDefinition
-from betty.plugin.discovery import (
-    Discoverer,
-    PluginDiscovery,
-    ResolvableDiscovery,
-    discover,
-)
+from betty.plugin.discovery import PluginDiscovery, ResolvableDiscovery, discover
 from betty.service.level import UNIVERSE
-from betty.test_utils.plugin import (
-    DummyPluginDefinition,
-    DummyPluginOne,
-    DummyPluginTwo,
-)
+from betty.test_utils.plugin import DummyPluginDefinition, DummyPluginOne
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable, Set
@@ -35,41 +26,6 @@ class _StaticDiscovery[PluginDefinitionT: PluginDefinition](
         self, services: ServiceLevel, /
     ) -> Iterable[ResolvableDiscovery[PluginDefinitionT]]:
         return self._discoveries
-
-
-class TestDiscoverer:
-    async def _discover(self, sut: Discoverer):
-        return list(await sut.discover(UNIVERSE))
-
-    async def test_discover(self) -> None:
-        sut = Discoverer([DummyPluginTwo])
-        assert await self._discover(sut) == [DummyPluginTwo.plugin()]
-
-    async def test_add(self) -> None:
-        sut = Discoverer()
-        sut.add(DummyPluginTwo)
-        assert await self._discover(sut) == [DummyPluginTwo.plugin()]
-
-    async def test_override(self) -> None:
-        sut = Discoverer()
-        assert not await self._discover(sut)
-        with sut.override(DummyPluginTwo):
-            assert await self._discover(sut) == [DummyPluginTwo.plugin()]
-        assert not await self._discover(sut)
-
-    async def test_add__during_override(self) -> None:
-        sut = Discoverer()
-        with sut.override(DummyPluginOne):
-            sut.add(DummyPluginTwo)
-            assert await self._discover(sut) == [DummyPluginOne.plugin()]
-        assert await self._discover(sut) == [DummyPluginTwo.plugin()]
-
-    def test_overridden(self) -> None:
-        sut = Discoverer()
-        assert not sut.overridden
-        with sut.override():
-            assert sut.overridden
-        assert not sut.overridden
 
 
 def _new_static_discovery_sync(

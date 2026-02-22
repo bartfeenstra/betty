@@ -24,6 +24,7 @@ from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
 )
+from betty.test_utils.plugin.manager import StaticPluginManager
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
@@ -205,9 +206,14 @@ class TestDeriver:
         async def _new_project(
             event_types: Iterable[ResolvableDefinition[EventTypeDefinition]],
         ) -> AsyncIterator[Project]:
-            with EventTypeDefinition.type().discoverer.override(*event_types):
-                async with Project.new_isolated(isolated_app) as project, project:
-                    yield project
+            async with (
+                Project.new_isolated(
+                    isolated_app,
+                    plugins=StaticPluginManager({EventTypeDefinition: event_types}),
+                ) as project,
+                project,
+            ):
+                yield project
 
         return _new_project
 

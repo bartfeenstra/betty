@@ -30,25 +30,24 @@ class DummyEntryPointProviderExtension(EntryPointProvider, Extension):
 
 class TestBuilder:
     async def test_build(self, isolated_app: App, tmp_path: Path) -> None:
-        with ExtensionDefinition.type().discoverer.override():
-            # Loop instead of parameterization, so we can reuse caches.
-            for index, (with_entry_point_provider, debug, root_path) in enumerate(
-                [
-                    # With an entry point provider and debug.
-                    (True, True, ""),
-                    # With an entry point provider and a root path.
-                    (True, False, "/root-path"),
-                    # Without an entry point provider or debug.
-                    (False, False, ""),
-                ]
-            ):
-                await self._test_build(
-                    isolated_app,
-                    tmp_path / str(index),
-                    with_entry_point_provider,
-                    debug,
-                    root_path,
-                )
+        # Loop instead of parameterization, so we can reuse caches.
+        for index, (with_entry_point_provider, debug, root_path) in enumerate(
+            [
+                # With an entry point provider and debug.
+                (True, True, ""),
+                # With an entry point provider and a root path.
+                (True, False, "/root-path"),
+                # Without an entry point provider or debug.
+                (False, False, ""),
+            ]
+        ):
+            await self._test_build(
+                isolated_app,
+                tmp_path / str(index),
+                with_entry_point_provider,
+                debug,
+                root_path,
+            )
 
     async def _test_build(
         self,

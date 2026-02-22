@@ -18,12 +18,12 @@ class ServiceLevel:
     A service level.
     """
 
-    def __init__(self, *args: Any, **kwargs: Any):
+    def __init__(self, *args: Any, plugins: PluginManager | None = None, **kwargs: Any):
         from betty.service.factory import Factory
 
         super().__init__(*args, **kwargs)
         self._factory = Factory(self)
-        self._plugins = ServiceLevelPluginManager(self)
+        self._plugins = ServiceLevelPluginManager(self) if plugins is None else plugins
 
     @property
     def factory(self) -> Factory:

@@ -56,6 +56,7 @@ if TYPE_CHECKING:
     from betty.copyright_notice import CopyrightNotice
     from betty.jinja import Environment
     from betty.license import License
+    from betty.plugin.manager import PluginManager
     from betty.url import UrlGenerator
 
 
@@ -82,8 +83,9 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
         *,
         configuration: ProjectConfiguration,
         ancestry: Ancestry | None = None,
+        plugins: PluginManager | None = None,
     ):
-        super().__init__()
+        super().__init__(plugins=plugins)
         self.life_cycle.on_bootstrap(self._validate)
         self._app = app
         self._configuration = configuration
@@ -122,6 +124,7 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
         ancestry: Ancestry | None = None,
         configuration: ProjectConfiguration | None = None,
         configuration_file: Path | None = None,
+        plugins: PluginManager | None = None,
     ) -> AsyncIterator[Self]:
         """
         Creat a new, isolated, temporary project.
@@ -144,6 +147,7 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
                 if configuration is None
                 else configuration,
                 ancestry=ancestry,
+                plugins=plugins,
             )
 
     @property

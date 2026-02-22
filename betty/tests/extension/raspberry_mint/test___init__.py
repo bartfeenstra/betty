@@ -2,12 +2,21 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from betty.copyright_notice import CopyrightNoticeDefinition
+from betty.copyright_notice.copyright_notices import ProjectAuthor
+from betty.extension import ExtensionDefinition
+from betty.extension.maps import Maps
 from betty.extension.raspberry_mint import RaspberryMint, RaspberryMintConfiguration
+from betty.extension.trees import Trees
+from betty.extension.webpack import Webpack
+from betty.license import LicenseDefinition
+from betty.license.licenses import AllRightsReserved
 from betty.model import EntityDefinition
 from betty.project import Project
 from betty.project.data import EntityTypeConfiguration
 from betty.project.generate import generate
 from betty.test_utils.model import DummyEntityOne
+from betty.test_utils.plugin.manager import StaticPluginManager
 from betty.tests.conftest import check_skip_webpack_entry_point_provider
 
 if TYPE_CHECKING:
@@ -33,19 +42,28 @@ class TestRaspberryMint:
     async def test_generate__html_list_for_third_party_entity(
         self, isolated_app: App
     ) -> None:
-        with EntityDefinition.type().discoverer.override(DummyEntityOne):
-            async with Project.new_isolated(isolated_app) as project:
-                project.configuration.extensions.add(RaspberryMint)
-                project.configuration.entity_types.add(
-                    EntityTypeConfiguration(
-                        entity_type=DummyEntityOne, generate_html_list=True
-                    )
+        async with Project.new_isolated(
+            isolated_app,
+            plugins=StaticPluginManager(
+                {
+                    CopyrightNoticeDefinition: ProjectAuthor,
+                    EntityDefinition: DummyEntityOne,
+                    ExtensionDefinition: [Maps, RaspberryMint, Trees, Webpack],
+                    LicenseDefinition: AllRightsReserved,
+                }
+            ),
+        ) as project:
+            project.configuration.extensions.add(RaspberryMint)
+            project.configuration.entity_types.add(
+                EntityTypeConfiguration(
+                    entity_type=DummyEntityOne, generate_html_list=True
                 )
-                async with project:
-                    await generate(project)
-                assert (
-                    project.www_directory / DummyEntityOne.plugin().id / "index.html"
-                ).is_file()
+            )
+            async with project:
+                await generate(project)
+            assert (
+                project.www_directory / DummyEntityOne.plugin().id / "index.html"
+            ).is_file()
 
     async def test_regions(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:

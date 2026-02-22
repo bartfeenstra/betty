@@ -14,7 +14,6 @@ from betty.plugin import (
 )
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
-from betty.service.level import UNIVERSE
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
@@ -101,7 +100,7 @@ class TestPluginTypeDefinition:
         )
         assert sut.id == plugin_type_id
 
-    async def test_discoverer(self) -> None:
+    async def test_discovery(self) -> None:
         sut = PluginTypeDefinition(
             "-dummy",
             label=DUMMY_LOCALIZABLE,
@@ -109,9 +108,7 @@ class TestPluginTypeDefinition:
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
             discovery=[DummyPluginTwo],
         )
-        assert list(await sut.discoverer.discover(UNIVERSE)) == [
-            DummyPluginTwo.plugin()
-        ]
+        assert list(sut.discovery) == [DummyPluginTwo]
 
 
 class TestPluginDefinition:
