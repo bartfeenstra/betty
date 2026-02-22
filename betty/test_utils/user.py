@@ -13,7 +13,7 @@ from betty.locale.localizable import ResolvableLocalizable
 from betty.locale.localize import DEFAULT_LOCALIZER, resolve_localized
 from betty.progress import Progress
 from betty.progress.no_op import NoOpProgress
-from betty.typing import Void
+from betty.typing import Void, VoidType
 from betty.user import User, UserTimeoutError, Verbosity
 
 
@@ -255,7 +255,7 @@ class StaticUser(User):  # pragma: no cover
         self,
         question: ResolvableLocalizable,
         *,
-        default: str | Void = Void(),  # noqa: B008
+        default: str | VoidType = Void,
     ) -> str:
         pass
 
@@ -265,7 +265,7 @@ class StaticUser(User):  # pragma: no cover
         question: ResolvableLocalizable,
         *,
         assertion: Assertion[str, T],
-        default: str | Void = Void(),  # noqa: B008
+        default: str | VoidType = Void,
     ) -> T:
         pass
 
@@ -275,11 +275,11 @@ class StaticUser(User):  # pragma: no cover
         question: ResolvableLocalizable,
         *,
         assertion: Assertion[str, T] | None = None,
-        default: str | T | Void = Void(),  # noqa: B008
+        default: str | T | VoidType = Void,
     ) -> str | T:
         value = next(self._inputs)
         if value is None:
-            if isinstance(default, Void):
+            if default is Void:
                 raise UserTimeoutError(
                     "Neither a predefined response nor a call default were provided."
                 )

@@ -26,7 +26,7 @@ from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName
 from betty.plugin import Plugin, PluginDefinition, ResolvableId, resolve_id
 from betty.sample import Samplable, Sample, Samples, Size
-from betty.typing import Void
+from betty.typing import Void, VoidType
 
 if TYPE_CHECKING:
     import builtins
@@ -54,7 +54,7 @@ class PluginManufacturer[
     def __init__(
         self,
         plugin: ResolvableId[_PluginManufacturerPluginDefinitionT],
-        data: Data | PortableData | Void = Void(),  # noqa: B008
+        data: Data | PortableData | VoidType = Void,
         /,
     ):
         super().__init__()
@@ -67,8 +67,8 @@ class PluginManufacturer[
             (
                 self.type(),
                 self.plugin_id,
-                Void()
-                if self.plugin_data is Void()
+                Void
+                if self.plugin_data is Void
                 else dumps(
                     self.plugin_data.data().porter.dump(self.plugin_data)
                     if isinstance(self.plugin_data, Data)
@@ -113,7 +113,7 @@ class PluginManufacturer[
     @final
     @property
     @AttrDefinition(DataDefinition(cls=object, label=_("Data")))
-    def plugin_data(self) -> Data | PortableData | Void:
+    def plugin_data(self) -> Data | PortableData | VoidType:
         """
         Get the plugin's own data.
         """
@@ -131,7 +131,7 @@ class PluginManufacturer[
                 OptionalField("data"),
             ),
         )(portable)
-        return cls(record["plugin"], record.get("data", Void()))
+        return cls(record["plugin"], record.get("data", Void))
 
     @final
     @override
@@ -140,7 +140,7 @@ class PluginManufacturer[
         return cls.load({**assert_mapping()(portable), "plugin": portable_key})
 
     @final
-    def _dump_configuration(self, configuration: Data | PortableData) -> PortableData:
+    def _dump_data(self, configuration: Data | PortableData) -> PortableData:
         if isinstance(configuration, Data):
             return configuration.data().porter.dump(configuration)
         return configuration
@@ -148,19 +148,19 @@ class PluginManufacturer[
     @final
     @override
     def dump(self) -> PortableData:
-        configuration = self.plugin_data
-        if isinstance(configuration, Void):
+        data = self.plugin_data
+        if data is Void:
             return self._plugin_id
         return {
             "plugin": self._plugin_id,
-            "data": self._dump_configuration(configuration),
+            "data": self._dump_data(data),
         }
 
     @final
     @override
     def dump_key(self, key: Attr, /) -> tuple[str, PortableData]:
-        return self.plugin_id, {} if self.plugin_data is Void() else {
-            "data": self._dump_configuration(self.plugin_data),  # ty:ignore[invalid-argument-type]
+        return self.plugin_id, {} if self.plugin_data is Void else {
+            "data": self._dump_data(self.plugin_data)
         }
 
     @final

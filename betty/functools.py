@@ -121,7 +121,7 @@ def suppress[**P, T](
     def _suppress(*target_args: P.args, **target_kwargs: P.kwargs) -> T | Void:
         with contextlib.suppress(*exceptions):
             return target(*target_args, **target_kwargs)
-        return Void()
+        return Void
 
     return _suppress
 

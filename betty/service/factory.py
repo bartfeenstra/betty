@@ -15,7 +15,7 @@ from betty.exception import HumanFacingException
 from betty.importlib import fully_qualified_name
 from betty.locale.localizable.gettext import _
 from betty.service.level import ServiceLevel
-from betty.typing import Void
+from betty.typing import Void, VoidType
 
 if TYPE_CHECKING:
     from betty.portable import PortableData
@@ -72,7 +72,7 @@ class Factory:
     async def new[ManufacturableT](
         self,
         target: type[ManufacturableT],
-        data: Data | PortableData | Void = Void(),  # noqa: B008
+        data: Data | PortableData | VoidType = Void,
         /,
     ) -> ManufacturableT:
         pass
@@ -81,7 +81,7 @@ class Factory:
     async def new[T](
         self,
         target: Manufacturer[T],
-        data: Data | PortableData | Void = Void(),  # noqa: B008
+        data: Data | PortableData | VoidType = Void,
         /,
     ) -> T:
         pass
@@ -90,7 +90,7 @@ class Factory:
     async def new[T](
         self,
         target: type[T],
-        data: Data | PortableData | Void = Void(),  # noqa: B008
+        data: Data | PortableData | VoidType = Void,
         /,
     ) -> T:
         pass
@@ -98,14 +98,14 @@ class Factory:
     async def new(
         self,
         target,
-        data=Void(),  # noqa: B008
+        data=Void,  # noqa: B008
     ):
         """
         Create a new instance.
 
         :raises FactoryError: raised when ``target`` could not be called.
         """
-        if data is Void():
+        if data is Void:
             if isinstance(target, type) and issubclass(target, Manufacturable):
                 return await target.new(self._services)
             if callable(target):
