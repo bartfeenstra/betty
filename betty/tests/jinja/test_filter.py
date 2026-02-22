@@ -109,22 +109,6 @@ async def test_filter_file__with_context(
 @pytest.mark.parametrize(
     ("expected", "template"),
     [
-        ("", '{{ [] | flatten | join(", ") }}'),
-        ("", '{{ [[], [], []] | flatten | join(", ") }}'),
-        (
-            "kiwi, apple, banana",
-            '{{ [["kiwi"], ["apple"], ["banana"]] | flatten | join(", ") }}',
-        ),
-    ],
-)
-async def test_filter_flatten(expected: str, template: str) -> None:
-    async with assert_template_string(template=template) as (actual, _):
-        assert actual == expected
-
-
-@pytest.mark.parametrize(
-    ("expected", "template"),
-    [
         ("0° 0&#39; 0&#34;", "{{ 0 | format_degrees }}"),
         ("52° 22&#39; 1&#34;", "{{ 52.367 | format_degrees }}"),
     ],
