@@ -5,7 +5,7 @@ import pytest
 
 from betty.life_cycle import NotYetBootstrapped
 from betty.life_cycle.manage import ManagedLifeCycle
-from betty.service.container import (
+from betty.service.provider import (
     ServiceFactory,
     ServiceInitializedError,
     ServiceManager,

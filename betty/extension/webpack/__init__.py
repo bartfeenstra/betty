@@ -19,8 +19,8 @@ from betty.html import CssProvider, JsProvider
 from betty.jinja import Filters, JinjaProvider
 from betty.project import Project
 from betty.project.generate import Generator
-from betty.service.container import service
 from betty.service.factory import Manufacturable
+from betty.service.provider import service
 from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:

@@ -1,5 +1,5 @@
 """
-Service containers.
+Service providers.
 """
 
 from __future__ import annotations
@@ -21,36 +21,34 @@ if TYPE_CHECKING:
     from ty_extensions import Intersection
 
 
-type ServiceFactory[ManagedLifeCycleT: ManagedLifeCycle, ServiceT] = Callable[
-    [ManagedLifeCycleT], ServiceT
-]
+type ServiceFactory[ServiceProviderT, ServiceT] = Callable[[ServiceProviderT], ServiceT]
 
 
-class _ServiceDecorator[ManagedLifeCycleT: ManagedLifeCycle, ServiceT](Protocol):
+class _ServiceDecorator[ServiceProviderT, ServiceT](Protocol):
     @overload
     def __call__(
-        self, factory: Callable[[ManagedLifeCycleT], ServiceT], /
-    ) -> _SynchronousServiceManager[ManagedLifeCycleT, ServiceT]:
+        self, factory: Callable[[ServiceProviderT], ServiceT], /
+    ) -> _SynchronousServiceManager[ServiceProviderT, ServiceT]:
         pass
 
     @overload
     def __call__(
-        self, factory: Callable[[ManagedLifeCycleT], Awaitable[ServiceT]], /
-    ) -> _AsynchronousServiceManager[ManagedLifeCycleT, ServiceT]:
+        self, factory: Callable[[ServiceProviderT], Awaitable[ServiceT]], /
+    ) -> _AsynchronousServiceManager[ServiceProviderT, ServiceT]:
         pass
 
 
 @overload
-def service[ManagedLifeCycleT: ManagedLifeCycle, ServiceT](
-    factory: Callable[[ManagedLifeCycleT], Awaitable[ServiceT]], /
-) -> _AsynchronousServiceManager[ManagedLifeCycleT, ServiceT]:
+def service[ServiceProviderT, ServiceT](
+    factory: Callable[[ServiceProviderT], Awaitable[ServiceT]], /
+) -> _AsynchronousServiceManager[ServiceProviderT, ServiceT]:
     pass
 
 
 @overload
-def service[ManagedLifeCycleT: ManagedLifeCycle, ServiceT](
-    factory: Callable[[ManagedLifeCycleT], ServiceT], /
-) -> _SynchronousServiceManager[ManagedLifeCycleT, ServiceT]:
+def service[ServiceProviderT, ServiceT](
+    factory: Callable[[ServiceProviderT], ServiceT], /
+) -> _SynchronousServiceManager[ServiceProviderT, ServiceT]:
     pass
 
 
@@ -63,15 +61,15 @@ def service(factory):
     """
     Decorate a service factory method.
 
-    The factory method is replaced with a :py:class:`service manager <betty.service.container.ServiceManager>` which
+    The factory method is replaced with a :py:class:`service manager <betty.service.provider.ServiceManager>` which
     handles lazy service instantiation, caching, and multiprocessing support.
 
     The decorated factory method should return a new service instance.
     """
 
-    def _service[ManagedLifeCycleT: ManagedLifeCycle, ServiceT](
-        factory: Callable[[ManagedLifeCycleT], ServiceT], /
-    ) -> ServiceManager[ManagedLifeCycleT, ServiceT, Any]:
+    def _service[ServiceProviderT, ServiceT](
+        factory: Callable[[ServiceProviderT], ServiceT], /
+    ) -> ServiceManager[ServiceProviderT, ServiceT, Any]:
         if iscoroutinefunction(factory):
             return _AsynchronousServiceManager(
                 factory,  # ty:ignore[invalid-argument-type]
@@ -85,15 +83,15 @@ def service(factory):
     return _service(factory)
 
 
-class ServiceManager[ManagedLifeCycleT: ManagedLifeCycle, ServiceGetT, ServiceT]:
+class ServiceManager[ServiceProviderT, ServiceGetT, ServiceT]:
     """
-    Manages a single service for a service container.
+    Manages a single service for a service provider.
     """
 
     def __init__(
         self,
         factory: Intersection[
-            ServiceFactory[ManagedLifeCycleT, ServiceGetT], FunctionType
+            ServiceFactory[ServiceProviderT, ServiceGetT], FunctionType
         ],
         /,
     ):
@@ -115,56 +113,57 @@ class ServiceManager[ManagedLifeCycleT: ManagedLifeCycle, ServiceGetT, ServiceT]
         return self._service_name
 
     @overload
-    def __get__(self, instance: None, owner: type[ManagedLifeCycleT]) -> Self:
+    def __get__(self, instance: None, owner: type[ServiceProviderT]) -> Self:
         pass
 
     @overload
     def __get__(
-        self, instance: ManagedLifeCycleT, owner: type[ManagedLifeCycleT]
+        self, instance: ServiceProviderT, owner: type[ServiceProviderT]
     ) -> ServiceGetT:
         pass
 
     def __get__(
-        self, instance: ManagedLifeCycleT | None, owner: type[ManagedLifeCycleT]
+        self, instance: ServiceProviderT | None, owner: type[ServiceProviderT]
     ) -> ServiceGetT | Self:
         if instance is None:
             return self
 
         return self.get(instance)
 
-    def get(self, instance: ManagedLifeCycleT, /) -> ServiceGetT:
+    def get(self, instance: ServiceProviderT, /) -> ServiceGetT:
         """
         Get the service from an instance.
         """
-        instance.assert_alive()
+        if isinstance(instance, ManagedLifeCycle):
+            instance.assert_alive()
 
         return self._get(instance)
 
     @abstractmethod
-    def _get(self, instance: ManagedLifeCycleT, /) -> ServiceGetT:
+    def _get(self, instance: ServiceProviderT, /) -> ServiceGetT:
         pass
 
-    def _get_attr(self, instance: ManagedLifeCycleT, /) -> ServiceT | Void:
+    def _get_attr(self, instance: ServiceProviderT, /) -> ServiceT | Void:
         return getattr(instance, self._service_attr_name, Void())
 
     def _get_factory(
-        self, instance: ManagedLifeCycleT, /
-    ) -> ServiceFactory[ManagedLifeCycleT, ServiceGetT]:
+        self, instance: ServiceProviderT, /
+    ) -> ServiceFactory[ServiceProviderT, ServiceGetT]:
         factory = cast(
-            "ServiceFactory[ManagedLifeCycleT, ServiceGetT] | None",
+            "ServiceFactory[ServiceProviderT, ServiceGetT] | None",
             getattr(instance, self._factory_override_attr_name, None),
         )
         if factory is not None:
             return factory
         return self._factory
 
-    def _assert_not_initialized(self, instance: ManagedLifeCycleT, /):
+    def _assert_not_initialized(self, instance: ServiceProviderT, /):
         if not isinstance(self._get_attr(instance), Void):
             raise ServiceInitializedError(
                 f"{instance}.{self._service_name} was initialized already."
             )
 
-    def override(self, instance: ManagedLifeCycleT, service: ServiceT, /) -> None:
+    def override(self, instance: ServiceProviderT, service: ServiceT, /) -> None:
         """
         Override the service for the given instance.
 
@@ -178,8 +177,8 @@ class ServiceManager[ManagedLifeCycleT: ManagedLifeCycle, ServiceGetT, ServiceT]
 
     def override_factory(
         self,
-        instance: ManagedLifeCycleT,
-        factory: ServiceFactory[ManagedLifeCycleT, ServiceGetT],
+        instance: ServiceProviderT,
+        factory: ServiceFactory[ServiceProviderT, ServiceGetT],
         /,
     ) -> None:
         """
@@ -192,10 +191,10 @@ class ServiceManager[ManagedLifeCycleT: ManagedLifeCycle, ServiceGetT, ServiceT]
         setattr(instance, self._factory_override_attr_name, factory)
 
 
-class _AsynchronousServiceManager[ManagedLifeCycleT: ManagedLifeCycle, ServiceT](
-    ServiceManager[ManagedLifeCycleT, Awaitable[ServiceT], ServiceT],
+class _AsynchronousServiceManager[ServiceProviderT, ServiceT](
+    ServiceManager[ServiceProviderT, Awaitable[ServiceT], ServiceT],
 ):
-    def _lock(self, instance: ManagedLifeCycleT, /) -> Lock:
+    def _lock(self, instance: ServiceProviderT, /) -> Lock:
         lock_attr_name = f"_{self._service_attr_name}_lock"
         try:
             return cast(Lock, getattr(instance, lock_attr_name))
@@ -205,7 +204,7 @@ class _AsynchronousServiceManager[ManagedLifeCycleT: ManagedLifeCycle, ServiceT]
             return lock
 
     @override
-    async def _get(self, instance: ManagedLifeCycleT, /) -> ServiceT:
+    async def _get(self, instance: ServiceProviderT, /) -> ServiceT:
         async with self._lock(instance):
             service = self._get_attr(instance)
 
@@ -217,11 +216,11 @@ class _AsynchronousServiceManager[ManagedLifeCycleT: ManagedLifeCycle, ServiceT]
             return new_service
 
 
-class _SynchronousServiceManager[ManagedLifeCycleT: ManagedLifeCycle, ServiceT](
-    ServiceManager[ManagedLifeCycleT, ServiceT, ServiceT]
+class _SynchronousServiceManager[ServiceProviderT, ServiceT](
+    ServiceManager[ServiceProviderT, ServiceT, ServiceT]
 ):
     @override
-    def _get(self, instance: ManagedLifeCycleT, /) -> ServiceT:
+    def _get(self, instance: ServiceProviderT, /) -> ServiceT:
         service = self._get_attr(instance)
         if not isinstance(service, Void):
             return service

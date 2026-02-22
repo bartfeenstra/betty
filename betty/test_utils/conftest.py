@@ -45,7 +45,7 @@ if TYPE_CHECKING:
 
     from betty.cache import Cache
     from betty.portable import PortableMapping
-    from betty.service.container import ServiceFactory
+    from betty.service.provider import ServiceFactory
     from betty.user import User
 
 

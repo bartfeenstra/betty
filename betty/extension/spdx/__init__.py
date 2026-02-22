@@ -10,8 +10,8 @@ from betty.license import LicenseDefinition
 from betty.license.licenses import SpdxLicenseBuilder
 from betty.locale.localizable.gettext import _
 from betty.plugin.repository.static import StaticPluginRepository
-from betty.service.container import service
 from betty.service.factory import Manufacturable
+from betty.service.provider import service
 from betty.service.requirement.app import require_app
 from betty.service.requirement.extension import require_extension
 
