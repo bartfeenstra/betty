@@ -1,8 +1,5 @@
 {%- set embedded = embedded | default(False) -%}
 {%- set person_context = document.entity_contexts['person'] -%}
-{%- macro person_label(entity) -%}
-    {% include 'entity/label--person.html.j2' %}
-{%- endmacro -%}
 {%- if entity.name -%}
     {%- set formatted_event = entity.name | localize | html_lang | safe -%}
 {%- else -%}
@@ -15,7 +12,12 @@
 {%- endif -%}
 {%- set subjects = entity.presences | select('public') | selectattr('role', 'role_plugin', 'subject') | map(attribute='person') | select('public') | list -%}
 {%- set non_context_subjects = subjects | reject('eq', person_context) | list -%}
-{%- set formatted_subjects = non_context_subjects | map(person_label) | join(', ') %}
+{% set ns = namespace(formatted_subjects = []) %}
+{% for entity in non_context_subjects %}
+    {% set formatted_subject %}{% include 'entity/label--person.html.j2' %}{% endset %}
+    {% do ns.formatted_subjects.append(formatted_subject) %}
+{% endfor %}
+{%- set formatted_subjects = ns.formatted_subjects | join(', ') %}
 {%- if non_context_subjects | length == 0 -%}
     {{ formatted_event }}
 {%- else -%}

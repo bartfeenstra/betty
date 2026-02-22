@@ -19,9 +19,8 @@ from babel.dates import format_date
 from geopy import units
 from geopy.format import DEGREES_FORMAT
 from jinja2 import pass_context
-from jinja2.async_utils import auto_aiter, auto_await
-from jinja2.filters import make_attrgetter, prepare_map
-from jinja2.runtime import Context, Macro
+from jinja2.async_utils import auto_aiter
+from jinja2.filters import make_attrgetter
 from markupsafe import Markup
 from pdf2image.pdf2image import convert_from_path
 from PIL import Image
@@ -70,6 +69,8 @@ if TYPE_CHECKING:
         Mapping,
     )
     from pathlib import Path
+
+    from jinja2.runtime import Context
 
     from betty.ancestry.date import HasDate
     from betty.date import ResolvableDate
@@ -192,23 +193,6 @@ async def filter_unique[T](values: Iterable[T]) -> AsyncIterator[T]:
         if value not in seen:
             yield value
             seen.append(value)
-
-
-@pass_context
-async def filter_map(
-    context: Context, values: Iterable[Any], *args: Any, **kwargs: Any
-) -> Any:
-    """
-    Map an iterable's values.
-
-    This mimics Jinja2's built-in map filter, but allows macros as callbacks.
-    """
-    if len(args) > 0 and isinstance(args[0], Macro):
-        func: Macro | Callable[[Any], bool] = args[0]
-    else:
-        func = prepare_map(context, args, kwargs)
-    async for value in auto_aiter(values):
-        yield await auto_await(func(value))
 
 
 @pass_context
@@ -554,7 +538,6 @@ async def filters() -> Mapping[str, Callable[..., Any]]:
         "json_dump": filter_json_dump,
         "json_load": filter_json_load,
         "localize": filter_localize,
-        "map": filter_map,
         "negotiate_has_dates": filter_negotiate_has_dates,
         "negotiate_has_locales": filter_negotiate_has_locales,
         "build_content": filter_build_content,
