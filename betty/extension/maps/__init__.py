@@ -34,11 +34,15 @@ class Maps(Generator, EntryPointProvider[Project], Manufacturable):
     .. plugin:: extension:maps.
     """
 
+    def __init__(self, *, project: Project):
+        super().__init__()
+        self._project = project
+
     @override
     @classmethod
     @require_project
     async def new(cls, project: Project, /) -> Self:
-        return cls(services=project)
+        return cls(project=project)
 
     @override
     @classmethod
@@ -51,4 +55,4 @@ class Maps(Generator, EntryPointProvider[Project], Manufacturable):
 
     @override
     async def generate(self, scheduler: Scheduler) -> None:
-        await scheduler.add(_GeneratePlacePreviews(project=self.services))
+        await scheduler.add(_GeneratePlacePreviews(project=self._project))

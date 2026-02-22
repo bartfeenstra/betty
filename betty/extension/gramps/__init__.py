@@ -316,7 +316,8 @@ class Gramps(
         executable: Path | None = None,
         family_trees: Iterable[FamilyTree] | None = None,
     ):
-        super().__init__(services=services)
+        super().__init__()
+        self._services = services
         self._ancestry = ancestry
         self._attribute_prefix_key = attribute_prefix_key
         self._executable = executable

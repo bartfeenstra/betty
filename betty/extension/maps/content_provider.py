@@ -12,8 +12,10 @@ from betty.content_provider.content_providers import ProvidedTemplate, Template
 from betty.document import Document
 from betty.extension.maps import Maps
 from betty.locale.localizable.gettext import _
+from betty.project import Project
 from betty.service.factory import Manufacturable
 from betty.service.requirement.extension import require_extension
+from betty.service.requirement.project import require_project
 
 
 @ContentProviderDefinition("maps-map", label=_("Map"))
@@ -26,9 +28,10 @@ class Map(Template, Manufacturable):
 
     @override
     @classmethod
-    @require_extension(Maps)
-    async def new(cls, maps: Maps, /) -> Self:
-        return cls(jinja=await maps.services.jinja)
+    @require_project
+    async def new(cls, project: Project, /) -> Self:
+        await require_extension(Maps, project)
+        return cls(jinja=await project.jinja)
 
     @override
     async def provide_template(self, document: Document) -> ProvidedTemplate:
@@ -65,9 +68,10 @@ class Attribution(Template, Manufacturable):
 
     @override
     @classmethod
-    @require_extension(Maps)
-    async def new(cls, maps: Maps, /) -> Self:
-        return cls(jinja=await maps.services.jinja)
+    @require_project
+    async def new(cls, project: Project, /) -> Self:
+        await require_extension(Maps, project)
+        return cls(jinja=await project.jinja)
 
     @override
     async def provide_template(self, document: Document) -> ProvidedTemplate:

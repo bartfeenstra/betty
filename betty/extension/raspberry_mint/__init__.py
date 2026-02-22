@@ -86,7 +86,8 @@ class RaspberryMint(
         project: Project,
         configuration: RaspberryMintConfiguration | None = None,
     ):
-        super().__init__(services=project)
+        super().__init__()
+        self._project = project
         self._configuration = (
             RaspberryMintConfiguration() if configuration is None else configuration
         )
@@ -123,9 +124,9 @@ class RaspberryMint(
         )
 
         await scheduler.add(
-            _GenerateLogo(project=self.services),
-            _GenerateSearchIndex(project=self.services),
-            _GenerateWebmanifest(project=self.services),
+            _GenerateLogo(project=self._project),
+            _GenerateSearchIndex(project=self._project),
+            _GenerateWebmanifest(project=self._project),
         )
 
     @override
@@ -136,7 +137,7 @@ class RaspberryMint(
     @override
     def webpack_entry_point_cache_keys(self) -> Sequence[str]:
         return (
-            self.services.configuration.root_path,
+            self._project.configuration.root_path,
             self._configuration.primary_color,
             self._configuration.secondary_color,
             self._configuration.tertiary_color,
@@ -145,7 +146,7 @@ class RaspberryMint(
     @override
     @property
     def filters(self) -> Filters:
-        return jinja_filters(self.services)
+        return jinja_filters(self._project)
 
     @property
     async def regions(self) -> set[str]:
@@ -158,7 +159,7 @@ class RaspberryMint(
             "entity-page-content",
             *{
                 f"entity-page-content--{entity_type.id}"
-                for entity_type in await self.services.plugins.plugins(EntityDefinition)
+                for entity_type in await self._project.plugins.plugins(EntityDefinition)
                 if entity_type.public_facing
             },
         }

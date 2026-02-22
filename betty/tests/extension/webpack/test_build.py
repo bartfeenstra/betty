@@ -63,7 +63,7 @@ class TestBuilder:
             async with project:
                 sut = Builder(
                     (
-                        [DummyEntryPointProviderExtension(services=project)]
+                        [DummyEntryPointProviderExtension()]
                         if with_entry_point_provider
                         else []
                     ),
