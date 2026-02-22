@@ -5,8 +5,8 @@ Tree content.
 from typing import Self, override
 
 from betty.ancestry.person import Person
-from betty.content_provider import ContentProviderDefinition
-from betty.content_provider.content_providers import ProvidedTemplate, Template
+from betty.content import ContentDefinition
+from betty.content.contents import Template, TemplateBuild
 from betty.document import Document
 from betty.extension.trees import Trees
 from betty.locale.localizable.gettext import _
@@ -16,12 +16,12 @@ from betty.service.requirement.extension import require_extension
 from betty.service.requirement.project import require_project
 
 
-@ContentProviderDefinition("trees-tree", label=_("Family tree"))
+@ContentDefinition("trees-tree", label=_("Family tree"))
 class Tree(Template, Manufacturable):
     """
     An interactive family tree.
 
-    .. plugin:: content-provider:trees-tree
+    .. plugin:: content:trees-tree
     """
 
     @override
@@ -32,7 +32,7 @@ class Tree(Template, Manufacturable):
         return cls(jinja=await project.jinja)
 
     @override
-    async def provide_template(self, document: Document) -> ProvidedTemplate:
+    async def build_template(self, document: Document) -> TemplateBuild:
         if isinstance(document.resource, Person):
             return "component/trees/tree.html.j2", {
                 "person": document.resource,

@@ -23,7 +23,7 @@ In addition to Jinja2's built-in filters, Betty provides the following:
 - :py:func:`map <betty.jinja.filter.filter_map>`
 - :py:func:`negotiate_has_dates <betty.jinja.filter.filter_negotiate_has_dates>`
 - :py:func:`negotiate_has_locales <betty.jinja.filter.filter_negotiate_has_locales>`
-- :py:func:`provide_content <betty.jinja.filter.filter_provide_content>`
+- :py:func:`build_content <betty.jinja.filter.filter_build_content>`
 - :py:func:`select_has_dates <betty.jinja.filter.filter_select_has_dates>`
 - :py:func:`select_has_locales <betty.jinja.filter.filter_select_has_locales>`
 - :py:func:`sort_has_locales <betty.jinja.filter.filter_sort_has_locales>`

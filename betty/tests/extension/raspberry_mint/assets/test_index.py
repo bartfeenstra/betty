@@ -1,8 +1,8 @@
 import pytest
 
 from betty.app import App
-from betty.content_provider import ContentProviderManufacturer
-from betty.content_provider.content_providers import Render, RenderConfiguration
+from betty.content import ContentManufacturer
+from betty.content.contents import Render, RenderConfiguration
 from betty.dirs import ROOT_DIRECTORY_PATH
 from betty.extension import ExtensionManufacturer
 from betty.extension.raspberry_mint import RaspberryMint
@@ -35,7 +35,7 @@ async def test_regional_content_front_page_summary(
                 RaspberryMintConfiguration(
                     regional_content={
                         "front-page-summary": [
-                            ContentProviderManufacturer(
+                            ContentManufacturer(
                                 Render,
                                 RenderConfiguration("Hello, world!"),
                             ),
@@ -63,7 +63,7 @@ async def test_regional_content_front_page_content(
                 RaspberryMintConfiguration(
                     regional_content={
                         "front-page-content": [
-                            ContentProviderManufacturer(
+                            ContentManufacturer(
                                 Render,
                                 RenderConfiguration("Hello, world!"),
                             ),

@@ -8,10 +8,10 @@ from collections.abc import Iterable, Mapping
 from typing import TYPE_CHECKING, final
 
 from betty.color import ColorDefinition
-from betty.content_provider import (
-    ContentProvider,
-    ContentProviderDefinition,
-    ContentProviderManufacturer,
+from betty.content import (
+    Content,
+    ContentDefinition,
+    ContentManufacturer,
 )
 from betty.data import Data, Sample
 from betty.data.aggregate.collection.mapping import MappingDefinition
@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 
 type ResolvableRegionalContent = Mapping[
     str,
-    Iterable[ResolvablePluginManufacturer[ContentProviderDefinition, ContentProvider]],
+    Iterable[ResolvablePluginManufacturer[ContentDefinition, Content]],
 ]
 
 
@@ -110,7 +110,7 @@ class RaspberryMintConfiguration(Data):
             label=_("Regions"),
             key=StrDefinition(label=_("Region")),
             value=PluginManufacturerSequenceDefinition(
-                ContentProviderManufacturer, label=_("Regional content")
+                ContentManufacturer, label=_("Regional content")
             ),
         ),
         default=dict,
@@ -139,7 +139,7 @@ class RaspberryMintConfiguration(Data):
         if regional_content is not None:
             self.regional_content.update(
                 {
-                    region: ContentProviderManufacturer.resolve_sequence(content)
+                    region: ContentManufacturer.resolve_sequence(content)
                     for region, content in regional_content.items()
                 }
             )

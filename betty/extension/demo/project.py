@@ -10,12 +10,12 @@ from betty.ancestry.event import Event
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
-from betty.content_provider import ContentProviderManufacturer
-from betty.content_provider.content_providers import Render, RenderConfiguration
+from betty.content import ContentManufacturer
+from betty.content.contents import Render, RenderConfiguration
 from betty.extension import ExtensionManufacturer
-from betty.extension.demo.content_provider import _IncompleteTranslationWarning
+from betty.extension.demo.content import _IncompleteTranslationWarning
 from betty.extension.raspberry_mint import Breakpoint, RaspberryMint
-from betty.extension.raspberry_mint.content_provider import (
+from betty.extension.raspberry_mint.content import (
     Columns,
     ColumnsConfiguration,
     EntityCard,
@@ -64,19 +64,19 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                     regional_content={
                         **regional_content(localizers=localizers),
                         "front-page-content": [
-                            ContentProviderManufacturer(
+                            ContentManufacturer(
                                 Columns,
                                 ColumnsConfiguration([[_IncompleteTranslationWarning]]),
                             ),
-                            ContentProviderManufacturer(
+                            ContentManufacturer(
                                 Section,
                                 SectionConfiguration(
-                                    ContentProviderManufacturer(
+                                    ContentManufacturer(
                                         Columns,
                                         ColumnsConfiguration(
                                             [
                                                 [
-                                                    ContentProviderManufacturer(
+                                                    ContentManufacturer(
                                                         Render,
                                                         RenderConfiguration(
                                                             Chain(
@@ -97,7 +97,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                                     ),
                                                 ],
                                                 [
-                                                    ContentProviderManufacturer(
+                                                    ContentManufacturer(
                                                         Render,
                                                         RenderConfiguration(
                                                             Chain(
@@ -123,15 +123,15 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                     visually_hide_heading=True,
                                 ),
                             ),
-                            ContentProviderManufacturer(
+                            ContentManufacturer(
                                 Section,
                                 SectionConfiguration(
-                                    ContentProviderManufacturer(
+                                    ContentManufacturer(
                                         Columns,
                                         ColumnsConfiguration(
                                             [
                                                 [
-                                                    ContentProviderManufacturer(
+                                                    ContentManufacturer(
                                                         EntityCard,
                                                         EntityReference(
                                                             Place,
@@ -140,7 +140,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                                     )
                                                 ],
                                                 [
-                                                    ContentProviderManufacturer(
+                                                    ContentManufacturer(
                                                         EntityCard,
                                                         EntityReference(
                                                             Person,
@@ -149,7 +149,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                                     )
                                                 ],
                                                 [
-                                                    ContentProviderManufacturer(
+                                                    ContentManufacturer(
                                                         EntityCard,
                                                         EntityReference(
                                                             Place,
@@ -170,7 +170,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                             ),
                         ],
                         "front-page-summary": [
-                            ContentProviderManufacturer(
+                            ContentManufacturer(
                                 Render,
                                 RenderConfiguration(
                                     _(

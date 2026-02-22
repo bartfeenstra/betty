@@ -56,7 +56,7 @@ class RaspberryMint(
     Regions
     -------
 
-    Raspberry Mint provides the following regions content providers may be configured for:
+    Raspberry Mint provides the following regions contents may be configured for:
 
     - ``front-page-content``
       The main content for the front page.

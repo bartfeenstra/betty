@@ -5,8 +5,8 @@ Dynamic content.
 from typing import Self, override
 
 from betty.ancestry.has_links import HasLinks
-from betty.content_provider import ContentProviderDefinition
-from betty.content_provider.content_providers import ProvidedTemplate, Template
+from betty.content import ContentDefinition
+from betty.content.contents import Template, TemplateBuild
 from betty.document import Document
 from betty.extension.wiki import Wiki
 from betty.locale.localizable.gettext import _
@@ -16,12 +16,12 @@ from betty.service.requirement.extension import require_extension
 from betty.service.requirement.project import require_project
 
 
-@ContentProviderDefinition("wiki-wikipedia-summary", label=_("Wikipedia summary"))
+@ContentDefinition("wiki-wikipedia-summary", label=_("Wikipedia summary"))
 class WikipediaSummary(Template, Manufacturable):
     """
     A Wikipedia summary.
 
-    .. plugin:: content-provider:wiki-wikipedia-summary
+    .. plugin:: content:wiki-wikipedia-summary
     """
 
     @override
@@ -32,7 +32,7 @@ class WikipediaSummary(Template, Manufacturable):
         return cls(jinja=await project.jinja)
 
     @override
-    async def provide_template(self, document: Document) -> ProvidedTemplate:
+    async def build_template(self, document: Document) -> TemplateBuild:
         if isinstance(document.resource, HasLinks):
             return "component/wiki/wikipedia-summary.html.j2", {
                 "links": document.resource.links

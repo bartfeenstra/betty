@@ -24,17 +24,17 @@ from betty.assertion import (
     assert_or,
     assert_sequence,
 )
-from betty.content_provider import (
-    ContentProvider,
-    ContentProviderDefinition,
-    ContentProviderManufacturer,
-    provide_content,
+from betty.content import (
+    Content,
+    ContentDefinition,
+    ContentManufacturer,
+    build,
 )
-from betty.content_provider.content_providers import (
-    ProvidedTemplate,
+from betty.content.contents import (
     Render,
     RenderConfiguration,
     Template,
+    TemplateBuild,
 )
 from betty.data import Data, Sample, Size
 from betty.data.aggregate.collection.mapping import MappingDefinition
@@ -88,7 +88,7 @@ if TYPE_CHECKING:
     samples=[
         lambda: Sample(
             SectionConfiguration(
-                ContentProviderManufacturer("my-first-content"),
+                ContentManufacturer("my-first-content"),
                 heading=DUMMY_LOCALIZABLE,
             ),
             label="Minimal",
@@ -98,14 +98,14 @@ if TYPE_CHECKING:
 )
 class SectionConfiguration(Data):
     """
-    Configuration for :py:class:`betty.extension.raspberry_mint.content_provider.Section`.
+    Configuration for :py:class:`betty.extension.raspberry_mint.content.Section`.
 
-    .. data:: betty.extension.raspberry_mint.content_provider:SectionConfiguration
+    .. data:: betty.extension.raspberry_mint.content:SectionConfiguration
     """
 
-    content = PluginManufacturerSequenceProperty[
-        ContentProviderDefinition, ContentProvider
-    ](ContentProviderManufacturer, label=_("Content"))
+    content = PluginManufacturerSequenceProperty[ContentDefinition, Content](
+        ContentManufacturer, label=_("Content")
+    )
     """
     The content within this section.
     """
@@ -135,9 +135,7 @@ class SectionConfiguration(Data):
 
     def __init__(
         self,
-        content: ResolvablePluginManufacturerSequence[
-            ContentProviderDefinition, ContentProvider
-        ],
+        content: ResolvablePluginManufacturerSequence[ContentDefinition, Content],
         *,
         heading: ResolvableLocalizable,
         name: ResolvableMachineName | None = None,
@@ -150,16 +148,16 @@ class SectionConfiguration(Data):
         self.visually_hide_heading = visually_hide_heading
 
 
-@ContentProviderDefinition("raspberry-mint-section", label=_("Section"))
+@ContentDefinition("raspberry-mint-section", label=_("Section"))
 class Section(Template, DataManufacturable[SectionConfiguration]):
     """
-    .. plugin:: content-provider:raspberry-mint-section.
+    .. plugin:: content:raspberry-mint-section.
     """
 
     def __init__(
         self,
         /,
-        content: Iterable[ContentProvider],
+        content: Iterable[Content],
         *,
         heading: ResolvableLocalizable,
         name: MachineName | None = None,
@@ -186,7 +184,7 @@ class Section(Template, DataManufacturable[SectionConfiguration]):
             gather(
                 *map(
                     project.factory.new,
-                    map(ContentProviderManufacturer.resolve, data.content),
+                    map(ContentManufacturer.resolve, data.content),
                 )
             ),
             project.jinja,
@@ -200,8 +198,8 @@ class Section(Template, DataManufacturable[SectionConfiguration]):
         )
 
     @override
-    async def provide_template(self, document: Document) -> ProvidedTemplate:
-        content = await provide_content(document, self._content)
+    async def build_template(self, document: Document) -> TemplateBuild:
+        content = await build(document, self._content)
         if content is None:
             return None
         return "component/raspberry-mint/section.html.j2", {
@@ -212,12 +210,12 @@ class Section(Template, DataManufacturable[SectionConfiguration]):
         }
 
 
-@ContentProviderDefinition("raspberry-mint-entity-card", label=_("Entity card"))
+@ContentDefinition("raspberry-mint-entity-card", label=_("Entity card"))
 class EntityCard(Template, DataManufacturable[EntityReference]):
     """
     A card featuring an entity.
 
-    .. plugin:: content-provider:raspberry-mint-entity-card
+    .. plugin:: content:raspberry-mint-entity-card
     """
 
     def __init__(
@@ -244,7 +242,7 @@ class EntityCard(Template, DataManufacturable[EntityReference]):
         )
 
     @override
-    async def provide_template(self, document: Document) -> ProvidedTemplate:
+    async def build_template(self, document: Document) -> TemplateBuild:
         entity = self._ancestry[self._entity.type][self._entity.id]
         return [
             "entity/card--" + entity.plugin().id + ".html.j2",
@@ -252,12 +250,12 @@ class EntityCard(Template, DataManufacturable[EntityReference]):
         ], {"entity": entity}
 
 
-@ContentProviderDefinition("raspberry-mint-families", label=_("Families"))
+@ContentDefinition("raspberry-mint-families", label=_("Families"))
 class Families(Template, Manufacturable):
     """
     A person's families.
 
-    .. plugin:: content-provider:raspberry-mint-families
+    .. plugin:: content:raspberry-mint-families
     """
 
     @override
@@ -268,7 +266,7 @@ class Families(Template, Manufacturable):
         return cls(jinja=await project.jinja)
 
     @override
-    async def provide_template(self, document: Document) -> ProvidedTemplate:
+    async def build_template(self, document: Document) -> TemplateBuild:
         if isinstance(document.resource, Person):
             return "component/raspberry-mint/families.html.j2", {
                 "person": document.resource,
@@ -276,7 +274,7 @@ class Families(Template, Manufacturable):
         return None
 
 
-@ContentProviderDefinition(
+@ContentDefinition(
     "raspberry-mint-media",
     label=_("Media"),
     description=_("A single file in a media display"),
@@ -285,7 +283,7 @@ class Media(Template, Manufacturable):
     """
     A single file in a media display.
 
-    .. plugin:: content-provider:raspberry-mint-media
+    .. plugin:: content:raspberry-mint-media
     """
 
     @override
@@ -296,7 +294,7 @@ class Media(Template, Manufacturable):
         return cls(jinja=await project.jinja)
 
     @override
-    async def provide_template(self, document: Document) -> ProvidedTemplate:
+    async def build_template(self, document: Document) -> TemplateBuild:
         if isinstance(document.resource, File):
             return "component/raspberry-mint/media.html.j2", {
                 "file": document.resource,
@@ -304,7 +302,7 @@ class Media(Template, Manufacturable):
         return None
 
 
-@ContentProviderDefinition(
+@ContentDefinition(
     "raspberry-mint-media-gallery",
     label=_("Media gallery"),
     description=_("Multiple files in a media gallery display"),
@@ -313,7 +311,7 @@ class MediaGallery(Template, Manufacturable):
     """
     Multiple files in a media gallery display.
 
-    .. plugin:: content-provider:raspberry-mint-media-gallery
+    .. plugin:: content:raspberry-mint-media-gallery
     """
 
     @override
@@ -324,7 +322,7 @@ class MediaGallery(Template, Manufacturable):
         return cls(jinja=await project.jinja)
 
     @override
-    async def provide_template(self, document: Document) -> ProvidedTemplate:
+    async def build_template(self, document: Document) -> TemplateBuild:
         if isinstance(document.resource, HasFileReferences):
             return "component/raspberry-mint/media-gallery.html.j2", {
                 "file_references": list(associated_file_references(document.resource))
@@ -346,14 +344,14 @@ class MediaGallery(Template, Manufacturable):
 )
 class ColorStyleConfiguration(Data):
     """
-    Configuration for :py:class:`betty.extension.raspberry_mint.content_provider.ColorStyle`.
+    Configuration for :py:class:`betty.extension.raspberry_mint.content.ColorStyle`.
 
-    .. data:: betty.extension.raspberry_mint.content_provider:ColorStyleConfiguration
+    .. data:: betty.extension.raspberry_mint.content:ColorStyleConfiguration
     """
 
-    content = PluginManufacturerSequenceProperty[
-        ContentProviderDefinition, ContentProvider
-    ](ContentProviderManufacturer, label=_("Content"))
+    content = PluginManufacturerSequenceProperty[ContentDefinition, Content](
+        ContentManufacturer, label=_("Content")
+    )
     """
     The content within this color style.
     """
@@ -365,9 +363,7 @@ class ColorStyleConfiguration(Data):
 
     def __init__(
         self,
-        content: ResolvablePluginManufacturerSequence[
-            ContentProviderDefinition, ContentProvider
-        ],
+        content: ResolvablePluginManufacturerSequence[ContentDefinition, Content],
         *,
         style: RaspberryMintColorStyle,
     ):
@@ -376,18 +372,18 @@ class ColorStyleConfiguration(Data):
         self.content = content
 
 
-@ContentProviderDefinition("raspberry-mint-color-style", label=_("Color style"))
+@ContentDefinition("raspberry-mint-color-style", label=_("Color style"))
 class ColorStyle(Template, DataManufacturable[ColorStyleConfiguration]):
     """
     Change the color style for all containing content.
 
-    .. plugin:: content-provider:raspberry-mint-color-style
+    .. plugin:: content:raspberry-mint-color-style
     """
 
     def __init__(
         self,
         /,
-        content: Iterable[ContentProvider],
+        content: Iterable[Content],
         *,
         jinja: Environment,
         style: RaspberryMintColorStyle,
@@ -410,7 +406,7 @@ class ColorStyle(Template, DataManufacturable[ColorStyleConfiguration]):
             gather(
                 *map(
                     project.factory.new,
-                    map(ContentProviderManufacturer.resolve, data.content),
+                    map(ContentManufacturer.resolve, data.content),
                 )
             ),
             project.jinja,
@@ -418,8 +414,8 @@ class ColorStyle(Template, DataManufacturable[ColorStyleConfiguration]):
         return cls(content=content, jinja=jinja, style=data.style)
 
     @override
-    async def provide_template(self, document: Document) -> ProvidedTemplate:
-        content = await provide_content(document, self._content)
+    async def build_template(self, document: Document) -> TemplateBuild:
+        content = await build(document, self._content)
         if content is None:
             return None
         return "component/raspberry-mint/color-style.html.j2", {
@@ -428,12 +424,12 @@ class ColorStyle(Template, DataManufacturable[ColorStyleConfiguration]):
         }
 
 
-@ContentProviderDefinition("raspberry-mint-external-links", label=_("External links"))
+@ContentDefinition("raspberry-mint-external-links", label=_("External links"))
 class ExternalLinks(Template, Manufacturable):
     """
     External links.
 
-    .. plugin:: content-provider:raspberry-mint-external-links
+    .. plugin:: content:raspberry-mint-external-links
     """
 
     @override
@@ -444,7 +440,7 @@ class ExternalLinks(Template, Manufacturable):
         return cls(jinja=await project.jinja)
 
     @override
-    async def provide_template(self, document: Document) -> ProvidedTemplate:
+    async def build_template(self, document: Document) -> TemplateBuild:
         if isinstance(document.resource, HasLinks):
             return "component/raspberry-mint/links.html.j2", {
                 "links": document.resource.links
@@ -452,12 +448,12 @@ class ExternalLinks(Template, Manufacturable):
         return None
 
 
-@ContentProviderDefinition("raspberry-mint-timeline", label=_("Timeline"))
+@ContentDefinition("raspberry-mint-timeline", label=_("Timeline"))
 class Timeline(Template, Manufacturable):
     """
     A timeline of events.
 
-    .. plugin:: content-provider:raspberry-mint-timeline
+    .. plugin:: content:raspberry-mint-timeline
     """
 
     def __init__(self, *, jinja: Environment, lifetime_threshold: int):
@@ -475,7 +471,7 @@ class Timeline(Template, Manufacturable):
         )
 
     @override
-    async def provide_template(self, document: Document) -> ProvidedTemplate:
+    async def build_template(self, document: Document) -> TemplateBuild:
         events = []
         if isinstance(document.resource, Person):
             events.extend(
@@ -488,7 +484,7 @@ class Timeline(Template, Manufacturable):
         return None
 
 
-@ContentProviderDefinition(
+@ContentDefinition(
     "raspberry-mint-facts",
     label=_("Facts"),
     description=_(
@@ -499,7 +495,7 @@ class Facts(Template, Manufacturable):
     """
     A list of facts.
 
-    .. plugin:: content-provider:raspberry-mint-facts
+    .. plugin:: content:raspberry-mint-facts
     """
 
     @override
@@ -510,7 +506,7 @@ class Facts(Template, Manufacturable):
         return cls(jinja=await project.jinja)
 
     @override
-    async def provide_template(self, document: Document) -> ProvidedTemplate:
+    async def build_template(self, document: Document) -> TemplateBuild:
         entities = []
         if isinstance(document.resource, Citation):
             entities.extend(document.resource.facts)
@@ -546,9 +542,9 @@ class Facts(Template, Manufacturable):
 )
 class PresencesConfiguration(Data):
     """
-    Configuration for :py:class:`betty.extension.raspberry_mint.content_provider.Presences`.
+    Configuration for :py:class:`betty.extension.raspberry_mint.content.Presences`.
 
-    .. data:: betty.extension.raspberry_mint.content_provider:PresencesConfiguration
+    .. data:: betty.extension.raspberry_mint.content:PresencesConfiguration
     """
 
     exclude = Optional(
@@ -578,12 +574,12 @@ class PresencesConfiguration(Data):
             self.exclude = list(map(resolve_id, exclude))
 
 
-@ContentProviderDefinition("raspberry-mint-presences", label=_("Presences"))
+@ContentDefinition("raspberry-mint-presences", label=_("Presences"))
 class Presences(Template, DataManufacturable[PresencesConfiguration], Manufacturable):
     """
     People's presences at an event.
 
-    .. plugin:: content-provider:raspberry-mint-presences
+    .. plugin:: content:raspberry-mint-presences
     """
 
     def __init__(
@@ -621,7 +617,7 @@ class Presences(Template, DataManufacturable[PresencesConfiguration], Manufactur
         return cls(include=include, jinja=await project.jinja)
 
     @override
-    async def provide_template(self, document: Document) -> ProvidedTemplate:
+    async def build_template(self, document: Document) -> TemplateBuild:
         if isinstance(document.resource, Event):
             presences = document.resource.presences
             if self._include is not None:
@@ -650,33 +646,21 @@ type ShorthandColumnsWidth = (
     samples=[
         lambda: Sample(
             ColumnsConfiguration(
-                [
-                    ContentProviderManufacturer(
-                        Render, RenderConfiguration("Hello, world!")
-                    )
-                ]
+                [ContentManufacturer(Render, RenderConfiguration("Hello, world!"))]
             ),
             label="Minimal",
             size=Size.MINIMAL,
         ),
         lambda: Sample(
             ColumnsConfiguration(
-                [
-                    ContentProviderManufacturer(
-                        Render, RenderConfiguration("Hello, world!")
-                    )
-                ],
+                [ContentManufacturer(Render, RenderConfiguration("Hello, world!"))],
                 justify_content=JustifyContent.CENTER,
             ),
             label="Justify content",
         ),
         lambda: Sample(
             ColumnsConfiguration(
-                [
-                    ContentProviderManufacturer(
-                        Render, RenderConfiguration("Hello, world!")
-                    )
-                ],
+                [ContentManufacturer(Render, RenderConfiguration("Hello, world!"))],
                 width=6,
             ),
             label="A single column with a fixed, non-responsive width",
@@ -685,12 +669,12 @@ type ShorthandColumnsWidth = (
             ColumnsConfiguration(
                 [
                     [
-                        ContentProviderManufacturer(
+                        ContentManufacturer(
                             Render, RenderConfiguration("Hello, world!")
                         ),
                     ],
                     [
-                        ContentProviderManufacturer(
+                        ContentManufacturer(
                             Render, RenderConfiguration("How are you?")
                         ),
                     ],
@@ -701,11 +685,7 @@ type ShorthandColumnsWidth = (
         ),
         lambda: Sample(
             ColumnsConfiguration(
-                [
-                    ContentProviderManufacturer(
-                        Render, RenderConfiguration("Hello, world!")
-                    )
-                ],
+                [ContentManufacturer(Render, RenderConfiguration("Hello, world!"))],
                 width={
                     Breakpoint.XS: 12,
                     Breakpoint.MD: 6,
@@ -717,12 +697,12 @@ type ShorthandColumnsWidth = (
             ColumnsConfiguration(
                 [
                     [
-                        ContentProviderManufacturer(
+                        ContentManufacturer(
                             Render, RenderConfiguration("Hello, world!")
                         ),
                     ],
                     [
-                        ContentProviderManufacturer(
+                        ContentManufacturer(
                             Render, RenderConfiguration("How are you?")
                         ),
                     ],
@@ -738,9 +718,9 @@ type ShorthandColumnsWidth = (
 )
 class ColumnsConfiguration(Data):
     """
-    Configuration for :py:class:`betty.extension.raspberry_mint.content_provider.Columns`.
+    Configuration for :py:class:`betty.extension.raspberry_mint.content.Columns`.
 
-    .. data:: betty.extension.raspberry_mint.content_provider:ColumnsConfiguration
+    .. data:: betty.extension.raspberry_mint.content:ColumnsConfiguration
     """
 
     _DEFAULT_WIDTH: ColumnsWidth = {Breakpoint.XS: [12]}
@@ -750,7 +730,7 @@ class ColumnsConfiguration(Data):
         SequenceDefinition(
             cls=list,
             value=PluginManufacturerSequenceDefinition(
-                ContentProviderManufacturer, label=_("Column content")
+                ContentManufacturer, label=_("Column content")
             ),
             label=_("Columns"),
         )
@@ -807,16 +787,14 @@ class ColumnsConfiguration(Data):
         self,
         /,
         content: Sequence[
-            ResolvablePluginManufacturerSequence[
-                ContentProviderDefinition, ContentProvider
-            ]
+            ResolvablePluginManufacturerSequence[ContentDefinition, Content]
         ],
         *,
         width: ShorthandColumnsWidth | None = None,
         justify_content: JustifyContent | None = None,
     ):
         super().__init__()
-        self.content = list(map(ContentProviderManufacturer.resolve_sequence, content))
+        self.content = list(map(ContentManufacturer.resolve_sequence, content))
         if width is None:
             self._width = self._DEFAULT_WIDTH
         elif isinstance(width, int):
@@ -831,18 +809,18 @@ class ColumnsConfiguration(Data):
         self.justify_content = justify_content
 
 
-@ContentProviderDefinition("raspberry-mint-columns", label=_("Columns"))
+@ContentDefinition("raspberry-mint-columns", label=_("Columns"))
 class Columns(Template, DataManufacturable[ColumnsConfiguration]):
     """
     A container with one or more columns.
 
-    .. plugin:: content-provider:raspberry-mint-columns
+    .. plugin:: content:raspberry-mint-columns
     """
 
     def __init__(
         self,
         /,
-        content: Iterable[Iterable[ContentProvider]],
+        content: Iterable[Iterable[Content]],
         *,
         width: ColumnsWidth,
         jinja: Environment,
@@ -869,7 +847,7 @@ class Columns(Template, DataManufacturable[ColumnsConfiguration]):
                     gather(
                         *map(
                             project.factory.new,
-                            map(ContentProviderManufacturer.resolve, column_content),
+                            map(ContentManufacturer.resolve, column_content),
                         )
                     )
                     for column_content in data.content
@@ -885,10 +863,9 @@ class Columns(Template, DataManufacturable[ColumnsConfiguration]):
         )
 
     @override
-    async def provide_template(self, document: Document) -> ProvidedTemplate:
+    async def build_template(self, document: Document) -> TemplateBuild:
         content = [
-            await provide_content(document, column_content)
-            for column_content in self._content
+            await build(document, column_content) for column_content in self._content
         ]
         if not any(content):
             return None
@@ -902,12 +879,12 @@ class Columns(Template, DataManufacturable[ColumnsConfiguration]):
         }
 
 
-@ContentProviderDefinition("raspberry-mint-enclosees", label=_("Enclosees"))
+@ContentDefinition("raspberry-mint-enclosees", label=_("Enclosees"))
 class Enclosees(Template, Manufacturable):
     """
     Show the places enclosed by a place document resource.
 
-    .. plugin:: content-provider:raspberry-mint-enclosees
+    .. plugin:: content:raspberry-mint-enclosees
     """
 
     @override
@@ -918,7 +895,7 @@ class Enclosees(Template, Manufacturable):
         return cls(jinja=await project.jinja)
 
     @override
-    async def provide_template(self, document: Document) -> ProvidedTemplate:
+    async def build_template(self, document: Document) -> TemplateBuild:
         if isinstance(document.resource, Place):
             return "component/raspberry-mint/enclosees.html.j2", {
                 "enclosees": list(self._enclosees(document.resource))
@@ -931,12 +908,12 @@ class Enclosees(Template, Manufacturable):
             yield from self._enclosees(enclosure.enclosee)
 
 
-@ContentProviderDefinition("raspberry-mint-file-referees", label=_("File referees"))
+@ContentDefinition("raspberry-mint-file-referees", label=_("File referees"))
 class FileReferees(Template, Manufacturable):
     """
     Show the entities referencing a document resource that is a file.
 
-    .. plugin:: content-provider:raspberry-mint-file-referees
+    .. plugin:: content:raspberry-mint-file-referees
     """
 
     @override
@@ -947,7 +924,7 @@ class FileReferees(Template, Manufacturable):
         return cls(jinja=await project.jinja)
 
     @override
-    async def provide_template(self, document: Document) -> ProvidedTemplate:
+    async def build_template(self, document: Document) -> TemplateBuild:
         if isinstance(document.resource, File):
             return "entity/list.html.j2", {
                 "entities": [referee.referee for referee in document.resource.referees]
@@ -955,12 +932,12 @@ class FileReferees(Template, Manufacturable):
         return None
 
 
-@ContentProviderDefinition("raspberry-mint-citations", label=_("Citations"))
+@ContentDefinition("raspberry-mint-citations", label=_("Citations"))
 class Citations(Template, Manufacturable):
     """
     The citations for a document resource that is an entity.
 
-    .. plugin:: content-provider:raspberry-mint-citations
+    .. plugin:: content:raspberry-mint-citations
     """
 
     @override
@@ -971,7 +948,7 @@ class Citations(Template, Manufacturable):
         return cls(jinja=await project.jinja)
 
     @override
-    async def provide_template(self, document: Document) -> ProvidedTemplate:
+    async def build_template(self, document: Document) -> TemplateBuild:
         if isinstance(document.resource, HasCitations):
             return "component/raspberry-mint/citations.html.j2", {
                 "citations": document.resource.citations

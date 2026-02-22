@@ -184,12 +184,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "release": MissingReason.ABSTRACT,
         },
     },
-    "betty/content_provider/__init__.py": {
-        "ContentProvider": MissingReason.ABSTRACT,
-        "ContentProviderDefinition": MissingReason.STATIC_CONTENT_ONLY,
-        "ContentProviderManufacturer": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/content/__init__.py": {
+        "Content": MissingReason.ABSTRACT,
+        "ContentDefinition": MissingReason.STATIC_CONTENT_ONLY,
+        "ContentManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/content_provider/content_providers.py": {
+    "betty/content/contents.py": {
         "Box": {
             "plugin": MissingReason.INHERITED,
         },
@@ -211,7 +211,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "media_type": MissingReason.INHERITED,
         },
         "Template": {
-            "provide_template": MissingReason.ABSTRACT,
+            "build_template": MissingReason.ABSTRACT,
         },
     },
     "betty/contextlib.py": {
@@ -803,7 +803,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
         },
     },
-    "betty/extension/maps/content_provider.py": {
+    "betty/extension/maps/content.py": {
         "Map": {
             "plugin": MissingReason.INHERITED,
         },
@@ -826,7 +826,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
         },
     },
-    "betty/extension/raspberry_mint/content_provider.py": {
+    "betty/extension/raspberry_mint/content.py": {
         "Citations": {
             "plugin": MissingReason.INHERITED,
         },
@@ -881,7 +881,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "plugin": MissingReason.INHERITED,
         },
     },
-    "betty/extension/trees/content_provider.py": {
+    "betty/extension/trees/content.py": {
         "Tree": {
             "plugin": MissingReason.INHERITED,
         },
@@ -907,7 +907,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "populate_images": MissingReason.SHOULD_BE_COVERED,
         },
     },
-    "betty/extension/wiki/content_provider.py": {
+    "betty/extension/wiki/content.py": {
         "WikipediaSummary": {
             "plugin": MissingReason.INHERITED,
         },

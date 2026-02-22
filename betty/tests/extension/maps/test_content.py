@@ -11,21 +11,21 @@ from betty.ancestry.presence import Presence
 from betty.app import App
 from betty.document import Document
 from betty.extension.maps import Maps
-from betty.extension.maps.content_provider import Attribution, Map
+from betty.extension.maps.content import Attribution, Map
 from betty.model import Entity
 from betty.project import Project
 from betty.role.roles import Subject
 
 
 class TestMap:
-    async def test_provide_template__without_supported_entity(
+    async def test_build_template__without_supported_entity(
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(Maps)
             async with project:
                 sut = await Map.new(project)
-                assert await sut.provide(document=Document()) is None
+                assert await sut.build(document=Document()) is None
 
     @pytest.mark.parametrize(
         "has_associated_places",
@@ -35,7 +35,7 @@ class TestMap:
             Place(),
         ],
     )
-    async def test_provide_template__with_entity_without_places(
+    async def test_build_template__with_entity_without_places(
         self, has_associated_places: Entity, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
@@ -44,7 +44,7 @@ class TestMap:
                 project.ancestry.add(has_associated_places)
                 sut = await Map.new(project)
                 assert (
-                    await sut.provide(
+                    await sut.build(
                         document=await project.new_document(has_associated_places)
                     )
                     is None
@@ -68,7 +68,7 @@ class TestMap:
     def has_map_entities(self, request: pytest.FixtureRequest) -> tuple[Entity, Place]:
         return cast(tuple[Entity, Place], request.param)
 
-    async def test_provide_template__with_entity_with_places(
+    async def test_build_template__with_entity_with_places(
         self, has_map_entities: tuple[Entity, Place], isolated_app: App
     ) -> None:
         has_associated_places, place = has_map_entities
@@ -78,7 +78,7 @@ class TestMap:
                 project.ancestry.add(has_associated_places)
                 sut = await Map.new(project)
                 document = await project.new_document(has_associated_places)
-                actual = await sut.provide(document=document)
+                actual = await sut.build(document=document)
         assert actual is not None
         assert place.public_id in actual
         assert "webpack_js_entry_points" in document
@@ -87,10 +87,10 @@ class TestMap:
 
 
 class TestAttribution:
-    async def test_provide_template(self, isolated_app: App) -> None:
+    async def test_build_template(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(Maps)
             async with project:
                 sut = await Attribution.new(project)
-                actual = await sut.provide(document=Document())
+                actual = await sut.build(document=Document())
         assert actual

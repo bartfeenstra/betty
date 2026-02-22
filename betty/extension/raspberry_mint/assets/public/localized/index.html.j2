@@ -2,11 +2,11 @@
 {% set regional_content = project.extensions['raspberry-mint'].configuration.regional_content %}
 {% block page_summary %}
     {% if 'front-page-summary' in regional_content %}
-        {{ regional_content['front-page-summary'] | provide_content }}
+        {{ regional_content['front-page-summary'] | build_content }}
     {% endif %}
 {% endblock %}
 {% block page_content %}
     {% if 'front-page-content' in regional_content %}
-        {{ regional_content['front-page-content'] | provide_content }}
+        {{ regional_content['front-page-content'] | build_content }}
     {% endif %}
 {% endblock %}
