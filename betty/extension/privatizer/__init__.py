@@ -73,19 +73,23 @@ class Privatizer(PostLoader, Manufacturable, Extension[Project]):
 
     """
 
+    def __init__(self, *, project: Project):
+        super().__init__()
+        self._project = project
+
     @override
     @classmethod
     @require_project
     async def new(cls, project: Project, /) -> Self:
-        return cls(services=project)
+        return cls(project=project)
 
     @override
     async def post_load(self, scheduler: Scheduler) -> None:
         await scheduler.add(
             PrivatizeAncestry(
                 dependencies={DeriveAncestry.id_for()}
-                if Deriver.plugin().id in await self.services.extensions
+                if Deriver.plugin().id in await self._project.extensions
                 else set(),
-                project=self.services,
+                project=self._project,
             )
         )

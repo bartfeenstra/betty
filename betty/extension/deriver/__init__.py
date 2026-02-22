@@ -40,12 +40,16 @@ class Deriver(PostLoader, Manufacturable, Extension[Project]):
     the event types used within your site as well as the existing events for each person.
     """
 
+    def __init__(self, *, project: Project):
+        super().__init__()
+        self._project = project
+
     @override
     @classmethod
     @require_project
     async def new(cls, project: Project, /) -> Self:
-        return cls(services=project)
+        return cls(project=project)
 
     @override
     async def post_load(self, scheduler: Scheduler) -> None:
-        await scheduler.add(DeriveAncestry(project=self.services))
+        await scheduler.add(DeriveAncestry(project=self._project))

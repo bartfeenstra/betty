@@ -10,8 +10,10 @@ from betty.content_provider.content_providers import ProvidedTemplate, Template
 from betty.document import Document
 from betty.extension.trees import Trees
 from betty.locale.localizable.gettext import _
+from betty.project import Project
 from betty.service.factory import Manufacturable
 from betty.service.requirement.extension import require_extension
+from betty.service.requirement.project import require_project
 
 
 @ContentProviderDefinition("trees-tree", label=_("Family tree"))
@@ -24,9 +26,10 @@ class Tree(Template, Manufacturable):
 
     @override
     @classmethod
-    @require_extension(Trees)
-    async def new(cls, trees: Trees, /) -> Self:
-        return cls(jinja=await trees.services.jinja)
+    @require_project
+    async def new(cls, project: Project, /) -> Self:
+        await require_extension(Trees, project)
+        return cls(jinja=await project.jinja)
 
     @override
     async def provide_template(self, document: Document) -> ProvidedTemplate:

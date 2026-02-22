@@ -48,11 +48,15 @@ class Webpack(
     .. plugin:: extension:webpack.
     """
 
+    def __init__(self, *, project: Project):
+        super().__init__()
+        self._project = project
+
     @override
     @classmethod
     @require_project
     async def new(cls, project: Project, /) -> Self:
-        return cls(services=project)
+        return cls(project=project)
 
     @override
     async def generate(self, scheduler: Scheduler) -> None:
@@ -60,10 +64,10 @@ class Webpack(
         await scheduler.add(
             _GenerateAssets(
                 builder=await self.builder,
-                cache_directory=self.services.app.binary_file_cache.with_scope(
+                cache_directory=self._project.app.binary_file_cache.with_scope(
                     "webpack"
                 ).path,
-                www_directory=self.services.www_directory,
+                www_directory=self._project.www_directory,
             )
         )
 
@@ -98,7 +102,7 @@ class Webpack(
     async def _project_entry_point_providers(
         self,
     ) -> Sequence[EntryPointProvider]:
-        extensions = await self.services.extensions
+        extensions = await self._project.extensions
         return [
             extension
             for extension in extensions.flatten()
@@ -112,8 +116,8 @@ class Webpack(
         """
         return build.Builder(
             await self._project_entry_point_providers(),
-            self.services.configuration.debug,
-            await self.services.jinja,
-            self.services.configuration.root_path,
-            user=self.services.app.user,
+            self._project.configuration.debug,
+            await self._project.jinja,
+            self._project.configuration.root_path,
+            user=self._project.app.user,
         )

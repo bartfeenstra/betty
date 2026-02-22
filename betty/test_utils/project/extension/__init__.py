@@ -2,20 +2,15 @@
 Test utilities for :py:mod:`betty.extension`.
 """
 
-from typing import Self, final, override
+from typing import final
 
 from betty.extension import Extension, ExtensionDefinition
-from betty.project import Project
-from betty.service.factory import Manufacturable
-from betty.service.requirement.project import require_project
 
 
-class _DummyExtension(Manufacturable, Extension[Project]):
-    @override
-    @classmethod
-    @require_project
-    async def new(cls, project: Project, /) -> Self:
-        return cls(services=project)
+class _DummyExtension(Extension):
+    # Provide an initializer without arguments so the factory can call it.
+    def __init__(self):
+        super().__init__()
 
 
 @final

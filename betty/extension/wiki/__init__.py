@@ -89,7 +89,8 @@ class Wiki(
         wikipedia_contributors_copyright_notice: CopyrightNotice,
         populate_images: bool | None = None,
     ):
-        super().__init__(services=project)
+        super().__init__()
+        self._project = project
         self._populate_images = True if populate_images is None else populate_images
         self._wikipedia_contributors_copyright_notice = (
             wikipedia_contributors_copyright_notice
@@ -119,8 +120,8 @@ class Wiki(
     async def post_load(self, scheduler: Scheduler) -> None:
         await scheduler.add(
             *(
-                PopulateEntity(entity, project=self.services)
-                for entity in self.services.ancestry
+                PopulateEntity(entity, project=self._project)
+                for entity in self._project.ancestry
             )
         )
 
@@ -130,11 +131,11 @@ class Wiki(
         The API client.
         """
         return Client(
-            download_directory_path=self.services.app.binary_file_cache.with_scope(
+            download_directory_path=self._project.app.binary_file_cache.with_scope(
                 "wiki-client"
             ).path,
-            http_client=await self.services.app.http_client,
-            user=self.services.app.user,
+            http_client=await self._project.app.http_client,
+            user=self._project.app.user,
         )
 
     @service
@@ -143,12 +144,12 @@ class Wiki(
         The ancestry populator.
         """
         return populator_api.Populator(
-            self.services.ancestry,
-            list(self.services.configuration.locales.keys()),
-            await self.services.localizers,
+            self._project.ancestry,
+            list(self._project.configuration.locales.keys()),
+            await self._project.localizers,
             await self.client,
             self._wikipedia_contributors_copyright_notice,
-            user=self.services.app.user,
+            user=self._project.app.user,
         )
 
     @override
@@ -188,7 +189,7 @@ class Wiki(
     async def _filter_wikipedia_summary_link(
         self, locale: Locale, link: Link
     ) -> Summary | None:
-        localizers = await self.services.app.localizers
+        localizers = await self._project.app.localizers
         try:
             page_language, page_name = parse_page_url(
                 link.url.localize(localizers.get(locale))

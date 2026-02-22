@@ -22,23 +22,12 @@ if TYPE_CHECKING:
     from betty.machine_name import ResolvableMachineName
 
 
-class Extension[ServiceLevelT: ServiceLevel](
+class Extension[ServiceLevelT: ServiceLevel = ServiceLevel](
     ManagedLifeCycle, Plugin["ExtensionDefinition"]
 ):
     """
     Integrate custom services with a :py:class:`service level <betty.service.level.ServiceLevel>`.
     """
-
-    def __init__(self, *, services: ServiceLevelT):
-        super().__init__()
-        self._services = services
-
-    @property
-    def services(self) -> ServiceLevelT:
-        """
-        The service level this extension is attached to.
-        """
-        return self._services
 
 
 @final

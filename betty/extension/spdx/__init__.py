@@ -32,11 +32,15 @@ class Spdx(Manufacturable, Extension[App]):
     .. plugin:: extension:spdx.
     """
 
+    def __init__(self, *, app: App):
+        super().__init__()
+        self._app = app
+
     @override
     @classmethod
     @require_app
     async def new(cls, app: App, /) -> Self:
-        return cls(services=app)
+        return cls(app=app)
 
     @service
     async def license_repository(self) -> PluginRepository[LicenseDefinition]:
@@ -48,11 +52,9 @@ class Spdx(Manufacturable, Extension[App]):
             *[
                 license
                 async for license in SpdxLicenseBuilder(  # noqa: A001
-                    binary_file_cache=self.services.binary_file_cache.with_scope(
-                        "spdx"
-                    ),
-                    http_client=await self.services.http_client,
-                    user=self.services.user,
+                    binary_file_cache=self._app.binary_file_cache.with_scope("spdx"),
+                    http_client=await self._app.http_client,
+                    user=self._app.user,
                 ).build()
             ],
         )

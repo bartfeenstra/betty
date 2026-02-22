@@ -82,21 +82,25 @@ class Demo(NavigationLinkProvider, Loader, Manufacturable, Extension[Project]):
     .. plugin:: extension:demo.
     """
 
+    def __init__(self, *, project: Project):
+        super().__init__()
+        self._project = project
+
     @override
     @classmethod
     @require_project
     async def new(cls, project: Project, /) -> Self:
-        return cls(services=project)
+        return cls(project=project)
 
     @override
     async def load(self, scheduler: Scheduler) -> None:
-        licenses = await self.services.plugins.plugins(LicenseDefinition)
+        licenses = await self._project.plugins.plugins(LicenseDefinition)
         await scheduler.add(
             LoadAncestry(
-                ancestry=self.services.ancestry,
-                factory=self.services.factory,
-                streetmix_copyright_notice=await self.services.factory.new(Streetmix),
-                streetmix_license=await self.services.factory.new(
+                ancestry=self._project.ancestry,
+                factory=self._project.factory,
+                streetmix_copyright_notice=await self._project.factory.new(Streetmix),
+                streetmix_license=await self._project.factory.new(
                     licenses[spdx_license_id_to_license_id("AGPL-3.0-or-later")].cls
                 ),
             )

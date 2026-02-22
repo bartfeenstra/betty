@@ -34,7 +34,9 @@ if TYPE_CHECKING:
 _NPM_PROJECT_DIRECTORIES_PATH = Path(__file__).parent / "webpack"
 
 
-class EntryPointProvider[ServiceLevelT: ServiceLevel](Extension[ServiceLevelT]):
+class EntryPointProvider[ServiceLevelT: ServiceLevel = ServiceLevel](
+    Extension[ServiceLevelT]
+):
     """
     An extension that provides Webpack entry points.
     """

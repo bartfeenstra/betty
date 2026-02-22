@@ -34,15 +34,19 @@ class Trees(Generator, EntryPointProvider[Project], Manufacturable):
     .. plugin:: extension:trees.
     """
 
+    def __init__(self, *, project: Project):
+        super().__init__()
+        self._project = project
+
     @override
     @classmethod
     @require_project
     async def new(cls, project: Project, /) -> Self:
-        return cls(services=project)
+        return cls(project=project)
 
     @override
     async def generate(self, scheduler: Scheduler) -> None:
-        await scheduler.add(_GeneratePeopleJson(project=self.services))
+        await scheduler.add(_GeneratePeopleJson(project=self._project))
 
     @override
     @classmethod
