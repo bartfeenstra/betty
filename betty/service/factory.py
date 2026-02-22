@@ -95,11 +95,7 @@ class Factory:
     ) -> T:
         pass
 
-    async def new(
-        self,
-        target,
-        data=Void,  # noqa: B008
-    ):
+    async def new(self, target, data=Void):
         """
         Create a new instance.
 

@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, final
 
 from betty.assertion import assert_mapping, assert_sequence
-from betty.collections import KeyedCollection, MutablePrimaryKeyCollection
+from betty.collection.keyed import KeyedCollection, MutableKeyedCollection
 from betty.data.aggregate.collection import CollectionDefinition
 from betty.data.indicator.selector import Element
 from betty.portable import (
@@ -18,6 +18,8 @@ from betty.portable import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from ty_extensions import Intersection
 
     from betty.data import Data
@@ -26,52 +28,55 @@ if TYPE_CHECKING:
 
 
 @final
-class PrimaryKeyCollectionDefinition[ValueT, ElementT: Element[str] = Element[str]](
-    CollectionDefinition[KeyedCollection[Any, Any, ValueT], ElementT]
-):
+class KeyedCollectionDefinition[
+    MutableKeyedCollectionT: MutableKeyedCollection = MutableKeyedCollection,
+    ElementT: Element[str] = Element[str],
+](CollectionDefinition[MutableKeyedCollectionT, ElementT]):
     """
-    A definition for :py:class:`betty.collections.PrimaryKeyCollection`.
+    A definition for :py:class:`betty.collection.keyed.MutableKeyedCollection`.
     """
 
-    _item: RecordDefinition[ValueT, ElementT]
+    _item: RecordDefinition[Any, ElementT]
 
-    def __init__(
+    def __init__[KeyT, ValueT](
         self,
+        /,
+        cls: type[MutableKeyedCollection] | None = None,
         *,
         value: RecordDefinition[ValueT, ElementT]
         | type[Intersection[ValueT, Data[RecordDefinition[Any, ElementT]]]],
-        key: Element[str],
-        ordered: bool,
+        key: ElementT,
+        order_dump: bool = False,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
+        factory: Callable[[], MutableKeyedCollectionT] | None = None,
     ):
         super().__init__(
-            cls=MutablePrimaryKeyCollection,
+            cls=cls,
             label=label,
             description=description,
             porter=CallbackPorter(self._load, self._dump),
             item=value,
+            factory=factory,
         )
         self._key = key
-        self._ordered = ordered
+        self._order_dump = order_dump
 
-    def _load(
-        self, portable: PortableData, /
-    ) -> MutablePrimaryKeyCollection[str, str, ValueT, Any]:
-        if self._ordered:
-            items = assert_sequence(self._item.porter.load)(portable)
+    def _load(self, portable: PortableData, /) -> MutableKeyedCollection:
+        if self._order_dump:
+            values = assert_sequence(self._item.porter.load)(portable)
         else:
-            items = [
+            values = [
                 self._item.porter.load_key(portable_item, self._key, portable_key)
                 for portable_key, portable_item in assert_mapping()(portable).items()
             ]
 
-        return MutablePrimaryKeyCollection(items, key=self._key.get)
+        loaded = self.new()
+        loaded.add(*values)
+        return loaded
 
-    def _dump(
-        self, data: MutablePrimaryKeyCollection[str, str, ValueT, Any]
-    ) -> PortableMapping | PortableSequence:
-        if self._ordered:
+    def _dump(self, data: KeyedCollection) -> PortableMapping | PortableSequence:
+        if self._order_dump:
             return [self._item.porter.dump(value) for value in data]
         return dict(
             self._item.porter.dump_key(item_data, self._key) for item_data in data

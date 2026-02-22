@@ -8,7 +8,8 @@ from collections.abc import Mapping, MutableMapping
 from pathlib import Path
 from typing import TYPE_CHECKING, final
 
-from betty.collections import MutableResolvedMapping, MutableResolvedMappingProxy
+from betty.collection.mapping import MutableResolvedMapping
+from betty.collection.mapping.adapter import MutableResolvedMappingAdapter
 from betty.data import Data, Sample
 from betty.data.aggregate.collection.mapping import MappingDefinition
 from betty.data.aggregate.collection.sequence import SequenceDefinition
@@ -59,21 +60,15 @@ class _PluginMappingProperty[PluginDefinitionT: PluginDefinition, PluginT: Plugi
         super().__init__(
             MappingDefinition(
                 cls=MutableResolvedMapping,
-                factory=lambda items: MutableResolvedMappingProxy(
-                    dict(
-                        zip(
-                            items.keys(),
-                            manufacturer.resolve_sequence(items.values()),
-                            strict=False,
-                        )
-                    ),
+                factory=lambda: MutableResolvedMappingAdapter(
+                    {},
                     value_resolver=manufacturer.resolve,
                 ),
                 key=StrDefinition(label=gramps_label),
                 value=manufacturer,
                 label=manufacturer.type().type().label_plural,
             ),
-            default=lambda: MutableResolvedMappingProxy(
+            default=lambda: MutableResolvedMappingAdapter(
                 dict(
                     zip(
                         default.keys(),
@@ -236,7 +231,6 @@ class GrampsConfiguration(Data):
 
     family_trees = SequenceProperty(
         SequenceDefinition(cls=list, value=FamilyTree, label=_("Family trees")),
-        default=list,
         omit_load=True,
         omit_dump=lambda data: not len(data),
     )

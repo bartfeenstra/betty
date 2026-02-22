@@ -23,6 +23,7 @@ from betty.extension import Extension, ExtensionDefinition
 from betty.hashid import hashid
 from betty.importlib import fully_qualified_name
 from betty.life_cycle.manage import ManagedLifeCycle
+from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.gettext import _
 from betty.locale.localize import Localizer, LocalizerRepository
 from betty.locale.translation import (
@@ -86,11 +87,16 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
         plugins: PluginManager | None = None,
     ):
         super().__init__(plugins=plugins)
+        self.life_cycle.on_bootstrap(self._ensure_locale)
         self.life_cycle.on_bootstrap(self._validate)
         self._app = app
         self._configuration = configuration
         self._configuration_file = configuration_file
         self._ancestry = Ancestry() if ancestry is None else ancestry
+
+    def _ensure_locale(self) -> None:
+        if not self._configuration.locales:
+            self._configuration.locales.add(DEFAULT_LOCALE)
 
     async def _validate(self) -> None:
         for entity_type in self._configuration.entity_types:

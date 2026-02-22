@@ -9,14 +9,14 @@ from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 class TestMappingDefinition:
     def test_item(self) -> None:
-        item = StrDefinition(label=DUMMY_LOCALIZABLE)
+        key = StrDefinition(label=DUMMY_LOCALIZABLE)
         sut = MappingDefinition[dict[str, str]](
             cls=dict,
-            key=StrDefinition(label=DUMMY_LOCALIZABLE),
-            value=item,
+            key=key,
+            value=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
-        assert sut.item is item
+        assert sut.item is key
 
     def test_load__without_items(self) -> None:
         sut = MappingDefinition[dict[str, str]](

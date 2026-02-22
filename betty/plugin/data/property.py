@@ -6,14 +6,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
-from betty.collections import (
-    MutablePrimaryKeyCollection,
+from betty.collection.keyed.adapter import MutableKeyedCollectionAdapter
+from betty.collection.sequence import (
     MutableResolvedSequence,
-    MutableResolvedSequenceProxy,
 )
-from betty.data.aggregate.collection.keyed import PrimaryKeyCollectionDefinition
+from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.data.aggregate.record.object.property import (
-    PrimaryKeyCollectionProperty,
+    KeyedCollectionProperty,
     SequenceProperty,
 )
 from betty.data.indicator.selector import Attr
@@ -59,18 +58,15 @@ class PluginManufacturerSequenceProperty[
             label=label,
             description=description,
             resolver=manufacturer.resolve_sequence,
-            default=lambda: MutableResolvedSequenceProxy(
-                [], value_resolver=manufacturer.resolve
-            ),
         )
 
 
 @final
 class PluginDefinitionConfigurationsProperty[PluginDefinitionT: PluginDefinition](
-    PrimaryKeyCollectionProperty
+    KeyedCollectionProperty
 ):
     """
-    A property containing a :py:class:`betty.collections.KeyedCollection` of :py:class:`betty.plugin.data.PluginDefinitionConfiguration`.
+    A property containing a :py:class:`betty.collection.keyed.KeyedCollection` of :py:class:`betty.plugin.data.PluginDefinitionConfiguration`.
     """
 
     def __init__(
@@ -82,15 +78,14 @@ class PluginDefinitionConfigurationsProperty[PluginDefinitionT: PluginDefinition
         description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
-            PrimaryKeyCollectionDefinition(
+            KeyedCollectionDefinition(
                 value=item,
                 label=plugin_type.type().label_plural,
                 key=Attr("id"),
-                ordered=False,
+                factory=lambda: MutableKeyedCollectionAdapter(key=lambda item: item.id),
             ),
             label=label,
             description=description,
             omit_load=True,
             omit_dump=lambda data: not len(data),
-            default=lambda: MutablePrimaryKeyCollection(key=lambda item: item.id),
         )

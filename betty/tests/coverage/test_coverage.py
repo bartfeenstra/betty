@@ -520,13 +520,19 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "plugin": MissingReason.INHERITED,
         },
     },
-    "betty/collections.py": {
-        "KeyedCollection": MissingReason.ABSTRACT,
+    "betty/collection/__init__.py": {
         "MutableCollection": MissingReason.ABSTRACT,
+    },
+    "betty/collection/keyed/__init__.py": {
+        "KeyedCollection": MissingReason.ABSTRACT,
         "MutableKeyedCollection": MissingReason.ABSTRACT,
+    },
+    "betty/collection/mapping/__init__.py": {
         "MutableResolvedMapping": MissingReason.ABSTRACT,
-        "MutableResolvedSequence": MissingReason.ABSTRACT,
         "ResolvedMapping": MissingReason.ABSTRACT,
+    },
+    "betty/collection/sequence/__init__.py": {
+        "MutableResolvedSequence": MissingReason.ABSTRACT,
     },
     "betty/copyright_notice/__init__.py": {
         "CopyrightNotice": MissingReason.STATIC_CONTENT_ONLY,

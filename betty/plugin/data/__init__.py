@@ -7,7 +7,10 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, final
 
-from betty.collections import MutableResolvedSequence, MutableResolvedSequenceProxy
+from betty.collection.sequence import (
+    MutableResolvedSequence,
+)
+from betty.collection.sequence.adapter import MutableResolvedSequenceAdapter
 from betty.data import Data
 from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
@@ -119,8 +122,8 @@ class PluginManufacturerSequenceDefinition(SequenceDefinition):
     ):
         super().__init__(
             cls=MutableResolvedSequence,
-            factory=lambda values: MutableResolvedSequenceProxy(
-                list(values), value_resolver=manufacturer.resolve
+            factory=lambda: MutableResolvedSequenceAdapter(
+                [], value_resolver=manufacturer.resolve
             ),
             value=manufacturer,
             label=manufacturer.type().type().label_plural if label is None else label,

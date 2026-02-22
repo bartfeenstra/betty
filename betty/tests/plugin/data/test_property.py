@@ -1,7 +1,7 @@
 from collections.abc import Iterable
 from typing import override
 
-from betty.collections import MutableResolvedSequenceProxy
+from betty.collection.sequence.adapter import MutableResolvedSequenceAdapter
 from betty.data import Data
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.plugin.data import PluginDefinitionConfiguration
@@ -24,7 +24,7 @@ class TestPluginManufacturerSequenceProperty:
     def test___set__(self) -> None:
         instance = self._Instance()
         instance.attr = DummyPluginOne
-        assert isinstance(instance.attr, MutableResolvedSequenceProxy)
+        assert isinstance(instance.attr, MutableResolvedSequenceAdapter)
         assert list(instance.attr) == [DummyPluginManufacturer(DummyPluginOne)]
 
 
