@@ -10,11 +10,11 @@ from collections.abc import Iterable, Mapping
 from typing import TYPE_CHECKING, Any, Self, final, override
 
 from betty.ancestry.has_notes import HasNotes
-from betty.content_provider import (
-    ContentProvider,
-    ContentProviderDefinition,
-    ContentProviderManufacturer,
-    provide_content,
+from betty.content import (
+    Content,
+    ContentDefinition,
+    ContentManufacturer,
+    build,
 )
 from betty.data import Data, Sample
 from betty.data.aggregate.record.object import ObjectDefinition
@@ -52,9 +52,9 @@ if TYPE_CHECKING:
 )
 class RenderConfiguration(Data):
     """
-    Configuration for :py:class:`betty.content_provider.content_providers.Render`.
+    Configuration for :py:class:`betty.content.contents.Render`.
 
-    .. data:: betty.content_provider.content_providers:RenderConfiguration
+    .. data:: betty.content.contents:RenderConfiguration
     """
 
     content = LocalizableProperty(label=_("Content"))
@@ -68,10 +68,10 @@ class RenderConfiguration(Data):
         self.media_type = media_type
 
 
-@ContentProviderDefinition("render", label=_("Rendered content"))
-class Render(DataManufacturable[RenderConfiguration], ContentProvider):
+@ContentDefinition("render", label=_("Rendered content"))
+class Render(DataManufacturable[RenderConfiguration], Content):
     """
-    .. plugin:: content-provider:render.
+    .. plugin:: content:render.
     """
 
     def __init__(
@@ -101,21 +101,21 @@ class Render(DataManufacturable[RenderConfiguration], ContentProvider):
         )
 
     @override
-    async def provide(self, *, document: Document) -> str | None:
+    async def build(self, *, document: Document) -> str | None:
         return await self._renderer.render(
             resolve_localized(self._content, localizer=document.localizer),
             self._media_type,
         )
 
 
-type ProvidedTemplate = (
+type TemplateBuild = (
     str | Iterable[str] | tuple[str | Iterable[str], Mapping[str, Any]] | None
 )
 
 
-class Template(ContentProvider):
+class Template(Content):
     """
-    Provides content by rendering a Jinja2 template.
+    Build content by rendering a Jinja2 template.
     """
 
     def __init__(self, *args: Any, jinja: Environment, **kwargs: Any):
@@ -123,8 +123,8 @@ class Template(ContentProvider):
         self._jinja = jinja
 
     @override
-    async def provide(self, *, document: Document) -> str | None:
-        config = await self.provide_template(document)
+    async def build(self, *, document: Document) -> str | None:
+        config = await self.build_template(document)
         if config is None:
             return None
         templates: MutableSequence[str]
@@ -154,19 +154,19 @@ class Template(ContentProvider):
         return templates
 
     @abstractmethod
-    async def provide_template(self, document: Document) -> ProvidedTemplate:
+    async def build_template(self, document: Document) -> TemplateBuild:
         """
-        Provide template data.
+        Build template data.
 
         Return a template name, a tuple of a template name and template date to render it. Return ``None`` to prevent
         anything from being rendered at all.
         """
 
 
-@ContentProviderDefinition("notes", label=_("Notes"))
+@ContentDefinition("notes", label=_("Notes"))
 class Notes(Template, Manufacturable):
     """
-    .. plugin:: content-provider:notes.
+    .. plugin:: content:notes.
     """
 
     @override
@@ -176,7 +176,7 @@ class Notes(Template, Manufacturable):
         return cls(jinja=await project.jinja)
 
     @override
-    async def provide_template(self, document: Document) -> ProvidedTemplate:
+    async def build_template(self, document: Document) -> TemplateBuild:
         if isinstance(document.resource, HasNotes):
             return "component/notes.html.j2", {"notes": document.resource.notes}
         return None
@@ -189,11 +189,7 @@ class Notes(Template, Manufacturable):
         lambda: Sample(BoxConfiguration([]), label="Minimal", size=Size.MINIMAL),
         lambda: Sample(
             BoxConfiguration(
-                [
-                    ContentProviderManufacturer(
-                        Render, RenderConfiguration("Hello, world!")
-                    )
-                ],
+                [ContentManufacturer(Render, RenderConfiguration("Hello, world!"))],
                 min_height="100px",
                 max_height="1000px",
                 height="500px",
@@ -208,14 +204,14 @@ class Notes(Template, Manufacturable):
 )
 class BoxConfiguration(Data):
     """
-    Configuration for :py:class:`betty.content_provider.content_providers.Box`.
+    Configuration for :py:class:`betty.content.contents.Box`.
 
-    .. data:: betty.content_provider.content_providers:BoxConfiguration
+    .. data:: betty.content.contents:BoxConfiguration
     """
 
-    content = PluginManufacturerSequenceProperty[
-        ContentProviderDefinition, ContentProvider
-    ](ContentProviderManufacturer, label=_("Content"))
+    content = PluginManufacturerSequenceProperty[ContentDefinition, Content](
+        ContentManufacturer, label=_("Content")
+    )
     """
     The content within this box.
     """
@@ -229,9 +225,7 @@ class BoxConfiguration(Data):
 
     def __init__(
         self,
-        content: ResolvablePluginManufacturerSequence[
-            ContentProviderDefinition, ContentProvider
-        ],
+        content: ResolvablePluginManufacturerSequence[ContentDefinition, Content],
         *,
         min_height: str | None = None,
         max_height: str | None = None,
@@ -251,16 +245,16 @@ class BoxConfiguration(Data):
 
 
 @final
-@ContentProviderDefinition("box", label=_("Box"))
+@ContentDefinition("box", label=_("Box"))
 class Box(Template, DataManufacturable[BoxConfiguration]):
     """
-    .. plugin:: content-provider:box.
+    .. plugin:: content:box.
     """
 
     def __init__(
         self,
         /,
-        content: Iterable[ContentProvider],
+        content: Iterable[Content],
         *,
         jinja: Environment,
         min_height: str | None = None,
@@ -292,7 +286,7 @@ class Box(Template, DataManufacturable[BoxConfiguration]):
             gather(
                 *map(
                     project.factory.new,
-                    map(ContentProviderManufacturer.resolve, data.content),
+                    map(ContentManufacturer.resolve, data.content),
                 )
             ),
             project.jinja,
@@ -309,8 +303,8 @@ class Box(Template, DataManufacturable[BoxConfiguration]):
         )
 
     @override
-    async def provide_template(self, document: Document) -> ProvidedTemplate:
-        content = await provide_content(document, self._content)
+    async def build_template(self, document: Document) -> TemplateBuild:
+        content = await build(document, self._content)
         if content is None:
             return None
         return "component/box.html.j2", {

@@ -7,8 +7,8 @@ from typing import Self, override
 from betty.ancestry.event import Event
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
-from betty.content_provider import ContentProviderDefinition
-from betty.content_provider.content_providers import ProvidedTemplate, Template
+from betty.content import ContentDefinition
+from betty.content.contents import Template, TemplateBuild
 from betty.document import Document
 from betty.extension.maps import Maps
 from betty.locale.localizable.gettext import _
@@ -18,12 +18,12 @@ from betty.service.requirement.extension import require_extension
 from betty.service.requirement.project import require_project
 
 
-@ContentProviderDefinition("maps-map", label=_("Map"))
+@ContentDefinition("maps-map", label=_("Map"))
 class Map(Template, Manufacturable):
     """
     An interactive map.
 
-    .. plugin:: content-provider:maps-map
+    .. plugin:: content:maps-map
     """
 
     @override
@@ -34,7 +34,7 @@ class Map(Template, Manufacturable):
         return cls(jinja=await project.jinja)
 
     @override
-    async def provide_template(self, document: Document) -> ProvidedTemplate:
+    async def build_template(self, document: Document) -> TemplateBuild:
         places = []
         if isinstance(document.resource, Event) and document.resource.place:
             places.append(document.resource.place)
@@ -58,12 +58,12 @@ class Map(Template, Manufacturable):
         return None
 
 
-@ContentProviderDefinition("maps-attribution", label=_("Map attribution"))
+@ContentDefinition("maps-attribution", label=_("Map attribution"))
 class Attribution(Template, Manufacturable):
     """
     The attribution for an interactive map.
 
-    .. plugin:: content-provider:maps-attribution
+    .. plugin:: content:maps-attribution
     """
 
     @override
@@ -74,5 +74,5 @@ class Attribution(Template, Manufacturable):
         return cls(jinja=await project.jinja)
 
     @override
-    async def provide_template(self, document: Document) -> ProvidedTemplate:
+    async def build_template(self, document: Document) -> TemplateBuild:
         return "component/maps/attribution.html.j2"

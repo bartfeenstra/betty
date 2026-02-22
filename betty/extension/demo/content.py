@@ -1,18 +1,18 @@
 """
-Content providers for the demonstration site.
+Contents for the demonstration site.
 """
 
 from typing import Self, override
 
-from betty.content_provider import ContentProviderDefinition
-from betty.content_provider.content_providers import ProvidedTemplate, Template
+from betty.content import ContentDefinition
+from betty.content.contents import Template, TemplateBuild
 from betty.document import Document
 from betty.project import Project
 from betty.service.factory import Manufacturable
 from betty.service.requirement.project import require_project
 
 
-@ContentProviderDefinition(
+@ContentDefinition(
     "-demo-incomplete-translation-warning", label="Incomplete translation warning"
 )
 class _IncompleteTranslationWarning(Template, Manufacturable):
@@ -23,5 +23,5 @@ class _IncompleteTranslationWarning(Template, Manufacturable):
         return cls(jinja=await project.jinja)
 
     @override
-    async def provide_template(self, document: Document) -> ProvidedTemplate:
+    async def build_template(self, document: Document) -> TemplateBuild:
         return "component/demo/-demo-incomplete-translation-warning.html.j2"

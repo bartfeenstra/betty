@@ -9,11 +9,11 @@ from aiofiles.os import makedirs
 
 from betty.ancestry.note import Note
 from betty.app import App
-from betty.content_provider import (
-    ContentProviderDefinition,
-    ContentProviderManufacturer,
+from betty.content import (
+    ContentDefinition,
+    ContentManufacturer,
 )
-from betty.content_provider.content_providers import (
+from betty.content.contents import (
     Box,
     BoxConfiguration,
     Notes,
@@ -62,12 +62,12 @@ class TestRender:
             ),
         ],
     )
-    async def test_provide(
+    async def test_build(
         self, expected: str, content: ResolvableLocalizable, locale: str
     ) -> None:
         sut = Render(content=content, renderer=RenderDispatcher(PlainText()))
         assert (
-            await sut.provide(
+            await sut.build(
                 document=Document(localizer=Localizer(locale, NullTranslations()))
             )
             == expected
@@ -75,7 +75,7 @@ class TestRender:
 
 
 class TestTemplate:
-    async def test_provide(
+    async def test_build(
         self,
         isolated_app: App,
     ) -> None:
@@ -95,10 +95,10 @@ class TestTemplate:
             async with aiofiles.open(template_file_path, "w") as f:
                 await f.write(template)
 
-            @ContentProviderDefinition("my-first-template", label=DUMMY_LOCALIZABLE)
+            @ContentDefinition("my-first-template", label=DUMMY_LOCALIZABLE)
             class _Template(Template):
                 @override
-                async def provide_template(
+                async def build_template(
                     self, document: Document
                 ) -> (
                     str
@@ -109,7 +109,7 @@ class TestTemplate:
                     return template_name
 
             sut = _Template(jinja=await project.jinja)
-            provided_content = await sut.provide(
+            provided_content = await sut.build(
                 document=Document(
                     "my-first-page-resource",
                     localizer=Localizer("nl-NL", NullTranslations()),
@@ -124,27 +124,27 @@ class TestTemplate:
 
 
 class TestNotes:
-    async def test_provide_template__without_has_notes_resource(
+    async def test_build_template__without_has_notes_resource(
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = await Notes.new(project)
-            assert await sut.provide(document=Document()) is None
+            assert await sut.build(document=Document()) is None
 
-    async def test_provide_template__without_notes(self, isolated_app: App) -> None:
+    async def test_build_template__without_notes(self, isolated_app: App) -> None:
         has_notes = DummyHasNotes()
         async with Project.new_isolated(isolated_app) as project, project:
             project.ancestry.add(has_notes)
             sut = await Notes.new(project)
-            assert await sut.provide(document=Document(has_notes)) is None
+            assert await sut.build(document=Document(has_notes)) is None
 
-    async def test_provide_template__with_notes(self, isolated_app: App) -> None:
+    async def test_build_template__with_notes(self, isolated_app: App) -> None:
         note_text = "Hello, world!"
         has_notes = DummyHasNotes(notes=[Note(note_text)])
         async with Project.new_isolated(isolated_app) as project, project:
             project.ancestry.add(has_notes)
             sut = await Notes.new(project)
-            actual = await sut.provide(document=Document(has_notes))
+            actual = await sut.build(document=Document(has_notes))
             assert actual is not None
             assert note_text in actual
 
@@ -158,28 +158,24 @@ class TestBoxConfiguration(DataTestBase[BoxConfiguration]):
 
 
 class TestBox:
-    async def test_provide_template__minimal(self, isolated_app: App) -> None:
+    async def test_build_template__minimal(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = await Box.new(
                 project,
                 BoxConfiguration(
-                    ContentProviderManufacturer(
-                        Render, RenderConfiguration(DUMMY_LOCALIZABLE)
-                    )
+                    ContentManufacturer(Render, RenderConfiguration(DUMMY_LOCALIZABLE))
                 ),
             )
-            actual = await sut.provide(document=Document())
+            actual = await sut.build(document=Document())
         assert actual is not None
         assert "<div>" in actual
 
-    async def test_provide_template__full(self, isolated_app: App) -> None:
+    async def test_build_template__full(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = await Box.new(
                 project,
                 BoxConfiguration(
-                    ContentProviderManufacturer(
-                        Render, RenderConfiguration(DUMMY_LOCALIZABLE)
-                    ),
+                    ContentManufacturer(Render, RenderConfiguration(DUMMY_LOCALIZABLE)),
                     min_height="MIN_HEIGHT",
                     max_height="MAX_HEIGHT",
                     height="HEIGHT",
@@ -188,7 +184,7 @@ class TestBox:
                     width="WIDTH",
                 ),
             )
-            actual = await sut.provide(document=Document())
+            actual = await sut.build(document=Document())
         assert actual is not None
         assert "<div>" not in actual
         assert "min-height: MIN_HEIGHT;" in actual

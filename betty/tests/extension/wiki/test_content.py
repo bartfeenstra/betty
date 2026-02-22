@@ -4,23 +4,23 @@ from betty.ancestry.link import Link
 from betty.app import App
 from betty.document import Document
 from betty.extension.wiki import Wiki
-from betty.extension.wiki.content_provider import WikipediaSummary
+from betty.extension.wiki.content import WikipediaSummary
 from betty.project import Project
 from betty.test_utils.ancestry.has_links import DummyHasLinks
 from betty.wiki.client import Summary
 
 
 class TestWikipediaSummary:
-    async def test_provide_template__without_has_links_resource(
+    async def test_build_template__without_has_links_resource(
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(Wiki)
             async with project:
                 sut = await WikipediaSummary.new(project)
-                assert await sut.provide(document=Document()) is None
+                assert await sut.build(document=Document()) is None
 
-    async def test_provide_template__with_has_links_resource(
+    async def test_build_template__with_has_links_resource(
         self, mocker: MockerFixture, isolated_app: App
     ) -> None:
         url = "https://en.wikipedia.org/wiki/Amsterdam"
@@ -35,7 +35,7 @@ class TestWikipediaSummary:
             async with project:
                 project.ancestry.add(resource)
                 sut = await WikipediaSummary.new(project)
-                actual = await sut.provide(document=Document(resource))
+                actual = await sut.build(document=Document(resource))
         assert actual is not None
         assert url in actual
         assert summary_content in actual

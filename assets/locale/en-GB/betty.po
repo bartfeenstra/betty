@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-02-21 21:58+0000\n"
+"POT-Creation-Date: 2026-02-22 21:09+0000\n"
 "PO-Revision-Date: 2026-02-17 18:12+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: en_GB\n"
@@ -453,10 +453,7 @@ msgstr ""
 msgid "Content"
 msgstr ""
 
-msgid "Content provider"
-msgstr ""
-
-msgid "Content providers"
+msgid "Contents"
 msgstr ""
 
 #, python-format
@@ -2254,8 +2251,8 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, python-brace-format
-msgid "{count} content provider"
-msgid_plural "{count} content providers"
+msgid "{count} content"
+msgid_plural "{count} contents"
 msgstr[0] ""
 msgstr[1] ""
 

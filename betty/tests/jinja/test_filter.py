@@ -13,8 +13,8 @@ from puremagic import what
 
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
-from betty.content_provider import ContentProviderManufacturer
-from betty.content_provider.content_providers import Render, RenderConfiguration
+from betty.content import ContentManufacturer
+from betty.content.contents import Render, RenderConfiguration
 from betty.date import Date, DateRange, ResolvableDate
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.document import Document
@@ -32,7 +32,7 @@ from betty.test_utils.model import DummyEntityOne
 if TYPE_CHECKING:
     from collections.abc import Iterable, MutableMapping, Sequence
 
-    from betty.content_provider import ContentProvider, ContentProviderDefinition
+    from betty.content import Content, ContentDefinition
     from betty.plugin.factory import PluginManufacturer
 
 
@@ -785,26 +785,24 @@ async def test_filter_negotiate_has_locales() -> None:
 
 
 @pytest.mark.parametrize(
-    ("expected", "content_provider_configurations"),
+    ("expected", "contents"),
     [
         ("", []),
         (
             "<p>Hello, world!</p>",
-            [ContentProviderManufacturer(Render, RenderConfiguration("Hello, world!"))],
+            [ContentManufacturer(Render, RenderConfiguration("Hello, world!"))],
         ),
     ],
 )
-async def test_filter_provide_content(
+async def test_filter_build_content(
     expected: str,
-    content_provider_configurations: Iterable[
-        PluginManufacturer[ContentProviderDefinition, ContentProvider]
-    ],
+    contents: Iterable[PluginManufacturer[ContentDefinition, Content]],
 ) -> None:
-    template = "{{ data | provide_content }}"
+    template = "{{ data | build_content }}"
     async with assert_template_string(
         template=template,
         data={
-            "data": content_provider_configurations,
+            "data": contents,
         },
     ) as (actual, _):
         assert actual == expected

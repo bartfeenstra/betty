@@ -30,11 +30,11 @@ from PIL.Image import DecompressionBombWarning
 from betty import locale
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
-from betty.content_provider import (
-    ContentProvider,
-    ContentProviderDefinition,
-    ContentProviderManufacturer,
-    provide_content,
+from betty.content import (
+    Content,
+    ContentDefinition,
+    ContentManufacturer,
+    build,
 )
 from betty.hashid import hashid, hashid_file_meta
 from betty.image import (
@@ -515,24 +515,22 @@ def filter_select_has_dates(
 
 
 @pass_context
-async def filter_provide_content(
+async def filter_build_content(
     context: Context,
-    content_providers: Iterable[
-        ResolvablePluginManufacturer[ContentProviderDefinition, ContentProvider]
-    ],
+    contents: Iterable[ResolvablePluginManufacturer[ContentDefinition, Content]],
 ) -> Markup:
     """
-    Provide content from content provider configuration.
+    Build content from content configuration.
     """
     from betty.jinja import context_document, context_project
 
     project = context_project(context)
-    return await provide_content(
+    return await build(
         context_document(context),
         await gather(
             *map(
                 project.factory.new,
-                ContentProviderManufacturer.resolve_sequence(content_providers),
+                ContentManufacturer.resolve_sequence(contents),
             )
         ),
     ) or Markup("")
@@ -571,7 +569,7 @@ async def filters() -> Mapping[str, Callable[..., Any]]:
         "map": filter_map,
         "negotiate_has_dates": filter_negotiate_has_dates,
         "negotiate_has_locales": filter_negotiate_has_locales,
-        "provide_content": filter_provide_content,
+        "build_content": filter_build_content,
         "select_has_dates": filter_select_has_dates,
         "select_has_locales": filter_select_has_locales,
         "sort_has_locales": filter_sort_has_locales,
