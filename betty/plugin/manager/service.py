@@ -47,8 +47,6 @@ class ServiceLevelPluginManager(PluginManager):
         if isinstance(plugin_type, str):
             plugin_type = cast(type[PluginDefinitionT], self.types[plugin_type])
         repository: PluginRepository[PluginDefinitionT] | None
-        if plugin_type.type().discoverer.overridden:
-            return await self._new(plugin_type)
         # If the repository exists already, return it immediately so we avoid acquiring locks.
         repository = self._get(plugin_type)
         if repository:
@@ -72,6 +70,8 @@ class ServiceLevelPluginManager(PluginManager):
     async def _new[PluginDefinitionT: PluginDefinition](
         self, plugin_type: type[PluginDefinitionT]
     ) -> PluginRepository[PluginDefinitionT]:
+        from betty.plugin.discovery import discover
+
         return StaticPluginRepository(
-            plugin_type, *await plugin_type.type().discoverer.discover(self._services)
+            plugin_type, *await discover(self._services, *plugin_type.type().discovery)
         )

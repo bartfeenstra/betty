@@ -14,6 +14,7 @@ from betty.project.data import ProjectConfiguration, ProjectLocale
 from betty.serde import SerializationError
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.plugin import DummyPluginDefinition
+from betty.test_utils.plugin.manager import StaticPluginManager
 from betty.test_utils.project.extension import DummyExtensionOne, DummyExtensionTwo
 
 if TYPE_CHECKING:
@@ -103,13 +104,15 @@ class TestProject:
     async def test_bootstrap__should_initialize_extensions(
         self, isolated_app: App
     ) -> None:
-        with ExtensionDefinition.type().discoverer.override(DummyExtensionOne):
-            async with Project.new_isolated(isolated_app) as sut:
-                sut.configuration.extensions.add(DummyExtensionOne)
-                async with sut:
-                    extensions = await sut.extensions
-                    extension = extensions[DummyExtensionOne]
-                    assert extension.bootstrapped
+        async with Project.new_isolated(
+            isolated_app,
+            plugins=StaticPluginManager({ExtensionDefinition: DummyExtensionOne}),
+        ) as sut:
+            sut.configuration.extensions.add(DummyExtensionOne)
+            async with sut:
+                extensions = await sut.extensions
+                extension = extensions[DummyExtensionOne]
+                assert extension.bootstrapped
 
     async def test_extensions__should_enable_betty_extensions(
         self, isolated_app: App
@@ -133,19 +136,20 @@ class TestProject:
     async def test_extensions__should_sort_by_plugin_id(
         self, enable: Sequence[type[Extension]], isolated_app: App
     ) -> None:
-        with ExtensionDefinition.type().discoverer.override(
-            _DummyExtensionA, _DummyExtensionB
-        ):
-            async with Project.new_isolated(isolated_app) as sut:
-                sut.configuration.extensions.add(*enable)
-                async with sut:
-                    extensions = [
-                        extension.plugin
-                        for extension in (await sut.extensions).flatten()
-                    ]
-                    assert extensions.index(_DummyExtensionA.plugin) < extensions.index(
-                        _DummyExtensionB.plugin
-                    )
+        async with Project.new_isolated(
+            isolated_app,
+            plugins=StaticPluginManager(
+                {ExtensionDefinition: [_DummyExtensionA, _DummyExtensionB]}
+            ),
+        ) as sut:
+            sut.configuration.extensions.add(*enable)
+            async with sut:
+                extensions = [
+                    extension.plugin for extension in (await sut.extensions).flatten()
+                ]
+                assert extensions.index(_DummyExtensionA.plugin) < extensions.index(
+                    _DummyExtensionB.plugin
+                )
 
     async def test_ancestry__with___init___ancestry(self, isolated_app: App) -> None:
         ancestry = Ancestry()
@@ -171,24 +175,28 @@ class TestProject:
     async def test_assets__with_extension_without_assets_directory(
         self, isolated_app: App
     ) -> None:
-        with ExtensionDefinition.type().discoverer.override(DummyExtensionOne):
-            async with Project.new_isolated(isolated_app) as sut:
-                sut.configuration.extensions.add(DummyExtensionOne)
-                async with sut:
-                    assets = await sut.assets
-                    assert len(assets.directories) == 2
+        async with Project.new_isolated(
+            isolated_app,
+            plugins=StaticPluginManager({ExtensionDefinition: DummyExtensionOne}),
+        ) as sut:
+            sut.configuration.extensions.add(DummyExtensionOne)
+            async with sut:
+                assets = await sut.assets
+                assert len(assets.directories) == 2
 
     async def test_assets__with_extension_with_assets_directory(
         self, isolated_app: App, tmp_path: Path
     ) -> None:
-        with ExtensionDefinition.type().discoverer.override(
-            _DummyExtensionWithAssetsDirectory
-        ):
-            async with Project.new_isolated(isolated_app) as sut:
-                sut.configuration.extensions.add(_DummyExtensionWithAssetsDirectory)
-                async with sut:
-                    assets = await sut.assets
-                    assert len(assets.directories) == 3
+        async with Project.new_isolated(
+            isolated_app,
+            plugins=StaticPluginManager(
+                {ExtensionDefinition: _DummyExtensionWithAssetsDirectory}
+            ),
+        ) as sut:
+            sut.configuration.extensions.add(_DummyExtensionWithAssetsDirectory)
+            async with sut:
+                assets = await sut.assets
+                assert len(assets.directories) == 3
 
     async def test_jinja(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as sut, sut:

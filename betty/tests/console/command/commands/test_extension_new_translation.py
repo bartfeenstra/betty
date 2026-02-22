@@ -1,15 +1,53 @@
+from collections.abc import AsyncIterator
+from pathlib import Path
 from unittest.mock import ANY
 
+import pytest
 from babel import Locale
 from pytest_mock import MockerFixture
 
 from betty.app import App
 from betty.console import SystemExitCode
+from betty.console.command import CommandDefinition
+from betty.console.command.commands.extension_new_translation import (
+    ExtensionNewTranslation,
+)
+from betty.extension import Extension, ExtensionDefinition
 from betty.test_utils.console import run
-from betty.tests.console.command import ExtensionTranslationTestBase
+from betty.test_utils.plugin.manager import StaticPluginManager
 
 
-class TestExtensionNewTranslation(ExtensionTranslationTestBase):
+class TestExtensionNewTranslation:
+    @pytest.fixture
+    async def isolated_app_with_extensions(self, tmp_path: Path) -> AsyncIterator[App]:
+        @ExtensionDefinition("dummy-without-assets", label="Dummy without assets")
+        class _DummyWithoutAssetsDirectoryExtension(Extension):
+            pass
+
+        @ExtensionDefinition(
+            "dummy-with-assets",
+            label="Dummy with assets",
+            assets_directory=tmp_path / "assets",
+        )
+        class _DummyWithAssetsDirectoryExtension(Extension):
+            pass
+
+        async with (
+            App.new_isolated(
+                plugins=StaticPluginManager(
+                    {
+                        CommandDefinition: ExtensionNewTranslation,
+                        ExtensionDefinition: [
+                            _DummyWithoutAssetsDirectoryExtension,
+                            _DummyWithAssetsDirectoryExtension,
+                        ],
+                    }
+                )
+            ) as app,
+            app,
+        ):
+            yield app
+
     async def test_configure__minimal(
         self,
         mocker: MockerFixture,

@@ -12,6 +12,7 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.factory import PluginManufacturer
+from betty.service.requirement.extension import require_extension
 from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
@@ -63,6 +64,7 @@ class License(Plugin["LicenseDefinition"]):
                 for configuration in project.configuration.licenses
             )
         ),
+        require_extension("spdx")(lambda spdx: spdx.license_repository),
     ],
 )
 class LicenseDefinition(HumanFacingDefinition, PluginDefinition[License]):

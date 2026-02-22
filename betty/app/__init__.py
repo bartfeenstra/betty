@@ -45,6 +45,7 @@ if TYPE_CHECKING:
     import aiohttp
 
     from betty.cache import Cache
+    from betty.plugin.manager import PluginManager
     from betty.user import User
 
 
@@ -68,6 +69,7 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ManagedLifeCycle):
         cache_directory: Path | None = None,
         cache_factory: ServiceFactory[Self, Cache[Any]] | None = None,
         locale: ResolvableLocale | None = None,
+        plugins: PluginManager | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
         translations: TranslationRepository | None = None,
         user: User | None = None,
@@ -75,7 +77,7 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ManagedLifeCycle):
         from betty.rich.user import RichUser
 
         cls = type(self)
-        super().__init__()
+        super().__init__(plugins=plugins)
         self.life_cycle.on_bootstrap(self._bootstrap_localizer)
         self._locale = DEFAULT_LOCALE if locale is None else resolve_locale(locale)
         self._user = user or RichUser()
@@ -129,6 +131,7 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ManagedLifeCycle):
         *,
         cache_directory: Path | None = None,
         cache_factory: ServiceFactory[Self, Cache[Any]] | None = None,
+        plugins: PluginManager | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
         user: User | None = None,
         translations: TranslationRepository | None | Literal[False] = False,
@@ -149,6 +152,7 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ManagedLifeCycle):
                 cache_factory=(lambda _: NoOpCache())
                 if cache_factory is None
                 else cache_factory,
+                plugins=plugins,
                 process_pool=process_pool,
                 user=NoOpUser() if user is None else user,
                 translations=DEFAULT_TRANSLATION_REPOSITORY

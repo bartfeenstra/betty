@@ -1,7 +1,7 @@
 {% cache 'raspberry-mint-template-header--before:' ~ document.localizer.locale %}
     {% set ns = namespace(primary_navigation_links = {}) %}
     {% for entity_type_configuration in project.configuration.entity_types | selectattr('generate_html_list') %}
-        {% set entity_type = app.plugins.plugins('entity')[entity_type_configuration.entity_type] %}
+        {% set entity_type = project.plugins.plugins('entity')[entity_type_configuration.entity_type] %}
         {% set entity_type_label -%}
             {% if entity_type.id == 'event' %}
                 {% trans %}Timeline{% endtrans %}
@@ -148,7 +148,7 @@
                 filter_entity_type_checkboxes = [],
                 filter_entity_type_html_ids = {}
             ) %}
-            {% for entity_type in app.plugins.plugins('entity') %}
+            {% for entity_type in project.plugins.plugins('entity') %}
                 {% if entity_type.public_facing and project.ancestry[entity_type] | select("public")| list %}
                     {% set entity_type_html_id = 'betty-search-form-filter-entity-type--' + entity_type.id %}
                     {% do ns.filter_entity_type_checkboxes.append({

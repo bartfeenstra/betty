@@ -21,6 +21,8 @@ from betty.content_provider.content_providers import Render, RenderConfiguration
 from betty.date import Date
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.document import Document
+from betty.extension import ExtensionDefinition
+from betty.extension.maps import Maps
 from betty.extension.raspberry_mint import Breakpoint, JustifyContent, RaspberryMint
 from betty.extension.raspberry_mint import ColorStyle as ColorStyleOption
 from betty.extension.raspberry_mint.content_provider import (
@@ -45,6 +47,8 @@ from betty.extension.raspberry_mint.content_provider import (
     ShorthandColumnsWidth,
     Timeline,
 )
+from betty.extension.trees import Trees
+from betty.extension.webpack import Webpack
 from betty.locale.localizable.plain import Plain
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
@@ -56,6 +60,7 @@ from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 from betty.test_utils.content_provider import NoOpContentProvider
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
+from betty.test_utils.plugin.manager import StaticPluginManager
 
 
 class TestEntityCard:
@@ -109,18 +114,25 @@ class TestSectionConfiguration(DataTestBase[SectionConfiguration]):
 
 class TestSection:
     async def test_provide_template__without_content(self, isolated_app: App) -> None:
-        with ContentProviderDefinition.type().discoverer.override(NoOpContentProvider):
-            async with Project.new_isolated(isolated_app) as project:
-                project.configuration.extensions.add(RaspberryMint)
-                async with project:
-                    sut = await Section.new(
-                        project,
-                        SectionConfiguration(
-                            ContentProviderManufacturer(NoOpContentProvider),
-                            heading="My First Section",
-                        ),
-                    )
-                    assert await sut.provide(document=Document()) is None
+        async with Project.new_isolated(
+            isolated_app,
+            plugins=StaticPluginManager(
+                {
+                    ContentProviderDefinition: NoOpContentProvider,
+                    ExtensionDefinition: [Maps, RaspberryMint, Trees, Webpack],
+                },
+            ),
+        ) as project:
+            project.configuration.extensions.add(RaspberryMint)
+            async with project:
+                sut = await Section.new(
+                    project,
+                    SectionConfiguration(
+                        ContentProviderManufacturer(NoOpContentProvider),
+                        heading="My First Section",
+                    ),
+                )
+                assert await sut.provide(document=Document()) is None
 
     async def test_provide_template__with_content(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
@@ -292,18 +304,25 @@ class TestColorStyleConfiguration(DataTestBase[ColorStyleConfiguration]):
 
 class TestColorStyle:
     async def test_provide_template__without_content(self, isolated_app: App) -> None:
-        with ContentProviderDefinition.type().discoverer.override(NoOpContentProvider):
-            async with Project.new_isolated(isolated_app) as project:
-                project.configuration.extensions.add(RaspberryMint)
-                async with project:
-                    sut = await ColorStyle.new(
-                        project,
-                        ColorStyleConfiguration(
-                            ContentProviderManufacturer(NoOpContentProvider),
-                            style=ColorStyleOption.DARK,
-                        ),
-                    )
-                    assert await sut.provide(document=Document()) is None
+        async with Project.new_isolated(
+            isolated_app,
+            plugins=StaticPluginManager(
+                {
+                    ContentProviderDefinition: NoOpContentProvider,
+                    ExtensionDefinition: [Maps, RaspberryMint, Trees, Webpack],
+                },
+            ),
+        ) as project:
+            project.configuration.extensions.add(RaspberryMint)
+            async with project:
+                sut = await ColorStyle.new(
+                    project,
+                    ColorStyleConfiguration(
+                        ContentProviderManufacturer(NoOpContentProvider),
+                        style=ColorStyleOption.DARK,
+                    ),
+                )
+                assert await sut.provide(document=Document()) is None
 
     async def test_provide_template__with_content(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:

@@ -14,9 +14,10 @@ from betty.project.data import (
     ProjectConfiguration,
     ProjectLocale,
 )
-from betty.service.level import UNIVERSE
+from betty.service.level import ServiceLevel
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.model import DummyEntityOne, DummyNonPublicFacingEntityOne
+from betty.test_utils.plugin.manager import StaticPluginManager
 
 
 class TestProjectLocale(DataTestBase[ProjectLocale]):
@@ -82,11 +83,14 @@ class TestEntityTypeConfiguration(DataTestBase[EntityTypeConfiguration]):
         sut = EntityTypeConfiguration(
             entity_type=DummyNonPublicFacingEntityOne, generate_html_list=True
         )
-        with (
-            EntityDefinition.type().discoverer.override(DummyNonPublicFacingEntityOne),
-            pytest.raises(HumanFacingException),
-        ):
-            await sut.validate(UNIVERSE)
+        with pytest.raises(HumanFacingException):
+            await sut.validate(
+                ServiceLevel(
+                    plugins=StaticPluginManager(
+                        {EntityDefinition: DummyNonPublicFacingEntityOne}
+                    )
+                )
+            )
 
 
 class TestProjectConfiguration(DataTestBase[ProjectConfiguration]):

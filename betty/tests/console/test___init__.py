@@ -12,10 +12,9 @@ from betty.console import SystemExitCode, call_command_func, main_standalone
 from betty.console.command import Command, CommandDefinition
 from betty.exception import HumanFacingException
 from betty.functools import Result, suppress
-from betty.portable.file import dump_file
-from betty.project import Project
 from betty.test_utils.console import run
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
+from betty.test_utils.plugin.manager import StaticPluginManager
 from betty.user import Verbosity
 
 
@@ -82,12 +81,13 @@ async def test_main__with_unknown_command(isolated_app: App) -> None:
 async def test_main__with_user_facing_exception(
     expected: SystemExitCode, command: CommandDefinition, isolated_app: App
 ) -> None:
-    with CommandDefinition.type().discoverer.override(command):
-        await run(
-            isolated_app,
-            command.id,
-            expected_exit_code=expected,
-        )
+    async with (
+        App.new_isolated(
+            plugins=StaticPluginManager({CommandDefinition: command})
+        ) as app,
+        app,
+    ):
+        await run(app, command.id, expected_exit_code=expected)
 
 
 @pytest.mark.parametrize(
@@ -103,19 +103,23 @@ async def test_main__with_user_facing_exception(
         (SystemExitCode.ERROR_UNEXPECTED, _create_raising_command(RuntimeError())),
     ],
 )
-def test_main_standalone(
+async def test_main_standalone(
     expected: SystemExitCode, command: CommandDefinition, mocker: MockerFixture
 ) -> None:
-    def _target() -> None:
-        mocker.patch("sys.argv", new=["betty", command.id])
-        with CommandDefinition.type().discoverer.override(command):
+    async with App.new_isolated(
+        plugins=StaticPluginManager({CommandDefinition: command})
+    ) as app:
+
+        def _target() -> None:
+            mocker.patch("betty.app.App.new_from_environment", return_value=app)
+            mocker.patch("sys.argv", new=["betty", command.id])
             main_standalone()
 
-    # Run this in a thread so as not to conflict with pytest-playwright-asyncio's session-scoped event loop.
-    result = Result(_target)
-    thread = Thread(target=suppress(result, BaseException))
-    thread.start()
-    thread.join()
+        # Run this in a thread so as not to conflict with pytest-playwright-asyncio's session-scoped event loop.
+        result = Result(_target)
+        thread = Thread(target=suppress(result, BaseException))
+        thread.start()
+        thread.join()
 
     with pytest.raises(SystemExit) as exc_info:
         result.result()
@@ -133,20 +137,18 @@ class TestVerbosity:
             (Verbosity.MOST_VERBOSE, "-vvv"),
         ],
     )
-    async def test(
-        self, expected: Verbosity, isolated_app: App, verbosity: str | None
-    ) -> None:
-        with CommandDefinition.type().discoverer.override(_NoOpCommand):
-            async with Project.new_isolated(isolated_app) as project:
-                await dump_file(
-                    project.configuration.data().porter.dump(project.configuration),
-                    project.configuration_file,
-                )
-                args = ["no-op"]
-                if verbosity is not None:
-                    args.append(verbosity)
-                await run(isolated_app, *args)
-                assert isolated_app.user.verbosity is expected
+    async def test(self, expected: Verbosity, verbosity: str | None) -> None:
+        async with (
+            App.new_isolated(
+                plugins=StaticPluginManager({CommandDefinition: _NoOpCommand})
+            ) as app,
+            app,
+        ):
+            args = ["no-op"]
+            if verbosity is not None:
+                args.append(verbosity)
+            await run(app, *args)
+            assert app.user.verbosity is expected
 
 
 async def test_call_command_func() -> None:

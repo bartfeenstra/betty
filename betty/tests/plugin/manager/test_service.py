@@ -1,13 +1,9 @@
-from collections.abc import Iterable
-
 from pytest_mock import MockerFixture
 
-from betty.app import App
 from betty.plugin import PluginTypeRepository
 from betty.plugin.manager.service import ServiceLevelPluginManager
 from betty.service.level import UNIVERSE
-from betty.service.requirement.app import require_app
-from betty.test_utils.plugin import DummyPlugin, DummyPluginDefinition, DummyPluginOne
+from betty.test_utils.plugin import DummyPluginDefinition, DummyPluginOne
 
 
 class TestServiceLevelPluginManager:
@@ -34,22 +30,3 @@ class TestServiceLevelPluginManager:
         assert DummyPluginOne.plugin() in await sut.plugins(
             DummyPluginDefinition.type().id
         )
-
-    async def test_plugins__should_forward_services(self, isolated_app: App) -> None:
-        async def _discovery(app: App) -> Iterable[DummyPluginDefinition]:
-            assert app is isolated_app
-            return ()
-
-        sut = ServiceLevelPluginManager(isolated_app)
-        with DummyPluginDefinition.type().discoverer.override(require_app(_discovery)):  # ty:ignore[invalid-argument-type]
-            await sut.plugins(DummyPluginDefinition)
-
-    async def test_plugins__with_overridden_discoveries(self) -> None:
-        @DummyPluginDefinition("dummy-plugin-override")
-        class _Plugin(DummyPlugin):
-            pass
-
-        sut = ServiceLevelPluginManager(UNIVERSE)
-        with DummyPluginDefinition.type().discoverer.override(_Plugin):
-            assert _Plugin.plugin() in await sut.plugins(DummyPluginDefinition)
-        assert _Plugin.plugin() not in await sut.plugins(DummyPluginDefinition)

@@ -4,19 +4,13 @@ Plugin discovery.
 
 from __future__ import annotations
 
-import typing
 from abc import ABC, abstractmethod
 from asyncio import gather
-from collections.abc import Awaitable, Callable, Collection, Iterable
-from contextlib import contextmanager
-from typing import TYPE_CHECKING, final
+from collections.abc import Awaitable, Callable, Iterable
 
 from betty.asyncio import resolve_await
 from betty.plugin import Plugin, PluginDefinition, ResolvableDefinition
 from betty.service.level import ServiceLevel
-
-if TYPE_CHECKING:
-    from collections.abc import Iterator
 
 
 class PluginDiscovery[PluginDefinitionT: PluginDefinition = PluginDefinition](ABC):
@@ -74,50 +68,3 @@ async def _discover[PluginDefinitionT: PluginDefinition](
         return await discover(services, *await resolve_await(discovery(services)))
     except UnmetRequirement:
         return ()
-
-
-@final
-class Discoverer[PluginDefinitionT: PluginDefinition](
-    PluginDiscovery[PluginDefinitionT]
-):
-    """
-    A plugin discoverer.
-    """
-
-    def __init__(
-        self,
-        discovery: Iterable[ResolvableDiscovery[PluginDefinitionT]] | None = None,
-        /,
-    ):
-        self._defined = [] if discovery is None else list(discovery)
-        self._active: Collection[ResolvableDiscovery[PluginDefinitionT]] = self._defined
-
-    def add(self, *discoveries: ResolvableDiscovery[PluginDefinitionT]) -> None:
-        """
-        Add discoveries.
-        """
-        self._defined.extend(discoveries)
-
-    @contextmanager
-    def override(
-        self, *discoveries: ResolvableDiscovery[PluginDefinitionT]
-    ) -> Iterator[None]:
-        """
-        Temporarily override the defined discoveries with the given discoveries.
-        """
-        self._active = discoveries
-        try:
-            yield
-        finally:
-            self._active = self._defined
-
-    @property
-    def overridden(self) -> bool:
-        """
-        Whether the defined discoveries are currently overridden.
-        """
-        return self._defined != self._active
-
-    @typing.override
-    async def discover(self, services: ServiceLevel, /) -> Iterable[PluginDefinitionT]:
-        return await discover(services, *self._active)
