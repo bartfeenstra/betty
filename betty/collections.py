@@ -530,11 +530,11 @@ class MutableResolvedMappingProxy[KeyT, ResolvableKeyT, ValueT, ResolvableValueT
     def setdefault(
         self,
         key,
-        default=Void(),  # noqa: B008
+        default=Void,  # noqa: B008
     ):
         return self._upstream.setdefault(
             self._key_resolver(key),
-            None if default is Void() else self._value_resolver(default),  # ty:ignore[invalid-argument-type]
+            None if default is Void else self._value_resolver(default),
         )  # ty:ignore[no-matching-overload]
 
     @overload
@@ -555,10 +555,10 @@ class MutableResolvedMappingProxy[KeyT, ResolvableKeyT, ValueT, ResolvableValueT
     def pop(
         self,
         key,
-        default=Void(),  # noqa: B008
+        default=Void,  # noqa: B008
     ):
         key = self._key_resolver(key)
-        if default is Void():
+        if default is Void:
             return self._upstream.pop(key)
         return self._upstream.pop(key, default)
 

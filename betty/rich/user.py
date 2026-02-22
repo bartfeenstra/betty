@@ -20,7 +20,7 @@ from betty.progress import Progress
 from betty.progress.no_op import NoOpProgress
 from betty.rich import Theme
 from betty.rich.progress import RichProgress
-from betty.typing import Void
+from betty.typing import Void, VoidType
 from betty.user import User, Verbosity
 from betty.user.logging import UserHandler
 
@@ -181,7 +181,7 @@ class RichUser(ManagedLifeCycle, User):
         self,
         question: ResolvableLocalizable,
         *,
-        default: str | Void = Void(),  # noqa: B008
+        default: str | VoidType = Void,
         stdin: TextIO | None = None,
     ) -> str:
         pass
@@ -192,7 +192,7 @@ class RichUser(ManagedLifeCycle, User):
         question: ResolvableLocalizable,
         *,
         assertion: Assertion[str, T],
-        default: str | Void = Void(),  # noqa: B008
+        default: str | VoidType = Void,
         stdin: TextIO | None = None,
     ) -> T:
         pass
@@ -203,12 +203,12 @@ class RichUser(ManagedLifeCycle, User):
         question: ResolvableLocalizable,
         *,
         assertion: Assertion[str, T] | None = None,
-        default: str | Void = Void(),  # noqa: B008
+        default: str | VoidType = Void,
         stdin: TextIO | None = None,
     ) -> str | T:
         self.assert_alive()
         ask_kwargs = {}
-        if not isinstance(default, Void):
+        if default is not Void:
             ask_kwargs["default"] = default
         value = cast(
             str,

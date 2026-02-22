@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from typing import Any, final
 
-from betty.classtools import Singleton
 from betty.docstring import append
 
 
@@ -31,10 +30,16 @@ def threadsafe[T](target: T, /) -> T:
 
 
 @final
-class Void(Singleton):
+class Void:
     """
     A sentinel that describes the absence of a value.
 
     Using this sentinel allows for actual values to be ``None``. Like ``None``,
     ``Void`` is only ever used through its type, and never instantiated.
     """
+
+    def __new__():  # noqa: D102
+        raise NotImplementedError
+
+
+type VoidType = type[Void]

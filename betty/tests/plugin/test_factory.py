@@ -149,12 +149,12 @@ class TestPluginManufacturer:
     def test_load__minimal(self) -> None:
         sut = DummyPluginManufacturer.load({"plugin": DummyPluginOne.plugin().id})
         assert sut.plugin_id == DummyPluginOne.plugin().id
-        assert sut.plugin_data is Void()
+        assert sut.plugin_data is Void
 
     def test_load__minimal_compact(self) -> None:
         sut = DummyPluginManufacturer.load(DummyPluginOne.plugin().id)
         assert sut.plugin_id == DummyPluginOne.plugin().id
-        assert sut.plugin_data is Void()
+        assert sut.plugin_data is Void
 
     def test_load__with_configuration(self) -> None:
         configuration: PortableData = {
@@ -174,7 +174,7 @@ class TestPluginManufacturer:
             {}, Attr("plugin"), DummyPluginOne.plugin().id
         )
         assert sut.plugin_id == DummyPluginOne.plugin().id
-        assert sut.plugin_data is Void()
+        assert sut.plugin_data is Void
 
     def test_load_key__with_configuration(self) -> None:
         configuration: PortableData = {

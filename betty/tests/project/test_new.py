@@ -196,7 +196,8 @@ async def test_new__with_gramps(
         assert Gramps in configuration.extensions
         async with Project.new_isolated(app) as project, project:
             portable_gramps_configuration = configuration.extensions[Gramps].plugin_data
-            assert not isinstance(portable_gramps_configuration, (Data, Void))
+            assert portable_gramps_configuration is not Void
+            assert not isinstance(portable_gramps_configuration, Data)
             gramps_configuration = GrampsConfiguration.data().porter.load(
                 portable_gramps_configuration
             )

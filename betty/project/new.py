@@ -100,7 +100,7 @@ async def new(app: App) -> None:
     name = await app.user.ask_input(
         _("What is your project's machine name?"),
         default=MachineName.machinify(title.localize(localizers.get(locales[0])))
-        or Void(),
+        or Void,
         assertion=MachineName,
     )
 

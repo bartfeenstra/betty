@@ -11,7 +11,7 @@ from betty.assertion import Assertion
 from betty.locale.localizable import ResolvableLocalizable
 from betty.progress import Progress
 from betty.progress.no_op import NoOpProgress
-from betty.typing import Void
+from betty.typing import Void, VoidType
 from betty.user import User, UserTimeoutError, Verbosity
 
 
@@ -75,7 +75,7 @@ class NoOpUser(User):
         self,
         question: ResolvableLocalizable,
         *,
-        default: str | Void = Void(),  # noqa: B008
+        default: str | VoidType = Void,
     ) -> str:
         pass
 
@@ -85,7 +85,7 @@ class NoOpUser(User):
         question: ResolvableLocalizable,
         *,
         assertion: Assertion[str, T],
-        default: str | Void = Void(),  # noqa: B008
+        default: str | VoidType = Void,
     ) -> T:
         pass
 
@@ -95,6 +95,6 @@ class NoOpUser(User):
         question: ResolvableLocalizable,
         *,
         assertion: Assertion[str, T] | None = None,
-        default: str | T | Void = Void(),  # noqa: B008
+        default: str | T | VoidType = Void,
     ) -> str | T:
         raise UserTimeoutError

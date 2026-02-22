@@ -113,9 +113,9 @@ class Property[ValueGetT, ValueSetT](_Property[ValueGetT, ValueSetT]):
     def get(self, instance: Any) -> ValueGetT:
         value = cast(
             ValueGetT | Void,
-            getattr(instance, self._attr_name, Void()),
+            getattr(instance, self._attr_name, Void),
         )
-        if isinstance(value, Void):
+        if value is Void:
             if self._default is None:
                 instance_name = fully_qualified_name(type(instance))
                 raise PropertyNotInitialized(
@@ -123,7 +123,7 @@ class Property[ValueGetT, ValueSetT](_Property[ValueGetT, ValueSetT]):
                 )
             value = self._default()
             setattr(instance, self._attr_name, value)
-        return value
+        return value  # ty:ignore[invalid-return-type]
 
 
 @final

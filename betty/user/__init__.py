@@ -9,7 +9,7 @@ from enum import IntEnum
 from typing import TYPE_CHECKING, overload
 
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.typing import Void
+from betty.typing import Void, VoidType
 
 if TYPE_CHECKING:
     import logging
@@ -180,7 +180,7 @@ class User(ABC):
         self,
         question: ResolvableLocalizable,
         *,
-        default: str | Void = Void(),  # noqa: B008
+        default: str | VoidType = Void,
     ) -> str:
         pass
 
@@ -190,7 +190,7 @@ class User(ABC):
         question: ResolvableLocalizable,
         *,
         assertion: Assertion[str, T],
-        default: str | Void = Void(),  # noqa: B008
+        default: str | VoidType = Void,
     ) -> T:
         pass
 
@@ -200,7 +200,7 @@ class User(ABC):
         question: ResolvableLocalizable,
         *,
         assertion: Assertion[str, T] | None = None,
-        default: str | T | Void = Void(),  # noqa: B008
+        default: str | T | VoidType = Void,
     ) -> str | T:
         """
         Ask the user to input text.

@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any, Protocol, Self, cast, overload, override
 from betty.concurrent import AsynchronizedLock, Lock
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.service import ServiceError
-from betty.typing import Void
+from betty.typing import Void, VoidType
 
 if TYPE_CHECKING:
     from types import FunctionType
@@ -143,8 +143,8 @@ class ServiceManager[ServiceProviderT, ServiceGetT, ServiceT]:
     def _get(self, instance: ServiceProviderT, /) -> ServiceGetT:
         pass
 
-    def _get_attr(self, instance: ServiceProviderT, /) -> ServiceT | Void:
-        return getattr(instance, self._service_attr_name, Void())
+    def _get_attr(self, instance: ServiceProviderT, /) -> ServiceT | VoidType:
+        return getattr(instance, self._service_attr_name, Void)
 
     def _get_factory(
         self, instance: ServiceProviderT, /
@@ -158,7 +158,7 @@ class ServiceManager[ServiceProviderT, ServiceGetT, ServiceT]:
         return self._factory
 
     def _assert_not_initialized(self, instance: ServiceProviderT, /):
-        if not isinstance(self._get_attr(instance), Void):
+        if self._get_attr(instance) is not Void:
             raise ServiceInitializedError(
                 f"{instance}.{self._service_name} was initialized already."
             )
@@ -208,7 +208,7 @@ class _AsynchronousServiceManager[ServiceProviderT, ServiceT](
         async with self._lock(instance):
             service = self._get_attr(instance)
 
-            if not isinstance(service, Void):
+            if service is not Void:
                 return service
 
             new_service = await self._get_factory(instance)(instance)
@@ -222,7 +222,7 @@ class _SynchronousServiceManager[ServiceProviderT, ServiceT](
     @override
     def _get(self, instance: ServiceProviderT, /) -> ServiceT:
         service = self._get_attr(instance)
-        if not isinstance(service, Void):
+        if service is not Void:
             return service
 
         new_service = self._get_factory(instance)(instance)

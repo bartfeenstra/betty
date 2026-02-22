@@ -201,7 +201,7 @@ def test_suppress__with_suppressed_raised_exception() -> None:
     def _target() -> Any:
         raise _Exception
 
-    assert isinstance(suppress(_target, _Exception)(), Void)
+    assert suppress(_target, _Exception)() is Void
 
 
 def test_suppress__with_unsuppressed_raised_exception() -> None:
