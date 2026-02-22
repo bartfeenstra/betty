@@ -1,11 +1,3 @@
-{%- macro _person_name_label(entity) -%}
-    {% include 'entity/label--person-name.html.j2' %}
-{%- endmacro -%}
-{%- macro _embedded_person_name_label(entity) -%}
-    {% set embedded = True %}
-    {% include 'entity/label--person-name.html.j2' %}
-{%- endmacro -%}
-
 {%- if not embedded is defined -%}
     {%- set embedded = False -%}
 {%- endif -%}
@@ -18,7 +10,13 @@
         {% endif %}
         {% set alternative_names = (entity.names | select('public') | list)[1:] %}
         {%- if alternative_names -%}
-            <span class="aka">{%- trans names = alternative_names | map(_embedded_person_name_label if embedded else _person_name_label) | list | join(', ') -%}Also known as {{ names }}{%- endtrans -%}</span>
+            {% set ns = namespace(formatted_alternative_names = []) %}
+            {% for entity in alternative_names %}
+                {% set formatted_alternative_name %}{% include 'entity/label--person-name.html.j2' %}{% endset %}
+                {% do ns.formatted_alternative_names.append(formatted_alternative_name) %}
+            {% endfor %}
+            {%- set formatted_alternative_names = ns.formatted_alternative_names | join(', ') %}
+            <span class="aka">{%- trans names = formatted_alternative_names -%}Also known as {{ names }}{%- endtrans -%}</span>
         {%- endif -%}
         {% set events = entity.presences | selectattr('role', 'role_plugin', 'subject') | map(attribute='event') | reject('none') | select('public') | list %}
         {% set ns = namespace(birth_indicators=[]) %}

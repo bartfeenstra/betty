@@ -20,7 +20,6 @@ In addition to Jinja2's built-in filters, Betty provides the following:
 - :py:func:`json_dump <betty.jinja.filter.filter_json_dump>`
 - :py:func:`json_load <betty.jinja.filter.filter_json_load>`
 - :py:func:`localize <betty.jinja.filter.filter_localize>`
-- :py:func:`map <betty.jinja.filter.filter_map>`
 - :py:func:`negotiate_has_dates <betty.jinja.filter.filter_negotiate_has_dates>`
 - :py:func:`negotiate_has_locales <betty.jinja.filter.filter_negotiate_has_locales>`
 - :py:func:`build_content <betty.jinja.filter.filter_build_content>`

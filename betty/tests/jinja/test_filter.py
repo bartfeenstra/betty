@@ -150,36 +150,6 @@ async def test_filter_unique() -> None:
         assert actual == "999, {}"
 
 
-class MapData:
-    def __init__(self, label: str):
-        self.label = label
-
-
-@pytest.mark.parametrize(
-    ("expected", "template", "data"),
-    [
-        (
-            "kiwi, apple, banana",
-            '{{ data | map(attribute="label") | join(", ") }}',
-            [MapData("kiwi"), MapData("apple"), MapData("banana")],
-        ),
-        (
-            "kiwi, None, apple, None, banana",
-            '{% macro print_string(value) %}{% if value is none %}None{% else %}{{ value }}{% endif %}{% endmacro %}{{ ["kiwi", None, "apple", None, "banana"] | map(print_string) | join(", ") }}',
-            {},
-        ),
-    ],
-)
-async def test_filter_map(expected: str, template: str, data: MapData) -> None:
-    async with assert_template_string(
-        template=template,
-        data={
-            "data": data,
-        },
-    ) as (actual, _):
-        assert actual == expected
-
-
 _TEST_FILTER_IMAGE_RESIZE_COVER_IMAGE_PATH = (
     ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png"
 )
