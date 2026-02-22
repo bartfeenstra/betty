@@ -163,17 +163,6 @@ def filter_json_load(data: str) -> Any:
     return stdjson.loads(data)
 
 
-async def filter_flatten[T](
-    values_of_values: Iterable[Iterable[T]],
-) -> AsyncIterator[T]:
-    """
-    Flatten an iterable of iterables into a single iterable.
-    """
-    async for values in auto_aiter(values_of_values):
-        async for value in auto_aiter(values):
-            yield value
-
-
 _paragraph_re = re.compile(r"(?:\r\n|\r|\n){2,}")
 
 
@@ -557,7 +546,6 @@ async def filters() -> Mapping[str, Callable[..., Any]]:
         "camel_case_to_kebab_case": camel_case_to_kebab_case,
         "camel_case_to_snake_case": camel_case_to_snake_case,
         "file": filter_file,
-        "flatten": filter_flatten,
         "format_datetime_datetime": filter_format_datetime_datetime,
         "format_degrees": filter_format_degrees,
         "hashid": hashid,
