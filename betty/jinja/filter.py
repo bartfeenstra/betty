@@ -20,43 +20,20 @@ from geopy import units
 from geopy.format import DEGREES_FORMAT
 from jinja2 import pass_context
 from jinja2.async_utils import auto_aiter
-from jinja2.filters import make_attrgetter
 from markupsafe import Markup
 from pdf2image.pdf2image import convert_from_path
 from PIL import Image
 from PIL.Image import DecompressionBombWarning
 
-from betty import locale
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
-from betty.content import (
-    Content,
-    ContentDefinition,
-    ContentManufacturer,
-    build,
-)
-from betty.hashid import hashid, hashid_file_meta
-from betty.image import (
-    FocusArea,
-    Size,
-    image_file_path_format,
-    resize_cover,
-)
-from betty.locale import (
-    HasLocale,
-    HasLocaleStr,
-    ResolvableLocale,
-    negotiate_locale,
-    to_language_tag,
-)
+from betty.content import Content, ContentDefinition, ContentManufacturer, build
+from betty.hashid import hashid_file_meta
+from betty.image import FocusArea, Size, image_file_path_format, resize_cover
+from betty.locale import HasLocaleStr, ResolvableLocale, to_language_tag
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML, SVG
 from betty.os import link_or_copy
-from betty.string import (
-    camel_case_to_kebab_case,
-    camel_case_to_snake_case,
-    upper_camel_case_to_lower_camel_case,
-)
 
 if TYPE_CHECKING:
     import datetime
@@ -392,69 +369,6 @@ async def __execute_filter_image(
 
 
 @pass_context
-def filter_negotiate_has_locales(
-    context: Context, has_locales: Iterable[HasLocale]
-) -> HasLocale | None:
-    """
-    Try to find an object whose locale matches the context's current locale.
-    """
-    from betty.jinja import context_localizer
-
-    return locale.negotiate_has_locales(
-        context_localizer(context).locale, list(has_locales)
-    )
-
-
-@pass_context
-def filter_sort_has_locales(
-    context: Context,
-    has_locales: Iterable[HasLocale],
-    localized_attribute: str,
-    sort_attribute: str,
-) -> Iterable[HasLocale]:
-    """
-    Sort localized objects.
-    """
-    get_localized_attr = make_attrgetter(context.environment, localized_attribute)
-    get_sort_attr = make_attrgetter(context.environment, sort_attribute)
-
-    def _get_sort_key(x: HasLocale) -> Any:
-        return get_sort_attr(
-            filter_negotiate_has_locales(context, get_localized_attr(x))
-        )
-
-    return sorted(has_locales, key=_get_sort_key)
-
-
-@pass_context
-def filter_select_has_locales(
-    context: Context,
-    has_locales: Iterable[HasLocale],
-    *,
-    include_unspecified: bool = False,
-) -> Iterable[HasLocale]:
-    """
-    Select all objects whose locale matches the context's current locale.
-
-    :param include_unspecified: If True, the return value includes all objects that do not have a locale specified.
-    """
-    from betty.jinja import context_localizer
-
-    localizer = context_localizer(context)
-    for has_locale in has_locales:
-        if (
-            has_locale.locale is None
-            and include_unspecified
-            or negotiate_locale(
-                localizer.locale,
-                [] if has_locale.locale is None else [has_locale.locale],
-            )
-            is not None
-        ):
-            yield has_locale
-
-
-@pass_context
 def filter_negotiate_has_dates(
     context: Context, has_dates: Iterable[HasDate], date: ResolvableDate | None
 ) -> HasDate | None:
@@ -527,25 +441,18 @@ async def filters() -> Mapping[str, Callable[..., Any]]:
     Define the available filters.
     """
     return {
-        "camel_case_to_kebab_case": camel_case_to_kebab_case,
-        "camel_case_to_snake_case": camel_case_to_snake_case,
         "file": filter_file,
         "format_datetime_datetime": filter_format_datetime_datetime,
         "format_degrees": filter_format_degrees,
-        "hashid": hashid,
         "image_resize_cover": filter_image_resize_cover,
         "html_lang": filter_html_lang,
         "json_dump": filter_json_dump,
         "json_load": filter_json_load,
         "localize": filter_localize,
         "negotiate_has_dates": filter_negotiate_has_dates,
-        "negotiate_has_locales": filter_negotiate_has_locales,
         "build_content": filter_build_content,
         "select_has_dates": filter_select_has_dates,
-        "select_has_locales": filter_select_has_locales,
-        "sort_has_locales": filter_sort_has_locales,
         "to_language_tag": to_language_tag,
         "unique": filter_unique,
-        "upper_camel_case_to_lower_camel_case": upper_camel_case_to_lower_camel_case,
         "url": filter_url,
     }
