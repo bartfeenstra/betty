@@ -32,9 +32,9 @@ from betty.locale.translation import (
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.plugin.ordered import sort_ordered_plugin_graph
 from betty.portable.file import assert_load_file
-from betty.service.container import ServiceFactory, service
 from betty.service.factory import DataManufacturable
 from betty.service.level import UNIVERSE, ServiceLevel
+from betty.service.provider import ServiceFactory, service
 from betty.typing import threadsafe
 from betty.user.no_op import NoOpUser
 

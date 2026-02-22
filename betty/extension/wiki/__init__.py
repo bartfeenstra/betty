@@ -17,8 +17,8 @@ from betty.locale import negotiate_locale, resolve_locale
 from betty.locale.localizable.gettext import _
 from betty.project import Project
 from betty.project.load import PostLoader
-from betty.service.container import service
 from betty.service.factory import DataManufacturable, Manufacturable
+from betty.service.provider import service
 from betty.service.requirement.project import require_project
 from betty.wiki import NotAPageError, parse_page_url
 from betty.wiki import populator as populator_api

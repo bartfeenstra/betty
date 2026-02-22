@@ -37,9 +37,9 @@ from betty.privacy.privatizer import Privatizer
 from betty.project.data import ProjectConfiguration
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.serde import SerializerDefinition, serializer_for
-from betty.service.container import service
 from betty.service.factory import DataManufacturable
 from betty.service.level import UNIVERSE, ServiceLevel
+from betty.service.provider import service
 
 if TYPE_CHECKING:
     from collections.abc import (
