@@ -6,16 +6,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
-from betty.ancestry.has_links import HasLinks
-from betty.ancestry.has_notes import HasNotes
-from betty.date import DateRange
 from betty.image import is_supported_media_type
 from betty.json.linked_data import LinkedDataDumpableWithSchema
 from betty.model import persistent_id
 from betty.plugin import Plugin, PluginDefinition
-from betty.privacy import is_private, is_public
+from betty.privacy import is_public
 from betty.service.level import UNIVERSE
 from betty.string import kebab_case_to_snake_case
 
@@ -58,39 +54,11 @@ class PluginTester:
         return not (plugin_id is not None and value.plugin().id != plugin_id)
 
 
-def test_has_citations(value: Any) -> bool:
-    """
-    Test if a value has citations associated with it.
-    """
-    return isinstance(value, HasCitations)
-
-
-def test_has_links(value: Any) -> bool:
-    """
-    Test if a value has external links associated with it.
-    """
-    return isinstance(value, HasLinks)
-
-
-def test_has_notes(value: Any) -> bool:
-    """
-    Test if a value has notes associated with it.
-    """
-    return isinstance(value, HasNotes)
-
-
 def test_has_file_references(value: Any) -> bool:
     """
     Test if a value has :py:class:`betty.ancestry.file_reference.FileReference` entities associated with it.
     """
     return isinstance(value, HasFileReferences)
-
-
-def test_date_range(value: Any) -> bool:
-    """
-    Test if a value is a date range.
-    """
-    return isinstance(value, DateRange)
 
 
 def test_image_supported_media_type(media_type: MediaType | None) -> bool:
@@ -107,15 +75,10 @@ async def tests() -> Mapping[str, Callable[..., bool]]:
     Define the available tests.
     """
     tests: MutableMapping[str, Callable[..., bool]] = {
-        "date_range": test_date_range,
         "has_file_references": test_has_file_references,
         "persistent_entity_id": persistent_id,
-        "has_citations": test_has_citations,
-        "has_links": test_has_links,
-        "has_notes": test_has_notes,
         "image_supported_media_type": test_image_supported_media_type,
         "linked_data_dumpable": test_linked_data_dumpable,
-        "private": is_private,
         "public": is_public,
     }
     for plugin in UNIVERSE.plugins.types:
