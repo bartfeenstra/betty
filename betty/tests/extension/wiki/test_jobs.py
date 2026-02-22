@@ -1,4 +1,3 @@
-from aiohttp import ClientSession
 from pytest_mock import MockerFixture
 
 from betty.ancestry.link import Link
@@ -33,7 +32,7 @@ class TestPopulateEntity:
                 await do(
                     PopulateLink(
                         link,
-                        http_client=ClientSession(),
+                        http_client=await project.app.http_client,
                         localizers=[DEFAULT_LOCALIZER],
                     ),
                     PopulateEntity(link, project=project),
