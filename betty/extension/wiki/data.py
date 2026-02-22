@@ -6,9 +6,9 @@ from typing import final
 
 from betty.data import Data, Sample
 from betty.data.aggregate.record.object import ObjectDefinition
-from betty.data.aggregate.record.object.property import Optional, Property
 from betty.data.bool import BoolDefinition
 from betty.locale.localizable.gettext import _
+from betty.property import Optional, Property
 from betty.sample import Size
 
 

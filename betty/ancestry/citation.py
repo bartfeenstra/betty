@@ -10,7 +10,6 @@ from betty.ancestry.date import HasDate
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.source import Source
-from betty.data.aggregate.record.object.property import Optional
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.property import LocalizableProperty
@@ -23,6 +22,7 @@ from betty.model.association import (
     ToOneAssociate,
 )
 from betty.privacy import HasPrivacy, Privacy, is_public, merge_secondary_privacies
+from betty.property import Optional
 
 if TYPE_CHECKING:
     from betty.ancestry.file_reference import FileReference

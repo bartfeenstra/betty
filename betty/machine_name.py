@@ -9,11 +9,11 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.assertion import assert_str
 from betty.data import Data, DataDefinition
-from betty.data.aggregate.record.object.property import Property
 from betty.exception import HumanFacingException
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Paragraph
 from betty.portable import Portable, PortableData
+from betty.property import Property
 
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable

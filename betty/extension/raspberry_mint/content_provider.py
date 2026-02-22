@@ -40,7 +40,6 @@ from betty.data import Data, Sample, Size
 from betty.data.aggregate.collection.mapping import MappingDefinition
 from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
-from betty.data.aggregate.record.object.property import Optional, Property
 from betty.data.bool import BoolDefinition
 from betty.data.enum import EnumDefinition
 from betty.data.int import IntDefinition
@@ -65,6 +64,7 @@ from betty.plugin.data import PluginManufacturerSequenceDefinition
 from betty.plugin.data.property import PluginManufacturerSequenceProperty
 from betty.portable import CallbackPorter
 from betty.privacy import is_public
+from betty.property import Optional, Property
 from betty.role import RoleDefinition
 from betty.service.factory import DataManufacturable, Manufacturable
 from betty.service.requirement.extension import require_extension

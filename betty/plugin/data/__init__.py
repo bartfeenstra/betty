@@ -14,7 +14,6 @@ from betty.collection.sequence.adapter import MutableResolvedSequenceAdapter
 from betty.data import Data
 from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
-from betty.data.aggregate.record.object.property import Optional
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import (
     CountableLocalizableProperty,
@@ -22,6 +21,7 @@ from betty.locale.localizable.property import (
 )
 from betty.machine_name import MachineNameProperty, ResolvableMachineName
 from betty.plugin import PluginDefinition
+from betty.property import Optional
 
 if TYPE_CHECKING:
     from betty.locale.localizable import (

@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from typing import final
 
-from betty.data.aggregate.record.object.property import Property
 from betty.locale.localizable import (
     CountableLocalizable,
     Localizable,
@@ -19,6 +18,7 @@ from betty.locale.localizable.data import (
     CountableLocalizableDefinition,
     LocalizableDefinition,
 )
+from betty.property import Property
 
 
 @final

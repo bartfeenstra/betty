@@ -8,11 +8,11 @@ import pytest
 
 from betty.data import Data
 from betty.data.aggregate.record.object import ObjectDefinition
-from betty.data.aggregate.record.object.property import Optional, Property
 from betty.data.str import StrDefinition
 from betty.importlib import fully_qualified_name
 from betty.locale.localizable.plain import Plain
 from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.property import Optional, Property
 
 
 class DataTestBase[DataT: Data]:

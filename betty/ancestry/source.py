@@ -10,7 +10,6 @@ from betty.ancestry.date import HasDate
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.has_notes import HasNotes
-from betty.data.aggregate.record.object.property import Optional
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
@@ -24,6 +23,7 @@ from betty.model.association import (
     ToZeroOrOneAssociate,
 )
 from betty.privacy import HasPrivacy, Privacy, is_public, merge_privacies
+from betty.property import Optional
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence

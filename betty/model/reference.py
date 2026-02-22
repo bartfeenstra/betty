@@ -8,11 +8,11 @@ from typing import TYPE_CHECKING, final
 
 from betty.data import Data, Sample
 from betty.data.aggregate.record.object import ObjectDefinition
-from betty.data.aggregate.record.object.property import Property
 from betty.data.str import StrDefinition
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineNameProperty
 from betty.plugin import resolve_id
+from betty.property import Property
 
 if TYPE_CHECKING:
     from betty.model import EntityDefinition

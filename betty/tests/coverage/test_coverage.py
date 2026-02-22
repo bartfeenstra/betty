@@ -252,9 +252,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/data/aggregate/record/object/__init__.py": {
         "Attr": MissingReason.ABSTRACT,
     },
-    "betty/data/aggregate/record/object/property.py": {
-        "PropertyNotInitialized": MissingReason.STATIC_CONTENT_ONLY,
-    },
     "betty/data/indicator/__init__.py": {
         "Indicator": MissingReason.ABSTRACT,
     },
@@ -709,6 +706,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/portable/error.py": {
         "NotPortable": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/property/__init__.py": {
+        "PropertyNotInitialized": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/role/__init__.py": {
         "Role": MissingReason.STATIC_CONTENT_ONLY,

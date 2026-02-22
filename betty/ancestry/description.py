@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, override
 
-from betty.data.aggregate.record.object.property import Optional
 from betty.json.linked_data import (
     JsonLdObject,
     LinkedDataDumpableWithSchemaJsonLdObject,
@@ -17,6 +16,7 @@ from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.property import LocalizableProperty
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.privacy import is_public
+from betty.property import Optional
 
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable

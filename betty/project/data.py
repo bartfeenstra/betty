@@ -21,11 +21,6 @@ from betty.copyright_notice.data import CopyrightNoticeDefinitionConfiguration
 from betty.data import Data, Sample
 from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
-from betty.data.aggregate.record.object.property import (
-    KeyedCollectionProperty,
-    Optional,
-    Property,
-)
 from betty.data.bool import BoolDefinition
 from betty.data.indicator.selector import Attr
 from betty.data.int import IntDefinition
@@ -56,6 +51,11 @@ from betty.place_type.data import PlaceTypeDefinitionConfiguration
 from betty.plugin import ResolvableId, resolve_id
 from betty.plugin.data.property import PluginDefinitionConfigurationsProperty
 from betty.project import Extension, ExtensionDefinition
+from betty.property import (
+    Optional,
+    Property,
+)
+from betty.property.collection.keyed import KeyedCollectionProperty
 from betty.role import RoleDefinition
 from betty.role.data import RoleDefinitionConfiguration
 from betty.sample import Size
@@ -515,7 +515,7 @@ class ProjectConfiguration(Data):
         if event_types is not None:
             self.event_types = event_types
         if extensions is not None:
-            self.extensions = extensions
+            self.extensions = extensions  # ty:ignore[invalid-assignment]
         if genders is not None:
             self.genders = genders
         if license is not None:
