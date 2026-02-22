@@ -91,25 +91,28 @@ class TestMediaType:
     @pytest.mark.parametrize(
         ("expected", "left", "right"),
         [
-            (True, "text/plain", "text/plain"),
-            (False, "text/plain", "text/html"),
-            (True, "multipart/form-data", "multipart/form-data"),
+            (True, MediaType("text/plain"), MediaType("text/plain")),
+            (True, MediaType("text/plain"), "text/plain"),
+            (False, MediaType("text/plain"), "text/html"),
+            (True, MediaType("multipart/form-data"), "multipart/form-data"),
             (
                 True,
-                "application/vnd.oasis.opendocument.text",
+                MediaType("application/vnd.oasis.opendocument.text"),
                 "application/vnd.oasis.opendocument.text",
             ),
             (
                 False,
-                "application/vnd.oasis.opendocument.text",
+                MediaType("application/vnd.oasis.opendocument.text"),
                 "application/vnd.oasis.opendocument.presentation",
             ),
-            (True, "text/html; charset=UTF-8", "text/html; charset=UTF-8"),
-            (False, "text/html; charset=UTF-8", "text/html; charset=UTF-16"),
+            (True, MediaType("text/html; charset=UTF-8"), "text/html; charset=UTF-8"),
+            (False, MediaType("text/html; charset=UTF-8"), "text/html; charset=UTF-16"),
         ],
     )
-    def test___eq__(self, expected: bool, left: str, right: str) -> None:
-        assert (MediaType(left) == MediaType(right)) == expected
+    def test___eq__(
+        self, expected: bool, left: MediaType, right: MediaType | str
+    ) -> None:
+        assert (left == right) == expected
 
     @pytest.mark.parametrize(
         "other",
