@@ -119,6 +119,11 @@ class MediaType(Data, Portable):
 
     @override
     def __eq__(self, other: Any) -> bool:
+        if isinstance(other, str):
+            try:
+                return self == MediaType(other)
+            except InvalidMediaType:
+                return False
         if not isinstance(other, MediaType):
             return NotImplemented
         return (self.type, self.subtype, self.suffix, self.parameters) == (

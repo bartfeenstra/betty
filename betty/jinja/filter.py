@@ -544,7 +544,6 @@ async def filters() -> Mapping[str, Callable[..., Any]]:
         "select_has_dates": filter_select_has_dates,
         "select_has_locales": filter_select_has_locales,
         "sort_has_locales": filter_sort_has_locales,
-        "str": str,
         "to_language_tag": to_language_tag,
         "unique": filter_unique,
         "upper_camel_case_to_lower_camel_case": upper_camel_case_to_lower_camel_case,

@@ -25,7 +25,6 @@ In addition to Jinja2's built-in filters, Betty provides the following:
 - :py:func:`select_has_dates <betty.jinja.filter.filter_select_has_dates>`
 - :py:func:`select_has_locales <betty.jinja.filter.filter_select_has_locales>`
 - :py:func:`sort_has_locales <betty.jinja.filter.filter_sort_has_locales>`
-- :py:class:`str <str>`
 - :py:func:`to_language_tag <betty.locale.to_language_tag>`
 - :py:func:`unique <betty.jinja.filter.filter_unique>`
 - :py:func:`upper_camel_case_to_lower_camel_case <betty.string.upper_camel_case_to_lower_camel_case>`

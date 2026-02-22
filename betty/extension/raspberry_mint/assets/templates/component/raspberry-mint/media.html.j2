@@ -1,4 +1,4 @@
-{% if file.media_type and (file.media_type.type == 'image' or file.media_type | str == 'application/pdf') %}
+{% if file.media_type and (file.media_type.type == 'image' or file.media_type == 'application/pdf') %}
     <div class="py-2" data-bs-theme="dark">
         <div class="container">
             <div class="row justify-content-center">
