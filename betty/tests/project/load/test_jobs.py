@@ -21,11 +21,12 @@ class TestPopulateLink:
                 "Content-Type": "text/plain",
             },
         )
-        await do(
-            PopulateLink(
-                link, http_client=ClientSession(), localizers=[DEFAULT_LOCALIZER]
+        async with ClientSession() as http_client:
+            await do(
+                PopulateLink(
+                    link, http_client=http_client, localizers=[DEFAULT_LOCALIZER]
+                )
             )
-        )
 
         assert not link.has_label
         assert not link.description
@@ -48,11 +49,12 @@ class TestPopulateLink:
             body=link_page_html,
             headers={"Content-Type": link_page_content_type},
         )
-        await do(
-            PopulateLink(
-                link, http_client=ClientSession(), localizers=[DEFAULT_LOCALIZER]
+        async with ClientSession() as http_client:
+            await do(
+                PopulateLink(
+                    link, http_client=http_client, localizers=[DEFAULT_LOCALIZER]
+                )
             )
-        )
 
         assert not link.has_label
         assert not link.description
@@ -78,11 +80,12 @@ class TestPopulateLink:
             body=link_page_html,
             headers={"Content-Type": link_page_content_type},
         )
-        await do(
-            PopulateLink(
-                link, http_client=ClientSession(), localizers=[DEFAULT_LOCALIZER]
+        async with ClientSession() as http_client:
+            await do(
+                PopulateLink(
+                    link, http_client=http_client, localizers=[DEFAULT_LOCALIZER]
+                )
             )
-        )
 
         assert link.label.localize(DEFAULT_LOCALIZER) == link_page_title
 
@@ -104,13 +107,12 @@ class TestPopulateLink:
             body=link_page_html,
             headers={"Content-Type": link_page_content_type},
         )
-        await do(
-            PopulateLink(
-                link,
-                http_client=ClientSession(),
-                localizers=[DEFAULT_LOCALIZER],
+        async with ClientSession() as http_client:
+            await do(
+                PopulateLink(
+                    link, http_client=http_client, localizers=[DEFAULT_LOCALIZER]
+                )
             )
-        )
 
         assert not link.has_label
 
@@ -139,13 +141,12 @@ class TestPopulateLink:
             body=link_page_html,
             headers={"Content-Type": link_page_content_type},
         )
-        await do(
-            PopulateLink(
-                link,
-                http_client=ClientSession(),
-                localizers=[DEFAULT_LOCALIZER],
+        async with ClientSession() as http_client:
+            await do(
+                PopulateLink(
+                    link, http_client=http_client, localizers=[DEFAULT_LOCALIZER]
+                )
             )
-        )
 
         assert link.description is not None
         assert (
