@@ -71,7 +71,7 @@ async def _require_extension[ExtensionT: Extension](
         raise UnmetRequirement(error) from error
     project_extensions = await project.extensions
     if extension_id in project_extensions:
-        return project_extensions[extension_id]  # ty:ignore[invalid-return-type]
+        return project_extensions[extension_id]
     raise UnmetRequirement(
         _(
             "{target} requires the {extension} extension. Enable it in your project configuration, and try again."

@@ -102,10 +102,9 @@ class Webpack(
     async def _project_entry_point_providers(
         self,
     ) -> Sequence[EntryPointProvider]:
-        extensions = await self._project.extensions
         return [
             extension
-            for extension in extensions.flatten()
+            for extension in await self._project.extensions
             if isinstance(extension, EntryPointProvider)
         ]
 
