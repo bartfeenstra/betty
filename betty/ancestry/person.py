@@ -200,7 +200,8 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
         schema.add_property(
             "gender",
             PluginIdSchema(
-                GenderDefinition.type(), await project.plugins.plugins(GenderDefinition)
+                GenderDefinition.type(),
+                [x async for x in project.plugins[GenderDefinition]],
             ),
             False,
         )

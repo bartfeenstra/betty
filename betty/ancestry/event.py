@@ -194,7 +194,7 @@ class Event(
             "type",
             PluginIdSchema(
                 EventTypeDefinition.type(),
-                await project.plugins.plugins(EventTypeDefinition),
+                [x async for x in project.plugins[EventTypeDefinition]],
             ),
         )
         schema.add_property("eventStatus", String(title="Event status"))

@@ -94,14 +94,18 @@ class Demo(NavigationLinkProvider, Loader, Manufacturable, Extension[Project]):
 
     @override
     async def load(self, scheduler: Scheduler) -> None:
-        licenses = await self._project.plugins.plugins(LicenseDefinition)
+        licenses = self._project.plugins[LicenseDefinition]
         await scheduler.add(
             LoadAncestry(
                 ancestry=self._project.ancestry,
                 factory=self._project.factory,
                 streetmix_copyright_notice=await self._project.factory.new(Streetmix),
                 streetmix_license=await self._project.factory.new(
-                    licenses[spdx_license_id_to_license_id("AGPL-3.0-or-later")].cls
+                    (
+                        await licenses[
+                            spdx_license_id_to_license_id("AGPL-3.0-or-later")
+                        ]
+                    ).cls
                 ),
             )
         )

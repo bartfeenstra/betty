@@ -610,8 +610,8 @@ class Presences(Template, DataManufacturable[PresencesConfiguration], Manufactur
         if data.include is not None:
             include = data.include
         else:
-            roles = await project.plugins.plugins(RoleDefinition)
-            include = {role.id for role in roles}
+            roles = project.plugins[RoleDefinition]
+            include = {role.id async for role in roles}
             if data.exclude is not None:
                 include -= set(data.exclude)
         return cls(include=include, jinja=await project.jinja)

@@ -10,7 +10,6 @@ from betty.app import App, AppConfiguration
 from betty.service.factory import Manufacturable
 from betty.service.level import UNIVERSE
 from betty.service.requirement.app import require_app
-from betty.test_utils.plugin import DummyPluginDefinition
 from betty.test_utils.user import StaticUser
 
 if TYPE_CHECKING:
@@ -53,9 +52,6 @@ class TestApp:
         async with await App.new_from_environment() as sut:
             localizer = await sut.localizer
             assert localizer.locale == Locale("nl", "NL")
-
-    async def test_plugins(self, isolated_app: App) -> None:
-        await isolated_app.plugins.plugins(DummyPluginDefinition)
 
     async def test_bootstrap__should_set_user_localizer(
         self, isolated_app: App

@@ -140,9 +140,7 @@ class EntityTypeConfiguration(Data[ObjectDefinition["EntityTypeConfiguration"]])
         """
         Validate the configuration.
         """
-        entity_type = (await services.plugins.plugins(EntityDefinition)).get(
-            self._entity_type
-        )
+        entity_type = await services.plugins[EntityDefinition][self._entity_type]
         if self.generate_html_list and not entity_type.public_facing:
             raise HumanFacingException(
                 _(

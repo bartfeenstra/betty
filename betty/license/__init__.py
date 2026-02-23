@@ -64,7 +64,7 @@ class License(Plugin["LicenseDefinition"]):
                 for configuration in project.configuration.licenses
             )
         ),
-        require_extension("spdx")(lambda spdx: spdx.license_repository),
+        require_extension("spdx")(lambda spdx: spdx.licenses),
     ],
 )
 class LicenseDefinition(HumanFacingDefinition, PluginDefinition[License]):

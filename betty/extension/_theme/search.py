@@ -169,7 +169,7 @@ class Index:
         """
         Build the search index.
         """
-        entity_types = await self._project.plugins.plugins(EntityDefinition)
+        entity_types = self._project.plugins[EntityDefinition]
         specialized_indexers: Mapping[type[Entity], EntityTypeIndexer[Entity]] = {
             File: _FileIndexer(self._project),
             Person: _PersonIndexer(self._project),
@@ -186,7 +186,7 @@ class Index:
                     self._build_entities(
                         _FallbackIndexer(self._project), entity_type.cls
                     )
-                    for entity_type in entity_types
+                    async for entity_type in entity_types
                     if entity_type.public_facing
                     and entity_type.cls not in specialized_indexers
                 ],

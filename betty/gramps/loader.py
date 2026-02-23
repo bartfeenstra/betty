@@ -101,9 +101,9 @@ from betty.place_type.place_types import (
 )
 from betty.place_type.place_types import Unknown as UnknownPlaceType
 from betty.plugin import Plugin, PluginDefinition
-from betty.plugin.error import PluginUnavailable
+from betty.plugin.error import PluginNotFound
 from betty.privacy import HasPrivacy
-from betty.role import RoleDefinition, RoleManufacturer
+from betty.role import RoleManufacturer
 from betty.role.roles import (
     Attendee,
     Celebrant,
@@ -800,7 +800,7 @@ class GrampsLoader:
                 file.copyright_notice = await CopyrightNoticeManufacturer(
                     copyright_notice_id
                 )(self._services)
-            except PluginUnavailable:
+            except PluginNotFound:
                 await self._user.message_warning(
                     _(
                         'Betty is unfamiliar with Gramps file "{file_id}"\'s copyright notice ID of "{copyright_notice_id}" and ignored it.',
@@ -810,7 +810,7 @@ class GrampsLoader:
         if license_id:
             try:
                 file.license = await LicenseManufacturer(license_id)(self._services)
-            except PluginUnavailable:
+            except PluginNotFound:
                 await self._user.message_warning(
                     _(
                         'Betty is unfamiliar with Gramps file "{file_id}"\'s license ID of "{license_id}" and ignored it.',
@@ -842,11 +842,9 @@ class GrampsLoader:
         else:
             try:
                 gender = await self._services.factory.new(
-                    (await self._services.plugins.plugins(GenderDefinition))[
-                        gender_id
-                    ].cls
+                    (await self._services.plugins[GenderDefinition][gender_id]).cls
                 )
-            except PluginUnavailable:
+            except PluginNotFound:
                 await self._user.message_warning(
                     _(
                         'Betty is unfamiliar with Gramps file "{person_id}"\'s gender ID of "{gender_id}" and ignored it.',

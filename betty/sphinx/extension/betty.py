@@ -5,7 +5,7 @@ The Betty Sphinx extension.
 from __future__ import annotations
 
 from asyncio import run
-from collections.abc import Callable, Iterable, MutableSequence, Sequence
+from collections.abc import Callable, Iterable, Mapping, MutableSequence, Sequence
 from functools import cmp_to_key
 from textwrap import indent
 from threading import Thread
@@ -33,8 +33,8 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
 
+    from betty.machine_name import MachineName
     from betty.plugin import PluginDefinition
-    from betty.plugin.repository import PluginRepository
     from betty.serde import Serializer
 
 
@@ -49,14 +49,14 @@ def _to_thread[T](target: Callable[[], T]) -> T:
     return result.result()
 
 
-async def _get_plugins(plugin_type_id: str) -> PluginRepository:
+async def _get_plugins(plugin_type_id: str) -> Mapping[MachineName, PluginDefinition]:
     async with (
         App.new_isolated() as app,
         app,
         Project.new_isolated(app) as project,
         project,
     ):
-        return await project.plugins.plugins(plugin_type_id)
+        return {plugin.id: plugin async for plugin in project.plugins[plugin_type_id]}
 
 
 def _cmp_formats(left: PluginDefinition, right: PluginDefinition) -> int:
@@ -77,7 +77,7 @@ async def _get_serializers() -> Sequence[Serializer]:
         return [
             await project.factory.new(serializer.cls)
             for serializer in sorted(
-                await project.plugins.plugins(SerializerDefinition),
+                [x async for x in project.plugins[SerializerDefinition]],
                 key=cmp_to_key(_cmp_formats),
             )
         ]
@@ -141,7 +141,7 @@ class _PluginDirective(SphinxDirective):
         return nodes.paragraph("", "", *summary_nodes)
 
     def _build_metadata(
-        self, plugin: PluginDefinition, plugins: PluginRepository[PluginDefinition]
+        self, plugin: PluginDefinition, plugins: Mapping[MachineName, PluginDefinition]
     ) -> list[nodes.Node]:
         cls = plugin.cls
         if issubclass(cls, DataManufacturable):
@@ -162,7 +162,7 @@ class _PluginDirective(SphinxDirective):
 """
         if isinstance(plugin, DependentPluginDefinition) and (
             depends_on_content := self._build_other_plugins_references(
-                [plugins.get(plugin_id) for plugin_id in plugin.depends_on]
+                [plugins[plugin_id] for plugin_id in plugin.depends_on]
             )
         ):
             content += f"""
@@ -171,14 +171,14 @@ class _PluginDirective(SphinxDirective):
 """
         if isinstance(plugin, OrderedPluginDefinition):
             if comes_before_content := self._build_other_plugins_references(
-                [plugins.get(plugin_id) for plugin_id in plugin.comes_before]
+                [plugins[plugin_id] for plugin_id in plugin.comes_before]
             ):
                 content += f"""
    * - Comes before
 {comes_before_content}
 """
             if comes_after_content := self._build_other_plugins_references(
-                [plugins.get(plugin_id) for plugin_id in plugin.comes_after]
+                [plugins[plugin_id] for plugin_id in plugin.comes_after]
             ):
                 content += f"""
    * - Comes after
@@ -214,7 +214,7 @@ class _PluginTypeDirective(SphinxDirective):
     def run(self) -> list[nodes.Node]:
         # Right-strip periods to avoid D400 and D415 violations.
         plugin_type_id = self.arguments[0].rstrip(".")
-        plugin_type = UNIVERSE.plugins.types[plugin_type_id]
+        plugin_type = UNIVERSE.plugins[plugin_type_id].type
         plugins = _to_thread(lambda: run(_get_plugins(plugin_type_id)))
         return [
             self._build_summary(plugin_type),
@@ -253,7 +253,9 @@ class _PluginTypeDirective(SphinxDirective):
         )
 
     def _build_builtin_plugins(
-        self, plugin_type: type[PluginDefinition], plugins: PluginRepository
+        self,
+        plugin_type: type[PluginDefinition],
+        plugins: Mapping[MachineName, PluginDefinition],
     ) -> list[nodes.Node]:
         return [
             nodes.paragraph(
@@ -266,7 +268,7 @@ class _PluginTypeDirective(SphinxDirective):
             _build_definition_list(
                 [
                     self._build_builtin_plugin_definition(plugin)
-                    for plugin in sorted(plugins, key=lambda plugin: plugin.id)
+                    for plugin in sorted(plugins.values(), key=lambda plugin: plugin.id)
                 ]
             ),
         ]
@@ -293,10 +295,10 @@ class _PluginTypesDirective(SphinxDirective):
         return [
             _build_definition_list(
                 [
-                    self._build_builtin_plugin_type_definition(plugin_type)
+                    self._build_builtin_plugin_type_definition(plugin_type.type)
                     for plugin_type in sorted(
-                        UNIVERSE.plugins.types,
-                        key=lambda plugin_type: plugin_type.type().label.localize(
+                        UNIVERSE.plugins,
+                        key=lambda plugin_type: plugin_type.type.type().label.localize(
                             DEFAULT_LOCALIZER
                         ),
                     )

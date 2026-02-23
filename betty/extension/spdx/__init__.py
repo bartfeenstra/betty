@@ -6,16 +6,16 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.app import App
 from betty.extension import Extension, ExtensionDefinition
-from betty.license import LicenseDefinition
 from betty.license.licenses import SpdxLicenseBuilder
 from betty.locale.localizable.gettext import _
-from betty.plugin.repository.static import StaticPluginRepository
 from betty.service.factory import Manufacturable
 from betty.service.provider import service
 from betty.service.requirement.app import require_app
 
 if TYPE_CHECKING:
-    from betty.plugin.repository import PluginRepository
+    from collections.abc import Iterable
+
+    from betty.license import LicenseDefinition
 
 
 @final
@@ -42,18 +42,15 @@ class Spdx(Manufacturable, Extension[App]):
         return cls(app=app)
 
     @service
-    async def license_repository(self) -> PluginRepository[LicenseDefinition]:
+    async def licenses(self) -> Iterable[LicenseDefinition]:
         """
         The SPDX licenses.
         """
-        return StaticPluginRepository(
-            LicenseDefinition,
-            *[
-                license
-                async for license in SpdxLicenseBuilder(  # noqa: A001
-                    binary_file_cache=self._app.binary_file_cache.with_scope("spdx"),
-                    http_client=await self._app.http_client,
-                    user=self._app.user,
-                ).build()
-            ],
-        )
+        return [
+            license
+            async for license in SpdxLicenseBuilder(  # noqa: A001
+                binary_file_cache=self._app.binary_file_cache.with_scope("spdx"),
+                http_client=await self._app.http_client,
+                user=self._app.user,
+            ).build()
+        ]

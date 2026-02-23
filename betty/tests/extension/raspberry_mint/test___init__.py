@@ -2,21 +2,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.copyright_notice import CopyrightNoticeDefinition
-from betty.copyright_notice.copyright_notices import ProjectAuthor
-from betty.extension import ExtensionDefinition
-from betty.extension.maps import Maps
 from betty.extension.raspberry_mint import RaspberryMint, RaspberryMintConfiguration
-from betty.extension.trees import Trees
-from betty.extension.webpack import Webpack
-from betty.license import LicenseDefinition
-from betty.license.licenses import AllRightsReserved
 from betty.model import EntityDefinition
 from betty.project import Project
 from betty.project.data import EntityTypeConfiguration
 from betty.project.generate import generate
 from betty.test_utils.model import DummyEntityOne
-from betty.test_utils.plugin.manager import StaticPluginManager
 from betty.tests.conftest import check_skip_webpack_entry_point_provider
 
 if TYPE_CHECKING:
@@ -43,15 +34,7 @@ class TestRaspberryMint:
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(
-            isolated_app,
-            plugins=StaticPluginManager(
-                {
-                    CopyrightNoticeDefinition: ProjectAuthor,
-                    EntityDefinition: DummyEntityOne,
-                    ExtensionDefinition: [Maps, RaspberryMint, Trees, Webpack],
-                    LicenseDefinition: AllRightsReserved,
-                }
-            ),
+            isolated_app, plugins={EntityDefinition: [DummyEntityOne]}
         ) as project:
             project.configuration.extensions.add(RaspberryMint)
             project.configuration.entity_types.add(

@@ -68,9 +68,7 @@ class Deriver:
         """
         Derive additional data.
         """
-        for derivable_event_type in await self._project.plugins.plugins(
-            EventTypeDefinition
-        ):
+        async for derivable_event_type in self._project.plugins[EventTypeDefinition]:
             created_derivations = 0
             updated_derivations = 0
             for person in self._project.ancestry[Person]:
@@ -101,7 +99,7 @@ class Deriver:
     async def _derive_person(
         self, person: Person, derivable_event_type: EventTypeDefinition
     ) -> tuple[int, int]:
-        event_types = await self._project.plugins.plugins(EventTypeDefinition)
+        event_types = self._project.plugins[EventTypeDefinition]
         # Gather any existing events that could be derived, or create a new derived event if needed.
         derivable_events: Sequence[tuple[Event, Derivation]] = [
             (event, Derivation.UPDATE)
@@ -136,8 +134,12 @@ class Deriver:
                 return 0, 0
 
         # Aggregate event type order from references and backreferences.
-        comes_before_event_types = get_comes_before(event_types, derivable_event_type)
-        comes_after_event_types = get_comes_after(event_types, derivable_event_type)
+        comes_before_event_types = await get_comes_before(
+            event_types, derivable_event_type
+        )
+        comes_after_event_types = await get_comes_after(
+            event_types, derivable_event_type
+        )
 
         created_derivations = 0
         updated_derivations = 0

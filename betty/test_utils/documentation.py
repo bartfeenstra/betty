@@ -30,10 +30,10 @@ class PluginDocumentationTestBase:
         Test the plugin and plugin type documentation.
         """
         async with Project.new_isolated(isolated_app) as project, project:
-            for plugin_type in UNIVERSE.plugins.types:
+            for plugin_type in UNIVERSE.plugins:
                 with subtests.test():
-                    self._test_plugin_type(plugin_type)
-                for plugin in await project.plugins.plugins(plugin_type):
+                    self._test_plugin_type(plugin_type.type)
+                async for plugin in project.plugins[plugin_type.type]:
                     with subtests.test():
                         self._test_plugin(plugin)
 

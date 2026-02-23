@@ -81,6 +81,6 @@ async def tests() -> Mapping[str, Callable[..., bool]]:
         "linked_data_dumpable": test_linked_data_dumpable,
         "public": is_public,
     }
-    for plugin in UNIVERSE.plugins.types:
-        tests.update(PluginTester(plugin).tests())
+    for plugin in UNIVERSE.plugins:
+        tests.update(PluginTester(plugin.type).tests())
     return tests

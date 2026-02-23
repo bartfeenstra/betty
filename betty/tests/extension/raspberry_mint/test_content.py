@@ -21,8 +21,6 @@ from betty.content.contents import Render, RenderConfiguration
 from betty.date import Date
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.document import Document
-from betty.extension import ExtensionDefinition
-from betty.extension.maps import Maps
 from betty.extension.raspberry_mint import Breakpoint, JustifyContent, RaspberryMint
 from betty.extension.raspberry_mint import ColorStyle as ColorStyleOption
 from betty.extension.raspberry_mint.content import (
@@ -47,8 +45,6 @@ from betty.extension.raspberry_mint.content import (
     ShorthandColumnsWidth,
     Timeline,
 )
-from betty.extension.trees import Trees
-from betty.extension.webpack import Webpack
 from betty.locale.localizable.plain import Plain
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
@@ -60,7 +56,6 @@ from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 from betty.test_utils.content import NoOpContent
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
-from betty.test_utils.plugin.manager import StaticPluginManager
 
 
 class TestEntityCard:
@@ -115,13 +110,7 @@ class TestSectionConfiguration(DataTestBase[SectionConfiguration]):
 class TestSection:
     async def test_build_template__without_content(self, isolated_app: App) -> None:
         async with Project.new_isolated(
-            isolated_app,
-            plugins=StaticPluginManager(
-                {
-                    ContentDefinition: NoOpContent,
-                    ExtensionDefinition: [Maps, RaspberryMint, Trees, Webpack],
-                },
-            ),
+            isolated_app, plugins={ContentDefinition: [NoOpContent]}
         ) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
@@ -305,13 +294,7 @@ class TestColorStyleConfiguration(DataTestBase[ColorStyleConfiguration]):
 class TestColorStyle:
     async def test_build_template__without_content(self, isolated_app: App) -> None:
         async with Project.new_isolated(
-            isolated_app,
-            plugins=StaticPluginManager(
-                {
-                    ContentDefinition: NoOpContent,
-                    ExtensionDefinition: [Maps, RaspberryMint, Trees, Webpack],
-                },
-            ),
+            isolated_app, plugins={ContentDefinition: [NoOpContent]}
         ) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:

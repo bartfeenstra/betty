@@ -9,7 +9,8 @@ from betty.plugin.dependent import (
     expand_plugin_dependencies,
     sort_dependent_plugin_graph,
 )
-from betty.plugin.repository.static import StaticPluginRepository
+from betty.service.level import UNIVERSE
+from betty.service.plugin import PluginManager
 from betty.tests.plugin.test___init__ import (
     _DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT,
     _DEPENDENT_PLUGIN_ISOLATED,
@@ -98,12 +99,15 @@ async def test_expand_plugin_dependencies(
     plugins: set[_DependentPluginDefinition],
 ) -> None:
     actual = await expand_plugin_dependencies(
-        StaticPluginRepository(
+        PluginManager(
+            UNIVERSE,
             _DependentPluginDefinition,
-            _DEPENDENT_PLUGIN_ISOLATED,
-            _DEPENDENT_PLUGIN_UPSTREAM_DEPENDENT,
-            _DEPENDENT_PLUGIN_UPSTREAM_AND_DOWNSTREAM_DEPENDENT,
-            _DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT,
+            [
+                _DEPENDENT_PLUGIN_ISOLATED,
+                _DEPENDENT_PLUGIN_UPSTREAM_DEPENDENT,
+                _DEPENDENT_PLUGIN_UPSTREAM_AND_DOWNSTREAM_DEPENDENT,
+                _DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT,
+            ],
         ),
         plugins,
     )
@@ -167,12 +171,15 @@ async def test_expand_plugin_dependencies(
 async def test_sort_dependent_plugin_graph(
     expected: list[MachineName], plugins: Iterable[_DependentPluginDefinition]
 ) -> None:
-    plugin_repository = StaticPluginRepository(
+    plugin_repository = PluginManager(
+        UNIVERSE,
         _DependentPluginDefinition,
-        _DEPENDENT_PLUGIN_ISOLATED,
-        _DEPENDENT_PLUGIN_UPSTREAM_DEPENDENT,
-        _DEPENDENT_PLUGIN_UPSTREAM_AND_DOWNSTREAM_DEPENDENT,
-        _DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT,
+        [
+            _DEPENDENT_PLUGIN_ISOLATED,
+            _DEPENDENT_PLUGIN_UPSTREAM_DEPENDENT,
+            _DEPENDENT_PLUGIN_UPSTREAM_AND_DOWNSTREAM_DEPENDENT,
+            _DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT,
+        ],
     )
     sorter = await sort_dependent_plugin_graph(plugin_repository, plugins)
     assert list(sorter.static_order()) == expected

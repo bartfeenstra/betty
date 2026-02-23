@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-02-22 21:09+0000\n"
+"POT-Creation-Date: 2026-02-27 11:46+0000\n"
 "PO-Revision-Date: 2026-02-17 18:12+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ru_RU\n"
@@ -526,6 +526,10 @@ msgstr ""
 #, python-brace-format
 msgid "Could not find the file \"{file_path}\"."
 msgstr "Не удалось найти файл \"{file_path}\"."
+
+#, python-brace-format
+msgid "Could not find the plugin type \"{plugin_type}\"."
+msgstr ""
 
 msgid "Counties"
 msgstr ""

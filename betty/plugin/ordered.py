@@ -14,7 +14,7 @@ from betty.plugin import PluginDefinition, ResolvableId, resolve_id
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Mapping, Set
 
-    from betty.plugin.repository import PluginRepository
+    from betty.service.plugin import PluginManager
 
 
 class OrderedPluginDefinition[BaseClsT](PluginDefinition[BaseClsT]):
@@ -61,8 +61,8 @@ class OrderedPluginDefinition[BaseClsT](PluginDefinition[BaseClsT]):
         return self._comes_after
 
 
-def sort_ordered_plugin_graph[OrderedPluginDefinitionT: OrderedPluginDefinition](
-    plugin_repository: PluginRepository[OrderedPluginDefinitionT],
+async def sort_ordered_plugin_graph[OrderedPluginDefinitionT: OrderedPluginDefinition](
+    available_plugins: PluginManager[OrderedPluginDefinitionT],
     plugins: Iterable[OrderedPluginDefinitionT],
     /,
 ) -> TopologicalSorter[MachineName]:
@@ -74,18 +74,18 @@ def sort_ordered_plugin_graph[OrderedPluginDefinitionT: OrderedPluginDefinition]
     for plugin in plugins:
         sorter.add(plugin.id)
         for before_identifier in map(resolve_id, plugin.comes_before):
-            before = plugin_repository[before_identifier]
+            before = await available_plugins[before_identifier]
             if before in plugins:
                 sorter.add(before.id, plugin.id)
         for after_identifier in map(resolve_id, plugin.comes_after):
-            after = plugin_repository[after_identifier]
+            after = await available_plugins[after_identifier]
             if after in plugins:
                 sorter.add(plugin.id, after.id)
     return sorter
 
 
-def get_comes_before[OrderedPluginDefinitionT: OrderedPluginDefinition](
-    plugin_repository: PluginRepository[OrderedPluginDefinitionT],
+async def get_comes_before[OrderedPluginDefinitionT: OrderedPluginDefinition](
+    available_plugins: PluginManager[OrderedPluginDefinitionT],
     origin: OrderedPluginDefinitionT,
     /,
 ) -> Set[OrderedPluginDefinitionT]:
@@ -93,18 +93,18 @@ def get_comes_before[OrderedPluginDefinitionT: OrderedPluginDefinition](
     Get all other plugins the given plugin comes before.
     """
     graph = defaultdict(set)
-    for plugin in plugin_repository:
+    async for plugin in available_plugins:
         for comes_before_id in plugin.comes_before:
-            comes_before = plugin_repository[comes_before_id]
+            comes_before = await available_plugins[comes_before_id]
             graph[plugin].add(comes_before)
         for comes_after_id in plugin.comes_after:
-            comes_after = plugin_repository[comes_after_id]
+            comes_after = await available_plugins[comes_after_id]
             graph[comes_after].add(plugin)
     return set(_collect_plugin_graph(graph, origin))
 
 
-def get_comes_after[OrderedPluginDefinitionT: OrderedPluginDefinition](
-    plugin_repository: PluginRepository[OrderedPluginDefinitionT],
+async def get_comes_after[OrderedPluginDefinitionT: OrderedPluginDefinition](
+    available_plugins: PluginManager[OrderedPluginDefinitionT],
     origin: OrderedPluginDefinitionT,
     /,
 ) -> Set[OrderedPluginDefinitionT]:
@@ -112,12 +112,12 @@ def get_comes_after[OrderedPluginDefinitionT: OrderedPluginDefinition](
     Get all other plugins the given plugin comes after.
     """
     graph = defaultdict(set)
-    for plugin in plugin_repository:
+    async for plugin in available_plugins:
         for comes_after_id in plugin.comes_after:
-            comes_after = plugin_repository[comes_after_id]
+            comes_after = await available_plugins[comes_after_id]
             graph[plugin].add(comes_after)
         for comes_before_id in plugin.comes_before:
-            comes_before = plugin_repository[comes_before_id]
+            comes_before = await available_plugins[comes_before_id]
             graph[comes_before].add(plugin)
     return set(_collect_plugin_graph(graph, origin))
 

@@ -17,22 +17,21 @@ from betty.event_type import (
     ShouldExistEventType,
 )
 from betty.model.collections import record_added
-from betty.plugin import ResolvableDefinition
 from betty.project import Project
 from betty.role.roles import Subject
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
 )
-from betty.test_utils.plugin.manager import StaticPluginManager
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
     from betty.app import App
+    from betty.plugin import ResolvableDiscovery
 
 type NewProject = Callable[
-    [Iterable[ResolvableDefinition[EventTypeDefinition]]],
+    [Iterable[ResolvableDiscovery[EventTypeDefinition]]],
     AbstractAsyncContextManager[Project],
 ]
 
@@ -204,12 +203,11 @@ class TestDeriver:
     def new_project(self, isolated_app: App) -> NewProject:
         @asynccontextmanager
         async def _new_project(
-            event_types: Iterable[ResolvableDefinition[EventTypeDefinition]],
+            event_types: Iterable[ResolvableDiscovery[EventTypeDefinition]],
         ) -> AsyncIterator[Project]:
             async with (
                 Project.new_isolated(
-                    isolated_app,
-                    plugins=StaticPluginManager({EventTypeDefinition: event_types}),
+                    isolated_app, plugins={EventTypeDefinition: event_types}
                 ) as project,
                 project,
             ):
