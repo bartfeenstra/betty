@@ -45,7 +45,6 @@ async def new(app: App) -> None:
     """
     Create a new project.
     """
-    await app.plugins.plugins(ExtensionDefinition)
     localizers = await app.localizers
 
     configuration_file_path = await app.user.ask_input(

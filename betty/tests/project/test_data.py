@@ -17,7 +17,6 @@ from betty.project.data import (
 from betty.service.level import ServiceLevel
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.model import DummyEntityOne, DummyNonPublicFacingEntityOne
-from betty.test_utils.plugin.manager import StaticPluginManager
 
 
 class TestProjectLocale(DataTestBase[ProjectLocale]):
@@ -86,9 +85,7 @@ class TestEntityTypeConfiguration(DataTestBase[EntityTypeConfiguration]):
         with pytest.raises(HumanFacingException):
             await sut.validate(
                 ServiceLevel(
-                    plugins=StaticPluginManager(
-                        {EntityDefinition: DummyNonPublicFacingEntityOne}
-                    )
+                    plugins={EntityDefinition: [DummyNonPublicFacingEntityOne]}
                 )
             )
 

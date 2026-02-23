@@ -28,7 +28,7 @@ async def assert_load_file() -> AssertionChain[Path, PortableData]:
     """
     available_formats = {
         available_format: await UNIVERSE.factory.new(available_format.cls)
-        for available_format in await UNIVERSE.plugins.plugins(SerializerDefinition)
+        async for available_format in UNIVERSE.plugins[SerializerDefinition]
     }
 
     def _assert(file_path: Path) -> PortableData:
@@ -54,7 +54,8 @@ async def dump_file(portable: PortableData, file_path: Path, /) -> None:
     """
     serializer = await UNIVERSE.factory.new(
         serializer_for(
-            list(await UNIVERSE.plugins.plugins(SerializerDefinition)), file_path.suffix
+            [plugin async for plugin in UNIVERSE.plugins[SerializerDefinition]],
+            file_path.suffix,
         ).cls
     )
     dump_data = serializer.dump(portable)

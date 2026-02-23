@@ -6,16 +6,29 @@ Service levels can expose services of plugin instances.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any, final, overload, override
 
 from betty.collection.keyed import KeyedCollection
-from betty.machine_name import MachineName
-from betty.plugin import Plugin, PluginDefinition, ResolvableId, resolve_id
+from betty.concurrent import AsynchronizedLock
+from betty.machine_name import MachineName, ResolvableMachineName
+from betty.plugin import (
+    Plugin,
+    PluginDefinition,
+    ResolvableId,
+    resolve_id,
+)
+from betty.plugin.error import PluginNotFound
+from betty.typing import threadsafe
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    import builtins
+    from collections.abc import AsyncIterator, Awaitable, Iterable, Iterator, Mapping
 
     from ty_extensions import Intersection
+
+    from betty.plugin.discovery import ResolvableDiscovery
+    from betty.service.level import ServiceLevel
 
 
 @final
@@ -65,3 +78,67 @@ class PluginCollection[PluginDefinitionT: PluginDefinition, PluginT: Plugin](
     @override
     def keys(self) -> Iterable[MachineName]:
         return self._all.keys()
+
+
+@final
+@threadsafe
+class PluginManager[PluginDefinitionT: PluginDefinition]:
+    """
+    Expose the plugin type definition and plugin definitions for a specific plugin type.
+    """
+
+    def __init__(
+        self,
+        services: ServiceLevel,
+        plugin_type: builtins.type[PluginDefinitionT],
+        discovery: Iterable[ResolvableDiscovery[PluginDefinition]] | None = None,
+        /,
+    ):
+        self._services = services
+        self._type = plugin_type
+        self._lock = AsynchronizedLock.new_threadsafe()
+        self._discovery = (
+            plugin_type.type().discovery if discovery is None else discovery
+        )
+        self.__plugins: Mapping[MachineName, PluginDefinitionT] | None = None
+
+    @property
+    def type(self) -> builtins.type[PluginDefinitionT]:
+        """
+        The plugin type.
+        """
+        return self._type
+
+    async def _plugins(self) -> Mapping[MachineName, PluginDefinitionT]:
+        from betty.plugin.discovery import discover
+
+        if self.__plugins is not None:
+            return self.__plugins
+        async with self._lock:
+            if self.__plugins is not None:
+                return self.__plugins
+            self.__plugins = {
+                plugin.id: plugin
+                for plugin in await discover(self._services, *self._discovery)
+            }
+            return self.__plugins
+
+    async def __aiter__(self) -> AsyncIterator[PluginDefinitionT]:
+        for plugin in (await self._plugins()).values():
+            yield plugin
+
+    async def _get(self, key: ResolvableMachineName) -> PluginDefinitionT:
+        key = MachineName.resolve(key)
+        try:
+            return (await self._plugins())[key]
+        except KeyError:
+            raise PluginNotFound(self._type, key, await self.ids()) from None
+
+    def __getitem__(self, key: ResolvableMachineName) -> Awaitable[PluginDefinitionT]:
+        return self._get(key)
+
+    async def ids(self) -> Iterable[MachineName]:
+        """
+        Iterate over the IDs of the available plugins.
+        """
+        return (await self._plugins()).keys()

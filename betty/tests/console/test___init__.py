@@ -14,7 +14,6 @@ from betty.exception import HumanFacingException
 from betty.functools import Result, suppress
 from betty.test_utils.console import run
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
-from betty.test_utils.plugin.manager import StaticPluginManager
 from betty.user import Verbosity
 
 
@@ -82,9 +81,7 @@ async def test_main__with_user_facing_exception(
     expected: SystemExitCode, command: CommandDefinition, isolated_app: App
 ) -> None:
     async with (
-        App.new_isolated(
-            plugins=StaticPluginManager({CommandDefinition: command})
-        ) as app,
+        App.new_isolated(plugins={CommandDefinition: [command]}) as app,
         app,
     ):
         await run(app, command.id, expected_exit_code=expected)
@@ -106,9 +103,7 @@ async def test_main__with_user_facing_exception(
 async def test_main_standalone(
     expected: SystemExitCode, command: CommandDefinition, mocker: MockerFixture
 ) -> None:
-    async with App.new_isolated(
-        plugins=StaticPluginManager({CommandDefinition: command})
-    ) as app:
+    async with App.new_isolated(plugins={CommandDefinition: [command]}) as app:
 
         def _target() -> None:
             mocker.patch("betty.app.App.new_from_environment", return_value=app)
@@ -139,9 +134,7 @@ class TestVerbosity:
     )
     async def test(self, expected: Verbosity, verbosity: str | None) -> None:
         async with (
-            App.new_isolated(
-                plugins=StaticPluginManager({CommandDefinition: _NoOpCommand})
-            ) as app,
+            App.new_isolated(plugins={CommandDefinition: [_NoOpCommand]}) as app,
             app,
         ):
             args = ["no-op"]

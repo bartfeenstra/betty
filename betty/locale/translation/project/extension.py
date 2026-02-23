@@ -7,7 +7,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from betty.exception import HumanFacingException
-from betty.extension import ExtensionDefinition
 from betty.locale.localizable.gettext import _
 from betty.locale.translation import (
     _new_translation,
@@ -20,6 +19,7 @@ if TYPE_CHECKING:
 
     from babel import Locale
 
+    from betty.extension import ExtensionDefinition
     from betty.user import User
 
 
@@ -35,16 +35,6 @@ def assert_extension_assets_directory_path(extension: ExtensionDefinition) -> Pa
             )
         )
     return assets_directory_path
-
-
-def assert_extension_has_assets_directory_path[
-    ExtensionDefinitionT: ExtensionDefinition
-](extension: ExtensionDefinitionT) -> ExtensionDefinitionT:
-    """
-    Check that the given extension has an assets directory, and return it.
-    """
-    assert_extension_assets_directory_path(extension)
-    return extension
 
 
 async def new_extension_translation(

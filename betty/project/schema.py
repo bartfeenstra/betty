@@ -55,7 +55,7 @@ class ProjectSchema(Manufacturable, Schema):
         schema._schema["$id"] = await cls.url(project)
 
         # Add entity schemas.
-        for entity_type in await project.plugins.plugins(EntityDefinition):
+        async for entity_type in project.plugins[EntityDefinition]:
             entity_type_schema = await entity_type.cls.linked_data_schema(project)
             entity_type_schema.embed(schema)
             def_name = f"{kebab_case_to_lower_camel_case(entity_type.id)}EntityCollectionResponse"

@@ -8,7 +8,10 @@ from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.extension import ExtensionDefinition
 from betty.locale.localizable.gettext import _
 from betty.locale.translation.project import extension as extension_translation
-from betty.locale.translation.project import extension as translation_project_extension
+from betty.locale.translation.project.extension import (
+    assert_extension_assets_directory_path,
+)
+from betty.plugin.error import PluginNotFound
 from betty.service.factory import Manufacturable
 from betty.service.requirement.app import require_app
 
@@ -40,18 +43,27 @@ class ExtensionNewTranslation(Manufacturable, Command):
 
     @override
     async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
-        extensions = await self._app.plugins.plugins(ExtensionDefinition)
         localizer = await self._app.localizer
+        extensions = {
+            extension.id: extension
+            async for extension in self._app.plugins[ExtensionDefinition]
+        }
+
+        def _assert_extension(extension_id: str) -> ExtensionDefinition:
+            try:
+                extension = extensions[extension_id]
+            except KeyError:
+                raise PluginNotFound(
+                    ExtensionDefinition, extension_id, extensions.keys()
+                ) from None
+            assert_extension_assets_directory_path(
+                extension,
+            )
+            return extension
+
         parser.add_argument(
             "extension",
-            type=assertion_to_argument_type(
-                lambda extension_id: (
-                    translation_project_extension.assert_extension_has_assets_directory_path(
-                        extensions[extension_id]
-                    )
-                ),
-                localizer=localizer,
-            ),
+            type=assertion_to_argument_type(_assert_extension, localizer=localizer),
         )
         parser.add_argument(
             "locale",

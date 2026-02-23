@@ -7,7 +7,7 @@ from betty.data.indicator.selector import Attr
 from betty.exception import HumanFacingException
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.factory import PluginManufacturer
-from betty.service.level import UNIVERSE
+from betty.service.level import ServiceLevel
 from betty.test_utils.data import DummyData
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
@@ -254,6 +254,14 @@ class TestPluginManufacturer:
         sut = _DataManufacturableDummyPluginManufacturer(
             _DataManufacturableDummyPluginOne, configuration
         )
-        plugin = await sut(UNIVERSE)
+        plugin = await sut(
+            ServiceLevel(
+                plugins={
+                    _DataManufacturableDummyPluginDefinition: [
+                        _DataManufacturableDummyPluginOne
+                    ]
+                }
+            )
+        )
         assert isinstance(plugin, _DataManufacturableDummyPluginOne)
         assert plugin.data is configuration

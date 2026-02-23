@@ -14,7 +14,6 @@ from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _
 from betty.rich.user import RichUser
 from betty.service.factory import Manufacturable
-from betty.service.level import UNIVERSE
 from betty.service.requirement.app import require_app
 
 if TYPE_CHECKING:
@@ -94,16 +93,17 @@ class About(Manufacturable, Command):
         about_plugins.add_column(user.localizer._("Type"), style=self._KEY_STYLE)
         about_plugins.add_column(user.localizer._("ID"))
         about_plugins.add_column(user.localizer._("Label"))
-        for plugin_type in sorted(
-            UNIVERSE.plugins.types,
-            key=lambda plugin_type: plugin_type.type().label.localize(user.localizer),
+        for plugin_manager in sorted(
+            services.plugins,
+            key=lambda plugin_type: plugin_type.type.type().label.localize(
+                user.localizer
+            ),
         ):
-            repository = await services.plugins.plugins(plugin_type)
             for index, plugin in enumerate(
-                sorted(repository, key=lambda plugin: plugin.id)
+                sorted([x async for x in plugin_manager], key=lambda plugin: plugin.id)
             ):
                 first_column = (
-                    plugin_type.type().label.localize(user.localizer)
+                    plugin_manager.type.type().label.localize(user.localizer)
                     if index == 0
                     else ""
                 )

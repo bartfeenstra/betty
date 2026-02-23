@@ -13,8 +13,6 @@ from betty.project import Project
 from betty.project.data import ProjectConfiguration, ProjectLocale
 from betty.serde import SerializationError
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
-from betty.test_utils.plugin import DummyPluginDefinition
-from betty.test_utils.plugin.manager import StaticPluginManager
 from betty.test_utils.project.extension import DummyExtensionOne
 
 if TYPE_CHECKING:
@@ -59,10 +57,6 @@ class TestProject:
         ):
             assert sut.configuration is configuration
 
-    async def test_plugins(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as sut, sut:
-            await sut.plugins.plugins(DummyPluginDefinition)
-
     async def test_new__without_ancestry(
         self, isolated_app: App, tmp_path: Path
     ) -> None:
@@ -105,8 +99,7 @@ class TestProject:
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(
-            isolated_app,
-            plugins=StaticPluginManager({ExtensionDefinition: DummyExtensionOne}),
+            isolated_app, plugins={ExtensionDefinition: [DummyExtensionOne]}
         ) as sut:
             sut.configuration.extensions.add(DummyExtensionOne)
             async with sut:
@@ -120,9 +113,7 @@ class TestProject:
         async with Project.new_isolated(isolated_app) as sut, sut:
             extensions = await sut.extensions
 
-            for betty_extension in await isolated_app.plugins.plugins(
-                ExtensionDefinition
-            ):
+            async for betty_extension in isolated_app.plugins[ExtensionDefinition]:
                 if betty_extension.id.startswith("betty-"):
                     assert betty_extension.id in extensions
 
@@ -138,9 +129,7 @@ class TestProject:
     ) -> None:
         async with Project.new_isolated(
             isolated_app,
-            plugins=StaticPluginManager(
-                {ExtensionDefinition: [_DummyExtensionA, _DummyExtensionB]}
-            ),
+            plugins={ExtensionDefinition: [_DummyExtensionA, _DummyExtensionB]},
         ) as sut:
             sut.configuration.extensions.add(*enable)
             async with sut:
@@ -174,8 +163,7 @@ class TestProject:
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(
-            isolated_app,
-            plugins=StaticPluginManager({ExtensionDefinition: DummyExtensionOne}),
+            isolated_app, plugins={ExtensionDefinition: [DummyExtensionOne]}
         ) as sut:
             sut.configuration.extensions.add(DummyExtensionOne)
             async with sut:
@@ -187,9 +175,7 @@ class TestProject:
     ) -> None:
         async with Project.new_isolated(
             isolated_app,
-            plugins=StaticPluginManager(
-                {ExtensionDefinition: _DummyExtensionWithAssetsDirectory}
-            ),
+            plugins={ExtensionDefinition: [_DummyExtensionWithAssetsDirectory]},
         ) as sut:
             sut.configuration.extensions.add(_DummyExtensionWithAssetsDirectory)
             async with sut:

@@ -169,7 +169,7 @@ class PluginManufacturer[
         Create a new instance of the configured plugin.
         """
         return await services.factory.new(
-            (await services.plugins.plugins(self.type()))[self.plugin_id].cls,
+            (await services.plugins[self.type()][self.plugin_id]).cls,
             self.plugin_data,
         )
 

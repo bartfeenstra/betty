@@ -20,7 +20,6 @@ from betty.project.url import (
     new_project_url_generator,
 )
 from betty.test_utils.model import DummyEntityOne
-from betty.test_utils.plugin.manager import StaticPluginManager
 
 
 class Test_EntityUrlUrlGenerator:
@@ -326,8 +325,7 @@ async def test_new_project_url_generator__supports(
 ) -> None:
     async with (
         Project.new_isolated(
-            isolated_app,
-            plugins=StaticPluginManager({EntityDefinition: DummyEntityOne}),
+            isolated_app, plugins={EntityDefinition: [DummyEntityOne]}
         ) as project,
         project,
     ):
@@ -389,7 +387,7 @@ async def test_new_project_url_generator__generate(
     isolated_app: App,
 ) -> None:
     async with Project.new_isolated(
-        isolated_app, plugins=StaticPluginManager({EntityDefinition: DummyEntityOne})
+        isolated_app, plugins={EntityDefinition: [DummyEntityOne]}
     ) as project:
         if additional_project_locale:
             project.configuration.locales.add(ProjectLocale(additional_project_locale))

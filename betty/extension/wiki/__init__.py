@@ -107,12 +107,12 @@ class Wiki(
     async def new(
         cls, project: Project, data: WikiConfiguration | None = None, /
     ) -> Self:
-        copyright_notices = await project.plugins.plugins(CopyrightNoticeDefinition)
+        copyright_notices = project.plugins[CopyrightNoticeDefinition]
         return cls(
             populate_images=None if data is None else data.populate_images,
             project=project,
             wikipedia_contributors_copyright_notice=await project.factory.new(
-                copyright_notices["wikipedia-contributors"].cls
+                (await copyright_notices["wikipedia-contributors"]).cls
             ),
         )
 

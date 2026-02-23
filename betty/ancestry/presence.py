@@ -97,7 +97,7 @@ class Presence(HasPrivacy, Entity):
             "role",
             PluginIdSchema(
                 RoleDefinition.type(),
-                await project.plugins.plugins(RoleDefinition),
+                [x async for x in project.plugins[RoleDefinition]],
             ),
             False,
         )

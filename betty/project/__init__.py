@@ -46,6 +46,8 @@ if TYPE_CHECKING:
     from collections.abc import (
         AsyncIterator,
         Collection,
+        Iterable,
+        Mapping,
         MutableSequence,
     )
 
@@ -55,7 +57,7 @@ if TYPE_CHECKING:
     from betty.copyright_notice import CopyrightNotice
     from betty.jinja import Environment
     from betty.license import License
-    from betty.plugin.manager import PluginManager
+    from betty.plugin import PluginDefinition, ResolvableDiscovery
     from betty.url import UrlGenerator
 
 
@@ -82,7 +84,10 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
         *,
         configuration: ProjectConfiguration,
         ancestry: Ancestry | None = None,
-        plugins: PluginManager | None = None,
+        plugins: Mapping[
+            type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
+        ]
+        | None = None,
     ):
         super().__init__(plugins=plugins)
         self.life_cycle.on_bootstrap(self._ensure_locale)
@@ -128,7 +133,10 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
         ancestry: Ancestry | None = None,
         configuration: ProjectConfiguration | None = None,
         configuration_file: Path | None = None,
-        plugins: PluginManager | None = None,
+        plugins: Mapping[
+            type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
+        ]
+        | None = None,
     ) -> AsyncIterator[Self]:
         """
         Creat a new, isolated, temporary project.
@@ -168,7 +176,7 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
         if configuration_file == self._configuration_file:
             return
         serializer_for(
-            list(await UNIVERSE.plugins.plugins(SerializerDefinition)),
+            [plugin async for plugin in UNIVERSE.plugins[SerializerDefinition]],
             configuration_file.suffix,
         )
         self._configuration_file = configuration_file
@@ -308,7 +316,7 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
         return RenderDispatcher(
             *[
                 await self.factory.new(plugin.cls)
-                for plugin in await self.plugins.plugins(RendererDefinition)
+                async for plugin in self.plugins[RendererDefinition]
             ]
         )
 
@@ -317,12 +325,12 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
         """
         The enabled extensions.
         """
-        extensions = await self.plugins.plugins(ExtensionDefinition)
+        extensions = self.plugins[ExtensionDefinition]
         configured_extension_definitions = []
         configured_extension_manufacturers = {}
         for extension_manufacturer in self.configuration.extensions:
             configured_extension_definitions.append(
-                extensions[extension_manufacturer.plugin_id]
+                await extensions[extension_manufacturer.plugin_id]
             )
             configured_extension_manufacturers[extension_manufacturer.plugin_id] = (
                 extension_manufacturer
@@ -339,7 +347,7 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
             enabled_extension_ids_batch = extensions_sorter.get_ready()
             enabled_extension_batch: MutableSequence[Extension] = []
             for enabled_extension_id in enabled_extension_ids_batch:
-                enabled_extension_definition = extensions[enabled_extension_id]
+                enabled_extension_definition = await extensions[enabled_extension_id]
                 if enabled_extension_definition.theme:
                     theme_count += 1
                 if enabled_extension_id in configured_extension_manufacturers:

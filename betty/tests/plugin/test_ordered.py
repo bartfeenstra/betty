@@ -10,7 +10,8 @@ from betty.plugin.ordered import (
     get_comes_before,
     sort_ordered_plugin_graph,
 )
-from betty.plugin.repository.static import StaticPluginRepository
+from betty.service.level import UNIVERSE
+from betty.service.plugin import PluginManager
 from betty.tests.plugin.test___init__ import (
     _ORDERED_PLUGIN_COMES_AFTER_TARGET,
     _ORDERED_PLUGIN_COMES_BEFORE_TARGET,
@@ -81,18 +82,21 @@ class TestOrderedPluginDefinition:
         ),
     ],
 )
-def test_sort_ordered_plugin_graph(
+async def test_sort_ordered_plugin_graph(
     expected: list[MachineName],
     plugins: Iterable[_OrderedPluginDefinition],
 ) -> None:
-    sorter = sort_ordered_plugin_graph(
-        StaticPluginRepository(
+    sorter = await sort_ordered_plugin_graph(
+        PluginManager(
+            UNIVERSE,
             _OrderedPluginDefinition,
-            _ORDERED_PLUGIN_COMES_BEFORE_TARGET,
-            _ORDERED_PLUGIN_HAS_COMES_BEFORE,
-            _ORDERED_PLUGIN_COMES_AFTER_TARGET,
-            _ORDERED_PLUGIN_HAS_COMES_AFTER,
-            _ORDERED_PLUGIN_ISOLATED,
+            [
+                _ORDERED_PLUGIN_COMES_BEFORE_TARGET,
+                _ORDERED_PLUGIN_HAS_COMES_BEFORE,
+                _ORDERED_PLUGIN_COMES_AFTER_TARGET,
+                _ORDERED_PLUGIN_HAS_COMES_AFTER,
+                _ORDERED_PLUGIN_ISOLATED,
+            ],
         ),
         plugins,
     )
@@ -120,20 +124,23 @@ def test_sort_ordered_plugin_graph(
         ),
     ],
 )
-def test_get_comes_after(
+async def test_get_comes_after(
     expected: set[_OrderedPluginDefinition], origin: _OrderedPluginDefinition
 ) -> None:
     assert (
-        get_comes_after(
-            StaticPluginRepository(
+        await get_comes_after(
+            PluginManager(
+                UNIVERSE,
                 _OrderedPluginDefinition,
-                _ORDERED_PLUGIN_COMES_BEFORE_TARGET,
-                _ORDERED_PLUGIN_HAS_COMES_BEFORE,
-                _ORDERED_PLUGIN_COMES_AFTER_TARGET,
-                _ORDERED_PLUGIN_HAS_COMES_AFTER,
-                _ORDERED_PLUGIN_ISOLATED,
-                _ORDERED_PLUGIN_HAS_COMES_AFTER_BIDIRECTIONAL,
-                _ORDERED_PLUGIN_HAS_COMES_BEFORE_BIDIRECTIONAL,
+                [
+                    _ORDERED_PLUGIN_COMES_BEFORE_TARGET,
+                    _ORDERED_PLUGIN_HAS_COMES_BEFORE,
+                    _ORDERED_PLUGIN_COMES_AFTER_TARGET,
+                    _ORDERED_PLUGIN_HAS_COMES_AFTER,
+                    _ORDERED_PLUGIN_ISOLATED,
+                    _ORDERED_PLUGIN_HAS_COMES_AFTER_BIDIRECTIONAL,
+                    _ORDERED_PLUGIN_HAS_COMES_BEFORE_BIDIRECTIONAL,
+                ],
             ),
             origin,
         )
@@ -162,20 +169,23 @@ def test_get_comes_after(
         ),
     ],
 )
-def test_get_comes_before(
+async def test_get_comes_before(
     expected: set[_OrderedPluginDefinition], origin: _OrderedPluginDefinition
 ) -> None:
     assert (
-        get_comes_before(
-            StaticPluginRepository(
+        await get_comes_before(
+            PluginManager(
+                UNIVERSE,
                 _OrderedPluginDefinition,
-                _ORDERED_PLUGIN_COMES_BEFORE_TARGET,
-                _ORDERED_PLUGIN_HAS_COMES_BEFORE,
-                _ORDERED_PLUGIN_COMES_AFTER_TARGET,
-                _ORDERED_PLUGIN_HAS_COMES_AFTER,
-                _ORDERED_PLUGIN_ISOLATED,
-                _ORDERED_PLUGIN_HAS_COMES_BEFORE_BIDIRECTIONAL,
-                _ORDERED_PLUGIN_HAS_COMES_AFTER_BIDIRECTIONAL,
+                [
+                    _ORDERED_PLUGIN_COMES_BEFORE_TARGET,
+                    _ORDERED_PLUGIN_HAS_COMES_BEFORE,
+                    _ORDERED_PLUGIN_COMES_AFTER_TARGET,
+                    _ORDERED_PLUGIN_HAS_COMES_AFTER,
+                    _ORDERED_PLUGIN_ISOLATED,
+                    _ORDERED_PLUGIN_HAS_COMES_BEFORE_BIDIRECTIONAL,
+                    _ORDERED_PLUGIN_HAS_COMES_AFTER_BIDIRECTIONAL,
+                ],
             ),
             origin,
         )

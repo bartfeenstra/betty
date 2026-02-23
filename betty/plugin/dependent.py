@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from graphlib import TopologicalSorter
 
     from betty.machine_name import MachineName, ResolvableMachineName
-    from betty.plugin.repository import PluginRepository
+    from betty.service.plugin import PluginManager
 
 
 class DependentPluginDefinition[BaseClsT = Any](OrderedPluginDefinition[BaseClsT]):
@@ -54,7 +54,7 @@ class DependentPluginDefinition[BaseClsT = Any](OrderedPluginDefinition[BaseClsT
 async def expand_plugin_dependencies[
     DependentPluginDefinitionT: DependentPluginDefinition
 ](
-    plugin_repository: PluginRepository[DependentPluginDefinitionT],
+    available_plugins: PluginManager[DependentPluginDefinitionT],
     plugins: Iterable[DependentPluginDefinitionT],
     /,
 ) -> Set[DependentPluginDefinitionT]:
@@ -66,8 +66,11 @@ async def expand_plugin_dependencies[
         dependencies.add(plugin)
         dependencies.update(
             await expand_plugin_dependencies(
-                plugin_repository,
-                [plugin_repository.get(depends_on) for depends_on in plugin.depends_on],
+                available_plugins,
+                [
+                    await available_plugins[depends_on]
+                    for depends_on in plugin.depends_on
+                ],
             )
         )
     return dependencies
@@ -76,13 +79,13 @@ async def expand_plugin_dependencies[
 async def sort_dependent_plugin_graph[
     DependentPluginDefinitionT: DependentPluginDefinition
 ](
-    plugin_repository: PluginRepository[DependentPluginDefinitionT],
+    available_plugins: PluginManager[DependentPluginDefinitionT],
     plugins: Iterable[DependentPluginDefinitionT],
     /,
 ) -> TopologicalSorter[MachineName]:
     """
     Sort a dependent plugin graph.
     """
-    return sort_ordered_plugin_graph(
-        plugin_repository, await expand_plugin_dependencies(plugin_repository, plugins)
+    return await sort_ordered_plugin_graph(
+        available_plugins, await expand_plugin_dependencies(available_plugins, plugins)
     )

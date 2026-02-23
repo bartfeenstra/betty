@@ -157,7 +157,7 @@ async def _create_list_commands_action_class(
     app: App, *, localizer: Localizer
 ) -> type[argparse.Action]:
     command_definitions = sorted(
-        await app.plugins.plugins(CommandDefinition),
+        [x async for x in app.plugins[CommandDefinition]],
         key=lambda command_definition: command_definition.id,
     )
 
@@ -225,7 +225,7 @@ async def _create_parser(app: App) -> argparse.ArgumentParser:
         help=localizer._("Show all available commands"),
     )
     subparsers = parser.add_subparsers(title=localizer._("Subcommands"))
-    for command_plugin in await app.plugins.plugins(CommandDefinition):
+    async for command_plugin in app.plugins[CommandDefinition]:
         await _create_command_parser(app, subparsers, command_plugin, formatter_class)
     return parser
 

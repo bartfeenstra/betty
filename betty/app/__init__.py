@@ -39,13 +39,13 @@ from betty.typing import threadsafe
 from betty.user.no_op import NoOpUser
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator
+    from collections.abc import AsyncIterator, Iterable, Mapping
     from concurrent import futures
 
     import aiohttp
 
     from betty.cache import Cache
-    from betty.plugin.manager import PluginManager
+    from betty.plugin import PluginDefinition, ResolvableDiscovery
     from betty.user import User
 
 
@@ -69,7 +69,10 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ManagedLifeCycle):
         cache_directory: Path | None = None,
         cache_factory: ServiceFactory[App, Cache[Any]] | None = None,
         locale: ResolvableLocale | None = None,
-        plugins: PluginManager | None = None,
+        plugins: Mapping[
+            type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
+        ]
+        | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
         translations: TranslationRepository | None = None,
         user: User | None = None,
@@ -131,7 +134,10 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ManagedLifeCycle):
         *,
         cache_directory: Path | None = None,
         cache_factory: ServiceFactory[App, Cache[Any]] | None = None,
-        plugins: PluginManager | None = None,
+        plugins: Mapping[
+            type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
+        ]
+        | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
         user: User | None = None,
         translations: TranslationRepository | None | Literal[False] = False,
@@ -202,9 +208,9 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ManagedLifeCycle):
         """
         The HTTP client.
         """
-        http_rate_limits = await self.plugins.plugins(RateLimitDefinition)
-        rate_limit_sorter = sort_ordered_plugin_graph(
-            http_rate_limits, http_rate_limits
+        http_rate_limits = self.plugins[RateLimitDefinition]
+        rate_limit_sorter = await sort_ordered_plugin_graph(
+            http_rate_limits, [x async for x in http_rate_limits]
         )
 
         http_client: aiohttp.ClientSession = CachedSession(
@@ -216,7 +222,9 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ManagedLifeCycle):
                 ClientErrorToUserMessageMiddleware(self.user),
                 RateLimitMiddleware(
                     [
-                        await self.factory.new(http_rate_limits[rate_limit_id].cls)
+                        await self.factory.new(
+                            (await http_rate_limits[rate_limit_id]).cls
+                        )
                         for rate_limit_id in rate_limit_sorter.static_order()
                     ]
                 ),

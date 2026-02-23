@@ -12,7 +12,6 @@ from betty.console.command.commands.extension_update_translations import (
 )
 from betty.extension import Extension, ExtensionDefinition
 from betty.test_utils.console import run
-from betty.test_utils.plugin.manager import StaticPluginManager
 
 
 class TestExtensionUpdateTranslations:
@@ -32,15 +31,13 @@ class TestExtensionUpdateTranslations:
 
         async with (
             App.new_isolated(
-                plugins=StaticPluginManager(
-                    {
-                        CommandDefinition: ExtensionUpdateTranslations,
-                        ExtensionDefinition: [
-                            _DummyWithoutAssetsDirectoryExtension,
-                            _DummyWithAssetsDirectoryExtension,
-                        ],
-                    }
-                )
+                plugins={
+                    CommandDefinition: [ExtensionUpdateTranslations],
+                    ExtensionDefinition: [
+                        _DummyWithoutAssetsDirectoryExtension,
+                        _DummyWithAssetsDirectoryExtension,
+                    ],
+                }
             ) as app,
             app,
         ):
