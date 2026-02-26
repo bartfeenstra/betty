@@ -67,7 +67,7 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ManagedLifeCycle):
         self,
         *,
         cache_directory: Path | None = None,
-        cache_factory: ServiceFactory[Self, Cache[Any]] | None = None,
+        cache_factory: ServiceFactory[App, Cache[Any]] | None = None,
         locale: ResolvableLocale | None = None,
         plugins: PluginManager | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
@@ -96,7 +96,7 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ManagedLifeCycle):
             self,
             (lambda _: PickledFileCache[Any](self._cache_directory))
             if cache_factory is None
-            else cache_factory,  # ty:ignore[invalid-argument-type]
+            else cache_factory,
         )
 
     async def _bootstrap_localizer(self) -> None:
@@ -130,7 +130,7 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ManagedLifeCycle):
         cls,
         *,
         cache_directory: Path | None = None,
-        cache_factory: ServiceFactory[Self, Cache[Any]] | None = None,
+        cache_factory: ServiceFactory[App, Cache[Any]] | None = None,
         plugins: PluginManager | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
         user: User | None = None,
