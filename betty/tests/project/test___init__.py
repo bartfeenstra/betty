@@ -16,8 +16,6 @@ from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.project.extension import DummyExtensionOne
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-
     from betty.app import App
 
 
@@ -107,36 +105,14 @@ class TestProject:
                 extension = extensions[DummyExtensionOne]
                 assert extension.bootstrapped
 
-    async def test_extensions__should_enable_betty_extensions(
-        self, isolated_app: App
-    ) -> None:
-        async with Project.new_isolated(isolated_app) as sut, sut:
-            extensions = await sut.extensions
-
-            async for betty_extension in isolated_app.plugins[ExtensionDefinition]:
-                if betty_extension.id.startswith("betty-"):
-                    assert betty_extension.id in extensions
-
-    @pytest.mark.parametrize(
-        "enable",
-        [
-            [_DummyExtensionA, _DummyExtensionB],
-            [_DummyExtensionB, _DummyExtensionA],
-        ],
-    )
-    async def test_extensions__should_sort_by_plugin_id(
-        self, enable: Sequence[type[Extension]], isolated_app: App
-    ) -> None:
+    async def test_extensions(self, isolated_app: App) -> None:
         async with Project.new_isolated(
             isolated_app,
-            plugins={ExtensionDefinition: [_DummyExtensionA, _DummyExtensionB]},
+            plugins={ExtensionDefinition: [DummyExtensionOne]},
         ) as sut:
-            sut.configuration.extensions.add(*enable)
+            sut.configuration.extensions.add(DummyExtensionOne)
             async with sut:
-                extensions = [extension.plugin for extension in await sut.extensions]
-                assert extensions.index(_DummyExtensionA.plugin) < extensions.index(
-                    _DummyExtensionB.plugin
-                )
+                assert DummyExtensionOne in await sut.extensions
 
     async def test_ancestry__with___init___ancestry(self, isolated_app: App) -> None:
         ancestry = Ancestry()

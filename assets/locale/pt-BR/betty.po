@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-03-02 01:40+0000\n"
+"POT-Creation-Date: 2026-03-10 17:25+0000\n"
 "PO-Revision-Date: 2026-02-17 18:12+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: pt_BR\n"
@@ -1961,11 +1961,6 @@ msgstr ""
 msgid "Your project at {file}"
 msgstr ""
 
-msgid ""
-"Your project has no theme enabled. This means your site's pages may look "
-"bare. Try the \"raspberry-mint\" extension."
-msgstr ""
-
 msgid "Zoom in"
 msgstr ""
 
@@ -2638,12 +2633,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "{target} requires a running app."
-msgstr ""
-
-#, python-brace-format
-msgid ""
-"{target} requires the {extension} extension. Enable it in your project "
-"configuration, and try again."
 msgstr ""
 
 msgid "© Copyright the author, unless otherwise credited"

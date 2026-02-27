@@ -16,7 +16,6 @@ from betty.plugin import (
     resolve_plugin_id,
     resolve_plugin_type_id,
 )
-from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
@@ -62,34 +61,6 @@ _ORDERED_PLUGIN_HAS_COMES_BEFORE_BIDIRECTIONAL = _OrderedPluginDefinition(
 _ORDERED_PLUGIN_HAS_COMES_AFTER_BIDIRECTIONAL = _OrderedPluginDefinition(
     "ordered-plugin-has-comes-after-bidirectional",
     comes_after={_ORDERED_PLUGIN_HAS_COMES_BEFORE_BIDIRECTIONAL},
-)
-
-
-@final
-@PluginTypeDefinition(
-    "dependent",
-    label="_DependentPluginDefinition",
-    label_plural="_DependentPluginDefinition",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-)
-class _DependentPluginDefinition(DependentPluginDefinition[DummyPlugin]):
-    pass
-
-
-_DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT = _DependentPluginDefinition(
-    "expand-plugin-dependencies-test-downstream-dependent"
-)
-_DEPENDENT_PLUGIN_UPSTREAM_AND_DOWNSTREAM_DEPENDENT = _DependentPluginDefinition(
-    "expand-plugin-dependencies-test-upstream-and-downstream-dependent",
-    depends_on={_DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT},
-)
-_DEPENDENT_PLUGIN_UPSTREAM_DEPENDENT = _DependentPluginDefinition(
-    "expand-plugin-dependencies-test-upstream-dependent",
-    depends_on={_DEPENDENT_PLUGIN_UPSTREAM_AND_DOWNSTREAM_DEPENDENT},
-)
-
-_DEPENDENT_PLUGIN_ISOLATED = _DependentPluginDefinition(
-    "expand-plugin-dependencies-test-isolated"
 )
 
 

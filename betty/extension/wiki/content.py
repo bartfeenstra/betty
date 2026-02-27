@@ -8,11 +8,9 @@ from betty.ancestry.has_links import HasLinks
 from betty.content import ContentDefinition
 from betty.content.contents import Template, TemplateBuild
 from betty.document import Document
-from betty.extension.wiki import Wiki
 from betty.locale.localizable.gettext import _
 from betty.project import Project
 from betty.service.factory import Manufacturable
-from betty.service.requirement.extension import require_extension
 from betty.service.requirement.project import require_project
 
 
@@ -28,7 +26,6 @@ class WikipediaSummary(Template, Manufacturable):
     @classmethod
     @require_project
     async def new(cls, project: Project, /) -> Self:
-        await require_extension(Wiki, project)
         return cls(jinja=await project.jinja)
 
     @override

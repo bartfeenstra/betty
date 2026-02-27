@@ -7,13 +7,19 @@ from typing import TYPE_CHECKING, final, override
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import Plugin, PluginTypeDefinition, ResolvablePluginId
-from betty.plugin.dependent import DependentPluginDefinition
+from betty.plugin import (
+    Plugin,
+    PluginDefinition,
+    PluginTypeDefinition,
+    ResolvablePluginId,
+)
 from betty.plugin.factory import PluginManufacturer
+from betty.plugin.ordered import OrderedPluginDefinition
+from betty.service.plugin import ServicePluginDefinition
 
 if TYPE_CHECKING:
     import builtins
-    from collections.abc import Set
+    from collections.abc import Iterable, Mapping, Set
     from pathlib import Path
 
     from betty.locale.localizable import ResolvableLocalizable
@@ -33,7 +39,11 @@ class Extension(ManagedLifeCycle, Plugin["ExtensionDefinition"]):
     label_plural=_("Extensions"),
     label_countable=ngettext("{count} extension", "{count} extensions"),
 )
-class ExtensionDefinition(HumanFacingDefinition, DependentPluginDefinition[Extension]):
+class ExtensionDefinition(
+    HumanFacingDefinition,
+    OrderedPluginDefinition[Extension],
+    ServicePluginDefinition[Extension],
+):
     """
     .. plugin_type:: extension.
 
@@ -53,9 +63,12 @@ class ExtensionDefinition(HumanFacingDefinition, DependentPluginDefinition[Exten
         description: ResolvableLocalizable | None = None,
         comes_before: Set[ResolvablePluginId] | None = None,
         comes_after: Set[ResolvablePluginId] | None = None,
-        depends_on: Set[ResolvablePluginId] | None = None,
         assets_directory: Path | None = None,
-        theme: bool = False,
+        requires: Mapping[
+            builtins.type[PluginDefinition],
+            ResolvablePluginId | Iterable[ResolvablePluginId],
+        ]
+        | None = None,
     ):
         super().__init__(
             plugin_id,
@@ -63,10 +76,9 @@ class ExtensionDefinition(HumanFacingDefinition, DependentPluginDefinition[Exten
             description=description,
             comes_before=comes_before,
             comes_after=comes_after,
-            depends_on=depends_on,
+            requires=requires,
         )
         self._assets_directory = assets_directory
-        self._theme = theme
 
     @property
     def assets_directory(self) -> Path | None:
@@ -74,13 +86,6 @@ class ExtensionDefinition(HumanFacingDefinition, DependentPluginDefinition[Exten
         The path on disk where the extension's assets are located.
         """
         return self._assets_directory
-
-    @property
-    def theme(self) -> bool:
-        """
-        Whether this extension is a theme.
-        """
-        return self._theme
 
 
 @final

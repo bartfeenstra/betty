@@ -29,8 +29,9 @@ class TestRaspberryMintConfiguration(DataTestBase[RaspberryMintConfiguration]):
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
+                extensions = await project.extensions
                 with pytest.raises(HumanFacingException) as exc_info:
-                    await sut.validate(project)
+                    await sut.validate(extensions[RaspberryMint])
         assert 'data.regional_content["unknown-region"]' in str(exc_info.value)
 
     def test_primary_color__from___init__(self) -> None:
