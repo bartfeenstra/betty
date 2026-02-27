@@ -29,7 +29,7 @@ class Requirement[RequirementT]:
         self._require = require
 
     @overload
-    def __call__(self, f: ServiceLevel, /) -> Awaitable[RequirementT]:
+    def __call__(self, f: ServiceLevel, target: Any, /) -> Awaitable[RequirementT]:
         pass
 
     @overload
@@ -47,13 +47,14 @@ class Requirement[RequirementT]:
         pass
 
     def __call__[**P, ReturnT](
-        self, f
+        self, f, target=None
     ) -> CallableRequirement[RequirementT, P, ReturnT] | Awaitable[RequirementT]:
         """
         Decorate a callable with this requirement.
         """
         if isinstance(f, ServiceLevel):
-            return self._require(f, "**UNKNOWN**")
+            assert target is not None
+            return self._require(f, target)
         return CallableRequirement(self._require, f)
 
 

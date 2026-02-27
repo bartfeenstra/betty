@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     "maps",
     label="Maps",
     description=_("Display interactive maps"),
-    depends_on={Webpack},
+    requires={ExtensionDefinition: Webpack},
     assets_directory=Path(__file__).parent / "assets",
 )
 class Maps(Generator, EntryPointProvider, Manufacturable):

@@ -57,12 +57,12 @@ class TestRequirement:
     async def test___call____with_services_with_requirement_unmet(self) -> None:
         sut = Requirement(_require)
         with pytest.raises(UnmetRequirement):
-            assert await sut(ServiceLevel())
+            assert await sut(ServiceLevel(), "My First Target")
 
     async def test___call____with_services_with_requirement_met(self) -> None:
         sut = Requirement(_require)
         services = _RequiredServiceLevel()
-        assert await sut(services) is services
+        assert await sut(services, "My First Target") is services
 
     async def test___call____with__decorated_callable_with_requirement_unmet(
         self,

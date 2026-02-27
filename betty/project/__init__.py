@@ -22,9 +22,7 @@ from betty.document import Document, DocumentProvider
 from betty.extension import Extension, ExtensionDefinition
 from betty.hashid import hashid
 from betty.importlib import fully_qualified_name
-from betty.life_cycle.manage import ManagedLifeCycle
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable.gettext import _
 from betty.locale.localize import Localizer, LocalizerRepository
 from betty.locale.translation import (
     AssetTranslationRepository,
@@ -32,25 +30,18 @@ from betty.locale.translation import (
     TranslationRepository,
 )
 from betty.machine_name import MachineName
-from betty.plugin.dependent import sort_dependent_plugin_graph
 from betty.privacy.privatizer import Privatizer
 from betty.project.data import ProjectConfiguration
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.serde import SerializerDefinition, serializer_for
 from betty.service.factory import DataManufacturable
 from betty.service.level import UNIVERSE, ServiceLevel
-from betty.service.plugin import PluginCollection
+from betty.service.plugin import ServicePluginManager, ServicePluginProvider
 from betty.service.provider import service
 from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
-    from collections.abc import (
-        AsyncIterator,
-        Collection,
-        Iterable,
-        Mapping,
-        MutableSequence,
-    )
+    from collections.abc import AsyncIterator, Collection, Iterable, Mapping
 
     from babel import Locale
 
@@ -65,11 +56,14 @@ if TYPE_CHECKING:
     from betty.plugin.data import PluginDefinitionConfiguration
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.role import RoleDefinition
+    from betty.service.plugin import PluginCollection
     from betty.url import UrlGenerator
 
 
 @final
-class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLifeCycle):
+class Project(
+    DataManufacturable[ProjectConfiguration], ServiceLevel, ServicePluginProvider
+):
     """
     Define a Betty project.
 
@@ -168,6 +162,16 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
                 ancestry=ancestry,
                 plugins=plugins,
             )
+
+    @override
+    @service
+    async def service_plugins(self) -> ServicePluginManager:
+        service_plugins = ServicePluginManager(
+            {ExtensionDefinition: self.configuration.extensions}, services=self
+        )
+        await service_plugins.bootstrap()
+        self.life_cycle.attach(service_plugins)
+        return service_plugins
 
     @property
     def configuration_file(self) -> Path:
@@ -327,64 +331,12 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
             ]
         )
 
-    @service
+    @property
     async def extensions(self) -> PluginCollection[ExtensionDefinition, Extension]:
         """
         The enabled extensions.
         """
-        extensions = self.plugins[ExtensionDefinition]
-        configured_extension_definitions = []
-        configured_extension_manufacturers = {}
-        for extension_manufacturer in self.configuration.extensions:
-            configured_extension_definitions.append(
-                await extensions[extension_manufacturer.plugin_id]
-            )
-            configured_extension_manufacturers[extension_manufacturer.plugin_id] = (
-                extension_manufacturer
-            )
-
-        extensions_sorter = await sort_dependent_plugin_graph(
-            extensions, configured_extension_definitions
-        )
-        extensions_sorter.prepare()
-
-        theme_count = 0
-        enabled_extensions = []
-        while extensions_sorter.is_active():
-            enabled_extension_ids_batch = extensions_sorter.get_ready()
-            enabled_extension_batch: MutableSequence[Extension] = []
-            for enabled_extension_id in enabled_extension_ids_batch:
-                enabled_extension_definition = await extensions[enabled_extension_id]
-                if enabled_extension_definition.theme:
-                    theme_count += 1
-                if enabled_extension_id in configured_extension_manufacturers:
-                    extension = await configured_extension_manufacturers[
-                        enabled_extension_id
-                    ](self)
-                else:
-                    extension = await self.factory.new(enabled_extension_definition.cls)
-                await extension.bootstrap()
-                enabled_extension_batch.append(extension)
-                extensions_sorter.done(enabled_extension_id)
-            self.life_cycle.attach(*enabled_extension_batch)
-            enabled_extensions.append(
-                sorted(
-                    enabled_extension_batch,
-                    key=lambda extension: extension.plugin().id,
-                )
-            )
-        initialized_extensions = PluginCollection(enabled_extensions)
-
-        # Users may not realize no theme is enabled, and be confused by their site looking bare.
-        # Warn them out of courtesy.
-        if theme_count == 0:
-            await self.app.user.message_warning(
-                _(
-                    'Your project has no theme enabled. This means your site\'s pages may look bare. Try the "raspberry-mint" extension.'
-                )
-            )
-
-        return initialized_extensions
+        return (await self.service_plugins)[ExtensionDefinition]
 
     @property
     def logo(self) -> Path:

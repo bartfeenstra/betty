@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, final
 from betty.extension import Extension, ExtensionDefinition
 from betty.license.licenses import SpdxLicenseBuilder
 from betty.locale.localizable.gettext import _
-from betty.service.requirement.extension import require_extension
 from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
@@ -40,7 +39,6 @@ async def discover_licenses(project: Project) -> Iterable[LicenseDefinition]:
     """
     Discover the SPDX licenses.
     """
-    await require_extension(Spdx)(project)
     return [
         license
         async for license in SpdxLicenseBuilder(  # noqa: A001

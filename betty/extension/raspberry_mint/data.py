@@ -8,11 +8,7 @@ from collections.abc import Iterable, Mapping
 from typing import TYPE_CHECKING, final
 
 from betty.color import ColorDefinition
-from betty.content import (
-    Content,
-    ContentDefinition,
-    ContentManufacturer,
-)
+from betty.content import Content, ContentDefinition, ContentManufacturer
 from betty.data import Data, Sample
 from betty.data.aggregate.collection.mapping import MappingDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
@@ -25,7 +21,6 @@ from betty.plugin.data import PluginManufacturerSequenceDefinition
 from betty.plugin.factory import ResolvablePluginManufacturer
 from betty.property import Property
 from betty.sample import Size
-from betty.service.requirement.extension import require_extension
 
 if TYPE_CHECKING:
     from betty.extension.raspberry_mint import RaspberryMint
@@ -144,7 +139,6 @@ class RaspberryMintConfiguration(Data):
                 }
             )
 
-    @require_extension("raspberry-mint")
     async def validate(self, raspberry_mint: RaspberryMint, /) -> None:
         """
         Validate the configuration.

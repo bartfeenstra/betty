@@ -43,6 +43,7 @@ from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.bool import BoolDefinition
 from betty.data.enum import EnumDefinition
 from betty.data.int import IntDefinition
+from betty.extension import ExtensionDefinition
 from betty.extension._theme import (
     associated_file_references,
     person_timeline_events,
@@ -67,7 +68,6 @@ from betty.privacy import is_public
 from betty.property import Optional, Property
 from betty.role import RoleDefinition
 from betty.service.factory import DataManufacturable, Manufacturable
-from betty.service.requirement.extension import require_extension
 from betty.service.requirement.project import require_project
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
@@ -179,7 +179,6 @@ class Section(Template, DataManufacturable[SectionConfiguration]):
     @classmethod
     @require_project
     async def new(cls, project: Project, data: SectionConfiguration, /) -> Self:
-        await require_extension(RaspberryMint, project)
         content, jinja = await gather(
             gather(
                 *map(
@@ -234,7 +233,6 @@ class EntityCard(Template, DataManufacturable[EntityReference]):
     @classmethod
     @require_project
     async def new(cls, project: Project, data: EntityReference, /) -> Self:
-        await require_extension(RaspberryMint, project)
         return cls(
             ancestry=project.ancestry,
             entity=data,
@@ -262,7 +260,6 @@ class Families(Template, Manufacturable):
     @classmethod
     @require_project
     async def new(cls, project: Project, /) -> Self:
-        await require_extension(RaspberryMint, project)
         return cls(jinja=await project.jinja)
 
     @override
@@ -290,7 +287,6 @@ class Media(Template, Manufacturable):
     @classmethod
     @require_project
     async def new(cls, project: Project, /) -> Self:
-        await require_extension(RaspberryMint, project)
         return cls(jinja=await project.jinja)
 
     @override
@@ -306,6 +302,7 @@ class Media(Template, Manufacturable):
     "raspberry-mint-media-gallery",
     label=_("Media gallery"),
     description=_("Multiple files in a media gallery display"),
+    requires={ExtensionDefinition: {RaspberryMint}},
 )
 class MediaGallery(Template, Manufacturable):
     """
@@ -318,7 +315,6 @@ class MediaGallery(Template, Manufacturable):
     @classmethod
     @require_project
     async def new(cls, project: Project, /) -> Self:
-        await require_extension(RaspberryMint, project)
         return cls(jinja=await project.jinja)
 
     @override
@@ -401,7 +397,6 @@ class ColorStyle(Template, DataManufacturable[ColorStyleConfiguration]):
     @classmethod
     @require_project
     async def new(cls, project: Project, data: ColorStyleConfiguration, /) -> Self:
-        await require_extension(RaspberryMint, project)
         content, jinja = await gather(
             gather(
                 *map(
@@ -436,7 +431,6 @@ class ExternalLinks(Template, Manufacturable):
     @classmethod
     @require_project
     async def new(cls, project: Project, /) -> Self:
-        await require_extension(RaspberryMint, project)
         return cls(jinja=await project.jinja)
 
     @override
@@ -464,7 +458,6 @@ class Timeline(Template, Manufacturable):
     @classmethod
     @require_project
     async def new(cls, project: Project, /) -> Self:
-        await require_extension(RaspberryMint, project)
         return cls(
             jinja=await project.jinja,
             lifetime_threshold=project.configuration.lifetime_threshold,
@@ -502,7 +495,6 @@ class Facts(Template, Manufacturable):
     @classmethod
     @require_project
     async def new(cls, project: Project, /) -> Self:
-        await require_extension(RaspberryMint, project)
         return cls(jinja=await project.jinja)
 
     @override
@@ -604,7 +596,6 @@ class Presences(Template, DataManufacturable[PresencesConfiguration], Manufactur
     async def new(
         cls, project: Project, data: PresencesConfiguration | None = None, /
     ) -> Self:
-        await require_extension(RaspberryMint, project)
 
         if data is None:
             raise NotImplementedError
@@ -842,7 +833,6 @@ class Columns(Template, DataManufacturable[ColumnsConfiguration]):
     @classmethod
     @require_project
     async def new(cls, project: Project, data: ColumnsConfiguration, /) -> Self:
-        await require_extension(RaspberryMint, project)
         content, jinja = await gather(
             gather(
                 *[
@@ -893,7 +883,6 @@ class Enclosees(Template, Manufacturable):
     @classmethod
     @require_project
     async def new(cls, project: Project, /) -> Self:
-        await require_extension(RaspberryMint, project)
         return cls(jinja=await project.jinja)
 
     @override
@@ -922,7 +911,6 @@ class FileReferees(Template, Manufacturable):
     @classmethod
     @require_project
     async def new(cls, project: Project, /) -> Self:
-        await require_extension(RaspberryMint, project)
         return cls(jinja=await project.jinja)
 
     @override
@@ -946,7 +934,6 @@ class Citations(Template, Manufacturable):
     @classmethod
     @require_project
     async def new(cls, project: Project, /) -> Self:
-        await require_extension(RaspberryMint, project)
         return cls(jinja=await project.jinja)
 
     @override

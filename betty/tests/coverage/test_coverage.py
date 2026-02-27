@@ -223,6 +223,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/service/__init__.py": {
         "ServiceError": MissingReason.ABSTRACT,
     },
+    "betty/service/plugin.py": {
+        "ServicePluginProvider": MissingReason.ABSTRACT,
+    },
     "betty/service/provider.py": {
         "ServiceInitializedError": MissingReason.ABSTRACT,
     },

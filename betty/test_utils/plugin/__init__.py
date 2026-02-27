@@ -23,8 +23,8 @@ class DummyPlugin(Plugin["DummyPluginDefinition"]):
 @final
 @PluginTypeDefinition(
     "dummy-plugin",
-    label=" dummy plugin",
-    label_plural=" dummy plugin",
+    label="dummy plugin",
+    label_plural="dummy plugin",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class DummyPluginDefinition(PluginDefinition[DummyPlugin]):

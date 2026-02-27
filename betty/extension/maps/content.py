@@ -10,11 +10,9 @@ from betty.ancestry.place import Place
 from betty.content import ContentDefinition
 from betty.content.contents import Template, TemplateBuild
 from betty.document import Document
-from betty.extension.maps import Maps
 from betty.locale.localizable.gettext import _
 from betty.project import Project
 from betty.service.factory import Manufacturable
-from betty.service.requirement.extension import require_extension
 from betty.service.requirement.project import require_project
 
 
@@ -30,7 +28,6 @@ class Map(Template, Manufacturable):
     @classmethod
     @require_project
     async def new(cls, project: Project, /) -> Self:
-        await require_extension(Maps, project)
         return cls(jinja=await project.jinja)
 
     @override
@@ -70,7 +67,6 @@ class Attribution(Template, Manufacturable):
     @classmethod
     @require_project
     async def new(cls, project: Project, /) -> Self:
-        await require_extension(Maps, project)
         return cls(jinja=await project.jinja)
 
     @override

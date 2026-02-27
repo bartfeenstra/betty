@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     "trees",
     label="Trees",
     description=_("Display interactive family trees using Cytoscape."),
-    depends_on={Webpack},
+    requires={ExtensionDefinition: Webpack},
     assets_directory=Path(__file__).parent / "assets",
 )
 class Trees(Generator, EntryPointProvider, Manufacturable):

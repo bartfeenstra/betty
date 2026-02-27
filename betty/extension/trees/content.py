@@ -8,11 +8,9 @@ from betty.ancestry.person import Person
 from betty.content import ContentDefinition
 from betty.content.contents import Template, TemplateBuild
 from betty.document import Document
-from betty.extension.trees import Trees
 from betty.locale.localizable.gettext import _
 from betty.project import Project
 from betty.service.factory import Manufacturable
-from betty.service.requirement.extension import require_extension
 from betty.service.requirement.project import require_project
 
 
@@ -28,7 +26,6 @@ class Tree(Template, Manufacturable):
     @classmethod
     @require_project
     async def new(cls, project: Project, /) -> Self:
-        await require_extension(Trees, project)
         return cls(jinja=await project.jinja)
 
     @override

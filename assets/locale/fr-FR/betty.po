@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-03-02 01:40+0000\n"
+"POT-Creation-Date: 2026-03-10 17:25+0000\n"
 "PO-Revision-Date: 2026-02-17 18:12+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: fr_FR\n"
@@ -1944,13 +1944,6 @@ msgstr ""
 msgid "Your project at {file}"
 msgstr ""
 
-msgid ""
-"Your project has no theme enabled. This means your site's pages may look "
-"bare. Try the \"raspberry-mint\" extension."
-msgstr ""
-"Votre projet n’a pas de thème activé. Cela signifie que les pages de "
-"votre site peuvent sembler nues. Essayez l’extension \"raspberry-mint\"."
-
 msgid "Zoom in"
 msgstr "Zoom avant"
 
@@ -2645,12 +2638,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "{target} requires a running app."
-msgstr ""
-
-#, python-brace-format
-msgid ""
-"{target} requires the {extension} extension. Enable it in your project "
-"configuration, and try again."
 msgstr ""
 
 msgid "© Copyright the author, unless otherwise credited"

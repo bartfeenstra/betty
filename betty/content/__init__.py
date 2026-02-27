@@ -11,8 +11,9 @@ from markupsafe import Markup
 
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
+from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.factory import PluginManufacturer
+from betty.service.plugin import ServicePluginDefinition
 
 if TYPE_CHECKING:
     import builtins
@@ -40,7 +41,7 @@ class Content(ABC, Plugin["ContentDefinition"]):
     label_plural=_("Contents"),
     label_countable=ngettext("{count} content", "{count} contents"),
 )
-class ContentDefinition(HumanFacingDefinition, PluginDefinition[Content]):
+class ContentDefinition(HumanFacingDefinition, ServicePluginDefinition[Content]):
     """
     .. plugin_type:: content.
     """

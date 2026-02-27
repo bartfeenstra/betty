@@ -11,7 +11,3 @@ class TestExtensionDefinition:
             "-dummy", assets_directory=assets_directory_path, label=DUMMY_LOCALIZABLE
         )
         assert sut.assets_directory == assets_directory_path
-
-    def test_theme(self) -> None:
-        sut = ExtensionDefinition("-dummy", theme=True, label=DUMMY_LOCALIZABLE)
-        assert sut.theme

@@ -66,14 +66,16 @@ async def generate_with_cleanup(
 @ExtensionDefinition(
     "demo",
     label="Demo",
-    depends_on={
-        Deriver,
-        HttpApiDoc,
-        Maps,
-        RaspberryMint,
-        Spdx,
-        Trees,
-        Wiki,
+    requires={
+        ExtensionDefinition: (
+            Deriver,
+            HttpApiDoc,
+            Maps,
+            RaspberryMint,
+            Spdx,
+            Trees,
+            Wiki,
+        )
     },
     assets_directory=Path(__file__).parent / "assets",
 )

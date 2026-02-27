@@ -22,12 +22,12 @@ from betty.definition.human_facing import HumanFacingDefinition
 from betty.functools import Result
 from betty.importlib import import_any
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.project import Project
 from betty.serde import SerializerDefinition
 from betty.service.factory import DataManufacturable
 from betty.service.level import UNIVERSE
+from betty.service.plugin import ServicePluginDefinition
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -49,14 +49,22 @@ def _to_thread[T](target: Callable[[], T]) -> T:
     return result.result()
 
 
-async def _get_plugins(plugin_type_id: str) -> Mapping[MachineName, PluginDefinition]:
+type _Plugins = Mapping[MachineName, Mapping[MachineName, PluginDefinition]]
+
+
+async def _get_plugins() -> _Plugins:
     async with (
         App.new_isolated() as app,
         app,
         Project.new_isolated(app) as project,
         project,
     ):
-        return {plugin.id: plugin async for plugin in project.plugins[plugin_type_id]}
+        return {
+            plugin_type: {
+                plugin.id: plugin async for plugin in project.plugins[plugin_type]
+            }
+            for plugin_type in project.plugins.keys()  # noqa: SIM118
+        }  # ty:ignore[invalid-return-type]
 
 
 def _cmp_formats(left: PluginDefinition, right: PluginDefinition) -> int:
@@ -120,8 +128,8 @@ class _PluginDirective(SphinxDirective):
             raise ValueError(
                 f"The plugin directive requires a single argument that is a plugin type ID and a plugin ID, joined with a colon (:), but `{argument}` was given."
             ) from None
-        plugins = _to_thread(lambda: run(_get_plugins(plugin_type_id)))
-        plugin = plugins[plugin_id]
+        plugins = _to_thread(lambda: run(_get_plugins()))
+        plugin = plugins[plugin_type_id][plugin_id]
         return [
             self._build_summary(plugin),
             *self._build_metadata(plugin, plugins),
@@ -141,7 +149,7 @@ class _PluginDirective(SphinxDirective):
         return nodes.paragraph("", "", *summary_nodes)
 
     def _build_metadata(
-        self, plugin: PluginDefinition, plugins: Mapping[MachineName, PluginDefinition]
+        self, plugin: PluginDefinition, plugins: _Plugins
     ) -> list[nodes.Node]:
         cls = plugin.cls
         if issubclass(cls, DataManufacturable):
@@ -160,25 +168,35 @@ class _PluginDirective(SphinxDirective):
    * - Configuration
      - {configuration_content}
 """
-        if isinstance(plugin, DependentPluginDefinition) and (
-            depends_on_content := self._build_other_plugins_references(
-                [plugins[plugin_id] for plugin_id in plugin.depends_on]
+        if isinstance(plugin, ServicePluginDefinition) and (
+            requires_content := self._build_other_plugins_references(
+                [
+                    plugins[plugin_type.type().id][requires]
+                    for plugin_type, plugin_type_requires in plugin.requires.items()
+                    for requires in plugin_type_requires
+                ]
             )
         ):
             content += f"""
-   * - Depends on
-{depends_on_content}
+   * - Requires
+{requires_content}
 """
         if isinstance(plugin, OrderedPluginDefinition):
             if comes_before_content := self._build_other_plugins_references(
-                [plugins[plugin_id] for plugin_id in plugin.comes_before]
+                [
+                    plugins[plugin.type().id][plugin_id]
+                    for plugin_id in plugin.comes_before
+                ]
             ):
                 content += f"""
    * - Comes before
 {comes_before_content}
 """
             if comes_after_content := self._build_other_plugins_references(
-                [plugins[plugin_id] for plugin_id in plugin.comes_after]
+                [
+                    plugins[plugin.type().id][plugin_id]
+                    for plugin_id in plugin.comes_after
+                ]
             ):
                 content += f"""
    * - Comes after
@@ -215,7 +233,7 @@ class _PluginTypeDirective(SphinxDirective):
         # Right-strip periods to avoid D400 and D415 violations.
         plugin_type_id = self.arguments[0].rstrip(".")
         plugin_type = UNIVERSE.plugins[plugin_type_id].type
-        plugins = _to_thread(lambda: run(_get_plugins(plugin_type_id)))
+        plugins = _to_thread(lambda: run(_get_plugins()))
         return [
             self._build_summary(plugin_type),
             *self._build_metadata(plugin_type),
@@ -253,9 +271,7 @@ class _PluginTypeDirective(SphinxDirective):
         )
 
     def _build_builtin_plugins(
-        self,
-        plugin_type: type[PluginDefinition],
-        plugins: Mapping[MachineName, PluginDefinition],
+        self, plugin_type: type[PluginDefinition], plugins: _Plugins
     ) -> list[nodes.Node]:
         return [
             nodes.paragraph(
@@ -268,7 +284,10 @@ class _PluginTypeDirective(SphinxDirective):
             _build_definition_list(
                 [
                     self._build_builtin_plugin_definition(plugin)
-                    for plugin in sorted(plugins.values(), key=lambda plugin: plugin.id)
+                    for plugin in sorted(
+                        plugins[plugin_type.type().id].values(),
+                        key=lambda plugin: plugin.id,
+                    )
                 ]
             ),
         ]
