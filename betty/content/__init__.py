@@ -12,7 +12,6 @@ from markupsafe import Markup
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
-from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.factory import PluginManufacturer
 
 if TYPE_CHECKING:
@@ -40,7 +39,6 @@ class Content(ABC, Plugin["ContentDefinition"]):
     label=_("Content"),
     label_plural=_("Contents"),
     label_countable=ngettext("{count} content", "{count} contents"),
-    discovery=[EntryPointDiscovery("betty.content")],
 )
 class ContentDefinition(HumanFacingDefinition, PluginDefinition[Content]):
     """

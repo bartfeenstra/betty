@@ -15,7 +15,6 @@ from betty.json.schema import JsonSchemaReference, String
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
-from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
@@ -143,7 +142,6 @@ class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Plugin["EntityDefinition"
     description=_(
         "Entities represent the information in your ancestry, such as people and places."
     ),
-    discovery=[EntryPointDiscovery("betty.entity_type")],
 )
 class EntityDefinition(CountableHumanFacingDefinition, PluginDefinition[Entity]):
     """

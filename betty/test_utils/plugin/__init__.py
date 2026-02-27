@@ -26,14 +26,6 @@ class DummyPlugin(Plugin["DummyPluginDefinition"]):
     label=" dummy plugin",
     label_plural=" dummy plugin",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    discovery=[
-        lambda _: [
-            DummyPluginOne,
-            DummyPluginTwo,
-            DummyPluginThree,
-            DummyPluginFour,
-        ]
-    ],
 )
 class DummyPluginDefinition(PluginDefinition[DummyPlugin]):
     """

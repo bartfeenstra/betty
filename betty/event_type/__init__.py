@@ -10,10 +10,8 @@ from typing import TYPE_CHECKING, final, override
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition, ResolvableId, resolve_id
-from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import OrderedPluginDefinition
-from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     import builtins
@@ -50,15 +48,6 @@ class ShouldExistEventType(EventType, ABC):
     label=_("Event type"),
     label_plural=_("Event types"),
     label_countable=ngettext("{count} event type", "{count} event types"),
-    discovery=[
-        EntryPointDiscovery("betty.event_type"),
-        require_project(
-            lambda project: (
-                configuration.new_plugin()
-                for configuration in project.configuration.event_types
-            )
-        ),
-    ],
 )
 class EventTypeDefinition(
     CountableHumanFacingDefinition, OrderedPluginDefinition[EventType]

@@ -2,20 +2,20 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, final, override
+from typing import TYPE_CHECKING, final
 
 from betty.app import App
 from betty.extension import Extension, ExtensionDefinition
 from betty.license.licenses import SpdxLicenseBuilder
 from betty.locale.localizable.gettext import _
-from betty.service.factory import Manufacturable
-from betty.service.provider import service
-from betty.service.requirement.app import require_app
+from betty.service.requirement.extension import require_extension
+from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from betty.license import LicenseDefinition
+    from betty.project import Project
 
 
 @final
@@ -26,31 +26,27 @@ if TYPE_CHECKING:
         "Provide license plugins from the SPDX License List (https://spdx.org/licenses/) "
     ),
 )
-class Spdx(Manufacturable, Extension[App]):
+class Spdx(Extension[App]):
     """
     .. plugin:: extension:spdx.
     """
 
-    def __init__(self, *, app: App):
+    # Provide an initializer without arguments so the factory can call it.
+    def __init__(self):
         super().__init__()
-        self._app = app
 
-    @override
-    @classmethod
-    @require_app
-    async def new(cls, app: App, /) -> Self:
-        return cls(app=app)
 
-    @service
-    async def licenses(self) -> Iterable[LicenseDefinition]:
-        """
-        The SPDX licenses.
-        """
-        return [
-            license
-            async for license in SpdxLicenseBuilder(  # noqa: A001
-                binary_file_cache=self._app.binary_file_cache.with_scope("spdx"),
-                http_client=await self._app.http_client,
-                user=self._app.user,
-            ).build()
-        ]
+@require_project
+async def discover_licenses(project: Project) -> Iterable[LicenseDefinition]:
+    """
+    Discover the SPDX licenses.
+    """
+    await require_extension(Spdx)(project)
+    return [
+        license
+        async for license in SpdxLicenseBuilder(  # noqa: A001
+            binary_file_cache=project.app.binary_file_cache.with_scope("spdx"),
+            http_client=await project.app.http_client,
+            user=project.app.user,
+        ).build()
+    ]

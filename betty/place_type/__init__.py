@@ -9,9 +9,7 @@ from typing import TYPE_CHECKING, final, override
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
-from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.factory import PluginManufacturer
-from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     import builtins
@@ -29,15 +27,6 @@ class PlaceType(Plugin["PlaceTypeDefinition"]):
     label=_("Place type"),
     label_plural=_("Place types"),
     label_countable=ngettext("{count} place type", "{count} place types"),
-    discovery=[
-        EntryPointDiscovery("betty.place_type"),
-        require_project(
-            lambda project: (
-                configuration.new_plugin()
-                for configuration in project.configuration.place_types
-            )
-        ),
-    ],
 )
 class PlaceTypeDefinition(CountableHumanFacingDefinition, PluginDefinition[PlaceType]):
     """

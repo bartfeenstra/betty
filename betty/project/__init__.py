@@ -41,6 +41,7 @@ from betty.service.factory import DataManufacturable
 from betty.service.level import UNIVERSE, ServiceLevel
 from betty.service.plugin import PluginCollection
 from betty.service.provider import service
+from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from collections.abc import (
@@ -54,10 +55,16 @@ if TYPE_CHECKING:
     from babel import Locale
 
     from betty.app import App
-    from betty.copyright_notice import CopyrightNotice
+    from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
+    from betty.event_type import EventTypeDefinition
+    from betty.gender import GenderDefinition
     from betty.jinja import Environment
-    from betty.license import License
-    from betty.plugin import PluginDefinition, ResolvableDiscovery
+    from betty.license import License, LicenseDefinition
+    from betty.place_type import PlaceTypeDefinition
+    from betty.plugin import PluginDefinition
+    from betty.plugin.data import PluginDefinitionConfiguration
+    from betty.plugin.discovery import ResolvableDiscovery
+    from betty.role import RoleDefinition
     from betty.url import UrlGenerator
 
 
@@ -433,3 +440,42 @@ class Project(DataManufacturable[ProjectConfiguration], ServiceLevel, ManagedLif
             },
             **kwargs,
         )
+
+
+def _discover[PluginDefinitionT: PluginDefinition](
+    plugins: Iterable[PluginDefinitionConfiguration[PluginDefinitionT]],
+) -> Iterable[PluginDefinitionT]:
+    for plugin in plugins:
+        yield plugin.new_plugin()
+
+
+@require_project
+def _discover_copyright_notices(
+    project: Project,
+) -> Iterable[CopyrightNoticeDefinition]:
+    return _discover(project.configuration.copyright_notices)
+
+
+@require_project
+def _discover_event_types(project: Project) -> Iterable[EventTypeDefinition]:
+    return _discover(project.configuration.event_types)
+
+
+@require_project
+def _discover_genders(project: Project) -> Iterable[GenderDefinition]:
+    return _discover(project.configuration.genders)
+
+
+@require_project
+def _discover_licenses(project: Project) -> Iterable[LicenseDefinition]:
+    return _discover(project.configuration.licenses)
+
+
+@require_project
+def _discover_place_types(project: Project) -> Iterable[PlaceTypeDefinition]:
+    return _discover(project.configuration.place_types)
+
+
+@require_project
+def _discover_roles(project: Project) -> Iterable[RoleDefinition]:
+    return _discover(project.configuration.roles)

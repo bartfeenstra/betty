@@ -2,16 +2,20 @@ from __future__ import annotations  # noqa: D100
 
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.about import IS_DEVELOPMENT
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.locale import translation
 from betty.locale.localizable.gettext import _
 from betty.service.factory import Manufacturable
+from betty.service.requirement import UnmetRequirement
 from betty.service.requirement.app import require_app
 
 if TYPE_CHECKING:
     import argparse
+    from collections.abc import Iterable
 
     from betty.app import App
+    from betty.plugin.discovery import ResolvableDiscovery
 
 
 @final
@@ -39,3 +43,9 @@ class DevUpdateTranslations(Manufacturable, Command):
 
     async def _command_function(self) -> None:
         await translation.update_dev_translations()
+
+
+def _discover(_) -> Iterable[ResolvableDiscovery[CommandDefinition]]:
+    if not IS_DEVELOPMENT:
+        raise UnmetRequirement("This is only available when developing Betty")
+    yield DevUpdateTranslations

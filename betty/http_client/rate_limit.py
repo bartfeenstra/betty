@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, final
 from betty.concurrent import AsynchronizedLock, RateLimiter
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition
-from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.typing import threadsafe
 
@@ -96,7 +95,6 @@ class RateLimit(Plugin["RateLimitDefinition"]):
     description=_(
         "Rate limits ensure that Betty's HTTP client does not make more requests to a web service than that service supports or allows, by enforcing a maximum number of requests per timeframe."
     ),
-    discovery=[EntryPointDiscovery("betty.http_rate_limit")],
 )
 class RateLimitDefinition(OrderedPluginDefinition[RateLimit]):
     """

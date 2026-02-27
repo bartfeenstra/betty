@@ -16,7 +16,7 @@ from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
 )
-from betty.test_utils.plugin import DummyPlugin, DummyPluginTwo
+from betty.test_utils.plugin import DummyPlugin
 
 
 @final
@@ -97,16 +97,6 @@ class TestPluginTypeDefinition:
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
         )
         assert sut.id == plugin_type_id
-
-    async def test_discovery(self) -> None:
-        sut = PluginTypeDefinition(
-            "-dummy",
-            label=DUMMY_LOCALIZABLE,
-            label_plural=DUMMY_LOCALIZABLE,
-            label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-            discovery=[DummyPluginTwo],
-        )
-        assert list(sut.discovery) == [DummyPluginTwo]
 
 
 class TestPluginDefinition:

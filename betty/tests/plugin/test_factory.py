@@ -9,13 +9,8 @@ from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.factory import PluginManufacturer
 from betty.service.level import ServiceLevel
 from betty.test_utils.data import DummyData
-from betty.test_utils.locale.localizable import (
-    DUMMY_COUNTABLE_LOCALIZABLE,
-)
-from betty.test_utils.plugin import (
-    DummyPluginManufacturer,
-    DummyPluginOne,
-)
+from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
+from betty.test_utils.plugin import DummyPluginManufacturer, DummyPluginOne
 from betty.test_utils.service.level import DummyDataManufacturable
 from betty.typing import Void
 
@@ -35,7 +30,6 @@ class _DataManufacturableDummyPlugin(
     label="DataManufacturable dummy plugin",
     label_plural="DataManufacturable dummy plugins",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    discovery=[lambda _: [_DataManufacturableDummyPluginOne]],
 )
 class _DataManufacturableDummyPluginDefinition(
     PluginDefinition[_DataManufacturableDummyPlugin]
