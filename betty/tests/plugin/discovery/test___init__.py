@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING
 
 import pytest
 
 from betty.plugin import PluginDefinition
-from betty.plugin.discovery import PluginDiscovery, ResolvableDiscovery, discover
+from betty.plugin.discovery import ResolvableDiscovery, discover
 from betty.service.level import UNIVERSE
 from betty.test_utils.plugin import DummyPluginDefinition, DummyPluginOne
 
@@ -15,14 +15,11 @@ if TYPE_CHECKING:
     from betty.service.level import ServiceLevel
 
 
-class _StaticDiscovery[PluginDefinitionT: PluginDefinition](
-    PluginDiscovery[PluginDefinitionT]
-):
+class _StaticDiscovery[PluginDefinitionT: PluginDefinition]:
     def __init__(self, *discoveries: ResolvableDiscovery[PluginDefinitionT]):
         self._discoveries = discoveries
 
-    @override
-    async def discover(
+    async def __call__(
         self, services: ServiceLevel, /
     ) -> Iterable[ResolvableDiscovery[PluginDefinitionT]]:
         return self._discoveries

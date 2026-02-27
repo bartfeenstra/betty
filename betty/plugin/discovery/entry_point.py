@@ -5,10 +5,9 @@ Discover plugins defined as distribution package entry points.
 from __future__ import annotations
 
 from importlib import metadata
-from typing import TYPE_CHECKING, cast, final, override
+from typing import TYPE_CHECKING, cast, final
 
 from betty.plugin import PluginDefinition, ResolvableDefinition
-from betty.plugin.discovery import PluginDiscovery
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -17,9 +16,7 @@ if TYPE_CHECKING:
 
 
 @final
-class EntryPointDiscovery[PluginDefinitionT: PluginDefinition](
-    PluginDiscovery[PluginDefinitionT]
-):
+class EntryPointDiscovery[PluginDefinitionT: PluginDefinition]:
     """
     Discover plugins defined as distribution package `entry points <https://packaging.python.org/en/latest/specifications/entry-points/>`_.
 
@@ -43,10 +40,12 @@ class EntryPointDiscovery[PluginDefinitionT: PluginDefinition](
     ):
         self._entry_point_group = entry_point_group
 
-    @override
-    async def discover(
+    async def __call__(
         self, services: ServiceLevel, /
     ) -> Iterable[ResolvableDefinition[PluginDefinitionT]]:
+        """
+        Discover the plugin definitions.
+        """
         return [
             cast(ResolvableDefinition[PluginDefinitionT], entry_point.load())
             for entry_point in metadata.entry_points(group=self._entry_point_group)

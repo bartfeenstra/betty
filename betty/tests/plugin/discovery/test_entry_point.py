@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 class TestEntryPointDiscovery:
-    async def test_discover(self, mocker: MockerFixture) -> None:
+    async def test___call__(self, mocker: MockerFixture) -> None:
         entry_point_group = "test-entry-point"
         m_entry_points = mocker.patch(
             "importlib.metadata.entry_points",
@@ -32,7 +32,7 @@ class TestEntryPointDiscovery:
             ),
         )
         sut = EntryPointDiscovery(entry_point_group)
-        plugins = await sut.discover(UNIVERSE)
+        plugins = await sut(UNIVERSE)
         assert DummyPluginOne in plugins
         assert DummyPluginTwo in plugins
         m_entry_points.assert_called_once_with(group=entry_point_group)
