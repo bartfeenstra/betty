@@ -40,7 +40,7 @@ class PluginTypeNotFound(PluginError, HumanFacingException):
     ):
         super().__init__(
             Paragraph(
-                _('Could not find the plugin type "{plugin_type}".').format(
+                _('Cannot find the "{plugin_type}" plugin type.').format(
                     plugin_type=plugin_type_not_found
                 ),
                 do_you_mean(
@@ -67,7 +67,7 @@ class PluginNotFound(PluginError, HumanFacingException):
     ):
         super().__init__(
             Paragraph(
-                _('Could not find a(n) {plugin_type} plugin "{plugin_id}".').format(
+                _('Cannot find the "{plugin_id}" {plugin_type} plugin.').format(
                     plugin_type=plugin_type.type().label, plugin_id=plugin_not_found
                 ),
                 do_you_mean(

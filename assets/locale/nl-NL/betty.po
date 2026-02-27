@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-02-27 11:46+0000\n"
+"POT-Creation-Date: 2026-02-27 13:51+0000\n"
 "PO-Revision-Date: 2026-02-17 19:37+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -341,6 +341,14 @@ msgid "Cannot find an available port to bind the web server to."
 msgstr "Kan geen beschikbare poort voor de webserver vinden."
 
 #, python-brace-format
+msgid "Cannot find the \"{plugin_id}\" {plugin_type} plugin."
+msgstr ""
+
+#, python-brace-format
+msgid "Cannot find the \"{plugin_type}\" plugin type."
+msgstr ""
+
+#, python-brace-format
 msgid ""
 "Cannot generate pages for {entity_type}, because it is not a public-"
 "facing entity type."
@@ -521,10 +529,6 @@ msgstr ""
 "uitpakken."
 
 #, python-brace-format
-msgid "Could not find a(n) {plugin_type} plugin \"{plugin_id}\"."
-msgstr "Kon geen {plugin_type}-plugin \"{plugin_id}\" vinden."
-
-#, python-brace-format
 msgid ""
 "Could not find any of the following configuration files in "
 "{project_directory_path}: {configuration_file_names}."
@@ -535,10 +539,6 @@ msgstr ""
 #, python-brace-format
 msgid "Could not find the file \"{file_path}\"."
 msgstr "Kan het bestand \"{file_path}\" niet vinden."
-
-#, python-brace-format
-msgid "Could not find the plugin type \"{plugin_type}\"."
-msgstr ""
 
 msgid "Counties"
 msgstr ""
