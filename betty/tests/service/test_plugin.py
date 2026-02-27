@@ -1,14 +1,16 @@
-from collections.abc import Iterable
+from collections.abc import Iterable, Iterator
+from importlib.metadata import EntryPoint, EntryPoints
 
 import pytest
+from pytest_mock import MockerFixture
 
-from betty.ancestry.person import Person
+from betty.importlib import fully_qualified_name
 from betty.machine_name import MachineName
-from betty.model import EntityDefinition
 from betty.plugin import Plugin
 from betty.plugin.error import PluginNotFound
 from betty.service.level import UNIVERSE
 from betty.service.plugin import PluginCollection, PluginManager
+from betty.string import kebab_case_to_snake_case
 from betty.test_utils.plugin import (
     DummyPluginDefinition,
     DummyPluginFour,
@@ -117,13 +119,31 @@ class TestPluginCollection:
 
 
 class TestPluginManager:
+    @pytest.fixture
+    def entry_points(self, mocker: MockerFixture) -> Iterator[None]:
+        entry_point_group = kebab_case_to_snake_case(DummyPluginDefinition.type().id)
+        m_entry_points = mocker.patch(
+            "importlib.metadata.entry_points",
+            return_value=EntryPoints(
+                [
+                    EntryPoint(
+                        name=DummyPluginOne.plugin().id,
+                        value=fully_qualified_name(DummyPluginOne),
+                        group=entry_point_group,
+                    ),
+                ]
+            ),
+        )
+        yield
+        m_entry_points.assert_called_once_with(group=f"betty.{entry_point_group}")
+
     async def test___aiter____without_plugins(self) -> None:
         sut = PluginManager(UNIVERSE, DummyPluginDefinition, [])
         assert not [x async for x in aiter(sut)]
 
-    async def test___aiter____with_discovered_plugins(self) -> None:
-        sut = PluginManager(UNIVERSE, EntityDefinition)
-        assert Person.plugin() in [x async for x in aiter(sut)]
+    async def test___aiter____with_discovered_plugins(self, entry_points: None) -> None:
+        sut = PluginManager(UNIVERSE, DummyPluginDefinition)
+        assert DummyPluginOne.plugin() in [x async for x in aiter(sut)]
 
     async def test___aiter____with_overridden_plugins(self) -> None:
         sut = PluginManager(UNIVERSE, DummyPluginDefinition, [DummyPluginOne])
@@ -134,9 +154,11 @@ class TestPluginManager:
         with pytest.raises(PluginNotFound):
             await sut["unknown-plugin"]
 
-    async def test___getitem____with_discovered_plugins(self) -> None:
-        sut = PluginManager(UNIVERSE, EntityDefinition)
-        assert await sut[Person.plugin().id] is Person.plugin()
+    async def test___getitem____with_discovered_plugins(
+        self, entry_points: None
+    ) -> None:
+        sut = PluginManager(UNIVERSE, DummyPluginDefinition)
+        assert await sut[DummyPluginOne.plugin().id] is DummyPluginOne.plugin()
 
     async def test___getitem____with_overridden_plugin(self) -> None:
         sut = PluginManager(UNIVERSE, DummyPluginDefinition, [DummyPluginOne])
@@ -146,9 +168,9 @@ class TestPluginManager:
         sut = PluginManager(UNIVERSE, DummyPluginDefinition, [])
         assert not list(await sut.ids())
 
-    async def test_ids__with_discovered_plugins(self) -> None:
-        sut = PluginManager(UNIVERSE, EntityDefinition)
-        assert Person.plugin().id in list(await sut.ids())
+    async def test_ids__with_discovered_plugins(self, entry_points: None) -> None:
+        sut = PluginManager(UNIVERSE, DummyPluginDefinition)
+        assert DummyPluginOne.plugin().id in list(await sut.ids())
 
     async def test_ids__with_overridden_plugins(self) -> None:
         sut = PluginManager(UNIVERSE, DummyPluginDefinition, [DummyPluginOne])

@@ -9,7 +9,6 @@ from betty.life_cycle.manage import ManagedLifeCycle
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition, ResolvableId
 from betty.plugin.dependent import DependentPluginDefinition
-from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.factory import PluginManufacturer
 from betty.service.level import ServiceLevel
 
@@ -36,7 +35,6 @@ class Extension[ServiceLevelT: ServiceLevel = ServiceLevel](
     label=_("Extension"),
     label_plural=_("Extensions"),
     label_countable=ngettext("{count} extension", "{count} extensions"),
-    discovery=[EntryPointDiscovery("betty.extension")],
 )
 class ExtensionDefinition(HumanFacingDefinition, DependentPluginDefinition[Extension]):
     """

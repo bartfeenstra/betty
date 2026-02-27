@@ -18,14 +18,12 @@ from betty.machine_name import MachineName, ResolvableMachineName
 
 if TYPE_CHECKING:
     import builtins
-    from collections.abc import Collection, Iterable
 
     from betty.locale.localizable import (
         CountableLocalizable,
         Localizable,
         ResolvableLocalizable,
     )
-    from betty.plugin.discovery import ResolvableDiscovery
 
 
 class PluginDefinition[BaseClsT](ClsDefinition[BaseClsT]):
@@ -97,7 +95,6 @@ class PluginTypeDefinition[BaseClsT, PluginDefinitionT: PluginDefinition](
         label_plural: ResolvableLocalizable,
         label_countable: CountableLocalizable,
         description: ResolvableLocalizable | None = None,
-        discovery: Iterable[ResolvableDiscovery[PluginDefinitionT]] | None = None,
     ):
         super().__init__(
             label=label,
@@ -107,7 +104,6 @@ class PluginTypeDefinition[BaseClsT, PluginDefinitionT: PluginDefinition](
         )
 
         self._id = MachineName.resolve(plugin_type_id)
-        self._discovery = () if discovery is None else tuple(discovery)
 
     @property
     def id(self) -> MachineName:
@@ -120,13 +116,6 @@ class PluginTypeDefinition[BaseClsT, PluginDefinitionT: PluginDefinition](
     def _set_cls(self, cls: type[PluginDefinitionT]) -> None:
         super()._set_cls(cls)
         cls.type = staticmethod(update_wrapper(lambda: self, cls.type))  # ty:ignore[invalid-assignment]
-
-    @property
-    def discovery(self) -> Collection[ResolvableDiscovery[PluginDefinitionT]]:
-        """
-        The plugin discoveries for this type.
-        """
-        return self._discovery
 
 
 class Plugin[PluginDefinitionT: PluginDefinition]:

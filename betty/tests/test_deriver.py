@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
     from betty.app import App
-    from betty.plugin import ResolvableDiscovery
+    from betty.plugin.discovery import ResolvableDiscovery
 
 type NewProject = Callable[
     [Iterable[ResolvableDiscovery[EventTypeDefinition]]],

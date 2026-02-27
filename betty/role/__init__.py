@@ -9,9 +9,7 @@ from typing import TYPE_CHECKING, final, override
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
-from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.factory import PluginManufacturer
-from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     import builtins
@@ -29,15 +27,6 @@ class Role(Plugin["RoleDefinition"]):
     label=_("Role"),
     label_plural=_("Roles"),
     label_countable=ngettext("{count} role", "{count} roles"),
-    discovery=[
-        EntryPointDiscovery("betty.role"),
-        require_project(
-            lambda project: (
-                configuration.new_plugin()
-                for configuration in project.configuration.roles
-            )
-        ),
-    ],
 )
 class RoleDefinition(CountableHumanFacingDefinition, PluginDefinition[Role]):
     """

@@ -45,7 +45,8 @@ if TYPE_CHECKING:
     import aiohttp
 
     from betty.cache import Cache
-    from betty.plugin import PluginDefinition, ResolvableDiscovery
+    from betty.plugin import PluginDefinition
+    from betty.plugin.discovery import ResolvableDiscovery
     from betty.user import User
 
 

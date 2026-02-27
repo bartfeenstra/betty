@@ -867,9 +867,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/extension/spdx/__init__.py": {
-        "Spdx": {
-            "plugin": MissingReason.INHERITED,
-        },
+        "Spdx": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/extension/trees/content.py": {
         "Tree": {

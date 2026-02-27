@@ -8,11 +8,9 @@ from abc import abstractmethod
 from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, final
 
-from betty import about
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
-from betty.plugin.discovery.entry_point import EntryPointDiscovery
 
 if TYPE_CHECKING:
     import argparse
@@ -41,10 +39,6 @@ class Command(Plugin["CommandDefinition"]):
     label=_("Command"),
     label_plural=_("Commands"),
     label_countable=ngettext("{count} command", "{count} commands"),
-    discovery=[
-        EntryPointDiscovery("betty.command"),
-        *([EntryPointDiscovery("betty.dev.command")] if about.IS_DEVELOPMENT else []),
-    ],
 )
 class CommandDefinition(HumanFacingDefinition, PluginDefinition[Command]):
     """

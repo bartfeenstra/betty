@@ -6,8 +6,8 @@ Service levels can expose services of plugin instances.
 
 from __future__ import annotations
 
-from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, final, overload, override
+from importlib import metadata
+from typing import TYPE_CHECKING, Any, cast, final, overload, override
 
 from betty.collection.keyed import KeyedCollection
 from betty.concurrent import AsynchronizedLock
@@ -18,7 +18,9 @@ from betty.plugin import (
     ResolvableId,
     resolve_id,
 )
+from betty.plugin.discovery import ResolvableDiscovery
 from betty.plugin.error import PluginNotFound
+from betty.string import kebab_case_to_snake_case
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
@@ -27,7 +29,6 @@ if TYPE_CHECKING:
 
     from ty_extensions import Intersection
 
-    from betty.plugin.discovery import ResolvableDiscovery
     from betty.service.level import ServiceLevel
 
 
@@ -91,14 +92,14 @@ class PluginManager[PluginDefinitionT: PluginDefinition]:
         self,
         services: ServiceLevel,
         plugin_type: builtins.type[PluginDefinitionT],
-        discovery: Iterable[ResolvableDiscovery[PluginDefinition]] | None = None,
+        plugin_overrides: Iterable[ResolvableDiscovery[PluginDefinition]] | None = None,
         /,
     ):
         self._services = services
         self._type = plugin_type
         self._lock = AsynchronizedLock.new_threadsafe()
         self._discovery = (
-            plugin_type.type().discovery if discovery is None else discovery
+            [self._discover] if plugin_overrides is None else plugin_overrides
         )
         self.__plugins: Mapping[MachineName, PluginDefinitionT] | None = None
 
@@ -108,6 +109,14 @@ class PluginManager[PluginDefinitionT: PluginDefinition]:
         The plugin type.
         """
         return self._type
+
+    def _discover(
+        self, services: ServiceLevel
+    ) -> Iterable[ResolvableDiscovery[PluginDefinitionT]]:
+        for entry_point in metadata.entry_points(
+            group=f"betty.{kebab_case_to_snake_case(self.type.type().id)}"
+        ):
+            yield cast(ResolvableDiscovery[PluginDefinitionT], entry_point.load())
 
     async def _plugins(self) -> Mapping[MachineName, PluginDefinitionT]:
         from betty.plugin.discovery import discover

@@ -6,20 +6,24 @@ from typing import TYPE_CHECKING, Self, final, override
 from aiofiles.os import makedirs
 from aiofiles.tempfile import TemporaryDirectory
 
+from betty import dirs
+from betty.about import IS_DEVELOPMENT
 from betty.app import App
 from betty.console.command import Command, CommandDefinition, CommandFunction
-from betty.dirs import DEV_OUTPUT_DIRECTORY_PATH
 from betty.extension.demo import generate_with_cleanup
 from betty.extension.demo.project import create_project
 from betty.job import Context
 from betty.service.factory import Manufacturable
+from betty.service.requirement import UnmetRequirement
 from betty.service.requirement.app import require_app
 
 if TYPE_CHECKING:
     import argparse
+    from collections.abc import Iterable
 
     from yappi import YFuncStats
 
+    from betty.plugin.discovery import ResolvableDiscovery
     from betty.user import User
 
 
@@ -154,7 +158,7 @@ class DevProfileDemo(Manufacturable, Command):
         import yappi
 
         stats_file_path = (
-            DEV_OUTPUT_DIRECTORY_PATH / f"{self.plugin().id}-{clock_type}.ystats"
+            dirs.DEV_OUTPUT_DIRECTORY_PATH / f"{self.plugin().id}-{clock_type}.ystats"
         )
         if not force and stats_file_path.exists():
             stats = yappi.get_func_stats()
@@ -175,3 +179,9 @@ class DevProfileDemo(Manufacturable, Command):
             await self._app.user.message_information(
                 f"Showing newly generated stats from {stats_file_path}"
             )
+
+
+def _discover(_) -> Iterable[ResolvableDiscovery[CommandDefinition]]:
+    if not IS_DEVELOPMENT:
+        raise UnmetRequirement("This is only available when developing Betty")
+    yield DevProfileDemo
