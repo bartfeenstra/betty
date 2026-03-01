@@ -11,12 +11,12 @@ from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.str import StrDefinition
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineNameProperty
-from betty.plugin import resolve_id
+from betty.plugin import resolve_plugin_id
 from betty.property import Property
 
 if TYPE_CHECKING:
     from betty.model import EntityDefinition
-    from betty.plugin import ResolvableId
+    from betty.plugin import ResolvablePluginId
 
 
 @final
@@ -46,9 +46,9 @@ class EntityReference(Data):
     def __init__(
         self,
         /,
-        type: ResolvableId[EntityDefinition],  # noqa: A002
+        type: ResolvablePluginId[EntityDefinition],  # noqa: A002
         id: str,  # noqa: A002
     ):
         super().__init__()
-        self.type = resolve_id(type)
+        self.type = resolve_plugin_id(type)
         self.id = id

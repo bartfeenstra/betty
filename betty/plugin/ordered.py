@@ -9,7 +9,7 @@ from graphlib import TopologicalSorter
 from typing import TYPE_CHECKING, Any
 
 from betty.machine_name import MachineName, ResolvableMachineName
-from betty.plugin import PluginDefinition, ResolvableId, resolve_id
+from betty.plugin import PluginDefinition, ResolvablePluginId, resolve_plugin_id
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Mapping, Set
@@ -26,20 +26,20 @@ class OrderedPluginDefinition[BaseClsT](PluginDefinition[BaseClsT]):
         self,
         plugin_id: ResolvableMachineName,
         *,
-        comes_before: Set[ResolvableId] | None = None,
-        comes_after: Set[ResolvableId] | None = None,
+        comes_before: Set[ResolvablePluginId] | None = None,
+        comes_after: Set[ResolvablePluginId] | None = None,
         **kwargs: Any,
     ):
         super().__init__(plugin_id, **kwargs)
         self._comes_before = (
             set()
             if comes_before is None
-            else {resolve_id(plugin) for plugin in comes_before}
+            else {resolve_plugin_id(plugin) for plugin in comes_before}
         )
         self._comes_after = (
             set()
             if comes_after is None
-            else {resolve_id(plugin) for plugin in comes_after}
+            else {resolve_plugin_id(plugin) for plugin in comes_after}
         )
 
     @property
@@ -73,11 +73,11 @@ async def sort_ordered_plugin_graph[OrderedPluginDefinitionT: OrderedPluginDefin
     plugins = sorted(plugins, key=lambda plugin: plugin.id)
     for plugin in plugins:
         sorter.add(plugin.id)
-        for before_identifier in map(resolve_id, plugin.comes_before):
+        for before_identifier in map(resolve_plugin_id, plugin.comes_before):
             before = await available_plugins[before_identifier]
             if before in plugins:
                 sorter.add(before.id, plugin.id)
-        for after_identifier in map(resolve_id, plugin.comes_after):
+        for after_identifier in map(resolve_plugin_id, plugin.comes_after):
             after = await available_plugins[after_identifier]
             if after in plugins:
                 sorter.add(plugin.id, after.id)

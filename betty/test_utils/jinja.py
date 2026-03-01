@@ -15,7 +15,7 @@ from lxml.html import document_fromstring
 from betty.app import App
 from betty.jinja import Environment
 from betty.json.schema import AllOf, Ref
-from betty.plugin import ResolvableId
+from betty.plugin import ResolvablePluginId
 from betty.project import Project
 from betty.project.schema import ProjectSchema
 
@@ -34,7 +34,7 @@ async def _assert_template(
     *,
     data: MutableMapping[str, Any] | None = None,
     autoescape: bool | None = None,
-    extensions: set[ResolvableId[ExtensionDefinition]] | None = None,
+    extensions: set[ResolvablePluginId[ExtensionDefinition]] | None = None,
 ) -> AsyncIterator[tuple[str, Project]]:
     async with (
         App.new_isolated() as app,
@@ -61,7 +61,7 @@ def assert_template_string(
     *,
     data: MutableMapping[str, Any] | None = None,
     autoescape: bool | None = None,
-    extensions: set[ResolvableId[ExtensionDefinition]] | None = None,
+    extensions: set[ResolvablePluginId[ExtensionDefinition]] | None = None,
 ) -> AbstractAsyncContextManager[tuple[str, Project]]:
     """
     Assert that a template string can be rendered.
@@ -80,7 +80,7 @@ def assert_template_file(
     *,
     data: MutableMapping[str, Any] | None = None,
     autoescape: bool | None = None,
-    extensions: set[ResolvableId[ExtensionDefinition]] | None = None,
+    extensions: set[ResolvablePluginId[ExtensionDefinition]] | None = None,
 ) -> AbstractAsyncContextManager[tuple[str, Project]]:
     """
     Assert that a template file can be rendered.
@@ -95,7 +95,7 @@ def assert_template_file(
 
 
 class _TemplateTestBase:
-    extensions = set[ResolvableId]()
+    extensions = set[ResolvablePluginId]()
     """
     The extensions to enable before rendering the template.
     """

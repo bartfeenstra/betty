@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any
 from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName
-from betty.plugin import PluginDefinition, ResolvableId, resolve_id
+from betty.plugin import PluginDefinition, ResolvablePluginId, resolve_plugin_id
 from betty.plugin.data import PluginDefinitionConfiguration
 from betty.property.collection.sequence import SequenceProperty
 
@@ -39,12 +39,12 @@ class OrderedPluginDefinitionConfiguration[PluginDefinitionT: PluginDefinition](
 
     def __init__(
         self,
-        comes_before: Iterable[ResolvableId] | None = None,
-        comes_after: Iterable[ResolvableId] | None = None,
+        comes_before: Iterable[ResolvablePluginId] | None = None,
+        comes_after: Iterable[ResolvablePluginId] | None = None,
         **kwargs: Any,
     ):
         super().__init__(**kwargs)
         if comes_before is not None:
-            self.comes_before = map(resolve_id, comes_before)
+            self.comes_before = map(resolve_plugin_id, comes_before)
         if comes_after is not None:
-            self.comes_after = map(resolve_id, comes_after)
+            self.comes_after = map(resolve_plugin_id, comes_after)

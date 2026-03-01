@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from betty.plugin import ResolvableId, resolve_id
+from betty.plugin import ResolvablePluginId, resolve_plugin_id
 from betty.plugin.ordered import OrderedPluginDefinition, sort_ordered_plugin_graph
 
 if TYPE_CHECKING:
@@ -26,9 +26,9 @@ class DependentPluginDefinition[BaseClsT = Any](OrderedPluginDefinition[BaseClsT
         self,
         plugin_id: ResolvableMachineName,
         *,
-        comes_before: Set[ResolvableId] | None = None,
-        comes_after: Set[ResolvableId] | None = None,
-        depends_on: Set[ResolvableId] | None = None,
+        comes_before: Set[ResolvablePluginId] | None = None,
+        comes_after: Set[ResolvablePluginId] | None = None,
+        depends_on: Set[ResolvablePluginId] | None = None,
         **kwargs: Any,
     ):
         super().__init__(
@@ -37,7 +37,7 @@ class DependentPluginDefinition[BaseClsT = Any](OrderedPluginDefinition[BaseClsT
         self._depends_on = (
             set()
             if depends_on is None
-            else {resolve_id(plugin) for plugin in depends_on}
+            else {resolve_plugin_id(plugin) for plugin in depends_on}
         )
         self._comes_after.update(self._depends_on)
 

@@ -38,6 +38,10 @@ class TestPluginCollection:
         sut = PluginCollection([[self.PLUGIN_ONE]])
         assert DummyPluginOne in sut
 
+    def test___contains____with_invalid_value(self) -> None:
+        sut = PluginCollection([])
+        assert object() not in sut
+
     def test___getitem____without_plugins(self) -> None:
         sut = PluginCollection([])
         with pytest.raises(KeyError):

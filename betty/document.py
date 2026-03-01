@@ -27,7 +27,7 @@ from typing import (
 from betty.json.linked_data import LinkedDataDumpable
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 from betty.media_type.media_types import HTML
-from betty.plugin import ResolvableId, resolve_id
+from betty.plugin import ResolvablePluginId, resolve_plugin_id
 from betty.portable import PortableMapping
 
 if TYPE_CHECKING:
@@ -316,8 +316,8 @@ class EntityContexts:
         for entity in entities:
             self._contexts[entity.plugin().id] = entity
 
-    def __getitem__(self, entity_type: ResolvableId) -> Entity | None:
-        return self._contexts[resolve_id(entity_type)]
+    def __getitem__(self, entity_type: ResolvablePluginId) -> Entity | None:
+        return self._contexts[resolve_plugin_id(entity_type)]
 
     def __call__(self, *entities: Entity) -> EntityContexts:
         """

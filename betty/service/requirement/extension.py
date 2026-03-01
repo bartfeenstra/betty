@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, Concatenate, overload
 
 from betty.extension import Extension, ExtensionDefinition
 from betty.locale.localizable.gettext import _
-from betty.plugin import ResolvableId, resolve_id
+from betty.plugin import ResolvablePluginId, resolve_plugin_id
 from betty.plugin.error import PluginNotFound
 from betty.service.requirement import CallableRequirement, Requirement, UnmetRequirement
 from betty.service.requirement.project import require_project
@@ -22,14 +22,14 @@ if TYPE_CHECKING:
 
 @overload
 def require_extension[ExtensionT: Extension](
-    extension_id: type[ExtensionT] | ResolvableId[ExtensionDefinition], /
+    extension_id: type[ExtensionT] | ResolvablePluginId[ExtensionDefinition], /
 ) -> Requirement[ExtensionT]:
     pass
 
 
 @overload
 def require_extension[ExtensionT: Extension, **P, ReturnT](
-    extension_id: type[ExtensionT] | ResolvableId[ExtensionDefinition],
+    extension_id: type[ExtensionT] | ResolvablePluginId[ExtensionDefinition],
     f: Callable[Concatenate[ExtensionT, P], Awaitable[ReturnT] | ReturnT]
     | Callable[Concatenate[Any, ExtensionT, P], Awaitable[ReturnT] | ReturnT],
     /,
@@ -39,7 +39,7 @@ def require_extension[ExtensionT: Extension, **P, ReturnT](
 
 @overload
 def require_extension[ExtensionT: Extension](
-    extension_id: type[ExtensionT] | ResolvableId[ExtensionDefinition],
+    extension_id: type[ExtensionT] | ResolvablePluginId[ExtensionDefinition],
     services: ServiceLevel,
     /,
 ) -> Awaitable[ExtensionT]:
@@ -62,10 +62,10 @@ def require_extension(extension_id, f=None):
 async def _require_extension[ExtensionT: Extension](
     project: Project,
     target: str,
-    extension_id: type[ExtensionT] | ResolvableId[ExtensionDefinition],
+    extension_id: type[ExtensionT] | ResolvablePluginId[ExtensionDefinition],
 ) -> ExtensionT:
     extensions = project.plugins[ExtensionDefinition]
-    extension_id = resolve_id(extension_id)
+    extension_id = resolve_plugin_id(extension_id)
     try:
         extension = await extensions[extension_id]
     except PluginNotFound as error:

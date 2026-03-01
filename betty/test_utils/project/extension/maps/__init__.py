@@ -16,7 +16,7 @@ from betty import serve
 from betty.ancestry.name import Name
 from betty.ancestry.place import Place
 from betty.app import App
-from betty.plugin import ResolvableId
+from betty.plugin import ResolvablePluginId
 from betty.project import Project
 from betty.extension import ExtensionDefinition
 from betty.extension.maps import Maps
@@ -35,7 +35,7 @@ class MapsTestBase:
 
     def get_other_extensions(
         self,
-    ) -> Iterable[ResolvableId[ExtensionDefinition]]:
+    ) -> Iterable[ResolvablePluginId[ExtensionDefinition]]:
         """
         Get the other extensions to enable while performing the tests.
 

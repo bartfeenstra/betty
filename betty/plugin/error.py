@@ -11,8 +11,8 @@ from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Paragraph, do_you_mean
 from betty.plugin import (
     PluginDefinition,
-    ResolvableId,
-    resolve_id,
+    ResolvablePluginId,
+    resolve_plugin_id,
 )
 
 if TYPE_CHECKING:
@@ -62,7 +62,7 @@ class PluginNotFound(PluginError, HumanFacingException):
         self,
         plugin_type: type[PluginDefinitionT],
         plugin_not_found: ResolvableMachineName,
-        available_plugins: Iterable[ResolvableId[PluginDefinitionT]],
+        available_plugins: Iterable[ResolvablePluginId[PluginDefinitionT]],
         /,
     ):
         super().__init__(
@@ -72,7 +72,7 @@ class PluginNotFound(PluginError, HumanFacingException):
                 ),
                 do_you_mean(
                     *[
-                        f'"{resolve_id(available_plugin)}"'
+                        f'"{resolve_plugin_id(available_plugin)}"'
                         for available_plugin in available_plugins
                     ]
                 ),
