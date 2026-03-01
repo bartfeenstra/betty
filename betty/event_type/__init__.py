@@ -9,7 +9,12 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import Plugin, PluginTypeDefinition, ResolvableId, resolve_id
+from betty.plugin import (
+    Plugin,
+    PluginTypeDefinition,
+    ResolvablePluginId,
+    resolve_plugin_id,
+)
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import OrderedPluginDefinition
 
@@ -64,9 +69,9 @@ class EventTypeDefinition(
         label_plural: ResolvableLocalizable,
         label_countable: CountableLocalizable,
         description: ResolvableLocalizable | None = None,
-        comes_before: Set[ResolvableId] | None = None,
-        comes_after: Set[ResolvableId] | None = None,
-        indicates: ResolvableId[EventTypeDefinition] | None = None,
+        comes_before: Set[ResolvablePluginId] | None = None,
+        comes_after: Set[ResolvablePluginId] | None = None,
+        indicates: ResolvablePluginId[EventTypeDefinition] | None = None,
     ):
         super().__init__(
             plugin_id,
@@ -77,7 +82,7 @@ class EventTypeDefinition(
             comes_before=comes_before,
             comes_after=comes_after,
         )
-        self._indicates = None if indicates is None else resolve_id(indicates)
+        self._indicates = None if indicates is None else resolve_plugin_id(indicates)
 
     @property
     def indicates(self) -> MachineName | None:

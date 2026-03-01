@@ -48,7 +48,7 @@ from betty.model import EntityDefinition
 from betty.pathlib import FilePathDefinition
 from betty.place_type import PlaceTypeDefinition
 from betty.place_type.data import PlaceTypeDefinitionConfiguration
-from betty.plugin import ResolvableId, resolve_id
+from betty.plugin import ResolvablePluginId, resolve_plugin_id
 from betty.plugin.data.property import PluginDefinitionConfigurationsProperty
 from betty.project import Extension, ExtensionDefinition
 from betty.property import (
@@ -106,10 +106,10 @@ class EntityTypeConfiguration(Data[ObjectDefinition["EntityTypeConfiguration"]])
     def __init__(
         self,
         *,
-        entity_type: ResolvableId[EntityDefinition],
+        entity_type: ResolvablePluginId[EntityDefinition],
         generate_html_list: bool = True,
     ):
-        self._entity_type = resolve_id(entity_type)
+        self._entity_type = resolve_plugin_id(entity_type)
         self.generate_html_list = generate_html_list
 
     @property
@@ -360,7 +360,7 @@ class ProjectConfiguration(Data):
             key=Attr("plugin_id"),
             factory=lambda: MutableKeyedCollectionAdapter(
                 key=lambda data: data.plugin_id,
-                key_resolver=resolve_id,
+                key_resolver=resolve_plugin_id,
                 value_resolver=ExtensionManufacturer.resolve,
             ),
         ),
@@ -483,7 +483,9 @@ class ProjectConfiguration(Data):
         copyright_notices: Iterable[CopyrightNoticeDefinitionConfiguration]
         | None = None,
         debug: bool = False,
-        entity_types: Iterable[EntityTypeConfiguration | ResolvableId[EntityDefinition]]
+        entity_types: Iterable[
+            EntityTypeConfiguration | ResolvablePluginId[EntityDefinition]
+        ]
         | None = None,
         event_types: Iterable[EventTypeDefinitionConfiguration] | None = None,
         extensions: ResolvablePluginManufacturerSequence[ExtensionDefinition, Extension]

@@ -24,7 +24,7 @@ from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
 from betty.data.indicator.selector import Attr
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName
-from betty.plugin import Plugin, PluginDefinition, ResolvableId, resolve_id
+from betty.plugin import Plugin, PluginDefinition, ResolvablePluginId, resolve_plugin_id
 from betty.sample import Samplable, Sample, Samples, Size
 from betty.typing import Void, VoidType
 
@@ -53,12 +53,12 @@ class PluginManufacturer[
     @final
     def __init__(
         self,
-        plugin: ResolvableId[_PluginManufacturerPluginDefinitionT],
+        plugin: ResolvablePluginId[_PluginManufacturerPluginDefinitionT],
         data: Data | PortableData | VoidType = Void,
         /,
     ):
         super().__init__()
-        self._plugin_id = resolve_id(plugin)
+        self._plugin_id = resolve_plugin_id(plugin)
         self._plugin_data = data
 
     @final
@@ -185,17 +185,10 @@ class PluginManufacturer[
         """
         Resolve a value to a plugin manufacturer.
         """
-        if (
-            isinstance(manufacturer, (PluginDefinition, str))
-            or isinstance(manufacturer, type)
-            and issubclass(manufacturer, Plugin)
-        ):
-            return cls(
-                resolve_id(
-                    manufacturer,  # ty:ignore[invalid-argument-type]
-                )
-            )
-        return manufacturer
+        try:
+            return cls(resolve_plugin_id(manufacturer))
+        except ValueError:
+            return manufacturer  # ty:ignore[invalid-return-type]
 
     @classmethod
     def resolve_sequence(
@@ -249,7 +242,10 @@ class PluginManufacturer[
 type ResolvablePluginManufacturer[
     PluginDefinitionT: PluginDefinition,
     PluginT: Plugin,
-] = ResolvableId[PluginDefinitionT] | PluginManufacturer[PluginDefinitionT, PluginT]
+] = (
+    ResolvablePluginId[PluginDefinitionT]
+    | PluginManufacturer[PluginDefinitionT, PluginT]
+)
 
 
 type ResolvablePluginManufacturerSequence[

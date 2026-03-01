@@ -15,8 +15,8 @@ from betty.machine_name import MachineName, ResolvableMachineName
 from betty.plugin import (
     Plugin,
     PluginDefinition,
-    ResolvableId,
-    resolve_id,
+    ResolvablePluginId,
+    resolve_plugin_id,
 )
 from betty.plugin.discovery import ResolvableDiscovery
 from betty.plugin.error import PluginNotFound
@@ -34,7 +34,7 @@ if TYPE_CHECKING:
 
 @final
 class PluginCollection[PluginDefinitionT: PluginDefinition, PluginT: Plugin](
-    KeyedCollection[MachineName, ResolvableId[PluginDefinitionT], PluginT]
+    KeyedCollection[MachineName, ResolvablePluginId[PluginDefinitionT], PluginT]
 ):
     """
     A collection of plugin instances.
@@ -56,11 +56,10 @@ class PluginCollection[PluginDefinitionT: PluginDefinition, PluginT: Plugin](
 
     @override
     def __contains__(self, key: Any) -> bool:
-        if isinstance(key, type) and issubclass(key, Plugin):
-            key = key.plugin().id
-        elif isinstance(key, PluginDefinition):
-            key = key.id
-        return key in self._all
+        try:
+            return resolve_plugin_id(key) in self._all
+        except ValueError:
+            return False
 
     @overload
     def __getitem__[T](
@@ -69,12 +68,12 @@ class PluginCollection[PluginDefinitionT: PluginDefinition, PluginT: Plugin](
         pass
 
     @overload
-    def __getitem__(self, key: ResolvableId[PluginDefinitionT]) -> PluginT:
+    def __getitem__(self, key: ResolvablePluginId[PluginDefinitionT]) -> PluginT:
         pass
 
     @override
     def __getitem__(self, key):
-        return self._all[resolve_id(key)]
+        return self._all[resolve_plugin_id(key)]
 
     @override
     def keys(self) -> Iterable[MachineName]:

@@ -59,7 +59,7 @@ from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import LocalizableProperty
 from betty.machine_name import MachineName, MachineNameProperty, ResolvableMachineName
 from betty.model.reference import EntityReference
-from betty.plugin import resolve_id
+from betty.plugin import resolve_plugin_id
 from betty.plugin.data import PluginManufacturerSequenceDefinition
 from betty.plugin.data.property import PluginManufacturerSequenceProperty
 from betty.portable import CallbackPorter
@@ -77,7 +77,7 @@ if TYPE_CHECKING:
     from betty.jinja import Environment
     from betty.locale.localizable import ResolvableLocalizable
     from betty.model import Entity
-    from betty.plugin import ResolvableId
+    from betty.plugin import ResolvablePluginId
     from betty.plugin.factory import ResolvablePluginManufacturerSequence
     from betty.project import Project
 
@@ -564,14 +564,14 @@ class PresencesConfiguration(Data):
     def __init__(
         self,
         *,
-        include: Iterable[ResolvableId[RoleDefinition]] | None = None,
-        exclude: Iterable[ResolvableId[RoleDefinition]] | None = None,
+        include: Iterable[ResolvablePluginId[RoleDefinition]] | None = None,
+        exclude: Iterable[ResolvablePluginId[RoleDefinition]] | None = None,
     ):
         super().__init__()
         if include is not None:
-            self.include = list(map(resolve_id, include))
+            self.include = list(map(resolve_plugin_id, include))
         if exclude is not None:
-            self.exclude = list(map(resolve_id, exclude))
+            self.exclude = list(map(resolve_plugin_id, exclude))
 
 
 @ContentDefinition("raspberry-mint-presences", label=_("Presences"))
@@ -585,11 +585,13 @@ class Presences(Template, DataManufacturable[PresencesConfiguration], Manufactur
     def __init__(
         self,
         *,
-        include: Iterable[ResolvableId[RoleDefinition]] | None = None,
+        include: Iterable[ResolvablePluginId[RoleDefinition]] | None = None,
         jinja: Environment,
     ):
         super().__init__(jinja=jinja)
-        self._include = None if include is None else tuple(map(resolve_id, include))
+        self._include = (
+            None if include is None else tuple(map(resolve_plugin_id, include))
+        )
 
     @override
     @classmethod
@@ -606,7 +608,7 @@ class Presences(Template, DataManufacturable[PresencesConfiguration], Manufactur
 
         if data is None:
             raise NotImplementedError
-        include: Iterable[ResolvableId[RoleDefinition]] | None
+        include: Iterable[ResolvablePluginId[RoleDefinition]] | None
         if data.include is not None:
             include = data.include
         else:

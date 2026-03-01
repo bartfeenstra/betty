@@ -10,8 +10,7 @@ from typing import TYPE_CHECKING, Any, Final
 
 from betty.collection.keyed.adapter import KeyedCollectionAdapter
 from betty.collection.keyed.error import ErroringKeyedCollection
-from betty.machine_name import MachineName
-from betty.plugin import PluginDefinition
+from betty.plugin import PluginDefinition, resolve_plugin_type_id
 from betty.plugin.error import PluginTypeNotFound
 from betty.service.provider import service
 
@@ -19,6 +18,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
 
     from betty.collection.keyed import KeyedCollection
+    from betty.machine_name import MachineName
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.service.factory import Factory
     from betty.service.plugin import PluginManager
@@ -69,17 +69,6 @@ class ServiceLevel:
         """
         from betty.service.plugin import PluginManager
 
-        def _resolve_plugin_type_id(
-            key: type[PluginDefinition] | MachineName | str,
-        ) -> MachineName:
-            return (
-                key.id
-                if isinstance(key, PluginDefinition)
-                else key.type().id
-                if isinstance(key, type) and issubclass(key, PluginDefinition)
-                else MachineName.resolve(key)
-            )
-
         plugin_types = [
             entry_point.load()
             for entry_point in metadata.entry_points(group="betty.plugin")
@@ -93,10 +82,10 @@ class ServiceLevel:
                     )
                     for plugin_type in plugin_types
                 },  # ty:ignore[invalid-argument-type]
-                key_resolver=_resolve_plugin_type_id,
+                key_resolver=resolve_plugin_type_id,
             ),
             lambda error, key: _PluginTypeNotFound(
-                _resolve_plugin_type_id(key), [x.type.type().id for x in self.plugins]
+                resolve_plugin_type_id(key), [x.type.type().id for x in self.plugins]
             ),
         )
 

@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, final, override
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import Plugin, PluginTypeDefinition, ResolvableId
+from betty.plugin import Plugin, PluginTypeDefinition, ResolvablePluginId
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.factory import PluginManufacturer
 from betty.service.level import ServiceLevel
@@ -54,9 +54,9 @@ class ExtensionDefinition(HumanFacingDefinition, DependentPluginDefinition[Exten
         *,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
-        comes_before: Set[ResolvableId] | None = None,
-        comes_after: Set[ResolvableId] | None = None,
-        depends_on: Set[ResolvableId] | None = None,
+        comes_before: Set[ResolvablePluginId] | None = None,
+        comes_after: Set[ResolvablePluginId] | None = None,
+        depends_on: Set[ResolvablePluginId] | None = None,
         assets_directory: Path | None = None,
         theme: bool = False,
     ):

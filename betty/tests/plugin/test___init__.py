@@ -1,14 +1,20 @@
 from __future__ import annotations
 
-from typing import final
+from typing import Any, final
+
+import pytest
 
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin import (
     Plugin,
     PluginDefinition,
     PluginTypeDefinition,
-    resolve_definition,
-    resolve_id,
+    ResolvablePluginDefinition,
+    ResolvablePluginId,
+    ResolvablePluginTypeId,
+    resolve_plugin_definition,
+    resolve_plugin_id,
+    resolve_plugin_type_id,
 )
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
@@ -16,7 +22,7 @@ from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
 )
-from betty.test_utils.plugin import DummyPlugin
+from betty.test_utils.plugin import DummyPlugin, DummyPluginDefinition, DummyPluginOne
 
 
 @final
@@ -146,36 +152,93 @@ class _PluginDefinition(PluginDefinition[_PluginCls]):
     pass
 
 
-def test_resolve_definition__with_plugin_cls() -> None:
-    plugin_id = "my-first-plugin-id"
-
-    @_PluginDefinition(plugin_id)
-    class _Plugin(_PluginCls):
-        pass
-
-    assert resolve_definition(_Plugin) is _Plugin.plugin()
-
-
-def test_resolve_definition__with_plugin_definition() -> None:
-    definition = PluginDefinition("my-first-plugin-id")
-    assert resolve_definition(definition) is definition
-
-
-def test_resolve_id__with_plugin_cls() -> None:
-    plugin_id = "my-first-plugin-id"
-
-    @_PluginDefinition(plugin_id)
-    class _Plugin(_PluginCls):
-        pass
-
-    assert resolve_id(_Plugin) == plugin_id
+@pytest.mark.parametrize(
+    "plugin_type_id",
+    [
+        str(DummyPluginDefinition.type().id),
+        DummyPluginDefinition.type().id,
+        DummyPluginDefinition.type(),
+        DummyPluginDefinition,
+        DummyPluginOne,
+    ],
+)
+def test_resolve_plugin_type_id__with_valid_plugin_type_id(
+    plugin_type_id: ResolvablePluginTypeId,
+) -> None:
+    assert resolve_plugin_type_id(plugin_type_id) == DummyPluginDefinition.type().id
 
 
-def test_resolve_id__with_plugin_definition() -> None:
-    plugin_id = "my-first-plugin-id"
-    assert resolve_id(PluginDefinition(plugin_id)) == plugin_id
+@pytest.mark.parametrize(
+    "plugin_type_id",
+    [
+        "",
+        object(),
+        None,
+    ],
+)
+def test_resolve_plugin_type_id__with_invalid_plugin_type_id(
+    plugin_type_id: Any,
+) -> None:
+    with pytest.raises(
+        ValueError,  # noqa:PT011
+    ):
+        resolve_plugin_type_id(plugin_type_id)
 
 
-def test_resolve_id__with_plugin_id() -> None:
-    plugin_id = "my-first-plugin-id"
-    assert resolve_id(plugin_id) == plugin_id
+@pytest.mark.parametrize(
+    "plugin_definition",
+    [
+        DummyPluginOne.plugin(),
+        DummyPluginOne,
+    ],
+)
+def test_resolve_plugin_definition__with_valid_plugin_definition(
+    plugin_definition: ResolvablePluginDefinition,
+) -> None:
+
+    assert resolve_plugin_definition(plugin_definition) is DummyPluginOne.plugin()
+
+
+@pytest.mark.parametrize(
+    "plugin_definition",
+    [
+        "",
+        object(),
+        None,
+    ],
+)
+def test_resolve_plugin_definition__with_invalid_plugin_definition(
+    plugin_definition: Any,
+) -> None:
+    with pytest.raises(
+        ValueError,  # noqa: PT011
+    ):
+        resolve_plugin_definition(plugin_definition)
+
+
+@pytest.mark.parametrize(
+    "plugin_id",
+    [
+        str(DummyPluginOne.plugin().id),
+        DummyPluginOne.plugin().id,
+        DummyPluginOne.plugin(),
+        DummyPluginOne,
+    ],
+)
+def test_resolve_plugin_id__with_valid_plugin_id(plugin_id: ResolvablePluginId) -> None:
+    assert resolve_plugin_id(plugin_id) == DummyPluginOne.plugin().id
+
+
+@pytest.mark.parametrize(
+    "plugin_id",
+    [
+        "",
+        object(),
+        None,
+    ],
+)
+def test_resolve_plugin_id__with_invalid_plugin_id(plugin_id: Any) -> None:
+    with pytest.raises(
+        ValueError,  # noqa: PT011
+    ):
+        resolve_plugin_id(plugin_id)

@@ -6,18 +6,24 @@ from __future__ import annotations
 
 from asyncio import gather
 from collections.abc import Awaitable, Callable, Iterable
+from contextlib import suppress
 
 from betty.asyncio import resolve_await
-from betty.plugin import Plugin, PluginDefinition, ResolvableDefinition
+from betty.plugin import (
+    PluginDefinition,
+    ResolvablePluginDefinition,
+    resolve_plugin_definition,
+)
 from betty.service.level import ServiceLevel
+from betty.service.requirement import UnmetRequirement
 
 type ResolvableDiscovery[PluginDefinitionT: PluginDefinition = PluginDefinition] = (
-    Callable[
+    ResolvablePluginDefinition[PluginDefinitionT]
+    | Callable[
         [ServiceLevel],
         Awaitable[Iterable["ResolvableDiscovery[PluginDefinitionT]"]]
         | Iterable["ResolvableDiscovery[PluginDefinitionT]"],
     ]
-    | ResolvableDefinition[PluginDefinitionT]
 )
 
 
@@ -39,13 +45,10 @@ async def discover[PluginDefinitionT: PluginDefinition](
 async def _discover[PluginDefinitionT: PluginDefinition](
     discovery: ResolvableDiscovery[PluginDefinitionT], services: ServiceLevel
 ) -> Iterable[PluginDefinitionT]:
-    from betty.service.requirement import UnmetRequirement
 
+    with suppress(ValueError):
+        return [resolve_plugin_definition(discovery)]
     try:
-        if isinstance(discovery, PluginDefinition):
-            return [discovery]  # ty:ignore[invalid-return-type]
-        if isinstance(discovery, type) and issubclass(discovery, Plugin):
-            return [discovery.plugin()]  # ty:ignore[invalid-argument-type,invalid-return-type]
         return await discover(services, *await resolve_await(discovery(services)))
     except UnmetRequirement:
         return ()
