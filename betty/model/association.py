@@ -89,7 +89,7 @@ class _TemporaryResolver[T](_Resolver[T]):
 
 
 class TemporaryToZeroOrOneResolver[EntityT: Entity](
-    _TemporaryResolver[EntityT], ToZeroOrOneResolver[EntityT]
+    _TemporaryResolver[EntityT | None], ToZeroOrOneResolver[EntityT]
 ):
     """
     A 'temporary' to-zero-or-one resolver.
@@ -111,7 +111,7 @@ class TemporaryToOneResolver[EntityT: Entity](
 
 
 class TemporaryToManyResolver[EntityT: Entity](
-    _TemporaryResolver[EntityT], ToManyResolver[EntityT]
+    _TemporaryResolver[Iterable[EntityT]], ToManyResolver[EntityT]
 ):
     """
     A 'temporary' to-many resolver.
