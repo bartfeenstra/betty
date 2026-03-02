@@ -14,6 +14,7 @@ from betty.console.command import CommandFunction
 from betty.error import FileNotFound
 from betty.exception import HumanFacingException
 from betty.locale.localizable.gettext import _
+from betty.locale.localizable.markup import AnyEnumeration
 from betty.portable.file import assert_load_file
 from betty.project import Project
 from betty.project.data import ProjectConfiguration
@@ -94,9 +95,11 @@ async def _read_project_configuration(
             _(
                 "Could not find any of the following configuration files in {project_directory_path}: {configuration_file_names}."
             ).format(
-                configuration_file_names=", ".join(
-                    str(try_configuration_file_path.relative_to(project_directory_path))
-                    for try_configuration_file_path in try_configuration_file_paths
+                configuration_file_names=AnyEnumeration(
+                    *(
+                        str(x.relative_to(project_directory_path))
+                        for x in try_configuration_file_paths
+                    )
                 ),
                 project_directory_path=str(project_directory_path),
             )
