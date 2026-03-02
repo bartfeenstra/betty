@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from textwrap import indent
-from typing import TYPE_CHECKING, ClassVar, final, override
+from typing import TYPE_CHECKING, Any, ClassVar, final, override
 
 from betty.locale import HasLocale, HasLocaleStr
 from betty.locale.localizable import (
@@ -200,18 +200,12 @@ class AllEnumeration(_Enumeration):
     _LOCALIZABLE = _("{most}, and {last}")
 
 
-def do_you_mean(*available_options: str) -> Localizable:
+def do_you_mean(*available_options: Any) -> Localizable:
     """
     Produce a message listing available options.
     """
-    match len(available_options):
-        case 0:
-            return _("There are no available options.")
-        case 1:
-            return _("Do you mean {available_option}?").format(
-                available_option=available_options[0]
-            )
-        case _:
-            return _("Do you mean one of {available_options}?").format(
-                available_options=AnyEnumeration(*sorted(map(str, available_options)))
-            )
+    if len(available_options):
+        return _("Do you mean {available_options}?").format(
+            available_options=AnyEnumeration(*sorted(map(str, available_options)))
+        )
+    return _("There are no available options.")

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-02-27 13:51+0000\n"
+"POT-Creation-Date: 2026-03-02 01:40+0000\n"
 "PO-Revision-Date: 2026-02-17 18:12+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ar\n"
@@ -597,11 +597,7 @@ msgid "Do not show any output, except error messages"
 msgstr ""
 
 #, python-brace-format
-msgid "Do you mean one of {available_options}?"
-msgstr ""
-
-#, python-brace-format
-msgid "Do you mean {available_option}?"
+msgid "Do you mean {available_options}?"
 msgstr ""
 
 msgid "Do you want to add another locale?"
