@@ -26,7 +26,7 @@ from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
     [
         ("There are no available options.", []),
         ("Do you mean foo?", ["foo"]),
-        ("Do you mean one of bar, baz, or foo?", ["foo", "bar", "baz"]),
+        ("Do you mean bar, baz, or foo?", ["foo", "bar", "baz"]),
     ],
 )
 async def test_do_you_mean(expected: str, available_options: Sequence[str]) -> None:
