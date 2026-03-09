@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
-from betty.app import App
 from betty.extension import Extension, ExtensionDefinition
 from betty.license.licenses import SpdxLicenseBuilder
 from betty.locale.localizable.gettext import _
@@ -26,7 +25,7 @@ if TYPE_CHECKING:
         "Provide license plugins from the SPDX License List (https://spdx.org/licenses/) "
     ),
 )
-class Spdx(Extension[App]):
+class Spdx(Extension):
     """
     .. plugin:: extension:spdx.
     """

@@ -10,7 +10,6 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition, ResolvablePluginId
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.factory import PluginManufacturer
-from betty.service.level import ServiceLevel
 
 if TYPE_CHECKING:
     import builtins
@@ -21,9 +20,7 @@ if TYPE_CHECKING:
     from betty.machine_name import ResolvableMachineName
 
 
-class Extension[ServiceLevelT: ServiceLevel = ServiceLevel](
-    ManagedLifeCycle, Plugin["ExtensionDefinition"]
-):
+class Extension(ManagedLifeCycle, Plugin["ExtensionDefinition"]):
     """
     Integrate custom services with a :py:class:`service level <betty.service.level.ServiceLevel>`.
     """

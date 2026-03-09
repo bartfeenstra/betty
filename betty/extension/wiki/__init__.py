@@ -15,7 +15,6 @@ from betty.extension.wiki.jobs import PopulateEntity
 from betty.jinja import Filters, Globals, JinjaProvider, context_localizer
 from betty.locale import negotiate_locale, resolve_locale
 from betty.locale.localizable.gettext import _
-from betty.project import Project
 from betty.project.load import PostLoader
 from betty.service.factory import DataManufacturable, Manufacturable
 from betty.service.provider import service
@@ -33,6 +32,7 @@ if TYPE_CHECKING:
     from betty.ancestry.link import Link
     from betty.copyright_notice import CopyrightNotice
     from betty.job.scheduler import Scheduler
+    from betty.project import Project
 
 
 @final
@@ -49,7 +49,7 @@ class Wiki(
     DataManufacturable[WikiConfiguration],
     Manufacturable,
     JinjaProvider,
-    Extension[Project],
+    Extension,
 ):
     """
     .. plugin:: extension:wiki.

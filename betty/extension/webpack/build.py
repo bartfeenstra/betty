@@ -22,7 +22,6 @@ from betty.document import Document
 from betty.extension import Extension
 from betty.hashid import hashid, hashid_file_content, hashid_sequence
 from betty.portable import PortableMapping
-from betty.service.level import ServiceLevel
 
 if TYPE_CHECKING:
     from collections.abc import MutableMapping, Sequence
@@ -34,9 +33,7 @@ if TYPE_CHECKING:
 _NPM_PROJECT_DIRECTORIES_PATH = Path(__file__).parent / "webpack"
 
 
-class EntryPointProvider[ServiceLevelT: ServiceLevel = ServiceLevel](
-    Extension[ServiceLevelT]
-):
+class EntryPointProvider(Extension):
     """
     An extension that provides Webpack entry points.
     """

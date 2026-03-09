@@ -17,7 +17,6 @@ from betty.extension.webpack.jinja.filter import FILTERS
 from betty.extension.webpack.jobs import _GenerateAssets
 from betty.html import CssProvider, JsProvider
 from betty.jinja import Filters, JinjaProvider
-from betty.project import Project
 from betty.project.generate import Generator
 from betty.service.factory import Manufacturable
 from betty.service.provider import service
@@ -27,6 +26,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.job.scheduler import Scheduler
+    from betty.project import Project
 
 
 @final
@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 )
 class Webpack(
     Generator,
-    Extension[Project],
+    Extension,
     CssProvider,
     JsProvider,
     JinjaProvider,
