@@ -9,13 +9,13 @@ from betty.extension.deriver import Deriver
 from betty.extension.deriver.jobs import DeriveAncestry
 from betty.extension.privatizer.jobs import PrivatizeAncestry
 from betty.locale.localizable.gettext import _
-from betty.project import Project
 from betty.project.load import PostLoader
 from betty.service.factory import Manufacturable
 from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
+    from betty.project import Project
 
 
 @final
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     ),
     comes_after={Deriver},
 )
-class Privatizer(PostLoader, Manufacturable, Extension[Project]):
+class Privatizer(PostLoader, Manufacturable, Extension):
     """
     .. plugin:: extension:privatizer.
 

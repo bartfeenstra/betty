@@ -17,7 +17,6 @@ from betty.extension.webpack import Webpack
 from betty.extension.webpack.build import EntryPointProvider
 from betty.jinja import Filters, JinjaProvider
 from betty.model import EntityDefinition
-from betty.project import Project
 from betty.project.generate import Generator
 from betty.service.factory import DataManufacturable, Manufacturable
 from betty.service.requirement.project import require_project
@@ -26,6 +25,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.job.scheduler import Scheduler
+    from betty.project import Project
 
 
 @final
@@ -45,7 +45,7 @@ class RaspberryMint(
     Manufacturable,
     JinjaProvider,
     Generator,
-    EntryPointProvider[Project],
+    EntryPointProvider,
 ):
     """
     .. plugin:: extension:raspberry-mint.

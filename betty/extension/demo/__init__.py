@@ -77,7 +77,7 @@ async def generate_with_cleanup(
     },
     assets_directory=Path(__file__).parent / "assets",
 )
-class Demo(NavigationLinkProvider, Loader, Manufacturable, Extension[Project]):
+class Demo(NavigationLinkProvider, Loader, Manufacturable, Extension):
     """
     .. plugin:: extension:demo.
     """
