@@ -274,7 +274,7 @@ test = [
     'pytest-xdist ~= 3.8',
     'requests ~= 2.32',
     'ruff ~= 0.15.0',
-    'ty == 0.0.20',
+    'ty == 0.0.21',
     'types-aiofiles ~= 25.1',
     'types-babel ~= 2.11',
     'types-docutils ~= 0.21',
