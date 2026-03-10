@@ -166,20 +166,20 @@ class Event(
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
-        dump_context(portable, place="https://schema.org/location")
-        dump_context(portable, presences="https://schema.org/performer")
-        portable["@type"] = "https://schema.org/Event"
-        portable["type"] = self.event_type.plugin().id
-        portable["eventAttendanceMode"] = (
+        linked_data = dict(await super().dump_linked_data(project))
+        dump_context(linked_data, place="https://schema.org/location")
+        dump_context(linked_data, presences="https://schema.org/performer")
+        linked_data["@type"] = "https://schema.org/Event"
+        linked_data["type"] = self.event_type.plugin().id
+        linked_data["eventAttendanceMode"] = (
             "https://schema.org/OfflineEventAttendanceMode"
         )
-        portable["eventStatus"] = "https://schema.org/EventScheduled"
+        linked_data["eventStatus"] = "https://schema.org/EventScheduled"
         if self.name is not None:
-            portable["name"] = dump_linked_data(
+            linked_data["name"] = dump_linked_data(
                 self.name, localizers=await project.public_localizers
             )
-        return portable
+        return linked_data
 
     @override
     @classmethod

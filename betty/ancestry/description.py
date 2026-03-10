@@ -56,10 +56,10 @@ class HasDescription(LinkedDataDumpableWithSchemaJsonLdObject):
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
-        dump_context(portable, description="https://schema.org/description")
+        linked_data = dict(await super().dump_linked_data(project))
+        dump_context(linked_data, description="https://schema.org/description")
         if self.description is not None and is_public(self):
-            portable["description"] = dump_linked_data(
+            linked_data["description"] = dump_linked_data(
                 self.description, localizers=await project.public_localizers
             )
-        return portable
+        return linked_data

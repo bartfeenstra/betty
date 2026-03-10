@@ -30,8 +30,10 @@ class StaticTranslationsSchema(Object):
                 *([] if description is None else [description]),
                 "Keys are IETF BCP-47 language tags.",
             ),
+            schema={
+                "additionalProperties": {
+                    "type": "string",
+                    "description": "A human-readable translation.",
+                }
+            },
         )
-        self._schema["additionalProperties"] = {
-            "type": "string",
-            "description": "A human-readable translation.",
-        }

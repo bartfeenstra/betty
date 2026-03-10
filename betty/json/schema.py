@@ -12,10 +12,10 @@ from referencing import Registry, Resource
 
 from betty.classtools import Singleton
 from betty.locale.localize import DEFAULT_LOCALIZER, resolve_localized
-from betty.portable import PortableData, PortableMapping
 
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
+    from betty.portable import PortableData, PortableMapping
 
 
 class Schema:
@@ -33,9 +33,12 @@ class Schema:
         def_name: str | None = None,
         title: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
+        schema: PortableMapping | None = None,
     ):
         self._def_name = def_name
         self._schema: PortableMapping = {
+            **(schema or {}),
+            "$defs": {},
             # The entire API assumes this dialect, so enforce it.
             "$schema": "https://json-schema.org/draft/2020-12/schema",
         }
@@ -70,7 +73,10 @@ class Schema:
 
     @title.setter
     def title(self, title: ResolvableLocalizable) -> None:
-        self._schema["title"] = resolve_localized(title, localizer=DEFAULT_LOCALIZER)
+        self._schema = {
+            **self._schema,
+            "title": resolve_localized(title, localizer=DEFAULT_LOCALIZER),
+        }
 
     @property
     def description(self) -> str | None:
@@ -84,9 +90,10 @@ class Schema:
 
     @description.setter
     def description(self, description: ResolvableLocalizable) -> None:
-        self._schema["description"] = resolve_localized(
-            description, localizer=DEFAULT_LOCALIZER
-        )
+        self._schema = {
+            **self._schema,
+            "description": resolve_localized(description, localizer=DEFAULT_LOCALIZER),
+        }
 
     @property
     def defs(self) -> PortableMapping:
@@ -96,25 +103,29 @@ class Schema:
         Only top-level definitions are supported. You **MUST NOT** nest definitions. Instead, prefix or suffix
         their names.
         """
-        return cast(PortableMapping, self._schema.setdefault("$defs", {}))
+        return self._schema["$defs"]
 
-    def embed(self, into: Schema, /) -> PortableMapping:
+    def embed(
+        self, into: PortableMapping, /
+    ) -> tuple[PortableMapping, PortableMapping]:
         """
         Embed this schema.
 
         This is where the raw schema may be enhanced before being returned.
         """
-        for name, schema in self.defs.items():
-            into.defs[name] = schema
+        into_defs = dict(into.get("$defs", {}))
+        into_defs.update(self.defs)
         schema = {
             child_name: child_schema
             for child_name, child_schema in self.schema.items()
             if child_name not in ("$defs", "$schema")
         }
         if self._def_name is None:
-            return schema
-        into.defs[self._def_name] = schema
-        return Ref(self._def_name).embed(into)
+            return {**into, "$defs": into_defs}, schema
+        into_defs[self._def_name] = schema
+        into = {**into, "$defs": into_defs}
+        into, schema = Ref(self._def_name).embed(into)
+        return into, schema
 
     def validate(self, data: Any, /) -> None:
         """
@@ -122,7 +133,7 @@ class Schema:
         """
         schema = self.schema
         if "$id" not in schema:
-            schema["$id"] = "https://betty.example.com"
+            schema = {**schema, "$id": "https://betty.example.com"}
         schema_registry = Resource.from_contents(schema) @ Registry()
         validator = Draft202012Validator(
             schema,
@@ -140,9 +151,17 @@ class _Type(Schema):
         def_name: str | None = None,
         title: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
+        schema: PortableMapping | None = None,
     ):
-        super().__init__(def_name=def_name, title=title, description=description)
-        self._schema["type"] = self._type
+        super().__init__(
+            def_name=def_name,
+            title=title,
+            description=description,
+            schema={
+                **(schema or {}),
+                "type": self._type,
+            },
+        )
 
 
 class String(_Type):
@@ -188,19 +207,18 @@ class String(_Type):
         pattern: str | None = None,
         format: Format | None = None,  # noqa: A002
     ):
-        super().__init__(
-            def_name=def_name,
-            title=title,
-            description=description,
-        )
+        schema = {}
         if min_length is not None:
-            self._schema["minLength"] = min_length
+            schema["minLength"] = min_length
         if max_length is not None:
-            self._schema["maxLength"] = max_length
+            schema["maxLength"] = max_length
         if pattern is not None:
-            self._schema["pattern"] = pattern
+            schema["pattern"] = pattern
         if format is not None:
-            self._schema["format"] = format.value
+            schema["format"] = format.value
+        super().__init__(
+            def_name=def_name, title=title, description=description, schema=schema
+        )
 
 
 class Boolean(_Type):
@@ -248,14 +266,14 @@ class Object(_Type):
         def_name: str | None = None,
         title: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
+        schema: PortableMapping | None = None,
     ):
         super().__init__(
             def_name=def_name,
             title=title,
             description=description,
+            schema={**(schema or {}), "properties": {}, "required": []},
         )
-        self._properties = self._schema["properties"] = {}
-        self._required = self._schema["required"] = []
 
     def add_property(
         self,
@@ -267,9 +285,10 @@ class Object(_Type):
         """
         Add a property to the object schema.
         """
-        self._properties[property_name] = property_schema.embed(self)
+        self._schema, embedded_property_schema = property_schema.embed(self._schema)
+        self._schema["properties"][property_name] = embedded_property_schema
         if property_required:
-            self._required.append(property_name)
+            self._schema["required"].append(property_name)
 
 
 class Array(_Type):
@@ -287,12 +306,14 @@ class Array(_Type):
         title: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
     ):
+        schema = {}
+        schema, items_schema = items.embed(schema)
         super().__init__(
             def_name=def_name,
             title=title,
             description=description,
+            schema={**schema, "items": items_schema},
         )
-        self._schema["items"] = items.embed(self)
 
 
 class _Container(Schema):
@@ -305,8 +326,13 @@ class _Container(Schema):
         title: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
     ):
-        super().__init__(def_name=def_name, title=title, description=description)
-        self._schema[self._type] = [item.embed(self) for item in items]
+        schema = {self._type: []}
+        for item in items:
+            schema, item_schema = item.embed(schema)
+            schema[self._type].append(item_schema)
+        super().__init__(
+            def_name=def_name, title=title, description=description, schema=schema
+        )
 
 
 class AllOf(_Container):
@@ -346,8 +372,12 @@ class Const(Schema):
         title: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
     ):
-        super().__init__(def_name=def_name, title=title, description=description)
-        self._schema["const"] = const
+        super().__init__(
+            def_name=def_name,
+            title=title,
+            description=description,
+            schema={"const": const},
+        )
 
 
 class Enum(Schema):
@@ -362,8 +392,12 @@ class Enum(Schema):
         title: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
     ):
-        super().__init__(def_name=def_name, title=title, description=description)
-        self._schema["enum"] = list(values)
+        super().__init__(
+            def_name=def_name,
+            title=title,
+            description=description,
+            schema={"enum": list(values)},
+        )
 
 
 class Def(str):
@@ -389,8 +423,7 @@ class Ref(Schema):
     """
 
     def __init__(self, def_name: str, /):
-        super().__init__()
-        self._schema["$ref"] = Def(def_name)
+        super().__init__(schema={"$ref": Def(def_name)})
 
 
 class JsonSchemaReference(String):

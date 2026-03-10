@@ -47,7 +47,7 @@ class HasDate(LinkedDataDumpableWithSchemaJsonLdObject):
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
+        linked_data = dict(await super().dump_linked_data(project))
         if self.date and is_public(self):
             (
                 schema_org_date_definition,
@@ -55,16 +55,16 @@ class HasDate(LinkedDataDumpableWithSchemaJsonLdObject):
                 schema_org_end_date_definition,
             ) = self.dated_linked_data_contexts()
             if isinstance(self.date, Date):
-                portable["date"] = dump_linked_data_for_date(
+                linked_data["date"] = dump_linked_data_for_date(
                     self.date, context_definition=schema_org_date_definition
                 )
             else:
-                portable["date"] = dump_linked_data_for_date_range(
+                linked_data["date"] = dump_linked_data_for_date_range(
                     self.date,
                     start_context_definition=schema_org_start_date_definition,
                     end_context_definition=schema_org_end_date_definition,
                 )
-        return portable
+        return linked_data
 
     @override
     @classmethod

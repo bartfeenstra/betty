@@ -51,15 +51,17 @@ class ProjectSchema(Manufacturable, Schema):
     @classmethod
     @require_project
     async def new(cls, project: Project, /) -> Self:
-        schema = cls()
-        schema._schema["$id"] = await cls.url(project)
+        schema = {
+            "$defs": {},
+            "$id": await cls.url(project),
+        }
 
         # Add entity schemas.
         async for entity_type in project.plugins[EntityDefinition]:
             entity_type_schema = await entity_type.cls.linked_data_schema(project)
             entity_type_schema.embed(schema)
             def_name = f"{kebab_case_to_lower_camel_case(entity_type.id)}EntityCollectionResponse"
-            schema.defs[def_name] = {
+            schema["$defs"][def_name] = {
                 "type": "object",
                 "properties": {
                     "collection": ToManySchema().embed(schema),
@@ -67,7 +69,7 @@ class ProjectSchema(Manufacturable, Schema):
             }
 
         # Add the HTTP error response.
-        schema.defs["errorResponse"] = {
+        schema["$defs"]["errorResponse"] = {
             "type": "object",
             "properties": {
                 "$schema": JsonSchemaReference().embed(schema),
@@ -82,8 +84,8 @@ class ProjectSchema(Manufacturable, Schema):
             "additionalProperties": False,
         }
 
-        schema._schema["anyOf"] = [
-            {"$ref": f"#/$defs/{def_name}"} for def_name in schema.defs
+        schema["anyOf"] = [
+            {"$ref": f"#/$defs/{def_name}"} for def_name in schema["$defs"]
         ]
 
-        return schema
+        return cls(schema=schema)

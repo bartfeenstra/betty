@@ -150,21 +150,21 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
-        portable["@type"] = "https://schema.org/Thing"
-        dump_context(portable, name="https://schema.org/name")
+        linked_data = dict(await super().dump_linked_data(project))
+        linked_data["@type"] = "https://schema.org/Thing"
+        dump_context(linked_data, name="https://schema.org/name")
         if is_public(self):
             public_localizers = await project.public_localizers
             if self.author is not None:
-                portable["author"] = dump_linked_data(
+                linked_data["author"] = dump_linked_data(
                     self.author, localizers=public_localizers
                 )
             if self.name is not None:
-                portable["name"] = dump_linked_data(
+                linked_data["name"] = dump_linked_data(
                     self.name, localizers=public_localizers
                 )
             if self.publisher is not None:
-                portable["publisher"] = dump_linked_data(
+                linked_data["publisher"] = dump_linked_data(
                     self.publisher, localizers=public_localizers
                 )
-        return portable
+        return linked_data

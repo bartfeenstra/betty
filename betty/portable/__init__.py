@@ -7,7 +7,7 @@ Portable data can easily be persistent or transmitted across and between systems
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Callable, MutableMapping, MutableSequence
+from collections.abc import Callable, Mapping, Sequence
 from typing import Any, Self, final, override
 
 type PortableData = (
@@ -16,8 +16,8 @@ type PortableData = (
     | float
     | str
     | None
-    | MutableSequence[PortableData]
-    | MutableMapping[str, PortableData]
+    | Sequence[PortableData]
+    | Mapping[str, PortableData]
 )
 """
 Portable data.
@@ -26,13 +26,13 @@ Data of this type is portable and can easily be persisted or transmitted.
 """
 
 
-type PortableSequence[PortableDataT: PortableData] = MutableSequence[PortableDataT]
+type PortableSequence[PortableDataT: PortableData] = Sequence[PortableDataT]
 """
 A sequence of portable data.
 """
 
 
-type PortableMapping[PortableDataT: PortableData] = MutableMapping[str, PortableDataT]
+type PortableMapping[PortableDataT: PortableData] = Mapping[str, PortableDataT]
 """
 A key-value mapping of portable data.
 

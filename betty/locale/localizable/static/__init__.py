@@ -174,7 +174,7 @@ class CountableStaticTranslations(CountableLocalizable, Portable):
         return {
             to_language_tag(locale): translations
             for locale, translations in self.translations.items()
-        }  # ty:ignore[invalid-return-type]
+        }
 
 
 @final
