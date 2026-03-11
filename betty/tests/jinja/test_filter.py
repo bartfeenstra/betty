@@ -135,7 +135,7 @@ async def test_filter_unique() -> None:
 
 
 _TEST_FILTER_IMAGE_RESIZE_COVER_IMAGE_PATH = (
-    ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png"
+    ASSETS_DIRECTORY_PATH / "universe" / "public" / "static" / "betty-512x512.png"
 )
 _TEST_FILTER_IMAGE_RESIZE_COVER_PARAMETER_ARGNAMES = ("expected", "template", "filey")
 _TEST_FILTER_IMAGE_RESIZE_COVER_PARAMETER_ARGVALUES = [

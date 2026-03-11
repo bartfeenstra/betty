@@ -5,11 +5,13 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, final, override
 
+from betty.asset import AssetDefinition
 from betty.extension import ExtensionDefinition
 from betty.extension.webpack import Webpack
 from betty.extension.webpack.build import EntryPointProvider
 from betty.html import NavigationLink, NavigationLinkProvider
 from betty.locale.localizable.gettext import _
+from betty.plugins.asset import HttpApiDoc as HttpApiDocAsset
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -22,8 +24,7 @@ if TYPE_CHECKING:
     description=_(
         "Display the HTTP API documentation in a user-friendly way using Swagger UI."
     ),
-    requires={ExtensionDefinition: Webpack},
-    assets_directory=Path(__file__).parent / "assets",
+    requires={AssetDefinition: HttpApiDocAsset, ExtensionDefinition: Webpack},
 )
 class HttpApiDoc(EntryPointProvider, NavigationLinkProvider):
     """

@@ -4,11 +4,18 @@ import pytest
 from aiofiles.tempfile import TemporaryDirectory
 
 from betty.asset import (
+    AssetDefinition,
     AssetRepository,
     ProxyAssetRepository,
     StaticAssetRepository,
     UnknownAsset,
 )
+
+
+class TestAssetDefinition:
+    def test_assets(self, tmp_path: Path) -> None:
+        sut = AssetDefinition("my-first-asset", label="My First Asset", assets=tmp_path)
+        assert sut.assets is tmp_path
 
 
 class TestUnknownAsset:

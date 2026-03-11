@@ -177,6 +177,12 @@ class PluginManager[PluginDefinitionT: PluginDefinition]:
         return (await self._plugins()).keys()
 
 
+type Requires = Mapping[
+    type[ServicePluginDefinition],
+    ResolvablePluginId | Iterable[ResolvablePluginId],
+]
+
+
 class ServicePluginDefinition[BaseClsT = Any](PluginDefinition[BaseClsT]):
     """
     A definition of a service plugin.
@@ -310,9 +316,10 @@ class ServicePluginManager(ManagedLifeCycle):
                 plugin_definition = plugin.plugin()
                 assert isinstance(plugin_definition, OrderedPluginDefinition)
                 sorter.add(plugin_definition.id)
-                for after in filter(plugin_definition.after, plugin_ids):
+                other_plugin_ids = plugin_ids - {plugin.plugin().id}
+                for after in filter(plugin_definition.after, other_plugin_ids):
                     sorter.add(plugin_definition.id, after)
-                for before in filter(plugin_definition.before, plugin_ids):
+                for before in filter(plugin_definition.before, other_plugin_ids):
                     sorter.add(before, plugin_definition.id)
             sorter.prepare()
             sorted_plugins = []

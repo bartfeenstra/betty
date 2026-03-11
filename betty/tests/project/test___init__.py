@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from betty.ancestry import Ancestry
+from betty.asset import Asset, AssetDefinition
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.extension import Extension, ExtensionDefinition
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
@@ -25,12 +26,12 @@ class _DummyExtension(Extension):
         super().__init__()
 
 
-@ExtensionDefinition(
-    "dummy-with-assets-directory",
+@AssetDefinition(
+    "dummy",
     label=DUMMY_LOCALIZABLE,
-    assets_directory=Path(__file__).parent / "dummy-with-assets-directory" / "assets",
+    assets=Path(__file__).parent / "dummy" / "assets",
 )
-class _DummyExtensionWithAssetsDirectory(_DummyExtension):
+class _DummyAsset(Asset):
     pass
 
 
@@ -130,33 +131,10 @@ class TestProject:
         async with Project.new_isolated(isolated_app) as sut, sut:
             assert sut.app is isolated_app
 
-    async def test_assets__without_extensions(self, isolated_app: App) -> None:
+    async def test_assets(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as sut, sut:
             assets = await sut.assets
             assert len(assets.directories) == 2
-
-    async def test_assets__with_extension_without_assets_directory(
-        self, isolated_app: App
-    ) -> None:
-        async with Project.new_isolated(
-            isolated_app, plugins={ExtensionDefinition: [DummyExtensionOne]}
-        ) as sut:
-            sut.configuration.extensions.add(DummyExtensionOne)
-            async with sut:
-                assets = await sut.assets
-                assert len(assets.directories) == 2
-
-    async def test_assets__with_extension_with_assets_directory(
-        self, isolated_app: App, tmp_path: Path
-    ) -> None:
-        async with Project.new_isolated(
-            isolated_app,
-            plugins={ExtensionDefinition: [_DummyExtensionWithAssetsDirectory]},
-        ) as sut:
-            sut.configuration.extensions.add(_DummyExtensionWithAssetsDirectory)
-            async with sut:
-                assets = await sut.assets
-                assert len(assets.directories) == 3
 
     async def test_jinja(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as sut, sut:
@@ -187,7 +165,13 @@ class TestProject:
             await sut.url_generator
 
     async def test_logo__with_configuration(self, isolated_app: App) -> None:
-        logo = ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png"
+        logo = (
+            ASSETS_DIRECTORY_PATH
+            / "universe"
+            / "public"
+            / "static"
+            / "betty-512x512.png"
+        )
         async with Project.new_isolated(isolated_app) as sut:
             sut.configuration.logo = logo
             async with sut:

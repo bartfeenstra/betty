@@ -14,7 +14,7 @@ from betty.assertion import AssertionChain, assert_file_path
 from betty.data.indicator import Path as DataPath
 from betty.exception import reraise_with_indicator
 from betty.serde import SerializerDefinition, serializer_for
-from betty.service.level import UNIVERSE
+from betty.service.level.universe import UNIVERSE
 
 if TYPE_CHECKING:
     from pathlib import Path

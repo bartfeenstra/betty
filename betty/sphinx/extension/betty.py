@@ -26,7 +26,7 @@ from betty.plugin.ordered import OrderedPluginDefinition
 from betty.project import Project
 from betty.serde import SerializerDefinition
 from betty.service.factory import DataManufacturable
-from betty.service.level import UNIVERSE
+from betty.service.level.universe import UNIVERSE
 from betty.service.plugin import ServicePluginDefinition
 
 if TYPE_CHECKING:

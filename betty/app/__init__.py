@@ -11,10 +11,8 @@ from aiofiles.tempfile import TemporaryDirectory
 from aiohttp_client_cache.backends.filesystem import FileBackend
 from aiohttp_client_cache.session import CachedSession
 
-import betty
-import betty.dirs
 from betty.app.data import AppConfiguration
-from betty.asset import AssetRepository, StaticAssetRepository
+from betty.asset import AssetDefinition, AssetRepository, StaticAssetRepository
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
 from betty.dirs import CACHE_DIRECTORY_PATH
@@ -31,7 +29,8 @@ from betty.locale.translation import (
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.portable.file import assert_load_file
 from betty.service.factory import DataManufacturable
-from betty.service.level import UNIVERSE, ServiceLevel
+from betty.service.level import ServiceLevel
+from betty.service.level.universe import UNIVERSE
 from betty.service.plugin import ServicePluginManager, ServicePluginProvider
 from betty.service.provider import ServiceFactory, service
 from betty.typing import threadsafe
@@ -170,7 +169,10 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ServicePluginProvi
     @service
     async def service_plugins(self) -> ServicePluginManager:
         service_plugins = ServicePluginManager(
-            {RateLimitDefinition: ()},
+            {
+                AssetDefinition: (),
+                RateLimitDefinition: (),
+            },
             services=self,
         )
         await service_plugins.bootstrap()
@@ -185,18 +187,25 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ServicePluginProvi
         return self._user
 
     @service
-    def assets(self) -> AssetRepository:
+    async def assets(self) -> AssetRepository:
         """
         The assets file system.
         """
-        return StaticAssetRepository(betty.dirs.ASSETS_DIRECTORY_PATH)
+        return StaticAssetRepository(
+            *(
+                asset.plugin().assets
+                for asset in (await self.service_plugins)[AssetDefinition]
+            )
+        )
 
     @service
     async def translations(self) -> TranslationRepository:
         """
         The available translations.
         """
-        translations = AssetTranslationRepository(self.assets, self.binary_file_cache)
+        translations = AssetTranslationRepository(
+            await self.assets, self.binary_file_cache
+        )
         await translations.bootstrap()
         return translations
 

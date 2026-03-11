@@ -14,7 +14,8 @@ from betty.plugin.discovery import ResolvableDiscovery
 from betty.plugin.error import PluginNotFound
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import OrderedPluginDefinition
-from betty.service.level import UNIVERSE, ServiceLevel
+from betty.service.level import ServiceLevel
+from betty.service.level.universe import UNIVERSE
 from betty.service.plugin import (
     PluginCollection,
     PluginManager,

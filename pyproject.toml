@@ -77,6 +77,7 @@ GitHub = 'https://github.com/bartfeenstra/betty'
 betty = 'betty.console:main_standalone'
 
 [project.entry-points.'betty.plugin']
+'asset' = 'betty.asset:AssetDefinition'
 'command' = 'betty.console.command:CommandDefinition'
 'content' = 'betty.content:ContentDefinition'
 'copyright-notice' = 'betty.copyright_notice:CopyrightNoticeDefinition'
@@ -91,6 +92,17 @@ betty = 'betty.console:main_standalone'
 'role' = 'betty.role:RoleDefinition'
 'serializer' = 'betty.serde:SerializerDefinition'
 
+[project.entry-points.'betty.asset']
+'demo' = 'betty.plugins.asset:Demo'
+'htt-api-doc' = 'betty.plugins.asset:HttpApiDoc'
+'maps' = 'betty.plugins.asset:Maps'
+'project' = 'betty.plugins.asset:_project'
+'raspberry-mint' = 'betty.plugins.asset:RaspberryMint'
+'trees' = 'betty.plugins.asset:Trees'
+'universe' = 'betty.plugins.asset:Universe'
+'webpack' = 'betty.plugins.asset:Webpack'
+'wiki' = 'betty.plugins.asset:Wiki'
+
 [project.entry-points.'betty.command']
 'about' = 'betty.console.command.commands.about:About'
 'clear-caches' = 'betty.console.command.commands.clear_caches:ClearCaches'
@@ -99,8 +111,6 @@ betty = 'betty.console:main_standalone'
 'dev-profile-demo' = 'betty.console.command.commands.dev_profile_demo:_discover'
 'dev-update-translations' = 'betty.console.command.commands.dev_update_translations:_discover'
 'docs' = 'betty.console.command.commands.docs:Docs'
-'extension-new-translation' = 'betty.console.command.commands.extension_new_translation:ExtensionNewTranslation'
-'extension-update-translations' = 'betty.console.command.commands.extension_update_translations:ExtensionUpdateTranslations'
 'generate' = 'betty.console.command.commands.generate:Generate'
 'new' = 'betty.console.command.commands.new:New'
 'new-translation' = 'betty.console.command.commands.new_translation:NewTranslation'
@@ -316,7 +326,6 @@ betty = [
     # Assets.
     '../assets/**/*',
     '../assets/public/localized/.error/*',
-    'project/extension/*/assets/**/*',
 
     # JSON Schemas.
     'json/schemas/*',

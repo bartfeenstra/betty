@@ -6,9 +6,9 @@ This module is internal.
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.asset import AssetDefinition
 from betty.document import DocumentProvider, DocumentVars
 from betty.extension import Extension, ExtensionDefinition
 from betty.extension.webpack import build
@@ -17,6 +17,7 @@ from betty.extension.webpack.jinja.filter import FILTERS
 from betty.extension.webpack.jobs import _GenerateAssets
 from betty.html import CssProvider, JsProvider
 from betty.jinja import Filters, JinjaProvider
+from betty.plugins.asset import Webpack as WebpackAsset
 from betty.project.generate import Generator
 from betty.service.factory import Manufacturable
 from betty.service.provider import service
@@ -33,7 +34,7 @@ if TYPE_CHECKING:
 @ExtensionDefinition(
     "webpack",
     label="Webpack",
-    assets_directory=Path(__file__).parent / "assets",
+    requires={AssetDefinition: WebpackAsset},
 )
 class Webpack(
     Generator,

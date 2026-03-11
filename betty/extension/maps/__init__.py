@@ -5,11 +5,13 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.asset import AssetDefinition
 from betty.extension import ExtensionDefinition
 from betty.extension.maps.jobs import _GeneratePlacePreviews
 from betty.extension.webpack import Webpack
 from betty.extension.webpack.build import EntryPointProvider
 from betty.locale.localizable.gettext import _
+from betty.plugins.asset import Maps as MapsAsset
 from betty.project.generate import Generator
 from betty.service.factory import Manufacturable
 from betty.service.requirement.project import require_project
@@ -26,8 +28,7 @@ if TYPE_CHECKING:
     "maps",
     label="Maps",
     description=_("Display interactive maps"),
-    requires={ExtensionDefinition: Webpack},
-    assets_directory=Path(__file__).parent / "assets",
+    requires={AssetDefinition: MapsAsset, ExtensionDefinition: Webpack},
 )
 class Maps(Generator, EntryPointProvider, Manufacturable):
     """

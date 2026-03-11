@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 from asyncio import gather
-from pathlib import Path
 from typing import TYPE_CHECKING, Self, final, override
 
 from jinja2 import pass_context
 
+from betty.asset import AssetDefinition
 from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.extension import Extension, ExtensionDefinition
 from betty.extension.wiki.data import WikiConfiguration
@@ -15,6 +15,7 @@ from betty.extension.wiki.jobs import PopulateEntity
 from betty.jinja import Filters, Globals, JinjaProvider, context_localizer
 from betty.locale import negotiate_locale, resolve_locale
 from betty.locale.localizable.gettext import _
+from betty.plugins.asset import Wiki as WikiAssets
 from betty.project.load import PostLoader
 from betty.service.factory import DataManufacturable, Manufacturable
 from betty.service.provider import service
@@ -42,7 +43,7 @@ if TYPE_CHECKING:
     description=_(
         "Enrich your ancestry with information from Wikipedia and Wikimedia Commons"
     ),
-    assets_directory=Path(__file__).parent / "assets",
+    requires={AssetDefinition: WikiAssets},
 )
 class Wiki(
     PostLoader,

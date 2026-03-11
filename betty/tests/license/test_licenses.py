@@ -18,7 +18,7 @@ from betty.license.licenses import (
     spdx_license_id_to_license_id,
 )
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.service.level import UNIVERSE
+from betty.service.level.universe import UNIVERSE
 from betty.test_utils.license import LicenseTestBase
 from betty.test_utils.user import StaticUser
 

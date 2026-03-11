@@ -8,6 +8,7 @@ site from the entire project.
 
 from __future__ import annotations
 
+from asyncio import gather
 from contextlib import AsyncExitStack, asynccontextmanager
 from pathlib import Path
 from typing import TYPE_CHECKING, Self, final, override
@@ -17,7 +18,13 @@ from aiofiles.tempfile import TemporaryDirectory
 import betty
 import betty.dirs
 from betty.ancestry import Ancestry
-from betty.asset import AssetRepository, ProxyAssetRepository, StaticAssetRepository
+from betty.asset import (
+    AssetDefinition,
+    AssetManufacturer,
+    AssetRepository,
+    ProxyAssetRepository,
+    StaticAssetRepository,
+)
 from betty.document import Document, DocumentProvider
 from betty.extension import Extension, ExtensionDefinition
 from betty.hashid import hashid
@@ -35,7 +42,8 @@ from betty.project.data import ProjectConfiguration
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.serde import SerializerDefinition, serializer_for
 from betty.service.factory import DataManufacturable
-from betty.service.level import UNIVERSE, ServiceLevel
+from betty.service.level import ServiceLevel
+from betty.service.level.universe import UNIVERSE
 from betty.service.plugin import ServicePluginManager, ServicePluginProvider
 from betty.service.provider import service
 from betty.service.requirement.project import require_project
@@ -167,7 +175,11 @@ class Project(
     @service
     async def service_plugins(self) -> ServicePluginManager:
         service_plugins = ServicePluginManager(
-            {ExtensionDefinition: self.configuration.extensions}, services=self
+            {
+                AssetDefinition: [AssetManufacturer("project")],
+                ExtensionDefinition: self.configuration.extensions,
+            },
+            services=self,
         )
         await service_plugins.bootstrap()
         self.life_cycle.attach(service_plugins)
@@ -258,21 +270,21 @@ class Project(
 
     @service
     async def _project_assets(self) -> AssetRepository:
-        asset_paths = [self.assets_directory]
-        for project_extension in await self.extensions:
-            extension_assets_directory_path = (
-                project_extension.plugin().assets_directory
+        return StaticAssetRepository(
+            *(
+                asset.plugin().assets
+                for asset in (await self.service_plugins)[AssetDefinition]
             )
-            if extension_assets_directory_path is not None:
-                asset_paths.append(extension_assets_directory_path)
-        return StaticAssetRepository(*asset_paths)
+        )
 
     @service
     async def assets(self) -> AssetRepository:
         """
         The assets file system.
         """
-        return ProxyAssetRepository(await self._project_assets, self.app.assets)
+        return ProxyAssetRepository(
+            *await gather(self._project_assets, self.app.assets)
+        )
 
     @service
     async def translations(self) -> TranslationRepository:
@@ -346,6 +358,7 @@ class Project(
         return (
             self._configuration.logo
             or betty.dirs.ASSETS_DIRECTORY_PATH
+            / "universe"
             / "public"
             / "static"
             / "betty-512x512.png"

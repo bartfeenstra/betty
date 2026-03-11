@@ -481,7 +481,9 @@ class LoadAncestry(Job):
     async def _load_streetmix_images(
         self,
     ) -> tuple[Mapping[MachineName, Sequence[File]], Sequence[File]]:
-        streetmix_image_directory_path = ASSETS_DIRECTORY_PATH / "vendor" / "streetmix"
+        streetmix_image_directory_path = (
+            ASSETS_DIRECTORY_PATH / "universe" / "vendor" / "streetmix"
+        )
         masculine: Sequence[File] = []
         feminine: Sequence[File] = []
         androgynous: Sequence[File] = []

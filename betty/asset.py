@@ -9,13 +9,24 @@ from asyncio import to_thread
 from contextlib import suppress
 from os import walk
 from pathlib import Path
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING, final, override
 
 from betty.concurrent import AsynchronizedLock
+from betty.definition.human_facing import HumanFacingDefinition
+from betty.functools import unique
+from betty.locale.localizable.gettext import _, ngettext
+from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin.factory import PluginManufacturer
+from betty.plugin.ordered import Order, OrderedPluginDefinition
+from betty.service.plugin import Requires, ServicePluginDefinition
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
+    import builtins
     from collections.abc import AsyncIterable, Iterable, Mapping, Sequence
+
+    from betty.locale.localizable import ResolvableLocalizable
+    from betty.machine_name import ResolvableMachineName
 
 
 class AssetError(Exception):
@@ -80,7 +91,11 @@ class ProxyAssetRepository(AssetRepository):
     @override
     @property
     def directories(self) -> Sequence[Path]:
-        return [path for upstream in self._upstreams for path in upstream.directories]
+        return list(
+            unique(
+                path for upstream in self._upstreams for path in upstream.directories
+            )
+        )
 
     @override
     async def walk(self, directory: Path | None = None, /) -> AsyncIterable[Path]:
@@ -149,3 +164,68 @@ class StaticAssetRepository(AssetRepository):
             return (await self._assets())[path]
         except KeyError:
             raise UnknownAsset(path, self.directories) from None
+
+
+class Asset(Plugin["AssetDefinition"]):
+    """
+    Expose an asset directory to Betty.
+    """
+
+
+@final
+@PluginTypeDefinition(
+    "asset",
+    label=_("Asset"),
+    label_plural=_("Assets"),
+    label_countable=ngettext("{count} asset", "{count} assets"),
+)
+class AssetDefinition(
+    HumanFacingDefinition,
+    OrderedPluginDefinition[Asset],
+    ServicePluginDefinition[Asset],
+):
+    """
+    .. plugin_type:: asset.
+    """
+
+    def __init__(
+        self,
+        plugin_id: ResolvableMachineName,
+        *,
+        label: ResolvableLocalizable,
+        after: Order | None = None,
+        assets: Path,
+        auto: bool = False,
+        before: Order | None = None,
+        description: ResolvableLocalizable | None = None,
+        requires: Requires | None = None,
+    ):
+        super().__init__(
+            plugin_id,
+            after=after,
+            auto=auto,
+            before=before,
+            description=description,
+            label=label,
+            requires=requires,
+        )
+        self._assets = assets
+
+    @property
+    def assets(self) -> Path:
+        """
+        The path on disk where the asset's assets are located.
+        """
+        return self._assets
+
+
+@final
+class AssetManufacturer(PluginManufacturer[AssetDefinition, Asset]):
+    """
+    The asset manufacturer.
+    """
+
+    @override
+    @classmethod
+    def type(cls) -> builtins.type[AssetDefinition]:
+        return AssetDefinition

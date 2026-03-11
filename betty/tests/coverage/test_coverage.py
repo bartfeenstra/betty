@@ -76,7 +76,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         }
     },
     "betty/asset.py": {
+        "Asset": MissingReason.STATIC_CONTENT_ONLY,
+        "AssetDefinition": {
+            "type": MissingReason.INHERITED,
+        },
         "AssetError": MissingReason.ABSTRACT,
+        "AssetManufacturer": MissingReason.STATIC_CONTENT_ONLY,
         "AssetRepository": MissingReason.ABSTRACT,
     },
     "betty/assertion.py": {
@@ -127,13 +132,13 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "plugin": MissingReason.INHERITED,
         }
     },
-    "betty/console/command/commands/extension_new_translation.py": {
-        "ExtensionNewTranslation": {
+    "betty/console/command/commands/asset_new_translation.py": {
+        "AssetNewTranslation": {
             "plugin": MissingReason.INHERITED,
         }
     },
-    "betty/console/command/commands/extension_update_translations.py": {
-        "ExtensionUpdateTranslations": {
+    "betty/console/command/commands/asset_update_translations.py": {
+        "AssetUpdateTranslations": {
             "plugin": MissingReason.INHERITED,
         }
     },
@@ -380,22 +385,14 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/locale/error.py": {
         "LocaleError": MissingReason.ABSTRACT,
     },
-    "betty/locale/translation/__init__.py": {
-        "find_source_files": MissingReason.SHOULD_BE_COVERED,
-        "new_dev_translation": MissingReason.SHOULD_BE_COVERED,
+    "betty/locale/translation.py": {
         "AssetTranslationRepository": {
             "bootstrap": MissingReason.COVERED_ELSEWHERE,
         },
         "TranslationRepository": MissingReason.ABSTRACT,
-        "update_dev_translations": MissingReason.SHOULD_BE_COVERED,
-    },
-    "betty/locale/translation/project/__init__.py": {
-        "new_project_translation": MissingReason.SHOULD_BE_COVERED,
-        "update_project_translations": MissingReason.SHOULD_BE_COVERED,
-    },
-    "betty/locale/translation/project/extension.py": {
-        "new_extension_translation": MissingReason.SHOULD_BE_COVERED,
-        "update_extension_translations": MissingReason.SHOULD_BE_COVERED,
+        "new_translation": MissingReason.SHOULD_BE_COVERED,
+        "update_translations": MissingReason.SHOULD_BE_COVERED,
+        "update_universe_translations": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/locale/localizable/__init__.py": {
         "CountableLocalizable": {
@@ -694,6 +691,16 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/plugin/assertion.py": {
         "assert_plugin": MissingReason.SHOULD_BE_COVERED,
     },
+    "betty/plugins/asset.py": {
+        "Demo": MissingReason.STATIC_CONTENT_ONLY,
+        "HttpApiDoc": MissingReason.STATIC_CONTENT_ONLY,
+        "Maps": MissingReason.STATIC_CONTENT_ONLY,
+        "RaspberryMint": MissingReason.STATIC_CONTENT_ONLY,
+        "Trees": MissingReason.STATIC_CONTENT_ONLY,
+        "Universe": MissingReason.STATIC_CONTENT_ONLY,
+        "Webpack": MissingReason.STATIC_CONTENT_ONLY,
+        "Wiki": MissingReason.STATIC_CONTENT_ONLY,
+    },
     "betty/portable/__init__.py": {
         "Portable": MissingReason.ABSTRACT,
         "Porter": MissingReason.ABSTRACT,
@@ -744,9 +751,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/extension/__init__.py": {
         "Extension": MissingReason.SHOULD_BE_COVERED,
-        "ExtensionDefinition": {
-            "type": MissingReason.INHERITED,
-        },
+        "ExtensionDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "ExtensionManufacturer": MissingReason.INHERITED,
         "ExtensionError": MissingReason.STATIC_CONTENT_ONLY,
         "ExtensionTypeError": MissingReason.STATIC_CONTENT_ONLY,

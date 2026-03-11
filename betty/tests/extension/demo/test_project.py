@@ -10,7 +10,7 @@ from betty.extension.demo import Demo
 from betty.extension.demo.jobs import LoadAncestry
 from betty.extension.demo.project import create_project
 from betty.license import License
-from betty.service.level import UNIVERSE
+from betty.service.level.universe import UNIVERSE
 from betty.test_utils.job import do
 
 if TYPE_CHECKING:
