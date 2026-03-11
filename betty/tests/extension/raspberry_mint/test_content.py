@@ -227,7 +227,11 @@ class TestMedia:
 
     async def test_build_template__with_file(self, isolated_app: App) -> None:
         resource = File(
-            ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-16x16.png",
+            ASSETS_DIRECTORY_PATH
+            / "universe"
+            / "public"
+            / "static"
+            / "betty-16x16.png",
             media_type=MediaType("image/png"),
         )
         async with Project.new_isolated(isolated_app) as project:

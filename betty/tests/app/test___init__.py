@@ -8,7 +8,7 @@ from babel import Locale
 
 from betty.app import App, AppConfiguration
 from betty.service.factory import Manufacturable
-from betty.service.level import UNIVERSE
+from betty.service.level.universe import UNIVERSE
 from betty.service.requirement.app import require_app
 from betty.test_utils.user import StaticUser
 
@@ -64,9 +64,6 @@ class TestApp:
         user = StaticUser()
         async with App.new_isolated(user=user) as sut, sut:
             assert sut.user is user
-
-    async def test_assets(self, isolated_app: App) -> None:
-        assert isolated_app.assets is isolated_app.assets
 
     async def test_binary_file_cache(self, isolated_app: App) -> None:
         assert isolated_app.binary_file_cache is isolated_app.binary_file_cache

@@ -10,7 +10,7 @@ from betty.app import App
 from betty.importlib import fully_qualified_name
 from betty.plugin import PluginDefinition
 from betty.project import Project
-from betty.service.level import UNIVERSE
+from betty.service.level.universe import UNIVERSE
 
 
 class PluginDocumentationTestBase:

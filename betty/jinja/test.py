@@ -12,7 +12,7 @@ from betty.json.linked_data import LinkedDataDumpableWithSchema
 from betty.model import persistent_id
 from betty.plugin import Plugin, PluginDefinition
 from betty.privacy import is_public
-from betty.service.level import UNIVERSE
+from betty.service.level.universe import UNIVERSE
 from betty.string import kebab_case_to_snake_case
 
 if TYPE_CHECKING:

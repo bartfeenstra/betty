@@ -234,7 +234,11 @@ class ProjectLocale(Data["ObjectDefinition"]):
                 genders=[
                     GenderDefinitionConfiguration.data().samples.get(Size.FULL).subject
                 ],
-                logo=ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png",
+                logo=ASSETS_DIRECTORY_PATH
+                / "universe"
+                / "public"
+                / "static"
+                / "betty-512x512.png",
                 license=LicenseManufacturer.data().samples.get(Size.FULL).subject,
                 licenses=[
                     LicenseDefinitionConfiguration.data().samples.get(Size.FULL).subject

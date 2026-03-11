@@ -20,10 +20,6 @@ Commands
     Explore a demonstration site
 ``docs``
     View the documentation
-``extension-new-translation``
-    Create a new translation for an extension
-``extension-update-translations``
-    Update all existing translations for an extension
 ``generate``
     Generate a static site
 ``new``
@@ -33,7 +29,7 @@ Commands
 ``serve``
     Serve a generated site
 ``update-translations``
-    Update all existing translations
+    Update existing translations
 ``dev-profile-demo``
     Profile the generation of the demonstration site
 ``dev-update-translations``

@@ -8,15 +8,15 @@ from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.asset import AssetDefinition
 from betty.extension import ExtensionDefinition
 from betty.extension._theme import jinja_filters
-from betty.extension.maps import Maps
 from betty.extension.raspberry_mint.data import RaspberryMintConfiguration
-from betty.extension.trees import Trees
 from betty.extension.webpack import Webpack
 from betty.extension.webpack.build import EntryPointProvider
 from betty.jinja import Filters, JinjaProvider
 from betty.model import EntityDefinition
+from betty.plugins.asset import RaspberryMint as RaspberryMintAsset
 from betty.project.generate import Generator
 from betty.service.factory import DataManufacturable, Manufacturable
 from betty.service.requirement.project import require_project
@@ -32,9 +32,7 @@ if TYPE_CHECKING:
 @ExtensionDefinition(
     "raspberry-mint",
     label="Raspberry Mint",
-    requires={ExtensionDefinition: Webpack},
-    before={Maps, Trees},
-    assets_directory=Path(__file__).parent / "assets",
+    requires={AssetDefinition: RaspberryMintAsset, ExtensionDefinition: Webpack},
 )
 class RaspberryMint(
     DataManufacturable[RaspberryMintConfiguration],

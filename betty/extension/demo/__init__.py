@@ -6,10 +6,10 @@ from __future__ import annotations
 
 from asyncio import to_thread
 from contextlib import suppress
-from pathlib import Path
 from shutil import rmtree
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.asset import AssetDefinition
 from betty.copyright_notice.copyright_notices import Streetmix
 from betty.extension import Extension, ExtensionDefinition
 from betty.extension.demo.jobs import LoadAncestry
@@ -24,6 +24,7 @@ from betty.html import NavigationLink, NavigationLinkProvider
 from betty.license import LicenseDefinition
 from betty.license.licenses import spdx_license_id_to_license_id
 from betty.locale.localizable.gettext import _
+from betty.plugins.asset import Demo as DemoAsset
 from betty.project import Project, generate
 from betty.project.load import Loader, load
 from betty.service.factory import Manufacturable
@@ -67,6 +68,7 @@ async def generate_with_cleanup(
     "demo",
     label="Demo",
     requires={
+        AssetDefinition: DemoAsset,
         ExtensionDefinition: (
             Deriver,
             HttpApiDoc,
@@ -75,9 +77,8 @@ async def generate_with_cleanup(
             Spdx,
             Trees,
             Wiki,
-        )
+        ),
     },
-    assets_directory=Path(__file__).parent / "assets",
 )
 class Demo(NavigationLinkProvider, Loader, Manufacturable, Extension):
     """

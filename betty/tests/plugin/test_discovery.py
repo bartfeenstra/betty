@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from betty.plugin.discovery import ResolvableDiscovery, discover
-from betty.service.level import UNIVERSE
+from betty.service.level.universe import UNIVERSE
 from betty.test_utils.plugin import DummyPluginDefinition, DummyPluginOne
 
 if TYPE_CHECKING:

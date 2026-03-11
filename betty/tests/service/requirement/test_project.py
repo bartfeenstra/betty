@@ -3,7 +3,7 @@ import pytest
 from betty.app import App
 from betty.exception import HumanFacingException
 from betty.project import Project
-from betty.service.level import UNIVERSE
+from betty.service.level.universe import UNIVERSE
 from betty.service.requirement.project import require_project
 
 

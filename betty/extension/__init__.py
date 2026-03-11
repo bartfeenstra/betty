@@ -14,7 +14,6 @@ from betty.service.plugin import ServicePluginDefinition
 
 if TYPE_CHECKING:
     import builtins
-    from pathlib import Path
 
     from betty.locale.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
@@ -59,7 +58,6 @@ class ExtensionDefinition(
         description: ResolvableLocalizable | None = None,
         after: Order[ExtensionDefinition] | None = None,
         before: Order[ExtensionDefinition] | None = None,
-        assets_directory: Path | None = None,
         requires: Requires | None = None,
     ):
         super().__init__(
@@ -70,14 +68,6 @@ class ExtensionDefinition(
             before=before,
             requires=requires,
         )
-        self._assets_directory = assets_directory
-
-    @property
-    def assets_directory(self) -> Path | None:
-        """
-        The path on disk where the extension's assets are located.
-        """
-        return self._assets_directory
 
 
 @final

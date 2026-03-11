@@ -3,7 +3,7 @@ import pytest
 from betty.app import App
 from betty.content import ContentManufacturer
 from betty.content.contents import Render, RenderConfiguration
-from betty.dirs import ROOT_DIRECTORY_PATH
+from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.extension import ExtensionManufacturer
 from betty.extension.raspberry_mint import RaspberryMint
 from betty.extension.raspberry_mint.data import RaspberryMintConfiguration
@@ -13,11 +13,8 @@ from betty.project import Project
 @pytest.fixture
 def file() -> str:
     with open(
-        ROOT_DIRECTORY_PATH
-        / "betty"
-        / "extension"
-        / "raspberry_mint"
-        / "assets"
+        ASSETS_DIRECTORY_PATH
+        / "raspberry-mint"
         / "public"
         / "localized"
         / "index.html.j2"

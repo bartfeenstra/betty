@@ -1,90 +1,116 @@
+from collections.abc import AsyncIterator
 from pathlib import Path
 from unittest.mock import ANY
 
+import pytest
 from pytest_mock import MockerFixture
 
 from betty.app import App
-from betty.console import SystemExitCode
-from betty.portable.file import dump_file
-from betty.project import Project
+from betty.asset import Asset, AssetDefinition
+from betty.console import CommandDefinition, SystemExitCode
+from betty.console.command.commands.update_translations import (
+    UpdateTranslations,
+)
 from betty.test_utils.console import run
 
 
 class TestUpdateTranslations:
-    async def test_configure__minimal(
-        self, mocker: MockerFixture, isolated_app: App
-    ) -> None:
-        m_update_project_translations = mocker.patch(
-            "betty.locale.translation.project.update_project_translations"
-        )
-        async with Project.new_isolated(isolated_app) as project, project:
-            await dump_file(
-                project.configuration.data().porter.dump(project.configuration),
-                project.configuration_file,
-            )
-            await run(
-                isolated_app,
-                "update-translations",
-                "--project",
-                str(project.configuration_file),
-            )
-        m_update_project_translations.assert_awaited_once_with(ANY, None, None)
+    @pytest.fixture
+    async def isolated_app_with_assets(self, tmp_path: Path) -> AsyncIterator[App]:
+        @AssetDefinition("dummy", label="dummy", assets=tmp_path)
+        class _Dummy(Asset):
+            pass
 
-    async def test_configure__with_source(
-        self, mocker: MockerFixture, isolated_app: App, tmp_path: Path
+        async with (
+            App.new_isolated(
+                plugins={
+                    CommandDefinition: [UpdateTranslations],
+                    AssetDefinition: [_Dummy],
+                }
+            ) as app,
+            app,
+        ):
+            yield app
+
+    async def test_configure__minimal(
+        self,
+        mocker: MockerFixture,
+        isolated_app_with_assets: App,
+        tmp_path: Path,
     ) -> None:
         source = tmp_path / "source"
         source.mkdir()
-        m_update_project_translations = mocker.patch(
-            "betty.locale.translation.project.update_project_translations"
+        m_update_translations = mocker.patch(
+            "betty.locale.translation.update_translations"
         )
-        async with Project.new_isolated(isolated_app) as project, project:
-            await dump_file(
-                project.configuration.data().porter.dump(project.configuration),
-                project.configuration_file,
-            )
-            await run(
-                isolated_app,
-                "update-translations",
-                "--project",
-                str(project.configuration_file),
-                "--source",
-                str(source),
-            )
-        m_update_project_translations.assert_awaited_once_with(ANY, source, None)
+        await run(
+            isolated_app_with_assets,
+            "update-translations",
+            "dummy",
+            str(source),
+        )
+        m_update_translations.assert_awaited_once_with(
+            ANY, [source], [], user=isolated_app_with_assets.user
+        )
 
     async def test_configure__with_exclude(
-        self, mocker: MockerFixture, isolated_app: App, tmp_path: Path
+        self,
+        mocker: MockerFixture,
+        isolated_app_with_assets: App,
+        tmp_path: Path,
     ) -> None:
         source = tmp_path / "source"
         source.mkdir()
         excludes = [source / "exclude1", source / "exclude2", source / "exclude3"]
         for exclude in excludes:
             exclude.mkdir()
-        m_update_project_translations = mocker.patch(
-            "betty.locale.translation.project.update_project_translations"
+        m_update_translations = mocker.patch(
+            "betty.locale.translation.update_translations"
         )
-        async with Project.new_isolated(isolated_app) as project, project:
-            await dump_file(
-                project.configuration.data().porter.dump(project.configuration),
-                project.configuration_file,
-            )
-            await run(
-                isolated_app,
-                "update-translations",
-                "--project",
-                str(project.configuration_file),
-                *[arg for exclude in excludes for arg in ("--exclude", str(exclude))],
-            )
-        m_update_project_translations.assert_awaited_once_with(ANY, None, set(excludes))
+        await run(
+            isolated_app_with_assets,
+            "update-translations",
+            "dummy",
+            str(source),
+            *[arg for exclude in excludes for arg in ("--exclude", str(exclude))],
+        )
+        m_update_translations.assert_awaited_once_with(
+            ANY, [source], list(excludes), user=isolated_app_with_assets.user
+        )
+
+    async def test_configure__with_unknown_asset(
+        self, isolated_app_with_assets: App, tmp_path: Path
+    ) -> None:
+        source = tmp_path / "source"
+        source.mkdir()
+        await run(
+            isolated_app_with_assets,
+            "update-translations",
+            "unknown-asset-id",
+            str(source),
+            expected_exit_code=SystemExitCode.ERROR_CONSOLE_USAGE,
+        )
+
+    async def test_configure__with_asset_not_found(
+        self, isolated_app_with_assets: App, tmp_path: Path
+    ) -> None:
+        source = tmp_path / "source"
+        source.mkdir()
+        await run(
+            isolated_app_with_assets,
+            "update-translations",
+            "dummy-not-found",
+            str(source),
+            expected_exit_code=SystemExitCode.ERROR_CONSOLE_USAGE,
+        )
 
     async def test_configure__with_invalid_source_directory(
-        self, isolated_app: App, tmp_path: Path
+        self, isolated_app_with_assets: App, tmp_path: Path
     ) -> None:
         await run(
-            isolated_app,
-            "extension-update-translations",
-            "with-assets",
+            isolated_app_with_assets,
+            "update-translations",
+            "dummy",
             str(tmp_path / "non-existent-source"),
             expected_exit_code=SystemExitCode.ERROR_CONSOLE_USAGE,
         )

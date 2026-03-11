@@ -4,7 +4,7 @@ from betty.ancestry import Ancestry
 from betty.copyright_notice import CopyrightNotice
 from betty.extension.demo.jobs import LoadAncestry
 from betty.license import License
-from betty.service.level import UNIVERSE
+from betty.service.level.universe import UNIVERSE
 from betty.test_utils.job import do
 
 

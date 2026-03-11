@@ -8,6 +8,7 @@ Built-in tests
 --------------
 In addition to Jinja2's built-in tests, Betty provides the following:
 
+- :py:func:`asset_plugin <betty.jinja.test.PluginTester.__call__>`
 - :py:func:`command_plugin <betty.jinja.test.PluginTester.__call__>`
 - :py:func:`content_plugin <betty.jinja.test.PluginTester.__call__>`
 - :py:func:`copyright_notice_plugin <betty.jinja.test.PluginTester.__call__>`
