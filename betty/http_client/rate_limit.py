@@ -5,16 +5,19 @@ HTTP client rate limiting.
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, final, override
 
 from betty.concurrent import AsynchronizedLock, RateLimiter
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import OrderedPluginDefinition
+from betty.service.plugin import ServicePluginDefinition
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
-    from collections.abc import MutableMapping, Sequence
+    import builtins
+    from collections.abc import Iterable, MutableMapping
 
     from aiohttp.client_middlewares import ClientHandlerType
     from aiohttp.client_reqrep import ClientRequest, ClientResponse
@@ -27,7 +30,7 @@ class RateLimitMiddleware:
     HTTP client middleware to rate-limit requests.
     """
 
-    def __init__(self, limits: Sequence[RateLimit], /):
+    def __init__(self, limits: Iterable[RateLimit], /):
         self._preferred_limits_and_limiters = [
             (limit, RateLimiter(*limit.limit)) for limit in limits
         ]
@@ -96,7 +99,19 @@ class RateLimit(Plugin["RateLimitDefinition"]):
         "Rate limits ensure that Betty's HTTP client does not make more requests to a web service than that service supports or allows, by enforcing a maximum number of requests per timeframe."
     ),
 )
-class RateLimitDefinition(OrderedPluginDefinition[RateLimit]):
+class RateLimitDefinition(ServicePluginDefinition, OrderedPluginDefinition[RateLimit]):
     """
     .. plugin_type:: http-rate-limit.
     """
+
+
+@final
+class RateLimitManufacturer(PluginManufacturer[RateLimitDefinition, RateLimit]):
+    """
+    The rate limit manufacturer.
+    """
+
+    @override
+    @classmethod
+    def type(cls) -> builtins.type[RateLimitDefinition]:
+        return RateLimitDefinition

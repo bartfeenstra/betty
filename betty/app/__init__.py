@@ -19,9 +19,12 @@ from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
 from betty.dirs import CACHE_DIRECTORY_PATH
 from betty.http_client import ClientErrorToUserMessageMiddleware
-from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
+from betty.http_client.rate_limit import (
+    RateLimitDefinition,
+    RateLimitManufacturer,
+    RateLimitMiddleware,
+)
 from betty.life_cycle import LifeCycle
-from betty.life_cycle.manage import ManagedLifeCycle
 from betty.locale import DEFAULT_LOCALE, ResolvableLocale, resolve_locale
 from betty.locale.localize import Localizer, LocalizerRepository
 from betty.locale.translation import (
@@ -34,6 +37,7 @@ from betty.plugin.ordered import sort_ordered_plugin_graph
 from betty.portable.file import assert_load_file
 from betty.service.factory import DataManufacturable
 from betty.service.level import UNIVERSE, ServiceLevel
+from betty.service.plugin import ServicePluginManager, ServicePluginProvider
 from betty.service.provider import ServiceFactory, service
 from betty.typing import threadsafe
 from betty.user.no_op import NoOpUser
@@ -52,7 +56,7 @@ if TYPE_CHECKING:
 
 @final
 @threadsafe
-class App(DataManufacturable[AppConfiguration], ServiceLevel, ManagedLifeCycle):
+class App(DataManufacturable[AppConfiguration], ServiceLevel, ServicePluginProvider):
     """
     The Betty application.
 
@@ -167,6 +171,22 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ManagedLifeCycle):
                 else translations,
             )
 
+    @override
+    @service
+    async def service_plugins(self) -> ServicePluginManager:
+        service_plugins = ServicePluginManager(
+            {
+                RateLimitDefinition: [
+                    RateLimitManufacturer(plugin)
+                    async for plugin in self.plugins[RateLimitDefinition]
+                ]
+            },
+            services=self,
+        )
+        await service_plugins.bootstrap()
+        self.life_cycle.attach(service_plugins)
+        return service_plugins
+
     @property
     def user(self) -> User:
         """
@@ -210,7 +230,7 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ManagedLifeCycle):
         The HTTP client.
         """
         http_rate_limits = self.plugins[RateLimitDefinition]
-        rate_limit_sorter = await sort_ordered_plugin_graph(
+        await sort_ordered_plugin_graph(
             http_rate_limits, [x async for x in http_rate_limits]
         )
 
@@ -221,14 +241,7 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ManagedLifeCycle):
             },
             middlewares=[
                 ClientErrorToUserMessageMiddleware(self.user),
-                RateLimitMiddleware(
-                    [
-                        await self.factory.new(
-                            (await http_rate_limits[rate_limit_id]).cls
-                        )
-                        for rate_limit_id in rate_limit_sorter.static_order()
-                    ]
-                ),
+                RateLimitMiddleware((await self.service_plugins)[RateLimitDefinition]),
             ],
         )
 
