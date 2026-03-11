@@ -309,6 +309,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/http_client/rate_limit.py": {
         "RateLimit": MissingReason.ABSTRACT,
         "RateLimitDefinition": MissingReason.STATIC_CONTENT_ONLY,
+        "RateLimitManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/http_client/rate_limits.py": {
         "WikipediaActionApi": {
