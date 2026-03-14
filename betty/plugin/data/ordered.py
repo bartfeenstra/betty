@@ -26,25 +26,25 @@ class OrderedPluginDefinitionConfiguration[PluginDefinitionT: PluginDefinition](
     .. data:: betty.plugin.config.ordered:OrderedPluginDefinitionConfiguration
     """
 
-    comes_before = SequenceProperty(
-        SequenceDefinition(cls=list, label=_("Comes before"), value=MachineName),
+    after = SequenceProperty(
+        SequenceDefinition(cls=list, label=_("After"), value=MachineName),
         omit_load=True,
         omit_dump=lambda data: not len(data),
     )
-    comes_after = SequenceProperty(
-        SequenceDefinition(cls=list, label=_("Comes after"), value=MachineName),
+    before = SequenceProperty(
+        SequenceDefinition(cls=list, label=_("Before"), value=MachineName),
         omit_load=True,
         omit_dump=lambda data: not len(data),
     )
 
     def __init__(
         self,
-        comes_before: Iterable[ResolvablePluginId] | None = None,
-        comes_after: Iterable[ResolvablePluginId] | None = None,
+        after: Iterable[ResolvablePluginId] | None = None,
+        before: Iterable[ResolvablePluginId] | None = None,
         **kwargs: Any,
     ):
         super().__init__(**kwargs)
-        if comes_before is not None:
-            self.comes_before = map(resolve_plugin_id, comes_before)
-        if comes_after is not None:
-            self.comes_after = map(resolve_plugin_id, comes_after)
+        if after is not None:
+            self.after = map(resolve_plugin_id, after)
+        if before is not None:
+            self.before = map(resolve_plugin_id, before)

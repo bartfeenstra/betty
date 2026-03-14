@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-03-10 17:25+0000\n"
+"POT-Creation-Date: 2026-03-15 00:08+0000\n"
 "PO-Revision-Date: 2026-02-17 19:37+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -112,6 +112,9 @@ msgstr "Adoptie"
 msgid "Adoptions"
 msgstr "Adopties"
 
+msgid "After"
+msgstr ""
+
 msgid "Alias"
 msgstr "Alias"
 
@@ -211,6 +214,9 @@ msgstr "Bat mitswa"
 
 msgid "Bat mitzvahs"
 msgstr "Bat mitswa's"
+
+msgid "Before"
+msgstr ""
 
 msgid "Beneficiaries"
 msgstr "Begunstigden"
@@ -436,12 +442,6 @@ msgstr "Kolommen"
 
 msgid "Columns configuration"
 msgstr "Kolommenconfiguratie"
-
-msgid "Comes after"
-msgstr "Komt na"
-
-msgid "Comes before"
-msgstr "Komt voor"
 
 msgid "Command"
 msgstr "Commando"

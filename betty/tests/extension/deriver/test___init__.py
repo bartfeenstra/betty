@@ -34,18 +34,18 @@ class TestDeriver:
                     await load(project)
 
                 assert len(person.presences) == 3
-                start = [
+                birth = [
                     presence
                     for presence in person.presences
                     if presence.event.event_type.plugin().id == Birth.plugin().id
                     or presence.event.event_type.plugin().indicates == Birth.plugin().id
                 ][0]
-                assert start is not None
-                assert start.event is not None
-                assert isinstance(start.event, Event)
+                assert birth is not None
+                assert birth.event is not None
+                assert isinstance(birth.event, Event)
                 assert (
                     DateRange(None, Date(1, 1, 1), end_is_boundary=True)
-                    == start.event.date
+                    == birth.event.date
                 )
                 end = [
                     presence
@@ -59,5 +59,5 @@ class TestDeriver:
                     DateRange(Date(1, 1, 1), start_is_boundary=True) == end.event.date
                 )
                 assert len(added[Event]) == 2
-                assert start.event in added[Event]
+                assert birth.event in added[Event]
                 assert end.event in added[Event]

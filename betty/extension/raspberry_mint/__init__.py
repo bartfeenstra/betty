@@ -33,7 +33,7 @@ if TYPE_CHECKING:
     "raspberry-mint",
     label="Raspberry Mint",
     requires={ExtensionDefinition: Webpack},
-    comes_before={Maps, Trees},
+    before={Maps, Trees},
     assets_directory=Path(__file__).parent / "assets",
 )
 class RaspberryMint(

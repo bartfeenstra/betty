@@ -14,12 +14,12 @@ from betty.plugin import (
     ResolvablePluginId,
 )
 from betty.plugin.factory import PluginManufacturer
-from betty.plugin.ordered import OrderedPluginDefinition
+from betty.plugin.ordered import Order, OrderedPluginDefinition
 from betty.service.plugin import ServicePluginDefinition
 
 if TYPE_CHECKING:
     import builtins
-    from collections.abc import Iterable, Mapping, Set
+    from collections.abc import Iterable, Mapping
     from pathlib import Path
 
     from betty.locale.localizable import ResolvableLocalizable
@@ -61,8 +61,8 @@ class ExtensionDefinition(
         *,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
-        comes_before: Set[ResolvablePluginId] | None = None,
-        comes_after: Set[ResolvablePluginId] | None = None,
+        after: Order[ExtensionDefinition] | None = None,
+        before: Order[ExtensionDefinition] | None = None,
         assets_directory: Path | None = None,
         requires: Mapping[
             builtins.type[PluginDefinition],
@@ -74,8 +74,8 @@ class ExtensionDefinition(
             plugin_id,
             label=label,
             description=description,
-            comes_before=comes_before,
-            comes_after=comes_after,
+            after=after,
+            before=before,
             requires=requires,
         )
         self._assets_directory = assets_directory

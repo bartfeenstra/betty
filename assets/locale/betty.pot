@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-03-10 17:25+0000\n"
+"POT-Creation-Date: 2026-03-15 00:08+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -100,6 +100,9 @@ msgid "Adoption"
 msgstr ""
 
 msgid "Adoptions"
+msgstr ""
+
+msgid "After"
 msgstr ""
 
 msgid "Alias"
@@ -196,6 +199,9 @@ msgid "Bat mitzvah"
 msgstr ""
 
 msgid "Bat mitzvahs"
+msgstr ""
+
+msgid "Before"
 msgstr ""
 
 msgid "Beneficiaries"
@@ -395,12 +401,6 @@ msgid "Columns"
 msgstr ""
 
 msgid "Columns configuration"
-msgstr ""
-
-msgid "Comes after"
-msgstr ""
-
-msgid "Comes before"
 msgstr ""
 
 msgid "Command"

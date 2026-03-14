@@ -339,7 +339,7 @@ class DummyServicePluginGammaIsolated(DummyServicePluginGamma):
 
 @DummyServicePluginGammaDefinition(
     "dummy-service-plugin-gamma-comes-before-isolated",
-    comes_before={DummyServicePluginGammaIsolated},
+    before={DummyServicePluginGammaIsolated},
 )
 class DummyServicePluginGammaComesBeforeIsolated(DummyServicePluginGamma):
     pass
@@ -347,7 +347,7 @@ class DummyServicePluginGammaComesBeforeIsolated(DummyServicePluginGamma):
 
 @DummyServicePluginGammaDefinition(
     "dummy-service-plugin-gamma-comes-after-isolated",
-    comes_after={DummyServicePluginGammaIsolated},
+    after={DummyServicePluginGammaIsolated},
 )
 class DummyServicePluginGammaComesAfterIsolated(DummyServicePluginGamma):
     pass

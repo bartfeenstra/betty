@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     description=_(
         "Determine if people can be proven to have died. If not, mark them and their associated entities private."
     ),
-    comes_after={Deriver},
+    after={Deriver},
 )
 class Privatizer(PostLoader, Manufacturable, Extension):
     """

@@ -41,14 +41,14 @@ _ORDERED_PLUGIN_COMES_BEFORE_TARGET = _OrderedPluginDefinition(
 
 _ORDERED_PLUGIN_HAS_COMES_BEFORE = _OrderedPluginDefinition(
     "ordered-plugin-has-comes-before",
-    comes_before={_ORDERED_PLUGIN_COMES_BEFORE_TARGET},
+    before={_ORDERED_PLUGIN_COMES_BEFORE_TARGET},
 )
 _ORDERED_PLUGIN_COMES_AFTER_TARGET = _OrderedPluginDefinition(
     "ordered-plugin-comes-after-target"
 )
 
 _ORDERED_PLUGIN_HAS_COMES_AFTER = _OrderedPluginDefinition(
-    "ordered-plugin-has-comes-after", comes_after={_ORDERED_PLUGIN_COMES_AFTER_TARGET}
+    "ordered-plugin-has-comes-after", after={_ORDERED_PLUGIN_COMES_AFTER_TARGET}
 )
 
 _ORDERED_PLUGIN_ISOLATED = _OrderedPluginDefinition("ordered-plugin-isolated")
@@ -56,11 +56,11 @@ _ORDERED_PLUGIN_ISOLATED = _OrderedPluginDefinition("ordered-plugin-isolated")
 
 _ORDERED_PLUGIN_HAS_COMES_BEFORE_BIDIRECTIONAL = _OrderedPluginDefinition(
     "ordered-plugin-has-comes-before-bidirectional",
-    comes_before={"ordered-plugin-has-comes-after-bidirectional"},
+    before={"ordered-plugin-has-comes-after-bidirectional"},
 )
 _ORDERED_PLUGIN_HAS_COMES_AFTER_BIDIRECTIONAL = _OrderedPluginDefinition(
     "ordered-plugin-has-comes-after-bidirectional",
-    comes_after={_ORDERED_PLUGIN_HAS_COMES_BEFORE_BIDIRECTIONAL},
+    after={_ORDERED_PLUGIN_HAS_COMES_BEFORE_BIDIRECTIONAL},
 )
 
 

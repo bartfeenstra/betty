@@ -34,7 +34,7 @@ from betty.plugin import (
 )
 from betty.plugin.discovery import ResolvableDiscovery
 from betty.plugin.error import PluginNotFound
-from betty.plugin.ordered import OrderedPluginDefinition, sort_ordered_plugin_graph
+from betty.plugin.ordered import OrderedPluginDefinition
 from betty.service.provider import service
 from betty.string import kebab_case_to_snake_case
 from betty.typing import threadsafe
@@ -286,14 +286,21 @@ class ServicePluginManager(ManagedLifeCycle):
         plugin_type: type[ServicePluginDefinitionT],
         plugins: Iterable[Plugin[ServicePluginDefinitionT]],
     ) -> PluginCollection:
+        plugins = sorted(plugins, key=lambda plugin: plugin.plugin().id)
         if issubclass(plugin_type, OrderedPluginDefinition):
-            plugins_by_id = {plugin.plugin().id: plugin for plugin in plugins}
-            sorter = await sort_ordered_plugin_graph(
-                self._services.plugins[plugin_type],
-                (plugin.plugin() for plugin in plugins),
-            )
+            plugin_ids = {plugin.plugin().id for plugin in plugins}
+            sorter = TopologicalSorter[MachineName]()
+            for plugin in sorted(plugins, key=lambda plugin: plugin.plugin().id):
+                plugin_definition = plugin.plugin()
+                assert isinstance(plugin_definition, OrderedPluginDefinition)
+                sorter.add(plugin_definition.id)
+                for after in filter(plugin_definition.after, plugin_ids):
+                    sorter.add(plugin_definition.id, after)
+                for before in filter(plugin_definition.before, plugin_ids):
+                    sorter.add(before, plugin_definition.id)
             sorter.prepare()
             sorted_plugins = []
+            plugins_by_id = {plugin.plugin().id: plugin for plugin in plugins}
             while sorter.is_active():
                 batch_plugin_ids = sorter.get_ready()
                 sorted_plugins.append(
@@ -301,9 +308,7 @@ class ServicePluginManager(ManagedLifeCycle):
                 )
                 sorter.done(*batch_plugin_ids)
             return PluginCollection(sorted_plugins)
-        return PluginCollection(
-            [sorted(plugins, key=lambda plugin: plugin.plugin().id)]
-        )
+        return PluginCollection([plugins])
 
     async def _bootstrap_plugin(
         self, plugin_type_and_id: tuple[type[ServicePluginDefinition], MachineName]
