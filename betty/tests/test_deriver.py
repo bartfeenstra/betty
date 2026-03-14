@@ -75,7 +75,7 @@ class ComesAfterReference(EventType):
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    comes_before={ComesBeforeReference},
+    before={ComesBeforeReference},
 )
 class ComesBefore(EventType):
     pass
@@ -87,7 +87,7 @@ class ComesBefore(EventType):
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    comes_before={ComesBeforeReference},
+    before={ComesBeforeReference},
 )
 class ComesBeforeShouldExist(ShouldExistEventType):
     @override
@@ -102,7 +102,7 @@ class ComesBeforeShouldExist(ShouldExistEventType):
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    comes_before={ComesBeforeReference},
+    before={ComesBeforeReference},
 )
 class ComesBeforeShouldNotExist(ShouldExistEventType):
     @override
@@ -117,8 +117,8 @@ class ComesBeforeShouldNotExist(ShouldExistEventType):
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    comes_before={ComesBeforeReference},
-    comes_after={ComesAfterReference},
+    before={ComesBeforeReference},
+    after={ComesAfterReference},
 )
 class ComesBeforeAndAfter(EventType):
     pass
@@ -130,8 +130,8 @@ class ComesBeforeAndAfter(EventType):
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    comes_before={ComesBeforeReference},
-    comes_after={ComesAfterReference},
+    before={ComesBeforeReference},
+    after={ComesAfterReference},
 )
 class ComesBeforeAndAfterShouldExist(ShouldExistEventType):
     @override
@@ -146,8 +146,8 @@ class ComesBeforeAndAfterShouldExist(ShouldExistEventType):
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    comes_before={ComesBeforeReference},
-    comes_after={ComesAfterReference},
+    before={ComesBeforeReference},
+    after={ComesAfterReference},
 )
 class ComesBeforeAndAfterShouldNotExist(ShouldExistEventType):
     @override
@@ -162,7 +162,7 @@ class ComesBeforeAndAfterShouldNotExist(ShouldExistEventType):
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    comes_after={ComesAfterReference},
+    after={ComesAfterReference},
 )
 class ComesAfter(EventType):
     pass
@@ -174,7 +174,7 @@ class ComesAfter(EventType):
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    comes_after={ComesAfterReference},
+    after={ComesAfterReference},
 )
 class ComesAfterShouldExist(ShouldExistEventType):
     @override
@@ -189,7 +189,7 @@ class ComesAfterShouldExist(ShouldExistEventType):
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    comes_after={ComesAfterReference},
+    after={ComesAfterReference},
 )
 class ComesAfterShouldNotExist(ShouldExistEventType):
     @override

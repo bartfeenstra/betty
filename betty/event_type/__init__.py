@@ -16,11 +16,10 @@ from betty.plugin import (
     resolve_plugin_id,
 )
 from betty.plugin.factory import PluginManufacturer
-from betty.plugin.ordered import OrderedPluginDefinition
+from betty.plugin.ordered import Order, OrderedPluginDefinition
 
 if TYPE_CHECKING:
     import builtins
-    from collections.abc import Set
 
     from betty.ancestry.person import Person
     from betty.locale.localizable import CountableLocalizable, ResolvableLocalizable
@@ -69,8 +68,8 @@ class EventTypeDefinition(
         label_plural: ResolvableLocalizable,
         label_countable: CountableLocalizable,
         description: ResolvableLocalizable | None = None,
-        comes_before: Set[ResolvablePluginId] | None = None,
-        comes_after: Set[ResolvablePluginId] | None = None,
+        after: Order[EventTypeDefinition] | None = None,
+        before: Order[EventTypeDefinition] | None = None,
         indicates: ResolvablePluginId[EventTypeDefinition] | None = None,
     ):
         super().__init__(
@@ -79,8 +78,8 @@ class EventTypeDefinition(
             label_plural=label_plural,
             label_countable=label_countable,
             description=description,
-            comes_before=comes_before,
-            comes_after=comes_after,
+            after=after,
+            before=before,
         )
         self._indicates = None if indicates is None else resolve_plugin_id(indicates)
 

@@ -5,6 +5,7 @@ Provide an API to derive information from ancestries, and create new entities or
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections import defaultdict
 from enum import Enum
 from typing import TYPE_CHECKING, cast, final, override
 from uuid import NAMESPACE_URL, uuid5
@@ -15,12 +16,12 @@ from betty.ancestry.presence import Presence
 from betty.date import Date, DateRange
 from betty.event_type import EventTypeDefinition, ShouldExistEventType
 from betty.locale.localizable.gettext import _
-from betty.plugin.ordered import get_comes_after, get_comes_before
 from betty.role.roles import Subject
 
 if TYPE_CHECKING:
-    from collections.abc import Collection, Iterable, Sequence
+    from collections.abc import Collection, Iterable, Mapping, Sequence, Set
 
+    from betty.machine_name import MachineName
     from betty.project import Project
 
 
@@ -68,12 +69,47 @@ class Deriver:
         """
         Derive additional data.
         """
+        event_types = sorted(
+            [
+                event_type
+                async for event_type in self._project.plugins[EventTypeDefinition]
+            ],
+            key=lambda event_type: event_type.id,
+        )
+        direct_predecessors = defaultdict(set)
+        for event_type in event_types:
+            for other_event_type in event_types:
+                if event_type.before(other_event_type.id):
+                    direct_predecessors[other_event_type.id].add(event_type.id)
+                if event_type.after(other_event_type.id):
+                    direct_predecessors[event_type.id].add(other_event_type.id)
+
+        def _flatten_predecessors(event_type: MachineName) -> Iterable[MachineName]:
+            for predecessor in direct_predecessors[event_type]:
+                yield predecessor
+                yield from _flatten_predecessors(predecessor)
+
+        indirect_predecessors = {
+            event_type.id: set(_flatten_predecessors(event_type.id))
+            for event_type in event_types
+        }
+        after = defaultdict(set)
+        before = defaultdict(set)
+        for event_type in event_types:
+            for other_event_type in event_types:
+                if other_event_type.id in indirect_predecessors[event_type.id]:
+                    after[event_type.id].add(other_event_type.id)
+                    before[other_event_type.id].add(event_type.id)
+                elif event_type.id in indirect_predecessors[other_event_type.id]:
+                    after[other_event_type.id].add(event_type.id)
+                    before[event_type.id].add(other_event_type.id)
+
         async for derivable_event_type in self._project.plugins[EventTypeDefinition]:
             created_derivations = 0
             updated_derivations = 0
             for person in self._project.ancestry[Person]:
                 created, updated = await self._derive_person(
-                    person, derivable_event_type
+                    person, derivable_event_type, after, before
                 )
                 created_derivations += created
                 updated_derivations += updated
@@ -97,9 +133,12 @@ class Deriver:
                 )
 
     async def _derive_person(
-        self, person: Person, derivable_event_type: EventTypeDefinition
+        self,
+        person: Person,
+        derivable_event_type: EventTypeDefinition,
+        after: Mapping[MachineName, Set[MachineName]],
+        before: Mapping[MachineName, Set[MachineName]],
     ) -> tuple[int, int]:
-        event_types = self._project.plugins[EventTypeDefinition]
         # Gather any existing events that could be derived, or create a new derived event if needed.
         derivable_events: Sequence[tuple[Event, Derivation]] = [
             (event, Derivation.UPDATE)
@@ -133,14 +172,6 @@ class Deriver:
             else:
                 return 0, 0
 
-        # Aggregate event type order from references and backreferences.
-        comes_before_event_types = await get_comes_before(
-            event_types, derivable_event_type
-        )
-        comes_after_event_types = await get_comes_after(
-            event_types, derivable_event_type
-        )
-
         created_derivations = 0
         updated_derivations = 0
 
@@ -152,12 +183,12 @@ class Deriver:
 
             if derivable_date is None or derivable_date.end is None:
                 dates_derived = dates_derived or _ComesBeforeDateDeriver.derive(
-                    person, derivable_event, comes_before_event_types
+                    person, derivable_event, before[derivable_event_type.id]
                 )
 
             if derivable_date is None or derivable_date.start is None:
                 dates_derived = dates_derived or _ComesAfterDateDeriver.derive(
-                    person, derivable_event, comes_after_event_types
+                    person, derivable_event, after[derivable_event_type.id]
                 )
 
             if dates_derived:
@@ -178,7 +209,7 @@ class _DateDeriver(ABC):
         cls,
         person: Person,
         derivable_event: Event,
-        reference_event_types: Collection[EventTypeDefinition],
+        reference_event_types: Collection[MachineName],
     ) -> bool:
         if not reference_event_types:
             return False
@@ -320,13 +351,8 @@ def _get_derivable_events(
             continue
         if (
             isinstance(event.date, DateRange)
-            and (
-                not event.event_type.plugin().comes_after
-                or event.date.start is not None
-            )
-            and (
-                not event.event_type.plugin().comes_before or event.date.end is not None
-            )
+            and event.date.start is not None
+            and event.date.end is not None
         ):
             continue
 
@@ -335,12 +361,9 @@ def _get_derivable_events(
 
 def _get_reference_events(
     person: Person,
-    reference_event_types: Collection[EventTypeDefinition],
+    reference_event_types: Collection[MachineName],
     derivable_event_type: EventTypeDefinition,
 ) -> Iterable[Event]:
-    reference_event_type_ids = [
-        reference_event_type.id for reference_event_type in reference_event_types
-    ]
     for presence in person.presences:
         reference_event = presence.event
 
@@ -348,10 +371,7 @@ def _get_reference_events(
             continue
 
         if isinstance(reference_event.date, DateRange):
-            if (
-                reference_event.event_type.plugin().id
-                in derivable_event_type.comes_before
-            ):
+            if derivable_event_type.before(reference_event.event_type.plugin().id):
                 reference_date = reference_event.date.start
             else:
                 reference_date = reference_event.date.end
@@ -361,7 +381,7 @@ def _get_reference_events(
                 continue
 
         # Ignore reference events of the wrong type.
-        if reference_event.event_type.plugin().id not in reference_event_type_ids:
+        if reference_event.event_type.plugin().id not in reference_event_types:
             continue
 
         yield reference_event

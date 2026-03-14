@@ -56,7 +56,7 @@ class Birth(ShouldExistEventType):
     label=_("Death"),
     label_plural=_("Deaths"),
     label_countable=ngettext("{count} death", "{count} deaths"),
-    comes_after={Birth},
+    after={Birth},
 )
 class Death(ShouldExistEventType):
     """
@@ -75,8 +75,8 @@ class Death(ShouldExistEventType):
     label=_("Baptism"),
     label_plural=_("Baptisms"),
     label_countable=ngettext("{count} baptism", "{count} baptisms"),
-    comes_before={Death},
-    comes_after={Birth},
+    after={Birth},
+    before={Death},
     indicates=Birth,
 )
 class Baptism(EventType):
@@ -91,8 +91,8 @@ class Baptism(EventType):
     label=_("Bar mitzvah"),
     label_plural=_("Bar mitzvahs"),
     label_countable=ngettext("{count} bar mitzvah", "{count} bar mitzvahs"),
-    comes_before={Death},
-    comes_after={Birth},
+    after={Birth},
+    before={Death},
     indicates=Birth,
 )
 class BarMitzvah(EventType):
@@ -107,8 +107,8 @@ class BarMitzvah(EventType):
     label=_("Bat mitzvah"),
     label_plural=_("Bat mitzvahs"),
     label_countable=ngettext("{count} bat mitzvah", "{count} bat mitzvahs"),
-    comes_before={Death},
-    comes_after={Birth},
+    after={Birth},
+    before={Death},
     indicates=Birth,
 )
 class BatMitzvah(EventType):
@@ -123,8 +123,8 @@ class BatMitzvah(EventType):
     label=_("Adoption"),
     label_plural=_("Adoptions"),
     label_countable=ngettext("{count} adoption", "{count} adoptions"),
-    comes_before={Death},
-    comes_after={Birth},
+    after={Birth},
+    before={Death},
 )
 class Adoption(EventType):
     """
@@ -138,7 +138,7 @@ class Adoption(EventType):
     label=_("Funeral"),
     label_plural=_("Funerals"),
     label_countable=ngettext("{count} funeral", "{count} funerals"),
-    comes_after={Death},
+    after={Death},
     indicates=Death,
 )
 class Funeral(EventType):
@@ -153,7 +153,7 @@ class Funeral(EventType):
     label=_("Cremation"),
     label_plural=_("Cremations"),
     label_countable=ngettext("{count} cremation", "{count} cremations"),
-    comes_after={Death},
+    after={Death},
     indicates=Death,
 )
 class Cremation(EventType):
@@ -168,7 +168,7 @@ class Cremation(EventType):
     label=_("Burial"),
     label_plural=_("Burials"),
     label_countable=ngettext("{count} burial", "{count} burials"),
-    comes_after={Death},
+    after={Death},
     indicates=Death,
 )
 class Burial(EventType):
@@ -183,7 +183,7 @@ class Burial(EventType):
     label=_("Will"),
     label_plural=_("Wills"),
     label_countable=ngettext("{count} will", "{count} wills"),
-    comes_after={Death},
+    after={Death},
 )
 class Will(EventType):
     """
@@ -197,8 +197,8 @@ class Will(EventType):
     label=_("Engagement"),
     label_plural=_("Engagements"),
     label_countable=ngettext("{count} engagement", "{count} engagements"),
-    comes_after={Birth},
-    comes_before={Death},
+    after={Birth},
+    before={Death},
 )
 class Engagement(EventType):
     """
@@ -212,8 +212,8 @@ class Engagement(EventType):
     label=_("Marriage"),
     label_plural=_("Marriages"),
     label_countable=ngettext("{count} marriage", "{count} marriages"),
-    comes_after={Birth, Engagement},
-    comes_before={Death},
+    after={Birth, Engagement},
+    before={Death},
 )
 class Marriage(EventType):
     """
@@ -229,8 +229,8 @@ class Marriage(EventType):
     label_countable=ngettext(
         "{count} announcement of marriage", "{count} announcements of marriage"
     ),
-    comes_after={Birth},
-    comes_before={Death, Marriage},
+    after={Birth},
+    before={Death, Marriage},
 )
 class MarriageAnnouncement(EventType):
     """
@@ -244,8 +244,8 @@ class MarriageAnnouncement(EventType):
     label=_("Divorce"),
     label_plural=_("Divorces"),
     label_countable=ngettext("{count} divorce", "{count} divorces"),
-    comes_after={Birth, Marriage},
-    comes_before={Death},
+    after={Birth, Marriage},
+    before={Death},
 )
 class Divorce(EventType):
     """
@@ -261,8 +261,8 @@ class Divorce(EventType):
     label_countable=ngettext(
         "{count} announcement of divorce", "{count} announcements of divorce"
     ),
-    comes_after={Birth, Marriage},
-    comes_before={Death, Divorce},
+    after={Birth, Marriage},
+    before={Death, Divorce},
 )
 class DivorceAnnouncement(EventType):
     """
@@ -276,8 +276,8 @@ class DivorceAnnouncement(EventType):
     label=_("Residence"),
     label_plural=_("Residences"),
     label_countable=ngettext("{count} residence", "{count} residences"),
-    comes_after={Birth},
-    comes_before={Death},
+    after={Birth},
+    before={Death},
 )
 class Residence(EventType):
     """
@@ -291,8 +291,8 @@ class Residence(EventType):
     label=_("Immigration"),
     label_plural=_("Immigrations"),
     label_countable=ngettext("{count} immigration", "{count} immigrations"),
-    comes_after={Birth},
-    comes_before={Death},
+    after={Birth},
+    before={Death},
 )
 class Immigration(EventType):
     """
@@ -306,8 +306,8 @@ class Immigration(EventType):
     label=_("Emigration"),
     label_plural=_("Emigrations"),
     label_countable=ngettext("{count} emigration", "{count} emigrations"),
-    comes_after={Birth},
-    comes_before={Death},
+    after={Birth},
+    before={Death},
 )
 class Emigration(EventType):
     """
@@ -321,8 +321,8 @@ class Emigration(EventType):
     label=_("Occupation"),
     label_plural=_("Occupations"),
     label_countable=ngettext("{count} occupation", "{count} occupations"),
-    comes_after={Birth},
-    comes_before={Death},
+    after={Birth},
+    before={Death},
 )
 class Occupation(EventType):
     """
@@ -336,8 +336,8 @@ class Occupation(EventType):
     label=_("Retirement"),
     label_plural=_("Retirements"),
     label_countable=ngettext("{count} retirement", "{count} retirements"),
-    comes_after={Birth},
-    comes_before={Death},
+    after={Birth},
+    before={Death},
 )
 class Retirement(EventType):
     """
@@ -364,8 +364,8 @@ class Correspondence(EventType):
     label=_("Confirmation"),
     label_plural=_("Confirmations"),
     label_countable=ngettext("{count} confirmation", "{count} confirmations"),
-    comes_after={Birth},
-    comes_before={Death},
+    after={Birth},
+    before={Death},
 )
 class Confirmation(EventType):
     """
@@ -379,8 +379,8 @@ class Confirmation(EventType):
     label=_("Missing"),
     label_plural=_("Missings"),
     label_countable=ngettext("{count} missing", "{count} missings"),
-    comes_after={Birth},
-    comes_before={Death},
+    after={Birth},
+    before={Death},
 )
 class Missing(EventType):
     """
@@ -394,8 +394,8 @@ class Missing(EventType):
     label=_("Conference"),
     label_plural=_("Conferences"),
     label_countable=ngettext("{count} conference", "{count} conferences"),
-    comes_before={Death},
-    comes_after={Birth},
+    before={Death},
+    after={Birth},
 )
 class Conference(EventType):
     """

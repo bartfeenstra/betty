@@ -182,25 +182,25 @@ class _PluginDirective(SphinxDirective):
 {requires_content}
 """
         if isinstance(plugin, OrderedPluginDefinition):
-            if comes_before_content := self._build_other_plugins_references(
+            if after_content := self._build_other_plugins_references(
                 [
                     plugins[plugin.type().id][plugin_id]
-                    for plugin_id in plugin.comes_before
-                ]
-            ):
-                content += f"""
-   * - Comes before
-{comes_before_content}
-"""
-            if comes_after_content := self._build_other_plugins_references(
-                [
-                    plugins[plugin.type().id][plugin_id]
-                    for plugin_id in plugin.comes_after
+                    for plugin_id in filter(plugin.after, plugins[plugin.type().id])
                 ]
             ):
                 content += f"""
    * - Comes after
-{comes_after_content}
+{after_content}
+"""
+            if before_content := self._build_other_plugins_references(
+                [
+                    plugins[plugin.type().id][plugin_id]
+                    for plugin_id in filter(plugin.before, plugins[plugin.type().id])
+                ]
+            ):
+                content += f"""
+   * - Comes before
+{before_content}
 """
         return nested_parse_to_nodes(
             self.state,

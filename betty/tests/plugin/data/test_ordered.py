@@ -10,12 +10,12 @@ class TestOrderedPluginDefinitionConfiguration:
         def new_plugin(self) -> OrderedPluginDefinition:
             raise NotImplementedError
 
-    def test_comes_before(self) -> None:
-        comes_before = ["my-first-plugin"]
-        sut = self._Sut(id="-dummy", comes_before=comes_before)
-        assert sut.comes_before == comes_before
+    def test_before(self) -> None:
+        before = ["my-first-plugin"]
+        sut = self._Sut(id="-dummy", before=before)
+        assert sut.before == before
 
-    def test_comes_after(self) -> None:
-        comes_after = ["my-first-plugin"]
-        sut = self._Sut(id="-dummy", comes_after=comes_after)
-        assert sut.comes_after == comes_after
+    def test_after(self) -> None:
+        after = ["my-first-plugin"]
+        sut = self._Sut(id="-dummy", after=after)
+        assert sut.after == after

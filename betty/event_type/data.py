@@ -56,8 +56,8 @@ class EventTypeDefinitionConfiguration(
             label_plural=self.label_plural,
             label_countable=self.label_countable,
             description=self.description,
-            comes_before=set(self.comes_before),
-            comes_after=set(self.comes_after),
+            after=set(self.after),
+            before=set(self.before),
         )
         class _ProjectConfigurationEventType(EventType):
             pass

@@ -33,7 +33,6 @@ from betty.locale.translation import (
     TranslationRepository,
 )
 from betty.multiprocessing import ProcessPoolExecutor
-from betty.plugin.ordered import sort_ordered_plugin_graph
 from betty.portable.file import assert_load_file
 from betty.service.factory import DataManufacturable
 from betty.service.level import UNIVERSE, ServiceLevel
@@ -229,11 +228,6 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ServicePluginProvi
         """
         The HTTP client.
         """
-        http_rate_limits = self.plugins[RateLimitDefinition]
-        await sort_ordered_plugin_graph(
-            http_rate_limits, [x async for x in http_rate_limits]
-        )
-
         http_client: aiohttp.ClientSession = CachedSession(
             cache=FileBackend(self.binary_file_cache.with_scope("http-client").path),
             headers={
