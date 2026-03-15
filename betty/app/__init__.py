@@ -19,11 +19,7 @@ from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
 from betty.dirs import CACHE_DIRECTORY_PATH
 from betty.http_client import ClientErrorToUserMessageMiddleware
-from betty.http_client.rate_limit import (
-    RateLimitDefinition,
-    RateLimitManufacturer,
-    RateLimitMiddleware,
-)
+from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
 from betty.life_cycle import LifeCycle
 from betty.locale import DEFAULT_LOCALE, ResolvableLocale, resolve_locale
 from betty.locale.localize import Localizer, LocalizerRepository
@@ -174,12 +170,7 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ServicePluginProvi
     @service
     async def service_plugins(self) -> ServicePluginManager:
         service_plugins = ServicePluginManager(
-            {
-                RateLimitDefinition: [
-                    RateLimitManufacturer(plugin)
-                    async for plugin in self.plugins[RateLimitDefinition]
-                ]
-            },
+            {RateLimitDefinition: ()},
             services=self,
         )
         await service_plugins.bootstrap()

@@ -189,14 +189,12 @@ class ServicePluginDefinition[BaseClsT = Any](PluginDefinition[BaseClsT]):
         self,
         plugin_id: ResolvableMachineName,
         *args: Any,
-        requires: Mapping[
-            type[ServicePluginDefinition],
-            ResolvablePluginId | Iterable[ResolvablePluginId],
-        ]
-        | None = None,
+        auto: bool = False,
+        requires: Requires | None = None,
         **kwargs: Any,
     ):
         super().__init__(plugin_id, *args, **kwargs)
+        self._auto = auto
         self._requires: Mapping[
             type[ServicePluginDefinition], Sequence[MachineName]
         ] = (
@@ -216,6 +214,13 @@ class ServicePluginDefinition[BaseClsT = Any](PluginDefinition[BaseClsT]):
         return list(map(resolve_plugin_id, plugin_ids))
 
     @property
+    def auto(self) -> bool:
+        """
+        Whether to enable this plugin automatically.
+        """
+        return self._auto
+
+    @property
     def requires(
         self,
     ) -> Mapping[type[ServicePluginDefinition], Sequence[MachineName]]:
@@ -224,6 +229,12 @@ class ServicePluginDefinition[BaseClsT = Any](PluginDefinition[BaseClsT]):
         """
         return self._requires
 
+
+type Requires = Mapping[
+    type[ServicePluginDefinition],
+    ResolvablePluginId[ServicePluginDefinition]
+    | Iterable[ResolvablePluginId[ServicePluginDefinition]],
+]
 
 type ServicePluginManufacturers = Mapping[
     type[ServicePluginDefinition],
@@ -262,10 +273,15 @@ class ServicePluginManager(ManagedLifeCycle):
         sorter = TopologicalSorter[tuple[type[ServicePluginDefinition], MachineName]]()
         for (
             plugin_type,
-            plugin_type_plugins,
+            requested_plugins,
         ) in self._service_plugin_manufacturers.items():
-            for plugin_id in plugin_type_plugins:
-                await self._expand_requires(sorter, plugin_type, plugin_id)
+            auto_plugins = {
+                plugin.id
+                async for plugin in self._services.plugins[plugin_type]
+                if plugin.auto
+            }
+            for plugin in {*requested_plugins, *auto_plugins}:
+                await self._expand_requires(sorter, plugin_type, plugin)
         sorter.prepare()
         service_plugins = defaultdict(list)
         while sorter.is_active():
@@ -335,9 +351,9 @@ class ServicePluginManager(ManagedLifeCycle):
         self,
         sorter: TopologicalSorter[tuple[type[ServicePluginDefinition], MachineName]],
         plugin_type: type[ServicePluginDefinition],
-        plugin_id: MachineName,
+        origin: MachineName,
     ) -> None:
-        plugin = await self._services.plugins[plugin_type][plugin_id]
+        plugin = await self._services.plugins[plugin_type][origin]
         predecessors = set()
         for requires_plugin_type, requires_plugins in plugin.requires.items():
             for requires_plugin in requires_plugins:
@@ -345,7 +361,7 @@ class ServicePluginManager(ManagedLifeCycle):
                 await self._expand_requires(
                     sorter, requires_plugin_type, requires_plugin
                 )
-        sorter.add((plugin_type, plugin_id), *predecessors)
+        sorter.add((plugin_type, origin), *predecessors)
 
     def __getitem__[ServicePluginDefinitionT: ServicePluginDefinition, PluginT: Plugin](
         self,

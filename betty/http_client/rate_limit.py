@@ -11,8 +11,8 @@ from betty.concurrent import AsynchronizedLock, RateLimiter
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.factory import PluginManufacturer
-from betty.plugin.ordered import OrderedPluginDefinition
-from betty.service.plugin import ServicePluginDefinition
+from betty.plugin.ordered import Order, OrderedPluginDefinition
+from betty.service.plugin import Requires, ServicePluginDefinition
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
@@ -21,6 +21,8 @@ if TYPE_CHECKING:
 
     from aiohttp.client_middlewares import ClientHandlerType
     from aiohttp.client_reqrep import ClientRequest, ClientResponse
+
+    from betty.machine_name import ResolvableMachineName
 
 
 @final
@@ -103,6 +105,18 @@ class RateLimitDefinition(ServicePluginDefinition, OrderedPluginDefinition[RateL
     """
     .. plugin_type:: http-rate-limit.
     """
+
+    def __init__(
+        self,
+        plugin_id: ResolvableMachineName,
+        *,
+        after: Order[RateLimitDefinition] | None = None,
+        before: Order[RateLimitDefinition] | None = None,
+        requires: Requires | None = None,
+    ):
+        super().__init__(
+            plugin_id, after=after, auto=True, before=before, requires=requires
+        )
 
 
 @final
