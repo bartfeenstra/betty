@@ -9,7 +9,7 @@ import datetime
 import operator
 from contextlib import suppress
 from functools import total_ordering
-from typing import TYPE_CHECKING, Any, override
+from typing import TYPE_CHECKING, Any, final, override
 
 from babel import dates
 
@@ -26,6 +26,7 @@ if TYPE_CHECKING:
     from betty.locale.localize import Localizer
 
 
+@final
 class IncompleteDateError(ValueError):
     """
     Raised when a date-like was unexpectedly incomplete.
@@ -56,6 +57,7 @@ def _localize_date_parts(localizer: Localizer, date: Date | None, /) -> str:
     return dates.format_date(datetime.date(*parts), date_parts_format, localizer.locale)
 
 
+@final
 class Date(Localizable):
     """
     A (Gregorian) date.
@@ -190,6 +192,7 @@ def _dump_date_iso8601(date: Date, /) -> str | None:
     return f"{date.year:04d}-{date.month:02d}-{date.day:02d}"
 
 
+@final
 @total_ordering
 class DateRange(Localizable):
     """
