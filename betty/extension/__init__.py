@@ -7,23 +7,19 @@ from typing import TYPE_CHECKING, final, override
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import (
-    Plugin,
-    PluginDefinition,
-    PluginTypeDefinition,
-    ResolvablePluginId,
-)
+from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.factory import PluginManufacturer
-from betty.plugin.ordered import Order, OrderedPluginDefinition
+from betty.plugin.ordered import OrderedPluginDefinition
 from betty.service.plugin import ServicePluginDefinition
 
 if TYPE_CHECKING:
     import builtins
-    from collections.abc import Iterable, Mapping
     from pathlib import Path
 
     from betty.locale.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
+    from betty.plugin.ordered import Order
+    from betty.service.plugin import Requires
 
 
 class Extension(ManagedLifeCycle, Plugin["ExtensionDefinition"]):
@@ -64,11 +60,7 @@ class ExtensionDefinition(
         after: Order[ExtensionDefinition] | None = None,
         before: Order[ExtensionDefinition] | None = None,
         assets_directory: Path | None = None,
-        requires: Mapping[
-            builtins.type[PluginDefinition],
-            ResolvablePluginId | Iterable[ResolvablePluginId],
-        ]
-        | None = None,
+        requires: Requires | None = None,
     ):
         super().__init__(
             plugin_id,
