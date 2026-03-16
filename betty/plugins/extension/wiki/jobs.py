@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, override
 
-from betty.ancestry.link import Link
 from betty.job import Job
+from betty.plugins.entity.link import Link
 from betty.project.load.jobs import PopulateLink
 
 if TYPE_CHECKING:

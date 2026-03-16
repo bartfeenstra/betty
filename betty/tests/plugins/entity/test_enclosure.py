@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, override
 
-from betty.ancestry.citation import Citation
-from betty.ancestry.enclosure import Enclosure
-from betty.ancestry.place import Place
-from betty.ancestry.source import Source
 from betty.date import Date
+from betty.plugins.entity.citation import Citation
+from betty.plugins.entity.enclosure import Enclosure
+from betty.plugins.entity.place import Place
+from betty.plugins.entity.source import Source
 from betty.test_utils.model import EntityTestBase
 
 if TYPE_CHECKING:

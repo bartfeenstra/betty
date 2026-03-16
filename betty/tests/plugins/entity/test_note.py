@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, override
 
-from betty.ancestry.note import Note
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.plugins.entity.note import Note
 from betty.privacy import Privacy
 from betty.test_utils.ancestry.has_notes import DummyHasNotes
 from betty.test_utils.json.linked_data import assert_dumps_linked_data

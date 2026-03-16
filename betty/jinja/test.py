@@ -56,7 +56,7 @@ class PluginTester:
 
 def test_has_file_references(value: Any) -> bool:
     """
-    Test if a value has :py:class:`betty.ancestry.file_reference.FileReference` entities associated with it.
+    Test if a value has :py:class:`betty.plugins.entity.file_reference.FileReference` entities associated with it.
     """
     return isinstance(value, HasFileReferences)
 

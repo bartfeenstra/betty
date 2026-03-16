@@ -12,8 +12,6 @@ from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.has_notes import HasNotes
-from betty.ancestry.place import Place
-from betty.ancestry.presence import Presence
 from betty.event_type import EventTypeDefinition
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.json.schema import String
@@ -30,6 +28,8 @@ from betty.model.association import (
     ToZeroOrOneAssociate,
 )
 from betty.plugin.schema import PluginIdSchema
+from betty.plugins.entity.place import Place
+from betty.plugins.entity.presence import Presence
 from betty.plugins.event_type import Unknown as UnknownEventType
 from betty.plugins.role import Subject
 from betty.privacy import HasPrivacy, Privacy
@@ -38,12 +38,12 @@ from betty.property import Optional
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
-    from betty.ancestry.citation import Citation
-    from betty.ancestry.file_reference import FileReference
-    from betty.ancestry.note import Note
     from betty.date import ResolvableDate
     from betty.event_type import EventType
     from betty.locale.localizable import Localizable, ResolvableLocalizable
+    from betty.plugins.entity.citation import Citation
+    from betty.plugins.entity.file_reference import FileReference
+    from betty.plugins.entity.note import Note
     from betty.portable import PortableMapping
     from betty.project import Project
 
@@ -74,7 +74,7 @@ class Event(
     """
 
     place = BidirectionalToZeroOrOne["Event", Place](
-        "betty.ancestry.place:Place",
+        "betty.plugins.entity.place:Place",
         "events",
         label=_("Place"),
         description=_("The location of the event"),
@@ -83,7 +83,7 @@ class Event(
     The place the event happened.
     """
     presences = BidirectionalToManySingleType["Event", Presence](
-        "betty.ancestry.presence:Presence",
+        "betty.plugins.entity.presence:Presence",
         "event",
         label=_("Presences"),
         description=_("People's presences at this event"),

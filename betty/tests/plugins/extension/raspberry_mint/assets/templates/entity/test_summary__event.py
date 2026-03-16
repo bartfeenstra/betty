@@ -1,4 +1,4 @@
-from betty.ancestry.event import Event
+from betty.plugins.entity.event import Event
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja import assert_template_file
 

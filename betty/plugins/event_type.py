@@ -15,7 +15,7 @@ from betty.event_type import (
 from betty.locale.localizable.gettext import _, ngettext
 
 if TYPE_CHECKING:
-    from betty.ancestry.person import Person
+    from betty.plugins.entity.person import Person
     from betty.project import Project
 
 

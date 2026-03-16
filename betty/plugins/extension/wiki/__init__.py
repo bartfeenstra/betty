@@ -30,9 +30,9 @@ if TYPE_CHECKING:
     from babel import Locale
     from jinja2.runtime import Context
 
-    from betty.ancestry.link import Link
     from betty.copyright_notice import CopyrightNotice
     from betty.job.scheduler import Scheduler
+    from betty.plugins.entity.link import Link
     from betty.project import Project
 
 

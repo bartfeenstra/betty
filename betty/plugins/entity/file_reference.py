@@ -6,10 +6,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
-from betty.ancestry.file import File
 from betty.locale.localizable.gettext import _, ngettext
 from betty.model import Entity, EntityDefinition
 from betty.model.association import BidirectionalToOne, ToOneAssociate
+from betty.plugins.entity.file import File
 
 if TYPE_CHECKING:
     from betty.ancestry.has_file_references import HasFileReferences
@@ -40,7 +40,7 @@ class FileReference(Entity):
     """
 
     file = BidirectionalToOne["FileReference", File](
-        "betty.ancestry.file:File",
+        "betty.plugins.entity.file:File",
         "referees",
         label=_("File"),
         description=_("The file being referenced"),

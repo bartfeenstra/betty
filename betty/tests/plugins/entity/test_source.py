@@ -5,14 +5,14 @@ from typing import Any, cast, override
 
 import pytest
 
-from betty.ancestry.citation import Citation
-from betty.ancestry.link import Link
-from betty.ancestry.source import Source
 from betty.date import Date
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizable.plain import Plain
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.model import Entity
+from betty.plugins.entity.citation import Citation
+from betty.plugins.entity.link import Link
+from betty.plugins.entity.source import Source
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase

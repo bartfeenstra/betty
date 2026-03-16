@@ -10,12 +10,12 @@ from enum import Enum
 from typing import TYPE_CHECKING, cast, final, override
 from uuid import NAMESPACE_URL, uuid5
 
-from betty.ancestry.event import Event
-from betty.ancestry.person import Person
-from betty.ancestry.presence import Presence
 from betty.date import Date, DateRange
 from betty.event_type import EventTypeDefinition, ShouldExistEventType
 from betty.locale.localizable.gettext import _
+from betty.plugins.entity.event import Event
+from betty.plugins.entity.person import Person
+from betty.plugins.entity.presence import Presence
 from betty.plugins.role import Subject
 
 if TYPE_CHECKING:

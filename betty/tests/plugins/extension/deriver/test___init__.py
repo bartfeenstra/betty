@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.ancestry.event import Event
-from betty.ancestry.person import Person
-from betty.ancestry.presence import Presence
 from betty.date import Date, DateRange
 from betty.model.collections import record_added
+from betty.plugins.entity.event import Event
+from betty.plugins.entity.person import Person
+from betty.plugins.entity.presence import Presence
 from betty.plugins.event_type import Birth, Death, Residence
 from betty.plugins.extension.deriver import Deriver
 from betty.plugins.role import Subject

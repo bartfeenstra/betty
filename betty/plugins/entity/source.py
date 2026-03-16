@@ -28,12 +28,12 @@ from betty.property import Optional
 if TYPE_CHECKING:
     from collections.abc import MutableSequence
 
-    from betty.ancestry.citation import Citation  # noqa: F401
-    from betty.ancestry.file_reference import FileReference
-    from betty.ancestry.link import Link
-    from betty.ancestry.note import Note
     from betty.date import ResolvableDate
     from betty.locale.localizable import Localizable, ResolvableLocalizable
+    from betty.plugins.entity.citation import Citation  # noqa: F401
+    from betty.plugins.entity.file_reference import FileReference
+    from betty.plugins.entity.link import Link
+    from betty.plugins.entity.note import Note
     from betty.portable import PortableMapping
     from betty.project import Project
 
@@ -66,7 +66,7 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
     """
 
     contained_by = BidirectionalToZeroOrOne["Source", "Source"](
-        "betty.ancestry.source:Source",
+        "betty.plugins.entity.source:Source",
         "contains",
         label=_("Contained by"),
         description=_("Another source this source may be contained by"),
@@ -76,7 +76,7 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
     """
 
     contains = BidirectionalToManySingleType["Source", "Source"](
-        "betty.ancestry.source:Source",
+        "betty.plugins.entity.source:Source",
         "contained_by",
         label=_("Contains"),
         description=_("Other sources this source may contain"),
@@ -86,7 +86,7 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
     """
 
     citations = BidirectionalToManySingleType["Source", "Citation"](
-        "betty.ancestry.citation:Citation",
+        "betty.plugins.entity.citation:Citation",
         "source",
         label=_("Citations"),
         description=_("The citations referencing this source"),

@@ -11,16 +11,16 @@ from betty.model import Entity
 from betty.model.association import BidirectionalToManySingleType, ToManyAssociates
 
 if TYPE_CHECKING:
-    from betty.ancestry.link import Link
+    from betty.plugins.entity.link import Link
 
 
 class HasLinks(Entity):
     """
-    An entity that has associated :py:class:`betty.ancestry.link.Link` entities.
+    An entity that has associated :py:class:`betty.plugins.entity.link.Link` entities.
     """
 
     links = BidirectionalToManySingleType["HasLinks", "Link"](
-        "betty.ancestry.link:Link",
+        "betty.plugins.entity.link:Link",
         "owner",
         label=_("Links"),
         linked_data_embedded=True,

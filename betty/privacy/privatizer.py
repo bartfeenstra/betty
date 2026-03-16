@@ -8,17 +8,17 @@ from contextlib import suppress
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from betty.ancestry.event import Event
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_notes import HasNotes
-from betty.ancestry.person import Person
-from betty.ancestry.place import Place
-from betty.ancestry.presence import Presence
-from betty.ancestry.source import Source
 from betty.date import Date, DateRange
 from betty.locale.localizable.gettext import _
 from betty.model import Entity
+from betty.plugins.entity.event import Event
+from betty.plugins.entity.person import Person
+from betty.plugins.entity.place import Place
+from betty.plugins.entity.presence import Presence
+from betty.plugins.entity.source import Source
 from betty.plugins.event_type import Death
 from betty.plugins.role import Subject
 from betty.privacy import HasPrivacy, Privacy

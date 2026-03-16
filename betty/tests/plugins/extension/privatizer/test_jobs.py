@@ -3,13 +3,13 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from betty.ancestry.citation import Citation
-from betty.ancestry.event import Event
-from betty.ancestry.file import File
-from betty.ancestry.file_reference import FileReference
-from betty.ancestry.person import Person
-from betty.ancestry.presence import Presence
-from betty.ancestry.source import Source
+from betty.plugins.entity.citation import Citation
+from betty.plugins.entity.event import Event
+from betty.plugins.entity.file import File
+from betty.plugins.entity.file_reference import FileReference
+from betty.plugins.entity.person import Person
+from betty.plugins.entity.presence import Presence
+from betty.plugins.entity.source import Source
 from betty.plugins.event_type import Birth
 from betty.plugins.extension.privatizer import Privatizer
 from betty.plugins.role import Subject

@@ -1,7 +1,7 @@
-from betty.ancestry.event import Event
-from betty.ancestry.person import Person
-from betty.ancestry.presence import Presence
 from betty.document import Document, EntityContexts
+from betty.plugins.entity.event import Event
+from betty.plugins.entity.person import Person
+from betty.plugins.entity.presence import Presence
 from betty.plugins.event_type import Birth, Marriage
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.plugins.role import Subject

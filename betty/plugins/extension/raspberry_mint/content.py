@@ -8,15 +8,9 @@ from asyncio import gather
 from collections.abc import Iterable, Mapping, Sequence
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.ancestry.citation import Citation
-from betty.ancestry.event import Event
-from betty.ancestry.file import File
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_links import HasLinks
-from betty.ancestry.person import Person
-from betty.ancestry.place import Place
-from betty.ancestry.source import Source
 from betty.assertion import (
     assert_enum,
     assert_int,
@@ -52,6 +46,12 @@ from betty.model.reference import EntityReference
 from betty.plugin import resolve_plugin_id
 from betty.plugin.data import PluginManufacturerSequenceDefinition
 from betty.plugin.data.property import PluginManufacturerSequenceProperty
+from betty.plugins.entity.citation import Citation
+from betty.plugins.entity.event import Event
+from betty.plugins.entity.file import File
+from betty.plugins.entity.person import Person
+from betty.plugins.entity.place import Place
+from betty.plugins.entity.source import Source
 from betty.plugins.extension._theme import (
     associated_file_references,
     person_timeline_events,

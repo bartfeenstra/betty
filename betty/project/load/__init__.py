@@ -5,12 +5,12 @@ Provide the Ancestry loading API.
 from abc import ABC, abstractmethod
 from asyncio import gather
 
-from betty.ancestry.link import Link
 from betty.concurrent import MAX_STRANDS
 from betty.job import Context
 from betty.job.executor.asyncio import AsyncExecutor
 from betty.job.scheduler import Scheduler
 from betty.job.scheduler.default import DefaultScheduler
+from betty.plugins.entity.link import Link
 from betty.project import Project
 from betty.project.load.jobs import PopulateLink
 

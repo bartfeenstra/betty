@@ -5,8 +5,6 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.ancestry.citation import Citation
-from betty.ancestry.source import Source
 from betty.document import (
     Breadcrumb,
     Breadcrumbs,
@@ -18,6 +16,8 @@ from betty.job import Context
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.plain import Plain
 from betty.locale.localize import Localizer
+from betty.plugins.entity.citation import Citation
+from betty.plugins.entity.source import Source
 from betty.project import Project
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.model import DummyEntityOne

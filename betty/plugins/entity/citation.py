@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, final, override
 from betty.ancestry.date import HasDate
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_links import HasLinks
-from betty.ancestry.source import Source
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.property import LocalizableProperty
@@ -21,15 +20,16 @@ from betty.model.association import (
     ToManyAssociates,
     ToOneAssociate,
 )
+from betty.plugins.entity.source import Source
 from betty.privacy import HasPrivacy, Privacy, is_public, merge_secondary_privacies
 from betty.property import Optional
 
 if TYPE_CHECKING:
-    from betty.ancestry.file_reference import FileReference
     from betty.ancestry.has_citations import HasCitations
     from betty.date import ResolvableDate
     from betty.json.linked_data import JsonLdObject
     from betty.locale.localizable import Localizable, ResolvableLocalizable
+    from betty.plugins.entity.file_reference import FileReference
     from betty.portable import PortableMapping
     from betty.project import Project
 
@@ -64,7 +64,7 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
     """
 
     source = BidirectionalToOne["Citation", Source](
-        "betty.ancestry.source:Source",
+        "betty.plugins.entity.source:Source",
         "citations",
         label=_("Source"),
         description=_("The source this citation references."),

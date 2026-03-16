@@ -9,12 +9,12 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import TYPE_CHECKING, cast
 
-from betty.ancestry.event import Event
-from betty.ancestry.person import Person
-from betty.ancestry.place import Place
 from betty.date import Date, ResolvableDate
 from betty.functools import unique
 from betty.model import persistent_id
+from betty.plugins.entity.event import Event
+from betty.plugins.entity.person import Person
+from betty.plugins.entity.place import Place
 from betty.plugins.event_type import Birth, Death
 from betty.plugins.role import Subject
 from betty.privacy import is_public
@@ -22,10 +22,10 @@ from betty.privacy import is_public
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
-    from betty.ancestry.file_reference import FileReference
     from betty.ancestry.has_file_references import HasFileReferences
-    from betty.ancestry.presence import Presence
     from betty.jinja import Filters
+    from betty.plugins.entity.file_reference import FileReference
+    from betty.plugins.entity.presence import Presence
     from betty.project import Project
 
 

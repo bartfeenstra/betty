@@ -4,11 +4,11 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.ancestry.citation import Citation
-from betty.ancestry.event import Event
-from betty.ancestry.person import Person
-from betty.ancestry.place import Place
-from betty.ancestry.source import Source
+from betty.plugins.entity.citation import Citation
+from betty.plugins.entity.event import Event
+from betty.plugins.entity.person import Person
+from betty.plugins.entity.place import Place
+from betty.plugins.entity.source import Source
 from betty.plugins.extension.demo import Demo, generate_with_cleanup
 from betty.project import Project
 from betty.project.load import load

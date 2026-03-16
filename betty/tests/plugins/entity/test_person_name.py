@@ -4,11 +4,11 @@ from typing import TYPE_CHECKING, cast, override
 
 import pytest
 
-from betty.ancestry.citation import Citation
-from betty.ancestry.person import Person
-from betty.ancestry.person_name import PersonName
-from betty.ancestry.source import Source
 from betty.model import Entity
+from betty.plugins.entity.citation import Citation
+from betty.plugins.entity.person import Person
+from betty.plugins.entity.person_name import PersonName
+from betty.plugins.entity.source import Source
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase

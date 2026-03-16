@@ -5,17 +5,17 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.ancestry.citation import Citation
-from betty.ancestry.event import Event
-from betty.ancestry.file import File
-from betty.ancestry.file_reference import FileReference
-from betty.ancestry.person import Person
-from betty.ancestry.person_name import PersonName
-from betty.ancestry.place import Place
-from betty.ancestry.presence import Presence
-from betty.ancestry.source import Source
 from betty.date import Date, DateRange, ResolvableDate
 from betty.model import persistent_id
+from betty.plugins.entity.citation import Citation
+from betty.plugins.entity.event import Event
+from betty.plugins.entity.file import File
+from betty.plugins.entity.file_reference import FileReference
+from betty.plugins.entity.person import Person
+from betty.plugins.entity.person_name import PersonName
+from betty.plugins.entity.place import Place
+from betty.plugins.entity.presence import Presence
+from betty.plugins.entity.source import Source
 from betty.plugins.event_type import Birth, Death
 from betty.plugins.event_type import Unknown as UnknownEventType
 from betty.plugins.extension._theme import (

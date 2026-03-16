@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING, override
 
 import pytest
 
-from betty.ancestry.event import Event
-from betty.ancestry.person import Person
-from betty.ancestry.place import Place
 from betty.json.schema import JsonSchemaSchema
+from betty.plugins.entity.event import Event
+from betty.plugins.entity.person import Person
+from betty.plugins.entity.place import Place
 from betty.project import Project
 from betty.project.schema import ProjectSchema
 from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut

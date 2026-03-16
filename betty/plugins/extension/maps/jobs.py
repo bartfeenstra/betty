@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, override
 
-from betty.ancestry.place import Place
 from betty.job import Job
+from betty.plugins.entity.place import Place
 from betty.project.generate.file import create_file
 
 if TYPE_CHECKING:

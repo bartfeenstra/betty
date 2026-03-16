@@ -14,7 +14,7 @@ from playwright.async_api import Page, expect
 
 from betty import serve
 from betty.ancestry.name import Name
-from betty.ancestry.place import Place
+from betty.plugins.entity.place import Place
 from betty.app import App
 from betty.plugin import ResolvablePluginId
 from betty.project import Project

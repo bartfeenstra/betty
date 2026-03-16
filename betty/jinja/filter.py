@@ -25,8 +25,6 @@ from pdf2image.pdf2image import convert_from_path
 from PIL import Image
 from PIL.Image import DecompressionBombWarning
 
-from betty.ancestry.file import File
-from betty.ancestry.file_reference import FileReference
 from betty.content import Content, ContentDefinition, ContentManufacturer, build
 from betty.hashid import hashid_file_meta
 from betty.image import FocusArea, Size, image_file_path_format, resize_cover
@@ -34,6 +32,8 @@ from betty.locale import HasLocaleStr, ResolvableLocale, to_language_tag
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML, SVG
 from betty.os import link_or_copy
+from betty.plugins.entity.file import File
+from betty.plugins.entity.file_reference import FileReference
 
 if TYPE_CHECKING:
     import datetime

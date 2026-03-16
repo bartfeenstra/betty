@@ -6,8 +6,8 @@ from aiofiles.tempfile import TemporaryDirectory
 from playwright.async_api import Page, expect
 
 from betty import serve
-from betty.ancestry.person import Person
-from betty.ancestry.person_name import PersonName
+from betty.plugins.entity.person import Person
+from betty.plugins.entity.person_name import PersonName
 from betty.app import App
 from betty.project import Project
 from betty.plugins.extension.raspberry_mint import RaspberryMint

@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING, override
 
 import pytest
 
-from betty.ancestry.file import File
-from betty.ancestry.file_reference import FileReference
+from betty.plugins.entity.file import File
+from betty.plugins.entity.file_reference import FileReference
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 from betty.test_utils.model import EntityTestBase
 

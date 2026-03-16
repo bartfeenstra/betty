@@ -21,15 +21,15 @@ from betty.plugin.ordered import Order, OrderedPluginDefinition
 if TYPE_CHECKING:
     import builtins
 
-    from betty.ancestry.person import Person
     from betty.locale.localizable import CountableLocalizable, ResolvableLocalizable
     from betty.machine_name import MachineName, ResolvableMachineName
+    from betty.plugins.entity.person import Person
     from betty.project import Project
 
 
 class EventType(Plugin["EventTypeDefinition"]):
     """
-    Define an :py:class:`betty.ancestry.event.Event` type.
+    Define an :py:class:`betty.plugins.entity.event.Event` type.
     """
 
 

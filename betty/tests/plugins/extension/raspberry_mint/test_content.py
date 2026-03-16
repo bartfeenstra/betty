@@ -2,16 +2,6 @@ from pathlib import Path
 
 import pytest
 
-from betty.ancestry.citation import Citation
-from betty.ancestry.enclosure import Enclosure
-from betty.ancestry.event import Event
-from betty.ancestry.file import File
-from betty.ancestry.file_reference import FileReference
-from betty.ancestry.link import Link
-from betty.ancestry.person import Person
-from betty.ancestry.place import Place
-from betty.ancestry.presence import Presence
-from betty.ancestry.source import Source
 from betty.app import App
 from betty.content import (
     ContentDefinition,
@@ -25,6 +15,16 @@ from betty.locale.localizable.plain import Plain
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.model.reference import EntityReference
+from betty.plugins.entity.citation import Citation
+from betty.plugins.entity.enclosure import Enclosure
+from betty.plugins.entity.event import Event
+from betty.plugins.entity.file import File
+from betty.plugins.entity.file_reference import FileReference
+from betty.plugins.entity.link import Link
+from betty.plugins.entity.person import Person
+from betty.plugins.entity.place import Place
+from betty.plugins.entity.presence import Presence
+from betty.plugins.entity.source import Source
 from betty.plugins.extension.raspberry_mint import ColorStyle as ColorStyleOption
 from betty.plugins.extension.raspberry_mint.content import (
     Breakpoint,

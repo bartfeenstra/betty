@@ -2,15 +2,15 @@ from pathlib import Path
 
 import pytest
 
-from betty.ancestry.file import File
 from betty.ancestry.name import Name
-from betty.ancestry.person import Person
-from betty.ancestry.person_name import PersonName
-from betty.ancestry.place import Place
 from betty.app import App
 from betty.job import Context
 from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.plugins.entity.file import File
+from betty.plugins.entity.person import Person
+from betty.plugins.entity.person_name import PersonName
+from betty.plugins.entity.place import Place
 from betty.plugins.extension._theme.search import Index
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.privacy import Privacy

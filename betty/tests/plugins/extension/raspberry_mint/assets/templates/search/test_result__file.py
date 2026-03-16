@@ -2,9 +2,9 @@ from pathlib import Path
 
 from PIL import Image
 
-from betty.ancestry.file import File
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
+from betty.plugins.entity.file import File
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja import assert_template_file
 

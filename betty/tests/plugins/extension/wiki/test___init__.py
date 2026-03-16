@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.ancestry.link import Link
 from betty.document import Document
 from betty.job import Context
+from betty.plugins.entity.link import Link
 from betty.plugins.extension.wiki import Wiki
 from betty.project import Project
 from betty.project.load import load

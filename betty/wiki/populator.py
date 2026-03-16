@@ -8,12 +8,8 @@ from asyncio import gather
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
-from betty.ancestry.file import File
-from betty.ancestry.file_reference import FileReference
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_links import HasLinks
-from betty.ancestry.link import Link
-from betty.ancestry.place import Place
 from betty.concurrent import AsynchronizedLock, Lock
 from betty.functools import map_suppress
 from betty.locale import negotiate_locale, resolve_locale
@@ -21,6 +17,10 @@ from betty.locale.error import LocaleError
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
 from betty.media_type.media_types import HTML
+from betty.plugins.entity.file import File
+from betty.plugins.entity.file_reference import FileReference
+from betty.plugins.entity.link import Link
+from betty.plugins.entity.place import Place
 from betty.typing import threadsafe
 from betty.wiki import NotAPageError, parse_page_link
 from betty.wiki.client import ClientError

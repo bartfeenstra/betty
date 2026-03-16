@@ -378,70 +378,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "EntityCollection": MissingReason.ABSTRACT,
         "record_added": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/ancestry/citation.py": {
-        "Citation": {
-            "plugin": MissingReason.INHERITED,
-        },
-    },
     "betty/ancestry/date.py": {
         "HasDate": {
             "dated_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
-        },
-    },
-    "betty/ancestry/enclosure.py": {
-        "Enclosure": {
-            "plugin": MissingReason.INHERITED,
-        },
-    },
-    "betty/ancestry/event.py": {
-        "Event": {
-            "dated_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
-            "plugin": MissingReason.INHERITED,
-        },
-    },
-    "betty/ancestry/file.py": {
-        "File": {
-            "plugin": MissingReason.INHERITED,
-        },
-    },
-    "betty/ancestry/file_reference.py": {
-        "FileReference": {
-            "plugin": MissingReason.INHERITED,
-        },
-    },
-    "betty/ancestry/link.py": {
-        "Link": {
-            "plugin": MissingReason.INHERITED,
-        },
-    },
-    "betty/ancestry/note.py": {
-        "Note": {
-            "plugin": MissingReason.INHERITED,
-        },
-    },
-    "betty/ancestry/person.py": {
-        "Person": {
-            "plugin": MissingReason.INHERITED,
-        },
-    },
-    "betty/ancestry/person_name.py": {
-        "PersonName": {
-            "plugin": MissingReason.INHERITED,
-        },
-    },
-    "betty/ancestry/place.py": {
-        "Place": {
-            "plugin": MissingReason.INHERITED,
-        },
-    },
-    "betty/ancestry/presence.py": {
-        "Presence": {
-            "plugin": MissingReason.INHERITED,
-        },
-    },
-    "betty/ancestry/source.py": {
-        "Source": {
-            "plugin": MissingReason.INHERITED,
         },
     },
     "betty/collection/__init__.py": {
@@ -654,6 +593,67 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Retirement": MissingReason.STATIC_CONTENT_ONLY,
         "Unknown": MissingReason.STATIC_CONTENT_ONLY,
         "Will": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/plugins/entity/citation.py": {
+        "Citation": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/entity/enclosure.py": {
+        "Enclosure": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/entity/event.py": {
+        "Event": {
+            "dated_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/entity/file.py": {
+        "File": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/entity/file_reference.py": {
+        "FileReference": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/entity/link.py": {
+        "Link": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/entity/note.py": {
+        "Note": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/entity/person.py": {
+        "Person": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/entity/person_name.py": {
+        "PersonName": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/entity/place.py": {
+        "Place": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/entity/presence.py": {
+        "Presence": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/entity/source.py": {
+        "Source": {
+            "plugin": MissingReason.INHERITED,
+        },
     },
     "betty/plugins/extension/demo/__init__.py": {
         "Demo": {

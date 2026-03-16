@@ -1,5 +1,5 @@
-from betty.ancestry.source import Source
 from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.plugins.entity.source import Source
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja import assert_template_file
 
