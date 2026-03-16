@@ -123,35 +123,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "release": MissingReason.ABSTRACT,
         },
     },
-    "betty/content/__init__.py": {
+    "betty/content.py": {
         "Content": MissingReason.ABSTRACT,
         "ContentDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "ContentManufacturer": MissingReason.STATIC_CONTENT_ONLY,
-    },
-    "betty/content/contents.py": {
-        "Box": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "BoxConfiguration": {
-            "min_height": MissingReason.INHERITED,
-            "max_height": MissingReason.INHERITED,
-            "height": MissingReason.INHERITED,
-            "min_width": MissingReason.INHERITED,
-            "max_width": MissingReason.INHERITED,
-            "width": MissingReason.INHERITED,
-        },
-        "Notes": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "Render": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "RenderConfiguration": {
-            "media_type": MissingReason.INHERITED,
-        },
-        "Template": {
-            "build_template": MissingReason.ABSTRACT,
-        },
     },
     "betty/contextlib.py": {
         "SynchronizedContextManager": {
@@ -476,7 +451,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "assert_plugin": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/plugins/asset.py": {
-        "Demo": MissingReason.STATIC_CONTENT_ONLY,
         "HttpApiDoc": MissingReason.STATIC_CONTENT_ONLY,
         "Maps": MissingReason.STATIC_CONTENT_ONLY,
         "RaspberryMint": MissingReason.STATIC_CONTENT_ONLY,
@@ -550,6 +524,132 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "UpdateTranslations": {
             "plugin": MissingReason.INHERITED,
         }
+    },
+    "betty/plugins/content/box.py": {
+        "Box": {
+            "plugin": MissingReason.INHERITED,
+        },
+        "BoxConfiguration": {
+            "min_height": MissingReason.INHERITED,
+            "max_height": MissingReason.INHERITED,
+            "height": MissingReason.INHERITED,
+            "min_width": MissingReason.INHERITED,
+            "max_width": MissingReason.INHERITED,
+            "width": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/content/map.py": {
+        "Map": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/content/map_attribution.py": {
+        "MapAttribution": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/content/notes.py": {
+        "Notes": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/content/raspberry_mint_citations.py": {
+        "Citations": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/content/raspberry_mint_color_style.py": {
+        "ColorStyle": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/content/raspberry_mint_columns.py": {
+        "Columns": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/content/raspberry_mint_enclosees.py": {
+        "Enclosees": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/content/raspberry_mint_entity_card.py": {
+        "EntityCard": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/content/raspberry_mint_external_links.py": {
+        "ExternalLinks": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/content/raspberry_mint_facts.py": {
+        "Facts": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/content/raspberry_mint_families.py": {
+        "Families": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/content/raspberry_mint_file_referees.py": {
+        "FileReferees": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/content/raspberry_mint_incomplete_translation_warning.py": {
+        "IncompleteTranslationWarning": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/content/raspberry_mint_media.py": {
+        "Media": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/content/raspberry_mint_media_gallery.py": {
+        "MediaGallery": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/content/raspberry_mint_presences.py": {
+        "Presences": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/content/raspberry_mint_section.py": {
+        "Section": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/content/raspberry_mint_timeline.py": {
+        "Timeline": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/content/render.py": {
+        "Render": {
+            "plugin": MissingReason.INHERITED,
+        },
+        "RenderConfiguration": {
+            "media_type": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/content/template.py": {
+        "Template": {
+            "build_template": MissingReason.ABSTRACT,
+        },
+    },
+    "betty/plugins/content/tree.py": {
+        "Tree": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/content/wikipedia_summary.py": {
+        "WikipediaSummary": {
+            "plugin": MissingReason.INHERITED,
+        },
     },
     "betty/plugins/copyright_notice.py": {
         "ProjectAuthor": {
@@ -699,14 +799,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
         },
     },
-    "betty/plugins/extension/maps/content.py": {
-        "Map": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "Attribution": {
-            "plugin": MissingReason.INHERITED,
-        },
-    },
     "betty/plugins/extension/privatizer/__init__.py": {
         "Privatizer": {
             "post_load": MissingReason.SHOULD_BE_COVERED,
@@ -722,50 +814,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
         },
     },
-    "betty/plugins/extension/raspberry_mint/content.py": {
-        "Citations": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "ColorStyle": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "Columns": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "Enclosees": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "EntityCard": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "ExternalLinks": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "Facts": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "Families": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "FileReferees": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "Media": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "MediaGallery": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "Presences": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "Section": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "Timeline": {
-            "plugin": MissingReason.INHERITED,
-        },
-    },
     "betty/plugins/extension/trees/__init__.py": {
         "Trees": {
             "plugin": MissingReason.INHERITED,
@@ -774,11 +822,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/plugins/extension/spdx/__init__.py": {
         "Spdx": MissingReason.STATIC_CONTENT_ONLY,
-    },
-    "betty/plugins/extension/trees/content.py": {
-        "Tree": {
-            "plugin": MissingReason.INHERITED,
-        },
     },
     "betty/plugins/extension/webpack/__init__.py": {
         "Webpack": {
@@ -799,11 +842,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/plugins/extension/wiki/data.py": {
         "WikiConfiguration": {
             "populate_images": MissingReason.SHOULD_BE_COVERED,
-        },
-    },
-    "betty/plugins/extension/wiki/content.py": {
-        "WikipediaSummary": {
-            "plugin": MissingReason.INHERITED,
         },
     },
     "betty/plugins/gender.py": {

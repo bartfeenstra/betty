@@ -1,0 +1,64 @@
+from betty.app import App
+from betty.content import ContentDefinition, ContentManufacturer
+from betty.document import Document
+from betty.plugins.content.raspberry_mint_color_style import (
+    ColorStyle,
+    ColorStyleConfiguration,
+)
+from betty.plugins.content.render import Render, RenderConfiguration
+from betty.plugins.extension.raspberry_mint import ColorStyle as ColorStyleOption
+from betty.plugins.extension.raspberry_mint import RaspberryMint
+from betty.project import Project
+from betty.test_utils.content import NoOpContent
+from betty.test_utils.data import DataTestBase
+
+
+class TestColorStyleConfiguration(DataTestBase[ColorStyleConfiguration]):
+    sut_cls = ColorStyleConfiguration
+
+    def test_content(self) -> None:
+        sut = ColorStyleConfiguration(
+            ContentManufacturer("my-first-content"), style=ColorStyleOption.DARK
+        )
+        assert sut.content[0].plugin_id == "my-first-content"
+
+    def test_style(self) -> None:
+        style = ColorStyleOption.DARK_SECONDARY
+        sut = ColorStyleConfiguration(
+            ContentManufacturer("my-first-content"), style=style
+        )
+        assert sut.style == style
+
+
+class TestColorStyle:
+    async def test_build_template__without_content(self, isolated_app: App) -> None:
+        async with Project.new_isolated(
+            isolated_app, plugins={ContentDefinition: [NoOpContent]}
+        ) as project:
+            project.configuration.extensions.add(RaspberryMint)
+            async with project:
+                sut = await ColorStyle.new(
+                    project,
+                    ColorStyleConfiguration(
+                        ContentManufacturer(NoOpContent),
+                        style=ColorStyleOption.DARK,
+                    ),
+                )
+                assert await sut.build(document=Document()) is None
+
+    async def test_build_template__with_content(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project:
+            project.configuration.extensions.add(RaspberryMint)
+            async with project:
+                sut = await ColorStyle.new(
+                    project,
+                    ColorStyleConfiguration(
+                        ContentManufacturer(
+                            Render, RenderConfiguration("My First Content")
+                        ),
+                        style=ColorStyleOption.DARK,
+                    ),
+                )
+                actual = await sut.build(document=Document())
+        assert actual is not None
+        assert "My First Content" in actual

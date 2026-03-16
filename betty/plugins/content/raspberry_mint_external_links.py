@@ -1,25 +1,30 @@
 """
-Dynamic content.
+The external links content plugin.
 """
 
-from typing import Self, override
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Self, final, override
 
 from betty.ancestry.has_links import HasLinks
 from betty.content import ContentDefinition
-from betty.content.contents import Template, TemplateBuild
-from betty.document import Document
 from betty.locale.localizable.gettext import _
-from betty.project import Project
+from betty.plugins.content.template import Template, TemplateBuild
 from betty.service.factory import Manufacturable
 from betty.service.requirement.project import require_project
 
+if TYPE_CHECKING:
+    from betty.document import Document
+    from betty.project import Project
 
-@ContentDefinition("wiki-wikipedia-summary", label=_("Wikipedia summary"))
-class WikipediaSummary(Template, Manufacturable):
+
+@final
+@ContentDefinition("raspberry-mint-external-links", label=_("External links"))
+class ExternalLinks(Template, Manufacturable):
     """
-    A Wikipedia summary.
+    External links.
 
-    .. plugin:: content:wiki-wikipedia-summary
+    .. plugin:: content:raspberry-mint-external-links
     """
 
     @override
@@ -31,7 +36,7 @@ class WikipediaSummary(Template, Manufacturable):
     @override
     async def build_template(self, document: Document) -> TemplateBuild:
         if isinstance(document.resource, HasLinks):
-            return "component/wiki/wikipedia-summary.html.j2", {
+            return "component/raspberry-mint/links.html.j2", {
                 "links": document.resource.links
             }
         return None

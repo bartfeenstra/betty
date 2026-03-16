@@ -1,21 +1,27 @@
 """
-Contents for the demonstration site.
+The map attribution content plugin.
 """
 
-from typing import Self, override
+from typing import Self, final, override
 
 from betty.content import ContentDefinition
-from betty.content.contents import Template, TemplateBuild
 from betty.document import Document
+from betty.locale.localizable.gettext import _
+from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project
 from betty.service.factory import Manufacturable
 from betty.service.requirement.project import require_project
 
 
-@ContentDefinition(
-    "-demo-incomplete-translation-warning", label="Incomplete translation warning"
-)
-class _IncompleteTranslationWarning(Template, Manufacturable):
+@final
+@ContentDefinition("map-attribution", label=_("Map attribution"))
+class MapAttribution(Template, Manufacturable):
+    """
+    The attribution for an interactive map.
+
+    .. plugin:: content:map-attribution
+    """
+
     @override
     @classmethod
     @require_project
@@ -24,4 +30,4 @@ class _IncompleteTranslationWarning(Template, Manufacturable):
 
     @override
     async def build_template(self, document: Document) -> TemplateBuild:
-        return "component/demo/-demo-incomplete-translation-warning.html.j2"
+        return "component/maps/attribution.html.j2"

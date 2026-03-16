@@ -7,33 +7,35 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from betty.content import ContentManufacturer
-from betty.content.contents import Box, BoxConfiguration, Notes
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
-from betty.plugins.extension.maps.content import Attribution, Map
-from betty.plugins.extension.raspberry_mint import SINGLE_COLUMN_TEXT_WIDTH
-from betty.plugins.extension.raspberry_mint import ColorStyle as ColorStyleOption
-from betty.plugins.extension.raspberry_mint.content import (
-    Citations,
+from betty.plugins.content.box import Box, BoxConfiguration
+from betty.plugins.content.map import Map
+from betty.plugins.content.map_attribution import MapAttribution
+from betty.plugins.content.notes import Notes
+from betty.plugins.content.raspberry_mint_citations import Citations
+from betty.plugins.content.raspberry_mint_color_style import (
     ColorStyle,
     ColorStyleConfiguration,
-    Columns,
-    ColumnsConfiguration,
-    Enclosees,
-    ExternalLinks,
-    Facts,
-    Families,
-    FileReferees,
-    Media,
-    MediaGallery,
+)
+from betty.plugins.content.raspberry_mint_columns import Columns, ColumnsConfiguration
+from betty.plugins.content.raspberry_mint_enclosees import Enclosees
+from betty.plugins.content.raspberry_mint_external_links import ExternalLinks
+from betty.plugins.content.raspberry_mint_facts import Facts
+from betty.plugins.content.raspberry_mint_families import Families
+from betty.plugins.content.raspberry_mint_file_referees import FileReferees
+from betty.plugins.content.raspberry_mint_media import Media
+from betty.plugins.content.raspberry_mint_media_gallery import MediaGallery
+from betty.plugins.content.raspberry_mint_presences import (
     Presences,
     PresencesConfiguration,
-    Section,
-    SectionConfiguration,
-    Timeline,
 )
-from betty.plugins.extension.trees.content import Tree
-from betty.plugins.extension.wiki.content import WikipediaSummary
+from betty.plugins.content.raspberry_mint_section import Section, SectionConfiguration
+from betty.plugins.content.raspberry_mint_timeline import Timeline
+from betty.plugins.content.tree import Tree
+from betty.plugins.content.wikipedia_summary import WikipediaSummary
+from betty.plugins.extension.raspberry_mint import SINGLE_COLUMN_TEXT_WIDTH
+from betty.plugins.extension.raspberry_mint import ColorStyle as ColorStyleOption
 from betty.plugins.role import Subject, Witness
 
 if TYPE_CHECKING:
@@ -77,7 +79,9 @@ def regional_content(*, localizers: Collection[Localizer]) -> ResolvableRegional
             ContentManufacturer(
                 ColorStyle,
                 ColorStyleConfiguration(
-                    ContentManufacturer(Columns, ColumnsConfiguration([[Attribution]])),
+                    ContentManufacturer(
+                        Columns, ColumnsConfiguration([[MapAttribution]])
+                    ),
                     style=ColorStyleOption.LIGHT_CONTRAST,
                 ),
             ),

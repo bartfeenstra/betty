@@ -2,9 +2,9 @@ from pytest_mock import MockerFixture
 
 from betty.app import App
 from betty.document import Document
+from betty.plugins.content.wikipedia_summary import WikipediaSummary
 from betty.plugins.entity.link import Link
 from betty.plugins.extension.wiki import Wiki
-from betty.plugins.extension.wiki.content import WikipediaSummary
 from betty.project import Project
 from betty.test_utils.ancestry.has_links import DummyHasLinks
 from betty.wiki.client import Summary
