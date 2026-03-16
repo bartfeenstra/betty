@@ -29,7 +29,7 @@ from betty.locale.translation import (
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.portable.file import assert_load_file
 from betty.service.factory import DataManufacturable
-from betty.service.level import ServiceLevel
+from betty.service.level import ChainedServiceLevel, Plugins, ServiceLevel
 from betty.service.level.universe import UNIVERSE
 from betty.service.plugin import ServicePluginManager, ServicePluginProvider
 from betty.service.provider import ServiceFactory, service
@@ -50,7 +50,9 @@ if TYPE_CHECKING:
 
 @final
 @threadsafe
-class App(DataManufacturable[AppConfiguration], ServiceLevel, ServicePluginProvider):
+class App(
+    DataManufacturable[AppConfiguration], ChainedServiceLevel, ServicePluginProvider
+):
     """
     The Betty application.
 
@@ -68,10 +70,7 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ServicePluginProvi
         cache_directory: Path | None = None,
         cache_factory: ServiceFactory[App, Cache[Any]] | None = None,
         locale: ResolvableLocale | None = None,
-        plugins: Mapping[
-            type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
-        ]
-        | None = None,
+        plugins: Plugins | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
         translations: TranslationRepository | None = None,
         user: User | None = None,
@@ -79,7 +78,7 @@ class App(DataManufacturable[AppConfiguration], ServiceLevel, ServicePluginProvi
         from betty.rich.user import RichUser
 
         cls = type(self)
-        super().__init__(plugins=plugins)
+        super().__init__(plugins=plugins, upstream=UNIVERSE)
         self.life_cycle.on_bootstrap(self._bootstrap_localizer)
         self._locale = DEFAULT_LOCALE if locale is None else resolve_locale(locale)
         self._user = user or RichUser()

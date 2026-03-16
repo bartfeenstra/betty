@@ -41,8 +41,8 @@ class PrivatizeAncestry(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-        await self._project.app.localizer
-        user = self._project.app.user
+        await self._project.upstream.localizer
+        user = self._project.upstream.user
 
         newly_privatized: MutableMapping[MachineName, int] = defaultdict(lambda: 0)
         entities: MutableSequence[Intersection[HasPrivacy, Entity]] = []

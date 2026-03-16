@@ -132,11 +132,11 @@ class Wiki(
         The API client.
         """
         return Client(
-            download_directory_path=self._project.app.binary_file_cache.with_scope(
+            download_directory_path=self._project.upstream.binary_file_cache.with_scope(
                 "wiki-client"
             ).path,
-            http_client=await self._project.app.http_client,
-            user=self._project.app.user,
+            http_client=await self._project.upstream.http_client,
+            user=self._project.upstream.user,
         )
 
     @service
@@ -150,7 +150,7 @@ class Wiki(
             await self._project.localizers,
             await self.client,
             self._wikipedia_contributors_copyright_notice,
-            user=self._project.app.user,
+            user=self._project.upstream.user,
         )
 
     @override
@@ -190,7 +190,7 @@ class Wiki(
     async def _filter_wikipedia_summary_link(
         self, locale: Locale, link: Link
     ) -> Summary | None:
-        localizers = await self._project.app.localizers
+        localizers = await self._project.upstream.localizers
         try:
             page_language, page_name = parse_page_url(
                 link.url.localize(localizers.get(locale))

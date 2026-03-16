@@ -45,7 +45,7 @@ class _GeneratePlacePreview(Job):
     async def do(self, scheduler: Scheduler, /) -> None:
         context = scheduler.context
         place = self._project.ancestry[Place][self._place_id]
-        app = self._project.app
+        app = self._project.upstream
         localizers = await app.localizers
         jinja = await self._project.jinja
         place_path = (

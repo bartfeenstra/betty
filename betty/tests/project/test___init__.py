@@ -127,10 +127,6 @@ class TestProject:
         async with Project.new_isolated(isolated_app) as sut, sut:
             sut.ancestry  # noqa: B018
 
-    async def test_app(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as sut, sut:
-            assert sut.app is isolated_app
-
     async def test_assets(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as sut, sut:
             assets = await sut.assets

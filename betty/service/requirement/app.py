@@ -19,7 +19,7 @@ async def _require_app(services: ServiceLevel, target: str, /) -> App:
     from betty.project import Project
 
     if isinstance(services, Project):
-        return services.app
+        return services.upstream
     if isinstance(services, App):
         return services
     raise UnmetRequirement(_("{target} requires a running app.").format(target=target))

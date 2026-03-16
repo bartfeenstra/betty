@@ -32,7 +32,7 @@ class TestPopulateEntity:
                 await do(
                     PopulateLink(
                         link,
-                        http_client=await project.app.http_client,
+                        http_client=await project.upstream.http_client,
                         localizers=[DEFAULT_LOCALIZER],
                     ),
                     PopulateEntity(link, project=project),
