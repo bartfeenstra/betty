@@ -16,7 +16,7 @@ Read more at [https://ionic.io/ionicons](https://ionic.io/ionicons).
 
 ### Streetmix images
 
-The images contained in `./assets/vendor/streetmix/` are copyright *Streetmix LLC* and were originally
+The images contained in `./assets/universe/vendor/streetmix/` are copyright *Streetmix LLC* and were originally
 published under the *GNU Affero General Public License v3.0 or later* (`AGPL-3.0-or-later`).
 
 Read more at [https://github.com/streetmix/streetmix](https://github.com/streetmix/streetmix).
