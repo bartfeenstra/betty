@@ -1,0 +1,35 @@
+"""
+Project assets.
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from betty.asset import Asset, AssetDefinition
+from betty.locale.localizable.gettext import _
+from betty.plugins.asset.universe import Universe
+from betty.service.requirement.project import require_project
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from betty.plugin.discovery import ResolvableDiscovery
+    from betty.project import Project
+
+
+@require_project
+def _discover(project: Project, /) -> Iterable[ResolvableDiscovery[AssetDefinition]]:
+    @AssetDefinition(
+        "project",
+        label=_("Project"),
+        assets=project.assets_directory,
+        after=lambda other: other != Universe.plugin().id,
+        before={Universe},
+    )
+    class _Project(Asset):
+        """
+        .. plugin:: asset:project.
+        """
+
+    yield _Project

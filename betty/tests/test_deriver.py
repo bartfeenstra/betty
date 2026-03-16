@@ -17,7 +17,7 @@ from betty.model.collections import record_added
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.presence import Presence
-from betty.plugins.role import Subject
+from betty.plugins.role.subject import Subject
 from betty.project import Project
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,

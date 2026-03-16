@@ -13,7 +13,7 @@ from betty.extension import Extension, ExtensionDefinition
 from betty.jinja import Filters, Globals, JinjaProvider, context_localizer
 from betty.locale import negotiate_locale, resolve_locale
 from betty.locale.localizable.gettext import _
-from betty.plugins.asset import Wiki as WikiAssets
+from betty.plugins.asset.wiki import Wiki as WikiAssets
 from betty.plugins.extension.wiki.data import WikiConfiguration
 from betty.plugins.extension.wiki.jobs import PopulateEntity
 from betty.project.load import PostLoader
@@ -73,7 +73,7 @@ class Wiki(
     Globals
     ^^^^^^^
 
-    ``wikipedia_contributors_copyright_notice`` (:py:class:`betty.plugins.copyright_notice.WikipediaContributors`)
+    ``wikipedia_contributors_copyright_notice`` (:py:class:`betty.plugins.copyright_notice.wikipedia_contributors.WikipediaContributors`)
         The copyright notice plugin instance for Wikipedia contributors.
 
     Filters

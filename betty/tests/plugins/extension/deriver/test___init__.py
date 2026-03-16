@@ -7,9 +7,11 @@ from betty.model.collections import record_added
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.presence import Presence
-from betty.plugins.event_type import Birth, Death, Residence
+from betty.plugins.event_type.birth import Birth
+from betty.plugins.event_type.death import Death
+from betty.plugins.event_type.residence import Residence
 from betty.plugins.extension.deriver import Deriver
-from betty.plugins.role import Subject
+from betty.plugins.role.subject import Subject
 from betty.project import Project
 from betty.project.load import load
 

@@ -13,7 +13,7 @@ from betty.document import DocumentProvider, DocumentVars
 from betty.extension import Extension, ExtensionDefinition
 from betty.html import CssProvider, JsProvider
 from betty.jinja import Filters, JinjaProvider
-from betty.plugins.asset import Webpack as WebpackAsset
+from betty.plugins.asset.webpack import Webpack as WebpackAsset
 from betty.plugins.extension.webpack import build
 from betty.plugins.extension.webpack.build import EntryPointProvider
 from betty.plugins.extension.webpack.jinja.filter import FILTERS

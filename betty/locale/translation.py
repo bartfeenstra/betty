@@ -28,7 +28,7 @@ from betty.locale import (
 from betty.locale.babel import run_babel
 from betty.locale.error import LocaleError
 from betty.locale.localizable.gettext import _
-from betty.plugins.asset import Universe
+from betty.plugins.asset.universe import Universe
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:

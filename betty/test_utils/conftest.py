@@ -32,7 +32,7 @@ from betty.app import App
 from betty.cache.file import BinaryFileCache
 from betty.exception import do_raise
 from betty.multiprocessing import ProcessPoolExecutor
-from betty.plugins.license import SpdxLicenseBuilder
+from betty.plugins.license.spdx import SpdxLicenseDiscoverer
 from betty.user import Verbosity
 
 if TYPE_CHECKING:
@@ -140,7 +140,7 @@ async def page(context: BrowserContext) -> Page:
 
 
 LICENSES_DATA: PortableMapping = {
-    "licenseListVersion": SpdxLicenseBuilder.VERSION,
+    "licenseListVersion": SpdxLicenseDiscoverer.VERSION,
     "licenses": [
         {
             "reference": "https://spdx.org/licenses/AGPL-3.0-or-later.html",
@@ -272,7 +272,7 @@ def _demo_project_aioresponses_spdx_license_data(
 
     licenses_file_path = (
         spdx_directory_path
-        / f"license-list-data-{SpdxLicenseBuilder.VERSION}"
+        / f"license-list-data-{SpdxLicenseDiscoverer.VERSION}"
         / "json"
         / "licenses.json"
     )
@@ -282,7 +282,7 @@ def _demo_project_aioresponses_spdx_license_data(
 
     license_details_directory_path = (
         spdx_directory_path
-        / f"license-list-data-{SpdxLicenseBuilder.VERSION}"
+        / f"license-list-data-{SpdxLicenseDiscoverer.VERSION}"
         / "json"
         / "details"
     )
@@ -297,7 +297,7 @@ def _demo_project_aioresponses_spdx_license_data(
         spdx_tar_file.add(spdx_directory_path, "/")
     spdx_file.seek(0)
 
-    http_client_mock.get(SpdxLicenseBuilder.URL, body=spdx_file.read())
+    http_client_mock.get(SpdxLicenseDiscoverer.URL, body=spdx_file.read())
 
 
 def _demo_project_aioresponses_wiki_apis(

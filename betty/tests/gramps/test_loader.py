@@ -18,7 +18,7 @@ from betty.gramps.error import UserFacingGrampsError
 from betty.gramps.loader import GrampsFileNotFound, GrampsLoader, LoaderUsedAlready
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 from betty.media_type import MediaType
-from betty.plugins.copyright_notice import (
+from betty.plugins.copyright_notice.public_domain import (
     PublicDomain as PublicDomainCopyrightNotice,
 )
 from betty.plugins.entity.citation import Citation
@@ -28,14 +28,15 @@ from betty.plugins.entity.note import Note
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.source import Source
-from betty.plugins.event_type import Birth, Death
-from betty.plugins.event_type import Unknown as UnknownEventType
-from betty.plugins.gender import NonBinary
-from betty.plugins.gender import Unknown as UnknownGender
-from betty.plugins.license import PublicDomain as PublicDomainLicense
-from betty.plugins.place_type import City
-from betty.plugins.place_type import Unknown as UnknownPlaceType
-from betty.plugins.role import Subject
+from betty.plugins.event_type.birth import Birth
+from betty.plugins.event_type.death import Death
+from betty.plugins.event_type.unknown import Unknown as UnknownEventType
+from betty.plugins.gender.non_binary import NonBinary
+from betty.plugins.gender.unknown import Unknown as UnknownGender
+from betty.plugins.license.public_domain import PublicDomain as PublicDomainLicense
+from betty.plugins.place_type.city import City
+from betty.plugins.place_type.unknown import Unknown as UnknownPlaceType
+from betty.plugins.role.subject import Subject
 from betty.privacy import Privacy
 from betty.project import Project
 from betty.subprocess import CalledSubprocessError

@@ -2,18 +2,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final
+from typing import final
 
 from betty.extension import Extension, ExtensionDefinition
 from betty.locale.localizable.gettext import _
-from betty.plugins.license import SpdxLicenseBuilder
-from betty.service.requirement.project import require_project
-
-if TYPE_CHECKING:
-    from collections.abc import Iterable
-
-    from betty.license import LicenseDefinition
-    from betty.project import Project
 
 
 @final
@@ -32,18 +24,3 @@ class Spdx(Extension):
     # Provide an initializer without arguments so the factory can call it.
     def __init__(self):
         super().__init__()
-
-
-@require_project
-async def discover_licenses(project: Project) -> Iterable[LicenseDefinition]:
-    """
-    Discover the SPDX licenses.
-    """
-    return [
-        license
-        async for license in SpdxLicenseBuilder(  # noqa: A001
-            binary_file_cache=project.upstream.binary_file_cache.with_scope("spdx"),
-            http_client=await project.upstream.http_client,
-            user=project.upstream.user,
-        ).build()
-    ]

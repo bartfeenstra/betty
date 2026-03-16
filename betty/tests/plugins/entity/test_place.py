@@ -13,9 +13,9 @@ from betty.plugins.entity.enclosure import Enclosure
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.link import Link
 from betty.plugins.entity.place import Place
-from betty.plugins.event_type import Birth
-from betty.plugins.place_type import Hamlet
-from betty.plugins.place_type import Unknown as UnknownPlaceType
+from betty.plugins.event_type.birth import Birth
+from betty.plugins.place_type.hamlet import Hamlet
+from betty.plugins.place_type.unknown import Unknown as UnknownPlaceType
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
 

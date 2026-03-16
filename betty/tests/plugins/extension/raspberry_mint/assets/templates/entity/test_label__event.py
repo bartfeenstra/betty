@@ -2,9 +2,10 @@ from betty.document import Document, EntityContexts
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.presence import Presence
-from betty.plugins.event_type import Birth, Marriage
+from betty.plugins.event_type.birth import Birth
+from betty.plugins.event_type.marriage import Marriage
 from betty.plugins.extension.raspberry_mint import RaspberryMint
-from betty.plugins.role import Subject
+from betty.plugins.role.subject import Subject
 from betty.test_utils.jinja import assert_template_file
 
 

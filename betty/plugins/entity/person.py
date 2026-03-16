@@ -19,7 +19,7 @@ from betty.model import EntityDefinition, persistent_id
 from betty.model.association import BidirectionalToManySingleType, ToManyAssociates
 from betty.model.schema import ToManySchema
 from betty.plugin.schema import PluginIdSchema
-from betty.plugins.gender import Unknown as UnknownGender
+from betty.plugins.gender.unknown import Unknown as UnknownGender
 from betty.privacy import HasPrivacy, Privacy
 
 if TYPE_CHECKING:

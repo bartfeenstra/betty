@@ -1,0 +1,18 @@
+"""
+Webpack assets.
+"""
+
+from __future__ import annotations
+
+from typing import final
+
+from betty.asset import Asset, AssetDefinition
+from betty.dirs import ASSETS_DIRECTORY_PATH
+
+
+@final
+@AssetDefinition("webpack", label="Webpack", assets=ASSETS_DIRECTORY_PATH / "webpack")
+class Webpack(Asset):
+    """
+    .. plugin:: asset:webpack.
+    """

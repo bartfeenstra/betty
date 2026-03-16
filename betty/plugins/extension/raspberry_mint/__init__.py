@@ -12,7 +12,7 @@ from betty.asset import AssetDefinition
 from betty.extension import ExtensionDefinition
 from betty.jinja import Filters, JinjaProvider
 from betty.model import EntityDefinition
-from betty.plugins.asset import RaspberryMint as RaspberryMintAsset
+from betty.plugins.asset.raspberry_mint import RaspberryMint as RaspberryMintAsset
 from betty.plugins.extension._theme import jinja_filters
 from betty.plugins.extension.raspberry_mint.data import RaspberryMintConfiguration
 from betty.plugins.extension.webpack import Webpack

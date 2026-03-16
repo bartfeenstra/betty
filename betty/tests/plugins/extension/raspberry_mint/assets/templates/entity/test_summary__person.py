@@ -5,10 +5,11 @@ from betty.plugins.entity.person import Person
 from betty.plugins.entity.person_name import PersonName
 from betty.plugins.entity.presence import Presence
 from betty.plugins.entity.source import Source
-from betty.plugins.event_type import Birth, Death
+from betty.plugins.event_type.birth import Birth
+from betty.plugins.event_type.death import Death
 from betty.plugins.extension.raspberry_mint import RaspberryMint
-from betty.plugins.gender import NonBinary
-from betty.plugins.role import Subject
+from betty.plugins.gender.non_binary import NonBinary
+from betty.plugins.role.subject import Subject
 from betty.privacy import Privacy
 from betty.test_utils.jinja import assert_template_file
 
