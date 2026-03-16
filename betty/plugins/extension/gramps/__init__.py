@@ -340,7 +340,7 @@ class Gramps(
             executable=None if data is None else data.executable,
             family_trees=None if data is None else data.family_trees,
             services=project,
-            user=project.app.user,
+            user=project.upstream.user,
         )
 
     @override

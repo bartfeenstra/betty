@@ -60,7 +60,9 @@ class Demo(Manufacturable, Command):
                 project.configuration.url = url
             async with (
                 project,
-                project.app.user.message_progress(_("Generating site...")) as progress,
+                project.upstream.user.message_progress(
+                    _("Generating site...")
+                ) as progress,
             ):
                 context = Context(progress=progress)
                 await stddemo.generate_with_cleanup(project, context=context)

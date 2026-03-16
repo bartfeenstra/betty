@@ -46,12 +46,12 @@ async def load(project: Project, *, context: Context | None = None) -> None:
     if context is None:
         context = Context()
 
-    app = project.app
+    app = project.upstream
     http_client = await app.http_client
     localizers = await project.public_localizers
 
     extensions = await project.extensions
-    load_scheduler = DefaultScheduler(context=context, user=project.app.user)
+    load_scheduler = DefaultScheduler(context=context, user=project.upstream.user)
     async with AsyncExecutor(load_scheduler, concurrency=MAX_STRANDS):
         await gather(
             *(
@@ -62,7 +62,7 @@ async def load(project: Project, *, context: Context | None = None) -> None:
         )
         await load_scheduler.release()
         await load_scheduler.complete()
-    post_load_scheduler = DefaultScheduler(context=context, user=project.app.user)
+    post_load_scheduler = DefaultScheduler(context=context, user=project.upstream.user)
     async with AsyncExecutor(post_load_scheduler, concurrency=MAX_STRANDS):
         await gather(
             *(

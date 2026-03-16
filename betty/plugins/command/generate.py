@@ -41,7 +41,7 @@ class Generate(Manufacturable, Command):
 
         async with (
             project,
-            project.app.user.message_progress(_("Generating site...")) as progress,
+            project.upstream.user.message_progress(_("Generating site...")) as progress,
         ):
             # Add a phantom value to the progress so it can never jump to 100% before we are entirely done here.
             await progress.add()

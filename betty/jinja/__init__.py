@@ -254,7 +254,7 @@ class Environment(Manufacturable, JinjaEnvironment):
 
     def _init_globals(self) -> None:
         self.globals["about_version_major"] = about.VERSION_MAJOR_LABEL
-        self.globals["app"] = self.project.app
+        self.globals["app"] = self.project.upstream
         self.globals["project"] = self.project
         today = datetime.date.today()
         self.globals["today"] = Date(today.year, today.month, today.day)

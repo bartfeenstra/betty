@@ -142,7 +142,7 @@ class ProjectServer(Manufacturable, Server):
     """
 
     def __init__(self, project: Project) -> None:
-        super().__init__(user=project.app.user)
+        super().__init__(user=project.upstream.user)
         self._project = project
 
     @override
@@ -252,7 +252,7 @@ class BuiltinProjectServer(ProjectServer):
         self._server = BuiltinServer(
             project.www_directory,
             root_path=project.configuration.root_path,
-            user=project.app.user,
+            user=project.upstream.user,
         )
 
     @override

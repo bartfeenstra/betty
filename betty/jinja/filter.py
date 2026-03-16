@@ -276,11 +276,11 @@ async def filter_image_resize_cover(
     if execute_filter:
         loop = get_running_loop()
         await loop.run_in_executor(
-            project.app.process_pool,
+            project.upstream.process_pool,
             _execute_filter_image,
             image_loader,
             file.path,
-            project.app.binary_file_cache.with_scope("image").cache_item_file_path(
+            project.upstream.binary_file_cache.with_scope("image").cache_item_file_path(
                 cache_item_id
             ),
             file_directory_path,

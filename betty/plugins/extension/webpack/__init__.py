@@ -65,7 +65,7 @@ class Webpack(
         await scheduler.add(
             _GenerateAssets(
                 builder=await self.builder,
-                cache_directory=self._project.app.binary_file_cache.with_scope(
+                cache_directory=self._project.upstream.binary_file_cache.with_scope(
                     "webpack"
                 ).path,
                 www_directory=self._project.www_directory,
@@ -119,5 +119,5 @@ class Webpack(
             self._project.configuration.debug,
             await self._project.jinja,
             self._project.configuration.root_path,
-            user=self._project.app.user,
+            user=self._project.upstream.user,
         )

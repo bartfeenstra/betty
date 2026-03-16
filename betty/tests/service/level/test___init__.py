@@ -1,7 +1,7 @@
 import pytest
 
 from betty.plugin.error import PluginTypeNotFound
-from betty.service.level import ServiceLevel
+from betty.service.level import ChainedServiceLevel, ServiceLevel
 from betty.test_utils.plugin import DummyPluginDefinition, DummyPluginOne
 
 
@@ -29,3 +29,10 @@ class TestServiceLevel:
 
         sut = ServiceLevel()
         assert isinstance(await sut.factory.new(_TargetType), _TargetType)
+
+
+class TestChainedServiceLevel:
+    def test_upstream(self) -> None:
+        upstream = ServiceLevel()
+        sut = ChainedServiceLevel(upstream=upstream)
+        assert sut.upstream is upstream

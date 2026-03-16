@@ -42,8 +42,8 @@ async def discover_licenses(project: Project) -> Iterable[LicenseDefinition]:
     return [
         license
         async for license in SpdxLicenseBuilder(  # noqa: A001
-            binary_file_cache=project.app.binary_file_cache.with_scope("spdx"),
-            http_client=await project.app.http_client,
-            user=project.app.user,
+            binary_file_cache=project.upstream.binary_file_cache.with_scope("spdx"),
+            http_client=await project.upstream.http_client,
+            user=project.upstream.user,
         ).build()
     ]

@@ -28,6 +28,11 @@ class _PluginTypeNotFound(PluginTypeNotFound, KeyError):
     pass
 
 
+type Plugins = Mapping[
+    type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
+]
+
+
 class ServiceLevel:
     """
     A service level.
@@ -36,10 +41,7 @@ class ServiceLevel:
     def __init__(
         self,
         *args: Any,
-        plugins: Mapping[
-            type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
-        ]
-        | None = None,
+        plugins: Plugins | None = None,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
@@ -88,3 +90,26 @@ class ServiceLevel:
                 resolve_plugin_type_id(key), [x.type.type().id for x in self.plugins]
             ),
         )
+
+
+class ChainedServiceLevel[UpstreamT: ServiceLevel = ServiceLevel](ServiceLevel):
+    """
+    A chained service level.
+    """
+
+    def __init__(
+        self,
+        *args: Any,
+        plugins: Plugins | None = None,
+        upstream: UpstreamT,
+        **kwargs: Any,
+    ):
+        super().__init__(*args, plugins=plugins, **kwargs)
+        self._upstream = upstream
+
+    @property
+    def upstream(self) -> UpstreamT:
+        """
+        The upstream service level this one is chained to.
+        """
+        return self._upstream

@@ -18,6 +18,7 @@ from aiofiles.tempfile import TemporaryDirectory
 import betty
 import betty.dirs
 from betty.ancestry import Ancestry
+from betty.app import App
 from betty.asset import (
     AssetDefinition,
     AssetManufacturer,
@@ -42,7 +43,7 @@ from betty.project.data import ProjectConfiguration
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.serde import SerializerDefinition, serializer_for
 from betty.service.factory import DataManufacturable
-from betty.service.level import ServiceLevel
+from betty.service.level import ChainedServiceLevel, ServiceLevel
 from betty.service.level.universe import UNIVERSE
 from betty.service.plugin import ServicePluginManager, ServicePluginProvider
 from betty.service.provider import service
@@ -53,7 +54,6 @@ if TYPE_CHECKING:
 
     from babel import Locale
 
-    from betty.app import App
     from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
     from betty.event_type import EventTypeDefinition
     from betty.gender import GenderDefinition
@@ -70,7 +70,9 @@ if TYPE_CHECKING:
 
 @final
 class Project(
-    DataManufacturable[ProjectConfiguration], ServiceLevel, ServicePluginProvider
+    DataManufacturable[ProjectConfiguration],
+    ChainedServiceLevel[App],
+    ServicePluginProvider,
 ):
     """
     Define a Betty project.
@@ -98,7 +100,7 @@ class Project(
         ]
         | None = None,
     ):
-        super().__init__(plugins=plugins)
+        super().__init__(plugins=plugins, upstream=app)
         self.life_cycle.on_bootstrap(self._ensure_locale)
         self.life_cycle.on_bootstrap(self._validate)
         self._app = app
@@ -244,13 +246,6 @@ class Project(
         return self.www_directory
 
     @property
-    def app(self) -> App:
-        """
-        The application this project is run within.
-        """
-        return self._app
-
-    @property
     def name(self) -> MachineName:
         """
         The project name.
@@ -283,7 +278,7 @@ class Project(
         The assets file system.
         """
         return ProxyAssetRepository(
-            *await gather(self._project_assets, self.app.assets)
+            *await gather(self._project_assets, self.upstream.assets)
         )
 
     @service
@@ -293,9 +288,9 @@ class Project(
         """
         return ProxyTranslationRepository(
             AssetTranslationRepository(
-                await self._project_assets, self.app.binary_file_cache
+                await self._project_assets, self.upstream.binary_file_cache
             ),
-            await self.app.translations,
+            await self.upstream.translations,
         )
 
     @service
@@ -383,7 +378,9 @@ class Project(
         """
         The privatizer.
         """
-        return Privatizer(self.configuration.lifetime_threshold, user=self.app.user)
+        return Privatizer(
+            self.configuration.lifetime_threshold, user=self.upstream.user
+        )
 
     async def new_document(
         self,
