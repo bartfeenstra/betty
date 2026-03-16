@@ -12,10 +12,10 @@ from betty.ancestry.presence import Presence
 from betty.ancestry.source import Source
 from betty.plugins.event_type import Birth
 from betty.plugins.extension.privatizer import Privatizer
+from betty.plugins.role import Subject
 from betty.privacy import Privacy
 from betty.project import Project
 from betty.project.load import load
-from betty.role.roles import Subject
 
 if TYPE_CHECKING:
     from betty.app import App

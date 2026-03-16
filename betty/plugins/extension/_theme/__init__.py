@@ -16,8 +16,8 @@ from betty.date import Date, ResolvableDate
 from betty.functools import unique
 from betty.model import persistent_id
 from betty.plugins.event_type import Birth, Death
+from betty.plugins.role import Subject
 from betty.privacy import is_public
-from betty.role.roles import Subject
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence

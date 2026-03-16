@@ -17,11 +17,11 @@ from betty.ancestry.presence import Presence
 from betty.ancestry.source import Source
 from betty.date import Date, DateRange
 from betty.plugins.event_type import Birth, Death, Marriage
+from betty.plugins.role import Subject
+from betty.plugins.role import Unknown as UnknownRole
 from betty.privacy import Privacy
 from betty.privacy.privatizer import Privatizer
 from betty.project.data import DEFAULT_LIFETIME_THRESHOLD
-from betty.role.roles import Subject
-from betty.role.roles import Unknown as UnknownRole
 from betty.test_utils.user import StaticUser
 
 if TYPE_CHECKING:

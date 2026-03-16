@@ -8,9 +8,9 @@ from betty.ancestry.event import Event
 from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
 from betty.plugins.event_type import Unknown as UnknownEventType
+from betty.plugins.role import Subject
+from betty.plugins.role import Unknown as UnknownRole
 from betty.privacy import Privacy
-from betty.role.roles import Subject
-from betty.role.roles import Unknown as UnknownRole
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
 

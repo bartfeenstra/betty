@@ -35,9 +35,9 @@ from betty.plugins.gender import NonBinary
 from betty.plugins.gender import Unknown as UnknownGender
 from betty.plugins.place_type import City
 from betty.plugins.place_type import Unknown as UnknownPlaceType
+from betty.plugins.role import Subject
 from betty.privacy import Privacy
 from betty.project import Project
-from betty.role.roles import Subject
 from betty.subprocess import CalledSubprocessError
 from betty.test_utils.user import StaticUser
 

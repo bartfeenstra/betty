@@ -33,7 +33,7 @@ from betty.plugins.place_type import (
     Province,
     Village,
 )
-from betty.role.roles import Subject
+from betty.plugins.role import Subject
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence

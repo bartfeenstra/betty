@@ -7,8 +7,8 @@ from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
 from betty.date import Date
 from betty.plugins.event_type import Birth, Death
+from betty.plugins.role import Subject
 from betty.project import Project
-from betty.role.roles import Subject
 
 if TYPE_CHECKING:
     from betty.app import App

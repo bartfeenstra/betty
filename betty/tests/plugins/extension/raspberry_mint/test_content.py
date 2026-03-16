@@ -51,8 +51,8 @@ from betty.plugins.extension.raspberry_mint.content import (
     ShorthandColumnsWidth,
     Timeline,
 )
+from betty.plugins.role import Subject, Witness
 from betty.project import Project
-from betty.role.roles import Subject, Witness
 from betty.test_utils.ancestry.has_citations import DummyHasCitations
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 from betty.test_utils.content import NoOpContent

@@ -20,8 +20,8 @@ from betty.date import Date, DateRange
 from betty.locale.localizable.gettext import _
 from betty.model import Entity
 from betty.plugins.event_type import Death
+from betty.plugins.role import Subject
 from betty.privacy import HasPrivacy, Privacy
-from betty.role.roles import Subject
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, MutableSequence

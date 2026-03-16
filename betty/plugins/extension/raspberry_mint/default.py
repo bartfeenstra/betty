@@ -34,7 +34,7 @@ from betty.plugins.extension.raspberry_mint.content import (
 )
 from betty.plugins.extension.trees.content import Tree
 from betty.plugins.extension.wiki.content import WikipediaSummary
-from betty.role.roles import Subject, Witness
+from betty.plugins.role import Subject, Witness
 
 if TYPE_CHECKING:
     from collections.abc import Collection
