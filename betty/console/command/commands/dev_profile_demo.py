@@ -10,9 +10,9 @@ from betty import dirs
 from betty.about import IS_DEVELOPMENT
 from betty.app import App
 from betty.console.command import Command, CommandDefinition, CommandFunction
-from betty.extension.demo import generate_with_cleanup
-from betty.extension.demo.project import create_project
 from betty.job import Context
+from betty.plugins.extension.demo import generate_with_cleanup
+from betty.plugins.extension.demo.project import create_project
 from betty.service.factory import Manufacturable
 from betty.service.requirement import UnmetRequirement
 from betty.service.requirement.app import require_app

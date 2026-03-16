@@ -1,0 +1,8 @@
+{
+  "name": "@betty.py/betty.plugins.extension.trees",
+  "dependencies": {
+    "@betty.py/betty": "*",
+    "cytoscape": "^3.30.3",
+    "cytoscape-dagre": "^2.5.0"
+  }
+}

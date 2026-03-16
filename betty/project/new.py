@@ -9,22 +9,22 @@ from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.assertion import assert_locale, assert_path, assert_str
 from betty.extension import Extension, ExtensionDefinition, ExtensionManufacturer
-from betty.extension.deriver import Deriver
-from betty.extension.gramps import Gramps
-from betty.extension.gramps.data import FamilyTree, GrampsConfiguration
-from betty.extension.http_api_doc import HttpApiDoc
-from betty.extension.maps import Maps
-from betty.extension.privatizer import Privatizer
-from betty.extension.raspberry_mint import RaspberryMint
-from betty.extension.raspberry_mint.data import RaspberryMintConfiguration
-from betty.extension.raspberry_mint.default import regional_content
-from betty.extension.trees import Trees
-from betty.extension.webpack import Webpack
-from betty.extension.wiki import Wiki
 from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
 from betty.machine_name import MachineName
+from betty.plugins.extension.deriver import Deriver
+from betty.plugins.extension.gramps import Gramps
+from betty.plugins.extension.gramps.data import FamilyTree, GrampsConfiguration
+from betty.plugins.extension.http_api_doc import HttpApiDoc
+from betty.plugins.extension.maps import Maps
+from betty.plugins.extension.privatizer import Privatizer
+from betty.plugins.extension.raspberry_mint import RaspberryMint
+from betty.plugins.extension.raspberry_mint.data import RaspberryMintConfiguration
+from betty.plugins.extension.raspberry_mint.default import regional_content
+from betty.plugins.extension.trees import Trees
+from betty.plugins.extension.webpack import Webpack
+from betty.plugins.extension.wiki import Wiki
 from betty.portable.file import dump_file
 from betty.project.data import ProjectConfiguration
 from betty.typing import Void

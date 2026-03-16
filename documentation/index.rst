@@ -36,7 +36,7 @@ your `Gramps <https://gramps-project.org/>`_ and `GEDCOM <https://en.wikipedia.o
 
     .. grid-item-card:: :octicon:`eye-closed` Privacy by default
 
-        :py:class:`Privatize <betty.extension.privatizer.Privatizer>` information that should not be public.
+        :py:class:`Privatize <betty.plugins.extension.privatizer.Privatizer>` information that should not be public.
 
     .. grid-item-card:: :octicon:`globe` Multilingual
 

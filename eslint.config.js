@@ -21,11 +21,11 @@ export default [
     // The Webpack extension and other extensions using it.
     {
         files: [
-            'betty/extension/http_api_doc/webpack/**',
-            'betty/extension/maps/webpack/**',
-            'betty/extension/raspberry_mint/webpack/**',
-            'betty/extension/trees/webpack/**',
-            'betty/extension/webpack/webpack/**',
+            'betty/plugins/extension/http_api_doc/webpack/**',
+            'betty/plugins/extension/maps/webpack/**',
+            'betty/plugins/extension/raspberry_mint/webpack/**',
+            'betty/plugins/extension/trees/webpack/**',
+            'betty/plugins/extension/webpack/webpack/**',
         ],
         languageOptions: {
             globals: {

@@ -695,6 +695,157 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Unknown": MissingReason.STATIC_CONTENT_ONLY,
         "Will": MissingReason.STATIC_CONTENT_ONLY,
     },
+    "betty/plugins/extension/demo/__init__.py": {
+        "Demo": {
+            "secondary_navigation_links": MissingReason.STATIC_CONTENT_ONLY,
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/extension/deriver/__init__.py": {
+        "Deriver": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/extension/demo/serve.py": {
+        "DemoServer": {
+            "public_url": MissingReason.SHOULD_BE_COVERED,
+            "start": MissingReason.SHOULD_BE_COVERED,
+            "stop": MissingReason.SHOULD_BE_COVERED,
+        },
+    },
+    "betty/plugins/extension/gramps/__init__.py": {
+        "Gramps": {
+            "plugin": MissingReason.INHERITED,
+        }
+    },
+    "betty/plugins/extension/gramps/data.py": {
+        "FamilyTree": {
+            "event_types": MissingReason.INHERITED,
+            "file": MissingReason.INHERITED,
+            "name": MissingReason.INHERITED,
+            "place_types": MissingReason.INHERITED,
+            "roles": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/extension/http_api_doc/__init__.py": {
+        "HttpApiDoc": {
+            "plugin": MissingReason.INHERITED,
+            "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
+        },
+    },
+    "betty/plugins/extension/maps/__init__.py": {
+        "Maps": {
+            "plugin": MissingReason.INHERITED,
+            "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
+        },
+    },
+    "betty/plugins/extension/maps/content.py": {
+        "Map": {
+            "plugin": MissingReason.INHERITED,
+        },
+        "Attribution": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/extension/privatizer/__init__.py": {
+        "Privatizer": {
+            "post_load": MissingReason.SHOULD_BE_COVERED,
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/extension/raspberry_mint/__init__.py": {
+        "Breakpoint": MissingReason.ENUM,
+        "ColorStyle": MissingReason.ENUM,
+        "JustifyContent": MissingReason.ENUM,
+        "RaspberryMint": {
+            "plugin": MissingReason.INHERITED,
+            "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
+        },
+    },
+    "betty/plugins/extension/raspberry_mint/content.py": {
+        "Citations": {
+            "plugin": MissingReason.INHERITED,
+        },
+        "ColorStyle": {
+            "plugin": MissingReason.INHERITED,
+        },
+        "Columns": {
+            "plugin": MissingReason.INHERITED,
+        },
+        "Enclosees": {
+            "plugin": MissingReason.INHERITED,
+        },
+        "EntityCard": {
+            "plugin": MissingReason.INHERITED,
+        },
+        "ExternalLinks": {
+            "plugin": MissingReason.INHERITED,
+        },
+        "Facts": {
+            "plugin": MissingReason.INHERITED,
+        },
+        "Families": {
+            "plugin": MissingReason.INHERITED,
+        },
+        "FileReferees": {
+            "plugin": MissingReason.INHERITED,
+        },
+        "Media": {
+            "plugin": MissingReason.INHERITED,
+        },
+        "MediaGallery": {
+            "plugin": MissingReason.INHERITED,
+        },
+        "Presences": {
+            "plugin": MissingReason.INHERITED,
+        },
+        "Section": {
+            "plugin": MissingReason.INHERITED,
+        },
+        "Timeline": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/extension/trees/__init__.py": {
+        "Trees": {
+            "plugin": MissingReason.INHERITED,
+            "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
+        },
+    },
+    "betty/plugins/extension/spdx/__init__.py": {
+        "Spdx": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/plugins/extension/trees/content.py": {
+        "Tree": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/extension/webpack/__init__.py": {
+        "Webpack": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/extension/webpack/build.py": {
+        "EntryPointProvider": MissingReason.ABSTRACT,
+        "webpack_build_id": MissingReason.SHOULD_BE_COVERED,
+    },
+    "betty/plugins/extension/webpack/jinja/__init__.py": MissingReason.SHOULD_BE_COVERED,
+    "betty/plugins/extension/webpack/jinja/filter.py": MissingReason.SHOULD_BE_COVERED,
+    "betty/plugins/extension/wiki/__init__.py": {
+        "Wiki": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/extension/wiki/data.py": {
+        "WikiConfiguration": {
+            "populate_images": MissingReason.SHOULD_BE_COVERED,
+        },
+    },
+    "betty/plugins/extension/wiki/content.py": {
+        "WikipediaSummary": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
     "betty/plugins/gender.py": {
         "Man": MissingReason.STATIC_CONTENT_ONLY,
         "NonBinary": MissingReason.STATIC_CONTENT_ONLY,
@@ -757,157 +908,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ExtensionTypeError": MissingReason.STATIC_CONTENT_ONLY,
         "ExtensionTypeInvalidError": MissingReason.SHOULD_BE_COVERED,
         "Theme": MissingReason.STATIC_CONTENT_ONLY,
-    },
-    "betty/extension/demo/__init__.py": {
-        "Demo": {
-            "secondary_navigation_links": MissingReason.STATIC_CONTENT_ONLY,
-            "plugin": MissingReason.INHERITED,
-        },
-    },
-    "betty/extension/deriver/__init__.py": {
-        "Deriver": {
-            "plugin": MissingReason.INHERITED,
-        },
-    },
-    "betty/extension/demo/serve.py": {
-        "DemoServer": {
-            "public_url": MissingReason.SHOULD_BE_COVERED,
-            "start": MissingReason.SHOULD_BE_COVERED,
-            "stop": MissingReason.SHOULD_BE_COVERED,
-        },
-    },
-    "betty/extension/gramps/__init__.py": {
-        "Gramps": {
-            "plugin": MissingReason.INHERITED,
-        }
-    },
-    "betty/extension/gramps/data.py": {
-        "FamilyTree": {
-            "event_types": MissingReason.INHERITED,
-            "file": MissingReason.INHERITED,
-            "name": MissingReason.INHERITED,
-            "place_types": MissingReason.INHERITED,
-            "roles": MissingReason.INHERITED,
-        },
-    },
-    "betty/extension/http_api_doc/__init__.py": {
-        "HttpApiDoc": {
-            "plugin": MissingReason.INHERITED,
-            "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
-        },
-    },
-    "betty/extension/maps/__init__.py": {
-        "Maps": {
-            "plugin": MissingReason.INHERITED,
-            "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
-        },
-    },
-    "betty/extension/maps/content.py": {
-        "Map": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "Attribution": {
-            "plugin": MissingReason.INHERITED,
-        },
-    },
-    "betty/extension/privatizer/__init__.py": {
-        "Privatizer": {
-            "post_load": MissingReason.SHOULD_BE_COVERED,
-            "plugin": MissingReason.INHERITED,
-        },
-    },
-    "betty/extension/raspberry_mint/__init__.py": {
-        "Breakpoint": MissingReason.ENUM,
-        "ColorStyle": MissingReason.ENUM,
-        "JustifyContent": MissingReason.ENUM,
-        "RaspberryMint": {
-            "plugin": MissingReason.INHERITED,
-            "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
-        },
-    },
-    "betty/extension/raspberry_mint/content.py": {
-        "Citations": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "ColorStyle": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "Columns": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "Enclosees": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "EntityCard": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "ExternalLinks": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "Facts": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "Families": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "FileReferees": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "Media": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "MediaGallery": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "Presences": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "Section": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "Timeline": {
-            "plugin": MissingReason.INHERITED,
-        },
-    },
-    "betty/extension/trees/__init__.py": {
-        "Trees": {
-            "plugin": MissingReason.INHERITED,
-            "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
-        },
-    },
-    "betty/extension/spdx/__init__.py": {
-        "Spdx": MissingReason.STATIC_CONTENT_ONLY,
-    },
-    "betty/extension/trees/content.py": {
-        "Tree": {
-            "plugin": MissingReason.INHERITED,
-        },
-    },
-    "betty/extension/webpack/__init__.py": {
-        "Webpack": {
-            "plugin": MissingReason.INHERITED,
-        },
-    },
-    "betty/extension/webpack/build.py": {
-        "EntryPointProvider": MissingReason.ABSTRACT,
-        "webpack_build_id": MissingReason.SHOULD_BE_COVERED,
-    },
-    "betty/extension/webpack/jinja/__init__.py": MissingReason.SHOULD_BE_COVERED,
-    "betty/extension/webpack/jinja/filter.py": MissingReason.SHOULD_BE_COVERED,
-    "betty/extension/wiki/__init__.py": {
-        "Wiki": {
-            "plugin": MissingReason.INHERITED,
-        },
-    },
-    "betty/extension/wiki/data.py": {
-        "WikiConfiguration": {
-            "populate_images": MissingReason.SHOULD_BE_COVERED,
-        },
-    },
-    "betty/extension/wiki/content.py": {
-        "WikipediaSummary": {
-            "plugin": MissingReason.INHERITED,
-        },
     },
     "betty/project/generate/__init__.py": {
         "Generator": MissingReason.ABSTRACT,
