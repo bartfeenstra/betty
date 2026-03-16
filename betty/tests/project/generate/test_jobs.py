@@ -19,6 +19,7 @@ from betty.app import App
 from betty.json.schema import JsonSchemaSchema
 from betty.model import Entity
 from betty.openapi.schema import SpecificationSchema
+from betty.plugins.role import Unknown as UnknownRole
 from betty.privacy import Privacy
 from betty.project import Project
 from betty.project.data import EntityTypeConfiguration, ProjectLocale
@@ -36,7 +37,6 @@ from betty.project.generate.jobs import (
     GenerateSitemap,
     GenerateStaticPublicAssets,
 )
-from betty.role.roles import Unknown as UnknownRole
 from betty.string import kebab_case_to_lower_camel_case
 from betty.test_utils.jinja import assert_betty_html, assert_betty_json
 from betty.test_utils.job import do

@@ -17,8 +17,8 @@ from betty.model.association import AssociationRequired, TemporaryToOneResolver
 from betty.plugins.event_type import Birth
 from betty.plugins.gender import NonBinary
 from betty.plugins.gender import Unknown as UnknownGender
+from betty.plugins.role import Subject
 from betty.privacy import Privacy
-from betty.role.roles import Subject
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
 

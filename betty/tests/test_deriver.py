@@ -17,8 +17,8 @@ from betty.event_type import (
     ShouldExistEventType,
 )
 from betty.model.collections import record_added
+from betty.plugins.role import Subject
 from betty.project import Project
-from betty.role.roles import Subject
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,

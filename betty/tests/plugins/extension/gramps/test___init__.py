@@ -17,10 +17,10 @@ from betty.plugins.event_type import Birth
 from betty.plugins.extension.gramps import Gramps
 from betty.plugins.extension.gramps.data import FamilyTree, GrampsConfiguration
 from betty.plugins.place_type import City
+from betty.plugins.role import Subject
 from betty.project import Project
 from betty.project.load import load
 from betty.role import RoleManufacturer
-from betty.role.roles import Subject
 
 
 class TestGramps:

@@ -103,16 +103,16 @@ from betty.plugins.place_type import (
     Village,
 )
 from betty.plugins.place_type import Unknown as UnknownPlaceType
-from betty.privacy import HasPrivacy
-from betty.role import RoleManufacturer
-from betty.role.roles import (
+from betty.plugins.role import (
     Attendee,
     Celebrant,
     Informant,
     Subject,
     Witness,
 )
-from betty.role.roles import Unknown as UnknownRole
+from betty.plugins.role import Unknown as UnknownRole
+from betty.privacy import HasPrivacy
+from betty.role import RoleManufacturer
 
 if TYPE_CHECKING:
     from asyncio.subprocess import Process

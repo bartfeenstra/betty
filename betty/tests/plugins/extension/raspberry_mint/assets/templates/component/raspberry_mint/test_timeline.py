@@ -4,8 +4,8 @@ from betty.ancestry.presence import Presence
 from betty.date import Date
 from betty.document import Document, EntityContexts
 from betty.plugins.extension.raspberry_mint import RaspberryMint
+from betty.plugins.role import Attendee, Subject
 from betty.privacy import Privacy
-from betty.role.roles import Attendee, Subject
 from betty.test_utils.jinja import assert_template_file
 
 

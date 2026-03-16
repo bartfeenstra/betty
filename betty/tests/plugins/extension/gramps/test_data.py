@@ -8,8 +8,8 @@ from betty.plugins.extension.gramps.data import (
     GrampsConfiguration,
 )
 from betty.plugins.place_type import Borough
+from betty.plugins.role import Attendee
 from betty.role import RoleManufacturer
-from betty.role.roles import Attendee
 from betty.test_utils.data import DataTestBase
 
 

@@ -8,8 +8,8 @@ from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugins.event_type import Birth, Death
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.plugins.gender import NonBinary
+from betty.plugins.role import Subject
 from betty.privacy import Privacy
-from betty.role.roles import Subject
 from betty.test_utils.jinja import assert_template_file
 
 

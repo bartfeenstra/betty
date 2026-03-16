@@ -31,9 +31,9 @@ from betty.model.association import (
 )
 from betty.plugin.schema import PluginIdSchema
 from betty.plugins.event_type import Unknown as UnknownEventType
+from betty.plugins.role import Subject
 from betty.privacy import HasPrivacy, Privacy
 from betty.property import Optional
-from betty.role.roles import Subject
 
 if TYPE_CHECKING:
     from collections.abc import Mapping

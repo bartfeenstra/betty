@@ -852,6 +852,17 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Unknown": MissingReason.STATIC_CONTENT_ONLY,
         "Village": MissingReason.STATIC_CONTENT_ONLY,
     },
+    "betty/plugins/role.py": {
+        "Attendee": MissingReason.STATIC_CONTENT_ONLY,
+        "Beneficiary": MissingReason.STATIC_CONTENT_ONLY,
+        "Celebrant": MissingReason.STATIC_CONTENT_ONLY,
+        "Informant": MissingReason.STATIC_CONTENT_ONLY,
+        "Organizer": MissingReason.STATIC_CONTENT_ONLY,
+        "Speaker": MissingReason.STATIC_CONTENT_ONLY,
+        "Subject": MissingReason.STATIC_CONTENT_ONLY,
+        "Unknown": MissingReason.STATIC_CONTENT_ONLY,
+        "Witness": MissingReason.STATIC_CONTENT_ONLY,
+    },
     "betty/portable/__init__.py": {
         "Portable": MissingReason.ABSTRACT,
         "Porter": MissingReason.ABSTRACT,
@@ -871,17 +882,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "RoleDefinitionConfiguration": {
             "data": MissingReason.INHERITED,
         },
-    },
-    "betty/role/roles.py": {
-        "Attendee": MissingReason.STATIC_CONTENT_ONLY,
-        "Beneficiary": MissingReason.STATIC_CONTENT_ONLY,
-        "Celebrant": MissingReason.STATIC_CONTENT_ONLY,
-        "Informant": MissingReason.STATIC_CONTENT_ONLY,
-        "Organizer": MissingReason.STATIC_CONTENT_ONLY,
-        "Speaker": MissingReason.STATIC_CONTENT_ONLY,
-        "Subject": MissingReason.STATIC_CONTENT_ONLY,
-        "Unknown": MissingReason.STATIC_CONTENT_ONLY,
-        "Witness": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/privacy/__init__.py": {
         "Privacy": MissingReason.ENUM,
