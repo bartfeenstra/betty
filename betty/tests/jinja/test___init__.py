@@ -26,10 +26,6 @@ class TestJinjaProvider:
         sut = JinjaProvider()
         assert isinstance(sut.filters, dict)
 
-    async def test_tests(self) -> None:
-        sut = JinjaProvider()
-        assert isinstance(sut.tests, dict)
-
 
 class TestEnvironment:
     async def test_context_class(self, isolated_app: App) -> None:

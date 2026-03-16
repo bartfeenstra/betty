@@ -23,4 +23,3 @@ In this section
 ---------------
 - :doc:`/usage/templating/globals`
 - :doc:`/usage/templating/filters`
-- :doc:`/usage/templating/tests`

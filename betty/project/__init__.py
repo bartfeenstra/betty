@@ -31,6 +31,7 @@ from betty.extension import Extension, ExtensionDefinition
 from betty.hashid import hashid
 from betty.html.js import JsResourceDefinition
 from betty.importlib import fully_qualified_name
+from betty.jinja.test import JinjaTestDefinition
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localize import Localizer, LocalizerRepository
 from betty.locale.translation import (
@@ -181,6 +182,7 @@ class Project(
             {
                 AssetDefinition: [AssetManufacturer("project")],
                 ExtensionDefinition: self.configuration.extensions,
+                JinjaTestDefinition: [],
                 JsResourceDefinition: [],
             },
             services=self,

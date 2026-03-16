@@ -86,6 +86,7 @@ betty = 'betty.console:main_standalone'
 'extension' = 'betty.extension:ExtensionDefinition'
 'gender' = 'betty.gender:GenderDefinition'
 'http-rate-limit' = 'betty.http_client.rate_limit:RateLimitDefinition'
+'jinja-test' = 'betty.jinja.test:JinjaTestDefinition'
 'js-resource' = 'betty.html.js:JsResourceDefinition'
 'license' = 'betty.license:LicenseDefinition'
 'place-type' = 'betty.place_type:PlaceTypeDefinition'
@@ -191,6 +192,15 @@ betty = 'betty.console:main_standalone'
 'project-configuration' = 'betty.project:_discover_genders'
 'unknown' = 'betty.plugins.gender.unknown:Unknown'
 'woman' = 'betty.plugins.gender.woman:Woman'
+
+[project.entry-points.'betty.jinja_test']
+'has-file-references' = 'betty.plugins.jinja_test.has_file_references:HasFileReferences'
+'image-media-type-supported' = 'betty.plugins.jinja_test.image_media_type_supported:ImageMediaTypeSupported'
+'linked-data-dumpable' = 'betty.plugins.jinja_test.linked_data_dumpable:LinkedDataDumpable'
+'persistent-entity-id' = 'betty.plugins.jinja_test.persistent_entity_id:PersistentEntityId'
+'public' = 'betty.plugins.jinja_test.public:Public'
+'plugin' = 'betty.plugins.jinja_test.plugin:Plugin.discover'
+
 
 [project.entry-points.'betty.js_resource']
 'webpack-entry-point-loader' = 'betty.plugins.js_resource.webpack_entry_point_loader:WebpackEntryPointLoader'
