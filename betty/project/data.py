@@ -546,7 +546,7 @@ class ProjectConfiguration(Data):
 
     @classmethod
     def _default_license(cls) -> LicenseManufacturer:
-        from betty.license.licenses import AllRightsReserved
+        from betty.plugins.license import AllRightsReserved
 
         return LicenseManufacturer(AllRightsReserved)
 

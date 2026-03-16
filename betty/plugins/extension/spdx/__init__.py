@@ -5,8 +5,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final
 
 from betty.extension import Extension, ExtensionDefinition
-from betty.license.licenses import SpdxLicenseBuilder
 from betty.locale.localizable.gettext import _
+from betty.plugins.license import SpdxLicenseBuilder
 from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:

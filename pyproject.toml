@@ -125,9 +125,9 @@ betty = 'betty.console:main_standalone'
 'wikipedia-contributors' = 'betty.plugins.copyright_notice:WikipediaContributors'
 
 [project.entry-points.'betty.license']
-'all-rights-reserved' = 'betty.license.licenses:AllRightsReserved'
+'all-rights-reserved' = 'betty.plugins.license:AllRightsReserved'
 'project-configuration' = 'betty.project:_discover_licenses'
-'public-domain' = 'betty.license.licenses:PublicDomain'
+'public-domain' = 'betty.plugins.license:PublicDomain'
 'spdx' = 'betty.plugins.extension.spdx:discover_licenses'
 
 [project.entry-points.'betty.entity']
