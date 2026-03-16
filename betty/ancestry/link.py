@@ -114,16 +114,18 @@ class Link(HasMediaType, HasDescription, HasPrivacy, Entity):
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         public_localizers = await project.public_localizers
-        portable = await super().dump_linked_data(project)
+        linked_data = dict(await super().dump_linked_data(project))
         if self.public:
-            portable["url"] = dump_linked_data(self.url, localizers=public_localizers)
+            linked_data["url"] = dump_linked_data(
+                self.url, localizers=public_localizers
+            )
             if self._label is not None:
-                portable["label"] = dump_linked_data(
+                linked_data["label"] = dump_linked_data(
                     self._label, localizers=public_localizers
                 )
             if self.relationship is not None:
-                portable["relationship"] = self.relationship
-        return portable
+                linked_data["relationship"] = self.relationship
+        return linked_data
 
     @override
     @classmethod

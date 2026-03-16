@@ -71,13 +71,13 @@ class Note(HasPrivacy, HasLinks, HasMediaType):
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
-        portable["@type"] = "https://schema.org/Thing"
+        linked_data = dict(await super().dump_linked_data(project))
+        linked_data["@type"] = "https://schema.org/Thing"
         if is_public(self):
-            portable["text"] = dump_linked_data(
+            linked_data["text"] = dump_linked_data(
                 self.text, localizers=await project.public_localizers
             )
-        return portable
+        return linked_data
 
     @override
     @classmethod

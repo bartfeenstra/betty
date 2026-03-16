@@ -148,9 +148,9 @@ class File(
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
+        linked_data = dict(await super().dump_linked_data(project))
         if self.copyright_notice:
-            portable["copyrightNotice"] = self.copyright_notice.plugin().id
+            linked_data["copyrightNotice"] = self.copyright_notice.plugin().id
         if self.license:
-            portable["license"] = self.license.plugin().id
-        return portable
+            linked_data["license"] = self.license.plugin().id
+        return linked_data

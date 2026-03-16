@@ -39,9 +39,12 @@ class DateRangeSchema(Singleton, JsonLdObject):
     """
 
     def __init__(self):
-        super().__init__(def_name="dateRange", title="Date range")
+        super().__init__(
+            def_name="dateRange",
+            title="Date range",
+            schema={"additionalProperties": False},
+        )
         date_schema = DateSchema()
-        self._schema["additionalProperties"] = False
         self.add_property("start", OneOf(date_schema, Null(), title="Start date"))
         self.add_property("end", OneOf(date_schema, Null(), title="End date"))
 

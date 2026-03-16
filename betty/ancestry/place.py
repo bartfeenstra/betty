@@ -144,16 +144,16 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
+        linked_data = dict(await super().dump_linked_data(project))
         dump_context(
-            portable,
+            linked_data,
             names="https://schema.org/name",
             events="https://schema.org/event",
             enclosers="https://schema.org/containedInPlace",
             enclosees="https://schema.org/containsPlace",
         )
-        portable["@type"] = "https://schema.org/Place"
-        portable["names"] = [
+        linked_data["@type"] = "https://schema.org/Place"
+        linked_data["names"] = [
             await name.dump_linked_data(project) for name in self.names
         ]
         if self.coordinates is not None:
@@ -162,11 +162,11 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
                 "latitude": self.coordinates.latitude,
                 "longitude": self.coordinates.longitude,
             }
-            dump_context(portable, coordinates="https://schema.org/geo")
+            dump_context(linked_data, coordinates="https://schema.org/geo")
             dump_context(portable_coordinates, latitude="https://schema.org/latitude")
             dump_context(portable_coordinates, longitude="https://schema.org/longitude")
-            portable["coordinates"] = portable_coordinates
-        return portable
+            linked_data["coordinates"] = portable_coordinates
+        return linked_data
 
     @override
     @classmethod

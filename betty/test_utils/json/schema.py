@@ -2,7 +2,7 @@
 Test utilities for :py:mod:`betty.json.schema`.
 """
 
-from collections.abc import MutableMapping, Sequence
+from collections.abc import Mapping, Sequence
 
 import pytest
 from jsonschema.exceptions import ValidationError
@@ -56,7 +56,7 @@ class SchemaTestBase:
         Tests :py:attr:`betty.json.schema.Schema.schema` implementations.
         """
         sut, _, __ = sut_data
-        assert isinstance(sut.schema, MutableMapping)
+        assert isinstance(sut.schema, Mapping)
         JsonSchemaSchema().validate(sut.schema)
 
     async def test_defs(self, sut_data: SchemaTestBaseSut) -> None:
@@ -64,15 +64,17 @@ class SchemaTestBase:
         Tests :py:attr:`betty.json.schema.Schema.defs` implementations.
         """
         sut, _, __ = sut_data
-        assert isinstance(sut.defs, MutableMapping)
+        assert isinstance(sut.defs, Mapping)
 
     async def test_embed(self, sut_data: SchemaTestBaseSut) -> None:
         """
         Tests :py:meth:`betty.json.schema.Schema.embed` implementations.
         """
         sut, _, __ = sut_data
-        into = Schema()
-        assert isinstance(sut.embed(into), MutableMapping)
+        Schema()
+        embedded_into, embedded_sut = sut.embed({})
+        assert isinstance(embedded_into, Mapping)
+        assert isinstance(embedded_sut, Mapping)
 
     async def test_validate_should_validate(self, sut_data: SchemaTestBaseSut) -> None:
         """

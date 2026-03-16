@@ -105,7 +105,7 @@ class Presence(HasPrivacy, Entity):
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
+        linked_data = dict(await super().dump_linked_data(project))
         if is_public(self):
-            portable["role"] = self.role.plugin().id
-        return portable
+            linked_data["role"] = self.role.plugin().id
+        return linked_data

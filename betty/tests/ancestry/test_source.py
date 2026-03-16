@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Mapping, MutableMapping, Sequence
-from typing import Any, cast, override
+from typing import TYPE_CHECKING, Any, cast, override
 
 import pytest
 
@@ -16,6 +15,9 @@ from betty.model import Entity
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
 
 
 class TestSource(EntityTestBase):
@@ -262,8 +264,7 @@ class TestSource(EntityTestBase):
             "notes": [],
             "containedBy": "/source/the_containing_source/index.json",
         }
-        actual = await assert_dumps_linked_data(source)
-        assert isinstance(actual, MutableMapping)
+        actual = dict(await assert_dumps_linked_data(source))
         actual.pop("links")
         assert actual == expected
 
@@ -307,7 +308,6 @@ class TestSource(EntityTestBase):
             "notes": [],
             "containedBy": "/source/the_containing_source/index.json",
         }
-        actual = await assert_dumps_linked_data(source)
-        assert isinstance(actual, MutableMapping)
+        actual = dict(await assert_dumps_linked_data(source))
         actual.pop("links")
         assert actual == expected

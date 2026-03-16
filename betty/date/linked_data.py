@@ -13,22 +13,22 @@ def dump_linked_data_for_date(
     """
     Dump a date to linked data.
     """
-    portable: PortableMapping = {
+    linked_data = {
         "fuzzy": date.fuzzy,
     }
     if date.year:
-        portable["year"] = date.year
+        linked_data["year"] = date.year
     if date.month:
-        portable["month"] = date.month
+        linked_data["month"] = date.month
     if date.day:
-        portable["day"] = date.day
+        linked_data["day"] = date.day
     if date.comparable:
-        portable["iso8601"] = _dump_date_iso8601(date)
+        linked_data["iso8601"] = _dump_date_iso8601(date)
         # Set a single term definition because JSON-LD does not let us apply multiple
         # for the same term (key).
         if context_definition:
-            dump_context(portable, iso8601=context_definition)
-    return portable
+            dump_context(linked_data, iso8601=context_definition)
+    return linked_data
 
 
 def dump_linked_data_for_date_range(

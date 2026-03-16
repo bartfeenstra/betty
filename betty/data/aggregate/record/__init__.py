@@ -223,7 +223,7 @@ class MappingPorter[DataClsT = Any, ElementT: Element[str] = Element[str]](
         key: ElementT,
         /,
     ) -> tuple[str, PortableData]:  # ty:ignore[invalid-method-override]
-        portable = self.dump(data)
+        portable = dict(self.dump(data))
         portable_key = portable.pop(key.element)
         assert isinstance(portable_key, str)
         return portable_key, portable
