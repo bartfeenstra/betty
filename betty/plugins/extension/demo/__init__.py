@@ -10,13 +10,13 @@ from shutil import rmtree
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.asset import AssetDefinition
-from betty.copyright_notice.copyright_notices import Streetmix
 from betty.extension import Extension, ExtensionDefinition
 from betty.html import NavigationLink, NavigationLinkProvider
 from betty.license import LicenseDefinition
 from betty.license.licenses import spdx_license_id_to_license_id
 from betty.locale.localizable.gettext import _
 from betty.plugins.asset import Demo as DemoAsset
+from betty.plugins.copyright_notice import Streetmix
 from betty.plugins.extension.demo.jobs import LoadAncestry
 from betty.plugins.extension.deriver import Deriver
 from betty.plugins.extension.http_api_doc import HttpApiDoc

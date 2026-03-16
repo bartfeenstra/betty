@@ -20,15 +20,15 @@ from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.app import App
-from betty.copyright_notice.copyright_notices import (
-    PublicDomain as PublicDomainCopyrightNotice,
-)
 from betty.date import Date, DateRange
 from betty.gramps.error import UserFacingGrampsError
 from betty.gramps.loader import GrampsFileNotFound, GrampsLoader, LoaderUsedAlready
 from betty.license.licenses import PublicDomain as PublicDomainLicense
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 from betty.media_type import MediaType
+from betty.plugins.copyright_notice import (
+    PublicDomain as PublicDomainCopyrightNotice,
+)
 from betty.plugins.event_type import Birth, Death
 from betty.plugins.event_type import Unknown as UnknownEventType
 from betty.plugins.gender import NonBinary

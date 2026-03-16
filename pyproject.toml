@@ -118,11 +118,11 @@ betty = 'betty.console:main_standalone'
 'update-translations' = 'betty.console.command.commands.update_translations:UpdateTranslations'
 
 [project.entry-points.'betty.copyright_notice']
-'project-author' = 'betty.copyright_notice.copyright_notices:ProjectAuthor'
+'project-author' = 'betty.plugins.copyright_notice:ProjectAuthor'
 'project-configuration' = 'betty.project:_discover_copyright_notices'
-'public-domain' = 'betty.copyright_notice.copyright_notices:PublicDomain'
-'streetmix' = 'betty.copyright_notice.copyright_notices:Streetmix'
-'wikipedia-contributors' = 'betty.copyright_notice.copyright_notices:WikipediaContributors'
+'public-domain' = 'betty.plugins.copyright_notice:PublicDomain'
+'streetmix' = 'betty.plugins.copyright_notice:Streetmix'
+'wikipedia-contributors' = 'betty.plugins.copyright_notice:WikipediaContributors'
 
 [project.entry-points.'betty.license']
 'all-rights-reserved' = 'betty.license.licenses:AllRightsReserved'
