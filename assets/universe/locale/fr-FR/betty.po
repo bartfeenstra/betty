@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-03-15 21:20+0000\n"
+"POT-Creation-Date: 2026-03-16 18:15+0000\n"
 "PO-Revision-Date: 2026-02-17 18:12+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: fr_FR\n"
@@ -918,6 +918,12 @@ msgid "Invalid region {invalid_region}."
 msgstr ""
 
 msgid "It appears you called Betty without a command or arguments"
+msgstr ""
+
+msgid "JavaScript resource"
+msgstr ""
+
+msgid "JavaScript resources"
 msgstr ""
 
 msgid "Justify content"
@@ -2110,6 +2116,12 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} HTTP client rate limit"
 msgid_plural "{count} HTTP client rate limits"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} JavaScript resource"
+msgid_plural "{count} JavaScript resources"
 msgstr[0] ""
 msgstr[1] ""
 

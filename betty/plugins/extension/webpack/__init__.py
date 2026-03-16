@@ -11,13 +11,15 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.asset import AssetDefinition
 from betty.document import DocumentProvider, DocumentVars
 from betty.extension import Extension, ExtensionDefinition
-from betty.html import CssProvider, JsProvider
+from betty.html import CssProvider
+from betty.html.js import JsResourceDefinition
 from betty.jinja import Filters, JinjaProvider
 from betty.plugins.asset.webpack import Webpack as WebpackAsset
 from betty.plugins.extension.webpack import build
 from betty.plugins.extension.webpack.build import EntryPointProvider
 from betty.plugins.extension.webpack.jinja.filter import FILTERS
 from betty.plugins.extension.webpack.jobs import _GenerateAssets
+from betty.plugins.js_resource.webpack_entry_point_loader import WebpackEntryPointLoader
 from betty.project.generate import Generator
 from betty.service.factory import Manufacturable
 from betty.service.provider import service
@@ -34,13 +36,15 @@ if TYPE_CHECKING:
 @ExtensionDefinition(
     "webpack",
     label="Webpack",
-    requires={AssetDefinition: WebpackAsset},
+    requires={
+        AssetDefinition: WebpackAsset,
+        JsResourceDefinition: WebpackEntryPointLoader,
+    },
 )
 class Webpack(
     Generator,
     Extension,
     CssProvider,
-    JsProvider,
     JinjaProvider,
     DocumentProvider,
     Manufacturable,
@@ -84,10 +88,6 @@ class Webpack(
                 ).is_file()
             ),
         )
-
-    @override
-    async def get_public_js_paths(self) -> Sequence[str]:
-        return ("betty-static:///js/webpack-entry-loader.js",)
 
     @override
     def new_document_vars(self) -> DocumentVars:

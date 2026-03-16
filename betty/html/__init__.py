@@ -31,18 +31,6 @@ class CssProvider(ABC):
         """
 
 
-class JsProvider(ABC):
-    """
-    Provide JavaScript for HTML pages.
-    """
-
-    @abstractmethod
-    async def get_public_js_paths(self) -> Sequence[str]:
-        """
-        The URL-generatable resources of the JS files to include in each HTML page.
-        """
-
-
 @final
 class NavigationLink:
     """

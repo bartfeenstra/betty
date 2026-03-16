@@ -29,6 +29,7 @@ from betty.asset import (
 from betty.document import Document, DocumentProvider
 from betty.extension import Extension, ExtensionDefinition
 from betty.hashid import hashid
+from betty.html.js import JsResourceDefinition
 from betty.importlib import fully_qualified_name
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localize import Localizer, LocalizerRepository
@@ -180,6 +181,7 @@ class Project(
             {
                 AssetDefinition: [AssetManufacturer("project")],
                 ExtensionDefinition: self.configuration.extensions,
+                JsResourceDefinition: [],
             },
             services=self,
         )
