@@ -25,6 +25,7 @@ from betty.test_utils.user import StaticUser
 
 
 class TestDocumentationServer:
+    @pytest.mark.order(0)
     async def test(self, mocker: MockerFixture, tmp_path: Path) -> None:
         mocker.patch("webbrowser.open_new_tab")
         async with DocumentationServer(tmp_path, user=StaticUser()) as server:
