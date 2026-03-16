@@ -65,8 +65,6 @@ from betty.event_type.event_types import (
 )
 from betty.event_type.event_types import Unknown as UnknownEventType
 from betty.gender import GenderDefinition, GenderManufacturer
-from betty.gender.genders import Man, NonBinary, Woman
-from betty.gender.genders import Unknown as UnknownGender
 from betty.gramps.error import GrampsError, UserFacingGrampsError
 from betty.license import LicenseManufacturer
 from betty.locale import from_language_tag
@@ -103,6 +101,8 @@ from betty.place_type.place_types import (
 from betty.place_type.place_types import Unknown as UnknownPlaceType
 from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.error import PluginNotFound
+from betty.plugins.gender import Man, NonBinary, Woman
+from betty.plugins.gender import Unknown as UnknownGender
 from betty.privacy import HasPrivacy
 from betty.role import RoleManufacturer
 from betty.role.roles import (

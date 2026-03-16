@@ -6,8 +6,8 @@ from betty.ancestry.presence import Presence
 from betty.ancestry.source import Source
 from betty.event_type.event_types import Birth, Death
 from betty.extension.raspberry_mint import RaspberryMint
-from betty.gender.genders import NonBinary
 from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.plugins.gender import NonBinary
 from betty.privacy import Privacy
 from betty.role.roles import Subject
 from betty.test_utils.jinja import assert_template_file
