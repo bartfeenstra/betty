@@ -852,6 +852,16 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Unknown": MissingReason.STATIC_CONTENT_ONLY,
         "Village": MissingReason.STATIC_CONTENT_ONLY,
     },
+    "betty/plugins/renderer/html.py": {
+        "Html": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/renderer/plain_text.py": {
+        "PlainText": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
     "betty/plugins/role.py": {
         "Attendee": MissingReason.STATIC_CONTENT_ONLY,
         "Beneficiary": MissingReason.STATIC_CONTENT_ONLY,
@@ -925,19 +935,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "__init_subclass__": MissingReason.INHERITED,
         },
     },
-    "betty/render/__init__.py": {
+    "betty/render.py": {
         "Renderer": MissingReason.ABSTRACT,
         "RendererDefinition": MissingReason.STATIC_CONTENT_ONLY,
-    },
-    "betty/render/html.py": {
-        "Html": {
-            "plugin": MissingReason.INHERITED,
-        },
-    },
-    "betty/render/plain_text.py": {
-        "PlainText": {
-            "plugin": MissingReason.INHERITED,
-        },
     },
     "betty/requirement.py": {
         "HasRequirement": MissingReason.STATIC_CONTENT_ONLY,
