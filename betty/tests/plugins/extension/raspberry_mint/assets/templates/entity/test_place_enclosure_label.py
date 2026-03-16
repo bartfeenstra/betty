@@ -1,5 +1,5 @@
-from betty.ancestry.enclosure import Enclosure
-from betty.ancestry.place import Place
+from betty.plugins.entity.enclosure import Enclosure
+from betty.plugins.entity.place import Place
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja import assert_template_string
 

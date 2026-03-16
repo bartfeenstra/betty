@@ -16,10 +16,10 @@ from betty.model.association import BidirectionalToOne, ToManyAssociates, ToOneA
 from betty.privacy import HasPrivacy, Privacy, merge_privacies
 
 if TYPE_CHECKING:
-    from betty.ancestry.citation import Citation
-    from betty.ancestry.person import Person
     from betty.locale import ResolvableLocale
     from betty.locale.localizable import Localizable
+    from betty.plugins.entity.citation import Citation
+    from betty.plugins.entity.person import Person
     from betty.portable import PortableMapping
     from betty.project import Project
 
@@ -38,7 +38,7 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
     """
 
     person = BidirectionalToOne["PersonName", "Person"](
-        "betty.ancestry.person:Person",
+        "betty.plugins.entity.person:Person",
         "names",
         label=_("Person"),
     )

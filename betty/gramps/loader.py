@@ -23,20 +23,8 @@ from geopy import Point
 from lxml import etree
 
 from betty import subprocess
-from betty.ancestry.citation import Citation
-from betty.ancestry.enclosure import Enclosure
-from betty.ancestry.event import Event
-from betty.ancestry.file import File
-from betty.ancestry.file_reference import FileReference
 from betty.ancestry.has_links import HasLinks
-from betty.ancestry.link import Link
 from betty.ancestry.name import Name
-from betty.ancestry.note import Note
-from betty.ancestry.person import Person
-from betty.ancestry.person_name import PersonName
-from betty.ancestry.place import Place
-from betty.ancestry.presence import Presence
-from betty.ancestry.source import Source
 from betty.copyright_notice import CopyrightNoticeManufacturer
 from betty.date import Date, DateRange, ResolvableDate
 from betty.error import FileNotFound
@@ -55,6 +43,18 @@ from betty.model.association import ToManyResolver, ToOneResolver, resolve
 from betty.place_type import PlaceTypeManufacturer
 from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.error import PluginNotFound
+from betty.plugins.entity.citation import Citation
+from betty.plugins.entity.enclosure import Enclosure
+from betty.plugins.entity.event import Event
+from betty.plugins.entity.file import File
+from betty.plugins.entity.file_reference import FileReference
+from betty.plugins.entity.link import Link
+from betty.plugins.entity.note import Note
+from betty.plugins.entity.person import Person
+from betty.plugins.entity.person_name import PersonName
+from betty.plugins.entity.place import Place
+from betty.plugins.entity.presence import Presence
+from betty.plugins.entity.source import Source
 from betty.plugins.event_type import (
     Adoption,
     Baptism,

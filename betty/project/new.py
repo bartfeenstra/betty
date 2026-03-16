@@ -3,16 +3,16 @@ from __future__ import annotations  # noqa: D100
 from typing import TYPE_CHECKING, Any
 from urllib.parse import urlparse
 
-from betty.ancestry.event import Event
-from betty.ancestry.person import Person
-from betty.ancestry.place import Place
-from betty.ancestry.source import Source
 from betty.assertion import assert_locale, assert_path, assert_str
 from betty.extension import Extension, ExtensionDefinition, ExtensionManufacturer
 from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
 from betty.machine_name import MachineName
+from betty.plugins.entity.event import Event
+from betty.plugins.entity.person import Person
+from betty.plugins.entity.place import Place
+from betty.plugins.entity.source import Source
 from betty.plugins.extension.deriver import Deriver
 from betty.plugins.extension.gramps import Gramps
 from betty.plugins.extension.gramps.data import FamilyTree, GrampsConfiguration

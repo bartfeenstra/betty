@@ -2,12 +2,12 @@ from collections.abc import Set
 
 import pytest
 
-from betty.ancestry.event import Event
-from betty.ancestry.person import Person
-from betty.ancestry.place import Place
 from betty.app import App
 from betty.document import Document
 from betty.model import Entity
+from betty.plugins.entity.event import Event
+from betty.plugins.entity.person import Person
+from betty.plugins.entity.place import Place
 from betty.plugins.extension.trees import Trees
 from betty.plugins.extension.trees.content import Tree
 from betty.project import Project

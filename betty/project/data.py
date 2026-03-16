@@ -9,7 +9,6 @@ from urllib.parse import urlparse
 
 from babel import Locale
 
-from betty.ancestry.person import Person
 from betty.assertion import assert_number
 from betty.collection.keyed.adapter import MutableKeyedCollectionAdapter
 from betty.copyright_notice import (
@@ -50,6 +49,7 @@ from betty.place_type import PlaceTypeDefinition
 from betty.place_type.data import PlaceTypeDefinitionConfiguration
 from betty.plugin import ResolvablePluginId, resolve_plugin_id
 from betty.plugin.data.property import PluginDefinitionConfigurationsProperty
+from betty.plugins.entity.person import Person
 from betty.project import Extension, ExtensionDefinition
 from betty.property import (
     Optional,

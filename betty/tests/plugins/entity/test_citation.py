@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, cast, override
 
-from betty.ancestry.citation import Citation
-from betty.ancestry.event import Event
-from betty.ancestry.source import Source
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.model import Entity
+from betty.plugins.entity.citation import Citation
+from betty.plugins.entity.event import Event
+from betty.plugins.entity.source import Source
 from betty.plugins.event_type import Birth
 from betty.privacy import Privacy
 from betty.test_utils.ancestry.has_citations import DummyHasCitations

@@ -4,13 +4,13 @@ Map content.
 
 from typing import Self, override
 
-from betty.ancestry.event import Event
-from betty.ancestry.person import Person
-from betty.ancestry.place import Place
 from betty.content import ContentDefinition
 from betty.content.contents import Template, TemplateBuild
 from betty.document import Document
 from betty.locale.localizable.gettext import _
+from betty.plugins.entity.event import Event
+from betty.plugins.entity.person import Person
+from betty.plugins.entity.place import Place
 from betty.project import Project
 from betty.service.factory import Manufacturable
 from betty.service.requirement.project import require_project

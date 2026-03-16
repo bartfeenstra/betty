@@ -1,6 +1,6 @@
-from betty.ancestry.person import Person
-from betty.ancestry.person_name import PersonName
 from betty.document import Document, EntityContexts
+from betty.plugins.entity.person import Person
+from betty.plugins.entity.person_name import PersonName
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.privacy import Privacy
 from betty.test_utils.jinja import assert_template_file

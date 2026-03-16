@@ -11,7 +11,7 @@ from betty.model import Entity
 from betty.model.association import BidirectionalToManySingleType, ToManyAssociates
 
 if TYPE_CHECKING:
-    from betty.ancestry.citation import Citation
+    from betty.plugins.entity.citation import Citation
 
 
 class HasCitations(Entity):
@@ -20,7 +20,7 @@ class HasCitations(Entity):
     """
 
     citations = BidirectionalToManySingleType["HasCitations", "Citation"](
-        "betty.ancestry.citation:Citation",
+        "betty.plugins.entity.citation:Citation",
         "facts",
         label=_("Citations"),
         description=_("The citations backing up the claims made by this entity"),

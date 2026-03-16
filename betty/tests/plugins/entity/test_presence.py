@@ -4,9 +4,9 @@ from typing import TYPE_CHECKING, override
 
 import pytest
 
-from betty.ancestry.event import Event
-from betty.ancestry.person import Person
-from betty.ancestry.presence import Presence
+from betty.plugins.entity.event import Event
+from betty.plugins.entity.person import Person
+from betty.plugins.entity.presence import Presence
 from betty.plugins.event_type import Unknown as UnknownEventType
 from betty.plugins.role import Subject
 from betty.plugins.role import Unknown as UnknownRole

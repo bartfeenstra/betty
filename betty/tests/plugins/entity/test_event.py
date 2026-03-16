@@ -2,18 +2,18 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, cast, override
 
-from betty.ancestry.citation import Citation
-from betty.ancestry.event import Event
 from betty.ancestry.name import Name
-from betty.ancestry.person import Person
-from betty.ancestry.place import Place
-from betty.ancestry.presence import Presence
-from betty.ancestry.source import Source
 from betty.date import Date, DateRange
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.model import Entity
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
+from betty.plugins.entity.citation import Citation
+from betty.plugins.entity.event import Event
+from betty.plugins.entity.person import Person
+from betty.plugins.entity.place import Place
+from betty.plugins.entity.presence import Presence
+from betty.plugins.entity.source import Source
 from betty.plugins.event_type import Birth
 from betty.plugins.event_type import Unknown as UnknownEventType
 from betty.plugins.role import Subject

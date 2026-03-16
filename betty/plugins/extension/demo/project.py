@@ -6,10 +6,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.ancestry.event import Event
-from betty.ancestry.person import Person
-from betty.ancestry.place import Place
-from betty.ancestry.source import Source
 from betty.content import ContentManufacturer
 from betty.content.contents import Render, RenderConfiguration
 from betty.extension import ExtensionManufacturer
@@ -20,6 +16,10 @@ from betty.locale.localizable.markup import Chain
 from betty.locale.localize import LocalizerRepository
 from betty.media_type.media_types import HTML
 from betty.model.reference import EntityReference
+from betty.plugins.entity.event import Event
+from betty.plugins.entity.person import Person
+from betty.plugins.entity.place import Place
+from betty.plugins.entity.source import Source
 from betty.plugins.extension.demo.content import _IncompleteTranslationWarning
 from betty.plugins.extension.raspberry_mint import Breakpoint, RaspberryMint
 from betty.plugins.extension.raspberry_mint.content import (

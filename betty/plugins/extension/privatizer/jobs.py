@@ -7,9 +7,9 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import TYPE_CHECKING, override
 
-from betty.ancestry.person import Person
 from betty.job import Job
 from betty.locale.localizable.gettext import _, ngettext
+from betty.plugins.entity.person import Person
 from betty.privacy import HasPrivacy
 
 if TYPE_CHECKING:

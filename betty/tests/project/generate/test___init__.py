@@ -2,8 +2,8 @@ from pathlib import Path
 
 import aiofiles
 
-from betty.ancestry.person import Person
 from betty.app import App
+from betty.plugins.entity.person import Person
 from betty.project import Project
 from betty.project.data import ProjectLocale
 from betty.project.generate import generate

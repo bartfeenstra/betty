@@ -2,10 +2,10 @@ from pathlib import Path
 
 from PIL import Image
 
-from betty.ancestry.file import File
-from betty.ancestry.file_reference import FileReference
 from betty.media_type import MediaType
 from betty.model.association import TemporaryToOneResolver
+from betty.plugins.entity.file import File
+from betty.plugins.entity.file_reference import FileReference
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.privacy import Privacy
 from betty.test_utils.jinja import assert_template_file

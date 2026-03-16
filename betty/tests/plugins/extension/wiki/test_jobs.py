@@ -1,8 +1,8 @@
 from pytest_mock import MockerFixture
 
-from betty.ancestry.link import Link
 from betty.app import App
 from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.plugins.entity.link import Link
 from betty.plugins.extension.wiki import Wiki
 from betty.plugins.extension.wiki.jobs import PopulateEntity
 from betty.project import Project

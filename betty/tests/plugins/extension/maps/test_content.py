@@ -4,13 +4,13 @@ from typing import cast
 import pytest
 from geopy import Point
 
-from betty.ancestry.event import Event
-from betty.ancestry.person import Person
-from betty.ancestry.place import Place
-from betty.ancestry.presence import Presence
 from betty.app import App
 from betty.document import Document
 from betty.model import Entity
+from betty.plugins.entity.event import Event
+from betty.plugins.entity.person import Person
+from betty.plugins.entity.place import Place
+from betty.plugins.entity.presence import Presence
 from betty.plugins.extension.maps import Maps
 from betty.plugins.extension.maps.content import Attribution, Map
 from betty.plugins.role import Subject

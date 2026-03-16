@@ -7,7 +7,6 @@ import aiofiles
 import pytest
 from aiofiles.os import makedirs
 
-from betty.ancestry.note import Note
 from betty.app import App
 from betty.content import (
     ContentDefinition,
@@ -27,6 +26,7 @@ from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
 from betty.locale.localizable import ResolvableLocalizable
 from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localize import Localizer
+from betty.plugins.entity.note import Note
 from betty.plugins.renderer.plain_text import PlainText
 from betty.project import Project
 from betty.render import RenderDispatcher

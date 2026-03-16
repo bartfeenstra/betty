@@ -11,9 +11,9 @@ from typing import TYPE_CHECKING, override
 import aiofiles
 from aiofiles.os import makedirs
 
-from betty.ancestry.person import Person
 from betty.job import Job
 from betty.media_type.media_types import HTML
+from betty.plugins.entity.person import Person
 
 if TYPE_CHECKING:
     from babel import Locale

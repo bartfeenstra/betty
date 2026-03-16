@@ -5,14 +5,14 @@ from typing import TYPE_CHECKING, Any, cast, override
 import pytest
 from geopy import Point
 
-from betty.ancestry.enclosure import Enclosure
-from betty.ancestry.event import Event
-from betty.ancestry.link import Link
 from betty.ancestry.name import Name
-from betty.ancestry.place import Place
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, to_language_tag
 from betty.model import Entity
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
+from betty.plugins.entity.enclosure import Enclosure
+from betty.plugins.entity.event import Event
+from betty.plugins.entity.link import Link
+from betty.plugins.entity.place import Place
 from betty.plugins.event_type import Birth
 from betty.plugins.place_type import Hamlet
 from betty.plugins.place_type import Unknown as UnknownPlaceType

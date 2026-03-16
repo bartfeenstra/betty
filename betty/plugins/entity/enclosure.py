@@ -13,7 +13,7 @@ from betty.model import Entity, EntityDefinition
 from betty.model.association import BidirectionalToOne, ToOneAssociate
 
 if TYPE_CHECKING:
-    from betty.ancestry.place import Place
+    from betty.plugins.entity.place import Place
 
 
 @final
@@ -30,7 +30,7 @@ class Enclosure(HasDate, HasCitations, Entity):
     """
 
     encloser = BidirectionalToOne["Enclosure", "Place"](
-        "betty.ancestry.place:Place",
+        "betty.plugins.entity.place:Place",
         "enclosees",
         label=_("Encloser"),
         description=_("The place that encloses or contains the enclosee"),
@@ -40,7 +40,7 @@ class Enclosure(HasDate, HasCitations, Entity):
     """
 
     enclosee = BidirectionalToOne["Enclosure", "Place"](
-        "betty.ancestry.place:Place",
+        "betty.plugins.entity.place:Place",
         "enclosers",
         label=_("Enclosee"),
         description=_("The place that is enclosed or contained by the encloser"),

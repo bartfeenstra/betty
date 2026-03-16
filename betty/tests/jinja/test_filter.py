@@ -11,8 +11,6 @@ from babel import Locale
 from PIL import Image
 from puremagic import from_file
 
-from betty.ancestry.file import File
-from betty.ancestry.file_reference import FileReference
 from betty.content import ContentManufacturer
 from betty.content.contents import Render, RenderConfiguration
 from betty.date import Date, DateRange, ResolvableDate
@@ -24,6 +22,8 @@ from betty.locale.localizable.plain import Plain
 from betty.locale.localize import Localizer
 from betty.media_type import MediaType
 from betty.media_type.media_types import SVG
+from betty.plugins.entity.file import File
+from betty.plugins.entity.file_reference import FileReference
 from betty.test_utils.ancestry.date import DummyHasDate
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 from betty.test_utils.jinja import assert_template_string

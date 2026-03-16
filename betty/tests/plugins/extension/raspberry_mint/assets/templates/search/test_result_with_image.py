@@ -2,12 +2,12 @@ from pathlib import Path
 
 from PIL import Image
 
-from betty.ancestry.file import File
-from betty.ancestry.file_reference import FileReference
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.model import EntityDefinition
+from betty.plugins.entity.file import File
+from betty.plugins.entity.file_reference import FileReference
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja import assert_template_file
 from betty.test_utils.locale.localizable import (

@@ -12,13 +12,6 @@ import pytest
 from aiofiles.tempfile import AiofilesContextManagerTempDir
 from babel import Locale
 
-from betty.ancestry.citation import Citation
-from betty.ancestry.event import Event
-from betty.ancestry.file import File
-from betty.ancestry.note import Note
-from betty.ancestry.person import Person
-from betty.ancestry.place import Place
-from betty.ancestry.source import Source
 from betty.app import App
 from betty.date import Date, DateRange
 from betty.gramps.error import UserFacingGrampsError
@@ -28,6 +21,13 @@ from betty.media_type import MediaType
 from betty.plugins.copyright_notice import (
     PublicDomain as PublicDomainCopyrightNotice,
 )
+from betty.plugins.entity.citation import Citation
+from betty.plugins.entity.event import Event
+from betty.plugins.entity.file import File
+from betty.plugins.entity.note import Note
+from betty.plugins.entity.person import Person
+from betty.plugins.entity.place import Place
+from betty.plugins.entity.source import Source
 from betty.plugins.event_type import Birth, Death
 from betty.plugins.event_type import Unknown as UnknownEventType
 from betty.plugins.gender import NonBinary

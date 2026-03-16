@@ -8,14 +8,14 @@ from babel import Locale
 from geopy import Point
 
 from betty.ancestry import Ancestry
-from betty.ancestry.link import Link
-from betty.ancestry.place import Place
-from betty.ancestry.source import Source
 from betty.locale.localize import LocalizerRepository
 from betty.locale.translation import DEFAULT_TRANSLATION_REPOSITORY
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML
 from betty.plugins.copyright_notice import WikipediaContributors
+from betty.plugins.entity.link import Link
+from betty.plugins.entity.place import Place
+from betty.plugins.entity.source import Source
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.model import DummyEntityOne
 from betty.user.no_op import NoOpUser

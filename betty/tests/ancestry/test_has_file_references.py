@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from betty.ancestry.file import File
-from betty.ancestry.file_reference import FileReference
 from betty.model.association import TemporaryToOneResolver
+from betty.plugins.entity.file import File
+from betty.plugins.entity.file_reference import FileReference
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 
 

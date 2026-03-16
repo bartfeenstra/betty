@@ -2,8 +2,8 @@ import pytest
 from aiohttp import ClientSession
 from aioresponses import aioresponses
 
-from betty.ancestry.link import Link
 from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.plugins.entity.link import Link
 from betty.project.load.jobs import PopulateLink
 from betty.test_utils.job import do
 

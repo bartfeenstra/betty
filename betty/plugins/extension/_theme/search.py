@@ -12,11 +12,11 @@ from typing import TYPE_CHECKING, Generic, TypeVar, final, override
 import aiofiles
 from aiofiles.os import makedirs
 
-from betty.ancestry.file import File
 from betty.ancestry.has_notes import HasNotes
-from betty.ancestry.person import Person
-from betty.ancestry.place import Place
 from betty.model import Entity, EntityDefinition
+from betty.plugins.entity.file import File
+from betty.plugins.entity.person import Person
+from betty.plugins.entity.place import Place
 from betty.privacy import is_private
 
 if TYPE_CHECKING:

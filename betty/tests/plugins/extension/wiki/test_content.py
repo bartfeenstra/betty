@@ -1,8 +1,8 @@
 from pytest_mock import MockerFixture
 
-from betty.ancestry.link import Link
 from betty.app import App
 from betty.document import Document
+from betty.plugins.entity.link import Link
 from betty.plugins.extension.wiki import Wiki
 from betty.plugins.extension.wiki.content import WikipediaSummary
 from betty.project import Project
