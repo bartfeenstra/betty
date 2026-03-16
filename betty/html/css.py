@@ -1,5 +1,5 @@
 """
-JavaScript resources for HTML pages.
+CSS resources for HTML pages.
 """
 
 import builtins
@@ -13,26 +13,24 @@ from betty.plugin.ordered import Order, OrderedPluginDefinition
 from betty.service.plugin import Requires, ServicePluginDefinition
 
 
-class JsResource(Plugin["JsResourceDefinition"]):
+class CssResource(Plugin["CssResourceDefinition"]):
     """
-    Expose a JavaScript resource to be included on every HTML page.
+    Expose a CSS resource to be included on every HTML page.
     """
 
 
 @final
 @PluginTypeDefinition(
-    "js-resource",
-    label=_("JavaScript resource"),
-    label_plural=_("JavaScript resources"),
-    label_countable=ngettext(
-        "{count} JavaScript resource", "{count} JavaScript resources"
-    ),
+    "css-resource",
+    label=_("CSS resource"),
+    label_plural=_("CSS resources"),
+    label_countable=ngettext("{count} CSS resource", "{count} CSS resources"),
 )
-class JsResourceDefinition(
-    OrderedPluginDefinition[JsResource], ServicePluginDefinition[JsResource]
+class CssResourceDefinition(
+    OrderedPluginDefinition[CssResource], ServicePluginDefinition[CssResource]
 ):
     """
-    .. plugin_type:: js-resource.
+    .. plugin_type:: css-resource.
     """
 
     def __init__(
@@ -57,18 +55,18 @@ class JsResourceDefinition(
     @property
     def resource(self) -> Any:
         """
-        The URL-generatable resource of a JS file to include on every HTML page.
+        The URL-generatable resource of the CSS file to include on every HTML page.
         """
         return self._resource
 
 
 @final
-class JsResourceManufacturer(PluginManufacturer[JsResourceDefinition, JsResource]):
+class CssResourceManufacturer(PluginManufacturer[CssResourceDefinition, CssResource]):
     """
-    The JavaScript resource manufacturer.
+    The CSS resource manufacturer.
     """
 
     @override
     @classmethod
-    def type(cls) -> builtins.type[JsResourceDefinition]:
-        return JsResourceDefinition
+    def type(cls) -> builtins.type[CssResourceDefinition]:
+        return CssResourceDefinition

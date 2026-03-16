@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2026-03-16 19:27+0000\n"
+"POT-Creation-Date: 2026-03-17 00:17+0000\n"
 "PO-Revision-Date: 2026-02-17 18:12+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: uk\n"
@@ -334,6 +334,12 @@ msgid "Burial"
 msgstr "Поховання"
 
 msgid "Burials"
+msgstr ""
+
+msgid "CSS resource"
+msgstr ""
+
+msgid "CSS resources"
 msgstr ""
 
 msgid "Cannot find an available port to bind the web server to."
@@ -2141,6 +2147,13 @@ msgstr "y року"
 #, python-brace-format
 msgid "{count} "
 msgid_plural "{count} "
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
+msgid "{count} CSS resource"
+msgid_plural "{count} CSS resources"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""

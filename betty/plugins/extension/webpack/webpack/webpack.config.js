@@ -92,11 +92,9 @@ const webpackConfiguration = {
         splitChunks: {
             chunks: "all",
             cacheGroups: {
-                // The resulting CSS files are one per entry point, and a single webpack-vendor.css.
-                // This makes for easy and unconditional importing.
                 vendorCss: {
-                    test: /[\\/]node_modules[\\/].+?\.css$/,
-                    name: "webpack-vendor",
+                    test: /\.s?css$/,
+                    name: "webpack",
                     priority: -10,
                 },
                 vendorJs: {
