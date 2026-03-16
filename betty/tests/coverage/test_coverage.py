@@ -211,7 +211,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/html/__init__.py": {
         "CssProvider": MissingReason.ABSTRACT,
-        "JsProvider": MissingReason.ABSTRACT,
     },
     "betty/html/attributes.py": {
         "Attributes": {
@@ -219,6 +218,13 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             for attr_name, _ in getmembers(Attributes)
             if attr_name.startswith("html_")
         },
+    },
+    "betty/html/js.py": {
+        "JsResource": MissingReason.ABSTRACT,
+        "JsResourceDefinition": {
+            "type": MissingReason.INHERITED,
+        },
+        "JsResourceManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/http_client/rate_limit.py": {
         "RateLimit": MissingReason.ABSTRACT,
@@ -853,6 +859,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/plugins/gender/non_binary.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/gender/unknown.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/gender/woman.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/js_resource/webpack_entry_point_loader.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/license/all_rights_reserved.py": {
         "AllRightsReserved": {
             "plugin": MissingReason.INHERITED,

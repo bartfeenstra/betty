@@ -16,6 +16,7 @@ In addition to Jinja2's built-in tests, Betty provides the following:
 - :py:func:`event_type_plugin <betty.jinja.test.PluginTester.__call__>`
 - :py:func:`extension_plugin <betty.jinja.test.PluginTester.__call__>`
 - :py:func:`gender_plugin <betty.jinja.test.PluginTester.__call__>`
+- :py:func:`js_resource_plugin <betty.jinja.test.PluginTester.__call__>`
 - :py:func:`has_file_references <betty.jinja.test.test_has_file_references>`
 - :py:func:`http_rate_limit_plugin <betty.jinja.test.PluginTester.__call__>`
 - :py:func:`image_supported_media_type <betty.jinja.test.test_image_supported_media_type>`

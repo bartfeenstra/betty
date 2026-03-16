@@ -24,8 +24,9 @@ from jinja2.utils import missing
 from betty import about
 from betty.cache import CacheItem
 from betty.date import Date
-from betty.html import CssProvider, JsProvider, NavigationLinkProvider, generate_html_id
+from betty.html import CssProvider, NavigationLinkProvider, generate_html_id
 from betty.html.attributes import Attributes
+from betty.html.js import JsResourceDefinition
 from betty.jinja.filter import filters
 from betty.jinja.test import tests
 from betty.media_type import UnsupportedMediaType, match_extension
@@ -196,10 +197,10 @@ class Environment(Manufacturable, JinjaEnvironment):
                     for path in await extension.get_public_css_paths()
                 ],
                 "public_js_paths": [
-                    path
-                    for extension in extensions
-                    if isinstance(extension, JsProvider)
-                    for path in await extension.get_public_js_paths()
+                    resource.plugin().resource
+                    for resource in (await project.service_plugins)[
+                        JsResourceDefinition
+                    ]
                 ],
             },
             await filters(),

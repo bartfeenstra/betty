@@ -12,14 +12,6 @@ from betty.project.generate import generate
 class TestWebpack:
     _SENTINEL = "s3nt1n3l"
 
-    async def test_get_public_js_paths(self, isolated_app: App) -> None:
-        async with (
-            Project.new_isolated(isolated_app) as project,
-            project,
-            await Webpack.new(project) as sut,
-        ):
-            assert await sut.get_public_js_paths()
-
     async def test_filters(self, isolated_app: App) -> None:
         async with (
             Project.new_isolated(isolated_app) as project,

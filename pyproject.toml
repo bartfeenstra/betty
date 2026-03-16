@@ -86,6 +86,7 @@ betty = 'betty.console:main_standalone'
 'extension' = 'betty.extension:ExtensionDefinition'
 'gender' = 'betty.gender:GenderDefinition'
 'http-rate-limit' = 'betty.http_client.rate_limit:RateLimitDefinition'
+'js-resource' = 'betty.html.js:JsResourceDefinition'
 'license' = 'betty.license:LicenseDefinition'
 'place-type' = 'betty.place_type:PlaceTypeDefinition'
 'renderer' = 'betty.render:RendererDefinition'
@@ -190,6 +191,9 @@ betty = 'betty.console:main_standalone'
 'project-configuration' = 'betty.project:_discover_genders'
 'unknown' = 'betty.plugins.gender.unknown:Unknown'
 'woman' = 'betty.plugins.gender.woman:Woman'
+
+[project.entry-points.'betty.js_resource']
+'webpack-entry-point-loader' = 'betty.plugins.js_resource.webpack_entry_point_loader:WebpackEntryPointLoader'
 
 [project.entry-points.'betty.place_type']
 'borough' = 'betty.plugins.place_type.borough:Borough'
