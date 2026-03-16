@@ -97,75 +97,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/console/__init__.py": {
         "SystemExitCode": MissingReason.ENUM,
     },
-    "betty/console/command/__init__.py": {
+    "betty/console/command.py": {
         "Command": MissingReason.SHOULD_BE_COVERED,
         "CommandDefinition": MissingReason.STATIC_CONTENT_ONLY,
-    },
-    "betty/console/command/commands/about.py": {
-        "About": {
-            "plugin": MissingReason.INHERITED,
-        }
-    },
-    "betty/console/command/commands/clear_caches.py": {
-        "ClearCaches": {
-            "plugin": MissingReason.INHERITED,
-        }
-    },
-    "betty/console/command/commands/config.py": {
-        "Config": {
-            "plugin": MissingReason.INHERITED,
-        }
-    },
-    "betty/console/command/commands/demo.py": {
-        "Demo": {
-            "plugin": MissingReason.INHERITED,
-        }
-    },
-    "betty/console/command/commands/dev_profile_demo.py": MissingReason.DEVELOPMENT,
-    "betty/console/command/commands/dev_update_translations.py": {
-        "DevUpdateTranslations": {
-            "plugin": MissingReason.INHERITED,
-        }
-    },
-    "betty/console/command/commands/docs.py": {
-        "Docs": {
-            "plugin": MissingReason.INHERITED,
-        }
-    },
-    "betty/console/command/commands/asset_new_translation.py": {
-        "AssetNewTranslation": {
-            "plugin": MissingReason.INHERITED,
-        }
-    },
-    "betty/console/command/commands/asset_update_translations.py": {
-        "AssetUpdateTranslations": {
-            "plugin": MissingReason.INHERITED,
-        }
-    },
-    "betty/console/command/commands/generate.py": {
-        "Generate": {
-            "plugin": MissingReason.INHERITED,
-        }
-    },
-    "betty/console/command/commands/new.py": {
-        "New": {
-            "plugin": MissingReason.INHERITED,
-        }
-    },
-    "betty/console/command/commands/new_translation.py": {
-        "NewTranslation": {
-            "plugin": MissingReason.INHERITED,
-        }
-    },
-    "betty/console/command/commands/serve.py": {
-        "Serve": {
-            "plugin": MissingReason.INHERITED,
-        }
-    },
-    "betty/console/command/commands/update_translations.py": {
-        "UpdateTranslations": {
-            "plugin": MissingReason.INHERITED,
-        }
     },
     "betty/console/project.py": {
         "ConfigurationFileNotFound": MissingReason.STATIC_CONTENT_ONLY,
@@ -611,6 +545,72 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Universe": MissingReason.STATIC_CONTENT_ONLY,
         "Webpack": MissingReason.STATIC_CONTENT_ONLY,
         "Wiki": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/plugins/command/about.py": {
+        "About": {
+            "plugin": MissingReason.INHERITED,
+        }
+    },
+    "betty/plugins/command/clear_caches.py": {
+        "ClearCaches": {
+            "plugin": MissingReason.INHERITED,
+        }
+    },
+    "betty/plugins/command/config.py": {
+        "Config": {
+            "plugin": MissingReason.INHERITED,
+        }
+    },
+    "betty/plugins/command/demo.py": {
+        "Demo": {
+            "plugin": MissingReason.INHERITED,
+        }
+    },
+    "betty/plugins/command/dev_profile_demo.py": MissingReason.DEVELOPMENT,
+    "betty/plugins/command/dev_update_translations.py": {
+        "DevUpdateTranslations": {
+            "plugin": MissingReason.INHERITED,
+        }
+    },
+    "betty/plugins/command/docs.py": {
+        "Docs": {
+            "plugin": MissingReason.INHERITED,
+        }
+    },
+    "betty/plugins/command/asset_new_translation.py": {
+        "AssetNewTranslation": {
+            "plugin": MissingReason.INHERITED,
+        }
+    },
+    "betty/plugins/command/asset_update_translations.py": {
+        "AssetUpdateTranslations": {
+            "plugin": MissingReason.INHERITED,
+        }
+    },
+    "betty/plugins/command/generate.py": {
+        "Generate": {
+            "plugin": MissingReason.INHERITED,
+        }
+    },
+    "betty/plugins/command/new.py": {
+        "New": {
+            "plugin": MissingReason.INHERITED,
+        }
+    },
+    "betty/plugins/command/new_translation.py": {
+        "NewTranslation": {
+            "plugin": MissingReason.INHERITED,
+        }
+    },
+    "betty/plugins/command/serve.py": {
+        "Serve": {
+            "plugin": MissingReason.INHERITED,
+        }
+    },
+    "betty/plugins/command/update_translations.py": {
+        "UpdateTranslations": {
+            "plugin": MissingReason.INHERITED,
+        }
     },
     "betty/plugins/copyright_notice.py": {
         "ProjectAuthor": {

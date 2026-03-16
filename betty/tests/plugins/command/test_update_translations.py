@@ -8,7 +8,7 @@ from pytest_mock import MockerFixture
 from betty.app import App
 from betty.asset import Asset, AssetDefinition
 from betty.console import CommandDefinition, SystemExitCode
-from betty.console.command.commands.update_translations import (
+from betty.plugins.command.update_translations import (
     UpdateTranslations,
 )
 from betty.test_utils.console import run
