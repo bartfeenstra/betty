@@ -13,9 +13,9 @@ from betty.ancestry.event import Event
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.date import Date, ResolvableDate
-from betty.event_type.event_types import Birth, Death
 from betty.functools import unique
 from betty.model import persistent_id
+from betty.plugins.event_type import Birth, Death
 from betty.privacy import is_public
 from betty.role.roles import Subject
 

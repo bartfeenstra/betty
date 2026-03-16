@@ -7,7 +7,7 @@ import pytest
 from betty.ancestry.event import Event
 from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
-from betty.event_type.event_types import Unknown as UnknownEventType
+from betty.plugins.event_type import Unknown as UnknownEventType
 from betty.privacy import Privacy
 from betty.role.roles import Subject
 from betty.role.roles import Unknown as UnknownRole

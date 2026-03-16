@@ -15,13 +15,13 @@ from betty.ancestry.place import Place
 from betty.ancestry.presence import Presence
 from betty.ancestry.source import Source
 from betty.date import Date, DateRange, ResolvableDate
-from betty.event_type.event_types import Birth, Death
-from betty.event_type.event_types import Unknown as UnknownEventType
 from betty.extension._theme import (
     associated_file_references,
     person_timeline_events,
 )
 from betty.model import persistent_id
+from betty.plugins.event_type import Birth, Death
+from betty.plugins.event_type import Unknown as UnknownEventType
 from betty.privacy import Privacy
 from betty.project.data import DEFAULT_LIFETIME_THRESHOLD
 from betty.role.roles import Subject

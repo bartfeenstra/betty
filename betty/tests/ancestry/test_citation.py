@@ -5,10 +5,10 @@ from typing import TYPE_CHECKING, Any, cast, override
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.source import Source
-from betty.event_type.event_types import Birth
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.model import Entity
+from betty.plugins.event_type import Birth
 from betty.privacy import Privacy
 from betty.test_utils.ancestry.has_citations import DummyHasCitations
 from betty.test_utils.json.linked_data import assert_dumps_linked_data

@@ -17,9 +17,9 @@ from betty.ancestry.place import Place
 from betty.ancestry.presence import Presence
 from betty.ancestry.source import Source
 from betty.date import Date, DateRange
-from betty.event_type.event_types import Death
 from betty.locale.localizable.gettext import _
 from betty.model import Entity
+from betty.plugins.event_type import Death
 from betty.privacy import HasPrivacy, Privacy
 from betty.role.roles import Subject
 

@@ -11,12 +11,12 @@ from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.app import App
 from betty.event_type import EventTypeManufacturer
-from betty.event_type.event_types import Birth
 from betty.extension import ExtensionManufacturer
 from betty.extension.gramps import Gramps
 from betty.extension.gramps.data import FamilyTree, GrampsConfiguration
 from betty.place_type import PlaceTypeManufacturer
 from betty.place_type.place_types import City
+from betty.plugins.event_type import Birth
 from betty.project import Project
 from betty.project.load import load
 from betty.role import RoleManufacturer

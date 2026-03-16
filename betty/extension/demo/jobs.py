@@ -22,7 +22,6 @@ from betty.ancestry.presence import Presence
 from betty.ancestry.source import Source
 from betty.date import Date, DateRange
 from betty.dirs import ASSETS_DIRECTORY_PATH
-from betty.event_type.event_types import Birth, Death, Marriage
 from betty.job import Job
 from betty.locale.localizable.gettext import _
 from betty.media_type.media_types import SVG
@@ -32,6 +31,7 @@ from betty.place_type.place_types import (
     Province,
     Village,
 )
+from betty.plugins.event_type import Birth, Death, Marriage
 from betty.plugins.gender import Man, Woman
 from betty.role.roles import Subject
 

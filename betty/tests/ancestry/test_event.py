@@ -10,12 +10,12 @@ from betty.ancestry.place import Place
 from betty.ancestry.presence import Presence
 from betty.ancestry.source import Source
 from betty.date import Date, DateRange
-from betty.event_type.event_types import Birth
-from betty.event_type.event_types import Unknown as UnknownEventType
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.model import Entity
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
+from betty.plugins.event_type import Birth
+from betty.plugins.event_type import Unknown as UnknownEventType
 from betty.privacy import Privacy
 from betty.role.roles import Subject
 from betty.test_utils.json.linked_data import assert_dumps_linked_data

@@ -6,9 +6,9 @@ from betty.ancestry.event import Event
 from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
 from betty.date import Date, DateRange
-from betty.event_type.event_types import Birth, Death, Residence
 from betty.extension.deriver import Deriver
 from betty.model.collections import record_added
+from betty.plugins.event_type import Birth, Death, Residence
 from betty.project import Project
 from betty.project.load import load
 from betty.role.roles import Subject

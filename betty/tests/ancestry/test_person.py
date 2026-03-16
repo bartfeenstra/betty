@@ -11,10 +11,10 @@ from betty.ancestry.person import Person
 from betty.ancestry.person_name import PersonName
 from betty.ancestry.presence import Presence
 from betty.ancestry.source import Source
-from betty.event_type.event_types import Birth
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, to_language_tag
 from betty.model import Entity
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
+from betty.plugins.event_type import Birth
 from betty.plugins.gender import NonBinary
 from betty.plugins.gender import Unknown as UnknownGender
 from betty.privacy import Privacy
