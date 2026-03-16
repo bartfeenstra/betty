@@ -6,14 +6,14 @@ from aioresponses import aioresponses
 
 from betty.app import App
 from betty.copyright_notice import CopyrightNotice
-from betty.copyright_notice.copyright_notices import (
+from betty.locale.localizable.static import StaticTranslations
+from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.plugins.copyright_notice import (
     ProjectAuthor,
     PublicDomain,
     Streetmix,
     WikipediaContributors,
 )
-from betty.locale.localizable.static import StaticTranslations
-from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.test_utils.copyright_notice import CopyrightNoticeTestBase
 
 

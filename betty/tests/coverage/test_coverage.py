@@ -542,20 +542,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "data": MissingReason.INHERITED,
         },
     },
-    "betty/copyright_notice/copyright_notices.py": {
-        "ProjectAuthor": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "PublicDomain": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "Streetmix": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "WikipediaContributors": {
-            "plugin": MissingReason.INHERITED,
-        },
-    },
     "betty/event_type/__init__.py": {
         "EventType": MissingReason.STATIC_CONTENT_ONLY,
         "EventTypeDefinition": {
@@ -641,6 +627,20 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Universe": MissingReason.STATIC_CONTENT_ONLY,
         "Webpack": MissingReason.STATIC_CONTENT_ONLY,
         "Wiki": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/plugins/copyright_notice.py": {
+        "ProjectAuthor": {
+            "plugin": MissingReason.INHERITED,
+        },
+        "PublicDomain": {
+            "plugin": MissingReason.INHERITED,
+        },
+        "Streetmix": {
+            "plugin": MissingReason.INHERITED,
+        },
+        "WikipediaContributors": {
+            "plugin": MissingReason.INHERITED,
+        },
     },
     "betty/plugins/event_type.py": {
         "Adoption": MissingReason.STATIC_CONTENT_ONLY,
