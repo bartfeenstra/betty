@@ -10,7 +10,7 @@ from betty.app import App
 from betty.asset import Asset, AssetDefinition
 from betty.console import SystemExitCode
 from betty.console.command import CommandDefinition
-from betty.console.command.commands.new_translation import (
+from betty.plugins.command.new_translation import (
     NewTranslation,
 )
 from betty.test_utils.console import run
