@@ -234,8 +234,8 @@ betty = 'betty.console:main_standalone'
 'wikipedia-rest-api' = 'betty.http_client.rate_limits:WikipediaRestApi'
 
 [project.entry-points.'betty.serializer']
-'json' = 'betty.serde.serializers:Json'
-'yaml' = 'betty.serde.serializers:Yaml'
+'json' = 'betty.plugins.serializer:Json'
+'yaml' = 'betty.plugins.serializer:Yaml'
 
 [project.entry-points.'betty.renderer']
 'html' = 'betty.plugins.renderer.html:Html'

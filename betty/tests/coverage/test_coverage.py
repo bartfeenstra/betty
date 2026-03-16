@@ -873,6 +873,14 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Unknown": MissingReason.STATIC_CONTENT_ONLY,
         "Witness": MissingReason.STATIC_CONTENT_ONLY,
     },
+    "betty/plugins/serializer.py": {
+        "Json": {
+            "plugin": MissingReason.INHERITED,
+        },
+        "Yaml": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
     "betty/portable/__init__.py": {
         "Portable": MissingReason.ABSTRACT,
         "Porter": MissingReason.ABSTRACT,
@@ -961,18 +969,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "SampleNotFound": MissingReason.STATIC_CONTENT_ONLY,
         "Size": MissingReason.ENUM,
     },
-    "betty/serde/__init__.py": {
+    "betty/serde.py": {
         "Serializer": MissingReason.ABSTRACT,
         "SerializerDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "SerializationError": MissingReason.STATIC_CONTENT_ONLY,
-    },
-    "betty/serde/serializers.py": {
-        "Json": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "Yaml": {
-            "plugin": MissingReason.INHERITED,
-        },
     },
     "betty/serve.py": {
         "ProjectServer": MissingReason.SHOULD_BE_COVERED,

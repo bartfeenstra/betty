@@ -2,8 +2,8 @@ from typing import TYPE_CHECKING, override
 
 import pytest
 
+from betty.plugins.serializer import Json, Yaml
 from betty.serde import SerializationError, Serializer
-from betty.serde.serializers import Json, Yaml
 from betty.test_utils.serde import SerializerTestBase
 
 if TYPE_CHECKING:
