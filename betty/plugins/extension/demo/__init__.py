@@ -13,7 +13,6 @@ from betty.asset import AssetDefinition
 from betty.extension import Extension, ExtensionDefinition
 from betty.html import NavigationLink, NavigationLinkProvider
 from betty.license import LicenseDefinition
-from betty.license.licenses import spdx_license_id_to_license_id
 from betty.locale.localizable.gettext import _
 from betty.plugins.asset import Demo as DemoAsset
 from betty.plugins.copyright_notice import Streetmix
@@ -25,6 +24,7 @@ from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.plugins.extension.spdx import Spdx
 from betty.plugins.extension.trees import Trees
 from betty.plugins.extension.wiki import Wiki
+from betty.plugins.license import spdx_license_id_to_license_id
 from betty.project import Project, generate
 from betty.project.load import Loader, load
 from betty.service.factory import Manufacturable

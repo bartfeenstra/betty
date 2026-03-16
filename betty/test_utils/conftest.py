@@ -31,8 +31,8 @@ from aioresponses import aioresponses
 from betty.app import App
 from betty.cache.file import BinaryFileCache
 from betty.exception import do_raise
-from betty.license.licenses import SpdxLicenseBuilder
 from betty.multiprocessing import ProcessPoolExecutor
+from betty.plugins.license import SpdxLicenseBuilder
 from betty.user import Verbosity
 
 if TYPE_CHECKING:

@@ -557,14 +557,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "data": MissingReason.INHERITED,
         },
     },
-    "betty/license/licenses.py": {
-        "AllRightsReserved": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "PublicDomain": {
-            "plugin": MissingReason.INHERITED,
-        },
-    },
     "betty/gender/__init__.py": {
         "Gender": MissingReason.STATIC_CONTENT_ONLY,
         "GenderDefinition": MissingReason.STATIC_CONTENT_ONLY,
@@ -819,6 +811,14 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "NonBinary": MissingReason.STATIC_CONTENT_ONLY,
         "Unknown": MissingReason.STATIC_CONTENT_ONLY,
         "Woman": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/plugins/license.py": {
+        "AllRightsReserved": {
+            "plugin": MissingReason.INHERITED,
+        },
+        "PublicDomain": {
+            "plugin": MissingReason.INHERITED,
+        },
     },
     "betty/plugins/place_type.py": {
         "Borough": MissingReason.STATIC_CONTENT_ONLY,
