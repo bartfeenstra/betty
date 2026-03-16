@@ -29,12 +29,12 @@ from betty.gramps.loader import GrampsFileNotFound, GrampsLoader, LoaderUsedAlre
 from betty.license.licenses import PublicDomain as PublicDomainLicense
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 from betty.media_type import MediaType
-from betty.place_type.place_types import City
-from betty.place_type.place_types import Unknown as UnknownPlaceType
 from betty.plugins.event_type import Birth, Death
 from betty.plugins.event_type import Unknown as UnknownEventType
 from betty.plugins.gender import NonBinary
 from betty.plugins.gender import Unknown as UnknownGender
+from betty.plugins.place_type import City
+from betty.plugins.place_type import Unknown as UnknownPlaceType
 from betty.privacy import Privacy
 from betty.project import Project
 from betty.role.roles import Subject

@@ -13,9 +13,9 @@ from betty.ancestry.place import Place
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, to_language_tag
 from betty.model import Entity
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
-from betty.place_type.place_types import Hamlet
-from betty.place_type.place_types import Unknown as UnknownPlaceType
 from betty.plugins.event_type import Birth
+from betty.plugins.place_type import Hamlet
+from betty.plugins.place_type import Unknown as UnknownPlaceType
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
 

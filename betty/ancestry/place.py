@@ -16,7 +16,7 @@ from betty.json.schema import Array, Number, Object
 from betty.locale.localizable.gettext import _, ngettext
 from betty.model import EntityDefinition
 from betty.model.association import BidirectionalToManySingleType, ToManyAssociates
-from betty.place_type.place_types import Unknown as UnknownPlaceType
+from betty.plugins.place_type import Unknown as UnknownPlaceType
 from betty.privacy import HasPrivacy
 
 if TYPE_CHECKING:

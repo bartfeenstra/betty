@@ -13,10 +13,10 @@ from betty.app import App
 from betty.event_type import EventTypeManufacturer
 from betty.extension import ExtensionManufacturer
 from betty.place_type import PlaceTypeManufacturer
-from betty.place_type.place_types import City
 from betty.plugins.event_type import Birth
 from betty.plugins.extension.gramps import Gramps
 from betty.plugins.extension.gramps.data import FamilyTree, GrampsConfiguration
+from betty.plugins.place_type import City
 from betty.project import Project
 from betty.project.load import load
 from betty.role import RoleManufacturer
