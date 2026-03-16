@@ -28,11 +28,12 @@ from betty.html import CssProvider, NavigationLinkProvider, generate_html_id
 from betty.html.attributes import Attributes
 from betty.html.js import JsResourceDefinition
 from betty.jinja.filter import filters
-from betty.jinja.test import tests
+from betty.jinja.test import JinjaTestDefinition
 from betty.media_type import UnsupportedMediaType, match_extension
 from betty.media_type.media_types import JINJA2
 from betty.service.factory import Manufacturable
 from betty.service.requirement.project import require_project
+from betty.string import kebab_case_to_snake_case
 from betty.warnings import deprecate
 
 if TYPE_CHECKING:
@@ -92,7 +93,6 @@ def context_localizer(context: JinjaContext) -> Localizer:
 
 type Globals = Mapping[str, Any]
 type Filters = Mapping[str, Callable[..., Any]]
-type Tests = Mapping[str, Callable[..., bool]]
 
 
 class JinjaProvider:
@@ -115,15 +115,6 @@ class JinjaProvider:
         Jinja2 filters provided by this extension.
 
         Keys are filter names, and values are the filters themselves.
-        """
-        return {}
-
-    @property
-    def tests(self) -> Tests:
-        """
-        Jinja2 tests provided by this extension.
-
-        Keys are test names, and values are the tests themselves.
         """
         return {}
 
@@ -204,7 +195,10 @@ class Environment(Manufacturable, JinjaEnvironment):
                 ],
             },
             await filters(),
-            await tests(),
+            {
+                kebab_case_to_snake_case(test.plugin().id): test
+                for test in (await project.service_plugins)[JinjaTestDefinition]
+            },
         )
 
     @property
@@ -280,7 +274,6 @@ class Environment(Manufacturable, JinjaEnvironment):
             if isinstance(extension, JinjaProvider):
                 self.globals.update(extension.globals)
                 self.filters.update(extension.filters)
-                self.tests.update(extension.tests)
 
     def make_copy_function(
         self,

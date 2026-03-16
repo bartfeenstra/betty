@@ -242,7 +242,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "filters": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/jinja/test.py": {
-        "tests": MissingReason.STATIC_CONTENT_ONLY,
+        "JinjaTest": MissingReason.STATIC_CONTENT_ONLY,
+        "JinjaTestDefinition": MissingReason.STATIC_CONTENT_ONLY,
+        "JinjaTestManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/job/__init__.py": {
         "Job": {
@@ -859,6 +861,31 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/plugins/gender/non_binary.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/gender/unknown.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/gender/woman.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/jinja_test/has_file_references.py": {
+        "HasFileReferences": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/jinja_test/image_media_type_supported.py": {
+        "ImageMediaTypeSupported": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/jinja_test/linked_data_dumpable.py": {
+        "LinkedDataDumpable": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/jinja_test/persistent_entity_id.py": {
+        "PersistentEntityId": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/jinja_test/public.py": {
+        "Public": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
     "betty/plugins/js_resource/webpack_entry_point_loader.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/license/all_rights_reserved.py": {
         "AllRightsReserved": {

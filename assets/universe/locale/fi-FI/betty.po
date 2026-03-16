@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-03-16 18:15+0000\n"
+"POT-Creation-Date: 2026-03-16 19:27+0000\n"
 "PO-Revision-Date: 2026-02-17 18:12+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: fi_FI\n"
@@ -911,6 +911,12 @@ msgid "JavaScript resource"
 msgstr ""
 
 msgid "JavaScript resources"
+msgstr ""
+
+msgid "Jinja test"
+msgstr ""
+
+msgid "Jinja tests"
 msgstr ""
 
 msgid "Justify content"
@@ -2080,6 +2086,12 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} JavaScript resource"
 msgid_plural "{count} JavaScript resources"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} Jinja test"
+msgid_plural "{count} Jinja tests"
 msgstr[0] ""
 msgstr[1] ""
 

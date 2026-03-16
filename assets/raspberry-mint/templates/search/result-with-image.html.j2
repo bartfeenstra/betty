@@ -5,7 +5,7 @@
         {% include 'entity/summary--' + entity.plugin().id + '.html.j2' ignore missing %}
     {% endwith %}
 </div>
-{% set image_reference = entity.file_references | selectattr('file', 'public') | selectattr('file.media_type', 'image_supported_media_type') | first %}
+{% set image_reference = entity.file_references | selectattr('file', 'public') | selectattr('file.media_type', 'image_media_type_supported') | first %}
 {% if image_reference is defined %}
     <div class="search-result-preview">
         <img src="{{ image_reference | image_resize_cover((100, 100)) | url }}" class="image rounded-circle" alt="{{ image_reference.file.label | localize }}" loading="lazy">

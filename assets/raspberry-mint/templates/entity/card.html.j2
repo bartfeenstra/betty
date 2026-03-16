@@ -15,7 +15,7 @@
     </div>
     {% block preview %}
         {% if entity is has_file_references %}
-            {% set image_references = entity | associated_file_references | selectattr('file', 'public') | selectattr('file.media_type', 'image_supported_media_type') | list %}
+            {% set image_references = entity | associated_file_references | selectattr('file', 'public') | selectattr('file.media_type', 'image_media_type_supported') | list %}
             {% if image_references | length > 0 %}
                 {% set image_reference = image_references[0] %}
                 <img src="{{ image_reference | image_resize_cover((500, 500)) | url }}" alt="{{ image_reference.file.label | localize }}" class="card-img-bottom" loading="lazy">

@@ -4,7 +4,7 @@
         <div class="media row row-cols-md-2 row-cols-lg-3 row-cols-xxl-4">
             {% for file_reference in file_references %}
                 <div class="col media-file mt-3 position-relative">
-                    {% if file_reference.file.media_type is image_supported_media_type %}
+                    {% if file_reference.file.media_type is image_media_type_supported %}
                         <figure>
                             <picture>
                                 <source srcset="{{ file_reference | image_resize_cover((900, 900)) | url }}" media="(min-width: 500px)">
