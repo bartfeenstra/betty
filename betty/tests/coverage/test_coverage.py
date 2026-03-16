@@ -626,12 +626,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "data": MissingReason.INHERITED,
         },
     },
-    "betty/gender/genders.py": {
-        "Man": MissingReason.STATIC_CONTENT_ONLY,
-        "NonBinary": MissingReason.STATIC_CONTENT_ONLY,
-        "Unknown": MissingReason.STATIC_CONTENT_ONLY,
-        "Woman": MissingReason.STATIC_CONTENT_ONLY,
-    },
     "betty/npm.py": {
         "is_available": MissingReason.SHOULD_BE_COVERED,
         "npm": MissingReason.SHOULD_BE_COVERED,
@@ -700,6 +694,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Universe": MissingReason.STATIC_CONTENT_ONLY,
         "Webpack": MissingReason.STATIC_CONTENT_ONLY,
         "Wiki": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/plugins/gender.py": {
+        "Man": MissingReason.STATIC_CONTENT_ONLY,
+        "NonBinary": MissingReason.STATIC_CONTENT_ONLY,
+        "Unknown": MissingReason.STATIC_CONTENT_ONLY,
+        "Woman": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/portable/__init__.py": {
         "Portable": MissingReason.ABSTRACT,

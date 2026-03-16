@@ -13,13 +13,13 @@ from betty.ancestry.has_links import HasLinks
 from betty.ancestry.has_notes import HasNotes
 from betty.functools import unique
 from betty.gender import GenderDefinition
-from betty.gender.genders import Unknown as UnknownGender
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable.gettext import _, ngettext
 from betty.model import EntityDefinition, persistent_id
 from betty.model.association import BidirectionalToManySingleType, ToManyAssociates
 from betty.model.schema import ToManySchema
 from betty.plugin.schema import PluginIdSchema
+from betty.plugins.gender import Unknown as UnknownGender
 from betty.privacy import HasPrivacy, Privacy
 
 if TYPE_CHECKING:

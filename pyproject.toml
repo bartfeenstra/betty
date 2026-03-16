@@ -186,11 +186,11 @@ betty = 'betty.console:main_standalone'
 'wiki' = 'betty.extension.wiki:Wiki'
 
 [project.entry-points.'betty.gender']
-'man' = 'betty.gender.genders:Man'
-'non-binary' = 'betty.gender.genders:NonBinary'
+'man' = 'betty.plugins.gender:Man'
+'non-binary' = 'betty.plugins.gender:NonBinary'
 'project-configuration' = 'betty.project:_discover_genders'
-'unknown' = 'betty.gender.genders:Unknown'
-'woman' = 'betty.gender.genders:Woman'
+'unknown' = 'betty.plugins.gender:Unknown'
+'woman' = 'betty.plugins.gender:Woman'
 
 [project.entry-points.'betty.place_type']
 'borough' = 'betty.place_type.place_types:Borough'
