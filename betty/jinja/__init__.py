@@ -5,6 +5,7 @@ Provide rendering utilities using `Jinja2 <https://jinja.palletsprojects.com>`_.
 from __future__ import annotations
 
 import datetime
+from asyncio import gather
 from collections.abc import Awaitable, Callable, Iterable, Mapping, MutableMapping
 from pathlib import Path
 from shutil import copy2
@@ -24,8 +25,9 @@ from jinja2.utils import missing
 from betty import about
 from betty.cache import CacheItem
 from betty.date import Date
-from betty.html import CssProvider, NavigationLinkProvider, generate_html_id
+from betty.html import NavigationLinkProvider, generate_html_id
 from betty.html.attributes import Attributes
+from betty.html.css import CssResourceDefinition
 from betty.html.js import JsResourceDefinition
 from betty.jinja.filter import filters
 from betty.jinja.test import JinjaTestDefinition
@@ -174,30 +176,27 @@ class Environment(Manufacturable, JinjaEnvironment):
     @classmethod
     @require_project
     async def new(cls, project: Project, /) -> Self:
-        extensions = await project.extensions
+        assets, extensions, service_plugins = await gather(
+            project.assets, project.extensions, project.service_plugins
+        )
         return cls(
             project,
             extensions,
-            await project.assets,
+            assets,
             {
-                # Ideally we would use the Dispatcher for this. However, it is asynchronous only.
                 "public_css_paths": [
-                    path
-                    for extension in extensions
-                    if isinstance(extension, CssProvider)
-                    for path in await extension.get_public_css_paths()
+                    resource.plugin().resource
+                    for resource in service_plugins[CssResourceDefinition]
                 ],
                 "public_js_paths": [
                     resource.plugin().resource
-                    for resource in (await project.service_plugins)[
-                        JsResourceDefinition
-                    ]
+                    for resource in service_plugins[JsResourceDefinition]
                 ],
             },
             await filters(),
             {
                 kebab_case_to_snake_case(test.plugin().id): test
-                for test in (await project.service_plugins)[JinjaTestDefinition]
+                for test in service_plugins[JinjaTestDefinition]
             },
         )
 

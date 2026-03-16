@@ -5,7 +5,6 @@ Provide the HTML API, for generating HTML pages.
 from __future__ import annotations
 
 import re
-from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, final
 from uuid import uuid4
 
@@ -17,18 +16,6 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.locale.localizable import Localizable, ResolvableLocalizable
-
-
-class CssProvider(ABC):
-    """
-    Provide CSS for HTML pages.
-    """
-
-    @abstractmethod
-    async def get_public_css_paths(self) -> Sequence[str]:
-        """
-        The URL-generatable resources of the CSS files to include in each HTML page.
-        """
 
 
 @final

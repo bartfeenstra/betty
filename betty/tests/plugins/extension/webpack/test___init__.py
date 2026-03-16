@@ -20,14 +20,6 @@ class TestWebpack:
         ):
             assert sut.filters
 
-    async def test_get_public_css_paths(self, isolated_app: App) -> None:
-        async with (
-            Project.new_isolated(isolated_app) as project,
-            project,
-            await Webpack.new(project) as sut,
-        ):
-            assert await sut.get_public_css_paths()
-
     async def test_generate__with_npm(
         self, mocker: MockerFixture, isolated_app: App, tmp_path: Path
     ) -> None:

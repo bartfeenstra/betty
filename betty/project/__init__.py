@@ -29,6 +29,7 @@ from betty.asset import (
 from betty.document import Document, DocumentProvider
 from betty.extension import Extension, ExtensionDefinition
 from betty.hashid import hashid
+from betty.html.css import CssResourceDefinition
 from betty.html.js import JsResourceDefinition
 from betty.importlib import fully_qualified_name
 from betty.jinja.test import JinjaTestDefinition
@@ -181,6 +182,7 @@ class Project(
         service_plugins = ServicePluginManager(
             {
                 AssetDefinition: [AssetManufacturer("project")],
+                CssResourceDefinition: [],
                 ExtensionDefinition: self.configuration.extensions,
                 JinjaTestDefinition: [],
                 JsResourceDefinition: [],

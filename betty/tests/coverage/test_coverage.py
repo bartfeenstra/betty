@@ -209,15 +209,19 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "LoaderUsedAlready": MissingReason.STATIC_CONTENT_ONLY,
         "XPathError": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/html/__init__.py": {
-        "CssProvider": MissingReason.ABSTRACT,
-    },
     "betty/html/attributes.py": {
         "Attributes": {
             attr_name: MissingReason.STATIC_CONTENT_ONLY
             for attr_name, _ in getmembers(Attributes)
             if attr_name.startswith("html_")
         },
+    },
+    "betty/html/css.py": {
+        "CssResource": MissingReason.ABSTRACT,
+        "CssResourceDefinition": {
+            "type": MissingReason.INHERITED,
+        },
+        "CssResourceManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/html/js.py": {
         "JsResource": MissingReason.ABSTRACT,
@@ -678,6 +682,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "plugin": MissingReason.INHERITED,
         },
     },
+    "betty/plugins/css_resource/webpack.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/event_type/adoption.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/event_type/baptism.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/event_type/bar_mitzvah.py": MissingReason.STATIC_CONTENT_ONLY,

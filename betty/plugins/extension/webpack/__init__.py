@@ -11,10 +11,11 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.asset import AssetDefinition
 from betty.document import DocumentProvider, DocumentVars
 from betty.extension import Extension, ExtensionDefinition
-from betty.html import CssProvider
+from betty.html.css import CssResourceDefinition
 from betty.html.js import JsResourceDefinition
 from betty.jinja import Filters, JinjaProvider
 from betty.plugins.asset.webpack import Webpack as WebpackAsset
+from betty.plugins.css_resource.webpack import Webpack as WebpackCssResource
 from betty.plugins.extension.webpack import build
 from betty.plugins.extension.webpack.build import EntryPointProvider
 from betty.plugins.extension.webpack.jinja.filter import FILTERS
@@ -38,13 +39,13 @@ if TYPE_CHECKING:
     label="Webpack",
     requires={
         AssetDefinition: WebpackAsset,
+        CssResourceDefinition: WebpackCssResource,
         JsResourceDefinition: WebpackEntryPointLoader,
     },
 )
 class Webpack(
     Generator,
     Extension,
-    CssProvider,
     JinjaProvider,
     DocumentProvider,
     Manufacturable,
@@ -74,19 +75,6 @@ class Webpack(
                 ).path,
                 www_directory=self._project.www_directory,
             )
-        )
-
-    @override
-    async def get_public_css_paths(self) -> Sequence[str]:
-        return (
-            "betty-static:///css/webpack/webpack-vendor.css",
-            *(
-                f"betty-static:///css/webpack/{entry_point.plugin().id}.css"
-                for entry_point in await self._project_entry_point_providers()
-                if (
-                    entry_point.webpack_entry_point_directory_path() / "main.scss"
-                ).is_file()
-            ),
         )
 
     @override
