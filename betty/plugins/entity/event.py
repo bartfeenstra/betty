@@ -30,8 +30,8 @@ from betty.model.association import (
 from betty.plugin.schema import PluginIdSchema
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.presence import Presence
-from betty.plugins.event_type import Unknown as UnknownEventType
-from betty.plugins.role import Subject
+from betty.plugins.event_type.unknown import Unknown as UnknownEventType
+from betty.plugins.role.subject import Subject
 from betty.privacy import HasPrivacy, Privacy
 from betty.property import Optional
 

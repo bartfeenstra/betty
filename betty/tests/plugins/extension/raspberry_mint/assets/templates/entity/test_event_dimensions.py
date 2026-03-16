@@ -5,7 +5,7 @@ from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.source import Source
-from betty.plugins.event_type import Birth
+from betty.plugins.event_type.birth import Birth
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja import assert_template_file
 

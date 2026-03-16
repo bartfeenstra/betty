@@ -1,0 +1,25 @@
+"""
+The subject role.
+"""
+
+from typing import final
+
+from betty.locale.localizable.gettext import _, ngettext
+from betty.role import Role, RoleDefinition
+
+
+@final
+@RoleDefinition(
+    "subject",
+    label=_("Subject"),
+    label_plural=_("Subjects"),
+    label_countable=ngettext("{count} subjects", "{count} subjects"),
+)
+class Subject(Role):
+    """
+    .. plugin:: role:subject.
+
+    The meaning of this role depends on the event type. For example, for
+    :py:class:`betty.plugins.event_type.marriage.Marriage`, the subjects are the people who got married. For
+    :py:class:`betty.plugins.event_type.death.Death` it is the person who died.
+    """

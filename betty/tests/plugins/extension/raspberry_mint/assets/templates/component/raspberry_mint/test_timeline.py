@@ -4,7 +4,8 @@ from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.presence import Presence
 from betty.plugins.extension.raspberry_mint import RaspberryMint
-from betty.plugins.role import Attendee, Subject
+from betty.plugins.role.attendee import Attendee
+from betty.plugins.role.subject import Subject
 from betty.privacy import Privacy
 from betty.test_utils.jinja import assert_template_file
 

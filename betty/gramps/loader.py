@@ -55,62 +55,58 @@ from betty.plugins.entity.person_name import PersonName
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.presence import Presence
 from betty.plugins.entity.source import Source
-from betty.plugins.event_type import (
-    Adoption,
-    Baptism,
-    BarMitzvah,
-    BatMitzvah,
-    Birth,
-    Burial,
-    Confirmation,
-    Cremation,
-    Death,
-    Divorce,
-    DivorceAnnouncement,
-    Emigration,
-    Engagement,
-    Immigration,
-    Marriage,
-    MarriageAnnouncement,
-    Occupation,
-    Residence,
-    Retirement,
-    Will,
-)
-from betty.plugins.event_type import Unknown as UnknownEventType
-from betty.plugins.gender import Man, NonBinary, Woman
-from betty.plugins.gender import Unknown as UnknownGender
-from betty.plugins.place_type import (
-    Borough,
-    Building,
-    City,
-    Country,
-    County,
-    Department,
-    District,
-    Farm,
-    Hamlet,
-    Locality,
-    Municipality,
-    Neighborhood,
-    Number,
-    Parish,
-    Province,
-    Region,
-    State,
-    Street,
-    Town,
-    Village,
-)
-from betty.plugins.place_type import Unknown as UnknownPlaceType
-from betty.plugins.role import (
-    Attendee,
-    Celebrant,
-    Informant,
-    Subject,
-    Witness,
-)
-from betty.plugins.role import Unknown as UnknownRole
+from betty.plugins.event_type.adoption import Adoption
+from betty.plugins.event_type.baptism import Baptism
+from betty.plugins.event_type.bar_mitzvah import BarMitzvah
+from betty.plugins.event_type.bat_mitzvah import BatMitzvah
+from betty.plugins.event_type.birth import Birth
+from betty.plugins.event_type.burial import Burial
+from betty.plugins.event_type.confirmation import Confirmation
+from betty.plugins.event_type.cremation import Cremation
+from betty.plugins.event_type.death import Death
+from betty.plugins.event_type.divorce import Divorce
+from betty.plugins.event_type.divorce_announcement import DivorceAnnouncement
+from betty.plugins.event_type.emigration import Emigration
+from betty.plugins.event_type.engagement import Engagement
+from betty.plugins.event_type.immigration import Immigration
+from betty.plugins.event_type.marriage import Marriage
+from betty.plugins.event_type.marriage_announcement import MarriageAnnouncement
+from betty.plugins.event_type.occupation import Occupation
+from betty.plugins.event_type.residence import Residence
+from betty.plugins.event_type.retirement import Retirement
+from betty.plugins.event_type.unknown import Unknown as UnknownEventType
+from betty.plugins.event_type.will import Will
+from betty.plugins.gender.man import Man
+from betty.plugins.gender.non_binary import NonBinary
+from betty.plugins.gender.unknown import Unknown as UnknownGender
+from betty.plugins.gender.woman import Woman
+from betty.plugins.place_type.borough import Borough
+from betty.plugins.place_type.building import Building
+from betty.plugins.place_type.city import City
+from betty.plugins.place_type.country import Country
+from betty.plugins.place_type.county import County
+from betty.plugins.place_type.department import Department
+from betty.plugins.place_type.district import District
+from betty.plugins.place_type.farm import Farm
+from betty.plugins.place_type.hamlet import Hamlet
+from betty.plugins.place_type.locality import Locality
+from betty.plugins.place_type.municipality import Municipality
+from betty.plugins.place_type.neighborhood import Neighborhood
+from betty.plugins.place_type.number import Number
+from betty.plugins.place_type.parish import Parish
+from betty.plugins.place_type.province import Province
+from betty.plugins.place_type.region import Region
+from betty.plugins.place_type.state import State
+from betty.plugins.place_type.street import Street
+from betty.plugins.place_type.town import Town
+from betty.plugins.place_type.unknown import Unknown as UnknownPlaceType
+from betty.plugins.place_type.village import Village
+from betty.plugins.role.attendee import Attendee
+from betty.plugins.role.celebrant import Celebrant
+from betty.plugins.role.informant import Informant
+from betty.plugins.role.subject import Subject
+from betty.plugins.role.unknown import Unknown as UnknownRole
+from betty.plugins.role.witness import Witness
 from betty.privacy import HasPrivacy
 from betty.role import RoleManufacturer
 

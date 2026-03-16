@@ -25,15 +25,16 @@ from betty.plugins.entity.person_name import PersonName
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.presence import Presence
 from betty.plugins.entity.source import Source
-from betty.plugins.event_type import Birth, Death, Marriage
-from betty.plugins.gender import Man, Woman
-from betty.plugins.place_type import (
-    Country,
-    Municipality,
-    Province,
-    Village,
-)
-from betty.plugins.role import Subject
+from betty.plugins.event_type.birth import Birth
+from betty.plugins.event_type.death import Death
+from betty.plugins.event_type.marriage import Marriage
+from betty.plugins.gender.man import Man
+from betty.plugins.gender.woman import Woman
+from betty.plugins.place_type.country import Country
+from betty.plugins.place_type.municipality import Municipality
+from betty.plugins.place_type.province import Province
+from betty.plugins.place_type.village import Village
+from betty.plugins.role.subject import Subject
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence

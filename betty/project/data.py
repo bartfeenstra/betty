@@ -540,13 +540,13 @@ class ProjectConfiguration(Data):
 
     @classmethod
     def _default_copyright_notice(cls) -> CopyrightNoticeManufacturer:
-        from betty.plugins.copyright_notice import ProjectAuthor
+        from betty.plugins.copyright_notice.project_author import ProjectAuthor
 
         return CopyrightNoticeManufacturer(ProjectAuthor)
 
     @classmethod
     def _default_license(cls) -> LicenseManufacturer:
-        from betty.plugins.license import AllRightsReserved
+        from betty.plugins.license.all_rights_reserved import AllRightsReserved
 
         return LicenseManufacturer(AllRightsReserved)
 

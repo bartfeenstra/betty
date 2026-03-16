@@ -8,7 +8,7 @@ from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type.media_types import PLAIN_TEXT
 from betty.model import Entity
-from betty.plugins.copyright_notice import (
+from betty.plugins.copyright_notice.public_domain import (
     PublicDomain as PublicDomainCopyrightNotice,
 )
 from betty.plugins.entity.citation import Citation
@@ -17,7 +17,7 @@ from betty.plugins.entity.file_reference import FileReference
 from betty.plugins.entity.note import Note
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.source import Source
-from betty.plugins.license import PublicDomain as PublicDomainLicense
+from betty.plugins.license.public_domain import PublicDomain as PublicDomainLicense
 from betty.privacy import Privacy
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 from betty.test_utils.json.linked_data import assert_dumps_linked_data

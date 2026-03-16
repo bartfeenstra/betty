@@ -19,7 +19,7 @@ from betty.plugins.entity.person_name import PersonName
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.presence import Presence
 from betty.plugins.entity.source import Source
-from betty.plugins.role import Unknown as UnknownRole
+from betty.plugins.role.unknown import Unknown as UnknownRole
 from betty.privacy import Privacy
 from betty.project import Project
 from betty.project.data import EntityTypeConfiguration, ProjectLocale

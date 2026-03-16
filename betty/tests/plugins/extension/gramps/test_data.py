@@ -2,13 +2,13 @@ from pathlib import Path
 
 from betty.event_type import EventTypeManufacturer
 from betty.place_type import PlaceTypeManufacturer
-from betty.plugins.event_type import Birth
+from betty.plugins.event_type.birth import Birth
 from betty.plugins.extension.gramps.data import (
     FamilyTree,
     GrampsConfiguration,
 )
-from betty.plugins.place_type import Borough
-from betty.plugins.role import Attendee
+from betty.plugins.place_type.borough import Borough
+from betty.plugins.role.attendee import Attendee
 from betty.role import RoleManufacturer
 from betty.test_utils.data import DataTestBase
 

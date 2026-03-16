@@ -19,8 +19,8 @@ from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.presence import Presence
 from betty.plugins.entity.source import Source
-from betty.plugins.event_type import Death
-from betty.plugins.role import Subject
+from betty.plugins.event_type.death import Death
+from betty.plugins.role.subject import Subject
 from betty.privacy import HasPrivacy, Privacy
 
 if TYPE_CHECKING:

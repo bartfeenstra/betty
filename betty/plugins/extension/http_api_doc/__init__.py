@@ -9,7 +9,7 @@ from betty.asset import AssetDefinition
 from betty.extension import ExtensionDefinition
 from betty.html import NavigationLink, NavigationLinkProvider
 from betty.locale.localizable.gettext import _
-from betty.plugins.asset import HttpApiDoc as HttpApiDocAsset
+from betty.plugins.asset.http_api_doc import HttpApiDoc as HttpApiDocAsset
 from betty.plugins.extension.webpack import Webpack
 from betty.plugins.extension.webpack.build import EntryPointProvider
 

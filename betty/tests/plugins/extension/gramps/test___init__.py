@@ -13,11 +13,11 @@ from betty.plugins.entity.note import Note
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.source import Source
-from betty.plugins.event_type import Birth
+from betty.plugins.event_type.birth import Birth
 from betty.plugins.extension.gramps import Gramps
 from betty.plugins.extension.gramps.data import FamilyTree, GrampsConfiguration
-from betty.plugins.place_type import City
-from betty.plugins.role import Subject
+from betty.plugins.place_type.city import City
+from betty.plugins.role.subject import Subject
 from betty.project import Project
 from betty.project.load import load
 from betty.role import RoleManufacturer

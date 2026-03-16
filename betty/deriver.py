@@ -16,7 +16,7 @@ from betty.locale.localizable.gettext import _
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.presence import Presence
-from betty.plugins.role import Subject
+from betty.plugins.role.subject import Subject
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterable, Mapping, Sequence, Set

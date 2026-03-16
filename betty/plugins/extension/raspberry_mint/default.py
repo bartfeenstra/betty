@@ -36,7 +36,8 @@ from betty.plugins.content.tree import Tree
 from betty.plugins.content.wikipedia_summary import WikipediaSummary
 from betty.plugins.extension.raspberry_mint import SINGLE_COLUMN_TEXT_WIDTH
 from betty.plugins.extension.raspberry_mint import ColorStyle as ColorStyleOption
-from betty.plugins.role import Subject, Witness
+from betty.plugins.role.subject import Subject
+from betty.plugins.role.witness import Witness
 
 if TYPE_CHECKING:
     from collections.abc import Collection

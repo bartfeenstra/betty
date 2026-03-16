@@ -15,8 +15,9 @@ from betty.model import persistent_id
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
-from betty.plugins.event_type import Birth, Death
-from betty.plugins.role import Subject
+from betty.plugins.event_type.birth import Birth
+from betty.plugins.event_type.death import Death
+from betty.plugins.role.subject import Subject
 from betty.privacy import is_public
 
 if TYPE_CHECKING:
