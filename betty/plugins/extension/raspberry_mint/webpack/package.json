@@ -1,0 +1,11 @@
+{
+  "name": "@betty.py/betty.plugins.extension.raspberry-mint",
+  "dependencies": {
+    "@betty.py/betty": "*",
+    "@popperjs/core": "^2.11.8",
+    "bootstrap": "^5.3.3",
+    "@fontsource/noto-sans": "^5.1.1",
+    "@fontsource/noto-sans-arabic": "^5.1.1",
+    "@fontsource/noto-sans-hebrew": "^5.1.1"
+  }
+}

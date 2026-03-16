@@ -3,10 +3,10 @@ from pathlib import Path
 from babel import Locale
 
 from betty.data import Data
-from betty.extension.gramps import Gramps
-from betty.extension.gramps.data import GrampsConfiguration
 from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.plugins.extension.gramps import Gramps
+from betty.plugins.extension.gramps.data import GrampsConfiguration
 from betty.portable.file import assert_load_file
 from betty.project import Project
 from betty.project.data import ProjectConfiguration
