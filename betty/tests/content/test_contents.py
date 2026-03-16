@@ -27,9 +27,9 @@ from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
 from betty.locale.localizable import ResolvableLocalizable
 from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localize import Localizer
+from betty.plugins.renderer.plain_text import PlainText
 from betty.project import Project
 from betty.render import RenderDispatcher
-from betty.render.plain_text import PlainText
 from betty.test_utils.ancestry.has_notes import DummyHasNotes
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
