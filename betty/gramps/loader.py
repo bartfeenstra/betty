@@ -53,29 +53,6 @@ from betty.media_type import InvalidMediaType, MediaType
 from betty.model import Entity
 from betty.model.association import ToManyResolver, ToOneResolver, resolve
 from betty.place_type import PlaceTypeManufacturer
-from betty.place_type.place_types import (
-    Borough,
-    Building,
-    City,
-    Country,
-    County,
-    Department,
-    District,
-    Farm,
-    Hamlet,
-    Locality,
-    Municipality,
-    Neighborhood,
-    Number,
-    Parish,
-    Province,
-    Region,
-    State,
-    Street,
-    Town,
-    Village,
-)
-from betty.place_type.place_types import Unknown as UnknownPlaceType
 from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.error import PluginNotFound
 from betty.plugins.event_type import (
@@ -103,6 +80,29 @@ from betty.plugins.event_type import (
 from betty.plugins.event_type import Unknown as UnknownEventType
 from betty.plugins.gender import Man, NonBinary, Woman
 from betty.plugins.gender import Unknown as UnknownGender
+from betty.plugins.place_type import (
+    Borough,
+    Building,
+    City,
+    Country,
+    County,
+    Department,
+    District,
+    Farm,
+    Hamlet,
+    Locality,
+    Municipality,
+    Neighborhood,
+    Number,
+    Parish,
+    Province,
+    Region,
+    State,
+    Street,
+    Town,
+    Village,
+)
+from betty.plugins.place_type import Unknown as UnknownPlaceType
 from betty.privacy import HasPrivacy
 from betty.role import RoleManufacturer
 from betty.role.roles import (
