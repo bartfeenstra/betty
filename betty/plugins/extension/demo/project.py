@@ -7,7 +7,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from betty.content import ContentManufacturer
-from betty.content.contents import Render, RenderConfiguration
 from betty.extension import ExtensionManufacturer
 from betty.license import LicenseManufacturer
 from betty.locale import DEFAULT_LOCALE
@@ -16,19 +15,18 @@ from betty.locale.localizable.markup import Chain
 from betty.locale.localize import LocalizerRepository
 from betty.media_type.media_types import HTML
 from betty.model.reference import EntityReference
+from betty.plugins.content.raspberry_mint_columns import Columns, ColumnsConfiguration
+from betty.plugins.content.raspberry_mint_entity_card import EntityCard
+from betty.plugins.content.raspberry_mint_incomplete_translation_warning import (
+    IncompleteTranslationWarning,
+)
+from betty.plugins.content.raspberry_mint_section import Section, SectionConfiguration
+from betty.plugins.content.render import Render, RenderConfiguration
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.source import Source
-from betty.plugins.extension.demo.content import _IncompleteTranslationWarning
 from betty.plugins.extension.raspberry_mint import Breakpoint, RaspberryMint
-from betty.plugins.extension.raspberry_mint.content import (
-    Columns,
-    ColumnsConfiguration,
-    EntityCard,
-    Section,
-    SectionConfiguration,
-)
 from betty.plugins.extension.raspberry_mint.data import RaspberryMintConfiguration
 from betty.plugins.extension.raspberry_mint.default import regional_content
 from betty.project import Project
@@ -66,7 +64,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                         "front-page-content": [
                             ContentManufacturer(
                                 Columns,
-                                ColumnsConfiguration([[_IncompleteTranslationWarning]]),
+                                ColumnsConfiguration([[IncompleteTranslationWarning]]),
                             ),
                             ContentManufacturer(
                                 Section,

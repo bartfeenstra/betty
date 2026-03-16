@@ -19,14 +19,6 @@ if TYPE_CHECKING:
 
 
 @final
-@AssetDefinition("demo", label="Demo", assets=ASSETS_DIRECTORY_PATH / "demo")
-class Demo(Asset):
-    """
-    .. plugin:: asset:demo.
-    """
-
-
-@final
 @AssetDefinition(
     "http-api-doc",
     label="HTTP API Documentation",

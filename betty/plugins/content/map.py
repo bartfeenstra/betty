@@ -1,13 +1,13 @@
 """
-Map content.
+The map content plugin.
 """
 
-from typing import Self, override
+from typing import Self, final, override
 
 from betty.content import ContentDefinition
-from betty.content.contents import Template, TemplateBuild
 from betty.document import Document
 from betty.locale.localizable.gettext import _
+from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
@@ -16,12 +16,13 @@ from betty.service.factory import Manufacturable
 from betty.service.requirement.project import require_project
 
 
-@ContentDefinition("maps-map", label=_("Map"))
+@final
+@ContentDefinition("map", label=_("Map"))
 class Map(Template, Manufacturable):
     """
     An interactive map.
 
-    .. plugin:: content:maps-map
+    .. plugin:: content:map
     """
 
     @override
@@ -53,22 +54,3 @@ class Map(Template, Manufacturable):
                 "places": places,
             }
         return None
-
-
-@ContentDefinition("maps-attribution", label=_("Map attribution"))
-class Attribution(Template, Manufacturable):
-    """
-    The attribution for an interactive map.
-
-    .. plugin:: content:maps-attribution
-    """
-
-    @override
-    @classmethod
-    @require_project
-    async def new(cls, project: Project, /) -> Self:
-        return cls(jinja=await project.jinja)
-
-    @override
-    async def build_template(self, document: Document) -> TemplateBuild:
-        return "component/maps/attribution.html.j2"

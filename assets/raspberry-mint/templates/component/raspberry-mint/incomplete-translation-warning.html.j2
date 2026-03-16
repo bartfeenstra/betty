@@ -1,6 +1,6 @@
 {% if app.translations.coverage is defined %}
     {% set coverage = app.translations.coverage(document.localizer.locale) %}
-    {% set translated =  coverage[0] / coverage[1] * 100 | round %}
+    {% set translated =  coverage[0] / coverage[1] * 100 | round if coverage[1] else 0 %}
     {% if translated < 100 %}
         <div class="border d-inline-block my-2 p-2" style="border-color: #ffd77a !important;">
             <p class="fw-bold">

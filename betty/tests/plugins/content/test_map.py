@@ -7,12 +7,12 @@ from geopy import Point
 from betty.app import App
 from betty.document import Document
 from betty.model import Entity
+from betty.plugins.content.map import Map
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.presence import Presence
 from betty.plugins.extension.maps import Maps
-from betty.plugins.extension.maps.content import Attribution, Map
 from betty.plugins.role import Subject
 from betty.project import Project
 
@@ -84,13 +84,3 @@ class TestMap:
         assert "webpack_js_entry_points" in document
         assert isinstance(document["webpack_js_entry_points"], Set)
         assert "maps" in document["webpack_js_entry_points"]
-
-
-class TestAttribution:
-    async def test_build_template(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(Maps)
-            async with project:
-                sut = await Attribution.new(project)
-                actual = await sut.build(document=Document())
-        assert actual

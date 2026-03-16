@@ -9,12 +9,10 @@ from contextlib import suppress
 from shutil import rmtree
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.asset import AssetDefinition
 from betty.extension import Extension, ExtensionDefinition
 from betty.html import NavigationLink, NavigationLinkProvider
 from betty.license import LicenseDefinition
 from betty.locale.localizable.gettext import _
-from betty.plugins.asset import Demo as DemoAsset
 from betty.plugins.copyright_notice import Streetmix
 from betty.plugins.extension.demo.jobs import LoadAncestry
 from betty.plugins.extension.deriver import Deriver
@@ -68,7 +66,6 @@ async def generate_with_cleanup(
     "demo",
     label="Demo",
     requires={
-        AssetDefinition: DemoAsset,
         ExtensionDefinition: (
             Deriver,
             HttpApiDoc,

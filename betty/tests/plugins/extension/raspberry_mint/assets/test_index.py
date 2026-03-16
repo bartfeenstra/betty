@@ -2,9 +2,9 @@ import pytest
 
 from betty.app import App
 from betty.content import ContentManufacturer
-from betty.content.contents import Render, RenderConfiguration
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.extension import ExtensionManufacturer
+from betty.plugins.content.render import Render, RenderConfiguration
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.plugins.extension.raspberry_mint.data import RaspberryMintConfiguration
 from betty.project import Project

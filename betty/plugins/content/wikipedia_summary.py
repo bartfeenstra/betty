@@ -1,25 +1,26 @@
 """
-Tree content.
+The Wikipedia summary content plugin.
 """
 
-from typing import Self, override
+from typing import Self, final, override
 
+from betty.ancestry.has_links import HasLinks
 from betty.content import ContentDefinition
-from betty.content.contents import Template, TemplateBuild
 from betty.document import Document
 from betty.locale.localizable.gettext import _
-from betty.plugins.entity.person import Person
+from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project
 from betty.service.factory import Manufacturable
 from betty.service.requirement.project import require_project
 
 
-@ContentDefinition("trees-tree", label=_("Family tree"))
-class Tree(Template, Manufacturable):
+@final
+@ContentDefinition("wikipedia-summary", label=_("Wikipedia summary"))
+class WikipediaSummary(Template, Manufacturable):
     """
-    An interactive family tree.
+    A Wikipedia summary.
 
-    .. plugin:: content:trees-tree
+    .. plugin:: content:wikipedia-summary
     """
 
     @override
@@ -30,8 +31,8 @@ class Tree(Template, Manufacturable):
 
     @override
     async def build_template(self, document: Document) -> TemplateBuild:
-        if isinstance(document.resource, Person):
-            return "component/trees/tree.html.j2", {
-                "person": document.resource,
+        if isinstance(document.resource, HasLinks):
+            return "component/wiki/wikipedia-summary.html.j2", {
+                "links": document.resource.links
             }
         return None
