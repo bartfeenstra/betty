@@ -5,8 +5,8 @@ from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.date import Date
 from betty.document import Document, EntityContexts
-from betty.event_type.event_types import Birth
 from betty.extension.raspberry_mint import RaspberryMint
+from betty.plugins.event_type import Birth
 from betty.test_utils.jinja import assert_template_file
 
 

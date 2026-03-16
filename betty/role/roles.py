@@ -33,7 +33,8 @@ class Beneficiary(Role):
     """
     .. plugin:: role:beneficiary.
 
-    Someone was a `benificiary <https://en.wikipedia.org/wiki/Beneficiary>`_ in the event, such as a :py:class:`betty.event_type.event_types.Will`.
+    Someone was a `benificiary <https://en.wikipedia.org/wiki/Beneficiary>`_ in the event, such as a
+    :py:class:`betty.plugins.event_type.Will`.
     """
 
 
@@ -111,8 +112,8 @@ class Subject(Role):
     .. plugin:: role:subject.
 
     The meaning of this role depends on the event type. For example, for
-    :py:class:`betty.event_type.event_types.Marriage`, the subjects are the people who got married. For
-    :py:class:`betty.event_type.event_types.Death` it is the person who died.
+    :py:class:`betty.plugins.event_type.Marriage`, the subjects are the people who got married. For
+    :py:class:`betty.plugins.event_type.Death` it is the person who died.
     """
 
 

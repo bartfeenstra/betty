@@ -41,29 +41,6 @@ from betty.copyright_notice import CopyrightNoticeManufacturer
 from betty.date import Date, DateRange, ResolvableDate
 from betty.error import FileNotFound
 from betty.event_type import EventTypeManufacturer
-from betty.event_type.event_types import (
-    Adoption,
-    Baptism,
-    BarMitzvah,
-    BatMitzvah,
-    Birth,
-    Burial,
-    Confirmation,
-    Cremation,
-    Death,
-    Divorce,
-    DivorceAnnouncement,
-    Emigration,
-    Engagement,
-    Immigration,
-    Marriage,
-    MarriageAnnouncement,
-    Occupation,
-    Residence,
-    Retirement,
-    Will,
-)
-from betty.event_type.event_types import Unknown as UnknownEventType
 from betty.gender import GenderDefinition, GenderManufacturer
 from betty.gramps.error import GrampsError, UserFacingGrampsError
 from betty.license import LicenseManufacturer
@@ -101,6 +78,29 @@ from betty.place_type.place_types import (
 from betty.place_type.place_types import Unknown as UnknownPlaceType
 from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.error import PluginNotFound
+from betty.plugins.event_type import (
+    Adoption,
+    Baptism,
+    BarMitzvah,
+    BatMitzvah,
+    Birth,
+    Burial,
+    Confirmation,
+    Cremation,
+    Death,
+    Divorce,
+    DivorceAnnouncement,
+    Emigration,
+    Engagement,
+    Immigration,
+    Marriage,
+    MarriageAnnouncement,
+    Occupation,
+    Residence,
+    Retirement,
+    Will,
+)
+from betty.plugins.event_type import Unknown as UnknownEventType
 from betty.plugins.gender import Man, NonBinary, Woman
 from betty.plugins.gender import Unknown as UnknownGender
 from betty.privacy import HasPrivacy

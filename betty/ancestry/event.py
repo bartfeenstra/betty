@@ -15,7 +15,6 @@ from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.place import Place
 from betty.ancestry.presence import Presence
 from betty.event_type import EventTypeDefinition
-from betty.event_type.event_types import Unknown as UnknownEventType
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.json.schema import String
 from betty.locale.localizable.gettext import _, ngettext
@@ -31,6 +30,7 @@ from betty.model.association import (
     ToZeroOrOneAssociate,
 )
 from betty.plugin.schema import PluginIdSchema
+from betty.plugins.event_type import Unknown as UnknownEventType
 from betty.privacy import HasPrivacy, Privacy
 from betty.property import Optional
 from betty.role.roles import Subject

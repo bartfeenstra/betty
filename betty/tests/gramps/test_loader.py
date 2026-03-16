@@ -24,8 +24,6 @@ from betty.copyright_notice.copyright_notices import (
     PublicDomain as PublicDomainCopyrightNotice,
 )
 from betty.date import Date, DateRange
-from betty.event_type.event_types import Birth, Death
-from betty.event_type.event_types import Unknown as UnknownEventType
 from betty.gramps.error import UserFacingGrampsError
 from betty.gramps.loader import GrampsFileNotFound, GrampsLoader, LoaderUsedAlready
 from betty.license.licenses import PublicDomain as PublicDomainLicense
@@ -33,6 +31,8 @@ from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 from betty.media_type import MediaType
 from betty.place_type.place_types import City
 from betty.place_type.place_types import Unknown as UnknownPlaceType
+from betty.plugins.event_type import Birth, Death
+from betty.plugins.event_type import Unknown as UnknownEventType
 from betty.plugins.gender import NonBinary
 from betty.plugins.gender import Unknown as UnknownGender
 from betty.privacy import Privacy

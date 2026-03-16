@@ -16,7 +16,7 @@ from betty.ancestry.place import Place
 from betty.ancestry.presence import Presence
 from betty.ancestry.source import Source
 from betty.date import Date, DateRange
-from betty.event_type.event_types import Birth, Death, Marriage
+from betty.plugins.event_type import Birth, Death, Marriage
 from betty.privacy import Privacy
 from betty.privacy.privatizer import Privatizer
 from betty.project.data import DEFAULT_LIFETIME_THRESHOLD

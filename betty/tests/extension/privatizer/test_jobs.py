@@ -10,8 +10,8 @@ from betty.ancestry.file_reference import FileReference
 from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
 from betty.ancestry.source import Source
-from betty.event_type.event_types import Birth
 from betty.extension.privatizer import Privatizer
+from betty.plugins.event_type import Birth
 from betty.privacy import Privacy
 from betty.project import Project
 from betty.project.load import load
