@@ -230,8 +230,8 @@ betty = 'betty.console:main_standalone'
 'witness' = 'betty.plugins.role:Witness'
 
 [project.entry-points.'betty.http_rate_limit']
-'wikipedia-action-api' = 'betty.http_client.rate_limits:WikipediaActionApi'
-'wikipedia-rest-api' = 'betty.http_client.rate_limits:WikipediaRestApi'
+'wikipedia-action-api' = 'betty.plugins.rate_limit:WikipediaActionApi'
+'wikipedia-rest-api' = 'betty.plugins.rate_limit:WikipediaRestApi'
 
 [project.entry-points.'betty.serializer']
 'json' = 'betty.serde.serializers:Json'

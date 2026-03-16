@@ -316,14 +316,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "RateLimitDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "RateLimitManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/http_client/rate_limits.py": {
-        "WikipediaActionApi": {
-            "plugin": MissingReason.INHERITED,
-        },
-        "WikipediaRestApi": {
-            "plugin": MissingReason.INHERITED,
-        },
-    },
     "betty/jinja/__init__.py": {
         "context_context": MissingReason.SHOULD_BE_COVERED,
         "context_localizer": MissingReason.SHOULD_BE_COVERED,
@@ -851,6 +843,14 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Town": MissingReason.STATIC_CONTENT_ONLY,
         "Unknown": MissingReason.STATIC_CONTENT_ONLY,
         "Village": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/plugins/rate_limit.py": {
+        "WikipediaActionApi": {
+            "plugin": MissingReason.INHERITED,
+        },
+        "WikipediaRestApi": {
+            "plugin": MissingReason.INHERITED,
+        },
     },
     "betty/plugins/renderer/html.py": {
         "Html": {
