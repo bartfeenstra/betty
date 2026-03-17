@@ -16,11 +16,3 @@ class TestHttpApiDoc:
                 assert (
                     project.www_directory / "js" / "webpack" / "http-api-doc.js"
                 ).is_file()
-
-    async def test_secondary_navigation_links(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(HttpApiDoc)
-            async with project:
-                extensions = await project.extensions
-                sut = extensions[HttpApiDoc]
-                sut.secondary_navigation_links()

@@ -25,12 +25,13 @@ from jinja2.utils import missing
 from betty import about
 from betty.cache import CacheItem
 from betty.date import Date
-from betty.html import NavigationLinkProvider, generate_html_id
+from betty.html import generate_html_id
 from betty.html.attributes import Attributes
 from betty.html.css import CssResourceDefinition
 from betty.html.js import JsResourceDefinition
 from betty.jinja.filter import filters
 from betty.jinja.test import JinjaTestDefinition
+from betty.link import LinkDefinition
 from betty.media_type import UnsupportedMediaType, match_extension
 from betty.media_type.media_types import JINJA2
 from betty.service.factory import Manufacturable
@@ -179,6 +180,7 @@ class Environment(Manufacturable, JinjaEnvironment):
         assets, extensions, service_plugins = await gather(
             project.assets, project.extensions, project.service_plugins
         )
+        links = [link.plugin() for link in service_plugins[LinkDefinition]]
         return cls(
             project,
             extensions,
@@ -191,6 +193,12 @@ class Environment(Manufacturable, JinjaEnvironment):
                 "public_js_paths": [
                     resource.plugin().resource
                     for resource in service_plugins[JsResourceDefinition]
+                ],
+                "primary_navigation_links": [
+                    link.link for link in links if link.primary
+                ],
+                "secondary_navigation_links": [
+                    link.link for link in links if not link.primary
                 ],
             },
             await filters(),
@@ -252,18 +260,6 @@ class Environment(Manufacturable, JinjaEnvironment):
         self.globals["project"] = self.project
         today = datetime.date.today()
         self.globals["today"] = Date(today.year, today.month, today.day)
-        self.globals["primary_navigation_links"] = [
-            link
-            for extension in self._extensions
-            if isinstance(extension, NavigationLinkProvider)
-            for link in extension.primary_navigation_links()
-        ]
-        self.globals["secondary_navigation_links"] = [
-            link
-            for extension in self._extensions
-            if isinstance(extension, NavigationLinkProvider)
-            for link in extension.secondary_navigation_links()
-        ]
         self.globals["generate_html_id"] = generate_html_id
         self.globals["deprecate"] = deprecate
         self.globals["new_attributes"] = Attributes

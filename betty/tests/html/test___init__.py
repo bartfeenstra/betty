@@ -4,7 +4,6 @@ import pytest
 
 from betty.html import (
     NavigationLink,
-    NavigationLinkProvider,
     generate_html_id,
     newlines_to_paragraphs,
     plain_text_to_html,
@@ -23,16 +22,6 @@ class TestNavigationLink:
         label = Plain("Hello, world!")
         sut = NavigationLink("https://example.com", label)
         assert sut.label is label
-
-
-class TestNavigationLinkProvider:
-    def test_primary_navigation_links(self) -> None:
-        sut = NavigationLinkProvider()
-        sut.primary_navigation_links()
-
-    def test_secondary_navigation_links(self) -> None:
-        sut = NavigationLinkProvider()
-        sut.secondary_navigation_links()
 
 
 @pytest.mark.parametrize(

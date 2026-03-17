@@ -291,7 +291,14 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "NotYetBootstrapped": MissingReason.STATIC_CONTENT_ONLY,
         "ShutdownerKwargs": MissingReason.TYPED_DICT,
     },
-    "betty/link.py": MissingReason.ABSTRACT,
+    "betty/link.py": {
+        "Link": MissingReason.STATIC_CONTENT_ONLY,
+        "LinkDefinition": {
+            "type": MissingReason.INHERITED,
+        },
+        "LinkManufacturer": MissingReason.STATIC_CONTENT_ONLY,
+        "LinkType": MissingReason.ABSTRACT,
+    },
     "betty/locale/babel.py": {
         "run_babel": MissingReason.SHOULD_BE_COVERED,
     },
@@ -775,7 +782,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/plugins/extension/demo/__init__.py": {
         "Demo": {
-            "secondary_navigation_links": MissingReason.STATIC_CONTENT_ONLY,
             "plugin": MissingReason.INHERITED,
         },
     },
@@ -902,6 +908,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "plugin": MissingReason.INHERITED,
         },
     },
+    "betty/plugins/link/betty_documentation.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/link/betty_github.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/link/http_api_doc.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/place_type/borough.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/place_type/building.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/place_type/cemetery.py": MissingReason.STATIC_CONTENT_ONLY,

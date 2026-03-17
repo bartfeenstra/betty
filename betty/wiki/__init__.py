@@ -12,7 +12,7 @@ from betty.locale.localizable.static import StaticTranslations
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from betty.link import Link
+    from betty.link import LinkType
     from betty.locale.localize import Localizer
 
 
@@ -37,7 +37,7 @@ def parse_page_url(url: str) -> tuple[str, str]:
     return cast(tuple[str, str], match.groups())
 
 
-def parse_page_link(link: Link, localizers: Sequence[Localizer]) -> tuple[str, str]:
+def parse_page_link(link: LinkType, localizers: Sequence[Localizer]) -> tuple[str, str]:
     """
     Parse the URL for a link to a Wikipedia page.
 

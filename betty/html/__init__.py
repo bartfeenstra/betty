@@ -13,8 +13,6 @@ from markupsafe import escape
 from betty.locale.localizable import resolve_localizable
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-
     from betty.locale.localizable import Localizable, ResolvableLocalizable
 
 
@@ -41,24 +39,6 @@ class NavigationLink:
         The human-readable short link label.
         """
         return self._label
-
-
-class NavigationLinkProvider:
-    """
-    Provide navigation links for HTML pages.
-    """
-
-    def primary_navigation_links(self) -> Sequence[NavigationLink]:
-        """
-        The primary navigation links.
-        """
-        return ()
-
-    def secondary_navigation_links(self) -> Sequence[NavigationLink]:
-        """
-        The secondary navigation links.
-        """
-        return ()
 
 
 _paragraph_re = re.compile(r"(?:\r\n|\r|\n){2,}")

@@ -7,11 +7,12 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.asset import AssetDefinition
 from betty.extension import ExtensionDefinition
-from betty.html import NavigationLink, NavigationLinkProvider
+from betty.link import LinkDefinition
 from betty.locale.localizable.gettext import _
 from betty.plugins.asset.http_api_doc import HttpApiDoc as HttpApiDocAsset
 from betty.plugins.extension.webpack import Webpack
 from betty.plugins.extension.webpack.build import EntryPointProvider
+from betty.plugins.link.http_api_doc import HttpApiDoc as HttpApiDocLink
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -24,9 +25,13 @@ if TYPE_CHECKING:
     description=_(
         "Display the HTTP API documentation in a user-friendly way using Swagger UI."
     ),
-    requires={AssetDefinition: HttpApiDocAsset, ExtensionDefinition: Webpack},
+    requires={
+        AssetDefinition: HttpApiDocAsset,
+        ExtensionDefinition: Webpack,
+        LinkDefinition: HttpApiDocLink,
+    },
 )
-class HttpApiDoc(EntryPointProvider, NavigationLinkProvider):
+class HttpApiDoc(EntryPointProvider):
     """
     .. plugin:: extension:http-api-doc.
     """
@@ -43,9 +48,3 @@ class HttpApiDoc(EntryPointProvider, NavigationLinkProvider):
     @override
     def webpack_entry_point_cache_keys(self) -> Sequence[str]:
         return ()
-
-    @override
-    def secondary_navigation_links(self) -> Sequence[NavigationLink]:
-        return [
-            NavigationLink("betty-static:///api/index.html", _("API documentation")),
-        ]
