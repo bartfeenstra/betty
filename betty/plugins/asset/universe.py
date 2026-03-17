@@ -13,7 +13,6 @@ from betty.dirs import ASSETS_DIRECTORY_PATH
 @final
 @AssetDefinition(
     "universe",
-    label="Universe",
     assets=ASSETS_DIRECTORY_PATH / "universe",
     after=lambda _: True,
     auto=True,

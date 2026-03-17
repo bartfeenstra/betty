@@ -11,7 +11,7 @@ from betty.dirs import ASSETS_DIRECTORY_PATH
 
 
 @final
-@AssetDefinition("trees", label="Trees", assets=ASSETS_DIRECTORY_PATH / "trees")
+@AssetDefinition("trees", assets=ASSETS_DIRECTORY_PATH / "trees")
 class Trees(Asset):
     """
     .. plugin:: asset:trees.

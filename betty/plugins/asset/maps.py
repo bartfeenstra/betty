@@ -11,7 +11,7 @@ from betty.dirs import ASSETS_DIRECTORY_PATH
 
 
 @final
-@AssetDefinition("maps", label="Maps", assets=ASSETS_DIRECTORY_PATH / "maps")
+@AssetDefinition("maps", assets=ASSETS_DIRECTORY_PATH / "maps")
 class Maps(Asset):
     """
     .. plugin:: asset:maps.

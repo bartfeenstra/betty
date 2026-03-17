@@ -26,11 +26,7 @@ class _DummyExtension(Extension):
         super().__init__()
 
 
-@AssetDefinition(
-    "dummy",
-    label=DUMMY_LOCALIZABLE,
-    assets=Path(__file__).parent / "dummy" / "assets",
-)
+@AssetDefinition("dummy", assets=Path(__file__).parent / "dummy" / "assets")
 class _DummyAsset(Asset):
     pass
 

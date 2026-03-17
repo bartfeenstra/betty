@@ -11,7 +11,7 @@ from betty.dirs import ASSETS_DIRECTORY_PATH
 
 
 @final
-@AssetDefinition("webpack", label="Webpack", assets=ASSETS_DIRECTORY_PATH / "webpack")
+@AssetDefinition("webpack", assets=ASSETS_DIRECTORY_PATH / "webpack")
 class Webpack(Asset):
     """
     .. plugin:: asset:webpack.
