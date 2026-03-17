@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 import aiofiles
 
 from betty.document import Document
-from betty.jinja import Environment
+from betty.jinja import make_copy_function, new_environment
 from betty.job import Context
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.project import Project
@@ -17,94 +17,87 @@ if TYPE_CHECKING:
     from betty.app import App
 
 
-class TestEnvironment:
-    async def test_context_class(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project, project:
-            sut = await Environment.new(project)
-            context_class = sut.context_class
-            context_class(sut, {}, "", {}, {})
+async def test_new_environment__with_debug(isolated_app: App) -> None:
+    async with Project.new_isolated(isolated_app) as project:
+        project.configuration.debug = True
+        async with project:
+            sut = await new_environment(project)
+            assert "jinja2.ext.DebugExtension" in sut.extensions
 
-    async def test_new_with_debug(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.debug = True
-            async with project:
-                sut = await Environment.new(project)
-                assert "jinja2.ext.DebugExtension" in sut.extensions
 
-    async def test_make_copy_function__www_directory(
-        self, isolated_app: App, tmp_path: Path
-    ) -> None:
-        async with Project.new_isolated(isolated_app) as project, project:
-            sut = await Environment.new(project)
-            source_file_path = tmp_path / "source.test.j2"
-            async with aiofiles.open(source_file_path, "w") as f:
-                await f.write("{{ document.resource }}\n{{ document.resource_url }}")
-            www_directory_path = tmp_path / "www"
-            destination_file_path = www_directory_path / "destination.test.j2"
-            rendered_destination_file_path = www_directory_path / "destination.test"
-            copy_function = sut.make_copy_function(
-                www_directory_path=www_directory_path, document=Document()
-            )
-            await copy_function(source_file_path, destination_file_path)
-            async with aiofiles.open(rendered_destination_file_path) as f:
-                assert (
-                    (await f.read()).strip()
-                    == f"{rendered_destination_file_path}\nbetty:///destination.test"
-                )
+async def test_make_copy_function__www_directory(
+    isolated_app: App, tmp_path: Path
+) -> None:
+    async with Project.new_isolated(isolated_app) as project, project:
+        environment = await new_environment(project)
+        source_file_path = tmp_path / "source.test.j2"
+        async with aiofiles.open(source_file_path, "w") as f:
+            await f.write("{{ document.resource }}\n{{ document.resource_url }}")
+        www_directory_path = tmp_path / "www"
+        destination_file_path = www_directory_path / "destination.test.j2"
+        rendered_destination_file_path = www_directory_path / "destination.test"
+        copy_function = make_copy_function(
+            environment, www_directory_path=www_directory_path, document=Document()
+        )
+        await copy_function(source_file_path, destination_file_path)
+        async with aiofiles.open(rendered_destination_file_path) as f:
+            assert (
+                await f.read()
+            ).strip() == f"{rendered_destination_file_path}\nbetty:///destination.test"
 
-    async def test_make_copy_function__www_directory_with_hidden_file(
-        self, isolated_app: App, tmp_path: Path
-    ) -> None:
-        async with Project.new_isolated(isolated_app) as project, project:
-            sut = await Environment.new(project)
-            source_file_path = tmp_path / "source.test.j2"
-            async with aiofiles.open(source_file_path, "w") as f:
-                await f.write("{{ document.resource }}\n{{ document.resource_url }}")
-            www_directory_path = tmp_path / "www"
-            destination_file_path = www_directory_path / ".destination.test.j2"
-            rendered_destination_file_path = www_directory_path / ".destination.test"
-            copy_function = sut.make_copy_function(
-                www_directory_path=www_directory_path, document=Document()
-            )
-            await copy_function(source_file_path, destination_file_path)
-            async with aiofiles.open(rendered_destination_file_path) as f:
-                assert (
-                    await f.read()
-                ).strip() == f"{rendered_destination_file_path}\nNone"
 
-    async def test_make_copy_function__www_directory_and_is_localized_and_multilingual(
-        self, isolated_app: App, tmp_path: Path
-    ) -> None:
-        async with Project.new_isolated(isolated_app) as project, project:
-            sut = await Environment.new(project)
-            source_file_path = tmp_path / "source.test.j2"
-            async with aiofiles.open(source_file_path, "w") as f:
-                await f.write("{{ document.resource }}\n{{ document.resource_url }}")
-            www_directory_path = tmp_path / "www"
-            destination_file_path = (
-                www_directory_path / DEFAULT_LOCALE_TAG / "destination.test.j2"
-            )
-            rendered_destination_file_path = (
-                www_directory_path / DEFAULT_LOCALE_TAG / "destination.test"
-            )
-            copy_function = sut.make_copy_function(
-                www_directory_path=www_directory_path,
-                is_localized_and_multilingual=True,
-                document=Document(),
-            )
-            await copy_function(source_file_path, destination_file_path)
-            async with aiofiles.open(rendered_destination_file_path) as f:
-                assert (
-                    (await f.read()).strip()
-                    == f"{rendered_destination_file_path}\nbetty:///destination.test"
-                )
+async def test_make_copy_function__www_directory_with_hidden_file(
+    isolated_app: App, tmp_path: Path
+) -> None:
+    async with Project.new_isolated(isolated_app) as project, project:
+        environment = await new_environment(project)
+        source_file_path = tmp_path / "source.test.j2"
+        async with aiofiles.open(source_file_path, "w") as f:
+            await f.write("{{ document.resource }}\n{{ document.resource_url }}")
+        www_directory_path = tmp_path / "www"
+        destination_file_path = www_directory_path / ".destination.test.j2"
+        rendered_destination_file_path = www_directory_path / ".destination.test"
+        copy_function = make_copy_function(
+            environment, www_directory_path=www_directory_path, document=Document()
+        )
+        await copy_function(source_file_path, destination_file_path)
+        async with aiofiles.open(rendered_destination_file_path) as f:
+            assert (await f.read()).strip() == f"{rendered_destination_file_path}\nNone"
+
+
+async def test_make_copy_function__www_directory_and_is_localized_and_multilingual(
+    isolated_app: App, tmp_path: Path
+) -> None:
+    async with Project.new_isolated(isolated_app) as project, project:
+        environment = await new_environment(project)
+        source_file_path = tmp_path / "source.test.j2"
+        async with aiofiles.open(source_file_path, "w") as f:
+            await f.write("{{ document.resource }}\n{{ document.resource_url }}")
+        www_directory_path = tmp_path / "www"
+        destination_file_path = (
+            www_directory_path / DEFAULT_LOCALE_TAG / "destination.test.j2"
+        )
+        rendered_destination_file_path = (
+            www_directory_path / DEFAULT_LOCALE_TAG / "destination.test"
+        )
+        copy_function = make_copy_function(
+            environment,
+            www_directory_path=www_directory_path,
+            is_localized_and_multilingual=True,
+            document=Document(),
+        )
+        await copy_function(source_file_path, destination_file_path)
+        async with aiofiles.open(rendered_destination_file_path) as f:
+            assert (
+                await f.read()
+            ).strip() == f"{rendered_destination_file_path}\nbetty:///destination.test"
 
 
 class Test_CacheTagExtension:
     async def test_tag__without_context(self, isolated_app: App) -> None:
         counter = Counter()
         async with Project.new_isolated(isolated_app) as project, project:
-            sut = await Environment.new(project)
+            sut = await new_environment(project)
             template = sut.from_string(
                 "{% cache 'my-first-cache-key' %}{% do count() %}{% endcache %}"
             )
@@ -116,7 +109,7 @@ class Test_CacheTagExtension:
         counter = Counter()
         context = Context()
         async with Project.new_isolated(isolated_app) as project, project:
-            sut = await Environment.new(project)
+            sut = await new_environment(project)
             template = sut.from_string(
                 "{% cache 'my-first-cache-key' %}{% do count() %}{% endcache %}"
             )

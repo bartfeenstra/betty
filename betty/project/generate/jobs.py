@@ -15,6 +15,7 @@ import aiofiles
 from aiofiles.os import makedirs
 from PIL import Image
 
+from betty.jinja import make_copy_function
 from betty.job import Job
 from betty.locale.localizable.gettext import _
 from betty.locale.localize import DEFAULT_LOCALIZER
@@ -63,7 +64,8 @@ class GenerateStaticPublicAssets(Job):
 
         assets = await self._project.assets
         jinja = await self._project.jinja
-        copy_function = jinja.make_copy_function(
+        copy_function = make_copy_function(
+            jinja,
             document=await self._project.new_document(context=scheduler.context),
             www_directory_path=self._project.www_directory,
             is_localized_and_multilingual=self._project.configuration.multilingual,
@@ -294,7 +296,8 @@ class GenerateLocalizedPublicAssets(Job):
         localizers = await self._project.localizers
         jinja = await self._project.jinja
         copy_functions = {
-            locale: jinja.make_copy_function(
+            locale: make_copy_function(
+                jinja,
                 document=await self._project.new_document(
                     context=scheduler.context,
                     localizer=localizers.get(locale),

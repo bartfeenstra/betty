@@ -21,6 +21,7 @@ from betty.dirs import ROOT_DIRECTORY_PATH
 from betty.document import Document
 from betty.extension import Extension
 from betty.hashid import hashid, hashid_file_content, hashid_sequence
+from betty.jinja import make_copy_function
 from betty.portable import PortableMapping
 
 if TYPE_CHECKING:
@@ -174,8 +175,8 @@ class Builder:
             / "packages"
             / _package_name_to_path(cast(str, package_json["name"]))
         )
-        copy_function = self._jinja.make_copy_function(
-            document=Document(context=context)
+        copy_function = make_copy_function(
+            self._jinja, document=Document(context=context)
         )
         copies = []
         for directory_path, _, file_names in walk(entry_point_directory_path):
