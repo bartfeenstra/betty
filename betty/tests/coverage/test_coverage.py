@@ -239,7 +239,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "context_context": MissingReason.SHOULD_BE_COVERED,
         "context_localizer": MissingReason.SHOULD_BE_COVERED,
         "context_document": MissingReason.SHOULD_BE_COVERED,
-        "Environment": {},
     },
     "betty/jinja/filter.py": {
         "JinjaFilter": MissingReason.STATIC_CONTENT_ONLY,

@@ -332,9 +332,9 @@ class Project(
         """
         The Jinja2 environment.
         """
-        from betty.jinja import Environment
+        from betty.jinja import new_environment
 
-        return await Environment.new(self)
+        return await new_environment(self)
 
     @service
     async def renderer(self) -> RenderDispatcher:
