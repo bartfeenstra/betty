@@ -10,7 +10,7 @@ from urllib.parse import quote
 from aiofiles.os import makedirs
 from jinja2 import pass_context
 
-from betty.jinja import JinjaFilterDefinition, context_context
+from betty.jinja import JinjaFilterDefinition, context_document
 from betty.jinja.filter import JinjaFilter
 from betty.os import link_or_copy
 from betty.service.factory import Manufacturable
@@ -50,7 +50,7 @@ class File(JinjaFilter, Manufacturable):
         """
         :return: A ``betty-static://`` URL resource from which a public URL can be generated.
         """
-        job_context = context_context(context)
+        job_context = context_document(context).context
 
         execute_filter = True
         if job_context:

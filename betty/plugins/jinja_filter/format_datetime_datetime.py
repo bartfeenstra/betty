@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, final
 from babel.dates import format_date
 from jinja2 import pass_context
 
-from betty.jinja import context_localizer
+from betty.jinja import context_document
 from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
 
 if TYPE_CHECKING:
@@ -31,5 +31,5 @@ class FormatDatetimeDatetime(JinjaFilter):
     def __call__(  # noqa: D102
         self, context: Context, datetime_datetime: datetime.datetime, /
     ) -> str:
-        localizer = context_localizer(context)
+        localizer = context_document(context).localizer
         return format_date(datetime_datetime, "long", locale=localizer.locale)

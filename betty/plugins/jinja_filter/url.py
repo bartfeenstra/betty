@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, Self, final, override
 
 from jinja2 import pass_context
 
-from betty.jinja import JinjaFilterDefinition, context_localizer
+from betty.jinja import JinjaFilterDefinition, context_document
 from betty.jinja.filter import JinjaFilter
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML
@@ -53,6 +53,6 @@ class Url(JinjaFilter, Manufacturable):
         return self._url_generator.generate(
             resource,
             media_type=MediaType(media_type) if media_type else HTML,
-            locale=locale or context_localizer(context).locale,
+            locale=locale or context_document(context).localizer.locale,
             **kwargs,
         )

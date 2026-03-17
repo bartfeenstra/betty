@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, final
 
 from jinja2 import pass_context
 
-from betty.jinja import context_localizer
+from betty.jinja import context_document
 from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
 
 if TYPE_CHECKING:
@@ -30,4 +30,4 @@ class Localize(JinjaFilter):
     def __call__(  # noqa: D102
         self, context: Context, localizable: Localizable, /
     ) -> str:
-        return localizable.localize(context_localizer(context))
+        return localizable.localize(context_document(context).localizer)

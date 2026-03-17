@@ -40,8 +40,6 @@ if TYPE_CHECKING:
     from jinja2.parser import Parser
 
     from betty.document import Document
-    from betty.job import Context as JobContext
-    from betty.locale.localize import Localizer
     from betty.project import Project
 
 
@@ -58,28 +56,6 @@ def context_document(context: JinjaContext) -> Document:
             "No `document` context variable exists in this Jinja2 template."
         ) from None
     return document
-
-
-def context_context(context: JinjaContext) -> JobContext | None:
-    """
-    Get the current job context from the Jinja2 context.
-    """
-    try:
-        return context_document(context).context
-    except (KeyError, RuntimeError):
-        return None
-
-
-def context_localizer(context: JinjaContext) -> Localizer:
-    """
-    Get the current localizer from the Jinja2 context.
-    """
-    try:
-        return context_document(context).localizer
-    except KeyError:
-        raise RuntimeError(
-            "No `resource.localizer` context variable exists in this Jinja2 template."
-        ) from None
 
 
 async def new_environment(project: Project, /) -> Environment:
@@ -157,19 +133,21 @@ async def new_environment(project: Project, /) -> Environment:
 
 @pass_context
 def _gettext(context: JinjaContext, message: str) -> str:
-    return context_localizer(context).gettext(message)
+    return context_document(context).localizer.gettext(message)
 
 
 @pass_context
 def _ngettext(
     context: JinjaContext, message_singular: str, message_plural: str, n: int
 ) -> str:
-    return context_localizer(context).ngettext(message_singular, message_plural, n)
+    return context_document(context).localizer.ngettext(
+        message_singular, message_plural, n
+    )
 
 
 @pass_context
 def _pgettext(context: JinjaContext, gettext_context: str, message: str) -> str:
-    return context_localizer(context).pgettext(gettext_context, message)
+    return context_document(context).localizer.pgettext(gettext_context, message)
 
 
 @pass_context
@@ -180,7 +158,7 @@ def _npgettext(
     message_plural: str,
     n: int,
 ) -> str:
-    return context_localizer(context).npgettext(
+    return context_document(context).localizer.npgettext(
         gettext_context, message_singular, message_plural, n
     )
 
@@ -260,7 +238,10 @@ class _CacheTagExtension(Extension):
     async def _cache(
         self, cache_key: str, context: JinjaContext, caller: Callable[[], str]
     ) -> str:
-        job_context = context_context(context)
+        try:
+            job_context = context_document(context).context
+        except RuntimeError:
+            job_context = None
         if job_context is None:
             return await auto_await(caller())
         async with job_context.cache.getset(f"jinja2_cache_tag:{cache_key}") as result:

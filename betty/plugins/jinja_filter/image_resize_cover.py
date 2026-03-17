@@ -17,7 +17,7 @@ from PIL.Image import DecompressionBombWarning
 
 from betty.hashid import hashid_file_meta
 from betty.image import FocusArea, Size, image_file_path_format, resize_cover
-from betty.jinja import JinjaFilterDefinition, context_context
+from betty.jinja import JinjaFilterDefinition, context_document
 from betty.jinja.filter import JinjaFilter
 from betty.media_type.media_types import SVG
 from betty.os import _link_or_copy
@@ -105,7 +105,7 @@ class ImageResizeCover(JinjaFilter, Manufacturable):
         if file.media_type and file.media_type == SVG:
             return await self._file_filter(context, file)
 
-        job_context = context_context(context)
+        job_context = context_document(context).context
 
         destination_name = f"{file.id}-"
         if size is not None:
