@@ -8,6 +8,8 @@ to start using these utilities.
 from __future__ import annotations
 
 __all__ = [
+    "assert_template_file",
+    "assert_template_string",
     "binary_file_cache",
     "demo_project_aioresponses",
     "http_client_mock",
@@ -19,24 +21,37 @@ __all__ = [
 
 import re
 import tarfile
-from contextlib import asynccontextmanager
+from collections.abc import AsyncIterator
+from contextlib import AbstractAsyncContextManager, asynccontextmanager
 from io import BytesIO
 from json import dumps
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Protocol,
+    final,
+)
 
 import pytest
 import pytest_asyncio
 from aioresponses import aioresponses
+from jinja2 import Environment, Template
 
 from betty.app import App
 from betty.cache.file import BinaryFileCache
 from betty.exception import do_raise
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.plugins.license.spdx import SpdxLicenseDiscoverer
+from betty.project import Project
 from betty.user import Verbosity
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Iterator  # noqa: I001
+    from collections.abc import (  # noqa: I001
+        AsyncIterator,
+        Callable,
+        Iterator,
+        MutableMapping,
+    )
     from concurrent import futures
     from contextlib import AbstractAsyncContextManager
     from pathlib import Path
@@ -44,6 +59,8 @@ if TYPE_CHECKING:
     from playwright.async_api import BrowserContext, Page
 
     from betty.cache import Cache
+    from betty.extension import ExtensionDefinition
+    from betty.plugin import ResolvablePluginId
     from betty.portable import PortableMapping
     from betty.service.provider import ServiceFactory
     from betty.user import User
@@ -345,3 +362,109 @@ def _demo_project_aioresponses_wiki_apis(
         ),
         repeat=True,
     )
+
+
+@asynccontextmanager
+async def _assert_template(
+    app: App,
+    template_factory: Callable[[Environment, str], Template],
+    template: str,
+    *,
+    data: MutableMapping[str, Any] | None = None,
+    autoescape: bool | None = None,
+    extensions: set[ResolvablePluginId[ExtensionDefinition]] | None = None,
+) -> AsyncIterator[tuple[str, Project]]:
+    async with Project.new_isolated(app) as project:
+        project.configuration.debug = True
+        if extensions is not None:
+            project.configuration.extensions.add(*extensions)
+        async with project:
+            if data is None:
+                data = {}
+            if "document" not in data:
+                data["document"] = await project.new_document()
+            jinja = await project.jinja
+            if autoescape is not None:
+                jinja.autoescape = autoescape
+            rendered = await template_factory(jinja, template).render_async(**data)
+            yield rendered, project
+
+
+@final
+class AssertTemplateString(Protocol):
+    def __call__(
+        self,
+        template: str,
+        *,
+        data: MutableMapping[str, Any] | None = None,
+        autoescape: bool | None = None,
+        extensions: set[ResolvablePluginId[ExtensionDefinition]] | None = None,
+    ) -> AbstractAsyncContextManager[tuple[str, Project]]:
+        """
+        Assert that a template string can be rendered.
+        """
+
+
+@pytest.fixture
+def assert_template_string(isolated_app: App) -> AssertTemplateString:
+    """
+    Return an assertion to render a template string.
+    """
+
+    def _assert_template_string(
+        template: str,
+        *,
+        data: MutableMapping[str, Any] | None = None,
+        autoescape: bool | None = None,
+        extensions: set[ResolvablePluginId[ExtensionDefinition]] | None = None,
+    ) -> AbstractAsyncContextManager[tuple[str, Project]]:
+        return _assert_template(
+            isolated_app,
+            Environment.from_string,
+            template,
+            data=data,
+            autoescape=autoescape,
+            extensions=extensions,
+        )
+
+    return _assert_template_string
+
+
+@final
+class AssertTemplateFile(Protocol):
+    def __call__(
+        self,
+        template: str,
+        *,
+        data: MutableMapping[str, Any] | None = None,
+        autoescape: bool | None = None,
+        extensions: set[ResolvablePluginId[ExtensionDefinition]] | None = None,
+    ) -> AbstractAsyncContextManager[tuple[str, Project]]:
+        """
+        Assert that a template file can be rendered.
+        """
+
+
+@pytest.fixture
+def assert_template_file(isolated_app: App) -> AssertTemplateFile:
+    """
+    Return an assertion to render a template file.
+    """
+
+    def _assert_template_file(
+        template: str,
+        *,
+        data: MutableMapping[str, Any] | None = None,
+        autoescape: bool | None = None,
+        extensions: set[ResolvablePluginId[ExtensionDefinition]] | None = None,
+    ) -> AbstractAsyncContextManager[tuple[str, Project]]:
+        return _assert_template(
+            isolated_app,
+            Environment.get_template,
+            template,
+            data=data,
+            autoescape=autoescape,
+            extensions=extensions,
+        )
+
+    return _assert_template_file

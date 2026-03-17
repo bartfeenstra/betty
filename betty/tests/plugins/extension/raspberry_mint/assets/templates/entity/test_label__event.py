@@ -6,10 +6,10 @@ from betty.plugins.event_type.birth import Birth
 from betty.plugins.event_type.marriage import Marriage
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.plugins.role.subject import Subject
-from betty.test_utils.jinja import assert_template_file
+from betty.test_utils.conftest import AssertTemplateFile
 
 
-async def test_minimal() -> None:
+async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
     event = Event(event_type=Birth())
     expected = "Birth"
     async with assert_template_file(
@@ -22,7 +22,7 @@ async def test_minimal() -> None:
         assert actual == expected
 
 
-async def test_with_name() -> None:
+async def test_with_name(assert_template_file: AssertTemplateFile) -> None:
     event = Event(
         event_type=Birth(),
         name="Something happened!",
@@ -38,7 +38,7 @@ async def test_with_name() -> None:
         assert actual == expected
 
 
-async def test_with_persistent_id() -> None:
+async def test_with_persistent_id(assert_template_file: AssertTemplateFile) -> None:
     event = Event(
         id="EVENT1",
         event_type=Birth(),
@@ -55,7 +55,7 @@ async def test_with_persistent_id() -> None:
         assert actual == expected
 
 
-async def test_with_embedded() -> None:
+async def test_with_embedded(assert_template_file: AssertTemplateFile) -> None:
     event_id = "EVENT1"
     event = Event(
         id=event_id,
@@ -74,7 +74,9 @@ async def test_with_embedded() -> None:
         assert actual == expected
 
 
-async def test_with_single_subject_as_person_context() -> None:
+async def test_with_single_subject_as_person_context(
+    assert_template_file: AssertTemplateFile,
+) -> None:
     event = Event(event_type=Marriage())
     context_subject = Person()
     Presence(context_subject, Subject(), event)
@@ -90,7 +92,9 @@ async def test_with_single_subject_as_person_context() -> None:
         assert actual == expected
 
 
-async def test_with_subjects_and_subject_as_person_context() -> None:
+async def test_with_subjects_and_subject_as_person_context(
+    assert_template_file: AssertTemplateFile,
+) -> None:
     event = Event(event_type=Marriage())
     context_subject = Person()
     other_subject = Person()
@@ -108,7 +112,9 @@ async def test_with_subjects_and_subject_as_person_context() -> None:
         assert actual == expected
 
 
-async def test_with_subjects_without_person_context() -> None:
+async def test_with_subjects_without_person_context(
+    assert_template_file: AssertTemplateFile,
+) -> None:
     event = Event(event_type=Marriage())
     context_subject = Person()
     other_subject = Person()

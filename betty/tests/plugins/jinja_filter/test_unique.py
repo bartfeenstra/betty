@@ -1,13 +1,13 @@
 from typing import TYPE_CHECKING, Any
 
-from betty.test_utils.jinja import assert_template_string
+from betty.test_utils.conftest import AssertTemplateString
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
 
 class TestUnique:
-    async def test___call__(self) -> None:
+    async def test___call__(self, assert_template_string: AssertTemplateString) -> None:
         data: Sequence[Any] = [
             999,
             {},

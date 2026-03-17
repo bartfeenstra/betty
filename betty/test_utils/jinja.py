@@ -4,101 +4,18 @@ Utilities for testing Jinja2 templates.
 
 from __future__ import annotations
 
-from contextlib import AbstractAsyncContextManager, asynccontextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import aiofiles
 from lxml.etree import ParserError
 from lxml.html import document_fromstring
 
-from betty.app import App
-from betty.jinja import Environment
 from betty.json.schema import AllOf, Ref
-from betty.plugin import ResolvablePluginId
-from betty.project import Project
 from betty.project.schema import ProjectSchema
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Callable, MutableMapping
-
-    from jinja2 import Template
-
-    from betty.extension import ExtensionDefinition
-
-
-@asynccontextmanager
-async def _assert_template(
-    template_factory: Callable[[Environment, str], Template],
-    template: str,
-    *,
-    data: MutableMapping[str, Any] | None = None,
-    autoescape: bool | None = None,
-    extensions: set[ResolvablePluginId[ExtensionDefinition]] | None = None,
-) -> AsyncIterator[tuple[str, Project]]:
-    async with (
-        App.new_isolated() as app,
-        app,
-        Project.new_isolated(app) as project,
-    ):
-        project.configuration.debug = True
-        if extensions is not None:
-            project.configuration.extensions.add(*extensions)
-        async with project:
-            if data is None:
-                data = {}
-            if "document" not in data:
-                data["document"] = await project.new_document()
-            jinja = await project.jinja
-            if autoescape is not None:
-                jinja.autoescape = autoescape
-            rendered = await template_factory(jinja, template).render_async(**data)
-            yield rendered, project
-
-
-def assert_template_string(
-    template: str,
-    *,
-    data: MutableMapping[str, Any] | None = None,
-    autoescape: bool | None = None,
-    extensions: set[ResolvablePluginId[ExtensionDefinition]] | None = None,
-) -> AbstractAsyncContextManager[tuple[str, Project]]:
-    """
-    Assert that a template string can be rendered.
-    """
-    return _assert_template(
-        Environment.from_string,
-        template,
-        data=data,
-        autoescape=autoescape,
-        extensions=extensions,
-    )
-
-
-def assert_template_file(
-    template: str,
-    *,
-    data: MutableMapping[str, Any] | None = None,
-    autoescape: bool | None = None,
-    extensions: set[ResolvablePluginId[ExtensionDefinition]] | None = None,
-) -> AbstractAsyncContextManager[tuple[str, Project]]:
-    """
-    Assert that a template file can be rendered.
-    """
-    return _assert_template(
-        Environment.get_template,
-        template,
-        data=data,
-        autoescape=autoescape,
-        extensions=extensions,
-    )
-
-
-class _TemplateTestBase:
-    extensions = set[ResolvablePluginId]()
-    """
-    The extensions to enable before rendering the template.
-    """
+    from betty.project import Project
 
 
 async def assert_betty_html(project: Project, url_path: str) -> Path:

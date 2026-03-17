@@ -5,7 +5,7 @@ import pytest
 from betty.content import Content, ContentDefinition, ContentManufacturer
 from betty.plugin.factory import PluginManufacturer
 from betty.plugins.content.render import Render, RenderConfiguration
-from betty.test_utils.jinja import assert_template_string
+from betty.test_utils.conftest import AssertTemplateString
 
 
 class TestBuildContent:
@@ -21,6 +21,7 @@ class TestBuildContent:
     )
     async def test___call__(
         self,
+        assert_template_string: AssertTemplateString,
         expected: str,
         contents: Iterable[PluginManufacturer[ContentDefinition, Content]],
     ) -> None:

@@ -3,10 +3,10 @@ from betty.plugins.entity.person import Person
 from betty.plugins.entity.person_name import PersonName
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.privacy import Privacy
-from betty.test_utils.jinja import assert_template_file
+from betty.test_utils.conftest import AssertTemplateFile
 
 
-async def test_minimal() -> None:
+async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
     person = Person()
     expected = '<span title="This person\'s name is unknown.">n.n.</span>'
     async with assert_template_file(
@@ -19,7 +19,7 @@ async def test_minimal() -> None:
         assert actual == expected
 
 
-async def test_with_name() -> None:
+async def test_with_name(assert_template_file: AssertTemplateFile) -> None:
     person = Person()
     PersonName(
         person=person,
@@ -37,7 +37,7 @@ async def test_with_name() -> None:
         assert actual == expected
 
 
-async def test_with_persistent_id() -> None:
+async def test_with_persistent_id(assert_template_file: AssertTemplateFile) -> None:
     person = Person(id="P0")
     expected = f'<a href="/person/{person.public_id}/index.html"><span title="This person\'s name is unknown.">n.n.</span></a>'
     async with assert_template_file(
@@ -50,7 +50,7 @@ async def test_with_persistent_id() -> None:
         assert actual == expected
 
 
-async def test_embedded() -> None:
+async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
     person = Person(id="P0")
     expected = '<span title="This person\'s name is unknown.">n.n.</span>'
     async with assert_template_file(
@@ -64,7 +64,7 @@ async def test_embedded() -> None:
         assert actual == expected
 
 
-async def test_private() -> None:
+async def test_private(assert_template_file: AssertTemplateFile) -> None:
     person = Person(id="P0", privacy=Privacy.PRIVATE)
     PersonName(
         person=person,
@@ -82,7 +82,7 @@ async def test_private() -> None:
         assert actual == expected
 
 
-async def test_with_private_name() -> None:
+async def test_with_private_name(assert_template_file: AssertTemplateFile) -> None:
     person = Person()
     PersonName(
         person=person,
@@ -101,7 +101,7 @@ async def test_with_private_name() -> None:
         assert actual == expected
 
 
-async def test_person_is_context() -> None:
+async def test_person_is_context(assert_template_file: AssertTemplateFile) -> None:
     person = Person(id="P0")
     expected = '<span title="This person\'s name is unknown.">n.n.</span>'
     async with assert_template_file(

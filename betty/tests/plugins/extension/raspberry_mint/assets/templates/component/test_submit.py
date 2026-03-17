@@ -1,9 +1,9 @@
 from betty.html.attributes import Attributes
 from betty.plugins.extension.raspberry_mint import RaspberryMint
-from betty.test_utils.jinja import assert_template_file
+from betty.test_utils.conftest import AssertTemplateFile
 
 
-async def test_minimal() -> None:
+async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
     label = "Hit me, I am a button!"
     async with assert_template_file(
         data={
@@ -18,7 +18,7 @@ async def test_minimal() -> None:
         assert label in actual
 
 
-async def test_secondary() -> None:
+async def test_secondary(assert_template_file: AssertTemplateFile) -> None:
     async with assert_template_file(
         data={
             "button_label": "Hit me, I am a button!",
@@ -30,7 +30,7 @@ async def test_secondary() -> None:
         assert "button-secondary" in actual
 
 
-async def test_with_html_attributes() -> None:
+async def test_with_html_attributes(assert_template_file: AssertTemplateFile) -> None:
     html_id = "my-first-id"
     async with assert_template_file(
         data={

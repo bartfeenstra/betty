@@ -2,7 +2,7 @@ from typing import Any
 
 import pytest
 
-from betty.test_utils.jinja import assert_template_string
+from betty.test_utils.conftest import AssertTemplateString
 from betty.test_utils.model import DummyEntityOne
 
 
@@ -19,7 +19,13 @@ class TestUrl:
             ),
         ],
     )
-    async def test___call__(self, expected: str, data: Any, absolute: bool) -> None:
+    async def test___call__(
+        self,
+        assert_template_string: AssertTemplateString,
+        expected: str,
+        data: Any,
+        absolute: bool,
+    ) -> None:
         template = "{{ data | url(absolute=absolute) }}"
         async with assert_template_string(
             template=template,

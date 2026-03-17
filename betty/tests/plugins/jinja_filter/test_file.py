@@ -4,7 +4,7 @@ import pytest
 
 from betty.job import Context
 from betty.plugins.entity.file import File
-from betty.test_utils.jinja import assert_template_string
+from betty.test_utils.conftest import AssertTemplateString
 
 _TEST_FILTER_FILE_PARAMETER_ARGNAMES = ("expected", "template", "file")
 _TEST_FILTER_FILE_PARAMETER_ARGVALUES = [
@@ -31,7 +31,13 @@ class TestFile:
     @pytest.mark.parametrize(
         _TEST_FILTER_FILE_PARAMETER_ARGNAMES, _TEST_FILTER_FILE_PARAMETER_ARGVALUES
     )
-    async def test___call__(self, expected: str, template: str, file: File) -> None:
+    async def test___call__(
+        self,
+        assert_template_string: AssertTemplateString,
+        expected: str,
+        template: str,
+        file: File,
+    ) -> None:
         async with assert_template_string(
             template=template,
             data={
@@ -46,7 +52,11 @@ class TestFile:
         _TEST_FILTER_FILE_PARAMETER_ARGNAMES, _TEST_FILTER_FILE_PARAMETER_ARGVALUES
     )
     async def test___call____with_context(
-        self, expected: str, template: str, file: File
+        self,
+        assert_template_string: AssertTemplateString,
+        expected: str,
+        template: str,
+        file: File,
     ) -> None:
         async with assert_template_string(
             template=template,

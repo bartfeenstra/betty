@@ -1,10 +1,10 @@
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugins.entity.person import Person
 from betty.plugins.extension.raspberry_mint import RaspberryMint
-from betty.test_utils.jinja import assert_template_file
+from betty.test_utils.conftest import AssertTemplateFile
 
 
-async def test_minimal() -> None:
+async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
     entity = Person()
     async with assert_template_file(
         data={

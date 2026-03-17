@@ -2,10 +2,10 @@ from betty.plugins.entity.person import Person
 from betty.plugins.extension._theme import person_descendant_families
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.privacy import Privacy
-from betty.test_utils.jinja import assert_template_file
+from betty.test_utils.conftest import AssertTemplateFile
 
 
-async def test_minimal() -> None:
+async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
     person = Person()
     async with assert_template_file(
         data={
@@ -17,7 +17,7 @@ async def test_minimal() -> None:
         assert not actual
 
 
-async def test_with_parents() -> None:
+async def test_with_parents(assert_template_file: AssertTemplateFile) -> None:
     parent = Person(id="P0")
     person = Person(parents=[parent])
     async with assert_template_file(
@@ -30,7 +30,7 @@ async def test_with_parents() -> None:
         assert parent.public_id in actual
 
 
-async def test_with_private_parents() -> None:
+async def test_with_private_parents(assert_template_file: AssertTemplateFile) -> None:
     parent = Person(id="P0", privacy=Privacy.PRIVATE)
     person = Person(parents=[parent])
     async with assert_template_file(
@@ -43,7 +43,7 @@ async def test_with_private_parents() -> None:
         assert parent.id not in actual
 
 
-async def test_with_siblings() -> None:
+async def test_with_siblings(assert_template_file: AssertTemplateFile) -> None:
     parent = Person(id="P0")
     sibling = Person(id="P1", parents=[parent])
     person = Person(parents=[parent])
@@ -57,7 +57,7 @@ async def test_with_siblings() -> None:
         assert sibling.public_id in actual
 
 
-async def test_with_private_siblings() -> None:
+async def test_with_private_siblings(assert_template_file: AssertTemplateFile) -> None:
     parent = Person(id="P0")
     sibling = Person(id="P1", parents=[parent], privacy=Privacy.PRIVATE)
     person = Person(parents=[parent])
@@ -71,7 +71,7 @@ async def test_with_private_siblings() -> None:
         assert sibling.id not in actual
 
 
-async def test_with_children() -> None:
+async def test_with_children(assert_template_file: AssertTemplateFile) -> None:
     child = Person(id="P0")
     person = Person(children=[child])
     async with assert_template_file(
@@ -85,7 +85,7 @@ async def test_with_children() -> None:
         assert child.public_id in actual
 
 
-async def test_with_private_children() -> None:
+async def test_with_private_children(assert_template_file: AssertTemplateFile) -> None:
     child = Person(id="P0", privacy=Privacy.PRIVATE)
     person = Person(children=[child])
     async with assert_template_file(
@@ -98,7 +98,7 @@ async def test_with_private_children() -> None:
         assert child.id not in actual
 
 
-async def test_with_co_parents() -> None:
+async def test_with_co_parents(assert_template_file: AssertTemplateFile) -> None:
     child = Person()
     co_parent = Person(id="P0", children=[child])
     person = Person(children=[child])
@@ -113,7 +113,9 @@ async def test_with_co_parents() -> None:
         assert co_parent.public_id in actual
 
 
-async def test_with_private_co_parents() -> None:
+async def test_with_private_co_parents(
+    assert_template_file: AssertTemplateFile,
+) -> None:
     child = Person()
     co_parent = Person(id="P0", children=[child], privacy=Privacy.PRIVATE)
     person = Person(children=[child])

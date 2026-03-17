@@ -12,7 +12,7 @@ from betty.media_type.media_types import SVG
 from betty.plugins.entity.file import File
 from betty.plugins.entity.file_reference import FileReference
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
-from betty.test_utils.jinja import assert_template_string
+from betty.test_utils.conftest import AssertTemplateString
 
 _TEST_FILTER_IMAGE_RESIZE_COVER_IMAGE_PATH = (
     ASSETS_DIRECTORY_PATH / "universe" / "public" / "static" / "betty-512x512.png"
@@ -97,7 +97,13 @@ class TestImageResizeCover:
         _TEST_FILTER_IMAGE_RESIZE_COVER_PARAMETER_ARGNAMES,
         _TEST_FILTER_IMAGE_RESIZE_COVER_PARAMETER_ARGVALUES,
     )
-    async def test___call__(self, expected: str, template: str, filey: File) -> None:
+    async def test___call__(
+        self,
+        assert_template_string: AssertTemplateString,
+        expected: str,
+        template: str,
+        filey: File,
+    ) -> None:
         async with assert_template_string(
             template=template,
             data={
@@ -113,7 +119,11 @@ class TestImageResizeCover:
         _TEST_FILTER_IMAGE_RESIZE_COVER_PARAMETER_ARGVALUES,
     )
     async def test___call____with_context(
-        self, expected: str, template: str, filey: File
+        self,
+        assert_template_string: AssertTemplateString,
+        expected: str,
+        template: str,
+        filey: File,
     ) -> None:
         async with assert_template_string(
             template=template,
@@ -126,7 +136,9 @@ class TestImageResizeCover:
             for file_path in actual.split("#"):
                 assert (project.www_directory / file_path[16:]).exists()
 
-    async def test___call____with_svg(self, tmp_path: Path) -> None:
+    async def test___call____with_svg(
+        self, assert_template_string: AssertTemplateString, tmp_path: Path
+    ) -> None:
         image_path = tmp_path / "image.svg"
         async with aiofiles.open(image_path, "w") as f:
             await f.write(
@@ -146,7 +158,9 @@ class TestImageResizeCover:
             for file_path in actual.split("#"):
                 assert (project.www_directory / file_path[16:]).exists()
 
-    async def test___call____with_pdf(self, tmp_path: Path) -> None:
+    async def test___call____with_pdf(
+        self, assert_template_string: AssertTemplateString, tmp_path: Path
+    ) -> None:
         image_path = tmp_path / "image.pdf"
         image = Image.new("1", (1, 1))
         image.save(image_path)
@@ -166,7 +180,9 @@ class TestImageResizeCover:
                 assert file_path.exists()
                 assert from_file(file_path, True) == "image/jpeg"
 
-    async def test___call____with_invalid_image(self, tmp_path: Path) -> None:
+    async def test___call____with_invalid_image(
+        self, assert_template_string: AssertTemplateString, tmp_path: Path
+    ) -> None:
         file_path = tmp_path / "not-an-image.txt"
         file_path.touch()
         with pytest.raises(ValueError):  # noqa: PT011
@@ -182,7 +198,9 @@ class TestImageResizeCover:
             ):
                 pass  # pragma: nocover
 
-    async def test___call____with_file_without_media_type(self) -> None:
+    async def test___call____with_file_without_media_type(
+        self, assert_template_string: AssertTemplateString
+    ) -> None:
         with pytest.raises(ValueError):  # noqa: PT011
             async with assert_template_string(
                 template="{{ filey | image_resize_cover }}",

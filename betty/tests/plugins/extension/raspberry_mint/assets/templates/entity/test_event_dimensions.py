@@ -7,10 +7,10 @@ from betty.plugins.entity.place import Place
 from betty.plugins.entity.source import Source
 from betty.plugins.event_type.birth import Birth
 from betty.plugins.extension.raspberry_mint import RaspberryMint
-from betty.test_utils.jinja import assert_template_file
+from betty.test_utils.conftest import AssertTemplateFile
 
 
-async def test_minimal() -> None:
+async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
     event = Event(event_type=Birth())
     async with assert_template_file(
         data={
@@ -22,7 +22,7 @@ async def test_minimal() -> None:
         assert actual == "sometime"
 
 
-async def test_with_date() -> None:
+async def test_with_date(assert_template_file: AssertTemplateFile) -> None:
     event = Event(
         event_type=Birth(),
         date=Date(1970),
@@ -38,7 +38,7 @@ async def test_with_date() -> None:
         assert actual == expected
 
 
-async def test_with_place() -> None:
+async def test_with_place(assert_template_file: AssertTemplateFile) -> None:
     place = Place(
         id="P0",
         names=[Name("The Place")],
@@ -55,7 +55,9 @@ async def test_with_place() -> None:
         assert actual == expected
 
 
-async def test_with_place_is_place_context() -> None:
+async def test_with_place_is_place_context(
+    assert_template_file: AssertTemplateFile,
+) -> None:
     event = Event(event_type=Birth())
     place = Place(
         id="P0",
@@ -73,7 +75,7 @@ async def test_with_place_is_place_context() -> None:
         assert actual == "sometime"
 
 
-async def test_with_date_and_place() -> None:
+async def test_with_date_and_place(assert_template_file: AssertTemplateFile) -> None:
     place = Place(
         id="P0",
         names=[Name("The Place")],
@@ -94,7 +96,7 @@ async def test_with_date_and_place() -> None:
         assert actual == expected
 
 
-async def test_with_citation() -> None:
+async def test_with_citation(assert_template_file: AssertTemplateFile) -> None:
     event = Event(event_type=Birth())
     event.citations.add(Citation(source=Source(name="The Source")))
     expected = 'sometime <sup><a href="#reference-1">[1]</a></sup>'
@@ -108,7 +110,7 @@ async def test_with_citation() -> None:
         assert actual == expected
 
 
-async def test_embedded() -> None:
+async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
     event = Event(
         event_type=Birth(),
         date=Date(1970),

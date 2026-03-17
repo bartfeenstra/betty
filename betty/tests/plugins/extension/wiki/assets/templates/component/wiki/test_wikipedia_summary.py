@@ -1,11 +1,11 @@
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugins.copyright_notice.wikipedia_contributors import WikipediaContributors
 from betty.plugins.extension.wiki import Wiki
-from betty.test_utils.jinja import assert_template_file
+from betty.test_utils.conftest import AssertTemplateFile
 from betty.wiki.client import Summary
 
 
-async def test() -> None:
+async def test(assert_template_file: AssertTemplateFile) -> None:
     summary = Summary("en", "Amsterdam", "Amstelredam", "Capital of the Netherlands")
     copyright_notice = WikipediaContributors("https://example.com")
     async with assert_template_file(

@@ -4,7 +4,7 @@ from betty.locale.localizable.static import StaticTranslations
 from betty.model import EntityDefinition
 from betty.plugins.entity.link import Link
 from betty.plugins.extension.raspberry_mint import RaspberryMint
-from betty.test_utils.jinja import assert_template_file
+from betty.test_utils.conftest import AssertTemplateFile
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
@@ -21,7 +21,7 @@ class DummyEntityWithLinks(HasLinks):
     pass
 
 
-async def test_minimal() -> None:
+async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
     async with assert_template_file(
         data={
             "links": [],
@@ -32,7 +32,9 @@ async def test_minimal() -> None:
         assert actual == ""
 
 
-async def test_with_link_without_locale() -> None:
+async def test_with_link_without_locale(
+    assert_template_file: AssertTemplateFile,
+) -> None:
     link_url = "https://example.com"
     link_label = "An example site"
     link = Link(link_url, label=link_label)
@@ -47,7 +49,7 @@ async def test_with_link_without_locale() -> None:
         assert link_label in actual
 
 
-async def test_with_link() -> None:
+async def test_with_link(assert_template_file: AssertTemplateFile) -> None:
     link_url = "https://example.com"
     link_label = "An example site"
     link = Link(StaticTranslations({DEFAULT_LOCALE_TAG: link_url}), label=link_label)

@@ -9,7 +9,7 @@ from betty.model import EntityDefinition
 from betty.plugins.entity.file import File
 from betty.plugins.entity.file_reference import FileReference
 from betty.plugins.extension.raspberry_mint import RaspberryMint
-from betty.test_utils.jinja import assert_template_file
+from betty.test_utils.conftest import AssertTemplateFile
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
@@ -26,7 +26,7 @@ class DummyEntityWithFileReferences(HasFileReferences):
     pass
 
 
-async def test_minimal() -> None:
+async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
     entity = DummyEntityWithFileReferences()
     async with assert_template_file(
         data={
@@ -39,7 +39,9 @@ async def test_minimal() -> None:
         assert entity.public_id in actual
 
 
-async def test_with_image(tmp_path: Path) -> None:
+async def test_with_image(
+    assert_template_file: AssertTemplateFile, tmp_path: Path
+) -> None:
     image_path = tmp_path / "image.png"
     image = Image.new("1", (1, 1))
     image.save(image_path)
