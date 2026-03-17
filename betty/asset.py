@@ -12,7 +12,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, final, override
 
 from betty.concurrent import AsynchronizedLock
-from betty.definition.human_facing import HumanFacingDefinition
 from betty.functools import unique
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition
@@ -25,7 +24,6 @@ if TYPE_CHECKING:
     import builtins
     from collections.abc import AsyncIterable, Iterable, Mapping, Sequence
 
-    from betty.locale.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
 
 
@@ -179,11 +177,7 @@ class Asset(Plugin["AssetDefinition"]):
     label_plural=_("Assets"),
     label_countable=ngettext("{count} asset", "{count} assets"),
 )
-class AssetDefinition(
-    HumanFacingDefinition,
-    OrderedPluginDefinition[Asset],
-    ServicePluginDefinition[Asset],
-):
+class AssetDefinition(OrderedPluginDefinition[Asset], ServicePluginDefinition[Asset]):
     """
     .. plugin_type:: asset.
     """
@@ -192,12 +186,10 @@ class AssetDefinition(
         self,
         plugin_id: ResolvableMachineName,
         *,
-        label: ResolvableLocalizable,
         after: Order | None = None,
         assets: Path,
         auto: bool = False,
         before: Order | None = None,
-        description: ResolvableLocalizable | None = None,
         requires: Requires | None = None,
     ):
         super().__init__(
@@ -205,8 +197,6 @@ class AssetDefinition(
             after=after,
             auto=auto,
             before=before,
-            description=description,
-            label=label,
             requires=requires,
         )
         self._assets = assets

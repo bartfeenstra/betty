@@ -11,11 +11,7 @@ from betty.dirs import ASSETS_DIRECTORY_PATH
 
 
 @final
-@AssetDefinition(
-    "http-api-doc",
-    label="HTTP API Documentation",
-    assets=ASSETS_DIRECTORY_PATH / "http-api-doc",
-)
+@AssetDefinition("http-api-doc", assets=ASSETS_DIRECTORY_PATH / "http-api-doc")
 class HttpApiDoc(Asset):
     """
     .. plugin:: asset:http-api-doc.

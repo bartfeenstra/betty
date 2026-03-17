@@ -17,7 +17,7 @@ from betty.test_utils.console import run
 class TestUpdateTranslations:
     @pytest.fixture
     async def isolated_app_with_assets(self, tmp_path: Path) -> AsyncIterator[App]:
-        @AssetDefinition("dummy", label="dummy", assets=tmp_path)
+        @AssetDefinition("dummy", assets=tmp_path)
         class _Dummy(Asset):
             pass
 

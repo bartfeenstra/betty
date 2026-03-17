@@ -11,7 +11,7 @@ from betty.dirs import ASSETS_DIRECTORY_PATH
 
 
 @final
-@AssetDefinition("wiki", label="Wiki", assets=ASSETS_DIRECTORY_PATH / "wiki")
+@AssetDefinition("wiki", assets=ASSETS_DIRECTORY_PATH / "wiki")
 class Wiki(Asset):
     """
     .. plugin:: asset:wiki.

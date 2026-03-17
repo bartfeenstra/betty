@@ -15,7 +15,6 @@ from betty.plugins.asset.trees import Trees
 @final
 @AssetDefinition(
     "raspberry-mint",
-    label="Raspberry Mint",
     assets=ASSETS_DIRECTORY_PATH / "raspberry-mint",
     before={Maps, Trees},
 )
