@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from contextlib import suppress
+from functools import lru_cache
 from typing import TYPE_CHECKING, Any, override
 
 from babel import Locale
@@ -66,23 +67,31 @@ def to_language_tag(locale: Locale | None, /) -> str:
     )
 
 
-def from_language_tag(locale: str, /) -> Locale:
+def from_language_tag(language_tag: str, /) -> Locale:
     """
     Get a locale from its `IETF BCP 47 <https://tools.ietf.org/html/bcp47>`_ language tag.
 
     :raises betty.locale.InvalidLocale: Raised if the given identifier is not a valid locale.
     :raises betty.locale.LocaleNotFoundError: Raised if the given locale cannot be found.
     """
+    locale = _from_language_tag(language_tag)
+    if isinstance(locale, Locale):
+        return locale
+    raise locale
+
+
+@lru_cache
+def _from_language_tag(locale: str, /) -> Locale | Exception:
     try:
         return Locale.parse(locale, sep="-")
     except ValueError:
         from betty.locale.error import InvalidLocale
 
-        raise InvalidLocale(locale) from None
+        return InvalidLocale(locale)
     except UnknownLocaleError:
         from betty.locale.error import UnknownLocale
 
-        raise UnknownLocale(locale) from None
+        return UnknownLocale(locale)
 
 
 def negotiate_locale(
