@@ -4,9 +4,9 @@ from betty.document import Document
 from betty.locale.localizable.plain import Plain
 from betty.plugins.content.raspberry_mint_section import Section, SectionConfiguration
 from betty.plugins.content.render import Render, RenderConfiguration
+from betty.plugins.content.static import Static
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.project import Project
-from betty.test_utils.content import NoOpContent
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
@@ -47,14 +47,14 @@ class TestSectionConfiguration(DataTestBase[SectionConfiguration]):
 class TestSection:
     async def test_build_template__without_content(self, isolated_app: App) -> None:
         async with Project.new_isolated(
-            isolated_app, plugins={ContentDefinition: [NoOpContent]}
+            isolated_app, plugins={ContentDefinition: [Static]}
         ) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = await Section.new(
                     project,
                     SectionConfiguration(
-                        ContentManufacturer(NoOpContent),
+                        ContentManufacturer(Static),
                         heading="My First Section",
                     ),
                 )

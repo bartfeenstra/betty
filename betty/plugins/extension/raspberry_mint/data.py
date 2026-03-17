@@ -4,9 +4,10 @@ Data for the Raspberry Mint extension.
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping
 from typing import TYPE_CHECKING, final
 
+from betty.collection.mapping import MutableResolvedMapping
+from betty.collection.mapping.adapter import MutableResolvedMappingAdapter
 from betty.color import ColorDefinition
 from betty.content import Content, ContentDefinition, ContentManufacturer
 from betty.data import Data, Sample
@@ -18,17 +19,17 @@ from betty.exception import HumanFacingException, reraise_with_indicator
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Paragraph, do_you_mean
 from betty.plugin.data import PluginManufacturerSequenceDefinition
-from betty.plugin.factory import ResolvablePluginManufacturer
-from betty.property import Property
+from betty.plugins.extension.raspberry_mint.region import Region
+from betty.property import Optional, Property
+from betty.property.collection.mapping import MappingProperty
 from betty.sample import Size
 
 if TYPE_CHECKING:
-    from betty.plugins.extension.raspberry_mint import RaspberryMint
+    from collections.abc import Iterable, Mapping
 
-type ResolvableRegionalContent = Mapping[
-    str,
-    Iterable[ResolvablePluginManufacturer[ContentDefinition, Content]],
-]
+    from betty.plugin.factory import ResolvablePluginManufacturer
+    from betty.plugins.extension.raspberry_mint.region import ResolvableRegion
+    from betty.project import Project
 
 
 @final
@@ -68,40 +69,27 @@ class RaspberryMintConfiguration(Data):
     .. data:: betty.plugins.extension.raspberry_mint.data:RaspberryMintConfiguration
     """
 
-    DEFAULT_PRIMARY_COLOR = "#b3446c"
-    DEFAULT_SECONDARY_COLOR = "#3eb489"
-    DEFAULT_TERTIARY_COLOR = "#ffbd22"
-
-    primary_color = Property(
-        ColorDefinition(),
-        label=_("Primary color"),
-        default=lambda: RaspberryMintConfiguration.DEFAULT_PRIMARY_COLOR,
-    )
+    primary_color = Optional(Property(ColorDefinition(), label=_("Primary color")))
     """
     The primary color.
     """
 
-    secondary_color = Property(
-        ColorDefinition(),
-        label=_("Secondary color"),
-        default=lambda: RaspberryMintConfiguration.DEFAULT_SECONDARY_COLOR,
-    )
+    secondary_color = Optional(Property(ColorDefinition(), label=_("Secondary color")))
     """
     The secondary color.
     """
 
-    tertiary_color = Property(
-        ColorDefinition(),
-        label=_("Tertiary color"),
-        default=lambda: RaspberryMintConfiguration.DEFAULT_TERTIARY_COLOR,
-    )
+    tertiary_color = Optional(Property(ColorDefinition(), label=_("Tertiary color")))
     """
     The tertiary color.
     """
 
-    regional_content = Property(
+    regional_content = MappingProperty(
         MappingDefinition(
-            cls=dict,
+            cls=MutableResolvedMapping,
+            factory=lambda: MutableResolvedMappingAdapter(
+                {}, key_resolver=Region.resolve
+            ),
             label=_("Regions"),
             key=StrDefinition(label=_("Region")),
             value=PluginManufacturerSequenceDefinition(
@@ -122,28 +110,33 @@ class RaspberryMintConfiguration(Data):
         primary_color: str | None = None,
         secondary_color: str | None = None,
         tertiary_color: str | None = None,
-        regional_content: ResolvableRegionalContent | None = None,
+        regional_content: Mapping[
+            ResolvableRegion,
+            Iterable[ResolvablePluginManufacturer[ContentDefinition, Content]],
+        ]
+        | None = None,
     ):
+        from betty.plugins.extension.raspberry_mint.region import Region
+
         super().__init__()
-        if primary_color is not None:
-            self.primary_color = primary_color
-        if secondary_color is not None:
-            self.secondary_color = secondary_color
-        if tertiary_color is not None:
-            self.tertiary_color = tertiary_color
+        self.primary_color = primary_color
+        self.secondary_color = secondary_color
+        self.tertiary_color = tertiary_color
         if regional_content is not None:
             self.regional_content.update(
                 {
-                    region: ContentManufacturer.resolve_sequence(content)
+                    Region.resolve(region): ContentManufacturer.resolve_sequence(
+                        content
+                    )
                     for region, content in regional_content.items()
                 }
             )
 
-    async def validate(self, raspberry_mint: RaspberryMint, /) -> None:
+    async def validate(self, project: Project, /) -> None:
         """
         Validate the configuration.
         """
-        available_regions = await raspberry_mint.regions
+        available_regions = await Region.all(project)
         with reraise_with_indicator(Attr("regional_content")):
             for region in self.regional_content:
                 with reraise_with_indicator(Key(region)):

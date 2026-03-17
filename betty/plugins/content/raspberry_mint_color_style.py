@@ -105,7 +105,7 @@ class ColorStyle(Template, DataManufacturable[ColorStyleConfiguration]):
             gather(
                 *map(
                     project.factory.new,
-                    map(ContentManufacturer.resolve, data.content),
+                    data.content,
                 )
             ),
             project.jinja,

@@ -26,7 +26,7 @@ from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.source import Source
-from betty.plugins.extension.raspberry_mint import Breakpoint, RaspberryMint
+from betty.plugins.extension.raspberry_mint import Breakpoint, RaspberryMint, Region
 from betty.plugins.extension.raspberry_mint.data import RaspberryMintConfiguration
 from betty.plugins.extension.raspberry_mint.default import regional_content
 from betty.project import Project
@@ -61,7 +61,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                 RaspberryMintConfiguration(
                     regional_content={
                         **regional_content(localizers=localizers),
-                        "front-page-content": [
+                        Region.FRONT_PAGE_CONTENT: [
                             ContentManufacturer(
                                 Columns,
                                 ColumnsConfiguration([[IncompleteTranslationWarning]]),
@@ -167,7 +167,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                 ),
                             ),
                         ],
-                        "front-page-summary": [
+                        Region.FRONT_PAGE_SUMMARY: [
                             ContentManufacturer(
                                 Render,
                                 RenderConfiguration(

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.content import ContentManufacturer
+from betty.content import Content, ContentDefinition, ContentManufacturer
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
 from betty.plugins.content.box import Box, BoxConfiguration
@@ -34,20 +34,29 @@ from betty.plugins.content.raspberry_mint_section import Section, SectionConfigu
 from betty.plugins.content.raspberry_mint_timeline import Timeline
 from betty.plugins.content.tree import Tree
 from betty.plugins.content.wikipedia_summary import WikipediaSummary
-from betty.plugins.extension.raspberry_mint import SINGLE_COLUMN_TEXT_WIDTH
+from betty.plugins.extension.raspberry_mint import (
+    SINGLE_COLUMN_TEXT_WIDTH,
+    Region,
+    ResolvableRegion,
+)
 from betty.plugins.extension.raspberry_mint import ColorStyle as ColorStyleOption
 from betty.plugins.role.subject import Subject
 from betty.plugins.role.witness import Witness
 
 if TYPE_CHECKING:
-    from collections.abc import Collection
+    from collections.abc import Collection, Iterable, Mapping
 
     from betty.locale.localizable import Localizable
     from betty.locale.localize import Localizer
-    from betty.plugins.extension.raspberry_mint.data import ResolvableRegionalContent
+    from betty.plugin.factory import ResolvablePluginManufacturer
 
 
-def regional_content(*, localizers: Collection[Localizer]) -> ResolvableRegionalContent:
+def regional_content(
+    *, localizers: Collection[Localizer]
+) -> Mapping[
+    ResolvableRegion,
+    Iterable[ResolvablePluginManufacturer[ContentDefinition, Content]],
+]:
     """
     The default regional content configuration.
     """
@@ -56,7 +65,7 @@ def regional_content(*, localizers: Collection[Localizer]) -> ResolvableRegional
         return StaticTranslations.resolve(localizable, localizers)
 
     return {
-        "entity-page-content": [
+        Region.ENTITY_PAGE_CONTENT: [
             Media,
             ContentManufacturer(
                 Section,

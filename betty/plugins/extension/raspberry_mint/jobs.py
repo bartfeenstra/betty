@@ -81,7 +81,7 @@ class _GenerateWebmanifest(Job):
                 "lang": to_language_tag(
                     self._project.configuration.default_locale.locale
                 ),
-                "theme_color": extensions[RaspberryMint].configuration.secondary_color,
+                "theme_color": extensions[RaspberryMint].secondary_color,
                 "background_color": "#ffffff",
                 "display": "fullscreen",
             }
