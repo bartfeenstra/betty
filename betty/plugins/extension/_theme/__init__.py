@@ -24,10 +24,8 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
     from betty.ancestry.has_file_references import HasFileReferences
-    from betty.jinja import Filters
     from betty.plugins.entity.file_reference import FileReference
     from betty.plugins.entity.presence import Presence
-    from betty.project import Project
 
 
 def _is_person_timeline_presence(presence: Presence) -> bool:
@@ -215,16 +213,6 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
                 if associated_presence.event.date > end_date:
                     continue
                 yield associated_presence.event
-
-
-def jinja_filters(project: Project) -> Filters:
-    return {
-        "person_timeline_events": lambda person: person_timeline_events(
-            person, project.configuration.lifetime_threshold
-        ),
-        "person_descendant_families": person_descendant_families,
-        "associated_file_references": associated_file_references,
-    }
 
 
 def place_timeline_events(place: Place, /) -> Iterable[Event]:

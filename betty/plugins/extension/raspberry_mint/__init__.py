@@ -13,7 +13,10 @@ from betty.extension import ExtensionDefinition
 from betty.jinja import Filters, JinjaProvider
 from betty.model import EntityDefinition
 from betty.plugins.asset.raspberry_mint import RaspberryMint as RaspberryMintAsset
-from betty.plugins.extension._theme import jinja_filters
+from betty.plugins.extension._theme import (
+    associated_file_references,
+    person_descendant_families,
+)
 from betty.plugins.extension.raspberry_mint.data import RaspberryMintConfiguration
 from betty.plugins.extension.webpack import Webpack
 from betty.plugins.extension.webpack.build import EntryPointProvider
@@ -140,7 +143,10 @@ class RaspberryMint(
     @override
     @property
     def filters(self) -> Filters:
-        return jinja_filters(self._project)
+        return {
+            "person_descendant_families": person_descendant_families,
+            "associated_file_references": associated_file_references,
+        }
 
     @property
     async def regions(self) -> set[str]:
