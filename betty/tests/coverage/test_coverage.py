@@ -236,8 +236,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "RateLimitManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/jinja/__init__.py": {
-        "context_context": MissingReason.SHOULD_BE_COVERED,
-        "context_localizer": MissingReason.SHOULD_BE_COVERED,
         "context_document": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/jinja/filter.py": {

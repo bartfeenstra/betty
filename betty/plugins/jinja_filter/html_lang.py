@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, final
 from jinja2 import pass_context
 from markupsafe import Markup
 
-from betty.jinja import JinjaFilterDefinition, context_localizer
+from betty.jinja import JinjaFilterDefinition, context_document
 from betty.jinja.filter import JinjaFilter
 from betty.locale import HasLocaleStr, to_language_tag
 
@@ -39,7 +39,7 @@ class HtmlLang(JinjaFilter):
         if not isinstance(has_locale, HasLocaleStr):
             return has_locale
 
-        localizer = context_localizer(context)
+        localizer = context_document(context).localizer
         result: str | Markup = has_locale
         if has_locale.locale != localizer.locale:
             localizer_dir = _CHARACTER_ORDER_TO_HTML_LANG_MAP[
