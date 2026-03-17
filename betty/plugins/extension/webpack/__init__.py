@@ -1,11 +1,10 @@
 """
 Integrate Betty with `Webpack <https://webpack.js.org/>`_.
-
-This module is internal.
 """
 
 from __future__ import annotations
 
+from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.asset import AssetDefinition
@@ -13,13 +12,13 @@ from betty.document import DocumentProvider, DocumentVars
 from betty.extension import Extension, ExtensionDefinition
 from betty.html.css import CssResourceDefinition
 from betty.html.js import JsResourceDefinition
-from betty.jinja import Filters, JinjaProvider
+from betty.jinja.filter import JinjaFilterDefinition
 from betty.plugins.asset.webpack import Webpack as WebpackAsset
 from betty.plugins.css_resource.webpack import Webpack as WebpackCssResource
 from betty.plugins.extension.webpack import build
 from betty.plugins.extension.webpack.build import EntryPointProvider
-from betty.plugins.extension.webpack.jinja.filter import FILTERS
 from betty.plugins.extension.webpack.jobs import _GenerateAssets
+from betty.plugins.jinja_filter.webpack_entry_point_js import WebpackEntryPointJs
 from betty.plugins.js_resource.webpack_entry_point_loader import WebpackEntryPointLoader
 from betty.project.generate import Generator
 from betty.service.factory import Manufacturable
@@ -27,8 +26,6 @@ from betty.service.provider import service
 from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-
     from betty.job.scheduler import Scheduler
     from betty.project import Project
 
@@ -40,16 +37,11 @@ if TYPE_CHECKING:
     requires={
         AssetDefinition: WebpackAsset,
         CssResourceDefinition: WebpackCssResource,
+        JinjaFilterDefinition: WebpackEntryPointJs,
         JsResourceDefinition: WebpackEntryPointLoader,
     },
 )
-class Webpack(
-    Generator,
-    Extension,
-    JinjaProvider,
-    DocumentProvider,
-    Manufacturable,
-):
+class Webpack(Generator, Extension, DocumentProvider, Manufacturable):
     """
     .. plugin:: extension:webpack.
     """
@@ -66,7 +58,6 @@ class Webpack(
 
     @override
     async def generate(self, scheduler: Scheduler) -> None:
-
         await scheduler.add(
             _GenerateAssets(
                 builder=await self.builder,
@@ -83,29 +74,20 @@ class Webpack(
             "webpack_js_entry_points": set(),
         }
 
-    @override
-    @property
-    def filters(self) -> Filters:
-        return FILTERS
-
-    async def _project_entry_point_providers(
-        self,
-    ) -> Sequence[EntryPointProvider]:
-        return [
-            extension
-            for extension in await self._project.extensions
-            if isinstance(extension, EntryPointProvider)
-        ]
-
     @service
     async def builder(self) -> build.Builder:
         """
         The Webpack builder.
         """
+        extensions, jinja = await gather(self._project.extensions, self._project.jinja)
         return build.Builder(
-            await self._project_entry_point_providers(),
+            [
+                extension
+                for extension in extensions
+                if isinstance(extension, EntryPointProvider)
+            ],
             self._project.configuration.debug,
-            await self._project.jinja,
+            jinja,
             self._project.configuration.root_path,
             user=self._project.upstream.user,
         )

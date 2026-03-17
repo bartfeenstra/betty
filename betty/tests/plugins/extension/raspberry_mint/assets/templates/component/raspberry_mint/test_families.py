@@ -1,4 +1,5 @@
 from betty.plugins.entity.person import Person
+from betty.plugins.extension._theme import person_descendant_families
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.privacy import Privacy
 from betty.test_utils.jinja import assert_template_file
@@ -76,6 +77,7 @@ async def test_with_children() -> None:
     async with assert_template_file(
         data={
             "person": person,
+            "person_descendant_families": person_descendant_families(person),
         },
         extensions={RaspberryMint},
         template="component/raspberry-mint/families.html.j2",
@@ -103,6 +105,7 @@ async def test_with_co_parents() -> None:
     async with assert_template_file(
         data={
             "person": person,
+            "person_descendant_families": person_descendant_families(person),
         },
         extensions={RaspberryMint},
         template="component/raspberry-mint/families.html.j2",

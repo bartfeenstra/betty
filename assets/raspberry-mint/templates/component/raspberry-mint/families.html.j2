@@ -51,7 +51,7 @@
         {% endif %}
 
         {% if children | length > 0 %}
-            {% for family_parents, family_children in person | person_descendant_families %}
+            {% for family_parents, family_children in person_descendant_families %}
                 {% set family_section_count = family_section_count + 1 %}
                 {% if family_section_count > 1 %}
                     <hr>

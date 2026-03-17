@@ -1,458 +1,48 @@
 """
-Provide Betty's default Jinja2 filters.
+The Jinja filter API.
 """
 
 from __future__ import annotations
 
-import json as stdjson
-import re
-import warnings
-from asyncio import gather, get_running_loop, run
-from contextlib import suppress
-from io import BytesIO
-from typing import TYPE_CHECKING, Any
-from urllib.parse import quote
+from typing import TYPE_CHECKING, final, override
 
-import aiofiles
-from aiofiles.os import makedirs
-from babel.dates import format_date
-from geopy import units
-from geopy.format import DEGREES_FORMAT
-from jinja2 import pass_context
-from jinja2.async_utils import auto_aiter
-from markupsafe import Markup
-from pdf2image.pdf2image import convert_from_path
-from PIL import Image
-from PIL.Image import DecompressionBombWarning
-
-from betty.content import Content, ContentDefinition, ContentManufacturer, build
-from betty.hashid import hashid_file_meta
-from betty.image import FocusArea, Size, image_file_path_format, resize_cover
-from betty.locale import HasLocaleStr, ResolvableLocale, to_language_tag
-from betty.media_type import MediaType
-from betty.media_type.media_types import HTML, SVG
-from betty.os import link_or_copy
-from betty.plugins.entity.file import File
-from betty.plugins.entity.file_reference import FileReference
+from betty.locale.localizable.gettext import _, ngettext
+from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin.factory import PluginManufacturer
+from betty.service.plugin import ServicePluginDefinition
 
 if TYPE_CHECKING:
-    import datetime
-    from collections.abc import (
-        AsyncIterator,
-        Awaitable,
-        Callable,
-        Iterable,
-        Iterator,
-        Mapping,
-    )
-    from pathlib import Path
-
-    from jinja2.runtime import Context
-
-    from betty.ancestry.date import HasDate
-    from betty.date import ResolvableDate
-    from betty.locale.localizable import Localizable
-    from betty.plugin.factory import ResolvablePluginManufacturer
+    import builtins
 
 
-@pass_context
-async def filter_url(
-    context: Context,
-    resource: Any,
-    locale: ResolvableLocale | None = None,
-    media_type: str | None = None,
-    **kwargs: Any,
-) -> str:
+class JinjaFilter(Plugin["JinjaFilterDefinition"]):
     """
-    Generate a URL for a resource.
+    A Jinja filter.
+
+    Subclasses **MUST** have a ``.__call__()`` method of any signature.
     """
-    from betty.jinja import context_localizer, context_project
-
-    url_generator = await context_project(context).url_generator
-    return url_generator.generate(
-        resource,
-        media_type=MediaType(media_type) if media_type else HTML,
-        locale=locale or context_localizer(context).locale,
-        **kwargs,
-    )
 
 
-@pass_context
-def filter_localize(
-    context: Context,
-    localizable: Localizable,
-) -> str:
+@final
+@PluginTypeDefinition(
+    "jinja-filter",
+    label=_("Jinja filter"),
+    label_plural=_("Jinja filters"),
+    label_countable=ngettext("{count} Jinja filter", "{count} Jinja filters"),
+)
+class JinjaFilterDefinition(ServicePluginDefinition[JinjaFilter]):
     """
-    Localize a value using the context's current localizer.
+    .. plugin_type:: jinja-filter.
     """
-    from betty.jinja import context_localizer
-
-    return localizable.localize(context_localizer(context))
 
 
-_CHARACTER_ORDERTO_HTML_LANG_MAP = {
-    "left-to-right": "ltr",
-    "right-to-left": "rtl",
-}
-
-
-@pass_context
-def filter_html_lang(context: Context, has_locale: str) -> str | Markup:
+@final
+class JinjaFilterManufacturer(PluginManufacturer[JinjaFilterDefinition, JinjaFilter]):
     """
-    Optionally add the necessary HTML to indicate the localized string has a different locale than the surrounding HTML.
+    The Jinja filter manufacturer.
     """
-    from betty.jinja import context_localizer
 
-    if not isinstance(has_locale, HasLocaleStr):
-        return has_locale
-
-    localizer = context_localizer(context)
-    result: str | Markup = has_locale
-    if has_locale.locale != localizer.locale:
-        localizer_dir = _CHARACTER_ORDERTO_HTML_LANG_MAP[
-            localizer.locale.character_order
-        ]
-        if has_locale.locale is None:
-            has_locale_dir = "auto"
-        else:
-            has_locale_dir = _CHARACTER_ORDERTO_HTML_LANG_MAP[
-                has_locale.locale.character_order
-            ]
-        dir_attribute = (
-            f' dir="{has_locale_dir}"' if has_locale_dir != localizer_dir else ""
-        )
-        result = f'<span lang="{to_language_tag(has_locale.locale)}"{dir_attribute}>{has_locale}</span>'
-    if context.eval_ctx.autoescape:
-        result = Markup(result)
-    return result
-
-
-def filter_json_dump(data: Any, indent: int | None = None) -> str:
-    """
-    Dump a value to a JSON string.
-    """
-    return stdjson.dumps(data, indent=indent)
-
-
-def filter_json_load(data: str) -> Any:
-    """
-    Load a value from a JSON string.
-    """
-    return stdjson.loads(data)
-
-
-_paragraph_re = re.compile(r"(?:\r\n|\r|\n){2,}")
-
-
-def filter_format_degrees(degrees: int) -> str:
-    """
-    Format geographic coordinates.
-    """
-    arcminutes = units.arcminutes(degrees=degrees - int(degrees))
-    arcseconds = units.arcseconds(arcminutes=arcminutes - int(arcminutes))
-    format_dict = {
-        "deg": "°",
-        "arcmin": "'",
-        "arcsec": '"',
-        "degrees": degrees,
-        "minutes": round(abs(arcminutes)),
-        "seconds": round(abs(arcseconds)),
-    }
-    return DEGREES_FORMAT % format_dict
-
-
-async def filter_unique[T](values: Iterable[T]) -> AsyncIterator[T]:
-    """
-    Iterate over an iterable of values and only yield those values that have not been yielded before.
-    """
-    seen = []
-    async for value in auto_aiter(values):
-        if value not in seen:
-            yield value
-            seen.append(value)
-
-
-@pass_context
-async def filter_file(context: Context, file: File) -> str:
-    """
-    Preprocess a file for use in a page.
-
-    :return: A ``betty-static://`` URL resource from which a public URL can be generated.
-    """
-    from betty.jinja import context_context, context_project
-
-    project = context_project(context)
-    job_context = context_context(context)
-
-    execute_filter = True
-    if job_context:
-        job_cache_item_id = f"filter_file:{file.id}"
-        async with job_context.cache.hasset(job_cache_item_id) as setter:
-            if setter:
-                await setter(True)
-            else:
-                execute_filter = False
-    if execute_filter:
-        file_destination_path = (
-            project.www_directory / "file" / file.id / "file" / file.name
-        )
-        await makedirs(file_destination_path.parent, exist_ok=True)
-        await link_or_copy(file.path, file_destination_path)
-
-    return f"betty-static:///file/{quote(file.id)}/file/{quote(file.name)}"
-
-
-@pass_context
-async def filter_image_resize_cover(
-    context: Context,
-    filey: File | FileReference,
-    size: Size | None = None,
-    *,
-    focus: FocusArea | None = None,
-) -> str:
-    """
-    Preprocess an image file for use in a page.
-
-    :return: A ``betty-static://`` URL resource from which a public URL can be generated.
-    """
-    from betty.jinja import context_context, context_project
-
-    file = filey if isinstance(filey, File) else filey.file
-    assert file is not None
-    file_reference = filey if isinstance(filey, FileReference) else None
-
-    if (
-        focus is None
-        and file_reference is not None
-        and file_reference.focus is not None
-    ):
-        focus = file_reference.focus
-
-    # Treat SVGs as regular files.
-    if file.media_type and file.media_type == SVG:
-        return await filter_file(context, file)
-
-    project = context_project(context)
-    job_context = context_context(context)
-
-    destination_name = f"{file.id}-"
-    if size is not None:
-        width, height = size
-        if width is None:
-            destination_name += f"-x{height}"
-        elif height is None:
-            destination_name += f"{width}x-"
-        else:
-            destination_name += f"{width}x{height}"
-    if focus is not None:
-        destination_name += f"-{focus[0]}x{focus[1]}x{focus[2]}x{focus[3]}"
-
-    file_directory_path = project.www_directory / "file"
-
-    if file.media_type:
-        if file.media_type.type == "image":
-            image_loader = _load_image_image
-            destination_name += file.path.suffix
-        elif file.media_type.type == "application" and file.media_type.subtype == "pdf":
-            image_loader = _load_image_application_pdf
-            destination_name += "." + "jpg"
-        else:
-            raise ValueError(
-                f'Cannot convert a file of media type "{file.media_type}" to an image.'
-            )
-    else:
-        raise ValueError("Cannot convert a file without a media type to an image.")
-
-    cache_item_id = f"{await hashid_file_meta(file.path)}:{destination_name}"
-    execute_filter = True
-    if job_context:
-        async with job_context.cache.with_scope("filter_image").hasset(
-            cache_item_id
-        ) as setter:
-            if setter:
-                await setter(True)
-            else:
-                execute_filter = False
-    if execute_filter:
-        loop = get_running_loop()
-        await loop.run_in_executor(
-            project.upstream.process_pool,
-            _execute_filter_image,
-            image_loader,
-            file.path,
-            project.upstream.binary_file_cache.with_scope("image").cache_item_file_path(
-                cache_item_id
-            ),
-            file_directory_path,
-            destination_name,
-            size,
-            focus,
-        )
-    return f"betty-static:///file/{quote(destination_name)}"
-
-
-async def _load_image_image(file_path: Path) -> Image.Image:
-    # We want to read the image asynchronously and prevent Pillow from keeping too many file
-    # descriptors open simultaneously, so we read the image ourselves and store the contents
-    # in a synchronous file object.
-    async with aiofiles.open(file_path, "rb") as f:
-        image_f = BytesIO(await f.read())
-    # Ignore warnings about decompression bombs, because we know where the files come from.
-    with warnings.catch_warnings(action="ignore", category=DecompressionBombWarning):
-        return Image.open(image_f, formats=[image_file_path_format(file_path)])
-
-
-async def _load_image_application_pdf(file_path: Path) -> Image.Image:
-    # Ignore warnings about decompression bombs, because we know where the files come from.
-    with warnings.catch_warnings(action="ignore", category=DecompressionBombWarning):
-        return convert_from_path(file_path)[0]
-
-
-def _execute_filter_image(
-    image_loader: Callable[[Path], Awaitable[Image.Image]],
-    file_path: Path,
-    cache_item_file_path: Path,
-    destination_directory_path: Path,
-    destination_name: str,
-    size: Size | None,
-    focus: FocusArea | None,
-) -> None:
-    run(
-        __execute_filter_image(
-            image_loader,
-            file_path,
-            cache_item_file_path,
-            destination_directory_path,
-            destination_name,
-            size,
-            focus,
-        )
-    )
-
-
-async def __execute_filter_image(
-    image_loader: Callable[[Path], Awaitable[Image.Image]],
-    file_path: Path,
-    cache_item_file_path: Path,
-    destination_directory_path: Path,
-    destination_name: str,
-    size: Size | None,
-    focus: FocusArea | None,
-) -> None:
-    destination_file_path = destination_directory_path / destination_name
-    await makedirs(destination_directory_path, exist_ok=True)
-
-    # If no customizations are needed, work straight from the source.
-    if size is None and file_path.suffix == destination_file_path.suffix:
-        await link_or_copy(file_path, destination_file_path)
-        return
-
-    try:
-        # Try using a previously cached image.
-        await link_or_copy(cache_item_file_path, destination_file_path)
-    except FileNotFoundError:
-        # Apply customizations, and cache the customized image.
-        original_image = converted_image = await image_loader(file_path)
-        try:
-            await makedirs(cache_item_file_path.parent, exist_ok=True)
-            if size is not None:
-                converted_image = resize_cover(converted_image, size, focus=focus)
-            converted_image.save(
-                cache_item_file_path,
-                format=image_file_path_format(destination_file_path),
-            )
-            del converted_image
-        finally:
-            original_image.close()
-            del original_image
-        await link_or_copy(cache_item_file_path, destination_file_path)
-
-
-@pass_context
-def filter_negotiate_has_dates(
-    context: Context, has_dates: Iterable[HasDate], date: ResolvableDate | None
-) -> HasDate | None:
-    """
-    Try to find an object whose date falls in the given date.
-
-    :param date: A date to select by. If ``None``, then today's date is used.
-    """
-    with suppress(StopIteration):
-        return next(filter_select_has_dates(context, has_dates, date))
-    return None
-
-
-@pass_context
-def filter_select_has_dates(
-    context: Context, has_dates: Iterable[HasDate], date: ResolvableDate | None
-) -> Iterator[HasDate]:
-    """
-    Select all objects whose date falls in the given date.
-
-    :param date: A date to select by. If ``None``, then today's date is used.
-    """
-    if date is None:
-        date = context.resolve_or_missing("today")
-    return filter(
-        lambda dated: (
-            dated.date is None or dated.date.comparable and dated.date in date
-        ),
-        has_dates,
-    )
-
-
-@pass_context
-async def filter_build_content(
-    context: Context,
-    contents: Iterable[ResolvablePluginManufacturer[ContentDefinition, Content]],
-) -> Markup:
-    """
-    Build content from content configuration.
-    """
-    from betty.jinja import context_document, context_project
-
-    project = context_project(context)
-    return await build(
-        context_document(context),
-        await gather(
-            *map(
-                project.factory.new,
-                ContentManufacturer.resolve_sequence(contents),
-            )
-        ),
-    ) or Markup("")
-
-
-@pass_context
-def filter_format_datetime_datetime(
-    context: Context, datetime_datetime: datetime.datetime, /
-) -> str:
-    """
-    Format a datetime date to a human-readable string.
-    """
-    from betty.jinja import context_localizer
-
-    localizer = context_localizer(context)
-    return format_date(datetime_datetime, "long", locale=localizer.locale)
-
-
-async def filters() -> Mapping[str, Callable[..., Any]]:
-    """
-    Define the available filters.
-    """
-    return {
-        "file": filter_file,
-        "format_datetime_datetime": filter_format_datetime_datetime,
-        "format_degrees": filter_format_degrees,
-        "image_resize_cover": filter_image_resize_cover,
-        "html_lang": filter_html_lang,
-        "json_dump": filter_json_dump,
-        "json_load": filter_json_load,
-        "localize": filter_localize,
-        "negotiate_has_dates": filter_negotiate_has_dates,
-        "build_content": filter_build_content,
-        "select_has_dates": filter_select_has_dates,
-        "to_language_tag": to_language_tag,
-        "unique": filter_unique,
-        "url": filter_url,
-    }
+    @override
+    @classmethod
+    def type(cls) -> builtins.type[JinjaFilterDefinition]:
+        return JinjaFilterDefinition

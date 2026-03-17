@@ -24,14 +24,6 @@ class TestRaspberryMint:
             sut = RaspberryMint(project=project, configuration=configuration)
             assert sut.configuration is configuration
 
-    async def test_filters(self, isolated_app: App) -> None:
-        async with (
-            Project.new_isolated(isolated_app) as project,
-            project,
-            await RaspberryMint.new(project) as sut,
-        ):
-            assert sut.filters
-
     @check_skip_webpack_entry_point_provider
     async def test_generate__html_list_for_third_party_entity(
         self, isolated_app: App

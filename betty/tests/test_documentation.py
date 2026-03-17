@@ -18,7 +18,6 @@ from betty.console.command import CommandDefinition
 from betty.dirs import ROOT_DIRECTORY_PATH
 from betty.documentation import DocumentationServer
 from betty.functools import Do
-from betty.jinja.filter import filters
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.test_utils.documentation import PluginDocumentationTestBase
 from betty.test_utils.user import StaticUser
@@ -46,18 +45,6 @@ class TestDocumentation:
         async for command in isolated_app.plugins[CommandDefinition]:
             assert command.id in actual
             assert command.label.localize(DEFAULT_LOCALIZER) in actual
-
-    async def test_should_contain_builtin_jinja_filters(self) -> None:
-        with open(
-            ROOT_DIRECTORY_PATH
-            / "documentation"
-            / "usage"
-            / "templating"
-            / "filters.rst"
-        ) as f:
-            documentation = f.read()
-        for filter_name in await filters():
-            assert f":`{filter_name} <" in documentation
 
 
 class TestPluginDocumentation(PluginDocumentationTestBase):
