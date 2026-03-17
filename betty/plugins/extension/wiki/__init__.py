@@ -5,34 +5,22 @@ from __future__ import annotations
 from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
-from jinja2 import pass_context
-
 from betty.asset import AssetDefinition
-from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.extension import Extension, ExtensionDefinition
-from betty.jinja import Filters, Globals, JinjaProvider, context_localizer
-from betty.locale import negotiate_locale, resolve_locale
 from betty.locale.localizable.gettext import _
 from betty.plugins.asset.wiki import Wiki as WikiAssets
+from betty.plugins.copyright_notice.wikipedia_contributors import WikipediaContributors
 from betty.plugins.extension.wiki.data import WikiConfiguration
 from betty.plugins.extension.wiki.jobs import PopulateEntity
 from betty.project.load import PostLoader
 from betty.service.factory import DataManufacturable, Manufacturable
 from betty.service.provider import service
 from betty.service.requirement.project import require_project
-from betty.wiki import NotAPageError, parse_page_url
 from betty.wiki import populator as populator_api
-from betty.wiki.client import Client, ClientError, Summary
+from betty.wiki.client import Client
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
-    from babel import Locale
-    from jinja2.runtime import Context
-
-    from betty.copyright_notice import CopyrightNotice
     from betty.job.scheduler import Scheduler
-    from betty.plugins.entity.link import Link
     from betty.project import Project
 
 
@@ -46,11 +34,7 @@ if TYPE_CHECKING:
     requires={AssetDefinition: WikiAssets},
 )
 class Wiki(
-    PostLoader,
-    DataManufacturable[WikiConfiguration],
-    Manufacturable,
-    JinjaProvider,
-    Extension,
+    PostLoader, DataManufacturable[WikiConfiguration], Manufacturable, Extension
 ):
     """
     .. plugin:: extension:wiki.
@@ -66,36 +50,12 @@ class Wiki(
     - for places, add coordinates if a place has none already
     - for any entity, add additional links to the translations of the given Wikipedia page
     - for any entity that has files, add the primary image of the linked Wikipedia page
-
-    Templating
-    ----------
-
-    Globals
-    ^^^^^^^
-
-    ``wikipedia_contributors_copyright_notice`` (:py:class:`betty.plugins.copyright_notice.wikipedia_contributors.WikipediaContributors`)
-        The copyright notice plugin instance for Wikipedia contributors.
-
-    Filters
-    ^^^^^^^
-
-    - :py:meth:`wikipedia_summary <betty.plugins.extension.wiki.Wiki.filter_wikipedia_summary_links>`
-
     """
 
-    def __init__(
-        self,
-        *,
-        project: Project,
-        wikipedia_contributors_copyright_notice: CopyrightNotice,
-        populate_images: bool | None = None,
-    ):
+    def __init__(self, *, project: Project, populate_images: bool | None = None):
         super().__init__()
         self._project = project
         self._populate_images = True if populate_images is None else populate_images
-        self._wikipedia_contributors_copyright_notice = (
-            wikipedia_contributors_copyright_notice
-        )
 
     @override
     @classmethod
@@ -108,13 +68,9 @@ class Wiki(
     async def new(
         cls, project: Project, data: WikiConfiguration | None = None, /
     ) -> Self:
-        copyright_notices = project.plugins[CopyrightNoticeDefinition]
         return cls(
             populate_images=None if data is None else data.populate_images,
             project=project,
-            wikipedia_contributors_copyright_notice=await project.factory.new(
-                (await copyright_notices["wikipedia-contributors"]).cls
-            ),
         )
 
     @override
@@ -144,68 +100,16 @@ class Wiki(
         """
         The ancestry populator.
         """
+        copyright_notice, http_client, localizers = await gather(
+            self._project.factory.new(WikipediaContributors),
+            self.client,
+            self._project.localizers,
+        )
         return populator_api.Populator(
             self._project.ancestry,
             list(self._project.configuration.locales.keys()),
-            await self._project.localizers,
-            await self.client,
-            self._wikipedia_contributors_copyright_notice,
+            localizers,
+            http_client,
+            copyright_notice,
             user=self._project.upstream.user,
         )
-
-    @override
-    @property
-    def globals(self) -> Globals:
-        return {
-            "wikipedia_contributors_copyright_notice": self._wikipedia_contributors_copyright_notice
-        }
-
-    @override
-    @property
-    def filters(self) -> Filters:
-        return {
-            "wikipedia_summary": self.filter_wikipedia_summary_links,
-        }
-
-    @pass_context
-    async def filter_wikipedia_summary_links(
-        self, context: Context, links: Iterable[Link]
-    ) -> Iterable[Summary]:
-        """
-        Given a sequence of links, return any Wikipedia summaries for them.
-        """
-        return filter(
-            None,
-            await gather(
-                *(
-                    self._filter_wikipedia_summary_link(
-                        context_localizer(context).locale,
-                        link,
-                    )
-                    for link in links
-                )
-            ),
-        )
-
-    async def _filter_wikipedia_summary_link(
-        self, locale: Locale, link: Link
-    ) -> Summary | None:
-        localizers = await self._project.upstream.localizers
-        try:
-            page_language, page_name = parse_page_url(
-                link.url.localize(localizers.get(locale))
-            )
-        except NotAPageError:
-            return None
-        if (
-            negotiate_locale(
-                locale, list(filter(None, [resolve_locale(page_language)]))
-            )
-            is None
-        ):
-            return None
-        try:
-            client = await self.client
-            return await client.get_summary(page_language, page_name)
-        except ClientError:
-            return None

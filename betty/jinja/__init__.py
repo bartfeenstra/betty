@@ -29,7 +29,7 @@ from betty.html import generate_html_id
 from betty.html.attributes import Attributes
 from betty.html.css import CssResourceDefinition
 from betty.html.js import JsResourceDefinition
-from betty.jinja.filter import filters
+from betty.jinja.filter import JinjaFilterDefinition
 from betty.jinja.test import JinjaTestDefinition
 from betty.link import LinkDefinition
 from betty.media_type import UnsupportedMediaType, match_extension
@@ -51,13 +51,6 @@ if TYPE_CHECKING:
 
 
 type CopyFunction = Callable[[Path, Path], Awaitable[None]]
-
-
-def context_project(context: JinjaContext) -> Project:
-    """
-    Get the current project from the Jinja2 context.
-    """
-    return cast(Environment, context.environment).project
 
 
 def context_document(context: JinjaContext) -> Document:
@@ -92,34 +85,6 @@ def context_localizer(context: JinjaContext) -> Localizer:
         raise RuntimeError(
             "No `resource.localizer` context variable exists in this Jinja2 template."
         ) from None
-
-
-type Globals = Mapping[str, Any]
-type Filters = Mapping[str, Callable[..., Any]]
-
-
-class JinjaProvider:
-    """
-    Integrate an :py:class:`betty.extension.Extension` with the Jinja2 API.
-    """
-
-    @property
-    def globals(self) -> Globals:
-        """
-        Jinja2 globals provided by this extension.
-
-        Keys are the globals' names, and values are the globals' values.
-        """
-        return {}
-
-    @property
-    def filters(self) -> Filters:
-        """
-        Jinja2 filters provided by this extension.
-
-        Keys are filter names, and values are the filters themselves.
-        """
-        return {}
 
 
 class Environment(Manufacturable, JinjaEnvironment):
@@ -167,11 +132,9 @@ class Environment(Manufacturable, JinjaEnvironment):
             self.add_extension("jinja2.ext.debug")
 
         self._init_i18n()
-        self._init_globals()
         self.globals.update(globals)
         self.filters.update(filters)
         self.tests.update(tests)
-        self._init_extensions()
 
     @override
     @classmethod
@@ -181,11 +144,21 @@ class Environment(Manufacturable, JinjaEnvironment):
             project.assets, project.extensions, project.service_plugins
         )
         links = [link.plugin() for link in service_plugins[LinkDefinition]]
+        today = datetime.date.today()
         return cls(
             project,
             extensions,
             assets,
             {
+                "about_version_major": about.VERSION_MAJOR_LABEL,
+                "app": project.upstream,
+                "deprecate": deprecate,
+                "generate_html_id": generate_html_id,
+                "new_attributes": Attributes,
+                "project": project,
+                "primary_navigation_links": [
+                    link.link for link in links if link.primary
+                ],
                 "public_css_paths": [
                     resource.plugin().resource
                     for resource in service_plugins[CssResourceDefinition]
@@ -194,26 +167,20 @@ class Environment(Manufacturable, JinjaEnvironment):
                     resource.plugin().resource
                     for resource in service_plugins[JsResourceDefinition]
                 ],
-                "primary_navigation_links": [
-                    link.link for link in links if link.primary
-                ],
                 "secondary_navigation_links": [
                     link.link for link in links if not link.primary
                 ],
+                "today": Date(today.year, today.month, today.day),
             },
-            await filters(),
             {
-                kebab_case_to_snake_case(test.plugin().id): test
+                kebab_case_to_snake_case(filter.plugin().id): filter.__call__
+                for filter in (await project.service_plugins)[JinjaFilterDefinition]  # noqa: A001
+            },
+            {
+                kebab_case_to_snake_case(test.plugin().id): test.__call__
                 for test in service_plugins[JinjaTestDefinition]
             },
         )
-
-    @property
-    def project(self) -> Project:
-        """
-        The current project.
-        """
-        return self._project
 
     def _init_i18n(self) -> None:
         self.install_gettext_callables(  # ty:ignore[unresolved-attribute]
@@ -253,22 +220,6 @@ class Environment(Manufacturable, JinjaEnvironment):
         return context_localizer(context).npgettext(
             gettext_context, message_singular, message_plural, n
         )
-
-    def _init_globals(self) -> None:
-        self.globals["about_version_major"] = about.VERSION_MAJOR_LABEL
-        self.globals["app"] = self.project.upstream
-        self.globals["project"] = self.project
-        today = datetime.date.today()
-        self.globals["today"] = Date(today.year, today.month, today.day)
-        self.globals["generate_html_id"] = generate_html_id
-        self.globals["deprecate"] = deprecate
-        self.globals["new_attributes"] = Attributes
-
-    def _init_extensions(self) -> None:
-        for extension in self._extensions:
-            if isinstance(extension, JinjaProvider):
-                self.globals.update(extension.globals)
-                self.filters.update(extension.filters)
 
     def make_copy_function(
         self,

@@ -4,6 +4,7 @@ The Jinja test API.
 
 from __future__ import annotations
 
+from abc import ABC
 from typing import TYPE_CHECKING, final, override
 
 from betty.locale.localizable.gettext import _, ngettext
@@ -15,9 +16,11 @@ if TYPE_CHECKING:
     import builtins
 
 
-class JinjaTest(Plugin["JinjaTestDefinition"]):
+class JinjaTest(Plugin["JinjaTestDefinition"], ABC):
     """
     A Jinja test.
+
+    Subclasses **MUST** have a synchronous ``__call__()`` method that returns a boolean, and takes one or more arguments.
     """
 
 

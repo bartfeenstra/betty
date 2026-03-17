@@ -22,4 +22,3 @@ or project's assets directory.
 In this section
 ---------------
 - :doc:`/usage/templating/globals`
-- :doc:`/usage/templating/filters`

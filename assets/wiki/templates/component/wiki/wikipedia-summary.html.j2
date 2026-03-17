@@ -1,8 +1,3 @@
-{% set summaries = links | wikipedia_summary | list %}
-{% if summaries | length %}
-    {% for summary in summaries %}
-        {{ summary.content | safe }}
-        <p>{% trans url = summary.url %}Continue reading on <a href="{{ url }}">Wikipedia</a>.{% endtrans %}</p>
-    {% endfor %}
-    <small><a href="{{ wikipedia_contributors_copyright_notice.url | localize }}">{{ wikipedia_contributors_copyright_notice.summary | localize | html_lang }}</a></small>
-{% endif %}
+{{ wikipedia_summary.content | safe }}
+<p>{% trans url = wikipedia_summary.url %}Continue reading on <a href="{{ url }}">Wikipedia</a>.{% endtrans %}</p>
+<small><a href="{{ wikipedia_summary_copyright_notice.url | localize }}">{{ wikipedia_summary_copyright_notice.summary | localize | html_lang }}</a></small>

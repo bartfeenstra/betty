@@ -10,13 +10,8 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.asset import AssetDefinition
 from betty.extension import ExtensionDefinition
-from betty.jinja import Filters, JinjaProvider
 from betty.model import EntityDefinition
 from betty.plugins.asset.raspberry_mint import RaspberryMint as RaspberryMintAsset
-from betty.plugins.extension._theme import (
-    associated_file_references,
-    person_descendant_families,
-)
 from betty.plugins.extension.raspberry_mint.data import RaspberryMintConfiguration
 from betty.plugins.extension.webpack import Webpack
 from betty.plugins.extension.webpack.build import EntryPointProvider
@@ -40,7 +35,6 @@ if TYPE_CHECKING:
 class RaspberryMint(
     DataManufacturable[RaspberryMintConfiguration],
     Manufacturable,
-    JinjaProvider,
     Generator,
     EntryPointProvider,
 ):
@@ -64,16 +58,6 @@ class RaspberryMint(
     - ``entity-page-content--{entity_type_id}``
       The page content region for entity pages of a specific public-facing entity type, where ``{entity_type_id}`` is the
       entity type ID. If no content is assigned to this region for an entity type, ``entity-page-content`` is used instead.
-
-    Templating
-    ----------
-
-    Filters
-    ^^^^^^^
-
-    - :py:func:`associated_file_references <betty.plugins.extension._theme.associated_file_references>`
-    - :py:func:`person_descendant_families <betty.plugins.extension._theme.person_descendant_families>`
-    - :py:func:`person_timeline_events <betty.plugins.extension._theme.person_timeline_events>`
 
     """
 
@@ -139,14 +123,6 @@ class RaspberryMint(
             self._configuration.secondary_color,
             self._configuration.tertiary_color,
         )
-
-    @override
-    @property
-    def filters(self) -> Filters:
-        return {
-            "person_descendant_families": person_descendant_families,
-            "associated_file_references": associated_file_references,
-        }
 
     @property
     async def regions(self) -> set[str]:

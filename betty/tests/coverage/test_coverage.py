@@ -238,12 +238,13 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/jinja/__init__.py": {
         "context_context": MissingReason.SHOULD_BE_COVERED,
         "context_localizer": MissingReason.SHOULD_BE_COVERED,
-        "context_project": MissingReason.SHOULD_BE_COVERED,
         "context_document": MissingReason.SHOULD_BE_COVERED,
         "Environment": {},
     },
     "betty/jinja/filter.py": {
-        "filters": MissingReason.STATIC_CONTENT_ONLY,
+        "JinjaFilter": MissingReason.STATIC_CONTENT_ONLY,
+        "JinjaFilterDefinition": MissingReason.STATIC_CONTENT_ONLY,
+        "JinjaFilterManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/jinja/test.py": {
         "JinjaTest": MissingReason.STATIC_CONTENT_ONLY,
@@ -856,8 +857,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "EntryPointProvider": MissingReason.ABSTRACT,
         "webpack_build_id": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/plugins/extension/webpack/jinja/__init__.py": MissingReason.SHOULD_BE_COVERED,
-    "betty/plugins/extension/webpack/jinja/filter.py": MissingReason.SHOULD_BE_COVERED,
     "betty/plugins/extension/wiki/__init__.py": {
         "Wiki": {
             "plugin": MissingReason.INHERITED,
@@ -872,6 +871,81 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/plugins/gender/non_binary.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/gender/unknown.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/gender/woman.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/jinja_filter/build_content.py": {
+        "BuildContent": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/jinja_filter/file.py": {
+        "File": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/jinja_filter/format_datetime_datetime.py": {
+        "FormatDatetimeDatetime": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/jinja_filter/format_degrees.py": {
+        "FormatDegrees": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/jinja_filter/html_lang.py": {
+        "HtmlLang": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/jinja_filter/image_resize_cover.py": {
+        "ImageResizeCover": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/jinja_filter/json_dump.py": {
+        "JsonDump": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/jinja_filter/json_load.py": {
+        "JsonLoad": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/jinja_filter/localize.py": {
+        "Localize": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/jinja_filter/negotiate_has_dates.py": {
+        "NegotiateHasDates": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/jinja_filter/select_has_dates.py": {
+        "SelectHasDates": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/jinja_filter/to_language_tag.py": {
+        "ToLanguageTag": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/jinja_filter/unique.py": {
+        "Unique": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/jinja_filter/url.py": {
+        "Url": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/jinja_filter/webpack_entry_point_js.py": {
+        "WebpackEntryPointJs": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
     "betty/plugins/jinja_test/has_file_references.py": {
         "HasFileReferences": {
             "plugin": MissingReason.INHERITED,

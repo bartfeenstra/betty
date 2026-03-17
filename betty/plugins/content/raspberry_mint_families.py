@@ -10,6 +10,7 @@ from betty.content import ContentDefinition
 from betty.locale.localizable.gettext import _
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.person import Person
+from betty.plugins.extension._theme import person_descendant_families
 from betty.service.factory import Manufacturable
 from betty.service.requirement.project import require_project
 
@@ -38,5 +39,8 @@ class Families(Template, Manufacturable):
         if isinstance(document.resource, Person):
             return "component/raspberry-mint/families.html.j2", {
                 "person": document.resource,
+                "person_descendant_families": person_descendant_families(
+                    document.resource
+                ),
             }
         return None

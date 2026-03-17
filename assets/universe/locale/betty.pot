@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-03-17 13:49+0000\n"
+"POT-Creation-Date: 2026-03-17 14:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -911,6 +911,12 @@ msgid "JavaScript resource"
 msgstr ""
 
 msgid "JavaScript resources"
+msgstr ""
+
+msgid "Jinja filter"
+msgstr ""
+
+msgid "Jinja filters"
 msgstr ""
 
 msgid "Jinja test"
@@ -2087,6 +2093,12 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} JavaScript resource"
 msgid_plural "{count} JavaScript resources"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} Jinja filter"
+msgid_plural "{count} Jinja filters"
 msgstr[0] ""
 msgstr[1] ""
 

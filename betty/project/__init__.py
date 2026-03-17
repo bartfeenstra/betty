@@ -32,6 +32,7 @@ from betty.hashid import hashid
 from betty.html.css import CssResourceDefinition
 from betty.html.js import JsResourceDefinition
 from betty.importlib import fully_qualified_name
+from betty.jinja.filter import JinjaFilterDefinition
 from betty.jinja.test import JinjaTestDefinition
 from betty.link import LinkDefinition
 from betty.locale import DEFAULT_LOCALE
@@ -185,6 +186,7 @@ class Project(
                 AssetDefinition: [AssetManufacturer("project")],
                 CssResourceDefinition: [],
                 ExtensionDefinition: self.configuration.extensions,
+                JinjaFilterDefinition: [],
                 JinjaTestDefinition: [],
                 JsResourceDefinition: [],
                 LinkDefinition: [],

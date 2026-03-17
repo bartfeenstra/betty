@@ -1,0 +1,70 @@
+"""
+The ``file`` Jinja filter.
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Self, final, override
+from urllib.parse import quote
+
+from aiofiles.os import makedirs
+from jinja2 import pass_context
+
+from betty.jinja import JinjaFilterDefinition, context_context
+from betty.jinja.filter import JinjaFilter
+from betty.os import link_or_copy
+from betty.service.factory import Manufacturable
+from betty.service.requirement.project import require_project
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from jinja2.runtime import Context
+
+    from betty.plugins.entity.file import File as FileEntity
+    from betty.project import Project
+
+
+@final
+@JinjaFilterDefinition("file", auto=True)
+class File(JinjaFilter, Manufacturable):
+    """
+    Preprocess a file for use in a page.
+
+    .. plugin:: jinja-filter:file
+    """
+
+    def __init__(self, *, www_directory: Path):
+        self._www_directory = www_directory
+
+    @override
+    @classmethod
+    @require_project
+    async def new(cls, project: Project, /) -> Self:
+        return cls(www_directory=project.www_directory)
+
+    @pass_context
+    async def __call__(  # noqa: D102
+        self, context: Context, file: FileEntity, /
+    ) -> str:
+        """
+        :return: A ``betty-static://`` URL resource from which a public URL can be generated.
+        """
+        job_context = context_context(context)
+
+        execute_filter = True
+        if job_context:
+            job_cache_item_id = f"filter_file:{file.id}"
+            async with job_context.cache.hasset(job_cache_item_id) as setter:
+                if setter:
+                    await setter(True)
+                else:
+                    execute_filter = False
+        if execute_filter:
+            file_destination_path = (
+                self._www_directory / "file" / file.id / "file" / file.name
+            )
+            await makedirs(file_destination_path.parent, exist_ok=True)
+            await link_or_copy(file.path, file_destination_path)
+
+        return f"betty-static:///file/{quote(file.id)}/file/{quote(file.name)}"
