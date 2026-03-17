@@ -10,9 +10,8 @@ from shutil import rmtree
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.extension import Extension, ExtensionDefinition
-from betty.html import NavigationLink, NavigationLinkProvider
 from betty.license import LicenseDefinition
-from betty.locale.localizable.gettext import _
+from betty.link import LinkDefinition
 from betty.plugins.copyright_notice.streetmix import Streetmix
 from betty.plugins.extension.demo.jobs import LoadAncestry
 from betty.plugins.extension.deriver import Deriver
@@ -23,14 +22,14 @@ from betty.plugins.extension.spdx import Spdx
 from betty.plugins.extension.trees import Trees
 from betty.plugins.extension.wiki import Wiki
 from betty.plugins.license.spdx import spdx_license_id_to_license_id
+from betty.plugins.link.betty_documentation import BettyDocumentation
+from betty.plugins.link.betty_github import BettyGithub
 from betty.project import Project, generate
 from betty.project.load import Loader, load
 from betty.service.factory import Manufacturable
 from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-
     from betty.job import Context
     from betty.job.scheduler import Scheduler
 
@@ -75,9 +74,10 @@ async def generate_with_cleanup(
             Trees,
             Wiki,
         ),
+        LinkDefinition: {BettyDocumentation, BettyGithub},
     },
 )
-class Demo(NavigationLinkProvider, Loader, Manufacturable, Extension):
+class Demo(Loader, Manufacturable, Extension):
     """
     .. plugin:: extension:demo.
     """
@@ -109,14 +109,3 @@ class Demo(NavigationLinkProvider, Loader, Manufacturable, Extension):
                 ),
             )
         )
-
-    @override
-    def secondary_navigation_links(self) -> Sequence[NavigationLink]:
-        return [
-            NavigationLink(
-                "https://github.com/bartfeenstra/betty", _("Find Betty on GitHub")
-            ),
-            NavigationLink(
-                "https://betty.readthedocs.io/", _("Read the Betty documentation")
-            ),
-        ]

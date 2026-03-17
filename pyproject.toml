@@ -90,6 +90,7 @@ betty = 'betty.console:main_standalone'
 'jinja-test' = 'betty.jinja.test:JinjaTestDefinition'
 'js-resource' = 'betty.html.js:JsResourceDefinition'
 'license' = 'betty.license:LicenseDefinition'
+'link' = 'betty.link:LinkDefinition'
 'place-type' = 'betty.place_type:PlaceTypeDefinition'
 'renderer' = 'betty.render:RendererDefinition'
 'role' = 'betty.role:RoleDefinition'
@@ -134,6 +135,11 @@ betty = 'betty.console:main_standalone'
 'project-configuration' = 'betty.project:_discover_licenses'
 'public-domain' = 'betty.plugins.license.public_domain:PublicDomain'
 'spdx' = 'betty.plugins.license.spdx:SpdxLicenseDiscoverer.discover_for'
+
+[project.entry-points.'betty.link']
+'betty-documentation' = 'betty.plugins.link.betty_documentation:BettyDocumentation'
+'betty-github' = 'betty.plugins.link.betty_github:BettyGithub'
+'http-api-doc' = 'betty.plugins.link.http_api_doc:HttpApiDoc'
 
 [project.entry-points.'betty.entity']
 'citation' = 'betty.plugins.entity.citation:Citation'

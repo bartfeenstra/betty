@@ -33,6 +33,7 @@ from betty.html.css import CssResourceDefinition
 from betty.html.js import JsResourceDefinition
 from betty.importlib import fully_qualified_name
 from betty.jinja.test import JinjaTestDefinition
+from betty.link import LinkDefinition
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localize import Localizer, LocalizerRepository
 from betty.locale.translation import (
@@ -186,6 +187,7 @@ class Project(
                 ExtensionDefinition: self.configuration.extensions,
                 JinjaTestDefinition: [],
                 JsResourceDefinition: [],
+                LinkDefinition: [],
             },
             services=self,
         )
