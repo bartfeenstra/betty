@@ -5,7 +5,7 @@ from betty.content import ContentManufacturer
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.extension import ExtensionManufacturer
 from betty.plugins.content.render import Render, RenderConfiguration
-from betty.plugins.extension.raspberry_mint import RaspberryMint
+from betty.plugins.extension.raspberry_mint import RaspberryMint, Region
 from betty.plugins.extension.raspberry_mint.data import RaspberryMintConfiguration
 from betty.project import Project
 
@@ -31,7 +31,7 @@ async def test_regional_content_front_page_summary(
                 RaspberryMint,
                 RaspberryMintConfiguration(
                     regional_content={
-                        "front-page-summary": [
+                        Region.FRONT_PAGE_SUMMARY: [
                             ContentManufacturer(
                                 Render,
                                 RenderConfiguration("Hello, world!"),
@@ -59,7 +59,7 @@ async def test_regional_content_front_page_content(
                 RaspberryMint,
                 RaspberryMintConfiguration(
                     regional_content={
-                        "front-page-content": [
+                        Region.FRONT_PAGE_CONTENT: [
                             ContentManufacturer(
                                 Render,
                                 RenderConfiguration("Hello, world!"),

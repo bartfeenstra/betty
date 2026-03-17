@@ -652,6 +652,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "media_type": MissingReason.INHERITED,
         },
     },
+    "betty/plugins/content/static.py": {
+        "Static": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
     "betty/plugins/content/template.py": {
         "Template": {
             "build_template": MissingReason.ABSTRACT,
@@ -835,6 +840,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "plugin": MissingReason.INHERITED,
             "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
         },
+    },
+    "betty/plugins/extension/raspberry_mint/region.py": {
+        "Region": {
+            "name": MissingReason.INHERITED,
+            "value": MissingReason.INHERITED,
+        }
     },
     "betty/plugins/extension/trees/__init__.py": {
         "Trees": {

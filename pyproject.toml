@@ -303,6 +303,7 @@ betty = 'betty.console:main_standalone'
 'raspberry-mint-section' = 'betty.plugins.content.raspberry_mint_section:Section'
 'raspberry-mint-timeline' = 'betty.plugins.content.raspberry_mint_timeline:Timeline'
 'render' = 'betty.plugins.content.render:Render'
+'static' = 'betty.plugins.content.static:Static'
 'tree' = 'betty.plugins.content.tree:Tree'
 'wikipedia-summary' = 'betty.plugins.content.wikipedia_summary:WikipediaSummary'
 

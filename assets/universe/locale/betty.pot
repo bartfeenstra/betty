@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-03-17 14:01+0000\n"
+"POT-Creation-Date: 2026-03-18 00:52+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1521,6 +1521,9 @@ msgid "State"
 msgstr ""
 
 msgid "States"
+msgstr ""
+
+msgid "Static content"
 msgstr ""
 
 msgid "Street"

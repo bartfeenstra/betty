@@ -4,26 +4,35 @@ Provide the Raspberry Mint theme.
 
 from __future__ import annotations
 
+from asyncio import gather
+from collections import defaultdict
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Self, final, override
+from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.asset import AssetDefinition
+from betty.content import Content, ContentManufacturer
 from betty.extension import ExtensionDefinition
-from betty.model import EntityDefinition
 from betty.plugins.asset.raspberry_mint import RaspberryMint as RaspberryMintAsset
 from betty.plugins.extension.raspberry_mint.data import RaspberryMintConfiguration
+from betty.plugins.extension.raspberry_mint.region import Region, ResolvableRegion
 from betty.plugins.extension.webpack import Webpack
 from betty.plugins.extension.webpack.build import EntryPointProvider
 from betty.project.generate import Generator
 from betty.service.factory import DataManufacturable, Manufacturable
+from betty.service.provider import service
 from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Iterable, Mapping, Sequence
 
     from betty.job.scheduler import Scheduler
     from betty.project import Project
+
+type RegionalContent = Mapping[str, Sequence[Content]]
+type RegionalContentManufacturers = Mapping[
+    ResolvableRegion, Iterable[ContentManufacturer]
+]
 
 
 @final
@@ -61,29 +70,44 @@ class RaspberryMint(
 
     """
 
+    DEFAULT_PRIMARY_COLOR: Final[str] = "#b3446c"
+    DEFAULT_SECONDARY_COLOR: Final[str] = "#3eb489"
+    DEFAULT_TERTIARY_COLOR: Final[str] = "#ffbd22"
+
     def __init__(
         self,
         *,
         project: Project,
-        configuration: RaspberryMintConfiguration | None = None,
+        primary_color: str | None = None,
+        regional_content: RegionalContentManufacturers | None = None,
+        secondary_color: str | None = None,
+        tertiary_color: str | None = None,
     ):
         super().__init__()
         self._project = project
-        self._configuration = (
-            RaspberryMintConfiguration() if configuration is None else configuration
+        self._primary_color = (
+            self.DEFAULT_PRIMARY_COLOR if primary_color is None else primary_color
+        )
+        self._regional_content_manufacturers = defaultdict(
+            tuple,
+            {}
+            if regional_content is None
+            else {
+                Region.resolve(region): tuple(content)
+                for region, content in regional_content.items()
+            },
+        )
+        self._secondary_color = (
+            self.DEFAULT_SECONDARY_COLOR if secondary_color is None else secondary_color
+        )
+        self._tertiary_color = (
+            self.DEFAULT_TERTIARY_COLOR if tertiary_color is None else tertiary_color
         )
 
     @override
     @classmethod
     def new_data_cls(cls) -> type[RaspberryMintConfiguration]:
         return RaspberryMintConfiguration
-
-    @property
-    def configuration(self) -> RaspberryMintConfiguration:
-        """
-        The configuration.
-        """
-        return self._configuration
 
     @override
     @classmethod
@@ -94,7 +118,15 @@ class RaspberryMint(
         data: RaspberryMintConfiguration | None = None,
         /,
     ) -> Self:
-        return cls(configuration=data, project=project)
+        if data is None:
+            return cls(project=project)
+        return cls(
+            primary_color=data.primary_color,
+            project=project,
+            regional_content=data.regional_content,
+            secondary_color=data.secondary_color,
+            tertiary_color=data.tertiary_color,
+        )
 
     @override
     async def generate(self, scheduler: Scheduler) -> None:
@@ -119,26 +151,57 @@ class RaspberryMint(
     def webpack_entry_point_cache_keys(self) -> Sequence[str]:
         return (
             self._project.configuration.root_path,
-            self._configuration.primary_color,
-            self._configuration.secondary_color,
-            self._configuration.tertiary_color,
+            self._primary_color,
+            self._secondary_color,
+            self._tertiary_color,
+        )
+
+    @service
+    async def regional_content(self) -> RegionalContent:
+        """
+        The regional content.
+        """
+        return dict(
+            zip(
+                self._regional_content_manufacturers.keys(),
+                await gather(
+                    *[
+                        gather(
+                            *map(
+                                self._project.factory.new,
+                                map(
+                                    ContentManufacturer.resolve,
+                                    region_content,
+                                ),
+                            )
+                        )
+                        for region_content in self._regional_content_manufacturers.values()
+                    ]
+                ),
+                strict=False,
+            )
         )
 
     @property
-    async def regions(self) -> set[str]:
+    def primary_color(self) -> str:
         """
-        The available regions.
+        The primary color.
         """
-        return {
-            "front-page-content",
-            "front-page-summary",
-            "entity-page-content",
-            *{
-                f"entity-page-content--{entity_type.id}"
-                async for entity_type in self._project.plugins[EntityDefinition]
-                if entity_type.public_facing
-            },
-        }
+        return self._primary_color
+
+    @property
+    def secondary_color(self) -> str:
+        """
+        The secondary color.
+        """
+        return self._secondary_color
+
+    @property
+    def tertiary_color(self) -> str:
+        """
+        The tertiary color.
+        """
+        return self._tertiary_color
 
 
 @final

@@ -2,9 +2,9 @@ from collections.abc import Iterable
 
 import pytest
 
-from betty.content import Content, ContentDefinition, ContentManufacturer
+from betty.content import Content, ContentDefinition
 from betty.plugin.factory import PluginManufacturer
-from betty.plugins.content.render import Render, RenderConfiguration
+from betty.plugins.content.static import Static
 from betty.test_utils.conftest import AssertTemplateString
 
 
@@ -14,8 +14,8 @@ class TestBuildContent:
         [
             ("", []),
             (
-                "<p>Hello, world!</p>",
-                [ContentManufacturer(Render, RenderConfiguration("Hello, world!"))],
+                "Hello, world!",
+                [Static("Hello, world!")],
             ),
         ],
     )

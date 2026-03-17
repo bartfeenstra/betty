@@ -6,10 +6,10 @@ from betty.plugins.content.raspberry_mint_color_style import (
     ColorStyleConfiguration,
 )
 from betty.plugins.content.render import Render, RenderConfiguration
+from betty.plugins.content.static import Static
 from betty.plugins.extension.raspberry_mint import ColorStyle as ColorStyleOption
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.project import Project
-from betty.test_utils.content import NoOpContent
 from betty.test_utils.data import DataTestBase
 
 
@@ -33,14 +33,14 @@ class TestColorStyleConfiguration(DataTestBase[ColorStyleConfiguration]):
 class TestColorStyle:
     async def test_build_template__without_content(self, isolated_app: App) -> None:
         async with Project.new_isolated(
-            isolated_app, plugins={ContentDefinition: [NoOpContent]}
+            isolated_app, plugins={ContentDefinition: [Static]}
         ) as project:
             project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = await ColorStyle.new(
                     project,
                     ColorStyleConfiguration(
-                        ContentManufacturer(NoOpContent),
+                        ContentManufacturer(Static),
                         style=ColorStyleOption.DARK,
                     ),
                 )
