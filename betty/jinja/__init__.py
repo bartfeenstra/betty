@@ -58,6 +58,7 @@ def context_document(context: JinjaContext) -> Document:
     return document
 
 
+# @ to-do Move this to Project.jinja
 async def new_environment(project: Project, /) -> Environment:
     """
     Create a new environment.
@@ -95,12 +96,11 @@ async def new_environment(project: Project, /) -> Environment:
 
     environment.globals.update(
         {
+            "ancestry": project.ancestry,
             "about_version_major": about.VERSION_MAJOR_LABEL,
-            "app": project.upstream,
             "deprecate": deprecate,
             "generate_html_id": generate_html_id,
             "new_attributes": Attributes,
-            "project": project,
             "primary_navigation_links": [link.link for link in links if link.primary],
             "public_css_paths": [
                 resource.plugin().resource
@@ -113,6 +113,7 @@ async def new_environment(project: Project, /) -> Environment:
             "secondary_navigation_links": [
                 link.link for link in links if not link.primary
             ],
+            "services": project,
             "today": Date(today.year, today.month, today.day),
         }
     )
