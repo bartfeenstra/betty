@@ -1,8 +1,8 @@
 from betty.plugins.extension.raspberry_mint import RaspberryMint
-from betty.test_utils.jinja import assert_template_file
+from betty.test_utils.conftest import AssertTemplateFile
 
 
-async def test_minimal() -> None:
+async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
     url = "https://example.com/per/ma.link"
     async with assert_template_file(
         data={

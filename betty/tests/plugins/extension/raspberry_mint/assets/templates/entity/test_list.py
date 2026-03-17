@@ -1,10 +1,10 @@
 from betty.plugins.entity.event import Event
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.privacy import Privacy
-from betty.test_utils.jinja import assert_template_file
+from betty.test_utils.conftest import AssertTemplateFile
 
 
-async def test_minimal() -> None:
+async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
     expected = ""
     async with assert_template_file(
         data={
@@ -16,7 +16,9 @@ async def test_minimal() -> None:
         assert actual == expected
 
 
-async def test_without_public_entities() -> None:
+async def test_without_public_entities(
+    assert_template_file: AssertTemplateFile,
+) -> None:
     entity = Event(privacy=Privacy.PRIVATE)
     expected = ""
     async with assert_template_file(
@@ -29,7 +31,7 @@ async def test_without_public_entities() -> None:
         assert actual == expected
 
 
-async def test_with_public_entities() -> None:
+async def test_with_public_entities(assert_template_file: AssertTemplateFile) -> None:
     entity = Event(id="E0")
     async with assert_template_file(
         data={

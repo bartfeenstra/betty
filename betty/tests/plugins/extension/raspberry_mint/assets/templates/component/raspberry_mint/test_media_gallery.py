@@ -8,10 +8,10 @@ from betty.plugins.entity.file import File
 from betty.plugins.entity.file_reference import FileReference
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.privacy import Privacy
-from betty.test_utils.jinja import assert_template_file
+from betty.test_utils.conftest import AssertTemplateFile
 
 
-async def test_minimal() -> None:
+async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
     async with assert_template_file(
         data={
             "file_references": [],
@@ -22,7 +22,9 @@ async def test_minimal() -> None:
         assert actual == ""
 
 
-async def test_with_public_file_references(tmp_path: Path) -> None:
+async def test_with_public_file_references(
+    assert_template_file: AssertTemplateFile, tmp_path: Path
+) -> None:
     image_path = tmp_path / "image.png"
     image = Image.new("1", (1, 1))
     image.save(image_path)
@@ -38,7 +40,9 @@ async def test_with_public_file_references(tmp_path: Path) -> None:
         assert file.public_id in actual
 
 
-async def test_without_public_file_references(tmp_path: Path) -> None:
+async def test_without_public_file_references(
+    assert_template_file: AssertTemplateFile, tmp_path: Path
+) -> None:
     image_path = tmp_path / "image.png"
     image = Image.new("1", (1, 1))
     image.save(image_path)

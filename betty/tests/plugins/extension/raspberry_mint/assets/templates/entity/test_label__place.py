@@ -1,14 +1,18 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from betty.ancestry.name import Name
 from betty.date import Date, DateRange
 from betty.document import Document, EntityContexts
 from betty.plugins.entity.place import Place
 from betty.plugins.extension.raspberry_mint import RaspberryMint
-from betty.test_utils.jinja import assert_template_file
+
+if TYPE_CHECKING:
+    from betty.test_utils.conftest import AssertTemplateFile
 
 
-async def test_minimal() -> None:
+async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
     place = Place()
     expected = f'<span lang="und" dir="auto">Place {place.id}</span>'
     async with assert_template_file(
@@ -21,7 +25,7 @@ async def test_minimal() -> None:
         assert actual == expected
 
 
-async def test_with_persistent_id() -> None:
+async def test_with_persistent_id(assert_template_file: AssertTemplateFile) -> None:
     place = Place(id="P0")
     expected = f'<a href="/place/{place.public_id}/index.html"><span lang="und" dir="auto">Place P0</span></a>'
     async with assert_template_file(
@@ -34,7 +38,7 @@ async def test_with_persistent_id() -> None:
         assert actual == expected
 
 
-async def test_with_name() -> None:
+async def test_with_name(assert_template_file: AssertTemplateFile) -> None:
     place = Place(names=[Name("The Place")])
     expected = '<span lang="und" dir="auto">The Place</span>'
     async with assert_template_file(
@@ -47,7 +51,7 @@ async def test_with_name() -> None:
         assert actual == expected
 
 
-async def test_embedded() -> None:
+async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
     place = Place(
         id="P0",
         names=[Name("The Place")],
@@ -64,7 +68,7 @@ async def test_embedded() -> None:
         assert actual == expected
 
 
-async def test_with_place_context() -> None:
+async def test_with_place_context(assert_template_file: AssertTemplateFile) -> None:
     place = Place(id="P0")
 
     expected = '<span lang="und" dir="auto">Place P0</span>'
@@ -79,7 +83,7 @@ async def test_with_place_context() -> None:
         assert actual == expected
 
 
-async def test_with_date_context() -> None:
+async def test_with_date_context(assert_template_file: AssertTemplateFile) -> None:
     place = Place(
         names=[
             Name(

@@ -1,7 +1,7 @@
 import pytest
 from babel import Locale
 
-from betty.test_utils.jinja import assert_template_string
+from betty.test_utils.conftest import AssertTemplateString
 
 
 class TestToLanguageTag:
@@ -13,7 +13,12 @@ class TestToLanguageTag:
             ("nl-NL", Locale("nl", "NL")),
         ],
     )
-    async def test___call__(self, expected: str, locale: Locale | None) -> None:
+    async def test___call__(
+        self,
+        assert_template_string: AssertTemplateString,
+        expected: str,
+        locale: Locale | None,
+    ) -> None:
         template = "{{ data | to_language_tag }}"
         async with assert_template_string(
             template=template,

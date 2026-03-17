@@ -3,7 +3,7 @@ from typing import Any
 import pytest
 
 from betty.privacy import Privacy
-from betty.test_utils.jinja import assert_template_string
+from betty.test_utils.conftest import AssertTemplateString
 from betty.test_utils.privacy import DummyHasPrivacy
 
 
@@ -17,7 +17,9 @@ class TestPublic:
             ("true", object()),
         ],
     )
-    async def test___call__(self, expected: bool, data: Any) -> None:
+    async def test___call__(
+        self, assert_template_string: AssertTemplateString, expected: bool, data: Any
+    ) -> None:
         template = "{% if data is public %}true{% else %}false{% endif %}"
         async with assert_template_string(
             template=template,

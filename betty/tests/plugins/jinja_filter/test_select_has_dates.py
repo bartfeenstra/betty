@@ -5,7 +5,7 @@ import pytest
 
 from betty.date import Date, DateRange, ResolvableDate
 from betty.test_utils.ancestry.date import DummyHasDate
-from betty.test_utils.jinja import assert_template_string
+from betty.test_utils.conftest import AssertTemplateString
 
 
 class _DummyHasDate(DummyHasDate):
@@ -91,7 +91,10 @@ class TestSelectHasDates:
         ],
     )
     async def test___call__(
-        self, expected: str, data: MutableMapping[str, Any]
+        self,
+        assert_template_string: AssertTemplateString,
+        expected: str,
+        data: MutableMapping[str, Any],
     ) -> None:
         template = '{{ has_dates | select_has_dates(date=date) | join(", ") }}'
         async with assert_template_string(template=template, data=data) as (

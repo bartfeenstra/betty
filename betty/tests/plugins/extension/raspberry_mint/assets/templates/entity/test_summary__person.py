@@ -11,10 +11,10 @@ from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.plugins.gender.non_binary import NonBinary
 from betty.plugins.role.subject import Subject
 from betty.privacy import Privacy
-from betty.test_utils.jinja import assert_template_file
+from betty.test_utils.conftest import AssertTemplateFile
 
 
-async def test_minimal() -> None:
+async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
     person = Person()
     async with assert_template_file(
         data={
@@ -26,7 +26,7 @@ async def test_minimal() -> None:
         assert actual == '<div class="small"></div>'
 
 
-async def test_embedded() -> None:
+async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
     source = Source()
     person = Person()
     PersonName(person=person, individual="Jane", citations=[Citation(source=source)])
@@ -47,7 +47,7 @@ async def test_embedded() -> None:
         assert "#reference" not in actual
 
 
-async def test_private() -> None:
+async def test_private(assert_template_file: AssertTemplateFile) -> None:
     source = Source()
     person = Person(privacy=Privacy.PRIVATE)
     PersonName(person=person, individual="Primary Name")
@@ -74,7 +74,9 @@ async def test_private() -> None:
         assert "#reference" not in actual
 
 
-async def test_with_public_alternative_name() -> None:
+async def test_with_public_alternative_name(
+    assert_template_file: AssertTemplateFile,
+) -> None:
     source = Source()
     person = Person()
     PersonName(person=person, individual="Primary Name")
@@ -95,7 +97,9 @@ async def test_with_public_alternative_name() -> None:
         assert "#reference" in actual
 
 
-async def test_with_private_alternative_name() -> None:
+async def test_with_private_alternative_name(
+    assert_template_file: AssertTemplateFile,
+) -> None:
     source = Source()
     person = Person()
     PersonName(person=person, individual="Primary Name")
@@ -117,7 +121,7 @@ async def test_with_private_alternative_name() -> None:
         assert "#reference" not in actual
 
 
-async def test_with_birh_indicator() -> None:
+async def test_with_birh_indicator(assert_template_file: AssertTemplateFile) -> None:
     source = Source()
     person = Person()
     birth = Event(event_type=Birth(), citations=[Citation(source=source)])
@@ -133,7 +137,7 @@ async def test_with_birh_indicator() -> None:
         assert "#reference" in actual
 
 
-async def test_with_death_indicator() -> None:
+async def test_with_death_indicator(assert_template_file: AssertTemplateFile) -> None:
     source = Source()
     person = Person()
     death = Event(event_type=Death(), citations=[Citation(source=source)])
@@ -149,7 +153,7 @@ async def test_with_death_indicator() -> None:
         assert "#reference" in actual
 
 
-async def test_with_gender() -> None:
+async def test_with_gender(assert_template_file: AssertTemplateFile) -> None:
     person = Person(gender=NonBinary())
     async with assert_template_file(
         data={

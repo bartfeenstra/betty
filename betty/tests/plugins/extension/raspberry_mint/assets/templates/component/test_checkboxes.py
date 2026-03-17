@@ -1,9 +1,9 @@
 from betty.html.attributes import Attributes
 from betty.plugins.extension.raspberry_mint import RaspberryMint
-from betty.test_utils.jinja import assert_template_file
+from betty.test_utils.conftest import AssertTemplateFile
 
 
-async def test_minimal() -> None:
+async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
     label = "Check these out!"
     async with assert_template_file(
         data={
@@ -16,7 +16,9 @@ async def test_minimal() -> None:
         assert label in actual
 
 
-async def test_with_checkboxes_label_visually_hidden() -> None:
+async def test_with_checkboxes_label_visually_hidden(
+    assert_template_file: AssertTemplateFile,
+) -> None:
     async with assert_template_file(
         data={
             "checkboxes": [],
@@ -29,7 +31,7 @@ async def test_with_checkboxes_label_visually_hidden() -> None:
         assert "visually-hidden" in actual
 
 
-async def test_with_minimal_items() -> None:
+async def test_with_minimal_items(assert_template_file: AssertTemplateFile) -> None:
     label = "Check me out!"
     value = "Look at this treasure"
     async with assert_template_file(
@@ -48,7 +50,7 @@ async def test_with_minimal_items() -> None:
         assert label in actual
 
 
-async def test_with_full_items() -> None:
+async def test_with_full_items(assert_template_file: AssertTemplateFile) -> None:
     html_id = "my-first-id"
     async with assert_template_file(
         data={

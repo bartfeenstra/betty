@@ -1,7 +1,7 @@
 import pytest
 
 from betty.model import Entity
-from betty.test_utils.jinja import assert_template_string
+from betty.test_utils.conftest import AssertTemplateString
 
 
 class TestPersistentEntityId:
@@ -12,7 +12,9 @@ class TestPersistentEntityId:
             ("true", Entity("my-first-entity-id")),
         ],
     )
-    async def test___call__(self, expected: bool, data: Entity) -> None:
+    async def test___call__(
+        self, assert_template_string: AssertTemplateString, expected: bool, data: Entity
+    ) -> None:
         template = "{% if data is persistent_entity_id %}true{% else %}false{% endif %}"
         async with assert_template_string(
             template=template,

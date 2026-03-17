@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from betty.plugins.entity.event import Event
 from betty.plugins.extension.raspberry_mint import RaspberryMint
-from betty.test_utils.jinja import assert_template_file
+
+if TYPE_CHECKING:
+    from betty.test_utils.conftest import AssertTemplateFile
 
 
-async def test_minimal() -> None:
+async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
     entity = Event()
     expected = '<span lang="und" dir="auto">Unknown</span>'
     async with assert_template_file(
@@ -18,7 +22,7 @@ async def test_minimal() -> None:
         assert actual == expected
 
 
-async def test_with_persistent_id() -> None:
+async def test_with_persistent_id(assert_template_file: AssertTemplateFile) -> None:
     entity = Event(id="E0")
     expected = f'<a href="/event/{entity.public_id}/index.html"><span lang="und" dir="auto">Unknown</span></a>'
     async with assert_template_file(
@@ -31,7 +35,7 @@ async def test_with_persistent_id() -> None:
         assert actual == expected
 
 
-async def test_embedded() -> None:
+async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
     entity = Event(id="E0")
     expected = '<span lang="und" dir="auto">Unknown</span>'
     async with assert_template_file(

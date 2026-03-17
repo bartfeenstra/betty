@@ -2,10 +2,10 @@ from markupsafe import Markup
 
 from betty.html.attributes import Attributes
 from betty.plugins.extension.raspberry_mint import RaspberryMint
-from betty.test_utils.jinja import assert_template_file
+from betty.test_utils.conftest import AssertTemplateFile
 
 
-async def test_minimal() -> None:
+async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
     async with assert_template_file(
         data={
             "accordion_items": [],
@@ -16,7 +16,7 @@ async def test_minimal() -> None:
         assert actual == ""
 
 
-async def test_with_items() -> None:
+async def test_with_items(assert_template_file: AssertTemplateFile) -> None:
     accordion_heading_element = "h2"
     header = "Hello, world!"
     body = "<p>Lorem ipsum dolor sit amet</p>"
@@ -38,7 +38,7 @@ async def test_with_items() -> None:
         assert body in actual
 
 
-async def test_with_html_attributes() -> None:
+async def test_with_html_attributes(assert_template_file: AssertTemplateFile) -> None:
     html_class = "my-first-class"
     async with assert_template_file(
         data={

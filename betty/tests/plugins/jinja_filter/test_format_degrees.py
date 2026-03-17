@@ -1,6 +1,6 @@
 import pytest
 
-from betty.test_utils.jinja import assert_template_string
+from betty.test_utils.conftest import AssertTemplateString
 
 
 class TestFormatDegrees:
@@ -11,6 +11,8 @@ class TestFormatDegrees:
             ("52° 22&#39; 1&#34;", "{{ 52.367 | format_degrees }}"),
         ],
     )
-    async def test___call__(self, expected: str, template: str) -> None:
+    async def test___call__(
+        self, assert_template_string: AssertTemplateString, expected: str, template: str
+    ) -> None:
         async with assert_template_string(template=template) as (actual, _):
             assert actual == expected

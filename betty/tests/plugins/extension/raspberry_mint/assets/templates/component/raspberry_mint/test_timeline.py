@@ -7,10 +7,10 @@ from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.plugins.role.attendee import Attendee
 from betty.plugins.role.subject import Subject
 from betty.privacy import Privacy
-from betty.test_utils.jinja import assert_template_file
+from betty.test_utils.conftest import AssertTemplateFile
 
 
-async def test_minimal() -> None:
+async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
     async with assert_template_file(
         data={
             "events": [],
@@ -21,7 +21,7 @@ async def test_minimal() -> None:
         assert actual == ""
 
 
-async def test_with_minimal_event() -> None:
+async def test_with_minimal_event(assert_template_file: AssertTemplateFile) -> None:
     name = "What's happening?"
     event = Event(name=name, date=Date(1970, 1, 1))
     async with assert_template_file(
@@ -34,7 +34,7 @@ async def test_with_minimal_event() -> None:
         assert name in actual
 
 
-async def test_with_private_event() -> None:
+async def test_with_private_event(assert_template_file: AssertTemplateFile) -> None:
     name = "What's happening?"
     event = Event(name=name, date=Date(1970, 1, 1), privacy=Privacy.PRIVATE)
     async with assert_template_file(
@@ -47,7 +47,9 @@ async def test_with_private_event() -> None:
         assert actual == ""
 
 
-async def test_with_event_without_date() -> None:
+async def test_with_event_without_date(
+    assert_template_file: AssertTemplateFile,
+) -> None:
     name = "What's happening?"
     event = Event(name=name)
     async with assert_template_file(
@@ -60,7 +62,9 @@ async def test_with_event_without_date() -> None:
         assert actual == ""
 
 
-async def test_with_event_without_comparable_date() -> None:
+async def test_with_event_without_comparable_date(
+    assert_template_file: AssertTemplateFile,
+) -> None:
     name = "What's happening?"
     event = Event(name=name, date=Date(None, 1, 1))
     async with assert_template_file(
@@ -73,7 +77,7 @@ async def test_with_event_without_comparable_date() -> None:
         assert actual == ""
 
 
-async def test_with_subject_attendee() -> None:
+async def test_with_subject_attendee(assert_template_file: AssertTemplateFile) -> None:
     person = Person()
     name = "What's happening?"
     event = Event(name=name, date=Date(1970, 1, 1))
@@ -89,7 +93,7 @@ async def test_with_subject_attendee() -> None:
         assert "timeline-attendee--subject" in actual
 
 
-async def test_with_other_attendee() -> None:
+async def test_with_other_attendee(assert_template_file: AssertTemplateFile) -> None:
     person = Person()
     name = "What's happening?"
     event = Event(name=name, date=Date(1970, 1, 1))

@@ -6,7 +6,7 @@ from babel import Locale
 from betty.document import Document
 from betty.locale import HasLocaleStr
 from betty.locale.localize import Localizer
-from betty.test_utils.jinja import assert_template_string
+from betty.test_utils.conftest import AssertTemplateString
 
 
 class TestHtmlLang:
@@ -55,6 +55,7 @@ class TestHtmlLang:
     )
     async def test___call__(
         self,
+        assert_template_string: AssertTemplateString,
         expected: str,
         autoescape: bool,
         has_locale: str,

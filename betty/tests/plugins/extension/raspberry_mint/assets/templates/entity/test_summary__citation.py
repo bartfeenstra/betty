@@ -2,10 +2,10 @@ from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.source import Source
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.privacy import Privacy
-from betty.test_utils.jinja import assert_template_file
+from betty.test_utils.conftest import AssertTemplateFile
 
 
-async def test_minimal() -> None:
+async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
     source = Source()
     citation = Citation(source=source)
     async with assert_template_file(
@@ -18,7 +18,7 @@ async def test_minimal() -> None:
         assert source.public_id in actual
 
 
-async def test_with_private_source() -> None:
+async def test_with_private_source(assert_template_file: AssertTemplateFile) -> None:
     source = Source(privacy=Privacy.PRIVATE)
     citation = Citation(source=source)
     async with assert_template_file(

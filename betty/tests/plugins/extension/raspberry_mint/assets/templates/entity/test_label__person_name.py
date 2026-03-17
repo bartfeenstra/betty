@@ -5,10 +5,12 @@ from betty.plugins.entity.person_name import PersonName
 from betty.plugins.entity.source import Source
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.privacy import Privacy
-from betty.test_utils.jinja import assert_template_file
+from betty.test_utils.conftest import AssertTemplateFile
 
 
-async def test_minimal_with_individual_name() -> None:
+async def test_minimal_with_individual_name(
+    assert_template_file: AssertTemplateFile,
+) -> None:
     person = Person()
     person_name = PersonName(person=person, individual="Jane")
     expected = "Jane"
@@ -22,7 +24,9 @@ async def test_minimal_with_individual_name() -> None:
         assert actual == expected
 
 
-async def test_minimal_with_affiliation_name() -> None:
+async def test_minimal_with_affiliation_name(
+    assert_template_file: AssertTemplateFile,
+) -> None:
     person = Person()
     person_name = PersonName(person=person, affiliation="Dough")
     expected = "… Dough"
@@ -36,7 +40,9 @@ async def test_minimal_with_affiliation_name() -> None:
         assert actual == expected
 
 
-async def test_with_person_with_persistent_id() -> None:
+async def test_with_person_with_persistent_id(
+    assert_template_file: AssertTemplateFile,
+) -> None:
     person = Person(id="P0")
     person_name = PersonName(person=person, individual="Jane")
     expected = f'<a href="/person/{person.public_id}/index.html">Jane</a>'
@@ -50,7 +56,7 @@ async def test_with_person_with_persistent_id() -> None:
         assert actual == expected
 
 
-async def test_embedded() -> None:
+async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
     source = Source()
     citation = Citation(source=source)
     person = Person(id="P0")
@@ -67,7 +73,7 @@ async def test_embedded() -> None:
         assert actual == expected
 
 
-async def test_private() -> None:
+async def test_private(assert_template_file: AssertTemplateFile) -> None:
     person = Person(id="P0")
     person_name = PersonName(person=person, individual="Jane", privacy=Privacy.PRIVATE)
     expected = f'<a href="/person/{person.public_id}/index.html"><span class="private" title="This information is unavailable to protect people\'s privacy.">private</span></a>'
@@ -81,7 +87,7 @@ async def test_private() -> None:
         assert actual == expected
 
 
-async def test_with_private_person() -> None:
+async def test_with_private_person(assert_template_file: AssertTemplateFile) -> None:
     person = Person(id="P0", privacy=Privacy.PRIVATE)
     person_name = PersonName(person=person, individual="Jane")
     expected = '<span class="private" title="This information is unavailable to protect people\'s privacy.">private</span>'
@@ -95,7 +101,7 @@ async def test_with_private_person() -> None:
         assert actual == expected
 
 
-async def test_person_is_context() -> None:
+async def test_person_is_context(assert_template_file: AssertTemplateFile) -> None:
     person = Person(id="P0")
     person_name = PersonName(person=person, individual="Jane")
     expected = "Jane"
@@ -110,7 +116,7 @@ async def test_person_is_context() -> None:
         assert actual == expected
 
 
-async def test_with_citations() -> None:
+async def test_with_citations(assert_template_file: AssertTemplateFile) -> None:
     source = Source()
     citation = Citation(source=source)
     person = Person()
