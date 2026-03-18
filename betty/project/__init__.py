@@ -46,10 +46,8 @@ from betty.machine_name import MachineName
 from betty.privacy.privatizer import Privatizer
 from betty.project.data import ProjectConfiguration
 from betty.render import RenderDispatcher, RendererDefinition
-from betty.serde import SerializerDefinition, serializer_for
 from betty.service.factory import DataManufacturable
 from betty.service.level import ChainedServiceLevel, ServiceLevel
-from betty.service.level.universe import UNIVERSE
 from betty.service.plugin import ServicePluginManager, ServicePluginProvider
 from betty.service.provider import service
 from betty.service.requirement.project import require_project
@@ -94,10 +92,9 @@ class Project(
 
     def __init__(
         self,
-        app: App,
-        configuration_file: Path,
-        /,
+        directory: Path,
         *,
+        app: App,
         configuration: ProjectConfiguration,
         ancestry: Ancestry | None = None,
         plugins: Mapping[
@@ -110,7 +107,7 @@ class Project(
         self.life_cycle.on_bootstrap(self._validate)
         self._app = app
         self._configuration = configuration
-        self._configuration_file = configuration_file
+        self._directory = directory
         self._ancestry = Ancestry() if ancestry is None else ancestry
 
     def _ensure_locale(self) -> None:
@@ -148,7 +145,7 @@ class Project(
         *,
         ancestry: Ancestry | None = None,
         configuration: ProjectConfiguration | None = None,
-        configuration_file: Path | None = None,
+        directory: Path | None = None,
         plugins: Mapping[
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
         ]
@@ -161,14 +158,11 @@ class Project(
         global Betty functionality such as caches.
         """
         async with AsyncExitStack() as stack:
-            if configuration_file is None:
-                configuration_file = (
-                    Path(await stack.enter_async_context(TemporaryDirectory()))
-                    / "betty.json"
-                )
+            if directory is None:
+                directory = Path(await stack.enter_async_context(TemporaryDirectory()))
             yield cls(
-                app,
-                configuration_file,
+                directory,
+                app=app,
                 configuration=ProjectConfiguration(
                     title="Betty", url="https://example.com"
                 )
@@ -198,25 +192,6 @@ class Project(
         return service_plugins
 
     @property
-    def configuration_file(self) -> Path:
-        """
-        The path to the configuration's file.
-        """
-        return self._configuration_file
-
-    async def set_configuration_file(self, configuration_file: Path, /) -> None:
-        """
-        Set the path to the configuration's file.
-        """
-        if configuration_file == self._configuration_file:
-            return
-        serializer_for(
-            [plugin async for plugin in UNIVERSE.plugins[SerializerDefinition]],
-            configuration_file.suffix,
-        )
-        self._configuration_file = configuration_file
-
-    @property
     def directory(self) -> Path:
         """
         The project directory path.
@@ -224,7 +199,7 @@ class Project(
         Betty will look for resources in this directory, and place generated artifacts there. It is expected
         that no other applications or projects share this same directory.
         """
-        return self.configuration_file.parent
+        return self._directory
 
     @property
     def output_directory(self) -> Path:
@@ -260,10 +235,10 @@ class Project(
         """
         The project name.
 
-        If no project name was configured, this defaults to the hash of the configuration file path.
+        If no project name was configured, this defaults to the hash of the project directory path.
         """
         if self._configuration.name is None:
-            return MachineName(hashid(str(self.configuration_file)))
+            return MachineName(hashid(str(self.directory)))
         return self._configuration.name
 
     @property

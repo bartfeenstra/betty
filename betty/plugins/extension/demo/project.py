@@ -193,6 +193,4 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
             *[locale for locale in translations.locales if locale != DEFAULT_LOCALE],
         ],
     )
-    return Project(
-        app, project_directory_path / "betty.json", configuration=configuration
-    )
+    return Project(project_directory_path, app=app, configuration=configuration)

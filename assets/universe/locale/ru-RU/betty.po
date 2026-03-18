@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-03-18 00:52+0000\n"
+"POT-Creation-Date: 2026-03-18 01:31+0000\n"
 "PO-Revision-Date: 2026-02-17 18:12+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ru_RU\n"
@@ -456,9 +456,6 @@ msgid "Conference"
 msgstr "Конференция"
 
 msgid "Conferences"
-msgstr ""
-
-msgid "Configuration file"
 msgstr ""
 
 msgid "Configure Betty"
@@ -2020,7 +2017,7 @@ msgstr ""
 "произведения."
 
 #, python-brace-format
-msgid "Your project at {file}"
+msgid "Your project at {path}"
 msgstr ""
 
 msgid "Zoom in"

@@ -21,12 +21,12 @@ class TestAbout:
         ):
             await dump_file(
                 project.configuration.data().porter.dump(project.configuration),
-                project.configuration_file,
+                project.directory / "betty.json",
             )
             result = await run(
                 app,
                 "about",
                 "--project",
-                str(project.configuration_file),
+                str(project.directory / "betty.json"),
             )
             assert "Betty" in result.stdout

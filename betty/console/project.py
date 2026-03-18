@@ -69,7 +69,9 @@ async def add_project_argument(
             project = None
         else:
             project = Project(
-                app, project_configuration_file_path, configuration=configuration
+                project_configuration_file_path.parent,
+                app=app,
+                configuration=configuration,
             )
         return await command_function(project=project, **kwargs)
 

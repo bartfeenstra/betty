@@ -16,7 +16,7 @@ class TestServe:
         async with Project.new_isolated(isolated_app) as project:
             await dump_file(
                 project.configuration.data().porter.dump(project.configuration),
-                project.configuration_file,
+                project.directory / "betty.json",
             )
             await makedirs(project.www_directory)
 
@@ -24,6 +24,6 @@ class TestServe:
                 isolated_app,
                 "serve",
                 "--project",
-                str(project.configuration_file),
+                str(project.directory / "betty.json"),
                 expected_exit_code=SystemExitCode.USER_QUIT,
             )
