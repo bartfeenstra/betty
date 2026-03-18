@@ -3,8 +3,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import pytest
-
 from betty.ancestry import Ancestry
 from betty.asset import Asset, AssetDefinition
 from betty.dirs import ASSETS_DIRECTORY_PATH
@@ -12,7 +10,6 @@ from betty.extension import Extension, ExtensionDefinition
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
 from betty.project import Project
 from betty.project.data import ProjectConfiguration, ProjectLocale
-from betty.serde import SerializationError
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.project.extension import DummyExtensionOne
 
@@ -56,8 +53,8 @@ class TestProject:
         self, isolated_app: App, tmp_path: Path
     ) -> None:
         Project(
-            isolated_app,
-            tmp_path / "betty.json",
+            tmp_path,
+            app=isolated_app,
             configuration=ProjectConfiguration(
                 title="Betty", url="https://example.com"
             ),
@@ -66,8 +63,8 @@ class TestProject:
     async def test_new__with_ancestry(self, isolated_app: App, tmp_path: Path) -> None:
         ancestry = Ancestry()
         sut = Project(
-            isolated_app,
-            tmp_path / "betty.json",
+            tmp_path,
+            app=isolated_app,
             ancestry=ancestry,
             configuration=ProjectConfiguration(
                 title="Betty", url="https://example.com"
@@ -189,50 +186,10 @@ class TestProject:
         async with Project.new_isolated(isolated_app) as sut, sut:
             await sut.new_document()
 
-    async def test_configuration_file(self, isolated_app: App, tmp_path: Path) -> None:
-        configuration_file_path = tmp_path / "init.json"
-        sut = Project(
-            isolated_app,
-            configuration_file_path,
-            configuration=ProjectConfiguration(
-                title="Betty", url="https://example.com"
-            ),
-        )
-        assert sut.configuration_file == configuration_file_path
-
-    async def test_set_configuration_file(
-        self, isolated_app: App, tmp_path: Path
-    ) -> None:
-        sut = Project(
-            isolated_app,
-            tmp_path / "init.json",
-            configuration=ProjectConfiguration(
-                title="Betty", url="https://example.com"
-            ),
-        )
-        configuration_file_path = tmp_path / "set.json"
-        await sut.set_configuration_file(configuration_file_path)
-        # Assert that setting the path to its existing value is a no-op.
-        await sut.set_configuration_file(configuration_file_path)
-
-    async def test_set_configuration_file__with_unsupported_format(
-        self, isolated_app: App, tmp_path: Path
-    ) -> None:
-        sut = Project(
-            isolated_app,
-            tmp_path / "init",
-            configuration=ProjectConfiguration(
-                title="Betty", url="https://example.com"
-            ),
-        )
-        configuration_file_path = tmp_path / "set"
-        with pytest.raises(SerializationError):
-            await sut.set_configuration_file(configuration_file_path)
-
     async def test_directory(self, isolated_app: App, tmp_path: Path) -> None:
         sut = Project(
-            isolated_app,
-            tmp_path / "betty.json",
+            tmp_path,
+            app=isolated_app,
             configuration=ProjectConfiguration(
                 title="Betty", url="https://example.com"
             ),
@@ -241,8 +198,8 @@ class TestProject:
 
     async def test_output_directory(self, isolated_app: App, tmp_path: Path) -> None:
         sut = Project(
-            isolated_app,
-            tmp_path / "betty.json",
+            tmp_path,
+            app=isolated_app,
             configuration=ProjectConfiguration(
                 title="Betty", url="https://example.com"
             ),
@@ -251,8 +208,8 @@ class TestProject:
 
     async def test_assets_directory(self, isolated_app: App, tmp_path: Path) -> None:
         sut = Project(
-            isolated_app,
-            tmp_path / "betty.json",
+            tmp_path,
+            app=isolated_app,
             configuration=ProjectConfiguration(
                 title="Betty", url="https://example.com"
             ),
@@ -261,8 +218,8 @@ class TestProject:
 
     async def test_www_directory(self, isolated_app: App, tmp_path: Path) -> None:
         sut = Project(
-            isolated_app,
-            tmp_path / "betty.json",
+            tmp_path,
+            app=isolated_app,
             configuration=ProjectConfiguration(
                 title="Betty", url="https://example.com"
             ),
@@ -273,8 +230,8 @@ class TestProject:
         self, isolated_app: App, tmp_path: Path
     ) -> None:
         sut = Project(
-            isolated_app,
-            tmp_path / "betty.json",
+            tmp_path,
+            app=isolated_app,
             configuration=ProjectConfiguration(
                 title="Betty", url="https://example.com"
             ),
@@ -287,8 +244,8 @@ class TestProject:
         self, isolated_app: App, tmp_path: Path
     ) -> None:
         sut = Project(
-            isolated_app,
-            tmp_path / "betty.json",
+            tmp_path,
+            app=isolated_app,
             configuration=ProjectConfiguration(
                 title="Betty", url="https://example.com"
             ),

@@ -66,17 +66,13 @@ class About(Manufacturable, Command):
 
     async def _about_project(self, user: RichUser, project: Project) -> None:
         about_project = Table(
-            title=user.localizer._("Your project at {file}").format(
-                file=str(project.configuration_file.parent)
+            title=user.localizer._("Your project at {path}").format(
+                path=str(project.directory)
             ),
             show_header=False,
         )
         about_project.add_column("", style=self._KEY_STYLE)
         about_project.add_column("")
-        about_project.add_row(
-            user.localizer._("Configuration file"),
-            str(project.configuration_file),
-        )
         about_project.add_row(
             user.localizer._("Assets directory"),
             str(project.assets_directory),
