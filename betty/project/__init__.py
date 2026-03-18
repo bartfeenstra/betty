@@ -31,7 +31,6 @@ from betty.extension import Extension, ExtensionDefinition
 from betty.hashid import hashid
 from betty.html.css import CssResourceDefinition
 from betty.html.js import JsResourceDefinition
-from betty.importlib import fully_qualified_name
 from betty.jinja.filter import JinjaFilterDefinition
 from betty.jinja.test import JinjaTestDefinition
 from betty.link import LinkDefinition
@@ -46,8 +45,7 @@ from betty.machine_name import MachineName
 from betty.privacy.privatizer import Privatizer
 from betty.project.data import ProjectConfiguration
 from betty.render import RenderDispatcher, RendererDefinition
-from betty.service.factory import DataManufacturable
-from betty.service.level import ChainedServiceLevel, ServiceLevel
+from betty.service.level import ChainedServiceLevel
 from betty.service.plugin import ServicePluginManager, ServicePluginProvider
 from betty.service.provider import service
 from betty.service.requirement.project import require_project
@@ -72,11 +70,7 @@ if TYPE_CHECKING:
 
 
 @final
-class Project(
-    DataManufacturable[ProjectConfiguration],
-    ChainedServiceLevel[App],
-    ServicePluginProvider,
-):
+class Project(ChainedServiceLevel[App], ServicePluginProvider):
     """
     Define a Betty project.
 
@@ -118,17 +112,14 @@ class Project(
         for entity_type in self._configuration.entity_types:
             await entity_type.validate(self)
 
-    @override
     @classmethod
-    def new_data_cls(cls) -> type[ProjectConfiguration]:
-        return ProjectConfiguration
-
-    @override
-    @classmethod
-    async def new(cls, services: ServiceLevel, data: ProjectConfiguration, /) -> Self:
-        raise NotImplementedError(
-            f"Creating a new {fully_qualified_name(cls)} from its configuration is not yet supported."
-        )
+    async def new(
+        cls, app: App, data: ProjectConfiguration, *, directory: Path
+    ) -> Self:
+        """
+        Create a new instance.
+        """
+        return cls(directory, app=app, configuration=data)
 
     @property
     def configuration(self) -> ProjectConfiguration:

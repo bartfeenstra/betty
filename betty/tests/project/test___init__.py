@@ -49,36 +49,20 @@ class TestProject:
         ):
             assert sut.configuration is configuration
 
-    async def test_new__without_ancestry(
-        self, isolated_app: App, tmp_path: Path
-    ) -> None:
-        Project(
-            tmp_path,
-            app=isolated_app,
-            configuration=ProjectConfiguration(
-                title="Betty", url="https://example.com"
-            ),
-        )
+    async def test_new(self, isolated_app: App, tmp_path: Path) -> None:
+        configuration = ProjectConfiguration(title="Betty", url="https://example.com")
+        sut = await Project.new(isolated_app, configuration, directory=tmp_path)
+        assert sut.upstream is isolated_app
+        assert sut.configuration is configuration
+        assert sut.directory == tmp_path
 
-    async def test_new__with_ancestry(self, isolated_app: App, tmp_path: Path) -> None:
-        ancestry = Ancestry()
-        sut = Project(
-            tmp_path,
-            app=isolated_app,
-            ancestry=ancestry,
-            configuration=ProjectConfiguration(
-                title="Betty", url="https://example.com"
-            ),
-        )
-        assert sut.ancestry is ancestry
-
-    async def test_new_temporary__without_configuration(
+    async def test_new_isolated__without_configuration(
         self, isolated_app: App, tmp_path: Path
     ) -> None:
         async with Project.new_isolated(isolated_app):
             pass
 
-    async def test_new_temporary__with_configuration(
+    async def test_new_isolated__with_configuration(
         self, isolated_app: App, tmp_path: Path
     ) -> None:
         configuration = ProjectConfiguration(title="Betty", url="https://example.com")

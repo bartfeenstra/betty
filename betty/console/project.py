@@ -68,10 +68,8 @@ async def add_project_argument(
                 raise
             project = None
         else:
-            project = Project(
-                project_configuration_file_path.parent,
-                app=app,
-                configuration=configuration,
+            project = await Project.new(
+                app, configuration, directory=project_configuration_file_path.parent
             )
         return await command_function(project=project, **kwargs)
 
