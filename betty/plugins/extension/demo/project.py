@@ -193,4 +193,4 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
             *[locale for locale in translations.locales if locale != DEFAULT_LOCALE],
         ],
     )
-    return Project(project_directory_path, app=app, configuration=configuration)
+    return await Project.new(app, configuration, directory=project_directory_path)
