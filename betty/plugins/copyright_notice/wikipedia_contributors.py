@@ -5,10 +5,11 @@ The Wikipedia contributors copyright notice.
 from __future__ import annotations
 
 from contextlib import suppress
-from typing import TYPE_CHECKING, Self, final, override
+from typing import Self, final, override
 
 import aiohttp
 
+from betty.app import App
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.locale import DEFAULT_LOCALE, resolve_locale
 from betty.locale.error import LocaleError
@@ -19,11 +20,8 @@ from betty.locale.localizable import (
 )
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
+from betty.requirement import require
 from betty.service.factory import Manufacturable
-from betty.service.requirement.app import require_app
-
-if TYPE_CHECKING:
-    from betty.app import App
 
 
 def _copyright_url(language: str, page: str) -> str:
@@ -43,7 +41,7 @@ class WikipediaContributors(Manufacturable, CopyrightNotice):
 
     @override
     @classmethod
-    @require_app
+    @require(App)
     async def new(cls, app: App, /) -> Self:
         http_client = await app.http_client
         urls = {

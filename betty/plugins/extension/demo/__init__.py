@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.extension import Extension, ExtensionDefinition
 from betty.license import LicenseDefinition
-from betty.link import LinkDefinition
 from betty.plugins.copyright_notice.streetmix import Streetmix
 from betty.plugins.extension.demo.jobs import LoadAncestry
 from betty.plugins.extension.deriver import Deriver
@@ -26,8 +25,8 @@ from betty.plugins.link.betty_documentation import BettyDocumentation
 from betty.plugins.link.betty_github import BettyGithub
 from betty.project import Project, generate
 from betty.project.load import Loader, load
+from betty.requirement import require
 from betty.service.factory import Manufacturable
-from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from betty.job import Context
@@ -65,16 +64,15 @@ async def generate_with_cleanup(
     "demo",
     label="Demo",
     requires={
-        ExtensionDefinition: (
-            Deriver,
-            HttpApiDoc,
-            Maps,
-            RaspberryMint,
-            Spdx,
-            Trees,
-            Wiki,
-        ),
-        LinkDefinition: {BettyDocumentation, BettyGithub},
+        BettyDocumentation,
+        BettyGithub,
+        Deriver,
+        HttpApiDoc,
+        Maps,
+        RaspberryMint,
+        Spdx,
+        Trees,
+        Wiki,
     },
 )
 class Demo(Loader, Manufacturable, Extension):
@@ -88,7 +86,7 @@ class Demo(Loader, Manufacturable, Extension):
 
     @override
     @classmethod
-    @require_project
+    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(project=project)
 

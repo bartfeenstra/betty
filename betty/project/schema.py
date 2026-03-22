@@ -9,14 +9,13 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.json.schema import JsonSchemaReference, Schema
 from betty.model import EntityDefinition
 from betty.model.schema import ToManySchema
+from betty.project import Project
+from betty.requirement import require
 from betty.service.factory import Manufacturable
-from betty.service.requirement.project import require_project
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
     from pathlib import Path
-
-    from betty.project import Project
 
 
 @final
@@ -49,7 +48,7 @@ class ProjectSchema(Manufacturable, Schema):
 
     @override
     @classmethod
-    @require_project
+    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         schema = cls()
         schema._schema["$id"] = await cls.url(project)

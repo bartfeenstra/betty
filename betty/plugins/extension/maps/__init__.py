@@ -5,22 +5,21 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.asset import AssetDefinition
 from betty.extension import ExtensionDefinition
 from betty.locale.localizable.gettext import _
 from betty.plugins.asset.maps import Maps as MapsAsset
 from betty.plugins.extension.maps.jobs import _GeneratePlacePreviews
 from betty.plugins.extension.webpack import Webpack
 from betty.plugins.extension.webpack.build import EntryPointProvider
+from betty.project import Project
 from betty.project.generate import Generator
+from betty.requirement import require
 from betty.service.factory import Manufacturable
-from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.job.scheduler import Scheduler
-    from betty.project import Project
 
 
 @final
@@ -28,7 +27,7 @@ if TYPE_CHECKING:
     "maps",
     label="Maps",
     description=_("Display interactive maps"),
-    requires={AssetDefinition: MapsAsset, ExtensionDefinition: Webpack},
+    requires={MapsAsset, Webpack},
 )
 class Maps(Generator, EntryPointProvider, Manufacturable):
     """
@@ -41,7 +40,7 @@ class Maps(Generator, EntryPointProvider, Manufacturable):
 
     @override
     @classmethod
-    @require_project
+    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(project=project)
 

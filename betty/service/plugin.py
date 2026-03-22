@@ -9,7 +9,6 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from asyncio import gather
 from collections import defaultdict
-from contextlib import suppress
 from graphlib import TopologicalSorter
 from importlib import metadata
 from typing import (
@@ -35,6 +34,12 @@ from betty.plugin import (
 from betty.plugin.discovery import ResolvableDiscovery
 from betty.plugin.error import PluginNotFound
 from betty.plugin.ordered import OrderedPluginDefinition
+from betty.requirement import (
+    Requirement,
+    ResolvableRequirement,
+    ServicePluginRequirement,
+    resolve_requirement,
+)
 from betty.service.provider import service
 from betty.string import kebab_case_to_snake_case
 from betty.typing import threadsafe
@@ -47,7 +52,6 @@ if TYPE_CHECKING:
         Iterable,
         Iterator,
         Mapping,
-        Sequence,
     )
 
     from ty_extensions import Intersection
@@ -177,10 +181,7 @@ class PluginManager[PluginDefinitionT: PluginDefinition]:
         return (await self._plugins()).keys()
 
 
-type Requires = Mapping[
-    type[ServicePluginDefinition],
-    ResolvablePluginId | Iterable[ResolvablePluginId],
-]
+type Requires = Iterable[ResolvableRequirement]
 
 
 class ServicePluginDefinition[BaseClsT = Any](PluginDefinition[BaseClsT]):
@@ -201,23 +202,9 @@ class ServicePluginDefinition[BaseClsT = Any](PluginDefinition[BaseClsT]):
     ):
         super().__init__(plugin_id, *args, **kwargs)
         self._auto = auto
-        self._requires: Mapping[
-            type[ServicePluginDefinition], Sequence[MachineName]
-        ] = (
-            {}
-            if requires is None
-            else {
-                plugin_type: self.__resolve_plugin_id_sequence(plugin_type_requires)
-                for plugin_type, plugin_type_requires in requires.items()
-            }
+        self._requires = (
+            () if requires is None else tuple(map(resolve_requirement, requires))
         )
-
-    def __resolve_plugin_id_sequence(
-        self, plugin_ids: ResolvablePluginId | Iterable[ResolvablePluginId]
-    ) -> Sequence[MachineName]:
-        with suppress(ValueError):
-            return [resolve_plugin_id(plugin_ids)]
-        return list(map(resolve_plugin_id, plugin_ids))
 
     @property
     def auto(self) -> bool:
@@ -227,20 +214,12 @@ class ServicePluginDefinition[BaseClsT = Any](PluginDefinition[BaseClsT]):
         return self._auto
 
     @property
-    def requires(
-        self,
-    ) -> Mapping[type[ServicePluginDefinition], Sequence[MachineName]]:
+    def requires(self) -> Iterable[Requirement]:
         """
-        Any service level plugins required by this plugin.
+        The plugin's requirements.
         """
         return self._requires
 
-
-type Requires = Mapping[
-    type[ServicePluginDefinition],
-    ResolvablePluginId[ServicePluginDefinition]
-    | Iterable[ResolvablePluginId[ServicePluginDefinition]],
-]
 
 type ServicePluginManufacturers = Mapping[
     type[ServicePluginDefinition],
@@ -357,18 +336,21 @@ class ServicePluginManager(ManagedLifeCycle):
     async def _expand_requires(
         self,
         sorter: TopologicalSorter[tuple[type[ServicePluginDefinition], MachineName]],
-        plugin_type: type[ServicePluginDefinition],
-        origin: MachineName,
+        origin_type: type[ServicePluginDefinition],
+        origin_id: MachineName,
     ) -> None:
-        plugin = await self._services.plugins[plugin_type][origin]
+        origin = await self._services.plugins[origin_type][origin_id]
         predecessors = set()
-        for requires_plugin_type, requires_plugins in plugin.requires.items():
-            for requires_plugin in requires_plugins:
-                predecessors.add((requires_plugin_type, requires_plugin))
+        for requirement in origin.requires:
+            if isinstance(requirement, ServicePluginRequirement):
+                requires_plugin = requirement.plugin.plugin()
+                requires_plugin_type = type(requires_plugin)
+                requires_plugin_id = requires_plugin.id
+                predecessors.add((requires_plugin_type, requires_plugin_id))
                 await self._expand_requires(
-                    sorter, requires_plugin_type, requires_plugin
+                    sorter, requires_plugin_type, requires_plugin_id
                 )
-        sorter.add((plugin_type, origin), *predecessors)
+        sorter.add((origin_type, origin_id), *predecessors)
 
     def __getitem__[ServicePluginDefinitionT: ServicePluginDefinition, PluginT: Plugin](
         self,

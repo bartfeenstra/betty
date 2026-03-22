@@ -9,13 +9,13 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.extension import Extension, ExtensionDefinition
 from betty.locale.localizable.gettext import _
 from betty.plugins.extension.deriver.jobs import DeriveAncestry
+from betty.project import Project
 from betty.project.load import PostLoader
+from betty.requirement import require
 from betty.service.factory import Manufacturable
-from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
-    from betty.project import Project
 
 
 @final
@@ -46,7 +46,7 @@ class Deriver(PostLoader, Manufacturable, Extension):
 
     @override
     @classmethod
-    @require_project
+    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(project=project)
 

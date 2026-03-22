@@ -13,15 +13,15 @@ from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.source import Source
 from betty.privacy import is_public
+from betty.project import Project
+from betty.requirement import require
 from betty.service.factory import Manufacturable
-from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from betty.document import Document
     from betty.model import Entity
-    from betty.project import Project
 
 
 @final
@@ -41,7 +41,7 @@ class Facts(Template, Manufacturable):
 
     @override
     @classmethod
-    @require_project
+    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(jinja=await project.jinja)
 

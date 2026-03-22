@@ -14,15 +14,15 @@ from betty.locale.localizable.property import LocalizableProperty
 from betty.locale.localize import resolve_localized
 from betty.media_type import MediaType
 from betty.media_type.media_types import PLAIN_TEXT
+from betty.project import Project
 from betty.property import Property
+from betty.requirement import require
 from betty.sample import Sample, Size
 from betty.service.factory import DataManufacturable
-from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from betty.document import Document
     from betty.locale.localizable import ResolvableLocalizable
-    from betty.project import Project
     from betty.render import RenderDispatcher
 
 
@@ -78,7 +78,7 @@ class Render(DataManufacturable[RenderConfiguration], Content):
 
     @override
     @classmethod
-    @require_project
+    @require(Project)
     async def new(cls, project: Project, data: RenderConfiguration, /) -> Self:
         return cls(
             content=data.content,

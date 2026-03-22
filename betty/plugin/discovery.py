@@ -14,8 +14,8 @@ from betty.plugin import (
     ResolvablePluginDefinition,
     resolve_plugin_definition,
 )
+from betty.requirement import UnmetRequirement
 from betty.service.level import ServiceLevel
-from betty.service.requirement import UnmetRequirement
 
 type ResolvableDiscovery[PluginDefinitionT: PluginDefinition = PluginDefinition] = (
     ResolvablePluginDefinition[PluginDefinitionT]

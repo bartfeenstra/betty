@@ -13,9 +13,8 @@ from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.job import Context
 from betty.plugins.extension.demo import generate_with_cleanup
 from betty.plugins.extension.demo.project import create_project
+from betty.requirement import UnmetRequirement, require
 from betty.service.factory import Manufacturable
-from betty.service.requirement import UnmetRequirement
-from betty.service.requirement.app import require_app
 
 if TYPE_CHECKING:
     import argparse
@@ -65,7 +64,7 @@ class DevProfileDemo(Manufacturable, Command):
 
     @override
     @classmethod
-    @require_app
+    @require(App)
     async def new(cls, app: App, /) -> Self:
         return cls(app)
 

@@ -22,13 +22,13 @@ from aiofiles.tempfile import AiofilesContextManagerTempDir, TemporaryDirectory
 from betty.exception import HumanFacingException
 from betty.functools import Do
 from betty.locale.localizable.gettext import _
+from betty.project import Project
+from betty.requirement import require
 from betty.service.factory import Manufacturable
-from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from types import TracebackType
 
-    from betty.project import Project
     from betty.user import User
 
 DEFAULT_PORT = 8000
@@ -147,7 +147,7 @@ class ProjectServer(Manufacturable, Server):
 
     @override
     @classmethod
-    @require_project
+    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(project)
 

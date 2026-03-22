@@ -25,9 +25,9 @@ from betty.locale.localizable.plain import Plain
 from betty.machine_name import MachineName
 from betty.plugin.discovery import ResolvableDiscovery
 from betty.portable import PortableData, PortableSequence
+from betty.requirement import require
 from betty.service.factory import Manufacturable
 from betty.service.level import ServiceLevel
-from betty.service.requirement.app import require_app
 from betty.user import User
 
 _SPDX_LICENSE_ID_PATTERN = re.compile(r"[^a-z0-9-]")
@@ -68,7 +68,7 @@ class SpdxLicenseDiscoverer(Manufacturable):
 
     @override
     @classmethod
-    @require_app
+    @require(App)
     async def new(cls, app: App, /) -> Self:
         return cls(
             binary_file_cache=app.binary_file_cache.with_scope("spdx"),

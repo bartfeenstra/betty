@@ -12,13 +12,13 @@ from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
 from betty.plugins.extension._theme import person_timeline_events, place_timeline_events
+from betty.project import Project
+from betty.requirement import require
 from betty.service.factory import Manufacturable
-from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from betty.document import Document
     from betty.jinja import Environment
-    from betty.project import Project
 
 
 @final
@@ -36,7 +36,7 @@ class Timeline(Template, Manufacturable):
 
     @override
     @classmethod
-    @require_project
+    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(
             jinja=await project.jinja,

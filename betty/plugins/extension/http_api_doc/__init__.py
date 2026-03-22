@@ -5,9 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, final, override
 
-from betty.asset import AssetDefinition
 from betty.extension import ExtensionDefinition
-from betty.link import LinkDefinition
 from betty.locale.localizable.gettext import _
 from betty.plugins.asset.http_api_doc import HttpApiDoc as HttpApiDocAsset
 from betty.plugins.extension.webpack import Webpack
@@ -25,11 +23,7 @@ if TYPE_CHECKING:
     description=_(
         "Display the HTTP API documentation in a user-friendly way using Swagger UI."
     ),
-    requires={
-        AssetDefinition: HttpApiDocAsset,
-        ExtensionDefinition: Webpack,
-        LinkDefinition: HttpApiDocLink,
-    },
+    requires={HttpApiDocAsset, HttpApiDocLink, Webpack},
 )
 class HttpApiDoc(EntryPointProvider):
     """

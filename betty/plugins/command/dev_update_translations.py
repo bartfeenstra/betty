@@ -3,18 +3,17 @@ from __future__ import annotations  # noqa: D100
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.about import IS_DEVELOPMENT
+from betty.app import App
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.locale import translation
 from betty.locale.localizable.gettext import _
+from betty.requirement import UnmetRequirement, require
 from betty.service.factory import Manufacturable
-from betty.service.requirement import UnmetRequirement
-from betty.service.requirement.app import require_app
 
 if TYPE_CHECKING:
     import argparse
     from collections.abc import Iterable
 
-    from betty.app import App
     from betty.plugin.discovery import ResolvableDiscovery
 
 
@@ -33,7 +32,7 @@ class DevUpdateTranslations(Manufacturable, Command):
 
     @override
     @classmethod
-    @require_app
+    @require(App)
     async def new(cls, app: App, /) -> Self:
         return cls(app)
 

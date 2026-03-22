@@ -10,7 +10,6 @@ from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Final, Self, final, override
 
-from betty.asset import AssetDefinition
 from betty.content import Content, ContentManufacturer
 from betty.extension import ExtensionDefinition
 from betty.plugins.asset.raspberry_mint import RaspberryMint as RaspberryMintAsset
@@ -18,16 +17,16 @@ from betty.plugins.extension.raspberry_mint.data import RaspberryMintConfigurati
 from betty.plugins.extension.raspberry_mint.region import Region, ResolvableRegion
 from betty.plugins.extension.webpack import Webpack
 from betty.plugins.extension.webpack.build import EntryPointProvider
+from betty.project import Project
 from betty.project.generate import Generator
+from betty.requirement import require
 from betty.service.factory import DataManufacturable, Manufacturable
 from betty.service.provider import service
-from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
 
     from betty.job.scheduler import Scheduler
-    from betty.project import Project
 
 type RegionalContent = Mapping[str, Sequence[Content]]
 type RegionalContentManufacturers = Mapping[
@@ -37,9 +36,7 @@ type RegionalContentManufacturers = Mapping[
 
 @final
 @ExtensionDefinition(
-    "raspberry-mint",
-    label="Raspberry Mint",
-    requires={AssetDefinition: RaspberryMintAsset, ExtensionDefinition: Webpack},
+    "raspberry-mint", label="Raspberry Mint", requires={RaspberryMintAsset, Webpack}
 )
 class RaspberryMint(
     DataManufacturable[RaspberryMintConfiguration],
@@ -111,7 +108,7 @@ class RaspberryMint(
 
     @override
     @classmethod
-    @require_project
+    @require(Project)
     async def new(
         cls,
         project: Project,

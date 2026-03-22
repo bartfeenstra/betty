@@ -13,8 +13,9 @@ from jinja2 import pass_context
 from betty.jinja import JinjaFilterDefinition, context_document
 from betty.jinja.filter import JinjaFilter
 from betty.os import link_or_copy
+from betty.project import Project
+from betty.requirement import require
 from betty.service.factory import Manufacturable
-from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -22,7 +23,6 @@ if TYPE_CHECKING:
     from jinja2.runtime import Context
 
     from betty.plugins.entity.file import File as FileEntity
-    from betty.project import Project
 
 
 @final
@@ -39,7 +39,7 @@ class File(JinjaFilter, Manufacturable):
 
     @override
     @classmethod
-    @require_project
+    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(www_directory=project.www_directory)
 

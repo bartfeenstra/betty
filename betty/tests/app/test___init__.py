@@ -7,9 +7,9 @@ import aiofiles
 from babel import Locale
 
 from betty.app import App, AppConfiguration
+from betty.requirement import require
 from betty.service.factory import Manufacturable
 from betty.service.level.universe import UNIVERSE
-from betty.service.requirement.app import require_app
 from betty.test_utils.user import StaticUser
 
 if TYPE_CHECKING:
@@ -24,7 +24,7 @@ class _Manufacturable(Manufacturable):
 
     @override
     @classmethod
-    @require_app
+    @require(App)
     async def new(cls, app: App, /) -> Self:
         return cls(app)
 

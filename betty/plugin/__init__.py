@@ -14,17 +14,12 @@ from typing import TYPE_CHECKING, Any, Never, Self, final, overload, override
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.importlib import fully_qualified_name
-from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName, ResolvableMachineName
 
 if TYPE_CHECKING:
     import builtins
 
-    from betty.locale.localizable import (
-        CountableLocalizable,
-        Localizable,
-        ResolvableLocalizable,
-    )
+    from betty.locale.localizable import CountableLocalizable, ResolvableLocalizable
 
 
 class PluginDefinition[BaseClsT](ClsDefinition[BaseClsT]):
@@ -61,23 +56,6 @@ class PluginDefinition[BaseClsT](ClsDefinition[BaseClsT]):
     def _set_cls(self, cls: builtins.type[BaseClsT]) -> None:
         super()._set_cls(cls)
         cls.plugin = staticmethod(update_wrapper(lambda: self, cls.plugin))  # ty:ignore[unresolved-attribute]
-
-    @property
-    def reference_label(self) -> Localizable:
-        """
-        The label to reference this plugin with.
-        """
-        return _('"{plugin_id}"').format(plugin_id=self.id)
-
-    @property
-    def reference_label_with_type(self) -> Localizable:
-        """
-        The label to reference this plugin with, including the plugin type.
-        """
-        return _('{plugin_type} "{plugin_id}"').format(
-            plugin_type=self.type().label,
-            plugin_id=self.id,
-        )
 
 
 @final
