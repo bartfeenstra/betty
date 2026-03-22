@@ -5,17 +5,16 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Self, final, override
 
 import betty.plugins.extension.demo as stddemo
+from betty.app import App
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.job import Context
 from betty.locale.localizable.gettext import _
 from betty.plugins.extension.demo.project import create_project
+from betty.requirement import require
 from betty.service.factory import Manufacturable
-from betty.service.requirement.app import require_app
 
 if TYPE_CHECKING:
     import argparse
-
-    from betty.app import App
 
 
 @final
@@ -30,7 +29,7 @@ class Demo(Manufacturable, Command):
 
     @override
     @classmethod
-    @require_app
+    @require(App)
     async def new(cls, app: App, /) -> Self:
         return cls(app)
 

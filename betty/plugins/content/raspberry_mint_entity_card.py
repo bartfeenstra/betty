@@ -13,8 +13,9 @@ from betty.locale.localizable.gettext import _
 from betty.model.reference import EntityReference
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.extension._theme import associated_file_references
+from betty.project import Project
+from betty.requirement import require
 from betty.service.factory import DataManufacturable
-from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from betty.ancestry import Ancestry
@@ -22,7 +23,6 @@ if TYPE_CHECKING:
     from betty.jinja import Environment
     from betty.model import Entity
     from betty.plugins.entity.file_reference import FileReference
-    from betty.project import Project
 
 
 @final
@@ -48,7 +48,7 @@ class EntityCard(Template, DataManufacturable[EntityReference]):
 
     @override
     @classmethod
-    @require_project
+    @require(Project)
     async def new(cls, project: Project, data: EntityReference, /) -> Self:
         return cls(
             ancestry=project.ancestry,

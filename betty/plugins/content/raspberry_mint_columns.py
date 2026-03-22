@@ -28,16 +28,16 @@ from betty.plugins.content.render import Render, RenderConfiguration
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.extension.raspberry_mint import Breakpoint, JustifyContent
 from betty.portable import CallbackPorter
+from betty.project import Project
 from betty.property import Optional, Property
+from betty.requirement import require
 from betty.sample import Sample, Size
 from betty.service.factory import DataManufacturable
-from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from betty.document import Document
     from betty.jinja import Environment
     from betty.plugin.factory import ResolvablePluginManufacturerSequence
-    from betty.project import Project
 
 type ColumnsWidth = Mapping[Breakpoint, Sequence[int]]
 type ShorthandColumnsWidth = (
@@ -244,7 +244,7 @@ class Columns(Template, DataManufacturable[ColumnsConfiguration]):
 
     @override
     @classmethod
-    @require_project
+    @require(Project)
     async def new(cls, project: Project, data: ColumnsConfiguration, /) -> Self:
         content, jinja = await gather(
             gather(

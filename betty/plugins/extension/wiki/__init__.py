@@ -5,23 +5,22 @@ from __future__ import annotations
 from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.asset import AssetDefinition
 from betty.extension import Extension, ExtensionDefinition
 from betty.locale.localizable.gettext import _
 from betty.plugins.asset.wiki import Wiki as WikiAssets
 from betty.plugins.copyright_notice.wikipedia_contributors import WikipediaContributors
 from betty.plugins.extension.wiki.data import WikiConfiguration
 from betty.plugins.extension.wiki.jobs import PopulateEntity
+from betty.project import Project
 from betty.project.load import PostLoader
+from betty.requirement import require
 from betty.service.factory import DataManufacturable, Manufacturable
 from betty.service.provider import service
-from betty.service.requirement.project import require_project
 from betty.wiki import populator as populator_api
 from betty.wiki.client import Client
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
-    from betty.project import Project
 
 
 @final
@@ -31,7 +30,7 @@ if TYPE_CHECKING:
     description=_(
         "Enrich your ancestry with information from Wikipedia and Wikimedia Commons"
     ),
-    requires={AssetDefinition: WikiAssets},
+    requires={WikiAssets},
 )
 class Wiki(
     PostLoader, DataManufacturable[WikiConfiguration], Manufacturable, Extension
@@ -64,7 +63,7 @@ class Wiki(
 
     @override
     @classmethod
-    @require_project
+    @require(Project)
     async def new(
         cls, project: Project, data: WikiConfiguration | None = None, /
     ) -> Self:

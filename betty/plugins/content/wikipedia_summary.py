@@ -19,8 +19,8 @@ from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.link import Link
 from betty.plugins.extension.wiki import Wiki
 from betty.project import Project
+from betty.requirement import require
 from betty.service.factory import Manufacturable
-from betty.service.requirement.project import require_project
 from betty.wiki import NotAPageError, parse_page_url
 from betty.wiki.client import Client, ClientError, Summary
 
@@ -49,7 +49,7 @@ class WikipediaSummary(Template, Manufacturable):
 
     @override
     @classmethod
-    @require_project
+    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(
             client=await (await project.extensions)[Wiki].client,

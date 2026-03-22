@@ -8,16 +8,16 @@ from typing import TYPE_CHECKING
 
 from betty.asset import Asset, AssetDefinition
 from betty.plugins.asset.universe import Universe
-from betty.service.requirement.project import require_project
+from betty.project import Project
+from betty.requirement import require
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from betty.plugin.discovery import ResolvableDiscovery
-    from betty.project import Project
 
 
-@require_project
+@require(Project)
 def _discover(project: Project, /) -> Iterable[ResolvableDiscovery[AssetDefinition]]:
     @AssetDefinition(
         "project",

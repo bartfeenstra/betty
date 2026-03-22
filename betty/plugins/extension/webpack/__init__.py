@@ -7,12 +7,8 @@ from __future__ import annotations
 from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.asset import AssetDefinition
 from betty.document import DocumentProvider, DocumentVars
 from betty.extension import Extension, ExtensionDefinition
-from betty.html.css import CssResourceDefinition
-from betty.html.js import JsResourceDefinition
-from betty.jinja.filter import JinjaFilterDefinition
 from betty.plugins.asset.webpack import Webpack as WebpackAsset
 from betty.plugins.css_resource.webpack import Webpack as WebpackCssResource
 from betty.plugins.extension.webpack import build
@@ -20,14 +16,14 @@ from betty.plugins.extension.webpack.build import EntryPointProvider
 from betty.plugins.extension.webpack.jobs import _GenerateAssets
 from betty.plugins.jinja_filter.webpack_entry_point_js import WebpackEntryPointJs
 from betty.plugins.js_resource.webpack_entry_point_loader import WebpackEntryPointLoader
+from betty.project import Project
 from betty.project.generate import Generator
+from betty.requirement import require
 from betty.service.factory import Manufacturable
 from betty.service.provider import service
-from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
-    from betty.project import Project
 
 
 @final
@@ -35,10 +31,10 @@ if TYPE_CHECKING:
     "webpack",
     label="Webpack",
     requires={
-        AssetDefinition: WebpackAsset,
-        CssResourceDefinition: WebpackCssResource,
-        JinjaFilterDefinition: WebpackEntryPointJs,
-        JsResourceDefinition: WebpackEntryPointLoader,
+        WebpackAsset,
+        WebpackCssResource,
+        WebpackEntryPointJs,
+        WebpackEntryPointLoader,
     },
 )
 class Webpack(Generator, Extension, DocumentProvider, Manufacturable):
@@ -52,7 +48,7 @@ class Webpack(Generator, Extension, DocumentProvider, Manufacturable):
 
     @override
     @classmethod
-    @require_project
+    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(project=project)
 

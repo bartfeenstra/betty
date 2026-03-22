@@ -27,7 +27,6 @@ from betty.project import Project
 from betty.serde import SerializerDefinition
 from betty.service.factory import DataManufacturable
 from betty.service.level.universe import UNIVERSE
-from betty.service.plugin import ServicePluginDefinition
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -167,19 +166,6 @@ class _PluginDirective(SphinxDirective):
      - :py:class:`{plugin.cls.__name__} <{plugin.cls.__module__}.{plugin.cls.__qualname__}>`
    * - Configuration
      - {configuration_content}
-"""
-        if isinstance(plugin, ServicePluginDefinition) and (
-            requires_content := self._build_other_plugins_references(
-                [
-                    plugins[plugin_type.type().id][requires]
-                    for plugin_type, plugin_type_requires in plugin.requires.items()
-                    for requires in plugin_type_requires
-                ]
-            )
-        ):
-            content += f"""
-   * - Requires
-{requires_content}
 """
         if isinstance(plugin, OrderedPluginDefinition):
             if after_content := self._build_other_plugins_references(

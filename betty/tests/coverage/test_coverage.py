@@ -433,7 +433,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/npm.py": {
-        "is_available": MissingReason.SHOULD_BE_COVERED,
         "npm": MissingReason.SHOULD_BE_COVERED,
         "NpmUnavailable": MissingReason.SHOULD_BE_COVERED,
     },
@@ -1121,13 +1120,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "RendererDefinition": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/requirement.py": {
-        "HasRequirement": MissingReason.STATIC_CONTENT_ONLY,
-        "Requirement": {
-            "details": MissingReason.ABSTRACT,
-            "is_met": MissingReason.ABSTRACT,
-            "reduce": MissingReason.ABSTRACT,
-            "summary": MissingReason.ABSTRACT,
-        },
+        "UnmetRequirement": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/document.py": {
         "DocumentProvider": MissingReason.STATIC_CONTENT_ONLY,

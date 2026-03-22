@@ -8,19 +8,19 @@ from typing import TYPE_CHECKING, Self, final, override
 from rich.table import Table
 
 from betty import about
+from betty.app import App
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.console.project import add_project_argument
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _
+from betty.requirement import require
 from betty.rich.user import RichUser
 from betty.service.factory import Manufacturable
-from betty.service.requirement.app import require_app
 
 if TYPE_CHECKING:
     import argparse
     from collections.abc import MutableSequence
 
-    from betty.app import App
     from betty.project import Project
 
 
@@ -40,7 +40,7 @@ class About(Manufacturable, Command):
 
     @override
     @classmethod
-    @require_app
+    @require(App)
     async def new(cls, app: App, /) -> Self:
         return cls(app)
 

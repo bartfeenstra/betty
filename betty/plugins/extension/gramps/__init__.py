@@ -11,9 +11,10 @@ from betty.gramps.loader import GrampsLoader
 from betty.locale.localizable.gettext import _
 from betty.plugins.extension.gramps.data import FamilyTree, GrampsConfiguration
 from betty.plugins.extension.gramps.jobs import LoadAncestry
+from betty.project import Project
 from betty.project.load import Loader
+from betty.requirement import require
 from betty.service.factory import DataManufacturable, Manufacturable
-from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -21,7 +22,6 @@ if TYPE_CHECKING:
 
     from betty.ancestry import Ancestry
     from betty.job.scheduler import Scheduler
-    from betty.project import Project
     from betty.service.level import ServiceLevel
     from betty.user import User
 
@@ -331,7 +331,7 @@ class Gramps(
 
     @override
     @classmethod
-    @require_project
+    @require(Project)
     async def new(
         cls, project: Project, data: GrampsConfiguration | None = None, /
     ) -> Self:

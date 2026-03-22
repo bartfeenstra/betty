@@ -11,8 +11,8 @@ from betty.media_type import MediaType
 from betty.media_type.media_types import HTML
 from betty.project import Project
 from betty.render import Renderer, RendererDefinition
+from betty.requirement import require
 from betty.service.factory import Manufacturable
-from betty.service.requirement.project import require_project
 from betty.url import UrlGenerator
 
 _ATTRIBUTES = ("href", "src")
@@ -35,7 +35,7 @@ class Html(Manufacturable, Renderer):
 
     @override
     @classmethod
-    @require_project
+    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(url_generator=await project.url_generator)
 

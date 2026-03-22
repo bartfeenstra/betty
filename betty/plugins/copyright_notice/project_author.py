@@ -4,7 +4,7 @@ The project author copyright notice.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, final, override
+from typing import Self, final, override
 
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.locale.localizable import (
@@ -13,11 +13,9 @@ from betty.locale.localizable import (
     resolve_localizable,
 )
 from betty.locale.localizable.gettext import _
+from betty.project import Project
+from betty.requirement import require
 from betty.service.factory import Manufacturable
-from betty.service.requirement.project import require_project
-
-if TYPE_CHECKING:
-    from betty.project import Project
 
 
 @final
@@ -33,7 +31,7 @@ class ProjectAuthor(Manufacturable, CopyrightNotice):
 
     @override
     @classmethod
-    @require_project
+    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(project.configuration.author)
 

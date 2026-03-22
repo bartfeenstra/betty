@@ -4,7 +4,6 @@ from typing import Any, final
 
 import pytest
 
-from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin import (
     Plugin,
     PluginDefinition,
@@ -81,31 +80,6 @@ class TestPluginDefinition:
         id = "my-first-plugin"  # noqa: A001
         sut = PluginDefinition(id)
         assert sut.id == id
-
-    def test_reference_label(self) -> None:
-        id = "my-first-plugin"  # noqa: A001
-        sut = PluginDefinition(id)
-        actual = sut.reference_label.localize(DEFAULT_LOCALIZER)
-        assert id in actual
-
-    def test_reference_label_with_type(self) -> None:
-        plugin_type_label = "My First Plugin Type"
-
-        @final
-        @PluginTypeDefinition(
-            "my-first-plugin-type",
-            label=plugin_type_label,
-            label_plural=DUMMY_LOCALIZABLE,
-            label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-        )
-        class _PluginDefinition(PluginDefinition[DummyPlugin]):
-            pass
-
-        id = "my-first-plugin"  # noqa: A001
-        sut = _PluginDefinition(id)
-        actual = sut.reference_label_with_type.localize(DEFAULT_LOCALIZER)
-        assert id in actual
-        assert plugin_type_label in actual
 
 
 class _PluginCls(Plugin["_PluginDefinition"]):

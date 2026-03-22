@@ -15,18 +15,18 @@ from betty.machine_name import MachineName
 from betty.plugin import ResolvablePluginId, resolve_plugin_id
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.event import Event
+from betty.project import Project
 from betty.property import Optional, Property
+from betty.requirement import require
 from betty.role import RoleDefinition
 from betty.sample import Sample, Size
 from betty.service.factory import DataManufacturable, Manufacturable
-from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from betty.document import Document
     from betty.jinja import Environment
-    from betty.project import Project
 
 
 @final
@@ -107,7 +107,7 @@ class Presences(Template, DataManufacturable[PresencesConfiguration], Manufactur
 
     @override
     @classmethod
-    @require_project
+    @require(Project)
     async def new(
         cls, project: Project, data: PresencesConfiguration | None = None, /
     ) -> Self:

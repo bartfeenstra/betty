@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-03-18 01:31+0000\n"
+"POT-Creation-Date: 2026-03-22 23:31+0000\n"
 "PO-Revision-Date: 2026-02-17 19:37+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -32,10 +32,6 @@ msgstr "\"{invalid_locale}\" is geen geldige IETF BCP 47 taaltag."
 #, python-brace-format
 msgid "\"{path}\" is not a directory."
 msgstr "\"{path}\" is geen directory."
-
-#, python-brace-format
-msgid "\"{plugin_id}\""
-msgstr "\"{plugin_id}\""
 
 #, python-brace-format
 msgid "\"{target}\" is not configurable, but configuration was given."
@@ -1766,6 +1762,10 @@ msgid ""
 "replaced with the URLs generated from them where possible: {attributes}"
 msgstr ""
 
+#, python-brace-format
+msgid "The {plugin_id} {plugin_type} is required."
+msgstr ""
+
 msgid "There are no available options."
 msgstr "Er zijn geen mogelijkheden beschikbaar."
 
@@ -2726,18 +2726,6 @@ msgstr "{most}, en {last}"
 #, python-brace-format
 msgid "{most}, or {last}"
 msgstr "{most}, of {last}"
-
-#, fuzzy, python-brace-format
-msgid "{plugin_type} \"{plugin_id}\""
-msgstr "{plugin_type} \"{plugin_id}\""
-
-#, python-brace-format
-msgid "{target} requires a project."
-msgstr ""
-
-#, python-brace-format
-msgid "{target} requires a running app."
-msgstr ""
 
 msgid "© Copyright the author, unless otherwise credited"
 msgstr "© Copyright de auteur, tenzij anders vermeld"

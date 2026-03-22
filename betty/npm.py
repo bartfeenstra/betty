@@ -7,11 +7,11 @@ This module is internal.
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, final
 
 from betty import subprocess
-from betty.exception import HumanFacingException
 from betty.locale.localizable.gettext import _
+from betty.requirement import UnmetRequirement
 
 if TYPE_CHECKING:
     from asyncio import subprocess as aiosubprocess
@@ -21,7 +21,8 @@ if TYPE_CHECKING:
     from betty.user import User
 
 
-class NpmUnavailable(HumanFacingException, RuntimeError):
+@final
+class NpmUnavailable(UnmetRequirement, RuntimeError):
     """
     An error raised when npm is unavailable.
     """

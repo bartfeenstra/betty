@@ -12,14 +12,14 @@ from betty.jinja import JinjaFilterDefinition, context_document
 from betty.jinja.filter import JinjaFilter
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML
+from betty.project import Project
+from betty.requirement import require
 from betty.service.factory import Manufacturable
-from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from jinja2.runtime import Context
 
     from betty.locale import ResolvableLocale
-    from betty.project import Project
     from betty.url import UrlGenerator
 
 
@@ -37,7 +37,7 @@ class Url(JinjaFilter, Manufacturable):
 
     @override
     @classmethod
-    @require_project
+    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(await project.url_generator)
 

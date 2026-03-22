@@ -13,12 +13,12 @@ from betty.locale.localizable.gettext import _
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.extension._theme import associated_file_references
 from betty.plugins.extension.raspberry_mint import RaspberryMint
+from betty.project import Project
+from betty.requirement import require
 from betty.service.factory import Manufacturable
-from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from betty.document import Document
-    from betty.project import Project
 
 
 @final
@@ -37,7 +37,7 @@ class MediaGallery(Template, Manufacturable):
 
     @override
     @classmethod
-    @require_project
+    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(jinja=await project.jinja)
 

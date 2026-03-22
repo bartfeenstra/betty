@@ -16,10 +16,11 @@ from betty.locale.localizable.property import LocalizableProperty
 from betty.machine_name import MachineName, MachineNameProperty, ResolvableMachineName
 from betty.plugin.data.property import PluginManufacturerSequenceProperty
 from betty.plugins.content.template import Template, TemplateBuild
+from betty.project import Project
 from betty.property import Optional, Property
+from betty.requirement import require
 from betty.sample import Sample, Size
 from betty.service.factory import DataManufacturable
-from betty.service.requirement.project import require_project
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 if TYPE_CHECKING:
@@ -29,7 +30,6 @@ if TYPE_CHECKING:
     from betty.jinja import Environment
     from betty.locale.localizable import ResolvableLocalizable
     from betty.plugin.factory import ResolvablePluginManufacturerSequence
-    from betty.project import Project
 
 
 @final
@@ -128,7 +128,7 @@ class Section(Template, DataManufacturable[SectionConfiguration]):
 
     @override
     @classmethod
-    @require_project
+    @require(Project)
     async def new(cls, project: Project, data: SectionConfiguration, /) -> Self:
         content, jinja = await gather(
             gather(

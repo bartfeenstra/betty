@@ -1,5 +1,5 @@
 import builtins
-from collections.abc import Iterable, Iterator, Mapping, Sequence
+from collections.abc import Iterable, Iterator, Mapping
 from importlib.metadata import EntryPoint, EntryPoints
 from typing import override
 
@@ -14,12 +14,12 @@ from betty.plugin.discovery import ResolvableDiscovery
 from betty.plugin.error import PluginNotFound
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import OrderedPluginDefinition
+from betty.requirement import ServicePluginRequirement
 from betty.service.level import ServiceLevel
 from betty.service.level.universe import UNIVERSE
 from betty.service.plugin import (
     PluginCollection,
     PluginManager,
-    Requires,
     ServicePluginDefinition,
     ServicePluginManager,
     ServicePluginManufacturers,
@@ -201,30 +201,15 @@ class TestPluginManager:
 
 
 class TestServicePluginDefinition:
-    @pytest.mark.parametrize(
-        ("expected", "requires"),
-        [
-            ({}, {}),
-            ({DummyPluginDefinition: []}, {DummyPluginDefinition: {}}),
-            (
-                {DummyPluginDefinition: [DummyPluginOne.plugin().id]},
-                {DummyPluginDefinition: DummyPluginOne},
-            ),
-            (
-                {DummyPluginDefinition: [DummyPluginOne.plugin().id]},
-                {DummyPluginDefinition: [DummyPluginOne]},
-            ),
-        ],
-    )
-    def test_requires(
-        self,
-        expected: Mapping[type[ServicePluginDefinition], Sequence[MachineName]],
-        requires: Requires | None,
-    ) -> None:
-        assert (
-            ServicePluginDefinition("my-first-plugin-id", requires=requires).requires
-            == expected
+    def test_requires(self) -> None:
+        requires = list(
+            ServicePluginDefinition(
+                "my-first-plugin-id", requires={DummyServicePluginIsolated}
+            ).requires
         )
+        assert len(requires) == 1
+        assert isinstance(requires[0], ServicePluginRequirement)
+        assert requires[0].plugin is DummyServicePluginIsolated
 
     def test_auto(self) -> None:
         assert ServicePluginDefinition("my-first-plugin-id", auto=True).auto
@@ -260,8 +245,7 @@ class DummyServicePluginIsolated(DummyServicePlugin):
 
 
 @DummyServicePluginDefinition(
-    "dummy-service-plugin-requires-isolated",
-    requires={DummyServicePluginDefinition: {DummyServicePluginIsolated}},
+    "dummy-service-plugin-requires-isolated", requires={DummyServicePluginIsolated}
 )
 class DummyServicePluginRequiresIsolated(DummyServicePlugin):
     pass
@@ -296,7 +280,7 @@ class DummyServicePluginRequirementManufacturer(
 
 @DummyServicePluginRequirementDefinition(
     "dummy-service-plugin-requirement-requires-requires-isolated",
-    requires={DummyServicePluginDefinition: {DummyServicePluginRequiresIsolated}},
+    requires={DummyServicePluginRequiresIsolated},
 )
 class DummyServicePluginRequirementRequiresRequiresIsolated(
     DummyServicePluginRequirement

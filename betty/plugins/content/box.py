@@ -15,10 +15,11 @@ from betty.locale.localizable.gettext import _
 from betty.plugin.data.property import PluginManufacturerSequenceProperty
 from betty.plugins.content.render import Render, RenderConfiguration
 from betty.plugins.content.template import Template, TemplateBuild
+from betty.project import Project
 from betty.property import Optional, Property
+from betty.requirement import require
 from betty.sample import Sample, Size
 from betty.service.factory import DataManufacturable
-from betty.service.requirement.project import require_project
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -26,7 +27,6 @@ if TYPE_CHECKING:
     from betty.document import Document
     from betty.jinja import Environment
     from betty.plugin.factory import ResolvablePluginManufacturerSequence
-    from betty.project import Project
 
 
 @final
@@ -127,7 +127,7 @@ class Box(Template, DataManufacturable[BoxConfiguration]):
 
     @override
     @classmethod
-    @require_project
+    @require(Project)
     async def new(cls, project: Project, data: BoxConfiguration, /) -> Self:
         content, jinja = await gather(
             gather(

@@ -9,8 +9,9 @@ from urllib.parse import urlparse
 
 from betty.media_type.media_types import HTML, JSON, JSON_LD
 from betty.model import Entity, EntityDefinition
+from betty.project import Project
+from betty.requirement import require
 from betty.service.factory import Manufacturable
-from betty.service.requirement.project import require_project
 from betty.string import camel_case_to_kebab_case
 from betty.url import (
     PassthroughUrlGenerator,
@@ -28,7 +29,6 @@ if TYPE_CHECKING:
     from betty.ancestry import Ancestry
     from betty.locale import ResolvableLocale
     from betty.media_type import MediaType
-    from betty.project import Project
 
 
 class _ProjectUrlGenerator(Manufacturable):
@@ -49,7 +49,7 @@ class _ProjectUrlGenerator(Manufacturable):
 
     @override
     @classmethod
-    @require_project
+    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         """
         Create a new instance using the given project.

@@ -2,6 +2,7 @@ from __future__ import annotations  # noqa: D100
 
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.app import App
 from betty.argparse import assertion_to_argument_type
 from betty.assertion import assert_directory_path
 from betty.asset import AssetDefinition
@@ -9,14 +10,12 @@ from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.locale import translation
 from betty.locale.localizable.gettext import _
 from betty.plugin.error import PluginNotFound
+from betty.requirement import require
 from betty.service.factory import Manufacturable
-from betty.service.requirement.app import require_app
 
 if TYPE_CHECKING:
     import argparse
     from pathlib import Path
-
-    from betty.app import App
 
 
 @final
@@ -34,7 +33,7 @@ class UpdateTranslations(Manufacturable, Command):
 
     @override
     @classmethod
-    @require_app
+    @require(App)
     async def new(cls, app: App, /) -> Self:
         return cls(app)
 
