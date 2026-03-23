@@ -2,7 +2,6 @@
 An API for linking to web resources.
 """
 
-import builtins
 from abc import abstractmethod
 from typing import Any, Protocol, final, override
 
@@ -89,5 +88,5 @@ class LinkManufacturer(PluginManufacturer[LinkDefinition, Link]):
 
     @override
     @classmethod
-    def type(cls) -> builtins.type[LinkDefinition]:
+    def plugin_type(cls) -> type[LinkDefinition]:
         return LinkDefinition

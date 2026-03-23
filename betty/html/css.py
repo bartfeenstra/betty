@@ -2,7 +2,6 @@
 CSS resources for HTML pages.
 """
 
-import builtins
 from typing import Any, final, override
 
 from betty.locale.localizable.gettext import _, ngettext
@@ -68,5 +67,5 @@ class CssResourceManufacturer(PluginManufacturer[CssResourceDefinition, CssResou
 
     @override
     @classmethod
-    def type(cls) -> builtins.type[CssResourceDefinition]:
+    def plugin_type(cls) -> type[CssResourceDefinition]:
         return CssResourceDefinition

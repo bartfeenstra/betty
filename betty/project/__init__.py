@@ -21,7 +21,6 @@ from betty.ancestry import Ancestry
 from betty.app import App
 from betty.asset import (
     AssetDefinition,
-    AssetManufacturer,
     AssetRepository,
     ProxyAssetRepository,
     StaticAssetRepository,
@@ -46,7 +45,11 @@ from betty.privacy.privatizer import Privatizer
 from betty.project.data import ProjectConfiguration
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.service.level import ChainedServiceLevel
-from betty.service.plugin import ServicePluginManager, ServicePluginProvider
+from betty.service.plugin import (
+    ServicePluginManager,
+    ServicePluginProvider,
+    ServicePlugins,
+)
 from betty.service.provider import service
 
 if TYPE_CHECKING:
@@ -61,10 +64,19 @@ if TYPE_CHECKING:
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.service.plugin import PluginCollection
     from betty.url import UrlGenerator
+type ProjectServicePlugin = (
+    AssetDefinition
+    | CssResourceDefinition
+    | ExtensionDefinition
+    | JinjaFilterDefinition
+    | JinjaTestDefinition
+    | JsResourceDefinition
+    | LinkDefinition
+)
 
 
 @final
-class Project(ChainedServiceLevel[App], ServicePluginProvider):
+class Project(ChainedServiceLevel[App], ServicePluginProvider[ProjectServicePlugin]):
     """
     Define a Betty project.
 
@@ -89,14 +101,23 @@ class Project(ChainedServiceLevel[App], ServicePluginProvider):
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
         ]
         | None = None,
+        service_plugins: ServicePlugins[ProjectServicePlugin] = (),
     ):
         super().__init__(plugins=plugins, upstream=app)
+        self.life_cycle.on_bootstrap(self._ensure_service_plugins)
         self.life_cycle.on_bootstrap(self._ensure_locale)
         self.life_cycle.on_bootstrap(self._validate)
         self._app = app
         self._configuration = configuration
         self._directory = directory
         self._ancestry = Ancestry() if ancestry is None else ancestry
+        self._service_plugins = service_plugins
+
+    def _ensure_service_plugins(self) -> None:
+        self._service_plugins = (
+            *self._service_plugins,
+            *self._configuration.extensions,
+        )
 
     def _ensure_locale(self) -> None:
         if not self._configuration.locales:
@@ -159,17 +180,18 @@ class Project(ChainedServiceLevel[App], ServicePluginProvider):
 
     @override
     @service
-    async def service_plugins(self) -> ServicePluginManager:
+    async def service_plugins(self) -> ServicePluginManager[ProjectServicePlugin]:
         service_plugins = ServicePluginManager(
-            {
-                AssetDefinition: [AssetManufacturer("project")],
-                CssResourceDefinition: [],
-                ExtensionDefinition: self.configuration.extensions,
-                JinjaFilterDefinition: [],
-                JinjaTestDefinition: [],
-                JsResourceDefinition: [],
-                LinkDefinition: [],
+            plugin_types={
+                AssetDefinition,
+                CssResourceDefinition,
+                ExtensionDefinition,
+                JinjaFilterDefinition,
+                JinjaTestDefinition,
+                JsResourceDefinition,
+                LinkDefinition,
             },
+            plugin_manufacturers=self._service_plugins,
             services=self,
         )
         await service_plugins.bootstrap()

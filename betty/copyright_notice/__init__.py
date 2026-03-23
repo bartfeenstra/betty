@@ -13,8 +13,6 @@ from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.factory import PluginManufacturer
 
 if TYPE_CHECKING:
-    import builtins
-
     from betty.locale.localizable import Localizable
 
 
@@ -72,5 +70,5 @@ class CopyrightNoticeManufacturer(
 
     @override
     @classmethod
-    def type(cls) -> builtins.type[CopyrightNoticeDefinition]:
+    def plugin_type(cls) -> type[CopyrightNoticeDefinition]:
         return CopyrightNoticeDefinition

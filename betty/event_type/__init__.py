@@ -19,8 +19,6 @@ from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import Order, OrderedPluginDefinition
 
 if TYPE_CHECKING:
-    import builtins
-
     from betty.locale.localizable import CountableLocalizable, ResolvableLocalizable
     from betty.machine_name import MachineName, ResolvableMachineName
     from betty.plugins.entity.person import Person
@@ -99,5 +97,5 @@ class EventTypeManufacturer(PluginManufacturer[EventTypeDefinition, EventType]):
 
     @override
     @classmethod
-    def type(cls) -> builtins.type[EventTypeDefinition]:
+    def plugin_type(cls) -> type[EventTypeDefinition]:
         return EventTypeDefinition

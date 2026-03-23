@@ -16,7 +16,6 @@ from betty.plugin.factory import PluginManufacturer
 from betty.service.plugin import ServicePluginDefinition
 
 if TYPE_CHECKING:
-    import builtins
     from collections.abc import Iterable
 
     from betty.document import Document
@@ -55,7 +54,7 @@ class ContentManufacturer(PluginManufacturer[ContentDefinition, Content]):
 
     @override
     @classmethod
-    def type(cls) -> builtins.type[ContentDefinition]:
+    def plugin_type(cls) -> type[ContentDefinition]:
         return ContentDefinition
 
 

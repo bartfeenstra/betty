@@ -31,7 +31,11 @@ from betty.portable.file import assert_load_file
 from betty.service.factory import DataManufacturable
 from betty.service.level import ChainedServiceLevel, Plugins, ServiceLevel
 from betty.service.level.universe import UNIVERSE
-from betty.service.plugin import ServicePluginManager, ServicePluginProvider
+from betty.service.plugin import (
+    ServicePluginManager,
+    ServicePluginProvider,
+    ServicePlugins,
+)
 from betty.service.provider import ServiceFactory, service
 from betty.typing import threadsafe
 from betty.user.no_op import NoOpUser
@@ -47,11 +51,15 @@ if TYPE_CHECKING:
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.user import User
 
+type AppServicePlugin = AssetDefinition | RateLimitDefinition
+
 
 @final
 @threadsafe
 class App(
-    DataManufacturable[AppConfiguration], ChainedServiceLevel, ServicePluginProvider
+    DataManufacturable[AppConfiguration],
+    ChainedServiceLevel,
+    ServicePluginProvider[AppServicePlugin],
 ):
     """
     The Betty application.
@@ -72,6 +80,7 @@ class App(
         locale: ResolvableLocale | None = None,
         plugins: Plugins | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
+        service_plugins: ServicePlugins[AppServicePlugin] = (),
         translations: TranslationRepository | None = None,
         user: User | None = None,
     ):
@@ -99,6 +108,7 @@ class App(
             if cache_factory is None
             else cache_factory,
         )
+        self._service_plugins = service_plugins
 
     async def _bootstrap_localizer(self) -> None:
         self._user.localizer = await self.localizer
@@ -166,12 +176,13 @@ class App(
 
     @override
     @service
-    async def service_plugins(self) -> ServicePluginManager:
+    async def service_plugins(self) -> ServicePluginManager[AppServicePlugin]:
         service_plugins = ServicePluginManager(
-            {
-                AssetDefinition: (),
-                RateLimitDefinition: (),
+            plugin_types={
+                AssetDefinition,
+                RateLimitDefinition,
             },
+            plugin_manufacturers=self._service_plugins,
             services=self,
         )
         await service_plugins.bootstrap()

@@ -28,9 +28,12 @@ class _PluginTypeNotFound(PluginTypeNotFound, KeyError):
     pass
 
 
-type Plugins = Mapping[
-    type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
-]
+if TYPE_CHECKING:
+    type Plugins = Mapping[
+        type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
+    ]
+else:
+    type Plugins = Any
 
 
 class ServiceLevel:

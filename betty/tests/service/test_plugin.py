@@ -1,4 +1,3 @@
-import builtins
 from collections.abc import Iterable, Iterator, Mapping
 from importlib.metadata import EntryPoint, EntryPoints
 from typing import override
@@ -14,7 +13,6 @@ from betty.plugin.discovery import ResolvableDiscovery
 from betty.plugin.error import PluginNotFound
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import OrderedPluginDefinition
-from betty.requirement import ServicePluginRequirement
 from betty.service.level import ServiceLevel
 from betty.service.level.universe import UNIVERSE
 from betty.service.plugin import (
@@ -22,7 +20,7 @@ from betty.service.plugin import (
     PluginManager,
     ServicePluginDefinition,
     ServicePluginManager,
-    ServicePluginManufacturers,
+    ServicePlugins,
 )
 from betty.string import kebab_case_to_snake_case
 from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
@@ -32,6 +30,12 @@ from betty.test_utils.plugin import (
     DummyPluginOne,
     DummyPluginThree,
     DummyPluginTwo,
+)
+from betty.test_utils.service.plugin import (
+    DummyServicePlugin,
+    DummyServicePluginDefinition,
+    DummyServicePluginManufacturer,
+    DummyServicePluginOne,
 )
 
 
@@ -201,53 +205,15 @@ class TestPluginManager:
 
 
 class TestServicePluginDefinition:
-    def test_requires(self) -> None:
-        requires = list(
-            ServicePluginDefinition(
-                "my-first-plugin-id", requires={DummyServicePluginIsolated}
-            ).requires
-        )
-        assert len(requires) == 1
-        assert isinstance(requires[0], ServicePluginRequirement)
-        assert requires[0].plugin is DummyServicePluginIsolated
-
     def test_auto(self) -> None:
         assert ServicePluginDefinition("my-first-plugin-id", auto=True).auto
         assert not ServicePluginDefinition("my-first-plugin-id", auto=False).auto
 
 
-class DummyServicePlugin(Plugin["DummyServicePluginDefinition"]):
-    pass
-
-
-@PluginTypeDefinition(
-    "dummy-service-plugin",
-    label="dummy service plugin",
-    label_plural="dummy service plugin",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-)
-class DummyServicePluginDefinition(ServicePluginDefinition[DummyServicePlugin]):
-    pass
-
-
-class DummyServicePluginManufacturer(
-    PluginManufacturer[DummyServicePluginDefinition, DummyServicePlugin]
-):
-    @override
-    @classmethod
-    def type(cls) -> builtins.type[DummyServicePluginDefinition]:
-        return DummyServicePluginDefinition
-
-
-@DummyServicePluginDefinition("dummy-service-plugin-isolated")
-class DummyServicePluginIsolated(DummyServicePlugin):
-    pass
-
-
 @DummyServicePluginDefinition(
-    "dummy-service-plugin-requires-isolated", requires={DummyServicePluginIsolated}
+    "dummy-service-plugin-requires-isolated", requires={DummyServicePluginOne}
 )
-class DummyServicePluginRequiresIsolated(DummyServicePlugin):
+class DummyServicePluginRequiresOne(DummyServicePlugin):
     pass
 
 
@@ -274,13 +240,13 @@ class DummyServicePluginRequirementManufacturer(
 ):
     @override
     @classmethod
-    def type(cls) -> builtins.type[DummyServicePluginRequirementDefinition]:
+    def plugin_type(cls) -> type[DummyServicePluginRequirementDefinition]:
         return DummyServicePluginRequirementDefinition
 
 
 @DummyServicePluginRequirementDefinition(
     "dummy-service-plugin-requirement-requires-requires-isolated",
-    requires={DummyServicePluginRequiresIsolated},
+    requires={DummyServicePluginRequiresOne},
 )
 class DummyServicePluginRequirementRequiresRequiresIsolated(
     DummyServicePluginRequirement
@@ -309,7 +275,7 @@ class DummyServicePluginOrderedManufacturer(
 ):
     @override
     @classmethod
-    def type(cls) -> builtins.type[DummyServicePluginOrderedDefinition]:
+    def plugin_type(cls) -> type[DummyServicePluginOrderedDefinition]:
         return DummyServicePluginOrderedDefinition
 
 
@@ -353,7 +319,7 @@ class DummyServicePluginAutoManufacturer(
 ):
     @override
     @classmethod
-    def type(cls) -> builtins.type[DummyServicePluginAutoDefinition]:
+    def plugin_type(cls) -> type[DummyServicePluginAutoDefinition]:
         return DummyServicePluginAutoDefinition
 
 
@@ -372,29 +338,23 @@ class TestServicePluginManager:
     )
     async def test___getitem__(self, key: type[ServicePluginDefinition] | str) -> None:
         async with ServicePluginManager(
-            {
-                DummyServicePluginDefinition: [
-                    DummyServicePluginManufacturer(DummyServicePluginIsolated)
-                ]
-            },
+            plugin_types={DummyServicePluginDefinition},
+            plugin_manufacturers=[DummyServicePluginOne],
             services=ServiceLevel(
-                plugins={DummyServicePluginDefinition: [DummyServicePluginIsolated]}
+                plugins={DummyServicePluginDefinition: [DummyServicePluginOne]}
             ),
         ) as sut:
             assert isinstance(
-                sut[key][DummyServicePluginIsolated],
-                DummyServicePluginIsolated,
+                sut[key][DummyServicePluginOne],
+                DummyServicePluginOne,
             )
 
     async def test___iter__(self) -> None:
         async with ServicePluginManager(
-            {
-                DummyServicePluginDefinition: [
-                    DummyServicePluginManufacturer(DummyServicePluginIsolated)
-                ]
-            },
+            plugin_types={DummyServicePluginDefinition},
+            plugin_manufacturers=[DummyServicePluginOne],
             services=ServiceLevel(
-                plugins={DummyServicePluginDefinition: [DummyServicePluginIsolated]}
+                plugins={DummyServicePluginDefinition: [DummyServicePluginOne]}
             ),
         ) as sut:
             assert list(iter(sut)) == [DummyServicePluginDefinition]
@@ -406,69 +366,53 @@ class TestServicePluginManager:
             ({}, None, None),
             # A single, isolated service plugin.
             (
-                {
-                    DummyServicePluginDefinition: [
-                        DummyServicePluginIsolated.plugin().id
-                    ]
-                },
-                {DummyServicePluginDefinition: [DummyServicePluginIsolated]},
-                {
-                    DummyServicePluginDefinition: [
-                        DummyServicePluginManufacturer(DummyServicePluginIsolated)
-                    ]
-                },
+                {DummyServicePluginDefinition: [DummyServicePluginOne.plugin().id]},
+                {DummyServicePluginDefinition: [DummyServicePluginOne]},
+                [DummyServicePluginOne],
             ),
             # Two explicitly enabled service plugins of the same type, one dependent on the other.
             (
                 {
                     DummyServicePluginDefinition: [
-                        DummyServicePluginIsolated.plugin().id,
-                        DummyServicePluginRequiresIsolated.plugin().id,
+                        DummyServicePluginOne.plugin().id,
+                        DummyServicePluginRequiresOne.plugin().id,
                     ]
                 },
                 {
                     DummyServicePluginDefinition: [
-                        DummyServicePluginIsolated,
-                        DummyServicePluginRequiresIsolated,
+                        DummyServicePluginOne,
+                        DummyServicePluginRequiresOne,
                     ]
                 },
-                {
-                    DummyServicePluginDefinition: [
-                        DummyServicePluginManufacturer(DummyServicePluginIsolated),
-                        DummyServicePluginManufacturer(
-                            DummyServicePluginRequiresIsolated
-                        ),
-                    ]
-                },
+                [
+                    DummyServicePluginOne,
+                    DummyServicePluginManufacturer(DummyServicePluginRequiresOne),
+                ],
             ),
             # One explicitly enabled service plugin, dependent on another of the same type.
             (
                 {
                     DummyServicePluginDefinition: [
-                        DummyServicePluginIsolated.plugin().id,
-                        DummyServicePluginRequiresIsolated.plugin().id,
+                        DummyServicePluginOne.plugin().id,
+                        DummyServicePluginRequiresOne.plugin().id,
                     ]
                 },
                 {
                     DummyServicePluginDefinition: [
-                        DummyServicePluginIsolated,
-                        DummyServicePluginRequiresIsolated,
+                        DummyServicePluginOne,
+                        DummyServicePluginRequiresOne,
                     ]
                 },
-                {
-                    DummyServicePluginDefinition: [
-                        DummyServicePluginManufacturer(
-                            DummyServicePluginRequiresIsolated
-                        ),
-                    ]
-                },
+                [
+                    DummyServicePluginManufacturer(DummyServicePluginRequiresOne),
+                ],
             ),
             # One explicitly enabled service plugin, with nested dependencies across different plugin types.
             (
                 {
                     DummyServicePluginDefinition: [
-                        DummyServicePluginIsolated.plugin().id,
-                        DummyServicePluginRequiresIsolated.plugin().id,
+                        DummyServicePluginOne.plugin().id,
+                        DummyServicePluginRequiresOne.plugin().id,
                     ],
                     DummyServicePluginRequirementDefinition: [
                         DummyServicePluginRequirementRequiresRequiresIsolated.plugin().id,
@@ -476,20 +420,18 @@ class TestServicePluginManager:
                 },
                 {
                     DummyServicePluginDefinition: [
-                        DummyServicePluginIsolated,
-                        DummyServicePluginRequiresIsolated,
+                        DummyServicePluginOne,
+                        DummyServicePluginRequiresOne,
                     ],
                     DummyServicePluginRequirementDefinition: [
                         DummyServicePluginRequirementRequiresRequiresIsolated,
                     ],
                 },
-                {
-                    DummyServicePluginRequirementDefinition: [
-                        DummyServicePluginRequirementManufacturer(
-                            DummyServicePluginRequirementRequiresRequiresIsolated
-                        ),
-                    ]
-                },
+                [
+                    DummyServicePluginRequirementManufacturer(
+                        DummyServicePluginRequirementRequiresRequiresIsolated
+                    ),
+                ],
             ),
             # Ordered plugins.
             (
@@ -507,19 +449,17 @@ class TestServicePluginManager:
                         DummyServicePluginOrderedBeforeIsolated,
                     ],
                 },
-                {
-                    DummyServicePluginOrderedDefinition: [
-                        DummyServicePluginOrderedManufacturer(
-                            DummyServicePluginOrderedAfterIsolated
-                        ),
-                        DummyServicePluginOrderedManufacturer(
-                            DummyServicePluginOrderedIsolated
-                        ),
-                        DummyServicePluginOrderedManufacturer(
-                            DummyServicePluginOrderedBeforeIsolated
-                        ),
-                    ]
-                },
+                [
+                    DummyServicePluginOrderedManufacturer(
+                        DummyServicePluginOrderedAfterIsolated
+                    ),
+                    DummyServicePluginOrderedManufacturer(
+                        DummyServicePluginOrderedIsolated
+                    ),
+                    DummyServicePluginOrderedManufacturer(
+                        DummyServicePluginOrderedBeforeIsolated
+                    ),
+                ],
             ),
             # Auto service plugins.
             (
@@ -533,9 +473,7 @@ class TestServicePluginManager:
                         DummyServicePluginAutoIsolated,
                     ],
                 },
-                {
-                    DummyServicePluginAutoDefinition: [],
-                },
+                (),
             ),
         ],
     )
@@ -546,11 +484,19 @@ class TestServicePluginManager:
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
         ]
         | None,
-        service_plugins: ServicePluginManufacturers,
+        service_plugins: ServicePlugins,
         isolated_app: App,
     ) -> None:
         async with ServicePluginManager(
-            service_plugins, services=ServiceLevel(plugins=plugins)
+            plugin_types=()
+            if plugins is None
+            else [
+                plugin
+                for plugin in plugins
+                if issubclass(plugin, ServicePluginDefinition)
+            ],
+            plugin_manufacturers=service_plugins,
+            services=ServiceLevel(plugins=plugins),
         ) as sut:
             assert set(sut) == set(expected)
             for plugin_type in expected:

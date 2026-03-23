@@ -29,8 +29,6 @@ from betty.sample import Samplable, Sample, Samples, Size
 from betty.typing import Void, VoidType
 
 if TYPE_CHECKING:
-    import builtins
-
     from betty.portable import PortableData
     from betty.service.level import ServiceLevel
 
@@ -65,7 +63,7 @@ class PluginManufacturer[
     def __hash__(self):
         return hash(
             (
-                self.type(),
+                self.plugin_type(),
                 self.plugin_id,
                 Void
                 if self.plugin_data is Void
@@ -79,7 +77,7 @@ class PluginManufacturer[
 
     @classmethod
     @abstractmethod
-    def type(cls) -> builtins.type[_PluginManufacturerPluginDefinitionT]:
+    def plugin_type(cls) -> type[_PluginManufacturerPluginDefinitionT]:
         """
         The type of plugin that can be manufactured.
         """
@@ -89,7 +87,7 @@ class PluginManufacturer[
     @classmethod
     @cache
     def data(cls) -> ObjectDefinition[Self]:
-        return ObjectDefinition(cls, label=cls.type().type().label)
+        return ObjectDefinition(cls, label=cls.plugin_type().type().label)
 
     @final
     @override
@@ -169,10 +167,11 @@ class PluginManufacturer[
         Create a new instance of the configured plugin.
         """
         return await services.factory.new(
-            (await services.plugins[self.type()][self.plugin_id]).cls,
+            (await services.plugins[self.plugin_type()][self.plugin_id]).cls,
             self.plugin_data,
         )
 
+    @final
     @classmethod
     def resolve(
         cls,
@@ -190,6 +189,7 @@ class PluginManufacturer[
         except ValueError:
             return manufacturer  # ty:ignore[invalid-return-type]
 
+    @final
     @classmethod
     def resolve_sequence(
         cls,

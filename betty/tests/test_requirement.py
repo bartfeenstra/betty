@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from collections.abc import Awaitable, Callable
-from typing import TYPE_CHECKING, Any, override
+from collections.abc import Awaitable, Callable, Collection
+from typing import Any, override
 
 import pytest
 
@@ -18,17 +18,14 @@ from betty.service.level import ChainedServiceLevel, ServiceLevel
 from betty.service.plugin import (
     ServicePluginDefinition,
     ServicePluginManager,
-    ServicePluginManufacturers,
     ServicePluginProvider,
+    ServicePlugins,
 )
 from betty.service.provider import service
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
 )
-
-if TYPE_CHECKING:
-    import builtins
 
 
 class _ServiceLevel(ServiceLevel):
@@ -42,18 +39,21 @@ class _ChainedServiceLevel(ChainedServiceLevel):
 class _ServicePluginProvider(ServiceLevel, ServicePluginProvider):
     def __init__(
         self,
-        service_plugin_manufacturers: ServicePluginManufacturers | None = None,
         *args: Any,
+        service_plugin_types: Collection[type[ServicePluginDefinition]],
+        service_plugin_manufacturers: ServicePlugins | None = None,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
+        self._service_plugin_types = service_plugin_types
         self._service_plugin_manufacturers = service_plugin_manufacturers
 
     @override
     @service
     async def service_plugins(self) -> ServicePluginManager:
         service_plugins = ServicePluginManager(
-            self._service_plugin_manufacturers,
+            plugin_types=self._service_plugin_types,
+            plugin_manufacturers=self._service_plugin_manufacturers,
             services=self,
         )
         await service_plugins.bootstrap()
@@ -84,7 +84,7 @@ class _ServicePluginManufacturer(
 ):
     @override
     @classmethod
-    def type(cls) -> builtins.type[_ServicePluginDefinition]:
+    def plugin_type(cls) -> type[_ServicePluginDefinition]:
         return _ServicePluginDefinition
 
 
@@ -227,14 +227,20 @@ class TestServicePluginRequirement:
         self,
     ) -> None:
         sut = ServicePluginRequirement(_ServicePluginOne)
-        async with _ServicePluginProvider(plugins=self._PLUGINS) as services:
+        async with _ServicePluginProvider(
+            service_plugin_types=(),
+            service_plugin_manufacturers=(),
+            plugins=self._PLUGINS,
+        ) as services:
             with pytest.raises(UnmetRequirement):
                 await sut(services)
 
     async def test___call____services_unmet_because_no_service_plugin(self) -> None:
         sut = ServicePluginRequirement(_ServicePluginOne)
         async with _ServicePluginProvider(
-            {_ServicePluginDefinition: ()}, plugins=self._PLUGINS
+            service_plugin_types={_ServicePluginDefinition},
+            service_plugin_manufacturers=(),
+            plugins=self._PLUGINS,
         ) as services:
             with pytest.raises(UnmetRequirement):
                 await sut(services)
@@ -242,7 +248,10 @@ class TestServicePluginRequirement:
     async def test___call____services_met(self) -> None:
         sut = ServicePluginRequirement(_ServicePluginOne)
         async with _ServicePluginProvider(
-            {_ServicePluginDefinition: {_ServicePluginManufacturer(_ServicePluginOne)}},
+            service_plugin_types={_ServicePluginDefinition},
+            service_plugin_manufacturers={
+                _ServicePluginManufacturer(_ServicePluginOne)
+            },
             plugins=self._PLUGINS,
         ) as services:
             assert isinstance(await sut(services), _ServicePluginOne)
@@ -259,7 +268,10 @@ class TestServicePluginRequirement:
     ) -> None:
         sut = ServicePluginRequirement(_ServicePluginOne)
         async with _ServicePluginProvider(
-            {_ServicePluginDefinition: {_ServicePluginManufacturer(_ServicePluginOne)}},
+            service_plugin_types={_ServicePluginDefinition},
+            service_plugin_manufacturers={
+                _ServicePluginManufacturer(_ServicePluginOne)
+            },
             plugins=self._PLUGINS,
         ) as upstream:
             services = _ChainedServiceLevel(upstream=upstream)
@@ -271,15 +283,15 @@ class TestServicePluginRequirement:
         sut = ServicePluginRequirement(_ServicePluginOne)
         async with (
             _ServicePluginProvider(
-                {
-                    _ServicePluginDefinition: {
-                        _ServicePluginManufacturer(_ServicePluginOne)
-                    }
+                service_plugin_types={_ServicePluginDefinition},
+                service_plugin_manufacturers={
+                    _ServicePluginManufacturer(_ServicePluginOne)
                 },
                 plugins=self._PLUGINS,
             ) as upstream,
             _ChainedServicePluginProvider(
-                {},
+                service_plugin_types={},
+                service_plugin_manufacturers={},
                 plugins=self._PLUGINS,
                 upstream=upstream,
             ) as services,
@@ -292,15 +304,15 @@ class TestServicePluginRequirement:
         sut = ServicePluginRequirement(_ServicePluginOne)
         async with (
             _ServicePluginProvider(
-                {
-                    _ServicePluginDefinition: {
-                        _ServicePluginManufacturer(_ServicePluginOne)
-                    }
+                service_plugin_types={_ServicePluginDefinition},
+                service_plugin_manufacturers={
+                    _ServicePluginManufacturer(_ServicePluginOne)
                 },
                 plugins=self._PLUGINS,
             ) as upstream,
             _ChainedServicePluginProvider(
-                {_ServicePluginDefinition: ()},
+                service_plugin_types={_ServicePluginDefinition},
+                service_plugin_manufacturers=(),
                 plugins=self._PLUGINS,
                 upstream=upstream,
             ) as services,

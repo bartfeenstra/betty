@@ -101,9 +101,11 @@ class ServiceManager[ServiceProviderT, ServiceGetT, ServiceT]:
         )
         self._factory = factory
         self._service_name: str = factory.__name__
-        self._service_attr_name = f"_{self._service_name}"
-        self._service_override_attr_name = f"{self._service_attr_name}_override"
-        self._factory_override_attr_name = f"{self._service_attr_name}_factory_override"
+        self._service_attr_name = f"_service__{self._service_name}"
+        self._service_override_attr_name = f"{self._service_attr_name}__override"
+        self._factory_override_attr_name = (
+            f"{self._service_attr_name}__factory_override"
+        )
 
     @property
     def name(self) -> str:
