@@ -208,12 +208,16 @@ class ServicePluginDefinition[BaseClsT = Any](PluginDefinition[BaseClsT]):
         return self._auto
 
 
-type ServicePlugins[
+type ServicePlugin[
     ServicePluginDefinitionT: ServicePluginDefinition = ServicePluginDefinition
-] = Iterable[
+] = (
     PluginManufacturer[ServicePluginDefinitionT, Plugin[ServicePluginDefinitionT]]
     | type[Plugin[ServicePluginDefinitionT]]
-]
+)
+
+type ServicePlugins[
+    ServicePluginDefinitionT: ServicePluginDefinition = ServicePluginDefinition
+] = Iterable[ServicePlugin[ServicePluginDefinitionT]]
 
 
 @final
@@ -382,4 +386,31 @@ class ServicePluginProvider[ServicePluginTypesT: ServicePluginDefinition](
     async def service_plugins(self) -> ServicePluginManager[ServicePluginTypesT]:
         """
         The service plugins.
+        """
+
+
+type HasServicePluginRequirementsRequirement[
+    ServicePluginT: ServicePluginDefinition
+] = (
+    PluginManufacturer[ServicePluginT, Plugin[ServicePluginT]]
+    | tuple[type[ServicePluginT], MachineName]
+)
+
+type HasServicePluginRequirementsRequirements[
+    ServicePluginT: ServicePluginDefinition
+] = Iterable[HasServicePluginRequirementsRequirement[ServicePluginT]]
+
+
+class HasServicePluginRequirements[ServicePluginT: ServicePluginDefinition](ABC):
+    """
+    An object that requires service plugins to be enabled.
+    """
+
+    @property
+    @abstractmethod
+    def service_plugin_requirements(
+        self,
+    ) -> HasServicePluginRequirementsRequirements[ServicePluginT]:
+        """
+        The required service plugins.
         """

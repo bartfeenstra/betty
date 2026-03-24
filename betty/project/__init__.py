@@ -42,10 +42,10 @@ from betty.locale.translation import (
 )
 from betty.machine_name import MachineName
 from betty.privacy.privatizer import Privatizer
-from betty.project.data import ProjectConfiguration
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.service.level import ChainedServiceLevel
 from betty.service.plugin import (
+    HasServicePluginRequirementsRequirement,
     ServicePluginManager,
     ServicePluginProvider,
     ServicePlugins,
@@ -60,8 +60,10 @@ if TYPE_CHECKING:
     from betty.copyright_notice import CopyrightNotice
     from betty.jinja import Environment
     from betty.license import License
-    from betty.plugin import PluginDefinition
+    from betty.plugin import Plugin, PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
+    from betty.plugin.factory import PluginManufacturer
+    from betty.project.data import ProjectConfiguration
     from betty.service.plugin import PluginCollection
     from betty.url import UrlGenerator
 type ProjectServicePlugin = (
@@ -113,11 +115,30 @@ class Project(ChainedServiceLevel[App], ServicePluginProvider[ProjectServicePlug
         self._ancestry = Ancestry() if ancestry is None else ancestry
         self._service_plugins = service_plugins
 
-    def _ensure_service_plugins(self) -> None:
+    async def _ensure_service_plugins(self) -> None:
         self._service_plugins = (
             *self._service_plugins,
-            *self._configuration.extensions,
+            *await gather(
+                *map(
+                    self._ensure_service_plugin,
+                    self._configuration.service_plugin_requirements,
+                )
+            ),
         )
+
+    async def _ensure_service_plugin(
+        self,
+        service_plugin_requirement: HasServicePluginRequirementsRequirement[
+            ProjectServicePlugin
+        ],
+    ) -> (
+        PluginManufacturer[ProjectServicePlugin, Plugin[ProjectServicePlugin]]
+        | type[Plugin[ProjectServicePlugin]]
+    ):
+        if not isinstance(service_plugin_requirement, tuple):
+            return service_plugin_requirement
+        plugin_type, plugin_id = service_plugin_requirement
+        return await self.plugins[plugin_type][plugin_id]  # ty:ignore[invalid-argument-type]
 
     def _ensure_locale(self) -> None:
         if not self._configuration.locales:
@@ -163,6 +184,8 @@ class Project(ChainedServiceLevel[App], ServicePluginProvider[ProjectServicePlug
         The project will not leave any traces on the system, except when it uses
         global Betty functionality such as caches.
         """
+        from betty.project.data import ProjectConfiguration
+
         async with AsyncExitStack() as stack:
             if directory is None:
                 directory = Path(await stack.enter_async_context(TemporaryDirectory()))

@@ -4,7 +4,7 @@ Project data.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, final, override
 from urllib.parse import urlparse
 
 from babel import Locale
@@ -50,7 +50,7 @@ from betty.place_type.data import PlaceTypeDefinitionConfiguration
 from betty.plugin import ResolvablePluginId, resolve_plugin_id
 from betty.plugin.data.property import PluginDefinitionConfigurationsProperty
 from betty.plugins.entity.person import Person
-from betty.project import Extension, ExtensionDefinition
+from betty.project import Extension, ExtensionDefinition, ProjectServicePlugin
 from betty.property import (
     Optional,
     Property,
@@ -59,6 +59,10 @@ from betty.property.collection.keyed import KeyedCollectionProperty
 from betty.role import RoleDefinition
 from betty.role.data import RoleDefinitionConfiguration
 from betty.sample import Size
+from betty.service.plugin import (
+    HasServicePluginRequirements,
+    HasServicePluginRequirementsRequirements,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -262,7 +266,7 @@ class ProjectLocale(Data["ObjectDefinition"]):
         ),
     ],
 )
-class ProjectConfiguration(Data):
+class ProjectConfiguration(Data, HasServicePluginRequirements[ProjectServicePlugin]):
     """
     Configuration for a :py:class:`betty.project.Project`.
 
@@ -549,6 +553,13 @@ class ProjectConfiguration(Data):
         from betty.plugins.license.all_rights_reserved import AllRightsReserved
 
         return LicenseManufacturer(AllRightsReserved)
+
+    @override
+    @property
+    def service_plugin_requirements(
+        self,
+    ) -> HasServicePluginRequirementsRequirements[ProjectServicePlugin]:
+        return self.extensions
 
     @property
     @AttrDefinition(
