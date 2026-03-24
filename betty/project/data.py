@@ -559,7 +559,9 @@ class ProjectConfiguration(Data, HasServicePluginRequirements[ProjectServicePlug
     def service_plugin_requirements(
         self,
     ) -> HasServicePluginRequirementsRequirements[ProjectServicePlugin]:
-        return self.extensions
+        return self._get_service_plugin_requirements_from_manufacturers(
+            *self.extensions
+        )
 
     @property
     @AttrDefinition(

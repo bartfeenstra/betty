@@ -414,3 +414,14 @@ class HasServicePluginRequirements[ServicePluginT: ServicePluginDefinition](ABC)
         """
         The required service plugins.
         """
+
+    @final
+    def _get_service_plugin_requirements_from_manufacturers(
+        self,
+        *plugins: PluginManufacturer,
+    ) -> HasServicePluginRequirementsRequirements[ServicePluginT]:
+        for plugin in plugins:
+            if issubclass(plugin.plugin_type(), ServicePluginDefinition):
+                yield plugin
+            if isinstance(plugin.plugin_data, HasServicePluginRequirements):
+                yield from plugin.plugin_data.service_plugin_requirements

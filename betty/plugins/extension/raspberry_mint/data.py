@@ -4,7 +4,8 @@ Data for the Raspberry Mint extension.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final
+from itertools import chain
+from typing import TYPE_CHECKING, final, override
 
 from betty.collection.mapping import MutableResolvedMapping
 from betty.collection.mapping.adapter import MutableResolvedMappingAdapter
@@ -20,9 +21,14 @@ from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Paragraph, do_you_mean
 from betty.plugin.data import PluginManufacturerSequenceDefinition
 from betty.plugins.extension.raspberry_mint.region import Region
+from betty.project import ProjectServicePlugin
 from betty.property import Optional, Property
 from betty.property.collection.mapping import MappingProperty
 from betty.sample import Size
+from betty.service.plugin import (
+    HasServicePluginRequirements,
+    HasServicePluginRequirementsRequirements,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
@@ -62,7 +68,9 @@ if TYPE_CHECKING:
         ),
     ],
 )
-class RaspberryMintConfiguration(Data):
+class RaspberryMintConfiguration(
+    Data, HasServicePluginRequirements[ProjectServicePlugin]
+):
     """
     Configuration for the :py:class:`betty.plugins.extension.raspberry_mint.RaspberryMint` extension.
 
@@ -131,6 +139,15 @@ class RaspberryMintConfiguration(Data):
                     for region, content in regional_content.items()
                 }
             )
+
+    @override
+    @property
+    def service_plugin_requirements(
+        self,
+    ) -> HasServicePluginRequirementsRequirements[ProjectServicePlugin]:
+        return self._get_service_plugin_requirements_from_manufacturers(
+            *chain(*self.regional_content.values())
+        )
 
     async def validate(self, project: Project, /) -> None:
         """
