@@ -106,7 +106,6 @@ class Project(ChainedServiceLevel[App], ServicePluginProvider[ProjectServicePlug
         service_plugins: ServicePlugins[ProjectServicePlugin] = (),
     ):
         super().__init__(plugins=plugins, upstream=app)
-        self.life_cycle.on_bootstrap(self._ensure_service_plugins)
         self.life_cycle.on_bootstrap(self._ensure_locale)
         self.life_cycle.on_bootstrap(self._validate)
         self._app = app
@@ -115,13 +114,30 @@ class Project(ChainedServiceLevel[App], ServicePluginProvider[ProjectServicePlug
         self._ancestry = Ancestry() if ancestry is None else ancestry
         self._service_plugins = service_plugins
 
-    async def _ensure_service_plugins(self) -> None:
-        self._service_plugins = (
-            *self._service_plugins,
-            *await gather(
+    def _ensure_locale(self) -> None:
+        if not self._configuration.locales:
+            self._configuration.locales.add(DEFAULT_LOCALE)
+
+    async def _validate(self) -> None:
+        for entity_type in self._configuration.entity_types:
+            await entity_type.validate(self)
+
+    @classmethod
+    async def new(
+        cls, app: App, data: ProjectConfiguration, *, directory: Path
+    ) -> Self:
+        """
+        Create a new instance.
+        """
+        # @todo How do we get requirements for non-service plugins here, if we cannot access self.plugins?
+        return cls(
+            directory,
+            app=app,
+            configuration=data,
+            service_plugins=await gather(
                 *map(
                     self._ensure_service_plugin,
-                    self._configuration.service_plugin_requirements,
+                    data.service_plugin_requirements,
                 )
             ),
         )
@@ -139,23 +155,6 @@ class Project(ChainedServiceLevel[App], ServicePluginProvider[ProjectServicePlug
             return service_plugin_requirement
         plugin_type, plugin_id = service_plugin_requirement
         return await self.plugins[plugin_type][plugin_id]  # ty:ignore[invalid-argument-type]
-
-    def _ensure_locale(self) -> None:
-        if not self._configuration.locales:
-            self._configuration.locales.add(DEFAULT_LOCALE)
-
-    async def _validate(self) -> None:
-        for entity_type in self._configuration.entity_types:
-            await entity_type.validate(self)
-
-    @classmethod
-    async def new(
-        cls, app: App, data: ProjectConfiguration, *, directory: Path
-    ) -> Self:
-        """
-        Create a new instance.
-        """
-        return cls(directory, app=app, configuration=data)
 
     @property
     def configuration(self) -> ProjectConfiguration:
