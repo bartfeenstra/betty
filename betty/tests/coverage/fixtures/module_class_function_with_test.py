@@ -5,7 +5,7 @@ class Src:
     """Provide a fixture source class."""
 
     def src(self) -> None:
-        pass  # pragma: no cover
+        raise NotImplementedError
 
 
 class TestSrc:

@@ -19,7 +19,7 @@ class NoOpJob(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-        pass
+        return
 
 
 async def do(*jobs: Job) -> None:

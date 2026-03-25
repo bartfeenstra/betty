@@ -70,7 +70,7 @@ async def test_add_project_argument__without_argument_without_file(
     parser = argparse.ArgumentParser()
 
     async def _command_function(*, project: Project) -> None:
-        pass  # pragma: no cover
+        raise NotImplementedError
 
     command_function = await add_project_argument(
         parser, _command_function, isolated_app

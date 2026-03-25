@@ -23,15 +23,15 @@ class NoOpServer(Server):
 
     @override
     async def start(self) -> None:
-        pass
+        return
 
     @override
     async def stop(self) -> None:
-        pass
+        return
 
     @override
     async def show(self) -> None:
-        pass
+        return
 
 
 class NoOpProjectServer(ProjectServer, NoOpServer):

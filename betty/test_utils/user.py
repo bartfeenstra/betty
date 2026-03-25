@@ -17,7 +17,7 @@ from betty.typing import Void, VoidType
 from betty.user import User, UserTimeoutError, Verbosity
 
 
-class StaticUser(User):  # pragma: no cover
+class StaticUser(User):
     """
     A static user with predefined responses.
     """
@@ -257,7 +257,7 @@ class StaticUser(User):  # pragma: no cover
         *,
         default: str | VoidType = Void,
     ) -> str:
-        pass
+        raise NotImplementedError  # ty:ignore[useless-overload-body]
 
     @overload
     async def ask_input[T](
@@ -267,7 +267,7 @@ class StaticUser(User):  # pragma: no cover
         assertion: Assertion[str, T],
         default: str | VoidType = Void,
     ) -> T:
-        pass
+        raise NotImplementedError  # ty:ignore[useless-overload-body]
 
     @override
     async def ask_input[T](
