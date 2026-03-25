@@ -21,7 +21,6 @@ from betty.ancestry import Ancestry
 from betty.app import App
 from betty.asset import (
     AssetDefinition,
-    AssetManufacturer,
     AssetRepository,
     ProxyAssetRepository,
     StaticAssetRepository,
@@ -162,13 +161,13 @@ class Project(ChainedServiceLevel[App], ServicePluginProvider):
     async def service_plugins(self) -> ServicePluginManager:
         service_plugins = ServicePluginManager(
             {
-                AssetDefinition: [AssetManufacturer("project")],
-                CssResourceDefinition: [],
+                AssetDefinition: (),
+                CssResourceDefinition: (),
                 ExtensionDefinition: self.configuration.extensions,
-                JinjaFilterDefinition: [],
-                JinjaTestDefinition: [],
-                JsResourceDefinition: [],
-                LinkDefinition: [],
+                JinjaFilterDefinition: (),
+                JinjaTestDefinition: (),
+                JsResourceDefinition: (),
+                LinkDefinition: (),
             },
             services=self,
         )

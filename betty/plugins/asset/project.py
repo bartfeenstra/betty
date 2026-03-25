@@ -24,6 +24,7 @@ def _discover(project: Project, /) -> Iterable[ResolvableDiscovery[AssetDefiniti
         assets=project.assets_directory,
         after=lambda other: other != Universe.plugin().id,
         before={Universe},
+        auto=True,
     )
     class _Project(Asset):
         """
