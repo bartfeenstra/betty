@@ -22,7 +22,10 @@ from betty.extension import ExtensionDefinition
 from betty.plugins.extension.maps import Maps
 from betty.project.generate import generate
 from betty.serve import Server
-from betty.tests.conftest import check_skip_playwright
+from betty.tests.conftest import (
+    check_skip_playwright,
+    check_skip_webpack_entry_point_provider,
+)
 
 _PLACE_ID = "P0001"
 _PLACE_NAME = "My First Place"
@@ -72,7 +75,9 @@ class MapsTestBase:
                     yield server
 
     @pytest.mark.asyncio(loop_scope="session")
+    @pytest.mark.order(0)
     @check_skip_playwright
+    @check_skip_webpack_entry_point_provider
     async def test_ui(self, page: Page, server: Server) -> None:
         """
         Test maps' web user interface.

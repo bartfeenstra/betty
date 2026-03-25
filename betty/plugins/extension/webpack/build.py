@@ -370,12 +370,10 @@ class Builder:
             ("run", "webpack"), cwd=npm_project_directory_path, user=self._user
         )
 
-        # Ensure there is always a webpack-vendor.css. This makes for easy and unconditional importing.
+        # Ensure there is always a main.css. This makes for easy and unconditional importing.
         await makedirs(webpack_build_directory_path / "css" / "webpack", exist_ok=True)
         await to_thread(
-            (
-                webpack_build_directory_path / "css" / "webpack" / "webpack-vendor.css"
-            ).touch
+            (webpack_build_directory_path / "css" / "webpack" / "main.css").touch
         )
 
     async def build(self, working_directory: Path, *, context: Context) -> Path:

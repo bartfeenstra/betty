@@ -92,9 +92,9 @@ const webpackConfiguration = {
         splitChunks: {
             chunks: "all",
             cacheGroups: {
-                vendorCss: {
+                mainCss: {
                     test: /\.s?css$/,
-                    name: "webpack",
+                    name: "main",
                     priority: -10,
                 },
                 vendorJs: {
@@ -108,7 +108,7 @@ const webpackConfiguration = {
     plugins: [
         new EntryScriptCollector(),
         new MiniCssExtractPlugin({
-            filename: "css/webpack/[name].css",
+            filename: "css/webpack/main.css",
         }),
     ],
     module: {

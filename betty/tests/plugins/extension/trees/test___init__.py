@@ -1,4 +1,5 @@
 import aiofiles
+import pytest
 
 from betty.app import App
 from betty.plugins.extension.trees import Trees
@@ -8,6 +9,7 @@ from betty.tests.conftest import check_skip_webpack_entry_point_provider
 
 
 class TestTrees:
+    @pytest.mark.order(0)
     @check_skip_webpack_entry_point_provider
     async def test_generate(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
@@ -22,7 +24,7 @@ class TestTrees:
                     betty_js = await f.read()
                 assert Trees.plugin().id in betty_js
                 async with aiofiles.open(
-                    project.www_directory / "css" / "webpack" / "trees.css",
+                    project.www_directory / "css" / "webpack" / "main.css",
                     encoding="utf-8",
                 ) as f:
                     betty_css = await f.read()
