@@ -38,6 +38,7 @@ from betty.plugin.error import PluginNotFound
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.requirement import (
+    PluginRequirementsRequirement,
     ServicePluginRequirement,
 )
 from betty.service.provider import service
@@ -208,18 +209,6 @@ class ServicePluginDefinition[BaseClsT = Any](PluginDefinition[BaseClsT]):
         return self._auto
 
 
-type ServicePlugin[
-    ServicePluginDefinitionT: ServicePluginDefinition = ServicePluginDefinition
-] = (
-    PluginManufacturer[ServicePluginDefinitionT, Plugin[ServicePluginDefinitionT]]
-    | type[Plugin[ServicePluginDefinitionT]]
-)
-
-type ServicePlugins[
-    ServicePluginDefinitionT: ServicePluginDefinition = ServicePluginDefinition
-] = Iterable[ServicePlugin[ServicePluginDefinitionT]]
-
-
 @final
 class ServicePluginManager[ServicePluginTypesT: ServicePluginDefinition](
     ManagedLifeCycle
@@ -230,28 +219,29 @@ class ServicePluginManager[ServicePluginTypesT: ServicePluginDefinition](
 
     def __init__(
         self,
-        *,
-        plugin_types: Collection[type[ServicePluginTypesT]],
-        plugin_manufacturers: ServicePlugins | None,
         services: ServiceLevel,
+        plugin_types: Collection[type[ServicePluginTypesT]],
+        plugins: Iterable[
+            ServicePluginRequirement | PluginRequirementsRequirement
+        ] = (),
+        /,
     ):
         super().__init__()
         self._service_plugin_types = plugin_types
         self._service_plugin_manufacturers = defaultdict(dict)
-        if plugin_manufacturers is not None:
-            for service_plugin_manufacturer in plugin_manufacturers:
-                if isinstance(service_plugin_manufacturer, PluginManufacturer):
-                    (
-                        self._service_plugin_manufacturers[
-                            service_plugin_manufacturer.plugin_type()
-                        ][service_plugin_manufacturer.plugin_id]
-                    ) = service_plugin_manufacturer
-                else:
-                    (
-                        self._service_plugin_manufacturers[
-                            type(service_plugin_manufacturer.plugin())
-                        ][service_plugin_manufacturer.plugin().id]
-                    ) = service_plugin_manufacturer
+        for _plugin in plugins:
+            if isinstance(service_plugin_manufacturer, PluginManufacturer):
+                (
+                    self._service_plugin_manufacturers[
+                        service_plugin_manufacturer.plugin_type()
+                    ][service_plugin_manufacturer.plugin_id]
+                ) = service_plugin_manufacturer
+            else:
+                (
+                    self._service_plugin_manufacturers[
+                        type(service_plugin_manufacturer.plugin())
+                    ][service_plugin_manufacturer.plugin().id]
+                ) = service_plugin_manufacturer
         self._service_plugins = {}
         self._services = services
         self.life_cycle.on_bootstrap(self._bootstrap)
@@ -387,41 +377,3 @@ class ServicePluginProvider[ServicePluginTypesT: ServicePluginDefinition](
         """
         The service plugins.
         """
-
-
-type HasServicePluginRequirementsRequirement[
-    ServicePluginT: ServicePluginDefinition
-] = (
-    PluginManufacturer[ServicePluginT, Plugin[ServicePluginT]]
-    | tuple[type[ServicePluginT], MachineName]
-)
-
-type HasServicePluginRequirementsRequirements[
-    ServicePluginT: ServicePluginDefinition
-] = Iterable[HasServicePluginRequirementsRequirement[ServicePluginT]]
-
-
-class HasServicePluginRequirements[ServicePluginT: ServicePluginDefinition](ABC):
-    """
-    An object that requires service plugins to be enabled.
-    """
-
-    @property
-    @abstractmethod
-    def service_plugin_requirements(
-        self,
-    ) -> HasServicePluginRequirementsRequirements[ServicePluginT]:
-        """
-        The required service plugins.
-        """
-
-    @final
-    def _get_service_plugin_requirements_from_manufacturers(
-        self,
-        *plugins: PluginManufacturer,
-    ) -> HasServicePluginRequirementsRequirements[ServicePluginT]:
-        for plugin in plugins:
-            if issubclass(plugin.plugin_type(), ServicePluginDefinition):
-                yield plugin
-            if isinstance(plugin.plugin_data, HasServicePluginRequirements):
-                yield from plugin.plugin_data.service_plugin_requirements

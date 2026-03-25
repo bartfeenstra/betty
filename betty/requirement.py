@@ -15,9 +15,11 @@ from betty.locale.localizable.gettext import _
 from betty.service.level import ChainedServiceLevel, ServiceLevel
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable, Callable
+    from collections.abc import Awaitable, Callable, Iterable
 
-    from betty.plugin import Plugin
+    from betty.machine_name import MachineName
+    from betty.plugin import Plugin, PluginDefinition
+    from betty.plugin.factory import PluginManufacturer
     from betty.service.plugin import ServicePluginDefinition
 
 
@@ -136,23 +138,35 @@ class ServiceLevelRequirement[ServiceLevelT: ServiceLevel]:
         )
 
 
-@final
-class ServicePluginRequirement[ServicePluginT: Plugin[ServicePluginDefinition]]:
+class ServicePluginRequirement[ServicePluginDefinitionT: ServicePluginDefinition]:
     """
     Check that a service plugin is available.
     """
 
-    def __init__(self, plugin: type[ServicePluginT], /):
-        self._plugin = plugin
+    def __init__(
+        self, plugin_type: type[ServicePluginDefinitionT], plugin_id: MachineName, /
+    ):
+        self._plugin_type = plugin_type
+        self._plugin_id = plugin_id
 
     @property
-    def plugin(self) -> type[ServicePluginT]:
+    def plugin_type(self) -> type[ServicePluginDefinition]:
         """
-        The required service plugin.
+        The plugin type.
         """
-        return self._plugin
+        return self._plugin_type
 
-    async def __call__(self, services: ServiceLevel, /) -> ServicePluginT:
+    @property
+    def plugin_id(self) -> MachineName:
+        """
+        The plugin ID.
+        """
+        return self._plugin_id
+
+    @final
+    async def __call__(
+        self, services: ServiceLevel, /
+    ) -> Plugin[ServicePluginDefinitionT]:
         """
         Check the requirement.
         """
@@ -161,15 +175,75 @@ class ServicePluginRequirement[ServicePluginT: Plugin[ServicePluginDefinition]]:
         if isinstance(services, ServicePluginProvider):
             service_plugins = await services.service_plugins
             with suppress(KeyError):
-                return service_plugins[type(self._plugin.plugin())][self._plugin]
+                return service_plugins[self.plugin_type][self._plugin_id]
         if isinstance(services, ChainedServiceLevel):
             return await self(services.upstream)
         raise UnmetRequirement(
             _("The {plugin_id} {plugin_type} is required.").format(
-                plugin_id=self._plugin.plugin().id,
-                plugin_type=self._plugin.plugin().type().label,
+                plugin_id=self._plugin_id,
+                plugin_type=self.plugin_type.type().label,
             )
         )
+
+
+@final
+class ManufacturableServicePluginRequirement[
+    PluginDefinitionT: ServicePluginDefinition
+](ServicePluginRequirement):
+    """
+    Check that a service plugin is available.
+    """
+
+    def __init__(
+        self,
+        manufacturer: PluginManufacturer[PluginDefinitionT, Plugin[PluginDefinitionT]],
+        /,
+    ):
+        super().__init__()
+        self._manufacturer = manufacturer
+
+    @property
+    def manufacturer(
+        self,
+    ) -> PluginManufacturer[PluginDefinitionT, Plugin[PluginDefinitionT]]:
+        """
+        The plugin manufacturer.
+        """
+        return self._manufacturer
+
+
+@final
+class PluginRequirementsRequirement:
+    """
+    Check that a plugin's requirements are met.
+    """
+
+    def __init__(self, plugin_type: type[PluginDefinition], plugin_id: MachineName, /):
+        self._plugin_type = plugin_type
+        self._plugin_id = plugin_id
+
+    @property
+    def plugin_type(self) -> type[PluginDefinition]:
+        """
+        The plugin type.
+        """
+        return self._plugin_type
+
+    @property
+    def plugin_id(self) -> MachineName:
+        """
+        The plugin ID.
+        """
+        return self._plugin_id
+
+    async def __call__(self, services: ServiceLevel, /) -> None:
+        """
+        Check the requirement.
+        """
+        for requirement in (
+            await services.plugins[self._plugin_type][self._plugin_id]
+        ).requires:
+            await requirement(services)
 
 
 if TYPE_CHECKING:
@@ -191,3 +265,29 @@ def resolve_requirement(requirement: ResolvableRequirement[Any], /) -> Requireme
             return ServiceLevelRequirement(requirement)
         return ServicePluginRequirement(requirement)
     return requirement
+
+
+if TYPE_CHECKING:
+    type Requires = Iterable[ResolvableRequirement]
+else:
+    type Requires = Any
+
+
+class HasRequirements:
+    """
+    An object that exposes requirements.
+    """
+
+    def __init__(self, *args: Any, requires: Requires | None = None, **kwargs: Any):
+
+        super().__init__(*args, **kwargs)
+        self.__requires = (
+            () if requires is None else tuple(map(resolve_requirement, requires))
+        )
+
+    @property
+    def requires(self) -> Iterable[Requirement]:
+        """
+        The requirements.
+        """
+        return self.__requires

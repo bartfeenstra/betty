@@ -7,6 +7,7 @@ site from the entire project.
 """
 
 from __future__ import annotations
+from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
 
 from asyncio import gather
 from contextlib import AsyncExitStack, asynccontextmanager
@@ -43,12 +44,15 @@ from betty.locale.translation import (
 from betty.machine_name import MachineName
 from betty.privacy.privatizer import Privatizer
 from betty.render import RenderDispatcher, RendererDefinition
+from betty.requirement import (
+    PluginRequirementsRequirement,
+    Requirement,
+    ServicePluginRequirement,
+)
 from betty.service.level import ChainedServiceLevel
 from betty.service.plugin import (
-    HasServicePluginRequirementsRequirement,
     ServicePluginManager,
     ServicePluginProvider,
-    ServicePlugins,
 )
 from betty.service.provider import service
 
@@ -60,9 +64,8 @@ if TYPE_CHECKING:
     from betty.copyright_notice import CopyrightNotice
     from betty.jinja import Environment
     from betty.license import License
-    from betty.plugin import Plugin, PluginDefinition
+    from betty.plugin import PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
-    from betty.plugin.factory import PluginManufacturer
     from betty.project.data import ProjectConfiguration
     from betty.service.plugin import PluginCollection
     from betty.url import UrlGenerator
@@ -103,7 +106,9 @@ class Project(ChainedServiceLevel[App], ServicePluginProvider[ProjectServicePlug
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
         ]
         | None = None,
-        service_plugins: ServicePlugins[ProjectServicePlugin] = (),
+        extensions: Iterable[
+            ResolvablePluginManufacturer[ExtensionDefinition, Extension]
+        ] = (),
     ):
         super().__init__(plugins=plugins, upstream=app)
         self.life_cycle.on_bootstrap(self._ensure_locale)
@@ -112,7 +117,7 @@ class Project(ChainedServiceLevel[App], ServicePluginProvider[ProjectServicePlug
         self._configuration = configuration
         self._directory = directory
         self._ancestry = Ancestry() if ancestry is None else ancestry
-        self._service_plugins = service_plugins
+        self._extensions = tuple(extensions)
 
     def _ensure_locale(self) -> None:
         if not self._configuration.locales:
@@ -129,32 +134,7 @@ class Project(ChainedServiceLevel[App], ServicePluginProvider[ProjectServicePlug
         """
         Create a new instance.
         """
-        # @todo How do we get requirements for non-service plugins here, if we cannot access self.plugins?
-        return cls(
-            directory,
-            app=app,
-            configuration=data,
-            service_plugins=await gather(
-                *map(
-                    self._ensure_service_plugin,
-                    data.service_plugin_requirements,
-                )
-            ),
-        )
-
-    async def _ensure_service_plugin(
-        self,
-        service_plugin_requirement: HasServicePluginRequirementsRequirement[
-            ProjectServicePlugin
-        ],
-    ) -> (
-        PluginManufacturer[ProjectServicePlugin, Plugin[ProjectServicePlugin]]
-        | type[Plugin[ProjectServicePlugin]]
-    ):
-        if not isinstance(service_plugin_requirement, tuple):
-            return service_plugin_requirement
-        plugin_type, plugin_id = service_plugin_requirement
-        return await self.plugins[plugin_type][plugin_id]  # ty:ignore[invalid-argument-type]
+        return cls(directory, app=app, configuration=data, extensions=data.extensions)
 
     @property
     def configuration(self) -> ProjectConfiguration:
@@ -204,7 +184,8 @@ class Project(ChainedServiceLevel[App], ServicePluginProvider[ProjectServicePlug
     @service
     async def service_plugins(self) -> ServicePluginManager[ProjectServicePlugin]:
         service_plugins = ServicePluginManager(
-            plugin_types={
+            self,
+            {
                 AssetDefinition,
                 CssResourceDefinition,
                 ExtensionDefinition,
@@ -213,8 +194,14 @@ class Project(ChainedServiceLevel[App], ServicePluginProvider[ProjectServicePlug
                 JsResourceDefinition,
                 LinkDefinition,
             },
-            plugin_manufacturers=self._service_plugins,
-            services=self,
+            (
+                requirement
+                for requirement in self._requires
+                if isinstance(
+                    requirement,
+                    (ServicePluginRequirement, PluginRequirementsRequirement),
+                )
+            ),
         )
         await service_plugins.bootstrap()
         self.life_cycle.attach(service_plugins)

@@ -21,14 +21,10 @@ from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Paragraph, do_you_mean
 from betty.plugin.data import PluginManufacturerSequenceDefinition
 from betty.plugins.extension.raspberry_mint.region import Region
-from betty.project import ProjectServicePlugin
 from betty.property import Optional, Property
 from betty.property.collection.mapping import MappingProperty
+from betty.requirement import HasRequirements, Requirement
 from betty.sample import Size
-from betty.service.plugin import (
-    HasServicePluginRequirements,
-    HasServicePluginRequirementsRequirements,
-)
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
@@ -68,9 +64,7 @@ if TYPE_CHECKING:
         ),
     ],
 )
-class RaspberryMintConfiguration(
-    Data, HasServicePluginRequirements[ProjectServicePlugin]
-):
+class RaspberryMintConfiguration(Data, HasRequirements):
     """
     Configuration for the :py:class:`betty.plugins.extension.raspberry_mint.RaspberryMint` extension.
 
@@ -142,9 +136,7 @@ class RaspberryMintConfiguration(
 
     @override
     @property
-    def service_plugin_requirements(
-        self,
-    ) -> HasServicePluginRequirementsRequirements[ProjectServicePlugin]:
+    def requires(self) -> Iterable[Requirement]:
         return self._get_service_plugin_requirements_from_manufacturers(
             *chain(*self.regional_content.values())
         )

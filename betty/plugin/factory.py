@@ -25,7 +25,15 @@ from betty.data.indicator.selector import Attr
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName
 from betty.plugin import Plugin, PluginDefinition, ResolvablePluginId, resolve_plugin_id
+from betty.requirement import (
+    HasRequirements,
+    PluginRequirementsRequirement,
+    Requirement,
+    ServicePluginRequirement,
+    ManufacturableServicePluginRequirement,
+)
 from betty.sample import Samplable, Sample, Samples, Size
+from betty.service.plugin import ServicePluginDefinition
 from betty.typing import Void, VoidType
 
 if TYPE_CHECKING:
@@ -43,7 +51,7 @@ _PluginManufacturerPluginDefinitionT = TypeVar(
 class PluginManufacturer[
     PluginManufacturerPluginDefinitionT: PluginDefinition,
     PluginManufacturerPluginT: Plugin,
-](PortableRecord[Attr], Samplable, Data[RecordDefinition], ABC):
+](HasRequirements, PortableRecord[Attr], Samplable, Data[RecordDefinition], ABC):
     """
     Configure a single plugin instance.
     """
@@ -74,6 +82,25 @@ class PluginManufacturer[
                 ),
             )
         )
+
+    @override
+    @property
+    def requires(self) -> Iterable[Requirement]:
+        # @todo Whichever way we look at it, we won't be able to extract requirements from data/config until we have a ServiceLevel,
+        # @todo because without it we cannot access plugin classes, and without those we do not know which data/config classes
+        # @todo to load portable data into.
+        # @todo
+        # @todo
+        if issubclass(self.plugin_type(), ServicePluginDefinition):
+            yield ManufacturableServicePluginRequirement(self)
+        else:
+            yield PluginRequirementsRequirement(self.plugin_type(), self.plugin_id)
+        # @todo We may not always have data objects here, quite often this will just be portable data.
+        # @todo
+        # @todo
+        raise NotImplementedError
+        if isinstance(self.plugin_data, HasRequirements):
+            yield from self.plugin_data.requires
 
     @classmethod
     @abstractmethod
