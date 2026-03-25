@@ -277,7 +277,7 @@ class TestServicePluginRequirement:
             ) as upstream,
             _ChainedServicePluginProvider(
                 {},
-                plugins=self._PLUGINS,
+                plugins=self._PLUGINS,  # ty:ignore[invalid-argument-type]
                 upstream=upstream,
             ) as services,
         ):
@@ -298,7 +298,7 @@ class TestServicePluginRequirement:
             ) as upstream,
             _ChainedServicePluginProvider(
                 {_ServicePluginDefinition: ()},
-                plugins=self._PLUGINS,
+                plugins=self._PLUGINS,  # ty:ignore[invalid-argument-type]
                 upstream=upstream,
             ) as services,
         ):

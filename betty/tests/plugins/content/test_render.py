@@ -35,7 +35,7 @@ class TestRender:
             (
                 "<p>Een<br>\nTwee<br>\nDrie</p>",
                 StaticTranslations(
-                    {DEFAULT_LOCALE_TAG: "One\nTwo\nThree", "nl": "Een\nTwee\nDrie"}
+                    {DEFAULT_LOCALE_TAG: "One\nTwo\nThree", "nl": "Een\nTwee\nDrie"},  # ty:ignore[invalid-argument-type]
                 ),
                 "nl",
             ),

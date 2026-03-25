@@ -5,7 +5,12 @@ import pytest
 from betty.exception import HumanFacingException
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.error import UnknownLocale
-from betty.locale.localizable import CountableLocalizable, Localizable, LocalizableCount
+from betty.locale.localizable import (
+    CountableLocalizable,
+    Localizable,
+    LocalizableCount,
+    ShorthandStaticTranslations,
+)
 from betty.locale.localizable.data import (
     CountableLocalizableDefinition,
     LocalizableDefinition,
@@ -46,10 +51,10 @@ class TestLocalizableDefinition:
         )
 
     def test_dump__with_static_translations(self) -> None:
-        localizable = {
+        localizable: ShorthandStaticTranslations = {
             DEFAULT_LOCALE_TAG: "Hello, world!",
             "nl-NL": "Hallo, wereld!",
-        }
+        }  # ty:ignore[invalid-assignment]
 
         assert (
             LocalizableDefinition().porter.dump(StaticTranslations(localizable))

@@ -1,13 +1,10 @@
-from typing import TYPE_CHECKING, override
+from typing import override
 
 import pytest
 
 from betty.plugins.serializer.yaml import Yaml
 from betty.serde import SerializationError, Serializer
 from betty.test_utils.serde import SerializerTestBase
-
-if TYPE_CHECKING:
-    from betty.portable import PortableData
 
 
 class TestYaml(SerializerTestBase):
@@ -28,7 +25,8 @@ class TestYaml(SerializerTestBase):
         assert expected == portable
 
     def test_dump(self) -> None:
-        portable: PortableData = {"hello": [123, "World!"]}
         sut = Yaml()
-        serialized = sut.dump(portable)
+        serialized = sut.dump(
+            {"hello": [123, "World!"]},  # ty:ignore[invalid-argument-type]
+        )
         assert serialized == "hello:\n- 123\n- World!\n"

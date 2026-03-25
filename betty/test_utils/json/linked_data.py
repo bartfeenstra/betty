@@ -75,8 +75,8 @@ def _normalize[PortableDataT: PortableData](portable: PortableDataT) -> Portable
     if isinstance(portable, MutableSequence) and not isinstance(portable, str):
         return list(
             map(
-                _normalize,
-                portable,  # ty:ignore[invalid-argument-type]
+                _normalize,  # ty:ignore[invalid-argument-type]
+                portable,
             )
         )  # ty:ignore[invalid-return-type]
     return portable

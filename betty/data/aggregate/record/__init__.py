@@ -279,12 +279,12 @@ class RecordDefinition[DataClsT = Any, ElementT: Element[str] = Element[str]](
     def porter(self) -> RecordPorter[DataClsT]:
         if self._porter is None:
             if issubclass(self.cls, PortableRecord):
-                self._porter = PortableRecordPorter(self.cls)
+                self._porter = PortableRecordPorter(self.cls)  # ty:ignore[invalid-assignment]
             else:
                 self._porter = MappingPorter(
                     self,  # ty:ignore[invalid-argument-type]
                 )
-        return self._porter
+        return self._porter  # ty:ignore[invalid-return-type]
 
     @property
     def fields(self) -> Sequence[FieldDefinition[ElementT, Any]]:

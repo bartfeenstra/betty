@@ -181,5 +181,5 @@ async def _user_input_static_translations(
                 )
             )
             for locale in locales
-        }
+        }  # ty:ignore[invalid-argument-type]
     )

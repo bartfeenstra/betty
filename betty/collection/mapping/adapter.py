@@ -121,11 +121,11 @@ class MutableResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValu
 
     @override
     def update(self, other=None, **kwargs) -> None:
-        items = kwargs.items()
+        items: Iterable[tuple[str, ValueT | ResolvableValueT]] = kwargs.items()
         if isinstance(other, Mapping):
-            items = chain(items, other.items())
+            items = chain(items, other.items())  # ty:ignore[invalid-assignment]
         elif isinstance(other, Sequence):
-            items = chain(items, other)
+            items = chain(items, other)  # ty:ignore[invalid-assignment]
         self._upstream.update(
             {
                 self._key_resolver(key): self._value_resolver(value)  # ty:ignore[invalid-argument-type]

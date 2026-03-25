@@ -992,7 +992,9 @@ class GrampsLoader:
             assert name is not None
             names.append(
                 Name(
-                    StaticTranslations({language or None: name}),
+                    StaticTranslations(
+                        {language: name},  # ty:ignore[invalid-argument-type]
+                    ),
                     date=date,
                 )
             )

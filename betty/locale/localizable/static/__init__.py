@@ -153,7 +153,7 @@ class CountableStaticTranslations(CountableLocalizable, Portable):
             {
                 locale: self._translations[locale][locale.plural_form(count)]
                 for locale in self._translations
-            }
+            }  # ty:ignore[invalid-argument-type]
         ).format(count=str(count))
 
     @override
@@ -296,7 +296,7 @@ class StaticTranslations(Localizable, Portable):
         if type(other) is cls:
             return other  # ty:ignore[invalid-return-type]
         return cls(
-            {localizer.locale: other.localize(localizer) for localizer in localizers}
+            {localizer.locale: other.localize(localizer) for localizer in localizers}  # ty:ignore[invalid-argument-type]
         )
 
     @override
@@ -319,4 +319,4 @@ class StaticTranslations(Localizable, Portable):
             # Explicitly cast to a string because pyyaml cannot dump ``str`` subclasses.
             to_language_tag(locale): str(translation)
             for locale, translation in self.translations.items()
-        }
+        }  # ty:ignore[invalid-return-type]
