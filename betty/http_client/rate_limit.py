@@ -16,7 +16,6 @@ from betty.service.plugin import Requires, ServicePluginDefinition
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
-    import builtins
     from collections.abc import Iterable, MutableMapping
 
     from aiohttp.client_middlewares import ClientHandlerType
@@ -127,5 +126,5 @@ class RateLimitManufacturer(PluginManufacturer[RateLimitDefinition, RateLimit]):
 
     @override
     @classmethod
-    def type(cls) -> builtins.type[RateLimitDefinition]:
+    def plugin_type(cls) -> type[RateLimitDefinition]:
         return RateLimitDefinition

@@ -4,15 +4,12 @@ Presence roles.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final, override
+from typing import final, override
 
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.factory import PluginManufacturer
-
-if TYPE_CHECKING:
-    import builtins
 
 
 class Role(Plugin["RoleDefinition"]):
@@ -42,5 +39,5 @@ class RoleManufacturer(PluginManufacturer[RoleDefinition, Role]):
 
     @override
     @classmethod
-    def type(cls) -> builtins.type[RoleDefinition]:
+    def plugin_type(cls) -> type[RoleDefinition]:
         return RoleDefinition

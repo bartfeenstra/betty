@@ -2,7 +2,6 @@
 JavaScript resources for HTML pages.
 """
 
-import builtins
 from typing import Any, final, override
 
 from betty.locale.localizable.gettext import _, ngettext
@@ -70,5 +69,5 @@ class JsResourceManufacturer(PluginManufacturer[JsResourceDefinition, JsResource
 
     @override
     @classmethod
-    def type(cls) -> builtins.type[JsResourceDefinition]:
+    def plugin_type(cls) -> type[JsResourceDefinition]:
         return JsResourceDefinition

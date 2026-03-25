@@ -1,4 +1,3 @@
-import builtins
 from typing import TYPE_CHECKING, final, override
 
 import pytest
@@ -44,7 +43,7 @@ class _DataManufacturableDummyPluginManufacturer(
 ):
     @override
     @classmethod
-    def type(cls) -> builtins.type[_DataManufacturableDummyPluginDefinition]:
+    def plugin_type(cls) -> type[_DataManufacturableDummyPluginDefinition]:
         return _DataManufacturableDummyPluginDefinition
 
 

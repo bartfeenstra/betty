@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Awaitable, Callable
-from typing import TYPE_CHECKING, Any, override
+from typing import Any, override
 
 import pytest
 
@@ -26,9 +26,6 @@ from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
 )
-
-if TYPE_CHECKING:
-    import builtins
 
 
 class _ServiceLevel(ServiceLevel):
@@ -84,7 +81,7 @@ class _ServicePluginManufacturer(
 ):
     @override
     @classmethod
-    def type(cls) -> builtins.type[_ServicePluginDefinition]:
+    def plugin_type(cls) -> type[_ServicePluginDefinition]:
         return _ServicePluginDefinition
 
 

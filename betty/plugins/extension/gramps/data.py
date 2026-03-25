@@ -66,7 +66,7 @@ class _PluginMappingProperty[PluginDefinitionT: PluginDefinition, PluginT: Plugi
                 ),
                 key=StrDefinition(label=gramps_label),
                 value=manufacturer,
-                label=manufacturer.type().type().label_plural,
+                label=manufacturer.plugin_type().type().label_plural,
             ),
             default=lambda: MutableResolvedMappingAdapter(
                 dict(
