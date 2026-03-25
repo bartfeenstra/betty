@@ -115,7 +115,7 @@ async def new_environment(project: Project, /) -> Environment:
             ],
             "today": Date(today.year, today.month, today.day),
         }
-    )
+    )  # ty:ignore[no-matching-overload]
     environment.filters.update(
         {
             kebab_case_to_snake_case(filter.plugin().id): filter.__call__

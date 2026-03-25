@@ -95,7 +95,7 @@ class Samples(
         samples: Iterable[
             Callable[[], Sample[_SampleT]]
             | Samples[_SampleT]
-            | type[Intersection[_SampleT, Samplable]]
+            | type[Intersection[_SampleT, Samplable[_SampleT]]]
         ],
     ):
         self._samples = list(samples)
@@ -105,7 +105,7 @@ class Samples(
             if isinstance(sample, Samples):
                 yield from sample
             elif isinstance(sample, type) and issubclass(sample, Samplable):
-                yield from sample.samples()
+                yield from sample.samples()  # ty:ignore[invalid-yield]
             else:
                 yield sample()
 

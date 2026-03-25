@@ -24,7 +24,7 @@ class TestLocalizableProperty:
         instance = self._Instance()
         translation = "Hello, world!"
         locale = "nl-NL"
-        instance.attr = {
+        instance.attr = {  # ty:ignore[invalid-assignment]
             DEFAULT_LOCALE_TAG: "Hello, world!",
             locale: translation,
         }
@@ -51,7 +51,7 @@ class TestCountableLocalizableProperty:
                 "other": "{count} worlds",
             },
         }
-        instance.attr = translation
+        instance.attr = translation  # ty:ignore[invalid-assignment]
         assert instance.attr.count(2).localize(DEFAULT_LOCALIZER) == "2 worlds"
 
     def test___set____with_mapping(self) -> None:
@@ -62,5 +62,5 @@ class TestCountableLocalizableProperty:
                 "other": "{count} worlds",
             },
         }
-        instance.attr = translation
+        instance.attr = translation  # ty:ignore[invalid-assignment]
         assert instance.attr.count(2).localize(DEFAULT_LOCALIZER) == "2 worlds"

@@ -16,6 +16,7 @@ from betty.locale.error import LocaleError
 from betty.locale.localizable import (
     Localizable,
     ResolvableLocalizable,
+    StaticTranslationsMapping,
     resolve_localizable,
 )
 from betty.locale.localizable.gettext import _
@@ -44,7 +45,7 @@ class WikipediaContributors(Manufacturable, CopyrightNotice):
     @require(App)
     async def new(cls, app: App, /) -> Self:
         http_client = await app.http_client
-        urls = {
+        urls: StaticTranslationsMapping = {
             DEFAULT_LOCALE: _copyright_url("en", "Wikipedia:Copyrights"),
         }
         try:

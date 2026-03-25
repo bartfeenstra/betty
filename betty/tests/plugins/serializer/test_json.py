@@ -1,13 +1,10 @@
-from typing import TYPE_CHECKING, override
+from typing import override
 
 import pytest
 
 from betty.plugins.serializer.json import Json
 from betty.serde import SerializationError, Serializer
 from betty.test_utils.serde import SerializerTestBase
-
-if TYPE_CHECKING:
-    from betty.portable import PortableData
 
 
 class TestJson(SerializerTestBase):
@@ -27,9 +24,10 @@ class TestJson(SerializerTestBase):
         assert portable == expected
 
     def test_dump(self) -> None:
-        portable: PortableData = {"hello": [123, "World!"]}
         sut = Json()
-        serialized = sut.dump(portable)
+        serialized = sut.dump(
+            {"hello": [123, "World!"]},  # ty:ignore[invalid-argument-type]
+        )
         assert (
             serialized
             == """

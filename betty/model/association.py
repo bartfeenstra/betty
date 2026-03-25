@@ -431,7 +431,7 @@ class _ToManyAssociation[
         if self._linked_data_embedded:
             return [
                 await associate.dump_linked_data(project) for associate in associates
-            ]
+            ]  # ty:ignore[invalid-return-type]
         return list(
             filter(
                 None,
@@ -440,7 +440,7 @@ class _ToManyAssociation[
                     for associate in associates
                 ],
             )
-        )
+        )  # ty:ignore[invalid-return-type]
 
 
 class _BidirectionalAssociation[OwnerT: Entity, AssociateT: Entity](

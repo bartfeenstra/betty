@@ -152,7 +152,7 @@ class TestPluginManufacturer:
     def test_load__with_configuration(self) -> None:
         configuration: PortableData = {
             "check": True,
-        }
+        }  # ty:ignore[invalid-assignment]
         sut = _DataManufacturableDummyPluginManufacturer.load(
             {
                 "plugin": _DataManufacturableDummyPluginOne.plugin().id,
@@ -172,7 +172,7 @@ class TestPluginManufacturer:
     def test_load_key__with_configuration(self) -> None:
         configuration: PortableData = {
             "check": True,
-        }
+        }  # ty:ignore[invalid-assignment]
         sut = _DataManufacturableDummyPluginManufacturer.load_key(
             {"data": configuration},
             Attr("plugin"),

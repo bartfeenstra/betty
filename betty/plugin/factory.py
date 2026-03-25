@@ -210,7 +210,7 @@ class PluginManufacturer[
             and issubclass(manufacturers, Plugin)
         ):
             return [cls.resolve(manufacturers)]
-        return list(map(cls.resolve, manufacturers))  # ty:ignore[invalid-argument-type]
+        return list(map(cls.resolve, manufacturers))
 
     @final
     @override

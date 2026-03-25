@@ -17,9 +17,11 @@ class TestWikipediaContributors(CopyrightNoticeTestBase):
     @pytest.fixture(
         params=[
             "https://example/com/en",
-            StaticTranslations({"en": "https://example/com/en"}),
             StaticTranslations(
-                {"en": "https://example/com/en", "nl": "https://example/com/en"}
+                {"en": "https://example/com/en"},  # ty:ignore[invalid-argument-type]
+            ),
+            StaticTranslations(
+                {"en": "https://example/com/en", "nl": "https://example/com/en"}  # ty:ignore[invalid-argument-type]
             ),
         ]
     )

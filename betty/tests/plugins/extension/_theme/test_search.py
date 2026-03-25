@@ -5,7 +5,6 @@ import pytest
 from betty.ancestry.name import Name
 from betty.app import App
 from betty.job import Context
-from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugins.entity.file import File
 from betty.plugins.entity.person import Person
@@ -248,12 +247,10 @@ class TestIndex:
             id=place_id,
             names=[
                 Name(
-                    StaticTranslations(
-                        {
-                            "en": "Netherlands",
-                            "nl": "Nederland",
-                        }
-                    )
+                    {
+                        "en": "Netherlands",
+                        "nl": "Nederland",
+                    },  # ty:ignore[invalid-argument-type]
                 ),
             ],
         )
@@ -289,7 +286,9 @@ class TestIndex:
         place = Place(
             id=place_id,
             names=[
-                Name(StaticTranslations({"en": "Netherlands"})),
+                Name(
+                    {"en": "Netherlands"},  # ty:ignore[invalid-argument-type]
+                ),
             ],
             privacy=Privacy.PRIVATE,
         )

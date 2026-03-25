@@ -120,10 +120,10 @@ class TestStaticTranslations:
         assert StaticTranslations(localizable).dump() == localizable
 
     def test_dump_localizable__with_static_translations(self) -> None:
-        localizable = {
+        localizable: ShorthandStaticTranslations = {
             DEFAULT_LOCALE_TAG: "Hello, world!",
             "nl-NL": "Hallo, wereld!",
-        }
+        }  # ty:ignore[invalid-assignment]
 
         assert StaticTranslations(localizable).dump() == localizable
 

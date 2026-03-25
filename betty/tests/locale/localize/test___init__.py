@@ -133,5 +133,5 @@ def test_resolve_localized__with_shorthand_static_translations_mapping() -> None
     localizable: ShorthandStaticTranslations = {
         DEFAULT_LOCALE_TAG: "My First Localizable",
         locale: localized,
-    }
+    }  # ty:ignore[invalid-assignment]
     assert resolve_localized(localizable, localizer=localizer) == localized
