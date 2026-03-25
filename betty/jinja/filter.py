@@ -4,15 +4,12 @@ The Jinja filter API.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final, override
+from typing import final, override
 
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.factory import PluginManufacturer
 from betty.service.plugin import ServicePluginDefinition
-
-if TYPE_CHECKING:
-    import builtins
 
 
 class JinjaFilter(Plugin["JinjaFilterDefinition"]):
@@ -44,5 +41,5 @@ class JinjaFilterManufacturer(PluginManufacturer[JinjaFilterDefinition, JinjaFil
 
     @override
     @classmethod
-    def type(cls) -> builtins.type[JinjaFilterDefinition]:
+    def plugin_type(cls) -> type[JinjaFilterDefinition]:
         return JinjaFilterDefinition

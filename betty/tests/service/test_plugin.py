@@ -1,4 +1,3 @@
-import builtins
 from collections.abc import Iterable, Iterator, Mapping
 from importlib.metadata import EntryPoint, EntryPoints
 from typing import override
@@ -235,7 +234,7 @@ class DummyServicePluginManufacturer(
 ):
     @override
     @classmethod
-    def type(cls) -> builtins.type[DummyServicePluginDefinition]:
+    def plugin_type(cls) -> type[DummyServicePluginDefinition]:
         return DummyServicePluginDefinition
 
 
@@ -274,7 +273,7 @@ class DummyServicePluginRequirementManufacturer(
 ):
     @override
     @classmethod
-    def type(cls) -> builtins.type[DummyServicePluginRequirementDefinition]:
+    def plugin_type(cls) -> type[DummyServicePluginRequirementDefinition]:
         return DummyServicePluginRequirementDefinition
 
 
@@ -309,7 +308,7 @@ class DummyServicePluginOrderedManufacturer(
 ):
     @override
     @classmethod
-    def type(cls) -> builtins.type[DummyServicePluginOrderedDefinition]:
+    def plugin_type(cls) -> type[DummyServicePluginOrderedDefinition]:
         return DummyServicePluginOrderedDefinition
 
 
@@ -353,7 +352,7 @@ class DummyServicePluginAutoManufacturer(
 ):
     @override
     @classmethod
-    def type(cls) -> builtins.type[DummyServicePluginAutoDefinition]:
+    def plugin_type(cls) -> type[DummyServicePluginAutoDefinition]:
         return DummyServicePluginAutoDefinition
 
 

@@ -13,8 +13,6 @@ from betty.plugin.ordered import OrderedPluginDefinition
 from betty.service.plugin import ServicePluginDefinition
 
 if TYPE_CHECKING:
-    import builtins
-
     from betty.locale.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.plugin.ordered import Order
@@ -78,5 +76,5 @@ class ExtensionManufacturer(PluginManufacturer[ExtensionDefinition, Extension]):
 
     @override
     @classmethod
-    def type(cls) -> builtins.type[ExtensionDefinition]:
+    def plugin_type(cls) -> type[ExtensionDefinition]:
         return ExtensionDefinition

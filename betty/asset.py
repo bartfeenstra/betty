@@ -21,7 +21,6 @@ from betty.service.plugin import Requires, ServicePluginDefinition
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
-    import builtins
     from collections.abc import AsyncIterable, Iterable, Mapping, Sequence
 
     from betty.machine_name import ResolvableMachineName
@@ -217,5 +216,5 @@ class AssetManufacturer(PluginManufacturer[AssetDefinition, Asset]):
 
     @override
     @classmethod
-    def type(cls) -> builtins.type[AssetDefinition]:
+    def plugin_type(cls) -> type[AssetDefinition]:
         return AssetDefinition
