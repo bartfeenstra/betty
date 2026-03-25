@@ -110,6 +110,7 @@ class TestRaspberryMint:
                 (await sut.regional_content)[Region.FRONT_PAGE_CONTENT.value][0], Static
             )
 
+    @pytest.mark.order(0)
     @check_skip_webpack_entry_point_provider
     async def test_generate__html_list_for_third_party_entity(
         self, isolated_app: App

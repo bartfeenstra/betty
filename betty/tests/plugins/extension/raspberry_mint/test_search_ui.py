@@ -13,7 +13,10 @@ from betty.project import Project
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.project.generate import generate
 from betty.serve import Server
-from betty.tests.conftest import check_skip_playwright
+from betty.tests.conftest import (
+    check_skip_playwright,
+    check_skip_webpack_entry_point_provider,
+)
 
 
 class TestSearchUi:
@@ -38,7 +41,9 @@ class TestSearchUi:
                     yield project, server
 
     @pytest.mark.asyncio(loop_scope="session")
+    @pytest.mark.order(0)
     @check_skip_playwright
+    @check_skip_webpack_entry_point_provider
     async def test(self, page: Page, served_project: tuple[Project, Server]) -> None:
         project, server = served_project
         await page.goto(server.public_url)

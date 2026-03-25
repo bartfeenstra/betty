@@ -77,7 +77,7 @@ class TestBuilder:
                     tmp_path, context=context
                 )
             assert (
-                webpack_build_directory_path / "css" / "webpack" / "webpack-vendor.css"
+                webpack_build_directory_path / "css" / "webpack" / "main.css"
             ).exists()
             assert (
                 webpack_build_directory_path / "js" / "webpack-entry-loader.js"

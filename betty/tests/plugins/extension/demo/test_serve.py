@@ -18,6 +18,7 @@ if TYPE_CHECKING:
 
 @pytest.mark.usefixtures("demo_project_aioresponses")
 class TestDemoServer:
+    @pytest.mark.order(0)
     @check_skip_webpack_entry_point_provider
     async def test(
         self, mocker: MockerFixture, isolated_app_factory: IsolatedAppFactory
