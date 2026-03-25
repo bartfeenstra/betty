@@ -116,7 +116,7 @@ class IsolatedAppFactory(Protocol):
         process_pool: futures.ProcessPoolExecutor | None = None,
         user: User | None = None,
     ) -> AbstractAsyncContextManager[App]:
-        pass
+        raise NotImplementedError
 
 
 @pytest.fixture
