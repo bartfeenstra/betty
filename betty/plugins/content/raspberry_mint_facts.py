@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.content import ContentDefinition
 from betty.functools import unique
 from betty.locale.localizable.gettext import _
+from betty.plugins.asset.raspberry_mint import RaspberryMint
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.source import Source
@@ -31,6 +32,7 @@ if TYPE_CHECKING:
     description=_(
         "Other entities that reference a citation or source to back up their claims."
     ),
+    requires={RaspberryMint},
 )
 class Facts(Template, Manufacturable):
     """

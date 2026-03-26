@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.content import ContentDefinition
-from betty.extension import ExtensionDefinition
 from betty.locale.localizable.gettext import _
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.extension._theme import associated_file_references
@@ -26,7 +25,7 @@ if TYPE_CHECKING:
     "raspberry-mint-media-gallery",
     label=_("Media gallery"),
     description=_("Multiple files in a media gallery display"),
-    requires={ExtensionDefinition: {RaspberryMint}},
+    requires={RaspberryMint},
 )
 class MediaGallery(Template, Manufacturable):
     """

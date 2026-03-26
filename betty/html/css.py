@@ -6,10 +6,10 @@ from typing import Any, final, override
 
 from betty.locale.localizable.gettext import _, ngettext
 from betty.machine_name import ResolvableMachineName
-from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin import Plugin, PluginTypeDefinition, Requires
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import Order, OrderedPluginDefinition
-from betty.service.plugin import Requires, ServicePluginDefinition
+from betty.service.plugin import ServicePluginDefinition
 
 
 class CssResource(Plugin["CssResourceDefinition"]):
@@ -40,7 +40,7 @@ class CssResourceDefinition(
         resource: Any,
         auto: bool = False,
         before: Order | None = None,
-        requires: Requires | None = None,
+        requires: Requires = (),
     ):
         super().__init__(
             plugin_id,

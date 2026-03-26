@@ -7,6 +7,8 @@ to start using these utilities.
 
 from __future__ import annotations
 
+from betty.extension import ExtensionManufacturer
+
 __all__ = [
     "assert_template_file",
     "assert_template_string",
@@ -49,6 +51,7 @@ if TYPE_CHECKING:
     from collections.abc import (  # noqa: I001
         AsyncIterator,
         Callable,
+        Iterable,
         Iterator,
         MutableMapping,
     )
@@ -372,12 +375,12 @@ async def _assert_template(
     *,
     data: MutableMapping[str, Any] | None = None,
     autoescape: bool | None = None,
-    extensions: set[ResolvablePluginId[ExtensionDefinition]] | None = None,
+    extensions: Iterable[ResolvablePluginId[ExtensionDefinition]] = (),
 ) -> AsyncIterator[tuple[str, Project]]:
-    async with Project.new_isolated(app) as project:
+    async with Project.new_isolated(
+        app, service_plugins=ExtensionManufacturer.resolve_sequence(extensions)
+    ) as project:
         project.configuration.debug = True
-        if extensions is not None:
-            project.configuration.extensions.add(*extensions)
         async with project:
             if data is None:
                 data = {}
@@ -398,7 +401,7 @@ class AssertTemplateString(Protocol):
         *,
         data: MutableMapping[str, Any] | None = None,
         autoescape: bool | None = None,
-        extensions: set[ResolvablePluginId[ExtensionDefinition]] | None = None,
+        extensions: Iterable[ResolvablePluginId[ExtensionDefinition]] = (),
     ) -> AbstractAsyncContextManager[tuple[str, Project]]:
         """
         Assert that a template string can be rendered.
@@ -416,7 +419,7 @@ def assert_template_string(isolated_app: App) -> AssertTemplateString:
         *,
         data: MutableMapping[str, Any] | None = None,
         autoescape: bool | None = None,
-        extensions: set[ResolvablePluginId[ExtensionDefinition]] | None = None,
+        extensions: Iterable[ResolvablePluginId[ExtensionDefinition]] = (),
     ) -> AbstractAsyncContextManager[tuple[str, Project]]:
         return _assert_template(
             isolated_app,
@@ -438,7 +441,7 @@ class AssertTemplateFile(Protocol):
         *,
         data: MutableMapping[str, Any] | None = None,
         autoescape: bool | None = None,
-        extensions: set[ResolvablePluginId[ExtensionDefinition]] | None = None,
+        extensions: Iterable[ResolvablePluginId[ExtensionDefinition]] = (),
     ) -> AbstractAsyncContextManager[tuple[str, Project]]:
         """
         Assert that a template file can be rendered.
@@ -456,7 +459,7 @@ def assert_template_file(isolated_app: App) -> AssertTemplateFile:
         *,
         data: MutableMapping[str, Any] | None = None,
         autoescape: bool | None = None,
-        extensions: set[ResolvablePluginId[ExtensionDefinition]] | None = None,
+        extensions: Iterable[ResolvablePluginId[ExtensionDefinition]] = (),
     ) -> AbstractAsyncContextManager[tuple[str, Project]]:
         return _assert_template(
             isolated_app,

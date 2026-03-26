@@ -13,6 +13,7 @@ from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.enum import EnumDefinition
 from betty.locale.localizable.gettext import _
 from betty.plugin.data.property import PluginManufacturerSequenceProperty
+from betty.plugins.asset.raspberry_mint import RaspberryMint
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.extension.raspberry_mint import ColorStyle as RaspberryMintColorStyle
 from betty.project import Project
@@ -72,7 +73,9 @@ class ColorStyleConfiguration(Data):
 
 
 @final
-@ContentDefinition("raspberry-mint-color-style", label=_("Color style"))
+@ContentDefinition(
+    "raspberry-mint-color-style", label=_("Color style"), requires={RaspberryMint}
+)
 class ColorStyle(Template, DataManufacturable[ColorStyleConfiguration]):
     """
     Change the color style for all containing content.

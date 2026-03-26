@@ -65,11 +65,10 @@ class TestDemo:
         async with (
             isolated_app_factory() as app,
             app,
-            Project.new_isolated(app) as project,
+            Project.new_isolated(app, service_plugins=[Demo]) as project,
+            project,
         ):
-            project.configuration.extensions.add(Demo)
-            async with project:
-                await load(project)
+            await load(project)
             assert len(project.ancestry[Person]) != 0
             assert len(project.ancestry[Place]) != 0
             assert len(project.ancestry[Event]) != 0

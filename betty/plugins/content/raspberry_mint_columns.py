@@ -24,6 +24,7 @@ from betty.data.enum import EnumDefinition
 from betty.data.int import IntDefinition
 from betty.locale.localizable.gettext import _
 from betty.plugin.data import PluginManufacturerSequenceDefinition
+from betty.plugins.asset.raspberry_mint import RaspberryMint
 from betty.plugins.content.render import Render, RenderConfiguration
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.extension.raspberry_mint import Breakpoint, JustifyContent
@@ -215,7 +216,9 @@ class ColumnsConfiguration(Data):
 
 
 @final
-@ContentDefinition("raspberry-mint-columns", label=_("Columns"))
+@ContentDefinition(
+    "raspberry-mint-columns", label=_("Columns"), requires={RaspberryMint}
+)
 class Columns(Template, DataManufacturable[ColumnsConfiguration]):
     """
     A container with one or more columns.

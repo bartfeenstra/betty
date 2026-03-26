@@ -31,7 +31,7 @@ from betty.portable.file import assert_load_file
 from betty.service.factory import DataManufacturable
 from betty.service.level import ChainedServiceLevel, Plugins, ServiceLevel
 from betty.service.level.universe import UNIVERSE
-from betty.service.plugin import ServicePluginManager, ServicePluginProvider
+from betty.service.plugin import ServicePluginProvider, ServicePlugins, SupportPlugins
 from betty.service.provider import ServiceFactory, service
 from betty.typing import threadsafe
 from betty.user.no_op import NoOpUser
@@ -46,6 +46,9 @@ if TYPE_CHECKING:
     from betty.plugin import PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.user import User
+
+
+type AppServicePlugin = AssetDefinition | RateLimitDefinition
 
 
 @final
@@ -72,13 +75,22 @@ class App(
         locale: ResolvableLocale | None = None,
         plugins: Plugins | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
+        service_plugins: ServicePlugins[AppServicePlugin] = (),
+        support_plugins: SupportPlugins = (),
         translations: TranslationRepository | None = None,
         user: User | None = None,
     ):
         from betty.rich.user import RichUser
 
         cls = type(self)
-        super().__init__(plugins=plugins, upstream=UNIVERSE)
+        super().__init__(
+            plugins=plugins,
+            service_plugin_types={AssetDefinition, RateLimitDefinition},
+            service_plugins=service_plugins,
+            support_plugins=support_plugins,
+            service_plugin_services=self,
+            upstream=UNIVERSE,
+        )
         self.life_cycle.on_bootstrap(self._bootstrap_localizer)
         self._locale = DEFAULT_LOCALE if locale is None else resolve_locale(locale)
         self._user = user or RichUser()
@@ -163,20 +175,6 @@ class App(
                 if translations is False
                 else translations,
             )
-
-    @override
-    @service
-    async def service_plugins(self) -> ServicePluginManager:
-        service_plugins = ServicePluginManager(
-            {
-                AssetDefinition: (),
-                RateLimitDefinition: (),
-            },
-            services=self,
-        )
-        await service_plugins.bootstrap()
-        self.life_cycle.attach(service_plugins)
-        return service_plugins
 
     @property
     def user(self) -> User:

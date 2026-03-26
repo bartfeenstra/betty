@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.ancestry.has_citations import HasCitations
 from betty.content import ContentDefinition
 from betty.locale.localizable.gettext import _
+from betty.plugins.asset.raspberry_mint import RaspberryMint
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project
 from betty.requirement import require
@@ -19,7 +20,9 @@ if TYPE_CHECKING:
 
 
 @final
-@ContentDefinition("raspberry-mint-citations", label=_("Citations"))
+@ContentDefinition(
+    "raspberry-mint-citations", label=_("Citations"), requires={RaspberryMint}
+)
 class Citations(Template, Manufacturable):
     """
     The citations for a document resource that is an entity.

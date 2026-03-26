@@ -8,7 +8,6 @@ from betty.locale.translation import AssetTranslationRepository
 from betty.plugins.content.raspberry_mint_incomplete_translation_warning import (
     IncompleteTranslationWarning,
 )
-from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.project import Project
 
 
@@ -16,11 +15,14 @@ class TestIncompleteTranslationWarning:
     async def test_build_template__with_complete_translations(
         self, isolated_app: App
     ) -> None:
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(RaspberryMint)
-            async with project:
-                sut = await IncompleteTranslationWarning.new(project)
-                actual = await sut.build(document=Document())
+        async with (
+            Project.new_isolated(
+                isolated_app, support_plugins=[IncompleteTranslationWarning]
+            ) as project,
+            project,
+        ):
+            sut = await IncompleteTranslationWarning.new(project)
+            actual = await sut.build(document=Document())
         assert actual is None
 
     async def test_build_template__with_incomplete_translations(
@@ -34,9 +36,10 @@ class TestIncompleteTranslationWarning:
                 ),
             ) as app,
             app,
-            Project.new_isolated(app) as project,
+            Project.new_isolated(
+                app, support_plugins=[IncompleteTranslationWarning]
+            ) as project,
         ):
-            project.configuration.extensions.add(RaspberryMint)
             project.configuration.locales = ["nl"]
             async with project:
                 sut = await IncompleteTranslationWarning.new(project)

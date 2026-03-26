@@ -12,7 +12,6 @@ from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.presence import Presence
-from betty.plugins.extension.maps import Maps
 from betty.plugins.role.subject import Subject
 from betty.project import Project
 
@@ -21,11 +20,12 @@ class TestMap:
     async def test_build_template__without_supported_entity(
         self, isolated_app: App
     ) -> None:
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(Maps)
-            async with project:
-                sut = await Map.new(project)
-                assert await sut.build(document=Document()) is None
+        async with (
+            Project.new_isolated(isolated_app, support_plugins=[Map]) as project,
+            project,
+        ):
+            sut = await Map.new(project)
+            assert await sut.build(document=Document()) is None
 
     @pytest.mark.parametrize(
         "has_associated_places",
@@ -38,17 +38,18 @@ class TestMap:
     async def test_build_template__with_entity_without_places(
         self, has_associated_places: Entity, isolated_app: App
     ) -> None:
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(Maps)
-            async with project:
-                project.ancestry.add(has_associated_places)
-                sut = await Map.new(project)
-                assert (
-                    await sut.build(
-                        document=await project.new_document(has_associated_places)
-                    )
-                    is None
+        async with (
+            Project.new_isolated(isolated_app, support_plugins=[Map]) as project,
+            project,
+        ):
+            project.ancestry.add(has_associated_places)
+            sut = await Map.new(project)
+            assert (
+                await sut.build(
+                    document=await project.new_document(has_associated_places)
                 )
+                is None
+            )
 
     @staticmethod
     def _has_map_entities_params() -> Iterator[tuple[Entity, Place]]:
@@ -72,13 +73,14 @@ class TestMap:
         self, has_map_entities: tuple[Entity, Place], isolated_app: App
     ) -> None:
         has_associated_places, place = has_map_entities
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(Maps)
-            async with project:
-                project.ancestry.add(has_associated_places)
-                sut = await Map.new(project)
-                document = await project.new_document(has_associated_places)
-                actual = await sut.build(document=document)
+        async with (
+            Project.new_isolated(isolated_app, support_plugins=[Map]) as project,
+            project,
+        ):
+            project.ancestry.add(has_associated_places)
+            sut = await Map.new(project)
+            document = await project.new_document(has_associated_places)
+            actual = await sut.build(document=document)
         assert actual is not None
         assert place.public_id in actual
         assert "webpack_js_entry_points" in document

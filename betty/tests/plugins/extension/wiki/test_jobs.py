@@ -15,10 +15,11 @@ class TestPopulateEntity:
     async def test_do(self, mocker: MockerFixture, isolated_app: App) -> None:
         m_populate = mocker.patch("betty.wiki.populator.Populator.populate")
         entity = DummyEntityOne()
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(Wiki)
-            async with project:
-                await do(PopulateEntity(entity, project=project))
+        async with (
+            Project.new_isolated(isolated_app, service_plugins=[Wiki]) as project,
+            project,
+        ):
+            await do(PopulateEntity(entity, project=project))
         m_populate.assert_awaited_once_with(entity)
 
     async def test_do__with_link(
@@ -26,15 +27,16 @@ class TestPopulateEntity:
     ) -> None:
         m_populate = mocker.patch("betty.wiki.populator.Populator.populate")
         link = Link("https://en.wikipedia.org/wiki/Amsterdam")
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(Wiki)
-            async with project:
-                await do(
-                    PopulateLink(
-                        link,
-                        http_client=await project.upstream.http_client,
-                        localizers=[DEFAULT_LOCALIZER],
-                    ),
-                    PopulateEntity(link, project=project),
-                )
+        async with (
+            Project.new_isolated(isolated_app, service_plugins=[Wiki]) as project,
+            project,
+        ):
+            await do(
+                PopulateLink(
+                    link,
+                    http_client=await project.upstream.http_client,
+                    localizers=[DEFAULT_LOCALIZER],
+                ),
+                PopulateEntity(link, project=project),
+            )
         m_populate.assert_awaited_once_with(link)

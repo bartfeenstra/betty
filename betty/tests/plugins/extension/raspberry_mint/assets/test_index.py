@@ -25,54 +25,60 @@ def file() -> str:
 async def test_regional_content_front_page_summary(
     file: str, isolated_app: App
 ) -> None:
-    async with Project.new_isolated(isolated_app) as project:
-        project.configuration.extensions.add(
-            ExtensionManufacturer(
-                RaspberryMint,
-                RaspberryMintConfiguration(
-                    regional_content={
-                        Region.FRONT_PAGE_SUMMARY: [
-                            ContentManufacturer(
-                                Render,
-                                RenderConfiguration("Hello, world!"),
-                            ),
-                        ]
-                    }
-                ),
-            )
+    async with (
+        Project.new_isolated(
+            isolated_app,
+            service_plugins=[
+                ExtensionManufacturer(
+                    RaspberryMint,
+                    RaspberryMintConfiguration(
+                        regional_content={
+                            Region.FRONT_PAGE_SUMMARY: [
+                                ContentManufacturer(
+                                    Render,
+                                    RenderConfiguration("Hello, world!"),
+                                ),
+                            ]
+                        }
+                    ),
+                )
+            ],
+        ) as project,
+        project,
+    ):
+        environment = await project.jinja
+        actual = await environment.from_string(file).render_async(
+            document=await project.new_document()
         )
-
-        async with project:
-            environment = await project.jinja
-            actual = await environment.from_string(file).render_async(
-                document=await project.new_document()
-            )
     assert "Hello, world!" in actual
 
 
 async def test_regional_content_front_page_content(
     file: str, isolated_app: App
 ) -> None:
-    async with Project.new_isolated(isolated_app) as project:
-        project.configuration.extensions.add(
-            ExtensionManufacturer(
-                RaspberryMint,
-                RaspberryMintConfiguration(
-                    regional_content={
-                        Region.FRONT_PAGE_CONTENT: [
-                            ContentManufacturer(
-                                Render,
-                                RenderConfiguration("Hello, world!"),
-                            ),
-                        ]
-                    }
-                ),
-            )
+    async with (
+        Project.new_isolated(
+            isolated_app,
+            service_plugins=[
+                ExtensionManufacturer(
+                    RaspberryMint,
+                    RaspberryMintConfiguration(
+                        regional_content={
+                            Region.FRONT_PAGE_CONTENT: [
+                                ContentManufacturer(
+                                    Render,
+                                    RenderConfiguration("Hello, world!"),
+                                ),
+                            ]
+                        }
+                    ),
+                )
+            ],
+        ) as project,
+        project,
+    ):
+        environment = await project.jinja
+        actual = await environment.from_string(file).render_async(
+            document=await project.new_document()
         )
-
-        async with project:
-            environment = await project.jinja
-            actual = await environment.from_string(file).render_async(
-                document=await project.new_document()
-            )
     assert "Hello, world!" in actual

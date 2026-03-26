@@ -7,17 +7,20 @@ from typing import Self, final, override
 from betty.content import ContentDefinition
 from betty.document import Document
 from betty.locale.localizable.gettext import _
+from betty.plugins.asset.maps import Maps
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
+from betty.plugins.extension.webpack import Webpack
+from betty.plugins.jinja_filter.webpack_entry_point_js import WebpackEntryPointJs
 from betty.project import Project
 from betty.requirement import require
 from betty.service.factory import Manufacturable
 
 
 @final
-@ContentDefinition("map", label=_("Map"))
+@ContentDefinition("map", label=_("Map"), requires={Maps, Webpack, WebpackEntryPointJs})
 class Map(Template, Manufacturable):
     """
     An interactive map.

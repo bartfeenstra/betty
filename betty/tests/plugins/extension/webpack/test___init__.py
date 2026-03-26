@@ -24,13 +24,14 @@ class TestWebpack:
         ) as f:
             await f.write(self._SENTINEL)
 
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(Webpack)
-            async with project:
-                await generate(project)
+        async with (
+            Project.new_isolated(isolated_app, service_plugins=[Webpack]) as project,
+            project,
+        ):
+            await generate(project)
 
-                async with aiofiles.open(project.www_directory / self._SENTINEL) as f:
-                    assert await f.read() == self._SENTINEL
+            async with aiofiles.open(project.www_directory / self._SENTINEL) as f:
+                assert await f.read() == self._SENTINEL
 
     async def test_new_document_vars(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:

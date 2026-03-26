@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.content import ContentDefinition
 from betty.locale.localizable.gettext import _
+from betty.plugins.asset.raspberry_mint import RaspberryMint
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
@@ -22,7 +23,9 @@ if TYPE_CHECKING:
 
 
 @final
-@ContentDefinition("raspberry-mint-timeline", label=_("Timeline"))
+@ContentDefinition(
+    "raspberry-mint-timeline", label=_("Timeline"), requires={RaspberryMint}
+)
 class Timeline(Template, Manufacturable):
     """
     A timeline of events.

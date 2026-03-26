@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.content import ContentDefinition
 from betty.locale.localizable.gettext import _
+from betty.plugins.asset.raspberry_mint import RaspberryMint
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.file import File
 from betty.project import Project
@@ -23,6 +24,7 @@ if TYPE_CHECKING:
     "raspberry-mint-media",
     label=_("Media"),
     description=_("A single file in a media display"),
+    requires={RaspberryMint},
 )
 class Media(Template, Manufacturable):
     """

@@ -12,9 +12,10 @@ class TestTrees:
     @pytest.mark.order(0)
     @check_skip_webpack_entry_point_provider
     async def test_generate(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project:
+        async with Project.new_isolated(
+            isolated_app, service_plugins=[Trees]
+        ) as project:
             project.configuration.debug = True
-            project.configuration.extensions.add(Trees)
             async with project:
                 await generate(project)
                 async with aiofiles.open(

@@ -28,38 +28,36 @@ class TestDeriver:
         )
         Presence(person, Subject(), event)
 
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(Deriver)
+        async with (
+            Project.new_isolated(isolated_app, service_plugins=[Deriver]) as project,
+            project,
+        ):
             project.ancestry.add(person)
-            async with project:
-                with record_added(project.ancestry) as added:
-                    await load(project)
+            with record_added(project.ancestry) as added:
+                await load(project)
 
-                assert len(person.presences) == 3
-                birth = [
-                    presence
-                    for presence in person.presences
-                    if presence.event.event_type.plugin().id == Birth.plugin().id
-                    or presence.event.event_type.plugin().indicates == Birth.plugin().id
-                ][0]
-                assert birth is not None
-                assert birth.event is not None
-                assert isinstance(birth.event, Event)
-                assert (
-                    DateRange(None, Date(1, 1, 1), end_is_boundary=True)
-                    == birth.event.date
-                )
-                end = [
-                    presence
-                    for presence in person.presences
-                    if presence.event.event_type.plugin().id == Death.plugin().id
-                    or presence.event.event_type.plugin().indicates == Death.plugin().id
-                ][0]
-                assert end is not None
-                assert end.event is not None
-                assert (
-                    DateRange(Date(1, 1, 1), start_is_boundary=True) == end.event.date
-                )
-                assert len(added[Event]) == 2
-                assert birth.event in added[Event]
-                assert end.event in added[Event]
+            assert len(person.presences) == 3
+            birth = [
+                presence
+                for presence in person.presences
+                if presence.event.event_type.plugin().id == Birth.plugin().id
+                or presence.event.event_type.plugin().indicates == Birth.plugin().id
+            ][0]
+            assert birth is not None
+            assert birth.event is not None
+            assert isinstance(birth.event, Event)
+            assert (
+                DateRange(None, Date(1, 1, 1), end_is_boundary=True) == birth.event.date
+            )
+            end = [
+                presence
+                for presence in person.presences
+                if presence.event.event_type.plugin().id == Death.plugin().id
+                or presence.event.event_type.plugin().indicates == Death.plugin().id
+            ][0]
+            assert end is not None
+            assert end.event is not None
+            assert DateRange(Date(1, 1, 1), start_is_boundary=True) == end.event.date
+            assert len(added[Event]) == 2
+            assert birth.event in added[Event]
+            assert end.event in added[Event]

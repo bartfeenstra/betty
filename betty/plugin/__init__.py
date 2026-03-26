@@ -15,9 +15,11 @@ from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.importlib import fully_qualified_name
 from betty.machine_name import MachineName, ResolvableMachineName
+from betty.requirement import Requirement, Requires, resolve_requirement
 
 if TYPE_CHECKING:
     import builtins
+    from collections.abc import Iterable
 
     from betty.locale.localizable import CountableLocalizable, ResolvableLocalizable
 
@@ -27,9 +29,10 @@ class PluginDefinition[BaseClsT](ClsDefinition[BaseClsT]):
     A plugin definition.
     """
 
-    def __init__(self, plugin_id: ResolvableMachineName, /):
+    def __init__(self, plugin_id: ResolvableMachineName, *, requires: Requires = ()):
         super().__init__()
         self._id = MachineName.resolve(plugin_id)
+        self._requires = tuple(map(resolve_requirement, requires))
 
     @classmethod
     def type(cls) -> PluginTypeDefinition[BaseClsT, Self]:
@@ -51,6 +54,13 @@ class PluginDefinition[BaseClsT](ClsDefinition[BaseClsT]):
         - Different plugin repositories **MAY** each have a plugin with the same ID.
         """
         return self._id
+
+    @property
+    def requires(self) -> Iterable[Requirement]:
+        """
+        The plugin's requirements.
+        """
+        return self._requires
 
     @override
     def _set_cls(self, cls: builtins.type[BaseClsT]) -> None:

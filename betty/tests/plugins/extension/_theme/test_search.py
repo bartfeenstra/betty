@@ -19,8 +19,9 @@ from betty.project.data import ProjectLocale
 
 class TestIndex:
     async def test_build_empty(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(RaspberryMint)
+        async with Project.new_isolated(
+            isolated_app, service_plugins=[RaspberryMint]
+        ) as project:
             project.configuration.locales.add(
                 ProjectLocale(
                     "en-US",
@@ -42,8 +43,9 @@ class TestIndex:
         person_id = "P1"
         person = Person(id=person_id)
 
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(RaspberryMint)
+        async with Project.new_isolated(
+            isolated_app, service_plugins=[RaspberryMint]
+        ) as project:
             project.configuration.locales.add(
                 ProjectLocale(
                     "en-US",
@@ -74,8 +76,9 @@ class TestIndex:
             individual=individual_name,
         )
 
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(RaspberryMint)
+        async with Project.new_isolated(
+            isolated_app, service_plugins=[RaspberryMint]
+        ) as project:
             project.configuration.locales.add(
                 ProjectLocale(
                     "en-US",
@@ -112,8 +115,9 @@ class TestIndex:
             individual=individual_name,
         )
 
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(RaspberryMint)
+        async with Project.new_isolated(
+            isolated_app, service_plugins=[RaspberryMint]
+        ) as project:
             project.configuration.locales.add(
                 ProjectLocale(
                     "en-US",
@@ -152,8 +156,9 @@ class TestIndex:
             affiliation=affiliation_name,
         )
 
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(RaspberryMint)
+        async with Project.new_isolated(
+            isolated_app, service_plugins=[RaspberryMint]
+        ) as project:
             project.configuration.locales.add(
                 ProjectLocale(
                     "en-US",
@@ -198,8 +203,9 @@ class TestIndex:
             affiliation=affiliation_name,
         )
 
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(RaspberryMint)
+        async with Project.new_isolated(
+            isolated_app, service_plugins=[RaspberryMint]
+        ) as project:
             project.configuration.locales.add(
                 ProjectLocale(
                     "en-US",
@@ -255,8 +261,9 @@ class TestIndex:
             ],
         )
 
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(RaspberryMint)
+        async with Project.new_isolated(
+            isolated_app, service_plugins=[RaspberryMint]
+        ) as project:
             project.configuration.locales.add(
                 ProjectLocale(
                     "en-US",
@@ -293,8 +300,9 @@ class TestIndex:
             privacy=Privacy.PRIVATE,
         )
 
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(RaspberryMint)
+        async with Project.new_isolated(
+            isolated_app, service_plugins=[RaspberryMint]
+        ) as project:
             project.configuration.locales.add(
                 ProjectLocale(
                     "en-US",
@@ -379,8 +387,9 @@ class TestIndex:
             description=description,
         )
 
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(RaspberryMint)
+        async with Project.new_isolated(
+            isolated_app, service_plugins=[RaspberryMint]
+        ) as project:
             project.configuration.locales.add(
                 ProjectLocale(
                     "en-US",
@@ -414,8 +423,9 @@ class TestIndex:
             privacy=Privacy.PRIVATE,
         )
 
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(RaspberryMint)
+        async with Project.new_isolated(
+            isolated_app, service_plugins=[RaspberryMint]
+        ) as project:
             project.configuration.locales.add(
                 ProjectLocale(
                     "en-US",

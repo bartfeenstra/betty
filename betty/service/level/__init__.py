@@ -10,8 +10,6 @@ from typing import TYPE_CHECKING, Any
 
 from betty.collection.keyed.adapter import KeyedCollectionAdapter
 from betty.collection.keyed.error import ErroringKeyedCollection
-from betty.plugin import PluginDefinition, resolve_plugin_type_id
-from betty.plugin.error import PluginTypeNotFound
 from betty.service.provider import service
 
 if TYPE_CHECKING:
@@ -19,18 +17,18 @@ if TYPE_CHECKING:
 
     from betty.collection.keyed import KeyedCollection
     from betty.machine_name import MachineName
+    from betty.plugin import PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.service.factory import Factory
     from betty.service.plugin import PluginManager
 
 
-class _PluginTypeNotFound(PluginTypeNotFound, KeyError):
-    pass
-
-
-type Plugins = Mapping[
-    type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
-]
+if TYPE_CHECKING:
+    type Plugins = Mapping[
+        type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
+    ]
+else:
+    type Plugins = Any
 
 
 class ServiceLevel:
@@ -69,7 +67,12 @@ class ServiceLevel:
         """
         The available plugin types and plugins.
         """
+        from betty.plugin import resolve_plugin_type_id
+        from betty.plugin.error import PluginTypeNotFound
         from betty.service.plugin import PluginManager
+
+        class _PluginTypeNotFound(PluginTypeNotFound, KeyError):
+            pass
 
         plugin_types = [
             entry_point.load()
@@ -100,11 +103,10 @@ class ChainedServiceLevel[UpstreamT: ServiceLevel = ServiceLevel](ServiceLevel):
     def __init__(
         self,
         *args: Any,
-        plugins: Plugins | None = None,
         upstream: UpstreamT,
         **kwargs: Any,
     ):
-        super().__init__(*args, plugins=plugins, **kwargs)
+        super().__init__(*args, **kwargs)
         self._upstream = upstream
 
     @property

@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.ancestry.has_links import HasLinks
 from betty.content import ContentDefinition
 from betty.locale.localizable.gettext import _
+from betty.plugins.asset.raspberry_mint import RaspberryMint
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project
 from betty.requirement import require
@@ -19,7 +20,9 @@ if TYPE_CHECKING:
 
 
 @final
-@ContentDefinition("raspberry-mint-external-links", label=_("External links"))
+@ContentDefinition(
+    "raspberry-mint-external-links", label=_("External links"), requires={RaspberryMint}
+)
 class ExternalLinks(Template, Manufacturable):
     """
     External links.

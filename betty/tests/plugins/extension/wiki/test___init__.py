@@ -19,19 +19,21 @@ class TestWiki:
             "betty.plugins.extension.wiki.jobs.PopulateEntity.do"
         )
 
-        async with Project.new_isolated(isolated_app) as project:
+        async with (
+            Project.new_isolated(isolated_app, service_plugins=[Wiki]) as project,
+            project,
+        ):
             entity = Link("https://example.com")
             project.ancestry.add(entity)
-            project.configuration.extensions.add(Wiki)
-            async with project:
-                await load(project)
+            await load(project)
 
             m_populate_ancestry.assert_awaited_once()
 
     async def test_client(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(Wiki)
-            async with project:
-                extensions = await project.extensions
-                wikipedia = extensions[Wiki]
-                await wikipedia.client
+        async with (
+            Project.new_isolated(isolated_app, service_plugins=[Wiki]) as project,
+            project,
+        ):
+            extensions = await project.extensions
+            wikipedia = extensions[Wiki]
+            await wikipedia.client
