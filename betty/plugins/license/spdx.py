@@ -83,7 +83,7 @@ class SpdxLicenseDiscoverer(Manufacturable):
         """
         Discover SPDX licenses.
         """
-        return await (await cls.new(services)).discover()
+        return await (await cls.new(services)).discover()  # ty:ignore[invalid-argument-type]
 
     async def discover(self) -> Iterable[ResolvableDiscovery[LicenseDefinition]]:
         """

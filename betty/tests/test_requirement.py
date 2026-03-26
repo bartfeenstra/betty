@@ -94,25 +94,25 @@ async def _requirement(services: ServiceLevel, /) -> _ServiceLevel:
     raise UnmetRequirement("")
 
 
-@require(_requirement)
+@require(_requirement)  # ty:ignore[no-matching-overload]
 def _require_target_sync(services: _ServiceLevel, /) -> _ServiceLevel:
     return services
 
 
-@require(_requirement)
+@require(_requirement)  # ty:ignore[no-matching-overload]
 async def _require_target_async(services: _ServiceLevel, /) -> _ServiceLevel:
     return services
 
 
 class _RequireTargetClassMethod:
     @classmethod
-    @require(_requirement)
+    @require(_requirement)  # ty:ignore[no-matching-overload]
     async def target(cls, services: _ServiceLevel, /) -> _ServiceLevel:
         return services
 
 
 class _RequireTargetInstanceMethod:
-    @require(_requirement)
+    @require(_requirement)  # ty:ignore[no-matching-overload]
     async def target(self, services: _ServiceLevel, /) -> _ServiceLevel:
         return services
 
@@ -138,7 +138,7 @@ class TestRequire:
 
         sut = require(_requirement)
         with pytest.raises(UnmetRequirement):
-            await sut(_require_target)(ServiceLevel())
+            await sut(_require_target)(ServiceLevel())  # ty:ignore[no-matching-overload]
 
     async def test___call____with_requirement_met(
         self,
@@ -148,7 +148,7 @@ class TestRequire:
 
         sut = require(_requirement)
         services = _ServiceLevel()
-        assert await sut(_require_target)(services) is services
+        assert await sut(_require_target)(services) is services  # ty:ignore[no-matching-overload]
 
 
 class TestCallableRequire:
