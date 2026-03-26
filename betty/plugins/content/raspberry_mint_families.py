@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.content import ContentDefinition
 from betty.locale.localizable.gettext import _
+from betty.plugins.asset.raspberry_mint import RaspberryMint
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.person import Person
 from betty.plugins.extension._theme import person_descendant_families
@@ -20,7 +21,9 @@ if TYPE_CHECKING:
 
 
 @final
-@ContentDefinition("raspberry-mint-families", label=_("Families"))
+@ContentDefinition(
+    "raspberry-mint-families", label=_("Families"), requires={RaspberryMint}
+)
 class Families(Template, Manufacturable):
     """
     A person's families.

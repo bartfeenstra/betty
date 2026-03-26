@@ -116,9 +116,10 @@ class TestRaspberryMint:
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(
-            isolated_app, plugins={EntityDefinition: [DummyEntityOne]}
+            isolated_app,
+            plugins={EntityDefinition: [DummyEntityOne]},
+            service_plugins=[RaspberryMint],
         ) as project:
-            project.configuration.extensions.add(RaspberryMint)
             project.configuration.entity_types.add(
                 EntityTypeConfiguration(
                     entity_type=DummyEntityOne, generate_html_list=True

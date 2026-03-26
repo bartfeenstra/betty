@@ -74,23 +74,28 @@ class TestProject:
     async def test_bootstrap__should_initialize_extensions(
         self, isolated_app: App
     ) -> None:
-        async with Project.new_isolated(
-            isolated_app, plugins={ExtensionDefinition: [DummyExtensionOne]}
-        ) as sut:
-            sut.configuration.extensions.add(DummyExtensionOne)
-            async with sut:
-                extensions = await sut.extensions
-                extension = extensions[DummyExtensionOne]
-                assert extension.bootstrapped
+        async with (
+            Project.new_isolated(
+                isolated_app,
+                plugins={ExtensionDefinition: [DummyExtensionOne]},
+                service_plugins=[DummyExtensionOne],
+            ) as sut,
+            sut,
+        ):
+            extensions = await sut.extensions
+            extension = extensions[DummyExtensionOne]
+            assert extension.bootstrapped
 
     async def test_extensions(self, isolated_app: App) -> None:
-        async with Project.new_isolated(
-            isolated_app,
-            plugins={ExtensionDefinition: [DummyExtensionOne]},
-        ) as sut:
-            sut.configuration.extensions.add(DummyExtensionOne)
-            async with sut:
-                assert DummyExtensionOne in await sut.extensions
+        async with (
+            Project.new_isolated(
+                isolated_app,
+                plugins={ExtensionDefinition: [DummyExtensionOne]},
+                service_plugins=[DummyExtensionOne],
+            ) as sut,
+            sut,
+        ):
+            assert DummyExtensionOne in await sut.extensions
 
     async def test_ancestry__with___init___ancestry(self, isolated_app: App) -> None:
         ancestry = Ancestry()

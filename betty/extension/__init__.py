@@ -15,8 +15,8 @@ from betty.service.plugin import ServicePluginDefinition
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
+    from betty.plugin import Requires
     from betty.plugin.ordered import Order
-    from betty.service.plugin import Requires
 
 
 class Extension(ManagedLifeCycle, Plugin["ExtensionDefinition"]):
@@ -56,7 +56,7 @@ class ExtensionDefinition(
         description: ResolvableLocalizable | None = None,
         after: Order[ExtensionDefinition] | None = None,
         before: Order[ExtensionDefinition] | None = None,
-        requires: Requires | None = None,
+        requires: Requires = (),
     ):
         super().__init__(
             plugin_id,

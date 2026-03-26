@@ -14,10 +14,10 @@ from typing import TYPE_CHECKING, final, override
 from betty.concurrent import AsynchronizedLock
 from betty.functools import unique
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin import Plugin, PluginTypeDefinition, Requires
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import Order, OrderedPluginDefinition
-from betty.service.plugin import Requires, ServicePluginDefinition
+from betty.service.plugin import ServicePluginDefinition
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
@@ -189,7 +189,7 @@ class AssetDefinition(OrderedPluginDefinition[Asset], ServicePluginDefinition[As
         assets: Path,
         auto: bool = False,
         before: Order | None = None,
-        requires: Requires | None = None,
+        requires: Requires = (),
     ):
         super().__init__(
             plugin_id,

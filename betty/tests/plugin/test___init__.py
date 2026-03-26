@@ -16,11 +16,13 @@ from betty.plugin import (
     resolve_plugin_type_id,
 )
 from betty.plugin.ordered import OrderedPluginDefinition
+from betty.requirement import ServicePluginRequirement
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
 )
 from betty.test_utils.plugin import DummyPlugin, DummyPluginDefinition, DummyPluginOne
+from betty.test_utils.service.plugin import DummyServicePluginOne
 
 
 @final
@@ -80,6 +82,16 @@ class TestPluginDefinition:
         id = "my-first-plugin"  # noqa: A001
         sut = PluginDefinition(id)
         assert sut.id == id
+
+    def test_requires(self) -> None:
+        requires = list(
+            PluginDefinition(
+                "my-first-plugin-id", requires={DummyServicePluginOne}
+            ).requires
+        )
+        assert len(requires) == 1
+        assert isinstance(requires[0], ServicePluginRequirement)
+        assert requires[0].plugin is DummyServicePluginOne
 
 
 class _PluginCls(Plugin["_PluginDefinition"]):

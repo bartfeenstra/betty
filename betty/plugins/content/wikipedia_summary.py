@@ -15,9 +15,10 @@ from betty.jinja import Environment
 from betty.locale import negotiate_locale, resolve_locale
 from betty.locale.localizable.gettext import _
 from betty.locale.localize import LocalizerRepository
+from betty.plugins.asset.wiki import Wiki as WikiAsset
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.link import Link
-from betty.plugins.extension.wiki import Wiki
+from betty.plugins.extension.wiki import Wiki as WikiExtension
 from betty.project import Project
 from betty.requirement import require
 from betty.service.factory import Manufacturable
@@ -26,7 +27,11 @@ from betty.wiki.client import Client, ClientError, Summary
 
 
 @final
-@ContentDefinition("wikipedia-summary", label=_("Wikipedia summary"))
+@ContentDefinition(
+    "wikipedia-summary",
+    label=_("Wikipedia summary"),
+    requires={WikiAsset, WikiExtension},
+)
 class WikipediaSummary(Template, Manufacturable):
     """
     A Wikipedia summary.
@@ -52,7 +57,7 @@ class WikipediaSummary(Template, Manufacturable):
     @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(
-            client=await (await project.extensions)[Wiki].client,
+            client=await (await project.extensions)[WikiExtension].client,
             jinja=await project.jinja,
             localizers=await project.upstream.localizers,
             copyright_notice=await project.factory.new(

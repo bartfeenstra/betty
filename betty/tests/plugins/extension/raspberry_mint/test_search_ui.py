@@ -31,14 +31,13 @@ class TestSearchUi:
             TemporaryDirectory() as cache_directory_path_str,
             App.new_isolated(cache_directory=Path(cache_directory_path_str)) as app,
             app,
-            Project.new_isolated(app) as project,
+            Project.new_isolated(app, service_plugins=[RaspberryMint]) as project,
+            project,
         ):
-            project.configuration.extensions.add(RaspberryMint)
             project.ancestry[Person].add(person)
-            async with project:
-                await generate(project)
-                async with await serve.BuiltinProjectServer.new(project) as server:
-                    yield project, server
+            await generate(project)
+            async with await serve.BuiltinProjectServer.new(project) as server:
+                yield project, server
 
     @pytest.mark.asyncio(loop_scope="session")
     @pytest.mark.order(0)

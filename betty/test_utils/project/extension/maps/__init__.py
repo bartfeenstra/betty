@@ -18,7 +18,7 @@ from betty.plugins.entity.place import Place
 from betty.app import App
 from betty.plugin import ResolvablePluginId
 from betty.project import Project
-from betty.extension import ExtensionDefinition
+from betty.extension import ExtensionDefinition, ExtensionManufacturer
 from betty.plugins.extension.maps import Maps
 from betty.project.generate import generate
 from betty.serve import Server
@@ -55,9 +55,17 @@ class MapsTestBase:
             TemporaryDirectory() as cache_directory_path_str,
             App.new_isolated(cache_directory=Path(cache_directory_path_str)) as app,
             app,
-            Project.new_isolated(app) as project,
+            Project.new_isolated(
+                app,
+                service_plugins=[
+                    Maps,
+                    *ExtensionManufacturer.resolve_sequence(
+                        self.get_other_extensions()
+                    ),
+                ],
+            ) as project,
+            project,
         ):
-            project.configuration.extensions.add(Maps, *self.get_other_extensions())
             project.ancestry.add(
                 Place(
                     id=_PLACE_ID,
@@ -69,10 +77,9 @@ class MapsTestBase:
                 Path(__file__).parent / "assets",
                 project.assets_directory,
             )
-            async with project:
-                await generate(project)
-                async with await serve.BuiltinProjectServer.new(project) as server:
-                    yield server
+            await generate(project)
+            async with await serve.BuiltinProjectServer.new(project) as server:
+                yield server
 
     @pytest.mark.asyncio(loop_scope="session")
     @pytest.mark.order(0)

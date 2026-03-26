@@ -11,7 +11,7 @@ from __future__ import annotations
 from asyncio import gather
 from contextlib import AsyncExitStack, asynccontextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Self, final, override
+from typing import TYPE_CHECKING, Self, final
 
 from aiofiles.tempfile import TemporaryDirectory
 
@@ -45,7 +45,7 @@ from betty.privacy.privatizer import Privatizer
 from betty.project.data import ProjectConfiguration
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.service.level import ChainedServiceLevel
-from betty.service.plugin import ServicePluginManager, ServicePluginProvider
+from betty.service.plugin import ServicePluginProvider, ServicePlugins, SupportPlugins
 from betty.service.provider import service
 
 if TYPE_CHECKING:
@@ -60,6 +60,17 @@ if TYPE_CHECKING:
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.service.plugin import PluginCollection
     from betty.url import UrlGenerator
+
+
+type ProjectServicePlugin = (
+    AssetDefinition
+    | CssResourceDefinition
+    | ExtensionDefinition
+    | JinjaFilterDefinition
+    | JinjaTestDefinition
+    | JsResourceDefinition
+    | LinkDefinition
+)
 
 
 @final
@@ -88,11 +99,27 @@ class Project(ChainedServiceLevel[App], ServicePluginProvider):
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
         ]
         | None = None,
+        service_plugins: ServicePlugins[ProjectServicePlugin] = (),
+        support_plugins: SupportPlugins = (),
     ):
-        super().__init__(plugins=plugins, upstream=app)
+        super().__init__(
+            plugins=plugins,
+            service_plugin_types={
+                AssetDefinition,
+                CssResourceDefinition,
+                ExtensionDefinition,
+                JinjaFilterDefinition,
+                JinjaTestDefinition,
+                JsResourceDefinition,
+                LinkDefinition,
+            },
+            service_plugins=(*service_plugins, *configuration.extensions),
+            support_plugins=support_plugins,
+            service_plugin_services=self,
+            upstream=app,
+        )
         self.life_cycle.on_bootstrap(self._ensure_locale)
         self.life_cycle.on_bootstrap(self._validate)
-        self._app = app
         self._configuration = configuration
         self._directory = directory
         self._ancestry = Ancestry() if ancestry is None else ancestry
@@ -134,6 +161,8 @@ class Project(ChainedServiceLevel[App], ServicePluginProvider):
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
         ]
         | None = None,
+        service_plugins: ServicePlugins[ProjectServicePlugin] = (),
+        support_plugins: SupportPlugins = (),
     ) -> AsyncIterator[Self]:
         """
         Creat a new, isolated, temporary project.
@@ -154,26 +183,9 @@ class Project(ChainedServiceLevel[App], ServicePluginProvider):
                 else configuration,
                 ancestry=ancestry,
                 plugins=plugins,
+                service_plugins=service_plugins,
+                support_plugins=support_plugins,
             )
-
-    @override
-    @service
-    async def service_plugins(self) -> ServicePluginManager:
-        service_plugins = ServicePluginManager(
-            {
-                AssetDefinition: (),
-                CssResourceDefinition: (),
-                ExtensionDefinition: self.configuration.extensions,
-                JinjaFilterDefinition: (),
-                JinjaTestDefinition: (),
-                JsResourceDefinition: (),
-                LinkDefinition: (),
-            },
-            services=self,
-        )
-        await service_plugins.bootstrap()
-        self.life_cycle.attach(service_plugins)
-        return service_plugins
 
     @property
     def directory(self) -> Path:

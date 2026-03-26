@@ -5,17 +5,17 @@ from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.plugins.content.raspberry_mint_media import Media
 from betty.plugins.entity.file import File
-from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.project import Project
 
 
 class TestMedia:
     async def test_build_template__without_file(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(RaspberryMint)
-            async with project:
-                sut = await Media.new(project)
-                assert await sut.build(document=Document(object())) is None
+        async with (
+            Project.new_isolated(isolated_app, support_plugins=[Media]) as project,
+            project,
+        ):
+            sut = await Media.new(project)
+            assert await sut.build(document=Document(object())) is None
 
     async def test_build_template__with_file(self, isolated_app: App) -> None:
         resource = File(
@@ -26,10 +26,11 @@ class TestMedia:
             / "betty-16x16.png",
             media_type=MediaType("image/png"),
         )
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(RaspberryMint)
-            async with project:
-                sut = await Media.new(project)
-                actual = await sut.build(document=Document(resource))
+        async with (
+            Project.new_isolated(isolated_app, support_plugins=[Media]) as project,
+            project,
+        ):
+            sut = await Media.new(project)
+            actual = await sut.build(document=Document(resource))
         assert actual is not None
         assert resource.label.localize(DEFAULT_LOCALIZER) in actual

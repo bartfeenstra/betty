@@ -13,6 +13,7 @@ from betty.data.aggregate.record.object import ObjectDefinition
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName
 from betty.plugin import ResolvablePluginId, resolve_plugin_id
+from betty.plugins.asset.raspberry_mint import RaspberryMint
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.event import Event
 from betty.project import Project
@@ -81,7 +82,9 @@ class PresencesConfiguration(Data):
 
 
 @final
-@ContentDefinition("raspberry-mint-presences", label=_("Presences"))
+@ContentDefinition(
+    "raspberry-mint-presences", label=_("Presences"), requires={RaspberryMint}
+)
 class Presences(Template, DataManufacturable[PresencesConfiguration], Manufacturable):
     """
     People's presences at an event.

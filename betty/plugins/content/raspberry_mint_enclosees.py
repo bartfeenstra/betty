@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.content import ContentDefinition
 from betty.locale.localizable.gettext import _
+from betty.plugins.asset.raspberry_mint import RaspberryMint
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.place import Place
 from betty.project import Project
@@ -21,7 +22,9 @@ if TYPE_CHECKING:
 
 
 @final
-@ContentDefinition("raspberry-mint-enclosees", label=_("Enclosees"))
+@ContentDefinition(
+    "raspberry-mint-enclosees", label=_("Enclosees"), requires={RaspberryMint}
+)
 class Enclosees(Template, Manufacturable):
     """
     Show the places enclosed by a place document resource.

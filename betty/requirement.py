@@ -4,9 +4,8 @@ Requirements checking.
 
 from __future__ import annotations
 
-from contextlib import suppress
 from functools import partial, update_wrapper
-from typing import TYPE_CHECKING, Any, Concatenate, final, overload
+from typing import TYPE_CHECKING, Any, Concatenate, Never, final, overload
 
 from betty.asyncio import resolve_await
 from betty.exception import HumanFacingException
@@ -15,7 +14,7 @@ from betty.locale.localizable.gettext import _
 from betty.service.level import ChainedServiceLevel, ServiceLevel
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable, Callable
+    from collections.abc import Awaitable, Callable, Iterable
 
     from betty.plugin import Plugin
     from betty.service.plugin import ServicePluginDefinition
@@ -152,7 +151,7 @@ class ServicePluginRequirement[ServicePluginT: Plugin[ServicePluginDefinition]]:
         """
         return self._plugin
 
-    async def __call__(self, services: ServiceLevel, /) -> ServicePluginT:
+    async def __call__(self, services: ServiceLevel, /) -> ServicePluginT:  # noqa: RET503
         """
         Check the requirement.
         """
@@ -160,10 +159,21 @@ class ServicePluginRequirement[ServicePluginT: Plugin[ServicePluginDefinition]]:
 
         if isinstance(services, ServicePluginProvider):
             service_plugins = await services.service_plugins
-            with suppress(KeyError):
-                return service_plugins[type(self._plugin.plugin())][self._plugin]
+            try:
+                service_type_plugins = service_plugins[type(self._plugin.plugin())]
+            except KeyError:
+                if not isinstance(services, ChainedServiceLevel):
+                    self._raise()
+            else:
+                try:
+                    return service_type_plugins[self._plugin]
+                except KeyError:
+                    self._raise()
         if isinstance(services, ChainedServiceLevel):
             return await self(services.upstream)
+        self._raise()
+
+    def _raise(self) -> Never:
         raise UnmetRequirement(
             _("The {plugin_id} {plugin_type} is required.").format(
                 plugin_id=self._plugin.plugin().id,
@@ -178,8 +188,10 @@ if TYPE_CHECKING:
         | type[ServiceLevel]
         | type[Plugin[ServicePluginDefinition]]
     )
+    type Requires = Iterable[ResolvableRequirement]
 else:
     type ResolvableRequirement = Any
+    type Requires = Any
 
 
 def resolve_requirement(requirement: ResolvableRequirement[Any], /) -> Requirement[Any]:

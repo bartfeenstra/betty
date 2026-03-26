@@ -9,10 +9,10 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.concurrent import AsynchronizedLock, RateLimiter
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin import Plugin, PluginTypeDefinition, Requires
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import Order, OrderedPluginDefinition
-from betty.service.plugin import Requires, ServicePluginDefinition
+from betty.service.plugin import ServicePluginDefinition
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
@@ -111,7 +111,7 @@ class RateLimitDefinition(ServicePluginDefinition, OrderedPluginDefinition[RateL
         *,
         after: Order[RateLimitDefinition] | None = None,
         before: Order[RateLimitDefinition] | None = None,
-        requires: Requires | None = None,
+        requires: Requires = (),
     ):
         super().__init__(
             plugin_id, after=after, auto=True, before=before, requires=requires

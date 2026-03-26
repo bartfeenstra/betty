@@ -11,11 +11,12 @@ class TestHttpApiDoc:
     @pytest.mark.order(0)
     @check_skip_webpack_entry_point_provider
     async def test_generate(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(HttpApiDoc)
-            async with project:
-                await generate(project)
-                assert (project.www_directory / "api" / "index.html").is_file()
-                assert (
-                    project.www_directory / "js" / "webpack" / "http-api-doc.js"
-                ).is_file()
+        async with (
+            Project.new_isolated(isolated_app, service_plugins=[HttpApiDoc]) as project,
+            project,
+        ):
+            await generate(project)
+            assert (project.www_directory / "api" / "index.html").is_file()
+            assert (
+                project.www_directory / "js" / "webpack" / "http-api-doc.js"
+            ).is_file()

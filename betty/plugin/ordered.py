@@ -13,6 +13,8 @@ from betty.plugin import PluginDefinition, ResolvablePluginId, resolve_plugin_id
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    from betty.requirement import Requires
+
 
 class OrderedPluginDefinition[BaseClsT](PluginDefinition[BaseClsT]):
     """
@@ -25,9 +27,10 @@ class OrderedPluginDefinition[BaseClsT](PluginDefinition[BaseClsT]):
         *,
         after: Order[OrderedPluginDefinition[BaseClsT]] | None = None,
         before: Order[OrderedPluginDefinition[BaseClsT]] | None = None,
+        requires: Requires = (),
         **kwargs: Any,
     ):
-        super().__init__(plugin_id, **kwargs)
+        super().__init__(plugin_id, requires=requires, **kwargs)
         self._after = self.__resolve_order(after)
         self._before = self.__resolve_order(before)
 

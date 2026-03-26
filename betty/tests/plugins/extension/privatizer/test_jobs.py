@@ -49,12 +49,13 @@ class TestPrivatizeAncestry:
         )
         FileReference(citation, citation_file)
 
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.add(Privatizer)
+        async with (
+            Project.new_isolated(isolated_app, service_plugins=[Privatizer]) as project,
+            project,
+        ):
             project.ancestry.add(person, source, citation)
-            async with project:
-                await load(project)
+            await load(project)
 
-            assert person.private
-            assert source_file.private
-            assert citation_file.private
+        assert person.private
+        assert source_file.private
+        assert citation_file.private

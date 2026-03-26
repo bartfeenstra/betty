@@ -6,7 +6,6 @@ Service levels can expose services of plugin instances.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from asyncio import gather
 from collections import defaultdict
 from graphlib import TopologicalSorter
@@ -22,6 +21,7 @@ from typing import (
 
 from betty.collection.keyed import KeyedCollection
 from betty.concurrent import AsynchronizedLock
+from betty.importlib import fully_qualified_name
 from betty.life_cycle import LifeCycle
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.machine_name import MachineName, ResolvableMachineName
@@ -33,12 +33,11 @@ from betty.plugin import (
 )
 from betty.plugin.discovery import ResolvableDiscovery
 from betty.plugin.error import PluginNotFound
+from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.requirement import (
-    Requirement,
-    ResolvableRequirement,
     ServicePluginRequirement,
-    resolve_requirement,
+    UnmetRequirement,
 )
 from betty.service.provider import service
 from betty.string import kebab_case_to_snake_case
@@ -49,6 +48,7 @@ if TYPE_CHECKING:
     from collections.abc import (
         AsyncIterator,
         Awaitable,
+        Collection,
         Iterable,
         Iterator,
         Mapping,
@@ -56,7 +56,6 @@ if TYPE_CHECKING:
 
     from ty_extensions import Intersection
 
-    from betty.plugin.factory import PluginManufacturer
     from betty.service.level import ServiceLevel
 
 
@@ -181,9 +180,6 @@ class PluginManager[PluginDefinitionT: PluginDefinition]:
         return (await self._plugins()).keys()
 
 
-type Requires = Iterable[ResolvableRequirement]
-
-
 class ServicePluginDefinition[BaseClsT = Any](PluginDefinition[BaseClsT]):
     """
     A definition of a service plugin.
@@ -197,14 +193,10 @@ class ServicePluginDefinition[BaseClsT = Any](PluginDefinition[BaseClsT]):
         plugin_id: ResolvableMachineName,
         *args: Any,
         auto: bool = False,
-        requires: Requires | None = None,
         **kwargs: Any,
     ):
         super().__init__(plugin_id, *args, **kwargs)
         self._auto = auto
-        self._requires = (
-            () if requires is None else tuple(map(resolve_requirement, requires))
-        )
 
     @property
     def auto(self) -> bool:
@@ -213,20 +205,18 @@ class ServicePluginDefinition[BaseClsT = Any](PluginDefinition[BaseClsT]):
         """
         return self._auto
 
-    @property
-    def requires(self) -> Iterable[Requirement]:
-        """
-        The plugin's requirements.
-        """
-        return self._requires
 
-
-type ServicePluginManufacturers = Mapping[
-    type[ServicePluginDefinition],
-    Iterable[
-        PluginManufacturer[ServicePluginDefinition, Plugin[ServicePluginDefinition]]
-    ],
+type ServicePluginTypes[ServicePluginT: PluginDefinition = PluginDefinition] = (
+    Collection[type[ServicePluginT]]
+)
+type _Plugins[ServicePluginT: PluginDefinition = PluginDefinition] = Iterable[
+    PluginManufacturer[ServicePluginT, Plugin[ServicePluginT]]
+    | type[Plugin[ServicePluginT]]
 ]
+type ServicePlugins[
+    ServicePluginT: ServicePluginDefinition = ServicePluginDefinition
+] = _Plugins[ServicePluginT]
+type SupportPlugins = _Plugins[PluginDefinition]
 
 
 @final
@@ -235,40 +225,59 @@ class ServicePluginManager(ManagedLifeCycle):
     The service plugin manager.
     """
 
-    def __init__(
+    def __init__[ServicePluginTypesT: ServicePluginDefinition](
         self,
-        service_plugin_manufacturers: ServicePluginManufacturers | None,
-        *,
         services: ServiceLevel,
+        service_plugin_types: ServicePluginTypes[ServicePluginTypesT],
+        service_plugins: ServicePlugins[ServicePluginTypesT] = (),
+        support_plugins: SupportPlugins = (),
+        /,
     ):
         super().__init__()
-        self._service_plugin_manufacturers = (
-            {}
-            if service_plugin_manufacturers is None
-            else {
-                plugin_type: {plugin.plugin_id: plugin for plugin in plugins}
-                for plugin_type, plugins in service_plugin_manufacturers.items()
-            }
-        )
+        self._service_plugin_types = service_plugin_types
+        self._service_plugin_manufacturers = self._map_plugins(service_plugins)
+        self._support_plugins = self._map_plugins(support_plugins)
         self._service_plugins = {}
         self._services = services
         self.life_cycle.on_bootstrap(self._bootstrap)
 
+    def _map_plugins(self, plugins: _Plugins) -> Mapping:
+        plugin_map = defaultdict(dict)
+        for plugin in plugins:
+            if isinstance(plugin, PluginManufacturer):
+                (plugin_map[plugin.plugin_type()][plugin.plugin_id]) = plugin
+            else:
+                (plugin_map[type(plugin.plugin())][plugin.plugin().id]) = plugin
+        return plugin_map
+
     async def _bootstrap(self) -> None:
         sorter = TopologicalSorter[tuple[type[ServicePluginDefinition], MachineName]]()
         for (
-            plugin_type,
-            requested_plugins,
+            service_plugin_type,
+            service_plugin_manufacturers,
         ) in self._service_plugin_manufacturers.items():
-            auto_plugins = {
-                plugin.id
-                async for plugin in self._services.plugins[plugin_type]
-                if plugin.auto
-            }
-            for plugin in {*requested_plugins, *auto_plugins}:
-                await self._expand_requires(sorter, plugin_type, plugin)
+            for service_plugin_id in service_plugin_manufacturers:
+                if service_plugin_type not in self._service_plugin_types:
+                    raise UnmetRequirement(
+                        f"{fully_qualified_name(service_plugin_type)} is not a service plugin type on {fully_qualified_name(type(self._services))}."
+                    )
+                await self._expand_requires(
+                    sorter, service_plugin_type, service_plugin_id, True
+                )
+        for supported_plugin_type in self._support_plugins:
+            for supported_plugin_id in self._support_plugins[supported_plugin_type]:
+                await self._expand_requires(
+                    sorter, supported_plugin_type, supported_plugin_id, False
+                )
+        for service_plugin_type in self._service_plugin_types:
+            async for plugin in self._services.plugins[service_plugin_type]:
+                if plugin.auto:
+                    await self._expand_requires(sorter, type(plugin), plugin.id, True)
         sorter.prepare()
-        service_plugins = defaultdict(list)
+        service_plugins = {
+            service_plugin_type: []
+            for service_plugin_type in self._service_plugin_types
+        }
         while sorter.is_active():
             for plugin in await gather(
                 *map(self._bootstrap_plugin, sorter.get_ready())
@@ -328,29 +337,29 @@ class ServicePluginManager(ManagedLifeCycle):
         try:
             manufacturer = self._service_plugin_manufacturers[plugin_type][plugin_id]
         except KeyError:
-            return await self._services.factory.new(
-                (await self._services.plugins[plugin_type][plugin_id]).cls
-            )
-        return await manufacturer(self._services)
+            manufacturer = (await self._services.plugins[plugin_type][plugin_id]).cls
+        return await self._services.factory.new(manufacturer)
 
     async def _expand_requires(
         self,
         sorter: TopologicalSorter[tuple[type[ServicePluginDefinition], MachineName]],
         origin_type: type[ServicePluginDefinition],
         origin_id: MachineName,
+        include_origin: bool,
     ) -> None:
         origin = await self._services.plugins[origin_type][origin_id]
-        predecessors = set()
+        origin_predecessors = set()
         for requirement in origin.requires:
             if isinstance(requirement, ServicePluginRequirement):
                 requires_plugin = requirement.plugin.plugin()
                 requires_plugin_type = type(requires_plugin)
                 requires_plugin_id = requires_plugin.id
-                predecessors.add((requires_plugin_type, requires_plugin_id))
+                origin_predecessors.add((requires_plugin_type, requires_plugin_id))
                 await self._expand_requires(
-                    sorter, requires_plugin_type, requires_plugin_id
+                    sorter, requires_plugin_type, requires_plugin_id, True
                 )
-        sorter.add((origin_type, origin_id), *predecessors)
+        if include_origin:
+            sorter.add((origin_type, origin_id), *origin_predecessors)
 
     def __getitem__[ServicePluginDefinitionT: ServicePluginDefinition, PluginT: Plugin](
         self,
@@ -368,14 +377,38 @@ class ServicePluginManager(ManagedLifeCycle):
         return iter(self._service_plugins)
 
 
-class ServicePluginProvider(ManagedLifeCycle, ABC):
+class ServicePluginProvider(ManagedLifeCycle):
     """
     A service plugin provider.
     """
 
+    def __init__[ServicePluginTypesT: ServicePluginDefinition](
+        self,
+        *args: Any,
+        service_plugin_services: ServiceLevel,
+        service_plugin_types: ServicePluginTypes[ServicePluginTypesT] = (),
+        service_plugins: ServicePlugins[ServicePluginTypesT] = (),
+        support_plugins: SupportPlugins = (),
+        **kwargs: Any,
+    ):
+        super().__init__(*args, **kwargs)
+        self.__service_plugin_types = service_plugin_types
+        self.__service_plugins = service_plugins
+        self.__support_plugins = support_plugins
+        self.__service_plugin_services = service_plugin_services
+
+    @final
     @service
-    @abstractmethod
     async def service_plugins(self) -> ServicePluginManager:
         """
         The service plugins.
         """
+        service_plugins = ServicePluginManager(
+            self.__service_plugin_services,
+            self.__service_plugin_types,
+            self.__service_plugins,
+            self.__support_plugins,
+        )
+        await service_plugins.bootstrap()
+        self.life_cycle.attach(service_plugins)
+        return service_plugins
