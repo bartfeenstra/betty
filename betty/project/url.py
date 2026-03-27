@@ -55,13 +55,13 @@ class _ProjectUrlGenerator(Manufacturable):
         Create a new instance using the given project.
         """
         return cls(
-            project.configuration.base_url,
-            project.configuration.root_path,
+            project.base_url,
+            project.root_path,
             {
-                locale_configuration.locale: locale_configuration.slug
-                for locale_configuration in project.configuration.locales
+                project_locale.locale: project_locale.slug
+                for project_locale in project.locales
             },
-            project.configuration.clean_urls,
+            project.clean_urls,
         )
 
     def _generate_from_path(

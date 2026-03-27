@@ -100,7 +100,7 @@ class Specification:
             if not entity_type.public_facing:
                 continue
             await entity_type.cls.linked_data_schema(self._project)
-            if self._project.configuration.clean_urls:
+            if self._project.clean_urls:
                 collection_path = f"/{entity_type.id}/"
                 single_path = f"/{entity_type.id}/{{id}}/"
             else:

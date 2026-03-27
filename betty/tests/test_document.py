@@ -18,14 +18,13 @@ from betty.locale.localizable.plain import Plain
 from betty.locale.localize import Localizer
 from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.source import Source
-from betty.project import Project
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.model import DummyEntityOne
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
-    from betty.app import App
+    from betty.project import Project
 
 
 class TestBreadcrumbs:
@@ -48,27 +47,29 @@ class TestBreadcrumbs:
         sut.append(label, resource)
         assert len(sut) == 1
 
-    async def test_dump_linked_data__without_items(self, isolated_app: App) -> None:
+    async def test_dump_linked_data__without_items(
+        self, isolated_project: Project
+    ) -> None:
         sut = Breadcrumbs()
-        async with Project.new_isolated(isolated_app) as project, project:
-            assert await sut.dump_linked_data(project) == {}
+        assert await sut.dump_linked_data(isolated_project) == {}
 
-    async def test_dump_linked_data__with_items(self, isolated_app: App) -> None:
+    async def test_dump_linked_data__with_items(
+        self, isolated_project: Project
+    ) -> None:
         sut = Breadcrumbs()
         sut.append("My First Page", "betty:///my-first-page")
-        async with Project.new_isolated(isolated_app) as project, project:
-            assert await sut.dump_linked_data(project) == {
-                "@context": "https://schema.org",
-                "@type": "BreadcrumbList",
-                "itemListElement": [
-                    {
-                        "@type": "ListItem",
-                        "item": "https://example.com/my-first-page",
-                        "name": "My First Page",
-                        "position": 1,
-                    }
-                ],
-            }
+        assert await sut.dump_linked_data(isolated_project) == {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "item": "https://example.com/my-first-page",
+                    "name": "My First Page",
+                    "position": 1,
+                }
+            ],
+        }
 
 
 class TestBreadcrumb:
@@ -82,14 +83,15 @@ class TestBreadcrumb:
         sut = Breadcrumb("My First Page", resource_url)
         assert sut.resource_url == resource_url
 
-    async def test_dump_linked_data__with_items(self, isolated_app: App) -> None:
+    async def test_dump_linked_data__with_items(
+        self, isolated_project: Project
+    ) -> None:
         sut = Breadcrumb("My First Page", "betty:///my-first-page")
-        async with Project.new_isolated(isolated_app) as project, project:
-            assert await sut.dump_linked_data(project) == {
-                "@type": "ListItem",
-                "item": "https://example.com/my-first-page",
-                "name": "My First Page",
-            }
+        assert await sut.dump_linked_data(isolated_project) == {
+            "@type": "ListItem",
+            "item": "https://example.com/my-first-page",
+            "name": "My First Page",
+        }
 
 
 class TestCiter:

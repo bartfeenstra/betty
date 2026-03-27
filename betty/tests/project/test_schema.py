@@ -8,14 +8,14 @@ from betty.json.schema import JsonSchemaSchema
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
-from betty.project import Project
 from betty.project.schema import ProjectSchema
 from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from betty.app import App
+    from betty.project import Project
+    from betty.test_utils.conftest import IsolatedProjectFactory
 
 
 class TestProjectSchema(SchemaTestBase):
@@ -32,22 +32,21 @@ class TestProjectSchema(SchemaTestBase):
     @override
     @pytest.fixture(params=_sut_params())
     async def sut_data(
-        self, isolated_app: App, request: pytest.FixtureRequest
+        self,
+        isolated_project_factory: IsolatedProjectFactory,
+        request: pytest.FixtureRequest,
     ) -> SchemaTestBaseSut:
         url, clean_urls = request.param
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.url = url
-            project.configuration.clean_urls = clean_urls
-            async with project:
-                return (
-                    await ProjectSchema.new(project),
-                    [
-                        await Person().dump_linked_data(project),
-                        await Place().dump_linked_data(project),
-                        await Event().dump_linked_data(project),
-                    ],
-                    [],
-                )
+        async with isolated_project_factory(clean_urls=clean_urls, url=url) as project:
+            return (
+                await ProjectSchema.new(project),
+                [
+                    await Person().dump_linked_data(project),
+                    await Place().dump_linked_data(project),
+                    await Event().dump_linked_data(project),
+                ],
+                [],
+            )
 
     @pytest.mark.parametrize(
         "clean_urls",
@@ -56,20 +55,16 @@ class TestProjectSchema(SchemaTestBase):
             False,
         ],
     )
-    async def test_new(self, clean_urls: bool, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project, project:
-            sut = await ProjectSchema.new(project)
+    async def test_new(self, clean_urls: bool, isolated_project: Project) -> None:
+        sut = await ProjectSchema.new(isolated_project)
         JsonSchemaSchema().validate(sut.schema)
 
-    async def test_def_url(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project, project:
-            def_name = "myFirstDefinition"
-            assert def_name in await ProjectSchema.def_url(project, def_name)
+    async def test_def_url(self, isolated_project: Project) -> None:
+        def_name = "myFirstDefinition"
+        assert def_name in await ProjectSchema.def_url(isolated_project, def_name)
 
-    async def test_url(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project, project:
-            assert "http" in await ProjectSchema.url(project)
+    async def test_url(self, isolated_project: Project) -> None:
+        assert "http" in await ProjectSchema.url(isolated_project)
 
-    async def test_www_path(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project, project:
-            assert str(ProjectSchema.www_path(project))
+    async def test_www_path(self, isolated_project: Project) -> None:
+        assert str(ProjectSchema.www_path(isolated_project))

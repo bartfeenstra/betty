@@ -47,7 +47,7 @@ async def generate_search_index(
                 locale,
                 context=context,
             )
-            for locale in project.configuration.locales.keys()  # noqa: SIM118
+            for locale in project.locales.keys()  # noqa: SIM118
         )
     )
 

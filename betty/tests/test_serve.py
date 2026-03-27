@@ -7,7 +7,6 @@ from aiofiles.os import makedirs
 from pytest_mock import MockerFixture
 from requests import Response
 
-from betty.app import App
 from betty.functools import Do
 from betty.project import Project
 from betty.serve import BuiltinProjectServer, BuiltinServer
@@ -44,18 +43,21 @@ class TestBuiltinServer:
 
 
 class TestBuiltinProjectServer:
-    async def test_start(self, mocker: MockerFixture, isolated_app: App) -> None:
+    async def test_start(
+        self, isolated_project: Project, mocker: MockerFixture
+    ) -> None:
         mocker.patch("webbrowser.open_new_tab")
         content = "Hello, and welcome to my site!"
-        async with Project.new_isolated(isolated_app) as project, project:
-            await makedirs(project.www_directory)
-            async with aiofiles.open(project.www_directory / "index.html", "w") as f:
-                await f.write(content)
-            async with await BuiltinProjectServer.new(project) as server:
+        await makedirs(isolated_project.www_directory)
+        async with aiofiles.open(
+            isolated_project.www_directory / "index.html", "w"
+        ) as f:
+            await f.write(content)
+        async with await BuiltinProjectServer.new(isolated_project) as server:
 
-                def _assert_response(response: Response) -> None:
-                    assert response.status_code == 200
-                    assert content == response.content.decode("utf-8")
-                    assert response.headers["Cache-Control"] == "no-cache"
+            def _assert_response(response: Response) -> None:
+                assert response.status_code == 200
+                assert content == response.content.decode("utf-8")
+                assert response.headers["Cache-Control"] == "no-cache"
 
-                await Do(requests.get, server.public_url).until(_assert_response)
+            await Do(requests.get, server.public_url).until(_assert_response)

@@ -1,6 +1,5 @@
 import pytest
 
-from betty.app import App
 from betty.document import Document
 from betty.plugins.content.raspberry_mint_presences import (
     Presences,
@@ -12,7 +11,7 @@ from betty.plugins.entity.place import Place
 from betty.plugins.entity.presence import Presence
 from betty.plugins.role.subject import Subject
 from betty.plugins.role.witness import Witness
-from betty.project import Project
+from betty.test_utils.conftest import IsolatedProjectFactory
 from betty.test_utils.data import DataTestBase
 
 
@@ -44,40 +43,33 @@ class TestPresences:
         ],
     )
     async def test_build_template__without_presences(
-        self, resource: object, isolated_app: App
+        self, resource: object, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with (
-            Project.new_isolated(isolated_app, support_plugins=[Presences]) as project,
-            project,
-        ):
+        async with isolated_project_factory(support_plugins=[Presences]) as project:
             sut = Presences(jinja=await project.jinja)
             assert await sut.build(document=Document(resource)) is None
 
-    async def test_build_template__with_presences(self, isolated_app: App) -> None:
+    async def test_build_template__with_presences(
+        self, isolated_project_factory: IsolatedProjectFactory
+    ) -> None:
         person = Person(id="P1")
         resource = Event()
         Presence(person, Subject(), resource)
-        async with (
-            Project.new_isolated(isolated_app, support_plugins=[Presences]) as project,
-            project,
-        ):
+        async with isolated_project_factory(support_plugins=[Presences]) as project:
             sut = Presences(jinja=await project.jinja)
             actual = await sut.build(document=Document(resource))
         assert actual is not None
         assert person.public_id in actual
 
     async def test_build_template__with_presences_with_include(
-        self, isolated_app: App
+        self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         person_include = Person(id="P1")
         person_exclude = Person(id="P2")
         resource = Event()
         Presence(person_include, Subject(), resource)
         Presence(person_exclude, Witness(), resource)
-        async with (
-            Project.new_isolated(isolated_app, support_plugins=[Presences]) as project,
-            project,
-        ):
+        async with isolated_project_factory(support_plugins=[Presences]) as project:
             sut = Presences(include=[Subject], jinja=await project.jinja)
             actual = await sut.build(document=Document(resource))
         assert actual is not None
@@ -85,17 +77,14 @@ class TestPresences:
         assert person_exclude.public_id not in actual
 
     async def test_build_template__with_presences_with_exclude(
-        self, isolated_app: App
+        self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         person_include = Person(id="P1")
         person_exclude = Person(id="P2")
         resource = Event()
         Presence(person_include, Subject(), resource)
         Presence(person_exclude, Witness(), resource)
-        async with (
-            Project.new_isolated(isolated_app, support_plugins=[Presences]) as project,
-            project,
-        ):
+        async with isolated_project_factory(support_plugins=[Presences]) as project:
             sut = await Presences.new(
                 project, PresencesConfiguration(exclude=[Witness])
             )

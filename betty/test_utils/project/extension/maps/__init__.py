@@ -8,18 +8,16 @@ from pathlib import Path
 from shutil import copytree
 
 import pytest
-from aiofiles.tempfile import TemporaryDirectory
 from geopy import Point
 from playwright.async_api import Page, expect
 
 from betty import serve
 from betty.ancestry.name import Name
-from betty.plugins.entity.place import Place
-from betty.app import App
-from betty.plugin import ResolvablePluginId
-from betty.project import Project
 from betty.extension import ExtensionDefinition, ExtensionManufacturer
+from betty.plugin import ResolvablePluginId
+from betty.plugins.entity.place import Place
 from betty.plugins.extension.maps import Maps
+from betty.project import Project
 from betty.project.generate import generate
 from betty.serve import Server
 from betty.tests.conftest import (
@@ -51,21 +49,12 @@ class MapsTestBase:
         """
         Serve a test page with a map, navigate to it, and return the Playwright Page fixture.
         """
-        async with (
-            TemporaryDirectory() as cache_directory_path_str,
-            App.new_isolated(cache_directory=Path(cache_directory_path_str)) as app,
-            app,
-            Project.new_isolated(
-                app,
-                service_plugins=[
-                    Maps,
-                    *ExtensionManufacturer.resolve_sequence(
-                        self.get_other_extensions()
-                    ),
-                ],
-            ) as project,
-            project,
-        ):
+        async with Project.new_isolated(
+            service_plugins=[
+                Maps,
+                *ExtensionManufacturer.resolve_sequence(self.get_other_extensions()),
+            ],
+        ) as project:
             project.ancestry.add(
                 Place(
                     id=_PLACE_ID,

@@ -1,29 +1,31 @@
-from aiofiles.os import makedirs
+from pathlib import Path
+
 from pytest_mock import MockerFixture
 
 from betty.app import App
 from betty.console import SystemExitCode
 from betty.portable.file import dump_file
-from betty.project import Project
+from betty.project.data import ProjectConfiguration
 from betty.test_utils.console import run
 from betty.test_utils.serve import NoOpProjectServer
 
 
 class TestServe:
-    async def test_configure(self, mocker: MockerFixture, isolated_app: App) -> None:
+    async def test_configure(
+        self, mocker: MockerFixture, isolated_app: App, tmp_path: Path
+    ) -> None:
         mocker.patch("asyncio.sleep", side_effect=KeyboardInterrupt)
         mocker.patch("betty.serve.BuiltinProjectServer", new=NoOpProjectServer)
-        async with Project.new_isolated(isolated_app) as project:
-            await dump_file(
-                project.configuration.data().porter.dump(project.configuration),
-                project.directory / "betty.json",
-            )
-            await makedirs(project.www_directory)
+        configuration = ProjectConfiguration(title="Betty", url="https://example.com")
+        await dump_file(
+            configuration.data().porter.dump(configuration),
+            tmp_path / "betty.json",
+        )
 
-            await run(
-                isolated_app,
-                "serve",
-                "--project",
-                str(project.directory / "betty.json"),
-                expected_exit_code=SystemExitCode.USER_QUIT,
-            )
+        await run(
+            isolated_app,
+            "serve",
+            "--project",
+            str(tmp_path / "betty.json"),
+            expected_exit_code=SystemExitCode.USER_QUIT,
+        )

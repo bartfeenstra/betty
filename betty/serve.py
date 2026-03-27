@@ -251,7 +251,7 @@ class BuiltinProjectServer(ProjectServer):
         super().__init__(project)
         self._server = BuiltinServer(
             project.www_directory,
-            root_path=project.configuration.root_path,
+            root_path=project.root_path,
             user=project.upstream.user,
         )
 

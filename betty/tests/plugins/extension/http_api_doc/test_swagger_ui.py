@@ -1,14 +1,11 @@
 from collections.abc import AsyncIterator  # noqa: I001
-from pathlib import Path
 
 import pytest
-from aiofiles.tempfile import TemporaryDirectory
 from playwright.async_api import Page, expect
 
 from betty import serve
-from betty.app import App
-from betty.project import Project
 from betty.plugins.extension.http_api_doc import HttpApiDoc
+from betty.project import Project
 from betty.project.generate import generate
 from betty.serve import Server
 from betty.tests.conftest import (
@@ -20,13 +17,7 @@ from betty.tests.conftest import (
 class TestSwaggerUi:
     @pytest.fixture(scope="session")
     async def served_project(self) -> AsyncIterator[tuple[Project, Server]]:
-        async with (
-            TemporaryDirectory() as cache_directory_path_str,
-            App.new_isolated(cache_directory=Path(cache_directory_path_str)) as app,
-            app,
-            Project.new_isolated(app, service_plugins=[HttpApiDoc]) as project,
-            project,
-        ):
+        async with Project.new_isolated(service_plugins=[HttpApiDoc]) as project:
             await generate(project)
             async with await serve.BuiltinProjectServer.new(project) as server:
                 yield project, server

@@ -1,5 +1,7 @@
+from pathlib import Path
+
 from betty.portable.file import dump_file
-from betty.project import Project
+from betty.project.data import ProjectConfiguration
 from betty.rich.user import RichUser
 from betty.test_utils.conftest import IsolatedAppFactory
 from betty.test_utils.console import run
@@ -12,21 +14,14 @@ class TestAbout:
             assert "Betty" in result.stdout
 
     async def test_configure__with_project(
-        self, isolated_app_factory: IsolatedAppFactory
+        self, isolated_app_factory: IsolatedAppFactory, tmp_path: Path
     ) -> None:
-        async with (
-            isolated_app_factory(user=RichUser()) as app,
-            app,
-            Project.new_isolated(app) as project,
-        ):
+        async with isolated_app_factory(user=RichUser()) as app, app:
+            configuration = ProjectConfiguration(
+                title="Betty", url="https://example.com"
+            )
             await dump_file(
-                project.configuration.data().porter.dump(project.configuration),
-                project.directory / "betty.json",
+                configuration.data().porter.dump(configuration), tmp_path / "betty.json"
             )
-            result = await run(
-                app,
-                "about",
-                "--project",
-                str(project.directory / "betty.json"),
-            )
+            result = await run(app, "about", "--project", str(tmp_path / "betty.json"))
             assert "Betty" in result.stdout

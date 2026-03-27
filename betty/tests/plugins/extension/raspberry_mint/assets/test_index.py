@@ -1,13 +1,12 @@
 import pytest
 
-from betty.app import App
 from betty.content import ContentManufacturer
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.extension import ExtensionManufacturer
 from betty.plugins.content.render import Render, RenderConfiguration
 from betty.plugins.extension.raspberry_mint import RaspberryMint, Region
 from betty.plugins.extension.raspberry_mint.data import RaspberryMintConfiguration
-from betty.project import Project
+from betty.test_utils.conftest import IsolatedProjectFactory
 
 
 @pytest.fixture
@@ -23,29 +22,25 @@ def file() -> str:
 
 
 async def test_regional_content_front_page_summary(
-    file: str, isolated_app: App
+    file: str, isolated_project_factory: IsolatedProjectFactory
 ) -> None:
-    async with (
-        Project.new_isolated(
-            isolated_app,
-            service_plugins=[
-                ExtensionManufacturer(
-                    RaspberryMint,
-                    RaspberryMintConfiguration(
-                        regional_content={
-                            Region.FRONT_PAGE_SUMMARY: [
-                                ContentManufacturer(
-                                    Render,
-                                    RenderConfiguration("Hello, world!"),
-                                ),
-                            ]
-                        }
-                    ),
-                )
-            ],
-        ) as project,
-        project,
-    ):
+    async with isolated_project_factory(
+        service_plugins=[
+            ExtensionManufacturer(
+                RaspberryMint,
+                RaspberryMintConfiguration(
+                    regional_content={
+                        Region.FRONT_PAGE_SUMMARY: [
+                            ContentManufacturer(
+                                Render,
+                                RenderConfiguration("Hello, world!"),
+                            ),
+                        ]
+                    }
+                ),
+            )
+        ],
+    ) as project:
         environment = await project.jinja
         actual = await environment.from_string(file).render_async(
             document=await project.new_document()
@@ -54,29 +49,25 @@ async def test_regional_content_front_page_summary(
 
 
 async def test_regional_content_front_page_content(
-    file: str, isolated_app: App
+    file: str, isolated_project_factory: IsolatedProjectFactory
 ) -> None:
-    async with (
-        Project.new_isolated(
-            isolated_app,
-            service_plugins=[
-                ExtensionManufacturer(
-                    RaspberryMint,
-                    RaspberryMintConfiguration(
-                        regional_content={
-                            Region.FRONT_PAGE_CONTENT: [
-                                ContentManufacturer(
-                                    Render,
-                                    RenderConfiguration("Hello, world!"),
-                                ),
-                            ]
-                        }
-                    ),
-                )
-            ],
-        ) as project,
-        project,
-    ):
+    async with isolated_project_factory(
+        service_plugins=[
+            ExtensionManufacturer(
+                RaspberryMint,
+                RaspberryMintConfiguration(
+                    regional_content={
+                        Region.FRONT_PAGE_CONTENT: [
+                            ContentManufacturer(
+                                Render,
+                                RenderConfiguration("Hello, world!"),
+                            ),
+                        ]
+                    }
+                ),
+            )
+        ],
+    ) as project:
         environment = await project.jinja
         actual = await environment.from_string(file).render_async(
             document=await project.new_document()

@@ -82,8 +82,8 @@ class Webpack(Generator, Extension, DocumentProvider, Manufacturable):
                 for extension in extensions
                 if isinstance(extension, EntryPointProvider)
             ],
-            self._project.configuration.debug,
+            self._project.debug,
             jinja,
-            self._project.configuration.root_path,
+            self._project.root_path,
             user=self._project.upstream.user,
         )

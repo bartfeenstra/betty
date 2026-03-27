@@ -74,13 +74,11 @@ class _GenerateWebmanifest(Job):
         extensions = await self._project.extensions
         webmanifest = json.dumps(
             {
-                "name": self._project.configuration.title.localize(DEFAULT_LOCALIZER),
+                "name": self._project.title.localize(DEFAULT_LOCALIZER),
                 "icons": [
                     {"src": "/logo" + self._project.logo.suffix},
                 ],
-                "lang": to_language_tag(
-                    self._project.configuration.default_locale.locale
-                ),
+                "lang": to_language_tag(self._project.default_locale.locale),
                 "theme_color": extensions[RaspberryMint].secondary_color,
                 "background_color": "#ffffff",
                 "display": "fullscreen",

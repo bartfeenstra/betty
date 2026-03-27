@@ -1,11 +1,10 @@
-from betty.app import App
 from betty.content import ContentManufacturer
 from betty.document import Document
 from betty.locale.localizable.plain import Plain
 from betty.plugins.content.raspberry_mint_section import Section, SectionConfiguration
 from betty.plugins.content.render import Render, RenderConfiguration
 from betty.plugins.content.static import Static
-from betty.project import Project
+from betty.test_utils.conftest import IsolatedProjectFactory
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
@@ -44,11 +43,10 @@ class TestSectionConfiguration(DataTestBase[SectionConfiguration]):
 
 
 class TestSection:
-    async def test_build_template__without_content(self, isolated_app: App) -> None:
-        async with (
-            Project.new_isolated(isolated_app, support_plugins=[Section]) as project,
-            project,
-        ):
+    async def test_build_template__without_content(
+        self, isolated_project_factory: IsolatedProjectFactory
+    ) -> None:
+        async with isolated_project_factory(support_plugins=[Section]) as project:
             sut = await Section.new(
                 project,
                 SectionConfiguration(
@@ -58,11 +56,10 @@ class TestSection:
             )
             assert await sut.build(document=Document()) is None
 
-    async def test_build_template__with_content(self, isolated_app: App) -> None:
-        async with (
-            Project.new_isolated(isolated_app, support_plugins=[Section]) as project,
-            project,
-        ):
+    async def test_build_template__with_content(
+        self, isolated_project_factory: IsolatedProjectFactory
+    ) -> None:
+        async with isolated_project_factory(support_plugins=[Section]) as project:
             sut = await Section.new(
                 project,
                 SectionConfiguration(
@@ -78,11 +75,10 @@ class TestSection:
         assert "My First Section" in actual
         assert "My First Content" in actual
 
-    async def test_build_template__with_name(self, isolated_app: App) -> None:
-        async with (
-            Project.new_isolated(isolated_app, support_plugins=[Section]) as project,
-            project,
-        ):
+    async def test_build_template__with_name(
+        self, isolated_project_factory: IsolatedProjectFactory
+    ) -> None:
+        async with isolated_project_factory(support_plugins=[Section]) as project:
             sut = await Section.new(
                 project,
                 SectionConfiguration(
@@ -99,12 +95,9 @@ class TestSection:
         assert "my-first-section" in actual
 
     async def test_build_template__with_visually_hide_heading(
-        self, isolated_app: App
+        self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with (
-            Project.new_isolated(isolated_app, support_plugins=[Section]) as project,
-            project,
-        ):
+        async with isolated_project_factory(support_plugins=[Section]) as project:
             sut = await Section.new(
                 project,
                 SectionConfiguration(

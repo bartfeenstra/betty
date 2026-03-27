@@ -9,7 +9,6 @@ import pytest
 from aiohttp import ClientSession
 from aioresponses import aioresponses
 
-from betty.app import App
 from betty.cache.file import BinaryFileCache
 from betty.license import LicenseDefinition
 from betty.locale.localize import DEFAULT_LOCALIZER
@@ -19,6 +18,7 @@ from betty.plugins.license.spdx import (
     spdx_license_id_to_license_id,
 )
 from betty.service.level.universe import UNIVERSE
+from betty.test_utils.conftest import IsolatedAppFactory
 from betty.test_utils.user import StaticUser
 
 if TYPE_CHECKING:
@@ -159,6 +159,7 @@ class TestSpdxLicenseDiscoverer:
         self, licenses: Iterable[ResolvableDiscovery[LicenseDefinition]]
     ) -> None:
         discovered_licenses = list(await discover(UNIVERSE, *licenses))
+        assert discovered_licenses
         zero_bsd_type = discovered_licenses[0]
         assert (
             zero_bsd_type.label.localize(DEFAULT_LOCALIZER) == "BSD Zero Clause License"
@@ -202,14 +203,17 @@ class TestSpdxLicenseDiscoverer:
             await self.assert_with_licenses(await sut.discover())
 
     async def test_discover_for__without_licenses(
-        self, isolated_app: App, without_licenses: None
+        self, isolated_app_factory: IsolatedAppFactory, without_licenses: None
     ) -> None:
-        await self.assert_without_licenses(
-            await SpdxLicenseDiscoverer.discover_for(isolated_app)
-        )
+        async with isolated_app_factory() as app, app:
+            await self.assert_without_licenses(
+                await SpdxLicenseDiscoverer.discover_for(app)
+            )
 
-    async def test_discover_for__with_licenses(self, with_licenses: None) -> None:
-        async with App.new_isolated() as app, app:
+    async def test_discover_for__with_licenses(
+        self, isolated_app_factory: IsolatedAppFactory, with_licenses: None
+    ) -> None:
+        async with isolated_app_factory() as app, app:
             await self.assert_with_licenses(
                 await SpdxLicenseDiscoverer.discover_for(app)
             )

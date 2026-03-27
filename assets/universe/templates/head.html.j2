@@ -1,13 +1,13 @@
-<title>{% if page_title is defined %}{{ page_title | striptags }} - {% endif %}{{ project.configuration.title | localize }}</title>
+<title>{% if page_title is defined %}{{ page_title | striptags }} - {% endif %}{{ project.title | localize }}</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="generator" content="Betty {{ about_version_major }} (https://betty.readthedocs.io)">
-{% if project.configuration.author %}
-    <meta name="author" content="{{ project.configuration.author | localize }}">
+{% if project.author %}
+    <meta name="author" content="{{ project.author | localize }}">
 {% endif %}
-<meta name="og:title" content="{{ page_title | default(project.configuration.title | localize) | striptags }}">
-<meta name="og:site_name" content="{{ project.configuration.title | localize }}">
-<meta name="twitter:title" content="{{ page_title | default(project.configuration.title | localize) | striptags }}">
+<meta name="og:title" content="{{ page_title | default(project.title | localize) | striptags }}">
+<meta name="og:site_name" content="{{ project.title | localize }}">
+<meta name="twitter:title" content="{{ page_title | default(project.title | localize) | striptags }}">
 <meta name="twitter:card" content="summary_large_image">
 {% if document.resource %}
     {% if document.resource is has_file_references %}
@@ -26,7 +26,7 @@
     {% endif %}
     {% if document.resource_url %}
         <link rel="canonical" href="{{ document.resource_url | url(absolute=true) }}" hreflang="{{ document.localizer.locale | to_language_tag }}" type="text/html">
-        {% for locale in project.configuration.locales.keys() %}
+        {% for locale in project.locales.keys() %}
             {% if locale != document.localizer.locale %}
                 <link rel="alternate" href="{{ document.resource_url | url(locale=locale) }}" hreflang="{{ locale | to_language_tag }}" type="text/html">
             {% endif %}

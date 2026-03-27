@@ -54,9 +54,7 @@ class Demo(Manufacturable, Command):
                 while True:
                     await asyncio.sleep(999)
         else:
-            project = await create_project(self._app, Path(path))
-            if url is not None:
-                project.configuration.url = url
+            project = await create_project(self._app, Path(path), url=url)
             async with (
                 project,
                 project.upstream.user.message_progress(

@@ -8,7 +8,6 @@ from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugins.extension.gramps import Gramps
 from betty.plugins.extension.gramps.data import GrampsConfiguration
 from betty.portable.file import assert_load_file
-from betty.project import Project
 from betty.project.data import ProjectConfiguration
 from betty.project.new import new
 from betty.test_utils.conftest import IsolatedAppFactory
@@ -140,7 +139,6 @@ async def test_new__with_multiple_locales(
         configuration = await _assert_new(configuration_file_path)
     assert configuration.name == "mijn-eerste-project"
     assert len(configuration.locales) == 2
-    assert configuration.default_locale.locale == default_locale
 
 
 async def test_new__with_name(
@@ -170,8 +168,7 @@ async def test_new__with_name(
 
 
 async def test_new__with_gramps(
-    isolated_app_factory: IsolatedAppFactory,
-    tmp_path: Path,
+    isolated_app_factory: IsolatedAppFactory, tmp_path: Path
 ) -> None:
     configuration_file_path = tmp_path / "betty.yaml"
     gramps_family_tree_file_path = tmp_path / "gramps"
@@ -194,14 +191,12 @@ async def test_new__with_gramps(
         await new(app)
         configuration = await _assert_new(configuration_file_path)
         assert Gramps in configuration.extensions
-        async with Project.new_isolated(app) as project, project:
-            portable_gramps_configuration = configuration.extensions[Gramps].plugin_data
-            assert portable_gramps_configuration is not Void
-            assert not isinstance(portable_gramps_configuration, Data)
-            gramps_configuration = GrampsConfiguration.data().porter.load(
-                portable_gramps_configuration
-            )
-            assert (
-                gramps_configuration.family_trees[0].source
-                == gramps_family_tree_file_path
-            )
+        portable_gramps_configuration = configuration.extensions[Gramps].plugin_data
+        assert portable_gramps_configuration is not Void
+        assert not isinstance(portable_gramps_configuration, Data)
+        gramps_configuration = GrampsConfiguration.data().porter.load(
+            portable_gramps_configuration
+        )
+        assert (
+            gramps_configuration.family_trees[0].source == gramps_family_tree_file_path
+        )

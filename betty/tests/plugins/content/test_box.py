@@ -1,4 +1,3 @@
-from betty.app import App
 from betty.content import ContentManufacturer
 from betty.document import Document
 from betty.plugins.content.box import Box, BoxConfiguration
@@ -17,33 +16,31 @@ class TestBoxConfiguration(DataTestBase[BoxConfiguration]):
 
 
 class TestBox:
-    async def test_build_template__minimal(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project, project:
-            sut = await Box.new(
-                project,
-                BoxConfiguration(
-                    ContentManufacturer(Render, RenderConfiguration(DUMMY_LOCALIZABLE))
-                ),
-            )
-            actual = await sut.build(document=Document())
+    async def test_build_template__minimal(self, isolated_project: Project) -> None:
+        sut = await Box.new(
+            isolated_project,
+            BoxConfiguration(
+                ContentManufacturer(Render, RenderConfiguration(DUMMY_LOCALIZABLE))
+            ),
+        )
+        actual = await sut.build(document=Document())
         assert actual is not None
         assert "<div>" in actual
 
-    async def test_build_template__full(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project, project:
-            sut = await Box.new(
-                project,
-                BoxConfiguration(
-                    ContentManufacturer(Render, RenderConfiguration(DUMMY_LOCALIZABLE)),
-                    min_height="MIN_HEIGHT",
-                    max_height="MAX_HEIGHT",
-                    height="HEIGHT",
-                    min_width="MIN_WIDTH",
-                    max_width="MAX_WIDTH",
-                    width="WIDTH",
-                ),
-            )
-            actual = await sut.build(document=Document())
+    async def test_build_template__full(self, isolated_project: Project) -> None:
+        sut = await Box.new(
+            isolated_project,
+            BoxConfiguration(
+                ContentManufacturer(Render, RenderConfiguration(DUMMY_LOCALIZABLE)),
+                min_height="MIN_HEIGHT",
+                max_height="MAX_HEIGHT",
+                height="HEIGHT",
+                min_width="MIN_WIDTH",
+                max_width="MAX_WIDTH",
+                width="WIDTH",
+            ),
+        )
+        actual = await sut.build(document=Document())
         assert actual is not None
         assert "<div>" not in actual
         assert "min-height: MIN_HEIGHT;" in actual

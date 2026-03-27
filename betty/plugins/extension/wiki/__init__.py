@@ -106,7 +106,7 @@ class Wiki(
         )
         return populator_api.Populator(
             self._project.ancestry,
-            list(self._project.configuration.locales.keys()),
+            list(self._project.locales.keys()),
             localizers,
             http_client,
             copyright_notice,

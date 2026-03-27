@@ -18,6 +18,7 @@ from functools import lru_cache
 from pathlib import Path
 from types import NoneType
 from typing import TYPE_CHECKING, Any, final, overload
+from urllib.parse import urlsplit, urlunsplit
 
 from betty.data.indicator.selector import Index, Key
 from betty.error import FileNotFound
@@ -513,3 +514,24 @@ def assert_enum[EnumT: Enum](options: type[EnumT]) -> AssertionChain[Any, EnumT]
             ) from None
 
     return AssertionChain(_assert_enum)
+
+
+def assert_url() -> AssertionChain[Any, str]:
+    """
+    Assert that a value is a valid URL.
+    """
+
+    def _assert_url(value: str) -> str:
+        try:
+            url_parts = urlsplit(value)
+        except ValueError:
+            raise HumanFacingException(
+                _('"{url}" is not a valid URL.').format(url=value)
+            ) from None
+        if not url_parts.netloc:
+            raise HumanFacingException(_("The URL must include a host."))
+        if not url_parts.scheme:
+            url_parts = url_parts._replace(scheme="https")
+        return urlunsplit(url_parts)
+
+    return assert_str() | _assert_url

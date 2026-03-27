@@ -1,6 +1,5 @@
 import pytest
 
-from betty.app import App
 from betty.date import Date
 from betty.document import Document
 from betty.plugins.content.raspberry_mint_timeline import Timeline
@@ -10,7 +9,7 @@ from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.presence import Presence
 from betty.plugins.role.subject import Subject
-from betty.project import Project
+from betty.test_utils.conftest import IsolatedProjectFactory
 
 
 class TestTimeline:
@@ -24,38 +23,33 @@ class TestTimeline:
         ],
     )
     async def test_build_template__without_associated_events(
-        self, resource: object, isolated_app: App
+        self, resource: object, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with (
-            Project.new_isolated(isolated_app, support_plugins=[Timeline]) as project,
-            project,
-        ):
+        async with isolated_project_factory(support_plugins=[Timeline]) as project:
             sut = await Timeline.new(project)
         assert await sut.build(document=Document(resource)) is None
 
-    async def test_build_template__with_person(self, isolated_app: App) -> None:
+    async def test_build_template__with_person(
+        self, isolated_project_factory: IsolatedProjectFactory
+    ) -> None:
         event = Event(id="E0", date=Date(1970, 1, 1))
         resource = Person()
         Presence(resource, Subject(), event)
-        async with (
-            Project.new_isolated(isolated_app, support_plugins=[Timeline]) as project,
-            project,
-        ):
+        async with isolated_project_factory(support_plugins=[Timeline]) as project:
             sut = await Timeline.new(project)
             actual = await sut.build(document=Document(resource))
         assert actual is not None
         assert event.public_id in actual
 
-    async def test_build_template__with_place(self, isolated_app: App) -> None:
+    async def test_build_template__with_place(
+        self, isolated_project_factory: IsolatedProjectFactory
+    ) -> None:
         enclosee_event = Event(id="E0", date=Date(1970, 1, 1))
         enclosee = Place(events=[enclosee_event])
         event = Event(id="E0", date=Date(1970, 1, 1))
         resource = Place(events=[event])
         Enclosure(enclosee, resource)
-        async with (
-            Project.new_isolated(isolated_app, support_plugins=[Timeline]) as project,
-            project,
-        ):
+        async with isolated_project_factory(support_plugins=[Timeline]) as project:
             sut = await Timeline.new(project)
             actual = await sut.build(document=Document(resource))
         assert actual is not None

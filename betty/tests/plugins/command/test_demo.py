@@ -56,4 +56,4 @@ class TestDemo:
         assert len(m_generate_with_cleanup.call_args.args) == 1
         project = m_generate_with_cleanup.call_args.args[0]
         assert isinstance(project, Project)
-        assert project.configuration.url == url
+        assert project.url == url

@@ -1,33 +1,15 @@
 from unittest.mock import AsyncMock
 
-from betty.app import App
-from betty.extension import ExtensionManufacturer
 from betty.gramps.loader import GrampsLoader
-from betty.plugins.extension.gramps import Gramps, LoadAncestry
-from betty.plugins.extension.gramps.data import FamilyTree, GrampsConfiguration
-from betty.project import Project
+from betty.plugins.extension.gramps import LoadAncestry
 from betty.test_utils.job import do
 
 
 class TestLoadAncestry:
-    async def test_do(self, isolated_app: App) -> None:
+    async def test_do(self) -> None:
         m_gramps_loader = AsyncMock(spec=GrampsLoader)
         family_tree_name = "my-first-family-tree"
-        async with (
-            Project.new_isolated(
-                isolated_app,
-                service_plugins=[
-                    ExtensionManufacturer(
-                        Gramps.plugin(),
-                        GrampsConfiguration(
-                            family_trees=[FamilyTree(name=family_tree_name)]
-                        ),
-                    )
-                ],
-            ) as project,
-            project,
-        ):
-            await do(
-                LoadAncestry(loader=m_gramps_loader, source=family_tree_name),
-            )
+        await do(
+            LoadAncestry(loader=m_gramps_loader, source=family_tree_name),
+        )
         m_gramps_loader.load_name.assert_awaited_once_with(family_tree_name)

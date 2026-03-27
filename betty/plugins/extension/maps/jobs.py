@@ -27,7 +27,7 @@ class _GeneratePlacePreviews(Job):
         await scheduler.add(
             *(
                 _GeneratePlacePreview(place.id, locale, self._project)
-                for locale in self._project.configuration.locales.keys()  # noqa: SIM118
+                for locale in self._project.locales.keys()  # noqa: SIM118
                 for place in self._project.ancestry[Place]
                 if place.coordinates
             )
