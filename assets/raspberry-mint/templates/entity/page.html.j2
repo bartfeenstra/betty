@@ -3,7 +3,7 @@
 {% set document = document.copy(entity_contexts=document.entity_contexts(document.resource)) %}
 {% do document.breadcrumbs.append(
     document.resource.plugin().label_plural | localize,
-    document.resource.plugin() if document.resource.plugin().id in project.configuration.entity_types and project.configuration.entity_types[document.resource.plugin().id].generate_html_list else none
+    document.resource.plugin() if document.resource.plugin().id in project.entity_types and project.entity_types[document.resource.plugin().id].generate_html_list else none
 ) %}
 {% do document.breadcrumbs.append(
     page_title,

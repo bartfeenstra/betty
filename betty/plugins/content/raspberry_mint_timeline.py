@@ -42,8 +42,7 @@ class Timeline(Template, Manufacturable):
     @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(
-            jinja=await project.jinja,
-            lifetime_threshold=project.configuration.lifetime_threshold,
+            jinja=await project.jinja, lifetime_threshold=project.lifetime_threshold
         )
 
     @override

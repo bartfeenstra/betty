@@ -15,7 +15,6 @@ from docutils import nodes
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.parsing import nested_parse_to_nodes
 
-from betty.app import App
 from betty.data import Data, OptionalDefinition
 from betty.data.aggregate.record import RecordDefinition
 from betty.definition.human_facing import HumanFacingDefinition
@@ -52,12 +51,7 @@ type _Plugins = Mapping[MachineName, Mapping[MachineName, PluginDefinition]]
 
 
 async def _get_plugins() -> _Plugins:
-    async with (
-        App.new_isolated() as app,
-        app,
-        Project.new_isolated(app) as project,
-        project,
-    ):
+    async with Project.new_isolated() as project:
         return {
             plugin_type: {
                 plugin.id: plugin async for plugin in project.plugins[plugin_type]
@@ -75,12 +69,7 @@ def _cmp_formats(left: PluginDefinition, right: PluginDefinition) -> int:
 
 
 async def _get_serializers() -> Sequence[Serializer]:
-    async with (
-        App.new_isolated() as app,
-        app,
-        Project.new_isolated(app) as project,
-        project,
-    ):
+    async with Project.new_isolated() as project:
         return [
             await project.factory.new(serializer.cls)
             for serializer in sorted(

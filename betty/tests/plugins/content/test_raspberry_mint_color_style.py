@@ -1,4 +1,3 @@
-from betty.app import App
 from betty.content import ContentManufacturer
 from betty.document import Document
 from betty.plugins.content.raspberry_mint_color_style import (
@@ -8,7 +7,7 @@ from betty.plugins.content.raspberry_mint_color_style import (
 from betty.plugins.content.render import Render, RenderConfiguration
 from betty.plugins.content.static import Static
 from betty.plugins.extension.raspberry_mint import ColorStyle as ColorStyleOption
-from betty.project import Project
+from betty.test_utils.conftest import IsolatedProjectFactory
 from betty.test_utils.data import DataTestBase
 
 
@@ -30,11 +29,10 @@ class TestColorStyleConfiguration(DataTestBase[ColorStyleConfiguration]):
 
 
 class TestColorStyle:
-    async def test_build_template__without_content(self, isolated_app: App) -> None:
-        async with (
-            Project.new_isolated(isolated_app, support_plugins=[ColorStyle]) as project,
-            project,
-        ):
+    async def test_build_template__without_content(
+        self, isolated_project_factory: IsolatedProjectFactory
+    ) -> None:
+        async with isolated_project_factory(support_plugins=[ColorStyle]) as project:
             sut = await ColorStyle.new(
                 project,
                 ColorStyleConfiguration(
@@ -44,11 +42,10 @@ class TestColorStyle:
             )
             assert await sut.build(document=Document()) is None
 
-    async def test_build_template__with_content(self, isolated_app: App) -> None:
-        async with (
-            Project.new_isolated(isolated_app, support_plugins=[ColorStyle]) as project,
-            project,
-        ):
+    async def test_build_template__with_content(
+        self, isolated_project_factory: IsolatedProjectFactory
+    ) -> None:
+        async with isolated_project_factory(support_plugins=[ColorStyle]) as project:
             sut = await ColorStyle.new(
                 project,
                 ColorStyleConfiguration(

@@ -1,21 +1,16 @@
-from betty.app import App
 from betty.model import EntityDefinition
 from betty.plugins.extension.raspberry_mint.region import Region
-from betty.project import Project
+from betty.test_utils.conftest import IsolatedProjectFactory
 from betty.test_utils.model import DummyEntityOne
 
 
 class TestRegion:
-    async def test_all(self, isolated_app: App) -> None:
-        async with (
-            Project.new_isolated(
-                isolated_app,
-                plugins={
-                    EntityDefinition: [DummyEntityOne],
-                },
-            ) as project,
-            project,
-        ):
+    async def test_all(self, isolated_project_factory: IsolatedProjectFactory) -> None:
+        async with isolated_project_factory(
+            plugins={
+                EntityDefinition: [DummyEntityOne],
+            },
+        ) as project:
             assert "entity-page-content--dummy-one" in await Region.all(project)
 
     def test_resolve__with_enum(self) -> None:

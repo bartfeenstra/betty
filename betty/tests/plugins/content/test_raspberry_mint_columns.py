@@ -1,6 +1,5 @@
 import pytest
 
-from betty.app import App
 from betty.content import ContentManufacturer
 from betty.document import Document
 from betty.plugins.content.raspberry_mint_columns import (
@@ -14,7 +13,7 @@ from betty.plugins.extension.raspberry_mint import (
     Breakpoint,
     JustifyContent,
 )
-from betty.project import Project
+from betty.test_utils.conftest import IsolatedProjectFactory
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
@@ -55,11 +54,10 @@ class TestColumnsConfiguration(DataTestBase[ColumnsConfiguration]):
 
 
 class TestColumns:
-    async def test_build_template__minimal(self, isolated_app: App) -> None:
-        async with (
-            Project.new_isolated(isolated_app, support_plugins=[Columns]) as project,
-            project,
-        ):
+    async def test_build_template__minimal(
+        self, isolated_project_factory: IsolatedProjectFactory
+    ) -> None:
+        async with isolated_project_factory(support_plugins=[Columns]) as project:
             sut = await Columns.new(
                 project,
                 ColumnsConfiguration(
@@ -77,12 +75,9 @@ class TestColumns:
         assert "col col-12" in actual
 
     async def test_build_template__single_column_multiple_breakpoints(
-        self, isolated_app: App
+        self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with (
-            Project.new_isolated(isolated_app, support_plugins=[Columns]) as project,
-            project,
-        ):
+        async with isolated_project_factory(support_plugins=[Columns]) as project:
             sut = await Columns.new(
                 project,
                 ColumnsConfiguration(
@@ -101,12 +96,9 @@ class TestColumns:
         assert "col col-12 col-lg-6" in actual
 
     async def test_build_template__multiple_columns_single_breakpoint(
-        self, isolated_app: App
+        self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with (
-            Project.new_isolated(isolated_app, support_plugins=[Columns]) as project,
-            project,
-        ):
+        async with isolated_project_factory(support_plugins=[Columns]) as project:
             sut = await Columns.new(
                 project,
                 ColumnsConfiguration(
@@ -131,12 +123,9 @@ class TestColumns:
         assert "col col-4" in actual
 
     async def test_build_template__multiple_columns_multiple_breakpoints(
-        self, isolated_app: App
+        self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with (
-            Project.new_isolated(isolated_app, support_plugins=[Columns]) as project,
-            project,
-        ):
+        async with isolated_project_factory(support_plugins=[Columns]) as project:
             sut = await Columns.new(
                 project,
                 ColumnsConfiguration(

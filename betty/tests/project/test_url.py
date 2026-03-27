@@ -5,13 +5,11 @@ import pytest
 from babel import Locale
 
 from betty.ancestry import Ancestry
-from betty.app import App
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, ResolvableLocale
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML, JSON
 from betty.model import EntityDefinition
 from betty.project import Project
-from betty.project.data import ProjectLocale
 from betty.project.url import (
     _EntityUrlGenerator,
     _EntityUrlUrlGenerator,
@@ -19,6 +17,7 @@ from betty.project.url import (
     _StaticPathUrlUrlGenerator,
     new_project_url_generator,
 )
+from betty.test_utils.conftest import IsolatedProjectFactory
 from betty.test_utils.model import DummyEntityOne
 
 
@@ -98,11 +97,10 @@ class Test_LocalizedPathUrlUrlGenerator:
         ],
     )
     async def test_supports(
-        self, expected: bool, resource: Any, isolated_app: App
+        self, expected: bool, resource: Any, isolated_project: Project
     ) -> None:
-        async with Project.new_isolated(isolated_app) as project, project:
-            sut = await _LocalizedPathUrlUrlGenerator.new(project)
-            assert sut.supports(resource) == expected
+        sut = await _LocalizedPathUrlUrlGenerator.new(isolated_project)
+        assert sut.supports(resource) == expected
 
     _GENERATE_RESOURCES = [
         "betty://some/path/index.html",
@@ -177,24 +175,22 @@ class Test_LocalizedPathUrlUrlGenerator:
         absolute: bool,
         locale: ResolvableLocale | None,
         additional_project_locale: Locale | None,
-        isolated_app: App,
+        isolated_project_factory: IsolatedProjectFactory,
     ) -> None:
-        async with Project.new_isolated(isolated_app) as project:
-            if additional_project_locale:
-                project.configuration.locales.add(
-                    DEFAULT_LOCALE, ProjectLocale(additional_project_locale)
+        locales = [DEFAULT_LOCALE]
+        if additional_project_locale:
+            locales.append(additional_project_locale)
+        async with isolated_project_factory(locales=locales) as project:
+            sut = await _LocalizedPathUrlUrlGenerator.new(project)
+            assert (
+                sut.generate(
+                    resource,
+                    media_type=media_type,
+                    absolute=absolute,
+                    locale=locale,
                 )
-            async with project:
-                sut = await _LocalizedPathUrlUrlGenerator.new(project)
-                assert (
-                    sut.generate(
-                        resource,
-                        media_type=media_type,
-                        absolute=absolute,
-                        locale=locale,
-                    )
-                    == expected
-                )
+                == expected
+            )
 
 
 class Test_StaticPathUrlUrlGenerator:
@@ -218,11 +214,10 @@ class Test_StaticPathUrlUrlGenerator:
         ],
     )
     async def test_supports(
-        self, expected: bool, resource: Any, isolated_app: App
+        self, expected: bool, resource: Any, isolated_project: Project
     ) -> None:
-        async with Project.new_isolated(isolated_app) as project, project:
-            sut = await _StaticPathUrlUrlGenerator.new(project)
-            assert sut.supports(resource) == expected
+        sut = await _StaticPathUrlUrlGenerator.new(isolated_project)
+        assert sut.supports(resource) == expected
 
     @pytest.mark.parametrize(
         (
@@ -280,24 +275,24 @@ class Test_StaticPathUrlUrlGenerator:
         additional_project_locale: Locale | None,
         fragment: str | None,
         query: Mapping[str, Sequence[str]] | None,
-        isolated_app: App,
+        isolated_project_factory: IsolatedProjectFactory,
     ) -> None:
-        async with Project.new_isolated(isolated_app) as project:
-            if additional_project_locale:
-                project.configuration.locales.add(additional_project_locale)
-            async with project:
-                sut = await _StaticPathUrlUrlGenerator.new(project)
-                assert (
-                    sut.generate(
-                        resource,
-                        absolute=absolute,
-                        fragment=fragment,
-                        locale=locale,
-                        media_type=media_type,
-                        query=query,
-                    )
-                    == expected
+        locales = [DEFAULT_LOCALE]
+        if additional_project_locale:
+            locales.append(additional_project_locale)
+        async with isolated_project_factory(locales=locales) as project:
+            sut = await _StaticPathUrlUrlGenerator.new(project)
+            assert (
+                sut.generate(
+                    resource,
+                    absolute=absolute,
+                    fragment=fragment,
+                    locale=locale,
+                    media_type=media_type,
+                    query=query,
                 )
+                == expected
+            )
 
 
 @pytest.mark.parametrize(
@@ -321,14 +316,11 @@ class Test_StaticPathUrlUrlGenerator:
     ],
 )
 async def test_new_project_url_generator__supports(
-    expected: bool, resource: Any, isolated_app: App
+    expected: bool, resource: Any, isolated_project_factory: IsolatedProjectFactory
 ) -> None:
-    async with (
-        Project.new_isolated(
-            isolated_app, plugins={EntityDefinition: [DummyEntityOne]}
-        ) as project,
-        project,
-    ):
+    async with isolated_project_factory(
+        plugins={EntityDefinition: [DummyEntityOne]}
+    ) as project:
         sut = await new_project_url_generator(project)
         assert sut.supports(resource) == expected
 
@@ -384,22 +376,23 @@ async def test_new_project_url_generator__generate(
     absolute: bool,
     locale: ResolvableLocale | None,
     additional_project_locale: Locale | None,
-    isolated_app: App,
+    isolated_project_factory: IsolatedProjectFactory,
 ) -> None:
-    async with Project.new_isolated(
-        isolated_app, plugins={EntityDefinition: [DummyEntityOne]}
+    locales = [DEFAULT_LOCALE]
+    if additional_project_locale:
+        locales.append(additional_project_locale)
+    async with isolated_project_factory(
+        clean_urls=clean_urls,
+        locales=locales,
+        plugins={EntityDefinition: [DummyEntityOne]},
     ) as project:
-        if additional_project_locale:
-            project.configuration.locales.add(ProjectLocale(additional_project_locale))
-        project.configuration.clean_urls = clean_urls
-        async with project:
-            sut = await new_project_url_generator(project)
-            assert (
-                sut.generate(
-                    resource,
-                    media_type=media_type,
-                    absolute=absolute,
-                    locale=locale,
-                )
-                == expected
+        sut = await new_project_url_generator(project)
+        assert (
+            sut.generate(
+                resource,
+                media_type=media_type,
+                absolute=absolute,
+                locale=locale,
             )
+            == expected
+        )

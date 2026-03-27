@@ -11,27 +11,20 @@ from betty.plugins.extension.raspberry_mint.data import (
     RaspberryMintConfiguration,
 )
 from betty.plugins.extension.raspberry_mint.region import Region
-from betty.project import Project
 from betty.test_utils.data import DataTestBase
 
 if TYPE_CHECKING:
-    from betty.app import App
-    from betty.data.indicator import Path
+    from betty.test_utils.conftest import IsolatedProjectFactory
 
 
 class TestRaspberryMintConfiguration(DataTestBase[RaspberryMintConfiguration]):
     sut_cls = RaspberryMintConfiguration
 
     async def test_validate__should_validate_featured_entities_configuration(
-        self, isolated_app: App, tmp_path: Path
+        self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         sut = RaspberryMintConfiguration(regional_content={"unknown-region": []})
-        async with (
-            Project.new_isolated(
-                isolated_app, service_plugins=[RaspberryMint]
-            ) as project,
-            project,
-        ):
+        async with isolated_project_factory(service_plugins=[RaspberryMint]) as project:
             with pytest.raises(HumanFacingException) as exc_info:
                 await sut.validate(project)
         assert 'data.regional_content["unknown-region"]' in str(exc_info.value)

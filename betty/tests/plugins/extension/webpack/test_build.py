@@ -6,7 +6,6 @@ import aiofiles
 import pytest
 from pytest_mock import MockerFixture
 
-from betty.app import App
 from betty.extension import Extension, ExtensionDefinition
 from betty.job import Context
 from betty.npm import NpmUnavailable
@@ -29,7 +28,7 @@ class DummyEntryPointProviderExtension(EntryPointProvider, Extension):
 
 
 class TestBuilder:
-    async def test_build(self, isolated_app: App, tmp_path: Path) -> None:
+    async def test_build(self, isolated_project: Project, tmp_path: Path) -> None:
         # Loop instead of parameterization, so we can reuse caches.
         for index, (with_entry_point_provider, debug, root_path) in enumerate(
             [
@@ -42,7 +41,7 @@ class TestBuilder:
             ]
         ):
             await self._test_build(
-                isolated_app,
+                isolated_project,
                 tmp_path / str(index),
                 with_entry_point_provider,
                 debug,
@@ -51,53 +50,43 @@ class TestBuilder:
 
     async def _test_build(
         self,
-        isolated_app: App,
+        isolated_project: Project,
         tmp_path: Path,
         with_entry_point_provider: bool,
         debug: bool,
         root_path: str,
     ) -> None:
-        async with Project.new_isolated(isolated_app) as project:
-            context = Context()
-            async with project:
-                sut = Builder(
-                    (
-                        [DummyEntryPointProviderExtension()]
-                        if with_entry_point_provider
-                        else []
-                    ),
-                    debug,
-                    await project.jinja,
-                    root_path,
-                    user=StaticUser(),
-                )
-                # Build twice, to test with warm caches as well.
-                await sut.build(tmp_path, context=context)
-                webpack_build_directory_path = await sut.build(
-                    tmp_path, context=context
-                )
-            assert (
-                webpack_build_directory_path / "css" / "webpack" / "main.css"
-            ).exists()
-            assert (
+        context = Context()
+        sut = Builder(
+            ([DummyEntryPointProviderExtension()] if with_entry_point_provider else []),
+            debug,
+            await isolated_project.jinja,
+            root_path,
+            user=StaticUser(),
+        )
+        # Build twice, to test with warm caches as well.
+        await sut.build(tmp_path, context=context)
+        webpack_build_directory_path = await sut.build(tmp_path, context=context)
+        assert (webpack_build_directory_path / "css" / "webpack" / "main.css").exists()
+        assert (
+            webpack_build_directory_path / "js" / "webpack-entry-loader.js"
+        ).exists()
+        if with_entry_point_provider:
+            async with aiofiles.open(
                 webpack_build_directory_path / "js" / "webpack-entry-loader.js"
+            ) as f:
+                webpack_entry_loader_js = await f.read()
+            assert f"{root_path}/js/webpack/runtime.js" in webpack_entry_loader_js
+            assert (
+                f"{root_path}/js/webpack/{DummyEntryPointProviderExtension.plugin().id}.js"
+                in webpack_entry_loader_js
+            )
+            assert (
+                webpack_build_directory_path
+                / "js"
+                / "webpack"
+                / f"{DummyEntryPointProviderExtension.plugin().id}.js"
             ).exists()
-            if with_entry_point_provider:
-                async with aiofiles.open(
-                    webpack_build_directory_path / "js" / "webpack-entry-loader.js"
-                ) as f:
-                    webpack_entry_loader_js = await f.read()
-                assert f"{root_path}/js/webpack/runtime.js" in webpack_entry_loader_js
-                assert (
-                    f"{root_path}/js/webpack/{DummyEntryPointProviderExtension.plugin().id}.js"
-                    in webpack_entry_loader_js
-                )
-                assert (
-                    webpack_build_directory_path
-                    / "js"
-                    / "webpack"
-                    / f"{DummyEntryPointProviderExtension.plugin().id}.js"
-                ).exists()
 
     async def test_build_with_npm_unavailable(
         self, mocker: MockerFixture, tmp_path: Path

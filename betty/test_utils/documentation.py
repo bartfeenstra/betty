@@ -6,11 +6,13 @@ from typing import Any
 
 import pytest
 
-from betty.app import App
 from betty.importlib import fully_qualified_name
 from betty.plugin import PluginDefinition
-from betty.project import Project
 from betty.service.level.universe import UNIVERSE
+from betty.test_utils.conftest import (
+    IsolatedAppFactory,
+    IsolatedProjectFactory,
+)
 
 
 class PluginDocumentationTestBase:
@@ -25,11 +27,20 @@ class PluginDocumentationTestBase:
         assert isinstance(module, str)
         return module.startswith(self._module)
 
-    async def test(self, isolated_app: App, subtests: pytest.Subtests) -> None:
+    async def test(
+        self,
+        isolated_app_factory: IsolatedAppFactory,
+        isolated_project_factory: IsolatedProjectFactory,
+        subtests: pytest.Subtests,
+    ) -> None:
         """
         Test the plugin and plugin type documentation.
         """
-        async with Project.new_isolated(isolated_app) as project, project:
+        async with (
+            isolated_app_factory() as app,
+            app,
+            isolated_project_factory(app=app) as project,
+        ):
             for plugin_type in UNIVERSE.plugins:
                 with subtests.test():
                     self._test_plugin_type(plugin_type.type)

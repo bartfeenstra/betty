@@ -1,9 +1,8 @@
 import pytest
 
-from betty.app import App
 from betty.openapi import Specification
 from betty.openapi.schema import SpecificationSchema
-from betty.project import Project
+from betty.test_utils.conftest import IsolatedProjectFactory
 
 
 class TestSpecification:
@@ -14,10 +13,10 @@ class TestSpecification:
             False,
         ],
     )
-    async def test_build(self, clean_urls: bool, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.clean_urls = clean_urls
-            async with project:
-                sut = Specification(project)
-                specification = await sut.build()
+    async def test_build(
+        self, clean_urls: bool, isolated_project_factory: IsolatedProjectFactory
+    ) -> None:
+        async with isolated_project_factory(clean_urls=clean_urls) as project:
+            sut = Specification(project)
+            specification = await sut.build()
         SpecificationSchema().validate(specification)

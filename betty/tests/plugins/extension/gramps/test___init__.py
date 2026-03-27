@@ -3,7 +3,6 @@ from pathlib import Path
 
 from aiofiles.tempfile import TemporaryDirectory
 
-from betty.app import App
 from betty.event_type import EventTypeManufacturer
 from betty.extension import ExtensionManufacturer
 from betty.place_type import PlaceTypeManufacturer
@@ -18,14 +17,14 @@ from betty.plugins.extension.gramps import Gramps
 from betty.plugins.extension.gramps.data import FamilyTree, GrampsConfiguration
 from betty.plugins.place_type.city import City
 from betty.plugins.role.subject import Subject
-from betty.project import Project
 from betty.project.load import load
 from betty.role import RoleManufacturer
+from betty.test_utils.conftest import IsolatedProjectFactory
 
 
 class TestGramps:
     async def test_load__with_event_type_mapping(
-        self, isolated_app: App, tmp_path: Path
+        self, isolated_project_factory: IsolatedProjectFactory, tmp_path: Path
     ) -> None:
         family_tree_xml = """
 <?xml version="1.0" encoding="UTF-8"?>
@@ -49,32 +48,26 @@ class TestGramps:
         with gzip.open(gramps_family_tree_path, "w") as f:
             f.write(family_tree_xml.encode("utf-8"))
 
-        async with (
-            Project.new_isolated(
-                isolated_app,
-                service_plugins=[
-                    ExtensionManufacturer(
-                        Gramps.plugin(),
-                        GrampsConfiguration(
-                            family_trees=[
-                                FamilyTree(
-                                    gramps_family_tree_path,
-                                    event_types={
-                                        "Birth": EventTypeManufacturer("birth")
-                                    },
-                                )
-                            ]
-                        ),
-                    )
-                ],
-            ) as project,
-            project,
-        ):
+        async with isolated_project_factory(
+            service_plugins=[
+                ExtensionManufacturer(
+                    Gramps.plugin(),
+                    GrampsConfiguration(
+                        family_trees=[
+                            FamilyTree(
+                                gramps_family_tree_path,
+                                event_types={"Birth": EventTypeManufacturer("birth")},
+                            )
+                        ]
+                    ),
+                )
+            ],
+        ) as project:
             await load(project)
             assert isinstance(project.ancestry[Event]["E0000"].event_type, Birth)
 
     async def test_load__with_place_type_mapping(
-        self, isolated_app: App, tmp_path: Path
+        self, isolated_project_factory: IsolatedProjectFactory, tmp_path: Path
     ) -> None:
         family_tree_xml = """
 <?xml version="1.0" encoding="UTF-8"?>
@@ -96,29 +89,27 @@ class TestGramps:
         with gzip.open(gramps_family_tree_path, "w") as f:
             f.write(family_tree_xml.encode("utf-8"))
 
-        async with (
-            Project.new_isolated(
-                isolated_app,
-                service_plugins=[
-                    ExtensionManufacturer(
-                        Gramps.plugin(),
-                        GrampsConfiguration(
-                            family_trees=[
-                                FamilyTree(
-                                    gramps_family_tree_path,
-                                    place_types={"City": PlaceTypeManufacturer("city")},
-                                )
-                            ]
-                        ),
-                    )
-                ],
-            ) as project,
-            project,
-        ):
+        async with isolated_project_factory(
+            service_plugins=[
+                ExtensionManufacturer(
+                    Gramps.plugin(),
+                    GrampsConfiguration(
+                        family_trees=[
+                            FamilyTree(
+                                gramps_family_tree_path,
+                                place_types={"City": PlaceTypeManufacturer("city")},
+                            )
+                        ]
+                    ),
+                )
+            ],
+        ) as project:
             await load(project)
             assert isinstance(project.ancestry[Place]["P0001"].place_type, City)
 
-    async def test_load__with_role_map(self, isolated_app: App, tmp_path: Path) -> None:
+    async def test_load__with_role_map(
+        self, isolated_project_factory: IsolatedProjectFactory, tmp_path: Path
+    ) -> None:
         family_tree_xml = """
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML 1.7.1//EN"
@@ -147,31 +138,29 @@ class TestGramps:
         with gzip.open(gramps_family_tree_path, "w") as f:
             f.write(family_tree_xml.encode("utf-8"))
 
-        async with (
-            Project.new_isolated(
-                isolated_app,
-                service_plugins=[
-                    ExtensionManufacturer(
-                        Gramps.plugin(),
-                        GrampsConfiguration(
-                            family_trees=[
-                                FamilyTree(
-                                    gramps_family_tree_path,
-                                    roles={"MyFirstRole": RoleManufacturer("subject")},
-                                )
-                            ]
-                        ),
-                    )
-                ],
-            ) as project,
-            project,
-        ):
+        async with isolated_project_factory(
+            service_plugins=[
+                ExtensionManufacturer(
+                    Gramps.plugin(),
+                    GrampsConfiguration(
+                        family_trees=[
+                            FamilyTree(
+                                gramps_family_tree_path,
+                                roles={"MyFirstRole": RoleManufacturer("subject")},
+                            )
+                        ]
+                    ),
+                )
+            ],
+        ) as project:
             await load(project)
             assert isinstance(
                 next(iter(project.ancestry[Person]["I0000"].presences)).role, Subject
             )
 
-    async def test_load__with_multiple_family_trees(self, isolated_app: App) -> None:
+    async def test_load__with_multiple_family_trees(
+        self, isolated_project_factory: IsolatedProjectFactory
+    ) -> None:
         family_tree_one_xml = """
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML 1.7.1//EN"
@@ -276,23 +265,19 @@ class TestGramps:
             with gzip.open(gramps_family_tree_two_path, "w") as f:
                 f.write(family_tree_two_xml.encode("utf-8"))
 
-            async with (
-                Project.new_isolated(
-                    isolated_app,
-                    service_plugins=[
-                        ExtensionManufacturer(
-                            Gramps.plugin(),
-                            GrampsConfiguration(
-                                family_trees=[
-                                    FamilyTree(gramps_family_tree_one_path),
-                                    FamilyTree(gramps_family_tree_two_path),
-                                ]
-                            ),
-                        )
-                    ],
-                ) as project,
-                project,
-            ):
+            async with isolated_project_factory(
+                service_plugins=[
+                    ExtensionManufacturer(
+                        Gramps.plugin(),
+                        GrampsConfiguration(
+                            family_trees=[
+                                FamilyTree(gramps_family_tree_one_path),
+                                FamilyTree(gramps_family_tree_two_path),
+                            ]
+                        ),
+                    )
+                ],
+            ) as project:
                 await load(project)
                 assert "I0001" in project.ancestry[Person]
                 assert "I0002" in project.ancestry[Person]

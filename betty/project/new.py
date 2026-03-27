@@ -1,9 +1,8 @@
 from __future__ import annotations  # noqa: D100
 
 from typing import TYPE_CHECKING, Any
-from urllib.parse import urlparse
 
-from betty.assertion import assert_locale, assert_path, assert_str
+from betty.assertion import assert_locale, assert_path, assert_url
 from betty.extension import Extension, ExtensionDefinition, ExtensionManufacturer
 from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizable.gettext import _
@@ -110,7 +109,7 @@ async def new(app: App) -> None:
     url = await app.user.ask_input(
         _("At which URL will your site be published?"),
         default="https://example.com",
-        assertion=_assert_url,
+        assertion=assert_url(),
     )
 
     if await app.user.ask_confirmation(_("Do you want to load a Gramps family tree?")):
@@ -161,13 +160,6 @@ def _assert_project_configuration_file_path(value: Any) -> Path:
     if not configuration_file_path.suffix:
         configuration_file_path /= "betty.yaml"
     return configuration_file_path
-
-
-def _assert_url(value: Any) -> str:
-    url = assert_str()(value)
-    parsed_url = urlparse(url)
-    scheme = parsed_url.scheme or "http"
-    return f"{scheme}://{parsed_url.netloc}{parsed_url.path}"
 
 
 async def _user_input_static_translations(

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2026-03-22 23:31+0000\n"
+"POT-Creation-Date: 2026-03-29 16:08+0100\n"
 "PO-Revision-Date: 2026-02-17 18:12+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: uk\n"
@@ -34,6 +34,10 @@ msgstr "\"{path}\" не є каталогом."
 
 #, python-brace-format
 msgid "\"{target}\" is not configurable, but configuration was given."
+msgstr ""
+
+#, python-brace-format
+msgid "\"{url}\" is not a valid URL."
 msgstr ""
 
 #, python-brace-format
@@ -347,12 +351,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "Cannot find the \"{plugin_type}\" plugin type."
-msgstr ""
-
-#, python-brace-format
-msgid ""
-"Cannot generate pages for {entity_type}, because it is not a public-"
-"facing entity type."
 msgstr ""
 
 #, python-brace-format
@@ -1658,9 +1656,6 @@ msgstr ""
 
 msgid "The URL must include a host."
 msgstr "URL має містити хост."
-
-msgid "The URL must start with a scheme such as https:// or http://."
-msgstr "URL має починатися зі схеми, наприклад, https:// або http://."
 
 msgid "The absolute, public URL at which the site will be published."
 msgstr ""

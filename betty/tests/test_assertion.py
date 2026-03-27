@@ -35,6 +35,7 @@ from betty.assertion import (
     assert_sequence,
     assert_str,
     assert_type,
+    assert_url,
 )
 from betty.data.indicator.selector import Index, Key
 from betty.exception import HumanFacingException
@@ -645,3 +646,24 @@ def test_assert_enum(expected: _Enum, value: Any) -> None:
 def test_assert_enum__with_invalid_value(value: Any) -> None:
     with pytest.raises(HumanFacingException):
         assert_enum(_Enum)(value)
+
+
+def test_assert_url() -> None:
+    assert assert_url()("https://example.com") == "https://example.com"
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        True,
+        False,
+        456,
+        "",
+        object(),
+        [],
+        {},
+    ],
+)
+def test_assert_url__with_invalid_value(value: Any) -> None:
+    with pytest.raises(HumanFacingException):
+        assert_url()(value)

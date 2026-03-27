@@ -10,37 +10,35 @@ from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.source import Source
 from betty.plugins.extension.demo import Demo, generate_with_cleanup
-from betty.project import Project
 from betty.project.load import load
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
 
-    from betty.app import App
     from betty.job import Context
-    from betty.test_utils.conftest import IsolatedAppFactory
+    from betty.project import Project
+    from betty.test_utils.conftest import IsolatedProjectFactory
 
 
 @pytest.mark.usefixtures("demo_project_aioresponses")
 async def test_generate_with_cleanup__without_error(
-    mocker: MockerFixture, isolated_app: App
+    mocker: MockerFixture, isolated_project: Project
 ) -> None:
     async def _generate(project: Project, *, context: Context | None = None) -> None:
         project.output_directory.mkdir(parents=True)
 
     m_generate = mocker.patch("betty.project.generate.generate")
     m_generate.side_effect = _generate
-    async with Project.new_isolated(isolated_app) as project, project:
-        (project.directory / "sentinel").touch()
-        await generate_with_cleanup(project)
-        assert project.directory.is_dir()
-        assert project.output_directory.is_dir()
-        assert not (project.directory / "sentinel").exists()
+    (isolated_project.directory / "sentinel").touch()
+    await generate_with_cleanup(isolated_project)
+    assert isolated_project.directory.is_dir()
+    assert isolated_project.output_directory.is_dir()
+    assert not (isolated_project.directory / "sentinel").exists()
 
 
 @pytest.mark.usefixtures("demo_project_aioresponses")
 async def test_generate_with_cleanup__with_error(
-    mocker: MockerFixture, isolated_app: App
+    mocker: MockerFixture, isolated_project: Project
 ) -> None:
     error_message = "generation error"
 
@@ -50,24 +48,18 @@ async def test_generate_with_cleanup__with_error(
 
     m_generate = mocker.patch("betty.project.generate.generate")
     m_generate.side_effect = _generate
-    async with Project.new_isolated(isolated_app) as project, project:
-        with pytest.raises(RuntimeError, match=error_message):
-            await generate_with_cleanup(project)
-        assert not project.directory.exists()
+    with pytest.raises(RuntimeError, match=error_message):
+        await generate_with_cleanup(isolated_project)
+    assert not isolated_project.directory.exists()
 
 
 @pytest.mark.usefixtures("demo_project_aioresponses")
 class TestDemo:
     async def test_load(
-        self, mocker: MockerFixture, isolated_app_factory: IsolatedAppFactory
+        self, mocker: MockerFixture, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         mocker.patch("betty.wiki.populator.Populator.populate")
-        async with (
-            isolated_app_factory() as app,
-            app,
-            Project.new_isolated(app, service_plugins=[Demo]) as project,
-            project,
-        ):
+        async with isolated_project_factory(service_plugins=[Demo]) as project:
             await load(project)
             assert len(project.ancestry[Person]) != 0
             assert len(project.ancestry[Place]) != 0

@@ -68,7 +68,7 @@ class GenerateStaticPublicAssets(Job):
             jinja,
             document=await self._project.new_document(context=scheduler.context),
             www_directory_path=self._project.www_directory,
-            is_localized_and_multilingual=self._project.configuration.multilingual,
+            is_localized_and_multilingual=self._project.multilingual,
         )
         await gather(
             *[
@@ -148,7 +148,7 @@ class GenerateSitemap(Job):
         sitemap_batch_urls: MutableSequence[str] = []
         sitemap_batch_urls_length = 0
         sitemap_batches.append(sitemap_batch_urls)
-        for locale in self._project.configuration.locales.keys():  # noqa: SIM118
+        for locale in self._project.locales.keys():  # noqa: SIM118
             for entity in self._project.ancestry:
                 if not persistent_id(entity):
                     continue
@@ -303,15 +303,15 @@ class GenerateLocalizedPublicAssets(Job):
                     localizer=localizers.get(locale),
                 ),
                 www_directory_path=self._project.www_directory,
-                is_localized_and_multilingual=self._project.configuration.multilingual,
+                is_localized_and_multilingual=self._project.multilingual,
             )
-            for locale in self._project.configuration.locales.keys()  # noqa: SIM118
+            for locale in self._project.locales.keys()  # noqa: SIM118
         }
         await gather(
             *[
                 self._generate(scheduler, asset_path, copy_functions[locale], locale)
                 async for asset_path in assets.walk(Path("public") / "localized")
-                for locale in self._project.configuration.locales.keys()  # noqa: SIM118
+                for locale in self._project.locales.keys()  # noqa: SIM118
             ]
         )
 
@@ -387,7 +387,7 @@ class GenerateJsonErrorResponses(Job):
             ),
             (404, _("I'm sorry, dear, but it seems this page does not exist.")),
         ]:
-            for locale in self._project.configuration.locales.keys():  # noqa: SIM118
+            for locale in self._project.locales.keys():  # noqa: SIM118
                 async with create_file(
                     self._project.localize_www_directory(locale)
                     / ".error"
@@ -541,10 +541,8 @@ class GenerateEntityTypesHtml(Job):
                 async for entity_type in self._project.plugins[EntityDefinition]
                 if entity_type.public_facing
                 and (
-                    entity_type.id in self._project.configuration.entity_types
-                    and self._project.configuration.entity_types[
-                        entity_type.id
-                    ].generate_html_list
+                    entity_type.id in self._project.entity_types
+                    and self._project.entity_types[entity_type.id].generate_html_list
                 )
                 and (
                     page_count := ceil(
@@ -554,7 +552,7 @@ class GenerateEntityTypesHtml(Job):
                     or 1
                 )
                 for page in range(page_count)
-                for locale in self._project.configuration.locales.keys()  # noqa: SIM118
+                for locale in self._project.locales.keys()  # noqa: SIM118
             ]
         )
 
@@ -705,7 +703,7 @@ class GenerateEntitiesHtml(Job):
                 if entity_type.public_facing
                 for entity in self._project.ancestry[entity_type.cls]
                 if persistent_id(entity) and is_public(entity)
-                for locale in self._project.configuration.locales.keys()  # noqa: SIM118
+                for locale in self._project.locales.keys()  # noqa: SIM118
             ]
         )
 

@@ -33,7 +33,7 @@ class ProjectAuthor(Manufacturable, CopyrightNotice):
     @classmethod
     @require(Project)
     async def new(cls, project: Project, /) -> Self:
-        return cls(project.configuration.author)
+        return cls(project.author)
 
     @property
     @override

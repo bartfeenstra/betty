@@ -1,23 +1,23 @@
-from betty.app import App
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.document import Document
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.plugins.content.raspberry_mint_media import Media
 from betty.plugins.entity.file import File
-from betty.project import Project
+from betty.test_utils.conftest import IsolatedProjectFactory
 
 
 class TestMedia:
-    async def test_build_template__without_file(self, isolated_app: App) -> None:
-        async with (
-            Project.new_isolated(isolated_app, support_plugins=[Media]) as project,
-            project,
-        ):
+    async def test_build_template__without_file(
+        self, isolated_project_factory: IsolatedProjectFactory
+    ) -> None:
+        async with isolated_project_factory(support_plugins=[Media]) as project:
             sut = await Media.new(project)
             assert await sut.build(document=Document(object())) is None
 
-    async def test_build_template__with_file(self, isolated_app: App) -> None:
+    async def test_build_template__with_file(
+        self, isolated_project_factory: IsolatedProjectFactory
+    ) -> None:
         resource = File(
             ASSETS_DIRECTORY_PATH
             / "universe"
@@ -26,10 +26,7 @@ class TestMedia:
             / "betty-16x16.png",
             media_type=MediaType("image/png"),
         )
-        async with (
-            Project.new_isolated(isolated_app, support_plugins=[Media]) as project,
-            project,
-        ):
+        async with isolated_project_factory(support_plugins=[Media]) as project:
             sut = await Media.new(project)
             actual = await sut.build(document=Document(resource))
         assert actual is not None

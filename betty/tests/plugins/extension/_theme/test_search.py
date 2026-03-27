@@ -1,9 +1,9 @@
+from collections.abc import AsyncIterator
 from pathlib import Path
 
 import pytest
 
 from betty.ancestry.name import Name
-from betty.app import App
 from betty.job import Context
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugins.entity.file import File
@@ -13,58 +13,42 @@ from betty.plugins.entity.place import Place
 from betty.plugins.extension._theme.search import Index
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.privacy import Privacy
-from betty.project import Project
-from betty.project.data import ProjectLocale
+from betty.project import Project, ProjectLocale
+from betty.test_utils.conftest import IsolatedProjectFactory
 
 
 class TestIndex:
-    async def test_build_empty(self, isolated_app: App) -> None:
-        async with Project.new_isolated(
-            isolated_app, service_plugins=[RaspberryMint]
-        ) as project:
-            project.configuration.locales.add(
+    @pytest.fixture
+    async def dummy_project(
+        self, isolated_project_factory: IsolatedProjectFactory
+    ) -> AsyncIterator[Project]:
+        async with isolated_project_factory(
+            locales=(
                 ProjectLocale(
                     "en-US",
                     alias="en",
-                )
-            )
-            project.configuration.locales.add(
+                ),
                 ProjectLocale(
                     "nl-NL",
                     alias="nl",
-                )
-            )
-            async with project:
-                actual = await Index(project, Context(), DEFAULT_LOCALIZER).build()
+                ),
+            ),
+            service_plugins=[RaspberryMint],
+        ) as project:
+            yield project
 
-                assert actual == []
+    async def test_build_empty(self, dummy_project: Project) -> None:
+        actual = await Index(dummy_project, Context(), DEFAULT_LOCALIZER).build()
+        assert actual == []
 
-    async def test_build_person_without_names(self, isolated_app: App) -> None:
+    async def test_build_person_without_names(self, dummy_project: Project) -> None:
         person_id = "P1"
         person = Person(id=person_id)
+        dummy_project.ancestry.add(person)
+        actual = await Index(dummy_project, Context(), DEFAULT_LOCALIZER).build()
+        assert actual[0].text == {"p1"}
 
-        async with Project.new_isolated(
-            isolated_app, service_plugins=[RaspberryMint]
-        ) as project:
-            project.configuration.locales.add(
-                ProjectLocale(
-                    "en-US",
-                    alias="en",
-                )
-            )
-            project.configuration.locales.add(
-                ProjectLocale(
-                    "nl-NL",
-                    alias="nl",
-                )
-            )
-            project.ancestry.add(person)
-            async with project:
-                actual = await Index(project, Context(), DEFAULT_LOCALIZER).build()
-
-                assert actual[0].text == {"p1"}
-
-    async def test_build_private_person(self, isolated_app: App) -> None:
+    async def test_build_private_person(self, dummy_project: Project) -> None:
         person_id = "P1"
         individual_name = "Jane"
         person = Person(
@@ -75,27 +59,9 @@ class TestIndex:
             person=person,
             individual=individual_name,
         )
-
-        async with Project.new_isolated(
-            isolated_app, service_plugins=[RaspberryMint]
-        ) as project:
-            project.configuration.locales.add(
-                ProjectLocale(
-                    "en-US",
-                    alias="en",
-                )
-            )
-            project.configuration.locales.add(
-                ProjectLocale(
-                    "nl-NL",
-                    alias="nl",
-                )
-            )
-            project.ancestry.add(person)
-            async with project:
-                actual = await Index(project, Context(), DEFAULT_LOCALIZER).build()
-
-                assert actual == []
+        dummy_project.ancestry.add(person)
+        actual = await Index(dummy_project, Context(), DEFAULT_LOCALIZER).build()
+        assert actual == []
 
     @pytest.mark.parametrize(
         ("expected", "locale"),
@@ -105,7 +71,7 @@ class TestIndex:
         ],
     )
     async def test_build_person_with_individual_name(
-        self, expected: str, locale: str, isolated_app: App
+        self, expected: str, locale: str, dummy_project: Project
     ) -> None:
         person_id = "P1"
         individual_name = "Jane"
@@ -114,29 +80,11 @@ class TestIndex:
             person=person,
             individual=individual_name,
         )
-
-        async with Project.new_isolated(
-            isolated_app, service_plugins=[RaspberryMint]
-        ) as project:
-            project.configuration.locales.add(
-                ProjectLocale(
-                    "en-US",
-                    alias="en",
-                )
-            )
-            project.configuration.locales.add(
-                ProjectLocale(
-                    "nl-NL",
-                    alias="nl",
-                )
-            )
-            project.ancestry.add(person)
-            async with project:
-                localizers = await project.localizers
-                actual = await Index(project, Context(), localizers.get(locale)).build()
-
-                assert actual[0].text == {"p1", "jane"}
-                assert expected in actual[0].result
+        dummy_project.ancestry.add(person)
+        localizers = await dummy_project.localizers
+        actual = await Index(dummy_project, Context(), localizers.get(locale)).build()
+        assert actual[0].text == {"p1", "jane"}
+        assert expected in actual[0].result
 
     @pytest.mark.parametrize(
         ("expected", "locale"),
@@ -146,7 +94,7 @@ class TestIndex:
         ],
     )
     async def test_build_person_with_affiliation_name(
-        self, expected: str, locale: str, isolated_app: App
+        self, expected: str, locale: str, dummy_project: Project
     ) -> None:
         person_id = "P1"
         affiliation_name = "Doughnut"
@@ -155,33 +103,15 @@ class TestIndex:
             person=person,
             affiliation=affiliation_name,
         )
-
-        async with Project.new_isolated(
-            isolated_app, service_plugins=[RaspberryMint]
-        ) as project:
-            project.configuration.locales.add(
-                ProjectLocale(
-                    "en-US",
-                    alias="en",
-                )
-            )
-            project.configuration.locales.add(
-                ProjectLocale(
-                    "nl-NL",
-                    alias="nl",
-                )
-            )
-            project.ancestry.add(person)
-            async with project:
-                localizers = await project.localizers
-                actual = await Index(
-                    project,
-                    Context(),
-                    localizers.get(locale),
-                ).build()
-
-                assert actual[0].text == {"p1", "doughnut"}
-                assert expected in actual[0].result
+        dummy_project.ancestry.add(person)
+        localizers = await dummy_project.localizers
+        actual = await Index(
+            dummy_project,
+            Context(),
+            localizers.get(locale),
+        ).build()
+        assert actual[0].text == {"p1", "doughnut"}
+        assert expected in actual[0].result
 
     @pytest.mark.parametrize(
         ("expected", "locale"),
@@ -191,7 +121,7 @@ class TestIndex:
         ],
     )
     async def test_build_person_with_individual_and_affiliation_names(
-        self, expected: str, locale: str, isolated_app: App
+        self, expected: str, locale: str, dummy_project: Project
     ) -> None:
         person_id = "P1"
         individual_name = "Jane"
@@ -202,29 +132,11 @@ class TestIndex:
             individual=individual_name,
             affiliation=affiliation_name,
         )
-
-        async with Project.new_isolated(
-            isolated_app, service_plugins=[RaspberryMint]
-        ) as project:
-            project.configuration.locales.add(
-                ProjectLocale(
-                    "en-US",
-                    alias="en",
-                )
-            )
-            project.configuration.locales.add(
-                ProjectLocale(
-                    "nl-NL",
-                    alias="nl",
-                )
-            )
-            project.ancestry.add(person)
-            async with project:
-                localizers = await project.localizers
-                actual = await Index(project, Context(), localizers.get(locale)).build()
-
-                assert actual[0].text == {"p1", "jane", "doughnut"}
-                assert expected in actual[0].result
+        dummy_project.ancestry.add(person)
+        localizers = await dummy_project.localizers
+        actual = await Index(dummy_project, Context(), localizers.get(locale)).build()
+        assert actual[0].text == {"p1", "jane", "doughnut"}
+        assert expected in actual[0].result
 
     @pytest.mark.parametrize(
         ("expected_result", "expected_text", "locale"),
@@ -246,7 +158,7 @@ class TestIndex:
         expected_result: str,
         expected_text: set[str],
         locale: str,
-        isolated_app: App,
+        dummy_project: Project,
     ) -> None:
         place_id = "P1"
         place = Place(
@@ -260,35 +172,13 @@ class TestIndex:
                 ),
             ],
         )
+        dummy_project.ancestry.add(place)
+        localizers = await dummy_project.localizers
+        actual = await Index(dummy_project, Context(), localizers.get(locale)).build()
+        assert actual[0].text == expected_text
+        assert expected_result in actual[0].result
 
-        async with Project.new_isolated(
-            isolated_app, service_plugins=[RaspberryMint]
-        ) as project:
-            project.configuration.locales.add(
-                ProjectLocale(
-                    "en-US",
-                    alias="en",
-                )
-            )
-            project.configuration.locales.add(
-                ProjectLocale(
-                    "nl-NL",
-                    alias="nl",
-                )
-            )
-            project.ancestry.add(place)
-            async with project:
-                localizers = await project.localizers
-                actual = await Index(
-                    project,
-                    Context(),
-                    localizers.get(locale),
-                ).build()
-
-                assert actual[0].text == expected_text
-                assert expected_result in actual[0].result
-
-    async def test_build_private_place(self, isolated_app: App) -> None:
+    async def test_build_private_place(self, dummy_project: Project) -> None:
         place_id = "P1"
         place = Place(
             id=place_id,
@@ -299,25 +189,13 @@ class TestIndex:
             ],
             privacy=Privacy.PRIVATE,
         )
-
-        async with Project.new_isolated(
-            isolated_app, service_plugins=[RaspberryMint]
-        ) as project:
-            project.configuration.locales.add(
-                ProjectLocale(
-                    "en-US",
-                    alias="en",
-                )
-            )
-            project.ancestry.add(place)
-            async with project:
-                actual = await Index(
-                    project,
-                    Context(),
-                    DEFAULT_LOCALIZER,
-                ).build()
-
-                assert actual == []
+        dummy_project.ancestry.add(place)
+        actual = await Index(
+            dummy_project,
+            Context(),
+            DEFAULT_LOCALIZER,
+        ).build()
+        assert actual == []
 
     @pytest.mark.parametrize(
         ("expected_text", "expected_result", "description", "locale"),
@@ -378,7 +256,7 @@ class TestIndex:
         expected_result: str,
         description: str | None,
         locale: str,
-        isolated_app: App,
+        dummy_project: Project,
     ) -> None:
         file_id = "F1"
         file = File(
@@ -386,35 +264,17 @@ class TestIndex:
             path=Path(__file__),
             description=description,
         )
+        dummy_project.ancestry.add(file)
+        localizers = await dummy_project.localizers
+        actual = await Index(
+            dummy_project,
+            Context(),
+            localizers.get(locale),
+        ).build()
+        assert actual[0].text == expected_text
+        assert expected_result in actual[0].result
 
-        async with Project.new_isolated(
-            isolated_app, service_plugins=[RaspberryMint]
-        ) as project:
-            project.configuration.locales.add(
-                ProjectLocale(
-                    "en-US",
-                    alias="en",
-                )
-            )
-            project.configuration.locales.add(
-                ProjectLocale(
-                    "nl-NL",
-                    alias="nl",
-                )
-            )
-            project.ancestry.add(file)
-            async with project:
-                localizers = await project.localizers
-                actual = await Index(
-                    project,
-                    Context(),
-                    localizers.get(locale),
-                ).build()
-
-                assert actual[0].text == expected_text
-                assert expected_result in actual[0].result
-
-    async def test_build_private_file(self, isolated_app: App) -> None:
+    async def test_build_private_file(self, dummy_project: Project) -> None:
         file_id = "F1"
         file = File(
             id=file_id,
@@ -422,22 +282,10 @@ class TestIndex:
             description='"file" is Dutch for "traffic jam"',
             privacy=Privacy.PRIVATE,
         )
-
-        async with Project.new_isolated(
-            isolated_app, service_plugins=[RaspberryMint]
-        ) as project:
-            project.configuration.locales.add(
-                ProjectLocale(
-                    "en-US",
-                    alias="en",
-                )
-            )
-            project.ancestry.add(file)
-            async with project:
-                actual = await Index(
-                    project,
-                    Context(),
-                    DEFAULT_LOCALIZER,
-                ).build()
-
-                assert actual == []
+        dummy_project.ancestry.add(file)
+        actual = await Index(
+            dummy_project,
+            Context(),
+            DEFAULT_LOCALIZER,
+        ).build()
+        assert actual == []

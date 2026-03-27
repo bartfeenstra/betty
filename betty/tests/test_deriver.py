@@ -27,8 +27,8 @@ from betty.test_utils.locale.localizable import (
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
-    from betty.app import App
     from betty.plugin.discovery import ResolvableDiscovery
+    from betty.test_utils.conftest import IsolatedProjectFactory
 
 type NewProject = Callable[
     [Iterable[ResolvableDiscovery[EventTypeDefinition]]],
@@ -200,17 +200,16 @@ class ComesAfterShouldNotExist(ShouldExistEventType):
 
 class TestDeriver:
     @pytest.fixture
-    def new_project(self, isolated_app: App) -> NewProject:
+    def new_project(
+        self, isolated_project_factory: IsolatedProjectFactory
+    ) -> NewProject:
         @asynccontextmanager
         async def _new_project(
             event_types: Iterable[ResolvableDiscovery[EventTypeDefinition]],
         ) -> AsyncIterator[Project]:
-            async with (
-                Project.new_isolated(
-                    isolated_app, plugins={EventTypeDefinition: event_types}
-                ) as project,
-                project,
-            ):
+            async with isolated_project_factory(
+                plugins={EventTypeDefinition: event_types}
+            ) as project:
                 yield project
 
         return _new_project

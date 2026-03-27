@@ -70,9 +70,9 @@ async def new_environment(project: Project, /) -> Environment:
     today = datetime.date.today()
     environment = Environment(
         loader=FileSystemLoader(template_directory_paths),
-        auto_reload=project.configuration.debug,
+        auto_reload=project.debug,
         enable_async=True,
-        undefined=(DebugUndefined if project.configuration.debug else StrictUndefined),
+        undefined=(DebugUndefined if project.debug else StrictUndefined),
         autoescape=select_autoescape(["html.j2"]),
         trim_blocks=True,
         lstrip_blocks=True,
@@ -82,7 +82,7 @@ async def new_environment(project: Project, /) -> Environment:
             _CacheTagExtension,
         ],
     )
-    if project.configuration.debug:
+    if project.debug:
         environment.add_extension("jinja2.ext.debug")
     environment.install_gettext_callables(  # ty:ignore[unresolved-attribute]
         gettext=_gettext,

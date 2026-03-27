@@ -7,7 +7,6 @@ from __future__ import annotations
 from collections.abc import Awaitable, Callable, MutableMapping, MutableSequence
 from typing import TYPE_CHECKING
 
-from betty.app import App
 from betty.json.schema import Schema
 from betty.portable import PortableData
 from betty.project import Project
@@ -48,12 +47,7 @@ async def assert_linked_data_dump[PortableDataT: PortableData](
     """
     Assert that dumped linked data is valid against a schema.
     """
-    async with (
-        App.new_isolated() as app,
-        app,
-        Project.new_isolated(app) as project,
-        project,
-    ):
+    async with Project.new_isolated() as project:
         actual = await portable(project) if callable(portable) else portable  # ty:ignore[call-top-callable]
 
         # Validate the raw dump.

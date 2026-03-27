@@ -12,7 +12,6 @@ import pytest
 from aiofiles.tempfile import AiofilesContextManagerTempDir
 from babel import Locale
 
-from betty.app import App
 from betty.date import Date, DateRange
 from betty.gramps.error import UserFacingGrampsError
 from betty.gramps.loader import GrampsFileNotFound, GrampsLoader, LoaderUsedAlready
@@ -108,33 +107,31 @@ class TestGrampsLoader:
     ATTRIBUTE_PREFIX_KEY = "pre3f1x"
     PROJECT_NAME = "pr0j3ct"
 
-    async def test_load_gramps(self, isolated_app: App, tmp_path: Path) -> None:
+    async def test_load_gramps(self, isolated_project: Project, tmp_path: Path) -> None:
         gramps_file_path = tmp_path / "betty.gramps"
         with gzip.open(gramps_file_path, "w") as f:
             f.write(_minimal_xml().encode("utf-8"))
-        async with Project.new_isolated(isolated_app) as project, project:
-            sut = GrampsLoader(
-                project.ancestry,
-                user=StaticUser(),
-                services=project,
-                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-            )
-            await sut.load_gramps(gramps_file_path)
+        sut = GrampsLoader(
+            isolated_project.ancestry,
+            user=StaticUser(),
+            services=isolated_project,
+            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+        )
+        await sut.load_gramps(gramps_file_path)
 
     async def test_load_gramps__with_non_existent_file(
-        self, isolated_app: App, tmp_path: Path
+        self, isolated_project: Project, tmp_path: Path
     ) -> None:
-        async with Project.new_isolated(isolated_app) as project, project:
-            sut = GrampsLoader(
-                project.ancestry,
-                user=StaticUser(),
-                services=project,
-                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-            )
-            with pytest.raises(GrampsFileNotFound):
-                await sut.load_gramps(tmp_path / "non-existent-file")
+        sut = GrampsLoader(
+            isolated_project.ancestry,
+            user=StaticUser(),
+            services=isolated_project,
+            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+        )
+        with pytest.raises(GrampsFileNotFound):
+            await sut.load_gramps(tmp_path / "non-existent-file")
 
-    async def test_load_gpkg(self, isolated_app: App, tmp_path: Path) -> None:
+    async def test_load_gpkg(self, isolated_project: Project, tmp_path: Path) -> None:
         gramps_file_path = tmp_path / "betty.gramps"
         with gzip.open(gramps_file_path, "w") as f:
             f.write(_minimal_xml().encode("utf-8"))
@@ -143,47 +140,44 @@ class TestGrampsLoader:
             name=gpkg_file_path, mode="w:gz"
         ) as tar_file:
             tar_file.add(gramps_file_path, "/data.gramps")
-        async with Project.new_isolated(isolated_app) as project, project:
-            sut = GrampsLoader(
-                project.ancestry,
-                user=StaticUser(),
-                services=project,
-                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-            )
-            await sut.load_gpkg(gpkg_file_path)
+        sut = GrampsLoader(
+            isolated_project.ancestry,
+            user=StaticUser(),
+            services=isolated_project,
+            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+        )
+        await sut.load_gpkg(gpkg_file_path)
 
     async def test_load_gpkg__with_non_existent_file(
-        self, isolated_app: App, tmp_path: Path
+        self, isolated_project: Project, tmp_path: Path
     ) -> None:
-        async with Project.new_isolated(isolated_app) as project, project:
-            sut = GrampsLoader(
-                project.ancestry,
-                user=StaticUser(),
-                services=project,
-                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-            )
-            with pytest.raises(GrampsFileNotFound):
-                await sut.load_gpkg(tmp_path / "non-existent-file")
+        sut = GrampsLoader(
+            isolated_project.ancestry,
+            user=StaticUser(),
+            services=isolated_project,
+            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+        )
+        with pytest.raises(GrampsFileNotFound):
+            await sut.load_gpkg(tmp_path / "non-existent-file")
 
     async def test_load_file__with_gramps(
-        self, isolated_app: App, tmp_path: Path
+        self, isolated_project: Project, tmp_path: Path
     ) -> None:
         gramps_file_path = tmp_path / "betty.gramps"
         with gzip.open(gramps_file_path, "w") as f:
             f.write(_minimal_xml().encode("utf-8"))
-        async with Project.new_isolated(isolated_app) as project, project:
-            sut = GrampsLoader(
-                project.ancestry,
-                user=StaticUser(),
-                services=project,
-                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-            )
+        sut = GrampsLoader(
+            isolated_project.ancestry,
+            user=StaticUser(),
+            services=isolated_project,
+            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+        )
+        await sut.load_file(gramps_file_path)
+        with pytest.raises(LoaderUsedAlready):
             await sut.load_file(gramps_file_path)
-            with pytest.raises(LoaderUsedAlready):
-                await sut.load_file(gramps_file_path)
 
     async def test_load_file__with_gpkg(
-        self, isolated_app: App, tmp_path: Path
+        self, isolated_project: Project, tmp_path: Path
     ) -> None:
         gramps_file_path = tmp_path / "betty.gramps"
         with gzip.open(gramps_file_path, "w") as f:
@@ -193,19 +187,18 @@ class TestGrampsLoader:
             name=gpkg_file_path, mode="w:gz"
         ) as tar_file:
             tar_file.add(gramps_file_path, "/data.gramps")
-        async with Project.new_isolated(isolated_app) as project, project:
-            sut = GrampsLoader(
-                project.ancestry,
-                user=StaticUser(),
-                services=project,
-                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-            )
+        sut = GrampsLoader(
+            isolated_project.ancestry,
+            user=StaticUser(),
+            services=isolated_project,
+            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+        )
+        await sut.load_file(gpkg_file_path)
+        with pytest.raises(LoaderUsedAlready):
             await sut.load_file(gpkg_file_path)
-            with pytest.raises(LoaderUsedAlready):
-                await sut.load_file(gpkg_file_path)
 
     async def test_load_file__with_ged(
-        self, mocker: MockerFixture, isolated_app: App, tmp_path: Path
+        self, mocker: MockerFixture, isolated_project: Project, tmp_path: Path
     ) -> None:
         gramps_executable = "gramps"
         ged_file_path = Path("my-first-family-tree.ged")
@@ -222,47 +215,42 @@ class TestGrampsLoader:
         gramps_file_path = tmp_path / "betty.gramps"
         with gzip.open(gramps_file_path, "w") as f:
             f.write(_minimal_xml().encode("utf-8"))
-        async with Project.new_isolated(isolated_app) as project, project:
-            sut = GrampsLoader(
-                project.ancestry,
-                user=StaticUser(),
-                services=project,
-                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-                executable=gramps_executable,
-            )
-            await sut.load_file(ged_file_path)
+        sut = GrampsLoader(
+            isolated_project.ancestry,
+            user=StaticUser(),
+            services=isolated_project,
+            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            executable=gramps_executable,
+        )
+        await sut.load_file(ged_file_path)
         m_run_process.assert_awaited()
 
     async def test_load_file__with_non_existent_file(
-        self, isolated_app: App, tmp_path: Path
+        self, isolated_project: Project, tmp_path: Path
     ) -> None:
-        async with Project.new_isolated(isolated_app) as project, project:
-            sut = GrampsLoader(
-                project.ancestry,
-                user=StaticUser(),
-                services=project,
-                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-            )
-            with pytest.raises(UserFacingGrampsError):
-                await sut.load_file(tmp_path / "non-existent-file")
+        sut = GrampsLoader(
+            isolated_project.ancestry,
+            user=StaticUser(),
+            services=isolated_project,
+            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+        )
+        with pytest.raises(UserFacingGrampsError):
+            await sut.load_file(tmp_path / "non-existent-file")
 
     async def test_load_file__with_invalid_file(
-        self, isolated_app: App, tmp_path: Path
+        self, isolated_project: Project, tmp_path: Path
     ) -> None:
-        async with Project.new_isolated(isolated_app) as project, project:
-            sut = GrampsLoader(
-                project.ancestry,
-                user=StaticUser(),
-                services=project,
-                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-            )
-            with pytest.raises(UserFacingGrampsError):
-                await sut.load_file(
-                    Path(__file__).parent / "assets" / "minimal.invalid"
-                )
+        sut = GrampsLoader(
+            isolated_project.ancestry,
+            user=StaticUser(),
+            services=isolated_project,
+            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+        )
+        with pytest.raises(UserFacingGrampsError):
+            await sut.load_file(Path(__file__).parent / "assets" / "minimal.invalid")
 
     async def test_load_name__with_existent_family_tree(
-        self, mocker: MockerFixture, isolated_app: App, tmp_path: Path
+        self, mocker: MockerFixture, isolated_project: Project, tmp_path: Path
     ) -> None:
         gramps_executable = "gramps"
         family_tree_name = "my-first-family-tree"
@@ -279,22 +267,21 @@ class TestGrampsLoader:
         gramps_file_path = tmp_path / "betty.gramps"
         with gzip.open(gramps_file_path, "w") as f:
             f.write(_minimal_xml().encode("utf-8"))
-        async with Project.new_isolated(isolated_app) as project, project:
-            sut = GrampsLoader(
-                project.ancestry,
-                user=StaticUser(),
-                services=project,
-                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-                executable=gramps_executable,
-            )
-            await sut.load_name(family_tree_name)
+        sut = GrampsLoader(
+            isolated_project.ancestry,
+            user=StaticUser(),
+            services=isolated_project,
+            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            executable=gramps_executable,
+        )
+        await sut.load_name(family_tree_name)
         m_run_process.assert_awaited_once_with(
             [gramps_executable, "-O", family_tree_name, "-e", str(gramps_file_path)],
             user=ANY,
         )
 
     async def test_load_name__with_non_existent_family_tree(
-        self, mocker: MockerFixture, isolated_app: App, tmp_path: Path
+        self, mocker: MockerFixture, isolated_project: Project, tmp_path: Path
     ) -> None:
         gramps_executable = "gramps"
         family_tree_name = "my-first-family-tree"
@@ -309,16 +296,15 @@ class TestGrampsLoader:
         m_run_process = mocker.patch("betty.subprocess.run_process")
         m_run_process.side_effect = CalledSubprocessError(1, "", "", "")
         gramps_file_path = tmp_path / "betty.gramps"
-        async with Project.new_isolated(isolated_app) as project, project:
-            sut = GrampsLoader(
-                project.ancestry,
-                user=StaticUser(),
-                services=project,
-                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-                executable=gramps_executable,
-            )
-            with pytest.raises(UserFacingGrampsError):
-                await sut.load_name(family_tree_name)
+        sut = GrampsLoader(
+            isolated_project.ancestry,
+            user=StaticUser(),
+            services=isolated_project,
+            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            executable=gramps_executable,
+        )
+        with pytest.raises(UserFacingGrampsError):
+            await sut.load_name(family_tree_name)
         m_run_process.assert_awaited_once_with(
             [gramps_executable, "-O", family_tree_name, "-e", str(gramps_file_path)],
             user=ANY,
@@ -339,24 +325,18 @@ class TestGrampsLoader:
         role_mapping: Mapping[str, ResolvablePluginManufacturer[RoleDefinition, Role]]
         | None = None,
     ) -> Ancestry:
-        async with (
-            App.new_isolated() as app,
-            app,
-            Project.new_isolated(app) as project,
-        ):
-            project.configuration.name = self.PROJECT_NAME
-            async with project:
-                loader = GrampsLoader(
-                    project.ancestry,
-                    user=StaticUser(),
-                    services=project,
-                    attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-                    event_type_mapping=event_type_mapping,
-                    place_type_mapping=place_type_mapping,
-                    role_mapping=role_mapping,
-                )
-                await loader.load_xml(xml.strip())
-                return project.ancestry
+        async with Project.new_isolated(name=self.PROJECT_NAME) as project:
+            loader = GrampsLoader(
+                project.ancestry,
+                user=StaticUser(),
+                services=project,
+                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+                event_type_mapping=event_type_mapping,
+                place_type_mapping=place_type_mapping,
+                role_mapping=role_mapping,
+            )
+            await loader.load_xml(xml.strip())
+            return project.ancestry
 
     async def _load_partial(
         self,
@@ -395,15 +375,14 @@ class TestGrampsLoader:
             role_mapping=role_mapping,
         )
 
-    async def test_load_xml(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project, project:
-            sut = GrampsLoader(
-                project.ancestry,
-                user=StaticUser(),
-                services=project,
-                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-            )
-            await sut.load_xml(_minimal_xml())
+    async def test_load_xml(self, isolated_project: Project) -> None:
+        sut = GrampsLoader(
+            isolated_project.ancestry,
+            user=StaticUser(),
+            services=isolated_project,
+            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+        )
+        await sut.load_xml(_minimal_xml())
 
     @pytest.mark.parametrize(
         "version",
@@ -414,20 +393,19 @@ class TestGrampsLoader:
         ],
     )
     async def test_load_xml_with_unsupported_version_should_error(
-        self, isolated_app: App, version: str
+        self, isolated_project: Project, version: str
     ) -> None:
-        async with Project.new_isolated(isolated_app) as project, project:
-            sut = GrampsLoader(
-                project.ancestry,
-                user=StaticUser(),
-                services=project,
-                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-            )
-            with pytest.raises(UserFacingGrampsError):
-                await sut.load_xml(_minimal_xml(version))
+        sut = GrampsLoader(
+            isolated_project.ancestry,
+            user=StaticUser(),
+            services=isolated_project,
+            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+        )
+        with pytest.raises(UserFacingGrampsError):
+            await sut.load_xml(_minimal_xml(version))
 
     async def test_load_xml_with_invalid_xml_should_error(
-        self, isolated_app: App
+        self, isolated_project: Project
     ) -> None:
         xml = """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML 1.7.1//EN"
@@ -440,15 +418,14 @@ class TestGrampsLoader:
   </header>
 </database>
 """
-        async with Project.new_isolated(isolated_app) as project, project:
-            sut = GrampsLoader(
-                project.ancestry,
-                user=StaticUser(),
-                services=project,
-                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-            )
-            with pytest.raises(UserFacingGrampsError):
-                await sut.load_xml(xml)
+        sut = GrampsLoader(
+            isolated_project.ancestry,
+            user=StaticUser(),
+            services=isolated_project,
+            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+        )
+        with pytest.raises(UserFacingGrampsError):
+            await sut.load_xml(xml)
 
     async def test_place_should_include_place_type(self) -> None:
         ancestry = await self._load_partial(
@@ -2197,16 +2174,15 @@ class TestGrampsLoader:
         ],
     )
     async def test_load_locale(
-        self, expected: Locale | None, locale: str, isolated_app: App
+        self, expected: Locale | None, locale: str, isolated_project: Project
     ) -> None:
         user = StaticUser()
-        async with Project.new_isolated(isolated_app) as project, project:
-            sut = GrampsLoader(
-                project.ancestry,
-                services=project,
-                user=user,
-                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-            )
-            assert await sut.load_locale(locale) == expected
+        sut = GrampsLoader(
+            isolated_project.ancestry,
+            services=isolated_project,
+            user=user,
+            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+        )
+        assert await sut.load_locale(locale) == expected
         if expected is None:
             user.assert_message_warning(locale)

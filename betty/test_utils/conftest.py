@@ -17,6 +17,8 @@ __all__ = [
     "http_client_mock",
     "isolated_app",
     "isolated_app_factory",
+    "isolated_project",
+    "isolated_project_factory",
     "page",
     "process_pool",
 ]
@@ -30,6 +32,7 @@ from json import dumps
 from typing import (
     TYPE_CHECKING,
     Any,
+    Literal,
     Protocol,
     final,
 )
@@ -44,7 +47,12 @@ from betty.cache.file import BinaryFileCache
 from betty.exception import do_raise
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.plugins.license.spdx import SpdxLicenseDiscoverer
-from betty.project import Project
+from betty.project import (
+    Project,
+    ProjectEntityType,
+    ProjectLocale,
+    ProjectServicePlugin,
+)
 from betty.user import Verbosity
 
 if TYPE_CHECKING:
@@ -53,6 +61,7 @@ if TYPE_CHECKING:
         Callable,
         Iterable,
         Iterator,
+        Mapping,
         MutableMapping,
     )
     from concurrent import futures
@@ -61,10 +70,18 @@ if TYPE_CHECKING:
 
     from playwright.async_api import BrowserContext, Page
 
+    from betty.ancestry import Ancestry
     from betty.cache import Cache
     from betty.extension import ExtensionDefinition
-    from betty.plugin import ResolvablePluginId
+    from betty.locale import ResolvableLocale
+    from betty.locale.localizable import ResolvableLocalizable
+    from betty.locale.translation import TranslationRepository
+    from betty.machine_name import ResolvableMachineName
+    from betty.model import EntityDefinition
+    from betty.plugin import PluginDefinition, ResolvablePluginId
+    from betty.plugin.discovery import ResolvableDiscovery
     from betty.portable import PortableMapping
+    from betty.service.plugin import ServicePlugins, SupportPlugins
     from betty.service.provider import ServiceFactory
     from betty.user import User
 
@@ -112,17 +129,19 @@ async def isolated_app(
             yield app
 
 
+@final
 class IsolatedAppFactory(Protocol):
     def __call__(
         self,
         *,
         process_pool: futures.ProcessPoolExecutor | None = None,
+        translations: TranslationRepository | None | Literal[False] = False,
         user: User | None = None,
     ) -> AbstractAsyncContextManager[App]:
         raise NotImplementedError
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def isolated_app_factory(
     process_pool: futures.ProcessPoolExecutor,
 ) -> IsolatedAppFactory:
@@ -136,17 +155,112 @@ def isolated_app_factory(
         *,
         cache_factory: ServiceFactory[App, Cache[Any]] | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
+        translations: TranslationRepository | None | Literal[False] = False,
         user: User | None = None,
     ) -> AsyncIterator[App]:
         async with App.new_isolated(
             cache_factory=cache_factory,
             process_pool=process_pool or fixture_process_pool,
+            translations=translations,
             user=user,
         ) as app:
             await _configure_isolated_app(app)
             yield app
 
     return _isolated_app_factory
+
+
+@pytest.fixture
+async def isolated_project(isolated_app: App) -> AsyncIterator[Project]:
+    """
+    Create a new, isolated, temporary :py:class:`betty.project.Project`.
+    """
+    async with Project.new_isolated(app=isolated_app) as project:
+        yield project
+
+
+@final
+class IsolatedProjectFactory(Protocol):
+    def __call__(
+        self,
+        *,
+        ancestry: Ancestry | None = None,
+        app: App | None = None,
+        author: ResolvableLocalizable | None = None,
+        clean_urls: bool = False,
+        debug: bool = False,
+        directory: Path | None = None,
+        entity_types: Iterable[
+            ProjectEntityType | ResolvablePluginId[EntityDefinition]
+        ] = (),
+        lifetime_threshold: int | None = None,
+        locales: Iterable[ProjectLocale | ResolvableLocale] = (),
+        logo: Path | None = None,
+        name: ResolvableMachineName | None = None,
+        plugins: Mapping[
+            type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
+        ]
+        | None = None,
+        service_plugins: ServicePlugins[ProjectServicePlugin] = (),
+        support_plugins: SupportPlugins = (),
+        title: ResolvableLocalizable | None = None,
+        url: str | None = None,
+    ) -> AbstractAsyncContextManager[Project]:
+        raise NotImplementedError
+
+
+@pytest.fixture(scope="session")
+def isolated_project_factory(isolated_app: App) -> IsolatedProjectFactory:
+    """
+    Get a factory to create a new, isolated, temporary :py:class:`betty.project.Project`.
+    """
+
+    @asynccontextmanager
+    async def _isolated_project_factory(
+        *,
+        ancestry: Ancestry | None = None,
+        app: App | None = None,
+        author: ResolvableLocalizable | None = None,
+        clean_urls: bool = False,
+        debug: bool = False,
+        directory: Path | None = None,
+        entity_types: Iterable[
+            ProjectEntityType | ResolvablePluginId[EntityDefinition]
+        ] = (),
+        lifetime_threshold: int | None = None,
+        locales: Iterable[ProjectLocale | ResolvableLocale] = (),
+        logo: Path | None = None,
+        name: ResolvableMachineName | None = None,
+        plugins: Mapping[
+            type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
+        ]
+        | None = None,
+        service_plugins: ServicePlugins[ProjectServicePlugin] = (),
+        support_plugins: SupportPlugins = (),
+        title: ResolvableLocalizable | None = None,
+        url: str | None = None,
+    ) -> AsyncIterator[Project]:
+        async with Project.new_isolated(
+            ancestry=ancestry,
+            app=app or isolated_app,
+            author=author,
+            clean_urls=clean_urls,
+            debug=debug,
+            directory=directory,
+            entity_types=entity_types,
+            lifetime_threshold=lifetime_threshold,
+            locales=locales,
+            logo=logo,
+            name=name,
+            plugins=plugins,
+            service_plugins=service_plugins,
+            support_plugins=support_plugins,
+            title=title,
+            url=url,
+        ) as project:
+            yield project
+
+    return _isolated_project_factory
 
 
 @pytest_asyncio.fixture(loop_scope="session")
@@ -369,7 +483,7 @@ def _demo_project_aioresponses_wiki_apis(
 
 @asynccontextmanager
 async def _assert_template(
-    app: App,
+    isolated_project_factory: IsolatedProjectFactory,
     template_factory: Callable[[Environment, str], Template],
     template: str,
     *,
@@ -377,20 +491,19 @@ async def _assert_template(
     autoescape: bool | None = None,
     extensions: Iterable[ResolvablePluginId[ExtensionDefinition]] = (),
 ) -> AsyncIterator[tuple[str, Project]]:
-    async with Project.new_isolated(
-        app, service_plugins=ExtensionManufacturer.resolve_sequence(extensions)
+    async with isolated_project_factory(
+        debug=True,
+        service_plugins=ExtensionManufacturer.resolve_sequence(extensions),
     ) as project:
-        project.configuration.debug = True
-        async with project:
-            if data is None:
-                data = {}
-            if "document" not in data:
-                data["document"] = await project.new_document()
-            jinja = await project.jinja
-            if autoescape is not None:
-                jinja.autoescape = autoescape
-            rendered = await template_factory(jinja, template).render_async(**data)
-            yield rendered, project
+        if data is None:
+            data = {}
+        if "document" not in data:
+            data["document"] = await project.new_document()
+        jinja = await project.jinja
+        if autoescape is not None:
+            jinja.autoescape = autoescape
+        rendered = await template_factory(jinja, template).render_async(**data)
+        yield rendered, project
 
 
 @final
@@ -409,7 +522,9 @@ class AssertTemplateString(Protocol):
 
 
 @pytest.fixture
-def assert_template_string(isolated_app: App) -> AssertTemplateString:
+def assert_template_string(
+    isolated_project_factory: IsolatedProjectFactory,
+) -> AssertTemplateString:
     """
     Return an assertion to render a template string.
     """
@@ -422,7 +537,7 @@ def assert_template_string(isolated_app: App) -> AssertTemplateString:
         extensions: Iterable[ResolvablePluginId[ExtensionDefinition]] = (),
     ) -> AbstractAsyncContextManager[tuple[str, Project]]:
         return _assert_template(
-            isolated_app,
+            isolated_project_factory,
             Environment.from_string,
             template,
             data=data,
@@ -449,7 +564,9 @@ class AssertTemplateFile(Protocol):
 
 
 @pytest.fixture
-def assert_template_file(isolated_app: App) -> AssertTemplateFile:
+def assert_template_file(
+    isolated_project_factory: IsolatedProjectFactory,
+) -> AssertTemplateFile:
     """
     Return an assertion to render a template file.
     """
@@ -462,7 +579,7 @@ def assert_template_file(isolated_app: App) -> AssertTemplateFile:
         extensions: Iterable[ResolvablePluginId[ExtensionDefinition]] = (),
     ) -> AbstractAsyncContextManager[tuple[str, Project]]:
         return _assert_template(
-            isolated_app,
+            isolated_project_factory,
             Environment.get_template,
             template,
             data=data,

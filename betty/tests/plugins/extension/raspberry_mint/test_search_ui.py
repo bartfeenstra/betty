@@ -1,16 +1,13 @@
 from collections.abc import AsyncIterator  # noqa: I001
-from pathlib import Path
 
 import pytest
-from aiofiles.tempfile import TemporaryDirectory
 from playwright.async_api import Page, expect
 
 from betty import serve
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.person_name import PersonName
-from betty.app import App
-from betty.project import Project
 from betty.plugins.extension.raspberry_mint import RaspberryMint
+from betty.project import Project
 from betty.project.generate import generate
 from betty.serve import Server
 from betty.tests.conftest import (
@@ -27,13 +24,7 @@ class TestSearchUi:
         person_id = "I0001"
         person = Person(id=person_id)
         PersonName(individual=self.INDIVIDUAL_NAME, person=person)
-        async with (
-            TemporaryDirectory() as cache_directory_path_str,
-            App.new_isolated(cache_directory=Path(cache_directory_path_str)) as app,
-            app,
-            Project.new_isolated(app, service_plugins=[RaspberryMint]) as project,
-            project,
-        ):
+        async with Project.new_isolated(service_plugins=[RaspberryMint]) as project:
             project.ancestry[Person].add(person)
             await generate(project)
             async with await serve.BuiltinProjectServer.new(project) as server:

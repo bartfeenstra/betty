@@ -5,7 +5,6 @@ import aiofiles
 import pytest
 from lxml import etree
 
-from betty.app import App
 from betty.json.schema import JsonSchemaSchema
 from betty.model import Entity
 from betty.openapi.schema import SpecificationSchema
@@ -21,8 +20,7 @@ from betty.plugins.entity.presence import Presence
 from betty.plugins.entity.source import Source
 from betty.plugins.role.unknown import Unknown as UnknownRole
 from betty.privacy import Privacy
-from betty.project import Project
-from betty.project.data import EntityTypeConfiguration, ProjectLocale
+from betty.project import Project, ProjectEntityType, ProjectLocale
 from betty.project.generate.jobs import (
     GenerateEntitiesHtml,
     GenerateEntitiesJson,
@@ -38,6 +36,7 @@ from betty.project.generate.jobs import (
     GenerateStaticPublicAssets,
 )
 from betty.string import kebab_case_to_lower_camel_case
+from betty.test_utils.conftest import IsolatedProjectFactory
 from betty.test_utils.jinja import assert_betty_html, assert_betty_json
 from betty.test_utils.job import do
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
@@ -53,32 +52,34 @@ class TestGenerateEntityTypesHtml:
             Source,
         ],
     )
-    async def test_do(self, entity_type: type[Entity], isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.entity_types.add(
-                EntityTypeConfiguration(
-                    entity_type=entity_type, generate_html_list=True
-                )
-            )
-            async with project:
-                await do(GenerateEntityTypesHtml(project=project))
+    async def test_do(
+        self,
+        entity_type: type[Entity],
+        isolated_project_factory: IsolatedProjectFactory,
+    ) -> None:
+        async with isolated_project_factory(
+            entity_types=[
+                ProjectEntityType(entity_type=entity_type, generate_html_list=True)
+            ],
+        ) as project:
+            await do(GenerateEntityTypesHtml(project=project))
 
-                await assert_betty_html(
-                    project, f"/{entity_type.plugin().id}/index.html"
-                )
+            await assert_betty_html(project, f"/{entity_type.plugin().id}/index.html")
 
-    async def test_do__with_pager(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.entity_types.add(
-                EntityTypeConfiguration(entity_type=Place, generate_html_list=True)
-            )
+    async def test_do__with_pager(
+        self, isolated_project_factory: IsolatedProjectFactory
+    ) -> None:
+        async with isolated_project_factory(
+            entity_types=[
+                ProjectEntityType(entity_type=Place, generate_html_list=True)
+            ],
+        ) as project:
             place_one = Place(id="P1")
             place_two = Place(id="P2")
             project.ancestry.add(place_one, place_two)
-            async with project:
-                await do(GenerateEntityTypesHtml(per_page=1, project=project))
+            await do(GenerateEntityTypesHtml(per_page=1, project=project))
 
-                await assert_betty_html(project, "/place/page-2/index.html")
+            await assert_betty_html(project, "/place/page-2/index.html")
 
 
 class TestGenerateEntityTypesJson:
@@ -97,15 +98,16 @@ class TestGenerateEntityTypesJson:
             Source,
         ],
     )
-    async def test_do(self, entity_type: type[Entity], isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project, project:
-            await do(GenerateEntityTypesJson(project=project))
+    async def test_do(
+        self, entity_type: type[Entity], isolated_project: Project
+    ) -> None:
+        await do(GenerateEntityTypesJson(project=isolated_project))
 
-            await assert_betty_json(
-                project,
-                f"/{entity_type.plugin().id}/index.json",
-                f"{kebab_case_to_lower_camel_case(entity_type.plugin().id)}EntityCollectionResponse",
-            )
+        await assert_betty_json(
+            isolated_project,
+            f"/{entity_type.plugin().id}/index.json",
+            f"{kebab_case_to_lower_camel_case(entity_type.plugin().id)}EntityCollectionResponse",
+        )
 
 
 class TestGenerateEntitiesHtml:
@@ -121,15 +123,13 @@ class TestGenerateEntitiesHtml:
             Source(id="ID"),
         ],
     )
-    async def test_do(self, entity: Entity, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project:
-            project.ancestry.add(entity)
-            async with project:
-                await do(GenerateEntitiesHtml(project=project))
+    async def test_do(self, entity: Entity, isolated_project: Project) -> None:
+        isolated_project.ancestry.add(entity)
+        await do(GenerateEntitiesHtml(project=isolated_project))
 
-                await assert_betty_html(
-                    project, f"/{entity.plugin().id}/{entity.public_id}/index.html"
-                )
+        await assert_betty_html(
+            isolated_project, f"/{entity.plugin().id}/{entity.public_id}/index.html"
+        )
 
     @pytest.mark.parametrize(
         "entity",
@@ -154,19 +154,17 @@ class TestGenerateEntitiesHtml:
         ],
     )
     async def test_do__with_non_publishable_entity(
-        self, entity: Entity, isolated_app: App
+        self, entity: Entity, isolated_project: Project
     ) -> None:
-        async with Project.new_isolated(isolated_app) as project:
-            project.ancestry.add(entity)
-            async with project:
-                await do(GenerateEntitiesHtml(project=project))
+        isolated_project.ancestry.add(entity)
+        await do(GenerateEntitiesHtml(project=isolated_project))
 
-                assert not (
-                    project.www_directory
-                    / entity.plugin().id
-                    / entity.public_id
-                    / "index.html"
-                ).exists()
+        assert not (
+            isolated_project.www_directory
+            / entity.plugin().id
+            / entity.public_id
+            / "index.html"
+        ).exists()
 
 
 class TestGenerateEntitiesJson:
@@ -182,17 +180,15 @@ class TestGenerateEntitiesJson:
             Source(id="ID"),
         ],
     )
-    async def test_do(self, entity: Entity, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project:
-            project.ancestry.add(entity)
-            async with project:
-                await do(GenerateEntitiesJson(project=project))
+    async def test_do(self, entity: Entity, isolated_project: Project) -> None:
+        isolated_project.ancestry.add(entity)
+        await do(GenerateEntitiesJson(project=isolated_project))
 
-                await assert_betty_json(
-                    project,
-                    f"/{entity.plugin().id}/{entity.public_id}/index.json",
-                    f"{kebab_case_to_lower_camel_case(entity.plugin().id)}Entity",
-                )
+        await assert_betty_json(
+            isolated_project,
+            f"/{entity.plugin().id}/{entity.public_id}/index.json",
+            f"{kebab_case_to_lower_camel_case(entity.plugin().id)}Entity",
+        )
 
     @pytest.mark.parametrize(
         "entity",
@@ -210,38 +206,35 @@ class TestGenerateEntitiesJson:
         ],
     )
     async def test_do__with_non_publishable_entity(
-        self, entity: Entity, isolated_app: App
+        self, entity: Entity, isolated_project: Project
     ) -> None:
-        async with Project.new_isolated(isolated_app) as project:
-            project.ancestry.add(entity)
-            async with project:
-                await do(GenerateEntitiesJson(project=project))
+        isolated_project.ancestry.add(entity)
+        await do(GenerateEntitiesJson(project=isolated_project))
 
-                assert not (
-                    project.www_directory
-                    / entity.plugin().id
-                    / entity.public_id
-                    / "index.json"
-                ).exists()
+        assert not (
+            isolated_project.www_directory
+            / entity.plugin().id
+            / entity.public_id
+            / "index.json"
+        ).exists()
 
 
 class TestGenerateSitemap:
-    async def test_do(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project, project:
-            await do(GenerateSitemap(project=project))
+    async def test_do(self, isolated_project: Project) -> None:
+        await do(GenerateSitemap(project=isolated_project))
 
-            schema_doc = etree.parse(
-                Path(__file__).parent / "test_jobs_assets" / "sitemap.xsd"
-            )
-            schema = etree.XMLSchema(schema_doc)
-            sitemap_doc = etree.parse(project.www_directory / "sitemap.xml")
-            schema.validate(sitemap_doc)
+        schema_doc = etree.parse(
+            Path(__file__).parent / "test_jobs_assets" / "sitemap.xsd"
+        )
+        schema = etree.XMLSchema(schema_doc)
+        sitemap_doc = etree.parse(isolated_project.www_directory / "sitemap.xml")
+        schema.validate(sitemap_doc)
 
 
 class TestGenerateStaticPublicAssets:
-    async def test_do(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.locales = [
+    async def test_do(self, isolated_project_factory: IsolatedProjectFactory) -> None:
+        async with isolated_project_factory(
+            locales=[
                 ProjectLocale(
                     "nl-NL",
                     alias="nl",
@@ -250,24 +243,23 @@ class TestGenerateStaticPublicAssets:
                     "en-US",
                     alias="en",
                 ),
-            ]
+            ],
+        ) as project:
+            await do(GenerateStaticPublicAssets(project=project))
 
-            async with project:
-                await do(GenerateStaticPublicAssets(project=project))
-
-                async with aiofiles.open(
-                    await assert_betty_html(project, "/index.html")
-                ) as f:
-                    meta_redirect = (
-                        '<meta http-equiv="refresh" content="0; url=/nl/index.html">'
-                    )
-                    assert meta_redirect in await f.read()
+            async with aiofiles.open(
+                await assert_betty_html(project, "/index.html")
+            ) as f:
+                meta_redirect = (
+                    '<meta http-equiv="refresh" content="0; url=/nl/index.html">'
+                )
+                assert meta_redirect in await f.read()
 
 
 class TestGenerateLocalizedPublicAssets:
-    async def test_do(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.locales = [
+    async def test_do(self, isolated_project_factory: IsolatedProjectFactory) -> None:
+        async with isolated_project_factory(
+            locales=[
                 ProjectLocale(
                     "nl-NL",
                     alias="nl",
@@ -276,55 +268,52 @@ class TestGenerateLocalizedPublicAssets:
                     "en-US",
                     alias="en",
                 ),
-            ]
-            async with project:
-                await do(
-                    GenerateStaticPublicAssets(project=project),
-                    GenerateLocalizedPublicAssets(project=project),
-                )
+            ],
+        ) as project:
+            await do(
+                GenerateStaticPublicAssets(project=project),
+                GenerateLocalizedPublicAssets(project=project),
+            )
 
-                await assert_betty_html(project, "/nl/index.html")
-                await assert_betty_html(project, "/en/index.html")
+            await assert_betty_html(project, "/nl/index.html")
+            await assert_betty_html(project, "/en/index.html")
 
 
 class TestGenerateRobotsTxt:
-    async def test_do(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project, project:
-            await do(GenerateRobotsTxt(project=project))
+    async def test_do(self, isolated_project: Project) -> None:
+        await do(GenerateRobotsTxt(project=isolated_project))
 
-            assert (project.www_directory / "robots.txt").is_file()
+        assert (isolated_project.www_directory / "robots.txt").is_file()
 
 
 class TestGenerateOpenApi:
-    async def test_do(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project, project:
-            await do(GenerateOpenApi(project=project))
+    async def test_do(self, isolated_project: Project) -> None:
+        await do(GenerateOpenApi(project=isolated_project))
 
-            with open(project.www_directory / "api" / "index.json") as f:
-                SpecificationSchema().validate(json.loads(f.read()))
+        with open(isolated_project.www_directory / "api" / "index.json") as f:
+            SpecificationSchema().validate(json.loads(f.read()))
 
 
 class TestGenerateJsonSchema:
-    async def test_do(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project, project:
-            await do(GenerateJsonSchema(project=project))
+    async def test_do(self, isolated_project: Project) -> None:
+        await do(GenerateJsonSchema(project=isolated_project))
 
-            with open(project.www_directory / "schema.json") as f:
-                JsonSchemaSchema().validate(json.loads(f.read()))
+        with open(isolated_project.www_directory / "schema.json") as f:
+            JsonSchemaSchema().validate(json.loads(f.read()))
 
 
 class TestGenerateFavicon:
-    async def test_do(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project, project:
-            await do(GenerateFavicon(project=project))
+    async def test_do(self, isolated_project: Project) -> None:
+        await do(GenerateFavicon(project=isolated_project))
 
-            assert (project.www_directory / "favicon.ico").is_file()
+        assert (isolated_project.www_directory / "favicon.ico").is_file()
 
 
 class TestGenerateJsonErrorResponses:
-    async def test_do(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project, project:
-            await do(GenerateJsonErrorResponses(project=project))
+    async def test_do(self, isolated_project: Project) -> None:
+        await do(GenerateJsonErrorResponses(project=isolated_project))
 
-            for code in [401, 403, 404]:
-                await assert_betty_json(project, f".error/{code}.json", "errorResponse")
+        for code in [401, 403, 404]:
+            await assert_betty_json(
+                isolated_project, f".error/{code}.json", "errorResponse"
+            )

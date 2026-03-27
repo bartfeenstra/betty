@@ -5,11 +5,8 @@ Project data.
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
-from urllib.parse import urlparse
 
-from babel import Locale
-
-from betty.assertion import assert_number
+from betty.assertion import assert_number, assert_url
 from betty.collection.keyed.adapter import MutableKeyedCollectionAdapter
 from betty.copyright_notice import (
     CopyrightNotice,
@@ -19,7 +16,7 @@ from betty.copyright_notice import (
 from betty.copyright_notice.data import CopyrightNoticeDefinitionConfiguration
 from betty.data import Data, Sample
 from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
-from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
+from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.bool import BoolDefinition
 from betty.data.indicator.selector import Attr
 from betty.data.int import IntDefinition
@@ -27,34 +24,28 @@ from betty.data.str import StrDefinition
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.event_type import EventTypeDefinition
 from betty.event_type.data import EventTypeDefinitionConfiguration
-from betty.exception import HumanFacingException
 from betty.extension import ExtensionManufacturer
 from betty.gender import GenderDefinition
 from betty.gender.data import GenderDefinitionConfiguration
 from betty.license import License, LicenseDefinition, LicenseManufacturer
 from betty.license.data import LicenseDefinitionConfiguration
-from betty.locale import (
-    DEFAULT_LOCALE,
-    ResolvableLocale,
-    resolve_locale,
-    to_language_tag,
-)
-from betty.locale.data import LocaleProperty
+from betty.locale import DEFAULT_LOCALE, ResolvableLocale, resolve_locale
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import LocalizableProperty
-from betty.machine_name import MachineName, MachineNameProperty, ResolvableMachineName
-from betty.model import EntityDefinition
+from betty.machine_name import MachineNameProperty, ResolvableMachineName
 from betty.pathlib import FilePathDefinition
 from betty.place_type import PlaceTypeDefinition
 from betty.place_type.data import PlaceTypeDefinitionConfiguration
 from betty.plugin import ResolvablePluginId, resolve_plugin_id
 from betty.plugin.data.property import PluginDefinitionConfigurationsProperty
-from betty.plugins.entity.person import Person
-from betty.project import Extension, ExtensionDefinition
-from betty.property import (
-    Optional,
-    Property,
+from betty.project import (
+    DEFAULT_LIFETIME_THRESHOLD,
+    Extension,
+    ExtensionDefinition,
+    ProjectEntityType,
+    ProjectLocale,
 )
+from betty.property import Optional, Property
 from betty.property.collection.keyed import KeyedCollectionProperty
 from betty.role import RoleDefinition
 from betty.role.data import RoleDefinitionConfiguration
@@ -65,140 +56,11 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from betty.locale.localizable import ResolvableLocalizable
+    from betty.model import EntityDefinition
     from betty.plugin.factory import (
         ResolvablePluginManufacturer,
         ResolvablePluginManufacturerSequence,
     )
-    from betty.service.level import ServiceLevel
-
-DEFAULT_LIFETIME_THRESHOLD = 123
-"""
-The default age by which people are presumed dead.
-
-This is based on `Jeanne Louise Calment <https://www.guinnessworldrecords.com/world-records/oldest-person/>`_ who is
-the oldest verified person to ever have lived.
-"""
-
-
-@final
-@ObjectDefinition(
-    label=_("Entity type configuration"),
-    samples=[
-        lambda: Sample(
-            EntityTypeConfiguration(entity_type=Person),
-            label="Minimal",
-            size=Size.MINIMAL,
-        ),
-        lambda: Sample(
-            EntityTypeConfiguration(entity_type=Person, generate_html_list=False),
-            label="Full",
-            size=Size.FULL,
-        ),
-    ],
-)
-class EntityTypeConfiguration(Data[ObjectDefinition["EntityTypeConfiguration"]]):
-    """
-    Configure a single entity type for a project.
-
-    .. data:: betty.project.data:EntityTypeConfiguration
-    """
-
-    def __init__(
-        self,
-        *,
-        entity_type: ResolvablePluginId[EntityDefinition],
-        generate_html_list: bool = True,
-    ):
-        self._entity_type = resolve_plugin_id(entity_type)
-        self.generate_html_list = generate_html_list
-
-    @property
-    @AttrDefinition(MachineName)
-    def entity_type(self) -> MachineName:
-        """
-        The ID of the configured entity type.
-        """
-        return self._entity_type
-
-    @property
-    @AttrDefinition(
-        BoolDefinition(label=_("Generate list HTML page")),
-        omit_load=True,
-        omit_dump=lambda data: data is True,
-    )
-    def generate_html_list(self) -> bool:
-        """
-        Whether to generate listing web pages for entities of this type.
-        """
-        return self._generate_html_list
-
-    @generate_html_list.setter
-    def generate_html_list(self, generate_html_list: bool) -> None:
-        self._generate_html_list = generate_html_list
-
-    async def validate(self, services: ServiceLevel, /) -> None:
-        """
-        Validate the configuration.
-        """
-        entity_type = await services.plugins[EntityDefinition][self._entity_type]
-        if self.generate_html_list and not entity_type.public_facing:
-            raise HumanFacingException(
-                _(
-                    "Cannot generate pages for {entity_type}, because it is not a public-facing entity type."
-                ).format(entity_type=entity_type.label)
-            )
-
-
-@final
-@ObjectDefinition(
-    label=_("Project locale"),
-    samples=[
-        lambda: Sample(
-            ProjectLocale(Locale("nl", "NL")), label="Minimal", size=Size.MINIMAL
-        ),
-        lambda: Sample(
-            ProjectLocale(Locale("nl", "NL"), alias="nl"),
-            label="Full",
-            size=Size.FULL,
-        ),
-    ],
-)
-class ProjectLocale(Data["ObjectDefinition"]):
-    """
-    A locale to use for a project.
-
-    .. data:: betty.project.data:ProjectLocale
-    """
-
-    locale = LocaleProperty()
-    """
-    The locale.
-    """
-
-    @staticmethod
-    def _resolve_alias(alias: str) -> str:
-        if "/" in alias:
-            raise HumanFacingException(_("Locale aliases must not contain slashes."))
-        return alias
-
-    alias = Optional(Property(StrDefinition(label=_("Alias")), resolver=_resolve_alias))
-    """
-    A shorthand alias to use instead of the full language tag, such as when rendering URLs.
-    """
-
-    def __init__(self, /, locale: ResolvableLocale, *, alias: str | None = None):
-        super().__init__()
-        self.locale = locale
-        self.alias = alias
-
-    @property
-    def slug(self) -> str:
-        """
-        The URL slug.
-        """
-        if self.alias is None:
-            return to_language_tag(self.locale)
-        return self.alias
 
 
 @final
@@ -223,9 +85,7 @@ class ProjectLocale(Data["ObjectDefinition"]):
                     .subject
                 ],
                 debug=True,
-                entity_types=[
-                    EntityTypeConfiguration.data().samples.get(Size.FULL).subject
-                ],
+                entity_types=[ProjectEntityType.data().samples.get(Size.FULL).subject],
                 event_types=[
                     EventTypeDefinitionConfiguration.data()
                     .samples.get(Size.FULL)
@@ -285,17 +145,19 @@ class ProjectConfiguration(Data):
         omit_dump=lambda data: data is False,
     )
     """
-    Whether to generate clean URLs such as ``/person/first-person`` instead of ``/person/first-person/index.html``.
-
-    Generated artifacts will require web server that supports this.
+    Whether to generate clean URLs.
     """
 
-    copyright_notice = Property(
-        CopyrightNoticeManufacturer,
-        omit_load=True,
-        omit_dump=lambda data: data == ProjectConfiguration._default_copyright_notice(),
-        default=lambda: ProjectConfiguration._default_copyright_notice(),
-        resolver=CopyrightNoticeManufacturer.resolve,
+    copyright_notice = Optional(
+        Property(
+            CopyrightNoticeManufacturer,
+            omit_load=True,
+            omit_dump=lambda data: (
+                data == ProjectConfiguration._default_copyright_notice()
+            ),
+            default=lambda: ProjectConfiguration._default_copyright_notice(),
+            resolver=CopyrightNoticeManufacturer.resolve,
+        )
     )
     """
     The project-wide copyright notice.
@@ -320,26 +182,19 @@ class ProjectConfiguration(Data):
     )
     """
     Whether to enable debugging for project jobs.
-
-    This setting is disabled by default.
-
-    Enabling this generally results in:
-
-    - More verbose logging output
-    - job artifacts (e.g. generated sites)
     """
 
     entity_types = KeyedCollectionProperty(
         KeyedCollectionDefinition(
-            value=EntityTypeConfiguration,
+            value=ProjectEntityType,
             label=_("Entity types"),
             key=Attr("entity_type"),
             factory=lambda: MutableKeyedCollectionAdapter(
                 key=lambda item: item.entity_type,
                 value_resolver=lambda data: (
                     data
-                    if isinstance(data, EntityTypeConfiguration)
-                    else EntityTypeConfiguration(entity_type=data)
+                    if isinstance(data, ProjectEntityType)
+                    else ProjectEntityType(entity_type=data)
                 ),
             ),
         ),
@@ -382,12 +237,14 @@ class ProjectConfiguration(Data):
     The :py:class:`betty.gender.Gender` plugins created by this project.
     """
 
-    license = Property(
-        LicenseManufacturer,
-        omit_load=True,
-        omit_dump=lambda data: data == ProjectConfiguration._default_license(),
-        default=lambda: ProjectConfiguration._default_license(),
-        resolver=LicenseManufacturer.resolve,
+    license = Optional(
+        Property(
+            LicenseManufacturer,
+            omit_load=True,
+            omit_dump=lambda data: data == ProjectConfiguration._default_license(),
+            default=lambda: ProjectConfiguration._default_license(),
+            resolver=LicenseManufacturer.resolve,
+        )
     )
     """
     The project-wide license.
@@ -413,11 +270,6 @@ class ProjectConfiguration(Data):
     )
     """
     The lifetime threshold indicates when people are considered dead.
-
-    This setting defaults to :py:const:`betty.project.data.DEFAULT_LIFETIME_THRESHOLD`.
-
-    The value is an integer expressing the age in years over which people are
-    presumed to have died.
     """
 
     locales = KeyedCollectionProperty(
@@ -473,6 +325,19 @@ class ProjectConfiguration(Data):
     The human-readable project title.
     """
 
+    url = Property(
+        StrDefinition(
+            label=_("URL"),
+            description=_(
+                "The absolute, public URL at which the site will be published."
+            ),
+        ),
+        resolver=assert_url(),
+    )
+    """
+    The project's public URL.
+    """
+
     def __init__(
         self,
         *,
@@ -487,9 +352,7 @@ class ProjectConfiguration(Data):
         copyright_notices: Iterable[CopyrightNoticeDefinitionConfiguration]
         | None = None,
         debug: bool = False,
-        entity_types: Iterable[
-            EntityTypeConfiguration | ResolvablePluginId[EntityDefinition]
-        ]
+        entity_types: Iterable[ProjectEntityType | ResolvablePluginId[EntityDefinition]]
         | None = None,
         event_types: Iterable[EventTypeDefinitionConfiguration] | None = None,
         extensions: ResolvablePluginManufacturerSequence[ExtensionDefinition, Extension]
@@ -549,65 +412,3 @@ class ProjectConfiguration(Data):
         from betty.plugins.license.all_rights_reserved import AllRightsReserved
 
         return LicenseManufacturer(AllRightsReserved)
-
-    @property
-    @AttrDefinition(
-        StrDefinition(
-            label=_("URL"),
-            description=_(
-                "The absolute, public URL at which the site will be published."
-            ),
-        )
-    )
-    def url(self) -> str:
-        """
-        The project's public URL.
-        """
-        return self._url
-
-    @url.setter
-    def url(self, url: str) -> None:
-        url_parts = urlparse(url)
-        if not url_parts.scheme:
-            raise HumanFacingException(
-                _("The URL must start with a scheme such as https:// or http://.")
-            )
-        if not url_parts.netloc:
-            raise HumanFacingException(_("The URL must include a host."))
-        self._url = f"{url_parts.scheme}://{url_parts.netloc}{url_parts.path}"
-
-    @property
-    def base_url(self) -> str:
-        """
-        The project's public URL's base URL.
-
-        If the public URL is ``https://example.com``, the base URL is ``https://example.com``.
-        If the public URL is ``https://example.com/my-ancestry-site``, the base URL is ``https://example.com``.
-        If the public URL is ``https://my-ancestry-site.example.com``, the base URL is ``https://my-ancestry-site.example.com``.
-        """
-        url_parts = urlparse(self.url)
-        return f"{url_parts.scheme}://{url_parts.netloc}"
-
-    @property
-    def root_path(self) -> str:
-        """
-        The project's public URL's root path.
-
-        If the public URL is ``https://example.com``, the root path is an empty string.
-        If the public URL is ``https://example.com/my-ancestry-site``, the root path is ``/my-ancestry-site``.
-        """
-        return urlparse(self.url).path.rstrip("/")
-
-    @property
-    def default_locale(self) -> ProjectLocale:
-        """
-        The default locale.
-        """
-        return next(iter(self.locales))
-
-    @property
-    def multilingual(self) -> bool:
-        """
-        Whether the configuration is multilingual.
-        """
-        return len(self.locales) > 1

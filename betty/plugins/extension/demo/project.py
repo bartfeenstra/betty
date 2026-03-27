@@ -30,7 +30,6 @@ from betty.plugins.extension.raspberry_mint import Breakpoint, RaspberryMint, Re
 from betty.plugins.extension.raspberry_mint.data import RaspberryMintConfiguration
 from betty.plugins.extension.raspberry_mint.default import regional_content
 from betty.project import Project
-from betty.project.data import ProjectConfiguration
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -38,7 +37,9 @@ if TYPE_CHECKING:
     from betty.app import App
 
 
-async def create_project(app: App, project_directory_path: Path) -> Project:
+async def create_project(
+    app: App, directory: Path, *, url: str | None = None
+) -> Project:
     """
     Create a new demonstration project.
     """
@@ -48,14 +49,16 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
     localizer_repository = LocalizerRepository(translations)
     localizers = [localizer_repository.get(locale) for locale in translations.locales]
 
-    configuration = ProjectConfiguration(
+    return Project(
+        app=app,
+        directory=directory,
         name=Demo.plugin().id,
         license=LicenseManufacturer("spdx-gpl-3--0-or-later"),
         title=_("A Betty demonstration"),
         author=_("Bart Feenstra and contributors"),
-        url="https://example.com",
-        extensions=[
-            ExtensionManufacturer(Demo),
+        url=url or "https://example.com",
+        service_plugins=[
+            Demo,
             ExtensionManufacturer(
                 RaspberryMint,
                 RaspberryMintConfiguration(
@@ -193,4 +196,3 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
             *[locale for locale in translations.locales if locale != DEFAULT_LOCALE],
         ],
     )
-    return await Project.new(app, configuration, directory=project_directory_path)

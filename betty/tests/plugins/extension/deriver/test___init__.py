@@ -12,15 +12,16 @@ from betty.plugins.event_type.death import Death
 from betty.plugins.event_type.residence import Residence
 from betty.plugins.extension.deriver import Deriver
 from betty.plugins.role.subject import Subject
-from betty.project import Project
 from betty.project.load import load
 
 if TYPE_CHECKING:
-    from betty.app import App
+    from betty.test_utils.conftest import IsolatedProjectFactory
 
 
 class TestDeriver:
-    async def test_post_load(self, isolated_app: App) -> None:
+    async def test_post_load(
+        self, isolated_project_factory: IsolatedProjectFactory
+    ) -> None:
         person = Person(id="P0")
         event = Event(
             event_type=Residence(),
@@ -28,10 +29,7 @@ class TestDeriver:
         )
         Presence(person, Subject(), event)
 
-        async with (
-            Project.new_isolated(isolated_app, service_plugins=[Deriver]) as project,
-            project,
-        ):
+        async with isolated_project_factory(service_plugins=[Deriver]) as project:
             project.ancestry.add(person)
             with record_added(project.ancestry) as added:
                 await load(project)

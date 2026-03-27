@@ -4,7 +4,6 @@ from typing import cast
 import pytest
 from geopy import Point
 
-from betty.app import App
 from betty.document import Document
 from betty.model import Entity
 from betty.plugins.content.map import Map
@@ -13,17 +12,14 @@ from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.presence import Presence
 from betty.plugins.role.subject import Subject
-from betty.project import Project
+from betty.test_utils.conftest import IsolatedProjectFactory
 
 
 class TestMap:
     async def test_build_template__without_supported_entity(
-        self, isolated_app: App
+        self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with (
-            Project.new_isolated(isolated_app, support_plugins=[Map]) as project,
-            project,
-        ):
+        async with isolated_project_factory(support_plugins=[Map]) as project:
             sut = await Map.new(project)
             assert await sut.build(document=Document()) is None
 
@@ -36,12 +32,11 @@ class TestMap:
         ],
     )
     async def test_build_template__with_entity_without_places(
-        self, has_associated_places: Entity, isolated_app: App
+        self,
+        has_associated_places: Entity,
+        isolated_project_factory: IsolatedProjectFactory,
     ) -> None:
-        async with (
-            Project.new_isolated(isolated_app, support_plugins=[Map]) as project,
-            project,
-        ):
+        async with isolated_project_factory(support_plugins=[Map]) as project:
             project.ancestry.add(has_associated_places)
             sut = await Map.new(project)
             assert (
@@ -70,13 +65,12 @@ class TestMap:
         return cast(tuple[Entity, Place], request.param)
 
     async def test_build_template__with_entity_with_places(
-        self, has_map_entities: tuple[Entity, Place], isolated_app: App
+        self,
+        has_map_entities: tuple[Entity, Place],
+        isolated_project_factory: IsolatedProjectFactory,
     ) -> None:
         has_associated_places, place = has_map_entities
-        async with (
-            Project.new_isolated(isolated_app, support_plugins=[Map]) as project,
-            project,
-        ):
+        async with isolated_project_factory(support_plugins=[Map]) as project:
             project.ancestry.add(has_associated_places)
             sut = await Map.new(project)
             document = await project.new_document(has_associated_places)
