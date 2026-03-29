@@ -58,12 +58,12 @@ from betty.locale.translation import (
 )
 from betty.machine_name import MachineName, ResolvableMachineName
 from betty.plugin import resolve_plugin_id
+from betty.plugin.service import ServicePluginProvider, ServicePlugins, SupportPlugins
 from betty.plugins.entity.person import Person
 from betty.privacy.privatizer import Privatizer
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.sample import Sample, Size
 from betty.service.level import ChainedServiceLevel
-from betty.service.plugin import ServicePluginProvider, ServicePlugins, SupportPlugins
 from betty.service.provider import service
 
 if TYPE_CHECKING:
@@ -78,8 +78,8 @@ if TYPE_CHECKING:
     from betty.plugin import PluginDefinition, ResolvablePluginId
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.plugin.factory import PluginManufacturer
+    from betty.plugin.service import PluginCollection
     from betty.project.data import ProjectConfiguration
-    from betty.service.plugin import PluginCollection
     from betty.url import UrlGenerator
 
 

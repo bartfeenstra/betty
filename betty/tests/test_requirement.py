@@ -7,6 +7,11 @@ import pytest
 
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.factory import PluginManufacturer
+from betty.plugin.service import (
+    ServicePluginDefinition,
+    ServicePluginProvider,
+    ServicePlugins,
+)
 from betty.requirement import (
     ServiceLevelRequirement,
     ServicePluginRequirement,
@@ -15,11 +20,6 @@ from betty.requirement import (
     resolve_requirement,
 )
 from betty.service.level import ChainedServiceLevel, ServiceLevel
-from betty.service.plugin import (
-    ServicePluginDefinition,
-    ServicePluginProvider,
-    ServicePlugins,
-)
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,

@@ -17,7 +17,7 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition, Requires
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import Order, OrderedPluginDefinition
-from betty.service.plugin import ServicePluginDefinition
+from betty.plugin.service import ServicePluginDefinition
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:

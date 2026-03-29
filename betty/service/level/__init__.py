@@ -19,8 +19,8 @@ if TYPE_CHECKING:
     from betty.machine_name import MachineName
     from betty.plugin import PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
+    from betty.plugin.service import PluginManager
     from betty.service.factory import Factory
-    from betty.service.plugin import PluginManager
 
 
 if TYPE_CHECKING:
@@ -69,7 +69,7 @@ class ServiceLevel:
         """
         from betty.plugin import resolve_plugin_type_id
         from betty.plugin.error import PluginTypeNotFound
-        from betty.service.plugin import PluginManager
+        from betty.plugin.service import PluginManager
 
         class _PluginTypeNotFound(PluginTypeNotFound, KeyError):
             pass

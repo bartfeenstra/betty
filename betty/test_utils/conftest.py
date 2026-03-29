@@ -29,12 +29,11 @@ __all__ = [
 import re
 import tarfile
 from collections.abc import (  # noqa: I001
-    AsyncIterator,
     Awaitable,
     MutableMapping,
     MutableSequence,
 )
-from contextlib import AbstractAsyncContextManager, asynccontextmanager
+from contextlib import asynccontextmanager
 from io import BytesIO
 from json import dumps
 from typing import (
@@ -90,7 +89,7 @@ if TYPE_CHECKING:
     from betty.plugin import PluginDefinition, ResolvablePluginId
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.portable import PortableData, PortableMapping
-    from betty.service.plugin import ServicePlugins, SupportPlugins
+    from betty.plugin.service import ServicePlugins, SupportPlugins
     from betty.service.provider import ServiceFactory
     from betty.user import User
 

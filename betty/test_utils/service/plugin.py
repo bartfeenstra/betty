@@ -6,7 +6,7 @@ from typing import final, override
 
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.factory import PluginManufacturer
-from betty.service.plugin import ServicePluginDefinition
+from betty.plugin.service import ServicePluginDefinition
 from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
 
 

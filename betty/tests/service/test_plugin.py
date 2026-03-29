@@ -13,9 +13,7 @@ from betty.plugin.discovery import ResolvableDiscovery
 from betty.plugin.error import PluginNotFound
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import OrderedPluginDefinition
-from betty.service.level import ServiceLevel
-from betty.service.level.universe import UNIVERSE
-from betty.service.plugin import (
+from betty.plugin.service import (
     PluginCollection,
     PluginManager,
     ServicePluginDefinition,
@@ -24,6 +22,8 @@ from betty.service.plugin import (
     ServicePluginTypes,
     SupportPlugins,
 )
+from betty.service.level import ServiceLevel
+from betty.service.level.universe import UNIVERSE
 from betty.string import kebab_case_to_snake_case
 from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
 from betty.test_utils.plugin import (

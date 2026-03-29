@@ -10,7 +10,7 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import OrderedPluginDefinition
-from betty.service.plugin import ServicePluginDefinition
+from betty.plugin.service import ServicePluginDefinition
 
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
