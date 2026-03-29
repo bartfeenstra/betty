@@ -7,7 +7,7 @@ from betty.date.linked_data import (
 )
 from betty.date.schema import DateRangeSchema, DateSchema
 from betty.portable import PortableMapping
-from betty.test_utils.json.linked_data import assert_linked_data_dump
+from betty.test_utils.conftest import AssertLinkedDataDump
 
 
 @pytest.mark.parametrize(
@@ -31,7 +31,9 @@ from betty.test_utils.json.linked_data import assert_linked_data_dump
         ),
     ],
 )
-async def test_dump_linked_data_for_date(expected: PortableMapping, sut: Date) -> None:
+async def test_dump_linked_data_for_date(
+    assert_linked_data_dump: AssertLinkedDataDump, expected: PortableMapping, sut: Date
+) -> None:
     actual = await assert_linked_data_dump(DateSchema(), dump_linked_data_for_date(sut))
     assert actual == expected
 
@@ -87,7 +89,9 @@ async def test_dump_linked_data_for_date(expected: PortableMapping, sut: Date) -
     ],
 )
 async def test_dump_linked_data_for_date_range(
-    expected: PortableMapping, sut: DateRange
+    assert_linked_data_dump: AssertLinkedDataDump,
+    expected: PortableMapping,
+    sut: DateRange,
 ) -> None:
     actual = await assert_linked_data_dump(
         DateRangeSchema(), dump_linked_data_for_date_range(sut)

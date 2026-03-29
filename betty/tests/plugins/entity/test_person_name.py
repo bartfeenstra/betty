@@ -10,13 +10,13 @@ from betty.plugins.entity.person import Person
 from betty.plugins.entity.person_name import PersonName
 from betty.plugins.entity.source import Source
 from betty.privacy import Privacy
-from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.portable import PortableMapping
+    from betty.test_utils.conftest import AssertDumpsLinkedData
 
 
 class TestPersonName(EntityTestBase):
@@ -90,7 +90,9 @@ class TestPersonName(EntityTestBase):
         )
         assert sut.affiliation == affiliation
 
-    async def test_dump_linked_data__should_dump_minimal_individual(self) -> None:
+    async def test_dump_linked_data__should_dump_minimal_individual(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         sut = PersonName(person=Person(), individual="Jane")
         actual = await assert_dumps_linked_data(sut)
         expected: PortableMapping = {
@@ -106,7 +108,9 @@ class TestPersonName(EntityTestBase):
         }
         assert actual == expected
 
-    async def test_dump_linked_data__should_dump_minimal_affiliation(self) -> None:
+    async def test_dump_linked_data__should_dump_minimal_affiliation(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         sut = PersonName(person=Person(), affiliation="Doe")
         actual = await assert_dumps_linked_data(sut)
         expected: PortableMapping = {
@@ -122,7 +126,9 @@ class TestPersonName(EntityTestBase):
         }
         assert actual == expected
 
-    async def test_dump_linked_data__should_dump_full(self) -> None:
+    async def test_dump_linked_data__should_dump_full(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         person = Person(id="P1")
         citation = Citation(id="C1", source=Source())
         locale = "nl-NL"
@@ -151,7 +157,9 @@ class TestPersonName(EntityTestBase):
         }
         assert actual == expected
 
-    async def test_dump_linked_data__should_dump_private(self) -> None:
+    async def test_dump_linked_data__should_dump_private(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         person = Person(id="P1")
         citation = Citation(id="C1", source=Source())
         locale = "nl-NL"

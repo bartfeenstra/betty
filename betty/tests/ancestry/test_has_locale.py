@@ -6,10 +6,11 @@ from babel import Locale
 
 from betty.ancestry.has_locale import HasLocale
 from betty.locale import resolve_locale
-from betty.test_utils.json.linked_data import assert_dumps_linked_data
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
+
+    from betty.test_utils.conftest import AssertDumpsLinkedData
 
 
 class TestHasLocale:
@@ -28,13 +29,17 @@ class TestHasLocale:
         sut.locale = locale
         assert sut.locale == locale
 
-    async def test_dump_linked_data__without_locale(self) -> None:
+    async def test_dump_linked_data__without_locale(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         sut = HasLocale()
         expected = {"locale": "und"}
         actual = await assert_dumps_linked_data(sut)
         assert actual == expected
 
-    async def test_dump_linked_data__with_locale(self) -> None:
+    async def test_dump_linked_data__with_locale(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         locale = "en-US"
         sut = HasLocale(locale=resolve_locale(locale))
         expected: Mapping[str, Any] = {

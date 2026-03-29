@@ -19,11 +19,12 @@ from betty.plugins.gender.non_binary import NonBinary
 from betty.plugins.gender.unknown import Unknown as UnknownGender
 from betty.plugins.role.subject import Subject
 from betty.privacy import Privacy
-from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
+
+    from betty.test_utils.conftest import AssertDumpsLinkedData
 
 
 class TestPerson(EntityTestBase):
@@ -189,7 +190,9 @@ class TestPerson(EntityTestBase):
         child.children.add(grandchild)
         assert list(sut.descendants) == [child, grandchild]
 
-    async def test_dump_linked_data__should_dump_minimal(self) -> None:
+    async def test_dump_linked_data__should_dump_minimal(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         person_id = "the_person"
         person = Person(id=person_id)
         expected: Mapping[str, Any] = {
@@ -217,7 +220,9 @@ class TestPerson(EntityTestBase):
         actual = await assert_dumps_linked_data(person)
         assert actual == expected
 
-    async def test_dump_linked_data__should_dump_full(self) -> None:
+    async def test_dump_linked_data__should_dump_full(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         parent_id = "the_parent"
         parent = Person(id=parent_id)
 
@@ -333,7 +338,9 @@ class TestPerson(EntityTestBase):
         actual = await assert_dumps_linked_data(person)
         assert actual == expected
 
-    async def test_dump_linked_data__should_dump_private(self) -> None:
+    async def test_dump_linked_data__should_dump_private(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         parent_id = "the_parent"
         parent = Person(id=parent_id)
 

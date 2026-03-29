@@ -20,12 +20,13 @@ from betty.plugins.entity.source import Source
 from betty.plugins.license.public_domain import PublicDomain as PublicDomainLicense
 from betty.privacy import Privacy
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
-from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.model import EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
+
+    from betty.test_utils.conftest import AssertDumpsLinkedData
 
 import pytest
 
@@ -154,7 +155,9 @@ class TestFile(EntityTestBase):
         )
         assert list(sut.citations) == []
 
-    async def test_dump_linked_data__should_dump_minimal(self) -> None:
+    async def test_dump_linked_data__should_dump_minimal(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         with NamedTemporaryFile() as f:
             file = File(
                 id="the_file",
@@ -173,7 +176,9 @@ class TestFile(EntityTestBase):
             actual = await assert_dumps_linked_data(file)
             assert actual == expected
 
-    async def test_dump_linked_data__should_dump_full(self) -> None:
+    async def test_dump_linked_data__should_dump_full(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         with NamedTemporaryFile() as f:
             file = File(
                 id="the_file",
@@ -226,7 +231,9 @@ class TestFile(EntityTestBase):
             actual = await assert_dumps_linked_data(file)
             assert actual == expected
 
-    async def test_dump_linked_data__should_dump_private(self) -> None:
+    async def test_dump_linked_data__should_dump_private(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         with NamedTemporaryFile() as f:
             file = File(
                 id="the_file",

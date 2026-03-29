@@ -6,7 +6,6 @@ import pytest
 
 from betty.plugins.entity.note import Note
 from betty.test_utils.ancestry.has_notes import DummyHasNotes
-from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.locale.localizable import (
     DUMMY_LOCALIZABLE,
 )
@@ -14,6 +13,7 @@ from betty.test_utils.locale.localizable import (
 if TYPE_CHECKING:
     from betty.ancestry.has_notes import HasNotes
     from betty.portable import PortableMapping
+    from betty.test_utils.conftest import AssertDumpsLinkedData
 
 
 class TestHasNotes:
@@ -62,6 +62,9 @@ class TestHasNotes:
         ],
     )
     async def test_dump_linked_data(
-        self, expected: PortableMapping, sut: HasNotes
+        self,
+        assert_dumps_linked_data: AssertDumpsLinkedData,
+        expected: PortableMapping,
+        sut: HasNotes,
     ) -> None:
         assert await assert_dumps_linked_data(sut) == expected

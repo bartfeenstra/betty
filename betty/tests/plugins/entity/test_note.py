@@ -7,7 +7,6 @@ from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugins.entity.note import Note
 from betty.privacy import Privacy
 from betty.test_utils.ancestry.has_notes import DummyHasNotes
-from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.model import EntityTestBase
 
@@ -15,6 +14,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
 
     from betty.model import Entity
+    from betty.test_utils.conftest import AssertDumpsLinkedData
 import pytest
 
 
@@ -45,7 +45,9 @@ class TestNote(EntityTestBase):
         sut.entity = entity
         assert sut.entity is entity
 
-    async def test_dump_linked_data__should_dump_full(self) -> None:
+    async def test_dump_linked_data__should_dump_full(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         note = Note("The Note", id="the_note")
         expected: Mapping[str, Any] = {
             "@id": "https://example.com/note/the_note/index.json",
@@ -59,7 +61,9 @@ class TestNote(EntityTestBase):
         actual = await assert_dumps_linked_data(note)
         assert actual == expected
 
-    async def test_dump_linked_data__should_dump_private(self) -> None:
+    async def test_dump_linked_data__should_dump_private(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         note = Note(
             "The Note",
             id="the_note",

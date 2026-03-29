@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from betty.ancestry.name import Name
 from betty.date import Date
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localizable.plain import Plain
-from betty.test_utils.json.linked_data import assert_dumps_linked_data
+
+if TYPE_CHECKING:
+    from betty.test_utils.conftest import AssertDumpsLinkedData
 
 
 class TestName:
@@ -21,7 +25,9 @@ class TestName:
         sut = Name(name)
         assert sut.name is name
 
-    async def test_dump_linked_data(self) -> None:
+    async def test_dump_linked_data(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         sut = Name("My First Name")
         actual = await assert_dumps_linked_data(sut)
         assert actual == {"name": {DEFAULT_LOCALE_TAG: "My First Name"}}

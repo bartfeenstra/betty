@@ -11,12 +11,12 @@ from betty.plugins.event_type.unknown import Unknown as UnknownEventType
 from betty.plugins.role.subject import Subject
 from betty.plugins.role.unknown import Unknown as UnknownRole
 from betty.privacy import Privacy
-from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
 
 if TYPE_CHECKING:
     from betty.model import Entity
     from betty.portable import PortableMapping
+    from betty.test_utils.conftest import AssertDumpsLinkedData
 
 
 class TestPresence(EntityTestBase):
@@ -62,7 +62,9 @@ class TestPresence(EntityTestBase):
 
         assert sut.privacy == expected
 
-    async def test_dump_linked_data__should_dump(self) -> None:
+    async def test_dump_linked_data__should_dump(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         person = Person(id="my-first-person")
         event = Event(id="my-first-event")
         role = Subject()
@@ -78,7 +80,9 @@ class TestPresence(EntityTestBase):
         actual = await assert_dumps_linked_data(sut)
         assert actual == expected
 
-    async def test_dump_linked_data__should_dump_private(self) -> None:
+    async def test_dump_linked_data__should_dump_private(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         person = Person(id="my-first-person")
         event = Event(id="my-first-event")
         role = Subject()

@@ -8,7 +8,6 @@ from betty.media_type.media_types import HTML
 from betty.plugins.entity.link import Link
 from betty.privacy import Privacy
 from betty.test_utils.ancestry.has_links import DummyHasLinks
-from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.locale.localizable import (
     DUMMY_LOCALIZABLE,
 )
@@ -18,6 +17,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
 
     from betty.model import Entity
+    from betty.test_utils.conftest import AssertDumpsLinkedData
 
 import pytest
 
@@ -81,7 +81,9 @@ class TestLink(EntityTestBase):
         sut = Link("https://example.com", label=DUMMY_LOCALIZABLE)
         assert sut.has_label
 
-    async def test_dump_linked_data__should_dump_minimal(self) -> None:
+    async def test_dump_linked_data__should_dump_minimal(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         link = Link("https://example.com")
         expected: Mapping[str, Any] = {
             "@context": {"description": "https://schema.org/description"},
@@ -95,7 +97,9 @@ class TestLink(EntityTestBase):
         actual = await assert_dumps_linked_data(link)
         assert actual == expected
 
-    async def test_dump_linked_data__should_dump_full(self) -> None:
+    async def test_dump_linked_data__should_dump_full(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         owner = DummyHasLinks(id="O1")
         link = Link(
             "https://example.com",
@@ -125,7 +129,9 @@ class TestLink(EntityTestBase):
         actual = await assert_dumps_linked_data(link)
         assert actual == expected
 
-    async def test_dump_linked_data__should_dump_private(self) -> None:
+    async def test_dump_linked_data__should_dump_private(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         owner = DummyHasLinks(id="O1")
         link = Link(
             "https://example.com",
