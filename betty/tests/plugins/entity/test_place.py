@@ -16,11 +16,12 @@ from betty.plugins.entity.place import Place
 from betty.plugins.event_type.birth import Birth
 from betty.plugins.place_type.hamlet import Hamlet
 from betty.plugins.place_type.unknown import Unknown as UnknownPlaceType
-from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
+
+    from betty.test_utils.conftest import AssertDumpsLinkedData
 
 
 class TestPlace(EntityTestBase):
@@ -122,7 +123,9 @@ class TestPlace(EntityTestBase):
         sut.coordinates = coordinates
         assert sut.coordinates == coordinates
 
-    async def test_dump_linked_data__should_dump_minimal(self) -> None:
+    async def test_dump_linked_data__should_dump_minimal(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         place_id = "the_place"
         place = Place(id=place_id)
         expected: Mapping[str, Any] = {
@@ -147,7 +150,9 @@ class TestPlace(EntityTestBase):
         actual = await assert_dumps_linked_data(place)
         assert actual == expected
 
-    async def test_dump_linked_data__should_dump_full(self) -> None:
+    async def test_dump_linked_data__should_dump_full(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         place_id = "the_place"
         name = "The Place"
         latitude = 12.345

@@ -13,11 +13,11 @@ from betty.privacy import (
     merge_secondary_privacies,
     resolve_privacy,
 )
-from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.privacy import DummyHasPrivacy
 
 if TYPE_CHECKING:
     from betty.portable import PortableMapping
+    from betty.test_utils.conftest import AssertDumpsLinkedData
 
 
 class TestHasPrivacy:
@@ -81,7 +81,10 @@ class TestHasPrivacy:
         ],
     )
     async def test_dump_linked_data(
-        self, expected: PortableMapping, sut: HasPrivacy
+        self,
+        assert_dumps_linked_data: AssertDumpsLinkedData,
+        expected: PortableMapping,
+        sut: HasPrivacy,
     ) -> None:
         assert await assert_dumps_linked_data(sut) == expected
 

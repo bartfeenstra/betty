@@ -7,11 +7,11 @@ import pytest
 from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.source import Source
 from betty.test_utils.ancestry.has_citations import DummyHasCitations
-from betty.test_utils.json.linked_data import assert_dumps_linked_data
 
 if TYPE_CHECKING:
     from betty.ancestry.has_links import HasLinks
     from betty.portable import PortableMapping
+    from betty.test_utils.conftest import AssertDumpsLinkedData
 
 
 class TestHasCitations:
@@ -62,6 +62,9 @@ class TestHasCitations:
         ],
     )
     async def test_dump_linked_data(
-        self, expected: PortableMapping, sut: HasLinks
+        self,
+        assert_dumps_linked_data: AssertDumpsLinkedData,
+        expected: PortableMapping,
+        sut: HasLinks,
     ) -> None:
         assert await assert_dumps_linked_data(sut) == expected

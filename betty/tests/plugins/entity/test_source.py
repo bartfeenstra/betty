@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, MutableMapping, Sequence
-from typing import Any, cast, override
+from typing import TYPE_CHECKING, Any, cast, override
 
 import pytest
 
@@ -14,8 +14,10 @@ from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.link import Link
 from betty.plugins.entity.source import Source
 from betty.privacy import Privacy
-from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
+
+if TYPE_CHECKING:
+    from betty.test_utils.conftest import AssertDumpsLinkedData
 
 
 class TestSource(EntityTestBase):
@@ -122,7 +124,9 @@ class TestSource(EntityTestBase):
         sut.private = True
         assert sut.private is True
 
-    async def test_dump_linked_data__should_dump_minimal(self) -> None:
+    async def test_dump_linked_data__should_dump_minimal(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         source = Source(
             id="the_source",
             name="The Source",
@@ -146,7 +150,9 @@ class TestSource(EntityTestBase):
         actual = await assert_dumps_linked_data(source)
         assert actual == expected
 
-    async def test_dump_linked_data__should_dump_full(self) -> None:
+    async def test_dump_linked_data__should_dump_full(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         link = Link("https://example.com/the-source")
         link.label = "The Source Online"
         source = Source(
@@ -218,7 +224,9 @@ class TestSource(EntityTestBase):
         actual = await assert_dumps_linked_data(source)
         assert actual == expected
 
-    async def test_dump_linked_data__should_dump_private(self) -> None:
+    async def test_dump_linked_data__should_dump_private(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         link = Link("https://example.com/the-source")
         link.label = "The Source Online"
         source = Source(
@@ -268,7 +276,7 @@ class TestSource(EntityTestBase):
         assert actual == expected
 
     async def test_dump_linked_data__should_dump_with_private_associations(
-        self,
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
     ) -> None:
         contained_by_source = Source(
             id="the_containing_source",

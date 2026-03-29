@@ -7,11 +7,11 @@ import pytest
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.test_utils.ancestry.description import DummyHasDescription
-from betty.test_utils.json.linked_data import assert_dumps_linked_data
 
 if TYPE_CHECKING:
     from betty.ancestry.has_links import HasLinks
     from betty.portable import PortableMapping
+    from betty.test_utils.conftest import AssertDumpsLinkedData
 
 
 class TestHasDescription:
@@ -44,6 +44,9 @@ class TestHasDescription:
         ],
     )
     async def test_dump_linked_data(
-        self, expected: PortableMapping, sut: HasLinks
+        self,
+        assert_dumps_linked_data: AssertDumpsLinkedData,
+        expected: PortableMapping,
+        sut: HasLinks,
     ) -> None:
         assert await assert_dumps_linked_data(sut) == expected

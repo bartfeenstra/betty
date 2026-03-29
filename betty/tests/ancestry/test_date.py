@@ -6,12 +6,12 @@ import pytest
 
 from betty.date import Date, DateRange
 from betty.test_utils.ancestry.date import DummyHasDate
-from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.tests.ancestry.test___init__ import DummyHasDateWithContextDefinitions
 
 if TYPE_CHECKING:
     from betty.ancestry.has_links import HasLinks
     from betty.portable import PortableMapping
+    from betty.test_utils.conftest import AssertDumpsLinkedData
 
 
 class TestHasDate:
@@ -173,6 +173,9 @@ class TestHasDate:
         ],
     )
     async def test_dump_linked_data(
-        self, expected: PortableMapping, sut: HasLinks
+        self,
+        assert_dumps_linked_data: AssertDumpsLinkedData,
+        expected: PortableMapping,
+        sut: HasLinks,
     ) -> None:
         assert await assert_dumps_linked_data(sut) == expected

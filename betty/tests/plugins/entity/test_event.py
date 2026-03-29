@@ -18,11 +18,12 @@ from betty.plugins.event_type.birth import Birth
 from betty.plugins.event_type.unknown import Unknown as UnknownEventType
 from betty.plugins.role.subject import Subject
 from betty.privacy import Privacy
-from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
+
+    from betty.test_utils.conftest import AssertDumpsLinkedData
 
 import pytest
 
@@ -129,7 +130,9 @@ class TestEvent(EntityTestBase):
         assert sut.name is not None
         assert sut.name.localize(DEFAULT_LOCALIZER) == name
 
-    async def test_dump_linked_data__should_dump_minimal(self) -> None:
+    async def test_dump_linked_data__should_dump_minimal(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         event = Event(
             id="the_event",
             event_type=Birth(),
@@ -157,7 +160,9 @@ class TestEvent(EntityTestBase):
         actual = await assert_dumps_linked_data(event)
         assert actual == expected
 
-    async def test_dump_linked_data__should_dump_full(self) -> None:
+    async def test_dump_linked_data__should_dump_full(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         event = Event(
             id="the_event",
             event_type=Birth(),
@@ -236,7 +241,9 @@ class TestEvent(EntityTestBase):
         actual = await assert_dumps_linked_data(event)
         assert actual == expected
 
-    async def test_dump_linked_data__should_dump_private(self) -> None:
+    async def test_dump_linked_data__should_dump_private(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         event = Event(
             id="the_event",
             event_type=Birth(),

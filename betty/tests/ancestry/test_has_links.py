@@ -5,10 +5,10 @@ from typing import TYPE_CHECKING
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.plugins.entity.link import Link
 from betty.test_utils.ancestry.has_links import DummyHasLinks
-from betty.test_utils.json.linked_data import assert_dumps_linked_data
 
 if TYPE_CHECKING:
     from betty.portable import PortableMapping
+    from betty.test_utils.conftest import AssertDumpsLinkedData
 
 
 class TestHasLinks:
@@ -21,7 +21,9 @@ class TestHasLinks:
         sut = DummyHasLinks()
         assert sut.links is sut.links
 
-    async def test_dump_linked_data_without_links(self) -> None:
+    async def test_dump_linked_data_without_links(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         sut = DummyHasLinks()
         expected: PortableMapping = {
             "id": sut.id,
@@ -29,7 +31,9 @@ class TestHasLinks:
         }
         assert await assert_dumps_linked_data(sut) == expected
 
-    async def test_dump_linked_data(self) -> None:
+    async def test_dump_linked_data(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         link = Link("https://example.com")
         sut = DummyHasLinks(links=[link])
         expected = {

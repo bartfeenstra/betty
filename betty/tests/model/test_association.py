@@ -25,7 +25,6 @@ from betty.model.association import (
     UnidirectionalToOne,
     UnidirectionalToZeroOrOne,
 )
-from betty.test_utils.json.linked_data import assert_dumps_linked_data_for
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
@@ -36,6 +35,7 @@ if TYPE_CHECKING:
 
     from betty.portable import PortableMapping
     from betty.project import Project
+    from betty.test_utils.conftest import AssertDumpsLinkedDataFor
 
 
 class _PassthroughToOneResolver[EntityT: Entity](ToOneResolver[EntityT]):
@@ -300,31 +300,41 @@ class TestUnidirectionalToZeroOrOne:
     ) -> None:
         await self._OwnerEmbedded.associate.linked_data_schema_for(isolated_project)
 
-    async def test_dump_linked_data_for__with_publishable(self) -> None:
+    async def test_dump_linked_data_for__with_publishable(
+        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
+    ) -> None:
         associate = self._Associate("my-first-associate")
         target = self._Owner(associate)
         actual = await assert_dumps_linked_data_for(type(target).associate, target)
         expected = "/associate/my-first-associate/index.json"
         assert actual == expected
 
-    async def test_dump_linked_data_for__with_generated_id(self) -> None:
+    async def test_dump_linked_data_for__with_generated_id(
+        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
+    ) -> None:
         associate = self._NonPublicFacingAssociate()
         target = self._OwnerWithNonPublicFacingAssociate(associate)
         actual = await assert_dumps_linked_data_for(type(target).associate, target)
         assert actual is None
 
-    async def test_dump_linked_data_for__with_non_public_facing(self) -> None:
+    async def test_dump_linked_data_for__with_non_public_facing(
+        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
+    ) -> None:
         associate = self._NonPublicFacingAssociate("my-first-associate")
         target = self._OwnerWithNonPublicFacingAssociate(associate)
         actual = await assert_dumps_linked_data_for(type(target).associate, target)
         assert actual is None
 
-    async def test_dump_linked_data_for__without_associate(self) -> None:
+    async def test_dump_linked_data_for__without_associate(
+        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
+    ) -> None:
         target = self._Owner()
         actual = await assert_dumps_linked_data_for(type(target).associate, target)
         assert actual is None
 
-    async def test_dump_linked_data_for__with_embedded(self) -> None:
+    async def test_dump_linked_data_for__with_embedded(
+        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
+    ) -> None:
         associate = self._Associate()
         target = self._OwnerEmbedded(associate)
         actual = await assert_dumps_linked_data_for(type(target).associate, target)
@@ -333,7 +343,9 @@ class TestUnidirectionalToZeroOrOne:
         }
         assert actual == expected
 
-    async def test_dump_linked_data_for__with_embedded_without_associate(self) -> None:
+    async def test_dump_linked_data_for__with_embedded_without_associate(
+        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
+    ) -> None:
         target = self._OwnerEmbedded()
         actual = await assert_dumps_linked_data_for(type(target).associate, target)
         assert actual is None
@@ -496,31 +508,41 @@ class TestBidirectionalToZeroOrOne:
     ) -> None:
         await self._OwnerEmbedded.associate.linked_data_schema_for(isolated_project)
 
-    async def test_dump_linked_data_for__with_publishable(self) -> None:
+    async def test_dump_linked_data_for__with_publishable(
+        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
+    ) -> None:
         associate = self._Associate("my-first-associate")
         target = self._Owner(associate)
         actual = await assert_dumps_linked_data_for(type(target).associate, target)
         expected = "/associate/my-first-associate/index.json"
         assert actual == expected
 
-    async def test_dump_linked_data_for__with_generated_id(self) -> None:
+    async def test_dump_linked_data_for__with_generated_id(
+        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
+    ) -> None:
         associate = self._NonPublicFacingAssociate()
         target = self._OwnerWithNonPublicFacingAssociate(associate)
         actual = await assert_dumps_linked_data_for(type(target).associate, target)
         assert actual is None
 
-    async def test_dump_linked_data_for__with_non_public_facing(self) -> None:
+    async def test_dump_linked_data_for__with_non_public_facing(
+        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
+    ) -> None:
         associate = self._NonPublicFacingAssociate("my-first-associate")
         target = self._OwnerWithNonPublicFacingAssociate(associate)
         actual = await assert_dumps_linked_data_for(type(target).associate, target)
         assert actual is None
 
-    async def test_dump_linked_data_for__without_associate(self) -> None:
+    async def test_dump_linked_data_for__without_associate(
+        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
+    ) -> None:
         target = self._Owner()
         actual = await assert_dumps_linked_data_for(type(target).associate, target)
         assert actual is None
 
-    async def test_dump_linked_data_for__with_embedded(self) -> None:
+    async def test_dump_linked_data_for__with_embedded(
+        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
+    ) -> None:
         associate = self._Associate()
         target = self._OwnerEmbedded(associate)
         actual = await assert_dumps_linked_data_for(type(target).associate, target)
@@ -530,7 +552,9 @@ class TestBidirectionalToZeroOrOne:
         }
         assert actual == expected
 
-    async def test_dump_linked_data_for__with_embedded_without_associate(self) -> None:
+    async def test_dump_linked_data_for__with_embedded_without_associate(
+        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
+    ) -> None:
         target = self._OwnerEmbedded()
         actual = await assert_dumps_linked_data_for(type(target).associate, target)
         assert actual is None
@@ -639,26 +663,34 @@ class TestUnidirectionalToOne:
     ) -> None:
         await self._OwnerEmbedded.associate.linked_data_schema_for(isolated_project)
 
-    async def test_dump_linked_data_for__with_publishable(self) -> None:
+    async def test_dump_linked_data_for__with_publishable(
+        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
+    ) -> None:
         associate = self._Associate("my-first-associate")
         target = self._Owner(associate)
         actual = await assert_dumps_linked_data_for(type(target).associate, target)
         expected = "/associate/my-first-associate/index.json"
         assert actual == expected
 
-    async def test_dump_linked_data_for__with_generated_id(self) -> None:
+    async def test_dump_linked_data_for__with_generated_id(
+        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
+    ) -> None:
         associate = self._NonPublicFacingAssociate()
         target = self._OwnerWithNonPublicFacingAssociate(associate)
         actual = await assert_dumps_linked_data_for(type(target).associate, target)
         assert actual is None
 
-    async def test_dump_linked_data_for__with_non_public_facing(self) -> None:
+    async def test_dump_linked_data_for__with_non_public_facing(
+        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
+    ) -> None:
         associate = self._NonPublicFacingAssociate("my-first-associate")
         target = self._OwnerWithNonPublicFacingAssociate(associate)
         actual = await assert_dumps_linked_data_for(type(target).associate, target)
         assert actual is None
 
-    async def test_dump_linked_data_for__with_embedded(self) -> None:
+    async def test_dump_linked_data_for__with_embedded(
+        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
+    ) -> None:
         associate = self._Associate()
         target = self._OwnerEmbedded(associate)
         actual = await assert_dumps_linked_data_for(type(target).associate, target)
@@ -802,26 +834,34 @@ class TestBidirectionalToOne:
     ) -> None:
         await self._OwnerEmbedded.associate.linked_data_schema_for(isolated_project)
 
-    async def test_dump_linked_data_for__with_publishable(self) -> None:
+    async def test_dump_linked_data_for__with_publishable(
+        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
+    ) -> None:
         associate = self._Associate("my-first-associate")
         target = self._Owner(associate)
         actual = await assert_dumps_linked_data_for(type(target).associate, target)
         expected = "/associate/my-first-associate/index.json"
         assert actual == expected
 
-    async def test_dump_linked_data_for__with_generated_id(self) -> None:
+    async def test_dump_linked_data_for__with_generated_id(
+        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
+    ) -> None:
         associate = self._NonPublicFacingAssociate()
         target = self._OwnerWithNonPublicFacingAssociate(associate)
         actual = await assert_dumps_linked_data_for(type(target).associate, target)
         assert actual is None
 
-    async def test_dump_linked_data_for__with_non_public_facing(self) -> None:
+    async def test_dump_linked_data_for__with_non_public_facing(
+        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
+    ) -> None:
         associate = self._NonPublicFacingAssociate("my-first-associate")
         target = self._OwnerWithNonPublicFacingAssociate(associate)
         actual = await assert_dumps_linked_data_for(type(target).associate, target)
         assert actual is None
 
-    async def test_dump_linked_data_for__with_embedded(self) -> None:
+    async def test_dump_linked_data_for__with_embedded(
+        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
+    ) -> None:
         associate = self._AssociateEmbedded()
         target = self._OwnerEmbedded(associate)
         actual = await assert_dumps_linked_data_for(type(target).associate, target)
@@ -909,7 +949,9 @@ class TestUnidirectionalToManySingleType:
     ) -> None:
         await self._OwnerEmbedded.associates.linked_data_schema_for(isolated_project)
 
-    async def test_dump_linked_data_for(self) -> None:
+    async def test_dump_linked_data_for(
+        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
+    ) -> None:
         publishable_associate = self._NonPublicFacingAssociate(
             "my-first-non-public-facing-associate"
         )
@@ -929,7 +971,9 @@ class TestUnidirectionalToManySingleType:
         expected = ["/associate/my-first-associate/index.json"]
         assert actual == expected
 
-    async def test_dump_linked_data_for__with_embedded(self) -> None:
+    async def test_dump_linked_data_for__with_embedded(
+        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
+    ) -> None:
         associate_one = self._Associate("my-first-publishable-associate")
         associate_two = self._NonPublicFacingAssociate()
         associate_three = self._NonPublicFacingAssociate(
@@ -1142,7 +1186,9 @@ class TestBidirectionalToManySingleType:
     ) -> None:
         await self._OwnerEmbedded.associates.linked_data_schema_for(isolated_project)
 
-    async def test_dump_linked_data_for__with_publishable(self) -> None:
+    async def test_dump_linked_data_for__with_publishable(
+        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
+    ) -> None:
         associate = self._Associate("my-first-associate")
         target = self._Owner()
         target.associates = [associate]
@@ -1150,21 +1196,27 @@ class TestBidirectionalToManySingleType:
         expected = ["/associate/my-first-associate/index.json"]
         assert actual == expected
 
-    async def test_dump_linked_data_for__with_generated_id(self) -> None:
+    async def test_dump_linked_data_for__with_generated_id(
+        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
+    ) -> None:
         associate = self._Associate()
         target = self._Owner()
         target.associates = [associate]
         actual = await assert_dumps_linked_data_for(type(target).associates, target)
         assert actual == []
 
-    async def test_dump_linked_data_for__with_non_public_facing(self) -> None:
+    async def test_dump_linked_data_for__with_non_public_facing(
+        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
+    ) -> None:
         associate = self._NonPublicFacingAssociate("my-first-associate")
         target = self._OwnerWithNonPublicFacingAssociate()
         target.associates = [associate]
         actual = await assert_dumps_linked_data_for(type(target).associates, target)
         assert actual == []
 
-    async def test_dump_linked_data_for__with_embedded_with_publishable(self) -> None:
+    async def test_dump_linked_data_for__with_embedded_with_publishable(
+        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
+    ) -> None:
         associate = self._AssociateEmbedded("my-first-associate")
         target = self._OwnerEmbedded()
         target.associates = [associate]
@@ -1178,7 +1230,9 @@ class TestBidirectionalToManySingleType:
         ]
         assert actual == expected
 
-    async def test_dump_linked_data_for__with_embedded_with_generated_id(self) -> None:
+    async def test_dump_linked_data_for__with_embedded_with_generated_id(
+        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
+    ) -> None:
         associate = self._AssociateEmbedded()
         target = self._OwnerEmbedded()
         target.associates = [associate]
@@ -1192,7 +1246,7 @@ class TestBidirectionalToManySingleType:
         assert actual == expected
 
     async def test_dump_linked_data_for__with_embedded_with_non_public_facing(
-        self,
+        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
     ) -> None:
         associate = self._NonPublicFacingAssociateEmbedded("my-first-associate")
         target = self._OwnerEmbedded()

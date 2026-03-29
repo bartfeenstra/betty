@@ -6,7 +6,7 @@ from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.portable import PortableMapping
-from betty.test_utils.json.linked_data import assert_linked_data_dump
+from betty.test_utils.conftest import AssertLinkedDataDump
 
 
 @pytest.mark.parametrize(
@@ -28,6 +28,7 @@ from betty.test_utils.json.linked_data import assert_linked_data_dump
     ],
 )
 async def test_dump_linked_data(
+    assert_linked_data_dump: AssertLinkedDataDump,
     expected: PortableMapping,
     translations: ShorthandStaticTranslations,
 ) -> None:

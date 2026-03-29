@@ -6,10 +6,10 @@ import pytest
 
 from betty.ancestry.media_type import HasMediaType
 from betty.media_type.media_types import PLAIN_TEXT
-from betty.test_utils.json.linked_data import assert_dumps_linked_data
 
 if TYPE_CHECKING:
     from betty.portable import PortableMapping
+    from betty.test_utils.conftest import AssertDumpsLinkedData
 
 
 class TestHasMediaType:
@@ -33,6 +33,9 @@ class TestHasMediaType:
         ],
     )
     async def test_dump_linked_data(
-        self, expected: PortableMapping, sut: HasMediaType
+        self,
+        assert_dumps_linked_data: AssertDumpsLinkedData,
+        expected: PortableMapping,
+        sut: HasMediaType,
     ) -> None:
         assert await assert_dumps_linked_data(sut) == expected

@@ -11,11 +11,12 @@ from betty.plugins.entity.source import Source
 from betty.plugins.event_type.birth import Birth
 from betty.privacy import Privacy
 from betty.test_utils.ancestry.has_citations import DummyHasCitations
-from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
+
+    from betty.test_utils.conftest import AssertDumpsLinkedData
 import pytest
 
 
@@ -85,7 +86,9 @@ class TestCitation(EntityTestBase):
         sut.private = True
         assert sut.private is True
 
-    async def test_dump_linked_data__should_dump_minimal(self) -> None:
+    async def test_dump_linked_data__should_dump_minimal(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         citation = Citation(
             id="the_citation",
             source=Source(name="The Source"),
@@ -103,7 +106,9 @@ class TestCitation(EntityTestBase):
         actual = await assert_dumps_linked_data(citation)
         assert actual == expected
 
-    async def test_dump_linked_data__should_dump_full(self) -> None:
+    async def test_dump_linked_data__should_dump_full(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         citation = Citation(
             id="the_citation",
             source=Source(
@@ -132,7 +137,9 @@ class TestCitation(EntityTestBase):
         actual = await assert_dumps_linked_data(citation)
         assert actual == expected
 
-    async def test_dump_linked_data__should_dump_private(self) -> None:
+    async def test_dump_linked_data__should_dump_private(
+        self, assert_dumps_linked_data: AssertDumpsLinkedData
+    ) -> None:
         citation = Citation(
             id="the_citation",
             source=Source(
