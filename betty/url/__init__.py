@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, override
-from urllib.parse import urlencode, urlparse
+from urllib.parse import urlencode, urlsplit
 
 from betty.locale import (
     ResolvableLocale,
@@ -93,7 +93,7 @@ class PassthroughUrlGenerator(UrlGenerator):
         if not isinstance(resource, str):
             return False
         try:
-            return bool(urlparse(resource).scheme)
+            return bool(urlsplit(resource).scheme)
         except ValueError:
             return False
 

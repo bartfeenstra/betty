@@ -14,7 +14,7 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 from io import StringIO
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Self, final, override
-from urllib.parse import urlparse
+from urllib.parse import urlsplit
 
 from aiofiles.os import makedirs, symlink
 from aiofiles.tempfile import AiofilesContextManagerTempDir, TemporaryDirectory
@@ -129,9 +129,9 @@ class Server(ABC):
         await to_thread(self.__assert_available)
 
     def __assert_available(self) -> None:
-        url = urlparse(self.public_url)
-        connection = HTTPConnection(url.netloc)
-        connection.request("GET", url.path)
+        url_parts = urlsplit(self.public_url)
+        connection = HTTPConnection(url_parts.netloc)
+        connection.request("GET", url_parts.path)
         response = connection.getresponse()
         assert 400 > response.status >= 200
 
