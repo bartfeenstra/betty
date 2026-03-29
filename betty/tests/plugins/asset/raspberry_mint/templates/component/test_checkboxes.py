@@ -1,5 +1,5 @@
 from betty.html.attributes import Attributes
-from betty.plugins.extension.raspberry_mint import RaspberryMint
+from betty.plugins.asset.raspberry_mint import RaspberryMint
 from betty.test_utils.conftest import AssertTemplateFile
 
 
@@ -10,7 +10,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
             "checkboxes": [],
             "checkboxes_label": label,
         },
-        extensions={RaspberryMint},
+        service_plugins={RaspberryMint},
         template="component/checkboxes.html.j2",
     ) as (actual, _):
         assert label in actual
@@ -25,7 +25,7 @@ async def test_with_checkboxes_label_visually_hidden(
             "checkboxes_label": "Check these out!",
             "checkboxes_label_visually_hidden": True,
         },
-        extensions={RaspberryMint},
+        service_plugins={RaspberryMint},
         template="component/checkboxes.html.j2",
     ) as (actual, _):
         assert "visually-hidden" in actual
@@ -44,7 +44,7 @@ async def test_with_minimal_items(assert_template_file: AssertTemplateFile) -> N
             ],
             "checkboxes_label": "Check these out!",
         },
-        extensions={RaspberryMint},
+        service_plugins={RaspberryMint},
         template="component/checkboxes.html.j2",
     ) as (actual, _):
         assert label in actual
@@ -63,7 +63,7 @@ async def test_with_full_items(assert_template_file: AssertTemplateFile) -> None
             ],
             "checkboxes_label": "Check these out!",
         },
-        extensions={RaspberryMint},
+        service_plugins={RaspberryMint},
         template="component/checkboxes.html.j2",
     ) as (actual, _):
         assert f'id="{html_id}"' in actual

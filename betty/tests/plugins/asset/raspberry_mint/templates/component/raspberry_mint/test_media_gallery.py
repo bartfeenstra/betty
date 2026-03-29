@@ -4,9 +4,9 @@ from PIL import Image
 
 from betty.entity.association import TemporaryToOneResolver
 from betty.media_type import MediaType
+from betty.plugins.asset.raspberry_mint import RaspberryMint
 from betty.plugins.entity.file import File
 from betty.plugins.entity.file_reference import FileReference
-from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.privacy import Privacy
 from betty.test_utils.conftest import AssertTemplateFile
 
@@ -16,7 +16,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "file_references": [],
         },
-        extensions={RaspberryMint},
+        service_plugins={RaspberryMint},
         template="component/raspberry-mint/media-gallery.html.j2",
     ) as (actual, _):
         assert actual == ""
@@ -34,7 +34,7 @@ async def test_with_public_file_references(
         data={
             "file_references": [file_reference],
         },
-        extensions={RaspberryMint},
+        service_plugins={RaspberryMint},
         template="component/raspberry-mint/media-gallery.html.j2",
     ) as (actual, _):
         assert file.public_id in actual
@@ -52,7 +52,7 @@ async def test_without_public_file_references(
         data={
             "file_references": [file_reference],
         },
-        extensions={RaspberryMint},
+        service_plugins={RaspberryMint},
         template="component/raspberry-mint/media-gallery.html.j2",
     ) as (actual, _):
         assert not actual
