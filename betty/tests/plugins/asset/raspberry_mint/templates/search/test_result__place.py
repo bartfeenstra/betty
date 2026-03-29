@@ -1,6 +1,6 @@
 from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.plugins.asset.raspberry_mint import RaspberryMint
 from betty.plugins.entity.place import Place
-from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.conftest import AssertTemplateFile
 
 
@@ -10,7 +10,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": entity,
         },
-        extensions={RaspberryMint},
+        service_plugins={RaspberryMint},
         template="search/result--place.html.j2",
     ) as (actual, _):
         assert entity.label.localize(DEFAULT_LOCALIZER) in actual

@@ -1,9 +1,9 @@
 from betty.date import Date
 from betty.document import Document, EntityContexts
+from betty.plugins.asset.raspberry_mint import RaspberryMint
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.presence import Presence
-from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.plugins.role.attendee import Attendee
 from betty.plugins.role.subject import Subject
 from betty.privacy import Privacy
@@ -15,7 +15,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "events": [],
         },
-        extensions={RaspberryMint},
+        service_plugins={RaspberryMint},
         template="component/raspberry-mint/timeline.html.j2",
     ) as (actual, _):
         assert actual == ""
@@ -28,7 +28,7 @@ async def test_with_minimal_event(assert_template_file: AssertTemplateFile) -> N
         data={
             "events": [event],
         },
-        extensions={RaspberryMint},
+        service_plugins={RaspberryMint},
         template="component/raspberry-mint/timeline.html.j2",
     ) as (actual, _):
         assert name in actual
@@ -41,7 +41,7 @@ async def test_with_private_event(assert_template_file: AssertTemplateFile) -> N
         data={
             "events": [event],
         },
-        extensions={RaspberryMint},
+        service_plugins={RaspberryMint},
         template="component/raspberry-mint/timeline.html.j2",
     ) as (actual, _):
         assert actual == ""
@@ -56,7 +56,7 @@ async def test_with_event_without_date(
         data={
             "events": [event],
         },
-        extensions={RaspberryMint},
+        service_plugins={RaspberryMint},
         template="component/raspberry-mint/timeline.html.j2",
     ) as (actual, _):
         assert actual == ""
@@ -71,7 +71,7 @@ async def test_with_event_without_comparable_date(
         data={
             "events": [event],
         },
-        extensions={RaspberryMint},
+        service_plugins={RaspberryMint},
         template="component/raspberry-mint/timeline.html.j2",
     ) as (actual, _):
         assert actual == ""
@@ -87,7 +87,7 @@ async def test_with_subject_attendee(assert_template_file: AssertTemplateFile) -
             "events": [event],
             "document": Document(entity_contexts=EntityContexts(person)),
         },
-        extensions={RaspberryMint},
+        service_plugins={RaspberryMint},
         template="component/raspberry-mint/timeline.html.j2",
     ) as (actual, _):
         assert "timeline-attendee--subject" in actual
@@ -103,7 +103,7 @@ async def test_with_other_attendee(assert_template_file: AssertTemplateFile) -> 
             "events": [event],
             "document": Document(entity_contexts=EntityContexts(person)),
         },
-        extensions={RaspberryMint},
+        service_plugins={RaspberryMint},
         template="component/raspberry-mint/timeline.html.j2",
     ) as (actual, _):
         assert "timeline-attendee" in actual

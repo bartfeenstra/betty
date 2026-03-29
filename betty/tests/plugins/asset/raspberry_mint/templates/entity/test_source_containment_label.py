@@ -1,5 +1,5 @@
+from betty.plugins.asset.raspberry_mint import RaspberryMint
 from betty.plugins.entity.source import Source
-from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.conftest import AssertTemplateFile
 
 
@@ -11,7 +11,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "source": source,
         },
-        extensions={RaspberryMint},
+        service_plugins={RaspberryMint},
     ) as (actual, _):
         assert actual == expected
 
@@ -26,7 +26,7 @@ async def test_with_contained_by(assert_template_file: AssertTemplateFile) -> No
         data={
             "source": source,
         },
-        extensions={RaspberryMint},
+        service_plugins={RaspberryMint},
     ) as (actual, _):
         assert actual == expected
 
@@ -43,6 +43,6 @@ async def test_with_source_context(
             "source": source,
             "source_context": contained_by_source,
         },
-        extensions={RaspberryMint},
+        service_plugins={RaspberryMint},
     ) as (actual, _):
         assert actual == expected

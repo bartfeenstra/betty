@@ -1,6 +1,6 @@
+from betty.plugins.asset.raspberry_mint import RaspberryMint
 from betty.plugins.entity.enclosure import Enclosure
 from betty.plugins.entity.place import Place
-from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.conftest import AssertTemplateFile
 
 
@@ -12,7 +12,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "place": place,
         },
-        extensions={RaspberryMint},
+        service_plugins={RaspberryMint},
     ) as (actual, _):
         assert actual == expected
 
@@ -29,7 +29,7 @@ async def test_with_encloser(assert_template_file: AssertTemplateFile) -> None:
         data={
             "place": place,
         },
-        extensions={RaspberryMint},
+        service_plugins={RaspberryMint},
     ) as (actual, _):
         assert actual == expected
 
@@ -45,6 +45,6 @@ async def test_with_place_context(assert_template_file: AssertTemplateFile) -> N
             "place": place,
             "place_context": encloser_place,
         },
-        extensions={RaspberryMint},
+        service_plugins={RaspberryMint},
     ) as (actual, _):
         assert actual == expected

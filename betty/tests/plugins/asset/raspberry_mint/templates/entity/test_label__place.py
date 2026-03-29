@@ -4,9 +4,9 @@ from typing import TYPE_CHECKING
 
 from betty.date import Date, DateRange
 from betty.document import Document, EntityContexts
+from betty.plugins.asset.raspberry_mint import RaspberryMint
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.place_name import PlaceName
-from betty.plugins.extension.raspberry_mint import RaspberryMint
 
 if TYPE_CHECKING:
     from betty.test_utils.conftest import AssertTemplateFile
@@ -19,7 +19,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": place,
         },
-        extensions={RaspberryMint},
+        service_plugins={RaspberryMint},
         template="entity/label--place.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -32,7 +32,7 @@ async def test_with_persistent_id(assert_template_file: AssertTemplateFile) -> N
         data={
             "entity": place,
         },
-        extensions={RaspberryMint},
+        service_plugins={RaspberryMint},
         template="entity/label--place.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -45,7 +45,7 @@ async def test_with_name(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": place,
         },
-        extensions={RaspberryMint},
+        service_plugins={RaspberryMint},
         template="entity/label--place.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -62,7 +62,7 @@ async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
             "entity": place,
             "embedded": True,
         },
-        extensions={RaspberryMint},
+        service_plugins={RaspberryMint},
         template="entity/label--place.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -77,7 +77,7 @@ async def test_with_place_context(assert_template_file: AssertTemplateFile) -> N
             "entity": place,
             "document": Document(entity_contexts=EntityContexts(place)),
         },
-        extensions={RaspberryMint},
+        service_plugins={RaspberryMint},
         template="entity/label--place.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -103,7 +103,7 @@ async def test_with_date_context(assert_template_file: AssertTemplateFile) -> No
             "entity": place,
             "date_context": Date(1970, 1, 1),
         },
-        extensions={RaspberryMint},
+        service_plugins={RaspberryMint},
         template="entity/label--place.html.j2",
     ) as (actual, _):
         assert actual == expected
