@@ -5,7 +5,7 @@ URL generators for project resources.
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Self, final, override
-from urllib.parse import urlparse
+from urllib.parse import urlsplit
 
 from betty.media_type.media_types import HTML, JSON, JSON_LD
 from betty.model import Entity, EntityDefinition
@@ -245,14 +245,14 @@ class _EntityUrlUrlGenerator(UrlGenerator):
         if not isinstance(resource, str):
             return False
         try:
-            parsed_url = urlparse(resource)
+            url_parts = urlsplit(resource)
         except ValueError:
             return False
-        if parsed_url.scheme != "betty-entity":
+        if url_parts.scheme != "betty-entity":
             return False
-        if not parsed_url.netloc:
+        if not url_parts.netloc:
             return False
-        return len(parsed_url.path) >= 2
+        return len(url_parts.path) >= 2
 
     @override
     def generate(
@@ -265,9 +265,9 @@ class _EntityUrlUrlGenerator(UrlGenerator):
         media_type: MediaType | None = None,
         query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
-        parsed_url = urlparse(resource)
-        entity_type_id = parsed_url.netloc
-        entity_id = parsed_url.path[1:]
+        url_parts = urlsplit(resource)
+        entity_type_id = url_parts.netloc
+        entity_id = url_parts.path[1:]
         entity = self._ancestry[entity_type_id][entity_id]
         return self._entity_url_generator.generate(
             entity,
@@ -285,12 +285,12 @@ class _LocalizedPathUrlUrlGenerator(_ProjectUrlGenerator, UrlGenerator):
         if not isinstance(resource, str):
             return False
         try:
-            parsed_url = urlparse(resource)
+            url_parts = urlsplit(resource)
         except ValueError:
             return False
-        if parsed_url.scheme != "betty":
+        if url_parts.scheme != "betty":
             return False
-        return not (not parsed_url.netloc and not parsed_url.path)
+        return not (not url_parts.netloc and not url_parts.path)
 
     @override
     def generate(
@@ -304,8 +304,8 @@ class _LocalizedPathUrlUrlGenerator(_ProjectUrlGenerator, UrlGenerator):
         query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
         assert self.supports(resource)
-        parsed_url = urlparse(resource)
-        url_path = "/" + (parsed_url.netloc + parsed_url.path).lstrip("/")
+        url_parts = urlsplit(resource)
+        url_path = "/" + (url_parts.netloc + url_parts.path).lstrip("/")
         return self._generate_from_path(
             url_path,
             absolute=absolute,
@@ -321,12 +321,12 @@ class _StaticPathUrlUrlGenerator(_ProjectUrlGenerator, UrlGenerator):
         if not isinstance(resource, str):
             return False
         try:
-            parsed_url = urlparse(resource)
+            url_parts = urlsplit(resource)
         except ValueError:
             return False
-        if parsed_url.scheme != "betty-static":
+        if url_parts.scheme != "betty-static":
             return False
-        return not (not parsed_url.netloc and not parsed_url.path)
+        return not (not url_parts.netloc and not url_parts.path)
 
     @override
     def generate(
@@ -340,8 +340,8 @@ class _StaticPathUrlUrlGenerator(_ProjectUrlGenerator, UrlGenerator):
         query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
         assert self.supports(resource)
-        parsed_url = urlparse(resource)
-        url_path = "/" + (parsed_url.netloc + parsed_url.path).lstrip("/")
+        url_parts = urlsplit(resource)
+        url_path = "/" + (url_parts.netloc + url_parts.path).lstrip("/")
         return self._generate_from_path(
             url_path,
             absolute=absolute,

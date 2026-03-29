@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from json import JSONDecodeError
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, final
-from urllib.parse import quote, urlparse
+from urllib.parse import quote, urlsplit
 
 import aiofiles
 from geopy import Point
@@ -206,7 +206,7 @@ class Client:
         image_path = (
             self._download_directory_path
             / "image"
-            / (hashid(image_url) + Path(urlparse(image_url).path).suffix.lower())
+            / (hashid(image_url) + Path(urlsplit(image_url).path).suffix.lower())
         )
         await to_thread(image_path.parent.mkdir, exist_ok=True, parents=True)
         async with aiofiles.open(image_path, mode="wb") as image_f:
@@ -217,7 +217,7 @@ class Client:
             # Strip "File:" or any translated equivalent from the beginning of the image's title.
             image_title[image_title.index(":") + 1 :],
             image_wikimedia_commons_url,
-            Path(urlparse(image_url).path).name,
+            Path(urlsplit(image_url).path).name,
         )
 
     async def get_place_coordinates(
