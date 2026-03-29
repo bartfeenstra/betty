@@ -38,7 +38,6 @@ class PluginDocumentationTestBase:
         """
         async with (
             isolated_app_factory() as app,
-            app,
             isolated_project_factory(app=app) as project,
         ):
             for plugin_type in UNIVERSE.plugins:

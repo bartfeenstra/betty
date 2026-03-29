@@ -11,25 +11,25 @@ from betty.console import CommandDefinition, SystemExitCode
 from betty.plugins.command.update_translations import (
     UpdateTranslations,
 )
+from betty.test_utils.conftest import IsolatedAppFactory
 from betty.test_utils.console import run
 
 
 class TestUpdateTranslations:
     @pytest.fixture
-    async def isolated_app_with_assets(self, tmp_path: Path) -> AsyncIterator[App]:
+    async def isolated_app_with_assets(
+        self, isolated_app_factory: IsolatedAppFactory, tmp_path: Path
+    ) -> AsyncIterator[App]:
         @AssetDefinition("dummy", assets=tmp_path)
         class _Dummy(Asset):
             pass
 
-        async with (
-            App.new_isolated(
-                plugins={
-                    CommandDefinition: [UpdateTranslations],
-                    AssetDefinition: [_Dummy],
-                }
-            ) as app,
-            app,
-        ):
+        async with isolated_app_factory(
+            plugins={
+                CommandDefinition: [UpdateTranslations],
+                AssetDefinition: [_Dummy],
+            }
+        ) as app:
             yield app
 
     async def test_configure__minimal(

@@ -24,7 +24,7 @@ class TestDemoServer:
         self, mocker: MockerFixture, isolated_app_factory: IsolatedAppFactory
     ) -> None:
         mocker.patch("webbrowser.open_new_tab")
-        async with isolated_app_factory() as app, app, DemoServer(app=app) as server:
+        async with isolated_app_factory() as app, DemoServer(app=app) as server:
 
             def _assert_response(response: Response) -> None:
                 assert response.status_code == 200

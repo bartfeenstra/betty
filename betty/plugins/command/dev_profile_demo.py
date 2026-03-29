@@ -29,7 +29,6 @@ if TYPE_CHECKING:
 async def _target(user: User) -> None:
     async with (
         App.new_isolated() as app,
-        app,
         TemporaryDirectory() as project_directory_path_str,
     ):
         project = await create_project(app, Path(project_directory_path_str))

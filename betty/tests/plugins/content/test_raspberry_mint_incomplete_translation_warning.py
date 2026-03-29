@@ -33,7 +33,6 @@ class TestIncompleteTranslationWarning:
                     StaticAssetRepository(), BinaryFileCache(tmp_path)
                 ),
             ) as app,
-            app,
             isolated_project_factory(
                 app=app, locales=["nl"], support_plugins=[IncompleteTranslationWarning]
             ) as project,
