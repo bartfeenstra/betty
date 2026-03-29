@@ -5,13 +5,14 @@ import tarfile
 from asyncio.subprocess import Process
 from gettext import NullTranslations
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Protocol
 from unittest.mock import ANY
 
 import pytest
 from aiofiles.tempfile import AiofilesContextManagerTempDir
 from babel import Locale
 
+from betty.ancestry import Ancestry
 from betty.date import Date, DateRange
 from betty.gramps.error import UserFacingGrampsError
 from betty.gramps.loader import GrampsFileNotFound, GrampsLoader, LoaderUsedAlready
@@ -42,11 +43,10 @@ from betty.subprocess import CalledSubprocessError
 from betty.test_utils.user import StaticUser
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import AsyncIterator, Mapping
 
     from pytest_mock import MockerFixture
 
-    from betty.ancestry import Ancestry
     from betty.event_type import EventType, EventTypeDefinition
     from betty.place_type import PlaceType, PlaceTypeDefinition
     from betty.plugin.factory import ResolvablePluginManufacturer
@@ -101,6 +101,26 @@ _MINIMAL_GED = """
 1 NAME Submitter
 0 TRLR
 """
+
+
+class LoadPartial(Protocol):
+    async def __call__(
+        self,
+        xml: str,
+        *,
+        media_path: Path | None = None,
+        event_type_mapping: Mapping[
+            str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
+        ]
+        | None = None,
+        place_type_mapping: Mapping[
+            str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
+        ]
+        | None = None,
+        role_mapping: Mapping[str, ResolvablePluginManufacturer[RoleDefinition, Role]]
+        | None = None,
+    ) -> Ancestry:
+        pass
 
 
 class TestGrampsLoader:
@@ -312,8 +332,8 @@ class TestGrampsLoader:
 
     async def _load(
         self,
+        project: Project,
         xml: str,
-        *,
         event_type_mapping: Mapping[
             str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
         ]
@@ -325,55 +345,68 @@ class TestGrampsLoader:
         role_mapping: Mapping[str, ResolvablePluginManufacturer[RoleDefinition, Role]]
         | None = None,
     ) -> Ancestry:
-        async with Project.new_isolated(name=self.PROJECT_NAME) as project:
-            loader = GrampsLoader(
-                project.ancestry,
-                user=StaticUser(),
-                services=project,
-                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-                event_type_mapping=event_type_mapping,
-                place_type_mapping=place_type_mapping,
-                role_mapping=role_mapping,
-            )
-            await loader.load_xml(xml.strip())
-            return project.ancestry
-
-    async def _load_partial(
-        self,
-        xml: str,
-        *,
-        media_path: Path | None = None,
-        event_type_mapping: Mapping[
-            str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
-        ]
-        | None = None,
-        place_type_mapping: Mapping[
-            str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
-        ]
-        | None = None,
-        role_mapping: Mapping[str, ResolvablePluginManufacturer[RoleDefinition, Role]]
-        | None = None,
-    ) -> Ancestry:
-        mediapath = "" if media_path is None else f"<mediapath>{media_path}</mediapath>"
-        return await self._load(
-            f"""
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML 1.7.1//EN"
-"http://gramps-project.org/xml/1.7.1/grampsxml.dtd">
-<database xmlns="http://gramps-project.org/xml/1.7.1/">
-    <header>
-        <created date="2019-03-09" version="4.2.8"/>
-        <researcher>
-        </researcher>
-        {mediapath}
-    </header>
-    {xml}
-</database>
-""",
+        ancestry = Ancestry()
+        loader = GrampsLoader(
+            ancestry,
+            user=StaticUser(),
+            services=project,
+            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             event_type_mapping=event_type_mapping,
             place_type_mapping=place_type_mapping,
             role_mapping=role_mapping,
         )
+        await loader.load_xml(xml.strip())
+        return ancestry
+
+    @pytest.fixture
+    async def load_project(self) -> AsyncIterator[Project]:
+        async with Project.new_isolated(name=self.PROJECT_NAME) as project:
+            yield project
+
+    @pytest.fixture
+    async def load_partial(self, isolated_project: Project) -> LoadPartial:
+        async def _load_partial(
+            xml: str,
+            *,
+            media_path: Path | None = None,
+            event_type_mapping: Mapping[
+                str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
+            ]
+            | None = None,
+            place_type_mapping: Mapping[
+                str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
+            ]
+            | None = None,
+            role_mapping: Mapping[
+                str, ResolvablePluginManufacturer[RoleDefinition, Role]
+            ]
+            | None = None,
+        ) -> Ancestry:
+            mediapath = (
+                "" if media_path is None else f"<mediapath>{media_path}</mediapath>"
+            )
+            return await self._load(
+                isolated_project,
+                f"""
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML 1.7.1//EN"
+    "http://gramps-project.org/xml/1.7.1/grampsxml.dtd">
+    <database xmlns="http://gramps-project.org/xml/1.7.1/">
+        <header>
+            <created date="2019-03-09" version="4.2.8"/>
+            <researcher>
+            </researcher>
+            {mediapath}
+        </header>
+        {xml}
+    </database>
+    """,
+                event_type_mapping=event_type_mapping,
+                place_type_mapping=place_type_mapping,
+                role_mapping=role_mapping,
+            )
+
+        return _load_partial
 
     async def test_load_xml(self, isolated_project: Project) -> None:
         sut = GrampsLoader(
@@ -427,8 +460,10 @@ class TestGrampsLoader:
         with pytest.raises(UserFacingGrampsError):
             await sut.load_xml(xml)
 
-    async def test_place_should_include_place_type(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_place_should_include_place_type(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <places>
     <placeobj handle="_e1dd2fb639e3f04f8cfabaa7e8a" change="1552125653" id="P0000" type="MyFirstPlaceType">
@@ -441,8 +476,10 @@ class TestGrampsLoader:
         place = ancestry[Place]["P0000"]
         assert isinstance(place.place_type, City)
 
-    async def test_place_should_ignore_unknown_place_type(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_place_should_ignore_unknown_place_type(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <places>
     <placeobj handle="_e1dd2fb639e3f04f8cfabaa7e8a" change="1552125653" id="P0000" type="NonExistentPlaceType">
@@ -454,8 +491,8 @@ class TestGrampsLoader:
         place = ancestry[Place]["P0000"]
         assert isinstance(place.place_type, UnknownPlaceType)
 
-    async def test_place_should_include_name(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_place_should_include_name(self, load_partial: LoadPartial) -> None:
+        ancestry = await load_partial(
             """
 <places>
     <placeobj handle="_e1dd2fb639e3f04f8cfabaa7e8a" change="1552125653" id="P0000" type="Unknown">
@@ -470,8 +507,10 @@ class TestGrampsLoader:
         name = names[0]
         assert name.name.localize(DEFAULT_LOCALIZER) == "Amsterdam"
 
-    async def test_place_should_include_name_with_locale(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_place_should_include_name_with_locale(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <places>
     <placeobj handle="_e1dd2fb639e3f04f8cfabaa7e8a" change="1552125653" id="P0000" type="Unknown">
@@ -485,8 +524,8 @@ class TestGrampsLoader:
         name = names[0]
         assert name.name.localize(DEFAULT_LOCALIZER).locale == Locale("nl")
 
-    async def test_place_should_include_note(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_place_should_include_note(self, load_partial: LoadPartial) -> None:
+        ancestry = await load_partial(
             """
 <places>
     <placeobj handle="_e1dd2fb639e3f04f8cfabaa7e8a" change="1552125653" id="P0000" type="Unknown">
@@ -521,9 +560,10 @@ class TestGrampsLoader:
         expected_latitude: float,
         expected_longitude: float,
         latitude: str,
+        load_partial: LoadPartial,
         longitude: str,
     ) -> None:
-        ancestry = await self._load_partial(
+        ancestry = await load_partial(
             f"""
 <places>
     <placeobj handle="_e1dd2fb639e3f04f8cfabaa7e8a" change="1552125653" id="P0000" type="Unknown">
@@ -537,8 +577,10 @@ class TestGrampsLoader:
         assert pytest.approx(expected_latitude) == coordinates.latitude
         assert pytest.approx(expected_longitude) == coordinates.longitude
 
-    async def test_place_should_ignore_invalid_coordinates(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_place_should_ignore_invalid_coordinates(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <places>
     <placeobj handle="_e1dd2fb639e3f04f8cfabaa7e8a" change="1552125653" id="P0000" type="Unknown">
@@ -550,8 +592,8 @@ class TestGrampsLoader:
         coordinates = ancestry[Place]["P0000"].coordinates
         assert coordinates is None
 
-    async def test_place_should_include_events(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_place_should_include_events(self, load_partial: LoadPartial) -> None:
+        ancestry = await load_partial(
             """
 <places>
     <placeobj handle="_e1dd2fb639e3f04f8cfabaa7e8a" change="1552125653" id="P0000" type="Unknown">
@@ -570,8 +612,10 @@ class TestGrampsLoader:
         assert place == event.place
         assert event in place.events
 
-    async def test_place_should_include_encloser(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_place_should_include_encloser(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <places>
     <placeobj handle="_e7692ea23775e80643fe4fcf91" change="1552125653" id="P0000" type="Unknown">
@@ -602,8 +646,8 @@ class TestGrampsLoader:
             == list(ancestry[Place]["P0001"].enclosees)[0].enclosee
         )
 
-    async def test_person_should_include_names(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_person_should_include_names(self, load_partial: LoadPartial) -> None:
+        ancestry = await load_partial(
             """
 <people>
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
@@ -640,8 +684,10 @@ class TestGrampsLoader:
         assert list(person.names)[3].individual == "Jean"
         assert list(person.names)[4].affiliation == "Doewie"
 
-    async def test_person_should_include_presence(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_person_should_include_presence(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <people>
     <person handle="_e1dd3c1caf863ee0081cc2cc16f" change="1552131917" id="I0000">
@@ -662,8 +708,8 @@ class TestGrampsLoader:
         assert event is not None
         assert event.id == "E0000"
 
-    async def test_person_should_be_private(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_person_should_be_private(self, load_partial: LoadPartial) -> None:
+        ancestry = await load_partial(
             """
 <people>
     <person handle="_e1dd3c1caf863ee0081cc2cc16f" change="1552131917" id="I0000" priv="1">
@@ -675,8 +721,10 @@ class TestGrampsLoader:
         person = ancestry[Person]["I0000"]
         assert person.private
 
-    async def test_person_should_not_be_private(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_person_should_not_be_private(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <people>
     <person handle="_e1dd3bf1f0041d92f586f9d8683" change="1552126972" id="I0000">
@@ -688,8 +736,10 @@ class TestGrampsLoader:
         person = ancestry[Person]["I0000"]
         assert not person.private
 
-    async def test_person_should_fallback_gender(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_person_should_fallback_gender(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <people>
     <person handle="_e1dd3bf1f0041d92f586f9d8683" change="1552126972" id="I0000">
@@ -701,8 +751,10 @@ class TestGrampsLoader:
         person = ancestry[Person]["I0000"]
         assert isinstance(person.gender, UnknownGender)
 
-    async def test_person_should_load_gender_element(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_person_should_load_gender_element(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <people>
     <person handle="_e1dd3bf1f0041d92f586f9d8683" change="1552126972" id="I0000">
@@ -714,8 +766,10 @@ class TestGrampsLoader:
         person = ancestry[Person]["I0000"]
         assert isinstance(person.gender, NonBinary)
 
-    async def test_person_should_load_gender_attribute(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_person_should_load_gender_attribute(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <people>
     <person handle="_e1dd3bf1f0041d92f586f9d8683" change="1552126972" id="I0000">
@@ -728,8 +782,10 @@ class TestGrampsLoader:
         person = ancestry[Person]["I0000"]
         assert isinstance(person.gender, NonBinary)
 
-    async def test_person_should_include_citation(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_person_should_include_citation(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <people>
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
@@ -752,8 +808,8 @@ class TestGrampsLoader:
         citation = ancestry[Citation]["C0000"]
         assert citation in person.citations
 
-    async def test_person_should_include_note(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_person_should_include_note(self, load_partial: LoadPartial) -> None:
+        ancestry = await load_partial(
             """
 <people>
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
@@ -773,10 +829,12 @@ class TestGrampsLoader:
         note = list(person.notes)[0]
         assert note.id == "N0000"
 
-    async def test_person_should_include_file(self, tmp_path: Path) -> None:
+    async def test_person_should_include_file(
+        self, load_partial: LoadPartial, tmp_path: Path
+    ) -> None:
         file_path = tmp_path / "file.path"
         file_path.touch()
-        ancestry = await self._load_partial(
+        ancestry = await load_partial(
             f"""
 <people>
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
@@ -797,10 +855,12 @@ class TestGrampsLoader:
         file_reference = list(person.file_references)[0]
         assert file_reference.file.id == "O0000"
 
-    async def test_person_should_include_file_with_focus(self, tmp_path: Path) -> None:
+    async def test_person_should_include_file_with_focus(
+        self, load_partial: LoadPartial, tmp_path: Path
+    ) -> None:
         file_path = tmp_path / "file.path"
         file_path.touch()
-        ancestry = await self._load_partial(
+        ancestry = await load_partial(
             f"""
 <people>
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
@@ -823,8 +883,8 @@ class TestGrampsLoader:
         assert file_reference.focus == (1, 2, 3, 4)
         assert file_reference.file.id == "O0000"
 
-    async def test_family_should_set_parents(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_family_should_set_parents(self, load_partial: LoadPartial) -> None:
+        ancestry = await load_partial(
             """
 <people>
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
@@ -866,8 +926,8 @@ class TestGrampsLoader:
         child = ancestry[Person]["I0001"]
         assert list(child.parents) == [father, mother_one, mother_two]
 
-    async def test_family_should_set_children(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_family_should_set_children(self, load_partial: LoadPartial) -> None:
+        ancestry = await load_partial(
             """
 <people>
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
@@ -909,8 +969,10 @@ class TestGrampsLoader:
         assert list(father.children) == [common_child]
         assert list(mother.children) == [common_child, mother_only_child]
 
-    async def test_family_should_associate_events_with_parents(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_family_should_associate_events_with_parents(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <people>
     <person handle="_e1dd3bf1f0041d92f586f9d8683" change="1552126972" id="I0000">
@@ -946,8 +1008,8 @@ class TestGrampsLoader:
         assert isinstance(list(mother.presences)[0].role, Subject)
         assert list(mother.presences)[0].event is event
 
-    async def test_event_should_map_type(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_event_should_map_type(self, load_partial: LoadPartial) -> None:
+        ancestry = await load_partial(
             """
 <events>
     <event handle="_e56068c37402fda8741678a115a" change="1577021208" id="E0000">
@@ -959,8 +1021,8 @@ class TestGrampsLoader:
         )
         assert isinstance(ancestry[Event]["E0000"].event_type, Birth)
 
-    async def test_event_should_be_death(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_event_should_be_death(self, load_partial: LoadPartial) -> None:
+        ancestry = await load_partial(
             """
 <events>
     <event handle="_e1dd6b69f2d6c31de58efd91ddf" change="1552131913" id="E0000">
@@ -972,8 +1034,8 @@ class TestGrampsLoader:
         )
         assert isinstance(ancestry[Event]["E0000"].event_type, Death)
 
-    async def test_event_should_load_unknown(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_event_should_load_unknown(self, load_partial: LoadPartial) -> None:
+        ancestry = await load_partial(
             """
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
@@ -985,8 +1047,8 @@ class TestGrampsLoader:
         )
         assert isinstance(ancestry[Event]["E0000"].event_type, UnknownEventType)
 
-    async def test_event_should_include_place(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_event_should_include_place(self, load_partial: LoadPartial) -> None:
+        ancestry = await load_partial(
             """
 <events>
     <event handle="_e1dd3ac2fa22e6fefa18f738bdd" change="1552126811" id="E0000">
@@ -1005,8 +1067,8 @@ class TestGrampsLoader:
         place = ancestry[Place]["P0000"]
         assert place == event.place
 
-    async def test_event_should_include_date(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_event_should_include_date(self, load_partial: LoadPartial) -> None:
+        ancestry = await load_partial(
             """
 <events>
     <event handle="_e1dd3ac2fa22e6fefa18f738bdd" change="1552126811" id="E0000">
@@ -1022,8 +1084,8 @@ class TestGrampsLoader:
         assert event.date.month == 1
         assert event.date.day == 1
 
-    async def test_event_should_include_people(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_event_should_include_people(self, load_partial: LoadPartial) -> None:
+        ancestry = await load_partial(
             """
 <people>
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
@@ -1042,10 +1104,10 @@ class TestGrampsLoader:
         expected_people = [ancestry[Person]["I0000"]]
         assert expected_people == [presence.person for presence in event.presences]
 
-    async def test_event_should_include_name(self) -> None:
+    async def test_event_should_include_name(self, load_partial: LoadPartial) -> None:
         name_nl = "Een of andere naam"
         name_default = "Some name"
-        ancestry = await self._load_partial(
+        ancestry = await load_partial(
             f"""
 <events>
     <event handle="_e56068c37402fda8741678a115a" change="1577021208" id="E0000">
@@ -1061,8 +1123,10 @@ class TestGrampsLoader:
         assert event.name.localize(DEFAULT_LOCALIZER) == name_default
         assert event.name.localize(Localizer("nl", NullTranslations())) == name_nl
 
-    async def test_event_should_include_description(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_event_should_include_description(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <events>
     <event handle="_e56068c37402fda8741678a115a" change="1577021208" id="E0000">
@@ -1076,8 +1140,8 @@ class TestGrampsLoader:
         assert event.description is not None
         assert event.description.localize(DEFAULT_LOCALIZER) == "Something happened!"
 
-    async def test_event_should_include_note(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_event_should_include_note(self, load_partial: LoadPartial) -> None:
+        ancestry = await load_partial(
             """
 <events>
     <event handle="_e56068c37402fda8741678a115a" change="1577021208" id="E0000">
@@ -1111,9 +1175,9 @@ class TestGrampsLoader:
         ],
     )
     async def test_date_should_load_parts(
-        self, expected: Date, dateval_val: str
+        self, expected: Date, dateval_val: str, load_partial: LoadPartial
     ) -> None:
-        ancestry = await self._load_partial(
+        ancestry = await load_partial(
             f"""
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
@@ -1125,8 +1189,10 @@ class TestGrampsLoader:
         )
         assert expected == ancestry[Event]["E0000"].date
 
-    async def test_date_should_ignore_calendar_format(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_date_should_ignore_calendar_format(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <events>
     <event handle="_e560a44fed046f2f2d58662aac9" change="1576270227" id="E0000">
@@ -1138,8 +1204,8 @@ class TestGrampsLoader:
         )
         assert ancestry[Event]["E0000"].date is None
 
-    async def test_date_should_load_before(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_date_should_load_before(self, load_partial: LoadPartial) -> None:
+        ancestry = await load_partial(
             """
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
@@ -1159,8 +1225,8 @@ class TestGrampsLoader:
         assert date.end_is_boundary
         assert not date.end.fuzzy
 
-    async def test_date_should_load_after(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_date_should_load_after(self, load_partial: LoadPartial) -> None:
+        ancestry = await load_partial(
             """
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
@@ -1180,8 +1246,8 @@ class TestGrampsLoader:
         assert date.start_is_boundary
         assert not date.start.fuzzy
 
-    async def test_date_should_load_calculated(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_date_should_load_calculated(self, load_partial: LoadPartial) -> None:
+        ancestry = await load_partial(
             """
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
@@ -1198,8 +1264,8 @@ class TestGrampsLoader:
         assert date.day == 1
         assert not date.fuzzy
 
-    async def test_date_should_load_estimated(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_date_should_load_estimated(self, load_partial: LoadPartial) -> None:
+        ancestry = await load_partial(
             """
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
@@ -1216,8 +1282,8 @@ class TestGrampsLoader:
         assert date.day == 1
         assert date.fuzzy
 
-    async def test_date_should_load_about(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_date_should_load_about(self, load_partial: LoadPartial) -> None:
+        ancestry = await load_partial(
             """
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
@@ -1234,8 +1300,8 @@ class TestGrampsLoader:
         assert date.day == 1
         assert date.fuzzy
 
-    async def test_daterange_should_load(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_daterange_should_load(self, load_partial: LoadPartial) -> None:
+        ancestry = await load_partial(
             """
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
@@ -1262,8 +1328,10 @@ class TestGrampsLoader:
         assert date.end_is_boundary
         assert not end.fuzzy
 
-    async def test_daterange_should_load_calculated(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_daterange_should_load_calculated(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
@@ -1282,8 +1350,10 @@ class TestGrampsLoader:
         assert isinstance(end, Date)
         assert not end.fuzzy
 
-    async def test_daterange_should_load_estimated(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_daterange_should_load_estimated(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
@@ -1302,8 +1372,8 @@ class TestGrampsLoader:
         assert isinstance(end, Date)
         assert end.fuzzy
 
-    async def test_datespan_should_load(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_datespan_should_load(self, load_partial: LoadPartial) -> None:
+        ancestry = await load_partial(
             """
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
@@ -1328,8 +1398,10 @@ class TestGrampsLoader:
         assert end.day == 31
         assert not end.fuzzy
 
-    async def test_datespan_should_load_calculated(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_datespan_should_load_calculated(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
@@ -1348,8 +1420,10 @@ class TestGrampsLoader:
         assert isinstance(end, Date)
         assert not end.fuzzy
 
-    async def test_datespan_should_load_estimated(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_datespan_should_load_estimated(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
@@ -1368,8 +1442,10 @@ class TestGrampsLoader:
         assert isinstance(end, Date)
         assert end.fuzzy
 
-    async def test_source_from_repository_should_include_name(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_source_from_repository_should_include_name(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <repositories>
     <repository handle="_e2c257f50fd27b1c841d7497448" change="1558277216" id="R0000">
@@ -1382,8 +1458,10 @@ class TestGrampsLoader:
         assert source.name is not None
         assert source.name.localize(DEFAULT_LOCALIZER) == "Library of Alexandria"
 
-    async def test_source_from_repository_should_include_link(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_source_from_repository_should_include_link(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <repositories>
     <repository handle="_e2c257f50fd27b1c841d7497448" change="1558277216" id="R0000">
@@ -1402,8 +1480,10 @@ class TestGrampsLoader:
             link.label.localize(DEFAULT_LOCALIZER) == "Library of Alexandria Catalogue"
         )
 
-    async def test_source_from_source_should_include_title(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_source_from_source_should_include_title(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <sources>
     <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
@@ -1416,8 +1496,10 @@ class TestGrampsLoader:
         assert source.name is not None
         assert source.name.localize(DEFAULT_LOCALIZER) == "A Whisper"
 
-    async def test_source_from_source_should_include_author(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_source_from_source_should_include_author(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <sources>
     <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
@@ -1430,8 +1512,10 @@ class TestGrampsLoader:
         assert source.author is not None
         assert source.author.localize(DEFAULT_LOCALIZER) == "A Little Birdie"
 
-    async def test_source_from_source_should_include_publisher(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_source_from_source_should_include_publisher(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <sources>
     <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
@@ -1446,8 +1530,10 @@ class TestGrampsLoader:
             source.publisher.localize(DEFAULT_LOCALIZER) == "Somewhere over the rainbow"
         )
 
-    async def test_source_from_source_should_include_repository(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_source_from_source_should_include_repository(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <sources>
     <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
@@ -1467,8 +1553,10 @@ class TestGrampsLoader:
         containing_source = ancestry[Source]["R0000"]
         assert containing_source == source.contained_by
 
-    async def test_source_from_repository_should_include_note(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_source_from_repository_should_include_note(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <repositories>
     <repository handle="_e2c257f50fd27b1c841d7497448" change="1558277216" id="R0000">
@@ -1488,8 +1576,10 @@ class TestGrampsLoader:
         note = list(source.notes)[0]
         assert note.id == "N0000"
 
-    async def test_source_from_source_should_include_note(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_source_from_source_should_include_note(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <sources>
     <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
@@ -1509,10 +1599,10 @@ class TestGrampsLoader:
         assert note.id == "N0000"
 
     async def test__load_attribute_links_should_include_attribute_links_minimal(
-        self,
+        self, load_partial: LoadPartial
     ) -> None:
         url = "http://example.com"
-        ancestry = await self._load_partial(
+        ancestry = await load_partial(
             f"""
 <sources>
     <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
@@ -1531,7 +1621,7 @@ class TestGrampsLoader:
         assert link.relationship is None
 
     async def test__load_attribute_links_should_include_attribute_links_full(
-        self,
+        self, load_partial: LoadPartial
     ) -> None:
         url_nl = "https://nl.example.com"
         url_undetermined = "https://example.com"
@@ -1541,7 +1631,7 @@ class TestGrampsLoader:
         description_undetermined = "This is the default description"
         media_type = "text/plain"
         relationship = "external"
-        ancestry = await self._load_partial(
+        ancestry = await load_partial(
             f"""
 <sources>
     <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
@@ -1574,8 +1664,9 @@ class TestGrampsLoader:
 
     async def test__load_attribute_links_should_warn_about_attribute_link_without_url(
         self,
+        load_partial: LoadPartial,
     ) -> None:
-        ancestry = await self._load_partial(
+        ancestry = await load_partial(
             """
 <sources>
     <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
@@ -1589,8 +1680,9 @@ class TestGrampsLoader:
 
     async def test__load_attribute_links_should_warn_about_attribute_link_invalid_media_type(
         self,
+        load_partial: LoadPartial,
     ) -> None:
-        ancestry = await self._load_partial(
+        ancestry = await load_partial(
             """
 <sources>
     <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
@@ -1625,6 +1717,7 @@ class TestGrampsLoader:
     )
     async def test_person_should_include_privacy_from_attribute(
         self,
+        load_partial: LoadPartial,
         expected: Privacy,
         global_attribute_value: str | None,
         project_attribute_value: str | None,
@@ -1639,7 +1732,7 @@ class TestGrampsLoader:
             if project_attribute_value is None
             else f'<attribute type="betty-{self.ATTRIBUTE_PREFIX_KEY}:privacy" value="{project_attribute_value}"/>'
         )
-        ancestry = await self._load_partial(
+        ancestry = await load_partial(
             f"""
 <people>
     <person handle="_e1dd3ac2fa22e6fefa18f738bdd" change="1552126811" id="I0000">
@@ -1653,8 +1746,10 @@ class TestGrampsLoader:
         person = ancestry[Person]["I0000"]
         assert expected == person.privacy
 
-    async def test_event_should_include_privacy_from_element(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_event_should_include_privacy_from_element(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <events>
     <event handle="_e1dd3ac2fa22e6fefa18f738bdd" change="1552126811" id="E0000" priv="1">
@@ -1676,9 +1771,9 @@ class TestGrampsLoader:
         ],
     )
     async def test_event_should_include_privacy_from_attribute(
-        self, expected: Privacy, attribute_value: str
+        self, expected: Privacy, attribute_value: str, load_partial: LoadPartial
     ) -> None:
-        ancestry = await self._load_partial(
+        ancestry = await load_partial(
             f"""
 <events>
     <event handle="_e1dd3ac2fa22e6fefa18f738bdd" change="1552126811" id="E0000">
@@ -1692,9 +1787,13 @@ class TestGrampsLoader:
         assert expected == event.privacy
 
     async def _assert_file_should_include_path(
-        self, expected: Path, file_src: Path, media_path: Path | None
+        self,
+        load_partial: LoadPartial,
+        expected: Path,
+        file_src: Path,
+        media_path: Path | None,
     ) -> None:
-        ancestry = await self._load_partial(
+        ancestry = await load_partial(
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
@@ -1709,30 +1808,33 @@ class TestGrampsLoader:
         assert file.path.is_absolute()
 
     async def test_file_should_include_path_with_media_path_with_relative_file_path(
-        self, tmp_path: Path
+        self, load_partial: LoadPartial, tmp_path: Path
     ) -> None:
         media_path = tmp_path / "media"
         media_path.mkdir()
         file_path = Path("file.path")
         (media_path / file_path).touch()
         await self._assert_file_should_include_path(
-            media_path / file_path, file_path, media_path
+            load_partial, media_path / file_path, file_path, media_path
         )
 
     async def test_file_should_include_path_with_media_path_with_absolute_file_path(
-        self, tmp_path: Path
+        self, load_partial: LoadPartial, tmp_path: Path
     ) -> None:
         media_path = tmp_path / "media"
         file_path = tmp_path / "somewhere-outside-the-media-path" / "file.path"
         file_path.parent.mkdir()
         file_path.touch()
-        await self._assert_file_should_include_path(file_path, file_path, media_path)
+        await self._assert_file_should_include_path(
+            load_partial, file_path, file_path, media_path
+        )
 
     async def test_file_should_include_path_without_media_path_with_relative_file_path(
         self,
+        load_partial: LoadPartial,
     ) -> None:
         with pytest.raises(UserFacingGrampsError):
-            await self._load_partial(
+            await load_partial(
                 f"""
     <objects>
         <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
@@ -1743,17 +1845,21 @@ class TestGrampsLoader:
             )
 
     async def test_file_should_include_path_without_media_path_with_absolute_file_path(
-        self, tmp_path: Path
+        self, load_partial: LoadPartial, tmp_path: Path
     ) -> None:
         file_path = tmp_path / "somewhere-outside-the-media-path" / "file.path"
         file_path.parent.mkdir()
         file_path.touch()
-        await self._assert_file_should_include_path(file_path, file_path, None)
+        await self._assert_file_should_include_path(
+            load_partial, file_path, file_path, None
+        )
 
-    async def test_file_should_include_description(self, tmp_path: Path) -> None:
+    async def test_file_should_include_description(
+        self, load_partial: LoadPartial, tmp_path: Path
+    ) -> None:
         file_path = tmp_path / "file.path"
         file_path.touch()
-        ancestry = await self._load_partial(
+        ancestry = await load_partial(
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
@@ -1766,9 +1872,11 @@ class TestGrampsLoader:
         assert file.description is not None
         assert file.description.localize(DEFAULT_LOCALIZER) == "My First Description"
 
-    async def test_file_not_exists_should_error(self, tmp_path: Path) -> None:
+    async def test_file_not_exists_should_error(
+        self, load_partial: LoadPartial, tmp_path: Path
+    ) -> None:
         with pytest.raises(UserFacingGrampsError):
-            await self._load_partial(
+            await load_partial(
                 f"""
     <objects>
         <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
@@ -1779,11 +1887,11 @@ class TestGrampsLoader:
             )
 
     async def test_file_should_include_privacy_from_element(
-        self, tmp_path: Path
+        self, load_partial: LoadPartial, tmp_path: Path
     ) -> None:
         file_path = tmp_path / "file.path"
         file_path.touch()
-        ancestry = await self._load_partial(
+        ancestry = await load_partial(
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000" priv="1">
@@ -1805,11 +1913,15 @@ class TestGrampsLoader:
         ],
     )
     async def test_file_should_include_privacy_from_attribute(
-        self, expected: Privacy, attribute_value: str, tmp_path: Path
+        self,
+        expected: Privacy,
+        attribute_value: str,
+        load_partial: LoadPartial,
+        tmp_path: Path,
     ) -> None:
         file_path = tmp_path / "file.path"
         file_path.touch()
-        ancestry = await self._load_partial(
+        ancestry = await load_partial(
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
@@ -1822,10 +1934,12 @@ class TestGrampsLoader:
         file = ancestry[File]["O0000"]
         assert expected == file.privacy
 
-    async def test_file_should_include_note(self, tmp_path: Path) -> None:
+    async def test_file_should_include_note(
+        self, load_partial: LoadPartial, tmp_path: Path
+    ) -> None:
         file_path = tmp_path / "file.path"
         file_path.touch()
-        ancestry = await self._load_partial(
+        ancestry = await load_partial(
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
@@ -1845,10 +1959,12 @@ class TestGrampsLoader:
         note = list(file.notes)[0]
         assert note.id == "N0000"
 
-    async def test_file_should_include_copyright_notice(self, tmp_path: Path) -> None:
+    async def test_file_should_include_copyright_notice(
+        self, load_partial: LoadPartial, tmp_path: Path
+    ) -> None:
         file_path = tmp_path / "file.path"
         file_path.touch()
-        ancestry = await self._load_partial(
+        ancestry = await load_partial(
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
@@ -1862,11 +1978,11 @@ class TestGrampsLoader:
         assert isinstance(file.copyright_notice, PublicDomainCopyrightNotice)
 
     async def test_file_should_ignore_unknown_copyright_notice(
-        self, tmp_path: Path
+        self, load_partial: LoadPartial, tmp_path: Path
     ) -> None:
         file_path = tmp_path / "file.path"
         file_path.touch()
-        ancestry = await self._load_partial(
+        ancestry = await load_partial(
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
@@ -1879,10 +1995,12 @@ class TestGrampsLoader:
         file = ancestry[File]["O0000"]
         assert file.copyright_notice is None
 
-    async def test_file_should_include_license(self, tmp_path: Path) -> None:
+    async def test_file_should_include_license(
+        self, load_partial: LoadPartial, tmp_path: Path
+    ) -> None:
         file_path = tmp_path / "file.path"
         file_path.touch()
-        ancestry = await self._load_partial(
+        ancestry = await load_partial(
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
@@ -1895,10 +2013,12 @@ class TestGrampsLoader:
         file = ancestry[File]["O0000"]
         assert isinstance(file.license, PublicDomainLicense)
 
-    async def test_file_should_ignore_unknown_license(self, tmp_path: Path) -> None:
+    async def test_file_should_ignore_unknown_license(
+        self, load_partial: LoadPartial, tmp_path: Path
+    ) -> None:
         file_path = tmp_path / "file.path"
         file_path.touch()
-        ancestry = await self._load_partial(
+        ancestry = await load_partial(
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
@@ -1911,8 +2031,10 @@ class TestGrampsLoader:
         file = ancestry[File]["O0000"]
         assert file.license is None
 
-    async def test_source_from_source_should_include_privacy_from_element(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_source_from_source_should_include_privacy_from_element(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <sources>
     <source handle="_e1dd686b04813540eb3503a342b" change="1558277217" id="S0000" priv="1">
@@ -1934,9 +2056,9 @@ class TestGrampsLoader:
         ],
     )
     async def test_source_from_source_should_include_privacy_from_attribute(
-        self, expected: Privacy, attribute_value: str
+        self, expected: Privacy, attribute_value: str, load_partial: LoadPartial
     ) -> None:
-        ancestry = await self._load_partial(
+        ancestry = await load_partial(
             f"""
 <sources>
     <source handle="_e1dd686b04813540eb3503a342b" change="1558277217" id="S0000">
@@ -1949,8 +2071,10 @@ class TestGrampsLoader:
         source = ancestry[Source]["S0000"]
         assert expected == source.privacy
 
-    async def test_citation_should_include_privacy_from_element(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_citation_should_include_privacy_from_element(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <citations>
     <citation handle="_e2c25a12a097a0b24bd9eae5090" change="1558277266" id="C0000" priv="1">
@@ -1980,9 +2104,9 @@ class TestGrampsLoader:
         ],
     )
     async def test_citation_should_include_privacy_from_attribute(
-        self, expected: Privacy, attribute_value: str
+        self, expected: Privacy, attribute_value: str, load_partial: LoadPartial
     ) -> None:
-        ancestry = await self._load_partial(
+        ancestry = await load_partial(
             f"""
 <citations>
     <citation handle="_e2c25a12a097a0b24bd9eae5090" change="1558277266" id="C0000">
@@ -2003,8 +2127,8 @@ class TestGrampsLoader:
         citation = ancestry[Citation]["C0000"]
         assert expected == citation.privacy
 
-    async def test_note_should_include_text(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_note_should_include_text(self, load_partial: LoadPartial) -> None:
+        ancestry = await load_partial(
             """
 <notes>
     <note handle="_e1cb35d7e6c1984b0e8361e1aee" change="1551643112" id="N0000" type="Transcript">
@@ -2016,8 +2140,10 @@ class TestGrampsLoader:
         note = ancestry[Note]["N0000"]
         assert note.text.localize(DEFAULT_LOCALIZER) == "I left this for you."
 
-    async def test_note_should_include_privacy_from_element(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_note_should_include_privacy_from_element(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <notes>
     <note handle="_e1cb35d7e6c1984b0e8361e1aee" change="1551643112" id="N0000" type="Transcript" priv="1">
@@ -2029,8 +2155,10 @@ class TestGrampsLoader:
         note = ancestry[Note]["N0000"]
         assert note.private
 
-    async def test_citation_should_include_location_from_page(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_citation_should_include_location_from_page(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <citations>
     <citation handle="_e2c25a12a097a0b24bd9eae5090" change="1558277266" id="C0000">
@@ -2050,8 +2178,10 @@ class TestGrampsLoader:
         assert citation.location is not None
         assert citation.location.localize(DEFAULT_LOCALIZER) == "My First Page"
 
-    async def test_citation_should_include_source(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_citation_should_include_source(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <citations>
     <citation handle="_e2c25a12a097a0b24bd9eae5090" change="1558277266" id="C0000">
@@ -2070,8 +2200,10 @@ class TestGrampsLoader:
         source = ancestry[Source]["S0000"]
         assert citation.source is source
 
-    async def test__load_eventref_should_map_role(self) -> None:
-        ancestry = await self._load_partial(
+    async def test__load_eventref_should_map_role(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <people>
     <person handle="_e1dd3c1caf863ee0081cc2cc16f" change="1552131917" id="I0000">
@@ -2092,8 +2224,10 @@ class TestGrampsLoader:
         presence = list(person.presences)[0]
         assert isinstance(presence.role, Subject)
 
-    async def test__load_eventref_should_include_privacy(self) -> None:
-        ancestry = await self._load_partial(
+    async def test__load_eventref_should_include_privacy(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <people>
     <person handle="_e1dd3c1caf863ee0081cc2cc16f" change="1552131917" id="I0000">
@@ -2113,8 +2247,10 @@ class TestGrampsLoader:
         presence = list(person.presences)[0]
         assert presence.private
 
-    async def test_url_should_include_path_as_url(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_url_should_include_path_as_url(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <people>
     <person handle="_e21e77455147d79f6b4cc1c76a4" change="1553878037" id="I0000">
@@ -2129,8 +2265,10 @@ class TestGrampsLoader:
         link = list(links)[0]
         assert link.url.localize(DEFAULT_LOCALIZER) == "https://alexandria.example.com"
 
-    async def test_url_should_include_description_as_label(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_url_should_include_description_as_label(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <people>
     <person handle="_e21e77455147d79f6b4cc1c76a4" change="1553878037" id="I0000">
@@ -2148,8 +2286,10 @@ class TestGrampsLoader:
             link.label.localize(DEFAULT_LOCALIZER) == "Library of Alexandria Catalogue"
         )
 
-    async def test_url_should_include_relationship(self) -> None:
-        ancestry = await self._load_partial(
+    async def test_url_should_include_relationship(
+        self, load_partial: LoadPartial
+    ) -> None:
+        ancestry = await load_partial(
             """
 <people>
     <person handle="_e21e77455147d79f6b4cc1c76a4" change="1553878037" id="I0000">
