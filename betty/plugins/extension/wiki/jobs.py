@@ -11,8 +11,8 @@ from betty.plugins.entity.link import Link
 from betty.project.load.jobs import PopulateLink
 
 if TYPE_CHECKING:
+    from betty.entity import Entity
     from betty.job.scheduler import Scheduler
-    from betty.model import Entity
     from betty.project import Project
 
 

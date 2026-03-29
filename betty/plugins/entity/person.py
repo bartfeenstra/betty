@@ -7,17 +7,17 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final, override
 from urllib.parse import quote
 
-from betty.ancestry.has_citations import HasCitations
-from betty.ancestry.has_file_references import HasFileReferences
-from betty.ancestry.has_links import HasLinks
-from betty.ancestry.has_notes import HasNotes
+from betty.entity import EntityDefinition, persistent_id
+from betty.entity.association import BidirectionalToManySingleType, ToManyAssociates
+from betty.entity.has_citations import HasCitations
+from betty.entity.has_file_references import HasFileReferences
+from betty.entity.has_links import HasLinks
+from betty.entity.has_notes import HasNotes
+from betty.entity.schema import ToManySchema
 from betty.functools import unique
 from betty.gender import GenderDefinition
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable.gettext import _, ngettext
-from betty.model import EntityDefinition, persistent_id
-from betty.model.association import BidirectionalToManySingleType, ToManyAssociates
-from betty.model.schema import ToManySchema
 from betty.plugin.schema import PluginIdSchema
 from betty.plugins.gender.unknown import Unknown as UnknownGender
 from betty.privacy import HasPrivacy, Privacy

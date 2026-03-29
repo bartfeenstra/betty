@@ -4,10 +4,10 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Any, cast, override
 
+from betty.entity import Entity
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type.media_types import PLAIN_TEXT
-from betty.model import Entity
 from betty.plugins.copyright_notice.public_domain import (
     PublicDomain as PublicDomainCopyrightNotice,
 )
@@ -20,8 +20,8 @@ from betty.plugins.entity.source import Source
 from betty.plugins.license.public_domain import PublicDomain as PublicDomainLicense
 from betty.privacy import Privacy
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
+from betty.test_utils.entity import EntityTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
-from betty.test_utils.model import EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence

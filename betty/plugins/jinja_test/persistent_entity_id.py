@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from typing import Any, final
 
+from betty.entity import persistent_id
 from betty.jinja.test import JinjaTest, JinjaTestDefinition
-from betty.model import persistent_id
 
 
 @final

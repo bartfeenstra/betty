@@ -1,7 +1,7 @@
-from betty.model import EntityDefinition
+from betty.entity import EntityDefinition
 from betty.plugins.extension.raspberry_mint.region import Region
 from betty.test_utils.conftest import IsolatedProjectFactory
-from betty.test_utils.model import DummyEntityOne
+from betty.test_utils.entity import DummyEntityOne
 
 
 class TestRegion:

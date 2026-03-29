@@ -1,11 +1,11 @@
 """
-Test utilities for :py:mod:`betty.ancestry.description`.
+Test utilities for :py:mod:`betty.entity.has_description`.
 """
 
-from betty.ancestry.description import HasDescription
+from betty.entity.has_description import HasDescription
 
 
 class DummyHasDescription(HasDescription):
     """
-    A dummy :py:class:`betty.ancestry.description.HasDescription` implementation.
+    A dummy :py:class:`betty.entity.has_description.HasDescription` implementation.
     """

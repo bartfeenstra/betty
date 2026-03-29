@@ -3,7 +3,7 @@ from collections.abc import Set
 import pytest
 
 from betty.document import Document
-from betty.model import Entity
+from betty.entity import Entity
 from betty.plugins.content.tree import Tree
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person

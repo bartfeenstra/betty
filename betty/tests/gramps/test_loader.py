@@ -12,8 +12,8 @@ import pytest
 from aiofiles.tempfile import AiofilesContextManagerTempDir
 from babel import Locale
 
-from betty.ancestry import Ancestry
 from betty.date import Date, DateRange
+from betty.entity.collection.pool import EntityPool
 from betty.gramps.error import UserFacingGrampsError
 from betty.gramps.loader import GrampsFileNotFound, GrampsLoader, LoaderUsedAlready
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
@@ -119,7 +119,7 @@ class LoadPartial(Protocol):
         | None = None,
         role_mapping: Mapping[str, ResolvablePluginManufacturer[RoleDefinition, Role]]
         | None = None,
-    ) -> Ancestry:
+    ) -> EntityPool:
         pass
 
 
@@ -344,8 +344,8 @@ class TestGrampsLoader:
         | None = None,
         role_mapping: Mapping[str, ResolvablePluginManufacturer[RoleDefinition, Role]]
         | None = None,
-    ) -> Ancestry:
-        ancestry = Ancestry()
+    ) -> EntityPool:
+        ancestry = EntityPool()
         loader = GrampsLoader(
             ancestry,
             user=StaticUser(),
@@ -381,7 +381,7 @@ class TestGrampsLoader:
                 str, ResolvablePluginManufacturer[RoleDefinition, Role]
             ]
             | None = None,
-        ) -> Ancestry:
+        ) -> EntityPool:
             mediapath = (
                 "" if media_path is None else f"<mediapath>{media_path}</mediapath>"
             )

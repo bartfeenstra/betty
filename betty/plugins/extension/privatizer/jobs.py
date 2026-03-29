@@ -17,9 +17,9 @@ if TYPE_CHECKING:
 
     from ty_extensions import Intersection
 
+    from betty.entity import Entity
     from betty.job.scheduler import Scheduler
     from betty.machine_name import MachineName
-    from betty.model import Entity
     from betty.project import Project
 
 

@@ -7,10 +7,10 @@ from typing import Self, final, override
 
 from babel import Locale
 
-from betty.ancestry.has_links import HasLinks
 from betty.content import ContentDefinition
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.document import Document
+from betty.entity.has_links import HasLinks
 from betty.jinja import Environment
 from betty.locale import negotiate_locale, resolve_locale
 from betty.locale.localizable.gettext import _

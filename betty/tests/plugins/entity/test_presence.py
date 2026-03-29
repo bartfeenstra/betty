@@ -11,10 +11,10 @@ from betty.plugins.event_type.unknown import Unknown as UnknownEventType
 from betty.plugins.role.subject import Subject
 from betty.plugins.role.unknown import Unknown as UnknownRole
 from betty.privacy import Privacy
-from betty.test_utils.model import EntityTestBase
+from betty.test_utils.entity import EntityTestBase
 
 if TYPE_CHECKING:
-    from betty.model import Entity
+    from betty.entity import Entity
     from betty.portable import PortableMapping
     from betty.test_utils.conftest import AssertDumpsLinkedData
 

@@ -3,13 +3,13 @@ from pathlib import Path
 
 import pytest
 
-from betty.ancestry.name import Name
 from betty.job import Context
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugins.entity.file import File
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.person_name import PersonName
 from betty.plugins.entity.place import Place
+from betty.plugins.entity.place_name import PlaceName
 from betty.plugins.extension._theme.search import Index
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.privacy import Privacy
@@ -164,7 +164,7 @@ class TestIndex:
         place = Place(
             id=place_id,
             names=[
-                Name(
+                PlaceName(
                     {
                         "en": "Netherlands",
                         "nl": "Nederland",
@@ -183,7 +183,7 @@ class TestIndex:
         place = Place(
             id=place_id,
             names=[
-                Name(
+                PlaceName(
                     {"en": "Netherlands"},  # ty:ignore[invalid-argument-type]
                 ),
             ],

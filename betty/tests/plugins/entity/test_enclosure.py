@@ -7,10 +7,10 @@ from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.enclosure import Enclosure
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.source import Source
-from betty.test_utils.model import EntityTestBase
+from betty.test_utils.entity import EntityTestBase
 
 if TYPE_CHECKING:
-    from betty.model import Entity
+    from betty.entity import Entity
 
 import pytest
 

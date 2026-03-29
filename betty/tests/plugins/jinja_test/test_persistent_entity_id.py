@@ -1,6 +1,6 @@
 import pytest
 
-from betty.model import Entity
+from betty.entity import Entity
 from betty.test_utils.conftest import AssertTemplateString
 
 

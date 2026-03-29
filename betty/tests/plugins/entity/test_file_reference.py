@@ -8,10 +8,10 @@ import pytest
 from betty.plugins.entity.file import File
 from betty.plugins.entity.file_reference import FileReference
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
-from betty.test_utils.model import EntityTestBase
+from betty.test_utils.entity import EntityTestBase
 
 if TYPE_CHECKING:
-    from betty.model import Entity
+    from betty.entity import Entity
 
 
 class TestFileReference(EntityTestBase):

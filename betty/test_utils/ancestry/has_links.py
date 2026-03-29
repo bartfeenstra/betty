@@ -1,9 +1,9 @@
 """
-Test utilities for :py:mod:`betty.ancestry.has_links`.
+Test utilities for :py:mod:`betty.entity.has_links`.
 """
 
-from betty.ancestry.has_links import HasLinks
-from betty.model import EntityDefinition
+from betty.entity import EntityDefinition
+from betty.entity.has_links import HasLinks
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
@@ -18,5 +18,5 @@ from betty.test_utils.locale.localizable import (
 )
 class DummyHasLinks(HasLinks):
     """
-    A dummy :py:class:`betty.ancestry.has_links.HasLinks` entity.
+    A dummy :py:class:`betty.entity.has_links.HasLinks` entity.
     """

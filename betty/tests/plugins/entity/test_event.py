@@ -2,23 +2,23 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, cast, override
 
-from betty.ancestry.name import Name
 from betty.date import Date, DateRange
+from betty.entity import Entity
+from betty.entity.association import AssociationRequired, TemporaryToOneResolver
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.model import Entity
-from betty.model.association import AssociationRequired, TemporaryToOneResolver
 from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
+from betty.plugins.entity.place_name import PlaceName
 from betty.plugins.entity.presence import Presence
 from betty.plugins.entity.source import Source
 from betty.plugins.event_type.birth import Birth
 from betty.plugins.event_type.unknown import Unknown as UnknownEventType
 from betty.plugins.role.subject import Subject
 from betty.privacy import Privacy
-from betty.test_utils.model import EntityTestBase
+from betty.test_utils.entity import EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -73,7 +73,7 @@ class TestEvent(EntityTestBase):
     def test_place(self) -> None:
         place = Place(
             id="1",
-            names=[Name("one")],
+            names=[PlaceName("one")],
         )
         sut = Event(event_type=UnknownEventType())
         sut.place = place
@@ -169,7 +169,7 @@ class TestEvent(EntityTestBase):
             date=DateRange(Date(2000, 1, 1), Date(2019, 12, 31)),
             place=Place(
                 id="the_place",
-                names=[Name("The Place")],
+                names=[PlaceName("The Place")],
             ),
             name="The Event",
             description="The Event Description",
@@ -251,7 +251,7 @@ class TestEvent(EntityTestBase):
             date=DateRange(Date(2000, 1, 1), Date(2019, 12, 31)),
             place=Place(
                 id="the_place",
-                names=[Name("The Place")],
+                names=[PlaceName("The Place")],
             ),
         )
         presence = Presence(Person(id="the_person"), Subject(), event)

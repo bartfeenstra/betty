@@ -7,15 +7,15 @@ from __future__ import annotations
 from contextlib import suppress
 from typing import TYPE_CHECKING, final, override
 
-from betty.ancestry.has_file_references import HasFileReferences
-from betty.ancestry.has_links import HasLinks
-from betty.ancestry.has_notes import HasNotes
-from betty.ancestry.name import Name
+from betty.entity import EntityDefinition
+from betty.entity.association import BidirectionalToManySingleType, ToManyAssociates
+from betty.entity.has_file_references import HasFileReferences
+from betty.entity.has_links import HasLinks
+from betty.entity.has_notes import HasNotes
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.json.schema import Array, Number, Object
 from betty.locale.localizable.gettext import _, ngettext
-from betty.model import EntityDefinition
-from betty.model.association import BidirectionalToManySingleType, ToManyAssociates
+from betty.plugins.entity.place_name import PlaceName
 from betty.plugins.place_type.unknown import Unknown as UnknownPlaceType
 from betty.privacy import HasPrivacy
 
@@ -83,7 +83,7 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
         self,
         *,
         id: str | None = None,  # noqa: A002
-        names: MutableSequence[Name] | None = None,
+        names: MutableSequence[PlaceName] | None = None,
         events: ToManyAssociates[Event] | None = None,
         enclosers: ToManyAssociates[Enclosure] | None = None,
         enclosees: ToManyAssociates[Enclosure] | None = None,
@@ -116,7 +116,7 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
         self._place_type = place_type
 
     @property
-    def names(self) -> MutableSequence[Name]:
+    def names(self) -> MutableSequence[PlaceName]:
         """
         The place's names.
 
@@ -173,7 +173,7 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
     async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema.add_property(
-            "names", Array(await Name.linked_data_schema(project), title="Names")
+            "names", Array(await PlaceName.linked_data_schema(project), title="Names")
         )
         coordinate_schema = Number(title="Coordinate")
         coordinates_schema = Object(title="Coordinates")

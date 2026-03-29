@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, call
 from babel import Locale
 from geopy import Point
 
-from betty.ancestry import Ancestry
+from betty.entity.collection.pool import EntityPool
 from betty.locale.localize import LocalizerRepository
 from betty.locale.translation import DEFAULT_TRANSLATION_REPOSITORY
 from betty.media_type import MediaType
@@ -16,8 +16,8 @@ from betty.plugins.copyright_notice.wikipedia_contributors import WikipediaContr
 from betty.plugins.entity.link import Link
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.source import Source
+from betty.test_utils.entity import DummyEntityOne
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
-from betty.test_utils.model import DummyEntityOne
 from betty.user.no_op import NoOpUser
 from betty.wiki.client import Client, Image, Summary
 from betty.wiki.populator import Populator
@@ -43,7 +43,7 @@ class TestPopulator:
             Summary("uk", "Амстердам", "Амстердам (uk)", "Амстердам (uk)"),
         ]
         link = Link("http://en.wikipedia.org/wiki/Amsterdam")
-        ancestry = Ancestry(link)
+        ancestry = EntityPool(link)
         localizers = LocalizerRepository(DEFAULT_TRANSLATION_REPOSITORY)
         sut = Populator(
             ancestry,
@@ -96,7 +96,7 @@ class TestPopulator:
             Summary("uk", "Амстердам", "Амстердам (uk)", "Амстердам (uk)"),
         ]
         link = Link("http://en.wikipedia.org/wiki/Amsterdam")
-        ancestry = Ancestry(link)
+        ancestry = EntityPool(link)
         localizers = LocalizerRepository(DEFAULT_TRANSLATION_REPOSITORY)
         sut = Populator(
             ancestry,
@@ -125,7 +125,7 @@ class TestPopulator:
             "betty.wiki.client.Client", spec=Client, new_callable=AsyncMock
         )
         link = Link("https://example.com")
-        ancestry = Ancestry(link)
+        ancestry = EntityPool(link)
         localizers = LocalizerRepository(DEFAULT_TRANSLATION_REPOSITORY)
         sut = Populator(
             ancestry,
@@ -145,7 +145,7 @@ class TestPopulator:
         m_client = mocker.patch("betty.wiki.client.Client")
         Source("The Source")
         entity = DummyEntityOne()
-        ancestry = Ancestry(entity)
+        ancestry = EntityPool(entity)
         sut = Populator(
             ancestry,
             [],
@@ -175,7 +175,7 @@ class TestPopulator:
         wikipedia_link = Link(f"https://{page_language}.wikipedia.org/wiki/{page_name}")
         other_link = Link("https://example.com")
         place = Place(links=[wikipedia_link, other_link])
-        ancestry = Ancestry(place)
+        ancestry = EntityPool(place)
         sut = Populator(
             ancestry,
             [Locale("en")],
@@ -211,7 +211,7 @@ class TestPopulator:
 
         link = Link(f"https://{page_language}.wikipedia.org/wiki/{page_name}")
         has_file_references_and_links = Place(links=[link])
-        ancestry = Ancestry(has_file_references_and_links)
+        ancestry = EntityPool(has_file_references_and_links)
         sut = Populator(
             ancestry,
             [Locale("en")],

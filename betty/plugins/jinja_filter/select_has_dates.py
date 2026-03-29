@@ -16,8 +16,8 @@ if TYPE_CHECKING:
 
     from jinja2.runtime import Context
 
-    from betty.ancestry.date import HasDate
     from betty.date import ResolvableDate
+    from betty.entity.has_date import HasDate
 
 
 @final

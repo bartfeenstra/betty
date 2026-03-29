@@ -12,8 +12,8 @@ from typing import TYPE_CHECKING, Generic, TypeVar, final, override
 import aiofiles
 from aiofiles.os import makedirs
 
-from betty.ancestry.has_notes import HasNotes
-from betty.model import Entity, EntityDefinition
+from betty.entity import Entity, EntityDefinition
+from betty.entity.has_notes import HasNotes
 from betty.plugins.entity.file import File
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-03-29 16:08+0100\n"
+"POT-Creation-Date: 2026-03-29 22:15+0100\n"
 "PO-Revision-Date: 2026-02-17 18:12+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ar\n"
@@ -1254,6 +1254,12 @@ msgstr ""
 
 msgid "Place"
 msgstr "مكان"
+
+msgid "Place name"
+msgstr ""
+
+msgid "Place names"
+msgstr ""
 
 msgid "Place type"
 msgstr ""
@@ -2765,6 +2771,16 @@ msgstr[5] ""
 #, python-brace-format
 msgid "{count} place"
 msgid_plural "{count} places"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
+msgstr[4] ""
+msgstr[5] ""
+
+#, python-brace-format
+msgid "{count} place name"
+msgid_plural "{count} place names"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""

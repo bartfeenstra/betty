@@ -4,13 +4,13 @@ from typing import TYPE_CHECKING, cast, override
 
 import pytest
 
-from betty.model import Entity
+from betty.entity import Entity
 from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.person_name import PersonName
 from betty.plugins.entity.source import Source
 from betty.privacy import Privacy
-from betty.test_utils.model import EntityTestBase
+from betty.test_utils.entity import EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

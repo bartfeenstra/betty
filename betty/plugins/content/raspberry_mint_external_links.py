@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.ancestry.has_links import HasLinks
 from betty.content import ContentDefinition
+from betty.entity.has_links import HasLinks
 from betty.locale.localizable.gettext import _
 from betty.plugins.asset.raspberry_mint import RaspberryMint
 from betty.plugins.content.template import Template, TemplateBuild

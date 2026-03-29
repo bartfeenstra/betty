@@ -6,11 +6,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.ancestry.has_file_references import HasFileReferences
 from betty.content import ContentDefinition
+from betty.entity.has_file_references import HasFileReferences
+from betty.entity.reference import EntityReference
 from betty.image import is_supported_media_type
 from betty.locale.localizable.gettext import _
-from betty.model.reference import EntityReference
 from betty.plugins.asset.raspberry_mint import RaspberryMint
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.extension._theme import associated_file_references
@@ -19,10 +19,10 @@ from betty.requirement import require
 from betty.service.factory import DataManufacturable
 
 if TYPE_CHECKING:
-    from betty.ancestry import Ancestry
     from betty.document import Document
+    from betty.entity import Entity
+    from betty.entity.collection.pool import EntityPool
     from betty.jinja import Environment
-    from betty.model import Entity
     from betty.plugins.entity.file_reference import FileReference
 
 
@@ -38,7 +38,7 @@ class EntityCard(Template, DataManufacturable[EntityReference]):
     """
 
     def __init__(
-        self, *, ancestry: Ancestry, entity: EntityReference, jinja: Environment
+        self, *, ancestry: EntityPool, entity: EntityReference, jinja: Environment
     ):
         super().__init__(jinja=jinja)
         self._entity = entity

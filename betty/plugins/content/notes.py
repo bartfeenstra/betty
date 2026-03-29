@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.ancestry.has_notes import HasNotes
 from betty.content import ContentDefinition
+from betty.entity.has_notes import HasNotes
 from betty.locale.localizable.gettext import _
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project

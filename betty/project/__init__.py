@@ -19,7 +19,6 @@ from babel import Locale
 
 import betty
 import betty.dirs
-from betty.ancestry import Ancestry
 from betty.app import App
 from betty.asset import (
     AssetDefinition,
@@ -33,6 +32,7 @@ from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
 from betty.data.bool import BoolDefinition
 from betty.data.str import StrDefinition
 from betty.document import Document, DocumentProvider
+from betty.entity.collection.pool import EntityPool
 from betty.exception import HumanFacingException
 from betty.extension import Extension, ExtensionDefinition
 from betty.hashid import hashid
@@ -71,10 +71,10 @@ if TYPE_CHECKING:
 
     from betty.collection.keyed import KeyedCollection
     from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
+    from betty.entity import EntityDefinition
     from betty.jinja import Environment
     from betty.license import License, LicenseDefinition
     from betty.locale.localizable import Localizable, ResolvableLocalizable
-    from betty.model import EntityDefinition
     from betty.plugin import PluginDefinition, ResolvablePluginId
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.plugin.factory import PluginManufacturer
@@ -125,7 +125,7 @@ class Project(ChainedServiceLevel[App], ServicePluginProvider):
         app: App,
         title: ResolvableLocalizable,
         url: str,
-        ancestry: Ancestry | None = None,
+        ancestry: EntityPool | None = None,
         author: ResolvableLocalizable | None = None,
         clean_urls: bool = False,
         copyright_notice: PluginManufacturer[CopyrightNoticeDefinition, CopyrightNotice]
@@ -171,7 +171,7 @@ class Project(ChainedServiceLevel[App], ServicePluginProvider):
             service_plugin_services=self,
             upstream=app,
         )
-        self._ancestry = Ancestry() if ancestry is None else ancestry
+        self._ancestry = EntityPool() if ancestry is None else ancestry
         self._author = None if author is None else resolve_localizable(author)
         self._clean_urls = clean_urls
         self.__copyright_notice = copyright_notice
@@ -259,7 +259,7 @@ class Project(ChainedServiceLevel[App], ServicePluginProvider):
     async def new_isolated(
         cls,
         *,
-        ancestry: Ancestry | None = None,
+        ancestry: EntityPool | None = None,
         app: App | None = None,
         author: ResolvableLocalizable | None = None,
         clean_urls: bool = False,
@@ -361,7 +361,7 @@ class Project(ChainedServiceLevel[App], ServicePluginProvider):
         return self._name
 
     @property
-    def ancestry(self) -> Ancestry:
+    def ancestry(self) -> EntityPool:
         """
         The project's ancestry.
         """

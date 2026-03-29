@@ -7,7 +7,6 @@ from __future__ import annotations
 from random import choice
 from typing import TYPE_CHECKING, override
 
-from betty.ancestry.name import Name
 from betty.date import Date, DateRange
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.job import Job
@@ -23,6 +22,7 @@ from betty.plugins.entity.note import Note
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.person_name import PersonName
 from betty.plugins.entity.place import Place
+from betty.plugins.entity.place_name import PlaceName
 from betty.plugins.entity.presence import Presence
 from betty.plugins.entity.source import Source
 from betty.plugins.event_type.birth import Birth
@@ -39,8 +39,8 @@ from betty.plugins.role.subject import Subject
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
-    from betty.ancestry import Ancestry
     from betty.copyright_notice import CopyrightNotice
+    from betty.entity.collection.pool import EntityPool
     from betty.job.scheduler import Scheduler
     from betty.license import License
     from betty.machine_name import MachineName
@@ -55,7 +55,7 @@ class LoadAncestry(Job):
     def __init__(
         self,
         *,
-        ancestry: Ancestry,
+        ancestry: EntityPool,
         factory: Factory,
         streetmix_copyright_notice: CopyrightNotice,
         streetmix_license: License,
@@ -87,7 +87,7 @@ class LoadAncestry(Job):
         netherlands = Place(
             id="betty-demo-netherlands",
             names=[
-                Name(_("Netherlands")),
+                PlaceName(_("Netherlands")),
             ],
             links=[Link("https://en.wikipedia.org/wiki/Netherlands")],
             place_type=Country(),
@@ -97,7 +97,7 @@ class LoadAncestry(Job):
         north_holland = Place(
             id="betty-demo-north-holland",
             names=[
-                Name(_("North Holland")),
+                PlaceName(_("North Holland")),
             ],
             links=[
                 Link("https://en.wikipedia.org/wiki/North_Holland"),
@@ -117,7 +117,7 @@ class LoadAncestry(Job):
         amsterdam = Place(
             id="betty-demo-amsterdam",
             names=[
-                Name(_("Amsterdam")),
+                PlaceName(_("Amsterdam")),
             ],
             links=[
                 Link("https://nl.wikipedia.org/wiki/Amsterdam"),
@@ -132,7 +132,7 @@ class LoadAncestry(Job):
         ilpendam = Place(
             id="betty-demo-ilpendam",
             names=[
-                Name(_("Ilpendam")),
+                PlaceName(_("Ilpendam")),
             ],
             links=[Link("https://nl.wikipedia.org/wiki/Ilpendam")],
             place_type=Village(),

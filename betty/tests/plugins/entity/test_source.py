@@ -6,15 +6,15 @@ from typing import TYPE_CHECKING, Any, cast, override
 import pytest
 
 from betty.date import Date
+from betty.entity import Entity
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizable.plain import Plain
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.model import Entity
 from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.link import Link
 from betty.plugins.entity.source import Source
 from betty.privacy import Privacy
-from betty.test_utils.model import EntityTestBase
+from betty.test_utils.entity import EntityTestBase
 
 if TYPE_CHECKING:
     from betty.test_utils.conftest import AssertDumpsLinkedData

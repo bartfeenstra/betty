@@ -16,7 +16,7 @@ associations between entities.
 A model with lots of data is a graph, a network, like a web of information that can be traversed,
 analyzed, expanded, and ultimately generated into a site.
 
-In code, you will be using :py:class:`betty.ancestry.Ancestry`, through which you can
+In code, you will be using :py:class:`betty.project.Project.ancestry`, through which you can
 access any entity of any type.
 
 .. tab-set::
@@ -25,7 +25,7 @@ access any entity of any type.
 
       .. code-block:: python
 
-          from betty.ancestry import Ancestry, Person
+          from betty.entity import Ancestry, Person
 
           ancestry = Ancestry()
           person = Person(id='a1b2')
@@ -43,6 +43,5 @@ In this section
 ---------------
 - :doc:`/usage/ancestry/date`
 - :doc:`/usage/ancestry/media-type`
-- :doc:`/usage/ancestry/name`
 - :doc:`/usage/ancestry/privacy`
 - :doc:`/usage/ancestry/static-translations`

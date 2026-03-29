@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.ancestry import Ancestry
 from betty.copyright_notice import CopyrightNotice
+from betty.entity.collection.pool import EntityPool
 from betty.license import License
 from betty.plugins.extension.demo import Demo, LoadAncestry
 from betty.plugins.extension.demo.project import create_project
@@ -28,7 +28,7 @@ async def test_create_project(isolated_app: App, tmp_path: Path) -> None:
 
 @pytest.mark.usefixtures("demo_project_aioresponses")
 async def test_load_ancestry() -> None:
-    ancestry = Ancestry()
+    ancestry = EntityPool()
     await do(
         LoadAncestry(
             ancestry=ancestry,

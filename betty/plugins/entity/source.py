@@ -6,22 +6,22 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
-from betty.ancestry.date import HasDate
-from betty.ancestry.has_file_references import HasFileReferences
-from betty.ancestry.has_links import HasLinks
-from betty.ancestry.has_notes import HasNotes
-from betty.json.linked_data import JsonLdObject, dump_context
-from betty.locale.localizable.gettext import _, ngettext
-from betty.locale.localizable.linked_data import dump_linked_data
-from betty.locale.localizable.property import LocalizableProperty
-from betty.locale.localizable.static.schema import StaticTranslationsSchema
-from betty.model import Entity, EntityDefinition
-from betty.model.association import (
+from betty.entity import Entity, EntityDefinition
+from betty.entity.association import (
     BidirectionalToManySingleType,
     BidirectionalToZeroOrOne,
     ToManyAssociates,
     ToZeroOrOneAssociate,
 )
+from betty.entity.has_date import HasDate
+from betty.entity.has_file_references import HasFileReferences
+from betty.entity.has_links import HasLinks
+from betty.entity.has_notes import HasNotes
+from betty.json.linked_data import JsonLdObject, dump_context
+from betty.locale.localizable.gettext import _, ngettext
+from betty.locale.localizable.linked_data import dump_linked_data
+from betty.locale.localizable.property import LocalizableProperty
+from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.privacy import HasPrivacy, Privacy, is_public, merge_privacies
 from betty.property import Optional
 

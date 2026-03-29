@@ -1,9 +1,9 @@
 """
-Test utilities for :py:mod:`betty.ancestry.has_citations`.
+Test utilities for :py:mod:`betty.entity.has_citations`.
 """
 
-from betty.ancestry.has_citations import HasCitations
-from betty.model import EntityDefinition
+from betty.entity import EntityDefinition
+from betty.entity.has_citations import HasCitations
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
@@ -18,5 +18,5 @@ from betty.test_utils.locale.localizable import (
 )
 class DummyHasCitations(HasCitations):
     """
-    A dummy :py:class:`betty.ancestry.has_citations.HasCitations` entity.
+    A dummy :py:class:`betty.entity.has_citations.HasCitations` entity.
     """

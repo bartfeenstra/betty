@@ -3,7 +3,7 @@ from typing import Any
 import pytest
 
 from betty.test_utils.conftest import AssertTemplateString
-from betty.test_utils.model import DummyEntityOne
+from betty.test_utils.entity import DummyEntityOne
 
 
 class TestUrl:
