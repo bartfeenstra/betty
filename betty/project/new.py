@@ -4,26 +4,32 @@ from typing import TYPE_CHECKING, Any
 
 from betty.assertion import assert_locale, assert_path, assert_url
 from betty.extension import Extension, ExtensionDefinition, ExtensionManufacturer
+from betty.load import (
+    Enricher,
+    EnricherDefinition,
+    Loader,
+    LoaderDefinition,
+    LoaderManufacturer,
+)
 from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
 from betty.machine_name import MachineName
+from betty.plugins.enricher.deriver import Deriver
+from betty.plugins.enricher.privatizer import Privatizer
+from betty.plugins.enricher.wiki import Wiki
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.source import Source
-from betty.plugins.extension.deriver import Deriver
-from betty.plugins.extension.gramps import Gramps
-from betty.plugins.extension.gramps.data import FamilyTree, GrampsConfiguration
 from betty.plugins.extension.http_api_doc import HttpApiDoc
 from betty.plugins.extension.maps import Maps
-from betty.plugins.extension.privatizer import Privatizer
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.plugins.extension.raspberry_mint.data import RaspberryMintConfiguration
 from betty.plugins.extension.raspberry_mint.default import regional_content
 from betty.plugins.extension.trees import Trees
 from betty.plugins.extension.webpack import Webpack
-from betty.plugins.extension.wiki import Wiki
+from betty.plugins.loader.gramps import FamilyTree, Gramps, GrampsConfiguration
 from betty.portable.file import dump_file
 from betty.project.data import ProjectConfiguration
 from betty.typing import Void
@@ -73,10 +79,8 @@ async def new(app: App) -> None:
     extensions: MutableSequence[
         ResolvablePluginManufacturer[ExtensionDefinition, Extension]
     ] = [
-        Deriver,
         HttpApiDoc,
         Maps,
-        Privatizer,
         ExtensionManufacturer(
             RaspberryMint,
             RaspberryMintConfiguration(
@@ -88,6 +92,15 @@ async def new(app: App) -> None:
         Trees,
         # Enable the Webpack extension explicitly for the test's mock to work.
         Webpack,
+    ]
+    loaders: MutableSequence[
+        ResolvablePluginManufacturer[LoaderDefinition, Loader]
+    ] = []
+    enrichers: MutableSequence[
+        ResolvablePluginManufacturer[EnricherDefinition, Enricher]
+    ] = [
+        Deriver,
+        Privatizer,
         Wiki,
     ]
 
@@ -113,8 +126,8 @@ async def new(app: App) -> None:
     )
 
     if await app.user.ask_confirmation(_("Do you want to load a Gramps family tree?")):
-        extensions.append(
-            ExtensionManufacturer(
+        loaders.append(
+            LoaderManufacturer(
                 Gramps,
                 GrampsConfiguration(
                     family_trees=[
@@ -134,6 +147,7 @@ async def new(app: App) -> None:
     configuration = ProjectConfiguration(
         author=author,
         locales=locales,
+        enrichers=enrichers,
         entity_types=[
             Person,
             Event,
@@ -141,6 +155,7 @@ async def new(app: App) -> None:
             Source,
         ],
         extensions=extensions,
+        loaders=loaders,
         name=name,
         title=title,
         url=url,

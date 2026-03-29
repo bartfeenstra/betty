@@ -52,6 +52,7 @@ if TYPE_CHECKING:
         Iterable,
         Iterator,
         Mapping,
+        Sequence,
     )
 
     from ty_extensions import Intersection
@@ -104,8 +105,8 @@ class PluginCollection[
         return self._all[resolve_plugin_id(key)]
 
     @override
-    def keys(self) -> Iterable[MachineName]:
-        return self._all.keys()
+    def keys(self) -> Sequence[MachineName]:
+        return tuple(self._all.keys())
 
 
 @final

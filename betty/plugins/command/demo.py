@@ -4,12 +4,12 @@ import asyncio
 from pathlib import Path
 from typing import TYPE_CHECKING, Self, final, override
 
-import betty.plugins.extension.demo as stddemo
 from betty.app import App
 from betty.console.command import Command, CommandDefinition, CommandFunction
+from betty.demo import generate
+from betty.demo.project import create_project
 from betty.job import Context
 from betty.locale.localizable.gettext import _
-from betty.plugins.extension.demo.project import create_project
 from betty.requirement import require
 from betty.service.factory import Manufacturable
 
@@ -46,7 +46,7 @@ class Demo(Manufacturable, Command):
         return self._command_function
 
     async def _command_function(self, *, path: str | None, url: str | None) -> None:
-        from betty.plugins.extension.demo.serve import DemoServer
+        from betty.demo.serve import DemoServer
 
         if path is None:
             async with DemoServer(app=self._app) as server:
@@ -62,4 +62,4 @@ class Demo(Manufacturable, Command):
                 ) as progress,
             ):
                 context = Context(progress=progress)
-                await stddemo.generate_with_cleanup(project, context=context)
+                await generate.generate_with_cleanup(project, context=context)

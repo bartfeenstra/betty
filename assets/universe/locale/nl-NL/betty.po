@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-03-29 22:15+0100\n"
+"POT-Creation-Date: 2026-03-30 00:48+0100\n"
 "PO-Revision-Date: 2026-02-17 19:37+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -691,6 +691,12 @@ msgstr ""
 "Verrijk je familiegeschiedenis met informatie van Wikipedia en Wikimedia "
 "Commons"
 
+msgid "Enricher"
+msgstr ""
+
+msgid "Enrichers"
+msgstr ""
+
 msgid "Entities"
 msgstr "Entiteiten"
 
@@ -1064,6 +1070,12 @@ msgstr "{repository_count} bibliotheken als bronnen geladen."
 #, python-brace-format
 msgid "Loaded {source_count} sources."
 msgstr "{source_count} bronnen geladen."
+
+msgid "Loader"
+msgstr ""
+
+msgid "Loaders"
+msgstr ""
 
 #, python-brace-format
 msgid "Loading \"{file_path}\"..."
@@ -1995,8 +2007,8 @@ msgstr ""
 msgid "Width"
 msgstr "Breedte"
 
-msgid "Wiki extension configuration"
-msgstr "Wiki-configuratie"
+msgid "Wiki enricher configuration"
+msgstr ""
 
 msgid "Wikipedia contributors"
 msgstr "Wikipedia-bijdragers"
@@ -2401,6 +2413,12 @@ msgstr[0] "{count} verloving"
 msgstr[1] "{count} verlovingen"
 
 #, python-brace-format
+msgid "{count} enricher"
+msgid_plural "{count} enrichers"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "{count} entity"
 msgid_plural "{count} entities"
 msgstr[0] "{count} entiteit"
@@ -2483,6 +2501,12 @@ msgid "{count} link"
 msgid_plural "{count} links"
 msgstr[0] "{count} link"
 msgstr[1] "{count} links"
+
+#, python-brace-format
+msgid "{count} loader"
+msgid_plural "{count} loaders"
+msgstr[0] ""
+msgstr[1] ""
 
 #, python-brace-format
 msgid "{count} locality"

@@ -37,7 +37,8 @@ class Generate(Manufacturable, Command):
         return await add_project_argument(parser, self._command_function, self._app)
 
     async def _command_function(self, project: Project) -> None:
-        from betty.project import generate, load
+        from betty import load
+        from betty.project import generate
 
         async with (
             project,

@@ -25,6 +25,10 @@ class TestProjectConfiguration(DataTestBase[ProjectConfiguration]):
         sut = ProjectConfiguration(title="Betty", url="https://example.com")
         assert DEFAULT_LOCALE in sut.locales
 
+    async def test_enrichers(self) -> None:
+        sut = ProjectConfiguration(title="Betty", url="https://example.com")
+        assert len(sut.enrichers) == 0
+
     async def test_extensions(self) -> None:
         sut = ProjectConfiguration(title="Betty", url="https://example.com")
         assert len(sut.extensions) == 0
@@ -44,6 +48,10 @@ class TestProjectConfiguration(DataTestBase[ProjectConfiguration]):
         sut = ProjectConfiguration(title="Betty", url="https://example.com")
         sut.debug = debug
         assert sut.debug == debug
+
+    async def test_loaders(self) -> None:
+        sut = ProjectConfiguration(title="Betty", url="https://example.com")
+        assert len(sut.loaders) == 0
 
     def test_title(self) -> None:
         sut = ProjectConfiguration(title="Betty", url="https://example.com")

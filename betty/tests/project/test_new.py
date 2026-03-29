@@ -5,8 +5,7 @@ from babel import Locale
 from betty.data import Data
 from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.plugins.extension.gramps import Gramps
-from betty.plugins.extension.gramps.data import GrampsConfiguration
+from betty.plugins.loader.gramps import Gramps, GrampsConfiguration
 from betty.portable.file import assert_load_file
 from betty.project.data import ProjectConfiguration
 from betty.project.new import new
@@ -190,8 +189,8 @@ async def test_new__with_gramps(
     async with isolated_app_factory(user=user) as app:
         await new(app)
         configuration = await _assert_new(configuration_file_path)
-        assert Gramps in configuration.extensions
-        portable_gramps_configuration = configuration.extensions[Gramps].plugin_data
+        assert Gramps in configuration.loaders
+        portable_gramps_configuration = configuration.loaders[Gramps].plugin_data
         assert portable_gramps_configuration is not Void
         assert not isinstance(portable_gramps_configuration, Data)
         gramps_configuration = GrampsConfiguration.data().porter.load(

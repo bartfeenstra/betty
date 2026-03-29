@@ -179,6 +179,13 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/date/__init__.py": {
         "IncompleteDateError": MissingReason.STATIC_CONTENT_ONLY,
     },
+    "betty/demo/serve.py": {
+        "DemoServer": {
+            "public_url": MissingReason.SHOULD_BE_COVERED,
+            "start": MissingReason.SHOULD_BE_COVERED,
+            "stop": MissingReason.SHOULD_BE_COVERED,
+        },
+    },
     "betty/deriver.py": {"Derivation": MissingReason.ENUM},
     "betty/documentation.py": {
         "DocumentationServer": {
@@ -296,6 +303,15 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
         "LinkManufacturer": MissingReason.STATIC_CONTENT_ONLY,
         "LinkType": MissingReason.ABSTRACT,
+    },
+    "betty/load.py": {
+        "load": MissingReason.SHOULD_BE_COVERED,
+        "Loader": MissingReason.ABSTRACT,
+        "LoaderDefinition": MissingReason.STATIC_CONTENT_ONLY,
+        "LoaderManufacturer": MissingReason.STATIC_CONTENT_ONLY,
+        "Enricher": MissingReason.ABSTRACT,
+        "EnricherDefinition": MissingReason.STATIC_CONTENT_ONLY,
+        "EnricherManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/locale/babel.py": {
         "run_babel": MissingReason.SHOULD_BE_COVERED,
@@ -691,35 +707,32 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/plugins/css_resource/webpack.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/event_type/adoption.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/event_type/baptism.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/event_type/bar_mitzvah.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/event_type/bat_mitzvah.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/event_type/birth.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/event_type/burial.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/event_type/conference.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/event_type/confirmation.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/event_type/correspondence.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/event_type/cremation.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/event_type/death.py": {
-        "Death": {
+    "betty/plugins/enricher/deriver/__init__.py": {
+        "Deriver": {
             "plugin": MissingReason.INHERITED,
         },
     },
-    "betty/plugins/event_type/divorce.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/event_type/divorce_announcement.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/event_type/emigration.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/event_type/engagement.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/event_type/funeral.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/event_type/immigration.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/event_type/marriage.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/event_type/marriage_announcement.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/event_type/missing.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/event_type/occupation.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/event_type/residence.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/event_type/retirement.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/event_type/unknown.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/event_type/will.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/enricher/populate_links/__init__.py": {
+        "PopulateLinks": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/enricher/privatizer/__init__.py": {
+        "Privatizer": {
+            "enrich": MissingReason.SHOULD_BE_COVERED,
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/enricher/wiki/__init__.py": {
+        "Wiki": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/enricher/wiki/data.py": {
+        "WikiConfiguration": {
+            "populate_images": MissingReason.SHOULD_BE_COVERED,
+        },
+    },
     "betty/plugins/entity/citation.py": {
         "Citation": {
             "plugin": MissingReason.INHERITED,
@@ -786,35 +799,38 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "plugin": MissingReason.INHERITED,
         },
     },
+    "betty/plugins/event_type/adoption.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/event_type/baptism.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/event_type/bar_mitzvah.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/event_type/bat_mitzvah.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/event_type/birth.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/event_type/burial.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/event_type/conference.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/event_type/confirmation.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/event_type/correspondence.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/event_type/cremation.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/event_type/death.py": {
+        "Death": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/event_type/divorce.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/event_type/divorce_announcement.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/event_type/emigration.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/event_type/engagement.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/event_type/funeral.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/event_type/immigration.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/event_type/marriage.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/event_type/marriage_announcement.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/event_type/missing.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/event_type/occupation.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/event_type/residence.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/event_type/retirement.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/event_type/unknown.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/event_type/will.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/extension/demo/__init__.py": {
         "Demo": {
             "plugin": MissingReason.INHERITED,
-        },
-    },
-    "betty/plugins/extension/deriver/__init__.py": {
-        "Deriver": {
-            "plugin": MissingReason.INHERITED,
-        },
-    },
-    "betty/plugins/extension/demo/serve.py": {
-        "DemoServer": {
-            "public_url": MissingReason.SHOULD_BE_COVERED,
-            "start": MissingReason.SHOULD_BE_COVERED,
-            "stop": MissingReason.SHOULD_BE_COVERED,
-        },
-    },
-    "betty/plugins/extension/gramps/__init__.py": {
-        "Gramps": {
-            "plugin": MissingReason.INHERITED,
-        }
-    },
-    "betty/plugins/extension/gramps/data.py": {
-        "FamilyTree": {
-            "event_types": MissingReason.INHERITED,
-            "file": MissingReason.INHERITED,
-            "name": MissingReason.INHERITED,
-            "place_types": MissingReason.INHERITED,
-            "roles": MissingReason.INHERITED,
         },
     },
     "betty/plugins/extension/http_api_doc/__init__.py": {
@@ -827,12 +843,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Maps": {
             "plugin": MissingReason.INHERITED,
             "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
-        },
-    },
-    "betty/plugins/extension/privatizer/__init__.py": {
-        "Privatizer": {
-            "post_load": MissingReason.SHOULD_BE_COVERED,
-            "plugin": MissingReason.INHERITED,
         },
     },
     "betty/plugins/extension/raspberry_mint/__init__.py": {
@@ -871,11 +881,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/plugins/extension/wiki/__init__.py": {
         "Wiki": {
             "plugin": MissingReason.INHERITED,
-        },
-    },
-    "betty/plugins/extension/wiki/data.py": {
-        "WikiConfiguration": {
-            "populate_images": MissingReason.SHOULD_BE_COVERED,
         },
     },
     "betty/plugins/gender/man.py": MissingReason.STATIC_CONTENT_ONLY,
@@ -996,6 +1001,25 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/plugins/link/betty_documentation.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/link/betty_github.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/link/http_api_doc.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/loader/demo/__init__.py": {
+        "Demo": {
+            "plugin": MissingReason.INHERITED,
+        }
+    },
+    "betty/plugins/loader/gramps/__init__.py": {
+        "Gramps": {
+            "plugin": MissingReason.INHERITED,
+        }
+    },
+    "betty/plugins/loader/gramps/data.py": {
+        "FamilyTree": {
+            "event_types": MissingReason.INHERITED,
+            "file": MissingReason.INHERITED,
+            "name": MissingReason.INHERITED,
+            "place_types": MissingReason.INHERITED,
+            "roles": MissingReason.INHERITED,
+        },
+    },
     "betty/plugins/place_type/borough.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/place_type/building.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/place_type/cemetery.py": MissingReason.STATIC_CONTENT_ONLY,
@@ -1105,11 +1129,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/project/generate/__init__.py": {
         "Generator": MissingReason.ABSTRACT,
-    },
-    "betty/project/load/__init__.py": {
-        "load": MissingReason.SHOULD_BE_COVERED,
-        "Loader": MissingReason.ABSTRACT,
-        "PostLoader": MissingReason.ABSTRACT,
     },
     "betty/project/url.py": {
         "LocalizedUrlGenerator": {
