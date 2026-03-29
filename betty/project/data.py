@@ -29,6 +29,14 @@ from betty.gender import GenderDefinition
 from betty.gender.data import GenderDefinitionConfiguration
 from betty.license import License, LicenseDefinition, LicenseManufacturer
 from betty.license.data import LicenseDefinitionConfiguration
+from betty.load import (
+    Enricher,
+    EnricherDefinition,
+    EnricherManufacturer,
+    Loader,
+    LoaderDefinition,
+    LoaderManufacturer,
+)
 from betty.locale import DEFAULT_LOCALE, ResolvableLocale, resolve_locale
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import LocalizableProperty
@@ -184,6 +192,24 @@ class ProjectConfiguration(Data):
     Whether to enable debugging for project jobs.
     """
 
+    enrichers = KeyedCollectionProperty(
+        KeyedCollectionDefinition(
+            value=EnricherManufacturer,
+            label=EnricherDefinition.type().label_plural,
+            key=Attr("plugin_id"),
+            factory=lambda: MutableKeyedCollectionAdapter(
+                key=lambda data: data.plugin_id,
+                key_resolver=resolve_plugin_id,
+                value_resolver=EnricherManufacturer.resolve,
+            ),
+        ),
+        omit_load=True,
+        omit_dump=lambda data: not data,
+    )
+    """
+    The enrichers to enable for the project.
+    """
+
     entity_types = KeyedCollectionProperty(
         KeyedCollectionDefinition(
             value=ProjectEntityType,
@@ -272,6 +298,24 @@ class ProjectConfiguration(Data):
     The lifetime threshold indicates when people are considered dead.
     """
 
+    loaders = KeyedCollectionProperty(
+        KeyedCollectionDefinition(
+            value=LoaderManufacturer,
+            label=LoaderDefinition.type().label_plural,
+            key=Attr("plugin_id"),
+            factory=lambda: MutableKeyedCollectionAdapter(
+                key=lambda data: data.plugin_id,
+                key_resolver=resolve_plugin_id,
+                value_resolver=LoaderManufacturer.resolve,
+            ),
+        ),
+        omit_load=True,
+        omit_dump=lambda data: not data,
+    )
+    """
+    The loaders to enable for the project.
+    """
+
     locales = KeyedCollectionProperty(
         KeyedCollectionDefinition(
             value=ProjectLocale,
@@ -352,6 +396,9 @@ class ProjectConfiguration(Data):
         copyright_notices: Iterable[CopyrightNoticeDefinitionConfiguration]
         | None = None,
         debug: bool = False,
+        enrichers: ResolvablePluginManufacturerSequence[
+            EnricherDefinition, Enricher
+        ] = (),
         entity_types: Iterable[ProjectEntityType | ResolvablePluginId[EntityDefinition]]
         | None = None,
         event_types: Iterable[EventTypeDefinitionConfiguration] | None = None,
@@ -361,6 +408,7 @@ class ProjectConfiguration(Data):
         license: ResolvablePluginManufacturer[LicenseDefinition, License] | None = None,  # noqa: A002
         licenses: Iterable[LicenseDefinitionConfiguration] | None = None,
         lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,
+        loaders: ResolvablePluginManufacturerSequence[LoaderDefinition, Loader] = (),
         locales: Iterable[ResolvableLocale | ProjectLocale] | None = None,
         logo: Path | None = None,
         name: ResolvableMachineName | None = None,
@@ -377,6 +425,7 @@ class ProjectConfiguration(Data):
         if copyright_notices is not None:
             self.copyright_notices = copyright_notices
         self.debug = debug
+        self.enrichers = enrichers  # ty:ignore[invalid-assignment]
         if entity_types is not None:
             self.entity_types = entity_types
         if event_types is not None:
@@ -390,6 +439,7 @@ class ProjectConfiguration(Data):
         if licenses is not None:
             self.licenses = licenses
         self.lifetime_threshold = lifetime_threshold
+        self.loaders = loaders  # ty:ignore[invalid-assignment]
         self.logo = logo
         if locales is not None:
             self.locales = locales

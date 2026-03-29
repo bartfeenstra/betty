@@ -16,7 +16,7 @@ class TestGenerate:
         m_generate = mocker.patch(
             "betty.project.generate.generate", new_callable=AsyncMock
         )
-        m_load = mocker.patch("betty.project.load.load", new_callable=AsyncMock)
+        m_load = mocker.patch("betty.load.load", new_callable=AsyncMock)
 
         configuration = ProjectConfiguration(title="Betty", url="https://example.com")
         await dump_file(

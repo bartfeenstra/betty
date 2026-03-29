@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2026-03-29 22:15+0100\n"
+"POT-Creation-Date: 2026-03-30 00:48+0100\n"
 "PO-Revision-Date: 2026-02-17 18:12+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: uk\n"
@@ -674,6 +674,12 @@ msgstr ""
 msgid "Enrich your ancestry with information from Wikipedia and Wikimedia Commons"
 msgstr ""
 
+msgid "Enricher"
+msgstr ""
+
+msgid "Enrichers"
+msgstr ""
+
 msgid "Entities"
 msgstr ""
 
@@ -1041,6 +1047,12 @@ msgstr "Завантажено {repository_count} репозиторіїв як 
 #, python-brace-format
 msgid "Loaded {source_count} sources."
 msgstr "Завантажено {source_count} джерел."
+
+msgid "Loader"
+msgstr ""
+
+msgid "Loaders"
+msgstr ""
 
 #, python-brace-format
 msgid "Loading \"{file_path}\"..."
@@ -1972,7 +1984,7 @@ msgstr ""
 msgid "Width"
 msgstr ""
 
-msgid "Wiki extension configuration"
+msgid "Wiki enricher configuration"
 msgstr ""
 
 msgid "Wikipedia contributors"
@@ -2415,6 +2427,13 @@ msgstr[1] ""
 msgstr[2] ""
 
 #, python-brace-format
+msgid "{count} enricher"
+msgid_plural "{count} enrichers"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
 msgid "{count} entity"
 msgid_plural "{count} entities"
 msgstr[0] "{count} сутність"
@@ -2508,6 +2527,13 @@ msgstr[2] ""
 #, python-brace-format
 msgid "{count} link"
 msgid_plural "{count} links"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
+msgid "{count} loader"
+msgid_plural "{count} loaders"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""

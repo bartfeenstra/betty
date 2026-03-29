@@ -41,6 +41,7 @@ from betty.html.js import JsResourceDefinition
 from betty.jinja.filter import JinjaFilterDefinition
 from betty.jinja.test import JinjaTestDefinition
 from betty.link import LinkDefinition
+from betty.load import EnricherDefinition, LoaderDefinition
 from betty.locale import (
     DEFAULT_LOCALE,
     ResolvableLocale,
@@ -95,11 +96,13 @@ the oldest verified person to ever have lived.
 type ProjectServicePlugin = (
     AssetDefinition
     | CssResourceDefinition
+    | EnricherDefinition
     | ExtensionDefinition
     | JinjaFilterDefinition
     | JinjaTestDefinition
     | JsResourceDefinition
     | LinkDefinition
+    | LoaderDefinition
 )
 
 
@@ -160,11 +163,13 @@ class Project(ChainedServiceLevel[App], ServicePluginProvider):
             service_plugin_types={
                 AssetDefinition,
                 CssResourceDefinition,
+                EnricherDefinition,
                 ExtensionDefinition,
                 JinjaFilterDefinition,
                 JinjaTestDefinition,
                 JsResourceDefinition,
                 LinkDefinition,
+                LoaderDefinition,
             },
             service_plugins=service_plugins,
             support_plugins=(*support_plugins, copyright_notice, license),
