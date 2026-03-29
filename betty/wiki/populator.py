@@ -8,9 +8,9 @@ from asyncio import gather
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
-from betty.ancestry.has_file_references import HasFileReferences
-from betty.ancestry.has_links import HasLinks
 from betty.concurrent import AsynchronizedLock, Lock
+from betty.entity.has_file_references import HasFileReferences
+from betty.entity.has_links import HasLinks
 from betty.functools import map_suppress
 from betty.locale import negotiate_locale, resolve_locale
 from betty.locale.error import LocaleError
@@ -31,10 +31,10 @@ if TYPE_CHECKING:
     from babel import Locale
     from ty_extensions import Intersection
 
-    from betty.ancestry import Ancestry
     from betty.copyright_notice import CopyrightNotice
+    from betty.entity import Entity
+    from betty.entity.collection.pool import EntityPool
     from betty.locale.localize import LocalizerRepository
-    from betty.model import Entity
     from betty.user import User
     from betty.wiki.client import Client, Image
 
@@ -47,7 +47,7 @@ class Populator:
 
     def __init__(
         self,
-        ancestry: Ancestry,
+        ancestry: EntityPool,
         locales: Sequence[Locale],
         localizers: LocalizerRepository,
         client: Client,

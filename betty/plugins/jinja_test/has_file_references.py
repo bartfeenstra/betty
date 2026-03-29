@@ -6,9 +6,7 @@ from __future__ import annotations
 
 from typing import Any, final
 
-from betty.ancestry.has_file_references import (
-    HasFileReferences as HasFileReferencesType,
-)
+from betty.entity.has_file_references import HasFileReferences as HasFileReferencesType
 from betty.jinja.test import JinjaTest, JinjaTestDefinition
 
 

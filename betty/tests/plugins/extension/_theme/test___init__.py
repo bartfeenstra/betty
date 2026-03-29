@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from betty.date import Date, DateRange, ResolvableDate
-from betty.model import persistent_id
+from betty.entity import persistent_id
 from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.file import File

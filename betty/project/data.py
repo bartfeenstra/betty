@@ -55,8 +55,8 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from pathlib import Path
 
+    from betty.entity import EntityDefinition
     from betty.locale.localizable import ResolvableLocalizable
-    from betty.model import EntityDefinition
     from betty.plugin.factory import (
         ResolvablePluginManufacturer,
         ResolvablePluginManufacturerSequence,

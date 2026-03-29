@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from pathlib import Path
 
-    from betty.ancestry import Ancestry
+    from betty.entity.collection.pool import EntityPool
     from betty.job.scheduler import Scheduler
     from betty.service.level import ServiceLevel
     from betty.user import User
@@ -309,7 +309,7 @@ class Gramps(
     def __init__(
         self,
         *,
-        ancestry: Ancestry,
+        ancestry: EntityPool,
         services: ServiceLevel,
         user: User,
         attribute_prefix_key: str | None = None,

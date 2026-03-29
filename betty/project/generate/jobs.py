@@ -15,12 +15,12 @@ import aiofiles
 from aiofiles.os import makedirs
 from PIL import Image
 
+from betty.entity import EntityDefinition, persistent_id
 from betty.jinja import make_copy_function
 from betty.job import Job
 from betty.locale.localizable.gettext import _
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type.media_types import HTML, JSON
-from betty.model import EntityDefinition, persistent_id
 from betty.openapi import Specification
 from betty.privacy import is_public
 from betty.project.generate.file import (

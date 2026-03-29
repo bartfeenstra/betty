@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from betty.content import ContentManufacturer
-from betty.model import EntityDefinition
+from betty.entity import EntityDefinition
 from betty.plugins.content.static import Static
 from betty.plugins.extension.raspberry_mint import (
     RaspberryMint,
@@ -13,7 +13,7 @@ from betty.plugins.extension.raspberry_mint import (
 from betty.plugins.extension.raspberry_mint.region import Region
 from betty.project import Project, ProjectEntityType
 from betty.project.generate import generate
-from betty.test_utils.model import DummyEntityOne
+from betty.test_utils.entity import DummyEntityOne
 from betty.tests.conftest import check_skip_webpack_entry_point_provider
 
 if TYPE_CHECKING:

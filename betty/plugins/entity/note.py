@@ -6,18 +6,21 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
-from betty.ancestry.has_links import HasLinks
-from betty.ancestry.media_type import HasMediaType
+from betty.entity import EntityDefinition
+from betty.entity.association import (
+    BidirectionalToZeroOrOne,
+    ToZeroOrOneAssociate,
+)
+from betty.entity.has_links import HasLinks
+from betty.entity.has_media_type import HasMediaType
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.property import LocalizableProperty
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
-from betty.model import EntityDefinition
-from betty.model.association import BidirectionalToZeroOrOne, ToZeroOrOneAssociate
 from betty.privacy import HasPrivacy, Privacy, is_public
 
 if TYPE_CHECKING:
-    from betty.ancestry.has_notes import HasNotes
+    from betty.entity.has_notes import HasNotes
     from betty.json.linked_data import JsonLdObject
     from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.portable import PortableMapping
@@ -42,7 +45,7 @@ class Note(HasPrivacy, HasLinks, HasMediaType):
     """
 
     entity = BidirectionalToZeroOrOne["Note", "HasNotes"](
-        "betty.ancestry.has_notes:HasNotes",
+        "betty.entity.has_notes:HasNotes",
         "notes",
         label=_("Owner"),
         description=_("The entity the note belongs to"),

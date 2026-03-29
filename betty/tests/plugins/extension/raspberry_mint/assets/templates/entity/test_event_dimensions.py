@@ -1,9 +1,9 @@
-from betty.ancestry.name import Name
 from betty.date import Date
 from betty.document import Document, EntityContexts
 from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.place import Place
+from betty.plugins.entity.place_name import PlaceName
 from betty.plugins.entity.source import Source
 from betty.plugins.event_type.birth import Birth
 from betty.plugins.extension.raspberry_mint import RaspberryMint
@@ -41,7 +41,7 @@ async def test_with_date(assert_template_file: AssertTemplateFile) -> None:
 async def test_with_place(assert_template_file: AssertTemplateFile) -> None:
     place = Place(
         id="P0",
-        names=[Name("The Place")],
+        names=[PlaceName("The Place")],
     )
     event = Event(event_type=Birth(), place=place)
     expected = f'in <a href="/place/{place.public_id}/index.html"><span lang="und" dir="auto">The Place</span></a>'
@@ -61,7 +61,7 @@ async def test_with_place_is_place_context(
     event = Event(event_type=Birth())
     place = Place(
         id="P0",
-        names=[Name("The Place")],
+        names=[PlaceName("The Place")],
     )
     event.place = place
     async with assert_template_file(
@@ -78,7 +78,7 @@ async def test_with_place_is_place_context(
 async def test_with_date_and_place(assert_template_file: AssertTemplateFile) -> None:
     place = Place(
         id="P0",
-        names=[Name("The Place")],
+        names=[PlaceName("The Place")],
     )
     event = Event(
         event_type=Birth(),
@@ -117,7 +117,7 @@ async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
     )
     event.place = Place(
         id="P0",
-        names=[Name("The Place")],
+        names=[PlaceName("The Place")],
     )
     event.citations.add(Citation(source=Source(name="The Source")))
     expected = '1970 in <span lang="und" dir="auto">The Place</span>'

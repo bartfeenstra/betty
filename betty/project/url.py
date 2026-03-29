@@ -7,8 +7,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Self, final, override
 from urllib.parse import urlsplit
 
+from betty.entity import Entity, EntityDefinition
 from betty.media_type.media_types import HTML, JSON, JSON_LD
-from betty.model import Entity, EntityDefinition
 from betty.project import Project
 from betty.requirement import require
 from betty.service.factory import Manufacturable
@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 
     from babel import Locale
 
-    from betty.ancestry import Ancestry
+    from betty.entity.collection.pool import EntityPool
     from betty.locale import ResolvableLocale
     from betty.media_type import MediaType
 
@@ -233,7 +233,7 @@ class _EntityUrlGenerator(__EntityUrlGenerator, UrlGenerator):
 class _EntityUrlUrlGenerator(UrlGenerator):
     def __init__(
         self,
-        ancestry: Ancestry,
+        ancestry: EntityPool,
         entity_url_generator: _EntityUrlGenerator,
         /,
     ):

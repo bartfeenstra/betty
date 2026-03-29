@@ -78,7 +78,7 @@ if TYPE_CHECKING:
 
     from playwright.async_api import BrowserContext, Page
 
-    from betty.ancestry import Ancestry
+    from betty.entity.collection.pool import EntityPool
     from betty.cache import Cache
     from betty.extension import ExtensionDefinition
     from betty.json.linked_data import LinkedDataDumpableWithSchema, LinkedDataDumper
@@ -86,7 +86,7 @@ if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
     from betty.locale.translation import TranslationRepository
     from betty.machine_name import ResolvableMachineName
-    from betty.model import EntityDefinition
+    from betty.entity import EntityDefinition
     from betty.plugin import PluginDefinition, ResolvablePluginId
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.portable import PortableData, PortableMapping
@@ -201,7 +201,7 @@ class IsolatedProjectFactory(Protocol):
     def __call__(
         self,
         *,
-        ancestry: Ancestry | None = None,
+        ancestry: EntityPool | None = None,
         app: App | None = None,
         author: ResolvableLocalizable | None = None,
         clean_urls: bool = False,
@@ -235,7 +235,7 @@ def isolated_project_factory(isolated_app: App) -> IsolatedProjectFactory:
     @asynccontextmanager
     async def _isolated_project_factory(
         *,
-        ancestry: Ancestry | None = None,
+        ancestry: EntityPool | None = None,
         app: App | None = None,
         author: ResolvableLocalizable | None = None,
         clean_urls: bool = False,

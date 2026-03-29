@@ -6,13 +6,17 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
-from betty.ancestry.has_citations import HasCitations
-from betty.ancestry.has_locale import HasLocale
+from betty.entity import Entity, EntityDefinition
+from betty.entity.association import (
+    BidirectionalToOne,
+    ToManyAssociates,
+    ToOneAssociate,
+)
+from betty.entity.has_citations import HasCitations
+from betty.entity.has_locale import HasLocale
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.json.schema import String
 from betty.locale.localizable.gettext import _, ngettext
-from betty.model import Entity, EntityDefinition
-from betty.model.association import BidirectionalToOne, ToManyAssociates, ToOneAssociate
 from betty.privacy import HasPrivacy, Privacy, merge_privacies
 
 if TYPE_CHECKING:

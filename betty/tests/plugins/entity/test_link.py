@@ -8,15 +8,15 @@ from betty.media_type.media_types import HTML
 from betty.plugins.entity.link import Link
 from betty.privacy import Privacy
 from betty.test_utils.ancestry.has_links import DummyHasLinks
+from betty.test_utils.entity import EntityTestBase
 from betty.test_utils.locale.localizable import (
     DUMMY_LOCALIZABLE,
 )
-from betty.test_utils.model import EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
-    from betty.model import Entity
+    from betty.entity import Entity
     from betty.test_utils.conftest import AssertDumpsLinkedData
 
 import pytest

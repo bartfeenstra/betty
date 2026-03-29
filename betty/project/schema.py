@@ -6,9 +6,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.entity import EntityDefinition
+from betty.entity.schema import ToManySchema
 from betty.json.schema import JsonSchemaReference, Schema
-from betty.model import EntityDefinition
-from betty.model.schema import ToManySchema
 from betty.project import Project
 from betty.requirement import require
 from betty.service.factory import Manufacturable

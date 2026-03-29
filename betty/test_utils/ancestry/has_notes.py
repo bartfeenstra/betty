@@ -1,9 +1,9 @@
 """
-Test utilities for :py:mod:`betty.ancestry.has_notes`.
+Test utilities for :py:mod:`betty.entity.has_notes`.
 """
 
-from betty.ancestry.has_notes import HasNotes
-from betty.model import EntityDefinition
+from betty.entity import EntityDefinition
+from betty.entity.has_notes import HasNotes
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
@@ -18,5 +18,5 @@ from betty.test_utils.locale.localizable import (
 )
 class DummyHasNotes(HasNotes):
     """
-    A dummy :py:class:`betty.ancestry.has_notes.HasNotes` entity.
+    A dummy :py:class:`betty.entity.has_notes.HasNotes` entity.
     """

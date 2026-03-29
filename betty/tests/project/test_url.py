@@ -4,11 +4,11 @@ from typing import Any
 import pytest
 from babel import Locale
 
-from betty.ancestry import Ancestry
+from betty.entity import EntityDefinition
+from betty.entity.collection.pool import EntityPool
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, ResolvableLocale
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML, JSON
-from betty.model import EntityDefinition
 from betty.project import Project
 from betty.project.url import (
     _EntityUrlGenerator,
@@ -18,7 +18,7 @@ from betty.project.url import (
     new_project_url_generator,
 )
 from betty.test_utils.conftest import IsolatedProjectFactory
-from betty.test_utils.model import DummyEntityOne
+from betty.test_utils.entity import DummyEntityOne
 
 
 class Test_EntityUrlUrlGenerator:
@@ -36,7 +36,7 @@ class Test_EntityUrlUrlGenerator:
         ],
     )
     async def test_supports(self, expected: bool, resource: Any) -> None:
-        ancestry = Ancestry()
+        ancestry = EntityPool()
         sut = _EntityUrlUrlGenerator(
             ancestry,
             _EntityUrlGenerator(
@@ -55,7 +55,7 @@ class Test_EntityUrlUrlGenerator:
         locale = "nl-NL"
         query = {"my_first_query": "my first value"}
         entity = DummyEntityOne()
-        ancestry = Ancestry()
+        ancestry = EntityPool()
         ancestry.add(entity)
         sut = _EntityUrlUrlGenerator(
             ancestry,

@@ -6,12 +6,19 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
-from betty.ancestry.date import HasDate
-from betty.ancestry.description import HasDescription
-from betty.ancestry.has_citations import HasCitations
-from betty.ancestry.has_file_references import HasFileReferences
-from betty.ancestry.has_links import HasLinks
-from betty.ancestry.has_notes import HasNotes
+from betty.entity import EntityDefinition
+from betty.entity.association import (
+    BidirectionalToManySingleType,
+    BidirectionalToZeroOrOne,
+    ToManyAssociates,
+    ToZeroOrOneAssociate,
+)
+from betty.entity.has_citations import HasCitations
+from betty.entity.has_date import HasDate
+from betty.entity.has_description import HasDescription
+from betty.entity.has_file_references import HasFileReferences
+from betty.entity.has_links import HasLinks
+from betty.entity.has_notes import HasNotes
 from betty.event_type import EventTypeDefinition
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.json.schema import String
@@ -20,13 +27,6 @@ from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.markup import AllEnumeration
 from betty.locale.localizable.property import LocalizableProperty
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
-from betty.model import EntityDefinition
-from betty.model.association import (
-    BidirectionalToManySingleType,
-    BidirectionalToZeroOrOne,
-    ToManyAssociates,
-    ToZeroOrOneAssociate,
-)
 from betty.plugin.schema import PluginIdSchema
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.presence import Presence

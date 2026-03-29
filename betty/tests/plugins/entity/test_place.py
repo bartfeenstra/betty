@@ -5,18 +5,18 @@ from typing import TYPE_CHECKING, Any, cast, override
 import pytest
 from geopy import Point
 
-from betty.ancestry.name import Name
+from betty.entity import Entity
+from betty.entity.association import AssociationRequired, TemporaryToOneResolver
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, to_language_tag
-from betty.model import Entity
-from betty.model.association import AssociationRequired, TemporaryToOneResolver
 from betty.plugins.entity.enclosure import Enclosure
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.link import Link
 from betty.plugins.entity.place import Place
+from betty.plugins.entity.place_name import PlaceName
 from betty.plugins.event_type.birth import Birth
 from betty.plugins.place_type.hamlet import Hamlet
 from betty.plugins.place_type.unknown import Unknown as UnknownPlaceType
-from betty.test_utils.model import EntityTestBase
+from betty.test_utils.entity import EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -29,7 +29,7 @@ class TestPlace(EntityTestBase):
     def _sut_params() -> Sequence[Entity]:
         return [
             Place(),
-            Place(names=[Name("My First Place")]),
+            Place(names=[PlaceName("My First Place")]),
         ]
 
     @override
@@ -155,6 +155,7 @@ class TestPlace(EntityTestBase):
     ) -> None:
         place_id = "the_place"
         name = "The Place"
+        place_name = PlaceName(name)
         latitude = 12.345
         longitude = -54.321
         coordinates = Point(latitude, longitude)
@@ -162,7 +163,7 @@ class TestPlace(EntityTestBase):
         link.label = "The Place Online"
         place = Place(
             id=place_id,
-            names=[Name(name)],
+            names=[place_name],
             events=[
                 Event(
                     id="E1",
@@ -185,7 +186,12 @@ class TestPlace(EntityTestBase):
             "@id": "https://example.com/place/the_place/index.json",
             "@type": "https://schema.org/Place",
             "id": place_id,
-            "names": [{"name": {DEFAULT_LOCALE_TAG: name}}],
+            "names": [
+                {
+                    "id": place_name.id,
+                    "name": {DEFAULT_LOCALE_TAG: name},
+                }
+            ],
             "events": [
                 "/event/E1/index.json",
             ],

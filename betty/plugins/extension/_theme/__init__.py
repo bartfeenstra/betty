@@ -10,8 +10,8 @@ from collections import defaultdict
 from typing import TYPE_CHECKING, cast
 
 from betty.date import Date, ResolvableDate
+from betty.entity import persistent_id
 from betty.functools import unique
-from betty.model import persistent_id
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
@@ -23,7 +23,7 @@ from betty.privacy import is_public
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
-    from betty.ancestry.has_file_references import HasFileReferences
+    from betty.entity.has_file_references import HasFileReferences
     from betty.plugins.entity.file_reference import FileReference
     from betty.plugins.entity.presence import Presence
 

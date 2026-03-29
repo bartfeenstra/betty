@@ -7,7 +7,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import TYPE_CHECKING, final
 
-from betty.model import EntityDefinition
+from betty.entity import EntityDefinition
 
 if TYPE_CHECKING:
     from collections.abc import Collection

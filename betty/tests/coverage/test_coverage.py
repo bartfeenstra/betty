@@ -345,36 +345,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "InvalidMediaType": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/media_type/media_types.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/model/__init__.py": {
-        "Entity": MissingReason.SHOULD_BE_COVERED,
-        "EntityDefinition": {
-            "type": MissingReason.INHERITED,
-        },
-        "EntityReferenceCollectionSchema": MissingReason.STATIC_CONTENT_ONLY,
-        "EntityReferenceSchema": MissingReason.STATIC_CONTENT_ONLY,
-        "NonPersistentId": MissingReason.SHOULD_BE_COVERED,
-    },
-    "betty/model/association.py": {
-        "BidirectionalToOne": {
-            "__set__": MissingReason.COVERED_ELSEWHERE,
-        },
-        "BidirectionalToZeroOrOne": {
-            "__set__": MissingReason.COVERED_ELSEWHERE,
-        },
-        "resolve": MissingReason.SHOULD_BE_COVERED,
-        "ToManyResolver": MissingReason.ABSTRACT,
-        "ToOneResolver": MissingReason.ABSTRACT,
-        "ToZeroOrOneResolver": MissingReason.ABSTRACT,
-    },
-    "betty/model/collections.py": {
-        "EntityCollection": MissingReason.ABSTRACT,
-        "record_added": MissingReason.SHOULD_BE_COVERED,
-    },
-    "betty/ancestry/date.py": {
-        "HasDate": {
-            "dated_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
-        },
-    },
     "betty/collection/__init__.py": {
         "MutableCollection": MissingReason.ABSTRACT,
     },
@@ -397,6 +367,35 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/copyright_notice/data.py": {
         "CopyrightNoticeDefinitionConfiguration": {
             "data": MissingReason.INHERITED,
+        },
+    },
+    "betty/entity/__init__.py": {
+        "Entity": MissingReason.SHOULD_BE_COVERED,
+        "EntityDefinition": {
+            "type": MissingReason.INHERITED,
+        },
+        "EntityReferenceCollectionSchema": MissingReason.STATIC_CONTENT_ONLY,
+        "EntityReferenceSchema": MissingReason.STATIC_CONTENT_ONLY,
+        "NonPersistentId": MissingReason.SHOULD_BE_COVERED,
+    },
+    "betty/entity/association.py": {
+        "BidirectionalToOne": {
+            "__set__": MissingReason.COVERED_ELSEWHERE,
+        },
+        "BidirectionalToZeroOrOne": {
+            "__set__": MissingReason.COVERED_ELSEWHERE,
+        },
+        "resolve": MissingReason.SHOULD_BE_COVERED,
+        "ToManyResolver": MissingReason.ABSTRACT,
+        "ToOneResolver": MissingReason.ABSTRACT,
+        "ToZeroOrOneResolver": MissingReason.ABSTRACT,
+    },
+    "betty/entity/collection/__init__.py": {
+        "EntityCollection": MissingReason.ABSTRACT,
+    },
+    "betty/entity/has_date.py": {
+        "HasDate": {
+            "dated_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
         },
     },
     "betty/event_type/__init__.py": {
@@ -769,6 +768,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/plugins/entity/place.py": {
         "Place": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
+    "betty/plugins/entity/place_name.py": {
+        "PlaceName": {
             "plugin": MissingReason.INHERITED,
         },
     },

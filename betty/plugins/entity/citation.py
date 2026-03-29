@@ -6,27 +6,27 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
-from betty.ancestry.date import HasDate
-from betty.ancestry.has_file_references import HasFileReferences
-from betty.ancestry.has_links import HasLinks
-from betty.locale.localizable.gettext import _, ngettext
-from betty.locale.localizable.linked_data import dump_linked_data
-from betty.locale.localizable.property import LocalizableProperty
-from betty.locale.localizable.static.schema import StaticTranslationsSchema
-from betty.model import EntityDefinition
-from betty.model.association import (
+from betty.entity import EntityDefinition
+from betty.entity.association import (
     BidirectionalToManyMultipleTypes,
     BidirectionalToOne,
     ToManyAssociates,
     ToOneAssociate,
 )
+from betty.entity.has_date import HasDate
+from betty.entity.has_file_references import HasFileReferences
+from betty.entity.has_links import HasLinks
+from betty.locale.localizable.gettext import _, ngettext
+from betty.locale.localizable.linked_data import dump_linked_data
+from betty.locale.localizable.property import LocalizableProperty
+from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.plugins.entity.source import Source
 from betty.privacy import HasPrivacy, Privacy, is_public, merge_secondary_privacies
 from betty.property import Optional
 
 if TYPE_CHECKING:
-    from betty.ancestry.has_citations import HasCitations
     from betty.date import ResolvableDate
+    from betty.entity.has_citations import HasCitations
     from betty.json.linked_data import JsonLdObject
     from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.plugins.entity.file_reference import FileReference
@@ -52,7 +52,7 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
     """
 
     facts = BidirectionalToManyMultipleTypes["Citation", "HasCitations"](
-        "betty.ancestry.has_citations:HasCitations",
+        "betty.entity.has_citations:HasCitations",
         "citations",
         label=_("Facts"),
         description=_(

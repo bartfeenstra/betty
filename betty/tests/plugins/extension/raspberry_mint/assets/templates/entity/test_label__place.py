@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.ancestry.name import Name
 from betty.date import Date, DateRange
 from betty.document import Document, EntityContexts
 from betty.plugins.entity.place import Place
+from betty.plugins.entity.place_name import PlaceName
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 
 if TYPE_CHECKING:
@@ -39,7 +39,7 @@ async def test_with_persistent_id(assert_template_file: AssertTemplateFile) -> N
 
 
 async def test_with_name(assert_template_file: AssertTemplateFile) -> None:
-    place = Place(names=[Name("The Place")])
+    place = Place(names=[PlaceName("The Place")])
     expected = '<span lang="und" dir="auto">The Place</span>'
     async with assert_template_file(
         data={
@@ -54,7 +54,7 @@ async def test_with_name(assert_template_file: AssertTemplateFile) -> None:
 async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
     place = Place(
         id="P0",
-        names=[Name("The Place")],
+        names=[PlaceName("The Place")],
     )
     expected = '<span lang="und" dir="auto">The Place</span>'
     async with assert_template_file(
@@ -86,11 +86,11 @@ async def test_with_place_context(assert_template_file: AssertTemplateFile) -> N
 async def test_with_date_context(assert_template_file: AssertTemplateFile) -> None:
     place = Place(
         names=[
-            Name(
+            PlaceName(
                 "The Old Place",
                 date=DateRange(None, Date(1969, 12, 31)),
             ),
-            Name(
+            PlaceName(
                 "The New Place",
                 date=DateRange(Date(1970, 1, 1)),
             ),

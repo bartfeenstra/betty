@@ -5,7 +5,7 @@ import pytest
 from geopy import Point
 
 from betty.document import Document
-from betty.model import Entity
+from betty.entity import Entity
 from betty.plugins.content.map import Map
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person

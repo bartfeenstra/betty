@@ -8,12 +8,12 @@ from contextlib import suppress
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from betty.ancestry.has_citations import HasCitations
-from betty.ancestry.has_file_references import HasFileReferences
-from betty.ancestry.has_notes import HasNotes
 from betty.date import Date, DateRange
+from betty.entity import Entity
+from betty.entity.has_citations import HasCitations
+from betty.entity.has_file_references import HasFileReferences
+from betty.entity.has_notes import HasNotes
 from betty.locale.localizable.gettext import _
-from betty.model import Entity
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place

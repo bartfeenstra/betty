@@ -6,8 +6,8 @@ from betty.plugins.extension.wiki import Wiki
 from betty.plugins.extension.wiki.jobs import PopulateEntity
 from betty.project.load.jobs import PopulateLink
 from betty.test_utils.conftest import IsolatedProjectFactory
+from betty.test_utils.entity import DummyEntityOne
 from betty.test_utils.job import do
-from betty.test_utils.model import DummyEntityOne
 
 
 class TestPopulateEntity:

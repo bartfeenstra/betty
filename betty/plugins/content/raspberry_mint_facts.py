@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from betty.document import Document
-    from betty.model import Entity
+    from betty.entity import Entity
 
 
 @final

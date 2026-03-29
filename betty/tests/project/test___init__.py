@@ -6,9 +6,9 @@ from typing import TYPE_CHECKING
 import pytest
 from babel import Locale
 
-from betty.ancestry import Ancestry
 from betty.asset import Asset, AssetDefinition
 from betty.dirs import ASSETS_DIRECTORY_PATH
+from betty.entity.collection.pool import EntityPool
 from betty.exception import HumanFacingException
 from betty.extension import Extension, ExtensionDefinition
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
@@ -16,8 +16,8 @@ from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.project import Project, ProjectEntityType, ProjectLocale
 from betty.project.data import ProjectConfiguration
 from betty.test_utils.data import DataTestBase
+from betty.test_utils.entity import DummyEntityOne
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
-from betty.test_utils.model import DummyEntityOne
 from betty.test_utils.project.extension import DummyExtensionOne
 
 if TYPE_CHECKING:
@@ -84,7 +84,7 @@ class TestProject:
     async def test_ancestry__with___init___ancestry(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        ancestry = Ancestry()
+        ancestry = EntityPool()
         async with isolated_project_factory(ancestry=ancestry) as sut:
             assert sut.ancestry is ancestry
 

@@ -23,10 +23,11 @@ from geopy import Point
 from lxml import etree
 
 from betty import subprocess
-from betty.ancestry.has_links import HasLinks
-from betty.ancestry.name import Name
 from betty.copyright_notice import CopyrightNoticeManufacturer
 from betty.date import Date, DateRange, ResolvableDate
+from betty.entity import Entity
+from betty.entity.association import ToManyResolver, ToOneResolver, resolve
+from betty.entity.has_links import HasLinks
 from betty.error import FileNotFound
 from betty.event_type import EventTypeManufacturer
 from betty.gender import GenderDefinition, GenderManufacturer
@@ -38,8 +39,6 @@ from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import AnyEnumeration
 from betty.locale.localizable.static import StaticTranslations
 from betty.media_type import InvalidMediaType, MediaType
-from betty.model import Entity
-from betty.model.association import ToManyResolver, ToOneResolver, resolve
 from betty.place_type import PlaceTypeManufacturer
 from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.error import PluginNotFound
@@ -53,6 +52,7 @@ from betty.plugins.entity.note import Note
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.person_name import PersonName
 from betty.plugins.entity.place import Place
+from betty.plugins.entity.place_name import PlaceName
 from betty.plugins.entity.presence import Presence
 from betty.plugins.entity.source import Source
 from betty.plugins.event_type.adoption import Adoption
@@ -123,10 +123,10 @@ if TYPE_CHECKING:
     from babel import Locale
     from ty_extensions import Intersection
 
-    from betty.ancestry import Ancestry
-    from betty.ancestry.has_citations import HasCitations
-    from betty.ancestry.has_file_references import HasFileReferences
-    from betty.ancestry.has_notes import HasNotes
+    from betty.entity.collection.pool import EntityPool
+    from betty.entity.has_citations import HasCitations
+    from betty.entity.has_file_references import HasFileReferences
+    from betty.entity.has_notes import HasNotes
     from betty.event_type import EventType, EventTypeDefinition
     from betty.gender import Gender
     from betty.locale.localizable import StaticTranslationsMapping
@@ -340,7 +340,7 @@ class GrampsLoader:
 
     def __init__(
         self,
-        ancestry: Ancestry,
+        ancestry: EntityPool,
         *,
         user: User,
         services: ServiceLevel,
@@ -991,7 +991,7 @@ class GrampsLoader:
             name = name_element.get("value")
             assert name is not None
             names.append(
-                Name(
+                PlaceName(
                     StaticTranslations(
                         {language: name},  # ty:ignore[invalid-argument-type]
                     ),

@@ -2,8 +2,8 @@ from pathlib import Path
 
 from PIL import Image
 
+from betty.entity.association import TemporaryToOneResolver
 from betty.media_type import MediaType
-from betty.model.association import TemporaryToOneResolver
 from betty.plugins.entity.file import File
 from betty.plugins.entity.file_reference import FileReference
 from betty.plugins.extension.raspberry_mint import RaspberryMint

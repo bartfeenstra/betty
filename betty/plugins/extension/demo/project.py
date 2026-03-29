@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from betty.content import ContentManufacturer
+from betty.entity.reference import EntityReference
 from betty.extension import ExtensionManufacturer
 from betty.license import LicenseManufacturer
 from betty.locale import DEFAULT_LOCALE
@@ -14,7 +15,6 @@ from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Chain
 from betty.locale.localize import LocalizerRepository
 from betty.media_type.media_types import HTML
-from betty.model.reference import EntityReference
 from betty.plugins.content.raspberry_mint_columns import Columns, ColumnsConfiguration
 from betty.plugins.content.raspberry_mint_entity_card import EntityCard
 from betty.plugins.content.raspberry_mint_incomplete_translation_warning import (

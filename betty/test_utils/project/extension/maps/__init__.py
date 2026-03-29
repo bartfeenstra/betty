@@ -12,7 +12,7 @@ from geopy import Point
 from playwright.async_api import Page, expect
 
 from betty import serve
-from betty.ancestry.name import Name
+from betty.plugins.entity.place_name import PlaceName
 from betty.extension import ExtensionDefinition, ExtensionManufacturer
 from betty.plugin import ResolvablePluginId
 from betty.plugins.entity.place import Place
@@ -59,7 +59,7 @@ class MapsTestBase:
                 Place(
                     id=_PLACE_ID,
                     coordinates=Point(52.37277778, 4.89361111),
-                    names=[Name(_PLACE_NAME)],
+                    names=[PlaceName(_PLACE_NAME)],
                 ),
             )
             copytree(

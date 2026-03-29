@@ -1,0 +1,74 @@
+"""
+Tools for entities that have a date.
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, override
+
+from betty.date import Date, ResolvableDate
+from betty.date.linked_data import (
+    dump_linked_data_for_date,
+    dump_linked_data_for_date_range,
+)
+from betty.date.schema import ResolvableDateSchema
+from betty.json.linked_data import (
+    JsonLdObject,
+    LinkedDataDumpableWithSchemaJsonLdObject,
+)
+from betty.privacy import is_public
+
+if TYPE_CHECKING:
+    from betty.portable import PortableMapping
+    from betty.project import Project
+
+
+class HasDate(LinkedDataDumpableWithSchemaJsonLdObject):
+    """
+    A resource with date information.
+    """
+
+    def __init__(
+        self,
+        *args: Any,
+        date: ResolvableDate | None = None,
+        **kwargs: Any,
+    ):
+        super().__init__(*args, **kwargs)
+        self.date = date
+
+    def dated_linked_data_contexts(self) -> tuple[str | None, str | None, str | None]:
+        """
+        Get the JSON-LD context term definition IRIs for the possible dates.
+
+        :returns: A 3-tuple with the IRI for a single date, a start date, and an end date, respectively.
+        """
+        return None, None, None
+
+    @override
+    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
+        portable = await super().dump_linked_data(project)
+        if self.date and is_public(self):
+            (
+                schema_org_date_definition,
+                schema_org_start_date_definition,
+                schema_org_end_date_definition,
+            ) = self.dated_linked_data_contexts()
+            if isinstance(self.date, Date):
+                portable["date"] = dump_linked_data_for_date(
+                    self.date, context_definition=schema_org_date_definition
+                )
+            else:
+                portable["date"] = dump_linked_data_for_date_range(
+                    self.date,
+                    start_context_definition=schema_org_start_date_definition,
+                    end_context_definition=schema_org_end_date_definition,
+                )
+        return portable
+
+    @override
+    @classmethod
+    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
+        schema = await super().linked_data_schema(project)
+        schema.add_property("date", ResolvableDateSchema(), False)
+        return schema
