@@ -290,7 +290,6 @@ class Project(ChainedServiceLevel[App], ServicePluginProvider):
         async with AsyncExitStack() as stack:
             if app is None:
                 app = await stack.enter_async_context(App.new_isolated())
-                await stack.enter_async_context(app)
             if directory is None:
                 directory = Path(await stack.enter_async_context(TemporaryDirectory()))
             async with cls(

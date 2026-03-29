@@ -125,8 +125,7 @@ async def isolated_app(
     """
     async with App.new_isolated(process_pool=process_pool) as app:
         await _configure_isolated_app(app)
-        async with app:
-            yield app
+        yield app
 
 
 @final
@@ -134,6 +133,10 @@ class IsolatedAppFactory(Protocol):
     def __call__(
         self,
         *,
+        plugins: Mapping[
+            type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
+        ]
+        | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
         translations: TranslationRepository | None | Literal[False] = False,
         user: User | None = None,
@@ -154,6 +157,10 @@ def isolated_app_factory(
     async def _isolated_app_factory(
         *,
         cache_factory: ServiceFactory[App, Cache[Any]] | None = None,
+        plugins: Mapping[
+            type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
+        ]
+        | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
         translations: TranslationRepository | None | Literal[False] = False,
         user: User | None = None,
@@ -161,6 +168,7 @@ def isolated_app_factory(
         async with App.new_isolated(
             cache_factory=cache_factory,
             process_pool=process_pool or fixture_process_pool,
+            plugins=plugins,
             translations=translations,
             user=user,
         ) as app:

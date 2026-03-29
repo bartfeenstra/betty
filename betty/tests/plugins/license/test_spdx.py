@@ -205,7 +205,7 @@ class TestSpdxLicenseDiscoverer:
     async def test_discover_for__without_licenses(
         self, isolated_app_factory: IsolatedAppFactory, without_licenses: None
     ) -> None:
-        async with isolated_app_factory() as app, app:
+        async with isolated_app_factory() as app:
             await self.assert_without_licenses(
                 await SpdxLicenseDiscoverer.discover_for(app)
             )
@@ -213,7 +213,7 @@ class TestSpdxLicenseDiscoverer:
     async def test_discover_for__with_licenses(
         self, isolated_app_factory: IsolatedAppFactory, with_licenses: None
     ) -> None:
-        async with isolated_app_factory() as app, app:
+        async with isolated_app_factory() as app:
             await self.assert_with_licenses(
                 await SpdxLicenseDiscoverer.discover_for(app)
             )

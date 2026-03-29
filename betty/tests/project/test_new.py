@@ -43,7 +43,7 @@ async def test_new__minimal(
             url,
         ],
     )
-    async with isolated_app_factory(user=user) as app, app:
+    async with isolated_app_factory(user=user) as app:
         await new(app)
         configuration = await _assert_new(configuration_file_path)
     assert configuration.title.localize(DEFAULT_LOCALIZER) == title
@@ -75,7 +75,7 @@ async def test_new__with_project_directory(
         ],
     )
     configuration_file_path = tmp_path / "betty.yaml"
-    async with isolated_app_factory(user=user) as app, app:
+    async with isolated_app_factory(user=user) as app:
         await new(app)
         await _assert_new(configuration_file_path)
 
@@ -100,7 +100,7 @@ async def test_new__with_single_locale(
             "https://exampleexampleexample.com/example",
         ],
     )
-    async with isolated_app_factory(user=user) as app, app:
+    async with isolated_app_factory(user=user) as app:
         await new(app)
         configuration = await _assert_new(configuration_file_path)
     assert configuration.name == "mijn-eerste-project"
@@ -134,7 +134,7 @@ async def test_new__with_multiple_locales(
             "https://exampleexampleexample.com/example",
         ],
     )
-    async with isolated_app_factory(user=user) as app, app:
+    async with isolated_app_factory(user=user) as app:
         await new(app)
         configuration = await _assert_new(configuration_file_path)
     assert configuration.name == "mijn-eerste-project"
@@ -161,7 +161,7 @@ async def test_new__with_name(
             "https://exampleexampleexample.com/example",
         ],
     )
-    async with isolated_app_factory(user=user) as app, app:
+    async with isolated_app_factory(user=user) as app:
         await new(app)
         configuration = await _assert_new(configuration_file_path)
     assert configuration.name == name
@@ -187,7 +187,7 @@ async def test_new__with_gramps(
             str(gramps_family_tree_file_path),
         ],
     )
-    async with isolated_app_factory(user=user) as app, app:
+    async with isolated_app_factory(user=user) as app:
         await new(app)
         configuration = await _assert_new(configuration_file_path)
         assert Gramps in configuration.extensions

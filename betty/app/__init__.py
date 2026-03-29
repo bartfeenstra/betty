@@ -126,7 +126,8 @@ class App(
         return cls(locale=data.locale)
 
     @classmethod
-    async def new_from_environment(cls) -> Self:
+    @asynccontextmanager
+    async def new_from_environment(cls) -> AsyncIterator[Self]:
         """
         Create a new application from the environment.
         """
@@ -134,8 +135,11 @@ class App(
             configuration = AppConfiguration.data().porter.load(
                 (await assert_load_file())(AppConfiguration.FILE)
             )
-            return await cls.new(UNIVERSE, configuration)
-        return cls()
+            app = await cls.new(UNIVERSE, configuration)
+        else:
+            app = cls()
+        async with app:
+            yield app
 
     @classmethod
     @asynccontextmanager
@@ -163,7 +167,7 @@ class App(
                 cache_directory = Path(
                     await exit_stack.enter_async_context(TemporaryDirectory())
                 )
-            yield cls(
+            async with cls(
                 cache_directory=cache_directory,
                 cache_factory=(lambda _: NoOpCache())
                 if cache_factory is None
@@ -174,7 +178,8 @@ class App(
                 translations=DEFAULT_TRANSLATION_REPOSITORY
                 if translations is False
                 else translations,
-            )
+            ) as app:
+                yield app
 
     @property
     def user(self) -> User:

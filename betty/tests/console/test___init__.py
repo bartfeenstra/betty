@@ -12,6 +12,7 @@ from betty.console import SystemExitCode, call_command_func, main_standalone
 from betty.console.command import Command, CommandDefinition
 from betty.exception import HumanFacingException
 from betty.functools import Result, suppress
+from betty.test_utils.conftest import IsolatedAppFactory
 from betty.test_utils.console import run
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.user import Verbosity
@@ -78,12 +79,11 @@ async def test_main__with_unknown_command(isolated_app: App) -> None:
     ],
 )
 async def test_main__with_user_facing_exception(
-    expected: SystemExitCode, command: CommandDefinition, isolated_app: App
+    expected: SystemExitCode,
+    command: CommandDefinition,
+    isolated_app_factory: IsolatedAppFactory,
 ) -> None:
-    async with (
-        App.new_isolated(plugins={CommandDefinition: [command]}) as app,
-        app,
-    ):
+    async with isolated_app_factory(plugins={CommandDefinition: [command]}) as app:
         await run(app, command.id, expected_exit_code=expected)
 
 
@@ -101,20 +101,24 @@ async def test_main__with_user_facing_exception(
     ],
 )
 async def test_main_standalone(
-    expected: SystemExitCode, command: CommandDefinition, mocker: MockerFixture
+    expected: SystemExitCode,
+    command: CommandDefinition,
+    isolated_app_factory: IsolatedAppFactory,
+    mocker: MockerFixture,
 ) -> None:
-    async with App.new_isolated(plugins={CommandDefinition: [command]}) as app:
+    def _target() -> None:
+        mocker.patch(
+            "betty.app.App.new_from_environment",
+            return_value=isolated_app_factory(plugins={CommandDefinition: [command]}),
+        )
+        mocker.patch("sys.argv", new=["betty", command.id])
+        main_standalone()
 
-        def _target() -> None:
-            mocker.patch("betty.app.App.new_from_environment", return_value=app)
-            mocker.patch("sys.argv", new=["betty", command.id])
-            main_standalone()
-
-        # Run this in a thread so as not to conflict with pytest-playwright-asyncio's session-scoped event loop.
-        result = Result(_target)
-        thread = Thread(target=suppress(result, BaseException))
-        thread.start()
-        thread.join()
+    # Run this in a thread so as not to conflict with pytest-playwright-asyncio's session-scoped event loop.
+    result = Result(_target)
+    thread = Thread(target=suppress(result, BaseException))
+    thread.start()
+    thread.join()
 
     with pytest.raises(SystemExit) as exc_info:
         result.result()
@@ -132,11 +136,15 @@ class TestVerbosity:
             (Verbosity.MOST_VERBOSE, "-vvv"),
         ],
     )
-    async def test(self, expected: Verbosity, verbosity: str | None) -> None:
-        async with (
-            App.new_isolated(plugins={CommandDefinition: [_NoOpCommand]}) as app,
-            app,
-        ):
+    async def test(
+        self,
+        expected: Verbosity,
+        isolated_app_factory: IsolatedAppFactory,
+        verbosity: str | None,
+    ) -> None:
+        async with isolated_app_factory(
+            plugins={CommandDefinition: [_NoOpCommand]}
+        ) as app:
             args = ["no-op"]
             if verbosity is not None:
                 args.append(verbosity)

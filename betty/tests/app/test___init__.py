@@ -17,6 +17,8 @@ if TYPE_CHECKING:
 
     from pytest_mock import MockerFixture
 
+    from betty.test_utils.conftest import IsolatedAppFactory
+
 
 class _Manufacturable(Manufacturable):
     def __init__(self, app: App):
@@ -40,7 +42,8 @@ class TestApp:
         self, mocker: MockerFixture, tmp_path: Path
     ) -> None:
         mocker.patch("betty.app.data.AppConfiguration.FILE", tmp_path / "app.json")
-        await App.new_from_environment()
+        async with App.new_from_environment():
+            pass
 
     async def test_new_from_environment__with_configuration_file(
         self, mocker: MockerFixture, tmp_path: Path
@@ -49,20 +52,20 @@ class TestApp:
         async with aiofiles.open(tmp_path / "app.json", mode="w") as f:
             await f.write(dumps({"locale": "nl-NL"}))
         mocker.patch("betty.app.data.AppConfiguration.FILE", configuration_file)
-        async with await App.new_from_environment() as sut:
+        async with App.new_from_environment() as sut:
             localizer = await sut.localizer
             assert localizer.locale == Locale("nl", "NL")
 
     async def test_bootstrap__should_set_user_localizer(
-        self, isolated_app: App
+        self, isolated_app_factory: IsolatedAppFactory
     ) -> None:
         user = StaticUser()
-        async with App.new_isolated(user=user) as sut, sut:
+        async with isolated_app_factory(user=user) as sut:
             assert sut.user.localizer is await sut.localizer
 
-    async def test_user(self, isolated_app: App) -> None:
+    async def test_user(self, isolated_app_factory: IsolatedAppFactory) -> None:
         user = StaticUser()
-        async with App.new_isolated(user=user) as sut, sut:
+        async with isolated_app_factory(user=user) as sut:
             assert sut.user is user
 
     async def test_binary_file_cache(self, isolated_app: App) -> None:
