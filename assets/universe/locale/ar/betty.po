@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-03-30 00:48+0100\n"
+"POT-Creation-Date: 2026-03-30 01:48+0100\n"
 "PO-Revision-Date: 2026-02-17 18:12+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ar\n"
@@ -604,6 +604,12 @@ msgid "Do you want to add another locale?"
 msgstr ""
 
 msgid "Do you want to load a Gramps family tree?"
+msgstr ""
+
+msgid "Document provider"
+msgstr ""
+
+msgid "Document providers"
 msgstr ""
 
 msgid "Emigration"
@@ -2453,6 +2459,16 @@ msgstr[5] ""
 #, python-brace-format
 msgid "{count} divorce"
 msgid_plural "{count} divorces"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
+msgstr[4] ""
+msgstr[5] ""
+
+#, python-brace-format
+msgid "{count} document provider"
+msgid_plural "{count} document providers"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""

@@ -31,7 +31,7 @@ from betty.data import Data
 from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
 from betty.data.bool import BoolDefinition
 from betty.data.str import StrDefinition
-from betty.document import Document, DocumentProvider
+from betty.document import Document, DocumentProviderDefinition
 from betty.entity.collection.pool import EntityPool
 from betty.exception import HumanFacingException
 from betty.extension import Extension, ExtensionDefinition
@@ -96,6 +96,7 @@ the oldest verified person to ever have lived.
 type ProjectServicePlugin = (
     AssetDefinition
     | CssResourceDefinition
+    | DocumentProviderDefinition
     | EnricherDefinition
     | ExtensionDefinition
     | JinjaFilterDefinition
@@ -163,6 +164,7 @@ class Project(ChainedServiceLevel[App], ServicePluginProvider):
             service_plugin_types={
                 AssetDefinition,
                 CssResourceDefinition,
+                DocumentProviderDefinition,
                 EnricherDefinition,
                 ExtensionDefinition,
                 JinjaFilterDefinition,
@@ -603,9 +605,10 @@ class Project(ChainedServiceLevel[App], ServicePluginProvider):
             resource_url,
             **{
                 key: value
-                for extension in await self.extensions
-                if isinstance(extension, DocumentProvider)
-                for (key, value) in extension.new_document_vars().items()
+                for document_provider in (await self.service_plugins)[
+                    DocumentProviderDefinition
+                ]
+                for (key, value) in document_provider.new_document_vars().items()
             },
             **kwargs,
         )
