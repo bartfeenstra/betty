@@ -2,26 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from betty.html import (
-    NavigationLink,
-    generate_html_id,
-    newlines_to_paragraphs,
-    plain_text_to_html,
-)
-from betty.locale.localizable.plain import Plain
-from betty.locale.localize import DEFAULT_LOCALIZER
-
-
-class TestNavigationLink:
-    def test_url(self) -> None:
-        url = "https://example.com"
-        sut = NavigationLink(url, "Hello, world!")
-        assert sut.url.localize(DEFAULT_LOCALIZER) == url
-
-    def test_label(self) -> None:
-        label = Plain("Hello, world!")
-        sut = NavigationLink("https://example.com", label)
-        assert sut.label is label
+from betty.html import generate_html_id, newlines_to_paragraphs, plain_text_to_html
 
 
 @pytest.mark.parametrize(

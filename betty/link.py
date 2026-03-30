@@ -2,19 +2,28 @@
 An API for linking to web resources.
 """
 
-from abc import abstractmethod
-from typing import Any, Protocol, final, override
+from __future__ import annotations
 
-from betty.locale.localizable import Localizable
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, final, override
+
+from betty.classtools import Singleton
+from betty.locale.localizable import (
+    Localizable,
+    ResolvableLocalizable,
+    resolve_localizable,
+)
 from betty.locale.localizable.gettext import _, ngettext
-from betty.machine_name import ResolvableMachineName
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import Order, OrderedPluginDefinition
 from betty.service.plugin import ServicePluginDefinition
 
+if TYPE_CHECKING:
+    from betty.machine_name import ResolvableMachineName
 
-class LinkType(Protocol):
+
+class LinkType(ABC):
     """
     A link to a web resource.
     """
@@ -34,7 +43,7 @@ class LinkType(Protocol):
         """
 
 
-class Link(Plugin["LinkDefinition"]):
+class Link(Singleton, Plugin["LinkDefinition"]):
     """
     A link to a web resource.
     """
@@ -66,7 +75,7 @@ class LinkDefinition(OrderedPluginDefinition, ServicePluginDefinition[Link]):
         self._primary = primary
 
     @property
-    def link(self) -> Any:
+    def link(self) -> LinkType:
         """
         The link.
         """
@@ -90,3 +99,24 @@ class LinkManufacturer(PluginManufacturer[LinkDefinition, Link]):
     @classmethod
     def plugin_type(cls) -> type[LinkDefinition]:
         return LinkDefinition
+
+
+@final
+class StaticLink(LinkType):
+    """
+    A static link.
+    """
+
+    def __init__(self, url: ResolvableLocalizable, label: ResolvableLocalizable):
+        self._url = resolve_localizable(url)
+        self._label = resolve_localizable(label)
+
+    @override
+    @property
+    def url(self) -> Localizable:
+        return self._url
+
+    @override
+    @property
+    def label(self) -> Localizable:
+        return self._label
