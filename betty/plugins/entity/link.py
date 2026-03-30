@@ -13,6 +13,7 @@ from betty.entity.association import (
 from betty.entity.has_description import HasDescription
 from betty.entity.has_media_type import HasMediaType
 from betty.json.schema import String
+from betty.link import LinkType
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.property import LocalizableProperty
@@ -37,7 +38,7 @@ if TYPE_CHECKING:
     label_countable=ngettext("{count} link", "{count} links"),
     public_facing=False,
 )
-class Link(HasMediaType, HasDescription, HasPrivacy, Entity):
+class Link(LinkType, HasMediaType, HasDescription, HasPrivacy, Entity):
     """
     .. plugin:: entity:link.
     """
@@ -79,11 +80,9 @@ class Link(HasMediaType, HasDescription, HasPrivacy, Entity):
         if owner is not None:
             self.owner = owner
 
+    @override
     @property
     def url(self) -> Localizable:
-        """
-        The URL the link points to.
-        """
         return self._url
 
     @url.setter
@@ -93,9 +92,6 @@ class Link(HasMediaType, HasDescription, HasPrivacy, Entity):
     @override
     @property
     def label(self) -> Localizable:
-        """
-        The human-readable short link label.
-        """
         return self.url if self._label is None else self._label
 
     @label.setter

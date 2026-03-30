@@ -5,41 +5,9 @@ Provide the HTML API, for generating HTML pages.
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, final
 from uuid import uuid4
 
 from markupsafe import escape
-
-from betty.locale.localizable import resolve_localizable
-
-if TYPE_CHECKING:
-    from betty.locale.localizable import Localizable, ResolvableLocalizable
-
-
-@final
-class NavigationLink:
-    """
-    A navigation link.
-    """
-
-    def __init__(self, url: ResolvableLocalizable, label: ResolvableLocalizable):
-        self._url = resolve_localizable(url)
-        self._label = resolve_localizable(label)
-
-    @property
-    def url(self) -> Localizable:
-        """
-        The URL the link points to.
-        """
-        return self._url
-
-    @property
-    def label(self) -> Localizable:
-        """
-        The human-readable short link label.
-        """
-        return self._label
-
 
 _paragraph_re = re.compile(r"(?:\r\n|\r|\n){2,}")
 
