@@ -25,10 +25,18 @@ from typing import (
 )
 
 from betty.json.linked_data import LinkedDataDumpable
+from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 from betty.media_type.media_types import HTML
-from betty.plugin import ResolvablePluginId, resolve_plugin_id
+from betty.plugin import (
+    Plugin,
+    PluginTypeDefinition,
+    ResolvablePluginId,
+    resolve_plugin_id,
+)
+from betty.plugin.factory import PluginManufacturer
 from betty.portable import PortableMapping
+from betty.service.plugin import ServicePluginDefinition
 
 if TYPE_CHECKING:
     from betty.entity import Entity
@@ -176,7 +184,7 @@ class Document:
         )
 
 
-class DocumentProvider:
+class DocumentProvider(Plugin["DocumentProviderDefinition"]):
     """
     Provide new documents.
     """
@@ -188,6 +196,33 @@ class DocumentProvider:
         Keys are the variable names, and values are variable values.
         """
         return {}
+
+
+@final
+@PluginTypeDefinition(
+    "document-provider",
+    label=_("Document provider"),
+    label_plural=_("Document providers"),
+    label_countable=ngettext("{count} document provider", "{count} document providers"),
+)
+class DocumentProviderDefinition(ServicePluginDefinition[DocumentProvider]):
+    """
+    .. plugin_type:: document-provider.
+    """
+
+
+@final
+class DocumentProviderManufacturer(
+    PluginManufacturer[DocumentProviderDefinition, DocumentProvider]
+):
+    """
+    The document provider manufacturer.
+    """
+
+    @override
+    @classmethod
+    def plugin_type(cls) -> type[DocumentProviderDefinition]:
+        return DocumentProviderDefinition
 
 
 @final

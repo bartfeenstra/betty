@@ -11,13 +11,14 @@ from jinja2 import pass_context
 
 from betty.jinja import JinjaFilterDefinition, context_document
 from betty.jinja.filter import JinjaFilter
+from betty.plugins.document_provider.webpack import Webpack
 
 if TYPE_CHECKING:
     from jinja2.runtime import Context
 
 
 @final
-@JinjaFilterDefinition("webpack-entry-point-js")
+@JinjaFilterDefinition("webpack-entry-point-js", requires={Webpack})
 class WebpackEntryPointJs(JinjaFilter):
     """
     Add a Webpack entry point's JavaScript files to the current page.

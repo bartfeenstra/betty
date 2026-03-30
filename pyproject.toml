@@ -82,6 +82,7 @@ betty = 'betty.console:main_standalone'
 'content' = 'betty.content:ContentDefinition'
 'copyright-notice' = 'betty.copyright_notice:CopyrightNoticeDefinition'
 'css-resource' = 'betty.html.css:CssResourceDefinition'
+'document-provider' = 'betty.document:DocumentProviderDefinition'
 'enricher' = 'betty.load:EnricherDefinition'
 'entity' = 'betty.entity:EntityDefinition'
 'event-type' = 'betty.event_type:EventTypeDefinition'
@@ -132,6 +133,9 @@ betty = 'betty.console:main_standalone'
 
 [project.entry-points.'betty.css_resource']
 'webpack' = 'betty.plugins.css_resource.webpack:Webpack'
+
+[project.entry-points.'betty.document_provider']
+'webpack' = 'betty.plugins.document_provider.webpack:Webpack'
 
 [project.entry-points.'betty.license']
 'all-rights-reserved' = 'betty.plugins.license.all_rights_reserved:AllRightsReserved'

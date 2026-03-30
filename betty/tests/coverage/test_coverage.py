@@ -707,6 +707,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/plugins/css_resource/webpack.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/document_provider/webpack/__init__.py": {
+        "Webpack": {
+            "plugin": MissingReason.INHERITED,
+        },
+    },
     "betty/plugins/enricher/deriver/__init__.py": {
         "Deriver": {
             "plugin": MissingReason.INHERITED,
@@ -1147,6 +1152,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/document.py": {
         "DocumentProvider": MissingReason.STATIC_CONTENT_ONLY,
+        "DocumentProviderDefinition": MissingReason.STATIC_CONTENT_ONLY,
+        "DocumentProviderManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/rich/user.py": {
         "RichUser": {

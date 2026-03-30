@@ -4,7 +4,6 @@ import aiofiles
 from pytest_mock import MockerFixture
 
 from betty.plugins.extension.webpack import Webpack
-from betty.project import Project
 from betty.project.generate import generate
 from betty.test_utils.conftest import IsolatedProjectFactory
 
@@ -32,7 +31,3 @@ class TestWebpack:
 
             async with aiofiles.open(project.www_directory / self._SENTINEL) as f:
                 assert await f.read() == self._SENTINEL
-
-    async def test_new_document_vars(self, isolated_project: Project) -> None:
-        sut = await Webpack.new(isolated_project)
-        assert sut.new_document_vars()

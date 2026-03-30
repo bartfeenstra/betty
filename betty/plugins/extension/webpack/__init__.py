@@ -7,7 +7,6 @@ from __future__ import annotations
 from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.document import DocumentProvider, DocumentVars
 from betty.extension import Extension, ExtensionDefinition
 from betty.plugins.asset.webpack import Webpack as WebpackAsset
 from betty.plugins.css_resource.webpack import Webpack as WebpackCssResource
@@ -37,7 +36,7 @@ if TYPE_CHECKING:
         WebpackEntryPointLoader,
     },
 )
-class Webpack(Generator, Extension, DocumentProvider, Manufacturable):
+class Webpack(Generator, Extension, Manufacturable):
     """
     .. plugin:: extension:webpack.
     """
@@ -63,12 +62,6 @@ class Webpack(Generator, Extension, DocumentProvider, Manufacturable):
                 www_directory=self._project.www_directory,
             )
         )
-
-    @override
-    def new_document_vars(self) -> DocumentVars:
-        return {
-            "webpack_js_entry_points": set(),
-        }
 
     @service
     async def builder(self) -> build.Builder:
