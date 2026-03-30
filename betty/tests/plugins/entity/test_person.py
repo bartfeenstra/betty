@@ -5,7 +5,8 @@ from typing import TYPE_CHECKING, Any, cast, override
 import pytest
 
 from betty.entity import Entity
-from betty.entity.association import AssociationRequired, TemporaryToOneResolver
+from betty.entity.association import AssociationRequired
+from betty.entity.reference import EntityReference
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, to_language_tag
 from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.event import Event
@@ -66,14 +67,16 @@ class TestPerson(EntityTestBase):
 
     def test___init____with_presences(self) -> None:
         event = Event(event_type=Birth())
-        presence = Presence(TemporaryToOneResolver(), Subject(), event)
+        presence = Presence(
+            EntityReference(Person, "my-first-person"), Subject(), event
+        )
         sut = Person(presences=[presence])
         assert list(sut.presences) == [presence]
         assert sut == presence.person
 
     def test___init____with_names(self) -> None:
         name = PersonName(
-            person=TemporaryToOneResolver(),
+            person=EntityReference(Person, "my-first-person"),
             individual="Janet",
             affiliation="Not a Girl",
         )

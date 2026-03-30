@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, override
-
-import pytest
+from typing import TYPE_CHECKING
 
 from betty.entity import Entity, EntityDefinition
 from betty.entity.association import (
@@ -13,13 +11,6 @@ from betty.entity.association import (
     BidirectionalToManySingleType,
     BidirectionalToOne,
     BidirectionalToZeroOrOne,
-    TemporaryToManyResolver,
-    TemporaryToOneResolver,
-    TemporaryToZeroOrOneResolver,
-    ToManyResolver,
-    ToOneResolver,
-    ToZeroOrOneAssociate,
-    ToZeroOrOneResolver,
     UnidirectionalToManyMultipleTypes,
     UnidirectionalToManySingleType,
     UnidirectionalToOne,
@@ -31,38 +22,9 @@ from betty.test_utils.locale.localizable import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
     from betty.portable import PortableMapping
     from betty.project import Project
     from betty.test_utils.conftest import AssertDumpsLinkedDataFor
-
-
-class _PassthroughToOneResolver[EntityT: Entity](ToOneResolver[EntityT]):
-    def __init__(self, entity: EntityT):
-        self._entity = entity
-
-    @override
-    def resolve(self) -> EntityT:
-        return self._entity
-
-
-class _PassthroughToZeroOrOneResolver[EntityT: Entity](ToZeroOrOneResolver[EntityT]):
-    def __init__(self, entity: EntityT | None):
-        self._entity = entity
-
-    @override
-    def resolve(self) -> EntityT | None:
-        return self._entity
-
-
-class _PassthroughToManyResolver[EntityT: Entity](ToManyResolver[EntityT]):
-    def __init__(self, *entities: EntityT):
-        self._entities = entities
-
-    @override
-    def resolve(self) -> Iterable[EntityT]:
-        return self._entities
 
 
 class TestAssociationRegistry:
@@ -176,9 +138,7 @@ class TestUnidirectionalToZeroOrOne:
     class _Owner(Entity):
         def __init__(
             self,
-            associate: ToZeroOrOneAssociate[
-                TestUnidirectionalToZeroOrOne._Associate
-            ] = None,
+            associate: Associate[TestUnidirectionalToZeroOrOne._Associate] = None,
         ):
             super().__init__()
             self.associate = associate
@@ -361,9 +321,7 @@ class TestBidirectionalToZeroOrOne:
     class _Owner(Entity):
         def __init__(
             self,
-            associate: ToZeroOrOneAssociate[
-                TestBidirectionalToZeroOrOne._Associate
-            ] = None,
+            associate: Associate[TestBidirectionalToZeroOrOne._Associate] = None,
         ):
             super().__init__()
             self.associate = associate
@@ -1326,24 +1284,3 @@ class TestAssociationRequired:
         association = self._Owner.associate
         owner = self._Owner()
         AssociationRequired(association, owner)
-
-
-class TestTemporaryToZeroOrOneResolver:
-    def test_resolve(self) -> None:
-        sut = TemporaryToZeroOrOneResolver[Entity]()
-        with pytest.raises(RuntimeError):
-            sut.resolve()
-
-
-class TestTemporaryToOneResolver:
-    def test_resolve(self) -> None:
-        sut = TemporaryToOneResolver[Entity]()
-        with pytest.raises(RuntimeError):
-            sut.resolve()
-
-
-class TestTemporaryToManyResolver:
-    def test_resolve(self) -> None:
-        sut = TemporaryToManyResolver[Entity]()
-        with pytest.raises(RuntimeError):
-            sut.resolve()

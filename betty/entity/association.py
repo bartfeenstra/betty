@@ -120,7 +120,9 @@ class _Association[OwnerT: Entity, AssociateT: Entity](LinkedDataDumper[OwnerT])
         )
 
     @abstractmethod
-    def resolve(self, owner: OwnerT, /) -> None:
+    def resolve(
+        self, entities: MultipleTypesEntityCollection, owner: OwnerT, /
+    ) -> None:
         """
         Resolve any associates the owner may have for this association.
         """
@@ -331,7 +333,9 @@ class _ToManyAssociation[
         yield from self.__get__(owner, type(owner))
 
     @override
-    def resolve(self, owner: OwnerT, /) -> None:
+    def resolve(
+        self, entities: MultipleTypesEntityCollection, owner: OwnerT, /
+    ) -> None:
         value = getattr(owner, self._internal_owner_attr_name, None)
         if isinstance(value, EntityReference):
             collection = self._new_collection(owner)
@@ -418,8 +422,8 @@ class BidirectionalToZeroOrOne[OwnerT: Entity, AssociateT: Entity](
     _ToZeroOrOneAssociation[OwnerT, AssociateT],
     _BidirectionalAssociation[OwnerT, AssociateT],
 ):
-    r"""
-    A bidirectional \\*-to-zero-or-one entity type association.
+    """
+    A bidirectional *-to-zero-or-one entity type association.
     """
 
     @override
@@ -434,7 +438,9 @@ class BidirectionalToZeroOrOne[OwnerT: Entity, AssociateT: Entity](
             self.inverse().associate(value, instance)
 
     @override
-    def resolve(self, owner: OwnerT, /) -> None:
+    def resolve(
+        self, entities: MultipleTypesEntityCollection, owner: OwnerT, /
+    ) -> None:
         value = getattr(owner, self._internal_owner_attr_name, None)
         if isinstance(value, EntityReference):
             associate = value.resolve()
@@ -448,12 +454,14 @@ class BidirectionalToOne[OwnerT: Entity, AssociateT: Entity](
     _ToOneAssociation[OwnerT, AssociateT],
     _BidirectionalAssociation[OwnerT, AssociateT],
 ):
-    r"""
-    A bidirectional \\*-to-one entity type association.
+    """
+    A bidirectional *-to-one entity type association.
     """
 
     @override
-    def resolve(self, owner: OwnerT, /) -> None:
+    def resolve(
+        self, entities: MultipleTypesEntityCollection, owner: OwnerT, /
+    ) -> None:
         value = getattr(owner, self._internal_owner_attr_name, None)
         if value is None:
             raise AssociationRequired(self, owner)
@@ -484,8 +492,8 @@ class BidirectionalToManySingleType[OwnerT: Entity, AssociateT: Entity](
     _ToManyAssociation[OwnerT, AssociateT, SingleTypeEntityCollection[AssociateT]],
     _BidirectionalAssociation[OwnerT, AssociateT],
 ):
-    r"""
-    A bidirectional \\*-to-many entity type association where all associates are of the same entity type.
+    """
+    A bidirectional *-to-many entity type association where all associates are of the same entity type.
     """
 
     @override
@@ -500,8 +508,8 @@ class BidirectionalToManyMultipleTypes[OwnerT: Entity, AssociateT: Entity](
     _ToManyAssociation[OwnerT, AssociateT, MultipleTypesEntityCollection[AssociateT]],
     _BidirectionalAssociation[OwnerT, AssociateT],
 ):
-    r"""
-    A bidirectional \\*-to-many entity type association where associates may be of different entity types.
+    """
+    A bidirectional *-to-many entity type association where associates may be of different entity types.
     """
 
     @override
@@ -523,7 +531,9 @@ class UnidirectionalToZeroOrOne[OwnerT: Entity, AssociateT: Entity](
     """
 
     @override
-    def resolve(self, owner: OwnerT, /) -> None:
+    def resolve(
+        self, entities: MultipleTypesEntityCollection, owner: OwnerT, /
+    ) -> None:
         value = getattr(owner, self._internal_owner_attr_name, None)
         if isinstance(value, EntityReference):
             setattr(owner, self._internal_owner_attr_name, value.resolve())
@@ -538,7 +548,9 @@ class UnidirectionalToOne[OwnerT: Entity, AssociateT: Entity](
     """
 
     @override
-    def resolve(self, owner: OwnerT, /) -> None:
+    def resolve(
+        self, entities: MultipleTypesEntityCollection, owner: OwnerT, /
+    ) -> None:
         value = getattr(owner, self._internal_owner_attr_name, None)
         if value is None:
             raise AssociationRequired(self, owner)
@@ -668,7 +680,7 @@ class _BidirectionalMultipleTypesAssociateCollection[
     pass
 
 
-def resolve(*entities: Entity) -> None:
+def resolve(entities: MultipleTypesEntityCollection, /) -> None:
     """
     Resolve all entities' associates.
 
@@ -676,7 +688,7 @@ def resolve(*entities: Entity) -> None:
     """
     for entity in entities:
         for association in AssociationRegistry.get_all_associations(entity):
-            association.resolve(entity)
+            association.resolve(entities, entity)
 
 
 type Associate[EntityT: Entity] = EntityT | EntityReference

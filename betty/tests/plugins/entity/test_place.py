@@ -6,7 +6,8 @@ import pytest
 from geopy import Point
 
 from betty.entity import Entity
-from betty.entity.association import AssociationRequired, TemporaryToOneResolver
+from betty.entity.association import AssociationRequired
+from betty.entity.reference import EntityReference
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, to_language_tag
 from betty.plugins.entity.enclosure import Enclosure
 from betty.plugins.entity.event import Event
@@ -48,13 +49,17 @@ class TestPlace(EntityTestBase):
         assert event.place is sut
 
     def test___init____with_enclosers(self) -> None:
-        enclosure = Enclosure(enclosee=TemporaryToOneResolver(), encloser=Place())
+        enclosure = Enclosure(
+            enclosee=EntityReference(Place, "my-first-place"), encloser=Place()
+        )
         sut = Place(enclosers=[enclosure])
         assert list(sut.enclosers) == [enclosure]
         assert enclosure.enclosee is sut
 
     def test___init____with_enclosees(self) -> None:
-        enclosure = Enclosure(enclosee=Place(), encloser=TemporaryToOneResolver())
+        enclosure = Enclosure(
+            enclosee=Place(), encloser=EntityReference(Place, "my-first-place")
+        )
         sut = Place(enclosees=[enclosure])
         assert list(sut.enclosees) == [enclosure]
         assert enclosure.encloser is sut

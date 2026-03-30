@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from betty.entity.association import TemporaryToOneResolver
+from betty.entity import Entity
+from betty.entity.reference import EntityReference
 from betty.plugins.entity.file import File
 from betty.plugins.entity.file_reference import FileReference
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
@@ -12,8 +13,12 @@ class TestHasFileReferences:
     def test___init___with_file_references(self) -> None:
         file_one = File(path=Path())
         file_two = File(path=Path())
-        file_reference_1 = FileReference(TemporaryToOneResolver(), file_one)
-        file_reference_2 = FileReference(TemporaryToOneResolver(), file_two)
+        file_reference_1 = FileReference(
+            EntityReference(Entity, "my-first-entity"), file_one
+        )
+        file_reference_2 = FileReference(
+            EntityReference(Entity, "my-first-entity"), file_two
+        )
         sut = DummyHasFileReferences(
             file_references=[file_reference_1, file_reference_2]
         )

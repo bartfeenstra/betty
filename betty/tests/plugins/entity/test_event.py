@@ -4,7 +4,8 @@ from typing import TYPE_CHECKING, Any, cast, override
 
 from betty.date import Date, DateRange
 from betty.entity import Entity
-from betty.entity.association import AssociationRequired, TemporaryToOneResolver
+from betty.entity.association import AssociationRequired
+from betty.entity.reference import EntityReference
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugins.entity.citation import Citation
@@ -36,7 +37,11 @@ class TestEvent(EntityTestBase):
             Event(description="My First Event"),
             Event(
                 description="My First Event",
-                presences=[Presence(Person(), Subject(), TemporaryToOneResolver())],
+                presences=[
+                    Presence(
+                        Person(), Subject(), EntityReference(Event, "my-first-event")
+                    )
+                ],
             ),
         ]
 
@@ -51,7 +56,9 @@ class TestEvent(EntityTestBase):
         assert sut.place is place
 
     def test___init____with_presences(self) -> None:
-        presence = Presence(Person(), Subject(), TemporaryToOneResolver())
+        presence = Presence(
+            Person(), Subject(), EntityReference(Event, "my-first-event")
+        )
         sut = Event(presences=[presence])
         assert presence in sut.presences
         assert presence.event is sut

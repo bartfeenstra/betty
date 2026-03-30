@@ -2,7 +2,8 @@ from pathlib import Path
 
 from PIL import Image
 
-from betty.entity.association import TemporaryToOneResolver
+from betty.entity import Entity
+from betty.entity.reference import EntityReference
 from betty.media_type import MediaType
 from betty.plugins.asset.raspberry_mint import RaspberryMint
 from betty.plugins.entity.file import File
@@ -29,7 +30,7 @@ async def test_with_public_file_references(
     image = Image.new("1", (1, 1))
     image.save(image_path)
     file = File(image_path, media_type=MediaType("image/png"))
-    file_reference = FileReference(TemporaryToOneResolver(), file)
+    file_reference = FileReference(EntityReference(Entity, "my-first-entity"), file)
     async with assert_template_file(
         data={
             "file_references": [file_reference],
@@ -47,7 +48,7 @@ async def test_without_public_file_references(
     image = Image.new("1", (1, 1))
     image.save(image_path)
     file = File(image_path, media_type=MediaType("image/png"), privacy=Privacy.PRIVATE)
-    file_reference = FileReference(TemporaryToOneResolver(), file)
+    file_reference = FileReference(EntityReference(Entity, "my-first-entity"), file)
     async with assert_template_file(
         data={
             "file_references": [file_reference],
