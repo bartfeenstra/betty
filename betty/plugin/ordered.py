@@ -4,10 +4,11 @@ Plugins that can declare their order.
 
 from __future__ import annotations
 
-from collections.abc import Set
+from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any, final
 
 from betty.machine_name import MachineName, ResolvableMachineName
+from betty.plugin import PluginDefinition
 from betty.plugin.cls import PluginClsDefinition
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 
@@ -17,17 +18,17 @@ if TYPE_CHECKING:
     from betty.requirement import Requires
 
 
-class OrderedPluginDefinition[BaseClsT](PluginClsDefinition[BaseClsT]):
+class OrderedPluginDefinition(PluginDefinition):
     """
-    A definition of plugin that can declare its order with respect to other plugins.
+    A plugin definition that can declare its order with respect to other plugin definitions.
     """
 
     def __init__(
         self,
         plugin_id: ResolvableMachineName,
         *,
-        after: Order[OrderedPluginDefinition[BaseClsT]] | None = None,
-        before: Order[OrderedPluginDefinition[BaseClsT]] | None = None,
+        after: Order[OrderedPluginDefinition] = (),
+        before: Order[OrderedPluginDefinition] = (),
         requires: Requires = (),
         **kwargs: Any,
     ):
@@ -35,13 +36,11 @@ class OrderedPluginDefinition[BaseClsT](PluginClsDefinition[BaseClsT]):
         self._after = self.__resolve_order(after)
         self._before = self.__resolve_order(before)
 
-    def __resolve_order(self, order: Order | None) -> Callable[[MachineName], bool]:
-        if order is None:
-            return lambda _: False
-        if isinstance(order, Set):
-            order = {resolve_plugin_id(plugin) for plugin in order}
-            return lambda other: other in order
-        return order
+    def __resolve_order(self, order: Order) -> Callable[[MachineName], bool]:
+        if callable(order):
+            return order  # ty:ignore[invalid-return-type]
+        order = {resolve_plugin_id(plugin) for plugin in order}
+        return lambda other: other in order
 
     @final
     def after(self, other: MachineName, /) -> bool:
@@ -58,6 +57,30 @@ class OrderedPluginDefinition[BaseClsT](PluginClsDefinition[BaseClsT]):
         return self._before(other)
 
 
+class OrderedPluginClsDefinition[BaseClsT](
+    OrderedPluginDefinition, PluginClsDefinition[BaseClsT]
+):
+    """
+    A definition of a classed plugin that can declare its order with respect to other plugins.
+    """
+
+    def __init__(
+        self,
+        plugin_id: ResolvableMachineName,
+        *,
+        after: Order[OrderedPluginClsDefinition[BaseClsT]] = (),
+        before: Order[OrderedPluginClsDefinition[BaseClsT]] = (),
+        requires: Requires = (),
+        **kwargs: Any,
+    ):
+        super().__init__(
+            plugin_id, after=after, before=before, requires=requires, **kwargs
+        )
+
+
 type Order[
     OrderedPluginDefinitionT: OrderedPluginDefinition = OrderedPluginDefinition
-] = Set[ResolvablePluginId[OrderedPluginDefinitionT]] | Callable[[MachineName], bool]
+] = (
+    Callable[[MachineName], bool]
+    | Iterable[ResolvablePluginId[OrderedPluginDefinitionT]]
+)

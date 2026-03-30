@@ -466,6 +466,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "data": MissingReason.INHERITED,
         },
     },
+    "betty/plugin/assertion.py": {
+        "assert_plugin": MissingReason.SHOULD_BE_COVERED,
+    },
     "betty/plugin/cls.py": {
         "Plugin": MissingReason.ABSTRACT,
         "PluginClsDefinition": MissingReason.SHOULD_BE_COVERED,
@@ -479,8 +482,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/plugin/discovery/__init__.py": {
         "PluginDiscovery": MissingReason.ABSTRACT,
     },
-    "betty/plugin/assertion.py": {
-        "assert_plugin": MissingReason.SHOULD_BE_COVERED,
+    "betty/plugin/ordered.py": {
+        "OrderedPluginClsDefinition": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/plugins/asset/http_api_doc.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/asset/maps.py": MissingReason.STATIC_CONTENT_ONLY,

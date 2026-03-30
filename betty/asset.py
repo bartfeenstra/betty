@@ -17,7 +17,10 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer
-from betty.plugin.ordered import Order, OrderedPluginDefinition
+from betty.plugin.ordered import (
+    Order,
+    OrderedPluginClsDefinition,
+)
 from betty.service.plugin.service import ServicePluginDefinition
 from betty.typing import threadsafe
 
@@ -178,7 +181,9 @@ class Asset(Plugin["AssetDefinition"]):
     label_plural=_("Assets"),
     label_countable=ngettext("{count} asset", "{count} assets"),
 )
-class AssetDefinition(OrderedPluginDefinition[Asset], ServicePluginDefinition[Asset]):
+class AssetDefinition(
+    OrderedPluginClsDefinition[Asset], ServicePluginDefinition[Asset]
+):
     """
     .. plugin_type:: asset.
     """
@@ -187,10 +192,10 @@ class AssetDefinition(OrderedPluginDefinition[Asset], ServicePluginDefinition[As
         self,
         plugin_id: ResolvableMachineName,
         *,
-        after: Order | None = None,
+        after: Order[AssetDefinition] = (),
         assets: Path,
         auto: bool = False,
-        before: Order | None = None,
+        before: Order[AssetDefinition] = (),
         requires: Requires = (),
     ):
         super().__init__(
