@@ -8,9 +8,9 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.entity import EntityDefinition
 from betty.entity.association import (
+    Associates,
     BidirectionalToManySingleType,
     BidirectionalToZeroOrOne,
-    ToManyAssociates,
     ToZeroOrOneAssociate,
 )
 from betty.entity.has_citations import HasCitations
@@ -99,13 +99,13 @@ class Event(
         id: str | None = None,  # noqa: A002
         event_type: EventType | None = None,
         date: ResolvableDate | None = None,
-        file_references: ToManyAssociates[FileReference] | None = None,
-        citations: ToManyAssociates[Citation] | None = None,
-        notes: ToManyAssociates[Note] | None = None,
+        file_references: Associates[FileReference] | None = None,
+        citations: Associates[Citation] | None = None,
+        notes: Associates[Note] | None = None,
         privacy: Privacy | None = None,
         place: ToZeroOrOneAssociate[Place] = None,
         description: ResolvableLocalizable | None = None,
-        presences: ToManyAssociates[Presence] | None = None,
+        presences: Associates[Presence] | None = None,
         name: ResolvableLocalizable | None = None,
     ):
         super().__init__(

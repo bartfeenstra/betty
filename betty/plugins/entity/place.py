@@ -8,7 +8,7 @@ from contextlib import suppress
 from typing import TYPE_CHECKING, final, override
 
 from betty.entity import EntityDefinition
-from betty.entity.association import BidirectionalToManySingleType, ToManyAssociates
+from betty.entity.association import Associates, BidirectionalToManySingleType
 from betty.entity.has_file_references import HasFileReferences
 from betty.entity.has_links import HasLinks
 from betty.entity.has_notes import HasNotes
@@ -84,10 +84,10 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
         *,
         id: str | None = None,  # noqa: A002
         names: MutableSequence[PlaceName] | None = None,
-        events: ToManyAssociates[Event] | None = None,
-        enclosers: ToManyAssociates[Enclosure] | None = None,
-        enclosees: ToManyAssociates[Enclosure] | None = None,
-        notes: ToManyAssociates[Note] | None = None,
+        events: Associates[Event] | None = None,
+        enclosers: Associates[Enclosure] | None = None,
+        enclosees: Associates[Enclosure] | None = None,
+        notes: Associates[Note] | None = None,
         coordinates: Point | None = None,
         links: MutableSequence[Link] | None = None,
         privacy: Privacy | None = None,

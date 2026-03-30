@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, final, override
 from urllib.parse import quote
 
 from betty.entity import EntityDefinition, persistent_id
-from betty.entity.association import BidirectionalToManySingleType, ToManyAssociates
+from betty.entity.association import Associates, BidirectionalToManySingleType
 from betty.entity.has_citations import HasCitations
 from betty.entity.has_file_references import HasFileReferences
 from betty.entity.has_links import HasLinks
@@ -92,15 +92,15 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
         self,
         id: str | None = None,  # noqa: A002
         *,
-        file_references: ToManyAssociates[FileReference] | None = None,
-        citations: ToManyAssociates[Citation] | None = None,
+        file_references: Associates[FileReference] | None = None,
+        citations: Associates[Citation] | None = None,
         links: MutableSequence[Link] | None = None,
-        notes: ToManyAssociates[Note] | None = None,
+        notes: Associates[Note] | None = None,
         privacy: Privacy | None = None,
-        parents: ToManyAssociates[Person] | None = None,
-        children: ToManyAssociates[Person] | None = None,
-        presences: ToManyAssociates[Presence] | None = None,
-        names: ToManyAssociates[PersonName] | None = None,
+        parents: Associates[Person] | None = None,
+        children: Associates[Person] | None = None,
+        presences: Associates[Presence] | None = None,
+        names: Associates[PersonName] | None = None,
         gender: Gender | None = None,
     ):
         super().__init__(

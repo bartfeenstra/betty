@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final, override
 
 from betty.entity import Entity, EntityDefinition
-from betty.entity.association import BidirectionalToOne, ToOneAssociate
+from betty.entity.association import Associate, BidirectionalToOne
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin.schema import PluginIdSchema
 from betty.privacy import HasPrivacy, Privacy, is_public, merge_secondary_privacies
@@ -62,9 +62,9 @@ class Presence(HasPrivacy, Entity):
 
     def __init__(
         self,
-        person: ToOneAssociate[Person],
+        person: Associate[Person],
         role: Role,
-        event: ToOneAssociate[Event],
+        event: Associate[Event],
         *,
         privacy: Privacy | None = None,
     ):

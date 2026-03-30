@@ -6,6 +6,7 @@ import pytest
 
 from betty.entity import Entity, EntityDefinition
 from betty.entity.association import (
+    Associate,
     AssociationRegistry,
     AssociationRequired,
     BidirectionalToManyMultipleTypes,
@@ -16,7 +17,6 @@ from betty.entity.association import (
     TemporaryToOneResolver,
     TemporaryToZeroOrOneResolver,
     ToManyResolver,
-    ToOneAssociate,
     ToOneResolver,
     ToZeroOrOneAssociate,
     ToZeroOrOneResolver,
@@ -568,9 +568,7 @@ class TestUnidirectionalToOne:
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _Owner(Entity):
-        def __init__(
-            self, associate: ToOneAssociate[TestUnidirectionalToOne._Associate]
-        ):
+        def __init__(self, associate: Associate[TestUnidirectionalToOne._Associate]):
             super().__init__()
             self.associate = associate
 
@@ -708,9 +706,7 @@ class TestBidirectionalToOne:
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _Owner(Entity):
-        def __init__(
-            self, associate: ToOneAssociate[TestBidirectionalToOne._Associate]
-        ):
+        def __init__(self, associate: Associate[TestBidirectionalToOne._Associate]):
             super().__init__()
             self.associate = associate
 

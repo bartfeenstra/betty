@@ -5,17 +5,16 @@ Entity associations.
 from __future__ import annotations
 
 import weakref
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any, Self, cast, final, overload, override
 from urllib.parse import quote
 
 from betty.entity import Entity, persistent_id
-from betty.entity.collection import (
-    EntityCollection,
-)
+from betty.entity.collection import EntityCollection
 from betty.entity.collection.multiple import MultipleTypesEntityCollection
 from betty.entity.collection.single import SingleTypeEntityCollection
+from betty.entity.reference import EntityReference
 from betty.entity.schema import ToManySchema, ToZeroOrOneSchema
 from betty.importlib import fully_qualified_name, import_any
 from betty.json.linked_data import LinkedDataDumper
@@ -50,75 +49,6 @@ class AssociationRequired[OwnerT: Entity](RuntimeError):
         super().__init__(
             f"Association {fully_qualified_name(association.owner_type)}.{association.owner_attr_name} is required, but missing for {owner}."
         )
-
-
-class _Resolver[T](ABC):
-    @abstractmethod
-    def resolve(self) -> T:
-        """
-        Return the resolved entity or entities.
-
-        :raises ResolutionError: Raised if resolution failed.
-        """
-
-
-class ToZeroOrOneResolver[EntityT: Entity](_Resolver[EntityT | None]):
-    """
-    An object that can optionally resolve to an entity.
-    """
-
-
-class ToOneResolver[EntityT: Entity](_Resolver[EntityT]):
-    """
-    An object that can resolve to an entity.
-    """
-
-
-class ToManyResolver[EntityT: Entity](_Resolver[Iterable[EntityT]]):
-    """
-    An object that can resolve to a collection of entities.
-    """
-
-
-class _TemporaryResolver[T](_Resolver[T]):
-    @override
-    def resolve(self) -> T:
-        raise RuntimeError(
-            "This temporary resolver was supposed to be replaced. It intentionally cannot resolve itself."
-        )
-
-
-class TemporaryToZeroOrOneResolver[EntityT: Entity](
-    _TemporaryResolver[EntityT | None], ToZeroOrOneResolver[EntityT]
-):
-    """
-    A 'temporary' to-zero-or-one resolver.
-
-    This is helpful to satisfy association requirements in multiple steps. Users **MUST** ensure that this resolver
-    is replaced by a real value, because the resolver will never be able to resolve itself.
-    """
-
-
-class TemporaryToOneResolver[EntityT: Entity](
-    _TemporaryResolver[EntityT], ToOneResolver[EntityT]
-):
-    """
-    A 'temporary' to-one resolver.
-
-    This is helpful to satisfy association requirements in multiple steps. Users **MUST** ensure that this resolver
-    is replaced by a real value, because the resolver will never be able to resolve itself.
-    """
-
-
-class TemporaryToManyResolver[EntityT: Entity](
-    _TemporaryResolver[Iterable[EntityT]], ToManyResolver[EntityT]
-):
-    """
-    A 'temporary' to-many resolver.
-
-    This is helpful to satisfy association requirements in multiple steps. Users **MUST** ensure that this resolver
-    is replaced by a real value, because the resolver will never be able to resolve itself.
-    """
 
 
 class _Association[OwnerT: Entity, AssociateT: Entity](LinkedDataDumper[OwnerT]):
@@ -246,10 +176,10 @@ class _ToOneAssociation[OwnerT: Entity, AssociateT: Entity](
         else:
             if value is None:
                 raise AssociationRequired(self, instance)
-            assert not isinstance(value, _Resolver)
+            assert not isinstance(value, EntityReference)
             return cast(AssociateT, value)
 
-    def __set__(self, instance: OwnerT, value: ToOneAssociate[AssociateT]) -> None:
+    def __set__(self, instance: OwnerT, value: Associate[AssociateT]) -> None:
         setattr(instance, self._internal_owner_attr_name, value)
 
     @override
@@ -306,12 +236,10 @@ class _ToZeroOrOneAssociation[OwnerT: Entity, AssociateT: Entity](
             setattr(instance, self._internal_owner_attr_name, None)
             return None
         else:
-            assert not isinstance(value, _Resolver)
+            assert not isinstance(value, EntityReference)
             return cast(AssociateT | None, value)
 
-    def __set__(
-        self, instance: OwnerT, value: ToZeroOrOneAssociate[AssociateT]
-    ) -> None:
+    def __set__(self, instance: OwnerT, value: Associate[AssociateT] | None) -> None:
         setattr(instance, self._internal_owner_attr_name, value)
 
     def __delete__(self, instance: OwnerT) -> None:
@@ -378,11 +306,11 @@ class _ToManyAssociation[
             setattr(instance, self._internal_owner_attr_name, value)
             return value
         else:
-            assert not isinstance(value, _Resolver)
+            assert not isinstance(value, EntityReference)
             return cast(EntityCollectionT, value)
 
-    def __set__(self, instance: OwnerT, value: ToManyAssociates[AssociateT]) -> None:
-        if isinstance(value, _Resolver):
+    def __set__(self, instance: OwnerT, value: Associates[AssociateT]) -> None:
+        if isinstance(value, EntityReference):
             setattr(instance, self._internal_owner_attr_name, value)
         else:
             self.__get__(instance, type(instance)).replace(*value)
@@ -405,7 +333,7 @@ class _ToManyAssociation[
     @override
     def resolve(self, owner: OwnerT, /) -> None:
         value = getattr(owner, self._internal_owner_attr_name, None)
-        if isinstance(value, _Resolver):
+        if isinstance(value, EntityReference):
             collection = self._new_collection(owner)
             setattr(owner, self._internal_owner_attr_name, collection)
             collection.add(*value.resolve())
@@ -495,22 +423,20 @@ class BidirectionalToZeroOrOne[OwnerT: Entity, AssociateT: Entity](
     """
 
     @override
-    def __set__(
-        self, instance: OwnerT, value: ToZeroOrOneAssociate[AssociateT]
-    ) -> None:
+    def __set__(self, instance: OwnerT, value: Associate[AssociateT] | None) -> None:
         previous_associate = self.__get__(instance, type(instance))
         if previous_associate == value:
             return
         super().__set__(instance, value)
         if previous_associate is not None:
             self.inverse().disassociate(previous_associate, instance)
-        if not isinstance(value, _Resolver) and value is not None:
+        if not isinstance(value, EntityReference) and value is not None:
             self.inverse().associate(value, instance)
 
     @override
     def resolve(self, owner: OwnerT, /) -> None:
         value = getattr(owner, self._internal_owner_attr_name, None)
-        if isinstance(value, _Resolver):
+        if isinstance(value, EntityReference):
             associate = value.resolve()
             setattr(owner, self._internal_owner_attr_name, value.resolve())
             if associate:
@@ -531,13 +457,13 @@ class BidirectionalToOne[OwnerT: Entity, AssociateT: Entity](
         value = getattr(owner, self._internal_owner_attr_name, None)
         if value is None:
             raise AssociationRequired(self, owner)
-        if isinstance(value, _Resolver):
+        if isinstance(value, EntityReference):
             associate = value.resolve()
             setattr(owner, self._internal_owner_attr_name, associate)
             self.inverse().associate(associate, owner)
 
     @override
-    def __set__(self, instance: OwnerT, value: ToOneAssociate[AssociateT]) -> None:
+    def __set__(self, instance: OwnerT, value: Associate[AssociateT]) -> None:
         try:
             previous_associate = cast(
                 "AssociateT | None", getattr(self, self._internal_owner_attr_name)
@@ -549,7 +475,7 @@ class BidirectionalToOne[OwnerT: Entity, AssociateT: Entity](
         super().__set__(instance, value)
         if previous_associate:
             self.inverse().disassociate(previous_associate, instance)
-        if not isinstance(value, _Resolver):
+        if not isinstance(value, EntityReference):
             self.inverse().associate(value, instance)
 
 
@@ -599,7 +525,7 @@ class UnidirectionalToZeroOrOne[OwnerT: Entity, AssociateT: Entity](
     @override
     def resolve(self, owner: OwnerT, /) -> None:
         value = getattr(owner, self._internal_owner_attr_name, None)
-        if isinstance(value, _Resolver):
+        if isinstance(value, EntityReference):
             setattr(owner, self._internal_owner_attr_name, value.resolve())
 
 
@@ -616,7 +542,7 @@ class UnidirectionalToOne[OwnerT: Entity, AssociateT: Entity](
         value = getattr(owner, self._internal_owner_attr_name, None)
         if value is None:
             raise AssociationRequired(self, owner)
-        if isinstance(value, _Resolver):
+        if isinstance(value, EntityReference):
             setattr(owner, self._internal_owner_attr_name, value.resolve())
 
 
@@ -753,8 +679,5 @@ def resolve(*entities: Entity) -> None:
             association.resolve(entity)
 
 
-type ToOneAssociate[EntityT: Entity] = EntityT | ToOneResolver[EntityT]
-type ToZeroOrOneAssociate[EntityT: Entity] = (
-    ToOneAssociate[EntityT] | ToZeroOrOneResolver[EntityT] | None
-)
-type ToManyAssociates[EntityT: Entity] = Iterable[EntityT] | ToManyResolver[EntityT]
+type Associate[EntityT: Entity] = EntityT | EntityReference
+type Associates[EntityT: Entity] = Iterable[Associate[EntityT]]

@@ -8,10 +8,10 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.entity import EntityDefinition
 from betty.entity.association import (
+    Associate,
+    Associates,
     BidirectionalToManyMultipleTypes,
     BidirectionalToOne,
-    ToManyAssociates,
-    ToOneAssociate,
 )
 from betty.entity.has_date import HasDate
 from betty.entity.has_file_references import HasFileReferences
@@ -76,12 +76,12 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
     def __init__(
         self,
         *,
-        source: ToOneAssociate[Source],
+        source: Associate[Source],
         id: str | None = None,  # noqa: A002
-        facts: ToManyAssociates[HasCitations] | None = None,
+        facts: Associates[HasCitations] | None = None,
         location: ResolvableLocalizable | None = None,
         date: ResolvableDate | None = None,
-        file_references: ToManyAssociates[FileReference] | None = None,
+        file_references: Associates[FileReference] | None = None,
         privacy: Privacy | None = None,
     ):
         super().__init__(

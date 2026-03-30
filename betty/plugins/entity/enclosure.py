@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final
 
 from betty.entity import Entity, EntityDefinition
-from betty.entity.association import BidirectionalToOne, ToOneAssociate
+from betty.entity.association import Associate, BidirectionalToOne
 from betty.entity.has_citations import HasCitations
 from betty.entity.has_date import HasDate
 from betty.locale.localizable.gettext import _, ngettext
@@ -49,9 +49,7 @@ class Enclosure(HasDate, HasCitations, Entity):
     The inner place.
     """
 
-    def __init__(
-        self, enclosee: ToOneAssociate[Place], encloser: ToOneAssociate[Place]
-    ):
+    def __init__(self, enclosee: Associate[Place], encloser: Associate[Place]):
         super().__init__()
         self.enclosee = enclosee
         self.encloser = encloser

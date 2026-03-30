@@ -8,9 +8,9 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.entity import Entity, EntityDefinition
 from betty.entity.association import (
+    Associates,
     BidirectionalToManySingleType,
     BidirectionalToZeroOrOne,
-    ToManyAssociates,
     ToZeroOrOneAssociate,
 )
 from betty.entity.has_date import HasDate
@@ -103,10 +103,10 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
         author: ResolvableLocalizable | None = None,
         publisher: ResolvableLocalizable | None = None,
         contained_by: ToZeroOrOneAssociate[Source] = None,
-        contains: ToManyAssociates[Source] | None = None,
-        notes: ToManyAssociates[Note] | None = None,
+        contains: Associates[Source] | None = None,
+        notes: Associates[Note] | None = None,
         date: ResolvableDate | None = None,
-        file_references: ToManyAssociates[FileReference] | None = None,
+        file_references: Associates[FileReference] | None = None,
         links: MutableSequence[Link] | None = None,
         privacy: Privacy | None = None,
     ):

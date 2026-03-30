@@ -8,9 +8,9 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.entity import Entity, EntityDefinition
 from betty.entity.association import (
+    Associate,
+    Associates,
     BidirectionalToOne,
-    ToManyAssociates,
-    ToOneAssociate,
 )
 from betty.entity.has_citations import HasCitations
 from betty.entity.has_locale import HasLocale
@@ -53,13 +53,13 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
     def __init__(
         self,
         *,
-        person: ToOneAssociate[Person],
+        person: Associate[Person],
         id: str | None = None,  # noqa: A002
         individual: str | None = None,
         affiliation: str | None = None,
         privacy: Privacy | None = None,
         locale: ResolvableLocale | None = None,
-        citations: ToManyAssociates[Citation] | None = None,
+        citations: Associates[Citation] | None = None,
     ):
         if not individual and not affiliation:
             raise ValueError(

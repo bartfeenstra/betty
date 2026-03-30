@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.entity import EntityDefinition
-from betty.entity.association import BidirectionalToManyMultipleTypes, ToManyAssociates
+from betty.entity.association import Associates, BidirectionalToManyMultipleTypes
 from betty.entity.has_citations import HasCitations
 from betty.entity.has_description import HasDescription
 from betty.entity.has_links import HasLinks
@@ -84,8 +84,8 @@ class File(
         name: str | None = None,
         media_type: MediaType | None = None,
         description: ResolvableLocalizable | None = None,
-        notes: ToManyAssociates[Note] | None = None,
-        citations: ToManyAssociates[Citation] | None = None,
+        notes: Associates[Note] | None = None,
+        citations: Associates[Citation] | None = None,
         privacy: Privacy | None = None,
         links: MutableSequence[Link] | None = None,
         copyright_notice: CopyrightNotice | None = None,

@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING, final
 
 from betty.entity import Entity, EntityDefinition
 from betty.entity.association import (
+    Associate,
     BidirectionalToOne,
-    ToOneAssociate,
 )
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugins.entity.file import File
@@ -54,8 +54,8 @@ class FileReference(Entity):
 
     def __init__(
         self,
-        referee: ToOneAssociate[HasFileReferences],
-        file: ToOneAssociate[File],
+        referee: Associate[HasFileReferences],
+        file: Associate[File],
         *,
         focus: FocusArea | None = None,
     ):

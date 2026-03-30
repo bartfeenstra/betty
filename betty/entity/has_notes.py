@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import Any
 
 from betty.entity import Entity
-from betty.entity.association import BidirectionalToManySingleType, ToManyAssociates
+from betty.entity.association import Associates, BidirectionalToManySingleType
 from betty.locale.localizable.gettext import _
 from betty.plugins.entity.note import Note
 
@@ -26,7 +26,7 @@ class HasNotes(Entity):
     def __init__(
         self,
         *args: Any,
-        notes: ToManyAssociates[Note] | None = None,
+        notes: Associates[Note] | None = None,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)

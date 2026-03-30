@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from betty.entity import Entity
-from betty.entity.association import BidirectionalToManySingleType, ToManyAssociates
+from betty.entity.association import Associates, BidirectionalToManySingleType
 from betty.locale.localizable.gettext import _
 
 if TYPE_CHECKING:
@@ -31,7 +31,7 @@ class HasFileReferences(Entity):
     def __init__(
         self,
         *args: Any,
-        file_references: ToManyAssociates[FileReference] | None = None,
+        file_references: Associates[FileReference] | None = None,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
