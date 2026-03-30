@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable
 
     from betty.plugin.cls import Plugin
-    from betty.service.plugin import ServicePluginDefinition
+    from betty.service.plugin.service import ServicePluginDefinition
 
 
 type Requirement[ResultT] = Callable[[ServiceLevel], Awaitable[ResultT] | ResultT]
@@ -155,7 +155,7 @@ class ServicePluginRequirement[ServicePluginT: Plugin[ServicePluginDefinition]]:
         """
         Check the requirement.
         """
-        from betty.service.plugin import ServicePluginProvider
+        from betty.service.plugin.service import ServicePluginProvider
 
         if isinstance(services, ServicePluginProvider):
             service_plugins = await services.service_plugins

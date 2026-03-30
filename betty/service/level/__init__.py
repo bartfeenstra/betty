@@ -21,8 +21,7 @@ if TYPE_CHECKING:
     from betty.plugin import PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.service.factory import Factory
-    from betty.service.plugin import PluginManager
-
+    from betty.service.plugin.discovery import PluginDiscoverer
 
 if TYPE_CHECKING:
     type Plugins = Mapping[
@@ -63,13 +62,13 @@ class ServiceLevel:
     ) -> KeyedCollection[
         type[PluginDefinition],
         type[PluginDefinition] | MachineName | str,
-        PluginManager,
+        PluginDiscoverer,
     ]:
         """
         The available plugin types and plugins.
         """
         from betty.plugin.error import PluginTypeNotFound
-        from betty.service.plugin import PluginManager
+        from betty.service.plugin.discovery import PluginDiscoverer
 
         class _PluginTypeNotFound(PluginTypeNotFound, KeyError):
             pass
@@ -82,7 +81,7 @@ class ServiceLevel:
         return ErroringKeyedCollection(
             KeyedCollectionAdapter(
                 {
-                    plugin_type.type().id: PluginManager(
+                    plugin_type.type().id: PluginDiscoverer(
                         self, plugin_type, self._plugin_discovery[plugin_type]
                     )
                     for plugin_type in plugin_types

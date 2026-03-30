@@ -33,7 +33,7 @@ from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.portable import PortableMapping
-from betty.service.plugin import ServicePluginDefinition
+from betty.service.plugin.service import ServicePluginDefinition
 
 if TYPE_CHECKING:
     from betty.entity import Entity

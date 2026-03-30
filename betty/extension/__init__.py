@@ -11,7 +11,7 @@ from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import OrderedPluginDefinition
-from betty.service.plugin import ServicePluginDefinition
+from betty.service.plugin.service import ServicePluginDefinition
 
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable

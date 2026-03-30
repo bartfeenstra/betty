@@ -10,7 +10,7 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer
-from betty.service.plugin import ServicePluginDefinition
+from betty.service.plugin.service import ServicePluginDefinition
 
 
 class JinjaFilter(Plugin["JinjaFilterDefinition"]):

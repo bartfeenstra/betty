@@ -11,7 +11,7 @@ from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import Order, OrderedPluginDefinition
 from betty.requirement import Requires
-from betty.service.plugin import ServicePluginDefinition
+from betty.service.plugin.service import ServicePluginDefinition
 
 
 class JsResource(Plugin["JsResourceDefinition"]):

@@ -16,7 +16,7 @@ from betty.requirement import (
     resolve_requirement,
 )
 from betty.service.level import ChainedServiceLevel, ServiceLevel
-from betty.service.plugin import (
+from betty.service.plugin.service import (
     ServicePluginDefinition,
     ServicePluginProvider,
     ServicePlugins,
