@@ -13,7 +13,7 @@ async def test(assert_template_file: AssertTemplateFile) -> None:
             "wikipedia_summary": summary,
             "wikipedia_summary_copyright_notice": copyright_notice,
         },
-        service_plugins={Wiki},
+        assets={Wiki},
         template="component/wiki/wikipedia-summary.html.j2",
     ) as (actual, _project):
         assert summary.content in actual

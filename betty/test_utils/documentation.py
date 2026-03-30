@@ -7,6 +7,7 @@ from typing import Any
 import pytest
 
 from betty.importlib import fully_qualified_name
+from betty.plugin import PluginDefinition
 from betty.plugin.cls import PluginClsDefinition
 from betty.test_utils.conftest import (
     IsolatedAppFactory,
@@ -47,7 +48,7 @@ class PluginDocumentationTestBase:
                     with subtests.test():
                         self._test_plugin(plugin)
 
-    def _test_plugin_type(self, plugin_type: type[PluginClsDefinition]) -> None:
+    def _test_plugin_type(self, plugin_type: type[PluginDefinition]) -> None:
         if not self._match_module(plugin_type):
             return
         if plugin_type.type().id.startswith("-"):
@@ -58,13 +59,12 @@ class PluginDocumentationTestBase:
             f'Failed to find the "{directive}" directive in the docstring for {fully_qualified_name(plugin_type)}'
         )
 
-    def _test_plugin(self, plugin: PluginClsDefinition) -> None:
-        if not self._match_module(plugin.cls):
-            return
+    def _test_plugin(self, plugin: PluginDefinition) -> None:
         if plugin.id.startswith("-"):
             return
-        docstring = plugin.cls.__doc__ or ""
-        directive = f".. plugin:: {plugin.type().id}:{plugin.id}"
-        assert directive in docstring, (
-            f'Failed to find the "{directive}" directive in the docstring for {fully_qualified_name(plugin.cls)}'
-        )
+        if isinstance(plugin, PluginClsDefinition) and self._match_module(plugin.cls):
+            docstring = plugin.cls.__doc__ or ""
+            directive = f".. plugin:: {plugin.type().id}:{plugin.id}"
+            assert directive in docstring, (
+                f'Failed to find the "{directive}" directive in the docstring for {fully_qualified_name(plugin.cls)}'
+            )

@@ -17,7 +17,7 @@ from betty.tests.conftest import (
 class TestSwaggerUi:
     @pytest.fixture(scope="session")
     async def served_project(self) -> AsyncIterator[tuple[Project, Server]]:
-        async with Project.new_isolated(service_plugins=[HttpApiDoc]) as project:
+        async with Project.new_isolated(extensions=[HttpApiDoc]) as project:
             await generate(project)
             async with await serve.BuiltinProjectServer.new(project) as server:
                 yield project, server

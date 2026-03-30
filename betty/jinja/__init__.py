@@ -25,11 +25,6 @@ from betty.date import Date
 from betty.file import read, write
 from betty.html import generate_html_id
 from betty.html.attributes import Attributes
-from betty.html.css import CssResourceDefinition
-from betty.html.js import JsResourceDefinition
-from betty.jinja.filter import JinjaFilterDefinition
-from betty.jinja.test import JinjaTestDefinition
-from betty.link import LinkDefinition
 from betty.media_type import UnsupportedMediaType, match_extension
 from betty.media_type.media_types import JINJA2
 from betty.string import kebab_case_to_snake_case
@@ -61,11 +56,10 @@ async def new_environment(project: Project, /) -> Environment:
     """
     Create a new environment.
     """
-    assets, _extensions, service_plugins = await gather(
-        project.assets, project.extensions, project.service_plugins
-    )
-    template_directory_paths = [str(path / "templates") for path in assets.directories]
-    links = [link.plugin() for link in service_plugins[LinkDefinition]]
+    template_directory_paths = [
+        str(path / "templates") for path in project.assets.directories
+    ]
+    links = [link.plugin() for link in await gather(*project.links)]
     today = datetime.datetime.now(tz=datetime.UTC).date()
     environment = Environment(
         loader=FileSystemLoader(template_directory_paths),
@@ -100,24 +94,20 @@ async def new_environment(project: Project, /) -> Environment:
         "new_attributes": Attributes,
         "project": project,
         "primary_navigation_links": [link.link for link in links if link.primary],
-        "public_css_paths": [
-            resource.plugin().resource
-            for resource in service_plugins[CssResourceDefinition]
-        ],
-        "public_js_paths": [
-            resource.plugin().resource
-            for resource in service_plugins[JsResourceDefinition]
-        ],
+        "public_css_paths": [resource.resource for resource in project.css_resources],
+        "public_js_paths": [resource.resource for resource in project.js_resources],
         "secondary_navigation_links": [link.link for link in links if not link.primary],
         "today": Date(today.year, today.month, today.day),
     })  # ty:ignore[no-matching-overload]
     environment.filters.update({
         kebab_case_to_snake_case(filter.plugin().id): filter.__call__
-        for filter in (await project.service_plugins)[JinjaFilterDefinition]  # noqa: A001
+        for awaitable_filter in project.jinja_filters
+        if (filter := await awaitable_filter)  # noqa: A001
     })
     environment.tests.update({
         kebab_case_to_snake_case(test.plugin().id): test.__call__
-        for test in service_plugins[JinjaTestDefinition]
+        for awaitable_test in project.jinja_tests
+        if (test := await awaitable_test)
     })
     return environment
 

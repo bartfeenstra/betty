@@ -15,7 +15,7 @@ class TestIncompleteTranslationWarning:
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         async with isolated_project_factory(
-            support_plugins=[IncompleteTranslationWarning]
+            supported_plugins=[IncompleteTranslationWarning]
         ) as project:
             sut = await IncompleteTranslationWarning.new(project)
             actual = await sut.build(document=Document())
@@ -34,7 +34,9 @@ class TestIncompleteTranslationWarning:
                 ),
             ) as app,
             isolated_project_factory(
-                app=app, locales=["nl"], support_plugins=[IncompleteTranslationWarning]
+                app=app,
+                locales=["nl"],
+                supported_plugins=[IncompleteTranslationWarning],
             ) as project,
         ):
             sut = await IncompleteTranslationWarning.new(project)

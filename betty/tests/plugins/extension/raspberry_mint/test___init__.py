@@ -114,7 +114,7 @@ class TestRaspberryMint:
                 ProjectEntityType(entity_type=DummyEntityOne, generate_html_list=True)
             ],
             plugins={EntityDefinition: [DummyEntityOne]},
-            service_plugins=[RaspberryMint],
+            extensions=[RaspberryMint],
         ) as project:
             await generate(project)
             assert (

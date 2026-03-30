@@ -16,7 +16,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": event,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/label--event.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -32,7 +32,7 @@ async def test_with_name(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": event,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/label--event.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -49,7 +49,7 @@ async def test_with_persistent_id(assert_template_file: AssertTemplateFile) -> N
         data={
             "entity": event,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/label--event.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -68,7 +68,7 @@ async def test_with_embedded(assert_template_file: AssertTemplateFile) -> None:
             "entity": event,
             "embedded": True,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/label--event.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -86,7 +86,7 @@ async def test_with_single_subject_as_person_context(
             "entity": event,
             "document": Document(entity_contexts=EntityContexts(context_subject)),
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/label--event.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -106,7 +106,7 @@ async def test_with_subjects_and_subject_as_person_context(
             "entity": event,
             "document": Document(entity_contexts=EntityContexts(context_subject)),
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/label--event.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -125,7 +125,7 @@ async def test_with_subjects_without_person_context(
         data={
             "entity": event,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/label--event.html.j2",
     ) as (actual, _):
         assert actual == expected

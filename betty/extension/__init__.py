@@ -8,9 +8,8 @@ from betty.definition.human_facing import HumanFacingDefinition
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import Plugin
+from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer
-from betty.service.plugin.service import ServicePluginDefinition
 
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
@@ -31,7 +30,7 @@ class Extension(ManagedLifeCycle, Plugin["ExtensionDefinition"]):
     label_plural=_("Extensions"),
     label_countable=ngettext("{count} extension", "{count} extensions"),
 )
-class ExtensionDefinition(HumanFacingDefinition, ServicePluginDefinition[Extension]):
+class ExtensionDefinition(HumanFacingDefinition, PluginClsDefinition[Extension]):
     """
     .. plugin_type:: extension.
 

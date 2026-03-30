@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2026-04-12 00:53+0100\n"
+"POT-Creation-Date: 2026-04-20 15:00+0100\n"
 "PO-Revision-Date: 2026-02-17 18:12+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: uk\n"
@@ -345,6 +345,12 @@ msgstr ""
 msgid "CSS resources"
 msgstr ""
 
+#, python-brace-format
+msgid ""
+"Cannot add more than one manufacturer for the {plugin} {plugin_type} "
+"plugin to the {service} service."
+msgstr ""
+
 msgid "Cannot find an available port to bind the web server to."
 msgstr "Не вдалося знайти доступний порт для прив'язки вебсерверу."
 
@@ -380,6 +386,10 @@ msgid ""
 msgstr ""
 "Неможливо завантажити координати \"{coordinates}\", оскільки вони в "
 "невідомому форматі."
+
+#, python-brace-format
+msgid "Cannot locate the {service} service on any available service level."
+msgstr ""
 
 msgid "Celebrant"
 msgstr "Святкуючий"
@@ -1764,7 +1774,13 @@ msgid ""
 msgstr ""
 
 #, python-brace-format
-msgid "The {plugin_id} {plugin_type} is required."
+msgid "The {plugin} {plugin_type} plugin is required from the {service} service."
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"The {service} service must have exactly one {plugin_type} plugin, but "
+"{actual} were given."
 msgstr ""
 
 msgid "There are no available options."

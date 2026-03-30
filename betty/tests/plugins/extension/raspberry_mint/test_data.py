@@ -24,7 +24,7 @@ class TestRaspberryMintConfiguration(DataTestBase[RaspberryMintConfiguration]):
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         sut = RaspberryMintConfiguration(regional_content={"unknown-region": []})
-        async with isolated_project_factory(service_plugins=[RaspberryMint]) as project:
+        async with isolated_project_factory(extensions=[RaspberryMint]) as project:
             with pytest.raises(HumanFacingException) as exc_info:
                 await sut.validate(project)
         assert 'data.regional_content["unknown-region"]' in str(exc_info.value)

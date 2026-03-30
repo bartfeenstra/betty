@@ -13,7 +13,6 @@ from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import OrderedPluginClsDefinition
-from betty.service.plugin.service import ServicePluginDefinition
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
@@ -103,9 +102,7 @@ class RateLimit(Plugin["RateLimitDefinition"]):
         "Rate limits ensure that Betty's HTTP client does not make more requests to a web service than that service supports or allows, by enforcing a maximum number of requests per timeframe."
     ),
 )
-class RateLimitDefinition(
-    ServicePluginDefinition, OrderedPluginClsDefinition[RateLimit]
-):
+class RateLimitDefinition(OrderedPluginClsDefinition[RateLimit]):
     """
     .. plugin_type:: http-rate-limit.
     """

@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import final, override
 
+from betty.life_cycle import LifeCycle
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer
@@ -61,6 +62,16 @@ class DummyPluginFour(DummyPlugin):
     """
     A dummy plugin (four).
     """
+
+
+@DummyPluginDefinition("dummy-plugin-with-life-cycle")
+class DummyPluginWithLifeCycle(DummyPlugin, LifeCycle):
+    """
+    A dummy plugin that is also a life cycle.
+    """
+
+    def __init__(self):
+        super().__init__()
 
 
 @final

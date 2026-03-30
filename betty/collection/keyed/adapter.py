@@ -15,7 +15,7 @@ class _KeyedCollectionAdapter[KeyT, ResolvableKeyT, ValueT](
 ):
     def __init__(
         self,
-        values: Mapping[KeyT, ValueT] | None = None,
+        values: Mapping[KeyT, ValueT] | Iterable[tuple[KeyT, ValueT]] | None = None,
         *,
         key_resolver: Callable[[ResolvableKeyT | KeyT], KeyT] = passthrough,
     ):

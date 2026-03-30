@@ -17,15 +17,14 @@ from PIL.Image import DecompressionBombWarning
 
 from betty.hashid import hashid_file_meta
 from betty.image import image_file_path_format, resize_cover
-from betty.jinja import JinjaFilterDefinition, context_document
-from betty.jinja.filter import JinjaFilter
+from betty.jinja import context_document
+from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
 from betty.media_type.media_types import SVG
 from betty.os import _link_or_copy
 from betty.plugins.entity.file import File
 from betty.plugins.entity.file_reference import FileReference
 from betty.plugins.jinja_filter.file import File as FileFilter
 from betty.project import Project
-from betty.requirement import ServicePluginRequirement
 from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
@@ -45,7 +44,9 @@ if TYPE_CHECKING:
 
 @final
 @JinjaFilterDefinition(
-    "image-resize-cover", requires={ServicePluginRequirement(FileFilter)}, auto=True
+    "image-resize-cover",
+    requires={Project.jinja_filters.require(FileFilter)},
+    auto=True,
 )
 class ImageResizeCover(JinjaFilter, Manufacturable):
     """

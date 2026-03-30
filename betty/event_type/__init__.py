@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     from betty.machine_name import MachineName, ResolvableMachineName
     from betty.plugins.entity.person import Person
     from betty.project import Project
+    from betty.requirement import Requires
 
 
 class EventType(Plugin["EventTypeDefinition"]):
@@ -69,6 +70,7 @@ class EventTypeDefinition(
         after: Order[EventTypeDefinition] = (),
         before: Order[EventTypeDefinition] = (),
         indicates: ResolvablePluginId[EventTypeDefinition] | None = None,
+        requires: Requires = (),
     ):
         super().__init__(
             plugin_id,
@@ -78,6 +80,7 @@ class EventTypeDefinition(
             description=description,
             after=after,
             before=before,
+            requires=requires,
         )
         self._indicates = None if indicates is None else resolve_plugin_id(indicates)
 

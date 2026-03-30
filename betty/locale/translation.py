@@ -225,45 +225,6 @@ The translation repository for the default locale.
 
 
 @final
-class ProxyTranslationRepository(TranslationRepository):
-    """
-    Provide translations from upstream repositories.
-    """
-
-    def __init__(self, *upstreams: TranslationRepository):
-        self._upstreams = upstreams
-        self._translations: MutableMapping[Locale, gettext.NullTranslations] = {}
-
-    @override
-    @property
-    def locales(self) -> Iterable[Locale]:
-        for upstream in self._upstreams:
-            yield from upstream.locales
-
-    @override
-    def get(self, locale: ResolvableLocale) -> gettext.NullTranslations:
-        locale = resolve_locale(locale)
-        try:
-            return self._translations[locale]
-        except KeyError:
-            translations: gettext.NullTranslations | None = None
-            for upstream in self._upstreams:
-                try:
-                    upstream_translations = upstream.get(locale)
-                except UntranslatedLocale:
-                    pass
-                else:
-                    if translations is None:
-                        translations = upstream_translations
-                    else:
-                        translations.add_fallback(upstream_translations)
-            if translations is None:
-                raise UntranslatedLocale(locale) from None
-            self._translations[locale] = translations
-            return translations
-
-
-@final
 @threadsafe
 class AssetTranslationRepository(TranslationRepository):
     """

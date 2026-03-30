@@ -14,7 +14,6 @@ from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
 from betty.plugins.extension._theme import person_timeline_events, place_timeline_events
 from betty.project import Project
-from betty.requirement import ServicePluginRequirement
 from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
@@ -26,7 +25,7 @@ if TYPE_CHECKING:
 @ContentDefinition(
     "raspberry-mint-timeline",
     label=_("Timeline"),
-    requires={ServicePluginRequirement(RaspberryMint)},
+    requires={Project.assets.require(RaspberryMint)},
 )
 class Timeline(Template, Manufacturable):
     """

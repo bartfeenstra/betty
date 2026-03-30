@@ -68,7 +68,6 @@ class GenerateStaticPublicAssets(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-        assets = await self._project.assets
         jinja = await self._project.jinja
         copy_function = make_copy_function(
             jinja,
@@ -78,21 +77,19 @@ class GenerateStaticPublicAssets(Job):
         )
         await gather(*[
             self._generate(scheduler, asset_path, copy_function)
-            async for asset_path in assets.walk(Path("public") / "static")
+            async for asset_path in self._project.assets.walk(Path("public") / "static")
         ])
 
     async def _generate(
-        self,
-        scheduler: Scheduler,
-        asset_path: Path,
-        copy_function: CopyFunction,
+        self, scheduler: Scheduler, asset_path: Path, copy_function: CopyFunction
     ) -> None:
-        assets = await self._project.assets
         file_destination_path = self._project.www_directory / asset_path.relative_to(
             Path("public") / "static"
         )
         await to_thread(file_destination_path.parent.mkdir, exist_ok=True, parents=True)
-        await copy_function(await assets.get(asset_path), file_destination_path)
+        await copy_function(
+            await self._project.assets.get(asset_path), file_destination_path
+        )
 
 
 @final
@@ -283,7 +280,6 @@ class GenerateLocalizedPublicAssets(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-        assets = await self._project.assets
         localizers = await self._project.localizers
         jinja = await self._project.jinja
         copy_functions = {
@@ -300,7 +296,9 @@ class GenerateLocalizedPublicAssets(Job):
         }
         await gather(*[
             self._generate(scheduler, asset_path, copy_functions[locale], locale)
-            async for asset_path in assets.walk(Path("public") / "localized")
+            async for asset_path in self._project.assets.walk(
+                Path("public") / "localized"
+            )
             for locale in self._project.locales.keys()  # noqa: SIM118
         ])
 
@@ -311,12 +309,13 @@ class GenerateLocalizedPublicAssets(Job):
         copy_function: CopyFunction,
         locale: Locale,
     ) -> None:
-        assets = await self._project.assets
         file_destination_path = self._project.localize_www_directory(
             locale
         ) / asset_path.relative_to(Path("public") / "localized")
         await to_thread(file_destination_path.parent.mkdir, exist_ok=True, parents=True)
-        await copy_function(await assets.get(asset_path), file_destination_path)
+        await copy_function(
+            await self._project.assets.get(asset_path), file_destination_path
+        )
 
 
 @final

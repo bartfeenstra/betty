@@ -15,7 +15,6 @@ from betty.plugins.entity.place import Place
 from betty.plugins.extension.webpack import Webpack
 from betty.plugins.jinja_filter.webpack_entry_point_js import WebpackEntryPointJs
 from betty.project import Project
-from betty.requirement import ServicePluginRequirement
 from betty.service.factory import Manufacturable
 
 
@@ -24,9 +23,9 @@ from betty.service.factory import Manufacturable
     "map",
     label=_("Map"),
     requires={
-        ServicePluginRequirement(Maps),
-        ServicePluginRequirement(Webpack),
-        ServicePluginRequirement(WebpackEntryPointJs),
+        Project.assets.require(Maps),
+        Project.extensions.require(Webpack),
+        Project.jinja_filters.require(WebpackEntryPointJs),
     },
 )
 class Map(Template, Manufacturable):

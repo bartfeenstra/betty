@@ -9,15 +9,16 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.extension import Extension, ExtensionDefinition
 from betty.plugins.asset.webpack import Webpack as WebpackAsset
-from betty.plugins.css_resource.webpack import Webpack as WebpackCssResource
+from betty.plugins.css_resource.webpack import WEBPACK
 from betty.plugins.extension.webpack import build
 from betty.plugins.extension.webpack.build import EntryPointProvider
 from betty.plugins.extension.webpack.jobs import _GenerateAssets
 from betty.plugins.jinja_filter.webpack_entry_point_js import WebpackEntryPointJs
-from betty.plugins.js_resource.webpack_entry_point_loader import WebpackEntryPointLoader
+from betty.plugins.js_resource.webpack_entry_point_loader import (
+    WEBPACK_ENTRY_POINT_LOADER,
+)
 from betty.project import Project
 from betty.project.generate import Generator
-from betty.requirement import ServicePluginRequirement
 from betty.service.factory import Manufacturable
 from betty.service.provider import ServiceProvider
 from betty.service.simple import service
@@ -31,10 +32,10 @@ if TYPE_CHECKING:
     "webpack",
     label="Webpack",
     requires={
-        ServicePluginRequirement(WebpackAsset),
-        ServicePluginRequirement(WebpackCssResource),
-        ServicePluginRequirement(WebpackEntryPointJs),
-        ServicePluginRequirement(WebpackEntryPointLoader),
+        Project.assets.require(WebpackAsset),
+        Project.css_resources.require(WEBPACK),
+        Project.jinja_filters.require(WebpackEntryPointJs),
+        Project.js_resources.require(WEBPACK_ENTRY_POINT_LOADER),
     },
 )
 class Webpack(Generator, Extension, ServiceProvider, Manufacturable):
@@ -69,15 +70,14 @@ class Webpack(Generator, Extension, ServiceProvider, Manufacturable):
         """
         The Webpack builder.
         """
-        extensions, jinja = await gather(self._project.extensions, self._project.jinja)
         return build.Builder(
             [
                 extension
-                for extension in extensions
+                for extension in await gather(*self._project.extensions)
                 if isinstance(extension, EntryPointProvider)
             ],
             self._project.debug,
-            jinja,
+            await self._project.jinja,
             self._project.root_path,
             user=self._project.upstream.user,
         )

@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from asyncio import gather
+from functools import partial
 from typing import TYPE_CHECKING, final, override
 
 from betty.concurrent import MAX_STRANDS
@@ -15,12 +16,11 @@ from betty.job.executor.asyncio import AsyncExecutor
 from betty.job.scheduler.default import DefaultScheduler
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import Plugin
+from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer
-from betty.service.plugin.service import ServicePluginDefinition
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable, Callable
+    from collections.abc import Awaitable, Callable, Collection
 
     from betty.job.scheduler import Scheduler
     from betty.locale.localizable import ResolvableLocalizable
@@ -48,7 +48,7 @@ class Loader(ABC, Plugin["LoaderDefinition"]):
     label_plural=_("Loaders"),
     label_countable=ngettext("{count} loader", "{count} loaders"),
 )
-class LoaderDefinition(HumanFacingDefinition, ServicePluginDefinition[Loader]):
+class LoaderDefinition(HumanFacingDefinition, PluginClsDefinition[Loader]):
     """
     .. plugin_type:: loader.
     """
@@ -102,7 +102,7 @@ class Enricher(ABC, Plugin["EnricherDefinition"]):
     label_plural=_("Enrichers"),
     label_countable=ngettext("{count} enricher", "{count} enrichers"),
 )
-class EnricherDefinition(HumanFacingDefinition, ServicePluginDefinition[Enricher]):
+class EnricherDefinition(HumanFacingDefinition, PluginClsDefinition[Enricher]):
     """
     .. plugin_type:: enricher.
     """
@@ -147,30 +147,25 @@ async def load(project: Project, *, context: Context | None = None) -> None:
     await _do_jobs(
         project,
         context,
-        LoaderDefinition,
+        await gather(*project.loaders),
         lambda scheduler, loader: loader.load(scheduler),
     )
     await _do_jobs(
         project,
         context,
-        EnricherDefinition,
+        await gather(*project.enrichers),
         lambda scheduler, enricher: enricher.enrich(scheduler),
     )
 
 
-async def _do_jobs(
+async def _do_jobs[PluginT: Plugin](
     project: Project,
     context: Context,
-    plugin_type: type[ServicePluginDefinition],
-    callback: Callable[[Scheduler, Loader], Awaitable[None]],
+    plugins: Collection[PluginT],
+    callback: Callable[[Scheduler, PluginT], Awaitable[None]],
 ) -> None:
     scheduler = DefaultScheduler(context=context, user=project.upstream.user)
     async with AsyncExecutor(scheduler, concurrency=MAX_STRANDS):
-        await gather(
-            *(
-                callback(scheduler, plugin)
-                for plugin in (await project.service_plugins)[plugin_type]
-            )
-        )
+        await gather(*map(partial(callback, scheduler), plugins))
         await scheduler.release()
         await scheduler.complete()

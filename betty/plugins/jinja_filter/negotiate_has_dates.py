@@ -9,8 +9,7 @@ from typing import TYPE_CHECKING, final
 
 from jinja2 import pass_context
 
-from betty.jinja import JinjaFilterDefinition
-from betty.jinja.filter import JinjaFilter
+from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
 from betty.plugins.jinja_filter.select_has_dates import SelectHasDates
 
 if TYPE_CHECKING:

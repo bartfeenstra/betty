@@ -29,6 +29,7 @@ if TYPE_CHECKING:
     from betty.machine_name import ResolvableMachineName
     from betty.portable import PortableMapping
     from betty.project import Project
+    from betty.requirement import Requires
 
 
 class NonPersistentId(str):
@@ -158,6 +159,7 @@ class EntityDefinition(CountableHumanFacingDefinition, PluginClsDefinition[Entit
         label_countable: CountableLocalizable,
         description: ResolvableLocalizable | None = None,
         public_facing: bool = True,
+        requires: Requires = (),
     ):
         super().__init__(
             plugin_id,
@@ -165,6 +167,7 @@ class EntityDefinition(CountableHumanFacingDefinition, PluginClsDefinition[Entit
             label_plural=label_plural,
             label_countable=label_countable,
             description=description,
+            requires=requires,
         )
         self._public_facing = public_facing
 

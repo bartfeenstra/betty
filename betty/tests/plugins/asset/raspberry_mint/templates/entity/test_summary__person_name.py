@@ -10,7 +10,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": person_name,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/summary--person-name.html.j2",
     ):
         pass

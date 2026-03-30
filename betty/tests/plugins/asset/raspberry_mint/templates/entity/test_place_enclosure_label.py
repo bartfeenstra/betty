@@ -12,7 +12,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "place": place,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
     ) as (actual, _):
         assert actual == expected
 
@@ -29,7 +29,7 @@ async def test_with_encloser(assert_template_file: AssertTemplateFile) -> None:
         data={
             "place": place,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
     ) as (actual, _):
         assert actual == expected
 
@@ -45,6 +45,6 @@ async def test_with_place_context(assert_template_file: AssertTemplateFile) -> N
             "place": place,
             "place_context": encloser_place,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
     ) as (actual, _):
         assert actual == expected

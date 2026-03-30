@@ -40,8 +40,8 @@ class PopulateEntity(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-        from betty.plugins.enricher.wiki import Wiki
+        from betty.plugins.extension.wiki import Wiki
 
-        extensions = await self._project.extensions
-        populator = await extensions[Wiki].populator
+        wiki = await self._project.extensions[Wiki]
+        populator = await wiki.populator
         await populator.populate(self._entity)

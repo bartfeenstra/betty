@@ -2,14 +2,10 @@
 The Webpack CSS resource.
 """
 
-from typing import final
+from typing import Final
 
-from betty.html.css import CssResource, CssResourceDefinition
+from betty.html.css import CssResourceDefinition
 
-
-@final
-@CssResourceDefinition("webpack", resource="betty-static:///css/webpack/main.css")
-class Webpack(CssResource):
-    """
-    .. plugin:: css-resource:webpack.
-    """
+WEBPACK: Final[CssResourceDefinition] = CssResourceDefinition(
+    "webpack", resource="betty-static:///css/webpack/main.css"
+)

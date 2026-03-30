@@ -11,7 +11,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
             "checkbox_label": label,
             "checkbox_value": value,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="component/checkbox.html.j2",
     ) as (actual, _):
         assert "<input" in actual
@@ -27,7 +27,7 @@ async def test_with_html_attributes(assert_template_file: AssertTemplateFile) ->
             "checkbox_label": "Check me out!",
             "attributes": Attributes(html_id=html_id),
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="component/checkbox.html.j2",
     ) as (actual, _):
         assert f'id="{html_id}"' in actual

@@ -27,10 +27,17 @@ class PluginDefinition:
     A plugin definition.
     """
 
-    def __init__(self, plugin_id: ResolvableMachineName, *, requires: Requires = ()):
+    def __init__(
+        self,
+        plugin_id: ResolvableMachineName,
+        *,
+        auto: bool = False,
+        requires: Requires = (),
+    ):
 
         super().__init__()
         self._id = MachineName.resolve(plugin_id)
+        self._auto = auto
         self._requires = tuple(requires)
 
     @classmethod
@@ -53,6 +60,13 @@ class PluginDefinition:
         - Different plugin repositories **MAY** each have a plugin with the same ID.
         """
         return self._id
+
+    @property
+    def auto(self) -> bool:
+        """
+        Whether to enable this plugin automatically when its plugin type is used for a plugi. service.
+        """
+        return self._auto
 
     @property
     def requires(self) -> Iterable[Requirement]:

@@ -41,19 +41,21 @@ class TestPluginDiscoverer:
         sut = PluginDiscoverer(UNIVERSE, DummyPluginDefinition, [DummyPluginOne])
         assert [x async for x in aiter(sut)] == [DummyPluginOne.plugin()]
 
-    async def test___getitem____with_plugin_not_found(self) -> None:
+    async def test_get__with_plugin_not_found(self) -> None:
         sut = PluginDiscoverer(UNIVERSE, DummyPluginDefinition, [])
         with pytest.raises(PluginNotFound):
-            await sut["unknown-plugin"]
+            await sut.get("unknown-plugin")
 
-    async def test___getitem____with_discovered_plugins(
-        self, entry_points: None
-    ) -> None:
+    async def test_get__with_discovered_plugins(self, entry_points: None) -> None:
         sut = PluginDiscoverer(UNIVERSE, DummyPluginDefinition)
-        assert await sut[DummyPluginOne.plugin().id] is DummyPluginOne.plugin()
+        assert await sut.get(DummyPluginOne.plugin().id) is DummyPluginOne.plugin()
 
-    async def test___getitem____with_overridden_plugin(self) -> None:
+    async def test_get__with_overridden_plugin(self) -> None:
         sut = PluginDiscoverer(UNIVERSE, DummyPluginDefinition, [DummyPluginOne])
+        assert await sut.get(DummyPluginOne.plugin().id) is DummyPluginOne.plugin()
+
+    async def test___getitem__(self, entry_points: None) -> None:
+        sut = PluginDiscoverer(UNIVERSE, DummyPluginDefinition)
         assert await sut[DummyPluginOne.plugin().id] is DummyPluginOne.plugin()
 
     async def test_ids__without_plugins(self) -> None:

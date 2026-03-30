@@ -12,9 +12,8 @@ from markupsafe import Markup
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import Plugin
+from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer
-from betty.service.plugin.service import ServicePluginDefinition
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -44,7 +43,7 @@ class Content(ABC, Plugin["ContentDefinition"]):
     label_plural=_("Contents"),
     label_countable=ngettext("{count} content", "{count} contents"),
 )
-class ContentDefinition(HumanFacingDefinition, ServicePluginDefinition[Content]):
+class ContentDefinition(HumanFacingDefinition, PluginClsDefinition[Content]):
     """
     .. plugin_type:: content.
     """
@@ -52,6 +51,7 @@ class ContentDefinition(HumanFacingDefinition, ServicePluginDefinition[Content])
     def __init__(
         self,
         plugin_id: ResolvableMachineName,
+        *,
         label: ResolvableLocalizable,
         auto: bool = False,
         description: ResolvableLocalizable | None = None,

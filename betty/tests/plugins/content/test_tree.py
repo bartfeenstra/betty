@@ -15,7 +15,7 @@ class TestTree:
     async def test_build_template__without_supported_entity(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(support_plugins=[Tree]) as project:
+        async with isolated_project_factory(supported_plugins=[Tree]) as project:
             sut = await Tree.new(project)
             assert await sut.build(document=Document()) is None
 
@@ -29,7 +29,7 @@ class TestTree:
     async def test_build_template__without_trees(
         self, resource: Entity, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(support_plugins=[Tree]) as project:
+        async with isolated_project_factory(supported_plugins=[Tree]) as project:
             project.ancestry.add(resource)
             sut = await Tree.new(project)
             assert (
@@ -41,7 +41,7 @@ class TestTree:
     ) -> None:
         person = Person()
         Person(parents=[person])
-        async with isolated_project_factory(support_plugins=[Tree]) as project:
+        async with isolated_project_factory(supported_plugins=[Tree]) as project:
             project.ancestry.add(person)
             sut = await Tree.new(project)
             document = await project.new_document(person)

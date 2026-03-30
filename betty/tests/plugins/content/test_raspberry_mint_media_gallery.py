@@ -13,7 +13,9 @@ class TestMediaGallery:
     async def test_build_template__without_has_file_references(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(support_plugins=[MediaGallery]) as project:
+        async with isolated_project_factory(
+            supported_plugins=[MediaGallery]
+        ) as project:
             sut = await MediaGallery.new(project)
             assert await sut.build(document=Document(object())) is None
 
@@ -21,7 +23,9 @@ class TestMediaGallery:
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         resource = Person()
-        async with isolated_project_factory(support_plugins=[MediaGallery]) as project:
+        async with isolated_project_factory(
+            supported_plugins=[MediaGallery]
+        ) as project:
             sut = await MediaGallery.new(project)
             assert await sut.build(document=Document(resource)) is None
 
@@ -31,7 +35,9 @@ class TestMediaGallery:
         resource = Person()
         file = File(Path(__file__))
         FileReference(resource, file)
-        async with isolated_project_factory(support_plugins=[MediaGallery]) as project:
+        async with isolated_project_factory(
+            supported_plugins=[MediaGallery]
+        ) as project:
             sut = await MediaGallery.new(project)
             actual = await sut.build(document=Document(resource))
         assert actual is not None

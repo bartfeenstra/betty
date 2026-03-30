@@ -70,13 +70,11 @@ async def generate(project: Project, *, context: Context | None = None) -> None:
         async_concurrency=ceil(MAX_STRANDS / threading_concurrency),
         threading_concurrency=threading_concurrency,
     ):
-        await gather(
-            *(
-                extension.generate(scheduler)
-                for extension in await project.extensions
-                if isinstance(extension, Generator)
-            )
-        )
+        await gather(*[
+            extension.generate(scheduler)
+            for extension in await gather(*project.extensions)
+            if isinstance(extension, Generator)
+        ])
         await scheduler.release()
         await scheduler.add(
             GenerateStaticPublicAssets(project=project),

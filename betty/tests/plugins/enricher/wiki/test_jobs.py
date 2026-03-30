@@ -2,9 +2,9 @@ from pytest_mock import MockerFixture
 
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugins.enricher.populate_links import PopulateLink
-from betty.plugins.enricher.wiki import Wiki
 from betty.plugins.enricher.wiki.jobs import PopulateEntity
 from betty.plugins.entity.link import Link
+from betty.plugins.extension.wiki import Wiki
 from betty.test_utils.conftest import IsolatedProjectFactory
 from betty.test_utils.entity import DummyEntityOne
 from betty.test_utils.job import do
@@ -16,7 +16,7 @@ class TestPopulateEntity:
     ) -> None:
         m_populate = mocker.patch("betty.wiki.populator.Populator.populate")
         entity = DummyEntityOne()
-        async with isolated_project_factory(service_plugins=[Wiki]) as project:
+        async with isolated_project_factory(extensions=[Wiki]) as project:
             await do(PopulateEntity(entity, project=project))
         m_populate.assert_awaited_once_with(entity)
 
@@ -25,7 +25,7 @@ class TestPopulateEntity:
     ) -> None:
         m_populate = mocker.patch("betty.wiki.populator.Populator.populate")
         link = Link("https://en.wikipedia.org/wiki/Amsterdam")
-        async with isolated_project_factory(service_plugins=[Wiki]) as project:
+        async with isolated_project_factory(extensions=[Wiki]) as project:
             await do(
                 PopulateLink(
                     link,

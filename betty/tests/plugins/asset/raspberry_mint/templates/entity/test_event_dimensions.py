@@ -16,7 +16,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "event": event,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/event-dimensions.html.j2",
     ) as (actual, _):
         assert actual == "sometime"
@@ -32,7 +32,7 @@ async def test_with_date(assert_template_file: AssertTemplateFile) -> None:
         data={
             "event": event,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/event-dimensions.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -49,7 +49,7 @@ async def test_with_place(assert_template_file: AssertTemplateFile) -> None:
         data={
             "event": event,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/event-dimensions.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -69,7 +69,7 @@ async def test_with_place_is_place_context(
             "event": event,
             "document": Document(entity_contexts=EntityContexts(place)),
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/event-dimensions.html.j2",
     ) as (actual, _):
         assert actual == "sometime"
@@ -90,7 +90,7 @@ async def test_with_date_and_place(assert_template_file: AssertTemplateFile) -> 
         data={
             "event": event,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/event-dimensions.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -104,7 +104,7 @@ async def test_with_citation(assert_template_file: AssertTemplateFile) -> None:
         data={
             "event": event,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/event-dimensions.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -126,7 +126,7 @@ async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
             "event": event,
             "embedded": True,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/event-dimensions.html.j2",
     ) as (actual, _):
         assert actual == expected

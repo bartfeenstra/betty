@@ -9,7 +9,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": source,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/summary--source.html.j2",
     ) as (actual, _):
         assert actual
@@ -22,7 +22,7 @@ async def test_with_contained_by(assert_template_file: AssertTemplateFile) -> No
         data={
             "entity": source,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/summary--source.html.j2",
     ) as (actual, _):
         assert contained_by_source.public_id in actual

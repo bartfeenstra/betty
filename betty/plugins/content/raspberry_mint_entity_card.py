@@ -15,7 +15,6 @@ from betty.plugins.asset.raspberry_mint import RaspberryMint
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.extension._theme import associated_file_references
 from betty.project import Project
-from betty.requirement import ServicePluginRequirement
 from betty.service.factory import DataManufacturable
 
 if TYPE_CHECKING:
@@ -30,7 +29,7 @@ if TYPE_CHECKING:
 @ContentDefinition(
     "raspberry-mint-entity-card",
     label=_("Entity card"),
-    requires={ServicePluginRequirement(RaspberryMint)},
+    requires={Project.assets.require(RaspberryMint)},
 )
 class EntityCard(Template, DataManufacturable[EntityReference]):
     """

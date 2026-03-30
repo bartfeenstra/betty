@@ -4,24 +4,15 @@ JavaScript resources for HTML pages.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, final, override
+from typing import TYPE_CHECKING, Any, final
 
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import Plugin
-from betty.plugin.factory import PluginManufacturer
-from betty.plugin.ordered import Order, OrderedPluginClsDefinition
-from betty.service.plugin.service import ServicePluginDefinition
+from betty.plugin.ordered import Order, OrderedPluginDefinition
 
 if TYPE_CHECKING:
     from betty.machine_name import ResolvableMachineName
     from betty.requirement import Requires
-
-
-class JsResource(Plugin["JsResourceDefinition"]):
-    """
-    Expose a JavaScript resource to be included on every HTML page.
-    """
 
 
 @final
@@ -33,9 +24,7 @@ class JsResource(Plugin["JsResourceDefinition"]):
         "{count} JavaScript resource", "{count} JavaScript resources"
     ),
 )
-class JsResourceDefinition(
-    OrderedPluginClsDefinition[JsResource], ServicePluginDefinition[JsResource]
-):
+class JsResourceDefinition(OrderedPluginDefinition):
     """
     .. plugin_type:: js-resource.
     """
@@ -65,15 +54,3 @@ class JsResourceDefinition(
         The URL-generatable resource of a JS file to include on every HTML page.
         """
         return self._resource
-
-
-@final
-class JsResourceManufacturer(PluginManufacturer[JsResourceDefinition, JsResource]):
-    """
-    The JavaScript resource manufacturer.
-    """
-
-    @override
-    @classmethod
-    def plugin_type(cls) -> type[JsResourceDefinition]:
-        return JsResourceDefinition

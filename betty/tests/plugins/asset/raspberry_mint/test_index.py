@@ -26,7 +26,7 @@ async def test_regional_content_front_page_summary(
     file: str, isolated_project_factory: IsolatedProjectFactory
 ) -> None:
     async with isolated_project_factory(
-        service_plugins=[
+        extensions=[
             ExtensionManufacturer(
                 RaspberryMint,
                 RaspberryMintConfiguration(
@@ -53,7 +53,7 @@ async def test_regional_content_front_page_content(
     file: str, isolated_project_factory: IsolatedProjectFactory
 ) -> None:
     async with isolated_project_factory(
-        service_plugins=[
+        extensions=[
             ExtensionManufacturer(
                 RaspberryMint,
                 RaspberryMintConfiguration(

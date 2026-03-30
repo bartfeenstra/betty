@@ -24,7 +24,7 @@ class TestSearchUi:
         person_id = "I0001"
         person = Person(id=person_id)
         PersonName(individual=self.INDIVIDUAL_NAME, person=person)
-        async with Project.new_isolated(service_plugins=[RaspberryMint]) as project:
+        async with Project.new_isolated(extensions=[RaspberryMint]) as project:
             project.ancestry[Person].add(person)
             await generate(project)
             async with await serve.BuiltinProjectServer.new(project) as server:

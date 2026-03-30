@@ -15,7 +15,6 @@ from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.source import Source
 from betty.privacy import is_public
 from betty.project import Project
-from betty.requirement import ServicePluginRequirement
 from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
@@ -32,7 +31,7 @@ if TYPE_CHECKING:
     description=_(
         "Other entities that reference a citation or source to back up their claims."
     ),
-    requires={ServicePluginRequirement(RaspberryMint)},
+    requires={Project.assets.require(RaspberryMint)},
 )
 class Facts(Template, Manufacturable):
     """

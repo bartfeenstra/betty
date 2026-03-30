@@ -18,7 +18,7 @@ async def test_minimal_with_individual_name(
         data={
             "entity": person_name,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/label--person-name.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -34,7 +34,7 @@ async def test_minimal_with_affiliation_name(
         data={
             "entity": person_name,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/label--person-name.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -50,7 +50,7 @@ async def test_with_person_with_persistent_id(
         data={
             "entity": person_name,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/label--person-name.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -67,7 +67,7 @@ async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
             "entity": person_name,
             "embedded": True,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/label--person-name.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -81,7 +81,7 @@ async def test_private(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": person_name,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/label--person-name.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -95,7 +95,7 @@ async def test_with_private_person(assert_template_file: AssertTemplateFile) -> 
         data={
             "entity": person_name,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/label--person-name.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -110,7 +110,7 @@ async def test_person_is_context(assert_template_file: AssertTemplateFile) -> No
             "entity": person_name,
             "document": Document(entity_contexts=EntityContexts(person)),
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/label--person-name.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -126,7 +126,7 @@ async def test_with_citations(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": person_name,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/label--person-name.html.j2",
     ) as (actual, _):
         assert actual == expected

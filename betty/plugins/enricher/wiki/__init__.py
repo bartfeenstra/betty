@@ -6,11 +6,11 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.load import Enricher, EnricherDefinition
 from betty.locale.localizable.gettext import _
+from betty.plugins.enricher.populate_links import PopulateLinks
 from betty.plugins.enricher.wiki.data import WikiConfiguration
 from betty.plugins.enricher.wiki.jobs import PopulateEntity
 from betty.plugins.extension.wiki import Wiki as WikiExtension
 from betty.project import Project
-from betty.requirement import ServicePluginRequirement
 from betty.service.factory import DataManufacturable, Manufacturable
 
 if TYPE_CHECKING:
@@ -24,7 +24,10 @@ if TYPE_CHECKING:
     description=_(
         "Enrich your ancestry with information from Wikipedia and Wikimedia Commons"
     ),
-    requires={ServicePluginRequirement(WikiExtension)},
+    requires={
+        Project.enrichers.require(PopulateLinks),
+        Project.extensions.require(WikiExtension),
+    },
 )
 class Wiki(Enricher, DataManufacturable[WikiConfiguration], Manufacturable):
     """

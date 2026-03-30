@@ -9,7 +9,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "citations": [],
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="component/reference.html.j2",
     ) as (actual, _):
         assert actual == ""
@@ -22,7 +22,7 @@ async def test_with_citation(assert_template_file: AssertTemplateFile) -> None:
                 Citation(source=Source()),
             ],
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="component/reference.html.j2",
     ) as (actual, _):
         assert actual == ' <sup><a href="#reference-1">[1]</a></sup>'

@@ -7,8 +7,7 @@ from __future__ import annotations
 import json as stdjson
 from typing import Any, final
 
-from betty.jinja import JinjaFilterDefinition
-from betty.jinja.filter import JinjaFilter
+from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
 
 
 @final

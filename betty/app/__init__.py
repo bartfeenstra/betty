@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from asyncio import to_thread
+from asyncio import gather, to_thread
 from concurrent import futures
 from contextlib import AsyncExitStack, asynccontextmanager
 from os import environ
@@ -15,13 +15,25 @@ from aiohttp_client_cache.backends.filesystem import FileBackend
 from aiohttp_client_cache.session import CachedSession
 
 from betty.app.data import AppConfiguration
-from betty.asset import AssetDefinition, AssetRepository, StaticAssetRepository
+from betty.asset import (
+    AssetDefinition,
+    AssetRepositoryService,
+)
+from betty.asset import (
+    AssetRepository as AssetRepository,
+)
+from betty.asset import (
+    StaticAssetRepository as StaticAssetRepository,
+)
 from betty.cache import Cache
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
 from betty.dirs import CACHE_DIRECTORY
 from betty.http_client import ClientErrorToUserMessageMiddleware
-from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
+from betty.http_client.rate_limit import (
+    RateLimitDefinition,
+    RateLimitMiddleware,
+)
 from betty.life_cycle import LifeCycle
 from betty.locale import DEFAULT_LOCALE, ResolvableLocale, resolve_locale
 from betty.locale.localize import Localizer, LocalizerRepository
@@ -35,10 +47,9 @@ from betty.portable.file import assert_load_file
 from betty.service.factory import DataManufacturable
 from betty.service.level import DownstreamServiceLevel, Plugins, ServiceLevel
 from betty.service.level.requirement import RequirableServiceLevel
-from betty.service.plugin.service import (
-    ServicePluginProvider,
-    ServicePlugins,
-    SupportPlugins,
+from betty.service.plugin.service import PluginServiceProvider, SupportedPlugins
+from betty.service.plugin.service.instance.collection.keyed import (
+    PluginInstancesService,
 )
 from betty.service.provider import Service
 from betty.service.simple import service
@@ -53,6 +64,8 @@ if TYPE_CHECKING:
 
     from betty.plugin import PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
+    from betty.plugin.resolve import ResolvablePluginDefinition
+    from betty.service.plugin.service.instance import ServicePluginInstances
     from betty.service.simple.asynchronous import TypedAsynchronousServiceOrFactory
     from betty.service.simple.synchronous import TypedSynchronousServiceOrFactory
     from betty.user import User
@@ -67,7 +80,7 @@ class App(
     DataManufacturable[AppConfiguration],
     DownstreamServiceLevel,
     RequirableServiceLevel,
-    ServicePluginProvider,
+    PluginServiceProvider,
 ):
     """
     The Betty application.
@@ -80,17 +93,21 @@ class App(
          - :py:class:`betty.app.data.AppConfiguration`
     """
 
+    assets = AssetRepositoryService()
+    rate_limits = PluginInstancesService(RateLimitDefinition)
+
     def __init__(
         self,
         *,
+        assets: Iterable[ResolvablePluginDefinition[AssetDefinition]] = (),
         cache_directory: Path | None = None,
         cache: TypedSynchronousServiceOrFactory[App, Cache[Any]] | None = None,
         locale: ResolvableLocale | None = None,
         plugins: Plugins | None = None,
         process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
         | None = None,
-        service_plugins: ServicePlugins[AppServicePlugin] = (),
-        support_plugins: SupportPlugins = (),
+        rate_limits: ServicePluginInstances[RateLimitDefinition] = (),
+        supported_plugins: SupportedPlugins = (),
         translations: TypedAsynchronousServiceOrFactory[App, TranslationRepository]
         | None = None,
         user: User | None = None,
@@ -117,13 +134,10 @@ class App(
                 self, Service(cache) if isinstance(cache, Cache) else cache
             )
         super().__init__(
-            plugins=plugins,
-            service_plugin_types={AssetDefinition, RateLimitDefinition},
-            service_plugins=service_plugins,
-            support_plugins=support_plugins,
-            service_plugin_services=self,
-            upstream=UNIVERSE,
+            plugins=plugins, supported_plugins=supported_plugins, upstream=UNIVERSE
         )
+        cls.assets.add_init_plugins(self, *assets)
+        cls.rate_limits.add_init_plugins(self, *rate_limits)
         self.life_cycle.on_bootstrap(self._bootstrap_localizer)
         self._locale = DEFAULT_LOCALE if locale is None else resolve_locale(locale)
         if user is None:
@@ -216,25 +230,11 @@ class App(
         return self._user
 
     @service
-    async def assets(self) -> AssetRepository:
-        """
-        The assets file system.
-        """
-        return StaticAssetRepository(
-            *(
-                asset.plugin().assets
-                for asset in (await self.service_plugins)[AssetDefinition]
-            )
-        )
-
-    @service
     async def translations(self) -> TranslationRepository:
         """
         The available translations.
         """
-        translations = AssetTranslationRepository(
-            await self.assets, self.binary_file_cache
-        )
+        translations = AssetTranslationRepository(self.assets, self.binary_file_cache)
         await translations.bootstrap()
         return translations
 
@@ -264,7 +264,7 @@ class App(
             },
             middlewares=[
                 ClientErrorToUserMessageMiddleware(self.user),
-                RateLimitMiddleware((await self.service_plugins)[RateLimitDefinition]),
+                RateLimitMiddleware(await gather(*self.rate_limits)),
             ],
         )
 

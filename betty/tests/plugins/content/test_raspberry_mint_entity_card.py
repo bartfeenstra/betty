@@ -9,7 +9,7 @@ class TestEntityCard:
     async def test_build_template(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(support_plugins=[EntityCard]) as project:
+        async with isolated_project_factory(supported_plugins=[EntityCard]) as project:
             entity = Person(id="my-first-entity")
             project.ancestry.add(entity)
             sut = await EntityCard.new(

@@ -6,22 +6,20 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from asyncio import to_thread
-from contextlib import suppress
 from os import walk
 from pathlib import Path
 from typing import TYPE_CHECKING, final, override
 
 from betty.concurrent import ThreadSafeLock
-from betty.functools import unique
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer
-from betty.plugin.ordered import (
-    Order,
-    OrderedPluginClsDefinition,
+from betty.plugin.ordered import Order, OrderedPluginClsDefinition
+from betty.service.plugin.service import PluginServiceProvider
+from betty.service.plugin.service.definition.collection import (
+    CollectionPluginDefinitionServiceManager,
 )
-from betty.service.plugin.service import ServicePluginDefinition
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
@@ -80,40 +78,6 @@ class AssetRepository(ABC):
         :param path: The virtual asset path.
         :return: The path to the actual file on disk.
         """
-
-
-class ProxyAssetRepository(AssetRepository):
-    """
-    Provides assets from upstream repositories.
-    """
-
-    def __init__(self, *upstreams: AssetRepository):
-        self._upstreams = upstreams
-
-    @override
-    @property
-    def directories(self) -> Sequence[Path]:
-        return list(
-            unique(
-                path for upstream in self._upstreams for path in upstream.directories
-            )
-        )
-
-    @override
-    async def walk(self, directory: Path | None = None, /) -> AsyncIterable[Path]:
-        seen = set()
-        for upstream in self._upstreams:
-            async for path in upstream.walk(directory):
-                if path not in seen:
-                    seen.add(path)
-                    yield path
-
-    @override
-    async def get(self, path: Path, /) -> Path:
-        for upstream in self._upstreams:
-            with suppress(Exception):
-                return await upstream.get(path)
-        raise UnknownAsset(path, self.directories)
 
 
 class StaticAssetRepository(AssetRepository):
@@ -181,9 +145,7 @@ class Asset(Plugin["AssetDefinition"]):
     label_plural=_("Assets"),
     label_countable=ngettext("{count} asset", "{count} assets"),
 )
-class AssetDefinition(
-    OrderedPluginClsDefinition[Asset], ServicePluginDefinition[Asset]
-):
+class AssetDefinition(OrderedPluginClsDefinition[Asset]):
     """
     .. plugin_type:: asset.
     """
@@ -225,3 +187,26 @@ class AssetManufacturer(PluginManufacturer[AssetDefinition, Asset]):
     @classmethod
     def plugin_type(cls) -> type[AssetDefinition]:
         return AssetDefinition
+
+
+@final
+class AssetRepositoryService[ServiceProviderT: PluginServiceProvider](
+    CollectionPluginDefinitionServiceManager[
+        ServiceProviderT, AssetDefinition, AssetRepository
+    ]
+):
+    """
+    A service of plugin definitions keyed by their IDs.
+    """
+
+    def __init__(self):
+        super().__init__(AssetDefinition)
+
+    @override
+    def new_service(self, instance: ServiceProviderT, /) -> AssetRepository:
+        return StaticAssetRepository(
+            *(
+                self.new_service_item(instance, asset).assets
+                for asset in self.get_plugins(instance)
+            )
+        )

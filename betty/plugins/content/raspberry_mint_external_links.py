@@ -12,7 +12,6 @@ from betty.locale.localizable.gettext import _
 from betty.plugins.asset.raspberry_mint import RaspberryMint
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project
-from betty.requirement import ServicePluginRequirement
 from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
@@ -23,7 +22,7 @@ if TYPE_CHECKING:
 @ContentDefinition(
     "raspberry-mint-external-links",
     label=_("External links"),
-    requires={ServicePluginRequirement(RaspberryMint)},
+    requires={Project.assets.require(RaspberryMint)},
 )
 class ExternalLinks(Template, Manufacturable):
     """

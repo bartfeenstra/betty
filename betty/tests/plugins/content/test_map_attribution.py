@@ -8,7 +8,7 @@ class TestMapAttribution:
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         async with isolated_project_factory(
-            support_plugins=[MapAttribution]
+            supported_plugins=[MapAttribution]
         ) as project:
             sut = await MapAttribution.new(project)
             actual = await sut.build(document=Document())

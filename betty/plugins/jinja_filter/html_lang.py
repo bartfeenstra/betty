@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING, final
 from jinja2 import pass_context
 from markupsafe import Markup
 
-from betty.jinja import JinjaFilterDefinition, context_document
-from betty.jinja.filter import JinjaFilter
+from betty.jinja import context_document
+from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
 from betty.locale import HasLocaleStr, to_language_tag
 
 if TYPE_CHECKING:

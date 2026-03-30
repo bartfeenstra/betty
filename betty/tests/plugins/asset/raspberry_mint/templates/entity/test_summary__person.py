@@ -20,7 +20,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": person,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/summary--person.html.j2",
     ) as (actual, _):
         assert actual == '<div class="small"></div>'
@@ -39,7 +39,7 @@ async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
             "entity": person,
             "embedded": True,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/summary--person.html.j2",
     ) as (actual, _):
         assert birth.id not in actual
@@ -65,7 +65,7 @@ async def test_private(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": person,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/summary--person.html.j2",
     ) as (actual, _):
         assert individual_name not in actual
@@ -90,7 +90,7 @@ async def test_with_public_alternative_name(
         data={
             "entity": person,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/summary--person.html.j2",
     ) as (actual, _):
         assert individual_name in actual
@@ -114,7 +114,7 @@ async def test_with_private_alternative_name(
         data={
             "entity": person,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/summary--person.html.j2",
     ) as (actual, _):
         assert individual_name not in actual
@@ -130,7 +130,7 @@ async def test_with_birh_indicator(assert_template_file: AssertTemplateFile) -> 
         data={
             "entity": person,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/summary--person.html.j2",
     ) as (actual, _):
         assert birth.event_type.plugin().label.localize(DEFAULT_LOCALIZER) in actual
@@ -146,7 +146,7 @@ async def test_with_death_indicator(assert_template_file: AssertTemplateFile) ->
         data={
             "entity": person,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/summary--person.html.j2",
     ) as (actual, _):
         assert death.event_type.plugin().label.localize(DEFAULT_LOCALIZER) in actual
@@ -159,7 +159,7 @@ async def test_with_gender(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": person,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/summary--person.html.j2",
     ) as (actual, _):
         assert NonBinary.plugin().label.localize(DEFAULT_LOCALIZER) in actual

@@ -18,7 +18,6 @@ from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.extension.raspberry_mint import ColorStyle as RaspberryMintColorStyle
 from betty.project import Project
 from betty.property import Property
-from betty.requirement import ServicePluginRequirement
 from betty.sample import Sample
 from betty.service.factory import DataManufacturable
 
@@ -76,7 +75,7 @@ class ColorStyleConfiguration(Data):
 @ContentDefinition(
     "raspberry-mint-color-style",
     label=_("Color style"),
-    requires={ServicePluginRequirement(RaspberryMint)},
+    requires={Project.assets.require(RaspberryMint)},
 )
 class ColorStyle(Template, DataManufacturable[ColorStyleConfiguration]):
     """

@@ -16,7 +16,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": entity,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/label.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -29,7 +29,7 @@ async def test_with_persistent_id(assert_template_file: AssertTemplateFile) -> N
         data={
             "entity": entity,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/label.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -43,7 +43,7 @@ async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
             "entity": entity,
             "embedded": True,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/label.html.j2",
     ) as (actual, _):
         assert actual == expected

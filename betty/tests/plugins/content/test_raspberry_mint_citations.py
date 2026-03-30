@@ -24,7 +24,7 @@ class TestCitations:
     async def test_build_template__without_citations(
         self, resource: object, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(support_plugins=[Citations]) as project:
+        async with isolated_project_factory(supported_plugins=[Citations]) as project:
             sut = await project.factory.new(Citations)
         assert await sut.build(document=Document(resource)) is None
 
@@ -33,7 +33,7 @@ class TestCitations:
     ) -> None:
         citation = Citation(source=Source())
         resource = DummyHasCitations(citations=[citation])
-        async with isolated_project_factory(support_plugins=[Citations]) as project:
+        async with isolated_project_factory(supported_plugins=[Citations]) as project:
             sut = await project.factory.new(Citations)
             actual = await sut.build(document=Document(resource))
         assert actual is not None

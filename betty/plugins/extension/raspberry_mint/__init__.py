@@ -19,7 +19,6 @@ from betty.plugins.extension.webpack import Webpack
 from betty.plugins.extension.webpack.build import EntryPointProvider
 from betty.project import Project
 from betty.project.generate import Generator
-from betty.requirement import ServicePluginRequirement
 from betty.service.factory import DataManufacturable, Manufacturable
 from betty.service.provider import ServiceProvider
 from betty.service.simple import service
@@ -40,8 +39,8 @@ type RegionalContentManufacturers = Mapping[
     "raspberry-mint",
     label="Raspberry Mint",
     requires={
-        ServicePluginRequirement(RaspberryMintAsset),
-        ServicePluginRequirement(Webpack),
+        Project.assets.require(RaspberryMintAsset),
+        Project.extensions.require(Webpack),
     },
 )
 class RaspberryMint(

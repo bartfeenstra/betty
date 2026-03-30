@@ -16,7 +16,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "file_references": [],
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="component/raspberry-mint/media-gallery.html.j2",
     ) as (actual, _):
         assert actual == ""
@@ -34,7 +34,7 @@ async def test_with_public_file_references(
         data={
             "file_references": [file_reference],
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="component/raspberry-mint/media-gallery.html.j2",
     ) as (actual, _):
         assert file.public_id in actual
@@ -52,7 +52,7 @@ async def test_without_public_file_references(
         data={
             "file_references": [file_reference],
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="component/raspberry-mint/media-gallery.html.j2",
     ) as (actual, _):
         assert not actual

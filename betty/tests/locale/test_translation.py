@@ -12,7 +12,6 @@ from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.translation import (
     AssetTranslationRepository,
-    ProxyTranslationRepository,
     StaticTranslationRepository,
     UntranslatedLocale,
     update_universe_translations,
@@ -216,40 +215,6 @@ class TestStaticTranslationRepository:
 
     def test_get__with_unknown_locale(self) -> None:
         sut = StaticTranslationRepository({})
-        with pytest.raises(UntranslatedLocale):
-            sut.get("nl")
-
-
-class TestProxyTranslationRepository:
-    def test_locales(self) -> None:
-        locale_one = Locale("nl")
-        locale_two = Locale("uk")
-        upstream_one = StaticTranslationRepository({
-            locale_one: gettext.NullTranslations()
-        })
-        upstream_two = StaticTranslationRepository({
-            locale_two: gettext.NullTranslations()
-        })
-        sut = ProxyTranslationRepository(upstream_one, upstream_two)
-        assert list(sut.locales) == [locale_one, locale_two]
-
-    def test_locales__without_upstreams(self) -> None:
-        sut = ProxyTranslationRepository()
-        assert not list(sut.locales)
-
-    def test_get(self) -> None:
-        locale_one = Locale("nl")
-        locale_two = Locale("uk")
-        translation_one = gettext.NullTranslations()
-        translation_two = gettext.NullTranslations()
-        upstream_one = StaticTranslationRepository({locale_one: translation_one})
-        upstream_two = StaticTranslationRepository({locale_two: translation_two})
-        sut = ProxyTranslationRepository(upstream_one, upstream_two)
-        assert sut.get(locale_one) is translation_one
-        assert sut.get(locale_two) is translation_two
-
-    def test_get__without_upstreams(self) -> None:
-        sut = ProxyTranslationRepository()
         with pytest.raises(UntranslatedLocale):
             sut.get("nl")
 
