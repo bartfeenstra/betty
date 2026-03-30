@@ -25,7 +25,7 @@ class TestWebpack:
         ) as f:
             f.write(self._SENTINEL)
 
-        async with isolated_project_factory(service_plugins=[Webpack]) as project:
+        async with isolated_project_factory(extensions=[Webpack]) as project:
             await generate(project)
 
             with open(project.www_directory / self._SENTINEL, encoding="utf-8") as f:

@@ -8,8 +8,7 @@ from typing import TYPE_CHECKING, final
 
 from jinja2 import pass_context
 
-from betty.jinja import JinjaFilterDefinition
-from betty.jinja.filter import JinjaFilter
+from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator

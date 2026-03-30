@@ -1,16 +1,17 @@
 from __future__ import annotations
 
-from typing import final
+from typing import TYPE_CHECKING, final
 
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.ordered import OrderedPluginClsDefinition
-from betty.requirement import ServicePluginRequirement
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
 )
 from betty.test_utils.plugin import DummyPlugin
-from betty.test_utils.service.plugin import DummyServicePluginOne
+
+if TYPE_CHECKING:
+    from betty.service.level import ServiceLevel
 
 
 @final
@@ -72,12 +73,15 @@ class TestPluginDefinition:
         assert sut.id == id
 
     def test_requires(self) -> None:
+        def requirement(services: ServiceLevel, /) -> None:
+            raise NotImplementedError
+
         requires = list(
-            PluginDefinition(
-                "my-first-plugin-id",
-                requires={ServicePluginRequirement(DummyServicePluginOne)},
-            ).requires
+            PluginDefinition("my-first-plugin-id", requires={requirement}).requires
         )
         assert len(requires) == 1
-        assert isinstance(requires[0], ServicePluginRequirement)
-        assert requires[0].plugin is DummyServicePluginOne
+        assert requires[0] is requirement
+
+    def test_auto(self) -> None:
+        assert PluginDefinition("my-first-plugin-id", auto=True).auto
+        assert not PluginDefinition("my-first-plugin-id", auto=False).auto

@@ -29,7 +29,7 @@ class TestDeriver:
         )
         Presence(person, Subject(), event)
 
-        async with isolated_project_factory(service_plugins=[Deriver]) as project:
+        async with isolated_project_factory(enrichers=[Deriver]) as project:
             project.ancestry.add(person)
             with record_added(project.ancestry) as added:
                 await load(project)

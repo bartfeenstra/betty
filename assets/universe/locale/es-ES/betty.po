@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-12 00:53+0100\n"
+"POT-Creation-Date: 2026-04-20 15:00+0100\n"
 "PO-Revision-Date: 2026-02-17 18:15+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: es_ES\n"
@@ -329,6 +329,12 @@ msgstr ""
 msgid "CSS resources"
 msgstr ""
 
+#, python-brace-format
+msgid ""
+"Cannot add more than one manufacturer for the {plugin} {plugin_type} "
+"plugin to the {service} service."
+msgstr ""
+
 msgid "Cannot find an available port to bind the web server to."
 msgstr ""
 
@@ -355,6 +361,10 @@ msgstr ""
 msgid ""
 "Cannot load coordinates \"{coordinates}\", because they are in an unknown"
 " format."
+msgstr ""
+
+#, python-brace-format
+msgid "Cannot locate the {service} service on any available service level."
 msgstr ""
 
 msgid "Celebrant"
@@ -1711,7 +1721,13 @@ msgid ""
 msgstr ""
 
 #, python-brace-format
-msgid "The {plugin_id} {plugin_type} is required."
+msgid "The {plugin} {plugin_type} plugin is required from the {service} service."
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"The {service} service must have exactly one {plugin_type} plugin, but "
+"{actual} were given."
 msgstr ""
 
 msgid "There are no available options."

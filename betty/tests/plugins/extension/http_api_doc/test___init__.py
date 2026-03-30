@@ -12,7 +12,7 @@ class TestHttpApiDoc:
     async def test_generate(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(service_plugins=[HttpApiDoc]) as project:
+        async with isolated_project_factory(extensions=[HttpApiDoc]) as project:
             await generate(project)
             assert (project.www_directory / "api" / "index.html").is_file()
             assert (

@@ -12,7 +12,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": place,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/summary--place.html.j2",
     ) as (actual, _):
         assert actual == '<div class="small"></div>'
@@ -26,7 +26,7 @@ async def test_with_non_unknown_place_type(
         data={
             "entity": place,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/summary--place.html.j2",
     ) as (actual, _):
         assert Country.plugin().label.localize(DEFAULT_LOCALIZER) in actual
@@ -40,7 +40,7 @@ async def test_with_encloser(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": place,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="entity/summary--place.html.j2",
     ) as (actual, _):
         assert encloser_place.public_id in actual

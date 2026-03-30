@@ -21,7 +21,7 @@ class TestEnclosees:
     async def test_build_template__without_enclosees(
         self, resource: object, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(support_plugins=[Enclosees]) as project:
+        async with isolated_project_factory(supported_plugins=[Enclosees]) as project:
             sut = await Enclosees.new(project)
         assert await sut.build(document=Document(resource)) is None
 
@@ -31,7 +31,7 @@ class TestEnclosees:
         enclosee = Place()
         resource = Place()
         Enclosure(enclosee, resource)
-        async with isolated_project_factory(support_plugins=[Enclosees]) as project:
+        async with isolated_project_factory(supported_plugins=[Enclosees]) as project:
             sut = await Enclosees.new(project)
             actual = await sut.build(document=Document(resource))
         assert actual is not None

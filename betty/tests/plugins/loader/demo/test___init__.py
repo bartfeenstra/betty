@@ -24,7 +24,7 @@ class TestDemo:
         self, mocker: MockerFixture, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         mocker.patch("betty.wiki.populator.Populator.populate")
-        async with isolated_project_factory(service_plugins=[Demo]) as project:
+        async with isolated_project_factory(loaders=[Demo]) as project:
             await load(project)
             assert len(project.ancestry[Person]) != 0
             assert len(project.ancestry[Place]) != 0

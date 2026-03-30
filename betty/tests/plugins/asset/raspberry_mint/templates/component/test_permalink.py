@@ -8,7 +8,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "url": url,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="component/permalink.html.j2",
     ) as (actual, _):
         assert "<a " in actual

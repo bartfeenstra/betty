@@ -57,7 +57,7 @@ class TestColumns:
     async def test_build_template__minimal(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(support_plugins=[Columns]) as project:
+        async with isolated_project_factory(supported_plugins=[Columns]) as project:
             sut = await Columns.new(
                 project,
                 ColumnsConfiguration([
@@ -75,7 +75,7 @@ class TestColumns:
     async def test_build_template__single_column_multiple_breakpoints(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(support_plugins=[Columns]) as project:
+        async with isolated_project_factory(supported_plugins=[Columns]) as project:
             sut = await Columns.new(
                 project,
                 ColumnsConfiguration(
@@ -96,7 +96,7 @@ class TestColumns:
     async def test_build_template__multiple_columns_single_breakpoint(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(support_plugins=[Columns]) as project:
+        async with isolated_project_factory(supported_plugins=[Columns]) as project:
             sut = await Columns.new(
                 project,
                 ColumnsConfiguration(
@@ -123,7 +123,7 @@ class TestColumns:
     async def test_build_template__multiple_columns_multiple_breakpoints(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(support_plugins=[Columns]) as project:
+        async with isolated_project_factory(supported_plugins=[Columns]) as project:
             sut = await Columns.new(
                 project,
                 ColumnsConfiguration(

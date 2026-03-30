@@ -22,11 +22,10 @@ import betty.dirs
 from betty.app import App
 from betty.asset import (
     AssetDefinition,
-    AssetRepository,
-    ProxyAssetRepository,
-    StaticAssetRepository,
+    AssetRepositoryService,
 )
 from betty.collection.keyed.adapter import KeyedCollectionAdapter
+from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.data import Data
 from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
 from betty.data.bool import BoolDefinition
@@ -34,12 +33,13 @@ from betty.data.str import StrDefinition
 from betty.document import Document, DocumentProviderDefinition
 from betty.entity.collection.pool import EntityPool
 from betty.exception import HumanFacingException
-from betty.extension import Extension, ExtensionDefinition
+from betty.extension import ExtensionDefinition
 from betty.hashid import hashid
 from betty.html.css import CssResourceDefinition
 from betty.html.js import JsResourceDefinition
 from betty.jinja.filter import JinjaFilterDefinition
 from betty.jinja.test import JinjaTestDefinition
+from betty.license import LicenseDefinition
 from betty.link import LinkDefinition
 from betty.load import EnricherDefinition, LoaderDefinition
 from betty.locale import (
@@ -52,41 +52,40 @@ from betty.locale.data import LocaleDefinition
 from betty.locale.localizable import resolve_localizable
 from betty.locale.localizable.gettext import _
 from betty.locale.localize import Localizer, LocalizerRepository
-from betty.locale.translation import (
-    AssetTranslationRepository,
-    ProxyTranslationRepository,
-    TranslationRepository,
-)
+from betty.locale.translation import AssetTranslationRepository, TranslationRepository
 from betty.machine_name import MachineName, ResolvableMachineName
-from betty.plugin.resolve import resolve_plugin_id
+from betty.plugin.resolve import ResolvablePluginDefinition, resolve_plugin_id
 from betty.plugins.entity.person import Person
 from betty.privacy.privatizer import Privatizer
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.sample import Sample, Size
 from betty.service.level import DownstreamServiceLevel
 from betty.service.level.requirement import RequirableServiceLevel
-from betty.service.plugin.service import (
-    ServicePluginProvider,
-    ServicePlugins,
-    SupportPlugins,
+from betty.service.plugin.service import PluginServiceProvider, SupportedPlugins
+from betty.service.plugin.service.definition.collection.keyed import (
+    PluginDefinitionsService,
 )
+from betty.service.plugin.service.instance.collection.keyed import (
+    PluginInstancesService,
+)
+from betty.service.plugin.service.instance.single import PluginInstanceService
 from betty.service.simple import service
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Collection, Iterable, Mapping
 
     from betty.collection.keyed import KeyedCollection
-    from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
     from betty.entity import EntityDefinition
     from betty.jinja import Environment
-    from betty.license import License, LicenseDefinition
     from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.plugin import PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
-    from betty.plugin.factory import PluginManufacturer
     from betty.plugin.resolve import ResolvablePluginId
     from betty.project.data import ProjectConfiguration
-    from betty.service.plugin.service import ServicePluginCollection
+    from betty.service.plugin.service.instance import (
+        ServicePluginInstance,
+        ServicePluginInstances,
+    )
     from betty.url import UrlGenerator
 
 
@@ -99,23 +98,9 @@ the oldest verified person to ever have lived.
 """
 
 
-type ProjectServicePlugin = (
-    AssetDefinition
-    | CssResourceDefinition
-    | DocumentProviderDefinition
-    | EnricherDefinition
-    | ExtensionDefinition
-    | JinjaFilterDefinition
-    | JinjaTestDefinition
-    | JsResourceDefinition
-    | LinkDefinition
-    | LoaderDefinition
-)
-
-
 @final
 class Project(
-    DownstreamServiceLevel[App], RequirableServiceLevel, ServicePluginProvider
+    DownstreamServiceLevel[App], RequirableServiceLevel, PluginServiceProvider
 ):
     """
     Define a Betty project.
@@ -130,6 +115,19 @@ class Project(
          - :py:class:`betty.project.data.ProjectConfiguration`
     """
 
+    assets = AssetRepositoryService()
+    copyright_notice = PluginInstanceService(CopyrightNoticeDefinition)
+    css_resources = PluginDefinitionsService(CssResourceDefinition)
+    document_providers = PluginInstancesService(DocumentProviderDefinition)
+    enrichers = PluginInstancesService(EnricherDefinition)
+    extensions = PluginInstancesService(ExtensionDefinition)
+    jinja_filters = PluginInstancesService(JinjaFilterDefinition)
+    jinja_tests = PluginInstancesService(JinjaTestDefinition)
+    js_resources = PluginDefinitionsService(JsResourceDefinition)
+    license = PluginInstanceService(LicenseDefinition)
+    links = PluginInstancesService(LinkDefinition)
+    loaders = PluginInstancesService(LoaderDefinition)
+
     def __init__(
         self,
         directory: Path,
@@ -138,19 +136,21 @@ class Project(
         title: ResolvableLocalizable,
         url: str,
         ancestry: EntityPool | None = None,
+        assets: Iterable[ResolvablePluginDefinition[AssetDefinition]] = (),
         author: ResolvableLocalizable | None = None,
         clean_urls: bool = False,
-        copyright_notice: PluginManufacturer[CopyrightNoticeDefinition, CopyrightNotice]
-        | type[CopyrightNotice]
+        copyright_notice: ServicePluginInstance[CopyrightNoticeDefinition]
         | None = None,
         debug: bool = False,
+        enrichers: ServicePluginInstances[EnricherDefinition] = (),
         entity_types: Iterable[
             ProjectEntityType | ResolvablePluginId[EntityDefinition]
         ] = (),
-        license: PluginManufacturer[LicenseDefinition, License]  # noqa: A002
-        | type[License]
-        | None = None,
+        extensions: ServicePluginInstances[ExtensionDefinition] = (),
+        license: ServicePluginInstance[LicenseDefinition] | None = None,  # noqa: A002
         lifetime_threshold: int | None = None,
+        links: ServicePluginInstances[LinkDefinition] = (),
+        loaders: ServicePluginInstances[LoaderDefinition] = (),
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
         logo: Path | None = None,
         name: ResolvableMachineName | None = None,
@@ -158,38 +158,26 @@ class Project(
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
         ]
         | None = None,
-        service_plugins: ServicePlugins[ProjectServicePlugin] = (),
-        support_plugins: SupportPlugins = (),
+        supported_plugins: SupportedPlugins = (),
         _plugin_discoveries: Iterable[PluginDefinition] = (),
     ):
         from betty.plugins.copyright_notice.project_author import ProjectAuthor
         from betty.plugins.license.all_rights_reserved import AllRightsReserved
 
-        copyright_notice = copyright_notice or ProjectAuthor
-        license = license or AllRightsReserved  # noqa: A001
         super().__init__(
-            plugins=plugins,
-            service_plugin_types={
-                AssetDefinition,
-                CssResourceDefinition,
-                DocumentProviderDefinition,
-                EnricherDefinition,
-                ExtensionDefinition,
-                JinjaFilterDefinition,
-                JinjaTestDefinition,
-                JsResourceDefinition,
-                LinkDefinition,
-                LoaderDefinition,
-            },
-            service_plugins=service_plugins,
-            support_plugins=(*support_plugins, copyright_notice, license),
-            service_plugin_services=self,
-            upstream=app,
+            plugins=plugins, supported_plugins=supported_plugins, upstream=app
         )
+        cls = type(self)
+        cls.assets.add_init_plugins(self, *assets)
+        cls.copyright_notice.add_init_plugins(self, copyright_notice or ProjectAuthor)
+        cls.enrichers.add_init_plugins(self, *enrichers)
+        cls.extensions.add_init_plugins(self, *extensions)
+        cls.license.add_init_plugins(self, license or AllRightsReserved)
+        cls.links.add_init_plugins(self, *links)
+        cls.loaders.add_init_plugins(self, *loaders)
         self._ancestry = EntityPool() if ancestry is None else ancestry
         self._author = None if author is None else resolve_localizable(author)
         self._clean_urls = clean_urls
-        self.__copyright_notice = copyright_notice
         self._debug = debug
         self._directory = directory
         self._entity_types = KeyedCollectionAdapter(
@@ -204,7 +192,6 @@ class Project(
             },
             key_resolver=resolve_plugin_id,
         )
-        self.__license = license
         self._lifetime_threshold = lifetime_threshold or DEFAULT_LIFETIME_THRESHOLD
         self._locales = KeyedCollectionAdapter(
             {
@@ -260,11 +247,13 @@ class Project(
             clean_urls=data.clean_urls,
             copyright_notice=data.copyright_notice,
             debug=data.debug,
+            enrichers=data.enrichers,
             license=data.license,
             lifetime_threshold=data.lifetime_threshold,
+            loaders=data.loaders,
             locales=data.locales,
             logo=data.logo,
-            service_plugins=data.extensions,
+            extensions=data.extensions,
             title=data.title,
             url=data.url,
         )
@@ -276,14 +265,19 @@ class Project(
         *,
         ancestry: EntityPool | None = None,
         app: App | None = None,
+        assets: Iterable[ResolvablePluginDefinition[AssetDefinition]] = (),
         author: ResolvableLocalizable | None = None,
         clean_urls: bool = False,
         debug: bool = False,
         directory: Path | None = None,
+        enrichers: ServicePluginInstances[EnricherDefinition] = (),
         entity_types: Iterable[
             ProjectEntityType | ResolvablePluginId[EntityDefinition]
         ] = (),
+        extensions: ServicePluginInstances[ExtensionDefinition] = (),
         lifetime_threshold: int | None = None,
+        links: ServicePluginInstances[LinkDefinition] = (),
+        loaders: ServicePluginInstances[LoaderDefinition] = (),
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
         logo: Path | None = None,
         name: ResolvableMachineName | None = None,
@@ -291,8 +285,7 @@ class Project(
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
         ]
         | None = None,
-        service_plugins: ServicePlugins[ProjectServicePlugin] = (),
-        support_plugins: SupportPlugins = (),
+        supported_plugins: SupportedPlugins = (),
         title: ResolvableLocalizable | None = None,
         url: str | None = None,
     ) -> AsyncIterator[Self]:
@@ -316,17 +309,21 @@ class Project(
                 directory,
                 ancestry=ancestry,
                 app=app,
+                assets=assets,
                 author=author,
                 clean_urls=clean_urls,
                 debug=debug,
+                enrichers=enrichers,
                 entity_types=entity_types,
+                extensions=extensions,
                 lifetime_threshold=lifetime_threshold,
+                links=links,
+                loaders=loaders,
                 locales=locales,
                 logo=logo,
                 name=name,
                 plugins=plugins,
-                service_plugins=service_plugins,
-                support_plugins=support_plugins,
+                supported_plugins=supported_plugins,
                 title=title or "Betty",
                 url=url or "https://example.com",
             ) as project:
@@ -495,34 +492,15 @@ class Project(
         return len(self._locales) > 1
 
     @service
-    async def _project_assets(self) -> AssetRepository:
-        return StaticAssetRepository(
-            *(
-                asset.plugin().assets
-                for asset in (await self.service_plugins)[AssetDefinition]
-            )
-        )
-
-    @service
-    async def assets(self) -> AssetRepository:
-        """
-        The assets file system.
-        """
-        return ProxyAssetRepository(
-            *await gather(self._project_assets, self.upstream.assets)
-        )
-
-    @service
     async def translations(self) -> TranslationRepository:
         """
         The available translations.
         """
-        return ProxyTranslationRepository(
-            AssetTranslationRepository(
-                await self._project_assets, self.upstream.binary_file_cache
-            ),
-            await self.upstream.translations,
+        translations = AssetTranslationRepository(
+            self.assets, self.upstream.binary_file_cache
         )
+        await translations.bootstrap()
+        return translations
 
     @service
     async def localizers(self) -> LocalizerRepository:
@@ -568,34 +546,11 @@ class Project(
         ])
 
     @property
-    async def extensions(
-        self,
-    ) -> ServicePluginCollection[ExtensionDefinition, Extension]:
-        """
-        The enabled extensions.
-        """
-        return (await self.service_plugins)[ExtensionDefinition]
-
-    @property
     def logo(self) -> Path:
         """
         The path to the logo file.
         """
         return self._logo
-
-    @service
-    async def copyright_notice(self) -> CopyrightNotice:
-        """
-        The overall project copyright.
-        """
-        return await self.factory.new(self.__copyright_notice)
-
-    @service
-    async def license(self) -> License:
-        """
-        The overall project license.
-        """
-        return await self.factory.new(self.__license)
 
     @service
     def privatizer(self) -> Privatizer:
@@ -618,9 +573,7 @@ class Project(
             resource_url,
             **{
                 key: value
-                for document_provider in (await self.service_plugins)[
-                    DocumentProviderDefinition
-                ]
+                for document_provider in await gather(*self.document_providers)
                 for (key, value) in document_provider.new_document_vars().items()
             },
             **kwargs,

@@ -13,7 +13,7 @@ class TestWikipediaSummary:
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         async with isolated_project_factory(
-            support_plugins=[WikipediaSummary]
+            supported_plugins=[WikipediaSummary]
         ) as project:
             sut = await WikipediaSummary.new(project)
             assert await sut.build(document=Document()) is None
@@ -29,7 +29,7 @@ class TestWikipediaSummary:
         )
         resource = DummyHasLinks(links=[Link(url)])
         async with isolated_project_factory(
-            support_plugins=[WikipediaSummary]
+            supported_plugins=[WikipediaSummary]
         ) as project:
             project.ancestry.add(resource)
             sut = await WikipediaSummary.new(project)

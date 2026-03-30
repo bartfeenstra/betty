@@ -11,7 +11,7 @@ from betty.plugins.asset.http_api_doc import HttpApiDoc as HttpApiDocAsset
 from betty.plugins.extension.webpack import Webpack
 from betty.plugins.extension.webpack.build import EntryPointProvider
 from betty.plugins.link.http_api_doc import HttpApiDoc as HttpApiDocLink
-from betty.requirement import ServicePluginRequirement
+from betty.project import Project
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -25,9 +25,9 @@ if TYPE_CHECKING:
         "Display the HTTP API documentation in a user-friendly way using Swagger UI."
     ),
     requires={
-        ServicePluginRequirement(HttpApiDocAsset),
-        ServicePluginRequirement(HttpApiDocLink),
-        ServicePluginRequirement(Webpack),
+        Project.assets.require(HttpApiDocAsset),
+        Project.extensions.require(Webpack),
+        Project.links.require(HttpApiDocLink),
     },
 )
 class HttpApiDoc(EntryPointProvider):

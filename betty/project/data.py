@@ -24,7 +24,7 @@ from betty.data.str import StrDefinition
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.event_type import EventTypeDefinition
 from betty.event_type.data import EventTypeDefinitionConfiguration
-from betty.extension import ExtensionManufacturer
+from betty.extension import Extension, ExtensionManufacturer
 from betty.gender import GenderDefinition
 from betty.gender.data import GenderDefinitionConfiguration
 from betty.license import License, LicenseDefinition, LicenseManufacturer
@@ -48,7 +48,6 @@ from betty.plugin.data.property import PluginDefinitionConfigurationsProperty
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.project import (
     DEFAULT_LIFETIME_THRESHOLD,
-    Extension,
     ExtensionDefinition,
     ProjectEntityType,
     ProjectLocale,

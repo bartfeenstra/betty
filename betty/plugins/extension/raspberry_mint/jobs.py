@@ -70,14 +70,14 @@ class _GenerateWebmanifest(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-        extensions = await self._project.extensions
+        raspberry_mint = await self._project.extensions[RaspberryMint]
         webmanifest = json.dumps({
             "name": self._project.title.localize(DEFAULT_LOCALIZER),
             "icons": [
                 {"src": "/logo" + self._project.logo.suffix},
             ],
             "lang": to_language_tag(self._project.default_locale.locale),
-            "theme_color": extensions[RaspberryMint].secondary_color,
+            "theme_color": raspberry_mint.secondary_color,
             "background_color": "#ffffff",
             "display": "fullscreen",
         })

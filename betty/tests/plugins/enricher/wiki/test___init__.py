@@ -20,7 +20,7 @@ class TestWiki:
             "betty.plugins.enricher.wiki.jobs.PopulateEntity.do"
         )
 
-        async with isolated_project_factory(service_plugins=[Wiki]) as project:
+        async with isolated_project_factory(enrichers=[Wiki]) as project:
             entity = Link("https://example.com")
             project.ancestry.add(entity)
             await load(project)

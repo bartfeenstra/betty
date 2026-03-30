@@ -31,7 +31,6 @@ from betty.plugins.extension.raspberry_mint import Breakpoint, JustifyContent
 from betty.portable import CallbackPorter
 from betty.project import Project
 from betty.property import Optional, Property
-from betty.requirement import ServicePluginRequirement
 from betty.sample import Sample, Size
 from betty.service.factory import DataManufacturable
 
@@ -219,7 +218,7 @@ class ColumnsConfiguration(Data):
 @ContentDefinition(
     "raspberry-mint-columns",
     label=_("Columns"),
-    requires={ServicePluginRequirement(RaspberryMint)},
+    requires={Project.assets.require(RaspberryMint)},
 )
 class Columns(Template, DataManufacturable[ColumnsConfiguration]):
     """

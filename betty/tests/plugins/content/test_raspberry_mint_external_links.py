@@ -9,7 +9,9 @@ class TestExternalLinks:
     async def test_build_template__without_has_links(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(support_plugins=[ExternalLinks]) as project:
+        async with isolated_project_factory(
+            supported_plugins=[ExternalLinks]
+        ) as project:
             sut = await ExternalLinks.new(project)
             provided_content = await sut.build(document=Document(object()))
         assert provided_content is None
@@ -18,7 +20,9 @@ class TestExternalLinks:
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         resource = Person()
-        async with isolated_project_factory(support_plugins=[ExternalLinks]) as project:
+        async with isolated_project_factory(
+            supported_plugins=[ExternalLinks]
+        ) as project:
             sut = await ExternalLinks.new(project)
             assert await sut.build(document=Document(resource)) is None
 
@@ -27,7 +31,9 @@ class TestExternalLinks:
     ) -> None:
         url = "betty:///my-first-page"
         resource = Person(links=[Link(url)])
-        async with isolated_project_factory(support_plugins=[ExternalLinks]) as project:
+        async with isolated_project_factory(
+            supported_plugins=[ExternalLinks]
+        ) as project:
             sut = await ExternalLinks.new(project)
             actual = await sut.build(document=Document(resource))
         assert actual is not None

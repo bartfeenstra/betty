@@ -4,12 +4,15 @@ from tempfile import TemporaryDirectory
 import pytest
 
 from betty.asset import (
+    Asset,
     AssetDefinition,
     AssetRepository,
-    ProxyAssetRepository,
+    AssetRepositoryService,
     StaticAssetRepository,
     UnknownAsset,
 )
+from betty.service.level import ServiceLevel
+from betty.service.plugin.service import PluginServiceProvider
 
 
 class TestAssetDefinition:
@@ -108,86 +111,20 @@ class TestStaticAssetRepository:
         }
 
 
-class TestProxyAssetRepository:
-    def test_directories(self, tmp_path: Path) -> None:
-        assets_directory_path_one = tmp_path / "one"
-        assets_directory_path_two = tmp_path / "two"
+class TestAssetRepositoryService:
+    async def test_new_service(self) -> None:
+        @AssetDefinition("my-first-asset", assets=Path(__file__))
+        class _Asset(Asset):
+            pass
 
-        upstream_one = StaticAssetRepository(assets_directory_path_one)
-        upstream_two = StaticAssetRepository(assets_directory_path_two)
-        sut = ProxyAssetRepository(upstream_one, upstream_two)
+        class _ServiceProvider(PluginServiceProvider):
+            def __init__(self):
+                super().__init__(
+                    services=ServiceLevel(plugins={AssetDefinition: [_Asset]})
+                )
+                type(self).assets.add_init_plugins(self, _Asset)
 
-        assert list(sut.directories) == [
-            assets_directory_path_one,
-            assets_directory_path_two,
-        ]
+            assets = AssetRepositoryService()
 
-    def test_directories__without_upstreams(self) -> None:
-        sut = ProxyAssetRepository()
-        assert not sut.directories
-
-    async def test_walk(self, tmp_path: Path) -> None:
-        assets_directory_path_one = tmp_path / "one"
-        assets_directory_path_one.mkdir()
-        assets_directory_path_two = tmp_path / "two"
-        assets_directory_path_two.mkdir()
-
-        asset_one_path = Path("one")
-        (assets_directory_path_one / asset_one_path).touch()
-
-        asset_two_path = Path("two")
-        (assets_directory_path_two / asset_two_path).touch()
-
-        common_asset_path = Path("common")
-        (assets_directory_path_one / common_asset_path).touch()
-        (assets_directory_path_two / common_asset_path).touch()
-
-        upstream_one = StaticAssetRepository(assets_directory_path_one)
-        upstream_two = StaticAssetRepository(assets_directory_path_two)
-        sut = ProxyAssetRepository(upstream_one, upstream_two)
-
-        assert {path async for path in sut.walk()} == {
-            Path("one"),
-            Path("two"),
-            Path("common"),
-        }
-
-    async def test_walk__without_upstreams(self) -> None:
-        sut = ProxyAssetRepository()
-        assert not [path async for path in sut.walk()]
-
-    async def test_get(self, tmp_path: Path) -> None:
-        assets_directory_path_one = tmp_path / "one"
-        assets_directory_path_one.mkdir()
-        assets_directory_path_two = tmp_path / "two"
-        assets_directory_path_two.mkdir()
-
-        asset_one_path = Path("one")
-        (assets_directory_path_one / asset_one_path).touch()
-
-        asset_two_path = Path("two")
-        (assets_directory_path_two / asset_two_path).touch()
-
-        common_asset_path = Path("common")
-        (assets_directory_path_one / common_asset_path).touch()
-        (assets_directory_path_two / common_asset_path).touch()
-
-        upstream_one = StaticAssetRepository(assets_directory_path_one)
-        upstream_two = StaticAssetRepository(assets_directory_path_two)
-        sut = ProxyAssetRepository(upstream_one, upstream_two)
-
-        assert (
-            await sut.get(asset_one_path) == assets_directory_path_one / asset_one_path
-        )
-        assert (
-            await sut.get(asset_two_path) == assets_directory_path_two / asset_two_path
-        )
-        assert (
-            await sut.get(common_asset_path)
-            == assets_directory_path_one / common_asset_path
-        )
-
-    async def test_get__without_upstreams(self) -> None:
-        sut = ProxyAssetRepository()
-        with pytest.raises(UnknownAsset):
-            await sut.get(Path("my-first-asset"))
+        async with _ServiceProvider() as service_provider:
+            assert list(service_provider.assets.directories) == [_Asset.plugin().assets]

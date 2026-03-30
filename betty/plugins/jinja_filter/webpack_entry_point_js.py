@@ -9,10 +9,10 @@ from typing import TYPE_CHECKING, cast, final
 
 from jinja2 import pass_context
 
-from betty.jinja import JinjaFilterDefinition, context_document
-from betty.jinja.filter import JinjaFilter
+from betty.jinja import context_document
+from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
 from betty.plugins.document_provider.webpack import Webpack
-from betty.requirement import ServicePluginRequirement
+from betty.project import Project
 
 if TYPE_CHECKING:
     from jinja2.runtime import Context
@@ -20,7 +20,8 @@ if TYPE_CHECKING:
 
 @final
 @JinjaFilterDefinition(
-    "webpack-entry-point-js", requires={ServicePluginRequirement(Webpack)}
+    "webpack-entry-point-js",
+    requires={Project.document_providers.require(Webpack)},
 )
 class WebpackEntryPointJs(JinjaFilter):
     """

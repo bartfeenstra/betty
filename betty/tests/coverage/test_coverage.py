@@ -141,9 +141,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/service/__init__.py": {
         "ServiceError": MissingReason.ABSTRACT,
     },
-    "betty/service/plugin/service.py": {
-        "ServicePluginProvider": MissingReason.ABSTRACT,
-    },
     "betty/service/provider.py": {
         "Service": MissingReason.DATACLASS,
         "ServiceAlreadyInitialized": MissingReason.STATIC_CONTENT_ONLY,
@@ -152,6 +149,16 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/service/factory.py": {
         "DataManufacturable": MissingReason.ABSTRACT,
         "Manufacturable": MissingReason.ABSTRACT,
+    },
+    "betty/service/plugin/service/__init__.py": {
+        "PluginServiceManager": {
+            "new_service": MissingReason.ABSTRACT,
+        },
+    },
+    "betty/service/plugin/service/collection/__init__.py": {
+        "CollectionPluginServiceManager": {
+            "new_service_item": MissingReason.ABSTRACT,
+        },
     },
     "betty/service/requirement/__init__.py": {
         "CallableRequirement": {
@@ -230,18 +237,14 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/html/css.py": {
-        "CssResource": MissingReason.ABSTRACT,
         "CssResourceDefinition": {
             "type": MissingReason.INHERITED,
         },
-        "CssResourceManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/html/js.py": {
-        "JsResource": MissingReason.ABSTRACT,
         "JsResourceDefinition": {
             "type": MissingReason.INHERITED,
         },
-        "JsResourceManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/http_client/rate_limit.py": {
         "RateLimit": MissingReason.ABSTRACT,

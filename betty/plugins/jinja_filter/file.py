@@ -9,8 +9,8 @@ from urllib.parse import quote
 
 from jinja2 import pass_context
 
-from betty.jinja import JinjaFilterDefinition, context_document
-from betty.jinja.filter import JinjaFilter
+from betty.jinja import context_document
+from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
 from betty.os import link_or_copy
 from betty.project import Project
 from betty.service.factory import Manufacturable

@@ -45,7 +45,7 @@ class TestPresences:
     async def test_build_template__without_presences(
         self, resource: object, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(support_plugins=[Presences]) as project:
+        async with isolated_project_factory(supported_plugins=[Presences]) as project:
             sut = Presences(jinja=await project.jinja)
             assert await sut.build(document=Document(resource)) is None
 
@@ -55,7 +55,7 @@ class TestPresences:
         person = Person(id="P1")
         resource = Event()
         Presence(person, Subject(), resource)
-        async with isolated_project_factory(support_plugins=[Presences]) as project:
+        async with isolated_project_factory(supported_plugins=[Presences]) as project:
             sut = Presences(jinja=await project.jinja)
             actual = await sut.build(document=Document(resource))
         assert actual is not None
@@ -69,7 +69,7 @@ class TestPresences:
         resource = Event()
         Presence(person_include, Subject(), resource)
         Presence(person_exclude, Witness(), resource)
-        async with isolated_project_factory(support_plugins=[Presences]) as project:
+        async with isolated_project_factory(supported_plugins=[Presences]) as project:
             sut = Presences(include=[Subject], jinja=await project.jinja)
             actual = await sut.build(document=Document(resource))
         assert actual is not None
@@ -84,7 +84,7 @@ class TestPresences:
         resource = Event()
         Presence(person_include, Subject(), resource)
         Presence(person_exclude, Witness(), resource)
-        async with isolated_project_factory(support_plugins=[Presences]) as project:
+        async with isolated_project_factory(supported_plugins=[Presences]) as project:
             sut = await Presences.new(
                 project, PresencesConfiguration(exclude=[Witness])
             )

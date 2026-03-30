@@ -31,7 +31,7 @@ class TestPopulateLinks:
             headers={"Content-Type": "text/html"},
         )
 
-        async with isolated_project_factory(service_plugins=[PopulateLinks]) as project:
+        async with isolated_project_factory(enrichers=[PopulateLinks]) as project:
             link = Link("https://example.com")
             project.ancestry.add(link)
             await load(project)

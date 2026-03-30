@@ -77,7 +77,10 @@ class PluginDiscoverer[PluginDefinitionT: PluginDefinition]:
         for plugin in (await self._plugins()).values():
             yield plugin
 
-    async def _get(self, key: ResolvableMachineName) -> PluginDefinitionT:
+    async def get(self, key: ResolvableMachineName) -> PluginDefinitionT:
+        """
+        Get a plugin by its ID.
+        """
         key = MachineName.resolve(key)
         try:
             return (await self._plugins())[key]
@@ -85,7 +88,7 @@ class PluginDiscoverer[PluginDefinitionT: PluginDefinition]:
             raise PluginNotFound(self._type, key, await self.ids()) from None
 
     def __getitem__(self, key: ResolvableMachineName) -> Awaitable[PluginDefinitionT]:
-        return self._get(key)
+        return self.get(key)
 
     async def ids(self) -> Iterable[MachineName]:
         """

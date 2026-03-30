@@ -33,7 +33,7 @@ class TestIndex:
                     alias="nl",
                 ),
             ),
-            service_plugins=[RaspberryMint],
+            extensions=[RaspberryMint],
         ) as project:
             yield project
 

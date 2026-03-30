@@ -66,10 +66,9 @@ class TestProject:
     ) -> None:
         async with isolated_project_factory(
             plugins={ExtensionDefinition: [DummyExtensionOne]},
-            service_plugins=[DummyExtensionOne],
+            extensions=[DummyExtensionOne],
         ) as sut:
-            extensions = await sut.extensions
-            extension = extensions[DummyExtensionOne]
+            extension = await sut.extensions[DummyExtensionOne]
             assert extension.bootstrapped
 
     async def test_extensions(
@@ -77,9 +76,9 @@ class TestProject:
     ) -> None:
         async with isolated_project_factory(
             plugins={ExtensionDefinition: [DummyExtensionOne]},
-            service_plugins=[DummyExtensionOne],
+            extensions=[DummyExtensionOne],
         ) as sut:
-            assert DummyExtensionOne in await sut.extensions
+            assert DummyExtensionOne in sut.extensions
 
     async def test_ancestry__with___init___ancestry(
         self, isolated_project_factory: IsolatedProjectFactory
@@ -98,8 +97,7 @@ class TestProject:
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         async with isolated_project_factory() as sut:
-            assets = await sut.assets
-            assert len(assets.directories) == 2
+            assert len(sut.assets.directories) == 2
 
     async def test_jinja(
         self, isolated_project_factory: IsolatedProjectFactory

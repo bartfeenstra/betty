@@ -18,7 +18,6 @@ from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.event import Event
 from betty.project import Project
 from betty.property import Optional, Property
-from betty.requirement import ServicePluginRequirement
 from betty.role import RoleDefinition
 from betty.sample import Sample, Size
 from betty.service.factory import DataManufacturable, Manufacturable
@@ -85,7 +84,7 @@ class PresencesConfiguration(Data):
 @ContentDefinition(
     "raspberry-mint-presences",
     label=_("Presences"),
-    requires={ServicePluginRequirement(RaspberryMint)},
+    requires={Project.assets.require(RaspberryMint)},
 )
 class Presences(Template, DataManufacturable[PresencesConfiguration], Manufacturable):
     """

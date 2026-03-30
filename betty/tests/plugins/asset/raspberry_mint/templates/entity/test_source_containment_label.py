@@ -11,7 +11,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "source": source,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
     ) as (actual, _):
         assert actual == expected
 
@@ -26,7 +26,7 @@ async def test_with_contained_by(assert_template_file: AssertTemplateFile) -> No
         data={
             "source": source,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
     ) as (actual, _):
         assert actual == expected
 
@@ -43,6 +43,6 @@ async def test_with_source_context(
             "source": source,
             "source_context": contained_by_source,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
     ) as (actual, _):
         assert actual == expected

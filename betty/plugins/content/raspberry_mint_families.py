@@ -13,7 +13,6 @@ from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.person import Person
 from betty.plugins.extension._theme import person_descendant_families
 from betty.project import Project
-from betty.requirement import ServicePluginRequirement
 from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
@@ -24,7 +23,7 @@ if TYPE_CHECKING:
 @ContentDefinition(
     "raspberry-mint-families",
     label=_("Families"),
-    requires={ServicePluginRequirement(RaspberryMint)},
+    requires={Project.assets.require(RaspberryMint)},
 )
 class Families(Template, Manufacturable):
     """

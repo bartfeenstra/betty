@@ -32,7 +32,7 @@ from collections.abc import (
     MutableMapping,
     MutableSequence,
 )
-from contextlib import AbstractAsyncContextManager, asynccontextmanager
+from contextlib import asynccontextmanager
 from io import BytesIO
 from json import dumps
 from typing import TYPE_CHECKING, Any, Literal, Protocol, final
@@ -48,12 +48,7 @@ from betty.exception import do_raise
 from betty.json.schema import Schema
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.plugins.license.spdx import SpdxLicenseDiscoverer
-from betty.project import (
-    Project,
-    ProjectEntityType,
-    ProjectLocale,
-    ProjectServicePlugin,
-)
+from betty.project import Project, ProjectEntityType, ProjectLocale
 from betty.user import Verbosity
 
 if TYPE_CHECKING:
@@ -69,21 +64,26 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from playwright.async_api import BrowserContext, Page
-    from betty.service.simple.asynchronous import TypedAsynchronousServiceOrFactory
 
+    from betty.asset import AssetDefinition
     from betty.cache import Cache
     from betty.entity import EntityDefinition
     from betty.entity.collection.pool import EntityPool
+    from betty.extension import ExtensionDefinition
     from betty.json.linked_data import LinkedDataDumpableWithSchema, LinkedDataDumper
+    from betty.link import LinkDefinition
+    from betty.load import EnricherDefinition, LoaderDefinition
     from betty.locale import ResolvableLocale
     from betty.locale.localizable import ResolvableLocalizable
     from betty.locale.translation import TranslationRepository
     from betty.machine_name import ResolvableMachineName
     from betty.plugin import PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
-    from betty.plugin.resolve import ResolvablePluginId
+    from betty.plugin.resolve import ResolvablePluginId, ResolvablePluginDefinition
     from betty.portable import PortableData, PortableMapping
-    from betty.service.plugin.service import ServicePlugins, SupportPlugins
+    from betty.service.plugin.service import SupportedPlugins
+    from betty.service.plugin.service.instance import ServicePluginInstances
+    from betty.service.simple.asynchronous import TypedAsynchronousServiceOrFactory
     from betty.service.simple.synchronous import TypedSynchronousServiceOrFactory
     from betty.user import User
 
@@ -203,14 +203,19 @@ class IsolatedProjectFactory(Protocol):
         *,
         ancestry: EntityPool | None = None,
         app: App | None = None,
+        assets: Iterable[ResolvablePluginDefinition[AssetDefinition]] = (),
         author: ResolvableLocalizable | None = None,
         clean_urls: bool = False,
         debug: bool = False,
         directory: Path | None = None,
+        enrichers: ServicePluginInstances[EnricherDefinition] = (),
         entity_types: Iterable[
             ProjectEntityType | ResolvablePluginId[EntityDefinition]
         ] = (),
+        extensions: ServicePluginInstances[ExtensionDefinition] = (),
         lifetime_threshold: int | None = None,
+        links: ServicePluginInstances[LinkDefinition] = (),
+        loaders: ServicePluginInstances[LoaderDefinition] = (),
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
         logo: Path | None = None,
         name: ResolvableMachineName | None = None,
@@ -218,8 +223,7 @@ class IsolatedProjectFactory(Protocol):
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
         ]
         | None = None,
-        service_plugins: ServicePlugins[ProjectServicePlugin] = (),
-        support_plugins: SupportPlugins = (),
+        supported_plugins: SupportedPlugins = (),
         title: ResolvableLocalizable | None = None,
         url: str | None = None,
     ) -> AbstractAsyncContextManager[Project]:
@@ -237,14 +241,19 @@ def isolated_project_factory(isolated_app: App) -> IsolatedProjectFactory:
         *,
         ancestry: EntityPool | None = None,
         app: App | None = None,
+        assets: Iterable[ResolvablePluginDefinition[AssetDefinition]] = (),
         author: ResolvableLocalizable | None = None,
         clean_urls: bool = False,
         debug: bool = False,
         directory: Path | None = None,
+        enrichers: ServicePluginInstances[EnricherDefinition] = (),
         entity_types: Iterable[
             ProjectEntityType | ResolvablePluginId[EntityDefinition]
         ] = (),
+        extensions: ServicePluginInstances[ExtensionDefinition] = (),
         lifetime_threshold: int | None = None,
+        links: ServicePluginInstances[LinkDefinition] = (),
+        loaders: ServicePluginInstances[LoaderDefinition] = (),
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
         logo: Path | None = None,
         name: ResolvableMachineName | None = None,
@@ -252,26 +261,29 @@ def isolated_project_factory(isolated_app: App) -> IsolatedProjectFactory:
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
         ]
         | None = None,
-        service_plugins: ServicePlugins[ProjectServicePlugin] = (),
-        support_plugins: SupportPlugins = (),
+        supported_plugins: SupportedPlugins = (),
         title: ResolvableLocalizable | None = None,
         url: str | None = None,
     ) -> AsyncIterator[Project]:
         async with Project.new_isolated(
             ancestry=ancestry,
             app=app or isolated_app,
+            assets=assets,
             author=author,
             clean_urls=clean_urls,
             debug=debug,
             directory=directory,
+            enrichers=enrichers,
             entity_types=entity_types,
+            extensions=extensions,
             lifetime_threshold=lifetime_threshold,
+            links=links,
+            loaders=loaders,
             locales=locales,
             logo=logo,
             name=name,
             plugins=plugins,
-            service_plugins=service_plugins,
-            support_plugins=support_plugins,
+            supported_plugins=supported_plugins,
             title=title,
             url=url,
         ) as project:
@@ -498,12 +510,21 @@ async def _assert_template(
     template_factory: Callable[[Environment, str], Template],
     template: str,
     *,
-    data: MutableMapping[str, Any] | None = None,
+    assets: Iterable[ResolvablePluginDefinition[AssetDefinition]] = (),
     autoescape: bool | None = None,
-    service_plugins: ServicePlugins[ProjectServicePlugin] = (),
+    data: MutableMapping[str, Any] | None = None,
+    enrichers: ServicePluginInstances[EnricherDefinition] = (),
+    extensions: ServicePluginInstances[ExtensionDefinition] = (),
+    links: ServicePluginInstances[LinkDefinition] = (),
+    loaders: ServicePluginInstances[LoaderDefinition] = (),
 ) -> AsyncIterator[tuple[str, Project]]:
     async with isolated_project_factory(
-        debug=True, service_plugins=service_plugins
+        assets=assets,
+        debug=True,
+        enrichers=enrichers,
+        extensions=extensions,
+        links=links,
+        loaders=loaders,
     ) as project:
         if data is None:
             data = {}
@@ -522,9 +543,13 @@ class AssertTemplateString(Protocol):
         self,
         template: str,
         *,
-        data: MutableMapping[str, Any] | None = None,
+        assets: Iterable[ResolvablePluginDefinition[AssetDefinition]] = (),
         autoescape: bool | None = None,
-        service_plugins: ServicePlugins[ProjectServicePlugin] = (),
+        data: MutableMapping[str, Any] | None = None,
+        enrichers: ServicePluginInstances[EnricherDefinition] = (),
+        extensions: ServicePluginInstances[ExtensionDefinition] = (),
+        links: ServicePluginInstances[LinkDefinition] = (),
+        loaders: ServicePluginInstances[LoaderDefinition] = (),
     ) -> AbstractAsyncContextManager[tuple[str, Project]]:
         """
         Assert that a template string can be rendered.
@@ -542,17 +567,25 @@ def assert_template_string(
     def _assert_template_string(
         template: str,
         *,
-        data: MutableMapping[str, Any] | None = None,
+        assets: Iterable[ResolvablePluginDefinition[AssetDefinition]] = (),
         autoescape: bool | None = None,
-        service_plugins: ServicePlugins[ProjectServicePlugin] = (),
+        data: MutableMapping[str, Any] | None = None,
+        enrichers: ServicePluginInstances[EnricherDefinition] = (),
+        extensions: ServicePluginInstances[ExtensionDefinition] = (),
+        links: ServicePluginInstances[LinkDefinition] = (),
+        loaders: ServicePluginInstances[LoaderDefinition] = (),
     ) -> AbstractAsyncContextManager[tuple[str, Project]]:
         return _assert_template(
             isolated_project_factory,
             Environment.from_string,
             template,
-            data=data,
+            assets=assets,
             autoescape=autoescape,
-            service_plugins=service_plugins,
+            data=data,
+            enrichers=enrichers,
+            extensions=extensions,
+            links=links,
+            loaders=loaders,
         )
 
     return _assert_template_string
@@ -564,9 +597,13 @@ class AssertTemplateFile(Protocol):
         self,
         template: str,
         *,
-        data: MutableMapping[str, Any] | None = None,
+        assets: Iterable[ResolvablePluginDefinition[AssetDefinition]] = (),
         autoescape: bool | None = None,
-        service_plugins: ServicePlugins[ProjectServicePlugin] = (),
+        data: MutableMapping[str, Any] | None = None,
+        enrichers: ServicePluginInstances[EnricherDefinition] = (),
+        extensions: ServicePluginInstances[ExtensionDefinition] = (),
+        links: ServicePluginInstances[LinkDefinition] = (),
+        loaders: ServicePluginInstances[LoaderDefinition] = (),
     ) -> AbstractAsyncContextManager[tuple[str, Project]]:
         """
         Assert that a template file can be rendered.
@@ -584,17 +621,25 @@ def assert_template_file(
     def _assert_template_file(
         template: str,
         *,
-        data: MutableMapping[str, Any] | None = None,
+        assets: Iterable[ResolvablePluginDefinition[AssetDefinition]] = (),
         autoescape: bool | None = None,
-        service_plugins: ServicePlugins[ProjectServicePlugin] = (),
+        data: MutableMapping[str, Any] | None = None,
+        enrichers: ServicePluginInstances[EnricherDefinition] = (),
+        extensions: ServicePluginInstances[ExtensionDefinition] = (),
+        links: ServicePluginInstances[LinkDefinition] = (),
+        loaders: ServicePluginInstances[LoaderDefinition] = (),
     ) -> AbstractAsyncContextManager[tuple[str, Project]]:
         return _assert_template(
             isolated_project_factory,
             Environment.get_template,
             template,
-            data=data,
+            assets=assets,
             autoescape=autoescape,
-            service_plugins=service_plugins,
+            data=data,
+            enrichers=enrichers,
+            extensions=extensions,
+            links=links,
+            loaders=loaders,
         )
 
     return _assert_template_file

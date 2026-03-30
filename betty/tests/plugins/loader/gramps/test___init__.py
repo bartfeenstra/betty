@@ -46,7 +46,7 @@ class TestGramps:
             f.write(family_tree_xml.encode("utf-8"))
 
         async with isolated_project_factory(
-            service_plugins=[
+            loaders=[
                 LoaderManufacturer(
                     Gramps.plugin(),
                     GrampsConfiguration(
@@ -87,7 +87,7 @@ class TestGramps:
             f.write(family_tree_xml.encode("utf-8"))
 
         async with isolated_project_factory(
-            service_plugins=[
+            loaders=[
                 LoaderManufacturer(
                     Gramps.plugin(),
                     GrampsConfiguration(
@@ -136,7 +136,7 @@ class TestGramps:
             f.write(family_tree_xml.encode("utf-8"))
 
         async with isolated_project_factory(
-            service_plugins=[
+            loaders=[
                 LoaderManufacturer(
                     Gramps.plugin(),
                     GrampsConfiguration(
@@ -263,7 +263,7 @@ class TestGramps:
                 f.write(family_tree_two_xml.encode("utf-8"))
 
             async with isolated_project_factory(
-                service_plugins=[
+                loaders=[
                     LoaderManufacturer(
                         Gramps.plugin(),
                         GrampsConfiguration(

@@ -23,7 +23,7 @@ class TestFacts:
     async def test_build_template__without_associated_facts(
         self, resource: object, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(support_plugins=[Facts]) as project:
+        async with isolated_project_factory(supported_plugins=[Facts]) as project:
             sut = await Facts.new(project)
         assert await sut.build(document=Document(resource)) is None
 
@@ -32,7 +32,7 @@ class TestFacts:
     ) -> None:
         resource = Citation(source=Source())
         fact = DummyHasCitations(citations=[resource])
-        async with isolated_project_factory(support_plugins=[Facts]) as project:
+        async with isolated_project_factory(supported_plugins=[Facts]) as project:
             sut = await Facts.new(project)
             actual = await sut.build(document=Document(resource))
         assert actual is not None
@@ -44,7 +44,7 @@ class TestFacts:
         resource = Source()
         citation = Citation(source=resource)
         fact = DummyHasCitations(citations=[citation])
-        async with isolated_project_factory(support_plugins=[Facts]) as project:
+        async with isolated_project_factory(supported_plugins=[Facts]) as project:
             sut = await Facts.new(project)
             actual = await sut.build(document=Document(resource))
         assert actual is not None

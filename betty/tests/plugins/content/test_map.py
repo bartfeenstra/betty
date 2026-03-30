@@ -19,7 +19,7 @@ class TestMap:
     async def test_build_template__without_supported_entity(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(support_plugins=[Map]) as project:
+        async with isolated_project_factory(supported_plugins=[Map]) as project:
             sut = await Map.new(project)
             assert await sut.build(document=Document()) is None
 
@@ -36,7 +36,7 @@ class TestMap:
         has_associated_places: Entity,
         isolated_project_factory: IsolatedProjectFactory,
     ) -> None:
-        async with isolated_project_factory(support_plugins=[Map]) as project:
+        async with isolated_project_factory(supported_plugins=[Map]) as project:
             project.ancestry.add(has_associated_places)
             sut = await Map.new(project)
             assert (
@@ -70,7 +70,7 @@ class TestMap:
         isolated_project_factory: IsolatedProjectFactory,
     ) -> None:
         has_associated_places, place = has_map_entities
-        async with isolated_project_factory(support_plugins=[Map]) as project:
+        async with isolated_project_factory(supported_plugins=[Map]) as project:
             project.ancestry.add(has_associated_places)
             sut = await Map.new(project)
             document = await project.new_document(has_associated_places)

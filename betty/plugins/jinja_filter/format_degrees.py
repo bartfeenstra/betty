@@ -9,8 +9,7 @@ from typing import final
 from geopy import units
 from geopy.format import DEGREES_FORMAT
 
-from betty.jinja import JinjaFilterDefinition
-from betty.jinja.filter import JinjaFilter
+from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
 
 
 @final

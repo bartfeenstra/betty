@@ -11,7 +11,7 @@ class TestMedia:
     async def test_build_template__without_file(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(support_plugins=[Media]) as project:
+        async with isolated_project_factory(supported_plugins=[Media]) as project:
             sut = await Media.new(project)
             assert await sut.build(document=Document(object())) is None
 
@@ -26,7 +26,7 @@ class TestMedia:
             / "betty-16x16.png",
             media_type=MediaType("image/png"),
         )
-        async with isolated_project_factory(support_plugins=[Media]) as project:
+        async with isolated_project_factory(supported_plugins=[Media]) as project:
             sut = await Media.new(project)
             actual = await sut.build(document=Document(resource))
         assert actual is not None

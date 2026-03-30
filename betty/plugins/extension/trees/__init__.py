@@ -13,7 +13,6 @@ from betty.plugins.extension.webpack import Webpack
 from betty.plugins.extension.webpack.build import EntryPointProvider
 from betty.project import Project
 from betty.project.generate import Generator
-from betty.requirement import ServicePluginRequirement
 from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
@@ -27,7 +26,10 @@ if TYPE_CHECKING:
     "trees",
     label="Trees",
     description=_("Display interactive family trees using Cytoscape."),
-    requires={ServicePluginRequirement(TreesAsset), ServicePluginRequirement(Webpack)},
+    requires={
+        Project.assets.require(TreesAsset),
+        Project.extensions.require(Webpack),
+    },
 )
 class Trees(Generator, EntryPointProvider, Manufacturable):
     """

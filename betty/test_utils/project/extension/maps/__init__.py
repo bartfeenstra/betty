@@ -50,7 +50,7 @@ class MapsTestBase:
         Serve a test page with a map, navigate to it, and return the Playwright Page fixture.
         """
         async with Project.new_isolated(
-            service_plugins=[
+            extensions=[
                 Maps,
                 *ExtensionManufacturer.resolve_sequence(self.get_other_extensions()),
             ],

@@ -12,7 +12,6 @@ from betty.plugins.asset.raspberry_mint import RaspberryMint
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.file import File
 from betty.project import Project
-from betty.requirement import ServicePluginRequirement
 from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
@@ -24,7 +23,7 @@ if TYPE_CHECKING:
     "raspberry-mint-media",
     label=_("Media"),
     description=_("A single file in a media display"),
-    requires={ServicePluginRequirement(RaspberryMint)},
+    requires={Project.assets.require(RaspberryMint)},
 )
 class Media(Template, Manufacturable):
     """

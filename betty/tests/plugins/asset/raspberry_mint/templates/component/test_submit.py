@@ -9,7 +9,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "button_label": label,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="component/submit.html.j2",
     ) as (actual, _):
         assert "<input " in actual
@@ -24,7 +24,7 @@ async def test_secondary(assert_template_file: AssertTemplateFile) -> None:
             "button_label": "Hit me, I am a button!",
             "button_secondary": True,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="component/submit.html.j2",
     ) as (actual, _):
         assert "button-secondary" in actual
@@ -37,7 +37,7 @@ async def test_with_html_attributes(assert_template_file: AssertTemplateFile) ->
             "button_label": "Hit me, I am a button!",
             "attributes": Attributes(html_id=html_id),
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="component/submit.html.j2",
     ) as (actual, _):
         assert f'id="{html_id}"' in actual

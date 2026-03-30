@@ -15,10 +15,9 @@ from betty.locale.localizable import (
 )
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import Plugin
+from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import Order, OrderedPluginDefinition
-from betty.service.plugin.service import ServicePluginDefinition
 
 if TYPE_CHECKING:
     from betty.machine_name import ResolvableMachineName
@@ -57,7 +56,7 @@ class Link(Singleton, Plugin["LinkDefinition"]):
     label_plural=_("Links"),
     label_countable=ngettext("{count} link", "{count} links"),
 )
-class LinkDefinition(OrderedPluginDefinition, ServicePluginDefinition[Link]):
+class LinkDefinition(OrderedPluginDefinition, PluginClsDefinition[Link]):
     """
     .. plugin_type:: link.
     """

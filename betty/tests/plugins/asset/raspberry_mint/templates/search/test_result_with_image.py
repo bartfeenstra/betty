@@ -32,7 +32,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": entity,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="search/result-with-image.html.j2",
     ) as (actual, _):
         assert entity.label.localize(DEFAULT_LOCALIZER) in actual
@@ -51,7 +51,7 @@ async def test_with_image(
         data={
             "entity": entity,
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="search/result-with-image.html.j2",
     ) as (actual, _):
         assert entity.label.localize(DEFAULT_LOCALIZER) in actual

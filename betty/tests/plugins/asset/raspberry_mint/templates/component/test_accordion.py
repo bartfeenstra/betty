@@ -10,7 +10,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "accordion_items": [],
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="component/accordion.html.j2",
     ) as (actual, _):
         assert actual == ""
@@ -30,7 +30,7 @@ async def test_with_items(assert_template_file: AssertTemplateFile) -> None:
                 },
             ],
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="component/accordion.html.j2",
     ) as (actual, _):
         assert f"<{accordion_heading_element}" in actual
@@ -51,7 +51,7 @@ async def test_with_html_attributes(assert_template_file: AssertTemplateFile) ->
             ],
             "attributes": Attributes(html_class=[html_class]),
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="component/accordion.html.j2",
     ) as (actual, _):
         assert html_class in actual

@@ -25,7 +25,7 @@ class TestTimeline:
     async def test_build_template__without_associated_events(
         self, resource: object, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(support_plugins=[Timeline]) as project:
+        async with isolated_project_factory(supported_plugins=[Timeline]) as project:
             sut = await Timeline.new(project)
         assert await sut.build(document=Document(resource)) is None
 
@@ -35,7 +35,7 @@ class TestTimeline:
         event = Event(id="E0", date=Date(1970, 1, 1))
         resource = Person()
         Presence(resource, Subject(), event)
-        async with isolated_project_factory(support_plugins=[Timeline]) as project:
+        async with isolated_project_factory(supported_plugins=[Timeline]) as project:
             sut = await Timeline.new(project)
             actual = await sut.build(document=Document(resource))
         assert actual is not None
@@ -49,7 +49,7 @@ class TestTimeline:
         event = Event(id="E0", date=Date(1970, 1, 1))
         resource = Place(events=[event])
         Enclosure(enclosee, resource)
-        async with isolated_project_factory(support_plugins=[Timeline]) as project:
+        async with isolated_project_factory(supported_plugins=[Timeline]) as project:
             sut = await Timeline.new(project)
             actual = await sut.build(document=Document(resource))
         assert actual is not None

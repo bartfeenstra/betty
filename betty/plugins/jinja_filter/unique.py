@@ -8,8 +8,7 @@ from typing import TYPE_CHECKING, final
 
 from jinja2.async_utils import auto_aiter
 
-from betty.jinja import JinjaFilterDefinition
-from betty.jinja.filter import JinjaFilter
+from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterable

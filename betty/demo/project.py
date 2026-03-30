@@ -63,17 +63,19 @@ async def create_project(
 
     return Project(
         app=app,
-        directory=directory,
-        name="demo",
-        license=LicenseManufacturer("spdx-gpl-3--0-or-later"),
-        title=_("A Betty demonstration"),
         author=_("Bart Feenstra and contributors"),
-        url=url or "https://example.com",
-        service_plugins=[
-            BettyDocumentation,
-            BettyGithub,
-            Demo,
+        directory=directory,
+        enrichers=[
             Deriver,
+            Wiki,
+        ],
+        entity_types=[
+            Person,
+            Event,
+            Place,
+            Source,
+        ],
+        extensions=[
             HttpApiDoc,
             Maps,
             RaspberryMint,
@@ -203,20 +205,24 @@ async def create_project(
                 ),
             ),
             Trees,
-            Wiki,
         ],
-        support_plugins=[
-            WikipediaSummary,
+        license=LicenseManufacturer("spdx-gpl-3--0-or-later"),
+        links=[
+            BettyDocumentation,
+            BettyGithub,
         ],
-        entity_types=[
-            Person,
-            Event,
-            Place,
-            Source,
+        loaders=[
+            Demo,
         ],
         locales=[
             # The first configured locale is the project default.
             DEFAULT_LOCALE,
             *[locale for locale in translations.locales if locale != DEFAULT_LOCALE],
         ],
+        name="demo",
+        supported_plugins=[
+            WikipediaSummary,
+        ],
+        title=_("A Betty demonstration"),
+        url=url or "https://example.com",
     )

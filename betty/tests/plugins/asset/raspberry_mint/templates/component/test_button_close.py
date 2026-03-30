@@ -5,7 +5,7 @@ from betty.test_utils.conftest import AssertTemplateFile
 
 async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
     async with assert_template_file(
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="component/button-close.html.j2",
     ) as (actual, _):
         assert "<button " in actual
@@ -17,7 +17,7 @@ async def test_with_html_attribute(assert_template_file: AssertTemplateFile) -> 
         data={
             "attributes": Attributes(html_id=html_id),
         },
-        service_plugins={RaspberryMint},
+        assets={RaspberryMint},
         template="component/button-close.html.j2",
     ) as (actual, _):
         assert f'id="{html_id}"' in actual
