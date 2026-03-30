@@ -10,14 +10,12 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer
-from betty.plugin.ordered import OrderedPluginClsDefinition
 from betty.service.plugin.service import ServicePluginDefinition
 
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.plugin import Requires
-    from betty.plugin.ordered import Order
 
 
 class Extension(ManagedLifeCycle, Plugin["ExtensionDefinition"]):
@@ -33,11 +31,7 @@ class Extension(ManagedLifeCycle, Plugin["ExtensionDefinition"]):
     label_plural=_("Extensions"),
     label_countable=ngettext("{count} extension", "{count} extensions"),
 )
-class ExtensionDefinition(
-    HumanFacingDefinition,
-    OrderedPluginClsDefinition[Extension],
-    ServicePluginDefinition[Extension],
-):
+class ExtensionDefinition(HumanFacingDefinition, ServicePluginDefinition[Extension]):
     """
     .. plugin_type:: extension.
 
@@ -55,17 +49,10 @@ class ExtensionDefinition(
         *,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
-        after: Order[ExtensionDefinition] = (),
-        before: Order[ExtensionDefinition] = (),
         requires: Requires = (),
     ):
         super().__init__(
-            plugin_id,
-            label=label,
-            description=description,
-            after=after,
-            before=before,
-            requires=requires,
+            plugin_id, label=label, description=description, requires=requires
         )
 
 
