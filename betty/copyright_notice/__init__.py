@@ -9,7 +9,8 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
+from betty.plugin import PluginTypeDefinition
+from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer
 
 if TYPE_CHECKING:
@@ -53,7 +54,7 @@ class CopyrightNotice(Plugin["CopyrightNoticeDefinition"]):
     label_countable=ngettext("{count} copyright notice", "{count} copyright notices"),
 )
 class CopyrightNoticeDefinition(
-    HumanFacingDefinition, PluginDefinition[CopyrightNotice]
+    HumanFacingDefinition, PluginClsDefinition[CopyrightNotice]
 ):
     """
     .. plugin_type:: copyright-notice.

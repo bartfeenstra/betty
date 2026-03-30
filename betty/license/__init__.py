@@ -9,7 +9,8 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
+from betty.plugin import PluginTypeDefinition
+from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer
 
 if TYPE_CHECKING:
@@ -52,7 +53,7 @@ class License(Plugin["LicenseDefinition"]):
     label_plural=_("Licenses"),
     label_countable=ngettext("{count} license", "{count} licenses"),
 )
-class LicenseDefinition(HumanFacingDefinition, PluginDefinition[License]):
+class LicenseDefinition(HumanFacingDefinition, PluginClsDefinition[License]):
     """
     .. plugin_type:: license.
     """

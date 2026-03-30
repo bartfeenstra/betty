@@ -58,7 +58,7 @@ from betty.locale.translation import (
     TranslationRepository,
 )
 from betty.machine_name import MachineName, ResolvableMachineName
-from betty.plugin import resolve_plugin_id
+from betty.plugin.resolve import resolve_plugin_id
 from betty.plugins.entity.person import Person
 from betty.privacy.privatizer import Privatizer
 from betty.render import RenderDispatcher, RendererDefinition
@@ -76,9 +76,10 @@ if TYPE_CHECKING:
     from betty.jinja import Environment
     from betty.license import License, LicenseDefinition
     from betty.locale.localizable import Localizable, ResolvableLocalizable
-    from betty.plugin import PluginDefinition, ResolvablePluginId
+    from betty.plugin import PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.plugin.factory import PluginManufacturer
+    from betty.plugin.resolve import ResolvablePluginId
     from betty.project.data import ProjectConfiguration
     from betty.service.plugin import PluginCollection
     from betty.url import UrlGenerator

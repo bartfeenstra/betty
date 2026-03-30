@@ -21,6 +21,7 @@ from betty.definition.human_facing import HumanFacingDefinition
 from betty.functools import Result
 from betty.importlib import import_any
 from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.plugin.cls import PluginClsDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.project import Project
 from betty.serde import SerializerDefinition
@@ -71,7 +72,7 @@ def _cmp_formats(left: PluginDefinition, right: PluginDefinition) -> int:
 async def _get_serializers() -> Sequence[Serializer]:
     async with Project.new_isolated() as project:
         return [
-            await project.factory.new(serializer.cls)
+            await project.factory.new(serializer.cls)  # ty:ignore[unresolved-attribute]
             for serializer in sorted(
                 [x async for x in project.plugins[SerializerDefinition]],
                 key=cmp_to_key(_cmp_formats),
@@ -137,7 +138,7 @@ class _PluginDirective(SphinxDirective):
         return nodes.paragraph("", "", *summary_nodes)
 
     def _build_metadata(
-        self, plugin: PluginDefinition, plugins: _Plugins
+        self, plugin: PluginClsDefinition, plugins: _Plugins
     ) -> list[nodes.Node]:
         cls = plugin.cls
         if issubclass(cls, DataManufacturable):
@@ -159,8 +160,10 @@ class _PluginDirective(SphinxDirective):
         if isinstance(plugin, OrderedPluginDefinition):
             if after_content := self._build_other_plugins_references(
                 [
-                    plugins[plugin.type().id][plugin_id]
+                    after_plugin
                     for plugin_id in filter(plugin.after, plugins[plugin.type().id])
+                    if (after_plugin := plugins[plugin.type().id][plugin_id])
+                    and isinstance(after_plugin, PluginClsDefinition)
                 ]
             ):
                 content += f"""
@@ -169,8 +172,10 @@ class _PluginDirective(SphinxDirective):
 """
             if before_content := self._build_other_plugins_references(
                 [
-                    plugins[plugin.type().id][plugin_id]
+                    before_plugin
                     for plugin_id in filter(plugin.before, plugins[plugin.type().id])
+                    if (before_plugin := plugins[plugin.type().id][plugin_id])
+                    and isinstance(before_plugin, PluginClsDefinition)
                 ]
             ):
                 content += f"""
@@ -184,7 +189,7 @@ class _PluginDirective(SphinxDirective):
         )
 
     def _build_other_plugins_references(
-        self, plugins: Iterable[PluginDefinition]
+        self, plugins: Iterable[PluginClsDefinition]
     ) -> str:
         contents = [
             f":py:class:`{plugin.id} <{plugin.cls.__module__}.{plugin.cls.__qualname__}>`"
@@ -263,12 +268,13 @@ class _PluginTypeDirective(SphinxDirective):
                         plugins[plugin_type.type().id].values(),
                         key=lambda plugin: plugin.id,
                     )
+                    if isinstance(plugin, PluginClsDefinition)
                 ]
             ),
         ]
 
     def _build_builtin_plugin_definition(
-        self, plugin: PluginDefinition
+        self, plugin: PluginClsDefinition
     ) -> tuple[NodesLike, NodesLike]:
         term_nodes, _ = self.parse_inline(
             f"{plugin.id} (:py:class:`{plugin.cls.__name__} <{plugin.cls.__module__}.{plugin.cls.__qualname__}>`)"

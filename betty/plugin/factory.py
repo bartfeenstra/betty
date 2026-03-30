@@ -24,7 +24,9 @@ from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
 from betty.data.indicator.selector import Attr
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName
-from betty.plugin import Plugin, PluginDefinition, ResolvablePluginId, resolve_plugin_id
+from betty.plugin import PluginDefinition
+from betty.plugin.cls import Plugin
+from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.sample import Samplable, Sample, Samples, Size
 from betty.typing import Void, VoidType
 

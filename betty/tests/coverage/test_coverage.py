@@ -466,8 +466,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "data": MissingReason.INHERITED,
         },
     },
-    "betty/plugin/__init__.py": {
+    "betty/plugin/cls.py": {
         "Plugin": MissingReason.ABSTRACT,
+        "PluginClsDefinition": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/plugin/data/__init__.py": {
         "PluginDefinitionConfiguration": {"new_plugin": MissingReason.ABSTRACT},

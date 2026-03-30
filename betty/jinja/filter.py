@@ -7,7 +7,8 @@ from __future__ import annotations
 from typing import final, override
 
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin import PluginTypeDefinition
+from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer
 from betty.service.plugin import ServicePluginDefinition
 

@@ -6,9 +6,11 @@ from typing import Any, final, override
 
 from betty.locale.localizable.gettext import _, ngettext
 from betty.machine_name import ResolvableMachineName
-from betty.plugin import Plugin, PluginTypeDefinition, Requires
+from betty.plugin import PluginTypeDefinition
+from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import Order, OrderedPluginDefinition
+from betty.requirement import Requires
 from betty.service.plugin import ServicePluginDefinition
 
 

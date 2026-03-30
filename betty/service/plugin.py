@@ -10,14 +10,7 @@ from asyncio import gather
 from collections import defaultdict
 from graphlib import TopologicalSorter
 from importlib import metadata
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    cast,
-    final,
-    overload,
-    override,
-)
+from typing import TYPE_CHECKING, Any, cast, final, overload, override
 
 from betty.collection.keyed import KeyedCollection
 from betty.concurrent import AsynchronizedLock
@@ -25,20 +18,14 @@ from betty.importlib import fully_qualified_name
 from betty.life_cycle import LifeCycle
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.machine_name import MachineName, ResolvableMachineName
-from betty.plugin import (
-    Plugin,
-    PluginDefinition,
-    ResolvablePluginId,
-    resolve_plugin_id,
-)
+from betty.plugin import PluginDefinition
+from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.discovery import ResolvableDiscovery
 from betty.plugin.error import PluginNotFound
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import OrderedPluginDefinition
-from betty.requirement import (
-    ServicePluginRequirement,
-    UnmetRequirement,
-)
+from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
+from betty.requirement import ServicePluginRequirement, UnmetRequirement
 from betty.service.provider import service
 from betty.string import kebab_case_to_snake_case
 from betty.typing import threadsafe
@@ -181,7 +168,7 @@ class PluginManager[PluginDefinitionT: PluginDefinition]:
         return (await self._plugins()).keys()
 
 
-class ServicePluginDefinition[BaseClsT = Any](PluginDefinition[BaseClsT]):
+class ServicePluginDefinition[BaseClsT = Any](PluginClsDefinition[BaseClsT]):
     """
     A definition of a service plugin.
 
@@ -207,17 +194,17 @@ class ServicePluginDefinition[BaseClsT = Any](PluginDefinition[BaseClsT]):
         return self._auto
 
 
-type ServicePluginTypes[ServicePluginT: PluginDefinition = PluginDefinition] = (
-    Collection[type[ServicePluginT]]
-)
-type _Plugins[ServicePluginT: PluginDefinition = PluginDefinition] = Iterable[
+type ServicePluginTypes[
+    ServicePluginT: ServicePluginDefinition = ServicePluginDefinition
+] = Collection[type[ServicePluginT]]
+type _Plugins[ServicePluginT: PluginClsDefinition = PluginClsDefinition] = Iterable[
     PluginManufacturer[ServicePluginT, Plugin[ServicePluginT]]
     | type[Plugin[ServicePluginT]]
 ]
 type ServicePlugins[
     ServicePluginT: ServicePluginDefinition = ServicePluginDefinition
 ] = _Plugins[ServicePluginT]
-type SupportPlugins = _Plugins[PluginDefinition]
+type SupportPlugins = _Plugins
 
 
 @final

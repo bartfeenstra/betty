@@ -38,7 +38,7 @@ class ClsDefinition[ClsT = Any]:
         self._set_cls(cls)
         return cls
 
-    def _set_cls(self, cls: type[ClsT]) -> None:
+    def _set_cls(self, cls: type[ClsT], /) -> None:
         if self._cls is not None:
             raise ValueError(
                 f"This definition already has a class: {fully_qualified_name(self._cls)}."

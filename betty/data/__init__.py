@@ -67,7 +67,7 @@ class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
         return self._porter  # ty:ignore[invalid-return-type]
 
     @override
-    def _set_cls(self, cls: type[DataClsT]) -> None:
+    def _set_cls(self, cls: type[DataClsT], /) -> None:
         super()._set_cls(cls)
         if issubclass(cls, Data):
             cls.data = staticmethod(update_wrapper(lambda: self, cls.data))  # ty:ignore[invalid-assignment]

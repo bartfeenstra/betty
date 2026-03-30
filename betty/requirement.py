@@ -16,7 +16,7 @@ from betty.service.level import ChainedServiceLevel, ServiceLevel
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable
 
-    from betty.plugin import Plugin
+    from betty.plugin.cls import Plugin
     from betty.service.plugin import ServicePluginDefinition
 
 

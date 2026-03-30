@@ -4,7 +4,8 @@ import pytest
 
 from betty.data.indicator.selector import Attr
 from betty.exception import HumanFacingException
-from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
+from betty.plugin import PluginTypeDefinition
+from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer
 from betty.service.level import ServiceLevel
 from betty.test_utils.data import DummyData
@@ -31,7 +32,7 @@ class _DataManufacturableDummyPlugin(
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class _DataManufacturableDummyPluginDefinition(
-    PluginDefinition[_DataManufacturableDummyPlugin]
+    PluginClsDefinition[_DataManufacturableDummyPlugin]
 ):
     pass
 

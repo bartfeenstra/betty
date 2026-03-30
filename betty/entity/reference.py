@@ -11,12 +11,12 @@ from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.str import StrDefinition
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineNameProperty
-from betty.plugin import resolve_plugin_id
+from betty.plugin.resolve import resolve_plugin_id
 from betty.property import Property
 
 if TYPE_CHECKING:
     from betty.entity import EntityDefinition
-    from betty.plugin import ResolvablePluginId
+    from betty.plugin.resolve import ResolvablePluginId
 
 
 @final

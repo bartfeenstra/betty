@@ -9,7 +9,8 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.concurrent import AsynchronizedLock, RateLimiter
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import Plugin, PluginTypeDefinition, Requires
+from betty.plugin import PluginTypeDefinition
+from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import Order, OrderedPluginDefinition
 from betty.service.plugin import ServicePluginDefinition
@@ -22,6 +23,7 @@ if TYPE_CHECKING:
     from aiohttp.client_reqrep import ClientRequest, ClientResponse
 
     from betty.machine_name import ResolvableMachineName
+    from betty.requirement import Requires
 
 
 @final

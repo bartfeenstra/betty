@@ -8,7 +8,8 @@ from typing import final, override
 
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
+from betty.plugin import PluginTypeDefinition
+from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer
 
 
@@ -25,7 +26,9 @@ class PlaceType(Plugin["PlaceTypeDefinition"]):
     label_plural=_("Place types"),
     label_countable=ngettext("{count} place type", "{count} place types"),
 )
-class PlaceTypeDefinition(CountableHumanFacingDefinition, PluginDefinition[PlaceType]):
+class PlaceTypeDefinition(
+    CountableHumanFacingDefinition, PluginClsDefinition[PlaceType]
+):
     """
     .. plugin_type:: place-type.
     """

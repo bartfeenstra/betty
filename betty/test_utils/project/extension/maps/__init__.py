@@ -14,7 +14,7 @@ from playwright.async_api import Page, expect
 from betty import serve
 from betty.plugins.entity.place_name import PlaceName
 from betty.extension import ExtensionDefinition, ExtensionManufacturer
-from betty.plugin import ResolvablePluginId
+from betty.plugin.resolve import ResolvablePluginId
 from betty.plugins.entity.place import Place
 from betty.plugins.extension.maps import Maps
 from betty.project import Project

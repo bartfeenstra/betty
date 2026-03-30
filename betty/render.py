@@ -10,7 +10,8 @@ from typing import TYPE_CHECKING, final
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.html import plain_text_to_html
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
+from betty.plugin import PluginTypeDefinition
+from betty.plugin.cls import Plugin, PluginClsDefinition
 
 if TYPE_CHECKING:
     from betty.media_type import MediaType
@@ -42,7 +43,7 @@ class Renderer(ABC, Plugin["RendererDefinition"]):
     label_plural=_("Renderers"),
     label_countable=ngettext("{count} renderer", "{count} renderers"),
 )
-class RendererDefinition(HumanFacingDefinition, PluginDefinition[Renderer]):
+class RendererDefinition(HumanFacingDefinition, PluginClsDefinition[Renderer]):
     """
     .. plugin_type:: renderer.
     """

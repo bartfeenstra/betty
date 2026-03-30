@@ -7,7 +7,8 @@ from typing import TYPE_CHECKING, final, override
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin import PluginTypeDefinition
+from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.service.plugin import ServicePluginDefinition
