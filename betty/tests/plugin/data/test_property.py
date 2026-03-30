@@ -37,9 +37,8 @@ class TestPluginDefinitionConfigurationsProperty:
             def new_plugin(self) -> DummyPluginDefinition:
                 raise NotImplementedError
 
-        def __init__(self, plugins: Iterable[_Item] | None = None):
-            if plugins is not None:
-                self.plugins = plugins
+        def __init__(self, plugins: Iterable[_Item] = ()):
+            self.plugins = plugins
 
         plugins = PluginDefinitionConfigurationsProperty(DummyPluginDefinition, _Item)
 

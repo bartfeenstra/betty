@@ -248,7 +248,7 @@ class RecordDefinition[DataClsT = Any, ElementT: Element[str] = Element[str]](
         label: ResolvableLocalizable,
         fields: Sequence[FieldDefinition[ElementT, Any]] | None = None,
         description: ResolvableLocalizable | None = None,
-        samples: Iterable[Callable[[], Sample[DataClsT]] | Samples] | None = None,
+        samples: Iterable[Callable[[], Sample[DataClsT]] | Samples] = (),
         factory: Callable[..., DataClsT] | None = None,
         porter: RecordPorter[DataClsT] | None = None,
     ):

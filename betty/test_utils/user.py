@@ -27,11 +27,11 @@ class StaticUser(User):
     def __init__(
         self,
         *,
-        confirmations: Iterable[bool | None] | None = None,
-        inputs: Iterable[str | None] | None = None,
+        confirmations: Iterable[bool | None] = (),
+        inputs: Iterable[str | None] = (),
     ):
-        self._confirmations = iter([] if confirmations is None else confirmations)
-        self._inputs = iter([] if inputs is None else inputs)
+        self._confirmations = iter(confirmations)
+        self._inputs = iter(inputs)
         self._messages_exception: MutableSequence[BaseException] = []
         self._messages_error: MutableSequence[ResolvableLocalizable] = []
         self._messages_warning: MutableSequence[ResolvableLocalizable] = []

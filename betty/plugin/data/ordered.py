@@ -39,12 +39,10 @@ class OrderedPluginDefinitionConfiguration[PluginDefinitionT: PluginDefinition](
 
     def __init__(
         self,
-        after: Iterable[ResolvablePluginId] | None = None,
-        before: Iterable[ResolvablePluginId] | None = None,
+        after: Iterable[ResolvablePluginId] = (),
+        before: Iterable[ResolvablePluginId] = (),
         **kwargs: Any,
     ):
         super().__init__(**kwargs)
-        if after is not None:
-            self.after = map(resolve_plugin_id, after)
-        if before is not None:
-            self.before = map(resolve_plugin_id, before)
+        self.after = map(resolve_plugin_id, after)
+        self.before = map(resolve_plugin_id, before)

@@ -311,14 +311,14 @@ class Gramps(DataManufacturable[GrampsConfiguration], Manufacturable, Loader):
         user: User,
         attribute_prefix_key: str | None = None,
         executable: Path | None = None,
-        family_trees: Iterable[FamilyTree] | None = None,
+        family_trees: Iterable[FamilyTree] = (),
     ):
         super().__init__()
         self._services = services
         self._ancestry = ancestry
         self._attribute_prefix_key = attribute_prefix_key
         self._executable = executable
-        self._family_trees = () if family_trees is None else list(family_trees)
+        self._family_trees = tuple(family_trees)
         self._user = user
 
     @override
@@ -335,7 +335,7 @@ class Gramps(DataManufacturable[GrampsConfiguration], Manufacturable, Loader):
         return cls(
             ancestry=project.ancestry,
             executable=None if data is None else data.executable,
-            family_trees=None if data is None else data.family_trees,
+            family_trees=() if data is None else data.family_trees,
             services=project,
             user=project.upstream.user,
         )

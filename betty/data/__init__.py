@@ -47,12 +47,11 @@ class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
             Callable[[], Sample[DataClsT]]
             | Samples[DataClsT]
             | type[Intersection[DataClsT, Samplable]]
-        ]
-        | None = None,
+        ] = (),
     ):
         super().__init__(cls=cls, label=label, description=description)
         self._porter = porter
-        self._samples = samples
+        self._samples = tuple(samples)
 
     @property
     def porter(self) -> Porter[DataClsT, PortableDataT]:
@@ -78,7 +77,7 @@ class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
         """
         Any samples for this data.
         """
-        if self._samples is None:
+        if not self._samples:
             if issubclass(self.cls, Samplable):
                 return Samples([self.cls])
             return Samples(())
