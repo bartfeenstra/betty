@@ -8,7 +8,8 @@ from pytest_mock import MockerFixture
 from betty.app import App
 from betty.importlib import fully_qualified_name
 from betty.machine_name import MachineName
-from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
+from betty.plugin import PluginDefinition, PluginTypeDefinition
+from betty.plugin.cls import Plugin
 from betty.plugin.discovery import ResolvableDiscovery
 from betty.plugin.error import PluginNotFound
 from betty.plugin.factory import PluginManufacturer

@@ -12,7 +12,7 @@ from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName
-from betty.plugin import ResolvablePluginId, resolve_plugin_id
+from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.plugins.asset.raspberry_mint import RaspberryMint
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.event import Event

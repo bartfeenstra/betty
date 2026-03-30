@@ -11,7 +11,8 @@ from markupsafe import Markup
 
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin import PluginTypeDefinition
+from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer
 from betty.service.plugin import ServicePluginDefinition
 

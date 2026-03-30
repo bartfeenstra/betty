@@ -9,8 +9,9 @@ from typing import TYPE_CHECKING, Any
 from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName
-from betty.plugin import PluginDefinition, ResolvablePluginId, resolve_plugin_id
+from betty.plugin import PluginDefinition
 from betty.plugin.data import PluginDefinitionConfiguration
+from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.property.collection.sequence import SequenceProperty
 
 if TYPE_CHECKING:

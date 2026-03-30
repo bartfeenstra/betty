@@ -9,14 +9,11 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import (
-    Plugin,
-    PluginTypeDefinition,
-    ResolvablePluginId,
-    resolve_plugin_id,
-)
+from betty.plugin import PluginTypeDefinition
+from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import Order, OrderedPluginDefinition
+from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 
 if TYPE_CHECKING:
     from betty.locale.localizable import CountableLocalizable, ResolvableLocalizable

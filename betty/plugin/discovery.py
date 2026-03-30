@@ -9,11 +9,8 @@ from collections.abc import Awaitable, Callable, Iterable
 from contextlib import suppress
 
 from betty.asyncio import resolve_await
-from betty.plugin import (
-    PluginDefinition,
-    ResolvablePluginDefinition,
-    resolve_plugin_definition,
-)
+from betty.plugin import PluginDefinition
+from betty.plugin.resolve import ResolvablePluginDefinition, resolve_plugin_definition
 from betty.requirement import UnmetRequirement
 from betty.service.level import ServiceLevel
 

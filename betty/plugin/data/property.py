@@ -12,7 +12,8 @@ from betty.collection.sequence import (
 )
 from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.data.indicator.selector import Attr
-from betty.plugin import Plugin, PluginDefinition
+from betty.plugin import PluginDefinition
+from betty.plugin.cls import Plugin
 from betty.plugin.data import PluginManufacturerSequenceDefinition
 from betty.plugin.factory import (
     PluginManufacturer,

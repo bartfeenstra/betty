@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any
 
 from betty.collection.keyed.adapter import KeyedCollectionAdapter
 from betty.collection.keyed.error import ErroringKeyedCollection
+from betty.plugin.resolve import resolve_plugin_type_id
 from betty.service.provider import service
 
 if TYPE_CHECKING:
@@ -67,7 +68,6 @@ class ServiceLevel:
         """
         The available plugin types and plugins.
         """
-        from betty.plugin import resolve_plugin_type_id
         from betty.plugin.error import PluginTypeNotFound
         from betty.service.plugin import PluginManager
 

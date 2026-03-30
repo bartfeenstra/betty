@@ -10,7 +10,8 @@ from typing import TYPE_CHECKING, final
 
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
+from betty.plugin import PluginTypeDefinition
+from betty.plugin.cls import Plugin, PluginClsDefinition
 
 if TYPE_CHECKING:
     import argparse
@@ -40,7 +41,7 @@ class Command(Plugin["CommandDefinition"]):
     label_plural=_("Commands"),
     label_countable=ngettext("{count} command", "{count} commands"),
 )
-class CommandDefinition(HumanFacingDefinition, PluginDefinition[Command]):
+class CommandDefinition(HumanFacingDefinition, PluginClsDefinition[Command]):
     """
     .. plugin_type:: command.
     """

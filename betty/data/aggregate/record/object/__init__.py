@@ -146,7 +146,7 @@ class ObjectDefinition[DataClsT](RecordDefinition[DataClsT, AttrElement]):
     """
 
     @override
-    def _set_cls(self, cls: type[DataClsT]) -> None:
+    def _set_cls(self, cls: type[DataClsT], /) -> None:
         global _attrs
         super()._set_cls(cls)
         cls_name = fully_qualified_name(cls)

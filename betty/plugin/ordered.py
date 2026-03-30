@@ -8,7 +8,8 @@ from collections.abc import Set
 from typing import TYPE_CHECKING, Any, final
 
 from betty.machine_name import MachineName, ResolvableMachineName
-from betty.plugin import PluginDefinition, ResolvablePluginId, resolve_plugin_id
+from betty.plugin.cls import PluginClsDefinition
+from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -16,7 +17,7 @@ if TYPE_CHECKING:
     from betty.requirement import Requires
 
 
-class OrderedPluginDefinition[BaseClsT](PluginDefinition[BaseClsT]):
+class OrderedPluginDefinition[BaseClsT](PluginClsDefinition[BaseClsT]):
     """
     A definition of plugin that can declare its order with respect to other plugins.
     """

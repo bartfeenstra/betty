@@ -5,7 +5,8 @@ from typing import override
 
 import pytest
 
-from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin import PluginTypeDefinition
+from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer
 from betty.requirement import (
     ServiceLevelRequirement,

@@ -25,7 +25,8 @@ from betty.gramps.loader import (
 from betty.locale.localizable.gettext import _
 from betty.pathlib import FilePathDefinition
 from betty.place_type import PlaceTypeDefinition, PlaceTypeManufacturer
-from betty.plugin import Plugin, PluginDefinition
+from betty.plugin import PluginDefinition
+from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
 from betty.property import (
     Optional,

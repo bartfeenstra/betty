@@ -35,13 +35,7 @@ from collections.abc import (  # noqa: I001
 from contextlib import AbstractAsyncContextManager, asynccontextmanager
 from io import BytesIO
 from json import dumps
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Literal,
-    Protocol,
-    final,
-)
+from typing import TYPE_CHECKING, Any, Literal, Protocol, final
 
 import pytest
 import pytest_asyncio
@@ -84,7 +78,8 @@ if TYPE_CHECKING:
     from betty.locale.translation import TranslationRepository
     from betty.machine_name import ResolvableMachineName
     from betty.entity import EntityDefinition
-    from betty.plugin import PluginDefinition, ResolvablePluginId
+    from betty.plugin import PluginDefinition
+    from betty.plugin.resolve import ResolvablePluginId
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.portable import PortableData, PortableMapping
     from betty.service.plugin import ServicePlugins, SupportPlugins

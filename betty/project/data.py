@@ -44,8 +44,8 @@ from betty.machine_name import MachineNameProperty, ResolvableMachineName
 from betty.pathlib import FilePathDefinition
 from betty.place_type import PlaceTypeDefinition
 from betty.place_type.data import PlaceTypeDefinitionConfiguration
-from betty.plugin import ResolvablePluginId, resolve_plugin_id
 from betty.plugin.data.property import PluginDefinitionConfigurationsProperty
+from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.project import (
     DEFAULT_LIFETIME_THRESHOLD,
     Extension,

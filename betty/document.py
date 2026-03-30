@@ -28,13 +28,10 @@ from betty.json.linked_data import LinkedDataDumpable
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 from betty.media_type.media_types import HTML
-from betty.plugin import (
-    Plugin,
-    PluginTypeDefinition,
-    ResolvablePluginId,
-    resolve_plugin_id,
-)
+from betty.plugin import PluginTypeDefinition
+from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer
+from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.portable import PortableMapping
 from betty.service.plugin import ServicePluginDefinition
 

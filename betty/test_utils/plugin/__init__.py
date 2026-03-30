@@ -6,7 +6,8 @@ from __future__ import annotations
 
 from typing import final, override
 
-from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
+from betty.plugin import PluginTypeDefinition
+from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer
 from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
 
@@ -24,7 +25,7 @@ class DummyPlugin(Plugin["DummyPluginDefinition"]):
     label_plural="dummy plugin",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
-class DummyPluginDefinition(PluginDefinition[DummyPlugin]):
+class DummyPluginDefinition(PluginClsDefinition[DummyPlugin]):
     """
     A definition of a dummy plugin.
     """
