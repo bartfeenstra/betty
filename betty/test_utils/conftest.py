@@ -82,7 +82,7 @@ if TYPE_CHECKING:
     from betty.plugin.resolve import ResolvablePluginId
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.portable import PortableData, PortableMapping
-    from betty.service.plugin import ServicePlugins, SupportPlugins
+    from betty.service.plugin.service import ServicePlugins, SupportPlugins
     from betty.service.provider import ServiceFactory
     from betty.user import User
 

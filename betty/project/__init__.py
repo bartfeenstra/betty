@@ -64,7 +64,11 @@ from betty.privacy.privatizer import Privatizer
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.sample import Sample, Size
 from betty.service.level import ChainedServiceLevel
-from betty.service.plugin import ServicePluginProvider, ServicePlugins, SupportPlugins
+from betty.service.plugin.service import (
+    ServicePluginProvider,
+    ServicePlugins,
+    SupportPlugins,
+)
 from betty.service.provider import service
 
 if TYPE_CHECKING:
@@ -81,7 +85,7 @@ if TYPE_CHECKING:
     from betty.plugin.factory import PluginManufacturer
     from betty.plugin.resolve import ResolvablePluginId
     from betty.project.data import ProjectConfiguration
-    from betty.service.plugin import PluginCollection
+    from betty.service.plugin.service import ServicePluginCollection
     from betty.url import UrlGenerator
 
 
@@ -558,7 +562,9 @@ class Project(ChainedServiceLevel[App], ServicePluginProvider):
         )
 
     @property
-    async def extensions(self) -> PluginCollection[ExtensionDefinition, Extension]:
+    async def extensions(
+        self,
+    ) -> ServicePluginCollection[ExtensionDefinition, Extension]:
         """
         The enabled extensions.
         """
