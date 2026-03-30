@@ -2,16 +2,20 @@
 JavaScript resources for HTML pages.
 """
 
-from typing import Any, final, override
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, final, override
 
 from betty.locale.localizable.gettext import _, ngettext
-from betty.machine_name import ResolvableMachineName
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer
-from betty.plugin.ordered import Order, OrderedPluginDefinition
-from betty.requirement import Requires
+from betty.plugin.ordered import Order, OrderedPluginClsDefinition
 from betty.service.plugin.service import ServicePluginDefinition
+
+if TYPE_CHECKING:
+    from betty.machine_name import ResolvableMachineName
+    from betty.requirement import Requires
 
 
 class JsResource(Plugin["JsResourceDefinition"]):
@@ -30,7 +34,7 @@ class JsResource(Plugin["JsResourceDefinition"]):
     ),
 )
 class JsResourceDefinition(
-    OrderedPluginDefinition[JsResource], ServicePluginDefinition[JsResource]
+    OrderedPluginClsDefinition[JsResource], ServicePluginDefinition[JsResource]
 ):
     """
     .. plugin_type:: js-resource.
@@ -40,10 +44,10 @@ class JsResourceDefinition(
         self,
         plugin_id: ResolvableMachineName,
         *,
-        after: Order | None = None,
+        after: Order[JsResourceDefinition] = (),
         resource: Any,
         auto: bool = False,
-        before: Order | None = None,
+        before: Order[JsResourceDefinition] = (),
         requires: Requires = (),
     ):
         super().__init__(

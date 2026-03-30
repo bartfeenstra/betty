@@ -14,7 +14,6 @@ from betty.locale.localizable import (
     resolve_localizable,
 )
 from betty.locale.localizable.gettext import _, ngettext
-from betty.machine_name import ResolvableMachineName
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer
@@ -67,8 +66,8 @@ class LinkDefinition(OrderedPluginDefinition, ServicePluginDefinition[Link]):
         self,
         plugin_id: ResolvableMachineName,
         *,
-        after: Order[OrderedPluginDefinition[Link]] | None = None,
-        before: Order[OrderedPluginDefinition[Link]] | None = None,
+        after: Order[LinkDefinition] = (),
+        before: Order[LinkDefinition] = (),
         link: LinkType,
         primary: bool = False,
     ):

@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import final
 
 from betty.plugin import PluginDefinition, PluginTypeDefinition
-from betty.plugin.ordered import OrderedPluginDefinition
+from betty.plugin.ordered import OrderedPluginClsDefinition
 from betty.requirement import ServicePluginRequirement
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
@@ -20,7 +20,7 @@ from betty.test_utils.service.plugin import DummyServicePluginOne
     label_plural="_OrderedPluginDefinitions",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
-class _OrderedPluginDefinition(OrderedPluginDefinition[DummyPlugin]):
+class _OrderedPluginDefinition(OrderedPluginClsDefinition[DummyPlugin]):
     pass
 
 

@@ -12,7 +12,7 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer
-from betty.plugin.ordered import Order, OrderedPluginDefinition
+from betty.plugin.ordered import OrderedPluginClsDefinition
 from betty.service.plugin.service import ServicePluginDefinition
 from betty.typing import threadsafe
 
@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     from aiohttp.client_reqrep import ClientRequest, ClientResponse
 
     from betty.machine_name import ResolvableMachineName
+    from betty.plugin.ordered import Order
     from betty.requirement import Requires
 
 
@@ -102,7 +103,9 @@ class RateLimit(Plugin["RateLimitDefinition"]):
         "Rate limits ensure that Betty's HTTP client does not make more requests to a web service than that service supports or allows, by enforcing a maximum number of requests per timeframe."
     ),
 )
-class RateLimitDefinition(ServicePluginDefinition, OrderedPluginDefinition[RateLimit]):
+class RateLimitDefinition(
+    ServicePluginDefinition, OrderedPluginClsDefinition[RateLimit]
+):
     """
     .. plugin_type:: http-rate-limit.
     """
@@ -111,8 +114,8 @@ class RateLimitDefinition(ServicePluginDefinition, OrderedPluginDefinition[RateL
         self,
         plugin_id: ResolvableMachineName,
         *,
-        after: Order[RateLimitDefinition] | None = None,
-        before: Order[RateLimitDefinition] | None = None,
+        after: Order[RateLimitDefinition] = (),
+        before: Order[RateLimitDefinition] = (),
         requires: Requires = (),
     ):
         super().__init__(

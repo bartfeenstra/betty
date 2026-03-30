@@ -12,7 +12,10 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer
-from betty.plugin.ordered import Order, OrderedPluginDefinition
+from betty.plugin.ordered import (
+    Order,
+    OrderedPluginClsDefinition,
+)
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 
 if TYPE_CHECKING:
@@ -49,7 +52,7 @@ class ShouldExistEventType(EventType, ABC):
     label_countable=ngettext("{count} event type", "{count} event types"),
 )
 class EventTypeDefinition(
-    CountableHumanFacingDefinition, OrderedPluginDefinition[EventType]
+    CountableHumanFacingDefinition, OrderedPluginClsDefinition[EventType]
 ):
     """
     .. plugin_type:: event-type.
@@ -63,8 +66,8 @@ class EventTypeDefinition(
         label_plural: ResolvableLocalizable,
         label_countable: CountableLocalizable,
         description: ResolvableLocalizable | None = None,
-        after: Order[EventTypeDefinition] | None = None,
-        before: Order[EventTypeDefinition] | None = None,
+        after: Order[EventTypeDefinition] = (),
+        before: Order[EventTypeDefinition] = (),
         indicates: ResolvablePluginId[EventTypeDefinition] | None = None,
     ):
         super().__init__(

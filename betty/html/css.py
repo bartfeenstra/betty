@@ -2,16 +2,20 @@
 CSS resources for HTML pages.
 """
 
-from typing import Any, final, override
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, final, override
 
 from betty.locale.localizable.gettext import _, ngettext
-from betty.machine_name import ResolvableMachineName
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer
-from betty.plugin.ordered import Order, OrderedPluginDefinition
-from betty.requirement import Requires
+from betty.plugin.ordered import Order, OrderedPluginClsDefinition
 from betty.service.plugin.service import ServicePluginDefinition
+
+if TYPE_CHECKING:
+    from betty.machine_name import ResolvableMachineName
+    from betty.requirement import Requires
 
 
 class CssResource(Plugin["CssResourceDefinition"]):
@@ -28,7 +32,7 @@ class CssResource(Plugin["CssResourceDefinition"]):
     label_countable=ngettext("{count} CSS resource", "{count} CSS resources"),
 )
 class CssResourceDefinition(
-    OrderedPluginDefinition[CssResource], ServicePluginDefinition[CssResource]
+    OrderedPluginClsDefinition[CssResource], ServicePluginDefinition[CssResource]
 ):
     """
     .. plugin_type:: css-resource.
@@ -38,10 +42,10 @@ class CssResourceDefinition(
         self,
         plugin_id: ResolvableMachineName,
         *,
-        after: Order | None = None,
+        after: Order[CssResourceDefinition] = (),
         resource: Any,
         auto: bool = False,
-        before: Order | None = None,
+        before: Order[CssResourceDefinition] = (),
         requires: Requires = (),
     ):
         super().__init__(

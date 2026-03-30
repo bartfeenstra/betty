@@ -10,7 +10,7 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer
-from betty.plugin.ordered import OrderedPluginDefinition
+from betty.plugin.ordered import OrderedPluginClsDefinition
 from betty.service.plugin.service import ServicePluginDefinition
 
 if TYPE_CHECKING:
@@ -35,7 +35,7 @@ class Extension(ManagedLifeCycle, Plugin["ExtensionDefinition"]):
 )
 class ExtensionDefinition(
     HumanFacingDefinition,
-    OrderedPluginDefinition[Extension],
+    OrderedPluginClsDefinition[Extension],
     ServicePluginDefinition[Extension],
 ):
     """
@@ -55,8 +55,8 @@ class ExtensionDefinition(
         *,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
-        after: Order[ExtensionDefinition] | None = None,
-        before: Order[ExtensionDefinition] | None = None,
+        after: Order[ExtensionDefinition] = (),
+        before: Order[ExtensionDefinition] = (),
         requires: Requires = (),
     ):
         super().__init__(
