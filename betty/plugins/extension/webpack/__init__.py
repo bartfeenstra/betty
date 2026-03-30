@@ -11,7 +11,6 @@ from betty.extension import Extension, ExtensionDefinition
 from betty.factory import Manufacturable
 from betty.plugins.asset.webpack import WEBPACK as WEBPACK_ASSET
 from betty.plugins.css_resource.webpack import WEBPACK as WEBPACK_CSS_RESOURCE
-from betty.plugins.extension.webpack import build
 from betty.plugins.extension.webpack.build import EntryPointProvider
 from betty.plugins.extension.webpack.jobs import _GenerateAssets
 from betty.plugins.jinja_filter.webpack_entry_point_js import WebpackEntryPointJs
@@ -20,10 +19,10 @@ from betty.plugins.js_resource.webpack_entry_point_loader import (
 )
 from betty.project import Project
 from betty.project.generate import Generator
-from betty.service import ServiceProvider
 from betty.service.simple import service
 
 if TYPE_CHECKING:
+    from betty import webpack
     from betty.job.scheduler import Scheduler
 
 
@@ -38,14 +37,13 @@ if TYPE_CHECKING:
         Project.js_resources.require(WEBPACK_ENTRY_POINT_LOADER),
     },
 )
-class Webpack(Generator, Extension, ServiceProvider, Manufacturable):
+class Webpack(Generator, Extension, ServicePluginProvider, Manufacturable):
     """
     .. plugin:: extension:webpack.
     """
 
     def __init__(self, *, project: Project):
         super().__init__(services=project)
-        self._project = project
 
     @override
     @Project.require
@@ -66,7 +64,7 @@ class Webpack(Generator, Extension, ServiceProvider, Manufacturable):
         )
 
     @service
-    async def builder(self) -> build.Builder:
+    async def builder(self) -> webpack.Builder:
         """
         The Webpack builder.
         """

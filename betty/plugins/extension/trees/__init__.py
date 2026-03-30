@@ -2,22 +2,18 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.extension import ExtensionDefinition
+from betty.extension import Extension, ExtensionDefinition
 from betty.factory import Manufacturable
 from betty.locale.localizable.gettext import _
 from betty.plugins.asset.trees import TREES
 from betty.plugins.extension.trees.jobs import _GeneratePeopleJson
 from betty.plugins.extension.webpack import Webpack
-from betty.plugins.extension.webpack.build import EntryPointProvider
 from betty.project import Project
 from betty.project.generate import Generator
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-
     from betty.job.scheduler import Scheduler
 
 
@@ -31,7 +27,7 @@ if TYPE_CHECKING:
         Project.extensions.require(Webpack),
     },
 )
-class Trees(Generator, EntryPointProvider, Manufacturable):
+class Trees(Generator, Extension, Manufacturable):
     """
     .. plugin:: extension:trees.
     """
@@ -49,12 +45,3 @@ class Trees(Generator, EntryPointProvider, Manufacturable):
     @override
     async def generate(self, scheduler: Scheduler) -> None:
         await scheduler.add(_GeneratePeopleJson(project=self._project))
-
-    @override
-    @classmethod
-    def webpack_entry_point_directory_path(cls) -> Path:
-        return Path(__file__).parent / "webpack"
-
-    @override
-    def webpack_entry_point_cache_keys(self) -> Sequence[str]:
-        return ()

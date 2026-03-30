@@ -4,7 +4,7 @@ import pytest
 from playwright.async_api import Page, expect
 
 from betty import serve
-from betty.plugins.extension.http_api_doc import HttpApiDoc
+from betty.plugins.webpack_entry_point.http_api_doc import HttpApiDoc
 from betty.project import Project
 from betty.project.generate import generate
 from betty.serve import Server

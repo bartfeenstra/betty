@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from betty.job.scheduler import Scheduler
-    from betty.plugins.extension.webpack.build import Builder
+    from betty.webpack import Builder
 
 
 class _GenerateAssets(Job):
