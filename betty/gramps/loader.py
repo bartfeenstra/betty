@@ -26,7 +26,7 @@ from betty import subprocess
 from betty.copyright_notice import CopyrightNoticeManufacturer
 from betty.date import Date, DateRange, ResolvableDate
 from betty.entity import Entity
-from betty.entity.association import ToManyResolver, ToOneResolver, resolve
+from betty.entity.association import ToManyResolver, ToOneResolver
 from betty.entity.has_links import HasLinks
 from betty.error import FileNotFound
 from betty.event_type import EventTypeManufacturer
@@ -612,8 +612,6 @@ class GrampsLoader:
             )
 
             await self._load_families(database)
-
-        resolve(*self._ancestry)
 
     def _supports_xml_version(self, version: tuple[int, int, int]) -> bool:
         if version[0] != self._SUPPORTED_GRAMPS_XML_VERSION[0]:

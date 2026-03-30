@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.concurrent import MAX_STRANDS
 from betty.definition.human_facing import HumanFacingDefinition
+from betty.entity.association import resolve
 from betty.job import Context
 from betty.job.executor.asyncio import AsyncExecutor
 from betty.job.scheduler.default import DefaultScheduler
@@ -104,13 +105,13 @@ async def load(project: Project, *, context: Context | None = None) -> None:
     """
     if context is None:
         context = Context()
-
     await _do_jobs(
         project,
         context,
         LoaderDefinition,
         lambda scheduler, loader: loader.load(scheduler),
     )
+    resolve(project.ancestry)
     await _do_jobs(
         project,
         context,
