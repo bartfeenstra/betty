@@ -65,7 +65,7 @@ class MutableKeyedCollectionAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValu
 
     def __init__(
         self,
-        values: Iterable[ResolvableValueT] | None = None,
+        values: Iterable[ResolvableValueT] = (),
         *,
         key: Callable[[ValueT], KeyT],
         key_resolver: Callable[[ResolvableKeyT | KeyT], KeyT] = passthrough,
@@ -74,8 +74,7 @@ class MutableKeyedCollectionAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValu
         super().__init__(key_resolver=key_resolver)
         self._key = key
         self._value_resolver = value_resolver
-        if values is not None:
-            self.add(*values)
+        self.add(*values)
 
     @override
     def remove(self, *keys: KeyT | ResolvableKeyT) -> None:

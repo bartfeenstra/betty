@@ -248,10 +248,9 @@ class GrampsConfiguration(Data):
     def __init__(
         self,
         *,
-        family_trees: Iterable[FamilyTree] | None = None,
+        family_trees: Iterable[FamilyTree] = (),
         executable: Path | None = None,
     ):
         super().__init__()
-        if family_trees is not None:
-            self.family_trees = family_trees
+        self.family_trees = family_trees
         self.executable = executable

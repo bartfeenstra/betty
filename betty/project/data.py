@@ -393,27 +393,28 @@ class ProjectConfiguration(Data):
             CopyrightNoticeDefinition, CopyrightNotice
         ]
         | None = None,
-        copyright_notices: Iterable[CopyrightNoticeDefinitionConfiguration]
-        | None = None,
+        copyright_notices: Iterable[CopyrightNoticeDefinitionConfiguration] = (),
         debug: bool = False,
         enrichers: ResolvablePluginManufacturerSequence[
             EnricherDefinition, Enricher
         ] = (),
-        entity_types: Iterable[ProjectEntityType | ResolvablePluginId[EntityDefinition]]
-        | None = None,
-        event_types: Iterable[EventTypeDefinitionConfiguration] | None = None,
-        extensions: ResolvablePluginManufacturerSequence[ExtensionDefinition, Extension]
-        | None = None,
-        genders: Iterable[GenderDefinitionConfiguration] | None = None,
+        entity_types: Iterable[
+            ProjectEntityType | ResolvablePluginId[EntityDefinition]
+        ] = (),
+        event_types: Iterable[EventTypeDefinitionConfiguration] = (),
+        extensions: ResolvablePluginManufacturerSequence[
+            ExtensionDefinition, Extension
+        ] = (),
+        genders: Iterable[GenderDefinitionConfiguration] = (),
         license: ResolvablePluginManufacturer[LicenseDefinition, License] | None = None,  # noqa: A002
-        licenses: Iterable[LicenseDefinitionConfiguration] | None = None,
+        licenses: Iterable[LicenseDefinitionConfiguration] = (),
         lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,
         loaders: ResolvablePluginManufacturerSequence[LoaderDefinition, Loader] = (),
-        locales: Iterable[ResolvableLocale | ProjectLocale] | None = None,
+        locales: Iterable[ResolvableLocale | ProjectLocale] = (),
         logo: Path | None = None,
         name: ResolvableMachineName | None = None,
-        place_types: Iterable[PlaceTypeDefinitionConfiguration] | None = None,
-        roles: Iterable[RoleDefinitionConfiguration] | None = None,
+        place_types: Iterable[PlaceTypeDefinitionConfiguration] = (),
+        roles: Iterable[RoleDefinitionConfiguration] = (),
     ):
         super().__init__()
         self.author = author
@@ -426,28 +427,20 @@ class ProjectConfiguration(Data):
             self.copyright_notices = copyright_notices
         self.debug = debug
         self.enrichers = enrichers  # ty:ignore[invalid-assignment]
-        if entity_types is not None:
-            self.entity_types = entity_types
-        if event_types is not None:
-            self.event_types = event_types
-        if extensions is not None:
-            self.extensions = extensions  # ty:ignore[invalid-assignment]
-        if genders is not None:
-            self.genders = genders
+        self.entity_types = entity_types
+        self.event_types = event_types
+        self.extensions = extensions  # ty:ignore[invalid-assignment]
+        self.genders = genders
         if license is not None:
             self.license = LicenseManufacturer.resolve(license)
-        if licenses is not None:
-            self.licenses = licenses
+        self.licenses = licenses
         self.lifetime_threshold = lifetime_threshold
         self.loaders = loaders  # ty:ignore[invalid-assignment]
         self.logo = logo
-        if locales is not None:
-            self.locales = locales
+        self.locales = locales
         self.name = name
-        if place_types is not None:
-            self.place_types = place_types
-        if roles is not None:
-            self.roles = roles
+        self.place_types = place_types
+        self.roles = roles
         self.title = title
         self.url = url
 

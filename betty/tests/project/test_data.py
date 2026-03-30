@@ -5,7 +5,6 @@ from pathlib import Path
 import pytest
 
 from betty.exception import HumanFacingException
-from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.plain import Plain
 from betty.project.data import (
     ProjectConfiguration,
@@ -23,7 +22,7 @@ class TestProjectConfiguration(DataTestBase[ProjectConfiguration]):
 
     def test_locales(self) -> None:
         sut = ProjectConfiguration(title="Betty", url="https://example.com")
-        assert DEFAULT_LOCALE in sut.locales
+        assert not sut.locales
 
     async def test_enrichers(self) -> None:
         sut = ProjectConfiguration(title="Betty", url="https://example.com")
