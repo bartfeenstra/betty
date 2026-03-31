@@ -437,7 +437,7 @@ class ProjectConfiguration(Data):
         self.lifetime_threshold = lifetime_threshold
         self.loaders = loaders  # ty:ignore[invalid-assignment]
         self.logo = logo
-        self.locales = locales
+        self.locales = locales  # ty:ignore[invalid-assignment]
         self.name = name
         self.place_types = place_types
         self.roles = roles
