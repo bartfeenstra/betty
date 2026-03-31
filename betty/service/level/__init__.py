@@ -91,7 +91,7 @@ class ServiceLevel:
             lambda error, key: _PluginTypeNotFound(
                 resolve_plugin_type_id(key), [x.type.type().id for x in self.plugins]
             ),
-        )
+        )  # ty:ignore[invalid-return-type]
 
 
 class ChainedServiceLevel[UpstreamT: ServiceLevel = ServiceLevel](ServiceLevel):

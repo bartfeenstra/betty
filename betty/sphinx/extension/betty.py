@@ -21,6 +21,7 @@ from betty.definition.human_facing import HumanFacingDefinition
 from betty.functools import Result
 from betty.importlib import import_any
 from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.machine_name import MachineName
 from betty.plugin.cls import PluginClsDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.project import Project
@@ -32,7 +33,6 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
 
-    from betty.machine_name import MachineName
     from betty.plugin import PluginDefinition
     from betty.serde import Serializer
 
@@ -118,10 +118,13 @@ class _PluginDirective(SphinxDirective):
                 f"The plugin directive requires a single argument that is a plugin type ID and a plugin ID, joined with a colon (:), but `{argument}` was given."
             ) from None
         plugins = _to_thread(lambda: run(_get_plugins()))
-        plugin = plugins[plugin_type_id][plugin_id]
+        plugin = plugins[MachineName(plugin_type_id)][MachineName(plugin_id)]
         return [
             self._build_summary(plugin),
-            *self._build_metadata(plugin, plugins),
+            *self._build_metadata(
+                plugin,  # ty:ignore[invalid-argument-type]
+                plugins,
+            ),
         ]
 
     def _build_summary(self, plugin: PluginDefinition) -> nodes.Node:
