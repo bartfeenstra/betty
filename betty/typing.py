@@ -4,9 +4,21 @@ Providing typing utilities.
 
 from __future__ import annotations
 
-from typing import Any, final
+from typing import TYPE_CHECKING, Any, final
 
 from betty.docstring import append
+
+if TYPE_CHECKING:
+    from ty_extensions import Intersection
+else:
+
+    class Intersection:
+        """
+        A fake intersection type that works runtime, until https://github.com/astral-sh/ty/issues/2084 is fixed.
+        """
+
+        def __class_getitem__(cls, item):
+            pass  # pragma: nocover
 
 
 def _should_mark(target: Any, key: str, /) -> bool:

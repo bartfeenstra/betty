@@ -12,7 +12,7 @@ from betty.entity.collection import EntityCollection
 if TYPE_CHECKING:
     from collections.abc import Iterator, MutableSequence
 
-    from ty_extensions import Intersection
+    from betty.typing import Intersection
 
 
 class SingleTypeEntityCollection[TargetT = Entity](EntityCollection[TargetT]):

@@ -32,10 +32,9 @@ if TYPE_CHECKING:
         Sequence,
     )
 
-    from ty_extensions import Intersection
-
     from betty.plugin import PluginDefinition
     from betty.service.level import ServiceLevel
+    from betty.typing import Intersection
 
 
 @final

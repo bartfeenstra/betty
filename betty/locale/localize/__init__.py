@@ -20,10 +20,10 @@ if TYPE_CHECKING:
     from collections.abc import MutableMapping
 
     from babel import Locale
-    from ty_extensions import Intersection
 
     from betty.locale.localizable import ResolvableLocalizable
     from betty.locale.translation import TranslationRepository
+    from betty.typing import Intersection
 
 
 @final

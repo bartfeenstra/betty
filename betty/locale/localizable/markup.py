@@ -19,9 +19,8 @@ from betty.locale.localizable.gettext import _
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from ty_extensions import Intersection
-
     from betty.locale.localize import Localizer
+    from betty.typing import Intersection
 
 
 class LocalizableSequence(ABC):

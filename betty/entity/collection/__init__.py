@@ -17,7 +17,7 @@ if TYPE_CHECKING:
         Sequence,
     )
 
-    from ty_extensions import Intersection
+    from betty.typing import Intersection
 
 
 class EntityCollection[TargetT = Entity](ABC):

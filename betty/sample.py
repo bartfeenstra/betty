@@ -13,9 +13,8 @@ from betty.locale.localizable import resolve_localizable
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
 
-    from ty_extensions import Intersection
-
     from betty.locale.localizable import Localizable, ResolvableLocalizable
+    from betty.typing import Intersection
 
 
 @final

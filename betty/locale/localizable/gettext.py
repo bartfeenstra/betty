@@ -9,10 +9,9 @@ from typing import TYPE_CHECKING, Any, cast, overload, override
 from betty.locale.localizable import CountableLocalizable, Localizable, LocalizableCount
 
 if TYPE_CHECKING:
-    from ty_extensions import Intersection
-
     from betty.locale import HasLocale
     from betty.locale.localize import Localizer
+    from betty.typing import Intersection
 
 
 class _GettextLocalizable(Localizable):

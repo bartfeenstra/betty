@@ -20,10 +20,9 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Mapping
     from types import NotImplementedType
 
-    from ty_extensions import Intersection
-
     from betty.locale import HasLocale
     from betty.locale.localize import Localizer
+    from betty.typing import Intersection
 
 
 @final

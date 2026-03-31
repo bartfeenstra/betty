@@ -14,11 +14,10 @@ from betty.locale.localize import resolve_localized
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
 
-    from ty_extensions import Intersection
-
     from betty.data.indicator import Indicator
     from betty.locale import HasLocale
     from betty.locale.localize import Localizer
+    from betty.typing import Intersection
 
 
 def do_raise(exception: BaseException, /) -> Never:

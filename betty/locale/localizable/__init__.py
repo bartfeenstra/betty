@@ -16,7 +16,7 @@ from betty.locale import HasLocale, HasLocaleStr, ResolvableLocale
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 
 if TYPE_CHECKING:
-    from ty_extensions import Intersection
+    from betty.typing import Intersection
 
 
 class _Localizable[T](ABC):

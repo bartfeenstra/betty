@@ -18,7 +18,7 @@ from betty.typing import Void, VoidType
 if TYPE_CHECKING:
     from types import FunctionType
 
-    from ty_extensions import Intersection
+    from betty.typing import Intersection
 
 
 type ServiceFactory[ServiceProviderT, ServiceT] = Callable[[ServiceProviderT], ServiceT]

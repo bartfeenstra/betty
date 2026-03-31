@@ -122,7 +122,6 @@ if TYPE_CHECKING:
     from xml.etree import ElementTree
 
     from babel import Locale
-    from ty_extensions import Intersection
 
     from betty.entity.collection.pool import EntityPool
     from betty.entity.has_citations import HasCitations
@@ -139,6 +138,7 @@ if TYPE_CHECKING:
         RoleDefinition,
     )
     from betty.service.level import ServiceLevel
+    from betty.typing import Intersection
     from betty.user import User
 
 

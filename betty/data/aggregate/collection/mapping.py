@@ -13,10 +13,9 @@ from betty.data.indicator.selector import Key
 from betty.portable import CallbackPorter, PortableData, Porter
 
 if TYPE_CHECKING:
-    from ty_extensions import Intersection
-
     from betty.data import Data
     from betty.locale.localizable import ResolvableLocalizable
+    from betty.typing import Intersection
 
 
 @final

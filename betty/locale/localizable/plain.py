@@ -11,9 +11,9 @@ from betty.locale.localizable import Localizable
 
 if TYPE_CHECKING:
     from babel import Locale
-    from ty_extensions import Intersection
 
     from betty.locale.localize import Localizer
+    from betty.typing import Intersection
 
 
 @final

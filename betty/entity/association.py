@@ -23,11 +23,10 @@ from betty.json.schema import Array, Null, OneOf, Schema
 from betty.locale.localizable import resolve_localizable
 
 if TYPE_CHECKING:
-    from ty_extensions import Intersection
-
     from betty.locale.localizable import ResolvableLocalizable
     from betty.portable import PortableData
     from betty.project import Project
+    from betty.typing import Intersection
 
 
 async def _generate_associate_url(project: Project, associate: Entity, /) -> str | None:
