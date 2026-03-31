@@ -46,9 +46,9 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
 
     from babel import Locale
-    from ty_extensions import Intersection
 
     from betty.locale.localize import Localizer
+    from betty.typing import Intersection
 
 
 @final

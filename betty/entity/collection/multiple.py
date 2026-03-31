@@ -14,9 +14,8 @@ from betty.entity.collection.single import SingleTypeEntityCollection
 if TYPE_CHECKING:
     from collections.abc import Iterator, MutableMapping
 
-    from ty_extensions import Intersection
-
     from betty.machine_name import ResolvableMachineName
+    from betty.typing import Intersection
 
 
 class MultipleTypesEntityCollection[TargetT = Entity](EntityCollection[TargetT]):

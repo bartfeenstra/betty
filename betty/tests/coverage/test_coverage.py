@@ -37,7 +37,7 @@ from betty.tests.coverage.fixtures import (
 )
 
 if TYPE_CHECKING:
-    from ty_extensions import Intersection
+    from betty.typing import Intersection
 
 
 class MissingReason(Enum):
@@ -1201,7 +1201,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         for path in (Path("betty") / "test_utils").rglob("**/*.py")
     },
     "betty/typing.py": {
-        "Void": MissingReason.SHOULD_BE_COVERED,
+        "Intersection": MissingReason.STATIC_CONTENT_ONLY,
+        "Void": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/url/__init__.py": {
         "GenerationError": MissingReason.ABSTRACT,

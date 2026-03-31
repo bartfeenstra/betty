@@ -12,10 +12,9 @@ from betty.data.indicator.selector import Index
 from betty.portable import CallbackPorter, PortableData
 
 if TYPE_CHECKING:
-    from ty_extensions import Intersection
-
     from betty.data import Data, DataDefinition
     from betty.locale.localizable import ResolvableLocalizable
+    from betty.typing import Intersection
 
 
 class SequenceDefinition[MutableSequenceT: MutableSequence[Any]](

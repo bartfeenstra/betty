@@ -23,9 +23,8 @@ from betty.sample import Samplable, Sample, Samples, Size
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
 
-    from ty_extensions import Intersection
-
     from betty.locale.localizable import ResolvableLocalizable
+    from betty.typing import Intersection
 
 
 class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](

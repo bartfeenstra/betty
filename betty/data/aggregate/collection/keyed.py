@@ -20,11 +20,10 @@ from betty.portable import (
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from ty_extensions import Intersection
-
     from betty.data import Data
     from betty.data.aggregate.record import RecordDefinition
     from betty.locale.localizable import ResolvableLocalizable
+    from betty.typing import Intersection
 
 
 @final

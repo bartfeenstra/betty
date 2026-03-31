@@ -26,8 +26,7 @@ from betty.privacy import HasPrivacy, Privacy
 if TYPE_CHECKING:
     from collections.abc import Iterator, MutableSequence
 
-    from ty_extensions import Intersection
-
+    from betty.typing import Intersection
     from betty.user import User
 
 

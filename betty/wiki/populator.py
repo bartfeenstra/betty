@@ -29,12 +29,12 @@ if TYPE_CHECKING:
     from collections.abc import Mapping, MutableMapping, Sequence
 
     from babel import Locale
-    from ty_extensions import Intersection
 
     from betty.copyright_notice import CopyrightNotice
     from betty.entity import Entity
     from betty.entity.collection.pool import EntityPool
     from betty.locale.localize import LocalizerRepository
+    from betty.typing import Intersection
     from betty.user import User
     from betty.wiki.client import Client, Image
 
