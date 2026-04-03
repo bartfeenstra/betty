@@ -9,6 +9,7 @@ from betty.service.provider import (
     ServiceFactory,
     ServiceInitializedError,
     ServiceManager,
+    ServiceProvider,
     _AsynchronousServiceManager,
     _SynchronousServiceManager,
     service,
@@ -20,7 +21,7 @@ class _DataManufacturableManagedLifeCycle(DummyDataManufacturable, ManagedLifeCy
     pass
 
 
-class _AsynchronousManagedLifeCycle(ManagedLifeCycle):
+class _AsynchronousServiceProvider(ServiceProvider, ManagedLifeCycle):
     def __init__(self, service: object):
         super().__init__()
         self._init_service = service
@@ -30,7 +31,7 @@ class _AsynchronousManagedLifeCycle(ManagedLifeCycle):
         return self._init_service
 
 
-class _SynchronousManagedLifeCycle(ManagedLifeCycle):
+class _SynchronousServiceProvider(ServiceProvider):
     def __init__(self, service: object):
         super().__init__()
         self._init_service = service
@@ -40,7 +41,7 @@ class _SynchronousManagedLifeCycle(ManagedLifeCycle):
         return self._init_service
 
 
-class _AsynchronousManagedLifeCycleWithOverride(ManagedLifeCycle):
+class _AsynchronousServiceWithOverrideProvider(ServiceProvider, ManagedLifeCycle):
     def __init__(self, service: object):
         super().__init__()
         type(self).my_first_asynchronous_service.override(self, service)
@@ -50,7 +51,7 @@ class _AsynchronousManagedLifeCycleWithOverride(ManagedLifeCycle):
         raise NotImplementedError
 
 
-class _SynchronousManagedLifeCycleWithOverride(ManagedLifeCycle):
+class _SynchronousServiceWithOverrideProvider(ServiceProvider):
     def __init__(self, service: object):
         super().__init__()
         type(self).my_first_synchronous_service.override(self, service)
@@ -60,11 +61,13 @@ class _SynchronousManagedLifeCycleWithOverride(ManagedLifeCycle):
         raise NotImplementedError
 
 
-class _AsynchronousManagedLifeCycleWithOverrideFactory(ManagedLifeCycle):
+class _AsynchronousServiceWithOverrideFactoryProvider(
+    ServiceProvider, ManagedLifeCycle
+):
     def __init__(
         self,
         service_factory: ServiceFactory[
-            "_AsynchronousManagedLifeCycleWithOverrideFactory", Awaitable[object]
+            "_AsynchronousServiceWithOverrideFactoryProvider", Awaitable[object]
         ],
     ):
         super().__init__()
@@ -75,11 +78,11 @@ class _AsynchronousManagedLifeCycleWithOverrideFactory(ManagedLifeCycle):
         raise NotImplementedError
 
 
-class _SynchronousManagedLifeCycleWithOverrideFactory(ManagedLifeCycle):
+class _SynchronousServiceWithOverrideFactoryProvider(ServiceProvider):
     def __init__(
         self,
         service_factory: ServiceFactory[
-            "_SynchronousManagedLifeCycleWithOverrideFactory", object
+            "_SynchronousServiceWithOverrideFactoryProvider", object
         ],
     ):
         super().__init__()
@@ -112,7 +115,7 @@ class TestServiceManager:
     async def test_get__with_asynchronous_method_with_bootstrapped(
         self,
     ) -> None:
-        async with _AsynchronousManagedLifeCycle(object()) as services:
+        async with _AsynchronousServiceProvider(object()) as services:
             assert await type(services).my_first_asynchronous_service.get(
                 services
             ) is await type(services).my_first_asynchronous_service.get(services)
@@ -120,7 +123,7 @@ class TestServiceManager:
     async def test_get__with_asynchronous_method_without_bootstrapped(
         self,
     ) -> None:
-        services = _AsynchronousManagedLifeCycle(object())
+        services = _AsynchronousServiceProvider(object())
         with pytest.raises(NotYetBootstrapped):
             await type(services).my_first_asynchronous_service.get(services)
 
@@ -128,7 +131,7 @@ class TestServiceManager:
         self,
     ) -> None:
         service = object()
-        async with _AsynchronousManagedLifeCycleWithOverride(service) as services:
+        async with _AsynchronousServiceWithOverrideProvider(service) as services:
             assert (
                 await type(services).my_first_asynchronous_service.get(services)
                 is service
@@ -140,11 +143,11 @@ class TestServiceManager:
         service = object()
 
         async def _service_factory(
-            _: _AsynchronousManagedLifeCycleWithOverrideFactory,
+            _: _AsynchronousServiceWithOverrideFactoryProvider,
         ) -> object:
             return service
 
-        async with _AsynchronousManagedLifeCycleWithOverrideFactory(
+        async with _AsynchronousServiceWithOverrideFactoryProvider(
             _service_factory
         ) as services:
             assert (
@@ -155,55 +158,46 @@ class TestServiceManager:
     async def test_get__instance_attr_with_synchronous_method_with_bootstrapped(
         self,
     ) -> None:
-        async with _SynchronousManagedLifeCycle(object()) as services:
-            assert type(services).my_first_synchronous_service.get(services) is type(
-                services
-            ).my_first_synchronous_service.get(services)
-
-    async def test_get__instance_attr_with_synchronous_method_without_bootstrapped(
-        self,
-    ) -> None:
-        services = _SynchronousManagedLifeCycle(object())
-        with pytest.raises(NotYetBootstrapped):
-            type(services).my_first_synchronous_service.get(services)  # noqa: B018
+        services = _SynchronousServiceProvider(object())
+        assert type(services).my_first_synchronous_service.get(services) is type(
+            services
+        ).my_first_synchronous_service.get(services)
 
     async def test_get__instance_attr_with_synchronous_method_with_override(
         self,
     ) -> None:
         service = object()
-        async with _SynchronousManagedLifeCycleWithOverride(service) as services:
-            assert type(services).my_first_synchronous_service.get(services) is service
+        services = _SynchronousServiceWithOverrideProvider(service)
+        assert type(services).my_first_synchronous_service.get(services) is service
 
     async def test_get__instance_attr_with_synchronous_method_with_factory_override(
         self,
     ) -> None:
         service = object()
-        async with _SynchronousManagedLifeCycleWithOverrideFactory(
-            lambda _: service
-        ) as services:
-            assert type(services).my_first_synchronous_service.get(services) is service
+        services = _SynchronousServiceWithOverrideFactoryProvider(lambda _: service)
+        assert type(services).my_first_synchronous_service.get(services) is service
 
     async def test___get____with_class_attr(self) -> None:
-        _AsynchronousManagedLifeCycle.my_first_asynchronous_service  # noqa: B018
+        _AsynchronousServiceProvider.my_first_asynchronous_service  # noqa: B018
 
     async def test___get____with_instance_attr_with_asynchronous_method(self) -> None:
         service = object()
-        async with _AsynchronousManagedLifeCycle(service) as services:
+        async with _AsynchronousServiceProvider(service) as services:
             assert await services.my_first_asynchronous_service is service
 
     async def test___get____with_instance_attr_with_synchronous_method(self) -> None:
         service = object()
-        async with _SynchronousManagedLifeCycle(service) as services:
-            assert services.my_first_synchronous_service is service
+        services = _SynchronousServiceProvider(service)
+        assert services.my_first_synchronous_service is service
 
     async def test_override(self) -> None:
         service = object()
-        async with _AsynchronousManagedLifeCycle(object()) as services:
+        async with _AsynchronousServiceProvider(object()) as services:
             type(services).my_first_asynchronous_service.override(services, service)
             assert await services.my_first_asynchronous_service is service
 
     async def test_override__with_override_with_initialized_already(self) -> None:
-        async with _AsynchronousManagedLifeCycleWithOverride(object()) as services:
+        async with _AsynchronousServiceWithOverrideProvider(object()) as services:
             with pytest.raises(ServiceInitializedError):
                 type(services).my_first_asynchronous_service.override(
                     services, object()
@@ -213,11 +207,11 @@ class TestServiceManager:
         service = object()
 
         async def _factory(
-            services: _AsynchronousManagedLifeCycle,
+            services: _AsynchronousServiceProvider,
         ) -> object:
             return service
 
-        async with _AsynchronousManagedLifeCycle(object()) as services:
+        async with _AsynchronousServiceProvider(object()) as services:
             type(services).my_first_asynchronous_service.override_factory(
                 services, _factory
             )
@@ -227,11 +221,11 @@ class TestServiceManager:
         self,
     ) -> None:
         async def _factory(
-            services: _AsynchronousManagedLifeCycleWithOverride,
+            services: _AsynchronousServiceWithOverrideProvider,
         ) -> object:
             return object()
 
-        async with _AsynchronousManagedLifeCycleWithOverride(object()) as services:
+        async with _AsynchronousServiceWithOverrideProvider(object()) as services:
             with pytest.raises(ServiceInitializedError):
                 type(services).my_first_asynchronous_service.override_factory(
                     services, _factory
@@ -240,13 +234,13 @@ class TestServiceManager:
 
 async def test_service__with_asynchronous_method() -> None:
     assert isinstance(
-        _AsynchronousManagedLifeCycle.my_first_asynchronous_service,
+        _AsynchronousServiceProvider.my_first_asynchronous_service,
         _AsynchronousServiceManager,
     )
 
 
 async def test_service__with_synchronous_method() -> None:
     assert isinstance(
-        _SynchronousManagedLifeCycle.my_first_synchronous_service,
+        _SynchronousServiceProvider.my_first_synchronous_service,
         _SynchronousServiceManager,
     )

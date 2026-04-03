@@ -11,6 +11,7 @@ from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer
 from betty.service.plugin.service import ServicePluginDefinition
+from betty.service.provider import ServiceProvider
 
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
@@ -18,7 +19,7 @@ if TYPE_CHECKING:
     from betty.plugin import Requires
 
 
-class Extension(ManagedLifeCycle, Plugin["ExtensionDefinition"]):
+class Extension(ManagedLifeCycle, ServiceProvider, Plugin["ExtensionDefinition"]):
     """
     Integrate custom services with a :py:class:`service level <betty.service.level.ServiceLevel>`.
     """
