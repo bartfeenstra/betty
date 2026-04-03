@@ -32,7 +32,6 @@ if TYPE_CHECKING:
         Sequence,
     )
 
-    from betty.plugin import PluginDefinition
     from betty.service.level import ServiceLevel
     from betty.typing import Intersection
 
@@ -270,7 +269,7 @@ class ServicePluginManager(ManagedLifeCycle):
     def __getitem__[ServicePluginDefinitionT: ServicePluginDefinition, PluginT: Plugin](
         self,
         plugin_type: type[
-            Intersection[ServicePluginDefinitionT, PluginDefinition[PluginT]]
+            Intersection[ServicePluginDefinitionT, PluginClsDefinition[PluginT]]
         ]
         | str,
         /,

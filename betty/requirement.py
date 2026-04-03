@@ -64,7 +64,10 @@ class _CallableRequire[ResultT, **P, ReturnT, ClsOrSelfT = Any]:
         | Callable[Concatenate[ClsOrSelfT, ResultT, P], Awaitable[ReturnT] | ReturnT],
     ):
         self._requirement = requirement
-        update_wrapper(self, f)
+        update_wrapper(
+            self,
+            f,  # ty:ignore[invalid-argument-type]
+        )
         self._f = f
 
     def __get__(self, instance, owner):
