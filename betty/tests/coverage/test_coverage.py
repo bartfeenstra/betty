@@ -142,6 +142,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/service/provider.py": {
         "ServiceInitializedError": MissingReason.ABSTRACT,
+        "ServiceProvider": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/service/factory.py": {
         "DataManufacturable": MissingReason.ABSTRACT,

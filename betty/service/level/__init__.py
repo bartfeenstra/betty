@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Any
 from betty.collection.keyed.adapter import KeyedCollectionAdapter
 from betty.collection.keyed.error import ErroringKeyedCollection
 from betty.plugin.resolve import resolve_plugin_type_id
-from betty.service.provider import service
+from betty.service.provider import ServiceProvider, service
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
@@ -31,7 +31,7 @@ else:
     type Plugins = Any
 
 
-class ServiceLevel:
+class ServiceLevel(ServiceProvider):
     """
     A service level.
     """

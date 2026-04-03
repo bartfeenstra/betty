@@ -4,14 +4,15 @@ Service providers.
 
 from __future__ import annotations
 
+import threading
 from abc import abstractmethod
 from collections.abc import Awaitable, Callable
 from functools import update_wrapper
 from inspect import iscoroutinefunction
 from typing import TYPE_CHECKING, Any, Protocol, Self, cast, overload, override
 
-from betty.concurrent import AsynchronizedLock, Lock
-from betty.life_cycle.manage import ManagedLifeCycle
+from betty.concurrent import AsynchronizedLock, Ledger
+from betty.life_cycle import LifeCycle
 from betty.service import ServiceError
 from betty.typing import Void, VoidType
 
@@ -21,10 +22,23 @@ if TYPE_CHECKING:
     from betty.typing import Intersection
 
 
-type ServiceFactory[ServiceProviderT, ServiceT] = Callable[[ServiceProviderT], ServiceT]
+class ServiceProvider:
+    """
+    A service provider.
+    """
+
+    def __init__(self, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+        self._lock = threading.Lock()
+        self._ledger = Ledger(AsynchronizedLock(self._lock))
 
 
-class _ServiceDecorator[ServiceProviderT, ServiceT](Protocol):
+type ServiceFactory[ServiceProviderT: ServiceProvider, ServiceT] = Callable[
+    [ServiceProviderT], ServiceT
+]
+
+
+class _ServiceDecorator[ServiceProviderT: ServiceProvider, ServiceT](Protocol):
     @overload
     def __call__(
         self, factory: Callable[[ServiceProviderT], ServiceT], /
@@ -39,14 +53,14 @@ class _ServiceDecorator[ServiceProviderT, ServiceT](Protocol):
 
 
 @overload
-def service[ServiceProviderT, ServiceT](
+def service[ServiceProviderT: ServiceProvider, ServiceT](
     factory: Callable[[ServiceProviderT], Awaitable[ServiceT]], /
 ) -> _AsynchronousServiceManager[ServiceProviderT, ServiceT]:
     pass
 
 
 @overload
-def service[ServiceProviderT, ServiceT](
+def service[ServiceProviderT: ServiceProvider, ServiceT](
     factory: Callable[[ServiceProviderT], ServiceT], /
 ) -> _SynchronousServiceManager[ServiceProviderT, ServiceT]:
     pass
@@ -67,7 +81,7 @@ def service(factory):
     The decorated factory method should return a new service instance.
     """
 
-    def _service[ServiceProviderT, ServiceT](
+    def _service[ServiceProviderT: ServiceProvider, ServiceT](
         factory: Callable[[ServiceProviderT], ServiceT], /
     ) -> ServiceManager[ServiceProviderT, ServiceT, Any]:
         if iscoroutinefunction(factory):
@@ -83,7 +97,7 @@ def service(factory):
     return _service(factory)
 
 
-class ServiceManager[ServiceProviderT, ServiceGetT, ServiceT]:
+class ServiceManager[ServiceProviderT: ServiceProvider, ServiceGetT, ServiceT]:
     """
     Manages a single service for a service provider.
     """
@@ -134,7 +148,7 @@ class ServiceManager[ServiceProviderT, ServiceGetT, ServiceT]:
         """
         Get the service from an instance.
         """
-        if isinstance(instance, ManagedLifeCycle):
+        if isinstance(instance, LifeCycle):
             instance.assert_alive()
 
         return self._get(instance)
@@ -191,21 +205,12 @@ class ServiceManager[ServiceProviderT, ServiceGetT, ServiceT]:
         setattr(instance, self._factory_override_attr_name, factory)
 
 
-class _AsynchronousServiceManager[ServiceProviderT, ServiceT](
+class _AsynchronousServiceManager[ServiceProviderT: ServiceProvider, ServiceT](
     ServiceManager[ServiceProviderT, Awaitable[ServiceT], ServiceT],
 ):
-    def _lock(self, instance: ServiceProviderT, /) -> Lock:
-        lock_attr_name = f"_{self._service_attr_name}_lock"
-        try:
-            return cast(Lock, getattr(instance, lock_attr_name))
-        except AttributeError:
-            lock = AsynchronizedLock.new_threadsafe()
-            setattr(instance, lock_attr_name, lock)
-            return lock
-
     @override
     async def _get(self, instance: ServiceProviderT, /) -> ServiceT:
-        async with self._lock(instance):
+        async with instance._ledger.ledger(self.name):
             service = self._get_attr(instance)
 
             if service is not Void:
@@ -216,18 +221,19 @@ class _AsynchronousServiceManager[ServiceProviderT, ServiceT](
             return new_service
 
 
-class _SynchronousServiceManager[ServiceProviderT, ServiceT](
+class _SynchronousServiceManager[ServiceProviderT: ServiceProvider, ServiceT](
     ServiceManager[ServiceProviderT, ServiceT, ServiceT]
 ):
     @override
     def _get(self, instance: ServiceProviderT, /) -> ServiceT:
-        service = self._get_attr(instance)
-        if service is not Void:
-            return service
+        with instance._lock:
+            service = self._get_attr(instance)
+            if service is not Void:
+                return service
 
-        new_service = self._get_factory(instance)(instance)
-        setattr(instance, self._service_attr_name, new_service)
-        return new_service
+            new_service = self._get_factory(instance)(instance)
+            setattr(instance, self._service_attr_name, new_service)
+            return new_service
 
 
 class ServiceInitializedError(ServiceError):
