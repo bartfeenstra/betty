@@ -15,7 +15,7 @@ from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.source import Source
 from betty.privacy import is_public
 from betty.project import Project
-from betty.requirement import require
+from betty.requirement import ServicePluginRequirement
 from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     description=_(
         "Other entities that reference a citation or source to back up their claims."
     ),
-    requires={RaspberryMint},
+    requires={ServicePluginRequirement(RaspberryMint)},
 )
 class Facts(Template, Manufacturable):
     """
@@ -42,8 +42,8 @@ class Facts(Template, Manufacturable):
     """
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(jinja=await project.jinja)
 

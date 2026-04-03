@@ -19,7 +19,7 @@ from betty.plugins.extension.webpack import Webpack
 from betty.plugins.extension.webpack.build import EntryPointProvider
 from betty.project import Project
 from betty.project.generate import Generator
-from betty.requirement import require
+from betty.requirement import ServicePluginRequirement
 from betty.service.factory import DataManufacturable, Manufacturable
 from betty.service.provider import service
 
@@ -36,7 +36,12 @@ type RegionalContentManufacturers = Mapping[
 
 @final
 @ExtensionDefinition(
-    "raspberry-mint", label="Raspberry Mint", requires={RaspberryMintAsset, Webpack}
+    "raspberry-mint",
+    label="Raspberry Mint",
+    requires={
+        ServicePluginRequirement(RaspberryMintAsset),
+        ServicePluginRequirement(Webpack),
+    },
 )
 class RaspberryMint(
     DataManufacturable[RaspberryMintConfiguration],
@@ -107,8 +112,8 @@ class RaspberryMint(
         return RaspberryMintConfiguration
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(
         cls,
         project: Project,

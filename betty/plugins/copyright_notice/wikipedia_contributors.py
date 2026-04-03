@@ -21,7 +21,6 @@ from betty.locale.localizable import (
 )
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
-from betty.requirement import require
 from betty.service.factory import Manufacturable
 
 
@@ -41,8 +40,8 @@ class WikipediaContributors(Manufacturable, CopyrightNotice):
         self._url = resolve_localizable(url)
 
     @override
+    @App.require
     @classmethod
-    @require(App)
     async def new(cls, app: App, /) -> Self:
         http_client = await app.http_client
         urls: StaticTranslationsMapping = {

@@ -25,7 +25,6 @@ from betty.locale.localizable.plain import Plain
 from betty.machine_name import MachineName
 from betty.plugin.discovery import ResolvableDiscovery
 from betty.portable import PortableData, PortableSequence
-from betty.requirement import require
 from betty.service.factory import Manufacturable
 from betty.service.level import ServiceLevel
 from betty.user import User
@@ -67,8 +66,8 @@ class SpdxLicenseDiscoverer(Manufacturable):
         )
 
     @override
+    @App.require
     @classmethod
-    @require(App)
     async def new(cls, app: App, /) -> Self:
         return cls(
             binary_file_cache=app.binary_file_cache.with_scope("spdx"),
@@ -83,7 +82,7 @@ class SpdxLicenseDiscoverer(Manufacturable):
         """
         Discover SPDX licenses.
         """
-        return await (await cls.new(services)).discover()  # ty:ignore[invalid-argument-type]
+        return await (await cls.new(services)).discover()
 
     async def discover(self) -> Iterable[ResolvableDiscovery[LicenseDefinition]]:
         """

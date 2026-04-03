@@ -12,7 +12,7 @@ from betty.plugins.asset.raspberry_mint import RaspberryMint
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.file import File
 from betty.project import Project
-from betty.requirement import require
+from betty.requirement import ServicePluginRequirement
 from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     "raspberry-mint-media",
     label=_("Media"),
     description=_("A single file in a media display"),
-    requires={RaspberryMint},
+    requires={ServicePluginRequirement(RaspberryMint)},
 )
 class Media(Template, Manufacturable):
     """
@@ -34,8 +34,8 @@ class Media(Template, Manufacturable):
     """
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(jinja=await project.jinja)
 

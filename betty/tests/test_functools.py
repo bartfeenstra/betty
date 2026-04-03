@@ -1,9 +1,12 @@
-from collections.abc import Awaitable, Callable, Iterable, Sequence
-from typing import Any, Literal
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Literal
 
 import pytest
 
 from betty.functools import (
+    CallableDecorator,
+    DecoratedCallable,
     Do,
     Result,
     ResultUnavailable,
@@ -13,6 +16,9 @@ from betty.functools import (
     unique,
 )
 from betty.typing import Void
+
+if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable, Iterable, Sequence
 
 
 class TestDo:
@@ -213,3 +219,104 @@ def test_suppress__with_unsuppressed_raised_exception() -> None:
 
     with pytest.raises(_Exception):
         suppress(_target)()
+
+
+def _decorate(f: Callable[[int], int], /) -> Callable[[int], tuple[int, int]]:
+    def _decorated(value: int, /) -> tuple[int, int]:
+        f_value = f(value)
+        return f_value, f_value
+
+    return _decorated
+
+
+class TestDecoratedCallable:
+    def test___call____without_callable(self) -> None:
+        class _Descriptor:
+            def __get__[T](
+                self, instance: T | None, owner: type[T] | None = None
+            ) -> Callable[[int], int]:
+                raise NotImplementedError
+
+        class Cls:
+            @classmethod
+            def f(cls, value: int, /) -> int:
+                raise NotImplementedError
+
+        f = DecoratedCallable(_decorate, _Descriptor())
+        with pytest.raises(RuntimeError):
+            f(3)
+
+    def test___call____with_named_function(self) -> None:
+        def _f(value: int, /) -> int:
+            return value**2
+
+        f = DecoratedCallable(_decorate, _f)
+        assert f(3) == (9, 9)
+
+    def test___call____with_lambda(self) -> None:
+        f = DecoratedCallable(_decorate, lambda value: value**2)
+        assert f(3) == (9, 9)
+
+    def test___call____with_callable_instance(self) -> None:
+        class F:
+            def __call__(self, value: int, /) -> int:
+                return value**2
+
+        f = DecoratedCallable(_decorate, F())
+        assert f(3) == (9, 9)
+
+    def test___get____with_lambda(self) -> None:
+        class Cls:
+            f = DecoratedCallable(_decorate, lambda value: value**2)
+
+        assert Cls.f(3) == (9, 9)
+
+    def test___get____with_static_method(self) -> None:
+        class Cls:
+            @staticmethod
+            def _f(value: int, /) -> int:
+                return value**2
+
+            f = DecoratedCallable(_decorate, _f)
+
+        assert Cls.f(3) == (9, 9)
+
+    def test___get____with_class_method(self) -> None:
+        class Cls:
+            @classmethod
+            def _f(cls, value: int, /) -> int:
+                return value**2
+
+            f = DecoratedCallable(_decorate, _f)
+
+        assert Cls.f(3) == (9, 9)
+
+    def test___get____with_instance_method(self) -> None:
+        class Cls:
+            def _f(self, value: int, /) -> int:
+                return value**2
+
+            f = DecoratedCallable(_decorate, _f)
+
+        assert Cls().f(3) == (9, 9)
+
+    def test___get____with_callable_instance(self) -> None:
+        class F:
+            def __call__(self, value: int, /) -> int:
+                return value**2
+
+        class Cls:
+            f = DecoratedCallable(_decorate, F())
+
+        assert Cls.f(3) == (9, 9)
+
+
+class TestCallableDecorator:
+    def test___call____without_arguments(self) -> None:
+        sut = CallableDecorator(callable_decorator=_decorate)
+        assert sut() is sut
+
+    def test___call__(self) -> None:
+        assert CallableDecorator(callable_decorator=_decorate)(lambda value: value**2)(
+            3
+        ) == (9, 9)

@@ -8,7 +8,15 @@ import contextlib
 from asyncio import sleep
 from itertools import chain
 from time import time
-from typing import TYPE_CHECKING, Any, final
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Protocol,
+    Self,
+    final,
+    overload,
+    runtime_checkable,
+)
 
 from betty.asyncio import resolve_await
 from betty.typing import Void
@@ -174,3 +182,98 @@ class Result[**P, T]:
                 return self._result
             except AttributeError:
                 raise ResultUnavailable from None
+
+
+type DecoratorCallableType[
+    **DecoratorP,
+    DecoratorReturnT,
+    **DecoratedP,
+    DecoratedReturnT,
+] = Callable[
+    [Callable[DecoratedP, DecoratedReturnT]], Callable[DecoratorP, DecoratorReturnT]
+]
+
+
+@runtime_checkable
+class _DecoratedDescriptorCallableType[**P, ReturnT](Protocol):
+    def __get__[T](
+        self, instance: T | None, owner: type[T] | None = None, /
+    ) -> Callable[P, ReturnT]:
+        pass  # pragma: nocover
+
+
+type DecoratedCallableType[**P, ReturnT] = (
+    _DecoratedDescriptorCallableType[P, ReturnT] | Callable[P, ReturnT]
+)
+
+
+@final
+class DecoratedCallable[**P, ReturnT]:
+    """
+    Apply a decorator to a callable.
+    """
+
+    __slots__ = "_decorated", "_decorator"
+
+    def __init__[**DecoratedP, DecoratedReturnT](
+        self,
+        decorator: DecoratorCallableType[P, ReturnT, DecoratedP, DecoratedReturnT],
+        decorated: DecoratedCallableType[DecoratedP, DecoratedReturnT],
+        /,
+    ):
+        self._decorator = decorator
+        self._decorated = decorated
+
+    def __get__[T](
+        self, instance: T | None, owner: type[T] | None = None
+    ) -> Callable[P, ReturnT]:
+        if isinstance(self._decorated, _DecoratedDescriptorCallableType):
+            decorated = self._decorated.__get__(instance, owner)
+        else:
+            decorated = self._decorated
+        return self._decorator(
+            decorated,  # ty:ignore[invalid-argument-type]
+        )
+
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> ReturnT:
+        """
+        Call the decorated function.
+        """
+        if not callable(self._decorated):
+            raise RuntimeError("This is not supported")
+        return self._decorator(
+            self._decorated,  # ty:ignore[invalid-argument-type]
+        )(*args, **kwargs)
+
+
+class CallableDecorator[**P, ReturnT, **DecoratedP, DecoratedReturnT]:
+    """
+    An object capable of decorating a callable.
+    """
+
+    def __init__(
+        self,
+        *,
+        callable_decorator: DecoratorCallableType[
+            P, ReturnT, DecoratedP, DecoratedReturnT
+        ],
+    ):
+        self.__callable_decorator = callable_decorator
+
+    @overload
+    def __call__(self) -> Self:
+        pass
+
+    @overload
+    def __call__(
+        self, decorated: DecoratedCallableType[DecoratedP, DecoratedReturnT]
+    ) -> DecoratedCallable[P, ReturnT]:
+        pass
+
+    def __call__(self, decorated=None):
+        """
+        Decorate a callable.
+        """
+        if decorated is None:
+            return self
+        return DecoratedCallable(self.__callable_decorator, decorated)

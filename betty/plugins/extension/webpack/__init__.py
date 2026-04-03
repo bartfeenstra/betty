@@ -17,7 +17,7 @@ from betty.plugins.jinja_filter.webpack_entry_point_js import WebpackEntryPointJ
 from betty.plugins.js_resource.webpack_entry_point_loader import WebpackEntryPointLoader
 from betty.project import Project
 from betty.project.generate import Generator
-from betty.requirement import require
+from betty.requirement import ServicePluginRequirement
 from betty.service.factory import Manufacturable
 from betty.service.provider import service
 
@@ -30,10 +30,10 @@ if TYPE_CHECKING:
     "webpack",
     label="Webpack",
     requires={
-        WebpackAsset,
-        WebpackCssResource,
-        WebpackEntryPointJs,
-        WebpackEntryPointLoader,
+        ServicePluginRequirement(WebpackAsset),
+        ServicePluginRequirement(WebpackCssResource),
+        ServicePluginRequirement(WebpackEntryPointJs),
+        ServicePluginRequirement(WebpackEntryPointLoader),
     },
 )
 class Webpack(Generator, Extension, Manufacturable):
@@ -46,8 +46,8 @@ class Webpack(Generator, Extension, Manufacturable):
         self._project = project
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(project=project)
 

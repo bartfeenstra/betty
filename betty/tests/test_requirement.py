@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Awaitable, Callable, Collection
-from typing import override
+from typing import TYPE_CHECKING, override
 
 import pytest
 
@@ -9,11 +8,9 @@ from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer
 from betty.requirement import (
-    ServiceLevelRequirement,
+    RequirableDecorator,
     ServicePluginRequirement,
     UnmetRequirement,
-    require,
-    resolve_requirement,
 )
 from betty.service.level import ChainedServiceLevel, ServiceLevel
 from betty.service.plugin.service import (
@@ -25,6 +22,9 @@ from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Collection
 
 
 class _ServiceLevel(ServiceLevel):
@@ -95,116 +95,6 @@ async def _requirement(services: ServiceLevel, /) -> _ServiceLevel:
     raise UnmetRequirement("")
 
 
-@require(_requirement)  # ty:ignore[no-matching-overload]
-def _require_target_sync(services: _ServiceLevel, /) -> _ServiceLevel:
-    return services
-
-
-@require(_requirement)  # ty:ignore[no-matching-overload]
-async def _require_target_async(services: _ServiceLevel, /) -> _ServiceLevel:
-    return services
-
-
-class _RequireTargetClassMethod:
-    @classmethod
-    @require(_requirement)  # ty:ignore[no-matching-overload]
-    async def target(cls, services: _ServiceLevel, /) -> _ServiceLevel:
-        return services
-
-
-class _RequireTargetInstanceMethod:
-    @require(_requirement)  # ty:ignore[no-matching-overload]
-    async def target(self, services: _ServiceLevel, /) -> _ServiceLevel:
-        return services
-
-
-_targets = pytest.mark.parametrize(
-    "target",
-    [
-        _require_target_sync,
-        _require_target_async,
-        _RequireTargetClassMethod.target,
-        _RequireTargetInstanceMethod().target,
-    ],
-)
-type _Target = Callable[[ServiceLevel], Awaitable[_ServiceLevel]]
-
-
-class TestRequire:
-    async def test___call____with_requirement_unmet(
-        self,
-    ) -> None:
-        def _require_target(services: _ServiceLevel, /) -> _ServiceLevel:
-            return services
-
-        sut = require(_requirement)
-        with pytest.raises(UnmetRequirement):
-            await sut(_require_target)(ServiceLevel())  # ty:ignore[no-matching-overload]
-
-    async def test___call____with_requirement_met(
-        self,
-    ) -> None:
-        def _require_target(services: _ServiceLevel, /) -> _ServiceLevel:
-            return services
-
-        sut = require(_requirement)
-        services = _ServiceLevel()
-        assert await sut(_require_target)(services) is services  # ty:ignore[no-matching-overload]
-
-
-class TestCallableRequire:
-    @_targets
-    async def test___call____with_requirement_unmet(self, target: _Target) -> None:
-        with pytest.raises(UnmetRequirement):
-            await target(ServiceLevel())
-
-    @_targets
-    async def test___call____with_requirement_met(self, target: _Target) -> None:
-        services = _ServiceLevel()
-        assert await target(services) is services
-
-
-def test_resolve_requirement__with_service_level() -> None:
-    actual = resolve_requirement(_ServiceLevel)
-    assert isinstance(actual, ServiceLevelRequirement)
-    assert actual.services is _ServiceLevel
-
-
-def test_resolve_requirement__with_service_plugin() -> None:
-    actual = resolve_requirement(_ServicePluginOne)
-    assert isinstance(actual, ServicePluginRequirement)
-    assert actual.plugin is _ServicePluginOne
-
-
-def test_resolve_requirement__with_requirement() -> None:
-    assert resolve_requirement(_requirement) is _requirement
-
-
-class TestServiceLevelRequirement:
-    def test_services(self) -> None:
-        assert ServiceLevelRequirement(_ServiceLevel).services is _ServiceLevel
-
-    def test___call____unmet(self) -> None:
-        sut = ServiceLevelRequirement(_ServiceLevel)
-        with pytest.raises(UnmetRequirement):
-            sut(ServiceLevel())
-
-    def test___call____met(self) -> None:
-        sut = ServiceLevelRequirement(_ServiceLevel)
-        services = _ServiceLevel()
-        assert sut(services) is services
-
-    def test___call____chained_unmet(self) -> None:
-        sut = ServiceLevelRequirement(_ServiceLevel)
-        with pytest.raises(UnmetRequirement):
-            sut(_ChainedServiceLevel(upstream=ServiceLevel()))
-
-    def test___call____chained_met(self) -> None:
-        sut = ServiceLevelRequirement(_ServiceLevel)
-        services = _ServiceLevel()
-        assert sut(_ChainedServiceLevel(upstream=services)) is services
-
-
 class TestServicePluginRequirement:
     def test_plugin(self) -> None:
         assert ServicePluginRequirement(_ServicePluginOne).plugin is _ServicePluginOne
@@ -221,7 +111,7 @@ class TestServicePluginRequirement:
         self,
     ) -> None:
         sut = ServicePluginRequirement(_ServicePluginOne)
-        async with _ServicePluginProvider({}, [_ServicePluginOne]) as services:
+        async with _ServicePluginProvider({}, []) as services:
             with pytest.raises(UnmetRequirement):
                 await sut(services)
 
@@ -280,3 +170,36 @@ class TestServicePluginRequirement:
         ):
             with pytest.raises(UnmetRequirement):
                 await sut(services)
+
+
+class TestRequirableDecorator:
+    class _RequirableDecorator(
+        RequirableDecorator[tuple[_ServiceLevel, _ServiceLevel]]
+    ):
+        @override
+        async def _check(
+            self, services: ServiceLevel, /
+        ) -> tuple[_ServiceLevel, _ServiceLevel]:
+            if isinstance(services, _ServiceLevel):
+                return services, services
+            raise UnmetRequirement("uh-oh")
+
+    async def test___call____with_services_and_unmet_requirement(self) -> None:
+        with pytest.raises(UnmetRequirement):
+            await self._RequirableDecorator()(ServiceLevel())
+
+    async def test___call____with_services_and_met_requirement(self) -> None:
+        services = _ServiceLevel()
+        assert await self._RequirableDecorator()(services) == (services, services)
+
+    async def test___call____with_decorated_and_unmet_requirement(self) -> None:
+        with pytest.raises(UnmetRequirement):
+            await self._RequirableDecorator()(lambda services: (services, services))(
+                ServiceLevel()
+            )
+
+    async def test___call____with_decorated_and_met_requirement(self) -> None:
+        services = _ServiceLevel()
+        assert await self._RequirableDecorator()(
+            lambda services_pair: (services_pair, services_pair)
+        )(services) == ((services, services), (services, services))

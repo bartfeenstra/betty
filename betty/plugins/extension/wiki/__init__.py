@@ -8,7 +8,6 @@ from typing import Self, final, override
 from betty.extension import Extension, ExtensionDefinition
 from betty.plugins.copyright_notice.wikipedia_contributors import WikipediaContributors
 from betty.project import Project
-from betty.requirement import require
 from betty.service.factory import Manufacturable
 from betty.service.provider import service
 from betty.wiki import populator as populator_api
@@ -27,8 +26,8 @@ class Wiki(Extension, Manufacturable):
         self._project = project
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(project=project)
 

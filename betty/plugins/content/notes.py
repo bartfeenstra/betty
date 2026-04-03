@@ -11,7 +11,6 @@ from betty.entity.has_notes import HasNotes
 from betty.locale.localizable.gettext import _
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project
-from betty.requirement import require
 from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
@@ -26,8 +25,8 @@ class Notes(Template, Manufacturable):
     """
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(jinja=await project.jinja)
 

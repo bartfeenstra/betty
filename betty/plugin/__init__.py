@@ -28,11 +28,10 @@ class PluginDefinition:
     """
 
     def __init__(self, plugin_id: ResolvableMachineName, *, requires: Requires = ()):
-        from betty.requirement import resolve_requirement
 
         super().__init__()
         self._id = MachineName.resolve(plugin_id)
-        self._requires = tuple(map(resolve_requirement, requires))
+        self._requires = tuple(requires)
 
     @classmethod
     def type(cls) -> PluginTypeDefinition[Self]:

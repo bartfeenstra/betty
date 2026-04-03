@@ -12,7 +12,6 @@ from betty.locale.localizable.gettext import _
 from betty.plugins.loader.gramps.data import FamilyTree, GrampsConfiguration
 from betty.plugins.loader.gramps.jobs import LoadAncestry
 from betty.project import Project
-from betty.requirement import require
 from betty.service.factory import DataManufacturable, Manufacturable
 
 if TYPE_CHECKING:
@@ -327,8 +326,8 @@ class Gramps(DataManufacturable[GrampsConfiguration], Manufacturable, Loader):
         return GrampsConfiguration
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(
         cls, project: Project, data: GrampsConfiguration | None = None, /
     ) -> Self:

@@ -13,7 +13,7 @@ from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.person import Person
 from betty.plugins.extension._theme import person_descendant_families
 from betty.project import Project
-from betty.requirement import require
+from betty.requirement import ServicePluginRequirement
 from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
@@ -22,7 +22,9 @@ if TYPE_CHECKING:
 
 @final
 @ContentDefinition(
-    "raspberry-mint-families", label=_("Families"), requires={RaspberryMint}
+    "raspberry-mint-families",
+    label=_("Families"),
+    requires={ServicePluginRequirement(RaspberryMint)},
 )
 class Families(Template, Manufacturable):
     """
@@ -32,8 +34,8 @@ class Families(Template, Manufacturable):
     """
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(jinja=await project.jinja)
 

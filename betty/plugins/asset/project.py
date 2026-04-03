@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING
 from betty.asset import Asset, AssetDefinition
 from betty.plugins.asset.universe import Universe
 from betty.project import Project
-from betty.requirement import require
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -17,7 +16,7 @@ if TYPE_CHECKING:
     from betty.plugin.discovery import ResolvableDiscovery
 
 
-@require(Project)
+@Project.require
 def _discover(project: Project, /) -> Iterable[ResolvableDiscovery[AssetDefinition]]:
     @AssetDefinition(
         "project",

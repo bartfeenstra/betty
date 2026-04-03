@@ -10,7 +10,6 @@ from urllib.parse import urlsplit
 from betty.entity import Entity, EntityDefinition
 from betty.media_type.media_types import HTML, JSON, JSON_LD
 from betty.project import Project
-from betty.requirement import require
 from betty.service.factory import Manufacturable
 from betty.string import camel_case_to_kebab_case
 from betty.url import (
@@ -48,8 +47,8 @@ class _ProjectUrlGenerator(Manufacturable):
         self._clean_urls = clean_urls
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         """
         Create a new instance using the given project.

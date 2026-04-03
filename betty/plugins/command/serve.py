@@ -7,7 +7,6 @@ from betty.app import App
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.console.project import add_project_argument
 from betty.locale.localizable.gettext import _
-from betty.requirement import require
 from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
@@ -31,8 +30,8 @@ class Serve(Manufacturable, Command):
         self._app = app
 
     @override
+    @App.require
     @classmethod
-    @require(App)
     async def new(cls, app: App, /) -> Self:
         return cls(app)
 

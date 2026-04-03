@@ -42,7 +42,6 @@ async def discover[PluginDefinitionT: PluginDefinition](
 async def _discover[PluginDefinitionT: PluginDefinition](
     discovery: ResolvableDiscovery[PluginDefinitionT], services: ServiceLevel
 ) -> Iterable[PluginDefinitionT]:
-
     with suppress(ValueError):
         return [resolve_plugin_definition(discovery)]
     try:

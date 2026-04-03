@@ -10,7 +10,7 @@ from betty.plugins.enricher.wiki.data import WikiConfiguration
 from betty.plugins.enricher.wiki.jobs import PopulateEntity
 from betty.plugins.extension.wiki import Wiki as WikiExtension
 from betty.project import Project
-from betty.requirement import require
+from betty.requirement import ServicePluginRequirement
 from betty.service.factory import DataManufacturable, Manufacturable
 
 if TYPE_CHECKING:
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     description=_(
         "Enrich your ancestry with information from Wikipedia and Wikimedia Commons"
     ),
-    requires={WikiExtension},
+    requires={ServicePluginRequirement(WikiExtension)},
 )
 class Wiki(Enricher, DataManufacturable[WikiConfiguration], Manufacturable):
     """
@@ -54,8 +54,8 @@ class Wiki(Enricher, DataManufacturable[WikiConfiguration], Manufacturable):
         return WikiConfiguration
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(
         cls, project: Project, data: WikiConfiguration | None = None, /
     ) -> Self:

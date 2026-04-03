@@ -14,7 +14,7 @@ from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
 from betty.plugins.extension._theme import person_timeline_events, place_timeline_events
 from betty.project import Project
-from betty.requirement import require
+from betty.requirement import ServicePluginRequirement
 from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
@@ -24,7 +24,9 @@ if TYPE_CHECKING:
 
 @final
 @ContentDefinition(
-    "raspberry-mint-timeline", label=_("Timeline"), requires={RaspberryMint}
+    "raspberry-mint-timeline",
+    label=_("Timeline"),
+    requires={ServicePluginRequirement(RaspberryMint)},
 )
 class Timeline(Template, Manufacturable):
     """
@@ -38,8 +40,8 @@ class Timeline(Template, Manufacturable):
         self._lifetime_threshold = lifetime_threshold
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(
             jinja=await project.jinja, lifetime_threshold=project.lifetime_threshold

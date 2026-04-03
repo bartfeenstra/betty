@@ -25,7 +25,7 @@ from betty.plugins.entity.file import File
 from betty.plugins.entity.file_reference import FileReference
 from betty.plugins.jinja_filter.file import File as FileFilter
 from betty.project import Project
-from betty.requirement import require
+from betty.requirement import ServicePluginRequirement
 from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
@@ -44,7 +44,9 @@ if TYPE_CHECKING:
 
 
 @final
-@JinjaFilterDefinition("image-resize-cover", requires={FileFilter}, auto=True)
+@JinjaFilterDefinition(
+    "image-resize-cover", requires={ServicePluginRequirement(FileFilter)}, auto=True
+)
 class ImageResizeCover(JinjaFilter, Manufacturable):
     """
     Preprocess an image file for use in a page.
@@ -66,8 +68,8 @@ class ImageResizeCover(JinjaFilter, Manufacturable):
         self._www_directory = www_directory
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(
             binary_file_cache=project.upstream.binary_file_cache.with_scope("image"),

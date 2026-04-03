@@ -7,7 +7,7 @@ from betty.app import App
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.locale import translation
 from betty.locale.localizable.gettext import _
-from betty.requirement import UnmetRequirement, require
+from betty.requirement import UnmetRequirement
 from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
@@ -32,8 +32,8 @@ class DevUpdateTranslations(Manufacturable, Command):
         self._app = app
 
     @override
+    @App.require
     @classmethod
-    @require(App)
     async def new(cls, app: App, /) -> Self:
         return cls(app)
 

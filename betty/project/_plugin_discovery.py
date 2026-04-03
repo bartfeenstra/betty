@@ -8,14 +8,13 @@ from betty.gender import GenderDefinition
 from betty.license import LicenseDefinition
 from betty.place_type import PlaceTypeDefinition
 from betty.project import Project
-from betty.requirement import require
 from betty.role import RoleDefinition
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
 
-@require(Project)
+@Project.require
 def _discover_copyright_notices(
     project: Project,
 ) -> Iterable[CopyrightNoticeDefinition]:
@@ -26,7 +25,7 @@ def _discover_copyright_notices(
     )
 
 
-@require(Project)
+@Project.require
 def _discover_event_types(project: Project) -> Iterable[EventTypeDefinition]:
     return (
         plugin
@@ -35,7 +34,7 @@ def _discover_event_types(project: Project) -> Iterable[EventTypeDefinition]:
     )
 
 
-@require(Project)
+@Project.require
 def _discover_genders(project: Project) -> Iterable[GenderDefinition]:
     return (
         plugin
@@ -44,7 +43,7 @@ def _discover_genders(project: Project) -> Iterable[GenderDefinition]:
     )
 
 
-@require(Project)
+@Project.require
 def _discover_licenses(project: Project) -> Iterable[LicenseDefinition]:
     return (
         plugin
@@ -53,7 +52,7 @@ def _discover_licenses(project: Project) -> Iterable[LicenseDefinition]:
     )
 
 
-@require(Project)
+@Project.require
 def _discover_place_types(project: Project) -> Iterable[PlaceTypeDefinition]:
     return (
         plugin
@@ -62,7 +61,7 @@ def _discover_place_types(project: Project) -> Iterable[PlaceTypeDefinition]:
     )
 
 
-@require(Project)
+@Project.require
 def _discover_roles(project: Project) -> Iterable[RoleDefinition]:
     return (
         plugin

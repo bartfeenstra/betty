@@ -9,7 +9,7 @@ from betty.document import Document
 from betty.plugins.asset.raspberry_mint import RaspberryMint
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project
-from betty.requirement import require
+from betty.requirement import ServicePluginRequirement
 from betty.service.factory import Manufacturable
 
 
@@ -17,7 +17,7 @@ from betty.service.factory import Manufacturable
 @ContentDefinition(
     "raspberry-mint-incomplete-translation-warning",
     label="Incomplete translation warning",
-    requires={RaspberryMint},
+    requires={ServicePluginRequirement(RaspberryMint)},
 )
 class IncompleteTranslationWarning(Template, Manufacturable):
     """
@@ -25,8 +25,8 @@ class IncompleteTranslationWarning(Template, Manufacturable):
     """
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(jinja=await project.jinja)
 

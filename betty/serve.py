@@ -23,7 +23,6 @@ from betty.exception import HumanFacingException
 from betty.functools import Do
 from betty.locale.localizable.gettext import _
 from betty.project import Project
-from betty.requirement import require
 from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
@@ -146,8 +145,8 @@ class ProjectServer(Manufacturable, Server):
         self._project = project
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(project)
 

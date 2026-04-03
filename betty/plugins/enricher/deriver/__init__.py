@@ -10,7 +10,6 @@ from betty.load import Enricher, EnricherDefinition
 from betty.locale.localizable.gettext import _
 from betty.plugins.enricher.deriver.jobs import DeriveAncestry
 from betty.project import Project
-from betty.requirement import require
 from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
@@ -44,8 +43,8 @@ class Deriver(Enricher, Manufacturable):
         self._project = project
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(project=project)
 

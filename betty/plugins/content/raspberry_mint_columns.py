@@ -31,7 +31,7 @@ from betty.plugins.extension.raspberry_mint import Breakpoint, JustifyContent
 from betty.portable import CallbackPorter
 from betty.project import Project
 from betty.property import Optional, Property
-from betty.requirement import require
+from betty.requirement import ServicePluginRequirement
 from betty.sample import Sample, Size
 from betty.service.factory import DataManufacturable
 
@@ -217,7 +217,9 @@ class ColumnsConfiguration(Data):
 
 @final
 @ContentDefinition(
-    "raspberry-mint-columns", label=_("Columns"), requires={RaspberryMint}
+    "raspberry-mint-columns",
+    label=_("Columns"),
+    requires={ServicePluginRequirement(RaspberryMint)},
 )
 class Columns(Template, DataManufacturable[ColumnsConfiguration]):
     """
@@ -246,8 +248,8 @@ class Columns(Template, DataManufacturable[ColumnsConfiguration]):
         return ColumnsConfiguration
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(cls, project: Project, data: ColumnsConfiguration, /) -> Self:
         content, jinja = await gather(
             gather(
