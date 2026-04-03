@@ -94,7 +94,7 @@ class Samples(
         samples: Iterable[
             Callable[[], Sample[_SampleT]]
             | Samples[_SampleT]
-            | type[Intersection[_SampleT, Samplable[_SampleT]]]
+            | type[Intersection[_SampleT, Samplable]]
         ],
     ):
         self._samples = list(samples)

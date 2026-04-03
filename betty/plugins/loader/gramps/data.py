@@ -73,7 +73,9 @@ class _PluginMappingProperty[PluginDefinitionT: PluginDefinition, PluginT: Plugi
                 dict(
                     zip(
                         default.keys(),
-                        manufacturer.resolve_sequence(default.values()),
+                        manufacturer.resolve_sequence(
+                            default.values(),  # ty:ignore[invalid-argument-type]
+                        ),
                         strict=False,
                     )
                 ),
