@@ -30,6 +30,7 @@ from betty.multiprocessing import ProcessPoolExecutor
 from betty.portable.file import assert_load_file
 from betty.service.factory import DataManufacturable
 from betty.service.level import ChainedServiceLevel, Plugins, ServiceLevel
+from betty.service.level.requirement import RequirableServiceLevel
 from betty.service.level.universe import UNIVERSE
 from betty.service.plugin.service import (
     ServicePluginProvider,
@@ -58,7 +59,10 @@ type AppServicePlugin = AssetDefinition | RateLimitDefinition
 @final
 @threadsafe
 class App(
-    DataManufacturable[AppConfiguration], ChainedServiceLevel, ServicePluginProvider
+    DataManufacturable[AppConfiguration],
+    ChainedServiceLevel,
+    RequirableServiceLevel,
+    ServicePluginProvider,
 ):
     """
     The Betty application.

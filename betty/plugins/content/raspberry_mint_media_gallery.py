@@ -13,7 +13,7 @@ from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.extension._theme import associated_file_references
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.project import Project
-from betty.requirement import require
+from betty.requirement import ServicePluginRequirement
 from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     "raspberry-mint-media-gallery",
     label=_("Media gallery"),
     description=_("Multiple files in a media gallery display"),
-    requires={RaspberryMint},
+    requires={ServicePluginRequirement(RaspberryMint)},
 )
 class MediaGallery(Template, Manufacturable):
     """
@@ -35,8 +35,8 @@ class MediaGallery(Template, Manufacturable):
     """
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(jinja=await project.jinja)
 

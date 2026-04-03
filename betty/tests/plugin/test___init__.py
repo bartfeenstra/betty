@@ -74,7 +74,8 @@ class TestPluginDefinition:
     def test_requires(self) -> None:
         requires = list(
             PluginDefinition(
-                "my-first-plugin-id", requires={DummyServicePluginOne}
+                "my-first-plugin-id",
+                requires={ServicePluginRequirement(DummyServicePluginOne)},
             ).requires
         )
         assert len(requires) == 1

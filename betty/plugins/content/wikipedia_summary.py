@@ -20,7 +20,7 @@ from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.link import Link
 from betty.plugins.extension.wiki import Wiki as WikiExtension
 from betty.project import Project
-from betty.requirement import require
+from betty.requirement import ServicePluginRequirement
 from betty.service.factory import Manufacturable
 from betty.wiki import NotAPageError, parse_page_url
 from betty.wiki.client import Client, ClientError, Summary
@@ -30,7 +30,10 @@ from betty.wiki.client import Client, ClientError, Summary
 @ContentDefinition(
     "wikipedia-summary",
     label=_("Wikipedia summary"),
-    requires={WikiAsset, WikiExtension},
+    requires={
+        ServicePluginRequirement(WikiAsset),
+        ServicePluginRequirement(WikiExtension),
+    },
 )
 class WikipediaSummary(Template, Manufacturable):
     """
@@ -53,8 +56,8 @@ class WikipediaSummary(Template, Manufacturable):
         self._localizers = localizers
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(
             client=await (await project.extensions)[WikiExtension].client,

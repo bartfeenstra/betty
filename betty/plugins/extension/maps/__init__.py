@@ -13,7 +13,7 @@ from betty.plugins.extension.webpack import Webpack
 from betty.plugins.extension.webpack.build import EntryPointProvider
 from betty.project import Project
 from betty.project.generate import Generator
-from betty.requirement import require
+from betty.requirement import ServicePluginRequirement
 from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     "maps",
     label="Maps",
     description=_("Display interactive maps"),
-    requires={MapsAsset, Webpack},
+    requires={ServicePluginRequirement(MapsAsset), ServicePluginRequirement(Webpack)},
 )
 class Maps(Generator, EntryPointProvider, Manufacturable):
     """
@@ -39,8 +39,8 @@ class Maps(Generator, EntryPointProvider, Manufacturable):
         self._project = project
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(project=project)
 

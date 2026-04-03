@@ -10,7 +10,6 @@ from betty.demo import generate
 from betty.demo.project import create_project
 from betty.job import Context
 from betty.locale.localizable.gettext import _
-from betty.requirement import require
 from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
@@ -28,8 +27,8 @@ class Demo(Manufacturable, Command):
         self._app = app
 
     @override
+    @App.require
     @classmethod
-    @require(App)
     async def new(cls, app: App, /) -> Self:
         return cls(app)
 

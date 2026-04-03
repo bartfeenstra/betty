@@ -14,7 +14,6 @@ from betty.locale.localizable import (
 )
 from betty.locale.localizable.gettext import _
 from betty.project import Project
-from betty.requirement import require
 from betty.service.factory import Manufacturable
 
 
@@ -30,8 +29,8 @@ class ProjectAuthor(Manufacturable, CopyrightNotice):
         self._author = None if author is None else resolve_localizable(author)
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(project.author)
 

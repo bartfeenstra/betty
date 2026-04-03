@@ -19,7 +19,7 @@ from betty.plugins.asset.raspberry_mint import RaspberryMint
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project
 from betty.property import Optional, Property
-from betty.requirement import require
+from betty.requirement import ServicePluginRequirement
 from betty.sample import Sample, Size
 from betty.service.factory import DataManufacturable
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
@@ -101,7 +101,9 @@ class SectionConfiguration(Data):
 
 @final
 @ContentDefinition(
-    "raspberry-mint-section", label=_("Section"), requires={RaspberryMint}
+    "raspberry-mint-section",
+    label=_("Section"),
+    requires={ServicePluginRequirement(RaspberryMint)},
 )
 class Section(Template, DataManufacturable[SectionConfiguration]):
     """
@@ -130,8 +132,8 @@ class Section(Template, DataManufacturable[SectionConfiguration]):
         return SectionConfiguration
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(cls, project: Project, data: SectionConfiguration, /) -> Self:
         content, jinja = await gather(
             gather(

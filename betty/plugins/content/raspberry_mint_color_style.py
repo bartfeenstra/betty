@@ -18,7 +18,7 @@ from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.extension.raspberry_mint import ColorStyle as RaspberryMintColorStyle
 from betty.project import Project
 from betty.property import Property
-from betty.requirement import require
+from betty.requirement import ServicePluginRequirement
 from betty.sample import Sample
 from betty.service.factory import DataManufacturable
 
@@ -74,7 +74,9 @@ class ColorStyleConfiguration(Data):
 
 @final
 @ContentDefinition(
-    "raspberry-mint-color-style", label=_("Color style"), requires={RaspberryMint}
+    "raspberry-mint-color-style",
+    label=_("Color style"),
+    requires={ServicePluginRequirement(RaspberryMint)},
 )
 class ColorStyle(Template, DataManufacturable[ColorStyleConfiguration]):
     """
@@ -101,8 +103,8 @@ class ColorStyle(Template, DataManufacturable[ColorStyleConfiguration]):
         return ColorStyleConfiguration
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(cls, project: Project, data: ColorStyleConfiguration, /) -> Self:
         content, jinja = await gather(
             gather(

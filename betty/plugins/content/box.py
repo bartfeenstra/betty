@@ -17,7 +17,6 @@ from betty.plugins.content.render import Render, RenderConfiguration
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project
 from betty.property import Optional, Property
-from betty.requirement import require
 from betty.sample import Sample, Size
 from betty.service.factory import DataManufacturable
 
@@ -126,8 +125,8 @@ class Box(Template, DataManufacturable[BoxConfiguration]):
         return BoxConfiguration
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(cls, project: Project, data: BoxConfiguration, /) -> Self:
         content, jinja = await gather(
             gather(

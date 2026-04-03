@@ -10,7 +10,6 @@ from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.locale import DEFAULT_LOCALE, to_language_tag
 from betty.locale.localizable.gettext import _
 from betty.portable.file import assert_load_file, dump_file
-from betty.requirement import require
 from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
@@ -30,8 +29,8 @@ class Config(Manufacturable, Command):
         self._app = app
 
     @override
+    @App.require
     @classmethod
-    @require(App)
     async def new(cls, app: App, /) -> Self:
         return cls(app)
 

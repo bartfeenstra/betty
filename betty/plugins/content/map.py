@@ -15,12 +15,20 @@ from betty.plugins.entity.place import Place
 from betty.plugins.extension.webpack import Webpack
 from betty.plugins.jinja_filter.webpack_entry_point_js import WebpackEntryPointJs
 from betty.project import Project
-from betty.requirement import require
+from betty.requirement import ServicePluginRequirement
 from betty.service.factory import Manufacturable
 
 
 @final
-@ContentDefinition("map", label=_("Map"), requires={Maps, Webpack, WebpackEntryPointJs})
+@ContentDefinition(
+    "map",
+    label=_("Map"),
+    requires={
+        ServicePluginRequirement(Maps),
+        ServicePluginRequirement(Webpack),
+        ServicePluginRequirement(WebpackEntryPointJs),
+    },
+)
 class Map(Template, Manufacturable):
     """
     An interactive map.
@@ -29,8 +37,8 @@ class Map(Template, Manufacturable):
     """
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(jinja=await project.jinja)
 

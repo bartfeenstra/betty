@@ -14,7 +14,6 @@ from betty.jinja import JinjaFilterDefinition, context_document
 from betty.jinja.filter import JinjaFilter
 from betty.os import link_or_copy
 from betty.project import Project
-from betty.requirement import require
 from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
@@ -38,8 +37,8 @@ class File(JinjaFilter, Manufacturable):
         self._www_directory = www_directory
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(www_directory=project.www_directory)
 

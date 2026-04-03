@@ -13,13 +13,19 @@ from betty.plugins.entity.person import Person
 from betty.plugins.extension.webpack import Webpack
 from betty.plugins.jinja_filter.webpack_entry_point_js import WebpackEntryPointJs
 from betty.project import Project
-from betty.requirement import require
+from betty.requirement import ServicePluginRequirement
 from betty.service.factory import Manufacturable
 
 
 @final
 @ContentDefinition(
-    "tree", label=_("Family tree"), requires={Trees, Webpack, WebpackEntryPointJs}
+    "tree",
+    label=_("Family tree"),
+    requires={
+        ServicePluginRequirement(Trees),
+        ServicePluginRequirement(Webpack),
+        ServicePluginRequirement(WebpackEntryPointJs),
+    },
 )
 class Tree(Template, Manufacturable):
     """
@@ -29,8 +35,8 @@ class Tree(Template, Manufacturable):
     """
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(jinja=await project.jinja)
 

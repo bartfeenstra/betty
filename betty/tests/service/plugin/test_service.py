@@ -10,6 +10,7 @@ from betty.plugin.cls import Plugin
 from betty.plugin.discovery import ResolvableDiscovery
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import OrderedPluginDefinition
+from betty.requirement import ServicePluginRequirement
 from betty.service.level import ServiceLevel
 from betty.service.plugin.service import (
     ServicePluginCollection,
@@ -165,7 +166,8 @@ class DummyServicePluginIsolated(DummyServicePlugin):
 
 
 @DummyServicePluginDefinition(
-    "dummy-service-plugin-requires-isolated", requires={DummyServicePluginIsolated}
+    "dummy-service-plugin-requires-isolated",
+    requires={ServicePluginRequirement(DummyServicePluginIsolated)},
 )
 class DummyServicePluginRequiresIsolated(DummyServicePlugin):
     pass
@@ -200,7 +202,7 @@ class DummyServicePluginRequirementManufacturer(
 
 @DummyServicePluginRequirementDefinition(
     "dummy-service-plugin-requirement-requires-requires-isolated",
-    requires={DummyServicePluginRequiresIsolated},
+    requires={ServicePluginRequirement(DummyServicePluginRequiresIsolated)},
 )
 class DummyServicePluginRequirementRequiresRequiresIsolated(
     DummyServicePluginRequirement

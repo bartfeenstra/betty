@@ -20,6 +20,9 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from betty.document import Document
+    from betty.locale.localizable import ResolvableLocalizable
+    from betty.machine_name import ResolvableMachineName
+    from betty.requirement import Requires
 
 
 class Content(ABC, Plugin["ContentDefinition"]):
@@ -45,6 +48,22 @@ class ContentDefinition(HumanFacingDefinition, ServicePluginDefinition[Content])
     """
     .. plugin_type:: content.
     """
+
+    def __init__(
+        self,
+        plugin_id: ResolvableMachineName,
+        label: ResolvableLocalizable,
+        auto: bool = False,
+        description: ResolvableLocalizable | None = None,
+        requires: Requires = (),
+    ):
+        super().__init__(
+            plugin_id,
+            auto=auto,
+            label=label,
+            description=description,
+            requires=requires,
+        )
 
 
 @final

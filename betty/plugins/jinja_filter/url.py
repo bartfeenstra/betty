@@ -13,7 +13,6 @@ from betty.jinja.filter import JinjaFilter
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML
 from betty.project import Project
-from betty.requirement import require
 from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
@@ -36,8 +35,8 @@ class Url(JinjaFilter, Manufacturable):
         self._url_generator = url_generator
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(await project.url_generator)
 

@@ -11,7 +11,6 @@ from betty.load import Enricher, EnricherDefinition
 from betty.plugins.enricher.populate_links.jobs import PopulateLink
 from betty.plugins.entity.link import Link
 from betty.project import Project
-from betty.requirement import require
 from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
@@ -29,8 +28,8 @@ class PopulateLinks(Enricher, Manufacturable):
         self._project = project
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(project)
 

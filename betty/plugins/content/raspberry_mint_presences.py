@@ -18,7 +18,7 @@ from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.event import Event
 from betty.project import Project
 from betty.property import Optional, Property
-from betty.requirement import require
+from betty.requirement import ServicePluginRequirement
 from betty.role import RoleDefinition
 from betty.sample import Sample, Size
 from betty.service.factory import DataManufacturable, Manufacturable
@@ -83,7 +83,9 @@ class PresencesConfiguration(Data):
 
 @final
 @ContentDefinition(
-    "raspberry-mint-presences", label=_("Presences"), requires={RaspberryMint}
+    "raspberry-mint-presences",
+    label=_("Presences"),
+    requires={ServicePluginRequirement(RaspberryMint)},
 )
 class Presences(Template, DataManufacturable[PresencesConfiguration], Manufacturable):
     """
@@ -109,8 +111,8 @@ class Presences(Template, DataManufacturable[PresencesConfiguration], Manufactur
         return PresencesConfiguration
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(
         cls, project: Project, data: PresencesConfiguration | None = None, /
     ) -> Self:

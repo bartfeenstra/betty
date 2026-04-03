@@ -13,7 +13,7 @@ from betty.plugins.extension.webpack import Webpack
 from betty.plugins.extension.webpack.build import EntryPointProvider
 from betty.project import Project
 from betty.project.generate import Generator
-from betty.requirement import require
+from betty.requirement import ServicePluginRequirement
 from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     "trees",
     label="Trees",
     description=_("Display interactive family trees using Cytoscape."),
-    requires={TreesAsset, Webpack},
+    requires={ServicePluginRequirement(TreesAsset), ServicePluginRequirement(Webpack)},
 )
 class Trees(Generator, EntryPointProvider, Manufacturable):
     """
@@ -39,8 +39,8 @@ class Trees(Generator, EntryPointProvider, Manufacturable):
         self._project = project
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(project=project)
 

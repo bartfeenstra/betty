@@ -16,7 +16,6 @@ from betty.media_type import MediaType
 from betty.media_type.media_types import PLAIN_TEXT
 from betty.project import Project
 from betty.property import Property
-from betty.requirement import require
 from betty.sample import Sample, Size
 from betty.service.factory import DataManufacturable
 
@@ -77,8 +76,8 @@ class Render(DataManufacturable[RenderConfiguration], Content):
         return RenderConfiguration
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(cls, project: Project, data: RenderConfiguration, /) -> Self:
         return cls(
             content=data.content,

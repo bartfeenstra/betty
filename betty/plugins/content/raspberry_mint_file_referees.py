@@ -12,7 +12,7 @@ from betty.plugins.asset.raspberry_mint import RaspberryMint
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.file import File
 from betty.project import Project
-from betty.requirement import require
+from betty.requirement import ServicePluginRequirement
 from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
@@ -21,7 +21,9 @@ if TYPE_CHECKING:
 
 @final
 @ContentDefinition(
-    "raspberry-mint-file-referees", label=_("File referees"), requires={RaspberryMint}
+    "raspberry-mint-file-referees",
+    label=_("File referees"),
+    requires={ServicePluginRequirement(RaspberryMint)},
 )
 class FileReferees(Template, Manufacturable):
     """
@@ -31,8 +33,8 @@ class FileReferees(Template, Manufacturable):
     """
 
     @override
+    @Project.require
     @classmethod
-    @require(Project)
     async def new(cls, project: Project, /) -> Self:
         return cls(jinja=await project.jinja)
 
