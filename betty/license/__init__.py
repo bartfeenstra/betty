@@ -14,7 +14,9 @@ from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import Localizable
+    from betty.locale.localizable import Localizable, ResolvableLocalizable
+    from betty.machine_name import ResolvableMachineName
+    from betty.requirement import Requires
 
 
 class License(Plugin["LicenseDefinition"]):
@@ -57,6 +59,18 @@ class LicenseDefinition(HumanFacingDefinition, PluginClsDefinition[License]):
     """
     .. plugin_type:: license.
     """
+
+    def __init__(
+        self,
+        plugin_id: ResolvableMachineName,
+        *,
+        label: ResolvableLocalizable,
+        description: ResolvableLocalizable | None = None,
+        requires: Requires = (),
+    ):
+        super().__init__(
+            plugin_id, label=label, description=description, requires=requires
+        )
 
 
 @final

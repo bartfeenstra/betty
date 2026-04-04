@@ -14,7 +14,10 @@ from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 
 if TYPE_CHECKING:
+    from betty.locale.localizable import ResolvableLocalizable
+    from betty.machine_name import ResolvableMachineName
     from betty.media_type import MediaType
+    from betty.requirement import Requires
 
 
 class Renderer(ABC, Plugin["RendererDefinition"]):
@@ -47,6 +50,18 @@ class RendererDefinition(HumanFacingDefinition, PluginClsDefinition[Renderer]):
     """
     .. plugin_type:: renderer.
     """
+
+    def __init__(
+        self,
+        plugin_id: ResolvableMachineName,
+        *,
+        label: ResolvableLocalizable,
+        description: ResolvableLocalizable | None = None,
+        requires: Requires = (),
+    ):
+        super().__init__(
+            plugin_id, label=label, description=description, requires=requires
+        )
 
 
 @final

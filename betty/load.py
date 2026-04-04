@@ -21,7 +21,10 @@ from betty.service.plugin.service import ServicePluginDefinition
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
+    from betty.locale.localizable import ResolvableLocalizable
+    from betty.machine_name import ResolvableMachineName
     from betty.project import Project
+    from betty.requirement import Requires
 
 
 class Loader(ABC, Plugin["LoaderDefinition"]):
@@ -47,6 +50,23 @@ class LoaderDefinition(HumanFacingDefinition, ServicePluginDefinition[Loader]):
     """
     .. plugin_type:: loader.
     """
+
+    def __init__(
+        self,
+        plugin_id: ResolvableMachineName,
+        *,
+        auto: bool = False,
+        label: ResolvableLocalizable,
+        description: ResolvableLocalizable | None = None,
+        requires: Requires = (),
+    ):
+        super().__init__(
+            plugin_id,
+            auto=auto,
+            label=label,
+            description=description,
+            requires=requires,
+        )
 
 
 @final
@@ -84,6 +104,23 @@ class EnricherDefinition(HumanFacingDefinition, ServicePluginDefinition[Enricher
     """
     .. plugin_type:: enricher.
     """
+
+    def __init__(
+        self,
+        plugin_id: ResolvableMachineName,
+        *,
+        auto: bool = False,
+        label: ResolvableLocalizable,
+        description: ResolvableLocalizable | None = None,
+        requires: Requires = (),
+    ):
+        super().__init__(
+            plugin_id,
+            auto=auto,
+            label=label,
+            description=description,
+            requires=requires,
+        )
 
 
 @final

@@ -16,6 +16,10 @@ from betty.plugin.cls import Plugin, PluginClsDefinition
 if TYPE_CHECKING:
     import argparse
 
+    from betty.locale.localizable import ResolvableLocalizable
+    from betty.machine_name import ResolvableMachineName
+    from betty.requirement import Requires
+
 type CommandFunction = Callable[..., Awaitable[None]]
 
 
@@ -45,3 +49,15 @@ class CommandDefinition(HumanFacingDefinition, PluginClsDefinition[Command]):
     """
     .. plugin_type:: command.
     """
+
+    def __init__(
+        self,
+        plugin_id: ResolvableMachineName,
+        *,
+        label: ResolvableLocalizable,
+        description: ResolvableLocalizable | None = None,
+        requires: Requires = (),
+    ):
+        super().__init__(
+            plugin_id, label=label, description=description, requires=requires
+        )

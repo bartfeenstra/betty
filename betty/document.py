@@ -39,9 +39,10 @@ if TYPE_CHECKING:
     from betty.entity import Entity
     from betty.job import Context
     from betty.locale.localizable import Localizable
-    from betty.machine_name import MachineName
+    from betty.machine_name import MachineName, ResolvableMachineName
     from betty.plugins.entity.citation import Citation
     from betty.project import Project
+    from betty.requirement import Requires
 
 type DocumentVars = Mapping[str, Any]
 
@@ -206,6 +207,15 @@ class DocumentProviderDefinition(ServicePluginDefinition[DocumentProvider]):
     """
     .. plugin_type:: document-provider.
     """
+
+    def __init__(
+        self,
+        plugin_id: ResolvableMachineName,
+        *,
+        auto: bool = False,
+        requires: Requires = (),
+    ):
+        super().__init__(plugin_id, auto=auto, requires=requires)
 
 
 @final
