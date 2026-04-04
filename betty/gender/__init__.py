@@ -4,13 +4,18 @@ Provide Betty's ancestry genders.
 
 from __future__ import annotations
 
-from typing import final, override
+from typing import TYPE_CHECKING, final, override
 
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer
+
+if TYPE_CHECKING:
+    from betty.locale.localizable import CountableLocalizable, ResolvableLocalizable
+    from betty.machine_name import ResolvableMachineName
+    from betty.requirement import Requires
 
 
 class Gender(Plugin["GenderDefinition"]):
@@ -35,6 +40,25 @@ class GenderDefinition(CountableHumanFacingDefinition, PluginClsDefinition[Gende
         Gender includes the social, psychological, cultural and behavioral aspects of being a man, woman, or other gender
         identity.
     """
+
+    def __init__(
+        self,
+        plugin_id: ResolvableMachineName,
+        *,
+        label: ResolvableLocalizable,
+        label_plural: ResolvableLocalizable,
+        label_countable: CountableLocalizable,
+        description: ResolvableLocalizable | None = None,
+        requires: Requires = (),
+    ):
+        super().__init__(
+            plugin_id,
+            label=label,
+            label_plural=label_plural,
+            label_countable=label_countable,
+            description=description,
+            requires=requires,
+        )
 
 
 @final

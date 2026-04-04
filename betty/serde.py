@@ -18,8 +18,11 @@ from betty.plugin.cls import Plugin, PluginClsDefinition
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from betty.locale.localizable import ResolvableLocalizable
+    from betty.machine_name import ResolvableMachineName
     from betty.media_type import MediaType
     from betty.portable import PortableData
+    from betty.requirement import Requires
 
 
 class SerializationError(HumanFacingException):
@@ -66,6 +69,18 @@ class SerializerDefinition(HumanFacingDefinition, PluginClsDefinition[Serializer
     """
     .. plugin_type:: serializer.
     """
+
+    def __init__(
+        self,
+        plugin_id: ResolvableMachineName,
+        *,
+        label: ResolvableLocalizable,
+        description: ResolvableLocalizable | None = None,
+        requires: Requires = (),
+    ):
+        super().__init__(
+            plugin_id, label=label, description=description, requires=requires
+        )
 
 
 def serializer_for(
