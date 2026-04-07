@@ -45,10 +45,10 @@ class _Property[ValueGetT, ValueSetT](Attr[ValueGetT], ABC):
         pass
 
     @overload
-    def __get__(self, instance: Any, owner: type[Any], /) -> ValueGetT:
+    def __get__(self, instance: Any, owner: type[Any] | None = None, /) -> ValueGetT:
         pass
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance, owner=None, /):
         if instance is None:
             return self
         return self.get(instance)

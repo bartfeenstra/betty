@@ -228,14 +228,16 @@ class _ToOneAssociation[OwnerT: Entity, AssociateT: Entity](
         setattr(owner, self._internal_owner_attr_name, None)
 
     @overload
-    def __get__(self, instance: None, owner: type[OwnerT]) -> Self:
+    def __get__(self, instance: None, owner: type[OwnerT], /) -> Self:
         pass
 
     @overload
-    def __get__(self, instance: OwnerT, owner: type[OwnerT]) -> AssociateT:
+    def __get__(
+        self, instance: OwnerT, owner: type[OwnerT] | None = None, /
+    ) -> AssociateT:
         pass
 
-    def __get__(self, instance: OwnerT | None, owner: type[OwnerT]):
+    def __get__(self, instance: OwnerT | None, owner: type[OwnerT] | None = None, /):
         if instance is None:
             return self
         try:
@@ -289,14 +291,16 @@ class _ToZeroOrOneAssociation[OwnerT: Entity, AssociateT: Entity](
             self.__delete__(owner)
 
     @overload
-    def __get__(self, instance: None, owner: type[OwnerT]) -> Self:
+    def __get__(self, instance: None, owner: type[OwnerT], /) -> Self:
         pass
 
     @overload
-    def __get__(self, instance: OwnerT, owner: type[OwnerT]) -> AssociateT | None:
+    def __get__(
+        self, instance: OwnerT, owner: type[OwnerT] | None = None, /
+    ) -> AssociateT | None:
         pass
 
-    def __get__(self, instance: OwnerT | None, owner: type[OwnerT]):
+    def __get__(self, instance: OwnerT | None, owner: type[OwnerT] | None = None, /):
         if instance is None:
             return self
         try:
@@ -360,14 +364,16 @@ class _ToManyAssociation[
         pass
 
     @overload
-    def __get__(self, instance: None, owner: type[OwnerT]) -> Self:
+    def __get__(self, instance: None, owner: type[OwnerT], /) -> Self:
         pass
 
     @overload
-    def __get__(self, instance: OwnerT, owner: type[OwnerT]) -> EntityCollectionT:
+    def __get__(
+        self, instance: OwnerT, owner: type[OwnerT] | None = None, /
+    ) -> EntityCollectionT:
         pass
 
-    def __get__(self, instance: OwnerT | None, owner: type[OwnerT]):
+    def __get__(self, instance: OwnerT | None, owner: type[OwnerT] | None = None, /):
         if instance is None:
             return self
         try:

@@ -121,17 +121,20 @@ class ServiceManager[ServiceProviderT: ServiceProvider, ServiceGetT, ServiceT]:
         return self._service_name
 
     @overload
-    def __get__(self, instance: None, owner: type[ServiceProviderT]) -> Self:
+    def __get__(self, instance: None, owner: type[ServiceProviderT], /) -> Self:
         pass
 
     @overload
     def __get__(
-        self, instance: ServiceProviderT, owner: type[ServiceProviderT]
+        self, instance: ServiceProviderT, owner: type[ServiceProviderT] | None = None, /
     ) -> ServiceGetT:
         pass
 
     def __get__(
-        self, instance: ServiceProviderT | None, owner: type[ServiceProviderT]
+        self,
+        instance: ServiceProviderT | None,
+        owner: type[ServiceProviderT] | None = None,
+        /,
     ) -> ServiceGetT | Self:
         if instance is None:
             return self
