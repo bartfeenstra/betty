@@ -17,7 +17,7 @@ else:
         A fake intersection type that works runtime, until https://github.com/astral-sh/ty/issues/2084 is fixed.
         """
 
-        def __class_getitem__(cls, item):
+        def __class_getitem__(cls, item: Any):
             pass  # pragma: nocover
 
 

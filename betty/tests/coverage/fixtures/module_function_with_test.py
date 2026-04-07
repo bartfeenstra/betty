@@ -5,5 +5,5 @@ def src() -> None:
     """Provide a fixture source function."""
 
 
-def test_src():
+def test_src() -> None:
     pass  # pragma: no cover

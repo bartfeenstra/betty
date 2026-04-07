@@ -20,6 +20,8 @@ from betty.plugin.factory import PluginManufacturer
 from betty.service.plugin.service import ServicePluginDefinition
 
 if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
+
     from betty.job.scheduler import Scheduler
     from betty.locale.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
@@ -160,7 +162,7 @@ async def _do_jobs(
     project: Project,
     context: Context,
     plugin_type: type[ServicePluginDefinition],
-    callback,
+    callback: Callable[[Scheduler, Loader], Awaitable[None]],
 ) -> None:
     scheduler = DefaultScheduler(context=context, user=project.upstream.user)
     async with AsyncExecutor(scheduler, concurrency=MAX_STRANDS):

@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from betty.plugin.discovery import ResolvableDiscovery
+    from betty.service.level import ServiceLevel
 
 
 @final
@@ -44,7 +45,7 @@ class DevUpdateTranslations(Manufacturable, Command):
         await translation.update_universe_translations()
 
 
-def _discover(_) -> Iterable[ResolvableDiscovery[CommandDefinition]]:
+def _discover(_: ServiceLevel) -> Iterable[ResolvableDiscovery[CommandDefinition]]:
     if not IS_DEVELOPMENT:
         raise UnmetRequirement("This is only available when developing Betty")
     yield DevUpdateTranslations

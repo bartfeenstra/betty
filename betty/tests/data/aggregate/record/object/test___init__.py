@@ -144,7 +144,7 @@ class TestAttrDefinition:
         assert sut.omit_load
 
     def test_omit_dump(self) -> None:
-        def _omit_dump(_) -> bool:
+        def _omit_dump(_: bool) -> bool:
             return True
 
         sut = AttrDefinition(

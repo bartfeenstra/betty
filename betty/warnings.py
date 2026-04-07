@@ -12,7 +12,7 @@ class BettyDeprecationWarning(DeprecationWarning):
     """
 
 
-def deprecate(message: str, stacklevel: int = 1):
+def deprecate(message: str, stacklevel: int = 1) -> None:
     """
     Raise a Betty deprecation warning.
     """

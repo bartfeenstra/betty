@@ -81,7 +81,7 @@ def service(factory=None):
     The decorated factory method should return a new service instance.
     """
 
-    def _service(factory):
+    def _service(factory):  # noqa: ANN001, ANN202
         if iscoroutinefunction(factory):
             return _AsynchronousServiceManager(factory)
         return _SynchronousServiceManager(factory)
@@ -165,7 +165,7 @@ class ServiceManager[ServiceProviderT: ServiceProvider, ServiceGetT, ServiceT]:
             return factory
         return self._factory
 
-    def _assert_not_initialized(self, instance: ServiceProviderT, /):
+    def _assert_not_initialized(self, instance: ServiceProviderT, /) -> None:
         if self._get_attr(instance) is not Void:
             raise ServiceInitializedError(
                 f"{instance}.{self._service_name} was initialized already."
