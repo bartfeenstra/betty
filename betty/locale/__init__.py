@@ -7,16 +7,12 @@ from __future__ import annotations
 from collections.abc import Sequence
 from contextlib import suppress
 from functools import lru_cache
-from typing import TYPE_CHECKING, Any, override
+from typing import Any, cast, override
 
 from babel import Locale
 from babel.core import UnknownLocaleError
 
 import betty.dirs
-
-if TYPE_CHECKING:
-    from collections.abc import Sequence
-
 
 _LOCALE_DIRECTORY_PATH = betty.dirs.ASSETS_DIRECTORY_PATH / "universe" / "locale"
 
@@ -102,9 +98,14 @@ def negotiate_locale(
     """
     Negotiate the preferred locale from a sequence.
     """
-    if isinstance(preferred_locales, Locale):
-        preferred_locales = [preferred_locales]
-    preferred_locale_babel_identifiers = list(map(str, preferred_locales))  # ty:ignore[invalid-argument-type]
+    preferred_locale_babel_identifiers = list(
+        map(
+            str,
+            cast(Sequence[Locale], [preferred_locales])
+            if isinstance(preferred_locales, Locale)
+            else preferred_locales,
+        )
+    )
     available_locale_babel_identifiers = list(map(str, available_locales))
     negotiated_locale = Locale.negotiate(
         preferred_locale_babel_identifiers, available_locale_babel_identifiers

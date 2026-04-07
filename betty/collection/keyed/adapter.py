@@ -69,7 +69,7 @@ class MutableKeyedCollectionAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValu
         *,
         key: Callable[[ValueT], KeyT],
         key_resolver: Callable[[ResolvableKeyT | KeyT], KeyT] = passthrough,
-        value_resolver: Callable[[ResolvableValueT | KeyT], ValueT] = passthrough,
+        value_resolver: Callable[[ResolvableValueT | ValueT], ValueT] = passthrough,
     ):
         super().__init__(key_resolver=key_resolver)
         self._key = key
@@ -92,7 +92,7 @@ class MutableKeyedCollectionAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValu
     @override
     def add(self, *values: ValueT | ResolvableValueT) -> None:
         for value in map(
-            self._value_resolver,  # ty:ignore[invalid-argument-type]
+            self._value_resolver,
             values,
         ):
             self._values[self._key(value)] = value

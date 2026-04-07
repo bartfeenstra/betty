@@ -41,20 +41,34 @@ class Yaml(Serializer):
 
     @override
     def dump(self, portable: PortableData, /) -> str:
-        return yaml.safe_dump(self._safe_str(portable))
+        return yaml.safe_dump(_safe_str(portable))
 
-    def _safe_str(self, value: PortableData) -> PortableData:
-        # Work around a bug where ``str`` subclasses cannot be serialized to YAML.
-        if isinstance(value, str):
-            return str(value)
-        if isinstance(value, Mapping):
-            return dict(
-                zip(
-                    map(self._safe_str, value.keys()),  # ty:ignore[invalid-argument-type]
-                    map(self._safe_str, value.values()),  # ty:ignore[invalid-argument-type]
-                    strict=False,
-                )
+
+def _safe_str(value: PortableData) -> PortableData:
+    # Work around a bug where ``str`` subclasses cannot be serialized to YAML.
+    if isinstance(value, str):
+        if type(value) is str:
+            return value
+        return str(value)
+    if isinstance(value, Mapping):
+        return dict(
+            zip(
+                map(
+                    _safe_str,  # ty:ignore[invalid-argument-type]
+                    value.keys(),
+                ),
+                map(
+                    _safe_str,  # ty:ignore[invalid-argument-type]
+                    value.values(),
+                ),
+                strict=False,
             )
-        if isinstance(value, Sequence):
-            return list(map(self._safe_str, value))  # ty:ignore[invalid-argument-type]
-        return value
+        )  # ty:ignore[invalid-return-type]
+    if isinstance(value, Sequence):
+        return list(
+            map(
+                _safe_str,
+                value,  # ty:ignore[invalid-argument-type]
+            )
+        )  # ty:ignore[invalid-return-type]
+    return value

@@ -58,7 +58,7 @@ async def _get_plugins() -> _Plugins:
                 plugin.id: plugin async for plugin in project.plugins[plugin_type]
             }
             for plugin_type in project.plugins.keys()  # noqa: SIM118
-        }  # ty:ignore[invalid-return-type]
+        }
 
 
 def _cmp_formats(left: PluginDefinition, right: PluginDefinition) -> int:
