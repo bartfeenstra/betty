@@ -67,11 +67,11 @@ def service[ServiceProviderT: ServiceProvider, ServiceT](
 
 
 @overload
-def service(factory: None = None, /) -> _ServiceDecorator:
+def service() -> _ServiceDecorator:
     pass
 
 
-def service(factory):
+def service(factory=None):
     """
     Decorate a service factory method.
 
@@ -81,16 +81,10 @@ def service(factory):
     The decorated factory method should return a new service instance.
     """
 
-    def _service[ServiceProviderT: ServiceProvider, ServiceT](
-        factory: Callable[[ServiceProviderT], ServiceT], /
-    ) -> ServiceManager[ServiceProviderT, ServiceT, Any]:
+    def _service(factory):
         if iscoroutinefunction(factory):
-            return _AsynchronousServiceManager(
-                factory,  # ty:ignore[invalid-argument-type]
-            )  # ty:ignore[invalid-return-type]
-        return _SynchronousServiceManager(
-            factory,  # ty:ignore[invalid-argument-type]
-        )
+            return _AsynchronousServiceManager(factory)
+        return _SynchronousServiceManager(factory)
 
     if factory is None:
         return _service

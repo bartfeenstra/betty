@@ -281,7 +281,7 @@ class RecordDefinition[DataClsT = Any, ElementT: Element[str] = Element[str]](
             if issubclass(self.cls, PortableRecord):
                 self._porter = PortableRecordPorter(self.cls)  # ty:ignore[invalid-assignment]
             else:
-                self._porter = MappingPorter(
+                self._porter = MappingPorter(  # ty:ignore[invalid-assignment]
                     self,  # ty:ignore[invalid-argument-type]
                 )
         return self._porter  # ty:ignore[invalid-return-type]

@@ -10,6 +10,8 @@ from typing import TYPE_CHECKING, Any
 
 from betty.collection.keyed.adapter import KeyedCollectionAdapter
 from betty.collection.keyed.error import ErroringKeyedCollection
+from betty.machine_name import MachineName
+from betty.plugin import PluginDefinition
 from betty.plugin.resolve import resolve_plugin_type_id
 from betty.service.provider import ServiceProvider, service
 
@@ -17,8 +19,6 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
 
     from betty.collection.keyed import KeyedCollection
-    from betty.machine_name import MachineName
-    from betty.plugin import PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.service.factory import Factory
     from betty.service.plugin.discovery import PluginDiscoverer
@@ -60,7 +60,7 @@ class ServiceLevel(ServiceProvider):
     def plugins(
         self,
     ) -> KeyedCollection[
-        type[PluginDefinition],
+        MachineName,
         type[PluginDefinition] | MachineName | str,
         PluginDiscoverer,
     ]:
@@ -78,20 +78,22 @@ class ServiceLevel(ServiceProvider):
             for entry_point in metadata.entry_points(group="betty.plugin")
         ]
         plugin_types.extend(self._plugin_discovery.keys())
-        return ErroringKeyedCollection(
+        return ErroringKeyedCollection[
+            MachineName, type[PluginDefinition] | MachineName | str, PluginDiscoverer
+        ](
             KeyedCollectionAdapter(
                 {
                     plugin_type.type().id: PluginDiscoverer(
                         self, plugin_type, self._plugin_discovery[plugin_type]
                     )
                     for plugin_type in plugin_types
-                },  # ty:ignore[invalid-argument-type]
+                },
                 key_resolver=resolve_plugin_type_id,
             ),
             lambda error, key: _PluginTypeNotFound(
                 resolve_plugin_type_id(key), [x.type.type().id for x in self.plugins]
             ),
-        )  # ty:ignore[invalid-return-type]
+        )
 
 
 class ChainedServiceLevel[UpstreamT: ServiceLevel = ServiceLevel](ServiceLevel):
