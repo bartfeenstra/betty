@@ -44,7 +44,11 @@ class ManagedLifeCycle(LifeCycle):
     @override
     async def bootstrap(self) -> None:
         await super().bootstrap()
-        await self.life_cycle.bootstrap()
+        try:
+            await self.life_cycle.bootstrap()
+        except BaseException:
+            await self.shutdown(wait=False)
+            raise
 
     @final
     @override
