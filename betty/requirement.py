@@ -70,7 +70,7 @@ class _CallableRequire[ResultT, **P, ReturnT, ClsOrSelfT = Any]:
         )
         self._f = f
 
-    def __get__[T](self, instance: T | None, owner: type[T]):
+    def __get__[T](self, instance: T | None, owner: type[T] | None = None, /):
         if instance is None:
             return self
         return partial(self, instance)

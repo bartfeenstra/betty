@@ -27,15 +27,17 @@ class _Attribute[AttributeGetT, AttributeSetT](ABC):
         self._attr_name = f"html_{kebab_case_to_snake_case(html_name)}"
 
     @overload
-    def __get__(self, instance: None, owner: type[Attributes]) -> Self:
+    def __get__(self, instance: None, owner: type[Attributes], /) -> Self:
         pass
 
     @overload
-    def __get__(self, instance: Attributes, owner: type[Attributes]) -> AttributeGetT:
+    def __get__(
+        self, instance: Attributes, owner: type[Attributes] | None = None, /
+    ) -> AttributeGetT:
         pass
 
     def __get__(
-        self, instance: Attributes | None, owner: type[Attributes]
+        self, instance: Attributes | None, owner: type[Attributes] | None = None, /
     ) -> AttributeGetT | Self:
         if instance is None:
             return self
