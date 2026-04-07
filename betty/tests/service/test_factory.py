@@ -3,9 +3,9 @@ import pytest
 from betty.exception import HumanFacingException
 from betty.service.factory import Factory
 from betty.service.level import ServiceLevel
-from betty.service.level.universe import UNIVERSE
 from betty.test_utils.data import DummyData
 from betty.test_utils.service.level import DummyDataManufacturable
+from betty.universe import UNIVERSE
 
 
 class _TargetType:

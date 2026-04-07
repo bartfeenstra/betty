@@ -8,8 +8,8 @@ from babel import Locale
 
 from betty.app import App, AppConfiguration
 from betty.service.factory import Manufacturable
-from betty.service.level.universe import UNIVERSE
 from betty.test_utils.user import StaticUser
+from betty.universe import UNIVERSE
 
 if TYPE_CHECKING:
     from pathlib import Path

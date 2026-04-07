@@ -27,7 +27,7 @@ from betty.plugin.ordered import OrderedPluginDefinition
 from betty.project import Project
 from betty.serde import SerializerDefinition
 from betty.service.factory import DataManufacturable
-from betty.service.level.universe import UNIVERSE
+from betty.universe import UNIVERSE
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
