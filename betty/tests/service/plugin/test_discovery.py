@@ -6,10 +6,10 @@ from pytest_mock import MockerFixture
 
 from betty.importlib import fully_qualified_name
 from betty.plugin.error import PluginNotFound
-from betty.service.level.universe import UNIVERSE
 from betty.service.plugin.discovery import PluginDiscoverer
 from betty.string import kebab_case_to_snake_case
 from betty.test_utils.plugin import DummyPluginDefinition, DummyPluginOne
+from betty.universe import UNIVERSE
 
 
 class TestPluginDiscoverer:

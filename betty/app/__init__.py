@@ -31,7 +31,6 @@ from betty.portable.file import assert_load_file
 from betty.service.factory import DataManufacturable
 from betty.service.level import ChainedServiceLevel, Plugins, ServiceLevel
 from betty.service.level.requirement import RequirableServiceLevel
-from betty.service.level.universe import UNIVERSE
 from betty.service.plugin.service import (
     ServicePluginProvider,
     ServicePlugins,
@@ -39,6 +38,7 @@ from betty.service.plugin.service import (
 )
 from betty.service.provider import ServiceFactory, service
 from betty.typing import threadsafe
+from betty.universe import UNIVERSE
 from betty.user.no_op import NoOpUser
 
 if TYPE_CHECKING:

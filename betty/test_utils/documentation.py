@@ -8,11 +8,11 @@ import pytest
 
 from betty.importlib import fully_qualified_name
 from betty.plugin.cls import PluginClsDefinition
-from betty.service.level.universe import UNIVERSE
 from betty.test_utils.conftest import (
     IsolatedAppFactory,
     IsolatedProjectFactory,
 )
+from betty.universe import UNIVERSE
 
 
 class PluginDocumentationTestBase:

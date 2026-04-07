@@ -17,9 +17,9 @@ from betty.plugins.license.spdx import (
     SpdxLicenseDiscoverer,
     spdx_license_id_to_license_id,
 )
-from betty.service.level.universe import UNIVERSE
 from betty.test_utils.conftest import IsolatedAppFactory
 from betty.test_utils.user import StaticUser
+from betty.universe import UNIVERSE
 
 if TYPE_CHECKING:
     from betty.portable import PortableMapping

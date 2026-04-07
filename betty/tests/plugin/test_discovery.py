@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING
 import pytest
 
 from betty.plugin.discovery import ResolvableDiscovery, discover
-from betty.service.level.universe import UNIVERSE
 from betty.test_utils.plugin import DummyPluginDefinition, DummyPluginOne
+from betty.universe import UNIVERSE
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable, Set
