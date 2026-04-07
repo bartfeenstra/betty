@@ -132,7 +132,7 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
         return self._coordinates
 
     @coordinates.setter
-    def coordinates(self, coordinates: Point):
+    def coordinates(self, coordinates: Point) -> None:
         self._coordinates = coordinates
 
     @override

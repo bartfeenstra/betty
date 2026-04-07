@@ -114,7 +114,7 @@ class TestRecordDefinition:
         assert sut.factory is RecordDefinitionTestRecord
 
     def test_factory__with_factory(self) -> None:
-        def factory():
+        def factory() -> RecordDefinitionTestRecord:
             return RecordDefinitionTestRecord()
 
         sut = RecordDefinition[RecordDefinitionTestRecord, Attr](

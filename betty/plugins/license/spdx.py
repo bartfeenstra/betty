@@ -197,7 +197,7 @@ class SpdxLicenseDiscoverer(Manufacturable):
     @classmethod
     def _extract_licenses(
         cls, spdx_licenses_data_tar: bytes, cache_directory_path: Path
-    ):
+    ) -> None:
         with tarfile.open(
             fileobj=BytesIO(spdx_licenses_data_tar), mode="r:gz"
         ) as tar_file:

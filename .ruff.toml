@@ -2,6 +2,7 @@ target-version = 'py313'
 [lint]
 extend-select = [
     'A',
+    'ANN',
     'B',
     'C4',
     'D',
@@ -23,6 +24,8 @@ extend-select = [
 ]
 ignore = [
     'A005',
+    'ANN204',
+    'ANN401',
     'D105',
     'D107',
     'D200',

@@ -905,7 +905,7 @@ class TestDeriver:
         ],
     )
     async def test_derive__should_not_exist(
-        self, after_date, new_project: NewProject
+        self, after_date: ResolvableDate | None, new_project: NewProject
     ) -> None:
         async with new_project(
             {

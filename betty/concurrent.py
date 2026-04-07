@@ -108,7 +108,7 @@ class RateLimiter:
         # per period.
         self._last_add = time.monotonic() + self._period
 
-    def _add_tokens(self):
+    def _add_tokens(self) -> None:
         now = time.monotonic()
         elapsed = now - self._last_add
         added = elapsed * self._maximum

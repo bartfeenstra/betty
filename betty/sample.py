@@ -108,7 +108,7 @@ class Samples(
             else:
                 yield sample()
 
-    def get(self, preferred_size: Size = Size.INTERMEDIATE, /):
+    def get(self, preferred_size: Size = Size.INTERMEDIATE, /) -> Sample[_SampleT]:
         """
         Get a sample.
         """
