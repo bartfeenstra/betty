@@ -9,20 +9,20 @@ from betty.extension import Extension, ExtensionDefinition
 from betty.plugins.copyright_notice.wikipedia_contributors import WikipediaContributors
 from betty.project import Project
 from betty.service.factory import Manufacturable
-from betty.service.provider import service
+from betty.service.provider import ServiceProvider, service
 from betty.wiki import populator as populator_api
 from betty.wiki.client import Client
 
 
 @final
 @ExtensionDefinition("wiki", label="Wiki")
-class Wiki(Extension, Manufacturable):
+class Wiki(Extension, ServiceProvider, Manufacturable):
     """
     .. plugin:: extension:wiki.
     """
 
     def __init__(self, *, project: Project):
-        super().__init__()
+        super().__init__(services=project)
         self._project = project
 
     @override

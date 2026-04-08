@@ -8,6 +8,7 @@ from betty.functools import (
     CallableDecorator,
     DecoratedCallable,
     Do,
+    LazyReCallable,
     Result,
     ResultUnavailable,
     map_suppress,
@@ -320,3 +321,15 @@ class TestCallableDecorator:
         assert CallableDecorator(callable_decorator=_decorate)(lambda value: value**2)(
             3
         ) == (9, 9)
+
+
+class TestLazyReCallable:
+    def test___call__(self) -> None:
+        value = "Hello, world!"
+
+        def _callable() -> Any:
+            return value
+
+        sut = LazyReCallable(_callable)
+        assert sut() is value
+        assert sut() is value

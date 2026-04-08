@@ -231,8 +231,7 @@ class ServicePluginManager(ManagedLifeCycle):
     ) -> Plugin:
         plugin = await self._new_plugin(plugin_type_and_id)
         if isinstance(plugin, LifeCycle):
-            await plugin.bootstrap()
-            self.life_cycle.attach(plugin)
+            await self.life_cycle.synchronize(plugin)
         return plugin
 
     async def _new_plugin(
@@ -308,12 +307,9 @@ class ServicePluginProvider(ManagedLifeCycle, ServiceProvider):
         """
         The service plugins.
         """
-        service_plugins = ServicePluginManager(
+        return ServicePluginManager(
             self.__service_plugin_services,
             self.__service_plugin_types,
             self.__service_plugins,
             self.__support_plugins,
         )
-        await service_plugins.bootstrap()
-        self.life_cycle.attach(service_plugins)
-        return service_plugins

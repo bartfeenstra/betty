@@ -4,17 +4,65 @@ Provide asynchronous programming utilities.
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from inspect import isawaitable
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, final, override
+
+from betty.concurrent import AsynchronizedLock
+from betty.typing import threadsafe
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable
+    from collections.abc import Awaitable, Callable, Generator
 
 
-async def resolve_await[T](value: Awaitable[T] | T) -> T:
+type ResolvableAwaitable[T] = Awaitable[T] | T
+
+
+async def resolve_await[T](value: ResolvableAwaitable[T]) -> T:
     """
     Return a value, but await it first if it is awaitable.
     """
     if isawaitable(value):
         return await value  # ty:ignore[invalid-return-type]
     return value
+
+
+class ReAwaitable[ValueT](ABC):
+    """
+    A value that can be awaited multiple times.
+    """
+
+    @abstractmethod
+    def __await__(self) -> Generator[Any, Any, ValueT]:
+        pass
+
+
+@final
+@threadsafe
+class LazyReAwaitable[ValueT](ReAwaitable[ValueT]):
+    """
+    A value that can be awaited multiple times while always returning the exact same value.
+
+    The proxied awaitable will at most be awaited once.
+    """
+
+    __slots__ = "_lock", "_producer", "_value"
+    _value: ValueT
+
+    def __init__(self, factory: Callable[[], Awaitable[ValueT]], /):
+        self._factory = factory
+        self._lock = AsynchronizedLock.new_threadsafe()
+
+    @override
+    def __await__(self) -> Generator[Any, Any, ValueT]:
+        # Check if the value was created already so we avoid acquiring the lock.
+        if not hasattr(self, "_value"):
+            yield from self._lock.acquire().__await__()
+            try:
+                # Check if the value was created since we last checked (this is usually done within the lock anyway).
+                if not hasattr(self, "_value"):
+                    self._value = yield from self._factory().__await__()
+                    self._awaited = True
+            finally:
+                yield from self._lock.release().__await__()
+        return self._value
