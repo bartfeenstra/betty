@@ -70,8 +70,9 @@ class TestApp:
     async def test_binary_file_cache(self, isolated_app: App) -> None:
         assert isolated_app.binary_file_cache is isolated_app.binary_file_cache
 
-    async def test_cache(self, isolated_app: App) -> None:
-        assert isolated_app.cache is isolated_app.cache
+    async def test_cache(self, tmp_path: Path) -> None:
+        async with App(cache_directory=tmp_path) as app:
+            assert app.cache is app.cache
 
     async def test_http_client(self, isolated_app: App) -> None:
         assert await isolated_app.http_client is await isolated_app.http_client

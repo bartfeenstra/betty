@@ -113,12 +113,8 @@ class App(
             if cache_directory is None
             else cache_directory
         )
-        cls.cache.override_factory(
-            self,
-            (lambda _: PickledFileCache[Any](self._cache_directory))
-            if cache_factory is None
-            else cache_factory,
-        )
+        if cache_factory is not None:
+            cls.cache.override_factory(self, cache_factory)
 
     async def _bootstrap_localizer(self) -> None:
         self._user.localizer = await self.localizer
@@ -258,9 +254,7 @@ class App(
         """
         The cache.
         """
-        raise Exception(
-            "This must never happen, because a cache must be set explicitly."
-        )
+        return PickledFileCache[Any](self._cache_directory)
 
     @service
     def binary_file_cache(self) -> BinaryFileCache:
