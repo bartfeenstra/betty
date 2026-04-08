@@ -18,22 +18,19 @@ class LifeCycleError(RuntimeError):
     """
 
 
-@final
 class NotYetBootstrapped(LifeCycleError):
     """
     Raised if a life cycle was unexpectedly not yet bootstrapped.
     """
 
 
-@final
 class AlreadyBootstrapped(LifeCycleError):
     """
     Raised if a life cycle was unexpectedly already bootstrapped.
     """
 
 
-@final
-class AlreadyShutDown(LifeCycleError):
+class AlreadyShutDown(AlreadyBootstrapped):
     """
     Raised if a life cycle was unexpectedly already shut down.
     """
@@ -78,6 +75,7 @@ class LifeCycle:
         """
         Assert that the object is not yet bootstrapped.
         """
+        self.assert_not_shut_down()
         if self.bootstrapped:
             raise AlreadyBootstrapped(f"{self} was bootstrapped already.")
 

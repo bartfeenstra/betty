@@ -19,7 +19,7 @@ from betty.project import Project
 from betty.project.generate import Generator
 from betty.requirement import ServicePluginRequirement
 from betty.service.factory import Manufacturable
-from betty.service.provider import service
+from betty.service.provider import ServiceProvider, service
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
@@ -36,13 +36,13 @@ if TYPE_CHECKING:
         ServicePluginRequirement(WebpackEntryPointLoader),
     },
 )
-class Webpack(Generator, Extension, Manufacturable):
+class Webpack(Generator, Extension, ServiceProvider, Manufacturable):
     """
     .. plugin:: extension:webpack.
     """
 
     def __init__(self, *, project: Project):
-        super().__init__()
+        super().__init__(services=project)
         self._project = project
 
     @override

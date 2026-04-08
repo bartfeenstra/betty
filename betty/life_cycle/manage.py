@@ -8,13 +8,7 @@ from asyncio import gather
 from typing import TYPE_CHECKING, Any, final, override
 
 from betty.asyncio import resolve_await
-from betty.life_cycle import (
-    AlreadyBootstrapped,
-    Bootstrapper,
-    LifeCycle,
-    NotYetBootstrapped,
-    Shutdowner,
-)
+from betty.life_cycle import Bootstrapper, LifeCycle, Shutdowner
 
 if TYPE_CHECKING:
     from collections.abc import Collection, MutableSequence
@@ -84,31 +78,22 @@ class LifeCycleManager(LifeCycle):
                 *[resolve_await(shutdowner(wait=wait)) for shutdowner in shutdowners]
             )
 
-    def attach(self, *life_cycles: LifeCycle) -> None:
+    async def synchronize(self, *life_cycles: LifeCycle) -> None:
         """
-        Attach a batch of other life cycles to this one.
+        Attach a batch of other life cycles to this one, and ensure they are all synchronized.
 
         The life cycles within the batch will be bootstrapped and shut down concurrently.
         """
         self.assert_not_shut_down()
-        bootstrappers = []
-        shutdowners = []
-        for life_cycle in life_cycles:
-            life_cycle.assert_not_shut_down()
-            if self.bootstrapped:
-                if not life_cycle.bootstrapped:
-                    raise NotYetBootstrapped(
-                        f"{life_cycle} was not bootstrapped yet, but {self} was already."
-                    )
-            else:
-                if life_cycle.bootstrapped:
-                    raise AlreadyBootstrapped(
-                        f"{life_cycle} was bootstrapped already, but {self} was not yet."
-                    )
-                bootstrappers.append(life_cycle.bootstrap)
-            shutdowners.append(life_cycle.shutdown)
-        self._bootstrappers.append(bootstrappers)
-        self._shutdowners.append(shutdowners)
+        if self.bootstrapped:
+            await gather(*[life_cycle.bootstrap() for life_cycle in life_cycles])
+        else:
+            for life_cycle in life_cycles:
+                life_cycle.assert_not_bootstrapped()
+            self._bootstrappers.append(
+                [life_cycle.bootstrap for life_cycle in life_cycles]
+            )
+        self._shutdowners.append([life_cycle.shutdown for life_cycle in life_cycles])
 
     def on_bootstrap(self, *bootstrappers: Bootstrapper) -> None:
         """

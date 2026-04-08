@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from concurrent import futures
 from contextlib import AsyncExitStack, asynccontextmanager
 from os import environ
 from pathlib import Path
@@ -13,6 +14,7 @@ from aiohttp_client_cache.session import CachedSession
 
 from betty.app.data import AppConfiguration
 from betty.asset import AssetDefinition, AssetRepository, StaticAssetRepository
+from betty.cache import Cache
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
 from betty.dirs import CACHE_DIRECTORY_PATH
@@ -36,18 +38,21 @@ from betty.service.plugin.service import (
     ServicePlugins,
     SupportPlugins,
 )
-from betty.service.provider import ServiceFactory, service
+from betty.service.provider import (
+    Service,
+    TypedAsynchronousServiceOrFactory,
+    TypedSynchronousServiceOrFactory,
+    service,
+)
 from betty.typing import threadsafe
 from betty.universe import UNIVERSE
 from betty.user.no_op import NoOpUser
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterable, Mapping
-    from concurrent import futures
 
     import aiohttp
 
-    from betty.cache import Cache
     from betty.plugin import PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.user import User
@@ -79,18 +84,38 @@ class App(
         self,
         *,
         cache_directory: Path | None = None,
-        cache_factory: ServiceFactory[App, Cache[Any]] | None = None,
+        cache: TypedSynchronousServiceOrFactory[App, Cache[Any]] | None = None,
         locale: ResolvableLocale | None = None,
         plugins: Plugins | None = None,
-        process_pool: futures.ProcessPoolExecutor | None = None,
+        process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
+        | None = None,
         service_plugins: ServicePlugins[AppServicePlugin] = (),
         support_plugins: SupportPlugins = (),
-        translations: TranslationRepository | None = None,
+        translations: TypedAsynchronousServiceOrFactory[App, TranslationRepository]
+        | None = None,
         user: User | None = None,
     ):
         from betty.rich.user import RichUser
 
         cls = type(self)
+        if process_pool is not None:
+            cls.process_pool.override(
+                self,
+                Service(process_pool)
+                if isinstance(process_pool, futures.ProcessPoolExecutor)
+                else process_pool,
+            )
+        if translations is not None:
+            cls.translations.override(
+                self,
+                Service(translations)
+                if isinstance(translations, TranslationRepository)
+                else translations,
+            )
+        if cache is not None:
+            cls.cache.override(
+                self, Service(cache) if isinstance(cache, Cache) else cache
+            )
         super().__init__(
             plugins=plugins,
             service_plugin_types={AssetDefinition, RateLimitDefinition},
@@ -101,20 +126,16 @@ class App(
         )
         self.life_cycle.on_bootstrap(self._bootstrap_localizer)
         self._locale = DEFAULT_LOCALE if locale is None else resolve_locale(locale)
-        self._user = user or RichUser()
-        if isinstance(self._user, LifeCycle):
-            self.life_cycle.attach(self._user)
-        if process_pool is not None:
-            cls.process_pool.override(self, process_pool)
-        if translations is not None:
-            cls.translations.override(self, translations)
+        if user is None:
+            user = RichUser()
+        if isinstance(user, LifeCycle):
+            self.life_cycle.on_bootstrap(lambda: self.life_cycle.synchronize(user))
+        self._user = user
         self._cache_directory = (
             Path(environ.get("BETTY_CACHE_DIRECTORY", CACHE_DIRECTORY_PATH))
             if cache_directory is None
             else cache_directory
         )
-        if cache_factory is not None:
-            cls.cache.override_factory(self, cache_factory)
 
     async def _bootstrap_localizer(self) -> None:
         self._user.localizer = await self.localizer
@@ -151,14 +172,17 @@ class App(
         cls,
         *,
         cache_directory: Path | None = None,
-        cache_factory: ServiceFactory[App, Cache[Any]] | None = None,
+        cache: TypedSynchronousServiceOrFactory[App, Cache[Any]] | None = None,
         plugins: Mapping[
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
         ]
         | None = None,
-        process_pool: futures.ProcessPoolExecutor | None = None,
+        process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
+        | None = None,
         user: User | None = None,
-        translations: TranslationRepository | None | Literal[False] = False,
+        translations: TypedAsynchronousServiceOrFactory[App, TranslationRepository]
+        | None
+        | Literal[False] = False,
     ) -> AsyncIterator[Self]:
         """
         Create a new, isolated, temporary application.
@@ -173,9 +197,7 @@ class App(
                 )
             async with cls(
                 cache_directory=cache_directory,
-                cache_factory=(lambda _: NoOpCache())
-                if cache_factory is None
-                else cache_factory,
+                cache=NoOpCache() if cache is None else cache,
                 plugins=plugins,
                 process_pool=process_pool,
                 user=NoOpUser() if user is None else user,

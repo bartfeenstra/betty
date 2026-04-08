@@ -42,19 +42,20 @@ class ServiceLevel(ServiceProvider):
         plugins: Plugins | None = None,
         **kwargs: Any,
     ):
-        super().__init__(*args, **kwargs)
+        from betty.service.factory import Factory
+
+        super().__init__(*args, services=self, **kwargs)
+        self._factory = Factory(self)
         self._plugin_discovery = defaultdict(
             lambda: None, {} if plugins is None else plugins
         )
 
-    @service
+    @property
     def factory(self) -> Factory:
         """
         The object factory.
         """
-        from betty.service.factory import Factory
-
-        return Factory(self)
+        return self._factory
 
     @service
     def plugins(

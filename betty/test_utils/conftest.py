@@ -70,20 +70,23 @@ if TYPE_CHECKING:
 
     from playwright.async_api import BrowserContext, Page
 
-    from betty.entity.collection.pool import EntityPool
     from betty.cache import Cache
+    from betty.entity import EntityDefinition
+    from betty.entity.collection.pool import EntityPool
     from betty.json.linked_data import LinkedDataDumpableWithSchema, LinkedDataDumper
     from betty.locale import ResolvableLocale
     from betty.locale.localizable import ResolvableLocalizable
     from betty.locale.translation import TranslationRepository
     from betty.machine_name import ResolvableMachineName
-    from betty.entity import EntityDefinition
     from betty.plugin import PluginDefinition
-    from betty.plugin.resolve import ResolvablePluginId
     from betty.plugin.discovery import ResolvableDiscovery
+    from betty.plugin.resolve import ResolvablePluginId
     from betty.portable import PortableData, PortableMapping
     from betty.service.plugin.service import ServicePlugins, SupportPlugins
-    from betty.service.provider import ServiceFactory
+    from betty.service.provider import (
+        TypedSynchronousServiceOrFactory,
+        TypedAsynchronousServiceOrFactory,
+    )
     from betty.user import User
 
 
@@ -157,17 +160,20 @@ def isolated_app_factory(
     @asynccontextmanager
     async def _isolated_app_factory(
         *,
-        cache_factory: ServiceFactory[App, Cache[Any]] | None = None,
+        cache: TypedSynchronousServiceOrFactory[App, Cache[Any]] | None = None,
         plugins: Mapping[
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
         ]
         | None = None,
-        process_pool: futures.ProcessPoolExecutor | None = None,
-        translations: TranslationRepository | None | Literal[False] = False,
+        process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
+        | None = None,
+        translations: TypedAsynchronousServiceOrFactory[App, TranslationRepository]
+        | None
+        | Literal[False] = False,
         user: User | None = None,
     ) -> AsyncIterator[App]:
         async with App.new_isolated(
-            cache_factory=cache_factory,
+            cache=cache,
             process_pool=process_pool or fixture_process_pool,
             plugins=plugins,
             translations=translations,

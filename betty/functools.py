@@ -5,6 +5,7 @@ Provide functional programming utilities.
 from __future__ import annotations
 
 import contextlib
+import threading
 from asyncio import sleep
 from itertools import chain
 from time import time
@@ -19,7 +20,7 @@ from typing import (
 )
 
 from betty.asyncio import resolve_await
-from betty.typing import Void
+from betty.typing import Void, threadsafe
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable, Iterator
@@ -277,3 +278,32 @@ class CallableDecorator[**P, ReturnT, **DecoratedP, DecoratedReturnT]:
         if decorated is None:
             return self
         return DecoratedCallable(self.__callable_decorator, decorated)
+
+
+@final
+@threadsafe
+class LazyReCallable[ValueT]:
+    """
+    A value that can be called multiple times while always returning the exact same value.
+
+    The proxied callable will at most be called once.
+    """
+
+    __slots__ = "_lock", "_factory", "_value"
+    _value: ValueT
+
+    def __init__(self, factory: Callable[[], ValueT], /):
+        self._factory = factory
+        self._lock = threading.Lock()
+
+    def __call__(self) -> ValueT:
+        """
+        Get the value.
+        """
+        # Check if the value was created already so we avoid acquiring the lock.
+        if not hasattr(self, "_value"):
+            with self._lock:
+                # Check if the value was created since we last checked (this is usually done within the lock anyway).
+                if not hasattr(self, "_value"):
+                    self._value = self._factory()
+        return self._value

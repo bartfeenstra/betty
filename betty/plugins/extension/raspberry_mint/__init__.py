@@ -21,7 +21,7 @@ from betty.project import Project
 from betty.project.generate import Generator
 from betty.requirement import ServicePluginRequirement
 from betty.service.factory import DataManufacturable, Manufacturable
-from betty.service.provider import service
+from betty.service.provider import ServiceProvider, service
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
@@ -48,6 +48,7 @@ class RaspberryMint(
     Manufacturable,
     Generator,
     EntryPointProvider,
+    ServiceProvider,
 ):
     """
     .. plugin:: extension:raspberry-mint.
@@ -85,7 +86,7 @@ class RaspberryMint(
         secondary_color: str | None = None,
         tertiary_color: str | None = None,
     ):
-        super().__init__()
+        super().__init__(services=project)
         self._project = project
         self._primary_color = (
             self.DEFAULT_PRIMARY_COLOR if primary_color is None else primary_color

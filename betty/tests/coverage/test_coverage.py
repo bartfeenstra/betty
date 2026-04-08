@@ -89,6 +89,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "OptionalField": MissingReason.DATACLASS,
         "RequiredField": MissingReason.DATACLASS,
     },
+    "betty/asyncio.py": {
+        "ReAwaitable": MissingReason.ABSTRACT,
+    },
     "betty/cache/__init__.py": {
         "Cache": MissingReason.ABSTRACT,
         "CacheItem": MissingReason.SHOULD_BE_COVERED,
@@ -141,7 +144,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ServicePluginProvider": MissingReason.ABSTRACT,
     },
     "betty/service/provider.py": {
-        "ServiceInitializedError": MissingReason.ABSTRACT,
+        "Service": MissingReason.DATACLASS,
+        "ServiceInitializedError": MissingReason.STATIC_CONTENT_ONLY,
         "ServiceProvider": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/service/factory.py": {

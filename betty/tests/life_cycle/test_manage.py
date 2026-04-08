@@ -4,7 +4,6 @@ from betty.life_cycle import (
     AlreadyBootstrapped,
     AlreadyShutDown,
     LifeCycle,
-    NotYetBootstrapped,
 )
 from betty.life_cycle.manage import LifeCycleManager, ManagedLifeCycle
 
@@ -39,45 +38,43 @@ class TestManagedLifeCycle:
 
 
 class TestLifeCycleManager:
-    async def test_attach__not_yet_bootstrapped(self) -> None:
+    async def test_synchronize__not_yet_bootstrapped(self) -> None:
         sut = LifeCycleManager()
         other = LifeCycle()
-        sut.attach(other)
+        await sut.synchronize(other)
         async with sut:
             assert other.bootstrapped
         assert other.shut_down
 
-    async def test_attach__bootstrapped(self) -> None:
-        other = LifeCycle()
-        await other.bootstrap()
-        async with LifeCycleManager() as sut:
-            sut.attach(other)
-        assert other.shut_down
-
-    async def test_attach__self_not_yet_bootstrapped_other_bootstrapped(self) -> None:
+    async def test_synchronize__self_not_yet_bootstrapped_other_bootstrapped(
+        self,
+    ) -> None:
         sut = LifeCycleManager()
         async with LifeCycle() as other:
             with pytest.raises(AlreadyBootstrapped):
-                sut.attach(other)
+                await sut.synchronize(other)
 
-    async def test_attach__self_bootstrapped_other_not_yet_bootstrapped(self) -> None:
+    async def test_synchronize__self_bootstrapped_other_not_yet_bootstrapped(
+        self,
+    ) -> None:
         async with LifeCycleManager() as sut:
             other = LifeCycle()
-            with pytest.raises(NotYetBootstrapped):
-                sut.attach(other)
+            await sut.synchronize(other)
+            assert other.bootstrapped
+        assert other.shut_down
 
-    async def test_attach__self_shut_down(self) -> None:
+    async def test_synchronize__self_shut_down(self) -> None:
         async with LifeCycleManager() as sut:
             pass
         with pytest.raises(AlreadyShutDown):
-            sut.attach(LifeCycle())
+            await sut.synchronize(LifeCycle())
 
-    async def test_attach__other_shut_down(self) -> None:
+    async def test_synchronize__other_shut_down(self) -> None:
         async with LifeCycleManager() as sut:
             async with LifeCycle() as other:
                 pass
             with pytest.raises(AlreadyShutDown):
-                sut.attach(other)
+                await sut.synchronize(other)
 
     async def test_bootstrap(self) -> None:
         sut = LifeCycleManager()
