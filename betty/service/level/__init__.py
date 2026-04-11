@@ -96,9 +96,9 @@ class ServiceLevel(ServiceProvider):
         )
 
 
-class ChainedServiceLevel[UpstreamT: ServiceLevel = ServiceLevel](ServiceLevel):
+class DownstreamServiceLevel[UpstreamT: ServiceLevel = ServiceLevel](ServiceLevel):
     """
-    A chained service level.
+    A service level that has another upstream service level.
     """
 
     def __init__(
@@ -113,6 +113,6 @@ class ChainedServiceLevel[UpstreamT: ServiceLevel = ServiceLevel](ServiceLevel):
     @property
     def upstream(self) -> UpstreamT:
         """
-        The upstream service level this one is chained to.
+        The upstream service level.
         """
         return self._upstream

@@ -63,7 +63,7 @@ from betty.plugins.entity.person import Person
 from betty.privacy.privatizer import Privatizer
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.sample import Sample, Size
-from betty.service.level import ChainedServiceLevel
+from betty.service.level import DownstreamServiceLevel
 from betty.service.level.requirement import RequirableServiceLevel
 from betty.service.plugin.service import (
     ServicePluginProvider,
@@ -114,7 +114,9 @@ type ProjectServicePlugin = (
 
 
 @final
-class Project(ChainedServiceLevel[App], RequirableServiceLevel, ServicePluginProvider):
+class Project(
+    DownstreamServiceLevel[App], RequirableServiceLevel, ServicePluginProvider
+):
     """
     Define a Betty project.
 

@@ -12,7 +12,7 @@ from betty.requirement import (
     ServicePluginRequirement,
     UnmetRequirement,
 )
-from betty.service.level import ChainedServiceLevel, ServiceLevel
+from betty.service.level import DownstreamServiceLevel, ServiceLevel
 from betty.service.plugin.service import (
     ServicePluginDefinition,
     ServicePluginProvider,
@@ -31,7 +31,7 @@ class _ServiceLevel(ServiceLevel):
     pass
 
 
-class _ChainedServiceLevel(ChainedServiceLevel):
+class _DownstreamServiceLevel(DownstreamServiceLevel):
     pass
 
 
@@ -50,7 +50,7 @@ class _ServicePluginProvider(ServiceLevel, ServicePluginProvider):
         )
 
 
-class _ChainedServicePluginProvider(ChainedServiceLevel, _ServicePluginProvider):
+class _DownstreamServicePluginProvider(DownstreamServiceLevel, _ServicePluginProvider):
     def __init__(
         self,
         service_plugin_types: Collection[type[ServicePluginDefinition]],
@@ -130,7 +130,7 @@ class TestServicePluginRequirement:
 
     async def test___call____services_unmet_and_upstream_unmet(self) -> None:
         sut = ServicePluginRequirement(_ServicePluginOne)
-        services = _ChainedServiceLevel(upstream=_ServiceLevel())
+        services = _DownstreamServiceLevel(upstream=_ServiceLevel())
         with pytest.raises(UnmetRequirement):
             await sut(services)
 
@@ -141,7 +141,7 @@ class TestServicePluginRequirement:
         async with _ServicePluginProvider(
             {_ServicePluginDefinition}, [_ServicePluginOne]
         ) as upstream:
-            services = _ChainedServiceLevel(upstream=upstream)
+            services = _DownstreamServiceLevel(upstream=upstream)
             assert isinstance(await sut(services), _ServicePluginOne)
 
     async def test___call____services_unmet_because_no_service_plugin_type_but_upstream_met(
@@ -152,7 +152,7 @@ class TestServicePluginRequirement:
             _ServicePluginProvider(
                 {_ServicePluginDefinition}, [_ServicePluginOne]
             ) as upstream,
-            _ChainedServicePluginProvider({}, upstream=upstream) as services,
+            _DownstreamServicePluginProvider({}, upstream=upstream) as services,
         ):
             assert isinstance(await sut(services), _ServicePluginOne)
 
@@ -164,7 +164,7 @@ class TestServicePluginRequirement:
             _ServicePluginProvider(
                 {_ServicePluginDefinition}, [_ServicePluginOne]
             ) as upstream,
-            _ChainedServicePluginProvider(
+            _DownstreamServicePluginProvider(
                 {_ServicePluginDefinition}, [], upstream=upstream
             ) as services,
         ):
