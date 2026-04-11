@@ -139,7 +139,7 @@ async def _create_command_parser(
         dest="_verbosity",
         action="store_const",
         const=Verbosity.MORE_VERBOSE,
-        help=localizer._("Also show debug messages"),
+        help=localizer._("Also show debug messages and all exception tracebacks"),
     )
     verbosity_group.add_argument(
         "-vvv",
@@ -255,18 +255,25 @@ async def main(app: App, args: Sequence[str]) -> None:
         parser.print_help()
         raise SystemExit(SystemExitCode.ERROR_CONSOLE_USAGE) from None
     await app.user.set_verbosity(namespace._verbosity)
+    always_print_exception_tracebacks = app.user.verbosity >= Verbosity.MORE_VERBOSE
     try:
         await call_command_func(command_func, namespace)
-        raise SystemExit(SystemExitCode.OK) from None
     except HumanFacingException as error:
-        await app.user.message_error(error)
+        if always_print_exception_tracebacks:
+            await app.user.message_exception()
+        else:
+            await app.user.message_error(error)
         raise SystemExit(SystemExitCode.ERROR_UNEXPECTED) from None
     except (CancelledError, KeyboardInterrupt):
         await app.user.message_information(_("Quitting..."))
+        if always_print_exception_tracebacks:
+            await app.user.message_exception()
         raise SystemExit(SystemExitCode.USER_QUIT) from None
     except Exception:
         await app.user.message_exception()
         raise SystemExit(SystemExitCode.ERROR_UNEXPECTED) from None
+    else:
+        raise SystemExit(SystemExitCode.OK) from None
 
 
 def main_standalone() -> None:
