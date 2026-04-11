@@ -5,7 +5,7 @@ Provide the Command Line Interface.
 from __future__ import annotations
 
 from abc import abstractmethod
-from collections.abc import Awaitable, Callable
+from collections.abc import Awaitable, Callable, Iterable, Sequence
 from typing import TYPE_CHECKING, final
 
 from betty.definition.human_facing import HumanFacingDefinition
@@ -55,9 +55,18 @@ class CommandDefinition(HumanFacingDefinition, PluginClsDefinition[Command]):
         plugin_id: ResolvableMachineName,
         *,
         label: ResolvableLocalizable,
+        aliases: Iterable[str] = (),
         description: ResolvableLocalizable | None = None,
         requires: Requires = (),
     ):
         super().__init__(
             plugin_id, label=label, description=description, requires=requires
         )
+        self._aliases = tuple(aliases)
+
+    @property
+    def aliases(self) -> Sequence[str]:
+        """
+        Any aliases for the command.
+        """
+        return self._aliases

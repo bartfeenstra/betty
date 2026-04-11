@@ -19,7 +19,7 @@ _LEGACY_CACHE_DIRECTORY_PATH = Path.home() / ".betty" / "cache"
 
 
 @final
-@CommandDefinition("clear-caches", label=_("Clear all caches"))
+@CommandDefinition("clear-caches", label=_("Clear all caches"), aliases=["cc"])
 class ClearCaches(Manufacturable, Command):
     """
     .. plugin:: command:clear-caches.

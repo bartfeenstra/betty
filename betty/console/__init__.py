@@ -108,6 +108,7 @@ async def _create_command_parser(
     command = await app.factory.new(command_plugin.cls)
     command_parser: argparse.ArgumentParser = subparsers.add_parser(
         command.plugin().id,
+        aliases=command.plugin().aliases,
         description=command.plugin().label.localize(localizer),
         exit_on_error=False,
         formatter_class=formatter_class,

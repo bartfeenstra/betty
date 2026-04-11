@@ -99,7 +99,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/console/command.py": {
         "Command": MissingReason.SHOULD_BE_COVERED,
-        "CommandDefinition": MissingReason.STATIC_CONTENT_ONLY,
+        "CommandDefinition": {
+            "type": MissingReason.INHERITED,
+        },
     },
     "betty/console/project.py": {
         "ConfigurationFileNotFound": MissingReason.STATIC_CONTENT_ONLY,
