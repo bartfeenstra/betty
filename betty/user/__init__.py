@@ -43,7 +43,7 @@ class Verbosity(IntEnum):
 
     MORE_VERBOSE = 2
     """
-    Like VERBOSE, and show debug messages.
+    Like VERBOSE, and show debug messages and all exception tracebacks.
     """
 
     MOST_VERBOSE = 3
