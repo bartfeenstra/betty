@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-11 22:16+0100\n"
+"POT-Creation-Date: 2026-04-12 00:53+0100\n"
 "PO-Revision-Date: 2026-02-17 19:37+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -166,6 +166,9 @@ msgstr "Verschijningen"
 
 msgid "Application configuration"
 msgstr "Applicatieconfiguratie"
+
+msgid "Are you sure you want to clear all caches?"
+msgstr ""
 
 msgid "Asset"
 msgstr ""
@@ -1589,6 +1592,9 @@ msgstr "Laat alle beschikbare commando's zien"
 
 msgid "Show this help message"
 msgstr "Laat dit hulpbericht zien"
+
+msgid "Skip interactions and answer \"yes\" to all questions."
+msgstr ""
 
 msgid "Someone performed public speaking at the event."
 msgstr ""

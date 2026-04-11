@@ -137,12 +137,16 @@ class IsolatedAppFactory(Protocol):
     def __call__(
         self,
         *,
+        cache: TypedSynchronousServiceOrFactory[App, Cache[Any]] | None = None,
         plugins: Mapping[
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
         ]
         | None = None,
-        process_pool: futures.ProcessPoolExecutor | None = None,
-        translations: TranslationRepository | None | Literal[False] = False,
+        process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
+        | None = None,
+        translations: TypedAsynchronousServiceOrFactory[App, TranslationRepository]
+        | None
+        | Literal[False] = False,
         user: User | None = None,
     ) -> AbstractAsyncContextManager[App]:
         raise NotImplementedError
