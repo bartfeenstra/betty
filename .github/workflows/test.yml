@@ -36,6 +36,10 @@ jobs:
             os: windows-latest
             nodejs: 25.x
             python: '3.14'
+          - name: 'PyPy'
+            os: ubuntu-latest
+            nodejs: 25.x
+            python: 'pypy3.14'
     timeout-minutes: 60
     steps:
       - name: Check out the source code
