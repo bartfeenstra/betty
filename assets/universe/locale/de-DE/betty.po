@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-11 22:16+0100\n"
+"POT-Creation-Date: 2026-04-12 00:53+0100\n"
 "PO-Revision-Date: 2026-02-17 18:12+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de_DE\n"
@@ -159,6 +159,9 @@ msgid "Appearances"
 msgstr "Erscheinungen"
 
 msgid "Application configuration"
+msgstr ""
+
+msgid "Are you sure you want to clear all caches?"
 msgstr ""
 
 msgid "Asset"
@@ -1544,6 +1547,9 @@ msgid "Show all available commands"
 msgstr ""
 
 msgid "Show this help message"
+msgstr ""
+
+msgid "Skip interactions and answer \"yes\" to all questions."
 msgstr ""
 
 msgid "Someone performed public speaking at the event."

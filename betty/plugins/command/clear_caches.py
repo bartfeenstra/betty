@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.app import App
+from betty.argparse import add_yes_argument
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.locale.localizable.gettext import _
 from betty.service.factory import Manufacturable
@@ -36,11 +37,17 @@ class ClearCaches(Manufacturable, Command):
 
     @override
     async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
+        add_yes_argument(parser, localizer=self._app.user.localizer)
         return self._command_function
 
-    async def _command_function(self) -> None:
-        await gather(self._app.cache.clear(), self._clear_legacy_cache())
-        await self._app.user.message_information(_("All caches cleared."))
+    async def _command_function(self, yes: bool) -> None:
+        if not yes:
+            yes = await self._app.user.ask_confirmation(
+                _("Are you sure you want to clear all caches?")
+            )
+        if yes:
+            await gather(self._app.cache.clear(), self._clear_legacy_cache())
+            await self._app.user.message_information(_("All caches cleared."))
 
     async def _clear_legacy_cache(self) -> None:
         # Before Betty 0.5, Betty stored its caches in the home directory. Clear those until Betty 0.6.
