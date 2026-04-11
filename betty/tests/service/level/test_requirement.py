@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 
 from betty.requirement import UnmetRequirement
-from betty.service.level import ChainedServiceLevel, ServiceLevel
+from betty.service.level import DownstreamServiceLevel, ServiceLevel
 from betty.service.level.requirement import (
     RequirableServiceLevel,
     ServiceLevelRequirement,
@@ -14,7 +14,7 @@ class _ServiceLevel(ServiceLevel):
     pass
 
 
-class _ChainedServiceLevel(ChainedServiceLevel):
+class _DownstreamServiceLevel(DownstreamServiceLevel):
     pass
 
 
@@ -35,12 +35,12 @@ class TestServiceLevelRequirement:
     async def test___call____chained_unmet(self) -> None:
         sut = ServiceLevelRequirement(_ServiceLevel)
         with pytest.raises(UnmetRequirement):
-            await sut(_ChainedServiceLevel(upstream=ServiceLevel()))
+            await sut(_DownstreamServiceLevel(upstream=ServiceLevel()))
 
     async def test___call____chained_met(self) -> None:
         sut = ServiceLevelRequirement(_ServiceLevel)
         services = _ServiceLevel()
-        assert await sut(_ChainedServiceLevel(upstream=services)) is services
+        assert await sut(_DownstreamServiceLevel(upstream=services)) is services
 
 
 class TestRequirableServiceLevel:

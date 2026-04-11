@@ -8,7 +8,7 @@ from typing import Final, final, override
 
 from betty.importlib import fully_qualified_name
 from betty.requirement import RequirableDecorator, UnmetRequirement
-from betty.service.level import ChainedServiceLevel, ServiceLevel
+from betty.service.level import DownstreamServiceLevel, ServiceLevel
 
 
 class _ServiceLevelRequirement:
@@ -39,7 +39,7 @@ class ServiceLevelRequirement[ServiceLevelT: ServiceLevel](RequirableDecorator):
     async def _check(self, services: ServiceLevel, /) -> ServiceLevelT:
         if isinstance(services, self._services):
             return services
-        if isinstance(services, ChainedServiceLevel):
+        if isinstance(services, DownstreamServiceLevel):
             return await self._check(services.upstream)
         raise UnmetRequirement(
             f"This requires a(n) {fully_qualified_name(self._services)}, but a(n) {services} was given."

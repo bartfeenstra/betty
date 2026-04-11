@@ -12,7 +12,7 @@ from betty.asyncio import resolve_await
 from betty.exception import HumanFacingException
 from betty.functools import CallableDecorator, DecoratedCallable, DecoratedCallableType
 from betty.locale.localizable.gettext import _
-from betty.service.level import ChainedServiceLevel, ServiceLevel
+from betty.service.level import DownstreamServiceLevel, ServiceLevel
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable
@@ -57,14 +57,14 @@ class ServicePluginRequirement[ServicePluginT: Plugin[ServicePluginDefinition]]:
             try:
                 service_type_plugins = service_plugins[type(self._plugin.plugin())]
             except KeyError:
-                if not isinstance(services, ChainedServiceLevel):
+                if not isinstance(services, DownstreamServiceLevel):
                     raise self._raise() from None
             else:
                 try:
                     return service_type_plugins[self._plugin]
                 except KeyError:
                     raise self._raise() from None
-        if isinstance(services, ChainedServiceLevel):
+        if isinstance(services, DownstreamServiceLevel):
             return await self(services.upstream)
         raise self._raise()
 
