@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 @final
-@CommandDefinition("generate", label=_("Generate a static site"))
+@CommandDefinition("generate", label=_("Generate a static site"), aliases=["g"])
 class Generate(Manufacturable, Command):
     """
     .. plugin:: command:generate.

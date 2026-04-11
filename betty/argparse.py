@@ -2,7 +2,7 @@
 Integrate the console and assertion APIs.
 """
 
-import argparse
+import argparse as stdargparse
 from collections.abc import Callable
 
 from betty.assertion import Assertion
@@ -21,6 +21,6 @@ def assertion_to_argument_type[T](
         try:
             return assertion(value)
         except HumanFacingException as error:
-            raise argparse.ArgumentTypeError(error.localize(localizer)) from error
+            raise stdargparse.ArgumentTypeError(error.localize(localizer)) from error
 
     return _assertion_to_argument_type
