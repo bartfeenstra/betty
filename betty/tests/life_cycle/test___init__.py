@@ -96,6 +96,17 @@ class TestLifeCycle:
         await sut.shutdown()
         assert sut.shut_down
 
+    async def test_shutdown__already_shut_down_wait(self) -> None:
+        async with LifeCycle() as sut:
+            pass
+        with pytest.raises(AlreadyShutDown):
+            await sut.shutdown()
+
+    async def test_shutdown__already_shut_down_no_wait(self) -> None:
+        async with LifeCycle() as sut:
+            pass
+        await sut.shutdown(wait=False)
+
     async def test_shut_down(self) -> None:
         sut = LifeCycle()
         await sut.bootstrap()
