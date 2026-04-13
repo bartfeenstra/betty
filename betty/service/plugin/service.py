@@ -21,7 +21,8 @@ from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.requirement import ServicePluginRequirement, UnmetRequirement
-from betty.service.provider import ServiceProvider, service
+from betty.service.provider import ServiceProvider
+from betty.service.simple import service
 
 if TYPE_CHECKING:
     from collections.abc import (

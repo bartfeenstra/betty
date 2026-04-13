@@ -147,8 +147,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/service/provider.py": {
         "Service": MissingReason.DATACLASS,
-        "ServiceInitializedError": MissingReason.STATIC_CONTENT_ONLY,
-        "ServiceProvider": MissingReason.STATIC_CONTENT_ONLY,
+        "ServiceAlreadyInitialized": MissingReason.STATIC_CONTENT_ONLY,
+        "ServiceNotYetInitialized": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/service/factory.py": {
         "DataManufacturable": MissingReason.ABSTRACT,

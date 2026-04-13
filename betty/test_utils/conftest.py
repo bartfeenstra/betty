@@ -69,6 +69,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from playwright.async_api import BrowserContext, Page
+    from betty.service.simple.asynchronous import TypedAsynchronousServiceOrFactory
 
     from betty.cache import Cache
     from betty.entity import EntityDefinition
@@ -83,10 +84,7 @@ if TYPE_CHECKING:
     from betty.plugin.resolve import ResolvablePluginId
     from betty.portable import PortableData, PortableMapping
     from betty.service.plugin.service import ServicePlugins, SupportPlugins
-    from betty.service.provider import (
-        TypedSynchronousServiceOrFactory,
-        TypedAsynchronousServiceOrFactory,
-    )
+    from betty.service.simple.synchronous import TypedSynchronousServiceOrFactory
     from betty.user import User
 
 

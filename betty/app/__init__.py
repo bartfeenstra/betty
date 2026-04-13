@@ -38,12 +38,8 @@ from betty.service.plugin.service import (
     ServicePlugins,
     SupportPlugins,
 )
-from betty.service.provider import (
-    Service,
-    TypedAsynchronousServiceOrFactory,
-    TypedSynchronousServiceOrFactory,
-    service,
-)
+from betty.service.provider import Service
+from betty.service.simple import service
 from betty.typing import threadsafe
 from betty.universe import UNIVERSE
 from betty.user.no_op import NoOpUser
@@ -55,6 +51,8 @@ if TYPE_CHECKING:
 
     from betty.plugin import PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
+    from betty.service.simple.asynchronous import TypedAsynchronousServiceOrFactory
+    from betty.service.simple.synchronous import TypedSynchronousServiceOrFactory
     from betty.user import User
 
 

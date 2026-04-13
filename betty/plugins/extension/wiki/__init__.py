@@ -9,7 +9,8 @@ from betty.extension import Extension, ExtensionDefinition
 from betty.plugins.copyright_notice.wikipedia_contributors import WikipediaContributors
 from betty.project import Project
 from betty.service.factory import Manufacturable
-from betty.service.provider import ServiceProvider, service
+from betty.service.provider import ServiceProvider
+from betty.service.simple import service
 from betty.wiki import populator as populator_api
 from betty.wiki.client import Client
 

@@ -1,26 +1,19 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING, override
+from typing import override
 
 import pytest
 
 from betty.functools import LazyReCallable
-from betty.life_cycle import LifeCycle
-from betty.life_cycle.manage import ManagedLifeCycle
+from betty.service.level import ServiceLevel
 from betty.service.provider import (
-    AsynchronousServiceManager,
     Service,
-    ServiceInitializedError,
+    ServiceAlreadyInitialized,
     ServiceManager,
     ServiceProvider,
-    SynchronousServiceManager,
-    service,
 )
 from betty.universe import UNIVERSE
-
-if TYPE_CHECKING:
-    from betty.service.level import ServiceLevel
 
 
 class _DummyServiceManager[ServiceProviderT: ServiceProvider](
@@ -28,7 +21,7 @@ class _DummyServiceManager[ServiceProviderT: ServiceProvider](
 ):
     @override
     def _new_service_getter(
-        self, services: ServiceLevel, instance: ServiceProviderT, /
+        self, instance: ServiceProviderT, /
     ) -> Callable[[], object]:
         def _factory() -> object:
             factory = self._get_service_or_factory(instance)
@@ -69,6 +62,14 @@ class TestServiceManager:
             def my_first_service(self) -> object:
                 raise NotImplementedError
 
+    def test_owner(self) -> None:
+        class _ServiceProvider(ServiceProvider):
+            @_DummyServiceManager
+            def my_first_service(self) -> object:
+                raise NotImplementedError
+
+        assert _ServiceProvider.my_first_service.owner is _ServiceProvider
+
     def test_get(self) -> None:
         service = object()
 
@@ -82,6 +83,16 @@ class TestServiceManager:
             is service
         )
 
+    def test_id(self) -> None:
+        class _ServiceProvider(ServiceProvider):
+            @_DummyServiceManager
+            def my_first_service(self) -> object:
+                raise NotImplementedError
+
+        assert (
+            _ServiceProvider.my_first_service.id == "_ServiceProvider.my_first_service"
+        )
+
     def test_init__initialized_already(self) -> None:
         class _ServiceProvider(ServiceProvider):
             @_DummyServiceManager
@@ -89,8 +100,16 @@ class TestServiceManager:
                 raise NotImplementedError
 
         service_provider = _ServiceProvider(services=UNIVERSE)
-        with pytest.raises(ServiceInitializedError):
-            _ServiceProvider.my_first_service.init(UNIVERSE, service_provider)
+        with pytest.raises(ServiceAlreadyInitialized):
+            _ServiceProvider.my_first_service.init(service_provider)
+
+    def test_name(self) -> None:
+        class _ServiceProvider(ServiceProvider):
+            @_DummyServiceManager
+            def my_first_service(self) -> object:
+                raise NotImplementedError
+
+        assert _ServiceProvider.my_first_service.name == "my_first_service"
 
     def test_override(self) -> None:
         class _ServiceProvider(ServiceProvider):
@@ -113,88 +132,14 @@ class TestServiceManager:
                 raise NotImplementedError
 
         service_provider = _ServiceProvider(services=UNIVERSE)
-        with pytest.raises(ServiceInitializedError):
+        with pytest.raises(ServiceAlreadyInitialized):
             _ServiceProvider.my_first_service.override(
                 service_provider, Service(object())
             )
 
 
-class TestAsynchronousServiceManager:
-    async def test_get__with_service(self) -> None:
-        my_first_service_value = object()
-
-        class Cls(ManagedLifeCycle, ServiceProvider):
-            my_first_service = AsynchronousServiceManager(
-                Service(my_first_service_value)
-            )
-
-        service_provider = Cls(services=UNIVERSE)
-        assert await service_provider.my_first_service is my_first_service_value
-
-    async def test_get__with_factory(self) -> None:
-        my_first_service_value = object()
-
-        class Cls(ManagedLifeCycle, ServiceProvider):
-            my_first_service = AsynchronousServiceManager(
-                lambda _: my_first_service_value
-            )
-
-        service_provider = Cls(services=UNIVERSE)
-        assert await service_provider.my_first_service is my_first_service_value
-
-    async def test_get__with_life_cycle(self) -> None:
-        my_first_service_value = LifeCycle()
-
-        class Cls(ManagedLifeCycle, ServiceProvider):
-            my_first_service = AsynchronousServiceManager(
-                Service(my_first_service_value)
-            )
-
-        async with Cls(services=UNIVERSE) as service_provider:
-            actual = await service_provider.my_first_service
-            assert actual is my_first_service_value
-            assert actual.bootstrapped
-
-
-class TestSynchronousServiceManager:
-    def test_get__with_service(self) -> None:
-        my_first_service_value = object()
-
-        class Cls(ServiceProvider):
-            my_first_service = SynchronousServiceManager(
-                Service(my_first_service_value)
-            )
-
-        service_provider = Cls(services=UNIVERSE)
-        assert service_provider.my_first_service is my_first_service_value
-
-    def test_get__with_factory(self) -> None:
-        my_first_service = object()
-
-        class Cls(ServiceProvider):
-            my_first_service = SynchronousServiceManager(lambda _: my_first_service)
-
-        service_provider = Cls(services=UNIVERSE)
-        assert service_provider.my_first_service is my_first_service
-
-
-async def test_service__with_asynchronous_service() -> None:
-    my_first_service = object()
-
-    class Cls(ServiceProvider):
-        @service
-        async def my_first_service(self) -> object:
-            return my_first_service
-
-    assert await Cls(services=UNIVERSE).my_first_service is my_first_service
-
-
-def test_service__with_synchronous_service() -> None:
-    my_first_service = object()
-
-    class Cls(ServiceProvider):
-        @service
-        def my_first_service(self) -> object:
-            return my_first_service
-
-    assert Cls(services=UNIVERSE).my_first_service is my_first_service
+class TestServiceProvider:
+    def test_services(self) -> None:
+        services = ServiceLevel()
+        sut = ServiceProvider(services=services)
+        assert sut.services is services
