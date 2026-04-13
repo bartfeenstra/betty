@@ -17,7 +17,7 @@ import aiofiles
 from aiofiles.os import makedirs
 
 from betty import npm
-from betty.dirs import ROOT_DIRECTORY_PATH
+from betty.dirs import ROOT_DIRECTORY
 from betty.document import Document
 from betty.extension import Extension
 from betty.hashid import hashid, hashid_file_content, hashid_sequence
@@ -136,7 +136,7 @@ class Builder:
     async def _prepare_betty(self, npm_project_directory_path: Path) -> None:
         await to_thread(
             copytree,
-            ROOT_DIRECTORY_PATH / "js",
+            ROOT_DIRECTORY / "js",
             npm_project_directory_path
             / "packages"
             / _package_name_to_path("@betty.py/betty"),
@@ -152,8 +152,8 @@ class Builder:
                 for source_file_path in (
                     _NPM_PROJECT_DIRECTORIES_PATH / "package.json",
                     _NPM_PROJECT_DIRECTORIES_PATH / "webpack.config.js",
-                    ROOT_DIRECTORY_PATH / ".browserslistrc",
-                    ROOT_DIRECTORY_PATH / "tsconfig.json",
+                    ROOT_DIRECTORY / ".browserslistrc",
+                    ROOT_DIRECTORY / "tsconfig.json",
                 )
             ]
         )
@@ -280,7 +280,7 @@ class Builder:
         webpack_build_directory_path: Path,
     ) -> None:
         package_paths = [
-            ROOT_DIRECTORY_PATH / "js",
+            ROOT_DIRECTORY / "js",
             *(
                 entry_point_provider.webpack_entry_point_directory_path()
                 for entry_point_provider in self._entry_point_providers

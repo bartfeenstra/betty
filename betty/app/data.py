@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Final, final
 
 from betty.data import Data, Sample
 from betty.data.aggregate.record.object import ObjectDefinition
-from betty.dirs import APP_CONFIG_DIRECTORY_PATH
+from betty.dirs import APP_CONFIG_DIRECTORY
 from betty.locale import DEFAULT_LOCALE, ResolvableLocale, resolve_locale
 from betty.locale.data import LocaleProperty
 from betty.locale.localizable.gettext import _
@@ -36,7 +36,7 @@ class AppConfiguration(Data):
     .. data:: betty.app.data:AppConfiguration
     """
 
-    FILE: Final[Path] = APP_CONFIG_DIRECTORY_PATH / "app.json"
+    FILE: Final[Path] = APP_CONFIG_DIRECTORY / "app.json"
 
     locale = Optional(LocaleProperty())
     """

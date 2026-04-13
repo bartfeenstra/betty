@@ -157,7 +157,7 @@ class DevProfileDemo(Manufacturable, Command):
         import yappi
 
         stats_file_path = (
-            dirs.DEV_OUTPUT_DIRECTORY_PATH / f"{self.plugin().id}-{clock_type}.ystats"
+            dirs.DEV_OUTPUT_DIRECTORY / f"{self.plugin().id}-{clock_type}.ystats"
         )
         if not force and stats_file_path.exists():
             stats = yappi.get_func_stats()

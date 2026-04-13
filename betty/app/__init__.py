@@ -17,7 +17,7 @@ from betty.asset import AssetDefinition, AssetRepository, StaticAssetRepository
 from betty.cache import Cache
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
-from betty.dirs import CACHE_DIRECTORY_PATH
+from betty.dirs import CACHE_DIRECTORY
 from betty.http_client import ClientErrorToUserMessageMiddleware
 from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
 from betty.life_cycle import LifeCycle
@@ -130,7 +130,7 @@ class App(
             self.life_cycle.on_bootstrap(lambda: self.life_cycle.synchronize(user))
         self._user = user
         self._cache_directory = (
-            Path(environ.get("BETTY_CACHE_DIRECTORY", CACHE_DIRECTORY_PATH))
+            Path(environ.get("BETTY_CACHE_DIRECTORY", CACHE_DIRECTORY))
             if cache_directory is None
             else cache_directory
         )
