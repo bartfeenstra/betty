@@ -70,7 +70,7 @@ from betty.service.plugin.service import (
     ServicePlugins,
     SupportPlugins,
 )
-from betty.service.provider import service
+from betty.service.simple import service
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Collection, Iterable, Mapping

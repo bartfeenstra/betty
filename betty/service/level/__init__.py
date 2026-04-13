@@ -13,7 +13,8 @@ from betty.collection.keyed.error import ErroringKeyedCollection
 from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
 from betty.plugin.resolve import resolve_plugin_type_id
-from betty.service.provider import ServiceProvider, service
+from betty.service.provider import ServiceProvider
+from betty.service.simple import service
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping

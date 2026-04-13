@@ -21,7 +21,8 @@ from betty.project import Project
 from betty.project.generate import Generator
 from betty.requirement import ServicePluginRequirement
 from betty.service.factory import DataManufacturable, Manufacturable
-from betty.service.provider import ServiceProvider, service
+from betty.service.provider import ServiceProvider
+from betty.service.simple import service
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
