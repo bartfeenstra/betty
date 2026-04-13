@@ -114,6 +114,8 @@ class LifeCycle:
         """
         Shut the object down.
         """
+        if self.__shut_down and not wait:
+            return
         self.assert_alive()
         self.__shut_down = True
 
