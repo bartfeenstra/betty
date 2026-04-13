@@ -94,7 +94,7 @@ class Server(ABC):
         The server's public URL.
         """
 
-    async def __aenter__(self) -> Server:
+    async def __aenter__(self) -> Self:
         await self.start()
         try:
             await self.assert_available()

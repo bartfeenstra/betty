@@ -111,13 +111,6 @@ class OptionalField[ValueT, ReturnT](Field[ValueT, ReturnT]):
     """
 
 
-type _AssertionBuilderFunction[ValueT, ReturnT] = Callable[[ValueT], ReturnT]
-type _AssertionBuilderMethod[ValueT, ReturnT] = Callable[[object, ValueT], ReturnT]
-type _AssertionBuilder[ValueT, ReturnT] = (
-    "_AssertionBuilderFunction[ValueT, ReturnT] | _AssertionBuilderMethod[ValueT, ReturnT]"
-)
-
-
 type AssertTypeType = (
     bool | float | int | Mapping[Any, Any] | None | Sequence[Any] | str
 )

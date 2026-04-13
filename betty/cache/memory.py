@@ -81,7 +81,7 @@ class MemoryCache[CacheItemValueT](_CommonCacheBase[CacheItemValueT]):
         cache_item_id: str,
         value: CacheItemValueT,
         *,
-        modified: int | float | None = None,
+        modified: float | None = None,
     ) -> None:
         self._store[self._cache_item_key(cache_item_id)] = _StaticCacheItem(
             value, modified

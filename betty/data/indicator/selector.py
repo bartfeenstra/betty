@@ -145,8 +145,8 @@ class Element[ElementT](Selector):
     def __init__(self, element: ElementT, /):
         self._element = element
 
-    def __eq__(self, other: Any) -> bool:
-        if type(other) is not type(self):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
             return NotImplemented
         return self._element == other._element
 

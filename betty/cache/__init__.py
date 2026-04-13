@@ -78,7 +78,7 @@ class Cache[CacheItemValueT](ABC):
         cache_item_id: str,
         value: CacheItemValueT,
         *,
-        modified: int | float | None = None,
+        modified: float | None = None,
     ) -> None:
         """
         Add or update a cache item.

@@ -33,7 +33,7 @@ class _FileCacheItem[CacheItemValueT](CacheItem[CacheItemValueT]):
 
     def __init__(
         self,
-        modified: int | float,
+        modified: float,
         path: Path,
     ):
         self._modified = modified
@@ -133,7 +133,7 @@ class _FileCache[CacheItemValueT](_CommonCacheBase[CacheItemValueT]):
         value: CacheItemValueT,
         *,
         suffix: str | None = None,
-        modified: int | float | None = None,
+        modified: float | None = None,
     ) -> None:
         value_bytes = self._dump_value(value)
         cache_item_file_path = self._cache_item_file_path(cache_item_id, suffix)
@@ -147,7 +147,7 @@ class _FileCache[CacheItemValueT](_CommonCacheBase[CacheItemValueT]):
         self,
         cache_item_file_path: Path,
         value: bytes,
-        modified: int | float | None = None,
+        modified: float | None = None,
     ) -> None:
         async with aiofiles.open(cache_item_file_path, "wb") as f:
             await f.write(value)

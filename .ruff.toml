@@ -14,6 +14,7 @@ extend-select = [
     'PIE',
     'PT',
     'PTH',
+    'PYI',
     'RET',
     'SIM',
     'SLOT',
@@ -33,6 +34,7 @@ ignore = [
     'D212',
     'D401',
     'PTH123',
+    'PYI025',
     'TC006',
 ]
 

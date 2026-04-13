@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterable, MutableSequence
 from functools import cache
 from json import dumps
-from typing import TYPE_CHECKING, Any, Self, TypeVar, final, override
+from typing import TYPE_CHECKING, Self, TypeVar, final, override
 
 from betty.assertion import (
     AssertionChain,
@@ -93,7 +93,7 @@ class PluginManufacturer[
 
     @final
     @override
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
             return NotImplemented
         return (self.plugin_id, self.plugin_data) == (
