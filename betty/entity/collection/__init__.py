@@ -11,16 +11,10 @@ from betty.entity import Entity
 from betty.functools import unique
 
 if TYPE_CHECKING:
-    from collections.abc import (
-        Iterable,
-        Iterator,
-        Sequence,
-    )
-
-    from betty.typing import Intersection
+    from collections.abc import Iterable, Iterator, Sequence
 
 
-class EntityCollection[TargetT = Entity](ABC):
+class EntityCollection[TargetT: Entity = Entity](ABC):
     """
     Provide a collection of entities.
 
@@ -29,36 +23,36 @@ class EntityCollection[TargetT = Entity](ABC):
 
     def _on_add(  # noqa: B027
         self,
-        *entities: Intersection[TargetT, Entity],
+        *entities: TargetT,
     ) -> None:
         pass
 
     def _on_remove(  # noqa: B027
         self,
-        *entities: Intersection[TargetT, Entity],
+        *entities: TargetT,
     ) -> None:
         pass
 
     @property
-    def view(self) -> Sequence[Intersection[TargetT, Entity]]:
+    def view(self) -> Sequence[TargetT]:
         """
         A view of the entities at the time of calling.
         """
         return [*self]
 
     @abstractmethod
-    def add(self, *entities: Intersection[TargetT, Entity]) -> None:
+    def add(self, *entities: TargetT) -> None:
         """
         Add the given entities.
         """
 
     @abstractmethod
-    def remove(self, *entities: Intersection[TargetT, Entity]) -> None:
+    def remove(self, *entities: TargetT) -> None:
         """
         Remove the given entities.
         """
 
-    def replace(self, *entities: Intersection[TargetT, Entity]) -> None:
+    def replace(self, *entities: TargetT) -> None:
         """
         Replace all entities with the given ones.
         """
@@ -72,7 +66,7 @@ class EntityCollection[TargetT = Entity](ABC):
         """
 
     @abstractmethod
-    def __iter__(self) -> Iterator[Intersection[TargetT, Entity]]:
+    def __iter__(self) -> Iterator[TargetT]:
         pass
 
     @abstractmethod
@@ -80,23 +74,19 @@ class EntityCollection[TargetT = Entity](ABC):
         pass
 
     @abstractmethod
-    def __delitem__(self, key: Intersection[TargetT, Entity]) -> None:
+    def __delitem__(self, key: TargetT) -> None:
         pass
 
     @abstractmethod
     def __contains__(self, value: Any) -> bool:
         pass
 
-    def _known(
-        self, *entities: Intersection[TargetT, Entity]
-    ) -> Iterable[Intersection[TargetT, Entity]]:
+    def _known(self, *entities: TargetT) -> Iterable[TargetT]:
         for entity in unique(entities):
             if entity in self:
                 yield entity
 
-    def _unknown(
-        self, *entities: Intersection[TargetT, Entity]
-    ) -> Iterable[Intersection[TargetT, Entity]]:
+    def _unknown(self, *entities: TargetT) -> Iterable[TargetT]:
         for entity in unique(entities):
             if entity not in self:
                 yield entity

@@ -26,7 +26,6 @@ if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
     from betty.portable import PortableData
     from betty.project import Project
-    from betty.typing import Intersection
 
 
 async def _generate_associate_url(project: Project, associate: Entity, /) -> str | None:
@@ -270,7 +269,7 @@ class _ToOneAssociation[OwnerT: Entity, AssociateT: Entity](
 
     @override
     async def dump_linked_data_for(
-        self, project: Project, target: Intersection[OwnerT, Entity], /
+        self, project: Project, target: OwnerT, /
     ) -> PortableData:
         associate = self.__get__(target, type(target))
         if self._linked_data_embedded:
@@ -342,7 +341,7 @@ class _ToZeroOrOneAssociation[OwnerT: Entity, AssociateT: Entity](
 
     @override
     async def dump_linked_data_for(
-        self, project: Project, target: Intersection[OwnerT, Entity], /
+        self, project: Project, target: OwnerT, /
     ) -> PortableData:
         associate = self.__get__(target, type(target))
         if associate is None:
@@ -430,13 +429,13 @@ class _ToManyAssociation[
 
     @override
     async def dump_linked_data_for(
-        self, project: Project, target: Intersection[OwnerT, Entity], /
+        self, project: Project, target: OwnerT, /
     ) -> PortableData:
         associates = self.__get__(target, type(target))
         if self._linked_data_embedded:
             return [
                 await associate.dump_linked_data(project) for associate in associates
-            ]  # ty:ignore[invalid-return-type]
+            ]
         return list(
             filter(
                 None,

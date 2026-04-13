@@ -12,20 +12,18 @@ from betty.entity.collection import EntityCollection
 if TYPE_CHECKING:
     from collections.abc import Iterator, MutableSequence
 
-    from betty.typing import Intersection
 
-
-class SingleTypeEntityCollection[TargetT = Entity](EntityCollection[TargetT]):
+class SingleTypeEntityCollection[TargetT: Entity = Entity](EntityCollection[TargetT]):
     """
     Collect entities of a single type.
     """
 
-    def __init__(self, *entities: Intersection[TargetT, Entity]):
+    def __init__(self, *entities: TargetT):
         super().__init__()
-        self._entities: MutableSequence[Intersection[TargetT, Entity]] = [*entities]
+        self._entities: MutableSequence[TargetT] = [*entities]
 
     @override
-    def add(self, *entities: Intersection[TargetT, Entity]) -> None:
+    def add(self, *entities: TargetT) -> None:
         added_entities = [*self._unknown(*entities)]
         for entity in added_entities:
             self._entities.append(entity)
@@ -33,7 +31,7 @@ class SingleTypeEntityCollection[TargetT = Entity](EntityCollection[TargetT]):
             self._on_add(*added_entities)
 
     @override
-    def remove(self, *entities: Intersection[TargetT, Entity]) -> None:
+    def remove(self, *entities: TargetT) -> None:
         removed_entities = [*self._known(*entities)]
         for entity in removed_entities:
             self._entities.remove(entity)
@@ -45,21 +43,21 @@ class SingleTypeEntityCollection[TargetT = Entity](EntityCollection[TargetT]):
         self.remove(*self)
 
     @override
-    def __iter__(self) -> Iterator[Intersection[TargetT, Entity]]:
+    def __iter__(self) -> Iterator[TargetT]:
         return self._entities.__iter__()
 
     @override
     def __len__(self) -> int:
         return len(self._entities)
 
-    def __getitem__(self, entity_id: str) -> Intersection[TargetT, Entity]:
+    def __getitem__(self, entity_id: str) -> TargetT:
         for entity in self._entities:
             if entity_id == entity.id:
                 return entity
         raise KeyError(f'Cannot find an entity with ID "{entity_id}".')
 
     @override
-    def __delitem__(self, key: str | Intersection[TargetT, Entity]) -> None:
+    def __delitem__(self, key: str | TargetT) -> None:
         if isinstance(key, str):
             for entity in self._entities:
                 if entity.id == key:

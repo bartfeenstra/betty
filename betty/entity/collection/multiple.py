@@ -15,17 +15,18 @@ if TYPE_CHECKING:
     from collections.abc import Iterator, MutableMapping
 
     from betty.machine_name import ResolvableMachineName
-    from betty.typing import Intersection
 
 
-class MultipleTypesEntityCollection[TargetT = Entity](EntityCollection[TargetT]):
+class MultipleTypesEntityCollection[TargetT: Entity = Entity](
+    EntityCollection[TargetT]
+):
     """
     Collect entities of multiple types.
     """
 
-    def __init__(self, *entities: Intersection[TargetT, Entity]):
+    def __init__(self, *entities: TargetT):
         super().__init__()
-        self._collections: MutableMapping[str, SingleTypeEntityCollection] = (
+        self._collections: MutableMapping[str, SingleTypeEntityCollection[TargetT]] = (
             defaultdict(SingleTypeEntityCollection)
         )
         self.add(*entities)
@@ -46,14 +47,13 @@ class MultipleTypesEntityCollection[TargetT = Entity](EntityCollection[TargetT])
         return self._get_collection(key)
 
     @override
-    def __delitem__(self, key: Intersection[TargetT, Entity]) -> None:
+    def __delitem__(self, key: TargetT) -> None:
         self.remove(key)
 
     @override
-    def __iter__(self) -> Iterator[Intersection[TargetT, Entity]]:
+    def __iter__(self) -> Iterator[TargetT]:
         for collection in self._collections.values():
-            for entity in collection:
-                yield cast("Intersection[TargetT , Entity]", entity)
+            yield from collection
 
     @override
     def __len__(self) -> int:
@@ -66,7 +66,7 @@ class MultipleTypesEntityCollection[TargetT = Entity](EntityCollection[TargetT])
         return False
 
     @override
-    def add(self, *entities: Intersection[TargetT, Entity]) -> None:
+    def add(self, *entities: TargetT) -> None:
         added_entities = [*self._unknown(*entities)]
         for entity in added_entities:
             self[type(entity)].add(entity)
@@ -74,7 +74,7 @@ class MultipleTypesEntityCollection[TargetT = Entity](EntityCollection[TargetT])
             self._on_add(*added_entities)
 
     @override
-    def remove(self, *entities: Intersection[TargetT, Entity]) -> None:
+    def remove(self, *entities: TargetT) -> None:
         removed_entities = [*self._known(*entities)]
         for entity in removed_entities:
             self[type(entity)].remove(entity)
