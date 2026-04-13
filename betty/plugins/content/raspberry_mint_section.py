@@ -54,7 +54,7 @@ class SectionConfiguration(Data):
     .. data:: betty.plugins.content.raspberry_mint_section:SectionConfiguration
     """
 
-    content = PluginManufacturerSequenceProperty[ContentDefinition, Content](
+    content = PluginManufacturerSequenceProperty[ContentDefinition](
         ContentManufacturer, label=_("Content")
     )
     """
@@ -86,7 +86,7 @@ class SectionConfiguration(Data):
 
     def __init__(
         self,
-        content: ResolvablePluginManufacturerSequence[ContentDefinition, Content],
+        content: ResolvablePluginManufacturerSequence[ContentDefinition],
         *,
         heading: ResolvableLocalizable,
         name: ResolvableMachineName | None = None,

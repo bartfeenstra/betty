@@ -13,7 +13,7 @@ from betty.collection.sequence import (
 from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.data.indicator.selector import Attr
 from betty.plugin import PluginDefinition
-from betty.plugin.cls import Plugin
+from betty.plugin.cls import PluginClsDefinition
 from betty.plugin.data import PluginManufacturerSequenceDefinition
 from betty.plugin.factory import (
     PluginManufacturer,
@@ -29,16 +29,13 @@ if TYPE_CHECKING:
 
 
 @final
-class PluginManufacturerSequenceProperty[
-    PluginDefinitionT: PluginDefinition,
-    PluginT: Plugin,
-](
+class PluginManufacturerSequenceProperty[PluginDefinitionT: PluginClsDefinition](
     SequenceProperty[
         MutableResolvedSequence[
-            PluginManufacturer[PluginDefinitionT, PluginT],
-            ResolvablePluginManufacturer[PluginDefinitionT, PluginT],
+            PluginManufacturer[PluginDefinitionT],
+            ResolvablePluginManufacturer[PluginDefinitionT],
         ],
-        ResolvablePluginManufacturerSequence[PluginDefinitionT, PluginT],
+        ResolvablePluginManufacturerSequence[PluginDefinitionT],
     ]
 ):
     """
@@ -47,7 +44,7 @@ class PluginManufacturerSequenceProperty[
 
     def __init__(
         self,
-        manufacturer: type[PluginManufacturer[PluginDefinitionT, PluginT]],
+        manufacturer: type[PluginManufacturer[PluginDefinitionT]],
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,

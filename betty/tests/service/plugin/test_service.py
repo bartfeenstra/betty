@@ -151,9 +151,7 @@ class DummyServicePluginDefinition(ServicePluginDefinition[DummyServicePlugin]):
     pass
 
 
-class DummyServicePluginManufacturer(
-    PluginManufacturer[DummyServicePluginDefinition, DummyServicePlugin]
-):
+class DummyServicePluginManufacturer(PluginManufacturer[DummyServicePluginDefinition]):
     @override
     @classmethod
     def plugin_type(cls) -> type[DummyServicePluginDefinition]:
@@ -190,9 +188,7 @@ class DummyServicePluginRequirementDefinition(
 
 
 class DummyServicePluginRequirementManufacturer(
-    PluginManufacturer[
-        DummyServicePluginRequirementDefinition, DummyServicePluginRequirement
-    ]
+    PluginManufacturer[DummyServicePluginRequirementDefinition]
 ):
     @override
     @classmethod
@@ -227,7 +223,7 @@ class DummyServicePluginOrderedDefinition(
 
 
 class DummyServicePluginOrderedManufacturer(
-    PluginManufacturer[DummyServicePluginOrderedDefinition, DummyServicePluginOrdered]
+    PluginManufacturer[DummyServicePluginOrderedDefinition]
 ):
     @override
     @classmethod
@@ -271,7 +267,7 @@ class DummyServicePluginAutoDefinition(ServicePluginDefinition[DummyServicePlugi
 
 
 class DummyServicePluginAutoManufacturer(
-    PluginManufacturer[DummyServicePluginAutoDefinition, DummyServicePluginAuto]
+    PluginManufacturer[DummyServicePluginAutoDefinition]
 ):
     @override
     @classmethod

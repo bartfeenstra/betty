@@ -47,10 +47,10 @@ if TYPE_CHECKING:
 
     from pytest_mock import MockerFixture
 
-    from betty.event_type import EventType, EventTypeDefinition
-    from betty.place_type import PlaceType, PlaceTypeDefinition
+    from betty.event_type import EventTypeDefinition
+    from betty.place_type import PlaceTypeDefinition
     from betty.plugin.factory import ResolvablePluginManufacturer
-    from betty.role import Role, RoleDefinition
+    from betty.role import RoleDefinition
 
 __MINIMAL_XML = """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML {version}//EN"
@@ -110,14 +110,14 @@ class LoadPartial(Protocol):
         *,
         media_path: Path | None = None,
         event_type_mapping: Mapping[
-            str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
+            str, ResolvablePluginManufacturer[EventTypeDefinition]
         ]
         | None = None,
         place_type_mapping: Mapping[
-            str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
+            str, ResolvablePluginManufacturer[PlaceTypeDefinition]
         ]
         | None = None,
-        role_mapping: Mapping[str, ResolvablePluginManufacturer[RoleDefinition, Role]]
+        role_mapping: Mapping[str, ResolvablePluginManufacturer[RoleDefinition]]
         | None = None,
     ) -> EntityPool:
         pass
@@ -335,14 +335,14 @@ class TestGrampsLoader:
         project: Project,
         xml: str,
         event_type_mapping: Mapping[
-            str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
+            str, ResolvablePluginManufacturer[EventTypeDefinition]
         ]
         | None = None,
         place_type_mapping: Mapping[
-            str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
+            str, ResolvablePluginManufacturer[PlaceTypeDefinition]
         ]
         | None = None,
-        role_mapping: Mapping[str, ResolvablePluginManufacturer[RoleDefinition, Role]]
+        role_mapping: Mapping[str, ResolvablePluginManufacturer[RoleDefinition]]
         | None = None,
     ) -> EntityPool:
         ancestry = EntityPool()
@@ -370,16 +370,14 @@ class TestGrampsLoader:
             *,
             media_path: Path | None = None,
             event_type_mapping: Mapping[
-                str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
+                str, ResolvablePluginManufacturer[EventTypeDefinition]
             ]
             | None = None,
             place_type_mapping: Mapping[
-                str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
+                str, ResolvablePluginManufacturer[PlaceTypeDefinition]
             ]
             | None = None,
-            role_mapping: Mapping[
-                str, ResolvablePluginManufacturer[RoleDefinition, Role]
-            ]
+            role_mapping: Mapping[str, ResolvablePluginManufacturer[RoleDefinition]]
             | None = None,
         ) -> EntityPool:
             mediapath = (

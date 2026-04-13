@@ -31,9 +31,7 @@ class DummyServicePluginDefinition(ServicePluginDefinition[DummyServicePlugin]):
 
 
 @final
-class DummyServicePluginManufacturer(
-    PluginManufacturer[DummyServicePluginDefinition, DummyServicePlugin]
-):
+class DummyServicePluginManufacturer(PluginManufacturer[DummyServicePluginDefinition]):
     """
     Create new dummy service plugins.
     """

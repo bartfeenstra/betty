@@ -3,11 +3,9 @@ from __future__ import annotations  # noqa: D100
 from typing import TYPE_CHECKING, Any
 
 from betty.assertion import assert_locale, assert_path, assert_url
-from betty.extension import Extension, ExtensionDefinition, ExtensionManufacturer
+from betty.extension import ExtensionDefinition, ExtensionManufacturer
 from betty.load import (
-    Enricher,
     EnricherDefinition,
-    Loader,
     LoaderDefinition,
     LoaderManufacturer,
 )
@@ -76,9 +74,7 @@ async def new(app: App) -> None:
             )
         )
 
-    extensions: MutableSequence[
-        ResolvablePluginManufacturer[ExtensionDefinition, Extension]
-    ] = [
+    extensions: MutableSequence[ResolvablePluginManufacturer[ExtensionDefinition]] = [
         HttpApiDoc,
         Maps,
         ExtensionManufacturer(
@@ -93,12 +89,8 @@ async def new(app: App) -> None:
         # Enable the Webpack extension explicitly for the test's mock to work.
         Webpack,
     ]
-    loaders: MutableSequence[
-        ResolvablePluginManufacturer[LoaderDefinition, Loader]
-    ] = []
-    enrichers: MutableSequence[
-        ResolvablePluginManufacturer[EnricherDefinition, Enricher]
-    ] = [
+    loaders: MutableSequence[ResolvablePluginManufacturer[LoaderDefinition]] = []
+    enrichers: MutableSequence[ResolvablePluginManufacturer[EnricherDefinition]] = [
         Deriver,
         Privatizer,
         Wiki,

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.content import Content, ContentDefinition, ContentManufacturer
+from betty.content import ContentDefinition, ContentManufacturer
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
 from betty.plugins.content.box import Box, BoxConfiguration
@@ -55,7 +55,7 @@ def regional_content(
     *, localizers: Collection[Localizer]
 ) -> Mapping[
     ResolvableRegion,
-    Iterable[ResolvablePluginManufacturer[ContentDefinition, Content]],
+    Iterable[ResolvablePluginManufacturer[ContentDefinition]],
 ]:
     """
     The default regional content configuration.

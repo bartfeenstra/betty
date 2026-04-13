@@ -75,9 +75,7 @@ class _ServicePluginDefinition(ServicePluginDefinition[_ServicePlugin]):
     pass
 
 
-class _ServicePluginManufacturer(
-    PluginManufacturer[_ServicePluginDefinition, _ServicePlugin]
-):
+class _ServicePluginManufacturer(PluginManufacturer[_ServicePluginDefinition]):
     @override
     @classmethod
     def plugin_type(cls) -> type[_ServicePluginDefinition]:

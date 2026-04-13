@@ -192,9 +192,7 @@ class ColumnsConfiguration(Data):
     def __init__(
         self,
         /,
-        content: Sequence[
-            ResolvablePluginManufacturerSequence[ContentDefinition, Content]
-        ],
+        content: Sequence[ResolvablePluginManufacturerSequence[ContentDefinition]],
         *,
         width: ShorthandColumnsWidth | None = None,
         justify_content: JustifyContent | None = None,

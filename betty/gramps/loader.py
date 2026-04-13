@@ -40,8 +40,7 @@ from betty.locale.localizable.markup import AnyEnumeration
 from betty.locale.localizable.static import StaticTranslations
 from betty.media_type import InvalidMediaType, MediaType
 from betty.place_type import PlaceTypeManufacturer
-from betty.plugin import PluginDefinition
-from betty.plugin.cls import Plugin
+from betty.plugin.cls import PluginClsDefinition
 from betty.plugin.error import PluginNotFound
 from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.enclosure import Enclosure
@@ -128,7 +127,6 @@ if TYPE_CHECKING:
     from betty.entity.has_file_references import HasFileReferences
     from betty.entity.has_notes import HasNotes
     from betty.event_type import EventType, EventTypeDefinition
-    from betty.gender import Gender
     from betty.locale.localizable import StaticTranslationsMapping
     from betty.machine_name import ResolvableMachineName
     from betty.place_type import PlaceType, PlaceTypeDefinition
@@ -208,9 +206,7 @@ class _ToManyResolver[EntityT: Entity](ToManyResolver[EntityT]):
             yield cast(EntityT, self._handles_to_entities[handle])
 
 
-DEFAULT_GENDER_MAPPING: Mapping[
-    str, ResolvablePluginManufacturer[GenderDefinition, Gender]
-] = {
+DEFAULT_GENDER_MAPPING: Mapping[str, ResolvablePluginManufacturer[GenderDefinition]] = {
     "F": Woman,
     "M": Man,
     "U": UnknownGender,
@@ -218,7 +214,7 @@ DEFAULT_GENDER_MAPPING: Mapping[
 }
 
 DEFAULT_EVENT_TYPE_MAPPING: Mapping[
-    str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
+    str, ResolvablePluginManufacturer[EventTypeDefinition]
 ] = {
     "Adopted": Adoption,
     "Adult Christening": Baptism,
@@ -246,7 +242,7 @@ DEFAULT_EVENT_TYPE_MAPPING: Mapping[
 
 
 DEFAULT_PLACE_TYPE_MAPPING: Mapping[
-    str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
+    str, ResolvablePluginManufacturer[PlaceTypeDefinition]
 ] = {
     "Borough": Borough,
     "Building": Building,
@@ -272,9 +268,7 @@ DEFAULT_PLACE_TYPE_MAPPING: Mapping[
 }
 
 
-DEFAULT_ROLE_MAPPING: Mapping[
-    str, ResolvablePluginManufacturer[RoleDefinition, Role]
-] = {
+DEFAULT_ROLE_MAPPING: Mapping[str, ResolvablePluginManufacturer[RoleDefinition]] = {
     "Aide": Attendee,
     "Bride": Subject,
     "Celebrant": Celebrant,
@@ -313,17 +307,13 @@ _GRAMPS_EXTENSIONS_IMPORT = (
 _GRAMPS_EXTENSIONS = (*_GRAMPS_EXTENSIONS_NATIVE, *_GRAMPS_EXTENSIONS_IMPORT)
 
 
-def _resolve_plugin_manufacturer_mapping[
-    T,
-    PluginDefinitionT: PluginDefinition,
-    PluginT: Plugin,
-](
-    manufacturer: type[PluginManufacturer[PluginDefinitionT, PluginT]],
+def _resolve_plugin_manufacturer_mapping[T, PluginDefinitionT: PluginClsDefinition](
+    manufacturer: type[PluginManufacturer[PluginDefinitionT]],
     resolvable_manufacturers: Mapping[
-        T, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]
+        T, ResolvablePluginManufacturer[PluginDefinitionT]
     ]
     | None,
-) -> MutableMapping[T, PluginManufacturer[PluginDefinitionT, PluginT]]:
+) -> MutableMapping[T, PluginManufacturer[PluginDefinitionT]]:
     if resolvable_manufacturers is None:
         return {}
     return {
@@ -347,14 +337,14 @@ class GrampsLoader:
         services: ServiceLevel,
         attribute_prefix_key: str | None = None,
         event_type_mapping: Mapping[
-            str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
+            str, ResolvablePluginManufacturer[EventTypeDefinition]
         ]
         | None = None,
         place_type_mapping: Mapping[
-            str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
+            str, ResolvablePluginManufacturer[PlaceTypeDefinition]
         ]
         | None = None,
-        role_mapping: Mapping[str, ResolvablePluginManufacturer[RoleDefinition, Role]]
+        role_mapping: Mapping[str, ResolvablePluginManufacturer[RoleDefinition]]
         | None = None,
         executable: Path | str | None = None,
     ):

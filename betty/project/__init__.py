@@ -140,14 +140,14 @@ class Project(
         ancestry: EntityPool | None = None,
         author: ResolvableLocalizable | None = None,
         clean_urls: bool = False,
-        copyright_notice: PluginManufacturer[CopyrightNoticeDefinition, CopyrightNotice]
+        copyright_notice: PluginManufacturer[CopyrightNoticeDefinition]
         | type[CopyrightNotice]
         | None = None,
         debug: bool = False,
         entity_types: Iterable[
             ProjectEntityType | ResolvablePluginId[EntityDefinition]
         ] = (),
-        license: PluginManufacturer[LicenseDefinition, License]  # noqa: A002
+        license: PluginManufacturer[LicenseDefinition]  # noqa: A002
         | type[License]
         | None = None,
         lifetime_threshold: int | None = None,

@@ -64,7 +64,7 @@ class DummyPluginFour(DummyPlugin):
 
 
 @final
-class DummyPluginManufacturer(PluginManufacturer[DummyPluginDefinition, DummyPlugin]):
+class DummyPluginManufacturer(PluginManufacturer[DummyPluginDefinition]):
     """
     The dummy plugin manufacturer.
     """

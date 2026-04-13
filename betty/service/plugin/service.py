@@ -112,15 +112,15 @@ class ServicePluginDefinition[BaseClsT = Any](PluginClsDefinition[BaseClsT]):
 
 
 type ServicePluginTypes[
-    ServicePluginT: ServicePluginDefinition = ServicePluginDefinition
-] = Collection[type[ServicePluginT]]
-type _Plugins[ServicePluginT: PluginClsDefinition = PluginClsDefinition] = Iterable[
-    PluginManufacturer[ServicePluginT, Plugin[ServicePluginT]]
-    | type[Plugin[ServicePluginT]]
+    PluginDefinitionT: ServicePluginDefinition = ServicePluginDefinition
+] = Collection[type[PluginDefinitionT]]
+type _Plugins[PluginDefinitionT: PluginClsDefinition = PluginClsDefinition] = Iterable[
+    PluginManufacturer[PluginDefinitionT, Plugin[PluginDefinitionT]]
+    | type[Plugin[PluginDefinitionT]]
 ]
 type ServicePlugins[
-    ServicePluginT: ServicePluginDefinition = ServicePluginDefinition
-] = _Plugins[ServicePluginT]
+    PluginDefinitionT: ServicePluginDefinition = ServicePluginDefinition
+] = _Plugins[PluginDefinitionT]
 type SupportPlugins = _Plugins
 
 

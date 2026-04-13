@@ -36,6 +36,7 @@ ignore = [
     'PTH123',
     'PYI025',
     'TC006',
+    'UP046',
 ]
 
 [lint.per-file-ignores]

@@ -8,7 +8,9 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterable, MutableSequence
 from functools import cache
 from json import dumps
-from typing import TYPE_CHECKING, Self, TypeVar, final, override
+from typing import TYPE_CHECKING, Generic, Self, TypeVar, final, override
+
+from typing_extensions import disjoint_base
 
 from betty.assertion import (
     AssertionChain,
@@ -25,7 +27,7 @@ from betty.data.indicator.selector import Attr
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
-from betty.plugin.cls import Plugin
+from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.sample import Samplable, Sample, Samples, Size
 from betty.typing import Void, VoidType
@@ -33,19 +35,23 @@ from betty.typing import Void, VoidType
 if TYPE_CHECKING:
     from betty.portable import PortableData
     from betty.service.level import ServiceLevel
+    from betty.typing import Intersection
 
-_PluginManufacturerPluginT = TypeVar(
-    "_PluginManufacturerPluginT", bound=Plugin, covariant=True
-)
 _PluginManufacturerPluginDefinitionT = TypeVar(
-    "_PluginManufacturerPluginDefinitionT", bound=PluginDefinition
+    "_PluginManufacturerPluginDefinitionT", bound=PluginClsDefinition
 )
+# @todo Move this to the main API?
+PluginBaseT = TypeVar("PluginBaseT", bound=Plugin, covariant=True, default=Plugin)
 
 
-class PluginManufacturer[
-    PluginManufacturerPluginDefinitionT: PluginDefinition,
-    PluginManufacturerPluginT: Plugin,
-](PortableRecord[Attr], Samplable, Data[RecordDefinition], ABC):
+@disjoint_base
+class PluginManufacturer(
+    PortableRecord[Attr],
+    Samplable,
+    Data[RecordDefinition],
+    ABC,
+    Generic[_PluginManufacturerPluginDefinitionT, PluginBaseT],
+):
     """
     Configure a single plugin instance.
     """
@@ -79,7 +85,9 @@ class PluginManufacturer[
 
     @classmethod
     @abstractmethod
-    def plugin_type(cls) -> type[_PluginManufacturerPluginDefinitionT]:
+    def plugin_type(
+        cls,
+    ) -> type[_PluginManufacturerPluginDefinitionT]:
         """
         The type of plugin that can be manufactured.
         """
@@ -164,7 +172,9 @@ class PluginManufacturer[
         }
 
     @final
-    async def __call__(self, services: ServiceLevel, /) -> _PluginManufacturerPluginT:
+    async def __call__(
+        self, services: ServiceLevel, /
+    ) -> Intersection[PluginBaseT, Plugin[_PluginManufacturerPluginDefinitionT]]:
         """
         Create a new instance of the configured plugin.
         """
@@ -177,11 +187,9 @@ class PluginManufacturer[
     def resolve(
         cls,
         manufacturer: ResolvablePluginManufacturer[
-            _PluginManufacturerPluginDefinitionT, _PluginManufacturerPluginT
+            _PluginManufacturerPluginDefinitionT
         ],
-    ) -> PluginManufacturer[
-        _PluginManufacturerPluginDefinitionT, _PluginManufacturerPluginT
-    ]:
+    ) -> PluginManufacturer[_PluginManufacturerPluginDefinitionT]:
         """
         Resolve a value to a plugin manufacturer.
         """
@@ -194,13 +202,9 @@ class PluginManufacturer[
     def resolve_sequence(
         cls,
         manufacturers: ResolvablePluginManufacturerSequence[
-            _PluginManufacturerPluginDefinitionT, _PluginManufacturerPluginT
+            _PluginManufacturerPluginDefinitionT
         ],
-    ) -> MutableSequence[
-        PluginManufacturer[
-            _PluginManufacturerPluginDefinitionT, _PluginManufacturerPluginT
-        ]
-    ]:
+    ) -> MutableSequence[PluginManufacturer[_PluginManufacturerPluginDefinitionT]]:
         """
         Resolve a value to a sequence of plugin manufacturers.
         """
@@ -240,8 +244,8 @@ class PluginManufacturer[
 
 
 type ResolvablePluginManufacturer[
-    PluginDefinitionT: PluginDefinition,
-    PluginT: Plugin,
+    PluginDefinitionT: PluginClsDefinition,
+    PluginT: Plugin = Plugin,
 ] = (
     ResolvablePluginId[PluginDefinitionT]
     | PluginManufacturer[PluginDefinitionT, PluginT]
@@ -249,8 +253,8 @@ type ResolvablePluginManufacturer[
 
 
 type ResolvablePluginManufacturerSequence[
-    PluginDefinitionT: PluginDefinition,
-    PluginT: Plugin,
+    PluginDefinitionT: PluginClsDefinition,
+    PluginT: Plugin = Plugin,
 ] = (
     ResolvablePluginManufacturer[PluginDefinitionT, PluginT]
     | Iterable[ResolvablePluginManufacturer[PluginDefinitionT, PluginT]]

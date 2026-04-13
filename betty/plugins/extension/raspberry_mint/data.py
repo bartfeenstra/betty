@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, final
 from betty.collection.mapping import MutableResolvedMapping
 from betty.collection.mapping.adapter import MutableResolvedMappingAdapter
 from betty.color import ColorDefinition
-from betty.content import Content, ContentDefinition, ContentManufacturer
+from betty.content import ContentDefinition, ContentManufacturer
 from betty.data import Data, Sample
 from betty.data.aggregate.collection.mapping import MappingDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
@@ -112,7 +112,7 @@ class RaspberryMintConfiguration(Data):
         tertiary_color: str | None = None,
         regional_content: Mapping[
             ResolvableRegion,
-            Iterable[ResolvablePluginManufacturer[ContentDefinition, Content]],
+            Iterable[ResolvablePluginManufacturer[ContentDefinition]],
         ]
         | None = None,
     ):

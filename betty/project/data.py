@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, final
 from betty.assertion import assert_number, assert_url
 from betty.collection.keyed.adapter import MutableKeyedCollectionAdapter
 from betty.copyright_notice import (
-    CopyrightNotice,
     CopyrightNoticeDefinition,
     CopyrightNoticeManufacturer,
 )
@@ -27,13 +26,11 @@ from betty.event_type.data import EventTypeDefinitionConfiguration
 from betty.extension import ExtensionManufacturer
 from betty.gender import GenderDefinition
 from betty.gender.data import GenderDefinitionConfiguration
-from betty.license import License, LicenseDefinition, LicenseManufacturer
+from betty.license import LicenseDefinition, LicenseManufacturer
 from betty.license.data import LicenseDefinitionConfiguration
 from betty.load import (
-    Enricher,
     EnricherDefinition,
     EnricherManufacturer,
-    Loader,
     LoaderDefinition,
     LoaderManufacturer,
 )
@@ -48,7 +45,6 @@ from betty.plugin.data.property import PluginDefinitionConfigurationsProperty
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.project import (
     DEFAULT_LIFETIME_THRESHOLD,
-    Extension,
     ExtensionDefinition,
     ProjectEntityType,
     ProjectLocale,
@@ -389,27 +385,21 @@ class ProjectConfiguration(Data):
         url: str,
         author: ResolvableLocalizable | None = None,
         clean_urls: bool = False,
-        copyright_notice: ResolvablePluginManufacturer[
-            CopyrightNoticeDefinition, CopyrightNotice
-        ]
+        copyright_notice: ResolvablePluginManufacturer[CopyrightNoticeDefinition]
         | None = None,
         copyright_notices: Iterable[CopyrightNoticeDefinitionConfiguration] = (),
         debug: bool = False,
-        enrichers: ResolvablePluginManufacturerSequence[
-            EnricherDefinition, Enricher
-        ] = (),
+        enrichers: ResolvablePluginManufacturerSequence[EnricherDefinition] = (),
         entity_types: Iterable[
             ProjectEntityType | ResolvablePluginId[EntityDefinition]
         ] = (),
         event_types: Iterable[EventTypeDefinitionConfiguration] = (),
-        extensions: ResolvablePluginManufacturerSequence[
-            ExtensionDefinition, Extension
-        ] = (),
+        extensions: ResolvablePluginManufacturerSequence[ExtensionDefinition] = (),
         genders: Iterable[GenderDefinitionConfiguration] = (),
-        license: ResolvablePluginManufacturer[LicenseDefinition, License] | None = None,  # noqa: A002
+        license: ResolvablePluginManufacturer[LicenseDefinition] | None = None,  # noqa: A002
         licenses: Iterable[LicenseDefinitionConfiguration] = (),
         lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,
-        loaders: ResolvablePluginManufacturerSequence[LoaderDefinition, Loader] = (),
+        loaders: ResolvablePluginManufacturerSequence[LoaderDefinition] = (),
         locales: Iterable[ResolvableLocale | ProjectLocale] = (),
         logo: Path | None = None,
         name: ResolvableMachineName | None = None,

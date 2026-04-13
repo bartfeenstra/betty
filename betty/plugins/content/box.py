@@ -55,7 +55,7 @@ class BoxConfiguration(Data):
     .. data:: betty.plugins.content.box:BoxConfiguration
     """
 
-    content = PluginManufacturerSequenceProperty[ContentDefinition, Content](
+    content = PluginManufacturerSequenceProperty[ContentDefinition](
         ContentManufacturer, label=_("Content")
     )
     """
@@ -71,7 +71,7 @@ class BoxConfiguration(Data):
 
     def __init__(
         self,
-        content: ResolvablePluginManufacturerSequence[ContentDefinition, Content],
+        content: ResolvablePluginManufacturerSequence[ContentDefinition],
         *,
         min_height: str | None = None,
         max_height: str | None = None,

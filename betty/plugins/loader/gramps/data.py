@@ -25,8 +25,7 @@ from betty.gramps.loader import (
 from betty.locale.localizable.gettext import _
 from betty.pathlib import FilePathDefinition
 from betty.place_type import PlaceTypeDefinition, PlaceTypeManufacturer
-from betty.plugin import PluginDefinition
-from betty.plugin.cls import Plugin
+from betty.plugin.cls import PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
 from betty.property import (
     Optional,
@@ -40,23 +39,20 @@ from betty.sample import Size
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from betty.event_type import EventType
     from betty.locale.localizable import ResolvableLocalizable
-    from betty.place_type import PlaceType
-    from betty.role import Role
 
 
-class _PluginMappingProperty[PluginDefinitionT: PluginDefinition, PluginT: Plugin](
+class _PluginMappingProperty[PluginDefinitionT: PluginClsDefinition](
     MappingProperty[
-        MutableMapping[str, PluginManufacturer[PluginDefinitionT, PluginT]],
-        Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]],
+        MutableMapping[str, PluginManufacturer[PluginDefinitionT]],
+        Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT]],
     ]
 ):
     def __init__(
         self,
-        manufacturer: type[PluginManufacturer[PluginDefinitionT, PluginT]],
+        manufacturer: type[PluginManufacturer[PluginDefinitionT]],
         gramps_label: ResolvableLocalizable,
-        default: Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]],
+        default: Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT]],
     ):
         super().__init__(
             MappingDefinition(
@@ -135,16 +131,11 @@ class FamilyTree(Data):
         self,
         file: Path | None = None,
         name: str | None = None,
-        event_types: Mapping[
-            str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
-        ]
+        event_types: Mapping[str, ResolvablePluginManufacturer[EventTypeDefinition]]
         | None = None,
-        place_types: Mapping[
-            str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
-        ]
+        place_types: Mapping[str, ResolvablePluginManufacturer[PlaceTypeDefinition]]
         | None = None,
-        roles: Mapping[str, ResolvablePluginManufacturer[RoleDefinition, Role]]
-        | None = None,
+        roles: Mapping[str, ResolvablePluginManufacturer[RoleDefinition]] | None = None,
     ):
         super().__init__()
         self.file = file

@@ -49,7 +49,7 @@ class ColorStyleConfiguration(Data):
     .. data:: betty.plugins.content.raspberry_mint_color_style:ColorStyleConfiguration
     """
 
-    content = PluginManufacturerSequenceProperty[ContentDefinition, Content](
+    content = PluginManufacturerSequenceProperty[ContentDefinition](
         ContentManufacturer, label=_("Content")
     )
     """
@@ -63,7 +63,7 @@ class ColorStyleConfiguration(Data):
 
     def __init__(
         self,
-        content: ResolvablePluginManufacturerSequence[ContentDefinition, Content],
+        content: ResolvablePluginManufacturerSequence[ContentDefinition],
         *,
         style: RaspberryMintColorStyle,
     ):
