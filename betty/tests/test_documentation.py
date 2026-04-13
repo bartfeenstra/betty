@@ -15,7 +15,7 @@ from sphinx.util import import_object
 
 from betty.app import App
 from betty.console.command import CommandDefinition
-from betty.dirs import ROOT_DIRECTORY_PATH
+from betty.dirs import ROOT_DIRECTORY
 from betty.documentation import DocumentationServer
 from betty.functools import Do
 from betty.locale.localize import DEFAULT_LOCALIZER
@@ -39,7 +39,7 @@ class TestDocumentationServer:
 class TestDocumentation:
     async def test_should_contain_console_help(self, isolated_app: App) -> None:
         async with aiofiles.open(
-            ROOT_DIRECTORY_PATH / "documentation" / "usage" / "console.rst"
+            ROOT_DIRECTORY / "documentation" / "usage" / "console.rst"
         ) as f:
             actual = await f.read()
         async for command in isolated_app.plugins[CommandDefinition]:
@@ -53,7 +53,7 @@ class TestPluginDocumentation(PluginDocumentationTestBase):
 
 class TestDocstringSphinxReferences:
     async def test(self, subtests: pytest.Subtests) -> None:
-        for directory_path, _, file_names in walk(str(ROOT_DIRECTORY_PATH / "betty")):
+        for directory_path, _, file_names in walk(str(ROOT_DIRECTORY / "betty")):
             for file_name in file_names:
                 if file_name.endswith(".py"):
                     await self._assert_docstring_file(
@@ -80,7 +80,7 @@ class TestDocstringSphinxReferences:
 class TestDocumentationSphinxReferences:
     async def test(self, subtests: pytest.Subtests) -> None:
         for directory_path, _, file_names in walk(
-            str(ROOT_DIRECTORY_PATH / "documentation")
+            str(ROOT_DIRECTORY / "documentation")
         ):
             for file_name in file_names:
                 if file_name.endswith(".rst"):
@@ -142,7 +142,7 @@ async def _assert_sphinx_references(
                     ) from error
 
     for doc_ref, doc_ref_target in _sphinx_refs(source, "doc"):
-        doc_path = ROOT_DIRECTORY_PATH.joinpath(
+        doc_path = ROOT_DIRECTORY.joinpath(
             "documentation", *doc_ref_target.split("/")
         ).with_suffix(".rst")
         if not doc_path.is_file():

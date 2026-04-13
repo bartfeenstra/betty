@@ -14,7 +14,7 @@ from sphinx.application import Sphinx
 from sphinx.ext.autodoc import MethodDocumenter
 
 from betty import serve
-from betty.dirs import ROOT_DIRECTORY_PATH
+from betty.dirs import ROOT_DIRECTORY
 from betty.exception import HumanFacingException
 from betty.serve import NoPublicUrlBecauseServerNotStartedError, Server
 from betty.user import User, Verbosity
@@ -35,9 +35,7 @@ async def _build(
     # to 'pollute' that with generated files that must not be committed, do our work in a
     # dedicated cache directory.
     source_directory_path = cache_directory_path / "source"
-    await to_thread(
-        copytree, ROOT_DIRECTORY_PATH / "documentation", source_directory_path
-    )
+    await to_thread(copytree, ROOT_DIRECTORY / "documentation", source_directory_path)
     sphinx_app = Sphinx(
         buildername="dirhtml",
         confdir=str(source_directory_path),

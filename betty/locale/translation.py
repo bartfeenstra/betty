@@ -84,7 +84,7 @@ async def update_universe_translations(override_output: Path | None = None, /) -
     """
     Update the translations for Betty itself.
     """
-    source_directory_path = betty.dirs.ROOT_DIRECTORY_PATH / "betty"
+    source_directory_path = betty.dirs.ROOT_DIRECTORY / "betty"
     test_directory_path = source_directory_path / "tests"
     await _update_translations(
         Universe.plugin().assets if override_output is None else override_output,

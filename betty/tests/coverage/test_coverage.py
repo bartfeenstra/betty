@@ -22,7 +22,7 @@ from typing import TYPE_CHECKING, Any, Protocol, cast
 import aiofiles
 import pytest
 
-from betty.dirs import ROOT_DIRECTORY_PATH
+from betty.dirs import ROOT_DIRECTORY
 from betty.html.attributes import Attributes
 from betty.tests.coverage.fixtures import (
     _module_private,
@@ -1267,7 +1267,7 @@ class TestCoverage:
 
 
 def _module_path_to_name(module_path: Path) -> str:
-    relative_module_path = module_path.relative_to(ROOT_DIRECTORY_PATH)
+    relative_module_path = module_path.relative_to(ROOT_DIRECTORY)
     module_name_parts = relative_module_path.parent.parts
     if relative_module_path.name != "__init__.py":
         module_name_parts = (*module_name_parts, relative_module_path.name[:-3])
@@ -1281,7 +1281,7 @@ class CoverageTester:
     async def test(self) -> Mapping[Path, Sequence[str]]:
         errors: MutableMapping[Path, MutableSequence[str]] = defaultdict(list)
 
-        for directory_path, _, file_names in walk(str(ROOT_DIRECTORY_PATH / "betty")):
+        for directory_path, _, file_names in walk(str(ROOT_DIRECTORY / "betty")):
             for file_name in file_names:
                 file_path = Path(directory_path) / file_name
                 if file_path.suffix == ".py":
@@ -1299,15 +1299,15 @@ class CoverageTester:
 
     async def _test_python_file(self, file_path: Path) -> AsyncIterable[str]:
         # Skip tests.
-        if ROOT_DIRECTORY_PATH / "betty" / "tests" in file_path.parents:
+        if ROOT_DIRECTORY / "betty" / "tests" in file_path.parents:
             return
 
         src_module_path = file_path.resolve()
         expected_test_module_path = (
-            ROOT_DIRECTORY_PATH
+            ROOT_DIRECTORY
             / "betty"
             / "tests"
-            / src_module_path.relative_to(ROOT_DIRECTORY_PATH / "betty").parent
+            / src_module_path.relative_to(ROOT_DIRECTORY / "betty").parent
             / f"test_{src_module_path.name}"
         )
         async for error in _ModuleCoverageTester(

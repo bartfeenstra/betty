@@ -7,7 +7,7 @@ from pathlib import Path
 
 import betty.dirs
 from betty.about import VERSION_MAJOR
-from betty.dirs import ASSETS_DIRECTORY_PATH, ROOT_DIRECTORY_PATH
+from betty.dirs import ASSETS_DIRECTORY_PATH, ROOT_DIRECTORY
 
 sys.path.insert(0, str(Path(betty.__file__).parent.parent))
 project = "Betty"
@@ -62,12 +62,12 @@ apidoc_max_depth = 1
 apidoc_separate_modules = True
 apidoc_modules = [
     {
-        "path": str(ROOT_DIRECTORY_PATH / "betty"),
+        "path": str(ROOT_DIRECTORY / "betty"),
         "destination": "api",
     }
 ]
 apidoc_exclude_patterns = [
-    str(ROOT_DIRECTORY_PATH / "betty" / "tests"),
+    str(ROOT_DIRECTORY / "betty" / "tests"),
 ]
 
 # sphinx.ext.autodoc configuration.
