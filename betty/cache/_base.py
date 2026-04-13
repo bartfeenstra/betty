@@ -15,7 +15,7 @@ class _StaticCacheItem[CacheItemValueT](CacheItem[CacheItemValueT]):
     def __init__(
         self,
         value: CacheItemValueT,
-        modified: int | float | None = None,
+        modified: float | None = None,
     ):
         self._value = value
         self._modified = datetime.now().timestamp() if modified is None else modified

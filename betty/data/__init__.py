@@ -5,7 +5,7 @@ Describe, access, and manipulate arbitrary data.
 from __future__ import annotations
 
 from functools import update_wrapper
-from typing import TYPE_CHECKING, Any, Self, final, override
+from typing import TYPE_CHECKING, Self, final, override
 
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
@@ -97,7 +97,7 @@ class Data[DataDefinitionT: DataDefinition = DataDefinition]:
             f"{fully_qualified_name(cls)} was not decorated with {fully_qualified_name(DataDefinition)} or any subclass."
         )
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if type(self) is not type(other):
             return NotImplemented
         porter = type(self).data().porter

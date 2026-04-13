@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from email.message import EmailMessage
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Self, final, override
+from typing import TYPE_CHECKING, Self, final, override
 
 from betty.assertion import assert_str
 from betty.data import Data, DataDefinition
@@ -118,7 +118,7 @@ class MediaType(Data, Portable):
         return self._str
 
     @override
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, str):
             try:
                 return self == MediaType(other)

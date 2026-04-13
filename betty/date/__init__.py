@@ -170,7 +170,7 @@ class Date(Localizable):
         return self._compare(other, operator.le)
 
     @override
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Date):
             return NotImplemented
         return self.parts == other.parts
@@ -512,7 +512,7 @@ class DateRange(Localizable):
         return self._LT_DATE_COMPARATORS[signature](self_start, self_end, other)
 
     @override
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Date):
             return False
 

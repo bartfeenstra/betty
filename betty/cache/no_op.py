@@ -50,7 +50,7 @@ class NoOpCache(Cache[Any]):
         cache_item_id: str,
         value: Any,
         *,
-        modified: int | float | None = None,
+        modified: float | None = None,
     ) -> None:
         return
 

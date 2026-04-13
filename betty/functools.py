@@ -62,7 +62,7 @@ class Do[**DoFP, DoFReturnT]:
         *conditions: Callable[[DoFReturnT], None | bool | Awaitable[None | bool]],
         retries: int = 5,
         timeout: int = 300,
-        interval: int | float = 0.1,
+        interval: float = 0.1,
     ) -> DoFReturnT:
         """
         Perform the 'do' until it succeeds or as long as the given arguments allow.

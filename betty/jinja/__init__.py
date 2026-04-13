@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import datetime
 from asyncio import gather
-from collections.abc import Awaitable, Callable, MutableMapping
+from collections.abc import Awaitable, Callable
 from pathlib import Path
 from shutil import copy2
 from typing import TYPE_CHECKING, cast, override
@@ -215,9 +215,6 @@ def make_copy_function(
             await f.write(rendered_content)
 
     return _copy_function
-
-
-type _CacheExtensionMap = MutableMapping[str, str]
 
 
 class _CacheTagExtension(Extension):
