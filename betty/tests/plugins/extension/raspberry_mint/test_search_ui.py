@@ -1,4 +1,4 @@
-from collections.abc import AsyncIterator  # noqa: I001
+from collections.abc import AsyncIterator
 
 import pytest
 from playwright.async_api import Page, expect

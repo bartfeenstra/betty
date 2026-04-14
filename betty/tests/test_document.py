@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from gettext import NullTranslations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, ClassVar
 
 import pytest
 
@@ -147,7 +147,7 @@ class TestEntityContexts:
 
 
 class TestDocument:
-    VARS = {
+    VARS: ClassVar[Mapping[str, Any]] = {
         "resource": object(),
         "resource_url": object(),
         "entity_contexts": EntityContexts(),

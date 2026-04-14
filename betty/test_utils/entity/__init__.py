@@ -45,14 +45,12 @@ class EntityTestBase[EntityT: Entity]:
     "dummy-one",
     label="Dummy (one)",
     label_plural="Dummies (one)",
-    label_countable=CountableStaticTranslations(
-        {
-            DEFAULT_LOCALE: {
-                "one": "{count} dummy (one)",
-                "other": "{count} dummies (one)",
-            }
+    label_countable=CountableStaticTranslations({
+        DEFAULT_LOCALE: {
+            "one": "{count} dummy (one)",
+            "other": "{count} dummies (one)",
         }
-    ),
+    }),
 )
 class DummyEntityOne(Entity):
     """
@@ -65,14 +63,12 @@ class DummyEntityOne(Entity):
     "dummy",
     label="Dummy (two)",
     label_plural="Dummies (two)",
-    label_countable=CountableStaticTranslations(
-        {
-            DEFAULT_LOCALE: {
-                "one": "{count} dummy (two)",
-                "other": "{count} dummies (two)",
-            }
+    label_countable=CountableStaticTranslations({
+        DEFAULT_LOCALE: {
+            "one": "{count} dummy (two)",
+            "other": "{count} dummies (two)",
         }
-    ),
+    }),
 )
 class DummyEntityTwo(Entity):
     """
@@ -85,14 +81,12 @@ class DummyEntityTwo(Entity):
     "dummy",
     label="Dummy (three)",
     label_plural="Dummies (three)",
-    label_countable=CountableStaticTranslations(
-        {
-            DEFAULT_LOCALE: {
-                "one": "{count} dummy (three)",
-                "other": "{count} dummies (three)",
-            }
+    label_countable=CountableStaticTranslations({
+        DEFAULT_LOCALE: {
+            "one": "{count} dummy (three)",
+            "other": "{count} dummies (three)",
         }
-    ),
+    }),
 )
 class DummyEntityThree(Entity):
     """
@@ -105,14 +99,12 @@ class DummyEntityThree(Entity):
     "dummy",
     label="Dummy (four)",
     label_plural="Dummies (four)",
-    label_countable=CountableStaticTranslations(
-        {
-            DEFAULT_LOCALE: {
-                "one": "{count} dummy (four)",
-                "other": "{count} dummies (four)",
-            }
+    label_countable=CountableStaticTranslations({
+        DEFAULT_LOCALE: {
+            "one": "{count} dummy (four)",
+            "other": "{count} dummies (four)",
         }
-    ),
+    }),
 )
 class DummyEntityFour(Entity):
     """
@@ -125,14 +117,12 @@ class DummyEntityFour(Entity):
     "dummy-non-public-facing-one",
     label="Dummy non-public-facing (two)",
     label_plural="Dummies non-public-facing (two)",
-    label_countable=CountableStaticTranslations(
-        {
-            DEFAULT_LOCALE: {
-                "one": "{count} dummy non-public-facing (one)",
-                "other": "{count} dummies non-public-facing (one)",
-            }
+    label_countable=CountableStaticTranslations({
+        DEFAULT_LOCALE: {
+            "one": "{count} dummy non-public-facing (one)",
+            "other": "{count} dummies non-public-facing (one)",
         }
-    ),
+    }),
     public_facing=False,
 )
 class DummyNonPublicFacingEntityOne(Entity):

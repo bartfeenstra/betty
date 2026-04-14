@@ -24,14 +24,10 @@ def append(docstring: str, *paragraphs: str) -> str:
         docstring += "\n\n"
     else:
         docstring = ""
-    docstring += "\n\n".join(
-        [
-            "\n".join(
-                wrap(
-                    paragraph, initial_indent=indentation, subsequent_indent=indentation
-                )
-            )
-            for paragraph in paragraphs
-        ]
-    )
+    docstring += "\n\n".join([
+        "\n".join(
+            wrap(paragraph, initial_indent=indentation, subsequent_indent=indentation)
+        )
+        for paragraph in paragraphs
+    ])
     return docstring.rstrip()

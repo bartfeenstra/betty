@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from asyncio import gather
 from collections.abc import Iterable, Mapping, Sequence
-from typing import TYPE_CHECKING, Self, final, override
+from typing import TYPE_CHECKING, ClassVar, Self, final, override
 
 from betty.assertion import (
     assert_enum,
@@ -51,9 +51,9 @@ type ShorthandColumnsWidth = (
     label=_("Columns configuration"),
     samples=[
         lambda: Sample(
-            ColumnsConfiguration(
-                [ContentManufacturer(Render, RenderConfiguration("Hello, world!"))]
-            ),
+            ColumnsConfiguration([
+                ContentManufacturer(Render, RenderConfiguration("Hello, world!"))
+            ]),
             label="Minimal",
             size=Size.MINIMAL,
         ),
@@ -129,7 +129,7 @@ class ColumnsConfiguration(Data):
     .. data:: betty.plugins.content.raspberry_mint_columns:ColumnsConfiguration
     """
 
-    _DEFAULT_WIDTH: ColumnsWidth = {Breakpoint.XS: [12]}
+    _DEFAULT_WIDTH: ClassVar[ColumnsWidth] = {Breakpoint.XS: [12]}
     _width: ColumnsWidth
 
     content = Property(
@@ -252,17 +252,15 @@ class Columns(Template, DataManufacturable[ColumnsConfiguration]):
     @classmethod
     async def new(cls, project: Project, data: ColumnsConfiguration, /) -> Self:
         content, jinja = await gather(
-            gather(
-                *[
-                    gather(
-                        *map(
-                            project.factory.new,
-                            map(ContentManufacturer.resolve, column_content),
-                        )
+            gather(*[
+                gather(
+                    *map(
+                        project.factory.new,
+                        map(ContentManufacturer.resolve, column_content),
                     )
-                    for column_content in data.content
-                ]
-            ),
+                )
+                for column_content in data.content
+            ]),
             project.jinja,
         )
         return cls(

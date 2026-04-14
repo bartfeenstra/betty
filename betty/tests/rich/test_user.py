@@ -73,7 +73,7 @@ class TestRichUser:
             async with RichUser() as sut:
                 await sut.set_verbosity(verbosity)
                 try:
-                    raise _Exception(message)
+                    raise _Exception(message)  # noqa: TRY301
                 except _Exception:
                     await sut.message_exception()
         stdout.seek(0)

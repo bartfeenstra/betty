@@ -9,7 +9,7 @@ class TestFormatDatetimeDatetime:
         async with assert_template_string(
             template=template,
             data={
-                "data": datetime.datetime(1970, 1, 1),
+                "data": datetime.datetime(1970, 1, 1, tzinfo=datetime.UTC),
             },
         ) as (actual, _):
             assert actual == "January 1, 1970"

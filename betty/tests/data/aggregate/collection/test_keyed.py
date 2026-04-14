@@ -1,4 +1,5 @@
 from collections.abc import Sequence
+from typing import ClassVar
 
 from betty.collection.keyed.adapter import MutableKeyedCollectionAdapter
 from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
@@ -34,18 +35,18 @@ class TestKeyedCollectionDefinition:
         label=DUMMY_LOCALIZABLE,
         factory=lambda: MutableKeyedCollectionAdapter(key=lambda value: value["key"]),
     )
-    _portable_unordered: PortableData = {
+    _portable_unordered: ClassVar[PortableData] = {
         "my_first_key": {
             "other_element": "my_first_other_element",
         }
     }  # ty:ignore[invalid-assignment]
-    _portable_ordered: PortableData = [
+    _portable_ordered: ClassVar[PortableData] = [
         {
             "key": "my_first_key",
             "other_element": "my_first_other_element",
         }
     ]  # ty:ignore[invalid-assignment]
-    _values: Sequence[dict[str, str]] = [
+    _values: ClassVar[Sequence[dict[str, str]]] = [
         {
             "key": "my_first_key",
             "other_element": "my_first_other_element",

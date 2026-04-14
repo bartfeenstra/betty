@@ -244,7 +244,7 @@ class TestDecoratedCallable:
                 raise NotImplementedError
 
         f = DecoratedCallable(_decorate, _Descriptor())
-        with pytest.raises(RuntimeError):
+        with pytest.raises(TypeError):
             f(3)
 
     def test___call____with_named_function(self) -> None:

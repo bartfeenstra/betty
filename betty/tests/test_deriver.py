@@ -216,22 +216,20 @@ class TestDeriver:
 
     @pytest.fixture
     async def project(self, new_project: NewProject) -> AsyncIterator[Project]:
-        async with new_project(
-            {
-                Isolated,
-                ComesBeforeReference,
-                ComesBefore,
-                ComesBeforeShouldExist,
-                ComesBeforeShouldNotExist,
-                ComesAfterReference,
-                ComesAfter,
-                ComesAfterShouldExist,
-                ComesAfterShouldNotExist,
-                ComesBeforeAndAfter,
-                ComesBeforeAndAfterShouldExist,
-                ComesBeforeAndAfterShouldNotExist,
-            }
-        ) as project:
+        async with new_project({
+            Isolated,
+            ComesBeforeReference,
+            ComesBefore,
+            ComesBeforeShouldExist,
+            ComesBeforeShouldNotExist,
+            ComesAfterReference,
+            ComesAfter,
+            ComesAfterShouldExist,
+            ComesAfterShouldNotExist,
+            ComesBeforeAndAfter,
+            ComesBeforeAndAfterShouldExist,
+            ComesBeforeAndAfterShouldNotExist,
+        }) as project:
             yield project
 
     async def test_derive__without_events(self, project: Project) -> None:
@@ -468,12 +466,10 @@ class TestDeriver:
         derivable_date: ResolvableDate | None,
         new_project: NewProject,
     ) -> None:
-        async with new_project(
-            {
-                ComesBefore,
-                ComesBeforeReference,
-            }
-        ) as project:
+        async with new_project({
+            ComesBefore,
+            ComesBeforeReference,
+        }) as project:
             person = Person(id="P0")
             Presence(
                 person,
@@ -544,12 +540,10 @@ class TestDeriver:
         before_date: ResolvableDate | None,
         new_project: NewProject,
     ) -> None:
-        async with new_project(
-            {
-                ComesBeforeShouldExist,
-                ComesBeforeReference,
-            }
-        ) as project:
+        async with new_project({
+            ComesBeforeShouldExist,
+            ComesBeforeReference,
+        }) as project:
             person = Person(id="P0")
             Presence(
                 person,
@@ -782,12 +776,10 @@ class TestDeriver:
         derivable_date: ResolvableDate | None,
         new_project: NewProject,
     ) -> None:
-        async with new_project(
-            {
-                ComesAfter,
-                ComesAfterReference,
-            }
-        ) as project:
+        async with new_project({
+            ComesAfter,
+            ComesAfterReference,
+        }) as project:
             person = Person(id="P0")
             Presence(
                 person,
@@ -847,12 +839,10 @@ class TestDeriver:
         after_date: ResolvableDate | None,
         new_project: NewProject,
     ) -> None:
-        async with new_project(
-            {
-                ComesAfterShouldExist,
-                ComesAfterReference,
-            }
-        ) as project:
+        async with new_project({
+            ComesAfterShouldExist,
+            ComesAfterReference,
+        }) as project:
             person = Person(id="P0")
             Presence(
                 person,
@@ -907,15 +897,13 @@ class TestDeriver:
     async def test_derive__should_not_exist(
         self, after_date: ResolvableDate | None, new_project: NewProject
     ) -> None:
-        async with new_project(
-            {
-                ComesBeforeReference,
-                ComesBeforeShouldNotExist,
-                ComesAfterReference,
-                ComesAfterShouldNotExist,
-                ComesBeforeAndAfterShouldNotExist,
-            }
-        ) as project:
+        async with new_project({
+            ComesBeforeReference,
+            ComesBeforeShouldNotExist,
+            ComesAfterReference,
+            ComesAfterShouldNotExist,
+            ComesBeforeAndAfterShouldNotExist,
+        }) as project:
             person = Person(id="P0")
             presence = Presence(
                 person,

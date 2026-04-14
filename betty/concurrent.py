@@ -52,7 +52,7 @@ class AsynchronizedLock(Lock):
     Make a synchronous (blocking) lock asynchronous (non-blocking).
     """
 
-    __slots__ = "_lock"
+    __slots__ = ("_lock",)
 
     def __init__(self, lock: threading.Lock):
         self._lock = lock

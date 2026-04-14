@@ -79,7 +79,7 @@ class ImageResizeCover(JinjaFilter, Manufacturable):
         )
 
     @pass_context
-    async def __call__(  # noqa: D102
+    async def __call__(
         self,
         context: Context,
         filey: File | FileReference,

@@ -7,7 +7,7 @@ from __future__ import annotations
 import weakref
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Self, cast, final, overload, override
+from typing import TYPE_CHECKING, Any, ClassVar, Self, cast, final, overload, override
 from urllib.parse import quote
 
 from betty.entity import Entity, persistent_id
@@ -147,17 +147,15 @@ class _Association[OwnerT: Entity, AssociateT: Entity](LinkedDataDumper[OwnerT])
 
     @override
     def __hash__(self) -> int:
-        return hash(
-            (
-                type(self),
-                self._owner_type,
-                self._owner_attr_name,
-                self._associate_type_name,
-                self._linked_data_embedded,
-                self._label,
-                self._description,
-            )
-        )
+        return hash((
+            type(self),
+            self._owner_type,
+            self._owner_attr_name,
+            self._associate_type_name,
+            self._linked_data_embedded,
+            self._label,
+            self._description,
+        ))
 
     @property
     def owner_type(self) -> type[OwnerT]:
@@ -660,7 +658,7 @@ class AssociationRegistry:
     Inspect any known entity type associations.
     """
 
-    _associations = set[_Association[Any, Any]]()
+    _ASSOCIATIONS: ClassVar[set[_Association[Any, Any]]] = set()
 
     @classmethod
     def get_all_associations(
@@ -672,7 +670,7 @@ class AssociationRegistry:
         owner_type = owner if isinstance(owner, type) else type(owner)
         return {
             association
-            for association in cls._associations
+            for association in cls._ASSOCIATIONS
             if association.owner_type in owner_type.__mro__
         }
 
@@ -692,7 +690,7 @@ class AssociationRegistry:
 
     @classmethod
     def _register(cls, association: _Association[Any, Any], /) -> None:
-        cls._associations.add(association)
+        cls._ASSOCIATIONS.add(association)
 
 
 class _BidirectionalAssociateCollection[AssociateT: Entity, OwnerT: Entity](

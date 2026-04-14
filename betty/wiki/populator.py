@@ -120,22 +120,18 @@ class Populator:
                     else str(negotiated_page_language)
                 )
 
-            link.url = StaticTranslations(
-                {
-                    locale: f"https://{page_language}.wikipedia.org/wiki/{page_translations[page_language]}"
-                    for locale, page_language in locales_to_page_languages.items()
-                }
-            )
+            link.url = StaticTranslations({
+                locale: f"https://{page_language}.wikipedia.org/wiki/{page_translations[page_language]}"
+                for locale, page_language in locales_to_page_languages.items()
+            })
             if not link.has_label:
-                link.label = StaticTranslations(
-                    {
-                        locale: await self._fetch_link_label_from_page(
-                            page_language, page_translations[page_language]
-                        )
-                        or page_name
-                        for locale, page_language in locales_to_page_languages.items()
-                    }
-                )
+                link.label = StaticTranslations({
+                    locale: await self._fetch_link_label_from_page(
+                        page_language, page_translations[page_language]
+                    )
+                    or page_name
+                    for locale, page_language in locales_to_page_languages.items()
+                })
 
     async def _fetch_link_label_from_page(
         self, page_language: str, page_name: str
@@ -225,7 +221,7 @@ class Populator:
                                 {
                                     locale: f"{image.wikimedia_commons_url}?uselang={locale}"
                                     for locale in self._locales
-                                }  # ty:ignore[invalid-argument-type]
+                                },  # ty:ignore[invalid-argument-type]
                             ),
                             label=_("Description, licensing, and image history"),
                             description=_(

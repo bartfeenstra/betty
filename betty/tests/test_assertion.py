@@ -395,11 +395,9 @@ def test_assert_record__with_required_fields_with_items() -> None:
     }
     actual = assert_record(
         RequiredField("hello", assert_str().chain(lambda x: x.upper()))
-    )(
-        {
-            "hello": "World!",
-        }
-    )
+    )({
+        "hello": "World!",
+    })
     assert actual == expected
 
 
@@ -407,11 +405,9 @@ def test_assert_record__with_as_name() -> None:
     expected = {
         "as_hello": "World!",
     }
-    actual = assert_record(RequiredField("hello", None, "as_hello"))(
-        {
-            "hello": "World!",
-        }
-    )
+    actual = assert_record(RequiredField("hello", None, "as_hello"))({
+        "hello": "World!",
+    })
     assert actual == expected
 
 

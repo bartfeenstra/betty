@@ -15,7 +15,7 @@ if len(sys.argv) != 2:
 VERSION = sys.argv[1]
 
 # Temporarily update pyproject.toml with the build version.
-with open("pyproject.toml") as f:
+with open("pyproject.toml", encoding="utf-8") as f:
     original_pyproject = f.read()
 versioned_pyproject = re.sub(
     r"^version = '0.0.0'$",
@@ -23,7 +23,7 @@ versioned_pyproject = re.sub(
     original_pyproject,
     flags=re.MULTILINE,
 )
-with open("pyproject.toml", mode="w") as f:
+with open("pyproject.toml", encoding="utf-8", mode="w") as f:
     f.write(versioned_pyproject)
 
 try:
@@ -38,5 +38,5 @@ try:
     check_call(["twine", "check", "dist/*"])
 finally:
     # Clean up.
-    with open("pyproject.toml", mode="w") as f:
+    with open("pyproject.toml", encoding="utf-8", mode="w") as f:
         f.write(original_pyproject)

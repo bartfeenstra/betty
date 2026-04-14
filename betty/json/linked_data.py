@@ -7,7 +7,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import MutableSequence
 from inspect import getmembers
-from typing import TYPE_CHECKING, cast, final, override
+from typing import TYPE_CHECKING, ClassVar, cast, final, override
 
 from betty.classtools import Singleton
 from betty.json.schema import Object, Schema
@@ -175,7 +175,7 @@ class JsonLdSchema(Singleton, Schema):
     A `JSON-LD <https://json-ld.org/>`_ JSON Schema reference.
     """
 
-    _SCHEMA: PortableMapping = {
+    _SCHEMA: ClassVar[PortableMapping] = {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "additionalProperties": True,
         "allOf": [

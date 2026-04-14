@@ -67,7 +67,9 @@ class TestLifeCycle:
     async def test___del__(self) -> None:
         sut = LifeCycle()
         await sut.bootstrap()
-        with pytest.warns():
+        with pytest.warns(
+            UserWarning,  # noqa: PT030
+        ):
             del sut
 
     async def test_bootstrap__not_yet_bootstrapped(self) -> None:

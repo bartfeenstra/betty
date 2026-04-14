@@ -70,12 +70,10 @@ class GenerateStaticPublicAssets(Job):
             www_directory_path=self._project.www_directory,
             is_localized_and_multilingual=self._project.multilingual,
         )
-        await gather(
-            *[
-                self._generate(scheduler, asset_path, copy_function)
-                async for asset_path in assets.walk(Path("public") / "static")
-            ]
-        )
+        await gather(*[
+            self._generate(scheduler, asset_path, copy_function)
+            async for asset_path in assets.walk(Path("public") / "static")
+        ])
 
     async def _generate(
         self,
@@ -307,13 +305,11 @@ class GenerateLocalizedPublicAssets(Job):
             )
             for locale in self._project.locales.keys()  # noqa: SIM118
         }
-        await gather(
-            *[
-                self._generate(scheduler, asset_path, copy_functions[locale], locale)
-                async for asset_path in assets.walk(Path("public") / "localized")
-                for locale in self._project.locales.keys()  # noqa: SIM118
-            ]
-        )
+        await gather(*[
+            self._generate(scheduler, asset_path, copy_functions[locale], locale)
+            async for asset_path in assets.walk(Path("public") / "localized")
+            for locale in self._project.locales.keys()  # noqa: SIM118
+        ])
 
     async def _generate(
         self,
@@ -394,14 +390,12 @@ class GenerateJsonErrorResponses(Job):
                     / f"{code}.json"
                 ) as f:
                     await f.write(
-                        dumps(
-                            {
-                                "$schema": await ProjectSchema.def_url(
-                                    self._project, "errorResponse"
-                                ),
-                                "message": message.localize(DEFAULT_LOCALIZER),
-                            }
-                        )
+                        dumps({
+                            "$schema": await ProjectSchema.def_url(
+                                self._project, "errorResponse"
+                            ),
+                            "message": message.localize(DEFAULT_LOCALIZER),
+                        })
                     )
 
 
@@ -461,12 +455,10 @@ class GenerateEntityTypesJson(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-        await gather(
-            *[
-                scheduler.add(_GenerateEntityTypeJson(self._project, entity_type))
-                async for entity_type in self._project.plugins[EntityDefinition]
-            ]
-        )
+        await gather(*[
+            scheduler.add(_GenerateEntityTypeJson(self._project, entity_type))
+            async for entity_type in self._project.plugins[EntityDefinition]
+        ])
 
 
 @final
@@ -526,35 +518,33 @@ class GenerateEntityTypesHtml(Job):
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
 
-        await gather(
-            *[
-                scheduler.add(
-                    _GenerateEntityTypeHtml(
-                        self._project,
-                        entity_type,
-                        locale,
-                        page,
-                        self._per_page,
-                        page_count,
-                    )
+        await gather(*[
+            scheduler.add(
+                _GenerateEntityTypeHtml(
+                    self._project,
+                    entity_type,
+                    locale,
+                    page,
+                    self._per_page,
+                    page_count,
                 )
-                async for entity_type in self._project.plugins[EntityDefinition]
-                if entity_type.public_facing
-                and (
-                    entity_type.id in self._project.entity_types
-                    and self._project.entity_types[entity_type.id].generate_html_list
+            )
+            async for entity_type in self._project.plugins[EntityDefinition]
+            if entity_type.public_facing
+            and (
+                entity_type.id in self._project.entity_types
+                and self._project.entity_types[entity_type.id].generate_html_list
+            )
+            and (
+                page_count := ceil(
+                    len(self._project.ancestry[entity_type]) / self._per_page
                 )
-                and (
-                    page_count := ceil(
-                        len(self._project.ancestry[entity_type]) / self._per_page
-                    )
-                    # Always show at least the first page, even if there are no entities.
-                    or 1
-                )
-                for page in range(page_count)
-                for locale in self._project.locales.keys()  # noqa: SIM118
-            ]
-        )
+                # Always show at least the first page, even if there are no entities.
+                or 1
+            )
+            for page in range(page_count)
+            for locale in self._project.locales.keys()  # noqa: SIM118
+        ])
 
 
 @final
@@ -586,12 +576,10 @@ class _GenerateEntityTypeHtml(Job):
 
         localizers = await self._project.localizers
         jinja = await self._project.jinja
-        template = jinja.select_template(
-            [
-                f"entity/page-list--{self._entity_type.id}.html.j2",
-                "entity/page-list.html.j2",
-            ]
-        )
+        template = jinja.select_template([
+            f"entity/page-list--{self._entity_type.id}.html.j2",
+            "entity/page-list.html.j2",
+        ])
         rendered_html = await template.render_async(
             document=await self._project.new_document(
                 self._entity_type,
@@ -638,16 +626,12 @@ class GenerateEntitiesJson(Job):
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
 
-        await gather(
-            *[
-                scheduler.add(
-                    _GenerateEntityJson(self._project, entity_type, entity.id)
-                )
-                async for entity_type in self._project.plugins[EntityDefinition]
-                for entity in self._project.ancestry[entity_type.cls]
-                if persistent_id(entity)
-            ]
-        )
+        await gather(*[
+            scheduler.add(_GenerateEntityJson(self._project, entity_type, entity.id))
+            async for entity_type in self._project.plugins[EntityDefinition]
+            for entity in self._project.ancestry[entity_type.cls]
+            if persistent_id(entity)
+        ])
 
 
 @final
@@ -694,18 +678,16 @@ class GenerateEntitiesHtml(Job):
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
 
-        await gather(
-            *[
-                scheduler.add(
-                    _GenerateEntityHtml(self._project, entity_type, entity.id, locale)
-                )
-                async for entity_type in self._project.plugins[EntityDefinition]
-                if entity_type.public_facing
-                for entity in self._project.ancestry[entity_type.cls]
-                if persistent_id(entity) and is_public(entity)
-                for locale in self._project.locales.keys()  # noqa: SIM118
-            ]
-        )
+        await gather(*[
+            scheduler.add(
+                _GenerateEntityHtml(self._project, entity_type, entity.id, locale)
+            )
+            async for entity_type in self._project.plugins[EntityDefinition]
+            if entity_type.public_facing
+            for entity in self._project.ancestry[entity_type.cls]
+            if persistent_id(entity) and is_public(entity)
+            for locale in self._project.locales.keys()  # noqa: SIM118
+        ])
 
 
 @final
@@ -741,12 +723,10 @@ class _GenerateEntityHtml(Job):
             / self._entity_type.id
             / entity.public_id
         )
-        rendered_html = await jinja.select_template(
-            [
-                f"entity/page--{self._entity_type.id}.html.j2",
-                "entity/page.html.j2",
-            ]
-        ).render_async(
+        rendered_html = await jinja.select_template([
+            f"entity/page--{self._entity_type.id}.html.j2",
+            "entity/page.html.j2",
+        ]).render_async(
             document=await self._project.new_document(
                 entity,
                 entity,

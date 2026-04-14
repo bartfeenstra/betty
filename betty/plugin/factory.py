@@ -63,19 +63,17 @@ class PluginManufacturer[
 
     @final
     def __hash__(self):
-        return hash(
-            (
-                self.plugin_type(),
-                self.plugin_id,
-                Void
-                if self.plugin_data is Void
-                else dumps(
-                    self.plugin_data.data().porter.dump(self.plugin_data)
-                    if isinstance(self.plugin_data, Data)
-                    else self.plugin_data,
-                ),
-            )
-        )
+        return hash((
+            self.plugin_type(),
+            self.plugin_id,
+            Void
+            if self.plugin_data is Void
+            else dumps(
+                self.plugin_data.data().porter.dump(self.plugin_data)
+                if isinstance(self.plugin_data, Data)
+                else self.plugin_data,
+            ),
+        ))
 
     @classmethod
     @abstractmethod
@@ -218,25 +216,23 @@ class PluginManufacturer[
     @override
     @classmethod
     def samples(cls) -> Samples[Self]:
-        return Samples(
-            [
-                lambda: Sample(
-                    cls("my-first-plugin-id"),
-                    label="Minimal",
-                    size=Size.MINIMAL,
+        return Samples([
+            lambda: Sample(
+                cls("my-first-plugin-id"),
+                label="Minimal",
+                size=Size.MINIMAL,
+            ),
+            lambda: Sample(
+                cls(
+                    "my-first-plugin-id",
+                    {
+                        "configuration-key": "configuration-value",
+                    },
                 ),
-                lambda: Sample(
-                    cls(
-                        "my-first-plugin-id",
-                        {
-                            "configuration-key": "configuration-value",
-                        },
-                    ),
-                    label="Full",
-                    size=Size.FULL,
-                ),
-            ]
-        )
+                label="Full",
+                size=Size.FULL,
+            ),
+        ])
 
 
 type ResolvablePluginManufacturer[

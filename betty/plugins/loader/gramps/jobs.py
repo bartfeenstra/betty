@@ -30,7 +30,7 @@ class LoadAncestry(Job):
         """
         Get the job ID.
         """
-        return f"gramps:load-ancestry:{id(type(source))}:{str(source)}"
+        return f"gramps:load-ancestry:{id(type(source))}:{source!s}"
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:

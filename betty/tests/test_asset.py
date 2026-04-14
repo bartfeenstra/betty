@@ -81,7 +81,7 @@ class TestStaticAssetRepository:
             await sut.get(Path("my-first-unknown-asset"))
 
     async def test_walk(self, sut_data: tuple[AssetRepository, Path, Path]) -> None:
-        sut, source_path_1, source_path_2 = sut_data
+        sut, _source_path_1, _source_path_2 = sut_data
         assert {path async for path in sut.walk()} == {
             Path("apples"),
             Path("basket") / "tomatoes",
@@ -94,7 +94,7 @@ class TestStaticAssetRepository:
     async def test_walk_with_filter(
         self, sut_data: tuple[AssetRepository, Path, Path]
     ) -> None:
-        sut, source_path_1, source_path_2 = sut_data
+        sut, _source_path_1, _source_path_2 = sut_data
         assert {path async for path in sut.walk(Path("one"))} == {
             Path("one") / "oranges"
         }

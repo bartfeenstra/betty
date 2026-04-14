@@ -5,7 +5,7 @@ Provide an API to determine if information should be kept private.
 from __future__ import annotations
 
 from contextlib import suppress
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 from betty.date import Date, DateRange
@@ -289,9 +289,9 @@ class Privatizer:
             return False
 
         return date <= Date(
-            datetime.now().year - self._lifetime_threshold * generations_ago,
-            datetime.now().month,
-            datetime.now().day,
+            datetime.now(tz=UTC).year - self._lifetime_threshold * generations_ago,
+            datetime.now(tz=UTC).month,
+            datetime.now(tz=UTC).day,
         )
 
     async def _mark_private(self, target: HasPrivacy, reason: Any) -> None:

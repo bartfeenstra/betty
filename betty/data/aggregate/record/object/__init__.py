@@ -79,7 +79,6 @@ class AttrDefinition[DataClsT]:
         """
         Decorate an attribute.
         """
-        global _attrs
         cls_name, attribute_name = (
             f"{attribute.__globals__['__spec__'].name}:{attribute.__qualname__}".rsplit(
                 ".", 1
@@ -147,7 +146,6 @@ class ObjectDefinition[DataClsT](RecordDefinition[DataClsT, AttrElement]):
 
     @override
     def _set_cls(self, cls: type[DataClsT], /) -> None:
-        global _attrs
         super()._set_cls(cls)
         cls_name = fully_qualified_name(cls)
         attrs = _attrs[cls_name]

@@ -73,13 +73,11 @@ class TestPopulator:
         assert link.relationship == "external"
         assert link.description is not None
         m_client.get_translations.assert_awaited_once_with("en", "Amsterdam")
-        m_client.get_summary.assert_has_awaits(
-            [
-                call("en", "Amsterdam"),
-                call("nl", "Amsterdam"),
-                call("uk", "Амстердам"),
-            ]
-        )
+        m_client.get_summary.assert_has_awaits([
+            call("en", "Amsterdam"),
+            call("nl", "Amsterdam"),
+            call("uk", "Амстердам"),
+        ])
 
     async def test_populate__link_without_translations(
         self,
@@ -222,5 +220,5 @@ class TestPopulator:
         )
         await sut.populate(has_file_references_and_links)
 
-        file_reference = list(has_file_references_and_links.file_references)[0]
+        file_reference = next(iter(has_file_references_and_links.file_references))
         assert file_reference.file.path == image.path

@@ -5,7 +5,7 @@ Record data types.
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar, final, override
+from typing import TYPE_CHECKING, Any, Self, TypeVar, final, override
 
 from betty.assertion import OptionalField, assert_mapping
 from betty.data import DataDefinition, OptionalDefinition, Sample, Samples
@@ -100,7 +100,7 @@ _PortableRecordElementT = TypeVar(
 )
 
 
-class PortableRecord(Portable, Generic[_PortableRecordElementT]):
+class PortableRecord[PortableRecordElementT: Element[str] = Element[str]](Portable):
     """
     A record object capable of dumping and loading itself to and from portable data.
     """
@@ -187,14 +187,12 @@ class MappingPorter[DataClsT = Any, ElementT: Element[str] = Element[str]](
         from betty.assertion import RequiredField, assert_record
 
         return self._record.factory(
-            **assert_record(
-                *[
-                    (OptionalField if field.omit_load else RequiredField)(
-                        field.selector.element, field.data.porter.load
-                    )
-                    for field in self._record.fields
-                ]
-            )(portable)
+            **assert_record(*[
+                (OptionalField if field.omit_load else RequiredField)(
+                    field.selector.element, field.data.porter.load
+                )
+                for field in self._record.fields
+            ])(portable)
         )
 
     @override

@@ -26,7 +26,7 @@ __all__ = [
 
 import re
 import tarfile
-from collections.abc import (  # noqa: I001
+from collections.abc import (
     AsyncIterator,
     Awaitable,
     MutableMapping,
@@ -428,7 +428,7 @@ def _demo_project_aioresponses_spdx_license_data(
         / "licenses.json"
     )
     licenses_file_path.parent.mkdir(parents=True)
-    with open(licenses_file_path, "w") as f:
+    with open(licenses_file_path, "w", encoding="utf-8") as f:
         f.write(dumps(LICENSES_DATA))
 
     license_details_directory_path = (
@@ -440,7 +440,7 @@ def _demo_project_aioresponses_spdx_license_data(
     license_details_directory_path.mkdir()
     for spdx_license_id, license_data in LICENSES.items():
         license_file_path = license_details_directory_path / f"{spdx_license_id}.json"
-        with open(license_file_path, "w") as f:
+        with open(license_file_path, "w", encoding="utf-8") as f:
             f.write(dumps(license_data))
 
     spdx_file = BytesIO()
@@ -458,42 +458,36 @@ def _demo_project_aioresponses_wiki_apis(
         re.compile(
             r"^https:\/\/([a-z]+)\.wikipedia\.org\/w\/api\.php\?action=query&coprimary=primary&format=json&formatversion=2&lllimit=500&pilicense=free&pilimit=1&piprop=name&prop=langlinks%257Cpageimages%257Ccoordinates&titles=(.+)$"
         ),
-        body=dumps(
-            {
-                "query": {
-                    "pages": [
-                        {},
-                    ],
-                },
-            }
-        ),
+        body=dumps({
+            "query": {
+                "pages": [
+                    {},
+                ],
+            },
+        }),
         repeat=True,
     )
     http_client_mock.get(
         re.compile(
             r"^https://([a-z]+)\.wikipedia\.org/w/api\.php\?action=query&prop=langlinks\|pageimages\|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2&titles=(.+)$"
         ),
-        body=dumps(
-            {
-                "query": {
-                    "pages": [
-                        {},
-                    ],
-                },
-            }
-        ),
+        body=dumps({
+            "query": {
+                "pages": [
+                    {},
+                ],
+            },
+        }),
         repeat=True,
     )
     http_client_mock.get(
         re.compile(r"^https://([a-z]+)\.wikipedia\.org/api/rest_v1/page/summary/(.+)$"),
-        body=dumps(
-            {
-                "titles": {
-                    "normalized": "My First Wikipedia REST API page summary",
-                },
-                "extract_html": "My First Wikipedia REST API page HTML extract.",
-            }
-        ),
+        body=dumps({
+            "titles": {
+                "normalized": "My First Wikipedia REST API page summary",
+            },
+            "extract_html": "My First Wikipedia REST API page HTML extract.",
+        }),
         repeat=True,
     )
 

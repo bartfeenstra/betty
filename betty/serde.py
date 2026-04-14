@@ -97,14 +97,12 @@ def serializer_for(
             'Unsupported file "{unsupported_type}". Supported types are: {available_types}.'
         ).format(
             unsupported_type=extension,
-            available_types=AnyEnumeration(
-                *[
-                    Plain("{extension} ({available_type})").format(
-                        extension=extension, available_type=available_serializer.label
-                    )
-                    for available_serializer in available_serializers
-                    for extension in available_serializer.cls.media_type().extensions
-                ]
-            ),
+            available_types=AnyEnumeration(*[
+                Plain("{extension} ({available_type})").format(
+                    extension=extension, available_type=available_serializer.label
+                )
+                for available_serializer in available_serializers
+                for extension in available_serializer.cls.media_type().extensions
+            ]),
         )
     )

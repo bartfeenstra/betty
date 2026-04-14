@@ -203,7 +203,7 @@ def do_you_mean(*available_options: Any) -> Localizable:
     """
     Produce a message listing available options.
     """
-    if len(available_options):
+    if available_options:
         return _("Do you mean {available_options}?").format(
             available_options=AnyEnumeration(*sorted(map(str, available_options)))
         )

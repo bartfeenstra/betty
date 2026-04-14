@@ -46,7 +46,7 @@ class DataTestBase[DataT: Data]:
         """
         Tests that the data definition provides at least one sample.
         """
-        assert len(list(self.sut_cls.data().samples)), (
+        assert list(self.sut_cls.data().samples), (
             "Failed asserting that at least one sample is provided"
         )
 

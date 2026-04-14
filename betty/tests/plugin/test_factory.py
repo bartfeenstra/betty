@@ -154,12 +154,10 @@ class TestPluginManufacturer:
         configuration: PortableData = {
             "check": True,
         }  # ty:ignore[invalid-assignment]
-        sut = _DataManufacturableDummyPluginManufacturer.load(
-            {
-                "plugin": _DataManufacturableDummyPluginOne.plugin().id,
-                "data": configuration,
-            }
-        )
+        sut = _DataManufacturableDummyPluginManufacturer.load({
+            "plugin": _DataManufacturableDummyPluginOne.plugin().id,
+            "data": configuration,
+        })
         assert sut.plugin_id == _DataManufacturableDummyPluginOne.plugin().id
         assert sut.plugin_data == configuration
 

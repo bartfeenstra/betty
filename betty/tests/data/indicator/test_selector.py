@@ -138,9 +138,9 @@ class TestSelectors:
     )
     def test_reduce(self, expected: str, selectors: Sequence[Selector]) -> None:
         assert (
-            "\n".join(
-                [selector.format() for selector in Selectors.reduce(*selectors)]
-            ).format()
+            "\n".join([
+                selector.format() for selector in Selectors.reduce(*selectors)
+            ]).format()
             == expected
         )
 

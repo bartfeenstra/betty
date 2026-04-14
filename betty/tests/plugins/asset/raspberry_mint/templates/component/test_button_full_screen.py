@@ -11,7 +11,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         assert "<button " in actual
 
 
-async def test_with_html_attribute(assert_template_file: AssertTemplateFile) -> None:  # noqa: F821
+async def test_with_html_attribute(assert_template_file: AssertTemplateFile) -> None:
     html_id = "my-first-id"
     async with assert_template_file(
         data={

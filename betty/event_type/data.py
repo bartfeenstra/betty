@@ -25,14 +25,12 @@ from betty.sample import Sample
                 id="moon-landing",
                 label="Moon landing",
                 label_plural="Moon landings",
-                label_countable=CountableStaticTranslations(
-                    {
-                        DEFAULT_LOCALE: {
-                            "one": "{count} moon landing",
-                            "other": "{count} moon landings",
-                        }
+                label_countable=CountableStaticTranslations({
+                    DEFAULT_LOCALE: {
+                        "one": "{count} moon landing",
+                        "other": "{count} moon landings",
                     }
-                ),
+                }),
             ),
             label="Default",
         )

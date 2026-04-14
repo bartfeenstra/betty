@@ -405,14 +405,7 @@ class GrampsLoader:
         """
         async with tempfile.TemporaryDirectory() as working_directory_path_str:
             gramps_file_path = Path(working_directory_path_str) / "betty.gramps"
-            await self._run_gramps(
-                [
-                    "-O",
-                    name,
-                    "-e",
-                    str(gramps_file_path),
-                ]
-            )
+            await self._run_gramps(["-O", name, "-e", str(gramps_file_path)])
             await self.load_file(gramps_file_path)
 
     async def load_file(self, file_path: Path) -> None:
@@ -442,7 +435,7 @@ class GrampsLoader:
         )
 
     async def _load_file_gramps_import(self, file_path: Path) -> None:
-        family_tree_name = f"betty-{str(uuid4())}"
+        family_tree_name = f"betty-{uuid4()!s}"
         try:
             await self._run_gramps(["-C", family_tree_name, "-i", str(file_path)])
             await self.load_name(family_tree_name)
@@ -479,9 +472,7 @@ class GrampsLoader:
         with ExitStack() as stack:
             try:
                 tar_file = stack.enter_context(
-                    tarfile.open(  # noqa: SIM115
-                        name=gpkg_path, mode="r:gz"
-                    )
+                    tarfile.open(name=gpkg_path, mode="r:gz")
                 )
             except FileNotFoundError:
                 raise GrampsFileNotFound(gpkg_path) from None

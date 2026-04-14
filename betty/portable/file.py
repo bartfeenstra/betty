@@ -38,7 +38,7 @@ async def assert_load_file() -> AssertionChain[Path, PortableData]:
             # against the configuration file's directory path.
             chdir(file_path.parent),
         ):
-            with open(file_path) as f:
+            with open(file_path, encoding="utf-8") as f:
                 dump_data = f.read()
             file_format = available_formats[
                 serializer_for(list(available_formats), file_path.suffix)

@@ -24,14 +24,12 @@ from betty.sample import Sample
                 id="astronaut",
                 label="Astronaut",
                 label_plural="Astronauts",
-                label_countable=CountableStaticTranslations(
-                    {
-                        DEFAULT_LOCALE: {
-                            "one": "{count} astronaut",
-                            "other": "{count} astronauts",
-                        }
+                label_countable=CountableStaticTranslations({
+                    DEFAULT_LOCALE: {
+                        "one": "{count} astronaut",
+                        "other": "{count} astronauts",
                     }
-                ),
+                }),
             ),
             label="Default",
         )

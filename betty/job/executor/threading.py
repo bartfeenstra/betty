@@ -71,9 +71,9 @@ class ThreadPoolExecutor(Executor):
     @override
     async def cancel(self) -> None:
         self._working = False
-        await gather(
-            *[async_executor.cancel() for async_executor in self._async_executors]
-        )
+        await gather(*[
+            async_executor.cancel() for async_executor in self._async_executors
+        ])
         for task in self._tasks:
             task.cancel()
         for future in self._futures:
@@ -84,9 +84,9 @@ class ThreadPoolExecutor(Executor):
     async def complete(self) -> None:
         if not self._working:
             return
-        await gather(
-            *[async_executor.complete() for async_executor in self._async_executors]
-        )
+        await gather(*[
+            async_executor.complete() for async_executor in self._async_executors
+        ])
         for task in asyncio.as_completed(self._tasks):
             with suppress(asyncio.CancelledError):
                 await task

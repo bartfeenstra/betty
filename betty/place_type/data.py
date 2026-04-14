@@ -24,14 +24,12 @@ from betty.sample import Sample
                 id="moon",
                 label="Moon",
                 label_plural="Moons",
-                label_countable=CountableStaticTranslations(
-                    {
-                        DEFAULT_LOCALE: {
-                            "one": "{count} moon",
-                            "other": "{count} moons",
-                        }
+                label_countable=CountableStaticTranslations({
+                    DEFAULT_LOCALE: {
+                        "one": "{count} moon",
+                        "other": "{count} moons",
                     }
-                ),
+                }),
             ),
             label="Default",
         )

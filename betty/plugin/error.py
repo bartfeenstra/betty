@@ -40,12 +40,10 @@ class PluginTypeNotFound(PluginError, HumanFacingException):
                 _('Cannot find the "{plugin_type}" plugin type.').format(
                     plugin_type=plugin_type_not_found
                 ),
-                do_you_mean(
-                    *[
-                        f'"{available_plugin_type}"'
-                        for available_plugin_type in available_plugin_types
-                    ]
-                ),
+                do_you_mean(*[
+                    f'"{available_plugin_type}"'
+                    for available_plugin_type in available_plugin_types
+                ]),
             )
         )
 
@@ -67,11 +65,9 @@ class PluginNotFound(PluginError, HumanFacingException):
                 _('Cannot find the "{plugin_id}" {plugin_type} plugin.').format(
                     plugin_type=plugin_type.type().label, plugin_id=plugin_not_found
                 ),
-                do_you_mean(
-                    *[
-                        f'"{resolve_plugin_id(available_plugin)}"'
-                        for available_plugin in available_plugins
-                    ]
-                ),
+                do_you_mean(*[
+                    f'"{resolve_plugin_id(available_plugin)}"'
+                    for available_plugin in available_plugins
+                ]),
             )
         )

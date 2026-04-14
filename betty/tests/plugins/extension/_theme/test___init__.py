@@ -105,17 +105,15 @@ def _parameterize_with_associated_events() -> Iterator[
                         ) in event_resolvable_date_and_person_reference_event_types:
                             for event_type_expected, event_type in event_types:
                                 yield (
-                                    all(
-                                        (
-                                            person_role_expected,
-                                            event_id_expected,
-                                            event_privacy_expected,
-                                            event_type_expected,
-                                            event_resolvable_date_and_person_reference_event_type_expected,
-                                            person_reference_event_privacy_expected,
-                                            person_reference_event_resolvable_date_expected,
-                                        )
-                                    ),
+                                    all((
+                                        person_role_expected,
+                                        event_id_expected,
+                                        event_privacy_expected,
+                                        event_type_expected,
+                                        event_resolvable_date_and_person_reference_event_type_expected,
+                                        person_reference_event_privacy_expected,
+                                        person_reference_event_resolvable_date_expected,
+                                    )),
                                     person_role,
                                     event_id,
                                     event_privacy,

@@ -139,7 +139,7 @@ class Presences(Template, DataManufacturable[PresencesConfiguration], Manufactur
                     for presence in presences
                     if presence.role.plugin().id in self._include
                 )
-            if not len(presences):
+            if not presences:
                 return None
             return "component/raspberry-mint/presences.html.j2", {
                 "presences": presences

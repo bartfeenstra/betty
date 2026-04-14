@@ -123,14 +123,10 @@ class RaspberryMintConfiguration(Data):
         self.secondary_color = secondary_color
         self.tertiary_color = tertiary_color
         if regional_content is not None:
-            self.regional_content.update(
-                {
-                    Region.resolve(region): ContentManufacturer.resolve_sequence(
-                        content
-                    )
-                    for region, content in regional_content.items()
-                }
-            )
+            self.regional_content.update({
+                Region.resolve(region): ContentManufacturer.resolve_sequence(content)
+                for region, content in regional_content.items()
+            })
 
     async def validate(self, project: Project, /) -> None:
         """

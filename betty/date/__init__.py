@@ -9,7 +9,7 @@ import datetime
 import operator
 from contextlib import suppress
 from functools import total_ordering
-from typing import TYPE_CHECKING, Any, final, override
+from typing import TYPE_CHECKING, Any, ClassVar, final, override
 
 from babel import dates
 
@@ -89,7 +89,8 @@ class Date(Localizable):
     def localize(self, localizer: Localizer, /) -> Intersection[HasLocale, str]:
         try:
             return (
-                self._LOCALIZE_FORMATS[(self.fuzzy,)]
+                self
+                ._LOCALIZE_FORMATS[(self.fuzzy,)]
                 .format(
                     date=_localize_date_parts(localizer, self),
                 )
@@ -125,7 +126,7 @@ class Date(Localizable):
         """
         if not self.comparable:
             raise ValueError(
-                f"Cannot convert non-comparable date {repr(self)} to a date range."
+                f"Cannot convert non-comparable date {self!r} to a date range."
             )
         assert self.year is not None
         if self.month is None:
@@ -302,7 +303,8 @@ class DateRange(Localizable):
             )
 
         return (
-            self._LOCALIZE_FORMATS[formatter_configuration]
+            self
+            ._LOCALIZE_FORMATS[formatter_configuration]
             .format(**formatter_arguments)
             .localize(localizer)
         )
@@ -355,16 +357,16 @@ class DateRange(Localizable):
             if isinstance(other, DateRange) and other.end is None:
                 return True
 
-            for other in others:
-                if self.start <= other:
+            for another in others:
+                if self.start <= another:
                     return True
         elif self.end is not None:
             # Two date ranges with end dates only always overlap.
             if isinstance(other, DateRange) and other.start is None:
                 return True
 
-            for other in others:
-                if other <= self.end:
+            for another in others:
+                if another <= self.end:
                     return True
         return False
 
@@ -373,7 +375,15 @@ class DateRange(Localizable):
             return date
         return None
 
-    _LT_DATE_RANGE_COMPARATORS = {
+    _LT_DATE_RANGE_COMPARATORS: ClassVar[
+        Mapping[
+            tuple[bool, bool, bool, bool],
+            Callable[
+                [Date | None, Date | None, Date | None, Date | None],
+                bool | NotImplementedType,
+            ],
+        ]
+    ] = {
         (
             True,
             True,
@@ -482,7 +492,12 @@ class DateRange(Localizable):
         ): lambda self_start, self_end, other_start, other_end: NotImplemented,
     }
 
-    _LT_DATE_COMPARATORS = {
+    _LT_DATE_COMPARATORS: ClassVar[
+        Mapping[
+            tuple[bool, bool],
+            Callable[[Date | None, Date | None, Date], bool | NotImplementedType],
+        ]
+    ] = {
         (True, True): lambda self_start, self_end, other: self_start < other,
         (True, False): lambda self_start, self_end, other: self_start < other,
         (False, True): lambda self_start, self_end, other: self_end <= other,

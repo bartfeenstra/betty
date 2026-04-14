@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 from betty.data import Data
 from betty.data.aggregate.record import FieldDefinition
 from betty.data.aggregate.record.object import Attr, AttrDefinition, ObjectDefinition
@@ -8,11 +10,12 @@ from betty.locale.localizable.plain import Plain
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
+@dataclass(frozen=True)
 class ObjectDefinitionTestObject:
-    def __init__(self, my_first_element: str):
-        self.my_first_element = my_first_element
+    my_first_element: str
 
 
+@dataclass(frozen=True)
 class ObjectDefinitionTestFactoryObject(ObjectDefinitionTestObject):
     pass
 

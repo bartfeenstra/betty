@@ -220,9 +220,9 @@ class ServicePluginManager(ManagedLifeCycle):
             plugins_by_id = {plugin.plugin().id: plugin for plugin in plugins}
             while sorter.is_active():
                 batch_plugin_ids = sorter.get_ready()
-                sorted_plugins.append(
-                    [plugins_by_id[plugin_id] for plugin_id in batch_plugin_ids]
-                )
+                sorted_plugins.append([
+                    plugins_by_id[plugin_id] for plugin_id in batch_plugin_ids
+                ])
                 sorter.done(*batch_plugin_ids)
             return ServicePluginCollection(sorted_plugins)
         return ServicePluginCollection([plugins])

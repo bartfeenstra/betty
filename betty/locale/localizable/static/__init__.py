@@ -140,12 +140,10 @@ class CountableStaticTranslations(CountableLocalizable, Portable):
         )
 
     def _format_translations(self, translations: Mapping[str, str]) -> Localizable:
-        return UnorderedList(
-            *[
-                f"{plural_tag}: {translation}"
-                for plural_tag, translation in translations.items()
-            ]
-        )
+        return UnorderedList(*[
+            f"{plural_tag}: {translation}"
+            for plural_tag, translation in translations.items()
+        ])
 
     @override
     def count(self, count: LocalizableCount, /) -> Localizable:

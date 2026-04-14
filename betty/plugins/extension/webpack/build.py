@@ -146,17 +146,15 @@ class Builder:
     async def _prepare_webpack_extension(
         self, npm_project_directory_path: Path
     ) -> None:
-        await gather(
-            *[
-                to_thread(copy2, source_file_path, npm_project_directory_path)
-                for source_file_path in (
-                    _NPM_PROJECT_DIRECTORIES_PATH / "package.json",
-                    _NPM_PROJECT_DIRECTORIES_PATH / "webpack.config.js",
-                    ROOT_DIRECTORY / ".browserslistrc",
-                    ROOT_DIRECTORY / "tsconfig.json",
-                )
-            ]
-        )
+        await gather(*[
+            to_thread(copy2, source_file_path, npm_project_directory_path)
+            for source_file_path in (
+                _NPM_PROJECT_DIRECTORIES_PATH / "package.json",
+                _NPM_PROJECT_DIRECTORIES_PATH / "webpack.config.js",
+                ROOT_DIRECTORY / ".browserslistrc",
+                ROOT_DIRECTORY / "tsconfig.json",
+            )
+        ])
 
     async def _prepare_webpack_entry_point_provider(
         self,
@@ -199,14 +197,12 @@ class Builder:
             f"file:{entry_point_provider_working_directory_path.relative_to(npm_project_directory_path)}"
         )
         # Webpack requires relative paths to start with a leading dot and use forward slashes.
-        webpack_entry[entry_point_provider.plugin().id] = "/".join(
-            (
-                ".",
-                *(entry_point_provider_working_directory_path / "main.ts")
-                .relative_to(npm_project_directory_path)
-                .parts,
-            )
-        )
+        webpack_entry[entry_point_provider.plugin().id] = "/".join((
+            ".",
+            *(entry_point_provider_working_directory_path / "main.ts")
+            .relative_to(npm_project_directory_path)
+            .parts,
+        ))
 
     async def _extract_package_json(self, package_path: Path) -> PortableMapping:
         async with aiofiles.open(package_path / "package.json") as f:
@@ -326,19 +322,17 @@ class Builder:
         await self._update_package_jsons(
             npm_project_directory_path, package_jsons_by_package_name
         )
-        webpack_configuration_json = dumps(
-            {
-                "rootPath": self._root_path,
-                # Use a relative path so we avoid portability issues with
-                # leading root slashes or drive letters.
-                "buildDirectoryPath": str(
-                    webpack_build_directory_path.relative_to(npm_project_directory_path)
-                ),
-                "debug": self._debug,
-                "entry": webpack_entry,
-                "jobContextId": context.id,
-            }
-        )
+        webpack_configuration_json = dumps({
+            "rootPath": self._root_path,
+            # Use a relative path so we avoid portability issues with
+            # leading root slashes or drive letters.
+            "buildDirectoryPath": str(
+                webpack_build_directory_path.relative_to(npm_project_directory_path)
+            ),
+            "debug": self._debug,
+            "entry": webpack_entry,
+            "jobContextId": context.id,
+        })
         async with aiofiles.open(
             npm_project_directory_path / "webpack.config.json", "w"
         ) as configuration_f:

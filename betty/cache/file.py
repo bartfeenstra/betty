@@ -81,7 +81,7 @@ class _FileCache[CacheItemValueT](_CommonCacheBase[CacheItemValueT]):
         cache_directory_path: Path,
         *,
         scopes: Sequence[str] | None = None,
-        state: _CommonCacheBaseState[Self] | None = None,
+        state: _CommonCacheBaseState | None = None,
     ):
         super().__init__(scopes=scopes, state=state)
         self._root_path = cache_directory_path
