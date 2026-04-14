@@ -82,9 +82,9 @@ async def build(document: Document, contents: Iterable[Content], /) -> Markup | 
     """
     Build content for the given document and contents.
     """
-    built = "".join(
-        [await content.build(document=document) or "" for content in contents]
-    ).strip()
+    built = "".join([
+        await content.build(document=document) or "" for content in contents
+    ]).strip()
     if built:
         return Markup(built)
     return None

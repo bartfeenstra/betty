@@ -84,18 +84,21 @@ if TYPE_CHECKING:
             ProjectConfiguration(
                 author="Bart Feenstra",
                 clean_urls=True,
-                copyright_notice=CopyrightNoticeManufacturer.data()
+                copyright_notice=CopyrightNoticeManufacturer
+                .data()
                 .samples.get(Size.FULL)
                 .subject,
                 copyright_notices=[
-                    CopyrightNoticeDefinitionConfiguration.data()
+                    CopyrightNoticeDefinitionConfiguration
+                    .data()
                     .samples.get(Size.FULL)
                     .subject
                 ],
                 debug=True,
                 entity_types=[ProjectEntityType.data().samples.get(Size.FULL).subject],
                 event_types=[
-                    EventTypeDefinitionConfiguration.data()
+                    EventTypeDefinitionConfiguration
+                    .data()
                     .samples.get(Size.FULL)
                     .subject
                 ],
@@ -115,7 +118,8 @@ if TYPE_CHECKING:
                 locales=[ProjectLocale.data().samples.get(Size.FULL).subject],
                 name="betty-ancestry",
                 place_types=[
-                    PlaceTypeDefinitionConfiguration.data()
+                    PlaceTypeDefinitionConfiguration
+                    .data()
                     .samples.get(Size.FULL)
                     .subject
                 ],
@@ -163,7 +167,7 @@ class ProjectConfiguration(Data):
             omit_dump=lambda data: (
                 data == ProjectConfiguration._default_copyright_notice()
             ),
-            default=lambda: ProjectConfiguration._default_copyright_notice(),
+            default=lambda: ProjectConfiguration._default_copyright_notice(),  # noqa: PLW0108
             resolver=CopyrightNoticeManufacturer.resolve,
         )
     )
@@ -268,7 +272,7 @@ class ProjectConfiguration(Data):
             LicenseManufacturer,
             omit_load=True,
             omit_dump=lambda data: data == ProjectConfiguration._default_license(),
-            default=lambda: ProjectConfiguration._default_license(),
+            default=lambda: ProjectConfiguration._default_license(),  # noqa: PLW0108
             resolver=LicenseManufacturer.resolve,
         )
     )

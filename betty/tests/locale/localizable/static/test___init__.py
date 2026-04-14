@@ -131,50 +131,42 @@ class TestStaticTranslations:
 class TestCountableStaticTranslations:
     def test___init____with_missing_placeholder(self) -> None:
         with pytest.raises(MissingPluralPlaceholder):
-            CountableStaticTranslations(
-                {
-                    "en-US": {
-                        "one": "hello, world!",
-                        "other": "hello, worlds!",
-                    },
-                }
-            )
+            CountableStaticTranslations({
+                "en-US": {
+                    "one": "hello, world!",
+                    "other": "hello, worlds!",
+                },
+            })
 
     def test___init____with_invalid_plural_tag(self) -> None:
         invalid_plural_tag = "invalid-tag"
 
         with pytest.raises(InvalidPluralTag) as exc_info:
-            CountableStaticTranslations(
-                {
-                    "en-US": {
-                        invalid_plural_tag: "{count}",
-                        "one": "{count} hello, world!",
-                        "other": "{count} hello, worlds!",
-                    },
-                }
-            )
+            CountableStaticTranslations({
+                "en-US": {
+                    invalid_plural_tag: "{count}",
+                    "one": "{count} hello, world!",
+                    "other": "{count} hello, worlds!",
+                },
+            })
         assert invalid_plural_tag in str(exc_info.value)
 
     def test___init____with_missing_plural_tag(self) -> None:
         with pytest.raises(MissingPluralTag) as exc_info:
-            CountableStaticTranslations(
-                {
-                    "en-US": {
-                        "one": "{count} hello, world!",
-                    },
-                }
-            )
+            CountableStaticTranslations({
+                "en-US": {
+                    "one": "{count} hello, world!",
+                },
+            })
         assert "other" in str(exc_info.value)
 
     def test_translations(self) -> None:
-        sut = CountableStaticTranslations(
-            {
-                DEFAULT_LOCALE_TAG: {
-                    "one": "{count} hello, world!",
-                    "other": "{count} hello, worlds!",
-                },
-            }
-        )
+        sut = CountableStaticTranslations({
+            DEFAULT_LOCALE_TAG: {
+                "one": "{count} hello, world!",
+                "other": "{count} hello, worlds!",
+            },
+        })
         assert sut.translations == {
             DEFAULT_LOCALE: {
                 "one": "{count} hello, world!",
@@ -225,14 +217,12 @@ class TestCountableStaticTranslations:
         )
 
     def test_load(self) -> None:
-        loaded = CountableStaticTranslations.load(
-            {
-                DEFAULT_LOCALE_TAG: {
-                    "one": "{count} thing",
-                    "other": "{count} things",
-                },
-            }
-        )
+        loaded = CountableStaticTranslations.load({
+            DEFAULT_LOCALE_TAG: {
+                "one": "{count} thing",
+                "other": "{count} things",
+            },
+        })
         assert loaded.count(1).localize(DEFAULT_LOCALIZER) == "1 thing"
 
     def test_load__without_locales(self) -> None:
@@ -241,41 +231,33 @@ class TestCountableStaticTranslations:
 
     def test_load__with_unknown_locale(self) -> None:
         with pytest.raises(UnknownLocale):
-            CountableStaticTranslations.load(
-                {
-                    "unknownlocale": {},
-                }
-            )
+            CountableStaticTranslations.load({
+                "unknownlocale": {},
+            })
 
     def test_load__with_missing_plural_tag(self) -> None:
         with pytest.raises(MissingPluralTag):
-            CountableStaticTranslations.load(
-                {
-                    DEFAULT_LOCALE_TAG: {},
-                }
-            )
+            CountableStaticTranslations.load({
+                DEFAULT_LOCALE_TAG: {},
+            })
 
     def test_load__with_invalid_plural_tag(self) -> None:
         with pytest.raises(InvalidPluralTag):
-            CountableStaticTranslations.load(
-                {
-                    DEFAULT_LOCALE_TAG: {
-                        "one": "{count}",
-                        "other": "{count}",
-                        "invalid": "{count}",
-                    },
-                }
-            )
+            CountableStaticTranslations.load({
+                DEFAULT_LOCALE_TAG: {
+                    "one": "{count}",
+                    "other": "{count}",
+                    "invalid": "{count}",
+                },
+            })
 
     def test_dump(self) -> None:
-        assert CountableStaticTranslations(
-            {
-                DEFAULT_LOCALE_TAG: {
-                    "one": "{count} thing",
-                    "other": "{count} things",
-                }
+        assert CountableStaticTranslations({
+            DEFAULT_LOCALE_TAG: {
+                "one": "{count} thing",
+                "other": "{count} things",
             }
-        ).dump() == {
+        }).dump() == {
             DEFAULT_LOCALE_TAG: {
                 "one": "{count} thing",
                 "other": "{count} things",

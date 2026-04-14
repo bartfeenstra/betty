@@ -9,7 +9,7 @@ from asyncio import gather
 from collections.abc import Awaitable, Callable
 from pathlib import Path
 from shutil import copy2
-from typing import TYPE_CHECKING, cast, override
+from typing import TYPE_CHECKING, ClassVar, cast, override
 
 import aiofiles
 from aiofiles.os import makedirs
@@ -62,12 +62,12 @@ async def new_environment(project: Project, /) -> Environment:
     """
     Create a new environment.
     """
-    assets, extensions, service_plugins = await gather(
+    assets, _extensions, service_plugins = await gather(
         project.assets, project.extensions, project.service_plugins
     )
     template_directory_paths = [str(path / "templates") for path in assets.directories]
     links = [link.plugin() for link in service_plugins[LinkDefinition]]
-    today = datetime.date.today()
+    today = datetime.datetime.now(tz=datetime.UTC).date()
     environment = Environment(
         loader=FileSystemLoader(template_directory_paths),
         auto_reload=project.debug,
@@ -93,41 +93,33 @@ async def new_environment(project: Project, /) -> Environment:
     )
     environment.policies["ext.i18n.trimmed"] = True
 
-    environment.globals.update(
-        {
-            "about_version_major": about.VERSION_MAJOR_LABEL,
-            "app": project.upstream,
-            "deprecate": deprecate,
-            "generate_html_id": generate_html_id,
-            "new_attributes": Attributes,
-            "project": project,
-            "primary_navigation_links": [link.link for link in links if link.primary],
-            "public_css_paths": [
-                resource.plugin().resource
-                for resource in service_plugins[CssResourceDefinition]
-            ],
-            "public_js_paths": [
-                resource.plugin().resource
-                for resource in service_plugins[JsResourceDefinition]
-            ],
-            "secondary_navigation_links": [
-                link.link for link in links if not link.primary
-            ],
-            "today": Date(today.year, today.month, today.day),
-        }
-    )  # ty:ignore[no-matching-overload]
-    environment.filters.update(
-        {
-            kebab_case_to_snake_case(filter.plugin().id): filter.__call__
-            for filter in (await project.service_plugins)[JinjaFilterDefinition]  # noqa: A001
-        }
-    )
-    environment.tests.update(
-        {
-            kebab_case_to_snake_case(test.plugin().id): test.__call__
-            for test in service_plugins[JinjaTestDefinition]
-        }
-    )
+    environment.globals.update({
+        "about_version_major": about.VERSION_MAJOR_LABEL,
+        "app": project.upstream,
+        "deprecate": deprecate,
+        "generate_html_id": generate_html_id,
+        "new_attributes": Attributes,
+        "project": project,
+        "primary_navigation_links": [link.link for link in links if link.primary],
+        "public_css_paths": [
+            resource.plugin().resource
+            for resource in service_plugins[CssResourceDefinition]
+        ],
+        "public_js_paths": [
+            resource.plugin().resource
+            for resource in service_plugins[JsResourceDefinition]
+        ],
+        "secondary_navigation_links": [link.link for link in links if not link.primary],
+        "today": Date(today.year, today.month, today.day),
+    })  # ty:ignore[no-matching-overload]
+    environment.filters.update({
+        kebab_case_to_snake_case(filter.plugin().id): filter.__call__
+        for filter in (await project.service_plugins)[JinjaFilterDefinition]  # noqa: A001
+    })
+    environment.tests.update({
+        kebab_case_to_snake_case(test.plugin().id): test.__call__
+        for test in service_plugins[JinjaTestDefinition]
+    })
     return environment
 
 
@@ -177,7 +169,7 @@ def make_copy_function(
     async def _copy_function(source_path: Path, destination_path: Path) -> None:
         await makedirs(destination_path.parent, exist_ok=True)
         try:
-            media_type, extension = match_extension(source_path, [JINJA2])
+            _media_type, extension = match_extension(source_path, [JINJA2])
         except UnsupportedMediaType:
             copy2(source_path, destination_path)
             return
@@ -218,7 +210,7 @@ def make_copy_function(
 
 
 class _CacheTagExtension(Extension):
-    tags = {"cache"}
+    tags: ClassVar[set[str]] = {"cache"}
 
     @override
     def parse(self, parser: Parser) -> Node | list[Node]:

@@ -43,27 +43,23 @@ class _Samplable(Samplable):
     @override
     @classmethod
     def samples(cls) -> Samples[Self]:
-        return Samples(
-            [
-                lambda: _sample_full,
-                lambda: _sample_intermediate,
-                lambda: _sample_minimal,
-            ]
-        )
+        return Samples([
+            lambda: _sample_full,
+            lambda: _sample_intermediate,
+            lambda: _sample_minimal,
+        ])
 
 
 class TestSamples:
     def test___iter__(self) -> None:
         assert list(
             iter(
-                Samples(
-                    [
-                        lambda: _sample_minimal,
-                        Samples([lambda: _sample_intermediate]),
-                        lambda: _sample_full,
-                        _Samplable,
-                    ]
-                )
+                Samples([
+                    lambda: _sample_minimal,
+                    Samples([lambda: _sample_intermediate]),
+                    lambda: _sample_full,
+                    _Samplable,
+                ])
             )
         ) == [
             _sample_minimal,

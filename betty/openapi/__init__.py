@@ -152,18 +152,16 @@ class Specification:
 
         # Add default behavior to all requests.
         for path_specification in specification_paths.values():
-            path_specification["get"]["responses"].update(
-                {
-                    "401": {
-                        "$ref": "#/components/responses/401",
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403",
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404",
-                    },
-                }
-            )
+            path_specification["get"]["responses"].update({
+                "401": {
+                    "$ref": "#/components/responses/401",
+                },
+                "403": {
+                    "$ref": "#/components/responses/403",
+                },
+                "404": {
+                    "$ref": "#/components/responses/404",
+                },
+            })
 
         return specification

@@ -18,8 +18,8 @@ type ResolvableDiscovery[PluginDefinitionT: PluginDefinition = PluginDefinition]
     ResolvablePluginDefinition[PluginDefinitionT]
     | Callable[
         [ServiceLevel],
-        Awaitable[Iterable["ResolvableDiscovery[PluginDefinitionT]"]]
-        | Iterable["ResolvableDiscovery[PluginDefinitionT]"],
+        Awaitable[Iterable[ResolvableDiscovery[PluginDefinitionT]]]
+        | Iterable[ResolvableDiscovery[PluginDefinitionT]],
     ]
 )
 
@@ -32,9 +32,9 @@ async def discover[PluginDefinitionT: PluginDefinition](
     """
     return [
         plugin
-        for plugins in await gather(
-            *[_discover(discovery, services) for discovery in discoveries]
-        )
+        for plugins in await gather(*[
+            _discover(discovery, services) for discovery in discoveries
+        ])
         for plugin in plugins
     ]
 

@@ -427,22 +427,20 @@ class Attributes:
         """
         Format the HTML attributes to a string.
         """
-        return " ".join(
-            (
-                *(
-                    formatted_attribute
-                    for formatted_attribute in (
-                        self._ATTRIBUTES[attr_name].format(attr_value)
-                        for attr_name, attr_value in self._attributes.items()
-                    )
-                    if formatted_attribute
-                ),
-                *(
-                    f'data-{snake_case_to_kebab_case(attribute_name)}="{attribute_value}"'
-                    for attribute_name, attribute_value in self._data_attributes.items()
-                ),
-            )
-        )
+        return " ".join((
+            *(
+                formatted_attribute
+                for formatted_attribute in (
+                    self._ATTRIBUTES[attr_name].format(attr_value)
+                    for attr_name, attr_value in self._attributes.items()
+                )
+                if formatted_attribute
+            ),
+            *(
+                f'data-{snake_case_to_kebab_case(attribute_name)}="{attribute_value}"'
+                for attribute_name, attribute_value in self._data_attributes.items()
+            ),
+        ))
 
     @override
     def __str__(self) -> str:

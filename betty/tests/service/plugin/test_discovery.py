@@ -18,15 +18,13 @@ class TestPluginDiscoverer:
         entry_point_group = kebab_case_to_snake_case(DummyPluginDefinition.type().id)
         m_entry_points = mocker.patch(
             "importlib.metadata.entry_points",
-            return_value=EntryPoints(
-                [
-                    EntryPoint(
-                        name=DummyPluginOne.plugin().id,
-                        value=fully_qualified_name(DummyPluginOne),
-                        group=entry_point_group,
-                    ),
-                ]
-            ),
+            return_value=EntryPoints([
+                EntryPoint(
+                    name=DummyPluginOne.plugin().id,
+                    value=fully_qualified_name(DummyPluginOne),
+                    group=entry_point_group,
+                ),
+            ]),
         )
         yield
         m_entry_points.assert_called_once_with(group=f"betty.{entry_point_group}")

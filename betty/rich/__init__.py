@@ -12,8 +12,6 @@ class Theme(RichTheme):
     """
 
     def __init__(self):
-        super().__init__(
-            {
-                "prompt": Style(color="bright_magenta", bold=True),
-            }
-        )
+        super().__init__({
+            "prompt": Style(color="bright_magenta", bold=True),
+        })

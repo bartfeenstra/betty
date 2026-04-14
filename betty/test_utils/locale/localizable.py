@@ -18,14 +18,12 @@ DUMMY_LOCALIZABLE: Localizable = Plain("DUMMY_LOCALIZABLE")
 A dummy localizable.
 """
 
-DUMMY_COUNTABLE_LOCALIZABLE: CountableLocalizable = CountableStaticTranslations(
-    {
-        DEFAULT_LOCALE: {
-            "one": "{count} DUMMY_COUNTABLE_LOCALIZABLE",
-            "other": "{count} DUMMY_COUNTABLE_LOCALIZABLES",
-        }
+DUMMY_COUNTABLE_LOCALIZABLE: CountableLocalizable = CountableStaticTranslations({
+    DEFAULT_LOCALE: {
+        "one": "{count} DUMMY_COUNTABLE_LOCALIZABLE",
+        "other": "{count} DUMMY_COUNTABLE_LOCALIZABLES",
     }
-)
+})
 """
 A dummy countable localizable.
 """

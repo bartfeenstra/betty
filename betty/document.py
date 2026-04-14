@@ -315,7 +315,7 @@ class Citer:
     Track citations when they are first used.
     """
 
-    __slots__ = "_lock", "_cited"
+    __slots__ = "_cited", "_lock"
 
     def __init__(self):
         self._lock = Lock()

@@ -24,15 +24,13 @@ class PotFileTestBase:
         async with aiofiles.open(assets_directory_path / "locale" / "betty.pot") as f:
             return filter(
                 lambda line: (
-                    not line.startswith(
-                        (
-                            "# Copyright (C) ",
-                            "# FIRST AUTHOR <EMAIL@ADDRESS>, ",
-                            '"POT-Creation-Date: ',
-                            '"PO-Revision-Date: ',
-                            '"Generated-By: ',
-                        )
-                    )
+                    not line.startswith((
+                        "# Copyright (C) ",
+                        "# FIRST AUTHOR <EMAIL@ADDRESS>, ",
+                        '"POT-Creation-Date: ',
+                        '"PO-Revision-Date: ',
+                        '"Generated-By: ',
+                    ))
                 ),
                 await f.readlines(),
             )

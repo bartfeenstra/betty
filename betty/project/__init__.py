@@ -17,7 +17,6 @@ from urllib.parse import urlsplit
 from aiofiles.tempfile import TemporaryDirectory
 from babel import Locale
 
-import betty
 import betty.dirs
 from betty.app import App
 from betty.asset import (
@@ -557,12 +556,10 @@ class Project(
         """
         The  content renderer.
         """
-        return RenderDispatcher(
-            *[
-                await self.factory.new(plugin.cls)
-                async for plugin in self.plugins[RendererDefinition]
-            ]
-        )
+        return RenderDispatcher(*[
+            await self.factory.new(plugin.cls)
+            async for plugin in self.plugins[RendererDefinition]
+        ])
 
     @property
     async def extensions(

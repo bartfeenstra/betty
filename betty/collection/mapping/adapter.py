@@ -126,12 +126,10 @@ class MutableResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValu
             items = chain(items, other.items())  # ty:ignore[invalid-assignment]
         elif isinstance(other, Sequence):
             items = chain(items, other)  # ty:ignore[invalid-assignment]
-        self._upstream.update(
-            {
-                self._key_resolver(key): self._value_resolver(value)  # ty:ignore[invalid-argument-type]
-                for key, value in items
-            }
-        )
+        self._upstream.update({
+            self._key_resolver(key): self._value_resolver(value)  # ty:ignore[invalid-argument-type]
+            for key, value in items
+        })
 
     @overload
     def setdefault[T](

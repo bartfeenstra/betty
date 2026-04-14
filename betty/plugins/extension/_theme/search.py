@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 from asyncio import gather
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Generic, TypeVar, final, override
+from typing import TYPE_CHECKING, TypeVar, final, override
 
 import aiofiles
 from aiofiles.os import makedirs
@@ -86,7 +86,7 @@ _EntityTypeIndexerEntityT = TypeVar(
 )
 
 
-class EntityTypeIndexer(Generic[_EntityTypeIndexerEntityT]):
+class EntityTypeIndexer[EntityTypeIndexerEntityT: Entity = Entity]:
     def __init__(self, project: Project):
         self._project = project
 
@@ -217,12 +217,10 @@ class Index:
 
     async def _render_entity(self, entity: Entity) -> str:
         jinja = await self._project.jinja
-        return await jinja.select_template(
-            [
-                f"search/result--{entity.plugin().id}.html.j2",
-                "search/result.html.j2",
-            ]
-        ).render_async(
+        return await jinja.select_template([
+            f"search/result--{entity.plugin().id}.html.j2",
+            "search/result.html.j2",
+        ]).render_async(
             document=await self._project.new_document(
                 context=self._context,
                 localizer=self._localizer,

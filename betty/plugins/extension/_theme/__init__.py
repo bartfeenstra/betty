@@ -129,12 +129,11 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
     if start_date is None and end_date is not None:
         if isinstance(end_date, Date):
             start_date_reference = end_date
+        elif end_date.end is not None and end_date.end.comparable:
+            start_date_reference = end_date.end
         else:
-            if end_date.end is not None and end_date.end.comparable:
-                start_date_reference = end_date.end
-            else:
-                assert end_date.start is not None
-                start_date_reference = end_date.start
+            assert end_date.start is not None
+            start_date_reference = end_date.start
         assert start_date_reference.year is not None
         start_date = Date(
             start_date_reference.year - lifetime_threshold,
@@ -148,12 +147,11 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
     if end_date is None and start_date is not None:
         if isinstance(start_date, Date):
             end_date_reference = start_date
+        elif start_date.start and start_date.start.comparable:
+            end_date_reference = start_date.start
         else:
-            if start_date.start and start_date.start.comparable:
-                end_date_reference = start_date.start
-            else:
-                assert start_date.end is not None
-                end_date_reference = start_date.end
+            assert start_date.end is not None
+            end_date_reference = start_date.end
         assert end_date_reference.year is not None
         end_date = Date(
             end_date_reference.year + lifetime_threshold,

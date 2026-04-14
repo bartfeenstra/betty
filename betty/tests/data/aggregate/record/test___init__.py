@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Self, override
 from unittest.mock import Mock
 
@@ -97,11 +98,12 @@ class TestFieldDefinition:
         assert sut.omit_dump(object())
 
 
+@dataclass(frozen=True)
 class RecordDefinitionTestRecord:
-    def __init__(self, my_first_element: str | None = None):
-        self.my_first_element = my_first_element
+    my_first_element: str | None = None
 
 
+@dataclass(frozen=True)
 class RecordDefinitionTestFactoryRecord(RecordDefinitionTestRecord):
     pass
 

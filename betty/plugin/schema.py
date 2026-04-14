@@ -29,7 +29,7 @@ class PluginIdSchema[PluginDefinitionT: PluginDefinition = PluginDefinition](Enu
     ):
         label = plugin_type.label.localize(DEFAULT_LOCALIZER)
         super().__init__(
-            *[plugin.id for plugin in plugins],  # noqa: A002
+            *[plugin.id for plugin in plugins],
             def_name=kebab_case_to_lower_camel_case(plugin_type.id),
             title=label,
             description=f"A {label} plugin ID",

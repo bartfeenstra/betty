@@ -138,7 +138,7 @@ def generate_from_path(
         try:
             negotiated_locale = negotiate_locale(locale, list(locale_slugs))
             if negotiated_locale is None:
-                raise KeyError
+                raise KeyError  # noqa: TRY301
             locale_slug = locale_slugs[negotiated_locale]
         except KeyError:
             raise ValueError(

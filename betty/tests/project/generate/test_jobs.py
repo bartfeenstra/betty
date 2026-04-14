@@ -290,7 +290,9 @@ class TestGenerateOpenApi:
     async def test_do(self, isolated_project: Project) -> None:
         await do(GenerateOpenApi(project=isolated_project))
 
-        with open(isolated_project.www_directory / "api" / "index.json") as f:
+        with open(
+            isolated_project.www_directory / "api" / "index.json", encoding="utf-8"
+        ) as f:
             SpecificationSchema().validate(json.loads(f.read()))
 
 
@@ -298,7 +300,9 @@ class TestGenerateJsonSchema:
     async def test_do(self, isolated_project: Project) -> None:
         await do(GenerateJsonSchema(project=isolated_project))
 
-        with open(isolated_project.www_directory / "schema.json") as f:
+        with open(
+            isolated_project.www_directory / "schema.json", encoding="utf-8"
+        ) as f:
             JsonSchemaSchema().validate(json.loads(f.read()))
 
 

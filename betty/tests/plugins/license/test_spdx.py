@@ -58,7 +58,7 @@ class TestSpdxLicenseDiscoverer:
             / "licenses.json"
         )
         licenses_file_path.parent.mkdir(parents=True)
-        with open(licenses_file_path, "w") as f:
+        with open(licenses_file_path, "w", encoding="utf-8") as f:
             f.write(dumps(licenses_data))
         spdx_file = BytesIO()
         with tarfile.open(fileobj=spdx_file, mode="w:gz") as spdx_tar_file:
@@ -101,7 +101,7 @@ class TestSpdxLicenseDiscoverer:
             / "licenses.json"
         )
         licenses_file_path.parent.mkdir(parents=True)
-        with open(licenses_file_path, "w") as f:
+        with open(licenses_file_path, "w", encoding="utf-8") as f:
             f.write(dumps(licenses_data))
         license_data: PortableMapping = {
             "isDeprecatedLicenseId": False,
@@ -144,7 +144,7 @@ class TestSpdxLicenseDiscoverer:
             / "0BSD.json"
         )
         license_file_path.parent.mkdir()
-        with open(license_file_path, "w") as f:
+        with open(license_file_path, "w", encoding="utf-8") as f:
             f.write(dumps(license_data))
         spdx_tar_file_path = tmp_path / "spdx.tar.gz"
         with tarfile.open(spdx_tar_file_path, "w:gz") as spdx_tar_file:

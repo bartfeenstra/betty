@@ -60,15 +60,13 @@ class TestColumns:
         async with isolated_project_factory(support_plugins=[Columns]) as project:
             sut = await Columns.new(
                 project,
-                ColumnsConfiguration(
+                ColumnsConfiguration([
                     [
-                        [
-                            ContentManufacturer(
-                                Render, RenderConfiguration(DUMMY_LOCALIZABLE)
-                            )
-                        ]
+                        ContentManufacturer(
+                            Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+                        )
                     ]
-                ),
+                ]),
             )
             actual = await sut.build(document=Document())
         assert actual is not None

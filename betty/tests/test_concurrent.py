@@ -2,7 +2,8 @@ import asyncio
 import threading
 import time
 from asyncio import create_task, gather, run, sleep, wait_for
-from typing import override
+from collections.abc import Sequence
+from typing import ClassVar, override
 from unittest.mock import call
 
 import pytest
@@ -72,7 +73,7 @@ class TestAsynchronizedLock:
 
 
 class TestRateLimiter:
-    _TEST_WAIT_PARAMETERS = [
+    _TEST_WAIT_PARAMETERS: ClassVar[Sequence[tuple[int, int, int]]] = [
         (0, 100, 100),
         # This is one higher than the rate limiter's maximum, to ensure we spend at least one full period.
         (1, 101, 100),
@@ -154,16 +155,14 @@ async def test_backoff(mocker: MockerFixture) -> None:
             break
 
     assert m_sleep.call_count == 9
-    m_sleep.assert_has_awaits(
-        [
-            call(0.001),
-            call(0.002),
-            call(0.004),
-            call(0.008),
-            call(0.016),
-            call(0.032),
-            call(0.064),
-            call(0.128),
-            call(0.128),
-        ]
-    )
+    m_sleep.assert_has_awaits([
+        call(0.001),
+        call(0.002),
+        call(0.004),
+        call(0.008),
+        call(0.016),
+        call(0.032),
+        call(0.064),
+        call(0.128),
+        call(0.128),
+    ])

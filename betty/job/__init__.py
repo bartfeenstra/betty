@@ -5,7 +5,7 @@ Provide utilities for running jobs concurrently.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, final
 from uuid import uuid4
 
@@ -27,7 +27,7 @@ class Context:
     def __init__(self, *, progress: Progress | None = None):
         self._id = str(uuid4())
         self._cache = MemoryCache()
-        self._start = datetime.now()
+        self._start = datetime.now(tz=UTC)
         self._progress = progress or NoOpProgress()
 
     @property

@@ -28,16 +28,14 @@ class TestProxyUrlGenerator:
             media_type: MediaType | None = None,
             query: Mapping[str, Sequence[str]] | None = None,
         ) -> str:
-            return dumps(
-                {
-                    "resource": resource,
-                    "media_type": str(media_type),
-                    "absolute": absolute,
-                    "locale": locale,
-                    "fragment": fragment,
-                    "query": query,
-                }
-            )
+            return dumps({
+                "resource": resource,
+                "media_type": str(media_type),
+                "absolute": absolute,
+                "locale": locale,
+                "fragment": fragment,
+                "query": query,
+            })
 
     class _UnsupportedUrlGenerator(UrlGenerator):
         @override

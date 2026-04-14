@@ -27,7 +27,7 @@ class TestImageMediaTypeSupported:
     )
     async def test___call__(
         self, assert_template_string: AssertTemplateString, expected: str, data: Any
-    ) -> None:  # noqa: F821
+    ) -> None:
         template = (
             "{% if data is image_media_type_supported %}true{% else %}false{% endif %}"
         )

@@ -22,7 +22,7 @@ class TestResolvedSequenceAdapter:
 
     def test___contains____with_invalid_value(self) -> None:
         def _resolver(value: Any) -> Any:
-            raise Exception
+            raise Exception  # noqa: TRY002
 
         sut = ResolvedSequenceAdapter([], value_resolver=_resolver)
         assert object() not in sut

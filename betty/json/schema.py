@@ -5,7 +5,7 @@ Provide JSON utilities.
 from __future__ import annotations
 
 import enum
-from typing import TYPE_CHECKING, Any, cast, final, override
+from typing import TYPE_CHECKING, Any, ClassVar, cast, final, override
 
 from jsonschema.validators import Draft202012Validator
 from referencing import Registry, Resource
@@ -413,7 +413,7 @@ class JsonSchemaSchema(Singleton, Schema):
     The JSON Schema Draft 2020-12 schema.
     """
 
-    _SCHEMA: PortableMapping = {
+    _SCHEMA: ClassVar[PortableMapping] = {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "$id": "https://json-schema.org/draft/2020-12/schema",
         "$vocabulary": {

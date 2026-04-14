@@ -1,8 +1,9 @@
 from collections.abc import AsyncIterator, Sequence
 from contextlib import asynccontextmanager
-from datetime import datetime
+from dataclasses import dataclass
+from datetime import UTC, datetime
 from functools import partial
-from typing import Any, Self, override
+from typing import override
 
 from betty.cache import Cache, CacheItem, CacheItemValueSetter
 from betty.concurrent import AsynchronizedLock, Ledger
@@ -10,7 +11,7 @@ from betty.typing import threadsafe
 
 
 class _StaticCacheItem[CacheItemValueT](CacheItem[CacheItemValueT]):
-    __slots__ = "_value", "_modified"
+    __slots__ = "_modified", "_value"
 
     def __init__(
         self,
@@ -18,7 +19,9 @@ class _StaticCacheItem[CacheItemValueT](CacheItem[CacheItemValueT]):
         modified: float | None = None,
     ):
         self._value = value
-        self._modified = datetime.now().timestamp() if modified is None else modified
+        self._modified = (
+            datetime.now(tz=UTC).timestamp() if modified is None else modified
+        )
 
     @override
     async def value(self) -> CacheItemValueT:
@@ -30,14 +33,10 @@ class _StaticCacheItem[CacheItemValueT](CacheItem[CacheItemValueT]):
         return self._modified
 
 
-class _CommonCacheBaseState[CacheT: Cache[Any]]:
-    def __init__(
-        self,
-        cache_lock: AsynchronizedLock,
-        cache_item_lock_ledger: Ledger,
-    ):
-        self.cache_lock = cache_lock
-        self.cache_item_lock_ledger = cache_item_lock_ledger
+@dataclass(frozen=True)
+class _CommonCacheBaseState:
+    cache_lock: AsynchronizedLock
+    cache_item_lock_ledger: Ledger
 
 
 @threadsafe
@@ -46,7 +45,7 @@ class _CommonCacheBase[CacheItemValueT](Cache[CacheItemValueT]):
         self,
         *,
         scopes: Sequence[str] | None = None,
-        state: _CommonCacheBaseState[Self] | None = None,
+        state: _CommonCacheBaseState | None = None,
     ):
         self._scopes = scopes or ()
         if state is not None:

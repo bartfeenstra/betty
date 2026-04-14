@@ -192,10 +192,7 @@ async def _create_list_commands_action_class(
             import rich  # noqa: F811
 
             usage = localizer._("Usage: ")
-            for (
-                index,
-                command_definition,  # noqa: F402
-            ) in enumerate(command_definitions):
+            for index, command_definition in enumerate(command_definitions):
                 if index != 0:
                     rich.print("")
                 rich.print(
@@ -299,10 +296,8 @@ async def call_command_func(
     """
     Call a command function.
     """
-    await command_func(
-        **{
-            name: value
-            for name, value in vars(namespace).items()
-            if not name.startswith("_")
-        }
-    )
+    await command_func(**{
+        name: value
+        for name, value in vars(namespace).items()
+        if not name.startswith("_")
+    })

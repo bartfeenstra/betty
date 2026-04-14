@@ -24,14 +24,12 @@ from betty.sample import Sample
                 id="genderqueer",
                 label="Genderqueer",
                 label_plural="Genderqueers",
-                label_countable=CountableStaticTranslations(
-                    {
-                        DEFAULT_LOCALE: {
-                            "one": "{count} genderqueer",
-                            "other": "{count} genderqueers",
-                        }
+                label_countable=CountableStaticTranslations({
+                    DEFAULT_LOCALE: {
+                        "one": "{count} genderqueer",
+                        "other": "{count} genderqueers",
                     }
-                ),
+                }),
             ),
             label="Default",
         )

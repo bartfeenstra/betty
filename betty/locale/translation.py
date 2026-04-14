@@ -15,7 +15,6 @@ from aiofiles.os import makedirs
 from aiofiles.ospath import exists
 from polib import pofile
 
-import betty
 import betty.dirs
 from betty.hashid import hashid_file_meta
 from betty.locale import (
@@ -168,8 +167,8 @@ def _find_source_files(
     """
     excludes = {exclude.expanduser().resolve() for exclude in excludes}
     for input_path in inputs:
-        for input_file_path in input_path.expanduser().resolve().rglob("*"):
-            input_file_path = input_path / input_file_path
+        for relative_input_file_path in input_path.expanduser().resolve().rglob("*"):
+            input_file_path = input_path / relative_input_file_path
             if excludes & set(input_file_path.parents):
                 continue
             if input_file_path.suffix in {".j2", ".py"}:
@@ -218,9 +217,9 @@ class StaticTranslationRepository(TranslationRepository):
             raise UntranslatedLocale(locale) from None
 
 
-DEFAULT_TRANSLATION_REPOSITORY = StaticTranslationRepository(
-    {DEFAULT_LOCALE: gettext.NullTranslations()}
-)
+DEFAULT_TRANSLATION_REPOSITORY = StaticTranslationRepository({
+    DEFAULT_LOCALE: gettext.NullTranslations()
+})
 """
 The translation repository for the default locale.
 """

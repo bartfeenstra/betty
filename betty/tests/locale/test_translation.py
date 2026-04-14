@@ -225,12 +225,12 @@ class TestProxyTranslationRepository:
     def test_locales(self) -> None:
         locale_one = Locale("nl")
         locale_two = Locale("uk")
-        upstream_one = StaticTranslationRepository(
-            {locale_one: gettext.NullTranslations()}
-        )
-        upstream_two = StaticTranslationRepository(
-            {locale_two: gettext.NullTranslations()}
-        )
+        upstream_one = StaticTranslationRepository({
+            locale_one: gettext.NullTranslations()
+        })
+        upstream_two = StaticTranslationRepository({
+            locale_two: gettext.NullTranslations()
+        })
         sut = ProxyTranslationRepository(upstream_one, upstream_two)
         assert list(sut.locales) == [locale_one, locale_two]
 

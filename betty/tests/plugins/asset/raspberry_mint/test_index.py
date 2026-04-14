@@ -16,7 +16,8 @@ def file() -> str:
         / "raspberry-mint"
         / "public"
         / "localized"
-        / "index.html.j2"
+        / "index.html.j2",
+        encoding="utf-8",
     ) as f:
         return f.read()
 

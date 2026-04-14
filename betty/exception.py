@@ -76,12 +76,10 @@ class HumanFacingException(Exception, Localizable):
 
         return Lines(
             self._localizable_message,
-            UnorderedList(
-                *[
-                    selector.format()
-                    for selector in Selectors.reduce(*reversed(self.indicators))
-                ]
-            ),
+            UnorderedList(*[
+                selector.format()
+                for selector in Selectors.reduce(*reversed(self.indicators))
+            ]),
         ).localize(localizer)
 
     @property

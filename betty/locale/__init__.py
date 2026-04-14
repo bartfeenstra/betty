@@ -186,7 +186,7 @@ class HasLocaleStr(HasLocale, str):
     A string that has a locale.
     """
 
-    __slots__ = "_locale"
+    __slots__ = ("_locale",)
 
     @override
     def __new__(cls, string: str, *, locale: Locale | None = None):

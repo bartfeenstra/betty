@@ -1,4 +1,4 @@
-from collections.abc import AsyncIterator  # noqa: I001
+from collections.abc import AsyncIterator
 
 import pytest
 from playwright.async_api import Page, expect
@@ -27,7 +27,7 @@ class TestSwaggerUi:
     @check_skip_playwright
     @check_skip_webpack_entry_point_provider
     async def test(self, page: Page, served_project: tuple[Project, Server]) -> None:
-        project, server = served_project
+        _project, server = served_project
         await page.goto(server.public_url + "/api/index.html")
         locator = page.locator("#swagger-ui")
         # Test a couple of keywords in the source.

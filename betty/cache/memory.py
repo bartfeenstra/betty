@@ -5,34 +5,23 @@ Provide caching that stores cache items in volatile memory.
 from __future__ import annotations
 
 from collections.abc import MutableMapping, Sequence
-from typing import TYPE_CHECKING, Self, final, override
+from dataclasses import dataclass
+from typing import Self, final, override
 
 from betty.cache import CacheItem
 from betty.cache._base import _CommonCacheBase, _CommonCacheBaseState, _StaticCacheItem
 from betty.typing import threadsafe
 
-if TYPE_CHECKING:
-    from betty.concurrent import AsynchronizedLock, Ledger
-
-
 type _MemoryCacheStore[CacheItemValueT] = MutableMapping[
     tuple[str, ...],
-    "CacheItem[CacheItemValueT] | None | _MemoryCacheStore[CacheItemValueT]",
+    CacheItem[CacheItemValueT] | None | _MemoryCacheStore[CacheItemValueT],
 ]
 
 
 @final
-class _MemoryCacheState[CacheItemValueT](
-    _CommonCacheBaseState["MemoryCache[CacheItemValueT]"],
-):
-    def __init__(
-        self,
-        cache_lock: AsynchronizedLock,
-        cache_item_lock_ledger: Ledger,
-        store: _MemoryCacheStore[CacheItemValueT],
-    ):
-        super().__init__(cache_lock, cache_item_lock_ledger)
-        self.store = store
+@dataclass(frozen=True)
+class _MemoryCacheState(_CommonCacheBaseState):
+    store: _MemoryCacheStore
 
 
 @final
@@ -48,7 +37,7 @@ class MemoryCache[CacheItemValueT](_CommonCacheBase[CacheItemValueT]):
         self,
         *,
         scopes: Sequence[str] | None = None,
-        state: _MemoryCacheState[CacheItemValueT] | None = None,
+        state: _MemoryCacheState | None = None,
     ):
         super().__init__(scopes=scopes, state=state)
         if state is None:
@@ -60,7 +49,7 @@ class MemoryCache[CacheItemValueT](_CommonCacheBase[CacheItemValueT]):
     def with_scope(self, scope: str, /) -> Self:
         return type(self)(
             scopes=(*self._scopes, scope),
-            state=_MemoryCacheState[CacheItemValueT](
+            state=_MemoryCacheState(
                 self._cache_lock, self._cache_item_lock_ledger, self._store
             ),
         )

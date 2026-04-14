@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -33,7 +33,7 @@ if TYPE_CHECKING:
 def _expand_person(generation: int) -> Sequence[tuple[bool, Privacy, Event | None]]:
     multiplier = abs(generation) + 1 if generation < 0 else 1
     lifetime_threshold_year = (
-        datetime.now().year - DEFAULT_LIFETIME_THRESHOLD * multiplier
+        datetime.now(tz=UTC).year - DEFAULT_LIFETIME_THRESHOLD * multiplier
     )
     date_under_lifetime_threshold = Date(lifetime_threshold_year + 1, 1, 1)
     date_range_start_under_lifetime_threshold = DateRange(date_under_lifetime_threshold)
@@ -59,7 +59,9 @@ def _expand_person(generation: int) -> Sequence[tuple[bool, Privacy, Event | Non
             Event(
                 event_type=Death(),
                 date=Date(
-                    datetime.now().year, datetime.now().month, datetime.now().day
+                    datetime.now(tz=UTC).year,
+                    datetime.now(tz=UTC).month,
+                    datetime.now(tz=UTC).day,
                 ),
             ),
         ),

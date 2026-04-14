@@ -28,7 +28,7 @@ class TestProperty:
 
         owner = _Owner()
         with pytest.raises(PropertyNotInitialized):
-            _Owner.my_first_property.get(owner)  # noqa: B018
+            _Owner.my_first_property.get(owner)
 
     def test___set__(self) -> None:
         class _Owner:

@@ -156,9 +156,7 @@ class TestGrampsLoader:
         with gzip.open(gramps_file_path, "w") as f:
             f.write(_minimal_xml().encode("utf-8"))
         gpkg_file_path = tmp_path / "gramps.gpkg"
-        with tarfile.open(  # noqa: SIM115
-            name=gpkg_file_path, mode="w:gz"
-        ) as tar_file:
+        with tarfile.open(name=gpkg_file_path, mode="w:gz") as tar_file:
             tar_file.add(gramps_file_path, "/data.gramps")
         sut = GrampsLoader(
             isolated_project.ancestry,
@@ -203,9 +201,7 @@ class TestGrampsLoader:
         with gzip.open(gramps_file_path, "w") as f:
             f.write(_minimal_xml().encode("utf-8"))
         gpkg_file_path = tmp_path / "gramps.gpkg"
-        with tarfile.open(  # noqa: SIM115
-            name=gpkg_file_path, mode="w:gz"
-        ) as tar_file:
+        with tarfile.open(name=gpkg_file_path, mode="w:gz") as tar_file:
             tar_file.add(gramps_file_path, "/data.gramps")
         sut = GrampsLoader(
             isolated_project.ancestry,
@@ -541,7 +537,7 @@ class TestGrampsLoader:
         )
         place = ancestry[Place]["P0000"]
         assert place.notes
-        note = list(place.notes)[0]
+        note = next(iter(place.notes))
         assert note.id == "N0000"
 
     @pytest.mark.parametrize(
@@ -631,7 +627,7 @@ class TestGrampsLoader:
         )
         assert (
             ancestry[Place]["P0000"]
-            == list(ancestry[Place]["P0002"].enclosers)[0].encloser
+            == next(iter(ancestry[Place]["P0002"].enclosers)).encloser
         )
         assert (
             ancestry[Place]["P0001"]
@@ -639,11 +635,11 @@ class TestGrampsLoader:
         )
         assert (
             ancestry[Place]["P0002"]
-            == list(ancestry[Place]["P0000"].enclosees)[0].enclosee
+            == next(iter(ancestry[Place]["P0000"].enclosees)).enclosee
         )
         assert (
             ancestry[Place]["P0002"]
-            == list(ancestry[Place]["P0001"].enclosees)[0].enclosee
+            == next(iter(ancestry[Place]["P0001"].enclosees)).enclosee
         )
 
     async def test_person_should_include_names(self, load_partial: LoadPartial) -> None:
@@ -675,8 +671,8 @@ class TestGrampsLoader:
         )
         person = ancestry[Person]["I0000"]
 
-        assert list(person.names)[0].individual == "Jane"
-        assert list(person.names)[0].affiliation == "Doe"
+        assert next(iter(person.names)).individual == "Jane"
+        assert next(iter(person.names)).affiliation == "Doe"
         assert list(person.names)[1].individual == "Jane"
         assert list(person.names)[1].affiliation == "Doh"
         assert list(person.names)[2].individual == "Jen"
@@ -704,7 +700,7 @@ class TestGrampsLoader:
 """,
             role_mapping={"MyFirstRole": Subject},
         )
-        event = list(ancestry[Person]["I0000"].presences)[0].event
+        event = next(iter(ancestry[Person]["I0000"].presences)).event
         assert event is not None
         assert event.id == "E0000"
 
@@ -826,7 +822,7 @@ class TestGrampsLoader:
         )
         person = ancestry[Person]["I0000"]
         assert person.notes
-        note = list(person.notes)[0]
+        note = next(iter(person.notes))
         assert note.id == "N0000"
 
     async def test_person_should_include_file(
@@ -852,7 +848,7 @@ class TestGrampsLoader:
         )
         person = ancestry[Person]["I0000"]
         assert person.file_references
-        file_reference = list(person.file_references)[0]
+        file_reference = next(iter(person.file_references))
         assert file_reference.file.id == "O0000"
 
     async def test_person_should_include_file_with_focus(
@@ -879,7 +875,7 @@ class TestGrampsLoader:
         )
         person = ancestry[Person]["I0000"]
         assert person.file_references
-        file_reference = list(person.file_references)[0]
+        file_reference = next(iter(person.file_references))
         assert file_reference.focus == (1, 2, 3, 4)
         assert file_reference.file.id == "O0000"
 
@@ -1002,11 +998,11 @@ class TestGrampsLoader:
         )
         event = ancestry[Event]["E0000"]
         father = ancestry[Person]["I0000"]
-        assert isinstance(list(father.presences)[0].role, Subject)
-        assert list(father.presences)[0].event is event
+        assert isinstance(next(iter(father.presences)).role, Subject)
+        assert next(iter(father.presences)).event is event
         mother = ancestry[Person]["I0001"]
-        assert isinstance(list(mother.presences)[0].role, Subject)
-        assert list(mother.presences)[0].event is event
+        assert isinstance(next(iter(mother.presences)).role, Subject)
+        assert next(iter(mother.presences)).event is event
 
     async def test_event_should_map_type(self, load_partial: LoadPartial) -> None:
         ancestry = await load_partial(
@@ -1158,7 +1154,7 @@ class TestGrampsLoader:
         )
         event = ancestry[Event]["E0000"]
         assert event.notes
-        note = list(event.notes)[0]
+        note = next(iter(event.notes))
         assert note.id == "N0000"
 
     @pytest.mark.parametrize(
@@ -1473,7 +1469,7 @@ class TestGrampsLoader:
         )
         links = ancestry[Source]["R0000"].links
         assert len(links) == 1
-        link = list(links)[0]
+        link = next(iter(links))
         assert link.url.localize(DEFAULT_LOCALIZER) == "https://alexandria.example.com"
         assert link.label is not None
         assert (
@@ -1573,7 +1569,7 @@ class TestGrampsLoader:
         )
         source = ancestry[Source]["R0000"]
         assert source.notes
-        note = list(source.notes)[0]
+        note = next(iter(source.notes))
         assert note.id == "N0000"
 
     async def test_source_from_source_should_include_note(
@@ -1595,7 +1591,7 @@ class TestGrampsLoader:
         )
         source = ancestry[Source]["S0000"]
         assert source.notes
-        note = list(source.notes)[0]
+        note = next(iter(source.notes))
         assert note.id == "N0000"
 
     async def test__load_attribute_links_should_include_attribute_links_minimal(
@@ -1956,7 +1952,7 @@ class TestGrampsLoader:
         )
         file = ancestry[File]["O0000"]
         assert file.notes
-        note = list(file.notes)[0]
+        note = next(iter(file.notes))
         assert note.id == "N0000"
 
     async def test_file_should_include_copyright_notice(
@@ -2221,7 +2217,7 @@ class TestGrampsLoader:
             role_mapping={"MyFirstRole": Subject},
         )
         person = ancestry[Person]["I0000"]
-        presence = list(person.presences)[0]
+        presence = next(iter(person.presences))
         assert isinstance(presence.role, Subject)
 
     async def test__load_eventref_should_include_privacy(
@@ -2244,7 +2240,7 @@ class TestGrampsLoader:
 """
         )
         person = ancestry[Person]["I0000"]
-        presence = list(person.presences)[0]
+        presence = next(iter(person.presences))
         assert presence.private
 
     async def test_url_should_include_path_as_url(
@@ -2262,7 +2258,7 @@ class TestGrampsLoader:
         )
         links = ancestry[Person]["I0000"].links
         assert len(links) == 1
-        link = list(links)[0]
+        link = next(iter(links))
         assert link.url.localize(DEFAULT_LOCALIZER) == "https://alexandria.example.com"
 
     async def test_url_should_include_description_as_label(
@@ -2280,7 +2276,7 @@ class TestGrampsLoader:
         )
         links = ancestry[Person]["I0000"].links
         assert len(links) == 1
-        link = list(links)[0]
+        link = next(iter(links))
         assert link.label is not None
         assert (
             link.label.localize(DEFAULT_LOCALIZER) == "Library of Alexandria Catalogue"
@@ -2301,7 +2297,7 @@ class TestGrampsLoader:
         )
         links = ancestry[Person]["I0000"].links
         assert len(links) == 1
-        link = list(links)[0]
+        link = next(iter(links))
         assert link.relationship == "external"
 
     @pytest.mark.parametrize(

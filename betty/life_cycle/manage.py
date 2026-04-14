@@ -66,17 +66,17 @@ class LifeCycleManager(LifeCycle):
     async def bootstrap(self) -> None:
         await super().bootstrap()
         for bootstrappers in self._bootstrappers:
-            await gather(
-                *[resolve_await(bootstrapper()) for bootstrapper in bootstrappers]
-            )
+            await gather(*[
+                resolve_await(bootstrapper()) for bootstrapper in bootstrappers
+            ])
 
     @override
     async def shutdown(self, *, wait: bool = True) -> None:
         await super().shutdown(wait=wait)
         for shutdowners in self._shutdowners:
-            await gather(
-                *[resolve_await(shutdowner(wait=wait)) for shutdowner in shutdowners]
-            )
+            await gather(*[
+                resolve_await(shutdowner(wait=wait)) for shutdowner in shutdowners
+            ])
 
     async def synchronize(self, *life_cycles: LifeCycle) -> None:
         """
@@ -90,9 +90,9 @@ class LifeCycleManager(LifeCycle):
         else:
             for life_cycle in life_cycles:
                 life_cycle.assert_not_bootstrapped()
-            self._bootstrappers.append(
-                [life_cycle.bootstrap for life_cycle in life_cycles]
-            )
+            self._bootstrappers.append([
+                life_cycle.bootstrap for life_cycle in life_cycles
+            ])
         self._shutdowners.append([life_cycle.shutdown for life_cycle in life_cycles])
 
     def on_bootstrap(self, *bootstrappers: Bootstrapper) -> None:

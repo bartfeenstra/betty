@@ -21,7 +21,7 @@ class TestHasFileReferences:
     )
     async def test___call__(
         self, assert_template_string: AssertTemplateString, expected: str, data: Any
-    ) -> None:  # noqa: F821
+    ) -> None:
         template = "{% if data is has_file_references %}true{% else %}false{% endif %}"
         async with assert_template_string(
             template=template,

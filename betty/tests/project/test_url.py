@@ -1,5 +1,5 @@
 from collections.abc import Mapping, Sequence
-from typing import Any
+from typing import Any, ClassVar
 
 import pytest
 from babel import Locale
@@ -102,7 +102,7 @@ class Test_LocalizedPathUrlUrlGenerator:
         sut = await _LocalizedPathUrlUrlGenerator.new(isolated_project)
         assert sut.supports(resource) == expected
 
-    _GENERATE_RESOURCES = [
+    _GENERATE_RESOURCES: ClassVar[Sequence[str]] = [
         "betty://some/path/index.html",
         "betty:///some/path/index.html",
     ]
@@ -194,7 +194,7 @@ class Test_LocalizedPathUrlUrlGenerator:
 
 
 class Test_StaticPathUrlUrlGenerator:
-    _GENERATE_RESOURCES = [
+    _GENERATE_RESOURCES: ClassVar[Sequence[str]] = [
         "betty-static://some/path/index.html",
         "betty-static:///some/path/index.html",
     ]

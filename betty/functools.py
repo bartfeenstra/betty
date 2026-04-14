@@ -79,7 +79,7 @@ class Do[**DoFP, DoFReturnT]:
                 )
                 for condition in conditions:
                     if await resolve_await(condition(do_result)) is False:
-                        raise RuntimeError(
+                        raise RuntimeError(  # noqa: TRY301
                             f"Condition {condition} was not met for {do_result}."
                         )
             except Exception:
@@ -165,10 +165,11 @@ class Result[**P, T]:
         """
         try:
             self._result = self._target(*args, **kwargs)
-            return self._result
         except BaseException as error:
             self._error = error
             raise
+        else:
+            return self._result
 
     def result(self) -> T:
         """
@@ -241,7 +242,7 @@ class DecoratedCallable[**P, ReturnT]:
         Call the decorated function.
         """
         if not callable(self._decorated):
-            raise RuntimeError("This is not supported")
+            raise TypeError(f"{self._decorated} is not supported")
         return self._decorator(
             self._decorated,  # ty:ignore[invalid-argument-type]
         )(*args, **kwargs)
@@ -289,7 +290,7 @@ class LazyReCallable[ValueT]:
     The proxied callable will at most be called once.
     """
 
-    __slots__ = "_lock", "_factory", "_value"
+    __slots__ = "_factory", "_lock", "_value"
     _value: ValueT
 
     def __init__(self, factory: Callable[[], ValueT], /):

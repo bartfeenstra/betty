@@ -27,7 +27,8 @@ class TestCountableLocalizable:
     def test_format(self) -> None:
         sut = self._Sut()
         assert (
-            sut.count(9)
+            sut
+            .count(9)
             .format(format_placeholder="format-value")
             .localize(DEFAULT_LOCALIZER)
             == "format-value"
@@ -56,14 +57,12 @@ def test_resolve_localizable__with_mapping() -> None:
 
 
 def test_resolve_countable_localizable__with_localizable() -> None:
-    localizable = CountableStaticTranslations(
-        {
-            DEFAULT_LOCALE: {
-                "one": "{count} world",
-                "other": "{count} worlds",
-            },
-        }
-    )
+    localizable = CountableStaticTranslations({
+        DEFAULT_LOCALE: {
+            "one": "{count} world",
+            "other": "{count} worlds",
+        },
+    })
     assert resolve_countable_localizable(localizable) is localizable
 
 

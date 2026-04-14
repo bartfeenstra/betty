@@ -43,9 +43,7 @@ class File(JinjaFilter, Manufacturable):
         return cls(www_directory=project.www_directory)
 
     @pass_context
-    async def __call__(  # noqa: D102
-        self, context: Context, file: FileEntity, /
-    ) -> str:
+    async def __call__(self, context: Context, file: FileEntity, /) -> str:
         """
         :return: A ``betty-static://`` URL resource from which a public URL can be generated.
         """

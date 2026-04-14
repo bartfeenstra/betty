@@ -168,20 +168,18 @@ class RaspberryMint(
         return dict(
             zip(
                 self._regional_content_manufacturers.keys(),
-                await gather(
-                    *[
-                        gather(
-                            *map(
-                                self._project.factory.new,
-                                map(
-                                    ContentManufacturer.resolve,
-                                    region_content,
-                                ),
-                            )
+                await gather(*[
+                    gather(
+                        *map(
+                            self._project.factory.new,
+                            map(
+                                ContentManufacturer.resolve,
+                                region_content,
+                            ),
                         )
-                        for region_content in self._regional_content_manufacturers.values()
-                    ]
-                ),
+                    )
+                    for region_content in self._regional_content_manufacturers.values()
+                ]),
                 strict=False,
             )
         )

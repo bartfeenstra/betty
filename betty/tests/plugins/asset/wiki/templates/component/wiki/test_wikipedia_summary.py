@@ -15,7 +15,7 @@ async def test(assert_template_file: AssertTemplateFile) -> None:
         },
         service_plugins={Wiki},
         template="component/wiki/wikipedia-summary.html.j2",
-    ) as (actual, project):
+    ) as (actual, _project):
         assert summary.content in actual
         assert copyright_notice.summary.localize(DEFAULT_LOCALIZER) in actual
         assert copyright_notice.url is not None

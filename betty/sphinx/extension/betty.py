@@ -161,26 +161,22 @@ class _PluginDirective(SphinxDirective):
      - {configuration_content}
 """
         if isinstance(plugin, OrderedPluginDefinition):
-            if after_content := self._build_other_plugins_references(
-                [
-                    after_plugin
-                    for plugin_id in filter(plugin.after, plugins[plugin.type().id])
-                    if (after_plugin := plugins[plugin.type().id][plugin_id])
-                    and isinstance(after_plugin, PluginClsDefinition)
-                ]
-            ):
+            if after_content := self._build_other_plugins_references([
+                after_plugin
+                for plugin_id in filter(plugin.after, plugins[plugin.type().id])
+                if (after_plugin := plugins[plugin.type().id][plugin_id])
+                and isinstance(after_plugin, PluginClsDefinition)
+            ]):
                 content += f"""
    * - Comes after
 {after_content}
 """
-            if before_content := self._build_other_plugins_references(
-                [
-                    before_plugin
-                    for plugin_id in filter(plugin.before, plugins[plugin.type().id])
-                    if (before_plugin := plugins[plugin.type().id][plugin_id])
-                    and isinstance(before_plugin, PluginClsDefinition)
-                ]
-            ):
+            if before_content := self._build_other_plugins_references([
+                before_plugin
+                for plugin_id in filter(plugin.before, plugins[plugin.type().id])
+                if (before_plugin := plugins[plugin.type().id][plugin_id])
+                and isinstance(before_plugin, PluginClsDefinition)
+            ]):
                 content += f"""
    * - Comes before
 {before_content}
@@ -264,16 +260,14 @@ class _PluginTypeDirective(SphinxDirective):
                     f"Built-in {plugin_type.type().label_plural.localize(DEFAULT_LOCALIZER).lower()}:"
                 ),
             ),
-            _build_definition_list(
-                [
-                    self._build_builtin_plugin_definition(plugin)
-                    for plugin in sorted(
-                        plugins[plugin_type.type().id].values(),
-                        key=lambda plugin: plugin.id,
-                    )
-                    if isinstance(plugin, PluginClsDefinition)
-                ]
-            ),
+            _build_definition_list([
+                self._build_builtin_plugin_definition(plugin)
+                for plugin in sorted(
+                    plugins[plugin_type.type().id].values(),
+                    key=lambda plugin: plugin.id,
+                )
+                if isinstance(plugin, PluginClsDefinition)
+            ]),
         ]
 
     def _build_builtin_plugin_definition(
@@ -296,17 +290,15 @@ class _PluginTypesDirective(SphinxDirective):
     @override
     def run(self) -> list[nodes.Node]:
         return [
-            _build_definition_list(
-                [
-                    self._build_builtin_plugin_type_definition(plugin_type.type)
-                    for plugin_type in sorted(
-                        UNIVERSE.plugins,
-                        key=lambda plugin_type: plugin_type.type.type().label.localize(
-                            DEFAULT_LOCALIZER
-                        ),
-                    )
-                ]
-            ),
+            _build_definition_list([
+                self._build_builtin_plugin_type_definition(plugin_type.type)
+                for plugin_type in sorted(
+                    UNIVERSE.plugins,
+                    key=lambda plugin_type: plugin_type.type.type().label.localize(
+                        DEFAULT_LOCALIZER
+                    ),
+                )
+            ]),
         ]
 
     def _build_builtin_plugin_type_definition(

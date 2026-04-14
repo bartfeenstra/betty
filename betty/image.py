@@ -165,6 +165,7 @@ def resize_cover(
         crop_top -= crop_bottom - original_image.height
         crop_bottom = original_image.height
 
-    return original_image.crop((crop_left, crop_top, crop_right, crop_bottom)).resize(
-        (resize_width or original_image.width, resize_height or original_image.height)
-    )
+    return original_image.crop((crop_left, crop_top, crop_right, crop_bottom)).resize((
+        resize_width or original_image.width,
+        resize_height or original_image.height,
+    ))
