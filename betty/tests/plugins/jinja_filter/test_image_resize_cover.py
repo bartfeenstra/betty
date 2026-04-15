@@ -1,6 +1,5 @@
 from pathlib import Path
 
-import aiofiles
 import pytest
 from PIL import Image
 from puremagic import from_file
@@ -140,8 +139,8 @@ class TestImageResizeCover:
         self, assert_template_string: AssertTemplateString, tmp_path: Path
     ) -> None:
         image_path = tmp_path / "image.svg"
-        async with aiofiles.open(image_path, "w") as f:
-            await f.write(
+        with open(image_path, "w", encoding="utf-8") as f:
+            f.write(
                 '<?xml version="1.0" encoding="UTF-8"?><svg version="1.1" xmlns="http://www.w3.org/2000/svg"></svg>'
             )
         async with assert_template_string(

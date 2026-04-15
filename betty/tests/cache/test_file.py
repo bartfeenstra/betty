@@ -1,10 +1,10 @@
 from collections.abc import AsyncIterator, Iterator, Sequence
 from contextlib import asynccontextmanager
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Any, override
 
 import pytest
-from aiofiles.tempfile import TemporaryDirectory
 
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.test_utils.cache import CacheTestBase
@@ -18,7 +18,7 @@ class TestPickledFileCache(CacheTestBase[Any]):
         *,
         scopes: Sequence[str] | None = None,
     ) -> AsyncIterator[PickledFileCache[Any]]:
-        async with TemporaryDirectory() as cache_directory_path_str:
+        with TemporaryDirectory() as cache_directory_path_str:
             yield PickledFileCache(Path(cache_directory_path_str), scopes=scopes)
 
     @override
@@ -39,7 +39,7 @@ class TestBinaryFileCache(CacheTestBase[bytes]):
         *,
         scopes: Sequence[str] | None = None,
     ) -> AsyncIterator[BinaryFileCache]:
-        async with TemporaryDirectory() as cache_directory_path_str:
+        with TemporaryDirectory() as cache_directory_path_str:
             yield BinaryFileCache(Path(cache_directory_path_str), scopes=scopes)
 
     @override

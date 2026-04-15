@@ -1,7 +1,5 @@
 from pathlib import Path
 
-import aiofiles
-
 from betty.plugins.entity.person import Person
 from betty.project import Project, ProjectLocale
 from betty.project.generate import generate
@@ -25,10 +23,10 @@ async def test_generate__html_lang(
         ),
     ) as project:
         await generate(project)
-        async with aiofiles.open(
-            await assert_betty_html(project, "/nl/index.html")
+        with open(
+            await assert_betty_html(project, "/nl/index.html"), encoding="utf-8"
         ) as f:
-            html = await f.read()
+            html = f.read()
             assert '<html lang="nl-NL"' in html
 
 
@@ -48,10 +46,10 @@ async def test_generate__links(
         ),
     ) as project:
         await generate(project)
-        async with aiofiles.open(
-            await assert_betty_html(project, "/nl/index.html")
+        with open(
+            await assert_betty_html(project, "/nl/index.html"), encoding="utf-8"
         ) as f:
-            html = await f.read()
+            html = f.read()
             assert (
                 '<link rel="canonical" href="https://example.com/nl/index.html" hreflang="nl-NL" type="text/html">'
                 in html
@@ -60,10 +58,10 @@ async def test_generate__links(
                 '<link rel="alternate" href="/en/index.html" hreflang="en-US" type="text/html">'
                 in html
             )
-        async with aiofiles.open(
-            await assert_betty_html(project, "/en/index.html")
+        with open(
+            await assert_betty_html(project, "/en/index.html"), encoding="utf-8"
         ) as f:
-            html = await f.read()
+            html = f.read()
             assert (
                 '<link rel="canonical" href="https://example.com/en/index.html" hreflang="en-US" type="text/html">'
                 in html
@@ -92,12 +90,13 @@ async def test_generate__links_for_entity_pages(
         person = Person(id="PERSON1")
         project.ancestry.add(person)
         await generate(project)
-        async with aiofiles.open(
+        with open(
             await assert_betty_html(
                 project, f"/nl/person/{person.public_id}/index.html"
-            )
+            ),
+            encoding="utf-8",
         ) as f:
-            html = await f.read()
+            html = f.read()
         assert (
             f'<link rel="canonical" href="https://example.com/nl/person/{person.public_id}/index.html" hreflang="nl-NL" type="text/html">'
             in html
@@ -110,12 +109,13 @@ async def test_generate__links_for_entity_pages(
             f'<link rel="alternate" href="/person/{person.public_id}/index.json" hreflang="und" type="application/json">'
             in html
         )
-        async with aiofiles.open(
+        with open(
             await assert_betty_html(
                 project, f"/en/person/{person.public_id}/index.html"
-            )
+            ),
+            encoding="utf-8",
         ) as f:
-            html = await f.read()
+            html = f.read()
         assert (
             f'<link rel="canonical" href="https://example.com/en/person/{person.public_id}/index.html" hreflang="en-US" type="text/html">'
             in html
@@ -136,10 +136,12 @@ class TestResourceOverride:
             Path(isolated_project.assets_directory) / "public" / "localized"
         )
         localized_assets_directory_path.mkdir(parents=True)
-        async with aiofiles.open(
-            str(localized_assets_directory_path / "index.html.j2"), "w"
+        with open(
+            str(localized_assets_directory_path / "index.html.j2"),
+            "w",
+            encoding="utf-8",
         ) as f:
-            await f.write("{% block page_content %}Betty was here{% endblock %}")
+            f.write("{% block page_content %}Betty was here{% endblock %}")
         await generate(isolated_project)
-        async with aiofiles.open(isolated_project.www_directory / "index.html") as f:
-            assert "Betty was here" in await f.read()
+        with open(isolated_project.www_directory / "index.html", encoding="utf-8") as f:
+            assert "Betty was here" in f.read()

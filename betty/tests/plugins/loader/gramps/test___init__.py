@@ -1,7 +1,6 @@
 import gzip
 from pathlib import Path
-
-from aiofiles.tempfile import TemporaryDirectory
+from tempfile import TemporaryDirectory
 
 from betty.event_type import EventTypeManufacturer
 from betty.load import LoaderManufacturer, load
@@ -253,7 +252,7 @@ class TestGramps:
   </notes>
 </database>
 """.strip()
-        async with TemporaryDirectory() as working_directory_path_str:
+        with TemporaryDirectory() as working_directory_path_str:
             working_directory_path = Path(working_directory_path_str)
             gramps_family_tree_one_path = working_directory_path / "one.gramps"
             with gzip.open(gramps_family_tree_one_path, "w") as f:

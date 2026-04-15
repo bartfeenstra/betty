@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
+from asyncio import to_thread
 from concurrent import futures
 from contextlib import AsyncExitStack, asynccontextmanager
 from os import environ
 from pathlib import Path
+from shutil import rmtree
+from tempfile import mkdtemp
 from typing import TYPE_CHECKING, Any, Literal, Self, final, override
 
-from aiofiles.tempfile import TemporaryDirectory
 from aiohttp_client_cache.backends.filesystem import FileBackend
 from aiohttp_client_cache.session import CachedSession
 
@@ -191,8 +193,9 @@ class App(
         async with AsyncExitStack() as exit_stack:
             if cache_directory is None:
                 cache_directory = Path(
-                    await exit_stack.enter_async_context(TemporaryDirectory())
+                    await to_thread(mkdtemp),  # ty:ignore[invalid-argument-type]
                 )
+                exit_stack.push_async_callback(to_thread, rmtree, cache_directory)
             async with cls(
                 cache_directory=cache_directory,
                 cache=NoOpCache() if cache is None else cache,

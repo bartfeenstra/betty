@@ -11,11 +11,10 @@ from math import ceil
 from pathlib import Path
 from typing import TYPE_CHECKING, cast, final, override
 
-import aiofiles
-from aiofiles.os import makedirs
 from PIL import Image
 
 from betty.entity import EntityDefinition, persistent_id
+from betty.file import read, write
 from betty.jinja import make_copy_function
 from betty.job import Job
 from betty.locale.localizable.gettext import _
@@ -23,11 +22,6 @@ from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type.media_types import HTML, JSON
 from betty.openapi import Specification
 from betty.privacy import is_public
-from betty.project.generate.file import (
-    create_file,
-    create_html_resource,
-    create_json_resource,
-)
 from betty.project.schema import ProjectSchema
 from betty.string import kebab_case_to_lower_camel_case
 
@@ -40,6 +34,19 @@ if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
     from betty.portable import PortableMapping
     from betty.project import Project
+
+
+async def _create_resource(file: Path, content: str, /) -> None:
+    await to_thread(file.parent.mkdir, exist_ok=True, parents=True)
+    return await write(file, content)
+
+
+async def _create_html_resource(resource: Path, content: str, /) -> None:
+    await _create_resource(resource / "index.html", content)
+
+
+async def _create_json_resource(resource: Path, content: str, /) -> None:
+    await _create_resource(resource / "index.json", content)
 
 
 @final
@@ -61,7 +68,6 @@ class GenerateStaticPublicAssets(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-
         assets = await self._project.assets
         jinja = await self._project.jinja
         copy_function = make_copy_function(
@@ -81,12 +87,11 @@ class GenerateStaticPublicAssets(Job):
         asset_path: Path,
         copy_function: CopyFunction,
     ) -> None:
-
         assets = await self._project.assets
         file_destination_path = self._project.www_directory / asset_path.relative_to(
             Path("public") / "static"
         )
-        await makedirs(file_destination_path.parent, exist_ok=True)
+        await to_thread(file_destination_path.parent.mkdir, exist_ok=True, parents=True)
         await copy_function(await assets.get(asset_path), file_destination_path)
 
 
@@ -185,11 +190,10 @@ class GenerateSitemap(Job):
                     for sitemap_batch_url in sitemap_batch_urls
                 ),
             )
-            async with aiofiles.open(
+            await write(
                 self._project.www_directory / f"sitemap-{sitemap_batch_index}.xml",
-                "w",
-            ) as f:
-                await f.write(rendered_sitemap_batch)
+                rendered_sitemap_batch,
+            )
 
         rendered_sitemap = self._SITEMAP_TEMPLATE.replace(
             "{{{ sitemaps }}}",
@@ -198,8 +202,7 @@ class GenerateSitemap(Job):
                 for sitemap_url in sitemap_urls
             ),
         )
-        async with aiofiles.open(self._project.www_directory / "sitemap.xml", "w") as f:
-            await f.write(rendered_sitemap)
+        await write(self._project.www_directory / "sitemap.xml", rendered_sitemap)
 
 
 @final
@@ -223,21 +226,13 @@ class GenerateRobotsTxt(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-
         url_generator = await self._project.url_generator
         rendered_robots_txt = self._ROBOTS_TXT_TEMPLATE.replace(
             "{{{ sitemap }}}",
             url_generator.generate("betty-static:///sitemap.xml", absolute=True),
         )
-        await to_thread(
-            self._project.www_directory.mkdir,
-            exist_ok=True,
-            parents=True,
-        )
-        async with aiofiles.open(
-            self._project.www_directory / "robots.txt", mode="w"
-        ) as f:
-            await f.write(rendered_robots_txt)
+        await to_thread(self._project.www_directory.mkdir, exist_ok=True, parents=True)
+        await write(self._project.www_directory / "robots.txt", rendered_robots_txt)
 
 
 @final
@@ -259,11 +254,10 @@ class GenerateOpenApi(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-
-        api_directory_path = self._project.www_directory / "api"
-        rendered_json = dumps(await Specification(self._project).build())
-        async with create_json_resource(api_directory_path) as f:
-            await f.write(rendered_json)
+        await _create_json_resource(
+            self._project.www_directory / "api",
+            dumps(await Specification(self._project).build()),
+        )
 
 
 @final
@@ -289,7 +283,6 @@ class GenerateLocalizedPublicAssets(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-
         assets = await self._project.assets
         localizers = await self._project.localizers
         jinja = await self._project.jinja
@@ -318,12 +311,11 @@ class GenerateLocalizedPublicAssets(Job):
         copy_function: CopyFunction,
         locale: Locale,
     ) -> None:
-
         assets = await self._project.assets
         file_destination_path = self._project.localize_www_directory(
             locale
         ) / asset_path.relative_to(Path("public") / "localized")
-        await makedirs(file_destination_path.parent, exist_ok=True)
+        await to_thread(file_destination_path.parent.mkdir, exist_ok=True, parents=True)
         await copy_function(await assets.get(asset_path), file_destination_path)
 
 
@@ -346,11 +338,11 @@ class GenerateJsonSchema(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-
         schema = await ProjectSchema.new(self._project)
         rendered_json = dumps(schema.schema)
-        async with create_file(ProjectSchema.www_path(self._project)) as f:
-            await f.write(rendered_json)
+        schema_path = ProjectSchema.www_path(self._project)
+        await to_thread(schema_path.parent.mkdir, exist_ok=True, parents=True)
+        await write(schema_path, rendered_json)
 
 
 @final
@@ -372,8 +364,7 @@ class GenerateJsonErrorResponses(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-
-        for code, message in [
+        codes = [
             (401, _("I'm sorry, dear, but it seems you're not logged in.")),
             (
                 403,
@@ -382,21 +373,20 @@ class GenerateJsonErrorResponses(Job):
                 ),
             ),
             (404, _("I'm sorry, dear, but it seems this page does not exist.")),
-        ]:
-            for locale in self._project.locales.keys():  # noqa: SIM118
-                async with create_file(
-                    self._project.localize_www_directory(locale)
-                    / ".error"
-                    / f"{code}.json"
-                ) as f:
-                    await f.write(
-                        dumps({
-                            "$schema": await ProjectSchema.def_url(
-                                self._project, "errorResponse"
-                            ),
-                            "message": message.localize(DEFAULT_LOCALIZER),
-                        })
-                    )
+        ]
+        for locale in self._project.locales.keys():  # noqa: SIM118
+            directory = self._project.localize_www_directory(locale) / ".error"
+            for code, message in codes:
+                await to_thread(directory.mkdir, exist_ok=True, parents=True)
+                await write(
+                    directory / f"{code}.json",
+                    dumps({
+                        "$schema": await ProjectSchema.def_url(
+                            self._project, "errorResponse"
+                        ),
+                        "message": message.localize(DEFAULT_LOCALIZER),
+                    }),
+                )
 
 
 @final
@@ -418,22 +408,14 @@ class GenerateFavicon(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-
-        await to_thread(
-            self._project.www_directory.mkdir,
-            exist_ok=True,
-            parents=True,
-        )
-
-        async with aiofiles.open(self._project.logo, "rb") as logo_f:
-            logo = BytesIO(await logo_f.read())
+        await to_thread(self._project.www_directory.mkdir, exist_ok=True, parents=True)
+        logo = BytesIO(await read(self._project.logo, mode="rb"))
         image = Image.open(logo)
         favicon = BytesIO()
         image.save(favicon, format="ICO")
-        async with aiofiles.open(
-            self._project.www_directory / "favicon.ico", "wb"
-        ) as favicon_f:
-            await favicon_f.write(favicon.getbuffer())
+        await write(
+            self._project.www_directory / "favicon.ico", favicon.getvalue(), mode="wb"
+        )
 
 
 @final
@@ -474,7 +456,6 @@ class _GenerateEntityTypeJson(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-
         url_generator = await self._project.url_generator
         entity_type_path = self._project.www_directory / self._entity_type.id
         data: PortableMapping = {
@@ -492,9 +473,7 @@ class _GenerateEntityTypeJson(Job):
                     absolute=True,
                 )
             )
-        rendered_json = dumps(data)
-        async with create_json_resource(entity_type_path) as f:
-            await f.write(rendered_json)
+        await _create_json_resource(entity_type_path, dumps(data))
 
 
 @final
@@ -517,7 +496,6 @@ class GenerateEntityTypesHtml(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-
         await gather(*[
             scheduler.add(
                 _GenerateEntityTypeHtml(
@@ -602,8 +580,7 @@ class _GenerateEntityTypeHtml(Job):
         )
         if self._page > 0:
             page_path /= f"page-{self._page + 1}"
-        async with create_html_resource(page_path) as f:
-            await f.write(rendered_html)
+        await _create_html_resource(page_path, rendered_html)
 
 
 @final
@@ -625,7 +602,6 @@ class GenerateEntitiesJson(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-
         await gather(*[
             scheduler.add(_GenerateEntityJson(self._project, entity_type, entity.id))
             async for entity_type in self._project.plugins[EntityDefinition]
@@ -648,14 +624,13 @@ class _GenerateEntityJson(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-
         entity = self._project.ancestry[self._entity_type.cls][self._entity_id]
         entity_path = (
             self._project.www_directory / self._entity_type.id / entity.public_id
         )
-        rendered_json = dumps(await entity.dump_linked_data(self._project))
-        async with create_json_resource(entity_path) as f:
-            await f.write(rendered_json)
+        await _create_json_resource(
+            entity_path, dumps(await entity.dump_linked_data(self._project))
+        )
 
 
 @final
@@ -677,7 +652,6 @@ class GenerateEntitiesHtml(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-
         await gather(*[
             scheduler.add(
                 _GenerateEntityHtml(self._project, entity_type, entity.id, locale)
@@ -734,5 +708,4 @@ class _GenerateEntityHtml(Job):
                 localizer=localizers.get(self._locale),
             )
         )
-        async with create_html_resource(entity_path) as f:
-            await f.write(rendered_html)
+        await _create_html_resource(entity_path, rendered_html)

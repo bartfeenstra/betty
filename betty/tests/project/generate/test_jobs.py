@@ -1,7 +1,6 @@
 import json
 from pathlib import Path
 
-import aiofiles
 import pytest
 from lxml import etree
 
@@ -247,13 +246,13 @@ class TestGenerateStaticPublicAssets:
         ) as project:
             await do(GenerateStaticPublicAssets(project=project))
 
-            async with aiofiles.open(
-                await assert_betty_html(project, "/index.html")
+            with open(
+                await assert_betty_html(project, "/index.html"), encoding="utf-8"
             ) as f:
                 meta_redirect = (
                     '<meta http-equiv="refresh" content="0; url=/nl/index.html">'
                 )
-                assert meta_redirect in await f.read()
+                assert meta_redirect in f.read()
 
 
 class TestGenerateLocalizedPublicAssets:

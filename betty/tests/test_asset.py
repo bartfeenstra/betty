@@ -1,7 +1,7 @@
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 import pytest
-from aiofiles.tempfile import TemporaryDirectory
 
 from betty.asset import (
     AssetDefinition,
@@ -56,9 +56,9 @@ class TestStaticAssetRepository:
         )
 
     async def test_directories(self) -> None:
-        async with TemporaryDirectory() as source_path_str_1:
+        with TemporaryDirectory() as source_path_str_1:
             source_path_1 = Path(source_path_str_1)
-            async with TemporaryDirectory() as source_path_str_2:
+            with TemporaryDirectory() as source_path_str_2:
                 source_path_2 = Path(source_path_str_2)
                 sut = StaticAssetRepository(source_path_1, source_path_2)
                 assert sut.directories == (source_path_1, source_path_2)

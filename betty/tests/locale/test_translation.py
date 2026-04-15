@@ -3,7 +3,6 @@ from __future__ import annotations
 import gettext
 from typing import TYPE_CHECKING, override
 
-import aiofiles
 import pytest
 from babel import Locale
 
@@ -97,8 +96,8 @@ class TestAssetTranslationRepository:
         assets_directory_path = tmp_path / "assets"
         po_file_path = assets_directory_path / "locale" / locale / "betty.po"
         po_file_path.parent.mkdir(parents=True)
-        async with aiofiles.open(po_file_path, "w") as f:
-            await f.write(_DUMMY_PO)
+        with open(po_file_path, "w", encoding="utf-8") as f:
+            f.write(_DUMMY_PO)
         # Do this multiple times so we hit the file caches.
         for _ in range(2):
             sut = AssetTranslationRepository(
@@ -124,8 +123,8 @@ class TestAssetTranslationRepository:
         assets_directory_path = tmp_path / "assets"
         pot_file_path = assets_directory_path / "locale" / "betty.pot"
         pot_file_path.parent.mkdir(parents=True)
-        async with aiofiles.open(pot_file_path, "w") as f:
-            await f.write(_DUMMY_POT)
+        with open(pot_file_path, "w", encoding="utf-8") as f:
+            f.write(_DUMMY_POT)
         sut = AssetTranslationRepository(
             StaticAssetRepository(assets_directory_path),
             BinaryFileCache(tmp_path / "cache"),
@@ -140,8 +139,8 @@ class TestAssetTranslationRepository:
         assets_directory_path = tmp_path / "assets"
         pot_file_path = assets_directory_path / "locale" / "betty.pot"
         pot_file_path.parent.mkdir(parents=True)
-        async with aiofiles.open(pot_file_path, "w") as f:
-            await f.write(_DUMMY_POT)
+        with open(pot_file_path, "w", encoding="utf-8") as f:
+            f.write(_DUMMY_POT)
         sut = AssetTranslationRepository(
             StaticAssetRepository(assets_directory_path),
             BinaryFileCache(tmp_path / "cache"),
@@ -156,12 +155,12 @@ class TestAssetTranslationRepository:
         assets_directory_path = tmp_path / "assets"
         pot_file_path = assets_directory_path / "locale" / "betty.pot"
         pot_file_path.parent.mkdir(parents=True)
-        async with aiofiles.open(pot_file_path, "w") as f:
-            await f.write(_DUMMY_POT)
+        with open(pot_file_path, "w", encoding="utf-8") as f:
+            f.write(_DUMMY_POT)
         po_file_path = assets_directory_path / "locale" / locale / "betty.po"
         po_file_path.parent.mkdir(parents=True)
-        async with aiofiles.open(po_file_path, "w") as f:
-            await f.write(_DUMMY_PO)
+        with open(po_file_path, "w", encoding="utf-8") as f:
+            f.write(_DUMMY_PO)
         sut = AssetTranslationRepository(
             StaticAssetRepository(assets_directory_path),
             BinaryFileCache(tmp_path / "cache"),
@@ -192,8 +191,8 @@ class TestAssetTranslationRepository:
         assets_directory_path = tmp_path / "assets"
         lc_messages_directory_path = assets_directory_path / "locale" / locale
         lc_messages_directory_path.mkdir(parents=True)
-        async with aiofiles.open(lc_messages_directory_path / "betty.po", "w") as f:
-            await f.write(_DUMMY_PO)
+        with open(lc_messages_directory_path / "betty.po", "w", encoding="utf-8") as f:
+            f.write(_DUMMY_PO)
 
         sut = AssetTranslationRepository(
             StaticAssetRepository(assets_directory_path),

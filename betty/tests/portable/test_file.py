@@ -1,7 +1,6 @@
 from json import dumps, loads
 from pathlib import Path
 
-import aiofiles
 import pytest
 
 from betty.error import FileNotFound
@@ -21,8 +20,8 @@ async def test_assert_load_file__with_invalid_configuration(
     tmp_path: Path,
 ) -> None:
     configuration_file_path = tmp_path / "config.json"
-    async with aiofiles.open(configuration_file_path, "w") as f:
-        await f.write("this is not valid JSON")
+    with open(configuration_file_path, "w", encoding="utf-8") as f:
+        f.write("this is not valid JSON")
     assertion = await assert_load_file()
     with pytest.raises(HumanFacingException):
         assertion(configuration_file_path)
@@ -34,8 +33,8 @@ async def test_assert_load_file__with_valid_configuration(
     configuration_file_path = tmp_path / "config.json"
     value = "world!"
     portable = {"hello": value}
-    async with aiofiles.open(configuration_file_path, "w") as f:
-        await f.write(dumps(portable))
+    with open(configuration_file_path, "w", encoding="utf-8") as f:
+        f.write(dumps(portable))
     assertion = await assert_load_file()
     assert assertion(configuration_file_path) == portable
 
@@ -47,8 +46,8 @@ async def test_dump_file(tmp_path: Path) -> None:
     await dump_file(
         configuration.data().porter.dump(configuration), configuration_file_path
     )
-    async with aiofiles.open(configuration_file_path) as f:
-        file_contents = await f.read()
+    with open(configuration_file_path, encoding="utf-8") as f:
+        file_contents = f.read()
     expected = {
         "value": value,
     }

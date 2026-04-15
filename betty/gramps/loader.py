@@ -8,17 +8,18 @@ import gzip
 import re
 import sys
 import tarfile
+import tempfile
 from asyncio import to_thread
 from collections import defaultdict
 from contextlib import ExitStack, suppress
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
+from shutil import rmtree
 from typing import TYPE_CHECKING, cast, final, override
 from uuid import uuid4
 from xml.etree.ElementTree import tostring
 
-from aiofiles import tempfile
 from geopy import Point
 from lxml import etree
 
@@ -403,10 +404,15 @@ class GrampsLoader:
 
         :raises betty.gramps.error.GrampsError:
         """
-        async with tempfile.TemporaryDirectory() as working_directory_path_str:
-            gramps_file_path = Path(working_directory_path_str) / "betty.gramps"
+        working_directory = Path(
+            await to_thread(tempfile.mkdtemp),  # ty:ignore[invalid-argument-type]
+        )
+        try:
+            gramps_file_path = working_directory / "betty.gramps"
             await self._run_gramps(["-O", name, "-e", str(gramps_file_path)])
             await self.load_file(gramps_file_path)
+        finally:
+            await to_thread(rmtree, working_directory)
 
     async def load_file(self, file_path: Path) -> None:
         """
@@ -438,9 +444,9 @@ class GrampsLoader:
         family_tree_name = f"betty-{uuid4()!s}"
         try:
             await self._run_gramps(["-C", family_tree_name, "-i", str(file_path)])
-            await self.load_name(family_tree_name)
         finally:
             await self._run_gramps(["-r", f"^{family_tree_name}$", "-y"])
+        await self.load_name(family_tree_name)
 
     async def load_gramps(self, gramps_path: Path) -> None:
         """
@@ -482,9 +488,15 @@ class GrampsLoader:
                         "Could not extract {file_path} as a gzipped tar file  (*.tar.gz)."
                     ).format(file_path=str(gpkg_path))
                 ) from error
-            async with tempfile.TemporaryDirectory() as cache_directory_path_str:
-                tar_file.extractall(cache_directory_path_str, filter="data")
-                await self.load_gramps(Path(cache_directory_path_str) / "data.gramps")
+
+            cache_directory = Path(
+                await to_thread(tempfile.mkdtemp),  # ty:ignore[invalid-argument-type]
+            )
+            try:
+                tar_file.extractall(cache_directory, filter="data")
+                await self.load_gramps(cache_directory / "data.gramps")
+            finally:
+                await to_thread(rmtree, cache_directory)
 
     async def load_xml(self, xml: str) -> None:
         """

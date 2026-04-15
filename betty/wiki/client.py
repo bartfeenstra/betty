@@ -12,13 +12,13 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, final
 from urllib.parse import quote, urlsplit
 
-import aiofiles
 from geopy import Point
 
 from betty.assertion import assert_float, assert_mapping, assert_str
 from betty.data.indicator import Url
 from betty.data.indicator.selector import Index, Key, SelectorError, Selectors
 from betty.exception import HumanFacingException, reraise_with_indicator
+from betty.file import write
 from betty.hashid import hashid
 from betty.locale.localizable.gettext import _
 from betty.media_type import MediaType
@@ -209,8 +209,7 @@ class Client:
             / (hashid(image_url) + Path(urlsplit(image_url).path).suffix.lower())
         )
         await to_thread(image_path.parent.mkdir, exist_ok=True, parents=True)
-        async with aiofiles.open(image_path, mode="wb") as image_f:
-            await image_f.write(image_data)
+        await write(image_path, image_data, mode="wb")
         return Image(
             image_path,
             image_media_type,

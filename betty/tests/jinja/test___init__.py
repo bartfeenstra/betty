@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import aiofiles
-
 from betty.document import Document
 from betty.jinja import make_copy_function, new_environment
 from betty.job import Context
@@ -30,8 +28,8 @@ async def test_make_copy_function__www_directory(
 ) -> None:
     environment = await new_environment(isolated_project)
     source_file_path = tmp_path / "source.test.j2"
-    async with aiofiles.open(source_file_path, "w") as f:
-        await f.write("{{ document.resource }}\n{{ document.resource_url }}")
+    with open(source_file_path, "w", encoding="utf-8") as f:
+        f.write("{{ document.resource }}\n{{ document.resource_url }}")
     www_directory_path = tmp_path / "www"
     destination_file_path = www_directory_path / "destination.test.j2"
     rendered_destination_file_path = www_directory_path / "destination.test"
@@ -39,9 +37,9 @@ async def test_make_copy_function__www_directory(
         environment, www_directory_path=www_directory_path, document=Document()
     )
     await copy_function(source_file_path, destination_file_path)
-    async with aiofiles.open(rendered_destination_file_path) as f:
+    with open(rendered_destination_file_path, encoding="utf-8") as f:
         assert (
-            await f.read()
+            f.read()
         ).strip() == f"{rendered_destination_file_path}\nbetty:///destination.test"
 
 
@@ -50,8 +48,8 @@ async def test_make_copy_function__www_directory_with_hidden_file(
 ) -> None:
     environment = await new_environment(isolated_project)
     source_file_path = tmp_path / "source.test.j2"
-    async with aiofiles.open(source_file_path, "w") as f:
-        await f.write("{{ document.resource }}\n{{ document.resource_url }}")
+    with open(source_file_path, "w", encoding="utf-8") as f:
+        f.write("{{ document.resource }}\n{{ document.resource_url }}")
     www_directory_path = tmp_path / "www"
     destination_file_path = www_directory_path / ".destination.test.j2"
     rendered_destination_file_path = www_directory_path / ".destination.test"
@@ -59,8 +57,8 @@ async def test_make_copy_function__www_directory_with_hidden_file(
         environment, www_directory_path=www_directory_path, document=Document()
     )
     await copy_function(source_file_path, destination_file_path)
-    async with aiofiles.open(rendered_destination_file_path) as f:
-        assert (await f.read()).strip() == f"{rendered_destination_file_path}\nNone"
+    with open(rendered_destination_file_path, encoding="utf-8") as f:
+        assert (f.read()).strip() == f"{rendered_destination_file_path}\nNone"
 
 
 async def test_make_copy_function__www_directory_and_is_localized_and_multilingual(
@@ -68,8 +66,8 @@ async def test_make_copy_function__www_directory_and_is_localized_and_multilingu
 ) -> None:
     environment = await new_environment(isolated_project)
     source_file_path = tmp_path / "source.test.j2"
-    async with aiofiles.open(source_file_path, "w") as f:
-        await f.write("{{ document.resource }}\n{{ document.resource_url }}")
+    with open(source_file_path, "w", encoding="utf-8") as f:
+        f.write("{{ document.resource }}\n{{ document.resource_url }}")
     www_directory_path = tmp_path / "www"
     destination_file_path = (
         www_directory_path / DEFAULT_LOCALE_TAG / "destination.test.j2"
@@ -84,9 +82,9 @@ async def test_make_copy_function__www_directory_and_is_localized_and_multilingu
         document=Document(),
     )
     await copy_function(source_file_path, destination_file_path)
-    async with aiofiles.open(rendered_destination_file_path) as f:
+    with open(rendered_destination_file_path, encoding="utf-8") as f:
         assert (
-            await f.read()
+            f.read()
         ).strip() == f"{rendered_destination_file_path}\nbetty:///destination.test"
 
 

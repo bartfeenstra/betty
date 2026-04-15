@@ -19,7 +19,6 @@ from os import walk
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol, cast
 
-import aiofiles
 import pytest
 
 from betty.dirs import ROOT_DIRECTORY
@@ -1318,8 +1317,8 @@ class CoverageTester:
             yield error
 
     async def _test_python_file_contains_docstring_only(self, file_path: Path) -> bool:
-        async with aiofiles.open(file_path) as f:
-            f_content = await f.read()
+        with open(file_path, encoding="utf-8") as f:
+            f_content = f.read()
         f_ast = parse(f_content)
         for child in iter_child_nodes(f_ast):
             if not isinstance(child, Expr):
@@ -1395,8 +1394,8 @@ class _ModuleCoverageTester:
         yield f"{self._src_module_path} does not have a matching test file. Expected {self._test_module_path} to exist."
 
     async def _test_python_file_contains_docstring_only(self, file_path: Path) -> bool:
-        async with aiofiles.open(file_path) as f:
-            f_content = await f.read()
+        with open(file_path, encoding="utf-8") as f:
+            f_content = f.read()
         f_ast = parse(f_content)
         for child in iter_child_nodes(f_ast):
             if not isinstance(child, Expr):

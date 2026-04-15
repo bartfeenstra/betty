@@ -1,10 +1,8 @@
+from asyncio import to_thread
 from collections.abc import Iterable, Mapping
 from gettext import NullTranslations
 from pathlib import Path
 from typing import Any, override
-
-import aiofiles
-from aiofiles.os import makedirs
 
 from betty.content import ContentDefinition
 from betty.document import Document
@@ -26,11 +24,11 @@ class TestTemplate:
 """
         context = Context()
         templates_directory_path = isolated_project.assets_directory / "templates"
-        await makedirs(templates_directory_path)
+        await to_thread(templates_directory_path.mkdir, exist_ok=True, parents=True)
         template_file_path = templates_directory_path / template_path
-        await makedirs(template_file_path.parent)
-        async with aiofiles.open(template_file_path, "w") as f:
-            await f.write(template)
+        await to_thread(template_file_path.parent.mkdir, exist_ok=True, parents=True)
+        with open(template_file_path, "w", encoding="utf-8") as f:
+            f.write(template)
 
         @ContentDefinition("my-first-template", label=DUMMY_LOCALIZABLE)
         class _Template(Template):

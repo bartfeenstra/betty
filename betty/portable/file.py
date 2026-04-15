@@ -4,15 +4,14 @@ Configuration file management.
 
 from __future__ import annotations
 
+from asyncio import to_thread
 from contextlib import chdir
 from typing import TYPE_CHECKING
-
-import aiofiles
-from aiofiles.os import makedirs
 
 from betty.assertion import AssertionChain, assert_file_path
 from betty.data.indicator import Path as DataPath
 from betty.exception import reraise_with_indicator
+from betty.file import write
 from betty.serde import SerializerDefinition, serializer_for
 from betty.universe import UNIVERSE
 
@@ -59,6 +58,5 @@ async def dump_file(portable: PortableData, file_path: Path, /) -> None:
         ).cls
     )
     dump_data = serializer.dump(portable)
-    await makedirs(file_path.parent, exist_ok=True)
-    async with aiofiles.open(file_path, mode="w") as f:
-        await f.write(dump_data)
+    await to_thread(file_path.parent.mkdir, exist_ok=True, parents=True)
+    await write(file_path, dump_data)

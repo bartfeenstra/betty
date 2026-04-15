@@ -4,7 +4,6 @@ Perform Webpack builds.
 
 from __future__ import annotations
 
-import json
 from abc import abstractmethod
 from asyncio import gather, to_thread
 from json import dumps, loads
@@ -13,13 +12,11 @@ from pathlib import Path
 from shutil import copy2, copytree
 from typing import TYPE_CHECKING, cast
 
-import aiofiles
-from aiofiles.os import makedirs
-
 from betty import npm
 from betty.dirs import ROOT_DIRECTORY
 from betty.document import Document
 from betty.extension import Extension
+from betty.file import read, write
 from betty.hashid import hashid, hashid_file_content, hashid_sequence
 from betty.jinja import make_copy_function
 from betty.portable import PortableMapping
@@ -205,9 +202,7 @@ class Builder:
         ))
 
     async def _extract_package_json(self, package_path: Path) -> PortableMapping:
-        async with aiofiles.open(package_path / "package.json") as f:
-            package_json_data = await f.read()
-        return cast(PortableMapping, json.loads(package_json_data))
+        return cast(PortableMapping, loads(await read(package_path / "package.json")))
 
     async def _update_package_json(
         self,
@@ -247,11 +242,10 @@ class Builder:
                 .parts,
             )
             dependencies[dependency_package_name] = f"file:{dependency_package_path}"
-        package_json_data = json.dumps(package_json)
-        async with aiofiles.open(
-            npm_project_directory_path / "packages" / package_name / "package.json", "w"
-        ) as f:
-            await f.write(package_json_data)
+        await write(
+            npm_project_directory_path / "packages" / package_name / "package.json",
+            dumps(package_json),
+        )
 
     async def _update_package_jsons(
         self,
@@ -301,7 +295,7 @@ class Builder:
 
         npm_project_package_json_dependencies: MutableMapping[str, str] = {}
         webpack_entry: MutableMapping[str, str] = {}
-        await makedirs(npm_project_directory_path, exist_ok=True)
+        await to_thread(npm_project_directory_path.mkdir, exist_ok=True, parents=True)
         await gather(
             self._prepare_betty(npm_project_directory_path),
             self._prepare_webpack_extension(npm_project_directory_path),
@@ -322,7 +316,7 @@ class Builder:
         await self._update_package_jsons(
             npm_project_directory_path, package_jsons_by_package_name
         )
-        webpack_configuration_json = dumps({
+        webpack_configuration_json = {
             "rootPath": self._root_path,
             # Use a relative path so we avoid portability issues with
             # leading root slashes or drive letters.
@@ -332,25 +326,19 @@ class Builder:
             "debug": self._debug,
             "entry": webpack_entry,
             "jobContextId": context.id,
-        })
-        async with aiofiles.open(
-            npm_project_directory_path / "webpack.config.json", "w"
-        ) as configuration_f:
-            await configuration_f.write(webpack_configuration_json)
+        }
+        await write(
+            npm_project_directory_path / "webpack.config.json",
+            dumps(webpack_configuration_json),
+        )
 
         # Add dependencies to package.json.
         npm_project_package_json_path = npm_project_directory_path / "package.json"
-        async with aiofiles.open(
-            npm_project_package_json_path
-        ) as npm_project_package_json_f:
-            npm_project_package_json = loads(await npm_project_package_json_f.read())
+        npm_project_package_json = loads(await read(npm_project_package_json_path))
         npm_project_package_json["dependencies"].update(
             npm_project_package_json_dependencies
         )
-        async with aiofiles.open(
-            npm_project_package_json_path, "w"
-        ) as npm_project_package_json_f:
-            await npm_project_package_json_f.write(dumps(npm_project_package_json))
+        await write(npm_project_package_json_path, dumps(npm_project_package_json))
 
     async def _npm_install(self, npm_project_directory_path: Path) -> None:
         await npm.npm(
@@ -365,7 +353,11 @@ class Builder:
         )
 
         # Ensure there is always a main.css. This makes for easy and unconditional importing.
-        await makedirs(webpack_build_directory_path / "css" / "webpack", exist_ok=True)
+        await to_thread(
+            (webpack_build_directory_path / "css" / "webpack").mkdir,
+            exist_ok=True,
+            parents=True,
+        )
         await to_thread(
             (webpack_build_directory_path / "css" / "webpack" / "main.css").touch
         )

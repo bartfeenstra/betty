@@ -2,7 +2,6 @@ from asyncio.subprocess import Process
 from pathlib import Path
 from shutil import which
 
-import aiofiles
 import pytest
 
 from betty.subprocess import SubprocessError, run_process
@@ -36,8 +35,8 @@ async def test_run_process__with_errors_without_output(
     python_script = """
 import sys
 sys.exit(1)"""
-    async with aiofiles.open(script_path, "w") as f:
-        await f.write(python_script)
+    with open(script_path, "w", encoding="utf-8") as f:
+        f.write(python_script)
     with pytest.raises(SubprocessError):
         await run_process(
             [which("python"), "-W", "ignore", str(script_path)],  # ty:ignore[invalid-argument-type]
@@ -67,8 +66,8 @@ import sys
 print("{stdout_sentinel}")
 print("{stderr_sentinel}", file=sys.stderr)
 sys.exit(1)"""
-    async with aiofiles.open(script_path, "w") as f:
-        await f.write(python_script)
+    with open(script_path, "w", encoding="utf-8") as f:
+        f.write(python_script)
     with pytest.raises(SubprocessError):
         await run_process(
             [which("python"), "-W", "ignore", str(script_path)],  # ty:ignore[invalid-argument-type]

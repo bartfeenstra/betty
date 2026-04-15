@@ -5,15 +5,13 @@ Provide search functionality.
 from __future__ import annotations
 
 import json
-from asyncio import gather
+from asyncio import gather, to_thread
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, TypeVar, final, override
 
-import aiofiles
-from aiofiles.os import makedirs
-
 from betty.entity import Entity, EntityDefinition
 from betty.entity.has_notes import HasNotes
+from betty.file import write
 from betty.plugins.entity.file import File
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
@@ -76,9 +74,8 @@ async def _generate_search_index_for_locale(
     }
     search_index_json = json.dumps(search_index)
     www_directory_path = project.localize_www_directory(locale)
-    await makedirs(www_directory_path, exist_ok=True)
-    async with aiofiles.open(www_directory_path / "search-index.json", mode="w") as f:
-        await f.write(search_index_json)
+    await to_thread(www_directory_path.mkdir, exist_ok=True, parents=True)
+    await write(www_directory_path / "search-index.json", search_index_json)
 
 
 _EntityTypeIndexerEntityT = TypeVar(

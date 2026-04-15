@@ -11,15 +11,13 @@ from asyncio import to_thread
 from contextlib import asynccontextmanager, suppress
 from functools import partial
 from os import utime
+from os.path import getmtime
 from pickle import dumps, loads
 from typing import TYPE_CHECKING, Self, final, override
 
-import aiofiles
-from aiofiles.os import makedirs, remove
-from aiofiles.ospath import getmtime
-
 from betty.cache import CacheItem, CacheItemValueSetter
 from betty.cache._base import _CommonCacheBase, _CommonCacheBaseState
+from betty.file import read, write
 from betty.hashid import hashid
 from betty.typing import threadsafe
 
@@ -46,9 +44,7 @@ class _FileCacheItem[CacheItemValueT](CacheItem[CacheItemValueT]):
 
     @override
     async def value(self) -> CacheItemValueT:
-        async with aiofiles.open(self._path, "rb") as f:
-            value_bytes = await f.read()
-        return await self._load_value(value_bytes)
+        return await self._load_value(await read(self._path, mode="rb"))
 
     @abstractmethod
     async def _load_value(self, value_bytes: bytes) -> CacheItemValueT:
@@ -120,7 +116,7 @@ class _FileCache[CacheItemValueT](_CommonCacheBase[CacheItemValueT]):
         try:
             cache_item_file_path = self._cache_item_file_path(cache_item_id, suffix)
             return self._cache_item_cls(
-                await getmtime(cache_item_file_path),
+                await to_thread(getmtime, cache_item_file_path),
                 cache_item_file_path,
             )
         except OSError:
@@ -140,7 +136,9 @@ class _FileCache[CacheItemValueT](_CommonCacheBase[CacheItemValueT]):
         try:
             await self._write(cache_item_file_path, value_bytes, modified)
         except FileNotFoundError:
-            await makedirs(cache_item_file_path.parent, exist_ok=True)
+            await to_thread(
+                cache_item_file_path.parent.mkdir, exist_ok=True, parents=True
+            )
             await self._write(cache_item_file_path, value_bytes, modified)
 
     async def _write(
@@ -149,15 +147,14 @@ class _FileCache[CacheItemValueT](_CommonCacheBase[CacheItemValueT]):
         value: bytes,
         modified: float | None = None,
     ) -> None:
-        async with aiofiles.open(cache_item_file_path, "wb") as f:
-            await f.write(value)
+        await write(cache_item_file_path, value, mode="wb")
         if modified is not None:
             await asyncio.to_thread(utime, cache_item_file_path, (modified, modified))
 
     @override
     async def delete(self, cache_item_id: str, *, suffix: str | None = None) -> None:
         with suppress(FileNotFoundError):
-            await remove(self._cache_item_file_path(cache_item_id, suffix))
+            await to_thread(self._cache_item_file_path(cache_item_id, suffix).unlink)
 
     @override
     async def clear(self) -> None:

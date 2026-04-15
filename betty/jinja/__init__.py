@@ -5,14 +5,12 @@ Provide rendering utilities using `Jinja2 <https://jinja.palletsprojects.com>`_.
 from __future__ import annotations
 
 import datetime
-from asyncio import gather
+from asyncio import gather, to_thread
 from collections.abc import Awaitable, Callable
 from pathlib import Path
 from shutil import copy2
 from typing import TYPE_CHECKING, ClassVar, cast, override
 
-import aiofiles
-from aiofiles.os import makedirs
 from jinja2 import Environment, FileSystemLoader, pass_context, select_autoescape
 from jinja2.async_utils import auto_await
 from jinja2.ext import Extension
@@ -24,6 +22,7 @@ from jinja2.utils import missing
 from betty import about
 from betty.cache import CacheItem
 from betty.date import Date
+from betty.file import read, write
 from betty.html import generate_html_id
 from betty.html.attributes import Attributes
 from betty.html.css import CssResourceDefinition
@@ -167,7 +166,7 @@ def make_copy_function(
     """
 
     async def _copy_function(source_path: Path, destination_path: Path) -> None:
-        await makedirs(destination_path.parent, exist_ok=True)
+        await to_thread(destination_path.parent.mkdir, exist_ok=True, parents=True)
         try:
             _media_type, extension = match_extension(source_path, [JINJA2])
         except UnsupportedMediaType:
@@ -195,16 +194,14 @@ def make_copy_function(
                     if is_localized_and_multilingual:
                         resource_parts = resource_parts[1:]
                     copy_resource_url = f"betty:///{'/'.join(resource_parts)}"
-        async with aiofiles.open(source_path) as f:
-            content = await f.read()
+        content = await read(source_path)
 
         template = environment.from_string(content)
         copy_document = document.copy(
             resource=destination_path, resource_url=copy_resource_url
         )
         rendered_content = await template.render_async(document=copy_document)
-        async with aiofiles.open(destination_path, "w") as f:
-            await f.write(rendered_content)
+        await write(destination_path, rendered_content)
 
     return _copy_function
 

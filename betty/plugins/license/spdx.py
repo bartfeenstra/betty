@@ -12,12 +12,12 @@ from json import loads
 from pathlib import Path
 from typing import Self, final, override
 
-import aiofiles
 from aiohttp import ClientError, ClientSession
 
 from betty.app import App
 from betty.cache.file import BinaryFileCache
 from betty.exception import HumanFacingException
+from betty.file import read
 from betty.license import License, LicenseDefinition
 from betty.locale.localizable import Localizable
 from betty.locale.localizable.gettext import _
@@ -104,14 +104,12 @@ class SpdxLicenseDiscoverer(Manufacturable):
                 self._cache_directory_path,
             )
 
-        async with aiofiles.open(
+        spdx_licenses_data_json = await read(
             self._cache_directory_path
             / f"license-list-data-{self.VERSION}"
             / "json"
-            / "licenses.json",
-            encoding="utf-8",
-        ) as spdx_licenses_data_f:
-            spdx_licenses_data_json = await spdx_licenses_data_f.read()
+            / "licenses.json"
+        )
         spdx_data = loads(spdx_licenses_data_json)
         assert isinstance(spdx_data, Mapping)
 
@@ -152,15 +150,13 @@ class SpdxLicenseDiscoverer(Manufacturable):
         return await self._build_license(spdx_license_id, spdx_reference)
 
     async def _build_license(self, license_id: str, url: str) -> LicenseDefinition:
-        async with aiofiles.open(
+        spdx_license_data_json = await read(
             self._cache_directory_path
             / f"license-list-data-{self.VERSION}"
             / "json"
             / "details"
-            / f"{license_id}.json",
-            encoding="utf-8",
-        ) as spdx_license_data_f:
-            spdx_license_data_json = await spdx_license_data_f.read()
+            / f"{license_id}.json"
+        )
 
         with self._catch_json_errors():
             spdx_license_data = loads(spdx_license_data_json)
