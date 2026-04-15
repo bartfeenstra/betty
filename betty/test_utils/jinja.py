@@ -7,7 +7,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import aiofiles
 from lxml.etree import ParserError
 from lxml.html import document_fromstring
 
@@ -23,8 +22,8 @@ async def assert_betty_html(project: Project, url_path: str) -> Path:
     Assert that an entity's HTML resource exists and is valid.
     """
     betty_html_file_path = project.www_directory / Path(url_path.lstrip("/"))
-    async with aiofiles.open(betty_html_file_path) as f:
-        betty_html = await f.read()
+    with open(betty_html_file_path, encoding="utf-8") as f:
+        betty_html = f.read()
     try:
         document_fromstring(betty_html)
     except ParserError as e:
@@ -42,8 +41,8 @@ async def assert_betty_json(project: Project, url_path: str, def_name: str) -> P
     import json
 
     betty_json_file_path = project.www_directory / Path(url_path.lstrip("/"))
-    async with aiofiles.open(betty_json_file_path) as f:
-        betty_json = await f.read()
+    with open(betty_json_file_path, encoding="utf-8") as f:
+        betty_json = f.read()
     betty_json_data = json.loads(betty_json)
 
     project_schema = await ProjectSchema.new(project)

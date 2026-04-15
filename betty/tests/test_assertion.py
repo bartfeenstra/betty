@@ -3,12 +3,11 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from enum import Enum
 from pathlib import Path
-from tempfile import NamedTemporaryFile
+from tempfile import NamedTemporaryFile, TemporaryDirectory
 from types import NoneType
 from typing import TYPE_CHECKING, Any
 
 import pytest
-from aiofiles.tempfile import TemporaryDirectory
 
 from betty.assertion import (
     Assertion,
@@ -430,12 +429,12 @@ def test_assert_directory_path__without_directory_path() -> None:
 
 
 async def test_assert_directory_path__with_valid_path_str() -> None:
-    async with TemporaryDirectory() as directory_path_str:
+    with TemporaryDirectory() as directory_path_str:
         assert_directory_path()(directory_path_str)
 
 
 async def test_assert_directory_path__with_valid_path_path() -> None:
-    async with TemporaryDirectory() as directory_path_str:
+    with TemporaryDirectory() as directory_path_str:
         assert_directory_path()(Path(directory_path_str))
 
 

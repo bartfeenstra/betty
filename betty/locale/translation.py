@@ -6,16 +6,15 @@ from __future__ import annotations
 
 import gettext
 from abc import ABC, abstractmethod
-from contextlib import redirect_stdout, suppress
+from asyncio import to_thread
+from contextlib import redirect_stdout
 from io import BytesIO, StringIO
 from typing import TYPE_CHECKING, final, override
 
-import aiofiles
-from aiofiles.os import makedirs
-from aiofiles.ospath import exists
 from polib import pofile
 
 import betty.dirs
+from betty.file import read
 from betty.hashid import hashid_file_meta
 from betty.locale import (
     DEFAULT_LOCALE,
@@ -51,7 +50,7 @@ async def _new_translation(
 ) -> None:
     po_file_path = output.assets / "locale" / to_language_tag(locale) / "betty.po"
     with redirect_stdout(StringIO()):
-        if await exists(po_file_path):
+        if po_file_path.exists():
             await user.message_information(
                 _("Translations for {locale} already exist at {po_file_path}.").format(
                     locale=to_language_tag(locale), po_file_path=str(po_file_path)
@@ -99,7 +98,7 @@ async def _update_translations(output: Path, inputs: Iterable[Path]) -> None:
     Update all existing translations based on changes in translatable strings.
     """
     pot_file_path = output / "locale" / "betty.pot"
-    await makedirs(pot_file_path.parent, exist_ok=True)
+    await to_thread(pot_file_path.parent.mkdir, exist_ok=True, parents=True)
 
     await run_babel(
         "",
@@ -330,9 +329,12 @@ class AssetTranslationRepository(TranslationRepository):
         cache_directory_path = self._cache.path / "locale" / translation_version
         mo_file_path = cache_directory_path / "betty.mo"
 
-        with suppress(FileNotFoundError):
-            async with aiofiles.open(mo_file_path, "rb") as f:
-                return gettext.GNUTranslations(BytesIO(await f.read()))
+        try:
+            mo = await read(mo_file_path, mode="rb")
+        except FileNotFoundError:
+            pass
+        else:
+            return gettext.GNUTranslations(BytesIO(mo))
 
         cache_directory_path.mkdir(exist_ok=True, parents=True)
 
@@ -348,8 +350,7 @@ class AssetTranslationRepository(TranslationRepository):
             "-D",
             "betty",
         )
-        async with aiofiles.open(mo_file_path, "rb") as f:
-            return gettext.GNUTranslations(BytesIO(await f.read()))
+        return gettext.GNUTranslations(BytesIO(await read(mo_file_path, mode="rb")))
 
     async def coverage(self, locale: ResolvableLocale) -> tuple[int, int]:
         """
@@ -371,26 +372,27 @@ class AssetTranslationRepository(TranslationRepository):
 
     async def _get_translatables(self) -> AsyncIterator[str]:
         for assets_directory_path in self._assets.directories:
-            with suppress(FileNotFoundError):
-                async with aiofiles.open(
-                    assets_directory_path / "locale" / "betty.pot"
-                ) as pot_data_f:
-                    pot_data = await pot_data_f.read()
-                    for entry in pofile(pot_data):
-                        yield entry.msgid_with_context
+            try:
+                pot = await read(assets_directory_path / "locale" / "betty.pot")
+            except FileNotFoundError:
+                pass
+            else:
+                for entry in pofile(pot):
+                    yield entry.msgid_with_context
 
     async def _get_translations(self, locale: Locale) -> AsyncIterator[str]:
         for assets_directory_path in reversed(self._assets.directories):
-            with suppress(FileNotFoundError):
-                async with aiofiles.open(
+            try:
+                po = await read(
                     assets_directory_path
                     / "locale"
                     / to_language_tag(locale)
-                    / "betty.po",
-                    encoding="utf-8",
-                ) as po_data_f:
-                    po_data = await po_data_f.read()
-                for entry in pofile(po_data):
+                    / "betty.po"
+                )
+            except FileNotFoundError:
+                pass
+            else:
+                for entry in pofile(po):
                     if entry.translated():
                         yield entry.msgid_with_context
 

@@ -16,6 +16,7 @@ authors = [
 ]
 requires-python = '~= 3.13'
 dependencies = [
+    # aiohttp-client-cache's file backend requires aiofiles.
     'aiofiles ~= 25.1',
     'aiohttp ~= 3.12',
     'aiohttp-client-cache ~= 0.14',
@@ -341,7 +342,6 @@ test = [
     'requests ~= 2.32',
     'ruff ~= 0.15.0',
     'ty == 0.0.30',
-    'types-aiofiles ~= 25.1',
     'types-babel ~= 2.11',
     'types-docutils ~= 0.21',
     'types-jsonschema ~= 4.23',

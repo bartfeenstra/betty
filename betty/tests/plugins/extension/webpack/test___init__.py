@@ -1,6 +1,5 @@
 from pathlib import Path
 
-import aiofiles
 from pytest_mock import MockerFixture
 
 from betty.plugins.extension.webpack import Webpack
@@ -21,13 +20,13 @@ class TestWebpack:
         m_build = mocker.patch("betty.plugins.extension.webpack.build.Builder.build")
         m_build.return_value = webpack_build_directory_path
 
-        async with aiofiles.open(
-            webpack_build_directory_path / self._SENTINEL, "w"
+        with open(
+            webpack_build_directory_path / self._SENTINEL, "w", encoding="utf-8"
         ) as f:
-            await f.write(self._SENTINEL)
+            f.write(self._SENTINEL)
 
         async with isolated_project_factory(service_plugins=[Webpack]) as project:
             await generate(project)
 
-            async with aiofiles.open(project.www_directory / self._SENTINEL) as f:
-                assert await f.read() == self._SENTINEL
+            with open(project.www_directory / self._SENTINEL, encoding="utf-8") as f:
+                assert f.read() == self._SENTINEL

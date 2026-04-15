@@ -5,12 +5,10 @@ Jobs for the Trees extension.
 from __future__ import annotations
 
 import json
-from asyncio import gather
+from asyncio import gather, to_thread
 from typing import TYPE_CHECKING, override
 
-import aiofiles
-from aiofiles.os import makedirs
-
+from betty.file import write
 from betty.job import Job
 from betty.media_type.media_types import HTML
 from betty.plugins.entity.person import Person
@@ -57,9 +55,11 @@ class _GeneratePeopleJson(Job):
             for person in self._project.ancestry[Person]
         }
         people_json = json.dumps(people)
-        await makedirs(self._project.localize_www_directory(locale), exist_ok=True)
-        async with aiofiles.open(
-            self._project.localize_www_directory(locale) / "people.json",
-            mode="w",
-        ) as f:
-            await f.write(people_json)
+        await to_thread(
+            self._project.localize_www_directory(locale).mkdir,
+            exist_ok=True,
+            parents=True,
+        )
+        await write(
+            self._project.localize_www_directory(locale) / "people.json", people_json
+        )

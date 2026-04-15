@@ -8,14 +8,12 @@ import asyncio
 import os
 import shutil
 from abc import ABC, abstractmethod
-from asyncio import gather
+from asyncio import gather, to_thread
 from contextlib import suppress
 from math import ceil
 from os import cpu_count
 from pathlib import Path
 from typing import TYPE_CHECKING
-
-from aiofiles.os import makedirs
 
 from betty.concurrent import MAX_STRANDS
 from betty.job import Context
@@ -108,11 +106,11 @@ async def _preprocess(project: Project) -> None:
 async def _preprocess_output_directory(output_directory_path: Path) -> None:
     with suppress(FileNotFoundError):
         await asyncio.to_thread(shutil.rmtree, output_directory_path)
-    await makedirs(output_directory_path, exist_ok=True)
+    await to_thread(output_directory_path.mkdir, exist_ok=True, parents=True)
 
 
 async def _preprocess_www_directory(www_directory_path: Path) -> None:
-    await makedirs(www_directory_path, exist_ok=True)
+    await to_thread(www_directory_path.mkdir, exist_ok=True, parents=True)
 
 
 async def _postprocess(project: Project) -> None:

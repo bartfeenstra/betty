@@ -7,8 +7,7 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING, override
 
-import aiofiles
-
+from betty.file import write
 from betty.job import Job
 from betty.locale import to_language_tag
 from betty.locale.localizable.gettext import _
@@ -82,7 +81,4 @@ class _GenerateWebmanifest(Job):
             "background_color": "#ffffff",
             "display": "fullscreen",
         })
-        async with aiofiles.open(
-            self._project.www_directory / "betty.webmanifest", "w"
-        ) as f:
-            await f.write(webmanifest)
+        await write(self._project.www_directory / "betty.webmanifest", webmanifest)

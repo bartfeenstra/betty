@@ -1,4 +1,3 @@
-import aiofiles
 import pytest
 
 from betty.plugins.extension.maps import Maps
@@ -17,15 +16,15 @@ class TestMaps:
             debug=True, service_plugins=[Maps]
         ) as project:
             await generate(project)
-            async with aiofiles.open(
+            with open(
                 project.www_directory / "js" / "webpack" / "maps.js",
                 encoding="utf-8",
             ) as f:
-                betty_js = await f.read()
+                betty_js = f.read()
             assert Maps.plugin().id in betty_js
-            async with aiofiles.open(
+            with open(
                 project.www_directory / "css" / "webpack" / "main.css",
                 encoding="utf-8",
             ) as f:
-                betty_css = await f.read()
+                betty_css = f.read()
             assert Maps.plugin().id in betty_css

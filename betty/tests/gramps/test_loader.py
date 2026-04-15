@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, Protocol
 from unittest.mock import ANY
 
 import pytest
-from aiofiles.tempfile import AiofilesContextManagerTempDir
 from babel import Locale
 
 from betty.date import Date, DateRange
@@ -218,14 +217,7 @@ class TestGrampsLoader:
     ) -> None:
         gramps_executable = "gramps"
         ged_file_path = Path("my-first-family-tree.ged")
-        m_aiofiles_context_manager_temp_dir = mocker.AsyncMock(
-            spec=AiofilesContextManagerTempDir
-        )
-        m_aiofiles_context_manager_temp_dir.__aenter__.return_value = str(tmp_path)
-        mocker.patch(
-            "aiofiles.tempfile.TemporaryDirectory",
-            side_effect=lambda: m_aiofiles_context_manager_temp_dir,
-        )
+        mocker.patch("tempfile.mkdtemp", return_value=str(tmp_path))
         m_run_process = mocker.patch("betty.subprocess.run_process")
         m_run_process.side_effect = mocker.AsyncMock(spec=Process)
         gramps_file_path = tmp_path / "betty.gramps"
@@ -270,14 +262,7 @@ class TestGrampsLoader:
     ) -> None:
         gramps_executable = "gramps"
         family_tree_name = "my-first-family-tree"
-        m_aiofiles_context_manager_temp_dir = mocker.AsyncMock(
-            spec=AiofilesContextManagerTempDir
-        )
-        m_aiofiles_context_manager_temp_dir.__aenter__.return_value = str(tmp_path)
-        mocker.patch(
-            "aiofiles.tempfile.TemporaryDirectory",
-            side_effect=lambda: m_aiofiles_context_manager_temp_dir,
-        )
+        mocker.patch("tempfile.mkdtemp", return_value=str(tmp_path))
         m_run_process = mocker.patch("betty.subprocess.run_process")
         m_run_process.side_effect = mocker.AsyncMock(spec=Process)
         gramps_file_path = tmp_path / "betty.gramps"
@@ -301,14 +286,7 @@ class TestGrampsLoader:
     ) -> None:
         gramps_executable = "gramps"
         family_tree_name = "my-first-family-tree"
-        m_aiofiles_context_manager_temp_dir = mocker.AsyncMock(
-            spec=AiofilesContextManagerTempDir
-        )
-        m_aiofiles_context_manager_temp_dir.__aenter__.return_value = str(tmp_path)
-        mocker.patch(
-            "aiofiles.tempfile.TemporaryDirectory",
-            side_effect=lambda: m_aiofiles_context_manager_temp_dir,
-        )
+        mocker.patch("tempfile.mkdtemp", return_value=str(tmp_path))
         m_run_process = mocker.patch("betty.subprocess.run_process")
         m_run_process.side_effect = CalledSubprocessError(1, "", "", "")
         gramps_file_path = tmp_path / "betty.gramps"

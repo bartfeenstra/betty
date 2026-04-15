@@ -8,13 +8,14 @@ site from the entire project.
 
 from __future__ import annotations
 
-from asyncio import gather
+from asyncio import gather, to_thread
 from contextlib import AsyncExitStack, asynccontextmanager
 from pathlib import Path
+from shutil import rmtree
+from tempfile import mkdtemp
 from typing import TYPE_CHECKING, Self, final
 from urllib.parse import urlsplit
 
-from aiofiles.tempfile import TemporaryDirectory
 from babel import Locale
 
 import betty.dirs
@@ -301,11 +302,16 @@ class Project(
         The project will not leave any traces on the system, except when it uses
         global Betty functionality such as caches.
         """
-        async with AsyncExitStack() as stack:
+        async with AsyncExitStack() as exit_stack:
             if app is None:
-                app = await stack.enter_async_context(App.new_isolated())
+                app = await exit_stack.enter_async_context(App.new_isolated())
             if directory is None:
-                directory = Path(await stack.enter_async_context(TemporaryDirectory()))
+                directory = Path(
+                    await to_thread(mkdtemp),  # ty:ignore[invalid-argument-type]
+                )
+                exit_stack.push_async_callback(
+                    to_thread, rmtree, directory, ignore_errors=True
+                )
             async with cls(
                 directory,
                 ancestry=ancestry,

@@ -5,7 +5,6 @@ from collections.abc import Iterator
 from os import walk
 from pathlib import Path
 
-import aiofiles
 import pytest
 import requests
 from pytest_mock import MockerFixture
@@ -38,10 +37,10 @@ class TestDocumentationServer:
 
 class TestDocumentation:
     async def test_should_contain_console_help(self, isolated_app: App) -> None:
-        async with aiofiles.open(
-            ROOT_DIRECTORY / "documentation" / "usage" / "console.rst"
+        with open(
+            ROOT_DIRECTORY / "documentation" / "usage" / "console.rst", encoding="utf-8"
         ) as f:
-            actual = await f.read()
+            actual = f.read()
         async for command in isolated_app.plugins[CommandDefinition]:
             assert command.id in actual
             assert command.label.localize(DEFAULT_LOCALIZER) in actual
@@ -63,8 +62,8 @@ class TestDocstringSphinxReferences:
     async def _assert_docstring_file(
         self, file_path: Path, subtests: pytest.Subtests
     ) -> None:
-        async with aiofiles.open(file_path, encoding="utf-8") as f:
-            source = await f.read()
+        with open(file_path, encoding="utf-8") as f:
+            source = f.read()
         module = ast.parse(source)
         for node in ast.walk(module):
             if isinstance(
@@ -91,8 +90,8 @@ class TestDocumentationSphinxReferences:
     async def _assert_rst_file(
         self, file_path: Path, subtests: pytest.Subtests
     ) -> None:
-        async with aiofiles.open(file_path) as f:
-            documentation = await f.read()
+        with open(file_path, encoding="utf-8") as f:
+            documentation = f.read()
         await _assert_sphinx_references(file_path, documentation, subtests)
 
 

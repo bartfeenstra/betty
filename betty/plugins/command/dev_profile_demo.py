@@ -1,10 +1,9 @@
 from __future__ import annotations  # noqa: D100
 
+from asyncio import to_thread
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING, Self, final, override
-
-from aiofiles.os import makedirs
-from aiofiles.tempfile import TemporaryDirectory
 
 from betty import dirs
 from betty.about import IS_DEVELOPMENT
@@ -28,13 +27,11 @@ if TYPE_CHECKING:
 
 
 async def _target(user: User) -> None:
-    async with (
-        App.new_isolated() as app,
-        TemporaryDirectory() as project_directory_path_str,
-    ):
-        project = await create_project(app, Path(project_directory_path_str))
-        async with project, user.message_progress("Generating site...") as progress:
-            await generate_with_cleanup(project, context=Context(progress=progress))
+    async with App.new_isolated() as app:
+        with TemporaryDirectory() as project_directory_path_str:
+            project = await create_project(app, Path(project_directory_path_str))
+            async with project, user.message_progress("Generating site...") as progress:
+                await generate_with_cleanup(project, context=Context(progress=progress))
 
 
 def _print(stats: YFuncStats, sort_column: str, sort_direction: str) -> None:
@@ -167,7 +164,7 @@ class DevProfileDemo(Manufacturable, Command):
                 f"Showing existing stats from {stats_file_path}"
             )
         else:
-            await makedirs(stats_file_path.parent, exist_ok=True)
+            await to_thread(stats_file_path.parent.mkdir, exist_ok=True, parents=True)
             yappi.set_clock_type(clock_type)  # Use set_clock_type("wall") for wall time
             yappi.start()
             await _target(self._app.user)

@@ -12,12 +12,12 @@ from asyncio import to_thread
 from http.client import HTTPConnection
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from io import StringIO
+from os import symlink
 from pathlib import Path
+from shutil import rmtree
+from tempfile import mkdtemp
 from typing import TYPE_CHECKING, Any, Self, final, override
 from urllib.parse import urlsplit
-
-from aiofiles.os import makedirs, symlink
-from aiofiles.tempfile import AiofilesContextManagerTempDir, TemporaryDirectory
 
 from betty.exception import HumanFacingException
 from betty.functools import Do
@@ -174,24 +174,25 @@ class BuiltinServer(Server):
         self._http_server: HTTPServer | None = None
         self._port: int | None = None
         self._thread: threading.Thread | None = None
-        self._temporary_root_directory: AiofilesContextManagerTempDir | None = None
+        self._temporary_root_directory: Path | None = None
 
     @override
     async def start(self) -> None:
         if self._root_path:
             # To mimic the root path, symlink the project's WWW directory into a temporary
             # directory, so we do not have to make changes to any existing files.
-            self._temporary_root_directory = TemporaryDirectory()
-            temporary_root_directory_path = Path(
-                await self._temporary_root_directory.__aenter__()
+            self._temporary_root_directory = Path(
+                await to_thread(mkdtemp),  # ty:ignore[invalid-argument-type]
             )
-            temporary_www_directory = temporary_root_directory_path
+            temprary_www_directory = self._temporary_root_directory
             for root_path_component in self._root_path.split("/"):
-                temporary_www_directory /= root_path_component
-            if temporary_www_directory != temporary_root_directory_path:
-                temporary_www_directory.parent.mkdir(parents=True, exist_ok=True)
-                await symlink(self._www_directory_path, temporary_www_directory)
-            www_directory_path = temporary_root_directory_path
+                temprary_www_directory /= root_path_component
+            if temprary_www_directory != self._temporary_root_directory:
+                temprary_www_directory.parent.mkdir(parents=True, exist_ok=True)
+                await to_thread(
+                    symlink, self._www_directory_path, temprary_www_directory
+                )
+            www_directory_path = self._temporary_root_directory
         else:
             www_directory_path = self._www_directory_path
         await self._user.message_debug(_("Starting Python's built-in web server..."))
@@ -237,7 +238,7 @@ class BuiltinServer(Server):
         if self._thread is not None:
             self._thread.join()
         if self._temporary_root_directory is not None:
-            await self._temporary_root_directory.__aexit__(None, None, None)
+            await to_thread(rmtree, self._temporary_root_directory)
 
 
 @final
@@ -261,7 +262,7 @@ class BuiltinProjectServer(ProjectServer):
 
     @override
     async def start(self) -> None:
-        await makedirs(self._project.www_directory, exist_ok=True)
+        await to_thread(self._project.www_directory.mkdir, exist_ok=True, parents=True)
         await self._server.start()
 
     @override

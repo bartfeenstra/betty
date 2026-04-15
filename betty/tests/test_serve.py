@@ -1,9 +1,7 @@
 from pathlib import Path
 
-import aiofiles
 import pytest
 import requests
-from aiofiles.os import makedirs
 from pytest_mock import MockerFixture
 from requests import Response
 
@@ -27,9 +25,9 @@ class TestBuiltinServer:
         mocker.patch("webbrowser.open_new_tab")
         content = "Hello, and welcome to my site!"
         www_directory_path = tmp_path / "www"
-        await makedirs(www_directory_path)
-        async with aiofiles.open(www_directory_path / "index.html", "w") as f:
-            await f.write(content)
+        www_directory_path.mkdir()
+        with open(www_directory_path / "index.html", "w", encoding="utf-8") as f:
+            f.write(content)
         async with BuiltinServer(
             www_directory_path, root_path=root_path, user=StaticUser()
         ) as server:
@@ -48,11 +46,11 @@ class TestBuiltinProjectServer:
     ) -> None:
         mocker.patch("webbrowser.open_new_tab")
         content = "Hello, and welcome to my site!"
-        await makedirs(isolated_project.www_directory)
-        async with aiofiles.open(
-            isolated_project.www_directory / "index.html", "w"
+        isolated_project.www_directory.mkdir(parents=True)
+        with open(
+            isolated_project.www_directory / "index.html", "w", encoding="utf-8"
         ) as f:
-            await f.write(content)
+            f.write(content)
         async with await BuiltinProjectServer.new(isolated_project) as server:
 
             def _assert_response(response: Response) -> None:

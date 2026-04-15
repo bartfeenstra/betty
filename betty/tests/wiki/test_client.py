@@ -4,7 +4,6 @@ from json import dumps
 from typing import TYPE_CHECKING, Any
 from urllib.parse import quote
 
-import aiofiles
 import pytest
 from aiohttp import ClientSession
 from geopy import Point
@@ -597,7 +596,7 @@ class TestClient:
             assert actual.title == "An Example Image"
             assert actual.wikimedia_commons_url == "https://example.com/description"
             assert actual.path.suffix == ".svg"
-            async with aiofiles.open(actual.path, mode="rb") as image_f:
-                assert await image_f.read() == image_data
+            with open(actual.path, mode="rb") as image_f:
+                assert image_f.read() == image_data
         else:
             assert actual is None

@@ -4,11 +4,12 @@ Provides utilities to generate unique IDs through hashing.
 This module MUST NOT be used for security purposes.
 """
 
+from asyncio import to_thread
 from hashlib import md5
+from os import stat
 from pathlib import Path
 
-import aiofiles
-from aiofiles.os import stat
+from betty.file import read
 
 
 def _hashid_bytes(key: bytes, /) -> str:
@@ -20,7 +21,7 @@ def hashid(key: bytes | str, /) -> str:
     Create a hash ID for a key.
     """
     if isinstance(key, str):
-        key = key.encode()
+        key: bytes = key.encode()
     return _hashid_bytes(key)
 
 
@@ -39,7 +40,7 @@ async def hashid_file_meta(file_path: Path, /) -> str:
     File contents are ignored. This may be suitable for large files whose
     exact contents may not be very relevant in the context the ID is used in.
     """
-    file_stat_result = await stat(file_path)
+    file_stat_result = await to_thread(stat, file_path)
     return hashid_sequence(
         str(file_path), str(file_stat_result.st_size), str(file_stat_result.st_mtime_ns)
     )
@@ -53,6 +54,4 @@ async def hashid_file_content(file_path: Path, /) -> str:
     File contents must be loaded into memory in their entirety, which is why
     :py:func:`betty.hashid.hashid_file_meta` may be more suitable for large files.
     """
-    async with aiofiles.open(file_path, "rb") as f:
-        file_content = await f.read()
-    return hashid(file_content)
+    return hashid(await read(file_path, mode="rb"))

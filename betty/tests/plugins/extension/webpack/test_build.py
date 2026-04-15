@@ -2,7 +2,6 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import override
 
-import aiofiles
 import pytest
 from pytest_mock import MockerFixture
 
@@ -70,10 +69,11 @@ class TestBuilder:
             webpack_build_directory_path / "js" / "webpack-entry-loader.js"
         ).exists()
         if with_entry_point_provider:
-            async with aiofiles.open(
-                webpack_build_directory_path / "js" / "webpack-entry-loader.js"
+            with open(
+                webpack_build_directory_path / "js" / "webpack-entry-loader.js",
+                encoding="utf-8",
             ) as f:
-                webpack_entry_loader_js = await f.read()
+                webpack_entry_loader_js = f.read()
             assert f"{root_path}/js/webpack/runtime.js" in webpack_entry_loader_js
             assert (
                 f"{root_path}/js/webpack/{DummyEntryPointProviderExtension.plugin().id}.js"

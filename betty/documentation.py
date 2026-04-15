@@ -9,7 +9,6 @@ from pathlib import Path
 from shutil import copytree
 from typing import final, override
 
-from aiofiles.os import makedirs
 from sphinx.application import Sphinx
 from sphinx.ext.autodoc import MethodDocumenter
 
@@ -30,7 +29,7 @@ async def _ensure_www_directory(
 async def _build(
     output_directory_path: Path, cache_directory_path: Path, *, user: User
 ) -> None:
-    await makedirs(output_directory_path, exist_ok=True)
+    output_directory_path.mkdir(exist_ok=True, parents=True)
     # sphinx-apidoc must output to the documentation directory, but because we do not want
     # to 'pollute' that with generated files that must not be committed, do our work in a
     # dedicated cache directory.

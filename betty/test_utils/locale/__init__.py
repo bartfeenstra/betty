@@ -6,10 +6,8 @@ from __future__ import annotations
 
 import difflib
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING
-
-import aiofiles
-from aiofiles.tempfile import TemporaryDirectory
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -20,8 +18,10 @@ class PotFileTestBase:
     A base class for testing that a ``*.pot`` file is up to date.
     """
 
-    async def _readlines(self, assets_directory_path: Path) -> Iterator[str]:
-        async with aiofiles.open(assets_directory_path / "locale" / "betty.pot") as f:
+    def _readlines(self, assets_directory_path: Path) -> Iterator[str]:
+        with open(
+            assets_directory_path / "locale" / "betty.pot", encoding="utf-8"
+        ) as f:
             return filter(
                 lambda line: (
                     not line.startswith((
@@ -32,7 +32,7 @@ class PotFileTestBase:
                         '"Generated-By: ',
                     ))
                 ),
-                await f.readlines(),
+                f.readlines(),
             )
 
     def assets_directory_path(self) -> Path:
@@ -59,11 +59,11 @@ class PotFileTestBase:
         """
         Test the translations.
         """
-        async with TemporaryDirectory() as working_directory_path_str:
+        with TemporaryDirectory() as working_directory_path_str:
             working_directory_path = Path(working_directory_path_str)
             await self.update_translations(working_directory_path)
-            actual_pot_contents = await self._readlines(self.assets_directory_path())
-            expected_pot_contents = await self._readlines(working_directory_path)
+            actual_pot_contents = self._readlines(self.assets_directory_path())
+            expected_pot_contents = self._readlines(working_directory_path)
             diff = difflib.unified_diff(
                 list(actual_pot_contents),
                 list(expected_pot_contents),

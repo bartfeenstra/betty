@@ -4,11 +4,12 @@ Jobs for the Maps extension.
 
 from __future__ import annotations
 
+from asyncio import to_thread
 from typing import TYPE_CHECKING, override
 
+from betty.file import write
 from betty.job import Job
 from betty.plugins.entity.place import Place
-from betty.project.generate.file import create_file
 
 if TYPE_CHECKING:
     from babel import Locale
@@ -61,5 +62,5 @@ class _GeneratePlacePreview(Job):
             ),
             place=place,
         )
-        async with create_file(place_path / "-maps-place-preview.html") as f:
-            await f.write(rendered_html)
+        await to_thread(place_path.mkdir, exist_ok=True, parents=True)
+        await write(place_path / "-maps-place-preview.html", rendered_html)

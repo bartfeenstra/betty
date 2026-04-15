@@ -3,7 +3,6 @@ from __future__ import annotations
 from json import dumps
 from typing import TYPE_CHECKING, Self, override
 
-import aiofiles
 from babel import Locale
 
 from betty.app import App, AppConfiguration
@@ -48,8 +47,8 @@ class TestApp:
         self, mocker: MockerFixture, tmp_path: Path
     ) -> None:
         configuration_file = tmp_path / "app.json"
-        async with aiofiles.open(tmp_path / "app.json", mode="w") as f:
-            await f.write(dumps({"locale": "nl-NL"}))
+        with open(tmp_path / "app.json", encoding="utf-8", mode="w") as f:
+            f.write(dumps({"locale": "nl-NL"}))
         mocker.patch("betty.app.data.AppConfiguration.FILE", configuration_file)
         async with App.new_from_environment() as sut:
             localizer = await sut.localizer

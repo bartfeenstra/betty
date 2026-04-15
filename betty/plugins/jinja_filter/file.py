@@ -7,7 +7,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Self, final, override
 from urllib.parse import quote
 
-from aiofiles.os import makedirs
 from jinja2 import pass_context
 
 from betty.jinja import JinjaFilterDefinition, context_document
@@ -61,7 +60,6 @@ class File(JinjaFilter, Manufacturable):
             file_destination_path = (
                 self._www_directory / "file" / file.id / "file" / file.name
             )
-            await makedirs(file_destination_path.parent, exist_ok=True)
             await link_or_copy(file.path, file_destination_path)
 
         return f"betty-static:///file/{quote(file.id)}/file/{quote(file.name)}"
