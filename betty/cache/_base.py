@@ -6,7 +6,7 @@ from functools import partial
 from typing import override
 
 from betty.cache import Cache, CacheItem, CacheItemValueSetter
-from betty.concurrent import AsynchronizedLock, Ledger
+from betty.concurrent import Ledger, ThreadSafeLock
 from betty.typing import threadsafe
 
 
@@ -35,7 +35,7 @@ class _StaticCacheItem[CacheItemValueT](CacheItem[CacheItemValueT]):
 
 @dataclass(frozen=True)
 class _CommonCacheBaseState:
-    cache_lock: AsynchronizedLock
+    cache_lock: ThreadSafeLock
     cache_item_lock_ledger: Ledger
 
 
@@ -52,7 +52,7 @@ class _CommonCacheBase[CacheItemValueT](Cache[CacheItemValueT]):
             self._cache_lock = state.cache_lock
             self._cache_item_lock_ledger = state.cache_item_lock_ledger
         else:
-            self._cache_lock = AsynchronizedLock.new_threadsafe()
+            self._cache_lock = ThreadSafeLock()
             self._cache_item_lock_ledger = Ledger(self._cache_lock)
 
     @override

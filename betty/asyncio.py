@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from inspect import isawaitable
 from typing import TYPE_CHECKING, Any, final, override
 
-from betty.concurrent import AsynchronizedLock
+from betty.concurrent import ThreadSafeLock
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
@@ -51,7 +51,7 @@ class LazyReAwaitable[ValueT](ReAwaitable[ValueT]):
 
     def __init__(self, factory: Callable[[], Awaitable[ValueT]], /):
         self._factory = factory
-        self._lock = AsynchronizedLock.new_threadsafe()
+        self._lock = ThreadSafeLock()
 
     @override
     def __await__(self) -> Generator[Any, Any, ValueT]:

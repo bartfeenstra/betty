@@ -8,7 +8,7 @@ from asyncio import gather
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
-from betty.concurrent import AsynchronizedLock, Lock
+from betty.concurrent import Lock, ThreadSafeLock
 from betty.entity.has_file_references import HasFileReferences
 from betty.entity.has_links import HasLinks
 from betty.functools import map_suppress
@@ -60,9 +60,7 @@ class Populator:
         self._localizers = localizers
         self._client = client
         self._image_files: MutableMapping[Image, File] = {}
-        self._image_files_locks: Mapping[Image, Lock] = defaultdict(
-            AsynchronizedLock.new_threadsafe
-        )
+        self._image_files_locks: Mapping[Image, Lock] = defaultdict(ThreadSafeLock)
         self._copyright_notice = copyright_notice
         self._user = user
 

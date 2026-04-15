@@ -7,7 +7,7 @@ from __future__ import annotations
 from importlib import metadata
 from typing import TYPE_CHECKING, cast, final
 
-from betty.concurrent import AsynchronizedLock
+from betty.concurrent import ThreadSafeLock
 from betty.machine_name import MachineName, ResolvableMachineName
 from betty.plugin import PluginDefinition
 from betty.plugin.discovery import ResolvableDiscovery
@@ -38,7 +38,7 @@ class PluginDiscoverer[PluginDefinitionT: PluginDefinition]:
     ):
         self._services = services
         self._type = plugin_type
-        self._lock = AsynchronizedLock.new_threadsafe()
+        self._lock = ThreadSafeLock()
         self._discovery = (
             [self._discover] if plugin_overrides is None else plugin_overrides
         )

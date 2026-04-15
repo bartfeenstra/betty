@@ -110,7 +110,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ConfigurationFileNotFound": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/concurrent.py": {
-        "AsynchronizedLock": {
+        "ThreadSafeLock": {
             "release": MissingReason.SHOULD_BE_COVERED,
         },
         "Lock": {

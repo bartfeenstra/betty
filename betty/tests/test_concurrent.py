@@ -9,7 +9,7 @@ from unittest.mock import call
 import pytest
 from pytest_mock import MockerFixture
 
-from betty.concurrent import AsynchronizedLock, Ledger, Lock, RateLimiter, backoff
+from betty.concurrent import Ledger, Lock, RateLimiter, ThreadSafeLock, backoff
 
 
 class _LockTestDummyLock(Lock):
@@ -39,10 +39,10 @@ class TestLock:
             await wait_for(sut.__aenter__(), 0.000000001)
 
 
-class TestAsynchronizedLock:
+class TestThreadSafeLock:
     async def test_acquire__should_acquire_immediately(self) -> None:
         lock = threading.Lock()
-        sut = AsynchronizedLock(lock)
+        sut = ThreadSafeLock(lock)
         assert await sut.acquire()
         assert lock.locked()
         await sut.release()
@@ -50,7 +50,7 @@ class TestAsynchronizedLock:
 
     async def test_acquire__should_acquire_after_waiting(self) -> None:
         lock = threading.Lock()
-        sut = AsynchronizedLock(lock)
+        sut = ThreadSafeLock(lock)
         lock.acquire()
         task = create_task(sut.acquire())
         await sleep(1)
@@ -59,17 +59,14 @@ class TestAsynchronizedLock:
 
     async def test_acquire__should_not_acquire_if_not_waiting(self) -> None:
         lock = threading.Lock()
-        sut = AsynchronizedLock(lock)
+        sut = ThreadSafeLock(lock)
         lock.acquire()
         assert not await sut.acquire(wait=False)
         lock.release()
 
     def test_lock(self) -> None:
         lock = threading.Lock()
-        assert AsynchronizedLock(lock).lock is lock
-
-    def test_threading(self) -> None:
-        AsynchronizedLock.new_threadsafe()
+        assert ThreadSafeLock(lock).lock is lock
 
 
 class TestRateLimiter:
@@ -117,21 +114,21 @@ class TestRateLimiter:
 class TestLedger:
     async def test_ledger__with_wait_with_unlocked(self) -> None:
         transaction_id = "my-first-transaction-id"
-        sut = Ledger(AsynchronizedLock.new_threadsafe())
+        sut = Ledger(ThreadSafeLock())
         lock = sut.ledger(transaction_id)
         assert await lock.acquire()
         await lock.release()
 
     async def test_ledger__without_wait_with_unlocked(self) -> None:
         transaction_id = "my-first-transaction-id"
-        sut = Ledger(AsynchronizedLock.new_threadsafe())
+        sut = Ledger(ThreadSafeLock())
         lock = sut.ledger(transaction_id)
         assert await lock.acquire(wait=False)
         await lock.release()
 
     async def test_ledger__with_wait_with_locked(self) -> None:
         transaction_id = "my-first-transaction-id"
-        sut = Ledger(AsynchronizedLock.new_threadsafe())
+        sut = Ledger(ThreadSafeLock())
         lock = sut.ledger(transaction_id)
         await lock.acquire()
         task = create_task(lock.acquire())
@@ -141,7 +138,7 @@ class TestLedger:
 
     async def test_ledger__without_wait_with_locked(self) -> None:
         transaction_id = "my-first-transaction-id"
-        sut = Ledger(AsynchronizedLock.new_threadsafe())
+        sut = Ledger(ThreadSafeLock())
         lock = sut.ledger(transaction_id)
         await lock.acquire()
         assert not await lock.acquire(wait=False)

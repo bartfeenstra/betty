@@ -11,7 +11,7 @@ from graphlib import CycleError, TopologicalSorter
 from typing import TYPE_CHECKING, cast, final, override
 
 from betty.classtools import Singleton
-from betty.concurrent import AsynchronizedLock, backoff
+from betty.concurrent import ThreadSafeLock, backoff
 from betty.job import Context, Job
 from betty.job.scheduler import (
     Cancelled,
@@ -83,7 +83,7 @@ class DefaultScheduler(Scheduler):
     ):
         super().__init__(context)
         self._user = user
-        self._lock = AsynchronizedLock.new_threadsafe()
+        self._lock = ThreadSafeLock()
         self._released = False
         self._cancelled = False
         self._cancelled_reason: BaseException | None = None
