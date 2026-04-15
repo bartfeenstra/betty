@@ -10,7 +10,7 @@ from asyncio import sleep
 from collections.abc import AsyncIterator, Hashable, MutableMapping
 from math import floor
 from types import TracebackType
-from typing import Self, final, override
+from typing import final, override
 
 from betty.typing import threadsafe
 
@@ -22,9 +22,11 @@ class Lock(ABC):
     Provide an asynchronous lock.
     """
 
+    @final
     async def __aenter__(self):
         await self.acquire()
 
+    @final
     async def __aexit__(
         self,
         exc_type: type[BaseException] | None,
@@ -47,15 +49,16 @@ class Lock(ABC):
 
 
 @final
-class AsynchronizedLock(Lock):
+@threadsafe
+class ThreadSafeLock(Lock):
     """
-    Make a synchronous (blocking) lock asynchronous (non-blocking).
+    An asynchronous thread-safe lock.
     """
 
     __slots__ = ("_lock",)
 
-    def __init__(self, lock: threading.Lock):
-        self._lock = lock
+    def __init__(self, lock: threading.Lock | None = None, /):
+        self._lock = lock or threading.Lock()
 
     @property
     def lock(self) -> threading.Lock:
@@ -66,25 +69,18 @@ class AsynchronizedLock(Lock):
 
     @override
     async def acquire(self, *, wait: bool = True) -> bool:
-        while not self._lock.acquire(blocking=False):
-            if not wait:
-                return False
-            # Sleeping for zero seconds does not actually sleep, but gives the event
-            # loop a chance to progress other tasks while we wait for another chance
-            # to acquire the acquirable.
-            await sleep(0)
-        return True
+        async for _ in backoff():
+            if self._lock.acquire(blocking=False):
+                return True
+            if wait:
+                continue
+            return False
+        # This never happens, because backoff() is an infinite generator.
+        raise NotImplementedError
 
     @override
     async def release(self) -> None:
         self._lock.release()
-
-    @classmethod
-    def new_threadsafe(cls) -> Self:
-        """
-        Create a new thread-safe, asynchronous lock.
-        """
-        return cls(threading.Lock())
 
 
 @final
@@ -97,7 +93,7 @@ class RateLimiter:
     """
 
     def __init__(self, maximum: int, period: int = 1, /):
-        self._lock = AsynchronizedLock.new_threadsafe()
+        self._lock = ThreadSafeLock()
         self._maximum = maximum
         self._period = period
         self._available = maximum

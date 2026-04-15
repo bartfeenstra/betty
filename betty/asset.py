@@ -11,7 +11,7 @@ from os import walk
 from pathlib import Path
 from typing import TYPE_CHECKING, final, override
 
-from betty.concurrent import AsynchronizedLock
+from betty.concurrent import ThreadSafeLock
 from betty.functools import unique
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
@@ -127,7 +127,7 @@ class StaticAssetRepository(AssetRepository):
         """
         self._directories = directories
         self.__assets: Mapping[Path, Path] | None = None
-        self._lock = AsynchronizedLock.new_threadsafe()
+        self._lock = ThreadSafeLock()
 
     async def _assets(self) -> Mapping[Path, Path]:
         if self.__assets is None:

@@ -6,7 +6,7 @@ from typing import final, override
 
 from rich.progress import Progress as _RichProgress
 
-from betty.concurrent import AsynchronizedLock
+from betty.concurrent import ThreadSafeLock
 from betty.progress import Progress
 from betty.typing import threadsafe
 
@@ -23,7 +23,7 @@ class RichProgress(Progress):
         self._rich_task = self._rich_progress.add_task(
             f"[green]{rich_task_description}", total=0
         )
-        self._lock = AsynchronizedLock.new_threadsafe()
+        self._lock = ThreadSafeLock()
         self._total = 0
 
     @override

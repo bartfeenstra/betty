@@ -7,7 +7,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import TYPE_CHECKING, final, override
 
-from betty.concurrent import AsynchronizedLock, RateLimiter
+from betty.concurrent import RateLimiter, ThreadSafeLock
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin
@@ -41,7 +41,7 @@ class RateLimitMiddleware:
         self._default_limits_and_limiters: MutableMapping[
             tuple[str, str | None, int | None], RateLimiter
         ] = {}
-        self._lock = AsynchronizedLock.new_threadsafe()
+        self._lock = ThreadSafeLock()
 
     async def __call__(
         self, request: ClientRequest, handler: ClientHandlerType
