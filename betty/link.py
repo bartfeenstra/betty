@@ -7,7 +7,6 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, final, override
 
-from betty.classtools import Singleton
 from betty.locale.localizable import (
     Localizable,
     ResolvableLocalizable,
@@ -15,15 +14,13 @@ from betty.locale.localizable import (
 )
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.plugin.factory import PluginManufacturer
 from betty.plugin.ordered import Order, OrderedPluginDefinition
 
 if TYPE_CHECKING:
     from betty.machine_name import ResolvableMachineName
 
 
-class LinkType(ABC):
+class Link(ABC):
     """
     A link to a web resource.
     """
@@ -43,12 +40,6 @@ class LinkType(ABC):
         """
 
 
-class Link(Singleton, Plugin["LinkDefinition"]):
-    """
-    A link to a web resource.
-    """
-
-
 @final
 @PluginTypeDefinition(
     "link",
@@ -56,7 +47,7 @@ class Link(Singleton, Plugin["LinkDefinition"]):
     label_plural=_("Links"),
     label_countable=ngettext("{count} link", "{count} links"),
 )
-class LinkDefinition(OrderedPluginDefinition, PluginClsDefinition[Link]):
+class LinkDefinition(OrderedPluginDefinition):
     """
     .. plugin_type:: link.
     """
@@ -67,7 +58,7 @@ class LinkDefinition(OrderedPluginDefinition, PluginClsDefinition[Link]):
         *,
         after: Order[LinkDefinition] = (),
         before: Order[LinkDefinition] = (),
-        link: LinkType,
+        link: Link,
         primary: bool = False,
     ):
         super().__init__(plugin_id, before=before, after=after)
@@ -75,7 +66,7 @@ class LinkDefinition(OrderedPluginDefinition, PluginClsDefinition[Link]):
         self._primary = primary
 
     @property
-    def link(self) -> LinkType:
+    def link(self) -> Link:
         """
         The link.
         """
@@ -90,19 +81,7 @@ class LinkDefinition(OrderedPluginDefinition, PluginClsDefinition[Link]):
 
 
 @final
-class LinkManufacturer(PluginManufacturer[LinkDefinition, Link]):
-    """
-    The link manufacturer.
-    """
-
-    @override
-    @classmethod
-    def plugin_type(cls) -> type[LinkDefinition]:
-        return LinkDefinition
-
-
-@final
-class StaticLink(LinkType):
+class StaticLink(Link):
     """
     A static link.
     """

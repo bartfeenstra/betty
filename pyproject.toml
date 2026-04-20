@@ -145,9 +145,9 @@ betty = 'betty.console:main_standalone'
 'spdx' = 'betty.plugins.license.spdx:SpdxLicenseDiscoverer.discover_for'
 
 [project.entry-points.'betty.link']
-'betty-documentation' = 'betty.plugins.link.betty_documentation:BettyDocumentation'
-'betty-github' = 'betty.plugins.link.betty_github:BettyGithub'
-'http-api-doc' = 'betty.plugins.link.http_api_doc:HttpApiDoc'
+'betty-documentation' = 'betty.plugins.link.betty_documentation:BETTY_DOCUMENTATION'
+'betty-github' = 'betty.plugins.link.betty_github:BETTY_GITHUB'
+'http-api-doc' = 'betty.plugins.link.http_api_doc:HTTP_API_DOC'
 
 [project.entry-points.'betty.loader']
 'demo' = 'betty.plugins.loader.demo:Demo'

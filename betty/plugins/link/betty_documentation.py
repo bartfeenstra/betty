@@ -2,18 +2,12 @@
 The link to Betty's documentation.
 """
 
-from typing import final
+from typing import Final
 
-from betty.link import Link, LinkDefinition, StaticLink
+from betty.link import LinkDefinition, StaticLink
 from betty.locale.localizable.gettext import _
 
-
-@final
-@LinkDefinition(
+BETTY_DOCUMENTATION: Final[LinkDefinition] = LinkDefinition(
     "betty-documentation",
     link=StaticLink("https://betty.readthedocs.io/", _("Read the Betty documentation")),
 )
-class BettyDocumentation(Link):
-    """
-    .. plugin:: link:betty-documentation.
-    """

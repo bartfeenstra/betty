@@ -40,8 +40,8 @@ from betty.plugins.extension.raspberry_mint import (
 from betty.plugins.extension.raspberry_mint.default import regional_content
 from betty.plugins.extension.spdx import Spdx
 from betty.plugins.extension.trees import Trees
-from betty.plugins.link.betty_documentation import BettyDocumentation
-from betty.plugins.link.betty_github import BettyGithub
+from betty.plugins.link.betty_documentation import BETTY_DOCUMENTATION
+from betty.plugins.link.betty_github import BETTY_GITHUB
 from betty.plugins.loader.demo import Demo
 from betty.project import Project
 
@@ -208,8 +208,8 @@ async def create_project(
         ],
         license=LicenseManufacturer("spdx-gpl-3--0-or-later"),
         links=[
-            BettyDocumentation,
-            BettyGithub,
+            BETTY_DOCUMENTATION,
+            BETTY_GITHUB,
         ],
         loaders=[
             Demo,
