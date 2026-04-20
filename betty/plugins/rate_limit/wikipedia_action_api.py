@@ -2,35 +2,17 @@
 The Wikipedia action API rate limit.
 """
 
-from typing import override
+import re
+from typing import Final
 
-from aiohttp import ClientRequest
+from betty.http_client.rate_limit import RateLimitDefinition
 
-from betty.http_client.rate_limit import RateLimit, RateLimitDefinition
-from betty.plugin.cls import Plugin
-
-
-@RateLimitDefinition("wikipedia-action-api")
-class WikipediaActionApi(RateLimit, Plugin):
-    """
-    .. plugin:: http-rate-limit:wikipedia-action-api.
-
-    See https://www.mediawiki.org/wiki/API:Action_API.
-    """
-
-    @override
-    def match(self, request: ClientRequest) -> bool:
-        return (
-            request.url.scheme in ("http", "https")
-            and request.url.host is not None
-            and request.url.host.endswith(".wikipedia.org")
-            and request.url.path == "/w/api.php"
-        )
-
-    @override
-    @property
-    def limit(self) -> tuple[int, int]:
-        # https://www.mediawiki.org/wiki/API:Etiquette states there are no hard limits on the Wikimedia
-        # Foundation-managed Action APIs. We've taken the limit of "200 requests per second" from
-        # https://www.mediawiki.org/wiki/Wikimedia_REST_API#Terms_and_conditions instead.
-        return 200, 1
+# See https://www.mediawiki.org/wiki/API:Action_API.
+WIKIPEDIA_ACTION_API: Final[RateLimitDefinition] = RateLimitDefinition(
+    "wikipedia-action-api",
+    limit=(200, 1),
+    # https://www.mediawiki.org/wiki/API:Etiquette states there are no hard limits on the Wikimedia
+    # Foundation-managed Action APIs. We've taken the limit of "200 requests per second" from
+    # https://www.mediawiki.org/wiki/Wikimedia_REST_API#Terms_and_conditions instead.
+    match=re.compile(r"^https?://[a-z\-]+\.wikipedia\.org/w/api\.php(.*?)$"),
+)

@@ -1,50 +1,22 @@
 import time
 from asyncio import gather
 from collections.abc import AsyncIterator, Awaitable, Callable, Sequence
-from typing import override
 from unittest.mock import AsyncMock
 
 import pytest
 from aiohttp.client_reqrep import ClientRequest, ClientResponse
 from yarl import URL
 
-from betty.http_client.rate_limit import (
-    RateLimit,
-    RateLimitMiddleware,
+from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
+
+_LOW_RATE_LIMIT = RateLimitDefinition("-", limit=(1, 999999999), match="")
+_HIGH_RATE_LIMIT = RateLimitDefinition("-", limit=(999999999, 1), match="")
+_NEVER_RATE_LIMIT = RateLimitDefinition(
+    "-", limit=(1, 999999999), match="x" * 999999999
 )
 
 
-class _LowRateLimit(RateLimit):
-    @override
-    @property
-    def limit(self) -> tuple[int, int]:
-        return 1, 999999999
-
-
-class _NeverMatchingRateLimit(_LowRateLimit):
-    @override
-    def match(self, request: ClientRequest) -> bool:
-        return False
-
-
-class _AlwaysMatchingLowRateLimit(_LowRateLimit):
-    @override
-    def match(self, request: ClientRequest) -> bool:
-        return True
-
-
-class _AlwaysMatchingHighRateLimit(RateLimit):
-    @override
-    def match(self, request: ClientRequest) -> bool:
-        return True
-
-    @override
-    @property
-    def limit(self) -> tuple[int, int]:
-        return 999999999, 1
-
-
-type DoAssert = Callable[[int, int, Sequence[RateLimit]], Awaitable[None]]
+type DoAssert = Callable[[int, int, Sequence[RateLimitDefinition]], Awaitable[None]]
 
 
 class TestRateLimitMiddleware:
@@ -60,7 +32,7 @@ class TestRateLimitMiddleware:
         request = ClientRequest("GET", URL("https://example.com"))
 
         async def _do_assert(
-            expected: int, consumers: int, limits: Sequence[RateLimit]
+            expected: int, consumers: int, limits: Sequence[RateLimitDefinition]
         ) -> None:
             sut = RateLimitMiddleware(limits)
 
@@ -103,11 +75,7 @@ class TestRateLimitMiddleware:
         await do_assert(
             expected,
             consumers,
-            [
-                _NeverMatchingRateLimit(),
-                _NeverMatchingRateLimit(),
-                _NeverMatchingRateLimit(),
-            ],
+            [_NEVER_RATE_LIMIT, _NEVER_RATE_LIMIT, _NEVER_RATE_LIMIT],
         )
 
     @pytest.mark.parametrize(
@@ -123,9 +91,5 @@ class TestRateLimitMiddleware:
         await do_assert(
             expected,
             consumers,
-            [
-                _NeverMatchingRateLimit(),
-                _AlwaysMatchingHighRateLimit(),
-                _AlwaysMatchingLowRateLimit(),
-            ],
+            [_NEVER_RATE_LIMIT, _HIGH_RATE_LIMIT, _LOW_RATE_LIMIT],
         )

@@ -4,18 +4,16 @@ HTTP client rate limiting.
 
 from __future__ import annotations
 
-from abc import abstractmethod
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, final
 
 from betty.concurrent import RateLimiter, ThreadSafeLock
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import Plugin
-from betty.plugin.factory import PluginManufacturer
-from betty.plugin.ordered import OrderedPluginClsDefinition
+from betty.plugin.ordered import OrderedPluginDefinition
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
+    import re
     from collections.abc import Iterable, MutableMapping
 
     from aiohttp.client_middlewares import ClientHandlerType
@@ -33,7 +31,7 @@ class RateLimitMiddleware:
     HTTP client middleware to rate-limit requests.
     """
 
-    def __init__(self, limits: Iterable[RateLimit], /):
+    def __init__(self, limits: Iterable[RateLimitDefinition], /):
         self._preferred_limits_and_limiters = [
             (limit, RateLimiter(*limit.limit)) for limit in limits
         ]
@@ -71,25 +69,6 @@ class RateLimitMiddleware:
                 return request_limiter
 
 
-class RateLimit(Plugin["RateLimitDefinition"]):
-    """
-    A rate limit for HTTP requests.
-    """
-
-    @abstractmethod
-    def match(self, request: ClientRequest) -> bool:
-        """
-        Whether this limit matches the given request.
-        """
-
-    @property
-    @abstractmethod
-    def limit(self) -> tuple[int, int]:
-        """
-        The limit expressed as a 2-tuple of the maximum and the period (in seconds).
-        """
-
-
 @final
 @PluginTypeDefinition(
     "http-rate-limit",
@@ -102,7 +81,7 @@ class RateLimit(Plugin["RateLimitDefinition"]):
         "Rate limits ensure that Betty's HTTP client does not make more requests to a web service than that service supports or allows, by enforcing a maximum number of requests per timeframe."
     ),
 )
-class RateLimitDefinition(OrderedPluginClsDefinition[RateLimit]):
+class RateLimitDefinition(OrderedPluginDefinition):
     """
     .. plugin_type:: http-rate-limit.
     """
@@ -111,6 +90,8 @@ class RateLimitDefinition(OrderedPluginClsDefinition[RateLimit]):
         self,
         plugin_id: ResolvableMachineName,
         *,
+        limit: tuple[int, int],
+        match: str | re.Pattern,
         after: Order[RateLimitDefinition] = (),
         before: Order[RateLimitDefinition] = (),
         requires: Requires = (),
@@ -118,15 +99,21 @@ class RateLimitDefinition(OrderedPluginClsDefinition[RateLimit]):
         super().__init__(
             plugin_id, after=after, auto=True, before=before, requires=requires
         )
+        self._limit = limit
+        self._match = match
 
+    @property
+    def limit(self) -> tuple[int, int]:
+        """
+        The limit expressed as a 2-tuple of the maximum and the period (in seconds).
+        """
+        return self._limit
 
-@final
-class RateLimitManufacturer(PluginManufacturer[RateLimitDefinition, RateLimit]):
-    """
-    The rate limit manufacturer.
-    """
-
-    @override
-    @classmethod
-    def plugin_type(cls) -> type[RateLimitDefinition]:
-        return RateLimitDefinition
+    def match(self, request: ClientRequest, /) -> bool:
+        """
+        Check the rate limit matches the given URL.
+        """
+        url = str(request.url)
+        if isinstance(self._match, str):
+            return url.startswith(self._match)
+        return self._match.fullmatch(url) is not None
