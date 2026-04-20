@@ -76,9 +76,6 @@ if TYPE_CHECKING:
     from betty.user import User
 
 
-type AppServicePlugin = AssetDefinition | RateLimitDefinition
-
-
 @final
 @threadsafe
 class App(
