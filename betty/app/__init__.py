@@ -34,7 +34,8 @@ from betty.http_client.rate_limit import (
     RateLimitDefinition,
     RateLimitMiddleware,
 )
-from betty.life_cycle import LifeCycle
+from betty.life_cycle import Bootstrappable, Shutdownable
+from betty.life_cycle import LifeCycle as LifeCycle
 from betty.locale import DEFAULT_LOCALE, ResolvableLocale, resolve_locale
 from betty.locale.localize import Localizer, LocalizerRepository
 from betty.locale.translation import (
@@ -144,7 +145,7 @@ class App(
         self._locale = DEFAULT_LOCALE if locale is None else resolve_locale(locale)
         if user is None:
             user = RichUser()
-        if isinstance(user, LifeCycle):
+        if isinstance(user, Bootstrappable | Shutdownable):
             self.life_cycle.on_bootstrap(lambda: self.life_cycle.synchronize(user))
         self._user = user
         self._cache_directory = (
@@ -236,9 +237,7 @@ class App(
         """
         The available translations.
         """
-        translations = AssetTranslationRepository(self.assets, self.binary_file_cache)
-        await translations.bootstrap()
-        return translations
+        return AssetTranslationRepository(self.assets, self.binary_file_cache)
 
     @service
     async def localizer(self) -> Localizer:

@@ -12,7 +12,7 @@ from betty.asyncio import (
     ResolvableAwaitable,
     resolve_await,
 )
-from betty.life_cycle import LifeCycle
+from betty.life_cycle import Bootstrappable, Shutdownable
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.service.provider import (
     Service,
@@ -61,7 +61,7 @@ class AsynchronousServiceManager[
                 service = factory.service
             else:
                 service = await resolve_await(factory(instance))
-            if isinstance(service, LifeCycle):
+            if isinstance(service, Bootstrappable | Shutdownable):
                 await instance.life_cycle.synchronize(service)
             return service
 

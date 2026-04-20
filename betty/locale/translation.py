@@ -16,6 +16,7 @@ from polib import pofile
 import betty.dirs
 from betty.file import read
 from betty.hashid import hashid_file_meta
+from betty.life_cycle import Bootstrappable
 from betty.locale import (
     DEFAULT_LOCALE,
     ResolvableLocale,
@@ -226,23 +227,22 @@ The translation repository for the default locale.
 
 @final
 @threadsafe
-class AssetTranslationRepository(TranslationRepository):
+class AssetTranslationRepository(TranslationRepository, Bootstrappable):
     """
     Provide translations from assets.
     """
 
     def __init__(self, assets: AssetRepository, cache: BinaryFileCache):
+        super().__init__()
         self._assets = assets
         self._cache = cache
         self._translations: MutableMapping[Locale, gettext.NullTranslations] = {}
         self._locales: set[Locale] = {DEFAULT_LOCALE}
         self._bootstrapped = False
 
+    @override
     async def bootstrap(self) -> None:
-        """
-        Bootstrap the available translations.
-        """
-        assert not self._bootstrapped
+        await super().bootstrap()
         for assets_directory_path in reversed(self._assets.directories):
             for po_file_path in assets_directory_path.glob("locale/*/betty.po"):
                 self._locales.add(from_language_tag(po_file_path.parent.name))
