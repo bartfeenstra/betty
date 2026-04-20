@@ -354,7 +354,9 @@ class PluginServiceInitializer(ManagedLifeCycle):
         return ()
 
 
-class PluginServiceProvider(ManagedLifeCycle, ServiceProvider):
+class PluginServiceProvider[ServiceLevelT: ServiceLevel](
+    ManagedLifeCycle, ServiceProvider[ServiceLevelT]
+):
     """
     A plugin service provider.
     """
@@ -362,7 +364,7 @@ class PluginServiceProvider(ManagedLifeCycle, ServiceProvider):
     def __init__(
         self,
         *args: Any,
-        services: ServiceLevel,
+        services: ServiceLevelT,
         supported_plugins: SupportedPlugins = (),
         **kwargs: Any,
     ):

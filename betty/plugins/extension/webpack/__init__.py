@@ -7,11 +7,11 @@ from __future__ import annotations
 from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty import webpack
 from betty.extension import Extension, ExtensionDefinition
 from betty.factory import Manufacturable
 from betty.plugins.asset.webpack import WEBPACK as WEBPACK_ASSET
 from betty.plugins.css_resource.webpack import WEBPACK as WEBPACK_CSS_RESOURCE
-from betty.plugins.extension.webpack.build import EntryPointProvider
 from betty.plugins.extension.webpack.jobs import _GenerateAssets
 from betty.plugins.jinja_filter.webpack_entry_point_js import WebpackEntryPointJs
 from betty.plugins.js_resource.webpack_entry_point_loader import (
@@ -19,10 +19,12 @@ from betty.plugins.js_resource.webpack_entry_point_loader import (
 )
 from betty.project import Project
 from betty.project.generate import Generator
+from betty.service.plugin import PluginServiceProvider
+from betty.service.plugin.instance.collection.keyed import PluginInstancesService
 from betty.service.simple import service
+from betty.webpack import WebpackEntryPointDefinition
 
 if TYPE_CHECKING:
-    from betty import webpack
     from betty.job.scheduler import Scheduler
 
 
@@ -37,10 +39,12 @@ if TYPE_CHECKING:
         Project.js_resources.require(WEBPACK_ENTRY_POINT_LOADER),
     },
 )
-class Webpack(Generator, Extension, ServicePluginProvider, Manufacturable):
+class Webpack(Generator, Extension, PluginServiceProvider[Project], Manufacturable):
     """
     .. plugin:: extension:webpack.
     """
+
+    entry_points = PluginInstancesService(WebpackEntryPointDefinition)
 
     def __init__(self, *, project: Project):
         super().__init__(services=project)
@@ -56,10 +60,10 @@ class Webpack(Generator, Extension, ServicePluginProvider, Manufacturable):
         await scheduler.add(
             _GenerateAssets(
                 builder=await self.builder,
-                cache_directory=self._project.upstream.binary_file_cache.with_scope(
+                cache_directory=self.services.upstream.binary_file_cache.with_scope(
                     "webpack"
                 ).path,
-                www_directory=self._project.www_directory,
+                www_directory=self.services.www_directory,
             )
         )
 
@@ -68,14 +72,10 @@ class Webpack(Generator, Extension, ServicePluginProvider, Manufacturable):
         """
         The Webpack builder.
         """
-        return build.Builder(
-            [
-                extension
-                for extension in await gather(*self._project.extensions)
-                if isinstance(extension, EntryPointProvider)
-            ],
-            self._project.debug,
-            await self._project.jinja,
-            self._project.root_path,
-            user=self._project.upstream.user,
+        return webpack.Builder(
+            await gather(*self.entry_points),
+            self.services.debug,
+            await self.services.jinja,
+            self.services.root_path,
+            user=self.services.upstream.user,
         )

@@ -15,7 +15,6 @@ from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Chain
 from betty.locale.localize import LocalizerRepository
 from betty.media_type.media_types import HTML
-from betty.plugins.asset.webpack import Webpack
 from betty.plugins.content.raspberry_mint_columns import Columns, ColumnsConfiguration
 from betty.plugins.content.raspberry_mint_entity_card import EntityCard
 from betty.plugins.content.raspberry_mint_incomplete_translation_warning import (
@@ -40,10 +39,10 @@ from betty.plugins.extension.raspberry_mint import (
 from betty.plugins.extension.raspberry_mint.default import regional_content
 from betty.plugins.extension.spdx import Spdx
 from betty.plugins.extension.trees import Trees
+from betty.plugins.extension.webpack import Webpack
 from betty.plugins.link.betty_documentation import BETTY_DOCUMENTATION
 from betty.plugins.link.betty_github import BETTY_GITHUB
 from betty.plugins.loader.demo import Demo
-from betty.plugins.webpack_entry_point.http_api_doc import HttpApiDoc
 from betty.project import Project
 
 if TYPE_CHECKING:
@@ -77,7 +76,6 @@ async def create_project(
             Source,
         ],
         extensions=[
-            HttpApiDoc,
             Maps,
             RaspberryMint,
             Spdx,
@@ -208,12 +206,13 @@ async def create_project(
             Trees,
             ExtensionManufacturer(
                 Webpack,
-                WebpackConfiguration([
-                    HttpApiDocWebpackEntryPoint,
-                    MapsWebpackEntryPoint,
-                    RaspberryMintWebpackEntryPoint,
-                    TreesWebpackEntryPoint,
-                ]),
+                # @todo Finish this
+                # WebpackConfiguration([
+                #     HttpApiDocWebpackEntryPoint,
+                #     MapsWebpackEntryPoint,
+                #     RaspberryMintWebpackEntryPoint,
+                #     TreesWebpackEntryPoint,
+                # ]),
             ),
         ],
         license=LicenseManufacturer("spdx-gpl-3--0-or-later"),

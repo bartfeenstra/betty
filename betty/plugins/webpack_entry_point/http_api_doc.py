@@ -4,8 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
-from betty.dirs import ROOT_DIRECTORY_PATH
-from betty.locale.localizable.gettext import _
+from betty.dirs import ROOT_DIRECTORY
 from betty.plugins.asset.http_api_doc import HTTP_API_DOC as HTTP_API_DOC_ASSET
 from betty.plugins.extension.webpack import Webpack
 from betty.plugins.link.http_api_doc import HTTP_API_DOC as HTTP_API_DOC_LINK
@@ -19,16 +18,12 @@ if TYPE_CHECKING:
 @final
 @WebpackEntryPointDefinition(
     "http-api-doc",
-    label="HTTP API Documentation",
-    description=_(
-        "Display the HTTP API documentation in a user-friendly way using Swagger UI."
-    ),
     requires={
         Project.assets.require(HTTP_API_DOC_ASSET),
         Project.extensions.require(Webpack),
         Project.links.require(HTTP_API_DOC_LINK),
     },
-    entry_point=ROOT_DIRECTORY_PATH / "webpack-entry-points" / "webpack",
+    entry_point=ROOT_DIRECTORY / "webpack-entry-points" / "webpack",
 )
 class HttpApiDoc(WebpackEntryPoint):
     """

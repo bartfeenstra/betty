@@ -7,14 +7,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.content import Content, ContentManufacturer
-from betty.dirs import ROOT_DIRECTORY_PATH
+from betty.dirs import ROOT_DIRECTORY
 from betty.factory import Manufacturable
 from betty.plugins.extension.raspberry_mint import (
     RaspberryMint as RaspberryMintExtension,
 )
 from betty.plugins.extension.raspberry_mint.region import ResolvableRegion
 from betty.project import Project
-from betty.requirement import require
 from betty.webpack import WebpackEntryPoint, WebpackEntryPointDefinition
 
 if TYPE_CHECKING:
@@ -29,7 +28,7 @@ type RegionalContentManufacturers = Mapping[
 @final
 @WebpackEntryPointDefinition(
     "raspberry-mint",
-    entry_point=ROOT_DIRECTORY_PATH / "webpack-entry-points" / "raspberry-mint",
+    entry_point=ROOT_DIRECTORY / "webpack-entry-points" / "raspberry-mint",
 )
 class RaspberryMint(Manufacturable, WebpackEntryPoint):
     """
@@ -42,13 +41,13 @@ class RaspberryMint(Manufacturable, WebpackEntryPoint):
 
     @override
     @classmethod
-    @require(Project)
+    @Project.require
     async def new(cls, project: Project, /) -> Self:
         return cls(project)
 
     @override
     async def cache_keys(self) -> Sequence[str]:
-        raspberry_mint = (await self._project.extensions)[RaspberryMintExtension]
+        raspberry_mint = await self._project.extensions[RaspberryMintExtension]
         return (
             self._project.root_path,
             raspberry_mint.primary_color,

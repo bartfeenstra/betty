@@ -28,12 +28,12 @@ type ServiceOrFactory[ServiceProviderT: ServiceProvider, ServiceT, FactoryServic
 )
 
 
-class ServiceProvider:
+class ServiceProvider[ServiceLevelT: ServiceLevel]:
     """
     A service provider.
     """
 
-    def __init__(self, *args: Any, services: ServiceLevel, **kwargs: Any):
+    def __init__(self, *args: Any, services: ServiceLevelT, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self.__services = services
         for _, member in getmembers(type(self)):
@@ -42,7 +42,7 @@ class ServiceProvider:
 
     @final
     @property
-    def services(self) -> ServiceLevel:
+    def services(self) -> ServiceLevelT:
         """
         The service level the services are provided for.
         """

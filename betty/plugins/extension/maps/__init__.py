@@ -9,6 +9,7 @@ from betty.factory import Manufacturable
 from betty.locale.localizable.gettext import _
 from betty.plugins.asset.maps import MAPS
 from betty.plugins.extension.maps.jobs import _GeneratePlacePreviews
+from betty.plugins.extension.webpack import Webpack
 from betty.plugins.webpack_entry_point.maps import Maps as MapsWebpackEntryPoint
 from betty.project import Project
 from betty.project.generate import Generator

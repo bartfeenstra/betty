@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
-from betty.dirs import ROOT_DIRECTORY_PATH
+from betty.dirs import ROOT_DIRECTORY
 from betty.webpack import WebpackEntryPoint, WebpackEntryPointDefinition
 
 if TYPE_CHECKING:
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 @final
 @WebpackEntryPointDefinition(
-    "trees", entry_point=ROOT_DIRECTORY_PATH / "webpack-entry-points" / "trees"
+    "trees", entry_point=ROOT_DIRECTORY / "webpack-entry-points" / "trees"
 )
 class Trees(WebpackEntryPoint):
     """

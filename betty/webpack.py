@@ -19,10 +19,10 @@ from betty.file import read, write
 from betty.hashid import hashid, hashid_file_content, hashid_sequence
 from betty.jinja import make_copy_function
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin import PluginTypeDefinition
+from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer
 from betty.portable import PortableMapping
-from betty.service.plugin import ServicePluginDefinition
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, MutableMapping, Sequence
@@ -59,7 +59,7 @@ class WebpackEntryPoint(ABC, Plugin["WebpackEntryPointDefinition"]):
         "{count} Webpack entry point", "{count} Webpack entry points"
     ),
 )
-class WebpackEntryPointDefinition(ServicePluginDefinition[WebpackEntryPoint]):
+class WebpackEntryPointDefinition(PluginClsDefinition[WebpackEntryPoint]):
     """
     .. plugin_type:: webpack-entry-point.
     """
