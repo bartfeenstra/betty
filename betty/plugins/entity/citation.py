@@ -78,10 +78,10 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
         *,
         source: ToOneAssociate[Source],
         id: str | None = None,  # noqa: A002
-        facts: ToManyAssociates[HasCitations] | None = None,
+        facts: ToManyAssociates[HasCitations] = (),
         location: ResolvableLocalizable | None = None,
         date: ResolvableDate | None = None,
-        file_references: ToManyAssociates[FileReference] | None = None,
+        file_references: ToManyAssociates[FileReference] = (),
         privacy: Privacy | None = None,
     ):
         super().__init__(
@@ -90,8 +90,7 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
             file_references=file_references,
             privacy=privacy,
         )
-        if facts is not None:
-            self.facts = facts
+        self.facts = facts
         self.location = location
         self.source = source
 

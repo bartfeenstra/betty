@@ -16,9 +16,7 @@ class CacheTestBase[CacheItemValueT]:
     """
 
     def _new_sut(
-        self,
-        *,
-        scopes: Sequence[str] | None = None,
+        self, *, scopes: Sequence[str] = ()
     ) -> AbstractAsyncContextManager[Cache[CacheItemValueT]]:
         raise NotImplementedError
 

@@ -43,7 +43,7 @@ class MediaType(Data, Portable):
 
     _suffix: str | None
 
-    def __init__(self, media_type: str, *, extensions: Sequence[str] | None = None):
+    def __init__(self, media_type: str, *, extensions: Sequence[str] = ()):
         self._str = media_type
         message = EmailMessage()
         message["Content-Type"] = media_type
@@ -63,7 +63,7 @@ class MediaType(Data, Portable):
         else:
             self._subtype = type_part_remainder
             self._suffix = None
-        self._extensions = extensions if extensions else ()
+        self._extensions = extensions
 
     @override
     def __hash__(self) -> int:

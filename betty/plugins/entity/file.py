@@ -20,7 +20,6 @@ from betty.plugin.schema import PluginIdSchema
 from betty.privacy import HasPrivacy, Privacy
 
 if TYPE_CHECKING:
-    from collections.abc import MutableSequence
     from pathlib import Path
 
     from betty.copyright_notice import CopyrightNotice
@@ -84,10 +83,10 @@ class File(
         name: str | None = None,
         media_type: MediaType | None = None,
         description: ResolvableLocalizable | None = None,
-        notes: ToManyAssociates[Note] | None = None,
-        citations: ToManyAssociates[Citation] | None = None,
+        notes: ToManyAssociates[Note] = (),
+        citations: ToManyAssociates[Citation] = (),
         privacy: Privacy | None = None,
-        links: MutableSequence[Link] | None = None,
+        links: ToManyAssociates[Link] = (),
         copyright_notice: CopyrightNotice | None = None,
         license: License | None = None,  # noqa: A002
     ):

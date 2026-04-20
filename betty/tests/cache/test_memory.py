@@ -10,9 +10,7 @@ class TestMemoryCache(CacheTestBase[Any]):
     @override
     @asynccontextmanager
     async def _new_sut(
-        self,
-        *,
-        scopes: Sequence[str] | None = None,
+        self, *, scopes: Sequence[str] = ()
     ) -> AsyncIterator[MemoryCache[Any]]:
         yield MemoryCache(scopes=scopes)
 

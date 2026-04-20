@@ -53,7 +53,7 @@ class HumanFacingException(Exception, Localizable):
         self,
         message: ResolvableLocalizable,
         *,
-        indicators: Sequence[Indicator] | None = None,
+        indicators: Sequence[Indicator] = (),
     ):
         from betty.locale.localize import DEFAULT_LOCALIZER
 
@@ -62,7 +62,7 @@ class HumanFacingException(Exception, Localizable):
             resolve_localized(message, localizer=DEFAULT_LOCALIZER),
         )
         self._localizable_message = message
-        self._indicators = [] if indicators is None else list(indicators)
+        self._indicators = list(indicators)
 
     @override
     def __str__(self) -> str:

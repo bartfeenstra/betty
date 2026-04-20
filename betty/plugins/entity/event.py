@@ -99,13 +99,13 @@ class Event(
         id: str | None = None,  # noqa: A002
         event_type: EventType | None = None,
         date: ResolvableDate | None = None,
-        file_references: ToManyAssociates[FileReference] | None = None,
-        citations: ToManyAssociates[Citation] | None = None,
-        notes: ToManyAssociates[Note] | None = None,
+        file_references: ToManyAssociates[FileReference] = (),
+        citations: ToManyAssociates[Citation] = (),
+        notes: ToManyAssociates[Note] = (),
         privacy: Privacy | None = None,
         place: ToZeroOrOneAssociate[Place] = None,
         description: ResolvableLocalizable | None = None,
-        presences: ToManyAssociates[Presence] | None = None,
+        presences: ToManyAssociates[Presence] = (),
         name: ResolvableLocalizable | None = None,
     ):
         super().__init__(
@@ -118,10 +118,8 @@ class Event(
             description=description,
         )
         self._event_type = event_type or UnknownEventType()
-        if place is not None:
-            self.place = place
-        if presences is not None:
-            self.presences = presences
+        self.place = place
+        self.presences = presences
         self.name = name
 
     @override

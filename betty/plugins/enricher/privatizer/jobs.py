@@ -13,7 +13,7 @@ from betty.plugins.entity.person import Person
 from betty.privacy import HasPrivacy
 
 if TYPE_CHECKING:
-    from collections.abc import MutableMapping, MutableSequence
+    from collections.abc import Iterable, MutableMapping, MutableSequence
 
     from betty.entity import Entity
     from betty.job.scheduler import Scheduler
@@ -27,7 +27,7 @@ class PrivatizeAncestry(Job):
     Privatize an ancestry.
     """
 
-    def __init__(self, dependencies: set[str] | None = None, *, project: Project):
+    def __init__(self, dependencies: Iterable[str] = (), *, project: Project):
         super().__init__(self.id_for(), dependencies=dependencies)
         self._project = project
 

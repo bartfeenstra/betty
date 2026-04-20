@@ -26,7 +26,7 @@ class PopulateEntity(Job):
             self.id_for(entity),
             dependents={PopulateLink.id_for(entity)}
             if isinstance(entity, Link)
-            else None,
+            else (),
         )
         self._project = project
         self._entity = entity

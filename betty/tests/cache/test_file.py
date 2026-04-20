@@ -14,9 +14,7 @@ class TestPickledFileCache(CacheTestBase[Any]):
     @override
     @asynccontextmanager
     async def _new_sut(
-        self,
-        *,
-        scopes: Sequence[str] | None = None,
+        self, *, scopes: Sequence[str] = ()
     ) -> AsyncIterator[PickledFileCache[Any]]:
         with TemporaryDirectory() as cache_directory_path_str:
             yield PickledFileCache(Path(cache_directory_path_str), scopes=scopes)
@@ -35,9 +33,7 @@ class TestBinaryFileCache(CacheTestBase[bytes]):
     @override
     @asynccontextmanager
     async def _new_sut(
-        self,
-        *,
-        scopes: Sequence[str] | None = None,
+        self, *, scopes: Sequence[str] = ()
     ) -> AsyncIterator[BinaryFileCache]:
         with TemporaryDirectory() as cache_directory_path_str:
             yield BinaryFileCache(Path(cache_directory_path_str), scopes=scopes)

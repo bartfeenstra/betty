@@ -59,7 +59,7 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
         affiliation: str | None = None,
         privacy: Privacy | None = None,
         locale: ResolvableLocale | None = None,
-        citations: ToManyAssociates[Citation] | None = None,
+        citations: ToManyAssociates[Citation] = (),
     ):
         if not individual and not affiliation:
             raise ValueError(

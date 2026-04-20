@@ -29,9 +29,8 @@ class HasCitations(Entity):
     def __init__(
         self,
         *args: Any,
-        citations: ToManyAssociates[Citation] | None = None,
+        citations: ToManyAssociates[Citation] = (),
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
-        if citations is not None:
-            self.citations = citations
+        self.citations = citations
