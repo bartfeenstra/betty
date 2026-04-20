@@ -15,6 +15,8 @@ from betty.plugin import PluginDefinition
 class Plugin[PluginClsDefinitionT: PluginClsDefinition]:
     """
     A plugin class.
+
+    Classed plugins may optionally subclass this class to expose their plugin definitions.
     """
 
     @classmethod
@@ -27,15 +29,16 @@ class Plugin[PluginClsDefinitionT: PluginClsDefinition]:
         )
 
 
-_PluginCoT = TypeVar("_PluginCoT", default=Plugin, covariant=True)
+_PluginClsCoT = TypeVar("_PluginClsCoT", covariant=True)
 
 
-class PluginClsDefinition(PluginDefinition, ClsDefinition[_PluginCoT]):
+class PluginClsDefinition(PluginDefinition, ClsDefinition[_PluginClsCoT]):
     """
     A classed plugin definition.
     """
 
     @override
-    def _set_cls(self, cls: type[_PluginCoT], /) -> None:
+    def _set_cls(self, cls: type[_PluginClsCoT], /) -> None:
         super()._set_cls(cls)
-        cls.plugin = staticmethod(update_wrapper(lambda: self, cls.plugin))  # ty:ignore[unresolved-attribute]
+        if issubclass(cls, Plugin):
+            cls.plugin = staticmethod(update_wrapper(lambda: self, cls.plugin))  # ty:ignore[invalid-assignment]
