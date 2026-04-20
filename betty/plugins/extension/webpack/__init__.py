@@ -20,12 +20,14 @@ from betty.plugins.js_resource.webpack_entry_point_loader import (
 from betty.project import Project
 from betty.project.generate import Generator
 from betty.service.plugin import PluginServiceProvider
+from betty.service.plugin.instance import ServicePluginInstance as ServicePluginInstance
 from betty.service.plugin.instance.collection.keyed import PluginInstancesService
 from betty.service.simple import service
 from betty.webpack import WebpackEntryPointDefinition
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
+    from betty.service.plugin.instance import ServicePluginInstances
 
 
 @final
@@ -46,8 +48,15 @@ class Webpack(Generator, Extension, PluginServiceProvider[Project], Manufacturab
 
     entry_points = PluginInstancesService(WebpackEntryPointDefinition)
 
-    def __init__(self, *, project: Project):
+    def __init__(
+        self,
+        *,
+        project: Project,
+        entry_points: ServicePluginInstances[WebpackEntryPointDefinition] = (),
+    ):
         super().__init__(services=project)
+        cls = type(self)
+        cls.entry_points.add_init_plugins(self, *entry_points)
 
     @override
     @Project.require
