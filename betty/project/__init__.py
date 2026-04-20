@@ -496,11 +496,7 @@ class Project(
         """
         The available translations.
         """
-        translations = AssetTranslationRepository(
-            self.assets, self.upstream.binary_file_cache
-        )
-        await translations.bootstrap()
-        return translations
+        return AssetTranslationRepository(self.assets, self.upstream.binary_file_cache)
 
     @service
     async def localizers(self) -> LocalizerRepository:

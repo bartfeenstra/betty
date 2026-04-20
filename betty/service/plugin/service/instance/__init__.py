@@ -8,7 +8,8 @@ from collections.abc import Iterable
 from typing import TYPE_CHECKING, final, override
 
 from betty.asyncio import LazyReAwaitable, ReAwaitable
-from betty.life_cycle import LifeCycle
+from betty.life_cycle import Bootstrappable, Shutdownable
+from betty.life_cycle import LifeCycle as LifeCycle
 from betty.locale.localizable.gettext import _
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer
@@ -62,7 +63,7 @@ class PluginInstanceServiceManager[
             plugin = await service_provider.services.factory.new(
                 item.cls if isinstance(item, PluginClsDefinition) else item
             )
-            if isinstance(plugin, LifeCycle):
+            if isinstance(plugin, Bootstrappable | Shutdownable):
                 await service_provider.life_cycle.synchronize(plugin)
             return plugin
 
