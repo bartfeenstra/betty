@@ -4,7 +4,6 @@ from tempfile import TemporaryDirectory
 import pytest
 
 from betty.asset import (
-    Asset,
     AssetDefinition,
     AssetRepository,
     AssetRepositoryService,
@@ -113,18 +112,16 @@ class TestStaticAssetRepository:
 
 class TestAssetRepositoryService:
     async def test_new_service(self) -> None:
-        @AssetDefinition("my-first-asset", assets=Path(__file__))
-        class _Asset(Asset):
-            pass
+        _ASSET = AssetDefinition("my-first-asset", assets=Path(__file__))
 
         class _ServiceProvider(PluginServiceProvider):
             def __init__(self):
                 super().__init__(
-                    services=ServiceLevel(plugins={AssetDefinition: [_Asset]})
+                    services=ServiceLevel(plugins={AssetDefinition: [_ASSET]})
                 )
-                type(self).assets.add_init_plugins(self, _Asset)
+                type(self).assets.add_init_plugins(self, _ASSET)
 
             assets = AssetRepositoryService()
 
         async with _ServiceProvider() as service_provider:
-            assert list(service_provider.assets.directories) == [_Asset.plugin().assets]
+            assert list(service_provider.assets.directories) == [_ASSET.assets]

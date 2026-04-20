@@ -1,5 +1,5 @@
 from betty.document import Document, EntityContexts
-from betty.plugins.asset.raspberry_mint import RaspberryMint
+from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.person_name import PersonName
 from betty.privacy import Privacy
@@ -13,7 +13,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": person,
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="entity/label--person.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -31,7 +31,7 @@ async def test_with_name(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": person,
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="entity/label--person.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -44,7 +44,7 @@ async def test_with_persistent_id(assert_template_file: AssertTemplateFile) -> N
         data={
             "entity": person,
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="entity/label--person.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -58,7 +58,7 @@ async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
             "entity": person,
             "embedded": True,
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="entity/label--person.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -76,7 +76,7 @@ async def test_private(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": person,
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="entity/label--person.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -95,7 +95,7 @@ async def test_with_private_name(assert_template_file: AssertTemplateFile) -> No
         data={
             "entity": person,
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="entity/label--person.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -109,7 +109,7 @@ async def test_person_is_context(assert_template_file: AssertTemplateFile) -> No
             "entity": person,
             "document": Document(entity_contexts=EntityContexts(person)),
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="entity/label--person.html.j2",
     ) as (actual, _):
         assert actual == expected

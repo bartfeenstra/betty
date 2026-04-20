@@ -4,21 +4,15 @@ Raspberry Mint assets.
 
 from __future__ import annotations
 
-from typing import final
+from typing import Final
 
-from betty.asset import Asset, AssetDefinition
+from betty.asset import AssetDefinition
 from betty.dirs import ASSETS_DIRECTORY_PATH
-from betty.plugins.asset.maps import Maps
-from betty.plugins.asset.trees import Trees
+from betty.plugins.asset.maps import MAPS
+from betty.plugins.asset.trees import TREES
 
-
-@final
-@AssetDefinition(
+RASPBERRY_MINT: Final[AssetDefinition] = AssetDefinition(
     "raspberry-mint",
     assets=ASSETS_DIRECTORY_PATH / "raspberry-mint",
-    before={Maps, Trees},
+    before={MAPS, TREES},
 )
-class RaspberryMint(Asset):
-    """
-    .. plugin:: asset:raspberry-mint.
-    """

@@ -1,6 +1,6 @@
 from betty.date import Date
 from betty.document import Document, EntityContexts
-from betty.plugins.asset.raspberry_mint import RaspberryMint
+from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.place import Place
@@ -16,7 +16,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "event": event,
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="entity/event-dimensions.html.j2",
     ) as (actual, _):
         assert actual == "sometime"
@@ -32,7 +32,7 @@ async def test_with_date(assert_template_file: AssertTemplateFile) -> None:
         data={
             "event": event,
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="entity/event-dimensions.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -49,7 +49,7 @@ async def test_with_place(assert_template_file: AssertTemplateFile) -> None:
         data={
             "event": event,
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="entity/event-dimensions.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -69,7 +69,7 @@ async def test_with_place_is_place_context(
             "event": event,
             "document": Document(entity_contexts=EntityContexts(place)),
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="entity/event-dimensions.html.j2",
     ) as (actual, _):
         assert actual == "sometime"
@@ -90,7 +90,7 @@ async def test_with_date_and_place(assert_template_file: AssertTemplateFile) -> 
         data={
             "event": event,
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="entity/event-dimensions.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -104,7 +104,7 @@ async def test_with_citation(assert_template_file: AssertTemplateFile) -> None:
         data={
             "event": event,
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="entity/event-dimensions.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -126,7 +126,7 @@ async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
             "event": event,
             "embedded": True,
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="entity/event-dimensions.html.j2",
     ) as (actual, _):
         assert actual == expected

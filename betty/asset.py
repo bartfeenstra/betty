@@ -13,9 +13,7 @@ from typing import TYPE_CHECKING, final, override
 from betty.concurrent import ThreadSafeLock
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import Plugin
-from betty.plugin.factory import PluginManufacturer
-from betty.plugin.ordered import Order, OrderedPluginClsDefinition
+from betty.plugin.ordered import Order, OrderedPluginDefinition
 from betty.service.plugin.service import PluginServiceProvider
 from betty.service.plugin.service.definition.collection import (
     CollectionPluginDefinitionServiceManager,
@@ -132,12 +130,6 @@ class StaticAssetRepository(AssetRepository):
             raise UnknownAsset(path, self.directories) from None
 
 
-class Asset(Plugin["AssetDefinition"]):
-    """
-    Expose an asset directory to Betty.
-    """
-
-
 @final
 @PluginTypeDefinition(
     "asset",
@@ -145,7 +137,7 @@ class Asset(Plugin["AssetDefinition"]):
     label_plural=_("Assets"),
     label_countable=ngettext("{count} asset", "{count} assets"),
 )
-class AssetDefinition(OrderedPluginClsDefinition[Asset]):
+class AssetDefinition(OrderedPluginDefinition):
     """
     .. plugin_type:: asset.
     """
@@ -175,18 +167,6 @@ class AssetDefinition(OrderedPluginClsDefinition[Asset]):
         The path on disk where the asset's assets are located.
         """
         return self._assets
-
-
-@final
-class AssetManufacturer(PluginManufacturer[AssetDefinition, Asset]):
-    """
-    The asset manufacturer.
-    """
-
-    @override
-    @classmethod
-    def plugin_type(cls) -> type[AssetDefinition]:
-        return AssetDefinition
 
 
 @final

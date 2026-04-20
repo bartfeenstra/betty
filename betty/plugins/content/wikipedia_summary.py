@@ -15,7 +15,7 @@ from betty.jinja import Environment
 from betty.locale import negotiate_locale, resolve_locale
 from betty.locale.localizable.gettext import _
 from betty.locale.localize import LocalizerRepository
-from betty.plugins.asset.wiki import Wiki as WikiAsset
+from betty.plugins.asset.wiki import WIKI
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.link import Link
 from betty.plugins.extension.wiki import Wiki as WikiExtension
@@ -30,7 +30,7 @@ from betty.wiki.client import Client, ClientError, Summary
     "wikipedia-summary",
     label=_("Wikipedia summary"),
     requires={
-        Project.assets.require(WikiAsset),
+        Project.assets.require(WIKI),
         Project.extensions.require(WikiExtension),
     },
 )

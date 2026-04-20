@@ -11,7 +11,7 @@ from betty.entity.has_file_references import HasFileReferences
 from betty.entity.reference import EntityReference
 from betty.image import is_supported_media_type
 from betty.locale.localizable.gettext import _
-from betty.plugins.asset.raspberry_mint import RaspberryMint
+from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.extension._theme import associated_file_references
 from betty.project import Project
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 @ContentDefinition(
     "raspberry-mint-entity-card",
     label=_("Entity card"),
-    requires={Project.assets.require(RaspberryMint)},
+    requires={Project.assets.require(RASPBERRY_MINT)},
 )
 class EntityCard(Template, DataManufacturable[EntityReference]):
     """

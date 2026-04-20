@@ -1,5 +1,5 @@
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.plugins.asset.wiki import Wiki
+from betty.plugins.asset.wiki import WIKI
 from betty.plugins.copyright_notice.wikipedia_contributors import WikipediaContributors
 from betty.test_utils.conftest import AssertTemplateFile
 from betty.wiki.client import Summary
@@ -13,7 +13,7 @@ async def test(assert_template_file: AssertTemplateFile) -> None:
             "wikipedia_summary": summary,
             "wikipedia_summary_copyright_notice": copyright_notice,
         },
-        assets={Wiki},
+        assets={WIKI},
         template="component/wiki/wikipedia-summary.html.j2",
     ) as (actual, _project):
         assert summary.content in actual

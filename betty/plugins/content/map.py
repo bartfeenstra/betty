@@ -7,7 +7,7 @@ from typing import Self, final, override
 from betty.content import ContentDefinition
 from betty.document import Document
 from betty.locale.localizable.gettext import _
-from betty.plugins.asset.maps import Maps
+from betty.plugins.asset.maps import MAPS
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
@@ -23,7 +23,7 @@ from betty.service.factory import Manufacturable
     "map",
     label=_("Map"),
     requires={
-        Project.assets.require(Maps),
+        Project.assets.require(MAPS),
         Project.extensions.require(Webpack),
         Project.jinja_filters.require(WebpackEntryPointJs),
     },

@@ -1,4 +1,4 @@
-from betty.plugins.asset.raspberry_mint import RaspberryMint
+from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.person_name import PersonName
 from betty.test_utils.conftest import AssertTemplateFile
@@ -10,7 +10,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": person_name,
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="entity/summary--person-name.html.j2",
     ):
         pass

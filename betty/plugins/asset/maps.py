@@ -4,15 +4,11 @@ Maps assets.
 
 from __future__ import annotations
 
-from typing import final
+from typing import Final
 
-from betty.asset import Asset, AssetDefinition
+from betty.asset import AssetDefinition
 from betty.dirs import ASSETS_DIRECTORY_PATH
 
-
-@final
-@AssetDefinition("maps", assets=ASSETS_DIRECTORY_PATH / "maps")
-class Maps(Asset):
-    """
-    .. plugin:: asset:maps.
-    """
+MAPS: Final[AssetDefinition] = AssetDefinition(
+    "maps", assets=ASSETS_DIRECTORY_PATH / "maps"
+)

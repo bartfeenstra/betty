@@ -102,14 +102,14 @@ betty = 'betty.console:main_standalone'
 'serializer' = 'betty.serde:SerializerDefinition'
 
 [project.entry-points.'betty.asset']
-'htt-api-doc' = 'betty.plugins.asset.http_api_doc:HttpApiDoc'
-'maps' = 'betty.plugins.asset.maps:Maps'
+'htt-api-doc' = 'betty.plugins.asset.http_api_doc:HTTP_API_DOC'
+'maps' = 'betty.plugins.asset.maps:MAPS'
 'project' = 'betty.plugins.asset.project:_discover'
-'raspberry-mint' = 'betty.plugins.asset.raspberry_mint:RaspberryMint'
-'trees' = 'betty.plugins.asset.trees:Trees'
-'universe' = 'betty.plugins.asset.universe:Universe'
-'webpack' = 'betty.plugins.asset.webpack:Webpack'
-'wiki' = 'betty.plugins.asset.wiki:Wiki'
+'raspberry-mint' = 'betty.plugins.asset.raspberry_mint:RASPBERRY_MINT'
+'trees' = 'betty.plugins.asset.trees:TREES'
+'universe' = 'betty.plugins.asset.universe:UNIVERSE'
+'webpack' = 'betty.plugins.asset.webpack:WEBPACK'
+'wiki' = 'betty.plugins.asset.wiki:WIKI'
 
 [project.entry-points.'betty.command']
 'about' = 'betty.plugins.command.about:About'

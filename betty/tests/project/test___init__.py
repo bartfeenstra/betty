@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pytest
 from babel import Locale
 
-from betty.asset import Asset, AssetDefinition
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.entity.collection.pool import EntityPool
 from betty.exception import HumanFacingException
@@ -21,6 +19,8 @@ from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.project.extension import DummyExtensionOne
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from betty.app import App
     from betty.test_utils.conftest import IsolatedProjectFactory
 
@@ -29,11 +29,6 @@ class _DummyExtension(Extension):
     # Provide an initializer without arguments so the factory can call it.
     def __init__(self):
         super().__init__()
-
-
-@AssetDefinition("dummy", assets=Path(__file__).parent / "dummy" / "assets")
-class _DummyAsset(Asset):
-    pass
 
 
 @ExtensionDefinition("dummy-a", label=DUMMY_LOCALIZABLE)

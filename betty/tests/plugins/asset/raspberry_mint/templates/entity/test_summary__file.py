@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from betty.plugins.asset.raspberry_mint import RaspberryMint
+from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.entity.file import File
 from betty.test_utils.conftest import AssertTemplateFile
 
@@ -11,7 +11,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": file,
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="entity/summary--file.html.j2",
     ) as (actual, _):
         assert actual

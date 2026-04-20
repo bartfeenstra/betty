@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.extension import ExtensionDefinition
 from betty.locale.localizable.gettext import _
-from betty.plugins.asset.trees import Trees as TreesAsset
+from betty.plugins.asset.trees import TREES
 from betty.plugins.extension.trees.jobs import _GeneratePeopleJson
 from betty.plugins.extension.webpack import Webpack
 from betty.plugins.extension.webpack.build import EntryPointProvider
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     label="Trees",
     description=_("Display interactive family trees using Cytoscape."),
     requires={
-        Project.assets.require(TreesAsset),
+        Project.assets.require(TREES),
         Project.extensions.require(Webpack),
     },
 )

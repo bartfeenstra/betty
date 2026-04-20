@@ -1,7 +1,7 @@
 from betty.entity import EntityDefinition
 from betty.entity.has_links import HasLinks
 from betty.locale import DEFAULT_LOCALE
-from betty.plugins.asset.raspberry_mint import RaspberryMint
+from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.entity.link import Link
 from betty.test_utils.conftest import AssertTemplateFile
 from betty.test_utils.locale.localizable import (
@@ -25,7 +25,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "links": [],
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="component/raspberry-mint/links.html.j2",
     ) as (actual, _):
         assert actual == ""
@@ -41,7 +41,7 @@ async def test_with_link_without_locale(
         data={
             "links": [link],
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="component/raspberry-mint/links.html.j2",
     ) as (actual, _):
         assert link_url in actual
@@ -59,7 +59,7 @@ async def test_with_link(assert_template_file: AssertTemplateFile) -> None:
         data={
             "links": [link],
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="component/raspberry-mint/links.html.j2",
     ) as (actual, _):
         assert link_url in actual
