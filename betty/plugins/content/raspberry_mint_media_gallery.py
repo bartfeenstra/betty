@@ -8,12 +8,12 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.content import ContentDefinition
 from betty.entity.has_file_references import HasFileReferences
+from betty.factory import Manufacturable
 from betty.locale.localizable.gettext import _
 from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.extension._theme import associated_file_references
 from betty.project import Project
-from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
     from betty.document import Document

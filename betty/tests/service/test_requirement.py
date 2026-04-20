@@ -1,6 +1,6 @@
 from unittest.mock import AsyncMock
 
-from betty.service.provider import ServiceManager
+from betty.service import ServiceManager
 from betty.service.requirement import UnmetServiceRequirement
 
 

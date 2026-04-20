@@ -8,9 +8,9 @@ from betty.app import App
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.demo import generate
 from betty.demo.project import create_project
+from betty.factory import Manufacturable
 from betty.job import Context
 from betty.locale.localizable.gettext import _
-from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
     import argparse

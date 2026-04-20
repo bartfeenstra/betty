@@ -10,8 +10,8 @@ from betty.asset import (
     StaticAssetRepository,
     UnknownAsset,
 )
-from betty.service.level import ServiceLevel
-from betty.service.plugin.service import PluginServiceProvider
+from betty.service.plugin import PluginServiceProvider
+from betty.service_level import ServiceLevel
 
 
 class TestAssetDefinition:

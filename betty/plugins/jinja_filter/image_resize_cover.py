@@ -15,6 +15,7 @@ from pdf2image.pdf2image import convert_from_path
 from PIL import Image
 from PIL.Image import DecompressionBombWarning
 
+from betty.factory import Manufacturable
 from betty.hashid import hashid_file_meta
 from betty.image import image_file_path_format, resize_cover
 from betty.jinja import context_document
@@ -25,7 +26,6 @@ from betty.plugins.entity.file import File
 from betty.plugins.entity.file_reference import FileReference
 from betty.plugins.jinja_filter.file import File as FileFilter
 from betty.project import Project
-from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
     from collections.abc import (

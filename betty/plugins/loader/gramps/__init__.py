@@ -6,13 +6,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.factory import DataManufacturable, Manufacturable
 from betty.gramps.loader import GrampsLoader
 from betty.load import Loader, LoaderDefinition
 from betty.locale.localizable.gettext import _
 from betty.plugins.loader.gramps.data import FamilyTree, GrampsConfiguration
 from betty.plugins.loader.gramps.jobs import LoadAncestry
 from betty.project import Project
-from betty.service.factory import DataManufacturable, Manufacturable
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
     from betty.entity.collection.pool import EntityPool
     from betty.job.scheduler import Scheduler
-    from betty.service.level import ServiceLevel
+    from betty.service_level import ServiceLevel
     from betty.user import User
 
 

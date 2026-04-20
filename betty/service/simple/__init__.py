@@ -8,7 +8,7 @@ from functools import update_wrapper
 from inspect import iscoroutinefunction
 from typing import TYPE_CHECKING, overload
 
-from betty.service.provider import ServiceManager, ServiceProvider
+from betty.service import ServiceManager, ServiceProvider
 from betty.service.simple.asynchronous import AsynchronousServiceManager
 from betty.service.simple.synchronous import SynchronousServiceManager
 
@@ -44,7 +44,7 @@ def service(factory):
     """
     Decorate a service factory method.
 
-    The factory method is replaced with a :py:class:`service manager <betty.service.provider.ServiceManager>` which
+    The factory method is replaced with a :py:class:`service manager <betty.service.ServiceManager>` which
     lazily initializes the service when it is accessed.
 
     The decorated factory method should return a new service instance.

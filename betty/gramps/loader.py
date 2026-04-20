@@ -138,7 +138,7 @@ if TYPE_CHECKING:
         Role,
         RoleDefinition,
     )
-    from betty.service.level import ServiceLevel
+    from betty.service_level import ServiceLevel
     from betty.typing import Intersection
     from betty.user import User
 

@@ -17,6 +17,7 @@ from aiohttp import ClientError, ClientSession
 from betty.app import App
 from betty.cache.file import BinaryFileCache
 from betty.exception import HumanFacingException
+from betty.factory import Manufacturable
 from betty.file import read
 from betty.license import License, LicenseDefinition
 from betty.locale.localizable import Localizable
@@ -25,8 +26,7 @@ from betty.locale.localizable.plain import Plain
 from betty.machine_name import MachineName
 from betty.plugin.discovery import ResolvableDiscovery
 from betty.portable import PortableData, PortableSequence
-from betty.service.factory import Manufacturable
-from betty.service.level import ServiceLevel
+from betty.service_level import ServiceLevel
 from betty.user import User
 
 _SPDX_LICENSE_ID_PATTERN = re.compile(r"[^a-z0-9-]")

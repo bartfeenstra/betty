@@ -6,13 +6,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.factory import Manufacturable
 from betty.license import LicenseDefinition
 from betty.load import Loader, LoaderDefinition
 from betty.plugins.copyright_notice.streetmix import Streetmix
 from betty.plugins.license.spdx import spdx_license_id_to_license_id
 from betty.plugins.loader.demo.jobs import LoadAncestry
 from betty.project import Project
-from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler

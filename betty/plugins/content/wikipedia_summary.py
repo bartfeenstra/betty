@@ -11,6 +11,7 @@ from betty.content import ContentDefinition
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.document import Document
 from betty.entity.has_links import HasLinks
+from betty.factory import Manufacturable
 from betty.jinja import Environment
 from betty.locale import negotiate_locale, resolve_locale
 from betty.locale.localizable.gettext import _
@@ -20,7 +21,6 @@ from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.link import Link
 from betty.plugins.extension.wiki import Wiki as WikiExtension
 from betty.project import Project
-from betty.service.factory import Manufacturable
 from betty.wiki import NotAPageError, parse_page_url
 from betty.wiki.client import Client, ClientError, Summary
 

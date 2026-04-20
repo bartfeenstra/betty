@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from betty.machine_name import MachineName
     from betty.plugin import PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
-    from betty.service.level import ServiceLevel
+    from betty.service_level import ServiceLevel
 
 
 class Plugin(JinjaTest):

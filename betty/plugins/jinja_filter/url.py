@@ -8,12 +8,12 @@ from typing import TYPE_CHECKING, Any, Self, final, override
 
 from jinja2 import pass_context
 
+from betty.factory import Manufacturable
 from betty.jinja import context_document
 from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML
 from betty.project import Project
-from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
     from jinja2.runtime import Context

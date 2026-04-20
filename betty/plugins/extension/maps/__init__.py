@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.extension import ExtensionDefinition
+from betty.factory import Manufacturable
 from betty.locale.localizable.gettext import _
 from betty.plugins.asset.maps import MAPS
 from betty.plugins.extension.maps.jobs import _GeneratePlacePreviews
@@ -13,7 +14,6 @@ from betty.plugins.extension.webpack import Webpack
 from betty.plugins.extension.webpack.build import EntryPointProvider
 from betty.project import Project
 from betty.project.generate import Generator
-from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

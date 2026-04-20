@@ -11,6 +11,7 @@ from betty.content import Content, ContentDefinition, ContentManufacturer, build
 from betty.data import Data
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.str import StrDefinition
+from betty.factory import DataManufacturable
 from betty.locale.localizable.gettext import _
 from betty.plugin.data.property import PluginManufacturerSequenceProperty
 from betty.plugins.content.render import Render, RenderConfiguration
@@ -18,7 +19,6 @@ from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project
 from betty.property import Optional, Property
 from betty.sample import Sample, Size
-from betty.service.factory import DataManufacturable
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

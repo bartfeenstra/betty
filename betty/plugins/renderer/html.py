@@ -4,6 +4,7 @@ Render HTML.
 
 from typing import Self, override
 
+from betty.factory import Manufacturable
 from betty.html.url import generate_urls
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import AllEnumeration
@@ -11,7 +12,6 @@ from betty.media_type import MediaType
 from betty.media_type.media_types import HTML
 from betty.project import Project
 from betty.render import Renderer, RendererDefinition
-from betty.service.factory import Manufacturable
 from betty.url import UrlGenerator
 
 _ATTRIBUTES = ("href", "src")

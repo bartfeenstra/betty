@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.factory import DataManufacturable, Manufacturable
 from betty.load import Enricher, EnricherDefinition
 from betty.locale.localizable.gettext import _
 from betty.plugins.enricher.populate_links import PopulateLinks
@@ -11,7 +12,6 @@ from betty.plugins.enricher.wiki.data import WikiConfiguration
 from betty.plugins.enricher.wiki.jobs import PopulateEntity
 from betty.plugins.extension.wiki import Wiki as WikiExtension
 from betty.project import Project
-from betty.service.factory import DataManufacturable, Manufacturable
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler

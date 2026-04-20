@@ -12,9 +12,9 @@ from betty.app import App
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.console.project import add_project_argument
 from betty.definition.human_facing import HumanFacingDefinition
+from betty.factory import Manufacturable
 from betty.locale.localizable.gettext import _
 from betty.rich.user import RichUser
-from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
     import argparse

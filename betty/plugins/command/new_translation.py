@@ -7,10 +7,10 @@ from betty.argparse import assertion_to_argument_type
 from betty.assertion import assert_locale
 from betty.asset import AssetDefinition
 from betty.console.command import Command, CommandDefinition, CommandFunction
+from betty.factory import Manufacturable
 from betty.locale import translation
 from betty.locale.localizable.gettext import _
 from betty.plugin.error import PluginNotFound
-from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
     import argparse

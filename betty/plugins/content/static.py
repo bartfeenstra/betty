@@ -7,12 +7,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.content import Content, ContentDefinition
+from betty.factory import Manufacturable
 from betty.locale.localizable.gettext import _
-from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
     from betty.document import Document
-    from betty.service.level import ServiceLevel
+    from betty.service_level import ServiceLevel
 
 
 @final

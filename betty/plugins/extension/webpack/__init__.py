@@ -8,6 +8,7 @@ from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.extension import Extension, ExtensionDefinition
+from betty.factory import Manufacturable
 from betty.plugins.asset.webpack import WEBPACK as WEBPACK_ASSET
 from betty.plugins.css_resource.webpack import WEBPACK as WEBPACK_CSS_RESOURCE
 from betty.plugins.extension.webpack import build
@@ -19,8 +20,7 @@ from betty.plugins.js_resource.webpack_entry_point_loader import (
 )
 from betty.project import Project
 from betty.project.generate import Generator
-from betty.service.factory import Manufacturable
-from betty.service.provider import ServiceProvider
+from betty.service import ServiceProvider
 from betty.service.simple import service
 
 if TYPE_CHECKING:

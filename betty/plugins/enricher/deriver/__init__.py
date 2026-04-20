@@ -6,11 +6,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.factory import Manufacturable
 from betty.load import Enricher, EnricherDefinition
 from betty.locale.localizable.gettext import _
 from betty.plugins.enricher.deriver.jobs import DeriveAncestry
 from betty.project import Project
-from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler

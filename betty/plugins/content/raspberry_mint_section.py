@@ -11,6 +11,7 @@ from betty.content import Content, ContentDefinition, ContentManufacturer, build
 from betty.data import Data
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.bool import BoolDefinition
+from betty.factory import DataManufacturable
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import LocalizableProperty
 from betty.machine_name import MachineName, MachineNameProperty, ResolvableMachineName
@@ -20,7 +21,6 @@ from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project
 from betty.property import Optional, Property
 from betty.sample import Sample, Size
-from betty.service.factory import DataManufacturable
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 if TYPE_CHECKING:

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from betty.life_cycle import LifeCycle
 from betty.life_cycle.manage import ManagedLifeCycle
-from betty.service.provider import Service, ServiceProvider
+from betty.service import Service, ServiceProvider
 from betty.service.simple import AsynchronousServiceManager
 from betty.universe import UNIVERSE
 

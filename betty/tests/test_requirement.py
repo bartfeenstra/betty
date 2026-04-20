@@ -8,7 +8,7 @@ from betty.requirement import (
     RequirableDecorator,
     UnmetRequirement,
 )
-from betty.service.level import (
+from betty.service_level import (
     DownstreamServiceLevel,
     ServiceLevel,
 )

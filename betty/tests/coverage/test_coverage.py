@@ -137,32 +137,20 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/service/__init__.py": {
-        "ServiceError": MissingReason.ABSTRACT,
-    },
-    "betty/service/provider.py": {
         "Service": MissingReason.DATACLASS,
         "ServiceAlreadyInitialized": MissingReason.STATIC_CONTENT_ONLY,
+        "ServiceError": MissingReason.ABSTRACT,
         "ServiceNotYetInitialized": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/service/factory.py": {
-        "DataManufacturable": MissingReason.ABSTRACT,
-        "Manufacturable": MissingReason.ABSTRACT,
-    },
-    "betty/service/plugin/service/__init__.py": {
+    "betty/service/plugin/__init__.py": {
         "PluginServiceManager": {
             "new_service": MissingReason.ABSTRACT,
         },
     },
-    "betty/service/plugin/service/collection/__init__.py": {
+    "betty/service/plugin/collection/__init__.py": {
         "CollectionPluginServiceManager": {
             "new_service_item": MissingReason.ABSTRACT,
         },
-    },
-    "betty/service/requirement/__init__.py": {
-        "CallableRequirement": {
-            "__get__": MissingReason.COVERED_ELSEWHERE,
-        },
-        "UnmetRequirement": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/data/__init__.py": {
         "Data": MissingReason.ABSTRACT,
@@ -213,6 +201,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "HumanFacingException": {
             "indicators": MissingReason.COVERED_ELSEWHERE,
         },
+    },
+    "betty/factory.py": {
+        "DataManufacturable": MissingReason.ABSTRACT,
+        "Manufacturable": MissingReason.ABSTRACT,
     },
     "betty/functools.py": {
         "Result": {

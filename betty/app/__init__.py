@@ -15,27 +15,15 @@ from aiohttp_client_cache.backends.filesystem import FileBackend
 from aiohttp_client_cache.session import CachedSession
 
 from betty.app.data import AppConfiguration
-from betty.asset import (
-    AssetDefinition,
-    AssetRepositoryService,
-)
-from betty.asset import (
-    AssetRepository as AssetRepository,
-)
-from betty.asset import (
-    StaticAssetRepository as StaticAssetRepository,
-)
+from betty.asset import AssetDefinition, AssetRepositoryService
 from betty.cache import Cache
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
 from betty.dirs import CACHE_DIRECTORY
+from betty.factory import DataManufacturable
 from betty.http_client import ClientErrorToUserMessageMiddleware
-from betty.http_client.rate_limit import (
-    RateLimitDefinition,
-    RateLimitMiddleware,
-)
+from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
 from betty.life_cycle import Bootstrappable, Shutdownable
-from betty.life_cycle import LifeCycle as LifeCycle
 from betty.locale import DEFAULT_LOCALE, ResolvableLocale, resolve_locale
 from betty.locale.localize import Localizer, LocalizerRepository
 from betty.locale.translation import (
@@ -45,18 +33,14 @@ from betty.locale.translation import (
 )
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.portable.file import assert_load_file
-from betty.service.factory import DataManufacturable
-from betty.service.level import DownstreamServiceLevel, Plugins, ServiceLevel
-from betty.service.level.requirement import RequirableServiceLevel
-from betty.service.plugin.service import PluginServiceProvider, SupportedPlugins
-from betty.service.plugin.service.definition.collection.keyed import (
+from betty.service import Service
+from betty.service.plugin import PluginServiceProvider, SupportedPlugins
+from betty.service.plugin.definition.collection.keyed import (
     PluginDefinitionsService,
 )
-from betty.service.plugin.service.instance.collection.keyed import (
-    PluginInstancesService as PluginInstancesService,
-)
-from betty.service.provider import Service
 from betty.service.simple import service
+from betty.service_level import DownstreamServiceLevel, Plugins, ServiceLevel
+from betty.service_level.requirement import RequirableServiceLevel
 from betty.typing import threadsafe
 from betty.universe import UNIVERSE
 from betty.user.no_op import NoOpUser
@@ -69,9 +53,6 @@ if TYPE_CHECKING:
     from betty.plugin import PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.plugin.resolve import ResolvablePluginDefinition
-    from betty.service.plugin.service.instance import (
-        ServicePluginInstances as ServicePluginInstances,
-    )
     from betty.service.simple.asynchronous import TypedAsynchronousServiceOrFactory
     from betty.service.simple.synchronous import TypedSynchronousServiceOrFactory
     from betty.user import User

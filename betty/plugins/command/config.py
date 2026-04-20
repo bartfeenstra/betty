@@ -7,10 +7,10 @@ from betty.app.data import AppConfiguration
 from betty.argparse import assertion_to_argument_type
 from betty.assertion import assert_locale
 from betty.console.command import Command, CommandDefinition, CommandFunction
+from betty.factory import Manufacturable
 from betty.locale import DEFAULT_LOCALE, to_language_tag
 from betty.locale.localizable.gettext import _
 from betty.portable.file import assert_load_file, dump_file
-from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
     import argparse

@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 class Extension(ManagedLifeCycle, Plugin["ExtensionDefinition"]):
     """
-    Integrate custom services with a :py:class:`service level <betty.service.level.ServiceLevel>`.
+    Integrate custom services with a :py:class:`service level <betty.service_level.ServiceLevel>`.
     """
 
 

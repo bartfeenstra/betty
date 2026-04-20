@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.content import ContentDefinition
+from betty.factory import Manufacturable
 from betty.functools import unique
 from betty.locale.localizable.gettext import _
 from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
@@ -15,7 +16,6 @@ from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.source import Source
 from betty.privacy import is_public
 from betty.project import Project
-from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

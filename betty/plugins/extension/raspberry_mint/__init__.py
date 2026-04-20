@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.content import Content, ContentManufacturer
 from betty.extension import ExtensionDefinition
+from betty.factory import DataManufacturable, Manufacturable
 from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT as RaspberryMintAsset
 from betty.plugins.extension.raspberry_mint.data import RaspberryMintConfiguration
 from betty.plugins.extension.raspberry_mint.region import Region, ResolvableRegion
@@ -19,8 +20,7 @@ from betty.plugins.extension.webpack import Webpack
 from betty.plugins.extension.webpack.build import EntryPointProvider
 from betty.project import Project
 from betty.project.generate import Generator
-from betty.service.factory import DataManufacturable, Manufacturable
-from betty.service.provider import ServiceProvider
+from betty.service import ServiceProvider
 from betty.service.simple import service
 
 if TYPE_CHECKING:

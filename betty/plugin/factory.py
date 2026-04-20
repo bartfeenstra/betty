@@ -32,7 +32,7 @@ from betty.typing import Void, VoidType
 
 if TYPE_CHECKING:
     from betty.portable import PortableData
-    from betty.service.level import ServiceLevel
+    from betty.service_level import ServiceLevel
 
 _PluginManufacturerPluginT = TypeVar(
     "_PluginManufacturerPluginT", bound=Plugin, covariant=True

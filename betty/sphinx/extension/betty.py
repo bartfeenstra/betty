@@ -18,6 +18,7 @@ from sphinx.util.parsing import nested_parse_to_nodes
 from betty.data import Data, OptionalDefinition
 from betty.data.aggregate.record import RecordDefinition
 from betty.definition.human_facing import HumanFacingDefinition
+from betty.factory import DataManufacturable
 from betty.functools import Result
 from betty.importlib import import_any
 from betty.locale.localize import DEFAULT_LOCALIZER
@@ -26,7 +27,6 @@ from betty.plugin.cls import PluginClsDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.project import Project
 from betty.serde import SerializerDefinition
-from betty.service.factory import DataManufacturable
 from betty.universe import UNIVERSE
 
 if TYPE_CHECKING:

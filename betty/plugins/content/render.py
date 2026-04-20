@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.content import Content, ContentDefinition
 from betty.data import Data
 from betty.data.aggregate.record.object import ObjectDefinition
+from betty.factory import DataManufacturable
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import LocalizableProperty
 from betty.locale.localize import resolve_localized
@@ -17,7 +18,6 @@ from betty.media_type.media_types import PLAIN_TEXT
 from betty.project import Project
 from betty.property import Property
 from betty.sample import Sample, Size
-from betty.service.factory import DataManufacturable
 
 if TYPE_CHECKING:
     from betty.document import Document

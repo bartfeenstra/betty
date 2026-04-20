@@ -20,10 +20,7 @@ from babel import Locale
 
 import betty.dirs
 from betty.app import App
-from betty.asset import (
-    AssetDefinition,
-    AssetRepositoryService,
-)
+from betty.asset import AssetDefinition, AssetRepositoryService
 from betty.collection.keyed.adapter import KeyedCollectionAdapter
 from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.data import Data
@@ -59,17 +56,17 @@ from betty.plugins.entity.person import Person
 from betty.privacy.privatizer import Privatizer
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.sample import Sample, Size
-from betty.service.level import DownstreamServiceLevel
-from betty.service.level.requirement import RequirableServiceLevel
-from betty.service.plugin.service import PluginServiceProvider, SupportedPlugins
-from betty.service.plugin.service.definition.collection.keyed import (
+from betty.service.plugin import PluginServiceProvider, SupportedPlugins
+from betty.service.plugin.definition.collection.keyed import (
     PluginDefinitionsService,
 )
-from betty.service.plugin.service.instance.collection.keyed import (
+from betty.service.plugin.instance.collection.keyed import (
     PluginInstancesService,
 )
-from betty.service.plugin.service.instance.single import PluginInstanceService
+from betty.service.plugin.instance.single import PluginInstanceService
 from betty.service.simple import service
+from betty.service_level import DownstreamServiceLevel
+from betty.service_level.requirement import RequirableServiceLevel
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Collection, Iterable, Mapping
@@ -82,7 +79,7 @@ if TYPE_CHECKING:
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.plugin.resolve import ResolvablePluginId
     from betty.project.data import ProjectConfiguration
-    from betty.service.plugin.service.instance import (
+    from betty.service.plugin.instance import (
         ServicePluginInstance,
         ServicePluginInstances,
     )
