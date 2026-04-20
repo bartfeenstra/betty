@@ -44,10 +44,10 @@ class _CommonCacheBase[CacheItemValueT](Cache[CacheItemValueT]):
     def __init__(
         self,
         *,
-        scopes: Sequence[str] | None = None,
+        scopes: Sequence[str] = (),
         state: _CommonCacheBaseState | None = None,
     ):
-        self._scopes = scopes or ()
+        self._scopes = scopes
         if state is not None:
             self._cache_lock = state.cache_lock
             self._cache_item_lock_ledger = state.cache_item_lock_ledger

@@ -26,9 +26,8 @@ class HasNotes(Entity):
     def __init__(
         self,
         *args: Any,
-        notes: ToManyAssociates[Note] | None = None,
+        notes: ToManyAssociates[Note] = (),
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
-        if notes is not None:
-            self.notes = notes
+        self.notes = notes

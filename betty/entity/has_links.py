@@ -26,12 +26,6 @@ class HasLinks(Entity):
         linked_data_embedded=True,
     )
 
-    def __init__(
-        self,
-        *args: Any,
-        links: ToManyAssociates[Link] | None = None,
-        **kwargs: Any,
-    ):
+    def __init__(self, *args: Any, links: ToManyAssociates[Link] = (), **kwargs: Any):
         super().__init__(*args, **kwargs)
-        if links is not None:
-            self.links = links
+        self.links = links

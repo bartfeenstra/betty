@@ -26,8 +26,6 @@ from betty.privacy import HasPrivacy, Privacy, is_public, merge_privacies
 from betty.property import Optional
 
 if TYPE_CHECKING:
-    from collections.abc import MutableSequence
-
     from betty.date import ResolvableDate
     from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.plugins.entity.citation import Citation  # noqa: F401
@@ -103,11 +101,11 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
         author: ResolvableLocalizable | None = None,
         publisher: ResolvableLocalizable | None = None,
         contained_by: ToZeroOrOneAssociate[Source] = None,
-        contains: ToManyAssociates[Source] | None = None,
-        notes: ToManyAssociates[Note] | None = None,
+        contains: ToManyAssociates[Source] = (),
+        notes: ToManyAssociates[Note] = (),
         date: ResolvableDate | None = None,
-        file_references: ToManyAssociates[FileReference] | None = None,
-        links: MutableSequence[Link] | None = None,
+        file_references: ToManyAssociates[FileReference] = (),
+        links: ToManyAssociates[Link] = (),
         privacy: Privacy | None = None,
     ):
         super().__init__(
@@ -121,10 +119,8 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
         self.name = name
         self.author = author
         self.publisher = publisher
-        if contained_by is not None:
-            self.contained_by = contained_by
-        if contains is not None:
-            self.contains = contains
+        self.contained_by = contained_by
+        self.contains = contains
 
     @override
     def _get_effective_privacy(self) -> Privacy:

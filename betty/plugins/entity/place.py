@@ -20,7 +20,7 @@ from betty.plugins.place_type.unknown import Unknown as UnknownPlaceType
 from betty.privacy import HasPrivacy
 
 if TYPE_CHECKING:
-    from collections.abc import MutableSequence
+    from collections.abc import Iterable, MutableSequence
 
     from geopy import Point
 
@@ -83,25 +83,22 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
         self,
         *,
         id: str | None = None,  # noqa: A002
-        names: MutableSequence[PlaceName] | None = None,
-        events: ToManyAssociates[Event] | None = None,
-        enclosers: ToManyAssociates[Enclosure] | None = None,
-        enclosees: ToManyAssociates[Enclosure] | None = None,
-        notes: ToManyAssociates[Note] | None = None,
+        names: Iterable[PlaceName] = (),
+        events: ToManyAssociates[Event] = (),
+        enclosers: ToManyAssociates[Enclosure] = (),
+        enclosees: ToManyAssociates[Enclosure] = (),
+        notes: ToManyAssociates[Note] = (),
         coordinates: Point | None = None,
-        links: MutableSequence[Link] | None = None,
+        links: ToManyAssociates[Link] = (),
         privacy: Privacy | None = None,
         place_type: PlaceType | None = None,
     ):
         super().__init__(id, notes=notes, links=links, privacy=privacy)
-        self._names = [] if names is None else names
+        self._names = list(names)
         self._coordinates = coordinates
-        if events is not None:
-            self.events = events
-        if enclosers is not None:
-            self.enclosers = enclosers
-        if enclosees is not None:
-            self.enclosees = enclosees
+        self.events = events
+        self.enclosers = enclosers
+        self.enclosees = enclosees
         self._place_type = place_type or UnknownPlaceType()
 
     @property

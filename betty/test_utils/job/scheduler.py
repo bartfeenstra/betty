@@ -85,8 +85,8 @@ class _Job(Job):
         *,
         additional_jobs: Sequence[Callable[[MutableSequence[_Job]], _Job]]
         | None = None,
-        dependencies: set[str] | None = None,
-        dependents: set[str] | None = None,
+        dependencies: Iterable[str] = (),
+        dependents: Iterable[str] = (),
         priority: bool = False,
     ):
         super().__init__(
@@ -125,8 +125,8 @@ class Raise(Job):
         job_id: str,
         *,
         reason: BaseException,
-        dependencies: set[str] | None = None,
-        dependents: set[str] | None = None,
+        dependencies: Iterable[str] = (),
+        dependents: Iterable[str] = (),
         priority: bool = False,
     ):
         super().__init__(

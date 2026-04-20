@@ -13,6 +13,8 @@ from betty.cache.memory import MemoryCache
 from betty.progress.no_op import NoOpProgress
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from betty.cache import Cache
     from betty.job.scheduler import Scheduler
     from betty.progress import Progress
@@ -70,14 +72,14 @@ class Job(ABC):
         self,
         job_id: str,
         *,
-        dependencies: set[str] | None = None,
-        dependents: set[str] | None = None,
+        dependencies: Iterable[str] = (),
+        dependents: Iterable[str] = (),
         priority: bool = False,
     ):
         self._called = False
         self._id = job_id
-        self._dependencies = set() if dependencies is None else dependencies
-        self._dependents = set() if dependents is None else dependents
+        self._dependencies = set(dependencies)
+        self._dependents = set(dependents)
         self._priority = priority
 
     @property

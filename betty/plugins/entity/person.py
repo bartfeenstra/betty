@@ -23,7 +23,7 @@ from betty.plugins.gender.unknown import Unknown as UnknownGender
 from betty.privacy import HasPrivacy, Privacy
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, MutableSequence
+    from collections.abc import Iterator
 
     from betty.gender import Gender
     from betty.locale.localizable import Localizable
@@ -92,15 +92,15 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
         self,
         id: str | None = None,  # noqa: A002
         *,
-        file_references: ToManyAssociates[FileReference] | None = None,
-        citations: ToManyAssociates[Citation] | None = None,
-        links: MutableSequence[Link] | None = None,
-        notes: ToManyAssociates[Note] | None = None,
+        file_references: ToManyAssociates[FileReference] = (),
+        citations: ToManyAssociates[Citation] = (),
+        links: ToManyAssociates[Link] = (),
+        notes: ToManyAssociates[Note] = (),
         privacy: Privacy | None = None,
-        parents: ToManyAssociates[Person] | None = None,
-        children: ToManyAssociates[Person] | None = None,
-        presences: ToManyAssociates[Presence] | None = None,
-        names: ToManyAssociates[PersonName] | None = None,
+        parents: ToManyAssociates[Person] = (),
+        children: ToManyAssociates[Person] = (),
+        presences: ToManyAssociates[Presence] = (),
+        names: ToManyAssociates[PersonName] = (),
         gender: Gender | None = None,
     ):
         super().__init__(
@@ -111,14 +111,10 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
             notes=notes,
             privacy=privacy,
         )
-        if children is not None:
-            self.children = children
-        if parents is not None:
-            self.parents = parents
-        if presences is not None:
-            self.presences = presences
-        if names is not None:
-            self.names = names
+        self.children = children
+        self.parents = parents
+        self.presences = presences
+        self.names = names
         self._gender = gender or UnknownGender()
 
     @property

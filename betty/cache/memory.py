@@ -36,7 +36,7 @@ class MemoryCache[CacheItemValueT](_CommonCacheBase[CacheItemValueT]):
     def __init__(
         self,
         *,
-        scopes: Sequence[str] | None = None,
+        scopes: Sequence[str] = (),
         state: _MemoryCacheState | None = None,
     ):
         super().__init__(scopes=scopes, state=state)

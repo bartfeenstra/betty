@@ -31,9 +31,8 @@ class HasFileReferences(Entity):
     def __init__(
         self,
         *args: Any,
-        file_references: ToManyAssociates[FileReference] | None = None,
+        file_references: ToManyAssociates[FileReference] = (),
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
-        if file_references is not None:
-            self.file_references = file_references
+        self.file_references = file_references
