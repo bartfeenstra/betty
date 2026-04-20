@@ -7,10 +7,10 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.extension import ExtensionDefinition
 from betty.locale.localizable.gettext import _
-from betty.plugins.asset.http_api_doc import HttpApiDoc
+from betty.plugins.asset.http_api_doc import HTTP_API_DOC as HTTP_API_DOC_ASSET
 from betty.plugins.extension.webpack import Webpack
 from betty.plugins.extension.webpack.build import EntryPointProvider
-from betty.plugins.link.http_api_doc import HTTP_API_DOC
+from betty.plugins.link.http_api_doc import HTTP_API_DOC as HTTP_API_DOC_LINK
 from betty.project import Project
 
 if TYPE_CHECKING:
@@ -25,9 +25,9 @@ if TYPE_CHECKING:
         "Display the HTTP API documentation in a user-friendly way using Swagger UI."
     ),
     requires={
-        Project.assets.require(HttpApiDoc),
+        Project.assets.require(HTTP_API_DOC_ASSET),
         Project.extensions.require(Webpack),
-        Project.links.require(HTTP_API_DOC),
+        Project.links.require(HTTP_API_DOC_LINK),
     },
 )
 class HttpApiDoc(EntryPointProvider):

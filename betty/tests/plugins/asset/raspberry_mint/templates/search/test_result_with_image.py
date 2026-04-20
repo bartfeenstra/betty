@@ -6,7 +6,7 @@ from betty.entity import EntityDefinition
 from betty.entity.has_file_references import HasFileReferences
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
-from betty.plugins.asset.raspberry_mint import RaspberryMint
+from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.entity.file import File
 from betty.plugins.entity.file_reference import FileReference
 from betty.test_utils.conftest import AssertTemplateFile
@@ -32,7 +32,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": entity,
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="search/result-with-image.html.j2",
     ) as (actual, _):
         assert entity.label.localize(DEFAULT_LOCALIZER) in actual
@@ -51,7 +51,7 @@ async def test_with_image(
         data={
             "entity": entity,
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="search/result-with-image.html.j2",
     ) as (actual, _):
         assert entity.label.localize(DEFAULT_LOCALIZER) in actual

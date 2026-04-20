@@ -1,5 +1,5 @@
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.plugins.asset.raspberry_mint import RaspberryMint
+from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.entity.enclosure import Enclosure
 from betty.plugins.entity.place import Place
 from betty.plugins.place_type.country import Country
@@ -12,7 +12,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": place,
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="entity/summary--place.html.j2",
     ) as (actual, _):
         assert actual == '<div class="small"></div>'
@@ -26,7 +26,7 @@ async def test_with_non_unknown_place_type(
         data={
             "entity": place,
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="entity/summary--place.html.j2",
     ) as (actual, _):
         assert Country.plugin().label.localize(DEFAULT_LOCALIZER) in actual
@@ -40,7 +40,7 @@ async def test_with_encloser(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": place,
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="entity/summary--place.html.j2",
     ) as (actual, _):
         assert encloser_place.public_id in actual

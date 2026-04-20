@@ -1,6 +1,6 @@
 from betty.date import Date
 from betty.document import Document, EntityContexts
-from betty.plugins.asset.raspberry_mint import RaspberryMint
+from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.presence import Presence
@@ -15,7 +15,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "events": [],
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="component/raspberry-mint/timeline.html.j2",
     ) as (actual, _):
         assert actual == ""
@@ -28,7 +28,7 @@ async def test_with_minimal_event(assert_template_file: AssertTemplateFile) -> N
         data={
             "events": [event],
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="component/raspberry-mint/timeline.html.j2",
     ) as (actual, _):
         assert name in actual
@@ -41,7 +41,7 @@ async def test_with_private_event(assert_template_file: AssertTemplateFile) -> N
         data={
             "events": [event],
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="component/raspberry-mint/timeline.html.j2",
     ) as (actual, _):
         assert actual == ""
@@ -56,7 +56,7 @@ async def test_with_event_without_date(
         data={
             "events": [event],
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="component/raspberry-mint/timeline.html.j2",
     ) as (actual, _):
         assert actual == ""
@@ -71,7 +71,7 @@ async def test_with_event_without_comparable_date(
         data={
             "events": [event],
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="component/raspberry-mint/timeline.html.j2",
     ) as (actual, _):
         assert actual == ""
@@ -87,7 +87,7 @@ async def test_with_subject_attendee(assert_template_file: AssertTemplateFile) -
             "events": [event],
             "document": Document(entity_contexts=EntityContexts(person)),
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="component/raspberry-mint/timeline.html.j2",
     ) as (actual, _):
         assert "timeline-attendee--subject" in actual
@@ -103,7 +103,7 @@ async def test_with_other_attendee(assert_template_file: AssertTemplateFile) -> 
             "events": [event],
             "document": Document(entity_contexts=EntityContexts(person)),
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="component/raspberry-mint/timeline.html.j2",
     ) as (actual, _):
         assert "timeline-attendee" in actual

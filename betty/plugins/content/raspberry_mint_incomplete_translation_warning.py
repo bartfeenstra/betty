@@ -6,7 +6,7 @@ from typing import Self, final, override
 
 from betty.content import ContentDefinition
 from betty.document import Document
-from betty.plugins.asset.raspberry_mint import RaspberryMint
+from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project
 from betty.service.factory import Manufacturable
@@ -16,7 +16,7 @@ from betty.service.factory import Manufacturable
 @ContentDefinition(
     "raspberry-mint-incomplete-translation-warning",
     label="Incomplete translation warning",
-    requires={Project.assets.require(RaspberryMint)},
+    requires={Project.assets.require(RASPBERRY_MINT)},
 )
 class IncompleteTranslationWarning(Template, Manufacturable):
     """

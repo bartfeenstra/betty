@@ -75,12 +75,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         }
     },
     "betty/asset.py": {
-        "Asset": MissingReason.STATIC_CONTENT_ONLY,
         "AssetDefinition": {
             "type": MissingReason.INHERITED,
         },
         "AssetError": MissingReason.ABSTRACT,
-        "AssetManufacturer": MissingReason.STATIC_CONTENT_ONLY,
         "AssetRepository": MissingReason.ABSTRACT,
     },
     "betty/assertion.py": {

@@ -1,11 +1,11 @@
 from betty.html.attributes import Attributes
-from betty.plugins.asset.raspberry_mint import RaspberryMint
+from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
 from betty.test_utils.conftest import AssertTemplateFile
 
 
 async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
     async with assert_template_file(
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="component/button-menu.html.j2",
     ) as (actual, _):
         assert "<button " in actual
@@ -17,7 +17,7 @@ async def test_with_html_attribute(assert_template_file: AssertTemplateFile) -> 
         data={
             "attributes": Attributes(html_id=html_id),
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="component/button-menu.html.j2",
     ) as (actual, _):
         assert f'id="{html_id}"' in actual

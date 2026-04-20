@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.content import Content, ContentManufacturer
 from betty.extension import ExtensionDefinition
-from betty.plugins.asset.raspberry_mint import RaspberryMint as RaspberryMintAsset
+from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT as RaspberryMintAsset
 from betty.plugins.extension.raspberry_mint.data import RaspberryMintConfiguration
 from betty.plugins.extension.raspberry_mint.region import Region, ResolvableRegion
 from betty.plugins.extension.webpack import Webpack

@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.extension import ExtensionDefinition
 from betty.locale.localizable.gettext import _
-from betty.plugins.asset.maps import Maps as MapsAsset
+from betty.plugins.asset.maps import MAPS
 from betty.plugins.extension.maps.jobs import _GeneratePlacePreviews
 from betty.plugins.extension.webpack import Webpack
 from betty.plugins.extension.webpack.build import EntryPointProvider
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     label="Maps",
     description=_("Display interactive maps"),
     requires={
-        Project.assets.require(MapsAsset),
+        Project.assets.require(MAPS),
         Project.extensions.require(Webpack),
     },
 )

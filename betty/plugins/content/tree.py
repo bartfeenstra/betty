@@ -7,7 +7,7 @@ from typing import Self, final, override
 from betty.content import ContentDefinition
 from betty.document import Document
 from betty.locale.localizable.gettext import _
-from betty.plugins.asset.trees import Trees
+from betty.plugins.asset.trees import TREES
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.person import Person
 from betty.plugins.extension.webpack import Webpack
@@ -21,7 +21,7 @@ from betty.service.factory import Manufacturable
     "tree",
     label=_("Family tree"),
     requires={
-        Project.assets.require(Trees),
+        Project.assets.require(TREES),
         Project.extensions.require(Webpack),
         Project.jinja_filters.require(WebpackEntryPointJs),
     },

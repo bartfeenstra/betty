@@ -7,7 +7,7 @@ from babel import Locale
 from pytest_mock import MockerFixture
 
 from betty.app import App
-from betty.asset import Asset, AssetDefinition
+from betty.asset import AssetDefinition
 from betty.console import SystemExitCode
 from betty.console.command import CommandDefinition
 from betty.plugins.command.new_translation import (
@@ -22,14 +22,12 @@ class TestNewTranslation:
     async def isolated_app_with_assets(
         self, isolated_app_factory: IsolatedAppFactory, tmp_path: Path
     ) -> AsyncIterator[App]:
-        @AssetDefinition("dummy", assets=tmp_path)
-        class _Dummy(Asset):
-            pass
+        _DUMMY = AssetDefinition("dummy", assets=tmp_path)
 
         async with isolated_app_factory(
             plugins={
                 CommandDefinition: [NewTranslation],
-                AssetDefinition: [_Dummy],
+                AssetDefinition: [_DUMMY],
             }
         ) as app:
             yield app

@@ -6,7 +6,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from betty.app import App
-from betty.asset import Asset, AssetDefinition
+from betty.asset import AssetDefinition
 from betty.console import CommandDefinition, SystemExitCode
 from betty.plugins.command.update_translations import (
     UpdateTranslations,
@@ -20,14 +20,12 @@ class TestUpdateTranslations:
     async def isolated_app_with_assets(
         self, isolated_app_factory: IsolatedAppFactory, tmp_path: Path
     ) -> AsyncIterator[App]:
-        @AssetDefinition("dummy", assets=tmp_path)
-        class _Dummy(Asset):
-            pass
+        _DUMMY = AssetDefinition("dummy", assets=tmp_path)
 
         async with isolated_app_factory(
             plugins={
                 CommandDefinition: [UpdateTranslations],
-                AssetDefinition: [_Dummy],
+                AssetDefinition: [_DUMMY],
             }
         ) as app:
             yield app

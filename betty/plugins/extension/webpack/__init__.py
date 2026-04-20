@@ -8,8 +8,8 @@ from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.extension import Extension, ExtensionDefinition
-from betty.plugins.asset.webpack import Webpack as WebpackAsset
-from betty.plugins.css_resource.webpack import WEBPACK
+from betty.plugins.asset.webpack import WEBPACK as WEBPACK_ASSET
+from betty.plugins.css_resource.webpack import WEBPACK as WEBPACK_CSS_RESOURCE
 from betty.plugins.extension.webpack import build
 from betty.plugins.extension.webpack.build import EntryPointProvider
 from betty.plugins.extension.webpack.jobs import _GenerateAssets
@@ -32,8 +32,8 @@ if TYPE_CHECKING:
     "webpack",
     label="Webpack",
     requires={
-        Project.assets.require(WebpackAsset),
-        Project.css_resources.require(WEBPACK),
+        Project.assets.require(WEBPACK_ASSET),
+        Project.css_resources.require(WEBPACK_CSS_RESOURCE),
         Project.jinja_filters.require(WebpackEntryPointJs),
         Project.js_resources.require(WEBPACK_ENTRY_POINT_LOADER),
     },

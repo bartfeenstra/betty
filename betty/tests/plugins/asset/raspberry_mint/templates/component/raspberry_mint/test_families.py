@@ -1,4 +1,4 @@
-from betty.plugins.asset.raspberry_mint import RaspberryMint
+from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.entity.person import Person
 from betty.plugins.extension._theme import person_descendant_families
 from betty.privacy import Privacy
@@ -11,7 +11,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "person": person,
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="component/raspberry-mint/families.html.j2",
     ) as (actual, _):
         assert not actual
@@ -24,7 +24,7 @@ async def test_with_parents(assert_template_file: AssertTemplateFile) -> None:
         data={
             "person": person,
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="component/raspberry-mint/families.html.j2",
     ) as (actual, _):
         assert parent.public_id in actual
@@ -37,7 +37,7 @@ async def test_with_private_parents(assert_template_file: AssertTemplateFile) ->
         data={
             "person": person,
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="component/raspberry-mint/families.html.j2",
     ) as (actual, _):
         assert parent.id not in actual
@@ -51,7 +51,7 @@ async def test_with_siblings(assert_template_file: AssertTemplateFile) -> None:
         data={
             "person": person,
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="component/raspberry-mint/families.html.j2",
     ) as (actual, _):
         assert sibling.public_id in actual
@@ -65,7 +65,7 @@ async def test_with_private_siblings(assert_template_file: AssertTemplateFile) -
         data={
             "person": person,
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="component/raspberry-mint/families.html.j2",
     ) as (actual, _):
         assert sibling.id not in actual
@@ -79,7 +79,7 @@ async def test_with_children(assert_template_file: AssertTemplateFile) -> None:
             "person": person,
             "person_descendant_families": person_descendant_families(person),
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="component/raspberry-mint/families.html.j2",
     ) as (actual, _):
         assert child.public_id in actual
@@ -92,7 +92,7 @@ async def test_with_private_children(assert_template_file: AssertTemplateFile) -
         data={
             "person": person,
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="component/raspberry-mint/families.html.j2",
     ) as (actual, _):
         assert child.id not in actual
@@ -107,7 +107,7 @@ async def test_with_co_parents(assert_template_file: AssertTemplateFile) -> None
             "person": person,
             "person_descendant_families": person_descendant_families(person),
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="component/raspberry-mint/families.html.j2",
     ) as (actual, _):
         assert co_parent.public_id in actual
@@ -123,7 +123,7 @@ async def test_with_private_co_parents(
         data={
             "person": person,
         },
-        assets={RaspberryMint},
+        assets={RASPBERRY_MINT},
         template="component/raspberry-mint/families.html.j2",
     ) as (actual, _):
         assert co_parent.id not in actual
