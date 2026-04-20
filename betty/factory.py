@@ -7,18 +7,25 @@ from __future__ import annotations
 import inspect
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable
-from typing import TYPE_CHECKING, Self, final, overload
+from inspect import Parameter
+from typing import Self, final, overload
 
 from betty.asyncio import resolve_await
 from betty.data import Data
-from betty.exception import HumanFacingException
 from betty.importlib import fully_qualified_name
-from betty.locale.localizable.gettext import _
 from betty.service_level import ServiceLevel
-from betty.typing import Void, VoidType
 
-if TYPE_CHECKING:
-    from betty.portable import PortableData
+
+class FactoryError(RuntimeError):
+    """
+    Raised when a factory could not create an object.
+    """
+
+
+class UnsupportedTarget(FactoryError):
+    """
+    Raised when a factory target cannot be used to create a new object.
+    """
 
 
 class Manufacturable(ABC):
@@ -37,6 +44,9 @@ class Manufacturable(ABC):
 type Manufacturer[T] = (
     Callable[[ServiceLevel], Awaitable[T] | T] | Callable[[], Awaitable[T] | T]
 )
+
+
+type FactoryTarget = type[Manufacturable] | Manufacturer
 
 
 class DataManufacturable[DataT: Data](ABC):
@@ -65,62 +75,56 @@ class Factory:
     The object factory.
     """
 
+    _SIGNATURE_MESSAGE = f'any required arguments, except optionally a first argument typed on {fully_qualified_name(ServiceLevel)} and/or named "services".'
+
     def __init__(self, services: ServiceLevel, /):
         self._services = services
 
     @overload
-    async def new[ManufacturableT](
-        self,
-        target: type[ManufacturableT],
-        data: Data | PortableData | VoidType = Void,
-        /,
+    async def new[ManufacturableT: Manufacturable](
+        self, target: type[ManufacturableT], /
     ) -> ManufacturableT:
         pass
 
     @overload
-    async def new[T](
-        self,
-        target: Manufacturer[T],
-        data: Data | PortableData | VoidType = Void,
-        /,
-    ) -> T:
+    async def new[T](self, target: Manufacturer[T], /) -> T:
         pass
 
-    @overload
-    async def new[T](
-        self,
-        target: type[T],
-        data: Data | PortableData | VoidType = Void,
-        /,
-    ) -> T:
-        pass
-
-    async def new(self, target, data=Void):
+    async def new(self, target, /):
         """
         Create a new instance.
 
         :raises FactoryError: raised when ``target`` could not be called.
         """
-        if data is Void:
-            if isinstance(target, type) and issubclass(target, Manufacturable):
+        if isinstance(target, type):
+            if issubclass(target, Manufacturable):
                 return await target.new(self._services)
-            if callable(target):
-                signature = inspect.signature(target)
-                # If there is (at least) one positional argument, call the target with the service level.
-                try:
-                    signature.bind("")
-                except TypeError:
-                    result = target()
-                else:
-                    result = target(self._services)
-                return await resolve_await(result)
-            raise RuntimeError(f"Cannot create a new instance of {target}")
-        if not isinstance(target, type) or not issubclass(target, DataManufacturable):
-            raise HumanFacingException(
-                _(
-                    '"{target}" is not configurable, but configuration was given.'
-                ).format(target=fully_qualified_name(target))
-            )
-        if not isinstance(data, Data):
-            data = target.new_data_cls().data().porter.load(data)
-        return await target.new(self._services, data)
+            args = self._args(target)
+            if args is None:
+                raise UnsupportedTarget(
+                    f"{fully_qualified_name(target)} must subclass {fully_qualified_name(Manufacturable)} or have an __init__() method without  {self._SIGNATURE_MESSAGE}"
+                )
+            return target(*args)
+        args = self._args(target)
+        if args is None:
+            raise UnsupportedTarget(f"{target} must not have {self._SIGNATURE_MESSAGE}")
+        return await resolve_await(target(*args))
+
+    def _args(self, target: FactoryTarget) -> tuple | None:
+        parameters = tuple(inspect.signature(target).parameters.values())
+        if not parameters:
+            return ()
+        if (
+            parameters[0].annotation is ServiceLevel or parameters[0].name == "services"
+        ) and self._optional(*parameters[1:]):
+            return (self._services,)
+        if self._optional(*parameters):
+            return ()
+        return None
+
+    def _optional(self, *parameters: Parameter) -> bool:
+        return all(
+            parameter.default is not Parameter.empty
+            or parameter.kind in (Parameter.VAR_POSITIONAL, Parameter.VAR_KEYWORD)
+            for parameter in parameters
+        )

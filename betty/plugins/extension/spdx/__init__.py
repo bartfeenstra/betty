@@ -20,7 +20,3 @@ class Spdx(Extension):
     """
     .. plugin:: extension:spdx.
     """
-
-    # Provide an initializer without arguments so the factory can call it.
-    def __init__(self):
-        super().__init__()

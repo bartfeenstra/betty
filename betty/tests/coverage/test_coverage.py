@@ -204,7 +204,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/factory.py": {
         "DataManufacturable": MissingReason.ABSTRACT,
+        "FactoryError": MissingReason.ABSTRACT,
         "Manufacturable": MissingReason.ABSTRACT,
+        "UnsupportedTarget": MissingReason.ABSTRACT,
     },
     "betty/functools.py": {
         "Result": {
@@ -472,6 +474,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/plugin/error.py": {
         "PluginError": MissingReason.ABSTRACT,
+    },
+    "betty/plugin/factory.py": {
+        "PluginManufacturerError": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/plugin/discovery/__init__.py": {
         "PluginDiscovery": MissingReason.ABSTRACT,
