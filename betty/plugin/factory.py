@@ -22,6 +22,9 @@ from betty.data import Data, DataDefinition
 from betty.data.aggregate.record import PortableRecord, RecordDefinition
 from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
 from betty.data.indicator.selector import Attr
+from betty.exception import HumanFacingException
+from betty.factory import DataManufacturable, FactoryError
+from betty.importlib import fully_qualified_name
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
@@ -33,6 +36,13 @@ from betty.typing import Void, VoidType
 if TYPE_CHECKING:
     from betty.portable import PortableData
     from betty.service_level import ServiceLevel
+
+
+class PluginManufacturerError(HumanFacingException, FactoryError):
+    """
+    Raised when a plugin manufacturer could not create a new plugin instance.
+    """
+
 
 _PluginManufacturerPluginT = TypeVar(
     "_PluginManufacturerPluginT", bound=Plugin, covariant=True
@@ -94,10 +104,7 @@ class PluginManufacturer[
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
             return NotImplemented
-        return (self.plugin_id, self.plugin_data) == (
-            other.plugin_id,
-            other.plugin_data,
-        )
+        return hash(self) == hash(other)
 
     @final
     @property
@@ -166,10 +173,19 @@ class PluginManufacturer[
         """
         Create a new instance of the configured plugin.
         """
-        return await services.factory.new(
-            (await services.plugins[self.plugin_type()][self.plugin_id]).cls,
-            self.plugin_data,
-        )
+        plugin_cls = (await services.plugins[self.plugin_type()][self.plugin_id]).cls
+        if self.plugin_data is Void:
+            return await services.factory.new(plugin_cls)
+        if not issubclass(plugin_cls, DataManufacturable):
+            raise PluginManufacturerError(
+                _(
+                    '"{target}" is not configurable, but configuration was given.'
+                ).format(target=fully_qualified_name(plugin_cls))
+            )
+        plugin_data = self.plugin_data
+        if not isinstance(plugin_data, Data):
+            plugin_data = plugin_cls.new_data_cls().data().porter.load(plugin_data)
+        return await plugin_cls.new(services, plugin_data)
 
     @classmethod
     def resolve(

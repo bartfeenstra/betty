@@ -26,9 +26,7 @@ if TYPE_CHECKING:
 
 
 class _DummyExtension(Extension):
-    # Provide an initializer without arguments so the factory can call it.
-    def __init__(self):
-        super().__init__()
+    pass
 
 
 @ExtensionDefinition("dummy-a", label=DUMMY_LOCALIZABLE)

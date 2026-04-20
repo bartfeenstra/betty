@@ -35,10 +35,6 @@ class HttpApiDoc(EntryPointProvider):
     .. plugin:: extension:http-api-doc.
     """
 
-    # Provide an initializer without arguments so the factory can call it.
-    def __init__(self):
-        super().__init__()
-
     @override
     @classmethod
     def webpack_entry_point_directory_path(cls) -> Path:

@@ -1,98 +1,247 @@
+from typing import Any, Self, override
+
 import pytest
 
-from betty.exception import HumanFacingException
-from betty.factory import Factory
+from betty.factory import Factory, FactoryTarget, Manufacturable, UnsupportedTarget
 from betty.service_level import ServiceLevel
-from betty.test_utils.data import DummyData
-from betty.test_utils.factory import DummyDataManufacturable
-from betty.universe import UNIVERSE
 
 
-class _TargetType:
+class _Target:
     pass
 
 
-def _sync_callable_target_without_services() -> _TargetType:
-    return _TargetType()
+class _TargetWithoutServicesWithOptionalInitArguments:
+    def __init__(self, arg: Any = None, /, *, kwarg: Any = None):
+        assert arg is None
+        assert kwarg is None
 
 
-def _sync_callable_target_with_services(services: ServiceLevel, /) -> _TargetType:
-    return _TargetType()
+class _TargetWithoutServicesWithRequiredInitArguments:
+    def __init__(self, arg: Any, /, *, kwarg: Any):
+        raise NotImplementedError
 
 
-async def _async_callable_target_without_services() -> _TargetType:
-    return _TargetType()
+class _TargetWithoutServicesWithVariadicInitArguments:
+    def __init__(self, *args: Any, **kwargs: Any):
+        assert not args
+        assert not kwargs
 
 
-async def _async_callable_target_with_services(
-    services: ServiceLevel, /
-) -> _TargetType:
-    return _TargetType()
+class _TargetWithNamedServicesWithOptionalInitArguments:
+    def __init__(
+        self,
+        services,  # noqa: ANN001
+        arg: Any = None,
+        /,
+        *,
+        kwarg: Any = None,
+    ):
+        assert isinstance(services, ServiceLevel)
+        assert arg is None
+        assert kwarg is None
+
+
+class _TargetWithNamedServicesWithRequiredInitArguments:
+    def __init__(
+        self,
+        services,  # noqa: ANN001
+        arg: Any,
+        /,
+        *,
+        kwarg: Any,
+    ):
+        raise NotImplementedError
+
+
+class _TargetWithNamedServicesWithVariadicInitArguments:
+    def __init__(
+        self,
+        services,  # noqa: ANN001
+        *args: Any,
+        **kwargs: Any,
+    ):
+        assert isinstance(services, ServiceLevel)
+        assert not args
+        assert not kwargs
+
+
+class _TargetWithTypedServicesWithOptionalInitArguments:
+    def __init__(self, _: ServiceLevel, arg: Any = None, /, *, kwarg: Any = None):
+        assert isinstance(_, ServiceLevel)
+        assert arg is None
+        assert kwarg is None
+
+
+class _TargetWithTypedServicesWithRequiredInitArguments:
+    def __init__(self, _: ServiceLevel, arg: Any, /, *, kwarg: Any):
+        raise NotImplementedError
+
+
+class _TargetWithTypedServicesWithVariadicInitArguments:
+    def __init__(self, _: ServiceLevel, *args: Any, **kwargs: Any):
+        assert isinstance(_, ServiceLevel)
+        assert not args
+        assert not kwargs
+
+
+class _ManufacturableTarget(Manufacturable):
+    @override
+    @classmethod
+    async def new(cls, services: ServiceLevel, /) -> Self:
+        return cls()
+
+
+def _sync_callable_target_without_services() -> _Target:
+    return _Target()
+
+
+def _sync_callable_target_without_services_with_optional_arguments(
+    arg: Any = None, /, *, kwarg: Any = None
+) -> _Target:
+    return _Target()
+
+
+def _sync_callable_target_without_services_with_required_arguments(
+    arg: Any, /, *, kwarg: Any
+) -> _Target:
+    raise NotImplementedError
+
+
+def _sync_callable_target_without_services_with_variadic_arguments(
+    *args: Any, **kwargs: Any
+) -> _Target:
+    return _Target()
+
+
+def _sync_callable_target_with_services(services: ServiceLevel, /) -> _Target:
+    return _Target()
+
+
+def _sync_callable_target_with_services_with_optional_arguments(
+    services: ServiceLevel, arg: Any = None, /, *, kwarg: Any = None
+) -> _Target:
+    return _Target()
+
+
+def _sync_callable_target_with_services_with_required_arguments(
+    services: ServiceLevel, arg: Any, /, *, kwarg: Any
+) -> _Target:
+    raise NotImplementedError
+
+
+def _sync_callable_target_with_services_with_variadic_arguments(
+    services: ServiceLevel, *args: Any, **kwargs: Any
+) -> _Target:
+    return _Target()
+
+
+async def _async_callable_target_without_services() -> _Target:
+    return _Target()
+
+
+async def _async_callable_target_without_services_with_optional_arguments(
+    arg: Any = None, /, *, kwarg: Any = None
+) -> _Target:
+    return _Target()
+
+
+async def _async_callable_target_without_services_with_required_arguments(
+    arg: Any, /, *, kwarg: Any
+) -> _Target:
+    raise NotImplementedError
+
+
+async def _async_callable_target_without_services_with_variadic_arguments(
+    *args: Any, **kwargs: Any
+) -> _Target:
+    return _Target()
+
+
+async def _async_callable_target_with_services(services: ServiceLevel, /) -> _Target:
+    return _Target()
+
+
+async def _async_callable_target_with_services_with_optional_arguments(
+    services: ServiceLevel, arg: Any = None, /, *, kwarg: Any = None
+) -> _Target:
+    return _Target()
+
+
+async def _async_callable_target_with_services_with_required_arguments(
+    services: ServiceLevel, arg: Any, /, *, kwarg: Any
+) -> _Target:
+    raise NotImplementedError
+
+
+async def _async_callable_target_with_services_with_variadic_arguments(
+    services: ServiceLevel, *args: Any, **kwargs: Any
+) -> _Target:
+    return _Target()
 
 
 class TestFactory:
-    async def test_new__with_class(self) -> None:
-        sut = Factory(UNIVERSE)
-        assert isinstance(await sut.new(_TargetType), _TargetType)
-
-    async def test_new__with_sync_callable_without_services(self) -> None:
-        sut = Factory(UNIVERSE)
-        assert isinstance(
-            await sut.new(_sync_callable_target_without_services), _TargetType
-        )
-
-    async def test_new__with_sync_callable_with_services(self) -> None:
-        sut = Factory(UNIVERSE)
-        assert isinstance(
-            await sut.new(_sync_callable_target_with_services), _TargetType
-        )
-
-    async def test_new__with_async_callable_without_services(self) -> None:
-        sut = Factory(UNIVERSE)
-        assert isinstance(
-            await sut.new(_async_callable_target_without_services), _TargetType
-        )
-
-    async def test_new__with_async_callable_with_services(self) -> None:
-        sut = Factory(UNIVERSE)
-        assert isinstance(
-            await sut.new(_async_callable_target_with_services), _TargetType
-        )
-
-    async def test_new__with_data_manufacturable_without_data(
-        self,
+    @pytest.mark.parametrize(
+        ("expected", "target"),
+        [
+            (_Target, _Target),
+            (
+                _TargetWithoutServicesWithOptionalInitArguments,
+                _TargetWithoutServicesWithOptionalInitArguments,
+            ),
+            (
+                _TargetWithoutServicesWithVariadicInitArguments,
+                _TargetWithoutServicesWithVariadicInitArguments,
+            ),
+            (
+                _TargetWithNamedServicesWithOptionalInitArguments,
+                _TargetWithNamedServicesWithOptionalInitArguments,
+            ),
+            (
+                _TargetWithNamedServicesWithVariadicInitArguments,
+                _TargetWithNamedServicesWithVariadicInitArguments,
+            ),
+            (
+                _TargetWithTypedServicesWithOptionalInitArguments,
+                _TargetWithTypedServicesWithOptionalInitArguments,
+            ),
+            (
+                _TargetWithTypedServicesWithVariadicInitArguments,
+                _TargetWithTypedServicesWithVariadicInitArguments,
+            ),
+            (_ManufacturableTarget, _ManufacturableTarget),
+            (_Target, _sync_callable_target_without_services),
+            (_Target, _sync_callable_target_without_services_with_optional_arguments),
+            (_Target, _sync_callable_target_without_services_with_variadic_arguments),
+            (_Target, _sync_callable_target_with_services),
+            (_Target, _sync_callable_target_with_services_with_optional_arguments),
+            (_Target, _sync_callable_target_with_services_with_variadic_arguments),
+            (_Target, _async_callable_target_without_services),
+            (_Target, _async_callable_target_without_services_with_optional_arguments),
+            (_Target, _async_callable_target_without_services_with_variadic_arguments),
+            (_Target, _async_callable_target_with_services),
+            (_Target, _async_callable_target_with_services_with_optional_arguments),
+            (_Target, _async_callable_target_with_services_with_variadic_arguments),
+        ],
+    )
+    async def test_new__should_create(
+        self, expected: type[_Target], target: FactoryTarget
     ) -> None:
-        sut = Factory(UNIVERSE)
-        instance = await sut.new(DummyDataManufacturable)
-        assert isinstance(instance, DummyDataManufacturable)
+        assert isinstance(await Factory(ServiceLevel()).new(target), expected)
 
-    async def test_new__without_data_manufacturable_with_data(
-        self,
+    @pytest.mark.parametrize(
+        "target",
+        [
+            _TargetWithoutServicesWithRequiredInitArguments,
+            _TargetWithNamedServicesWithRequiredInitArguments,
+            _TargetWithTypedServicesWithRequiredInitArguments,
+            _sync_callable_target_without_services_with_required_arguments,
+            _sync_callable_target_with_services_with_required_arguments,
+            _async_callable_target_without_services_with_required_arguments,
+            _async_callable_target_with_services_with_required_arguments,
+        ],
+    )
+    async def test_new__should_raise_unsupported_target(
+        self, target: FactoryTarget
     ) -> None:
-        """
-        We don't really test for errors here, except for this one.
-
-        This allows code such as :py:class:`betty.plugin.factory.PluginManufacturer` to forward their target and
-        data straight into new() for it to handle.
-        """
-        sut = Factory(UNIVERSE)
-        with pytest.raises(HumanFacingException):
-            await sut.new(object, DummyData())
-        with pytest.raises(HumanFacingException):
-            await sut.new(object, {})
-
-    async def test_new__with_data_manufacturable_and_data(self) -> None:
-        data = DummyData("Hello, world~")
-        sut = Factory(UNIVERSE)
-        instance = await sut.new(DummyDataManufacturable, data)
-        assert isinstance(instance, DummyDataManufacturable)
-        assert instance.data is data
-
-    async def test_new__with_data_manufacturable_and_portable_data(
-        self,
-    ) -> None:
-        value = "Hello, world~"
-        sut = Factory(UNIVERSE)
-        instance = await sut.new(DummyDataManufacturable, {"value": value})
-        assert isinstance(instance, DummyDataManufacturable)
-        assert instance.data.value == value
+        with pytest.raises(UnsupportedTarget):
+            await Factory(ServiceLevel()).new(target)
