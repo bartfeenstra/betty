@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Self, override
 from babel import Locale
 
 from betty.app import App, AppConfiguration
-from betty.service.factory import Manufacturable
+from betty.factory import Manufacturable
 from betty.test_utils.user import StaticUser
 from betty.universe import UNIVERSE
 

@@ -8,9 +8,9 @@ from typing import TYPE_CHECKING, Any, Self, final, override
 from urllib.parse import urlsplit
 
 from betty.entity import Entity, EntityDefinition
+from betty.factory import Manufacturable
 from betty.media_type.media_types import HTML, JSON, JSON_LD
 from betty.project import Project
-from betty.service.factory import Manufacturable
 from betty.string import camel_case_to_kebab_case
 from betty.url import (
     PassthroughUrlGenerator,

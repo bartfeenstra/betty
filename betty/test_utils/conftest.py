@@ -27,7 +27,6 @@ __all__ = [
 import re
 import tarfile
 from collections.abc import (
-    AsyncIterator,
     Awaitable,
     MutableMapping,
     MutableSequence,
@@ -79,10 +78,10 @@ if TYPE_CHECKING:
     from betty.machine_name import ResolvableMachineName
     from betty.plugin import PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
-    from betty.plugin.resolve import ResolvablePluginId, ResolvablePluginDefinition
+    from betty.plugin.resolve import ResolvablePluginDefinition, ResolvablePluginId
     from betty.portable import PortableData, PortableMapping
-    from betty.service.plugin.service import SupportedPlugins
-    from betty.service.plugin.service.instance import ServicePluginInstances
+    from betty.service.plugin import SupportedPlugins
+    from betty.service.plugin.instance import ServicePluginInstances
     from betty.service.simple.asynchronous import TypedAsynchronousServiceOrFactory
     from betty.service.simple.synchronous import TypedSynchronousServiceOrFactory
     from betty.user import User

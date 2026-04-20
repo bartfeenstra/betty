@@ -22,6 +22,7 @@ from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.enum import EnumDefinition
 from betty.data.int import IntDefinition
+from betty.factory import DataManufacturable
 from betty.locale.localizable.gettext import _
 from betty.plugin.data import PluginManufacturerSequenceDefinition
 from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
@@ -32,7 +33,6 @@ from betty.portable import CallbackPorter
 from betty.project import Project
 from betty.property import Optional, Property
 from betty.sample import Sample, Size
-from betty.service.factory import DataManufacturable
 
 if TYPE_CHECKING:
     from betty.document import Document

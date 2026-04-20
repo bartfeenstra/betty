@@ -7,11 +7,11 @@ from betty.exception import HumanFacingException
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer
-from betty.service.level import ServiceLevel
+from betty.service_level import ServiceLevel
 from betty.test_utils.data import DummyData
+from betty.test_utils.factory import DummyDataManufacturable
 from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
 from betty.test_utils.plugin import DummyPluginManufacturer, DummyPluginOne
-from betty.test_utils.service.level import DummyDataManufacturable
 from betty.typing import Void
 
 if TYPE_CHECKING:

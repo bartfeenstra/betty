@@ -11,7 +11,7 @@ from betty.test_utils.locale.localizable import (
 from betty.test_utils.plugin import DummyPlugin
 
 if TYPE_CHECKING:
-    from betty.service.level import ServiceLevel
+    from betty.service_level import ServiceLevel
 
 
 @final

@@ -6,6 +6,7 @@ from typing import Self, final, override
 
 from betty.content import ContentDefinition
 from betty.document import Document
+from betty.factory import Manufacturable
 from betty.locale.localizable.gettext import _
 from betty.plugins.asset.trees import TREES
 from betty.plugins.content.template import Template, TemplateBuild
@@ -13,7 +14,6 @@ from betty.plugins.entity.person import Person
 from betty.plugins.extension.webpack import Webpack
 from betty.plugins.jinja_filter.webpack_entry_point_js import WebpackEntryPointJs
 from betty.project import Project
-from betty.service.factory import Manufacturable
 
 
 @final

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from betty.service.provider import Service, ServiceProvider
+from betty.service import Service, ServiceProvider
 from betty.service.simple import SynchronousServiceManager
 from betty.universe import UNIVERSE
 

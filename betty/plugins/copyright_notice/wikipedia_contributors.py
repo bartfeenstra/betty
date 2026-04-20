@@ -11,6 +11,7 @@ import aiohttp
 
 from betty.app import App
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
+from betty.factory import Manufacturable
 from betty.locale import DEFAULT_LOCALE, resolve_locale
 from betty.locale.error import LocaleError
 from betty.locale.localizable import (
@@ -21,7 +22,6 @@ from betty.locale.localizable import (
 )
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
-from betty.service.factory import Manufacturable
 
 
 def _copyright_url(language: str, page: str) -> str:

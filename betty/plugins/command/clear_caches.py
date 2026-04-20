@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.app import App
 from betty.argparse import add_yes_argument
 from betty.console.command import Command, CommandDefinition, CommandFunction
+from betty.factory import Manufacturable
 from betty.locale.localizable.gettext import _
-from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
     import argparse

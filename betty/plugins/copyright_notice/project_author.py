@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import Self, final, override
 
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
+from betty.factory import Manufacturable
 from betty.locale.localizable import (
     Localizable,
     ResolvableLocalizable,
@@ -14,7 +15,6 @@ from betty.locale.localizable import (
 )
 from betty.locale.localizable.gettext import _
 from betty.project import Project
-from betty.service.factory import Manufacturable
 
 
 @final

@@ -8,7 +8,7 @@ from collections.abc import Callable
 from typing import final, override
 
 from betty.functools import LazyReCallable
-from betty.service.provider import (
+from betty.service import (
     Service,
     ServiceFactory,
     ServiceManager,

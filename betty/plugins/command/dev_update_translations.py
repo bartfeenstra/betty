@@ -5,17 +5,17 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.about import IS_DEVELOPMENT
 from betty.app import App
 from betty.console.command import Command, CommandDefinition, CommandFunction
+from betty.factory import Manufacturable
 from betty.locale import translation
 from betty.locale.localizable.gettext import _
 from betty.requirement import UnmetRequirement
-from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
     import argparse
     from collections.abc import Iterable
 
     from betty.plugin.discovery import ResolvableDiscovery
-    from betty.service.level import ServiceLevel
+    from betty.service_level import ServiceLevel
 
 
 @final

@@ -7,14 +7,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from betty.requirement import UnmetRequirement
-from betty.service import ServiceError
+from betty.service import ServiceError, ServiceManager
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.data.indicator import Indicator
     from betty.locale.localizable import ResolvableLocalizable
-    from betty.service.provider import ServiceManager
 
 
 class UnmetServiceRequirement(UnmetRequirement, ServiceError):

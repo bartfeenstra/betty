@@ -41,10 +41,10 @@ if TYPE_CHECKING:
 
     from betty.copyright_notice import CopyrightNotice
     from betty.entity.collection.pool import EntityPool
+    from betty.factory import Factory
     from betty.job.scheduler import Scheduler
     from betty.license import License
     from betty.machine_name import MachineName
-    from betty.service.factory import Factory
 
 
 class LoadAncestry(Job):

@@ -10,16 +10,16 @@ from jinja2 import pass_context
 from markupsafe import Markup
 
 from betty.content import Content, build
+from betty.factory import Factory, Manufacturable
 from betty.jinja import context_document
 from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
-from betty.service.factory import Factory, Manufacturable
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from jinja2.runtime import Context
 
-    from betty.service.level import ServiceLevel
+    from betty.service_level import ServiceLevel
 
 
 @final

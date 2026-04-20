@@ -14,8 +14,8 @@ from betty.concurrent import ThreadSafeLock
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.ordered import Order, OrderedPluginDefinition
-from betty.service.plugin.service import PluginServiceProvider
-from betty.service.plugin.service.definition.collection import (
+from betty.service.plugin import PluginServiceProvider
+from betty.service.plugin.definition.collection import (
     CollectionPluginDefinitionServiceManager,
 )
 from betty.typing import threadsafe

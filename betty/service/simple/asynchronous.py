@@ -14,7 +14,7 @@ from betty.asyncio import (
 )
 from betty.life_cycle import Bootstrappable, Shutdownable
 from betty.life_cycle.manage import ManagedLifeCycle
-from betty.service.provider import (
+from betty.service import (
     Service,
     ServiceFactory,
     ServiceManager,

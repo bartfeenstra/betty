@@ -10,6 +10,7 @@ from betty.content import ContentDefinition
 from betty.data import Data
 from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
+from betty.factory import DataManufacturable, Manufacturable
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
@@ -20,7 +21,6 @@ from betty.project import Project
 from betty.property import Optional, Property
 from betty.role import RoleDefinition
 from betty.sample import Sample, Size
-from betty.service.factory import DataManufacturable, Manufacturable
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

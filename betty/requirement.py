@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Any, Concatenate, Self, final, overload, overr
 from betty.asyncio import resolve_await
 from betty.exception import HumanFacingException
 from betty.functools import CallableDecorator, DecoratedCallable, DecoratedCallableType
-from betty.service.level import ServiceLevel
+from betty.service_level import ServiceLevel
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable

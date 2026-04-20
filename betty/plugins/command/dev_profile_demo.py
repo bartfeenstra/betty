@@ -11,9 +11,9 @@ from betty.app import App
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.demo.generate import generate_with_cleanup
 from betty.demo.project import create_project
+from betty.factory import Manufacturable
 from betty.job import Context
 from betty.requirement import UnmetRequirement
-from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
     import argparse
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from yappi import YFuncStats
 
     from betty.plugin.discovery import ResolvableDiscovery
-    from betty.service.level import ServiceLevel
+    from betty.service_level import ServiceLevel
     from betty.user import User
 
 

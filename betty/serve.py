@@ -20,10 +20,10 @@ from typing import TYPE_CHECKING, Any, Self, final, override
 from urllib.parse import urlsplit
 
 from betty.exception import HumanFacingException
+from betty.factory import Manufacturable
 from betty.functools import Do
 from betty.locale.localizable.gettext import _
 from betty.project import Project
-from betty.service.factory import Manufacturable
 
 if TYPE_CHECKING:
     from types import TracebackType
