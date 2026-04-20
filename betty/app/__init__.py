@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from asyncio import gather, to_thread
+from asyncio import to_thread
 from concurrent import futures
 from contextlib import AsyncExitStack, asynccontextmanager
 from os import environ
@@ -48,8 +48,11 @@ from betty.service.factory import DataManufacturable
 from betty.service.level import DownstreamServiceLevel, Plugins, ServiceLevel
 from betty.service.level.requirement import RequirableServiceLevel
 from betty.service.plugin.service import PluginServiceProvider, SupportedPlugins
+from betty.service.plugin.service.definition.collection.keyed import (
+    PluginDefinitionsService,
+)
 from betty.service.plugin.service.instance.collection.keyed import (
-    PluginInstancesService,
+    PluginInstancesService as PluginInstancesService,
 )
 from betty.service.provider import Service
 from betty.service.simple import service
@@ -65,7 +68,9 @@ if TYPE_CHECKING:
     from betty.plugin import PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.plugin.resolve import ResolvablePluginDefinition
-    from betty.service.plugin.service.instance import ServicePluginInstances
+    from betty.service.plugin.service.instance import (
+        ServicePluginInstances as ServicePluginInstances,
+    )
     from betty.service.simple.asynchronous import TypedAsynchronousServiceOrFactory
     from betty.service.simple.synchronous import TypedSynchronousServiceOrFactory
     from betty.user import User
@@ -94,7 +99,7 @@ class App(
     """
 
     assets = AssetRepositoryService()
-    rate_limits = PluginInstancesService(RateLimitDefinition)
+    rate_limits = PluginDefinitionsService(RateLimitDefinition)
 
     def __init__(
         self,
@@ -106,7 +111,7 @@ class App(
         plugins: Plugins | None = None,
         process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
         | None = None,
-        rate_limits: ServicePluginInstances[RateLimitDefinition] = (),
+        rate_limits: Iterable[RateLimitDefinition] = (),
         supported_plugins: SupportedPlugins = (),
         translations: TypedAsynchronousServiceOrFactory[App, TranslationRepository]
         | None = None,
@@ -264,7 +269,7 @@ class App(
             },
             middlewares=[
                 ClientErrorToUserMessageMiddleware(self.user),
-                RateLimitMiddleware(await gather(*self.rate_limits)),
+                RateLimitMiddleware(self.rate_limits),
             ],
         )
 

@@ -245,9 +245,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/http_client/rate_limit.py": {
-        "RateLimit": MissingReason.ABSTRACT,
         "RateLimitDefinition": MissingReason.STATIC_CONTENT_ONLY,
-        "RateLimitManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/jinja/__init__.py": {
         "context_document": MissingReason.SHOULD_BE_COVERED,

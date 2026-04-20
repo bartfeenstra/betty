@@ -285,8 +285,8 @@ betty = 'betty.console:main_standalone'
 'witness' = 'betty.plugins.role.witness:Witness'
 
 [project.entry-points.'betty.http_rate_limit']
-'wikipedia-action-api' = 'betty.plugins.rate_limit.wikipedia_action_api:WikipediaActionApi'
-'wikipedia-rest-api' = 'betty.plugins.rate_limit.wikipedia_rest_api:WikipediaRestApi'
+'wikipedia-action-api' = 'betty.plugins.rate_limit.wikipedia_action_api:WIKIPEDIA_ACTION_API'
+'wikipedia-rest-api' = 'betty.plugins.rate_limit.wikipedia_rest_api:WIKIPEDIA_REST_API'
 
 [project.entry-points.'betty.serializer']
 'json' = 'betty.plugins.serializer.json:Json'
