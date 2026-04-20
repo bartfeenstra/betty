@@ -306,12 +306,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ShutdownerKwargs": MissingReason.TYPED_DICT,
     },
     "betty/link.py": {
-        "Link": MissingReason.STATIC_CONTENT_ONLY,
+        "Link": MissingReason.ABSTRACT,
         "LinkDefinition": {
             "type": MissingReason.INHERITED,
         },
-        "LinkManufacturer": MissingReason.STATIC_CONTENT_ONLY,
-        "LinkType": MissingReason.ABSTRACT,
     },
     "betty/load.py": {
         "load": MissingReason.SHOULD_BE_COVERED,

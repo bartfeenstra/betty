@@ -13,7 +13,7 @@ from betty.entity.association import (
 from betty.entity.has_description import HasDescription
 from betty.entity.has_media_type import HasMediaType
 from betty.json.schema import String
-from betty.link import LinkType
+from betty.link import Link as LinkType
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.property import LocalizableProperty

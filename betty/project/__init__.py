@@ -125,7 +125,7 @@ class Project(
     jinja_tests = PluginInstancesService(JinjaTestDefinition)
     js_resources = PluginDefinitionsService(JsResourceDefinition)
     license = PluginInstanceService(LicenseDefinition)
-    links = PluginInstancesService(LinkDefinition)
+    links = PluginDefinitionsService(LinkDefinition)
     loaders = PluginInstancesService(LoaderDefinition)
 
     def __init__(
@@ -149,7 +149,7 @@ class Project(
         extensions: ServicePluginInstances[ExtensionDefinition] = (),
         license: ServicePluginInstance[LicenseDefinition] | None = None,  # noqa: A002
         lifetime_threshold: int | None = None,
-        links: ServicePluginInstances[LinkDefinition] = (),
+        links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
         loaders: ServicePluginInstances[LoaderDefinition] = (),
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
         logo: Path | None = None,
@@ -276,7 +276,7 @@ class Project(
         ] = (),
         extensions: ServicePluginInstances[ExtensionDefinition] = (),
         lifetime_threshold: int | None = None,
-        links: ServicePluginInstances[LinkDefinition] = (),
+        links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
         loaders: ServicePluginInstances[LoaderDefinition] = (),
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
         logo: Path | None = None,

@@ -214,7 +214,7 @@ class IsolatedProjectFactory(Protocol):
         ] = (),
         extensions: ServicePluginInstances[ExtensionDefinition] = (),
         lifetime_threshold: int | None = None,
-        links: ServicePluginInstances[LinkDefinition] = (),
+        links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
         loaders: ServicePluginInstances[LoaderDefinition] = (),
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
         logo: Path | None = None,
@@ -252,7 +252,7 @@ def isolated_project_factory(isolated_app: App) -> IsolatedProjectFactory:
         ] = (),
         extensions: ServicePluginInstances[ExtensionDefinition] = (),
         lifetime_threshold: int | None = None,
-        links: ServicePluginInstances[LinkDefinition] = (),
+        links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
         loaders: ServicePluginInstances[LoaderDefinition] = (),
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
         logo: Path | None = None,
@@ -515,7 +515,7 @@ async def _assert_template(
     data: MutableMapping[str, Any] | None = None,
     enrichers: ServicePluginInstances[EnricherDefinition] = (),
     extensions: ServicePluginInstances[ExtensionDefinition] = (),
-    links: ServicePluginInstances[LinkDefinition] = (),
+    links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
     loaders: ServicePluginInstances[LoaderDefinition] = (),
 ) -> AsyncIterator[tuple[str, Project]]:
     async with isolated_project_factory(
@@ -548,7 +548,7 @@ class AssertTemplateString(Protocol):
         data: MutableMapping[str, Any] | None = None,
         enrichers: ServicePluginInstances[EnricherDefinition] = (),
         extensions: ServicePluginInstances[ExtensionDefinition] = (),
-        links: ServicePluginInstances[LinkDefinition] = (),
+        links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
         loaders: ServicePluginInstances[LoaderDefinition] = (),
     ) -> AbstractAsyncContextManager[tuple[str, Project]]:
         """
@@ -572,7 +572,7 @@ def assert_template_string(
         data: MutableMapping[str, Any] | None = None,
         enrichers: ServicePluginInstances[EnricherDefinition] = (),
         extensions: ServicePluginInstances[ExtensionDefinition] = (),
-        links: ServicePluginInstances[LinkDefinition] = (),
+        links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
         loaders: ServicePluginInstances[LoaderDefinition] = (),
     ) -> AbstractAsyncContextManager[tuple[str, Project]]:
         return _assert_template(
@@ -602,7 +602,7 @@ class AssertTemplateFile(Protocol):
         data: MutableMapping[str, Any] | None = None,
         enrichers: ServicePluginInstances[EnricherDefinition] = (),
         extensions: ServicePluginInstances[ExtensionDefinition] = (),
-        links: ServicePluginInstances[LinkDefinition] = (),
+        links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
         loaders: ServicePluginInstances[LoaderDefinition] = (),
     ) -> AbstractAsyncContextManager[tuple[str, Project]]:
         """
@@ -626,7 +626,7 @@ def assert_template_file(
         data: MutableMapping[str, Any] | None = None,
         enrichers: ServicePluginInstances[EnricherDefinition] = (),
         extensions: ServicePluginInstances[ExtensionDefinition] = (),
-        links: ServicePluginInstances[LinkDefinition] = (),
+        links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
         loaders: ServicePluginInstances[LoaderDefinition] = (),
     ) -> AbstractAsyncContextManager[tuple[str, Project]]:
         return _assert_template(

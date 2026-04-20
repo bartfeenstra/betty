@@ -5,7 +5,7 @@ Provide rendering utilities using `Jinja2 <https://jinja.palletsprojects.com>`_.
 from __future__ import annotations
 
 import datetime
-from asyncio import gather, to_thread
+from asyncio import to_thread
 from collections.abc import Awaitable, Callable
 from pathlib import Path
 from shutil import copy2
@@ -59,7 +59,6 @@ async def new_environment(project: Project, /) -> Environment:
     template_directory_paths = [
         str(path / "templates") for path in project.assets.directories
     ]
-    links = [link.plugin() for link in await gather(*project.links)]
     today = datetime.datetime.now(tz=datetime.UTC).date()
     environment = Environment(
         loader=FileSystemLoader(template_directory_paths),
@@ -93,10 +92,14 @@ async def new_environment(project: Project, /) -> Environment:
         "generate_html_id": generate_html_id,
         "new_attributes": Attributes,
         "project": project,
-        "primary_navigation_links": [link.link for link in links if link.primary],
+        "primary_navigation_links": [
+            link.link for link in project.links if link.primary
+        ],
         "public_css_paths": [resource.resource for resource in project.css_resources],
         "public_js_paths": [resource.resource for resource in project.js_resources],
-        "secondary_navigation_links": [link.link for link in links if not link.primary],
+        "secondary_navigation_links": [
+            link.link for link in project.links if not link.primary
+        ],
         "today": Date(today.year, today.month, today.day),
     })  # ty:ignore[no-matching-overload]
     environment.filters.update({
