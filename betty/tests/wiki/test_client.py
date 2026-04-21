@@ -8,7 +8,7 @@ import pytest
 from aiohttp import ClientSession
 from geopy import Point
 
-from betty.media_type.media_types import SVG
+from betty.plugins.media_type.svg import SVG
 from betty.test_utils.user import StaticUser
 from betty.wiki.client import Client, ClientError, Summary
 

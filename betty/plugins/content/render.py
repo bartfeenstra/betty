@@ -13,10 +13,9 @@ from betty.factory import DataManufacturable
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import LocalizableProperty
 from betty.locale.localize import resolve_localized
-from betty.media_type import MediaType
-from betty.media_type.media_types import PLAIN_TEXT
+from betty.media_type import MediaTypeProperty, ResolvableMediaType
+from betty.plugins.media_type.plain_text import PLAIN_TEXT
 from betty.project import Project
-from betty.property import Property
 from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
@@ -42,10 +41,15 @@ class RenderConfiguration(Data):
     """
 
     content = LocalizableProperty(label=_("Content"))
-    media_type = Property(MediaType, default=lambda: PLAIN_TEXT, omit_load=True)
+    media_type = MediaTypeProperty(
+        default=lambda: PLAIN_TEXT.media_type, omit_load=True
+    )
 
     def __init__(
-        self, /, content: ResolvableLocalizable, media_type: MediaType = PLAIN_TEXT
+        self,
+        /,
+        content: ResolvableLocalizable,
+        media_type: ResolvableMediaType = PLAIN_TEXT,
     ):
         super().__init__()
         self.content = content
@@ -64,7 +68,7 @@ class Render(DataManufacturable[RenderConfiguration], Content):
         *,
         content: ResolvableLocalizable,
         renderer: RenderDispatcher,
-        media_type: MediaType = PLAIN_TEXT,
+        media_type: ResolvableMediaType = PLAIN_TEXT,
     ):
         self._content = content
         self._media_type = media_type

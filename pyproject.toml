@@ -96,6 +96,7 @@ betty = 'betty.console:main_standalone'
 'license' = 'betty.license:LicenseDefinition'
 'link' = 'betty.link:LinkDefinition'
 'loader' = 'betty.load:LoaderDefinition'
+'media-type' = 'betty.media_type:MediaTypeDefinition'
 'place-type' = 'betty.place_type:PlaceTypeDefinition'
 'renderer' = 'betty.render:RendererDefinition'
 'role' = 'betty.role:RoleDefinition'
@@ -152,6 +153,16 @@ betty = 'betty.console:main_standalone'
 [project.entry-points.'betty.loader']
 'demo' = 'betty.plugins.loader.demo:Demo'
 'gramps' = 'betty.plugins.loader.gramps:Gramps'
+
+[project.entry-points.'betty.media_type']
+'html' = 'betty.plugins.media_type.html:HTML'
+'jinja' = 'betty.plugins.media_type.jinja:JINJA'
+'json' = 'betty.plugins.media_type.json:JSON'
+'json-ld' = 'betty.plugins.media_type.json_ld:JSON_LD'
+'pdf' = 'betty.plugins.media_type.pdf:PDF'
+'plain-text' = 'betty.plugins.media_type.plain_text:PLAIN_TEXT'
+'svg' = 'betty.plugins.media_type.svg:SVG'
+'yaml' = 'betty.plugins.media_type.yaml:YAML'
 
 [project.entry-points.'betty.enricher']
 'deriver' = 'betty.plugins.enricher.deriver:Deriver'

@@ -9,7 +9,7 @@ from betty.html.url import generate_urls
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import AllEnumeration
 from betty.media_type import MediaType
-from betty.media_type.media_types import HTML
+from betty.plugins.media_type.html import HTML
 from betty.project import Project
 from betty.render import Renderer, RendererDefinition
 from betty.url import UrlGenerator
@@ -41,7 +41,7 @@ class Html(Manufacturable, Renderer):
     @override
     @property
     def media_type(self) -> MediaType:
-        return HTML
+        return HTML.media_type
 
     @override
     async def render(self, content: str, /) -> str:

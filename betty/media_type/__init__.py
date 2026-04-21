@@ -10,11 +10,18 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.assertion import assert_str
 from betty.data import Data, DataDefinition
-from betty.locale.localizable.gettext import _
+from betty.definition.human_facing import HumanFacingDefinition
+from betty.locale.localizable.gettext import _, ngettext
+from betty.plugin import PluginTypeDefinition
+from betty.plugin.ordered import Order, OrderedPluginDefinition
 from betty.portable import Portable, PortableData
+from betty.property import Property
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping, Sequence
+    from collections.abc import Callable, Iterable, Mapping, Sequence
+
+    from betty.locale.localizable import ResolvableLocalizable
+    from betty.machine_name import ResolvableMachineName
 
 
 class InvalidMediaType(ValueError):
@@ -119,6 +126,8 @@ class MediaType(Data, Portable):
 
     @override
     def __eq__(self, other: object) -> bool:
+        if isinstance(other, MediaTypeDefinition):
+            return self == other.media_type
         if isinstance(other, str):
             try:
                 return self == MediaType(other)
@@ -178,3 +187,82 @@ def match_extension(
             if source.endswith(extension):
                 return media_type, extension
     raise UnsupportedMediaType(source)
+
+
+@final
+@PluginTypeDefinition(
+    "media-type",
+    label=_("Media type"),
+    label_plural=_("Media types"),
+    label_countable=ngettext("{count} media type", "{count} media types"),
+)
+class MediaTypeDefinition(HumanFacingDefinition, OrderedPluginDefinition):
+    """
+    .. plugin_type:: media-type.
+    """
+
+    def __init__(
+        self,
+        plugin_id: ResolvableMachineName,
+        *,
+        label: ResolvableLocalizable,
+        description: ResolvableLocalizable | None = None,
+        media_type: MediaType,
+        after: Order[MediaTypeDefinition] = (),
+        auto: bool = False,
+        before: Order[MediaTypeDefinition] = (),
+    ):
+        super().__init__(
+            plugin_id,
+            after=after,
+            auto=auto,
+            before=before,
+            description=description,
+            label=label,
+        )
+        self._media_type = media_type
+
+    @property
+    def media_type(self) -> MediaType:
+        """
+        The media type.
+        """
+        return self._media_type
+
+
+type ResolvableMediaType = MediaType | MediaTypeDefinition
+
+
+@final
+class MediaTypeProperty(Property[MediaType, ResolvableMediaType]):
+    """
+    A property containing a media type.
+    """
+
+    def __init__(
+        self,
+        *,
+        label: ResolvableLocalizable | None = None,
+        default: Callable[[], MediaType] | None = None,
+        description: ResolvableLocalizable | None = None,
+        omit_load: bool | None = None,
+        omit_dump: Callable[[MediaType], bool] | None = None,
+    ):
+        super().__init__(
+            data=MediaType,
+            default=default,
+            label=label,
+            description=description,
+            omit_load=omit_load,
+            omit_dump=omit_dump,
+            resolver=resolve_media_type,
+        )
+
+
+def resolve_media_type(media_type: ResolvableMediaType, /) -> MediaType:
+    """
+    Resolve a media type.
+    """
+    if isinstance(media_type, MediaType):
+        return media_type
+    return media_type.media_type

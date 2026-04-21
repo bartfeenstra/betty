@@ -8,7 +8,7 @@ import json
 from typing import TYPE_CHECKING, cast, final, override
 
 from betty.locale.localizable.gettext import _
-from betty.media_type.media_types import JSON
+from betty.plugins.media_type.json import JSON
 from betty.portable import PortableData
 from betty.serde import SerializationError, Serializer, SerializerDefinition
 
@@ -26,7 +26,7 @@ class Json(Serializer):
     @override
     @classmethod
     def media_type(cls) -> MediaType:
-        return JSON
+        return JSON.media_type
 
     @override
     def load(self, serialized: str, /) -> PortableData:

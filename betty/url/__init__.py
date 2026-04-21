@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
     from babel import Locale
 
-    from betty.media_type import MediaType
+    from betty.media_type import MediaType, ResolvableMediaType
 
 
 class GenerationError(RuntimeError):
@@ -72,7 +72,7 @@ class UrlGenerator(ABC):
         absolute: bool = False,
         fragment: str | None = None,
         locale: ResolvableLocale | None = None,
-        media_type: MediaType | None = None,
+        media_type: ResolvableMediaType | None = None,
         query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
         """
@@ -105,7 +105,7 @@ class PassthroughUrlGenerator(UrlGenerator):
         absolute: bool = False,
         fragment: str | None = None,
         locale: ResolvableLocale | None = None,
-        media_type: MediaType | None = None,
+        media_type: ResolvableMediaType | None = None,
         query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
         assert isinstance(resource, str)

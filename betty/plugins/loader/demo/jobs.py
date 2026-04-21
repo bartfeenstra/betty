@@ -11,7 +11,6 @@ from betty.date import Date, DateRange
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.job import Job
 from betty.locale.localizable.gettext import _
-from betty.media_type.media_types import SVG
 from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.enclosure import Enclosure
 from betty.plugins.entity.event import Event
@@ -30,6 +29,7 @@ from betty.plugins.event_type.death import Death
 from betty.plugins.event_type.marriage import Marriage
 from betty.plugins.gender.man import Man
 from betty.plugins.gender.woman import Woman
+from betty.plugins.media_type.svg import SVG
 from betty.plugins.place_type.country import Country
 from betty.plugins.place_type.municipality import Municipality
 from betty.plugins.place_type.province import Province

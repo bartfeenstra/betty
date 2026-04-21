@@ -6,7 +6,7 @@ from collections.abc import Mapping, Sequence
 from typing import Any, final, override
 
 from betty.locale import ResolvableLocale
-from betty.media_type import MediaType
+from betty.media_type import ResolvableMediaType
 from betty.url import UnsupportedResource, UrlGenerator
 
 
@@ -31,7 +31,7 @@ class ProxyUrlGenerator(UrlGenerator):
         absolute: bool = False,
         fragment: str | None = None,
         locale: ResolvableLocale | None = None,
-        media_type: MediaType | None = None,
+        media_type: ResolvableMediaType | None = None,
         query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
         for upstream in self._upstreams:

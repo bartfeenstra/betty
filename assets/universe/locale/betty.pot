@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-20 15:00+0100\n"
+"POT-Creation-Date: 2026-04-21 20:25+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -935,6 +935,9 @@ msgstr ""
 msgid "Jinja filters"
 msgstr ""
 
+msgid "Jinja template"
+msgstr ""
+
 msgid "Jinja test"
 msgstr ""
 
@@ -1101,6 +1104,9 @@ msgid "Media gallery"
 msgstr ""
 
 msgid "Media type"
+msgstr ""
+
+msgid "Media types"
 msgstr ""
 
 msgid "Men"
@@ -2458,6 +2464,12 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} marriage"
 msgid_plural "{count} marriages"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} media type"
+msgid_plural "{count} media types"
 msgstr[0] ""
 msgstr[1] ""
 

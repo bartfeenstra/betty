@@ -9,11 +9,15 @@ from betty.media_type import (
     ExtensionIndicator,
     InvalidMediaType,
     MediaType,
+    MediaTypeDefinition,
+    MediaTypeProperty,
     UnsupportedMediaType,
     match_extension,
     match_media_type,
+    resolve_media_type,
 )
-from betty.media_type.media_types import HTML, PLAIN_TEXT
+from betty.plugins.media_type.html import HTML
+from betty.plugins.media_type.plain_text import PLAIN_TEXT
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
@@ -92,6 +96,11 @@ class TestMediaType:
         ("expected", "left", "right"),
         [
             (True, MediaType("text/plain"), MediaType("text/plain")),
+            (
+                True,
+                MediaType("text/plain"),
+                MediaTypeDefinition("-", label="-", media_type=MediaType("text/plain")),
+            ),
             (True, MediaType("text/plain"), "text/plain"),
             (False, MediaType("text/plain"), "text/html"),
             (True, MediaType("multipart/form-data"), "multipart/form-data"),
@@ -292,9 +301,13 @@ def test_match_media_type__with_unsupported_media_type(
 @pytest.mark.parametrize(
     ("expected", "source", "media_types"),
     [
-        ((PLAIN_TEXT, ".txt"), "my.first.source.txt", [PLAIN_TEXT]),
-        ((PLAIN_TEXT, ".txt"), Path("my.first.source.txt"), [PLAIN_TEXT]),
-        ((PLAIN_TEXT, ".txt"), "my.first.source.txt", [HTML, PLAIN_TEXT]),
+        ((PLAIN_TEXT, ".txt"), "my.first.source.txt", [PLAIN_TEXT.media_type]),
+        ((PLAIN_TEXT, ".txt"), Path("my.first.source.txt"), [PLAIN_TEXT.media_type]),
+        (
+            (PLAIN_TEXT, ".txt"),
+            "my.first.source.txt",
+            [HTML.media_type, PLAIN_TEXT.media_type],
+        ),
     ],
 )
 def test_match_extension(
@@ -309,8 +322,8 @@ def test_match_extension(
     ("source", "media_types"),
     [
         ("my.first.source.txt", []),
-        ("", [PLAIN_TEXT]),
-        ("my.first.source.txt", [HTML]),
+        ("", [PLAIN_TEXT.media_type]),
+        ("my.first.source.txt", [HTML.media_type]),
     ],
 )
 def test_match_extension__with_unsupported_media_type(
@@ -322,5 +335,38 @@ def test_match_extension__with_unsupported_media_type(
 
 class TestUnsupportedMediaType:
     def test_new(self) -> None:
-        sut = UnsupportedMediaType(PLAIN_TEXT)
-        assert str(PLAIN_TEXT) in str(sut)
+        sut = UnsupportedMediaType(PLAIN_TEXT.media_type)
+        assert str(PLAIN_TEXT.media_type) in str(sut)
+
+
+class TestMediaTypeDefinition:
+    def test_media_type(self) -> None:
+        media_type = MediaType("text/plain")
+        assert (
+            MediaTypeDefinition("-", label="-", media_type=media_type).media_type
+            is media_type
+        )
+
+
+def test_resolve_media_type__with_media_type() -> None:
+    media_type = MediaType("text/plain")
+    assert resolve_media_type(media_type) is media_type
+
+
+def test_resolve_media_type__with_media_type_definition() -> None:
+    media_type = MediaType("text/plain")
+    assert (
+        resolve_media_type(MediaTypeDefinition("-", label="-", media_type=media_type))
+        is media_type
+    )
+
+
+class TestMediaTypeProperty:
+    def test_resolve(self) -> None:
+        class Cls:
+            media_type = MediaTypeProperty()
+
+        instance = Cls()
+        media_type = MediaType("text/plain")
+        instance.media_type = MediaTypeDefinition("-", label="-", media_type=media_type)
+        assert instance.media_type is media_type

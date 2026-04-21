@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-20 15:00+0100\n"
+"POT-Creation-Date: 2026-04-21 20:25+0100\n"
 "PO-Revision-Date: 2026-02-17 19:37+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -1002,6 +1002,9 @@ msgstr ""
 msgid "Jinja filters"
 msgstr ""
 
+msgid "Jinja template"
+msgstr ""
+
 msgid "Jinja test"
 msgstr ""
 
@@ -1169,6 +1172,9 @@ msgstr "Mediagalerij"
 
 msgid "Media type"
 msgstr "Mediatype"
+
+msgid "Media types"
+msgstr ""
 
 msgid "Men"
 msgstr "Mannen"
@@ -2559,6 +2565,12 @@ msgid "{count} marriage"
 msgid_plural "{count} marriages"
 msgstr[0] "{count} huwelijk"
 msgstr[1] "{count} huwelijken"
+
+#, python-brace-format
+msgid "{count} media type"
+msgid_plural "{count} media types"
+msgstr[0] ""
+msgstr[1] ""
 
 #, python-brace-format
 msgid "{count} missing"

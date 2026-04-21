@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, cast, final, override
 import yaml
 
 from betty.locale.localizable.gettext import _
-from betty.media_type.media_types import YAML
+from betty.plugins.media_type.yaml import YAML
 from betty.portable import PortableData
 from betty.serde import SerializationError, Serializer, SerializerDefinition
 
@@ -28,7 +28,7 @@ class Yaml(Serializer):
     @override
     @classmethod
     def media_type(cls) -> MediaType:
-        return YAML
+        return YAML.media_type
 
     @override
     def load(self, serialized: str, /) -> PortableData:

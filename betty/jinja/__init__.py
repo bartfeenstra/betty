@@ -26,7 +26,7 @@ from betty.file import read, write
 from betty.html import generate_html_id
 from betty.html.attributes import Attributes
 from betty.media_type import UnsupportedMediaType, match_extension
-from betty.media_type.media_types import JINJA2
+from betty.plugins.media_type.jinja import JINJA
 from betty.string import kebab_case_to_snake_case
 from betty.warnings import deprecate
 
@@ -161,7 +161,7 @@ def make_copy_function(
     async def _copy_function(source_path: Path, destination_path: Path) -> None:
         await to_thread(destination_path.parent.mkdir, exist_ok=True, parents=True)
         try:
-            _media_type, extension = match_extension(source_path, [JINJA2])
+            _media_type, extension = match_extension(source_path, [JINJA.media_type])
         except UnsupportedMediaType:
             copy2(source_path, destination_path)
             return
