@@ -1,15 +1,31 @@
 from __future__ import annotations  # noqa: D100
 
+from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.app import App
+from betty.assertion import assert_locale, assert_path
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.factory import Manufacturable
+from betty.load import (
+    LoaderManufacturer,
+)
+from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizable.gettext import _
-from betty.project import new
+from betty.locale.localizable.static import StaticTranslations
+from betty.machine_name import MachineName
+from betty.plugins.loader.gramps import FamilyTree, Gramps, GrampsConfiguration
+from betty.project.new import new, new_default_configuration
+from betty.typing import Void
 
 if TYPE_CHECKING:
     import argparse
+    from collections.abc import Sequence
+
+    from babel import Locale
+
+    from betty.locale.localizable import Localizable
+    from betty.user import User
 
 
 @final
@@ -33,4 +49,97 @@ class New(Manufacturable, Command):
         return self._command_function
 
     async def _command_function(self) -> None:
-        await new.new(self._app)
+        localizers, translations, serializers = await gather(
+            self._app.localizers, self._app.translations, gather(*self._app.serializers)
+        )
+        configuration = new_default_configuration(
+            localizers=tuple(map(localizers.get, translations.locales))
+        )
+
+        configuration_file = await self._app.user.ask_input(
+            _("Where do you want to save your project's configuration file?"),
+            assertion=assert_path(),
+        )
+        if not configuration_file.suffix:
+            configuration_file /= f"betty{serializers[0].media_type().extensions[0]}"
+
+        configuration.locales = [
+            await self._app.user.ask_input(
+                _(
+                    "Which language should your project site be generated in? Enter a language code."
+                ),
+                default=DEFAULT_LOCALE_TAG,
+                assertion=assert_locale(),
+            )
+        ]
+        while await self._app.user.ask_confirmation(
+            _("Do you want to add another locale?")
+        ):
+            configuration.locales.add(
+                await self._app.user.ask_input(
+                    _(
+                        "Which language should your project site be generated in? Enter a language code."
+                    ),
+                    assertion=assert_locale(),
+                )
+            )
+        locales = tuple(configuration.locales.keys())
+        default_locale = locales[0]
+
+        configuration.title = await _user_input_static_translations(
+            self._app.user, locales, _("What is your project called in {locale}?")
+        )
+
+        configuration.name = await self._app.user.ask_input(
+            _("What is your project's machine name?"),
+            default=MachineName.machinify(
+                configuration.title.localize(localizers.get(default_locale))
+            )
+            or Void,
+        )
+
+        configuration.author = await _user_input_static_translations(
+            self._app.user, locales, _("What is the project author called in {locale}?")
+        )
+
+        configuration.url = await self._app.user.ask_input(
+            _("At which URL will your site be published?"), default=configuration.url
+        )
+
+        if await self._app.user.ask_confirmation(
+            _("Do you want to load a Gramps family tree?")
+        ):
+            configuration.loaders.add(
+                LoaderManufacturer(
+                    Gramps,
+                    GrampsConfiguration(
+                        family_trees=[
+                            FamilyTree(
+                                await self._app.user.ask_input(
+                                    _(
+                                        "What is the path to your exported Gramps family tree file?"
+                                    ),
+                                    assertion=assert_path(),
+                                )
+                            )
+                        ]
+                    ),
+                )
+            )
+
+        await new(self._app, configuration, configuration_file)
+
+
+async def _user_input_static_translations(
+    user: User, locales: Sequence[Locale], question: Localizable
+) -> StaticTranslations:
+    return StaticTranslations(
+        {
+            locale: await user.ask_input(
+                question.format(
+                    locale=locale.get_display_name() or to_language_tag(locale)
+                )
+            )
+            for locale in locales
+        }  # ty:ignore[invalid-argument-type]
+    )
