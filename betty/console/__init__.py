@@ -269,6 +269,11 @@ async def main(app: App, args: Sequence[str]) -> None:
         raise SystemExit(SystemExitCode.USER_QUIT) from None
     except Exception:
         await app.user.message_exception()
+        await app.user.message_warning(
+            _(
+                "An unexpected error occurred. If you believe this is a problem with Betty, please report this at {url}."
+            ).format(url="https://github.com/bartfeenstra/betty/issues/new")
+        )
         raise SystemExit(SystemExitCode.ERROR_UNEXPECTED) from None
     else:
         raise SystemExit(SystemExitCode.OK) from None

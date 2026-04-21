@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-21 20:25+0100\n"
+"POT-Creation-Date: 2026-04-21 21:49+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -131,6 +131,12 @@ msgid "Amsterdam"
 msgstr ""
 
 msgid "An IETF BCP 47 language tag, such as \"nl-NL\"."
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"An unexpected error occurred. If you believe this is a problem with Betty,"
+" please report this at {url}."
 msgstr ""
 
 msgid "An unexpected error occurred:"
