@@ -204,7 +204,6 @@ betty = 'betty.console:main_standalone'
 'will' = 'betty.plugins.event_type.will:Will'
 
 [project.entry-points.'betty.extension']
-'http-api-doc' = 'betty.plugins.extension.http_api_doc:HttpApiDoc'
 'maps' = 'betty.plugins.extension.maps:Maps'
 'raspberry-mint' = 'betty.plugins.extension.raspberry_mint:RaspberryMint'
 'spdx' = 'betty.plugins.extension.spdx:Spdx'
@@ -323,7 +322,7 @@ betty = 'betty.console:main_standalone'
 'wikipedia-summary' = 'betty.plugins.content.wikipedia_summary:WikipediaSummary'
 
 [project.entry-points.'betty.webpack_entry_point']
-'http-api-doc' = 'betty.plugins.webpack_entry_point.http_api_doc:HtpApiDoc'
+'http-api-doc' = 'betty.plugins.webpack_entry_point.http_api_doc:HttpApiDoc'
 'maps' = 'betty.plugins.webpack_entry_point.maps:Maps'
 'raspberry-mint' = 'betty.plugins.webpack_entry_point.raspberry_mint:RaspberryMint'
 'trees' = 'betty.plugins.webpack_entry_point.trees:Trees'
