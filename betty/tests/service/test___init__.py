@@ -13,7 +13,6 @@ from betty.service import (
     ServiceProvider,
 )
 from betty.service_level import ServiceLevel
-from betty.universe import UNIVERSE
 
 
 class _DummyServiceManager[ServiceProviderT: ServiceProvider](
@@ -54,7 +53,7 @@ class TestServiceManager:
             def my_first_service(self) -> object:
                 return service
 
-        assert _ServiceProvider(services=UNIVERSE).my_first_service is service
+        assert _ServiceProvider(services=ServiceLevel()).my_first_service is service
 
     def test___set_name__(self) -> None:
         class _ServiceProvider(ServiceProvider):
@@ -79,7 +78,9 @@ class TestServiceManager:
                 return service
 
         assert (
-            _ServiceProvider.my_first_service.get(_ServiceProvider(services=UNIVERSE))
+            _ServiceProvider.my_first_service.get(
+                _ServiceProvider(services=ServiceLevel())
+            )
             is service
         )
 
@@ -99,7 +100,7 @@ class TestServiceManager:
             def my_first_service(self) -> object:
                 raise NotImplementedError
 
-        service_provider = _ServiceProvider(services=UNIVERSE)
+        service_provider = _ServiceProvider(services=ServiceLevel())
         with pytest.raises(ServiceAlreadyInitialized):
             _ServiceProvider.my_first_service.init(service_provider)
 
@@ -115,7 +116,7 @@ class TestServiceManager:
         class _ServiceProvider(ServiceProvider):
             def __init__(self, my_first_service: object, /):
                 type(self).my_first_service.override(self, Service(my_first_service))
-                super().__init__(services=UNIVERSE)
+                super().__init__(services=ServiceLevel())
 
             @_DummyServiceManager
             def my_first_service(self) -> object:
@@ -131,7 +132,7 @@ class TestServiceManager:
             def my_first_service(self) -> object:
                 raise NotImplementedError
 
-        service_provider = _ServiceProvider(services=UNIVERSE)
+        service_provider = _ServiceProvider(services=ServiceLevel())
         with pytest.raises(ServiceAlreadyInitialized):
             _ServiceProvider.my_first_service.override(
                 service_provider, Service(object())

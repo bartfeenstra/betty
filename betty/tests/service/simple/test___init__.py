@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from betty.service import ServiceProvider
 from betty.service.simple import service
-from betty.universe import UNIVERSE
+from betty.service_level import ServiceLevel
 
 
 async def test_service__with_asynchronous_service() -> None:
@@ -13,7 +13,7 @@ async def test_service__with_asynchronous_service() -> None:
         async def my_first_service(self) -> object:
             return my_first_service
 
-    assert await Cls(services=UNIVERSE).my_first_service is my_first_service
+    assert await Cls(services=ServiceLevel()).my_first_service is my_first_service
 
 
 def test_service__with_synchronous_service() -> None:
@@ -24,4 +24,4 @@ def test_service__with_synchronous_service() -> None:
         def my_first_service(self) -> object:
             return my_first_service
 
-    assert Cls(services=UNIVERSE).my_first_service is my_first_service
+    assert Cls(services=ServiceLevel()).my_first_service is my_first_service

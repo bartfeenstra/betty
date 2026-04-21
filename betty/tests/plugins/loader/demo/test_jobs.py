@@ -4,8 +4,8 @@ from betty.copyright_notice import CopyrightNotice
 from betty.entity.collection.pool import EntityPool
 from betty.license import License
 from betty.plugins.loader.demo import LoadAncestry
+from betty.service_level import ServiceLevel
 from betty.test_utils.job import do
-from betty.universe import UNIVERSE
 
 
 @pytest.mark.usefixtures("demo_project_aioresponses")
@@ -15,7 +15,7 @@ class TestLoadAncestry:
         await do(
             LoadAncestry(
                 ancestry=ancestry,
-                factory=UNIVERSE.factory,
+                factory=ServiceLevel().factory,
                 streetmix_copyright_notice=CopyrightNotice(),
                 streetmix_license=License(),
             )

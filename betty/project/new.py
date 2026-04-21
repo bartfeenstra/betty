@@ -1,6 +1,7 @@
 from __future__ import annotations  # noqa: D100
 
-from typing import TYPE_CHECKING, Any
+from asyncio import gather
+from typing import TYPE_CHECKING
 
 from betty.assertion import assert_locale, assert_path, assert_url
 from betty.extension import Extension, ExtensionDefinition, ExtensionManufacturer
@@ -36,7 +37,6 @@ from betty.typing import Void
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence, Sequence
-    from pathlib import Path
 
     from babel import Locale
 
@@ -50,12 +50,14 @@ async def new(app: App) -> None:
     """
     Create a new project.
     """
-    localizers = await app.localizers
+    localizers, serializers = await gather(app.localizers, gather(*app.serializers))
 
     configuration_file_path = await app.user.ask_input(
         _("Where do you want to save your project's configuration file?"),
-        assertion=_assert_project_configuration_file_path,
+        assertion=assert_path(),
     )
+    if not configuration_file_path.suffix:
+        configuration_file_path /= f"betty{serializers[0].media_type().extensions[0]}"
 
     locales = [
         await app.user.ask_input(
@@ -161,20 +163,15 @@ async def new(app: App) -> None:
         url=url,
     )
     await dump_file(
-        configuration.data().porter.dump(configuration), configuration_file_path
+        configuration.data().porter.dump(configuration),
+        configuration_file_path,
+        serializers=serializers,
     )
     await app.user.message_information(
         _("Saved your project to {configuration_file}.").format(
             configuration_file=str(configuration_file_path)
         )
     )
-
-
-def _assert_project_configuration_file_path(value: Any) -> Path:
-    configuration_file_path = assert_path()(value)
-    if not configuration_file_path.suffix:
-        configuration_file_path /= "betty.yaml"
-    return configuration_file_path
 
 
 async def _user_input_static_translations(
