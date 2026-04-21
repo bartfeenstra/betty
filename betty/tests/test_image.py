@@ -12,14 +12,15 @@ from betty.image import (
     resize_cover,
 )
 from betty.media_type import MediaType
-from betty.media_type.media_types import PDF, SVG
+from betty.plugins.media_type.pdf import PDF
+from betty.plugins.media_type.svg import SVG
 
 
 @pytest.mark.parametrize(
     ("expected", "media_type"),
     [
-        (True, PDF),
-        (True, SVG),
+        (True, PDF.media_type),
+        (True, SVG.media_type),
         (True, MediaType("image/gif")),
         (True, MediaType("image/jpeg")),
         (True, MediaType("image/png")),

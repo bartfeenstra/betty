@@ -6,7 +6,7 @@ import pytest
 from babel import Locale
 
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, ResolvableLocale
-from betty.media_type.media_types import HTML
+from betty.plugins.media_type.html import HTML
 from betty.url import PassthroughUrlGenerator, generate_from_path
 
 if TYPE_CHECKING:

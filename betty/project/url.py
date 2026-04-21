@@ -9,7 +9,10 @@ from urllib.parse import urlsplit
 
 from betty.entity import Entity, EntityDefinition
 from betty.factory import Manufacturable
-from betty.media_type.media_types import HTML, JSON, JSON_LD
+from betty.media_type import resolve_media_type
+from betty.plugins.media_type.html import HTML
+from betty.plugins.media_type.json import JSON
+from betty.plugins.media_type.json_ld import JSON_LD
 from betty.project import Project
 from betty.string import camel_case_to_kebab_case
 from betty.url import (
@@ -27,7 +30,7 @@ if TYPE_CHECKING:
 
     from betty.entity.collection.pool import EntityPool
     from betty.locale import ResolvableLocale
-    from betty.media_type import MediaType
+    from betty.media_type import MediaType, ResolvableMediaType
 
 
 class _ProjectUrlGenerator(Manufacturable):
@@ -95,7 +98,7 @@ class _ProjectUrlGenerator(Manufacturable):
         media_type: MediaType | None,
         query: Mapping[str, Sequence[str]] | None,
     ) -> str:
-        if media_type not in [HTML, JSON_LD, JSON]:
+        if media_type not in (HTML, JSON_LD, JSON):
             raise UnsupportedMediaType(entity, media_type)
         extension, locale = _get_extension_and_locale(
             media_type, self._default_locale, locale=locale
@@ -123,7 +126,7 @@ class _ProjectUrlGenerator(Manufacturable):
         media_type: MediaType | None,
         query: Mapping[str, Sequence[str]] | None,
     ) -> str:
-        if media_type not in [HTML, JSON_LD, JSON]:
+        if media_type not in (HTML, JSON_LD, JSON):
             raise UnsupportedMediaType(entity_type, media_type)
         extension, locale = _get_extension_and_locale(
             media_type, self._default_locale, locale=locale
@@ -182,7 +185,7 @@ class _EntityTypeUrlGenerator(__EntityTypeUrlGenerator, UrlGenerator):
         absolute: bool = False,
         fragment: str | None = None,
         locale: ResolvableLocale | None = None,
-        media_type: MediaType | None = None,
+        media_type: ResolvableMediaType | None = None,
         query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
         assert self.supports(resource)
@@ -192,7 +195,7 @@ class _EntityTypeUrlGenerator(__EntityTypeUrlGenerator, UrlGenerator):
             absolute=absolute,
             fragment=fragment,
             locale=locale,
-            media_type=media_type,
+            media_type=resolve_media_type(media_type) if media_type else None,
             query=query,
         )
 
@@ -214,7 +217,7 @@ class _EntityUrlGenerator(__EntityUrlGenerator, UrlGenerator):
         absolute: bool = False,
         fragment: str | None = None,
         locale: ResolvableLocale | None = None,
-        media_type: MediaType | None = None,
+        media_type: ResolvableMediaType | None = None,
         query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
         assert self.supports(resource)
@@ -224,7 +227,7 @@ class _EntityUrlGenerator(__EntityUrlGenerator, UrlGenerator):
             absolute=absolute,
             fragment=fragment,
             locale=locale,
-            media_type=media_type,
+            media_type=resolve_media_type(media_type) if media_type else None,
             query=query,
         )
 
@@ -261,7 +264,7 @@ class _EntityUrlUrlGenerator(UrlGenerator):
         absolute: bool = False,
         fragment: str | None = None,
         locale: ResolvableLocale | None = None,
-        media_type: MediaType | None = None,
+        media_type: ResolvableMediaType | None = None,
         query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
         url_parts = urlsplit(resource)
@@ -299,7 +302,7 @@ class _LocalizedPathUrlUrlGenerator(_ProjectUrlGenerator, UrlGenerator):
         absolute: bool = False,
         fragment: str | None = None,
         locale: ResolvableLocale | None = None,
-        media_type: MediaType | None = None,
+        media_type: ResolvableMediaType | None = None,
         query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
         assert self.supports(resource)
@@ -335,7 +338,7 @@ class _StaticPathUrlUrlGenerator(_ProjectUrlGenerator, UrlGenerator):
         absolute: bool = False,
         fragment: str | None = None,
         locale: ResolvableLocale | None = None,
-        media_type: MediaType | None = None,
+        media_type: ResolvableMediaType | None = None,
         query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
         assert self.supports(resource)

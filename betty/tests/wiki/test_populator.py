@@ -11,11 +11,11 @@ from betty.entity.collection.pool import EntityPool
 from betty.locale.localize import LocalizerRepository
 from betty.locale.translation import DEFAULT_TRANSLATION_REPOSITORY
 from betty.media_type import MediaType
-from betty.media_type.media_types import HTML
 from betty.plugins.copyright_notice.wikipedia_contributors import WikipediaContributors
 from betty.plugins.entity.link import Link
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.source import Source
+from betty.plugins.media_type.html import HTML
 from betty.test_utils.entity import DummyEntityOne
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.user.no_op import NoOpUser

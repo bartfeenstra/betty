@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from betty.entity.has_media_type import HasMediaType
-from betty.media_type.media_types import PLAIN_TEXT
+from betty.plugins.media_type.plain_text import PLAIN_TEXT
 
 if TYPE_CHECKING:
     from betty.portable import PortableMapping

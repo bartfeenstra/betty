@@ -14,7 +14,6 @@ from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Chain
 from betty.locale.localize import LocalizerRepository
-from betty.media_type.media_types import HTML
 from betty.plugins.content.raspberry_mint_columns import Columns, ColumnsConfiguration
 from betty.plugins.content.raspberry_mint_entity_card import EntityCard
 from betty.plugins.content.raspberry_mint_incomplete_translation_warning import (
@@ -43,6 +42,7 @@ from betty.plugins.extension.trees import Trees
 from betty.plugins.link.betty_documentation import BETTY_DOCUMENTATION
 from betty.plugins.link.betty_github import BETTY_GITHUB
 from betty.plugins.loader.demo import Demo
+from betty.plugins.media_type.html import HTML
 from betty.project import Project
 
 if TYPE_CHECKING:

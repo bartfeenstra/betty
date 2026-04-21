@@ -30,6 +30,7 @@ from betty.locale.translation import (
     AssetTranslationRepository,
     TranslationRepository,
 )
+from betty.media_type import MediaTypeDefinition
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.portable.file import assert_load_file
 from betty.serde import SerializerDefinition
@@ -78,6 +79,7 @@ class App(RequirableServiceLevel, PluginServiceProvider):
     """
 
     assets = AssetRepositoryService()
+    media_types = PluginDefinitionsService(MediaTypeDefinition)
     rate_limits = PluginDefinitionsService(RateLimitDefinition)
     serializers = PluginInstancesService(SerializerDefinition)
 
@@ -88,6 +90,7 @@ class App(RequirableServiceLevel, PluginServiceProvider):
         cache_directory: Path | None = None,
         cache: TypedSynchronousServiceOrFactory[App, Cache[Any]] | None = None,
         locale: ResolvableLocale | None = None,
+        meda_types: Iterable[ResolvablePluginDefinition[MediaTypeDefinition]] = (),
         plugins: Plugins | None = None,
         process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
         | None = None,
@@ -121,6 +124,7 @@ class App(RequirableServiceLevel, PluginServiceProvider):
             )
         super().__init__(plugins=plugins, supported_plugins=supported_plugins)
         cls.assets.add_init_plugins(self, *assets)
+        cls.media_types.add_init_plugins(self, *meda_types)
         cls.rate_limits.add_init_plugins(self, *rate_limits)
         cls.serializers.add_init_plugins(self, *serializers)
         self.life_cycle.on_bootstrap(self._bootstrap_localizer)

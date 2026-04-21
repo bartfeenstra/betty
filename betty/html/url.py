@@ -6,7 +6,7 @@ from collections.abc import Iterable
 
 from lxml.html import fragment_fromstring, tostring
 
-from betty.media_type.media_types import HTML
+from betty.plugins.media_type.html import HTML
 from betty.url import UrlGenerator
 
 

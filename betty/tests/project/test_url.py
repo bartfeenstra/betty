@@ -8,7 +8,8 @@ from betty.entity import EntityDefinition
 from betty.entity.collection.pool import EntityPool
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, ResolvableLocale
 from betty.media_type import MediaType
-from betty.media_type.media_types import HTML, JSON
+from betty.plugins.media_type.html import HTML
+from betty.plugins.media_type.json import JSON
 from betty.project import Project
 from betty.project.url import (
     _EntityUrlGenerator,

@@ -27,11 +27,11 @@ from typing import (
 from betty.json.linked_data import LinkedDataDumpable
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
-from betty.media_type.media_types import HTML
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
+from betty.plugins.media_type.html import HTML
 from betty.portable import PortableMapping
 
 if TYPE_CHECKING:

@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from betty.entity.has_links import HasLinks
     from betty.json.linked_data import JsonLdObject
     from betty.locale.localizable import Localizable, ResolvableLocalizable
-    from betty.media_type import MediaType
+    from betty.media_type import ResolvableMediaType
     from betty.portable import PortableMapping
     from betty.project import Project
 
@@ -67,7 +67,7 @@ class Link(LinkType, HasMediaType, HasDescription, HasPrivacy, Entity):
         relationship: str | None = None,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
-        media_type: MediaType | None = None,
+        media_type: ResolvableMediaType | None = None,
         owner: HasLinks | None = None,
         privacy: Privacy | None = None,
     ):

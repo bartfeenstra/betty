@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from betty.json.linked_data import JsonLdObject
     from betty.license import License
     from betty.locale.localizable import Localizable, ResolvableLocalizable
-    from betty.media_type import MediaType
+    from betty.media_type import ResolvableMediaType
     from betty.plugins.entity.citation import Citation
     from betty.plugins.entity.file_reference import FileReference  # noqa: F401
     from betty.plugins.entity.link import Link
@@ -81,7 +81,7 @@ class File(
         *,
         id: str | None = None,  # noqa: A002
         name: str | None = None,
-        media_type: MediaType | None = None,
+        media_type: ResolvableMediaType | None = None,
         description: ResolvableLocalizable | None = None,
         notes: ToManyAssociates[Note] = (),
         citations: ToManyAssociates[Citation] = (),

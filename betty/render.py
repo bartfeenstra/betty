@@ -10,13 +10,14 @@ from typing import TYPE_CHECKING, final
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.html import plain_text_to_html
 from betty.locale.localizable.gettext import _, ngettext
+from betty.media_type import resolve_media_type
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
-    from betty.media_type import MediaType
+    from betty.media_type import MediaType, ResolvableMediaType
     from betty.requirement import Requires
 
 
@@ -80,10 +81,16 @@ class RenderDispatcher:
     def __init__(self, *renderers: Renderer):
         self._renderers = {renderer.media_type: renderer for renderer in renderers}
 
-    async def render(self, content: str, media_type: MediaType, /) -> str:
+    async def render(
+        self, content: str, media_type: ResolvableMediaType | None, /
+    ) -> str:
         """
         Render the content.
         """
+        if media_type:
+            media_type = resolve_media_type(media_type)
+        else:
+            return plain_text_to_html(content)
         try:
             renderer = self._renderers[media_type]
         except KeyError:

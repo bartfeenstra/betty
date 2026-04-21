@@ -5,8 +5,9 @@ from typing import Any, override
 import pytest
 
 from betty.locale import ResolvableLocale
-from betty.media_type import MediaType
-from betty.media_type.media_types import HTML, JSON
+from betty.media_type import ResolvableMediaType
+from betty.plugins.media_type.html import HTML
+from betty.plugins.media_type.json import JSON
 from betty.url import UnsupportedResource, UrlGenerator
 from betty.url.proxy import ProxyUrlGenerator
 
@@ -25,7 +26,7 @@ class TestProxyUrlGenerator:
             absolute: bool = False,
             fragment: str | None = None,
             locale: ResolvableLocale | None = None,
-            media_type: MediaType | None = None,
+            media_type: ResolvableMediaType | None = None,
             query: Mapping[str, Sequence[str]] | None = None,
         ) -> str:
             return dumps({
@@ -50,7 +51,7 @@ class TestProxyUrlGenerator:
             absolute: bool = False,
             fragment: str | None = None,
             locale: ResolvableLocale | None = None,
-            media_type: MediaType | None = None,
+            media_type: ResolvableMediaType | None = None,
             query: Mapping[str, Sequence[str]] | None = None,
         ) -> str:
             raise UnsupportedResource(resource)  # pragma: nocover
@@ -140,7 +141,7 @@ class TestProxyUrlGenerator:
     async def test_generate(
         self,
         resource: Any,
-        media_type: MediaType,
+        media_type: ResolvableMediaType,
         absolute: bool,
         locale: ResolvableLocale | None,
         fragment: str | None,
