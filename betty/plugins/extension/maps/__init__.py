@@ -25,8 +25,7 @@ if TYPE_CHECKING:
     description=_("Display interactive maps"),
     requires={
         Project.assets.require(MAPS),
-        Project.extensions.require(Webpack),
-        Webpack.entry_points.require(MapsWebpackEntryPoint),
+        Project.extensions.require(Webpack.entry_points.require(MapsWebpackEntryPoint)),
     },
 )
 class Maps(Generator, Extension, Manufacturable):

@@ -16,6 +16,9 @@ from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.extension.raspberry_mint.data import RaspberryMintConfiguration
 from betty.plugins.extension.raspberry_mint.region import Region, ResolvableRegion
 from betty.plugins.extension.webpack import Webpack
+from betty.plugins.webpack_entry_point.raspberry_mint import (
+    RaspberryMint as RaspberryMintWebpackEntryPoint,
+)
 from betty.project import Project
 from betty.project.generate import Generator
 from betty.service.simple import service
@@ -37,7 +40,9 @@ type RegionalContentManufacturers = Mapping[
     label="Raspberry Mint",
     requires={
         Project.assets.require(RASPBERRY_MINT),
-        Project.extensions.require(Webpack),
+        Project.extensions.require(
+            Webpack.entry_points.require(RaspberryMintWebpackEntryPoint)
+        ),
     },
 )
 class RaspberryMint(

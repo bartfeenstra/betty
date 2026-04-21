@@ -10,6 +10,7 @@ from betty.locale.localizable.gettext import _
 from betty.plugins.asset.trees import TREES
 from betty.plugins.extension.trees.jobs import _GeneratePeopleJson
 from betty.plugins.extension.webpack import Webpack
+from betty.plugins.webpack_entry_point.trees import Trees as TreesWebpackEntryPoint
 from betty.project import Project
 from betty.project.generate import Generator
 
@@ -24,7 +25,9 @@ if TYPE_CHECKING:
     description=_("Display interactive family trees using Cytoscape."),
     requires={
         Project.assets.require(TREES),
-        Project.extensions.require(Webpack),
+        Project.extensions.require(
+            Webpack.entry_points.require(TreesWebpackEntryPoint)
+        ),
     },
 )
 class Trees(Generator, Extension, Manufacturable):
