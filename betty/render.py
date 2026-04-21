@@ -56,11 +56,16 @@ class RendererDefinition(HumanFacingDefinition, PluginClsDefinition[Renderer]):
         plugin_id: ResolvableMachineName,
         *,
         label: ResolvableLocalizable,
+        auto: bool = True,
         description: ResolvableLocalizable | None = None,
         requires: Requires = (),
     ):
         super().__init__(
-            plugin_id, label=label, description=description, requires=requires
+            plugin_id,
+            auto=auto,
+            label=label,
+            description=description,
+            requires=requires,
         )
 
 

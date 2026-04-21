@@ -122,6 +122,7 @@ class Project(
     license = PluginInstanceService(LicenseDefinition)
     links = PluginDefinitionsService(LinkDefinition)
     loaders = PluginInstancesService(LoaderDefinition)
+    renderers = PluginInstancesService(RendererDefinition)
 
     def __init__(
         self,
@@ -529,12 +530,9 @@ class Project(
     @service
     async def renderer(self) -> RenderDispatcher:
         """
-        The  content renderer.
+        The content renderer.
         """
-        return RenderDispatcher(*[
-            await self.factory.new(plugin.cls)
-            async for plugin in self.plugins[RendererDefinition]
-        ])
+        return RenderDispatcher(*await gather(*self.renderers))
 
     @property
     def logo(self) -> Path:
