@@ -22,7 +22,6 @@ from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.source import Source
-from betty.plugins.extension.http_api_doc import HttpApiDoc
 from betty.plugins.extension.maps import Maps
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.plugins.extension.raspberry_mint.data import RaspberryMintConfiguration
@@ -30,6 +29,7 @@ from betty.plugins.extension.raspberry_mint.default import regional_content
 from betty.plugins.extension.trees import Trees
 from betty.plugins.extension.webpack import Webpack
 from betty.plugins.loader.gramps import FamilyTree, Gramps, GrampsConfiguration
+from betty.plugins.webpack_entry_point.http_api_doc import HttpApiDoc
 from betty.portable.file import dump_file
 from betty.project.data import ProjectConfiguration
 from betty.typing import Void

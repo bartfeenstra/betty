@@ -36,17 +36,34 @@ if TYPE_CHECKING:
     from betty.machine_name import MachineName
     from betty.requirement import Requirement
     from betty.service_level import ServiceLevel
-    from betty.typing import Intersection
+    from betty.typing import Intersection as Intersection
 
 
 type SupportedPlugins = Iterable[ResolvablePluginDefinition]
 
 
-class _PluginServiceRequirementPlugins[PluginDefinitionT: PluginDefinition](Protocol):
+class _PluginServiceRequirementPlugins[
+    UpstreamPluginDefinitionT: PluginDefinition,
+    UpstreamGetServiceT,
+](Protocol):
+    @overload
+    def __call__[DownstreamPluginDefinitionT: PluginDefinition, DownstreamGetServiceT](
+        self,
+        downstream: PluginServiceManager[
+            PluginServiceProvider,
+            DownstreamPluginDefinitionT,
+            DownstreamGetServiceT,
+            Any,
+        ],
+        *plugins: ResolvablePluginDefinition[DownstreamPluginDefinitionT],
+    ) -> PluginServiceRequirement[DownstreamPluginDefinitionT, DownstreamGetServiceT]:
+        pass  # pragma: nocover
+
+    @overload
     def __call__(
-        self, *plugins: ResolvablePluginDefinition[PluginDefinitionT]
-    ) -> PluginServiceRequirement:
-        raise NotImplementedError
+        self, *plugins: ResolvablePluginDefinition[UpstreamPluginDefinitionT]
+    ) -> PluginServiceRequirement[UpstreamPluginDefinitionT, UpstreamGetServiceT]:
+        pass  # pragma: nocover
 
 
 @final
@@ -56,16 +73,15 @@ class _PluginServiceRequirementGetter(Singleton):
         pass
 
     @overload
-    def __get__(
+    def __get__[UpstreamPluginDefinitionT: PluginDefinition, UpstreamGetServiceT](
         self,
         instance: PluginServiceManager[
-            Intersection[PluginServiceProvider, ServiceLevel],
-            PluginDefinition,
-            Any,
-            Any,
+            PluginServiceProvider, UpstreamPluginDefinitionT, UpstreamGetServiceT, Any
         ],
         owner: type[PluginServiceManager] | None = None,
-    ) -> _PluginServiceRequirementPlugins:
+    ) -> _PluginServiceRequirementPlugins[
+        UpstreamPluginDefinitionT, UpstreamGetServiceT
+    ]:
         pass
 
     def __get__(self, instance, owner):
@@ -354,7 +370,9 @@ class PluginServiceInitializer(ManagedLifeCycle):
         return ()
 
 
-class PluginServiceProvider(ManagedLifeCycle, ServiceProvider):
+class PluginServiceProvider[ServiceLevelT: ServiceLevel](
+    ManagedLifeCycle, ServiceProvider[ServiceLevelT]
+):
     """
     A plugin service provider.
     """
@@ -362,7 +380,7 @@ class PluginServiceProvider(ManagedLifeCycle, ServiceProvider):
     def __init__(
         self,
         *args: Any,
-        services: ServiceLevel,
+        services: ServiceLevelT,
         supported_plugins: SupportedPlugins = (),
         **kwargs: Any,
     ):

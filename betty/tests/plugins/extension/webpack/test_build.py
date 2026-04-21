@@ -5,24 +5,19 @@ from typing import override
 import pytest
 from pytest_mock import MockerFixture
 
-from betty.extension import Extension, ExtensionDefinition
 from betty.job import Context
 from betty.npm import NpmUnavailable
-from betty.plugins.extension.webpack.build import Builder, EntryPointProvider
 from betty.project import Project
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.user import StaticUser
+from betty.webpack import Builder, WebpackEntryPoint, WebpackEntryPointDefinition
 
 
-@ExtensionDefinition("dummy", label=DUMMY_LOCALIZABLE)
-class DummyEntryPointProviderExtension(EntryPointProvider, Extension):
+@WebpackEntryPointDefinition(
+    "dummy", entry_point=Path(__file__).parent / "test_build_webpack_entry_point"
+)
+class DummyEntryPoint(WebpackEntryPoint):
     @override
-    @classmethod
-    def webpack_entry_point_directory_path(cls) -> Path:
-        return Path(__file__).parent / "test_build_webpack_entry_point"
-
-    @override
-    def webpack_entry_point_cache_keys(self) -> Sequence[str]:
+    async def cache_keys(self) -> Sequence[str]:
         return ()
 
 
@@ -55,7 +50,7 @@ class TestBuilder:
     ) -> None:
         context = Context()
         sut = Builder(
-            ([DummyEntryPointProviderExtension()] if with_entry_point_provider else []),
+            ([DummyEntryPoint()] if with_entry_point_provider else []),
             debug,
             await isolated_project.jinja,
             root_path,
@@ -76,14 +71,14 @@ class TestBuilder:
                 webpack_entry_loader_js = f.read()
             assert f"{root_path}/js/webpack/runtime.js" in webpack_entry_loader_js
             assert (
-                f"{root_path}/js/webpack/{DummyEntryPointProviderExtension.plugin().id}.js"
+                f"{root_path}/js/webpack/{DummyEntryPoint.plugin().id}.js"
                 in webpack_entry_loader_js
             )
             assert (
                 webpack_build_directory_path
                 / "js"
                 / "webpack"
-                / f"{DummyEntryPointProviderExtension.plugin().id}.js"
+                / f"{DummyEntryPoint.plugin().id}.js"
             ).exists()
 
     async def test_build_with_npm_unavailable(

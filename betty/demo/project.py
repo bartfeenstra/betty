@@ -29,7 +29,6 @@ from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.source import Source
-from betty.plugins.extension.http_api_doc import HttpApiDoc
 from betty.plugins.extension.maps import Maps
 from betty.plugins.extension.raspberry_mint import (
     Breakpoint,
@@ -40,6 +39,7 @@ from betty.plugins.extension.raspberry_mint import (
 from betty.plugins.extension.raspberry_mint.default import regional_content
 from betty.plugins.extension.spdx import Spdx
 from betty.plugins.extension.trees import Trees
+from betty.plugins.extension.webpack import Webpack
 from betty.plugins.link.betty_documentation import BETTY_DOCUMENTATION
 from betty.plugins.link.betty_github import BETTY_GITHUB
 from betty.plugins.loader.demo import Demo
@@ -76,7 +76,6 @@ async def create_project(
             Source,
         ],
         extensions=[
-            HttpApiDoc,
             Maps,
             RaspberryMint,
             Spdx,
@@ -205,6 +204,16 @@ async def create_project(
                 ),
             ),
             Trees,
+            ExtensionManufacturer(
+                Webpack,
+                # @todo Finish this
+                # WebpackConfiguration([
+                #     HttpApiDocWebpackEntryPoint,
+                #     MapsWebpackEntryPoint,
+                #     RaspberryMintWebpackEntryPoint,
+                #     TreesWebpackEntryPoint,
+                # ]),
+            ),
         ],
         license=LicenseManufacturer("spdx-gpl-3--0-or-later"),
         links=[

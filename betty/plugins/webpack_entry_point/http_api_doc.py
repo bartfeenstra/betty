@@ -2,44 +2,34 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING, final, override
 
-from betty.extension import ExtensionDefinition
-from betty.locale.localizable.gettext import _
+from betty.dirs import ROOT_DIRECTORY
 from betty.plugins.asset.http_api_doc import HTTP_API_DOC as HTTP_API_DOC_ASSET
 from betty.plugins.extension.webpack import Webpack
-from betty.plugins.extension.webpack.build import EntryPointProvider
 from betty.plugins.link.http_api_doc import HTTP_API_DOC as HTTP_API_DOC_LINK
 from betty.project import Project
+from betty.webpack import WebpackEntryPoint, WebpackEntryPointDefinition
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
 
 @final
-@ExtensionDefinition(
+@WebpackEntryPointDefinition(
     "http-api-doc",
-    label="HTTP API Documentation",
-    description=_(
-        "Display the HTTP API documentation in a user-friendly way using Swagger UI."
-    ),
     requires={
         Project.assets.require(HTTP_API_DOC_ASSET),
         Project.extensions.require(Webpack),
         Project.links.require(HTTP_API_DOC_LINK),
     },
+    entry_point=ROOT_DIRECTORY / "webpack-entry-points" / "webpack",
 )
-class HttpApiDoc(EntryPointProvider):
+class HttpApiDoc(WebpackEntryPoint):
     """
     .. plugin:: extension:http-api-doc.
     """
 
     @override
-    @classmethod
-    def webpack_entry_point_directory_path(cls) -> Path:
-        return Path(__file__).parent / "webpack"
-
-    @override
-    def webpack_entry_point_cache_keys(self) -> Sequence[str]:
+    async def cache_keys(self) -> Sequence[str]:
         return ()

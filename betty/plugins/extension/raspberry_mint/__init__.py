@@ -7,20 +7,20 @@ from __future__ import annotations
 from asyncio import gather
 from collections import defaultdict
 from enum import Enum
-from pathlib import Path
 from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.content import Content, ContentManufacturer
-from betty.extension import ExtensionDefinition
+from betty.extension import Extension, ExtensionDefinition
 from betty.factory import DataManufacturable, Manufacturable
-from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT as RaspberryMintAsset
+from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.extension.raspberry_mint.data import RaspberryMintConfiguration
 from betty.plugins.extension.raspberry_mint.region import Region, ResolvableRegion
 from betty.plugins.extension.webpack import Webpack
-from betty.plugins.extension.webpack.build import EntryPointProvider
+from betty.plugins.webpack_entry_point.raspberry_mint import (
+    RaspberryMint as RaspberryMintWebpackEntryPoint,
+)
 from betty.project import Project
 from betty.project.generate import Generator
-from betty.service import ServiceProvider
 from betty.service.simple import service
 
 if TYPE_CHECKING:
@@ -39,16 +39,14 @@ type RegionalContentManufacturers = Mapping[
     "raspberry-mint",
     label="Raspberry Mint",
     requires={
-        Project.assets.require(RaspberryMintAsset),
-        Project.extensions.require(Webpack),
+        Project.assets.require(RASPBERRY_MINT),
+        Project.extensions.require(
+            Webpack.entry_points, RaspberryMintWebpackEntryPoint
+        ),
     },
 )
 class RaspberryMint(
-    DataManufacturable[RaspberryMintConfiguration],
-    Manufacturable,
-    Generator,
-    EntryPointProvider,
-    ServiceProvider,
+    DataManufacturable[RaspberryMintConfiguration], Manufacturable, Generator, Extension
 ):
     """
     .. plugin:: extension:raspberry-mint.
@@ -143,20 +141,6 @@ class RaspberryMint(
             _GenerateLogo(project=self._project),
             _GenerateSearchIndex(project=self._project),
             _GenerateWebmanifest(project=self._project),
-        )
-
-    @override
-    @classmethod
-    def webpack_entry_point_directory_path(cls) -> Path:
-        return Path(__file__).parent / "webpack"
-
-    @override
-    def webpack_entry_point_cache_keys(self) -> Sequence[str]:
-        return (
-            self._project.root_path,
-            self._primary_color,
-            self._secondary_color,
-            self._tertiary_color,
         )
 
     @service

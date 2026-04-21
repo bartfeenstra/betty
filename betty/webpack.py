@@ -4,49 +4,45 @@ Perform Webpack builds.
 
 from __future__ import annotations
 
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from asyncio import gather, to_thread
 from json import dumps, loads
 from os import walk
 from pathlib import Path
 from shutil import copy2, copytree
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, cast, final, override
 
 from betty import npm
 from betty.dirs import ROOT_DIRECTORY
 from betty.document import Document
-from betty.extension import Extension
 from betty.file import read, write
 from betty.hashid import hashid, hashid_file_content, hashid_sequence
 from betty.jinja import make_copy_function
+from betty.locale.localizable.gettext import _, ngettext
+from betty.plugin import PluginTypeDefinition
+from betty.plugin.cls import Plugin, PluginClsDefinition
+from betty.plugin.factory import PluginManufacturer
 from betty.portable import PortableMapping
 
 if TYPE_CHECKING:
-    from collections.abc import MutableMapping, Sequence
+    from collections.abc import Iterable, MutableMapping, Sequence
 
     from betty.jinja import Environment
     from betty.job import Context
+    from betty.machine_name import ResolvableMachineName
+    from betty.requirement import Requires
     from betty.user import User
 
 _NPM_PROJECT_DIRECTORIES_PATH = Path(__file__).parent / "webpack"
 
 
-class EntryPointProvider(Extension):
+class WebpackEntryPoint(ABC, Plugin["WebpackEntryPointDefinition"]):
     """
-    An extension that provides Webpack entry points.
+    Expose a Webpack entry point to Betty.
     """
-
-    @classmethod
-    @abstractmethod
-    def webpack_entry_point_directory_path(cls) -> Path:
-        """
-        Get the path to the directory with the entry point assets.
-
-        The directory must include at least a ``package.json`` and ``main.ts``.
-        """
 
     @abstractmethod
-    def webpack_entry_point_cache_keys(self) -> Sequence[str]:
+    async def cache_keys(self) -> Sequence[str]:
         """
         Get the keys that make a Webpack build for this provider unique.
 
@@ -54,15 +50,61 @@ class EntryPointProvider(Extension):
         """
 
 
+@final
+@PluginTypeDefinition(
+    "webpack-entry-point",
+    label=_("Webpack entry point"),
+    label_plural=_("Webpack entry points"),
+    label_countable=ngettext(
+        "{count} Webpack entry point", "{count} Webpack entry points"
+    ),
+)
+class WebpackEntryPointDefinition(PluginClsDefinition[WebpackEntryPoint]):
+    """
+    .. plugin_type:: webpack-entry-point.
+    """
+
+    def __init__(
+        self,
+        plugin_id: ResolvableMachineName,
+        *,
+        entry_point: Path,
+        auto: bool = False,
+        requires: Requires = (),
+    ):
+        super().__init__(plugin_id, auto=auto, requires=requires)
+        self._entry_point = entry_point
+
+    @property
+    def entry_point(self) -> Path:
+        """
+        The path on disk to the entry point's directory.
+        """
+        return self._entry_point
+
+
+@final
+class WebpackEntryPointManufacturer(
+    PluginManufacturer[WebpackEntryPointDefinition, WebpackEntryPoint]
+):
+    """
+    The Webpack entry point manufacturer.
+    """
+
+    @override
+    @classmethod
+    def plugin_type(cls) -> type[WebpackEntryPointDefinition]:
+        return WebpackEntryPointDefinition
+
+
 async def _npm_project_id(
-    entry_point_providers: Sequence[EntryPointProvider],
+    entry_point_providers: Iterable[WebpackEntryPoint],
 ) -> str:
     return hashid_sequence(
         await hashid_file_content(_NPM_PROJECT_DIRECTORIES_PATH / "package.json"),
         *[
             await hashid_file_content(
-                entry_point_provider.webpack_entry_point_directory_path()
-                / "package.json"
+                entry_point_provider.plugin().entry_point / "package.json"
             )
             for entry_point_provider in entry_point_providers
         ],
@@ -70,13 +112,13 @@ async def _npm_project_id(
 
 
 async def _npm_project_directory_path(
-    working_directory_path: Path, entry_point_providers: Sequence[EntryPointProvider]
+    working_directory_path: Path, entry_point_providers: Iterable[WebpackEntryPoint]
 ) -> Path:
     return working_directory_path / await _npm_project_id(entry_point_providers)
 
 
-def webpack_build_id(
-    entry_point_providers: Sequence[EntryPointProvider], debug: bool
+async def webpack_build_id(
+    entry_point_providers: Iterable[WebpackEntryPoint], debug: bool
 ) -> str:
     """
     Generate the ID for a Webpack build.
@@ -87,7 +129,7 @@ def webpack_build_id(
             "-".join(
                 map(
                     hashid,
-                    entry_point_provider.webpack_entry_point_cache_keys(),
+                    await entry_point_provider.cache_keys(),
                 )
             )
             for entry_point_provider in entry_point_providers
@@ -97,7 +139,7 @@ def webpack_build_id(
 
 def _webpack_build_directory_path(
     npm_project_directory_path: Path,
-    entry_point_providers: Sequence[EntryPointProvider],
+    entry_point_providers: Iterable[WebpackEntryPoint],
     debug: bool,
 ) -> Path:
     return (
@@ -117,7 +159,7 @@ class Builder:
 
     def __init__(
         self,
-        entry_point_providers: Sequence[EntryPointProvider],
+        entry_point_providers: Iterable[WebpackEntryPoint],
         debug: bool,
         jinja: Environment,
         root_path: str,
@@ -158,13 +200,11 @@ class Builder:
         context: Context,
         npm_project_directory_path: Path,
         package_json: PortableMapping,
-        entry_point_provider: type[EntryPointProvider],
+        entry_point_provider: type[WebpackEntryPoint],
         npm_project_package_json_dependencies: MutableMapping[str, str],
         webpack_entry: MutableMapping[str, str],
     ) -> None:
-        entry_point_directory_path = (
-            entry_point_provider.webpack_entry_point_directory_path()
-        )
+        entry_point_directory_path = entry_point_provider.plugin().entry_point
         entry_point_provider_working_directory_path = (
             npm_project_directory_path
             / "packages"
@@ -174,7 +214,7 @@ class Builder:
             self._jinja, document=Document(context=context)
         )
         copies = []
-        for directory_path, _, file_names in walk(entry_point_directory_path):
+        for directory_path, __, file_names in walk(entry_point_directory_path):
             for file_name in file_names:
                 relative_file_path = (
                     Path(directory_path).relative_to(entry_point_directory_path)
@@ -272,7 +312,7 @@ class Builder:
         package_paths = [
             ROOT_DIRECTORY / "js",
             *(
-                entry_point_provider.webpack_entry_point_directory_path()
+                entry_point_provider.plugin().entry_point
                 for entry_point_provider in self._entry_point_providers
             ),
         ]
@@ -304,7 +344,7 @@ class Builder:
                     context,
                     npm_project_directory_path,
                     package_jsons_by_package_path[
-                        entry_point_provider.webpack_entry_point_directory_path()
+                        entry_point_provider.plugin().entry_point
                     ],
                     type(entry_point_provider),
                     npm_project_package_json_dependencies,

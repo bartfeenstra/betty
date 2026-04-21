@@ -1,5 +1,5 @@
 @use "sass:map";
-@import "bootstrap/scss/mixins/breakpoints";
+@import "../../../../../node_modules/bootstrap/scss/mixins/breakpoints";
 
 .modal-header .button-close {
   padding: 0;

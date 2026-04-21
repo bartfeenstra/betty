@@ -5,19 +5,23 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final, override
 
 from betty.definition.human_facing import HumanFacingDefinition
-from betty.life_cycle.manage import ManagedLifeCycle
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer
+from betty.service.plugin import PluginServiceProvider
+from betty.service_level import ServiceLevel
 
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
-    from betty.plugin import Requires
+    from betty.requirement import Requires
+    from betty.typing import Intersection as Intersection
 
 
-class Extension(ManagedLifeCycle, Plugin["ExtensionDefinition"]):
+class Extension[ServiceLevelT: ServiceLevel](
+    PluginServiceProvider[ServiceLevelT], Plugin["ExtensionDefinition"]
+):
     """
     Integrate custom services with a :py:class:`service level <betty.service_level.ServiceLevel>`.
     """

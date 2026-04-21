@@ -1,6 +1,6 @@
 import pytest
 
-from betty.plugins.extension.http_api_doc import HttpApiDoc
+from betty.plugins.webpack_entry_point.http_api_doc import HttpApiDoc
 from betty.project.generate import generate
 from betty.test_utils.conftest import IsolatedProjectFactory
 from betty.tests.conftest import check_skip_webpack_entry_point_provider
