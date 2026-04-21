@@ -25,9 +25,7 @@ if TYPE_CHECKING:
     description=_("Display interactive family trees using Cytoscape."),
     requires={
         Project.assets.require(TREES),
-        Project.extensions.require(
-            Webpack.entry_points.require(TreesWebpackEntryPoint)
-        ),
+        Project.extensions.require(Webpack.entry_points, TreesWebpackEntryPoint),
     },
 )
 class Trees(Generator, Extension, Manufacturable):
@@ -36,8 +34,7 @@ class Trees(Generator, Extension, Manufacturable):
     """
 
     def __init__(self, *, project: Project):
-        super().__init__()
-        self._project = project
+        super().__init__(services=project)
 
     @override
     @Project.require
@@ -47,4 +44,4 @@ class Trees(Generator, Extension, Manufacturable):
 
     @override
     async def generate(self, scheduler: Scheduler) -> None:
-        await scheduler.add(_GeneratePeopleJson(project=self._project))
+        await scheduler.add(_GeneratePeopleJson(project=self.services))

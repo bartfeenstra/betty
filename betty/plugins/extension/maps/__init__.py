@@ -40,11 +40,11 @@ if TYPE_CHECKING:
         # @todo Or at least move it closer to the core APIs?
         # @todo
         # @todo
-        Project.extensions.require(Webpack.entry_points.require(MapsWebpackEntryPoint)),
+        # Project.extensions.require(Webpack.entry_points.require(MapsWebpackEntryPoint)),
         # @todo Alternatively... (but I don't like the inside-out appearance, it reads badly)
         # @todo However, this may be the only format that lets us get the value of the inner service
         # @todo when calling the requirement.
-        Webpack.entry_points.require(Project.extensions, MapsWebpackEntryPoint),
+        # Webpack.entry_points.require(Project.extensions, MapsWebpackEntryPoint),
         # @todo Alternatively...
         # @todo Actually, this could return the inner service's value as well.
         Project.extensions.require(Webpack.entry_points, MapsWebpackEntryPoint),
@@ -56,8 +56,7 @@ class Maps(Generator, Extension, Manufacturable):
     """
 
     def __init__(self, *, project: Project):
-        super().__init__()
-        self._project = project
+        super().__init__(services=project)
 
     @override
     @Project.require
@@ -67,4 +66,4 @@ class Maps(Generator, Extension, Manufacturable):
 
     @override
     async def generate(self, scheduler: Scheduler) -> None:
-        await scheduler.add(_GeneratePlacePreviews(project=self._project))
+        await scheduler.add(_GeneratePlacePreviews(project=self.services))

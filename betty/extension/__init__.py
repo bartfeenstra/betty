@@ -2,37 +2,26 @@
 
 from __future__ import annotations
 
-from functools import partial
-from typing import TYPE_CHECKING, Final, Protocol, Self, final, overload, override
+from typing import TYPE_CHECKING, final, override
 
-from betty.classtools import Singleton
 from betty.definition.human_facing import HumanFacingDefinition
-from betty.life_cycle.manage import ManagedLifeCycle
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import PluginDefinition, PluginTypeDefinition
+from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer
-from betty.plugin.resolve import (
-    resolve_plugin_definition,
-)
-from betty.service.plugin import PluginServiceProvider, PluginServiceRequirement
-from betty.service.plugin.instance.collection.keyed import PluginInstancesService
+from betty.service.plugin import PluginServiceProvider
+from betty.service_level import ServiceLevel
 
 if TYPE_CHECKING:
-    from collections.abc import Collection
-
     from betty.locale.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
-    from betty.plugin import Requires
-    from betty.plugin.resolve import (
-        ResolvablePluginDefinition,
-    )
-    from betty.requirement import Requirements
-    from betty.service_level import ServiceLevel
-    from betty.typing import Intersection
+    from betty.requirement import Requires
+    from betty.typing import Intersection as Intersection
 
 
-class Extension(ManagedLifeCycle, Plugin["ExtensionDefinition"]):
+class Extension[ServiceLevelT: ServiceLevel](
+    PluginServiceProvider[ServiceLevelT], Plugin["ExtensionDefinition"]
+):
     """
     Integrate custom services with a :py:class:`service level <betty.service_level.ServiceLevel>`.
     """
@@ -80,107 +69,3 @@ class ExtensionManufacturer(PluginManufacturer[ExtensionDefinition, Extension]):
     @classmethod
     def plugin_type(cls) -> type[ExtensionDefinition]:
         return ExtensionDefinition
-
-
-@final
-class ExtensionsServiceRequirement[PluginDefinitionT: PluginDefinition, GetServiceT]:
-    """
-    A requirement on an extensions service.
-    """
-
-    @final
-    def __init__(
-        self,
-        extension: ResolvablePluginDefinition[ExtensionDefinition],
-        service: ExtensionsService,
-        /,
-        *plugins: ResolvablePluginDefinition[PluginDefinitionT]
-        | PluginServiceRequirement,
-    ):
-        self._extension = PluginServiceRequirement(
-            getattr(service.owner, service.name), extension
-        )
-        self._service = service
-        self._plugins = tuple(map(resolve_plugin_definition, plugins))
-
-    @property
-    def extension(self) -> PluginServiceRequirement:
-        """
-        The requirement for the extension on which the service lives.
-        """
-        return self._extension
-
-    @property
-    def service(self) -> ExtensionsService:
-        """
-        The service for which the plugin is required.
-        """
-        return self._service
-
-    @property
-    def plugins(self) -> Collection[PluginDefinitionT]:
-        """
-        The definitions of the required service plugins.
-        """
-        return self._plugins
-
-    async def __call__(self, services: ServiceLevel, /) -> GetServiceT:
-        """
-        Check the requirement.
-        """
-        extension = await self._extension(services)
-        assert extension
-        raise NotImplementedError
-
-
-class _ExtensionsServiceRequirementPlugins(Protocol):
-    def __call__(
-        self, *plugins: ResolvablePluginDefinition[ExtensionDefinition]
-    ) -> Requirements:
-        raise NotImplementedError
-
-
-@final
-class _ExtensionsServiceRequirementGetter(Singleton):
-    @overload
-    def __get__(self, instance: None, owner: type[ExtensionsService]) -> Self:
-        pass
-
-    @overload
-    def __get__(
-        self,
-        instance: ExtensionsService,
-        owner: type[ExtensionsService] | None = None,
-    ) -> _ExtensionsServiceRequirementPlugins:
-        pass
-
-    def __get__(self, instance, owner):
-        if instance is None:
-            return self
-        return partial(self._require, instance)
-
-    def _require(
-        self,
-        service: ExtensionsService,
-        *plugins: ResolvablePluginDefinition[ExtensionDefinition]
-        | PluginServiceRequirement,
-    ) -> Requirements:
-        raise NotImplementedError
-
-
-@final
-class ExtensionsService[
-    ServiceProviderT: Intersection[PluginServiceProvider, Extension],
-    PluginDefinitionT: PluginClsDefinition,
-    PluginT: Plugin,
-](PluginInstancesService[ServiceProviderT, PluginDefinitionT, PluginT]):
-    """
-    A service of extensions keyed by their IDs.
-    """
-
-    require: Final[_ExtensionsServiceRequirementGetter] = (
-        _ExtensionsServiceRequirementGetter()
-    )
-
-    def __init__(self):
-        super().__init__(ExtensionDefinition)

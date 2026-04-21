@@ -9,9 +9,6 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.content import Content, ContentManufacturer
 from betty.dirs import ROOT_DIRECTORY
 from betty.factory import Manufacturable
-from betty.plugins.extension.raspberry_mint import (
-    RaspberryMint as RaspberryMintExtension,
-)
 from betty.plugins.extension.raspberry_mint.region import ResolvableRegion
 from betty.project import Project
 from betty.webpack import WebpackEntryPoint, WebpackEntryPointDefinition
@@ -47,6 +44,10 @@ class RaspberryMint(Manufacturable, WebpackEntryPoint):
 
     @override
     async def cache_keys(self) -> Sequence[str]:
+        from betty.plugins.extension.raspberry_mint import (
+            RaspberryMint as RaspberryMintExtension,
+        )
+
         raspberry_mint = await self._project.extensions[RaspberryMintExtension]
         return (
             self._project.root_path,

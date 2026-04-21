@@ -41,7 +41,7 @@ type RegionalContentManufacturers = Mapping[
     requires={
         Project.assets.require(RASPBERRY_MINT),
         Project.extensions.require(
-            Webpack.entry_points.require(RaspberryMintWebpackEntryPoint)
+            Webpack.entry_points, RaspberryMintWebpackEntryPoint
         ),
     },
 )

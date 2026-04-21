@@ -4,7 +4,7 @@ Plugin service requirements.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, final
+from typing import TYPE_CHECKING, Any, final, overload
 
 from betty.locale.localizable.gettext import _
 from betty.plugin import PluginDefinition
@@ -16,7 +16,6 @@ if TYPE_CHECKING:
     from collections.abc import Collection
 
     from betty.service.plugin import PluginServiceManager, PluginServiceProvider
-    from betty.typing import Intersection
 
 
 @final
@@ -25,29 +24,49 @@ class PluginServiceRequirement[PluginDefinitionT: PluginDefinition, GetServiceT]
     A requirement on a plugin service.
     """
 
-    @final
+    @overload
     def __init__(
         self,
+        upstream: PluginServiceManager,
         service: PluginServiceManager[
-            Intersection[PluginServiceProvider, ServiceLevel],
-            PluginDefinitionT,
-            GetServiceT,
-            Any,
+            PluginServiceProvider, PluginDefinitionT, GetServiceT, Any
         ],
         /,
         *plugins: ResolvablePluginDefinition[PluginDefinitionT],
     ):
-        self._service = service
+        pass
+
+    @overload
+    def __init__(
+        self,
+        service: PluginServiceManager[
+            PluginServiceProvider, PluginDefinitionT, GetServiceT, Any
+        ],
+        /,
+        *plugins: ResolvablePluginDefinition[PluginDefinitionT],
+    ):
+        pass
+
+    def __init__(self, service, *downstream_and_plugins):
+        from betty.service.plugin import PluginServiceManager
+
+        if downstream_and_plugins and isinstance(
+            downstream_and_plugins[0], PluginServiceManager
+        ):
+            self._upstream = service
+            self._service = downstream_and_plugins[0]
+            plugins = downstream_and_plugins[1:]
+        else:
+            self._upstream = None
+            self._service = service
+            plugins = downstream_and_plugins
         self._plugins = tuple(map(resolve_plugin_definition, plugins))
 
     @property
     def service(
         self,
     ) -> PluginServiceManager[
-        Intersection[PluginServiceProvider, ServiceLevel],
-        PluginDefinitionT,
-        GetServiceT,
-        Any,
+        PluginServiceProvider, PluginDefinitionT, GetServiceT, Any
     ]:
         """
         The service for which the plugin is required.
@@ -65,6 +84,8 @@ class PluginServiceRequirement[PluginDefinitionT: PluginDefinition, GetServiceT]
         """
         Check the requirement.
         """
+        if self._upstream:
+            raise NotImplementedError
         if isinstance(services, self.service.owner):
             service_plugins = list(
                 map(
