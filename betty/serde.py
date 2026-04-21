@@ -16,7 +16,7 @@ from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Iterable
 
     from betty.locale.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
@@ -79,18 +79,22 @@ class SerializerDefinition(HumanFacingDefinition, PluginClsDefinition[Serializer
         requires: Requires = (),
     ):
         super().__init__(
-            plugin_id, label=label, description=description, requires=requires
+            plugin_id,
+            auto=True,
+            label=label,
+            description=description,
+            requires=requires,
         )
 
 
 def serializer_for(
-    available_serializers: Sequence[SerializerDefinition], extension: str, /
-) -> SerializerDefinition:
+    available_serializers: Iterable[Serializer], extension: str, /
+) -> Serializer:
     """
     Get the serializer for the given file extension.
     """
     for available_serializer in available_serializers:
-        if extension in available_serializer.cls.media_type().extensions:
+        if extension in available_serializer.media_type().extensions:
             return available_serializer
     raise SerializationError(
         _(
@@ -99,10 +103,11 @@ def serializer_for(
             unsupported_type=extension,
             available_types=AnyEnumeration(*[
                 Plain("{extension} ({available_type})").format(
-                    extension=extension, available_type=available_serializer.label
+                    extension=extension,
+                    available_type=available_serializer.plugin().label,
                 )
                 for available_serializer in available_serializers
-                for extension in available_serializer.cls.media_type().extensions
+                for extension in available_serializer.media_type().extensions
             ]),
         )
     )

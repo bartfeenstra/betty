@@ -4,7 +4,7 @@ The Betty Sphinx extension.
 
 from __future__ import annotations
 
-from asyncio import run
+from asyncio import gather, run
 from collections.abc import Callable, Iterable, Mapping, MutableSequence, Sequence
 from functools import cmp_to_key
 from textwrap import indent
@@ -15,6 +15,7 @@ from docutils import nodes
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.parsing import nested_parse_to_nodes
 
+from betty.app import App
 from betty.data import Data, OptionalDefinition
 from betty.data.aggregate.record import RecordDefinition
 from betty.definition.human_facing import HumanFacingDefinition
@@ -26,8 +27,7 @@ from betty.machine_name import MachineName
 from betty.plugin.cls import PluginClsDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.project import Project
-from betty.serde import SerializerDefinition
-from betty.universe import UNIVERSE
+from betty.service_level import ServiceLevel
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -61,23 +61,20 @@ async def _get_plugins() -> _Plugins:
         }
 
 
-def _cmp_formats(left: PluginDefinition, right: PluginDefinition) -> int:
-    if left.id == "yaml":
+def _cmp_formats(left: Serializer, right: Serializer) -> int:
+    if left.plugin().id == "yaml":
         return -1
-    if right.id == "yaml":
+    if right.plugin().id == "yaml":
         return 1
-    return -1 if left.id < right.id else 1
+    return -1 if left.plugin().id < right.plugin().id else 1
 
 
 async def _get_serializers() -> Sequence[Serializer]:
-    async with Project.new_isolated() as project:
-        return [
-            await project.factory.new(serializer.cls)  # ty:ignore[unresolved-attribute]
-            for serializer in sorted(
-                [x async for x in project.plugins[SerializerDefinition]],
-                key=cmp_to_key(_cmp_formats),
-            )
-        ]
+    async with App.new_isolated() as app:
+        return sorted(
+            await gather(*app.serializers),
+            key=cmp_to_key(_cmp_formats),
+        )
 
 
 def _build_definition_list(
@@ -211,7 +208,7 @@ class _PluginTypeDirective(SphinxDirective):
     def run(self) -> list[nodes.Node]:
         # Right-strip periods to avoid D400 and D415 violations.
         plugin_type_id = self.arguments[0].rstrip(".")
-        plugin_type = UNIVERSE.plugins[plugin_type_id].type
+        plugin_type = ServiceLevel().plugins[plugin_type_id].type
         plugins = _to_thread(lambda: run(_get_plugins()))
         return [
             self._build_summary(plugin_type),
@@ -293,7 +290,7 @@ class _PluginTypesDirective(SphinxDirective):
             _build_definition_list([
                 self._build_builtin_plugin_type_definition(plugin_type.type)
                 for plugin_type in sorted(
-                    UNIVERSE.plugins,
+                    ServiceLevel().plugins,
                     key=lambda plugin_type: plugin_type.type.type().label.localize(
                         DEFAULT_LOCALIZER
                     ),

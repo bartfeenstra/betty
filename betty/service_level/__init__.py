@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any
 
 from betty.collection.keyed.adapter import KeyedCollectionAdapter
 from betty.collection.keyed.error import ErroringKeyedCollection
+from betty.life_cycle.manage import ManagedLifeCycle
 from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
 from betty.plugin.resolve import resolve_plugin_type_id
@@ -31,17 +32,12 @@ else:
     type Plugins = Any
 
 
-class ServiceLevel(ServiceProvider):
+class ServiceLevel(ManagedLifeCycle, ServiceProvider):
     """
     A service level.
     """
 
-    def __init__(
-        self,
-        *args: Any,
-        plugins: Plugins | None = None,
-        **kwargs: Any,
-    ):
+    def __init__(self, *args: Any, plugins: Plugins | None = None, **kwargs: Any):
         from betty.factory import Factory
 
         super().__init__(*args, services=self, **kwargs)

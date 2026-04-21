@@ -9,11 +9,11 @@ import pytest
 from betty.importlib import fully_qualified_name
 from betty.plugin import PluginDefinition
 from betty.plugin.cls import PluginClsDefinition
+from betty.service_level import ServiceLevel
 from betty.test_utils.conftest import (
     IsolatedAppFactory,
     IsolatedProjectFactory,
 )
-from betty.universe import UNIVERSE
 
 
 class PluginDocumentationTestBase:
@@ -41,7 +41,7 @@ class PluginDocumentationTestBase:
             isolated_app_factory() as app,
             isolated_project_factory(app=app) as project,
         ):
-            for plugin_type in UNIVERSE.plugins:
+            for plugin_type in ServiceLevel().plugins:
                 with subtests.test():
                     self._test_plugin_type(plugin_type.type)
                 async for plugin in project.plugins[plugin_type.type]:

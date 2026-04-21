@@ -1,10 +1,11 @@
+from json import dumps
 from pathlib import Path
 
 from pytest_mock import MockerFixture
 
 from betty.app import App
 from betty.console import SystemExitCode
-from betty.portable.file import dump_file
+from betty.file import write
 from betty.project.data import ProjectConfiguration
 from betty.test_utils.console import run
 from betty.test_utils.serve import NoOpProjectServer
@@ -17,9 +18,9 @@ class TestServe:
         mocker.patch("asyncio.sleep", side_effect=KeyboardInterrupt)
         mocker.patch("betty.serve.BuiltinProjectServer", new=NoOpProjectServer)
         configuration = ProjectConfiguration(title="Betty", url="https://example.com")
-        await dump_file(
-            configuration.data().porter.dump(configuration),
+        await write(
             tmp_path / "betty.json",
+            dumps(configuration.data().porter.dump(configuration)),
         )
 
         await run(

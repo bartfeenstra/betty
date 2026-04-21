@@ -3,6 +3,8 @@ Project support for the Console.
 """
 
 import argparse
+from asyncio import gather
+from collections.abc import Iterable
 from contextlib import suppress
 from pathlib import Path
 from typing import Any
@@ -18,8 +20,7 @@ from betty.locale.localizable.markup import AnyEnumeration
 from betty.portable.file import assert_load_file
 from betty.project import Project
 from betty.project.data import ProjectConfiguration
-from betty.serde import SerializerDefinition
-from betty.universe import UNIVERSE
+from betty.serde import Serializer
 from betty.user import User
 
 
@@ -39,7 +40,7 @@ async def add_project_argument(
     """
     Add an argument to load a :py:class:`betty.project.Project` into a ``project`` keyword argument.
     """
-    localizer = await app.localizer
+    localizer, serializers = await gather(app.localizer, gather(*app.serializers))
     parser.add_argument(
         "-p",
         "--project",
@@ -47,7 +48,7 @@ async def add_project_argument(
         help=localizer._(
             "The path to a Betty project directory or configuration file. Defaults to {default} in the current working directory."
         ).format(
-            default=f"betty.{'|'.join([extension[1:] async for serializer in app.plugins[SerializerDefinition] for extension in serializer.cls.media_type().extensions])}"
+            default=f"betty.{'|'.join([extension[1:] for serializer in serializers for extension in serializer.media_type().extensions])}"
         ),
         type=assertion_to_argument_type(assert_path(), localizer=localizer),
     )
@@ -60,9 +61,7 @@ async def add_project_argument(
             (
                 configuration,
                 project_configuration_file_path,
-            ) = await _read_project_configuration(
-                project_configuration_file_path, app.user
-            )
+            ) = await _read_project_configuration(project_configuration_file_path, app)
         except ConfigurationFileNotFound:
             if required:
                 raise
@@ -77,19 +76,20 @@ async def add_project_argument(
 
 
 async def _read_project_configuration(
-    provided_configuration_file_path_str: Path | None, user: User
+    provided_configuration_file_path_str: Path | None, app: App
 ) -> tuple[ProjectConfiguration, Path]:
+    serializers = await gather(*app.serializers)
     project_directory_path = Path.cwd()
     if provided_configuration_file_path_str is None:
         try_configuration_file_paths = [
             project_directory_path / f"betty{extension}"
-            async for serializer in UNIVERSE.plugins[SerializerDefinition]
-            for extension in serializer.cls.media_type().extensions
+            for serializer in serializers
+            for extension in serializer.media_type().extensions
         ]
         for try_configuration_file_path in try_configuration_file_paths:
             with suppress(FileNotFound):
                 return await _read_project_configuration_file(
-                    try_configuration_file_path, user
+                    try_configuration_file_path, serializers, app.user
                 )
         raise ConfigurationFileNotFound(
             _(
@@ -108,14 +108,15 @@ async def _read_project_configuration(
         (project_directory_path / provided_configuration_file_path_str)
         .expanduser()
         .resolve(),
-        user,
+        serializers,
+        app.user,
     )
 
 
 async def _read_project_configuration_file(
-    configuration_file_path: Path, user: User
+    configuration_file_path: Path, serializers: Iterable[Serializer], user: User
 ) -> tuple[ProjectConfiguration, Path]:
-    assert_configuration = await assert_load_file()
+    assert_configuration = assert_load_file(serializers=serializers)
     try:
         portable = assert_configuration(configuration_file_path)
     except HumanFacingException as error:

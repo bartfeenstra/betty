@@ -1,5 +1,6 @@
 from __future__ import annotations  # noqa: D100
 
+from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.app import App
@@ -48,11 +49,13 @@ class Config(Manufacturable, Command):
         return self._command_function
 
     async def _command_function(self, *, locale: Locale) -> None:
-        localizers = await self._app.localizers
+        localizers, serializers = await gather(
+            self._app.localizers, gather(*self._app.serializers)
+        )
 
         if AppConfiguration.FILE.exists():
             updated_configuration = AppConfiguration.data().porter.load(
-                (await assert_load_file())(AppConfiguration.FILE)
+                assert_load_file(serializers=serializers)(AppConfiguration.FILE)
             )
         else:
             updated_configuration = AppConfiguration()
@@ -67,4 +70,5 @@ class Config(Manufacturable, Command):
         await dump_file(
             AppConfiguration.data().porter.dump(updated_configuration),
             AppConfiguration.FILE,
+            serializers=serializers,
         )

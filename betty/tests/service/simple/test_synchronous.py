@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from betty.service import Service, ServiceProvider
 from betty.service.simple import SynchronousServiceManager
-from betty.universe import UNIVERSE
+from betty.service_level import ServiceLevel
 
 
 class TestSynchronousServiceManager:
@@ -14,7 +14,7 @@ class TestSynchronousServiceManager:
                 Service(my_first_service_value)
             )
 
-        service_provider = Cls(services=UNIVERSE)
+        service_provider = Cls(services=ServiceLevel())
         assert service_provider.my_first_service is my_first_service_value
 
     def test_get__with_factory(self) -> None:
@@ -23,5 +23,5 @@ class TestSynchronousServiceManager:
         class Cls(ServiceProvider):
             my_first_service = SynchronousServiceManager(lambda _: my_first_service)
 
-        service_provider = Cls(services=UNIVERSE)
+        service_provider = Cls(services=ServiceLevel())
         assert service_provider.my_first_service is my_first_service

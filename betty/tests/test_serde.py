@@ -39,7 +39,8 @@ class SerializerTwo(_Serializer):
 
 
 def test_serializer_for__with_supported_type() -> None:
-    assert serializer_for([SerializerOne.plugin()], ".one") is SerializerOne.plugin()
+    serializer = SerializerOne()
+    assert serializer_for([serializer], ".one") is serializer
 
 
 def test_serializer_for_with_unsupported_type() -> None:

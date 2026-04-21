@@ -12,23 +12,21 @@ from betty.assertion import AssertionChain, assert_file_path
 from betty.data.indicator import Path as DataPath
 from betty.exception import reraise_with_indicator
 from betty.file import write
-from betty.serde import SerializerDefinition, serializer_for
-from betty.universe import UNIVERSE
+from betty.serde import Serializer, serializer_for
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
     from pathlib import Path
 
     from betty.portable import PortableData
 
 
-async def assert_load_file() -> AssertionChain[Path, PortableData]:
+def assert_load_file(
+    *, serializers: Iterable[Serializer]
+) -> AssertionChain[Path, PortableData]:
     """
     An assertion to load a dump from a file.
     """
-    available_formats = {
-        available_format: await UNIVERSE.factory.new(available_format.cls)
-        async for available_format in UNIVERSE.plugins[SerializerDefinition]
-    }
 
     def _assert(file_path: Path) -> PortableData:
         with (
@@ -39,24 +37,17 @@ async def assert_load_file() -> AssertionChain[Path, PortableData]:
         ):
             with open(file_path, encoding="utf-8") as f:
                 dump_data = f.read()
-            file_format = available_formats[
-                serializer_for(list(available_formats), file_path.suffix)
-            ]
-            return file_format.load(dump_data)
+            return serializer_for(serializers, file_path.suffix).load(dump_data)
 
     return assert_file_path() | _assert
 
 
-async def dump_file(portable: PortableData, file_path: Path, /) -> None:
+async def dump_file(
+    portable: PortableData, file_path: Path, *, serializers: Iterable[Serializer]
+) -> None:
     """
     Write a dump to a file.
     """
-    serializer = await UNIVERSE.factory.new(
-        serializer_for(
-            [plugin async for plugin in UNIVERSE.plugins[SerializerDefinition]],
-            file_path.suffix,
-        ).cls
-    )
-    dump_data = serializer.dump(portable)
+    dump_data = serializer_for(serializers, file_path.suffix).dump(portable)
     await to_thread(file_path.parent.mkdir, exist_ok=True, parents=True)
     await write(file_path, dump_data)

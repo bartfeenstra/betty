@@ -1,6 +1,7 @@
+from json import dumps
 from pathlib import Path
 
-from betty.portable.file import dump_file
+from betty.file import write
 from betty.project.data import ProjectConfiguration
 from betty.rich.user import RichUser
 from betty.test_utils.conftest import IsolatedAppFactory
@@ -20,8 +21,9 @@ class TestAbout:
             configuration = ProjectConfiguration(
                 title="Betty", url="https://example.com"
             )
-            await dump_file(
-                configuration.data().porter.dump(configuration), tmp_path / "betty.json"
+            await write(
+                tmp_path / "betty.json",
+                dumps(configuration.data().porter.dump(configuration)),
             )
             result = await run(app, "about", "--project", str(tmp_path / "betty.json"))
             assert "Betty" in result.stdout

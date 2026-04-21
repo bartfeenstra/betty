@@ -8,7 +8,6 @@ from babel import Locale
 from betty.app import App, AppConfiguration
 from betty.factory import Manufacturable
 from betty.test_utils.user import StaticUser
-from betty.universe import UNIVERSE
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -32,7 +31,7 @@ class _Manufacturable(Manufacturable):
 class TestApp:
     async def test_new(self) -> None:
         locale = Locale("nl", "NL")
-        async with await App.new(UNIVERSE, AppConfiguration(locale=locale)) as sut:
+        async with await App.new(AppConfiguration(locale=locale)) as sut:
             localizer = await sut.localizer
             assert localizer.locale == locale
 

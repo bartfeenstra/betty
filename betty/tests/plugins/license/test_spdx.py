@@ -17,9 +17,9 @@ from betty.plugins.license.spdx import (
     SpdxLicenseDiscoverer,
     spdx_license_id_to_license_id,
 )
+from betty.service_level import ServiceLevel
 from betty.test_utils.conftest import IsolatedAppFactory
 from betty.test_utils.user import StaticUser
-from betty.universe import UNIVERSE
 
 if TYPE_CHECKING:
     from betty.portable import PortableMapping
@@ -158,13 +158,14 @@ class TestSpdxLicenseDiscoverer:
     async def assert_with_licenses(
         self, licenses: Iterable[ResolvableDiscovery[LicenseDefinition]]
     ) -> None:
-        discovered_licenses = list(await discover(UNIVERSE, *licenses))
+        services = ServiceLevel()
+        discovered_licenses = list(await discover(services, *licenses))
         assert discovered_licenses
         zero_bsd_type = discovered_licenses[0]
         assert (
             zero_bsd_type.label.localize(DEFAULT_LOCALIZER) == "BSD Zero Clause License"
         )
-        zero_bsd = await UNIVERSE.factory.new(zero_bsd_type.cls)
+        zero_bsd = await services.factory.new(zero_bsd_type.cls)
         assert zero_bsd.summary.localize(DEFAULT_LOCALIZER) == "BSD Zero Clause License"
         assert (
             zero_bsd.text.localize(DEFAULT_LOCALIZER)
@@ -177,7 +178,7 @@ class TestSpdxLicenseDiscoverer:
     async def assert_without_licenses(
         self, licenses: Iterable[ResolvableDiscovery[LicenseDefinition]]
     ) -> None:
-        discovered_licenses = list(await discover(UNIVERSE, *licenses))
+        discovered_licenses = list(await discover(ServiceLevel(), *licenses))
         assert not discovered_licenses
 
     async def test_discover__without_licenses(

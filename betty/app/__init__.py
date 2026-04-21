@@ -2,25 +2,24 @@
 
 from __future__ import annotations
 
-from asyncio import to_thread
+from asyncio import gather, to_thread
 from concurrent import futures
 from contextlib import AsyncExitStack, asynccontextmanager
 from os import environ
 from pathlib import Path
 from shutil import rmtree
 from tempfile import mkdtemp
-from typing import TYPE_CHECKING, Any, Literal, Self, final, override
+from typing import TYPE_CHECKING, Any, Literal, Self, final
 
 from aiohttp_client_cache.backends.filesystem import FileBackend
 from aiohttp_client_cache.session import CachedSession
 
 from betty.app.data import AppConfiguration
-from betty.asset import AssetDefinition, AssetRepositoryService
+from betty.asset import AssetRepositoryService
 from betty.cache import Cache
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
 from betty.dirs import CACHE_DIRECTORY
-from betty.factory import DataManufacturable
 from betty.http_client import ClientErrorToUserMessageMiddleware
 from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
 from betty.life_cycle import Bootstrappable, Shutdownable
@@ -33,16 +32,15 @@ from betty.locale.translation import (
 )
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.portable.file import assert_load_file
+from betty.serde import SerializerDefinition
 from betty.service import Service
-from betty.service.plugin import PluginServiceProvider, SupportedPlugins
-from betty.service.plugin.definition.collection.keyed import (
-    PluginDefinitionsService,
-)
+from betty.service.plugin import PluginServiceProvider
+from betty.service.plugin.definition.collection.keyed import PluginDefinitionsService
+from betty.service.plugin.instance.collection.keyed import PluginInstancesService
 from betty.service.simple import service
-from betty.service_level import DownstreamServiceLevel, Plugins, ServiceLevel
+from betty.service_level import ServiceLevel
 from betty.service_level.requirement import RequirableServiceLevel
 from betty.typing import threadsafe
-from betty.universe import UNIVERSE
 from betty.user.no_op import NoOpUser
 
 if TYPE_CHECKING:
@@ -50,22 +48,24 @@ if TYPE_CHECKING:
 
     import aiohttp
 
+    from betty.asset import AssetDefinition
     from betty.plugin import PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.plugin.resolve import ResolvablePluginDefinition
+    from betty.service.plugin import SupportedPlugins
     from betty.service.simple.asynchronous import TypedAsynchronousServiceOrFactory
     from betty.service.simple.synchronous import TypedSynchronousServiceOrFactory
+    from betty.service_level import Plugins
     from betty.user import User
+
+
+class _AppBootstrapServiceLevel(ServiceLevel, PluginServiceProvider):
+    serializers = PluginInstancesService(SerializerDefinition)
 
 
 @final
 @threadsafe
-class App(
-    DataManufacturable[AppConfiguration],
-    DownstreamServiceLevel,
-    RequirableServiceLevel,
-    PluginServiceProvider,
-):
+class App(RequirableServiceLevel, PluginServiceProvider):
     """
     The Betty application.
 
@@ -79,6 +79,7 @@ class App(
 
     assets = AssetRepositoryService()
     rate_limits = PluginDefinitionsService(RateLimitDefinition)
+    serializers = PluginInstancesService(SerializerDefinition)
 
     def __init__(
         self,
@@ -91,6 +92,7 @@ class App(
         process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
         | None = None,
         rate_limits: Iterable[RateLimitDefinition] = (),
+        serializers: Iterable[ResolvablePluginDefinition[SerializerDefinition]] = (),
         supported_plugins: SupportedPlugins = (),
         translations: TypedAsynchronousServiceOrFactory[App, TranslationRepository]
         | None = None,
@@ -117,11 +119,10 @@ class App(
             cls.cache.override(
                 self, Service(cache) if isinstance(cache, Cache) else cache
             )
-        super().__init__(
-            plugins=plugins, supported_plugins=supported_plugins, upstream=UNIVERSE
-        )
+        super().__init__(plugins=plugins, supported_plugins=supported_plugins)
         cls.assets.add_init_plugins(self, *assets)
         cls.rate_limits.add_init_plugins(self, *rate_limits)
+        cls.serializers.add_init_plugins(self, *serializers)
         self.life_cycle.on_bootstrap(self._bootstrap_localizer)
         self._locale = DEFAULT_LOCALE if locale is None else resolve_locale(locale)
         if user is None:
@@ -138,14 +139,11 @@ class App(
     async def _bootstrap_localizer(self) -> None:
         self._user.localizer = await self.localizer
 
-    @override
     @classmethod
-    def new_data_cls(cls) -> type[AppConfiguration]:
-        return AppConfiguration
-
-    @override
-    @classmethod
-    async def new(cls, services: ServiceLevel, data: AppConfiguration, /) -> Self:
+    async def new(cls, data: AppConfiguration, /) -> Self:
+        """
+        Create a new instance.
+        """
         return cls(locale=data.locale)
 
     @classmethod
@@ -155,10 +153,13 @@ class App(
         Create a new application from the environment.
         """
         if AppConfiguration.FILE.exists():
-            configuration = AppConfiguration.data().porter.load(
-                (await assert_load_file())(AppConfiguration.FILE)
-            )
-            app = await cls.new(UNIVERSE, configuration)
+            async with _AppBootstrapServiceLevel() as services:
+                data = AppConfiguration.data().porter.load(
+                    assert_load_file(serializers=await gather(*services.serializers))(
+                        AppConfiguration.FILE
+                    )
+                )
+            app = await cls.new(data)
         else:
             app = cls()
         async with app:
