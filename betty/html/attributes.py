@@ -287,8 +287,7 @@ class Attributes:
     html_controls = _BooleanAttribute("controls")
     html_coords = _StringAttribute("coords")
     html_crossorigin = _StringAttribute("crossorigin")
-    # "csp" is not yet documented by MDN.
-    # html_csp = ...
+    # @todo "csp" is not yet documented by MDN.
     html_data = _StringAttribute("data")
     html_datetime = _StringAttribute("datetime")
     html_decoding = _StringAttribute("decoding")
@@ -302,8 +301,7 @@ class Attributes:
     html_enctype = _StringAttribute("enctype")
     html_enterkeyhint = _StringAttribute("enterkeyhint")
     html_for = _StringAttribute("for")
-    # "form" is not yet documented by MDN.
-    # html_form = ...
+    # @todo "form" is not yet documented by MDN.
     html_formaction = _StringAttribute("formaction")
     html_formenctype = _StringAttribute("formenctype")
     html_formmethod = _StringAttribute("formmethod")
