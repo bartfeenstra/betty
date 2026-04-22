@@ -75,12 +75,13 @@ class SerializerDefinition(HumanFacingDefinition, PluginClsDefinition[Serializer
         plugin_id: ResolvableMachineName,
         *,
         label: ResolvableLocalizable,
+        auto: bool = True,
         description: ResolvableLocalizable | None = None,
         requires: Requires = (),
     ):
         super().__init__(
             plugin_id,
-            auto=True,
+            auto=auto,
             label=label,
             description=description,
             requires=requires,

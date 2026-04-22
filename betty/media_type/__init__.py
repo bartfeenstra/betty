@@ -209,7 +209,7 @@ class MediaTypeDefinition(HumanFacingDefinition, OrderedPluginDefinition):
         description: ResolvableLocalizable | None = None,
         media_type: MediaType,
         after: Order[MediaTypeDefinition] = (),
-        auto: bool = False,
+        auto: bool = True,
         before: Order[MediaTypeDefinition] = (),
     ):
         super().__init__(

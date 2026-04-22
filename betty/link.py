@@ -57,11 +57,12 @@ class LinkDefinition(OrderedPluginDefinition):
         plugin_id: ResolvableMachineName,
         *,
         after: Order[LinkDefinition] = (),
+        auto: bool = False,
         before: Order[LinkDefinition] = (),
         link: Link,
         primary: bool = False,
     ):
-        super().__init__(plugin_id, before=before, after=after)
+        super().__init__(plugin_id, before=before, after=after, auto=auto)
         self._link = link
         self._primary = primary
 
