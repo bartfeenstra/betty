@@ -23,7 +23,7 @@ class Demo(Manufacturable, Command):
     .. plugin:: command:demo.
     """
 
-    def __init__(self, app: App):
+    def __init__(self, app: App, /):
         self._app = app
 
     @override
@@ -48,7 +48,7 @@ class Demo(Manufacturable, Command):
         from betty.demo.serve import DemoServer
 
         if path is None:
-            async with DemoServer(app=self._app) as server:
+            async with DemoServer(self._app) as server:
                 await server.show()
                 await self._wait_forever()
         else:

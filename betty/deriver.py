@@ -61,8 +61,7 @@ class Deriver:
     Derive information from ancestries, and create new entities or update existing ones.
     """
 
-    def __init__(self, project: Project):
-        super().__init__()
+    def __init__(self, project: Project, /):
         self._project = project
 
     async def derive(self) -> None:

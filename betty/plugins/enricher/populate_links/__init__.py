@@ -34,7 +34,7 @@ class PopulateLinks(Enricher, Manufacturable):
         return cls(project)
 
     @override
-    async def enrich(self, scheduler: Scheduler) -> None:
+    async def enrich(self, scheduler: Scheduler, /) -> None:
         http_client, localizers = await gather(
             self._project.upstream.http_client, self._project.public_localizers
         )

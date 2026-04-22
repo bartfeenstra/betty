@@ -68,7 +68,7 @@ class Wiki(Enricher, DataManufacturable[WikiConfiguration], Manufacturable):
         )
 
     @override
-    async def enrich(self, scheduler: Scheduler) -> None:
+    async def enrich(self, scheduler: Scheduler, /) -> None:
         await scheduler.add(
             *(
                 PopulateEntity(entity, project=self._project)

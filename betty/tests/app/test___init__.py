@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 class _Manufacturable(Manufacturable):
-    def __init__(self, app: App):
+    def __init__(self, app: App, /):
         self.app = app
 
     @override
