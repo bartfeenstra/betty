@@ -101,6 +101,7 @@ betty = 'betty.console:main_standalone'
 'renderer' = 'betty.render:RendererDefinition'
 'role' = 'betty.role:RoleDefinition'
 'serializer' = 'betty.serde:SerializerDefinition'
+'server' = 'betty.server:ServerDefinition'
 
 [project.entry-points.'betty.asset']
 'htt-api-doc' = 'betty.plugins.asset.http_api_doc:HTTP_API_DOC'
@@ -302,6 +303,9 @@ betty = 'betty.console:main_standalone'
 [project.entry-points.'betty.serializer']
 'json' = 'betty.plugins.serializer.json:Json'
 'yaml' = 'betty.plugins.serializer.yaml:Yaml'
+
+[project.entry-points.'betty.server']
+'builtin' = 'betty.plugins.server.builtin:Builtin'
 
 [project.entry-points.'betty.renderer']
 'html' = 'betty.plugins.renderer.html:Html'

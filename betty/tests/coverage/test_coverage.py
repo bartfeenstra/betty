@@ -1100,6 +1100,14 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "plugin": MissingReason.INHERITED,
         },
     },
+    "betty/plugins/server/builtin.py": {
+        "Builtin": {
+            "plugin": MissingReason.INHERITED,
+            "public_url": MissingReason.COVERED_ELSEWHERE,
+            "start": MissingReason.COVERED_ELSEWHERE,
+            "stop": MissingReason.COVERED_ELSEWHERE,
+        },
+    },
     "betty/portable/__init__.py": {
         "Portable": MissingReason.ABSTRACT,
         "Porter": MissingReason.ABSTRACT,
@@ -1184,20 +1192,16 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "SerializerDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "SerializationError": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/serve.py": {
-        "ProjectServer": MissingReason.SHOULD_BE_COVERED,
-        "BuiltinProjectServer": {
-            "public_url": MissingReason.COVERED_ELSEWHERE,
-            "stop": MissingReason.COVERED_ELSEWHERE,
-        },
+    "betty/server/__init__.py": {
+        "Server": MissingReason.ABSTRACT,
+        "ServerDefinition": MissingReason.STATIC_CONTENT_ONLY,
+        "ServerNotStarted": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/server/builtin.py": {
         "BuiltinServer": {
             "public_url": MissingReason.COVERED_ELSEWHERE,
             "stop": MissingReason.COVERED_ELSEWHERE,
         },
-        "NoPublicUrlBecauseServerNotStartedError": MissingReason.SHOULD_BE_COVERED,
-        "OsError": MissingReason.STATIC_CONTENT_ONLY,
-        "Server": MissingReason.ABSTRACT,
-        "ServerNotStartedError": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/sphinx/extension/betty.py": MissingReason.COVERED_ELSEWHERE,
     "betty/subprocess.py": {

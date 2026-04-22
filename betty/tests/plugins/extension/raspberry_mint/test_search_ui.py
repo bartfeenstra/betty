@@ -3,13 +3,13 @@ from collections.abc import AsyncIterator
 import pytest
 from playwright.async_api import Page, expect
 
-from betty import serve
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.person_name import PersonName
 from betty.plugins.extension.raspberry_mint import RaspberryMint
+from betty.plugins.server import builtin
 from betty.project import Project
 from betty.project.generate import generate
-from betty.serve import Server
+from betty.server import Server
 from betty.tests.conftest import (
     check_skip_playwright,
     check_skip_webpack_entry_point_provider,
@@ -27,7 +27,7 @@ class TestSearchUi:
         async with Project.new_isolated(extensions=[RaspberryMint]) as project:
             project.ancestry[Person].add(person)
             await generate(project)
-            async with await serve.BuiltinProjectServer.new(project) as server:
+            async with await builtin.Builtin.new(project) as server:
                 yield project, server
 
     @pytest.mark.asyncio(loop_scope="session")

@@ -80,6 +80,7 @@ if TYPE_CHECKING:
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.plugin.resolve import ResolvablePluginDefinition, ResolvablePluginId
     from betty.portable import PortableData, PortableMapping
+    from betty.server import ServerDefinition
     from betty.service.plugin import SupportedPlugins
     from betty.service.plugin.instance import ServicePluginInstances
     from betty.service.simple.asynchronous import TypedAsynchronousServiceOrFactory
@@ -222,6 +223,7 @@ class IsolatedProjectFactory(Protocol):
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
         ]
         | None = None,
+        servers: ServicePluginInstances[ServerDefinition] = (),
         supported_plugins: SupportedPlugins = (),
         title: ResolvableLocalizable | None = None,
         url: str | None = None,
@@ -260,6 +262,7 @@ def isolated_project_factory(isolated_app: App) -> IsolatedProjectFactory:
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
         ]
         | None = None,
+        servers: ServicePluginInstances[ServerDefinition] = (),
         supported_plugins: SupportedPlugins = (),
         title: ResolvableLocalizable | None = None,
         url: str | None = None,
@@ -282,6 +285,7 @@ def isolated_project_factory(isolated_app: App) -> IsolatedProjectFactory:
             logo=logo,
             name=name,
             plugins=plugins,
+            servers=servers,
             supported_plugins=supported_plugins,
             title=title,
             url=url,

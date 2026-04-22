@@ -56,6 +56,7 @@ from betty.plugins.entity.person import Person
 from betty.privacy.privatizer import Privatizer
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.sample import Sample, Size
+from betty.server import ServerDefinition
 from betty.service.plugin import PluginServiceProvider
 from betty.service.plugin.definition.collection.keyed import PluginDefinitionsService
 from betty.service.plugin.instance.collection.keyed import PluginInstancesService
@@ -123,6 +124,7 @@ class Project(
     links = PluginDefinitionsService(LinkDefinition)
     loaders = PluginInstancesService(LoaderDefinition)
     renderers = PluginInstancesService(RendererDefinition)
+    servers = PluginInstancesService(ServerDefinition)
 
     def __init__(
         self,
@@ -154,6 +156,7 @@ class Project(
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
         ]
         | None = None,
+        servers: ServicePluginInstances[ServerDefinition] = (),
         supported_plugins: SupportedPlugins = (),
         _plugin_discoveries: Iterable[PluginDefinition] = (),
     ):
@@ -171,6 +174,7 @@ class Project(
         cls.license.add_init_plugins(self, license or AllRightsReserved)
         cls.links.add_init_plugins(self, *links)
         cls.loaders.add_init_plugins(self, *loaders)
+        cls.servers.add_init_plugins(self, *servers)
         self._ancestry = EntityPool() if ancestry is None else ancestry
         self._author = None if author is None else resolve_localizable(author)
         self._clean_urls = clean_urls
@@ -281,6 +285,7 @@ class Project(
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
         ]
         | None = None,
+        servers: ServicePluginInstances[ServerDefinition] = (),
         supported_plugins: SupportedPlugins = (),
         title: ResolvableLocalizable | None = None,
         url: str | None = None,
@@ -319,6 +324,7 @@ class Project(
                 logo=logo,
                 name=name,
                 plugins=plugins,
+                servers=servers,
                 supported_plugins=supported_plugins,
                 title=title or "Betty",
                 url=url or "https://example.com",

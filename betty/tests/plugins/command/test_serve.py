@@ -8,15 +8,19 @@ from betty.console import SystemExitCode
 from betty.file import write
 from betty.project.data import ProjectConfiguration
 from betty.test_utils.console import run
-from betty.test_utils.serve import NoOpProjectServer
+from betty.test_utils.server import NoOpServer
 
 
 class TestServe:
-    async def test_configure(
+    async def test_configure__with_default_server(
         self, mocker: MockerFixture, isolated_app: App, tmp_path: Path
     ) -> None:
-        mocker.patch("asyncio.sleep", side_effect=KeyboardInterrupt)
-        mocker.patch("betty.serve.BuiltinProjectServer", new=NoOpProjectServer)
+        mocker.patch(
+            "betty.plugins.command.serve:Serve._wait_forever",
+            side_effect=KeyboardInterrupt,
+        )
+        mocker.patch("betty.plugins.server.builtin.Builtin.show")
+        mocker.patch("betty.server.builtin.BuiltinServer", new=NoOpServer)
         configuration = ProjectConfiguration(title="Betty", url="https://example.com")
         await write(
             tmp_path / "betty.json",
@@ -28,5 +32,30 @@ class TestServe:
             "serve",
             "--project",
             str(tmp_path / "betty.json"),
+            expected_exit_code=SystemExitCode.USER_QUIT,
+        )
+
+    async def test_configure__with_explicit_server(
+        self, mocker: MockerFixture, isolated_app: App, tmp_path: Path
+    ) -> None:
+        mocker.patch(
+            "betty.plugins.command.serve:Serve._wait_forever",
+            side_effect=KeyboardInterrupt,
+        )
+        mocker.patch("betty.plugins.server.builtin.Builtin.show")
+        mocker.patch("betty.server.builtin.BuiltinServer", new=NoOpServer)
+        configuration = ProjectConfiguration(title="Betty", url="https://example.com")
+        await write(
+            tmp_path / "betty.json",
+            dumps(configuration.data().porter.dump(configuration)),
+        )
+
+        await run(
+            isolated_app,
+            "serve",
+            "--project",
+            str(tmp_path / "betty.json"),
+            "--server",
+            "builtin",
             expected_exit_code=SystemExitCode.USER_QUIT,
         )

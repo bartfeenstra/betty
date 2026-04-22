@@ -3,11 +3,11 @@ from collections.abc import AsyncIterator
 import pytest
 from playwright.async_api import Page, expect
 
-from betty import serve
 from betty.plugins.extension.http_api_doc import HttpApiDoc
+from betty.plugins.server import builtin
 from betty.project import Project
 from betty.project.generate import generate
-from betty.serve import Server
+from betty.server import Server
 from betty.tests.conftest import (
     check_skip_playwright,
     check_skip_webpack_entry_point_provider,
@@ -19,7 +19,7 @@ class TestSwaggerUi:
     async def served_project(self) -> AsyncIterator[tuple[Project, Server]]:
         async with Project.new_isolated(extensions=[HttpApiDoc]) as project:
             await generate(project)
-            async with await serve.BuiltinProjectServer.new(project) as server:
+            async with await builtin.Builtin.new(project) as server:
                 yield project, server
 
     @pytest.mark.asyncio(loop_scope="session")

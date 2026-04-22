@@ -7,12 +7,12 @@ from __future__ import annotations
 from contextlib import AsyncExitStack
 from typing import TYPE_CHECKING, final, override
 
-from betty import serve
 from betty.demo.generate import generate_with_cleanup
 from betty.demo.project import create_project
 from betty.job import Context
 from betty.locale.localizable.gettext import _
-from betty.serve import NoPublicUrlBecauseServerNotStartedError, Server
+from betty.plugins.server import builtin
+from betty.server import Server, ServerNotStarted
 
 if TYPE_CHECKING:
     from betty.app import App
@@ -35,7 +35,7 @@ class DemoServer(Server):
     def public_url(self) -> str:
         if self._server is not None:
             return self._server.public_url
-        raise NoPublicUrlBecauseServerNotStartedError()
+        raise ServerNotStarted
 
     @override
     async def start(self) -> None:
@@ -48,7 +48,7 @@ class DemoServer(Server):
                 _("Generating site...")
             ) as progress:
                 await generate_with_cleanup(project, context=Context(progress=progress))
-            self._server = await serve.BuiltinProjectServer.new(project)
+            self._server = await builtin.Builtin.new(project)
             await self._exit_stack.enter_async_context(self._server)
         except BaseException:
             # __aexit__() is not called when __aenter__() raises an exception, so ensure we clean up our resources.

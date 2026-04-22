@@ -46,5 +46,8 @@ class Docs(Manufacturable, Command):
         )
         async with server:
             await server.show()
-            while True:
-                await asyncio.sleep(999)
+            await self._wait_forever()
+
+    async def _wait_forever(self) -> None:
+        while True:
+            await asyncio.sleep(999)
