@@ -8,6 +8,7 @@ from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.console.project import add_project_argument
 from betty.factory import Manufacturable
 from betty.locale.localizable.gettext import _
+from betty.machine_name import MachineName
 
 if TYPE_CHECKING:
     import argparse
@@ -26,7 +27,7 @@ class Serve(Manufacturable, Command):
     .. plugin:: command:serve.
     """
 
-    def __init__(self, app: App):
+    def __init__(self, app: App, /):
         self._app = app
 
     @override
@@ -37,15 +38,28 @@ class Serve(Manufacturable, Command):
 
     @override
     async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
+        localizer = await self._app.localizer
+        parser.add_argument(
+            "-s",
+            "--server",
+            dest="server_id",
+            help=localizer._("The web server to use."),
+            type=MachineName.machinify,
+        )
         return await add_project_argument(parser, self._command_function, self._app)
 
-    async def _command_function(self, project: Project) -> None:
-        from betty import serve
+    async def _command_function(
+        self, project: Project, server_id: MachineName | None
+    ) -> None:
+        async with project:
+            if server_id is None:
+                server = await next(iter(project.servers))
+            else:
+                server = await project.servers[server_id]
+            async with server:
+                await server.show()
+                await self._wait_forever()
 
-        async with (
-            project,
-            await serve.BuiltinProjectServer.new(project) as server,
-        ):
-            await server.show()
-            while True:
-                await asyncio.sleep(999)
+    async def _wait_forever(self) -> None:
+        while True:
+            await asyncio.sleep(999)

@@ -50,8 +50,7 @@ class Demo(Manufacturable, Command):
         if path is None:
             async with DemoServer(app=self._app) as server:
                 await server.show()
-                while True:
-                    await asyncio.sleep(999)
+                await self._wait_forever()
         else:
             project = await create_project(self._app, Path(path), url=url)
             async with (
@@ -62,3 +61,7 @@ class Demo(Manufacturable, Command):
             ):
                 context = Context(progress=progress)
                 await generate.generate_with_cleanup(project, context=context)
+
+    async def _wait_forever(self) -> None:
+        while True:
+            await asyncio.sleep(999)

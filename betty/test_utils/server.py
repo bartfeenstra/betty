@@ -1,13 +1,14 @@
 """
-Test utilities for :py:mod:`betty.serve`.
+Test utilities for :py:mod:`betty.server`.
 """
 
-from typing import Any, override
+from typing import Any, final, override
 
-from betty.serve import ProjectServer, Server
+from betty.server import Server
 from betty.test_utils.user import StaticUser
 
 
+@final
 class NoOpServer(Server):
     """
     A server that does nothing.
@@ -23,18 +24,12 @@ class NoOpServer(Server):
 
     @override
     async def start(self) -> None:
-        return
+        pass
 
     @override
     async def stop(self) -> None:
-        return
+        pass
 
     @override
     async def show(self) -> None:
-        return
-
-
-class NoOpProjectServer(ProjectServer, NoOpServer):
-    """
-    A project server that does nothing.
-    """
+        pass

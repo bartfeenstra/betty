@@ -7,7 +7,7 @@ from betty.app import App
 from betty.console import SystemExitCode
 from betty.project import Project
 from betty.test_utils.console import run
-from betty.test_utils.serve import NoOpServer
+from betty.test_utils.server import NoOpServer
 
 
 @pytest.mark.usefixtures("demo_project_aioresponses")
@@ -15,7 +15,10 @@ class TestDemo:
     async def test_configure__minimal(
         self, mocker: MockerFixture, isolated_app: App
     ) -> None:
-        mocker.patch("asyncio.sleep", side_effect=KeyboardInterrupt)
+        mocker.patch(
+            "betty.plugins.command.demo:Demo._wait_forever",
+            side_effect=KeyboardInterrupt,
+        )
         mocker.patch("betty.demo.serve.DemoServer", new=NoOpServer)
 
         await run(isolated_app, "demo", expected_exit_code=SystemExitCode.USER_QUIT)

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-21 21:49+0100\n"
+"POT-Creation-Date: 2026-04-22 22:54+0100\n"
 "PO-Revision-Date: 2026-02-17 19:37+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -351,6 +351,9 @@ msgstr "Gebouw"
 
 msgid "Buildings"
 msgstr "Gebouwen"
+
+msgid "Built-in"
+msgstr ""
 
 msgid "Burial"
 msgstr "Begravenis"
@@ -1600,6 +1603,17 @@ msgstr "Serialiseerders"
 msgid "Serve a generated site"
 msgstr "Serveer een gegenereerde site"
 
+msgid ""
+"Serve your site using Python's built-in web server. This is for local use"
+" only, and unsafe for publishing your site."
+msgstr ""
+
+msgid "Server"
+msgstr ""
+
+msgid "Servers"
+msgstr ""
+
 #, python-brace-format
 msgid "Serving your site at {url}..."
 msgstr "Je site op {url} aan het serveren..."
@@ -1807,6 +1821,9 @@ msgstr ""
 msgid ""
 "The values of the following HTML attributes will automatically be "
 "replaced with the URLs generated from them where possible: {attributes}"
+msgstr ""
+
+msgid "The web server to use."
 msgstr ""
 
 #, python-brace-format
@@ -2715,6 +2732,12 @@ msgid "{count} serializer"
 msgid_plural "{count} serializers"
 msgstr[0] "{count} serialiseerder"
 msgstr[1] "{count} serialiseerders"
+
+#, python-brace-format
+msgid "{count} server"
+msgid_plural "{count} servers"
+msgstr[0] ""
+msgstr[1] ""
 
 #, python-brace-format
 msgid "{count} source"

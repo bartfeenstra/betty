@@ -12,10 +12,9 @@ from typing import final, override
 from sphinx.application import Sphinx
 from sphinx.ext.autodoc import MethodDocumenter
 
-from betty import serve
 from betty.dirs import ROOT_DIRECTORY
 from betty.exception import HumanFacingException
-from betty.serve import NoPublicUrlBecauseServerNotStartedError, Server
+from betty.server import Server, ServerNotStarted, builtin
 from betty.user import User, Verbosity
 
 
@@ -79,7 +78,7 @@ class DocumentationServer(Server):
     def public_url(self) -> str:
         if self._server is not None:
             return self._server.public_url
-        raise NoPublicUrlBecauseServerNotStartedError()
+        raise ServerNotStarted
 
     @override
     async def start(self) -> None:
@@ -87,7 +86,7 @@ class DocumentationServer(Server):
         await _ensure_www_directory(
             www_directory_path, self._cache_directory_path / "cache", user=self._user
         )
-        self._server = serve.BuiltinServer(www_directory_path, user=self._user)
+        self._server = builtin.BuiltinServer(www_directory_path, user=self._user)
         await self._exit_stack.enter_async_context(self._server)
 
     @override

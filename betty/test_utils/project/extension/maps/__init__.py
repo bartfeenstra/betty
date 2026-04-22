@@ -11,15 +11,16 @@ import pytest
 from geopy import Point
 from playwright.async_api import Page, expect
 
-from betty import serve
+from betty import server as server
 from betty.plugins.entity.place_name import PlaceName
 from betty.extension import ExtensionDefinition, ExtensionManufacturer
 from betty.plugin.resolve import ResolvablePluginId
 from betty.plugins.entity.place import Place
 from betty.plugins.extension.maps import Maps
+from betty.plugins.server import builtin
 from betty.project import Project
 from betty.project.generate import generate
-from betty.serve import Server
+from betty.server import Server
 from betty.tests.conftest import (
     check_skip_playwright,
     check_skip_webpack_entry_point_provider,
@@ -67,7 +68,7 @@ class MapsTestBase:
                 project.assets_directory,
             )
             await generate(project)
-            async with await serve.BuiltinProjectServer.new(project) as server:
+            async with await builtin.Builtin.new(project) as server:
                 yield server
 
     @pytest.mark.asyncio(loop_scope="session")
