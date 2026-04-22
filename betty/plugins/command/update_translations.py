@@ -74,5 +74,5 @@ class UpdateTranslations(Manufacturable, Command):
         self, output: AssetDefinition, inputs: tuple[Path], excludes: tuple[Path]
     ) -> None:
         await translation.update_translations(
-            output, inputs, excludes, user=self._app.user
+            output.assets, inputs, excludes, user=self._app.user
         )

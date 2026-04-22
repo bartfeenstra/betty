@@ -147,16 +147,12 @@ async def new_translation(
 
 
 async def update_translations(
-    output: AssetDefinition,
-    inputs: Iterable[Path],
-    excludes: Iterable[Path],
-    *,
-    user: User,
+    output: Path, inputs: Iterable[Path], excludes: Iterable[Path], user: User
 ) -> None:
     """
     Update translations.
     """
-    await _update_translations(output.assets, _find_source_files(inputs, excludes))
+    await _update_translations(output, _find_source_files(inputs, excludes))
 
 
 def _find_source_files(
