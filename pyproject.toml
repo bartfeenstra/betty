@@ -392,10 +392,7 @@ betty = [
 
     # Assets.
     '../assets/**/*',
-    '../assets/public/localized/.error/*',
-
-    # JSON Schemas.
-    'json/schemas/*',
+    '../assets/universe/public/localized/.error/*',
 
     # JavaScript
     '../js/*',
