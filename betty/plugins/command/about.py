@@ -34,7 +34,7 @@ class About(Manufacturable, Command):
 
     _KEY_STYLE = "cyan"
 
-    def __init__(self, app: App):
+    def __init__(self, app: App, /):
         self._app = app
 
     @override

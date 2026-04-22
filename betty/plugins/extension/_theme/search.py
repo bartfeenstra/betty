@@ -84,7 +84,7 @@ _EntityTypeIndexerEntityT = TypeVar(
 
 
 class EntityTypeIndexer[EntityTypeIndexerEntityT: Entity = Entity]:
-    def __init__(self, project: Project):
+    def __init__(self, project: Project, /):
         self._project = project
 
     async def text(

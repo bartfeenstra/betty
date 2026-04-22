@@ -35,7 +35,7 @@ class Loader(ABC, Plugin["LoaderDefinition"]):
     """
 
     @abstractmethod
-    async def load(self, scheduler: Scheduler) -> None:
+    async def load(self, scheduler: Scheduler, /) -> None:
         """
         Load ancestry data.
         """
@@ -89,7 +89,7 @@ class Enricher(ABC, Plugin["EnricherDefinition"]):
     """
 
     @abstractmethod
-    async def enrich(self, scheduler: Scheduler) -> None:
+    async def enrich(self, scheduler: Scheduler, /) -> None:
         """
         Enrich ancestry data.
         """

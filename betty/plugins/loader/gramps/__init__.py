@@ -340,7 +340,7 @@ class Gramps(DataManufacturable[GrampsConfiguration], Manufacturable, Loader):
         )
 
     @override
-    async def load(self, scheduler: Scheduler) -> None:
+    async def load(self, scheduler: Scheduler, /) -> None:
         for family_tree in self._family_trees:
             await scheduler.add(
                 LoadAncestry(

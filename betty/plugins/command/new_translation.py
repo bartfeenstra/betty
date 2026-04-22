@@ -25,7 +25,7 @@ class NewTranslation(Manufacturable, Command):
     .. plugin:: command:new-translation.
     """
 
-    def __init__(self, app: App):
+    def __init__(self, app: App, /):
         self._app = app
 
     @override

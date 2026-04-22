@@ -26,7 +26,7 @@ class Config(Manufacturable, Command):
     .. plugin:: command:config.
     """
 
-    def __init__(self, app: App):
+    def __init__(self, app: App, /):
         self._app = app
 
     @override

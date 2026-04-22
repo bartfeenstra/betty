@@ -36,7 +36,7 @@ class Demo(Manufacturable, Loader):
         return cls(project=project)
 
     @override
-    async def load(self, scheduler: Scheduler) -> None:
+    async def load(self, scheduler: Scheduler, /) -> None:
         licenses = self._project.plugins[LicenseDefinition]
         await scheduler.add(
             LoadAncestry(

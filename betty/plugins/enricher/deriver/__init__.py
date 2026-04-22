@@ -49,5 +49,5 @@ class Deriver(Enricher, Manufacturable):
         return cls(project=project)
 
     @override
-    async def enrich(self, scheduler: Scheduler) -> None:
+    async def enrich(self, scheduler: Scheduler, /) -> None:
         await scheduler.add(DeriveAncestry(project=self._project))

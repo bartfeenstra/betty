@@ -24,7 +24,7 @@ class DemoServer(Server):
     Serve the Betty demonstration site.
     """
 
-    def __init__(self, app: App):
+    def __init__(self, app: App, /):
         super().__init__(user=app.user)
         self._app = app
         self._server: Server | None = None

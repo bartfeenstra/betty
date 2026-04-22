@@ -22,7 +22,7 @@ class Generate(Manufacturable, Command):
     .. plugin:: command:generate.
     """
 
-    def __init__(self, app: App):
+    def __init__(self, app: App, /):
         self._app = app
 
     @override

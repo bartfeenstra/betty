@@ -16,7 +16,7 @@ class Specification:
     Build OpenAPI specifications.
     """
 
-    def __init__(self, project: Project):
+    def __init__(self, project: Project, /):
         self._project = project
 
     async def build(self) -> PortableMapping:

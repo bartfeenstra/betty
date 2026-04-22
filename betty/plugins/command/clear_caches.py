@@ -26,7 +26,7 @@ class ClearCaches(Manufacturable, Command):
     .. plugin:: command:clear-caches.
     """
 
-    def __init__(self, app: App):
+    def __init__(self, app: App, /):
         self._app = app
 
     @override
