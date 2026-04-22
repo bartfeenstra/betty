@@ -47,11 +47,16 @@ class ExtensionDefinition(HumanFacingDefinition, PluginClsDefinition[Extension])
         plugin_id: ResolvableMachineName,
         *,
         label: ResolvableLocalizable,
+        auto: bool = False,
         description: ResolvableLocalizable | None = None,
         requires: Requires = (),
     ):
         super().__init__(
-            plugin_id, label=label, description=description, requires=requires
+            plugin_id,
+            auto=auto,
+            label=label,
+            description=description,
+            requires=requires,
         )
 
 

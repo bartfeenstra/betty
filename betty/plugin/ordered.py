@@ -28,11 +28,12 @@ class OrderedPluginDefinition(PluginDefinition):
         plugin_id: ResolvableMachineName,
         *,
         after: Order[OrderedPluginDefinition] = (),
+        auto: bool = False,
         before: Order[OrderedPluginDefinition] = (),
         requires: Requires = (),
         **kwargs: Any,
     ):
-        super().__init__(plugin_id, requires=requires, **kwargs)
+        super().__init__(plugin_id, auto=auto, requires=requires, **kwargs)
         self._after = self.__resolve_order(after)
         self._before = self.__resolve_order(before)
 

@@ -92,12 +92,13 @@ class RateLimitDefinition(OrderedPluginDefinition):
         *,
         limit: tuple[int, int],
         match: str | re.Pattern,
+        auto: bool = True,
         after: Order[RateLimitDefinition] = (),
         before: Order[RateLimitDefinition] = (),
         requires: Requires = (),
     ):
         super().__init__(
-            plugin_id, after=after, auto=True, before=before, requires=requires
+            plugin_id, after=after, auto=auto, before=before, requires=requires
         )
         self._limit = limit
         self._match = match
