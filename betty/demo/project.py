@@ -13,7 +13,6 @@ from betty.license import LicenseManufacturer
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Chain
-from betty.locale.localize import LocalizerRepository
 from betty.plugins.content.raspberry_mint_columns import Columns, ColumnsConfiguration
 from betty.plugins.content.raspberry_mint_entity_card import EntityCard
 from betty.plugins.content.raspberry_mint_incomplete_translation_warning import (
@@ -34,7 +33,6 @@ from betty.plugins.extension.raspberry_mint import (
     RaspberryMintConfiguration,
     Region,
 )
-from betty.plugins.extension.raspberry_mint.default import regional_content
 from betty.plugins.extension.spdx import Spdx
 from betty.plugins.extension.trees import Trees
 from betty.plugins.link.betty_documentation import BETTY_DOCUMENTATION
@@ -55,8 +53,6 @@ async def create_project(
     Create a new demonstration project.
     """
     translations = await app.translations
-    localizer_repository = LocalizerRepository(translations)
-    localizers = [localizer_repository.get(locale) for locale in translations.locales]
 
     return Project(
         app=app,
@@ -75,7 +71,6 @@ async def create_project(
                 RaspberryMint,
                 RaspberryMintConfiguration(
                     regional_content={
-                        **regional_content(localizers=localizers),
                         Region.FRONT_PAGE_CONTENT: [
                             ContentManufacturer(
                                 Columns,

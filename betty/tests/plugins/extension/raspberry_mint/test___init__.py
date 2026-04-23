@@ -68,36 +68,27 @@ class TestRaspberryMint:
         ):
             assert sut.tertiary_color == expected
 
-    async def test_regional_content__without_regions(
+    async def test_regional_content__with_defaults(
         self, isolated_project: Project
     ) -> None:
-        async with (
-            RaspberryMint(project=isolated_project) as sut,
-        ):
-            assert await sut.regional_content == {}
+        async with RaspberryMint(project=isolated_project) as sut:
+            assert (await sut.regional_content)[Region.ENTITY_PAGE_CONTENT]
 
     async def test_regional_content__with_region_without_content(
         self, isolated_project: Project
     ) -> None:
-        async with (
-            RaspberryMint(
-                project=isolated_project,
-                regional_content={Region.FRONT_PAGE_CONTENT: []},
-            ) as sut,
-        ):
-            assert await sut.regional_content == {Region.FRONT_PAGE_CONTENT.value: []}
+        async with RaspberryMint(
+            project=isolated_project, regional_content={Region.FRONT_PAGE_CONTENT: []}
+        ) as sut:
+            assert (await sut.regional_content)[Region.FRONT_PAGE_CONTENT] == []
 
     async def test_regional_content__with_region_with_content(
         self, isolated_project: Project
     ) -> None:
-        async with (
-            RaspberryMint(
-                project=isolated_project,
-                regional_content={
-                    Region.FRONT_PAGE_CONTENT: [ContentManufacturer(Static)]
-                },
-            ) as sut,
-        ):
+        async with RaspberryMint(
+            project=isolated_project,
+            regional_content={Region.FRONT_PAGE_CONTENT: [ContentManufacturer(Static)]},
+        ) as sut:
             assert isinstance(
                 (await sut.regional_content)[Region.FRONT_PAGE_CONTENT.value][0], Static
             )

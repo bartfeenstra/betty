@@ -9,16 +9,18 @@ from collections import defaultdict
 from enum import Enum
 from typing import TYPE_CHECKING, Final, Self, final, override
 
-from betty.content import Content, ContentManufacturer
+from betty.collection.mapping import ResolvedMapping
+from betty.collection.mapping.adapter import ResolvedMappingAdapter
+from betty.content import Content, ContentDefinition, ContentManufacturer
 from betty.dirs import DATA_DIRECTORY as DATA_DIRECTORY
 from betty.dirs import WEBPACK_ENTRY_POINT_DIRECTORY
 from betty.extension import ExtensionDefinition
 from betty.factory import DataManufacturable, Manufacturable
-from betty.plugins.asset_directory.raspberry_mint import (
-    RASPBERRY_MINT as RaspberryMintAsset,
-)
+from betty.plugin.factory import ResolvablePluginManufacturer
+from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.extension.raspberry_mint.data import RaspberryMintConfiguration
-from betty.plugins.extension.raspberry_mint.region import Region, ResolvableRegion
+from betty.plugins.extension.raspberry_mint.region import Region as Region
+from betty.plugins.extension.raspberry_mint.region import ResolvableRegion
 from betty.plugins.extension.webpack import Webpack
 from betty.plugins.extension.webpack.build import EntryPointProvider
 from betty.project import Project
@@ -33,9 +35,9 @@ if TYPE_CHECKING:
 
     from betty.job.scheduler import Scheduler
 
-type RegionalContent = Mapping[str, Sequence[Content]]
+type RegionalContent = ResolvedMapping[str, ResolvableRegion, Sequence[Content]]
 type RegionalContentManufacturers = Mapping[
-    ResolvableRegion, Iterable[ContentManufacturer]
+    ResolvableRegion, Iterable[ResolvablePluginManufacturer[ContentDefinition, Content]]
 ]
 
 
@@ -44,7 +46,7 @@ type RegionalContentManufacturers = Mapping[
     "raspberry-mint",
     label="Raspberry Mint",
     requires={
-        Project.asset_directories.require(RaspberryMintAsset),
+        Project.asset_directories.require(RASPBERRY_MINT),
         Project.extensions.require(Webpack),
     },
 )
@@ -96,14 +98,8 @@ class RaspberryMint(
         self._primary_color = (
             self.DEFAULT_PRIMARY_COLOR if primary_color is None else primary_color
         )
-        self._regional_content_manufacturers = defaultdict(
-            tuple,
-            {}
-            if regional_content is None
-            else {
-                Region.resolve(region): tuple(content)
-                for region, content in regional_content.items()
-            },
+        self._regional_content_manufacturers: RegionalContentManufacturers = (
+            regional_content or {}
         )
         self._secondary_color = (
             self.DEFAULT_SECONDARY_COLOR if secondary_color is None else secondary_color
@@ -169,23 +165,33 @@ class RaspberryMint(
         """
         The regional content.
         """
-        return dict(
-            zip(
-                self._regional_content_manufacturers.keys(),
-                await gather(*[
-                    gather(
-                        *map(
-                            self._project.factory.new,
-                            map(
-                                ContentManufacturer.resolve,
-                                region_content,
-                            ),
+        from betty.plugins.extension.raspberry_mint._default import (
+            DefaultRegionalContent,
+        )
+
+        async with DefaultRegionalContent(self._project) as content:
+            regional_content_manufacturers = {
+                **await content.get(),
+                **self._regional_content_manufacturers,
+            }
+        return ResolvedMappingAdapter(
+            defaultdict(
+                tuple,
+                zip(
+                    map(Region.resolve, regional_content_manufacturers),
+                    await gather(*[
+                        gather(
+                            *map(
+                                self._project.factory.new,
+                                map(ContentManufacturer.resolve, region_content),
+                            )
                         )
-                    )
-                    for region_content in self._regional_content_manufacturers.values()
-                ]),
-                strict=False,
-            )
+                        for region_content in regional_content_manufacturers.values()
+                    ]),
+                    strict=False,
+                ),
+            ),
+            key_resolver=Region.resolve,
         )
 
     @property

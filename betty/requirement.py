@@ -5,6 +5,7 @@ Requirements checking.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from asyncio import gather
 from functools import partial
 from typing import TYPE_CHECKING, Any, Concatenate, Self, final, overload, override
 
@@ -89,3 +90,16 @@ class _RequirableDecorator[CheckT, **P, ReturnT]:
         return await resolve_await(
             self._decorated(await self._check(services), *args, **kwargs)
         )
+
+
+async def check(services: ServiceLevel, *requirements: Requirement) -> bool:
+    """
+    Check if one or more requirements are met.
+    """
+    try:
+        await gather(*[
+            resolve_await(requirement(services)) for requirement in requirements
+        ])
+    except UnmetRequirement:
+        return False
+    return True

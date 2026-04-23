@@ -14,8 +14,18 @@ from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
 from betty.machine_name import MachineName
+from betty.plugins.enricher.deriver import Deriver
+from betty.plugins.enricher.privatizer import Privatizer
+from betty.plugins.enricher.wiki import Wiki as WikiEnricher
+from betty.plugins.extension.http_api_doc import HttpApiDoc
+from betty.plugins.extension.maps import Maps
+from betty.plugins.extension.raspberry_mint import RaspberryMint
+from betty.plugins.extension.trees import Trees
+from betty.plugins.extension.webpack import Webpack
+from betty.plugins.extension.wiki import Wiki as WikiExtension
 from betty.plugins.loader.gramps import FamilyTree, Gramps, GrampsConfiguration
-from betty.project.new import new, new_default_configuration
+from betty.project.data import ProjectConfiguration
+from betty.project.new import new
 from betty.typing import Void
 
 if TYPE_CHECKING:
@@ -52,9 +62,7 @@ class New(Manufacturable, Command):
         localizers, translations, serializers = await gather(
             self._app.localizers, self._app.translations, gather(*self._app.serializers)
         )
-        configuration = new_default_configuration(
-            localizers=tuple(map(localizers.get, translations.locales))
-        )
+        configuration = _new_default_configuration()
 
         configuration_file = await self._app.user.ask_input(
             _("Where do you want to save your project's configuration file?"),
@@ -142,4 +150,25 @@ async def _user_input_static_translations(
             )
             for locale in locales
         }  # ty:ignore[invalid-argument-type]
+    )
+
+
+def _new_default_configuration() -> ProjectConfiguration:
+    return ProjectConfiguration(
+        enrichers=[
+            Deriver,
+            Privatizer,
+            WikiEnricher,
+        ],
+        extensions=[
+            HttpApiDoc,
+            Maps,
+            RaspberryMint,
+            Trees,
+            # Enable the Webpack extension explicitly for the test's mock to work.
+            Webpack,
+            WikiExtension,
+        ],
+        title="Betty",
+        url="https://example.com",
     )

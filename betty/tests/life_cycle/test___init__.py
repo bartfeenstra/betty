@@ -50,6 +50,10 @@ class TestBootstrappable:
         with pytest.raises(AlreadyBootstrapped):
             await sut.bootstrap()
 
+    async def test___aenter__(self) -> None:
+        async with Bootstrappable() as sut:
+            assert sut.bootstrapped
+
 
 class TestShutdownable:
     async def test___del__(self) -> None:
@@ -94,6 +98,11 @@ class TestShutdownable:
         await sut.shutdown()
         with pytest.raises(AlreadyShutDown):
             sut.assert_not_shut_down()
+
+    async def test___aexit__(self) -> None:
+        async with Shutdownable() as sut:
+            pass
+        assert sut.shut_down
 
 
 class TestLifeCycle:

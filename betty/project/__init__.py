@@ -69,7 +69,7 @@ from betty.service_level import DownstreamServiceLevel
 from betty.service_level.requirement import RequirableServiceLevel
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Collection, Iterable, Mapping
+    from collections.abc import AsyncIterator, Iterable, Mapping, Sequence
     from pathlib import Path
 
     from betty.asset import AssetDirectoryDefinition
@@ -524,7 +524,7 @@ class Project(
         return LocalizerRepository(await self.translations)
 
     @service
-    async def public_localizers(self) -> Collection[Localizer]:
+    async def public_localizers(self) -> Sequence[Localizer]:
         """
         The public localizers.
         """
