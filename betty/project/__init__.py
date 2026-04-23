@@ -670,7 +670,11 @@ class ProjectLocale(Data["ObjectDefinition"]):
         return self._locale
 
     @property
-    @AttrDefinition(StrDefinition(label=_("Alias")))
+    @AttrDefinition(
+        StrDefinition(label=_("Alias")),
+        omit_load=True,
+        omit_dump=lambda data: data is None,
+    )
     def alias(self) -> str | None:
         """
         A shorthand alias to use instead of the full language tag, such as when rendering URLs.
