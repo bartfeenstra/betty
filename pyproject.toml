@@ -405,7 +405,7 @@ betty = [
     # Webpack.
     '../.browserslistrc',
     '../tsconfig.json',
-    'project/extension/*/webpack/**/*',
+    'plugins/extension/*/webpack/**/*',
 ]
 
 [tool.setuptools.exclude-package-data]
