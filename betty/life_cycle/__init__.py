@@ -36,7 +36,20 @@ class AlreadyShutDown(AlreadyBootstrapped):
     """
 
 
-class Bootstrappable:
+class _LifeCycleContextManager:
+    async def __aenter__(self) -> Self:
+        return self
+
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
+        pass
+
+
+class Bootstrappable(_LifeCycleContextManager):
     """
     An object that can be bootstrapped.
     """
@@ -76,8 +89,13 @@ class Bootstrappable:
         self.assert_not_bootstrapped()
         self.__bootstrapped = True
 
+    @final
+    async def __aenter__(self) -> Self:
+        await self.bootstrap()
+        return self
 
-class Shutdownable:
+
+class Shutdownable(_LifeCycleContextManager):
     """
     An object that can be shut down.
     """
@@ -111,6 +129,15 @@ class Shutdownable:
         self.assert_not_shut_down()
         self.__shut_down = True
 
+    @final
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
+        await self.shutdown(wait=exc_val is None)
+
     def __del__(self) -> None:
         if not self.__shut_down:
             warn(f"{self} was never shut down.", stacklevel=2)
@@ -136,20 +163,6 @@ class LifeCycle(Bootstrappable, Shutdownable):
         """
         self.assert_bootstrapped()
         self.assert_not_shut_down()
-
-    @final
-    async def __aenter__(self) -> Self:
-        await self.bootstrap()
-        return self
-
-    @final
-    async def __aexit__(
-        self,
-        exc_type: type[BaseException] | None,
-        exc_val: BaseException | None,
-        exc_tb: TracebackType | None,
-    ) -> None:
-        await self.shutdown(wait=exc_val is None)
 
     def __del__(self) -> None:
         if self.alive:

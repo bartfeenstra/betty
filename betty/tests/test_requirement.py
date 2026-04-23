@@ -7,6 +7,7 @@ import pytest
 from betty.requirement import (
     RequirableDecorator,
     UnmetRequirement,
+    check,
 )
 from betty.service_level import (
     DownstreamServiceLevel,
@@ -59,3 +60,18 @@ class TestRequirableDecorator:
         assert await self._RequirableDecorator()(
             lambda services_pair: (services_pair, services_pair)
         )(services) == ((services, services), (services, services))
+
+
+async def test_check__without_requirements() -> None:
+    assert await check(ServiceLevel())
+
+
+async def test_check__with_unmet() -> None:
+    def _requirement(services: ServiceLevel, /) -> None:
+        raise UnmetRequirement("")
+
+    assert not await check(ServiceLevel(), _requirement)
+
+
+async def test_check__with_met() -> None:
+    assert await check(ServiceLevel(), lambda _: None)
