@@ -15,6 +15,7 @@ from betty.file import write
 from betty.plugins.entity.file import File
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
+from betty.plugins.media_type.html import HTML
 from betty.privacy import is_private
 
 if TYPE_CHECKING:
@@ -218,6 +219,7 @@ class Index:
             "search/result.html.j2",
         ]).render_async(
             document=await self._project.new_document(
+                HTML,
                 context=self._context,
                 localizer=self._localizer,
             ),

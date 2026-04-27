@@ -558,6 +558,7 @@ class _GenerateEntityTypeHtml(Job):
                 self._entity_type,
                 context=context,
                 localizer=localizers.get(self._locale),
+                media_type=HTML,
             ),
             page=self._page,
             per_page=self._per_page,
@@ -700,6 +701,7 @@ class _GenerateEntityHtml(Job):
                 entity,
                 context=context,
                 localizer=localizers.get(self._locale),
+                media_type=HTML,
             )
         )
         await _create_html_resource(entity_path, rendered_html)

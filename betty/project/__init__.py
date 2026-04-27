@@ -77,6 +77,7 @@ if TYPE_CHECKING:
     from betty.entity import EntityDefinition
     from betty.jinja import Environment
     from betty.locale.localizable import Localizable, ResolvableLocalizable
+    from betty.media_type import ResolvableMediaType
     from betty.pathlib import StrPath
     from betty.plugin import PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
@@ -573,7 +574,10 @@ class Project(
         self,
         resource: object = None,
         resource_url: object = None,
-        **kwargs: object,
+        /,
+        *,
+        media_type: ResolvableMediaType | None = None,
+        **document_vars: Any,
     ) -> Document:
         """
         Create a new document.
@@ -581,12 +585,13 @@ class Project(
         return Document(
             resource,
             resource_url,
+            media_type=media_type,
             **{
                 key: value
                 for document_provider in await gather(*self.document_providers)
                 for (key, value) in document_provider.new_document_vars().items()
             },
-            **kwargs,
+            **document_vars,
         )
 
     @service
