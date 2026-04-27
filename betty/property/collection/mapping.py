@@ -5,7 +5,7 @@ Mapping properties.
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping, MutableMapping
-from typing import TYPE_CHECKING, Any, override
+from typing import TYPE_CHECKING, Any, final, override
 
 from betty.property import Property
 
@@ -48,13 +48,17 @@ class MappingProperty[MutableMappingT: MutableMapping[Any, Any], ValueSetT](
         )
         self._default_values = default
 
+    @final
     def _new_default(self) -> MutableMappingT:
         new = self._data.new()
         new.update(self._default_values())
         return new
 
+    @final
     @override
-    def set(self, instance: Any, value: ValueSetT | MutableMappingT) -> MutableMappingT:
+    def set(
+        self, instance: Any, value: ValueSetT | MutableMappingT, /
+    ) -> MutableMappingT:
         data = self.get(instance)
         data.clear()
         data.update(self._resolver(value))

@@ -5,7 +5,7 @@ Sequence properties.
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable, MutableSequence
-from typing import TYPE_CHECKING, Any, override
+from typing import TYPE_CHECKING, Any, final, override
 
 from betty.functools import passthrough
 from betty.property import Property
@@ -53,14 +53,16 @@ class SequenceProperty[MutableSequenceT: MutableSequence[Any], ValueSetT](
         self._values_resolver = resolver
         self._default_values = default
 
+    @final
     def _new_default(self) -> MutableSequenceT:
         new = self._data.new()
         new.extend(self._values_resolver(self._default_values()))
         return new
 
+    @final
     @override
     def set(
-        self, instance: Any, value: ValueSetT | MutableSequenceT
+        self, instance: Any, value: ValueSetT | MutableSequenceT, /
     ) -> MutableSequenceT:
         data = self.get(instance)
         data.clear()
