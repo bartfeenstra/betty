@@ -47,7 +47,7 @@ from betty.exception import do_raise
 from betty.json.schema import Schema
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.plugins.license.spdx import SpdxLicenseDiscoverer
-from betty.project import Project, ProjectEntityType, ProjectLocale
+from betty.project import Project, ProjectLocale
 from betty.user import Verbosity
 
 if TYPE_CHECKING:
@@ -209,10 +209,9 @@ class IsolatedProjectFactory(Protocol):
         debug: bool = False,
         directory: Path | None = None,
         enrichers: ServicePluginInstances[EnricherDefinition] = (),
-        entity_types: Iterable[
-            ProjectEntityType | ResolvablePluginId[EntityDefinition]
-        ] = (),
         extensions: ServicePluginInstances[ExtensionDefinition] = (),
+        generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]]
+        | None = None,
         lifetime_threshold: int | None = None,
         links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
         loaders: ServicePluginInstances[LoaderDefinition] = (),
@@ -248,10 +247,9 @@ def isolated_project_factory(isolated_app: App) -> IsolatedProjectFactory:
         debug: bool = False,
         directory: Path | None = None,
         enrichers: ServicePluginInstances[EnricherDefinition] = (),
-        entity_types: Iterable[
-            ProjectEntityType | ResolvablePluginId[EntityDefinition]
-        ] = (),
         extensions: ServicePluginInstances[ExtensionDefinition] = (),
+        generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]]
+        | None = None,
         lifetime_threshold: int | None = None,
         links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
         loaders: ServicePluginInstances[LoaderDefinition] = (),
@@ -276,8 +274,8 @@ def isolated_project_factory(isolated_app: App) -> IsolatedProjectFactory:
             debug=debug,
             directory=directory,
             enrichers=enrichers,
-            entity_types=entity_types,
             extensions=extensions,
+            generate_entity_list_html=generate_entity_list_html,
             lifetime_threshold=lifetime_threshold,
             links=links,
             loaders=loaders,

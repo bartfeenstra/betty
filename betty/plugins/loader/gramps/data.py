@@ -49,6 +49,8 @@ if TYPE_CHECKING:
 class _PluginMappingProperty[PluginDefinitionT: PluginDefinition, PluginT: Plugin](
     MappingProperty[
         MutableMapping[str, PluginManufacturer[PluginDefinitionT, PluginT]],
+        str,
+        PluginManufacturer[PluginDefinitionT, PluginT],
         Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]],
     ]
 ):

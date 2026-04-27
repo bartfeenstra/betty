@@ -9,7 +9,7 @@ from asyncio import gather, to_thread
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, TypeVar, final, override
 
-from betty.entity import Entity, EntityDefinition
+from betty.entity import Entity
 from betty.entity.has_notes import HasNotes
 from betty.file import write
 from betty.plugins.entity.file import File
@@ -166,7 +166,6 @@ class Index:
         """
         Build the search index.
         """
-        entity_types = self._project.plugins[EntityDefinition]
         specialized_indexers: Mapping[type[Entity], EntityTypeIndexer[Entity]] = {
             File: _FileIndexer(self._project),
             Person: _PersonIndexer(self._project),
@@ -183,7 +182,7 @@ class Index:
                     self._build_entities(
                         _FallbackIndexer(self._project), entity_type.cls
                     )
-                    async for entity_type in entity_types
+                    for entity_type in self._project.upstream.entity_types
                     if entity_type.public_facing
                     and entity_type.cls not in specialized_indexers
                 ],

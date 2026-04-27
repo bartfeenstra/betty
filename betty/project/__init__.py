@@ -25,7 +25,6 @@ from betty.collection.keyed.adapter import KeyedCollectionAdapter
 from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.data import Data
 from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
-from betty.data.bool import BoolDefinition
 from betty.data.str import StrDefinition
 from betty.document import Document, DocumentProviderDefinition
 from betty.entity.collection.pool import EntityPool
@@ -52,7 +51,6 @@ from betty.locale.localize import Localizer, LocalizerRepository
 from betty.locale.translation import AssetTranslationRepository, TranslationRepository
 from betty.machine_name import MachineName, ResolvableMachineName
 from betty.plugin.resolve import ResolvablePluginDefinition, resolve_plugin_id
-from betty.plugins.entity.person import Person
 from betty.privacy.privatizer import Privatizer
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.sample import Sample, Size
@@ -141,10 +139,9 @@ class Project(
         | None = None,
         debug: bool = False,
         enrichers: ServicePluginInstances[EnricherDefinition] = (),
-        entity_types: Iterable[
-            ProjectEntityType | ResolvablePluginId[EntityDefinition]
-        ] = (),
         extensions: ServicePluginInstances[ExtensionDefinition] = (),
+        generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]]
+        | None = None,
         license: ServicePluginInstance[LicenseDefinition] | None = None,  # noqa: A002
         lifetime_threshold: int | None = None,
         links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
@@ -180,18 +177,7 @@ class Project(
         self._clean_urls = clean_urls
         self._debug = debug
         self._directory = directory
-        self._entity_types = KeyedCollectionAdapter(
-            {
-                project_entity_type.entity_type: project_entity_type
-                for entity_type in entity_types
-                if (
-                    project_entity_type := entity_type
-                    if isinstance(entity_type, ProjectEntityType)
-                    else ProjectEntityType(entity_type=entity_type)
-                )
-            },
-            key_resolver=resolve_plugin_id,
-        )
+        self._generate_entity_list_html = generate_entity_list_html
         self._lifetime_threshold = lifetime_threshold or DEFAULT_LIFETIME_THRESHOLD
         self._locales = KeyedCollectionAdapter(
             {
@@ -271,9 +257,8 @@ class Project(
         debug: bool = False,
         directory: Path | None = None,
         enrichers: ServicePluginInstances[EnricherDefinition] = (),
-        entity_types: Iterable[
-            ProjectEntityType | ResolvablePluginId[EntityDefinition]
-        ] = (),
+        generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]]
+        | None = None,
         extensions: ServicePluginInstances[ExtensionDefinition] = (),
         lifetime_threshold: int | None = None,
         links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
@@ -315,8 +300,8 @@ class Project(
                 clean_urls=clean_urls,
                 debug=debug,
                 enrichers=enrichers,
-                entity_types=entity_types,
                 extensions=extensions,
+                generate_entity_list_html=generate_entity_list_html,
                 lifetime_threshold=lifetime_threshold,
                 links=links,
                 loaders=loaders,
@@ -427,14 +412,30 @@ class Project(
         """
         return self._debug
 
-    @property
-    def entity_types(
+    @service
+    async def generate_entity_list_html(
         self,
-    ) -> KeyedCollection[MachineName, ResolvablePluginId, ProjectEntityType]:
+    ) -> KeyedCollection[
+        MachineName, ResolvablePluginId[EntityDefinition], EntityDefinition
+    ]:
         """
-        The available entity types.
+        Which entity types to generate list HTML pages for.
         """
-        return self._entity_types
+        if self._generate_entity_list_html is None:
+            entity_types = [
+                entity_type
+                for entity_type in self.upstream.entity_types
+                if entity_type.public_facing
+            ]
+        else:
+            entity_types = [
+                self.upstream.entity_types[entity_type]
+                for entity_type in self._generate_entity_list_html
+            ]
+        return KeyedCollectionAdapter(
+            {entity_type.id: entity_type for entity_type in entity_types},
+            key_resolver=resolve_plugin_id,
+        )
 
     @property
     def root_path(self) -> str:
@@ -573,63 +574,6 @@ class Project(
             },
             **kwargs,
         )
-
-
-@final
-@ObjectDefinition(
-    label=_("Entity type configuration"),
-    samples=[
-        lambda: Sample(
-            ProjectEntityType(entity_type=Person),
-            label="Minimal",
-            size=Size.MINIMAL,
-        ),
-        lambda: Sample(
-            ProjectEntityType(entity_type=Person, generate_html_list=False),
-            label="Full",
-            size=Size.FULL,
-        ),
-    ],
-)
-class ProjectEntityType(Data[ObjectDefinition["ProjectEntityType"]]):
-    """
-    Configure a single entity type for a project.
-
-    .. data:: betty.project:ProjectEntityType
-    """
-
-    def __init__(
-        self,
-        *,
-        entity_type: ResolvablePluginId[EntityDefinition],
-        generate_html_list: bool = True,
-    ):
-        self._entity_type = resolve_plugin_id(entity_type)
-        self.generate_html_list = generate_html_list
-
-    @property
-    @AttrDefinition(MachineName)
-    def entity_type(self) -> MachineName:
-        """
-        The ID of the configured entity type.
-        """
-        return self._entity_type
-
-    @property
-    @AttrDefinition(
-        BoolDefinition(label=_("Generate list HTML page")),
-        omit_load=True,
-        omit_dump=lambda data: data is True,
-    )
-    def generate_html_list(self) -> bool:
-        """
-        Whether to generate listing web pages for entities of this type.
-        """
-        return self._generate_html_list
-
-    @generate_html_list.setter
-    def generate_html_list(self, generate_html_list: bool) -> None:
-        self._generate_html_list = generate_html_list
 
 
 @final

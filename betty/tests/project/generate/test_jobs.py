@@ -19,7 +19,7 @@ from betty.plugins.entity.presence import Presence
 from betty.plugins.entity.source import Source
 from betty.plugins.role.unknown import Unknown as UnknownRole
 from betty.privacy import Privacy
-from betty.project import Project, ProjectEntityType, ProjectLocale
+from betty.project import Project, ProjectLocale
 from betty.project.generate.jobs import (
     GenerateEntitiesHtml,
     GenerateEntitiesJson,
@@ -57,9 +57,7 @@ class TestGenerateEntityTypesHtml:
         isolated_project_factory: IsolatedProjectFactory,
     ) -> None:
         async with isolated_project_factory(
-            entity_types=[
-                ProjectEntityType(entity_type=entity_type, generate_html_list=True)
-            ],
+            generate_entity_list_html=[entity_type]
         ) as project:
             await do(GenerateEntityTypesHtml(project=project))
 
@@ -69,9 +67,7 @@ class TestGenerateEntityTypesHtml:
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         async with isolated_project_factory(
-            entity_types=[
-                ProjectEntityType(entity_type=Place, generate_html_list=True)
-            ],
+            generate_entity_list_html=[Place],
         ) as project:
             place_one = Place(id="P1")
             place_two = Place(id="P2")

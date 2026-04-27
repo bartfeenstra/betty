@@ -68,7 +68,7 @@ class KeyedCollectionProperty[
     @final
     @override
     def set(
-        self, instance: Any, value: Iterable[ValueSetT] | MutableKeyedCollectionT, /
+        self, instance: Any, value: Iterable[ValueSetT], /
     ) -> MutableKeyedCollectionT:
         data = self.get(instance)
         data.clear()

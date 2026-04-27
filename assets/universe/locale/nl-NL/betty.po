@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-22 22:54+0100\n"
+"POT-Creation-Date: 2026-04-27 18:23+0100\n"
 "PO-Revision-Date: 2026-02-17 19:37+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -750,11 +750,8 @@ msgstr "Entiteitsverwijzing"
 msgid "Entity type"
 msgstr "Entiteitstype"
 
-msgid "Entity type configuration"
-msgstr "Entiteitstypeconfiguratie"
-
-msgid "Entity types"
-msgstr "Entiteitstypes"
+msgid "Entity types to generate list HTML pages for"
+msgstr ""
 
 msgid "Event"
 msgstr "Gebeurtenis"
@@ -868,9 +865,6 @@ msgstr "Genders"
 
 msgid "Generate a static site"
 msgstr "Genereer een statische site"
-
-msgid "Generate list HTML page"
-msgstr ""
 
 msgid "Generating site..."
 msgstr "Site genereren..."

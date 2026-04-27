@@ -63,7 +63,7 @@ class _Property[ValueGetT, ValueSetT](Attr[ValueGetT], ABC):
         Get the property value from the instance.
         """
 
-    def set(self, instance: Any, value: ValueSetT | ValueGetT, /) -> ValueGetT:
+    def set(self, instance: Any, value: ValueSetT, /) -> ValueGetT:
         """
         Set the value on the instance.
         """
@@ -85,7 +85,7 @@ class Property[ValueGetT, ValueSetT](_Property[ValueGetT, ValueSetT]):
         description: ResolvableLocalizable | None = None,
         omit_load: bool | None = None,
         omit_dump: Callable[[ValueGetT], bool] | None = None,
-        resolver: Callable[[ValueSetT | ValueGetT], ValueGetT] = passthrough,
+        resolver: Callable[[ValueSetT], ValueGetT] = passthrough,
         default: Callable[[], ValueGetT] | None = None,
     ):
         super().__init__(
@@ -165,7 +165,7 @@ class Optional[ValueGetT, ValueSetT](_Property[ValueGetT | None, ValueSetT | Non
             return self.set(instance, None)
 
     @override
-    def set(self, instance: Any, value: ValueSetT | ValueGetT | None, /) -> ValueGetT:
+    def set(self, instance: Any, value: ValueSetT | None, /) -> ValueGetT:
         if value is None:
             return super().set(instance, value)
         return self._required_property.set(instance, value)

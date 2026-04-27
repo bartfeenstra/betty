@@ -16,6 +16,7 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
+from betty.plugin.ordered import Order, OrderedPluginClsDefinition
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
@@ -145,7 +146,11 @@ class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Plugin["EntityDefinition"
         "Entities represent the information in your ancestry, such as people and places."
     ),
 )
-class EntityDefinition(CountableHumanFacingDefinition, PluginClsDefinition[Entity]):
+class EntityDefinition(
+    CountableHumanFacingDefinition,
+    OrderedPluginClsDefinition,
+    PluginClsDefinition[Entity],
+):
     """
     .. plugin_type:: entity.
     """
@@ -157,12 +162,18 @@ class EntityDefinition(CountableHumanFacingDefinition, PluginClsDefinition[Entit
         label: ResolvableLocalizable,
         label_plural: ResolvableLocalizable,
         label_countable: CountableLocalizable,
+        after: Order[OrderedPluginClsDefinition[Entity]] = (),
+        auto: bool = True,
+        before: Order[OrderedPluginClsDefinition[Entity]] = (),
         description: ResolvableLocalizable | None = None,
         public_facing: bool = True,
         requires: Requires = (),
     ):
         super().__init__(
             plugin_id,
+            after=after,
+            auto=auto,
+            before=before,
             label=label,
             label_plural=label_plural,
             label_countable=label_countable,

@@ -12,10 +12,14 @@ from typing import TYPE_CHECKING, cast, final
 
 from betty.asyncio import resolve_await
 from betty.concurrent import ThreadSafeLock
-from betty.machine_name import MachineName, ResolvableMachineName
 from betty.plugin import PluginDefinition
 from betty.plugin.error import PluginNotFound
-from betty.plugin.resolve import ResolvablePluginDefinition, resolve_plugin_definition
+from betty.plugin.resolve import (
+    ResolvablePluginDefinition,
+    ResolvablePluginId,
+    resolve_plugin_definition,
+    resolve_plugin_id,
+)
 from betty.requirement import UnmetRequirement
 from betty.service_level import ServiceLevel
 from betty.string import kebab_case_to_snake_case
@@ -23,6 +27,8 @@ from betty.typing import threadsafe
 
 if TYPE_CHECKING:
     import builtins
+
+    from betty.machine_name import MachineName
 
 type ResolvableDiscovery[PluginDefinitionT: PluginDefinition = PluginDefinition] = (
     ResolvablePluginDefinition[PluginDefinitionT]
@@ -115,17 +121,17 @@ class PluginDiscoverer[PluginDefinitionT: PluginDefinition]:
         for plugin in (await self._plugins()).values():
             yield plugin
 
-    async def get(self, key: ResolvableMachineName) -> PluginDefinitionT:
+    async def get(self, key: ResolvablePluginId) -> PluginDefinitionT:
         """
         Get a plugin by its ID.
         """
-        key = MachineName.resolve(key)
+        key = resolve_plugin_id(key)
         try:
             return (await self._plugins())[key]
         except KeyError:
             raise PluginNotFound(self._type, key, await self.ids()) from None
 
-    def __getitem__(self, key: ResolvableMachineName) -> Awaitable[PluginDefinitionT]:
+    def __getitem__(self, key: ResolvablePluginId) -> Awaitable[PluginDefinitionT]:
         return self.get(key)
 
     async def ids(self) -> Iterable[MachineName]:
