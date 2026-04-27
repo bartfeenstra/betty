@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from betty.typing import Intersection
 
 
-class SequenceProperty[MutableSequenceT: MutableSequence[Any], ValueSetT](
+class SequenceProperty[MutableSequenceT: MutableSequence[Any], ItemGetT, ValueSetT](
     Property[MutableSequenceT, ValueSetT]
 ):
     """
@@ -30,17 +30,25 @@ class SequenceProperty[MutableSequenceT: MutableSequence[Any], ValueSetT](
 
     def __init__(
         self,
-        data: Intersection[DataDefinition[MutableSequenceT], SequenceDefinition]
-        | Data[Intersection[DataDefinition[MutableSequenceT], SequenceDefinition]],
+        data: Intersection[
+            DataDefinition[Intersection[MutableSequenceT, MutableSequence[ItemGetT]]],
+            SequenceDefinition,
+        ]
+        | Data[
+            Intersection[
+                DataDefinition[
+                    Intersection[MutableSequenceT, MutableSequence[ItemGetT]]
+                ],
+                SequenceDefinition,
+            ]
+        ],
         *,
-        label: ResolvableLocalizable | None = None,
+        default: Callable[[], ValueSetT] | None = None,
         description: ResolvableLocalizable | None = None,
-        omit_load: bool | None = None,
+        label: ResolvableLocalizable | None = None,
         omit_dump: Callable[[MutableSequenceT], bool] | None = None,
-        resolver: Callable[
-            [ValueSetT | Iterable[ValueSetT]], Iterable[ValueSetT]
-        ] = passthrough,
-        default: Callable[[], ValueSetT | Iterable[ValueSetT]] = list,
+        omit_load: bool | None = None,
+        resolver: Callable[[ValueSetT], Iterable[ItemGetT]] = passthrough,
     ):
         super().__init__(
             data,
@@ -50,21 +58,20 @@ class SequenceProperty[MutableSequenceT: MutableSequence[Any], ValueSetT](
             omit_dump=omit_dump,
             default=self._new_default,
         )
-        self._values_resolver = resolver
         self._default_values = default
+        self._sequence_resolver = resolver
 
     @final
     def _new_default(self) -> MutableSequenceT:
         new = self._data.new()
-        new.extend(self._values_resolver(self._default_values()))
+        if self._default_values is not None:
+            new.extend(self._sequence_resolver(self._default_values()))
         return new
 
     @final
     @override
-    def set(
-        self, instance: Any, value: ValueSetT | MutableSequenceT, /
-    ) -> MutableSequenceT:
+    def set(self, instance: Any, value: ValueSetT, /) -> MutableSequenceT:
         data = self.get(instance)
         data.clear()
-        data.extend(self._values_resolver(value))
+        data.extend(self._sequence_resolver(value))
         return data

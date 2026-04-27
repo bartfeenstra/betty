@@ -41,6 +41,7 @@ if TYPE_CHECKING:
     label=_("Place"),
     label_plural=_("Places"),
     label_countable=ngettext("{count} place", "{count} places"),
+    before=lambda other: other not in ("event", "person"),
 )
 class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
     """

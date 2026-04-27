@@ -10,6 +10,7 @@ from betty.project.data import (
     ProjectConfiguration,
 )
 from betty.test_utils.data import DataTestBase
+from betty.test_utils.entity import DummyEntityOne
 
 
 class TestProjectConfiguration(DataTestBase[ProjectConfiguration]):
@@ -32,9 +33,14 @@ class TestProjectConfiguration(DataTestBase[ProjectConfiguration]):
         sut = ProjectConfiguration(title="Betty", url="https://example.com")
         assert len(sut.extensions) == 0
 
-    def test_entity_types(self) -> None:
-        sut = ProjectConfiguration(title="Betty", url="https://example.com")
-        sut.entity_types  # noqa: B018
+    async def test_generate_entity_list_html(self) -> None:
+        sut = ProjectConfiguration(
+            generate_entity_list_html=[DummyEntityOne],
+            title="Betty",
+            url="https://example.com",
+        )
+        assert sut.generate_entity_list_html is not None
+        assert list(sut.generate_entity_list_html) == [DummyEntityOne.plugin().id]
 
     @pytest.mark.parametrize(
         "debug",

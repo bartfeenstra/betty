@@ -40,7 +40,7 @@ class TestProperty:
 
     def test___set____with_resolver(self) -> None:
         class _Owner:
-            my_first_property = Property(
+            my_first_property = Property[str, str | bool](
                 StrDefinition(label=DUMMY_LOCALIZABLE), resolver=str
             )
 

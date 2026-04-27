@@ -24,10 +24,8 @@ from betty.plugins.content.render import Render, RenderConfiguration
 from betty.plugins.content.wikipedia_summary import WikipediaSummary
 from betty.plugins.enricher.deriver import Deriver
 from betty.plugins.enricher.wiki import Wiki
-from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
-from betty.plugins.entity.source import Source
 from betty.plugins.extension.http_api_doc import HttpApiDoc
 from betty.plugins.extension.maps import Maps
 from betty.plugins.extension.raspberry_mint import (
@@ -68,12 +66,6 @@ async def create_project(
         enrichers=[
             Deriver,
             Wiki,
-        ],
-        entity_types=[
-            Person,
-            Event,
-            Place,
-            Source,
         ],
         extensions=[
             HttpApiDoc,

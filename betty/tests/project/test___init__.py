@@ -6,12 +6,13 @@ import pytest
 from babel import Locale
 
 from betty.dirs import ASSETS_DIRECTORY_PATH
+from betty.entity import EntityDefinition
 from betty.entity.collection.pool import EntityPool
 from betty.exception import HumanFacingException
 from betty.extension import Extension, ExtensionDefinition
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.project import Project, ProjectEntityType, ProjectLocale
+from betty.project import Project, ProjectLocale
 from betty.project.data import ProjectConfiguration
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.entity import DummyEntityOne
@@ -22,7 +23,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from betty.app import App
-    from betty.test_utils.conftest import IsolatedProjectFactory
+    from betty.test_utils.conftest import IsolatedAppFactory, IsolatedProjectFactory
 
 
 class _DummyExtension(Extension):
@@ -243,12 +244,24 @@ class TestProject:
         async with isolated_project_factory(locales=["nl-NL", "en-US"]) as sut:
             assert str(sut.default_locale.locale) == "nl_NL"
 
-    async def test_entity_types(
-        self, isolated_project_factory: IsolatedProjectFactory
+    async def test_generate_entity_list_html(
+        self,
+        isolated_app_factory: IsolatedAppFactory,
+        isolated_project_factory: IsolatedProjectFactory,
     ) -> None:
-        entity_type = ProjectEntityType(entity_type=DummyEntityOne)
-        async with isolated_project_factory(entity_types=[entity_type]) as sut:
-            assert list(sut.entity_types) == [entity_type]
+        async with (
+            isolated_app_factory(
+                plugins={
+                    EntityDefinition: [DummyEntityOne],
+                }
+            ) as app,
+            isolated_project_factory(
+                app=app, generate_entity_list_html=[DummyEntityOne]
+            ) as sut,
+        ):
+            assert list(await sut.generate_entity_list_html) == [
+                DummyEntityOne.plugin()
+            ]
 
     async def test_lifetime_threshold(
         self, isolated_project_factory: IsolatedProjectFactory
@@ -326,29 +339,3 @@ class TestProjectLocale(DataTestBase[ProjectLocale]):
         alias = "my-first-locale"
         sut = ProjectLocale("nl-NL", alias=alias)
         assert sut.slug == alias
-
-
-class TestProjectEntityType(DataTestBase[ProjectEntityType]):
-    sut_cls = ProjectEntityType
-
-    def test_entity_type__with___init___entity_type(self) -> None:
-        entity_type = DummyEntityOne
-        sut = ProjectEntityType(entity_type=entity_type)
-        assert sut.entity_type == entity_type.plugin().id
-
-    def test_entity_type__with___init___entity_type_id(self) -> None:
-        entity_type_id = DummyEntityOne.plugin().id
-        sut = ProjectEntityType(entity_type=entity_type_id)
-        assert sut.entity_type == entity_type_id
-
-    @pytest.mark.parametrize(
-        "generate_html_list,",
-        [
-            True,
-            False,
-        ],
-    )
-    def test_generate_html_list(self, generate_html_list: bool) -> None:
-        sut = ProjectEntityType(entity_type=DummyEntityOne)
-        sut.generate_html_list = generate_html_list
-        assert sut.generate_html_list == generate_html_list

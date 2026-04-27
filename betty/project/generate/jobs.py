@@ -439,7 +439,7 @@ class GenerateEntityTypesJson(Job):
     async def do(self, scheduler: Scheduler, /) -> None:
         await gather(*[
             scheduler.add(_GenerateEntityTypeJson(self._project, entity_type))
-            async for entity_type in self._project.plugins[EntityDefinition]
+            for entity_type in self._project.upstream.entity_types
         ])
 
 
@@ -496,6 +496,7 @@ class GenerateEntityTypesHtml(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
+        generate_entity_list_html = await self._project.generate_entity_list_html
         await gather(*[
             scheduler.add(
                 _GenerateEntityTypeHtml(
@@ -507,12 +508,9 @@ class GenerateEntityTypesHtml(Job):
                     page_count,
                 )
             )
-            async for entity_type in self._project.plugins[EntityDefinition]
+            for entity_type in self._project.upstream.entity_types
             if entity_type.public_facing
-            and (
-                entity_type.id in self._project.entity_types
-                and self._project.entity_types[entity_type.id].generate_html_list
-            )
+            and (entity_type.id in generate_entity_list_html)
             and (
                 page_count := ceil(
                     len(self._project.ancestry[entity_type]) / self._per_page
@@ -604,7 +602,7 @@ class GenerateEntitiesJson(Job):
     async def do(self, scheduler: Scheduler, /) -> None:
         await gather(*[
             scheduler.add(_GenerateEntityJson(self._project, entity_type, entity.id))
-            async for entity_type in self._project.plugins[EntityDefinition]
+            for entity_type in self._project.upstream.entity_types
             for entity in self._project.ancestry[entity_type.cls]
             if persistent_id(entity)
         ])
@@ -656,7 +654,7 @@ class GenerateEntitiesHtml(Job):
             scheduler.add(
                 _GenerateEntityHtml(self._project, entity_type, entity.id, locale)
             )
-            async for entity_type in self._project.plugins[EntityDefinition]
+            for entity_type in self._project.upstream.entity_types
             if entity_type.public_facing
             for entity in self._project.ancestry[entity_type.cls]
             if persistent_id(entity) and is_public(entity)

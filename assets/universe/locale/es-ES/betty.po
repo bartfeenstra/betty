@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-22 22:54+0100\n"
+"POT-Creation-Date: 2026-04-27 18:23+0100\n"
 "PO-Revision-Date: 2026-02-17 18:15+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: es_ES\n"
@@ -699,10 +699,7 @@ msgstr ""
 msgid "Entity type"
 msgstr "Tipo de entidad"
 
-msgid "Entity type configuration"
-msgstr ""
-
-msgid "Entity types"
+msgid "Entity types to generate list HTML pages for"
 msgstr ""
 
 msgid "Event"
@@ -815,9 +812,6 @@ msgid "Genders"
 msgstr ""
 
 msgid "Generate a static site"
-msgstr ""
-
-msgid "Generate list HTML page"
 msgstr ""
 
 msgid "Generating site..."

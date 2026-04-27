@@ -4,10 +4,12 @@ Project data.
 
 from __future__ import annotations
 
+from collections.abc import MutableSequence
 from typing import TYPE_CHECKING, final
 
 from betty.assertion import assert_number, assert_url
 from betty.collection.keyed.adapter import MutableKeyedCollectionAdapter
+from betty.collection.sequence.adapter import MutableResolvedSequenceAdapter
 from betty.copyright_notice import (
     CopyrightNotice,
     CopyrightNoticeDefinition,
@@ -16,12 +18,14 @@ from betty.copyright_notice import (
 from betty.copyright_notice.data import CopyrightNoticeDefinitionConfiguration
 from betty.data import Data, Sample
 from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
+from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.bool import BoolDefinition
 from betty.data.indicator.selector import Attr
 from betty.data.int import IntDefinition
 from betty.data.str import StrDefinition
 from betty.dirs import ASSETS_DIRECTORY_PATH
+from betty.entity import EntityDefinition
 from betty.event_type import EventTypeDefinition
 from betty.event_type.data import EventTypeDefinitionConfiguration
 from betty.extension import Extension, ExtensionManufacturer
@@ -40,20 +44,16 @@ from betty.load import (
 from betty.locale import DEFAULT_LOCALE, ResolvableLocale, resolve_locale
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import LocalizableProperty
-from betty.machine_name import MachineNameProperty, ResolvableMachineName
+from betty.machine_name import MachineName, MachineNameProperty, ResolvableMachineName
 from betty.pathlib import FilePathDefinition
 from betty.place_type import PlaceTypeDefinition
 from betty.place_type.data import PlaceTypeDefinitionConfiguration
 from betty.plugin.data.property import PluginDefinitionConfigurationsProperty
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
-from betty.project import (
-    DEFAULT_LIFETIME_THRESHOLD,
-    ExtensionDefinition,
-    ProjectEntityType,
-    ProjectLocale,
-)
+from betty.project import DEFAULT_LIFETIME_THRESHOLD, ExtensionDefinition, ProjectLocale
 from betty.property import Optional, Property
 from betty.property.collection.keyed import KeyedCollectionProperty
+from betty.property.collection.sequence import SequenceProperty
 from betty.role import RoleDefinition
 from betty.role.data import RoleDefinitionConfiguration
 from betty.sample import Size
@@ -62,7 +62,6 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from pathlib import Path
 
-    from betty.entity import EntityDefinition
     from betty.locale.localizable import ResolvableLocalizable
     from betty.plugin.factory import (
         ResolvablePluginManufacturer,
@@ -94,7 +93,7 @@ if TYPE_CHECKING:
                     .subject
                 ],
                 debug=True,
-                entity_types=[ProjectEntityType.data().samples.get(Size.FULL).subject],
+                generate_entity_list_html=["person", "place"],
                 event_types=[
                     EventTypeDefinitionConfiguration
                     .data()
@@ -213,27 +212,6 @@ class ProjectConfiguration(Data):
     The enrichers to enable for the project.
     """
 
-    entity_types = KeyedCollectionProperty(
-        KeyedCollectionDefinition(
-            value=ProjectEntityType,
-            label=_("Entity types"),
-            key=Attr("entity_type"),
-            factory=lambda: MutableKeyedCollectionAdapter(
-                key=lambda item: item.entity_type,
-                value_resolver=lambda data: (
-                    data
-                    if isinstance(data, ProjectEntityType)
-                    else ProjectEntityType(entity_type=data)
-                ),
-            ),
-        ),
-        omit_load=True,
-        omit_dump=lambda data: not data,
-    )
-    """
-    The available entity types.
-    """
-
     event_types = PluginDefinitionConfigurationsProperty(
         EventTypeDefinition, EventTypeDefinitionConfiguration
     )
@@ -257,6 +235,22 @@ class ProjectConfiguration(Data):
     )
     """
     The extensions to enable for the project.
+    """
+
+    generate_entity_list_html = Optional(
+        SequenceProperty(
+            SequenceDefinition[MutableSequence[ResolvablePluginId[EntityDefinition]]](
+                cls=list,
+                label=_("Entity types to generate list HTML pages for"),
+                value=MachineName,
+                factory=lambda: MutableResolvedSequenceAdapter(
+                    [], value_resolver=resolve_plugin_id
+                ),
+            )
+        )
+    )
+    """
+    Which entity types to generate list HTML pages for.
     """
 
     genders = PluginDefinitionConfigurationsProperty(
@@ -401,13 +395,12 @@ class ProjectConfiguration(Data):
         enrichers: ResolvablePluginManufacturerSequence[
             EnricherDefinition, Enricher
         ] = (),
-        entity_types: Iterable[
-            ProjectEntityType | ResolvablePluginId[EntityDefinition]
-        ] = (),
         event_types: Iterable[EventTypeDefinitionConfiguration] = (),
         extensions: ResolvablePluginManufacturerSequence[
             ExtensionDefinition, Extension
         ] = (),
+        generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]]
+        | None = None,
         genders: Iterable[GenderDefinitionConfiguration] = (),
         license: ResolvablePluginManufacturer[LicenseDefinition, License] | None = None,  # noqa: A002
         licenses: Iterable[LicenseDefinitionConfiguration] = (),
@@ -430,9 +423,9 @@ class ProjectConfiguration(Data):
             self.copyright_notices = copyright_notices
         self.debug = debug
         self.enrichers = enrichers  # ty:ignore[invalid-assignment]
-        self.entity_types = entity_types
         self.event_types = event_types
         self.extensions = extensions  # ty:ignore[invalid-assignment]
+        self.generate_entity_list_html = generate_entity_list_html
         self.genders = genders
         if license is not None:
             self.license = LicenseManufacturer.resolve(license)
