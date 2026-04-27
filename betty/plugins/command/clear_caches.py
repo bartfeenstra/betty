@@ -9,14 +9,23 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.app import App
 from betty.argparse import add_yes_argument
 from betty.console.command import Command, CommandDefinition, CommandFunction
+from betty.console.project import add_project_argument
 from betty.factory import Manufacturable
 from betty.locale.localizable.gettext import _
 
 if TYPE_CHECKING:
     import argparse
 
+    from betty.project import Project
+
 
 _LEGACY_CACHE_DIRECTORY_PATH = Path.home() / ".betty" / "cache"
+
+
+async def _clear_legacy_cache() -> None:
+    # Before Betty 0.5, Betty stored its caches in the home directory. Clear those until Betty 0.6.
+    with suppress(FileNotFoundError):
+        await to_thread(shutil.rmtree, _LEGACY_CACHE_DIRECTORY_PATH)
 
 
 @final
@@ -38,18 +47,23 @@ class ClearCaches(Manufacturable, Command):
     @override
     async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
         add_yes_argument(parser, localizer=self._app.user.localizer)
-        return self._command_function
+        return await add_project_argument(
+            parser, self._command_function, self._app, required=False
+        )
 
-    async def _command_function(self, yes: bool) -> None:
+    async def _command_function(self, project: Project | None, yes: bool) -> None:
         if not yes:
             yes = await self._app.user.ask_confirmation(
                 _("Are you sure you want to clear all caches?")
             )
         if yes:
-            await gather(self._app.cache.clear(), self._clear_legacy_cache())
+            tasks = [
+                self._app.cache.clear(),
+                self._app.binary_file_cache.clear(),
+                _clear_legacy_cache(),
+            ]
+            if project is not None:
+                tasks.append(project.cache.clear())
+                tasks.append(project.binary_file_cache.clear())
+            await gather(*tasks)
             await self._app.user.message_information(_("All caches cleared."))
-
-    async def _clear_legacy_cache(self) -> None:
-        # Before Betty 0.5, Betty stored its caches in the home directory. Clear those until Betty 0.6.
-        with suppress(FileNotFoundError):
-            await to_thread(shutil.rmtree, _LEGACY_CACHE_DIRECTORY_PATH)

@@ -13,14 +13,18 @@ from contextlib import AsyncExitStack, asynccontextmanager
 from pathlib import Path
 from shutil import rmtree
 from tempfile import mkdtemp
-from typing import TYPE_CHECKING, Self, final
+from typing import TYPE_CHECKING, Any, Literal, Self, final
 from urllib.parse import urlsplit
 
 from babel import Locale
 
 import betty.dirs
+from betty.about import VERSION_MAJOR
 from betty.app import App
 from betty.asset import AssetRepositoryService
+from betty.cache import Cache
+from betty.cache.file import BinaryFileCache, PickledFileCache
+from betty.cache.no_op import NoOpCache as NoOpCache
 from betty.collection.keyed.adapter import KeyedCollectionAdapter
 from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.data import Data
@@ -55,6 +59,7 @@ from betty.privacy.privatizer import Privatizer
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.sample import Sample, Size
 from betty.server import ServerDefinition
+from betty.service import Service
 from betty.service.plugin import PluginServiceProvider
 from betty.service.plugin.definition.collection.keyed import PluginDefinitionsService
 from betty.service.plugin.instance.collection.keyed import PluginInstancesService
@@ -80,6 +85,7 @@ if TYPE_CHECKING:
         ServicePluginInstance,
         ServicePluginInstances,
     )
+    from betty.service.simple.synchronous import TypedSynchronousServiceOrFactory
     from betty.url import UrlGenerator
 
 
@@ -134,6 +140,7 @@ class Project(
         ancestry: EntityPool | None = None,
         assets: Iterable[ResolvablePluginDefinition[AssetDefinition]] = (),
         author: ResolvableLocalizable | None = None,
+        cache: TypedSynchronousServiceOrFactory[Project, Cache[Any]] | None = None,
         clean_urls: bool = False,
         copyright_notice: ServicePluginInstance[CopyrightNoticeDefinition]
         | None = None,
@@ -160,10 +167,14 @@ class Project(
         from betty.plugins.copyright_notice.project_author import ProjectAuthor
         from betty.plugins.license.all_rights_reserved import AllRightsReserved
 
+        cls = type(self)
+        if cache is not None:
+            cls.cache.override(
+                self, Service(cache) if isinstance(cache, Cache) else cache
+            )
         super().__init__(
             plugins=plugins, supported_plugins=supported_plugins, upstream=app
         )
-        cls = type(self)
         cls.assets.add_init_plugins(self, *assets)
         cls.copyright_notice.add_init_plugins(self, copyright_notice or ProjectAuthor)
         cls.enrichers.add_init_plugins(self, *enrichers)
@@ -211,6 +222,7 @@ class Project(
         url_parts = urlsplit(self.url)
         self._base_url = f"{url_parts.scheme}://{url_parts.netloc}"
         self._root_path = url_parts.path.rstrip("/")
+        self._cache_directory = self.directory / ".cache" / VERSION_MAJOR
 
     @classmethod
     async def new(
@@ -253,6 +265,9 @@ class Project(
         app: App | None = None,
         assets: Iterable[ResolvablePluginDefinition[AssetDefinition]] = (),
         author: ResolvableLocalizable | None = None,
+        cache: TypedSynchronousServiceOrFactory[Project, Cache[Any]]
+        | None
+        | Literal[False] = False,
         clean_urls: bool = False,
         debug: bool = False,
         directory: Path | None = None,
@@ -297,6 +312,7 @@ class Project(
                 app=app,
                 assets=assets,
                 author=author,
+                cache=NoOpCache() if cache is False else cache,
                 clean_urls=clean_urls,
                 debug=debug,
                 enrichers=enrichers,
@@ -499,7 +515,7 @@ class Project(
         """
         The available translations.
         """
-        return AssetTranslationRepository(self.assets, self.upstream.binary_file_cache)
+        return AssetTranslationRepository(self.assets, self.binary_file_cache)
 
     @service
     async def localizers(self) -> LocalizerRepository:
@@ -574,6 +590,20 @@ class Project(
             },
             **kwargs,
         )
+
+    @service
+    def cache(self) -> Cache[Any]:
+        """
+        The project cache.
+        """
+        return PickledFileCache[Any](self._cache_directory)
+
+    @service
+    def binary_file_cache(self) -> BinaryFileCache:
+        """
+        The project binary file cache.
+        """
+        return BinaryFileCache(self._cache_directory)
 
 
 @final
