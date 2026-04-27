@@ -35,6 +35,7 @@ class _Property[ValueGetT, ValueSetT](Attr[ValueGetT], ABC):
     def __set_name__(self, owner: type[Any], name: str) -> None:
         self._attr_name = f"_{name}"
 
+    @final
     @override
     @property
     def attr(self) -> AttrDefinition[ValueGetT]:
@@ -57,12 +58,12 @@ class _Property[ValueGetT, ValueSetT](Attr[ValueGetT], ABC):
         self.set(instance, value)
 
     @abstractmethod
-    def get(self, instance: Any) -> ValueGetT:
+    def get(self, instance: Any, /) -> ValueGetT:
         """
         Get the property value from the instance.
         """
 
-    def set(self, instance: Any, value: ValueSetT | ValueGetT) -> ValueGetT:
+    def set(self, instance: Any, value: ValueSetT | ValueGetT, /) -> ValueGetT:
         """
         Set the value on the instance.
         """
@@ -102,8 +103,9 @@ class Property[ValueGetT, ValueSetT](_Property[ValueGetT, ValueSetT]):
         self._description = description
         self._default = default
 
+    @final
     @override
-    def get(self, instance: Any) -> ValueGetT:
+    def get(self, instance: Any, /) -> ValueGetT:
         value = cast(
             ValueGetT | Void,
             getattr(instance, self._attr_name, Void),
@@ -156,14 +158,14 @@ class Optional[ValueGetT, ValueSetT](_Property[ValueGetT | None, ValueSetT | Non
         self._required_property.__set_name__(owner, name)
 
     @override
-    def get(self, instance: Any) -> ValueGetT | None:
+    def get(self, instance: Any, /) -> ValueGetT | None:
         try:
             return self._required_property.get(instance)
         except PropertyNotInitialized:
             return self.set(instance, None)
 
     @override
-    def set(self, instance: Any, value: ValueSetT | ValueGetT | None) -> ValueGetT:
+    def set(self, instance: Any, value: ValueSetT | ValueGetT | None, /) -> ValueGetT:
         if value is None:
             return super().set(instance, value)
         return self._required_property.set(instance, value)
@@ -171,7 +173,7 @@ class Optional[ValueGetT, ValueSetT](_Property[ValueGetT | None, ValueSetT | Non
     def __delete__(self, instance: Any) -> None:
         self.delete(instance)
 
-    def delete(self, instance: Any) -> None:
+    def delete(self, instance: Any, /) -> None:
         """
         Delete the value from the instance.
         """

@@ -5,7 +5,7 @@ Keyed collection properties.
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable
-from typing import TYPE_CHECKING, Any, override
+from typing import TYPE_CHECKING, Any, final, override
 
 from betty.collection.keyed import MutableKeyedCollection
 from betty.functools import passthrough
@@ -59,14 +59,16 @@ class KeyedCollectionProperty[
         self._values_resolver = resolver
         self._default_values = default
 
+    @final
     def _new_default(self) -> MutableKeyedCollectionT:
         new = self._data.new()
         new.add(*self._values_resolver(self._default_values()))
         return new
 
+    @final
     @override
     def set(
-        self, instance: Any, value: Iterable[ValueSetT] | MutableKeyedCollectionT
+        self, instance: Any, value: Iterable[ValueSetT] | MutableKeyedCollectionT, /
     ) -> MutableKeyedCollectionT:
         data = self.get(instance)
         data.clear()
