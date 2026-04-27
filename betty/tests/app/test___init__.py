@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Self, override
 
 from babel import Locale
 
-from betty.app import App, AppConfiguration
+from betty.app import App
 from betty.factory import Manufacturable
 from betty.test_utils.user import StaticUser
 
@@ -29,12 +29,6 @@ class _Manufacturable(Manufacturable):
 
 
 class TestApp:
-    async def test_new(self) -> None:
-        locale = Locale("nl", "NL")
-        async with await App.new(AppConfiguration(locale=locale)) as sut:
-            localizer = await sut.localizer
-            assert localizer.locale == locale
-
     async def test_new_from_environment__without_configuration_file(
         self, mocker: MockerFixture, tmp_path: Path
     ) -> None:
@@ -64,13 +58,6 @@ class TestApp:
         user = StaticUser()
         async with isolated_app_factory(user=user) as sut:
             assert sut.user is user
-
-    async def test_binary_file_cache(self, isolated_app: App) -> None:
-        assert isolated_app.binary_file_cache is isolated_app.binary_file_cache
-
-    async def test_cache(self, tmp_path: Path) -> None:
-        async with App(cache_directory=tmp_path) as app:
-            assert app.cache is app.cache
 
     async def test_http_client(self, isolated_app: App) -> None:
         assert await isolated_app.http_client is await isolated_app.http_client

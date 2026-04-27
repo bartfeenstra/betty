@@ -136,6 +136,7 @@ class IsolatedAppFactory(Protocol):
         self,
         *,
         cache: TypedSynchronousServiceOrFactory[App, Cache[Any]] | None = None,
+        binary_file_cache_directory: Path | None = None,
         plugins: Mapping[
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
         ]
@@ -163,6 +164,7 @@ def isolated_app_factory(
     async def _isolated_app_factory(
         *,
         cache: TypedSynchronousServiceOrFactory[App, Cache[Any]] | None = None,
+        binary_file_cache_directory: Path | None = None,
         plugins: Mapping[
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
         ]
@@ -175,6 +177,7 @@ def isolated_app_factory(
         user: User | None = None,
     ) -> AsyncIterator[App]:
         async with App.new_isolated(
+            binary_file_cache_directory=binary_file_cache_directory,
             cache=cache,
             process_pool=process_pool or fixture_process_pool,
             plugins=plugins,
@@ -205,6 +208,9 @@ class IsolatedProjectFactory(Protocol):
         app: App | None = None,
         assets: Iterable[ResolvablePluginDefinition[AssetDefinition]] = (),
         author: ResolvableLocalizable | None = None,
+        cache: TypedSynchronousServiceOrFactory[Project, Cache[Any]]
+        | None
+        | Literal[False] = False,
         clean_urls: bool = False,
         debug: bool = False,
         directory: Path | None = None,
@@ -243,6 +249,9 @@ def isolated_project_factory(isolated_app: App) -> IsolatedProjectFactory:
         app: App | None = None,
         assets: Iterable[ResolvablePluginDefinition[AssetDefinition]] = (),
         author: ResolvableLocalizable | None = None,
+        cache: TypedSynchronousServiceOrFactory[Project, Cache[Any]]
+        | None
+        | Literal[False] = False,
         clean_urls: bool = False,
         debug: bool = False,
         directory: Path | None = None,
@@ -270,6 +279,7 @@ def isolated_project_factory(isolated_app: App) -> IsolatedProjectFactory:
             app=app or isolated_app,
             assets=assets,
             author=author,
+            cache=cache,
             clean_urls=clean_urls,
             debug=debug,
             directory=directory,

@@ -95,8 +95,8 @@ class App(RequirableServiceLevel, PluginServiceProvider):
     def __init__(
         self,
         *,
+        binary_file_cache: TypedSynchronousServiceOrFactory[App, BinaryFileCache],
         assets: Iterable[ResolvablePluginDefinition[AssetDefinition]] = (),
-        cache_directory: Path | None = None,
         cache: TypedSynchronousServiceOrFactory[App, Cache[Any]] | None = None,
         locale: ResolvableLocale | None = None,
         meda_types: Iterable[ResolvablePluginDefinition[MediaTypeDefinition]] = (),
@@ -113,6 +113,12 @@ class App(RequirableServiceLevel, PluginServiceProvider):
         from betty.rich.user import RichUser
 
         cls = type(self)
+        cls.binary_file_cache.override(
+            self,
+            Service(binary_file_cache)
+            if isinstance(binary_file_cache, BinaryFileCache)
+            else binary_file_cache,
+        )
         if process_pool is not None:
             cls.process_pool.override(
                 self,
@@ -143,21 +149,9 @@ class App(RequirableServiceLevel, PluginServiceProvider):
         if isinstance(user, Bootstrappable | Shutdownable):
             self.life_cycle.on_bootstrap(lambda: self.life_cycle.synchronize(user))
         self._user = user
-        self._cache_directory = (
-            Path(environ.get("BETTY_CACHE_DIRECTORY", CACHE_DIRECTORY))
-            if cache_directory is None
-            else cache_directory
-        )
 
     async def _bootstrap_localizer(self) -> None:
         self._user.localizer = await self.localizer
-
-    @classmethod
-    async def new(cls, data: AppConfiguration, /) -> Self:
-        """
-        Create a new instance.
-        """
-        return cls(locale=data.locale)
 
     @classmethod
     @asynccontextmanager
@@ -172,10 +166,15 @@ class App(RequirableServiceLevel, PluginServiceProvider):
                         AppConfiguration.FILE
                     )
                 )
-            app = await cls.new(data)
+                locale = data.locale
         else:
-            app = cls()
-        async with app:
+            locale = None
+        cache_directory = Path(environ.get("BETTY_CACHE_DIRECTORY", CACHE_DIRECTORY))
+        async with cls(
+            cache=PickledFileCache(cache_directory),
+            binary_file_cache=BinaryFileCache(cache_directory),
+            locale=locale,
+        ) as app:
             yield app
 
     @classmethod
@@ -183,7 +182,7 @@ class App(RequirableServiceLevel, PluginServiceProvider):
     async def new_isolated(
         cls,
         *,
-        cache_directory: Path | None = None,
+        binary_file_cache_directory: Path | None = None,
         cache: TypedSynchronousServiceOrFactory[App, Cache[Any]] | None = None,
         plugins: Mapping[
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
@@ -203,13 +202,15 @@ class App(RequirableServiceLevel, PluginServiceProvider):
         any traces on the system.
         """
         async with AsyncExitStack() as exit_stack:
-            if cache_directory is None:
-                cache_directory = Path(
+            if binary_file_cache_directory is None:
+                binary_file_cache_directory = Path(
                     await to_thread(mkdtemp),  # ty:ignore[invalid-argument-type]
                 )
-                exit_stack.push_async_callback(to_thread, rmtree, cache_directory)
+                exit_stack.push_async_callback(
+                    to_thread, rmtree, binary_file_cache_directory
+                )
             async with cls(
-                cache_directory=cache_directory,
+                binary_file_cache=BinaryFileCache(binary_file_cache_directory),
                 cache=NoOpCache() if cache is None else cache,
                 plugins=plugins,
                 process_pool=process_pool,
@@ -273,14 +274,14 @@ class App(RequirableServiceLevel, PluginServiceProvider):
         """
         The cache.
         """
-        return PickledFileCache[Any](self._cache_directory)
+        return NoOpCache()
 
     @service
     def binary_file_cache(self) -> BinaryFileCache:
         """
         The binary file cache.
         """
-        return BinaryFileCache(self._cache_directory)
+        raise NotImplementedError("This service MUST always be explicitly overridden.")
 
     @service
     def process_pool(self) -> futures.ProcessPoolExecutor:

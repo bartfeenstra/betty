@@ -73,7 +73,7 @@ class ImageResizeCover(JinjaFilter, Manufacturable):
     @classmethod
     async def new(cls, project: Project, /) -> Self:
         return cls(
-            binary_file_cache=project.upstream.binary_file_cache.with_scope("image"),
+            binary_file_cache=project.binary_file_cache.with_scope("image"),
             file_filter=await project.factory.new(FileFilter),
             process_pool=project.upstream.process_pool,
             www_directory=project.www_directory,

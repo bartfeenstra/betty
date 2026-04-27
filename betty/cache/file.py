@@ -158,8 +158,7 @@ class _FileCache[CacheItemValueT](_CommonCacheBase[CacheItemValueT]):
 
     @override
     async def clear(self) -> None:
-        with suppress(FileNotFoundError):
-            await asyncio.to_thread(shutil.rmtree, self._path)
+        await asyncio.to_thread(shutil.rmtree, self._path, ignore_errors=True)
 
     @property
     def _path(self) -> Path:
