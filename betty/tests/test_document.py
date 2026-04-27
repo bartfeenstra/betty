@@ -16,6 +16,7 @@ from betty.job import Context
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.plain import Plain
 from betty.locale.localize import Localizer
+from betty.media_type import MediaType
 from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.source import Source
 from betty.test_utils.entity import DummyEntityOne
@@ -169,6 +170,10 @@ class TestDocument:
         resource_url = "betty:///"
         assert Document(None, resource_url).resource_url is resource_url
 
+    def test_media_type(self) -> None:
+        media_type = MediaType("text/plain")
+        assert Document(media_type=media_type).media_type is media_type
+
     def test_context__from___init___(self) -> None:
         context = Context()
         assert Document(context=context).context is context
@@ -278,12 +283,24 @@ class TestDocument:
         ) is expected
 
     def test_copy__minimal(self) -> None:
-        context = Document()
-        assert context.copy() == context
+        original_sut = Document()
+        assert original_sut.copy() == original_sut
+
+    def test_copy__with_resource(self) -> None:
+        original_sut = Document(resource=object())
+        copied_resource = object()
+        copied_sut = original_sut.copy(resource=copied_resource)
+        assert copied_sut.resource is copied_resource
+
+    def test_copy__with_resource_url(self) -> None:
+        original_sut = Document(resource_url=object())
+        copied_resource_url = object()
+        copied_sut = original_sut.copy(resource_url=copied_resource_url)
+        assert copied_sut.resource_url is copied_resource_url
 
     def test_copy__vars(self) -> None:
         context_value = object()
-        context = Document(context_value=context_value)
-        copied_context = context.copy()
-        assert copied_context == context
-        assert copied_context["context_value"] is context_value
+        original_sut = Document(context_value=context_value)
+        copied_sut = original_sut.copy()
+        assert copied_sut == original_sut
+        assert copied_sut["context_value"] is context_value

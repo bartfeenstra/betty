@@ -27,6 +27,7 @@ from typing import (
 from betty.json.linked_data import LinkedDataDumpable
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
+from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer
@@ -56,24 +57,36 @@ class Document:
         self,
         resource: object = None,
         resource_url: object = None,
+        /,
         *,
         breadcrumbs: Breadcrumbs | None = None,
         citer: Citer | None = None,
         entity_contexts: EntityContexts | None = None,
         context: Context | None = None,
         localizer: Localizer | None = None,
+        media_type: ResolvableMediaType | None = None,
         title: Localizable | None = None,
-        **vars: Any,  # noqa: A002
+        **document_vars: Any,
     ):
+        self._media_type = (
+            None if media_type is None else resolve_media_type(media_type)
+        )
         self._resource = resource
         self._resource_url = resource_url
         self._entity_contexts = entity_contexts if entity_contexts else EntityContexts()
         self._context = context
         self._localizer = localizer if localizer else DEFAULT_LOCALIZER
         self._title = title
-        self._vars = vars
+        self._vars = document_vars
         self._breadcrumbs = Breadcrumbs() if breadcrumbs is None else breadcrumbs
         self._citer = Citer() if citer is None else citer
+
+    @property
+    def media_type(self) -> MediaType | None:
+        """
+        The media type.
+        """
+        return self._media_type
 
     @property
     def breadcrumbs(self) -> Breadcrumbs:
@@ -135,23 +148,30 @@ class Document:
 
     def copy(
         self,
-        **vars: object,  # noqa: A002
+        *,
+        media_type: ResolvableMediaType | None = None,
+        resource: object = None,
+        resource_url: object = None,
+        **document_vars: Any,
     ) -> Self:
         """
         Create a copy of this document, with the given fields added.
         """
         return type(self)(
+            self._resource if resource is None else resource,
+            self._resource_url if resource_url is None else resource_url,
             **{
                 **self._vars,
-                "resource": self._resource,
-                "resource_url": self._resource_url,
                 "breadcrumbs": self._breadcrumbs,
                 "citer": self._citer,
-                "entity_contexts": self._entity_contexts,
                 "context": self._context,
+                "entity_contexts": self._entity_contexts,
                 "localizer": self._localizer,
+                "media_type": self._media_type
+                if media_type is None
+                else resolve_media_type(media_type),
                 "title": self._title,
-                **vars,
+                **document_vars,
             },  # ty:ignore[invalid-argument-type]
         )
 
@@ -169,14 +189,15 @@ class Document:
         if not isinstance(other, Document):
             return NotImplemented
         return (
-            self._resource == other._resource
-            and self._resource_url == other._resource_url
-            and self._entity_contexts == other._entity_contexts
-            and self._context == other._context
-            and self._localizer == other._localizer
-            and self._title == other._title
-            and self._breadcrumbs == other._breadcrumbs
+            self._breadcrumbs == other._breadcrumbs
             and self._citer == other._citer
+            and self._context == other._context
+            and self._entity_contexts == other._entity_contexts
+            and self._localizer == other._localizer
+            and self._media_type == other._media_type
+            and self._resource == other._resource
+            and self._resource_url == other._resource_url
+            and self._title == other._title
             and self._vars == other._vars
         )
 

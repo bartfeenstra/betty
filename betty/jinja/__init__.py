@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import datetime
 from asyncio import to_thread
-from collections.abc import Awaitable, Callable
+from collections.abc import Awaitable, Callable, Iterable
 from os import makedirs
 from pathlib import Path
 from shutil import copy2
@@ -21,12 +21,18 @@ from jinja2.runtime import DebugUndefined, StrictUndefined
 from jinja2.utils import missing
 
 from betty import about
+from betty import document as document
 from betty.cache import CacheItem
 from betty.date import Date
 from betty.file import read, write
 from betty.html import generate_html_id
 from betty.html.attributes import Attributes
-from betty.media_type import UnsupportedMediaType, match_extension
+from betty.media_type import (
+    ResolvableMediaType,
+    UnsupportedMediaType,
+    match_extension,
+    resolve_media_type,
+)
 from betty.pathlib import resolve_path
 from betty.plugins.media_type.jinja import JINJA
 from betty.string import kebab_case_to_snake_case
@@ -154,25 +160,32 @@ def make_copy_function(
     environment: Environment,
     *,
     document: Document,
-    www_directory: StrPath | None = None,
     is_localized_and_multilingual: bool | None = None,
+    media_types: Iterable[ResolvableMediaType] = (),
+    www_directory: StrPath | None = None,
 ) -> CopyFunction:
     """
     Make a copy function for this renderer that renders supported files.
     """
+    media_types = tuple(map(resolve_media_type, media_types))
 
-    async def _copy_function(source: StrPath, destination: StrPath) -> None:
+    async def _copy_function(source: StrPath, destination: StrPath, /) -> None:
         destination = resolve_path(destination)
         await to_thread(makedirs, destination.parent, exist_ok=True)
         try:
-            _media_type, extension = match_extension(source, [JINJA.media_type])
+            _jinja_media_type, extension = match_extension(source, [JINJA.media_type])
         except UnsupportedMediaType:
             copy2(source, destination)
             return
 
         destination = destination.with_name(destination.name[: -len(extension)])
 
-        copy_resource_url = document.resource_url
+        try:
+            document_media_type, _extension = match_extension(destination, media_types)
+        except UnsupportedMediaType:
+            document_media_type = None
+
+        document_resource_url = document.resource_url
 
         if www_directory:
             try:
@@ -186,14 +199,17 @@ def make_copy_function(
                 ):
                     if is_localized_and_multilingual:
                         resource_parts = resource_parts[1:]
-                    copy_resource_url = f"betty:///{'/'.join(resource_parts)}"
+                    document_resource_url = f"betty:///{'/'.join(resource_parts)}"
         content = await read(source)
 
         template = environment.from_string(content)
-        copy_document = document.copy(
-            resource=destination, resource_url=copy_resource_url
+        rendered_content = await template.render_async(
+            document=document.copy(
+                media_type=document_media_type,
+                resource=destination,
+                resource_url=document_resource_url,
+            )
         )
-        rendered_content = await template.render_async(document=copy_document)
         await write(destination, rendered_content)
 
     return _copy_function
