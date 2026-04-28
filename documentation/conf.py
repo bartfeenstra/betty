@@ -25,10 +25,10 @@ intersphinx_mapping = {
     "referencing": ("https://referencing.readthedocs.io/en/stable/", None),
 }
 html_favicon = str(
-    ASSETS_DIRECTORY_PATH / "universe" / "public" / "static" / "betty-512x512.png"
+    ASSETS_DIRECTORY_PATH / "app" / "public" / "static" / "betty-512x512.png"
 )
 html_logo = str(
-    ASSETS_DIRECTORY_PATH / "universe" / "public" / "static" / "betty-512x512.png"
+    ASSETS_DIRECTORY_PATH / "app" / "public" / "static" / "betty-512x512.png"
 )
 html_theme = "shibuya"
 html_theme_options = {

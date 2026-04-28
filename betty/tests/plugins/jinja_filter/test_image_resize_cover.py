@@ -14,7 +14,7 @@ from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 from betty.test_utils.conftest import AssertTemplateString
 
 _TEST_FILTER_IMAGE_RESIZE_COVER_IMAGE_PATH = (
-    ASSETS_DIRECTORY_PATH / "universe" / "public" / "static" / "betty-512x512.png"
+    ASSETS_DIRECTORY_PATH / "app" / "public" / "static" / "betty-512x512.png"
 )
 _TEST_FILTER_IMAGE_RESIZE_COVER_PARAMETER_ARGNAMES = ("expected", "template", "filey")
 _TEST_FILTER_IMAGE_RESIZE_COVER_PARAMETER_ARGVALUES = [

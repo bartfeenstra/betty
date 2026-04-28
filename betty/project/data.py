@@ -104,7 +104,7 @@ if TYPE_CHECKING:
                     GenderDefinitionConfiguration.data().samples.get(Size.FULL).subject
                 ],
                 logo=ASSETS_DIRECTORY_PATH
-                / "universe"
+                / "app"
                 / "public"
                 / "static"
                 / "betty-512x512.png",

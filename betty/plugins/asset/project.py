@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from betty.asset import AssetDefinition
-from betty.plugins.asset.universe import UNIVERSE
+from betty.plugins.asset.app import APP
 from betty.project import Project
 
 if TYPE_CHECKING:
@@ -21,7 +21,7 @@ def _discover(project: Project, /) -> Iterable[ResolvableDiscovery[AssetDefiniti
     yield AssetDefinition(
         "project",
         assets=project.assets_directory,
-        after=lambda other: other != UNIVERSE.id,
-        before={UNIVERSE},
+        after=lambda other: other != APP.id,
+        before={APP},
         auto=True,
     )

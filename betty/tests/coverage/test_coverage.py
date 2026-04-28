@@ -323,7 +323,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "TranslationRepository": MissingReason.ABSTRACT,
         "new_translation": MissingReason.SHOULD_BE_COVERED,
         "update_translations": MissingReason.SHOULD_BE_COVERED,
-        "update_universe_translations": MissingReason.SHOULD_BE_COVERED,
+        "update_app_translations": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/locale/localizable/__init__.py": {
         "CountableLocalizable": {
@@ -487,12 +487,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/plugin/ordered.py": {
         "OrderedPluginClsDefinition": MissingReason.STATIC_CONTENT_ONLY,
     },
+    "betty/plugins/asset/app.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/asset/http_api_doc.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/asset/maps.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/asset/raspberry_mint.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/asset/trees.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/asset/project.py": MissingReason.COVERED_ELSEWHERE,
-    "betty/plugins/asset/universe.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/asset/webpack.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/asset/wiki.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/command/about.py": {

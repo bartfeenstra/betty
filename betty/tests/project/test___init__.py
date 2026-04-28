@@ -130,13 +130,7 @@ class TestProject:
             await sut.url_generator
 
     async def test_logo(self, isolated_project_factory: IsolatedProjectFactory) -> None:
-        logo = (
-            ASSETS_DIRECTORY_PATH
-            / "universe"
-            / "public"
-            / "static"
-            / "betty-256x256.png"
-        )
+        logo = ASSETS_DIRECTORY_PATH / "app" / "public" / "static" / "betty-256x256.png"
         async with isolated_project_factory(logo=logo) as sut:
             assert sut.logo == logo
 

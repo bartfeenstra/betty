@@ -14,7 +14,7 @@ from betty.locale.translation import (
     AssetTranslationRepository,
     StaticTranslationRepository,
     UntranslatedLocale,
-    update_universe_translations,
+    update_app_translations,
 )
 from betty.test_utils.locale import PotFileTestBase
 
@@ -76,7 +76,7 @@ msgstr "Onderwerp"
 class TestPotFile(PotFileTestBase):
     @override
     def assets_directory_path(self) -> Path:
-        return ASSETS_DIRECTORY_PATH / "universe"
+        return ASSETS_DIRECTORY_PATH / "app"
 
     @override
     def command(self) -> str:
@@ -86,7 +86,7 @@ class TestPotFile(PotFileTestBase):
     async def update_translations(
         self, output_assets_directory_path_override: Path
     ) -> None:
-        await update_universe_translations(output_assets_directory_path_override)
+        await update_app_translations(output_assets_directory_path_override)
 
 
 class TestAssetTranslationRepository:

@@ -204,7 +204,7 @@ class Project(
         )
         self._logo = (
             betty.dirs.ASSETS_DIRECTORY_PATH
-            / "universe"
+            / "app"
             / "public"
             / "static"
             / "betty-512x512.png"

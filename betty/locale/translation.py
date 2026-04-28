@@ -27,7 +27,7 @@ from betty.locale import (
 from betty.locale.babel import run_babel
 from betty.locale.error import LocaleError
 from betty.locale.localizable.gettext import _
-from betty.plugins.asset.universe import UNIVERSE
+from betty.plugins.asset.app import APP
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
@@ -79,14 +79,14 @@ async def _new_translation(
         )
 
 
-async def update_universe_translations(override_output: Path | None = None, /) -> None:
+async def update_app_translations(override_output: Path | None = None, /) -> None:
     """
     Update the translations for Betty itself.
     """
     source_directory_path = betty.dirs.ROOT_DIRECTORY / "betty"
     test_directory_path = source_directory_path / "tests"
     await _update_translations(
-        UNIVERSE.assets if override_output is None else override_output,
+        APP.assets if override_output is None else override_output,
         _find_source_files(
             {source_directory_path, betty.dirs.ASSETS_DIRECTORY_PATH},
             {test_directory_path},
