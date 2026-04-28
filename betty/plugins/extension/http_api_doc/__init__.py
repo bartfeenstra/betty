@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING, final, override
 
+from betty.dirs import DATA_DIRECTORY
 from betty.extension import ExtensionDefinition
 from betty.locale.localizable.gettext import _
 from betty.plugins.asset_directory.http_api_doc import (
@@ -17,6 +17,7 @@ from betty.project import Project
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from pathlib import Path
 
 
 @final
@@ -40,7 +41,7 @@ class HttpApiDoc(EntryPointProvider):
     @override
     @classmethod
     def webpack_entry_point_directory_path(cls) -> Path:
-        return Path(__file__).parent / "webpack"
+        return DATA_DIRECTORY / "webpack" / cls.plugin().id
 
     @override
     def webpack_entry_point_cache_keys(self) -> Sequence[str]:

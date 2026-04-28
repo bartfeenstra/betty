@@ -22,9 +22,19 @@ ROOT_DIRECTORY: Final[Path] = Path(__file__).resolve().parent.parent
 The betty installation root directory path.
 """
 
-ASSETS_DIRECTORY_PATH: Final[Path] = ROOT_DIRECTORY / "assets"
+DATA_DIRECTORY: Final[Path] = ROOT_DIRECTORY / "data"
+"""
+The data directory path.
+"""
+
+ASSETS_DIRECTORY: Final[Path] = DATA_DIRECTORY / "assets"
 """
 The assets directory path.
+"""
+
+JS_DIRECTORY: Final[Path] = DATA_DIRECTORY / "js"
+"""
+The JavaScript directory path.
 """
 
 CACHE_DIRECTORY: Final[Path] = platformdirs.user_cache_path(

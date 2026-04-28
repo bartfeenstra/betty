@@ -9,7 +9,7 @@ export default [
     // Webpack configuration files.
     {
         files: [
-            '**/webpack.config.js',
+            'data/webpack/*/webpack.config.js',
         ],
         languageOptions: {
             globals: {
@@ -21,11 +21,7 @@ export default [
     // The Webpack extension and other extensions using it.
     {
         files: [
-            'betty/plugins/extension/http_api_doc/webpack/**',
-            'betty/plugins/extension/maps/webpack/**',
-            'betty/plugins/extension/raspberry_mint/webpack/**',
-            'betty/plugins/extension/trees/webpack/**',
-            'betty/plugins/extension/webpack/webpack/**',
+            'data/webpack/**',
         ],
         languageOptions: {
             globals: {
@@ -67,7 +63,7 @@ export default [
         },
     ].map(config => ({
         files: [
-            '**/*.ts',
+            'data/**/*.ts',
         ],
         ...config,
     })),

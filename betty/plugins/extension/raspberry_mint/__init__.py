@@ -7,10 +7,10 @@ from __future__ import annotations
 from asyncio import gather
 from collections import defaultdict
 from enum import Enum
-from pathlib import Path
 from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.content import Content, ContentManufacturer
+from betty.dirs import DATA_DIRECTORY
 from betty.extension import ExtensionDefinition
 from betty.factory import DataManufacturable, Manufacturable
 from betty.plugins.asset_directory.raspberry_mint import (
@@ -27,6 +27,7 @@ from betty.service.simple import service
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
+    from pathlib import Path
 
     from betty.job.scheduler import Scheduler
 
@@ -150,7 +151,7 @@ class RaspberryMint(
     @override
     @classmethod
     def webpack_entry_point_directory_path(cls) -> Path:
-        return Path(__file__).parent / "webpack"
+        return DATA_DIRECTORY / "webpack" / cls.plugin().id
 
     @override
     def webpack_entry_point_cache_keys(self) -> Sequence[str]:

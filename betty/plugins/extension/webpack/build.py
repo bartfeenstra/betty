@@ -13,7 +13,7 @@ from shutil import copy2, copytree
 from typing import TYPE_CHECKING, cast
 
 from betty import npm
-from betty.dirs import ROOT_DIRECTORY
+from betty.dirs import DATA_DIRECTORY, JS_DIRECTORY, ROOT_DIRECTORY
 from betty.document import Document
 from betty.extension import Extension
 from betty.file import read, write
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from betty.job import Context
     from betty.user import User
 
-_NPM_PROJECT_DIRECTORIES_PATH = Path(__file__).parent / "webpack"
+_NPM_PROJECT_DIRECTORY = DATA_DIRECTORY / "webpack" / "webpack"
 
 
 class EntryPointProvider(Extension):
@@ -58,7 +58,7 @@ async def _npm_project_id(
     entry_point_providers: Sequence[EntryPointProvider],
 ) -> str:
     return hashid_sequence(
-        await hashid_file_content(_NPM_PROJECT_DIRECTORIES_PATH / "package.json"),
+        await hashid_file_content(_NPM_PROJECT_DIRECTORY / "package.json"),
         *[
             await hashid_file_content(
                 entry_point_provider.webpack_entry_point_directory_path()
@@ -133,7 +133,7 @@ class Builder:
     async def _prepare_betty(self, npm_project_directory_path: Path) -> None:
         await to_thread(
             copytree,
-            ROOT_DIRECTORY / "js",
+            JS_DIRECTORY,
             npm_project_directory_path
             / "packages"
             / _package_name_to_path("@betty.py/betty"),
@@ -146,8 +146,8 @@ class Builder:
         await gather(*[
             to_thread(copy2, source_file_path, npm_project_directory_path)
             for source_file_path in (
-                _NPM_PROJECT_DIRECTORIES_PATH / "package.json",
-                _NPM_PROJECT_DIRECTORIES_PATH / "webpack.config.js",
+                _NPM_PROJECT_DIRECTORY / "package.json",
+                _NPM_PROJECT_DIRECTORY / "webpack.config.js",
                 ROOT_DIRECTORY / ".browserslistrc",
                 ROOT_DIRECTORY / "tsconfig.json",
             )
@@ -270,7 +270,7 @@ class Builder:
         webpack_build_directory_path: Path,
     ) -> None:
         package_paths = [
-            ROOT_DIRECTORY / "js",
+            JS_DIRECTORY,
             *(
                 entry_point_provider.webpack_entry_point_directory_path()
                 for entry_point_provider in self._entry_point_providers

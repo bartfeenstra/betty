@@ -7,7 +7,7 @@ from pathlib import Path
 
 import betty.dirs
 from betty.about import VERSION_MAJOR
-from betty.dirs import ASSETS_DIRECTORY_PATH, ROOT_DIRECTORY
+from betty.dirs import ASSETS_DIRECTORY, ROOT_DIRECTORY
 
 sys.path.insert(0, str(Path(betty.__file__).parent.parent))
 project = "Betty"
@@ -24,12 +24,8 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
     "referencing": ("https://referencing.readthedocs.io/en/stable/", None),
 }
-html_favicon = str(
-    ASSETS_DIRECTORY_PATH / "app" / "public" / "static" / "betty-512x512.png"
-)
-html_logo = str(
-    ASSETS_DIRECTORY_PATH / "app" / "public" / "static" / "betty-512x512.png"
-)
+html_favicon = str(ASSETS_DIRECTORY / "app" / "public" / "static" / "betty-512x512.png")
+html_logo = str(ASSETS_DIRECTORY / "app" / "public" / "static" / "betty-512x512.png")
 html_theme = "shibuya"
 html_theme_options = {
     "accent_color": "pink",

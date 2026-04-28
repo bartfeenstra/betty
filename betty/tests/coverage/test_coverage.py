@@ -1205,7 +1205,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/sphinx/extension/betty.py": MissingReason.COVERED_ELSEWHERE,
     "betty/subprocess.py": {
-        "CalledSubprocessError": MissingReason.STATIC_CONTENT_ONLY,
         "FileNotFound": MissingReason.STATIC_CONTENT_ONLY,
         "SubprocessError": MissingReason.STATIC_CONTENT_ONLY,
     },

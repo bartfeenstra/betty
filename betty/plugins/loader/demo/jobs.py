@@ -8,7 +8,7 @@ from random import choice
 from typing import TYPE_CHECKING, override
 
 from betty.date import Date, DateRange
-from betty.dirs import ASSETS_DIRECTORY_PATH
+from betty.dirs import ASSETS_DIRECTORY
 from betty.job import Job
 from betty.locale.localizable.gettext import _
 from betty.plugins.entity.citation import Citation
@@ -483,7 +483,7 @@ class LoadAncestry(Job):
         self,
     ) -> tuple[Mapping[MachineName, Sequence[File]], Sequence[File]]:
         streetmix_image_directory_path = (
-            ASSETS_DIRECTORY_PATH / "app" / "vendor" / "streetmix"
+            ASSETS_DIRECTORY / "app" / "vendor" / "streetmix"
         )
         masculine: Sequence[File] = []
         feminine: Sequence[File] = []

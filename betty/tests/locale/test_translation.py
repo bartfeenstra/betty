@@ -8,7 +8,7 @@ from babel import Locale
 
 from betty.asset import StaticAssetRepository
 from betty.cache.file import BinaryFileCache
-from betty.dirs import ASSETS_DIRECTORY_PATH
+from betty.dirs import ASSETS_DIRECTORY
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.translation import (
     AssetTranslationRepository,
@@ -76,7 +76,7 @@ msgstr "Onderwerp"
 class TestPotFile(PotFileTestBase):
     @override
     def assets_directory_path(self) -> Path:
-        return ASSETS_DIRECTORY_PATH / "app"
+        return ASSETS_DIRECTORY / "app"
 
     @override
     def command(self) -> str:

@@ -203,7 +203,7 @@ class Project(
             key_resolver=resolve_locale,
         )
         self._logo = (
-            betty.dirs.ASSETS_DIRECTORY_PATH
+            betty.dirs.ASSETS_DIRECTORY
             / "app"
             / "public"
             / "static"

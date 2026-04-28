@@ -9,6 +9,7 @@ from asyncio.subprocess import Process
 from collections.abc import Sequence
 from pathlib import Path
 from subprocess import PIPE
+from typing import override
 
 from betty.locale.localizable.gettext import _
 from betty.user import User, Verbosity
@@ -24,6 +25,15 @@ class CalledSubprocessError(subprocess.CalledProcessError, SubprocessError):
     """
     Raised when a subprocess was successfully invoked, but subsequently failed during its own execution.
     """
+
+    @override
+    def __str__(self):
+        message = super().__str__()
+        if self.stdout:
+            message += "\nstdout:\n" + self.stdout
+        if self.stderr:
+            message += "\nstderr:\n" + self.stderr
+        return message
 
 
 class FileNotFound(FileNotFoundError, SubprocessError):

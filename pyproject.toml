@@ -394,18 +394,13 @@ exclude = [
 betty = [
     'py.typed',
 
-    # Assets.
-    '../assets/**/*',
-    '../assets/app/public/localized/.error/*',
-
-    # JavaScript
-    '../js/*',
-    '../js/**/*',
+    # Data.
+    '../data/**/*',
+    '../data/assets/app/public/localized/.error/*',
 
     # Webpack.
     '../.browserslistrc',
     '../tsconfig.json',
-    'plugins/extension/*/webpack/**/*',
 ]
 
 [tool.setuptools.exclude-package-data]
