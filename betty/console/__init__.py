@@ -5,7 +5,8 @@ The Betty console.
 import argparse
 import sys
 from asyncio import CancelledError, run
-from collections.abc import Iterable, Sequence
+from collections.abc import AsyncIterator, Iterable, Sequence
+from contextlib import asynccontextmanager
 from enum import IntEnum
 from typing import Any, cast, final, override
 
@@ -17,7 +18,8 @@ from betty.console.command import CommandDefinition, CommandFunction
 from betty.exception import HumanFacingException
 from betty.locale.localizable.gettext import _
 from betty.locale.localize import Localizer
-from betty.user import Verbosity
+from betty.rich.user import RichUser
+from betty.user import User, Verbosity
 
 
 @final
@@ -257,10 +259,11 @@ async def main(app: App, args: Sequence[str]) -> None:
     try:
         await call_command_func(command_func, namespace)
     except HumanFacingException as error:
-        if always_print_exception_tracebacks:
-            await app.user.message_exception()
-        else:
-            await app.user.message_error(error)
+        async with _ensure_rich_user(app.user) as user:
+            if always_print_exception_tracebacks:
+                await user.message_exception()
+            else:
+                await user.message_error(error)
         raise SystemExit(SystemExitCode.ERROR_UNEXPECTED) from None
     except (CancelledError, KeyboardInterrupt):
         await app.user.message_information(_("Quitting..."))
@@ -268,12 +271,13 @@ async def main(app: App, args: Sequence[str]) -> None:
             await app.user.message_exception()
         raise SystemExit(SystemExitCode.USER_QUIT) from None
     except Exception:
-        await app.user.message_exception()
-        await app.user.message_warning(
-            _(
-                "An unexpected error occurred. If you believe this is a problem with Betty, please report this at {url}."
-            ).format(url="https://github.com/bartfeenstra/betty/issues/new")
-        )
+        async with _ensure_rich_user(app.user) as user:
+            await user.message_exception()
+            await user.message_warning(
+                _(
+                    "An unexpected error occurred. If you believe this is a problem with Betty, please report this at {url}."
+                ).format(url="https://github.com/bartfeenstra/betty/issues/new")
+            )
         raise SystemExit(SystemExitCode.ERROR_UNEXPECTED) from None
     else:
         raise SystemExit(SystemExitCode.OK) from None
@@ -306,3 +310,13 @@ async def call_command_func(
         for name, value in vars(namespace).items()
         if not name.startswith("_")
     })
+
+
+@asynccontextmanager
+async def _ensure_rich_user(user: User) -> AsyncIterator[User]:
+    if isinstance(user, RichUser):
+        yield user
+    else:
+        async with RichUser() as rich_user:
+            rich_user.localizer = user.localizer
+            yield rich_user
