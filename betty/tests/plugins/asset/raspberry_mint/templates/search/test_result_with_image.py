@@ -6,7 +6,7 @@ from betty.entity import EntityDefinition
 from betty.entity.has_file_references import HasFileReferences
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
-from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
+from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.entity.file import File
 from betty.plugins.entity.file_reference import FileReference
 from betty.test_utils.conftest import AssertTemplateFile

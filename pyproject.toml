@@ -78,7 +78,7 @@ GitHub = 'https://github.com/bartfeenstra/betty'
 betty = 'betty.console:main_standalone'
 
 [project.entry-points.'betty.plugin']
-'asset' = 'betty.asset:AssetDefinition'
+'asset-directory' = 'betty.asset:AssetDirectoryDefinition'
 'command' = 'betty.console.command:CommandDefinition'
 'content' = 'betty.content:ContentDefinition'
 'copyright-notice' = 'betty.copyright_notice:CopyrightNoticeDefinition'
@@ -103,15 +103,15 @@ betty = 'betty.console:main_standalone'
 'serializer' = 'betty.serde:SerializerDefinition'
 'server' = 'betty.server:ServerDefinition'
 
-[project.entry-points.'betty.asset']
-'app' = 'betty.plugins.asset.app:APP'
-'htt-api-doc' = 'betty.plugins.asset.http_api_doc:HTTP_API_DOC'
-'maps' = 'betty.plugins.asset.maps:MAPS'
-'project' = 'betty.plugins.asset.project:_discover'
-'raspberry-mint' = 'betty.plugins.asset.raspberry_mint:RASPBERRY_MINT'
-'trees' = 'betty.plugins.asset.trees:TREES'
-'webpack' = 'betty.plugins.asset.webpack:WEBPACK'
-'wiki' = 'betty.plugins.asset.wiki:WIKI'
+[project.entry-points.'betty.asset_directory']
+'app' = 'betty.plugins.asset_directory.app:APP'
+'htt-api-doc' = 'betty.plugins.asset_directory.http_api_doc:HTTP_API_DOC'
+'maps' = 'betty.plugins.asset_directory.maps:MAPS'
+'project' = 'betty.plugins.asset_directory.project:_discover'
+'raspberry-mint' = 'betty.plugins.asset_directory.raspberry_mint:RASPBERRY_MINT'
+'trees' = 'betty.plugins.asset_directory.trees:TREES'
+'webpack' = 'betty.plugins.asset_directory.webpack:WEBPACK'
+'wiki' = 'betty.plugins.asset_directory.wiki:WIKI'
 
 [project.entry-points.'betty.command']
 'about' = 'betty.plugins.command.about:About'

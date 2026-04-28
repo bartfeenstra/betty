@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.content import ContentDefinition
 from betty.factory import Manufacturable
 from betty.locale.localizable.gettext import _
-from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
+from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.place import Place
 from betty.project import Project
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 @ContentDefinition(
     "raspberry-mint-enclosees",
     label=_("Enclosees"),
-    requires={Project.assets.require(RASPBERRY_MINT)},
+    requires={Project.asset_directories.require(RASPBERRY_MINT)},
 )
 class Enclosees(Template, Manufacturable):
     """

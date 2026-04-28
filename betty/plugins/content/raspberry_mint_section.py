@@ -16,7 +16,7 @@ from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import LocalizableProperty
 from betty.machine_name import MachineName, MachineNameProperty, ResolvableMachineName
 from betty.plugin.data.property import PluginManufacturerSequenceProperty
-from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
+from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project
 from betty.property import Optional, Property
@@ -102,7 +102,7 @@ class SectionConfiguration(Data):
 @ContentDefinition(
     "raspberry-mint-section",
     label=_("Section"),
-    requires={Project.assets.require(RASPBERRY_MINT)},
+    requires={Project.asset_directories.require(RASPBERRY_MINT)},
 )
 class Section(Template, DataManufacturable[SectionConfiguration]):
     """

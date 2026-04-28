@@ -27,7 +27,7 @@ from betty.locale import (
 from betty.locale.babel import run_babel
 from betty.locale.error import LocaleError
 from betty.locale.localizable.gettext import _
-from betty.plugins.asset.app import APP
+from betty.plugins.asset_directory.app import APP
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
@@ -41,13 +41,13 @@ if TYPE_CHECKING:
 
     from babel import Locale
 
-    from betty.asset import AssetDefinition, AssetRepository
+    from betty.asset import AssetDirectoryDefinition, AssetRepository
     from betty.cache.file import BinaryFileCache
     from betty.user import User
 
 
 async def _new_translation(
-    output: AssetDefinition, locale: Locale, *, user: User
+    output: AssetDirectoryDefinition, locale: Locale, *, user: User
 ) -> None:
     po_file_path = output.assets / "locale" / to_language_tag(locale) / "betty.po"
     with redirect_stdout(StringIO()):
@@ -138,7 +138,7 @@ async def _update_translations(output: Path, inputs: Iterable[Path]) -> None:
 
 
 async def new_translation(
-    output: AssetDefinition, locale: Locale, *, user: User
+    output: AssetDirectoryDefinition, locale: Locale, *, user: User
 ) -> None:
     """
     Create a new translation.

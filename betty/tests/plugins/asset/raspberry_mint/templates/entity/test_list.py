@@ -1,4 +1,4 @@
-from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
+from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.entity.event import Event
 from betty.privacy import Privacy
 from betty.test_utils.conftest import AssertTemplateFile

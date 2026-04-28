@@ -64,7 +64,7 @@ if TYPE_CHECKING:
 
     from playwright.async_api import BrowserContext, Page
 
-    from betty.asset import AssetDefinition
+    from betty.asset import AssetDirectoryDefinition
     from betty.cache import Cache
     from betty.entity import EntityDefinition
     from betty.entity.collection.pool import EntityPool
@@ -206,7 +206,7 @@ class IsolatedProjectFactory(Protocol):
         *,
         ancestry: EntityPool | None = None,
         app: App | None = None,
-        assets: Iterable[ResolvablePluginDefinition[AssetDefinition]] = (),
+        assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
         author: ResolvableLocalizable | None = None,
         cache: TypedSynchronousServiceOrFactory[Project, Cache[Any]]
         | None
@@ -247,7 +247,7 @@ def isolated_project_factory(isolated_app: App) -> IsolatedProjectFactory:
         *,
         ancestry: EntityPool | None = None,
         app: App | None = None,
-        assets: Iterable[ResolvablePluginDefinition[AssetDefinition]] = (),
+        assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
         author: ResolvableLocalizable | None = None,
         cache: TypedSynchronousServiceOrFactory[Project, Cache[Any]]
         | None
@@ -521,7 +521,7 @@ async def _assert_template(
     template_factory: Callable[[Environment, str], Template],
     template: str,
     *,
-    assets: Iterable[ResolvablePluginDefinition[AssetDefinition]] = (),
+    assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
     autoescape: bool | None = None,
     data: MutableMapping[str, Any] | None = None,
     enrichers: ServicePluginInstances[EnricherDefinition] = (),
@@ -554,7 +554,7 @@ class AssertTemplateString(Protocol):
         self,
         template: str,
         *,
-        assets: Iterable[ResolvablePluginDefinition[AssetDefinition]] = (),
+        assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
         autoescape: bool | None = None,
         data: MutableMapping[str, Any] | None = None,
         enrichers: ServicePluginInstances[EnricherDefinition] = (),
@@ -578,7 +578,7 @@ def assert_template_string(
     def _assert_template_string(
         template: str,
         *,
-        assets: Iterable[ResolvablePluginDefinition[AssetDefinition]] = (),
+        assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
         autoescape: bool | None = None,
         data: MutableMapping[str, Any] | None = None,
         enrichers: ServicePluginInstances[EnricherDefinition] = (),
@@ -608,7 +608,7 @@ class AssertTemplateFile(Protocol):
         self,
         template: str,
         *,
-        assets: Iterable[ResolvablePluginDefinition[AssetDefinition]] = (),
+        assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
         autoescape: bool | None = None,
         data: MutableMapping[str, Any] | None = None,
         enrichers: ServicePluginInstances[EnricherDefinition] = (),
@@ -632,7 +632,7 @@ def assert_template_file(
     def _assert_template_file(
         template: str,
         *,
-        assets: Iterable[ResolvablePluginDefinition[AssetDefinition]] = (),
+        assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
         autoescape: bool | None = None,
         data: MutableMapping[str, Any] | None = None,
         enrichers: ServicePluginInstances[EnricherDefinition] = (),

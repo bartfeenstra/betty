@@ -14,7 +14,7 @@ from betty.data.enum import EnumDefinition
 from betty.factory import DataManufacturable
 from betty.locale.localizable.gettext import _
 from betty.plugin.data.property import PluginManufacturerSequenceProperty
-from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
+from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.extension.raspberry_mint import ColorStyle as RaspberryMintColorStyle
 from betty.project import Project
@@ -75,7 +75,7 @@ class ColorStyleConfiguration(Data):
 @ContentDefinition(
     "raspberry-mint-color-style",
     label=_("Color style"),
-    requires={Project.assets.require(RASPBERRY_MINT)},
+    requires={Project.asset_directories.require(RASPBERRY_MINT)},
 )
 class ColorStyle(Template, DataManufacturable[ColorStyleConfiguration]):
     """

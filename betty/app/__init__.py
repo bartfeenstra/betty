@@ -50,7 +50,7 @@ if TYPE_CHECKING:
 
     import aiohttp
 
-    from betty.asset import AssetDefinition
+    from betty.asset import AssetDirectoryDefinition
     from betty.plugin import PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.plugin.resolve import ResolvablePluginDefinition
@@ -79,7 +79,7 @@ class App(RequirableServiceLevel, PluginServiceProvider):
          - :py:class:`betty.app.data.AppConfiguration`
     """
 
-    assets = AssetRepositoryService()
+    asset_directories = AssetRepositoryService()
 
     entity_types = PluginDefinitionsService(EntityDefinition)
     """
@@ -96,7 +96,7 @@ class App(RequirableServiceLevel, PluginServiceProvider):
         self,
         *,
         binary_file_cache: TypedSynchronousServiceOrFactory[App, BinaryFileCache],
-        assets: Iterable[ResolvablePluginDefinition[AssetDefinition]] = (),
+        assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
         cache: TypedSynchronousServiceOrFactory[App, Cache[Any]] | None = None,
         locale: ResolvableLocale | None = None,
         meda_types: Iterable[ResolvablePluginDefinition[MediaTypeDefinition]] = (),
@@ -138,7 +138,7 @@ class App(RequirableServiceLevel, PluginServiceProvider):
                 self, Service(cache) if isinstance(cache, Cache) else cache
             )
         super().__init__(plugins=plugins, supported_plugins=supported_plugins)
-        cls.assets.add_init_plugins(self, *assets)
+        cls.asset_directories.add_init_plugins(self, *assets)
         cls.media_types.add_init_plugins(self, *meda_types)
         cls.rate_limits.add_init_plugins(self, *rate_limits)
         cls.serializers.add_init_plugins(self, *serializers)
@@ -233,7 +233,9 @@ class App(RequirableServiceLevel, PluginServiceProvider):
         """
         The available translations.
         """
-        return AssetTranslationRepository(self.assets, self.binary_file_cache)
+        return AssetTranslationRepository(
+            self.asset_directories, self.binary_file_cache
+        )
 
     @service
     async def localizer(self) -> Localizer:

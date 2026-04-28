@@ -1,5 +1,5 @@
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
+from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.entity.enclosure import Enclosure
 from betty.plugins.entity.place import Place
 from betty.plugins.place_type.country import Country

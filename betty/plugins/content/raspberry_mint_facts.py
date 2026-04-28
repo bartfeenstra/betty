@@ -10,7 +10,7 @@ from betty.content import ContentDefinition
 from betty.factory import Manufacturable
 from betty.functools import unique
 from betty.locale.localizable.gettext import _
-from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
+from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.source import Source
@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     description=_(
         "Other entities that reference a citation or source to back up their claims."
     ),
-    requires={Project.assets.require(RASPBERRY_MINT)},
+    requires={Project.asset_directories.require(RASPBERRY_MINT)},
 )
 class Facts(Template, Manufacturable):
     """

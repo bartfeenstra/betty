@@ -8,7 +8,7 @@ from betty.content import ContentDefinition
 from betty.document import Document
 from betty.factory import Manufacturable
 from betty.locale.localizable.gettext import _
-from betty.plugins.asset.maps import MAPS
+from betty.plugins.asset_directory.maps import MAPS
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
@@ -23,7 +23,7 @@ from betty.project import Project
     "map",
     label=_("Map"),
     requires={
-        Project.assets.require(MAPS),
+        Project.asset_directories.require(MAPS),
         Project.extensions.require(Webpack),
         Project.jinja_filters.require(WebpackEntryPointJs),
     },
