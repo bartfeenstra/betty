@@ -10,7 +10,7 @@ from betty.content import ContentDefinition
 from betty.entity.has_file_references import HasFileReferences
 from betty.factory import Manufacturable
 from betty.locale.localizable.gettext import _
-from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
+from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.extension._theme import associated_file_references
 from betty.project import Project
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     "raspberry-mint-media-gallery",
     label=_("Media gallery"),
     description=_("Multiple files in a media gallery display"),
-    requires={Project.assets.require(RASPBERRY_MINT)},
+    requires={Project.asset_directories.require(RASPBERRY_MINT)},
 )
 class MediaGallery(Template, Manufacturable):
     """

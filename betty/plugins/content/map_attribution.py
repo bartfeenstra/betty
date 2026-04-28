@@ -8,7 +8,7 @@ from betty.content import ContentDefinition
 from betty.document import Document
 from betty.factory import Manufacturable
 from betty.locale.localizable.gettext import _
-from betty.plugins.asset.maps import MAPS
+from betty.plugins.asset_directory.maps import MAPS
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project
 
@@ -17,7 +17,7 @@ from betty.project import Project
 @ContentDefinition(
     "map-attribution",
     label=_("Map attribution"),
-    requires={Project.assets.require(MAPS)},
+    requires={Project.asset_directories.require(MAPS)},
 )
 class MapAttribution(Template, Manufacturable):
     """

@@ -14,7 +14,7 @@ from betty.factory import DataManufacturable, Manufacturable
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
-from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
+from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.event import Event
 from betty.project import Project
@@ -84,7 +84,7 @@ class PresencesConfiguration(Data):
 @ContentDefinition(
     "raspberry-mint-presences",
     label=_("Presences"),
-    requires={Project.assets.require(RASPBERRY_MINT)},
+    requires={Project.asset_directories.require(RASPBERRY_MINT)},
 )
 class Presences(Template, DataManufacturable[PresencesConfiguration], Manufacturable):
     """

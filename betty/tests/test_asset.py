@@ -4,7 +4,7 @@ from tempfile import TemporaryDirectory
 import pytest
 
 from betty.asset import (
-    AssetDefinition,
+    AssetDirectoryDefinition,
     AssetRepository,
     AssetRepositoryService,
     StaticAssetRepository,
@@ -14,9 +14,9 @@ from betty.service.plugin import PluginServiceProvider
 from betty.service_level import ServiceLevel
 
 
-class TestAssetDefinition:
+class TestAssetDirectoryDefinition:
     def test_assets(self, tmp_path: Path) -> None:
-        sut = AssetDefinition("my-first-asset", assets=tmp_path)
+        sut = AssetDirectoryDefinition("my-first-asset", assets=tmp_path)
         assert sut.assets is tmp_path
 
 
@@ -112,16 +112,18 @@ class TestStaticAssetRepository:
 
 class TestAssetRepositoryService:
     async def test_new_service(self) -> None:
-        _ASSET = AssetDefinition("my-first-asset", assets=Path(__file__))
+        _ASSET = AssetDirectoryDefinition("my-first-asset", assets=Path(__file__))
 
         class _ServiceProvider(PluginServiceProvider):
             def __init__(self):
                 super().__init__(
-                    services=ServiceLevel(plugins={AssetDefinition: [_ASSET]})
+                    services=ServiceLevel(plugins={AssetDirectoryDefinition: [_ASSET]})
                 )
-                type(self).assets.add_init_plugins(self, _ASSET)
+                type(self).asset_directories.add_init_plugins(self, _ASSET)
 
-            assets = AssetRepositoryService()
+            asset_directories = AssetRepositoryService()
 
         async with _ServiceProvider() as service_provider:
-            assert list(service_provider.assets.directories) == [_ASSET.assets]
+            assert list(service_provider.asset_directories.directories) == [
+                _ASSET.assets
+            ]

@@ -10,7 +10,7 @@ from betty.content import ContentDefinition
 from betty.entity.has_citations import HasCitations
 from betty.factory import Manufacturable
 from betty.locale.localizable.gettext import _
-from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
+from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project
 
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 @ContentDefinition(
     "raspberry-mint-citations",
     label=_("Citations"),
-    requires={Project.assets.require(RASPBERRY_MINT)},
+    requires={Project.asset_directories.require(RASPBERRY_MINT)},
 )
 class Citations(Template, Manufacturable):
     """

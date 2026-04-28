@@ -91,7 +91,7 @@ class TestProject:
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         async with isolated_project_factory() as sut:
-            assert len(sut.assets.directories) == 2
+            assert len(sut.asset_directories.directories) == 2
 
     async def test_jinja(
         self, isolated_project_factory: IsolatedProjectFactory

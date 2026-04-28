@@ -132,24 +132,24 @@ class StaticAssetRepository(AssetRepository):
 
 @final
 @PluginTypeDefinition(
-    "asset",
-    label=_("Asset"),
-    label_plural=_("Assets"),
-    label_countable=ngettext("{count} asset", "{count} assets"),
+    "asset-directory",
+    label=_("Asset directory"),
+    label_plural=_("Asset directories"),
+    label_countable=ngettext("{count} asset directory", "{count} asset directories"),
 )
-class AssetDefinition(OrderedPluginDefinition):
+class AssetDirectoryDefinition(OrderedPluginDefinition):
     """
-    .. plugin_type:: asset.
+    .. plugin_type:: asset-directory.
     """
 
     def __init__(
         self,
         plugin_id: ResolvableMachineName,
         *,
-        after: Order[AssetDefinition] = (),
+        after: Order[AssetDirectoryDefinition] = (),
         assets: Path,
         auto: bool = False,
-        before: Order[AssetDefinition] = (),
+        before: Order[AssetDirectoryDefinition] = (),
         requires: Requires = (),
     ):
         super().__init__(
@@ -172,7 +172,7 @@ class AssetDefinition(OrderedPluginDefinition):
 @final
 class AssetRepositoryService[ServiceProviderT: PluginServiceProvider](
     CollectionPluginDefinitionServiceManager[
-        ServiceProviderT, AssetDefinition, AssetRepository
+        ServiceProviderT, AssetDirectoryDefinition, AssetRepository
     ]
 ):
     """
@@ -180,7 +180,7 @@ class AssetRepositoryService[ServiceProviderT: PluginServiceProvider](
     """
 
     def __init__(self):
-        super().__init__(AssetDefinition)
+        super().__init__(AssetDirectoryDefinition)
 
     @override
     def new_service(self, instance: ServiceProviderT, /) -> AssetRepository:

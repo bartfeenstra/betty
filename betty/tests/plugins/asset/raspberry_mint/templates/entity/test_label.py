@@ -6,7 +6,7 @@ from betty.plugins.entity.event import Event
 
 if TYPE_CHECKING:
     from betty.test_utils.conftest import AssertTemplateFile
-from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
+from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 
 
 async def test_minimal(assert_template_file: AssertTemplateFile) -> None:

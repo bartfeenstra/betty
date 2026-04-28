@@ -78,7 +78,9 @@ class GenerateStaticPublicAssets(Job):
         )
         await gather(*[
             self._generate(scheduler, asset_path, copy_function)
-            async for asset_path in self._project.assets.walk(Path("public") / "static")
+            async for asset_path in self._project.asset_directories.walk(
+                Path("public") / "static"
+            )
         ])
 
     async def _generate(
@@ -89,7 +91,7 @@ class GenerateStaticPublicAssets(Job):
         )
         await to_thread(file_destination_path.parent.mkdir, exist_ok=True, parents=True)
         await copy_function(
-            await self._project.assets.get(asset_path), file_destination_path
+            await self._project.asset_directories.get(asset_path), file_destination_path
         )
 
 
@@ -297,7 +299,7 @@ class GenerateLocalizedPublicAssets(Job):
         }
         await gather(*[
             self._generate(scheduler, asset_path, copy_functions[locale], locale)
-            async for asset_path in self._project.assets.walk(
+            async for asset_path in self._project.asset_directories.walk(
                 Path("public") / "localized"
             )
             for locale in self._project.locales.keys()  # noqa: SIM118
@@ -315,7 +317,7 @@ class GenerateLocalizedPublicAssets(Job):
         ) / asset_path.relative_to(Path("public") / "localized")
         await to_thread(file_destination_path.parent.mkdir, exist_ok=True, parents=True)
         await copy_function(
-            await self._project.assets.get(asset_path), file_destination_path
+            await self._project.asset_directories.get(asset_path), file_destination_path
         )
 
 

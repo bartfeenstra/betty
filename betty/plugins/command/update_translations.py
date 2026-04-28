@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.app import App
 from betty.argparse import assertion_to_argument_type
 from betty.assertion import assert_directory_path
-from betty.asset import AssetDefinition
+from betty.asset import AssetDirectoryDefinition
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.factory import Manufacturable
 from betty.locale import translation
@@ -39,13 +39,18 @@ class UpdateTranslations(Manufacturable, Command):
     @override
     async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
         localizer = await self._app.localizer
-        assets = {asset.id: asset async for asset in self._app.plugins[AssetDefinition]}
+        assets = {
+            asset.id: asset
+            async for asset in self._app.plugins[AssetDirectoryDefinition]
+        }
 
-        def _assert_asset(asset_id: str) -> AssetDefinition:
+        def _assert_asset(asset_id: str) -> AssetDirectoryDefinition:
             try:
                 asset = assets[asset_id]
             except KeyError:
-                raise PluginNotFound(AssetDefinition, asset_id, assets.keys()) from None
+                raise PluginNotFound(
+                    AssetDirectoryDefinition, asset_id, assets.keys()
+                ) from None
             return asset
 
         parser.add_argument(
@@ -71,7 +76,10 @@ class UpdateTranslations(Manufacturable, Command):
         return self._command_function
 
     async def _command_function(
-        self, output: AssetDefinition, inputs: tuple[Path], excludes: tuple[Path]
+        self,
+        output: AssetDirectoryDefinition,
+        inputs: tuple[Path],
+        excludes: tuple[Path],
     ) -> None:
         await translation.update_translations(
             output.assets, inputs, excludes, user=self._app.user

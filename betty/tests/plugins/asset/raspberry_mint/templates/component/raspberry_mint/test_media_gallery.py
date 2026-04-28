@@ -4,7 +4,7 @@ from PIL import Image
 
 from betty.entity.association import TemporaryToOneResolver
 from betty.media_type import MediaType
-from betty.plugins.asset.raspberry_mint import RASPBERRY_MINT
+from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.entity.file import File
 from betty.plugins.entity.file_reference import FileReference
 from betty.privacy import Privacy

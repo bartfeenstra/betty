@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-27 18:23+0100\n"
+"POT-Creation-Date: 2026-04-28 12:44+0100\n"
 "PO-Revision-Date: 2026-02-17 18:12+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: fr_FR\n"
@@ -170,10 +170,10 @@ msgstr ""
 msgid "Are you sure you want to clear all caches?"
 msgstr ""
 
-msgid "Asset"
+msgid "Asset directories"
 msgstr ""
 
-msgid "Assets"
+msgid "Asset directory"
 msgstr ""
 
 msgid "Assets directory"
@@ -2241,8 +2241,8 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, python-brace-format
-msgid "{count} asset"
-msgid_plural "{count} assets"
+msgid "{count} asset directory"
+msgid_plural "{count} asset directories"
 msgstr[0] ""
 msgstr[1] ""
 

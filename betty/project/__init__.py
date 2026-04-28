@@ -71,7 +71,7 @@ from betty.service_level.requirement import RequirableServiceLevel
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Collection, Iterable, Mapping
 
-    from betty.asset import AssetDefinition
+    from betty.asset import AssetDirectoryDefinition
     from betty.collection.keyed import KeyedCollection
     from betty.entity import EntityDefinition
     from betty.jinja import Environment
@@ -115,7 +115,7 @@ class Project(
          - :py:class:`betty.project.data.ProjectConfiguration`
     """
 
-    assets = AssetRepositoryService()
+    asset_directories = AssetRepositoryService()
     copyright_notice = PluginInstanceService(CopyrightNoticeDefinition)
     css_resources = PluginDefinitionsService(CssResourceDefinition)
     document_providers = PluginInstancesService(DocumentProviderDefinition)
@@ -138,7 +138,7 @@ class Project(
         title: ResolvableLocalizable,
         url: str,
         ancestry: EntityPool | None = None,
-        assets: Iterable[ResolvablePluginDefinition[AssetDefinition]] = (),
+        assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
         author: ResolvableLocalizable | None = None,
         cache: TypedSynchronousServiceOrFactory[Project, Cache[Any]] | None = None,
         clean_urls: bool = False,
@@ -175,7 +175,7 @@ class Project(
         super().__init__(
             plugins=plugins, supported_plugins=supported_plugins, upstream=app
         )
-        cls.assets.add_init_plugins(self, *assets)
+        cls.asset_directories.add_init_plugins(self, *assets)
         cls.copyright_notice.add_init_plugins(self, copyright_notice or ProjectAuthor)
         cls.enrichers.add_init_plugins(self, *enrichers)
         cls.extensions.add_init_plugins(self, *extensions)
@@ -263,7 +263,7 @@ class Project(
         *,
         ancestry: EntityPool | None = None,
         app: App | None = None,
-        assets: Iterable[ResolvablePluginDefinition[AssetDefinition]] = (),
+        assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
         author: ResolvableLocalizable | None = None,
         cache: TypedSynchronousServiceOrFactory[Project, Cache[Any]]
         | None
@@ -515,7 +515,9 @@ class Project(
         """
         The available translations.
         """
-        return AssetTranslationRepository(self.assets, self.binary_file_cache)
+        return AssetTranslationRepository(
+            self.asset_directories, self.binary_file_cache
+        )
 
     @service
     async def localizers(self) -> LocalizerRepository:

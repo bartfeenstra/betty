@@ -75,7 +75,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         }
     },
     "betty/asset.py": {
-        "AssetDefinition": {
+        "AssetDirectoryDefinition": {
             "type": MissingReason.INHERITED,
         },
         "AssetError": MissingReason.ABSTRACT,
@@ -487,14 +487,14 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/plugin/ordered.py": {
         "OrderedPluginClsDefinition": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/plugins/asset/app.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/asset/http_api_doc.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/asset/maps.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/asset/raspberry_mint.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/asset/trees.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/asset/project.py": MissingReason.COVERED_ELSEWHERE,
-    "betty/plugins/asset/webpack.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/asset/wiki.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/asset_directory/app.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/asset_directory/http_api_doc.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/asset_directory/maps.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/asset_directory/raspberry_mint.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/asset_directory/trees.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/asset_directory/project.py": MissingReason.COVERED_ELSEWHERE,
+    "betty/plugins/asset_directory/webpack.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/asset_directory/wiki.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/command/about.py": {
         "About": {
             "plugin": MissingReason.INHERITED,
