@@ -23,10 +23,6 @@ class Result:
     stdout: str
 
 
-# @todo Fix this in a separate PR, but...
-# @todo How can we finally get some stdout and stderr in errors?
-# @todo The reason we don't is that we really always call this with an app with NoOpUser or StaticUser
-# @todo
 async def run(
     app: App, *args: str, expected_exit_code: SystemExitCode = SystemExitCode.OK
 ) -> Result:
