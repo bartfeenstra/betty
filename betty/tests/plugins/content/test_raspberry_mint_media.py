@@ -19,11 +19,7 @@ class TestMedia:
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         resource = File(
-            ASSETS_DIRECTORY_PATH
-            / "universe"
-            / "public"
-            / "static"
-            / "betty-16x16.png",
+            ASSETS_DIRECTORY_PATH / "app" / "public" / "static" / "betty-16x16.png",
             media_type=MediaType("image/png"),
         )
         async with isolated_project_factory(supported_plugins=[Media]) as project:

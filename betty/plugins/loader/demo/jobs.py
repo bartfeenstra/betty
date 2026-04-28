@@ -483,7 +483,7 @@ class LoadAncestry(Job):
         self,
     ) -> tuple[Mapping[MachineName, Sequence[File]], Sequence[File]]:
         streetmix_image_directory_path = (
-            ASSETS_DIRECTORY_PATH / "universe" / "vendor" / "streetmix"
+            ASSETS_DIRECTORY_PATH / "app" / "vendor" / "streetmix"
         )
         masculine: Sequence[File] = []
         feminine: Sequence[File] = []
