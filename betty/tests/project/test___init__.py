@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 import pytest
 from babel import Locale
 
-from betty.dirs import ASSETS_DIRECTORY_PATH
+from betty.dirs import ASSETS_DIRECTORY
 from betty.entity import EntityDefinition
 from betty.entity.collection.pool import EntityPool
 from betty.exception import HumanFacingException
@@ -130,7 +130,7 @@ class TestProject:
             await sut.url_generator
 
     async def test_logo(self, isolated_project_factory: IsolatedProjectFactory) -> None:
-        logo = ASSETS_DIRECTORY_PATH / "app" / "public" / "static" / "betty-256x256.png"
+        logo = ASSETS_DIRECTORY / "app" / "public" / "static" / "betty-256x256.png"
         async with isolated_project_factory(logo=logo) as sut:
             assert sut.logo == logo
 

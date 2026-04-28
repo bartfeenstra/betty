@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.dirs import DATA_DIRECTORY
 from betty.extension import ExtensionDefinition
 from betty.factory import Manufacturable
 from betty.locale.localizable.gettext import _
@@ -17,6 +17,7 @@ from betty.project.generate import Generator
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from pathlib import Path
 
     from betty.job.scheduler import Scheduler
 
@@ -53,7 +54,7 @@ class Trees(Generator, EntryPointProvider, Manufacturable):
     @override
     @classmethod
     def webpack_entry_point_directory_path(cls) -> Path:
-        return Path(__file__).parent / "webpack"
+        return DATA_DIRECTORY / "webpack" / cls.plugin().id
 
     @override
     def webpack_entry_point_cache_keys(self) -> Sequence[str]:

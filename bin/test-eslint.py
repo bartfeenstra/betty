@@ -12,7 +12,6 @@ check_call([
     "node_modules/.bin/eslint",
     "-c",
     "eslint.config.js",
-    "betty",
-    "js",
+    "data",
     *sys.argv[2:],
 ])

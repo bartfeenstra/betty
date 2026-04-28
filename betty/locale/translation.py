@@ -88,7 +88,7 @@ async def update_app_translations(override_output: Path | None = None, /) -> Non
     await _update_translations(
         APP.assets if override_output is None else override_output,
         _find_source_files(
-            {source_directory_path, betty.dirs.ASSETS_DIRECTORY_PATH},
+            {source_directory_path, betty.dirs.ASSETS_DIRECTORY},
             {test_directory_path},
         ),
     )
