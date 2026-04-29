@@ -1,7 +1,6 @@
 from __future__ import annotations  # noqa: D100
 
 import asyncio
-from pathlib import Path
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.app import App
@@ -52,7 +51,7 @@ class Demo(Manufacturable, Command):
                 await server.show()
                 await self._wait_forever()
         else:
-            project = await create_project(self._app, Path(path), url=url)
+            project = await create_project(self._app, path, url=url)
             async with (
                 project,
                 project.upstream.user.message_progress(

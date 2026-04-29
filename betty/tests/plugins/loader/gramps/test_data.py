@@ -73,7 +73,7 @@ class TestGrampsConfiguration(DataTestBase[GrampsConfiguration]):
     async def test___init____with_executable(self) -> None:
         executable = Path("my-first-gramps")
         sut = GrampsConfiguration(executable=executable)
-        assert sut.executable == executable
+        assert sut.executable is executable
 
     async def test_family_trees(self) -> None:
         family_trees = [FamilyTree(name="my-first-family-tree")]
@@ -85,4 +85,4 @@ class TestGrampsConfiguration(DataTestBase[GrampsConfiguration]):
         executable = Path("my-first-gramps")
         sut = GrampsConfiguration()
         sut.executable = executable
-        assert sut.executable == executable
+        assert sut.executable is executable

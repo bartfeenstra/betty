@@ -33,7 +33,7 @@ async def test_is_supported_media_type(expected: bool, media_type: MediaType) ->
 
 
 @pytest.mark.parametrize(
-    ("expected", "file_path"),
+    ("expected", "file"),
     [
         # A preinit() format.
         ("PNG", Path("my-first-png.png")),
@@ -41,8 +41,8 @@ async def test_is_supported_media_type(expected: bool, media_type: MediaType) ->
         ("PDF", Path("my-first-pdf.pdf")),
     ],
 )
-async def test_image_file_path_format(expected: str, file_path: Path) -> None:
-    assert image_file_path_format(file_path) == expected
+async def test_image_file_path_format(expected: str, file: Path) -> None:
+    assert image_file_path_format(file) == expected
 
 
 async def test_image_file_path_format__unidentifiable() -> None:

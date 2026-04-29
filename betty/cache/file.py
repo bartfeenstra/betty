@@ -19,11 +19,14 @@ from betty.cache import CacheItem, CacheItemValueSetter
 from betty.cache._base import _CommonCacheBase, _CommonCacheBaseState
 from betty.file import read, write
 from betty.hashid import hashid
+from betty.pathlib import resolve_path
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Sequence
     from pathlib import Path
+
+    from betty.pathlib import StrPath
 
 
 class _FileCacheItem[CacheItemValueT](CacheItem[CacheItemValueT]):
@@ -32,7 +35,7 @@ class _FileCacheItem[CacheItemValueT](CacheItem[CacheItemValueT]):
     def __init__(
         self,
         modified: float,
-        path: Path,
+        path: StrPath,
     ):
         self._modified = modified
         self._path = path
@@ -74,32 +77,28 @@ class _FileCache[CacheItemValueT](_CommonCacheBase[CacheItemValueT]):
 
     def __init__(
         self,
-        cache_directory_path: Path,
+        cache_directory: StrPath,
         *,
         scopes: Sequence[str] = (),
         state: _CommonCacheBaseState | None = None,
     ):
         super().__init__(scopes=scopes, state=state)
-        self._root_path = cache_directory_path
+        self._root = resolve_path(cache_directory)
 
     @override
     def with_scope(self, scope: str, /) -> Self:
         return type(self)(
-            self._root_path,
+            self._root,
             scopes=(*self._scopes, scope),
             state=_CommonCacheBaseState(self._cache_lock, self._cache_item_lock_ledger),
         )
 
-    def _cache_item_file_path(
-        self, cache_item_id: str, suffix: str | None = None
-    ) -> Path:
-        cache_item_file_path = self._path / hashid(cache_item_id)
+    def _cache_item_file(self, cache_item_id: str, suffix: str | None = None) -> Path:
+        cache_item_file = self._path / hashid(cache_item_id)
         if suffix is not None:
             assert suffix.startswith(".")
-            cache_item_file_path = cache_item_file_path.parent / (
-                cache_item_file_path.name + suffix
-            )
-        return cache_item_file_path
+            cache_item_file = cache_item_file.parent / (cache_item_file.name + suffix)
+        return cache_item_file
 
     @abstractmethod
     def _dump_value(self, value: CacheItemValueT) -> bytes:
@@ -107,17 +106,16 @@ class _FileCache[CacheItemValueT](_CommonCacheBase[CacheItemValueT]):
 
     @override
     async def has(self, cache_item_id: str, *, suffix: str | None = None) -> bool:
-        return await to_thread(self._cache_item_file_path(cache_item_id, suffix).exists)
+        return await to_thread(self._cache_item_file(cache_item_id, suffix).exists)
 
     @override
     async def get(
         self, cache_item_id: str, *, suffix: str | None = None
     ) -> CacheItem[CacheItemValueT] | None:
         try:
-            cache_item_file_path = self._cache_item_file_path(cache_item_id, suffix)
+            cache_item_file = self._cache_item_file(cache_item_id, suffix)
             return self._cache_item_cls(
-                await to_thread(getmtime, cache_item_file_path),
-                cache_item_file_path,
+                await to_thread(getmtime, cache_item_file), cache_item_file
             )
         except OSError:
             return None
@@ -132,29 +130,24 @@ class _FileCache[CacheItemValueT](_CommonCacheBase[CacheItemValueT]):
         modified: float | None = None,
     ) -> None:
         value_bytes = self._dump_value(value)
-        cache_item_file_path = self._cache_item_file_path(cache_item_id, suffix)
+        cache_item_file = self._cache_item_file(cache_item_id, suffix)
         try:
-            await self._write(cache_item_file_path, value_bytes, modified)
+            await self._write(cache_item_file, value_bytes, modified)
         except FileNotFoundError:
-            await to_thread(
-                cache_item_file_path.parent.mkdir, exist_ok=True, parents=True
-            )
-            await self._write(cache_item_file_path, value_bytes, modified)
+            await to_thread(cache_item_file.parent.mkdir, exist_ok=True, parents=True)
+            await self._write(cache_item_file, value_bytes, modified)
 
     async def _write(
-        self,
-        cache_item_file_path: Path,
-        value: bytes,
-        modified: float | None = None,
+        self, cache_item_file: StrPath, value: bytes, modified: float | None = None
     ) -> None:
-        await write(cache_item_file_path, value, mode="wb")
+        await write(cache_item_file, value, mode="wb")
         if modified is not None:
-            await asyncio.to_thread(utime, cache_item_file_path, (modified, modified))
+            await asyncio.to_thread(utime, cache_item_file, (modified, modified))
 
     @override
     async def delete(self, cache_item_id: str, *, suffix: str | None = None) -> None:
         with suppress(FileNotFoundError):
-            await to_thread(self._cache_item_file_path(cache_item_id, suffix).unlink)
+            await to_thread(self._cache_item_file(cache_item_id, suffix).unlink)
 
     @override
     async def clear(self) -> None:
@@ -162,7 +155,7 @@ class _FileCache[CacheItemValueT](_CommonCacheBase[CacheItemValueT]):
 
     @property
     def _path(self) -> Path:
-        return self._root_path.joinpath(*self._scopes)
+        return self._root.joinpath(*self._scopes)
 
     @override
     @asynccontextmanager
@@ -225,18 +218,16 @@ class BinaryFileCache(_FileCache[bytes]):
         return value
 
     @property
-    def path(self) -> Path:
+    def directory(self) -> Path:
         """
         The path to the cache's root directory.
         """
         return self._path
 
-    def cache_item_file_path(
-        self, cache_item_id: str, suffix: str | None = None, /
-    ) -> Path:
+    def cache_item_file(self, cache_item_id: str, suffix: str | None = None, /) -> Path:
         """
         Get the file path for a cache item with the given ID.
 
         The cache item itself may or may not exist.
         """
-        return self._cache_item_file_path(cache_item_id, suffix)
+        return self._cache_item_file(cache_item_id, suffix)

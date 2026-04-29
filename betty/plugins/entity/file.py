@@ -16,6 +16,7 @@ from betty.entity.has_media_type import HasMediaType
 from betty.entity.has_notes import HasNotes
 from betty.license import LicenseDefinition
 from betty.locale.localizable.gettext import _, ngettext
+from betty.pathlib import resolve_path
 from betty.plugin.schema import PluginIdSchema
 from betty.privacy import HasPrivacy, Privacy
 
@@ -27,6 +28,7 @@ if TYPE_CHECKING:
     from betty.license import License
     from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.media_type import ResolvableMediaType
+    from betty.pathlib import StrPath
     from betty.plugins.entity.citation import Citation
     from betty.plugins.entity.file_reference import FileReference  # noqa: F401
     from betty.plugins.entity.link import Link
@@ -77,7 +79,7 @@ class File(
 
     def __init__(
         self,
-        path: Path,
+        path: StrPath,
         *,
         id: str | None = None,  # noqa: A002
         name: str | None = None,
@@ -99,7 +101,7 @@ class File(
             privacy=privacy,
             links=links,
         )
-        self._path = path
+        self._path = resolve_path(path)
         self._name = name
         self.copyright_notice = copyright_notice
         self.license = license

@@ -132,12 +132,12 @@ async def test_generate__links_for_entity_pages(
 
 class TestResourceOverride:
     async def test(self, isolated_project: Project) -> None:
-        localized_assets_directory_path = (
+        localized_assets_directory = (
             Path(isolated_project.assets_directory) / "public" / "localized"
         )
-        localized_assets_directory_path.mkdir(parents=True)
+        localized_assets_directory.mkdir(parents=True)
         with open(
-            str(localized_assets_directory_path / "index.html.j2"),
+            str(localized_assets_directory / "index.html.j2"),
             "w",
             encoding="utf-8",
         ) as f:

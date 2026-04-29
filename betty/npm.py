@@ -16,8 +16,8 @@ from betty.requirement import UnmetRequirement
 if TYPE_CHECKING:
     from asyncio import subprocess as aiosubprocess
     from collections.abc import Sequence
-    from pathlib import Path
 
+    from betty.pathlib import StrPath
     from betty.user import User
 
 
@@ -36,7 +36,7 @@ class NpmUnavailable(UnmetRequirement, RuntimeError):
 
 
 async def npm(
-    arguments: Sequence[str], cwd: Path | None = None, *, user: User
+    arguments: Sequence[str], cwd: StrPath | None = None, *, user: User
 ) -> aiosubprocess.Process:
     """
     Run an npm command.

@@ -5,13 +5,13 @@ Provide `media type <https://en.wikipedia.org/wiki/Media_type>`_ handling utilit
 from __future__ import annotations
 
 from email.message import EmailMessage
-from pathlib import Path
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.assertion import assert_str
 from betty.data import Data, DataDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
+from betty.pathlib import StrPath
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.ordered import Order, OrderedPluginDefinition
 from betty.portable import Portable, PortableData
@@ -152,13 +152,7 @@ class MediaType(Data, Portable):
         return self._str
 
 
-type ExtensionIndicator = Path | str
-"""
-A file path or name that includes a file extension.
-"""
-
-
-type MediaTypeIndicator = MediaType | ExtensionIndicator
+type MediaTypeIndicator = MediaType | StrPath
 """
 A media type, or a file path or name that indicates a media type through its file extension.
 """
@@ -175,13 +169,12 @@ def match_media_type(source: MediaType, media_types: Iterable[MediaType]) -> Med
 
 
 def match_extension(
-    source: ExtensionIndicator, media_types: Iterable[MediaType]
+    source: StrPath, media_types: Iterable[MediaType], /
 ) -> tuple[MediaType, str]:
     """
     Match a file extension indicator against available media types.
     """
-    if isinstance(source, Path):
-        return match_extension(source.name, media_types)
+    source = str(source)
     for media_type in media_types:
         for extension in media_type.extensions:
             if source.endswith(extension):

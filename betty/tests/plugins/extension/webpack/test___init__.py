@@ -2,6 +2,7 @@ from pathlib import Path
 
 from pytest_mock import MockerFixture
 
+from betty.file import read, write
 from betty.plugins.extension.webpack import Webpack
 from betty.project.generate import generate
 from betty.test_utils.conftest import IsolatedProjectFactory
@@ -16,17 +17,11 @@ class TestWebpack:
         isolated_project_factory: IsolatedProjectFactory,
         tmp_path: Path,
     ) -> None:
-        webpack_build_directory_path = tmp_path
+        webpack_build_directory = tmp_path
         m_build = mocker.patch("betty.plugins.extension.webpack.build.Builder.build")
-        m_build.return_value = webpack_build_directory_path
+        m_build.return_value = webpack_build_directory
 
-        with open(
-            webpack_build_directory_path / self._SENTINEL, "w", encoding="utf-8"
-        ) as f:
-            f.write(self._SENTINEL)
-
+        await write(webpack_build_directory / self._SENTINEL, self._SENTINEL)
         async with isolated_project_factory(extensions=[Webpack]) as project:
             await generate(project)
-
-            with open(project.www_directory / self._SENTINEL, encoding="utf-8") as f:
-                assert f.read() == self._SENTINEL
+            assert await read(project.www_directory / self._SENTINEL) == self._SENTINEL

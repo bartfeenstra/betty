@@ -2,7 +2,6 @@ import ast
 import builtins
 import re
 from collections.abc import Iterator
-from os import walk
 from pathlib import Path
 
 import pytest
@@ -52,17 +51,15 @@ class TestPluginDocumentation(PluginDocumentationTestBase):
 
 class TestDocstringSphinxReferences:
     async def test(self, subtests: pytest.Subtests) -> None:
-        for directory_path, _, file_names in walk(str(ROOT_DIRECTORY / "betty")):
+        for directory, _, file_names in (ROOT_DIRECTORY / "betty").walk():
             for file_name in file_names:
                 if file_name.endswith(".py"):
-                    await self._assert_docstring_file(
-                        Path(directory_path) / file_name, subtests
-                    )
+                    await self._assert_docstring_file(directory / file_name, subtests)
 
     async def _assert_docstring_file(
-        self, file_path: Path, subtests: pytest.Subtests
+        self, file: Path, subtests: pytest.Subtests
     ) -> None:
-        with open(file_path, encoding="utf-8") as f:
+        with open(file, encoding="utf-8") as f:
             source = f.read()
         module = ast.parse(source)
         for node in ast.walk(module):
@@ -73,26 +70,20 @@ class TestDocstringSphinxReferences:
                 docstring = ast.get_docstring(node)
                 if docstring is None:
                     continue
-                await _assert_sphinx_references(file_path, docstring, subtests)
+                await _assert_sphinx_references(file, docstring, subtests)
 
 
 class TestDocumentationSphinxReferences:
     async def test(self, subtests: pytest.Subtests) -> None:
-        for directory_path, _, file_names in walk(
-            str(ROOT_DIRECTORY / "documentation")
-        ):
+        for directory, _, file_names in (ROOT_DIRECTORY / "documentation").walk():
             for file_name in file_names:
                 if file_name.endswith(".rst"):
-                    await self._assert_rst_file(
-                        Path(directory_path) / file_name, subtests
-                    )
+                    await self._assert_rst_file(directory / file_name, subtests)
 
-    async def _assert_rst_file(
-        self, file_path: Path, subtests: pytest.Subtests
-    ) -> None:
-        with open(file_path, encoding="utf-8") as f:
+    async def _assert_rst_file(self, file: Path, subtests: pytest.Subtests) -> None:
+        with open(file, encoding="utf-8") as f:
             documentation = f.read()
-        await _assert_sphinx_references(file_path, documentation, subtests)
+        await _assert_sphinx_references(file, documentation, subtests)
 
 
 def _normalize_sphinx_ref(ref: str) -> str:
@@ -110,7 +101,7 @@ def _sphinx_refs(source: str, ref_tag: str) -> Iterator[tuple[str, str]]:
 
 
 async def _assert_sphinx_references(
-    file_path: Path, source: str, subtests: pytest.Subtests
+    file: Path, source: str, subtests: pytest.Subtests
 ) -> None:
     for ref_tag in (
         "mod",
@@ -137,7 +128,7 @@ async def _assert_sphinx_references(
             except ExtensionError as error:
                 with subtests.test():
                     raise AssertionError(
-                        f"Cannot import {py_ref} as mentioned by {py_ref} in {file_path}."
+                        f"Cannot import {py_ref} as mentioned by {py_ref} in {file}."
                     ) from error
 
     for doc_ref, doc_ref_target in _sphinx_refs(source, "doc"):
@@ -147,5 +138,5 @@ async def _assert_sphinx_references(
         if not doc_path.is_file():
             with subtests.test():
                 raise AssertionError(
-                    f'Cannot find documentation page "{doc_ref_target}" as mentioned by {doc_ref} in {file_path}.'
+                    f'Cannot find documentation page "{doc_ref_target}" as mentioned by {doc_ref} in {file}.'
                 )

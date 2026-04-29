@@ -22,6 +22,7 @@ from typing import TYPE_CHECKING, Any, Protocol, cast
 import pytest
 
 from betty.dirs import ROOT_DIRECTORY
+from betty.file import read
 from betty.html.attributes import Attributes
 from betty.tests.coverage.fixtures import (
     _module_private,
@@ -1266,14 +1267,14 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
 class TestCoverage:
     async def test(self, subtests: pytest.Subtests) -> None:
         errors = await CoverageTester().test()
-        for file_path in sorted(errors):
-            for error in errors[file_path]:
+        for file in sorted(errors):
+            for error in errors[file]:
                 with subtests.test():
                     raise AssertionError(error)
 
 
-def _module_path_to_name(module_path: Path) -> str:
-    relative_module_path = module_path.relative_to(ROOT_DIRECTORY)
+def _module_path_to_name(module: Path) -> str:
+    relative_module_path = module.relative_to(ROOT_DIRECTORY)
     module_name_parts = relative_module_path.parent.parts
     if relative_module_path.name != "__init__.py":
         module_name_parts = (*module_name_parts, relative_module_path.name[:-3])
@@ -1287,28 +1288,28 @@ class CoverageTester:
     async def test(self) -> Mapping[Path, Sequence[str]]:
         errors: MutableMapping[Path, MutableSequence[str]] = defaultdict(list)
 
-        for directory_path, _, file_names in walk(str(ROOT_DIRECTORY / "betty")):
+        for directory, _, file_names in walk(str(ROOT_DIRECTORY / "betty")):
             for file_name in file_names:
-                file_path = Path(directory_path) / file_name
-                if file_path.suffix == ".py":
-                    async for file_error in self._test_python_file(file_path):
-                        errors[file_path].append(file_error)
+                file = Path(directory) / file_name
+                if file.suffix == ".py":
+                    async for file_error in self._test_python_file(file):
+                        errors[file].append(file_error)
         return errors
 
     def _get_ignore_src_module_paths(
         self,
     ) -> Mapping[Path, _ModuleIgnore]:
         return {
-            Path(module_file_path_str).resolve(): members
-            for module_file_path_str, members in _BASELINE.items()
+            Path(module_file).resolve(): members
+            for module_file, members in _BASELINE.items()
         }
 
-    async def _test_python_file(self, file_path: Path) -> AsyncIterable[str]:
+    async def _test_python_file(self, file: Path, /) -> AsyncIterable[str]:
         # Skip tests.
-        if ROOT_DIRECTORY / "betty" / "tests" in file_path.parents:
+        if ROOT_DIRECTORY / "betty" / "tests" in file.parents:
             return
 
-        src_module_path = file_path.resolve()
+        src_module_path = file.resolve()
         expected_test_module_path = (
             ROOT_DIRECTORY
             / "betty"
@@ -1323,10 +1324,8 @@ class CoverageTester:
         ).test():
             yield error
 
-    async def _test_python_file_contains_docstring_only(self, file_path: Path) -> bool:
-        with open(file_path, encoding="utf-8") as f:
-            f_content = f.read()
-        f_ast = parse(f_content)
+    async def _test_python_file_contains_docstring_only(self, file: Path, /) -> bool:
+        f_ast = parse(await read(file))
         for child in iter_child_nodes(f_ast):
             if not isinstance(child, Expr):
                 return False
@@ -1341,14 +1340,12 @@ class _Importable(Protocol):
 
 
 class _ModuleCoverageTester:
-    def __init__(
-        self, src_module_path: Path, test_module_path: Path, ignore: _ModuleIgnore
-    ):
-        self._src_module_path = src_module_path
-        self._test_module_path = test_module_path
+    def __init__(self, src_module: Path, test_module: Path, ignore: _ModuleIgnore, /):
+        self._src_module = src_module
+        self._test_module = test_module
         self._ignore = ignore
         self._src_module_name, self._src_functions, self._src_classes = (
-            self._get_module_data(self._src_module_path)
+            self._get_module_data(self._src_module)
         )
 
     async def test(self) -> AsyncIterable[str]:
@@ -1356,14 +1353,14 @@ class _ModuleCoverageTester:
         if True in (x.startswith("_") for x in self._src_module_name.split(".")):
             return
 
-        if self._test_module_path.exists():
+        if self._test_module.exists():
             if isinstance(self._ignore, MissingReason):
-                yield f"{self._src_module_path} has a matching test file at {self._test_module_path}, which was unexpectedly declared as known to be missing."
+                yield f"{self._src_module} has a matching test file at {self._test_module}, which was unexpectedly declared as known to be missing."
                 return
             else:
                 assert not isinstance(self._ignore, MissingReason)
                 test_module_name, test_functions, test_classes = self._get_module_data(
-                    self._test_module_path
+                    self._test_module
                 )
                 for src_function in self._src_functions:
                     async for error in _ModuleFunctionCoverageTester(
@@ -1395,15 +1392,13 @@ class _ModuleCoverageTester:
         if isinstance(self._ignore, MissingReason):
             return
 
-        if await self._test_python_file_contains_docstring_only(self._src_module_path):
+        if await self._test_python_file_contains_docstring_only(self._src_module):
             return
 
-        yield f"{self._src_module_path} does not have a matching test file. Expected {self._test_module_path} to exist."
+        yield f"{self._src_module} does not have a matching test file. Expected {self._test_module} to exist."
 
-    async def _test_python_file_contains_docstring_only(self, file_path: Path) -> bool:
-        with open(file_path, encoding="utf-8") as f:
-            f_content = f.read()
-        f_ast = parse(f_content)
+    async def _test_python_file_contains_docstring_only(self, file: Path, /) -> bool:
+        f_ast = parse(await read(file))
         for child in iter_child_nodes(f_ast):
             if not isinstance(child, Expr):
                 return False
@@ -1412,13 +1407,13 @@ class _ModuleCoverageTester:
         return True
 
     def _get_module_data(
-        self, module_path: Path
+        self, module: Path, /
     ) -> tuple[
         str,
         Sequence[Intersection[_Importable, Callable[..., Any]]],
         Sequence[Intersection[_Importable, type]],
     ]:
-        module_name = _module_path_to_name(module_path)
+        module_name = _module_path_to_name(module)
         return (
             module_name,
             sorted(

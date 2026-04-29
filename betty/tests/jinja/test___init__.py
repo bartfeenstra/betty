@@ -27,65 +27,61 @@ async def test_make_copy_function__www_directory(
     isolated_project: Project, tmp_path: Path
 ) -> None:
     environment = await new_environment(isolated_project)
-    source_file_path = tmp_path / "source.test.j2"
-    with open(source_file_path, "w", encoding="utf-8") as f:
+    source_file = tmp_path / "source.test.j2"
+    with open(source_file, "w", encoding="utf-8") as f:
         f.write("{{ document.resource }}\n{{ document.resource_url }}")
-    www_directory_path = tmp_path / "www"
-    destination_file_path = www_directory_path / "destination.test.j2"
-    rendered_destination_file_path = www_directory_path / "destination.test"
+    www_directory = tmp_path / "www"
+    destination_file = www_directory / "destination.test.j2"
+    rendered_destination_file = www_directory / "destination.test"
     copy_function = make_copy_function(
-        environment, www_directory_path=www_directory_path, document=Document()
+        environment, www_directory=www_directory, document=Document()
     )
-    await copy_function(source_file_path, destination_file_path)
-    with open(rendered_destination_file_path, encoding="utf-8") as f:
+    await copy_function(source_file, destination_file)
+    with open(rendered_destination_file, encoding="utf-8") as f:
         assert (
             f.read()
-        ).strip() == f"{rendered_destination_file_path}\nbetty:///destination.test"
+        ).strip() == f"{rendered_destination_file}\nbetty:///destination.test"
 
 
 async def test_make_copy_function__www_directory_with_hidden_file(
     isolated_project: Project, tmp_path: Path
 ) -> None:
     environment = await new_environment(isolated_project)
-    source_file_path = tmp_path / "source.test.j2"
-    with open(source_file_path, "w", encoding="utf-8") as f:
+    source_file = tmp_path / "source.test.j2"
+    with open(source_file, "w", encoding="utf-8") as f:
         f.write("{{ document.resource }}\n{{ document.resource_url }}")
-    www_directory_path = tmp_path / "www"
-    destination_file_path = www_directory_path / ".destination.test.j2"
-    rendered_destination_file_path = www_directory_path / ".destination.test"
+    www_directory = tmp_path / "www"
+    destination_file = www_directory / ".destination.test.j2"
+    rendered_destination_file = www_directory / ".destination.test"
     copy_function = make_copy_function(
-        environment, www_directory_path=www_directory_path, document=Document()
+        environment, www_directory=www_directory, document=Document()
     )
-    await copy_function(source_file_path, destination_file_path)
-    with open(rendered_destination_file_path, encoding="utf-8") as f:
-        assert (f.read()).strip() == f"{rendered_destination_file_path}\nNone"
+    await copy_function(source_file, destination_file)
+    with open(rendered_destination_file, encoding="utf-8") as f:
+        assert (f.read()).strip() == f"{rendered_destination_file}\nNone"
 
 
 async def test_make_copy_function__www_directory_and_is_localized_and_multilingual(
     isolated_project: Project, tmp_path: Path
 ) -> None:
     environment = await new_environment(isolated_project)
-    source_file_path = tmp_path / "source.test.j2"
-    with open(source_file_path, "w", encoding="utf-8") as f:
+    source_file = tmp_path / "source.test.j2"
+    with open(source_file, "w", encoding="utf-8") as f:
         f.write("{{ document.resource }}\n{{ document.resource_url }}")
-    www_directory_path = tmp_path / "www"
-    destination_file_path = (
-        www_directory_path / DEFAULT_LOCALE_TAG / "destination.test.j2"
-    )
-    rendered_destination_file_path = (
-        www_directory_path / DEFAULT_LOCALE_TAG / "destination.test"
-    )
+    www_directory = tmp_path / "www"
+    destination_file = www_directory / DEFAULT_LOCALE_TAG / "destination.test.j2"
+    rendered_destination_file = www_directory / DEFAULT_LOCALE_TAG / "destination.test"
     copy_function = make_copy_function(
         environment,
-        www_directory_path=www_directory_path,
+        www_directory=www_directory,
         is_localized_and_multilingual=True,
         document=Document(),
     )
-    await copy_function(source_file_path, destination_file_path)
-    with open(rendered_destination_file_path, encoding="utf-8") as f:
+    await copy_function(source_file, destination_file)
+    with open(rendered_destination_file, encoding="utf-8") as f:
         assert (
             f.read()
-        ).strip() == f"{rendered_destination_file_path}\nbetty:///destination.test"
+        ).strip() == f"{rendered_destination_file}\nbetty:///destination.test"
 
 
 class Test_CacheTagExtension:

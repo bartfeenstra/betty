@@ -107,7 +107,7 @@ class LoadPartial(Protocol):
         self,
         xml: str,
         *,
-        media_path: Path | None = None,
+        media: Path | None = None,
         event_type_mapping: Mapping[
             str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
         ]
@@ -127,8 +127,8 @@ class TestGrampsLoader:
     PROJECT_NAME = "pr0j3ct"
 
     async def test_load_gramps(self, isolated_project: Project, tmp_path: Path) -> None:
-        gramps_file_path = tmp_path / "betty.gramps"
-        with gzip.open(gramps_file_path, "w") as f:
+        gramps_file = tmp_path / "betty.gramps"
+        with gzip.open(gramps_file, "w") as f:
             f.write(_minimal_xml().encode("utf-8"))
         sut = GrampsLoader(
             isolated_project.ancestry,
@@ -136,7 +136,7 @@ class TestGrampsLoader:
             services=isolated_project,
             attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
         )
-        await sut.load_gramps(gramps_file_path)
+        await sut.load_gramps(gramps_file)
 
     async def test_load_gramps__with_non_existent_file(
         self, isolated_project: Project, tmp_path: Path
@@ -151,19 +151,19 @@ class TestGrampsLoader:
             await sut.load_gramps(tmp_path / "non-existent-file")
 
     async def test_load_gpkg(self, isolated_project: Project, tmp_path: Path) -> None:
-        gramps_file_path = tmp_path / "betty.gramps"
-        with gzip.open(gramps_file_path, "w") as f:
+        gramps_file = tmp_path / "betty.gramps"
+        with gzip.open(gramps_file, "w") as f:
             f.write(_minimal_xml().encode("utf-8"))
-        gpkg_file_path = tmp_path / "gramps.gpkg"
-        with tarfile.open(name=gpkg_file_path, mode="w:gz") as tar_file:
-            tar_file.add(gramps_file_path, "/data.gramps")
+        gpkg_file = tmp_path / "gramps.gpkg"
+        with tarfile.open(name=gpkg_file, mode="w:gz") as tar_file:
+            tar_file.add(gramps_file, "/data.gramps")
         sut = GrampsLoader(
             isolated_project.ancestry,
             user=StaticUser(),
             services=isolated_project,
             attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
         )
-        await sut.load_gpkg(gpkg_file_path)
+        await sut.load_gpkg(gpkg_file)
 
     async def test_load_gpkg__with_non_existent_file(
         self, isolated_project: Project, tmp_path: Path
@@ -180,8 +180,8 @@ class TestGrampsLoader:
     async def test_load_file__with_gramps(
         self, isolated_project: Project, tmp_path: Path
     ) -> None:
-        gramps_file_path = tmp_path / "betty.gramps"
-        with gzip.open(gramps_file_path, "w") as f:
+        gramps_file = tmp_path / "betty.gramps"
+        with gzip.open(gramps_file, "w") as f:
             f.write(_minimal_xml().encode("utf-8"))
         sut = GrampsLoader(
             isolated_project.ancestry,
@@ -189,48 +189,45 @@ class TestGrampsLoader:
             services=isolated_project,
             attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
         )
-        await sut.load_file(gramps_file_path)
+        await sut.load_file(gramps_file)
         with pytest.raises(LoaderUsedAlready):
-            await sut.load_file(gramps_file_path)
+            await sut.load_file(gramps_file)
 
     async def test_load_file__with_gpkg(
         self, isolated_project: Project, tmp_path: Path
     ) -> None:
-        gramps_file_path = tmp_path / "betty.gramps"
-        with gzip.open(gramps_file_path, "w") as f:
+        gramps_file = tmp_path / "betty.gramps"
+        with gzip.open(gramps_file, "w") as f:
             f.write(_minimal_xml().encode("utf-8"))
-        gpkg_file_path = tmp_path / "gramps.gpkg"
-        with tarfile.open(name=gpkg_file_path, mode="w:gz") as tar_file:
-            tar_file.add(gramps_file_path, "/data.gramps")
+        gpkg_file = tmp_path / "gramps.gpkg"
+        with tarfile.open(name=gpkg_file, mode="w:gz") as tar_file:
+            tar_file.add(gramps_file, "/data.gramps")
         sut = GrampsLoader(
             isolated_project.ancestry,
             user=StaticUser(),
             services=isolated_project,
             attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
         )
-        await sut.load_file(gpkg_file_path)
+        await sut.load_file(gpkg_file)
         with pytest.raises(LoaderUsedAlready):
-            await sut.load_file(gpkg_file_path)
+            await sut.load_file(gpkg_file)
 
     async def test_load_file__with_ged(
         self, mocker: MockerFixture, isolated_project: Project, tmp_path: Path
     ) -> None:
-        gramps_executable = "gramps"
-        ged_file_path = Path("my-first-family-tree.ged")
         mocker.patch("tempfile.mkdtemp", return_value=str(tmp_path))
         m_run_process = mocker.patch("betty.subprocess.run_process")
         m_run_process.side_effect = mocker.AsyncMock(spec=Process)
-        gramps_file_path = tmp_path / "betty.gramps"
-        with gzip.open(gramps_file_path, "w") as f:
+        with gzip.open(tmp_path / "betty.gramps", "w") as f:
             f.write(_minimal_xml().encode("utf-8"))
         sut = GrampsLoader(
             isolated_project.ancestry,
             user=StaticUser(),
             services=isolated_project,
             attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-            executable=gramps_executable,
+            executable="gramps",
         )
-        await sut.load_file(ged_file_path)
+        await sut.load_file("my-first-family-tree.ged")
         m_run_process.assert_awaited()
 
     async def test_load_file__with_non_existent_file(
@@ -265,8 +262,8 @@ class TestGrampsLoader:
         mocker.patch("tempfile.mkdtemp", return_value=str(tmp_path))
         m_run_process = mocker.patch("betty.subprocess.run_process")
         m_run_process.side_effect = mocker.AsyncMock(spec=Process)
-        gramps_file_path = tmp_path / "betty.gramps"
-        with gzip.open(gramps_file_path, "w") as f:
+        gramps_file = tmp_path / "betty.gramps"
+        with gzip.open(gramps_file, "w") as f:
             f.write(_minimal_xml().encode("utf-8"))
         sut = GrampsLoader(
             isolated_project.ancestry,
@@ -277,7 +274,7 @@ class TestGrampsLoader:
         )
         await sut.load_name(family_tree_name)
         m_run_process.assert_awaited_once_with(
-            [gramps_executable, "-O", family_tree_name, "-e", str(gramps_file_path)],
+            [gramps_executable, "-O", family_tree_name, "-e", str(gramps_file)],
             user=ANY,
         )
 
@@ -289,7 +286,7 @@ class TestGrampsLoader:
         mocker.patch("tempfile.mkdtemp", return_value=str(tmp_path))
         m_run_process = mocker.patch("betty.subprocess.run_process")
         m_run_process.side_effect = CalledSubprocessError(1, "", "", "")
-        gramps_file_path = tmp_path / "betty.gramps"
+        gramps_file = tmp_path / "betty.gramps"
         sut = GrampsLoader(
             isolated_project.ancestry,
             user=StaticUser(),
@@ -300,7 +297,7 @@ class TestGrampsLoader:
         with pytest.raises(UserFacingGrampsError):
             await sut.load_name(family_tree_name)
         m_run_process.assert_awaited_once_with(
-            [gramps_executable, "-O", family_tree_name, "-e", str(gramps_file_path)],
+            [gramps_executable, "-O", family_tree_name, "-e", str(gramps_file)],
             user=ANY,
         )
 
@@ -342,7 +339,7 @@ class TestGrampsLoader:
         async def _load_partial(
             xml: str,
             *,
-            media_path: Path | None = None,
+            media: Path | None = None,
             event_type_mapping: Mapping[
                 str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
             ]
@@ -356,9 +353,7 @@ class TestGrampsLoader:
             ]
             | None = None,
         ) -> EntityPool:
-            mediapath = (
-                "" if media_path is None else f"<mediapath>{media_path}</mediapath>"
-            )
+            mediapath = "" if media is None else f"<mediapath>{media}</mediapath>"
             return await self._load(
                 isolated_project,
                 f"""
@@ -1765,7 +1760,7 @@ class TestGrampsLoader:
         load_partial: LoadPartial,
         expected: Path,
         file_src: Path,
-        media_path: Path | None,
+        media: Path | None,
     ) -> None:
         ancestry = await load_partial(
             f"""
@@ -1775,7 +1770,7 @@ class TestGrampsLoader:
     </object>
 </objects>
 """,
-            media_path=media_path,
+            media=media,
         )
         file = ancestry[File]["O0000"]
         assert file.path == expected

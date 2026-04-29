@@ -1,7 +1,6 @@
 from __future__ import annotations  # noqa: D100
 
 from asyncio import to_thread
-from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING, Self, final, override
 
@@ -28,8 +27,8 @@ if TYPE_CHECKING:
 
 async def _target(user: User) -> None:
     async with App.new_isolated() as app:
-        with TemporaryDirectory() as project_directory_path_str:
-            project = await create_project(app, Path(project_directory_path_str))
+        with TemporaryDirectory() as project_directory:
+            project = await create_project(app, project_directory)
             async with project, user.message_progress("Generating site...") as progress:
                 await generate_with_cleanup(project, context=Context(progress=progress))
 
@@ -153,27 +152,27 @@ class DevProfileDemo(Manufacturable, Command):
     ) -> None:
         import yappi
 
-        stats_file_path = (
+        stats_file = (
             dirs.DEV_OUTPUT_DIRECTORY / f"{self.plugin().id}-{clock_type}.ystats"
         )
-        if not force and stats_file_path.exists():
+        if not force and stats_file.exists():
             stats = yappi.get_func_stats()
-            stats.add([stats_file_path])
+            stats.add([stats_file])
             _print(stats, sort_column, sort_direction)
             await self._app.user.message_information(
-                f"Showing existing stats from {stats_file_path}"
+                f"Showing existing stats from {stats_file}"
             )
         else:
-            await to_thread(stats_file_path.parent.mkdir, exist_ok=True, parents=True)
+            await to_thread(stats_file.parent.mkdir, exist_ok=True, parents=True)
             yappi.set_clock_type(clock_type)  # Use set_clock_type("wall") for wall time
             yappi.start()
             await _target(self._app.user)
             yappi.stop()
             stats = yappi.get_func_stats()
-            stats.save(stats_file_path)
+            stats.save(stats_file)
             _print(stats, sort_column, sort_direction)
             await self._app.user.message_information(
-                f"Showing newly generated stats from {stats_file_path}"
+                f"Showing newly generated stats from {stats_file}"
             )
 
 

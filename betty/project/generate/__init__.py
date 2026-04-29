@@ -5,14 +5,12 @@ Provide the Generation API.
 from __future__ import annotations
 
 import asyncio
-import os
 import shutil
 from abc import ABC, abstractmethod
 from asyncio import gather, to_thread
 from contextlib import suppress
 from math import ceil
 from os import cpu_count
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 from betty.concurrent import MAX_STRANDS
@@ -35,6 +33,8 @@ from betty.project.generate.jobs import (
 )
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from betty.job.scheduler import Scheduler
     from betty.project import Project
 
@@ -101,27 +101,24 @@ async def _preprocess(project: Project) -> None:
     await _preprocess_www_directory(project.www_directory)
 
 
-async def _preprocess_output_directory(output_directory_path: Path) -> None:
+async def _preprocess_output_directory(output_directory: Path, /) -> None:
     with suppress(FileNotFoundError):
-        await asyncio.to_thread(shutil.rmtree, output_directory_path)
-    await to_thread(output_directory_path.mkdir, exist_ok=True, parents=True)
+        await asyncio.to_thread(shutil.rmtree, output_directory)
+    await to_thread(output_directory.mkdir, exist_ok=True, parents=True)
 
 
-async def _preprocess_www_directory(www_directory_path: Path) -> None:
-    await to_thread(www_directory_path.mkdir, exist_ok=True, parents=True)
+async def _preprocess_www_directory(www_directory: Path, /) -> None:
+    await to_thread(www_directory.mkdir, exist_ok=True, parents=True)
 
 
 async def _postprocess(project: Project) -> None:
     await _postprocess_output_directory(project.output_directory)
 
 
-async def _postprocess_output_directory(output_directory_path: Path) -> None:
-    output_directory_path.chmod(0o755)
-    for directory_path_str, subdirectory_names, file_names in os.walk(
-        output_directory_path
-    ):
-        directory_path = Path(directory_path_str)
+async def _postprocess_output_directory(output_directory: Path, /) -> None:
+    output_directory.chmod(0o755)
+    for directory, subdirectory_names, file_names in output_directory.walk():
         for subdirectory_name in subdirectory_names:
-            (directory_path / subdirectory_name).chmod(0o755)
+            (directory / subdirectory_name).chmod(0o755)
         for file_name in file_names:
-            (directory_path / file_name).chmod(0o644)
+            (directory / file_name).chmod(0o644)

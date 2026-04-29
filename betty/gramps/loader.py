@@ -40,6 +40,7 @@ from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import AnyEnumeration
 from betty.locale.localizable.static import StaticTranslations
 from betty.media_type import InvalidMediaType, MediaType
+from betty.pathlib import resolve_path
 from betty.place_type import PlaceTypeManufacturer
 from betty.plugin import PluginDefinition
 from betty.plugin.cls import Plugin
@@ -132,6 +133,7 @@ if TYPE_CHECKING:
     from betty.gender import Gender
     from betty.locale.localizable import StaticTranslationsMapping
     from betty.machine_name import ResolvableMachineName
+    from betty.pathlib import StrPath
     from betty.place_type import PlaceType, PlaceTypeDefinition
     from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
     from betty.role import (
@@ -357,7 +359,7 @@ class GrampsLoader:
         | None = None,
         role_mapping: Mapping[str, ResolvablePluginManufacturer[RoleDefinition, Role]]
         | None = None,
-        executable: Path | str | None = None,
+        executable: StrPath | None = None,
     ):
         super().__init__()
         self._ancestry = ancestry
@@ -408,31 +410,31 @@ class GrampsLoader:
             await to_thread(tempfile.mkdtemp),  # ty:ignore[invalid-argument-type]
         )
         try:
-            gramps_file_path = working_directory / "betty.gramps"
-            await self._run_gramps(["-O", name, "-e", str(gramps_file_path)])
-            await self.load_file(gramps_file_path)
+            gramps_file = working_directory / "betty.gramps"
+            await self._run_gramps(["-O", name, "-e", str(gramps_file)])
+            await self.load_file(gramps_file)
         finally:
             await to_thread(rmtree, working_directory)
 
-    async def load_file(self, file_path: Path) -> None:
+    async def load_file(self, file: StrPath, /) -> None:
         """
         Load family history data from any of the supported Gramps file types.
 
         :raises betty.gramps.error.GrampsError:
         """
-        file_path = file_path.resolve()
+        file = resolve_path(file).resolve()
         await self._user.message_information_details(
             _('Loading "{file_path}"...').format(
-                file_path=str(file_path),
+                file_path=str(file),
             )
         )
 
-        if file_path.suffix == ".gpkg":
-            return await self.load_gpkg(file_path)
-        if file_path.suffix == ".gramps":
-            return await self.load_gramps(file_path)
-        if file_path.suffix in _GRAMPS_EXTENSIONS_IMPORT:
-            return await self._load_file_gramps_import(file_path)
+        if file.suffix == ".gpkg":
+            return await self.load_gpkg(file)
+        if file.suffix == ".gramps":
+            return await self.load_gramps(file)
+        if file.suffix in _GRAMPS_EXTENSIONS_IMPORT:
+            return await self._load_file_gramps_import(file)
 
         raise UserFacingGrampsError(
             _(
@@ -440,53 +442,51 @@ class GrampsLoader:
             ).format(file_extensions=AnyEnumeration(*sorted(_GRAMPS_EXTENSIONS)))
         )
 
-    async def _load_file_gramps_import(self, file_path: Path) -> None:
+    async def _load_file_gramps_import(self, file: Path) -> None:
         family_tree_name = f"betty-{uuid4()!s}"
         try:
-            await self._run_gramps(["-C", family_tree_name, "-i", str(file_path)])
+            await self._run_gramps(["-C", family_tree_name, "-i", str(file)])
         finally:
             await self._run_gramps(["-r", f"^{family_tree_name}$", "-y"])
         await self.load_name(family_tree_name)
 
-    async def load_gramps(self, gramps_path: Path) -> None:
+    async def load_gramps(self, gramps: StrPath, /) -> None:
         """
         Load family history data from a Gramps ``*.gramps`` file.
 
         :raises betty.gramps.error.GrampsError:
         """
-        gramps_path = gramps_path.resolve()
+        gramps = resolve_path(gramps).resolve()
         try:
-            with gzip.open(gramps_path) as f:
+            with gzip.open(gramps) as f:
                 xml = f.read()
             await self._load_xml(xml)
         except FileNotFoundError:
-            raise GrampsFileNotFound(gramps_path) from None
+            raise GrampsFileNotFound(gramps) from None
         except OSError as error:
             raise UserFacingGrampsError(
                 _("Could not extract {file_path} as a gzip file  (*.gz).").format(
-                    file_path=str(gramps_path)
+                    file_path=str(gramps)
                 )
             ) from error
 
-    async def load_gpkg(self, gpkg_path: Path) -> None:
+    async def load_gpkg(self, gpkg: StrPath, /) -> None:
         """
         Load family history data from a Gramps ``*.gpkg`` file.
 
         :raises betty.gramps.error.GrampsError:
         """
-        gpkg_path = gpkg_path.resolve()
+        gpkg = resolve_path(gpkg).resolve()
         with ExitStack() as stack:
             try:
-                tar_file = stack.enter_context(
-                    tarfile.open(name=gpkg_path, mode="r:gz")
-                )
+                tar_file = stack.enter_context(tarfile.open(name=gpkg, mode="r:gz"))
             except FileNotFoundError:
-                raise GrampsFileNotFound(gpkg_path) from None
+                raise GrampsFileNotFound(gpkg) from None
             except (OSError, tarfile.ReadError) as error:
                 raise UserFacingGrampsError(
                     _(
                         "Could not extract {file_path} as a gzipped tar file  (*.tar.gz)."
-                    ).format(file_path=str(gpkg_path))
+                    ).format(file_path=str(gpkg))
                 ) from error
 
             cache_directory = Path(
@@ -546,14 +546,14 @@ class GrampsLoader:
             )
         self._tree_xml_namespace = {"ns": match.group(1)}
 
-        media_path: Path | None = None
+        media: Path | None = None
         try:
             mediapath = self._xpath1(database, "./ns:header/ns:mediapath")
         except XPathError:
             pass
         else:
             if mediapath.text is not None:
-                media_path = Path(mediapath.text).resolve()
+                media = Path(mediapath.text).resolve()
 
         with self._ancestry.unchecked():
             await self._load_notes(database)
@@ -562,7 +562,7 @@ class GrampsLoader:
                     note_count=str(self._added_entity_counts[Note])
                 )
             )
-            await self._load_objects(database, media_path)
+            await self._load_objects(database, media)
             await self._user.message_information_details(
                 _("Loaded {file_count} files.").format(
                     file_count=str(self._added_entity_counts[File])
@@ -745,13 +745,13 @@ class GrampsLoader:
         owner.notes = self._resolve(Note, *self._load_handles("noteref", element))
 
     async def _load_objects(
-        self, database: ElementTree.Element, media_path: Path | None
+        self, database: ElementTree.Element, media: Path | None
     ) -> None:
         for element in self._xpath(database, "./ns:objects/ns:object"):
-            await self._load_object(element, media_path)
+            await self._load_object(element, media)
 
     async def _load_object(
-        self, element: ElementTree.Element, media_path: Path | None
+        self, element: ElementTree.Element, media: Path | None
     ) -> None:
         file_handle = element.get("handle")
         file_id = element.get("id")
@@ -760,8 +760,8 @@ class GrampsLoader:
         src = file_element.get("src")
         assert src is not None
         file_path = Path(src)
-        if media_path is not None:
-            file_path = media_path / file_path
+        if media is not None:
+            file_path = media / file_path
         if not file_path.is_absolute():
             raise UserFacingGrampsError(
                 _(

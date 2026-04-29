@@ -62,6 +62,7 @@ if TYPE_CHECKING:
     from contextlib import AbstractAsyncContextManager
     from pathlib import Path
 
+    from betty.pathlib import StrPath
     from playwright.async_api import BrowserContext, Page
 
     from betty.asset import AssetDirectoryDefinition
@@ -136,7 +137,7 @@ class IsolatedAppFactory(Protocol):
         self,
         *,
         cache: TypedSynchronousServiceOrFactory[App, Cache[Any]] | None = None,
-        binary_file_cache_directory: Path | None = None,
+        binary_file_cache_directory: StrPath | None = None,
         plugins: Mapping[
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
         ]
@@ -164,7 +165,7 @@ def isolated_app_factory(
     async def _isolated_app_factory(
         *,
         cache: TypedSynchronousServiceOrFactory[App, Cache[Any]] | None = None,
-        binary_file_cache_directory: Path | None = None,
+        binary_file_cache_directory: StrPath | None = None,
         plugins: Mapping[
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
         ]
@@ -213,7 +214,7 @@ class IsolatedProjectFactory(Protocol):
         | Literal[False] = False,
         clean_urls: bool = False,
         debug: bool = False,
-        directory: Path | None = None,
+        directory: StrPath | None = None,
         enrichers: ServicePluginInstances[EnricherDefinition] = (),
         extensions: ServicePluginInstances[ExtensionDefinition] = (),
         generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]]
@@ -222,7 +223,7 @@ class IsolatedProjectFactory(Protocol):
         links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
         loaders: ServicePluginInstances[LoaderDefinition] = (),
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
-        logo: Path | None = None,
+        logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
         plugins: Mapping[
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
@@ -254,7 +255,7 @@ def isolated_project_factory(isolated_app: App) -> IsolatedProjectFactory:
         | Literal[False] = False,
         clean_urls: bool = False,
         debug: bool = False,
-        directory: Path | None = None,
+        directory: StrPath | None = None,
         enrichers: ServicePluginInstances[EnricherDefinition] = (),
         extensions: ServicePluginInstances[ExtensionDefinition] = (),
         generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]]
@@ -263,7 +264,7 @@ def isolated_project_factory(isolated_app: App) -> IsolatedProjectFactory:
         links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
         loaders: ServicePluginInstances[LoaderDefinition] = (),
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
-        logo: Path | None = None,
+        logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
         plugins: Mapping[
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
@@ -441,34 +442,34 @@ def demo_project_aioresponses(http_client_mock: aioresponses, tmp_path: Path) ->
 def _demo_project_aioresponses_spdx_license_data(
     http_client_mock: aioresponses, tmp_path: Path
 ) -> None:
-    spdx_directory_path = tmp_path / "spdx"
-    spdx_directory_path.mkdir()
+    spdx_directory = tmp_path / "spdx"
+    spdx_directory.mkdir()
 
-    licenses_file_path = (
-        spdx_directory_path
+    licenses_file = (
+        spdx_directory
         / f"license-list-data-{SpdxLicenseDiscoverer.VERSION}"
         / "json"
         / "licenses.json"
     )
-    licenses_file_path.parent.mkdir(parents=True)
-    with open(licenses_file_path, "w", encoding="utf-8") as f:
+    licenses_file.parent.mkdir(parents=True)
+    with open(licenses_file, "w", encoding="utf-8") as f:
         f.write(dumps(LICENSES_DATA))
 
-    license_details_directory_path = (
-        spdx_directory_path
+    license_details_directory = (
+        spdx_directory
         / f"license-list-data-{SpdxLicenseDiscoverer.VERSION}"
         / "json"
         / "details"
     )
-    license_details_directory_path.mkdir()
+    license_details_directory.mkdir()
     for spdx_license_id, license_data in LICENSES.items():
-        license_file_path = license_details_directory_path / f"{spdx_license_id}.json"
-        with open(license_file_path, "w", encoding="utf-8") as f:
+        license_file = license_details_directory / f"{spdx_license_id}.json"
+        with open(license_file, "w", encoding="utf-8") as f:
             f.write(dumps(license_data))
 
     spdx_file = BytesIO()
     with tarfile.open(fileobj=spdx_file, mode="w:gz") as spdx_tar_file:
-        spdx_tar_file.add(spdx_directory_path, "/")
+        spdx_tar_file.add(spdx_directory, "/")
     spdx_file.seek(0)
 
     http_client_mock.get(SpdxLicenseDiscoverer.URL, body=spdx_file.read())

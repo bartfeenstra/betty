@@ -14,33 +14,32 @@ from sphinx.ext.autodoc import MethodDocumenter
 
 from betty.dirs import ROOT_DIRECTORY
 from betty.exception import HumanFacingException
+from betty.pathlib import StrPath, resolve_path
 from betty.server import Server, ServerNotStarted, builtin
 from betty.user import User, Verbosity
 
 
 async def _ensure_www_directory(
-    output_directory_path: Path, cache_directory_path: Path, *, user: User
+    output_directory: Path, cache_directory: Path, *, user: User
 ) -> None:
-    if not output_directory_path.exists():
-        await _build(output_directory_path, cache_directory_path, user=user)
+    if not output_directory.exists():
+        await _build(output_directory, cache_directory, user=user)
 
 
-async def _build(
-    output_directory_path: Path, cache_directory_path: Path, *, user: User
-) -> None:
-    output_directory_path.mkdir(exist_ok=True, parents=True)
+async def _build(output_directory: Path, cache_directory: Path, *, user: User) -> None:
+    output_directory.mkdir(exist_ok=True, parents=True)
     # sphinx-apidoc must output to the documentation directory, but because we do not want
     # to 'pollute' that with generated files that must not be committed, do our work in a
     # dedicated cache directory.
-    source_directory_path = cache_directory_path / "source"
-    await to_thread(copytree, ROOT_DIRECTORY / "documentation", source_directory_path)
+    source_directory = cache_directory / "source"
+    await to_thread(copytree, ROOT_DIRECTORY / "documentation", source_directory)
     sphinx_app = Sphinx(
         buildername="dirhtml",
-        confdir=str(source_directory_path),
-        doctreedir=str(cache_directory_path / ".doctrees"),
-        outdir=str(output_directory_path),
+        confdir=str(source_directory),
+        doctreedir=str(cache_directory / ".doctrees"),
+        outdir=str(output_directory),
         parallel=multiprocessing.cpu_count(),
-        srcdir=str(source_directory_path),
+        srcdir=str(source_directory),
         verbosity=9 if user.verbosity is Verbosity.MOST_VERBOSE else 0,
         warningiserror=True,
     )
@@ -67,9 +66,9 @@ class DocumentationServer(Server):
     Serve the documentation site.
     """
 
-    def __init__(self, cache_directory_path: Path, *, user: User):
+    def __init__(self, cache_directory: StrPath, *, user: User):
         super().__init__(user=user)
-        self._cache_directory_path = cache_directory_path
+        self._cache_directory = resolve_path(cache_directory)
         self._server: Server | None = None
         self._exit_stack = AsyncExitStack()
 
@@ -82,11 +81,11 @@ class DocumentationServer(Server):
 
     @override
     async def start(self) -> None:
-        www_directory_path = self._cache_directory_path / "www"
+        www_directory = self._cache_directory / "www"
         await _ensure_www_directory(
-            www_directory_path, self._cache_directory_path / "cache", user=self._user
+            www_directory, self._cache_directory / "cache", user=self._user
         )
-        self._server = builtin.BuiltinServer(www_directory_path, user=self._user)
+        self._server = builtin.BuiltinServer(www_directory, user=self._user)
         await self._exit_stack.enter_async_context(self._server)
 
     @override

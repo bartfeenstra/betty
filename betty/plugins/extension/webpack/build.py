@@ -7,7 +7,6 @@ from __future__ import annotations
 from abc import abstractmethod
 from asyncio import gather, to_thread
 from json import dumps, loads
-from os import walk
 from pathlib import Path
 from shutil import copy2, copytree
 from typing import TYPE_CHECKING, cast
@@ -19,6 +18,7 @@ from betty.extension import Extension
 from betty.file import read, write
 from betty.hashid import hashid, hashid_file_content, hashid_sequence
 from betty.jinja import make_copy_function
+from betty.pathlib import resolve_path
 from betty.portable import PortableMapping
 
 if TYPE_CHECKING:
@@ -26,6 +26,7 @@ if TYPE_CHECKING:
 
     from betty.jinja import Environment
     from betty.job import Context
+    from betty.pathlib import StrPath
     from betty.user import User
 
 _NPM_PROJECT_DIRECTORY = DATA_DIRECTORY / "webpack" / "webpack"
@@ -38,7 +39,7 @@ class EntryPointProvider(Extension):
 
     @classmethod
     @abstractmethod
-    def webpack_entry_point_directory_path(cls) -> Path:
+    def webpack_entry_point_directory(cls) -> StrPath:
         """
         Get the path to the directory with the entry point assets.
 
@@ -61,7 +62,7 @@ async def _npm_project_id(
         await hashid_file_content(_NPM_PROJECT_DIRECTORY / "package.json"),
         *[
             await hashid_file_content(
-                entry_point_provider.webpack_entry_point_directory_path()
+                resolve_path(entry_point_provider.webpack_entry_point_directory())
                 / "package.json"
             )
             for entry_point_provider in entry_point_providers
@@ -69,10 +70,10 @@ async def _npm_project_id(
     )
 
 
-async def _npm_project_directory_path(
-    working_directory_path: Path, entry_point_providers: Sequence[EntryPointProvider]
+async def _npm_project_directory(
+    working_directory: Path, entry_point_providers: Sequence[EntryPointProvider]
 ) -> Path:
-    return working_directory_path / await _npm_project_id(entry_point_providers)
+    return working_directory / await _npm_project_id(entry_point_providers)
 
 
 def webpack_build_id(
@@ -95,13 +96,13 @@ def webpack_build_id(
     )
 
 
-def _webpack_build_directory_path(
-    npm_project_directory_path: Path,
+def _webpack_build_directory(
+    npm_project_directory: Path,
     entry_point_providers: Sequence[EntryPointProvider],
     debug: bool,
 ) -> Path:
     return (
-        npm_project_directory_path
+        npm_project_directory
         / f"build-{webpack_build_id(entry_point_providers, debug)}"
     )
 
@@ -120,32 +121,30 @@ class Builder:
         entry_point_providers: Sequence[EntryPointProvider],
         debug: bool,
         jinja: Environment,
-        root_path: str,
+        root: str,
         *,
         user: User,
     ) -> None:
         self._entry_point_providers = entry_point_providers
         self._debug = debug
         self._jinja = jinja
-        self._root_path = root_path
+        self._root = root
         self._user = user
 
-    async def _prepare_betty(self, npm_project_directory_path: Path) -> None:
+    async def _prepare_betty(self, npm_project_directory: Path) -> None:
         await to_thread(
             copytree,
             JS_DIRECTORY,
-            npm_project_directory_path
+            npm_project_directory
             / "packages"
             / _package_name_to_path("@betty.py/betty"),
             dirs_exist_ok=True,
         )
 
-    async def _prepare_webpack_extension(
-        self, npm_project_directory_path: Path
-    ) -> None:
+    async def _prepare_webpack_extension(self, npm_project_directory: Path) -> None:
         await gather(*[
-            to_thread(copy2, source_file_path, npm_project_directory_path)
-            for source_file_path in (
+            to_thread(copy2, source_file, npm_project_directory)
+            for source_file in (
                 _NPM_PROJECT_DIRECTORY / "package.json",
                 _NPM_PROJECT_DIRECTORY / "webpack.config.js",
                 ROOT_DIRECTORY / ".browserslistrc",
@@ -156,17 +155,17 @@ class Builder:
     async def _prepare_webpack_entry_point_provider(
         self,
         context: Context,
-        npm_project_directory_path: Path,
+        npm_project_directory: Path,
         package_json: PortableMapping,
         entry_point_provider: type[EntryPointProvider],
         npm_project_package_json_dependencies: MutableMapping[str, str],
         webpack_entry: MutableMapping[str, str],
     ) -> None:
-        entry_point_directory_path = (
-            entry_point_provider.webpack_entry_point_directory_path()
+        entry_point_directory = resolve_path(
+            entry_point_provider.webpack_entry_point_directory()
         )
-        entry_point_provider_working_directory_path = (
-            npm_project_directory_path
+        entry_point_provider_working_directory = (
+            npm_project_directory
             / "packages"
             / _package_name_to_path(cast(str, package_json["name"]))
         )
@@ -174,39 +173,35 @@ class Builder:
             self._jinja, document=Document(context=context)
         )
         copies = []
-        for directory_path, _, file_names in walk(entry_point_directory_path):
+        for directory, _, file_names in entry_point_directory.walk():
             for file_name in file_names:
-                relative_file_path = (
-                    Path(directory_path).relative_to(entry_point_directory_path)
-                    / file_name
-                )
+                relative_file = directory.relative_to(entry_point_directory) / file_name
                 copies.append(
                     copy_function(
-                        entry_point_directory_path / relative_file_path,
-                        entry_point_provider_working_directory_path
-                        / relative_file_path,
+                        entry_point_directory / relative_file,
+                        entry_point_provider_working_directory / relative_file,
                     )
                 )
         await gather(*copies)
         npm_project_package_json_dependencies[entry_point_provider.plugin().id] = (
             # Ensure a relative path inside the npm project directory, or else npm
             # will not install our entry points' dependencies.
-            f"file:{entry_point_provider_working_directory_path.relative_to(npm_project_directory_path)}"
+            f"file:{entry_point_provider_working_directory.relative_to(npm_project_directory)}"
         )
         # Webpack requires relative paths to start with a leading dot and use forward slashes.
         webpack_entry[entry_point_provider.plugin().id] = "/".join((
             ".",
-            *(entry_point_provider_working_directory_path / "main.ts")
-            .relative_to(npm_project_directory_path)
+            *(entry_point_provider_working_directory / "main.ts")
+            .relative_to(npm_project_directory)
             .parts,
         ))
 
-    async def _extract_package_json(self, package_path: Path) -> PortableMapping:
-        return cast(PortableMapping, loads(await read(package_path / "package.json")))
+    async def _extract_package_json(self, package: Path) -> PortableMapping:
+        return cast(PortableMapping, loads(await read(package / "package.json")))
 
     async def _update_package_json(
         self,
-        npm_project_directory_path: Path,
+        npm_project_directory: Path,
         package_jsons_by_package_name: PortableMapping[PortableMapping],
         package_name: str,
     ) -> None:
@@ -220,42 +215,42 @@ class Builder:
                 continue
             # Manually compute the relative path to the dependency's package directory, because
             # pathlib.Path.relative_to()'s walk_up argument is only available in Python 3.12 and newer.
-            dependency_package_path = Path(
+            dependency_package = Path(
                 *(
                     [".."]
                     * len(
                         (
-                            npm_project_directory_path
+                            npm_project_directory
                             / "packages"
                             / _package_name_to_path(package_name)
                         )
-                        .relative_to(npm_project_directory_path)
+                        .relative_to(npm_project_directory)
                         .parts
                     )
                 ),
                 *(
-                    npm_project_directory_path
+                    npm_project_directory
                     / "packages"
                     / _package_name_to_path(dependency_package_name)
                 )
-                .relative_to(npm_project_directory_path)
+                .relative_to(npm_project_directory)
                 .parts,
             )
-            dependencies[dependency_package_name] = f"file:{dependency_package_path}"
+            dependencies[dependency_package_name] = f"file:{dependency_package}"
         await write(
-            npm_project_directory_path / "packages" / package_name / "package.json",
+            npm_project_directory / "packages" / package_name / "package.json",
             dumps(package_json),
         )
 
     async def _update_package_jsons(
         self,
-        npm_project_directory_path: Path,
+        npm_project_directory: Path,
         package_jsons_by_package_name: MutableMapping[str, PortableMapping],
     ) -> None:
         await gather(
             *(
                 self._update_package_json(
-                    npm_project_directory_path,
+                    npm_project_directory,
                     package_jsons_by_package_name,
                     package_name,
                 )
@@ -266,45 +261,44 @@ class Builder:
     async def _prepare_npm_project_directory(
         self,
         context: Context,
-        npm_project_directory_path: Path,
-        webpack_build_directory_path: Path,
+        npm_project_directory: Path,
+        webpack_build_directory: Path,
     ) -> None:
-        package_paths = [
+        packages = [
             JS_DIRECTORY,
             *(
-                entry_point_provider.webpack_entry_point_directory_path()
+                resolve_path(entry_point_provider.webpack_entry_point_directory())
                 for entry_point_provider in self._entry_point_providers
             ),
         ]
-        package_jsons_by_package_path: MutableMapping[Path, PortableMapping] = dict(
+        package_jsons_by_package: MutableMapping[Path, PortableMapping] = dict(
             zip(
-                package_paths,
+                packages,
                 await gather(
-                    *(
-                        self._extract_package_json(package_path)
-                        for package_path in package_paths
-                    )
+                    *(self._extract_package_json(package) for package in packages)
                 ),
                 strict=True,
             )
         )
         package_jsons_by_package_name: MutableMapping[str, PortableMapping] = {
             cast(str, package_json["name"]): package_json
-            for package_json in package_jsons_by_package_path.values()
+            for package_json in package_jsons_by_package.values()
         }
 
         npm_project_package_json_dependencies: MutableMapping[str, str] = {}
         webpack_entry: MutableMapping[str, str] = {}
-        await to_thread(npm_project_directory_path.mkdir, exist_ok=True, parents=True)
+        await to_thread(npm_project_directory.mkdir, exist_ok=True, parents=True)
         await gather(
-            self._prepare_betty(npm_project_directory_path),
-            self._prepare_webpack_extension(npm_project_directory_path),
+            self._prepare_betty(npm_project_directory),
+            self._prepare_webpack_extension(npm_project_directory),
             *(
                 self._prepare_webpack_entry_point_provider(
                     context,
-                    npm_project_directory_path,
-                    package_jsons_by_package_path[
-                        entry_point_provider.webpack_entry_point_directory_path()
+                    npm_project_directory,
+                    package_jsons_by_package[
+                        resolve_path(
+                            entry_point_provider.webpack_entry_point_directory()
+                        )
                     ],
                     type(entry_point_provider),
                     npm_project_package_json_dependencies,
@@ -314,52 +308,50 @@ class Builder:
             ),
         )
         await self._update_package_jsons(
-            npm_project_directory_path, package_jsons_by_package_name
+            npm_project_directory, package_jsons_by_package_name
         )
         webpack_configuration_json = {
-            "rootPath": self._root_path,
+            "rootPath": self._root,
             # Use a relative path so we avoid portability issues with
             # leading root slashes or drive letters.
             "buildDirectoryPath": str(
-                webpack_build_directory_path.relative_to(npm_project_directory_path)
+                webpack_build_directory.relative_to(npm_project_directory)
             ),
             "debug": self._debug,
             "entry": webpack_entry,
             "jobContextId": context.id,
         }
         await write(
-            npm_project_directory_path / "webpack.config.json",
+            npm_project_directory / "webpack.config.json",
             dumps(webpack_configuration_json),
         )
 
         # Add dependencies to package.json.
-        npm_project_package_json_path = npm_project_directory_path / "package.json"
-        npm_project_package_json = loads(await read(npm_project_package_json_path))
+        npm_project_package_json_file = npm_project_directory / "package.json"
+        npm_project_package_json = loads(await read(npm_project_package_json_file))
         npm_project_package_json["dependencies"].update(
             npm_project_package_json_dependencies
         )
-        await write(npm_project_package_json_path, dumps(npm_project_package_json))
+        await write(npm_project_package_json_file, dumps(npm_project_package_json))
 
-    async def _npm_install(self, npm_project_directory_path: Path) -> None:
+    async def _npm_install(self, npm_project_directory: Path) -> None:
         await npm.npm(
-            ("install", "--production"), cwd=npm_project_directory_path, user=self._user
+            ("install", "--production"), cwd=npm_project_directory, user=self._user
         )
 
     async def _webpack_build(
-        self, npm_project_directory_path: Path, webpack_build_directory_path: Path
+        self, npm_project_directory: Path, webpack_build_directory: Path
     ) -> None:
-        await npm.npm(
-            ("run", "webpack"), cwd=npm_project_directory_path, user=self._user
-        )
+        await npm.npm(("run", "webpack"), cwd=npm_project_directory, user=self._user)
 
         # Ensure there is always a main.css. This makes for easy and unconditional importing.
         await to_thread(
-            (webpack_build_directory_path / "css" / "webpack").mkdir,
+            (webpack_build_directory / "css" / "webpack").mkdir,
             exist_ok=True,
             parents=True,
         )
         await to_thread(
-            (webpack_build_directory_path / "css" / "webpack" / "main.css").touch
+            (webpack_build_directory / "css" / "webpack" / "main.css").touch
         )
 
     async def build(self, working_directory: Path, *, context: Context) -> Path:
@@ -369,21 +361,19 @@ class Builder:
         :return: The path to the directory from which the assets can be copied to their
             final destination.
         """
-        npm_project_directory_path = await _npm_project_directory_path(
+        npm_project_directory = await _npm_project_directory(
             working_directory, self._entry_point_providers
         )
-        webpack_build_directory_path = _webpack_build_directory_path(
-            npm_project_directory_path, self._entry_point_providers, self._debug
+        webpack_build_directory = _webpack_build_directory(
+            npm_project_directory, self._entry_point_providers, self._debug
         )
-        if webpack_build_directory_path.exists():
-            return webpack_build_directory_path
-        npm_install_required = not npm_project_directory_path.exists()
+        if webpack_build_directory.exists():
+            return webpack_build_directory
+        npm_install_required = not npm_project_directory.exists()
         await self._prepare_npm_project_directory(
-            context, npm_project_directory_path, webpack_build_directory_path
+            context, npm_project_directory, webpack_build_directory
         )
         if npm_install_required:
-            await self._npm_install(npm_project_directory_path)
-        await self._webpack_build(
-            npm_project_directory_path, webpack_build_directory_path
-        )
-        return webpack_build_directory_path
+            await self._npm_install(npm_project_directory)
+        await self._webpack_build(npm_project_directory, webpack_build_directory)
+        return webpack_build_directory

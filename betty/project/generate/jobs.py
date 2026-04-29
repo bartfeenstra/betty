@@ -73,25 +73,23 @@ class GenerateStaticPublicAssets(Job):
         copy_function = make_copy_function(
             jinja,
             document=await self._project.new_document(context=scheduler.context),
-            www_directory_path=self._project.www_directory,
+            www_directory=self._project.www_directory,
             is_localized_and_multilingual=self._project.multilingual,
         )
         await gather(*[
-            self._generate(scheduler, asset_path, copy_function)
+            self._generate(asset_path, copy_function)
             async for asset_path in self._project.asset_directories.walk(
                 Path("public") / "static"
             )
         ])
 
-    async def _generate(
-        self, scheduler: Scheduler, asset_path: Path, copy_function: CopyFunction
-    ) -> None:
-        file_destination_path = self._project.www_directory / asset_path.relative_to(
+    async def _generate(self, asset: Path, copy_function: CopyFunction, /) -> None:
+        file_destination_path = self._project.www_directory / asset.relative_to(
             Path("public") / "static"
         )
         await to_thread(file_destination_path.parent.mkdir, exist_ok=True, parents=True)
         await copy_function(
-            await self._project.asset_directories.get(asset_path), file_destination_path
+            await self._project.asset_directories.get(asset), file_destination_path
         )
 
 
@@ -292,32 +290,28 @@ class GenerateLocalizedPublicAssets(Job):
                     context=scheduler.context,
                     localizer=localizers.get(locale),
                 ),
-                www_directory_path=self._project.www_directory,
+                www_directory=self._project.www_directory,
                 is_localized_and_multilingual=self._project.multilingual,
             )
             for locale in self._project.locales.keys()  # noqa: SIM118
         }
         await gather(*[
-            self._generate(scheduler, asset_path, copy_functions[locale], locale)
-            async for asset_path in self._project.asset_directories.walk(
+            self._generate(asset, copy_functions[locale], locale)
+            async for asset in self._project.asset_directories.walk(
                 Path("public") / "localized"
             )
             for locale in self._project.locales.keys()  # noqa: SIM118
         ])
 
     async def _generate(
-        self,
-        scheduler: Scheduler,
-        asset_path: Path,
-        copy_function: CopyFunction,
-        locale: Locale,
+        self, asset: Path, copy_function: CopyFunction, locale: Locale
     ) -> None:
-        file_destination_path = self._project.localize_www_directory(
+        file_destination = self._project.localize_www_directory(
             locale
-        ) / asset_path.relative_to(Path("public") / "localized")
-        await to_thread(file_destination_path.parent.mkdir, exist_ok=True, parents=True)
+        ) / asset.relative_to(Path("public") / "localized")
+        await to_thread(file_destination.parent.mkdir, exist_ok=True, parents=True)
         await copy_function(
-            await self._project.asset_directories.get(asset_path), file_destination_path
+            await self._project.asset_directories.get(asset), file_destination
         )
 
 
@@ -342,9 +336,9 @@ class GenerateJsonSchema(Job):
     async def do(self, scheduler: Scheduler, /) -> None:
         schema = await ProjectSchema.new(self._project)
         rendered_json = dumps(schema.schema)
-        schema_path = ProjectSchema.www_path(self._project)
-        await to_thread(schema_path.parent.mkdir, exist_ok=True, parents=True)
-        await write(schema_path, rendered_json)
+        schema_file = ProjectSchema.www_path(self._project)
+        await to_thread(schema_file.parent.mkdir, exist_ok=True, parents=True)
+        await write(schema_file, rendered_json)
 
 
 @final
@@ -459,7 +453,7 @@ class _GenerateEntityTypeJson(Job):
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
         url_generator = await self._project.url_generator
-        entity_type_path = self._project.www_directory / self._entity_type.id
+        entity_type_directory = self._project.www_directory / self._entity_type.id
         data: PortableMapping = {
             "$schema": await ProjectSchema.def_url(
                 self._project,
@@ -475,7 +469,7 @@ class _GenerateEntityTypeJson(Job):
                     absolute=True,
                 )
             )
-        await _create_json_resource(entity_type_path, dumps(data))
+        await _create_json_resource(entity_type_directory, dumps(data))
 
 
 @final

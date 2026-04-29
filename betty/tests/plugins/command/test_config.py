@@ -14,11 +14,8 @@ class TestConfig:
     async def test_configure__with_locale(
         self, mocker: MockerFixture, isolated_app: App, tmp_path: Path
     ) -> None:
-        configuration_file_path = tmp_path / "app.json"
-        mocker.patch(
-            "betty.app.data.AppConfiguration.FILE",
-            new=configuration_file_path,
-        )
+        configuration_file = tmp_path / "app.json"
+        mocker.patch("betty.app.data.AppConfiguration.FILE", new=configuration_file)
 
         locale = "nl"
         await run(
@@ -28,6 +25,6 @@ class TestConfig:
             locale,
         )
         configuration = AppConfiguration.data().porter.load(
-            assert_load_file(serializers=[Json()])(configuration_file_path)
+            assert_load_file(serializers=[Json()])(configuration_file)
         )
         assert configuration.locale == Locale(locale)

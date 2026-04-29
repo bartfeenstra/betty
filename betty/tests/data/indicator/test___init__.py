@@ -1,5 +1,3 @@
-import pathlib
-
 from betty.data.indicator import AnyIndex, AnyKey, Path, Url
 
 
@@ -15,7 +13,7 @@ class TestAnyKey:
 
 class TestPath:
     def test_format(self) -> None:
-        assert Path(pathlib.Path("my-first-path")).format().endswith("my-first-path")
+        assert Path("my-first-path").format().endswith("my-first-path")
 
 
 class TestUrl:

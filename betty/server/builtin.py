@@ -20,6 +20,7 @@ from betty.locale.localizable.gettext import _
 from betty.server import Server, ServerNotStarted
 
 if TYPE_CHECKING:
+    from betty.pathlib import StrPath
     from betty.user import User
 
 
@@ -44,10 +45,15 @@ class BuiltinServer(Server):
     _DEFAULT_PORT = 8000
 
     def __init__(
-        self, www_directory_path: Path, /, *, root_path: str | None = None, user: User
+        self,
+        www_directory: StrPath,
+        /,
+        *,
+        root_path: str | None = None,
+        user: User,
     ) -> None:
         super().__init__(user=user)
-        self._www_directory_path = www_directory_path
+        self._www_directory = www_directory
         self._root_path = root_path
         self._http_server: HTTPServer | None = None
         self._port: int | None = None
@@ -67,12 +73,10 @@ class BuiltinServer(Server):
                 temprary_www_directory /= root_path_component
             if temprary_www_directory != self._temporary_root_directory:
                 temprary_www_directory.parent.mkdir(parents=True, exist_ok=True)
-                await to_thread(
-                    symlink, self._www_directory_path, temprary_www_directory
-                )
-            www_directory_path = self._temporary_root_directory
+                await to_thread(symlink, self._www_directory, temprary_www_directory)
+            www_directory = self._temporary_root_directory
         else:
-            www_directory_path = self._www_directory_path
+            www_directory = self._www_directory
         await self._user.message_debug(_("Starting Python's built-in web server..."))
         for self._port in range(  # noqa: B020
             self._DEFAULT_PORT,
@@ -86,7 +90,7 @@ class BuiltinServer(Server):
                             request,
                             client_address,
                             server,
-                            directory=str(www_directory_path),
+                            directory=str(www_directory),
                         )
                     ),
                 )

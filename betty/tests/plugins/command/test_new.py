@@ -15,9 +15,9 @@ from betty.test_utils.user import StaticUser
 from betty.typing import Void
 
 
-def _assert_new(configuration_file_path: Path) -> ProjectConfiguration:
+def _assert_new(configuration_file: Path) -> ProjectConfiguration:
     return ProjectConfiguration.data().porter.load(
-        assert_load_file(serializers=[Json()])(configuration_file_path)
+        assert_load_file(serializers=[Json()])(configuration_file)
     )
 
 
@@ -25,7 +25,7 @@ class TestNew:
     async def test_configure__minimal(
         self, isolated_app_factory: IsolatedAppFactory, tmp_path: Path
     ) -> None:
-        configuration_file_path = tmp_path / "betty.json"
+        configuration_file = tmp_path / "betty.json"
         title = "My First Project"
         machine_name = "my-first-project"
         author = "My First Author"
@@ -36,7 +36,7 @@ class TestNew:
                 None,
             ],
             inputs=[
-                str(configuration_file_path),
+                str(configuration_file),
                 DEFAULT_LOCALE_TAG,
                 title,
                 machine_name,
@@ -46,7 +46,7 @@ class TestNew:
         )
         async with isolated_app_factory(user=user) as app:
             await run(app, "new")
-            configuration = _assert_new(configuration_file_path)
+            configuration = _assert_new(configuration_file)
         assert configuration.title.localize(DEFAULT_LOCALIZER) == title
         assert configuration.name == "my-first-project"
         assert configuration.author is not None
@@ -74,17 +74,17 @@ class TestNew:
                 url,
             ],
         )
-        configuration_file_path = tmp_path / "betty.json"
+        configuration_file = tmp_path / "betty.json"
         async with isolated_app_factory(user=user) as app:
             await run(app, "new")
-            _assert_new(configuration_file_path)
+            _assert_new(configuration_file)
 
     async def test_configure__with_single_locale(
         self,
         isolated_app_factory: IsolatedAppFactory,
         tmp_path: Path,
     ) -> None:
-        configuration_file_path = tmp_path / "betty.json"
+        configuration_file = tmp_path / "betty.json"
         locale = "nl-NL"
         user = StaticUser(
             confirmations=[
@@ -92,7 +92,7 @@ class TestNew:
                 None,
             ],
             inputs=[
-                str(configuration_file_path),
+                str(configuration_file),
                 locale,
                 "Mijn Eerste Project",
                 "mijn-eerste-project",
@@ -102,7 +102,7 @@ class TestNew:
         )
         async with isolated_app_factory(user=user) as app:
             await run(app, "new")
-            configuration = _assert_new(configuration_file_path)
+            configuration = _assert_new(configuration_file)
         assert configuration.name == "mijn-eerste-project"
         locale_configurations = configuration.locales
         assert len(locale_configurations) == 1
@@ -113,7 +113,7 @@ class TestNew:
         isolated_app_factory: IsolatedAppFactory,
         tmp_path: Path,
     ) -> None:
-        configuration_file_path = tmp_path / "betty.json"
+        configuration_file = tmp_path / "betty.json"
         default_locale = Locale("nl", "NL")
         other_locale = Locale("en", "US")
         user = StaticUser(
@@ -123,7 +123,7 @@ class TestNew:
                 None,
             ],
             inputs=[
-                str(configuration_file_path),
+                str(configuration_file),
                 to_language_tag(default_locale),
                 to_language_tag(other_locale),
                 "Mijn Eerste Project",
@@ -136,7 +136,7 @@ class TestNew:
         )
         async with isolated_app_factory(user=user) as app:
             await run(app, "new")
-            configuration = _assert_new(configuration_file_path)
+            configuration = _assert_new(configuration_file)
         assert configuration.name == "mijn-eerste-project"
         assert len(configuration.locales) == 2
 
@@ -145,7 +145,7 @@ class TestNew:
         isolated_app_factory: IsolatedAppFactory,
         tmp_path: Path,
     ) -> None:
-        configuration_file_path = tmp_path / "betty.json"
+        configuration_file = tmp_path / "betty.json"
         name = "project-first-my"
         user = StaticUser(
             confirmations=[
@@ -153,7 +153,7 @@ class TestNew:
                 None,
             ],
             inputs=[
-                str(configuration_file_path),
+                str(configuration_file),
                 DEFAULT_LOCALE_TAG,
                 "My First Project",
                 name,
@@ -163,32 +163,32 @@ class TestNew:
         )
         async with isolated_app_factory(user=user) as app:
             await run(app, "new")
-            configuration = _assert_new(configuration_file_path)
+            configuration = _assert_new(configuration_file)
         assert configuration.name == name
 
     async def test_configure__with_gramps(
         self, isolated_app_factory: IsolatedAppFactory, tmp_path: Path
     ) -> None:
-        configuration_file_path = tmp_path / "betty.json"
-        gramps_family_tree_file_path = tmp_path / "gramps"
+        configuration_file = tmp_path / "betty.json"
+        gramps_family_tree_file = tmp_path / "gramps"
         user = StaticUser(
             confirmations=[
                 None,
                 True,
             ],
             inputs=[
-                str(configuration_file_path),
+                str(configuration_file),
                 DEFAULT_LOCALE_TAG,
                 "My First Project",
                 "my-first-project",
                 "My First Author",
                 "https://exampleexampleexample.com/example",
-                str(gramps_family_tree_file_path),
+                str(gramps_family_tree_file),
             ],
         )
         async with isolated_app_factory(user=user) as app:
             await run(app, "new")
-            configuration = _assert_new(configuration_file_path)
+            configuration = _assert_new(configuration_file)
             assert Gramps in configuration.loaders
             portable_gramps_configuration = configuration.loaders[Gramps].plugin_data
             assert portable_gramps_configuration is not Void
@@ -197,6 +197,5 @@ class TestNew:
                 portable_gramps_configuration
             )
             assert (
-                gramps_configuration.family_trees[0].source
-                == gramps_family_tree_file_path
+                gramps_configuration.family_trees[0].source == gramps_family_tree_file
             )

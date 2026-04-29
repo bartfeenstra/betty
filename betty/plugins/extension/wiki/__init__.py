@@ -38,9 +38,9 @@ class Wiki(Extension, ServiceProvider, Manufacturable):
         The API client.
         """
         return Client(
-            download_directory_path=self._project.upstream.binary_file_cache.with_scope(
+            download_directory=self._project.upstream.binary_file_cache.with_scope(
                 "wiki-client"
-            ).path,
+            ).directory,
             http_client=await self._project.upstream.http_client,
             user=self._project.upstream.user,
         )

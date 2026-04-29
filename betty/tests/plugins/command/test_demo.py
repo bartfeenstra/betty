@@ -30,9 +30,9 @@ class TestDemo:
             "betty.demo.generate.generate_with_cleanup"
         )
 
-        project_directory_path = tmp_path / "project"
+        project_directory = tmp_path / "project"
 
-        await run(isolated_app, "demo", "--path", str(project_directory_path))
+        await run(isolated_app, "demo", "--path", str(project_directory))
 
         m_generate_with_cleanup.assert_called_once()
 
@@ -43,14 +43,14 @@ class TestDemo:
             "betty.demo.generate.generate_with_cleanup"
         )
 
-        project_directory_path = tmp_path / "project"
+        project_directory = tmp_path / "project"
         url = "https://betty.example.com"
 
         await run(
             isolated_app,
             "demo",
             "--path",
-            str(project_directory_path),
+            str(project_directory),
             "--url",
             url,
         )

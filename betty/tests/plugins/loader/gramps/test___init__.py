@@ -252,14 +252,14 @@ class TestGramps:
   </notes>
 </database>
 """.strip()
-        with TemporaryDirectory() as working_directory_path_str:
-            working_directory_path = Path(working_directory_path_str)
-            gramps_family_tree_one_path = working_directory_path / "one.gramps"
-            with gzip.open(gramps_family_tree_one_path, "w") as f:
+        with TemporaryDirectory() as working_directory_str:
+            working_directory = Path(working_directory_str)
+            gramps_family_tree_one = working_directory / "one.gramps"
+            with gzip.open(gramps_family_tree_one, "w") as f:
                 f.write(family_tree_one_xml.encode("utf-8"))
 
-            gramps_family_tree_two_path = working_directory_path / "two.gramps"
-            with gzip.open(gramps_family_tree_two_path, "w") as f:
+            gramps_family_tree_two = working_directory / "two.gramps"
+            with gzip.open(gramps_family_tree_two, "w") as f:
                 f.write(family_tree_two_xml.encode("utf-8"))
 
             async with isolated_project_factory(
@@ -268,8 +268,8 @@ class TestGramps:
                         Gramps.plugin(),
                         GrampsConfiguration(
                             family_trees=[
-                                FamilyTree(gramps_family_tree_one_path),
-                                FamilyTree(gramps_family_tree_two_path),
+                                FamilyTree(gramps_family_tree_one),
+                                FamilyTree(gramps_family_tree_two),
                             ]
                         ),
                     )

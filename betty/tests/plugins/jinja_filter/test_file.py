@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import pytest
 
 from betty.job import Context
@@ -11,18 +9,12 @@ _TEST_FILTER_FILE_PARAMETER_ARGVALUES = [
     (
         "betty-static:///file/F1/file/test_file.py",
         "{{ file | file }}",
-        File(
-            id="F1",
-            path=Path(__file__),
-        ),
+        File(id="F1", path=__file__),
     ),
     (
         "betty-static:///file/F1/file/test_file.py#betty-static:///file/F1/file/test_file.py",
         "{{ file | file }}#{{ file | file }}",
-        File(
-            id="F1",
-            path=Path(__file__),
-        ),
+        File(id="F1", path=__file__),
     ),
 ]
 

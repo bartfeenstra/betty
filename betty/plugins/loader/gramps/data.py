@@ -5,7 +5,6 @@ Data for the :py:class:`betty.plugins.loader.gramps.Gramps` extension.
 from __future__ import annotations
 
 from collections.abc import Mapping, MutableMapping
-from pathlib import Path
 from typing import TYPE_CHECKING, final
 
 from betty.collection.mapping import MutableResolvedMapping
@@ -23,7 +22,8 @@ from betty.gramps.loader import (
     DEFAULT_ROLE_MAPPING,
 )
 from betty.locale.localizable.gettext import _
-from betty.pathlib import FilePathDefinition
+from betty.pathlib import resolve_path
+from betty.pathlib.data import FilePathDefinition
 from betty.place_type import PlaceTypeDefinition, PlaceTypeManufacturer
 from betty.plugin import PluginDefinition
 from betty.plugin.cls import Plugin
@@ -39,9 +39,11 @@ from betty.sample import Size
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+    from pathlib import Path
 
     from betty.event_type import EventType
     from betty.locale.localizable import ResolvableLocalizable
+    from betty.pathlib import StrPath
     from betty.place_type import PlaceType
     from betty.role import Role
 
@@ -135,7 +137,7 @@ class FamilyTree(Data):
 
     def __init__(
         self,
-        file: Path | None = None,
+        file: StrPath | None = None,
         name: str | None = None,
         event_types: Mapping[
             str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
@@ -181,11 +183,11 @@ class FamilyTree(Data):
     samples=[
         lambda: Sample(GrampsConfiguration(), label="Minimal", size=Size.MINIMAL),
         lambda: Sample(
-            GrampsConfiguration(executable=Path("gramps.exe")),
+            GrampsConfiguration(executable="gramps.exe"),
             label="A custom Gramps executable",
         ),
         lambda: Sample(
-            GrampsConfiguration(family_trees=[FamilyTree(file=Path("./gramps.gpkg"))]),
+            GrampsConfiguration(family_trees=[FamilyTree(file="./gramps.gpkg")]),
             label="Load a family tree from a file",
         ),
         lambda: Sample(
@@ -254,8 +256,8 @@ class GrampsConfiguration(Data):
         self,
         *,
         family_trees: Iterable[FamilyTree] = (),
-        executable: Path | None = None,
+        executable: StrPath | None = None,
     ):
         super().__init__()
         self.family_trees = family_trees
-        self.executable = executable
+        self.executable = None if executable is None else resolve_path(executable)

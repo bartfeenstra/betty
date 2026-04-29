@@ -16,8 +16,8 @@ class TestPickledFileCache(CacheTestBase[Any]):
     async def _new_sut(
         self, *, scopes: Sequence[str] = ()
     ) -> AsyncIterator[PickledFileCache[Any]]:
-        with TemporaryDirectory() as cache_directory_path_str:
-            yield PickledFileCache(Path(cache_directory_path_str), scopes=scopes)
+        with TemporaryDirectory() as cache_directory:
+            yield PickledFileCache(cache_directory, scopes=scopes)
 
     @override
     def _values(self) -> Iterator[Any]:
@@ -35,8 +35,8 @@ class TestBinaryFileCache(CacheTestBase[bytes]):
     async def _new_sut(
         self, *, scopes: Sequence[str] = ()
     ) -> AsyncIterator[BinaryFileCache]:
-        with TemporaryDirectory() as cache_directory_path_str:
-            yield BinaryFileCache(Path(cache_directory_path_str), scopes=scopes)
+        with TemporaryDirectory() as cache_directory:
+            yield BinaryFileCache(cache_directory, scopes=scopes)
 
     @override
     def _values(self) -> Iterator[bytes]:
@@ -49,9 +49,9 @@ class TestBinaryFileCache(CacheTestBase[bytes]):
             ("scopey", "dopey"),
         ],
     )
-    def test_path(self, scopes: Sequence[str], tmp_path: Path) -> None:
-        sut = BinaryFileCache(Path(tmp_path), scopes=scopes)
-        assert sut.path == tmp_path.joinpath(*scopes)
+    def test_directory(self, scopes: Sequence[str], tmp_path: Path) -> None:
+        sut = BinaryFileCache(tmp_path, scopes=scopes)
+        assert sut.directory == tmp_path.joinpath(*scopes)
 
     @pytest.mark.parametrize(
         ("expected_path_components", "scopes"),
@@ -70,13 +70,11 @@ class TestBinaryFileCache(CacheTestBase[bytes]):
             ),
         ],
     )
-    def test_cache_item_file_path(
+    def test_cache_item_file(
         self,
         expected_path_components: Sequence[str],
         scopes: Sequence[str],
         tmp_path: Path,
     ) -> None:
-        sut = BinaryFileCache(Path(tmp_path), scopes=scopes)
-        assert sut.cache_item_file_path("id") == tmp_path.joinpath(
-            *expected_path_components
-        )
+        sut = BinaryFileCache(tmp_path, scopes=scopes)
+        assert sut.cache_item_file("id") == tmp_path.joinpath(*expected_path_components)

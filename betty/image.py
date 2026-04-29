@@ -3,12 +3,12 @@ Manipulate images.
 """
 
 import math
-from pathlib import Path
 
 from PIL import UnidentifiedImageError
 from PIL.Image import EXTENSION, Image, init, preinit
 
 from betty.media_type import MediaType
+from betty.pathlib import StrPath, resolve_path
 from betty.plugins.media_type.pdf import PDF
 
 type Percentage = int
@@ -28,19 +28,18 @@ def is_supported_media_type(media_type: MediaType) -> bool:
     return media_type == PDF
 
 
-def image_file_path_format(image_file_path: Path) -> str:
+def image_file_path_format(image_file: StrPath, /) -> str:
     """
     Get the PIL image format for an image's file path.
     """
-    if image_file_path.suffix not in EXTENSION:
+    suffix = resolve_path(image_file).suffix
+    if suffix not in EXTENSION:
         preinit()
-        if image_file_path.suffix not in EXTENSION:
+        if suffix not in EXTENSION:
             init()
-            if image_file_path.suffix not in EXTENSION:
-                raise UnidentifiedImageError(
-                    f"cannot identify image file {image_file_path}"
-                )
-    return EXTENSION[image_file_path.suffix]
+            if suffix not in EXTENSION:
+                raise UnidentifiedImageError(f"cannot identify image file {image_file}")
+    return EXTENSION[suffix]
 
 
 def _assert_size(size: Size) -> None:

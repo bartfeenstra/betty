@@ -26,14 +26,14 @@ from betty.project.data import ProjectConfiguration
 
 if TYPE_CHECKING:
     from collections.abc import Collection
-    from pathlib import Path
 
     from betty.app import App
     from betty.locale.localize import Localizer
+    from betty.pathlib import StrPath
 
 
 async def new(
-    app: App, configuration: ProjectConfiguration, configuration_file: Path, /
+    app: App, configuration: ProjectConfiguration, configuration_file: StrPath, /
 ) -> None:
     """
     Create a new project.

@@ -1,5 +1,5 @@
 """
-File path tools.
+Data definitions for file system paths.
 """
 
 from pathlib import Path

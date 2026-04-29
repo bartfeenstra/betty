@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from betty.document import Document
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugins.content.raspberry_mint_media_gallery import MediaGallery
@@ -33,7 +31,7 @@ class TestMediaGallery:
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         resource = Person()
-        file = File(Path(__file__))
+        file = File(__file__)
         FileReference(resource, file)
         async with isolated_project_factory(
             supported_plugins=[MediaGallery]
