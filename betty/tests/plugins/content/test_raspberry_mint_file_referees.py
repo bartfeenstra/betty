@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import pytest
 
 from betty.document import Document
@@ -20,7 +18,7 @@ class TestFileReferees:
             object(),
             Person(),
             Place(),
-            File(Path(__file__)),
+            File(__file__),
         ],
     )
     async def test_build_template__without_referees(
@@ -36,7 +34,7 @@ class TestFileReferees:
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         referee = DummyHasFileReferences()
-        resource = File(Path(__file__))
+        resource = File(__file__)
         FileReference(referee, resource)
         async with isolated_project_factory(
             supported_plugins=[FileReferees]

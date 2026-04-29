@@ -17,9 +17,9 @@ from betty.assertion import (
     OptionalField,
     RequiredField,
     assert_bool,
-    assert_directory_path,
+    assert_directory,
     assert_enum,
-    assert_file_path,
+    assert_file,
     assert_float,
     assert_int,
     assert_isinstance,
@@ -418,39 +418,39 @@ def test_assert_path__with_valid_path_path() -> None:
     assert_path()(Path("~/../foo/bar"))
 
 
-def test_assert_directory_path__without_existing_path() -> None:
+def test_assert_directory__without_existing_path() -> None:
     with pytest.raises(HumanFacingException):
-        assert_directory_path()("~/../foo/bar")
+        assert_directory()("~/../foo/bar")
 
 
-def test_assert_directory_path__without_directory_path() -> None:
+def test_assert_directory__without_directory() -> None:
     with NamedTemporaryFile() as f, pytest.raises(HumanFacingException):
-        assert_directory_path()(f.name)
+        assert_directory()(f.name)
 
 
-async def test_assert_directory_path__with_valid_path_str() -> None:
-    with TemporaryDirectory() as directory_path_str:
-        assert_directory_path()(directory_path_str)
+async def test_assert_directory__with_valid_str() -> None:
+    with TemporaryDirectory() as directory:
+        assert_directory()(directory)
 
 
-async def test_assert_directory_path__with_valid_path_path() -> None:
-    with TemporaryDirectory() as directory_path_str:
-        assert_directory_path()(Path(directory_path_str))
+async def test_assert_directory__with_valid_path() -> None:
+    with TemporaryDirectory() as directory:
+        assert_directory()(Path(directory))
 
 
-def test_assert_file_path__without_existing_path() -> None:
+def test_assert_file__without_existing_file() -> None:
     with pytest.raises(HumanFacingException):
-        assert_file_path()("~/../foo/bar")
+        assert_file()("~/../foo/bar")
 
 
-def test_assert_file_path__with_valid_path_str() -> None:
+def test_assert_file__with_valid_str() -> None:
     with NamedTemporaryFile() as f:
-        assert_file_path()(f.name)
+        assert_file()(f.name)
 
 
-def test_assert_file_path__with_valid_path_path() -> None:
+def test_assert_file__with_valid_path() -> None:
     with NamedTemporaryFile() as f:
-        assert_file_path()(Path(f.name))
+        assert_file()(Path(f.name))
 
 
 def test_assert_isinstance__with_instance() -> None:

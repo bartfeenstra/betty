@@ -45,7 +45,7 @@ from betty.locale import DEFAULT_LOCALE, ResolvableLocale, resolve_locale
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import LocalizableProperty
 from betty.machine_name import MachineName, MachineNameProperty, ResolvableMachineName
-from betty.pathlib import FilePathDefinition
+from betty.pathlib.data import FilePathDefinition
 from betty.place_type import PlaceTypeDefinition
 from betty.place_type.data import PlaceTypeDefinitionConfiguration
 from betty.plugin.data.property import PluginDefinitionConfigurationsProperty
@@ -60,9 +60,9 @@ from betty.sample import Size
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
-    from pathlib import Path
 
     from betty.locale.localizable import ResolvableLocalizable
+    from betty.pathlib import StrPath
     from betty.plugin.factory import (
         ResolvablePluginManufacturer,
         ResolvablePluginManufacturerSequence,
@@ -407,7 +407,7 @@ class ProjectConfiguration(Data):
         lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,
         loaders: ResolvablePluginManufacturerSequence[LoaderDefinition, Loader] = (),
         locales: Iterable[ResolvableLocale | ProjectLocale] = (),
-        logo: Path | None = None,
+        logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
         place_types: Iterable[PlaceTypeDefinitionConfiguration] = (),
         roles: Iterable[RoleDefinitionConfiguration] = (),

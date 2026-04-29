@@ -6,7 +6,6 @@ from asyncio import gather, to_thread
 from concurrent import futures
 from contextlib import AsyncExitStack, asynccontextmanager
 from os import environ
-from pathlib import Path
 from shutil import rmtree
 from tempfile import mkdtemp
 from typing import TYPE_CHECKING, Any, Literal, Self, final
@@ -51,6 +50,7 @@ if TYPE_CHECKING:
     import aiohttp
 
     from betty.asset import AssetDirectoryDefinition
+    from betty.pathlib import StrPath
     from betty.plugin import PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.plugin.resolve import ResolvablePluginDefinition
@@ -169,7 +169,7 @@ class App(RequirableServiceLevel, PluginServiceProvider):
                 locale = data.locale
         else:
             locale = None
-        cache_directory = Path(environ.get("BETTY_CACHE_DIRECTORY", CACHE_DIRECTORY))
+        cache_directory = environ.get("BETTY_CACHE_DIRECTORY", CACHE_DIRECTORY)
         async with cls(
             cache=PickledFileCache(cache_directory),
             binary_file_cache=BinaryFileCache(cache_directory),
@@ -182,7 +182,7 @@ class App(RequirableServiceLevel, PluginServiceProvider):
     async def new_isolated(
         cls,
         *,
-        binary_file_cache_directory: Path | None = None,
+        binary_file_cache_directory: StrPath | None = None,
         cache: TypedSynchronousServiceOrFactory[App, Cache[Any]] | None = None,
         plugins: Mapping[
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
@@ -203,9 +203,9 @@ class App(RequirableServiceLevel, PluginServiceProvider):
         """
         async with AsyncExitStack() as exit_stack:
             if binary_file_cache_directory is None:
-                binary_file_cache_directory = Path(
-                    await to_thread(mkdtemp),  # ty:ignore[invalid-argument-type]
-                )
+                binary_file_cache_directory: StrPath = await to_thread(
+                    mkdtemp,
+                )  # ty:ignore[invalid-assignment]
                 exit_stack.push_async_callback(
                     to_thread, rmtree, binary_file_cache_directory
                 )
@@ -257,7 +257,9 @@ class App(RequirableServiceLevel, PluginServiceProvider):
         The HTTP client.
         """
         http_client: aiohttp.ClientSession = CachedSession(
-            cache=FileBackend(self.binary_file_cache.with_scope("http-client").path),
+            cache=FileBackend(
+                self.binary_file_cache.with_scope("http-client").directory
+            ),
             headers={
                 "User-Agent": "Betty (https://betty.readthedocs.io/)",
             },

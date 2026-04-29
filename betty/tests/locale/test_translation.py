@@ -21,6 +21,8 @@ from betty.test_utils.locale import PotFileTestBase
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from betty.pathlib import StrPath
+
 _DUMMY_POT = """
 # Translations template for Betty.
 # Copyright (C) 2024 Bart Feenstra & contributors
@@ -75,7 +77,7 @@ msgstr "Onderwerp"
 
 class TestPotFile(PotFileTestBase):
     @override
-    def assets_directory_path(self) -> Path:
+    def assets_directory(self) -> StrPath:
         return ASSETS_DIRECTORY / "app"
 
     @override
@@ -84,23 +86,23 @@ class TestPotFile(PotFileTestBase):
 
     @override
     async def update_translations(
-        self, output_assets_directory_path_override: Path
+        self, output_assets_directory_override: Path, /
     ) -> None:
-        await update_app_translations(output_assets_directory_path_override)
+        await update_app_translations(output_assets_directory_override)
 
 
 class TestAssetTranslationRepository:
     async def test_get__with_known_translations(self, tmp_path: Path) -> None:
         locale = "nl"
-        assets_directory_path = tmp_path / "assets"
-        po_file_path = assets_directory_path / "locale" / locale / "betty.po"
-        po_file_path.parent.mkdir(parents=True)
-        with open(po_file_path, "w", encoding="utf-8") as f:
+        assets_directory = tmp_path / "assets"
+        po_file = assets_directory / "locale" / locale / "betty.po"
+        po_file.parent.mkdir(parents=True)
+        with open(po_file, "w", encoding="utf-8") as f:
             f.write(_DUMMY_PO)
         # Do this multiple times so we hit the file caches.
         for _ in range(2):
             sut = AssetTranslationRepository(
-                StaticAssetRepository(assets_directory_path),
+                StaticAssetRepository(assets_directory),
                 BinaryFileCache(tmp_path / "cache"),
             )
             await sut.bootstrap()
@@ -119,13 +121,13 @@ class TestAssetTranslationRepository:
         assert translation.gettext("Subject") == "Subject"
 
     async def test_coverage__with_default_locale(self, tmp_path: Path) -> None:
-        assets_directory_path = tmp_path / "assets"
-        pot_file_path = assets_directory_path / "locale" / "betty.pot"
-        pot_file_path.parent.mkdir(parents=True)
-        with open(pot_file_path, "w", encoding="utf-8") as f:
+        assets_directory = tmp_path / "assets"
+        pot_file = assets_directory / "locale" / "betty.pot"
+        pot_file.parent.mkdir(parents=True)
+        with open(pot_file, "w", encoding="utf-8") as f:
             f.write(_DUMMY_POT)
         sut = AssetTranslationRepository(
-            StaticAssetRepository(assets_directory_path),
+            StaticAssetRepository(assets_directory),
             BinaryFileCache(tmp_path / "cache"),
         )
         await sut.bootstrap()
@@ -135,13 +137,13 @@ class TestAssetTranslationRepository:
 
     async def test_coverage__with_untranslated_locale(self, tmp_path: Path) -> None:
         locale = "nl"
-        assets_directory_path = tmp_path / "assets"
-        pot_file_path = assets_directory_path / "locale" / "betty.pot"
-        pot_file_path.parent.mkdir(parents=True)
-        with open(pot_file_path, "w", encoding="utf-8") as f:
+        assets_directory = tmp_path / "assets"
+        pot_file = assets_directory / "locale" / "betty.pot"
+        pot_file.parent.mkdir(parents=True)
+        with open(pot_file, "w", encoding="utf-8") as f:
             f.write(_DUMMY_POT)
         sut = AssetTranslationRepository(
-            StaticAssetRepository(assets_directory_path),
+            StaticAssetRepository(assets_directory),
             BinaryFileCache(tmp_path / "cache"),
         )
         await sut.bootstrap()
@@ -151,17 +153,17 @@ class TestAssetTranslationRepository:
 
     async def test_coverage__with_translated_locale(self, tmp_path: Path) -> None:
         locale = "nl"
-        assets_directory_path = tmp_path / "assets"
-        pot_file_path = assets_directory_path / "locale" / "betty.pot"
-        pot_file_path.parent.mkdir(parents=True)
-        with open(pot_file_path, "w", encoding="utf-8") as f:
+        assets_directory = tmp_path / "assets"
+        pot_file = assets_directory / "locale" / "betty.pot"
+        pot_file.parent.mkdir(parents=True)
+        with open(pot_file, "w", encoding="utf-8") as f:
             f.write(_DUMMY_POT)
-        po_file_path = assets_directory_path / "locale" / locale / "betty.po"
-        po_file_path.parent.mkdir(parents=True)
-        with open(po_file_path, "w", encoding="utf-8") as f:
+        po_file = assets_directory / "locale" / locale / "betty.po"
+        po_file.parent.mkdir(parents=True)
+        with open(po_file, "w", encoding="utf-8") as f:
             f.write(_DUMMY_PO)
         sut = AssetTranslationRepository(
-            StaticAssetRepository(assets_directory_path),
+            StaticAssetRepository(assets_directory),
             BinaryFileCache(tmp_path / "cache"),
         )
         await sut.bootstrap()
@@ -187,14 +189,14 @@ class TestAssetTranslationRepository:
 
     async def test_locales__with_available_translation(self, tmp_path: Path) -> None:
         locale = "nl"
-        assets_directory_path = tmp_path / "assets"
-        lc_messages_directory_path = assets_directory_path / "locale" / locale
-        lc_messages_directory_path.mkdir(parents=True)
-        with open(lc_messages_directory_path / "betty.po", "w", encoding="utf-8") as f:
+        assets_directory = tmp_path / "assets"
+        lc_messages_directory = assets_directory / "locale" / locale
+        lc_messages_directory.mkdir(parents=True)
+        with open(lc_messages_directory / "betty.po", "w", encoding="utf-8") as f:
             f.write(_DUMMY_PO)
 
         sut = AssetTranslationRepository(
-            StaticAssetRepository(assets_directory_path),
+            StaticAssetRepository(assets_directory),
             BinaryFileCache(tmp_path / "cache"),
         )
         await sut.bootstrap()

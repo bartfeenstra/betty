@@ -55,11 +55,11 @@ class TestClient:
         page_name = "Amsterdam & Omstreken"
         page_url = f"https://{page_language}.wikipedia.org/w/api.php?action=query&titles={quote(page_name)}&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2"
 
-        download_directory_path = tmp_path / "download"
+        download_directory = tmp_path / "download"
         http_client_mock.get(page_url, body=response_body)
         async with ClientSession() as http_client:
             sut = Client(
-                download_directory_path=download_directory_path,
+                download_directory=download_directory,
                 http_client=http_client,
                 user=StaticUser(),
             )
@@ -116,11 +116,11 @@ class TestClient:
         page_name = "Amsterdam & Omstreken"
         url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2"
 
-        download_directory_path = tmp_path / "download"
+        download_directory = tmp_path / "download"
         http_client_mock.get(url, body=dumps(response_body))
         async with ClientSession() as http_client:
             sut = Client(
-                download_directory_path=download_directory_path,
+                download_directory=download_directory,
                 http_client=http_client,
                 user=StaticUser(),
             )
@@ -168,11 +168,11 @@ class TestClient:
             "https://en.wikipedia.org/api/rest_v1/page/summary/Amsterdam & Omstreken"
         )
 
-        download_directory_path = tmp_path / "download"
+        download_directory = tmp_path / "download"
         http_client_mock.get(page_url, body=dumps(page_response_json))
         async with ClientSession() as http_client:
             sut = Client(
-                download_directory_path=download_directory_path,
+                download_directory=download_directory,
                 http_client=http_client,
                 user=StaticUser(),
             )
@@ -225,11 +225,11 @@ class TestClient:
             "https://en.wikipedia.org/api/rest_v1/page/summary/Amsterdam & Omstreken"
         )
 
-        download_directory_path = tmp_path / "download"
+        download_directory = tmp_path / "download"
         http_client_mock.get(page_url, body=dumps(page_response_json))
         async with ClientSession() as http_client:
             sut = Client(
-                download_directory_path=download_directory_path,
+                download_directory=download_directory,
                 http_client=http_client,
                 user=StaticUser(),
             )
@@ -314,11 +314,11 @@ class TestClient:
         page_name = "Amsterdam & Omstreken"
         page_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2"
 
-        download_directory_path = tmp_path / "download"
+        download_directory = tmp_path / "download"
         http_client_mock.get(page_url, body=dumps(page_response_json))
         async with ClientSession() as http_client:
             sut = Client(
-                download_directory_path=download_directory_path,
+                download_directory=download_directory,
                 http_client=http_client,
                 user=StaticUser(),
             )
@@ -401,11 +401,11 @@ class TestClient:
         page_name = "Amsterdam & Omstreken"
         page_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2"
 
-        download_directory_path = tmp_path / "download"
+        download_directory = tmp_path / "download"
         http_client_mock.get(page_url, body=dumps(page_response_json))
         async with ClientSession() as http_client:
             sut = Client(
-                download_directory_path=download_directory_path,
+                download_directory=download_directory,
                 http_client=http_client,
                 user=StaticUser(),
             )
@@ -502,13 +502,13 @@ class TestClient:
         image_url = "https://example.com/image.svg"
         image_data = bytes(123)
 
-        download_directory_path = tmp_path / "download"
+        download_directory = tmp_path / "download"
         http_client_mock.get(page_url, body=dumps(page_response_json))
         http_client_mock.get(file_url, body=dumps(file_response_json))
         http_client_mock.get(image_url, body=image_data)
         async with ClientSession() as http_client:
             sut = Client(
-                download_directory_path=download_directory_path,
+                download_directory=download_directory,
                 http_client=http_client,
                 user=StaticUser(),
             )
@@ -579,13 +579,13 @@ class TestClient:
         image_url = "https://example.com/image.svg"
         image_data = bytes(123)
 
-        download_directory_path = tmp_path / "download"
+        download_directory = tmp_path / "download"
         http_client_mock.get(page_url, body=dumps(page_response_json))
         http_client_mock.get(file_url, body=dumps(file_response_json))
         http_client_mock.get(image_url, body=image_data)
         async with ClientSession() as http_client:
             sut = Client(
-                download_directory_path=download_directory_path,
+                download_directory=download_directory,
                 http_client=http_client,
                 user=StaticUser(),
             )

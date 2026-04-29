@@ -60,7 +60,7 @@ class Webpack(Generator, Extension, ServiceProvider, Manufacturable):
                 builder=await self.builder,
                 cache_directory=self._project.binary_file_cache.with_scope(
                     "webpack"
-                ).path,
+                ).directory,
                 www_directory=self._project.www_directory,
             )
         )

@@ -10,12 +10,15 @@ import shutil
 from contextlib import suppress
 from typing import TYPE_CHECKING, Any
 
+from betty.pathlib import resolve_path
+
 if TYPE_CHECKING:
     from collections.abc import Callable
-    from pathlib import Path
+
+    from betty.pathlib import StrPath
 
 
-async def link_or_copy(source_file_path: Path, destination_file_path: Path) -> None:
+async def link_or_copy(source_file: StrPath, destination_file: StrPath, /) -> None:
     """
     Create a hard link to a source path, or copy it to its destination otherwise.
 
@@ -27,31 +30,33 @@ async def link_or_copy(source_file_path: Path, destination_file_path: Path) -> N
 
     If the destination exists, it will be left untouched.
     """
-    await asyncio.to_thread(_link_or_copy, source_file_path, destination_file_path)
+    await asyncio.to_thread(_link_or_copy, source_file, destination_file)
 
 
-def _link_or_copy(source_file_path: Path, destination_file_path: Path) -> None:
+def _link_or_copy(source_file: StrPath, destination_file: StrPath, /) -> None:
     try:
-        _retry_link(source_file_path, destination_file_path)
+        _retry_link(source_file, destination_file)
     except OSError:
-        _retry_copyfile(source_file_path, destination_file_path)
+        _retry_copyfile(source_file, destination_file)
 
 
 def _retry(
-    f: Callable[[Path, Path], Any], source_file_path: Path, destination_file_path: Path
+    f: Callable[[StrPath, StrPath], Any],
+    source_file: StrPath,
+    destination_file: StrPath,
 ) -> None:
     try:
-        f(source_file_path, destination_file_path)
+        f(source_file, destination_file)
     except FileNotFoundError:
-        destination_file_path.parent.mkdir(parents=True, exist_ok=True)
-        f(source_file_path, destination_file_path)
+        resolve_path(destination_file).parent.mkdir(exist_ok=True, parents=True)
+        f(source_file, destination_file)
 
 
-def _retry_link(source_file_path: Path, destination_file_path: Path) -> None:
+def _retry_link(source_file: StrPath, destination_file: StrPath) -> None:
     with suppress(FileExistsError):
-        _retry(os.link, source_file_path, destination_file_path)
+        _retry(os.link, source_file, destination_file)
 
 
-def _retry_copyfile(source_file_path: Path, destination_file_path: Path) -> None:
+def _retry_copyfile(source_file: StrPath, destination_file: StrPath) -> None:
     with suppress(shutil.SameFileError):
-        _retry(shutil.copyfile, source_file_path, destination_file_path)
+        _retry(shutil.copyfile, source_file, destination_file)

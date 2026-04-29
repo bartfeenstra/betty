@@ -16,10 +16,10 @@ from betty.project import Project
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
-    from pathlib import Path
 
     from betty.entity.collection.pool import EntityPool
     from betty.job.scheduler import Scheduler
+    from betty.pathlib import StrPath
     from betty.service_level import ServiceLevel
     from betty.user import User
 
@@ -309,7 +309,7 @@ class Gramps(DataManufacturable[GrampsConfiguration], Manufacturable, Loader):
         services: ServiceLevel,
         user: User,
         attribute_prefix_key: str | None = None,
-        executable: Path | None = None,
+        executable: StrPath | None = None,
         family_trees: Iterable[FamilyTree] = (),
     ):
         super().__init__()

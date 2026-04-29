@@ -8,18 +8,17 @@ from asyncio import to_thread
 from typing import TYPE_CHECKING, overload
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from _typeshed import (
         OpenBinaryModeReading,
         OpenBinaryModeWriting,
         OpenTextModeReading,
         OpenTextModeWriting,
+        StrPath,
     )
 
 
 def _read(
-    file: Path,
+    file: StrPath,
     *,
     encoding: str | None,
     mode: OpenTextModeReading | OpenBinaryModeReading,
@@ -30,14 +29,14 @@ def _read(
 
 @overload
 async def read(
-    file: Path, *, encoding: str = "utf-8", mode: OpenTextModeReading = "r"
+    file: StrPath, *, encoding: str = "utf-8", mode: OpenTextModeReading = "r"
 ) -> str:
     pass
 
 
 @overload
 async def read(
-    file: Path, *, encoding: None = None, mode: OpenBinaryModeReading
+    file: StrPath, *, encoding: None = None, mode: OpenBinaryModeReading
 ) -> bytes:
     pass
 
@@ -53,7 +52,7 @@ async def read(file, *, encoding=None, mode="r"):
 
 
 def _write(
-    file: Path,
+    file: StrPath,
     content: str | bytes,
     *,
     encoding: str | None,
@@ -65,7 +64,7 @@ def _write(
 
 @overload
 async def write(
-    file: Path,
+    file: StrPath,
     content: str,
     *,
     encoding: str = "utf-8",
@@ -76,7 +75,7 @@ async def write(
 
 @overload
 async def write(
-    file: Path, content: bytes, *, encoding: None = None, mode: OpenBinaryModeWriting
+    file: StrPath, content: bytes, *, encoding: None = None, mode: OpenBinaryModeWriting
 ) -> None:
     pass
 

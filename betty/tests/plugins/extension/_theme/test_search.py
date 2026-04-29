@@ -261,7 +261,7 @@ class TestIndex:
         file_id = "F1"
         file = File(
             id=file_id,
-            path=Path(__file__),
+            path=__file__,
             description=description,
         )
         dummy_project.ancestry.add(file)
@@ -278,7 +278,7 @@ class TestIndex:
         file_id = "F1"
         file = File(
             id=file_id,
-            path=Path(__file__),
+            path=__file__,
             description='"file" is Dutch for "traffic jam"',
             privacy=Privacy.PRIVATE,
         )

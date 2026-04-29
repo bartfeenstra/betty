@@ -61,8 +61,11 @@ class SpdxLicenseDiscoverer(Manufacturable):
     ):
         self._http_client = http_client
         self._user = user
-        self._cache_directory_path = (
-            binary_file_cache.with_scope("spdx-licenses").with_scope(self.VERSION).path
+        self._cache_directory = (
+            binary_file_cache
+            .with_scope("spdx-licenses")
+            .with_scope(self.VERSION)
+            .directory
         )
 
     @override
@@ -88,7 +91,7 @@ class SpdxLicenseDiscoverer(Manufacturable):
         """
         Discover the licenses.
         """
-        if not self._cache_directory_path.exists():
+        if not self._cache_directory.exists():
             try:
                 spdx_licenses_response = await self._http_client.get(self.URL)
                 spdx_licenses_data_tar = await spdx_licenses_response.read()
@@ -101,11 +104,11 @@ class SpdxLicenseDiscoverer(Manufacturable):
             await to_thread(
                 self._extract_licenses,
                 spdx_licenses_data_tar,
-                self._cache_directory_path,
+                self._cache_directory,
             )
 
         spdx_licenses_data_json = await read(
-            self._cache_directory_path
+            self._cache_directory
             / f"license-list-data-{self.VERSION}"
             / "json"
             / "licenses.json"
@@ -151,7 +154,7 @@ class SpdxLicenseDiscoverer(Manufacturable):
 
     async def _build_license(self, license_id: str, url: str) -> LicenseDefinition:
         spdx_license_data_json = await read(
-            self._cache_directory_path
+            self._cache_directory
             / f"license-list-data-{self.VERSION}"
             / "json"
             / "details"
@@ -191,13 +194,13 @@ class SpdxLicenseDiscoverer(Manufacturable):
 
     @classmethod
     def _extract_licenses(
-        cls, spdx_licenses_data_tar: bytes, cache_directory_path: Path
+        cls, spdx_licenses_data_tar: bytes, cache_directory: Path
     ) -> None:
         with tarfile.open(
             fileobj=BytesIO(spdx_licenses_data_tar), mode="r:gz"
         ) as tar_file:
             tar_file.extractall(
-                cache_directory_path,
+                cache_directory,
                 members=[
                     tar_file.getmember(
                         f"license-list-data-{cls.VERSION}/json/licenses.json"

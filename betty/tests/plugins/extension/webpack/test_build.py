@@ -8,6 +8,7 @@ from pytest_mock import MockerFixture
 from betty.extension import Extension, ExtensionDefinition
 from betty.job import Context
 from betty.npm import NpmUnavailable
+from betty.pathlib import StrPath
 from betty.plugins.extension.webpack.build import Builder, EntryPointProvider
 from betty.project import Project
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
@@ -18,7 +19,7 @@ from betty.test_utils.user import StaticUser
 class DummyEntryPointProviderExtension(EntryPointProvider, Extension):
     @override
     @classmethod
-    def webpack_entry_point_directory_path(cls) -> Path:
+    def webpack_entry_point_directory(cls) -> StrPath:
         return Path(__file__).parent / "test_build_webpack_entry_point"
 
     @override
@@ -63,14 +64,12 @@ class TestBuilder:
         )
         # Build twice, to test with warm caches as well.
         await sut.build(tmp_path, context=context)
-        webpack_build_directory_path = await sut.build(tmp_path, context=context)
-        assert (webpack_build_directory_path / "css" / "webpack" / "main.css").exists()
-        assert (
-            webpack_build_directory_path / "js" / "webpack-entry-loader.js"
-        ).exists()
+        webpack_build_directory = await sut.build(tmp_path, context=context)
+        assert (webpack_build_directory / "css" / "webpack" / "main.css").exists()
+        assert (webpack_build_directory / "js" / "webpack-entry-loader.js").exists()
         if with_entry_point_provider:
             with open(
-                webpack_build_directory_path / "js" / "webpack-entry-loader.js",
+                webpack_build_directory / "js" / "webpack-entry-loader.js",
                 encoding="utf-8",
             ) as f:
                 webpack_entry_loader_js = f.read()
@@ -80,7 +79,7 @@ class TestBuilder:
                 in webpack_entry_loader_js
             )
             assert (
-                webpack_build_directory_path
+                webpack_build_directory
                 / "js"
                 / "webpack"
                 / f"{DummyEntryPointProviderExtension.plugin().id}.js"

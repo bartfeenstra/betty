@@ -120,7 +120,7 @@ class ImageResizeCover(JinjaFilter, Manufacturable):
         if focus is not None:
             destination_name += f"-{focus[0]}x{focus[1]}x{focus[2]}x{focus[3]}"
 
-        file_directory_path = self._www_directory / "file"
+        file_directory = self._www_directory / "file"
 
         if file.media_type:
             if file.media_type.type == "image":
@@ -156,8 +156,8 @@ class ImageResizeCover(JinjaFilter, Manufacturable):
                 _execute_filter_image,
                 image_loader,
                 file.path,
-                self._binary_file_cache.cache_item_file_path(cache_item_id),
-                file_directory_path,
+                self._binary_file_cache.cache_item_file(cache_item_id),
+                file_directory,
                 destination_name,
                 size,
                 focus,
@@ -165,53 +165,53 @@ class ImageResizeCover(JinjaFilter, Manufacturable):
         return f"betty-static:///file/{quote(destination_name)}"
 
 
-def _load_image_image(file_path: Path) -> Image.Image:
-    with open(file_path, "rb") as f:
+def _load_image_image(file: Path) -> Image.Image:
+    with open(file, "rb") as f:
         image_f = BytesIO(f.read())
     # Ignore warnings about decompression bombs, because we know where the files come from.
     with warnings.catch_warnings(action="ignore", category=DecompressionBombWarning):
-        return Image.open(image_f, formats=[image_file_path_format(file_path)])
+        return Image.open(image_f, formats=[image_file_path_format(file)])
 
 
-def _load_image_application_pdf(file_path: Path) -> Image.Image:
+def _load_image_application_pdf(file: Path) -> Image.Image:
     # Ignore warnings about decompression bombs, because we know where the files come from.
     with warnings.catch_warnings(action="ignore", category=DecompressionBombWarning):
-        return convert_from_path(file_path)[0]
+        return convert_from_path(file)[0]
 
 
 def _execute_filter_image(
     image_loader: Callable[[Path], Image.Image],
-    file_path: Path,
-    cache_item_file_path: Path,
-    destination_directory_path: Path,
+    file: Path,
+    cache_item_file: Path,
+    destination_directory: Path,
     destination_name: str,
     size: Size | None,
     focus: FocusArea | None,
 ) -> None:
-    destination_file_path = destination_directory_path / destination_name
-    destination_directory_path.mkdir(exist_ok=True, parents=True)
+    destination_file = destination_directory / destination_name
+    destination_directory.mkdir(exist_ok=True, parents=True)
 
     # If no customizations are needed, work straight from the source.
-    if size is None and file_path.suffix == destination_file_path.suffix:
-        _link_or_copy(file_path, destination_file_path)
+    if size is None and file.suffix == destination_file.suffix:
+        _link_or_copy(file, destination_file)
         return
 
     try:
         # Try using a previously cached image.
-        _link_or_copy(cache_item_file_path, destination_file_path)
+        _link_or_copy(cache_item_file, destination_file)
     except FileNotFoundError:
         # Apply customizations, and cache the customized image.
-        original_image = converted_image = image_loader(file_path)
+        original_image = converted_image = image_loader(file)
         try:
-            cache_item_file_path.parent.mkdir(exist_ok=True, parents=True)
+            cache_item_file.parent.mkdir(exist_ok=True, parents=True)
             if size is not None:
                 converted_image = resize_cover(converted_image, size, focus=focus)
             converted_image.save(
-                cache_item_file_path,
-                format=image_file_path_format(destination_file_path),
+                cache_item_file,
+                format=image_file_path_format(destination_file),
             )
             del converted_image
         finally:
             original_image.close()
             del original_image
-        _link_or_copy(cache_item_file_path, destination_file_path)
+        _link_or_copy(cache_item_file, destination_file)

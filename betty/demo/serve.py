@@ -39,8 +39,8 @@ class DemoServer(Server):
 
     @override
     async def start(self) -> None:
-        project_directory_path = self._app.binary_file_cache.with_scope("demo").path
-        project = await create_project(self._app, project_directory_path)
+        project_directory = self._app.binary_file_cache.with_scope("demo").directory
+        project = await create_project(self._app, project_directory)
         await self._exit_stack.enter_async_context(project)
 
         try:

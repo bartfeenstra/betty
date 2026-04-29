@@ -6,6 +6,7 @@ from typing import Any, override
 
 from betty.content import ContentDefinition
 from betty.document import Document
+from betty.file import write
 from betty.job import Context
 from betty.locale.localize import Localizer
 from betty.plugins.content.template import Template
@@ -23,12 +24,11 @@ class TestTemplate:
 {{ document.context.id }}
 """
         context = Context()
-        templates_directory_path = isolated_project.assets_directory / "templates"
-        await to_thread(templates_directory_path.mkdir, exist_ok=True, parents=True)
-        template_file_path = templates_directory_path / template_path
-        await to_thread(template_file_path.parent.mkdir, exist_ok=True, parents=True)
-        with open(template_file_path, "w", encoding="utf-8") as f:
-            f.write(template)
+        templates_directory = isolated_project.assets_directory / "templates"
+        await to_thread(templates_directory.mkdir, exist_ok=True, parents=True)
+        template_file = templates_directory / template_path
+        await to_thread(template_file.parent.mkdir, exist_ok=True, parents=True)
+        await write(template_file, template)
 
         @ContentDefinition("my-first-template", label=DUMMY_LOCALIZABLE)
         class _Template(Template):

@@ -44,13 +44,12 @@ from betty.plugins.media_type.html import HTML
 from betty.project import Project
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from betty.app import App
+    from betty.pathlib import StrPath
 
 
 async def create_project(
-    app: App, directory: Path, *, url: str | None = None
+    app: App, directory: StrPath, *, url: str | None = None
 ) -> Project:
     """
     Create a new demonstration project.

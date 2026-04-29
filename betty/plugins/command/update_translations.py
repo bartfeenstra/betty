@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.app import App
 from betty.argparse import assertion_to_argument_type
-from betty.assertion import assert_directory_path
+from betty.assertion import assert_directory
 from betty.asset import AssetDirectoryDefinition
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.factory import Manufacturable
@@ -59,17 +59,13 @@ class UpdateTranslations(Manufacturable, Command):
         )
         parser.add_argument(
             "inputs",
-            type=assertion_to_argument_type(
-                assert_directory_path(), localizer=localizer
-            ),
+            type=assertion_to_argument_type(assert_directory(), localizer=localizer),
             nargs="+",
         )
         parser.add_argument(
             "--exclude",
             action="append",
-            type=assertion_to_argument_type(
-                assert_directory_path(), localizer=localizer
-            ),
+            type=assertion_to_argument_type(assert_directory(), localizer=localizer),
             default=[],
             dest="excludes",
         )

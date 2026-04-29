@@ -419,32 +419,32 @@ def assert_path() -> AssertionChain[Any, Path]:
     return assert_or(assert_isinstance(Path), assert_str() | Path)
 
 
-def assert_directory_path() -> AssertionChain[Any, Path]:
+def assert_directory() -> AssertionChain[Any, Path]:
     """
     Assert that a value is a path to an existing directory.
     """
 
-    def _assert_directory_path(directory_path: Path, /) -> Path:
-        if directory_path.is_dir():
-            return directory_path
+    def _assert_directory(directory: Path, /) -> Path:
+        if directory.is_dir():
+            return directory
         raise HumanFacingException(
-            _('"{path}" is not a directory.').format(path=str(directory_path))
+            _('"{path}" is not a directory.').format(path=str(directory))
         )
 
-    return assert_path() | _assert_directory_path
+    return assert_path() | _assert_directory
 
 
-def assert_file_path() -> AssertionChain[Any, Path]:
+def assert_file() -> AssertionChain[Any, Path]:
     """
     Assert that a value is a path to an existing file.
     """
 
-    def _assert_file_path(file_path: Path, /) -> Path:
-        if file_path.is_file():
-            return file_path
-        raise FileNotFound(file_path)
+    def _assert_file(file: Path, /) -> Path:
+        if file.is_file():
+            return file
+        raise FileNotFound(file)
 
-    return assert_path() | _assert_file_path
+    return assert_path() | _assert_file
 
 
 def assert_locale() -> AssertionChain[Any, Locale]:

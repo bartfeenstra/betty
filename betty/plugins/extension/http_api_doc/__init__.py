@@ -17,7 +17,8 @@ from betty.project import Project
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from pathlib import Path
+
+    from _typeshed import StrPath
 
 
 @final
@@ -40,7 +41,7 @@ class HttpApiDoc(EntryPointProvider):
 
     @override
     @classmethod
-    def webpack_entry_point_directory_path(cls) -> Path:
+    def webpack_entry_point_directory(cls) -> StrPath:
         return DATA_DIRECTORY / "webpack" / cls.plugin().id
 
     @override

@@ -17,7 +17,8 @@ from betty.project.generate import Generator
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from pathlib import Path
+
+    from _typeshed import StrPath
 
     from betty.job.scheduler import Scheduler
 
@@ -49,7 +50,7 @@ class Maps(Generator, EntryPointProvider, Manufacturable):
 
     @override
     @classmethod
-    def webpack_entry_point_directory_path(cls) -> Path:
+    def webpack_entry_point_directory(cls) -> StrPath:
         return DATA_DIRECTORY / "webpack" / cls.plugin().id
 
     @override

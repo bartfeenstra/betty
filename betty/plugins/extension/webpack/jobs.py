@@ -27,9 +27,8 @@ class _GenerateAssets(Job):
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
         context = scheduler.context
-        build_directory_path = await self._generate_ensure_build_directory(context)
-        context._webpack_build_directory_path = build_directory_path  # ty:ignore[unresolved-attribute]
-        await self._copy_build_directory(build_directory_path, self._www_directory)
+        build_directory = await self._generate_ensure_build_directory(context)
+        await self._copy_build_directory(build_directory, self._www_directory)
 
     async def _copy_build_directory(
         self, build_directory: Path, destination_directory: Path

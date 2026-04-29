@@ -6,12 +6,11 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from asyncio import to_thread
-from os import walk
-from pathlib import Path
 from typing import TYPE_CHECKING, final, override
 
 from betty.concurrent import ThreadSafeLock
 from betty.locale.localizable.gettext import _, ngettext
+from betty.pathlib import resolve_path
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.ordered import Order, OrderedPluginDefinition
 from betty.service.plugin import PluginServiceProvider
@@ -22,8 +21,10 @@ from betty.typing import threadsafe
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterable, Iterable, Mapping, Sequence
+    from pathlib import Path
 
     from betty.machine_name import ResolvableMachineName
+    from betty.pathlib import StrPath
     from betty.requirement import Requires
 
 
@@ -38,9 +39,9 @@ class UnknownAsset(AssetError):
     Raised when a requested asset cannot be found.
     """
 
-    def __init__(self, path: Path, assets_directory_paths: Iterable[Path], /):
+    def __init__(self, path: Path, assets_directories: Iterable[Path], /):
         super().__init__(
-            f"Asset {path} cannot be found in any of: {', '.join(map(str, assets_directory_paths))}"
+            f"Asset {path} cannot be found in any of: {', '.join(map(str, assets_directories))}"
         )
 
 
@@ -83,11 +84,11 @@ class StaticAssetRepository(AssetRepository):
     Manages static assets.
     """
 
-    def __init__(self, *directories: Path):
+    def __init__(self, *directories: StrPath):
         """
         :param directories: Earlier paths have priority over later paths.
         """
-        self._directories = directories
+        self._directories = tuple(map(resolve_path, directories))
         self.__assets: Mapping[Path, Path] | None = None
         self._lock = ThreadSafeLock()
 
@@ -99,12 +100,9 @@ class StaticAssetRepository(AssetRepository):
 
     def _init_assets(self) -> Mapping[Path, Path]:
         return {
-            (Path(directory_path) / file_name).relative_to(assets_directory_path): Path(
-                directory_path
-            )
-            / file_name
-            for assets_directory_path in reversed(self._directories)
-            for directory_path, _, file_names in walk(assets_directory_path)
+            (directory / file_name).relative_to(assets_directory): directory / file_name
+            for assets_directory in reversed(self._directories)
+            for directory, _, file_names in assets_directory.walk()
             for file_name in file_names
         }
 
@@ -115,12 +113,10 @@ class StaticAssetRepository(AssetRepository):
 
     @override
     async def walk(self, directory: Path | None = None, /) -> AsyncIterable[Path]:
-        asset_directory_path_str = str(directory)
-        for asset_path in await self._assets():
-            if directory is None or str(asset_path).startswith(
-                asset_directory_path_str
-            ):
-                yield asset_path
+        asset_directory_str = str(directory)
+        for asset in await self._assets():
+            if directory is None or str(asset).startswith(asset_directory_str):
+                yield asset
 
     @override
     async def get(self, path: Path, /) -> Path:

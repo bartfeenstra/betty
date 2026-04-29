@@ -44,7 +44,7 @@ async def add_project_argument(
     parser.add_argument(
         "-p",
         "--project",
-        dest="project_configuration_file_path",
+        dest="project_configuration_file",
         help=localizer._(
             "The path to a Betty project directory or configuration file. Defaults to {default} in the current working directory."
         ).format(
@@ -54,21 +54,21 @@ async def add_project_argument(
     )
 
     async def _command_function_with_project_argument(
-        *, project_configuration_file_path: Path | None = None, **kwargs: Any
+        *, project_configuration_file: Path | None = None, **kwargs: Any
     ) -> None:
         project: Project | None
         try:
             (
                 configuration,
-                project_configuration_file_path,
-            ) = await _read_project_configuration(project_configuration_file_path, app)
+                project_configuration_file,
+            ) = await _read_project_configuration(project_configuration_file, app)
         except ConfigurationFileNotFound:
             if required:
                 raise
             project = None
         else:
             project = await Project.new(
-                app, configuration, directory=project_configuration_file_path.parent
+                app, configuration, directory=project_configuration_file.parent
             )
         return await command_function(project=project, **kwargs)
 
@@ -76,20 +76,20 @@ async def add_project_argument(
 
 
 async def _read_project_configuration(
-    provided_configuration_file_path_str: Path | None, app: App
+    provided_configuration_file: Path | None, app: App
 ) -> tuple[ProjectConfiguration, Path]:
     serializers = await gather(*app.serializers)
-    project_directory_path = Path.cwd()
-    if provided_configuration_file_path_str is None:
-        try_configuration_file_paths = [
-            project_directory_path / f"betty{extension}"
+    project_directory = Path.cwd()
+    if provided_configuration_file is None:
+        try_configuration_files = [
+            project_directory / f"betty{extension}"
             for serializer in serializers
             for extension in serializer.media_type().extensions
         ]
-        for try_configuration_file_path in try_configuration_file_paths:
+        for try_configuration_file in try_configuration_files:
             with suppress(FileNotFound):
                 return await _read_project_configuration_file(
-                    try_configuration_file_path, serializers, app.user
+                    try_configuration_file, serializers, app.user
                 )
         raise ConfigurationFileNotFound(
             _(
@@ -97,37 +97,33 @@ async def _read_project_configuration(
             ).format(
                 configuration_file_names=AnyEnumeration(
                     *(
-                        str(x.relative_to(project_directory_path))
-                        for x in try_configuration_file_paths
+                        str(x.relative_to(project_directory))
+                        for x in try_configuration_files
                     )
                 ),
-                project_directory_path=str(project_directory_path),
+                project_directory_path=str(project_directory),
             )
         )
     return await _read_project_configuration_file(
-        (project_directory_path / provided_configuration_file_path_str)
-        .expanduser()
-        .resolve(),
+        (project_directory / provided_configuration_file).expanduser().resolve(),
         serializers,
         app.user,
     )
 
 
 async def _read_project_configuration_file(
-    configuration_file_path: Path, serializers: Iterable[Serializer], user: User
+    configuration_file: Path, serializers: Iterable[Serializer], user: User
 ) -> tuple[ProjectConfiguration, Path]:
     assert_configuration = assert_load_file(serializers=serializers)
     try:
-        portable = assert_configuration(configuration_file_path)
+        portable = assert_configuration(configuration_file)
     except HumanFacingException as error:
         await user.message_debug(error)
         raise
     else:
         await user.message_information_details(
             _("Loaded the configuration from {configuration_file_path}.").format(
-                configuration_file_path=str(configuration_file_path)
+                configuration_file_path=str(configuration_file)
             ),
         )
-        return ProjectConfiguration.data().porter.load(
-            portable
-        ), configuration_file_path
+        return ProjectConfiguration.data().porter.load(portable), configuration_file

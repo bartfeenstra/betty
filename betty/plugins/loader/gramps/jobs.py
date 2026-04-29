@@ -9,10 +9,9 @@ from typing import TYPE_CHECKING, override
 from betty.job import Job
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from betty.gramps.loader import GrampsLoader
     from betty.job.scheduler import Scheduler
+    from betty.pathlib import StrPath
 
 
 class LoadAncestry(Job):
@@ -20,13 +19,13 @@ class LoadAncestry(Job):
     Load Gramps data into an ancestry.
     """
 
-    def __init__(self, *, loader: GrampsLoader, source: Path | str):
+    def __init__(self, *, loader: GrampsLoader, source: StrPath):
         super().__init__(self.id_for(source))
         self._loader = loader
         self._source = source
 
     @classmethod
-    def id_for(cls, source: Path | str, /) -> str:
+    def id_for(cls, source: StrPath, /) -> str:
         """
         Get the job ID.
         """

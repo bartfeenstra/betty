@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from betty.file import write
 from betty.hashid import hashid, hashid_file_content, hashid_file_meta, hashid_sequence
 
 content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
@@ -14,10 +15,9 @@ async def test_hashid_sequence() -> None:
 
 
 async def test_hashid_file_meta__with_identical_file(tmp_path: Path) -> None:
-    file_path = tmp_path / "file"
-    with open(file_path, "w", encoding="utf-8") as f:
-        f.write(content)
-    assert await hashid_file_meta(file_path) == await hashid_file_meta(file_path)
+    file = tmp_path / "file"
+    await write(file, content)
+    assert await hashid_file_meta(file) == await hashid_file_meta(file)
 
 
 async def test_hashid_file_meta__with_different_files(tmp_path: Path) -> None:
@@ -31,10 +31,9 @@ async def test_hashid_file_meta__with_different_files(tmp_path: Path) -> None:
 
 
 async def test_hashid_file_content__with_identical_files(tmp_path: Path) -> None:
-    file_path = tmp_path / "file"
-    with open(file_path, "w", encoding="utf-8") as f:
-        f.write(content)
-    assert await hashid_file_content(file_path) == await hashid_file_content(file_path)
+    file = tmp_path / "file"
+    await write(file, content)
+    assert await hashid_file_content(file) == await hashid_file_content(file)
 
 
 async def test_hashid_file_content__with_different_files(tmp_path: Path) -> None:

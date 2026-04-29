@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pytest
@@ -297,7 +296,7 @@ def _expand_person(generation: int) -> Sequence[tuple[bool, Privacy, Event | Non
 class TestPrivatizer:
     async def test_privatize__person_should_not_privatize_if_public(self) -> None:
         citation = Citation(source=Source())
-        file = File(path=Path(__file__))
+        file = File(__file__)
         person = Person(privacy=Privacy.PUBLIC)
         person.citations.add(citation)
         FileReference(person, file)
@@ -316,7 +315,7 @@ class TestPrivatizer:
 
     async def test_privatize__person_should_privatize_if_private(self) -> None:
         citation = Citation(source=Source())
-        file = File(path=Path(__file__))
+        file = File(__file__)
         person = Person(privacy=Privacy.PRIVATE)
         person.citations.add(citation)
         FileReference(person, file)
@@ -464,7 +463,7 @@ class TestPrivatizer:
 
     async def test_privatize__event_should_not_privatize_if_public(self) -> None:
         citation = Citation(source=Source())
-        event_file = File(path=Path(__file__))
+        event_file = File(__file__)
         event = Event(
             event_type=Birth(),
             privacy=Privacy.PUBLIC,
@@ -481,9 +480,7 @@ class TestPrivatizer:
 
     async def test_privatize__event_should_privatize_if_private(self) -> None:
         citation = Citation(source=Source())
-        file = File(
-            path=Path(__file__),
-        )
+        file = File(__file__)
         event = Event(
             event_type=Birth(),
             privacy=Privacy.PRIVATE,
@@ -499,9 +496,7 @@ class TestPrivatizer:
         assert citation.private
 
     async def test_privatize__source_should_not_privatize_if_public(self) -> None:
-        file = File(
-            path=Path(__file__),
-        )
+        file = File(__file__)
         source = Source(
             name="The Source",
             privacy=Privacy.PUBLIC,
@@ -514,9 +509,7 @@ class TestPrivatizer:
         assert file.privacy is Privacy.UNDETERMINED
 
     async def test_privatize__source_should_privatize_if_private(self) -> None:
-        file = File(
-            path=Path(__file__),
-        )
+        file = File(__file__)
         source = Source(
             name="The Source",
             privacy=Privacy.PRIVATE,
@@ -529,9 +522,7 @@ class TestPrivatizer:
         assert file.private
 
     async def test_privatize__citation_should_not_privatize_if_public(self) -> None:
-        file = File(
-            path=Path(__file__),
-        )
+        file = File(__file__)
         citation = Citation(
             source=Source(),
             privacy=Privacy.PUBLIC,
@@ -544,9 +535,7 @@ class TestPrivatizer:
         assert file.privacy is Privacy.UNDETERMINED
 
     async def test_privatize__citation_should_privatize_if_private(self) -> None:
-        file = File(
-            path=Path(__file__),
-        )
+        file = File(__file__)
         citation = Citation(
             source=Source(),
             privacy=Privacy.PRIVATE,
@@ -560,10 +549,7 @@ class TestPrivatizer:
 
     async def test_privatize__file_should_not_privatize_if_public(self) -> None:
         citation = Citation(source=Source())
-        file = File(
-            path=Path(__file__),
-            privacy=Privacy.PUBLIC,
-        )
+        file = File(__file__, privacy=Privacy.PUBLIC)
         file.citations.add(citation)
         await Privatizer(DEFAULT_LIFETIME_THRESHOLD, user=StaticUser()).privatize(file)
         assert file.public
@@ -571,10 +557,7 @@ class TestPrivatizer:
 
     async def test_privatize__file_should_privatize_if_private(self) -> None:
         citation = Citation(source=Source())
-        file = File(
-            path=Path(__file__),
-            privacy=Privacy.PRIVATE,
-        )
+        file = File(__file__, privacy=Privacy.PRIVATE)
         file.citations.add(citation)
         await Privatizer(DEFAULT_LIFETIME_THRESHOLD, user=StaticUser()).privatize(file)
         assert file.private

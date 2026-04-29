@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 from betty.load import load
@@ -25,10 +24,7 @@ class TestPrivatizeAncestry:
         person = Person(id="P0")
         Presence(person, Subject(), Event(event_type=Birth()))
 
-        source_file = File(
-            id="F0",
-            path=Path(__file__),
-        )
+        source_file = File(id="F0", path=__file__)
         source = Source(
             id="S0",
             name="The Source",
@@ -36,10 +32,7 @@ class TestPrivatizeAncestry:
         )
         FileReference(source, source_file)
 
-        citation_file = File(
-            id="F0",
-            path=Path(__file__),
-        )
+        citation_file = File(id="F0", path=__file__)
         citation_source = Source("The Source")
         citation = Citation(
             id="C0",

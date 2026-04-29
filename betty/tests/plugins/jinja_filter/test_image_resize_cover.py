@@ -110,8 +110,8 @@ class TestImageResizeCover:
             },
         ) as (actual, project):
             assert actual == expected
-            for file_path in actual.split("#"):
-                assert (project.www_directory / file_path[16:]).exists()
+            for file in actual.split("#"):
+                assert (project.www_directory / file[16:]).exists()
 
     @pytest.mark.parametrize(
         _TEST_FILTER_IMAGE_RESIZE_COVER_PARAMETER_ARGNAMES,
@@ -132,8 +132,8 @@ class TestImageResizeCover:
             },
         ) as (actual, project):
             assert actual == expected
-            for file_path in actual.split("#"):
-                assert (project.www_directory / file_path[16:]).exists()
+            for file in actual.split("#"):
+                assert (project.www_directory / file[16:]).exists()
 
     async def test___call____with_svg(
         self, assert_template_string: AssertTemplateString, tmp_path: Path
@@ -154,8 +154,8 @@ class TestImageResizeCover:
             },
         ) as (actual, project):
             assert actual == "betty-static:///file/F1/file/image.svg"
-            for file_path in actual.split("#"):
-                assert (project.www_directory / file_path[16:]).exists()
+            for file in actual.split("#"):
+                assert (project.www_directory / file[16:]).exists()
 
     async def test___call____with_pdf(
         self, assert_template_string: AssertTemplateString, tmp_path: Path
@@ -174,23 +174,23 @@ class TestImageResizeCover:
             },
         ) as (actual, project):
             assert actual == "betty-static:///file/F1-.jpg"
-            for public_file_path in actual.split("#"):
-                file_path = project.www_directory / public_file_path[16:]
-                assert file_path.exists()
-                assert from_file(file_path, True) == "image/jpeg"
+            for public_file in actual.split("#"):
+                file = project.www_directory / public_file[16:]
+                assert file.exists()
+                assert from_file(file, True) == "image/jpeg"
 
     async def test___call____with_invalid_image(
         self, assert_template_string: AssertTemplateString, tmp_path: Path
     ) -> None:
-        file_path = tmp_path / "not-an-image.txt"
-        file_path.touch()
+        file = tmp_path / "not-an-image.txt"
+        file.touch()
         with pytest.raises(ValueError):  # noqa: PT011
             async with assert_template_string(
                 template="{{ filey | image_resize_cover }}",
                 data={
                     "filey": File(
                         id="F1",
-                        path=file_path,
+                        path=file,
                         media_type=MediaType("text/plain"),
                     )
                 },

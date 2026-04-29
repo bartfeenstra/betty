@@ -35,8 +35,8 @@ class TestFile(EntityTestBase):
     @staticmethod
     def _sut_params() -> Sequence[Entity]:
         return [
-            File(Path(__file__)),
-            File(Path(__file__), description="My First File"),
+            File(__file__),
+            File(__file__, description="My First File"),
         ]
 
     @override
@@ -46,11 +46,7 @@ class TestFile(EntityTestBase):
 
     def test_id(self) -> None:
         file_id = "BETTY01"
-        file_path = Path("~")
-        sut = File(
-            id=file_id,
-            path=file_path,
-        )
+        sut = File(Path(__file__), id=file_id)
         assert sut.id == file_id
 
     def test_name__with_name(self, tmp_path: Path) -> None:
@@ -63,22 +59,14 @@ class TestFile(EntityTestBase):
 
     def test_private(self) -> None:
         file_id = "BETTY01"
-        file_path = Path("~")
-        sut = File(
-            id=file_id,
-            path=file_path,
-        )
+        sut = File(Path(__file__), id=file_id)
         assert sut.privacy is Privacy.UNDETERMINED
         sut.private = True
         assert sut.private is True
 
     def test_media_type(self) -> None:
         file_id = "BETTY01"
-        file_path = Path("~")
-        sut = File(
-            id=file_id,
-            path=file_path,
-        )
+        sut = File(Path(__file__), id=file_id)
         assert sut.media_type is None
         media_type = PLAIN_TEXT
         sut.media_type = media_type
@@ -105,11 +93,7 @@ class TestFile(EntityTestBase):
 
     def test_description(self) -> None:
         file_id = "BETTY01"
-        file_path = Path("~")
-        sut = File(
-            id=file_id,
-            path=file_path,
-        )
+        sut = File(Path(__file__), id=file_id)
         assert not sut.description
         description = "Hi, my name is Betty!"
         sut.description = description
@@ -118,11 +102,7 @@ class TestFile(EntityTestBase):
 
     def test_notes(self) -> None:
         file_id = "BETTY01"
-        file_path = Path("~")
-        sut = File(
-            id=file_id,
-            path=file_path,
-        )
+        sut = File(Path(__file__), id=file_id)
         assert list(sut.notes) == []
         notes = [Note(DUMMY_LOCALIZABLE), Note(DUMMY_LOCALIZABLE)]
         sut.notes = notes
@@ -130,11 +110,7 @@ class TestFile(EntityTestBase):
 
     def test_referees(self) -> None:
         file_id = "BETTY01"
-        file_path = Path("~")
-        sut = File(
-            id=file_id,
-            path=file_path,
-        )
+        sut = File(Path(__file__), id=file_id)
         assert list(sut.referees) == []
 
         entity_one = DummyHasFileReferences()
@@ -148,11 +124,7 @@ class TestFile(EntityTestBase):
 
     def test_citations(self) -> None:
         file_id = "BETTY01"
-        file_path = Path("~")
-        sut = File(
-            id=file_id,
-            path=file_path,
-        )
+        sut = File(Path(__file__), id=file_id)
         assert list(sut.citations) == []
 
     async def test_dump_linked_data__should_dump_minimal(

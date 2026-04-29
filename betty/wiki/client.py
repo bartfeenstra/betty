@@ -77,9 +77,9 @@ class Client:
     """
 
     def __init__(
-        self, *, download_directory_path: Path, http_client: ClientSession, user: User
+        self, *, download_directory: Path, http_client: ClientSession, user: User
     ):
-        self._download_directory_path = download_directory_path
+        self._download_directory = download_directory
         self._http_client = http_client
         self._images: MutableMapping[str, Image | None] = {}
         self._user = user
@@ -204,7 +204,7 @@ class Client:
         async with self._get(image_url) as image_response:
             image_data = await image_response.read()
         image_path = (
-            self._download_directory_path
+            self._download_directory
             / "image"
             / (hashid(image_url) + Path(urlsplit(image_url).path).suffix.lower())
         )

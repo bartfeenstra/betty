@@ -7,8 +7,10 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, final, override
 
+from betty.pathlib import resolve_path
+
 if TYPE_CHECKING:
-    import pathlib
+    from betty.pathlib import StrPath
 
 
 class Indicator(ABC):
@@ -51,8 +53,8 @@ class Path(Indicator):
     A file on disk.
     """
 
-    def __init__(self, path: pathlib.Path, /):
-        self._path = path.resolve().absolute()
+    def __init__(self, path: StrPath, /):
+        self._path = resolve_path(path).resolve().absolute()
 
     @override
     def format(self) -> str:

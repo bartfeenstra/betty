@@ -10,7 +10,6 @@ from __future__ import annotations
 
 from asyncio import gather, to_thread
 from contextlib import AsyncExitStack, asynccontextmanager
-from pathlib import Path
 from shutil import rmtree
 from tempfile import mkdtemp
 from typing import TYPE_CHECKING, Any, Literal, Self, final
@@ -54,6 +53,7 @@ from betty.locale.localizable.gettext import _
 from betty.locale.localize import Localizer, LocalizerRepository
 from betty.locale.translation import AssetTranslationRepository, TranslationRepository
 from betty.machine_name import MachineName, ResolvableMachineName
+from betty.pathlib import resolve_path
 from betty.plugin.resolve import ResolvablePluginDefinition, resolve_plugin_id
 from betty.privacy.privatizer import Privatizer
 from betty.render import RenderDispatcher, RendererDefinition
@@ -70,12 +70,14 @@ from betty.service_level.requirement import RequirableServiceLevel
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Collection, Iterable, Mapping
+    from pathlib import Path
 
     from betty.asset import AssetDirectoryDefinition
     from betty.collection.keyed import KeyedCollection
     from betty.entity import EntityDefinition
     from betty.jinja import Environment
     from betty.locale.localizable import Localizable, ResolvableLocalizable
+    from betty.pathlib import StrPath
     from betty.plugin import PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.plugin.resolve import ResolvablePluginId
@@ -132,7 +134,7 @@ class Project(
 
     def __init__(
         self,
-        directory: Path,
+        directory: StrPath,
         *,
         app: App,
         title: ResolvableLocalizable,
@@ -154,7 +156,7 @@ class Project(
         links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
         loaders: ServicePluginInstances[LoaderDefinition] = (),
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
-        logo: Path | None = None,
+        logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
         plugins: Mapping[
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
@@ -187,7 +189,7 @@ class Project(
         self._author = None if author is None else resolve_localizable(author)
         self._clean_urls = clean_urls
         self._debug = debug
-        self._directory = directory
+        self._directory = resolve_path(directory)
         self._generate_entity_list_html = generate_entity_list_html
         self._lifetime_threshold = lifetime_threshold or DEFAULT_LIFETIME_THRESHOLD
         self._locales = KeyedCollectionAdapter(
@@ -209,7 +211,7 @@ class Project(
             / "static"
             / "betty-512x512.png"
             if logo is None
-            else logo
+            else resolve_path(logo)
         )
         self._name = (
             MachineName(hashid(str(directory)))
@@ -226,7 +228,7 @@ class Project(
 
     @classmethod
     async def new(
-        cls, app: App, data: ProjectConfiguration, *, directory: Path
+        cls, app: App, data: ProjectConfiguration, *, directory: StrPath
     ) -> Self:
         """
         Create a new instance.
@@ -270,7 +272,7 @@ class Project(
         | Literal[False] = False,
         clean_urls: bool = False,
         debug: bool = False,
-        directory: Path | None = None,
+        directory: StrPath | None = None,
         enrichers: ServicePluginInstances[EnricherDefinition] = (),
         generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]]
         | None = None,
@@ -279,7 +281,7 @@ class Project(
         links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
         loaders: ServicePluginInstances[LoaderDefinition] = (),
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
-        logo: Path | None = None,
+        logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
         plugins: Mapping[
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
@@ -300,9 +302,7 @@ class Project(
             if app is None:
                 app = await exit_stack.enter_async_context(App.new_isolated())
             if directory is None:
-                directory = Path(
-                    await to_thread(mkdtemp),  # ty:ignore[invalid-argument-type]
-                )
+                directory: StrPath = await to_thread(mkdtemp)  # ty:ignore[invalid-assignment]
                 exit_stack.push_async_callback(
                     to_thread, rmtree, directory, ignore_errors=True
                 )

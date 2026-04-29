@@ -482,9 +482,7 @@ class LoadAncestry(Job):
     async def _load_streetmix_images(
         self,
     ) -> tuple[Mapping[MachineName, Sequence[File]], Sequence[File]]:
-        streetmix_image_directory_path = (
-            ASSETS_DIRECTORY / "app" / "vendor" / "streetmix"
-        )
+        streetmix_image_directory = ASSETS_DIRECTORY / "app" / "vendor" / "streetmix"
         masculine: Sequence[File] = []
         feminine: Sequence[File] = []
         androgynous: Sequence[File] = []
@@ -513,7 +511,7 @@ class LoadAncestry(Job):
         ]
         for file_name, appearance in file_names:
             file = File(
-                streetmix_image_directory_path / file_name,
+                streetmix_image_directory / file_name,
                 id=f"streetmix-{file_name}",
                 media_type=SVG,
                 copyright_notice=self._streetmix_copyright_notice,

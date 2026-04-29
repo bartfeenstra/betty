@@ -7,6 +7,7 @@ from __future__ import annotations
 import datetime
 from asyncio import to_thread
 from collections.abc import Awaitable, Callable
+from os import makedirs
 from pathlib import Path
 from shutil import copy2
 from typing import TYPE_CHECKING, ClassVar, cast, override
@@ -26,6 +27,7 @@ from betty.file import read, write
 from betty.html import generate_html_id
 from betty.html.attributes import Attributes
 from betty.media_type import UnsupportedMediaType, match_extension
+from betty.pathlib import resolve_path
 from betty.plugins.media_type.jinja import JINJA
 from betty.string import kebab_case_to_snake_case
 from betty.warnings import deprecate
@@ -34,6 +36,7 @@ if TYPE_CHECKING:
     from jinja2.parser import Parser
 
     from betty.document import Document
+    from betty.pathlib import StrPath
     from betty.project import Project
 
 
@@ -56,12 +59,12 @@ async def new_environment(project: Project, /) -> Environment:
     """
     Create a new environment.
     """
-    template_directory_paths = [
+    template_directories = [
         str(path / "templates") for path in project.asset_directories.directories
     ]
     today = datetime.datetime.now(tz=datetime.UTC).date()
     environment = Environment(
-        loader=FileSystemLoader(template_directory_paths),
+        loader=FileSystemLoader(template_directories),
         auto_reload=project.debug,
         enable_async=True,
         undefined=(DebugUndefined if project.debug else StrictUndefined),
@@ -151,32 +154,29 @@ def make_copy_function(
     environment: Environment,
     *,
     document: Document,
-    www_directory_path: Path | None = None,
+    www_directory: StrPath | None = None,
     is_localized_and_multilingual: bool | None = None,
 ) -> CopyFunction:
     """
     Make a copy function for this renderer that renders supported files.
     """
 
-    async def _copy_function(source_path: Path, destination_path: Path) -> None:
-        await to_thread(destination_path.parent.mkdir, exist_ok=True, parents=True)
+    async def _copy_function(source: StrPath, destination: StrPath) -> None:
+        destination = resolve_path(destination)
+        await to_thread(makedirs, destination.parent, exist_ok=True)
         try:
-            _media_type, extension = match_extension(source_path, [JINJA.media_type])
+            _media_type, extension = match_extension(source, [JINJA.media_type])
         except UnsupportedMediaType:
-            copy2(source_path, destination_path)
+            copy2(source, destination)
             return
 
-        destination_path = destination_path.with_name(
-            destination_path.name[: -len(extension)]
-        )
+        destination = destination.with_name(destination.name[: -len(extension)])
 
         copy_resource_url = document.resource_url
 
-        if www_directory_path:
+        if www_directory:
             try:
-                relative_file_destination_path = destination_path.relative_to(
-                    www_directory_path
-                )
+                relative_file_destination_path = destination.relative_to(www_directory)
             except ValueError:
                 pass
             else:
@@ -187,14 +187,14 @@ def make_copy_function(
                     if is_localized_and_multilingual:
                         resource_parts = resource_parts[1:]
                     copy_resource_url = f"betty:///{'/'.join(resource_parts)}"
-        content = await read(source_path)
+        content = await read(source)
 
         template = environment.from_string(content)
         copy_document = document.copy(
-            resource=destination_path, resource_url=copy_resource_url
+            resource=destination, resource_url=copy_resource_url
         )
         rendered_content = await template.render_async(document=copy_document)
-        await write(destination_path, rendered_content)
+        await write(destination, rendered_content)
 
     return _copy_function
 

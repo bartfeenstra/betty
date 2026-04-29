@@ -105,13 +105,13 @@ class TestProjectConfiguration(DataTestBase[ProjectConfiguration]):
     def test___init____with_logo(self) -> None:
         logo = Path("logo.png")
         sut = ProjectConfiguration(logo=logo, title="Betty", url="https://example.com")
-        assert sut.logo == logo
+        assert sut.logo is logo
 
     def test_logo(self) -> None:
         logo = Path("logo.png")
         sut = ProjectConfiguration(title="Betty", url="https://example.com")
         sut.logo = logo
-        assert sut.logo == logo
+        assert sut.logo is logo
 
     def test_copyright_notices(self) -> None:
         sut = ProjectConfiguration(title="Betty", url="https://example.com")

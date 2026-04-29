@@ -19,13 +19,13 @@ if TYPE_CHECKING:
     from betty.project import Project
 
 
-_LEGACY_CACHE_DIRECTORY_PATH = Path.home() / ".betty" / "cache"
+_LEGACY_CACHE_DIRECTORY = Path.home() / ".betty" / "cache"
 
 
 async def _clear_legacy_cache() -> None:
     # Before Betty 0.5, Betty stored its caches in the home directory. Clear those until Betty 0.6.
     with suppress(FileNotFoundError):
-        await to_thread(shutil.rmtree, _LEGACY_CACHE_DIRECTORY_PATH)
+        await to_thread(shutil.rmtree, _LEGACY_CACHE_DIRECTORY)
 
 
 @final

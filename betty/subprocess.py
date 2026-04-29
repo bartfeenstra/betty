@@ -7,11 +7,11 @@ import subprocess
 from asyncio import create_subprocess_exec, create_subprocess_shell
 from asyncio.subprocess import Process
 from collections.abc import Sequence
-from pathlib import Path
 from subprocess import PIPE
 from typing import override
 
 from betty.locale.localizable.gettext import _
+from betty.pathlib import StrPath
 from betty.user import User, Verbosity
 
 
@@ -43,7 +43,11 @@ class FileNotFound(FileNotFoundError, SubprocessError):
 
 
 async def run_process(
-    runnee: Sequence[str], cwd: Path | None = None, shell: bool = False, *, user: User
+    runnee: Sequence[str],
+    cwd: StrPath | None = None,
+    shell: bool = False,
+    *,
+    user: User,
 ) -> Process:
     """
     Run a command in a subprocess.

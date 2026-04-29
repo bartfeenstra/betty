@@ -26,8 +26,8 @@ class TestUnknownAsset:
         directories = (Path("my-first-assets"), Path("my-second-assets"))
         sut = UnknownAsset(path, directories)
         assert str(path) in str(sut)
-        for assets_directory_path in directories:
-            assert str(assets_directory_path) in str(sut)
+        for assets_directory in directories:
+            assert str(assets_directory) in str(sut)
 
 
 class TestStaticAssetRepository:
@@ -58,12 +58,9 @@ class TestStaticAssetRepository:
         )
 
     async def test_directories(self) -> None:
-        with TemporaryDirectory() as source_path_str_1:
-            source_path_1 = Path(source_path_str_1)
-            with TemporaryDirectory() as source_path_str_2:
-                source_path_2 = Path(source_path_str_2)
-                sut = StaticAssetRepository(source_path_1, source_path_2)
-                assert sut.directories == (source_path_1, source_path_2)
+        with TemporaryDirectory() as source_1, TemporaryDirectory() as source_2:
+            sut = StaticAssetRepository(source_1, source_2)
+            assert sut.directories == (Path(source_1), Path(source_2))
 
     async def test_get(self, sut_data: tuple[AssetRepository, Path, Path]) -> None:
         sut, source_path_1, source_path_2 = sut_data

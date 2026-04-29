@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, Any
 import pytest
 
 from betty.media_type import (
-    ExtensionIndicator,
     InvalidMediaType,
     MediaType,
     MediaTypeDefinition,
@@ -21,6 +20,8 @@ from betty.plugins.media_type.plain_text import PLAIN_TEXT
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
+
+    from betty.pathlib import StrPath
 
 
 class TestMediaType:
@@ -312,7 +313,7 @@ def test_match_media_type__with_unsupported_media_type(
 )
 def test_match_extension(
     expected: tuple[MediaType, str],
-    source: ExtensionIndicator,
+    source: StrPath,
     media_types: Iterable[MediaType],
 ) -> None:
     assert match_extension(source, media_types) == expected
@@ -327,7 +328,7 @@ def test_match_extension(
     ],
 )
 def test_match_extension__with_unsupported_media_type(
-    source: ExtensionIndicator, media_types: Iterable[MediaType]
+    source: StrPath, media_types: Iterable[MediaType]
 ) -> None:
     with pytest.raises(UnsupportedMediaType):
         match_extension(source, media_types)

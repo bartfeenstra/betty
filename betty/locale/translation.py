@@ -27,6 +27,7 @@ from betty.locale import (
 from betty.locale.babel import run_babel
 from betty.locale.error import LocaleError
 from betty.locale.localizable.gettext import _
+from betty.pathlib import resolve_path
 from betty.plugins.asset_directory.app import APP
 from betty.typing import threadsafe
 
@@ -43,18 +44,19 @@ if TYPE_CHECKING:
 
     from betty.asset import AssetDirectoryDefinition, AssetRepository
     from betty.cache.file import BinaryFileCache
+    from betty.pathlib import StrPath
     from betty.user import User
 
 
 async def _new_translation(
     output: AssetDirectoryDefinition, locale: Locale, *, user: User
 ) -> None:
-    po_file_path = output.assets / "locale" / to_language_tag(locale) / "betty.po"
+    po_file = output.assets / "locale" / to_language_tag(locale) / "betty.po"
     with redirect_stdout(StringIO()):
-        if po_file_path.exists():
+        if po_file.exists():
             await user.message_information(
                 _("Translations for {locale} already exist at {po_file_path}.").format(
-                    locale=to_language_tag(locale), po_file_path=str(po_file_path)
+                    locale=to_language_tag(locale), po_file_path=str(po_file)
                 )
             )
             return
@@ -66,7 +68,7 @@ async def _new_translation(
             "-i",
             str(output.assets / "locale" / "betty.pot"),
             "-o",
-            str(po_file_path),
+            str(po_file),
             "-l",
             str(locale),
             "-D",
@@ -74,7 +76,7 @@ async def _new_translation(
         )
         await user.message_information(
             _("Translations for {locale} initialized at {po_file_path}.").format(
-                locale=to_language_tag(locale), po_file_path=str(po_file_path)
+                locale=to_language_tag(locale), po_file_path=str(po_file)
             )
         )
 
@@ -83,23 +85,23 @@ async def update_app_translations(override_output: Path | None = None, /) -> Non
     """
     Update the translations for Betty itself.
     """
-    source_directory_path = betty.dirs.ROOT_DIRECTORY / "betty"
-    test_directory_path = source_directory_path / "tests"
+    source_directory = betty.dirs.ROOT_DIRECTORY / "betty"
+    test_directory = source_directory / "tests"
     await _update_translations(
         APP.assets if override_output is None else override_output,
         _find_source_files(
-            {source_directory_path, betty.dirs.ASSETS_DIRECTORY},
-            {test_directory_path},
+            {source_directory, betty.dirs.ASSETS_DIRECTORY}, {test_directory}
         ),
     )
 
 
-async def _update_translations(output: Path, inputs: Iterable[Path]) -> None:
+async def _update_translations(output: StrPath, inputs: Iterable[StrPath]) -> None:
     """
     Update all existing translations based on changes in translatable strings.
     """
-    pot_file_path = output / "locale" / "betty.pot"
-    await to_thread(pot_file_path.parent.mkdir, exist_ok=True, parents=True)
+    output = resolve_path(output)
+    pot_file = output / "locale" / "betty.pot"
+    await to_thread(pot_file.parent.mkdir, exist_ok=True, parents=True)
 
     await run_babel(
         "",
@@ -112,28 +114,28 @@ async def _update_translations(output: Path, inputs: Iterable[Path]) -> None:
         "-F",
         "babel.ini",
         "-o",
-        str(pot_file_path),
+        str(pot_file),
         "--project",
         "Betty",
         "--copyright-holder",
         "Bart Feenstra & contributors",
         *map(str, inputs),
     )
-    for output_po_file_path in output.glob("locale/*/betty.po"):
-        locale = resolve_locale(output_po_file_path.parent.name)
+    for output_po_file in output.glob("locale/*/betty.po"):
+        locale = resolve_locale(output_po_file.parent.name)
         await run_babel(
             "",
             "update",
             "--domain",
             "betty",
             "--input-file",
-            str(pot_file_path),
+            str(pot_file),
             "--ignore-obsolete",
             "--locale",
             str(locale),
             "--no-fuzzy-matching",
             "--output-file",
-            str(output_po_file_path),
+            str(output_po_file),
         )
 
 
@@ -147,7 +149,7 @@ async def new_translation(
 
 
 async def update_translations(
-    output: Path, inputs: Iterable[Path], excludes: Iterable[Path], user: User
+    output: StrPath, inputs: Iterable[StrPath], excludes: Iterable[StrPath], user: User
 ) -> None:
     """
     Update translations.
@@ -156,19 +158,21 @@ async def update_translations(
 
 
 def _find_source_files(
-    inputs: Iterable[Path], excludes: Iterable[Path], /
+    inputs: Iterable[StrPath], excludes: Iterable[StrPath], /
 ) -> Iterable[Path]:
     """
     Find source files in a directory.
     """
-    excludes = {exclude.expanduser().resolve() for exclude in excludes}
-    for input_path in inputs:
-        for relative_input_file_path in input_path.expanduser().resolve().rglob("*"):
-            input_file_path = input_path / relative_input_file_path
-            if excludes & set(input_file_path.parents):
+    excludes = {resolve_path(exclude).expanduser().resolve() for exclude in excludes}
+    for _input in inputs:
+        for relative_input_file in (
+            resolve_path(_input).expanduser().resolve().rglob("*")
+        ):
+            input_file = _input / relative_input_file
+            if excludes & set(input_file.parents):
                 continue
-            if input_file_path.suffix in {".j2", ".py"}:
-                yield input_file_path
+            if input_file.suffix in {".j2", ".py"}:
+                yield input_file
 
 
 class TranslationRepository(ABC):
@@ -239,9 +243,9 @@ class AssetTranslationRepository(TranslationRepository, Bootstrappable):
     @override
     async def bootstrap(self) -> None:
         await super().bootstrap()
-        for assets_directory_path in reversed(self._assets.directories):
-            for po_file_path in assets_directory_path.glob("locale/*/betty.po"):
-                self._locales.add(from_language_tag(po_file_path.parent.name))
+        for assets_directory in reversed(self._assets.directories):
+            for po_file in assets_directory.glob("locale/*/betty.po"):
+                self._locales.add(from_language_tag(po_file.parent.name))
         for locale in self._locales:
             await self._build_translation(locale)
         self._bootstrapped = True
@@ -263,9 +267,9 @@ class AssetTranslationRepository(TranslationRepository, Bootstrappable):
 
     async def _build_translation(self, locale: Locale) -> gettext.NullTranslations:
         translations = gettext.NullTranslations()
-        for assets_directory_path in reversed(self._assets.directories):
+        for assets_directory in reversed(self._assets.directories):
             opened_translations = await self._open_translations(
-                locale, assets_directory_path
+                locale, assets_directory
             )
             if opened_translations:
                 opened_translations.add_fallback(translations)
@@ -274,40 +278,38 @@ class AssetTranslationRepository(TranslationRepository, Bootstrappable):
         return self._translations[locale]
 
     async def _open_translations(
-        self, locale: Locale, assets_directory_path: Path
+        self, locale: Locale, assets_directory: Path
     ) -> gettext.GNUTranslations | None:
-        po_file_path = (
-            assets_directory_path / "locale" / to_language_tag(locale) / "betty.po"
-        )
+        po_file = assets_directory / "locale" / to_language_tag(locale) / "betty.po"
         try:
-            translation_version = await hashid_file_meta(po_file_path)
+            translation_version = await hashid_file_meta(po_file)
         except FileNotFoundError:
             return None
-        cache_directory_path = self._cache.path / "locale" / translation_version
-        mo_file_path = cache_directory_path / "betty.mo"
+        cache_directory = self._cache.directory / "locale" / translation_version
+        mo_file = cache_directory / "betty.mo"
 
         try:
-            mo = await read(mo_file_path, mode="rb")
+            mo = await read(mo_file, mode="rb")
         except FileNotFoundError:
             pass
         else:
             return gettext.GNUTranslations(BytesIO(mo))
 
-        cache_directory_path.mkdir(exist_ok=True, parents=True)
+        cache_directory.mkdir(exist_ok=True, parents=True)
 
         await run_babel(
             "",
             "compile",
             "-i",
-            str(po_file_path),
+            str(po_file),
             "-o",
-            str(mo_file_path),
+            str(mo_file),
             "-l",
             str(resolve_locale(locale)),
             "-D",
             "betty",
         )
-        return gettext.GNUTranslations(BytesIO(await read(mo_file_path, mode="rb")))
+        return gettext.GNUTranslations(BytesIO(await read(mo_file, mode="rb")))
 
     async def coverage(self, locale: ResolvableLocale) -> tuple[int, int]:
         """
@@ -328,9 +330,9 @@ class AssetTranslationRepository(TranslationRepository, Bootstrappable):
         return len(translations), len(translatables)
 
     async def _get_translatables(self) -> AsyncIterator[str]:
-        for assets_directory_path in self._assets.directories:
+        for assets_directory in self._assets.directories:
             try:
-                pot = await read(assets_directory_path / "locale" / "betty.pot")
+                pot = await read(assets_directory / "locale" / "betty.pot")
             except FileNotFoundError:
                 pass
             else:
@@ -338,13 +340,10 @@ class AssetTranslationRepository(TranslationRepository, Bootstrappable):
                     yield entry.msgid_with_context
 
     async def _get_translations(self, locale: Locale) -> AsyncIterator[str]:
-        for assets_directory_path in reversed(self._assets.directories):
+        for assets_directory in reversed(self._assets.directories):
             try:
                 po = await read(
-                    assets_directory_path
-                    / "locale"
-                    / to_language_tag(locale)
-                    / "betty.po"
+                    assets_directory / "locale" / to_language_tag(locale) / "betty.po"
                 )
             except FileNotFoundError:
                 pass

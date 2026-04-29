@@ -44,25 +44,25 @@ class TestSpdxLicenseDiscoverer:
         http_client_mock: aioresponses,
         tmp_path: Path,
     ) -> None:
-        spdx_directory_path = tmp_path / "spdx"
-        spdx_directory_path.mkdir()
+        spdx_directory = tmp_path / "spdx"
+        spdx_directory.mkdir()
         licenses_data: PortableMapping = {
             "licenseListVersion": SpdxLicenseDiscoverer.VERSION,
             "licenses": [],
             "releaseDate": "2024-08-19",
         }
-        licenses_file_path = (
-            spdx_directory_path
+        licenses_file = (
+            spdx_directory
             / f"license-list-data-{SpdxLicenseDiscoverer.VERSION}"
             / "json"
             / "licenses.json"
         )
-        licenses_file_path.parent.mkdir(parents=True)
-        with open(licenses_file_path, "w", encoding="utf-8") as f:
+        licenses_file.parent.mkdir(parents=True)
+        with open(licenses_file, "w", encoding="utf-8") as f:
             f.write(dumps(licenses_data))
         spdx_file = BytesIO()
         with tarfile.open(fileobj=spdx_file, mode="w:gz") as spdx_tar_file:
-            spdx_tar_file.add(spdx_directory_path, "/")
+            spdx_tar_file.add(spdx_directory, "/")
         spdx_file.seek(0)
         http_client_mock.get(SpdxLicenseDiscoverer.URL, body=spdx_file.read())
 
@@ -73,8 +73,8 @@ class TestSpdxLicenseDiscoverer:
         http_client_mock: aioresponses,
         tmp_path: Path,
     ) -> None:
-        spdx_directory_path = tmp_path / "spdx"
-        spdx_directory_path.mkdir()
+        spdx_directory = tmp_path / "spdx"
+        spdx_directory.mkdir()
         licenses_data: PortableMapping = {
             "licenseListVersion": SpdxLicenseDiscoverer.VERSION,
             "licenses": [
@@ -94,14 +94,14 @@ class TestSpdxLicenseDiscoverer:
             ],
             "releaseDate": "2024-08-19",
         }
-        licenses_file_path = (
-            spdx_directory_path
+        licenses_file = (
+            spdx_directory
             / f"license-list-data-{SpdxLicenseDiscoverer.VERSION}"
             / "json"
             / "licenses.json"
         )
-        licenses_file_path.parent.mkdir(parents=True)
-        with open(licenses_file_path, "w", encoding="utf-8") as f:
+        licenses_file.parent.mkdir(parents=True)
+        with open(licenses_file, "w", encoding="utf-8") as f:
             f.write(dumps(licenses_data))
         license_data: PortableMapping = {
             "isDeprecatedLicenseId": False,
@@ -136,22 +136,22 @@ class TestSpdxLicenseDiscoverer:
             "isOsiApproved": True,
             "licenseTextHtml": '\n      \u003cdiv class\u003d"optional-license-text"\u003e \n         \u003cp\u003e\u003cvar class\u003d"replaceable-license-text"\u003e BSD Zero Clause License\u003c/var\u003e\u003c/p\u003e\n\n      \u003c/div\u003e\n      \u003cdiv class\u003d"replaceable-license-text"\u003e \n         \u003cp\u003eCopyright (C) YEAR by AUTHOR EMAIL\u003c/p\u003e\n\n      \u003c/div\u003e\n\n      \u003cp\u003ePermission to use, copy, modify, and/or distribute this software for any purpose with or without fee is\n         hereby granted.\u003c/p\u003e\n\n      \u003cp\u003eTHE SOFTWARE IS PROVIDED \u0026quot;AS IS\u0026quot; AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE\n         INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE\n         LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING\n         FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS\n         ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.\u003c/p\u003e\n\n    ',
         }
-        license_file_path = (
-            spdx_directory_path
+        license_file = (
+            spdx_directory
             / f"license-list-data-{SpdxLicenseDiscoverer.VERSION}"
             / "json"
             / "details"
             / "0BSD.json"
         )
-        license_file_path.parent.mkdir()
-        with open(license_file_path, "w", encoding="utf-8") as f:
+        license_file.parent.mkdir()
+        with open(license_file, "w", encoding="utf-8") as f:
             f.write(dumps(license_data))
-        spdx_tar_file_path = tmp_path / "spdx.tar.gz"
-        with tarfile.open(spdx_tar_file_path, "w:gz") as spdx_tar_file:
-            spdx_tar_file.add(spdx_directory_path, "/")
+        spdx_tar_file = tmp_path / "spdx.tar.gz"
+        with tarfile.open(spdx_tar_file, "w:gz") as spdx_tar_file:
+            spdx_tar_file.add(spdx_directory, "/")
         spdx_file = BytesIO()
         with tarfile.open(fileobj=spdx_file, mode="w:gz") as spdx_tar_file:
-            spdx_tar_file.add(spdx_directory_path, "/")
+            spdx_tar_file.add(spdx_directory, "/")
         spdx_file.seek(0)
         http_client_mock.get(SpdxLicenseDiscoverer.URL, body=spdx_file.read())
 
