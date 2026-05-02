@@ -15,7 +15,7 @@ You can create and tailor projects using :py:class:`configuration <betty.project
 The project directory
 ---------------------
 
-``assets/``
+``asset/``
 ^^^^^^^^^^^
 Your project's :doc:`assets </usage/assets>`, through which you can override translations, HTML templates, and more.
 

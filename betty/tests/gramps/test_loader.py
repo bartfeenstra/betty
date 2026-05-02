@@ -252,7 +252,7 @@ class TestGrampsLoader:
             attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
         )
         with pytest.raises(UserFacingGrampsError):
-            await sut.load_file(Path(__file__).parent / "assets" / "minimal.invalid")
+            await sut.load_file(Path(__file__).parent / "asset" / "minimal.invalid")
 
     async def test_load_name__with_existent_family_tree(
         self, mocker: MockerFixture, isolated_project: Project, tmp_path: Path

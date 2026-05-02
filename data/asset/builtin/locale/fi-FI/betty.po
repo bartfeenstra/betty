@@ -1,19 +1,19 @@
-# Hebrew translations for Betty.
-# Copyright (C) 2024 Bart Feenstra & contributors
+# Finnish (Finland) translations for Betty.
+# Copyright (C) 2025 Bart Feenstra & contributors
 # This file is distributed under the same license as the Betty project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-28 12:44+0100\n"
+"POT-Creation-Date: 2026-05-02 16:18+0100\n"
 "PO-Revision-Date: 2026-02-17 18:12+0000\n"
-"Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
-"Language: he\n"
-"Language-Team: Hebrew "
-"<https://hosted.weblate.org/projects/betty/betty-0-5-x/he/>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
+"Language: fi_FI\n"
+"Language-Team: Finnish "
+"<https://hosted.weblate.org/projects/betty/betty-0-5-x/fi/>\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -25,11 +25,11 @@ msgstr ""
 
 #, python-brace-format
 msgid "\"{invalid_locale}\" is not a valid IETF BCP 47 language tag."
-msgstr "„{invalid_locale}” אינה תגית שפה תקנית מסוג IETF BCP 47."
+msgstr "\"{invalid_locale}\" ei ole kelvollinen IETF BCP 47 -kielitunniste."
 
 #, python-brace-format
 msgid "\"{path}\" is not a directory."
-msgstr "„{path}” זאת לא תיקייה."
+msgstr "\"{path}\" ei ole hakemisto."
 
 #, python-brace-format
 msgid "\"{target}\" is not configurable, but configuration was given."
@@ -45,15 +45,15 @@ msgstr ""
 
 #, python-format
 msgid "%(date)s in %(place)s"
-msgstr "%(date)s ב%(place)s"
+msgstr "%(date)s kohteessa %(place)s"
 
 #, python-format
 msgid "%(event)s of %(subjects)s"
-msgstr ""
+msgstr "%(event)s/%(subjects)s"
 
 #, python-format
 msgid "%(event)s with %(subjects)s"
-msgstr "%(event)s עם %(subjects)s"
+msgstr ""
 
 msgid "A Betty demonstration"
 msgstr ""
@@ -64,7 +64,7 @@ msgstr ""
 msgid ""
 "A family history as told by <a "
 "href=\"https://betty.readthedocs.io\">Betty👵</a>"
-msgstr ""
+msgstr "Sukuhistorian kertoja: <a href=\"https://betty.readthedocs.io\">Betty👵</a>"
 
 msgid "A formal witness to an event."
 msgstr ""
@@ -90,16 +90,16 @@ msgid "A single file in a media display"
 msgstr ""
 
 msgid "API documentation"
-msgstr ""
+msgstr "API-asiakirjat"
 
 msgid "Access denied"
-msgstr "גישה נדחתה"
+msgstr "Käyttö estetty"
 
 msgid "Accessed"
 msgstr ""
 
 msgid "Adoption"
-msgstr "אימוץ"
+msgstr "Adoptio"
 
 msgid "Adoptions"
 msgstr ""
@@ -111,14 +111,14 @@ msgid "Alias"
 msgstr ""
 
 msgid "All caches cleared."
-msgstr ""
+msgstr "Kaikki välimuistitiedot on poistettu."
 
 msgid "All rights reserved"
-msgstr "כל הזכויות שמורות"
+msgstr "Kaikki oikeudet pidätetään"
 
 #, python-format
 msgid "Also known as %(names)s"
-msgstr "ידוע גם בתור %(names)s"
+msgstr "Tunnetaan myös nimellä %(names)s"
 
 msgid "Also show debug messages and all exception tracebacks"
 msgstr ""
@@ -130,7 +130,7 @@ msgid "Also show log messages"
 msgstr ""
 
 msgid "Amsterdam"
-msgstr "אמסטרדם"
+msgstr "Amsterdam"
 
 msgid "An IETF BCP 47 language tag, such as \"nl-NL\"."
 msgstr ""
@@ -145,10 +145,10 @@ msgid "An unexpected error occurred:"
 msgstr ""
 
 msgid "Announcement of divorce"
-msgstr ""
+msgstr "Avioeroilmoitus"
 
 msgid "Announcement of marriage"
-msgstr ""
+msgstr "Avioliittoilmoitus"
 
 msgid "Announcements of divorce"
 msgstr ""
@@ -174,22 +174,19 @@ msgstr ""
 msgid "Asset directory"
 msgstr ""
 
-msgid "Assets directory"
-msgstr ""
-
 #, python-brace-format
 msgid "At least {expected} items are required, but found {actual}."
-msgstr ""
+msgstr "Vähintään {expected} kohdetta vaaditaan, mutta niitä löytyi vain {actual}."
 
 #, python-brace-format
 msgid "At most {expected} items are allowed, but found {actual}."
-msgstr ""
+msgstr "Enintään {expected} kohdetta sallitaan, mutta niitä löytyi {actual}."
 
 msgid "At which URL will your site be published?"
-msgstr ""
+msgstr "Missä URL-osoitteessa sivustosi julkaistaan?"
 
 msgid "Attendee"
-msgstr ""
+msgstr "Osallistuja"
 
 msgid "Attendees"
 msgstr ""
@@ -198,13 +195,13 @@ msgid "Author"
 msgstr ""
 
 msgid "Baptism"
-msgstr ""
+msgstr "Kaste"
 
 msgid "Baptisms"
 msgstr ""
 
 msgid "Bar mitzvah"
-msgstr ""
+msgstr "Bar mitsva"
 
 msgid "Bar mitzvahs"
 msgstr ""
@@ -313,7 +310,7 @@ msgid "Breakpoint"
 msgstr ""
 
 msgid "Breakpoints"
-msgstr "נקודות עצירה"
+msgstr ""
 
 msgid "Building"
 msgstr ""
@@ -1169,10 +1166,10 @@ msgid "Neighborhoods"
 msgstr ""
 
 msgid "Netherlands"
-msgstr "הולנד"
+msgstr "Alankomaat"
 
 msgid "Next page"
-msgstr "העמוד הבא"
+msgstr ""
 
 msgid ""
 "No part may be reproduced or distributed in any form or by any means, "
@@ -1187,7 +1184,7 @@ msgid "Non-binary person"
 msgstr ""
 
 msgid "North Holland"
-msgstr "צפון הולנד"
+msgstr "Pohjois-Holland"
 
 msgid "Note"
 msgstr ""
@@ -1292,7 +1289,7 @@ msgid "Personal accounts"
 msgstr ""
 
 msgid "Place"
-msgstr "מקום"
+msgstr ""
 
 msgid "Place name"
 msgstr ""
@@ -1310,7 +1307,7 @@ msgid "Place types"
 msgstr ""
 
 msgid "Places"
-msgstr "מקומות"
+msgstr ""
 
 msgid "Plain text"
 msgstr ""

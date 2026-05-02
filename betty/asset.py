@@ -100,9 +100,9 @@ class StaticAssetRepository(AssetRepository):
 
     def _init_assets(self) -> Mapping[Path, Path]:
         return {
-            (directory / file_name).relative_to(assets_directory): directory / file_name
-            for assets_directory in reversed(self._directories)
-            for directory, _, file_names in assets_directory.walk()
+            (directory / file_name).relative_to(asset_directory): directory / file_name
+            for asset_directory in reversed(self._directories)
+            for directory, _, file_names in asset_directory.walk()
             for file_name in file_names
         }
 

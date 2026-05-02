@@ -7,8 +7,9 @@ from __future__ import annotations
 from typing import Final
 
 from betty.asset import AssetDirectoryDefinition
-from betty.dirs import ASSETS_DIRECTORY
+from betty.dirs import ASSET_DIRECTORY
 
+_ID = "wiki"
 WIKI: Final[AssetDirectoryDefinition] = AssetDirectoryDefinition(
-    "wiki", assets=ASSETS_DIRECTORY / "wiki"
+    _ID, assets=ASSET_DIRECTORY / _ID
 )

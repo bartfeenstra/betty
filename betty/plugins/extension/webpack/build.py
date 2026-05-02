@@ -12,7 +12,11 @@ from shutil import copy2, copytree
 from typing import TYPE_CHECKING, cast
 
 from betty import npm
-from betty.dirs import DATA_DIRECTORY, JS_DIRECTORY, ROOT_DIRECTORY
+from betty.dirs import (
+    JS_DIRECTORY,
+    ROOT_DIRECTORY,
+    WEBPACK_ENTRY_POINT_DIRECTORY,
+)
 from betty.document import Document
 from betty.extension import Extension
 from betty.file import read, write
@@ -29,7 +33,7 @@ if TYPE_CHECKING:
     from betty.pathlib import StrPath
     from betty.user import User
 
-_NPM_PROJECT_DIRECTORY = DATA_DIRECTORY / "webpack" / "webpack"
+_NPM_PROJECT_DIRECTORY = WEBPACK_ENTRY_POINT_DIRECTORY / "webpack"
 
 
 class EntryPointProvider(Extension):

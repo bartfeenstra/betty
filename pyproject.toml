@@ -104,7 +104,7 @@ betty = 'betty.console:main_standalone'
 'server' = 'betty.server:ServerDefinition'
 
 [project.entry-points.'betty.asset_directory']
-'app' = 'betty.plugins.asset_directory.app:APP'
+'builtin' = 'betty.plugins.asset_directory.builtin:BUILTIN'
 'htt-api-doc' = 'betty.plugins.asset_directory.http_api_doc:HTTP_API_DOC'
 'maps' = 'betty.plugins.asset_directory.maps:MAPS'
 'project' = 'betty.plugins.asset_directory.project:_discover'
@@ -396,7 +396,7 @@ betty = [
 
     # Data.
     '../data/**/*',
-    '../data/assets/app/public/localized/.error/*',
+    '../data/asset/builtin/public/localized/.error/*',
 
     # Webpack.
     '../.browserslistrc',

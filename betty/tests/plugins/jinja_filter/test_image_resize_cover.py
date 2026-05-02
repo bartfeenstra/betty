@@ -4,7 +4,7 @@ import pytest
 from PIL import Image
 from puremagic import from_file
 
-from betty.dirs import ASSETS_DIRECTORY
+from betty.dirs import BUILTIN_ASSET_DIRECTORY
 from betty.job import Context
 from betty.media_type import MediaType
 from betty.plugins.entity.file import File
@@ -14,7 +14,7 @@ from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 from betty.test_utils.conftest import AssertTemplateString
 
 _TEST_FILTER_IMAGE_RESIZE_COVER_IMAGE_PATH = (
-    ASSETS_DIRECTORY / "app" / "public" / "static" / "betty-512x512.png"
+    BUILTIN_ASSET_DIRECTORY / "public" / "static" / "betty-512x512.png"
 )
 _TEST_FILTER_IMAGE_RESIZE_COVER_PARAMETER_ARGNAMES = ("expected", "template", "filey")
 _TEST_FILTER_IMAGE_RESIZE_COVER_PARAMETER_ARGVALUES = [

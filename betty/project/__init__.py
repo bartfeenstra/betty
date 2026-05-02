@@ -17,7 +17,6 @@ from urllib.parse import urlsplit
 
 from babel import Locale
 
-import betty.dirs
 from betty.about import VERSION_MAJOR
 from betty.app import App
 from betty.asset import AssetRepositoryService
@@ -29,6 +28,7 @@ from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.data import Data
 from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
 from betty.data.str import StrDefinition
+from betty.dirs import BUILTIN_ASSET_DIRECTORY
 from betty.document import Document, DocumentProviderDefinition
 from betty.entity.collection.pool import EntityPool
 from betty.exception import HumanFacingException
@@ -205,11 +205,7 @@ class Project(
             key_resolver=resolve_locale,
         )
         self._logo = (
-            betty.dirs.ASSETS_DIRECTORY
-            / "app"
-            / "public"
-            / "static"
-            / "betty-512x512.png"
+            BUILTIN_ASSET_DIRECTORY / "public" / "static" / "betty-512x512.png"
             if logo is None
             else resolve_path(logo)
         )
@@ -350,11 +346,11 @@ class Project(
         return self.directory / "output"
 
     @property
-    def assets_directory(self) -> Path:
+    def asset_directory(self) -> Path:
         """
-        The :doc:`assets directory path </usage/assets>`.
+        The :doc:`asset directory path </usage/assets>`.
         """
-        return self.directory / "assets"
+        return self.directory / "asset"
 
     @property
     def www_directory(self) -> Path:

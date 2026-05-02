@@ -17,16 +17,16 @@ The assets repository
 Betty comes with an :py:mod:`Asset API <betty.asset>` that layers the assets provided by all the different components.
 Each time an asset is needed, Betty finds it as follows:
 
-#. If the project provides the asset in its assets directory, use it
-#. If an extension provides the asset in its assets directory, use it
-#. If a built-in translation asset exists, use it (``/assets`` within the Betty source code)
+#. If the project provides the asset in its asset directory, use it
+#. If an extension provides the asset in its asset directory, use it
+#. If a built-in translation asset exists, use it (``./data/asset/builtin`` within the Betty source code)
 
 This means that extensions can override Betty's default assets, and your projects can override both extensions'
 and Betty's assets.
 
 Assets directories
 ------------------
-For each of Betty's default assets, extensions' assets, and your projects' assets, the assets directory follows the
+For each of Betty's default assets, extensions' assets, and your projects' assets, the asset directory follows the
 following structure:
 
 ``locale/``
