@@ -58,10 +58,8 @@ async def generate(project: Project, *, context: Context | None = None) -> None:
     if context is None:
         context = Context()
 
-    await context.progress.add(2)
-
-    await _preprocess(project)
-    await context.progress.done()
+    async with context.progress:
+        await _preprocess(project)
 
     threading_concurrency = cpu_count() or 2
     scheduler = DefaultScheduler(context=context, user=project.upstream.user)
@@ -93,7 +91,6 @@ async def generate(project: Project, *, context: Context | None = None) -> None:
         await scheduler.complete()
 
     await _postprocess(project)
-    await context.progress.done()
 
 
 async def _preprocess(project: Project) -> None:

@@ -43,11 +43,6 @@ class Generate(Manufacturable, Command):
             project,
             project.upstream.user.message_progress(_("Generating site...")) as progress,
         ):
-            # Add a phantom value to the progress so it can never jump to 100% before we are entirely done here.
-            await progress.add()
-
             context = Context(progress=progress)
             await load.load(project, context=context)
             await generate.generate(project, context=context)
-
-            await progress.done()

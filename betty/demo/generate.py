@@ -16,16 +16,10 @@ if TYPE_CHECKING:
     from betty.job import Context
 
 
-async def generate_with_cleanup(
-    project: Project, *, context: Context | None = None
-) -> None:
+async def generate_with_cleanup(project: Project, *, context: Context) -> None:
     """
     Generate a demonstration site, and clean up the project directory on any errors.
     """
-    if context:
-        # Add a phantom value to the progress so it can never jump to 100% before we are entirely done here.
-        await context.progress.add()
-
     if project.www_directory.exists():
         return
     await load(project, context=context)
@@ -37,6 +31,3 @@ async def generate_with_cleanup(
         with suppress(FileNotFoundError):
             await to_thread(rmtree, project.directory)
         raise
-
-    if context:
-        await context.progress.done()

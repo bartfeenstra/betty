@@ -5,11 +5,11 @@ from typing import TYPE_CHECKING
 import pytest
 
 from betty.demo.generate import generate_with_cleanup
+from betty.job import Context
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
 
-    from betty.job import Context
     from betty.project import Project
 
 
@@ -23,7 +23,7 @@ async def test_generate_with_cleanup__without_error(
     m_generate = mocker.patch("betty.project.generate.generate")
     m_generate.side_effect = _generate
     (isolated_project.directory / "sentinel").touch()
-    await generate_with_cleanup(isolated_project)
+    await generate_with_cleanup(isolated_project, context=Context())
     assert isolated_project.directory.is_dir()
     assert isolated_project.output_directory.is_dir()
     assert not (isolated_project.directory / "sentinel").exists()
@@ -42,5 +42,5 @@ async def test_generate_with_cleanup__with_error(
     m_generate = mocker.patch("betty.project.generate.generate")
     m_generate.side_effect = _generate
     with pytest.raises(RuntimeError, match=error_message):
-        await generate_with_cleanup(isolated_project)
+        await generate_with_cleanup(isolated_project, context=Context())
     assert not isolated_project.directory.exists()

@@ -2,12 +2,20 @@
 Task progress management.
 """
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, Self, final
+
+if TYPE_CHECKING:
+    from types import TracebackType
 
 
 class Progress(ABC):
     """
     Track the progress of a number of tasks.
+
+    This can be used as an asynchronous context manager, adding a task when entering, and marking it done when exiting.
     """
 
     @abstractmethod
@@ -21,3 +29,17 @@ class Progress(ABC):
         """
         Mark a number of tasks done.
         """
+
+    @final
+    async def __aenter__(self) -> Self:
+        await self.add()
+        return self
+
+    @final
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
+        await self.done()
