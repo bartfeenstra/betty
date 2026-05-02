@@ -20,8 +20,8 @@ from betty.entity.has_file_references import HasFileReferences
 from betty.entity.has_links import HasLinks
 from betty.entity.has_notes import HasNotes
 from betty.event_type import EventTypeDefinition
-from betty.json.linked_data import JsonLdObject, dump_context
-from betty.json.schema import String
+from betty.json_schema import String
+from betty.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.markup import AllEnumeration

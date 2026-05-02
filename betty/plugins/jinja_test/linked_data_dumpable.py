@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import Any, final
 
 from betty.jinja.test import JinjaTest, JinjaTestDefinition
-from betty.json.linked_data import LinkedDataDumpableWithSchema
+from betty.linked_data import LinkedDataDumpableWithSchema
 
 
 @final

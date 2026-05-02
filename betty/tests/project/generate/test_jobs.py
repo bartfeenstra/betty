@@ -5,7 +5,7 @@ import pytest
 from lxml import etree
 
 from betty.entity import Entity
-from betty.json.schema import JsonSchemaSchema
+from betty.json_schema import JsonSchemaSchema
 from betty.openapi.schema import SpecificationSchema
 from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.enclosure import Enclosure

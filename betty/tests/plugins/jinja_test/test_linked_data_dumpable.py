@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
-from betty.json.linked_data import LinkedDataDumpableWithSchemaJsonLdObject
+from betty.linked_data import LinkedDataDumpableWithSchemaJsonLdObject
 
 if TYPE_CHECKING:
     from betty.test_utils.conftest import AssertTemplateString

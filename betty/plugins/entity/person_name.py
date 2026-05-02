@@ -14,8 +14,8 @@ from betty.entity.association import (
 )
 from betty.entity.has_citations import HasCitations
 from betty.entity.has_locale import HasLocale
-from betty.json.linked_data import JsonLdObject, dump_context
-from betty.json.schema import String
+from betty.json_schema import String
+from betty.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable.gettext import _, ngettext
 from betty.privacy import HasPrivacy, Privacy, merge_privacies
 

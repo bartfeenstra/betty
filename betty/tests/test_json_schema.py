@@ -3,7 +3,7 @@ from typing import cast, override
 
 import pytest
 
-from betty.json.schema import (
+from betty.json_schema import (
     AllOf,
     AnyOf,
     Array,
@@ -22,7 +22,7 @@ from betty.json.schema import (
     Schema,
     String,
 )
-from betty.test_utils.json.schema import (
+from betty.test_utils.json_schema import (
     DUMMY_SCHEMAS,
     SchemaTestBase,
     SchemaTestBaseSut,

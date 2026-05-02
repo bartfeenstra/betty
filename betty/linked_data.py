@@ -10,7 +10,7 @@ from inspect import getmembers
 from typing import TYPE_CHECKING, ClassVar, cast, final, override
 
 from betty.classtools import Singleton
-from betty.json.schema import Object, Schema
+from betty.json_schema import Object, Schema
 from betty.portable import PortableData, PortableMapping
 from betty.string import snake_case_to_lower_camel_case
 
@@ -60,7 +60,7 @@ class LinkedDataDumpableWithSchema[
     @abstractmethod
     async def linked_data_schema(cls, project: Project, /) -> SchemaT:
         """
-        Define the `JSON Schema <https://json-schema.org/>`_ for :py:meth:`betty.json.linked_data.LinkedDataDumpable.dump_linked_data`.
+        Define the `JSON Schema <https://json-schema.org/>`_ for :py:meth:`betty.linked_data.LinkedDataDumpable.dump_linked_data`.
         """
 
 
@@ -88,10 +88,10 @@ class LinkedDataDumpableWithSchemaJsonLdObject(
     LinkedDataDumpableWithSchema[JsonLdObject, PortableMapping], ABC
 ):
     """
-    A :py:class:`betty.json.linked_data.LinkedDataDumpable` implementation for object/mapping data.
+    A :py:class:`betty.linked_data.LinkedDataDumpable` implementation for object/mapping data.
 
     This is helpful when working with diamond class hierarchies where parent classes that may not be the root class want
-    to make changes to the linked data, and expect an :py:class`betty.json.schema.Object` schema and a
+    to make changes to the linked data, and expect an :py:class`betty.json_schema.Object` schema and a
     :py:type:`betty.portable.PortableMapping` dump.
     """
 
@@ -136,7 +136,7 @@ class LinkedDataDumper[
     @abstractmethod
     async def linked_data_schema_for(self, project: Project, /) -> SchemaT:
         """
-        Define the `JSON Schema <https://json-schema.org/>`_ for :py:meth:`betty.json.linked_data.LinkedDataDumper.dump_linked_data_for`.
+        Define the `JSON Schema <https://json-schema.org/>`_ for :py:meth:`betty.linked_data.LinkedDataDumper.dump_linked_data_for`.
         """
 
     @abstractmethod

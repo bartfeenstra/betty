@@ -24,7 +24,7 @@ class Schema:
 
     All schemas using this class **MUST** follow JSON Schema Draft 2020-12.
 
-    To test your own subclasses, use :py:class:`betty.test_utils.json.schema.SchemaTestBase`.
+    To test your own subclasses, use :py:class:`betty.test_utils.json_schema.SchemaTestBase`.
     """
 
     def __init__(
@@ -373,7 +373,7 @@ class Def(str):
     Using this instead of :py:class:`str` directly allows Betty to
     bundle schemas together under a project namespace.
 
-    See :py:attr:`betty.json.schema.Schema.def_name`.
+    See :py:attr:`betty.json_schema.Schema.def_name`.
     """
 
     __slots__ = ()

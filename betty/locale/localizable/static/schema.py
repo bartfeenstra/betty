@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.json.schema import Object
+from betty.json_schema import Object
 from betty.locale.localizable.markup import Paragraph
 
 if TYPE_CHECKING:

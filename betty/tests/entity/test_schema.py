@@ -4,7 +4,7 @@ from typing import cast, override
 import pytest
 
 from betty.entity.schema import ToManySchema, ToOneSchema, ToZeroOrOneSchema
-from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
+from betty.test_utils.json_schema import SchemaTestBase, SchemaTestBaseSut
 
 
 class TestToOneSchema(SchemaTestBase):

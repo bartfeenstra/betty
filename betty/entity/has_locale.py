@@ -6,11 +6,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, override
 
-from betty.json.linked_data import (
+from betty.json_schema import Null, OneOf
+from betty.linked_data import (
     JsonLdObject,
     LinkedDataDumpableWithSchemaJsonLdObject,
 )
-from betty.json.schema import Null, OneOf
 from betty.locale import HasLocale as StdHasLocale
 from betty.locale import to_language_tag
 from betty.locale.schema import LocaleSchema

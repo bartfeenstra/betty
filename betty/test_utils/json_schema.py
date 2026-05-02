@@ -1,5 +1,5 @@
 """
-Test utilities for :py:mod:`betty.json.schema`.
+Test utilities for :py:mod:`betty.json_schema`.
 """
 
 from collections.abc import MutableMapping, Sequence
@@ -7,7 +7,7 @@ from collections.abc import MutableMapping, Sequence
 import pytest
 from jsonschema.exceptions import ValidationError
 
-from betty.json.schema import JsonSchemaSchema, Schema, String
+from betty.json_schema import JsonSchemaSchema, Schema, String
 from betty.portable import PortableData
 
 DUMMY_SCHEMAS: Sequence[
@@ -34,7 +34,7 @@ type SchemaTestBaseSut = tuple[Schema, Sequence[PortableData], Sequence[Portable
 
 class SchemaTestBase:
     """
-    A base class for testing :py:class:`betty.json.schema.Schema` implementations.
+    A base class for testing :py:class:`betty.json_schema.Schema` implementations.
     """
 
     @pytest.fixture
@@ -46,14 +46,14 @@ class SchemaTestBase:
 
     async def test_def_name(self, sut_data: SchemaTestBaseSut) -> None:
         """
-        Tests :py:attr:`betty.json.schema.Schema.def_name` implementations.
+        Tests :py:attr:`betty.json_schema.Schema.def_name` implementations.
         """
         sut, _, __ = sut_data
         assert sut.def_name is None or len(sut.def_name)
 
     async def test_schema(self, sut_data: SchemaTestBaseSut) -> None:
         """
-        Tests :py:attr:`betty.json.schema.Schema.schema` implementations.
+        Tests :py:attr:`betty.json_schema.Schema.schema` implementations.
         """
         sut, _, __ = sut_data
         assert isinstance(sut.schema, MutableMapping)
@@ -61,14 +61,14 @@ class SchemaTestBase:
 
     async def test_defs(self, sut_data: SchemaTestBaseSut) -> None:
         """
-        Tests :py:attr:`betty.json.schema.Schema.defs` implementations.
+        Tests :py:attr:`betty.json_schema.Schema.defs` implementations.
         """
         sut, _, __ = sut_data
         assert isinstance(sut.defs, MutableMapping)
 
     async def test_embed(self, sut_data: SchemaTestBaseSut) -> None:
         """
-        Tests :py:meth:`betty.json.schema.Schema.embed` implementations.
+        Tests :py:meth:`betty.json_schema.Schema.embed` implementations.
         """
         sut, _, __ = sut_data
         into = Schema()
@@ -76,7 +76,7 @@ class SchemaTestBase:
 
     async def test_validate_should_validate(self, sut_data: SchemaTestBaseSut) -> None:
         """
-        Tests :py:meth:`betty.json.schema.Schema.validate` implementations.
+        Tests :py:meth:`betty.json_schema.Schema.validate` implementations.
         """
         sut, valid_datas, _invalid_datas = sut_data
         for valid_data in valid_datas:
@@ -86,7 +86,7 @@ class SchemaTestBase:
         self, sut_data: SchemaTestBaseSut
     ) -> None:
         """
-        Tests :py:meth:`betty.json.schema.Schema.validate` implementations.
+        Tests :py:meth:`betty.json_schema.Schema.validate` implementations.
         """
         sut, _valid_datas, invalid_datas = sut_data
         for invalid_data in invalid_datas:

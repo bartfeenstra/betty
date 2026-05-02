@@ -16,7 +16,7 @@ from betty.entity.has_notes import HasNotes
 from betty.entity.schema import ToManySchema
 from betty.functools import unique
 from betty.gender import GenderDefinition
-from betty.json.linked_data import JsonLdObject, dump_context
+from betty.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin.schema import PluginIdSchema
 from betty.plugins.gender.unknown import Unknown as UnknownGender

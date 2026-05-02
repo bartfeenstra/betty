@@ -14,7 +14,7 @@ from betty.privacy import HasPrivacy, Privacy, is_public, merge_secondary_privac
 from betty.role import RoleDefinition
 
 if TYPE_CHECKING:
-    from betty.json.linked_data import JsonLdObject
+    from betty.linked_data import JsonLdObject
     from betty.locale.localizable import Localizable
     from betty.plugins.entity.event import Event
     from betty.plugins.entity.person import Person

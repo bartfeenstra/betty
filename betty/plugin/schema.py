@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
-from betty.json.schema import Enum
+from betty.json_schema import Enum
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.string import kebab_case_to_lower_camel_case

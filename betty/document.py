@@ -24,7 +24,7 @@ from typing import (
     override,
 )
 
-from betty.json.linked_data import LinkedDataDumpable
+from betty.linked_data import LinkedDataDumpable
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type

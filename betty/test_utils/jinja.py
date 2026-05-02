@@ -10,7 +10,7 @@ from lxml.etree import ParserError
 from lxml.html import document_fromstring
 
 from betty.file import read
-from betty.json.schema import AllOf, Ref
+from betty.json_schema import AllOf, Ref
 from betty.project.schema import ProjectSchema
 
 if TYPE_CHECKING:

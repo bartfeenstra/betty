@@ -27,7 +27,7 @@ from betty.property import Optional
 if TYPE_CHECKING:
     from betty.date import ResolvableDate
     from betty.entity.has_citations import HasCitations
-    from betty.json.linked_data import JsonLdObject
+    from betty.linked_data import JsonLdObject
     from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.plugins.entity.file_reference import FileReference
     from betty.portable import PortableMapping
