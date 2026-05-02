@@ -4,30 +4,78 @@ Date properties.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, override
+from typing import TYPE_CHECKING, Any, final, override
 
 from betty.datas.date import AnyDateDefinition
-from betty.date import AnyDate, Date
-from betty.date.linked_data import (
-    dump_linked_data_for_date,
-    dump_linked_data_for_date_range,
-)
-from betty.date.schema import ResolvableDateSchema
-from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
-from betty.privacy.resolve import is_public
+from betty.date import ANY_DATE_SCHEMA, AnyDate, Date, DateRange
+from betty.linked_data import LinkedDataDumper
+from betty.portable import PortableData
 from betty.property import Optional, Property
 
 if TYPE_CHECKING:
+    from betty.json_schema import Schema
     from betty.portable import PortableMapping
     from betty.project import Project
 
 
-class HasAnyDate(LinkedDataDumpableWithSchemaJsonLdObject):
+@final
+class HasAnyDateProperty(Property, LinkedDataDumper[AnyDate, PortableData]):
+    def __init__(self):
+        super().__init__(AnyDateDefinition())
+
+    @override
+    async def linked_data_schema_for(self, project: Project, /) -> Schema:
+        return ANY_DATE_SCHEMA
+
+    @override
+    async def dump_linked_data_for(
+        self, project: Project, target: AnyDate, /
+    ) -> PortableData:
+        if isinstance(target, Date):
+            return self._dump_linked_data_for_date(target)
+        return self._dump_linked_data_for_date_range(target)
+
+    def _dump_linked_data_for_date(self, date: Date, /) -> PortableMapping:
+        portable: PortableMapping = {
+            "fuzzy": date.fuzzy,
+        }
+        if date.year:
+            portable["year"] = date.year
+        if date.month:
+            portable["month"] = date.month
+        if date.day:
+            portable["day"] = date.day
+        if date.comparable:
+            portable["iso8601"] = self._dump_date_iso8601(date)
+        return portable
+
+    def _dump_linked_data_for_date_range(
+        self, date_range: DateRange, /
+    ) -> PortableMapping:
+        return {
+            "start": self._dump_linked_data_for_date(date_range.start)
+            if date_range.start
+            else None,
+            "end": self._dump_linked_data_for_date(date_range.end)
+            if date_range.end
+            else None,
+        }
+
+    def _dump_date_iso8601(self, date: Date, /) -> str | None:
+        if not date.complete:
+            return None
+        assert date.year
+        assert date.month
+        assert date.day
+        return f"{date.year:04d}-{date.month:02d}-{date.day:02d}"
+
+
+class HasAnyDate:
     """
     A resource with date information.
     """
 
-    date = Optional(Property(AnyDateDefinition()))
+    date = Optional(HasAnyDateProperty())
     """
     The date.
     """
@@ -40,41 +88,3 @@ class HasAnyDate(LinkedDataDumpableWithSchemaJsonLdObject):
     ):
         super().__init__(*args, **kwargs)
         self.date = date
-
-    def has_any_date_linked_data_contexts(
-        self,
-    ) -> tuple[str | None, str | None, str | None]:
-        """
-        Get the JSON-LD context term definition IRIs for the possible dates.
-
-        :returns: A 3-tuple with the IRI for a single date, a start date, and an end date, respectively.
-        """
-        return None, None, None
-
-    @override
-    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
-        if self.date and is_public(self):
-            (
-                schema_org_date_definition,
-                schema_org_start_date_definition,
-                schema_org_end_date_definition,
-            ) = self.has_any_date_linked_data_contexts()
-            if isinstance(self.date, Date):
-                portable["date"] = dump_linked_data_for_date(
-                    self.date, context_definition=schema_org_date_definition
-                )
-            else:
-                portable["date"] = dump_linked_data_for_date_range(
-                    self.date,
-                    start_context_definition=schema_org_start_date_definition,
-                    end_context_definition=schema_org_end_date_definition,
-                )
-        return portable
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
-        schema = await super().linked_data_schema(project)
-        schema.add_property("date", ResolvableDateSchema(), False)
-        return schema

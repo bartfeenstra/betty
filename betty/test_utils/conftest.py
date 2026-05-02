@@ -658,7 +658,7 @@ def assert_template_file(
 
 
 type AssertDumpsLinkedData[PortableDataT: PortableData] = Callable[
-    [LinkedDataDumpableWithSchema[Schema, PortableDataT]], PortableDataT
+    [LinkedDataDumpableWithSchema[PortableDataT]], PortableDataT
 ]
 
 
@@ -671,7 +671,7 @@ async def assert_dumps_linked_data(
     """
 
     async def _assert_dumps_linked_data[PortableDataT: PortableData](
-        sut: LinkedDataDumpableWithSchema[Schema, PortableDataT],
+        sut: LinkedDataDumpableWithSchema[PortableDataT],
     ) -> PortableDataT:
         return await assert_linked_data_dump(
             sut.linked_data_schema, sut.dump_linked_data
@@ -681,7 +681,7 @@ async def assert_dumps_linked_data(
 
 
 type AssertDumpsLinkedDataFor[PortableDataT: PortableData, T] = Callable[
-    [LinkedDataDumper[T, Schema, PortableDataT], T], PortableDataT
+    [LinkedDataDumper[T, PortableDataT], T], PortableDataT
 ]
 
 
@@ -694,8 +694,7 @@ async def assert_dumps_linked_data_for(
     """
 
     async def _assert_dumps_linked_data_for[PortableDataT: PortableData, T](
-        sut: LinkedDataDumper[T, Schema, PortableDataT],
-        target: T,
+        sut: LinkedDataDumper[T, PortableDataT], target: T
     ) -> PortableDataT:
 
         async def _dump(project: Project) -> PortableDataT:

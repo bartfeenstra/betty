@@ -13,8 +13,6 @@ from betty.entity.association import (
     ToOneAssociate,
 )
 from betty.entity.has_citations import HasCitations
-from betty.json_schema import String
-from betty.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable.gettext import _, ngettext
 from betty.privacy import Privacy
 from betty.privacy.resolve import merge_privacies
@@ -22,6 +20,7 @@ from betty.properties.locale import HasLocale
 from betty.properties.privacy import HasPrivacy
 
 if TYPE_CHECKING:
+    from betty.json_schema import Schema
     from betty.locale import ResolvableLocale
     from betty.locale.localizable import Localizable
     from betty.plugins.entity.citation import Citation
@@ -120,16 +119,18 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
         portable = await super().dump_linked_data(project)
         if self.public:
             if self.individual is not None:
-                dump_context(portable, individual="https://schema.org/givenName")
+                # @todo Refactor dump_context()
+                # dump_context(portable, individual="https://schema.org/givenName")
                 portable["individual"] = self.individual
             if self.affiliation is not None:
-                dump_context(portable, affiliation="https://schema.org/familyName")
+                # @todo Refactor dump_context()
+                # dump_context(portable, affiliation="https://schema.org/familyName")
                 portable["affiliation"] = self.affiliation
         return portable
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> Schema:
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "individual",

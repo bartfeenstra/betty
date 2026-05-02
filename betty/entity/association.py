@@ -7,24 +7,30 @@ from __future__ import annotations
 import weakref
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, ClassVar, Self, cast, final, overload, override
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    ClassVar,
+    Self,
+    cast,
+    final,
+    overload,
+    override,
+)
 from urllib.parse import quote
 
 from betty.entity import Entity, persistent_id
-from betty.entity.collection import (
-    EntityCollection,
-)
+from betty.entity.collection import EntityCollection
 from betty.entity.collection.multiple import MultipleTypesEntityCollection
 from betty.entity.collection.single import SingleTypeEntityCollection
-from betty.entity.schema import ToManySchema, ToZeroOrOneSchema
 from betty.importlib import fully_qualified_name, import_any
-from betty.json_schema import Array, Null, OneOf, Schema
+from betty.json_schema import Schema
 from betty.linked_data import LinkedDataDumper
 from betty.locale.localizable import resolve_localizable
 
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
-    from betty.portable import PortableData
+    from betty.portable import PortableData, PortableMapping
     from betty.project import Project
 
 
@@ -260,9 +266,10 @@ class _ToOneAssociation[OwnerT: Entity, AssociateT: Entity](
             return await self.associate_type.linked_data_schema(project)
         # We must allow for the associate to be missing, for example if it has a generated entity ID and the linked data
         # is not embedded, no URL can be generated.
-        return ToZeroOrOneSchema(
-            title=self._label,
-            description=None if self._description is None else self._description,
+        return Schema(
+            _new_to_zero_or_one_schema(
+                self._label, None if self._description is None else self._description
+            )
         )
 
     @override
@@ -326,15 +333,18 @@ class _ToZeroOrOneAssociation[OwnerT: Entity, AssociateT: Entity](
     @override
     async def linked_data_schema_for(self, project: Project, /) -> Schema:
         if self._linked_data_embedded:
-            return OneOf(
-                await self.associate_type.linked_data_schema(project),
-                Null(),
-                title=self._label,
-                description=None if self._description is None else self._description,
+            return Schema({
+                "description": None if self._description is None else self._description,
+                "oneOf": [
+                    await self.associate_type.linked_data_schema(project),
+                    {"type": "null"},
+                ],
+                "title": self._label,
+            })
+        return Schema(
+            _new_to_zero_or_one_schema(
+                self._label, None if self._description is None else self._description
             )
-        return ToZeroOrOneSchema(
-            title=self._label,
-            description=None if self._description is None else self._description,
         )
 
     @override
@@ -415,14 +425,16 @@ class _ToManyAssociation[
     @override
     async def linked_data_schema_for(self, project: Project, /) -> Schema:
         if self._linked_data_embedded:
-            return Array(
-                await self.associate_type.linked_data_schema(project),
-                title=self._label,
-                description=None if self._description is None else self._description,
+            return Schema({
+                "description": None if self._description is None else self._description,
+                "title": self._label,
+                "type": "array",
+                "items": await self.associate_type.linked_data_schema(project),
+            })
+        return Schema(
+            _new_to_many_schema(
+                self._label, None if self._description is None else self._description
             )
-        return ToManySchema(
-            title=self._label,
-            description=None if self._description is None else self._description,
         )
 
     @override
@@ -760,3 +772,41 @@ type ToZeroOrOneAssociate[EntityT: Entity] = (
     ToOneAssociate[EntityT] | ToZeroOrOneResolver[EntityT] | None
 )
 type ToManyAssociates[EntityT: Entity] = Iterable[EntityT] | ToManyResolver[EntityT]
+
+
+def _new_to_zero_or_one_schema(
+    title: ResolvableLocalizable | None = None,
+    description: ResolvableLocalizable | None = None,
+    /,
+) -> PortableMapping:
+    return {
+        "oneOf": [
+            _new_to_one_schema(title, description),
+            {"type": "null"},
+        ],
+    }
+
+
+def _new_to_one_schema(
+    title: ResolvableLocalizable | None = None,
+    description: ResolvableLocalizable | None = None,
+    /,
+) -> PortableMapping:
+    return {
+        "description": description
+        or "A reference to an associate entity's JSON resource",
+        "format": "uri",
+        "title": title or "Associate entity",
+    }
+
+
+def _new_to_many_schema(
+    title: ResolvableLocalizable, description: ResolvableLocalizable | None = None, /
+) -> PortableMapping:
+    return {
+        "description": description
+        or "References to associate entities' JSON resources",
+        "items": _new_to_one_schema(),
+        "title": title,
+        "type": "array",
+    }

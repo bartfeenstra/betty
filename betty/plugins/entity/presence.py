@@ -16,7 +16,7 @@ from betty.properties.privacy import HasPrivacy
 from betty.role import RoleDefinition
 
 if TYPE_CHECKING:
-    from betty.linked_data import JsonLdObject
+    from betty.json_schema import Schema
     from betty.locale.localizable import Localizable
     from betty.plugins.entity.event import Event
     from betty.plugins.entity.person import Person
@@ -93,7 +93,7 @@ class Presence(HasPrivacy, Entity):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> Schema:
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "role",

@@ -12,8 +12,6 @@ from betty.entity.association import BidirectionalToManySingleType, ToManyAssoci
 from betty.entity.has_file_references import HasFileReferences
 from betty.entity.has_links import HasLinks
 from betty.entity.has_notes import HasNotes
-from betty.json_schema import Array, Number, Object
-from betty.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugins.entity.place_name import PlaceName
 from betty.plugins.place_type.unknown import Unknown as UnknownPlaceType
@@ -25,6 +23,7 @@ if TYPE_CHECKING:
 
     from geopy import Point
 
+    from betty.json_schema import Schema
     from betty.locale.localizable import Localizable
     from betty.place_type import PlaceType
     from betty.plugins.entity.enclosure import Enclosure
@@ -142,13 +141,14 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         portable = await super().dump_linked_data(project)
-        dump_context(
-            portable,
-            names="https://schema.org/name",
-            events="https://schema.org/event",
-            enclosers="https://schema.org/containedInPlace",
-            enclosees="https://schema.org/containsPlace",
-        )
+        # @todo Refactor dump_context()
+        # dump_context(
+        #     portable,
+        #     names="https://schema.org/name",
+        #     events="https://schema.org/event",
+        #     enclosers="https://schema.org/containedInPlace",
+        #     enclosees="https://schema.org/containsPlace",
+        # )
         portable["@type"] = "https://schema.org/Place"
         portable["names"] = [
             await name.dump_linked_data(project) for name in self.names
@@ -159,15 +159,16 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
                 "latitude": self.coordinates.latitude,
                 "longitude": self.coordinates.longitude,
             }
-            dump_context(portable, coordinates="https://schema.org/geo")
-            dump_context(portable_coordinates, latitude="https://schema.org/latitude")
-            dump_context(portable_coordinates, longitude="https://schema.org/longitude")
+            # @todo Refactor dump_context()
+            # dump_context(portable, coordinates="https://schema.org/geo")
+            # dump_context(portable_coordinates, latitude="https://schema.org/latitude")
+            # dump_context(portable_coordinates, longitude="https://schema.org/longitude")
             portable["coordinates"] = portable_coordinates
         return portable
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> Schema:
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "names", Array(await PlaceName.linked_data_schema(project), title="Names")

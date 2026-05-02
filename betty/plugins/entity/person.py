@@ -16,7 +16,6 @@ from betty.entity.has_notes import HasNotes
 from betty.entity.schema import ToManySchema
 from betty.functools import unique
 from betty.gender import GenderDefinition
-from betty.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin.schema import PluginIdSchema
 from betty.plugins.gender.unknown import Unknown as UnknownGender
@@ -27,6 +26,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
 
     from betty.gender import Gender
+    from betty.json_schema import Schema
     from betty.locale.localizable import Localizable
     from betty.plugins.entity.citation import Citation
     from betty.plugins.entity.file_reference import FileReference
@@ -171,13 +171,14 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         portable = await super().dump_linked_data(project)
         url_generator = await project.url_generator
-        dump_context(
-            portable,
-            names="https://schema.org/name",
-            parents="https://schema.org/parent",
-            children="https://schema.org/child",
-            siblings="https://schema.org/sibling",
-        )
+        # @todo Refactor dump_context()
+        # dump_context(
+        #     portable,
+        #     names="https://schema.org/name",
+        #     parents="https://schema.org/parent",
+        #     children="https://schema.org/child",
+        #     siblings="https://schema.org/sibling",
+        # )
         portable["@type"] = "https://schema.org/Person"
         portable["siblings"] = [
             url_generator.generate(
@@ -192,7 +193,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> Schema:
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "gender",

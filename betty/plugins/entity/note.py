@@ -13,8 +13,7 @@ from betty.entity.association import (
 )
 from betty.entity.has_links import HasLinks
 from betty.locale.localizable.gettext import _, ngettext
-from betty.locale.localizable.linked_data import dump_linked_data
-from betty.locale.localizable.static.schema import StaticTranslationsSchema
+from betty.locale.localizable.static import STATIC_TRANSLATIONS_SCHEMA
 from betty.privacy import Privacy
 from betty.privacy.resolve import is_public
 from betty.properties.localizable import LocalizableProperty
@@ -23,7 +22,7 @@ from betty.properties.privacy import HasPrivacy
 
 if TYPE_CHECKING:
     from betty.entity.has_notes import HasNotes
-    from betty.linked_data import JsonLdObject
+    from betty.json_schema import Schema
     from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.portable import PortableMapping
     from betty.project import Project
@@ -86,11 +85,7 @@ class Note(HasPrivacy, HasLinks, HasMediaType):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> Schema:
         schema = await super().linked_data_schema(project)
-        schema.add_property(
-            "text",
-            StaticTranslationsSchema(),
-            False,
-        )
+        schema.add_property("text", STATIC_TRANSLATIONS_SCHEMA, False)
         return schema

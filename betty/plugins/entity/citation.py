@@ -16,8 +16,7 @@ from betty.entity.association import (
 from betty.entity.has_file_references import HasFileReferences
 from betty.entity.has_links import HasLinks
 from betty.locale.localizable.gettext import _, ngettext
-from betty.locale.localizable.linked_data import dump_linked_data
-from betty.locale.localizable.static.schema import StaticTranslationsSchema
+from betty.locale.localizable.static import STATIC_TRANSLATIONS_SCHEMA
 from betty.plugins.entity.source import Source
 from betty.privacy import Privacy
 from betty.privacy.resolve import is_public, merge_secondary_privacies
@@ -29,7 +28,7 @@ from betty.property import Optional
 if TYPE_CHECKING:
     from betty.date import AnyDate
     from betty.entity.has_citations import HasCitations
-    from betty.linked_data import JsonLdObject
+    from betty.json_schema import Schema
     from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.plugins.entity.file_reference import FileReference
     from betty.portable import PortableMapping
@@ -117,11 +116,7 @@ class Citation(HasAnyDate, HasFileReferences, HasPrivacy, HasLinks):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> Schema:
         schema = await super().linked_data_schema(project)
-        schema.add_property(
-            "location",
-            StaticTranslationsSchema(),
-            False,
-        )
+        schema.add_property("location", STATIC_TRANSLATIONS_SCHEMA, False)
         return schema

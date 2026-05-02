@@ -8,11 +8,9 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.entity import Entity, EntityDefinition
 from betty.entity.association import BidirectionalToZeroOrOne
-from betty.json_schema import String
 from betty.link import Link as LinkType
 from betty.locale.localizable.gettext import _, ngettext
-from betty.locale.localizable.linked_data import dump_linked_data
-from betty.locale.localizable.static.schema import StaticTranslationsSchema
+from betty.locale.localizable.static import new_static_translations_schema
 from betty.privacy import Privacy
 from betty.privacy.resolve import merge_privacies
 from betty.properties.description import HasDescription
@@ -23,7 +21,7 @@ from betty.property import Optional
 
 if TYPE_CHECKING:
     from betty.entity.has_links import HasLinks
-    from betty.linked_data import JsonLdObject
+    from betty.json_schema import Schema
     from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.media_type import ResolvableMediaType
     from betty.portable import PortableMapping
@@ -125,11 +123,11 @@ class Link(LinkType, HasMediaType, HasDescription, HasPrivacy, Entity):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> Schema:
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "url",
-            StaticTranslationsSchema(
+            new_static_translations_schema(
                 title="Label", description="The full URL to the other resource."
             ),
             False,
@@ -143,7 +141,7 @@ class Link(LinkType, HasMediaType, HasDescription, HasPrivacy, Entity):
         )
         schema.add_property(
             "label",
-            StaticTranslationsSchema(
+            new_static_translations_schema(
                 title="Label", description="The human-readable link label."
             ),
             False,

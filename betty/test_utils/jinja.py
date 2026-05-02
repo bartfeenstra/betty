@@ -10,7 +10,7 @@ from lxml.etree import ParserError
 from lxml.html import document_fromstring
 
 from betty.file import read
-from betty.json_schema import AllOf, Ref
+from betty.json_schema import validate
 from betty.project.schema import ProjectSchema
 
 if TYPE_CHECKING:
@@ -49,6 +49,6 @@ async def assert_betty_json(project: Project, url_path: str, def_name: str) -> P
     schema = AllOf(Ref(def_name))
     project_schema.embed(schema)
 
-    schema.validate(betty_json)
+    validate.validate(betty_json)
 
     return betty_json_file

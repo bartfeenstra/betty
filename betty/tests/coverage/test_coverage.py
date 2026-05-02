@@ -321,11 +321,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Released": MissingReason.STATIC_CONTENT_ONLY,
         "Scheduler": MissingReason.ABSTRACT,
     },
-    "betty/json_schema.py": {
-        "Schema": {
-            "validate": MissingReason.SHOULD_BE_COVERED,
-        },
-    },
     "betty/life_cycle/__init__.py": {
         "AlreadyBootstrapped": MissingReason.STATIC_CONTENT_ONLY,
         "AlreadyShutDown": MissingReason.STATIC_CONTENT_ONLY,
@@ -340,14 +335,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/linked_data.py": {
-        "dump_context": MissingReason.SHOULD_BE_COVERED,
-        "dump_link": MissingReason.SHOULD_BE_COVERED,
-        "dump_schema": MissingReason.SHOULD_BE_COVERED,
-        "JsonLdObject": MissingReason.SHOULD_BE_COVERED,
-        "JsonLdSchema": MissingReason.SHOULD_BE_COVERED,
         "LinkedDataDumpable": MissingReason.ABSTRACT,
         "LinkedDataDumpableWithSchema": MissingReason.ABSTRACT,
-        "LinkedDataDumpableWithSchemaJsonLdObject": MissingReason.SHOULD_BE_COVERED,
         "LinkedDataDumper": MissingReason.ABSTRACT,
     },
     "betty/load.py": {
@@ -437,8 +426,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "EntityDefinition": {
             "type": MissingReason.INHERITED,
         },
-        "EntityReferenceCollectionSchema": MissingReason.STATIC_CONTENT_ONLY,
-        "EntityReferenceSchema": MissingReason.STATIC_CONTENT_ONLY,
         "NonPersistentId": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/entity/association.py": {
@@ -480,9 +467,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/path.py": MissingReason.SHOULD_BE_COVERED,
     "betty/multiprocessing.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/openapi.py": {
-        "SpecificationSchema": {"__annotate_func__": MissingReason.DATACLASS},
-    },
     "betty/place_type.py": {
         "PlaceType": MissingReason.STATIC_CONTENT_ONLY,
         "PlaceTypeDefinition": MissingReason.STATIC_CONTENT_ONLY,
@@ -773,7 +757,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/plugins/entity/event.py": {
         "Event": {
-            "has_any_date_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
             "plugin": MissingReason.INHERITED,
         },
     },

@@ -5,7 +5,7 @@ Static translations.
 from __future__ import annotations
 
 from contextlib import suppress
-from typing import TYPE_CHECKING, Self, final, override
+from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.assertion import assert_locale, assert_mapping, assert_or, assert_str
 from betty.exception import reraise_with_indicator
@@ -24,6 +24,7 @@ from betty.locale.localizable import (
     CountableStaticTranslationsMapping,
     Localizable,
     LocalizableCount,
+    ResolvableLocalizable,
     ShorthandCountableStaticTranslations,
     ShorthandStaticTranslations,
     StaticTranslationsMapping,
@@ -40,7 +41,7 @@ from betty.locale.localizable.markup import (
     UnorderedList,
     do_you_mean,
 )
-from betty.portable import Portable, PortableData
+from betty.portable import Portable, PortableData, PortableMapping
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
@@ -318,3 +319,26 @@ class StaticTranslations(Localizable, Portable):
             to_language_tag(locale): str(translation)
             for locale, translation in self.translations.items()
         }  # ty:ignore[invalid-return-type]
+
+
+# @todo Can/should we go with subclassing Schema after all?
+def new_static_translations_schema(
+    *, title: ResolvableLocalizable, description: ResolvableLocalizable
+) -> PortableMapping:
+    """
+    Create a new JSON Schema for static translations.
+    """
+    return {
+        "additionalProperties": {
+            "type": "string",
+            "description": "A human-readable translation.",
+        },
+        "description": description,
+        "title": title,
+        "type": "object",
+    }
+
+
+STATIC_TRANSLATIONS_SCHEMA: Final[PortableMapping] = new_static_translations_schema(
+    title="Static translations", description="Keys are IETF BCP-47 language tags."
+)

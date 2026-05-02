@@ -1,13 +1,17 @@
 import pytest
 
-from betty.date import Date, DateRange
+from betty.date import DATE_RANGE_SCHEMA, DATE_SCHEMA, Date, DateRange
 from betty.date.linked_data import (
     dump_linked_data_for_date,
     dump_linked_data_for_date_range,
 )
-from betty.date.schema import DateRangeSchema, DateSchema
 from betty.portable import PortableMapping
 from betty.test_utils.conftest import AssertLinkedDataDump
+
+# @todo Move these tests to TestHasAnyDateProperty
+# @todo
+# @todo
+# @todo
 
 
 @pytest.mark.parametrize(
@@ -34,7 +38,7 @@ from betty.test_utils.conftest import AssertLinkedDataDump
 async def test_dump_linked_data_for_date(
     assert_linked_data_dump: AssertLinkedDataDump, expected: PortableMapping, sut: Date
 ) -> None:
-    actual = await assert_linked_data_dump(DateSchema(), dump_linked_data_for_date(sut))
+    actual = await assert_linked_data_dump(DATE_SCHEMA, dump_linked_data_for_date(sut))
     assert actual == expected
 
 
@@ -94,6 +98,6 @@ async def test_dump_linked_data_for_date_range(
     sut: DateRange,
 ) -> None:
     actual = await assert_linked_data_dump(
-        DateRangeSchema(), dump_linked_data_for_date_range(sut)
+        DATE_RANGE_SCHEMA, dump_linked_data_for_date_range(sut)
     )
     assert actual == expected

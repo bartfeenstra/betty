@@ -6,22 +6,27 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, final, override
 
-from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
-from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
-from betty.media_type.schema import MediaTypeSchema
-from betty.privacy.resolve import is_public
+from betty.linked_data import LinkedDataDumper
+from betty.media_type import (
+    MEDIA_TYPE_SCHEMA,
+    MediaType,
+    ResolvableMediaType,
+    resolve_media_type,
+)
 from betty.property import Optional, Property
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    from betty.json_schema import Schema
     from betty.locale.localizable import ResolvableLocalizable
-    from betty.portable import PortableMapping
     from betty.project import Project
 
 
 @final
-class MediaTypeProperty(Property[MediaType, ResolvableMediaType]):
+class MediaTypeProperty(
+    Property[MediaType, ResolvableMediaType], LinkedDataDumper[MediaType, str]
+):
     """
     A property containing a media type.
     """
@@ -45,8 +50,16 @@ class MediaTypeProperty(Property[MediaType, ResolvableMediaType]):
             resolver=resolve_media_type,
         )
 
+    @override
+    async def linked_data_schema_for(self, project: Project, /) -> Schema:
+        return MEDIA_TYPE_SCHEMA
 
-class HasMediaType(LinkedDataDumpableWithSchemaJsonLdObject):
+    @override
+    async def dump_linked_data_for(self, project: Project, target: MediaType, /) -> str:
+        return str(target)
+
+
+class HasMediaType:
     """
     A resource with an `IANA media type <https://www.iana.org/assignments/media-types/media-types.xhtml>`_.
     """
@@ -61,17 +74,3 @@ class HasMediaType(LinkedDataDumpableWithSchemaJsonLdObject):
     ):
         super().__init__(*args, **kwargs)
         self.media_type = media_type
-
-    @override
-    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
-        if is_public(self) and self.media_type is not None:
-            portable["mediaType"] = str(self.media_type)
-        return portable
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
-        schema = await super().linked_data_schema(project)
-        schema.add_property("mediaType", MediaTypeSchema(), False)
-        return schema

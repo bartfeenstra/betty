@@ -4,12 +4,12 @@ from typing import TYPE_CHECKING, override
 
 import pytest
 
-from betty.json_schema import JsonSchemaSchema
+from betty.json_schema import JSON_SCHEMA
+from betty.json_schema.validate import validate
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
 from betty.project.schema import ProjectSchema
-from betty.test_utils.json_schema import SchemaTestBase, SchemaTestBaseSut
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -57,7 +57,7 @@ class TestProjectSchema(SchemaTestBase):
     )
     async def test_new(self, clean_urls: bool, isolated_project: Project) -> None:
         sut = await ProjectSchema.new(isolated_project)
-        JsonSchemaSchema().validate(sut.schema)
+        validate(JSON_SCHEMA, sut.schema)
 
     async def test_def_url(self, isolated_project: Project) -> None:
         def_name = "myFirstDefinition"

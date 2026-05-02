@@ -7,11 +7,7 @@ from uuid import uuid4
 
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.hashid import hashid
-from betty.json_schema import JsonSchemaReference, String
-from betty.linked_data import (
-    JsonLdObject,
-    LinkedDataDumpableWithSchemaJsonLdObject,
-)
+from betty.linked_data import LinkedDataDumpableWithSchema
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin import PluginTypeDefinition
@@ -21,6 +17,7 @@ from betty.string import kebab_case_to_lower_camel_case
 if TYPE_CHECKING:
     import builtins
 
+    from betty.json_schema import Schema
     from betty.locale.localizable import (
         CountableLocalizable,
         Localizable,
@@ -50,7 +47,7 @@ class NonPersistentId(str):
         return super().__new__(cls, entity_id or str(uuid4()))
 
 
-class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Plugin["EntityDefinition"]):
+class Entity(LinkedDataDumpableWithSchema, Plugin["EntityDefinition"]):
     """
     An entity is a uniquely identifiable data container.
 
@@ -125,7 +122,7 @@ class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Plugin["EntityDefinition"
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> Schema:
         schema = await super().linked_data_schema(project)
         schema._def_name = f"{kebab_case_to_lower_camel_case(cls.plugin().id)}Entity"
         schema.title = cls.plugin().label.localize(DEFAULT_LOCALIZER)

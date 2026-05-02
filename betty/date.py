@@ -9,35 +9,17 @@ import datetime
 import operator
 from contextlib import suppress
 from functools import total_ordering
-from typing import TYPE_CHECKING, Any, ClassVar, final, override
+from typing import TYPE_CHECKING, Any, ClassVar, Final, final, override
 
 from babel import dates
 
-from betty.assertion import (
-    OptionalField as OptionalField,
-)
-from betty.assertion import (
-    RequiredField as RequiredField,
-)
-from betty.assertion import (
-    assert_bool as assert_bool,
-)
-from betty.assertion import (
-    assert_record as assert_record,
-)
-from betty.assertion import (
-    assert_str as assert_str,
-)
 from betty.data import Data
-from betty.datas.aggregate.record.object import AttrDefinition as AttrDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.bool import BoolDefinition
 from betty.datas.int import IntDefinition
+from betty.json_schema import Schema
 from betty.locale.localizable import Localizable
 from betty.locale.localizable.gettext import _
-from betty.portable import Portable as Portable
-from betty.portable import PortableData as PortableData
-from betty.portable import PortableMapping as PortableMapping
 from betty.property import Optional, Property
 from betty.sample import Sample, Size
 
@@ -221,15 +203,6 @@ class Date(Localizable, Data):
     @classmethod
     def _load_date(cls, value: str) -> tuple[int | None, int | None, int | None]:
         raise NotImplementedError
-
-
-def _dump_date_iso8601(date: Date, /) -> str | None:
-    if not date.complete:
-        return None
-    assert date.year
-    assert date.month
-    assert date.day
-    return f"{date.year:04d}-{date.month:02d}-{date.day:02d}"
 
 
 @final
@@ -591,3 +564,59 @@ class DateRange(Localizable, Data):
 
 
 type AnyDate = Date | DateRange
+
+
+DATE_SCHEMA: Final[Schema] = Schema(
+    {
+        "additionalProperties": False,
+        "title": "Date",
+        "type": "object",
+        "properties": {
+            "day": {
+                "title": "Day",
+                "type": "number",
+            },
+            "fuzzy": {
+                "title": "Fuzzy",
+                "type": "boolean",
+            },
+            "iso8601": {
+                "pattern": "^\\d\\d\\d\\d-\\d\\d-\\d\\d$",
+                "title": "An ISO 8601 date.",
+                "type": "string",
+            },
+            "month": {
+                "title": "Month",
+                "type": "number",
+            },
+            "year": {
+                "title": "Year",
+                "type": "number",
+            },
+        },
+    },
+    def_name="date",
+)
+DATE_RANGE_SCHEMA: Final[Schema] = Schema(
+    {
+        "additionalProperties": False,
+        "title": "Date range",
+        "type": "object",
+        "properties": {
+            "start": {
+                "title": "Start date",
+                "oneOf": [DATE_SCHEMA, {"type": "null"}],
+            },
+            "end": {
+                "title": "End date",
+                "oneOf": [DATE_SCHEMA, {"type": "null"}],
+            },
+        },
+    },
+    def_name="dateRange",
+)
+
+ANY_DATE_SCHEMA: Final[Schema] = Schema(
+    {"oneOf": [DATE_SCHEMA, DATE_RANGE_SCHEMA], "title": "Date or date range"},
+    def_name="anyDate",
+)

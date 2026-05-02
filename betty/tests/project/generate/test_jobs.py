@@ -5,8 +5,9 @@ import pytest
 from lxml import etree
 
 from betty.entity import Entity
-from betty.json_schema import JsonSchemaSchema
-from betty.openapi.schema import SpecificationSchema
+from betty.json_schema import JSON_SCHEMA
+from betty.json_schema.validate import validate
+from betty.openapi import OPENAPI_SPECIFICATION_SCHEMA
 from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.enclosure import Enclosure
 from betty.plugins.entity.event import Event
@@ -288,7 +289,7 @@ class TestGenerateOpenApi:
         with open(
             isolated_project.www_directory / "api" / "index.json", encoding="utf-8"
         ) as f:
-            SpecificationSchema().validate(json.loads(f.read()))
+            validate(OPENAPI_SPECIFICATION_SCHEMA, json.loads(f.read()))
 
 
 class TestGenerateJsonSchema:
@@ -298,7 +299,7 @@ class TestGenerateJsonSchema:
         with open(
             isolated_project.www_directory / "schema.json", encoding="utf-8"
         ) as f:
-            JsonSchemaSchema().validate(json.loads(f.read()))
+            validate(JSON_SCHEMA, json.loads(f.read()))
 
 
 class TestGenerateFavicon:

@@ -6,22 +6,27 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, final, override
 
+from babel import Locale
+
 from betty.datas.locale import LocaleDefinition
-from betty.json_schema import Null, OneOf
-from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
-from betty.locale import Localized, ResolvableLocale, resolve_locale, to_language_tag
-from betty.locale.schema import LocaleSchema
-from betty.privacy.resolve import is_public
+from betty.linked_data import LinkedDataDumper
+from betty.locale import (
+    LOCALE_SCHEMA,
+    Localized,
+    ResolvableLocale,
+    resolve_locale,
+    to_language_tag,
+)
 from betty.property import Optional, Property
 
 if TYPE_CHECKING:
+    from betty.json_schema import Schema
     from betty.locale.localizable import ResolvableLocalizable
-    from betty.portable import PortableMapping
     from betty.project import Project
 
 
 @final
-class LocaleProperty(Property):
+class LocaleProperty(Property, LinkedDataDumper[Locale, str]):
     """
     A property containing a locale.
     """
@@ -39,8 +44,16 @@ class LocaleProperty(Property):
             resolver=resolve_locale,
         )
 
+    @override
+    async def linked_data_schema_for(self, project: Project, /) -> Schema:
+        return LOCALE_SCHEMA
 
-class HasLocale(Localized, LinkedDataDumpableWithSchemaJsonLdObject):
+    @override
+    async def dump_linked_data_for(self, project: Project, target: Locale, /) -> str:
+        return to_language_tag(target)
+
+
+class HasLocale(Localized):
     """
     A resource that is localized, e.g. contains information in a specific locale.
     """
@@ -52,16 +65,3 @@ class HasLocale(Localized, LinkedDataDumpableWithSchemaJsonLdObject):
     ):
         super().__init__(*args, **kwargs)
         self.locale = locale
-
-    @override
-    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
-        portable["locale"] = to_language_tag(self.locale) if is_public(self) else None
-        return portable
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
-        schema = await super().linked_data_schema(project)
-        schema.add_property("locale", OneOf(LocaleSchema(), Null()))
-        return schema

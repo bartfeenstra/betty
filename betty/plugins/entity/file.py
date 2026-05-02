@@ -25,8 +25,8 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from betty.copyright_notice import CopyrightNotice
+    from betty.json_schema import Schema
     from betty.license import License
-    from betty.linked_data import JsonLdObject
     from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.media_type import ResolvableMediaType
     from betty.pathlib import StrPath
@@ -128,7 +128,7 @@ class File(
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> Schema:
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "copyrightNotice",

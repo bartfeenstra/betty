@@ -4,8 +4,11 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import pytest
+from jsonschema import ValidationError
 
+from betty.json_schema.validate import validate
 from betty.media_type import (
+    MEDIA_TYPE_SCHEMA,
     InvalidMediaType,
     MediaType,
     MediaTypeDefinition,
@@ -359,3 +362,33 @@ def test_resolve_media_type__with_media_type_definition() -> None:
         resolve_media_type(MediaTypeDefinition("-", label="-", media_type=media_type))
         is media_type
     )
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "text/plain",
+        "multipart/form-data",
+        "application/vnd.oasis.opendocument.text",
+        "application/ld+json",
+        "text/html; charset=UTF-8",
+    ],
+)
+def test_media_type_schema__with_valid_value(value: str) -> None:
+    validate(MEDIA_TYPE_SCHEMA, value)
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        True,
+        False,
+        None,
+        123,
+        [],
+        {},
+    ],
+)
+def test_media_type_schema__with_invalid_value(value: str) -> None:
+    with pytest.raises(ValidationError):
+        validate(MEDIA_TYPE_SCHEMA, value)

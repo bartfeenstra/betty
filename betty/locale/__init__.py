@@ -8,12 +8,13 @@ from abc import ABC, abstractmethod
 from collections.abc import Sequence
 from contextlib import suppress
 from functools import lru_cache
-from typing import cast, final, override
+from typing import Final, cast, final, override
 
 from babel import Locale
 from babel.core import UnknownLocaleError
 
 import betty.dirs
+from betty.json_schema import Schema
 
 _LOCALE_DIRECTORY = betty.dirs.BUILTIN_ASSET_DIRECTORY / "locale"
 
@@ -199,3 +200,13 @@ class LocalizedStr(Localized, str):
     @property
     def locale(self) -> Locale | None:
         return self._locale
+
+
+LOCALE_SCHEMA: Final[Schema] = Schema(
+    {
+        "type": "string",
+        "title": "Locale",
+        "description": "A BCP 47 locale identifier (https://www.ietf.org/rfc/bcp/bcp47.txt).",
+    },
+    def_name="locale",
+)

@@ -5,16 +5,18 @@ Provide `media type <https://en.wikipedia.org/wiki/Media_type>`_ handling utilit
 from __future__ import annotations
 
 from email.message import EmailMessage
-from typing import TYPE_CHECKING, Self, final, override
+from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.assertion import assert_str
 from betty.data import Data, DataDefinition
 from betty.definition.human_facing import HumanFacingDefinition
+from betty.json_schema import Schema
 from betty.locale.localizable.gettext import _, ngettext
 from betty.pathlib import StrPath
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.ordered import Order, OrderedPluginDefinition
 from betty.portable import Portable, PortableData
+from betty.portable import PortableMapping as PortableMapping
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
@@ -232,3 +234,13 @@ def resolve_media_type(media_type: ResolvableMediaType, /) -> MediaType:
     if isinstance(media_type, MediaType):
         return media_type
     return media_type.media_type
+
+
+MEDIA_TYPE_SCHEMA: Final[Schema] = Schema(
+    {
+        "type": "string",
+        "title": "Media type",
+        "description": "An IANA media type (https://www.iana.org/assignments/media-types/media-types.xhtml).",
+    },
+    def_name="mediaType",
+)

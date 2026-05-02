@@ -18,12 +18,9 @@ from betty.entity.has_file_references import HasFileReferences
 from betty.entity.has_links import HasLinks
 from betty.entity.has_notes import HasNotes
 from betty.event_type import EventTypeDefinition
-from betty.json_schema import String
-from betty.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable.gettext import _, ngettext
-from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.markup import AllEnumeration
-from betty.locale.localizable.static.schema import StaticTranslationsSchema
+from betty.locale.localizable.static import STATIC_TRANSLATIONS_SCHEMA
 from betty.plugin.schema import PluginIdSchema
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.presence import Presence
@@ -41,6 +38,7 @@ if TYPE_CHECKING:
 
     from betty.date import AnyDate
     from betty.event_type import EventType
+    from betty.json_schema import Schema
     from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.plugins.entity.citation import Citation
     from betty.plugins.entity.file_reference import FileReference
@@ -124,16 +122,6 @@ class Event(
         self.name = name
 
     @override
-    def has_any_date_linked_data_contexts(
-        self,
-    ) -> tuple[str | None, str | None, str | None]:
-        return (
-            "https://schema.org/startDate",
-            "https://schema.org/startDate",
-            "https://schema.org/endDate",
-        )
-
-    @override
     @property
     def label(self) -> Localizable:
         if self.name:
@@ -168,8 +156,9 @@ class Event(
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         portable = await super().dump_linked_data(project)
-        dump_context(portable, place="https://schema.org/location")
-        dump_context(portable, presences="https://schema.org/performer")
+        # @todo Refactor dump_context()
+        # dump_context(portable, place="https://schema.org/location")
+        # dump_context(portable, presences="https://schema.org/performer")
         portable["@type"] = "https://schema.org/Event"
         portable["type"] = self.event_type.plugin().id
         portable["eventAttendanceMode"] = (
@@ -184,13 +173,9 @@ class Event(
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> Schema:
         schema = await super().linked_data_schema(project)
-        schema.add_property(
-            "name",
-            StaticTranslationsSchema(),
-            False,
-        )
+        schema.add_property("name", STATIC_TRANSLATIONS_SCHEMA, False)
         schema.add_property(
             "type",
             PluginIdSchema(
