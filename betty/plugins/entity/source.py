@@ -42,7 +42,6 @@ if TYPE_CHECKING:
     label=_("Source"),
     label_plural=_("Sources"),
     label_countable=ngettext("{count} source", "{count} sources"),
-    before=lambda other: other not in ("event", "person", "place"),
 )
 class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity):
     """

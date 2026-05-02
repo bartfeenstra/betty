@@ -14,6 +14,7 @@ from betty.plugin.error import PluginNotFound
 
 if TYPE_CHECKING:
     import argparse
+    from collections.abc import Mapping
 
     from babel import Locale
 
@@ -37,7 +38,7 @@ class NewTranslation(Manufacturable, Command):
     @override
     async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
         localizer = await self._app.localizer
-        assets = {
+        assets: Mapping[str, AssetDirectoryDefinition] = {
             asset.id: asset
             async for asset in self._app.plugins[AssetDirectoryDefinition]
         }

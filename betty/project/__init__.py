@@ -30,6 +30,7 @@ from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
 from betty.data.str import StrDefinition
 from betty.dirs import BUILTIN_ASSET_DIRECTORY
 from betty.document import Document, DocumentProviderDefinition
+from betty.entity import EntityDefinition
 from betty.entity.collection.pool import EntityPool
 from betty.exception import HumanFacingException
 from betty.extension import ExtensionDefinition
@@ -74,7 +75,6 @@ if TYPE_CHECKING:
 
     from betty.asset import AssetDirectoryDefinition
     from betty.collection.keyed import KeyedCollection
-    from betty.entity import EntityDefinition
     from betty.jinja import Environment
     from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.media_type import ResolvableMediaType
@@ -191,7 +191,11 @@ class Project(
         self._clean_urls = clean_urls
         self._debug = debug
         self._directory = resolve_path(directory)
-        self._generate_entity_list_html = generate_entity_list_html
+        self._generate_entity_list_html = (
+            ()
+            if generate_entity_list_html is None
+            else tuple(map(resolve_plugin_id, generate_entity_list_html))
+        )
         self._lifetime_threshold = lifetime_threshold or DEFAULT_LIFETIME_THRESHOLD
         self._locales = KeyedCollectionAdapter(
             {
@@ -437,14 +441,15 @@ class Project(
         if self._generate_entity_list_html is None:
             entity_types = [
                 entity_type
-                for entity_type in self.upstream.entity_types
+                async for entity_type in self.plugins[EntityDefinition]
                 if entity_type.public_facing
             ]
         else:
-            entity_types = [
-                self.upstream.entity_types[entity_type]
-                for entity_type in self._generate_entity_list_html
-            ]
+            entity_types = await gather(
+                *map(
+                    self.plugins[EntityDefinition].get, self._generate_entity_list_html
+                )
+            )
         return KeyedCollectionAdapter(
             {entity_type.id: entity_type for entity_type in entity_types},
             key_resolver=resolve_plugin_id,

@@ -5,17 +5,16 @@ from typing import TYPE_CHECKING
 import pytest
 
 from betty.content import ContentManufacturer
-from betty.entity import EntityDefinition
 from betty.plugins.content.static import Static
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.plugins.extension.raspberry_mint.region import Region
 from betty.project.generate import generate
-from betty.test_utils.entity import DummyEntityOne
 from betty.tests.conftest import check_skip_webpack_entry_point_provider
 
 if TYPE_CHECKING:
+    from betty.app import App
     from betty.project import Project
-    from betty.test_utils.conftest import IsolatedAppFactory, IsolatedProjectFactory
+    from betty.test_utils.conftest import IsolatedProjectFactory
 
 
 class TestRaspberryMint:
@@ -95,20 +94,11 @@ class TestRaspberryMint:
 
     @pytest.mark.order(0)
     @check_skip_webpack_entry_point_provider
-    async def test_generate__html_list_for_third_party_entity(
-        self,
-        isolated_app_factory: IsolatedAppFactory,
-        isolated_project_factory: IsolatedProjectFactory,
+    async def test_generate(
+        self, isolated_app: App, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with (
-            isolated_app_factory(plugins={EntityDefinition: [DummyEntityOne]}) as app,
-            isolated_project_factory(
-                app=app,
-                generate_entity_list_html=[DummyEntityOne],
-                extensions=[RaspberryMint],
-            ) as project,
-        ):
+        async with isolated_project_factory(
+            app=isolated_app, extensions=[RaspberryMint]
+        ) as project:
             await generate(project)
-            assert (
-                project.www_directory / DummyEntityOne.plugin().id / "index.html"
-            ).is_file()
+            assert (project.www_directory / "betty.webmanifest").is_file()

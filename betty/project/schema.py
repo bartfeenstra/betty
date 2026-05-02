@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.entity import EntityDefinition
 from betty.entity.schema import ToManySchema
 from betty.factory import Manufacturable
 from betty.json_schema import JsonSchemaReference, Schema
@@ -52,7 +53,7 @@ class ProjectSchema(Manufacturable, Schema):
         schema._schema["$id"] = await cls.url(project)
 
         # Add entity schemas.
-        for entity_type in project.upstream.entity_types:
+        async for entity_type in project.plugins[EntityDefinition]:
             entity_type_schema = await entity_type.cls.linked_data_schema(project)
             entity_type_schema.embed(schema)
             def_name = f"{kebab_case_to_lower_camel_case(entity_type.id)}EntityCollectionResponse"

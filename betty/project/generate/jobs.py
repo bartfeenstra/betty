@@ -435,7 +435,7 @@ class GenerateEntityTypesJson(Job):
     async def do(self, scheduler: Scheduler, /) -> None:
         await gather(*[
             scheduler.add(_GenerateEntityTypeJson(self._project, entity_type))
-            for entity_type in self._project.upstream.entity_types
+            async for entity_type in self._project.plugins[EntityDefinition]
         ])
 
 
@@ -504,7 +504,7 @@ class GenerateEntityTypesHtml(Job):
                     page_count,
                 )
             )
-            for entity_type in self._project.upstream.entity_types
+            async for entity_type in self._project.plugins[EntityDefinition]
             if entity_type.public_facing
             and (entity_type.id in generate_entity_list_html)
             and (
@@ -599,7 +599,7 @@ class GenerateEntitiesJson(Job):
     async def do(self, scheduler: Scheduler, /) -> None:
         await gather(*[
             scheduler.add(_GenerateEntityJson(self._project, entity_type, entity.id))
-            for entity_type in self._project.upstream.entity_types
+            async for entity_type in self._project.plugins[EntityDefinition]
             for entity in self._project.ancestry[entity_type.cls]
             if persistent_id(entity)
         ])
@@ -651,7 +651,7 @@ class GenerateEntitiesHtml(Job):
             scheduler.add(
                 _GenerateEntityHtml(self._project, entity_type, entity.id, locale)
             )
-            for entity_type in self._project.upstream.entity_types
+            async for entity_type in self._project.plugins[EntityDefinition]
             if entity_type.public_facing
             for entity in self._project.ancestry[entity_type.cls]
             if persistent_id(entity) and is_public(entity)
