@@ -28,7 +28,7 @@ from betty.locale.babel import run_babel
 from betty.locale.error import LocaleError
 from betty.locale.localizable.gettext import _
 from betty.pathlib import resolve_path
-from betty.plugins.asset_directory.app import APP
+from betty.plugins.asset_directory.builtin import BUILTIN
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
@@ -88,9 +88,9 @@ async def update_app_translations(override_output: Path | None = None, /) -> Non
     source_directory = betty.dirs.ROOT_DIRECTORY / "betty"
     test_directory = source_directory / "tests"
     await _update_translations(
-        APP.assets if override_output is None else override_output,
+        BUILTIN.assets if override_output is None else override_output,
         _find_source_files(
-            {source_directory, betty.dirs.ASSETS_DIRECTORY}, {test_directory}
+            {source_directory, betty.dirs.ASSET_DIRECTORY}, {test_directory}
         ),
     )
 
@@ -243,8 +243,8 @@ class AssetTranslationRepository(TranslationRepository, Bootstrappable):
     @override
     async def bootstrap(self) -> None:
         await super().bootstrap()
-        for assets_directory in reversed(self._assets.directories):
-            for po_file in assets_directory.glob("locale/*/betty.po"):
+        for asset_directory in reversed(self._assets.directories):
+            for po_file in asset_directory.glob("locale/*/betty.po"):
                 self._locales.add(from_language_tag(po_file.parent.name))
         for locale in self._locales:
             await self._build_translation(locale)
@@ -267,10 +267,8 @@ class AssetTranslationRepository(TranslationRepository, Bootstrappable):
 
     async def _build_translation(self, locale: Locale) -> gettext.NullTranslations:
         translations = gettext.NullTranslations()
-        for assets_directory in reversed(self._assets.directories):
-            opened_translations = await self._open_translations(
-                locale, assets_directory
-            )
+        for asset_directory in reversed(self._assets.directories):
+            opened_translations = await self._open_translations(locale, asset_directory)
             if opened_translations:
                 opened_translations.add_fallback(translations)
                 translations = opened_translations
@@ -278,9 +276,9 @@ class AssetTranslationRepository(TranslationRepository, Bootstrappable):
         return self._translations[locale]
 
     async def _open_translations(
-        self, locale: Locale, assets_directory: Path
+        self, locale: Locale, asset_directory: Path
     ) -> gettext.GNUTranslations | None:
-        po_file = assets_directory / "locale" / to_language_tag(locale) / "betty.po"
+        po_file = asset_directory / "locale" / to_language_tag(locale) / "betty.po"
         try:
             translation_version = await hashid_file_meta(po_file)
         except FileNotFoundError:
@@ -330,9 +328,9 @@ class AssetTranslationRepository(TranslationRepository, Bootstrappable):
         return len(translations), len(translatables)
 
     async def _get_translatables(self) -> AsyncIterator[str]:
-        for assets_directory in self._assets.directories:
+        for asset_directory in self._assets.directories:
             try:
-                pot = await read(assets_directory / "locale" / "betty.pot")
+                pot = await read(asset_directory / "locale" / "betty.pot")
             except FileNotFoundError:
                 pass
             else:
@@ -340,10 +338,10 @@ class AssetTranslationRepository(TranslationRepository, Bootstrappable):
                     yield entry.msgid_with_context
 
     async def _get_translations(self, locale: Locale) -> AsyncIterator[str]:
-        for assets_directory in reversed(self._assets.directories):
+        for asset_directory in reversed(self._assets.directories):
             try:
                 po = await read(
-                    assets_directory / "locale" / to_language_tag(locale) / "betty.po"
+                    asset_directory / "locale" / to_language_tag(locale) / "betty.po"
                 )
             except FileNotFoundError:
                 pass

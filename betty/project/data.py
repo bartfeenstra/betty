@@ -24,7 +24,7 @@ from betty.data.bool import BoolDefinition
 from betty.data.indicator.selector import Attr
 from betty.data.int import IntDefinition
 from betty.data.str import StrDefinition
-from betty.dirs import ASSETS_DIRECTORY
+from betty.dirs import BUILTIN_ASSET_DIRECTORY
 from betty.entity import EntityDefinition
 from betty.event_type import EventTypeDefinition
 from betty.event_type.data import EventTypeDefinitionConfiguration
@@ -103,8 +103,7 @@ if TYPE_CHECKING:
                 genders=[
                     GenderDefinitionConfiguration.data().samples.get(Size.FULL).subject
                 ],
-                logo=ASSETS_DIRECTORY
-                / "app"
+                logo=BUILTIN_ASSET_DIRECTORY
                 / "public"
                 / "static"
                 / "betty-512x512.png",

@@ -1,7 +1,7 @@
 import pytest
 
 from betty.content import ContentManufacturer
-from betty.dirs import ASSETS_DIRECTORY
+from betty.dirs import ASSET_DIRECTORY
 from betty.extension import ExtensionManufacturer
 from betty.plugins.content.render import Render, RenderConfiguration
 from betty.plugins.extension.raspberry_mint import RaspberryMint, Region
@@ -12,7 +12,7 @@ from betty.test_utils.conftest import IsolatedProjectFactory
 @pytest.fixture
 def file() -> str:
     with open(
-        ASSETS_DIRECTORY / "raspberry-mint" / "public" / "localized" / "index.html.j2",
+        ASSET_DIRECTORY / "raspberry-mint" / "public" / "localized" / "index.html.j2",
         encoding="utf-8",
     ) as f:
         return f.read()

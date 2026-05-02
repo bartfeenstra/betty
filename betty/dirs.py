@@ -27,14 +27,24 @@ DATA_DIRECTORY: Final[Path] = ROOT_DIRECTORY / "data"
 The data directory path.
 """
 
-ASSETS_DIRECTORY: Final[Path] = DATA_DIRECTORY / "assets"
+ASSET_DIRECTORY: Final[Path] = DATA_DIRECTORY / "asset"
 """
-The assets directory path.
+The asset directory path.
+"""
+
+BUILTIN_ASSET_DIRECTORY: Final[Path] = ASSET_DIRECTORY / "builtin"
+"""
+The directory path to Betty's built-in assets.
 """
 
 JS_DIRECTORY: Final[Path] = DATA_DIRECTORY / "js"
 """
-The JavaScript directory path.
+The directory path to Betty's built-in JavaScript components.
+"""
+
+WEBPACK_ENTRY_POINT_DIRECTORY: Final[Path] = DATA_DIRECTORY / "webpack"
+"""
+The directory path to Betty's built-in Webpack entry points.
 """
 
 CACHE_DIRECTORY: Final[Path] = platformdirs.user_cache_path(

@@ -7,7 +7,7 @@ from __future__ import annotations
 import difflib
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, final
 
 from betty.pathlib import resolve_path
 
@@ -22,9 +22,9 @@ class PotFileTestBase:
     A base class for testing that a ``*.pot`` file is up to date.
     """
 
-    def _readlines(self, assets_directory: StrPath) -> Iterator[str]:
+    def __readlines(self, asset_directory: StrPath) -> Iterator[str]:
         with open(
-            resolve_path(assets_directory) / "locale" / "betty.pot",
+            resolve_path(asset_directory) / "locale" / "betty.pot",
             encoding="utf-8",
         ) as f:
             return filter(
@@ -40,9 +40,9 @@ class PotFileTestBase:
                 f.readlines(),
             )
 
-    def assets_directory(self) -> StrPath:
+    def asset_directory(self) -> StrPath:
         """
-        The assets directory path containing the translations that are being tested.
+        The asset directory path containing the translations that are being tested.
         """
         raise NotImplementedError(repr(self))
 
@@ -53,21 +53,22 @@ class PotFileTestBase:
         raise NotImplementedError(repr(self))
 
     async def update_translations(
-        self, output_assets_directory_override: Path, /
+        self, output_asset_directory_override: Path, /
     ) -> None:
         """
         Update the translations into the given directory.
         """
         raise NotImplementedError(repr(self))
 
+    @final
     async def test(self) -> None:
         """
         Test the translations.
         """
         with TemporaryDirectory() as working_directory:
             await self.update_translations(Path(working_directory))
-            actual_pot_contents = self._readlines(self.assets_directory())
-            expected_pot_contents = self._readlines(working_directory)
+            actual_pot_contents = self.__readlines(self.asset_directory())
+            expected_pot_contents = self.__readlines(working_directory)
             diff = difflib.unified_diff(
                 list(actual_pot_contents),
                 list(expected_pot_contents),

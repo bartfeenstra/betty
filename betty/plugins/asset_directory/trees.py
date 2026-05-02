@@ -7,8 +7,9 @@ from __future__ import annotations
 from typing import Final
 
 from betty.asset import AssetDirectoryDefinition
-from betty.dirs import ASSETS_DIRECTORY
+from betty.dirs import ASSET_DIRECTORY
 
+_ID = "trees"
 TREES: Final[AssetDirectoryDefinition] = AssetDirectoryDefinition(
-    "trees", assets=ASSETS_DIRECTORY / "trees"
+    _ID, assets=ASSET_DIRECTORY / _ID
 )

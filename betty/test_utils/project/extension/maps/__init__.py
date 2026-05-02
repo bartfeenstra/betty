@@ -64,8 +64,8 @@ class MapsTestBase:
                 ),
             )
             copytree(
-                Path(__file__).parent / "assets",
-                project.assets_directory,
+                Path(__file__).parent / "asset",
+                project.asset_directory,
             )
             await generate(project)
             async with await builtin.Builtin.new(project) as server:

@@ -11,8 +11,8 @@ translations of the built-in US English messages to any language of your choice.
 
 Each time a message is translated, Betty finds the translation as follows:
 
-#. If the project has a translation in its assets directory, use it
-#. If an extension has a translation in its assets directory, use it
+#. If the project has a translation in its asset directory, use it
+#. If an extension has a translation in its asset directory, use it
 #. If a built-in translation exists, use it
 #. If no translation exists, use the original US English message
 

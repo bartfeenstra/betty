@@ -14,7 +14,7 @@ from babel.core import UnknownLocaleError
 
 import betty.dirs
 
-_LOCALE_DIRECTORY = betty.dirs.ASSETS_DIRECTORY / "app" / "locale"
+_LOCALE_DIRECTORY = betty.dirs.BUILTIN_ASSET_DIRECTORY / "locale"
 
 
 DEFAULT_LOCALE = Locale("en", "US")

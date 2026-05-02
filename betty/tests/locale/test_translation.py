@@ -8,7 +8,7 @@ from babel import Locale
 
 from betty.asset import StaticAssetRepository
 from betty.cache.file import BinaryFileCache
-from betty.dirs import ASSETS_DIRECTORY
+from betty.dirs import BUILTIN_ASSET_DIRECTORY
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.translation import (
     AssetTranslationRepository,
@@ -77,8 +77,8 @@ msgstr "Onderwerp"
 
 class TestPotFile(PotFileTestBase):
     @override
-    def assets_directory(self) -> StrPath:
-        return ASSETS_DIRECTORY / "app"
+    def asset_directory(self) -> StrPath:
+        return BUILTIN_ASSET_DIRECTORY
 
     @override
     def command(self) -> str:
@@ -86,23 +86,23 @@ class TestPotFile(PotFileTestBase):
 
     @override
     async def update_translations(
-        self, output_assets_directory_override: Path, /
+        self, output_asset_directory_override: Path, /
     ) -> None:
-        await update_app_translations(output_assets_directory_override)
+        await update_app_translations(output_asset_directory_override)
 
 
 class TestAssetTranslationRepository:
     async def test_get__with_known_translations(self, tmp_path: Path) -> None:
         locale = "nl"
-        assets_directory = tmp_path / "assets"
-        po_file = assets_directory / "locale" / locale / "betty.po"
+        asset_directory = tmp_path / "asset"
+        po_file = asset_directory / "locale" / locale / "betty.po"
         po_file.parent.mkdir(parents=True)
         with open(po_file, "w", encoding="utf-8") as f:
             f.write(_DUMMY_PO)
         # Do this multiple times so we hit the file caches.
         for _ in range(2):
             sut = AssetTranslationRepository(
-                StaticAssetRepository(assets_directory),
+                StaticAssetRepository(asset_directory),
                 BinaryFileCache(tmp_path / "cache"),
             )
             await sut.bootstrap()
@@ -113,7 +113,7 @@ class TestAssetTranslationRepository:
     async def test_get__with_unknown_translations(self, tmp_path: Path) -> None:
         locale = "nl"
         sut = AssetTranslationRepository(
-            StaticAssetRepository(tmp_path / "assets"),
+            StaticAssetRepository(tmp_path / "asset"),
             BinaryFileCache(tmp_path / "cache"),
         )
         await sut.bootstrap()
@@ -121,13 +121,13 @@ class TestAssetTranslationRepository:
         assert translation.gettext("Subject") == "Subject"
 
     async def test_coverage__with_default_locale(self, tmp_path: Path) -> None:
-        assets_directory = tmp_path / "assets"
-        pot_file = assets_directory / "locale" / "betty.pot"
+        asset_directory = tmp_path / "asset"
+        pot_file = asset_directory / "locale" / "betty.pot"
         pot_file.parent.mkdir(parents=True)
         with open(pot_file, "w", encoding="utf-8") as f:
             f.write(_DUMMY_POT)
         sut = AssetTranslationRepository(
-            StaticAssetRepository(assets_directory),
+            StaticAssetRepository(asset_directory),
             BinaryFileCache(tmp_path / "cache"),
         )
         await sut.bootstrap()
@@ -137,13 +137,13 @@ class TestAssetTranslationRepository:
 
     async def test_coverage__with_untranslated_locale(self, tmp_path: Path) -> None:
         locale = "nl"
-        assets_directory = tmp_path / "assets"
-        pot_file = assets_directory / "locale" / "betty.pot"
+        asset_directory = tmp_path / "asset"
+        pot_file = asset_directory / "locale" / "betty.pot"
         pot_file.parent.mkdir(parents=True)
         with open(pot_file, "w", encoding="utf-8") as f:
             f.write(_DUMMY_POT)
         sut = AssetTranslationRepository(
-            StaticAssetRepository(assets_directory),
+            StaticAssetRepository(asset_directory),
             BinaryFileCache(tmp_path / "cache"),
         )
         await sut.bootstrap()
@@ -153,17 +153,17 @@ class TestAssetTranslationRepository:
 
     async def test_coverage__with_translated_locale(self, tmp_path: Path) -> None:
         locale = "nl"
-        assets_directory = tmp_path / "assets"
-        pot_file = assets_directory / "locale" / "betty.pot"
+        asset_directory = tmp_path / "asset"
+        pot_file = asset_directory / "locale" / "betty.pot"
         pot_file.parent.mkdir(parents=True)
         with open(pot_file, "w", encoding="utf-8") as f:
             f.write(_DUMMY_POT)
-        po_file = assets_directory / "locale" / locale / "betty.po"
+        po_file = asset_directory / "locale" / locale / "betty.po"
         po_file.parent.mkdir(parents=True)
         with open(po_file, "w", encoding="utf-8") as f:
             f.write(_DUMMY_PO)
         sut = AssetTranslationRepository(
-            StaticAssetRepository(assets_directory),
+            StaticAssetRepository(asset_directory),
             BinaryFileCache(tmp_path / "cache"),
         )
         await sut.bootstrap()
@@ -179,9 +179,9 @@ class TestAssetTranslationRepository:
         await sut.bootstrap()
         assert set(sut.locales) == {DEFAULT_LOCALE}
 
-    async def test_locales__with_empty_assets_directory(self, tmp_path: Path) -> None:
+    async def test_locales__with_empty_asset_directory(self, tmp_path: Path) -> None:
         sut = AssetTranslationRepository(
-            StaticAssetRepository(tmp_path / "assets"),
+            StaticAssetRepository(tmp_path / "asset"),
             BinaryFileCache(tmp_path / "cache"),
         )
         await sut.bootstrap()
@@ -189,14 +189,14 @@ class TestAssetTranslationRepository:
 
     async def test_locales__with_available_translation(self, tmp_path: Path) -> None:
         locale = "nl"
-        assets_directory = tmp_path / "assets"
-        lc_messages_directory = assets_directory / "locale" / locale
+        asset_directory = tmp_path / "asset"
+        lc_messages_directory = asset_directory / "locale" / locale
         lc_messages_directory.mkdir(parents=True)
         with open(lc_messages_directory / "betty.po", "w", encoding="utf-8") as f:
             f.write(_DUMMY_PO)
 
         sut = AssetTranslationRepository(
-            StaticAssetRepository(assets_directory),
+            StaticAssetRepository(asset_directory),
             BinaryFileCache(tmp_path / "cache"),
         )
         await sut.bootstrap()

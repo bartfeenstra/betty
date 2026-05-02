@@ -24,7 +24,7 @@ class TestTemplate:
 {{ document.context.id }}
 """
         context = Context()
-        templates_directory = isolated_project.assets_directory / "templates"
+        templates_directory = isolated_project.asset_directory / "templates"
         await to_thread(templates_directory.mkdir, exist_ok=True, parents=True)
         template_file = templates_directory / template_path
         await to_thread(template_file.parent.mkdir, exist_ok=True, parents=True)

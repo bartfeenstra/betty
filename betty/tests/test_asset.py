@@ -26,8 +26,8 @@ class TestUnknownAsset:
         directories = (Path("my-first-assets"), Path("my-second-assets"))
         sut = UnknownAsset(path, directories)
         assert str(path) in str(sut)
-        for assets_directory in directories:
-            assert str(assets_directory) in str(sut)
+        for asset_directory in directories:
+            assert str(asset_directory) in str(sut)
 
 
 class TestStaticAssetRepository:

@@ -488,7 +488,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/plugin/ordered.py": {
         "OrderedPluginClsDefinition": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/plugins/asset_directory/app.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/plugins/asset_directory/builtin.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/asset_directory/http_api_doc.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/asset_directory/maps.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/asset_directory/raspberry_mint.py": MissingReason.STATIC_CONTENT_ONLY,

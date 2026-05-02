@@ -73,8 +73,8 @@ class About(Manufacturable, Command):
         about_project.add_column("", style=self._KEY_STYLE)
         about_project.add_column("")
         about_project.add_row(
-            user.localizer._("Assets directory"),
-            str(project.assets_directory),
+            user.localizer._("Asset directory"),
+            str(project.asset_directory),
         )
         about_project.add_row(
             user.localizer._("Output directory"),
