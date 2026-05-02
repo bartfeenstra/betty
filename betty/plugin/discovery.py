@@ -8,10 +8,12 @@ from asyncio import gather
 from collections.abc import AsyncIterator, Awaitable, Callable, Iterable, Mapping
 from contextlib import suppress
 from importlib import metadata
-from typing import TYPE_CHECKING, cast, final
+from typing import TYPE_CHECKING, cast, final, override
 
 from betty.asyncio import resolve_await
+from betty.collection.keyed.error import ErroringKeyedCollection
 from betty.concurrent import ThreadSafeLock
+from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
 from betty.plugin.error import PluginNotFound
 from betty.plugin.resolve import (
@@ -28,7 +30,6 @@ from betty.typing import threadsafe
 if TYPE_CHECKING:
     import builtins
 
-    from betty.machine_name import MachineName
 
 type ResolvableDiscovery[PluginDefinitionT: PluginDefinition = PluginDefinition] = (
     ResolvablePluginDefinition[PluginDefinitionT]
@@ -68,7 +69,7 @@ async def _discover[PluginDefinitionT: PluginDefinition](
 
 @final
 @threadsafe
-class PluginDiscoverer[PluginDefinitionT: PluginDefinition]:
+class PluginDiscoverer[PluginDefinitionT: PluginDefinition = PluginDefinition]:
     """
     Discover plugin definitions of a specific plugin type.
     """
@@ -104,8 +105,6 @@ class PluginDiscoverer[PluginDefinitionT: PluginDefinition]:
             yield cast(ResolvableDiscovery[PluginDefinitionT], entry_point.load())
 
     async def _plugins(self) -> Mapping[MachineName, PluginDefinitionT]:
-        from betty.plugin.discovery import discover
-
         if self.__plugins is not None:
             return self.__plugins
         async with self._lock:
@@ -139,3 +138,20 @@ class PluginDiscoverer[PluginDefinitionT: PluginDefinition]:
         Iterate over the IDs of the available plugins.
         """
         return (await self._plugins()).keys()
+
+
+@final
+class PluginDiscovererCollection(
+    ErroringKeyedCollection[
+        MachineName, type[PluginDefinition] | MachineName | str, PluginDiscoverer
+    ]
+):
+    """
+    A collection of plugin discoverers.
+    """
+
+    @override
+    def __getitem__[PluginDefinitionT: PluginDefinition = PluginDefinition](
+        self, key: type[PluginDefinitionT] | MachineName | str
+    ) -> PluginDiscoverer[PluginDefinitionT]:
+        return super().__getitem__(key)  # ty:ignore[invalid-return-type]

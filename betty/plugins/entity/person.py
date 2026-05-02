@@ -43,7 +43,6 @@ if TYPE_CHECKING:
     label=_("Person"),
     label_plural=_("People"),
     label_countable=ngettext("{count} person", "{count} people"),
-    before=lambda _: True,
 )
 class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
     """

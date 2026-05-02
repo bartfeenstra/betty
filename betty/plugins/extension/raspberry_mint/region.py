@@ -7,6 +7,8 @@ from __future__ import annotations
 from enum import Enum
 from typing import TYPE_CHECKING, final
 
+from betty.entity import EntityDefinition
+
 if TYPE_CHECKING:
     from collections.abc import Collection
 
@@ -32,7 +34,7 @@ class Region(Enum):
             *(region.value for region in cls),
             *[
                 f"entity-page-content--{entity_type.id}"
-                for entity_type in project.upstream.entity_types
+                async for entity_type in project.plugins[EntityDefinition]
                 if entity_type.public_facing
             ],
         }

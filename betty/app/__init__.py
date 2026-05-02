@@ -19,7 +19,6 @@ from betty.cache import Cache
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
 from betty.dirs import CACHE_DIRECTORY
-from betty.entity import EntityDefinition
 from betty.http_client import ClientErrorToUserMessageMiddleware
 from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
 from betty.life_cycle import Bootstrappable, Shutdownable
@@ -80,11 +79,6 @@ class App(RequirableServiceLevel, PluginServiceProvider):
     """
 
     asset_directories = AssetRepositoryService()
-
-    entity_types = PluginDefinitionsService(EntityDefinition)
-    """
-    The universally available entity types.
-    """
 
     media_types = PluginDefinitionsService(MediaTypeDefinition)
 

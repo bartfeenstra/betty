@@ -9,10 +9,7 @@ from importlib import metadata
 from typing import TYPE_CHECKING, Any
 
 from betty.collection.keyed.adapter import KeyedCollectionAdapter
-from betty.collection.keyed.error import ErroringKeyedCollection
 from betty.life_cycle.manage import ManagedLifeCycle
-from betty.machine_name import MachineName
-from betty.plugin import PluginDefinition
 from betty.plugin.resolve import resolve_plugin_type_id
 from betty.service import ServiceProvider
 from betty.service.simple import service
@@ -20,9 +17,9 @@ from betty.service.simple import service
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
 
-    from betty.collection.keyed import KeyedCollection
     from betty.factory import Factory
-    from betty.plugin.discovery import PluginDiscoverer, ResolvableDiscovery
+    from betty.plugin import PluginDefinition
+    from betty.plugin.discovery import PluginDiscovererCollection, ResolvableDiscovery
 
 if TYPE_CHECKING:
     type Plugins = Mapping[
@@ -54,17 +51,11 @@ class ServiceLevel(ManagedLifeCycle, ServiceProvider):
         return self._factory
 
     @service
-    def plugins(
-        self,
-    ) -> KeyedCollection[
-        MachineName,
-        type[PluginDefinition] | MachineName | str,
-        PluginDiscoverer,
-    ]:
+    def plugins(self) -> PluginDiscovererCollection:
         """
         The available plugin types and plugins.
         """
-        from betty.plugin.discovery import PluginDiscoverer
+        from betty.plugin.discovery import PluginDiscoverer, PluginDiscovererCollection
         from betty.plugin.error import PluginTypeNotFound
 
         class _PluginTypeNotFound(PluginTypeNotFound, KeyError):
@@ -75,9 +66,7 @@ class ServiceLevel(ManagedLifeCycle, ServiceProvider):
             for entry_point in metadata.entry_points(group="betty.plugin")
         ]
         plugin_types.extend(self._plugin_discovery.keys())
-        return ErroringKeyedCollection[
-            MachineName, type[PluginDefinition] | MachineName | str, PluginDiscoverer
-        ](
+        return PluginDiscovererCollection(
             KeyedCollectionAdapter(
                 {
                     plugin_type.type().id: PluginDiscoverer(

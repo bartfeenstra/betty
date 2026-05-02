@@ -96,7 +96,7 @@ class Specification:
         }
 
         # Add entity operations.
-        for entity_type in self._project.upstream.entity_types:
+        async for entity_type in self._project.plugins[EntityDefinition]:
             if not entity_type.public_facing:
                 continue
             await entity_type.cls.linked_data_schema(self._project)

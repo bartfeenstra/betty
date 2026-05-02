@@ -54,7 +54,6 @@ if TYPE_CHECKING:
     label=_("Event"),
     label_plural=_("Events"),
     label_countable=ngettext("{count} event", "{count} events"),
-    before=lambda other: other != "person",
 )
 class Event(
     HasDate,

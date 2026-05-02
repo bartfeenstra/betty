@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from betty.app import App
-    from betty.test_utils.conftest import IsolatedAppFactory, IsolatedProjectFactory
+    from betty.test_utils.conftest import IsolatedProjectFactory
 
 
 @ExtensionDefinition("dummy-a", label=DUMMY_LOCALIZABLE)
@@ -234,20 +234,13 @@ class TestProject:
             assert str(sut.default_locale.locale) == "nl_NL"
 
     async def test_generate_entity_list_html(
-        self,
-        isolated_app_factory: IsolatedAppFactory,
-        isolated_project_factory: IsolatedProjectFactory,
+        self, isolated_app: App, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with (
-            isolated_app_factory(
-                plugins={
-                    EntityDefinition: [DummyEntityOne],
-                }
-            ) as app,
-            isolated_project_factory(
-                app=app, generate_entity_list_html=[DummyEntityOne]
-            ) as sut,
-        ):
+        async with isolated_project_factory(
+            app=isolated_app,
+            generate_entity_list_html=[DummyEntityOne],
+            plugins={EntityDefinition: [DummyEntityOne]},
+        ) as sut:
             assert list(await sut.generate_entity_list_html) == [
                 DummyEntityOne.plugin()
             ]

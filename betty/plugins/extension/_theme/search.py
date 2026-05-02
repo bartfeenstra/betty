@@ -9,7 +9,7 @@ from asyncio import gather, to_thread
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, TypeVar, final, override
 
-from betty.entity import Entity
+from betty.entity import Entity, EntityDefinition
 from betty.entity.has_notes import HasNotes
 from betty.file import write
 from betty.plugins.entity.file import File
@@ -183,7 +183,7 @@ class Index:
                     self._build_entities(
                         _FallbackIndexer(self._project), entity_type.cls
                     )
-                    for entity_type in self._project.upstream.entity_types
+                    async for entity_type in self._project.plugins[EntityDefinition]
                     if entity_type.public_facing
                     and entity_type.cls not in specialized_indexers
                 ],
