@@ -34,10 +34,10 @@ updates:
     assignees:
       - bartfeenstra
     commit-message:
-      prefix: npm dependencies (Betty library)
+      prefix: npm dependencies (Betty built-in)
       include: scope
   - package-ecosystem: npm
-    directory: betty/plugins/extension/http_api_doc/webpack/
+    directory: betty/data/webpack/http-api-doc/
     ignore:
       - dependency-name: "@betty.py/betty"
     schedule:
@@ -48,7 +48,7 @@ updates:
       prefix: npm dependencies (HttpApiDoc extension)
       include: scope
   - package-ecosystem: npm
-    directory: betty/plugins/extension/maps/webpack/
+    directory: betty/data/webpack/maps/
     ignore:
       - dependency-name: "@betty.py/betty"
     schedule:
@@ -59,7 +59,7 @@ updates:
       prefix: npm dependencies (Maps extension)
       include: scope
   - package-ecosystem: npm
-    directory: betty/plugins/extension/raspberry_mint/webpack/
+    directory: betty/data/webpack/raspberry-mint/
     ignore:
       - dependency-name: "@betty.py/betty"
     schedule:
@@ -70,7 +70,7 @@ updates:
       prefix: npm dependencies (Raspberry Mint extension)
       include: scope
   - package-ecosystem: npm
-    directory: betty/plugins/extension/trees/webpack/
+    directory: betty/data/webpack/trees/
     ignore:
       - dependency-name: "@betty.py/betty"
     schedule:
@@ -79,4 +79,15 @@ updates:
       - bartfeenstra
     commit-message:
       prefix: npm dependencies (Trees extension)
+      include: scope
+  - package-ecosystem: npm
+    directory: betty/data/webpack/webpack/
+    ignore:
+      - dependency-name: "@betty.py/betty"
+    schedule:
+      interval: weekly
+    assignees:
+      - bartfeenstra
+    commit-message:
+      prefix: npm dependencies (Webpack extension)
       include: scope
