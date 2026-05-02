@@ -4,7 +4,7 @@ from typing import override
 from betty.extension import ExtensionDefinition
 from betty.plugin.resolve import ResolvablePluginId
 from betty.plugins.extension.raspberry_mint import RaspberryMint
-from betty.test_utils.project.extension.maps import MapsTestBase
+from betty.test_utils.plugins.extension.maps import MapsTestBase
 
 
 class TestMaps(MapsTestBase):
