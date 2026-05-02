@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
+      interval: daily
     assignees:
       - bartfeenstra
     commit-message:
@@ -12,7 +12,7 @@ updates:
   - package-ecosystem: pip
     directory: /
     schedule:
-      interval: weekly
+      interval: daily
     assignees:
       - bartfeenstra
     commit-message:
@@ -21,7 +21,7 @@ updates:
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: weekly
+      interval: daily
     assignees:
       - bartfeenstra
     commit-message:
@@ -30,7 +30,7 @@ updates:
   - package-ecosystem: npm
     directory: js
     schedule:
-      interval: weekly
+      interval: daily
     assignees:
       - bartfeenstra
     commit-message:
@@ -41,7 +41,7 @@ updates:
     ignore:
       - dependency-name: "@betty.py/betty"
     schedule:
-      interval: weekly
+      interval: daily
     assignees:
       - bartfeenstra
     commit-message:
@@ -52,7 +52,7 @@ updates:
     ignore:
       - dependency-name: "@betty.py/betty"
     schedule:
-      interval: weekly
+      interval: daily
     assignees:
       - bartfeenstra
     commit-message:
@@ -63,7 +63,7 @@ updates:
     ignore:
       - dependency-name: "@betty.py/betty"
     schedule:
-      interval: weekly
+      interval: daily
     assignees:
       - bartfeenstra
     commit-message:
@@ -74,7 +74,7 @@ updates:
     ignore:
       - dependency-name: "@betty.py/betty"
     schedule:
-      interval: weekly
+      interval: daily
     assignees:
       - bartfeenstra
     commit-message:
@@ -85,7 +85,7 @@ updates:
     ignore:
       - dependency-name: "@betty.py/betty"
     schedule:
-      interval: weekly
+      interval: daily
     assignees:
       - bartfeenstra
     commit-message:
