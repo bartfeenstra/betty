@@ -3,7 +3,7 @@ Linked data for the date API.
 """
 
 from betty.date import Date, DateRange, _dump_date_iso8601
-from betty.json.linked_data import dump_context
+from betty.linked_data import dump_context
 from betty.portable import PortableMapping
 
 

@@ -7,11 +7,11 @@ from uuid import uuid4
 
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.hashid import hashid
-from betty.json.linked_data import (
+from betty.json_schema import JsonSchemaReference, String
+from betty.linked_data import (
     JsonLdObject,
     LinkedDataDumpableWithSchemaJsonLdObject,
 )
-from betty.json.schema import JsonSchemaReference, String
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin import PluginTypeDefinition

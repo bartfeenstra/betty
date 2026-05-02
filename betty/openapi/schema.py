@@ -5,7 +5,7 @@ JSON schemas for the OpenAPI API.
 from typing import ClassVar, final
 
 from betty.classtools import Singleton
-from betty.json.schema import Schema
+from betty.json_schema import Schema
 from betty.portable import PortableMapping
 
 

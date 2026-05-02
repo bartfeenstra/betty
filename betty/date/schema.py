@@ -7,8 +7,8 @@ from __future__ import annotations
 from typing import final
 
 from betty.classtools import Singleton
-from betty.json.linked_data import JsonLdObject
-from betty.json.schema import Boolean, Null, Number, OneOf, String
+from betty.json_schema import Boolean, Null, Number, OneOf, String
+from betty.linked_data import JsonLdObject
 
 
 @final

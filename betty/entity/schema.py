@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.json.schema import Array, Null, OneOf, String
+from betty.json_schema import Array, Null, OneOf, String
 
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable

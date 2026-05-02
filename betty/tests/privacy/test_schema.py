@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, cast, override
 import pytest
 
 from betty.privacy.schema import PrivacySchema
-from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
+from betty.test_utils.json_schema import SchemaTestBase, SchemaTestBaseSut
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

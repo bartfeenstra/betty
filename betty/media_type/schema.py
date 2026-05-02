@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import final
 
 from betty.classtools import Singleton
-from betty.json.schema import String
+from betty.json_schema import String
 
 
 @final

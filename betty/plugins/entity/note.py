@@ -21,7 +21,7 @@ from betty.privacy import HasPrivacy, Privacy, is_public
 
 if TYPE_CHECKING:
     from betty.entity.has_notes import HasNotes
-    from betty.json.linked_data import JsonLdObject
+    from betty.linked_data import JsonLdObject
     from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.portable import PortableMapping
     from betty.project import Project

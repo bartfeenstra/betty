@@ -15,7 +15,7 @@ from betty.locale.localizable.static.schema import StaticTranslationsSchema
 
 if TYPE_CHECKING:
     from betty.date import ResolvableDate
-    from betty.json.linked_data import JsonLdObject
+    from betty.linked_data import JsonLdObject
     from betty.locale.localizable import ResolvableLocalizable
     from betty.portable import PortableMapping
     from betty.project import Project

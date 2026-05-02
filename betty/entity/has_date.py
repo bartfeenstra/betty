@@ -12,7 +12,7 @@ from betty.date.linked_data import (
     dump_linked_data_for_date_range,
 )
 from betty.date.schema import ResolvableDateSchema
-from betty.json.linked_data import (
+from betty.linked_data import (
     JsonLdObject,
     LinkedDataDumpableWithSchemaJsonLdObject,
 )

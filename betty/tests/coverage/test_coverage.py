@@ -270,18 +270,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Released": MissingReason.STATIC_CONTENT_ONLY,
         "Scheduler": MissingReason.ABSTRACT,
     },
-    "betty/json/linked_data.py": {
-        "dump_context": MissingReason.SHOULD_BE_COVERED,
-        "dump_link": MissingReason.SHOULD_BE_COVERED,
-        "dump_schema": MissingReason.SHOULD_BE_COVERED,
-        "JsonLdObject": MissingReason.SHOULD_BE_COVERED,
-        "JsonLdSchema": MissingReason.SHOULD_BE_COVERED,
-        "LinkedDataDumpable": MissingReason.ABSTRACT,
-        "LinkedDataDumpableWithSchema": MissingReason.ABSTRACT,
-        "LinkedDataDumpableWithSchemaJsonLdObject": MissingReason.SHOULD_BE_COVERED,
-        "LinkedDataDumper": MissingReason.ABSTRACT,
-    },
-    "betty/json/schema.py": {
+    "betty/json_schema.py": {
         "Schema": {
             "validate": MissingReason.SHOULD_BE_COVERED,
         },
@@ -298,6 +287,17 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "LinkDefinition": {
             "type": MissingReason.INHERITED,
         },
+    },
+    "betty/linked_data.py": {
+        "dump_context": MissingReason.SHOULD_BE_COVERED,
+        "dump_link": MissingReason.SHOULD_BE_COVERED,
+        "dump_schema": MissingReason.SHOULD_BE_COVERED,
+        "JsonLdObject": MissingReason.SHOULD_BE_COVERED,
+        "JsonLdSchema": MissingReason.SHOULD_BE_COVERED,
+        "LinkedDataDumpable": MissingReason.ABSTRACT,
+        "LinkedDataDumpableWithSchema": MissingReason.ABSTRACT,
+        "LinkedDataDumpableWithSchemaJsonLdObject": MissingReason.SHOULD_BE_COVERED,
+        "LinkedDataDumper": MissingReason.ABSTRACT,
     },
     "betty/load.py": {
         "load": MissingReason.SHOULD_BE_COVERED,

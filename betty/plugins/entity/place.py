@@ -12,8 +12,8 @@ from betty.entity.association import BidirectionalToManySingleType, ToManyAssoci
 from betty.entity.has_file_references import HasFileReferences
 from betty.entity.has_links import HasLinks
 from betty.entity.has_notes import HasNotes
-from betty.json.linked_data import JsonLdObject, dump_context
-from betty.json.schema import Array, Number, Object
+from betty.json_schema import Array, Number, Object
+from betty.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugins.entity.place_name import PlaceName
 from betty.plugins.place_type.unknown import Unknown as UnknownPlaceType

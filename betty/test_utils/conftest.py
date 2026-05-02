@@ -44,7 +44,7 @@ from jinja2 import Environment, Template
 from betty.app import App
 from betty.cache.file import BinaryFileCache
 from betty.exception import do_raise
-from betty.json.schema import Schema
+from betty.json_schema import Schema
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.plugins.license.spdx import SpdxLicenseDiscoverer
 from betty.project import Project, ProjectLocale
@@ -70,7 +70,7 @@ if TYPE_CHECKING:
     from betty.entity import EntityDefinition
     from betty.entity.collection.pool import EntityPool
     from betty.extension import ExtensionDefinition
-    from betty.json.linked_data import LinkedDataDumpableWithSchema, LinkedDataDumper
+    from betty.linked_data import LinkedDataDumpableWithSchema, LinkedDataDumper
     from betty.link import LinkDefinition
     from betty.load import EnricherDefinition, LoaderDefinition
     from betty.locale import ResolvableLocale

@@ -18,8 +18,8 @@ from betty.entity.collection.multiple import MultipleTypesEntityCollection
 from betty.entity.collection.single import SingleTypeEntityCollection
 from betty.entity.schema import ToManySchema, ToZeroOrOneSchema
 from betty.importlib import fully_qualified_name, import_any
-from betty.json.linked_data import LinkedDataDumper
-from betty.json.schema import Array, Null, OneOf, Schema
+from betty.json_schema import Array, Null, OneOf, Schema
+from betty.linked_data import LinkedDataDumper
 from betty.locale.localizable import resolve_localizable
 
 if TYPE_CHECKING:

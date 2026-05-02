@@ -5,7 +5,7 @@ from typing import override
 import pytest
 
 from betty.locale.schema import LocaleSchema
-from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
+from betty.test_utils.json_schema import SchemaTestBase, SchemaTestBaseSut
 
 
 class TestLocaleSchema(SchemaTestBase):

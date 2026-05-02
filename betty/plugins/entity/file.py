@@ -24,8 +24,8 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from betty.copyright_notice import CopyrightNotice
-    from betty.json.linked_data import JsonLdObject
     from betty.license import License
+    from betty.linked_data import JsonLdObject
     from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.media_type import ResolvableMediaType
     from betty.pathlib import StrPath

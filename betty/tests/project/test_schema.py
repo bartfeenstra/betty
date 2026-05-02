@@ -4,12 +4,12 @@ from typing import TYPE_CHECKING, override
 
 import pytest
 
-from betty.json.schema import JsonSchemaSchema
+from betty.json_schema import JsonSchemaSchema
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
 from betty.project.schema import ProjectSchema
-from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
+from betty.test_utils.json_schema import SchemaTestBase, SchemaTestBaseSut
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
