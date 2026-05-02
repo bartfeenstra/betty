@@ -282,9 +282,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "LinkedDataDumper": MissingReason.ABSTRACT,
     },
     "betty/json/schema.py": {
-        "FileBasedSchema": {
-            "__init_subclass__": MissingReason.INHERITED,
-        },
         "Schema": {
             "validate": MissingReason.SHOULD_BE_COVERED,
         },
@@ -1158,14 +1155,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/project/generate/__init__.py": {
         "Generator": MissingReason.ABSTRACT,
     },
-    "betty/project/url.py": {
-        "LocalizedUrlGenerator": {
-            "__init_subclass__": MissingReason.INHERITED,
-        },
-        "StaticUrlGenerator": {
-            "__init_subclass__": MissingReason.INHERITED,
-        },
-    },
     "betty/render.py": {
         "Renderer": MissingReason.ABSTRACT,
         "RendererDefinition": MissingReason.STATIC_CONTENT_ONLY,
@@ -1225,11 +1214,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "UnsupportedMediaType": MissingReason.SHOULD_BE_COVERED,
         "UnsupportedResource": MissingReason.STATIC_CONTENT_ONLY,
         "UrlGenerator": MissingReason.ABSTRACT,
-    },
-    "betty/url/proxy.py": {
-        "ProxyLocalizedUrlGenerator": {
-            "__init_subclass__": MissingReason.INHERITED,
-        },
     },
     "betty/user/__init__.py": {
         "User": MissingReason.ABSTRACT,
