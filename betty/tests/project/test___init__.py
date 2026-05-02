@@ -17,7 +17,6 @@ from betty.project.data import ProjectConfiguration
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.entity import DummyEntityOne
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
-from betty.test_utils.project.extension import DummyExtensionOne
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -26,17 +25,13 @@ if TYPE_CHECKING:
     from betty.test_utils.conftest import IsolatedAppFactory, IsolatedProjectFactory
 
 
-class _DummyExtension(Extension):
-    pass
-
-
 @ExtensionDefinition("dummy-a", label=DUMMY_LOCALIZABLE)
-class _DummyExtensionA(_DummyExtension):
+class _DummyExtensionA(Extension):
     pass
 
 
 @ExtensionDefinition("dummy-b", label=DUMMY_LOCALIZABLE)
-class _DummyExtensionB(_DummyExtension):
+class _DummyExtensionB(Extension):
     pass
 
 
@@ -59,20 +54,20 @@ class TestProject:
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         async with isolated_project_factory(
-            plugins={ExtensionDefinition: [DummyExtensionOne]},
-            extensions=[DummyExtensionOne],
+            plugins={ExtensionDefinition: [_DummyExtensionA]},
+            extensions=[_DummyExtensionA],
         ) as sut:
-            extension = await sut.extensions[DummyExtensionOne]
+            extension = await sut.extensions[_DummyExtensionA]
             assert extension.bootstrapped
 
     async def test_extensions(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         async with isolated_project_factory(
-            plugins={ExtensionDefinition: [DummyExtensionOne]},
-            extensions=[DummyExtensionOne],
+            plugins={ExtensionDefinition: [_DummyExtensionA]},
+            extensions=[_DummyExtensionA],
         ) as sut:
-            assert DummyExtensionOne in sut.extensions
+            assert _DummyExtensionA in sut.extensions
 
     async def test_ancestry__with___init___ancestry(
         self, isolated_project_factory: IsolatedProjectFactory
