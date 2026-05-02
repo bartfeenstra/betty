@@ -156,9 +156,10 @@ class RichUser(ManagedLifeCycle, User):
                 TimeElapsedColumn(),
                 console=self._console,
             ) as rich_progress:
-                yield RichProgress(
+                async with RichProgress(
                     rich_progress, resolve_localized(message, localizer=self.localizer)
-                )
+                ) as progress:
+                    yield progress
 
     @override
     async def ask_confirmation(
