@@ -6,7 +6,7 @@ published vary based on several factors, including but not limited to whether:
 
 - the URL should be absolute or relative
 - your site is multilingual
-- your site uses :py:class:`clean URLs <betty.project.data.ProjectConfiguration>`
+- your site uses :py:class:`clean URLs <betty.project.ProjectData>`
 
 How to generate URLs
 --------------------

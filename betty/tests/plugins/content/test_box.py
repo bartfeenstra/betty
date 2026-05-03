@@ -1,17 +1,17 @@
 from betty.content import ContentManufacturer
 from betty.document import Document
-from betty.plugins.content.box import Box, BoxConfiguration
-from betty.plugins.content.render import Render, RenderConfiguration
+from betty.plugins.content.box import Box, BoxData
+from betty.plugins.content.render import Render, RenderData
 from betty.project import Project
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
-class TestBoxConfiguration(DataTestBase[BoxConfiguration]):
-    sut_cls = BoxConfiguration
+class TestBoxData(DataTestBase[BoxData]):
+    sut_cls = BoxData
 
     def test_content(self) -> None:
-        sut = BoxConfiguration("my-first-content")
+        sut = BoxData("my-first-content")
         assert sut.content[0].plugin_id == "my-first-content"
 
 
@@ -19,9 +19,7 @@ class TestBox:
     async def test_build_template__minimal(self, isolated_project: Project) -> None:
         sut = await Box.new(
             isolated_project,
-            BoxConfiguration(
-                ContentManufacturer(Render, RenderConfiguration(DUMMY_LOCALIZABLE))
-            ),
+            BoxData(ContentManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))),
         )
         actual = await sut.build(document=Document())
         assert actual is not None
@@ -30,8 +28,8 @@ class TestBox:
     async def test_build_template__full(self, isolated_project: Project) -> None:
         sut = await Box.new(
             isolated_project,
-            BoxConfiguration(
-                ContentManufacturer(Render, RenderConfiguration(DUMMY_LOCALIZABLE)),
+            BoxData(
+                ContentManufacturer(Render, RenderData(DUMMY_LOCALIZABLE)),
                 min_height="MIN_HEIGHT",
                 max_height="MAX_HEIGHT",
                 height="HEIGHT",

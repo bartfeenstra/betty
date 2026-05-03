@@ -9,8 +9,7 @@ from pytest_mock import MockerFixture
 from betty.app import App
 from betty.cache.file import PickledFileCache
 from betty.file import write
-from betty.project import Project
-from betty.project.data import ProjectConfiguration
+from betty.project import Project, ProjectData
 from betty.test_utils.conftest import IsolatedAppFactory, IsolatedProjectFactory
 from betty.test_utils.console import run
 from betty.test_utils.user import StaticUser
@@ -91,8 +90,8 @@ class TestClearCaches:
             await write(
                 project_directory / "betty.json",
                 dumps(
-                    ProjectConfiguration.data().porter.dump(
-                        ProjectConfiguration(title="Betty", url="https://example.com")
+                    ProjectData.data().porter.dump(
+                        ProjectData(title="Betty", url="https://example.com")
                     )
                 ),
             )

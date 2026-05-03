@@ -5,10 +5,17 @@ from typing import TYPE_CHECKING
 import pytest
 
 from betty.content import ContentManufacturer
+from betty.entity import EntityDefinition
+from betty.exception import HumanFacingException
 from betty.plugins.content.static import Static
-from betty.plugins.extension.raspberry_mint import RaspberryMint
-from betty.plugins.extension.raspberry_mint.region import Region
+from betty.plugins.extension.raspberry_mint import (
+    RaspberryMint,
+    RaspberryMintData,
+    Region,
+)
 from betty.project.generate import generate
+from betty.test_utils.data import DataTestBase
+from betty.test_utils.entity import DummyEntityOne
 from betty.tests.conftest import check_skip_webpack_entry_point_provider
 
 if TYPE_CHECKING:
@@ -102,3 +109,58 @@ class TestRaspberryMint:
         ) as project:
             await generate(project)
             assert (project.www_directory / "betty.webmanifest").is_file()
+
+
+class TestRegion:
+    async def test_all(
+        self, isolated_app: App, isolated_project_factory: IsolatedProjectFactory
+    ) -> None:
+        async with isolated_project_factory(
+            app=isolated_app,
+            generate_entity_list_html=[DummyEntityOne],
+            plugins={EntityDefinition: [DummyEntityOne]},
+        ) as project:
+            assert "entity-page-content--dummy-one" in await Region.all(project)
+
+    def test_resolve__with_enum(self) -> None:
+        assert Region.resolve(Region.FRONT_PAGE_CONTENT) == "front-page-content"
+
+    def test_resolve__with_string(self) -> None:
+        assert Region.resolve("my-first-region") == "my-first-region"
+
+
+class TestRaspberryMintData(DataTestBase[RaspberryMintData]):
+    sut_cls = RaspberryMintData
+
+    async def test_validate__should_validate_featured_entities_configuration(
+        self, isolated_project_factory: IsolatedProjectFactory
+    ) -> None:
+        sut = RaspberryMintData(regional_content={"unknown-region": []})
+        async with isolated_project_factory(extensions=[RaspberryMint]) as project:
+            with pytest.raises(HumanFacingException) as exc_info:
+                await sut.validate(project)
+        assert 'data.regional_content["unknown-region"]' in str(exc_info.value)
+
+    def test_primary_color__from___init__(self) -> None:
+        color = "#000000"
+        sut = RaspberryMintData(primary_color=color)
+        assert sut.primary_color == color
+
+    def test_secondary_color__from___init__(self) -> None:
+        color = "#000000"
+        sut = RaspberryMintData(secondary_color=color)
+        assert sut.secondary_color == color
+
+    def test_tertiary_color__from___init__(self) -> None:
+        color = "#000000"
+        sut = RaspberryMintData(tertiary_color=color)
+        assert sut.tertiary_color == color
+
+    def test_regional_content__from___init__(self) -> None:
+        content = ContentManufacturer("my-first-plugin")
+        sut = RaspberryMintData(
+            regional_content={
+                Region.FRONT_PAGE_CONTENT: content,
+            }  # ty:ignore[invalid-argument-type]
+        )
+        assert sut.regional_content[Region.FRONT_PAGE_CONTENT][0] is content

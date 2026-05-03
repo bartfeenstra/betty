@@ -19,8 +19,8 @@ from betty.assertion import (
     assert_record,
 )
 from betty.data import Data, DataDefinition
-from betty.data.aggregate.record import PortableRecord, RecordDefinition
-from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
+from betty.datas.aggregate.record import PortableRecord, RecordDefinition
+from betty.datas.aggregate.record.object import AttrDefinition, ObjectDefinition
 from betty.exception import HumanFacingException
 from betty.factory import DataManufacturable, FactoryError
 from betty.importlib import fully_qualified_name

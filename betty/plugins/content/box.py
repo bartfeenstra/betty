@@ -9,11 +9,11 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.content import Content, ContentDefinition, ContentManufacturer, build
 from betty.data import Data
-from betty.data.aggregate.record.object import ObjectDefinition
-from betty.data.str import StrDefinition
+from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.str import StrDefinition
 from betty.factory import DataManufacturable
 from betty.locale.localizable.gettext import _
-from betty.plugins.content.render import Render, RenderConfiguration
+from betty.plugins.content.render import Render, RenderData
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project
 from betty.properties.plugin_manufacturer_sequence import (
@@ -34,10 +34,10 @@ if TYPE_CHECKING:
 @ObjectDefinition(
     label=_("Box configuration"),
     samples=[
-        lambda: Sample(BoxConfiguration([]), label="Minimal", size=Size.MINIMAL),
+        lambda: Sample(BoxData([]), label="Minimal", size=Size.MINIMAL),
         lambda: Sample(
-            BoxConfiguration(
-                [ContentManufacturer(Render, RenderConfiguration("Hello, world!"))],
+            BoxData(
+                [ContentManufacturer(Render, RenderData("Hello, world!"))],
                 min_height="100px",
                 max_height="1000px",
                 height="500px",
@@ -50,11 +50,11 @@ if TYPE_CHECKING:
         ),
     ],
 )
-class BoxConfiguration(Data):
+class BoxData(Data):
     """
     Configuration for :py:class:`betty.plugins.content.box.Box`.
 
-    .. data:: betty.plugins.content.box:BoxConfiguration
+    .. data:: betty.plugins.content.box:BoxData
     """
 
     content = PluginManufacturerSequenceProperty[ContentDefinition, Content](
@@ -94,7 +94,7 @@ class BoxConfiguration(Data):
 
 @final
 @ContentDefinition("box", label=_("Box"))
-class Box(Template, DataManufacturable[BoxConfiguration]):
+class Box(Template, DataManufacturable[BoxData]):
     """
     .. plugin:: content:box.
     """
@@ -123,13 +123,13 @@ class Box(Template, DataManufacturable[BoxConfiguration]):
 
     @override
     @classmethod
-    def new_data_cls(cls) -> type[BoxConfiguration]:
-        return BoxConfiguration
+    def new_data_cls(cls) -> type[BoxData]:
+        return BoxData
 
     @override
     @Project.require
     @classmethod
-    async def new(cls, project: Project, data: BoxConfiguration, /) -> Self:
+    async def new(cls, project: Project, data: BoxData, /) -> Self:
         content, jinja = await gather(
             gather(
                 *map(

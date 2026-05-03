@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Self, cast, final, overload, override
 
 from betty.data import OptionalDefinition
-from betty.data.aggregate.record.object import Attr, AttrDefinition
+from betty.datas.aggregate.record.object import Attr, AttrDefinition
 from betty.functools import passthrough
 from betty.importlib import fully_qualified_name
 from betty.typing import Void

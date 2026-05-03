@@ -7,8 +7,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final
 
 from betty.data import Data, Sample
-from betty.data.aggregate.record.object import ObjectDefinition
-from betty.data.str import StrDefinition
+from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.str import StrDefinition
 from betty.locale.localizable.gettext import _
 from betty.plugin.resolve import resolve_plugin_id
 from betty.properties.machine_name import MachineNameProperty

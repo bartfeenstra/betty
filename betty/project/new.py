@@ -13,11 +13,11 @@ from betty.portable.file import dump_file
 if TYPE_CHECKING:
     from betty.app import App
     from betty.pathlib import StrPath
-    from betty.project.data import ProjectConfiguration
+    from betty.project import ProjectData
 
 
 async def new(
-    app: App, configuration: ProjectConfiguration, configuration_file: StrPath, /
+    app: App, configuration: ProjectData, configuration_file: StrPath, /
 ) -> None:
     """
     Create a new project.

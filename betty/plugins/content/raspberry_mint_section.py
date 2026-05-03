@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.content import Content, ContentDefinition, ContentManufacturer, build
 from betty.data import Data
-from betty.data.aggregate.record.object import ObjectDefinition
-from betty.data.bool import BoolDefinition
+from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.bool import BoolDefinition
 from betty.factory import DataManufacturable
 from betty.locale.localizable.gettext import _
 from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
@@ -40,7 +40,7 @@ if TYPE_CHECKING:
     label=_("Section configuration"),
     samples=[
         lambda: Sample(
-            SectionConfiguration(
+            SectionData(
                 ContentManufacturer("my-first-content"),
                 heading=DUMMY_LOCALIZABLE,
             ),
@@ -49,11 +49,11 @@ if TYPE_CHECKING:
         ),
     ],
 )
-class SectionConfiguration(Data):
+class SectionData(Data):
     """
     Configuration for :py:class:`betty.plugins.content.raspberry_mint_section.Section`.
 
-    .. data:: betty.plugins.content.raspberry_mint_section:SectionConfiguration
+    .. data:: betty.plugins.content.raspberry_mint_section:SectionData
     """
 
     content = PluginManufacturerSequenceProperty[ContentDefinition, Content](
@@ -107,7 +107,7 @@ class SectionConfiguration(Data):
     label=_("Section"),
     requires={Project.asset_directories.require(RASPBERRY_MINT)},
 )
-class Section(Template, DataManufacturable[SectionConfiguration]):
+class Section(Template, DataManufacturable[SectionData]):
     """
     .. plugin:: content:raspberry-mint-section.
     """
@@ -130,13 +130,13 @@ class Section(Template, DataManufacturable[SectionConfiguration]):
 
     @override
     @classmethod
-    def new_data_cls(cls) -> type[SectionConfiguration]:
-        return SectionConfiguration
+    def new_data_cls(cls) -> type[SectionData]:
+        return SectionData
 
     @override
     @Project.require
     @classmethod
-    async def new(cls, project: Project, data: SectionConfiguration, /) -> Self:
+    async def new(cls, project: Project, data: SectionData, /) -> Self:
         content, jinja = await gather(
             gather(
                 *map(

@@ -4,7 +4,7 @@ Mapping properties.
 
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping, MutableMapping
+from collections.abc import Mapping, MutableMapping
 from typing import TYPE_CHECKING, Any, final, override
 
 from betty.functools import passthrough
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
     from betty.data import Data, DataDefinition
-    from betty.data.aggregate.collection.mapping import MappingDefinition
+    from betty.datas.aggregate.collection.mapping import MappingDefinition
     from betty.locale.localizable import ResolvableLocalizable
     from betty.typing import Intersection
 

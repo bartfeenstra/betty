@@ -13,7 +13,7 @@ from betty.property import Property
 
 if TYPE_CHECKING:
     from betty.data import Data, DataDefinition
-    from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
+    from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
     from betty.locale.localizable import ResolvableLocalizable
     from betty.typing import Intersection
 

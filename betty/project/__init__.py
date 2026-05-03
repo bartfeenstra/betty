@@ -9,6 +9,7 @@ site from the entire project.
 from __future__ import annotations
 
 from asyncio import gather, to_thread
+from collections.abc import Iterable, MutableSequence
 from contextlib import AsyncExitStack, asynccontextmanager
 from shutil import rmtree
 from tempfile import mkdtemp
@@ -19,45 +20,87 @@ from babel import Locale
 
 from betty.about import VERSION_MAJOR
 from betty.app import App
+from betty.assertion import assert_number, assert_url
 from betty.asset import AssetRepositoryService
 from betty.cache import Cache
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache as NoOpCache
-from betty.collection.keyed.adapter import KeyedCollectionAdapter
-from betty.copyright_notice import CopyrightNoticeDefinition
+from betty.collection.keyed.adapter import (
+    KeyedCollectionAdapter,
+    MutableKeyedCollectionAdapter,
+)
+from betty.collection.sequence.adapter import MutableResolvedSequenceAdapter
+from betty.copyright_notice import (
+    CopyrightNotice,
+    CopyrightNoticeDefinition,
+    CopyrightNoticeManufacturer,
+)
 from betty.data import Data
-from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
-from betty.data.str import StrDefinition
+from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
+from betty.datas.aggregate.collection.sequence import SequenceDefinition
+from betty.datas.aggregate.record.object import AttrDefinition, ObjectDefinition
+from betty.datas.bool import BoolDefinition
+from betty.datas.copyright_notice_definition import CopyrightNoticeDefinitionData
+from betty.datas.event_type_definition import EventTypeDefinitionData
+from betty.datas.gender_definition import GenderDefinitionData
+from betty.datas.int import IntDefinition
+from betty.datas.license_definition import LicenseDefinitionData
+from betty.datas.locale import LocaleDefinition
+from betty.datas.path import PathDefinition
+from betty.datas.place_type_definition import PlaceTypeDefinitionData
+from betty.datas.role_definition import RoleDefinitionData
+from betty.datas.str import StrDefinition
 from betty.dirs import BUILTIN_ASSET_DIRECTORY
 from betty.document import Document, DocumentProviderDefinition
 from betty.entity import EntityDefinition
 from betty.entity.collection.pool import EntityPool
+from betty.event_type import EventTypeDefinition
 from betty.exception import HumanFacingException
-from betty.extension import ExtensionDefinition
+from betty.extension import Extension, ExtensionDefinition, ExtensionManufacturer
+from betty.gender import GenderDefinition
 from betty.hashid import hashid
 from betty.html.css import CssResourceDefinition
 from betty.html.js import JsResourceDefinition
+from betty.indicator.selector import Attr
 from betty.jinja.filter import JinjaFilterDefinition
 from betty.jinja.test import JinjaTestDefinition
-from betty.license import LicenseDefinition
+from betty.license import License, LicenseDefinition, LicenseManufacturer
 from betty.link import LinkDefinition
-from betty.load import EnricherDefinition, LoaderDefinition
+from betty.load import (
+    Enricher,
+    EnricherDefinition,
+    EnricherManufacturer,
+    Loader,
+    LoaderDefinition,
+    LoaderManufacturer,
+)
 from betty.locale import (
     DEFAULT_LOCALE,
     ResolvableLocale,
     resolve_locale,
     to_language_tag,
 )
-from betty.locale.data import LocaleDefinition
-from betty.locale.localizable import resolve_localizable
+from betty.locale.localizable import ResolvableLocalizable, resolve_localizable
 from betty.locale.localizable.gettext import _
 from betty.locale.localize import Localizer, LocalizerRepository
 from betty.locale.translation import AssetTranslationRepository, TranslationRepository
 from betty.machine_name import MachineName, ResolvableMachineName
-from betty.pathlib import resolve_path
-from betty.plugin.resolve import ResolvablePluginDefinition, resolve_plugin_id
+from betty.pathlib import StrPath, resolve_path
+from betty.place_type import PlaceTypeDefinition
+from betty.plugin.resolve import (
+    ResolvablePluginDefinition,
+    ResolvablePluginId,
+    resolve_plugin_id,
+)
 from betty.privacy.privatizer import Privatizer
+from betty.properties.collection.keyed import KeyedCollectionProperty
+from betty.properties.collection.sequence import SequenceProperty
+from betty.properties.localizable import LocalizableProperty
+from betty.properties.machine_name import MachineNameProperty
+from betty.properties.plugin_definitions import PluginDefinitionDatasProperty
+from betty.property import Optional, Property
 from betty.render import RenderDispatcher, RendererDefinition
+from betty.role import RoleDefinition
 from betty.sample import Sample, Size
 from betty.server import ServerDefinition
 from betty.service import Service
@@ -81,8 +124,10 @@ if TYPE_CHECKING:
     from betty.pathlib import StrPath
     from betty.plugin import PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
-    from betty.plugin.resolve import ResolvablePluginId
-    from betty.project.data import ProjectConfiguration
+    from betty.plugin.factory import (
+        ResolvablePluginManufacturer,
+        ResolvablePluginManufacturerSequence,
+    )
     from betty.service.plugin import SupportedPlugins
     from betty.service.plugin.instance import (
         ServicePluginInstance,
@@ -115,7 +160,7 @@ class Project(
        :header-rows: 0
 
        * - Configuration
-         - :py:class:`betty.project.data.ProjectConfiguration`
+         - :py:class:`betty.project.ProjectData`
     """
 
     asset_directories = AssetRepositoryService()
@@ -228,9 +273,7 @@ class Project(
         self._cache_directory = self.directory / ".cache" / VERSION_MAJOR
 
     @classmethod
-    async def new(
-        cls, app: App, data: ProjectConfiguration, *, directory: StrPath
-    ) -> Self:
+    async def new(cls, app: App, data: ProjectData, *, directory: StrPath) -> Self:
         """
         Create a new instance.
         """
@@ -484,7 +527,7 @@ class Project(
         """
         The lifetime threshold indicates when people are considered dead.
 
-        This setting defaults to :py:const:`betty.project.data.DEFAULT_LIFETIME_THRESHOLD`.
+        This setting defaults to :py:const:`betty.project.DEFAULT_LIFETIME_THRESHOLD`.
 
         The value is an integer expressing the age in years over which people are
         presumed to have died.
@@ -669,3 +712,363 @@ class ProjectLocale(Data["ObjectDefinition"]):
         The URL slug.
         """
         return self._slug
+
+
+@final
+@ObjectDefinition(
+    label=_("Project configuration"),
+    samples=[
+        lambda: Sample(
+            ProjectData(title="Betty", url="https://example.com"),
+            label="Minimal",
+            size=Size.MINIMAL,
+        ),
+        lambda: Sample(
+            ProjectData(
+                author="Bart Feenstra",
+                clean_urls=True,
+                copyright_notice=CopyrightNoticeManufacturer
+                .data()
+                .samples.get(Size.FULL)
+                .subject,
+                copyright_notices=[
+                    CopyrightNoticeDefinitionData.data().samples.get(Size.FULL).subject
+                ],
+                debug=True,
+                generate_entity_list_html=["person", "place"],
+                event_types=[
+                    EventTypeDefinitionData.data().samples.get(Size.FULL).subject
+                ],
+                genders=[GenderDefinitionData.data().samples.get(Size.FULL).subject],
+                logo=BUILTIN_ASSET_DIRECTORY
+                / "public"
+                / "static"
+                / "betty-512x512.png",
+                license=LicenseManufacturer.data().samples.get(Size.FULL).subject,
+                licenses=[LicenseDefinitionData.data().samples.get(Size.FULL).subject],
+                lifetime_threshold=123,
+                locales=[ProjectLocale.data().samples.get(Size.FULL).subject],
+                name="betty-ancestry",
+                place_types=[
+                    PlaceTypeDefinitionData.data().samples.get(Size.FULL).subject
+                ],
+                roles=[RoleDefinitionData.data().samples.get(Size.FULL).subject],
+                title="Betty's ancestry",
+                url="https://ancestry.example.com/betty",
+            ),
+            label="Full",
+            size=Size.FULL,
+        ),
+    ],
+)
+class ProjectData(Data):
+    """
+    Configuration for a :py:class:`betty.project.Project`.
+
+    .. data:: betty.project:ProjectData
+    """
+
+    author = Optional(LocalizableProperty(label=_("Author")))
+    """
+    The project's author.
+    """
+
+    clean_urls = Property(
+        BoolDefinition(
+            label=_("Clean URLs"),
+            description=_(
+                'Whether to use clean URLs: "/path" instead of "/path/index.html".'
+            ),
+        ),
+        omit_load=True,
+        omit_dump=lambda data: data is False,
+    )
+    """
+    Whether to generate clean URLs.
+    """
+
+    copyright_notice = Optional(
+        Property(
+            CopyrightNoticeManufacturer,
+            omit_load=True,
+            omit_dump=lambda data: data == ProjectData._default_copyright_notice(),
+            default=lambda: ProjectData._default_copyright_notice(),  # noqa: PLW0108
+            resolver=CopyrightNoticeManufacturer.resolve,
+        )
+    )
+    """
+    The project-wide copyright notice.
+    """
+
+    copyright_notices = PluginDefinitionDatasProperty(
+        CopyrightNoticeDefinition, CopyrightNoticeDefinitionData
+    )
+    """
+    The :py:class:`betty.copyright_notice.CopyrightNotice` plugins created by this project.
+    """
+
+    debug = Property(
+        BoolDefinition(
+            label=_("Debugging mode"),
+            description=_(
+                "Whether to output more detailed logs and disable optimizations that make debugging harder."
+            ),
+        ),
+        omit_load=True,
+        omit_dump=lambda data: data is False,
+    )
+    """
+    Whether to enable debugging for project jobs.
+    """
+
+    enrichers = KeyedCollectionProperty(
+        KeyedCollectionDefinition(
+            value=EnricherManufacturer,
+            label=EnricherDefinition.type().label_plural,
+            key=Attr("plugin_id"),
+            factory=lambda: MutableKeyedCollectionAdapter(
+                key=lambda data: data.plugin_id,
+                key_resolver=resolve_plugin_id,
+                value_resolver=EnricherManufacturer.resolve,
+            ),
+        ),
+        omit_load=True,
+        omit_dump=lambda data: not data,
+    )
+    """
+    The enrichers to enable for the project.
+    """
+
+    event_types = PluginDefinitionDatasProperty(
+        EventTypeDefinition, EventTypeDefinitionData
+    )
+    """
+    The :py:class:`betty.event_type.EventType` plugins created by this project.
+    """
+
+    extensions = KeyedCollectionProperty(
+        KeyedCollectionDefinition(
+            value=ExtensionManufacturer,
+            label=ExtensionDefinition.type().label_plural,
+            key=Attr("plugin_id"),
+            factory=lambda: MutableKeyedCollectionAdapter(
+                key=lambda data: data.plugin_id,
+                key_resolver=resolve_plugin_id,
+                value_resolver=ExtensionManufacturer.resolve,
+            ),
+        ),
+        omit_load=True,
+        omit_dump=lambda data: not data,
+    )
+    """
+    The extensions to enable for the project.
+    """
+
+    generate_entity_list_html = Optional(
+        SequenceProperty(
+            SequenceDefinition[MutableSequence[ResolvablePluginId[EntityDefinition]]](
+                cls=list,
+                label=_("Entity types to generate list HTML pages for"),
+                value=MachineName,
+                factory=lambda: MutableResolvedSequenceAdapter(
+                    [], value_resolver=resolve_plugin_id
+                ),
+            )
+        )
+    )
+    """
+    Which entity types to generate list HTML pages for.
+    """
+
+    genders = PluginDefinitionDatasProperty(GenderDefinition, GenderDefinitionData)
+    """
+    The :py:class:`betty.gender.Gender` plugins created by this project.
+    """
+
+    license = Optional(
+        Property(
+            LicenseManufacturer,
+            omit_load=True,
+            omit_dump=lambda data: data == ProjectData._default_license(),
+            default=lambda: ProjectData._default_license(),  # noqa: PLW0108
+            resolver=LicenseManufacturer.resolve,
+        )
+    )
+    """
+    The project-wide license.
+    """
+
+    licenses = PluginDefinitionDatasProperty(LicenseDefinition, LicenseDefinitionData)
+    """
+    The :py:class:`betty.license.License` plugins created by this project.
+    """
+
+    lifetime_threshold = Property(
+        IntDefinition(
+            label=_("Lifetime threshold"),
+            description=_(
+                "The number of years people are expected to live at most, e.g. after which they are presumed to have died."
+            ),
+        ),
+        omit_load=True,
+        omit_dump=lambda data: data == DEFAULT_LIFETIME_THRESHOLD,
+        resolver=assert_number(minimum=1),
+    )
+    """
+    The lifetime threshold indicates when people are considered dead.
+    """
+
+    loaders = KeyedCollectionProperty(
+        KeyedCollectionDefinition(
+            value=LoaderManufacturer,
+            label=LoaderDefinition.type().label_plural,
+            key=Attr("plugin_id"),
+            factory=lambda: MutableKeyedCollectionAdapter(
+                key=lambda data: data.plugin_id,
+                key_resolver=resolve_plugin_id,
+                value_resolver=LoaderManufacturer.resolve,
+            ),
+        ),
+        omit_load=True,
+        omit_dump=lambda data: not data,
+    )
+    """
+    The loaders to enable for the project.
+    """
+
+    locales = KeyedCollectionProperty(
+        KeyedCollectionDefinition(
+            value=ProjectLocale,
+            label=_("Locales"),
+            key=Attr("locale"),
+            order_dump=True,
+            factory=lambda: MutableKeyedCollectionAdapter(
+                key=lambda item: item.locale,
+                key_resolver=resolve_locale,
+                value_resolver=lambda value: (
+                    value
+                    if isinstance(value, ProjectLocale)
+                    else ProjectLocale(resolve_locale(value))
+                ),
+            ),
+        ),
+        omit_load=True,
+        omit_dump=lambda data: not data,
+        default=lambda: [DEFAULT_LOCALE],
+    )
+    """
+    The configured locales.
+    """
+
+    logo = Optional(Property(PathDefinition(), label=_("Logo")))
+    """
+    The project logo.
+    """
+
+    name = Optional(MachineNameProperty())
+    """
+    The project's machine name.
+    """
+
+    place_types = PluginDefinitionDatasProperty(
+        PlaceTypeDefinition, PlaceTypeDefinitionData
+    )
+    """
+    The :py:class:`betty.place_type.PlaceType` plugins created by this project.
+    """
+
+    roles = PluginDefinitionDatasProperty(RoleDefinition, RoleDefinitionData)
+    """
+    The :py:class:`betty.role.Role` plugins created by this project.
+    """
+
+    title = LocalizableProperty(label=_("Title"))
+    """
+    The human-readable project title.
+    """
+
+    url = Property(
+        StrDefinition(
+            label=_("URL"),
+            description=_(
+                "The absolute, public URL at which the site will be published."
+            ),
+        ),
+        resolver=assert_url(),
+    )
+    """
+    The project's public URL.
+    """
+
+    def __init__(
+        self,
+        *,
+        title: ResolvableLocalizable,
+        url: str,
+        author: ResolvableLocalizable | None = None,
+        clean_urls: bool = False,
+        copyright_notice: ResolvablePluginManufacturer[
+            CopyrightNoticeDefinition, CopyrightNotice
+        ]
+        | None = None,
+        copyright_notices: Iterable[CopyrightNoticeDefinitionData] = (),
+        debug: bool = False,
+        enrichers: ResolvablePluginManufacturerSequence[
+            EnricherDefinition, Enricher
+        ] = (),
+        event_types: Iterable[EventTypeDefinition] = (),
+        extensions: ResolvablePluginManufacturerSequence[
+            ExtensionDefinition, Extension
+        ] = (),
+        generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]]
+        | None = None,
+        genders: Iterable[GenderDefinitionData] = (),
+        license: ResolvablePluginManufacturer[LicenseDefinition, License] | None = None,  # noqa: A002
+        licenses: Iterable[LicenseDefinitionData] = (),
+        lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,
+        loaders: ResolvablePluginManufacturerSequence[LoaderDefinition, Loader] = (),
+        locales: Iterable[ResolvableLocale | ProjectLocale] = (),
+        logo: StrPath | None = None,
+        name: ResolvableMachineName | None = None,
+        place_types: Iterable[PlaceTypeDefinitionData] = (),
+        roles: Iterable[RoleDefinitionData] = (),
+    ):
+        super().__init__()
+        self.author = author
+        self.clean_urls = clean_urls
+        if copyright_notice is not None:
+            self.copyright_notice = CopyrightNoticeManufacturer.resolve(
+                copyright_notice
+            )
+        if copyright_notices is not None:
+            self.copyright_notices = copyright_notices
+        self.debug = debug
+        self.enrichers = enrichers  # ty:ignore[invalid-assignment]
+        self.event_types = event_types
+        self.extensions = extensions  # ty:ignore[invalid-assignment]
+        self.generate_entity_list_html = generate_entity_list_html
+        self.genders = genders
+        if license is not None:
+            self.license = LicenseManufacturer.resolve(license)
+        self.licenses = licenses
+        self.lifetime_threshold = lifetime_threshold
+        self.loaders = loaders  # ty:ignore[invalid-assignment]
+        self.logo = logo
+        self.locales = locales  # ty:ignore[invalid-assignment]
+        self.name = name
+        self.place_types = place_types
+        self.roles = roles
+        self.title = title
+        self.url = url
+
+    @classmethod
+    def _default_copyright_notice(cls) -> CopyrightNoticeManufacturer:
+        from betty.plugins.copyright_notice.project_author import ProjectAuthor
+
+        return CopyrightNoticeManufacturer(ProjectAuthor)
+
+    @classmethod
+    def _default_license(cls) -> LicenseManufacturer:
+        from betty.plugins.license.all_rights_reserved import AllRightsReserved
+
+        return LicenseManufacturer(AllRightsReserved)

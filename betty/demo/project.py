@@ -13,13 +13,13 @@ from betty.license import LicenseManufacturer
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Chain
-from betty.plugins.content.raspberry_mint_columns import Columns, ColumnsConfiguration
+from betty.plugins.content.raspberry_mint_columns import Columns, ColumnsData
 from betty.plugins.content.raspberry_mint_entity_card import EntityCard
 from betty.plugins.content.raspberry_mint_incomplete_translation_warning import (
     IncompleteTranslationWarning,
 )
-from betty.plugins.content.raspberry_mint_section import Section, SectionConfiguration
-from betty.plugins.content.render import Render, RenderConfiguration
+from betty.plugins.content.raspberry_mint_section import Section, SectionData
+from betty.plugins.content.render import Render, RenderData
 from betty.plugins.content.wikipedia_summary import WikipediaSummary
 from betty.plugins.enricher.deriver import Deriver
 from betty.plugins.enricher.wiki import Wiki
@@ -32,7 +32,7 @@ from betty.plugins.extension.maps import Maps
 from betty.plugins.extension.raspberry_mint import (
     Breakpoint,
     RaspberryMint,
-    RaspberryMintConfiguration,
+    RaspberryMintData,
     Region,
 )
 from betty.plugins.extension.spdx import Spdx
@@ -71,24 +71,24 @@ async def create_project(
             Spdx,
             ExtensionManufacturer(
                 RaspberryMint,
-                RaspberryMintConfiguration(
+                RaspberryMintData(
                     regional_content={
                         Region.FRONT_PAGE_CONTENT: [
                             ContentManufacturer(
                                 Columns,
-                                ColumnsConfiguration([[IncompleteTranslationWarning]]),
+                                ColumnsData([[IncompleteTranslationWarning]]),
                             ),
                             ContentManufacturer(
                                 Section,
-                                SectionConfiguration(
+                                SectionData(
                                     ContentManufacturer(
                                         Columns,
-                                        ColumnsConfiguration(
+                                        ColumnsData(
                                             [
                                                 [
                                                     ContentManufacturer(
                                                         Render,
-                                                        RenderConfiguration(
+                                                        RenderData(
                                                             Chain(
                                                                 "<h2>",
                                                                 _("Get started"),
@@ -109,7 +109,7 @@ async def create_project(
                                                 [
                                                     ContentManufacturer(
                                                         Render,
-                                                        RenderConfiguration(
+                                                        RenderData(
                                                             Chain(
                                                                 "<p>",
                                                                 _(
@@ -135,10 +135,10 @@ async def create_project(
                             ),
                             ContentManufacturer(
                                 Section,
-                                SectionConfiguration(
+                                SectionData(
                                     ContentManufacturer(
                                         Columns,
-                                        ColumnsConfiguration(
+                                        ColumnsData(
                                             [
                                                 [
                                                     ContentManufacturer(
@@ -182,7 +182,7 @@ async def create_project(
                         Region.FRONT_PAGE_SUMMARY: [
                             ContentManufacturer(
                                 Render,
-                                RenderConfiguration(
+                                RenderData(
                                     _(
                                         "Betty is an application that takes a family tree and builds a website out of it, much like the one you are viewing right now. The more information your genealogical research contains, the more interactivity Betty can add to your site, such as media galleries, maps, and browsable family trees."
                                     )

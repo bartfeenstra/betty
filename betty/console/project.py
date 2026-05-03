@@ -18,8 +18,7 @@ from betty.exception import HumanFacingException
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import AnyEnumeration
 from betty.portable.file import assert_load_file
-from betty.project import Project
-from betty.project.data import ProjectConfiguration
+from betty.project import Project, ProjectData
 from betty.serde import Serializer
 from betty.user import User
 
@@ -77,7 +76,7 @@ async def add_project_argument(
 
 async def _read_project_configuration(
     provided_configuration_file: Path | None, app: App
-) -> tuple[ProjectConfiguration, Path]:
+) -> tuple[ProjectData, Path]:
     serializers = await gather(*app.serializers)
     project_directory = Path.cwd()
     if provided_configuration_file is None:
@@ -113,7 +112,7 @@ async def _read_project_configuration(
 
 async def _read_project_configuration_file(
     configuration_file: Path, serializers: Iterable[Serializer], user: User
-) -> tuple[ProjectConfiguration, Path]:
+) -> tuple[ProjectData, Path]:
     assert_configuration = assert_load_file(serializers=serializers)
     try:
         portable = assert_configuration(configuration_file)
@@ -126,4 +125,4 @@ async def _read_project_configuration_file(
                 configuration_file_path=str(configuration_file)
             ),
         )
-        return ProjectConfiguration.data().porter.load(portable), configuration_file
+        return ProjectData.data().porter.load(portable), configuration_file

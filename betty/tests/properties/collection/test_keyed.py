@@ -2,8 +2,8 @@ from typing import Any
 
 from betty.collection.keyed.adapter import MutableKeyedCollectionAdapter
 from betty.data import Data
-from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
-from betty.data.aggregate.record.object import ObjectDefinition
+from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
+from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.indicator.selector import Attr as AttrSelector
 from betty.properties.collection.keyed import KeyedCollectionProperty
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE

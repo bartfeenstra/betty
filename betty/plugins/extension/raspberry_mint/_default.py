@@ -6,16 +6,16 @@ from betty.content import Content, ContentDefinition, ContentManufacturer
 from betty.life_cycle import Bootstrappable
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
-from betty.plugins.content.box import Box, BoxConfiguration
+from betty.plugins.content.box import Box, BoxData
 from betty.plugins.content.map import Map
 from betty.plugins.content.map_attribution import MapAttribution
 from betty.plugins.content.notes import Notes
 from betty.plugins.content.raspberry_mint_citations import Citations
 from betty.plugins.content.raspberry_mint_color_style import (
     ColorStyle,
-    ColorStyleConfiguration,
+    ColorStyleData,
 )
-from betty.plugins.content.raspberry_mint_columns import Columns, ColumnsConfiguration
+from betty.plugins.content.raspberry_mint_columns import Columns, ColumnsData
 from betty.plugins.content.raspberry_mint_enclosees import Enclosees
 from betty.plugins.content.raspberry_mint_external_links import ExternalLinks
 from betty.plugins.content.raspberry_mint_facts import Facts
@@ -25,9 +25,9 @@ from betty.plugins.content.raspberry_mint_media import Media
 from betty.plugins.content.raspberry_mint_media_gallery import MediaGallery
 from betty.plugins.content.raspberry_mint_presences import (
     Presences,
-    PresencesConfiguration,
+    PresencesData,
 )
-from betty.plugins.content.raspberry_mint_section import Section, SectionConfiguration
+from betty.plugins.content.raspberry_mint_section import Section, SectionData
 from betty.plugins.content.raspberry_mint_timeline import Timeline
 from betty.plugins.content.tree import Tree
 from betty.plugins.content.wikipedia_summary import WikipediaSummary
@@ -80,10 +80,10 @@ class DefaultRegionalContent(Bootstrappable):
         if await check(self._project, *WikipediaSummary.plugin().requires):
             yield ContentManufacturer(
                 Section,
-                SectionConfiguration(
+                SectionData(
                     ContentManufacturer(
                         Columns,
-                        ColumnsConfiguration(
+                        ColumnsData(
                             [[WikipediaSummary]], width=SINGLE_COLUMN_TEXT_WIDTH
                         ),
                     ),
@@ -94,28 +94,24 @@ class DefaultRegionalContent(Bootstrappable):
         if await check(self._project, *Map.plugin().requires):
             yield ContentManufacturer(
                 Box,
-                BoxConfiguration(
-                    Map, min_height="500px", height="75vh", max_height="1000px"
-                ),
+                BoxData(Map, min_height="500px", height="75vh", max_height="1000px"),
             )
             yield ContentManufacturer(
                 ColorStyle,
-                ColorStyleConfiguration(
-                    ContentManufacturer(
-                        Columns, ColumnsConfiguration([[MapAttribution]])
-                    ),
+                ColorStyleData(
+                    ContentManufacturer(Columns, ColumnsData([[MapAttribution]])),
                     style=ColorStyleOption.LIGHT_CONTRAST,
                 ),
             )
         yield ContentManufacturer(
-            Columns, ColumnsConfiguration([[Enclosees]], width=SINGLE_COLUMN_TEXT_WIDTH)
+            Columns, ColumnsData([[Enclosees]], width=SINGLE_COLUMN_TEXT_WIDTH)
         )
         yield ContentManufacturer(
             Section,
-            SectionConfiguration(
+            SectionData(
                 ContentManufacturer(
                     Columns,
-                    ColumnsConfiguration([[Notes]], width=SINGLE_COLUMN_TEXT_WIDTH),
+                    ColumnsData([[Notes]], width=SINGLE_COLUMN_TEXT_WIDTH),
                 ),
                 heading=self._make_dumpable(_("Notes")),
                 name="notes",
@@ -123,29 +119,25 @@ class DefaultRegionalContent(Bootstrappable):
         )
         yield ContentManufacturer(
             Section,
-            SectionConfiguration(
-                ContentManufacturer(
-                    Presences, PresencesConfiguration(include=[Subject])
-                ),
+            SectionData(
+                ContentManufacturer(Presences, PresencesData(include=[Subject])),
                 heading=self._make_dumpable(_("Subjects")),
                 name="attendees-subject",
             ),
         )
         yield ContentManufacturer(
             Section,
-            SectionConfiguration(
-                ContentManufacturer(
-                    Presences, PresencesConfiguration(include=[Witness])
-                ),
+            SectionData(
+                ContentManufacturer(Presences, PresencesData(include=[Witness])),
                 heading=self._make_dumpable(_("Witnesses")),
                 name="attendees-witness",
             ),
         )
         yield ContentManufacturer(
             Section,
-            SectionConfiguration(
+            SectionData(
                 ContentManufacturer(
-                    Presences, PresencesConfiguration(exclude=[Subject, Witness])
+                    Presences, PresencesData(exclude=[Subject, Witness])
                 ),
                 heading=self._make_dumpable(_("Other attendees")),
                 name="attendees-other",
@@ -153,31 +145,29 @@ class DefaultRegionalContent(Bootstrappable):
         )
         yield ContentManufacturer(
             Section,
-            SectionConfiguration(
+            SectionData(
                 Families, heading=self._make_dumpable(_("Family")), name="family"
             ),
         )
         if await check(self._project, *Tree.plugin().requires):
             yield ContentManufacturer(
                 Box,
-                BoxConfiguration(
-                    Tree, min_height="500px", height="75vh", max_height="1000px"
-                ),
+                BoxData(Tree, min_height="500px", height="75vh", max_height="1000px"),
             )
         yield ContentManufacturer(
             Section,
-            SectionConfiguration(
-                ContentManufacturer(Columns, ColumnsConfiguration([[Timeline]])),
+            SectionData(
+                ContentManufacturer(Columns, ColumnsData([[Timeline]])),
                 heading=self._make_dumpable(_("Timeline")),
                 name="timeline",
             ),
         )
         yield ContentManufacturer(
             Section,
-            SectionConfiguration(
+            SectionData(
                 ContentManufacturer(
                     Columns,
-                    ColumnsConfiguration([[Facts]], width=SINGLE_COLUMN_TEXT_WIDTH),
+                    ColumnsData([[Facts]], width=SINGLE_COLUMN_TEXT_WIDTH),
                 ),
                 heading=self._make_dumpable(_("Facts")),
                 name="facts",
@@ -185,10 +175,10 @@ class DefaultRegionalContent(Bootstrappable):
         )
         yield ContentManufacturer(
             ColorStyle,
-            ColorStyleConfiguration(
+            ColorStyleData(
                 ContentManufacturer(
                     Section,
-                    SectionConfiguration(
+                    SectionData(
                         MediaGallery,
                         heading=self._make_dumpable(_("Media")),
                         name="media",
@@ -199,12 +189,10 @@ class DefaultRegionalContent(Bootstrappable):
         )
         yield ContentManufacturer(
             Section,
-            SectionConfiguration(
+            SectionData(
                 ContentManufacturer(
                     Columns,
-                    ColumnsConfiguration(
-                        [[FileReferees]], width=SINGLE_COLUMN_TEXT_WIDTH
-                    ),
+                    ColumnsData([[FileReferees]], width=SINGLE_COLUMN_TEXT_WIDTH),
                 ),
                 heading=self._make_dumpable(_("Appearances")),
                 name="appearances",
@@ -212,10 +200,10 @@ class DefaultRegionalContent(Bootstrappable):
         )
         yield ContentManufacturer(
             Section,
-            SectionConfiguration(
+            SectionData(
                 ContentManufacturer(
                     Columns,
-                    ColumnsConfiguration([[Citations]], width=SINGLE_COLUMN_TEXT_WIDTH),
+                    ColumnsData([[Citations]], width=SINGLE_COLUMN_TEXT_WIDTH),
                 ),
                 heading=self._make_dumpable(_("Citations")),
                 name="citations",
@@ -223,12 +211,10 @@ class DefaultRegionalContent(Bootstrappable):
         )
         yield ContentManufacturer(
             Section,
-            SectionConfiguration(
+            SectionData(
                 ContentManufacturer(
                     Columns,
-                    ColumnsConfiguration(
-                        [[ExternalLinks]], width=SINGLE_COLUMN_TEXT_WIDTH
-                    ),
+                    ColumnsData([[ExternalLinks]], width=SINGLE_COLUMN_TEXT_WIDTH),
                 ),
                 heading=self._make_dumpable(_("External links")),
                 name="external-links",

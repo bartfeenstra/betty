@@ -4,11 +4,11 @@ from betty.content import ContentManufacturer
 from betty.document import Document
 from betty.plugins.content.raspberry_mint_columns import (
     Columns,
-    ColumnsConfiguration,
+    ColumnsData,
     ColumnsWidth,
     ShorthandColumnsWidth,
 )
-from betty.plugins.content.render import Render, RenderConfiguration
+from betty.plugins.content.render import Render, RenderData
 from betty.plugins.extension.raspberry_mint import (
     Breakpoint,
     JustifyContent,
@@ -18,12 +18,12 @@ from betty.test_utils.data import DataTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
-class TestColumnsConfiguration(DataTestBase[ColumnsConfiguration]):
-    sut_cls = ColumnsConfiguration
+class TestColumnsData(DataTestBase[ColumnsData]):
+    sut_cls = ColumnsData
 
     def test_content(self) -> None:
-        content = ContentManufacturer(Render, RenderConfiguration(DUMMY_LOCALIZABLE))
-        sut = ColumnsConfiguration([content])
+        content = ContentManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))
+        sut = ColumnsData([content])
         assert list(map(list, sut.content)) == [[content]]
 
     @pytest.mark.parametrize(
@@ -37,8 +37,8 @@ class TestColumnsConfiguration(DataTestBase[ColumnsConfiguration]):
     )
     def test_width(self, expected: ColumnsWidth, width: ShorthandColumnsWidth) -> None:
         assert (
-            ColumnsConfiguration(
-                [[ContentManufacturer(Render, RenderConfiguration(DUMMY_LOCALIZABLE))]],
+            ColumnsData(
+                [[ContentManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))]],
                 width=width,
             ).width
             == expected
@@ -46,8 +46,8 @@ class TestColumnsConfiguration(DataTestBase[ColumnsConfiguration]):
 
     def test_justify_content(self) -> None:
         justify_content = JustifyContent.CENTER
-        sut = ColumnsConfiguration(
-            [[ContentManufacturer(Render, RenderConfiguration(DUMMY_LOCALIZABLE))]],
+        sut = ColumnsData(
+            [[ContentManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))]],
             justify_content=justify_content,
         )
         assert sut.justify_content == justify_content
@@ -60,12 +60,8 @@ class TestColumns:
         async with isolated_project_factory(supported_plugins=[Columns]) as project:
             sut = await Columns.new(
                 project,
-                ColumnsConfiguration([
-                    [
-                        ContentManufacturer(
-                            Render, RenderConfiguration(DUMMY_LOCALIZABLE)
-                        )
-                    ]
+                ColumnsData([
+                    [ContentManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))]
                 ]),
             )
             actual = await sut.build(document=Document())
@@ -78,14 +74,8 @@ class TestColumns:
         async with isolated_project_factory(supported_plugins=[Columns]) as project:
             sut = await Columns.new(
                 project,
-                ColumnsConfiguration(
-                    [
-                        [
-                            ContentManufacturer(
-                                Render, RenderConfiguration(DUMMY_LOCALIZABLE)
-                            )
-                        ]
-                    ],
+                ColumnsData(
+                    [[ContentManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))]],
                     width={Breakpoint.XS: 12, Breakpoint.LG: 6},
                 ),
             )
@@ -99,18 +89,10 @@ class TestColumns:
         async with isolated_project_factory(supported_plugins=[Columns]) as project:
             sut = await Columns.new(
                 project,
-                ColumnsConfiguration(
+                ColumnsData(
                     [
-                        [
-                            ContentManufacturer(
-                                Render, RenderConfiguration(DUMMY_LOCALIZABLE)
-                            )
-                        ],
-                        [
-                            ContentManufacturer(
-                                Render, RenderConfiguration(DUMMY_LOCALIZABLE)
-                            )
-                        ],
+                        [ContentManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))],
+                        [ContentManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))],
                     ],
                     width=[8, 4],
                 ),
@@ -126,18 +108,10 @@ class TestColumns:
         async with isolated_project_factory(supported_plugins=[Columns]) as project:
             sut = await Columns.new(
                 project,
-                ColumnsConfiguration(
+                ColumnsData(
                     [
-                        [
-                            ContentManufacturer(
-                                Render, RenderConfiguration(DUMMY_LOCALIZABLE)
-                            )
-                        ],
-                        [
-                            ContentManufacturer(
-                                Render, RenderConfiguration(DUMMY_LOCALIZABLE)
-                            )
-                        ],
+                        [ContentManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))],
+                        [ContentManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))],
                     ],
                     width={Breakpoint.XS: [8, 4], Breakpoint.LG: [7, 5]},
                 ),

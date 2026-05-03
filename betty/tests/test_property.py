@@ -2,7 +2,7 @@ import pytest
 
 from betty.assertion import assert_str
 from betty.data import DataDefinition, OptionalDefinition
-from betty.data.str import StrDefinition
+from betty.datas.str import StrDefinition
 from betty.functools import passthrough
 from betty.portable import CallbackPorter
 from betty.property import (

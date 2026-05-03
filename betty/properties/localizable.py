@@ -6,12 +6,12 @@ from __future__ import annotations
 
 from typing import final
 
+from betty.datas.localizable import LocalizableDefinition
 from betty.locale.localizable import (
     Localizable,
     ResolvableLocalizable,
     resolve_localizable,
 )
-from betty.locale.localizable.data import LocalizableDefinition
 from betty.property import Property
 
 

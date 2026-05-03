@@ -7,9 +7,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final
 
 from betty.collection.sequence import MutableResolvedSequence
+from betty.datas.plugin_manufacturer_sequence import (
+    PluginManufacturerSequenceDefinition,
+)
 from betty.plugin import PluginDefinition
 from betty.plugin.cls import Plugin
-from betty.plugin.data import PluginManufacturerSequenceDefinition
 from betty.plugin.factory import (
     PluginManufacturer,
     ResolvablePluginManufacturer,
