@@ -13,9 +13,9 @@ from betty.linked_data import (
 )
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.linked_data import dump_linked_data
-from betty.locale.localizable.property import LocalizableProperty
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.privacy import is_public
+from betty.properties.localizable import LocalizableProperty
 from betty.property import Optional
 
 if TYPE_CHECKING:

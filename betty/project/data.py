@@ -43,17 +43,20 @@ from betty.load import (
 )
 from betty.locale import DEFAULT_LOCALE, ResolvableLocale, resolve_locale
 from betty.locale.localizable.gettext import _
-from betty.locale.localizable.property import LocalizableProperty
-from betty.machine_name import MachineName, MachineNameProperty, ResolvableMachineName
+from betty.machine_name import MachineName, ResolvableMachineName
 from betty.pathlib.data import FilePathDefinition
 from betty.place_type import PlaceTypeDefinition
 from betty.place_type.data import PlaceTypeDefinitionConfiguration
-from betty.plugin.data.property import PluginDefinitionConfigurationsProperty
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.project import DEFAULT_LIFETIME_THRESHOLD, ExtensionDefinition, ProjectLocale
+from betty.properties.collection.keyed import KeyedCollectionProperty
+from betty.properties.collection.sequence import SequenceProperty
+from betty.properties.localizable import LocalizableProperty
+from betty.properties.machine_name import MachineNameProperty
+from betty.properties.plugin_definition_configurations import (
+    PluginDefinitionConfigurationsProperty,
+)
 from betty.property import Optional, Property
-from betty.property.collection.keyed import KeyedCollectionProperty
-from betty.property.collection.sequence import SequenceProperty
 from betty.role import RoleDefinition
 from betty.role.data import RoleDefinitionConfiguration
 from betty.sample import Size

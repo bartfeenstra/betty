@@ -5,7 +5,7 @@ from betty.data import Data
 from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.indicator.selector import Attr as AttrSelector
-from betty.property.collection.keyed import KeyedCollectionProperty
+from betty.properties.collection.keyed import KeyedCollectionProperty
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 

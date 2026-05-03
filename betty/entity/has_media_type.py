@@ -10,12 +10,13 @@ from betty.linked_data import (
     JsonLdObject,
     LinkedDataDumpableWithSchemaJsonLdObject,
 )
-from betty.media_type import MediaTypeProperty, ResolvableMediaType
 from betty.media_type.schema import MediaTypeSchema
 from betty.privacy import is_public
+from betty.properties.media_type import MediaTypeProperty
 from betty.property import Optional
 
 if TYPE_CHECKING:
+    from betty.media_type import ResolvableMediaType
     from betty.portable import PortableMapping
     from betty.project import Project
 

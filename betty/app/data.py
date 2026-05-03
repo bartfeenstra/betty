@@ -10,8 +10,8 @@ from betty.data import Data, Sample
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.dirs import APP_CONFIG_DIRECTORY
 from betty.locale import DEFAULT_LOCALE, ResolvableLocale, resolve_locale
-from betty.locale.data import LocaleProperty
 from betty.locale.localizable.gettext import _
+from betty.properties.locale import LocaleProperty
 from betty.property import Optional
 from betty.sample import Size
 

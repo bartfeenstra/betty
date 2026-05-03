@@ -20,8 +20,8 @@ from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Paragraph, do_you_mean
 from betty.plugin.data import PluginManufacturerSequenceDefinition
 from betty.plugins.extension.raspberry_mint.region import Region
+from betty.properties.collection.mapping import MappingProperty
 from betty.property import Optional, Property
-from betty.property.collection.mapping import MappingProperty
 from betty.sample import Size
 
 if TYPE_CHECKING:

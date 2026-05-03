@@ -10,8 +10,8 @@ from betty.entity import Entity, EntityDefinition
 from betty.entity.has_date import HasDate
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
-from betty.locale.localizable.property import LocalizableProperty
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
+from betty.properties.localizable import LocalizableProperty
 
 if TYPE_CHECKING:
     from betty.date import ResolvableDate

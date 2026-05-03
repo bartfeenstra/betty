@@ -1,0 +1,36 @@
+"""
+Machine name properties.
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, final
+
+from betty.locale.localizable.gettext import _
+from betty.machine_name import _MACHINE_NAME_DESCRIPTION, MachineName
+from betty.property import Property
+
+if TYPE_CHECKING:
+    from betty.locale.localizable import ResolvableLocalizable
+
+
+@final
+class MachineNameProperty(Property):
+    """
+    A property containing a machine name.
+    """
+
+    def __init__(
+        self,
+        *,
+        label: ResolvableLocalizable | None = None,
+        description: ResolvableLocalizable | None = None,
+    ):
+        super().__init__(
+            data=MachineName,
+            label=_("Name") if label is None else label,
+            description=_MACHINE_NAME_DESCRIPTION
+            if description is None
+            else description,
+            resolver=MachineName.resolve,
+        )

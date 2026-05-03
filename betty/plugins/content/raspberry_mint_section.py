@@ -13,12 +13,14 @@ from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.bool import BoolDefinition
 from betty.factory import DataManufacturable
 from betty.locale.localizable.gettext import _
-from betty.locale.localizable.property import LocalizableProperty
-from betty.machine_name import MachineName, MachineNameProperty, ResolvableMachineName
-from betty.plugin.data.property import PluginManufacturerSequenceProperty
 from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project
+from betty.properties.localizable import LocalizableProperty
+from betty.properties.machine_name import MachineNameProperty
+from betty.properties.plugin_manufacturer_sequence import (
+    PluginManufacturerSequenceProperty,
+)
 from betty.property import Optional, Property
 from betty.sample import Sample, Size
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
@@ -29,6 +31,7 @@ if TYPE_CHECKING:
     from betty.document import Document
     from betty.jinja import Environment
     from betty.locale.localizable import ResolvableLocalizable
+    from betty.machine_name import MachineName, ResolvableMachineName
     from betty.plugin.factory import ResolvablePluginManufacturerSequence
 
 

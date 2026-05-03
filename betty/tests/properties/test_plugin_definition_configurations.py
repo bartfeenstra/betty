@@ -1,31 +1,14 @@
 from collections.abc import Iterable
 from typing import override
 
-from betty.collection.sequence.adapter import MutableResolvedSequenceAdapter
 from betty.data import Data
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.plugin.data import PluginDefinitionConfiguration
-from betty.plugin.data.property import (
+from betty.properties.plugin_definition_configurations import (
     PluginDefinitionConfigurationsProperty,
-    PluginManufacturerSequenceProperty,
 )
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
-from betty.test_utils.plugin import (
-    DummyPluginDefinition,
-    DummyPluginManufacturer,
-    DummyPluginOne,
-)
-
-
-class TestPluginManufacturerSequenceProperty:
-    class _Instance:
-        attr = PluginManufacturerSequenceProperty(DummyPluginManufacturer)
-
-    def test___set__(self) -> None:
-        instance = self._Instance()
-        instance.attr = DummyPluginOne
-        assert isinstance(instance.attr, MutableResolvedSequenceAdapter)
-        assert list(instance.attr) == [DummyPluginManufacturer(DummyPluginOne)]
+from betty.test_utils.plugin import DummyPluginDefinition
 
 
 class TestPluginDefinitionConfigurationsProperty:
