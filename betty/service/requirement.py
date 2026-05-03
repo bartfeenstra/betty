@@ -12,7 +12,7 @@ from betty.service import ServiceError, ServiceManager
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from betty.data.indicator import Indicator
+    from betty.indicator import Indicator
     from betty.locale.localizable import ResolvableLocalizable
 
 

@@ -15,11 +15,11 @@ from urllib.parse import quote, urlsplit
 from geopy import Point
 
 from betty.assertion import assert_float, assert_mapping, assert_str
-from betty.data.indicator import Url
-from betty.data.indicator.selector import Index, Key, SelectorError, Selectors
 from betty.exception import HumanFacingException, reraise_with_indicator
 from betty.file import write
 from betty.hashid import hashid
+from betty.indicator import Url
+from betty.indicator.selector import Index, Key, SelectorError, Selectors
 from betty.locale.localizable.gettext import _
 from betty.media_type import MediaType
 

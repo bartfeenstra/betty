@@ -13,9 +13,9 @@ from betty.content import Content, ContentDefinition, ContentManufacturer
 from betty.data import Data, Sample
 from betty.data.aggregate.collection.mapping import MappingDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
-from betty.data.indicator.selector import Attr, Key
 from betty.data.str import StrDefinition
 from betty.exception import HumanFacingException, reraise_with_indicator
+from betty.indicator.selector import Attr, Key
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Paragraph, do_you_mean
 from betty.plugin.data import PluginManufacturerSequenceDefinition

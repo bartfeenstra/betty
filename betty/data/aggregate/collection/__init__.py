@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any
 
 from betty.data import DataDefinition
 from betty.data.aggregate import AggregateDefinition
-from betty.data.indicator.selector import Element
+from betty.indicator.selector import Element
 
 if TYPE_CHECKING:
     from betty.data import Data

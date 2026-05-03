@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, final
 from betty.assertion import assert_mapping, assert_sequence
 from betty.collection.keyed import KeyedCollection, MutableKeyedCollection
 from betty.data.aggregate.collection import CollectionDefinition
-from betty.data.indicator.selector import Element
+from betty.indicator.selector import Element
 from betty.portable import (
     CallbackPorter,
     PortableData,

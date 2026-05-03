@@ -12,8 +12,8 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.data import DataDefinition
 from betty.data.aggregate.record import FieldDefinition, RecordDefinition
-from betty.data.indicator.selector import Attr as AttrElement
 from betty.importlib import fully_qualified_name
+from betty.indicator.selector import Attr as AttrElement
 from betty.locale.localizable import resolve_localizable
 
 if TYPE_CHECKING:

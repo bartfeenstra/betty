@@ -169,13 +169,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/data/aggregate/record/object/__init__.py": {
         "Attr": MissingReason.ABSTRACT,
     },
-    "betty/data/indicator/__init__.py": {
-        "Indicator": MissingReason.ABSTRACT,
-    },
-    "betty/data/indicator/selector.py": {
-        "Indicator": MissingReason.ABSTRACT,
-        "Selector": MissingReason.ABSTRACT,
-    },
     "betty/date/__init__.py": {
         "IncompleteDateError": MissingReason.STATIC_CONTENT_ONLY,
     },
@@ -241,6 +234,13 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/http_client/rate_limit.py": {
         "RateLimitDefinition": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/indicator/__init__.py": {
+        "Indicator": MissingReason.ABSTRACT,
+    },
+    "betty/indicator/selector.py": {
+        "Indicator": MissingReason.ABSTRACT,
+        "Selector": MissingReason.ABSTRACT,
     },
     "betty/jinja/__init__.py": {
         "context_document": MissingReason.SHOULD_BE_COVERED,

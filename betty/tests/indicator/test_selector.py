@@ -3,8 +3,8 @@ from typing import Any, override
 
 import pytest
 
-from betty.data.indicator import Indicator
-from betty.data.indicator.selector import (
+from betty.indicator import Indicator
+from betty.indicator.selector import (
     Attr,
     Element,
     Index,

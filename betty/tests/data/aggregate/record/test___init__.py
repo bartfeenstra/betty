@@ -14,9 +14,9 @@ from betty.data.aggregate.record import (
     RecordPorter,
 )
 from betty.data.bool import BoolDefinition
-from betty.data.indicator.selector import Attr, Key
 from betty.data.str import StrDefinition
 from betty.exception import HumanFacingException
+from betty.indicator.selector import Attr, Key
 from betty.locale.localizable.plain import Plain
 from betty.portable import PortableData
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE

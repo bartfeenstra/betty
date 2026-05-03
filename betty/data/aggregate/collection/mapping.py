@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, final
 
 from betty.data import DataDefinition
 from betty.data.aggregate.collection import CollectionDefinition
-from betty.data.indicator.selector import Key
+from betty.indicator.selector import Key
 from betty.portable import CallbackPorter, PortableData, Porter
 
 if TYPE_CHECKING:

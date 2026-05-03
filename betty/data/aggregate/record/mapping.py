@@ -8,7 +8,7 @@ from collections.abc import MutableMapping
 from typing import Any, final
 
 from betty.data.aggregate.record import RecordDefinition
-from betty.data.indicator.selector import Key
+from betty.indicator.selector import Key
 
 
 @final

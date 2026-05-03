@@ -20,9 +20,9 @@ from types import NoneType
 from typing import TYPE_CHECKING, Any, final, overload
 from urllib.parse import urlsplit, urlunsplit
 
-from betty.data.indicator.selector import Index, Key
 from betty.error import FileNotFound
 from betty.exception import HumanFacingException, reraise_with_indicator
+from betty.indicator.selector import Index, Key
 from betty.locale import from_language_tag
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Paragraph, Paragraphs, do_you_mean

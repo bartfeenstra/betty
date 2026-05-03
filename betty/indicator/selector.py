@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, final, override
 
-from betty.data.indicator import Indicator
+from betty.indicator import Indicator
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, MutableSequence, Sequence
@@ -98,7 +98,7 @@ class Selectors(Selector):
     @classmethod
     def reduce(cls, *indicators: Indicator) -> Sequence[Indicator]:
         """
-        Reduce all consecutive instances of py:class:`betty.data.indicator.selector.Selector` to a single instance of this class.
+        Reduce all consecutive instances of py:class:`betty.indicator.selector.Selector` to a single instance of this class.
 
         All other indicators are kept verbatim.
         """

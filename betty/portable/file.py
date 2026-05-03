@@ -9,9 +9,9 @@ from contextlib import chdir
 from typing import TYPE_CHECKING
 
 from betty.assertion import AssertionChain, assert_file
-from betty.data.indicator import Path as DataPath
 from betty.exception import reraise_with_indicator
 from betty.file import write
+from betty.indicator import Path as DataPath
 from betty.pathlib import resolve_path
 from betty.serde import Serializer, serializer_for
 
