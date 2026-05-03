@@ -8,13 +8,14 @@ from typing import Any, override
 from betty.collection.keyed import KeyedCollection, MutableKeyedCollection
 
 
-class _KeyedCollectionProxy[
-    KeyT,
-    ResolvableKeyT,
-    ValueT,
-    KeyedCollectionT: KeyedCollection,
-](KeyedCollection[KeyT, ResolvableKeyT, ValueT]):
-    def __init__(self, upstream: KeyedCollectionT, /):
+class KeyedCollectionProxy[KeyT, ResolvableKeyT, ValueT](
+    KeyedCollection[KeyT, ResolvableKeyT, ValueT]
+):
+    """
+    A keyed collection proxy.
+    """
+
+    def __init__(self, upstream: KeyedCollection[KeyT, ResolvableKeyT, ValueT], /):
         self._upstream = upstream
 
     @override
@@ -38,28 +39,15 @@ class _KeyedCollectionProxy[
         return self._upstream.keys()
 
 
-class KeyedCollectionProxy[KeyT, ResolvableKeyT, ValueT](
-    _KeyedCollectionProxy[
-        KeyT, ResolvableKeyT, ValueT, KeyedCollection[KeyT, ResolvableKeyT, ValueT]
-    ]
-):
-    """
-    A keyed collection proxy.
-    """
-
-
 class MutableKeyedCollectionProxy[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
-    _KeyedCollectionProxy[
-        KeyT,
-        ResolvableKeyT,
-        ValueT,
-        MutableKeyedCollection[KeyT, ResolvableKeyT, ValueT, ResolvableValueT],
-    ],
+    KeyedCollectionProxy[KeyT, ResolvableKeyT, ValueT],
     MutableKeyedCollection[KeyT, ResolvableKeyT, ValueT, ResolvableValueT],
 ):
     """
     A mutable keyed collection proxy.
     """
+
+    _upstream: MutableKeyedCollection[KeyT, ResolvableKeyT, ValueT, ResolvableValueT]
 
     @override
     def remove(self, *keys: KeyT | ResolvableKeyT) -> None:

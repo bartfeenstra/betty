@@ -1,5 +1,7 @@
 from typing import Any
 
+import pytest
+
 from betty.collection.sequence.adapter import (
     MutableResolvedSequenceAdapter,
     ResolvedSequenceAdapter,
@@ -26,6 +28,27 @@ class TestResolvedSequenceAdapter:
 
         sut = ResolvedSequenceAdapter([], value_resolver=_resolver)
         assert object() not in sut
+
+    def test_index(self) -> None:
+        sut = ResolvedSequenceAdapter(["NotTrue", "True", "True"], value_resolver=str)
+        assert sut.index(True) == 1
+
+    def test_index__with_start(self) -> None:
+        sut = ResolvedSequenceAdapter(["True", "NotTrue", "True"], value_resolver=str)
+        assert (
+            sut.index(
+                True,
+                1,
+            )
+            == 2
+        )
+
+    def test_index__with_stop(self) -> None:
+        sut = ResolvedSequenceAdapter(["NotTrue", "True"], value_resolver=str)
+        with pytest.raises(
+            ValueError,  # noqa: PT011
+        ):
+            sut.index(True, 0, 1)
 
 
 class TestMutableResolvedSequenceAdapter:

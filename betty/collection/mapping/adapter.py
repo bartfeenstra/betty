@@ -12,16 +12,20 @@ from collections.abc import (
 )
 from contextlib import suppress
 from itertools import chain
-from typing import Any, final, overload, override
+from typing import Any, overload, override
 
 from betty.collection.mapping import MutableResolvedMapping, ResolvedMapping
 from betty.functools import passthrough
 from betty.typing import Void
 
 
-class _ResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT](
+class ResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT](
     ResolvedMapping[KeyT, ResolvableKeyT, ValueT]
 ):
+    """
+    Decorate another mapping to resolve any values before proxying them.
+    """
+
     def __init__(
         self,
         upstream: Mapping[KeyT, ValueT],
@@ -31,7 +35,6 @@ class _ResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT](
         self._upstream = upstream
         self._key_resolver = key_resolver
 
-    @final
     @override
     def __getitem__(self, key: KeyT | ResolvableKeyT) -> ValueT:
         return self._upstream[self._key_resolver(key)]
@@ -44,22 +47,18 @@ class _ResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT](
     def get(self, key: KeyT | ResolvableKeyT, default: None = None, /) -> ValueT | None:
         pass
 
-    @final
     @override
     def get(self, key, default=None):
         return self._upstream.get(self._key_resolver(key), default)
 
-    @final
     @override
     def __iter__(self) -> Iterator[KeyT]:
         return iter(self._upstream)
 
-    @final
     @override
     def __len__(self) -> int:
         return len(self._upstream)
 
-    @final
     @override
     def __contains__(self, key: Any) -> bool:
         with suppress(Exception):
@@ -67,18 +66,8 @@ class _ResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT](
         return key in self._upstream
 
 
-@final
-class ResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT](
-    _ResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT]
-):
-    """
-    Decorate another mapping to resolve any values before proxying them.
-    """
-
-
-@final
 class MutableResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
-    _ResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT],
+    ResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT],
     MutableResolvedMapping[KeyT, ResolvableKeyT, ValueT, ResolvableValueT],
 ):
     """

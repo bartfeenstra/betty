@@ -4,12 +4,16 @@ Adapters between Betty and Python sequences.
 
 from collections.abc import Callable, Iterable, MutableSequence, Sequence
 from contextlib import suppress
-from typing import Any, final, overload, override
+from typing import Any, overload, override
 
 from betty.collection.sequence import MutableResolvedSequence
 
 
-class _ResolvedSequenceAdapter[ValueT, ResolvableValueT](Sequence[ValueT]):
+class ResolvedSequenceAdapter[ValueT, ResolvableValueT](Sequence[ValueT]):
+    """
+    Decorate another sequence to resolve any values before proxying them.
+    """
+
     def __init__(
         self,
         upstream: Sequence[ValueT],
@@ -27,40 +31,29 @@ class _ResolvedSequenceAdapter[ValueT, ResolvableValueT](Sequence[ValueT]):
     def __getitem__(self, index: slice) -> MutableSequence[ValueT]:
         pass
 
-    @final
     def __getitem__(self, index):
         return self._upstream[index]
 
-    @final
     def __len__(self):
         return len(self._upstream)
 
-    @final
     def __contains__(self, value: Any) -> bool:
         with suppress(Exception):
             value = self._value_resolver(value)
         return value in self._upstream
 
-    @final
     @override
-    def index(self, value: Any, start: int = 0, stop: int = -1) -> int:
+    def index(self, value: Any, start: int = 0, stop: int | None = None) -> int:
         with suppress(Exception):
             value = self._value_resolver(value)
-        return self._upstream.index(value, start, stop)
+        args = (value, start)
+        if stop is not None:
+            args = (*args, stop)
+        return self._upstream.index(*args)
 
 
-@final
-class ResolvedSequenceAdapter[ValueT, ResolvableValueT](
-    _ResolvedSequenceAdapter[ValueT, ResolvableValueT]
-):
-    """
-    Decorate another sequence to resolve any values before proxying them.
-    """
-
-
-@final
 class MutableResolvedSequenceAdapter[ValueT, ResolvableValueT](
-    _ResolvedSequenceAdapter[ValueT, ResolvableValueT],
+    ResolvedSequenceAdapter[ValueT, ResolvableValueT],
     MutableResolvedSequence[ValueT, ResolvableValueT],
 ):
     """
