@@ -10,8 +10,8 @@ from betty.data import Data, Sample
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.str import StrDefinition
 from betty.locale.localizable.gettext import _
-from betty.machine_name import MachineNameProperty
 from betty.plugin.resolve import resolve_plugin_id
+from betty.properties.machine_name import MachineNameProperty
 from betty.property import Property
 
 if TYPE_CHECKING:

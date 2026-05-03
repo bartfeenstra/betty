@@ -2,7 +2,7 @@ from betty.data import Data
 from betty.data.aggregate.collection.mapping import MappingDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.str import StrDefinition
-from betty.property.collection.mapping import MappingProperty
+from betty.properties.collection.mapping import MappingProperty
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 

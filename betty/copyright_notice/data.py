@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING, Any, final, override
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.locale.localizable.gettext import _
-from betty.locale.localizable.property import LocalizableProperty
 from betty.plugin.data import HumanFacingPluginDefinitionConfiguration
+from betty.properties.localizable import LocalizableProperty
 from betty.sample import Sample
 
 if TYPE_CHECKING:

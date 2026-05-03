@@ -3,7 +3,7 @@ from typing import Any
 import pytest
 
 from betty.exception import HumanFacingException
-from betty.machine_name import InvalidMachineName, MachineName, MachineNameProperty
+from betty.machine_name import InvalidMachineName, MachineName
 
 VALID_MACHINE_NAMES = (
     "a",
@@ -97,15 +97,3 @@ class TestInvalidMachineName:
     def test_new(self) -> None:
         value = "my-first-machine-name"
         assert value in str(InvalidMachineName(value))
-
-
-class TestMachineNameProperty:
-    class _Owner:
-        name = MachineNameProperty()
-
-    def test(self) -> None:
-        name = "hello-world"
-        owner = self._Owner()
-        owner.name = name
-        assert isinstance(owner.name, MachineName)
-        assert owner.name == name

@@ -5,7 +5,7 @@ Machine names.
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Self, final, override
+from typing import Self, final, override
 
 from betty.assertion import assert_str
 from betty.data import Data, DataDefinition
@@ -13,10 +13,6 @@ from betty.exception import HumanFacingException
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Paragraph
 from betty.portable import Portable, PortableData
-from betty.property import Property
-
-if TYPE_CHECKING:
-    from betty.locale.localizable import ResolvableLocalizable
 
 _MACHINE_NAME_DESCRIPTION = _(
     "A machine name is an identifier of at most 250 characters long, made up of lowercase letters, numbers, and/or hyphens (-)."
@@ -83,28 +79,6 @@ class MachineName(Portable[str], str, Data):
 
 
 type ResolvableMachineName = MachineName | str
-
-
-@final
-class MachineNameProperty(Property):
-    """
-    A property containing a machine name.
-    """
-
-    def __init__(
-        self,
-        *,
-        label: ResolvableLocalizable | None = None,
-        description: ResolvableLocalizable | None = None,
-    ):
-        super().__init__(
-            data=MachineName,
-            label=_("Name") if label is None else label,
-            description=_MACHINE_NAME_DESCRIPTION
-            if description is None
-            else description,
-            resolver=MachineName.resolve,
-        )
 
 
 @final

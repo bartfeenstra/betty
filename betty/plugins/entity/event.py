@@ -25,7 +25,6 @@ from betty.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.markup import AllEnumeration
-from betty.locale.localizable.property import LocalizableProperty
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.plugin.schema import PluginIdSchema
 from betty.plugins.entity.place import Place
@@ -33,6 +32,7 @@ from betty.plugins.entity.presence import Presence
 from betty.plugins.event_type.unknown import Unknown as UnknownEventType
 from betty.plugins.role.subject import Subject
 from betty.privacy import HasPrivacy, Privacy
+from betty.properties.localizable import LocalizableProperty
 from betty.property import Optional
 
 if TYPE_CHECKING:

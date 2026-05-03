@@ -28,12 +28,9 @@ from betty.place_type import PlaceTypeDefinition, PlaceTypeManufacturer
 from betty.plugin import PluginDefinition
 from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
-from betty.property import (
-    Optional,
-    Property,
-)
-from betty.property.collection.mapping import MappingProperty
-from betty.property.collection.sequence import SequenceProperty
+from betty.properties.collection.mapping import MappingProperty
+from betty.properties.collection.sequence import SequenceProperty
+from betty.property import Optional, Property
 from betty.role import RoleDefinition, RoleManufacturer
 from betty.sample import Size
 

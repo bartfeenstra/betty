@@ -15,12 +15,10 @@ from betty.data import Data
 from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.locale.localizable.gettext import _
-from betty.locale.localizable.property import (
-    CountableLocalizableProperty,
-    LocalizableProperty,
-)
-from betty.machine_name import MachineNameProperty, ResolvableMachineName
 from betty.plugin import PluginDefinition
+from betty.properties.countable_localizable import CountableLocalizableProperty
+from betty.properties.localizable import LocalizableProperty
+from betty.properties.machine_name import MachineNameProperty
 from betty.property import Optional
 
 if TYPE_CHECKING:
@@ -28,6 +26,7 @@ if TYPE_CHECKING:
         ResolvableCountableLocalizable,
         ResolvableLocalizable,
     )
+    from betty.machine_name import ResolvableMachineName
     from betty.plugin.factory import PluginManufacturer
 
 

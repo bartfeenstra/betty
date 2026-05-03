@@ -9,7 +9,6 @@ from betty.media_type import (
     InvalidMediaType,
     MediaType,
     MediaTypeDefinition,
-    MediaTypeProperty,
     UnsupportedMediaType,
     match_extension,
     match_media_type,
@@ -360,14 +359,3 @@ def test_resolve_media_type__with_media_type_definition() -> None:
         resolve_media_type(MediaTypeDefinition("-", label="-", media_type=media_type))
         is media_type
     )
-
-
-class TestMediaTypeProperty:
-    def test_resolve(self) -> None:
-        class Cls:
-            media_type = MediaTypeProperty()
-
-        instance = Cls()
-        media_type = MediaType("text/plain")
-        instance.media_type = MediaTypeDefinition("-", label="-", media_type=media_type)
-        assert instance.media_type is media_type

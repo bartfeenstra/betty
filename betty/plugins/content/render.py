@@ -11,16 +11,17 @@ from betty.data import Data
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.factory import DataManufacturable
 from betty.locale.localizable.gettext import _
-from betty.locale.localizable.property import LocalizableProperty
 from betty.locale.localize import resolve_localized
-from betty.media_type import MediaTypeProperty, ResolvableMediaType
 from betty.plugins.media_type.plain_text import PLAIN_TEXT
 from betty.project import Project
+from betty.properties.localizable import LocalizableProperty
+from betty.properties.media_type import MediaTypeProperty
 from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
     from betty.document import Document
     from betty.locale.localizable import ResolvableLocalizable
+    from betty.media_type import ResolvableMediaType
     from betty.render import RenderDispatcher
 
 
