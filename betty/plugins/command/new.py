@@ -23,8 +23,8 @@ from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.plugins.extension.trees import Trees
 from betty.plugins.extension.webpack import Webpack
 from betty.plugins.extension.wiki import Wiki as WikiExtension
-from betty.plugins.loader.gramps import FamilyTree, Gramps, GrampsConfiguration
-from betty.project.data import ProjectConfiguration
+from betty.plugins.loader.gramps import FamilyTree, Gramps, GrampsData
+from betty.project import ProjectData
 from betty.project.new import new
 from betty.typing import Void
 
@@ -120,7 +120,7 @@ class New(Manufacturable, Command):
             configuration.loaders.add(
                 LoaderManufacturer(
                     Gramps,
-                    GrampsConfiguration(
+                    GrampsData(
                         family_trees=[
                             FamilyTree(
                                 await self._app.user.ask_input(
@@ -153,8 +153,8 @@ async def _user_input_static_translations(
     )
 
 
-def _new_default_configuration() -> ProjectConfiguration:
-    return ProjectConfiguration(
+def _new_default_configuration() -> ProjectData:
+    return ProjectData(
         enrichers=[
             Deriver,
             Privatizer,

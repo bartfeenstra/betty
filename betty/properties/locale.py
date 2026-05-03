@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
+from betty.datas.locale import LocaleDefinition
 from betty.locale import resolve_locale
-from betty.locale.data import LocaleDefinition
 from betty.property import Property
 
 if TYPE_CHECKING:

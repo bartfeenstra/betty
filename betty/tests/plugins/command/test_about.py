@@ -2,7 +2,7 @@ from json import dumps
 from pathlib import Path
 
 from betty.file import write
-from betty.project.data import ProjectConfiguration
+from betty.project import ProjectData
 from betty.rich.user import RichUser
 from betty.test_utils.conftest import IsolatedAppFactory
 from betty.test_utils.console import run
@@ -18,9 +18,7 @@ class TestAbout:
         self, isolated_app_factory: IsolatedAppFactory, tmp_path: Path
     ) -> None:
         async with isolated_app_factory(user=RichUser()) as app:
-            configuration = ProjectConfiguration(
-                title="Betty", url="https://example.com"
-            )
+            configuration = ProjectData(title="Betty", url="https://example.com")
             await write(
                 tmp_path / "betty.json",
                 dumps(configuration.data().porter.dump(configuration)),

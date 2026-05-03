@@ -7,8 +7,8 @@ from typing import Any
 import pytest
 
 from betty.data import Data
-from betty.data.aggregate.record.object import ObjectDefinition
-from betty.data.str import StrDefinition
+from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.str import StrDefinition
 from betty.importlib import fully_qualified_name
 from betty.locale.localizable.plain import Plain
 from betty.locale.localize import DEFAULT_LOCALIZER

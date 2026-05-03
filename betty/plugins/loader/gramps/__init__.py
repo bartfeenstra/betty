@@ -4,24 +4,271 @@ Integrate Betty with `Gramps <https://gramps-project.org>`_.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, final, override
+from collections.abc import Iterable, Mapping, MutableMapping
+from typing import (
+    TYPE_CHECKING,
+    Self,
+    final,
+    override,
+)
 
+from betty.collection.mapping import MutableResolvedMapping
+from betty.collection.mapping.adapter import MutableResolvedMappingAdapter
+from betty.data import Data
+from betty.datas.aggregate.collection.mapping import MappingDefinition
+from betty.datas.aggregate.collection.sequence import SequenceDefinition
+from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.path import PathDefinition
+from betty.datas.str import StrDefinition
+from betty.event_type import EventType, EventTypeDefinition, EventTypeManufacturer
+from betty.exception import HumanFacingException
 from betty.factory import DataManufacturable, Manufacturable
-from betty.gramps.loader import GrampsLoader
+from betty.gramps.loader import (
+    DEFAULT_EVENT_TYPE_MAPPING,
+    DEFAULT_PLACE_TYPE_MAPPING,
+    DEFAULT_ROLE_MAPPING,
+    GrampsLoader,
+)
 from betty.load import Loader, LoaderDefinition
 from betty.locale.localizable.gettext import _
-from betty.plugins.loader.gramps.data import FamilyTree, GrampsConfiguration
+from betty.pathlib import resolve_path
+from betty.place_type import PlaceType, PlaceTypeDefinition, PlaceTypeManufacturer
+from betty.plugin import PluginDefinition
+from betty.plugin.cls import Plugin
+from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
 from betty.plugins.loader.gramps.jobs import LoadAncestry
 from betty.project import Project
+from betty.properties.collection.mapping import MappingProperty
+from betty.properties.collection.sequence import SequenceProperty
+from betty.property import Optional, Property
+from betty.role import Role, RoleDefinition, RoleManufacturer
+from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+    from pathlib import Path
 
     from betty.entity.collection.pool import EntityPool
     from betty.job.scheduler import Scheduler
+    from betty.locale.localizable import ResolvableLocalizable
     from betty.pathlib import StrPath
     from betty.service_level import ServiceLevel
     from betty.user import User
+
+
+class _PluginMappingProperty[PluginDefinitionT: PluginDefinition, PluginT: Plugin](
+    MappingProperty[
+        MutableMapping[str, PluginManufacturer[PluginDefinitionT, PluginT]],
+        str,
+        PluginManufacturer[PluginDefinitionT, PluginT],
+        Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]],
+    ]
+):
+    def __init__(
+        self,
+        manufacturer: type[PluginManufacturer[PluginDefinitionT, PluginT]],
+        gramps_label: ResolvableLocalizable,
+        default: Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]],
+    ):
+        super().__init__(
+            MappingDefinition(
+                cls=MutableResolvedMapping,
+                factory=lambda: MutableResolvedMappingAdapter(
+                    {},
+                    value_resolver=manufacturer.resolve,
+                ),
+                key=StrDefinition(label=gramps_label),
+                value=manufacturer,
+                label=manufacturer.plugin_type().type().label_plural,
+            ),
+            default=lambda: MutableResolvedMappingAdapter(
+                dict(
+                    zip(
+                        default.keys(),
+                        manufacturer.resolve_sequence(
+                            default.values(),  # ty:ignore[invalid-argument-type]
+                        ),
+                        strict=False,
+                    )
+                ),
+                value_resolver=manufacturer.resolve,
+            ),
+        )
+
+
+@final
+@ObjectDefinition(
+    label=_("Family tree"),
+    samples=[
+        lambda: Sample(
+            FamilyTree(name="my-gramps-family-tree"), label="Minimal", size=Size.MINIMAL
+        )
+    ],
+)
+class FamilyTree(Data):
+    """
+    A Gramps family tree.
+
+    .. data:: betty.plugins.loader.gramps:FamilyTree
+    """
+
+    event_types = _PluginMappingProperty(
+        EventTypeManufacturer, _("Gramps event type"), DEFAULT_EVENT_TYPE_MAPPING
+    )
+    """
+    How to map event types.
+    """
+
+    file = Optional(Property(PathDefinition(), label=_("File")))
+    """
+    The path to a Gramps family tree file.
+    """
+
+    name = Optional(Property(StrDefinition(label=_("Name"))))
+    """
+    The family tree's name in Gramps.
+    """
+
+    place_types = _PluginMappingProperty(
+        PlaceTypeManufacturer, _("Gramps place type"), DEFAULT_PLACE_TYPE_MAPPING
+    )
+    """
+    How to map place types.
+    """
+
+    roles = _PluginMappingProperty(
+        RoleManufacturer, _("Gramps role"), DEFAULT_ROLE_MAPPING
+    )
+    """
+    How to map presence roles.
+    """
+
+    def __init__(
+        self,
+        file: StrPath | None = None,
+        name: str | None = None,
+        event_types: Mapping[
+            str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
+        ]
+        | None = None,
+        place_types: Mapping[
+            str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
+        ]
+        | None = None,
+        roles: Mapping[str, ResolvablePluginManufacturer[RoleDefinition, Role]]
+        | None = None,
+    ):
+        super().__init__()
+        self.file = file
+        self.name = name
+        self.source  # noqa: B018
+        if event_types is not None:
+            self.event_types.update(event_types)  # ty:ignore[no-matching-overload]
+        if place_types is not None:
+            self.place_types.update(place_types)  # ty:ignore[no-matching-overload]
+        if roles is not None:
+            self.roles.update(roles)  # ty:ignore[no-matching-overload]
+
+    @property
+    def source(self) -> Path | str:
+        """
+        The family tree's source.
+
+        This is either the name of a family tree in Gramps, or the path to a Gramps family tree file.
+        """
+        if self.file is not None:
+            return self.file
+        if self.name is not None:
+            return self.name
+        raise HumanFacingException(
+            _('Family tree configuration must either have a "file" or a "name"')
+        )
+
+
+@final
+@ObjectDefinition(
+    label=_("Gramps configuration"),
+    samples=[
+        lambda: Sample(GrampsData(), label="Minimal", size=Size.MINIMAL),
+        lambda: Sample(
+            GrampsData(executable="gramps.exe"),
+            label="A custom Gramps executable",
+        ),
+        lambda: Sample(
+            GrampsData(family_trees=[FamilyTree(file="./gramps.gpkg")]),
+            label="Load a family tree from a file",
+        ),
+        lambda: Sample(
+            GrampsData(family_trees=[FamilyTree(name="my-family-tree")]),
+            label="Load a family tree by its name directly from Gramps",
+        ),
+        lambda: Sample(
+            GrampsData(
+                family_trees=[
+                    FamilyTree(
+                        name="my-family-tree",
+                        event_types={"GrampsEventType": "betty-event-type"},
+                    ),
+                ]
+            ),
+            label="Map a Gramps event type to a Betty event type",
+        ),
+        lambda: Sample(
+            GrampsData(
+                family_trees=[
+                    FamilyTree(
+                        name="my-family-tree",
+                        place_types={"GrampsPlaceType": "betty-place-type"},
+                    ),
+                ]
+            ),
+            label="Map a Gramps place type to a Betty place type",
+        ),
+        lambda: Sample(
+            GrampsData(
+                family_trees=[
+                    FamilyTree(
+                        name="my-family-tree",
+                        event_types={"GrampsRole": "betty-role"},
+                    ),
+                ]
+            ),
+            label="Map a Gramps role to a Betty role",
+        ),
+    ],
+)
+class GrampsData(Data):
+    """
+    Configuration for the :py:class:`betty.plugins.loader.gramps.Gramps` extension.
+
+    .. data:: betty.plugins.loader.gramps:GrampsData
+    """
+
+    family_trees = SequenceProperty(
+        SequenceDefinition(cls=list, value=FamilyTree, label=_("Family trees")),
+        omit_load=True,
+        omit_dump=lambda data: not len(data),
+    )
+    """
+    The Gramps family trees to load.
+    """
+
+    executable = Optional(Property(PathDefinition()))
+    """
+    The path to a specific Gramps executable.
+
+    Leave ``None`` to use Gramps from the PATH.
+    """
+
+    def __init__(
+        self,
+        *,
+        family_trees: Iterable[FamilyTree] = (),
+        executable: StrPath | None = None,
+    ):
+        super().__init__()
+        self.family_trees = family_trees
+        self.executable = None if executable is None else resolve_path(executable)
 
 
 @final
@@ -30,7 +277,7 @@ if TYPE_CHECKING:
     label="Gramps",
     description=_("Load Gramps family trees."),
 )
-class Gramps(DataManufacturable[GrampsConfiguration], Manufacturable, Loader):
+class Gramps(DataManufacturable[GrampsData], Manufacturable, Loader):
     """
     .. plugin:: loader:gramps.
 
@@ -322,15 +569,13 @@ class Gramps(DataManufacturable[GrampsConfiguration], Manufacturable, Loader):
 
     @override
     @classmethod
-    def new_data_cls(cls) -> type[GrampsConfiguration]:
-        return GrampsConfiguration
+    def new_data_cls(cls) -> type[GrampsData]:
+        return GrampsData
 
     @override
     @Project.require
     @classmethod
-    async def new(
-        cls, project: Project, data: GrampsConfiguration | None = None, /
-    ) -> Self:
+    async def new(cls, project: Project, data: GrampsData | None = None, /) -> Self:
         return cls(
             ancestry=project.ancestry,
             executable=None if data is None else data.executable,

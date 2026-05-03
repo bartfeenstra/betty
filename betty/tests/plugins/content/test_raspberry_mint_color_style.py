@@ -2,29 +2,27 @@ from betty.content import ContentManufacturer
 from betty.document import Document
 from betty.plugins.content.raspberry_mint_color_style import (
     ColorStyle,
-    ColorStyleConfiguration,
+    ColorStyleData,
 )
-from betty.plugins.content.render import Render, RenderConfiguration
+from betty.plugins.content.render import Render, RenderData
 from betty.plugins.content.static import Static
 from betty.plugins.extension.raspberry_mint import ColorStyle as ColorStyleOption
 from betty.test_utils.conftest import IsolatedProjectFactory
 from betty.test_utils.data import DataTestBase
 
 
-class TestColorStyleConfiguration(DataTestBase[ColorStyleConfiguration]):
-    sut_cls = ColorStyleConfiguration
+class TestColorStyleData(DataTestBase[ColorStyleData]):
+    sut_cls = ColorStyleData
 
     def test_content(self) -> None:
-        sut = ColorStyleConfiguration(
+        sut = ColorStyleData(
             ContentManufacturer("my-first-content"), style=ColorStyleOption.DARK
         )
         assert sut.content[0].plugin_id == "my-first-content"
 
     def test_style(self) -> None:
         style = ColorStyleOption.DARK_SECONDARY
-        sut = ColorStyleConfiguration(
-            ContentManufacturer("my-first-content"), style=style
-        )
+        sut = ColorStyleData(ContentManufacturer("my-first-content"), style=style)
         assert sut.style == style
 
 
@@ -35,7 +33,7 @@ class TestColorStyle:
         async with isolated_project_factory(supported_plugins=[ColorStyle]) as project:
             sut = await ColorStyle.new(
                 project,
-                ColorStyleConfiguration(
+                ColorStyleData(
                     ContentManufacturer(Static),
                     style=ColorStyleOption.DARK,
                 ),
@@ -48,10 +46,8 @@ class TestColorStyle:
         async with isolated_project_factory(supported_plugins=[ColorStyle]) as project:
             sut = await ColorStyle.new(
                 project,
-                ColorStyleConfiguration(
-                    ContentManufacturer(
-                        Render, RenderConfiguration("My First Content")
-                    ),
+                ColorStyleData(
+                    ContentManufacturer(Render, RenderData("My First Content")),
                     style=ColorStyleOption.DARK,
                 ),
             )

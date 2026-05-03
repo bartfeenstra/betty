@@ -6,13 +6,13 @@ from __future__ import annotations
 
 from typing import final
 
+from betty.datas.countable_localizable import CountableLocalizableDefinition
 from betty.locale.localizable import (
     CountableLocalizable,
     ResolvableCountableLocalizable,
     ResolvableLocalizable,
     resolve_countable_localizable,
 )
-from betty.locale.localizable.data import CountableLocalizableDefinition
 from betty.property import Property
 
 

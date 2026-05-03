@@ -17,16 +17,18 @@ from betty.assertion import (
 )
 from betty.content import Content, ContentDefinition, ContentManufacturer, build
 from betty.data import Data
-from betty.data.aggregate.collection.mapping import MappingDefinition
-from betty.data.aggregate.collection.sequence import SequenceDefinition
-from betty.data.aggregate.record.object import ObjectDefinition
-from betty.data.enum import EnumDefinition
-from betty.data.int import IntDefinition
+from betty.datas.aggregate.collection.mapping import MappingDefinition
+from betty.datas.aggregate.collection.sequence import SequenceDefinition
+from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.enum import EnumDefinition
+from betty.datas.int import IntDefinition
+from betty.datas.plugin_manufacturer_sequence import (
+    PluginManufacturerSequenceDefinition,
+)
 from betty.factory import DataManufacturable
 from betty.locale.localizable.gettext import _
-from betty.plugin.data import PluginManufacturerSequenceDefinition
 from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
-from betty.plugins.content.render import Render, RenderConfiguration
+from betty.plugins.content.render import Render, RenderData
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.extension.raspberry_mint import Breakpoint, JustifyContent
 from betty.portable import CallbackPorter
@@ -50,38 +52,32 @@ type ShorthandColumnsWidth = (
     label=_("Columns configuration"),
     samples=[
         lambda: Sample(
-            ColumnsConfiguration([
-                ContentManufacturer(Render, RenderConfiguration("Hello, world!"))
-            ]),
+            ColumnsData([ContentManufacturer(Render, RenderData("Hello, world!"))]),
             label="Minimal",
             size=Size.MINIMAL,
         ),
         lambda: Sample(
-            ColumnsConfiguration(
-                [ContentManufacturer(Render, RenderConfiguration("Hello, world!"))],
+            ColumnsData(
+                [ContentManufacturer(Render, RenderData("Hello, world!"))],
                 justify_content=JustifyContent.CENTER,
             ),
             label="Justify content",
         ),
         lambda: Sample(
-            ColumnsConfiguration(
-                [ContentManufacturer(Render, RenderConfiguration("Hello, world!"))],
+            ColumnsData(
+                [ContentManufacturer(Render, RenderData("Hello, world!"))],
                 width=6,
             ),
             label="A single column with a fixed, non-responsive width",
         ),
         lambda: Sample(
-            ColumnsConfiguration(
+            ColumnsData(
                 [
                     [
-                        ContentManufacturer(
-                            Render, RenderConfiguration("Hello, world!")
-                        ),
+                        ContentManufacturer(Render, RenderData("Hello, world!")),
                     ],
                     [
-                        ContentManufacturer(
-                            Render, RenderConfiguration("How are you?")
-                        ),
+                        ContentManufacturer(Render, RenderData("How are you?")),
                     ],
                 ],
                 width=[6, 6],
@@ -89,8 +85,8 @@ type ShorthandColumnsWidth = (
             label="Multiple columns with fixed, non-responsive widths",
         ),
         lambda: Sample(
-            ColumnsConfiguration(
-                [ContentManufacturer(Render, RenderConfiguration("Hello, world!"))],
+            ColumnsData(
+                [ContentManufacturer(Render, RenderData("Hello, world!"))],
                 width={
                     Breakpoint.XS: 12,
                     Breakpoint.MD: 6,
@@ -99,17 +95,13 @@ type ShorthandColumnsWidth = (
             label="A single column with responsive widths",
         ),
         lambda: Sample(
-            ColumnsConfiguration(
+            ColumnsData(
                 [
                     [
-                        ContentManufacturer(
-                            Render, RenderConfiguration("Hello, world!")
-                        ),
+                        ContentManufacturer(Render, RenderData("Hello, world!")),
                     ],
                     [
-                        ContentManufacturer(
-                            Render, RenderConfiguration("How are you?")
-                        ),
+                        ContentManufacturer(Render, RenderData("How are you?")),
                     ],
                 ],
                 width={
@@ -121,11 +113,11 @@ type ShorthandColumnsWidth = (
         ),
     ],
 )
-class ColumnsConfiguration(Data):
+class ColumnsData(Data):
     """
     Configuration for :py:class:`betty.plugins.content.raspberry_mint_columns.Columns`.
 
-    .. data:: betty.plugins.content.raspberry_mint_columns:ColumnsConfiguration
+    .. data:: betty.plugins.content.raspberry_mint_columns:ColumnsData
     """
 
     _DEFAULT_WIDTH: ClassVar[ColumnsWidth] = {Breakpoint.XS: [12]}
@@ -220,7 +212,7 @@ class ColumnsConfiguration(Data):
     label=_("Columns"),
     requires={Project.asset_directories.require(RASPBERRY_MINT)},
 )
-class Columns(Template, DataManufacturable[ColumnsConfiguration]):
+class Columns(Template, DataManufacturable[ColumnsData]):
     """
     A container with one or more columns.
 
@@ -243,13 +235,13 @@ class Columns(Template, DataManufacturable[ColumnsConfiguration]):
 
     @override
     @classmethod
-    def new_data_cls(cls) -> type[ColumnsConfiguration]:
-        return ColumnsConfiguration
+    def new_data_cls(cls) -> type[ColumnsData]:
+        return ColumnsData
 
     @override
     @Project.require
     @classmethod
-    async def new(cls, project: Project, data: ColumnsConfiguration, /) -> Self:
+    async def new(cls, project: Project, data: ColumnsData, /) -> Self:
         content, jinja = await gather(
             gather(*[
                 gather(

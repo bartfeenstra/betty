@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.content import ContentDefinition
 from betty.data import Data
-from betty.data.aggregate.collection.sequence import SequenceDefinition
-from betty.data.aggregate.record.object import ObjectDefinition
+from betty.datas.aggregate.collection.sequence import SequenceDefinition
+from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.factory import DataManufacturable, Manufacturable
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName
@@ -33,24 +33,24 @@ if TYPE_CHECKING:
 @ObjectDefinition(
     label=_("Presences configuration"),
     samples=[
-        lambda: Sample(PresencesConfiguration(), label="Minimal"),
+        lambda: Sample(PresencesData(), label="Minimal"),
         lambda: Sample(
-            PresencesConfiguration(include=["subject"]),
+            PresencesData(include=["subject"]),
             label="Includes",
             size=Size.FULL,
         ),
         lambda: Sample(
-            PresencesConfiguration(exclude=["subject"]),
+            PresencesData(exclude=["subject"]),
             label="Excludes",
             size=Size.FULL,
         ),
     ],
 )
-class PresencesConfiguration(Data):
+class PresencesData(Data):
     """
     Configuration for :py:class:`betty.plugins.content.raspberry_mint_presences.Presences`.
 
-    .. data:: betty.plugins.content.raspberry_mint_presences:PresencesConfiguration
+    .. data:: betty.plugins.content.raspberry_mint_presences:PresencesData
     """
 
     exclude = Optional(
@@ -86,7 +86,7 @@ class PresencesConfiguration(Data):
     label=_("Presences"),
     requires={Project.asset_directories.require(RASPBERRY_MINT)},
 )
-class Presences(Template, DataManufacturable[PresencesConfiguration], Manufacturable):
+class Presences(Template, DataManufacturable[PresencesData], Manufacturable):
     """
     People's presences at an event.
 
@@ -106,15 +106,13 @@ class Presences(Template, DataManufacturable[PresencesConfiguration], Manufactur
 
     @override
     @classmethod
-    def new_data_cls(cls) -> type[PresencesConfiguration]:
-        return PresencesConfiguration
+    def new_data_cls(cls) -> type[PresencesData]:
+        return PresencesData
 
     @override
     @Project.require
     @classmethod
-    async def new(
-        cls, project: Project, data: PresencesConfiguration | None = None, /
-    ) -> Self:
+    async def new(cls, project: Project, data: PresencesData | None = None, /) -> Self:
 
         if data is None:
             raise NotImplementedError

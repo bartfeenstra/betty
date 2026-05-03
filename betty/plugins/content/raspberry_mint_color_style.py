@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.content import Content, ContentDefinition, ContentManufacturer, build
 from betty.data import Data
-from betty.data.aggregate.record.object import ObjectDefinition
-from betty.data.enum import EnumDefinition
+from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.enum import EnumDefinition
 from betty.factory import DataManufacturable
 from betty.locale.localizable.gettext import _
 from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
@@ -36,18 +36,16 @@ if TYPE_CHECKING:
     label=_("Color style configuration"),
     samples=[
         lambda: Sample(
-            ColorStyleConfiguration(
-                "my-first-content", style=RaspberryMintColorStyle.DARK
-            ),
+            ColorStyleData("my-first-content", style=RaspberryMintColorStyle.DARK),
             label="Default",
         )
     ],
 )
-class ColorStyleConfiguration(Data):
+class ColorStyleData(Data):
     """
     Configuration for :py:class:`betty.plugins.content.raspberry_mint_color_style.ColorStyle`.
 
-    .. data:: betty.plugins.content.raspberry_mint_color_style:ColorStyleConfiguration
+    .. data:: betty.plugins.content.raspberry_mint_color_style:ColorStyleData
     """
 
     content = PluginManufacturerSequenceProperty[ContentDefinition, Content](
@@ -79,7 +77,7 @@ class ColorStyleConfiguration(Data):
     label=_("Color style"),
     requires={Project.asset_directories.require(RASPBERRY_MINT)},
 )
-class ColorStyle(Template, DataManufacturable[ColorStyleConfiguration]):
+class ColorStyle(Template, DataManufacturable[ColorStyleData]):
     """
     Change the color style for all containing content.
 
@@ -100,13 +98,13 @@ class ColorStyle(Template, DataManufacturable[ColorStyleConfiguration]):
 
     @override
     @classmethod
-    def new_data_cls(cls) -> type[ColorStyleConfiguration]:
-        return ColorStyleConfiguration
+    def new_data_cls(cls) -> type[ColorStyleData]:
+        return ColorStyleData
 
     @override
     @Project.require
     @classmethod
-    async def new(cls, project: Project, data: ColorStyleConfiguration, /) -> Self:
+    async def new(cls, project: Project, data: ColorStyleData, /) -> Self:
         content, jinja = await gather(
             gather(
                 *map(

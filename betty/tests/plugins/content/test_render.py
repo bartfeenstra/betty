@@ -7,19 +7,19 @@ from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
 from betty.locale.localizable import ResolvableLocalizable
 from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localize import Localizer
-from betty.plugins.content.render import Render, RenderConfiguration
+from betty.plugins.content.render import Render, RenderData
 from betty.plugins.renderer.plain_text import PlainText
 from betty.render import RenderDispatcher
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
-class TestRenderConfiguration(DataTestBase[RenderConfiguration]):
-    sut_cls = RenderConfiguration
+class TestRenderData(DataTestBase[RenderData]):
+    sut_cls = RenderData
 
     def test_content(self) -> None:
         content = DUMMY_LOCALIZABLE
-        sut = RenderConfiguration(content)
+        sut = RenderData(content)
         assert sut.content is content
 
 

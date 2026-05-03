@@ -6,7 +6,7 @@ from pytest_mock import MockerFixture
 
 from betty.app import App
 from betty.file import write
-from betty.project.data import ProjectConfiguration
+from betty.project import ProjectData
 from betty.test_utils.console import run
 
 
@@ -19,7 +19,7 @@ class TestGenerate:
         )
         m_load = mocker.patch("betty.load.load", new_callable=AsyncMock)
 
-        configuration = ProjectConfiguration(title="Betty", url="https://example.com")
+        configuration = ProjectData(title="Betty", url="https://example.com")
         await write(
             tmp_path / "betty.json",
             dumps(configuration.data().porter.dump(configuration)),

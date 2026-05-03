@@ -9,27 +9,42 @@ from collections import defaultdict
 from enum import Enum
 from typing import TYPE_CHECKING, Final, Self, final, override
 
-from betty.collection.mapping import ResolvedMapping
-from betty.collection.mapping.adapter import ResolvedMappingAdapter
+from betty.collection.mapping import MutableResolvedMapping, ResolvedMapping
+from betty.collection.mapping.adapter import (
+    MutableResolvedMappingAdapter,
+    ResolvedMappingAdapter,
+)
 from betty.content import Content, ContentDefinition, ContentManufacturer
-from betty.dirs import DATA_DIRECTORY as DATA_DIRECTORY
+from betty.data import Data
+from betty.datas.aggregate.collection.mapping import MappingDefinition
+from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.color import ColorDefinition
+from betty.datas.plugin_manufacturer_sequence import (
+    PluginManufacturerSequenceDefinition,
+)
+from betty.datas.str import StrDefinition
 from betty.dirs import WEBPACK_ENTRY_POINT_DIRECTORY
+from betty.entity import EntityDefinition
+from betty.exception import HumanFacingException, reraise_with_indicator
 from betty.extension import ExtensionDefinition
 from betty.factory import DataManufacturable, Manufacturable
+from betty.indicator.selector import Attr, Key
+from betty.locale.localizable.gettext import _
+from betty.locale.localizable.markup import Paragraph, do_you_mean
 from betty.plugin.factory import ResolvablePluginManufacturer
 from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
-from betty.plugins.extension.raspberry_mint.data import RaspberryMintConfiguration
-from betty.plugins.extension.raspberry_mint.region import Region as Region
-from betty.plugins.extension.raspberry_mint.region import ResolvableRegion
 from betty.plugins.extension.webpack import Webpack
 from betty.plugins.extension.webpack.build import EntryPointProvider
 from betty.project import Project
 from betty.project.generate import Generator
+from betty.properties.collection.mapping import MappingProperty
+from betty.property import Optional, Property
+from betty.sample import Sample, Size
 from betty.service import ServiceProvider
 from betty.service.simple import service
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping, Sequence
+    from collections.abc import Collection, Iterable, Mapping, Sequence
 
     from _typeshed import StrPath
 
@@ -42,6 +57,123 @@ type RegionalContentManufacturers = Mapping[
 
 
 @final
+@ObjectDefinition(
+    label=_("Raspberry Mint configuration"),
+    samples=[
+        lambda: Sample(RaspberryMintData(), label="Minimal", size=Size.MINIMAL),
+        lambda: Sample(
+            RaspberryMintData(
+                primary_color=ColorDefinition().samples.get(Size.MINIMAL).subject,
+                secondary_color=ColorDefinition().samples.get(Size.MINIMAL).subject,
+                tertiary_color=ColorDefinition().samples.get(Size.MINIMAL).subject,
+            ),
+            label="Custom colors",
+        ),
+        lambda: Sample(
+            RaspberryMintData(
+                regional_content={
+                    "front-page-content": {
+                        "id": "render",
+                        "configuration": {
+                            "content": "Hello, world!",
+                        },
+                    }
+                }
+            ),
+            label="Regional content",
+        ),
+    ],
+)
+class RaspberryMintData(Data):
+    """
+    Configuration for the :py:class:`betty.plugins.extension.raspberry_mint.RaspberryMint` extension.
+
+    .. data:: betty.plugins.extension.raspberry_mint:RaspberryMintData
+    """
+
+    primary_color = Optional(Property(ColorDefinition(), label=_("Primary color")))
+    """
+    The primary color.
+    """
+
+    secondary_color = Optional(Property(ColorDefinition(), label=_("Secondary color")))
+    """
+    The secondary color.
+    """
+
+    tertiary_color = Optional(Property(ColorDefinition(), label=_("Tertiary color")))
+    """
+    The tertiary color.
+    """
+
+    regional_content = MappingProperty(
+        MappingDefinition(
+            cls=MutableResolvedMapping,
+            factory=lambda: MutableResolvedMappingAdapter(
+                {}, key_resolver=Region.resolve
+            ),
+            label=_("Regions"),
+            key=StrDefinition(label=_("Region")),
+            value=PluginManufacturerSequenceDefinition(
+                ContentManufacturer, label=_("Regional content")
+            ),
+        ),
+        default=dict,
+        omit_load=True,
+        omit_dump=lambda data: not len(data),
+    )
+    """
+    The regional content.
+    """
+
+    def __init__(
+        self,
+        *,
+        primary_color: str | None = None,
+        secondary_color: str | None = None,
+        tertiary_color: str | None = None,
+        regional_content: Mapping[
+            ResolvableRegion,
+            Iterable[ResolvablePluginManufacturer[ContentDefinition, Content]],
+        ]
+        | None = None,
+    ):
+
+        super().__init__()
+        self.primary_color = primary_color
+        self.secondary_color = secondary_color
+        self.tertiary_color = tertiary_color
+        if regional_content is not None:
+            self.regional_content.update({
+                Region.resolve(region): ContentManufacturer.resolve_sequence(content)
+                for region, content in regional_content.items()
+            })
+
+    async def validate(self, project: Project, /) -> None:
+        """
+        Validate the configuration.
+        """
+        available_regions = await Region.all(project)
+        with reraise_with_indicator(Attr("regional_content")):
+            for region in self.regional_content:
+                with reraise_with_indicator(Key(region)):
+                    if region not in available_regions:
+                        raise HumanFacingException(
+                            Paragraph(
+                                _("Invalid region {invalid_region}.").format(
+                                    invalid_region=f'"{region}"',
+                                ),
+                                do_you_mean(
+                                    *(
+                                        f'"{available_region}"'
+                                        for available_region in available_regions
+                                    )
+                                ),
+                            )
+                        ) from None
+
+
+@final
 @ExtensionDefinition(
     "raspberry-mint",
     label="Raspberry Mint",
@@ -51,7 +183,7 @@ type RegionalContentManufacturers = Mapping[
     },
 )
 class RaspberryMint(
-    DataManufacturable[RaspberryMintConfiguration],
+    DataManufacturable[RaspberryMintData],
     Manufacturable,
     Generator,
     EntryPointProvider,
@@ -110,8 +242,8 @@ class RaspberryMint(
 
     @override
     @classmethod
-    def new_data_cls(cls) -> type[RaspberryMintConfiguration]:
-        return RaspberryMintConfiguration
+    def new_data_cls(cls) -> type[RaspberryMintData]:
+        return RaspberryMintData
 
     @override
     @Project.require
@@ -119,7 +251,7 @@ class RaspberryMint(
     async def new(
         cls,
         project: Project,
-        data: RaspberryMintConfiguration | None = None,
+        data: RaspberryMintData | None = None,
         /,
     ) -> Self:
         if data is None:
@@ -282,3 +414,40 @@ SINGLE_COLUMN_TEXT_WIDTH = {
     Breakpoint.XL: 10,
     Breakpoint.XXL: 9,
 }
+
+
+@final
+class Region(Enum):
+    """
+    The available regions.
+    """
+
+    ENTITY_PAGE_CONTENT = "entity-page-content"
+    FRONT_PAGE_CONTENT = "front-page-content"
+    FRONT_PAGE_SUMMARY = "front-page-summary"
+
+    @classmethod
+    async def all(cls, project: Project, /) -> Collection[str]:
+        """
+        The available regions.
+        """
+        return {
+            *(region.value for region in cls),
+            *[
+                f"entity-page-content--{entity_type.id}"
+                async for entity_type in project.plugins[EntityDefinition]
+                if entity_type.public_facing
+            ],
+        }
+
+    @classmethod
+    def resolve(cls, region: ResolvableRegion) -> str:
+        """
+        Resolve a region to its string name.
+        """
+        if isinstance(region, str):
+            return region
+        return region.value
+
+
+type ResolvableRegion = Region | str

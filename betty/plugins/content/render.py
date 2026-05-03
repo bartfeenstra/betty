@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.content import Content, ContentDefinition
 from betty.data import Data
-from betty.data.aggregate.record.object import ObjectDefinition
+from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.factory import DataManufacturable
 from betty.locale.localizable.gettext import _
 from betty.locale.localize import resolve_localized
@@ -29,16 +29,14 @@ if TYPE_CHECKING:
 @ObjectDefinition(
     label=_("Rendered content configuration"),
     samples=[
-        lambda: Sample(
-            RenderConfiguration("Hello, world!"), label="Minimal", size=Size.MINIMAL
-        )
+        lambda: Sample(RenderData("Hello, world!"), label="Minimal", size=Size.MINIMAL)
     ],
 )
-class RenderConfiguration(Data):
+class RenderData(Data):
     """
     Configuration for :py:class:`betty.plugins.content.render.Render`.
 
-    .. data:: betty.plugins.content.render:RenderConfiguration
+    .. data:: betty.plugins.content.render:RenderData
     """
 
     content = LocalizableProperty(label=_("Content"))
@@ -59,7 +57,7 @@ class RenderConfiguration(Data):
 
 @final
 @ContentDefinition("render", label=_("Rendered content"))
-class Render(DataManufacturable[RenderConfiguration], Content):
+class Render(DataManufacturable[RenderData], Content):
     """
     .. plugin:: content:render.
     """
@@ -77,13 +75,13 @@ class Render(DataManufacturable[RenderConfiguration], Content):
 
     @override
     @classmethod
-    def new_data_cls(cls) -> type[RenderConfiguration]:
-        return RenderConfiguration
+    def new_data_cls(cls) -> type[RenderData]:
+        return RenderData
 
     @override
     @Project.require
     @classmethod
-    async def new(cls, project: Project, data: RenderConfiguration, /) -> Self:
+    async def new(cls, project: Project, data: RenderData, /) -> Self:
         return cls(
             content=data.content,
             media_type=data.media_type,

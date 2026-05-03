@@ -1,32 +1,30 @@
 from betty.content import ContentManufacturer
 from betty.document import Document
 from betty.locale.localizable.plain import Plain
-from betty.plugins.content.raspberry_mint_section import Section, SectionConfiguration
-from betty.plugins.content.render import Render, RenderConfiguration
+from betty.plugins.content.raspberry_mint_section import Section, SectionData
+from betty.plugins.content.render import Render, RenderData
 from betty.plugins.content.static import Static
 from betty.test_utils.conftest import IsolatedProjectFactory
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
-class TestSectionConfiguration(DataTestBase[SectionConfiguration]):
-    sut_cls = SectionConfiguration
+class TestSectionData(DataTestBase[SectionData]):
+    sut_cls = SectionData
 
     def test_content(self) -> None:
-        sut = SectionConfiguration(
+        sut = SectionData(
             ContentManufacturer("my-first-content"), heading=DUMMY_LOCALIZABLE
         )
         assert sut.content[0].plugin_id == "my-first-content"
 
     def test_heading(self) -> None:
         heading = Plain("My First Section")
-        sut = SectionConfiguration(
-            ContentManufacturer("my-first-content"), heading=heading
-        )
+        sut = SectionData(ContentManufacturer("my-first-content"), heading=heading)
         assert sut.heading is heading
 
     def test_name(self) -> None:
-        sut = SectionConfiguration(
+        sut = SectionData(
             ContentManufacturer("my-first-content"),
             name="my-first-section",
             heading=DUMMY_LOCALIZABLE,
@@ -34,7 +32,7 @@ class TestSectionConfiguration(DataTestBase[SectionConfiguration]):
         assert sut.name == "my-first-section"
 
     def test_visually_hide_heading(self) -> None:
-        sut = SectionConfiguration(
+        sut = SectionData(
             ContentManufacturer("my-first-content"),
             heading=DUMMY_LOCALIZABLE,
             visually_hide_heading=True,
@@ -49,7 +47,7 @@ class TestSection:
         async with isolated_project_factory(supported_plugins=[Section]) as project:
             sut = await Section.new(
                 project,
-                SectionConfiguration(
+                SectionData(
                     ContentManufacturer(Static),
                     heading="My First Section",
                 ),
@@ -62,10 +60,10 @@ class TestSection:
         async with isolated_project_factory(supported_plugins=[Section]) as project:
             sut = await Section.new(
                 project,
-                SectionConfiguration(
+                SectionData(
                     ContentManufacturer(
                         Render,
-                        RenderConfiguration("My First Content"),
+                        RenderData("My First Content"),
                     ),
                     heading="My First Section",
                 ),
@@ -81,10 +79,10 @@ class TestSection:
         async with isolated_project_factory(supported_plugins=[Section]) as project:
             sut = await Section.new(
                 project,
-                SectionConfiguration(
+                SectionData(
                     ContentManufacturer(
                         Render,
-                        RenderConfiguration("My First Content"),
+                        RenderData("My First Content"),
                     ),
                     name="my-first-section",
                     heading="My First Section",
@@ -100,10 +98,10 @@ class TestSection:
         async with isolated_project_factory(supported_plugins=[Section]) as project:
             sut = await Section.new(
                 project,
-                SectionConfiguration(
+                SectionData(
                     ContentManufacturer(
                         Render,
-                        RenderConfiguration("My First Content"),
+                        RenderData("My First Content"),
                     ),
                     visually_hide_heading=True,
                     heading="My First Section",

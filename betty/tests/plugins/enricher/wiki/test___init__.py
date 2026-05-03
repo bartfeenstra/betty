@@ -3,8 +3,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from betty.load import load
-from betty.plugins.enricher.wiki import Wiki
+from betty.plugins.enricher.wiki import Wiki, WikiData
 from betty.plugins.entity.link import Link
+from betty.test_utils.data import DataTestBase
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
@@ -26,3 +27,7 @@ class TestWiki:
             await load(project)
 
             m_populate_ancestry.assert_awaited_once()
+
+
+class TestWikiData(DataTestBase[WikiData]):
+    sut_cls = WikiData

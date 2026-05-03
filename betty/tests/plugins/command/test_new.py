@@ -5,18 +5,18 @@ from babel import Locale
 from betty.data import Data
 from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.plugins.loader.gramps import Gramps, GrampsConfiguration
+from betty.plugins.loader.gramps import Gramps, GrampsData
 from betty.plugins.serializer.json import Json
 from betty.portable.file import assert_load_file
-from betty.project.data import ProjectConfiguration
+from betty.project import ProjectData
 from betty.test_utils.conftest import IsolatedAppFactory
 from betty.test_utils.console import run
 from betty.test_utils.user import StaticUser
 from betty.typing import Void
 
 
-def _assert_new(configuration_file: Path) -> ProjectConfiguration:
-    return ProjectConfiguration.data().porter.load(
+def _assert_new(configuration_file: Path) -> ProjectData:
+    return ProjectData.data().porter.load(
         assert_load_file(serializers=[Json()])(configuration_file)
     )
 
@@ -193,7 +193,7 @@ class TestNew:
             portable_gramps_configuration = configuration.loaders[Gramps].plugin_data
             assert portable_gramps_configuration is not Void
             assert not isinstance(portable_gramps_configuration, Data)
-            gramps_configuration = GrampsConfiguration.data().porter.load(
+            gramps_configuration = GrampsData.data().porter.load(
                 portable_gramps_configuration
             )
             assert (

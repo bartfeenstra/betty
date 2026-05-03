@@ -17,7 +17,7 @@ from sphinx.util.parsing import nested_parse_to_nodes
 
 from betty.app import App
 from betty.data import Data, OptionalDefinition
-from betty.data.aggregate.record import RecordDefinition
+from betty.datas.aggregate.record import RecordDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.factory import DataManufacturable
 from betty.functools import Result

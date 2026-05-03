@@ -153,21 +153,59 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "new_service_item": MissingReason.ABSTRACT,
         },
     },
-    "betty/data/__init__.py": {
+    "betty/data.py": {
         "Data": MissingReason.ABSTRACT,
     },
-    "betty/data/aggregate/__init__.py": {
+    "betty/datas/aggregate/__init__.py": {
         "AggregateDefinition": MissingReason.ABSTRACT,
     },
-    "betty/data/aggregate/collection/__init__.py": {
+    "betty/datas/aggregate/collection/__init__.py": {
         "CollectionDefinition": MissingReason.ABSTRACT,
     },
-    "betty/data/aggregate/record/__init__.py": {
+    "betty/datas/aggregate/record/__init__.py": {
         "PortableRecord": MissingReason.ABSTRACT,
         "RecordPorter": MissingReason.ABSTRACT,
     },
-    "betty/data/aggregate/record/object/__init__.py": {
+    "betty/datas/aggregate/record/object/__init__.py": {
         "Attr": MissingReason.ABSTRACT,
+    },
+    "betty/datas/copyright_notice_definition.py": {
+        "CopyrightNoticeDefinitionData": {
+            "data": MissingReason.INHERITED,
+        },
+    },
+    "betty/datas/event_type_definition.py": {
+        "EventTypeDefinitionData": {
+            "data": MissingReason.INHERITED,
+        },
+    },
+    "betty/datas/gender_definition.py": {
+        "GenderDefinitionData": {
+            "data": MissingReason.INHERITED,
+        },
+    },
+    "betty/datas/license_definition.py": {
+        "LicenseDefinitionData": {
+            "data": MissingReason.INHERITED,
+        },
+    },
+    "betty/datas/place_type_definition.py": {
+        "PlaceTypeDefinitionData": {
+            "data": MissingReason.INHERITED,
+        },
+    },
+    "betty/datas/plugin_definition.py": {
+        "PluginDefinitionData": {
+            "new_plugin": MissingReason.ABSTRACT,
+        },
+    },
+    "betty/datas/plugin_manufacturer_sequence.py": {
+        "PluginManufacturerSequenceDefinition": MissingReason.SHOULD_BE_COVERED,
+    },
+    "betty/datas/role_definition.py": {
+        "RoleDefinitionData": {
+            "data": MissingReason.INHERITED,
+        },
     },
     "betty/date/__init__.py": {
         "IncompleteDateError": MissingReason.STATIC_CONTENT_ONLY,
@@ -373,15 +411,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/collection/sequence/__init__.py": {
         "MutableResolvedSequence": MissingReason.ABSTRACT,
     },
-    "betty/copyright_notice/__init__.py": {
+    "betty/copyright_notice.py": {
         "CopyrightNotice": MissingReason.STATIC_CONTENT_ONLY,
         "CopyrightNoticeDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "CopyrightNoticeManufacturer": MissingReason.STATIC_CONTENT_ONLY,
-    },
-    "betty/copyright_notice/data.py": {
-        "CopyrightNoticeDefinitionConfiguration": {
-            "data": MissingReason.INHERITED,
-        },
     },
     "betty/entity/__init__.py": {
         "Entity": MissingReason.SHOULD_BE_COVERED,
@@ -412,7 +445,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "dated_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
         },
     },
-    "betty/event_type/__init__.py": {
+    "betty/event_type.py": {
         "EventType": MissingReason.STATIC_CONTENT_ONLY,
         "EventTypeDefinition": {
             "type": MissingReason.INHERITED,
@@ -420,30 +453,15 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "EventTypeManufacturer": MissingReason.INHERITED,
         "ShouldExistEventType": MissingReason.ABSTRACT,
     },
-    "betty/event_type/data.py": {
-        "EventTypeDefinitionConfiguration": {
-            "data": MissingReason.INHERITED,
-        },
-    },
-    "betty/license/__init__.py": {
+    "betty/license.py": {
         "License": MissingReason.STATIC_CONTENT_ONLY,
         "LicenseDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "LicenseManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/license/data.py": {
-        "LicenseDefinitionConfiguration": {
-            "data": MissingReason.INHERITED,
-        },
-    },
-    "betty/gender/__init__.py": {
+    "betty/gender.py": {
         "Gender": MissingReason.STATIC_CONTENT_ONLY,
         "GenderDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "GenderManufacturer": MissingReason.STATIC_CONTENT_ONLY,
-    },
-    "betty/gender/data.py": {
-        "GenderDefinitionConfiguration": {
-            "data": MissingReason.INHERITED,
-        },
     },
     "betty/npm.py": {
         "npm": MissingReason.SHOULD_BE_COVERED,
@@ -454,24 +472,16 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/openapi.py": {
         "SpecificationSchema": {"__annotate_func__": MissingReason.DATACLASS},
     },
-    "betty/place_type/__init__.py": {
+    "betty/place_type.py": {
         "PlaceType": MissingReason.STATIC_CONTENT_ONLY,
         "PlaceTypeDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "PlaceTypeManufacturer": MissingReason.STATIC_CONTENT_ONLY,
-    },
-    "betty/place_type/data.py": {
-        "PlaceTypeDefinitionConfiguration": {
-            "data": MissingReason.INHERITED,
-        },
     },
     "betty/plugin/assertion.py": {
         "assert_plugin": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/plugin/cls.py": {
         "Plugin": MissingReason.ABSTRACT,
-    },
-    "betty/plugin/data/__init__.py": {
-        "PluginDefinitionConfiguration": {"new_plugin": MissingReason.ABSTRACT},
     },
     "betty/plugin/error.py": {
         "PluginError": MissingReason.ABSTRACT,
@@ -563,7 +573,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Box": {
             "plugin": MissingReason.INHERITED,
         },
-        "BoxConfiguration": {
+        "BoxData": {
             "min_height": MissingReason.INHERITED,
             "max_height": MissingReason.INHERITED,
             "height": MissingReason.INHERITED,
@@ -666,7 +676,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Render": {
             "plugin": MissingReason.INHERITED,
         },
-        "RenderConfiguration": {
+        "RenderData": {
             "media_type": MissingReason.INHERITED,
         },
     },
@@ -736,9 +746,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Wiki": {
             "plugin": MissingReason.INHERITED,
         },
-    },
-    "betty/plugins/enricher/wiki/data.py": {
-        "WikiConfiguration": {
+        "WikiData": {
             "populate_images": MissingReason.SHOULD_BE_COVERED,
         },
     },
@@ -862,12 +870,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "plugin": MissingReason.INHERITED,
             "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
         },
-    },
-    "betty/plugins/extension/raspberry_mint/region.py": {
         "Region": {
             "name": MissingReason.INHERITED,
             "value": MissingReason.INHERITED,
-        }
+        },
     },
     "betty/plugins/extension/trees/__init__.py": {
         "Trees": {
@@ -1016,17 +1022,15 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         }
     },
     "betty/plugins/loader/gramps/__init__.py": {
-        "Gramps": {
-            "plugin": MissingReason.INHERITED,
-        }
-    },
-    "betty/plugins/loader/gramps/data.py": {
         "FamilyTree": {
             "event_types": MissingReason.INHERITED,
             "file": MissingReason.INHERITED,
             "name": MissingReason.INHERITED,
             "place_types": MissingReason.INHERITED,
             "roles": MissingReason.INHERITED,
+        },
+        "Gramps": {
+            "plugin": MissingReason.INHERITED,
         },
     },
     "betty/plugins/media_type/html.py": MissingReason.STATIC_CONTENT_ONLY,
@@ -1121,11 +1125,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "RoleDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "RoleManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/role/data.py": {
-        "RoleDefinitionConfiguration": {
-            "data": MissingReason.INHERITED,
-        },
-    },
     "betty/privacy/__init__.py": {
         "Privacy": MissingReason.ENUM,
     },
@@ -1137,12 +1136,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/progress/__init__.py": {
         "Progress": MissingReason.ABSTRACT,
     },
-    "betty/project/data.py": {
-        "ProjectConfiguration": {
-            "copyright_notice": MissingReason.INHERITED,
-            "license": MissingReason.INHERITED,
-        },
-    },
     "betty/extension/__init__.py": {
         "Extension": MissingReason.SHOULD_BE_COVERED,
         "ExtensionDefinition": MissingReason.STATIC_CONTENT_ONLY,
@@ -1151,6 +1144,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ExtensionTypeError": MissingReason.STATIC_CONTENT_ONLY,
         "ExtensionTypeInvalidError": MissingReason.SHOULD_BE_COVERED,
         "Theme": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/project/__init__.py": {
+        "ProjectData": {
+            "copyright_notice": MissingReason.INHERITED,
+            "license": MissingReason.INHERITED,
+        },
     },
     "betty/project/generate/__init__.py": {
         "Generator": MissingReason.ABSTRACT,
