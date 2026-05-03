@@ -36,8 +36,8 @@ from betty.assertion import (
     assert_type,
     assert_url,
 )
-from betty.data.indicator.selector import Index, Key
 from betty.exception import HumanFacingException
+from betty.indicator.selector import Index, Key
 from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizable.static import StaticTranslations
 

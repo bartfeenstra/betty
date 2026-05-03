@@ -5,8 +5,8 @@ from betty.collection.keyed.adapter import MutableKeyedCollectionAdapter
 from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.data.aggregate.record import FieldDefinition
 from betty.data.aggregate.record.mapping import TypedMappingDefinition
-from betty.data.indicator.selector import Key
 from betty.data.str import StrDefinition
+from betty.indicator.selector import Key
 from betty.portable import PortableData
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 

@@ -21,7 +21,6 @@ from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.bool import BoolDefinition
-from betty.data.indicator.selector import Attr
 from betty.data.int import IntDefinition
 from betty.data.str import StrDefinition
 from betty.dirs import BUILTIN_ASSET_DIRECTORY
@@ -31,6 +30,7 @@ from betty.event_type.data import EventTypeDefinitionConfiguration
 from betty.extension import Extension, ExtensionManufacturer
 from betty.gender import GenderDefinition
 from betty.gender.data import GenderDefinitionConfiguration
+from betty.indicator.selector import Attr
 from betty.license import License, LicenseDefinition, LicenseManufacturer
 from betty.license.data import LicenseDefinitionConfiguration
 from betty.load import (

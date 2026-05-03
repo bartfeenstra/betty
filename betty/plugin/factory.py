@@ -21,10 +21,10 @@ from betty.assertion import (
 from betty.data import Data, DataDefinition
 from betty.data.aggregate.record import PortableRecord, RecordDefinition
 from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
-from betty.data.indicator.selector import Attr
 from betty.exception import HumanFacingException
 from betty.factory import DataManufacturable, FactoryError
 from betty.importlib import fully_qualified_name
+from betty.indicator.selector import Attr
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition

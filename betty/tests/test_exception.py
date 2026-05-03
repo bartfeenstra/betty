@@ -2,12 +2,12 @@ from gettext import NullTranslations
 
 import pytest
 
-from betty.data.indicator.selector import Attr, Key
 from betty.exception import (
     HumanFacingException,
     do_raise,
     reraise_with_indicator,
 )
+from betty.indicator.selector import Attr, Key
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer

@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any, Self, TypeVar, final, override
 from betty.assertion import OptionalField, assert_mapping
 from betty.data import DataDefinition, OptionalDefinition, Sample, Samples
 from betty.data.aggregate import AggregateDefinition
-from betty.data.indicator.selector import Element
+from betty.indicator.selector import Element
 from betty.locale.localizable import resolve_localizable
 from betty.portable import Portable, PortableData, PortablePorter, Porter
 

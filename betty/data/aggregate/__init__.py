@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import Any
 
 from betty.data import DataDefinition
-from betty.data.indicator.selector import Element
+from betty.indicator.selector import Element
 
 
 class AggregateDefinition[DataClsT, ElementT: Element[Any] = Element[Any]](

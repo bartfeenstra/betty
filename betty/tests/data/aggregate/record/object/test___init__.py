@@ -4,8 +4,8 @@ from betty.data import Data
 from betty.data.aggregate.record import FieldDefinition
 from betty.data.aggregate.record.object import Attr, AttrDefinition, ObjectDefinition
 from betty.data.bool import BoolDefinition
-from betty.data.indicator.selector import Attr as AttrSelector
 from betty.data.str import StrDefinition
+from betty.indicator.selector import Attr as AttrSelector
 from betty.locale.localizable.plain import Plain
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 

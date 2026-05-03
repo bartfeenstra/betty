@@ -2,9 +2,9 @@ from typing import TYPE_CHECKING, Any, Self, final, override
 
 import pytest
 
-from betty.data.indicator.selector import Attr
 from betty.exception import HumanFacingException
 from betty.factory import DataManufacturable, UnsupportedTarget
+from betty.indicator.selector import Attr
 from betty.plugin.factory import PluginManufacturer, PluginManufacturerError
 from betty.service_level import ServiceLevel
 from betty.test_utils.data import DummyData

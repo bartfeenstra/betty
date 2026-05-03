@@ -8,7 +8,7 @@ from collections.abc import Callable, MutableSequence
 from typing import TYPE_CHECKING, Any
 
 from betty.data.aggregate.collection import CollectionDefinition
-from betty.data.indicator.selector import Index
+from betty.indicator.selector import Index
 from betty.portable import CallbackPorter, PortableData
 
 if TYPE_CHECKING:

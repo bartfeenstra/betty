@@ -7,14 +7,14 @@ from __future__ import annotations
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Never, override
 
-from betty.data.indicator.selector import Selectors
+from betty.indicator.selector import Selectors
 from betty.locale.localizable import Localizable, ResolvableLocalizable
 from betty.locale.localize import resolve_localized
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
 
-    from betty.data.indicator import Indicator
+    from betty.indicator import Indicator
     from betty.locale import HasLocale
     from betty.locale.localize import Localizer
     from betty.typing import Intersection

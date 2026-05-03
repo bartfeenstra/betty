@@ -8,8 +8,8 @@ from contextlib import suppress
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.assertion import assert_locale, assert_mapping, assert_or, assert_str
-from betty.data.indicator.selector import Key
 from betty.exception import reraise_with_indicator
+from betty.indicator.selector import Key
 from betty.locale import (
     HasLocale,
     HasLocaleStr,
