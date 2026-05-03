@@ -4,15 +4,19 @@ Adapters between keyed collections and Python data types.
 
 from collections.abc import Callable, Iterable, Iterator, Mapping
 from contextlib import suppress
-from typing import Any, final, override
+from typing import Any, override
 
 from betty.collection.keyed import KeyedCollection, MutableKeyedCollection
 from betty.functools import passthrough
 
 
-class _KeyedCollectionAdapter[KeyT, ResolvableKeyT, ValueT](
+class KeyedCollectionAdapter[KeyT, ResolvableKeyT, ValueT](
     KeyedCollection[KeyT, ResolvableKeyT, ValueT]
 ):
+    """
+    A collection of values that are accessible by their primary keys.
+    """
+
     def __init__(
         self,
         values: Mapping[KeyT, ValueT] | Iterable[tuple[KeyT, ValueT]] | None = None,
@@ -45,18 +49,8 @@ class _KeyedCollectionAdapter[KeyT, ResolvableKeyT, ValueT](
         return self._values.keys()
 
 
-@final
-class KeyedCollectionAdapter[KeyT, ResolvableKeyT, ValueT](
-    _KeyedCollectionAdapter[KeyT, ResolvableKeyT, ValueT]
-):
-    """
-    A collection of values that are accessible by their primary keys.
-    """
-
-
-@final
 class MutableKeyedCollectionAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
-    _KeyedCollectionAdapter[KeyT, ResolvableKeyT, ValueT],
+    KeyedCollectionAdapter[KeyT, ResolvableKeyT, ValueT],
     MutableKeyedCollection[KeyT, ResolvableKeyT, ValueT, ResolvableValueT],
 ):
     """

@@ -35,7 +35,7 @@ class TestResolvedMappingAdapter:
         )
         assert len(sut) == 1
 
-    def test__get(self) -> None:
+    def test_get(self) -> None:
         sut = ResolvedMappingAdapter(
             {"TRUE": "True"}, key_resolver=lambda key: str(key).upper()
         )
