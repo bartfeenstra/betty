@@ -6,12 +6,11 @@ from __future__ import annotations
 
 from typing import final
 
-from betty.classtools import Singleton
 from betty.json_schema import Boolean
 
 
 @final
-class PrivacySchema(Singleton, Boolean):
+class PrivacySchema(Boolean):
     """
     A JSON Schema for privacy.
     """

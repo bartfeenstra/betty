@@ -9,7 +9,6 @@ from collections.abc import MutableSequence
 from inspect import getmembers
 from typing import TYPE_CHECKING, ClassVar, cast, final, override
 
-from betty.classtools import Singleton
 from betty.json_schema import Object, Schema
 from betty.portable import PortableData, PortableMapping
 from betty.string import snake_case_to_lower_camel_case
@@ -170,7 +169,7 @@ async def dump_link(portable: PortableMapping, project: Project, *links: Link) -
 
 
 @final
-class JsonLdSchema(Singleton, Schema):
+class JsonLdSchema(Schema):
     """
     A `JSON-LD <https://json-ld.org/>`_ JSON Schema reference.
     """

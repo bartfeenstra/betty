@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, Any, ClassVar, cast, final, override
 from jsonschema.validators import Draft202012Validator
 from referencing import Registry, Resource
 
-from betty.classtools import Singleton
 from betty.locale.localize import DEFAULT_LOCALIZER, resolve_localized
 from betty.portable import PortableData, PortableMapping
 
@@ -408,7 +407,7 @@ class JsonSchemaReference(String):
 
 
 @final
-class JsonSchemaSchema(Singleton, Schema):
+class JsonSchemaSchema(Schema):
     """
     The JSON Schema Draft 2020-12 schema.
     """

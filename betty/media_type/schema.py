@@ -6,12 +6,11 @@ from __future__ import annotations
 
 from typing import final
 
-from betty.classtools import Singleton
 from betty.json_schema import String
 
 
 @final
-class MediaTypeSchema(Singleton, String):
+class MediaTypeSchema(String):
     """
     A JSON Schema for :py:class:`betty.media_type.MediaType`.
     """
