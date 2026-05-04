@@ -12,12 +12,12 @@ from betty.entity.association import (
     ToZeroOrOneAssociate,
 )
 from betty.entity.has_links import HasLinks
-from betty.entity.has_media_type import HasMediaType
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.privacy import HasPrivacy, Privacy, is_public
 from betty.properties.localizable import LocalizableProperty
+from betty.properties.media_type import HasMediaType
 
 if TYPE_CHECKING:
     from betty.entity.has_notes import HasNotes
