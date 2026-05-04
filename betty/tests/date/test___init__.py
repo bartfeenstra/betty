@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, cast
 
 import pytest
 
-from betty.date import Date, DateRange, IncompleteDateError, ResolvableDate
+from betty.date import AnyDate, Date, DateRange, IncompleteDateError
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.portable import PortableMapping
 
@@ -184,7 +184,7 @@ class TestDate:
             (False, DateRange()),
         ],
     )
-    def test___contains__(self, expected: bool, other: ResolvableDate) -> None:
+    def test___contains__(self, expected: bool, other: AnyDate) -> None:
         assert (other in Date(1970, 2, 2)) == expected
 
     @pytest.mark.parametrize(
@@ -199,7 +199,7 @@ class TestDate:
             (True, Date(1970, 2, 2), Date(1970, 3)),
         ],
     )
-    def test___lt__(self, expected: bool, sut: Date, other: ResolvableDate) -> None:
+    def test___lt__(self, expected: bool, sut: Date, other: AnyDate) -> None:
         assert (sut < other) == expected
 
     @pytest.mark.parametrize(
@@ -214,7 +214,7 @@ class TestDate:
             (True, Date(1970, 2, 2), Date(1970, 3)),
         ],
     )
-    def test___le__(self, expected: bool, sut: Date, other: ResolvableDate) -> None:
+    def test___le__(self, expected: bool, sut: Date, other: AnyDate) -> None:
         assert (sut <= other) == expected
 
     @pytest.mark.parametrize(
@@ -230,7 +230,7 @@ class TestDate:
             (False, None),
         ],
     )
-    def test___eq__(self, expected: bool, other: ResolvableDate) -> None:
+    def test___eq__(self, expected: bool, other: AnyDate) -> None:
         assert (Date(1970, 1, 1) == other) == expected
         assert (other == Date(1970, 1, 1)) == expected
 
@@ -246,7 +246,7 @@ class TestDate:
             (False, Date(1970, 2, 2), Date(1970, 3)),
         ],
     )
-    def test___ge__(self, expected: bool, sut: Date, other: ResolvableDate) -> None:
+    def test___ge__(self, expected: bool, sut: Date, other: AnyDate) -> None:
         assert (sut >= other) == expected
 
     @pytest.mark.parametrize(
@@ -261,7 +261,7 @@ class TestDate:
             (False, Date(1970, 2, 2), Date(1970, 3)),
         ],
     )
-    def test___gt__(self, expected: bool, sut: Date, other: ResolvableDate) -> None:
+    def test___gt__(self, expected: bool, sut: Date, other: AnyDate) -> None:
         assert (sut > other) == expected
 
     @pytest.mark.parametrize(
@@ -286,6 +286,36 @@ class TestDate:
     async def test_localize(self, expected: str, sut: Date) -> None:
         assert sut.localize(DEFAULT_LOCALIZER) == expected
 
+    def test_load__minimal(self) -> None:
+        Date.data().porter.load({})
+
+    def test_load__with_year(self) -> None:
+        assert Date.data().porter.load({"year": 9}).year == 9
+
+    def test_load__with_month(self) -> None:
+        assert Date.data().porter.load({"month": 9}).month == 9
+
+    def test_load__with_day(self) -> None:
+        assert Date.data().porter.load({"day": 9}).day == 9
+
+    def test_load__with_fuzzy(self) -> None:
+        assert Date.data().porter.load({"fuzzy": True}).fuzzy
+
+    def test_dump__minimal(self) -> None:
+        assert Date.data().porter.dump(Date()) == {}
+
+    def test_dump__with_year(self) -> None:
+        assert Date.data().porter.dump(Date(year=9)) == {"year": 9}
+
+    def test_dump__with_month(self) -> None:
+        assert Date.data().porter.dump(Date(month=9)) == {"month": 9}
+
+    def test_dump__with_day(self) -> None:
+        assert Date.data().porter.dump(Date(day=9)) == {"day": 9}
+
+    def test_dump__with_fuzzy(self) -> None:
+        assert Date.data().porter.dump(Date(fuzzy=True)) == {"fuzzy": True}
+
 
 class TestDateRange:
     @pytest.mark.parametrize(
@@ -308,7 +338,7 @@ class TestDateRange:
     def test_comparable(self, expected: bool, sut: DateRange) -> None:
         assert sut.comparable == expected
 
-    _TEST_CONTAINS_PARAMETERS: Sequence[tuple[bool, ResolvableDate, ResolvableDate]] = [
+    _TEST_CONTAINS_PARAMETERS: Sequence[tuple[bool, AnyDate, AnyDate]] = [
         (False, Date(1970, 2, 2), DateRange()),
         (False, Date(1970, 2), DateRange()),
         (False, Date(1970), DateRange()),
@@ -386,9 +416,7 @@ class TestDateRange:
         _TEST_CONTAINS_PARAMETERS
         + [(x[0], x[2], x[1]) for x in _TEST_CONTAINS_PARAMETERS],
     )
-    def test___contains__(
-        self, expected: bool, other: ResolvableDate, sut: ResolvableDate
-    ) -> None:
+    def test___contains__(self, expected: bool, other: AnyDate, sut: AnyDate) -> None:
         assert (other in sut) == expected
 
     @pytest.mark.parametrize(
@@ -513,7 +541,7 @@ class TestDateRange:
         ],
     )
     def test___lt____with_both_dates(
-        self, expected: bool, sut: DateRange, other: ResolvableDate
+        self, expected: bool, sut: DateRange, other: AnyDate
     ) -> None:
         assert (sut < other) == expected
 
@@ -638,9 +666,7 @@ class TestDateRange:
             ),
         ],
     )
-    def test___le__(
-        self, expected: bool, sut: DateRange, other: ResolvableDate
-    ) -> None:
+    def test___le__(self, expected: bool, sut: DateRange, other: AnyDate) -> None:
         assert (sut <= other) == expected
 
     @pytest.mark.parametrize(
@@ -656,7 +682,7 @@ class TestDateRange:
             (False, None),
         ],
     )
-    def test___eq__(self, expected: bool, other: ResolvableDate) -> None:
+    def test___eq__(self, expected: bool, other: AnyDate) -> None:
         assert (DateRange(Date(1970, 2, 2)) == other) == expected
 
     @pytest.mark.parametrize(
@@ -780,9 +806,7 @@ class TestDateRange:
             ),
         ],
     )
-    def test___ge__(
-        self, expected: bool, sut: DateRange, other: ResolvableDate
-    ) -> None:
+    def test___ge__(self, expected: bool, sut: DateRange, other: AnyDate) -> None:
         assert (sut >= other) == expected
 
     @pytest.mark.parametrize(
@@ -802,7 +826,7 @@ class TestDateRange:
             (True, DateRange(Date(1970, 2, 1), Date(1970, 2, 3))),
         ],
     )
-    def test___gt__(self, expected: bool, other: ResolvableDate) -> None:
+    def test___gt__(self, expected: bool, other: AnyDate) -> None:
         assert (DateRange(Date(1970, 2, 2)) > other) == expected
 
     _FORMAT_DATE_RANGE_TEST_PARAMETERS: Sequence[tuple[str, DateRange]] = [

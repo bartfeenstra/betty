@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, override
 import pytest
 
 from betty.date import Date, DateRange
-from betty.test_utils.ancestry.date import DummyHasDate
+from betty.properties.date import HasAnyDate
 
 if TYPE_CHECKING:
     from betty.entity.has_links import HasLinks
@@ -13,15 +13,17 @@ if TYPE_CHECKING:
     from betty.test_utils.conftest import AssertDumpsLinkedData
 
 
-class DummyHasDateWithContextDefinitions(DummyHasDate):
+class DummyHasDateWithContextDefinitions(HasAnyDate):
     @override
-    def dated_linked_data_contexts(self) -> tuple[str | None, str | None, str | None]:
+    def has_any_date_linked_data_contexts(
+        self,
+    ) -> tuple[str | None, str | None, str | None]:
         return "single-date", "start-date", "end-date"
 
 
-class TestHasDate:
+class TestHasAnyDate:
     def test_date(self) -> None:
-        sut = DummyHasDate()
+        sut = HasAnyDate()
         assert sut.date is None
 
     @pytest.mark.parametrize(
@@ -30,7 +32,7 @@ class TestHasDate:
             # No date information.
             (
                 {},
-                DummyHasDate(),
+                HasAnyDate(),
             ),
             (
                 {},
@@ -47,7 +49,7 @@ class TestHasDate:
                         "fuzzy": False,
                     }
                 },
-                DummyHasDate(date=Date(1970, 1, 1)),
+                HasAnyDate(date=Date(1970, 1, 1)),
             ),
             (
                 {
@@ -76,7 +78,7 @@ class TestHasDate:
                         "end": None,
                     },
                 },
-                DummyHasDate(date=DateRange(Date(1970, 1, 1))),
+                HasAnyDate(date=DateRange(Date(1970, 1, 1))),
             ),
             (
                 {
@@ -108,7 +110,7 @@ class TestHasDate:
                         },
                     },
                 },
-                DummyHasDate(date=DateRange(None, Date(2000, 12, 31))),
+                HasAnyDate(date=DateRange(None, Date(2000, 12, 31))),
             ),
             (
                 {
@@ -148,7 +150,7 @@ class TestHasDate:
                         },
                     },
                 },
-                DummyHasDate(date=DateRange(Date(1970, 1, 1), Date(2000, 12, 31))),
+                HasAnyDate(date=DateRange(Date(1970, 1, 1), Date(2000, 12, 31))),
             ),
             (
                 {

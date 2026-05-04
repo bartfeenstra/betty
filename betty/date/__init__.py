@@ -13,8 +13,33 @@ from typing import TYPE_CHECKING, Any, ClassVar, final, override
 
 from babel import dates
 
+from betty.assertion import (
+    OptionalField as OptionalField,
+)
+from betty.assertion import (
+    RequiredField as RequiredField,
+)
+from betty.assertion import (
+    assert_bool as assert_bool,
+)
+from betty.assertion import (
+    assert_record as assert_record,
+)
+from betty.assertion import (
+    assert_str as assert_str,
+)
+from betty.data import Data
+from betty.datas.aggregate.record.object import AttrDefinition as AttrDefinition
+from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.bool import BoolDefinition
+from betty.datas.int import IntDefinition
 from betty.locale.localizable import Localizable
 from betty.locale.localizable.gettext import _
+from betty.portable import Portable as Portable
+from betty.portable import PortableData as PortableData
+from betty.portable import PortableMapping as PortableMapping
+from betty.property import Optional, Property
+from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping
@@ -57,7 +82,14 @@ def _localize_date_parts(localizer: Localizer, date: Date | None, /) -> str:
 
 
 @final
-class Date(Localizable):
+@ObjectDefinition(
+    label=_("Date"),
+    samples=[
+        lambda: Sample(Date(), label="Minimal", size=Size.MINIMAL),
+        lambda: Sample(Date(1970, 1, 1, fuzzy=True), label="Full", size=Size.FULL),
+    ],
+)
+class Date(Localizable, Data):
     """
     A (Gregorian) date.
     """
@@ -67,10 +99,14 @@ class Date(Localizable):
         (False,): _("{date}"),
     }
 
-    year: int | None
-    month: int | None
-    day: int | None
-    fuzzy: bool
+    year = Optional(Property(IntDefinition(label=_("Year"))))
+    month = Optional(Property(IntDefinition(label=_("Month"))))
+    day = Optional(Property(IntDefinition(label=_("Day"))))
+    fuzzy = Property(
+        BoolDefinition(label=_("Fuzzy")),
+        omit_load=True,
+        omit_dump=lambda data: data is False,
+    )
 
     def __init__(
         self,
@@ -159,7 +195,7 @@ class Date(Localizable):
             selfish = selfish.to_range()
         return comparator(selfish, other)
 
-    def __contains__(self, other: ResolvableDate) -> bool:
+    def __contains__(self, other: AnyDate) -> bool:
         if isinstance(other, Date):
             return self == other
         return self in other
@@ -182,6 +218,10 @@ class Date(Localizable):
     def __gt__(self, other: Any) -> bool:
         return self._compare(other, operator.gt)
 
+    @classmethod
+    def _load_date(cls, value: str) -> tuple[int | None, int | None, int | None]:
+        raise NotImplementedError
+
 
 def _dump_date_iso8601(date: Date, /) -> str | None:
     if not date.complete:
@@ -194,7 +234,8 @@ def _dump_date_iso8601(date: Date, /) -> str | None:
 
 @final
 @total_ordering
-class DateRange(Localizable):
+@ObjectDefinition(label=_("Date range"))
+class DateRange(Localizable, Data):
     """
     A date range can describe a period of time between, before, after, or around start and/or end dates.
     """
@@ -252,10 +293,18 @@ class DateRange(Localizable):
         (None, None, True, True): _("sometime before around {end_date}"),
     }
 
-    start: Date | None
-    start_is_boundary: bool
-    end: Date | None
-    end_is_boundary: bool
+    start = Optional(Property(Date))
+    start_is_boundary = Property(
+        BoolDefinition(label=_("Start date is a boundary")),
+        omit_load=True,
+        omit_dump=lambda data: data is False,
+    )
+    end = Optional(Property(Date))
+    end_is_boundary = Property(
+        BoolDefinition(label=_("End date is a boundary")),
+        omit_load=True,
+        omit_dump=lambda data: data is False,
+    )
 
     def __init__(
         self,
@@ -321,7 +370,7 @@ class DateRange(Localizable):
             and self.end.comparable
         )
 
-    def __contains__(self, other: ResolvableDate) -> bool:
+    def __contains__(self, other: AnyDate) -> bool:
         if not self.comparable:
             return False
 
@@ -541,4 +590,4 @@ class DateRange(Localizable):
         )
 
 
-type ResolvableDate = Date | DateRange
+type AnyDate = Date | DateRange

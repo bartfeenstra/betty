@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-05-02 16:18+0100\n"
+"POT-Creation-Date: 2026-05-04 23:28+0100\n"
 "PO-Revision-Date: 2026-02-17 19:37+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -601,6 +601,15 @@ msgstr "Crematies"
 msgid "Data"
 msgstr ""
 
+msgid "Date"
+msgstr ""
+
+msgid "Date range"
+msgstr ""
+
+msgid "Day"
+msgstr ""
+
 msgid "Death"
 msgstr "Overlijden"
 
@@ -704,6 +713,9 @@ msgstr "Omsluiting"
 
 msgid "Enclosures"
 msgstr "Omsluitingen"
+
+msgid "End date is a boundary"
+msgstr ""
 
 msgid "Engagement"
 msgstr "Verloving"
@@ -846,6 +858,9 @@ msgstr "Uitvaart"
 
 msgid "Funerals"
 msgstr "Uitvaarten"
+
+msgid "Fuzzy"
+msgstr ""
 
 #, fuzzy
 msgid "Gemeente Amsterdam"
@@ -1201,6 +1216,9 @@ msgstr ""
 
 msgid "Missings"
 msgstr "Vermissingen"
+
+msgid "Month"
+msgstr ""
 
 msgid "More plugins may be available when running this command with --project."
 msgstr ""
@@ -1640,6 +1658,9 @@ msgstr "Spreker"
 
 msgid "Speakers"
 msgstr "Sprekers"
+
+msgid "Start date is a boundary"
+msgstr ""
 
 msgid "Starting Python's built-in web server..."
 msgstr "Pythons ingebouwde webserver aan het starten..."
@@ -2092,6 +2113,9 @@ msgstr ""
 "Werken in het publieke domein mogen gebruikt of naar verwezen worden "
 "zonder toestemming, omdat niemand (meer) exclusieve rechten over deze "
 "werken heeft."
+
+msgid "Year"
+msgstr ""
 
 #, python-brace-format
 msgid "Your project at {path}"

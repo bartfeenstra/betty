@@ -13,7 +13,6 @@ from betty.entity.association import (
     ToManyAssociates,
     ToOneAssociate,
 )
-from betty.entity.has_date import HasDate
 from betty.entity.has_file_references import HasFileReferences
 from betty.entity.has_links import HasLinks
 from betty.locale.localizable.gettext import _, ngettext
@@ -21,11 +20,12 @@ from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.plugins.entity.source import Source
 from betty.privacy import HasPrivacy, Privacy, is_public, merge_secondary_privacies
+from betty.properties.date import HasAnyDate
 from betty.properties.localizable import LocalizableProperty
 from betty.property import Optional
 
 if TYPE_CHECKING:
-    from betty.date import ResolvableDate
+    from betty.date import AnyDate
     from betty.entity.has_citations import HasCitations
     from betty.linked_data import JsonLdObject
     from betty.locale.localizable import Localizable, ResolvableLocalizable
@@ -41,7 +41,7 @@ if TYPE_CHECKING:
     label_plural=_("Citations"),
     label_countable=ngettext("{count} citation", "{count} citations"),
 )
-class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
+class Citation(HasAnyDate, HasFileReferences, HasPrivacy, HasLinks):
     """
     .. plugin:: entity:citation.
     """
@@ -80,7 +80,7 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
         id: str | None = None,  # noqa: A002
         facts: ToManyAssociates[HasCitations] = (),
         location: ResolvableLocalizable | None = None,
-        date: ResolvableDate | None = None,
+        date: AnyDate | None = None,
         file_references: ToManyAssociates[FileReference] = (),
         privacy: Privacy | None = None,
     ):

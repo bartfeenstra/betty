@@ -1,43 +1,49 @@
 """
-Tools for entities that have a date.
+Date properties.
 """
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, override
 
-from betty.date import Date, ResolvableDate
+from betty.datas.date import AnyDateDefinition
+from betty.date import AnyDate, Date
 from betty.date.linked_data import (
     dump_linked_data_for_date,
     dump_linked_data_for_date_range,
 )
 from betty.date.schema import ResolvableDateSchema
-from betty.linked_data import (
-    JsonLdObject,
-    LinkedDataDumpableWithSchemaJsonLdObject,
-)
+from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
 from betty.privacy import is_public
+from betty.property import Optional, Property
 
 if TYPE_CHECKING:
     from betty.portable import PortableMapping
     from betty.project import Project
 
 
-class HasDate(LinkedDataDumpableWithSchemaJsonLdObject):
+class HasAnyDate(LinkedDataDumpableWithSchemaJsonLdObject):
     """
     A resource with date information.
+    """
+
+    date = Optional(Property(AnyDateDefinition()))
+    """
+    The date.
     """
 
     def __init__(
         self,
         *args: Any,
-        date: ResolvableDate | None = None,
+        date: AnyDate | None = None,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
         self.date = date
 
-    def dated_linked_data_contexts(self) -> tuple[str | None, str | None, str | None]:
+    def has_any_date_linked_data_contexts(
+        self,
+    ) -> tuple[str | None, str | None, str | None]:
         """
         Get the JSON-LD context term definition IRIs for the possible dates.
 
@@ -53,7 +59,7 @@ class HasDate(LinkedDataDumpableWithSchemaJsonLdObject):
                 schema_org_date_definition,
                 schema_org_start_date_definition,
                 schema_org_end_date_definition,
-            ) = self.dated_linked_data_contexts()
+            ) = self.has_any_date_linked_data_contexts()
             if isinstance(self.date, Date):
                 portable["date"] = dump_linked_data_for_date(
                     self.date, context_definition=schema_org_date_definition

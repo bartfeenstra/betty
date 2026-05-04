@@ -14,7 +14,6 @@ from betty.entity.association import (
     ToZeroOrOneAssociate,
 )
 from betty.entity.has_citations import HasCitations
-from betty.entity.has_date import HasDate
 from betty.entity.has_file_references import HasFileReferences
 from betty.entity.has_links import HasLinks
 from betty.entity.has_notes import HasNotes
@@ -31,6 +30,7 @@ from betty.plugins.entity.presence import Presence
 from betty.plugins.event_type.unknown import Unknown as UnknownEventType
 from betty.plugins.role.subject import Subject
 from betty.privacy import HasPrivacy, Privacy
+from betty.properties.date import HasAnyDate
 from betty.properties.description import HasDescription
 from betty.properties.localizable import LocalizableProperty
 from betty.property import Optional
@@ -38,7 +38,7 @@ from betty.property import Optional
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
-    from betty.date import ResolvableDate
+    from betty.date import AnyDate
     from betty.event_type import EventType
     from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.plugins.entity.citation import Citation
@@ -56,7 +56,7 @@ if TYPE_CHECKING:
     label_countable=ngettext("{count} event", "{count} events"),
 )
 class Event(
-    HasDate,
+    HasAnyDate,
     HasFileReferences,
     HasCitations,
     HasNotes,
@@ -98,7 +98,7 @@ class Event(
         *,
         id: str | None = None,  # noqa: A002
         event_type: EventType | None = None,
-        date: ResolvableDate | None = None,
+        date: AnyDate | None = None,
         file_references: ToManyAssociates[FileReference] = (),
         citations: ToManyAssociates[Citation] = (),
         notes: ToManyAssociates[Note] = (),
@@ -123,7 +123,9 @@ class Event(
         self.name = name
 
     @override
-    def dated_linked_data_contexts(self) -> tuple[str | None, str | None, str | None]:
+    def has_any_date_linked_data_contexts(
+        self,
+    ) -> tuple[str | None, str | None, str | None]:
         return (
             "https://schema.org/startDate",
             "https://schema.org/startDate",

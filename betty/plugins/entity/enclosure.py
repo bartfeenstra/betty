@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING, final
 from betty.entity import Entity, EntityDefinition
 from betty.entity.association import BidirectionalToOne, ToOneAssociate
 from betty.entity.has_citations import HasCitations
-from betty.entity.has_date import HasDate
 from betty.locale.localizable.gettext import _, ngettext
+from betty.properties.date import HasAnyDate
 
 if TYPE_CHECKING:
     from betty.plugins.entity.place import Place
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     label_countable=ngettext("{count} enclosure", "{count} enclosures"),
     public_facing=False,
 )
-class Enclosure(HasDate, HasCitations, Entity):
+class Enclosure(HasAnyDate, HasCitations, Entity):
     """
     .. plugin:: entity:enclosure.
     """
