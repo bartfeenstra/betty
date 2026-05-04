@@ -10,7 +10,6 @@ from betty.entity import Entity, EntityDefinition
 from betty.entity.association import (
     BidirectionalToZeroOrOne,
 )
-from betty.entity.has_description import HasDescription
 from betty.entity.has_media_type import HasMediaType
 from betty.json_schema import String
 from betty.link import Link as LinkType
@@ -18,6 +17,7 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.privacy import HasPrivacy, Privacy, merge_privacies
+from betty.properties.description import HasDescription
 from betty.properties.localizable import LocalizableProperty
 from betty.property import Optional
 
