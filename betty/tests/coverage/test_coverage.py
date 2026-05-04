@@ -346,6 +346,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "EnricherDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "EnricherManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
+    "betty/locale/__init__.py": {
+        "Localized": MissingReason.ABSTRACT,
+    },
     "betty/locale/babel.py": {
         "run_babel": MissingReason.SHOULD_BE_COVERED,
     },

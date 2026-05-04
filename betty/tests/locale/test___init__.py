@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 import pytest
@@ -8,8 +7,8 @@ from babel import Locale
 
 from betty.locale import (
     DEFAULT_LOCALE,
-    HasLocale,
-    HasLocaleStr,
+    Localized,
+    LocalizedStr,
     ResolvableLocale,
     from_language_tag,
     negotiate_has_locales,
@@ -129,18 +128,11 @@ def test_plural_tags() -> None:
     assert "other" in plural_tags(DEFAULT_LOCALE)
 
 
-class TestHasLocale:
+class TestLocalizedStr:
     def test_locale(self) -> None:
-        locale = Locale("nl")
-        sut = HasLocale(locale=locale)
-        assert sut.locale is locale
-
-
-class TestHasLocaleStr:
-    def test_with_locale(self) -> None:
         string = "Hallo, wereld!"
         locale = Locale("nl")
-        sut = HasLocaleStr(string, locale=locale)
+        sut = LocalizedStr(string, locale=locale)
         assert sut == string
         assert sut.locale is locale
 
@@ -148,36 +140,50 @@ class TestHasLocaleStr:
 @pytest.mark.parametrize(
     ("expected", "preferred_locale", "has_locales"),
     [
-        (Locale("nl"), Locale("nl"), [HasLocale(locale="nl")]),
-        (Locale("nl", "NL"), Locale("nl"), [HasLocale(locale="nl-NL")]),
-        (Locale("nl"), Locale("nl", "NL"), [HasLocale(locale="nl")]),
+        (Locale("nl"), Locale("nl"), [LocalizedStr("", locale=Locale("nl"))]),
+        (
+            Locale("nl", "NL"),
+            Locale("nl"),
+            [LocalizedStr("", locale=Locale("nl", "NL"))],
+        ),
+        (Locale("nl"), Locale("nl", "NL"), [LocalizedStr("", locale=Locale("nl"))]),
         (
             Locale("nl", "NL"),
             Locale("nl", "NL"),
             [
-                HasLocale(locale="nl"),
-                HasLocale(locale="nl-BE"),
-                HasLocale(locale="nl-NL"),
+                LocalizedStr("", locale=Locale("nl")),
+                LocalizedStr("", locale=Locale("nl", "BE")),
+                LocalizedStr("", locale=Locale("nl", "NL")),
             ],
         ),
         (
             Locale("nl"),
             Locale("nl"),
-            [HasLocale(locale="nl"), HasLocale(locale="en")],
+            [
+                LocalizedStr("", locale=Locale("nl")),
+                LocalizedStr("", locale=Locale("en")),
+            ],
         ),
         (
             Locale("nl"),
             Locale("nl"),
-            [HasLocale(locale="en"), HasLocale(locale="nl")],
+            [
+                LocalizedStr("", locale=Locale("en")),
+                LocalizedStr("", locale=Locale("nl")),
+            ],
         ),
-        (Locale("nl", "NL"), Locale("nl", "BE"), [HasLocale(locale="nl-NL")]),
+        (
+            Locale("nl", "NL"),
+            Locale("nl", "BE"),
+            [LocalizedStr("", locale=Locale("nl", "NL"))],
+        ),
         (None, Locale("nl"), []),
     ],
 )
 async def test_negotiate_has_locales__with_match_should_return_match(
     expected: Locale | None,
     preferred_locale: Locale,
-    has_locales: Sequence[HasLocale],
+    has_locales: Sequence[Localized],
 ) -> None:
     actual = negotiate_has_locales(preferred_locale, has_locales)
     if expected is None:
@@ -189,9 +195,9 @@ async def test_negotiate_has_locales__with_match_should_return_match(
 
 async def test_negotiate_has_locales__without_match_should_return_default() -> None:
     has_locales = [
-        HasLocale(locale="nl"),
-        HasLocale(locale="en"),
-        HasLocale(locale="uk"),
+        LocalizedStr("", locale=Locale("nl")),
+        LocalizedStr("", locale=Locale("en")),
+        LocalizedStr("", locale=Locale("uk")),
     ]
     actual = negotiate_has_locales(Locale("de"), has_locales)
     assert actual is not None

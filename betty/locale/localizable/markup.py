@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from textwrap import indent
 from typing import TYPE_CHECKING, Any, ClassVar, final, override
 
-from betty.locale import HasLocale, HasLocaleStr
+from betty.locale import Localized, LocalizedStr
 from betty.locale.localizable import (
     Localizable,
     ResolvableLocalizable,
@@ -50,8 +50,8 @@ class _Join(_LocalizableSequence, Localizable):
     _SEPARATOR: ClassVar[str]
 
     @override
-    def localize(self, localizer: Localizer, /) -> Intersection[HasLocale, str]:
-        return HasLocaleStr(
+    def localize(self, localizer: Localizer, /) -> Intersection[Localized, str]:
+        return LocalizedStr(
             self._SEPARATOR.join(
                 localized
                 for part in self.localizables
@@ -102,9 +102,9 @@ class _List(_LocalizableSequence, Localizable):
     _TEMPLATE_RIGHT_TO_LEFT = "{localized} {prefix}"
 
     @override
-    def localize(self, localizer: Localizer, /) -> Intersection[HasLocale, str]:
+    def localize(self, localizer: Localizer, /) -> Intersection[Localized, str]:
         if not self.localizables:
-            return HasLocaleStr("")
+            return LocalizedStr("")
         localizeds = []
         prefixes = []
         prefix_lengths = []
@@ -118,7 +118,7 @@ class _List(_LocalizableSequence, Localizable):
             prefixes.append(prefix)
             prefix_lengths.append(len(prefix))
         max_prefix_length = max(prefix_lengths) + 1
-        return HasLocaleStr(
+        return LocalizedStr(
             "\n".join(
                 template.format(
                     localized=indent(localized, " " * max_prefix_length)[
@@ -168,9 +168,9 @@ class _Enumeration(_LocalizableSequence, Localizable):
     _LOCALIZABLE: ClassVar[Localizable]
 
     @override
-    def localize(self, localizer: Localizer, /) -> Intersection[HasLocale, str]:
+    def localize(self, localizer: Localizer, /) -> Intersection[Localized, str]:
         if len(self.localizables) == 0:
-            return HasLocaleStr("")
+            return LocalizedStr("")
         if len(self.localizables) == 1:
             return self.localizables[0].localize(localizer)
         return self._LOCALIZABLE.format(

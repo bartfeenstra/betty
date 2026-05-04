@@ -12,7 +12,7 @@ from warnings import warn
 
 from babel import Locale
 
-from betty.locale import HasLocale, HasLocaleStr, ResolvableLocale
+from betty.locale import Localized, LocalizedStr, ResolvableLocale
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 
 if TYPE_CHECKING:
@@ -40,7 +40,7 @@ class Localizable(_Localizable["Localizable"]):
     """
 
     @abstractmethod
-    def localize(self, localizer: Localizer, /) -> Intersection[HasLocale, str]:
+    def localize(self, localizer: Localizer, /) -> Intersection[Localized, str]:
         """
         Localize ``self`` to a human-readable string.
         """
@@ -101,8 +101,8 @@ class _FormattedLocalizable(Localizable):
         return self
 
     @override
-    def localize(self, localizer: Localizer, /) -> Intersection[HasLocale, str]:
-        return HasLocaleStr(
+    def localize(self, localizer: Localizer, /) -> Intersection[Localized, str]:
+        return LocalizedStr(
             self._localizable.localize(localizer).format(
                 **{
                     format_kwarg_key: format_kwarg.localize(localizer)

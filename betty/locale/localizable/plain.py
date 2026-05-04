@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
-from betty.locale import HasLocale, HasLocaleStr, ResolvableLocale, resolve_locale
+from betty.locale import Localized, LocalizedStr, ResolvableLocale, resolve_locale
 from betty.locale.localizable import Localizable
 
 if TYPE_CHECKING:
@@ -44,5 +44,5 @@ class Plain(Localizable):
         return self._locale
 
     @override
-    def localize(self, localizer: Localizer, /) -> Intersection[HasLocale, str]:
-        return HasLocaleStr(self._text, locale=self._locale)
+    def localize(self, localizer: Localizer, /) -> Intersection[Localized, str]:
+        return LocalizedStr(self._text, locale=self._locale)

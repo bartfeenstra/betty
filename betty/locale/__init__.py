@@ -4,10 +4,11 @@ Provide the Locale API.
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from collections.abc import Sequence
 from contextlib import suppress
 from functools import lru_cache
-from typing import Any, cast, override
+from typing import cast, final, override
 
 from babel import Locale
 from babel.core import UnknownLocaleError
@@ -135,29 +136,23 @@ def plural_tags(locale: Locale) -> Sequence[str]:
     return tags
 
 
-class HasLocale:
+class Localized(ABC):
     """
     A resource that has a locale, e.g. contains information in a specific locale.
     """
 
-    def __init__(
-        self, *args: Any, locale: ResolvableLocale | None = None, **kwargs: Any
-    ):
-        super().__init__(*args, **kwargs)
-        self._locale = None if locale is None else resolve_locale(locale)
-
     @property
+    @abstractmethod
     def locale(self) -> Locale | None:
         """
         The locale the data in this instance is in.
         """
-        return self._locale
 
 
 def negotiate_has_locales(
     preferred_locales: Locale | Sequence[Locale],
-    has_locales: Sequence[HasLocale],
-) -> HasLocale | None:
+    has_locales: Sequence[Localized],
+) -> Localized | None:
     """
     Negotiate the preferred value from a sequence.
     """
@@ -181,12 +176,15 @@ def negotiate_has_locales(
     return None
 
 
-class HasLocaleStr(HasLocale, str):
+@final
+class LocalizedStr(Localized, str):
     """
     A string that has a locale.
     """
 
     __slots__ = ("_locale",)
+
+    _locale: Locale | None
 
     @override
     def __new__(cls, string: str, *, locale: Locale | None = None):
@@ -196,3 +194,8 @@ class HasLocaleStr(HasLocale, str):
 
     def __init__(self, string: str, *, locale: Locale | None = None):
         pass
+
+    @override
+    @property
+    def locale(self) -> Locale | None:
+        return self._locale

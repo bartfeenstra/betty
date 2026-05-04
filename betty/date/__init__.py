@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Mapping
     from types import NotImplementedType
 
-    from betty.locale import HasLocale
+    from betty.locale import Localized
     from betty.locale.localize import Localizer
     from betty.typing import Intersection
 
@@ -86,7 +86,7 @@ class Date(Localizable):
         self.fuzzy = fuzzy
 
     @override
-    def localize(self, localizer: Localizer, /) -> Intersection[HasLocale, str]:
+    def localize(self, localizer: Localizer, /) -> Intersection[Localized, str]:
         try:
             return (
                 self
@@ -271,7 +271,7 @@ class DateRange(Localizable):
         self.end_is_boundary = end_is_boundary
 
     @override
-    def localize(self, localizer: Localizer, /) -> Intersection[HasLocale, str]:
+    def localize(self, localizer: Localizer, /) -> Intersection[Localized, str]:
         formatter_configuration: tuple[
             bool | None, bool | None, bool | None, bool | None
         ] = (None, None, None, None)

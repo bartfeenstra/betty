@@ -4,14 +4,20 @@ Locale properties.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Any, final, override
 
 from betty.datas.locale import LocaleDefinition
-from betty.locale import resolve_locale
-from betty.property import Property
+from betty.json_schema import Null, OneOf
+from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
+from betty.locale import Localized, ResolvableLocale, resolve_locale, to_language_tag
+from betty.locale.schema import LocaleSchema
+from betty.privacy import is_public
+from betty.property import Optional, Property
 
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
+    from betty.portable import PortableMapping
+    from betty.project import Project
 
 
 @final
@@ -32,3 +38,30 @@ class LocaleProperty(Property):
             description=description,
             resolver=resolve_locale,
         )
+
+
+class HasLocale(Localized, LinkedDataDumpableWithSchemaJsonLdObject):
+    """
+    A resource that is localized, e.g. contains information in a specific locale.
+    """
+
+    locale = Optional(LocaleProperty())
+
+    def __init__(
+        self, *args: Any, locale: ResolvableLocale | None = None, **kwargs: Any
+    ):
+        super().__init__(*args, **kwargs)
+        self.locale = locale
+
+    @override
+    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
+        portable = await super().dump_linked_data(project)
+        portable["locale"] = to_language_tag(self.locale) if is_public(self) else None
+        return portable
+
+    @override
+    @classmethod
+    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
+        schema = await super().linked_data_schema(project)
+        schema.add_property("locale", OneOf(LocaleSchema(), Null()))
+        return schema
