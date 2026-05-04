@@ -11,7 +11,7 @@ from markupsafe import Markup
 
 from betty.jinja import context_document
 from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
-from betty.locale import HasLocaleStr, to_language_tag
+from betty.locale import LocalizedStr, to_language_tag
 
 if TYPE_CHECKING:
     from jinja2.runtime import Context
@@ -36,7 +36,7 @@ class HtmlLang(JinjaFilter):
     def __call__(  # noqa: D102
         self, context: Context, has_locale: str, /
     ) -> str | Markup:
-        if not isinstance(has_locale, HasLocaleStr):
+        if not isinstance(has_locale, LocalizedStr):
             return has_locale
 
         localizer = context_document(context).localizer

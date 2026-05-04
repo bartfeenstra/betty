@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, cast, overload, override
 from betty.locale.localizable import CountableLocalizable, Localizable, LocalizableCount
 
 if TYPE_CHECKING:
-    from betty.locale import HasLocale
+    from betty.locale import Localized
     from betty.locale.localize import Localizer
     from betty.typing import Intersection
 
@@ -24,9 +24,9 @@ class _GettextLocalizable(Localizable):
         self._gettext_args = gettext_args
 
     @override
-    def localize(self, localizer: Localizer, /) -> Intersection[HasLocale, str]:
+    def localize(self, localizer: Localizer, /) -> Intersection[Localized, str]:
         return cast(
-            "Intersection[HasLocale, str]",
+            "Intersection[Localized, str]",
             getattr(localizer, self._gettext_method_name)(*self._gettext_args),
         )
 

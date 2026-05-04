@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING, final
 
 from betty.locale import (
     DEFAULT_LOCALE,
-    HasLocale,
-    HasLocaleStr,
+    Localized,
+    LocalizedStr,
     ResolvableLocale,
     resolve_locale,
 )
@@ -45,54 +45,54 @@ class Localizer:
         """
         return self._locale
 
-    def _(self, message: str, /) -> Intersection[HasLocale, str]:
+    def _(self, message: str, /) -> Intersection[Localized, str]:
         """
         Like :py:meth:`gettext.gettext`.
 
         Arguments are identical to those of :py:meth:`gettext.gettext`.
         """
-        return HasLocaleStr(self._translations.gettext(message), locale=self._locale)
+        return LocalizedStr(self._translations.gettext(message), locale=self._locale)
 
-    def gettext(self, message: str, /) -> Intersection[HasLocale, str]:
+    def gettext(self, message: str, /) -> Intersection[Localized, str]:
         """
         Like :py:meth:`gettext.gettext`.
 
         Arguments are identical to those of :py:meth:`gettext.gettext`.
         """
-        return HasLocaleStr(self._translations.gettext(message), locale=self._locale)
+        return LocalizedStr(self._translations.gettext(message), locale=self._locale)
 
     def ngettext(
         self, message_singular: str, message_plural: str, n: int, /
-    ) -> Intersection[HasLocale, str]:
+    ) -> Intersection[Localized, str]:
         """
         Like :py:meth:`gettext.ngettext`.
 
         Arguments are identical to those of :py:meth:`gettext.ngettext`.
         """
-        return HasLocaleStr(
+        return LocalizedStr(
             self._translations.ngettext(message_singular, message_plural, n),
             locale=self._locale,
         )
 
-    def pgettext(self, context: str, message: str, /) -> Intersection[HasLocale, str]:
+    def pgettext(self, context: str, message: str, /) -> Intersection[Localized, str]:
         """
         Like :py:meth:`gettext.pgettext`.
 
         Arguments are identical to those of :py:meth:`gettext.pgettext`.
         """
-        return HasLocaleStr(
+        return LocalizedStr(
             self._translations.pgettext(context, message), locale=self._locale
         )
 
     def npgettext(
         self, context: str, message_singular: str, message_plural: str, n: int, /
-    ) -> Intersection[HasLocale, str]:
+    ) -> Intersection[Localized, str]:
         """
         Like :py:meth:`gettext.npgettext`.
 
         Arguments are identical to those of :py:meth:`gettext.npgettext`.
         """
-        return HasLocaleStr(
+        return LocalizedStr(
             self._translations.npgettext(context, message_singular, message_plural, n),
             locale=self._locale,
         )
@@ -132,14 +132,14 @@ class LocalizerRepository:
 
 def resolve_localized(
     localizable: ResolvableLocalizable, *, localizer: Localizer
-) -> Intersection[HasLocale, str]:
+) -> Intersection[Localized, str]:
     """
     Ensure that a localizable-like value is or is made to be localized.
     """
     from betty.locale.localizable import Localizable
 
     if isinstance(localizable, str):
-        return HasLocaleStr(localizable)
+        return LocalizedStr(localizable)
     if not isinstance(localizable, Localizable):
         from betty.locale.localizable.static import StaticTranslations
 

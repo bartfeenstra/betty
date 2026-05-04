@@ -4,7 +4,7 @@ import pytest
 from babel import Locale
 
 from betty.document import Document
-from betty.locale import HasLocaleStr
+from betty.locale import LocalizedStr
 from betty.locale.localize import Localizer
 from betty.test_utils.conftest import AssertTemplateString
 
@@ -18,37 +18,37 @@ class TestHtmlLang:
             (
                 "Hallo, wereld!",
                 True,
-                HasLocaleStr("Hallo, wereld!", locale=Locale("nl")),
+                LocalizedStr("Hallo, wereld!", locale=Locale("nl")),
                 "nl",
             ),
             (
                 "Hallo, wereld!",
                 False,
-                HasLocaleStr("Hallo, wereld!", locale=Locale("nl")),
+                LocalizedStr("Hallo, wereld!", locale=Locale("nl")),
                 "nl",
             ),
             (
                 '<span lang="nl">Hallo, wereld!</span>',
                 True,
-                HasLocaleStr("Hallo, wereld!", locale=Locale("nl")),
+                LocalizedStr("Hallo, wereld!", locale=Locale("nl")),
                 "en",
             ),
             (
                 '<span lang="nl">Hallo, wereld!</span>',
                 False,
-                HasLocaleStr("Hallo, wereld!", locale=Locale("nl")),
+                LocalizedStr("Hallo, wereld!", locale=Locale("nl")),
                 "en",
             ),
             (
                 '<span lang="nl" dir="ltr">Hallo, wereld!</span>',
                 True,
-                HasLocaleStr("Hallo, wereld!", locale=Locale("nl")),
+                LocalizedStr("Hallo, wereld!", locale=Locale("nl")),
                 "ar",
             ),
             (
                 '<span lang="nl" dir="ltr">Hallo, wereld!</span>',
                 False,
-                HasLocaleStr("Hallo, wereld!", locale=Locale("nl")),
+                LocalizedStr("Hallo, wereld!", locale=Locale("nl")),
                 "ar",
             ),
         ],

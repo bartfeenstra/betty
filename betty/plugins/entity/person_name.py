@@ -13,11 +13,11 @@ from betty.entity.association import (
     ToOneAssociate,
 )
 from betty.entity.has_citations import HasCitations
-from betty.entity.has_locale import HasLocale
 from betty.json_schema import String
 from betty.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable.gettext import _, ngettext
 from betty.privacy import HasPrivacy, Privacy, merge_privacies
+from betty.properties.locale import HasLocale
 
 if TYPE_CHECKING:
     from betty.locale import ResolvableLocale

@@ -11,8 +11,8 @@ from betty.assertion import assert_locale, assert_mapping, assert_or, assert_str
 from betty.exception import reraise_with_indicator
 from betty.indicator.selector import Key
 from betty.locale import (
-    HasLocale,
-    HasLocaleStr,
+    Localized,
+    LocalizedStr,
     ResolvableLocale,
     negotiate_locale,
     plural_tags,
@@ -275,16 +275,16 @@ class StaticTranslations(Localizable, Portable):
         return dict(self._translations)
 
     @override
-    def localize(self, localizer: Localizer, /) -> Intersection[HasLocale, str]:
+    def localize(self, localizer: Localizer, /) -> Intersection[Localized, str]:
         if len(self._translations) > 1:
             available_locales = tuple(filter(None, self._translations.keys()))
             negotiated_locale = negotiate_locale(localizer.locale, available_locales)
             if negotiated_locale is not None:
-                return HasLocaleStr(
+                return LocalizedStr(
                     self._translations[negotiated_locale], locale=negotiated_locale
                 )
         locale, translation = next(iter(self._translations.items()))
-        return HasLocaleStr(translation, locale=locale)
+        return LocalizedStr(translation, locale=locale)
 
     @classmethod
     def resolve(cls, other: Localizable, localizers: Iterable[Localizer], /) -> Self:
