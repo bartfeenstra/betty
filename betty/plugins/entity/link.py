@@ -7,10 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final, override
 
 from betty.entity import Entity, EntityDefinition
-from betty.entity.association import (
-    BidirectionalToZeroOrOne,
-)
-from betty.entity.has_media_type import HasMediaType
+from betty.entity.association import BidirectionalToZeroOrOne
 from betty.json_schema import String
 from betty.link import Link as LinkType
 from betty.locale.localizable.gettext import _, ngettext
@@ -19,6 +16,7 @@ from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.privacy import HasPrivacy, Privacy, merge_privacies
 from betty.properties.description import HasDescription
 from betty.properties.localizable import LocalizableProperty
+from betty.properties.media_type import HasMediaType
 from betty.property import Optional
 
 if TYPE_CHECKING:
