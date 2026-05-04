@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-05-02 16:18+0100\n"
+"POT-Creation-Date: 2026-05-04 23:28+0100\n"
 "PO-Revision-Date: 2026-02-17 18:12+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ru_RU\n"
@@ -592,6 +592,15 @@ msgstr ""
 msgid "Data"
 msgstr ""
 
+msgid "Date"
+msgstr ""
+
+msgid "Date range"
+msgstr ""
+
+msgid "Day"
+msgstr ""
+
 msgid "Death"
 msgstr "Смерть"
 
@@ -693,6 +702,9 @@ msgstr "Приложение"
 
 msgid "Enclosures"
 msgstr "Приложения"
+
+msgid "End date is a boundary"
+msgstr ""
 
 msgid "Engagement"
 msgstr "Помолвка"
@@ -830,6 +842,9 @@ msgid "Funeral"
 msgstr "Похороны"
 
 msgid "Funerals"
+msgstr ""
+
+msgid "Fuzzy"
 msgstr ""
 
 msgid "Gemeente Amsterdam"
@@ -1182,6 +1197,9 @@ msgid "Missing plural tag(s) {plural_tags} for {locale} translations."
 msgstr ""
 
 msgid "Missings"
+msgstr ""
+
+msgid "Month"
 msgstr ""
 
 msgid "More plugins may be available when running this command with --project."
@@ -1622,6 +1640,9 @@ msgid "Speaker"
 msgstr "Выступавший"
 
 msgid "Speakers"
+msgstr ""
+
+msgid "Start date is a boundary"
 msgstr ""
 
 msgid "Starting Python's built-in web server..."
@@ -2076,6 +2097,9 @@ msgstr ""
 "использовать или на которые можно ссылаться без разрешения, поскольку "
 "(больше) никто не обладает никакими исключительными правами на эти "
 "произведения."
+
+msgid "Year"
+msgstr ""
 
 #, python-brace-format
 msgid "Your project at {path}"

@@ -3,13 +3,13 @@ from typing import Any, override
 
 import pytest
 
-from betty.date import Date, DateRange, ResolvableDate
-from betty.test_utils.ancestry.date import DummyHasDate
+from betty.date import AnyDate, Date, DateRange
+from betty.properties.date import HasAnyDate
 from betty.test_utils.conftest import AssertTemplateString
 
 
-class _DummyHasDate(DummyHasDate):
-    def __init__(self, value: str, date: ResolvableDate | None = None):
+class _DummyHasDate(HasAnyDate):
+    def __init__(self, value: str, date: AnyDate | None = None):
         super().__init__(date=date)
         self.value = value
 

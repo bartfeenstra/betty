@@ -174,6 +174,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "data": MissingReason.INHERITED,
         },
     },
+    "betty/datas/date.py": {
+        "AnyDateDefinition": MissingReason.STATIC_CONTENT_ONLY,
+    },
     "betty/datas/event_type_definition.py": {
         "EventTypeDefinitionData": {
             "data": MissingReason.INHERITED,
@@ -208,6 +211,16 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/date/__init__.py": {
+        "Date": {
+            "data": MissingReason.INHERITED,
+        },
+        "DateRange": {
+            "data": MissingReason.INHERITED,
+            "end": MissingReason.INHERITED,
+            "end_is_boundary": MissingReason.INHERITED,
+            "start": MissingReason.INHERITED,
+            "start_is_boundary": MissingReason.INHERITED,
+        },
         "IncompleteDateError": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/demo/serve.py": {
@@ -442,11 +455,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/entity/collection/__init__.py": {
         "EntityCollection": MissingReason.ABSTRACT,
-    },
-    "betty/entity/has_date.py": {
-        "HasDate": {
-            "dated_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
-        },
     },
     "betty/event_type.py": {
         "EventType": MissingReason.STATIC_CONTENT_ONLY,
@@ -765,7 +773,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/plugins/entity/event.py": {
         "Event": {
-            "dated_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
+            "has_any_date_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
             "plugin": MissingReason.INHERITED,
         },
     },
@@ -1122,6 +1130,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/property.py": {
         "PropertyNotInitialized": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/properties/date.py": {
+        "HasAnyDate": {
+            "has_any_date_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
+        },
     },
     "betty/role/__init__.py": {
         "Role": MissingReason.STATIC_CONTENT_ONLY,

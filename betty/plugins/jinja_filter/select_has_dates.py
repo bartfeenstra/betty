@@ -15,8 +15,8 @@ if TYPE_CHECKING:
 
     from jinja2.runtime import Context
 
-    from betty.date import ResolvableDate
-    from betty.entity.has_date import HasDate
+    from betty.date import AnyDate
+    from betty.properties.date import HasAnyDate
 
 
 @final
@@ -32,10 +32,10 @@ class SelectHasDates(JinjaFilter):
     def __call__(
         self,
         context: Context,
-        has_dates: Iterable[HasDate],
+        has_dates: Iterable[HasAnyDate],
         /,
-        date: ResolvableDate | None,
-    ) -> Iterator[HasDate]:
+        date: AnyDate | None,
+    ) -> Iterator[HasAnyDate]:
         """
         :param date: A date to select by. If ``None``, then today's date is used.
         """

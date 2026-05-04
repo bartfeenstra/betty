@@ -7,14 +7,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final, override
 
 from betty.entity import Entity, EntityDefinition
-from betty.entity.has_date import HasDate
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
+from betty.properties.date import HasAnyDate
 from betty.properties.localizable import LocalizableProperty
 
 if TYPE_CHECKING:
-    from betty.date import ResolvableDate
+    from betty.date import AnyDate
     from betty.linked_data import JsonLdObject
     from betty.locale.localizable import ResolvableLocalizable
     from betty.portable import PortableMapping
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     label_countable=ngettext("{count} place name", "{count} place names"),
     public_facing=False,
 )
-class PlaceName(HasDate, Entity):
+class PlaceName(HasAnyDate, Entity):
     """
     .. plugin:: entity:place-name.
     """
@@ -40,7 +40,7 @@ class PlaceName(HasDate, Entity):
         self,
         name: ResolvableLocalizable,
         *,
-        date: ResolvableDate | None = None,
+        date: AnyDate | None = None,
     ):
         super().__init__(date=date)
         self.name = name

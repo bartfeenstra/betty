@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, final, override
 
 import pytest
 
-from betty.date import Date, DateRange, ResolvableDate
+from betty.date import AnyDate, Date, DateRange
 from betty.deriver import Deriver
 from betty.event_type import (
     EventType,
@@ -461,9 +461,9 @@ class TestDeriver:
     )
     async def test_derive__update_comes_before(
         self,
-        expected_date: ResolvableDate | None,
-        before_date: ResolvableDate | None,
-        derivable_date: ResolvableDate | None,
+        expected_date: AnyDate | None,
+        before_date: AnyDate | None,
+        derivable_date: AnyDate | None,
         new_project: NewProject,
     ) -> None:
         async with new_project({
@@ -536,8 +536,8 @@ class TestDeriver:
     )
     async def test_derive__create_comes_before(
         self,
-        expected_date: ResolvableDate | None,
-        before_date: ResolvableDate | None,
+        expected_date: AnyDate | None,
+        before_date: AnyDate | None,
         new_project: NewProject,
     ) -> None:
         async with new_project({
@@ -771,9 +771,9 @@ class TestDeriver:
     )
     async def test_derive__update_comes_after(
         self,
-        expected_date: ResolvableDate | None,
-        after_date: ResolvableDate | None,
-        derivable_date: ResolvableDate | None,
+        expected_date: AnyDate | None,
+        after_date: AnyDate | None,
+        derivable_date: AnyDate | None,
         new_project: NewProject,
     ) -> None:
         async with new_project({
@@ -835,8 +835,8 @@ class TestDeriver:
     )
     async def test_derive__create_comes_after(
         self,
-        expected_date: ResolvableDate | None,
-        after_date: ResolvableDate | None,
+        expected_date: AnyDate | None,
+        after_date: AnyDate | None,
         new_project: NewProject,
     ) -> None:
         async with new_project({
@@ -895,7 +895,7 @@ class TestDeriver:
         ],
     )
     async def test_derive__should_not_exist(
-        self, after_date: ResolvableDate | None, new_project: NewProject
+        self, after_date: AnyDate | None, new_project: NewProject
     ) -> None:
         async with new_project({
             ComesBeforeReference,

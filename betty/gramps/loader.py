@@ -25,7 +25,7 @@ from lxml import etree
 
 from betty import subprocess
 from betty.copyright_notice import CopyrightNoticeManufacturer
-from betty.date import Date, DateRange, ResolvableDate
+from betty.date import AnyDate, Date, DateRange
 from betty.entity import Entity
 from betty.entity.association import ToManyResolver, ToOneResolver, resolve
 from betty.entity.has_links import HasLinks
@@ -659,7 +659,7 @@ class GrampsLoader:
     _DATE_PATTERN = re.compile(r"^.{4}((-.{2})?-.{2})?$")
     _DATE_PART_PATTERN = re.compile(r"^\d+$")
 
-    def _load_date(self, element: ElementTree.Element) -> ResolvableDate | None:
+    def _load_date(self, element: ElementTree.Element) -> AnyDate | None:
         with suppress(XPathError):
             dateval_element = self._xpath1(element, "./ns:dateval")
             if dateval_element.get("cformat") is None:

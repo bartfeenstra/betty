@@ -9,7 +9,7 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import TYPE_CHECKING, cast
 
-from betty.date import Date, ResolvableDate
+from betty.date import AnyDate, Date
 from betty.entity import persistent_id
 from betty.functools import unique
 from betty.plugins.entity.event import Event
@@ -162,7 +162,7 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
 
     if start_date is None or end_date is None:
         reference_dates = sorted(
-            cast(ResolvableDate, presence.event.date)
+            cast(AnyDate, presence.event.date)
             for presence in person.presences
             if _is_person_timeline_presence(presence)
         )

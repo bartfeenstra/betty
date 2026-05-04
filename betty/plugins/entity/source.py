@@ -13,7 +13,6 @@ from betty.entity.association import (
     ToManyAssociates,
     ToZeroOrOneAssociate,
 )
-from betty.entity.has_date import HasDate
 from betty.entity.has_file_references import HasFileReferences
 from betty.entity.has_links import HasLinks
 from betty.entity.has_notes import HasNotes
@@ -22,11 +21,12 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.privacy import HasPrivacy, Privacy, is_public, merge_privacies
+from betty.properties.date import HasAnyDate
 from betty.properties.localizable import LocalizableProperty
 from betty.property import Optional
 
 if TYPE_CHECKING:
-    from betty.date import ResolvableDate
+    from betty.date import AnyDate
     from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.plugins.entity.citation import Citation  # noqa: F401
     from betty.plugins.entity.file_reference import FileReference
@@ -43,7 +43,7 @@ if TYPE_CHECKING:
     label_plural=_("Sources"),
     label_countable=ngettext("{count} source", "{count} sources"),
 )
-class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity):
+class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity):
     """
     .. plugin:: entity:source.
     """
@@ -103,7 +103,7 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
         contained_by: ToZeroOrOneAssociate[Source] = None,
         contains: ToManyAssociates[Source] = (),
         notes: ToManyAssociates[Note] = (),
-        date: ResolvableDate | None = None,
+        date: AnyDate | None = None,
         file_references: ToManyAssociates[FileReference] = (),
         links: ToManyAssociates[Link] = (),
         privacy: Privacy | None = None,

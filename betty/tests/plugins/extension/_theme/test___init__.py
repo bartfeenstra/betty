@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.date import Date, DateRange, ResolvableDate
+from betty.date import AnyDate, Date, DateRange
 from betty.entity import persistent_id
 from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.event import Event
@@ -52,10 +52,10 @@ def _parameterize_with_associated_events() -> Iterator[
         str | None,
         Privacy,
         EventType,
-        ResolvableDate | None,
+        AnyDate | None,
         Privacy,
         EventType,
-        ResolvableDate | None,
+        AnyDate | None,
     ]
 ]:
     ids = (
@@ -145,7 +145,7 @@ class TestPersonLifetimeEvents:
         expected: bool,
         event_id: str | None,
         event_privacy: Privacy,
-        event_date: ResolvableDate | None,
+        event_date: AnyDate | None,
     ) -> None:
         person = Person()
         event = Event(
@@ -179,10 +179,10 @@ class TestPersonLifetimeEvents:
         event_id: str | None,
         event_privacy: Privacy,
         event_type: EventType,
-        event_date: ResolvableDate | None,
+        event_date: AnyDate | None,
         person_reference_event_privacy: Privacy,
         person_reference_event_type: EventType,
-        person_reference_event_date: ResolvableDate | None,
+        person_reference_event_date: AnyDate | None,
     ) -> None:
         event_ids = 0
 
