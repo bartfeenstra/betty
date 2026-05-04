@@ -1,5 +1,5 @@
 """
-Data types with human-readable description texts.
+Data that has human-readable descriptions.
 """
 
 from __future__ import annotations
@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 
 class HasDescription(LinkedDataDumpableWithSchemaJsonLdObject):
     """
-    A resource with a description.
+    Data with a description.
     """
 
     description = Optional(LocalizableProperty(label=_("Description")))

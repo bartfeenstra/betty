@@ -6,7 +6,7 @@ import pytest
 
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.test_utils.ancestry.description import DummyHasDescription
+from betty.properties.description import HasDescription
 
 if TYPE_CHECKING:
     from betty.entity.has_links import HasLinks
@@ -17,12 +17,12 @@ if TYPE_CHECKING:
 class TestHasDescription:
     def test___init___with_description(self) -> None:
         description = "Hello, world!"
-        sut = DummyHasDescription(description=description)
+        sut = HasDescription(description=description)
         assert sut.description is not None
         assert sut.description.localize(DEFAULT_LOCALIZER) == description
 
     def test_description(self) -> None:
-        sut = DummyHasDescription()
+        sut = HasDescription()
         assert not sut.description
 
     @pytest.mark.parametrize(
@@ -32,14 +32,14 @@ class TestHasDescription:
                 {
                     "@context": {"description": "https://schema.org/description"},
                 },
-                DummyHasDescription(),
+                HasDescription(),
             ),
             (
                 {
                     "@context": {"description": "https://schema.org/description"},
                     "description": {DEFAULT_LOCALE_TAG: "Hello, world!"},
                 },
-                DummyHasDescription(description="Hello, world!"),
+                HasDescription(description="Hello, world!"),
             ),
         ],
     )

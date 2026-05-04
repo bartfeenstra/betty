@@ -10,7 +10,6 @@ from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.entity import EntityDefinition
 from betty.entity.association import BidirectionalToManyMultipleTypes, ToManyAssociates
 from betty.entity.has_citations import HasCitations
-from betty.entity.has_description import HasDescription
 from betty.entity.has_links import HasLinks
 from betty.entity.has_media_type import HasMediaType
 from betty.entity.has_notes import HasNotes
@@ -19,6 +18,7 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.pathlib import resolve_path
 from betty.plugin.schema import PluginIdSchema
 from betty.privacy import HasPrivacy, Privacy
+from betty.properties.description import HasDescription
 
 if TYPE_CHECKING:
     from pathlib import Path
