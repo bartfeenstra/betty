@@ -10,7 +10,6 @@ from betty.datas.enum import EnumDefinition
 from betty.linked_data import LinkedDataDumper
 from betty.locale.localizable.gettext import _
 from betty.privacy import Privacy
-from betty.privacy.schema import PrivacySchema
 from betty.property import Property
 
 if TYPE_CHECKING:
@@ -18,7 +17,7 @@ if TYPE_CHECKING:
 
 
 @final
-class PrivacyProperty(Property, LinkedDataDumper[object, PrivacySchema, bool]):
+class PrivacyProperty(Property, LinkedDataDumper[object, bool]):
     """
     A property containing a privacy.
     """

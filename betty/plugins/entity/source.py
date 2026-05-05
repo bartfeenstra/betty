@@ -17,9 +17,8 @@ from betty.entity.has_file_references import HasFileReferences
 from betty.entity.has_links import HasLinks
 from betty.entity.has_notes import HasNotes
 from betty.locale.localizable.gettext import _, ngettext
-from betty.locale.localizable.static import STATIC_TRANSLATIONS_SCHEMA
 from betty.privacy import Privacy
-from betty.privacy.resolve import is_public, merge_privacies
+from betty.privacy.resolve import merge_privacies
 from betty.properties.date import HasAnyDate
 from betty.properties.localizable import LocalizableProperty
 from betty.properties.privacy import HasPrivacy
@@ -27,14 +26,11 @@ from betty.property import Optional
 
 if TYPE_CHECKING:
     from betty.date import AnyDate
-    from betty.json_schema import Schema
     from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.plugins.entity.citation import Citation  # noqa: F401
     from betty.plugins.entity.file_reference import FileReference
     from betty.plugins.entity.link import Link
     from betty.plugins.entity.note import Note
-    from betty.portable import PortableMapping
-    from betty.project import Project
 
 
 @final
@@ -134,34 +130,3 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Enti
     @property
     def label(self) -> Localizable:
         return self.name if self.name else super().label
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> Schema:
-        schema = await super().linked_data_schema(project)
-        schema.add_property("author", STATIC_TRANSLATIONS_SCHEMA, False)
-        schema.add_property("name", STATIC_TRANSLATIONS_SCHEMA, False)
-        schema.add_property("publisher", STATIC_TRANSLATIONS_SCHEMA, False)
-        return schema
-
-    @override
-    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
-        portable["@type"] = "https://schema.org/Thing"
-        # @todo Refactor dump_context()
-        # dump_context(portable, name="https://schema.org/name")
-        if is_public(self):
-            public_localizers = await project.public_localizers
-            if self.author is not None:
-                portable["author"] = dump_linked_data(
-                    self.author, localizers=public_localizers
-                )
-            if self.name is not None:
-                portable["name"] = dump_linked_data(
-                    self.name, localizers=public_localizers
-                )
-            if self.publisher is not None:
-                portable["publisher"] = dump_linked_data(
-                    self.publisher, localizers=public_localizers
-                )
-        return portable

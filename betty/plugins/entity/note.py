@@ -13,19 +13,14 @@ from betty.entity.association import (
 )
 from betty.entity.has_links import HasLinks
 from betty.locale.localizable.gettext import _, ngettext
-from betty.locale.localizable.static import STATIC_TRANSLATIONS_SCHEMA
 from betty.privacy import Privacy
-from betty.privacy.resolve import is_public
 from betty.properties.localizable import LocalizableProperty
 from betty.properties.media_type import HasMediaType
 from betty.properties.privacy import HasPrivacy
 
 if TYPE_CHECKING:
     from betty.entity.has_notes import HasNotes
-    from betty.json_schema import Schema
     from betty.locale.localizable import Localizable, ResolvableLocalizable
-    from betty.portable import PortableMapping
-    from betty.project import Project
 
 
 @final
@@ -72,20 +67,3 @@ class Note(HasPrivacy, HasLinks, HasMediaType):
     @property
     def label(self) -> Localizable:
         return self.text
-
-    @override
-    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
-        portable["@type"] = "https://schema.org/Thing"
-        if is_public(self):
-            portable["text"] = dump_linked_data(
-                self.text, localizers=await project.public_localizers
-            )
-        return portable
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> Schema:
-        schema = await super().linked_data_schema(project)
-        schema.add_property("text", STATIC_TRANSLATIONS_SCHEMA, False)
-        return schema

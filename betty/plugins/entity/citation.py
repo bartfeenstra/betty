@@ -16,10 +16,9 @@ from betty.entity.association import (
 from betty.entity.has_file_references import HasFileReferences
 from betty.entity.has_links import HasLinks
 from betty.locale.localizable.gettext import _, ngettext
-from betty.locale.localizable.static import STATIC_TRANSLATIONS_SCHEMA
 from betty.plugins.entity.source import Source
 from betty.privacy import Privacy
-from betty.privacy.resolve import is_public, merge_secondary_privacies
+from betty.privacy.resolve import merge_secondary_privacies
 from betty.properties.date import HasAnyDate
 from betty.properties.localizable import LocalizableProperty
 from betty.properties.privacy import HasPrivacy
@@ -28,11 +27,8 @@ from betty.property import Optional
 if TYPE_CHECKING:
     from betty.date import AnyDate
     from betty.entity.has_citations import HasCitations
-    from betty.json_schema import Schema
     from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.plugins.entity.file_reference import FileReference
-    from betty.portable import PortableMapping
-    from betty.project import Project
 
 
 @final
@@ -103,20 +99,3 @@ class Citation(HasAnyDate, HasFileReferences, HasPrivacy, HasLinks):
     @property
     def label(self) -> Localizable:
         return self.location or super().label
-
-    @override
-    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
-        portable["@type"] = "https://schema.org/Thing"
-        if is_public(self) and self.location is not None:
-            portable["location"] = dump_linked_data(
-                self.location, localizers=await project.public_localizers
-            )
-        return portable
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> Schema:
-        schema = await super().linked_data_schema(project)
-        schema.add_property("location", STATIC_TRANSLATIONS_SCHEMA, False)
-        return schema
