@@ -18,10 +18,11 @@ from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project
 from betty.properties.localizable import LocalizableProperty
 from betty.properties.machine_name import MachineNameProperty
+from betty.properties.optional import Optional
 from betty.properties.plugin_manufacturer_sequence import (
     PluginManufacturerSequenceProperty,
 )
-from betty.property import Optional, Property
+from betty.property import Property
 from betty.sample import Sample, Size
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 

@@ -29,6 +29,7 @@ class PluginManufacturerSequenceProperty[
     PluginT: Plugin,
 ](
     SequenceProperty[
+        PluginManufacturerSequenceDefinition,
         MutableResolvedSequence[
             PluginManufacturer[PluginDefinitionT, PluginT],
             ResolvablePluginManufacturer[PluginDefinitionT, PluginT],

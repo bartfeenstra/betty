@@ -38,7 +38,8 @@ from betty.plugins.extension.webpack.build import EntryPointProvider
 from betty.project import Project
 from betty.project.generate import Generator
 from betty.properties.collection.mapping import MappingProperty
-from betty.property import Optional, Property
+from betty.properties.optional import Optional
+from betty.property import Property
 from betty.sample import Sample, Size
 from betty.service import ServiceProvider
 from betty.service.simple import service

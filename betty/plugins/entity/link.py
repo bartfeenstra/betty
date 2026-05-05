@@ -18,8 +18,8 @@ from betty.privacy.resolve import merge_privacies
 from betty.properties.description import HasDescription
 from betty.properties.localizable import LocalizableProperty
 from betty.properties.media_type import HasMediaType
+from betty.properties.optional import Optional
 from betty.properties.privacy import HasPrivacy
-from betty.property import Optional
 
 if TYPE_CHECKING:
     from betty.entity.has_links import HasLinks

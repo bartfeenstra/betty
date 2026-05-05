@@ -8,18 +8,18 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 from inspect import getmembers
 from types import FunctionType
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, cast, final, override
 
-from betty.data import DataDefinition
+from betty.data import Data, DataDefinition
 from betty.datas.aggregate.record import FieldDefinition, RecordDefinition
 from betty.importlib import fully_qualified_name
 from betty.indicator.selector import Attr as AttrElement
 from betty.locale.localizable import resolve_localizable
+from betty.typing import Intersection
 
 if TYPE_CHECKING:
     from collections.abc import Callable, MutableMapping
 
-    from betty.data import Data
     from betty.locale.localizable import Localizable, ResolvableLocalizable
 
 
@@ -27,7 +27,7 @@ _attrs: MutableMapping[str, MutableMapping[str, AttrDefinition]] = defaultdict(d
 
 
 @final
-class AttrDefinition[DataClsT]:
+class AttrDefinition[DataDefinitionT: DataDefinition, DataClsT]:
     """
     Define an object attribute.
 
@@ -45,14 +45,20 @@ class AttrDefinition[DataClsT]:
 
     def __init__(
         self,
-        data: DataDefinition[DataClsT] | type[Data[DataDefinition[DataClsT]]],
+        data: Intersection[DataDefinition[DataClsT], DataDefinitionT]
+        | type[Data[Intersection[DataDefinition[DataClsT], DataDefinitionT]]],
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
         omit_load: bool | None = None,
         omit_dump: Callable[[DataClsT], bool] | None = None,
     ):
-        self._data = data if isinstance(data, DataDefinition) else data.data()
+        if isinstance(data, type):
+            data = cast(
+                type[Data[Intersection[DataDefinition[DataClsT], DataDefinitionT]]],
+                data,
+            ).data()
+        self._data = data
         self._label = None if label is None else resolve_localizable(label)
         self._description = (
             None if description is None else resolve_localizable(description)
@@ -88,7 +94,7 @@ class AttrDefinition[DataClsT]:
         return attribute
 
     @property
-    def data(self) -> DataDefinition[DataClsT]:
+    def data(self) -> DataDefinitionT:
         """
         The attribute's data definition.
         """
@@ -123,14 +129,14 @@ class AttrDefinition[DataClsT]:
         return self._omit_dump
 
 
-class Attr[DataClsT](ABC):
+class Attr[DataDefinitionT: DataDefinition, DataClsT](ABC):
     """
     A class attribute that exposes its data definition.
     """
 
     @property
     @abstractmethod
-    def attr(self) -> AttrDefinition[DataClsT]:
+    def attr(self) -> AttrDefinition[DataDefinitionT, DataClsT]:
         """
         The attribute's data definition.
         """

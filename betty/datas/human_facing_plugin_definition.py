@@ -10,7 +10,7 @@ from betty.datas.plugin_definition import PluginDefinitionData
 from betty.locale.localizable.gettext import _
 from betty.plugin import PluginDefinition
 from betty.properties.localizable import LocalizableProperty
-from betty.property import Optional
+from betty.properties.optional import Optional
 
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable

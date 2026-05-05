@@ -12,30 +12,42 @@ from betty.functools import passthrough
 from betty.property import Property
 
 if TYPE_CHECKING:
-    from betty.data import Data, DataDefinition
+    from betty.data import Data
     from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
+    from betty.datas.aggregate.record.object import AttrDefinition
     from betty.locale.localizable import ResolvableLocalizable
     from betty.typing import Intersection
 
 
 class KeyedCollectionProperty[
+    KeyedCollectionDefinitionT: KeyedCollectionDefinition,
     MutableKeyedCollectionT: MutableKeyedCollection,
     ValueSetT,
-](Property[MutableKeyedCollectionT, Iterable[ValueSetT]]):
+](Property[KeyedCollectionDefinitionT, MutableKeyedCollectionT, Iterable[ValueSetT]]):
     """
     A property that contains an :py:class:`betty.collection.keyed.KeyedCollection`.
     """
 
-    _data: KeyedCollectionDefinition[MutableKeyedCollectionT]
+    _attr: AttrDefinition[
+        Intersection[
+            KeyedCollectionDefinition[MutableKeyedCollectionT],
+            KeyedCollectionDefinitionT,
+        ],
+        MutableKeyedCollectionT,
+    ]
 
     def __init__(
         self,
         data: Intersection[
-            DataDefinition[MutableKeyedCollectionT], KeyedCollectionDefinition
+            KeyedCollectionDefinition[MutableKeyedCollectionT],
+            KeyedCollectionDefinitionT,
         ]
-        | Data[
-            Intersection[
-                DataDefinition[MutableKeyedCollectionT], KeyedCollectionDefinition
+        | type[
+            Data[
+                Intersection[
+                    KeyedCollectionDefinition[MutableKeyedCollectionT],
+                    KeyedCollectionDefinitionT,
+                ]
             ]
         ],
         *,
@@ -61,7 +73,7 @@ class KeyedCollectionProperty[
 
     @final
     def _new_default(self) -> MutableKeyedCollectionT:
-        new = self._data.new()
+        new = self._attr.data.new()
         new.add(*self._values_resolver(self._default_values()))
         return new
 

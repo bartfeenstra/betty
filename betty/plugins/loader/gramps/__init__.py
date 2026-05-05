@@ -40,7 +40,8 @@ from betty.plugins.loader.gramps.jobs import LoadAncestry
 from betty.project import Project
 from betty.properties.collection.mapping import MappingProperty
 from betty.properties.collection.sequence import SequenceProperty
-from betty.property import Optional, Property
+from betty.properties.optional import Optional
+from betty.property import Property
 from betty.role import Role, RoleDefinition, RoleManufacturer
 from betty.sample import Sample, Size
 
@@ -58,6 +59,9 @@ if TYPE_CHECKING:
 
 class _PluginMappingProperty[PluginDefinitionT: PluginDefinition, PluginT: Plugin](
     MappingProperty[
+        MappingDefinition[
+            MutableMapping[str, PluginManufacturer[PluginDefinitionT, PluginT]]
+        ],
         MutableMapping[str, PluginManufacturer[PluginDefinitionT, PluginT]],
         str,
         PluginManufacturer[PluginDefinitionT, PluginT],

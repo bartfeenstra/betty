@@ -16,10 +16,11 @@ from betty.locale.localizable.gettext import _
 from betty.plugins.content.render import Render, RenderData
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project
+from betty.properties.optional import Optional
 from betty.properties.plugin_manufacturer_sequence import (
     PluginManufacturerSequenceProperty,
 )
-from betty.property import Optional, Property
+from betty.property import Property
 from betty.sample import Sample, Size
 
 if TYPE_CHECKING:

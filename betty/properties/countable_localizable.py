@@ -18,7 +18,11 @@ from betty.property import Property
 
 @final
 class CountableLocalizableProperty(
-    Property[CountableLocalizable, ResolvableCountableLocalizable]
+    Property[
+        CountableLocalizableDefinition,
+        CountableLocalizable,
+        ResolvableCountableLocalizable,
+    ]
 ):
     """
     A property containing a :py:class:`betty.locale.localizable.CountableLocalizable`.

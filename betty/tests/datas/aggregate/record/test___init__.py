@@ -4,7 +4,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from betty.data import DataDefinition, OptionalDefinition
+from betty.data import DataDefinition
 from betty.datas.aggregate.record import (
     FieldDefinition,
     MappingPorter,
@@ -14,6 +14,7 @@ from betty.datas.aggregate.record import (
     RecordPorter,
 )
 from betty.datas.bool import BoolDefinition
+from betty.datas.optional import OptionalDefinition
 from betty.datas.str import StrDefinition
 from betty.exception import HumanFacingException
 from betty.indicator.selector import Attr, Key

@@ -35,7 +35,7 @@ from betty.media_type import MediaTypeDefinition
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.portable.file import assert_load_file
 from betty.properties.locale import LocaleProperty
-from betty.property import Optional
+from betty.properties.optional import Optional
 from betty.sample import Sample, Size
 from betty.serde import SerializerDefinition
 from betty.service import Service

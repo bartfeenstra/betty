@@ -35,7 +35,7 @@ class PrivacyProperty(Property, LinkedDataDumper[object, PrivacySchema, bool]):
         if isinstance(target, HasPrivacy):
             privacy = target.privacy
         else:
-            privacy = getattr(target, self._attr_name)
+            privacy = getattr(target, self.name)
         return privacy is Privacy.PRIVATE
 
 

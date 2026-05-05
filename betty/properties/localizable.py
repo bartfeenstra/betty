@@ -16,7 +16,9 @@ from betty.property import Property
 
 
 @final
-class LocalizableProperty(Property[Localizable, ResolvableLocalizable]):
+class LocalizableProperty(
+    Property[LocalizableDefinition, Localizable, ResolvableLocalizable]
+):
     """
     A property containing a :py:class:`betty.locale.localizable.Localizable`.
     """

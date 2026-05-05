@@ -97,8 +97,9 @@ from betty.properties.collection.keyed import KeyedCollectionProperty
 from betty.properties.collection.sequence import SequenceProperty
 from betty.properties.localizable import LocalizableProperty
 from betty.properties.machine_name import MachineNameProperty
+from betty.properties.optional import Optional
 from betty.properties.plugin_definitions import PluginDefinitionDatasProperty
-from betty.property import Optional, Property
+from betty.property import Property
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.role import RoleDefinition
 from betty.sample import Sample, Size

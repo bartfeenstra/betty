@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 
 @final
 class KeyedCollectionDefinition[
-    MutableKeyedCollectionT: MutableKeyedCollection = MutableKeyedCollection,
+    MutableKeyedCollectionT: MutableKeyedCollection,
     ElementT: Element[str] = Element[str],
 ](CollectionDefinition[MutableKeyedCollectionT, ElementT]):
     """
@@ -37,13 +37,18 @@ class KeyedCollectionDefinition[
 
     _item: RecordDefinition[Any, ElementT]
 
-    def __init__[KeyT, ValueT](
+    def __init__[ValueT](
         self,
         /,
-        cls: type[MutableKeyedCollection] | None = None,
+        cls: type[
+            Intersection[
+                MutableKeyedCollectionT, MutableKeyedCollection[Any, Any, ValueT, Any]
+            ]
+        ]
+        | None = None,
         *,
         value: RecordDefinition[ValueT, ElementT]
-        | type[Intersection[ValueT, Data[RecordDefinition[Any, ElementT]]]],
+        | type[Intersection[ValueT, Data[RecordDefinition[ValueT, ElementT]]]],
         key: ElementT,
         order_dump: bool = False,
         label: ResolvableLocalizable,

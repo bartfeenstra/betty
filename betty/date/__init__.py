@@ -38,7 +38,8 @@ from betty.locale.localizable.gettext import _
 from betty.portable import Portable as Portable
 from betty.portable import PortableData as PortableData
 from betty.portable import PortableMapping as PortableMapping
-from betty.property import Optional, Property
+from betty.properties.optional import Optional
+from betty.property import Property
 from betty.sample import Sample, Size
 
 if TYPE_CHECKING:

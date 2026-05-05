@@ -13,28 +13,32 @@ from betty.property import Property
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from betty.data import Data, DataDefinition
+    from betty.data import Data
     from betty.datas.aggregate.collection.mapping import MappingDefinition
+    from betty.datas.aggregate.record.object import AttrDefinition
     from betty.locale.localizable import ResolvableLocalizable
     from betty.typing import Intersection
 
 
 class MappingProperty[
+    MappingDefinitionT: MappingDefinition,
     MutableMappingT: MutableMapping[Any, Any],
     KeyGetT,
     ItemGetT,
     ValueSetT,
-](Property[MutableMappingT, ValueSetT]):
+](Property[MappingDefinitionT, MutableMappingT, ValueSetT]):
     """
     A property that contains a :py:class:`collections.abc.MutableMapping`.
     """
 
-    _data: MappingDefinition[MutableMappingT]
+    _attr: AttrDefinition[MappingDefinitionT, MutableMappingT]
 
     def __init__(
         self,
-        data: Intersection[DataDefinition[MutableMappingT], MappingDefinition]
-        | Data[Intersection[DataDefinition[MutableMappingT], MappingDefinition]],
+        data: Intersection[MappingDefinition[MutableMappingT], MappingDefinitionT]
+        | type[
+            Data[Intersection[MappingDefinition[MutableMappingT], MappingDefinitionT]]
+        ],
         *,
         default: Callable[[], ValueSetT] | None = None,
         description: ResolvableLocalizable | None = None,
@@ -56,7 +60,7 @@ class MappingProperty[
 
     @final
     def _new_default(self) -> MutableMappingT:
-        new = self._data.new()
+        new = self._attr.data.new()
         if self._default_values is not None:
             new.update(self._mapping_resolver(self._default_values()))
         return new

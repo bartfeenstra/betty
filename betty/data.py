@@ -5,20 +5,19 @@ Describe, access, and manipulate arbitrary data.
 from __future__ import annotations
 
 from functools import update_wrapper
-from typing import TYPE_CHECKING, Self, final, override
+from typing import TYPE_CHECKING, Self, override
 
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.importlib import fully_qualified_name
 from betty.portable import (
-    OptionalPorter,
     Portable,
     PortableData,
     PortablePorter,
     Porter,
 )
 from betty.portable.error import NotPortable
-from betty.sample import Samplable, Sample, Samples, Size
+from betty.sample import Samplable, Sample, Samples
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
@@ -102,30 +101,3 @@ class Data[DataDefinitionT: DataDefinition = DataDefinition]:
             return NotImplemented
         porter = type(self).data().porter
         return porter.dump(self) == porter.dump(other)
-
-
-@final
-class OptionalDefinition[DataClsT](DataDefinition[DataClsT | None]):
-    """
-    Wrap another data definition to make it optional, e.g. allow ``None``.
-    """
-
-    def __init__(self, wrapped: DataDefinition[DataClsT], /):
-        super().__init__(
-            cls=wrapped.cls,
-            label=wrapped.label,
-            description=wrapped.description,
-            porter=OptionalPorter(wrapped.porter),  # ty:ignore[invalid-argument-type]
-            samples=[
-                lambda: Sample(None, label="Minimal", size=Size.MINIMAL),
-                wrapped.samples,
-            ],
-        )
-        self._wrapped = wrapped
-
-    @property
-    def wrapped(self) -> DataDefinition[DataClsT]:
-        """
-        The wrapped, required (non-optional) data definition.
-        """
-        return self._wrapped

@@ -23,8 +23,8 @@ from betty.privacy import Privacy
 from betty.privacy.resolve import is_public, merge_secondary_privacies
 from betty.properties.date import HasAnyDate
 from betty.properties.localizable import LocalizableProperty
+from betty.properties.optional import Optional
 from betty.properties.privacy import HasPrivacy
-from betty.property import Optional
 
 if TYPE_CHECKING:
     from betty.date import AnyDate

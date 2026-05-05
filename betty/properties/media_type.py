@@ -6,11 +6,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, final, override
 
+from betty.data import DataDefinition
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
 from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
 from betty.media_type.schema import MediaTypeSchema
 from betty.privacy.resolve import is_public
-from betty.property import Optional, Property
+from betty.properties.optional import Optional
+from betty.property import Property
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -21,7 +23,7 @@ if TYPE_CHECKING:
 
 
 @final
-class MediaTypeProperty(Property[MediaType, ResolvableMediaType]):
+class MediaTypeProperty(Property[DataDefinition, MediaType, ResolvableMediaType]):
     """
     A property containing a media type.
     """

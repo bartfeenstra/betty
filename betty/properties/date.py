@@ -15,7 +15,8 @@ from betty.date.linked_data import (
 from betty.date.schema import ResolvableDateSchema
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
 from betty.privacy.resolve import is_public
-from betty.property import Optional, Property
+from betty.properties.optional import Optional
+from betty.property import Property
 
 if TYPE_CHECKING:
     from betty.portable import PortableMapping

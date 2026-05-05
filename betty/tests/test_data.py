@@ -5,9 +5,8 @@ from typing import Self, override
 import pytest
 
 from betty.assertion import assert_str
-from betty.data import Data, DataDefinition, OptionalDefinition, Sample
-from betty.datas.bool import BoolDefinition
-from betty.portable import CallbackPorter, OptionalPorter, Portable, PortableData
+from betty.data import Data, DataDefinition, Sample
+from betty.portable import CallbackPorter, Portable, PortableData
 from betty.portable.error import NotPortable
 from betty.sample import Samplable, Samples
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
@@ -100,16 +99,3 @@ class TestDataDefinition:
         sut = DataDefinition(cls=object, label=DUMMY_LOCALIZABLE)
         with pytest.raises(NotPortable):
             sut.porter.dump(None)
-
-
-class TestOptionalDefinition:
-    def test_wrapped(self) -> None:
-        wrapped = BoolDefinition(label=DUMMY_LOCALIZABLE)
-        sut = OptionalDefinition(wrapped)
-        assert sut.wrapped is wrapped
-
-    def test_porter(self) -> None:
-        sut = OptionalDefinition(
-            DataDefinition(cls=_DummyData, label=DUMMY_LOCALIZABLE)
-        )
-        assert isinstance(sut.porter, OptionalPorter)

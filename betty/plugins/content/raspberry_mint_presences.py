@@ -18,7 +18,8 @@ from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.event import Event
 from betty.project import Project
-from betty.property import Optional, Property
+from betty.properties.optional import Optional
+from betty.property import Property
 from betty.role import RoleDefinition
 from betty.sample import Sample, Size
 

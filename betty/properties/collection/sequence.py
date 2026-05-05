@@ -15,31 +15,37 @@ if TYPE_CHECKING:
 
     from betty.data import Data, DataDefinition
     from betty.datas.aggregate.collection.sequence import SequenceDefinition
+    from betty.datas.aggregate.record.object import AttrDefinition
     from betty.locale.localizable import ResolvableLocalizable
     from betty.typing import Intersection
 
 
-class SequenceProperty[MutableSequenceT: MutableSequence[Any], ItemGetT, ValueSetT](
-    Property[MutableSequenceT, ValueSetT]
-):
+class SequenceProperty[
+    SequenceDefinitionT: SequenceDefinition,
+    MutableSequenceT: MutableSequence[Any],
+    ItemGetT,
+    ValueSetT,
+](Property[SequenceDefinitionT, MutableSequenceT, ValueSetT]):
     """
     A property that contains a :py:class:`collections.abc.MutableSequence`.
     """
 
-    _data: SequenceDefinition[MutableSequenceT]
+    _attr: AttrDefinition[SequenceDefinitionT, MutableSequenceT]
 
     def __init__(
         self,
         data: Intersection[
             DataDefinition[Intersection[MutableSequenceT, MutableSequence[ItemGetT]]],
-            SequenceDefinition,
+            SequenceDefinitionT,
         ]
-        | Data[
-            Intersection[
-                DataDefinition[
-                    Intersection[MutableSequenceT, MutableSequence[ItemGetT]]
-                ],
-                SequenceDefinition,
+        | type[
+            Data[
+                Intersection[
+                    DataDefinition[
+                        Intersection[MutableSequenceT, MutableSequence[ItemGetT]]
+                    ],
+                    SequenceDefinitionT,
+                ]
             ]
         ],
         *,
@@ -63,7 +69,7 @@ class SequenceProperty[MutableSequenceT: MutableSequence[Any], ItemGetT, ValueSe
 
     @final
     def _new_default(self) -> MutableSequenceT:
-        new = self._data.new()
+        new = self._attr.data.new()
         if self._default_values is not None:
             new.extend(self._sequence_resolver(self._default_values()))
         return new

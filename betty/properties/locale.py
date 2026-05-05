@@ -12,7 +12,8 @@ from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdOb
 from betty.locale import Localized, ResolvableLocale, resolve_locale, to_language_tag
 from betty.locale.schema import LocaleSchema
 from betty.privacy.resolve import is_public
-from betty.property import Optional, Property
+from betty.properties.optional import Optional
+from betty.property import Property
 
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable

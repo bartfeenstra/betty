@@ -33,8 +33,8 @@ from betty.privacy import Privacy
 from betty.properties.date import HasAnyDate
 from betty.properties.description import HasDescription
 from betty.properties.localizable import LocalizableProperty
+from betty.properties.optional import Optional
 from betty.properties.privacy import HasPrivacy
-from betty.property import Optional
 
 if TYPE_CHECKING:
     from collections.abc import Mapping

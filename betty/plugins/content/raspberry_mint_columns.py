@@ -33,7 +33,8 @@ from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.extension.raspberry_mint import Breakpoint, JustifyContent
 from betty.portable import CallbackPorter
 from betty.project import Project
-from betty.property import Optional, Property
+from betty.properties.optional import Optional
+from betty.property import Property
 from betty.sample import Sample, Size
 
 if TYPE_CHECKING:

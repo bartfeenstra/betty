@@ -12,7 +12,8 @@ from betty.datas.str import StrDefinition
 from betty.importlib import fully_qualified_name
 from betty.locale.localizable.plain import Plain
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.property import Optional, Property
+from betty.properties.optional import Optional
+from betty.property import Property
 
 
 class DataTestBase[DataT: Data]:
