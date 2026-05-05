@@ -40,10 +40,10 @@ class Link(LinkType, HasMediaType, HasDescription, HasPrivacy, Entity):
     .. plugin:: entity:link.
     """
 
-    _url = LocalizableProperty(
+    url = LocalizableProperty(
         label=_("URL"), description="The full URL to the other resource."
     )
-    _label = Optional(
+    label = Optional(
         LocalizableProperty(
             label=_("Label"), description="The human-readable link label."
         )
@@ -83,27 +83,12 @@ class Link(LinkType, HasMediaType, HasDescription, HasPrivacy, Entity):
         if owner is not None:
             self.owner = owner
 
-    @override
-    @property
-    def url(self) -> Localizable:
-        return self._url
-
-    @url.setter
-    def url(self, url: ResolvableLocalizable) -> None:
-        self._url = url
-
-    @override
-    @property
-    def label(self) -> Localizable:
-        return self.url if self._label is None else self._label
-
-    @label.setter
-    def label(self, label: ResolvableLocalizable | None) -> None:
-        self._label = label
-
-    @label.deleter
-    def label(self) -> None:
-        del self._label
+    # @todo Expand Property with getter(), setter(), and deleter(), much like @property does.
+    # @todo getter() gets the current value, the others take the same arguments as @property.
+    # @todo Do this in a separate PR.
+    @label.getter
+    def label(self, label: Localizable | None, /) -> Localizable:
+        return self.url if label is None else label
 
     @property
     def has_label(self) -> bool:
