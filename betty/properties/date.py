@@ -14,7 +14,7 @@ from betty.date.linked_data import (
 )
 from betty.date.schema import ResolvableDateSchema
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
-from betty.privacy import is_public
+from betty.privacy.resolve import is_public
 from betty.property import Optional, Property
 
 if TYPE_CHECKING:

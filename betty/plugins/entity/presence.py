@@ -10,7 +10,9 @@ from betty.entity import Entity, EntityDefinition
 from betty.entity.association import BidirectionalToOne, ToOneAssociate
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin.schema import PluginIdSchema
-from betty.privacy import HasPrivacy, Privacy, is_public, merge_secondary_privacies
+from betty.privacy import Privacy
+from betty.privacy.resolve import is_public, merge_secondary_privacies
+from betty.properties.privacy import HasPrivacy
 from betty.role import RoleDefinition
 
 if TYPE_CHECKING:
@@ -66,7 +68,7 @@ class Presence(HasPrivacy, Entity):
         role: Role,
         event: ToOneAssociate[Event],
         *,
-        privacy: Privacy | None = None,
+        privacy: Privacy = Privacy.UNDETERMINED,
     ):
         super().__init__(None, privacy=privacy)
         self.person = person

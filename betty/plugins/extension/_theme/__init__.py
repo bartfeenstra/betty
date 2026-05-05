@@ -18,7 +18,7 @@ from betty.plugins.entity.place import Place
 from betty.plugins.event_type.birth import Birth
 from betty.plugins.event_type.death import Death
 from betty.plugins.role.subject import Subject
-from betty.privacy import is_public
+from betty.privacy.resolve import is_public
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence

@@ -110,7 +110,7 @@ from betty.plugins.role.informant import Informant
 from betty.plugins.role.subject import Subject
 from betty.plugins.role.unknown import Unknown as UnknownRole
 from betty.plugins.role.witness import Witness
-from betty.privacy import HasPrivacy
+from betty.properties.privacy import HasPrivacy
 from betty.role import RoleManufacturer
 
 if TYPE_CHECKING:

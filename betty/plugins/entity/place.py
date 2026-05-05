@@ -17,7 +17,8 @@ from betty.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugins.entity.place_name import PlaceName
 from betty.plugins.place_type.unknown import Unknown as UnknownPlaceType
-from betty.privacy import HasPrivacy
+from betty.privacy import Privacy
+from betty.properties.privacy import HasPrivacy
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, MutableSequence
@@ -31,7 +32,6 @@ if TYPE_CHECKING:
     from betty.plugins.entity.link import Link
     from betty.plugins.entity.note import Note
     from betty.portable import PortableMapping
-    from betty.privacy import Privacy
     from betty.project import Project
 
 
@@ -90,7 +90,7 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
         notes: ToManyAssociates[Note] = (),
         coordinates: Point | None = None,
         links: ToManyAssociates[Link] = (),
-        privacy: Privacy | None = None,
+        privacy: Privacy = Privacy.UNDETERMINED,
         place_type: PlaceType | None = None,
     ):
         super().__init__(id, notes=notes, links=links, privacy=privacy)

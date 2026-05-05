@@ -102,7 +102,7 @@ class TestPersonName(EntityTestBase):
             "id": sut.id,
             "individual": "Jane",
             "locale": "und",
-            "private": False,
+            "privacy": False,
             "citations": [],
             "person": None,
         }
@@ -120,7 +120,7 @@ class TestPersonName(EntityTestBase):
             "id": sut.id,
             "affiliation": "Doe",
             "locale": "und",
-            "private": False,
+            "privacy": False,
             "citations": [],
             "person": None,
         }
@@ -149,7 +149,7 @@ class TestPersonName(EntityTestBase):
             "individual": "Jane",
             "affiliation": "Doe",
             "locale": locale,
-            "private": False,
+            "privacy": False,
             "citations": [
                 "/citation/C1/index.json",
             ],
@@ -175,7 +175,7 @@ class TestPersonName(EntityTestBase):
         expected = {
             "id": sut.id,
             "locale": None,
-            "private": True,
+            "privacy": True,
             "citations": [
                 "/citation/C1/index.json",
             ],

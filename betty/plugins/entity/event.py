@@ -29,10 +29,11 @@ from betty.plugins.entity.place import Place
 from betty.plugins.entity.presence import Presence
 from betty.plugins.event_type.unknown import Unknown as UnknownEventType
 from betty.plugins.role.subject import Subject
-from betty.privacy import HasPrivacy, Privacy
+from betty.privacy import Privacy
 from betty.properties.date import HasAnyDate
 from betty.properties.description import HasDescription
 from betty.properties.localizable import LocalizableProperty
+from betty.properties.privacy import HasPrivacy
 from betty.property import Optional
 
 if TYPE_CHECKING:
@@ -102,7 +103,7 @@ class Event(
         file_references: ToManyAssociates[FileReference] = (),
         citations: ToManyAssociates[Citation] = (),
         notes: ToManyAssociates[Note] = (),
-        privacy: Privacy | None = None,
+        privacy: Privacy = Privacy.UNDETERMINED,
         place: ToZeroOrOneAssociate[Place] = None,
         description: ResolvableLocalizable | None = None,
         presences: ToManyAssociates[Presence] = (),

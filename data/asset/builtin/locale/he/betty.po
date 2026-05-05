@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-05-04 23:28+0100\n"
+"POT-Creation-Date: 2026-05-05 13:39+0100\n"
 "PO-Revision-Date: 2026-02-17 18:12+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
 "Language: he\n"
@@ -1359,6 +1359,9 @@ msgid "Previous page"
 msgstr ""
 
 msgid "Primary color"
+msgstr ""
+
+msgid "Privacy"
 msgstr ""
 
 #, python-brace-format

@@ -92,7 +92,7 @@ class TestLink(EntityTestBase):
                 DEFAULT_LOCALE_TAG: "https://example.com",
             },
             "owner": None,
-            "private": False,
+            "privacy": False,
         }
         actual = await assert_dumps_linked_data(link)
         assert actual == expected
@@ -124,7 +124,7 @@ class TestLink(EntityTestBase):
             },
             "mediaType": "text/html",
             "owner": "/dummy-has-links/O1/index.json",
-            "private": False,
+            "privacy": False,
         }
         actual = await assert_dumps_linked_data(link)
         assert actual == expected
@@ -146,7 +146,7 @@ class TestLink(EntityTestBase):
             "@context": {"description": "https://schema.org/description"},
             "id": link.id,
             "owner": "/dummy-has-links/O1/index.json",
-            "private": True,
+            "privacy": True,
         }
         actual = await assert_dumps_linked_data(link)
         assert actual == expected

@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import Any, final
 
 from betty.jinja.test import JinjaTest, JinjaTestDefinition
-from betty.privacy import is_public
+from betty.privacy.resolve import is_public
 
 
 @final

@@ -53,7 +53,7 @@ class TestNote(EntityTestBase):
             "@id": "https://example.com/note/the_note/index.json",
             "@type": "https://schema.org/Thing",
             "id": "the_note",
-            "private": False,
+            "privacy": False,
             "text": {DEFAULT_LOCALE_TAG: "The Note"},
             "entity": None,
             "links": [],
@@ -73,7 +73,7 @@ class TestNote(EntityTestBase):
             "@id": "https://example.com/note/the_note/index.json",
             "@type": "https://schema.org/Thing",
             "id": "the_note",
-            "private": True,
+            "privacy": True,
             "links": [],
             "entity": None,
         }

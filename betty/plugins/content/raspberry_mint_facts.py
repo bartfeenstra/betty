@@ -14,7 +14,7 @@ from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.source import Source
-from betty.privacy import is_public
+from betty.privacy.resolve import is_public
 from betty.project import Project
 
 if TYPE_CHECKING:

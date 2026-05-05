@@ -13,10 +13,12 @@ from betty.link import Link as LinkType
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
-from betty.privacy import HasPrivacy, Privacy, merge_privacies
+from betty.privacy import Privacy
+from betty.privacy.resolve import merge_privacies
 from betty.properties.description import HasDescription
 from betty.properties.localizable import LocalizableProperty
 from betty.properties.media_type import HasMediaType
+from betty.properties.privacy import HasPrivacy
 from betty.property import Optional
 
 if TYPE_CHECKING:
@@ -67,7 +69,7 @@ class Link(LinkType, HasMediaType, HasDescription, HasPrivacy, Entity):
         description: ResolvableLocalizable | None = None,
         media_type: ResolvableMediaType | None = None,
         owner: HasLinks | None = None,
-        privacy: Privacy | None = None,
+        privacy: Privacy = Privacy.UNDETERMINED,
     ):
         super().__init__(
             media_type=media_type, description=description, privacy=privacy
