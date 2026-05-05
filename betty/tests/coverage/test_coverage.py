@@ -1136,6 +1136,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "has_any_date_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
         },
     },
+    "betty/properties/privacy.py": {
+        "PrivacyProperty": {
+            "linked_data_schema_for": MissingReason.STATIC_CONTENT_ONLY,
+        },
+    },
     "betty/role/__init__.py": {
         "Role": MissingReason.STATIC_CONTENT_ONLY,
         "RoleDefinition": MissingReason.STATIC_CONTENT_ONLY,

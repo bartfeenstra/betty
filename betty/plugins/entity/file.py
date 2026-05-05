@@ -16,9 +16,10 @@ from betty.license import LicenseDefinition
 from betty.locale.localizable.gettext import _, ngettext
 from betty.pathlib import resolve_path
 from betty.plugin.schema import PluginIdSchema
-from betty.privacy import HasPrivacy, Privacy
+from betty.privacy import Privacy
 from betty.properties.description import HasDescription
 from betty.properties.media_type import HasMediaType
+from betty.properties.privacy import HasPrivacy
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -87,7 +88,7 @@ class File(
         description: ResolvableLocalizable | None = None,
         notes: ToManyAssociates[Note] = (),
         citations: ToManyAssociates[Citation] = (),
-        privacy: Privacy | None = None,
+        privacy: Privacy = Privacy.UNDETERMINED,
         links: ToManyAssociates[Link] = (),
         copyright_notice: CopyrightNotice | None = None,
         license: License | None = None,  # noqa: A002

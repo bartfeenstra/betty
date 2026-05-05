@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, override
 from betty.job import Job
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugins.entity.person import Person
-from betty.privacy import HasPrivacy
+from betty.properties.privacy import HasPrivacy
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, MutableMapping, MutableSequence

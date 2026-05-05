@@ -22,7 +22,7 @@ from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.openapi import Specification
 from betty.plugins.media_type.html import HTML
 from betty.plugins.media_type.json import JSON
-from betty.privacy import is_public
+from betty.privacy.resolve import is_public
 from betty.project.schema import ProjectSchema
 from betty.string import kebab_case_to_lower_camel_case
 

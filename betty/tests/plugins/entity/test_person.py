@@ -205,7 +205,7 @@ class TestPerson(EntityTestBase):
             "@id": "https://example.com/person/the_person/index.json",
             "@type": "https://schema.org/Person",
             "id": person_id,
-            "private": False,
+            "privacy": False,
             "gender": UnknownGender.plugin().id,
             "names": [],
             "parents": [],
@@ -278,7 +278,7 @@ class TestPerson(EntityTestBase):
             "@id": "https://example.com/person/the_person/index.json",
             "@type": "https://schema.org/Person",
             "id": person_id,
-            "private": False,
+            "privacy": False,
             "gender": NonBinary.plugin().id,
             "names": [
                 {
@@ -291,7 +291,7 @@ class TestPerson(EntityTestBase):
                     "affiliation": person_affiliation_name,
                     "locale": "en-US",
                     "citations": [],
-                    "private": False,
+                    "privacy": False,
                     "person": "/person/the_person/index.json",
                 },
             ],
@@ -310,7 +310,7 @@ class TestPerson(EntityTestBase):
                     "role": "subject",
                     "event": "/event/the_event/index.json",
                     "person": "/person/the_person/index.json",
-                    "private": False,
+                    "privacy": False,
                 },
             ],
             "citations": [
@@ -330,7 +330,7 @@ class TestPerson(EntityTestBase):
                         DEFAULT_LOCALE_TAG: "The Person Online",
                     },
                     "owner": "/person/the_person/index.json",
-                    "private": False,
+                    "privacy": False,
                 },
             ],
             "fileReferences": [],
@@ -402,7 +402,7 @@ class TestPerson(EntityTestBase):
                     "citations": [],
                     "locale": None,
                     "person": "/person/the_person/index.json",
-                    "private": True,
+                    "privacy": True,
                 }
             ],
             "parents": [
@@ -414,13 +414,13 @@ class TestPerson(EntityTestBase):
             "siblings": [
                 "/person/the_sibling/index.json",
             ],
-            "private": True,
+            "privacy": True,
             "presences": [
                 {
                     "id": presence.id,
                     "event": "/event/the_event/index.json",
                     "person": "/person/the_person/index.json",
-                    "private": True,
+                    "privacy": True,
                 },
             ],
             "citations": [
@@ -432,7 +432,7 @@ class TestPerson(EntityTestBase):
                     "@context": {"description": "https://schema.org/description"},
                     "id": link.id,
                     "owner": "/person/the_person/index.json",
-                    "private": True,
+                    "privacy": True,
                 }
             ],
             "fileReferences": [],

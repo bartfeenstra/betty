@@ -20,7 +20,8 @@ from betty.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin.schema import PluginIdSchema
 from betty.plugins.gender.unknown import Unknown as UnknownGender
-from betty.privacy import HasPrivacy, Privacy
+from betty.privacy import Privacy
+from betty.properties.privacy import HasPrivacy
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -96,7 +97,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
         citations: ToManyAssociates[Citation] = (),
         links: ToManyAssociates[Link] = (),
         notes: ToManyAssociates[Note] = (),
-        privacy: Privacy | None = None,
+        privacy: Privacy = Privacy.UNDETERMINED,
         parents: ToManyAssociates[Person] = (),
         children: ToManyAssociates[Person] = (),
         presences: ToManyAssociates[Presence] = (),

@@ -46,7 +46,7 @@ class TestHasLinks:
                         DEFAULT_LOCALE_TAG: "https://example.com",
                     },
                     "owner": None,
-                    "private": False,
+                    "privacy": False,
                 }
             ],
         }

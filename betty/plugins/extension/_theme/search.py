@@ -16,7 +16,7 @@ from betty.plugins.entity.file import File
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
 from betty.plugins.media_type.html import HTML
-from betty.privacy import is_private
+from betty.privacy.resolve import is_private
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence

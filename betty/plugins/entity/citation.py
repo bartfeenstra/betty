@@ -19,9 +19,11 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.plugins.entity.source import Source
-from betty.privacy import HasPrivacy, Privacy, is_public, merge_secondary_privacies
+from betty.privacy import Privacy
+from betty.privacy.resolve import is_public, merge_secondary_privacies
 from betty.properties.date import HasAnyDate
 from betty.properties.localizable import LocalizableProperty
+from betty.properties.privacy import HasPrivacy
 from betty.property import Optional
 
 if TYPE_CHECKING:
@@ -82,7 +84,7 @@ class Citation(HasAnyDate, HasFileReferences, HasPrivacy, HasLinks):
         location: ResolvableLocalizable | None = None,
         date: AnyDate | None = None,
         file_references: ToManyAssociates[FileReference] = (),
-        privacy: Privacy | None = None,
+        privacy: Privacy = Privacy.UNDETERMINED,
     ):
         super().__init__(
             id,

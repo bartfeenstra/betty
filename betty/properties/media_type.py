@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, final, override
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
 from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
 from betty.media_type.schema import MediaTypeSchema
-from betty.privacy import is_public
+from betty.privacy.resolve import is_public
 from betty.property import Optional, Property
 
 if TYPE_CHECKING:

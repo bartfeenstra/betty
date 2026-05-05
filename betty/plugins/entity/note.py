@@ -15,9 +15,11 @@ from betty.entity.has_links import HasLinks
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
-from betty.privacy import HasPrivacy, Privacy, is_public
+from betty.privacy import Privacy
+from betty.privacy.resolve import is_public
 from betty.properties.localizable import LocalizableProperty
 from betty.properties.media_type import HasMediaType
+from betty.properties.privacy import HasPrivacy
 
 if TYPE_CHECKING:
     from betty.entity.has_notes import HasNotes
@@ -60,7 +62,7 @@ class Note(HasPrivacy, HasLinks, HasMediaType):
         *,
         id: str | None = None,  # noqa: A002
         entity: ToZeroOrOneAssociate[HasNotes] | None = None,
-        privacy: Privacy | None = None,
+        privacy: Privacy = Privacy.UNDETERMINED,
     ):
         super().__init__(id, privacy=privacy)
         self.text = text

@@ -16,8 +16,10 @@ from betty.entity.has_citations import HasCitations
 from betty.json_schema import String
 from betty.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable.gettext import _, ngettext
-from betty.privacy import HasPrivacy, Privacy, merge_privacies
+from betty.privacy import Privacy
+from betty.privacy.resolve import merge_privacies
 from betty.properties.locale import HasLocale
+from betty.properties.privacy import HasPrivacy
 
 if TYPE_CHECKING:
     from betty.locale import ResolvableLocale
@@ -57,7 +59,7 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
         id: str | None = None,  # noqa: A002
         individual: str | None = None,
         affiliation: str | None = None,
-        privacy: Privacy | None = None,
+        privacy: Privacy = Privacy.UNDETERMINED,
         locale: ResolvableLocale | None = None,
         citations: ToManyAssociates[Citation] = (),
     ):

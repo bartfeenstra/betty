@@ -139,7 +139,7 @@ class TestFile(EntityTestBase):
                 "@context": {"description": "https://schema.org/description"},
                 "@id": "https://example.com/file/the_file/index.json",
                 "id": "the_file",
-                "private": False,
+                "privacy": False,
                 "citations": [],
                 "notes": [],
                 "links": [],
@@ -180,7 +180,7 @@ class TestFile(EntityTestBase):
                 "@context": {"description": "https://schema.org/description"},
                 "@id": "https://example.com/file/the_file/index.json",
                 "id": "the_file",
-                "private": False,
+                "privacy": False,
                 "mediaType": "text/plain",
                 "citations": [
                     "/citation/the_citation/index.json",
@@ -234,7 +234,7 @@ class TestFile(EntityTestBase):
                 "@context": {"description": "https://schema.org/description"},
                 "@id": "https://example.com/file/the_file/index.json",
                 "id": "the_file",
-                "private": True,
+                "privacy": True,
                 "citations": [
                     "/citation/the_citation/index.json",
                 ],

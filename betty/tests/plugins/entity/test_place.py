@@ -144,7 +144,7 @@ class TestPlace(EntityTestBase):
             "events": [],
             "notes": [],
             "links": [],
-            "private": False,
+            "privacy": False,
             "fileReferences": [],
         }
         actual = await assert_dumps_linked_data(place)
@@ -209,7 +209,7 @@ class TestPlace(EntityTestBase):
                         DEFAULT_LOCALE_TAG: "The Place Online",
                     },
                     "owner": "/place/the_place/index.json",
-                    "private": False,
+                    "privacy": False,
                 },
             ],
             "coordinates": {
@@ -237,7 +237,7 @@ class TestPlace(EntityTestBase):
                     "citations": [],
                 }
             ],
-            "private": False,
+            "privacy": False,
             "fileReferences": [],
         }
         actual = await assert_dumps_linked_data(place)
