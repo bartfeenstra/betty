@@ -15,7 +15,7 @@
     "@betty.py/betty.plugins.extension.webpack": "file:./data/webpack/webpack",
     "eslint": "^9.24.0",
     "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-n": "^17.17.0",
+    "eslint-plugin-n": "^18.0.1",
     "eslint-plugin-promise": "^7.2.1",
     "stylelint": "^17.00.0",
     "stylelint-config-standard": "^40.0.0",
