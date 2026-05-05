@@ -10,7 +10,6 @@ from betty.entity import Entity, EntityDefinition
 from betty.entity.association import BidirectionalToZeroOrOne
 from betty.link import Link as LinkType
 from betty.locale.localizable.gettext import _, ngettext
-from betty.locale.localizable.static import new_static_translations_schema
 from betty.privacy import Privacy
 from betty.privacy.resolve import merge_privacies
 from betty.properties.description import HasDescription
@@ -41,8 +40,14 @@ class Link(LinkType, HasMediaType, HasDescription, HasPrivacy, Entity):
     .. plugin:: entity:link.
     """
 
-    _url = LocalizableProperty(label=_("URL"))
-    _label = Optional(LocalizableProperty(label=_("Label")))
+    _url = LocalizableProperty(
+        label=_("URL"), description="The full URL to the other resource."
+    )
+    _label = Optional(
+        LocalizableProperty(
+            label=_("Label"), description="The human-readable link label."
+        )
+    )
 
     relationship: str | None
     """
@@ -109,43 +114,21 @@ class Link(LinkType, HasMediaType, HasDescription, HasPrivacy, Entity):
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        public_localizers = await project.public_localizers
         portable = await super().dump_linked_data(project)
-        if self.public:
-            portable["url"] = dump_linked_data(self.url, localizers=public_localizers)
-            if self._label is not None:
-                portable["label"] = dump_linked_data(
-                    self._label, localizers=public_localizers
-                )
-            if self.relationship is not None:
-                portable["relationship"] = self.relationship
+        if self.public and self.relationship is not None:
+            portable["relationship"] = self.relationship
         return portable
 
     @override
     @classmethod
     async def linked_data_schema(cls, project: Project, /) -> Schema:
         schema = await super().linked_data_schema(project)
-        schema.add_property(
-            "url",
-            new_static_translations_schema(
-                title="Label", description="The full URL to the other resource."
-            ),
-            False,
-        )
-        schema.add_property(
-            "relationship",
-            String(
-                description="The relationship between this resource and the link target (https://en.wikipedia.org/wiki/Link_relation)."
-            ),
-            False,
-        )
-        schema.add_property(
-            "label",
-            new_static_translations_schema(
-                title="Label", description="The human-readable link label."
-            ),
-            False,
-        )
+        # @todo How to modify/merge properly?
+        schema["properties"]["relationship"] = {
+            "description": "The relationship between this resource and the link target (https://en.wikipedia.org/wiki/Link_relation).",
+            "title": "Relationship",
+            "type": "string",
+        }
         return schema
 
     @override
