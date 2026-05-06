@@ -21,7 +21,7 @@ class TestKeyedCollectionProperty:
                 label=DUMMY_LOCALIZABLE,
                 value=_Item,
                 key=AttrSelector("attr"),
-                factory=lambda: MutableKeyedCollectionAdapter[str,str,str,str](
+                factory=lambda: MutableKeyedCollectionAdapter[str, str, str, str](
                     key=lambda item: item.upper()
                 ),
             ),
@@ -30,7 +30,6 @@ class TestKeyedCollectionProperty:
     def test_set(self) -> None:
         owner = self._Owner()
         keyed_collection = owner.keyed_collection
-        reveal_type(self._Owner.keyed_collection.__set__)
         owner.keyed_collection = ["Hello,", "world!"]
         assert owner.keyed_collection is keyed_collection
         assert list(owner.keyed_collection) == ["Hello,", "world!"]
