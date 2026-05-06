@@ -52,7 +52,7 @@ class CollectionPluginServiceManager[
                     )
                 ),
             )
-        )
+        )  # ty:ignore[invalid-return-type]
 
     @final
     def __sort_plugins(

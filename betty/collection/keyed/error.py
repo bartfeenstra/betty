@@ -25,7 +25,7 @@ class ErroringKeyedCollection[KeyT, ResolvableKeyT, ValueT](
         key_error: Callable[[KeyError, KeyT | ResolvableKeyT], KeyError],
         /,
     ):
-        self._upstream = upstream
+        super().__init__(upstream)
         self._key_error = key_error
 
     @override

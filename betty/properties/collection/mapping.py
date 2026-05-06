@@ -13,7 +13,7 @@ from betty.property import Property
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from betty.data import Data, DataDefinition
+    from betty.data import Data
     from betty.datas.aggregate.collection.mapping import MappingDefinition
     from betty.locale.localizable import ResolvableLocalizable
     from betty.typing import Intersection
@@ -33,8 +33,16 @@ class MappingProperty[
 
     def __init__(
         self,
-        data: Intersection[DataDefinition[MutableMappingT], MappingDefinition]
-        | Data[Intersection[DataDefinition[MutableMappingT], MappingDefinition]],
+        data: MappingDefinition[
+            Intersection[MutableMappingT, MutableMapping[KeyGetT, ItemGetT]]
+        ]
+        | type[
+            Data[
+                MappingDefinition[
+                    Intersection[MutableMappingT, MutableMapping[KeyGetT, ItemGetT]]
+                ]
+            ]
+        ],
         *,
         default: Callable[[], ValueSetT] | None = None,
         description: ResolvableLocalizable | None = None,

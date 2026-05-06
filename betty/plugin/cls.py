@@ -5,7 +5,7 @@ Classed plugins.
 from __future__ import annotations
 
 from functools import update_wrapper
-from typing import TypeVar, override
+from typing import Any, TypeVar, override
 
 from betty.definition.cls import ClsDefinition
 from betty.importlib import fully_qualified_name
@@ -29,7 +29,7 @@ class Plugin[PluginClsDefinitionT: PluginClsDefinition]:
         )
 
 
-_PluginClsCoT = TypeVar("_PluginClsCoT", covariant=True)
+_PluginClsCoT = TypeVar("_PluginClsCoT", covariant=True, default=Any)
 
 
 class PluginClsDefinition(PluginDefinition, ClsDefinition[_PluginClsCoT]):

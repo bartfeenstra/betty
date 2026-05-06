@@ -67,8 +67,8 @@ def _safe_str(value: PortableData) -> PortableData:
     if isinstance(value, Sequence):
         return list(
             map(
-                _safe_str,
-                value,  # ty:ignore[invalid-argument-type]
+                _safe_str,  # ty:ignore[invalid-argument-type]
+                value,
             )
         )  # ty:ignore[invalid-return-type]
     return value

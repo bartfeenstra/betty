@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, final
 
 from betty.assertion import assert_mapping, assert_sequence
-from betty.collection.keyed import KeyedCollection, MutableKeyedCollection
+from betty.collection.keyed import MutableKeyedCollection
 from betty.datas.aggregate.collection import CollectionDefinition
 from betty.indicator.selector import Element
 from betty.portable import (
@@ -61,7 +61,7 @@ class KeyedCollectionDefinition[
         self._key = key
         self._order_dump = order_dump
 
-    def _load(self, portable: PortableData, /) -> MutableKeyedCollection:
+    def _load(self, portable: PortableData, /) -> MutableKeyedCollectionT:
         if self._order_dump:
             values = assert_sequence(self._item.porter.load)(portable)
         else:
@@ -74,7 +74,9 @@ class KeyedCollectionDefinition[
         loaded.add(*values)
         return loaded
 
-    def _dump(self, data: KeyedCollection) -> PortableMapping | PortableSequence:
+    def _dump(
+        self, data: MutableKeyedCollectionT
+    ) -> PortableMapping | PortableSequence:
         if self._order_dump:
             return [self._item.porter.dump(value) for value in data]
         return dict(

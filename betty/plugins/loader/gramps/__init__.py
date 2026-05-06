@@ -4,13 +4,8 @@ Integrate Betty with `Gramps <https://gramps-project.org>`_.
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping, MutableMapping
-from typing import (
-    TYPE_CHECKING,
-    Self,
-    final,
-    override,
-)
+from collections.abc import Mapping, MutableMapping
+from typing import TYPE_CHECKING, Self, final, override
 
 from betty.collection.mapping import MutableResolvedMapping
 from betty.collection.mapping.adapter import MutableResolvedMappingAdapter
@@ -71,9 +66,16 @@ class _PluginMappingProperty[PluginDefinitionT: PluginDefinition, PluginT: Plugi
         default: Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]],
     ):
         super().__init__(
-            MappingDefinition(
+            MappingDefinition[
+                MutableMapping[str, PluginManufacturer[PluginDefinitionT, PluginT]]
+            ](
                 cls=MutableResolvedMapping,
-                factory=lambda: MutableResolvedMappingAdapter(
+                factory=lambda: MutableResolvedMappingAdapter[
+                    str,
+                    str,
+                    PluginManufacturer[PluginDefinitionT, PluginT],
+                    ResolvablePluginManufacturer[PluginDefinitionT, PluginT],
+                ](
                     {},
                     value_resolver=manufacturer.resolve,
                 ),

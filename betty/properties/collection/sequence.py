@@ -13,7 +13,7 @@ from betty.property import Property
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from betty.data import Data, DataDefinition
+    from betty.data import Data
     from betty.datas.aggregate.collection.sequence import SequenceDefinition
     from betty.locale.localizable import ResolvableLocalizable
     from betty.typing import Intersection
@@ -30,16 +30,14 @@ class SequenceProperty[MutableSequenceT: MutableSequence[Any], ItemGetT, ValueSe
 
     def __init__(
         self,
-        data: Intersection[
-            DataDefinition[Intersection[MutableSequenceT, MutableSequence[ItemGetT]]],
-            SequenceDefinition,
+        data: SequenceDefinition[
+            Intersection[MutableSequenceT, MutableSequence[ItemGetT]]
         ]
-        | Data[
-            Intersection[
-                DataDefinition[
+        | type[
+            Data[
+                SequenceDefinition[
                     Intersection[MutableSequenceT, MutableSequence[ItemGetT]]
-                ],
-                SequenceDefinition,
+                ]
             ]
         ],
         *,
