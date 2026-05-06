@@ -154,7 +154,7 @@ class Builder:
                 ROOT_DIRECTORY / ".browserslistrc",
                 ROOT_DIRECTORY / "tsconfig.json",
             )
-        ])
+        ])  # ty:ignore[no-matching-overload]
 
     async def _prepare_webpack_entry_point_provider(
         self,

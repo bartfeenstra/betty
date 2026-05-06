@@ -9,7 +9,7 @@ from asyncio import gather
 from functools import partial
 from typing import TYPE_CHECKING, Any, Concatenate, Self, final, overload, override
 
-from betty.asyncio import resolve_await
+from betty.asyncio import ResolvableAwaitable, resolve_await
 from betty.exception import HumanFacingException
 from betty.functools import CallableDecorator, DecoratedCallable, DecoratedCallableType
 
@@ -51,8 +51,7 @@ class RequirableDecorator[CheckT](CallableDecorator, ABC):
     def __call__[**P, ReturnT](
         self,
         decorated: DecoratedCallableType[
-            Concatenate[CheckT, P],
-            Awaitable[ReturnT] | ReturnT,
+            Concatenate[CheckT, P], ResolvableAwaitable[ReturnT]
         ],
     ) -> DecoratedCallable[Concatenate[ServiceLevel, P], Awaitable[ReturnT]]:
         pass
@@ -63,6 +62,8 @@ class RequirableDecorator[CheckT](CallableDecorator, ABC):
 
         if isinstance(services_or_decorated, ServiceLevel):
             return self._check(services_or_decorated)
+        if services_or_decorated is None:
+            return super().__call__()
         return super().__call__(services_or_decorated)
 
     @abstractmethod

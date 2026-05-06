@@ -48,8 +48,12 @@ class KeyedCollectionPluginServiceManager[
     def new_service(
         self, service_provider: ServiceProviderT, /
     ) -> KeyedPluginCollectionService[PluginDefinitionT, GetServiceItemT]:
-        return ErroringKeyedCollection(
-            KeyedCollectionAdapter(
+        return ErroringKeyedCollection[
+            MachineName, ResolvablePluginId[PluginDefinitionT], GetServiceItemT
+        ](
+            KeyedCollectionAdapter[
+                MachineName, ResolvablePluginId[PluginDefinitionT], GetServiceItemT
+            ](
                 {
                     self.resolve_init_plugin_id(plugin): self.new_service_item(
                         service_provider, plugin
@@ -60,7 +64,7 @@ class KeyedCollectionPluginServiceManager[
             ),
             lambda error, key: _PluginNotFound(
                 self.plugin_type,
-                key,
+                resolve_plugin_id(key),
                 map(self.resolve_init_plugin_id, self.get_plugins(service_provider)),
             ),
         )

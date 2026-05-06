@@ -39,7 +39,7 @@ class SinglePluginServiceManager[
         /,
         *plugins: InitT | ResolvablePluginDefinition[PluginDefinitionT],
     ) -> Iterable[InitT | ResolvablePluginDefinition[PluginDefinitionT]]:  # ty:ignore[invalid-method-override]
-        plugins = tuple(await super().prepare_plugins(service_provider, *plugins))
+        plugins = tuple(await super().prepare_plugins(service_provider, *plugins))  # ty:ignore[invalid-assignment]
         # Ensure there is exactly one unique init plugin.
         if len(plugins) != 1:
             raise UnmetServiceRequirement(

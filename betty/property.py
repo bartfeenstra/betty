@@ -165,7 +165,7 @@ class Optional[ValueGetT, ValueSetT](_Property[ValueGetT | None, ValueSetT | Non
             return self.set(instance, None)
 
     @override
-    def set(self, instance: Any, value: ValueSetT | None, /) -> ValueGetT:
+    def set(self, instance: Any, value: ValueSetT | None, /) -> ValueGetT | None:
         if value is None:
             return super().set(instance, value)
         return self._required_property.set(instance, value)

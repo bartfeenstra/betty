@@ -12,10 +12,9 @@ from betty.functools import passthrough
 from betty.property import Property
 
 if TYPE_CHECKING:
-    from betty.data import Data, DataDefinition
+    from betty.data import Data
     from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
     from betty.locale.localizable import ResolvableLocalizable
-    from betty.typing import Intersection
 
 
 class KeyedCollectionProperty[
@@ -30,14 +29,8 @@ class KeyedCollectionProperty[
 
     def __init__(
         self,
-        data: Intersection[
-            DataDefinition[MutableKeyedCollectionT], KeyedCollectionDefinition
-        ]
-        | Data[
-            Intersection[
-                DataDefinition[MutableKeyedCollectionT], KeyedCollectionDefinition
-            ]
-        ],
+        data: KeyedCollectionDefinition[MutableKeyedCollectionT]
+        | type[Data[KeyedCollectionDefinition[MutableKeyedCollectionT]]],
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,

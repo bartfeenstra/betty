@@ -9,35 +9,16 @@ import datetime
 import operator
 from contextlib import suppress
 from functools import total_ordering
-from typing import TYPE_CHECKING, Any, ClassVar, final, override
+from typing import TYPE_CHECKING, Any, final, override
 
 from babel import dates
 
-from betty.assertion import (
-    OptionalField as OptionalField,
-)
-from betty.assertion import (
-    RequiredField as RequiredField,
-)
-from betty.assertion import (
-    assert_bool as assert_bool,
-)
-from betty.assertion import (
-    assert_record as assert_record,
-)
-from betty.assertion import (
-    assert_str as assert_str,
-)
 from betty.data import Data
-from betty.datas.aggregate.record.object import AttrDefinition as AttrDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.bool import BoolDefinition
 from betty.datas.int import IntDefinition
 from betty.locale.localizable import Localizable
 from betty.locale.localizable.gettext import _
-from betty.portable import Portable as Portable
-from betty.portable import PortableData as PortableData
-from betty.portable import PortableMapping as PortableMapping
 from betty.property import Optional, Property
 from betty.sample import Sample, Size
 
@@ -424,156 +405,47 @@ class DateRange(Localizable, Data):
             return date
         return None
 
-    _LT_DATE_RANGE_COMPARATORS: ClassVar[
-        Mapping[
-            tuple[bool, bool, bool, bool],
-            Callable[
-                [Date | None, Date | None, Date | None, Date | None],
-                bool | NotImplementedType,
-            ],
-        ]
-    ] = {
-        (
-            True,
-            True,
-            True,
-            True,
-        ): lambda self_start, self_end, other_start, other_end: (
-            self_start < other_start
-        ),
-        (
-            True,
-            True,
-            True,
-            False,
-        ): lambda self_start, self_end, other_start, other_end: (
-            self_start <= other_start
-        ),
-        (
-            True,
-            True,
-            False,
-            True,
-        ): lambda self_start, self_end, other_start, other_end: (
-            self_start < other_end or self_end <= other_end
-        ),
-        (
-            True,
-            True,
-            False,
-            False,
-        ): lambda self_start, self_end, other_start, other_end: NotImplemented,
-        (
-            True,
-            False,
-            True,
-            True,
-        ): lambda self_start, self_end, other_start, other_end: (
-            self_start < other_start
-        ),
-        (
-            True,
-            False,
-            True,
-            False,
-        ): lambda self_start, self_end, other_start, other_end: (
-            self_start < other_start
-        ),
-        (
-            True,
-            False,
-            False,
-            True,
-        ): lambda self_start, self_end, other_start, other_end: self_start < other_end,
-        (
-            True,
-            False,
-            False,
-            False,
-        ): lambda self_start, self_end, other_start, other_end: NotImplemented,
-        (
-            False,
-            True,
-            True,
-            True,
-        ): lambda self_start, self_end, other_start, other_end: self_end <= other_start,
-        (
-            False,
-            True,
-            True,
-            False,
-        ): lambda self_start, self_end, other_start, other_end: self_end <= other_start,
-        (
-            False,
-            True,
-            False,
-            True,
-        ): lambda self_start, self_end, other_start, other_end: self_end < other_end,
-        (
-            False,
-            True,
-            False,
-            False,
-        ): lambda self_start, self_end, other_start, other_end: NotImplemented,
-        (
-            False,
-            False,
-            True,
-            True,
-        ): lambda self_start, self_end, other_start, other_end: NotImplemented,
-        (
-            False,
-            False,
-            True,
-            False,
-        ): lambda self_start, self_end, other_start, other_end: NotImplemented,
-        (
-            False,
-            False,
-            False,
-            True,
-        ): lambda self_start, self_end, other_start, other_end: NotImplemented,
-        (
-            False,
-            False,
-            False,
-            False,
-        ): lambda self_start, self_end, other_start, other_end: NotImplemented,
-    }
-
-    _LT_DATE_COMPARATORS: ClassVar[
-        Mapping[
-            tuple[bool, bool],
-            Callable[[Date | None, Date | None, Date], bool | NotImplementedType],
-        ]
-    ] = {
-        (True, True): lambda self_start, self_end, other: self_start < other,
-        (True, False): lambda self_start, self_end, other: self_start < other,
-        (False, True): lambda self_start, self_end, other: self_end <= other,
-        (False, False): lambda self_start, self_end, other: NotImplemented,
-    }
-
     def __lt__(self, other: Any) -> bool:
         if not isinstance(other, Date | DateRange):
             return NotImplemented
 
         self_start = self._get_comparable_date(self.start)
         self_end = self._get_comparable_date(self.end)
-        signature = (
-            self_start is not None,
-            self_end is not None,
-        )
         if isinstance(other, DateRange):
             other_start = self._get_comparable_date(other.start)
             other_end = self._get_comparable_date(other.end)
-            return self._LT_DATE_RANGE_COMPARATORS[
-                (
-                    *signature,
-                    other_start is not None,
-                    other_end is not None,
-                )
-            ](self_start, self_end, other_start, other_end)
-        return self._LT_DATE_COMPARATORS[signature](self_start, self_end, other)
+            if self_start is None:
+                if self_end is None:
+                    return NotImplemented
+                if other_start is None:
+                    if other_end is None:
+                        return NotImplemented
+                    return self_end < other_end
+                if other_end is None:
+                    return self_end <= other_start
+                return self_end <= other_start
+            if self_end is None:
+                if other_start is None:
+                    if other_end is None:
+                        return NotImplemented
+                    return self_start < other_end
+                if other_end is None:
+                    return self_start < other_start
+                return self_start < other_start
+            if other_start is None:
+                if other_end is None:
+                    return NotImplemented
+                return self_start < other_end or self_end <= other_end
+            if other_end is None:
+                return self_start <= other_start
+            return self_start < other_start
+        if self_start is None:
+            if self_end is None:
+                return NotImplemented
+            return self_end <= other
+        if self_end is None:
+            return self_start < other
+        return self_start < other
 
     @override
     def __eq__(self, other: object) -> bool:
