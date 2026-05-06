@@ -21,7 +21,7 @@ from betty.properties.machine_name import MachineNameProperty
 from betty.properties.plugin_manufacturer_sequence import (
     PluginManufacturerSequenceProperty,
 )
-from betty.property import Optional, Property
+from betty.property import AttrProperty, Optional
 from betty.sample import Sample, Size
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
@@ -74,7 +74,7 @@ class SectionData(Data):
     """
 
     visually_hide_heading = Optional(
-        Property(
+        AttrProperty(
             BoolDefinition(label=_("Visually hide heading")),
             omit_load=True,
             omit_dump=lambda data: data is False,

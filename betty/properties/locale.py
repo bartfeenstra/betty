@@ -12,7 +12,7 @@ from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdOb
 from betty.locale import Localized, ResolvableLocale, resolve_locale, to_language_tag
 from betty.locale.schema import LocaleSchema
 from betty.privacy.resolve import is_public
-from betty.property import Optional, Property
+from betty.property import AttrProperty, Optional
 
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 
 @final
-class LocaleProperty(Property):
+class LocaleProperty(AttrProperty):
     """
     A property containing a locale.
     """

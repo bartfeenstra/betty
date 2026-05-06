@@ -10,7 +10,7 @@ from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdOb
 from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
 from betty.media_type.schema import MediaTypeSchema
 from betty.privacy.resolve import is_public
-from betty.property import Optional, Property
+from betty.property import AttrProperty, Optional
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 
 @final
-class MediaTypeProperty(Property[MediaType, ResolvableMediaType]):
+class MediaTypeProperty(AttrProperty[MediaType, ResolvableMediaType]):
     """
     A property containing a media type.
     """

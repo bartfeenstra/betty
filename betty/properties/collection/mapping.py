@@ -8,7 +8,7 @@ from collections.abc import Mapping, MutableMapping
 from typing import TYPE_CHECKING, Any, final, override
 
 from betty.functools import passthrough
-from betty.property import Property
+from betty.property import AttrProperty
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -24,7 +24,7 @@ class MappingProperty[
     KeyGetT,
     ItemGetT,
     ValueSetT,
-](Property[MutableMappingT, ValueSetT]):
+](AttrProperty[MutableMappingT, ValueSetT]):
     """
     A property that contains a :py:class:`collections.abc.MutableMapping`.
     """

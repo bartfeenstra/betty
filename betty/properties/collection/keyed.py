@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, final, override
 
 from betty.collection.keyed import MutableKeyedCollection
 from betty.functools import passthrough
-from betty.property import Property
+from betty.property import AttrProperty
 
 if TYPE_CHECKING:
     from betty.data import Data
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 class KeyedCollectionProperty[
     MutableKeyedCollectionT: MutableKeyedCollection,
     ValueSetT,
-](Property[MutableKeyedCollectionT, Iterable[ValueSetT]]):
+](AttrProperty[MutableKeyedCollectionT, Iterable[ValueSetT]]):
     """
     A property that contains an :py:class:`betty.collection.keyed.KeyedCollection`.
     """

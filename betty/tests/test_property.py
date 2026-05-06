@@ -6,8 +6,9 @@ from betty.datas.str import StrDefinition
 from betty.functools import passthrough
 from betty.portable import CallbackPorter
 from betty.property import (
+    AttrProperty,
+    GetterProperty,
     Optional,
-    Property,
     PropertyNotInitialized,
 )
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
@@ -16,7 +17,7 @@ from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 class TestProperty:
     def test___get__(self) -> None:
         class _Owner:
-            my_first_property = Property(StrDefinition(label=DUMMY_LOCALIZABLE))
+            my_first_property = AttrProperty(StrDefinition(label=DUMMY_LOCALIZABLE))
 
         owner = _Owner()
         with pytest.raises(PropertyNotInitialized):
@@ -24,7 +25,7 @@ class TestProperty:
 
     def test_get(self) -> None:
         class _Owner:
-            my_first_property = Property(StrDefinition(label=DUMMY_LOCALIZABLE))
+            my_first_property = AttrProperty(StrDefinition(label=DUMMY_LOCALIZABLE))
 
         owner = _Owner()
         with pytest.raises(PropertyNotInitialized):
@@ -32,7 +33,7 @@ class TestProperty:
 
     def test___set__(self) -> None:
         class _Owner:
-            my_first_property = Property(StrDefinition(label=DUMMY_LOCALIZABLE))
+            my_first_property = AttrProperty(StrDefinition(label=DUMMY_LOCALIZABLE))
 
         owner = _Owner()
         owner.my_first_property = "my-first-value"
@@ -40,7 +41,7 @@ class TestProperty:
 
     def test___set____with_resolver(self) -> None:
         class _Owner:
-            my_first_property = Property[str, str | bool](
+            my_first_property = AttrProperty[str, str | bool](
                 StrDefinition(label=DUMMY_LOCALIZABLE), resolver=str
             )
 
@@ -50,7 +51,7 @@ class TestProperty:
 
     def test___set_name__(self) -> None:
         class _Owner:
-            my_first_property = Property(StrDefinition(label=DUMMY_LOCALIZABLE))
+            my_first_property = AttrProperty(StrDefinition(label=DUMMY_LOCALIZABLE))
 
         assert _Owner.my_first_property._attr_name == "_my_first_property"
 
@@ -58,7 +59,7 @@ class TestProperty:
         data = StrDefinition(label=DUMMY_LOCALIZABLE)
 
         class _Owner:
-            my_first_property = Property(data)
+            my_first_property = AttrProperty(data)
 
         assert _Owner.my_first_property.attr.field("my_first_property").data is data
 
@@ -66,7 +67,7 @@ class TestProperty:
 class TestOptional:
     class _Owner:
         my_first_property = Optional(
-            Property(
+            AttrProperty(
                 DataDefinition(
                     cls=str,
                     label=DUMMY_LOCALIZABLE,
@@ -109,7 +110,7 @@ class TestOptional:
         assert owner.my_first_property is None
 
     def test___set_name__(self) -> None:
-        required_property = Property(StrDefinition(label=DUMMY_LOCALIZABLE))
+        required_property = AttrProperty(StrDefinition(label=DUMMY_LOCALIZABLE))
 
         class _Owner:
             my_first_property = Optional(required_property)
@@ -121,8 +122,26 @@ class TestOptional:
         data = StrDefinition(label=DUMMY_LOCALIZABLE)
 
         class _Owner:
-            my_first_property = Optional(Property(data))
+            my_first_property = Optional(AttrProperty(data))
 
         optional_data = _Owner.my_first_property.attr.data
         assert isinstance(optional_data, OptionalDefinition)
         assert optional_data.wrapped is data
+
+
+class TestGetterProperty:
+    def test_get(self) -> None:
+        class _Owner:
+            my_first_property = GetterProperty(
+                AttrProperty(StrDefinition(label=DUMMY_LOCALIZABLE)),
+                lambda instance, value: value.upper(),
+            )
+
+        owner = _Owner()
+        owner.my_first_property = "Helly, world!"
+        assert owner.my_first_property == "HELLO,WORLD!"
+
+
+class TestSetterProperty:
+    def test_set(self) -> None:
+        raise NotImplementedError

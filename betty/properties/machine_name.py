@@ -8,14 +8,14 @@ from typing import TYPE_CHECKING, final
 
 from betty.locale.localizable.gettext import _
 from betty.machine_name import _MACHINE_NAME_DESCRIPTION, MachineName
-from betty.property import Property
+from betty.property import AttrProperty
 
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
 
 
 @final
-class MachineNameProperty(Property):
+class MachineNameProperty(AttrProperty):
     """
     A property containing a machine name.
     """

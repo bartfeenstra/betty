@@ -12,7 +12,7 @@ from betty.datas.str import StrDefinition
 from betty.locale.localizable.gettext import _
 from betty.plugin.resolve import resolve_plugin_id
 from betty.properties.machine_name import MachineNameProperty
-from betty.property import Property
+from betty.property import AttrProperty
 
 if TYPE_CHECKING:
     from betty.entity import EntityDefinition
@@ -38,7 +38,7 @@ class EntityReference(Data):
     The type of the referenced entity. 
     """
 
-    id = Property(StrDefinition(label=_("Entity ID")))
+    id = AttrProperty(StrDefinition(label=_("Entity ID")))
     """
     The ID of the referenced entity.
     """

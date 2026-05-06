@@ -18,7 +18,7 @@ from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.event import Event
 from betty.project import Project
-from betty.property import Optional, Property
+from betty.property import AttrProperty, Optional
 from betty.role import RoleDefinition
 from betty.sample import Sample, Size
 
@@ -54,14 +54,18 @@ class PresencesData(Data):
     """
 
     exclude = Optional(
-        Property(SequenceDefinition(cls=list, value=MachineName, label=_("Exclude")))
+        AttrProperty(
+            SequenceDefinition(cls=list, value=MachineName, label=_("Exclude"))
+        )
     )
     """
     The presence roles for which to exclude presences.
     """
 
     include = Optional(
-        Property(SequenceDefinition(cls=list, value=MachineName, label=_("Include")))
+        AttrProperty(
+            SequenceDefinition(cls=list, value=MachineName, label=_("Include"))
+        )
     )
     """
     The presence roles for which to include presences.

@@ -12,11 +12,11 @@ from betty.locale.localizable import (
     ResolvableLocalizable,
     resolve_localizable,
 )
-from betty.property import Property
+from betty.property import AttrProperty
 
 
 @final
-class LocalizableProperty(Property[Localizable, ResolvableLocalizable]):
+class LocalizableProperty(AttrProperty[Localizable, ResolvableLocalizable]):
     """
     A property containing a :py:class:`betty.locale.localizable.Localizable`.
     """

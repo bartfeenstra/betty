@@ -98,7 +98,7 @@ from betty.properties.collection.sequence import SequenceProperty
 from betty.properties.localizable import LocalizableProperty
 from betty.properties.machine_name import MachineNameProperty
 from betty.properties.plugin_definitions import PluginDefinitionDatasProperty
-from betty.property import Optional, Property
+from betty.property import AttrProperty, Optional
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.role import RoleDefinition
 from betty.sample import Sample, Size
@@ -773,7 +773,7 @@ class ProjectData(Data):
     The project's author.
     """
 
-    clean_urls = Property(
+    clean_urls = AttrProperty(
         BoolDefinition(
             label=_("Clean URLs"),
             description=_(
@@ -788,7 +788,7 @@ class ProjectData(Data):
     """
 
     copyright_notice = Optional(
-        Property(
+        AttrProperty(
             CopyrightNoticeManufacturer,
             omit_load=True,
             omit_dump=lambda data: data == ProjectData._default_copyright_notice(),
@@ -807,7 +807,7 @@ class ProjectData(Data):
     The :py:class:`betty.copyright_notice.CopyrightNotice` plugins created by this project.
     """
 
-    debug = Property(
+    debug = AttrProperty(
         BoolDefinition(
             label=_("Debugging mode"),
             description=_(
@@ -886,7 +886,7 @@ class ProjectData(Data):
     """
 
     license = Optional(
-        Property(
+        AttrProperty(
             LicenseManufacturer,
             omit_load=True,
             omit_dump=lambda data: data == ProjectData._default_license(),
@@ -903,7 +903,7 @@ class ProjectData(Data):
     The :py:class:`betty.license.License` plugins created by this project.
     """
 
-    lifetime_threshold = Property(
+    lifetime_threshold = AttrProperty(
         IntDefinition(
             label=_("Lifetime threshold"),
             description=_(
@@ -960,7 +960,7 @@ class ProjectData(Data):
     The configured locales.
     """
 
-    logo = Optional(Property(PathDefinition(), label=_("Logo")))
+    logo = Optional(AttrProperty(PathDefinition(), label=_("Logo")))
     """
     The project logo.
     """
@@ -987,7 +987,7 @@ class ProjectData(Data):
     The human-readable project title.
     """
 
-    url = Property(
+    url = AttrProperty(
         StrDefinition(
             label=_("URL"),
             description=_(

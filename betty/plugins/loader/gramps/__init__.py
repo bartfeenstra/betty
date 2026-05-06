@@ -35,7 +35,7 @@ from betty.plugins.loader.gramps.jobs import LoadAncestry
 from betty.project import Project
 from betty.properties.collection.mapping import MappingProperty
 from betty.properties.collection.sequence import SequenceProperty
-from betty.property import Optional, Property
+from betty.property import AttrProperty, Optional
 from betty.role import Role, RoleDefinition, RoleManufacturer
 from betty.sample import Sample, Size
 
@@ -121,12 +121,12 @@ class FamilyTree(Data):
     How to map event types.
     """
 
-    file = Optional(Property(PathDefinition(), label=_("File")))
+    file = Optional(AttrProperty(PathDefinition(), label=_("File")))
     """
     The path to a Gramps family tree file.
     """
 
-    name = Optional(Property(StrDefinition(label=_("Name"))))
+    name = Optional(AttrProperty(StrDefinition(label=_("Name"))))
     """
     The family tree's name in Gramps.
     """
@@ -255,7 +255,7 @@ class GrampsData(Data):
     The Gramps family trees to load.
     """
 
-    executable = Optional(Property(PathDefinition()))
+    executable = Optional(AttrProperty(PathDefinition()))
     """
     The path to a specific Gramps executable.
 

@@ -19,7 +19,7 @@ from betty.project import Project
 from betty.properties.plugin_manufacturer_sequence import (
     PluginManufacturerSequenceProperty,
 )
-from betty.property import Optional, Property
+from betty.property import AttrProperty, Optional
 from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
@@ -64,12 +64,12 @@ class BoxData(Data):
     The content within this box.
     """
 
-    min_height = Optional(Property(StrDefinition(label=_("Minimum height"))))
-    max_height = Optional(Property(StrDefinition(label=_("Maximum height"))))
-    height = Optional(Property(StrDefinition(label=_("Height"))))
-    min_width = Optional(Property(StrDefinition(label=_("Minimum width"))))
-    max_width = Optional(Property(StrDefinition(label=_("Maximum width"))))
-    width = Optional(Property(StrDefinition(label=_("Width"))))
+    min_height = Optional(AttrProperty(StrDefinition(label=_("Minimum height"))))
+    max_height = Optional(AttrProperty(StrDefinition(label=_("Maximum height"))))
+    height = Optional(AttrProperty(StrDefinition(label=_("Height"))))
+    min_width = Optional(AttrProperty(StrDefinition(label=_("Minimum width"))))
+    max_width = Optional(AttrProperty(StrDefinition(label=_("Maximum width"))))
+    width = Optional(AttrProperty(StrDefinition(label=_("Width"))))
 
     def __init__(
         self,

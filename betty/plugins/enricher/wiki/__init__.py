@@ -14,7 +14,7 @@ from betty.plugins.enricher.populate_links import PopulateLinks
 from betty.plugins.enricher.wiki.jobs import PopulateEntity
 from betty.plugins.extension.wiki import Wiki as WikiExtension
 from betty.project import Project
-from betty.property import Optional, Property
+from betty.property import AttrProperty, Optional
 from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
@@ -37,7 +37,7 @@ class WikiData(Data):
     """
 
     populate_images = Optional(
-        Property(
+        AttrProperty(
             BoolDefinition(
                 label=_("Populate images"),
                 description=_(

@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, Any, Self, cast, final, overload, override
 
 from betty.data import OptionalDefinition
 from betty.datas.aggregate.record.object import Attr, AttrDefinition
-from betty.functools import passthrough
 from betty.importlib import fully_qualified_name
 from betty.typing import Void
 
@@ -20,26 +19,32 @@ if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
 
 
-class _Property[ValueGetT, ValueSetT](Attr[ValueGetT], ABC):
-    _attr_name: str
+class Property[ValueGetT, ValueSetT](Attr[ValueGetT], ABC):
+    """
+    An instance property backed by a data definition.
+    """
 
-    def __init__(
-        self,
-        attr: AttrDefinition[ValueGetT],
-        *,
-        resolver: Callable[[ValueSetT | ValueGetT], ValueGetT] = passthrough,
-    ):
-        self._attr = attr
-        self._resolver = resolver
+    __name: str
+
+    def __init__(self, attr: AttrDefinition[ValueGetT], /):
+        self.__attr = attr
 
     def __set_name__(self, owner: type[Any], name: str) -> None:
-        self._attr_name = f"_{name}"
+        self.__name = f"_{name}"
 
     @final
     @override
     @property
     def attr(self) -> AttrDefinition[ValueGetT]:
-        return self._attr
+        return self.__attr
+
+    @final
+    @property
+    def name(self) -> str:
+        """
+        The property/attribute name.
+        """
+        return self.__name
 
     @overload
     def __get__(self, instance: None, owner: type[object], /) -> Self:
@@ -49,11 +54,13 @@ class _Property[ValueGetT, ValueSetT](Attr[ValueGetT], ABC):
     def __get__(self, instance: Any, owner: type[Any] | None = None, /) -> ValueGetT:
         pass
 
+    @final
     def __get__(self, instance, owner=None, /):
         if instance is None:
             return self
         return self.get(instance)
 
+    @final
     def __set__(self, instance: Any, value: ValueSetT | ValueGetT) -> None:
         self.set(instance, value)
 
@@ -63,18 +70,143 @@ class _Property[ValueGetT, ValueSetT](Attr[ValueGetT], ABC):
         Get the property value from the instance.
         """
 
+    @abstractmethod
     def set(self, instance: Any, value: ValueSetT, /) -> ValueGetT:
         """
         Set the value on the instance.
         """
-        resolved_value = self._resolver(value)
-        setattr(instance, self._attr_name, resolved_value)
-        return resolved_value
+
+    @final
+    def getter[GetterValueGetT](
+        self, getter: Callable[[Any, ValueGetT], GetterValueGetT], /
+    ) -> Property[GetterValueGetT, ValueSetT]:
+        """
+        Return a new property with the given getter.
+        """
+        return GetterProperty(self, getter)
+
+    @final
+    def __call__[GetterValueGetT](
+        self, getter: Callable[[Any, ValueGetT], GetterValueGetT], /
+    ) -> Property[GetterValueGetT, ValueSetT]:
+        """
+        Return a new property with the given getter.
+        """
+        return self.getter(getter)
+
+    @final
+    def setter[SetterValueSetT](
+        self, setter: Callable[[Any, ValueSetT], SetterValueSetT], /
+    ) -> Property[ValueGetT, SetterValueSetT]:
+        """
+        Return a new property with the given setter.
+        """
+        return SetterProperty(self, setter)
+
+    @final
+    def default(
+        self, default: Callable[[Any], ValueSetT], /
+    ) -> Property[ValueGetT, ValueSetT]:
+        """
+        Return a new property with the given default value factory.
+        """
+        return DefaultProperty(self, default)
 
 
-class Property[ValueGetT, ValueSetT](_Property[ValueGetT, ValueSetT]):
+class ProxyProperty[ValueGetT, ValueSetT](Property[ValueGetT, ValueSetT]):
     """
-    An object attribute with a definition.
+    A property that proxies everything to another wrapped property.
+    """
+
+    def __init__(self, wrapped: Property[ValueGetT, ValueSetT], /):
+        super().__init__(wrapped.attr)
+        self._wrapped = wrapped
+
+    @override
+    def __set_name__(self, owner: type[Any], name: str) -> None:
+        super().__set_name__(owner, name)
+        self._wrapped.__set_name__(owner, name)
+
+    @override
+    def get(self, instance: Any, /) -> ValueGetT:
+        return self._wrapped.get(instance)
+
+    @override
+    def set(self, instance: Any, value: ValueSetT, /) -> ValueGetT:
+        return self._wrapped.set(instance, value)
+
+
+@final
+class GetterProperty[ValueGetT, ValueSetT](ProxyProperty[ValueGetT, ValueSetT]):
+    """
+    Decorate a property with a getter callable.
+    """
+
+    def __init__[WrappedValueGetT](
+        self,
+        wrapped: Property[WrappedValueGetT, ValueSetT],
+        getter: Callable[[Any, WrappedValueGetT], ValueGetT],
+        /,
+    ):
+        super().__init__(wrapped)
+        self._getter = getter
+
+    @override
+    def get(self, instance: Any, /) -> ValueGetT:
+        return self._getter(instance, self._wrapped.get(instance))
+
+
+@final
+class SetterProperty[ValueGetT, ValueSetT](ProxyProperty[ValueGetT, ValueSetT]):
+    """
+    Decorate a property with a setter callable.
+    """
+
+    def __init__[WrappedValueSetT](
+        self,
+        wrapped: Property[ValueGetT, WrappedValueSetT],
+        setter: Callable[[Any, ValueSetT], WrappedValueSetT],
+        /,
+    ):
+        super().__init__(wrapped)
+        self._setter = setter
+
+    @override
+    def set(self, instance: Any, value: ValueSetT, /) -> ValueGetT:
+        return self._wrapped.set(instance, self._setter(instance, value))
+
+
+@final
+class DefaultProperty[ValueGetT, ValueSetT](ProxyProperty[ValueGetT, ValueSetT]):
+    """
+    Decorate a property with a default value factory.
+    """
+
+    def __init__(
+        self,
+        wrapped: Property[ValueGetT, ValueSetT],
+        default: Callable[[Any], ValueGetT],
+        /,
+    ):
+        super().__init__(wrapped)
+        self._default = default
+
+    @override
+    def get(self, instance: Any, /) -> ValueGetT:
+        # @todo This needs locking!!!
+        # @todo Use LazyReCallable? NO! Because that caches the result, and we must proxy!
+        # @todo
+        try:
+            return self._wrapped.get(instance)
+        except PropertyNotInitialized:
+            value = self._default(instance)
+            setattr(instance, self.name, value)
+        return value
+
+
+class AttrProperty[ValueGetT, ValueSetT](Property[ValueGetT, ValueSetT]):
+    """
+    A property that stores its value in an instance attribute.
     """
 
     def __init__(
@@ -85,8 +217,6 @@ class Property[ValueGetT, ValueSetT](_Property[ValueGetT, ValueSetT]):
         description: ResolvableLocalizable | None = None,
         omit_load: bool | None = None,
         omit_dump: Callable[[ValueGetT], bool] | None = None,
-        resolver: Callable[[ValueSetT], ValueGetT] = passthrough,
-        default: Callable[[], ValueGetT] | None = None,
     ):
         super().__init__(
             AttrDefinition(
@@ -95,30 +225,27 @@ class Property[ValueGetT, ValueSetT](_Property[ValueGetT, ValueSetT]):
                 description=description,
                 omit_load=omit_load,
                 omit_dump=omit_dump,
-            ),
-            resolver=resolver,
+            )
         )
         self._data = data
-        self._label = label
-        self._description = description
-        self._default = default
 
-    @final
     @override
     def get(self, instance: Any, /) -> ValueGetT:
         value = cast(
             ValueGetT | Void,
-            getattr(instance, self._attr_name, Void),
+            getattr(instance, self.name, Void),
         )
         if value is Void:
-            if self._default is None:
-                instance_name = fully_qualified_name(type(instance))
-                raise PropertyNotInitialized(
-                    f"{instance_name}.{self._attr_name[1:]} was never initialized. Either provide a default when initializing the property, or make {instance_name}.__init__() set a value."
-                )
-            value = self._default()
-            setattr(instance, self._attr_name, value)
+            instance_name = fully_qualified_name(type(instance))
+            raise PropertyNotInitialized(
+                f"{instance_name}.{self.name[1:]} was never initialized."
+            )
         return value  # ty:ignore[invalid-return-type]
+
+    @override
+    def set(self, instance: Any, value: ValueSetT, /) -> ValueGetT:
+        setattr(instance, self.name, value)
+        return value
 
 
 @final
@@ -129,7 +256,7 @@ class PropertyNotInitialized(ValueError):
 
 
 @final
-class Optional[ValueGetT, ValueSetT](_Property[ValueGetT | None, ValueSetT | None]):
+class Optional[ValueGetT, ValueSetT](Property[ValueGetT | None, ValueSetT | None]):
     """
     Make another property optional, e.g. allow ``None``.
     """

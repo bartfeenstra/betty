@@ -8,7 +8,7 @@ from collections.abc import Iterable, MutableSequence
 from typing import TYPE_CHECKING, Any, final, override
 
 from betty.functools import passthrough
-from betty.property import Property
+from betty.property import AttrProperty
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 
 class SequenceProperty[MutableSequenceT: MutableSequence[Any], ItemGetT, ValueSetT](
-    Property[MutableSequenceT, ValueSetT]
+    AttrProperty[MutableSequenceT, ValueSetT]
 ):
     """
     A property that contains a :py:class:`collections.abc.MutableSequence`.

@@ -20,7 +20,7 @@ from betty.project import Project
 from betty.properties.plugin_manufacturer_sequence import (
     PluginManufacturerSequenceProperty,
 )
-from betty.property import Property
+from betty.property import AttrProperty
 from betty.sample import Sample
 
 if TYPE_CHECKING:
@@ -55,7 +55,7 @@ class ColorStyleData(Data):
     The content within this color style.
     """
 
-    style = Property(EnumDefinition(cls=RaspberryMintColorStyle, label=_("Style")))
+    style = AttrProperty(EnumDefinition(cls=RaspberryMintColorStyle, label=_("Style")))
     """
     The style.
     """

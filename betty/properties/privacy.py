@@ -11,14 +11,14 @@ from betty.linked_data import LinkedDataDumper
 from betty.locale.localizable.gettext import _
 from betty.privacy import Privacy
 from betty.privacy.schema import PrivacySchema
-from betty.property import Property
+from betty.property import AttrProperty
 
 if TYPE_CHECKING:
     from betty.project import Project
 
 
 @final
-class PrivacyProperty(Property, LinkedDataDumper[object, PrivacySchema, bool]):
+class PrivacyProperty(AttrProperty, LinkedDataDumper[object, PrivacySchema, bool]):
     """
     A property containing a privacy.
     """

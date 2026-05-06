@@ -43,8 +43,7 @@ class Link(LinkType, HasMediaType, HasDescription, HasPrivacy, Entity):
     .. plugin:: entity:link.
     """
 
-    _url = LocalizableProperty(label=_("URL"))
-    _label = Optional(LocalizableProperty(label=_("Label")))
+    url = LocalizableProperty(label=_("URL"))
 
     relationship: str | None
     """
@@ -74,33 +73,16 @@ class Link(LinkType, HasMediaType, HasDescription, HasPrivacy, Entity):
         super().__init__(
             media_type=media_type, description=description, privacy=privacy
         )
-        self._url = url
-        self._label = label
+        self.url = url
+        self.label = label
         self.relationship = relationship
         if owner is not None:
             self.owner = owner
 
     @override
-    @property
-    def url(self) -> Localizable:
-        return self._url
-
-    @url.setter
-    def url(self, url: ResolvableLocalizable) -> None:
-        self._url = url
-
-    @override
-    @property
-    def label(self) -> Localizable:
-        return self.url if self._label is None else self._label
-
-    @label.setter
-    def label(self, label: ResolvableLocalizable | None) -> None:
-        self._label = label
-
-    @label.deleter
-    def label(self) -> None:
-        del self._label
+    @Optional(LocalizableProperty(label=_("Label")))
+    def label(self, label: Localizable | None, /) -> Localizable:
+        return self.url if label is None else label
 
     @property
     def has_label(self) -> bool:
@@ -115,10 +97,9 @@ class Link(LinkType, HasMediaType, HasDescription, HasPrivacy, Entity):
         portable = await super().dump_linked_data(project)
         if self.public:
             portable["url"] = dump_linked_data(self.url, localizers=public_localizers)
-            if self._label is not None:
-                portable["label"] = dump_linked_data(
-                    self._label, localizers=public_localizers
-                )
+            portable["label"] = dump_linked_data(
+                self.label, localizers=public_localizers
+            )
             if self.relationship is not None:
                 portable["relationship"] = self.relationship
         return portable

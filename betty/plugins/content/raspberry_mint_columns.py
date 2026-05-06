@@ -33,7 +33,7 @@ from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.extension.raspberry_mint import Breakpoint, JustifyContent
 from betty.portable import CallbackPorter
 from betty.project import Project
-from betty.property import Optional, Property
+from betty.property import AttrProperty, Optional
 from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
@@ -123,7 +123,7 @@ class ColumnsData(Data):
     _DEFAULT_WIDTH: ClassVar[ColumnsWidth] = {Breakpoint.XS: [12]}
     _width: ColumnsWidth
 
-    content = Property(
+    content = AttrProperty(
         SequenceDefinition(
             cls=list,
             value=PluginManufacturerSequenceDefinition(
@@ -137,13 +137,13 @@ class ColumnsData(Data):
     """
 
     justify_content = Optional(
-        Property(EnumDefinition(cls=JustifyContent, label=_("Justify content")))
+        AttrProperty(EnumDefinition(cls=JustifyContent, label=_("Justify content")))
     )
     """
     If and how to justify content.
     """
 
-    width = Property(
+    width = AttrProperty(
         MappingDefinition(
             cls=dict,
             key=EnumDefinition(
