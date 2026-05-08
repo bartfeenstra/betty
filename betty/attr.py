@@ -4,15 +4,18 @@ Object attributes.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Self, cast, final, overload, override
+from typing import TYPE_CHECKING, Final, final, override
 
 from betty.data import OptionalDefinition
 from betty.datas.aggregate.record.object import Attr as DataAttr
 from betty.datas.aggregate.record.object import AttrDefinition
-from betty.functools import passthrough
-from betty.importlib import fully_qualified_name
-from betty.typing import Void
+from betty.descriptor import (
+    DeletableDescriptor,
+    DeletableDescriptorProxy,
+    HasDescriptors,
+    SettableDescriptor,
+    SettableDescriptorProxy,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -21,73 +24,52 @@ if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
 
 
-class _Attr[ValueGetT, ValueSetT](DataAttr[ValueGetT], ABC):
-    _attr_name: str
+class Attr[OwnerT: HasDescriptors, GetT, SetT](
+    DataAttr[GetT], SettableDescriptor[OwnerT, GetT, SetT]
+):
+    """
+    An object attribute with a data definition.
+    """
 
-    def __init__(
-        self,
-        attr: AttrDefinition[ValueGetT],
-        *,
-        resolver: Callable[[ValueSetT | ValueGetT], ValueGetT] = passthrough,
-    ):
-        self._attr = attr
-        self._resolver = resolver
-
-    def __set_name__(self, owner: type[Any], name: str) -> None:
-        self._attr_name = f"_{name}"
+    def __init__(self, attr: AttrDefinition[GetT], /):
+        self.__attr = attr
+        self.__owner_attr: Final[str] = f"_{self.descriptor_name}"
 
     @final
     @override
     @property
-    def attr(self) -> AttrDefinition[ValueGetT]:
-        return self._attr
+    def attr(self) -> AttrDefinition[GetT]:
+        return self.__attr
 
-    @overload
-    def __get__(self, instance: None, owner: type[object], /) -> Self:
-        pass
+    @final
+    def _get(self, owner: OwnerT, /) -> GetT:
+        return getattr(owner, self.__owner_attr)
 
-    @overload
-    def __get__(self, instance: Any, owner: type[Any] | None = None, /) -> ValueGetT:
-        pass
+    @final
+    def _set(self, owner: OwnerT, value: SetT, /) -> None:
+        setattr(owner, self.__owner_attr, value)
 
-    def __get__(self, instance, owner=None, /):
-        if instance is None:
-            return self
-        return self.get(instance)
-
-    def __set__(self, instance: Any, value: ValueSetT | ValueGetT) -> None:
-        self.set(instance, value)
-
-    @abstractmethod
-    def get(self, instance: Any, /) -> ValueGetT:
+    @final
+    def default(self, default: Callable[[OwnerT], SetT], /) -> Attr[OwnerT, GetT, SetT]:
         """
-        Get the attribute value from the instance.
+        Return a new attribute with the given default value.
         """
-
-    def set(self, instance: Any, value: ValueSetT, /) -> ValueGetT:
-        """
-        Set the value on the instance.
-        """
-        resolved_value = self._resolver(value)
-        setattr(instance, self._attr_name, resolved_value)
-        return resolved_value
+        return DefaultProperty(self, default)
 
 
-class Attr[ValueGetT, ValueSetT](_Attr[ValueGetT, ValueSetT]):
+class AttrProperty[OwnerT: HasDescriptors, T](Attr[OwnerT, T, T]):
     """
-    An object attribute with a definition.
+    A property value stored in an object attribute.
     """
 
     def __init__(
         self,
-        data: DataDefinition[ValueGetT] | type[Data[DataDefinition[ValueGetT]]],
+        data: DataDefinition[T] | type[Data[DataDefinition[T]]],
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
         omit_load: bool | None = None,
-        omit_dump: Callable[[ValueGetT], bool] | None = None,
-        resolver: Callable[[ValueSetT], ValueGetT] = passthrough,
-        default: Callable[[], ValueGetT] | None = None,
+        omit_dump: Callable[[T], bool] | None = None,
     ):
         super().__init__(
             AttrDefinition(
@@ -96,32 +78,50 @@ class Attr[ValueGetT, ValueSetT](_Attr[ValueGetT, ValueSetT]):
                 description=description,
                 omit_load=omit_load,
                 omit_dump=omit_dump,
-            ),
-            resolver=resolver,
+            )
         )
-        self._data = data
-        self._label = label
-        self._description = description
-        self._default = default
 
     @final
     @override
-    def get(self, instance: Any, /) -> ValueGetT:
-        value = cast(
-            ValueGetT | Void,
-            getattr(instance, self._attr_name, Void),
-        )
-        if value is Void:
-            if self._default is None:
-                instance_name = fully_qualified_name(type(instance))
-                raise AttrNotInitialized(
-                    f"{instance_name}.{self._attr_name[1:]} was never initialized. Either provide a default when initializing the attribute, or make {instance_name}.__init__() set a value."
-                )
-            value = self._default()
-            setattr(instance, self._attr_name, value)
-        return value  # ty:ignore[invalid-return-type]
+    def get(self, owner: OwnerT, /) -> T:
+        return self._get(owner)
+
+    @override
+    def set(self, owner: OwnerT, value: T, /) -> None:
+        self._set(owner, value)
 
 
+# @todo A property with a default value is not necessarily settable.
+# @todo Examples of this:
+# @todo - collections
+# @todo - read-only properties
+# @todo - computed properties
+# @todo
+@final
+class DefaultProperty[OwnerT: HasDescriptors, GetT, SetT](
+    SettableDescriptorProxy[OwnerT, GetT, SetT],
+    DeletableDescriptorProxy[OwnerT, GetT],
+    Attr[OwnerT, GetT, SetT],
+):
+    """
+    A property with a default value.
+    """
+
+    def __init__(
+        self,
+        proxied: Attr[OwnerT, GetT, SetT],
+        default: Callable[[OwnerT], SetT],
+        /,
+    ):
+        super().__init__(proxied)
+        self._default = default
+
+    @override
+    def init_descriptor(self, owner: OwnerT, /) -> None:
+        self._set(owner, self._default(owner))
+
+
+# @todo This should be refactored into an internal exception for AttrProperty only
 @final
 class AttrNotInitialized(ValueError):
     """
@@ -130,52 +130,39 @@ class AttrNotInitialized(ValueError):
 
 
 @final
-class Optional[ValueGetT, ValueSetT](_Attr[ValueGetT | None, ValueSetT | None]):
+class Optional[OwnerT: HasDescriptors, GetT, SetT](
+    SettableDescriptorProxy[OwnerT, GetT | None, SetT | None],
+    DeletableDescriptor[OwnerT, GetT | None],
+    Attr[OwnerT, GetT | None, SetT | None],
+):
     """
     Make another attribute optional, e.g. allow ``None``.
     """
 
-    def __init__(self, required_attr: Attr[ValueGetT, ValueSetT], /):
-        def _omit_dump(data: ValueGetT | None) -> bool:
+    def __init__(self, proxied: Attr[OwnerT, GetT, SetT], /):
+        def _omit_dump(data: GetT | None) -> bool:
             if data is None:
                 return True
-            if required_attr.attr.omit_dump is None:
+            if proxied.attr.omit_dump is None:
                 return False
-            return required_attr.attr.omit_dump(data)
+            return proxied.attr.omit_dump(data)
 
         super().__init__(
+            proxied,
             AttrDefinition(
-                OptionalDefinition(required_attr.attr.data),
-                label=required_attr.attr.label,
-                description=required_attr.attr.description,
-                omit_load=required_attr.attr.omit_load,
+                OptionalDefinition(proxied.attr.data),
+                label=proxied.attr.label,
+                description=proxied.attr.description,
+                omit_load=proxied.attr.omit_load,
                 omit_dump=_omit_dump,
-            )
+            ),
         )
-        self._required_attr = required_attr
-
-    def __set_name__(self, owner: type[Any], name: str) -> None:
-        super().__set_name__(owner, name)
-        self._required_attr.__set_name__(owner, name)
 
     @override
-    def get(self, instance: Any, /) -> ValueGetT | None:
-        try:
-            return self._required_attr.get(instance)
-        except AttrNotInitialized:
-            return self.set(instance, None)
+    def init_descriptor(self, owner: OwnerT, /) -> None:
+        super().init_descriptor(owner)
+        self._set(owner, None)
 
     @override
-    def set(self, instance: Any, value: ValueSetT | None, /) -> ValueGetT | None:
-        if value is None:
-            return super().set(instance, value)
-        return self._required_attr.set(instance, value)
-
-    def __delete__(self, instance: Any) -> None:
-        self.delete(instance)
-
-    def delete(self, instance: Any, /) -> None:
-        """
-        Delete the value from the instance.
-        """
-        self.set(instance, None)
+    def delete(self, owner: OwnerT, /) -> None:
+        self.set(owner, None)

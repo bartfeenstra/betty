@@ -7,8 +7,9 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable
 from typing import TYPE_CHECKING, Any, final, override
 
-from betty.attr import Attr
+from betty.attr import AttrProperty
 from betty.collection.keyed import MutableKeyedCollection
+from betty.descriptor import HasDescriptors
 from betty.functools import passthrough
 
 if TYPE_CHECKING:
@@ -20,7 +21,7 @@ if TYPE_CHECKING:
 class KeyedCollectionAttr[
     MutableKeyedCollectionT: MutableKeyedCollection,
     ValueSetT,
-](Attr[MutableKeyedCollectionT, Iterable[ValueSetT]]):
+](AttrProperty[HasDescriptors, MutableKeyedCollectionT, Iterable[ValueSetT]]):
     """
     An attribute that contains an :py:class:`betty.collection.keyed.KeyedCollection`.
     """
@@ -60,10 +61,8 @@ class KeyedCollectionAttr[
 
     @final
     @override
-    def set(
-        self, instance: Any, value: Iterable[ValueSetT], /
-    ) -> MutableKeyedCollectionT:
-        data = self.get(instance)
+    def set(self, owner: Any, value: Iterable[ValueSetT], /) -> MutableKeyedCollectionT:
+        data = self.get(owner)
         data.clear()
         data.add(*self._values_resolver(value))
         return data

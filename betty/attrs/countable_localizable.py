@@ -6,8 +6,9 @@ from __future__ import annotations
 
 from typing import final
 
-from betty.attr import Attr
+from betty.attr import AttrProperty
 from betty.datas.countable_localizable import CountableLocalizableDefinition
+from betty.descriptor import HasDescriptors
 from betty.locale.localizable import (
     CountableLocalizable,
     ResolvableCountableLocalizable,
@@ -17,8 +18,8 @@ from betty.locale.localizable import (
 
 
 @final
-class CountableLocalizableAttr(
-    Attr[CountableLocalizable, ResolvableCountableLocalizable]
+class CountableLocalizableProperty(
+    AttrProperty[HasDescriptors, CountableLocalizable, ResolvableCountableLocalizable]
 ):
     """
     An attribute containing a :py:class:`betty.locale.localizable.CountableLocalizable`.

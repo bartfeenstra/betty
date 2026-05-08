@@ -7,7 +7,8 @@ from __future__ import annotations
 from collections.abc import Mapping, MutableMapping
 from typing import TYPE_CHECKING, Any, final, override
 
-from betty.attr import Attr
+from betty.attr import AttrProperty
+from betty.descriptor import HasDescriptors
 from betty.functools import passthrough
 
 if TYPE_CHECKING:
@@ -24,7 +25,7 @@ class MappingAttr[
     KeyGetT,
     ItemGetT,
     ValueSetT,
-](Attr[MutableMappingT, ValueSetT]):
+](AttrProperty[HasDescriptors, MutableMappingT, ValueSetT]):
     """
     An attribute that contains a :py:class:`collections.abc.MutableMapping`.
     """
@@ -71,8 +72,8 @@ class MappingAttr[
 
     @final
     @override
-    def set(self, instance: Any, value: ValueSetT, /) -> MutableMappingT:
-        data = self.get(instance)
+    def set(self, owner: Any, value: ValueSetT, /) -> MutableMappingT:
+        data = self.get(owner)
         data.clear()
         data.update(self._mapping_resolver(value))
         return data

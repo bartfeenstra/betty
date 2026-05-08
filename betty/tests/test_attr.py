@@ -1,7 +1,11 @@
 import pytest
 
 from betty.assertion import assert_str
-from betty.attr import Attr, AttrNotInitialized, Optional
+from betty.attr import (
+    AttrNotInitialized,
+    AttrProperty,
+    Optional,
+)
 from betty.data import DataDefinition, OptionalDefinition
 from betty.datas.str import StrDefinition
 from betty.functools import passthrough
@@ -12,7 +16,7 @@ from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 class TestAttr:
     def test___get__(self) -> None:
         class _Owner:
-            my_first_property = Attr(StrDefinition(label=DUMMY_LOCALIZABLE))
+            my_first_property = AttrProperty(StrDefinition(label=DUMMY_LOCALIZABLE))
 
         owner = _Owner()
         with pytest.raises(AttrNotInitialized):
@@ -20,7 +24,7 @@ class TestAttr:
 
     def test_get(self) -> None:
         class _Owner:
-            my_first_property = Attr(StrDefinition(label=DUMMY_LOCALIZABLE))
+            my_first_property = AttrProperty(StrDefinition(label=DUMMY_LOCALIZABLE))
 
         owner = _Owner()
         with pytest.raises(AttrNotInitialized):
@@ -28,7 +32,7 @@ class TestAttr:
 
     def test___set__(self) -> None:
         class _Owner:
-            my_first_property = Attr(StrDefinition(label=DUMMY_LOCALIZABLE))
+            my_first_property = AttrProperty(StrDefinition(label=DUMMY_LOCALIZABLE))
 
         owner = _Owner()
         owner.my_first_property = "my-first-value"
@@ -36,7 +40,7 @@ class TestAttr:
 
     def test___set____with_resolver(self) -> None:
         class _Owner:
-            my_first_property = Attr[str, str | bool](
+            my_first_property = AttrProperty[str, str | bool](
                 StrDefinition(label=DUMMY_LOCALIZABLE), resolver=str
             )
 
@@ -46,15 +50,15 @@ class TestAttr:
 
     def test___set_name__(self) -> None:
         class _Owner:
-            my_first_property = Attr(StrDefinition(label=DUMMY_LOCALIZABLE))
+            my_first_property = AttrProperty(StrDefinition(label=DUMMY_LOCALIZABLE))
 
-        assert _Owner.my_first_property._attr_name == "_my_first_property"
+        assert _Owner.my_first_property.descriptor_name == "_my_first_property"
 
     def test_attr(self) -> None:
         data = StrDefinition(label=DUMMY_LOCALIZABLE)
 
         class _Owner:
-            my_first_property = Attr(data)
+            my_first_property = AttrProperty(data)
 
         assert _Owner.my_first_property.attr.field("my_first_property").data is data
 
@@ -62,7 +66,7 @@ class TestAttr:
 class TestOptional:
     class _Owner:
         my_first_property = Optional(
-            Attr(
+            AttrProperty(
                 DataDefinition(
                     cls=str,
                     label=DUMMY_LOCALIZABLE,
@@ -105,19 +109,19 @@ class TestOptional:
         assert owner.my_first_property is None
 
     def test___set_name__(self) -> None:
-        required_property = Attr(StrDefinition(label=DUMMY_LOCALIZABLE))
+        required_property = AttrProperty(StrDefinition(label=DUMMY_LOCALIZABLE))
 
         class _Owner:
             my_first_property = Optional(required_property)
 
-        assert _Owner.my_first_property._attr_name == "_my_first_property"
-        assert required_property._attr_name == "_my_first_property"
+        assert _Owner.my_first_property.descriptor_name == "_my_first_property"
+        assert required_property.descriptor_name == "_my_first_property"
 
     def test_attr(self) -> None:
         data = StrDefinition(label=DUMMY_LOCALIZABLE)
 
         class _Owner:
-            my_first_property = Optional(Attr(data))
+            my_first_property = Optional(AttrProperty(data))
 
         optional_data = _Owner.my_first_property.attr.data
         assert isinstance(optional_data, OptionalDefinition)

@@ -9,7 +9,8 @@ from collections import defaultdict
 from enum import Enum
 from typing import TYPE_CHECKING, Final, Self, final, override
 
-from betty.attr import Attr, Optional
+from betty.attr import Attr as Attr
+from betty.attr import AttrProperty, Optional
 from betty.attrs.collection.mapping import MappingAttr
 from betty.collection.mapping import MutableResolvedMapping, ResolvedMapping
 from betty.collection.mapping.adapter import (
@@ -40,6 +41,7 @@ from betty.plugins.extension.webpack import Webpack
 from betty.plugins.extension.webpack.build import EntryPointProvider
 from betty.project import Project
 from betty.project.generate import Generator
+from betty.properties.collection.mapping import MappingProperty as MappingProperty
 from betty.sample import Sample, Size
 from betty.service import ServiceProvider
 from betty.service.simple import service
@@ -91,17 +93,21 @@ class RaspberryMintData(Data):
     .. data:: betty.plugins.extension.raspberry_mint:RaspberryMintData
     """
 
-    primary_color = Optional(Attr(ColorDefinition(), label=_("Primary color")))
+    primary_color = Optional(AttrProperty(ColorDefinition(), label=_("Primary color")))
     """
     The primary color.
     """
 
-    secondary_color = Optional(Attr(ColorDefinition(), label=_("Secondary color")))
+    secondary_color = Optional(
+        AttrProperty(ColorDefinition(), label=_("Secondary color"))
+    )
     """
     The secondary color.
     """
 
-    tertiary_color = Optional(Attr(ColorDefinition(), label=_("Tertiary color")))
+    tertiary_color = Optional(
+        AttrProperty(ColorDefinition(), label=_("Tertiary color"))
+    )
     """
     The tertiary color.
     """

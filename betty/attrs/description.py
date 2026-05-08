@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any, override
 
 from betty.attr import Optional
 from betty.attrs.localizable import LocalizableAttr
+from betty.descriptor import HasDescriptors
 from betty.linked_data import (
     JsonLdObject,
     LinkedDataDumpableWithSchemaJsonLdObject,
@@ -24,7 +25,7 @@ if TYPE_CHECKING:
     from betty.project import Project
 
 
-class HasDescription(LinkedDataDumpableWithSchemaJsonLdObject):
+class HasDescription(LinkedDataDumpableWithSchemaJsonLdObject, HasDescriptors):
     """
     Data with a description.
     """

@@ -6,8 +6,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, final, override
 
-from betty.attr import Attr, Optional
+from babel import Locale
+
+from betty.attr import AttrProperty, Optional
 from betty.datas.locale import LocaleDefinition
+from betty.descriptor import HasDescriptors
 from betty.json_schema import Null, OneOf
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
 from betty.locale import Localized, ResolvableLocale, resolve_locale, to_language_tag
@@ -21,7 +24,7 @@ if TYPE_CHECKING:
 
 
 @final
-class LocaleAttr(Attr):
+class LocaleAttr(AttrProperty[HasDescriptors, Locale, ResolvableLocale]):
     """
     An attribute containing a locale.
     """
@@ -40,7 +43,7 @@ class LocaleAttr(Attr):
         )
 
 
-class HasLocale(Localized, LinkedDataDumpableWithSchemaJsonLdObject):
+class HasLocale(Localized, LinkedDataDumpableWithSchemaJsonLdObject, HasDescriptors):
     """
     A resource that is localized, e.g. contains information in a specific locale.
     """

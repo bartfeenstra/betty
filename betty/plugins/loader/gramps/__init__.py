@@ -7,7 +7,8 @@ from __future__ import annotations
 from collections.abc import Mapping, MutableMapping
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.attr import Attr, Optional
+from betty.attr import Attr as Attr
+from betty.attr import AttrProperty, Optional
 from betty.attrs.collection.mapping import MappingAttr
 from betty.attrs.collection.sequence import SequenceAttr
 from betty.collection.mapping import MutableResolvedMapping
@@ -36,6 +37,8 @@ from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
 from betty.plugins.loader.gramps.jobs import LoadAncestry
 from betty.project import Project
+from betty.properties.collection.mapping import MappingProperty as MappingProperty
+from betty.properties.collection.sequence import SequenceProperty as SequenceProperty
 from betty.role import Role, RoleDefinition, RoleManufacturer
 from betty.sample import Sample, Size
 
@@ -121,12 +124,12 @@ class FamilyTree(Data):
     How to map event types.
     """
 
-    file = Optional(Attr(PathDefinition(), label=_("File")))
+    file = Optional(AttrProperty(PathDefinition(), label=_("File")))
     """
     The path to a Gramps family tree file.
     """
 
-    name = Optional(Attr(StrDefinition(label=_("Name"))))
+    name = Optional(AttrProperty(StrDefinition(label=_("Name"))))
     """
     The family tree's name in Gramps.
     """
@@ -253,7 +256,7 @@ class GrampsData(Data):
     The Gramps family trees to load.
     """
 
-    executable = Optional(Attr(PathDefinition()))
+    executable = Optional(AttrProperty(PathDefinition()))
     """
     The path to a specific Gramps executable.
 

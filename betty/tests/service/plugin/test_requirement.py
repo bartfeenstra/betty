@@ -17,11 +17,12 @@ from betty.test_utils.plugin import (
     DummyPluginThree,
     DummyPluginTwo,
 )
+from betty.typing import Intersection
 
 
 class _PluginServiceRequirementTestPluginServiceManager(
     PluginServiceManager[
-        PluginServiceProvider,
+        Intersection[PluginServiceProvider, ServiceLevel],
         DummyPluginDefinition,
         Sequence[DummyPluginDefinition],
         DummyPluginDefinition,
@@ -32,7 +33,7 @@ class _PluginServiceRequirementTestPluginServiceManager(
 
     @override
     def new_service(
-        self, service_provider: PluginServiceProvider, /
+        self, service_provider: Intersection[PluginServiceProvider, ServiceLevel], /
     ) -> Sequence[DummyPluginDefinition]:
         return tuple(
             map(resolve_plugin_definition, self.get_init_plugins(service_provider))

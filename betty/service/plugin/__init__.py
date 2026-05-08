@@ -116,9 +116,11 @@ class PluginServiceManager[
         return self.__auto
 
     @override
-    def init(self, service_provider: ServiceProviderT, /) -> None:
-        super().init(service_provider)
-        setattr(service_provider, f"_plugin_service_init_plugins_{self.name}", [])
+    def init_descriptor(self, service_provider: ServiceProviderT, /) -> None:
+        super().init_descriptor(service_provider)
+        setattr(
+            service_provider, f"_plugin_service_init_plugins_{self.descriptor_name}", []
+        )
 
     @final
     @override
@@ -142,7 +144,9 @@ class PluginServiceManager[
     def __get_init_plugins(
         self, service_provider: ServiceProviderT, /
     ) -> MutableSequence[InitT | ResolvablePluginDefinition[PluginDefinitionT]]:
-        return getattr(service_provider, f"_plugin_service_init_plugins_{self.name}")
+        return getattr(
+            service_provider, f"_plugin_service_init_plugins_{self.descriptor_name}"
+        )
 
     @final
     def get_init_plugins(
@@ -179,7 +183,7 @@ class PluginServiceManager[
         self.assert_plugins_not_initialized(service_provider)
         setattr(
             service_provider,
-            f"_plugin_service_plugins_{self.name}",
+            f"_plugin_service_plugins_{self.descriptor_name}",
             tuple(await self.prepare_plugins(service_provider, *plugins)),
         )
 
@@ -207,7 +211,9 @@ class PluginServiceManager[
         Get the initialized plugins.
         """
         self.assert_plugins_initialized(service_provider)
-        return getattr(service_provider, f"_plugin_service_plugins_{self.name}")
+        return getattr(
+            service_provider, f"_plugin_service_plugins_{self.descriptor_name}"
+        )
 
     @final
     def assert_plugins_not_initialized(
@@ -218,7 +224,7 @@ class PluginServiceManager[
 
         :raise ServiceAlreadyInitialized:
         """
-        if hasattr(service_provider, f"_plugin_service_plugins_{self.name}"):
+        if hasattr(service_provider, f"_plugin_service_plugins_{self.descriptor_name}"):
             raise ServiceAlreadyInitialized(
                 f"Service {self.id}'s plugins were initialized already."
             )
@@ -230,7 +236,9 @@ class PluginServiceManager[
 
         :raise ServiceNotYetInitialized:
         """
-        if not hasattr(service_provider, f"_plugin_service_plugins_{self.name}"):
+        if not hasattr(
+            service_provider, f"_plugin_service_plugins_{self.descriptor_name}"
+        ):
             raise ServiceNotYetInitialized(
                 f"Service {self.id}'s plugins were not yet initialized."
             )

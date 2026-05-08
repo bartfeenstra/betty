@@ -7,7 +7,8 @@ from __future__ import annotations
 from collections.abc import Iterable, MutableSequence
 from typing import TYPE_CHECKING, Any, final, override
 
-from betty.attr import Attr
+from betty.attr import AttrProperty
+from betty.descriptor import HasDescriptors
 from betty.functools import passthrough
 
 if TYPE_CHECKING:
@@ -19,8 +20,8 @@ if TYPE_CHECKING:
     from betty.typing import Intersection
 
 
-class SequenceAttr[MutableSequenceT: MutableSequence[Any], ItemGetT, ValueSetT](
-    Attr[MutableSequenceT, ValueSetT]
+class SequenceProperty[MutableSequenceT: MutableSequence[Any], ItemGetT, ValueSetT](
+    AttrProperty[HasDescriptors, MutableSequenceT, ValueSetT]
 ):
     """
     An attribute that contains a :py:class:`collections.abc.MutableSequence`.
@@ -68,8 +69,8 @@ class SequenceAttr[MutableSequenceT: MutableSequence[Any], ItemGetT, ValueSetT](
 
     @final
     @override
-    def set(self, instance: Any, value: ValueSetT, /) -> MutableSequenceT:
-        data = self.get(instance)
+    def set(self, owner: Any, value: ValueSetT, /) -> MutableSequenceT:
+        data = self.get(owner)
         data.clear()
         data.extend(self._sequence_resolver(value))
         return data

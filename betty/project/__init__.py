@@ -22,7 +22,8 @@ from betty.about import VERSION_MAJOR
 from betty.app import App
 from betty.assertion import assert_number, assert_url
 from betty.asset import AssetRepositoryService
-from betty.attr import Attr, Optional
+from betty.attr import Attr as Attr
+from betty.attr import AttrProperty, Optional
 from betty.attrs.collection.keyed import KeyedCollectionAttr
 from betty.attrs.collection.sequence import SequenceAttr
 from betty.attrs.localizable import LocalizableAttr
@@ -56,6 +57,7 @@ from betty.datas.path import PathDefinition
 from betty.datas.place_type_definition import PlaceTypeDefinitionData
 from betty.datas.role_definition import RoleDefinitionData
 from betty.datas.str import StrDefinition
+from betty.descriptor import HasDescriptors
 from betty.dirs import BUILTIN_ASSET_DIRECTORY
 from betty.document import Document, DocumentProviderDefinition
 from betty.entity import EntityDefinition
@@ -99,6 +101,15 @@ from betty.plugin.resolve import (
     resolve_plugin_id,
 )
 from betty.privacy.privatizer import Privatizer
+from betty.properties.collection.keyed import (
+    KeyedCollectionProperty as KeyedCollectionProperty,
+)
+from betty.properties.collection.sequence import SequenceProperty as SequenceProperty
+from betty.properties.localizable import LocalizableProperty as LocalizableProperty
+from betty.properties.machine_name import MachineNameProperty as MachineNameProperty
+from betty.properties.plugin_definitions import (
+    PluginDefinitionDatasProperty as PluginDefinitionDatasProperty,
+)
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.role import RoleDefinition
 from betty.sample import Sample, Size
@@ -761,7 +772,7 @@ class ProjectLocale(Data["ObjectDefinition"]):
         ),
     ],
 )
-class ProjectData(Data):
+class ProjectData(Data, HasDescriptors):
     """
     Configuration for a :py:class:`betty.project.Project`.
 
@@ -773,7 +784,7 @@ class ProjectData(Data):
     The project's author.
     """
 
-    clean_urls = Attr(
+    clean_urls = AttrProperty(
         BoolDefinition(
             label=_("Clean URLs"),
             description=_(
@@ -788,7 +799,7 @@ class ProjectData(Data):
     """
 
     copyright_notice = Optional(
-        Attr(
+        AttrProperty(
             CopyrightNoticeManufacturer,
             omit_load=True,
             omit_dump=lambda data: data == ProjectData._default_copyright_notice(),
@@ -807,7 +818,7 @@ class ProjectData(Data):
     The :py:class:`betty.copyright_notice.CopyrightNotice` plugins created by this project.
     """
 
-    debug = Attr(
+    debug = AttrProperty(
         BoolDefinition(
             label=_("Debugging mode"),
             description=_(
@@ -886,7 +897,7 @@ class ProjectData(Data):
     """
 
     license = Optional(
-        Attr(
+        AttrProperty(
             LicenseManufacturer,
             omit_load=True,
             omit_dump=lambda data: data == ProjectData._default_license(),
@@ -903,7 +914,7 @@ class ProjectData(Data):
     The :py:class:`betty.license.License` plugins created by this project.
     """
 
-    lifetime_threshold = Attr(
+    lifetime_threshold = AttrProperty(
         IntDefinition(
             label=_("Lifetime threshold"),
             description=_(
@@ -960,7 +971,7 @@ class ProjectData(Data):
     The configured locales.
     """
 
-    logo = Optional(Attr(PathDefinition(), label=_("Logo")))
+    logo = Optional(AttrProperty(PathDefinition(), label=_("Logo")))
     """
     The project logo.
     """
@@ -987,7 +998,7 @@ class ProjectData(Data):
     The human-readable project title.
     """
 
-    url = Attr(
+    url = AttrProperty(
         StrDefinition(
             label=_("URL"),
             description=_(

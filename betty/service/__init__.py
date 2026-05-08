@@ -4,11 +4,13 @@ An API for providing application-wide services.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from collections.abc import Callable
 from dataclasses import dataclass
-from inspect import getmembers
-from typing import TYPE_CHECKING, Any, Self, final, overload
+from typing import TYPE_CHECKING, Any, final, override
+
+from betty.descriptor import Descriptor as Descriptor
+from betty.descriptor import GettableDescriptor, HasDescriptors
 
 if TYPE_CHECKING:
     from betty.service_level import ServiceLevel
@@ -28,7 +30,7 @@ type ServiceOrFactory[ServiceProviderT: ServiceProvider, ServiceT, FactoryServic
 )
 
 
-class ServiceProvider:
+class ServiceProvider(HasDescriptors):
     """
     A service provider.
     """
@@ -36,9 +38,6 @@ class ServiceProvider:
     def __init__(self, *args: Any, services: ServiceLevel, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self.__services = services
-        for _, member in getmembers(type(self)):
-            if isinstance(member, ServiceManager):
-                member.init(self)
 
     @final
     @property
@@ -65,7 +64,7 @@ class ServiceManager[
     GetServiceT,
     GetterServiceT,
     FactoryServiceT,
-](ABC):
+](GettableDescriptor[ServiceProviderT, GetServiceT]):
     """
     Manage a single service for a service provider.
     """
@@ -76,62 +75,21 @@ class ServiceManager[
         self.__service_or_factory = factory
 
     @final
-    def __set_name__(self, owner: type[ServiceProviderT], name: str) -> None:
-        self.__owner = owner
-        self.__name = name
-
-    @final
-    @property
-    def owner(self) -> type[ServiceProviderT]:
-        """
-        The class this service is located on.
-        """
-        return self.__owner
-
-    @final
-    @property
-    def name(self) -> str:
-        """
-        The service name.
-        """
-        return self.__name
-
-    @final
     @property
     def id(self) -> str:
         """
         The global service ID.
         """
-        return f"{self.owner.__name__}.{self.name}"
+        return f"{self.descriptor_owner.__name__}.{self.descriptor_name}"
 
-    @overload
-    def __get__(self, instance: None, owner: type[ServiceProviderT], /) -> Self:
-        pass
-
-    @overload
-    def __get__(
-        self, instance: ServiceProviderT, owner: type[ServiceProviderT] | None = None, /
-    ) -> GetServiceT:
-        pass
-
-    @final
-    def __get__(
-        self,
-        instance: ServiceProviderT | None,
-        owner: type[ServiceProviderT] | None = None,
-        /,
-    ) -> GetServiceT | Self:
-        if instance is None:
-            return self
-
-        return self.get(instance)
-
-    def init(self, instance: ServiceProviderT, /) -> None:
-        """
-        Initialize the service.
-        """
+    @override
+    def init_descriptor(self, instance: ServiceProviderT, /) -> None:
         self._assert_service_not_initialized(instance)
-        setattr(instance, f"_service_{self.name}", self._new_service_getter(instance))
+        setattr(
+            instance,
+            f"_service_{self.descriptor_name}",
+            self._new_service_getter(instance),
+        )
 
     @abstractmethod
     def _new_service_getter(self, instance: ServiceProviderT, /) -> GetterServiceT:
@@ -145,11 +103,9 @@ class ServiceManager[
         """
 
     @final
+    @override
     def get(self, instance: ServiceProviderT, /) -> GetServiceT:
-        """
-        Get the service from an instance.
-        """
-        return self._get_service(getattr(instance, f"_service_{self.name}"))
+        return self._get_service(getattr(instance, f"_service_{self.descriptor_name}"))
 
     @abstractmethod
     def _get_service(self, service: GetterServiceT, /) -> GetServiceT:
@@ -162,14 +118,16 @@ class ServiceManager[
         self, instance: ServiceProviderT, /
     ) -> ServiceOrFactory[ServiceProviderT, ServiceT, FactoryServiceT]:
         return getattr(
-            instance, f"_service_{self.name}_or_factory", self.__service_or_factory
+            instance,
+            f"_service_{self.descriptor_name}_or_factory",
+            self.__service_or_factory,
         )
 
     @final
     def _assert_service_not_initialized(self, instance: ServiceProviderT, /) -> None:
-        if hasattr(instance, f"_service_{self.name}"):
+        if hasattr(instance, f"_service_{self.descriptor_name}"):
             raise ServiceAlreadyInitialized(
-                f"{instance}.{self.name} was initialized already."
+                f"{instance}.{self.descriptor_name} was initialized already."
             )
 
     @final
@@ -187,7 +145,7 @@ class ServiceManager[
         This MUST only be called from ``instance.__init__()``.
         """
         self._assert_service_not_initialized(instance)
-        setattr(instance, f"_service_{self.name}_or_factory", service)
+        setattr(instance, f"_service_{self.descriptor_name}_or_factory", service)
 
 
 class ServiceNotYetInitialized(ServiceError):

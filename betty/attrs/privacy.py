@@ -6,8 +6,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Literal, final, override
 
-from betty.attr import Attr
+from betty.attr import AttrProperty
 from betty.datas.enum import EnumDefinition
+from betty.descriptor import HasDescriptors
 from betty.linked_data import LinkedDataDumper
 from betty.locale.localizable.gettext import _
 from betty.privacy import Privacy
@@ -18,7 +19,10 @@ if TYPE_CHECKING:
 
 
 @final
-class PrivacyAttr(Attr, LinkedDataDumper[object, PrivacySchema, bool]):
+class PrivacyAttr(
+    AttrProperty[HasDescriptors, Privacy],
+    LinkedDataDumper[HasDescriptors, PrivacySchema, bool],
+):
     """
     An attribute containing a privacy.
     """
@@ -31,15 +35,13 @@ class PrivacyAttr(Attr, LinkedDataDumper[object, PrivacySchema, bool]):
         return PrivacySchema()
 
     @override
-    async def dump_linked_data_for(self, project: Project, target: object, /) -> bool:
-        if isinstance(target, HasPrivacy):
-            privacy = target.privacy
-        else:
-            privacy = getattr(target, self._attr_name)
-        return privacy is Privacy.PRIVATE
+    async def dump_linked_data_for(
+        self, project: Project, target: HasDescriptors, /
+    ) -> bool:
+        return self.get(target) is Privacy.PRIVATE
 
 
-class HasPrivacy:
+class HasPrivacy(HasDescriptors):
     """
     A resource that has privacy.
     """

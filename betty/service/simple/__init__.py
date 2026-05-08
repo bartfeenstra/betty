@@ -54,7 +54,4 @@ def service(factory):
         if iscoroutinefunction(factory)
         else SynchronousServiceManager
     )
-    return update_wrapper(
-        service_manager_cls(factory),  # ty:ignore[invalid-argument-type]
-        factory,
-    )
+    return update_wrapper(service_manager_cls(factory), factory)

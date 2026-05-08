@@ -65,7 +65,7 @@ class PluginServiceRequirement[PluginDefinitionT: PluginDefinition, GetServiceT]
         """
         Check the requirement.
         """
-        if isinstance(services, self.service.owner):
+        if isinstance(services, self.service.descriptor_owner):
             service_plugins = list(
                 map(
                     self._service.resolve_init_plugin_id,

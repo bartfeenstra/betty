@@ -7,7 +7,7 @@ from __future__ import annotations
 from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.attr import Attr, Optional
+from betty.attr import AttrProperty, Optional
 from betty.attrs.plugin_manufacturer_sequence import (
     PluginManufacturerSequenceAttr,
 )
@@ -64,12 +64,12 @@ class BoxData(Data):
     The content within this box.
     """
 
-    min_height = Optional(Attr(StrDefinition(label=_("Minimum height"))))
-    max_height = Optional(Attr(StrDefinition(label=_("Maximum height"))))
-    height = Optional(Attr(StrDefinition(label=_("Height"))))
-    min_width = Optional(Attr(StrDefinition(label=_("Minimum width"))))
-    max_width = Optional(Attr(StrDefinition(label=_("Maximum width"))))
-    width = Optional(Attr(StrDefinition(label=_("Width"))))
+    min_height = Optional(AttrProperty(StrDefinition(label=_("Minimum height"))))
+    max_height = Optional(AttrProperty(StrDefinition(label=_("Maximum height"))))
+    height = Optional(AttrProperty(StrDefinition(label=_("Height"))))
+    min_width = Optional(AttrProperty(StrDefinition(label=_("Minimum width"))))
+    max_width = Optional(AttrProperty(StrDefinition(label=_("Maximum width"))))
+    width = Optional(AttrProperty(StrDefinition(label=_("Width"))))
 
     def __init__(
         self,

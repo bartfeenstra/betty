@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, override
 
-from betty.attr import Attr, Optional
+from betty.attr import AttrProperty, Optional
 from betty.datas.date import AnyDateDefinition
 from betty.date import AnyDate, Date
 from betty.date.linked_data import (
@@ -14,6 +14,7 @@ from betty.date.linked_data import (
     dump_linked_data_for_date_range,
 )
 from betty.date.schema import ResolvableDateSchema
+from betty.descriptor import HasDescriptors
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
 from betty.privacy.resolve import is_public
 
@@ -22,12 +23,12 @@ if TYPE_CHECKING:
     from betty.project import Project
 
 
-class HasAnyDate(LinkedDataDumpableWithSchemaJsonLdObject):
+class HasAnyDate(LinkedDataDumpableWithSchemaJsonLdObject, HasDescriptors):
     """
     A resource with date information.
     """
 
-    date = Optional(Attr(AnyDateDefinition()))
+    date = Optional(AttrProperty(AnyDateDefinition()))
     """
     The date.
     """

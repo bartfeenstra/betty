@@ -6,7 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, final, override
 
-from betty.attr import Attr, Optional
+from betty.attr import AttrProperty, Optional
+from betty.descriptor import HasDescriptors
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
 from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
 from betty.media_type.schema import MediaTypeSchema
@@ -21,7 +22,7 @@ if TYPE_CHECKING:
 
 
 @final
-class MediaTypeAttr(Attr[MediaType, ResolvableMediaType]):
+class MediaTypeAttr(AttrProperty[HasDescriptors, MediaType, ResolvableMediaType]):
     """
     An attribute containing a media type.
     """
@@ -46,7 +47,7 @@ class MediaTypeAttr(Attr[MediaType, ResolvableMediaType]):
         )
 
 
-class HasMediaType(LinkedDataDumpableWithSchemaJsonLdObject):
+class HasMediaType(LinkedDataDumpableWithSchemaJsonLdObject, HasDescriptors):
     """
     A resource with an `IANA media type <https://www.iana.org/assignments/media-types/media-types.xhtml>`_.
     """
