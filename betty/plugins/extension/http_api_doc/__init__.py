@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
-from betty.dirs import DATA_DIRECTORY as DATA_DIRECTORY
 from betty.dirs import WEBPACK_ENTRY_POINT_DIRECTORY
 from betty.extension import ExtensionDefinition
 from betty.locale.localizable.gettext import _
@@ -19,7 +18,7 @@ from betty.project import Project
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from _typeshed import StrPath
+    from betty.pathlib import StrPath
 
 
 @final

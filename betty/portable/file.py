@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 from betty.assertion import AssertionChain, assert_file
 from betty.exception import reraise_with_indicator
 from betty.file import write
-from betty.indicator import Path as DataPath
+from betty.indicator import Path as IndicatorPath
 from betty.pathlib import resolve_path
 from betty.serde import Serializer, serializer_for
 
@@ -33,7 +33,7 @@ def assert_load_file(
     def _assert(file: Path, /) -> PortableData:
         file = resolve_path(file)
         with (
-            reraise_with_indicator(DataPath(file)),
+            reraise_with_indicator(IndicatorPath(file)),
             # Change the working directory to allow relative paths to be resolved
             # against the configuration file's directory path.
             chdir(file.parent),

@@ -11,7 +11,7 @@ import pytest
 from geopy import Point
 from playwright.async_api import Page, expect
 
-from betty import server as server
+
 from betty.plugins.entity.place_name import PlaceName
 from betty.extension import ExtensionDefinition, ExtensionManufacturer
 from betty.plugin.resolve import ResolvablePluginId
