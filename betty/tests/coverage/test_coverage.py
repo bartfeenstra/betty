@@ -1141,7 +1141,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/portable/error.py": {
         "NotPortable": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/role/__init__.py": {
+    "betty/role.py": {
         "Role": MissingReason.STATIC_CONTENT_ONLY,
         "RoleDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "RoleManufacturer": MissingReason.STATIC_CONTENT_ONLY,
