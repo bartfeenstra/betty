@@ -46,9 +46,8 @@ from betty.service.simple import service
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterable, Mapping, Sequence
 
-    from _typeshed import StrPath
-
     from betty.job.scheduler import Scheduler
+    from betty.pathlib import StrPath
 
 type RegionalContent = ResolvedMapping[str, ResolvableRegion, Sequence[Content]]
 type RegionalContentManufacturers = Mapping[

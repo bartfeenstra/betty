@@ -21,7 +21,6 @@ from jinja2.runtime import DebugUndefined, StrictUndefined
 from jinja2.utils import missing
 
 from betty import about
-from betty import document as document
 from betty.cache import CacheItem
 from betty.date import Date
 from betty.file import read, write

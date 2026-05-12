@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.dirs import DATA_DIRECTORY as DATA_DIRECTORY
 from betty.dirs import WEBPACK_ENTRY_POINT_DIRECTORY
 from betty.extension import ExtensionDefinition
 from betty.factory import Manufacturable
@@ -19,9 +18,8 @@ from betty.project.generate import Generator
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from _typeshed import StrPath
-
     from betty.job.scheduler import Scheduler
+    from betty.pathlib import StrPath
 
 
 @final

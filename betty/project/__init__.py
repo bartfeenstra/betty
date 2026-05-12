@@ -24,7 +24,7 @@ from betty.assertion import assert_number, assert_url
 from betty.asset import AssetRepositoryService
 from betty.cache import Cache
 from betty.cache.file import BinaryFileCache, PickledFileCache
-from betty.cache.no_op import NoOpCache as NoOpCache
+from betty.cache.no_op import NoOpCache
 from betty.collection.keyed.adapter import (
     KeyedCollectionAdapter,
     MutableKeyedCollectionAdapter,
