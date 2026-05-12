@@ -3,8 +3,8 @@ from typing import Any, override
 
 import pytest
 
+from betty.attrs.date import HasAnyDate
 from betty.date import AnyDate, Date, DateRange
-from betty.properties.date import HasAnyDate
 from betty.test_utils.conftest import AssertTemplateString
 
 

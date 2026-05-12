@@ -6,6 +6,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
+from betty.attr import Optional
+from betty.attrs.description import HasDescription
+from betty.attrs.localizable import LocalizableAttr
+from betty.attrs.media_type import HasMediaType
+from betty.attrs.privacy import HasPrivacy
 from betty.entity import Entity, EntityDefinition
 from betty.entity.association import BidirectionalToZeroOrOne
 from betty.json_schema import String
@@ -15,11 +20,6 @@ from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.privacy import Privacy
 from betty.privacy.resolve import merge_privacies
-from betty.properties.description import HasDescription
-from betty.properties.localizable import LocalizableProperty
-from betty.properties.media_type import HasMediaType
-from betty.properties.privacy import HasPrivacy
-from betty.property import Optional
 
 if TYPE_CHECKING:
     from betty.entity.has_links import HasLinks
@@ -43,8 +43,8 @@ class Link(LinkType, HasMediaType, HasDescription, HasPrivacy, Entity):
     .. plugin:: entity:link.
     """
 
-    _url = LocalizableProperty(label=_("URL"))
-    _label = Optional(LocalizableProperty(label=_("Label")))
+    _url = LocalizableAttr(label=_("URL"))
+    _label = Optional(LocalizableAttr(label=_("Label")))
 
     relationship: str | None
     """

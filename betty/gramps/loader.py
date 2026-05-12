@@ -24,6 +24,7 @@ from geopy import Point
 from lxml import etree
 
 from betty import subprocess
+from betty.attrs.privacy import HasPrivacy
 from betty.copyright_notice import CopyrightNoticeManufacturer
 from betty.date import AnyDate, Date, DateRange
 from betty.entity import Entity
@@ -110,7 +111,6 @@ from betty.plugins.role.informant import Informant
 from betty.plugins.role.subject import Subject
 from betty.plugins.role.unknown import Unknown as UnknownRole
 from betty.plugins.role.witness import Witness
-from betty.properties.privacy import HasPrivacy
 from betty.role import RoleManufacturer
 
 if TYPE_CHECKING:

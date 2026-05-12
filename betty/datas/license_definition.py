@@ -6,11 +6,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, final, override
 
+from betty.attrs.localizable import LocalizableAttr
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.human_facing_plugin_definition import HumanFacingPluginDefinitionData
 from betty.license import License, LicenseDefinition
 from betty.locale.localizable.gettext import _
-from betty.properties.localizable import LocalizableProperty
 from betty.sample import Sample
 
 if TYPE_CHECKING:
@@ -39,8 +39,8 @@ class LicenseDefinitionData(HumanFacingPluginDefinitionData[LicenseDefinition]):
     .. data:: betty.datas.license_definition:LicenseDefinitionData
     """
 
-    summary = LocalizableProperty(label=_("Summary"))
-    text = LocalizableProperty(label=_("Text"))
+    summary = LocalizableAttr(label=_("Summary"))
+    text = LocalizableAttr(label=_("Text"))
 
     def __init__(
         self,

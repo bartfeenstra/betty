@@ -7,6 +7,10 @@ from __future__ import annotations
 from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.attr import Attr, Optional
+from betty.attrs.plugin_manufacturer_sequence import (
+    PluginManufacturerSequenceAttr,
+)
 from betty.content import Content, ContentDefinition, ContentManufacturer, build
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
@@ -16,10 +20,6 @@ from betty.locale.localizable.gettext import _
 from betty.plugins.content.render import Render, RenderData
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project
-from betty.properties.plugin_manufacturer_sequence import (
-    PluginManufacturerSequenceProperty,
-)
-from betty.property import Optional, Property
 from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
@@ -57,19 +57,19 @@ class BoxData(Data):
     .. data:: betty.plugins.content.box:BoxData
     """
 
-    content = PluginManufacturerSequenceProperty[ContentDefinition, Content](
+    content = PluginManufacturerSequenceAttr[ContentDefinition, Content](
         ContentManufacturer, label=_("Content")
     )
     """
     The content within this box.
     """
 
-    min_height = Optional(Property(StrDefinition(label=_("Minimum height"))))
-    max_height = Optional(Property(StrDefinition(label=_("Maximum height"))))
-    height = Optional(Property(StrDefinition(label=_("Height"))))
-    min_width = Optional(Property(StrDefinition(label=_("Minimum width"))))
-    max_width = Optional(Property(StrDefinition(label=_("Maximum width"))))
-    width = Optional(Property(StrDefinition(label=_("Width"))))
+    min_height = Optional(Attr(StrDefinition(label=_("Minimum height"))))
+    max_height = Optional(Attr(StrDefinition(label=_("Maximum height"))))
+    height = Optional(Attr(StrDefinition(label=_("Height"))))
+    min_width = Optional(Attr(StrDefinition(label=_("Minimum width"))))
+    max_width = Optional(Attr(StrDefinition(label=_("Maximum width"))))
+    width = Optional(Attr(StrDefinition(label=_("Width"))))
 
     def __init__(
         self,

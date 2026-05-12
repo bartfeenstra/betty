@@ -6,6 +6,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
+from betty.attrs.description import HasDescription
+from betty.attrs.media_type import HasMediaType
+from betty.attrs.privacy import HasPrivacy
 from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.entity import EntityDefinition
 from betty.entity.association import BidirectionalToManyMultipleTypes, ToManyAssociates
@@ -17,9 +20,6 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.pathlib import resolve_path
 from betty.plugin.schema import PluginIdSchema
 from betty.privacy import Privacy
-from betty.properties.description import HasDescription
-from betty.properties.media_type import HasMediaType
-from betty.properties.privacy import HasPrivacy
 
 if TYPE_CHECKING:
     from pathlib import Path

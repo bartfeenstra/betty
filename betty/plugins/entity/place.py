@@ -7,6 +7,7 @@ from __future__ import annotations
 from contextlib import suppress
 from typing import TYPE_CHECKING, final, override
 
+from betty.attrs.privacy import HasPrivacy
 from betty.entity import EntityDefinition
 from betty.entity.association import BidirectionalToManySingleType, ToManyAssociates
 from betty.entity.has_file_references import HasFileReferences
@@ -18,7 +19,6 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.plugins.entity.place_name import PlaceName
 from betty.plugins.place_type.unknown import Unknown as UnknownPlaceType
 from betty.privacy import Privacy
-from betty.properties.privacy import HasPrivacy
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, MutableSequence

@@ -7,6 +7,9 @@ from __future__ import annotations
 from collections.abc import Mapping, MutableMapping
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.attr import Attr, Optional
+from betty.attrs.collection.mapping import MappingAttr
+from betty.attrs.collection.sequence import SequenceAttr
 from betty.collection.mapping import MutableResolvedMapping
 from betty.collection.mapping.adapter import MutableResolvedMappingAdapter
 from betty.data import Data
@@ -33,9 +36,6 @@ from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
 from betty.plugins.loader.gramps.jobs import LoadAncestry
 from betty.project import Project
-from betty.properties.collection.mapping import MappingProperty
-from betty.properties.collection.sequence import SequenceProperty
-from betty.property import Optional, Property
 from betty.role import Role, RoleDefinition, RoleManufacturer
 from betty.sample import Sample, Size
 
@@ -51,8 +51,8 @@ if TYPE_CHECKING:
     from betty.user import User
 
 
-class _PluginMappingProperty[PluginDefinitionT: PluginDefinition, PluginT: Plugin](
-    MappingProperty[
+class _PluginMappingAttr[PluginDefinitionT: PluginDefinition, PluginT: Plugin](
+    MappingAttr[
         MutableMapping[str, PluginManufacturer[PluginDefinitionT, PluginT]],
         str,
         PluginManufacturer[PluginDefinitionT, PluginT],
@@ -114,33 +114,31 @@ class FamilyTree(Data):
     .. data:: betty.plugins.loader.gramps:FamilyTree
     """
 
-    event_types = _PluginMappingProperty(
+    event_types = _PluginMappingAttr(
         EventTypeManufacturer, _("Gramps event type"), DEFAULT_EVENT_TYPE_MAPPING
     )
     """
     How to map event types.
     """
 
-    file = Optional(Property(PathDefinition(), label=_("File")))
+    file = Optional(Attr(PathDefinition(), label=_("File")))
     """
     The path to a Gramps family tree file.
     """
 
-    name = Optional(Property(StrDefinition(label=_("Name"))))
+    name = Optional(Attr(StrDefinition(label=_("Name"))))
     """
     The family tree's name in Gramps.
     """
 
-    place_types = _PluginMappingProperty(
+    place_types = _PluginMappingAttr(
         PlaceTypeManufacturer, _("Gramps place type"), DEFAULT_PLACE_TYPE_MAPPING
     )
     """
     How to map place types.
     """
 
-    roles = _PluginMappingProperty(
-        RoleManufacturer, _("Gramps role"), DEFAULT_ROLE_MAPPING
-    )
+    roles = _PluginMappingAttr(RoleManufacturer, _("Gramps role"), DEFAULT_ROLE_MAPPING)
     """
     How to map presence roles.
     """
@@ -246,7 +244,7 @@ class GrampsData(Data):
     .. data:: betty.plugins.loader.gramps:GrampsData
     """
 
-    family_trees = SequenceProperty(
+    family_trees = SequenceAttr(
         SequenceDefinition(cls=list, value=FamilyTree, label=_("Family trees")),
         omit_load=True,
         omit_dump=lambda data: not len(data),
@@ -255,7 +253,7 @@ class GrampsData(Data):
     The Gramps family trees to load.
     """
 
-    executable = Optional(Property(PathDefinition()))
+    executable = Optional(Attr(PathDefinition()))
     """
     The path to a specific Gramps executable.
 

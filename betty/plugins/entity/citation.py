@@ -6,6 +6,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
+from betty.attr import Optional
+from betty.attrs.date import HasAnyDate
+from betty.attrs.localizable import LocalizableAttr
+from betty.attrs.privacy import HasPrivacy
 from betty.entity import EntityDefinition
 from betty.entity.association import (
     BidirectionalToManyMultipleTypes,
@@ -21,10 +25,6 @@ from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.plugins.entity.source import Source
 from betty.privacy import Privacy
 from betty.privacy.resolve import is_public, merge_secondary_privacies
-from betty.properties.date import HasAnyDate
-from betty.properties.localizable import LocalizableProperty
-from betty.properties.privacy import HasPrivacy
-from betty.property import Optional
 
 if TYPE_CHECKING:
     from betty.date import AnyDate
@@ -48,7 +48,7 @@ class Citation(HasAnyDate, HasFileReferences, HasPrivacy, HasLinks):
     .. plugin:: entity:citation.
     """
 
-    location = Optional(LocalizableProperty(label=_("Location")))
+    location = Optional(LocalizableAttr(label=_("Location")))
     """
     The location within the source this citation references.
     """

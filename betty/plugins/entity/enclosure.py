@@ -6,11 +6,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
+from betty.attrs.date import HasAnyDate
 from betty.entity import Entity, EntityDefinition
 from betty.entity.association import BidirectionalToOne, ToOneAssociate
 from betty.entity.has_citations import HasCitations
 from betty.locale.localizable.gettext import _, ngettext
-from betty.properties.date import HasAnyDate
 
 if TYPE_CHECKING:
     from betty.plugins.entity.place import Place

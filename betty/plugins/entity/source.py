@@ -6,6 +6,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
+from betty.attr import Optional
+from betty.attrs.date import HasAnyDate
+from betty.attrs.localizable import LocalizableAttr
+from betty.attrs.privacy import HasPrivacy
 from betty.entity import Entity, EntityDefinition
 from betty.entity.association import (
     BidirectionalToManySingleType,
@@ -22,10 +26,6 @@ from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.privacy import Privacy
 from betty.privacy.resolve import is_public, merge_privacies
-from betty.properties.date import HasAnyDate
-from betty.properties.localizable import LocalizableProperty
-from betty.properties.privacy import HasPrivacy
-from betty.property import Optional
 
 if TYPE_CHECKING:
     from betty.date import AnyDate
@@ -50,17 +50,17 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Enti
     .. plugin:: entity:source.
     """
 
-    name = Optional(LocalizableProperty(label=_("Name")))
+    name = Optional(LocalizableAttr(label=_("Name")))
     """
     The source's name.
     """
 
-    author = Optional(LocalizableProperty(label=_("Author")))
+    author = Optional(LocalizableAttr(label=_("Author")))
     """
     The source's author.
     """
 
-    publisher = Optional(LocalizableProperty(label=_("Publisher")))
+    publisher = Optional(LocalizableAttr(label=_("Publisher")))
     """
     The source's publisher.
     """

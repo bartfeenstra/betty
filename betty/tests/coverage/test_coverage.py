@@ -90,6 +90,19 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/asyncio.py": {
         "ReAwaitable": MissingReason.ABSTRACT,
     },
+    "betty/attr.py": {
+        "AttrNotInitialized": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/attrs/date.py": {
+        "HasAnyDate": {
+            "has_any_date_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
+        },
+    },
+    "betty/attrs/privacy.py": {
+        "PrivacyAttr": {
+            "linked_data_schema_for": MissingReason.STATIC_CONTENT_ONLY,
+        },
+    },
     "betty/cache/__init__.py": {
         "Cache": MissingReason.ABSTRACT,
         "CacheItem": MissingReason.SHOULD_BE_COVERED,
@@ -1127,19 +1140,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/portable/error.py": {
         "NotPortable": MissingReason.STATIC_CONTENT_ONLY,
-    },
-    "betty/property.py": {
-        "PropertyNotInitialized": MissingReason.STATIC_CONTENT_ONLY,
-    },
-    "betty/properties/date.py": {
-        "HasAnyDate": {
-            "has_any_date_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
-        },
-    },
-    "betty/properties/privacy.py": {
-        "PrivacyProperty": {
-            "linked_data_schema_for": MissingReason.STATIC_CONTENT_ONLY,
-        },
     },
     "betty/role/__init__.py": {
         "Role": MissingReason.STATIC_CONTENT_ONLY,

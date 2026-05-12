@@ -7,6 +7,12 @@ from __future__ import annotations
 from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.attr import Attr, Optional
+from betty.attrs.localizable import LocalizableAttr
+from betty.attrs.machine_name import MachineNameAttr
+from betty.attrs.plugin_manufacturer_sequence import (
+    PluginManufacturerSequenceAttr,
+)
 from betty.content import Content, ContentDefinition, ContentManufacturer, build
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
@@ -16,12 +22,6 @@ from betty.locale.localizable.gettext import _
 from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project
-from betty.properties.localizable import LocalizableProperty
-from betty.properties.machine_name import MachineNameProperty
-from betty.properties.plugin_manufacturer_sequence import (
-    PluginManufacturerSequenceProperty,
-)
-from betty.property import Optional, Property
 from betty.sample import Sample, Size
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
@@ -56,25 +56,25 @@ class SectionData(Data):
     .. data:: betty.plugins.content.raspberry_mint_section:SectionData
     """
 
-    content = PluginManufacturerSequenceProperty[ContentDefinition, Content](
+    content = PluginManufacturerSequenceAttr[ContentDefinition, Content](
         ContentManufacturer, label=_("Content")
     )
     """
     The content within this section.
     """
 
-    heading = LocalizableProperty(label=_("Heading"))
+    heading = LocalizableAttr(label=_("Heading"))
     """
     The section heading.
     """
 
-    name = Optional(MachineNameProperty())
+    name = Optional(MachineNameAttr())
     """
     The section's machine name, used to generate permanent links.
     """
 
     visually_hide_heading = Optional(
-        Property(
+        Attr(
             BoolDefinition(label=_("Visually hide heading")),
             omit_load=True,
             omit_dump=lambda data: data is False,

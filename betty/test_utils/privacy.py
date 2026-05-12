@@ -2,10 +2,10 @@
 Test utilities for :py:mod:`betty.privacy`.
 """
 
-from betty.properties.privacy import HasPrivacy
+from betty.attrs.privacy import HasPrivacy
 
 
 class DummyHasPrivacy(HasPrivacy):
     """
-    A dummy :py:class:`betty.properties.privacy.HasPrivacy` implementation.
+    A dummy :py:class:`betty.attrs.privacy.HasPrivacy` implementation.
     """
