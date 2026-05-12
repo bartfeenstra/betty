@@ -15,8 +15,8 @@ if TYPE_CHECKING:
 
     from jinja2.runtime import Context
 
+    from betty.attrs.date import HasAnyDate
     from betty.date import AnyDate
-    from betty.properties.date import HasAnyDate
 
 
 @final

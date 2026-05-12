@@ -6,13 +6,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
+from betty.attr import Attr
+from betty.attrs.machine_name import MachineNameAttr
 from betty.data import Data, Sample
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.str import StrDefinition
 from betty.locale.localizable.gettext import _
 from betty.plugin.resolve import resolve_plugin_id
-from betty.properties.machine_name import MachineNameProperty
-from betty.property import Property
 
 if TYPE_CHECKING:
     from betty.entity import EntityDefinition
@@ -33,12 +33,12 @@ class EntityReference(Data):
     .. data:: betty.entity.reference:EntityReference
     """
 
-    type = MachineNameProperty(label=_("Entity type"))
+    type = MachineNameAttr(label=_("Entity type"))
     """
     The type of the referenced entity. 
     """
 
-    id = Property(StrDefinition(label=_("Entity ID")))
+    id = Attr(StrDefinition(label=_("Entity ID")))
     """
     The ID of the referenced entity.
     """

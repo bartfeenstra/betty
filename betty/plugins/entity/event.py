@@ -6,6 +6,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
+from betty.attr import Optional
+from betty.attrs.date import HasAnyDate
+from betty.attrs.description import HasDescription
+from betty.attrs.localizable import LocalizableAttr
+from betty.attrs.privacy import HasPrivacy
 from betty.entity import EntityDefinition
 from betty.entity.association import (
     BidirectionalToManySingleType,
@@ -30,11 +35,6 @@ from betty.plugins.entity.presence import Presence
 from betty.plugins.event_type.unknown import Unknown as UnknownEventType
 from betty.plugins.role.subject import Subject
 from betty.privacy import Privacy
-from betty.properties.date import HasAnyDate
-from betty.properties.description import HasDescription
-from betty.properties.localizable import LocalizableProperty
-from betty.properties.privacy import HasPrivacy
-from betty.property import Optional
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -69,7 +69,7 @@ class Event(
     .. plugin:: entity:event.
     """
 
-    name = Optional(LocalizableProperty(label=_("Name")))
+    name = Optional(LocalizableAttr(label=_("Name")))
     """
     The event's name, if it has any.
     """

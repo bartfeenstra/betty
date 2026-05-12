@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from betty.attrs.privacy import HasPrivacy
 from betty.privacy import Privacy
-from betty.properties.privacy import HasPrivacy
 
 
 def is_private(target: Any) -> bool:

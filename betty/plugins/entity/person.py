@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final, override
 from urllib.parse import quote
 
+from betty.attrs.privacy import HasPrivacy
 from betty.entity import EntityDefinition, persistent_id
 from betty.entity.association import BidirectionalToManySingleType, ToManyAssociates
 from betty.entity.has_citations import HasCitations
@@ -21,7 +22,6 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin.schema import PluginIdSchema
 from betty.plugins.gender.unknown import Unknown as UnknownGender
 from betty.privacy import Privacy
-from betty.properties.privacy import HasPrivacy
 
 if TYPE_CHECKING:
     from collections.abc import Iterator

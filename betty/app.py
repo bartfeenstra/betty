@@ -14,6 +14,8 @@ from aiohttp_client_cache.backends.filesystem import FileBackend
 from aiohttp_client_cache.session import CachedSession
 
 from betty.asset import AssetRepositoryService
+from betty.attr import Optional
+from betty.attrs.locale import LocaleAttr
 from betty.cache import Cache
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
@@ -34,8 +36,6 @@ from betty.locale.translation import (
 from betty.media_type import MediaTypeDefinition
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.portable.file import assert_load_file
-from betty.properties.locale import LocaleProperty
-from betty.property import Optional
 from betty.sample import Sample, Size
 from betty.serde import SerializerDefinition
 from betty.service import Service
@@ -318,7 +318,7 @@ class AppData(Data):
 
     FILE: Final[Path] = APP_CONFIG_DIRECTORY / "app.json"
 
-    locale = Optional(LocaleProperty())
+    locale = Optional(LocaleAttr())
     """
     The application locale.
     """

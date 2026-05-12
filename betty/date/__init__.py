@@ -13,13 +13,13 @@ from typing import TYPE_CHECKING, Any, final, override
 
 from babel import dates
 
+from betty.attr import Attr, Optional
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.bool import BoolDefinition
 from betty.datas.int import IntDefinition
 from betty.locale.localizable import Localizable
 from betty.locale.localizable.gettext import _
-from betty.property import Optional, Property
 from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
@@ -80,10 +80,10 @@ class Date(Localizable, Data):
         (False,): _("{date}"),
     }
 
-    year = Optional(Property(IntDefinition(label=_("Year"))))
-    month = Optional(Property(IntDefinition(label=_("Month"))))
-    day = Optional(Property(IntDefinition(label=_("Day"))))
-    fuzzy = Property(
+    year = Optional(Attr(IntDefinition(label=_("Year"))))
+    month = Optional(Attr(IntDefinition(label=_("Month"))))
+    day = Optional(Attr(IntDefinition(label=_("Day"))))
+    fuzzy = Attr(
         BoolDefinition(label=_("Fuzzy")),
         omit_load=True,
         omit_dump=lambda data: data is False,
@@ -274,14 +274,14 @@ class DateRange(Localizable, Data):
         (None, None, True, True): _("sometime before around {end_date}"),
     }
 
-    start = Optional(Property(Date))
-    start_is_boundary = Property(
+    start = Optional(Attr(Date))
+    start_is_boundary = Attr(
         BoolDefinition(label=_("Start date is a boundary")),
         omit_load=True,
         omit_dump=lambda data: data is False,
     )
-    end = Optional(Property(Date))
-    end_is_boundary = Property(
+    end = Optional(Attr(Date))
+    end_is_boundary = Attr(
         BoolDefinition(label=_("End date is a boundary")),
         omit_load=True,
         omit_dump=lambda data: data is False,

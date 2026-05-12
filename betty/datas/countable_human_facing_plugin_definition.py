@@ -6,13 +6,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from betty.attrs.countable_localizable import CountableLocalizableAttr
+from betty.attrs.localizable import LocalizableAttr
 from betty.datas.human_facing_plugin_definition import (
     HumanFacingPluginDefinitionData,
 )
 from betty.locale.localizable.gettext import _
 from betty.plugin import PluginDefinition
-from betty.properties.countable_localizable import CountableLocalizableProperty
-from betty.properties.localizable import LocalizableProperty
 
 if TYPE_CHECKING:
     from betty.locale.localizable import (
@@ -30,8 +30,8 @@ class CountableHumanFacingPluginDefinitionData[
     .. data:: betty.datas.countable_human_facing_plugin_definition:CountableHumanFacingPluginDefinitionData
     """
 
-    label_plural = LocalizableProperty(label=_("Label (plural)"))
-    label_countable = CountableLocalizableProperty(label=_("Label (countable)"))
+    label_plural = LocalizableAttr(label=_("Label (plural)"))
+    label_countable = CountableLocalizableAttr(label=_("Label (countable)"))
 
     def __init__(
         self,

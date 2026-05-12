@@ -6,6 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
+from betty.attrs.locale import HasLocale
+from betty.attrs.privacy import HasPrivacy
 from betty.entity import Entity, EntityDefinition
 from betty.entity.association import (
     BidirectionalToOne,
@@ -18,8 +20,6 @@ from betty.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable.gettext import _, ngettext
 from betty.privacy import Privacy
 from betty.privacy.resolve import merge_privacies
-from betty.properties.locale import HasLocale
-from betty.properties.privacy import HasPrivacy
 
 if TYPE_CHECKING:
     from betty.locale import ResolvableLocale

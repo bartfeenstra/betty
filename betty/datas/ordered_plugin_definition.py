@@ -6,13 +6,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from betty.attrs.collection.sequence import SequenceAttr
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
 from betty.datas.plugin_definition import PluginDefinitionData
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
-from betty.properties.collection.sequence import SequenceProperty
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -27,12 +27,12 @@ class OrderedPluginDefinitionData[PluginDefinitionT: OrderedPluginDefinition](
     .. data:: betty.datas.ordered_plugin_definition:OrderedPluginDefinitionData
     """
 
-    after = SequenceProperty(
+    after = SequenceAttr(
         SequenceDefinition(cls=list, label=_("After"), value=MachineName),
         omit_load=True,
         omit_dump=lambda data: not len(data),
     )
-    before = SequenceProperty(
+    before = SequenceAttr(
         SequenceDefinition(cls=list, label=_("Before"), value=MachineName),
         omit_load=True,
         omit_dump=lambda data: not len(data),

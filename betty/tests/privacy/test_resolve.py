@@ -17,7 +17,7 @@ from betty.privacy.resolve import (
 from betty.test_utils.privacy import DummyHasPrivacy
 
 if TYPE_CHECKING:
-    from betty.properties.privacy import HasPrivacy
+    from betty.attrs.privacy import HasPrivacy
 
 
 @pytest.mark.parametrize(

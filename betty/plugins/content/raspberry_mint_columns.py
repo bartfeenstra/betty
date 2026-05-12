@@ -15,6 +15,7 @@ from betty.assertion import (
     assert_or,
     assert_sequence,
 )
+from betty.attr import Attr, Optional
 from betty.content import Content, ContentDefinition, ContentManufacturer, build
 from betty.data import Data
 from betty.datas.aggregate.collection.mapping import MappingDefinition
@@ -33,7 +34,6 @@ from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.extension.raspberry_mint import Breakpoint, JustifyContent
 from betty.portable import CallbackPorter
 from betty.project import Project
-from betty.property import Optional, Property
 from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
@@ -123,7 +123,7 @@ class ColumnsData(Data):
     _DEFAULT_WIDTH: ClassVar[ColumnsWidth] = {Breakpoint.XS: [12]}
     _width: ColumnsWidth
 
-    content = Property(
+    content = Attr(
         SequenceDefinition(
             cls=list,
             value=PluginManufacturerSequenceDefinition(
@@ -137,13 +137,13 @@ class ColumnsData(Data):
     """
 
     justify_content = Optional(
-        Property(EnumDefinition(cls=JustifyContent, label=_("Justify content")))
+        Attr(EnumDefinition(cls=JustifyContent, label=_("Justify content")))
     )
     """
     If and how to justify content.
     """
 
-    width = Property(
+    width = Attr(
         MappingDefinition(
             cls=dict,
             key=EnumDefinition(

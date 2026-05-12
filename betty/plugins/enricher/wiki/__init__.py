@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.attr import Attr, Optional
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.bool import BoolDefinition
@@ -14,7 +15,6 @@ from betty.plugins.enricher.populate_links import PopulateLinks
 from betty.plugins.enricher.wiki.jobs import PopulateEntity
 from betty.plugins.extension.wiki import Wiki as WikiExtension
 from betty.project import Project
-from betty.property import Optional, Property
 from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
@@ -37,7 +37,7 @@ class WikiData(Data):
     """
 
     populate_images = Optional(
-        Property(
+        Attr(
             BoolDefinition(
                 label=_("Populate images"),
                 description=_(

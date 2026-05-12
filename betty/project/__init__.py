@@ -9,7 +9,7 @@ site from the entire project.
 from __future__ import annotations
 
 from asyncio import gather, to_thread
-from collections.abc import Iterable, MutableSequence
+from collections.abc import MutableSequence
 from contextlib import AsyncExitStack, asynccontextmanager
 from shutil import rmtree
 from tempfile import mkdtemp
@@ -22,6 +22,12 @@ from betty.about import VERSION_MAJOR
 from betty.app import App
 from betty.assertion import assert_number, assert_url
 from betty.asset import AssetRepositoryService
+from betty.attr import Attr, Optional
+from betty.attrs.collection.keyed import KeyedCollectionAttr
+from betty.attrs.collection.sequence import SequenceAttr
+from betty.attrs.localizable import LocalizableAttr
+from betty.attrs.machine_name import MachineNameAttr
+from betty.attrs.plugin_definitions import PluginDefinitionDatasAttr
 from betty.cache import Cache
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
@@ -61,7 +67,7 @@ from betty.gender import GenderDefinition
 from betty.hashid import hashid
 from betty.html.css import CssResourceDefinition
 from betty.html.js import JsResourceDefinition
-from betty.indicator.selector import Attr
+from betty.indicator.selector import Attr as AttrSelector
 from betty.jinja.filter import JinjaFilterDefinition
 from betty.jinja.test import JinjaTestDefinition
 from betty.license import License, LicenseDefinition, LicenseManufacturer
@@ -80,12 +86,12 @@ from betty.locale import (
     resolve_locale,
     to_language_tag,
 )
-from betty.locale.localizable import ResolvableLocalizable, resolve_localizable
+from betty.locale.localizable import resolve_localizable
 from betty.locale.localizable.gettext import _
 from betty.locale.localize import Localizer, LocalizerRepository
 from betty.locale.translation import AssetTranslationRepository, TranslationRepository
 from betty.machine_name import MachineName, ResolvableMachineName
-from betty.pathlib import StrPath, resolve_path
+from betty.pathlib import resolve_path
 from betty.place_type import PlaceTypeDefinition
 from betty.plugin.resolve import (
     ResolvablePluginDefinition,
@@ -93,12 +99,6 @@ from betty.plugin.resolve import (
     resolve_plugin_id,
 )
 from betty.privacy.privatizer import Privatizer
-from betty.properties.collection.keyed import KeyedCollectionProperty
-from betty.properties.collection.sequence import SequenceProperty
-from betty.properties.localizable import LocalizableProperty
-from betty.properties.machine_name import MachineNameProperty
-from betty.properties.plugin_definitions import PluginDefinitionDatasProperty
-from betty.property import Optional, Property
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.role import RoleDefinition
 from betty.sample import Sample, Size
@@ -768,12 +768,12 @@ class ProjectData(Data):
     .. data:: betty.project:ProjectData
     """
 
-    author = Optional(LocalizableProperty(label=_("Author")))
+    author = Optional(LocalizableAttr(label=_("Author")))
     """
     The project's author.
     """
 
-    clean_urls = Property(
+    clean_urls = Attr(
         BoolDefinition(
             label=_("Clean URLs"),
             description=_(
@@ -788,7 +788,7 @@ class ProjectData(Data):
     """
 
     copyright_notice = Optional(
-        Property(
+        Attr(
             CopyrightNoticeManufacturer,
             omit_load=True,
             omit_dump=lambda data: data == ProjectData._default_copyright_notice(),
@@ -800,14 +800,14 @@ class ProjectData(Data):
     The project-wide copyright notice.
     """
 
-    copyright_notices = PluginDefinitionDatasProperty(
+    copyright_notices = PluginDefinitionDatasAttr(
         CopyrightNoticeDefinition, CopyrightNoticeDefinitionData
     )
     """
     The :py:class:`betty.copyright_notice.CopyrightNotice` plugins created by this project.
     """
 
-    debug = Property(
+    debug = Attr(
         BoolDefinition(
             label=_("Debugging mode"),
             description=_(
@@ -821,11 +821,11 @@ class ProjectData(Data):
     Whether to enable debugging for project jobs.
     """
 
-    enrichers = KeyedCollectionProperty(
+    enrichers = KeyedCollectionAttr(
         KeyedCollectionDefinition(
             value=EnricherManufacturer,
             label=EnricherDefinition.type().label_plural,
-            key=Attr("plugin_id"),
+            key=AttrSelector("plugin_id"),
             factory=lambda: MutableKeyedCollectionAdapter(
                 key=lambda data: data.plugin_id,
                 key_resolver=resolve_plugin_id,
@@ -839,18 +839,18 @@ class ProjectData(Data):
     The enrichers to enable for the project.
     """
 
-    event_types = PluginDefinitionDatasProperty(
+    event_types = PluginDefinitionDatasAttr(
         EventTypeDefinition, EventTypeDefinitionData
     )
     """
     The :py:class:`betty.event_type.EventType` plugins created by this project.
     """
 
-    extensions = KeyedCollectionProperty(
+    extensions = KeyedCollectionAttr(
         KeyedCollectionDefinition(
             value=ExtensionManufacturer,
             label=ExtensionDefinition.type().label_plural,
-            key=Attr("plugin_id"),
+            key=AttrSelector("plugin_id"),
             factory=lambda: MutableKeyedCollectionAdapter(
                 key=lambda data: data.plugin_id,
                 key_resolver=resolve_plugin_id,
@@ -865,7 +865,7 @@ class ProjectData(Data):
     """
 
     generate_entity_list_html = Optional(
-        SequenceProperty(
+        SequenceAttr(
             SequenceDefinition[MutableSequence[ResolvablePluginId[EntityDefinition]]](
                 cls=list,
                 label=_("Entity types to generate list HTML pages for"),
@@ -880,13 +880,13 @@ class ProjectData(Data):
     Which entity types to generate list HTML pages for.
     """
 
-    genders = PluginDefinitionDatasProperty(GenderDefinition, GenderDefinitionData)
+    genders = PluginDefinitionDatasAttr(GenderDefinition, GenderDefinitionData)
     """
     The :py:class:`betty.gender.Gender` plugins created by this project.
     """
 
     license = Optional(
-        Property(
+        Attr(
             LicenseManufacturer,
             omit_load=True,
             omit_dump=lambda data: data == ProjectData._default_license(),
@@ -898,12 +898,12 @@ class ProjectData(Data):
     The project-wide license.
     """
 
-    licenses = PluginDefinitionDatasProperty(LicenseDefinition, LicenseDefinitionData)
+    licenses = PluginDefinitionDatasAttr(LicenseDefinition, LicenseDefinitionData)
     """
     The :py:class:`betty.license.License` plugins created by this project.
     """
 
-    lifetime_threshold = Property(
+    lifetime_threshold = Attr(
         IntDefinition(
             label=_("Lifetime threshold"),
             description=_(
@@ -918,11 +918,11 @@ class ProjectData(Data):
     The lifetime threshold indicates when people are considered dead.
     """
 
-    loaders = KeyedCollectionProperty(
+    loaders = KeyedCollectionAttr(
         KeyedCollectionDefinition(
             value=LoaderManufacturer,
             label=LoaderDefinition.type().label_plural,
-            key=Attr("plugin_id"),
+            key=AttrSelector("plugin_id"),
             factory=lambda: MutableKeyedCollectionAdapter(
                 key=lambda data: data.plugin_id,
                 key_resolver=resolve_plugin_id,
@@ -936,11 +936,11 @@ class ProjectData(Data):
     The loaders to enable for the project.
     """
 
-    locales = KeyedCollectionProperty(
+    locales = KeyedCollectionAttr(
         KeyedCollectionDefinition(
             value=ProjectLocale,
             label=_("Locales"),
-            key=Attr("locale"),
+            key=AttrSelector("locale"),
             order_dump=True,
             factory=lambda: MutableKeyedCollectionAdapter(
                 key=lambda item: item.locale,
@@ -960,34 +960,34 @@ class ProjectData(Data):
     The configured locales.
     """
 
-    logo = Optional(Property(PathDefinition(), label=_("Logo")))
+    logo = Optional(Attr(PathDefinition(), label=_("Logo")))
     """
     The project logo.
     """
 
-    name = Optional(MachineNameProperty())
+    name = Optional(MachineNameAttr())
     """
     The project's machine name.
     """
 
-    place_types = PluginDefinitionDatasProperty(
+    place_types = PluginDefinitionDatasAttr(
         PlaceTypeDefinition, PlaceTypeDefinitionData
     )
     """
     The :py:class:`betty.place_type.PlaceType` plugins created by this project.
     """
 
-    roles = PluginDefinitionDatasProperty(RoleDefinition, RoleDefinitionData)
+    roles = PluginDefinitionDatasAttr(RoleDefinition, RoleDefinitionData)
     """
     The :py:class:`betty.role.Role` plugins created by this project.
     """
 
-    title = LocalizableProperty(label=_("Title"))
+    title = LocalizableAttr(label=_("Title"))
     """
     The human-readable project title.
     """
 
-    url = Property(
+    url = Attr(
         StrDefinition(
             label=_("URL"),
             description=_(

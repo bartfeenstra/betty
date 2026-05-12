@@ -6,6 +6,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
+from betty.attrs.localizable import LocalizableAttr
+from betty.attrs.media_type import HasMediaType
+from betty.attrs.privacy import HasPrivacy
 from betty.entity import EntityDefinition
 from betty.entity.association import (
     BidirectionalToZeroOrOne,
@@ -17,9 +20,6 @@ from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.privacy import Privacy
 from betty.privacy.resolve import is_public
-from betty.properties.localizable import LocalizableProperty
-from betty.properties.media_type import HasMediaType
-from betty.properties.privacy import HasPrivacy
 
 if TYPE_CHECKING:
     from betty.entity.has_notes import HasNotes
@@ -41,7 +41,7 @@ class Note(HasPrivacy, HasLinks, HasMediaType):
     .. plugin:: entity:note.
     """
 
-    text = LocalizableProperty(label=_("Text"))
+    text = LocalizableAttr(label=_("Text"))
     """
     The note text.
     """

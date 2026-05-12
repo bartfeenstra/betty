@@ -9,6 +9,8 @@ from collections import defaultdict
 from enum import Enum
 from typing import TYPE_CHECKING, Final, Self, final, override
 
+from betty.attr import Attr, Optional
+from betty.attrs.collection.mapping import MappingAttr
 from betty.collection.mapping import MutableResolvedMapping, ResolvedMapping
 from betty.collection.mapping.adapter import (
     MutableResolvedMappingAdapter,
@@ -28,7 +30,8 @@ from betty.entity import EntityDefinition
 from betty.exception import HumanFacingException, reraise_with_indicator
 from betty.extension import ExtensionDefinition
 from betty.factory import DataManufacturable, Manufacturable
-from betty.indicator.selector import Attr, Key
+from betty.indicator.selector import Attr as AttrSelector
+from betty.indicator.selector import Key
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Paragraph, do_you_mean
 from betty.plugin.factory import ResolvablePluginManufacturer
@@ -37,8 +40,6 @@ from betty.plugins.extension.webpack import Webpack
 from betty.plugins.extension.webpack.build import EntryPointProvider
 from betty.project import Project
 from betty.project.generate import Generator
-from betty.properties.collection.mapping import MappingProperty
-from betty.property import Optional, Property
 from betty.sample import Sample, Size
 from betty.service import ServiceProvider
 from betty.service.simple import service
@@ -90,22 +91,22 @@ class RaspberryMintData(Data):
     .. data:: betty.plugins.extension.raspberry_mint:RaspberryMintData
     """
 
-    primary_color = Optional(Property(ColorDefinition(), label=_("Primary color")))
+    primary_color = Optional(Attr(ColorDefinition(), label=_("Primary color")))
     """
     The primary color.
     """
 
-    secondary_color = Optional(Property(ColorDefinition(), label=_("Secondary color")))
+    secondary_color = Optional(Attr(ColorDefinition(), label=_("Secondary color")))
     """
     The secondary color.
     """
 
-    tertiary_color = Optional(Property(ColorDefinition(), label=_("Tertiary color")))
+    tertiary_color = Optional(Attr(ColorDefinition(), label=_("Tertiary color")))
     """
     The tertiary color.
     """
 
-    regional_content = MappingProperty(
+    regional_content = MappingAttr(
         MappingDefinition(
             cls=MutableResolvedMapping,
             factory=lambda: MutableResolvedMappingAdapter(
@@ -153,7 +154,7 @@ class RaspberryMintData(Data):
         Validate the configuration.
         """
         available_regions = await Region.all(project)
-        with reraise_with_indicator(Attr("regional_content")):
+        with reraise_with_indicator(AttrSelector("regional_content")):
             for region in self.regional_content:
                 with reraise_with_indicator(Key(region)):
                     if region not in available_regions:
