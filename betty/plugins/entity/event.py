@@ -6,10 +6,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
-from betty.attr import Optional
 from betty.attrs.date import HasAnyDate
 from betty.attrs.description import HasDescription
 from betty.attrs.localizable import LocalizableAttr
+from betty.attrs.optional import Optional
 from betty.attrs.privacy import HasPrivacy
 from betty.entity import EntityDefinition
 from betty.entity.association import (

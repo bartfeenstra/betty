@@ -6,7 +6,8 @@ from typing import Any
 
 import pytest
 
-from betty.attr import Attr, Optional
+from betty.attrs.attr import AttrAttr
+from betty.attrs.optional import Optional
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.str import StrDefinition
@@ -121,7 +122,7 @@ class DummyData(Data):
     A dummy :py:class:`betty.data.Data` implementation.
     """
 
-    value = Optional(Attr(StrDefinition(label="Value")))
+    value = Optional(AttrAttr(StrDefinition(label="Value")))
 
     def __init__(self, /, value: str | None = None):
         self.value = value

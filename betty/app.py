@@ -14,8 +14,8 @@ from aiohttp_client_cache.backends.filesystem import FileBackend
 from aiohttp_client_cache.session import CachedSession
 
 from betty.asset import AssetRepositoryService
-from betty.attr import Optional
 from betty.attrs.locale import LocaleAttr
+from betty.attrs.optional import Optional
 from betty.cache import Cache
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache

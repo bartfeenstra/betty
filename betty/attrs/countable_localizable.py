@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import final
 
-from betty.attr import Attr
+from betty.attrs.attr import AttrAttr
 from betty.datas.countable_localizable import CountableLocalizableDefinition
 from betty.locale.localizable import (
     CountableLocalizable,
@@ -18,7 +18,7 @@ from betty.locale.localizable import (
 
 @final
 class CountableLocalizableAttr(
-    Attr[CountableLocalizable, ResolvableCountableLocalizable]
+    AttrAttr[CountableLocalizable, ResolvableCountableLocalizable]
 ):
     """
     An attribute containing a :py:class:`betty.locale.localizable.CountableLocalizable`.

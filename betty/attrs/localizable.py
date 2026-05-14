@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import final
 
-from betty.attr import Attr
+from betty.attrs.attr import AttrAttr
 from betty.datas.localizable import LocalizableDefinition
 from betty.locale.localizable import (
     Localizable,
@@ -16,7 +16,7 @@ from betty.locale.localizable import (
 
 
 @final
-class LocalizableAttr(Attr[Localizable, ResolvableLocalizable]):
+class LocalizableAttr(AttrAttr[Localizable, ResolvableLocalizable]):
     """
     An attribute containing a :py:class:`betty.locale.localizable.Localizable`.
     """

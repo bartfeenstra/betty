@@ -6,7 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, final, override
 
-from betty.attr import Attr, Optional
+from betty.attrs.attr import AttrAttr
+from betty.attrs.optional import Optional
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
 from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
 from betty.media_type.schema import MediaTypeSchema
@@ -21,7 +22,7 @@ if TYPE_CHECKING:
 
 
 @final
-class MediaTypeAttr(Attr[MediaType, ResolvableMediaType]):
+class MediaTypeAttr(AttrAttr[MediaType, ResolvableMediaType]):
     """
     An attribute containing a media type.
     """

@@ -8,8 +8,9 @@ from abc import abstractmethod
 from typing import TYPE_CHECKING, Any, Self, TypeVar, final, override
 
 from betty.assertion import OptionalField, assert_mapping
-from betty.data import DataDefinition, OptionalDefinition, Sample, Samples
+from betty.data import DataDefinition, Sample, Samples
 from betty.datas.aggregate import AggregateDefinition
+from betty.datas.optional import OptionalDefinition
 from betty.indicator.selector import Element
 from betty.locale.localizable import resolve_localizable
 from betty.portable import Portable, PortableData, PortablePorter, Porter

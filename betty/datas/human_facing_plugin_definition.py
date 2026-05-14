@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from betty.attr import Optional
 from betty.attrs.localizable import LocalizableAttr
+from betty.attrs.optional import Optional
 from betty.datas.plugin_definition import PluginDefinitionData
 from betty.locale.localizable.gettext import _
 from betty.plugin import PluginDefinition

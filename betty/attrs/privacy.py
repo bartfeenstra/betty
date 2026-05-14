@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Literal, final, override
 
-from betty.attr import Attr
+from betty.attrs.attr import AttrAttr
 from betty.datas.enum import EnumDefinition
 from betty.linked_data import LinkedDataDumper
 from betty.locale.localizable.gettext import _
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 @final
-class PrivacyAttr(Attr, LinkedDataDumper[object, PrivacySchema, bool]):
+class PrivacyAttr(AttrAttr, LinkedDataDumper[object, PrivacySchema, bool]):
     """
     An attribute containing a privacy.
     """

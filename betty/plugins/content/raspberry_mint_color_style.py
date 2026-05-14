@@ -7,7 +7,7 @@ from __future__ import annotations
 from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.attr import Attr
+from betty.attrs.attr import AttrAttr
 from betty.attrs.plugin_manufacturer_sequence import (
     PluginManufacturerSequenceAttr,
 )
@@ -55,7 +55,7 @@ class ColorStyleData(Data):
     The content within this color style.
     """
 
-    style = Attr(EnumDefinition(cls=RaspberryMintColorStyle, label=_("Style")))
+    style = AttrAttr(EnumDefinition(cls=RaspberryMintColorStyle, label=_("Style")))
     """
     The style.
     """
