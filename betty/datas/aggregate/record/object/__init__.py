@@ -4,12 +4,12 @@ Object data types.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from collections import defaultdict
 from inspect import getmembers
 from types import FunctionType
 from typing import TYPE_CHECKING, final, override
 
+from betty.attr import Attr
 from betty.data import DataDefinition
 from betty.datas.aggregate.record import FieldDefinition, RecordDefinition
 from betty.importlib import fully_qualified_name
@@ -121,19 +121,6 @@ class AttrDefinition[DataClsT]:
         Check if the field may be omitted from the parent when dumping to portable data.
         """
         return self._omit_dump
-
-
-class Attr[DataClsT](ABC):
-    """
-    A class attribute that exposes its data definition.
-    """
-
-    @property
-    @abstractmethod
-    def attr(self) -> AttrDefinition[DataClsT]:
-        """
-        The attribute's data definition.
-        """
 
 
 class ObjectDefinition[DataClsT](RecordDefinition[DataClsT, AttrElement]):

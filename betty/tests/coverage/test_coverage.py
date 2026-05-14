@@ -180,9 +180,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "PortableRecord": MissingReason.ABSTRACT,
         "RecordPorter": MissingReason.ABSTRACT,
     },
-    "betty/datas/aggregate/record/object/__init__.py": {
-        "Attr": MissingReason.ABSTRACT,
-    },
     "betty/datas/copyright_notice_definition.py": {
         "CopyrightNoticeDefinitionData": {
             "data": MissingReason.INHERITED,
