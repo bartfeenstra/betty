@@ -18,6 +18,7 @@ from betty.plugin.factory import (
     ResolvablePluginManufacturer,
     ResolvablePluginManufacturerSequence,
 )
+from betty.property import HasProperties
 
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
@@ -29,6 +30,7 @@ class PluginManufacturerSequenceAttr[
     PluginT: Plugin,
 ](
     SequenceAttr[
+        HasProperties,
         MutableResolvedSequence[
             PluginManufacturer[PluginDefinitionT, PluginT],
             ResolvablePluginManufacturer[PluginDefinitionT, PluginT],

@@ -21,6 +21,7 @@ from betty.locale.localizable.gettext import _
 from betty.plugins.content.render import Render, RenderData
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project
+from betty.property import HasProperties
 from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
@@ -51,7 +52,7 @@ if TYPE_CHECKING:
         ),
     ],
 )
-class BoxData(Data):
+class BoxData(Data, HasProperties):
     """
     Configuration for :py:class:`betty.plugins.content.box.Box`.
 

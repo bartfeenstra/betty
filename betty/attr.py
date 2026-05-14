@@ -4,10 +4,10 @@ Object attributes.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Final, Self, final, overload
+from typing import TYPE_CHECKING, Final, final
 
 from betty.functools import passthrough
+from betty.property import HasProperties, Property
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -15,56 +15,33 @@ if TYPE_CHECKING:
     from betty.datas.aggregate.record.object import AttrDefinition
 
 
-class Attr[ValueGetT, ValueSetT](ABC):
+class Attr[OwnerT: HasProperties, GetT, SetT](Property[OwnerT, GetT]):
     """
-    An object attribute with a definition.
+    An object attribute with a data definition.
     """
-
-    _attr_name: str
 
     def __init__(
         self,
-        attr: AttrDefinition[ValueGetT],
+        attr: AttrDefinition[GetT],
         *,
-        resolver: Callable[[ValueSetT | ValueGetT], ValueGetT] = passthrough,
+        resolver: Callable[[SetT | GetT], GetT] = passthrough,
     ):
-        self.attr: Final[AttrDefinition[ValueGetT]] = attr
+        self.attr: Final[AttrDefinition[GetT]] = attr
         """
         The attribute's data definition.
         """
         self._resolver = resolver
 
-    def __set_name__(self, owner: type[Any], name: str) -> None:
-        self._attr_name = f"_{name}"
-
-    @overload
-    def __get__(self, instance: None, owner: type[object], /) -> Self:
-        pass
-
-    @overload
-    def __get__(self, instance: Any, owner: type[Any] | None = None, /) -> ValueGetT:
-        pass
-
-    def __get__(self, instance, owner=None, /):
-        if instance is None:
-            return self
-        return self.get(instance)
-
-    def __set__(self, instance: Any, value: ValueSetT | ValueGetT) -> None:
+    @final
+    def __set__(self, instance: OwnerT, value: SetT | GetT) -> None:
         self.set(instance, value)
 
-    @abstractmethod
-    def get(self, instance: Any, /) -> ValueGetT:
+    def set(self, owner: OwnerT, value: SetT, /) -> GetT:
         """
-        Get the attribute value from the instance.
-        """
-
-    def set(self, instance: Any, value: ValueSetT, /) -> ValueGetT:
-        """
-        Set the value on the instance.
+        Set the value on the owner.
         """
         resolved_value = self._resolver(value)
-        setattr(instance, self._attr_name, resolved_value)
+        setattr(owner, f"_{self.property.name}", resolved_value)
         return resolved_value
 
 

@@ -209,12 +209,6 @@ class _PluginServiceManagerTestServiceProvider(PluginServiceProvider):
 
 
 class TestPluginServiceManager:
-    def test___set_name__(self) -> None:
-        assert (
-            _PluginServiceManagerTestServiceProvider.my_first_service.name
-            == "my_first_service"
-        )
-
     def test_add_init_plugins(self) -> None:
         service_provider = _PluginServiceManagerTestServiceProvider(
             services=ServiceLevel()
@@ -312,7 +306,7 @@ class TestPluginServiceManager:
             )
         )
 
-    def test_init(self) -> None:
+    def test_init_property_owner(self) -> None:
         service_provider = _PluginServiceManagerTestServiceProvider(
             services=ServiceLevel()
         )

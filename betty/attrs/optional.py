@@ -4,21 +4,24 @@ Optional attributes.
 
 from __future__ import annotations
 
-from typing import Any, final, override
+from typing import final, override
 
 from betty.attr import Attr, AttrNotInitialized
 from betty.datas.aggregate.record.object import AttrDefinition
 from betty.datas.optional import OptionalDefinition
+from betty.property import HasProperties
 
 
 @final
-class Optional[ValueGetT, ValueSetT](Attr[ValueGetT | None, ValueSetT | None]):
+class Optional[OwnerT: HasProperties, GetT, SetT](
+    Attr[OwnerT, GetT | None, SetT | None]
+):
     """
     Make another attribute optional, e.g. allow ``None``.
     """
 
-    def __init__(self, required_attr: Attr[ValueGetT, ValueSetT], /):
-        def _omit_dump(data: ValueGetT | None) -> bool:
+    def __init__(self, required_attr: Attr[OwnerT, GetT, SetT], /):
+        def _omit_dump(data: GetT | None) -> bool:
             if data is None:
                 return True
             if required_attr.attr.omit_dump is None:
@@ -36,28 +39,28 @@ class Optional[ValueGetT, ValueSetT](Attr[ValueGetT | None, ValueSetT | None]):
         )
         self._required_attr = required_attr
 
-    def __set_name__(self, owner: type[Any], name: str) -> None:
+    def __set_name__(self, owner: type[OwnerT], name: str) -> None:
         super().__set_name__(owner, name)
         self._required_attr.__set_name__(owner, name)
 
     @override
-    def get(self, instance: Any, /) -> ValueGetT | None:
+    def get(self, owner: OwnerT, /) -> GetT | None:
         try:
-            return self._required_attr.get(instance)
+            return self._required_attr.get(owner)
         except AttrNotInitialized:
-            return self.set(instance, None)
+            return self.set(owner, None)
 
     @override
-    def set(self, instance: Any, value: ValueSetT | None, /) -> ValueGetT | None:
+    def set(self, owner: OwnerT, value: SetT | None, /) -> GetT | None:
         if value is None:
-            return super().set(instance, value)
-        return self._required_attr.set(instance, value)
+            return super().set(owner, value)
+        return self._required_attr.set(owner, value)
 
-    def __delete__(self, instance: Any) -> None:
+    def __delete__(self, instance: OwnerT) -> None:
         self.delete(instance)
 
-    def delete(self, instance: Any, /) -> None:
+    def delete(self, owner: OwnerT, /) -> None:
         """
         Delete the value from the instance.
         """
-        self.set(instance, None)
+        self.set(owner, None)

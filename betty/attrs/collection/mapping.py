@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, final, override
 
 from betty.attrs.attr import AttrAttr
 from betty.functools import passthrough
+from betty.property import HasProperties
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -20,11 +21,12 @@ if TYPE_CHECKING:
 
 
 class MappingAttr[
+    OwnerT: HasProperties,
     MutableMappingT: MutableMapping[Any, Any],
     KeyGetT,
     ItemGetT,
-    ValueSetT,
-](AttrAttr[MutableMappingT, ValueSetT]):
+    SetT,
+](AttrAttr[OwnerT, MutableMappingT, SetT]):
     """
     An attribute that contains a :py:class:`collections.abc.MutableMapping`.
     """
@@ -44,12 +46,12 @@ class MappingAttr[
             ]
         ],
         *,
-        default: Callable[[], ValueSetT] | None = None,
+        default: Callable[[], SetT] | None = None,
         description: ResolvableLocalizable | None = None,
         label: ResolvableLocalizable | None = None,
         omit_dump: Callable[[MutableMappingT], bool] | None = None,
         omit_load: bool | None = None,
-        resolver: Callable[[ValueSetT], Mapping[KeyGetT, ItemGetT]] = passthrough,
+        resolver: Callable[[SetT], Mapping[KeyGetT, ItemGetT]] = passthrough,
     ):
         super().__init__(
             data,
@@ -71,8 +73,8 @@ class MappingAttr[
 
     @final
     @override
-    def set(self, instance: Any, value: ValueSetT, /) -> MutableMappingT:
-        data = self.get(instance)
+    def set(self, owner: OwnerT, value: SetT, /) -> MutableMappingT:
+        data = self.get(owner)
         data.clear()
         data.update(self._mapping_resolver(value))
         return data

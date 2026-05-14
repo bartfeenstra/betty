@@ -23,6 +23,7 @@ from betty.locale.localizable.gettext import _
 from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project
+from betty.property import HasProperties
 from betty.sample import Sample, Size
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
@@ -50,7 +51,7 @@ if TYPE_CHECKING:
         ),
     ],
 )
-class SectionData(Data):
+class SectionData(Data, HasProperties):
     """
     Configuration for :py:class:`betty.plugins.content.raspberry_mint_section.Section`.
 

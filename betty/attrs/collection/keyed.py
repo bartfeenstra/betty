@@ -5,11 +5,12 @@ Keyed collection properties.
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable
-from typing import TYPE_CHECKING, Any, final, override
+from typing import TYPE_CHECKING, final, override
 
 from betty.attrs.attr import AttrAttr
 from betty.collection.keyed import MutableKeyedCollection
 from betty.functools import passthrough
+from betty.property import HasProperties
 
 if TYPE_CHECKING:
     from betty.data import Data
@@ -18,9 +19,10 @@ if TYPE_CHECKING:
 
 
 class KeyedCollectionAttr[
+    OwnerT: HasProperties,
     MutableKeyedCollectionT: MutableKeyedCollection,
-    ValueSetT,
-](AttrAttr[MutableKeyedCollectionT, Iterable[ValueSetT]]):
+    SetT,
+](AttrAttr[OwnerT, MutableKeyedCollectionT, Iterable[SetT]]):
     """
     An attribute that contains an :py:class:`betty.collection.keyed.KeyedCollection`.
     """
@@ -36,10 +38,8 @@ class KeyedCollectionAttr[
         description: ResolvableLocalizable | None = None,
         omit_load: bool | None = None,
         omit_dump: Callable[[MutableKeyedCollectionT], bool] | None = None,
-        resolver: Callable[
-            [ValueSetT | Iterable[ValueSetT]], Iterable[ValueSetT]
-        ] = passthrough,
-        default: Callable[[], ValueSetT | Iterable[ValueSetT]] = list,
+        resolver: Callable[[SetT | Iterable[SetT]], Iterable[SetT]] = passthrough,
+        default: Callable[[], SetT | Iterable[SetT]] = list,
     ):
         super().__init__(
             data,
@@ -60,10 +60,8 @@ class KeyedCollectionAttr[
 
     @final
     @override
-    def set(
-        self, instance: Any, value: Iterable[ValueSetT], /
-    ) -> MutableKeyedCollectionT:
-        data = self.get(instance)
+    def set(self, owner: OwnerT, value: Iterable[SetT], /) -> MutableKeyedCollectionT:
+        data = self.get(owner)
         data.clear()
         data.add(*self._values_resolver(value))
         return data

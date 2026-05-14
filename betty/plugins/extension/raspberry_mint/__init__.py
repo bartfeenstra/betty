@@ -41,6 +41,7 @@ from betty.plugins.extension.webpack import Webpack
 from betty.plugins.extension.webpack.build import EntryPointProvider
 from betty.project import Project
 from betty.project.generate import Generator
+from betty.property import HasProperties
 from betty.sample import Sample, Size
 from betty.service import ServiceProvider
 from betty.service.simple import service
@@ -85,7 +86,7 @@ type RegionalContentManufacturers = Mapping[
         ),
     ],
 )
-class RaspberryMintData(Data):
+class RaspberryMintData(Data, HasProperties):
     """
     Configuration for the :py:class:`betty.plugins.extension.raspberry_mint.RaspberryMint` extension.
 

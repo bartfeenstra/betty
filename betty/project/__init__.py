@@ -100,6 +100,7 @@ from betty.plugin.resolve import (
     resolve_plugin_id,
 )
 from betty.privacy.privatizer import Privatizer
+from betty.property import HasProperties
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.role import RoleDefinition
 from betty.sample import Sample, Size
@@ -762,7 +763,7 @@ class ProjectLocale(Data["ObjectDefinition"]):
         ),
     ],
 )
-class ProjectData(Data):
+class ProjectData(Data, HasProperties):
     """
     Configuration for a :py:class:`betty.project.Project`.
 
