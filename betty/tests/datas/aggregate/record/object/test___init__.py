@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Any, override
 
 from betty.data import Data
 from betty.datas.aggregate.record import FieldDefinition
@@ -79,13 +80,15 @@ class TestObjectDefinition:
 
     def test__set_cls__with_attr(self) -> None:
         class _Attr(Attr):
-            @property
-            def attr(self) -> AttrDefinition:
-                return AttrDefinition(BoolDefinition(label=DUMMY_LOCALIZABLE))
+            @override
+            def get(self, instance: Any, /) -> Any:
+                raise NotImplementedError
 
         @ObjectDefinition(label=DUMMY_LOCALIZABLE)
         class _Object(Data[ObjectDefinition]):
-            my_first_attr = _Attr()
+            my_first_attr = _Attr(
+                AttrDefinition(BoolDefinition(label=DUMMY_LOCALIZABLE))
+            )
 
         data_object = _Object.data()
         assert isinstance(data_object, ObjectDefinition)

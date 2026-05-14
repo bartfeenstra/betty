@@ -5,17 +5,17 @@ Object attributes.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Self, final, overload, override
+from typing import TYPE_CHECKING, Any, Final, Self, final, overload
 
-from betty.datas.aggregate.record.object import Attr as DataAttr
-from betty.datas.aggregate.record.object import AttrDefinition
 from betty.functools import passthrough
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    from betty.datas.aggregate.record.object import AttrDefinition
 
-class Attr[ValueGetT, ValueSetT](DataAttr[ValueGetT], ABC):
+
+class Attr[ValueGetT, ValueSetT](ABC):
     """
     An object attribute with a definition.
     """
@@ -28,17 +28,14 @@ class Attr[ValueGetT, ValueSetT](DataAttr[ValueGetT], ABC):
         *,
         resolver: Callable[[ValueSetT | ValueGetT], ValueGetT] = passthrough,
     ):
-        self._attr = attr
+        self.attr: Final[AttrDefinition[ValueGetT]] = attr
+        """
+        The attribute's data definition.
+        """
         self._resolver = resolver
 
     def __set_name__(self, owner: type[Any], name: str) -> None:
         self._attr_name = f"_{name}"
-
-    @final
-    @override
-    @property
-    def attr(self) -> AttrDefinition[ValueGetT]:
-        return self._attr
 
     @overload
     def __get__(self, instance: None, owner: type[object], /) -> Self:
