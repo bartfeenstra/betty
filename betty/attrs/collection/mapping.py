@@ -7,7 +7,7 @@ from __future__ import annotations
 from collections.abc import Mapping, MutableMapping
 from typing import TYPE_CHECKING, Any, final, override
 
-from betty.attr import Attr
+from betty.attrs.attr import AttrAttr
 from betty.functools import passthrough
 
 if TYPE_CHECKING:
@@ -24,7 +24,7 @@ class MappingAttr[
     KeyGetT,
     ItemGetT,
     ValueSetT,
-](Attr[MutableMappingT, ValueSetT]):
+](AttrAttr[MutableMappingT, ValueSetT]):
     """
     An attribute that contains a :py:class:`collections.abc.MutableMapping`.
     """

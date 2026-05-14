@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
-from betty.attr import Attr
+from betty.attrs.attr import AttrAttr
 from betty.locale.localizable.gettext import _
 from betty.machine_name import _MACHINE_NAME_DESCRIPTION, MachineName
 
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 @final
-class MachineNameAttr(Attr):
+class MachineNameAttr(AttrAttr):
     """
     An attribute containing a machine name.
     """

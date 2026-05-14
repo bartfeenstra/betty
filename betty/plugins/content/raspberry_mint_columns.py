@@ -15,7 +15,8 @@ from betty.assertion import (
     assert_or,
     assert_sequence,
 )
-from betty.attr import Attr, Optional
+from betty.attrs.attr import AttrAttr
+from betty.attrs.optional import Optional
 from betty.content import Content, ContentDefinition, ContentManufacturer, build
 from betty.data import Data
 from betty.datas.aggregate.collection.mapping import MappingDefinition
@@ -123,7 +124,7 @@ class ColumnsData(Data):
     _DEFAULT_WIDTH: ClassVar[ColumnsWidth] = {Breakpoint.XS: [12]}
     _width: ColumnsWidth
 
-    content = Attr(
+    content = AttrAttr(
         SequenceDefinition(
             cls=list,
             value=PluginManufacturerSequenceDefinition(
@@ -137,13 +138,13 @@ class ColumnsData(Data):
     """
 
     justify_content = Optional(
-        Attr(EnumDefinition(cls=JustifyContent, label=_("Justify content")))
+        AttrAttr(EnumDefinition(cls=JustifyContent, label=_("Justify content")))
     )
     """
     If and how to justify content.
     """
 
-    width = Attr(
+    width = AttrAttr(
         MappingDefinition(
             cls=dict,
             key=EnumDefinition(

@@ -6,7 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, final, override
 
-from betty.attr import Attr, Optional
+from betty.attrs.attr import AttrAttr
+from betty.attrs.optional import Optional
 from betty.datas.locale import LocaleDefinition
 from betty.json_schema import Null, OneOf
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
@@ -21,7 +22,7 @@ if TYPE_CHECKING:
 
 
 @final
-class LocaleAttr(Attr):
+class LocaleAttr(AttrAttr):
     """
     An attribute containing a locale.
     """

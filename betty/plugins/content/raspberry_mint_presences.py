@@ -6,7 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.attr import Attr, Optional
+from betty.attrs.attr import AttrAttr
+from betty.attrs.optional import Optional
 from betty.content import ContentDefinition
 from betty.data import Data
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
@@ -54,14 +55,14 @@ class PresencesData(Data):
     """
 
     exclude = Optional(
-        Attr(SequenceDefinition(cls=list, value=MachineName, label=_("Exclude")))
+        AttrAttr(SequenceDefinition(cls=list, value=MachineName, label=_("Exclude")))
     )
     """
     The presence roles for which to exclude presences.
     """
 
     include = Optional(
-        Attr(SequenceDefinition(cls=list, value=MachineName, label=_("Include")))
+        AttrAttr(SequenceDefinition(cls=list, value=MachineName, label=_("Include")))
     )
     """
     The presence roles for which to include presences.

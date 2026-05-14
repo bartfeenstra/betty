@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.attr import Attr, Optional
+from betty.attrs.attr import AttrAttr
+from betty.attrs.optional import Optional
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.bool import BoolDefinition
@@ -37,7 +38,7 @@ class WikiData(Data):
     """
 
     populate_images = Optional(
-        Attr(
+        AttrAttr(
             BoolDefinition(
                 label=_("Populate images"),
                 description=_(

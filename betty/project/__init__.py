@@ -22,11 +22,12 @@ from betty.about import VERSION_MAJOR
 from betty.app import App
 from betty.assertion import assert_number, assert_url
 from betty.asset import AssetRepositoryService
-from betty.attr import Attr, Optional
+from betty.attrs.attr import AttrAttr
 from betty.attrs.collection.keyed import KeyedCollectionAttr
 from betty.attrs.collection.sequence import SequenceAttr
 from betty.attrs.localizable import LocalizableAttr
 from betty.attrs.machine_name import MachineNameAttr
+from betty.attrs.optional import Optional
 from betty.attrs.plugin_definitions import PluginDefinitionDatasAttr
 from betty.cache import Cache
 from betty.cache.file import BinaryFileCache, PickledFileCache
@@ -773,7 +774,7 @@ class ProjectData(Data):
     The project's author.
     """
 
-    clean_urls = Attr(
+    clean_urls = AttrAttr(
         BoolDefinition(
             label=_("Clean URLs"),
             description=_(
@@ -788,7 +789,7 @@ class ProjectData(Data):
     """
 
     copyright_notice = Optional(
-        Attr(
+        AttrAttr(
             CopyrightNoticeManufacturer,
             omit_load=True,
             omit_dump=lambda data: data == ProjectData._default_copyright_notice(),
@@ -807,7 +808,7 @@ class ProjectData(Data):
     The :py:class:`betty.copyright_notice.CopyrightNotice` plugins created by this project.
     """
 
-    debug = Attr(
+    debug = AttrAttr(
         BoolDefinition(
             label=_("Debugging mode"),
             description=_(
@@ -886,7 +887,7 @@ class ProjectData(Data):
     """
 
     license = Optional(
-        Attr(
+        AttrAttr(
             LicenseManufacturer,
             omit_load=True,
             omit_dump=lambda data: data == ProjectData._default_license(),
@@ -903,7 +904,7 @@ class ProjectData(Data):
     The :py:class:`betty.license.License` plugins created by this project.
     """
 
-    lifetime_threshold = Attr(
+    lifetime_threshold = AttrAttr(
         IntDefinition(
             label=_("Lifetime threshold"),
             description=_(
@@ -960,7 +961,7 @@ class ProjectData(Data):
     The configured locales.
     """
 
-    logo = Optional(Attr(PathDefinition(), label=_("Logo")))
+    logo = Optional(AttrAttr(PathDefinition(), label=_("Logo")))
     """
     The project logo.
     """
@@ -987,7 +988,7 @@ class ProjectData(Data):
     The human-readable project title.
     """
 
-    url = Attr(
+    url = AttrAttr(
         StrDefinition(
             label=_("URL"),
             description=_(

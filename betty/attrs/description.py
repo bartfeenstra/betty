@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, override
 
-from betty.attr import Optional
 from betty.attrs.localizable import LocalizableAttr
+from betty.attrs.optional import Optional
 from betty.linked_data import (
     JsonLdObject,
     LinkedDataDumpableWithSchemaJsonLdObject,

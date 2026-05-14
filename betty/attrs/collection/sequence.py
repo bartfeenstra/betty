@@ -7,7 +7,7 @@ from __future__ import annotations
 from collections.abc import Iterable, MutableSequence
 from typing import TYPE_CHECKING, Any, final, override
 
-from betty.attr import Attr
+from betty.attrs.attr import AttrAttr
 from betty.functools import passthrough
 
 if TYPE_CHECKING:
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 
 class SequenceAttr[MutableSequenceT: MutableSequence[Any], ItemGetT, ValueSetT](
-    Attr[MutableSequenceT, ValueSetT]
+    AttrAttr[MutableSequenceT, ValueSetT]
 ):
     """
     An attribute that contains a :py:class:`collections.abc.MutableSequence`.
