@@ -1173,6 +1173,13 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/project/generate/__init__.py": {
         "Generator": MissingReason.ABSTRACT,
     },
+    "betty/property.py": {
+        "Property": {
+            "__set_name__": MissingReason.COVERED_ELSEWHERE,
+            "get": MissingReason.ABSTRACT,
+        },
+        "PropertyDefinition": MissingReason.DATACLASS,
+    },
     "betty/render.py": {
         "Renderer": MissingReason.ABSTRACT,
         "RendererDefinition": MissingReason.STATIC_CONTENT_ONLY,

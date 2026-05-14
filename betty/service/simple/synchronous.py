@@ -39,13 +39,13 @@ class SynchronousServiceManager[ServiceProviderT: ServiceProvider, ServiceT](
 
     @override
     def _new_service_getter(
-        self, instance: ServiceProviderT, /
+        self, service_provider: ServiceProviderT, /
     ) -> Callable[[], ServiceT]:
         def _factory() -> ServiceT:
-            factory = self._get_service_or_factory(instance)
+            factory = self._get_service_or_factory(service_provider)
             if isinstance(factory, Service):
                 return factory.service
-            return factory(instance)
+            return factory(service_provider)
 
         return LazyReCallable(_factory)
 

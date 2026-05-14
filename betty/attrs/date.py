@@ -17,13 +17,14 @@ from betty.date.linked_data import (
 from betty.date.schema import ResolvableDateSchema
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
 from betty.privacy.resolve import is_public
+from betty.property import HasProperties
 
 if TYPE_CHECKING:
     from betty.portable import PortableMapping
     from betty.project import Project
 
 
-class HasAnyDate(LinkedDataDumpableWithSchemaJsonLdObject):
+class HasAnyDate(LinkedDataDumpableWithSchemaJsonLdObject, HasProperties):
     """
     A resource with date information.
     """

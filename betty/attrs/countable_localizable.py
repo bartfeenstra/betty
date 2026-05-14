@@ -14,11 +14,12 @@ from betty.locale.localizable import (
     ResolvableLocalizable,
     resolve_countable_localizable,
 )
+from betty.property import HasProperties
 
 
 @final
 class CountableLocalizableAttr(
-    AttrAttr[CountableLocalizable, ResolvableCountableLocalizable]
+    AttrAttr[HasProperties, CountableLocalizable, ResolvableCountableLocalizable]
 ):
     """
     An attribute containing a :py:class:`betty.locale.localizable.CountableLocalizable`.

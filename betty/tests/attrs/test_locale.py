@@ -6,6 +6,7 @@ from babel import Locale
 
 from betty.attrs.locale import HasLocale, LocaleAttr
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, resolve_locale
+from betty.property import HasProperties
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -14,7 +15,7 @@ if TYPE_CHECKING:
 
 
 class TestLocaleAttr:
-    class _Owner:
+    class _Owner(HasProperties):
         locale = LocaleAttr()
 
     def test_set(self) -> None:

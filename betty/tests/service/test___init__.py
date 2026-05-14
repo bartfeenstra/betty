@@ -20,13 +20,13 @@ class _DummyServiceManager[ServiceProviderT: ServiceProvider](
 ):
     @override
     def _new_service_getter(
-        self, instance: ServiceProviderT, /
+        self, service_provider: ServiceProviderT, /
     ) -> Callable[[], object]:
         def _factory() -> object:
-            factory = self._get_service_or_factory(instance)
+            factory = self._get_service_or_factory(service_provider)
             if isinstance(factory, Service):
                 return factory.service
-            return factory(instance)
+            return factory(service_provider)
 
         return LazyReCallable(_factory)
 
@@ -36,39 +36,6 @@ class _DummyServiceManager[ServiceProviderT: ServiceProvider](
 
 
 class TestServiceManager:
-    def test___get____class(self) -> None:
-        class _ServiceProvider(ServiceProvider):
-            @_DummyServiceManager
-            def my_first_service(self) -> object:
-                raise NotImplementedError
-
-        assert isinstance(_ServiceProvider.my_first_service, _DummyServiceManager)
-        assert _ServiceProvider.my_first_service is _ServiceProvider.my_first_service
-
-    def test___get____instance(self) -> None:
-        service = object()
-
-        class _ServiceProvider(ServiceProvider):
-            @_DummyServiceManager
-            def my_first_service(self) -> object:
-                return service
-
-        assert _ServiceProvider(services=ServiceLevel()).my_first_service is service
-
-    def test___set_name__(self) -> None:
-        class _ServiceProvider(ServiceProvider):
-            @_DummyServiceManager
-            def my_first_service(self) -> object:
-                raise NotImplementedError
-
-    def test_owner(self) -> None:
-        class _ServiceProvider(ServiceProvider):
-            @_DummyServiceManager
-            def my_first_service(self) -> object:
-                raise NotImplementedError
-
-        assert _ServiceProvider.my_first_service.owner is _ServiceProvider
-
     def test_get(self) -> None:
         service = object()
 
@@ -84,17 +51,7 @@ class TestServiceManager:
             is service
         )
 
-    def test_id(self) -> None:
-        class _ServiceProvider(ServiceProvider):
-            @_DummyServiceManager
-            def my_first_service(self) -> object:
-                raise NotImplementedError
-
-        assert (
-            _ServiceProvider.my_first_service.id == "_ServiceProvider.my_first_service"
-        )
-
-    def test_init__initialized_already(self) -> None:
+    def test_init_property_owner__initialized_already(self) -> None:
         class _ServiceProvider(ServiceProvider):
             @_DummyServiceManager
             def my_first_service(self) -> object:
@@ -102,15 +59,7 @@ class TestServiceManager:
 
         service_provider = _ServiceProvider(services=ServiceLevel())
         with pytest.raises(ServiceAlreadyInitialized):
-            _ServiceProvider.my_first_service.init(service_provider)
-
-    def test_name(self) -> None:
-        class _ServiceProvider(ServiceProvider):
-            @_DummyServiceManager
-            def my_first_service(self) -> object:
-                raise NotImplementedError
-
-        assert _ServiceProvider.my_first_service.name == "my_first_service"
+            _ServiceProvider.my_first_service.init_property_owner(service_provider)
 
     def test_override(self) -> None:
         class _ServiceProvider(ServiceProvider):

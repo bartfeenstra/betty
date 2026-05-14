@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, final, override
 
 from betty.attrs.attr import AttrAttr
 from betty.functools import passthrough
+from betty.property import HasProperties
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -19,9 +20,12 @@ if TYPE_CHECKING:
     from betty.typing import Intersection
 
 
-class SequenceAttr[MutableSequenceT: MutableSequence[Any], ItemGetT, ValueSetT](
-    AttrAttr[MutableSequenceT, ValueSetT]
-):
+class SequenceAttr[
+    OwnerT: HasProperties,
+    MutableSequenceT: MutableSequence[Any],
+    ItemGetT,
+    SetT,
+](AttrAttr[OwnerT, MutableSequenceT, SetT]):
     """
     An attribute that contains a :py:class:`collections.abc.MutableSequence`.
     """
@@ -41,12 +45,12 @@ class SequenceAttr[MutableSequenceT: MutableSequence[Any], ItemGetT, ValueSetT](
             ]
         ],
         *,
-        default: Callable[[], ValueSetT] | None = None,
+        default: Callable[[], SetT] | None = None,
         description: ResolvableLocalizable | None = None,
         label: ResolvableLocalizable | None = None,
         omit_dump: Callable[[MutableSequenceT], bool] | None = None,
         omit_load: bool | None = None,
-        resolver: Callable[[ValueSetT], Iterable[ItemGetT]] = passthrough,
+        resolver: Callable[[SetT], Iterable[ItemGetT]] = passthrough,
     ):
         super().__init__(
             data,
@@ -68,8 +72,8 @@ class SequenceAttr[MutableSequenceT: MutableSequence[Any], ItemGetT, ValueSetT](
 
     @final
     @override
-    def set(self, instance: Any, value: ValueSetT, /) -> MutableSequenceT:
-        data = self.get(instance)
+    def set(self, owner: OwnerT, value: SetT, /) -> MutableSequenceT:
+        data = self.get(owner)
         data.clear()
         data.extend(self._sequence_resolver(value))
         return data

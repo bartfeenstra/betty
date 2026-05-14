@@ -7,6 +7,7 @@ import pytest
 from betty.attrs.media_type import HasMediaType, MediaTypeAttr
 from betty.media_type import MediaType, MediaTypeDefinition
 from betty.plugins.media_type.plain_text import PLAIN_TEXT
+from betty.property import HasProperties
 
 if TYPE_CHECKING:
     from betty.portable import PortableMapping
@@ -15,13 +16,13 @@ if TYPE_CHECKING:
 
 class TestMediaTypeAttr:
     def test_resolve(self) -> None:
-        class Cls:
+        class _Owner(HasProperties):
             media_type = MediaTypeAttr()
 
-        instance = Cls()
+        owner = _Owner()
         media_type = MediaType("text/plain")
-        instance.media_type = MediaTypeDefinition("-", label="-", media_type=media_type)
-        assert instance.media_type is media_type
+        owner.media_type = MediaTypeDefinition("-", label="-", media_type=media_type)
+        assert owner.media_type is media_type
 
 
 class TestHasMediaType:

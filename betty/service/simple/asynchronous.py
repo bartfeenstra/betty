@@ -53,16 +53,16 @@ class AsynchronousServiceManager[
 
     @override
     def _new_service_getter(
-        self, instance: ServiceProviderT, /
+        self, service_provider: ServiceProviderT, /
     ) -> ReAwaitable[ServiceT]:
         async def _factory() -> ServiceT:
-            factory = self._get_service_or_factory(instance)
+            factory = self._get_service_or_factory(service_provider)
             if isinstance(factory, Service):
                 service = factory.service
             else:
-                service = await resolve_await(factory(instance))
+                service = await resolve_await(factory(service_provider))
             if isinstance(service, Bootstrappable | Shutdownable):
-                await instance.life_cycle.synchronize(service)
+                await service_provider.life_cycle.synchronize(service)
             return service
 
         return LazyReAwaitable(_factory)

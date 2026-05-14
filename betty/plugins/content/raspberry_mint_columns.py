@@ -35,6 +35,7 @@ from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.extension.raspberry_mint import Breakpoint, JustifyContent
 from betty.portable import CallbackPorter
 from betty.project import Project
+from betty.property import HasProperties
 from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
@@ -114,7 +115,7 @@ type ShorthandColumnsWidth = (
         ),
     ],
 )
-class ColumnsData(Data):
+class ColumnsData(Data, HasProperties):
     """
     Configuration for :py:class:`betty.plugins.content.raspberry_mint_columns.Columns`.
 

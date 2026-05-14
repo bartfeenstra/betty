@@ -17,6 +17,7 @@ from betty.locale.localizable.gettext import _
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.privacy.resolve import is_public
+from betty.property import HasProperties
 
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
@@ -24,7 +25,7 @@ if TYPE_CHECKING:
     from betty.project import Project
 
 
-class HasDescription(LinkedDataDumpableWithSchemaJsonLdObject):
+class HasDescription(LinkedDataDumpableWithSchemaJsonLdObject, HasProperties):
     """
     Data with a description.
     """
