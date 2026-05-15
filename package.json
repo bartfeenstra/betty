@@ -13,7 +13,7 @@
     "@betty.py/betty.plugins.extension.raspberry-mint": "file:./data/webpack/raspberry_mint",
     "@betty.py/betty.plugins.extension.trees": "file:./data/webpack/trees",
     "@betty.py/betty.plugins.extension.webpack": "file:./data/webpack/webpack",
-    "eslint": "^9.24.0",
+    "eslint": "^10.4.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-n": "^18.0.1",
     "eslint-plugin-promise": "^7.2.1",
