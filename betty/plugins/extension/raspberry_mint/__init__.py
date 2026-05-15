@@ -119,7 +119,6 @@ class RaspberryMintData(Data, HasProperties):
                 ContentManufacturer, label=_("Regional content")
             ),
         ),
-        default=dict,
         omit_load=True,
         omit_dump=lambda data: not len(data),
     )

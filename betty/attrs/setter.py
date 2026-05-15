@@ -6,8 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
-from betty.attr import ProxyAttr
-from betty.attrs.owner import OwnerAttr
+from betty.attrs.owner import OwnerAttr, ProxyOwnerAttr
 from betty.property import HasProperties
 
 if TYPE_CHECKING:
@@ -15,9 +14,7 @@ if TYPE_CHECKING:
 
 
 @final
-class SetterAttr[OwnerT: HasProperties, GetT, SetT](
-    ProxyAttr[OwnerT, GetT, SetT], OwnerAttr[OwnerT, GetT, SetT]
-):
+class SetterAttr[OwnerT: HasProperties, GetT, SetT](ProxyOwnerAttr[OwnerT, GetT, SetT]):
     """
     An attribute with an additional setter.
     """

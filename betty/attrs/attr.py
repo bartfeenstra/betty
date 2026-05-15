@@ -31,7 +31,6 @@ class AttrAttr[OwnerT: HasProperties, T](OwnerAttr[OwnerT, T, T]):
         description: ResolvableLocalizable | None = None,
         omit_load: bool = False,
         omit_dump: Callable[[T], bool] | None = None,
-        default: Callable[[], T] | None = None,
     ):
         super().__init__(
             FieldDefinition(
@@ -43,14 +42,6 @@ class AttrAttr[OwnerT: HasProperties, T](OwnerAttr[OwnerT, T, T]):
             ),
         )
         self._data = data
-        self._default = default
-
-    @final
-    @override
-    def init_owner(self, owner: OwnerT, /) -> None:
-        if self._default is None:
-            return
-        self._set_owner_attr(owner, self._default())
 
     @final
     @override

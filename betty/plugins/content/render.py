@@ -41,7 +41,7 @@ class RenderData(Data, HasProperties):
     """
 
     content = LocalizableAttr(label=_("Content"))
-    media_type = MediaTypeAttr(default=lambda: PLAIN_TEXT.media_type, omit_load=True)
+    media_type = MediaTypeAttr(omit_load=True).default(lambda: PLAIN_TEXT)
 
     def __init__(
         self,

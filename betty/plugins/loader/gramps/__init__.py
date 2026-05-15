@@ -76,18 +76,9 @@ def _new_plugin_mapping_attr[PluginDefinitionT: PluginDefinition, PluginT: Plugi
             value=manufacturer,
             label=manufacturer.data().plugin_type.type().label_plural,
         ),
-        default=lambda: MutableResolvedMappingAdapter(
-            dict(
-                zip(
-                    default.keys(),
-                    manufacturer.resolve_sequence(
-                        default.values(),  # ty:ignore[invalid-argument-type]
-                    ),
-                    strict=False,
-                )
-            ),
-            value_resolver=manufacturer.resolve,
-        ),
+        omit_load=True,
+    ).default(
+        lambda: {key: manufacturer.resolve(value) for key, value in default.items()}
     )
 
 
