@@ -6,8 +6,7 @@ from __future__ import annotations
 
 from typing import final, override
 
-from betty.attr import ProxyAttr
-from betty.attrs.owner import OwnerAttr
+from betty.attrs.owner import OwnerAttr, ProxyOwnerAttr
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.optional import OptionalDefinition
 from betty.property import HasProperties
@@ -15,32 +14,29 @@ from betty.property import HasProperties
 
 @final
 class Optional[OwnerT: HasProperties, GetT, SetT](
-    ProxyAttr[OwnerT, GetT | None, SetT | None],
-    OwnerAttr[OwnerT, GetT | None, SetT | None],
+    ProxyOwnerAttr[OwnerT, GetT | None, SetT | None]
 ):
     """
     Make another attribute optional, e.g. allow ``None``.
     """
 
-    def __init__(self, required_attr: OwnerAttr[OwnerT, GetT, SetT], /):
+    def __init__(self, proxied: OwnerAttr[OwnerT, GetT, SetT], /):
         super().__init__(
-            required_attr,
-            attr=FieldDefinition(
-                OptionalDefinition(required_attr.field.data),
-                label=required_attr.field.label,
-                description=required_attr.field.description,
+            proxied,
+            field=FieldDefinition(
+                OptionalDefinition(proxied.field.data),
+                label=proxied.field.label,
+                description=proxied.field.description,
                 omit_load=True,
                 omit_dump=self._omit_dump,
             ),
         )
-        self._required_attr = required_attr
+        self._proxied = proxied
 
     def _omit_dump(self, data: GetT | None) -> bool:
         if data is None:
             return True
-        if self._required_attr.field.omit_dump is None:
-            return False
-        return self._required_attr.field.omit_dump(data)
+        return self._proxied.field.omit_dump(data)
 
     @override
     def init_owner(self, owner: OwnerT, /) -> None:

@@ -4,7 +4,7 @@ Key-value mapping data types.
 
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping, MutableMapping
+from collections.abc import Callable, Iterable, Mapping, MutableMapping
 from typing import TYPE_CHECKING, Any, final, override
 
 from betty.data import DataDefinition
@@ -19,7 +19,9 @@ if TYPE_CHECKING:
 
 
 class MappingDefinition[MutableMappingT: MutableMapping[Any, Any], KeyT, ValueT](
-    CollectionDefinition[MutableMappingT, Mapping[KeyT, ValueT], Key]
+    CollectionDefinition[
+        MutableMappingT, Mapping[KeyT, ValueT] | Iterable[tuple[KeyT, ValueT]], Key
+    ]
 ):
     """
     A key-value mapping data definition.
@@ -65,6 +67,11 @@ class MappingDefinition[MutableMappingT: MutableMapping[Any, Any], KeyT, ValueT]
 
     @final
     @override
-    def replace(self, data: MutableMappingT, values: Mapping[KeyT, ValueT], /) -> None:
+    def replace(
+        self,
+        data: MutableMappingT,
+        values: Mapping[KeyT, ValueT] | Iterable[tuple[KeyT, ValueT]],
+        /,
+    ) -> None:
         data.clear()
         data.update(values)

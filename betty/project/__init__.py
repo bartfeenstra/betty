@@ -785,12 +785,17 @@ class ProjectData(Data, HasProperties):
     copyright_notice = AttrAttr(
         CopyrightNoticeManufacturer,
         omit_load=True,
-        omit_dump=lambda data: data == ProjectData._default_copyright_notice(),
-        default=lambda: ProjectData._default_copyright_notice(),  # noqa: PLW0108
     ).setter(CopyrightNoticeManufacturer.resolve)
     """
     The project-wide copyright notice.
     """
+
+    @copyright_notice.default
+    @staticmethod
+    def copyright_notice() -> CopyrightNoticeManufacturer:  # noqa: D102
+        from betty.plugins.copyright_notice.project_author import ProjectAuthor
+
+        return CopyrightNoticeManufacturer(ProjectAuthor)
 
     copyright_notices = PluginDefinitionDatasAttr(
         CopyrightNoticeDefinition, CopyrightNoticeDefinitionData
@@ -878,15 +883,19 @@ class ProjectData(Data, HasProperties):
     The :py:class:`betty.gender.Gender` plugins created by this project.
     """
 
-    license = AttrAttr(
-        LicenseManufacturer,
-        omit_load=True,
-        omit_dump=lambda data: data == ProjectData._default_license(),
-        default=lambda: ProjectData._default_license(),  # noqa: PLW0108
-    ).setter(LicenseManufacturer.resolve)
+    license = AttrAttr(LicenseManufacturer, omit_load=True).setter(
+        LicenseManufacturer.resolve
+    )
     """
     The project-wide license.
     """
+
+    @license.default  # noqa: A003
+    @staticmethod
+    def license() -> LicenseManufacturer:  # noqa: D102
+        from betty.plugins.license.all_rights_reserved import AllRightsReserved
+
+        return LicenseManufacturer(AllRightsReserved)
 
     licenses = PluginDefinitionDatasAttr(LicenseDefinition, LicenseDefinitionData)
     """
@@ -943,8 +952,7 @@ class ProjectData(Data, HasProperties):
         ),
         omit_load=True,
         omit_dump=lambda data: not data,
-        default=lambda: [DEFAULT_LOCALE],
-    )
+    ).default(lambda: [DEFAULT_LOCALE])
     """
     The configured locales.
     """
@@ -1049,15 +1057,3 @@ class ProjectData(Data, HasProperties):
         self.roles = roles
         self.title = title
         self.url = url
-
-    @classmethod
-    def _default_copyright_notice(cls) -> CopyrightNoticeManufacturer:
-        from betty.plugins.copyright_notice.project_author import ProjectAuthor
-
-        return CopyrightNoticeManufacturer(ProjectAuthor)
-
-    @classmethod
-    def _default_license(cls) -> LicenseManufacturer:
-        from betty.plugins.license.all_rights_reserved import AllRightsReserved
-
-        return LicenseManufacturer(AllRightsReserved)

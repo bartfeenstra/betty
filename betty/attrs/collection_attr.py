@@ -7,6 +7,7 @@ from __future__ import annotations
 from collections.abc import Callable, Collection, Iterable
 from typing import TYPE_CHECKING, Any, final, override
 
+from betty.attrs.default_collection import DefaultCollectionAttr
 from betty.attrs.owner import OwnerAttr
 from betty.data import ResolvableDataDefinition, resolve_data_definition
 from betty.datas.aggregate.record import FieldDefinition
@@ -34,7 +35,6 @@ class CollectionAttrAttr[
             CollectionDefinition[MutableCollectionT, ValuesSetT, Element[Any]]
         ],
         *,
-        default: Callable[[], ValuesSetT] = tuple,
         description: ResolvableLocalizable | None = None,
         label: ResolvableLocalizable | None = None,
         omit_dump: Callable[[MutableCollectionT], bool] | None = None,
@@ -49,19 +49,23 @@ class CollectionAttrAttr[
                 omit_dump=omit_dump,
             ),
         )
-        self.__data_collection = resolve_data_definition(data)
-        self.__default_items = default
+        self._data_collection = resolve_data_definition(data)
 
     @override
     def init_owner(self, owner: OwnerT, /) -> None:
-        self._set_owner_attr(owner, self.__data_collection.new(self.__default_items()))
+        super().init_owner(owner)
+        self._set_owner_attr(owner, self._data_collection.new())
 
-    @final
     @override
     def get(self, owner: OwnerT, /) -> MutableCollectionT:
         return self._get_owner_attr(owner)
 
-    @final
     @override
     def set(self, owner: OwnerT, value: ValuesSetT, /) -> None:
-        self.__data_collection.replace(self.get(owner), value)
+        self._data_collection.replace(self.get(owner), value)
+
+    @override
+    def default(
+        self, default: Callable[[], ValuesSetT]
+    ) -> OwnerAttr[OwnerT, MutableCollectionT, ValuesSetT]:
+        return DefaultCollectionAttr(self, default)

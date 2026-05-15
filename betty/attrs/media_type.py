@@ -36,7 +36,6 @@ class MediaTypeAttr(
         self,
         *,
         label: ResolvableLocalizable | None = None,
-        default: Callable[[], MediaType] | None = None,
         description: ResolvableLocalizable | None = None,
         omit_load: bool = False,
         omit_dump: Callable[[MediaType], bool] | None = None,
@@ -44,7 +43,6 @@ class MediaTypeAttr(
         super().__init__(
             AttrAttr(
                 data=MediaType,
-                default=default,
                 label=label,
                 description=description,
                 omit_load=omit_load,
