@@ -29,14 +29,14 @@ class Optional[OwnerT: HasProperties, GetT, SetT](
             return required_attr.attr.omit_dump(data)
 
         super().__init__(
-            AttrDefinition(
+            required_attr,
+            attr=AttrDefinition(
                 OptionalDefinition(required_attr.attr.data),
                 label=required_attr.attr.label,
                 description=required_attr.attr.description,
                 omit_load=required_attr.attr.omit_load,
                 omit_dump=_omit_dump,
             ),
-            proxied=required_attr,
         )
 
     @override

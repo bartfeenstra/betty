@@ -794,8 +794,7 @@ class ProjectData(Data, HasProperties):
         omit_load=True,
         omit_dump=lambda data: data == ProjectData._default_copyright_notice(),
         default=lambda: ProjectData._default_copyright_notice(),  # noqa: PLW0108
-        resolver=CopyrightNoticeManufacturer.resolve,
-    )
+    ).setter(CopyrightNoticeManufacturer.resolve)
     """
     The project-wide copyright notice.
     """
@@ -890,8 +889,7 @@ class ProjectData(Data, HasProperties):
         omit_load=True,
         omit_dump=lambda data: data == ProjectData._default_license(),
         default=lambda: ProjectData._default_license(),  # noqa: PLW0108
-        resolver=LicenseManufacturer.resolve,
-    )
+    ).setter(LicenseManufacturer.resolve)
     """
     The project-wide license.
     """
@@ -910,8 +908,7 @@ class ProjectData(Data, HasProperties):
         ),
         omit_load=True,
         omit_dump=lambda data: data == DEFAULT_LIFETIME_THRESHOLD,
-        resolver=assert_number(minimum=1),
-    )
+    ).setter(assert_number(minimum=1))
     """
     The lifetime threshold indicates when people are considered dead.
     """
@@ -991,9 +988,8 @@ class ProjectData(Data, HasProperties):
             description=_(
                 "The absolute, public URL at which the site will be published."
             ),
-        ),
-        resolver=assert_url(),
-    )
+        )
+    ).setter(assert_url())
     """
     The project's public URL.
     """

@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import final
 
+from betty.attr import ProxyAttr
 from betty.attrs.attr import AttrAttr
 from betty.datas.countable_localizable import CountableLocalizableDefinition
 from betty.locale.localizable import (
@@ -19,7 +20,7 @@ from betty.property import HasProperties
 
 @final
 class CountableLocalizableAttr(
-    AttrAttr[HasProperties, CountableLocalizable, ResolvableCountableLocalizable]
+    ProxyAttr[HasProperties, CountableLocalizable, ResolvableCountableLocalizable]
 ):
     """
     An attribute containing a :py:class:`betty.locale.localizable.CountableLocalizable`.
@@ -32,8 +33,7 @@ class CountableLocalizableAttr(
         description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
-            CountableLocalizableDefinition(),
-            label=label,
-            description=description,
-            resolver=resolve_countable_localizable,
+            AttrAttr(
+                CountableLocalizableDefinition(), label=label, description=description
+            ).setter(resolve_countable_localizable)
         )

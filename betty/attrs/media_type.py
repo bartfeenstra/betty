@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, final, override
 
+from betty.attr import ProxyAttr
 from betty.attrs.attr import AttrAttr
 from betty.attrs.optional import Optional
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
@@ -23,7 +24,7 @@ if TYPE_CHECKING:
 
 
 @final
-class MediaTypeAttr(AttrAttr[HasProperties, MediaType, ResolvableMediaType]):
+class MediaTypeAttr(ProxyAttr[HasProperties, MediaType, ResolvableMediaType]):
     """
     An attribute containing a media type.
     """
@@ -38,13 +39,14 @@ class MediaTypeAttr(AttrAttr[HasProperties, MediaType, ResolvableMediaType]):
         omit_dump: Callable[[MediaType], bool] | None = None,
     ):
         super().__init__(
-            data=MediaType,
-            default=default,
-            label=label,
-            description=description,
-            omit_load=omit_load,
-            omit_dump=omit_dump,
-            resolver=resolve_media_type,
+            AttrAttr(
+                data=MediaType,
+                default=default,
+                label=label,
+                description=description,
+                omit_load=omit_load,
+                omit_dump=omit_dump,
+            ).setter(resolve_media_type)
         )
 
 
