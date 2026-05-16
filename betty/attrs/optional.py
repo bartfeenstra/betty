@@ -49,6 +49,7 @@ class Optional[OwnerT: HasProperties, GetT, SetT](
         setattr(owner, f"_{self.property.name}", None)
         self._required_attr.init_property_owner(owner)
 
+    # @todo I don't think we can fix this at all without DefaultProperty...
     @override
     def get(self, owner: OwnerT, /) -> GetT:
         return getattr(owner, f"_{self.property.name}")

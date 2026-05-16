@@ -99,6 +99,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "has_any_date_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
         },
     },
+    "betty/attrs/optional.py": {
+        "Optional": {
+            "init_plugin_owner": MissingReason.COVERED_ELSEWHERE,
+        },
+    },
     "betty/attrs/privacy.py": {
         "PrivacyAttr": {
             "linked_data_schema_for": MissingReason.STATIC_CONTENT_ONLY,
