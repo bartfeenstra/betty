@@ -15,9 +15,8 @@ if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
 
     from betty.indicator import Indicator
-    from betty.locale import Localized
+    from betty.locale import LocalizedStr
     from betty.locale.localize import Localizer
-    from betty.typing import Intersection
 
 
 def do_raise(exception: BaseException, /) -> Never:
@@ -71,7 +70,7 @@ class HumanFacingException(Exception, Localizable):
         return self.localize(DEFAULT_LOCALIZER)
 
     @override
-    def localize(self, localizer: Localizer, /) -> Intersection[Localized, str]:
+    def localize(self, localizer: Localizer, /) -> LocalizedStr:
         from betty.locale.localizable.markup import Lines, UnorderedList
 
         return Lines(

@@ -9,10 +9,12 @@ from typing import TYPE_CHECKING, final
 
 from betty.locale import (
     DEFAULT_LOCALE,
-    Localized,
     LocalizedStr,
     ResolvableLocale,
     resolve_locale,
+)
+from betty.locale import (
+    Localized as Localized,
 )
 from betty.typing import threadsafe
 
@@ -23,7 +25,7 @@ if TYPE_CHECKING:
 
     from betty.locale.localizable import ResolvableLocalizable
     from betty.locale.translation import TranslationRepository
-    from betty.typing import Intersection
+    from betty.typing import Intersection as Intersection
 
 
 @final
@@ -45,7 +47,7 @@ class Localizer:
         """
         return self._locale
 
-    def _(self, message: str, /) -> Intersection[Localized, str]:
+    def _(self, message: str, /) -> LocalizedStr:
         """
         Like :py:meth:`gettext.gettext`.
 
@@ -53,7 +55,7 @@ class Localizer:
         """
         return LocalizedStr(self._translations.gettext(message), locale=self._locale)
 
-    def gettext(self, message: str, /) -> Intersection[Localized, str]:
+    def gettext(self, message: str, /) -> LocalizedStr:
         """
         Like :py:meth:`gettext.gettext`.
 
@@ -63,7 +65,7 @@ class Localizer:
 
     def ngettext(
         self, message_singular: str, message_plural: str, n: int, /
-    ) -> Intersection[Localized, str]:
+    ) -> LocalizedStr:
         """
         Like :py:meth:`gettext.ngettext`.
 
@@ -74,7 +76,7 @@ class Localizer:
             locale=self._locale,
         )
 
-    def pgettext(self, context: str, message: str, /) -> Intersection[Localized, str]:
+    def pgettext(self, context: str, message: str, /) -> LocalizedStr:
         """
         Like :py:meth:`gettext.pgettext`.
 
@@ -86,7 +88,7 @@ class Localizer:
 
     def npgettext(
         self, context: str, message_singular: str, message_plural: str, n: int, /
-    ) -> Intersection[Localized, str]:
+    ) -> LocalizedStr:
         """
         Like :py:meth:`gettext.npgettext`.
 
@@ -132,7 +134,7 @@ class LocalizerRepository:
 
 def resolve_localized(
     localizable: ResolvableLocalizable, *, localizer: Localizer
-) -> Intersection[Localized, str]:
+) -> LocalizedStr:
     """
     Ensure that a localizable-like value is or is made to be localized.
     """

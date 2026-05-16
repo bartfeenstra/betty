@@ -6,37 +6,28 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, cast, overload, override
 
+from betty.locale import LocalizedStr
 from betty.locale.localizable import CountableLocalizable, Localizable, LocalizableCount
 
 if TYPE_CHECKING:
-    from betty.locale import Localized
     from betty.locale.localize import Localizer
-    from betty.typing import Intersection
 
 
 class _GettextLocalizable(Localizable):
-    def __init__(
-        self,
-        gettext_method_name: str,
-        *gettext_args: Any,
-    ) -> None:
+    def __init__(self, gettext_method_name: str, *gettext_args: Any) -> None:
         self._gettext_method_name = gettext_method_name
         self._gettext_args = gettext_args
 
     @override
-    def localize(self, localizer: Localizer, /) -> Intersection[Localized, str]:
+    def localize(self, localizer: Localizer, /) -> LocalizedStr:
         return cast(
-            "Intersection[Localized, str]",
+            LocalizedStr,
             getattr(localizer, self._gettext_method_name)(*self._gettext_args),
         )
 
 
 class _CountableGettextLocalizable(CountableLocalizable):
-    def __init__(
-        self,
-        gettext_method_name: str,
-        *gettext_args: Any,
-    ) -> None:
+    def __init__(self, gettext_method_name: str, *gettext_args: Any) -> None:
         self._gettext_method_name = gettext_method_name
         self._gettext_args = gettext_args
 
