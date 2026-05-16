@@ -6,12 +6,13 @@ from betty.data import Data
 from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.indicator.selector import Attr as AttrSelector
+from betty.property import HasProperties
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 class TestKeyedCollectionAttr:
     @ObjectDefinition(label=DUMMY_LOCALIZABLE)
-    class _Owner(Data):
+    class _Owner(Data, HasProperties):
         @ObjectDefinition(label=DUMMY_LOCALIZABLE)
         class _Item(Data["ObjectDefinition"]):
             attr: Any

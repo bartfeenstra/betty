@@ -43,10 +43,3 @@ class Attr[OwnerT: HasProperties, GetT, SetT](Property[OwnerT, GetT]):
         resolved_value = self._resolver(value)
         setattr(owner, f"_{self.property.name}", resolved_value)
         return resolved_value
-
-
-@final
-class AttrNotInitialized(ValueError):
-    """
-    Raised when a class failed to initialize a value for a :py:class:`betty.attr.Attr`.
-    """

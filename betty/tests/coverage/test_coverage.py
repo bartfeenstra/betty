@@ -92,11 +92,20 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/attr.py": {
         "Attr": MissingReason.SHOULD_BE_COVERED,
-        "AttrNotInitialized": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/attrs/attr.py": {
+        "AttrAttr": {
+            "init_property_owner": MissingReason.SHOULD_BE_COVERED,
+        },
     },
     "betty/attrs/date.py": {
         "HasAnyDate": {
             "has_any_date_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
+        },
+    },
+    "betty/attrs/optional.py": {
+        "Optional": {
+            "init_property_owner": MissingReason.SHOULD_BE_COVERED,
         },
     },
     "betty/attrs/privacy.py": {

@@ -3,12 +3,13 @@ from betty.data import Data
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.str import StrDefinition
+from betty.property import HasProperties
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 class TestSequenceAttr:
     @ObjectDefinition(label=DUMMY_LOCALIZABLE)
-    class _Owner(Data):
+    class _Owner(Data, HasProperties):
         sequence = SequenceAttr(
             SequenceDefinition(
                 cls=list,

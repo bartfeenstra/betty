@@ -5,13 +5,14 @@ from betty.attrs.plugin_definitions import PluginDefinitionDatasAttr
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.plugin_definition import PluginDefinitionData
+from betty.property import HasProperties
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.plugin import DummyPluginDefinition
 
 
 class TestPluginDefinitionDatasAttr:
     @ObjectDefinition(label=DUMMY_LOCALIZABLE)
-    class _Owner(Data):
+    class _Owner(Data, HasProperties):
         @ObjectDefinition(label=DUMMY_LOCALIZABLE)
         class _Item(PluginDefinitionData[DummyPluginDefinition]):
             @override
@@ -19,6 +20,7 @@ class TestPluginDefinitionDatasAttr:
                 raise NotImplementedError
 
         def __init__(self, plugins: Iterable[_Item] = ()):
+            super().__init__()
             self.plugins = plugins
 
         plugins = PluginDefinitionDatasAttr(DummyPluginDefinition, _Item)
