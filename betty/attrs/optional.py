@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import final, override
 
-from betty.attr import Attr, AttrNotInitialized
+from betty.attr import Attr
 from betty.datas.aggregate.record.object import AttrDefinition
 from betty.datas.optional import OptionalDefinition
 from betty.property import HasProperties
@@ -44,16 +44,20 @@ class Optional[OwnerT: HasProperties, GetT, SetT](
         self._required_attr.__set_name__(owner, name)
 
     @override
-    def get(self, owner: OwnerT, /) -> GetT | None:
-        try:
-            return self._required_attr.get(owner)
-        except AttrNotInitialized:
-            return self.set(owner, None)
+    def init_property_owner(self, owner: OwnerT, /) -> None:
+        super().init_property_owner(owner)
+        setattr(owner, f"_{self.property.name}", None)
+        self._required_attr.init_property_owner(owner)
+
+    @override
+    def get(self, owner: OwnerT, /) -> GetT:
+        return getattr(owner, f"_{self.property.name}")
 
     @override
     def set(self, owner: OwnerT, value: SetT | None, /) -> GetT | None:
         if value is None:
-            return super().set(owner, value)
+            setattr(owner, f"_{self.property.name}", None)
+            return None
         return self._required_attr.set(owner, value)
 
     def __delete__(self, instance: OwnerT) -> None:
