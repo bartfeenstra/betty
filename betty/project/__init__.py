@@ -789,14 +789,12 @@ class ProjectData(Data, HasProperties):
     Whether to generate clean URLs.
     """
 
-    copyright_notice = Optional(
-        AttrAttr(
-            CopyrightNoticeManufacturer,
-            omit_load=True,
-            omit_dump=lambda data: data == ProjectData._default_copyright_notice(),
-            default=lambda: ProjectData._default_copyright_notice(),  # noqa: PLW0108
-            resolver=CopyrightNoticeManufacturer.resolve,
-        )
+    copyright_notice = AttrAttr(
+        CopyrightNoticeManufacturer,
+        omit_load=True,
+        omit_dump=lambda data: data == ProjectData._default_copyright_notice(),
+        default=lambda: ProjectData._default_copyright_notice(),  # noqa: PLW0108
+        resolver=CopyrightNoticeManufacturer.resolve,
     )
     """
     The project-wide copyright notice.
@@ -887,14 +885,12 @@ class ProjectData(Data, HasProperties):
     The :py:class:`betty.gender.Gender` plugins created by this project.
     """
 
-    license = Optional(
-        AttrAttr(
-            LicenseManufacturer,
-            omit_load=True,
-            omit_dump=lambda data: data == ProjectData._default_license(),
-            default=lambda: ProjectData._default_license(),  # noqa: PLW0108
-            resolver=LicenseManufacturer.resolve,
-        )
+    license = AttrAttr(
+        LicenseManufacturer,
+        omit_load=True,
+        omit_dump=lambda data: data == ProjectData._default_license(),
+        default=lambda: ProjectData._default_license(),  # noqa: PLW0108
+        resolver=LicenseManufacturer.resolve,
     )
     """
     The project-wide license.
