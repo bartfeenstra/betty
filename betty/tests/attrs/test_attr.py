@@ -1,6 +1,5 @@
 import pytest
 
-from betty.attr import AttrNotInitialized
 from betty.attrs.attr import AttrAttr
 from betty.datas.str import StrDefinition
 from betty.property import HasProperties
@@ -13,7 +12,7 @@ class TestAttrAttr:
             my_first_property = AttrAttr(StrDefinition(label=DUMMY_LOCALIZABLE))
 
         owner = _Owner()
-        with pytest.raises(AttrNotInitialized):
+        with pytest.raises(AttributeError):
             _Owner.my_first_property.get(owner)
 
     def test___set__(self) -> None:
