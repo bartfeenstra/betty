@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from textwrap import indent
 from typing import TYPE_CHECKING, Any, ClassVar, final, override
 
-from betty.locale import Localized, LocalizedStr
+from betty.locale import LocalizedStr
 from betty.locale.localizable import (
     Localizable,
     ResolvableLocalizable,
@@ -20,7 +20,6 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.locale.localize import Localizer
-    from betty.typing import Intersection
 
 
 class LocalizableSequence(ABC):
@@ -50,7 +49,7 @@ class _Join(_LocalizableSequence, Localizable):
     _SEPARATOR: ClassVar[str]
 
     @override
-    def localize(self, localizer: Localizer, /) -> Intersection[Localized, str]:
+    def localize(self, localizer: Localizer, /) -> LocalizedStr:
         return LocalizedStr(
             self._SEPARATOR.join(
                 localized
@@ -102,7 +101,7 @@ class _List(_LocalizableSequence, Localizable):
     _TEMPLATE_RIGHT_TO_LEFT = "{localized} {prefix}"
 
     @override
-    def localize(self, localizer: Localizer, /) -> Intersection[Localized, str]:
+    def localize(self, localizer: Localizer, /) -> LocalizedStr:
         if not self.localizables:
             return LocalizedStr("")
         localizeds = []
@@ -168,7 +167,7 @@ class _Enumeration(_LocalizableSequence, Localizable):
     _LOCALIZABLE: ClassVar[Localizable]
 
     @override
-    def localize(self, localizer: Localizer, /) -> Intersection[Localized, str]:
+    def localize(self, localizer: Localizer, /) -> LocalizedStr:
         if len(self.localizables) == 0:
             return LocalizedStr("")
         if len(self.localizables) == 1:

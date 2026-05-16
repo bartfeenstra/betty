@@ -6,14 +6,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
-from betty.locale import Localized, LocalizedStr, ResolvableLocale, resolve_locale
+from betty.locale import LocalizedStr, ResolvableLocale, resolve_locale
 from betty.locale.localizable import Localizable
 
 if TYPE_CHECKING:
     from babel import Locale
 
     from betty.locale.localize import Localizer
-    from betty.typing import Intersection
 
 
 @final
@@ -44,5 +43,5 @@ class Plain(Localizable):
         return self._locale
 
     @override
-    def localize(self, localizer: Localizer, /) -> Intersection[Localized, str]:
+    def localize(self, localizer: Localizer, /) -> LocalizedStr:
         return LocalizedStr(self._text, locale=self._locale)
