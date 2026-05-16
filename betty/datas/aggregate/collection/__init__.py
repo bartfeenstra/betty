@@ -13,7 +13,6 @@ from betty.datas.aggregate import AggregateDefinition
 from betty.indicator.selector import Element
 
 if TYPE_CHECKING:
-    from betty.data import Data as Data
     from betty.locale.localizable import ResolvableLocalizable
     from betty.portable import PortableData, Porter
 

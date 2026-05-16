@@ -6,7 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
-from betty.attrs.collection.keyed import KeyedCollectionAttr
+from betty.attr import ProxyAttr
+from betty.attrs.collection_attr import CollectionAttrAttr
 from betty.collection.keyed.adapter import MutableKeyedCollectionAdapter
 from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.indicator.selector import Attr
@@ -18,9 +19,7 @@ if TYPE_CHECKING:
 
 
 @final
-class PluginDefinitionDatasAttr[PluginDefinitionT: PluginDefinition](
-    KeyedCollectionAttr
-):
+class PluginDefinitionDatasAttr[PluginDefinitionT: PluginDefinition](ProxyAttr):
     """
     An attribute containing a :py:class:`betty.collection.keyed.KeyedCollection` of :py:class:`betty.datas.plugin_definition.PluginDefinitionData`.
     """
@@ -34,14 +33,18 @@ class PluginDefinitionDatasAttr[PluginDefinitionT: PluginDefinition](
         description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
-            KeyedCollectionDefinition(
-                value=item,
-                label=plugin_type.type().label_plural,
-                key=Attr("id"),
-                factory=lambda: MutableKeyedCollectionAdapter(key=lambda item: item.id),
-            ),
-            label=label,
-            description=description,
-            omit_load=True,
-            omit_dump=lambda data: not len(data),
+            CollectionAttrAttr(
+                KeyedCollectionDefinition(
+                    value=item,
+                    label=plugin_type.type().label_plural,
+                    key=Attr("id"),
+                    factory=lambda: MutableKeyedCollectionAdapter(
+                        key=lambda item: item.id
+                    ),
+                ),
+                label=label,
+                description=description,
+                omit_load=True,
+                omit_dump=lambda data: not len(data),
+            )
         )

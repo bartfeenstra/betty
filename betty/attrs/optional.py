@@ -40,20 +40,20 @@ class Optional[OwnerT: HasProperties, GetT, SetT](
         )
 
     @override
-    def init_property_owner(self, owner: OwnerT, /) -> None:
-        super().init_property_owner(owner)
-        if not hasattr(owner, f"_{self.property.name}"):
-            setattr(owner, f"_{self.property.name}", None)
+    def init_owner(self, owner: OwnerT, /) -> None:
+        super().init_owner(owner)
+        if not self._has_owner_attr(owner):
+            self._set_owner_attr(owner, None)
 
     @override
     def get(self, owner: OwnerT, /) -> GetT | None:
-        if getattr(owner, f"_{self.property.name}") is None:
+        if self._get_owner_attr(owner) is None:
             return None
         return super().get(owner)
 
     @override
     def set(self, owner: OwnerT, value: SetT | None, /) -> None:
         if value is None:
-            setattr(owner, f"_{self.property.name}", None)
+            self._set_owner_attr(owner, None)
         else:
             super().set(owner, value)

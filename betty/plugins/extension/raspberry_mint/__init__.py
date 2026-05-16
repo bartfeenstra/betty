@@ -10,7 +10,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.attrs.attr import AttrAttr
-from betty.attrs.collection.mapping import MappingAttr
+from betty.attrs.collection_attr import CollectionAttrAttr
 from betty.attrs.optional import Optional
 from betty.collection.mapping import MutableResolvedMapping, ResolvedMapping
 from betty.collection.mapping.adapter import (
@@ -108,7 +108,7 @@ class RaspberryMintData(Data, HasProperties):
     The tertiary color.
     """
 
-    regional_content = MappingAttr(
+    regional_content = CollectionAttrAttr(
         MappingDefinition(
             cls=MutableResolvedMapping,
             factory=lambda: MutableResolvedMappingAdapter(

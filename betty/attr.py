@@ -25,9 +25,32 @@ class Attr[OwnerT: HasProperties, GetT, SetT](SettableProperty[OwnerT, GetT, Set
         The attribute's data definition.
         """
 
-    @override
-    def set(self, owner: OwnerT, value: SetT, /) -> None:
-        setattr(owner, f"_{self.property.name}", value)
+    @final
+    def __owner_attr(self, attr: str) -> str:
+        return f"_attr_{self.property.name}_{attr}"
+
+    @final
+    def _has_owner_attr(self, owner: OwnerT, attr: str = "value", /) -> bool:
+        """
+        Check if the owner has an object attribute.
+        """
+        return hasattr(owner, self.__owner_attr(attr))
+
+    @final
+    def _get_owner_attr(self, owner: OwnerT, attr: str = "value", /) -> GetT:
+        """
+        Get the value from the owner's object attribute.
+        """
+        return getattr(owner, self.__owner_attr(attr))
+
+    @final
+    def _set_owner_attr(
+        self, owner: OwnerT, value: GetT, attr: str = "value", /
+    ) -> None:
+        """
+        Set the value to the owner's object attribute.
+        """
+        setattr(owner, self.__owner_attr(attr), value)
 
     @final
     def setter[SetterSetT](

@@ -116,8 +116,8 @@ class PluginServiceManager[
         return self.__auto
 
     @override
-    def init_property_owner(self, service_provider: ServiceProviderT, /) -> None:
-        super().init_property_owner(service_provider)
+    def init_owner(self, service_provider: ServiceProviderT, /) -> None:
+        super().init_owner(service_provider)
         setattr(
             service_provider, f"_plugin_service_init_plugins_{self.property.name}", []
         )

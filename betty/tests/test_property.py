@@ -37,7 +37,7 @@ class _Property(Property[_PropertyOwner, tuple[_PropertyOwner, _Value]]):
         return owner, self.__value
 
     @override
-    def init_property_owner(self, owner: _PropertyOwner, /) -> None:
+    def init_owner(self, owner: _PropertyOwner, /) -> None:
         owner.init_properties.append(self)
 
 
@@ -76,7 +76,7 @@ class TestProperty:
         owner = _Owner()
         assert owner.my_first_property == (owner, value)
 
-    def test_init_property_owner(self) -> None:
+    def test_init_owner(self) -> None:
         class _Owner(_PropertyOwner):
             my_first_property = _Property(_Value())
 
@@ -112,14 +112,14 @@ class TestProxyProperty:
         assert owner.my_first_property == value
         m_proxied.get.assert_called_once_with(owner)
 
-    def test_init_property_owner(self, mocker: MockerFixture) -> None:
+    def test_init_owner(self, mocker: MockerFixture) -> None:
         m_proxied = mocker.MagicMock(spec=Property)
 
         class _Owner(HasProperties):
             my_first_property = ProxyProperty(proxied=m_proxied)
 
         owner = _Owner()
-        m_proxied.init_property_owner.assert_called_once_with(owner)
+        m_proxied.init_owner.assert_called_once_with(owner)
 
 
 class TestPropertyError:

@@ -1,0 +1,45 @@
+from betty.attrs.collection_attr import CollectionAttrAttr
+from betty.data import Data
+from betty.datas.aggregate.collection.sequence import SequenceDefinition
+from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.str import StrDefinition
+from betty.property import HasProperties
+from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
+
+
+class TestCollectionAttrAttr:
+    @ObjectDefinition(label=DUMMY_LOCALIZABLE)
+    class _Owner(Data, HasProperties):
+        collection = CollectionAttrAttr(
+            SequenceDefinition(
+                cls=list,
+                label=DUMMY_LOCALIZABLE,
+                value=StrDefinition(label=DUMMY_LOCALIZABLE),
+            ),
+        )
+
+    def test_get(self) -> None:
+        owner = self._Owner()
+        assert not len(owner.collection)
+
+    def test_set(self) -> None:
+        owner = self._Owner()
+        collection = owner.collection
+        owner.collection = ["Hello,", "world!"]
+        assert owner.collection is collection
+        assert owner.collection == ["Hello,", "world!"]
+
+    def test_init_owner__with_default(self) -> None:
+        @ObjectDefinition(label=DUMMY_LOCALIZABLE)
+        class _Owner(Data, HasProperties):
+            collection = CollectionAttrAttr(
+                SequenceDefinition(
+                    cls=list,
+                    label=DUMMY_LOCALIZABLE,
+                    value=StrDefinition(label=DUMMY_LOCALIZABLE),
+                ),
+                default=lambda: ("Hello,", "world!"),
+            )
+
+        owner = _Owner()
+        assert owner.collection == ["Hello,", "world!"]

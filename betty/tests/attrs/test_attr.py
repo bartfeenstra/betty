@@ -7,26 +7,26 @@ from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 class TestAttrAttr:
+    class _Owner(HasProperties):
+        my_first_property = AttrAttr(StrDefinition(label=DUMMY_LOCALIZABLE))
+
     def test_get(self) -> None:
-        class _Owner(HasProperties):
-            my_first_property = AttrAttr(StrDefinition(label=DUMMY_LOCALIZABLE))
-
-        owner = _Owner()
+        owner = self._Owner()
         with pytest.raises(AttributeError):
-            _Owner.my_first_property.get(owner)
+            self._Owner.my_first_property.get(owner)
 
-    def test___set__(self) -> None:
-        class _Owner(HasProperties):
-            my_first_property = AttrAttr(StrDefinition(label=DUMMY_LOCALIZABLE))
+    def test_set(self) -> None:
+        owner = self._Owner()
+        value = "Hello, world!"
+        owner.my_first_property = value
+        assert owner.my_first_property == value
 
-        owner = _Owner()
-        owner.my_first_property = "my-first-value"
-        assert owner.my_first_property == "my-first-value"
-
-    def test_attr(self) -> None:
-        data = StrDefinition(label=DUMMY_LOCALIZABLE)
+    def test_init_owner__with_default(self) -> None:
+        value = "Hello, world!"
 
         class _Owner(HasProperties):
-            my_first_property = AttrAttr(data)
+            my_first_property = AttrAttr(
+                StrDefinition(label=DUMMY_LOCALIZABLE), default=lambda: value
+            )
 
-        assert _Owner.my_first_property.attr.field("my_first_property").data is data
+        assert _Owner().my_first_property == value

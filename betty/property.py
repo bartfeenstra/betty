@@ -24,7 +24,7 @@ class HasProperties:
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         for property in self.__get_properties():  # noqa: A001
-            property.init_property_owner(self)
+            property.init_owner(self)
 
     @classmethod
     @cache
@@ -70,7 +70,7 @@ class Property[OwnerT: HasProperties, GetT](ABC):
         """
         return self.__property
 
-    def init_property_owner(self, owner: OwnerT, /) -> None:
+    def init_owner(self, owner: OwnerT, /) -> None:
         """
         Initialize the property on an owner.
         """
@@ -137,9 +137,9 @@ class ProxyProperty[OwnerT: HasProperties, GetT](Property[OwnerT, GetT]):
         return self.__proxied_property.get(owner)
 
     @override
-    def init_property_owner(self, owner: OwnerT, /) -> None:
-        super().init_property_owner(owner)
-        self.__proxied_property.init_property_owner(owner)
+    def init_owner(self, owner: OwnerT, /) -> None:
+        super().init_owner(owner)
+        self.__proxied_property.init_owner(owner)
 
 
 class SettableProperty[OwnerT: HasProperties, GetT, SetT](Property[OwnerT, GetT]):
