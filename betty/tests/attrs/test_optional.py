@@ -48,3 +48,18 @@ class TestOptional:
         optional_data = _Owner.my_first_property.attr.data
         assert isinstance(optional_data, OptionalDefinition)
         assert optional_data.wrapped is data
+
+    def test_init_owner__with_proxied_default(self) -> None:
+        class _Owner(HasProperties):
+            my_first_property = Optional(
+                AttrAttr(
+                    DataDefinition(
+                        cls=str,
+                        label=DUMMY_LOCALIZABLE,
+                        porter=CallbackPorter(assert_str(), assert_str() | passthrough),
+                    ),
+                    default=lambda: "Hello, world!",
+                )
+            )
+
+        assert _Owner().my_first_property == "Hello, world!"

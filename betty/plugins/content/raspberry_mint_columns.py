@@ -195,7 +195,7 @@ class ColumnsData(Data, HasProperties):
         super().__init__()
         self.content = list(map(ContentManufacturer.resolve_sequence, content))
         if width is None:
-            self._width = self._DEFAULT_WIDTH
+            self.width = self._DEFAULT_WIDTH
         elif isinstance(width, int):
             self.width = {Breakpoint.XS: [width]}
         elif isinstance(width, Mapping):

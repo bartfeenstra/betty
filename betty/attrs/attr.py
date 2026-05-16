@@ -17,20 +17,21 @@ if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
 
 
-class AttrAttr[OwnerT: HasProperties, GetT, SetT](Attr[OwnerT, GetT, SetT]):
+@final
+class AttrAttr[OwnerT: HasProperties, T](Attr[OwnerT, T, T]):
     """
-    An object attribute stored on an instance.
+    An object attribute that stores its data on owner instances.
     """
 
     def __init__(
         self,
-        data: ResolvableDataDefinition[DataDefinition[GetT]],
+        data: ResolvableDataDefinition[DataDefinition[T]],
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
         omit_load: bool | None = None,
-        omit_dump: Callable[[GetT], bool] | None = None,
-        default: Callable[[], GetT] | None = None,
+        omit_dump: Callable[[T], bool] | None = None,
+        default: Callable[[], T] | None = None,
     ):
         super().__init__(
             AttrDefinition(
@@ -48,12 +49,16 @@ class AttrAttr[OwnerT: HasProperties, GetT, SetT](Attr[OwnerT, GetT, SetT]):
 
     @final
     @override
-    def get(self, owner: OwnerT, /) -> GetT:
-        return getattr(owner, f"_{self.property.name}")
+    def get(self, owner: OwnerT, /) -> T:
+        return self._get_owner_attr(owner)
+
+    @override
+    def set(self, owner: OwnerT, value: T, /) -> None:
+        self._set_owner_attr(owner, value)
 
     @final
     @override
-    def init_property_owner(self, owner: OwnerT, /) -> None:
+    def init_owner(self, owner: OwnerT, /) -> None:
         if self._default is None:
             return
-        setattr(owner, f"_{self.property.name}", self._default())
+        self._set_owner_attr(owner, self._default())

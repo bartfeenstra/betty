@@ -4,12 +4,10 @@ Integrate Betty with `Gramps <https://gramps-project.org>`_.
 
 from __future__ import annotations
 
-from collections.abc import Mapping, MutableMapping
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.attrs.attr import AttrAttr
-from betty.attrs.collection.mapping import MappingAttr
-from betty.attrs.collection.sequence import SequenceAttr
+from betty.attrs.collection_attr import CollectionAttrAttr
 from betty.attrs.optional import Optional
 from betty.collection.mapping import MutableResolvedMapping
 from betty.collection.mapping.adapter import MutableResolvedMappingAdapter
@@ -42,9 +40,10 @@ from betty.role import Role, RoleDefinition, RoleManufacturer
 from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Mapping, MutableMapping
     from pathlib import Path
 
+    from betty.attr import Attr
     from betty.entity.collection.pool import EntityPool
     from betty.job.scheduler import Scheduler
     from betty.locale.localizable import ResolvableLocalizable
@@ -53,53 +52,44 @@ if TYPE_CHECKING:
     from betty.user import User
 
 
-class _PluginMappingAttr[PluginDefinitionT: PluginDefinition, PluginT: Plugin](
-    MappingAttr[
-        HasProperties,
-        MutableMapping[str, PluginManufacturer[PluginDefinitionT, PluginT]],
-        str,
-        PluginManufacturer[PluginDefinitionT, PluginT],
-    ]
-):
-    def __init__(
-        self,
-        manufacturer: type[PluginManufacturer[PluginDefinitionT, PluginT]],
-        gramps_label: ResolvableLocalizable,
-        default: Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]],
-    ):
-        super().__init__(
-            MappingDefinition[
-                MutableMapping[str, PluginManufacturer[PluginDefinitionT, PluginT]],
+def _new_plugin_mapping_attr[PluginDefinitionT: PluginDefinition, PluginT: Plugin](
+    manufacturer: type[PluginManufacturer[PluginDefinitionT, PluginT]],
+    gramps_label: ResolvableLocalizable,
+    default: Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]],
+) -> Attr[
+    HasProperties,
+    MutableMapping[str, PluginManufacturer[PluginDefinitionT, PluginT]],
+    Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]],
+]:
+    return CollectionAttrAttr(
+        MappingDefinition(
+            cls=MutableResolvedMapping,
+            factory=lambda: MutableResolvedMappingAdapter[
+                str,
                 str,
                 PluginManufacturer[PluginDefinitionT, PluginT],
+                ResolvablePluginManufacturer[PluginDefinitionT, PluginT],
             ](
-                cls=MutableResolvedMapping,
-                factory=lambda: MutableResolvedMappingAdapter[
-                    str,
-                    str,
-                    PluginManufacturer[PluginDefinitionT, PluginT],
-                    ResolvablePluginManufacturer[PluginDefinitionT, PluginT],
-                ](
-                    {},
-                    value_resolver=manufacturer.resolve,
-                ),
-                key=StrDefinition(label=gramps_label),
-                value=manufacturer,
-                label=manufacturer.plugin_type().type().label_plural,
-            ),
-            default=lambda: MutableResolvedMappingAdapter(
-                dict(
-                    zip(
-                        default.keys(),
-                        manufacturer.resolve_sequence(
-                            default.values(),  # ty:ignore[invalid-argument-type]
-                        ),
-                        strict=False,
-                    )
-                ),
+                {},
                 value_resolver=manufacturer.resolve,
             ),
-        )
+            key=StrDefinition(label=gramps_label),
+            value=manufacturer,
+            label=manufacturer.plugin_type().type().label_plural,
+        ),
+        default=lambda: MutableResolvedMappingAdapter(
+            dict(
+                zip(
+                    default.keys(),
+                    manufacturer.resolve_sequence(
+                        default.values(),  # ty:ignore[invalid-argument-type]
+                    ),
+                    strict=False,
+                )
+            ),
+            value_resolver=manufacturer.resolve,
+        ),
+    )
 
 
 @final
@@ -118,7 +108,7 @@ class FamilyTree(Data, HasProperties):
     .. data:: betty.plugins.loader.gramps:FamilyTree
     """
 
-    event_types = _PluginMappingAttr(
+    event_types = _new_plugin_mapping_attr(
         EventTypeManufacturer, _("Gramps event type"), DEFAULT_EVENT_TYPE_MAPPING
     )
     """
@@ -135,14 +125,16 @@ class FamilyTree(Data, HasProperties):
     The family tree's name in Gramps.
     """
 
-    place_types = _PluginMappingAttr(
+    place_types = _new_plugin_mapping_attr(
         PlaceTypeManufacturer, _("Gramps place type"), DEFAULT_PLACE_TYPE_MAPPING
     )
     """
     How to map place types.
     """
 
-    roles = _PluginMappingAttr(RoleManufacturer, _("Gramps role"), DEFAULT_ROLE_MAPPING)
+    roles = _new_plugin_mapping_attr(
+        RoleManufacturer, _("Gramps role"), DEFAULT_ROLE_MAPPING
+    )
     """
     How to map presence roles.
     """
@@ -163,7 +155,8 @@ class FamilyTree(Data, HasProperties):
         | None = None,
     ):
         super().__init__()
-        self.file = file
+        if file is not None:
+            self.file = resolve_path(file)
         self.name = name
         self.source  # noqa: B018
         if event_types is not None:
@@ -248,7 +241,7 @@ class GrampsData(Data, HasProperties):
     .. data:: betty.plugins.loader.gramps:GrampsData
     """
 
-    family_trees = SequenceAttr(
+    family_trees = CollectionAttrAttr(
         SequenceDefinition(cls=list, value=FamilyTree, label=_("Family trees")),
         omit_load=True,
         omit_dump=lambda data: not len(data),

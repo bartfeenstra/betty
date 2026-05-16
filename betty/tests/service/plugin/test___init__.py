@@ -306,7 +306,7 @@ class TestPluginServiceManager:
             )
         )
 
-    def test_init_property_owner(self) -> None:
+    def test_init_owner(self) -> None:
         service_provider = _PluginServiceManagerTestServiceProvider(
             services=ServiceLevel()
         )

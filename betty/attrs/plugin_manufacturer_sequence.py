@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final
 
 from betty.attr import ProxyAttr
-from betty.attrs.collection.sequence import SequenceAttr
+from betty.attrs.collection_attr import CollectionAttrAttr
 from betty.collection.sequence import MutableResolvedSequence
 from betty.datas.plugin_manufacturer_sequence import (
     PluginManufacturerSequenceDefinition,
@@ -51,7 +51,7 @@ class PluginManufacturerSequenceAttr[
         description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
-            SequenceAttr(
+            CollectionAttrAttr(
                 PluginManufacturerSequenceDefinition(manufacturer),
                 label=label,
                 description=description,

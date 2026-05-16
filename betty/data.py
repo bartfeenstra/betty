@@ -98,7 +98,7 @@ class Data[DataDefinitionT: DataDefinition = DataDefinition]:
         return porter.dump(self) == porter.dump(other)
 
 
-type ResolvableDataDefinition[DataDefinitionT: DataDefinition] = (
+type ResolvableDataDefinition[DataDefinitionT: DataDefinition = DataDefinition] = (
     DataDefinitionT | type[Data[DataDefinitionT]]
 )
 

@@ -23,8 +23,7 @@ from betty.app import App
 from betty.assertion import assert_number, assert_url
 from betty.asset import AssetRepositoryService
 from betty.attrs.attr import AttrAttr
-from betty.attrs.collection.keyed import KeyedCollectionAttr
-from betty.attrs.collection.sequence import SequenceAttr
+from betty.attrs.collection_attr import CollectionAttrAttr
 from betty.attrs.localizable import LocalizableAttr
 from betty.attrs.machine_name import MachineNameAttr
 from betty.attrs.optional import Optional
@@ -820,7 +819,7 @@ class ProjectData(Data, HasProperties):
     Whether to enable debugging for project jobs.
     """
 
-    enrichers = KeyedCollectionAttr(
+    enrichers = CollectionAttrAttr(
         KeyedCollectionDefinition(
             value=EnricherManufacturer,
             label=EnricherDefinition.type().label_plural,
@@ -845,7 +844,7 @@ class ProjectData(Data, HasProperties):
     The :py:class:`betty.event_type.EventType` plugins created by this project.
     """
 
-    extensions = KeyedCollectionAttr(
+    extensions = CollectionAttrAttr(
         KeyedCollectionDefinition(
             value=ExtensionManufacturer,
             label=ExtensionDefinition.type().label_plural,
@@ -864,7 +863,7 @@ class ProjectData(Data, HasProperties):
     """
 
     generate_entity_list_html = Optional(
-        SequenceAttr(
+        CollectionAttrAttr(
             SequenceDefinition[
                 MutableSequence[ResolvablePluginId[EntityDefinition]],
                 ResolvablePluginId[EntityDefinition],
@@ -916,7 +915,7 @@ class ProjectData(Data, HasProperties):
     The lifetime threshold indicates when people are considered dead.
     """
 
-    loaders = KeyedCollectionAttr(
+    loaders = CollectionAttrAttr(
         KeyedCollectionDefinition(
             value=LoaderManufacturer,
             label=LoaderDefinition.type().label_plural,
@@ -934,7 +933,7 @@ class ProjectData(Data, HasProperties):
     The loaders to enable for the project.
     """
 
-    locales = KeyedCollectionAttr(
+    locales = CollectionAttrAttr(
         KeyedCollectionDefinition(
             value=ProjectLocale,
             label=_("Locales"),
@@ -1050,7 +1049,8 @@ class ProjectData(Data, HasProperties):
         self.licenses = licenses
         self.lifetime_threshold = lifetime_threshold
         self.loaders = loaders  # ty:ignore[invalid-assignment]
-        self.logo = logo
+        if logo is not None:
+            self.logo = resolve_path(logo)
         self.locales = locales
         self.name = name
         self.place_types = place_types

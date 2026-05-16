@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Literal, final, override
 
+from betty.attr import ProxyAttr
 from betty.attrs.attr import AttrAttr
 from betty.datas.enum import EnumDefinition
 from betty.linked_data import LinkedDataDumper
@@ -19,25 +20,26 @@ if TYPE_CHECKING:
 
 
 @final
-class PrivacyAttr(AttrAttr, LinkedDataDumper[object, PrivacySchema, bool]):
+class PrivacyAttr(
+    ProxyAttr["HasPrivacy", Privacy, Privacy],
+    LinkedDataDumper["HasPrivacy", PrivacySchema, bool],
+):
     """
     An attribute containing a privacy.
     """
 
     def __init__(self):
-        super().__init__(EnumDefinition(Privacy, label=_("Privacy")))
+        super().__init__(AttrAttr(EnumDefinition(Privacy, label=_("Privacy"))))
 
     @override
     async def linked_data_schema_for(self, project: Project, /) -> PrivacySchema:
         return PrivacySchema()
 
     @override
-    async def dump_linked_data_for(self, project: Project, target: object, /) -> bool:
-        if isinstance(target, HasPrivacy):
-            privacy = target.privacy
-        else:
-            privacy = getattr(target, f"_{self.property.name}")
-        return privacy is Privacy.PRIVATE
+    async def dump_linked_data_for(
+        self, project: Project, target: HasPrivacy, /
+    ) -> bool:
+        return target.privacy is Privacy.PRIVATE
 
 
 class HasPrivacy(HasProperties):

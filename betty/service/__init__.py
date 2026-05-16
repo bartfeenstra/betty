@@ -74,7 +74,7 @@ class ServiceManager[
         self.__service_or_factory = factory
 
     @override
-    def init_property_owner(self, service_provider: ServiceProviderT, /) -> None:
+    def init_owner(self, service_provider: ServiceProviderT, /) -> None:
         self._assert_service_not_initialized(service_provider)
         setattr(
             service_provider,

@@ -51,7 +51,7 @@ class TestServiceManager:
             is service
         )
 
-    def test_init_property_owner__initialized_already(self) -> None:
+    def test_init_owner__initialized_already(self) -> None:
         class _ServiceProvider(ServiceProvider):
             @_DummyServiceManager
             def my_first_service(self) -> object:
@@ -59,7 +59,7 @@ class TestServiceManager:
 
         service_provider = _ServiceProvider(services=ServiceLevel())
         with pytest.raises(ServiceAlreadyInitialized):
-            _ServiceProvider.my_first_service.init_property_owner(service_provider)
+            _ServiceProvider.my_first_service.init_owner(service_provider)
 
     def test_override(self) -> None:
         class _ServiceProvider(ServiceProvider):
