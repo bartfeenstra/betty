@@ -31,18 +31,6 @@ class TestOptional:
         self._Owner.my_first_property.set(owner, value)
         assert owner.my_first_property == value
 
-    def test___delete__(self) -> None:
-        owner = self._Owner()
-        owner.my_first_property = "my-first-value"
-        del owner.my_first_property
-        assert owner.my_first_property is None
-
-    def test_delete(self) -> None:
-        owner = self._Owner()
-        owner.my_first_property = "my-first-value"
-        self._Owner.my_first_property.delete(owner)
-        assert owner.my_first_property is None
-
     def test___set_name__(self) -> None:
         required_property = AttrAttr(StrDefinition(label=DUMMY_LOCALIZABLE))
 

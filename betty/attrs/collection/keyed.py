@@ -60,8 +60,7 @@ class KeyedCollectionAttr[
 
     @final
     @override
-    def set(self, owner: OwnerT, value: Iterable[SetT], /) -> MutableKeyedCollectionT:
+    def set(self, owner: OwnerT, value: Iterable[SetT], /) -> None:
         data = self.get(owner)
         data.clear()
         data.add(*self._values_resolver(value))
-        return data
