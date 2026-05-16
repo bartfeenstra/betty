@@ -72,8 +72,7 @@ class SequenceAttr[
 
     @final
     @override
-    def set(self, owner: OwnerT, value: SetT, /) -> MutableSequenceT:
+    def set(self, owner: OwnerT, value: SetT, /) -> None:
         data = self.get(owner)
         data.clear()
         data.extend(self._sequence_resolver(value))
-        return data

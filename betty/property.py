@@ -8,7 +8,9 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import cache
 from inspect import getmembers
-from typing import TYPE_CHECKING, Any, Self, final, overload, override
+from typing import TYPE_CHECKING, Any, Final, Self, final, overload, override
+
+from betty.importlib import fully_qualified_name
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -95,6 +97,27 @@ class Property[OwnerT: HasProperties, GetT](ABC):
         """
 
 
+class PropertyError(Exception):
+    """
+    Raised for property API errors.
+    """
+
+    def __init__(self, _property: Property, message: str, *args: Any, **kwargs: Any):
+        super().__init__(message, *args, **kwargs)
+        self.property: Final[Property] = _property
+
+
+class OwnerError(PropertyError, AttributeError):
+    """
+    Raised for property errors on a specific owner instance.
+    """
+
+    def __init__[OwnerT: HasProperties](
+        self, _property: Property[OwnerT, Any], owner: OwnerT, message: str, /
+    ):
+        super().__init__(_property, message, name=_property.property.name, obj=owner)
+
+
 class ProxyProperty[OwnerT: HasProperties, GetT](Property[OwnerT, GetT]):
     """
     A property that proxies another property.
@@ -117,3 +140,36 @@ class ProxyProperty[OwnerT: HasProperties, GetT](Property[OwnerT, GetT]):
     def init_property_owner(self, owner: OwnerT, /) -> None:
         super().init_property_owner(owner)
         self.__proxied_property.init_property_owner(owner)
+
+
+class SettableProperty[OwnerT: HasProperties, GetT, SetT](Property[OwnerT, GetT]):
+    """
+    A property whose value can be set.
+    """
+
+    def set(self, owner: OwnerT, value: SetT, /) -> None:
+        """
+        Set the value on the owner.
+
+        :raises NotSettable:
+        """
+        raise NotSettable(self, owner)
+
+    @final
+    def __set__(self, instance: OwnerT, value: SetT | GetT) -> None:
+        self.set(instance, value)
+
+
+class NotSettable(OwnerError):
+    """
+    Raised when a property is not settable.
+    """
+
+    def __init__[OwnerT: HasProperties](
+        self, _property: SettableProperty[OwnerT, Any, Any], owner: OwnerT, /
+    ):
+        super().__init__(
+            _property,
+            owner,
+            f"{fully_qualified_name(type(owner))}.{_property.property.name} is not settable.",
+        )

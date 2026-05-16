@@ -52,17 +52,8 @@ class Optional[OwnerT: HasProperties, GetT, SetT](
         return super().get(owner)
 
     @override
-    def set(self, owner: OwnerT, value: SetT | None, /) -> GetT | None:
+    def set(self, owner: OwnerT, value: SetT | None, /) -> None:
         if value is None:
             setattr(owner, f"_{self.property.name}", None)
-            return None
-        return super().set(owner, value)
-
-    def __delete__(self, instance: OwnerT) -> None:
-        self.delete(instance)
-
-    def delete(self, owner: OwnerT, /) -> None:
-        """
-        Delete the value from the instance.
-        """
-        self.set(owner, None)
+        else:
+            super().set(owner, value)

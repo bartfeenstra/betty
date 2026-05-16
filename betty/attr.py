@@ -4,10 +4,10 @@ Object attributes.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Final, final, override
+from typing import TYPE_CHECKING, Any, Final, override
 
 from betty.functools import passthrough
-from betty.property import HasProperties, Property, ProxyProperty
+from betty.property import HasProperties, ProxyProperty, SettableProperty
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from betty.datas.aggregate.record.object import AttrDefinition
 
 
-class Attr[OwnerT: HasProperties, GetT, SetT](Property[OwnerT, GetT]):
+class Attr[OwnerT: HasProperties, GetT, SetT](SettableProperty[OwnerT, GetT, SetT]):
     """
     An object attribute with a data definition.
     """
@@ -32,17 +32,9 @@ class Attr[OwnerT: HasProperties, GetT, SetT](Property[OwnerT, GetT]):
         """
         self._resolver = resolver
 
-    @final
-    def __set__(self, instance: OwnerT, value: SetT | GetT) -> None:
-        self.set(instance, value)
-
-    def set(self, owner: OwnerT, value: SetT, /) -> GetT:
-        """
-        Set the value on the owner.
-        """
-        resolved_value = self._resolver(value)
-        setattr(owner, f"_{self.property.name}", resolved_value)
-        return resolved_value
+    @override
+    def set(self, owner: OwnerT, value: SetT, /) -> None:
+        setattr(owner, f"_{self.property.name}", self._resolver(value))
 
 
 class ProxyAttr[OwnerT: HasProperties, GetT, SetT](
@@ -63,5 +55,5 @@ class ProxyAttr[OwnerT: HasProperties, GetT, SetT](
         self.__proxied_attr = proxied
 
     @override
-    def set(self, owner: OwnerT, value: SetT, /) -> GetT:
-        return self.__proxied_attr.set(owner, value)
+    def set(self, owner: OwnerT, value: SetT, /) -> None:
+        self.__proxied_attr.set(owner, value)
