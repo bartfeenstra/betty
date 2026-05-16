@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any, final, override
 
 from babel import Locale
 
+from betty.attr import ProxyAttr
 from betty.attrs.attr import AttrAttr
 from betty.attrs.optional import Optional
 from betty.datas.locale import LocaleDefinition
@@ -25,7 +26,7 @@ if TYPE_CHECKING:
 
 
 @final
-class LocaleAttr(AttrAttr[HasProperties, Locale, ResolvableLocale]):
+class LocaleAttr(ProxyAttr[HasProperties, Locale, ResolvableLocale]):
     """
     An attribute containing a locale.
     """
@@ -37,10 +38,9 @@ class LocaleAttr(AttrAttr[HasProperties, Locale, ResolvableLocale]):
         description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
-            LocaleDefinition(),
-            label=label,
-            description=description,
-            resolver=resolve_locale,
+            AttrAttr(LocaleDefinition(), label=label, description=description).setter(
+                resolve_locale
+            )
         )
 
 

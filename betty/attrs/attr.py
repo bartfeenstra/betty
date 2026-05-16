@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.attr import Attr
 from betty.datas.aggregate.record.object import AttrDefinition
-from betty.functools import passthrough
 from betty.property import HasProperties
 
 if TYPE_CHECKING:
@@ -31,7 +30,6 @@ class AttrAttr[OwnerT: HasProperties, GetT, SetT](Attr[OwnerT, GetT, SetT]):
         description: ResolvableLocalizable | None = None,
         omit_load: bool | None = None,
         omit_dump: Callable[[GetT], bool] | None = None,
-        resolver: Callable[[SetT], GetT] = passthrough,
         default: Callable[[], GetT] | None = None,
     ):
         super().__init__(
@@ -42,7 +40,6 @@ class AttrAttr[OwnerT: HasProperties, GetT, SetT](Attr[OwnerT, GetT, SetT]):
                 omit_load=omit_load,
                 omit_dump=omit_dump,
             ),
-            resolver=resolver,
         )
         self._data = data
         self._label = label

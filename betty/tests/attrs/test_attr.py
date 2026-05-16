@@ -23,16 +23,6 @@ class TestAttrAttr:
         owner.my_first_property = "my-first-value"
         assert owner.my_first_property == "my-first-value"
 
-    def test___set____with_resolver(self) -> None:
-        class _Owner(HasProperties):
-            my_first_property = AttrAttr[HasProperties, str, str | bool](
-                StrDefinition(label=DUMMY_LOCALIZABLE), resolver=str
-            )
-
-        owner = _Owner()
-        owner.my_first_property = True
-        assert owner.my_first_property == "True"
-
     def test_attr(self) -> None:
         data = StrDefinition(label=DUMMY_LOCALIZABLE)
 
