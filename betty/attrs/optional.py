@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import final, override
 
-from betty.attr import Attr
+from betty.attr import Attr, ProxyAttr
 from betty.datas.aggregate.record.object import AttrDefinition
 from betty.datas.optional import OptionalDefinition
 from betty.property import HasProperties
@@ -14,7 +14,7 @@ from betty.property import HasProperties
 
 @final
 class Optional[OwnerT: HasProperties, GetT, SetT](
-    Attr[OwnerT, GetT | None, SetT | None]
+    ProxyAttr[OwnerT, GetT | None, SetT | None]
 ):
     """
     Make another attribute optional, e.g. allow ``None``.
@@ -35,30 +35,28 @@ class Optional[OwnerT: HasProperties, GetT, SetT](
                 description=required_attr.attr.description,
                 omit_load=required_attr.attr.omit_load,
                 omit_dump=_omit_dump,
-            )
+            ),
+            proxied=required_attr,
         )
-        self._required_attr = required_attr
-
-    def __set_name__(self, owner: type[OwnerT], name: str) -> None:
-        super().__set_name__(owner, name)
-        self._required_attr.__set_name__(owner, name)
 
     @override
     def init_property_owner(self, owner: OwnerT, /) -> None:
         super().init_property_owner(owner)
-        setattr(owner, f"_{self.property.name}", None)
-        self._required_attr.init_property_owner(owner)
+        if not hasattr(owner, f"_{self.property.name}"):
+            setattr(owner, f"_{self.property.name}", None)
 
     @override
-    def get(self, owner: OwnerT, /) -> GetT:
-        return getattr(owner, f"_{self.property.name}")
+    def get(self, owner: OwnerT, /) -> GetT | None:
+        if getattr(owner, f"_{self.property.name}") is None:
+            return None
+        return super().get(owner)
 
     @override
     def set(self, owner: OwnerT, value: SetT | None, /) -> GetT | None:
         if value is None:
             setattr(owner, f"_{self.property.name}", None)
             return None
-        return self._required_attr.set(owner, value)
+        return super().set(owner, value)
 
     def __delete__(self, instance: OwnerT) -> None:
         self.delete(instance)

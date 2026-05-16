@@ -1,8 +1,11 @@
 from __future__ import annotations
 
-from typing import override
+from typing import TYPE_CHECKING, override
 
-from betty.property import HasProperties, Property
+from betty.property import HasProperties, Property, ProxyProperty
+
+if TYPE_CHECKING:
+    from pytest_mock import MockerFixture
 
 
 class _PropertyOwner(HasProperties):
@@ -59,3 +62,34 @@ class TestProperty:
     def test_property(self) -> None:
         assert _Owner.my_first_property.property.owner is _Owner
         assert _Owner.my_first_property.property.name == "my_first_property"
+
+
+class TestProxyProperty:
+    def test___set_name__(self, mocker: MockerFixture) -> None:
+        m_proxied = mocker.MagicMock(spec=Property)
+
+        class _Owner(HasProperties):
+            my_first_property = ProxyProperty(proxied=m_proxied)
+
+        m_proxied.__set_name__.assert_called_once_with(_Owner, "my_first_property")
+
+    def test_get(self, mocker: MockerFixture) -> None:
+        value = "Hello, world!"
+        m_proxied = mocker.MagicMock(spec=Property)
+        m_proxied.get.return_value = value
+
+        class _Owner(HasProperties):
+            my_first_property = ProxyProperty(proxied=m_proxied)
+
+        owner = _Owner()
+        assert owner.my_first_property == value
+        m_proxied.get.assert_called_once_with(owner)
+
+    def test_init_property_owner(self, mocker: MockerFixture) -> None:
+        m_proxied = mocker.MagicMock(spec=Property)
+
+        class _Owner(HasProperties):
+            my_first_property = ProxyProperty(proxied=m_proxied)
+
+        owner = _Owner()
+        m_proxied.init_property_owner.assert_called_once_with(owner)
