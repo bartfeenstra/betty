@@ -5,7 +5,7 @@ Tools to resolve plugin-related typed.
 from __future__ import annotations
 
 from contextlib import suppress
-from typing import TYPE_CHECKING, Any, overload
+from typing import TYPE_CHECKING, Any, Never, overload
 
 from betty.machine_name import MachineName, ResolvableMachineName
 from betty.plugin import PluginDefinition, PluginTypeDefinition
@@ -31,7 +31,7 @@ def resolve_plugin_type_id(plugin_type_id: ResolvablePluginTypeId, /) -> Machine
 
 
 @overload
-def resolve_plugin_type_id(plugin_type_id: Any, /) -> MachineName:
+def resolve_plugin_type_id(plugin_type_id: Any, /) -> Never:
     pass
 
 
@@ -73,9 +73,7 @@ def resolve_plugin_definition[PluginDefinitionT: PluginDefinition](
 
 
 @overload
-def resolve_plugin_definition[PluginDefinitionT: PluginDefinition](
-    plugin_definition: ResolvablePluginDefinition[PluginDefinitionT] | Any, /
-) -> PluginDefinitionT:
+def resolve_plugin_definition(plugin_definition: Any, /) -> Never:
     pass
 
 
@@ -108,7 +106,7 @@ def resolve_plugin_id(plugin_id: ResolvablePluginId, /) -> MachineName:
 
 
 @overload
-def resolve_plugin_id(plugin_id: Any, /) -> MachineName:
+def resolve_plugin_id(plugin_id: Any, /) -> Never:
     pass
 
 
