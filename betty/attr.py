@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Final, final
 
 from betty.functools import passthrough
-from betty.property import HasProperties, Property
+from betty.property import HasProperties, SettableProperty
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from betty.datas.aggregate.record.object import AttrDefinition
 
 
-class Attr[OwnerT: HasProperties, GetT, SetT](Property[OwnerT, GetT]):
+class Attr[OwnerT: HasProperties, GetT, SetT](SettableProperty[OwnerT, GetT, SetT]):
     """
     An object attribute with a data definition.
     """
@@ -31,18 +31,6 @@ class Attr[OwnerT: HasProperties, GetT, SetT](Property[OwnerT, GetT]):
         The attribute's data definition.
         """
         self._resolver = resolver
-
-    @final
-    def __set__(self, instance: OwnerT, value: SetT | GetT) -> None:
-        self.set(instance, value)
-
-    def set(self, owner: OwnerT, value: SetT, /) -> GetT:
-        """
-        Set the value on the owner.
-        """
-        resolved_value = self._resolver(value)
-        setattr(owner, f"_{self.property.name}", resolved_value)
-        return resolved_value
 
 
 @final

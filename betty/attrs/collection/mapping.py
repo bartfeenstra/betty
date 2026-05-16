@@ -73,8 +73,7 @@ class MappingAttr[
 
     @final
     @override
-    def set(self, owner: OwnerT, value: SetT, /) -> MutableMappingT:
+    def set(self, owner: OwnerT, value: SetT, /) -> None:
         data = self.get(owner)
         data.clear()
         data.update(self._mapping_resolver(value))
-        return data

@@ -67,3 +67,7 @@ class AttrAttr[OwnerT: HasProperties, GetT, SetT](Attr[OwnerT, GetT, SetT]):
             value = self._default()
             setattr(owner, f"_{self.property.name}", value)
         return value  # ty:ignore[invalid-return-type]
+
+    @override
+    def set(self, owner: OwnerT, value: SetT, /) -> None:
+        setattr(owner, f"_{self.property.name}", self._resolver(value))

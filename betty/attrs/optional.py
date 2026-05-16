@@ -9,12 +9,12 @@ from typing import final, override
 from betty.attr import Attr, AttrNotInitialized
 from betty.datas.aggregate.record.object import AttrDefinition
 from betty.datas.optional import OptionalDefinition
-from betty.property import HasProperties
+from betty.property import DeletableProperty, HasProperties
 
 
 @final
 class Optional[OwnerT: HasProperties, GetT, SetT](
-    Attr[OwnerT, GetT | None, SetT | None]
+    Attr[OwnerT, GetT | None, SetT | None], DeletableProperty[OwnerT, GetT | None]
 ):
     """
     Make another attribute optional, e.g. allow ``None``.
@@ -51,16 +51,12 @@ class Optional[OwnerT: HasProperties, GetT, SetT](
             return self.set(owner, None)
 
     @override
-    def set(self, owner: OwnerT, value: SetT | None, /) -> GetT | None:
+    def set(self, owner: OwnerT, value: SetT | None, /) -> None:
         if value is None:
-            return super().set(owner, value)
-        return self._required_attr.set(owner, value)
+            super().set(owner, value)
+        else:
+            self._required_attr.set(owner, value)
 
-    def __delete__(self, instance: OwnerT) -> None:
-        self.delete(instance)
-
+    @override
     def delete(self, owner: OwnerT, /) -> None:
-        """
-        Delete the value from the instance.
-        """
         self.set(owner, None)
