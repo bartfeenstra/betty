@@ -8,7 +8,6 @@ from collections.abc import Iterable, MutableSequence
 from typing import TYPE_CHECKING, Any, final, override
 
 from betty.attrs.attr import AttrAttr
-from betty.functools import passthrough
 from betty.property import HasProperties
 
 if TYPE_CHECKING:
@@ -17,15 +16,13 @@ if TYPE_CHECKING:
     from betty.data import Data
     from betty.datas.aggregate.collection.sequence import SequenceDefinition
     from betty.locale.localizable import ResolvableLocalizable
-    from betty.typing import Intersection
 
 
 class SequenceAttr[
     OwnerT: HasProperties,
     MutableSequenceT: MutableSequence[Any],
-    ItemGetT,
-    SetT,
-](AttrAttr[OwnerT, MutableSequenceT, SetT]):
+    ItemSetT,
+](AttrAttr[OwnerT, MutableSequenceT, Iterable[ItemSetT]]):
     """
     An attribute that contains a :py:class:`collections.abc.MutableSequence`.
     """
@@ -34,45 +31,34 @@ class SequenceAttr[
 
     def __init__(
         self,
-        data: SequenceDefinition[
-            Intersection[MutableSequenceT, MutableSequence[ItemGetT]]
-        ]
-        | type[
-            Data[
-                SequenceDefinition[
-                    Intersection[MutableSequenceT, MutableSequence[ItemGetT]]
-                ]
-            ]
-        ],
+        data: SequenceDefinition[MutableSequenceT]
+        | type[Data[SequenceDefinition[MutableSequenceT]]],
         *,
-        default: Callable[[], SetT] | None = None,
+        default: Callable[[], Iterable[ItemSetT]] = tuple,
         description: ResolvableLocalizable | None = None,
         label: ResolvableLocalizable | None = None,
         omit_dump: Callable[[MutableSequenceT], bool] | None = None,
         omit_load: bool | None = None,
-        resolver: Callable[[SetT], Iterable[ItemGetT]] = passthrough,
     ):
         super().__init__(
             data,
-            label=label,
-            description=description,
-            omit_load=omit_load,
-            omit_dump=omit_dump,
             default=self._new_default,
+            description=description,
+            label=label,
+            omit_dump=omit_dump,
+            omit_load=omit_load,
         )
-        self._default_values = default
-        self._sequence_resolver = resolver
+        self.__default_items = default
 
     @final
     def _new_default(self) -> MutableSequenceT:
         new = self._data.new()
-        if self._default_values is not None:
-            new.extend(self._sequence_resolver(self._default_values()))
+        new.extend(self.__default_items())
         return new
 
     @final
     @override
-    def set(self, owner: OwnerT, value: SetT, /) -> None:
+    def set(self, owner: OwnerT, value: Iterable[ItemSetT], /) -> None:
         data = self.get(owner)
         data.clear()
-        data.extend(self._sequence_resolver(value))
+        data.extend(value)

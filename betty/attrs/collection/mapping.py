@@ -8,7 +8,6 @@ from collections.abc import Mapping, MutableMapping
 from typing import TYPE_CHECKING, Any, final, override
 
 from betty.attrs.attr import AttrAttr
-from betty.functools import passthrough
 from betty.property import HasProperties
 
 if TYPE_CHECKING:
@@ -23,10 +22,9 @@ if TYPE_CHECKING:
 class MappingAttr[
     OwnerT: HasProperties,
     MutableMappingT: MutableMapping[Any, Any],
-    KeyGetT,
-    ItemGetT,
-    SetT,
-](AttrAttr[OwnerT, MutableMappingT, SetT]):
+    KeyT,
+    ValueT,
+](AttrAttr[OwnerT, MutableMappingT, Mapping[KeyT, ValueT]]):
     """
     An attribute that contains a :py:class:`collections.abc.MutableMapping`.
     """
@@ -36,44 +34,41 @@ class MappingAttr[
     def __init__(
         self,
         data: MappingDefinition[
-            Intersection[MutableMappingT, MutableMapping[KeyGetT, ItemGetT]]
+            Intersection[MutableMappingT, MutableMapping[KeyT, ValueT]]
         ]
         | type[
             Data[
                 MappingDefinition[
-                    Intersection[MutableMappingT, MutableMapping[KeyGetT, ItemGetT]]
+                    Intersection[MutableMappingT, MutableMapping[KeyT, ValueT]]
                 ]
             ]
         ],
         *,
-        default: Callable[[], SetT] | None = None,
+        default: Callable[[], Mapping[KeyT, ValueT]] = dict,
         description: ResolvableLocalizable | None = None,
         label: ResolvableLocalizable | None = None,
         omit_dump: Callable[[MutableMappingT], bool] | None = None,
         omit_load: bool | None = None,
-        resolver: Callable[[SetT], Mapping[KeyGetT, ItemGetT]] = passthrough,
     ):
         super().__init__(
             data,
-            label=label,
-            description=description,
-            omit_load=omit_load,
-            omit_dump=omit_dump,
             default=self._new_default,
+            description=description,
+            label=label,
+            omit_dump=omit_dump,
+            omit_load=omit_load,
         )
-        self._default_values = default
-        self._mapping_resolver = resolver
+        self.__default_items = default
 
     @final
     def _new_default(self) -> MutableMappingT:
         new = self._data.new()
-        if self._default_values is not None:
-            new.update(self._mapping_resolver(self._default_values()))
+        new.update(self.__default_items())
         return new
 
     @final
     @override
-    def set(self, owner: OwnerT, value: SetT, /) -> None:
+    def set(self, owner: OwnerT, value: Mapping[KeyT, ValueT], /) -> None:
         data = self.get(owner)
         data.clear()
-        data.update(self._mapping_resolver(value))
+        data.update(value)
