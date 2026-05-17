@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
+from betty.attr import ProxyAttr
 from betty.attrs.collection.sequence import SequenceAttr
 from betty.collection.sequence import MutableResolvedSequence
 from betty.datas.plugin_manufacturer_sequence import (
@@ -29,13 +30,12 @@ class PluginManufacturerSequenceAttr[
     PluginDefinitionT: PluginDefinition,
     PluginT: Plugin,
 ](
-    SequenceAttr[
+    ProxyAttr[
         HasProperties,
         MutableResolvedSequence[
             PluginManufacturer[PluginDefinitionT, PluginT],
             ResolvablePluginManufacturer[PluginDefinitionT, PluginT],
         ],
-        PluginManufacturer[PluginDefinitionT, PluginT],
         ResolvablePluginManufacturerSequence[PluginDefinitionT, PluginT],
     ]
 ):
@@ -51,8 +51,9 @@ class PluginManufacturerSequenceAttr[
         description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
-            PluginManufacturerSequenceDefinition(manufacturer),
-            label=label,
-            description=description,
-            resolver=manufacturer.resolve_sequence,
+            SequenceAttr(
+                PluginManufacturerSequenceDefinition(manufacturer),
+                label=label,
+                description=description,
+            ).setter(manufacturer.resolve_sequence)
         )

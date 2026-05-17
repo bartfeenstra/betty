@@ -59,7 +59,6 @@ class _PluginMappingAttr[PluginDefinitionT: PluginDefinition, PluginT: Plugin](
         MutableMapping[str, PluginManufacturer[PluginDefinitionT, PluginT]],
         str,
         PluginManufacturer[PluginDefinitionT, PluginT],
-        Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]],
     ]
 ):
     def __init__(

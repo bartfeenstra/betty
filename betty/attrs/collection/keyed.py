@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.attrs.attr import AttrAttr
 from betty.collection.keyed import MutableKeyedCollection
-from betty.functools import passthrough
 from betty.property import HasProperties
 
 if TYPE_CHECKING:
@@ -21,8 +20,8 @@ if TYPE_CHECKING:
 class KeyedCollectionAttr[
     OwnerT: HasProperties,
     MutableKeyedCollectionT: MutableKeyedCollection,
-    SetT,
-](AttrAttr[OwnerT, MutableKeyedCollectionT, Iterable[SetT]]):
+    ItemSetT,
+](AttrAttr[OwnerT, MutableKeyedCollectionT, Iterable[ItemSetT]]):
     """
     An attribute that contains an :py:class:`betty.collection.keyed.KeyedCollection`.
     """
@@ -34,33 +33,31 @@ class KeyedCollectionAttr[
         data: KeyedCollectionDefinition[MutableKeyedCollectionT]
         | type[Data[KeyedCollectionDefinition[MutableKeyedCollectionT]]],
         *,
-        label: ResolvableLocalizable | None = None,
+        default: Callable[[], Iterable[ItemSetT]] = tuple,
         description: ResolvableLocalizable | None = None,
-        omit_load: bool | None = None,
+        label: ResolvableLocalizable | None = None,
         omit_dump: Callable[[MutableKeyedCollectionT], bool] | None = None,
-        resolver: Callable[[SetT | Iterable[SetT]], Iterable[SetT]] = passthrough,
-        default: Callable[[], SetT | Iterable[SetT]] = list,
+        omit_load: bool | None = None,
     ):
         super().__init__(
             data,
-            label=label,
-            description=description,
-            omit_load=omit_load,
-            omit_dump=omit_dump,
             default=self._new_default,
+            description=description,
+            label=label,
+            omit_dump=omit_dump,
+            omit_load=omit_load,
         )
-        self._values_resolver = resolver
-        self._default_values = default
+        self.__default_items = default
 
     @final
     def _new_default(self) -> MutableKeyedCollectionT:
         new = self._data.new()
-        new.add(*self._values_resolver(self._default_values()))
+        new.add(*self.__default_items())
         return new
 
     @final
     @override
-    def set(self, owner: OwnerT, value: Iterable[SetT], /) -> None:
+    def set(self, owner: OwnerT, value: Iterable[ItemSetT], /) -> None:
         data = self.get(owner)
         data.clear()
-        data.add(*self._values_resolver(value))
+        data.add(*value)
