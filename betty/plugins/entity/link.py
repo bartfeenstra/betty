@@ -43,7 +43,7 @@ class Link(LinkType, HasMediaType, HasDescription, HasPrivacy, Entity):
     .. plugin:: entity:link.
     """
 
-    _url = LocalizableAttr(label=_("URL"))
+    url = LocalizableAttr(label=_("URL"))
     _label = Optional(LocalizableAttr(label=_("Label")))
 
     relationship: str | None
@@ -74,20 +74,11 @@ class Link(LinkType, HasMediaType, HasDescription, HasPrivacy, Entity):
         super().__init__(
             media_type=media_type, description=description, privacy=privacy
         )
-        self._url = url
+        self.url = url
         self._label = label
         self.relationship = relationship
         if owner is not None:
             self.owner = owner
-
-    @override
-    @property
-    def url(self) -> Localizable:
-        return self._url
-
-    @url.setter
-    def url(self, url: ResolvableLocalizable) -> None:
-        self._url = url
 
     @override
     @property
