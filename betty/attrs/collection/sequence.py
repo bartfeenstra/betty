@@ -27,12 +27,12 @@ class SequenceAttr[
     An attribute that contains a :py:class:`collections.abc.MutableSequence`.
     """
 
-    _data: SequenceDefinition[MutableSequenceT]
+    _data: SequenceDefinition[MutableSequenceT, ItemSetT]
 
     def __init__(
         self,
-        data: SequenceDefinition[MutableSequenceT]
-        | type[Data[SequenceDefinition[MutableSequenceT]]],
+        data: SequenceDefinition[MutableSequenceT, ItemSetT]
+        | type[Data[SequenceDefinition[MutableSequenceT, ItemSetT]]],
         *,
         default: Callable[[], Iterable[ItemSetT]] = tuple,
         description: ResolvableLocalizable | None = None,
@@ -52,13 +52,9 @@ class SequenceAttr[
 
     @final
     def _new_default(self) -> MutableSequenceT:
-        new = self._data.new()
-        new.extend(self.__default_items())
-        return new
+        return self._data.new(self.__default_items())
 
     @final
     @override
     def set(self, owner: OwnerT, value: Iterable[ItemSetT], /) -> None:
-        data = self.get(owner)
-        data.clear()
-        data.extend(value)
+        self._data.replace(self.get(owner), value)

@@ -4,8 +4,8 @@ Sequence data types.
 
 from __future__ import annotations
 
-from collections.abc import Callable, MutableSequence
-from typing import TYPE_CHECKING, Any
+from collections.abc import Callable, Iterable, MutableSequence
+from typing import TYPE_CHECKING, Any, final, override
 
 from betty.datas.aggregate.collection import CollectionDefinition
 from betty.indicator.selector import Index
@@ -17,14 +17,14 @@ if TYPE_CHECKING:
     from betty.typing import Intersection
 
 
-class SequenceDefinition[MutableSequenceT: MutableSequence[Any]](
-    CollectionDefinition[MutableSequenceT, Index]
+class SequenceDefinition[MutableSequenceT: MutableSequence[Any], ValueT](
+    CollectionDefinition[MutableSequenceT, Iterable[ValueT], Index]
 ):
     """
     A sequence data definition.
     """
 
-    def __init__[ValueT](
+    def __init__(
         self,
         /,
         cls: type[Intersection[MutableSequenceT, MutableSequence[ValueT]]]
@@ -40,9 +40,9 @@ class SequenceDefinition[MutableSequenceT: MutableSequence[Any]](
             item=value,
             label=label,
             description=description,
+            factory=factory,
             porter=CallbackPorter(self._load, self._dump),
         )
-        self._factory = factory
 
     def _load(self, portable: PortableData, /) -> MutableSequenceT:
         from betty.assertion import assert_sequence
@@ -53,3 +53,9 @@ class SequenceDefinition[MutableSequenceT: MutableSequence[Any]](
 
     def _dump(self, data: MutableSequenceT) -> PortableData:
         return [self._item.porter.dump(item) for item in data]
+
+    @final
+    @override
+    def replace(self, data: MutableSequenceT, values: Iterable[ValueT], /) -> None:
+        data.clear()
+        data.extend(values)

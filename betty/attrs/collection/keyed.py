@@ -26,12 +26,12 @@ class KeyedCollectionAttr[
     An attribute that contains an :py:class:`betty.collection.keyed.KeyedCollection`.
     """
 
-    _data: KeyedCollectionDefinition[MutableKeyedCollectionT]
+    _data: KeyedCollectionDefinition[MutableKeyedCollectionT, ItemSetT]
 
     def __init__(
         self,
-        data: KeyedCollectionDefinition[MutableKeyedCollectionT]
-        | type[Data[KeyedCollectionDefinition[MutableKeyedCollectionT]]],
+        data: KeyedCollectionDefinition[MutableKeyedCollectionT, ItemSetT]
+        | type[Data[KeyedCollectionDefinition[MutableKeyedCollectionT, ItemSetT]]],
         *,
         default: Callable[[], Iterable[ItemSetT]] = tuple,
         description: ResolvableLocalizable | None = None,
@@ -51,13 +51,9 @@ class KeyedCollectionAttr[
 
     @final
     def _new_default(self) -> MutableKeyedCollectionT:
-        new = self._data.new()
-        new.add(*self.__default_items())
-        return new
+        return self._data.new(self.__default_items())
 
     @final
     @override
     def set(self, owner: OwnerT, value: Iterable[ItemSetT], /) -> None:
-        data = self.get(owner)
-        data.clear()
-        data.add(*value)
+        self._data.replace(self.get(owner), value)
