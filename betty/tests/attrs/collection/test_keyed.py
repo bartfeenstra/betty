@@ -14,7 +14,7 @@ class TestKeyedCollectionAttr:
     @ObjectDefinition(label=DUMMY_LOCALIZABLE)
     class _Owner(Data, HasProperties):
         @ObjectDefinition(label=DUMMY_LOCALIZABLE)
-        class _Item(Data["ObjectDefinition"]):
+        class _Item(Data[ObjectDefinition]):
             attr: Any
 
         keyed_collection = KeyedCollectionAttr(

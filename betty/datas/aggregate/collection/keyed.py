@@ -21,10 +21,9 @@ from betty.portable import (
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from betty.data import Data
+    from betty.data import ResolvableDataDefinition
     from betty.datas.aggregate.record import RecordDefinition
     from betty.locale.localizable import ResolvableLocalizable
-    from betty.typing import Intersection
 
 
 class KeyedCollectionDefinition[
@@ -43,8 +42,7 @@ class KeyedCollectionDefinition[
         /,
         cls: type[MutableKeyedCollection] | None = None,
         *,
-        value: RecordDefinition[ValueT, ElementT]
-        | type[Intersection[ValueT, Data[RecordDefinition[Any, ElementT]]]],
+        value: ResolvableDataDefinition[RecordDefinition[ValueT, ElementT]],
         key: ElementT,
         order_dump: bool = False,
         label: ResolvableLocalizable,

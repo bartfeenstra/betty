@@ -12,7 +12,7 @@ from betty.indicator.selector import Index
 from betty.portable import CallbackPorter, PortableData
 
 if TYPE_CHECKING:
-    from betty.data import Data, DataDefinition
+    from betty.data import DataDefinition, ResolvableDataDefinition
     from betty.locale.localizable import ResolvableLocalizable
     from betty.typing import Intersection
 
@@ -30,7 +30,7 @@ class SequenceDefinition[MutableSequenceT: MutableSequence[Any], ValueT](
         cls: type[Intersection[MutableSequenceT, MutableSequence[ValueT]]]
         | None = None,
         *,
-        value: DataDefinition[ValueT] | type[Intersection[ValueT, Data]],
+        value: ResolvableDataDefinition[DataDefinition[ValueT]],
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
         factory: Callable[[], MutableSequenceT] | None = None,

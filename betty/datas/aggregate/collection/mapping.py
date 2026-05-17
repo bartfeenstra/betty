@@ -7,13 +7,12 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping, MutableMapping
 from typing import TYPE_CHECKING, Any, final, override
 
-from betty.data import DataDefinition, resolve_data_definition
+from betty.data import DataDefinition, ResolvableDataDefinition, resolve_data_definition
 from betty.datas.aggregate.collection import CollectionDefinition
 from betty.indicator.selector import Key
 from betty.portable import CallbackPorter, PortableData, Porter
 
 if TYPE_CHECKING:
-    from betty.data import Data
     from betty.locale.localizable import ResolvableLocalizable
     from betty.typing import Intersection
 
@@ -31,8 +30,8 @@ class MappingDefinition[MutableMappingT: MutableMapping[Any, Any], KeyT, ValueT]
         cls: type[Intersection[MutableMappingT, MutableMapping[KeyT, ValueT]]]
         | None = None,
         *,
-        key: DataDefinition[KeyT, str] | type[Intersection[KeyT, Data]],
-        value: DataDefinition[ValueT] | type[Intersection[ValueT, Data]],
+        key: ResolvableDataDefinition[DataDefinition[KeyT, str]],
+        value: ResolvableDataDefinition[DataDefinition[ValueT]],
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
         factory: Callable[[], MutableMappingT] | None = None,

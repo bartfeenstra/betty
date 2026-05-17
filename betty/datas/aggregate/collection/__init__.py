@@ -8,12 +8,12 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable, Collection, Iterable
 from typing import TYPE_CHECKING, Any, final
 
-from betty.data import DataDefinition, resolve_data_definition
+from betty.data import DataDefinition, ResolvableDataDefinition, resolve_data_definition
 from betty.datas.aggregate import AggregateDefinition
 from betty.indicator.selector import Element
 
 if TYPE_CHECKING:
-    from betty.data import Data
+    from betty.data import Data as Data
     from betty.locale.localizable import ResolvableLocalizable
     from betty.portable import Porter
 
@@ -32,7 +32,7 @@ class CollectionDefinition[
         /,
         cls: type[CollectionT] | None = None,
         *,
-        item: DataDefinition | type[Data],
+        item: ResolvableDataDefinition[DataDefinition],
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
         porter: Porter[CollectionT] | None = None,
