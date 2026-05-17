@@ -7,7 +7,7 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping, MutableMapping
 from typing import TYPE_CHECKING, Any, final, override
 
-from betty.data import DataDefinition
+from betty.data import DataDefinition, resolve_data_definition
 from betty.datas.aggregate.collection import CollectionDefinition
 from betty.indicator.selector import Key
 from betty.portable import CallbackPorter, PortableData, Porter
@@ -46,7 +46,7 @@ class MappingDefinition[MutableMappingT: MutableMapping[Any, Any], KeyT, ValueT]
             factory=factory,
             porter=CallbackPorter(self._load, self._dump) if porter is None else porter,
         )
-        self._value = value if isinstance(value, DataDefinition) else value.data()
+        self._value = resolve_data_definition(value)
 
     def _load(self, portable: PortableData, /) -> MutableMappingT:
         from betty.assertion import assert_mapping
@@ -61,7 +61,7 @@ class MappingDefinition[MutableMappingT: MutableMapping[Any, Any], KeyT, ValueT]
         return {
             self._item.porter.dump(key): self._value.porter.dump(item)
             for key, item in data.items()
-        }  # ty:ignore[invalid-return-type]
+        }
 
     @final
     @override

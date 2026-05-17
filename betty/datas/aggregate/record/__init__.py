@@ -8,7 +8,13 @@ from abc import abstractmethod
 from typing import TYPE_CHECKING, Any, Self, TypeVar, final, override
 
 from betty.assertion import OptionalField, assert_mapping
-from betty.data import DataDefinition, Sample, Samples
+from betty.data import (
+    DataDefinition,
+    ResolvableDataDefinition,
+    Sample,
+    Samples,
+    resolve_data_definition,
+)
 from betty.datas.aggregate import AggregateDefinition
 from betty.datas.optional import OptionalDefinition
 from betty.indicator.selector import Element
@@ -18,7 +24,7 @@ from betty.portable import Portable, PortableData, PortablePorter, Porter
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, MutableSequence, Sequence
 
-    from betty.data import Data
+    from betty.data import Data as Data
     from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.portable import PortableMapping
 
@@ -32,7 +38,7 @@ class FieldDefinition[ElementT: Element[Any] = Element[Any], DataClsT = Any]:
     def __init__(
         self,
         selector: ElementT,
-        data: DataDefinition[DataClsT] | type[Data[DataDefinition[DataClsT]]],
+        data: ResolvableDataDefinition[DataDefinition[DataClsT]],
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
@@ -40,7 +46,7 @@ class FieldDefinition[ElementT: Element[Any] = Element[Any], DataClsT = Any]:
         omit_dump: Callable[[DataClsT], bool] | None = None,
     ):
         self._selector = selector
-        self._data = data if isinstance(data, DataDefinition) else data.data()
+        self._data = resolve_data_definition(data)
         self._label = None if label is None else resolve_localizable(label)
         self._description = (
             None if description is None else resolve_localizable(description)

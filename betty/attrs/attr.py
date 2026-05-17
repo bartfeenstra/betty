@@ -13,7 +13,7 @@ from betty.property import HasProperties
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from betty.data import Data, DataDefinition
+    from betty.data import DataDefinition, ResolvableDataDefinition
     from betty.locale.localizable import ResolvableLocalizable
 
 
@@ -24,7 +24,7 @@ class AttrAttr[OwnerT: HasProperties, GetT, SetT](Attr[OwnerT, GetT, SetT]):
 
     def __init__(
         self,
-        data: DataDefinition[GetT] | type[Data[DataDefinition[GetT]]],
+        data: ResolvableDataDefinition[DataDefinition[GetT]],
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,

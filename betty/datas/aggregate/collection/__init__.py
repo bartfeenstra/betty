@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable, Collection, Iterable
 from typing import TYPE_CHECKING, Any, final
 
-from betty.data import DataDefinition
+from betty.data import DataDefinition, resolve_data_definition
 from betty.datas.aggregate import AggregateDefinition
 from betty.indicator.selector import Element
 
@@ -39,7 +39,7 @@ class CollectionDefinition[
         factory: Callable[[], CollectionT] | None = None,
     ):
         super().__init__(cls=cls, label=label, description=description, porter=porter)
-        self._item = item if isinstance(item, DataDefinition) else item.data()
+        self._item = resolve_data_definition(item)
         self._factory = factory
 
     @final

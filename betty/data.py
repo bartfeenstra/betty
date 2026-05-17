@@ -96,3 +96,19 @@ class Data[DataDefinitionT: DataDefinition = DataDefinition]:
             return NotImplemented
         porter = type(self).data().porter
         return porter.dump(self) == porter.dump(other)
+
+
+type ResolvableDataDefinition[DataDefinitionT: DataDefinition] = (
+    DataDefinitionT | type[Data[DataDefinitionT]]
+)
+
+
+def resolve_data_definition[DataDefinitionT: DataDefinition](
+    definition: ResolvableDataDefinition[DataDefinitionT],
+) -> DataDefinitionT:
+    """
+    Resolve a value to a data definition.
+    """
+    if isinstance(definition, DataDefinition):
+        return definition  # ty:ignore[invalid-return-type]
+    return definition.data()
