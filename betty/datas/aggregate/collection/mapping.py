@@ -4,8 +4,8 @@ Key-value mapping data types.
 
 from __future__ import annotations
 
-from collections.abc import Callable, MutableMapping
-from typing import TYPE_CHECKING, Any, final
+from collections.abc import Callable, Mapping, MutableMapping
+from typing import TYPE_CHECKING, Any, final, override
 
 from betty.data import DataDefinition
 from betty.datas.aggregate.collection import CollectionDefinition
@@ -18,15 +18,14 @@ if TYPE_CHECKING:
     from betty.typing import Intersection
 
 
-@final
-class MappingDefinition[MutableMappingT: MutableMapping[Any, Any]](
-    CollectionDefinition[MutableMappingT, Key]
+class MappingDefinition[MutableMappingT: MutableMapping[Any, Any], KeyT, ValueT](
+    CollectionDefinition[MutableMappingT, Mapping[KeyT, ValueT], Key]
 ):
     """
     A key-value mapping data definition.
     """
 
-    def __init__[KeyT, ValueT](
+    def __init__(
         self,
         /,
         cls: type[Intersection[MutableMappingT, MutableMapping[KeyT, ValueT]]]
@@ -44,10 +43,10 @@ class MappingDefinition[MutableMappingT: MutableMapping[Any, Any]](
             item=key,
             label=label,
             description=description,
+            factory=factory,
             porter=CallbackPorter(self._load, self._dump) if porter is None else porter,
         )
         self._value = value if isinstance(value, DataDefinition) else value.data()
-        self._factory = factory
 
     def _load(self, portable: PortableData, /) -> MutableMappingT:
         from betty.assertion import assert_mapping
@@ -63,3 +62,9 @@ class MappingDefinition[MutableMappingT: MutableMapping[Any, Any]](
             self._item.porter.dump(key): self._value.porter.dump(item)
             for key, item in data.items()
         }  # ty:ignore[invalid-return-type]
+
+    @final
+    @override
+    def replace(self, data: MutableMappingT, values: Mapping[KeyT, ValueT], /) -> None:
+        data.clear()
+        data.update(values)

@@ -69,7 +69,9 @@ class _PluginMappingAttr[PluginDefinitionT: PluginDefinition, PluginT: Plugin](
     ):
         super().__init__(
             MappingDefinition[
-                MutableMapping[str, PluginManufacturer[PluginDefinitionT, PluginT]]
+                MutableMapping[str, PluginManufacturer[PluginDefinitionT, PluginT]],
+                str,
+                PluginManufacturer[PluginDefinitionT, PluginT],
             ](
                 cls=MutableResolvedMapping,
                 factory=lambda: MutableResolvedMappingAdapter[

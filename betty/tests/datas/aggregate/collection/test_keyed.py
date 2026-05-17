@@ -1,6 +1,9 @@
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from typing import ClassVar
 
+import pytest
+
+from betty.collection.keyed import MutableKeyedCollection
 from betty.collection.keyed.adapter import MutableKeyedCollectionAdapter
 from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.datas.aggregate.record import FieldDefinition
@@ -22,13 +25,21 @@ class TestKeyedCollectionDefinition:
             ),
         ],
     )
-    _sut_unordered = KeyedCollectionDefinition(
+    _sut_unordered = KeyedCollectionDefinition[
+        MutableKeyedCollection[str, str, dict[str, str], dict[str, str]],
+        dict[str, str],
+        Key,
+    ](
         value=_item,
         key=Key("key"),
         label=DUMMY_LOCALIZABLE,
         factory=lambda: MutableKeyedCollectionAdapter(key=lambda value: value["key"]),
     )
-    _sut_ordered = KeyedCollectionDefinition(
+    _sut_ordered = KeyedCollectionDefinition[
+        MutableKeyedCollection[str, str, dict[str, str], dict[str, str]],
+        dict[str, str],
+        Key,
+    ](
         value=_item,
         key=Key("key"),
         order_dump=True,
@@ -76,3 +87,32 @@ class TestKeyedCollectionDefinition:
             self._values, key=lambda value: value["key"]
         )
         assert self._sut_ordered.porter.dump(data) == self._portable_ordered
+
+    @pytest.mark.parametrize(
+        ("expected", "data", "values"),
+        [
+            ([], MutableKeyedCollectionAdapter(key=lambda value: value["key"]), ()),
+            (
+                [{"key": "foo"}, {"key": "bar"}],
+                MutableKeyedCollectionAdapter(
+                    ({"key": "qux"},), key=lambda value: value["key"]
+                ),
+                ({"key": "foo"}, {"key": "bar"}),
+            ),
+            (
+                [],
+                MutableKeyedCollectionAdapter(
+                    ({"key": "qux"},), key=lambda value: value["key"]
+                ),
+                (),
+            ),
+        ],
+    )
+    def test_replace(
+        self,
+        expected: list[str],
+        data: MutableKeyedCollection[str, str, dict[str, str], dict[str, str]],
+        values: Iterable[dict[str, str]],
+    ) -> None:
+        self._sut_unordered.replace(data, values)
+        assert list(data) == expected

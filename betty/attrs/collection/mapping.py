@@ -29,17 +29,19 @@ class MappingAttr[
     An attribute that contains a :py:class:`collections.abc.MutableMapping`.
     """
 
-    _data: MappingDefinition[MutableMappingT]
+    _data: MappingDefinition[MutableMappingT, KeyT, ValueT]
 
     def __init__(
         self,
         data: MappingDefinition[
-            Intersection[MutableMappingT, MutableMapping[KeyT, ValueT]]
+            Intersection[MutableMappingT, MutableMapping[KeyT, ValueT]], KeyT, ValueT
         ]
         | type[
             Data[
                 MappingDefinition[
-                    Intersection[MutableMappingT, MutableMapping[KeyT, ValueT]]
+                    Intersection[MutableMappingT, MutableMapping[KeyT, ValueT]],
+                    KeyT,
+                    ValueT,
                 ]
             ]
         ],
@@ -62,13 +64,9 @@ class MappingAttr[
 
     @final
     def _new_default(self) -> MutableMappingT:
-        new = self._data.new()
-        new.update(self.__default_items())
-        return new
+        return self._data.new(self.__default_items())
 
     @final
     @override
     def set(self, owner: OwnerT, value: Mapping[KeyT, ValueT], /) -> None:
-        data = self.get(owner)
-        data.clear()
-        data.update(value)
+        self._data.replace(self.get(owner), value)

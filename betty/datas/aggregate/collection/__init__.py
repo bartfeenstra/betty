@@ -4,8 +4,9 @@ Collection data types.
 
 from __future__ import annotations
 
-from collections.abc import Callable, Collection
-from typing import TYPE_CHECKING, Any
+from abc import ABC, abstractmethod
+from collections.abc import Callable, Collection, Iterable
+from typing import TYPE_CHECKING, Any, final
 
 from betty.data import DataDefinition
 from betty.datas.aggregate import AggregateDefinition
@@ -17,9 +18,11 @@ if TYPE_CHECKING:
     from betty.portable import Porter
 
 
-class CollectionDefinition[CollectionT: Collection, ElementT: Element[Any]](
-    AggregateDefinition[CollectionT, ElementT]
-):
+class CollectionDefinition[
+    CollectionT: Collection,
+    ValuesSetT: Iterable,
+    ElementT: Element[Any],
+](AggregateDefinition[CollectionT, ElementT], ABC):
     """
     A homogenous collection data definition.
     """
@@ -39,6 +42,7 @@ class CollectionDefinition[CollectionT: Collection, ElementT: Element[Any]](
         self._item = item if isinstance(item, DataDefinition) else item.data()
         self._factory = factory
 
+    @final
     @property
     def item(self) -> DataDefinition:
         """
@@ -46,8 +50,18 @@ class CollectionDefinition[CollectionT: Collection, ElementT: Element[Any]](
         """
         return self._item
 
-    def new(self) -> CollectionT:
+    @final
+    def new(self, values: ValuesSetT | None = None) -> CollectionT:
         """
         Create a new collection.
         """
-        return (self.cls if not self._factory else self._factory)()
+        new = (self.cls if not self._factory else self._factory)()
+        if values is not None:
+            self.replace(new, values)
+        return new
+
+    @abstractmethod
+    def replace(self, data: CollectionT, values: ValuesSetT, /) -> None:
+        """
+        Replace all values in the collection with the given ones.
+        """

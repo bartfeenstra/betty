@@ -4,7 +4,8 @@ Keyed collection definitions.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, final
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Any, final, override
 
 from betty.assertion import assert_mapping, assert_sequence
 from betty.collection.keyed import MutableKeyedCollection
@@ -26,18 +27,18 @@ if TYPE_CHECKING:
     from betty.typing import Intersection
 
 
-@final
 class KeyedCollectionDefinition[
-    MutableKeyedCollectionT: MutableKeyedCollection = MutableKeyedCollection,
+    MutableKeyedCollectionT: MutableKeyedCollection,
+    ValueT,
     ElementT: Element[str] = Element[str],
-](CollectionDefinition[MutableKeyedCollectionT, ElementT]):
+](CollectionDefinition[MutableKeyedCollectionT, Iterable[ValueT], ElementT]):
     """
     A definition for :py:class:`betty.collection.keyed.MutableKeyedCollection`.
     """
 
     _item: RecordDefinition[Any, ElementT]
 
-    def __init__[KeyT, ValueT](
+    def __init__(
         self,
         /,
         cls: type[MutableKeyedCollection] | None = None,
@@ -82,3 +83,11 @@ class KeyedCollectionDefinition[
         return dict(
             self._item.porter.dump_key(item_data, self._key) for item_data in data
         )
+
+    @final
+    @override
+    def replace(
+        self, data: MutableKeyedCollectionT, values: Iterable[ValueT], /
+    ) -> None:
+        data.clear()
+        data.add(*values)

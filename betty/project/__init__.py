@@ -865,7 +865,10 @@ class ProjectData(Data, HasProperties):
 
     generate_entity_list_html = Optional(
         SequenceAttr(
-            SequenceDefinition[MutableSequence[ResolvablePluginId[EntityDefinition]]](
+            SequenceDefinition[
+                MutableSequence[ResolvablePluginId[EntityDefinition]],
+                ResolvablePluginId[EntityDefinition],
+            ](
                 cls=list,
                 label=_("Entity types to generate list HTML pages for"),
                 value=MachineName,
@@ -1048,7 +1051,7 @@ class ProjectData(Data, HasProperties):
         self.lifetime_threshold = lifetime_threshold
         self.loaders = loaders  # ty:ignore[invalid-assignment]
         self.logo = logo
-        self.locales = locales  # ty:ignore[invalid-assignment]
+        self.locales = locales
         self.name = name
         self.place_types = place_types
         self.roles = roles
