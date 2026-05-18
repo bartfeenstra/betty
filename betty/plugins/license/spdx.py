@@ -15,7 +15,7 @@ from typing import Self, final, override
 from aiohttp import ClientError, ClientSession
 
 from betty.app import App
-from betty.cache.file import BinaryFileCache
+from betty.caches.file import BinaryFileCache
 from betty.exception import HumanFacingException
 from betty.factory import Manufacturable
 from betty.file import read

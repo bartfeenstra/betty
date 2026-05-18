@@ -9,7 +9,7 @@ import pytest
 from aiohttp import ClientSession
 from aioresponses import aioresponses
 
-from betty.cache.file import BinaryFileCache
+from betty.caches.file import BinaryFileCache
 from betty.license import LicenseDefinition
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin.discovery import ResolvableDiscovery, discover

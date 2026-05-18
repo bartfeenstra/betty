@@ -16,7 +16,7 @@ from pickle import dumps, loads
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.cache import CacheItem, CacheItemValueSetter
-from betty.cache._base import _CommonCacheBase, _CommonCacheBaseState
+from betty.caches._base import _CommonCacheBase, _CommonCacheBaseState
 from betty.file import read, write
 from betty.hashid import hashid
 from betty.pathlib import resolve_path

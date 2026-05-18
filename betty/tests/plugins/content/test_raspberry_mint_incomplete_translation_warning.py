@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from betty.asset import StaticAssetRepository
-from betty.cache.file import BinaryFileCache
+from betty.caches.file import BinaryFileCache
 from betty.document import Document
 from betty.locale.translation import AssetTranslationRepository
 from betty.plugins.content.raspberry_mint_incomplete_translation_warning import (

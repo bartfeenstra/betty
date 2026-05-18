@@ -1,5 +1,5 @@
 from betty.cache import CacheItem
-from betty.cache.no_op import NoOpCache
+from betty.caches.no_op import NoOpCache
 
 
 class TestNoOpCache:

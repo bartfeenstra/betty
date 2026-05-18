@@ -7,7 +7,7 @@ import pytest
 from babel import Locale
 
 from betty.asset import StaticAssetRepository
-from betty.cache.file import BinaryFileCache
+from betty.caches.file import BinaryFileCache
 from betty.dirs import BUILTIN_ASSET_DIRECTORY
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.translation import (

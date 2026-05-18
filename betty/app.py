@@ -16,8 +16,8 @@ from aiohttp_client_cache.session import CachedSession
 from betty.asset import AssetRepositoryService
 from betty.attrs.locale import LocaleAttr
 from betty.cache import Cache
-from betty.cache.file import BinaryFileCache, PickledFileCache
-from betty.cache.no_op import NoOpCache
+from betty.caches.file import BinaryFileCache, PickledFileCache
+from betty.caches.no_op import NoOpCache
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.dirs import APP_CONFIG_DIRECTORY, CACHE_DIRECTORY

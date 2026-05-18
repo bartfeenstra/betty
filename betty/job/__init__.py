@@ -9,7 +9,7 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, final
 from uuid import uuid4
 
-from betty.cache.memory import MemoryCache
+from betty.caches.memory import MemoryCache
 from betty.progress.no_op import NoOpProgress
 
 if TYPE_CHECKING:

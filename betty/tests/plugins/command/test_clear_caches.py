@@ -7,7 +7,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from betty.app import App
-from betty.cache.file import PickledFileCache
+from betty.caches.file import PickledFileCache
 from betty.file import write
 from betty.project import Project, ProjectData
 from betty.test_utils.conftest import IsolatedAppFactory, IsolatedProjectFactory

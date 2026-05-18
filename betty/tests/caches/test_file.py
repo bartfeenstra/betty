@@ -6,7 +6,7 @@ from typing import Any, override
 
 import pytest
 
-from betty.cache.file import BinaryFileCache, PickledFileCache
+from betty.caches.file import BinaryFileCache, PickledFileCache
 from betty.test_utils.cache import CacheTestBase
 
 
