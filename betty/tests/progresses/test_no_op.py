@@ -1,4 +1,4 @@
-from betty.progress.no_op import NoOpProgress
+from betty.progresses.no_op import NoOpProgress
 
 
 class TestNoOpProgress:

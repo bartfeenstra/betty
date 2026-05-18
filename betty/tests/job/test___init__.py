@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, override
 
 from betty.job import Context, Job
-from betty.progress.no_op import NoOpProgress
+from betty.progresses.no_op import NoOpProgress
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler

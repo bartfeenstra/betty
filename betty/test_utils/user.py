@@ -12,7 +12,7 @@ from betty.assertion import Assertion
 from betty.locale.localizable import ResolvableLocalizable
 from betty.locale.localize import DEFAULT_LOCALIZER, resolve_localized
 from betty.progress import Progress
-from betty.progress.no_op import NoOpProgress
+from betty.progresses.no_op import NoOpProgress
 from betty.typing import Void, VoidType
 from betty.user import User, UserTimeoutError, Verbosity
 
