@@ -280,11 +280,14 @@ class Project(
         return cls(
             directory,
             _plugin_discoveries=(
-                *data.copyright_notices,
-                *data.genders,
-                *data.licenses,
-                *data.place_types,
-                *data.roles,
+                plugin.new_plugin()
+                for plugin in (
+                    *data.copyright_notices,
+                    *data.genders,
+                    *data.licenses,
+                    *data.place_types,
+                    *data.roles,
+                )
             ),
             app=app,
             author=data.author,
@@ -1009,7 +1012,7 @@ class ProjectData(Data, HasProperties):
         enrichers: ResolvablePluginManufacturerSequence[
             EnricherDefinition, Enricher
         ] = (),
-        event_types: Iterable[EventTypeDefinition] = (),
+        event_types: Iterable[EventTypeDefinitionData] = (),
         extensions: ResolvablePluginManufacturerSequence[
             ExtensionDefinition, Extension
         ] = (),
