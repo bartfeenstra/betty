@@ -13,7 +13,7 @@ from betty.property import HasProperties
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from betty.data import Data
+    from betty.data import ResolvableDataDefinition
     from betty.datas.aggregate.collection.sequence import SequenceDefinition
     from betty.locale.localizable import ResolvableLocalizable
 
@@ -31,8 +31,7 @@ class SequenceAttr[
 
     def __init__(
         self,
-        data: SequenceDefinition[MutableSequenceT, ItemSetT]
-        | type[Data[SequenceDefinition[MutableSequenceT, ItemSetT]]],
+        data: ResolvableDataDefinition[SequenceDefinition[MutableSequenceT, ItemSetT]],
         *,
         default: Callable[[], Iterable[ItemSetT]] = tuple,
         description: ResolvableLocalizable | None = None,

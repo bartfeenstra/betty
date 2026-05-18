@@ -8,14 +8,14 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable, Collection, Iterable
 from typing import TYPE_CHECKING, Any, final
 
-from betty.data import DataDefinition
+from betty.data import DataDefinition, ResolvableDataDefinition, resolve_data_definition
 from betty.datas.aggregate import AggregateDefinition
 from betty.indicator.selector import Element
 
 if TYPE_CHECKING:
-    from betty.data import Data
+    from betty.data import Data as Data
     from betty.locale.localizable import ResolvableLocalizable
-    from betty.portable import Porter
+    from betty.portable import PortableData, Porter
 
 
 class CollectionDefinition[
@@ -32,19 +32,19 @@ class CollectionDefinition[
         /,
         cls: type[CollectionT] | None = None,
         *,
-        item: DataDefinition | type[Data],
+        item: ResolvableDataDefinition[DataDefinition[Any, PortableData]],
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
         porter: Porter[CollectionT] | None = None,
         factory: Callable[[], CollectionT] | None = None,
     ):
         super().__init__(cls=cls, label=label, description=description, porter=porter)
-        self._item = item if isinstance(item, DataDefinition) else item.data()
+        self._item = resolve_data_definition(item)
         self._factory = factory
 
     @final
     @property
-    def item(self) -> DataDefinition:
+    def item(self) -> DataDefinition[Any, PortableData]:
         """
         The definition of the items contained by this collection.
         """

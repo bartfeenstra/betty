@@ -5,7 +5,7 @@ from typing import Self, override
 import pytest
 
 from betty.assertion import assert_str
-from betty.data import Data, DataDefinition, Sample
+from betty.data import Data, DataDefinition, Sample, resolve_data_definition
 from betty.portable import CallbackPorter, Portable, PortableData
 from betty.portable.error import NotPortable
 from betty.sample import Samplable, Samples
@@ -99,3 +99,20 @@ class TestDataDefinition:
         sut = DataDefinition(cls=object, label=DUMMY_LOCALIZABLE)
         with pytest.raises(NotPortable):
             sut.porter.dump(None)
+
+
+def test_resolve_data_definition__with_definition() -> None:
+    definition = DataDefinition(label="-")
+    assert resolve_data_definition(definition) is definition
+
+
+def test_resolve_data_definition__with_data() -> None:
+    definition = DataDefinition(label="-")
+
+    class _Data(Data):
+        @override
+        @classmethod
+        def data(cls) -> DataDefinition:
+            return definition
+
+    assert resolve_data_definition(_Data) is definition

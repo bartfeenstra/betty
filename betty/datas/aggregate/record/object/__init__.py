@@ -10,7 +10,7 @@ from types import FunctionType
 from typing import TYPE_CHECKING, final, override
 
 from betty.attr import Attr
-from betty.data import DataDefinition
+from betty.data import DataDefinition, ResolvableDataDefinition, resolve_data_definition
 from betty.datas.aggregate.record import FieldDefinition, RecordDefinition
 from betty.importlib import fully_qualified_name
 from betty.indicator.selector import Attr as AttrElement
@@ -19,7 +19,7 @@ from betty.locale.localizable import resolve_localizable
 if TYPE_CHECKING:
     from collections.abc import Callable, MutableMapping
 
-    from betty.data import Data
+    from betty.data import Data as Data
     from betty.locale.localizable import Localizable, ResolvableLocalizable
 
 
@@ -45,14 +45,14 @@ class AttrDefinition[DataClsT]:
 
     def __init__(
         self,
-        data: DataDefinition[DataClsT] | type[Data[DataDefinition[DataClsT]]],
+        data: ResolvableDataDefinition[DataDefinition[DataClsT]],
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
         omit_load: bool | None = None,
         omit_dump: Callable[[DataClsT], bool] | None = None,
     ):
-        self._data = data if isinstance(data, DataDefinition) else data.data()
+        self._data = resolve_data_definition(data)
         self._label = None if label is None else resolve_localizable(label)
         self._description = (
             None if description is None else resolve_localizable(description)
