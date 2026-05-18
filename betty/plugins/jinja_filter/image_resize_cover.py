@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     from concurrent.futures import ProcessPoolExecutor
     from pathlib import Path
 
-    from betty.cache.file import BinaryFileCache
+    from betty.caches.file import BinaryFileCache
 
 if TYPE_CHECKING:
     from jinja2.runtime import Context

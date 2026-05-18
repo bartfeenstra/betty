@@ -43,7 +43,7 @@ if TYPE_CHECKING:
     from babel import Locale
 
     from betty.asset import AssetDirectoryDefinition, AssetRepository
-    from betty.cache.file import BinaryFileCache
+    from betty.caches.file import BinaryFileCache
     from betty.pathlib import StrPath
     from betty.user import User
 

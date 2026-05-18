@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from typing import Self, final, override
 
 from betty.cache import CacheItem
-from betty.cache._base import _CommonCacheBase, _CommonCacheBaseState, _StaticCacheItem
+from betty.caches._base import _CommonCacheBase, _CommonCacheBaseState, _StaticCacheItem
 from betty.typing import threadsafe
 
 type _MemoryCacheStore[CacheItemValueT] = MutableMapping[

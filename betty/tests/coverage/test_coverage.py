@@ -116,7 +116,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "linked_data_schema_for": MissingReason.STATIC_CONTENT_ONLY,
         },
     },
-    "betty/cache/__init__.py": {
+    "betty/cache.py": {
         "Cache": MissingReason.ABSTRACT,
         "CacheItem": MissingReason.SHOULD_BE_COVERED,
     },

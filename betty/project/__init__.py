@@ -28,8 +28,8 @@ from betty.attrs.localizable import LocalizableAttr
 from betty.attrs.machine_name import MachineNameAttr
 from betty.attrs.plugin_definitions import PluginDefinitionDatasAttr
 from betty.cache import Cache
-from betty.cache.file import BinaryFileCache, PickledFileCache
-from betty.cache.no_op import NoOpCache
+from betty.caches.file import BinaryFileCache, PickledFileCache
+from betty.caches.no_op import NoOpCache
 from betty.collection.keyed.adapter import (
     KeyedCollectionAdapter,
     MutableKeyedCollectionAdapter,

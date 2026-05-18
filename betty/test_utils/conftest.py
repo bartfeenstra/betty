@@ -42,7 +42,7 @@ from aioresponses import aioresponses
 from jinja2 import Environment, Template
 
 from betty.app import App
-from betty.cache.file import BinaryFileCache
+from betty.caches.file import BinaryFileCache
 from betty.exception import do_raise
 from betty.json_schema import Schema
 from betty.multiprocessing import ProcessPoolExecutor
