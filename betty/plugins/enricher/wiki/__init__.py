@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.attrs.attr import AttrAttr
-from betty.attrs.optional import Optional
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.bool import BoolDefinition
@@ -38,18 +37,16 @@ class WikiData(Data, HasProperties):
     .. data:: betty.plugins.enricher.wiki:WikiData
     """
 
-    populate_images = Optional(
-        AttrAttr(
-            BoolDefinition(
-                label=_("Populate images"),
-                description=_(
-                    "Whether to download additional images found through Wikipedia links in the ancestry"
-                ),
+    populate_images = AttrAttr(
+        BoolDefinition(
+            label=_("Populate images"),
+            description=_(
+                "Whether to download additional images found through Wikipedia links in the ancestry"
             ),
-            omit_load=True,
-            omit_dump=lambda data: data is True,
-        )
-    )
+        ),
+        omit_load=True,
+        omit_dump=lambda data: data is True,
+    ).optional
     """
     Whether to populate entities with Wikimedia images after loading ancestries.
     """

@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.attrs.date import HasAnyDate
 from betty.attrs.localizable import LocalizableAttr
-from betty.attrs.optional import Optional
 from betty.attrs.privacy import HasPrivacy
 from betty.entity import EntityDefinition
 from betty.entity.association import (
@@ -48,7 +47,7 @@ class Citation(HasAnyDate, HasFileReferences, HasPrivacy, HasLinks):
     .. plugin:: entity:citation.
     """
 
-    location = Optional(LocalizableAttr(label=_("Location")))
+    location = LocalizableAttr(label=_("Location")).optional
     """
     The location within the source this citation references.
     """

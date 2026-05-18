@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, final
 
 from betty.attr import ProxyAttr
 from betty.attrs.attr import AttrAttr
+from betty.attrs.owner import OwnerAttr
 from betty.locale.localizable.gettext import _
 from betty.machine_name import (
     _MACHINE_NAME_DESCRIPTION,
@@ -21,7 +22,10 @@ if TYPE_CHECKING:
 
 
 @final
-class MachineNameAttr(ProxyAttr[HasProperties, MachineName, ResolvableMachineName]):
+class MachineNameAttr(
+    ProxyAttr[HasProperties, MachineName, ResolvableMachineName],
+    OwnerAttr[HasProperties, MachineName, ResolvableMachineName],
+):
     """
     An attribute containing a machine name.
     """

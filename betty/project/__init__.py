@@ -26,7 +26,6 @@ from betty.attrs.attr import AttrAttr
 from betty.attrs.collection_attr import CollectionAttrAttr
 from betty.attrs.localizable import LocalizableAttr
 from betty.attrs.machine_name import MachineNameAttr
-from betty.attrs.optional import Optional
 from betty.attrs.plugin_definitions import PluginDefinitionDatasAttr
 from betty.cache import Cache
 from betty.cache.file import BinaryFileCache, PickledFileCache
@@ -769,7 +768,7 @@ class ProjectData(Data, HasProperties):
     .. data:: betty.project:ProjectData
     """
 
-    author = Optional(LocalizableAttr(label=_("Author")))
+    author = LocalizableAttr(label=_("Author")).optional
     """
     The project's author.
     """
@@ -862,21 +861,19 @@ class ProjectData(Data, HasProperties):
     The extensions to enable for the project.
     """
 
-    generate_entity_list_html = Optional(
-        CollectionAttrAttr(
-            SequenceDefinition[
-                MutableSequence[ResolvablePluginId[EntityDefinition]],
-                ResolvablePluginId[EntityDefinition],
-            ](
-                cls=list,
-                label=_("Entity types to generate list HTML pages for"),
-                value=MachineName,
-                factory=lambda: MutableResolvedSequenceAdapter(
-                    [], value_resolver=resolve_plugin_id
-                ),
-            )
+    generate_entity_list_html = CollectionAttrAttr(
+        SequenceDefinition[
+            MutableSequence[ResolvablePluginId[EntityDefinition]],
+            ResolvablePluginId[EntityDefinition],
+        ](
+            cls=list,
+            label=_("Entity types to generate list HTML pages for"),
+            value=MachineName,
+            factory=lambda: MutableResolvedSequenceAdapter(
+                [], value_resolver=resolve_plugin_id
+            ),
         )
-    )
+    ).optional
     """
     Which entity types to generate list HTML pages for.
     """
@@ -957,12 +954,12 @@ class ProjectData(Data, HasProperties):
     The configured locales.
     """
 
-    logo = Optional(AttrAttr(PathDefinition(), label=_("Logo")))
+    logo = AttrAttr(PathDefinition(), label=_("Logo")).optional
     """
     The project logo.
     """
 
-    name = Optional(MachineNameAttr())
+    name = MachineNameAttr().optional
     """
     The project's machine name.
     """

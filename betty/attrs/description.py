@@ -7,7 +7,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, override
 
 from betty.attrs.localizable import LocalizableAttr
-from betty.attrs.optional import Optional
 from betty.linked_data import (
     JsonLdObject,
     LinkedDataDumpableWithSchemaJsonLdObject,
@@ -30,7 +29,7 @@ class HasDescription(LinkedDataDumpableWithSchemaJsonLdObject, HasProperties):
     Data with a description.
     """
 
-    description = Optional(LocalizableAttr(label=_("Description")))
+    description = LocalizableAttr(label=_("Description")).optional
     """
     The description.
     """

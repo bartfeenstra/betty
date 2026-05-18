@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, final, override
 from betty.attrs.description import HasDescription
 from betty.attrs.localizable import LocalizableAttr
 from betty.attrs.media_type import HasMediaType
-from betty.attrs.optional import Optional
 from betty.attrs.privacy import HasPrivacy
 from betty.entity import Entity, EntityDefinition
 from betty.entity.association import BidirectionalToZeroOrOne
@@ -44,7 +43,7 @@ class Link(LinkType, HasMediaType, HasDescription, HasPrivacy, Entity):
     """
 
     url = LocalizableAttr(label=_("URL"))
-    _label = Optional(LocalizableAttr(label=_("Label")))
+    _label = LocalizableAttr(label=_("Label")).optional
 
     relationship: str | None
     """

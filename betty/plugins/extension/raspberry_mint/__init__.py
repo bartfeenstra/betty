@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.attrs.attr import AttrAttr
 from betty.attrs.collection_attr import CollectionAttrAttr
-from betty.attrs.optional import Optional
 from betty.collection.mapping import MutableResolvedMapping, ResolvedMapping
 from betty.collection.mapping.adapter import (
     MutableResolvedMappingAdapter,
@@ -93,17 +92,17 @@ class RaspberryMintData(Data, HasProperties):
     .. data:: betty.plugins.extension.raspberry_mint:RaspberryMintData
     """
 
-    primary_color = Optional(AttrAttr(ColorDefinition(), label=_("Primary color")))
+    primary_color = AttrAttr(ColorDefinition(), label=_("Primary color")).optional
     """
     The primary color.
     """
 
-    secondary_color = Optional(AttrAttr(ColorDefinition(), label=_("Secondary color")))
+    secondary_color = AttrAttr(ColorDefinition(), label=_("Secondary color")).optional
     """
     The secondary color.
     """
 
-    tertiary_color = Optional(AttrAttr(ColorDefinition(), label=_("Tertiary color")))
+    tertiary_color = AttrAttr(ColorDefinition(), label=_("Tertiary color")).optional
     """
     The tertiary color.
     """

@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.attrs.attr import AttrAttr
 from betty.attrs.collection_attr import CollectionAttrAttr
-from betty.attrs.optional import Optional
 from betty.collection.mapping import MutableResolvedMapping
 from betty.collection.mapping.adapter import MutableResolvedMappingAdapter
 from betty.data import Data
@@ -115,12 +114,12 @@ class FamilyTree(Data, HasProperties):
     How to map event types.
     """
 
-    file = Optional(AttrAttr(PathDefinition(), label=_("File")))
+    file = AttrAttr(PathDefinition(), label=_("File")).optional
     """
     The path to a Gramps family tree file.
     """
 
-    name = Optional(AttrAttr(StrDefinition(label=_("Name"))))
+    name = AttrAttr(StrDefinition(label=_("Name"))).optional
     """
     The family tree's name in Gramps.
     """
@@ -250,7 +249,7 @@ class GrampsData(Data, HasProperties):
     The Gramps family trees to load.
     """
 
-    executable = Optional(AttrAttr(PathDefinition()))
+    executable = AttrAttr(PathDefinition()).optional
     """
     The path to a specific Gramps executable.
 
