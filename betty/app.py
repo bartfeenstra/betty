@@ -322,7 +322,3 @@ class AppData(Data, HasProperties):
     """
     The application locale.
     """
-
-    def __init__(self, *, locale: ResolvableLocale | None = None):
-        super().__init__()
-        self.locale = None if locale is None else resolve_locale(locale)
