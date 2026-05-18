@@ -61,7 +61,7 @@ class MappingDefinition[MutableMappingT: MutableMapping[Any, Any], KeyT, ValueT]
         return {
             self._item.porter.dump(key): self._value.porter.dump(item)
             for key, item in data.items()
-        }  # ty:ignore[invalid-return-type]
+        }
 
     @final
     @override

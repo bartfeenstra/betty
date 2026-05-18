@@ -12,7 +12,7 @@ from betty.collection.keyed import MutableKeyedCollection
 from betty.property import HasProperties
 
 if TYPE_CHECKING:
-    from betty.data import Data
+    from betty.data import ResolvableDataDefinition
     from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
     from betty.locale.localizable import ResolvableLocalizable
 
@@ -30,8 +30,9 @@ class KeyedCollectionAttr[
 
     def __init__(
         self,
-        data: KeyedCollectionDefinition[MutableKeyedCollectionT, ItemSetT]
-        | type[Data[KeyedCollectionDefinition[MutableKeyedCollectionT, ItemSetT]]],
+        data: ResolvableDataDefinition[
+            KeyedCollectionDefinition[MutableKeyedCollectionT, ItemSetT]
+        ],
         *,
         default: Callable[[], Iterable[ItemSetT]] = tuple,
         description: ResolvableLocalizable | None = None,
