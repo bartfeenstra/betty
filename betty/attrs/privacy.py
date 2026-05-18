@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any, Literal, final, override
 
 from betty.attr import ProxyAttr
 from betty.attrs.attr import AttrAttr
+from betty.attrs.owner import OwnerAttr
 from betty.datas.enum import EnumDefinition
 from betty.linked_data import LinkedDataDumper
 from betty.locale.localizable.gettext import _
@@ -22,6 +23,7 @@ if TYPE_CHECKING:
 @final
 class PrivacyAttr(
     ProxyAttr["HasPrivacy", Privacy, Privacy],
+    OwnerAttr["HasPrivacy", Privacy, Privacy],
     LinkedDataDumper["HasPrivacy", PrivacySchema, bool],
 ):
     """

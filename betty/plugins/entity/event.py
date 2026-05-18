@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, final, override
 from betty.attrs.date import HasAnyDate
 from betty.attrs.description import HasDescription
 from betty.attrs.localizable import LocalizableAttr
-from betty.attrs.optional import Optional
 from betty.attrs.privacy import HasPrivacy
 from betty.entity import EntityDefinition
 from betty.entity.association import (
@@ -69,7 +68,7 @@ class Event(
     .. plugin:: entity:event.
     """
 
-    name = Optional(LocalizableAttr(label=_("Name")))
+    name = LocalizableAttr(label=_("Name")).optional
     """
     The event's name, if it has any.
     """

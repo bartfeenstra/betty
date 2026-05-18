@@ -7,7 +7,7 @@ from __future__ import annotations
 from collections.abc import Callable, Collection, Iterable
 from typing import TYPE_CHECKING, Any, final, override
 
-from betty.attr import Attr
+from betty.attrs.owner import OwnerAttr
 from betty.data import ResolvableDataDefinition, resolve_data_definition
 from betty.datas.aggregate.record.object import AttrDefinition
 from betty.property import HasProperties
@@ -23,7 +23,7 @@ class CollectionAttrAttr[
     OwnerT: HasProperties,
     MutableCollectionT: Collection[Any],
     ValuesSetT: Iterable,
-](Attr[OwnerT, MutableCollectionT, ValuesSetT]):
+](OwnerAttr[OwnerT, MutableCollectionT, ValuesSetT]):
     """
     An object attribute that stores its collection of data on owner instances.
     """
@@ -43,11 +43,11 @@ class CollectionAttrAttr[
         super().__init__(
             AttrDefinition(
                 data,
-                description=description,
                 label=label,
-                omit_dump=omit_dump,
+                description=description,
                 omit_load=omit_load,
-            )
+                omit_dump=omit_dump,
+            ),
         )
         self.__data_collection = resolve_data_definition(data)
         self.__default_items = default

@@ -7,7 +7,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, override
 
 from betty.attrs.attr import AttrAttr
-from betty.attrs.optional import Optional
 from betty.datas.date import AnyDateDefinition
 from betty.date import AnyDate, Date
 from betty.date.linked_data import (
@@ -29,7 +28,7 @@ class HasAnyDate(LinkedDataDumpableWithSchemaJsonLdObject, HasProperties):
     A resource with date information.
     """
 
-    date = Optional(AttrAttr(AnyDateDefinition()))
+    date = AttrAttr(AnyDateDefinition()).optional
     """
     The date.
     """

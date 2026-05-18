@@ -16,7 +16,6 @@ from betty.assertion import (
     assert_sequence,
 )
 from betty.attrs.attr import AttrAttr
-from betty.attrs.optional import Optional
 from betty.content import Content, ContentDefinition, ContentManufacturer, build
 from betty.data import Data
 from betty.datas.aggregate.collection.mapping import MappingDefinition
@@ -138,9 +137,9 @@ class ColumnsData(Data, HasProperties):
     The content within the columns.
     """
 
-    justify_content = Optional(
-        AttrAttr(EnumDefinition(cls=JustifyContent, label=_("Justify content")))
-    )
+    justify_content = AttrAttr(
+        EnumDefinition(cls=JustifyContent, label=_("Justify content"))
+    ).optional
     """
     If and how to justify content.
     """

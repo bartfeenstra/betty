@@ -8,6 +8,7 @@ from typing import final
 
 from betty.attr import ProxyAttr
 from betty.attrs.attr import AttrAttr
+from betty.attrs.owner import OwnerAttr
 from betty.datas.localizable import LocalizableDefinition
 from betty.locale.localizable import (
     Localizable,
@@ -18,7 +19,10 @@ from betty.property import HasProperties
 
 
 @final
-class LocalizableAttr(ProxyAttr[HasProperties, Localizable, ResolvableLocalizable]):
+class LocalizableAttr(
+    ProxyAttr[HasProperties, Localizable, ResolvableLocalizable],
+    OwnerAttr[HasProperties, Localizable, ResolvableLocalizable],
+):
     """
     An attribute containing a :py:class:`betty.locale.localizable.Localizable`.
     """

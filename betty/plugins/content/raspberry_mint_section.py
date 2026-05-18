@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.attrs.attr import AttrAttr
 from betty.attrs.localizable import LocalizableAttr
 from betty.attrs.machine_name import MachineNameAttr
-from betty.attrs.optional import Optional
 from betty.attrs.plugin_manufacturer_sequence import (
     PluginManufacturerSequenceAttr,
 )
@@ -70,18 +69,16 @@ class SectionData(Data, HasProperties):
     The section heading.
     """
 
-    name = Optional(MachineNameAttr())
+    name = MachineNameAttr().optional
     """
     The section's machine name, used to generate permanent links.
     """
 
-    visually_hide_heading = Optional(
-        AttrAttr(
-            BoolDefinition(label=_("Visually hide heading")),
-            omit_load=True,
-            omit_dump=lambda data: data is False,
-        )
-    )
+    visually_hide_heading = AttrAttr(
+        BoolDefinition(label=_("Visually hide heading")),
+        omit_load=True,
+        omit_dump=lambda data: data is False,
+    ).optional
     """
     Visually hide the heading.
     

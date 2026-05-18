@@ -108,6 +108,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "init_property_owner": MissingReason.SHOULD_BE_COVERED,
         },
     },
+    "betty/attrs/owner.py": {
+        "OwnerAttr": MissingReason.STATIC_CONTENT_ONLY,
+    },
     "betty/attrs/privacy.py": {
         "PrivacyAttr": {
             "linked_data_schema_for": MissingReason.STATIC_CONTENT_ONLY,

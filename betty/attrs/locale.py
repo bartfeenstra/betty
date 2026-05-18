@@ -10,7 +10,7 @@ from babel import Locale
 
 from betty.attr import ProxyAttr
 from betty.attrs.attr import AttrAttr
-from betty.attrs.optional import Optional
+from betty.attrs.owner import OwnerAttr
 from betty.datas.locale import LocaleDefinition
 from betty.json_schema import Null, OneOf
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
@@ -26,7 +26,10 @@ if TYPE_CHECKING:
 
 
 @final
-class LocaleAttr(ProxyAttr[HasProperties, Locale, ResolvableLocale]):
+class LocaleAttr(
+    ProxyAttr[HasProperties, Locale, ResolvableLocale],
+    OwnerAttr[HasProperties, Locale, ResolvableLocale],
+):
     """
     An attribute containing a locale.
     """
@@ -49,7 +52,7 @@ class HasLocale(Localized, LinkedDataDumpableWithSchemaJsonLdObject, HasProperti
     A resource that is localized, e.g. contains information in a specific locale.
     """
 
-    locale = Optional(LocaleAttr())
+    locale = LocaleAttr().optional
 
     def __init__(
         self, *args: Any, locale: ResolvableLocale | None = None, **kwargs: Any

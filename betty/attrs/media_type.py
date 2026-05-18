@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, final, override
 
 from betty.attr import ProxyAttr
 from betty.attrs.attr import AttrAttr
-from betty.attrs.optional import Optional
+from betty.attrs.owner import OwnerAttr
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
 from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
 from betty.media_type.schema import MediaTypeSchema
@@ -24,7 +24,10 @@ if TYPE_CHECKING:
 
 
 @final
-class MediaTypeAttr(ProxyAttr[HasProperties, MediaType, ResolvableMediaType]):
+class MediaTypeAttr(
+    ProxyAttr[HasProperties, MediaType, ResolvableMediaType],
+    OwnerAttr[HasProperties, MediaType, ResolvableMediaType],
+):
     """
     An attribute containing a media type.
     """
@@ -55,7 +58,7 @@ class HasMediaType(LinkedDataDumpableWithSchemaJsonLdObject, HasProperties):
     A resource with an `IANA media type <https://www.iana.org/assignments/media-types/media-types.xhtml>`_.
     """
 
-    media_type = Optional(MediaTypeAttr())
+    media_type = MediaTypeAttr().optional
 
     def __init__(
         self,

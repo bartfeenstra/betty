@@ -4,13 +4,11 @@ Object attributes.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Final, final, override
+from typing import TYPE_CHECKING, Any, Final, override
 
 from betty.property import HasProperties, ProxyProperty, SettableProperty
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
-
     from betty.datas.aggregate.record.object import AttrDefinition
 
 
@@ -25,42 +23,6 @@ class Attr[OwnerT: HasProperties, GetT, SetT](SettableProperty[OwnerT, GetT, Set
         The attribute's data definition.
         """
 
-    @final
-    def __owner_attr(self, attr: str) -> str:
-        return f"_attr_{self.property.name}_{attr}"
-
-    @final
-    def _has_owner_attr(self, owner: OwnerT, attr: str = "value", /) -> bool:
-        """
-        Check if the owner has an object attribute.
-        """
-        return hasattr(owner, self.__owner_attr(attr))
-
-    @final
-    def _get_owner_attr(self, owner: OwnerT, attr: str = "value", /) -> GetT:
-        """
-        Get the value from the owner's object attribute.
-        """
-        return getattr(owner, self.__owner_attr(attr))
-
-    @final
-    def _set_owner_attr(
-        self, owner: OwnerT, value: GetT, attr: str = "value", /
-    ) -> None:
-        """
-        Set the value to the owner's object attribute.
-        """
-        setattr(owner, self.__owner_attr(attr), value)
-
-    @final
-    def setter[SetterSetT](
-        self, setter: Callable[[SetterSetT], SetT], /
-    ) -> Attr[OwnerT, GetT, SetterSetT]:
-        """
-        Return a new attribute with the given setter.
-        """
-        return SetterAttr(self, setter)
-
 
 class ProxyAttr[OwnerT: HasProperties, GetT, SetT](
     ProxyProperty[OwnerT, GetT], Attr[OwnerT, GetT, SetT]
@@ -72,32 +34,15 @@ class ProxyAttr[OwnerT: HasProperties, GetT, SetT](
     def __init__(
         self,
         proxied: Attr[OwnerT, GetT, SetT],
-        *,
+        *args: Any,
         attr: AttrDefinition[GetT] | None = None,
+        **kwargs: Any,
     ):
-        super().__init__(proxied.attr if attr is None else attr, proxied=proxied)
+        super().__init__(
+            proxied.attr if attr is None else attr, *args, proxied=proxied, **kwargs
+        )
         self.__proxied_attr = proxied
 
     @override
     def set(self, owner: OwnerT, value: SetT, /) -> None:
         self.__proxied_attr.set(owner, value)
-
-
-@final
-class SetterAttr[OwnerT: HasProperties, GetT, SetT](ProxyAttr[OwnerT, GetT, SetT]):
-    """
-    An attribute with an additional setter.
-    """
-
-    def __init__[ProxiedSetT](
-        self,
-        proxied: Attr[OwnerT, GetT, ProxiedSetT],
-        setter: Callable[[SetT], ProxiedSetT],
-    ):
-        super().__init__(proxied)
-        self.__proxied_setter = proxied
-        self.__setter = setter
-
-    @override
-    def set(self, owner: OwnerT, value: SetT, /) -> None:
-        self.__proxied_setter.set(owner, self.__setter(value))

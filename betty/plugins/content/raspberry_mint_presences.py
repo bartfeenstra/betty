@@ -7,7 +7,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.attrs.attr import AttrAttr
-from betty.attrs.optional import Optional
 from betty.content import ContentDefinition
 from betty.data import Data
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
@@ -55,16 +54,16 @@ class PresencesData(Data, HasProperties):
     .. data:: betty.plugins.content.raspberry_mint_presences:PresencesData
     """
 
-    exclude = Optional(
-        AttrAttr(SequenceDefinition(cls=list, value=MachineName, label=_("Exclude")))
-    )
+    exclude = AttrAttr(
+        SequenceDefinition(cls=list, value=MachineName, label=_("Exclude"))
+    ).optional
     """
     The presence roles for which to exclude presences.
     """
 
-    include = Optional(
-        AttrAttr(SequenceDefinition(cls=list, value=MachineName, label=_("Include")))
-    )
+    include = AttrAttr(
+        SequenceDefinition(cls=list, value=MachineName, label=_("Include"))
+    ).optional
     """
     The presence roles for which to include presences.
     """

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
-from betty.attr import Attr
+from betty.attrs.owner import OwnerAttr
 from betty.datas.aggregate.record.object import AttrDefinition
 from betty.property import HasProperties
 
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 @final
-class AttrAttr[OwnerT: HasProperties, T](Attr[OwnerT, T, T]):
+class AttrAttr[OwnerT: HasProperties, T](OwnerAttr[OwnerT, T, T]):
     """
     An object attribute that stores its data on owner instances.
     """
@@ -43,9 +43,14 @@ class AttrAttr[OwnerT: HasProperties, T](Attr[OwnerT, T, T]):
             ),
         )
         self._data = data
-        self._label = label
-        self._description = description
         self._default = default
+
+    @final
+    @override
+    def init_owner(self, owner: OwnerT, /) -> None:
+        if self._default is None:
+            return
+        self._set_owner_attr(owner, self._default())
 
     @final
     @override
@@ -55,10 +60,3 @@ class AttrAttr[OwnerT: HasProperties, T](Attr[OwnerT, T, T]):
     @override
     def set(self, owner: OwnerT, value: T, /) -> None:
         self._set_owner_attr(owner, value)
-
-    @final
-    @override
-    def init_owner(self, owner: OwnerT, /) -> None:
-        if self._default is None:
-            return
-        self._set_owner_attr(owner, self._default())
