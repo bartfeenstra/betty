@@ -4,22 +4,38 @@ Plugin definition configurations properties.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from typing import TYPE_CHECKING, final
 
 from betty.attr import ProxyAttr
 from betty.attrs.collection_attr import CollectionAttrAttr
+from betty.collection.keyed import MutableKeyedCollection
 from betty.collection.keyed.adapter import MutableKeyedCollectionAdapter
 from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
+from betty.datas.plugin_definition import PluginDefinitionData
 from betty.indicator.selector import Attr
+from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
+from betty.plugin.resolve import ResolvablePluginId
+from betty.property import HasProperties
 
 if TYPE_CHECKING:
-    from betty.datas.plugin_definition import PluginDefinitionData
     from betty.locale.localizable import ResolvableLocalizable
 
 
 @final
-class PluginDefinitionDatasAttr[PluginDefinitionT: PluginDefinition](ProxyAttr):
+class PluginDefinitionDatasAttr[PluginDefinitionT: PluginDefinition](
+    ProxyAttr[
+        HasProperties,
+        MutableKeyedCollection[
+            MachineName,
+            ResolvablePluginId[PluginDefinitionT],
+            PluginDefinitionData[PluginDefinitionT],
+            PluginDefinitionData[PluginDefinitionT],
+        ],
+        Iterable[PluginDefinitionData[PluginDefinitionT]],
+    ]
+):
     """
     An attribute containing a :py:class:`betty.collection.keyed.KeyedCollection` of :py:class:`betty.datas.plugin_definition.PluginDefinitionData`.
     """
@@ -34,7 +50,15 @@ class PluginDefinitionDatasAttr[PluginDefinitionT: PluginDefinition](ProxyAttr):
     ):
         super().__init__(
             CollectionAttrAttr(
-                KeyedCollectionDefinition(
+                KeyedCollectionDefinition[
+                    MutableKeyedCollection[
+                        MachineName,
+                        ResolvablePluginId[PluginDefinitionT],
+                        PluginDefinitionData[PluginDefinitionT],
+                        PluginDefinitionData[PluginDefinitionT],
+                    ],
+                    PluginDefinitionData[PluginDefinitionT],
+                ](
                     value=item,
                     label=plugin_type.type().label_plural,
                     key=Attr("id"),
