@@ -17,9 +17,9 @@ from betty.life_cycle.manage import ManagedLifeCycle
 from betty.locale.localizable import ResolvableLocalizable
 from betty.locale.localize import resolve_localized
 from betty.progress import Progress
-from betty.progress.no_op import NoOpProgress
+from betty.progresses.no_op import NoOpProgress
+from betty.progresses.rich import RichProgress
 from betty.rich import Theme
-from betty.rich.progress import RichProgress
 from betty.typing import Void, VoidType
 from betty.user import User, Verbosity
 from betty.user.logging import UserHandler

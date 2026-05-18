@@ -2,7 +2,7 @@ from unittest.mock import ANY
 
 from pytest_mock import MockerFixture
 
-from betty.rich.progress import RichProgress
+from betty.progresses.rich import RichProgress
 
 
 class TestRichProgress:

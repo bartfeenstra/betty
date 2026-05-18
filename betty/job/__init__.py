@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any, final
 from uuid import uuid4
 
 from betty.caches.memory import MemoryCache
-from betty.progress.no_op import NoOpProgress
+from betty.progresses.no_op import NoOpProgress
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
