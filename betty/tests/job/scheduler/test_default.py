@@ -9,7 +9,7 @@ from betty.job.scheduler.default import DefaultScheduler
 from betty.jobs.no_op import NoOpJob
 from betty.progress import Progress
 from betty.test_utils.job.scheduler import SchedulerTestBase
-from betty.user.no_op import NoOpUser
+from betty.users.no_op import NoOpUser
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler

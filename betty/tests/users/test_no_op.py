@@ -4,7 +4,7 @@ from unittest.mock import Mock
 import pytest
 
 from betty.user import UserTimeoutError, Verbosity
-from betty.user.no_op import NoOpUser
+from betty.users.no_op import NoOpUser
 
 
 class TestNoOpUser:

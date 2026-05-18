@@ -5,7 +5,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from betty.npm import NpmUnavailable, npm
-from betty.user.no_op import NoOpUser
+from betty.users.no_op import NoOpUser
 
 
 class TestNpm:
