@@ -41,9 +41,6 @@ class AttrAttr[OwnerT: HasProperties, GetT, SetT](Attr[OwnerT, GetT, SetT]):
                 omit_dump=omit_dump,
             ),
         )
-        self._data = data
-        self._label = label
-        self._description = description
         self._default = default
 
     @final
