@@ -2,20 +2,15 @@ from __future__ import annotations
 
 from _ast import Constant, Expr
 from ast import iter_child_nodes, parse
-from collections import defaultdict
 from collections.abc import (
-    AsyncIterable,
     Callable,
     Iterable,
     Mapping,
-    MutableMapping,
-    MutableSequence,
     Sequence,
 )
 from enum import Enum
 from importlib import import_module
 from inspect import getmembers, isclass, isdatadescriptor, isfunction
-from os import walk
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol, cast
 
@@ -23,8 +18,8 @@ import pytest
 
 from betty.data import Data
 from betty.dirs import ROOT_DIRECTORY
-from betty.file import read
 from betty.html.attributes import Attributes
+from betty.plugin import PluginDefinition
 from betty.plugin.cls import Plugin
 from betty.tests.coverage.fixtures import (
     _module_private,
@@ -78,9 +73,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         }
     },
     "betty/asset.py": {
-        "AssetDirectoryDefinition": {
-            "type": MissingReason.INHERITED,
-        },
         "AssetError": MissingReason.ABSTRACT,
         "AssetRepository": MissingReason.ABSTRACT,
     },
@@ -128,9 +120,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/console/command.py": {
         "Command": MissingReason.SHOULD_BE_COVERED,
-        "CommandDefinition": {
-            "type": MissingReason.INHERITED,
-        },
     },
     "betty/console/project.py": {
         "ConfigurationFileNotFound": MissingReason.STATIC_CONTENT_ONLY,
@@ -264,16 +253,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             if attr_name.startswith("html_")
         },
     },
-    "betty/html/css.py": {
-        "CssResourceDefinition": {
-            "type": MissingReason.INHERITED,
-        },
-    },
-    "betty/html/js.py": {
-        "JsResourceDefinition": {
-            "type": MissingReason.INHERITED,
-        },
-    },
     "betty/http_client/rate_limit.py": {
         "RateLimitDefinition": MissingReason.STATIC_CONTENT_ONLY,
     },
@@ -326,9 +305,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/link.py": {
         "Link": MissingReason.ABSTRACT,
-        "LinkDefinition": {
-            "type": MissingReason.INHERITED,
-        },
     },
     "betty/linked_data.py": {
         "dump_context": MissingReason.SHOULD_BE_COVERED,
@@ -390,9 +366,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "LocalizableSequence": MissingReason.ABSTRACT,
     },
     "betty/media_type/__init__.py": {
-        "MediaTypeDefinition": {
-            "type": MissingReason.INHERITED,
-        },
         "InvalidMediaType": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/media_type/media_types.py": MissingReason.STATIC_CONTENT_ONLY,
@@ -417,9 +390,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/entity/__init__.py": {
         "Entity": MissingReason.SHOULD_BE_COVERED,
-        "EntityDefinition": {
-            "type": MissingReason.INHERITED,
-        },
         "EntityReferenceCollectionSchema": MissingReason.STATIC_CONTENT_ONLY,
         "EntityReferenceSchema": MissingReason.STATIC_CONTENT_ONLY,
         "NonPersistentId": MissingReason.SHOULD_BE_COVERED,
@@ -441,9 +411,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/event_type.py": {
         "EventType": MissingReason.STATIC_CONTENT_ONLY,
-        "EventTypeDefinition": {
-            "type": MissingReason.INHERITED,
-        },
         "EventTypeManufacturer": MissingReason.INHERITED,
         "ShouldExistEventType": MissingReason.ABSTRACT,
     },
@@ -795,7 +762,7 @@ class TestCoverage:
     async def test(self, subtests: pytest.Subtests) -> None:
         errors = await CoverageTester().test()
         for file in sorted(errors):
-            for error in errors[file]:
+            for error in sorted(errors[file]):
                 with subtests.test():
                     raise AssertionError(error)
 
@@ -810,55 +777,52 @@ def _module_path_to_name(module: Path) -> str:
 
 class CoverageTester:
     def __init__(self):
-        self._ignore_src_module_paths = self._get_ignore_src_module_paths()
-
-    async def test(self) -> Mapping[Path, Sequence[str]]:
-        errors: MutableMapping[Path, MutableSequence[str]] = defaultdict(list)
-
-        for directory, _, file_names in walk(str(ROOT_DIRECTORY / "betty")):
-            for file_name in file_names:
-                file = Path(directory) / file_name
-                if file.suffix == ".py":
-                    async for file_error in self._test_python_file(file):
-                        errors[file].append(file_error)
-        return errors
-
-    def _get_ignore_src_module_paths(
-        self,
-    ) -> Mapping[Path, _ModuleIgnore]:
-        return {
+        self._ignore_src_module_paths = {
             Path(module_file).resolve(): members
             for module_file, members in _BASELINE.items()
         }
 
-    async def _test_python_file(self, file: Path, /) -> AsyncIterable[str]:
-        # Skip tests.
-        if ROOT_DIRECTORY / "betty" / "tests" in file.parents:
-            return
+    async def test(self) -> Mapping[Path, Iterable[str]]:
+        return {
+            file: self._test_python_file(file)
+            for directory, _, file_names in (ROOT_DIRECTORY / "betty").resolve().walk()
+            for file_name in file_names
+            if file_name.endswith(".py")
+            if (file := directory / file_name)
+        }
 
-        src_module_path = file.resolve()
+    def _test_python_file(self, file: Path, /) -> Iterable[str]:
+        if ROOT_DIRECTORY / "betty" / "tests" in file.parents:
+            if file.name.startswith("test_"):
+                return self._test_python_test_file(file)
+            return ()
+        return self._test_python_src_file(file)
+
+    def _test_python_src_file(self, file: Path, /) -> Iterable[str]:
         expected_test_module_path = (
             ROOT_DIRECTORY
             / "betty"
             / "tests"
-            / src_module_path.relative_to(ROOT_DIRECTORY / "betty").parent
-            / f"test_{src_module_path.name}"
+            / file.relative_to(ROOT_DIRECTORY / "betty").parent
+            / f"test_{file.name}"
         )
-        async for error in _ModuleCoverageTester(
-            src_module_path,
+        return _ModuleCoverageTester(
+            file,
             expected_test_module_path,
-            self._ignore_src_module_paths.get(src_module_path, {}),
-        ).test():
-            yield error
+            self._ignore_src_module_paths.get(file, {}),
+        ).test()
 
-    async def _test_python_file_contains_docstring_only(self, file: Path, /) -> bool:
-        f_ast = parse(await read(file))
-        for child in iter_child_nodes(f_ast):
-            if not isinstance(child, Expr):
-                return False
-            if not isinstance(child.value, Constant):
-                return False
-        return True
+    def _test_python_test_file(self, file: Path, /) -> Iterable[str]:
+        expected_src_module_path = (
+            ROOT_DIRECTORY
+            / "betty"
+            / file.relative_to(ROOT_DIRECTORY / "betty" / "tests").parent
+            / file.name[5:]
+        )
+        if expected_src_module_path in self._ignore_src_module_paths and isinstance(
+            self._ignore_src_module_paths[expected_src_module_path], MissingReason
+        ):
+            yield f"{expected_src_module_path} has a matching test file at {file}, which was unexpectedly declared as known to be missing."
 
 
 class _Importable(Protocol):
@@ -875,58 +839,52 @@ class _ModuleCoverageTester:
             self._get_module_data(self._src_module)
         )
 
-    async def test(self) -> AsyncIterable[str]:
+    def test(self) -> Iterable[str]:
         # Skip private modules.
         if True in (x.startswith("_") for x in self._src_module_name.split(".")):
             return
 
-        if self._test_module.exists():
-            if isinstance(self._ignore, MissingReason):
-                yield f"{self._src_module} has a matching test file at {self._test_module}, which was unexpectedly declared as known to be missing."
-                return
-            else:
-                assert not isinstance(self._ignore, MissingReason)
-                test_module_name, test_functions, test_classes = self._get_module_data(
-                    self._test_module
-                )
-                for src_function in self._src_functions:
-                    async for error in _ModuleFunctionCoverageTester(
-                        src_function,
-                        test_functions,
-                        self._src_module_name,
-                        test_module_name,
-                        cast(
-                            "_ModuleFunctionIgnore",
-                            self._ignore.get(src_function.__name__, None),
-                        ),
-                    ).test():
-                        yield error
+        if self._test_module.exists() and not isinstance(self._ignore, MissingReason):
+            test_module_name, test_functions, test_classes = self._get_module_data(
+                self._test_module
+            )
+            for src_function in self._src_functions:
+                yield from _ModuleFunctionCoverageTester(
+                    src_function,
+                    test_functions,
+                    self._src_module_name,
+                    test_module_name,
+                    cast(
+                        "_ModuleFunctionIgnore",
+                        self._ignore.get(src_function.__name__, None),
+                    ),
+                ).test()
 
-                for src_class in self._src_classes:
-                    async for error in _ModuleClassCoverageTester(
-                        src_class,
-                        test_classes,
-                        self._src_module_name,
-                        test_module_name,
-                        cast(
-                            "_ModuleClassIgnore",
-                            self._ignore.get(src_class.__name__, {}),
-                        ),
-                    ).test():
-                        yield error
+            for src_class in self._src_classes:
+                yield from _ModuleClassCoverageTester(
+                    src_class,
+                    test_classes,
+                    self._src_module_name,
+                    test_module_name,
+                    cast(
+                        "_ModuleClassIgnore",
+                        self._ignore.get(src_class.__name__, {}),
+                    ),
+                ).test()
             return
 
         if isinstance(self._ignore, MissingReason):
             return
 
-        if await self._test_python_file_contains_docstring_only(self._src_module):
+        if self._test_python_file_contains_docstring_only(self._src_module):
             return
 
         yield f"{self._src_module} does not have a matching test file. Expected {self._test_module} to exist."
 
-    async def _test_python_file_contains_docstring_only(self, file: Path, /) -> bool:
-        f_ast = parse(await read(file))
-        for child in iter_child_nodes(f_ast):
+    def _test_python_file_contains_docstring_only(self, file: Path, /) -> bool:
+        with open(file, encoding="utf-8") as f:
+            python = f.read()
+        for child in iter_child_nodes(parse(python, file)):
             if not isinstance(child, Expr):
                 return False
             if not isinstance(child.value, Constant):
@@ -987,7 +945,7 @@ class _ModuleFunctionCoverageTester:
         self._test_module_name = test_module_name
         self._ignore = ignore
 
-    async def test(self) -> AsyncIterable[str]:
+    def test(self) -> Iterable[str]:
         expected_test_member_name = f"test_{self._src_function.__name__}"
         expected_test_member_name_prefix = f"{expected_test_member_name}__"
         test_functions = [
@@ -1032,7 +990,7 @@ class _ModuleClassCoverageTester:
         self._test_module_name = test_module_name
         self._ignore = ignore
 
-    async def test(self) -> AsyncIterable[str]:
+    def test(self) -> Iterable[str]:
         expected_test_class_name = (
             f"Test{self._src_class.__name__[0].upper()}{self._src_class.__name__[1:]}"
         )
@@ -1042,10 +1000,9 @@ class _ModuleClassCoverageTester:
                 yield f"The source class {self._src_class.__module__}.{self._src_class.__name__} has a matching test class at {self._test_classes[expected_test_class_name].__module__}.{self._test_classes[expected_test_class_name].__name__}, which was unexpectedly declared as known to be missing."
                 return
             assert not isinstance(self._ignore, MissingReason)
-            for error in self._test_members(
+            yield from self._test_members(
                 self._test_classes[expected_test_class_name], self._ignore
-            ):
-                yield error
+            )
             return
 
         if isinstance(self._ignore, MissingReason):
@@ -1125,6 +1082,7 @@ class _ModuleClassCoverageTester:
         for ignored_class, ignored_member_name in (
             (Data, "data"),
             (Plugin, "plugin"),
+            (PluginDefinition, "type"),
         ):
             assert hasattr(ignored_class, ignored_member_name)
             if (
@@ -1147,7 +1105,6 @@ class Test_ModuleCoverageTester:
         [
             (False, _module_private, MissingReason.SHOULD_BE_COVERED),
             (False, _module_private, {}),
-            (True, module_with_test, MissingReason.SHOULD_BE_COVERED),
             (False, module_with_test, {}),
             (False, module_without_test, MissingReason.SHOULD_BE_COVERED),
             (True, module_without_test, {}),
@@ -1165,7 +1122,7 @@ class Test_ModuleCoverageTester:
             src_module_path.parent / "test.py",
             ignore,
         )
-        assert (len([error async for error in sut.test()]) > 0) is errors_expected
+        assert (len(list(sut.test())) > 0) is errors_expected
 
 
 class Test_ModuleFunctionCoverageTester:
@@ -1192,7 +1149,7 @@ class Test_ModuleFunctionCoverageTester:
             module.__name__,
             ignore,
         )
-        assert (len([error async for error in sut.test()]) > 0) is errors_expected
+        assert (len(list(sut.test())) > 0) is errors_expected
 
 
 class Test_ModuleClassCoverageTester:
@@ -1232,4 +1189,4 @@ class Test_ModuleClassCoverageTester:
             module.__name__,
             ignore,
         )
-        assert (len([error async for error in sut.test()]) > 0) is errors_expected
+        assert (len(list(sut.test())) > 0) is errors_expected
