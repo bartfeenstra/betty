@@ -9,6 +9,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Final,
+    Generic,
     Self,
     TypeVar,
     final,
@@ -92,7 +93,10 @@ _PortableRecordElementT = TypeVar(
 )
 
 
-class PortableRecord[PortableRecordElementT: Element[str] = Element[str]](Portable):
+class PortableRecord(
+    Portable,
+    Generic[_PortableRecordElementT],  # noqa: UP046
+):
     """
     A record object capable of dumping and loading itself to and from portable data.
     """
