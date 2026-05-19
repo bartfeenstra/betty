@@ -117,7 +117,10 @@ class Event(
             privacy=privacy,
             description=description,
         )
-        self._event_type = event_type or UnknownEventType()
+        self.event_type = event_type or UnknownEventType()
+        """
+        The type of event.
+        """
         self.place = place
         self.presences = presences
         self.name = name
@@ -139,7 +142,7 @@ class Event(
             return self.name
 
         format_kwargs: Mapping[str, ResolvableLocalizable] = {
-            "event_type": self._event_type.plugin().label,
+            "event_type": self.event_type.plugin().label,
         }
         subjects = [
             presence.person
@@ -156,13 +159,6 @@ class Event(
         if subjects:
             return _("{event_type} of {subjects}").format(**format_kwargs)
         return _("{event_type}").format(**format_kwargs)
-
-    @property
-    def event_type(self) -> EventType:
-        """
-        The type of event.
-        """
-        return self._event_type
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:

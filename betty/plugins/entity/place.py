@@ -95,22 +95,17 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
     ):
         super().__init__(id, notes=notes, links=links, privacy=privacy)
         self._names = list(names)
-        self._coordinates = coordinates
+        self.coordinates = coordinates
+        """
+        The place's coordinates.
+        """
         self.events = events
         self.enclosers = enclosers
         self.enclosees = enclosees
-        self._place_type = place_type or UnknownPlaceType()
-
-    @property
-    def place_type(self) -> PlaceType:
+        self.place_type = place_type or UnknownPlaceType()
         """
         The type of this place.
         """
-        return self._place_type
-
-    @place_type.setter
-    def place_type(self, place_type: PlaceType) -> None:
-        self._place_type = place_type
 
     @property
     def names(self) -> MutableSequence[PlaceName]:
@@ -120,17 +115,6 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
         The first name is considered the :py:attr:`place label <betty.plugins.entity.place.Place.label>`.
         """
         return self._names
-
-    @property
-    def coordinates(self) -> Point | None:
-        """
-        The place's coordinates.
-        """
-        return self._coordinates
-
-    @coordinates.setter
-    def coordinates(self, coordinates: Point) -> None:
-        self._coordinates = coordinates
 
     @override
     @property
