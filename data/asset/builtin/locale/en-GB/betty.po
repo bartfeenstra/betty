@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-05-05 13:39+0100\n"
+"POT-Creation-Date: 2026-05-19 13:57+0100\n"
 "PO-Revision-Date: 2026-02-17 18:12+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: en_GB\n"
@@ -761,6 +761,9 @@ msgstr "Exactly {expected} items are required, but found {actual}."
 msgid "Exclude"
 msgstr ""
 
+msgid "Executable"
+msgstr ""
+
 msgid "Explore a demonstration site"
 msgstr "Explore a demonstration site"
 
@@ -802,9 +805,6 @@ msgstr ""
 
 msgid "File"
 msgstr "File"
-
-msgid "File path"
-msgstr ""
 
 msgid "File referees"
 msgstr ""
@@ -1315,6 +1315,9 @@ msgid "Parish"
 msgstr "Parish"
 
 msgid "Parishes"
+msgstr ""
+
+msgid "Path"
 msgstr ""
 
 msgid "People"

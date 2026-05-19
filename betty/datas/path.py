@@ -20,6 +20,6 @@ class PathDefinition(DataDefinition[Path]):
     def __init__(self):
         super().__init__(
             cls=Path,
-            label=_("File path"),
+            label=_("Path"),
             porter=CallbackPorter[Path](assert_path(), str),
         )

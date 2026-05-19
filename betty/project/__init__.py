@@ -24,10 +24,10 @@ from betty.assertion import assert_number, assert_url
 from betty.asset import AssetRepositoryService
 from betty.attrs.attr import AttrAttr
 from betty.attrs.collection_attr import CollectionAttrAttr
-from betty.attrs.locale import HasLocale as HasLocale
 from betty.attrs.locale import LocaleAttr
 from betty.attrs.localizable import LocalizableAttr
 from betty.attrs.machine_name import MachineNameAttr
+from betty.attrs.path import new_path_attr
 from betty.attrs.plugin_definitions import PluginDefinitionDatasAttr
 from betty.cache import Cache
 from betty.caches.file import BinaryFileCache, PickledFileCache
@@ -45,7 +45,6 @@ from betty.copyright_notice import (
 from betty.data import Data
 from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
-from betty.datas.aggregate.record import FieldDefinition as FieldDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.bool import BoolDefinition
 from betty.datas.copyright_notice_definition import CopyrightNoticeDefinitionData
@@ -53,7 +52,6 @@ from betty.datas.event_type_definition import EventTypeDefinitionData
 from betty.datas.gender_definition import GenderDefinitionData
 from betty.datas.int import IntDefinition
 from betty.datas.license_definition import LicenseDefinitionData
-from betty.datas.path import PathDefinition
 from betty.datas.place_type_definition import PlaceTypeDefinitionData
 from betty.datas.role_definition import RoleDefinitionData
 from betty.datas.str import StrDefinition
@@ -957,7 +955,7 @@ class ProjectData(Data, HasProperties):
     The configured locales.
     """
 
-    logo = AttrAttr(PathDefinition(), label=_("Logo")).optional
+    logo = new_path_attr(label=_("Logo")).optional
     """
     The project logo.
     """

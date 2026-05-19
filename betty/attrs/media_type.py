@@ -42,7 +42,7 @@ class MediaTypeAttr(
     ):
         super().__init__(
             AttrAttr(
-                data=MediaType,
+                MediaType,
                 label=label,
                 description=description,
                 omit_load=omit_load,

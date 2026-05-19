@@ -26,6 +26,7 @@ class AttrAttr[OwnerT: HasProperties, T](OwnerAttr[OwnerT, T, T]):
     def __init__(
         self,
         data: ResolvableDataDefinition[DataDefinition[T]],
+        /,
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
