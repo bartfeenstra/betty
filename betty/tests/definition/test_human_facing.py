@@ -18,7 +18,7 @@ class TestHumanFacingDefinition:
 
     def test_description(self) -> None:
         description = DUMMY_LOCALIZABLE
-        sut = HumanFacingDefinition(description=description, label=DUMMY_LOCALIZABLE)
+        sut = HumanFacingDefinition(description=description, label="-")
         assert sut.description is description
 
 
@@ -28,7 +28,7 @@ class TestCountableHumanFacingDefinition:
         sut = CountableHumanFacingDefinition(
             label_plural=label_plural,
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-            label=DUMMY_LOCALIZABLE,
+            label="-",
         )
         assert sut.label_plural is label_plural
 
@@ -36,7 +36,7 @@ class TestCountableHumanFacingDefinition:
         label_countable = DUMMY_COUNTABLE_LOCALIZABLE
         sut = CountableHumanFacingDefinition(
             label_countable=label_countable,
-            label_plural=DUMMY_LOCALIZABLE,
-            label=DUMMY_LOCALIZABLE,
+            label_plural="-",
+            label="-",
         )
         assert sut.label_countable is label_countable

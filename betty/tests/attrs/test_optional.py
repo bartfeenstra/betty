@@ -7,7 +7,6 @@ from betty.datas.str import StrDefinition
 from betty.functools import passthrough
 from betty.portable import CallbackPorter
 from betty.property import HasProperties
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 class TestOptional:
@@ -16,7 +15,7 @@ class TestOptional:
             AttrAttr(
                 DataDefinition(
                     cls=str,
-                    label=DUMMY_LOCALIZABLE,
+                    label="-",
                     porter=CallbackPorter(assert_str(), assert_str() | passthrough),
                 )
             )
@@ -32,7 +31,7 @@ class TestOptional:
         assert owner.my_first_property == value
 
     def test___set_name__(self) -> None:
-        required_property = AttrAttr(StrDefinition(label=DUMMY_LOCALIZABLE))
+        required_property = AttrAttr(StrDefinition(label="-"))
 
         class _Owner(HasProperties):
             my_first_property = Optional(required_property)
@@ -40,7 +39,7 @@ class TestOptional:
         assert required_property.property.name == "my_first_property"
 
     def test_attr(self) -> None:
-        data = StrDefinition(label=DUMMY_LOCALIZABLE)
+        data = StrDefinition(label="-")
 
         class _Owner(HasProperties):
             my_first_property = Optional(AttrAttr(data))
@@ -55,7 +54,7 @@ class TestOptional:
                 AttrAttr(
                     DataDefinition(
                         cls=str,
-                        label=DUMMY_LOCALIZABLE,
+                        label="-",
                         porter=CallbackPorter(assert_str(), assert_str() | passthrough),
                     ),
                     default=lambda: "Hello, world!",

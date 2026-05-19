@@ -5,7 +5,6 @@ from betty.locale.localizable.plain import Plain
 from betty.machine_name import MachineName
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
-    DUMMY_LOCALIZABLE,
 )
 
 
@@ -32,8 +31,8 @@ class TestEventTypeDefinitionData:
         after = MachineName("my-second-other-event-type")
         sut = EventTypeDefinitionData(
             id="my-first-event-type",
-            label=DUMMY_LOCALIZABLE,
-            label_plural=DUMMY_LOCALIZABLE,
+            label="-",
+            label_plural="-",
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
             description=description,
             before={before},

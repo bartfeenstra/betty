@@ -6,16 +6,13 @@ from betty.plugins.content.render import Render, RenderData
 from betty.plugins.content.static import Static
 from betty.test_utils.conftest import IsolatedProjectFactory
 from betty.test_utils.data import DataTestBase
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 class TestSectionData(DataTestBase[SectionData]):
     sut_cls = SectionData
 
     def test_content(self) -> None:
-        sut = SectionData(
-            ContentManufacturer("my-first-content"), heading=DUMMY_LOCALIZABLE
-        )
+        sut = SectionData(ContentManufacturer("my-first-content"), heading="-")
         assert sut.content[0].plugin_id == "my-first-content"
 
     def test_heading(self) -> None:
@@ -27,14 +24,14 @@ class TestSectionData(DataTestBase[SectionData]):
         sut = SectionData(
             ContentManufacturer("my-first-content"),
             name="my-first-section",
-            heading=DUMMY_LOCALIZABLE,
+            heading="-",
         )
         assert sut.name == "my-first-section"
 
     def test_visually_hide_heading(self) -> None:
         sut = SectionData(
             ContentManufacturer("my-first-content"),
-            heading=DUMMY_LOCALIZABLE,
+            heading="-",
             visually_hide_heading=True,
         )
         assert sut.visually_hide_heading

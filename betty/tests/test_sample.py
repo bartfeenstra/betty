@@ -7,21 +7,20 @@ import pytest
 from betty.data import Sample
 from betty.locale.localizable.plain import Plain
 from betty.sample import Samplable, SampleNotFound, Samples, Size
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
 
 
-_sample_full = Sample(object(), label=DUMMY_LOCALIZABLE, size=Size.FULL)
-_sample_intermediate = Sample(object(), label=DUMMY_LOCALIZABLE)
-_sample_minimal = Sample(object(), label=DUMMY_LOCALIZABLE, size=Size.MINIMAL)
+_sample_full = Sample(object(), label="-", size=Size.FULL)
+_sample_intermediate = Sample(object(), label="-")
+_sample_minimal = Sample(object(), label="-", size=Size.MINIMAL)
 
 
 class TestSample:
     def test_subject(self) -> None:
         data = object()
-        sut = Sample(data, label=DUMMY_LOCALIZABLE)
+        sut = Sample(data, label="-")
         assert sut.subject is data
 
     def test_label(self) -> None:
@@ -31,11 +30,11 @@ class TestSample:
 
     def test_description(self) -> None:
         description = Plain("-")
-        sut = Sample(object(), label=DUMMY_LOCALIZABLE, description=description)
+        sut = Sample(object(), label="-", description=description)
         assert sut.description is description
 
     def test_size(self) -> None:
-        sut = Sample(object(), label=DUMMY_LOCALIZABLE, size=Size.MINIMAL)
+        sut = Sample(object(), label="-", size=Size.MINIMAL)
         assert sut.size is Size.MINIMAL
 
 

@@ -3,12 +3,11 @@ import pytest
 from betty.attrs.attr import AttrAttr
 from betty.datas.str import StrDefinition
 from betty.property import HasProperties
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 class TestAttrAttr:
     class _Owner(HasProperties):
-        my_first_property = AttrAttr(StrDefinition(label=DUMMY_LOCALIZABLE))
+        my_first_property = AttrAttr(StrDefinition(label="-"))
 
     def test_get(self) -> None:
         owner = self._Owner()
@@ -26,7 +25,7 @@ class TestAttrAttr:
 
         class _Owner(HasProperties):
             my_first_property = AttrAttr(
-                StrDefinition(label=DUMMY_LOCALIZABLE), default=lambda: value
+                StrDefinition(label="-"), default=lambda: value
             )
 
         assert _Owner().my_first_property == value

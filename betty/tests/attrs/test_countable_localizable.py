@@ -2,12 +2,11 @@ from betty.attrs.countable_localizable import CountableLocalizableAttr
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.property import HasProperties
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 class TestCountableLocalizableAttr:
     class _Owner(HasProperties):
-        attr = CountableLocalizableAttr(label=DUMMY_LOCALIZABLE)
+        attr = CountableLocalizableAttr(label="-")
 
     def test___set____with_shorthand(self) -> None:
         owner = self._Owner()

@@ -7,7 +7,6 @@ from betty.datas.bool import BoolDefinition
 from betty.datas.str import StrDefinition
 from betty.indicator.selector import Attr as AttrSelector
 from betty.locale.localizable.plain import Plain
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 @dataclass(frozen=True)
@@ -25,11 +24,9 @@ class TestObjectDefinition:
         field_name = "my_first_element"
         sut = ObjectDefinition[ObjectDefinitionTestObject](
             cls=ObjectDefinitionTestObject,
-            label=DUMMY_LOCALIZABLE,
+            label="-",
             fields={
-                AttrSelector(field_name): FieldDefinition(
-                    StrDefinition(label=DUMMY_LOCALIZABLE)
-                ),
+                AttrSelector(field_name): FieldDefinition(StrDefinition(label="-")),
             },
         )
         value = "Hello, world!"
@@ -40,11 +37,9 @@ class TestObjectDefinition:
         field_name = "my_first_element"
         sut = ObjectDefinition[ObjectDefinitionTestObject](
             cls=ObjectDefinitionTestObject,
-            label=DUMMY_LOCALIZABLE,
+            label="-",
             fields={
-                AttrSelector(field_name): FieldDefinition(
-                    StrDefinition(label=DUMMY_LOCALIZABLE)
-                ),
+                AttrSelector(field_name): FieldDefinition(StrDefinition(label="-")),
             },
             factory=ObjectDefinitionTestFactoryObject,
         )
@@ -57,11 +52,9 @@ class TestObjectDefinition:
         field_name = "my_first_element"
         sut = ObjectDefinition[ObjectDefinitionTestObject](
             cls=ObjectDefinitionTestObject,
-            label=DUMMY_LOCALIZABLE,
+            label="-",
             fields={
-                AttrSelector(field_name): FieldDefinition(
-                    StrDefinition(label=DUMMY_LOCALIZABLE)
-                ),
+                AttrSelector(field_name): FieldDefinition(StrDefinition(label="-")),
             },
         )
         value = "Hello, world!"
@@ -69,7 +62,7 @@ class TestObjectDefinition:
         assert sut.porter.dump(data) == {field_name: value}
 
     def test__set_cls__without_attributes(self) -> None:
-        @ObjectDefinition(label=DUMMY_LOCALIZABLE)
+        @ObjectDefinition(label="-")
         class _Object(Data[ObjectDefinition]):
             pass
 
@@ -80,31 +73,27 @@ class TestObjectDefinition:
 
 class TestFieldDefinition:
     def test_data(self) -> None:
-        data = BoolDefinition(label=DUMMY_LOCALIZABLE)
+        data = BoolDefinition(label="-")
         sut = FieldDefinition(data)
         assert sut.data is data
 
     def test_label(self) -> None:
         label = Plain("-")
-        sut = FieldDefinition(BoolDefinition(label=DUMMY_LOCALIZABLE), label=label)
+        sut = FieldDefinition(BoolDefinition(label="-"), label=label)
         assert sut.label is label
 
     def test_description(self) -> None:
         description = Plain("-")
-        sut = FieldDefinition(
-            BoolDefinition(label=DUMMY_LOCALIZABLE), description=description
-        )
+        sut = FieldDefinition(BoolDefinition(label="-"), description=description)
         assert sut.description is description
 
     def test_omit_load(self) -> None:
-        sut = FieldDefinition(BoolDefinition(label=DUMMY_LOCALIZABLE), omit_load=True)
+        sut = FieldDefinition(BoolDefinition(label="-"), omit_load=True)
         assert sut.omit_load
 
     def test_omit_dump(self) -> None:
         def _omit_dump(_: bool) -> bool:
             return True
 
-        sut = FieldDefinition(
-            BoolDefinition(label=DUMMY_LOCALIZABLE), omit_dump=_omit_dump
-        )
+        sut = FieldDefinition(BoolDefinition(label="-"), omit_dump=_omit_dump)
         assert sut.omit_dump(False)

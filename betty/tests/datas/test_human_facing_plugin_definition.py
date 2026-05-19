@@ -14,7 +14,5 @@ class TestHumanFacingPluginDefinitionData:
 
     def test_description(self) -> None:
         description = DUMMY_LOCALIZABLE
-        sut = self._Sut(
-            id="hello-world", label=DUMMY_LOCALIZABLE, description=description
-        )
+        sut = self._Sut(id="hello-world", label="-", description=description)
         assert sut.description is description

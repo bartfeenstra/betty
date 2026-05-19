@@ -17,19 +17,18 @@ from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.project import Project, ProjectData, ProjectLocale
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.entity import DummyEntityOne
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 if TYPE_CHECKING:
     from betty.app import App
     from betty.test_utils.conftest import IsolatedProjectFactory
 
 
-@ExtensionDefinition("dummy-a", label=DUMMY_LOCALIZABLE)
+@ExtensionDefinition("dummy-a", label="-")
 class _DummyExtensionA(Extension):
     pass
 
 
-@ExtensionDefinition("dummy-b", label=DUMMY_LOCALIZABLE)
+@ExtensionDefinition("dummy-b", label="-")
 class _DummyExtensionB(Extension):
     pass
 

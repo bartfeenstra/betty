@@ -3,7 +3,6 @@ import pytest
 from betty.entity import Entity, EntityDefinition, persistent_id
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
-    DUMMY_LOCALIZABLE,
 )
 
 
@@ -12,8 +11,8 @@ class TestEntityDefinition:
         sut = EntityDefinition(
             "-dummy",
             public_facing=True,
-            label=DUMMY_LOCALIZABLE,
-            label_plural=DUMMY_LOCALIZABLE,
+            label="-",
+            label_plural="-",
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
         )
         assert sut.public_facing

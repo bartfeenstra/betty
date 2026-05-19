@@ -2,7 +2,6 @@ from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.mapping import TypedMappingDefinition
 from betty.datas.str import StrDefinition
 from betty.indicator.selector import Key
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 class TestTypedMappingDefinition:
@@ -10,11 +9,9 @@ class TestTypedMappingDefinition:
         field_name = "my_first_element"
         sut = TypedMappingDefinition[dict[str, str]](
             cls=dict,
-            label=DUMMY_LOCALIZABLE,
+            label="-",
             fields={
-                Key(field_name): FieldDefinition(
-                    StrDefinition(label=DUMMY_LOCALIZABLE)
-                ),
+                Key(field_name): FieldDefinition(StrDefinition(label="-")),
             },
         )
         value = "Hello, world!"
@@ -29,11 +26,9 @@ class TestTypedMappingDefinition:
 
         sut = TypedMappingDefinition[dict[str, str]](
             cls=dict,
-            label=DUMMY_LOCALIZABLE,
+            label="-",
             fields={
-                Key(field_name): FieldDefinition(
-                    StrDefinition(label=DUMMY_LOCALIZABLE)
-                ),
+                Key(field_name): FieldDefinition(StrDefinition(label="-")),
             },
             factory=FactoryDict,
         )
@@ -43,11 +38,9 @@ class TestTypedMappingDefinition:
         field_name = "my_first_element"
         sut = TypedMappingDefinition[dict[str, str]](
             cls=dict,
-            label=DUMMY_LOCALIZABLE,
+            label="-",
             fields={
-                Key(field_name): FieldDefinition(
-                    StrDefinition(label=DUMMY_LOCALIZABLE)
-                ),
+                Key(field_name): FieldDefinition(StrDefinition(label="-")),
             },
         )
         value = "Hello, world!"

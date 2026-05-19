@@ -9,7 +9,6 @@ from betty.data import Data, DataDefinition, Sample, resolve_data_definition
 from betty.portable import CallbackPorter, Portable, PortableData
 from betty.portable.error import NotPortable
 from betty.sample import Samplable, Samples
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 class _DummyData(Portable, Data):
@@ -28,32 +27,30 @@ class _DummyData(Portable, Data):
 
 class TestDataDefinition:
     def test_porter__without_porter(self) -> None:
-        sut = DataDefinition(cls=object, label=DUMMY_LOCALIZABLE)
+        sut = DataDefinition(cls=object, label="-")
         with pytest.raises(NotPortable):
             sut.porter  # noqa: B018
 
     def test_porter__with_porter(self) -> None:
         porter = CallbackPorter(lambda _: None, lambda _: None)
-        sut = DataDefinition(cls=object, label=DUMMY_LOCALIZABLE, porter=porter)
+        sut = DataDefinition(cls=object, label="-", porter=porter)
         assert sut.porter is porter
 
     def test_porter__with_portable(self) -> None:
-        sut = DataDefinition(cls=_DummyData, label=DUMMY_LOCALIZABLE)
+        sut = DataDefinition(cls=_DummyData, label="-")
         sut.porter  # noqa: B018
 
     def test_samples__without_samples(self) -> None:
-        sut = DataDefinition(cls=object, label=DUMMY_LOCALIZABLE)
+        sut = DataDefinition(cls=object, label="-")
         assert list(sut.samples) == []
 
     def test_samples__with_samples(self) -> None:
-        sample = Sample(object(), label=DUMMY_LOCALIZABLE)
-        sut = DataDefinition(
-            cls=object, label=DUMMY_LOCALIZABLE, samples=[lambda: sample]
-        )
+        sample = Sample(object(), label="-")
+        sut = DataDefinition(cls=object, label="-", samples=[lambda: sample])
         assert list(sut.samples) == [sample]
 
     def test_samples__with_samplable(self) -> None:
-        sample = Sample(object(), label=DUMMY_LOCALIZABLE)
+        sample = Sample(object(), label="-")
 
         class _Samplable(Samplable):
             @override
@@ -61,42 +58,42 @@ class TestDataDefinition:
             def samples(cls) -> Samples[Self]:
                 return Samples([lambda: sample])
 
-        sut = DataDefinition(cls=_Samplable, label=DUMMY_LOCALIZABLE)
+        sut = DataDefinition(cls=_Samplable, label="-")
         assert list(sut.samples) == [sample]
 
     def test_load__with_porter(self) -> None:
         sut = DataDefinition(
             cls=object,
-            label=DUMMY_LOCALIZABLE,
+            label="-",
             porter=CallbackPorter(lambda _: "loader", lambda _: None),
         )
         assert sut.porter.load(None) == "loader"
 
     def test_load__with_portable(self) -> None:
-        sut = DataDefinition(cls=_DummyData, label=DUMMY_LOCALIZABLE)
+        sut = DataDefinition(cls=_DummyData, label="-")
         value = "Hello, world!"
         assert sut.porter.load(value).value == value
 
     def test_load__should_error(self) -> None:
-        sut = DataDefinition(cls=object, label=DUMMY_LOCALIZABLE)
+        sut = DataDefinition(cls=object, label="-")
         with pytest.raises(NotPortable):
             sut.porter.load(None)
 
     def test_dump__with_porter(self) -> None:
         sut = DataDefinition(
             cls=object,
-            label=DUMMY_LOCALIZABLE,
+            label="-",
             porter=CallbackPorter(lambda _: None, lambda _: "dumper"),
         )
         assert sut.porter.dump(None) == "dumper"
 
     def test_dump__with_portable(self) -> None:
-        sut = DataDefinition(cls=_DummyData, label=DUMMY_LOCALIZABLE)
+        sut = DataDefinition(cls=_DummyData, label="-")
         value = "Hello, world!"
         assert sut.porter.dump(_DummyData(value)) == value
 
     def test_dump__should_error(self) -> None:
-        sut = DataDefinition(cls=object, label=DUMMY_LOCALIZABLE)
+        sut = DataDefinition(cls=object, label="-")
         with pytest.raises(NotPortable):
             sut.porter.dump(None)
 

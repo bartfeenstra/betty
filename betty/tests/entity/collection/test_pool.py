@@ -11,7 +11,6 @@ from betty.test_utils.entity import DummyEntityOne
 from betty.test_utils.entity.collection import EntityCollectionTestBase
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
-    DUMMY_LOCALIZABLE,
 )
 
 if TYPE_CHECKING:
@@ -24,8 +23,8 @@ if TYPE_CHECKING:
 
 @EntityDefinition(
     "left",
-    label=DUMMY_LOCALIZABLE,
-    label_plural=DUMMY_LOCALIZABLE,
+    label="-",
+    label_plural="-",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class _TestEntityPool_OneToOne_Left(Entity):
@@ -34,14 +33,14 @@ class _TestEntityPool_OneToOne_Left(Entity):
     ](
         "betty.tests.entity.collection.test_pool:_TestEntityPool_OneToOne_Right",
         "one_left",
-        label=DUMMY_LOCALIZABLE,
+        label="-",
     )
 
 
 @EntityDefinition(
     "right",
-    label=DUMMY_LOCALIZABLE,
-    label_plural=DUMMY_LOCALIZABLE,
+    label="-",
+    label_plural="-",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class _TestEntityPool_OneToOne_Right(Entity):
@@ -50,7 +49,7 @@ class _TestEntityPool_OneToOne_Right(Entity):
     ](
         "betty.tests.entity.collection.test_pool:_TestEntityPool_OneToOne_Left",
         "one_right",
-        label=DUMMY_LOCALIZABLE,
+        label="-",
     )
 
 

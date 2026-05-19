@@ -21,7 +21,6 @@ from betty.project import Project
 from betty.test_utils.entity import record_added
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
-    DUMMY_LOCALIZABLE,
 )
 
 if TYPE_CHECKING:
@@ -39,8 +38,8 @@ type NewProject = Callable[
 @final
 @EventTypeDefinition(
     "isolated",
-    label=DUMMY_LOCALIZABLE,
-    label_plural=DUMMY_LOCALIZABLE,
+    label="-",
+    label_plural="-",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class Isolated(EventType):
@@ -50,8 +49,8 @@ class Isolated(EventType):
 @final
 @EventTypeDefinition(
     "comes-before-reference",
-    label=DUMMY_LOCALIZABLE,
-    label_plural=DUMMY_LOCALIZABLE,
+    label="-",
+    label_plural="-",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class ComesBeforeReference(EventType):
@@ -61,8 +60,8 @@ class ComesBeforeReference(EventType):
 @final
 @EventTypeDefinition(
     "comes-after-reference",
-    label=DUMMY_LOCALIZABLE,
-    label_plural=DUMMY_LOCALIZABLE,
+    label="-",
+    label_plural="-",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class ComesAfterReference(EventType):
@@ -72,8 +71,8 @@ class ComesAfterReference(EventType):
 @final
 @EventTypeDefinition(
     "comes-before",
-    label=DUMMY_LOCALIZABLE,
-    label_plural=DUMMY_LOCALIZABLE,
+    label="-",
+    label_plural="-",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     before={ComesBeforeReference},
 )
@@ -84,8 +83,8 @@ class ComesBefore(EventType):
 @final
 @EventTypeDefinition(
     "comes-before-should-exist",
-    label=DUMMY_LOCALIZABLE,
-    label_plural=DUMMY_LOCALIZABLE,
+    label="-",
+    label_plural="-",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     before={ComesBeforeReference},
 )
@@ -99,8 +98,8 @@ class ComesBeforeShouldExist(ShouldExistEventType):
 @final
 @EventTypeDefinition(
     "comes-before-should-not-exist",
-    label=DUMMY_LOCALIZABLE,
-    label_plural=DUMMY_LOCALIZABLE,
+    label="-",
+    label_plural="-",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     before={ComesBeforeReference},
 )
@@ -114,8 +113,8 @@ class ComesBeforeShouldNotExist(ShouldExistEventType):
 @final
 @EventTypeDefinition(
     "comes-before-and-after",
-    label=DUMMY_LOCALIZABLE,
-    label_plural=DUMMY_LOCALIZABLE,
+    label="-",
+    label_plural="-",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     before={ComesBeforeReference},
     after={ComesAfterReference},
@@ -127,8 +126,8 @@ class ComesBeforeAndAfter(EventType):
 @final
 @EventTypeDefinition(
     "comes-before-and-after-should-exist",
-    label=DUMMY_LOCALIZABLE,
-    label_plural=DUMMY_LOCALIZABLE,
+    label="-",
+    label_plural="-",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     before={ComesBeforeReference},
     after={ComesAfterReference},
@@ -143,8 +142,8 @@ class ComesBeforeAndAfterShouldExist(ShouldExistEventType):
 @final
 @EventTypeDefinition(
     "comes-before-and-after-should-not-exist",
-    label=DUMMY_LOCALIZABLE,
-    label_plural=DUMMY_LOCALIZABLE,
+    label="-",
+    label_plural="-",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     before={ComesBeforeReference},
     after={ComesAfterReference},
@@ -159,8 +158,8 @@ class ComesBeforeAndAfterShouldNotExist(ShouldExistEventType):
 @final
 @EventTypeDefinition(
     "comes-after",
-    label=DUMMY_LOCALIZABLE,
-    label_plural=DUMMY_LOCALIZABLE,
+    label="-",
+    label_plural="-",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     after={ComesAfterReference},
 )
@@ -171,8 +170,8 @@ class ComesAfter(EventType):
 @final
 @EventTypeDefinition(
     "comes-after-should-exist",
-    label=DUMMY_LOCALIZABLE,
-    label_plural=DUMMY_LOCALIZABLE,
+    label="-",
+    label_plural="-",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     after={ComesAfterReference},
 )
@@ -186,8 +185,8 @@ class ComesAfterShouldExist(ShouldExistEventType):
 @final
 @EventTypeDefinition(
     "comes-after-should-not-exist",
-    label=DUMMY_LOCALIZABLE,
-    label_plural=DUMMY_LOCALIZABLE,
+    label="-",
+    label_plural="-",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     after={ComesAfterReference},
 )
