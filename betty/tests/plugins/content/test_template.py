@@ -11,7 +11,6 @@ from betty.job import Context
 from betty.locale.localize import Localizer
 from betty.plugins.content.template import Template
 from betty.project import Project
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 class TestTemplate:
@@ -30,7 +29,7 @@ class TestTemplate:
         await to_thread(template_file.parent.mkdir, exist_ok=True, parents=True)
         await write(template_file, template)
 
-        @ContentDefinition("my-first-template", label=DUMMY_LOCALIZABLE)
+        @ContentDefinition("my-first-template", label="-")
         class _Template(Template):
             @override
             async def build_template(

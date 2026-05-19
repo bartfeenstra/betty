@@ -12,14 +12,13 @@ from betty.plugins.entity.file_reference import FileReference
 from betty.test_utils.conftest import AssertTemplateFile
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
-    DUMMY_LOCALIZABLE,
 )
 
 
 @EntityDefinition(
     "dummy-has-file-references",
-    label=DUMMY_LOCALIZABLE,
-    label_plural=DUMMY_LOCALIZABLE,
+    label="-",
+    label_plural="-",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class DummyEntityWithFileReferences(HasFileReferences):

@@ -27,7 +27,6 @@ from betty.entity.association import (
 )
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
-    DUMMY_LOCALIZABLE,
 )
 
 if TYPE_CHECKING:
@@ -72,7 +71,7 @@ class TestAssociationRegistry:
             "TestAssociationRegistry._Associate",
         ](
             "betty.tests.entity.test_association:TestAssociationRegistry._Associate",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
         )
 
     class _Owner(_OwnerBase):
@@ -81,7 +80,7 @@ class TestAssociationRegistry:
             "TestAssociationRegistry._Associate",
         ](
             "betty.tests.entity.test_association:TestAssociationRegistry._Associate",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
         )
 
     class _Associate(Entity):
@@ -169,8 +168,8 @@ class TestAssociationRegistry:
 class TestUnidirectionalToZeroOrOne:
     @EntityDefinition(
         "owner",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _Owner(Entity):
@@ -188,13 +187,13 @@ class TestUnidirectionalToZeroOrOne:
             "TestUnidirectionalToZeroOrOne._Associate",
         ](
             "betty.tests.entity.test_association:TestUnidirectionalToZeroOrOne._Associate",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
         )
 
     @EntityDefinition(
         "owner-embedded",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _OwnerEmbedded(Entity):
@@ -209,14 +208,14 @@ class TestUnidirectionalToZeroOrOne:
             "TestUnidirectionalToZeroOrOne._Associate",
         ](
             "betty.tests.entity.test_association:TestUnidirectionalToZeroOrOne._Associate",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
             linked_data_embedded=True,
         )
 
     @EntityDefinition(
         "owner-with-non-public-facing-associate",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _OwnerWithNonPublicFacingAssociate(Entity):
@@ -233,13 +232,13 @@ class TestUnidirectionalToZeroOrOne:
             "TestUnidirectionalToZeroOrOne._NonPublicFacingAssociate",
         ](
             "betty.tests.entity.test_association:TestUnidirectionalToZeroOrOne._NonPublicFacingAssociate",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
         )
 
     @EntityDefinition(
         "associate",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _Associate(Entity):
@@ -247,8 +246,8 @@ class TestUnidirectionalToZeroOrOne:
 
     @EntityDefinition(
         "non-public-facing-associate",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
         public_facing=False,
     )
@@ -354,8 +353,8 @@ class TestUnidirectionalToZeroOrOne:
 class TestBidirectionalToZeroOrOne:
     @EntityDefinition(
         "owner",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _Owner(Entity):
@@ -374,13 +373,13 @@ class TestBidirectionalToZeroOrOne:
         ](
             "betty.tests.entity.test_association:TestBidirectionalToZeroOrOne._Associate",
             "owner",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
         )
 
     @EntityDefinition(
         "owner-embedded",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _OwnerEmbedded(Entity):
@@ -397,14 +396,14 @@ class TestBidirectionalToZeroOrOne:
         ](
             "betty.tests.entity.test_association:TestBidirectionalToZeroOrOne._Associate",
             "owner",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
             linked_data_embedded=True,
         )
 
     @EntityDefinition(
         "owner-with-non-public-facing-associate",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _OwnerWithNonPublicFacingAssociate(Entity):
@@ -422,13 +421,13 @@ class TestBidirectionalToZeroOrOne:
         ](
             "betty.tests.entity.test_association:TestBidirectionalToZeroOrOne._NonPublicFacingAssociate",
             "owner",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
         )
 
     @EntityDefinition(
         "associate",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _Associate(Entity):
@@ -438,13 +437,13 @@ class TestBidirectionalToZeroOrOne:
         ](
             "betty.tests.entity.test_association:TestBidirectionalToZeroOrOne._Owner",
             "associate",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
         )
 
     @EntityDefinition(
         "non-public-facing-associate",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
         public_facing=False,
     )
@@ -455,7 +454,7 @@ class TestBidirectionalToZeroOrOne:
         ](
             "betty.tests.entity.test_association:TestBidirectionalToZeroOrOne._OwnerWithNonPublicFacingAssociate",
             "associate",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
         )
 
     def test(self) -> None:
@@ -563,8 +562,8 @@ class TestBidirectionalToZeroOrOne:
 class TestUnidirectionalToOne:
     @EntityDefinition(
         "owner",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _Owner(Entity):
@@ -578,13 +577,13 @@ class TestUnidirectionalToOne:
             "TestUnidirectionalToOne._Owner", "TestUnidirectionalToOne._Associate"
         ](
             "betty.tests.entity.test_association:TestUnidirectionalToOne._Associate",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
         )
 
     @EntityDefinition(
         "owner-embedded",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _OwnerEmbedded(Entity):
@@ -597,14 +596,14 @@ class TestUnidirectionalToOne:
             "TestUnidirectionalToOne._Associate",
         ](
             "betty.tests.entity.test_association:TestUnidirectionalToOne._Associate",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
             linked_data_embedded=True,
         )
 
     @EntityDefinition(
         "owner-with-non-public-facing-associate",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _OwnerWithNonPublicFacingAssociate(Entity):
@@ -619,13 +618,13 @@ class TestUnidirectionalToOne:
             "TestUnidirectionalToOne._NonPublicFacingAssociate",
         ](
             "betty.tests.entity.test_association:TestUnidirectionalToOne._NonPublicFacingAssociate",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
         )
 
     @EntityDefinition(
         "associate",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _Associate(Entity):
@@ -633,8 +632,8 @@ class TestUnidirectionalToOne:
 
     @EntityDefinition(
         "non-public-facing-associate",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
         public_facing=False,
     )
@@ -703,8 +702,8 @@ class TestUnidirectionalToOne:
 class TestBidirectionalToOne:
     @EntityDefinition(
         "owner",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _Owner(Entity):
@@ -719,13 +718,13 @@ class TestBidirectionalToOne:
         ](
             "betty.tests.entity.test_association:TestBidirectionalToOne._Associate",
             "owner",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
         )
 
     @EntityDefinition(
         "associate",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _Associate(Entity):
@@ -734,13 +733,13 @@ class TestBidirectionalToOne:
         ](
             "betty.tests.entity.test_association:TestBidirectionalToOne._Owner",
             "associate",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
         )
 
     @EntityDefinition(
         "owner-embedded",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _OwnerEmbedded(Entity):
@@ -754,14 +753,14 @@ class TestBidirectionalToOne:
         ](
             "betty.tests.entity.test_association:TestBidirectionalToOne._AssociateEmbedded",
             "owner",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
             linked_data_embedded=True,
         )
 
     @EntityDefinition(
         "associate-embedded",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _AssociateEmbedded(Entity):
@@ -771,13 +770,13 @@ class TestBidirectionalToOne:
         ](
             "betty.tests.entity.test_association:TestBidirectionalToOne._OwnerEmbedded",
             "associate",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
         )
 
     @EntityDefinition(
         "owner-with-non-public-facing-associate",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _OwnerWithNonPublicFacingAssociate(Entity):
@@ -791,13 +790,13 @@ class TestBidirectionalToOne:
         ](
             "betty.tests.entity.test_association:TestBidirectionalToOne._NonPublicFacingAssociate",
             "owner",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
         )
 
     @EntityDefinition(
         "non-public-facing-associate",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
         public_facing=False,
     )
@@ -808,7 +807,7 @@ class TestBidirectionalToOne:
         ](
             "betty.tests.entity.test_association:TestBidirectionalToOne._OwnerWithNonPublicFacingAssociate",
             "associate",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
         )
 
     def test(self) -> None:
@@ -875,8 +874,8 @@ class TestBidirectionalToOne:
 class TestUnidirectionalToManySingleType:
     @EntityDefinition(
         "owner",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _Owner(Entity):
@@ -885,13 +884,13 @@ class TestUnidirectionalToManySingleType:
             "TestUnidirectionalToManySingleType._Associate",
         ](
             "betty.tests.entity.test_association:TestUnidirectionalToManySingleType._Associate",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
         )
 
     @EntityDefinition(
         "owner-embedded",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _OwnerEmbedded(Entity):
@@ -900,14 +899,14 @@ class TestUnidirectionalToManySingleType:
             "TestUnidirectionalToManySingleType._Associate",
         ](
             "betty.tests.entity.test_association:TestUnidirectionalToManySingleType._Associate",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
             linked_data_embedded=True,
         )
 
     @EntityDefinition(
         "associate",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _Associate(Entity):
@@ -915,8 +914,8 @@ class TestUnidirectionalToManySingleType:
 
     @EntityDefinition(
         "non-public-facing-associate",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
         public_facing=False,
     )
@@ -1004,7 +1003,7 @@ class TestUnidirectionalToManyMultipleTypes:
             "TestUnidirectionalToManyMultipleTypes._TargetMixin",
         ](
             "betty.tests.entity.test_association:TestUnidirectionalToManyMultipleTypes._TargetMixin",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
         )
 
     class _TargetMixin(Entity):
@@ -1018,8 +1017,8 @@ class TestUnidirectionalToManyMultipleTypes:
 
     @EntityDefinition(
         "one",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _AssociateOne(_TargetMixin):
@@ -1027,8 +1026,8 @@ class TestUnidirectionalToManyMultipleTypes:
 
     @EntityDefinition(
         "two",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _AssociateTwo(_TargetMixin):
@@ -1051,8 +1050,8 @@ class TestUnidirectionalToManyMultipleTypes:
 class TestBidirectionalToManySingleType:
     @EntityDefinition(
         "owner",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _Owner(Entity):
@@ -1062,13 +1061,13 @@ class TestBidirectionalToManySingleType:
         ](
             "betty.tests.entity.test_association:TestBidirectionalToManySingleType._Associate",
             "owner",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
         )
 
     @EntityDefinition(
         "associate",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _Associate(Entity):
@@ -1078,13 +1077,13 @@ class TestBidirectionalToManySingleType:
         ](
             "betty.tests.entity.test_association:TestBidirectionalToManySingleType._Owner",
             "associates",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
         )
 
     @EntityDefinition(
         "owner-embedded",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _OwnerEmbedded(Entity):
@@ -1094,14 +1093,14 @@ class TestBidirectionalToManySingleType:
         ](
             "betty.tests.entity.test_association:TestBidirectionalToManySingleType._AssociateEmbedded",
             "owner",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
             linked_data_embedded=True,
         )
 
     @EntityDefinition(
         "associate-embedded",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _AssociateEmbedded(Entity):
@@ -1111,13 +1110,13 @@ class TestBidirectionalToManySingleType:
         ](
             "betty.tests.entity.test_association:TestBidirectionalToManySingleType._OwnerEmbedded",
             "associates",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
         )
 
     @EntityDefinition(
         "non-public-facing-associate-embedded",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
         public_facing=False,
     )
@@ -1126,8 +1125,8 @@ class TestBidirectionalToManySingleType:
 
     @EntityDefinition(
         "owner-with-non-public-facing-associate",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _OwnerWithNonPublicFacingAssociate(Entity):
@@ -1137,13 +1136,13 @@ class TestBidirectionalToManySingleType:
         ](
             "betty.tests.entity.test_association:TestBidirectionalToManySingleType._NonPublicFacingAssociate",
             "owner",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
         )
 
     @EntityDefinition(
         "non-public-facing-associate",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
         public_facing=False,
     )
@@ -1154,7 +1153,7 @@ class TestBidirectionalToManySingleType:
         ](
             "betty.tests.entity.test_association:TestBidirectionalToManySingleType._OwnerWithNonPublicFacingAssociate",
             "associates",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
         )
 
     def test(self) -> None:
@@ -1269,7 +1268,7 @@ class TestBidirectionalToManyMultipleTypes:
         ](
             "betty.tests.entity.test_association:TestBidirectionalToManyMultipleTypes._TargetMixin",
             "owner",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
         )
 
     class _TargetMixin(Entity):
@@ -1284,8 +1283,8 @@ class TestBidirectionalToManyMultipleTypes:
 
     @EntityDefinition(
         "one",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _AssociateOne(_TargetMixin):
@@ -1293,8 +1292,8 @@ class TestBidirectionalToManyMultipleTypes:
 
     @EntityDefinition(
         "two",
-        label=DUMMY_LOCALIZABLE,
-        label_plural=DUMMY_LOCALIZABLE,
+        label="-",
+        label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _AssociateTwo(_TargetMixin):
@@ -1320,7 +1319,7 @@ class TestAssociationRequired:
             "TestAssociationRequired._Owner", "TestAssociationRequired._Associate"
         ](
             "betty.tests.entity.test_association:TestAssociationRequired._Associate",
-            label=DUMMY_LOCALIZABLE,
+            label="-",
         )
 
     class _Associate(Entity):

@@ -6,14 +6,13 @@ from betty.entity import EntityDefinition
 from betty.entity.has_links import HasLinks
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
-    DUMMY_LOCALIZABLE,
 )
 
 
 @EntityDefinition(
     "dummy-has-links",
-    label=DUMMY_LOCALIZABLE,
-    label_plural=DUMMY_LOCALIZABLE,
+    label="-",
+    label_plural="-",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class DummyHasLinks(HasLinks):

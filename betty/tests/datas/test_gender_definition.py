@@ -4,7 +4,6 @@ from betty.datas.gender_definition import GenderDefinitionData
 from betty.locale.localizable.plain import Plain
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
-    DUMMY_LOCALIZABLE,
 )
 
 
@@ -29,8 +28,8 @@ class TestGenderDefinitionData:
         description = Plain("-")
         sut = GenderDefinitionData(
             id="my-first-gender",
-            label=DUMMY_LOCALIZABLE,
-            label_plural=DUMMY_LOCALIZABLE,
+            label="-",
+            label_plural="-",
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
             description=description,
         )

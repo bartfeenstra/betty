@@ -6,7 +6,6 @@ from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.ordered import OrderedPluginClsDefinition
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
-    DUMMY_LOCALIZABLE,
 )
 from betty.test_utils.plugin import DummyPlugin
 
@@ -59,8 +58,8 @@ class TestPluginTypeDefinition:
         plugin_type_id = "my-first-plugin-type"
         sut = PluginTypeDefinition(
             plugin_type_id,
-            label=DUMMY_LOCALIZABLE,
-            label_plural=DUMMY_LOCALIZABLE,
+            label="-",
+            label_plural="-",
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
         )
         assert sut.id == plugin_type_id

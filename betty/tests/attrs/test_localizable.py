@@ -5,12 +5,11 @@ from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localizable.plain import Plain
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 from betty.property import HasProperties
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 class TestLocalizableAttr:
     class _Owner(HasProperties):
-        attr = LocalizableAttr(label=DUMMY_LOCALIZABLE)
+        attr = LocalizableAttr(label="-")
 
     def test___set____with_str(self) -> None:
         owner = self._Owner()

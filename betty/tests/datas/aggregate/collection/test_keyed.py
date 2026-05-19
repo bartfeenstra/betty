@@ -11,18 +11,15 @@ from betty.datas.aggregate.record.mapping import TypedMappingDefinition
 from betty.datas.str import StrDefinition
 from betty.indicator.selector import Key
 from betty.portable import PortableData
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 class TestKeyedCollectionDefinition:
     _item = TypedMappingDefinition[dict[str, str]](
         cls=dict,
-        label=DUMMY_LOCALIZABLE,
+        label="-",
         fields={
-            Key("key"): FieldDefinition(StrDefinition(label=DUMMY_LOCALIZABLE)),
-            Key("other_element"): FieldDefinition(
-                StrDefinition(label=DUMMY_LOCALIZABLE)
-            ),
+            Key("key"): FieldDefinition(StrDefinition(label="-")),
+            Key("other_element"): FieldDefinition(StrDefinition(label="-")),
         },
     )
     _sut_unordered = KeyedCollectionDefinition[
@@ -32,7 +29,7 @@ class TestKeyedCollectionDefinition:
     ](
         value=_item,
         key=Key("key"),
-        label=DUMMY_LOCALIZABLE,
+        label="-",
         factory=lambda: MutableKeyedCollectionAdapter(key=lambda value: value["key"]),
     )
     _sut_ordered = KeyedCollectionDefinition[
@@ -43,7 +40,7 @@ class TestKeyedCollectionDefinition:
         value=_item,
         key=Key("key"),
         order_dump=True,
-        label=DUMMY_LOCALIZABLE,
+        label="-",
         factory=lambda: MutableKeyedCollectionAdapter(key=lambda value: value["key"]),
     )
     _portable_unordered: ClassVar[PortableData] = {

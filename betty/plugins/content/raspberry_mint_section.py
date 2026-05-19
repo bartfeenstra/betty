@@ -24,7 +24,6 @@ from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project
 from betty.property import HasProperties
 from betty.sample import Sample, Size
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -43,7 +42,7 @@ if TYPE_CHECKING:
         lambda: Sample(
             SectionData(
                 ContentManufacturer("my-first-content"),
-                heading=DUMMY_LOCALIZABLE,
+                heading="-",
             ),
             label="Minimal",
             size=Size.MINIMAL,

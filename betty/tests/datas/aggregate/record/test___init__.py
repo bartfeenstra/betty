@@ -28,7 +28,10 @@ class TestFieldDefinition:
         assert not sut.omit_load
 
     def test_omit_load__with_omit_load(self) -> None:
-        sut = FieldDefinition(BoolDefinition(label="-"), omit_load=True)
+        sut = FieldDefinition(
+            BoolDefinition(label="-"),
+            omit_load=True,
+        )
         assert sut.omit_load
 
     def test_omit_load__with_optional_definition(self) -> None:

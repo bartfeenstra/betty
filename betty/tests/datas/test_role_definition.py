@@ -4,7 +4,6 @@ from betty.datas.role_definition import RoleDefinitionData
 from betty.locale.localizable.plain import Plain
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
-    DUMMY_LOCALIZABLE,
 )
 
 
@@ -29,8 +28,8 @@ class TestRoleDefinitionData:
         description = Plain("-")
         sut = RoleDefinitionData(
             id="my-first-role",
-            label=DUMMY_LOCALIZABLE,
-            label_plural=DUMMY_LOCALIZABLE,
+            label="-",
+            label_plural="-",
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
             description=description,
         )

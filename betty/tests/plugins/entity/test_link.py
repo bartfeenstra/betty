@@ -9,9 +9,6 @@ from betty.plugins.media_type.html import HTML
 from betty.privacy import Privacy
 from betty.test_utils.ancestry.has_links import DummyHasLinks
 from betty.test_utils.entity import EntityTestBase
-from betty.test_utils.locale.localizable import (
-    DUMMY_LOCALIZABLE,
-)
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -78,7 +75,7 @@ class TestLink(EntityTestBase):
         assert not sut.has_label
 
     def test_has_label__with_label(self) -> None:
-        sut = Link("https://example.com", label=DUMMY_LOCALIZABLE)
+        sut = Link("https://example.com", label="-")
         assert sut.has_label
 
     async def test_dump_linked_data__should_dump_minimal(

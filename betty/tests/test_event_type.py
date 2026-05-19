@@ -1,7 +1,6 @@
 from betty.event_type import EventTypeDefinition
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
-    DUMMY_LOCALIZABLE,
 )
 
 
@@ -11,8 +10,8 @@ class TestEventTypeDefinition:
         sut = EventTypeDefinition(
             "-dummy",
             indicates=indicates,
-            label=DUMMY_LOCALIZABLE,
-            label_plural=DUMMY_LOCALIZABLE,
+            label="-",
+            label_plural="-",
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
         )
         assert sut.indicates == indicates

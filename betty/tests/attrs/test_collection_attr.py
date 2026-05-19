@@ -4,17 +4,16 @@ from betty.datas.aggregate.collection.sequence import SequenceDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.str import StrDefinition
 from betty.property import HasProperties
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 class TestCollectionAttrAttr:
-    @ObjectDefinition(label=DUMMY_LOCALIZABLE)
+    @ObjectDefinition(label="-")
     class _Owner(Data, HasProperties):
         collection = CollectionAttrAttr(
             SequenceDefinition(
                 cls=list,
-                label=DUMMY_LOCALIZABLE,
-                value=StrDefinition(label=DUMMY_LOCALIZABLE),
+                label="-",
+                value=StrDefinition(label="-"),
             ),
         )
 
@@ -30,13 +29,13 @@ class TestCollectionAttrAttr:
         assert owner.collection == ["Hello,", "world!"]
 
     def test_init_owner__with_default(self) -> None:
-        @ObjectDefinition(label=DUMMY_LOCALIZABLE)
+        @ObjectDefinition(label="-")
         class _Owner(Data, HasProperties):
             collection = CollectionAttrAttr(
                 SequenceDefinition(
                     cls=list,
-                    label=DUMMY_LOCALIZABLE,
-                    value=StrDefinition(label=DUMMY_LOCALIZABLE),
+                    label="-",
+                    value=StrDefinition(label="-"),
                 ),
                 default=lambda: ("Hello,", "world!"),
             )

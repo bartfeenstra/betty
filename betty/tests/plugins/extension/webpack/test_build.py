@@ -11,11 +11,10 @@ from betty.npm import NpmUnavailable
 from betty.pathlib import StrPath
 from betty.plugins.extension.webpack.build import Builder, EntryPointProvider
 from betty.project import Project
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.user import StaticUser
 
 
-@ExtensionDefinition("dummy", label=DUMMY_LOCALIZABLE)
+@ExtensionDefinition("dummy", label="-")
 class DummyEntryPointProviderExtension(EntryPointProvider, Extension):
     @override
     @classmethod
