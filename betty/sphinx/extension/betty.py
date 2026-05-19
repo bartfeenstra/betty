@@ -328,17 +328,17 @@ class _DataDirective(SphinxDirective):
 Data
 ====
 """
-            for field in sorted(
-                data.fields,
+            for field_selector, field in sorted(
+                data.fields.items(),
                 key=lambda field: (
-                    isinstance(field.subject, OptionalDefinition),
-                    field.selector.element,
+                    isinstance(field[1].subject, OptionalDefinition),
+                    field[0].element,
                 ),
             ):
                 primary_label = field.data.label if field.label is None else field.label
                 content += f"""
                 
-``{field.selector.element}`` :sup:`{"optional" if isinstance(field.data, OptionalDefinition) else "required"}`
+``{field_selector.element}`` :sup:`{"optional" if isinstance(field.data, OptionalDefinition) else "required"}`
 
     **{primary_label.localize(DEFAULT_LOCALIZER)}**
 """

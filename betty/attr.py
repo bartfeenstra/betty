@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, Final, override
 from betty.property import HasProperties, ProxyProperty, SettableProperty
 
 if TYPE_CHECKING:
-    from betty.datas.aggregate.record.object import AttrDefinition
+    from betty.datas.aggregate.record import FieldDefinition
 
 
 class Attr[OwnerT: HasProperties, GetT, SetT](SettableProperty[OwnerT, GetT, SetT]):
@@ -17,10 +17,10 @@ class Attr[OwnerT: HasProperties, GetT, SetT](SettableProperty[OwnerT, GetT, Set
     An object attribute with a data definition.
     """
 
-    def __init__(self, attr: AttrDefinition[GetT], /):
-        self.attr: Final[AttrDefinition[GetT]] = attr
+    def __init__(self, attr: FieldDefinition[GetT], /):
+        self.field: Final[FieldDefinition[GetT]] = attr
         """
-        The attribute's data definition.
+        The attribute's field definition.
         """
 
 
@@ -35,11 +35,11 @@ class ProxyAttr[OwnerT: HasProperties, GetT, SetT](
         self,
         proxied: Attr[OwnerT, GetT, SetT],
         *args: Any,
-        attr: AttrDefinition[GetT] | None = None,
+        attr: FieldDefinition[GetT] | None = None,
         **kwargs: Any,
     ):
         super().__init__(
-            proxied.attr if attr is None else attr, *args, proxied=proxied, **kwargs
+            proxied.field if attr is None else attr, *args, proxied=proxied, **kwargs
         )
         self.__proxied_attr = proxied
 

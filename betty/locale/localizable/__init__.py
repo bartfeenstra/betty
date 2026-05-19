@@ -12,7 +12,6 @@ from warnings import warn
 
 from babel import Locale
 
-from betty.locale import Localized as Localized
 from betty.locale import LocalizedStr, ResolvableLocale
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 

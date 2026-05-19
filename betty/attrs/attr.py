@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final, override
 
 from betty.attrs.owner import OwnerAttr
-from betty.datas.aggregate.record.object import AttrDefinition
+from betty.datas.aggregate.record import FieldDefinition
 from betty.property import HasProperties
 
 if TYPE_CHECKING:
@@ -29,12 +29,12 @@ class AttrAttr[OwnerT: HasProperties, T](OwnerAttr[OwnerT, T, T]):
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
-        omit_load: bool | None = None,
+        omit_load: bool = False,
         omit_dump: Callable[[T], bool] | None = None,
         default: Callable[[], T] | None = None,
     ):
         super().__init__(
-            AttrDefinition(
+            FieldDefinition(
                 data,
                 label=label,
                 description=description,

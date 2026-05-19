@@ -27,7 +27,6 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Mapping
     from types import NotImplementedType
 
-    from betty.locale import Localized as Localized
     from betty.locale import LocalizedStr
     from betty.locale.localize import Localizer
     from betty.typing import Intersection as Intersection

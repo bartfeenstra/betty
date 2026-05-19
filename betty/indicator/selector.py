@@ -145,6 +145,9 @@ class Element[ElementT](Selector):
     def __init__(self, element: ElementT, /):
         self._element = element
 
+    def __hash__(self) -> int:
+        return hash((type(self), self.element))
+
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
             return NotImplemented

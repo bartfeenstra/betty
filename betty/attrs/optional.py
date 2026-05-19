@@ -8,7 +8,7 @@ from typing import final, override
 
 from betty.attr import ProxyAttr
 from betty.attrs.owner import OwnerAttr
-from betty.datas.aggregate.record.object import AttrDefinition
+from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.optional import OptionalDefinition
 from betty.property import HasProperties
 
@@ -25,11 +25,11 @@ class Optional[OwnerT: HasProperties, GetT, SetT](
     def __init__(self, required_attr: OwnerAttr[OwnerT, GetT, SetT], /):
         super().__init__(
             required_attr,
-            attr=AttrDefinition(
-                OptionalDefinition(required_attr.attr.data),
-                label=required_attr.attr.label,
-                description=required_attr.attr.description,
-                omit_load=required_attr.attr.omit_load,
+            attr=FieldDefinition(
+                OptionalDefinition(required_attr.field.data),
+                label=required_attr.field.label,
+                description=required_attr.field.description,
+                omit_load=True,
                 omit_dump=self._omit_dump,
             ),
         )
@@ -38,9 +38,9 @@ class Optional[OwnerT: HasProperties, GetT, SetT](
     def _omit_dump(self, data: GetT | None) -> bool:
         if data is None:
             return True
-        if self._required_attr.attr.omit_dump is None:
+        if self._required_attr.field.omit_dump is None:
             return False
-        return self._required_attr.attr.omit_dump(data)
+        return self._required_attr.field.omit_dump(data)
 
     @override
     def init_owner(self, owner: OwnerT, /) -> None:

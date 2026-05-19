@@ -24,6 +24,8 @@ from betty.assertion import assert_number, assert_url
 from betty.asset import AssetRepositoryService
 from betty.attrs.attr import AttrAttr
 from betty.attrs.collection_attr import CollectionAttrAttr
+from betty.attrs.locale import HasLocale as HasLocale
+from betty.attrs.locale import LocaleAttr
 from betty.attrs.localizable import LocalizableAttr
 from betty.attrs.machine_name import MachineNameAttr
 from betty.attrs.plugin_definitions import PluginDefinitionDatasAttr
@@ -43,14 +45,14 @@ from betty.copyright_notice import (
 from betty.data import Data
 from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
-from betty.datas.aggregate.record.object import AttrDefinition, ObjectDefinition
+from betty.datas.aggregate.record import FieldDefinition as FieldDefinition
+from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.bool import BoolDefinition
 from betty.datas.copyright_notice_definition import CopyrightNoticeDefinitionData
 from betty.datas.event_type_definition import EventTypeDefinitionData
 from betty.datas.gender_definition import GenderDefinitionData
 from betty.datas.int import IntDefinition
 from betty.datas.license_definition import LicenseDefinitionData
-from betty.datas.locale import LocaleDefinition
 from betty.datas.path import PathDefinition
 from betty.datas.place_type_definition import PlaceTypeDefinitionData
 from betty.datas.role_definition import RoleDefinitionData
@@ -674,40 +676,30 @@ class Project(
         ),
     ],
 )
-class ProjectLocale(Data["ObjectDefinition"]):
+class ProjectLocale(Data["ObjectDefinition"], HasProperties):
     """
     A locale to use for a project.
 
     .. data:: betty.project:ProjectLocale
     """
 
+    locale = LocaleAttr()
+    """
+    The locale.
+    """
+
+    alias = AttrAttr(StrDefinition(label=_("Alias")), omit_load=True).optional
+    """
+    A shorthand alias to use instead of the full language tag, such as when rendering URLs.
+    """
+
     def __init__(self, /, locale: ResolvableLocale, *, alias: str | None = None):
         super().__init__()
-        self._locale = resolve_locale(locale)
+        self.locale = locale
         if alias is not None and "/" in alias:
             raise HumanFacingException(_("Locale aliases must not contain slashes."))
-        self._alias = alias
-        self._slug = alias or to_language_tag(self._locale)
-
-    @property
-    @AttrDefinition(LocaleDefinition())
-    def locale(self) -> Locale:
-        """
-        The locale.
-        """
-        return self._locale
-
-    @property
-    @AttrDefinition(
-        StrDefinition(label=_("Alias")),
-        omit_load=True,
-        omit_dump=lambda data: data is None,
-    )
-    def alias(self) -> str | None:
-        """
-        A shorthand alias to use instead of the full language tag, such as when rendering URLs.
-        """
-        return self._alias
+        self.alias = alias
+        self._slug = alias or to_language_tag(self.locale)
 
     @property
     def slug(self) -> str:

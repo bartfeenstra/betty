@@ -17,9 +17,11 @@ from betty.assertion import (
     assert_or,
     assert_record,
 )
+from betty.attrs.attr import AttrAttr
+from betty.attrs.machine_name import MachineNameAttr
 from betty.data import Data, DataDefinition
 from betty.datas.aggregate.record import PortableRecord
-from betty.datas.aggregate.record.object import AttrDefinition, ObjectDefinition
+from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.exception import HumanFacingException
 from betty.factory import DataManufacturable, FactoryError
 from betty.importlib import fully_qualified_name
@@ -29,11 +31,12 @@ from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
+from betty.portable import PortableData
+from betty.property import HasProperties
 from betty.sample import Samplable, Sample, Samples, Size
 from betty.typing import Void, VoidType
 
 if TYPE_CHECKING:
-    from betty.portable import PortableData
     from betty.service_level import ServiceLevel
     from betty.typing import Intersection
 
@@ -55,9 +58,29 @@ _PluginManufacturerPluginDefinitionT = TypeVar(
 class PluginManufacturer[
     PluginManufacturerPluginDefinitionT: PluginDefinition,
     PluginManufacturerPluginT: Plugin,
-](PortableRecord[Attr], Samplable, Data["PluginManufacturerDefinition"], ABC):
+](
+    PortableRecord[Attr],
+    Samplable,
+    Data["PluginManufacturerDefinition"],
+    HasProperties,
+    ABC,
+):
     """
     Configure a single plugin instance.
+    """
+
+    plugin_id = MachineNameAttr()
+    """
+    The plugin ID.
+    """
+
+    plugin_data = AttrAttr(
+        DataDefinition[Data | PortableData | VoidType, PortableData](
+            cls=object, label=_("Data")
+        )
+    )
+    """
+    Get the plugin's own data.
     """
 
     @final
@@ -68,8 +91,8 @@ class PluginManufacturer[
         /,
     ):
         super().__init__()
-        self._plugin_id = resolve_plugin_id(plugin)
-        self._plugin_data = data
+        self.plugin_id = resolve_plugin_id(plugin)
+        self.plugin_data = data
 
     @final
     def __hash__(self):
@@ -91,24 +114,6 @@ class PluginManufacturer[
         if not isinstance(other, type(self)):
             return NotImplemented
         return hash(self) == hash(other)
-
-    @final
-    @property
-    @AttrDefinition(MachineName)
-    def plugin_id(self) -> MachineName:
-        """
-        The plugin ID.
-        """
-        return self._plugin_id
-
-    @final
-    @property
-    @AttrDefinition(DataDefinition(cls=object, label=_("Data")))
-    def plugin_data(self) -> Data | PortableData | VoidType:
-        """
-        Get the plugin's own data.
-        """
-        return self._plugin_data
 
     @final
     @override
@@ -141,9 +146,9 @@ class PluginManufacturer[
     def dump(self) -> PortableData:
         data = self.plugin_data
         if data is Void:
-            return self._plugin_id
+            return self.plugin_id
         return {
-            "plugin": self._plugin_id,
+            "plugin": self.plugin_id,
             "data": self._dump_data(data),
         }
 

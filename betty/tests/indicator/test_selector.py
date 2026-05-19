@@ -193,7 +193,22 @@ class TestElement:
             (False, ElementTestElement(1), ElementTestElement("1")),
         ],
     )
+    def test___hash__(self, expected: bool, one: Element, other: Element) -> None:
+        assert hash(one) == hash(one)
+        assert hash(other) == hash(other)
+        assert (hash(one) == hash(other)) is expected
+
+    @pytest.mark.parametrize(
+        ("expected", "one", "other"),
+        [
+            (True, ElementTestElement(1), ElementTestElement(1)),
+            (False, ElementTestElement(1), ElementTestElement(2)),
+            (False, ElementTestElement(1), ElementTestElement("1")),
+        ],
+    )
     def test___eq__(self, expected: bool, one: Element, other: Element) -> None:
+        assert one == one
+        assert other == other
         assert (one == other) is expected
 
 
