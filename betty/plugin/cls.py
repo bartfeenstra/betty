@@ -29,16 +29,18 @@ class Plugin[PluginClsDefinitionT: PluginClsDefinition]:
         )
 
 
-_PluginClsCoT = TypeVar("_PluginClsCoT", covariant=True, default=Any)
+_PluginClsDefinitionPluginT = TypeVar(
+    "_PluginClsDefinitionPluginT", covariant=True, default=Any
+)
 
 
-class PluginClsDefinition(PluginDefinition, ClsDefinition[_PluginClsCoT]):
+class PluginClsDefinition(PluginDefinition, ClsDefinition[_PluginClsDefinitionPluginT]):
     """
     A classed plugin definition.
     """
 
     @override
-    def _set_cls(self, cls: type[_PluginClsCoT], /) -> None:
+    def _set_cls(self, cls: type[_PluginClsDefinitionPluginT], /) -> None:
         super()._set_cls(cls)
         if issubclass(cls, Plugin):
             cls.plugin = staticmethod(update_wrapper(lambda: self, cls.plugin))  # ty:ignore[invalid-assignment]

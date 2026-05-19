@@ -29,8 +29,8 @@ from betty.load import Loader, LoaderDefinition
 from betty.locale.localizable.gettext import _
 from betty.pathlib import resolve_path
 from betty.place_type import PlaceType, PlaceTypeDefinition, PlaceTypeManufacturer
-from betty.plugin import PluginDefinition
-from betty.plugin.cls import Plugin
+from betty.plugin import PluginDefinition as PluginDefinition
+from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
 from betty.plugins.loader.gramps.jobs import LoadAncestry
 from betty.project import Project
@@ -51,7 +51,7 @@ if TYPE_CHECKING:
     from betty.user import User
 
 
-def _new_plugin_mapping_attr[PluginDefinitionT: PluginDefinition, PluginT: Plugin](
+def _new_plugin_mapping_attr[PluginDefinitionT: PluginClsDefinition, PluginT: Plugin](
     manufacturer: type[PluginManufacturer[PluginDefinitionT, PluginT]],
     gramps_label: ResolvableLocalizable,
     default: Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]],

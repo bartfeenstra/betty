@@ -7,7 +7,7 @@ from __future__ import annotations
 from abc import ABC
 from collections.abc import Iterable, MutableSequence
 from json import dumps
-from typing import TYPE_CHECKING, Final, Self, TypeVar, final, override
+from typing import TYPE_CHECKING, Final, Generic, Self, TypeVar, final, override
 
 from betty.assertion import (
     AssertionChain,
@@ -47,23 +47,19 @@ class PluginManufacturerError(HumanFacingException, FactoryError):
     """
 
 
-_PluginManufacturerPluginT = TypeVar(
-    "_PluginManufacturerPluginT", bound=Plugin, covariant=True
-)
+_PluginManufacturerPluginT = TypeVar("_PluginManufacturerPluginT", covariant=True)
 _PluginManufacturerPluginDefinitionT = TypeVar(
-    "_PluginManufacturerPluginDefinitionT", bound=PluginDefinition
+    "_PluginManufacturerPluginDefinitionT", bound=PluginClsDefinition
 )
 
 
-class PluginManufacturer[
-    PluginManufacturerPluginDefinitionT: PluginDefinition,
-    PluginManufacturerPluginT: Plugin,
-](
+class PluginManufacturer(
     PortableRecord[Attr],
     Samplable,
     Data["PluginManufacturerDefinition"],
     HasProperties,
     ABC,
+    Generic[_PluginManufacturerPluginDefinitionT, _PluginManufacturerPluginT],  # noqa: UP046
 ):
     """
     Configure a single plugin instance.
@@ -180,6 +176,7 @@ class PluginManufacturer[
             plugin_data = plugin_cls.new_data_cls().data().porter.load(plugin_data)
         return await plugin_cls.new(services, plugin_data)
 
+    @final
     @classmethod
     def resolve(
         cls,
@@ -197,6 +194,7 @@ class PluginManufacturer[
         except ValueError:
             return manufacturer  # ty:ignore[invalid-return-type]
 
+    @final
     @classmethod
     def resolve_sequence(
         cls,
@@ -212,13 +210,13 @@ class PluginManufacturer[
         Resolve a value to a sequence of plugin manufacturers.
         """
         if isinstance(manufacturers, PluginManufacturer):
-            return [manufacturers]
+            return [manufacturers]  # ty:ignore[invalid-return-type]
         if (
             isinstance(manufacturers, (str, PluginDefinition))
             or isinstance(manufacturers, type)
             and issubclass(manufacturers, Plugin)
         ):
-            return [cls.resolve(manufacturers)]
+            return [cls.resolve(manufacturers)]  # ty:ignore[invalid-argument-type]
         return list(map(cls.resolve, manufacturers))
 
     @final
@@ -245,10 +243,9 @@ class PluginManufacturer[
 
 
 @final
-class PluginManufacturerDefinition[
-    PluginDefinitionT: PluginClsDefinition,
-    PluginT: Plugin,
-](ObjectDefinition[PluginManufacturer[PluginDefinitionT, PluginT]]):
+class PluginManufacturerDefinition[PluginDefinitionT: PluginClsDefinition, PluginT](
+    ObjectDefinition[PluginManufacturer[PluginDefinitionT, PluginT]]
+):
     """
     Define a plugin manufacturer.
     """
@@ -264,18 +261,15 @@ class PluginManufacturerDefinition[
         self.plugin_type: Final[type[PluginDefinition]] = plugin_type
 
 
-type ResolvablePluginManufacturer[
-    PluginDefinitionT: PluginDefinition,
-    PluginT: Plugin,
-] = (
+type ResolvablePluginManufacturer[PluginDefinitionT: PluginClsDefinition, PluginT] = (
     ResolvablePluginId[PluginDefinitionT]
     | PluginManufacturer[PluginDefinitionT, PluginT]
 )
 
 
 type ResolvablePluginManufacturerSequence[
-    PluginDefinitionT: PluginDefinition,
-    PluginT: Plugin,
+    PluginDefinitionT: PluginClsDefinition,
+    PluginT,
 ] = (
     ResolvablePluginManufacturer[PluginDefinitionT, PluginT]
     | Iterable[ResolvablePluginManufacturer[PluginDefinitionT, PluginT]]

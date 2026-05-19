@@ -43,8 +43,7 @@ from betty.locale.localizable.static import StaticTranslations
 from betty.media_type import InvalidMediaType, MediaType
 from betty.pathlib import resolve_path
 from betty.place_type import PlaceTypeManufacturer
-from betty.plugin import PluginDefinition
-from betty.plugin.cls import Plugin
+from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.error import PluginNotFound
 from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.enclosure import Enclosure
@@ -318,7 +317,7 @@ _GRAMPS_EXTENSIONS = (*_GRAMPS_EXTENSIONS_NATIVE, *_GRAMPS_EXTENSIONS_IMPORT)
 
 def _resolve_plugin_manufacturer_mapping[
     T,
-    PluginDefinitionT: PluginDefinition,
+    PluginDefinitionT: PluginClsDefinition,
     PluginT: Plugin,
 ](
     manufacturer: type[PluginManufacturer[PluginDefinitionT, PluginT]],
