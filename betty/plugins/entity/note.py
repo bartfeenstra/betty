@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
-from betty.attrs.localizable import LocalizableAttr
+from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.media_type import HasMediaType
 from betty.attrs.privacy import HasPrivacy
 from betty.entity import EntityDefinition
@@ -41,7 +41,7 @@ class Note(HasPrivacy, HasLinks, HasMediaType):
     .. plugin:: entity:note.
     """
 
-    text = LocalizableAttr(label=_("Text"))
+    text = new_localizable_attr(label=_("Text"))
     """
     The note text.
     """

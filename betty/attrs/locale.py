@@ -1,16 +1,12 @@
 """
-Locale properties.
+Locale attributes.
 """
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, final, override
+from typing import TYPE_CHECKING, Any, override
 
-from babel import Locale
-
-from betty.attr import ProxyAttr
 from betty.attrs.attr import AttrAttr
-from betty.attrs.owner import OwnerAttr
 from betty.datas.locale import LocaleDefinition
 from betty.json_schema import Null, OneOf
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
@@ -20,31 +16,25 @@ from betty.privacy.resolve import is_public
 from betty.property import HasProperties
 
 if TYPE_CHECKING:
+    from babel import Locale
+
+    from betty.attrs.owner import OwnerAttr
     from betty.locale.localizable import ResolvableLocalizable
     from betty.portable import PortableMapping
     from betty.project import Project
 
 
-@final
-class LocaleAttr(
-    ProxyAttr[HasProperties, Locale, ResolvableLocale],
-    OwnerAttr[HasProperties, Locale, ResolvableLocale],
-):
+def new_locale_attr(
+    *,
+    label: ResolvableLocalizable | None = None,
+    description: ResolvableLocalizable | None = None,
+) -> OwnerAttr[HasProperties, Locale, ResolvableLocale]:
     """
-    An attribute containing a locale.
+    Create an attribute containing a locale.
     """
-
-    def __init__(
-        self,
-        *,
-        label: ResolvableLocalizable | None = None,
-        description: ResolvableLocalizable | None = None,
-    ):
-        super().__init__(
-            AttrAttr(LocaleDefinition(), label=label, description=description).setter(
-                resolve_locale
-            )
-        )
+    return AttrAttr(LocaleDefinition(), label=label, description=description).setter(
+        resolve_locale
+    )
 
 
 class HasLocale(Localized, LinkedDataDumpableWithSchemaJsonLdObject, HasProperties):
@@ -52,7 +42,7 @@ class HasLocale(Localized, LinkedDataDumpableWithSchemaJsonLdObject, HasProperti
     A resource that is localized, e.g. contains information in a specific locale.
     """
 
-    locale = LocaleAttr().optional
+    locale = new_locale_attr().optional
 
     def __init__(
         self, *args: Any, locale: ResolvableLocale | None = None, **kwargs: Any

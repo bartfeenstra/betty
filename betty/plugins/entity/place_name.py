@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final, override
 
 from betty.attrs.date import HasAnyDate
-from betty.attrs.localizable import LocalizableAttr
+from betty.attrs.localizable import new_localizable_attr
 from betty.entity import Entity, EntityDefinition
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
@@ -34,7 +34,7 @@ class PlaceName(HasAnyDate, Entity):
     .. plugin:: entity:place-name.
     """
 
-    name = LocalizableAttr(label=_("Name"))
+    name = new_localizable_attr(label=_("Name"))
 
     def __init__(
         self,

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any
 
 from babel import Locale
 
-from betty.attrs.locale import HasLocale, LocaleAttr
+from betty.attrs.locale import HasLocale, new_locale_attr
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, resolve_locale
 from betty.property import HasProperties
 
@@ -14,14 +14,14 @@ if TYPE_CHECKING:
     from betty.test_utils.conftest import AssertDumpsLinkedData
 
 
-class TestLocaleAttr:
-    class _Owner(HasProperties):
-        locale = LocaleAttr()
+class _Owner(HasProperties):
+    locale = new_locale_attr()
 
-    def test_set(self) -> None:
-        sut = self._Owner()
-        sut.locale = DEFAULT_LOCALE_TAG
-        assert sut.locale == DEFAULT_LOCALE
+
+def test_new_locale_attr__set() -> None:
+    sut = _Owner()
+    sut.locale = DEFAULT_LOCALE_TAG
+    assert sut.locale == DEFAULT_LOCALE
 
 
 class TestHasLocale:

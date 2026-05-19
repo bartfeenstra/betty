@@ -1,5 +1,5 @@
 """
-Date properties.
+Date attributes.
 """
 
 from __future__ import annotations

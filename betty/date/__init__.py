@@ -84,11 +84,7 @@ class Date(Localizable, Data, HasProperties):
     year = AttrAttr(IntDefinition(label=_("Year"))).optional
     month = AttrAttr(IntDefinition(label=_("Month"))).optional
     day = AttrAttr(IntDefinition(label=_("Day"))).optional
-    fuzzy = AttrAttr(
-        BoolDefinition(label=_("Fuzzy")),
-        omit_load=True,
-        omit_dump=lambda data: data is False,
-    )
+    fuzzy = AttrAttr(BoolDefinition(label=_("Fuzzy"))).default(lambda: False)
 
     def __init__(
         self,
@@ -278,16 +274,12 @@ class DateRange(Localizable, Data, HasProperties):
 
     start = AttrAttr(Date).optional
     start_is_boundary = AttrAttr(
-        BoolDefinition(label=_("Start date is a boundary")),
-        omit_load=True,
-        omit_dump=lambda data: data is False,
-    )
+        BoolDefinition(label=_("Start date is a boundary"))
+    ).default(lambda: False)
     end = AttrAttr(Date).optional
     end_is_boundary = AttrAttr(
-        BoolDefinition(label=_("End date is a boundary")),
-        omit_load=True,
-        omit_dump=lambda data: data is False,
-    )
+        BoolDefinition(label=_("End date is a boundary"))
+    ).default(lambda: False)
 
     def __init__(
         self,

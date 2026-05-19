@@ -6,7 +6,8 @@ from __future__ import annotations
 
 from typing import final, override
 
-from betty.attrs.owner import OwnerAttr, ProxyOwnerAttr
+from betty.attr import ProxyAttr
+from betty.attrs.owner import OwnerAttr
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.optional import OptionalDefinition
 from betty.property import HasProperties
@@ -14,7 +15,8 @@ from betty.property import HasProperties
 
 @final
 class Optional[OwnerT: HasProperties, GetT, SetT](
-    ProxyOwnerAttr[OwnerT, GetT | None, SetT | None]
+    ProxyAttr[OwnerT, GetT | None, SetT | None],
+    OwnerAttr[OwnerT, GetT | None, SetT | None],
 ):
     """
     Make another attribute optional, e.g. allow ``None``.

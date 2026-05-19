@@ -18,7 +18,7 @@ from betty.assertion import (
     assert_record,
 )
 from betty.attrs.attr import AttrAttr
-from betty.attrs.machine_name import MachineNameAttr
+from betty.attrs.machine_name import new_machine_name_attr
 from betty.data import Data, DataDefinition
 from betty.datas.aggregate.record import PortableRecord
 from betty.datas.aggregate.record.object import ObjectDefinition
@@ -65,7 +65,7 @@ class PluginManufacturer(
     Configure a single plugin instance.
     """
 
-    plugin_id = MachineNameAttr()
+    plugin_id = new_machine_name_attr()
     """
     The plugin ID.
     """

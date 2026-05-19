@@ -7,7 +7,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
-from betty.attrs.machine_name import MachineNameAttr
+from betty.attrs.machine_name import new_machine_name_attr
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.locale.localizable.gettext import _
@@ -27,7 +27,7 @@ class PluginDefinitionData[PluginDefinitionT: PluginDefinition = PluginDefinitio
     .. data:: betty.datas.plugin_definition:PluginDefinitionData
     """
 
-    id = MachineNameAttr(label=_("Plugin ID"))
+    id = new_machine_name_attr(label=_("Plugin ID"))
     """
     The plugin ID.
     """

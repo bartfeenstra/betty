@@ -4,15 +4,13 @@ Attributes that store data in instance attributes.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, final, override
+from typing import TYPE_CHECKING, final
 
-from betty.attr import Attr, ProxyAttr
+from betty.attr import Attr
 from betty.property import HasProperties
 
 if TYPE_CHECKING:
     from collections.abc import Callable
-
-    from betty.datas.aggregate.record import FieldDefinition
 
 
 class OwnerAttr[OwnerT: HasProperties, GetT, SetT](Attr[OwnerT, GetT, SetT]):
@@ -71,36 +69,3 @@ class OwnerAttr[OwnerT: HasProperties, GetT, SetT](Attr[OwnerT, GetT, SetT]):
         from betty.attrs.setter import SetterAttr
 
         return SetterAttr(self, setter)
-
-
-class ProxyOwnerAttr[OwnerT: HasProperties, GetT, SetT](
-    ProxyAttr[OwnerT, GetT, SetT], OwnerAttr[OwnerT, GetT, SetT]
-):
-    """
-    An owner attribute that proxies another owner attribute.
-    """
-
-    def __init__(
-        self,
-        proxied: OwnerAttr[OwnerT, GetT, SetT],
-        *args: Any,
-        field: FieldDefinition[GetT] | None = None,
-        **kwargs: Any,
-    ):
-        super().__init__(proxied, *args, field=field, **kwargs)
-        self.__proxied_owner_attr = proxied
-
-    @override
-    def default(self, default: Callable[[], SetT]) -> OwnerAttr[OwnerT, GetT, SetT]:
-        return self.__proxied_owner_attr.default(default)
-
-    @override
-    @property
-    def optional(self) -> OwnerAttr[OwnerT, GetT | None, SetT | None]:
-        return self.__proxied_owner_attr.optional
-
-    @override
-    def setter[SetterSetT](
-        self, setter: Callable[[SetterSetT], SetT], /
-    ) -> OwnerAttr[OwnerT, GetT, SetterSetT]:
-        return self.__proxied_owner_attr.setter(setter)

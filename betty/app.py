@@ -14,7 +14,7 @@ from aiohttp_client_cache.backends.filesystem import FileBackend
 from aiohttp_client_cache.session import CachedSession
 
 from betty.asset import AssetRepositoryService
-from betty.attrs.locale import LocaleAttr
+from betty.attrs.locale import new_locale_attr
 from betty.cache import Cache
 from betty.caches.file import BinaryFileCache, PickledFileCache
 from betty.caches.no_op import NoOpCache
@@ -318,7 +318,7 @@ class AppData(Data, HasProperties):
 
     FILE: Final[Path] = APP_CONFIG_DIRECTORY / "app.json"
 
-    locale = LocaleAttr().optional
+    locale = new_locale_attr().optional
     """
     The application locale.
     """
