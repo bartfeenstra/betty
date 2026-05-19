@@ -12,8 +12,7 @@ from betty.collection.sequence import MutableResolvedSequence
 from betty.datas.plugin_manufacturer_sequence import (
     PluginManufacturerSequenceDefinition,
 )
-from betty.plugin import PluginDefinition
-from betty.plugin.cls import Plugin
+from betty.plugin.cls import PluginClsDefinition
 from betty.plugin.factory import (
     PluginManufacturer,
     ResolvablePluginManufacturer,
@@ -26,10 +25,7 @@ if TYPE_CHECKING:
 
 
 @final
-class PluginManufacturerSequenceAttr[
-    PluginDefinitionT: PluginDefinition,
-    PluginT: Plugin,
-](
+class PluginManufacturerSequenceAttr[PluginDefinitionT: PluginClsDefinition, PluginT](
     ProxyAttr[
         HasProperties,
         MutableResolvedSequence[
