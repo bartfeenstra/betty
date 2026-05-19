@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-05-19 13:57+0100\n"
+"POT-Creation-Date: 2026-05-20 10:44+0100\n"
 "PO-Revision-Date: 2026-02-17 18:15+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: es_ES\n"
@@ -1477,6 +1477,9 @@ msgid "Regional content"
 msgstr ""
 
 msgid "Regions"
+msgstr ""
+
+msgid "Relationship"
 msgstr ""
 
 msgid "Rendered content"
