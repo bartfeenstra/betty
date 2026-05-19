@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, final, override
 
-from betty.attrs.localizable import LocalizableAttr
+from betty.attrs.localizable import new_localizable_attr
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.human_facing_plugin_definition import HumanFacingPluginDefinitionData
 from betty.license import License, LicenseDefinition
@@ -39,8 +39,8 @@ class LicenseDefinitionData(HumanFacingPluginDefinitionData[LicenseDefinition]):
     .. data:: betty.datas.license_definition:LicenseDefinitionData
     """
 
-    summary = LocalizableAttr(label=_("Summary"))
-    text = LocalizableAttr(label=_("Text"))
+    summary = new_localizable_attr(label=_("Summary"))
+    text = new_localizable_attr(label=_("Text"))
 
     def __init__(
         self,

@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final, override
 
 from betty.attrs.description import HasDescription
-from betty.attrs.localizable import LocalizableAttr
+from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.media_type import HasMediaType
 from betty.attrs.privacy import HasPrivacy
 from betty.entity import Entity, EntityDefinition
@@ -42,8 +42,8 @@ class Link(LinkType, HasMediaType, HasDescription, HasPrivacy, Entity):
     .. plugin:: entity:link.
     """
 
-    url = LocalizableAttr(label=_("URL"))
-    _label = LocalizableAttr(label=_("Label")).optional
+    url = new_localizable_attr(label=_("URL"))
+    _label = new_localizable_attr(label=_("Label")).optional
 
     relationship: str | None
     """

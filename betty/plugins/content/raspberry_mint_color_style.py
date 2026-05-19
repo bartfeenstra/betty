@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.attrs.attr import AttrAttr
 from betty.attrs.plugin_manufacturer_sequence import (
-    PluginManufacturerSequenceAttr,
+    new_plugin_manufacturer_sequence_attr,
 )
 from betty.content import Content, ContentDefinition, ContentManufacturer, build
 from betty.data import Data
@@ -49,7 +49,7 @@ class ColorStyleData(Data, HasProperties):
     .. data:: betty.plugins.content.raspberry_mint_color_style:ColorStyleData
     """
 
-    content = PluginManufacturerSequenceAttr[ContentDefinition, Content](
+    content = new_plugin_manufacturer_sequence_attr(
         ContentManufacturer, label=_("Content")
     )
     """

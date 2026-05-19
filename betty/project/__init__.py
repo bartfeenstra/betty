@@ -20,15 +20,15 @@ from babel import Locale
 
 from betty.about import VERSION_MAJOR
 from betty.app import App
-from betty.assertion import assert_number, assert_url
+from betty.assertion import assert_int, assert_url
 from betty.asset import AssetRepositoryService
 from betty.attrs.attr import AttrAttr
 from betty.attrs.collection_attr import CollectionAttrAttr
-from betty.attrs.locale import LocaleAttr
-from betty.attrs.localizable import LocalizableAttr
-from betty.attrs.machine_name import MachineNameAttr
+from betty.attrs.locale import new_locale_attr
+from betty.attrs.localizable import new_localizable_attr
+from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.path import new_path_attr
-from betty.attrs.plugin_definitions import PluginDefinitionDatasAttr
+from betty.attrs.plugin_definitions import new_plugin_definition_datas_attr
 from betty.cache import Cache
 from betty.caches.file import BinaryFileCache, PickledFileCache
 from betty.caches.no_op import NoOpCache
@@ -681,12 +681,12 @@ class ProjectLocale(Data["ObjectDefinition"], HasProperties):
     .. data:: betty.project:ProjectLocale
     """
 
-    locale = LocaleAttr()
+    locale = new_locale_attr()
     """
     The locale.
     """
 
-    alias = AttrAttr(StrDefinition(label=_("Alias")), omit_load=True).optional
+    alias = AttrAttr(StrDefinition(label=_("Alias"))).optional
     """
     A shorthand alias to use instead of the full language tag, such as when rendering URLs.
     """
@@ -761,7 +761,7 @@ class ProjectData(Data, HasProperties):
     .. data:: betty.project:ProjectData
     """
 
-    author = LocalizableAttr(label=_("Author")).optional
+    author = new_localizable_attr(label=_("Author")).optional
     """
     The project's author.
     """
@@ -772,18 +772,15 @@ class ProjectData(Data, HasProperties):
             description=_(
                 'Whether to use clean URLs: "/path" instead of "/path/index.html".'
             ),
-        ),
-        omit_load=True,
-        omit_dump=lambda data: data is False,
-    )
+        )
+    ).default(lambda: False)
     """
     Whether to generate clean URLs.
     """
 
-    copyright_notice = AttrAttr(
-        CopyrightNoticeManufacturer,
-        omit_load=True,
-    ).setter(CopyrightNoticeManufacturer.resolve)
+    copyright_notice = AttrAttr(CopyrightNoticeManufacturer).setter(
+        CopyrightNoticeManufacturer.resolve
+    )
     """
     The project-wide copyright notice.
     """
@@ -795,7 +792,7 @@ class ProjectData(Data, HasProperties):
 
         return CopyrightNoticeManufacturer(ProjectAuthor)
 
-    copyright_notices = PluginDefinitionDatasAttr(
+    copyright_notices = new_plugin_definition_datas_attr(
         CopyrightNoticeDefinition, CopyrightNoticeDefinitionData
     )
     """
@@ -808,10 +805,8 @@ class ProjectData(Data, HasProperties):
             description=_(
                 "Whether to output more detailed logs and disable optimizations that make debugging harder."
             ),
-        ),
-        omit_load=True,
-        omit_dump=lambda data: data is False,
-    )
+        )
+    ).default(lambda: False)
     """
     Whether to enable debugging for project jobs.
     """
@@ -834,7 +829,7 @@ class ProjectData(Data, HasProperties):
     The enrichers to enable for the project.
     """
 
-    event_types = PluginDefinitionDatasAttr(
+    event_types = new_plugin_definition_datas_attr(
         EventTypeDefinition, EventTypeDefinitionData
     )
     """
@@ -876,14 +871,12 @@ class ProjectData(Data, HasProperties):
     Which entity types to generate list HTML pages for.
     """
 
-    genders = PluginDefinitionDatasAttr(GenderDefinition, GenderDefinitionData)
+    genders = new_plugin_definition_datas_attr(GenderDefinition, GenderDefinitionData)
     """
     The :py:class:`betty.gender.Gender` plugins created by this project.
     """
 
-    license = AttrAttr(LicenseManufacturer, omit_load=True).setter(
-        LicenseManufacturer.resolve
-    )
+    license = AttrAttr(LicenseManufacturer).setter(LicenseManufacturer.resolve)
     """
     The project-wide license.
     """
@@ -895,21 +888,25 @@ class ProjectData(Data, HasProperties):
 
         return LicenseManufacturer(AllRightsReserved)
 
-    licenses = PluginDefinitionDatasAttr(LicenseDefinition, LicenseDefinitionData)
+    licenses = new_plugin_definition_datas_attr(
+        LicenseDefinition, LicenseDefinitionData
+    )
     """
     The :py:class:`betty.license.License` plugins created by this project.
     """
 
-    lifetime_threshold = AttrAttr(
-        IntDefinition(
-            label=_("Lifetime threshold"),
-            description=_(
-                "The number of years people are expected to live at most, e.g. after which they are presumed to have died."
-            ),
-        ),
-        omit_load=True,
-        omit_dump=lambda data: data == DEFAULT_LIFETIME_THRESHOLD,
-    ).setter(assert_number(minimum=1))
+    lifetime_threshold = (
+        AttrAttr(
+            IntDefinition(
+                label=_("Lifetime threshold"),
+                description=_(
+                    "The number of years people are expected to live at most, e.g. after which they are presumed to have died."
+                ),
+            )
+        )
+        .setter(assert_int(minimum=1))
+        .default(lambda: DEFAULT_LIFETIME_THRESHOLD)
+    )
     """
     The lifetime threshold indicates when people are considered dead.
     """
@@ -960,24 +957,24 @@ class ProjectData(Data, HasProperties):
     The project logo.
     """
 
-    name = MachineNameAttr().optional
+    name = new_machine_name_attr().optional
     """
     The project's machine name.
     """
 
-    place_types = PluginDefinitionDatasAttr(
+    place_types = new_plugin_definition_datas_attr(
         PlaceTypeDefinition, PlaceTypeDefinitionData
     )
     """
     The :py:class:`betty.place_type.PlaceType` plugins created by this project.
     """
 
-    roles = PluginDefinitionDatasAttr(RoleDefinition, RoleDefinitionData)
+    roles = new_plugin_definition_datas_attr(RoleDefinition, RoleDefinitionData)
     """
     The :py:class:`betty.role.Role` plugins created by this project.
     """
 
-    title = LocalizableAttr(label=_("Title"))
+    title = new_localizable_attr(label=_("Title"))
     """
     The human-readable project title.
     """

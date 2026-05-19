@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.attrs.localizable import LocalizableAttr
-from betty.attrs.media_type import MediaTypeAttr
+from betty.attrs.localizable import new_localizable_attr
+from betty.attrs.media_type import new_media_type_attr
 from betty.content import Content, ContentDefinition
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
@@ -40,8 +40,8 @@ class RenderData(Data, HasProperties):
     .. data:: betty.plugins.content.render:RenderData
     """
 
-    content = LocalizableAttr(label=_("Content"))
-    media_type = MediaTypeAttr(omit_load=True).default(lambda: PLAIN_TEXT)
+    content = new_localizable_attr(label=_("Content"))
+    media_type = new_media_type_attr().default(lambda: PLAIN_TEXT)
 
     def __init__(
         self,

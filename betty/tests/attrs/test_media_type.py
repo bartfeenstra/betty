@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.attrs.media_type import HasMediaType, MediaTypeAttr
+from betty.attrs.media_type import HasMediaType, new_media_type_attr
 from betty.media_type import MediaType, MediaTypeDefinition
 from betty.plugins.media_type.plain_text import PLAIN_TEXT
 from betty.property import HasProperties
@@ -14,15 +14,14 @@ if TYPE_CHECKING:
     from betty.test_utils.conftest import AssertDumpsLinkedData
 
 
-class TestMediaTypeAttr:
-    def test_resolve(self) -> None:
-        class _Owner(HasProperties):
-            media_type = MediaTypeAttr()
+def test_new_media_type_attr__set() -> None:
+    class _Owner(HasProperties):
+        media_type = new_media_type_attr()
 
-        owner = _Owner()
-        media_type = MediaType("text/plain")
-        owner.media_type = MediaTypeDefinition("-", label="-", media_type=media_type)
-        assert owner.media_type is media_type
+    owner = _Owner()
+    media_type = MediaType("text/plain")
+    owner.media_type = MediaTypeDefinition("-", label="-", media_type=media_type)
+    assert owner.media_type is media_type
 
 
 class TestHasMediaType:

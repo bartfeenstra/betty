@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from betty.attrs.localizable import LocalizableAttr
+from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.optional import Optional
 from betty.datas.plugin_definition import PluginDefinitionData
 from betty.locale.localizable.gettext import _
@@ -25,8 +25,8 @@ class HumanFacingPluginDefinitionData[
     .. data:: betty.datas.human_facing_plugin_definition:HumanFacingPluginDefinitionData
     """
 
-    label = LocalizableAttr(label=_("Label"))
-    description = Optional(LocalizableAttr(label=_("Description")))
+    label = new_localizable_attr(label=_("Label"))
+    description = Optional(new_localizable_attr(label=_("Description")))
 
     def __init__(
         self,

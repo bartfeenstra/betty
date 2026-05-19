@@ -1,14 +1,12 @@
 """
-Media type properties.
+Media type attributes.
 """
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, final, override
+from typing import TYPE_CHECKING, Any, override
 
-from betty.attr import ProxyAttr
 from betty.attrs.attr import AttrAttr
-from betty.attrs.owner import OwnerAttr
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
 from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
 from betty.media_type.schema import MediaTypeSchema
@@ -16,39 +14,23 @@ from betty.privacy.resolve import is_public
 from betty.property import HasProperties
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
-
+    from betty.attrs.owner import OwnerAttr
     from betty.locale.localizable import ResolvableLocalizable
     from betty.portable import PortableMapping
     from betty.project import Project
 
 
-@final
-class MediaTypeAttr(
-    ProxyAttr[HasProperties, MediaType, ResolvableMediaType],
-    OwnerAttr[HasProperties, MediaType, ResolvableMediaType],
-):
+def new_media_type_attr(
+    *,
+    label: ResolvableLocalizable | None = None,
+    description: ResolvableLocalizable | None = None,
+) -> OwnerAttr[HasProperties, MediaType, ResolvableMediaType]:
     """
-    An attribute containing a media type.
+    Create an attribute containing a media type.
     """
-
-    def __init__(
-        self,
-        *,
-        label: ResolvableLocalizable | None = None,
-        description: ResolvableLocalizable | None = None,
-        omit_load: bool = False,
-        omit_dump: Callable[[MediaType], bool] | None = None,
-    ):
-        super().__init__(
-            AttrAttr(
-                MediaType,
-                label=label,
-                description=description,
-                omit_load=omit_load,
-                omit_dump=omit_dump,
-            ).setter(resolve_media_type)
-        )
+    return AttrAttr(MediaType, label=label, description=description).setter(
+        resolve_media_type
+    )
 
 
 class HasMediaType(LinkedDataDumpableWithSchemaJsonLdObject, HasProperties):
@@ -56,7 +38,7 @@ class HasMediaType(LinkedDataDumpableWithSchemaJsonLdObject, HasProperties):
     A resource with an `IANA media type <https://www.iana.org/assignments/media-types/media-types.xhtml>`_.
     """
 
-    media_type = MediaTypeAttr().optional
+    media_type = new_media_type_attr().optional
 
     def __init__(
         self,

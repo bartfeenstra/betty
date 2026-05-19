@@ -9,21 +9,38 @@ from typing import TYPE_CHECKING, final
 from betty.collection.sequence import MutableResolvedSequence
 from betty.collection.sequence.adapter import MutableResolvedSequenceAdapter
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
+from betty.plugin.cls import PluginClsDefinition
+from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
 
 if TYPE_CHECKING:
     from betty.locale.localizable import ResolvableLocalizable
-    from betty.plugin.factory import PluginManufacturer
 
 
 @final
-class PluginManufacturerSequenceDefinition(SequenceDefinition):
+class PluginManufacturerSequenceDefinition[
+    PluginDefinitionT: PluginClsDefinition,
+    PluginT,
+](
+    SequenceDefinition[
+        MutableResolvedSequence[
+            PluginManufacturer[PluginDefinitionT, PluginT],
+            ResolvablePluginManufacturer[PluginDefinitionT, PluginT],
+        ],
+        PluginManufacturer[PluginDefinitionT, PluginT],
+    ]
+):
     """
     Define a sequence of plugin instance configurations.
     """
 
     def __init__(
         self,
-        manufacturer: type[PluginManufacturer],
+        manufacturer: type[
+            PluginManufacturer[
+                PluginDefinitionT,
+                PluginT,
+            ]
+        ],
         *,
         label: ResolvableLocalizable | None = None,
     ):

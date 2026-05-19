@@ -11,8 +11,6 @@ from betty.datas.aggregate.record import FieldDefinition
 from betty.property import HasProperties
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
-
     from betty.data import DataDefinition, ResolvableDataDefinition
     from betty.locale.localizable import ResolvableLocalizable
 
@@ -30,17 +28,9 @@ class AttrAttr[OwnerT: HasProperties, T](OwnerAttr[OwnerT, T, T]):
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
-        omit_load: bool = False,
-        omit_dump: Callable[[T], bool] | None = None,
     ):
         super().__init__(
-            FieldDefinition(
-                data,
-                label=label,
-                description=description,
-                omit_load=omit_load,
-                omit_dump=omit_dump,
-            ),
+            FieldDefinition(data, label=label, description=description),
         )
         self._data = data
 

@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final
 
 from betty.attrs.attr import AttrAttr
-from betty.attrs.machine_name import MachineNameAttr
+from betty.attrs.machine_name import new_machine_name_attr
 from betty.data import Data, Sample
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.str import StrDefinition
@@ -34,7 +34,7 @@ class EntityReference(Data, HasProperties):
     .. data:: betty.entity.reference:EntityReference
     """
 
-    type = MachineNameAttr(label=_("Entity type"))
+    type = new_machine_name_attr(label=_("Entity type"))
     """
     The type of the referenced entity. 
     """

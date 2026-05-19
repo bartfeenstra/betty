@@ -1,5 +1,5 @@
 """
-Privacy properties.
+Privacy attributes.
 """
 
 from __future__ import annotations

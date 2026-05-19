@@ -8,10 +8,10 @@ from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.attrs.attr import AttrAttr
-from betty.attrs.localizable import LocalizableAttr
-from betty.attrs.machine_name import MachineNameAttr
+from betty.attrs.localizable import new_localizable_attr
+from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.plugin_manufacturer_sequence import (
-    PluginManufacturerSequenceAttr,
+    new_plugin_manufacturer_sequence_attr,
 )
 from betty.content import Content, ContentDefinition, ContentManufacturer, build
 from betty.data import Data
@@ -56,28 +56,26 @@ class SectionData(Data, HasProperties):
     .. data:: betty.plugins.content.raspberry_mint_section:SectionData
     """
 
-    content = PluginManufacturerSequenceAttr[ContentDefinition, Content](
+    content = new_plugin_manufacturer_sequence_attr(
         ContentManufacturer, label=_("Content")
     )
     """
     The content within this section.
     """
 
-    heading = LocalizableAttr(label=_("Heading"))
+    heading = new_localizable_attr(label=_("Heading"))
     """
     The section heading.
     """
 
-    name = MachineNameAttr().optional
+    name = new_machine_name_attr().optional
     """
     The section's machine name, used to generate permanent links.
     """
 
     visually_hide_heading = AttrAttr(
-        BoolDefinition(label=_("Visually hide heading")),
-        omit_load=True,
-        omit_dump=lambda data: data is False,
-    ).optional
+        BoolDefinition(label=_("Visually hide heading"))
+    ).default(lambda: False)
     """
     Visually hide the heading.
     
@@ -90,7 +88,7 @@ class SectionData(Data, HasProperties):
         *,
         heading: ResolvableLocalizable,
         name: ResolvableMachineName | None = None,
-        visually_hide_heading: bool | None = None,
+        visually_hide_heading: bool = False,
     ):
         super().__init__()
         self.content = content
@@ -117,7 +115,7 @@ class Section(Template, DataManufacturable[SectionData]):
         *,
         heading: ResolvableLocalizable,
         name: MachineName | None = None,
-        visually_hide_heading: bool | None = None,
+        visually_hide_heading: bool = False,
         jinja: Environment,
     ):
         super().__init__(jinja=jinja)

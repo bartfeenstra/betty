@@ -1,40 +1,32 @@
 """
-Localizable properties.
+Localizable attributes.
 """
 
 from __future__ import annotations
 
-from typing import final
+from typing import TYPE_CHECKING
 
-from betty.attr import ProxyAttr
 from betty.attrs.attr import AttrAttr
-from betty.attrs.owner import OwnerAttr
 from betty.datas.localizable import LocalizableDefinition
 from betty.locale.localizable import (
     Localizable,
     ResolvableLocalizable,
     resolve_localizable,
 )
-from betty.property import HasProperties
+
+if TYPE_CHECKING:
+    from betty.attrs.owner import OwnerAttr
+    from betty.property import HasProperties
 
 
-@final
-class LocalizableAttr(
-    ProxyAttr[HasProperties, Localizable, ResolvableLocalizable],
-    OwnerAttr[HasProperties, Localizable, ResolvableLocalizable],
-):
+def new_localizable_attr(
+    *,
+    label: ResolvableLocalizable,
+    description: ResolvableLocalizable | None = None,
+) -> OwnerAttr[HasProperties, Localizable, ResolvableLocalizable]:
     """
-    An attribute containing a :py:class:`betty.locale.localizable.Localizable`.
+    Create an attribute containing a :py:class:`betty.locale.localizable.Localizable`.
     """
-
-    def __init__(
-        self,
-        *,
-        label: ResolvableLocalizable,
-        description: ResolvableLocalizable | None = None,
-    ):
-        super().__init__(
-            AttrAttr(
-                LocalizableDefinition(), label=label, description=description
-            ).setter(resolve_localizable)
-        )
+    return AttrAttr(
+        LocalizableDefinition(), label=label, description=description
+    ).setter(resolve_localizable)

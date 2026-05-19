@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final, override
 
 from betty.attrs.date import HasAnyDate
-from betty.attrs.localizable import LocalizableAttr
+from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.privacy import HasPrivacy
 from betty.entity import Entity, EntityDefinition
 from betty.entity.association import (
@@ -49,17 +49,17 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Enti
     .. plugin:: entity:source.
     """
 
-    name = LocalizableAttr(label=_("Name")).optional
+    name = new_localizable_attr(label=_("Name")).optional
     """
     The source's name.
     """
 
-    author = LocalizableAttr(label=_("Author")).optional
+    author = new_localizable_attr(label=_("Author")).optional
     """
     The source's author.
     """
 
-    publisher = LocalizableAttr(label=_("Publisher")).optional
+    publisher = new_localizable_attr(label=_("Publisher")).optional
     """
     The source's publisher.
     """

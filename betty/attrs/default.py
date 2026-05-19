@@ -5,14 +5,15 @@ Attributes with default values.
 from collections.abc import Callable
 from typing import final, override
 
-from betty.attrs.owner import OwnerAttr, ProxyOwnerAttr
+from betty.attr import ProxyAttr
+from betty.attrs.owner import OwnerAttr
 from betty.datas.aggregate.record import FieldDefinition
 from betty.property import HasProperties
 
 
 @final
 class DefaultAttr[OwnerT: HasProperties, GetT, SetT](
-    ProxyOwnerAttr[OwnerT, GetT, SetT]
+    ProxyAttr[OwnerT, GetT, SetT], OwnerAttr[OwnerT, GetT, SetT]
 ):
     """
     An attribute with a default value.

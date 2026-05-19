@@ -7,7 +7,8 @@ from __future__ import annotations
 from collections.abc import Callable, Collection, Iterable
 from typing import TYPE_CHECKING, Any, final, override
 
-from betty.attrs.owner import ProxyOwnerAttr
+from betty.attr import ProxyAttr
+from betty.attrs.owner import OwnerAttr
 from betty.datas.aggregate.record import FieldDefinition
 from betty.property import HasProperties
 
@@ -20,7 +21,10 @@ class DefaultCollectionAttr[
     OwnerT: HasProperties,
     MutableCollectionT: Collection[Any],
     ValuesSetT: Iterable,
-](ProxyOwnerAttr[OwnerT, MutableCollectionT, ValuesSetT]):
+](
+    ProxyAttr[OwnerT, MutableCollectionT, ValuesSetT],
+    OwnerAttr[OwnerT, MutableCollectionT, ValuesSetT],
+):
     """
     A collection attribute with a default value.
     """

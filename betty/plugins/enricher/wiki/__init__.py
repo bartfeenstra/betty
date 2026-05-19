@@ -43,10 +43,8 @@ class WikiData(Data, HasProperties):
             description=_(
                 "Whether to download additional images found through Wikipedia links in the ancestry"
             ),
-        ),
-        omit_load=True,
-        omit_dump=lambda data: data is True,
-    ).optional
+        )
+    ).default(lambda: True)
     """
     Whether to populate entities with Wikimedia images after loading ancestries.
     """
