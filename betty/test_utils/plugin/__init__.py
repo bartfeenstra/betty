@@ -4,12 +4,12 @@ Test utilities for :py:mod:`betty.plugin`.
 
 from __future__ import annotations
 
-from typing import final, override
+from typing import final
 
 from betty.life_cycle import LifeCycle
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.plugin.factory import PluginManufacturer
+from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
 from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
 
 
@@ -75,12 +75,8 @@ class DummyPluginWithLifeCycle(DummyPlugin, LifeCycle):
 
 
 @final
+@PluginManufacturerDefinition(DummyPluginDefinition)
 class DummyPluginManufacturer(PluginManufacturer[DummyPluginDefinition, DummyPlugin]):
     """
     The dummy plugin manufacturer.
     """
-
-    @override
-    @classmethod
-    def plugin_type(cls) -> type[DummyPluginDefinition]:
-        return DummyPluginDefinition

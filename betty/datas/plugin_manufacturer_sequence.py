@@ -33,7 +33,7 @@ class PluginManufacturerSequenceDefinition(SequenceDefinition):
                 [], value_resolver=manufacturer.resolve
             ),
             value=manufacturer,
-            label=manufacturer.plugin_type().type().label_plural
+            label=manufacturer.data().plugin_type.type().label_plural
             if label is None
             else label,
         )

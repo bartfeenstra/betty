@@ -5,7 +5,7 @@ Content plugins.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, final
 
 from markupsafe import Markup
 
@@ -13,7 +13,7 @@ from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.plugin.factory import PluginManufacturer
+from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -67,15 +67,11 @@ class ContentDefinition(HumanFacingDefinition, PluginClsDefinition[Content]):
 
 
 @final
+@PluginManufacturerDefinition(ContentDefinition)
 class ContentManufacturer(PluginManufacturer[ContentDefinition, Content]):
     """
     The content manufacturer.
     """
-
-    @override
-    @classmethod
-    def plugin_type(cls) -> type[ContentDefinition]:
-        return ContentDefinition
 
 
 async def build(document: Document, contents: Iterable[Content], /) -> Markup | None:

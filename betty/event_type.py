@@ -5,13 +5,13 @@ Provide Betty's ancestry event types.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, final
 
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin
-from betty.plugin.factory import PluginManufacturer
+from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
 from betty.plugin.ordered import (
     Order,
     OrderedPluginClsDefinition,
@@ -93,12 +93,8 @@ class EventTypeDefinition(
 
 
 @final
+@PluginManufacturerDefinition(EventTypeDefinition)
 class EventTypeManufacturer(PluginManufacturer[EventTypeDefinition, EventType]):
     """
     The event type manufacturer.
     """
-
-    @override
-    @classmethod
-    def plugin_type(cls) -> type[EventTypeDefinition]:
-        return EventTypeDefinition

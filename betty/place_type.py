@@ -4,13 +4,13 @@ Provide Betty's ancestry place types.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, final
 
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.plugin.factory import PluginManufacturer
+from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
 
 if TYPE_CHECKING:
     from betty.locale.localizable import CountableLocalizable, ResolvableLocalizable
@@ -59,12 +59,8 @@ class PlaceTypeDefinition(
 
 
 @final
+@PluginManufacturerDefinition(PlaceTypeDefinition)
 class PlaceTypeManufacturer(PluginManufacturer[PlaceTypeDefinition, PlaceType]):
     """
     The place type manufacturer.
     """
-
-    @override
-    @classmethod
-    def plugin_type(cls) -> type[PlaceTypeDefinition]:
-        return PlaceTypeDefinition

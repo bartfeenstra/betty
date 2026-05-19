@@ -4,12 +4,12 @@ The Jinja filter API.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, final
 
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.plugin.factory import PluginManufacturer
+from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
 
 if TYPE_CHECKING:
     from betty.machine_name import ResolvableMachineName
@@ -47,12 +47,8 @@ class JinjaFilterDefinition(PluginClsDefinition[JinjaFilter]):
 
 
 @final
+@PluginManufacturerDefinition(JinjaFilterDefinition)
 class JinjaFilterManufacturer(PluginManufacturer[JinjaFilterDefinition, JinjaFilter]):
     """
     The Jinja filter manufacturer.
     """
-
-    @override
-    @classmethod
-    def plugin_type(cls) -> type[JinjaFilterDefinition]:
-        return JinjaFilterDefinition
