@@ -73,18 +73,7 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
             locale=locale,
             citations=citations,
         )
-        self._individual = individual
-        self._affiliation = affiliation
-        # Set the person association last, because the association requires comparisons, and self.__eq__() uses the
-        # individual and affiliation names.
-        self.person = person
-
-    @override
-    def _get_effective_privacy(self) -> Privacy:
-        return merge_privacies(super()._get_effective_privacy(), self.person)
-
-    @property
-    def individual(self) -> str | None:
+        self.individual = individual
         """
         The name's individual component.
 
@@ -93,10 +82,7 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
         - first name
         - given name
         """
-        return self._individual
-
-    @property
-    def affiliation(self) -> str | None:
+        self.affiliation = affiliation
         """
         The name's affiliation, or family component.
 
@@ -105,7 +91,13 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
         - last name
         - surname
         """
-        return self._affiliation
+        # Set the person association last, because the association requires comparisons, and self.__eq__() uses the
+        # individual and affiliation names.
+        self.person = person
+
+    @override
+    def _get_effective_privacy(self) -> Privacy:
+        return merge_privacies(super()._get_effective_privacy(), self.person)
 
     @override
     @property

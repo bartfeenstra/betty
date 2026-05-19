@@ -63,16 +63,8 @@ class FileReference(Entity):
         self.referee = referee
         self.file = file
         self.focus = focus
-
-    @property
-    def focus(self) -> FocusArea | None:
         """
         The area within the 2-dimensional representation of the file to focus on.
 
         This can be used to locate where faces are in a photo, or a specific article in a newspaper scan, for example.
         """
-        return self._focus
-
-    @focus.setter
-    def focus(self, focus: FocusArea | None) -> None:
-        self._focus = focus

@@ -116,18 +116,10 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
         self.parents = parents
         self.presences = presences
         self.names = names
-        self._gender = gender or UnknownGender()
-
-    @property
-    def gender(self) -> Gender:
+        self.gender = gender or UnknownGender()
         """
         The person's gender.
         """
-        return self._gender
-
-    @gender.setter
-    def gender(self, gender: Gender) -> None:
-        self._gender = gender
 
     @property
     def ancestors(self) -> Iterator[Person]:
