@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Self, override
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.importlib import fully_qualified_name
+from betty.mutable import Mutable
 from betty.portable import Portable, PortableData, PortablePorter, Porter
 from betty.portable.error import NotPortable
 from betty.sample import Samplable, Sample, Samples
@@ -77,7 +78,7 @@ class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
         return Samples(self._samples)
 
 
-class Data[DataDefinitionT: DataDefinition = DataDefinition]:
+class Data[DataDefinitionT: DataDefinition = DataDefinition](Mutable):
     """
     A class that defines data for its instances.
     """

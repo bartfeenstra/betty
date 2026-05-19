@@ -50,6 +50,7 @@ class MediaType(Data, Portable):
     _suffix: str | None
 
     def __init__(self, media_type: str, *, extensions: Sequence[str] = ()):
+        super().__init__()
         self._str = media_type
         message = EmailMessage()
         message["Content-Type"] = media_type
