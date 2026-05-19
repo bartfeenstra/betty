@@ -5,7 +5,15 @@ Record data types.
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Any, Self, TypeVar, final, override
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Final,
+    Self,
+    TypeVar,
+    final,
+    override,
+)
 
 from betty.assertion import OptionalField, assert_mapping
 from betty.data import (
@@ -16,90 +24,67 @@ from betty.data import (
     resolve_data_definition,
 )
 from betty.datas.aggregate import AggregateDefinition
-from betty.datas.optional import OptionalDefinition
 from betty.indicator.selector import Element
 from betty.locale.localizable import resolve_localizable
 from betty.portable import Portable, PortableData, PortablePorter, Porter
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, MutableSequence, Sequence
+    from collections.abc import Callable, Iterable, Mapping, MutableMapping
 
-    from betty.data import Data as Data
     from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.portable import PortableMapping
 
 
 @final
-class FieldDefinition[ElementT: Element[Any] = Element[Any], DataClsT = Any]:
+class FieldDefinition[DataClsT]:
     """
     A record field definition.
     """
 
     def __init__(
         self,
-        selector: ElementT,
         data: ResolvableDataDefinition[DataDefinition[DataClsT]],
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
-        omit_load: bool | None = None,
+        omit_load: bool = False,
         omit_dump: Callable[[DataClsT], bool] | None = None,
     ):
-        self._selector = selector
-        self._data = resolve_data_definition(data)
-        self._label = None if label is None else resolve_localizable(label)
-        self._description = (
-            None if description is None else resolve_localizable(description)
-        )
-        self._omit_load = omit_load
-        self._omit_dump = omit_dump
-
-    @property
-    def selector(self) -> Element:
-        """
-        The field selector.
-        """
-        return self._selector
-
-    @property
-    def data(self) -> DataDefinition[DataClsT]:
+        self.data: Final[DataDefinition[DataClsT]] = resolve_data_definition(data)
         """
         The field's data definition.
         """
-        return self._data
 
-    @property
-    def label(self) -> Localizable | None:
+        self.label: Final[Localizable] = (
+            self.data.label if label is None else resolve_localizable(label)
+        )
         """
         The human-readable field label.
         """
-        return self._label
 
-    @property
-    def description(self) -> Localizable | None:
+        self.description: Final[Localizable | None] = (
+            self.data.description
+            if description is None
+            else resolve_localizable(description)
+        )
         """
         The human-readable long field description.
         """
-        return self._description
 
-    @property
-    def omit_load(self) -> bool:
+        self.omit_load: Final[bool] = omit_load
         """
-        Check if the field may be omitted from the parent when loading from portable data.
+        Whether the field may be omitted from the parent when loading from portable data.
         """
-        if self._omit_load is not None:
-            return self._omit_load
-        return isinstance(self._data, OptionalDefinition)
+
+        self.__omit_dump = omit_dump
 
     def omit_dump(self, data: DataClsT, /) -> bool:
         """
         Check if the field may be omitted from the parent when dumping to portable data.
         """
-        if data is None and isinstance(self._data, OptionalDefinition):
-            return True
-        if self._omit_dump is None:
+        if self.__omit_dump is None:
             return False
-        return self._omit_dump(data)
+        return self.__omit_dump(data)
 
 
 _PortableRecordElementT = TypeVar(
@@ -196,19 +181,19 @@ class MappingPorter[DataClsT = Any, ElementT: Element[str] = Element[str]](
         return self._record.factory(
             **assert_record(*[
                 (OptionalField if field.omit_load else RequiredField)(
-                    field.selector.element, field.data.porter.load
+                    selector.element, field.data.porter.load
                 )
-                for field in self._record.fields
+                for selector, field in self._record.fields.items()
             ])(portable)
         )
 
     @override
     def dump(self, data: DataClsT, /) -> PortableMapping:
         portable = {}
-        for field in self._record.fields:
-            field_data = field.selector.get(data)
+        for selector, field in self._record.fields.items():
+            field_data = selector.get(data)
             if not field.omit_dump(field_data):
-                portable[field.selector.element] = field.data.porter.dump(field_data)
+                portable[selector.element] = field.data.porter.dump(field_data)
         return portable
 
     @override
@@ -251,12 +236,15 @@ class RecordDefinition[DataClsT = Any, ElementT: Element[str] = Element[str]](
         cls: type[DataClsT] | None = None,
         *,
         label: ResolvableLocalizable,
-        fields: Sequence[FieldDefinition[ElementT, Any]] | None = None,
+        fields: Mapping[ElementT, FieldDefinition[Any]] | None = None,
         description: ResolvableLocalizable | None = None,
         samples: Iterable[Callable[[], Sample[DataClsT]] | Samples] = (),
         factory: Callable[..., DataClsT] | None = None,
         porter: RecordPorter[DataClsT] | None = None,
     ):
+        self._fields: MutableMapping[ElementT, FieldDefinition[Any]] = (
+            {} if fields is None else dict(fields)
+        )
         super().__init__(
             cls=cls,
             label=label,
@@ -265,9 +253,6 @@ class RecordDefinition[DataClsT = Any, ElementT: Element[str] = Element[str]](
             porter=porter,
         )
         self._factory = factory
-        self._fields: MutableSequence[FieldDefinition[ElementT, Any]] = (
-            [] if fields is None else list(fields)
-        )
 
     @property
     def factory(self) -> Callable[..., DataClsT]:
@@ -292,7 +277,7 @@ class RecordDefinition[DataClsT = Any, ElementT: Element[str] = Element[str]](
         return self._porter  # ty:ignore[invalid-return-type]
 
     @property
-    def fields(self) -> Sequence[FieldDefinition[ElementT, Any]]:
+    def fields(self) -> Mapping[ElementT, FieldDefinition[Any]]:
         """
         The definitions of the fields contained by this record.
         """

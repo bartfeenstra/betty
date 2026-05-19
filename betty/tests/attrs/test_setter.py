@@ -2,7 +2,7 @@ from pytest_mock import MockerFixture
 
 from betty.attr import Attr
 from betty.attrs.setter import SetterAttr
-from betty.datas.aggregate.record.object import AttrDefinition
+from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.str import StrDefinition
 from betty.property import HasProperties
 
@@ -13,7 +13,7 @@ class TestSetterAttr:
             return str(value)
 
         m_proxied = mocker.MagicMock(spec=Attr)
-        m_proxied.attr = AttrDefinition(StrDefinition(label="-"))
+        m_proxied.field = FieldDefinition(StrDefinition(label="-"))
         sut = SetterAttr(m_proxied, _setter)
         owner = HasProperties()
         sut.set(owner, True)

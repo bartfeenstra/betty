@@ -45,7 +45,7 @@ class TestOptional:
         class _Owner(HasProperties):
             my_first_property = Optional(AttrAttr(data))
 
-        optional_data = _Owner.my_first_property.attr.data
+        optional_data = _Owner.my_first_property.field.data
         assert isinstance(optional_data, OptionalDefinition)
         assert optional_data.wrapped is data
 

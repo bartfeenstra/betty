@@ -18,12 +18,12 @@ class TestKeyedCollectionDefinition:
     _item = TypedMappingDefinition[dict[str, str]](
         cls=dict,
         label=DUMMY_LOCALIZABLE,
-        fields=[
-            FieldDefinition(Key("key"), StrDefinition(label=DUMMY_LOCALIZABLE)),
-            FieldDefinition(
-                Key("other_element"), StrDefinition(label=DUMMY_LOCALIZABLE)
+        fields={
+            Key("key"): FieldDefinition(StrDefinition(label=DUMMY_LOCALIZABLE)),
+            Key("other_element"): FieldDefinition(
+                StrDefinition(label=DUMMY_LOCALIZABLE)
             ),
-        ],
+        },
     )
     _sut_unordered = KeyedCollectionDefinition[
         MutableKeyedCollection[str, str, dict[str, str], dict[str, str]],

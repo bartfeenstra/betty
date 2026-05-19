@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, final, override
 
 from betty.attrs.owner import OwnerAttr
 from betty.data import ResolvableDataDefinition, resolve_data_definition
-from betty.datas.aggregate.record.object import AttrDefinition
+from betty.datas.aggregate.record import FieldDefinition
 from betty.property import HasProperties
 
 if TYPE_CHECKING:
@@ -38,10 +38,10 @@ class CollectionAttrAttr[
         description: ResolvableLocalizable | None = None,
         label: ResolvableLocalizable | None = None,
         omit_dump: Callable[[MutableCollectionT], bool] | None = None,
-        omit_load: bool | None = None,
+        omit_load: bool = False,
     ):
         super().__init__(
-            AttrDefinition(
+            FieldDefinition(
                 data,
                 label=label,
                 description=description,
