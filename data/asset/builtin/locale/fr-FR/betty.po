@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-05-05 13:39+0100\n"
+"POT-Creation-Date: 2026-05-19 13:57+0100\n"
 "PO-Revision-Date: 2026-02-17 18:12+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: fr_FR\n"
@@ -738,6 +738,9 @@ msgstr ""
 msgid "Exclude"
 msgstr ""
 
+msgid "Executable"
+msgstr ""
+
 msgid "Explore a demonstration site"
 msgstr "Explorer un site de démonstration"
 
@@ -779,9 +782,6 @@ msgstr ""
 
 msgid "File"
 msgstr "Fichier"
-
-msgid "File path"
-msgstr ""
 
 msgid "File referees"
 msgstr ""
@@ -1290,6 +1290,9 @@ msgid "Parish"
 msgstr "Paroisse"
 
 msgid "Parishes"
+msgstr ""
+
+msgid "Path"
 msgstr ""
 
 msgid "People"

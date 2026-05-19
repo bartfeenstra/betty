@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-05-05 13:39+0100\n"
+"POT-Creation-Date: 2026-05-19 13:57+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -724,6 +724,9 @@ msgstr ""
 msgid "Exclude"
 msgstr ""
 
+msgid "Executable"
+msgstr ""
+
 msgid "Explore a demonstration site"
 msgstr ""
 
@@ -764,9 +767,6 @@ msgid "Farms"
 msgstr ""
 
 msgid "File"
-msgstr ""
-
-msgid "File path"
 msgstr ""
 
 msgid "File referees"
@@ -1269,6 +1269,9 @@ msgid "Parish"
 msgstr ""
 
 msgid "Parishes"
+msgstr ""
+
+msgid "Path"
 msgstr ""
 
 msgid "People"

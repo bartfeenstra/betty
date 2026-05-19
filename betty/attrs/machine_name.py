@@ -38,7 +38,7 @@ class MachineNameAttr(
     ):
         super().__init__(
             AttrAttr(
-                data=MachineName,
+                MachineName,
                 label=_("Name") if label is None else label,
                 description=_MACHINE_NAME_DESCRIPTION
                 if description is None

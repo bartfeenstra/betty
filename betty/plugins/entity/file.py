@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.attrs.description import HasDescription
 from betty.attrs.media_type import HasMediaType
+from betty.attrs.path import new_path_attr
 from betty.attrs.privacy import HasPrivacy
 from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.entity import EntityDefinition
@@ -17,13 +18,10 @@ from betty.entity.has_links import HasLinks
 from betty.entity.has_notes import HasNotes
 from betty.license import LicenseDefinition
 from betty.locale.localizable.gettext import _, ngettext
-from betty.pathlib import resolve_path
 from betty.plugin.schema import PluginIdSchema
 from betty.privacy import Privacy
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from betty.copyright_notice import CopyrightNotice
     from betty.license import License
     from betty.linked_data import JsonLdObject
@@ -78,6 +76,11 @@ class File(
     The license for this file.
     """
 
+    path = new_path_attr()
+    """
+    The file's path on disk.
+    """
+
     def __init__(
         self,
         path: StrPath,
@@ -102,7 +105,7 @@ class File(
             privacy=privacy,
             links=links,
         )
-        self._path = resolve_path(path)
+        self.path = path
         self._name = name
         self.copyright_notice = copyright_notice
         self.license = license
@@ -113,13 +116,6 @@ class File(
         The file name.
         """
         return self._name or self.path.name
-
-    @property
-    def path(self) -> Path:
-        """
-        The file's path on disk.
-        """
-        return self._path
 
     @override
     @property

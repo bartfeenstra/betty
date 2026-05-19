@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-05-05 13:39+0100\n"
+"POT-Creation-Date: 2026-05-19 13:57+0100\n"
 "PO-Revision-Date: 2026-02-17 19:37+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -784,6 +784,9 @@ msgstr "Precies {expected} items zijn vereist, maar er waren er {actual} gevonde
 msgid "Exclude"
 msgstr "Uitsluiten"
 
+msgid "Executable"
+msgstr ""
+
 msgid "Explore a demonstration site"
 msgstr "Verken een demonstratiesite"
 
@@ -825,9 +828,6 @@ msgstr "Boerderijen"
 
 msgid "File"
 msgstr "Bestand"
-
-msgid "File path"
-msgstr "Bestandspad"
 
 msgid "File referees"
 msgstr ""
@@ -1341,6 +1341,9 @@ msgid "Parish"
 msgstr "Parish"
 
 msgid "Parishes"
+msgstr ""
+
+msgid "Path"
 msgstr ""
 
 msgid "People"
