@@ -5,13 +5,13 @@ Provide copyright notices.
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, final
 
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.plugin.factory import PluginManufacturer
+from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
 
 if TYPE_CHECKING:
     from betty.locale.localizable import Localizable, ResolvableLocalizable
@@ -76,14 +76,10 @@ class CopyrightNoticeDefinition(
 
 
 @final
+@PluginManufacturerDefinition(CopyrightNoticeDefinition)
 class CopyrightNoticeManufacturer(
     PluginManufacturer[CopyrightNoticeDefinition, CopyrightNotice]
 ):
     """
     The copyright notice manufacturer.
     """
-
-    @override
-    @classmethod
-    def plugin_type(cls) -> type[CopyrightNoticeDefinition]:
-        return CopyrightNoticeDefinition

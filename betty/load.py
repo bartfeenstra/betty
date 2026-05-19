@@ -7,7 +7,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from asyncio import gather
 from functools import partial
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, final
 
 from betty.concurrent import MAX_STRANDS
 from betty.definition.human_facing import HumanFacingDefinition
@@ -17,7 +17,7 @@ from betty.job.scheduler.default import DefaultScheduler
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.plugin.factory import PluginManufacturer
+from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Collection
@@ -72,15 +72,11 @@ class LoaderDefinition(HumanFacingDefinition, PluginClsDefinition[Loader]):
 
 
 @final
+@PluginManufacturerDefinition(LoaderDefinition)
 class LoaderManufacturer(PluginManufacturer[LoaderDefinition, Loader]):
     """
     The loader manufacturer.
     """
-
-    @override
-    @classmethod
-    def plugin_type(cls) -> type[LoaderDefinition]:
-        return LoaderDefinition
 
 
 class Enricher(ABC, Plugin["EnricherDefinition"]):
@@ -126,15 +122,11 @@ class EnricherDefinition(HumanFacingDefinition, PluginClsDefinition[Enricher]):
 
 
 @final
+@PluginManufacturerDefinition(EnricherDefinition)
 class EnricherManufacturer(PluginManufacturer[EnricherDefinition, Enricher]):
     """
     The enricher manufacturer.
     """
-
-    @override
-    @classmethod
-    def plugin_type(cls) -> type[EnricherDefinition]:
-        return EnricherDefinition
 
 
 async def load(project: Project, *, context: Context | None = None) -> None:

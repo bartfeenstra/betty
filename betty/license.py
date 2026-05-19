@@ -5,13 +5,13 @@ Provide licenses.
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, final
 
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.plugin.factory import PluginManufacturer
+from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
 
 if TYPE_CHECKING:
     from betty.locale.localizable import Localizable, ResolvableLocalizable
@@ -74,12 +74,8 @@ class LicenseDefinition(HumanFacingDefinition, PluginClsDefinition[License]):
 
 
 @final
+@PluginManufacturerDefinition(LicenseDefinition)
 class LicenseManufacturer(PluginManufacturer[LicenseDefinition, License]):
     """
     The license manufacturer.
     """
-
-    @override
-    @classmethod
-    def plugin_type(cls) -> type[LicenseDefinition]:
-        return LicenseDefinition

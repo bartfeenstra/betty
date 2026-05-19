@@ -448,6 +448,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "PluginError": MissingReason.ABSTRACT,
     },
     "betty/plugin/factory.py": {
+        "PluginManufacturerDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "PluginManufacturerError": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/plugin/discovery.py": {

@@ -74,7 +74,7 @@ def _new_plugin_mapping_attr[PluginDefinitionT: PluginDefinition, PluginT: Plugi
             ),
             key=StrDefinition(label=gramps_label),
             value=manufacturer,
-            label=manufacturer.plugin_type().type().label_plural,
+            label=manufacturer.data().plugin_type.type().label_plural,
         ),
         default=lambda: MutableResolvedMappingAdapter(
             dict(

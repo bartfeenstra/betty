@@ -4,11 +4,10 @@ Plugin factories.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABC
 from collections.abc import Iterable, MutableSequence
-from functools import cache
 from json import dumps
-from typing import TYPE_CHECKING, Self, TypeVar, final, override
+from typing import TYPE_CHECKING, Final, Self, TypeVar, final, override
 
 from betty.assertion import (
     AssertionChain,
@@ -19,7 +18,7 @@ from betty.assertion import (
     assert_record,
 )
 from betty.data import Data, DataDefinition
-from betty.datas.aggregate.record import PortableRecord, RecordDefinition
+from betty.datas.aggregate.record import PortableRecord
 from betty.datas.aggregate.record.object import AttrDefinition, ObjectDefinition
 from betty.exception import HumanFacingException
 from betty.factory import DataManufacturable, FactoryError
@@ -28,7 +27,7 @@ from betty.indicator.selector import Attr
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
-from betty.plugin.cls import Plugin
+from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.sample import Samplable, Sample, Samples, Size
 from betty.typing import Void, VoidType
@@ -36,6 +35,7 @@ from betty.typing import Void, VoidType
 if TYPE_CHECKING:
     from betty.portable import PortableData
     from betty.service_level import ServiceLevel
+    from betty.typing import Intersection
 
 
 class PluginManufacturerError(HumanFacingException, FactoryError):
@@ -55,7 +55,7 @@ _PluginManufacturerPluginDefinitionT = TypeVar(
 class PluginManufacturer[
     PluginManufacturerPluginDefinitionT: PluginDefinition,
     PluginManufacturerPluginT: Plugin,
-](PortableRecord[Attr], Samplable, Data[RecordDefinition], ABC):
+](PortableRecord[Attr], Samplable, Data["PluginManufacturerDefinition"], ABC):
     """
     Configure a single plugin instance.
     """
@@ -74,7 +74,7 @@ class PluginManufacturer[
     @final
     def __hash__(self):
         return hash((
-            self.plugin_type(),
+            self.data().plugin_type,
             self.plugin_id,
             Void
             if self.plugin_data is Void
@@ -84,20 +84,6 @@ class PluginManufacturer[
                 else self.plugin_data,
             ),
         ))
-
-    @classmethod
-    @abstractmethod
-    def plugin_type(cls) -> type[_PluginManufacturerPluginDefinitionT]:
-        """
-        The type of plugin that can be manufactured.
-        """
-
-    @final
-    @override
-    @classmethod
-    @cache
-    def data(cls) -> ObjectDefinition[Self]:
-        return ObjectDefinition(cls, label=cls.plugin_type().type().label)
 
     @final
     @override
@@ -173,7 +159,9 @@ class PluginManufacturer[
         """
         Create a new instance of the configured plugin.
         """
-        plugin_cls = (await services.plugins[self.plugin_type()][self.plugin_id]).cls
+        plugin_cls = (
+            await services.plugins[self.data().plugin_type][self.plugin_id]
+        ).cls  # ty:ignore[unresolved-attribute]
         if self.plugin_data is Void:
             return await services.factory.new(plugin_cls)
         if not issubclass(plugin_cls, DataManufacturable):
@@ -249,6 +237,26 @@ class PluginManufacturer[
                 size=Size.FULL,
             ),
         ])
+
+
+@final
+class PluginManufacturerDefinition[
+    PluginDefinitionT: PluginClsDefinition,
+    PluginT: Plugin,
+](ObjectDefinition[PluginManufacturer[PluginDefinitionT, PluginT]]):
+    """
+    Define a plugin manufacturer.
+    """
+
+    def __init__(
+        self,
+        plugin_type: type[
+            Intersection[PluginDefinitionT, PluginClsDefinition[PluginT]]
+        ],
+        /,
+    ):
+        super().__init__(label=plugin_type.type().label)
+        self.plugin_type: Final[type[PluginDefinition]] = plugin_type
 
 
 type ResolvablePluginManufacturer[

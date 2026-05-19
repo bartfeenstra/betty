@@ -4,13 +4,13 @@ Presence roles.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, final
 
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.plugin.factory import PluginManufacturer
+from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
 
 if TYPE_CHECKING:
     from betty.locale.localizable import CountableLocalizable, ResolvableLocalizable
@@ -57,12 +57,8 @@ class RoleDefinition(CountableHumanFacingDefinition, PluginClsDefinition[Role]):
 
 
 @final
+@PluginManufacturerDefinition(RoleDefinition)
 class RoleManufacturer(PluginManufacturer[RoleDefinition, Role]):
     """
     The role manufacturer.
     """
-
-    @override
-    @classmethod
-    def plugin_type(cls) -> type[RoleDefinition]:
-        return RoleDefinition
