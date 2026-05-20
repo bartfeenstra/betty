@@ -7,8 +7,10 @@ import pytest
 
 from betty.entities.file import File
 from betty.entities.file_reference import FileReference
-from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 from betty.test_utils.entity import EntityTestBase
+from betty.test_utils.entity.associations.has_file_references import (
+    DummyHasFileReferences,
+)
 
 if TYPE_CHECKING:
     from betty.entity import Entity

@@ -133,7 +133,7 @@ class PortablePorter[PortableT: Portable, PortableDataT: PortableData = Portable
 
 
 @final
-class OptionalPorter[PortableT: Portable, PortableDataT: PortableData = PortableData](
+class OptionalPorter[PortableT, PortableDataT: PortableData = PortableData](
     Porter[PortableT | None, PortableDataT | None]
 ):
     """

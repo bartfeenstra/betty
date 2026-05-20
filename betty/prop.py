@@ -54,7 +54,7 @@ class PropDefinition[OwnerT: HasProps]:
         """
         The global property ID.
         """
-        return f"{self.owner.__name__}.{self.name}"
+        return f"{fully_qualified_name(self.owner)}.{self.name}"
 
     @property
     def owner_attr(self) -> str:

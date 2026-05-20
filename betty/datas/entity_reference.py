@@ -11,13 +11,14 @@ from betty.attrs.owner import OwnerAttr
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.str import StrDefinition
+from betty.entity import Entity, EntityDefinition
 from betty.localizables.gettext import _
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.prop import HasProps
 from betty.sample import Sample
 
 if TYPE_CHECKING:
-    from betty.entity import EntityDefinition
+    from betty.project import Project
 
 
 @final
@@ -27,7 +28,7 @@ if TYPE_CHECKING:
         lambda: Sample(EntityReference("person", "123"), label="Default"),
     ],
 )
-class EntityReference(Data, HasProps):
+class EntityReference[EntityT: Entity = Entity](Data, HasProps):
     """
     A reference to an entity of any type.
 
@@ -47,9 +48,15 @@ class EntityReference(Data, HasProps):
     def __init__(
         self,
         /,
-        type: ResolvablePluginId[EntityDefinition],  # noqa: A002
+        type: ResolvablePluginId[EntityDefinition[EntityT]],  # noqa: A002
         id: str,  # noqa: A002
     ):
         super().__init__()
         self.type = resolve_plugin_id(type)
         self.id = id
+
+    def __call__(self, project: Project, /) -> EntityT:
+        """
+        Resolve the reference to its entity.
+        """
+        return project.ancestry[self.type][self.id]

@@ -85,6 +85,19 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/asset_directories/project.py": MissingReason.COVERED_ELSEWHERE,
     "betty/asset_directories/webpack.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/asset_directories/wiki.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/association.py": {
+        "Association": {
+            "associate": MissingReason.ABSTRACT,
+            "disassociate": MissingReason.ABSTRACT,
+            "get_associates": MissingReason.ABSTRACT,
+            "is_resolver": MissingReason.ABSTRACT,
+            "resolve": MissingReason.ABSTRACT,
+        },
+    },
+    "betty/associations/to_one.py": {
+        "MissingAssociate": MissingReason.STATIC_CONTENT_ONLY,
+        "Placeholder": MissingReason.STATIC_CONTENT_ONLY,
+    },
     "betty/asyncio.py": {
         "ReAwaitable": MissingReason.ABSTRACT,
     },
@@ -436,18 +449,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/entity/__init__.py": {
         "Entity": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/entity/association.py": {
-        "BidirectionalToOne": {
-            "__set__": MissingReason.COVERED_ELSEWHERE,
-        },
-        "BidirectionalToZeroOrOne": {
-            "__set__": MissingReason.COVERED_ELSEWHERE,
-        },
-        "resolve": MissingReason.SHOULD_BE_COVERED,
-        "ToManyResolver": MissingReason.ABSTRACT,
-        "ToOneResolver": MissingReason.ABSTRACT,
-        "ToZeroOrOneResolver": MissingReason.ABSTRACT,
-    },
     "betty/entity/collection/__init__.py": {
         "EntityCollection": MissingReason.ABSTRACT,
     },
@@ -710,6 +711,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/typing.py": {
         "Intersection": MissingReason.STATIC_CONTENT_ONLY,
+        "Not": MissingReason.STATIC_CONTENT_ONLY,
         "Void": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/url_generator.py": {

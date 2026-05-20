@@ -3,10 +3,10 @@ from pathlib import Path
 from PIL import Image
 
 from betty.asset_directories.raspberry_mint import raspberry_mint
+from betty.associations.has_file_references import HasFileReferences
 from betty.entities.file import File
 from betty.entities.file_reference import FileReference
 from betty.entity import EntityDefinition
-from betty.entity.has_file_references import HasFileReferences
 from betty.localizer import default_localizer
 from betty.media_type import MediaType
 from betty.test_utils.conftest import AssertTemplateFile

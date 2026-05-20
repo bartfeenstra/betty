@@ -4,23 +4,21 @@ Provide the Note entity type and utilities.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, Self, final, override
 
+from betty.associations.has_links import HasLinks
+from betty.associations.has_notes import HasNotes
+from betty.associations.to_one import ToOne
 from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.media_type import HasMediaType
 from betty.entity import EntityDefinition
-from betty.entity.association import (
-    BidirectionalToZeroOrOne,
-    ToZeroOrOneAssociate,
-)
-from betty.entity.has_links import HasLinks
 from betty.json_schemas.static_translations import StaticTranslationsSchema
 from betty.localizable.linked_data import dump_linked_data
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
 
 if TYPE_CHECKING:
-    from betty.entity.has_notes import HasNotes
+    from betty.association import Associate
     from betty.linked_data import JsonLdObject
     from betty.localizable import Localizable, ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
@@ -45,12 +43,12 @@ class Note(HasLinks, HasMediaType):
     The note text.
     """
 
-    entity = BidirectionalToZeroOrOne["Note", "HasNotes"](
-        "betty.entity.has_notes:HasNotes",
+    entity = ToOne[Self, HasNotes](
+        HasNotes,
         "notes",
         label=_("Owner"),
         description=_("The entity the note belongs to"),
-    )
+    ).optional
     """
     The entity the note belongs to.
     """
@@ -59,8 +57,8 @@ class Note(HasLinks, HasMediaType):
         self,
         text: ResolvableLocalizable,
         *,
+        entity: Associate[Self, HasNotes] | None = None,
         id: ResolvableMachineName | None = None,  # noqa: A002
-        entity: ToZeroOrOneAssociate[HasNotes] | None = None,
         privacy: Privacy = Privacy.UNDETERMINED,
     ):
         super().__init__(id=id, privacy=privacy)

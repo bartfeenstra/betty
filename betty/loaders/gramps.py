@@ -42,12 +42,9 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from betty.attrs.common import CommonAttr
-    from betty.entity.collection.pool import EntityPool
     from betty.job.scheduler import Scheduler
     from betty.localizable import ResolvableLocalizable
     from betty.pathlib import StrPath
-    from betty.service_level import ServiceLevel
-    from betty.user import User
 
 
 def _new_plugin_mapping_attr[PluginDefinitionT: PluginClsDefinition, PluginT: Plugin](
@@ -543,20 +540,16 @@ class Gramps(DataManufacturable[GrampsData], Manufacturable, Loader):
     def __init__(
         self,
         *,
-        ancestry: EntityPool,
-        services: ServiceLevel,
-        user: User,
+        project: Project,
         attribute_prefix_key: str | None = None,
         executable: StrPath | None = None,
         family_trees: Iterable[FamilyTree] = (),
     ):
         super().__init__()
-        self._services = services
-        self._ancestry = ancestry
+        self._project = project
         self._attribute_prefix_key = attribute_prefix_key
         self._executable = executable
         self._family_trees = tuple(family_trees)
-        self._user = user
 
     @override
     @classmethod
@@ -568,11 +561,9 @@ class Gramps(DataManufacturable[GrampsData], Manufacturable, Loader):
     @classmethod
     async def new(cls, project: Project, data: GrampsData | None = None, /) -> Self:
         return cls(
-            ancestry=project.ancestry,
+            project=project,
             executable=None if data is None else data.executable,
             family_trees=() if data is None else data.family_trees,
-            services=project,
-            user=project.upstream.user,
         )
 
     @override
@@ -581,10 +572,8 @@ class Gramps(DataManufacturable[GrampsData], Manufacturable, Loader):
             await scheduler.add(
                 LoadGrampsAncestry(
                     loader=GrampsLoader(
-                        self._ancestry,
-                        services=self._services,
+                        self._project,
                         attribute_prefix_key=self._attribute_prefix_key,
-                        user=self._user,
                         event_type_mapping=family_tree.event_types,
                         place_type_mapping=family_tree.place_types,
                         role_mapping=family_tree.roles,

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from betty.entities.citation import Citation
 from betty.entities.source import Source
-from betty.test_utils.ancestry.has_citations import DummyHasCitations
+from betty.test_utils.entity.associations.has_citations import DummyHasCitations
 
 
 class TestHasCitations:

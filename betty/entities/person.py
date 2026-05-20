@@ -4,22 +4,22 @@ Data types describing persons.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, Self, final, override
 
+from betty.associations.has_citations import HasCitations
+from betty.associations.has_file_references import HasFileReferences
+from betty.associations.has_links import HasLinks
+from betty.associations.has_notes import HasNotes
+from betty.associations.to_many import ToMany, ToManyAssociates
+from betty.entities.person_name import PersonName
+from betty.entities.presence import Presence
 from betty.entity import EntityDefinition
-from betty.entity.association import BidirectionalToManySingleType, ToManyAssociates
-from betty.entity.has_citations import HasCitations
-from betty.entity.has_file_references import HasFileReferences
-from betty.entity.has_links import HasLinks
-from betty.entity.has_notes import HasNotes
 from betty.functools import unique
 from betty.gender import GenderDefinition
 from betty.genders.unknown import UnknownGender
-from betty.json_schemas.entity_association import ToManySchema
 from betty.json_schemas.plugin_id import PluginIdSchema
 from betty.linked_data import JsonLdObject, dump_context
 from betty.localizables.gettext import _, ngettext
-from betty.media_types.json_ld import JSON_LD
 from betty.privacy import Privacy
 
 if TYPE_CHECKING:
@@ -29,8 +29,6 @@ if TYPE_CHECKING:
     from betty.entities.file_reference import FileReference
     from betty.entities.link import Link
     from betty.entities.note import Note
-    from betty.entities.person_name import PersonName
-    from betty.entities.presence import Presence
     from betty.gender import Gender
     from betty.localizable import Localizable
     from betty.machine_name import ResolvableMachineName
@@ -50,7 +48,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks):
     .. plugin:: entity:person.
     """
 
-    parents = BidirectionalToManySingleType["Person", "Person"](
+    parents = ToMany[Self, "Person"](
         "betty.entities.person:Person",
         "children",
         label=_("Parents"),
@@ -59,7 +57,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks):
     The person's parents.
     """
 
-    children = BidirectionalToManySingleType["Person", "Person"](
+    children = ToMany[Self, "Person"](
         "betty.entities.person:Person",
         "parents",
         label=_("Children"),
@@ -68,8 +66,8 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks):
     The person's children.
     """
 
-    presences = BidirectionalToManySingleType["Person", "Presence"](
-        "betty.entities.presence:Presence",
+    presences = ToMany[Self, Presence](
+        Presence,
         "person",
         label=_("Presences"),
         description=_("This person's presences at events"),
@@ -78,11 +76,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks):
     The person's presences at events.
     """
 
-    names = BidirectionalToManySingleType["Person", "PersonName"](
-        "betty.entities.person_name:PersonName",
-        "person",
-        label=_("Names"),
-    )
+    names = ToMany[Self, PersonName](PersonName, "person", label=_("Names"))
     """
     The person's names.
     """
@@ -91,15 +85,15 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks):
         self,
         id: ResolvableMachineName | None = None,  # noqa: A002
         *,
-        files: ToManyAssociates[FileReference] = (),
-        citations: ToManyAssociates[Citation] = (),
-        links: ToManyAssociates[Link] = (),
-        notes: ToManyAssociates[Note] = (),
+        files: ToManyAssociates[Self, FileReference] = (),
+        citations: ToManyAssociates[Self, Citation] = (),
+        links: ToManyAssociates[Self, Link] = (),
+        notes: ToManyAssociates[Self, Note] = (),
         privacy: Privacy = Privacy.UNDETERMINED,
-        parents: ToManyAssociates[Person] = (),
-        children: ToManyAssociates[Person] = (),
-        presences: ToManyAssociates[Presence] = (),
-        names: ToManyAssociates[PersonName] = (),
+        parents: ToManyAssociates[Self, Person] = (),
+        children: ToManyAssociates[Self, Person] = (),
+        presences: ToManyAssociates[Self, Presence] = (),
+        names: ToManyAssociates[Self, PersonName] = (),
         gender: Gender | None = None,
     ):
         super().__init__(
@@ -160,19 +154,13 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks):
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         portable = await super().dump_linked_data(project)
-        url_generator = await project.url_generator
         dump_context(
             portable,
             names="https://schema.org/name",
             parents="https://schema.org/parent",
             children="https://schema.org/child",
-            siblings="https://schema.org/sibling",
         )
         portable["@type"] = "https://schema.org/Person"
-        portable["siblings"] = [
-            url_generator.generate(sibling, media_type=JSON_LD)
-            for sibling in self.siblings
-        ]
         if self.public:
             portable["gender"] = self.gender.plugin().id
         return portable
@@ -189,5 +177,4 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks):
             ),
             False,
         )
-        schema.add_property("siblings", ToManySchema(title="Siblings"))
         return schema

@@ -7,9 +7,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.asset_directories.raspberry_mint import raspberry_mint
+from betty.associations.has_citations import HasCitations
 from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
-from betty.entity.has_citations import HasCitations
 from betty.factory import Manufacturable
 from betty.localizables.gettext import _
 from betty.project import Project

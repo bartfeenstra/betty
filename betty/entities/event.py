@@ -4,24 +4,20 @@ Data types to describe events.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, Self, final, override
 
+from betty.associations.has_citations import HasCitations
+from betty.associations.has_file_references import HasFileReferences
+from betty.associations.has_links import HasLinks
+from betty.associations.has_notes import HasNotes
+from betty.associations.to_many import ToMany, ToManyAssociates
+from betty.associations.to_one import ToOne
 from betty.attrs.date import HasAnyDate
 from betty.attrs.description import HasDescription
 from betty.attrs.localizable import new_localizable_attr
 from betty.entities.place import Place
 from betty.entities.presence import Presence
 from betty.entity import EntityDefinition
-from betty.entity.association import (
-    BidirectionalToManySingleType,
-    BidirectionalToZeroOrOne,
-    ToManyAssociates,
-    ToZeroOrOneAssociate,
-)
-from betty.entity.has_citations import HasCitations
-from betty.entity.has_file_references import HasFileReferences
-from betty.entity.has_links import HasLinks
-from betty.entity.has_notes import HasNotes
 from betty.event_type import EventTypeDefinition
 from betty.event_types.unknown import UnknownEventType
 from betty.json_schema import String
@@ -37,6 +33,7 @@ from betty.roles.subject import Subject
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
+    from betty.association import Associate
     from betty.date import AnyDate
     from betty.entities.citation import Citation
     from betty.entities.file_reference import FileReference
@@ -67,17 +64,17 @@ class Event(
     The event's name, if it has any.
     """
 
-    place = BidirectionalToZeroOrOne["Event", Place](
-        "betty.entities.place:Place",
+    place = ToOne[Self, Place](
+        Place,
         "events",
         label=_("Place"),
         description=_("The location of the event"),
-    )
+    ).optional
     """
     The place the event happened.
     """
-    presences = BidirectionalToManySingleType["Event", Presence](
-        "betty.entities.presence:Presence",
+    presences = ToMany[Self, Presence](
+        Presence,
         "event",
         label=_("Presences"),
         description=_("People's presences at this event"),
@@ -92,13 +89,13 @@ class Event(
         id: ResolvableMachineName | None = None,  # noqa: A002
         event_type: EventType | None = None,
         date: AnyDate | None = None,
-        files: ToManyAssociates[FileReference] = (),
-        citations: ToManyAssociates[Citation] = (),
-        notes: ToManyAssociates[Note] = (),
+        files: ToManyAssociates[Self, FileReference] = (),
+        citations: ToManyAssociates[Self, Citation] = (),
+        notes: ToManyAssociates[Self, Note] = (),
         privacy: Privacy = Privacy.UNDETERMINED,
-        place: ToZeroOrOneAssociate[Place] = None,
+        place: Associate[Self, Place] | None = None,
         description: ResolvableLocalizable | None = None,
-        presences: ToManyAssociates[Presence] = (),
+        presences: ToManyAssociates[Self, Presence] = (),
         name: ResolvableLocalizable | None = None,
     ):
         super().__init__(

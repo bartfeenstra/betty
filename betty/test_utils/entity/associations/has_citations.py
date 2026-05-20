@@ -1,23 +1,23 @@
 """
-Test utilities for :py:mod:`betty.entity.has_links`.
+Test utilities for :py:mod:`betty.associations.has_citations`.
 """
 
 from __future__ import annotations
 
+from betty.associations.has_citations import HasCitations
 from betty.entity import EntityDefinition
-from betty.entity.has_links import HasLinks
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
 )
 
 
 @EntityDefinition(
-    "dummy-has-links",
+    "dummy-has-citations",
     label="-",
     label_plural="-",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
-class DummyHasLinks(HasLinks):
+class DummyHasCitations(HasCitations):
     """
-    A dummy :py:class:`betty.entity.has_links.HasLinks` entity.
+    A dummy :py:class:`betty.associations.has_citations.HasCitations` entity.
     """

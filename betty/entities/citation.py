@@ -4,20 +4,17 @@ Data types for citations.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, Self, final, override
 
+from betty.associations.has_citations import HasCitations
+from betty.associations.has_file_references import HasFileReferences
+from betty.associations.has_links import HasLinks
+from betty.associations.to_many import ToMany, ToManyAssociates
+from betty.associations.to_one import ToOne, ToOneAssociate
 from betty.attrs.date import HasAnyDate
 from betty.attrs.localizable import new_localizable_attr
 from betty.entities.source import Source
 from betty.entity import EntityDefinition
-from betty.entity.association import (
-    BidirectionalToManyMultipleTypes,
-    BidirectionalToOne,
-    ToManyAssociates,
-    ToOneAssociate,
-)
-from betty.entity.has_file_references import HasFileReferences
-from betty.entity.has_links import HasLinks
 from betty.json_schemas.static_translations import StaticTranslationsSchema
 from betty.localizable.linked_data import dump_linked_data
 from betty.localizables.gettext import _, ngettext
@@ -27,7 +24,6 @@ from betty.privacy.resolve import merge_secondary_privacies
 if TYPE_CHECKING:
     from betty.date import AnyDate
     from betty.entities.file_reference import FileReference
-    from betty.entity.has_citations import HasCitations
     from betty.linked_data import JsonLdObject
     from betty.localizable import Localizable, ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
@@ -52,8 +48,8 @@ class Citation(HasAnyDate, HasFileReferences, HasLinks):
     The location within the source this citation references.
     """
 
-    facts = BidirectionalToManyMultipleTypes["Citation", "HasCitations"](
-        "betty.entity.has_citations:HasCitations",
+    facts = ToMany[Self, HasCitations](
+        HasCitations,
         "citations",
         label=_("Facts"),
         description=_(
@@ -64,8 +60,8 @@ class Citation(HasAnyDate, HasFileReferences, HasLinks):
     The other entities that reference these citations to back up their claims.
     """
 
-    source = BidirectionalToOne["Citation", Source](
-        "betty.entities.source:Source",
+    source = ToOne[Self, Source](
+        Source,
         "citations",
         label=_("Source"),
         description=_("The source this citation references."),
@@ -77,12 +73,12 @@ class Citation(HasAnyDate, HasFileReferences, HasLinks):
     def __init__(
         self,
         *,
-        source: ToOneAssociate[Source],
+        source: ToOneAssociate[Self, Source],
+        facts: ToManyAssociates[Self, HasCitations] = (),
         id: ResolvableMachineName | None = None,  # noqa: A002
-        facts: ToManyAssociates[HasCitations] = (),
         location: ResolvableLocalizable | None = None,
         date: AnyDate | None = None,
-        files: ToManyAssociates[FileReference] = (),
+        files: ToManyAssociates[Self, FileReference] = (),
         privacy: Privacy = Privacy.UNDETERMINED,
     ):
         super().__init__(

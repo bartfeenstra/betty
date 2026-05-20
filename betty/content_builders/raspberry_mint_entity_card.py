@@ -7,10 +7,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.asset_directories.raspberry_mint import raspberry_mint
+from betty.associations.has_file_references import HasFileReferences
 from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.datas.entity_reference import EntityReference
-from betty.entity.has_file_references import HasFileReferences
+from betty.entity import ResolvableEntity, resolve
 from betty.extensions._theme import associated_file_references
 from betty.factory import DataManufacturable
 from betty.image import is_supported_media_type
@@ -21,7 +22,6 @@ if TYPE_CHECKING:
     from betty.document import Document
     from betty.entities.file_reference import FileReference
     from betty.entity import Entity
-    from betty.entity.collection.pool import EntityPool
     from betty.jinja import Environment
 
 
@@ -39,11 +39,11 @@ class EntityCard(Template, DataManufacturable[EntityReference]):
     """
 
     def __init__(
-        self, *, ancestry: EntityPool, entity: EntityReference, jinja: Environment
+        self, *, entity: ResolvableEntity, jinja: Environment, project: Project
     ):
         super().__init__(jinja=jinja)
         self._entity = entity
-        self._ancestry = ancestry
+        self._project = project
 
     @override
     @classmethod
@@ -54,21 +54,19 @@ class EntityCard(Template, DataManufacturable[EntityReference]):
     @Project.require
     @classmethod
     async def new(cls, project: Project, data: EntityReference, /) -> Self:
-        return cls(
-            ancestry=project.ancestry,
-            entity=data,
-            jinja=await project.jinja,
-        )
+        return cls(entity=data, jinja=await project.jinja, project=project)
 
     @override
     async def build_template(self, document: Document) -> TemplateBuild:
-        entity = self._ancestry[self._entity.type][self._entity.id]
+        entity = resolve(self._project, self._entity)
         return [
-            "entity/card--" + entity.plugin().id + ".html.j2",
+            "entity/card--" + entity.plugin().id + ".html.j2",  # ty:ignore[unresolved-attribute]
             "entity/card.html.j2",
         ], {
             "entity": entity,
-            "entity_image_reference": self._get_image_reference(entity),
+            "entity_image_reference": self._get_image_reference(
+                entity,  # ty:ignore[invalid-argument-type]
+            ),
         }
 
     def _get_image_reference(self, entity: Entity) -> FileReference | None:

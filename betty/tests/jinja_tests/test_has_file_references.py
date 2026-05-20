@@ -4,7 +4,9 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
-from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
+from betty.test_utils.entity.associations.has_file_references import (
+    DummyHasFileReferences,
+)
 
 if TYPE_CHECKING:
     from betty.test_utils.conftest import AssertTemplateString

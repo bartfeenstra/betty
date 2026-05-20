@@ -7,7 +7,6 @@ from __future__ import annotations
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, final, override
 
-from betty.entity.association import AssociationRegistry
 from betty.entity.collection.multiple import MultipleTypesEntityCollection
 
 if TYPE_CHECKING:
@@ -48,5 +47,5 @@ class EntityPool(MultipleTypesEntityCollection):
 
     def _get_associates(self, *entities: Entity) -> Iterable[Entity]:
         for entity in entities:
-            for association in AssociationRegistry.get_all_associations(entity):
+            for association in entity.associations():
                 yield from association.get_associates(entity)
