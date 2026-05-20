@@ -787,10 +787,12 @@ class ProjectData(Data, HasProperties):
 
     @copyright_notice.default
     @staticmethod
-    def copyright_notice() -> CopyrightNoticeManufacturer:  # noqa: D102
+    def copyright_notice() -> ResolvablePluginManufacturer[  # noqa: D102
+        CopyrightNoticeDefinition, CopyrightNotice
+    ]:
         from betty.plugins.copyright_notice.project_author import ProjectAuthor
 
-        return CopyrightNoticeManufacturer(ProjectAuthor)
+        return ProjectAuthor
 
     copyright_notices = new_plugin_definition_datas_attr(
         CopyrightNoticeDefinition, CopyrightNoticeDefinitionData
@@ -883,10 +885,10 @@ class ProjectData(Data, HasProperties):
 
     @license.default  # noqa: A003
     @staticmethod
-    def license() -> LicenseManufacturer:  # noqa: D102
+    def license() -> ResolvablePluginManufacturer[LicenseDefinition, License]:  # noqa: D102
         from betty.plugins.license.all_rights_reserved import AllRightsReserved
 
-        return LicenseManufacturer(AllRightsReserved)
+        return AllRightsReserved
 
     licenses = new_plugin_definition_datas_attr(
         LicenseDefinition, LicenseDefinitionData
