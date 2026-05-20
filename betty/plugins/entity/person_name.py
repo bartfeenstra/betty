@@ -6,8 +6,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
+from betty.attrs.attr import AttrAttr
 from betty.attrs.locale import HasLocale
 from betty.attrs.privacy import HasPrivacy
+from betty.datas.str import StrDefinition
 from betty.entity import Entity, EntityDefinition
 from betty.entity.association import (
     BidirectionalToOne,
@@ -43,6 +45,36 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
     .. plugin:: entity:person-name.
     """
 
+    affiliation = AttrAttr(StrDefinition(label=_("Affiliation name"))).optional
+    """
+    The name's affiliation, or family component.
+
+    Also known as:
+
+    - last name
+    - surname
+    """
+
+    @affiliation.setter
+    def affiliation(self, name: str | None, /) -> str | None:
+        self._assert_names(self.individual, name)
+        return name
+
+    individual = AttrAttr(StrDefinition(label=_("Individual name"))).optional
+    """
+    The name's individual component.
+
+    Also known as:
+
+    - first name
+    - given name
+    """
+
+    @individual.setter
+    def individual(self, name: str | None, /) -> str | None:
+        self._assert_names(name, self.affiliation)
+        return name
+
     person = BidirectionalToOne["PersonName", "Person"](
         "betty.plugins.entity.person:Person",
         "names",
@@ -63,37 +95,28 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
         locale: ResolvableLocale | None = None,
         citations: ToManyAssociates[Citation] = (),
     ):
-        if not individual and not affiliation:
-            raise ValueError(
-                "The individual and affiliation names must not both be empty."
-            )
         super().__init__(
             id,
             privacy=privacy,
             locale=locale,
             citations=citations,
         )
-        self.individual = individual
-        """
-        The name's individual component.
-
-        Also known as:
-
-        - first name
-        - given name
-        """
+        if individual is not None:
+            self.individual = individual
         self.affiliation = affiliation
-        """
-        The name's affiliation, or family component.
-
-        Also known as:
-
-        - last name
-        - surname
-        """
         # Set the person association last, because the association requires comparisons, and self.__eq__() uses the
         # individual and affiliation names.
         self.person = person
+
+    def _assert_names(self, individual: str | None, affiliation: str | None) -> None:
+        if individual is None:
+            individual = self.individual
+        if affiliation is None:
+            affiliation = self.affiliation
+        if not individual and not affiliation:
+            raise ValueError(
+                "The individual and affiliation names must not both be empty."
+            )
 
     @override
     def _get_effective_privacy(self) -> Privacy:
