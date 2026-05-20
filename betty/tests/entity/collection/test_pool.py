@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING, Self, override
 
 import pytest
 
+from betty.associations.to_one import ToOne
 from betty.entity import Entity, EntityDefinition
-from betty.entity.association import BidirectionalToZeroOrOne
 from betty.entity.collection.pool import EntityPool
 from betty.test_utils.entity import DummyEntityOne
 from betty.test_utils.entity.collection import EntityCollectionTestBase
@@ -28,13 +28,11 @@ if TYPE_CHECKING:
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class _TestEntityPool_OneToOne_Left(Entity):
-    one_right = BidirectionalToZeroOrOne[
-        "_TestEntityPool_OneToOne_Left", "_TestEntityPool_OneToOne_Right"
-    ](
+    one_right = ToOne[Self, "_TestEntityPool_OneToOne_Right"](
         "betty.tests.entity.collection.test_pool:_TestEntityPool_OneToOne_Right",
         "one_left",
         label="-",
-    )
+    ).optional
 
 
 @EntityDefinition(
@@ -44,13 +42,11 @@ class _TestEntityPool_OneToOne_Left(Entity):
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class _TestEntityPool_OneToOne_Right(Entity):
-    one_left = BidirectionalToZeroOrOne[
-        "_TestEntityPool_OneToOne_Right", _TestEntityPool_OneToOne_Left
-    ](
+    one_left = ToOne[Self, _TestEntityPool_OneToOne_Left](
         "betty.tests.entity.collection.test_pool:_TestEntityPool_OneToOne_Left",
         "one_right",
         label="-",
-    )
+    ).optional
 
 
 class TestEntityPool(EntityCollectionTestBase[Entity]):

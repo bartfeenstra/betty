@@ -10,8 +10,8 @@ from betty.event_types.birth import Birth
 from betty.locale import default_locale_tag
 from betty.localizer import default_localizer
 from betty.privacy import Privacy
-from betty.test_utils.ancestry.has_citations import DummyHasCitations
 from betty.test_utils.entity import EntityTestBase
+from betty.test_utils.entity.associations.has_citations import DummyHasCitations
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence

@@ -22,6 +22,10 @@ from geopy import Point
 from lxml import etree
 
 from betty import subprocess
+from betty.association import AssociateResolver, BiResolver, resolve_associates
+from betty.associations.has_citations import HasCitations
+from betty.associations.has_links import HasLinks
+from betty.associations.has_notes import HasNotes
 from betty.attrs.privacy import HasPrivacy
 from betty.copyright_notice import CopyrightNoticeManufacturer
 from betty.date import AnyDate, Date, DateRange
@@ -39,8 +43,6 @@ from betty.entities.place_name import PlaceName
 from betty.entities.presence import Presence
 from betty.entities.source import Source
 from betty.entity import Entity
-from betty.entity.association import ToManyResolver, ToOneResolver, resolve
-from betty.entity.has_links import HasLinks
 from betty.error import FileNotFound
 from betty.event_type import EventTypeManufacturer
 from betty.event_types.adoption import Adoption
@@ -124,10 +126,7 @@ if TYPE_CHECKING:
 
     from babel import Locale
 
-    from betty.entity.collection.pool import EntityPool
-    from betty.entity.has_citations import HasCitations
-    from betty.entity.has_file_references import HasFileReferences
-    from betty.entity.has_notes import HasNotes
+    from betty.associations.has_file_references import HasFileReferences
     from betty.event_type import EventType, EventTypeDefinition
     from betty.gender import Gender
     from betty.localizables.static import StaticTranslationsMapping
@@ -135,10 +134,9 @@ if TYPE_CHECKING:
     from betty.pathlib import StrPath
     from betty.place_type import PlaceType, PlaceTypeDefinition
     from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
+    from betty.project import Project
     from betty.role import Role, RoleDefinition
-    from betty.service_level import ServiceLevel
     from betty.typing import Intersection
-    from betty.user import User
 
 
 class GrampsError(Exception):
@@ -196,27 +194,6 @@ class GrampsEntityReference:
     @override
     def __str__(self) -> str:
         return f"{self.entity_type.value} ({self.entity_id})"
-
-
-class _ToOneResolver[EntityT: Entity](ToOneResolver[EntityT]):
-    def __init__(self, handles_to_entities: Mapping[str, Entity], handle: str):
-        self._handles_to_entities = handles_to_entities
-        self._handle = handle
-
-    @override
-    def resolve(self) -> EntityT:
-        return cast(EntityT, self._handles_to_entities[self._handle])
-
-
-class _ToManyResolver[EntityT: Entity](ToManyResolver[EntityT]):
-    def __init__(self, handles_to_entities: Mapping[str, Entity], *handles: str):
-        self._handles_to_entities = handles_to_entities
-        self._handles = handles
-
-    @override
-    def resolve(self) -> Iterable[EntityT]:
-        for handle in self._handles:
-            yield cast(EntityT, self._handles_to_entities[handle])
 
 
 DEFAULT_GENDER_MAPPING: Mapping[
@@ -371,10 +348,8 @@ class GrampsLoader:
 
     def __init__(
         self,
-        ancestry: EntityPool,
+        project: Project,
         *,
-        user: User,
-        services: ServiceLevel,
         attribute_prefix_key: str | None = None,
         event_type_mapping: Mapping[
             str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
@@ -389,7 +364,7 @@ class GrampsLoader:
         executable: StrPath | None = None,
     ):
         super().__init__()
-        self._ancestry = ancestry
+        self._project = project
         self._handles_to_entities: MutableMapping[str, Entity] = {}
         self._attribute_prefix_key = attribute_prefix_key
         self._added_entity_counts: MutableMapping[type[Entity], int] = defaultdict(
@@ -398,7 +373,6 @@ class GrampsLoader:
         self._tree: ElementTree.ElementTree
         self._tree_xml_namespace: dict[str, str]
         self._loaded = False
-        self._user = user
         self._event_type_mapping = _resolve_plugin_manufacturer_mapping(
             EventTypeManufacturer, event_type_mapping
         )
@@ -412,13 +386,12 @@ class GrampsLoader:
             RoleManufacturer, role_mapping
         )
         self._gramps_executable = executable or _default_gramps_executable
-        self._services = services
 
     async def _run_gramps(self, runnee: Sequence[str]) -> Process:
         try:
             return await subprocess.run_process(
                 [str(self._gramps_executable), *runnee],
-                user=self._user,
+                user=self._project.upstream.user,
             )
         except subprocess.CalledSubprocessError as error:
             raise UserFacingGrampsError(
@@ -450,7 +423,7 @@ class GrampsLoader:
         :raises betty.gramps.error.GrampsError:
         """
         file = resolve_path(file).resolve()
-        await self._user.message_information_details(
+        await self._project.upstream.user.message_information_details(
             _('Loading "{file_path}"...').format(
                 file_path=str(file),
             )
@@ -582,15 +555,15 @@ class GrampsLoader:
             if mediapath.text is not None:
                 media = Path(mediapath.text).resolve()
 
-        with self._ancestry.unchecked():
+        with self._project.ancestry.unchecked():
             await self._load_notes(database)
-            await self._user.message_information_details(
+            await self._project.upstream.user.message_information_details(
                 _("Loaded {note_count} notes.").format(
                     note_count=str(self._added_entity_counts[Note])
                 )
             )
             await self._load_objects(database, media)
-            await self._user.message_information_details(
+            await self._project.upstream.user.message_information_details(
                 _("Loaded {file_count} files.").format(
                     file_count=str(self._added_entity_counts[File])
                 )
@@ -598,14 +571,14 @@ class GrampsLoader:
 
             await self._load_repositories(database)
             repository_count = self._added_entity_counts[Source]
-            await self._user.message_information_details(
+            await self._project.upstream.user.message_information_details(
                 _("Loaded {repository_count} repositories as sources.").format(
                     repository_count=str(repository_count)
                 )
             )
 
             await self._load_sources(database)
-            await self._user.message_information_details(
+            await self._project.upstream.user.message_information_details(
                 _("Loaded {source_count} sources.").format(
                     source_count=str(
                         self._added_entity_counts[Source] - repository_count
@@ -614,28 +587,28 @@ class GrampsLoader:
             )
 
             await self._load_citations(database)
-            await self._user.message_information_details(
+            await self._project.upstream.user.message_information_details(
                 _("Loaded {citation_count} citations.").format(
                     citation_count=str(self._added_entity_counts[Citation])
                 )
             )
 
             await self._load_places(database)
-            await self._user.message_information_details(
+            await self._project.upstream.user.message_information_details(
                 _("Loaded {place_count} places.").format(
                     place_count=str(self._added_entity_counts[Place])
                 )
             )
 
             await self._load_events(database)
-            await self._user.message_information_details(
+            await self._project.upstream.user.message_information_details(
                 _("Loaded {event_count} events.").format(
                     event_count=str(self._added_entity_counts[Event])
                 )
             )
 
             await self._load_people(database)
-            await self._user.message_information_details(
+            await self._project.upstream.user.message_information_details(
                 _("Loaded {person_count} people.").format(
                     person_count=str(self._added_entity_counts[Person])
                 )
@@ -643,7 +616,7 @@ class GrampsLoader:
 
             await self._load_families(database)
 
-        resolve(*self._ancestry)
+        resolve_associates(self._project, *self._project.ancestry)
 
     def _supports_xml_version(self, version: tuple[int, int, int]) -> bool:
         if version[0] != self._supported_gramps_xml_version[0]:
@@ -652,18 +625,24 @@ class GrampsLoader:
             return False
         return not version[2] < self._supported_gramps_xml_version[2]
 
-    def _resolve1[EntityT: Entity](
-        self, entity_type: type[EntityT], handle: str
-    ) -> _ToOneResolver[EntityT]:
-        return _ToOneResolver(self._handles_to_entities, handle)
+    def _resolve_one[OwnerT: Entity, AssociateT: Entity](
+        self,
+        _owner_type: type[OwnerT],
+        _associate_type: type[AssociateT],
+        handle: str,
+        /,
+    ) -> AssociateResolver[OwnerT, AssociateT]:
+        return BiResolver(lambda: self._handles_to_entities[handle])
 
-    def _resolve[EntityT: Entity](
-        self, entity_type: type[EntityT], *handles: str
-    ) -> _ToManyResolver[EntityT]:
-        return _ToManyResolver(self._handles_to_entities, *handles)
+    def _resolve_many[OwnerT: Entity, AssociateT: Entity](
+        self, owner_type: type[OwnerT], associate_type: type[AssociateT], *handles: str
+    ) -> Iterable[AssociateResolver[OwnerT, AssociateT]]:
+        return (
+            self._resolve_one(owner_type, associate_type, handle) for handle in handles
+        )
 
     def _add_entity(self, entity: Entity, handle: str | None = None) -> None:
-        self._ancestry.add(entity)
+        self._project.ancestry.add(entity)
         if handle is not None:
             self._handles_to_entities[handle] = entity
         self._added_entity_counts[type(entity)] += 1
@@ -769,7 +748,9 @@ class GrampsLoader:
         self._add_entity(note, note_handle)
 
     def _load_noteref(self, owner: HasNotes, element: ElementTree.Element) -> None:
-        owner.notes = self._resolve(Note, *self._load_handles("noteref", element))
+        owner.notes = self._resolve_many(
+            HasNotes, Note, *self._load_handles("noteref", element)
+        )
 
     async def _load_objects(
         self, database: ElementTree.Element, media: Path | None
@@ -827,9 +808,9 @@ class GrampsLoader:
             try:
                 file.copyright_notice = await CopyrightNoticeManufacturer(
                     copyright_notice_id
-                )(self._services)
+                )(self._project)
             except PluginNotFound:
-                await self._user.message_warning(
+                await self._project.upstream.user.message_warning(
                     _(
                         'Betty is unfamiliar with Gramps file "{file_id}"\'s copyright notice ID of "{copyright_notice_id}" and ignored it.',
                     ).format(file_id=file_id, copyright_notice_id=copyright_notice_id)
@@ -837,17 +818,17 @@ class GrampsLoader:
         license_id = self._load_attribute("license", element, "attribute")
         if license_id:
             try:
-                file.license = await LicenseManufacturer(license_id)(self._services)
+                file.license = await LicenseManufacturer(license_id)(self._project)
             except PluginNotFound:
-                await self._user.message_warning(
+                await self._project.upstream.user.message_warning(
                     _(
                         'Betty is unfamiliar with Gramps file "{file_id}"\'s license ID of "{license_id}" and ignored it.',
                     ).format(file_id=file_id, license_id=license_id)
                 )
 
         self._add_entity(file, file_handle)
-        file.citations = self._resolve(
-            Citation, *self._load_handles("citationref", element)
+        file.citations = self._resolve_many(
+            File, Citation, *self._load_handles("citationref", element)
         )
         self._load_noteref(file, element)
 
@@ -866,14 +847,14 @@ class GrampsLoader:
         if gender_id is None:
             gramps_gender = self._xpath1(element, "./ns:gender").text
             assert gramps_gender is not None
-            gender = await self._gender_mapping[gramps_gender](self._services)
+            gender = await self._gender_mapping[gramps_gender](self._project)
         else:
             try:
-                gender = await self._services.factory.new(
-                    (await self._services.plugins[GenderDefinition][gender_id]).cls
+                gender = await self._project.factory.new(
+                    (await self._project.plugins[GenderDefinition][gender_id]).cls
                 )
             except PluginNotFound:
-                await self._user.message_warning(
+                await self._project.upstream.user.message_warning(
                     _(
                         'Betty is unfamiliar with Gramps person "{person_id}"\'s gender ID of "{gender_id}" and ignored it.',
                     ).format(person_id=person_id, gender_id=gender_id)
@@ -975,23 +956,24 @@ class GrampsLoader:
             role_manufacturer = self._role_mapping[gramps_role]
         except KeyError:
             role = UnknownRole()
-            await self._user.message_warning(
+            await self._project.upstream.user.message_warning(
                 _(
                     'Betty is unfamiliar with person "{person_id}"\'s Gramps role of "{gramps_role}" for the event with Gramps handle "{event_handle}". The role was imported, but set to "{betty_role}".',
                 ).format(
                     person_id=person.id,
                     event_handle=event_handle,
                     gramps_role=gramps_role,
-                    betty_role=role.plugin().label.localize(self._user.localizer),
+                    betty_role=role.plugin().label.localize(
+                        self._project.upstream.user.localizer
+                    ),
                 )
             )
         else:
-            role = await role_manufacturer(self._services)
-
+            role = await role_manufacturer(self._project)
         presence = Presence(
             person,
             role,
-            self._resolve1(Event, event_handle),
+            self._resolve_one(Presence, Event, event_handle),
             id=_machinify_associate(person, Presence, index),
         )
         if eventref.get("priv") == "1":
@@ -1031,19 +1013,19 @@ class GrampsLoader:
             place_type_manufacturer = self._place_type_mapping[gramps_type]
         except KeyError:
             place_type = UnknownPlaceType()
-            await self._user.message_warning(
+            await self._project.upstream.user.message_warning(
                 _(
                     'Betty is unfamiliar with Gramps place "{place_id}"\'s type of "{gramps_place_type}". The place was imported, but its type was set to "{betty_place_type}".',
                 ).format(
                     place_id=place_id,
                     gramps_place_type=gramps_type,
                     betty_place_type=place_type.plugin().label.localize(
-                        self._user.localizer
+                        self._project.upstream.user.localizer
                     ),
                 )
             )
         else:
-            place_type = await place_type_manufacturer(self._services)
+            place_type = await place_type_manufacturer(self._project)
 
         place = Place(
             id=machinify(place_id),
@@ -1063,8 +1045,8 @@ class GrampsLoader:
 
         for encloser_handle in self._load_handles("placeref", element):
             enclosure = Enclosure(
-                enclosee=self._resolve1(Place, place_handle),
-                encloser=self._resolve1(Place, encloser_handle),
+                enclosee=self._resolve_one(Enclosure, Place, place_handle),
+                encloser=self._resolve_one(Enclosure, Place, encloser_handle),
             )
             self._add_entity(enclosure)
 
@@ -1076,7 +1058,7 @@ class GrampsLoader:
             try:
                 return Point.from_string(coordinates)
             except ValueError:
-                await self._user.message_warning(
+                await self._project.upstream.user.message_warning(
                     _(
                         'Cannot load coordinates "{coordinates}", because they are in an unknown format.',
                     ).format(
@@ -1101,19 +1083,19 @@ class GrampsLoader:
             event_type_manufacturer = self._event_type_mapping[gramps_type]
         except KeyError:
             event_type = UnknownEventType()
-            await self._user.message_warning(
+            await self._project.upstream.user.message_warning(
                 _(
                     'Betty is unfamiliar with Gramps event "{event_id}"\'s type of "{gramps_event_type}". The event was imported, but its type was set to "{betty_event_type}".',
                 ).format(
                     event_id=event_id,
                     gramps_event_type=gramps_type,
                     betty_event_type=event_type.plugin().label.localize(
-                        self._user.localizer
+                        self._project.upstream.user.localizer
                     ),
                 )
             )
         else:
-            event_type = await event_type_manufacturer(self._services)
+            event_type = await event_type_manufacturer(self._project)
 
         event = Event(
             id=machinify(event_id),
@@ -1125,7 +1107,7 @@ class GrampsLoader:
         # Load the event place.
         place_handle = self._load_handle("place", element)
         if place_handle is not None:
-            event.place = self._resolve1(Place, place_handle)
+            event.place = self._resolve_one(Event, Place, place_handle)
 
         # Load the description.
         with suppress(XPathError):
@@ -1192,7 +1174,9 @@ class GrampsLoader:
 
         repository_source_handle = self._load_handle("reporef", element)
         if repository_source_handle is not None:
-            source.contained_by = self._resolve1(Source, repository_source_handle)
+            source.contained_by = self._resolve_one(
+                Source, Source, repository_source_handle
+            )
 
         # Load the author.
         with suppress(XPathError):
@@ -1233,7 +1217,7 @@ class GrampsLoader:
 
         citation = Citation(
             id=machinify(citation_id),
-            source=self._resolve1(Source, source_handle),
+            source=self._resolve_one(Citation, Source, source_handle),
         )
 
         citation.date = self._load_date(element)
@@ -1261,8 +1245,8 @@ class GrampsLoader:
         owner: HasCitations,
         element: ElementTree.Element,
     ) -> None:
-        owner.citations = self._resolve(
-            Citation, *self._load_handles("citationref", element)
+        owner.citations = self._resolve_many(
+            HasCitations, Citation, *self._load_handles("citationref", element)
         )
 
     def _load_handles(
@@ -1288,7 +1272,7 @@ class GrampsLoader:
             assert file_handle is not None
             file_reference = FileReference(
                 owner,
-                self._resolve1(File, file_handle),
+                self._resolve_one(FileReference, File, file_handle),
                 id=_machinify_associate(owner, FileReference, index),
             )
             try:
@@ -1333,14 +1317,18 @@ class GrampsLoader:
         if privacy_value == "public":
             entity.public = True
             return
-        await self._user.message_warning(
+        await self._project.upstream.user.message_warning(
             _(
                 'The betty:privacy Gramps attribute must have a value of "public" or "private", but "{privacy_value}" was given for {entity_type} {entity_id} ({entity_label}), which was ignored.',
             ).format(
                 privacy_value=privacy_value,
-                entity_type=entity.plugin().label.localize(self._user.localizer),
+                entity_type=entity.plugin().label.localize(
+                    self._project.upstream.user.localizer
+                ),
                 entity_id=entity.id,
-                entity_label=entity.label.localize(self._user.localizer),
+                entity_label=entity.label.localize(
+                    self._project.upstream.user.localizer
+                ),
             )
         )
 
@@ -1376,7 +1364,7 @@ class GrampsLoader:
         try:
             return from_language_tag(locale)
         except LocaleError as error:
-            await self._user.message_warning(error)
+            await self._project.upstream.user.message_warning(error)
             return None
 
     _link_attribute_pattern: Final[re.Pattern[str]] = re.compile(
@@ -1403,7 +1391,7 @@ class GrampsLoader:
             links_attributes[link_name][link_attribute_name] = attribute_value
         for link_name, link_attributes in links_attributes.items():
             if "url" not in link_attributes:
-                await self._user.message_warning(
+                await self._project.upstream.user.message_warning(
                     _(
                         'The Gramps {gramps_entity_reference} entity requires a "betty:link-{link_name}:url" attribute. This link was ignored.',
                     ).format(
@@ -1436,7 +1424,7 @@ class GrampsLoader:
                 try:
                     media_type = MediaType(link_attributes["media_type"])
                 except InvalidMediaType:
-                    await self._user.message_warning(
+                    await self._project.upstream.user.message_warning(
                         _(
                             'The Gramps {gramps_entity_reference} entity has a "betty:link-{link_name}:media_type" attribute with value "{media_type}", which is not a valid IANA media type. This media type was ignored.',
                         ).format(

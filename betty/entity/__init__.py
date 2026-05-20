@@ -2,24 +2,26 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Final, final, override
+from inspect import signature
+from typing import TYPE_CHECKING, Any, Final, Self, final, override
 
 from betty.attrs.privacy import HasPrivacy
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.json_schema import JsonSchemaReference, String
-from betty.linked_data import (
-    JsonLdObject,
-    LinkedDataDumpableWithSchemaJsonLdObject,
-)
+from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
 from betty.localizables.gettext import _, ngettext
 from betty.localizer import default_localizer
 from betty.machine_name import MachineName
+from betty.media_types.json_ld import JSON_LD
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.privacy import Privacy
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+
+    from betty.association import Association
     from betty.localizable import (
         CountableLocalizable,
         Localizable,
@@ -57,6 +59,18 @@ class Entity(
         """
         super().__init__(*args, privacy=privacy, **kwargs)
 
+    @final
+    @classmethod
+    def associations(cls) -> Iterable[Association[Self]]:
+        """
+        Get all associations on entities of this type.
+        """
+        from betty.association import Association
+
+        for prop in cls.props():
+            if isinstance(prop, Association):
+                yield prop
+
     @override
     def __hash__(self) -> int:
         return hash((type(self), self.id))
@@ -73,11 +87,9 @@ class Entity(
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         portable = await super().dump_linked_data(project)
-
         url_generator = await project.url_generator
         portable["@id"] = url_generator.generate(
-            f"betty-static:///{self.plugin().id}/{self.id}/index.json",
-            absolute=True,
+            self, media_type=JSON_LD, absolute=True
         )
         portable["id"] = self.id
 
@@ -91,6 +103,7 @@ class Entity(
         schema.title = cls.plugin().label.localize(default_localizer)
         schema.add_property("$schema", JsonSchemaReference())
         schema.add_property("id", String(title="Entity ID"), False)
+        schema.add_property("public_id", String(title="Public entity ID"), False)
 
         return schema
 
@@ -105,7 +118,9 @@ class Entity(
         "Entities represent the information in your ancestry, such as people and places."
     ),
 )
-class EntityDefinition(CountableHumanFacingDefinition, PluginClsDefinition[Entity]):
+class EntityDefinition[EntityT: Entity = Entity](
+    CountableHumanFacingDefinition, PluginClsDefinition[EntityT]
+):
     """
     .. plugin_type:: entity.
     """
@@ -137,4 +152,22 @@ class EntityDefinition(CountableHumanFacingDefinition, PluginClsDefinition[Entit
         """
 
 
-type AncestryEntityId = tuple[type[Entity], MachineName]
+type EntityResolver[EntityT: Entity = Entity] = (
+    Callable[[], EntityT] | Callable[[Project], EntityT]
+)
+type ResolvableEntity[EntityT: Entity = Entity] = EntityT | EntityResolver[EntityT]
+
+
+def resolve[EntityT: Entity = Entity](
+    project: Project, entity: ResolvableEntity[EntityT], /
+) -> EntityT:
+    """
+    Resolve an entity or entity resolver to its entity.
+    """
+    if isinstance(entity, Entity):
+        return entity  # ty:ignore[invalid-return-type]
+    match len(signature(entity).parameters):
+        case 1:
+            return entity(project)  # ty:ignore[too-many-positional-arguments]
+        case _:
+            return entity()  # ty:ignore[missing-argument]

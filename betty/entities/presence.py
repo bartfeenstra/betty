@@ -4,10 +4,10 @@ Data types for people's presences at events.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, Self, final, override
 
+from betty.associations.to_one import ToOne, ToOneAssociate
 from betty.entity import Entity, EntityDefinition
-from betty.entity.association import BidirectionalToOne, ToOneAssociate
 from betty.json_schemas.plugin_id import PluginIdSchema
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
@@ -39,7 +39,7 @@ class Presence(Entity):
     .. plugin:: entity:presence.
     """
 
-    person = BidirectionalToOne["Presence", "Person"](
+    person = ToOne[Self, "Person"](
         "betty.entities.person:Person",
         "presences",
         label=_("Person"),
@@ -48,7 +48,7 @@ class Presence(Entity):
     The person whose presence is described.
     """
 
-    event = BidirectionalToOne["Presence", "Event"](
+    event = ToOne[Self, "Event"](
         "betty.entities.event:Event",
         "presences",
         label=_("Event"),
@@ -64,9 +64,9 @@ class Presence(Entity):
 
     def __init__(
         self,
-        person: ToOneAssociate[Person],
+        person: ToOneAssociate[Self, Person],
         role: Role,
-        event: ToOneAssociate[Event],
+        event: ToOneAssociate[Self, Event],
         *,
         id: ResolvableMachineName | None = None,  # noqa: A002
         privacy: Privacy = Privacy.UNDETERMINED,

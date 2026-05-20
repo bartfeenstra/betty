@@ -5,14 +5,15 @@ Provide the place entity.
 from __future__ import annotations
 
 from contextlib import suppress
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, Self, final, override
 
+from betty.associations.has_file_references import HasFileReferences
+from betty.associations.has_links import HasLinks
+from betty.associations.has_notes import HasNotes
+from betty.associations.to_many import ToMany, ToManyAssociates
+from betty.entities.enclosure import Enclosure
 from betty.entities.place_name import PlaceName
 from betty.entity import EntityDefinition
-from betty.entity.association import BidirectionalToManySingleType, ToManyAssociates
-from betty.entity.has_file_references import HasFileReferences
-from betty.entity.has_links import HasLinks
-from betty.entity.has_notes import HasNotes
 from betty.json_schema import Array, Number, Object
 from betty.linked_data import JsonLdObject, dump_context
 from betty.localizables.gettext import _, ngettext
@@ -24,7 +25,6 @@ if TYPE_CHECKING:
 
     from geopy import Point
 
-    from betty.entities.enclosure import Enclosure
     from betty.entities.event import Event
     from betty.entities.link import Link
     from betty.entities.note import Note
@@ -47,7 +47,7 @@ class Place(HasLinks, HasFileReferences, HasNotes):
     .. plugin:: entity:place.
     """
 
-    events = BidirectionalToManySingleType["Place", "Event"](
+    events = ToMany[Self, "Event"](
         "betty.entities.event:Event",
         "place",
         label=_("Events"),
@@ -57,8 +57,8 @@ class Place(HasLinks, HasFileReferences, HasNotes):
     The events that happened here.
     """
 
-    enclosers = BidirectionalToManySingleType["Place", "Enclosure"](
-        "betty.entities.enclosure:Enclosure",
+    enclosers = ToMany[Self, Enclosure](
+        Enclosure,
         "enclosee",
         label=_("Enclosers"),
         description=_("The places this place is enclosed or contained by"),
@@ -67,8 +67,8 @@ class Place(HasLinks, HasFileReferences, HasNotes):
     Other places containing this one.
     """
 
-    enclosees = BidirectionalToManySingleType["Place", "Enclosure"](
-        "betty.entities.enclosure:Enclosure",
+    enclosees = ToMany[Self, Enclosure](
+        Enclosure,
         "encloser",
         label=_("Enclosees"),
         description=_("The places this place encloses or contains"),
@@ -82,12 +82,12 @@ class Place(HasLinks, HasFileReferences, HasNotes):
         *,
         id: ResolvableMachineName | None = None,  # noqa: A002
         names: Iterable[PlaceName] = (),
-        events: ToManyAssociates[Event] = (),
-        enclosers: ToManyAssociates[Enclosure] = (),
-        enclosees: ToManyAssociates[Enclosure] = (),
-        notes: ToManyAssociates[Note] = (),
+        events: ToManyAssociates[Self, Event] = (),
+        enclosers: ToManyAssociates[Self, Enclosure] = (),
+        enclosees: ToManyAssociates[Self, Enclosure] = (),
+        notes: ToManyAssociates[Self, Note] = (),
         coordinates: Point | None = None,
-        links: ToManyAssociates[Link] = (),
+        links: ToManyAssociates[Self, Link] = (),
         privacy: Privacy = Privacy.UNDETERMINED,
         place_type: PlaceType | None = None,
     ):

@@ -4,12 +4,12 @@ Data types to describe the relationships between places.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Self, final
 
+from betty.associations.has_citations import HasCitations
+from betty.associations.to_one import ToOne, ToOneAssociate
 from betty.attrs.date import HasAnyDate
 from betty.entity import Entity, EntityDefinition
-from betty.entity.association import BidirectionalToOne, ToOneAssociate
-from betty.entity.has_citations import HasCitations
 from betty.localizables.gettext import _, ngettext
 
 if TYPE_CHECKING:
@@ -30,7 +30,7 @@ class Enclosure(HasAnyDate, HasCitations, Entity):
     .. plugin:: entity:enclosure.
     """
 
-    encloser = BidirectionalToOne["Enclosure", "Place"](
+    encloser = ToOne[Self, "Place"](
         "betty.entities.place:Place",
         "enclosees",
         label=_("Encloser"),
@@ -40,7 +40,7 @@ class Enclosure(HasAnyDate, HasCitations, Entity):
     The outer place.
     """
 
-    enclosee = BidirectionalToOne["Enclosure", "Place"](
+    enclosee = ToOne[Self, "Place"](
         "betty.entities.place:Place",
         "enclosers",
         label=_("Enclosee"),
@@ -52,8 +52,8 @@ class Enclosure(HasAnyDate, HasCitations, Entity):
 
     def __init__(
         self,
-        enclosee: ToOneAssociate[Place],
-        encloser: ToOneAssociate[Place],
+        enclosee: ToOneAssociate[Self, Place],
+        encloser: ToOneAssociate[Self, Place],
         id: ResolvableMachineName | None = None,  # noqa: A002
     ):
         super().__init__(id=id)

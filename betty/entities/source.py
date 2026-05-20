@@ -4,20 +4,16 @@ Data types to describe information sources.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, Self, final, override
 
+from betty.associations.has_file_references import HasFileReferences
+from betty.associations.has_links import HasLinks
+from betty.associations.has_notes import HasNotes
+from betty.associations.to_many import ToMany, ToManyAssociates
+from betty.associations.to_one import ToOne
 from betty.attrs.date import HasAnyDate
 from betty.attrs.localizable import new_localizable_attr
 from betty.entity import EntityDefinition
-from betty.entity.association import (
-    BidirectionalToManySingleType,
-    BidirectionalToZeroOrOne,
-    ToManyAssociates,
-    ToZeroOrOneAssociate,
-)
-from betty.entity.has_file_references import HasFileReferences
-from betty.entity.has_links import HasLinks
-from betty.entity.has_notes import HasNotes
 from betty.json_schemas.static_translations import StaticTranslationsSchema
 from betty.linked_data import JsonLdObject, dump_context
 from betty.localizable.linked_data import dump_linked_data
@@ -26,6 +22,7 @@ from betty.privacy import Privacy
 from betty.privacy.resolve import merge_privacies
 
 if TYPE_CHECKING:
+    from betty.association import Associate
     from betty.date import AnyDate
     from betty.entities.citation import Citation  # noqa: F401
     from betty.entities.file_reference import FileReference
@@ -64,17 +61,17 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks):
     The source's publisher.
     """
 
-    contained_by = BidirectionalToZeroOrOne["Source", "Source"](
+    contained_by = ToOne[Self, "Source"](
         "betty.entities.source:Source",
         "contains",
         label=_("Contained by"),
         description=_("Another source this source may be contained by"),
-    )
+    ).optional
     """
     Another source this source may be contained by
     """
 
-    contains = BidirectionalToManySingleType["Source", "Source"](
+    contains = ToMany[Self, "Source"](
         "betty.entities.source:Source",
         "contained_by",
         label=_("Contains"),
@@ -84,7 +81,7 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks):
     Other sources this source may contain
     """
 
-    citations = BidirectionalToManySingleType["Source", "Citation"](
+    citations = ToMany[Self, "Citation"](
         "betty.entities.citation:Citation",
         "source",
         label=_("Citations"),
@@ -101,12 +98,12 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks):
         id: ResolvableMachineName | None = None,  # noqa: A002
         author: ResolvableLocalizable | None = None,
         publisher: ResolvableLocalizable | None = None,
-        contained_by: ToZeroOrOneAssociate[Source] = None,
-        contains: ToManyAssociates[Source] = (),
-        notes: ToManyAssociates[Note] = (),
+        contained_by: Associate[Self, Source] | None = None,
+        contains: ToManyAssociates[Self, Source] = (),
+        notes: ToManyAssociates[Self, Note] = (),
         date: AnyDate | None = None,
-        files: ToManyAssociates[FileReference] = (),
-        links: ToManyAssociates[Link] = (),
+        files: ToManyAssociates[Self, FileReference] = (),
+        links: ToManyAssociates[Self, Link] = (),
         privacy: Privacy = Privacy.UNDETERMINED,
     ):
         super().__init__(

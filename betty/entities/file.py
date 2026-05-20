@@ -4,17 +4,18 @@ Data types representing files on disk.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, Self, final, override
 
+from betty.associations.has_citations import HasCitations
+from betty.associations.has_links import HasLinks
+from betty.associations.has_notes import HasNotes
+from betty.associations.to_many import ToMany, ToManyAssociates
 from betty.attrs.description import HasDescription
 from betty.attrs.media_type import HasMediaType
 from betty.attrs.path import new_path_attr
 from betty.copyright_notice import CopyrightNoticeDefinition
+from betty.entities.file_reference import FileReference
 from betty.entity import EntityDefinition
-from betty.entity.association import BidirectionalToManyMultipleTypes, ToManyAssociates
-from betty.entity.has_citations import HasCitations
-from betty.entity.has_links import HasLinks
-from betty.entity.has_notes import HasNotes
 from betty.json_schemas.plugin_id import PluginIdSchema
 from betty.license import LicenseDefinition
 from betty.localizables.gettext import _, ngettext
@@ -23,7 +24,6 @@ from betty.privacy import Privacy
 if TYPE_CHECKING:
     from betty.copyright_notice import CopyrightNotice
     from betty.entities.citation import Citation
-    from betty.entities.file_reference import FileReference  # noqa: F401
     from betty.entities.link import Link
     from betty.entities.note import Note
     from betty.license import License
@@ -48,8 +48,8 @@ class File(HasDescription, HasLinks, HasMediaType, HasNotes, HasCitations):
     .. plugin:: entity:file.
     """
 
-    referees = BidirectionalToManyMultipleTypes["File", "FileReference"](
-        "betty.entities.file_reference:FileReference",
+    referees = ToMany[Self, FileReference](
+        FileReference,
         "file",
         label=_("Referees"),
         description=_("The entities referencing this file"),
@@ -81,10 +81,10 @@ class File(HasDescription, HasLinks, HasMediaType, HasNotes, HasCitations):
         name: str | None = None,
         media_type: ResolvableMediaType | None = None,
         description: ResolvableLocalizable | None = None,
-        notes: ToManyAssociates[Note] = (),
-        citations: ToManyAssociates[Citation] = (),
+        notes: ToManyAssociates[Self, Note] = (),
+        citations: ToManyAssociates[Self, Citation] = (),
         privacy: Privacy = Privacy.UNDETERMINED,
-        links: ToManyAssociates[Link] = (),
+        links: ToManyAssociates[Self, Link] = (),
         copyright_notice: CopyrightNotice | None = None,
         license: License | None = None,  # noqa: A002
     ):

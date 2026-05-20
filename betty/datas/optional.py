@@ -19,10 +19,9 @@ class OptionalDefinition[DataClsT](DataDefinition[DataClsT | None]):
 
     def __init__(self, proxied: DataDefinition[DataClsT], /):
         super().__init__(
-            cls=proxied.cls,
             label=proxied.label,
             description=proxied.description,
-            porter=OptionalPorter(proxied.porter),  # ty:ignore[invalid-argument-type]
+            porter=OptionalPorter(proxied.porter),
             samples=[
                 lambda: Sample(None, label="Minimal", size=Size.MINIMAL),
                 proxied.samples,

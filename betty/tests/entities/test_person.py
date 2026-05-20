@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any, cast, override
 
 import pytest
 
+from betty.associations.to_one import MissingAssociate, Placeholder
 from betty.entities.citation import Citation
 from betty.entities.event import Event
 from betty.entities.link import Link
@@ -12,7 +13,6 @@ from betty.entities.person_name import PersonName
 from betty.entities.presence import Presence
 from betty.entities.source import Source
 from betty.entity import Entity
-from betty.entity.association import AssociationRequired, TemporaryToOneResolver
 from betty.event_types.birth import Birth
 from betty.genders.non_binary import NonBinary
 from betty.genders.unknown import UnknownGender
@@ -65,14 +65,14 @@ class TestPerson(EntityTestBase):
 
     def test___init____with_presences(self) -> None:
         event = Event(event_type=Birth())
-        presence = Presence(TemporaryToOneResolver(), Subject(), event)
+        presence = Presence(Placeholder(), Subject(), event)
         sut = Person(presences=[presence])
         assert list(sut.presences) == [presence]
         assert sut == presence.person
 
     def test___init____with_names(self) -> None:
         name = PersonName(
-            person=TemporaryToOneResolver(),
+            person=Placeholder(),
             individual="Janet",
             affiliation="Not a Girl",
         )
@@ -109,7 +109,7 @@ class TestPerson(EntityTestBase):
         assert sut == presence.person
         sut.presences.remove(presence)
         assert list(sut.presences) == []
-        with pytest.raises(AssociationRequired):
+        with pytest.raises(MissingAssociate):
             presence.person  # noqa: B018
 
     def test_names(self) -> None:
@@ -123,7 +123,7 @@ class TestPerson(EntityTestBase):
         assert sut == name.person
         sut.names.remove(name)
         assert list(sut.names) == []
-        with pytest.raises(AssociationRequired):
+        with pytest.raises(MissingAssociate):
             name.person  # noqa: B018
 
     def test_id(self) -> None:
@@ -197,7 +197,6 @@ class TestPerson(EntityTestBase):
                 "names": "https://schema.org/name",
                 "parents": "https://schema.org/parent",
                 "children": "https://schema.org/child",
-                "siblings": "https://schema.org/sibling",
             },
             "@id": "https://example.com/person/my-first-person/index.json",
             "@type": "https://schema.org/Person",
@@ -207,7 +206,6 @@ class TestPerson(EntityTestBase):
             "names": [],
             "parents": [],
             "children": [],
-            "siblings": [],
             "presences": [],
             "citations": [],
             "notes": [],
@@ -271,7 +269,6 @@ class TestPerson(EntityTestBase):
                 "names": "https://schema.org/name",
                 "parents": "https://schema.org/parent",
                 "children": "https://schema.org/child",
-                "siblings": "https://schema.org/sibling",
             },
             "@id": "https://example.com/person/my-first-person/index.json",
             "@type": "https://schema.org/Person",
@@ -286,9 +283,6 @@ class TestPerson(EntityTestBase):
             ],
             "children": [
                 "/person/my-first-child/index.json",
-            ],
-            "siblings": [
-                "/person/my-first-sibling/index.json",
             ],
             "presences": [
                 "/presence/my-first-presence/index.json",
@@ -356,7 +350,6 @@ class TestPerson(EntityTestBase):
                 "names": "https://schema.org/name",
                 "parents": "https://schema.org/parent",
                 "children": "https://schema.org/child",
-                "siblings": "https://schema.org/sibling",
             },
             "@id": "https://example.com/person/my-first-person/index.json",
             "@type": "https://schema.org/Person",
@@ -369,9 +362,6 @@ class TestPerson(EntityTestBase):
             ],
             "children": [
                 "/person/my-first-child/index.json",
-            ],
-            "siblings": [
-                "/person/my-first-sibling/index.json",
             ],
             "privacy": True,
             "presences": [

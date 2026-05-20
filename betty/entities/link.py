@@ -4,8 +4,10 @@ The Link API allows data to reference external resources.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, Self, final, override
 
+from betty.associations.has_links import HasLinks
+from betty.associations.to_one import ToOne
 from betty.attrs.description import HasDescription
 from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.media_type import HasMediaType
@@ -13,7 +15,6 @@ from betty.attrs.owner import OwnerAttr
 from betty.attrs.privacy import HasPrivacy
 from betty.datas.str import StrDefinition
 from betty.entity import Entity, EntityDefinition
-from betty.entity.association import BidirectionalToZeroOrOne
 from betty.json_schema import String
 from betty.json_schemas.static_translations import StaticTranslationsSchema
 from betty.link import Link as LinkType
@@ -23,7 +24,7 @@ from betty.privacy import Privacy
 from betty.privacy.resolve import merge_privacies
 
 if TYPE_CHECKING:
-    from betty.entity.has_links import HasLinks
+    from betty.association import Associate
     from betty.linked_data import JsonLdObject
     from betty.localizable import Localizable, ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
@@ -53,13 +54,9 @@ class Link(LinkType, HasMediaType, HasDescription, Entity):
     The link's `IANA link relationship <https://www.iana.org/assignments/link-relations/link-relations.xhtml>`_.
     """
 
-    owner = BidirectionalToZeroOrOne["Link", "HasLinks"](
-        "betty.entity.has_links:HasLinks",
-        "links",
-        label=_("Owner"),
-    )
+    owner = ToOne[Self, HasLinks](HasLinks, "links", label=_("Owner")).optional
     """
-    The entity hat owns the link.
+    The entity that owns the link.
     """
 
     def __init__(
@@ -71,7 +68,7 @@ class Link(LinkType, HasMediaType, HasDescription, Entity):
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
         media_type: ResolvableMediaType | None = None,
-        owner: HasLinks | None = None,
+        owner: Associate[Self, HasLinks] | None = None,
         privacy: Privacy = Privacy.UNDETERMINED,
     ):
         super().__init__(

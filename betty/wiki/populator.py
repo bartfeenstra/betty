@@ -8,13 +8,13 @@ from asyncio import gather
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
+from betty.associations.has_file_references import HasFileReferences
+from betty.associations.has_links import HasLinks
 from betty.concurrent import Lock, ThreadSafeLock
 from betty.entities.file import File
 from betty.entities.file_reference import FileReference
 from betty.entities.link import Link
 from betty.entities.place import Place
-from betty.entity.has_file_references import HasFileReferences
-from betty.entity.has_links import HasLinks
 from betty.functools import map_suppress
 from betty.hashid import hashid
 from betty.locale import negotiate_locale, resolve_locale

@@ -1,11 +1,11 @@
 """
-Test utilities for :py:mod:`betty.entity.has_file_references`.
+Test utilities for :py:mod:`betty.associations.has_file_references`.
 """
 
 from __future__ import annotations
 
+from betty.associations.has_file_references import HasFileReferences
 from betty.entity import EntityDefinition
-from betty.entity.has_file_references import HasFileReferences
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
 )
@@ -19,5 +19,5 @@ from betty.test_utils.locale.localizable import (
 )
 class DummyHasFileReferences(HasFileReferences):
     """
-    A dummy :py:class:`betty.entity.has_file_references.HasFileReferences` entity.
+    A dummy :py:class:`betty.associations.has_file_references.HasFileReferences` entity.
     """

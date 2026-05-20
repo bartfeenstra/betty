@@ -2,7 +2,7 @@ from betty.content_builders.notes import Notes
 from betty.document import Document
 from betty.entities.note import Note
 from betty.project import Project
-from betty.test_utils.ancestry.has_notes import DummyHasNotes
+from betty.test_utils.entity.associations.has_notes import DummyHasNotes
 
 
 class TestNotes:

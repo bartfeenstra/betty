@@ -3,8 +3,8 @@ from pytest_mock import MockerFixture
 from betty.content_builders.wikipedia_summary import WikipediaSummary
 from betty.document import Document
 from betty.entities.link import Link
-from betty.test_utils.ancestry.has_links import DummyHasLinks
 from betty.test_utils.conftest import IsolatedProjectFactory
+from betty.test_utils.entity.associations.has_links import DummyHasLinks
 from betty.wiki.client import Summary
 
 

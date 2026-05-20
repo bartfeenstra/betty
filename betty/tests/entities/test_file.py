@@ -19,8 +19,10 @@ from betty.locale import default_locale_tag
 from betty.localizer import default_localizer
 from betty.media_types.plain_text import PLAIN_TEXT
 from betty.privacy import Privacy
-from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 from betty.test_utils.entity import EntityTestBase
+from betty.test_utils.entity.associations.has_file_references import (
+    DummyHasFileReferences,
+)
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 if TYPE_CHECKING:

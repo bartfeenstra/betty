@@ -5,13 +5,13 @@ from typing import TYPE_CHECKING, Any, cast, override
 import pytest
 from geopy import Point
 
+from betty.associations.to_one import MissingAssociate, Placeholder
 from betty.entities.enclosure import Enclosure
 from betty.entities.event import Event
 from betty.entities.link import Link
 from betty.entities.place import Place
 from betty.entities.place_name import PlaceName
 from betty.entity import Entity
-from betty.entity.association import AssociationRequired, TemporaryToOneResolver
 from betty.event_types.birth import Birth
 from betty.locale import default_locale_tag
 from betty.place_types.hamlet import Hamlet
@@ -48,13 +48,13 @@ class TestPlace(EntityTestBase):
         assert event.place is sut
 
     def test___init____with_enclosers(self) -> None:
-        enclosure = Enclosure(enclosee=TemporaryToOneResolver(), encloser=Place())
+        enclosure = Enclosure(enclosee=Placeholder(), encloser=Place())
         sut = Place(enclosers=[enclosure])
         assert list(sut.enclosers) == [enclosure]
         assert enclosure.enclosee is sut
 
     def test___init____with_enclosees(self) -> None:
-        enclosure = Enclosure(enclosee=Place(), encloser=TemporaryToOneResolver())
+        enclosure = Enclosure(enclosee=Place(), encloser=Placeholder())
         sut = Place(enclosees=[enclosure])
         assert list(sut.enclosees) == [enclosure]
         assert enclosure.encloser is sut
@@ -89,7 +89,7 @@ class TestPlace(EntityTestBase):
         assert sut == enclosure.enclosee
         sut.enclosers.remove(enclosure)
         assert list(sut.enclosers) == []
-        with pytest.raises(AssociationRequired):
+        with pytest.raises(MissingAssociate):
             enclosure.enclosee  # noqa: B018
 
     def test_enclosees(self) -> None:
@@ -101,7 +101,7 @@ class TestPlace(EntityTestBase):
         assert sut == enclosure.encloser
         sut.enclosees.remove(enclosure)
         assert list(sut.enclosees) == []
-        with pytest.raises(AssociationRequired):
+        with pytest.raises(MissingAssociate):
             enclosure.encloser  # noqa: B018
 
     def test_id(self) -> None:

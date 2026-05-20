@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, cast, override
 
+from betty.associations.to_one import MissingAssociate, Placeholder
 from betty.date import Date, DateRange
 from betty.entities.citation import Citation
 from betty.entities.event import Event
@@ -11,7 +12,6 @@ from betty.entities.place_name import PlaceName
 from betty.entities.presence import Presence
 from betty.entities.source import Source
 from betty.entity import Entity
-from betty.entity.association import AssociationRequired, TemporaryToOneResolver
 from betty.event_types.birth import Birth
 from betty.event_types.unknown import UnknownEventType
 from betty.locale import default_locale_tag
@@ -36,7 +36,7 @@ class TestEvent(EntityTestBase):
             Event(description="My First Event"),
             Event(
                 description="My First Event",
-                presences=[Presence(Person(), Subject(), TemporaryToOneResolver())],
+                presences=[Presence(Person(), Subject(), Placeholder())],
             ),
         ]
 
@@ -51,7 +51,7 @@ class TestEvent(EntityTestBase):
         assert sut.place is place
 
     def test___init____with_presences(self) -> None:
-        presence = Presence(Person(), Subject(), TemporaryToOneResolver())
+        presence = Presence(Person(), Subject(), Placeholder())
         sut = Event(presences=[presence])
         assert presence in sut.presences
         assert presence.event is sut
@@ -91,7 +91,7 @@ class TestEvent(EntityTestBase):
         assert sut == presence.event
         sut.presences.remove(presence)
         assert list(sut.presences) == []
-        with pytest.raises(AssociationRequired):
+        with pytest.raises(MissingAssociate):
             presence.event  # noqa: B018
 
     def test_date(self) -> None:

@@ -8,7 +8,7 @@ from betty.attrs.date import HasAnyDate
 from betty.date import Date, DateRange
 
 if TYPE_CHECKING:
-    from betty.entity.has_links import HasLinks
+    from betty.associations.has_links import HasLinks
     from betty.portable import PortableMapping
     from betty.test_utils.conftest import AssertDumpsLinkedData
 

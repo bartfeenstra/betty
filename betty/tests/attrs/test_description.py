@@ -9,7 +9,7 @@ from betty.locale import default_locale_tag
 from betty.localizer import default_localizer
 
 if TYPE_CHECKING:
-    from betty.entity.has_links import HasLinks
+    from betty.associations.has_links import HasLinks
     from betty.portable import PortableMapping
     from betty.test_utils.conftest import AssertDumpsLinkedData
 

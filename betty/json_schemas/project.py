@@ -8,8 +8,7 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.entity import EntityDefinition
 from betty.factory import Manufacturable
-from betty.json_schema import JsonSchemaReference, Schema
-from betty.json_schemas.entity_association import ToManySchema
+from betty.json_schema import Array, JsonSchemaReference, Schema, String
 from betty.project import Project
 from betty.string import kebab_case_to_lower_camel_case
 
@@ -60,7 +59,15 @@ class ProjectSchema(Manufacturable, Schema):
             schema.defs[def_name] = {
                 "type": "object",
                 "properties": {
-                    "collection": ToManySchema().embed(schema),
+                    "collection": Array(
+                        String(
+                            title="Entity",
+                            description="A reference to an entity's JSON resource",
+                            format=String.Format.URI,
+                        ),
+                        title="Entities",
+                        description="References to entities' JSON resources",
+                    ).schema,
                 },
             }
 

@@ -6,8 +6,8 @@ from betty.entities.note import Note
 from betty.locale import default_locale_tag
 from betty.localizer import default_localizer
 from betty.privacy import Privacy
-from betty.test_utils.ancestry.has_notes import DummyHasNotes
 from betty.test_utils.entity import EntityTestBase
+from betty.test_utils.entity.associations.has_notes import DummyHasNotes
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 if TYPE_CHECKING:

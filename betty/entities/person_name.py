@@ -4,18 +4,14 @@ Data types to describe people's names.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, Self, final, override
 
+from betty.associations.has_citations import HasCitations
+from betty.associations.to_one import ToOne, ToOneAssociate
 from betty.attrs.locale import HasLocale
 from betty.attrs.owner import OwnerAttr
 from betty.datas.str import StrDefinition
 from betty.entity import EntityDefinition
-from betty.entity.association import (
-    BidirectionalToOne,
-    ToManyAssociates,
-    ToOneAssociate,
-)
-from betty.entity.has_citations import HasCitations
 from betty.json_schema import String
 from betty.linked_data import JsonLdObject, dump_context
 from betty.localizables.gettext import _, ngettext
@@ -23,6 +19,7 @@ from betty.privacy import Privacy
 from betty.privacy.resolve import merge_privacies
 
 if TYPE_CHECKING:
+    from betty.associations.to_many import ToManyAssociates
     from betty.entities.citation import Citation
     from betty.entities.person import Person
     from betty.locale import ResolvableLocale
@@ -75,7 +72,7 @@ class PersonName(HasLocale, HasCitations):
         self._assert_names(name, self.affiliation)
         return name
 
-    person = BidirectionalToOne["PersonName", "Person"](
+    person = ToOne[Self, "Person"](
         "betty.entities.person:Person",
         "names",
         label=_("Person"),
@@ -87,13 +84,13 @@ class PersonName(HasLocale, HasCitations):
     def __init__(
         self,
         *,
-        person: ToOneAssociate[Person],
         id: ResolvableMachineName | None = None,  # noqa: A002
+        person: ToOneAssociate[Self, Person],
         individual: str | None = None,
         affiliation: str | None = None,
         privacy: Privacy = Privacy.UNDETERMINED,
         locale: ResolvableLocale | None = None,
-        citations: ToManyAssociates[Citation] = (),
+        citations: ToManyAssociates[Self, Citation] = (),
     ):
         super().__init__(
             id=id,

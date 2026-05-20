@@ -21,9 +21,9 @@ from betty.roles.subject import Subject
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
+    from betty.associations.has_file_references import HasFileReferences
     from betty.entities.file_reference import FileReference
     from betty.entities.presence import Presence
-    from betty.entity.has_file_references import HasFileReferences
 
 
 def _is_person_timeline_presence(presence: Presence) -> bool:
