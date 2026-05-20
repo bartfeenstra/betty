@@ -35,10 +35,10 @@ class Optional[OwnerT: HasProperties, GetT, SetT](
         )
         self._proxied = proxied
 
-    def _omit_dump(self, data: GetT | None) -> bool:
+    def _omit_dump(self, owner: OwnerT, data: GetT | None) -> bool:
         if data is None:
             return True
-        return self._proxied.field.omit_dump(data)
+        return self._proxied.field.omit_dump(owner, data)
 
     @override
     def init_owner(self, owner: OwnerT, /) -> None:

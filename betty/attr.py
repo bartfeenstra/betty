@@ -17,8 +17,8 @@ class Attr[OwnerT: HasProperties, GetT, SetT](SettableProperty[OwnerT, GetT, Set
     An object attribute with a data definition.
     """
 
-    def __init__(self, field: FieldDefinition[GetT], /):
-        self.field: Final[FieldDefinition[GetT]] = field
+    def __init__(self, field: FieldDefinition[OwnerT, GetT], /):
+        self.field: Final[FieldDefinition[OwnerT, GetT]] = field
         """
         The attribute's field definition.
         """
@@ -35,7 +35,7 @@ class ProxyAttr[OwnerT: HasProperties, GetT, SetT](
         self,
         proxied: Attr[OwnerT, GetT, SetT],
         *args: Any,
-        field: FieldDefinition[GetT] | None = None,
+        field: FieldDefinition[OwnerT, GetT] | None = None,
         **kwargs: Any,
     ):
         super().__init__(

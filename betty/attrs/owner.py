@@ -43,7 +43,9 @@ class OwnerAttr[OwnerT: HasProperties, GetT, SetT](Attr[OwnerT, GetT, SetT]):
         """
         setattr(owner, self._owner_attr("value"), value)
 
-    def default(self, default: Callable[[], SetT]) -> OwnerAttr[OwnerT, GetT, SetT]:
+    def default(
+        self, default: Callable[[], SetT] | Callable[[OwnerT], SetT]
+    ) -> OwnerAttr[OwnerT, GetT, SetT]:
         """
         Create a new attribute that proxies this one, and sets a default value.
         """
@@ -61,7 +63,9 @@ class OwnerAttr[OwnerT: HasProperties, GetT, SetT](Attr[OwnerT, GetT, SetT]):
         return Optional(self)
 
     def setter[SetterSetT](
-        self, setter: Callable[[SetterSetT], SetT], /
+        self,
+        setter: Callable[[SetterSetT], SetT] | Callable[[OwnerT, SetterSetT], SetT],
+        /,
     ) -> OwnerAttr[OwnerT, GetT, SetterSetT]:
         """
         Return a new attribute like this one, but with the given setter.

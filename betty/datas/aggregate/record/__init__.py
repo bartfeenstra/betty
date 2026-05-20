@@ -5,6 +5,7 @@ Record data types.
 from __future__ import annotations
 
 from abc import abstractmethod
+from inspect import signature
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -37,7 +38,7 @@ if TYPE_CHECKING:
 
 
 @final
-class FieldDefinition[DataClsT]:
+class FieldDefinition[OwnerT, DataClsT]:
     """
     A record field definition.
     """
@@ -49,7 +50,9 @@ class FieldDefinition[DataClsT]:
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
         omit_load: bool = False,
-        omit_dump: Callable[[DataClsT], bool] | None = None,
+        omit_dump: Callable[[DataClsT], bool]
+        | Callable[[OwnerT, DataClsT], bool]
+        | None = None,
     ):
         self.data: Final[DataDefinition[DataClsT]] = resolve_data_definition(data)
         """
@@ -77,15 +80,27 @@ class FieldDefinition[DataClsT]:
         Whether the field may be omitted from the parent when loading from portable data.
         """
 
-        self.__omit_dump = omit_dump
+        self._omit_dump: Callable[[OwnerT, DataClsT], bool] | None = (
+            None
+            if omit_dump is None
+            else (
+                (
+                    lambda _, data: omit_dump(
+                        data,  # ty:ignore[invalid-argument-type]
+                    )  # ty:ignore[missing-argument]
+                )
+                if len(signature(omit_dump).parameters) == 1
+                else omit_dump
+            )  # ty:ignore[invalid-assignment]
+        )
 
-    def omit_dump(self, data: DataClsT, /) -> bool:
+    def omit_dump(self, owner: OwnerT, data: DataClsT, /) -> bool:
         """
         Check if the field may be omitted from the parent when dumping to portable data.
         """
-        if self.__omit_dump is None:
+        if self._omit_dump is None:
             return False
-        return self.__omit_dump(data)
+        return self._omit_dump(owner, data)
 
 
 _PortableRecordElementT = TypeVar(
@@ -196,7 +211,7 @@ class MappingPorter[DataClsT = Any, ElementT: Element[str] = Element[str]](
         portable = {}
         for selector, field in self._record.fields.items():
             field_data = selector.get(data)
-            if not field.omit_dump(field_data):
+            if not field.omit_dump(data, field_data):
                 portable[selector.element] = field.data.porter.dump(field_data)
         return portable
 
@@ -240,13 +255,13 @@ class RecordDefinition[DataClsT = Any, ElementT: Element[str] = Element[str]](
         cls: type[DataClsT] | None = None,
         *,
         label: ResolvableLocalizable,
-        fields: Mapping[ElementT, FieldDefinition[Any]] | None = None,
+        fields: Mapping[ElementT, FieldDefinition[DataClsT, Any]] | None = None,
         description: ResolvableLocalizable | None = None,
         samples: Iterable[Callable[[], Sample[DataClsT]] | Samples] = (),
         factory: Callable[..., DataClsT] | None = None,
         porter: RecordPorter[DataClsT] | None = None,
     ):
-        self._fields: MutableMapping[ElementT, FieldDefinition[Any]] = (
+        self._fields: MutableMapping[ElementT, FieldDefinition[DataClsT, Any]] = (
             {} if fields is None else dict(fields)
         )
         super().__init__(
@@ -281,7 +296,7 @@ class RecordDefinition[DataClsT = Any, ElementT: Element[str] = Element[str]](
         return self._porter  # ty:ignore[invalid-return-type]
 
     @property
-    def fields(self) -> Mapping[ElementT, FieldDefinition[Any]]:
+    def fields(self) -> Mapping[ElementT, FieldDefinition[DataClsT, Any]]:
         """
         The definitions of the fields contained by this record.
         """

@@ -786,8 +786,7 @@ class ProjectData(Data, HasProperties):
     """
 
     @copyright_notice.default
-    @staticmethod
-    def copyright_notice() -> CopyrightNoticeManufacturer:  # noqa: D102
+    def copyright_notice(self) -> CopyrightNoticeManufacturer:  # noqa: D102
         from betty.plugins.copyright_notice.project_author import ProjectAuthor
 
         return CopyrightNoticeManufacturer(ProjectAuthor)
@@ -882,8 +881,7 @@ class ProjectData(Data, HasProperties):
     """
 
     @license.default  # noqa: A003
-    @staticmethod
-    def license() -> LicenseManufacturer:  # noqa: D102
+    def license(self) -> LicenseManufacturer:  # noqa: D102
         from betty.plugins.license.all_rights_reserved import AllRightsReserved
 
         return LicenseManufacturer(AllRightsReserved)

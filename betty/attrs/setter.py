@@ -6,6 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
+from sphinx.util.inspect import signature
+
 from betty.attr import ProxyAttr
 from betty.attrs.owner import OwnerAttr
 from betty.property import HasProperties
@@ -25,12 +27,20 @@ class SetterAttr[OwnerT: HasProperties, GetT, SetT](
     def __init__[ProxiedSetT](
         self,
         proxied: OwnerAttr[OwnerT, GetT, ProxiedSetT],
-        setter: Callable[[SetT], ProxiedSetT],
+        setter: Callable[[SetT], ProxiedSetT] | Callable[[OwnerT, SetT], ProxiedSetT],
     ):
         super().__init__(proxied)
-        self.__proxied_setter = proxied
-        self.__setter = setter
+        self._proxied_setter = proxied
+        self._setter: Callable[[OwnerT, SetT], ProxiedSetT] = (
+            (
+                lambda _, value: setter(
+                    value,  # ty:ignore[invalid-argument-type]
+                )  # ty:ignore[missing-argument]
+            )
+            if len(signature(setter).parameters) == 1
+            else setter  # ty:ignore[invalid-assignment]
+        )
 
     @override
     def set(self, owner: OwnerT, value: SetT, /) -> None:
-        self.__proxied_setter.set(owner, self.__setter(value))
+        self._proxied_setter.set(owner, self._setter(owner, value))
