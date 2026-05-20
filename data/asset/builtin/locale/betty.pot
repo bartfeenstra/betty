@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-05-20 10:44+0100\n"
+"POT-Creation-Date: 2026-05-20 22:36+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -100,6 +100,9 @@ msgid "Adoption"
 msgstr ""
 
 msgid "Adoptions"
+msgstr ""
+
+msgid "Affiliation name"
 msgstr ""
 
 msgid "After"
@@ -903,6 +906,9 @@ msgid "Immigrations"
 msgstr ""
 
 msgid "Include"
+msgstr ""
+
+msgid "Individual name"
 msgstr ""
 
 msgid "Informant"
