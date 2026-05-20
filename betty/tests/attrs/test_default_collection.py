@@ -42,7 +42,7 @@ class TestDefaultCollectionAttr:
                 CollectionAttrAttr(_CollectionDefinition()), lambda: default
             )
 
-        assert _Owner.my_first_property.field.omit_dump(default)
+        assert _Owner.my_first_property.field.omit_dump(_Owner(), default)
 
     def test_omit_dump__with_proxied_false(self) -> None:
         class _Owner(HasProperties):
@@ -51,7 +51,7 @@ class TestDefaultCollectionAttr:
                 lambda: [""],
             )
 
-        assert not _Owner.my_first_property.field.omit_dump("Hello, world!")
+        assert not _Owner.my_first_property.field.omit_dump(_Owner(), "Hello, world!")
 
     def test_omit_dump__with_proxied_true(self) -> None:
         class _Owner(HasProperties):
@@ -60,4 +60,4 @@ class TestDefaultCollectionAttr:
                 lambda: [""],
             )
 
-        assert _Owner.my_first_property.field.omit_dump("Hello, world!")
+        assert _Owner.my_first_property.field.omit_dump(_Owner(), "Hello, world!")

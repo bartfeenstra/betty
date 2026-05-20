@@ -96,4 +96,4 @@ class TestFieldDefinition:
             return True
 
         sut = FieldDefinition(BoolDefinition(label="-"), omit_dump=_omit_dump)
-        assert sut.omit_dump(False)
+        assert sut.omit_dump(object(), False)

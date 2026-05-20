@@ -5,6 +5,7 @@ Collection attributes with default values.
 from __future__ import annotations
 
 from collections.abc import Callable, Collection, Iterable
+from inspect import signature
 from typing import TYPE_CHECKING, Any, final, override
 
 from betty.attr import ProxyAttr
@@ -32,7 +33,7 @@ class DefaultCollectionAttr[
     def __init__(
         self,
         proxied: CollectionAttrAttr[OwnerT, MutableCollectionT, ValuesSetT],
-        default: Callable[[], ValuesSetT],
+        default: Callable[[], ValuesSetT] | Callable[[OwnerT], ValuesSetT],
         /,
     ):
         super().__init__(
@@ -46,14 +47,16 @@ class DefaultCollectionAttr[
             ),
         )
         self._proxied = proxied
-        self._default = default
+        self._default: Callable[[OwnerT], ValuesSetT] = (
+            default if len(signature(default).parameters) == 1 else lambda _: default()  # ty:ignore[invalid-assignment, missing-argument]
+        )
 
-    def _omit_dump(self, data: MutableCollectionT) -> bool:
-        if data == self._proxied._data_collection.new(self._default()):
+    def _omit_dump(self, owner: OwnerT, data: MutableCollectionT) -> bool:
+        if data == self._proxied._data_collection.new(self._default(owner)):
             return True
-        return self._proxied.field.omit_dump(data)
+        return self._proxied.field.omit_dump(owner, data)
 
     @override
     def init_owner(self, owner: OwnerT, /) -> None:
         super().init_owner(owner)
-        self.set(owner, self._default())
+        self.set(owner, self._default(owner))

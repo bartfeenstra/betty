@@ -47,7 +47,7 @@ class TestDefaultAttr:
         class _Owner(HasProperties):
             my_first_property = DefaultAttr(_Attr(), lambda: default)
 
-        assert _Owner.my_first_property.field.omit_dump(default)
+        assert _Owner.my_first_property.field.omit_dump(_Owner(), default)
 
     def test_omit_dump__with_proxied_false(self) -> None:
         class _Owner(HasProperties):
@@ -55,10 +55,10 @@ class TestDefaultAttr:
                 _Attr(omit_dump=lambda _: False), lambda: ""
             )
 
-        assert not _Owner.my_first_property.field.omit_dump("Hello, world!")
+        assert not _Owner.my_first_property.field.omit_dump(_Owner(), "Hello, world!")
 
     def test_omit_dump__with_proxied_true(self) -> None:
         class _Owner(HasProperties):
             my_first_property = DefaultAttr(_Attr(omit_dump=lambda _: True), lambda: "")
 
-        assert _Owner.my_first_property.field.omit_dump("Hello, world!")
+        assert _Owner.my_first_property.field.omit_dump(_Owner(), "Hello, world!")

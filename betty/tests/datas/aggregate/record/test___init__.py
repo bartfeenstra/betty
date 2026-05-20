@@ -42,15 +42,15 @@ class TestFieldDefinition:
 
     def test_omit_dump__with_callable_false(self) -> None:
         sut = FieldDefinition(BoolDefinition(label="-"), omit_dump=lambda _: False)
-        assert not sut.omit_dump(True)
+        assert not sut.omit_dump(object(), True)
 
     def test_omit_dump__with_callable_true(self) -> None:
         sut = FieldDefinition(BoolDefinition(label="-"), omit_dump=lambda _: True)
-        assert sut.omit_dump(True)
+        assert sut.omit_dump(object(), True)
 
     def test_omit_dump__with_none(self) -> None:
         sut = FieldDefinition(BoolDefinition(label="-"), omit_dump=None)
-        assert not sut.omit_dump(True)
+        assert not sut.omit_dump(object(), True)
 
     def test_data(self) -> None:
         data = DataDefinition(label="-")
@@ -73,11 +73,11 @@ class TestFieldDefinition:
 
     def test_omit__without_callback(self) -> None:
         sut = FieldDefinition(DataDefinition(label="-"))
-        assert not sut.omit_dump(object())
+        assert not sut.omit_dump(object(), object())
 
     def test_omit__with_callback(self) -> None:
         sut = FieldDefinition(DataDefinition(label="-"), omit_dump=lambda _: True)
-        assert sut.omit_dump(object())
+        assert sut.omit_dump(object(), object())
 
 
 @dataclass(frozen=True)

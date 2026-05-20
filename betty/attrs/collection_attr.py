@@ -37,7 +37,9 @@ class CollectionAttrAttr[
         *,
         description: ResolvableLocalizable | None = None,
         label: ResolvableLocalizable | None = None,
-        omit_dump: Callable[[MutableCollectionT], bool] | None = None,
+        omit_dump: Callable[[MutableCollectionT], bool]
+        | Callable[[OwnerT, MutableCollectionT], bool]
+        | None = None,
         omit_load: bool = False,
     ):
         super().__init__(
@@ -66,6 +68,6 @@ class CollectionAttrAttr[
 
     @override
     def default(
-        self, default: Callable[[], ValuesSetT]
+        self, default: Callable[[], ValuesSetT] | Callable[[OwnerT], ValuesSetT]
     ) -> OwnerAttr[OwnerT, MutableCollectionT, ValuesSetT]:
         return DefaultCollectionAttr(self, default)

@@ -3,6 +3,7 @@ Attributes with default values.
 """
 
 from collections.abc import Callable
+from inspect import signature
 from typing import final, override
 
 from betty.attr import ProxyAttr
@@ -20,7 +21,10 @@ class DefaultAttr[OwnerT: HasProperties, GetT, SetT](
     """
 
     def __init__(
-        self, proxied: OwnerAttr[OwnerT, GetT, SetT], default: Callable[[], SetT], /
+        self,
+        proxied: OwnerAttr[OwnerT, GetT, SetT],
+        default: Callable[[], SetT] | Callable[[OwnerT], SetT],
+        /,
     ):
 
         super().__init__(
@@ -34,14 +38,16 @@ class DefaultAttr[OwnerT: HasProperties, GetT, SetT](
             ),
         )
         self._proxied = proxied
-        self._default = default
+        self._default: Callable[[OwnerT], SetT] = (
+            default if len(signature(default).parameters) == 1 else lambda _: default()  # ty:ignore[invalid-assignment, missing-argument]
+        )
 
-    def _omit_dump(self, data: GetT) -> bool:
-        if data == self._default():
+    def _omit_dump(self, owner: OwnerT, data: GetT) -> bool:
+        if data == self._default(owner):
             return True
-        return self._proxied.field.omit_dump(data)
+        return self._proxied.field.omit_dump(owner, data)
 
     @override
     def init_owner(self, owner: OwnerT, /) -> None:
         super().init_owner(owner)
-        self.set(owner, self._default())
+        self.set(owner, self._default(owner))
