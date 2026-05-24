@@ -8,7 +8,6 @@ from abc import abstractmethod
 from asyncio import gather
 from collections.abc import Callable, MutableSequence
 from functools import partial
-from inspect import getmembers
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Final, Protocol, Self, final, overload, override
 
@@ -261,7 +260,7 @@ class PluginServiceInitializer(ManagedLifeCycle):
     def __init__(
         self,
         services: ServiceLevel,
-        service_provider: Any,
+        service_provider: PluginServiceProvider,
         supported_plugins: SupportedPlugins = (),
         /,
     ):
@@ -271,10 +270,12 @@ class PluginServiceInitializer(ManagedLifeCycle):
         self._supported_plugins = tuple(
             map(resolve_plugin_definition, supported_plugins)
         )
-        self._plugin_services = tuple(
-            member[1]
-            for member in getmembers(type(service_provider))
-            if isinstance(member[1], PluginServiceManager)
+        self._plugin_services: Sequence[
+            PluginServiceManager[PluginServiceProvider, PluginDefinition, Any, Any]
+        ] = tuple(
+            prop
+            for prop in service_provider.props()
+            if isinstance(prop, PluginServiceManager)
         )
         self.life_cycle.on_bootstrap(self._initialize_plugin_services)
 

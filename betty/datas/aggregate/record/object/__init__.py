@@ -4,12 +4,11 @@ Object data types.
 
 from __future__ import annotations
 
-from inspect import getmembers
 from typing import override
 
-from betty.attr import Attr
 from betty.datas.aggregate.record import RecordDefinition
 from betty.indicator.selector import Attr as AttrElement
+from betty.prop import HasProps
 
 
 class ObjectDefinition[DataClsT](RecordDefinition[DataClsT, AttrElement]):
@@ -21,7 +20,10 @@ class ObjectDefinition[DataClsT](RecordDefinition[DataClsT, AttrElement]):
 
     @override
     def _set_cls(self, cls: type[DataClsT], /) -> None:
+        from betty.attr import Attr
+
         super()._set_cls(cls)
-        for name, member in getmembers(cls):
-            if isinstance(member, Attr):
-                self._fields[AttrElement(name)] = member.field
+        if issubclass(cls, HasProps):
+            for prop in cls.props():
+                if isinstance(prop, Attr):
+                    self._fields[AttrElement(prop.prop.name)] = prop.field
