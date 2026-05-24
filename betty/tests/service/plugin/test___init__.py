@@ -28,7 +28,9 @@ from betty.test_utils.plugin import (
 
 class TestPluginServiceInitializer:
     async def test_bootstrap__without_services(self) -> None:
-        async with PluginServiceInitializer(ServiceLevel(), object()):
+        async with PluginServiceInitializer(
+            ServiceLevel(), PluginServiceProvider(services=ServiceLevel())
+        ):
             pass
 
     async def test_bootstrap__without_plugins(self, isolated_app: App) -> None:

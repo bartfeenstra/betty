@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any, Final, Self, final, overload, override
 from betty.importlib import fully_qualified_name
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Iterable
 
 
 class HasProps:
@@ -23,12 +23,16 @@ class HasProps:
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        for prop in self.__get_properties():
+        for prop in self.props():
             prop.init_owner(self)
 
+    @final
     @classmethod
     @cache
-    def __get_properties(cls) -> Sequence[Prop[Self, Any]]:
+    def props(cls) -> Iterable[Prop[Self, Any]]:
+        """
+        Get all properties on this class.
+        """
         return tuple(
             member for _, member in getmembers(cls) if isinstance(member, Prop)
         )
