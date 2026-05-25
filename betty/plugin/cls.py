@@ -4,12 +4,13 @@ Classed plugins.
 
 from __future__ import annotations
 
-from functools import update_wrapper
-from typing import Any, TypeVar, override
+from typing import Any, TypeVar, final, override
 
 from betty.definition.cls import ClsDefinition
 from betty.importlib import fully_qualified_name
 from betty.plugin import PluginDefinition
+
+_PLUGINS = {}
 
 
 class Plugin[PluginClsDefinitionT: PluginClsDefinition]:
@@ -19,14 +20,18 @@ class Plugin[PluginClsDefinitionT: PluginClsDefinition]:
     Classed plugins may optionally subclass this class to expose their plugin definitions.
     """
 
+    @final
     @classmethod
     def plugin(cls) -> PluginClsDefinitionT:
         """
         The plugin definition.
         """
-        raise NotImplementedError(
-            f"{fully_qualified_name(cls)} was not decorated with a {fully_qualified_name(PluginClsDefinition)} subclass."
-        )
+        try:
+            return _PLUGINS[cls]
+        except KeyError:
+            raise NotImplementedError(
+                f"{fully_qualified_name(cls)} was not decorated with a {fully_qualified_name(PluginClsDefinition)} subclass."
+            ) from None
 
 
 _PluginClsDefinitionPluginT = TypeVar(
@@ -43,4 +48,4 @@ class PluginClsDefinition(PluginDefinition, ClsDefinition[_PluginClsDefinitionPl
     def _set_cls(self, cls: type[_PluginClsDefinitionPluginT], /) -> None:
         super()._set_cls(cls)
         if issubclass(cls, Plugin):
-            cls.plugin = staticmethod(update_wrapper(lambda: self, cls.plugin))  # ty:ignore[invalid-assignment]
+            _PLUGINS[cls] = self
