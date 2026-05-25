@@ -104,12 +104,8 @@ def test_resolve_data_definition__with_definition() -> None:
 
 
 def test_resolve_data_definition__with_data() -> None:
-    definition = DataDefinition(label="-")
-
+    @DataDefinition(label="-")
     class _Data(Data):
-        @override
-        @classmethod
-        def data(cls) -> DataDefinition:
-            return definition
+        pass
 
-    assert resolve_data_definition(_Data) is definition
+    assert resolve_data_definition(_Data) is _Data.data()

@@ -4,8 +4,7 @@ Describe, access, and manipulate arbitrary data.
 
 from __future__ import annotations
 
-from functools import update_wrapper
-from typing import TYPE_CHECKING, Self, override
+from typing import TYPE_CHECKING, Self, final, override
 
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
@@ -19,6 +18,8 @@ if TYPE_CHECKING:
 
     from betty.locale.localizable import ResolvableLocalizable
     from betty.typing import Intersection
+
+_DATAS = {}
 
 
 class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
@@ -63,7 +64,7 @@ class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
     def _set_cls(self, cls: type[DataClsT], /) -> None:
         super()._set_cls(cls)
         if issubclass(cls, Data):
-            cls.data = staticmethod(update_wrapper(lambda: self, cls.data))  # ty:ignore[invalid-assignment]
+            _DATAS[cls] = self
 
     @property
     def samples(self) -> Samples:
@@ -82,14 +83,18 @@ class Data[DataDefinitionT: DataDefinition = DataDefinition]:
     A class that defines data for its instances.
     """
 
+    @final
     @classmethod
     def data(cls) -> Intersection[DataDefinitionT, DataDefinition[Self]]:
         """
         Define the data for instances of this class.
         """
-        raise NotImplementedError(
-            f"{fully_qualified_name(cls)} was not decorated with {fully_qualified_name(DataDefinition)} or any subclass."
-        )
+        try:
+            return _DATAS[cls]
+        except KeyError:
+            raise NotImplementedError(
+                f"{fully_qualified_name(cls)} was not decorated with {fully_qualified_name(DataDefinition)} or any subclass."
+            ) from None
 
     def __eq__(self, other: object) -> bool:
         if type(self) is not type(other):
