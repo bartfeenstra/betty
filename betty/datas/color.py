@@ -28,7 +28,7 @@ def _assert_hex(color: str) -> str:
 
 
 @final
-class ColorDefinition(DataDefinition):
+class ColorDefinition(DataDefinition[str, str]):
     """
     Define a color.
     """
@@ -39,5 +39,5 @@ class ColorDefinition(DataDefinition):
             label=_("Color"),
             description=_("A hexadecimal color, such as #ff0000"),
             samples=[lambda: Sample("#ff0000", label="Default")],
-            porter=CallbackPorter(assert_str() | _assert_hex, str),
+            porter=CallbackPorter[str, str](assert_str() | _assert_hex, str),
         )

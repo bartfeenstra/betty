@@ -12,7 +12,7 @@ from betty.portable import PortableData, Porter
 
 
 @final
-class AnyDatePorter(Porter):
+class AnyDatePorter(Porter[AnyDate, PortableData]):
     """
     Port a date or date range.
     """
@@ -30,7 +30,7 @@ class AnyDatePorter(Porter):
 
 
 @final
-class AnyDateDefinition(DataDefinition):
+class AnyDateDefinition(DataDefinition[AnyDate, PortableData]):
     """
     The data definition for a date or a date range.
     """
