@@ -136,9 +136,7 @@ class PortableRecord(
         """
 
 
-class RecordPorter[DataClsT = Any, ElementT: Element[str] = Element[str]](
-    Porter[DataClsT]
-):
+class RecordPorter[DataClsT, ElementT: Element[str] = Element[str]](Porter[DataClsT]):
     """
     An object capable of dumping and loading record data to and from portable data.
     """
@@ -183,7 +181,7 @@ class PortableRecordPorter[
 
 
 @final
-class MappingPorter[DataClsT = Any, ElementT: Element[str] = Element[str]](
+class MappingPorter[DataClsT, ElementT: Element[str] = Element[str]](
     RecordPorter[DataClsT]
 ):
     """
@@ -238,7 +236,7 @@ class MappingPorter[DataClsT = Any, ElementT: Element[str] = Element[str]](
         return portable_key, portable
 
 
-class RecordDefinition[DataClsT = Any, ElementT: Element[str] = Element[str]](
+class RecordDefinition[DataClsT, ElementT: Element[str] = Element[str]](
     AggregateDefinition[DataClsT, ElementT]
 ):
     """

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable, MutableMapping, MutableSequence
-from typing import Any, Self, final, override
+from typing import Self, final, override
 
 type PortableData = (
     bool
@@ -63,7 +63,7 @@ class Portable[PortableDataT: PortableData](ABC):
         """
 
 
-class Porter[DataClsT = Any, PortableDataT: PortableData = PortableData](ABC):
+class Porter[DataClsT, PortableDataT: PortableData = PortableData](ABC):
     """
     An object capable of dumping and loading data to and from portable data.
     """
