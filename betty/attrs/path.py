@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.assertion import assert_path
+from betty.assertions.path import assert_path
 from betty.attrs.attr import AttrAttr
 from betty.datas.path import PathDefinition
 

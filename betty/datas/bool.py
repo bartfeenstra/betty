@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
-from betty.assertion import assert_bool
+from betty.assertions.bool import assert_bool
 from betty.data import DataDefinition
 from betty.functools import passthrough
 from betty.portable import CallbackPorter

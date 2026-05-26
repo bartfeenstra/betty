@@ -4,7 +4,7 @@ Date data.
 
 from typing import final, override
 
-from betty.assertion import assert_or
+from betty.assertions.if_else import assert_if_else
 from betty.data import DataDefinition
 from betty.date import AnyDate, Date, DateRange
 from betty.locale.localizable.gettext import _
@@ -19,7 +19,7 @@ class AnyDatePorter(Porter[AnyDate, PortableData]):
 
     @override
     def load(self, portable: PortableData, /) -> AnyDate:
-        return assert_or(
+        return assert_if_else(
             Date.data().porter.load,
             DateRange.data().porter.load,
         )(portable)

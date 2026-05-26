@@ -1,12 +1,13 @@
 """
-Provide plugin assertions.
+Plugin assertions.
 """
 
 from collections.abc import Collection
 from typing import Any
 
-from betty.assertion import AssertionChain, assert_str
+from betty.assertions.str import assert_str
 from betty.exception import HumanFacingException
+from betty.functools import Pipeline
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Paragraph, do_you_mean
 from betty.plugin import PluginDefinition
@@ -14,7 +15,7 @@ from betty.plugin import PluginDefinition
 
 def assert_plugin[PluginDefinitionT: PluginDefinition](
     available_plugins: Collection[PluginDefinitionT],
-) -> AssertionChain[Any, PluginDefinitionT]:
+) -> Pipeline[Any, PluginDefinitionT]:
     """
     Assert that a value is a plugin ID.
     """
@@ -33,4 +34,4 @@ def assert_plugin[PluginDefinitionT: PluginDefinition](
             )
         ) from None
 
-    return AssertionChain(_assert)
+    return Pipeline(_assert)

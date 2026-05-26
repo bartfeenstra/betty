@@ -4,7 +4,7 @@ from typing import Self, override
 
 import pytest
 
-from betty.assertion import assert_str
+from betty.assertions.str import assert_str
 from betty.data import Data, DataDefinition, Sample, resolve_data_definition
 from betty.portable import CallbackPorter, Portable, PortableData
 from betty.portable.error import NotPortable

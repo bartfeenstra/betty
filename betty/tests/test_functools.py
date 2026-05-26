@@ -9,6 +9,7 @@ from betty.functools import (
     DecoratedCallable,
     Do,
     LazyReCallable,
+    Pipeline,
     Result,
     ResultUnavailable,
     map_suppress,
@@ -333,3 +334,19 @@ class TestLazyReCallable:
         sut = LazyReCallable(_callable)
         assert sut() is value
         assert sut() is value
+
+
+class TestPipeline:
+    def test___call__(self) -> None:
+        sut = Pipeline[int, int](lambda value: value)
+        assert sut(123) == 123
+
+    def test___or__(self) -> None:
+        sut = Pipeline[int, int](lambda value: value)
+        sut |= lambda value: 2 * value
+        assert sut(123) == 246
+
+    def test_pipe(self) -> None:
+        sut = Pipeline[int, int](lambda value: value)
+        sut = sut.pipe(lambda value: 2 * value)
+        assert sut(123) == 246

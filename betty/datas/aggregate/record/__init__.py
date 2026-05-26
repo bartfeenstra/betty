@@ -17,7 +17,8 @@ from typing import (
     override,
 )
 
-from betty.assertion import OptionalField, assert_mapping
+from betty.assertions.mapping import assert_mapping
+from betty.assertions.record import Field
 from betty.data import (
     DataDefinition,
     ResolvableDataDefinition,
@@ -193,12 +194,12 @@ class MappingPorter[DataClsT, ElementT: Element[str] = Element[str]](
 
     @override
     def load(self, portable: PortableData, /) -> DataClsT:
-        from betty.assertion import RequiredField, assert_record
+        from betty.assertions.record import assert_record
 
         return self._record.factory(
             **assert_record(*[
-                (OptionalField if field.omit_load else RequiredField)(
-                    selector.element, field.data.porter.load
+                Field(
+                    selector.element, field.data.porter.load, optional=field.omit_load
                 )
                 for selector, field in self._record.fields.items()
             ])(portable)

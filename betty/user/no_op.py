@@ -7,7 +7,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from typing import final, overload, override
 
-from betty.assertion import Assertion
+from betty.functools import Pipe
 from betty.locale.localizable import ResolvableLocalizable
 from betty.progress import Progress
 from betty.progresses.no_op import NoOpProgress
@@ -84,7 +84,7 @@ class NoOpUser(User):
         self,
         question: ResolvableLocalizable,
         *,
-        assertion: Assertion[str, T],
+        assertion: Pipe[str, T],
         default: str | VoidType = Void,
     ) -> T:
         pass
@@ -94,7 +94,7 @@ class NoOpUser(User):
         self,
         question: ResolvableLocalizable,
         *,
-        assertion: Assertion[str, T] | None = None,
+        assertion: Pipe[str, T] | None = None,
         default: str | T | VoidType = Void,
     ) -> str | T:
         raise UserTimeoutError

@@ -14,7 +14,9 @@ from urllib.parse import quote, urlsplit
 
 from geopy import Point
 
-from betty.assertion import assert_float, assert_mapping, assert_str
+from betty.assertions.float import assert_float
+from betty.assertions.mapping import assert_mapping
+from betty.assertions.str import assert_str
 from betty.exception import HumanFacingException, reraise_with_indicator
 from betty.file import write
 from betty.hashid import hashid

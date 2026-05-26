@@ -28,7 +28,7 @@ class EnumDefinition[EnumT: Enum](DataDefinition[EnumT]):
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
     ):
-        from betty.assertion import assert_enum
+        from betty.assertions.enum import assert_enum
 
         super().__init__(
             cls=cls,

@@ -20,7 +20,8 @@ from babel import Locale
 
 from betty.about import VERSION_MAJOR
 from betty.app import App
-from betty.assertion import assert_int, assert_url
+from betty.assertions.int import assert_int
+from betty.assertions.url import assert_url
 from betty.asset import AssetRepositoryService
 from betty.attrs.attr import AttrAttr
 from betty.attrs.collection_attr import CollectionAttrAttr

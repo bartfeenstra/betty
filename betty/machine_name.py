@@ -7,7 +7,7 @@ from __future__ import annotations
 import re
 from typing import Self, final, override
 
-from betty.assertion import assert_str
+from betty.assertions.str import assert_str
 from betty.data import Data, DataDefinition
 from betty.exception import HumanFacingException
 from betty.locale.localizable.gettext import _

@@ -8,7 +8,7 @@ from typing import final
 
 from babel import Locale
 
-from betty.assertion import assert_locale
+from betty.assertions.locale import assert_locale
 from betty.data import DataDefinition
 from betty.locale import to_language_tag
 from betty.locale.localizable.gettext import _

@@ -1,0 +1,40 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
+import pytest
+
+from betty.assertions.float import assert_float
+from betty.exception import HumanFacingException
+
+if TYPE_CHECKING:
+    from betty.typing import Number
+
+
+@pytest.mark.parametrize(
+    ("value", "minimum", "maximum"),
+    [
+        (1.23, None, None),
+        (1.23, 1.23, None),
+        (1.23, None, 1.23),
+    ],
+)
+def test_assert_float__with_valid_value(
+    value: Any, minimum: Number | None, maximum: Number | None
+) -> None:
+    assert_float(minimum=minimum, maximum=maximum)(value)
+
+
+@pytest.mark.parametrize(
+    ("value", "minimum", "maximum"),
+    [
+        (123, None, None),
+        (1.23, 1.24, None),
+        (1.23, None, 1.22),
+    ],
+)
+def test_assert_float__with_invalid_value(
+    value: Any, minimum: Number | None, maximum: Number | None
+) -> None:
+    with pytest.raises(HumanFacingException):
+        assert_float(minimum=minimum, maximum=maximum)(False)

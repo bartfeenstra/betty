@@ -2,12 +2,7 @@ from __future__ import annotations
 
 from _ast import Constant, Expr
 from ast import iter_child_nodes, parse
-from collections.abc import (
-    Callable,
-    Iterable,
-    Mapping,
-    Sequence,
-)
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from enum import Enum
 from importlib import import_module
 from inspect import getmembers, isclass, isdatadescriptor, isfunction
@@ -72,14 +67,15 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "shutdown": MissingReason.COVERED_ELSEWHERE,
         }
     },
+    "betty/assertions/plugin.py": {
+        "assert_plugin": MissingReason.SHOULD_BE_COVERED,
+    },
+    "betty/assertions/record.py": {
+        "Field": MissingReason.DATACLASS,
+    },
     "betty/asset.py": {
         "AssetError": MissingReason.ABSTRACT,
         "AssetRepository": MissingReason.ABSTRACT,
-    },
-    "betty/assertion.py": {
-        "Field": MissingReason.INTERNAL,
-        "OptionalField": MissingReason.DATACLASS,
-        "RequiredField": MissingReason.DATACLASS,
     },
     "betty/asyncio.py": {
         "ReAwaitable": MissingReason.ABSTRACT,
@@ -424,9 +420,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "PlaceType": MissingReason.STATIC_CONTENT_ONLY,
         "PlaceTypeDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "PlaceTypeManufacturer": MissingReason.STATIC_CONTENT_ONLY,
-    },
-    "betty/plugin/assertion.py": {
-        "assert_plugin": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/plugin/cls.py": {
         "Plugin": MissingReason.ABSTRACT,

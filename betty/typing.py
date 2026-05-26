@@ -21,6 +21,9 @@ else:
             pass  # pragma: nocover
 
 
+type Number = int | float
+
+
 def _should_mark(target: Any, key: str, /) -> bool:
     attr_name = f"_betty_typing_{key}"
     if hasattr(target, attr_name):
