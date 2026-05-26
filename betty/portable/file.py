@@ -8,7 +8,7 @@ from asyncio import to_thread
 from contextlib import chdir
 from typing import TYPE_CHECKING
 
-from betty.assertion import AssertionChain, assert_file
+from betty.assertions.file import assert_file
 from betty.exception import reraise_with_indicator
 from betty.file import write
 from betty.indicator import Path as IndicatorPath
@@ -19,13 +19,14 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from pathlib import Path
 
+    from betty.functools import Pipeline
     from betty.pathlib import StrPath
     from betty.portable import PortableData
 
 
 def assert_load_file(
     *, serializers: Iterable[Serializer]
-) -> AssertionChain[StrPath, PortableData]:
+) -> Pipeline[StrPath, PortableData]:
     """
     An assertion to load a dump from a file.
     """

@@ -4,7 +4,7 @@ from io import StringIO
 
 import pytest
 
-from betty.assertion import assert_int
+from betty.assertions.int import assert_int
 from betty.rich.user import RichUser
 from betty.user import Verbosity
 

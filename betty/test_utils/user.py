@@ -8,7 +8,7 @@ from collections.abc import AsyncIterator, Collection, Iterable, MutableSequence
 from contextlib import asynccontextmanager
 from typing import overload, override
 
-from betty.assertion import Assertion
+from betty.functools import Pipe
 from betty.locale.localizable import ResolvableLocalizable
 from betty.locale.localize import DEFAULT_LOCALIZER, resolve_localized
 from betty.progress import Progress
@@ -264,7 +264,7 @@ class StaticUser(User):
         self,
         question: ResolvableLocalizable,
         *,
-        assertion: Assertion[str, T],
+        assertion: Pipe[str, T],
         default: str | VoidType = Void,
     ) -> T:
         raise NotImplementedError  # ty:ignore[useless-overload-body]
@@ -274,7 +274,7 @@ class StaticUser(User):
         self,
         question: ResolvableLocalizable,
         *,
-        assertion: Assertion[str, T] | None = None,
+        assertion: Pipe[str, T] | None = None,
         default: str | T | VoidType = Void,
     ) -> str | T:
         value = next(self._inputs)

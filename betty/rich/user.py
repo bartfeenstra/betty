@@ -12,7 +12,7 @@ from rich.progress import BarColumn, TaskProgressColumn, TextColumn, TimeElapsed
 from rich.progress import Progress as _RichProgress
 from rich.prompt import Confirm, Prompt
 
-from betty.assertion import Assertion
+from betty.functools import Pipe
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.locale.localizable import ResolvableLocalizable
 from betty.locale.localize import resolve_localized
@@ -192,7 +192,7 @@ class RichUser(ManagedLifeCycle, User):
         self,
         question: ResolvableLocalizable,
         *,
-        assertion: Assertion[str, T],
+        assertion: Pipe[str, T],
         default: str | VoidType = Void,
         stdin: TextIO | None = None,
     ) -> T:
@@ -203,7 +203,7 @@ class RichUser(ManagedLifeCycle, User):
         self,
         question: ResolvableLocalizable,
         *,
-        assertion: Assertion[str, T] | None = None,
+        assertion: Pipe[str, T] | None = None,
         default: str | VoidType = Void,
         stdin: TextIO | None = None,
     ) -> str | T:

@@ -7,7 +7,7 @@ from __future__ import annotations
 from email.message import EmailMessage
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.assertion import assert_str
+from betty.assertions.str import assert_str
 from betty.data import Data, DataDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext

@@ -11,7 +11,7 @@ from typing import Any
 
 from betty.app import App
 from betty.argparse import assertion_to_argument_type
-from betty.assertion import assert_path
+from betty.assertions.path import assert_path
 from betty.console.command import CommandFunction
 from betty.error import FileNotFound
 from betty.exception import HumanFacingException

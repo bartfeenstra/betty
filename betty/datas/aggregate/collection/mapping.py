@@ -51,7 +51,7 @@ class MappingDefinition[MutableMappingT: MutableMapping[Any, Any], KeyT, ValueT]
         self._value = value if isinstance(value, DataDefinition) else value.data()
 
     def _load(self, portable: PortableData, /) -> MutableMappingT:
-        from betty.assertion import assert_mapping
+        from betty.assertions.mapping import assert_mapping
 
         loaded = self.new()
         loaded.update(

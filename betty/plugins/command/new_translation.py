@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.app import App
 from betty.argparse import assertion_to_argument_type
-from betty.assertion import assert_locale
+from betty.assertions.locale import assert_locale
 from betty.asset import AssetDirectoryDefinition
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.factory import Manufacturable

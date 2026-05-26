@@ -1,6 +1,6 @@
 from typing import Self, override
 
-from betty.assertion import assert_str
+from betty.assertions.str import assert_str
 from betty.portable import (
     CallbackPorter,
     OptionalPorter,

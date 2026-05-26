@@ -5,7 +5,7 @@ File system path data.
 from pathlib import Path
 from typing import final
 
-from betty.assertion import assert_path
+from betty.assertions.path import assert_path
 from betty.data import DataDefinition
 from betty.locale.localizable.gettext import _
 from betty.portable import CallbackPorter

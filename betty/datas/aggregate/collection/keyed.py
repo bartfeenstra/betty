@@ -7,7 +7,8 @@ from __future__ import annotations
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any, final, override
 
-from betty.assertion import assert_mapping, assert_sequence
+from betty.assertions.mapping import assert_mapping
+from betty.assertions.sequence import assert_sequence
 from betty.collection.keyed import MutableKeyedCollection
 from betty.datas.aggregate.collection import CollectionDefinition
 from betty.indicator.selector import Element

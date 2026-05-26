@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.app import App, AppData
 from betty.argparse import assertion_to_argument_type
-from betty.assertion import assert_locale
+from betty.assertions.locale import assert_locale
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.factory import Manufacturable
 from betty.locale import DEFAULT_LOCALE, to_language_tag

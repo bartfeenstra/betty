@@ -8,13 +8,11 @@ from asyncio import gather
 from collections.abc import Iterable, Mapping, Sequence
 from typing import TYPE_CHECKING, ClassVar, Self, final, override
 
-from betty.assertion import (
-    assert_enum,
-    assert_int,
-    assert_mapping,
-    assert_or,
-    assert_sequence,
-)
+from betty.assertions.enum import assert_enum
+from betty.assertions.if_else import assert_if_else
+from betty.assertions.int import assert_int
+from betty.assertions.mapping import assert_mapping
+from betty.assertions.sequence import assert_sequence
 from betty.attrs.attr import AttrAttr
 from betty.content import Content, ContentDefinition, ContentManufacturer, build
 from betty.data import Data
@@ -158,12 +156,12 @@ class ColumnsData(Data, HasProperties):
             ),
             label=_("Breakpoints"),
             porter=CallbackPorter(
-                assert_or(
-                    assert_or(
+                assert_if_else(
+                    assert_if_else(
                         assert_int(),
                         assert_sequence(assert_int()),
                     ),
-                    assert_or(
+                    assert_if_else(
                         assert_mapping(assert_int(), assert_enum(Breakpoint)),
                         assert_mapping(
                             assert_sequence(assert_int()), assert_enum(Breakpoint)

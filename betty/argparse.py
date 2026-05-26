@@ -5,13 +5,13 @@ Integrate the console and assertion APIs.
 import argparse as stdargparse
 from collections.abc import Callable
 
-from betty.assertion import Assertion
 from betty.exception import HumanFacingException
+from betty.functools import Pipe
 from betty.locale.localize import Localizer
 
 
 def assertion_to_argument_type[T](
-    assertion: Assertion[str, T], *, localizer: Localizer
+    assertion: Pipe[str, T], *, localizer: Localizer
 ) -> Callable[[str], T]:
     """
     Convert an assertion to an argparse argument type.

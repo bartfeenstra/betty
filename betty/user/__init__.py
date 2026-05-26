@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     import logging
     from contextlib import AbstractAsyncContextManager
 
-    from betty.assertion import Assertion
+    from betty.functools import Pipe
     from betty.locale.localizable import ResolvableLocalizable
     from betty.locale.localize import Localizer
     from betty.progress import Progress
@@ -189,7 +189,7 @@ class User(ABC):
         self,
         question: ResolvableLocalizable,
         *,
-        assertion: Assertion[str, T],
+        assertion: Pipe[str, T],
         default: str | VoidType = Void,
     ) -> T:
         pass
@@ -199,7 +199,7 @@ class User(ABC):
         self,
         question: ResolvableLocalizable,
         *,
-        assertion: Assertion[str, T] | None = None,
+        assertion: Pipe[str, T] | None = None,
         default: str | T | VoidType = Void,
     ) -> str | T:
         """

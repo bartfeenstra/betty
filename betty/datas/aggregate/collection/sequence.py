@@ -45,7 +45,7 @@ class SequenceDefinition[MutableSequenceT: MutableSequence[Any], ValueT](
         )
 
     def _load(self, portable: PortableData, /) -> MutableSequenceT:
-        from betty.assertion import assert_sequence
+        from betty.assertions.sequence import assert_sequence
 
         loaded = self.new()
         loaded.extend(assert_sequence(self._item.porter.load)(portable))

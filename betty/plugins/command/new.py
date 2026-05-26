@@ -4,7 +4,8 @@ from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.app import App
-from betty.assertion import assert_locale, assert_path
+from betty.assertions.locale import assert_locale
+from betty.assertions.path import assert_path
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.factory import Manufacturable
 from betty.load import (

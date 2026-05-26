@@ -7,7 +7,10 @@ from __future__ import annotations
 from contextlib import suppress
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.assertion import assert_locale, assert_mapping, assert_or, assert_str
+from betty.assertions.if_else import assert_if_else
+from betty.assertions.locale import assert_locale
+from betty.assertions.mapping import assert_mapping
+from betty.assertions.str import assert_str
 from betty.exception import reraise_with_indicator
 from betty.indicator.selector import Key
 from betty.locale import (
@@ -62,7 +65,7 @@ class CountableStaticTranslations(CountableLocalizable, Portable):
     _translations: CountableStaticTranslationsMapping
 
     def __init__(self, translations: ShorthandCountableStaticTranslations, /):
-        from betty.assertion import assert_len
+        from betty.assertions.len import assert_len
 
         assert_len(minimum=1)(translations)
         self._translations = {
@@ -80,7 +83,7 @@ class CountableStaticTranslations(CountableLocalizable, Portable):
     def _ensure_locale(
         self, locale: ResolvableLocale, translations: Mapping[str, str]
     ) -> Locale:
-        from betty.assertion import assert_len
+        from betty.assertions.len import assert_len
 
         locale = resolve_locale(locale)
         with reraise_with_indicator(Key(to_language_tag(locale))):
@@ -255,7 +258,7 @@ class StaticTranslations(Localizable, Portable):
         """
         :param translations: Keys are locales, values are translations.
         """
-        from betty.assertion import assert_len
+        from betty.assertions.len import assert_len
 
         super().__init__()
         assert_len(minimum=1)(translations)
@@ -303,8 +306,8 @@ class StaticTranslations(Localizable, Portable):
     @classmethod
     def load(cls, portable: PortableData, /) -> Self:
         return cls(
-            assert_or(
-                assert_str().chain(lambda translation: {None: translation}),
+            assert_if_else(
+                assert_str().pipe(lambda translation: {None: translation}),
                 assert_mapping(assert_str(), assert_locale()),
             )(portable)
         )

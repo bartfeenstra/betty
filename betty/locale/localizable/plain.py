@@ -22,7 +22,7 @@ class Plain(Localizable):
     """
 
     def __init__(self, text: str, locale: ResolvableLocale | None = None, /):
-        from betty.assertion import assert_str
+        from betty.assertions.str import assert_str
 
         assert_str(minimum_length=1)(text)
         self._text = text

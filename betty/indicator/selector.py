@@ -13,7 +13,7 @@ from betty.indicator import Indicator
 if TYPE_CHECKING:
     from collections.abc import Iterator, MutableSequence, Sequence
 
-    from betty.assertion import Assertion
+    from betty.functools import Pipe
 
 
 @final
@@ -39,7 +39,7 @@ class Selector(Indicator, ABC):
             raise SelectorError(self) from error
 
     @final
-    def get[T](self, data: Any, assertion: Assertion[Any, T] | None = None, /) -> T:
+    def get[T](self, data: Any, assertion: Pipe[Any, T] | None = None, /) -> T:
         """
         Get the value for this selector.
 

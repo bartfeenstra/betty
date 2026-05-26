@@ -9,14 +9,9 @@ from collections.abc import Iterable, MutableSequence
 from json import dumps
 from typing import TYPE_CHECKING, Final, Generic, Self, TypeVar, final, override
 
-from betty.assertion import (
-    AssertionChain,
-    OptionalField,
-    RequiredField,
-    assert_mapping,
-    assert_or,
-    assert_record,
-)
+from betty.assertions.if_else import assert_if_else
+from betty.assertions.mapping import assert_mapping
+from betty.assertions.record import Field, assert_record
 from betty.attrs.attr import AttrAttr
 from betty.attrs.machine_name import new_machine_name_attr
 from betty.data import Data, DataDefinition
@@ -24,6 +19,7 @@ from betty.datas.aggregate.record import PortableRecord
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.exception import HumanFacingException
 from betty.factory import DataManufacturable, FactoryError
+from betty.functools import Pipeline
 from betty.importlib import fully_qualified_name
 from betty.indicator.selector import Attr
 from betty.locale.localizable.gettext import _
@@ -115,12 +111,11 @@ class PluginManufacturer(
     @override
     @classmethod
     def load(cls, portable: PortableData, /) -> Self:
-        record = assert_or(
-            AssertionChain(MachineName.load)
-            | (lambda plugin_id: {"plugin": plugin_id}),
+        record = assert_if_else(
+            Pipeline(MachineName.load) | (lambda plugin_id: {"plugin": plugin_id}),
             assert_record(
-                RequiredField("plugin", MachineName.load),
-                OptionalField("data"),
+                Field("plugin", MachineName.load),
+                Field("data", optional=True),
             ),
         )(portable)
         return cls(record["plugin"], record.get("data", Void))
