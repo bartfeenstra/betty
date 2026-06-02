@@ -99,7 +99,7 @@ from betty.plugin.resolve import (
     resolve_plugin_id,
 )
 from betty.privacy.privatizer import Privatizer
-from betty.property import HasProperties
+from betty.prop import HasProps
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.role import RoleDefinition
 from betty.sample import Sample, Size
@@ -675,7 +675,7 @@ class Project(
         ),
     ],
 )
-class ProjectLocale(Data["ObjectDefinition"], HasProperties):
+class ProjectLocale(Data["ObjectDefinition"], HasProps):
     """
     A locale to use for a project.
 
@@ -755,7 +755,7 @@ class ProjectLocale(Data["ObjectDefinition"], HasProperties):
         ),
     ],
 )
-class ProjectData(Data, HasProperties):
+class ProjectData(Data, HasProps):
     """
     Configuration for a :py:class:`betty.project.Project`.
 

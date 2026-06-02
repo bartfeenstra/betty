@@ -6,13 +6,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Final, override
 
-from betty.property import HasProperties, ProxyProperty, SettableProperty
+from betty.prop import HasProps, ProxyProp, SettableProp
 
 if TYPE_CHECKING:
     from betty.datas.aggregate.record import FieldDefinition
 
 
-class Attr[OwnerT: HasProperties, GetT, SetT](SettableProperty[OwnerT, GetT, SetT]):
+class Attr[OwnerT: HasProps, GetT, SetT](SettableProp[OwnerT, GetT, SetT]):
     """
     An object attribute with a data definition.
     """
@@ -24,8 +24,8 @@ class Attr[OwnerT: HasProperties, GetT, SetT](SettableProperty[OwnerT, GetT, Set
         """
 
 
-class ProxyAttr[OwnerT: HasProperties, GetT, SetT](
-    ProxyProperty[OwnerT, GetT], Attr[OwnerT, GetT, SetT]
+class ProxyAttr[OwnerT: HasProps, GetT, SetT](
+    ProxyProp[OwnerT, GetT], Attr[OwnerT, GetT, SetT]
 ):
     """
     An attribute that proxies another attribute.

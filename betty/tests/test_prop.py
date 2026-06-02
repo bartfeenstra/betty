@@ -1,0 +1,171 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, override
+
+import pytest
+
+from betty.prop import (
+    HasProps,
+    NotSettable,
+    OwnerError,
+    Prop,
+    PropError,
+    ProxyProp,
+    SettableProp,
+)
+
+if TYPE_CHECKING:
+    from pytest_mock import MockerFixture
+
+
+class _PropOwner(HasProps):
+    def __init__(self):
+        self.init_properties = []
+        super().__init__()
+
+
+class _Value:
+    pass
+
+
+class _Prop(Prop[_PropOwner, tuple[_PropOwner, _Value]]):
+    def __init__(self, value: _Value, /):
+        self.__value = value
+
+    @override
+    def get(self, owner: _PropOwner, /) -> tuple[_PropOwner, _Value]:
+        return owner, self.__value
+
+    @override
+    def init_owner(self, owner: _PropOwner, /) -> None:
+        owner.init_properties.append(self)
+
+
+class _SettableProp(
+    _Prop,
+    SettableProp[_PropOwner, tuple[_PropOwner, _Value], tuple[_PropOwner, _Value]],
+):
+    pass
+
+
+class TestHasProps:
+    def test___init__(self) -> None:
+        class _Owner(_PropOwner):
+            my_first_prop = _Prop(_Value())
+
+        owner = _Owner()
+        assert _Owner.my_first_prop in owner.init_properties
+
+
+class TestProp:
+    def test___get____with_class(self) -> None:
+        class _Owner(_PropOwner):
+            my_first_prop = _Prop(_Value())
+
+        assert isinstance(_Owner.my_first_prop, _Prop)
+        assert _Owner.my_first_prop is _Owner.my_first_prop
+
+    def test___get____with_instance(self) -> None:
+        value = _Value()
+
+        class _Owner(_PropOwner):
+            my_first_prop = _Prop(value)
+
+        owner = _Owner()
+        assert owner.my_first_prop == (owner, value)
+
+    def test_init_owner(self) -> None:
+        class _Owner(_PropOwner):
+            my_first_prop = _Prop(_Value())
+
+        owner = _Owner()
+        assert _Owner.my_first_prop in owner.init_properties
+
+    def test_prop(self) -> None:
+        class _Owner(_PropOwner):
+            my_first_prop = _Prop(_Value())
+
+        assert _Owner.my_first_prop.prop.owner is _Owner
+        assert _Owner.my_first_prop.prop.name == "my_first_prop"
+
+
+class TestProxyProp:
+    def test___set_name__(self, mocker: MockerFixture) -> None:
+        m_proxied = mocker.MagicMock(spec=Prop)
+
+        class _Owner(HasProps):
+            my_first_prop = ProxyProp(proxied=m_proxied)
+
+        m_proxied.__set_name__.assert_called_once_with(_Owner, "my_first_prop")
+
+    def test_get(self, mocker: MockerFixture) -> None:
+        value = "Hello, world!"
+        m_proxied = mocker.MagicMock(spec=Prop)
+        m_proxied.get.return_value = value
+
+        class _Owner(HasProps):
+            my_first_prop = ProxyProp(proxied=m_proxied)
+
+        owner = _Owner()
+        assert owner.my_first_prop == value
+        m_proxied.get.assert_called_once_with(owner)
+
+    def test_init_owner(self, mocker: MockerFixture) -> None:
+        m_proxied = mocker.MagicMock(spec=Prop)
+
+        class _Owner(HasProps):
+            my_first_prop = ProxyProp(proxied=m_proxied)
+
+        owner = _Owner()
+        m_proxied.init_owner.assert_called_once_with(owner)
+
+
+class TestPropError:
+    def test___init__(self) -> None:
+        class _Owner(_PropOwner):
+            my_first_prop = _Prop(_Value())
+
+        message = "Hello, world!"
+        sut = PropError(_Owner.my_first_prop, message)
+        assert str(sut) == message
+        assert sut.prop is _Owner.my_first_prop
+
+
+class TestOwnerError:
+    def test___init__(self) -> None:
+        class _Owner(_PropOwner):
+            my_first_prop = _Prop(_Value())
+
+        owner = _Owner()
+        message = "Hello, world!"
+        sut = OwnerError(_Owner.my_first_prop, owner, message)
+        assert str(sut) == message
+        assert sut.obj is owner
+        assert sut.name == "my_first_prop"
+
+
+class TestSettableProp:
+    def test___set__(self) -> None:
+        class _Owner(_PropOwner):
+            my_first_prop = _SettableProp(_Value())
+
+        owner = _Owner()
+        with pytest.raises(NotSettable):
+            owner.my_first_prop = (owner, _Value())
+
+    def test_set(self) -> None:
+        class _Owner(_PropOwner):
+            my_first_prop = _SettableProp(_Value())
+
+        owner = _Owner()
+        with pytest.raises(NotSettable):
+            _Owner.my_first_prop.set(owner, (owner, _Value()))
+
+
+class TestNotSettable:
+    def test___init__(self) -> None:
+        class _Owner(_PropOwner):
+            my_first_prop = _SettableProp(_Value())
+
+        sut = NotSettable(_Owner.my_first_prop, _Owner())
+        assert "my_first_prop" in str(sut)

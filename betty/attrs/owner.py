@@ -7,20 +7,20 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final
 
 from betty.attr import Attr
-from betty.property import HasProperties
+from betty.prop import HasProps
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
 
-class OwnerAttr[OwnerT: HasProperties, GetT, SetT](Attr[OwnerT, GetT, SetT]):
+class OwnerAttr[OwnerT: HasProps, GetT, SetT](Attr[OwnerT, GetT, SetT]):
     """
     An object attribute that stores its data on owner instances.
     """
 
     @final
     def _owner_attr(self, attr: str) -> str:
-        return f"_attr_{self.property.name}_{attr}"
+        return f"_attr_{self.prop.name}_{attr}"
 
     @final
     def _has_owner_attr(self, owner: OwnerT, /) -> bool:

@@ -28,7 +28,7 @@ from betty.plugin import PluginDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.portable import PortableData
-from betty.property import HasProperties
+from betty.prop import HasProps
 from betty.sample import Samplable, Sample, Samples, Size
 from betty.typing import Void, VoidType
 
@@ -53,7 +53,7 @@ class PluginManufacturer(
     PortableRecord[Attr],
     Samplable,
     Data["PluginManufacturerDefinition"],
-    HasProperties,
+    HasProps,
     ABC,
     Generic[_PluginManufacturerPluginDefinitionT, _PluginManufacturerPluginT],  # noqa: UP046
 ):

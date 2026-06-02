@@ -16,7 +16,7 @@ from betty.locale.localizable.gettext import _
 from betty.locale.localize import resolve_localized
 from betty.plugins.media_type.plain_text import PLAIN_TEXT
 from betty.project import Project
-from betty.property import HasProperties
+from betty.prop import HasProps
 from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
@@ -33,7 +33,7 @@ if TYPE_CHECKING:
         lambda: Sample(RenderData("Hello, world!"), label="Minimal", size=Size.MINIMAL)
     ],
 )
-class RenderData(Data, HasProperties):
+class RenderData(Data, HasProps):
     """
     Configuration for :py:class:`betty.plugins.content.render.Render`.
 

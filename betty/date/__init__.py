@@ -20,7 +20,7 @@ from betty.datas.bool import BoolDefinition
 from betty.datas.int import IntDefinition
 from betty.locale.localizable import Localizable
 from betty.locale.localizable.gettext import _
-from betty.property import HasProperties
+from betty.prop import HasProps
 from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
@@ -71,7 +71,7 @@ def _localize_date_parts(localizer: Localizer, date: Date | None, /) -> str:
         lambda: Sample(Date(1970, 1, 1, fuzzy=True), label="Full", size=Size.FULL),
     ],
 )
-class Date(Localizable, Data, HasProperties):
+class Date(Localizable, Data, HasProps):
     """
     A (Gregorian) date.
     """
@@ -214,7 +214,7 @@ def _dump_date_iso8601(date: Date, /) -> str | None:
 @final
 @total_ordering
 @ObjectDefinition(label=_("Date range"))
-class DateRange(Localizable, Data, HasProperties):
+class DateRange(Localizable, Data, HasProps):
     """
     A date range can describe a period of time between, before, after, or around start and/or end dates.
     """

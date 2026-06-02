@@ -5,12 +5,12 @@ from betty.attrs.plugin_definitions import new_plugin_definition_datas_attr
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.plugin_definition import PluginDefinitionData
-from betty.property import HasProperties
+from betty.prop import HasProps
 from betty.test_utils.plugin import DummyPluginDefinition
 
 
 @ObjectDefinition(label="-")
-class _Owner(Data, HasProperties):
+class _Owner(Data, HasProps):
     @ObjectDefinition(label="-")
     class _Item(PluginDefinitionData[DummyPluginDefinition]):
         @override

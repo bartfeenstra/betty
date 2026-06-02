@@ -14,7 +14,7 @@ from betty.linked_data import LinkedDataDumper
 from betty.locale.localizable.gettext import _
 from betty.privacy import Privacy
 from betty.privacy.schema import PrivacySchema
-from betty.property import HasProperties
+from betty.prop import HasProps
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -44,7 +44,7 @@ class PrivacyAttr(
         return target.privacy is Privacy.PRIVATE
 
 
-class HasPrivacy(HasProperties):
+class HasPrivacy(HasProps):
     """
     A resource that has privacy.
     """

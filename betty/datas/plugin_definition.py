@@ -12,14 +12,14 @@ from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.locale.localizable.gettext import _
 from betty.plugin import PluginDefinition
-from betty.property import HasProperties
+from betty.prop import HasProps
 
 if TYPE_CHECKING:
     from betty.machine_name import ResolvableMachineName
 
 
 class PluginDefinitionData[PluginDefinitionT: PluginDefinition = PluginDefinition](
-    Data[ObjectDefinition["PluginDefinitionData"]], HasProperties, ABC
+    Data[ObjectDefinition["PluginDefinitionData"]], HasProps, ABC
 ):
     """
     Configure a :py:class:`betty.plugin.PluginDefinition`.

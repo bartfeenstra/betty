@@ -10,11 +10,11 @@ from betty.attr import ProxyAttr
 from betty.attrs.owner import OwnerAttr
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.optional import OptionalDefinition
-from betty.property import HasProperties
+from betty.prop import HasProps
 
 
 @final
-class Optional[OwnerT: HasProperties, GetT, SetT](
+class Optional[OwnerT: HasProps, GetT, SetT](
     ProxyAttr[OwnerT, GetT | None, SetT | None],
     OwnerAttr[OwnerT, GetT | None, SetT | None],
 ):

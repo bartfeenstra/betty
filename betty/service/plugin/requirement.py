@@ -65,7 +65,7 @@ class PluginServiceRequirement[PluginDefinitionT: PluginDefinition, GetServiceT]
         """
         Check the requirement.
         """
-        if isinstance(services, self.service.property.owner):
+        if isinstance(services, self.service.prop.owner):
             service_plugins = list(
                 map(
                     self._service.resolve_init_plugin_id,
@@ -81,7 +81,7 @@ class PluginServiceRequirement[PluginDefinitionT: PluginDefinition, GetServiceT]
                         ).format(
                             plugin=plugin.id,
                             plugin_type=self._service.plugin_type.type().label,
-                            service=self.service.property.id,
+                            service=self.service.prop.id,
                         ),
                     )
             return self._service.get(services)
@@ -91,5 +91,5 @@ class PluginServiceRequirement[PluginDefinitionT: PluginDefinition, GetServiceT]
             self.service,
             _(
                 "Cannot locate the {service} service on any available service level."
-            ).format(service=self.service.property.id),
+            ).format(service=self.service.prop.id),
         )

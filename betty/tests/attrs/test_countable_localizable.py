@@ -1,10 +1,10 @@
 from betty.attrs.countable_localizable import new_countable_localizable_attr
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.property import HasProperties
+from betty.prop import HasProps
 
 
-class _Owner(HasProperties):
+class _Owner(HasProps):
     attr = new_countable_localizable_attr(label="-")
 
 

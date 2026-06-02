@@ -16,7 +16,7 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.property import HasProperties
+from betty.prop import HasProps
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
@@ -52,7 +52,7 @@ class NonPersistentId(str):
 
 
 class Entity(
-    LinkedDataDumpableWithSchemaJsonLdObject, Plugin["EntityDefinition"], HasProperties
+    LinkedDataDumpableWithSchemaJsonLdObject, Plugin["EntityDefinition"], HasProps
 ):
     """
     An entity is a uniquely identifiable data container.

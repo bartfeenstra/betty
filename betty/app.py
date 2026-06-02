@@ -35,7 +35,7 @@ from betty.locale.translation import (
 from betty.media_type import MediaTypeDefinition
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.portable.file import assert_load_file
-from betty.property import HasProperties
+from betty.prop import HasProps
 from betty.sample import Sample, Size
 from betty.serde import SerializerDefinition
 from betty.service import Service
@@ -309,7 +309,7 @@ class App(RequirableServiceLevel, PluginServiceProvider):
         lambda: Sample(AppData(locale=DEFAULT_LOCALE), label="Full", size=Size.FULL),
     ],
 )
-class AppData(Data, HasProperties):
+class AppData(Data, HasProps):
     """
     Configuration for :py:class:`betty.app.App`.
 

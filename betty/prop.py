@@ -16,27 +16,27 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
 
-class HasProperties:
+class HasProps:
     """
-    An object that has :py:class:`properties <betty.property.Property>`.
+    An object that has :py:class:`properties <betty.prop.Prop>`.
     """
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        for property in self.__get_properties():  # noqa: A001
-            property.init_owner(self)
+        for prop in self.__get_properties():
+            prop.init_owner(self)
 
     @classmethod
     @cache
-    def __get_properties(cls) -> Sequence[Property[Self, Any]]:
+    def __get_properties(cls) -> Sequence[Prop[Self, Any]]:
         return tuple(
-            member for _, member in getmembers(cls) if isinstance(member, Property)
+            member for _, member in getmembers(cls) if isinstance(member, Prop)
         )
 
 
 @final
 @dataclass(frozen=True)
-class PropertyDefinition[OwnerT: HasProperties]:
+class PropDefinition[OwnerT: HasProps]:
     """
     The definition of a property on a class.
     """
@@ -52,23 +52,23 @@ class PropertyDefinition[OwnerT: HasProperties]:
         return f"{self.owner.__name__}.{self.name}"
 
 
-class Property[OwnerT: HasProperties, GetT](ABC):
+class Prop[OwnerT: HasProps, GetT](ABC):
     """
     A property.
     """
 
-    __property: PropertyDefinition[OwnerT]
+    __prop: PropDefinition[OwnerT]
 
     def __set_name__(self, owner: type[OwnerT], name: str) -> None:
-        self.__property = PropertyDefinition(owner, name)
+        self.__prop = PropDefinition(owner, name)
 
     @final
     @property
-    def property(self) -> PropertyDefinition[OwnerT]:
+    def prop(self) -> PropDefinition[OwnerT]:
         """
         The property definition.
         """
-        return self.__property
+        return self.__prop
 
     def init_owner(self, owner: OwnerT, /) -> None:
         """
@@ -97,52 +97,52 @@ class Property[OwnerT: HasProperties, GetT](ABC):
         """
 
 
-class PropertyError(Exception):
+class PropError(Exception):
     """
     Raised for property API errors.
     """
 
-    def __init__(self, _property: Property, message: str, *args: Any, **kwargs: Any):
+    def __init__(self, prop: Prop, message: str, *args: Any, **kwargs: Any):
         super().__init__(message, *args, **kwargs)
-        self.property: Final[Property] = _property
+        self.prop: Final[Prop] = prop
 
 
-class OwnerError(PropertyError, AttributeError):
+class OwnerError(PropError, AttributeError):
     """
     Raised for property errors on a specific owner instance.
     """
 
-    def __init__[OwnerT: HasProperties](
-        self, _property: Property[OwnerT, Any], owner: OwnerT, message: str, /
+    def __init__[OwnerT: HasProps](
+        self, prop: Prop[OwnerT, Any], owner: OwnerT, message: str, /
     ):
-        super().__init__(_property, message, name=_property.property.name, obj=owner)
+        super().__init__(prop, message, name=prop.prop.name, obj=owner)
 
 
-class ProxyProperty[OwnerT: HasProperties, GetT](Property[OwnerT, GetT]):
+class ProxyProp[OwnerT: HasProps, GetT](Prop[OwnerT, GetT]):
     """
     A property that proxies another property.
     """
 
-    def __init__(self, *args: Any, proxied: Property[OwnerT, GetT], **kwargs: Any):
+    def __init__(self, *args: Any, proxied: Prop[OwnerT, GetT], **kwargs: Any):
         super().__init__(*args, **kwargs)
-        self.__proxied_property = proxied
+        self.__proxied = proxied
 
     @override
     def __set_name__(self, owner: type[OwnerT], name: str):
         super().__set_name__(owner, name)
-        self.__proxied_property.__set_name__(owner, name)
+        self.__proxied.__set_name__(owner, name)
 
     @override
     def get(self, owner: OwnerT, /) -> GetT:
-        return self.__proxied_property.get(owner)
+        return self.__proxied.get(owner)
 
     @override
     def init_owner(self, owner: OwnerT, /) -> None:
         super().init_owner(owner)
-        self.__proxied_property.init_owner(owner)
+        self.__proxied.init_owner(owner)
 
 
-class SettableProperty[OwnerT: HasProperties, GetT, SetT](Property[OwnerT, GetT]):
+class SettableProp[OwnerT: HasProps, GetT, SetT](Prop[OwnerT, GetT]):
     """
     A property whose value can be set.
     """
@@ -165,11 +165,11 @@ class NotSettable(OwnerError):
     Raised when a property is not settable.
     """
 
-    def __init__[OwnerT: HasProperties](
-        self, _property: SettableProperty[OwnerT, Any, Any], owner: OwnerT, /
+    def __init__[OwnerT: HasProps](
+        self, prop: SettableProp[OwnerT, Any, Any], owner: OwnerT, /
     ):
         super().__init__(
-            _property,
+            prop,
             owner,
-            f"{fully_qualified_name(type(owner))}.{_property.property.name} is not settable.",
+            f"{fully_qualified_name(type(owner))}.{prop.prop.name} is not settable.",
         )

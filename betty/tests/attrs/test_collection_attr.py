@@ -6,7 +6,7 @@ from betty.attrs.default_collection import DefaultCollectionAttr
 from betty.datas.aggregate.collection import CollectionDefinition
 from betty.datas.str import StrDefinition
 from betty.indicator.selector import Index
-from betty.property import HasProperties
+from betty.prop import HasProps
 
 
 class _CollectionDefinition(
@@ -23,7 +23,7 @@ class _CollectionDefinition(
         data.extend(values)
 
 
-class _Owner(HasProperties):
+class _Owner(HasProps):
     collection = CollectionAttrAttr(_CollectionDefinition())
 
 

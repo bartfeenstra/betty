@@ -13,7 +13,7 @@ from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdOb
 from betty.locale import Localized, ResolvableLocale, resolve_locale, to_language_tag
 from betty.locale.schema import LocaleSchema
 from betty.privacy.resolve import is_public
-from betty.property import HasProperties
+from betty.prop import HasProps
 
 if TYPE_CHECKING:
     from babel import Locale
@@ -28,7 +28,7 @@ def new_locale_attr(
     *,
     label: ResolvableLocalizable | None = None,
     description: ResolvableLocalizable | None = None,
-) -> OwnerAttr[HasProperties, Locale, ResolvableLocale]:
+) -> OwnerAttr[HasProps, Locale, ResolvableLocale]:
     """
     Create an attribute containing a locale.
     """
@@ -37,7 +37,7 @@ def new_locale_attr(
     )
 
 
-class HasLocale(Localized, LinkedDataDumpableWithSchemaJsonLdObject, HasProperties):
+class HasLocale(Localized, LinkedDataDumpableWithSchemaJsonLdObject, HasProps):
     """
     A resource that is localized, e.g. contains information in a specific locale.
     """

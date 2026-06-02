@@ -19,7 +19,7 @@ from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.entity.event import Event
 from betty.project import Project
-from betty.property import HasProperties
+from betty.prop import HasProps
 from betty.role import RoleDefinition
 from betty.sample import Sample, Size
 
@@ -47,7 +47,7 @@ if TYPE_CHECKING:
         ),
     ],
 )
-class PresencesData(Data, HasProperties):
+class PresencesData(Data, HasProps):
     """
     Configuration for :py:class:`betty.plugins.content.raspberry_mint_presences.Presences`.
 

@@ -21,7 +21,7 @@ if TYPE_CHECKING:
         ResolvablePluginManufacturer,
         ResolvablePluginManufacturerSequence,
     )
-    from betty.property import HasProperties
+    from betty.prop import HasProps
 
 
 def new_plugin_manufacturer_sequence_attr[
@@ -33,7 +33,7 @@ def new_plugin_manufacturer_sequence_attr[
     label: ResolvableLocalizable | None = None,
     description: ResolvableLocalizable | None = None,
 ) -> OwnerAttr[
-    HasProperties,
+    HasProps,
     MutableResolvedSequence[
         PluginManufacturer[PluginDefinitionT, PluginT],
         ResolvablePluginManufacturer[PluginDefinitionT, PluginT],

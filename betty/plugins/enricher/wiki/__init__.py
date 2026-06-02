@@ -15,7 +15,7 @@ from betty.plugins.enricher.populate_links import PopulateLinks
 from betty.plugins.enricher.wiki.jobs import PopulateEntity
 from betty.plugins.extension.wiki import Wiki as WikiExtension
 from betty.project import Project
-from betty.property import HasProperties
+from betty.prop import HasProps
 from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
@@ -30,7 +30,7 @@ if TYPE_CHECKING:
         lambda: Sample(WikiData(populate_images=False), label="Full", size=Size.FULL),
     ],
 )
-class WikiData(Data, HasProperties):
+class WikiData(Data, HasProps):
     """
     Configuration for the :py:class:`betty.plugins.enricher.wiki.Wiki` enricher.
 

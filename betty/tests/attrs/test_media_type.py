@@ -7,7 +7,7 @@ import pytest
 from betty.attrs.media_type import HasMediaType, new_media_type_attr
 from betty.media_type import MediaType, MediaTypeDefinition
 from betty.plugins.media_type.plain_text import PLAIN_TEXT
-from betty.property import HasProperties
+from betty.prop import HasProps
 
 if TYPE_CHECKING:
     from betty.portable import PortableMapping
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 def test_new_media_type_attr__set() -> None:
-    class _Owner(HasProperties):
+    class _Owner(HasProps):
         media_type = new_media_type_attr()
 
     owner = _Owner()

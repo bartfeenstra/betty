@@ -22,7 +22,7 @@ from betty.locale.localizable.gettext import _
 from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project
-from betty.property import HasProperties
+from betty.prop import HasProps
 from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
@@ -49,7 +49,7 @@ if TYPE_CHECKING:
         ),
     ],
 )
-class SectionData(Data, HasProperties):
+class SectionData(Data, HasProps):
     """
     Configuration for :py:class:`betty.plugins.content.raspberry_mint_section.Section`.
 
