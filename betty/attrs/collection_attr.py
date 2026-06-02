@@ -11,7 +11,7 @@ from betty.attrs.default_collection import DefaultCollectionAttr
 from betty.attrs.owner import OwnerAttr
 from betty.data import ResolvableDataDefinition, resolve_data_definition
 from betty.datas.aggregate.record import FieldDefinition
-from betty.property import HasProperties
+from betty.prop import HasProps
 
 if TYPE_CHECKING:
     from betty.datas.aggregate.collection import CollectionDefinition
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 @final
 class CollectionAttrAttr[
-    OwnerT: HasProperties,
+    OwnerT: HasProps,
     MutableCollectionT: Collection[Any],
     ValuesSetT: Iterable,
 ](OwnerAttr[OwnerT, MutableCollectionT, ValuesSetT]):

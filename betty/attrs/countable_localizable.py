@@ -17,12 +17,12 @@ from betty.locale.localizable import (
 
 if TYPE_CHECKING:
     from betty.attrs.owner import OwnerAttr
-    from betty.property import HasProperties
+    from betty.prop import HasProps
 
 
 def new_countable_localizable_attr(
     *, label: ResolvableLocalizable, description: ResolvableLocalizable | None = None
-) -> OwnerAttr[HasProperties, CountableLocalizable, ResolvableCountableLocalizable]:
+) -> OwnerAttr[HasProps, CountableLocalizable, ResolvableCountableLocalizable]:
     """
     Create an attribute containing a :py:class:`betty.locale.localizable.CountableLocalizable`.
     """

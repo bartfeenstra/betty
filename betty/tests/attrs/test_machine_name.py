@@ -1,9 +1,9 @@
 from betty.attrs.machine_name import new_machine_name_attr
 from betty.machine_name import MachineName
-from betty.property import HasProperties
+from betty.prop import HasProps
 
 
-class _Owner(HasProperties):
+class _Owner(HasProps):
     name = new_machine_name_attr()
 
 

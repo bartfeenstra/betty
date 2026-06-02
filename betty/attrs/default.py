@@ -9,11 +9,11 @@ from typing import final, override
 from betty.attr import ProxyAttr
 from betty.attrs.owner import OwnerAttr
 from betty.datas.aggregate.record import FieldDefinition
-from betty.property import HasProperties
+from betty.prop import HasProps
 
 
 @final
-class DefaultAttr[OwnerT: HasProperties, GetT, SetT](
+class DefaultAttr[OwnerT: HasProps, GetT, SetT](
     ProxyAttr[OwnerT, GetT, SetT], OwnerAttr[OwnerT, GetT, SetT]
 ):
     """

@@ -34,7 +34,7 @@ from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
 from betty.plugins.loader.gramps.jobs import LoadAncestry
 from betty.project import Project
-from betty.property import HasProperties
+from betty.prop import HasProps
 from betty.role import Role, RoleDefinition, RoleManufacturer
 from betty.sample import Sample, Size
 
@@ -56,7 +56,7 @@ def _new_plugin_mapping_attr[PluginDefinitionT: PluginClsDefinition, PluginT: Pl
     gramps_label: ResolvableLocalizable,
     default: Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]],
 ) -> Attr[
-    HasProperties,
+    HasProps,
     MutableMapping[str, PluginManufacturer[PluginDefinitionT, PluginT]],
     Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]],
 ]:
@@ -91,7 +91,7 @@ def _new_plugin_mapping_attr[PluginDefinitionT: PluginClsDefinition, PluginT: Pl
         )
     ],
 )
-class FamilyTree(Data, HasProperties):
+class FamilyTree(Data, HasProps):
     """
     A Gramps family tree.
 
@@ -224,7 +224,7 @@ class FamilyTree(Data, HasProperties):
         ),
     ],
 )
-class GrampsData(Data, HasProperties):
+class GrampsData(Data, HasProps):
     """
     Configuration for the :py:class:`betty.plugins.loader.gramps.Gramps` extension.
 

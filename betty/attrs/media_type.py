@@ -11,7 +11,7 @@ from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdOb
 from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
 from betty.media_type.schema import MediaTypeSchema
 from betty.privacy.resolve import is_public
-from betty.property import HasProperties
+from betty.prop import HasProps
 
 if TYPE_CHECKING:
     from betty.attrs.owner import OwnerAttr
@@ -24,7 +24,7 @@ def new_media_type_attr(
     *,
     label: ResolvableLocalizable | None = None,
     description: ResolvableLocalizable | None = None,
-) -> OwnerAttr[HasProperties, MediaType, ResolvableMediaType]:
+) -> OwnerAttr[HasProps, MediaType, ResolvableMediaType]:
     """
     Create an attribute containing a media type.
     """
@@ -33,7 +33,7 @@ def new_media_type_attr(
     )
 
 
-class HasMediaType(LinkedDataDumpableWithSchemaJsonLdObject, HasProperties):
+class HasMediaType(LinkedDataDumpableWithSchemaJsonLdObject, HasProps):
     """
     A resource with an `IANA media type <https://www.iana.org/assignments/media-types/media-types.xhtml>`_.
     """

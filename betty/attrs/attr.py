@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.attrs.owner import OwnerAttr
 from betty.datas.aggregate.record import FieldDefinition
-from betty.property import HasProperties
+from betty.prop import HasProps
 
 if TYPE_CHECKING:
     from betty.data import DataDefinition, ResolvableDataDefinition
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 @final
-class AttrAttr[OwnerT: HasProperties, T](OwnerAttr[OwnerT, T, T]):
+class AttrAttr[OwnerT: HasProps, T](OwnerAttr[OwnerT, T, T]):
     """
     An object attribute that stores its data on owner instances.
     """

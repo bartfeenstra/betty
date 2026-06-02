@@ -21,7 +21,7 @@ from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.extension.raspberry_mint import ColorStyle as RaspberryMintColorStyle
 from betty.project import Project
-from betty.property import HasProperties
+from betty.prop import HasProps
 from betty.sample import Sample
 
 if TYPE_CHECKING:
@@ -42,7 +42,7 @@ if TYPE_CHECKING:
         )
     ],
 )
-class ColorStyleData(Data, HasProperties):
+class ColorStyleData(Data, HasProps):
     """
     Configuration for :py:class:`betty.plugins.content.raspberry_mint_color_style.ColorStyle`.
 

@@ -4,10 +4,10 @@ from betty.attrs.localizable import new_localizable_attr
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localizable.plain import Plain
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
-from betty.property import HasProperties
+from betty.prop import HasProps
 
 
-class _Owner(HasProperties):
+class _Owner(HasProps):
     attr = new_localizable_attr(label="-")
 
 

@@ -6,7 +6,7 @@ from babel import Locale
 
 from betty.attrs.locale import HasLocale, new_locale_attr
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, resolve_locale
-from betty.property import HasProperties
+from betty.prop import HasProps
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from betty.test_utils.conftest import AssertDumpsLinkedData
 
 
-class _Owner(HasProperties):
+class _Owner(HasProps):
     locale = new_locale_attr()
 
 

@@ -16,14 +16,14 @@ if TYPE_CHECKING:
     from betty.attrs.owner import OwnerAttr
     from betty.locale.localizable import ResolvableLocalizable
     from betty.pathlib import StrPath
-    from betty.property import HasProperties
+    from betty.prop import HasProps
 
 
 def new_path_attr(
     *,
     label: ResolvableLocalizable | None = None,
     description: ResolvableLocalizable | None = None,
-) -> OwnerAttr[HasProperties, Path, StrPath]:
+) -> OwnerAttr[HasProps, Path, StrPath]:
     """
     An attribute containing a file system path.
     """

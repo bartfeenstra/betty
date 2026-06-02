@@ -13,7 +13,7 @@ from betty.datas.str import StrDefinition
 from betty.importlib import fully_qualified_name
 from betty.locale.localizable.plain import Plain
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.property import HasProperties
+from betty.prop import HasProps
 
 
 class DataTestBase[DataT: Data]:
@@ -117,7 +117,7 @@ class DataTestBase[DataT: Data]:
 
 
 @ObjectDefinition(label=Plain("Dummy data"))
-class DummyData(Data, HasProperties):
+class DummyData(Data, HasProps):
     """
     A dummy :py:class:`betty.data.Data` implementation.
     """

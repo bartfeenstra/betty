@@ -6,15 +6,15 @@ from betty.attrs.owner import OwnerAttr
 from betty.attrs.setter import SetterAttr
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.str import StrDefinition
-from betty.property import HasProperties
+from betty.prop import HasProps
 
 
-class _OwnerAttr(OwnerAttr[HasProperties, str, str]):
+class _OwnerAttr(OwnerAttr[HasProps, str, str]):
     def __init__(self):
         super().__init__(FieldDefinition(StrDefinition(label="-")))
 
     @override
-    def get(self, owner: HasProperties, /) -> str:
+    def get(self, owner: HasProps, /) -> str:
         raise NotImplementedError
 
 

@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
     from betty.attrs.owner import OwnerAttr
     from betty.locale.localizable import ResolvableLocalizable
-    from betty.property import HasProperties
+    from betty.prop import HasProps
 
 
 def new_plugin_definition_datas_attr[PluginDefinitionT: PluginDefinition](
@@ -31,7 +31,7 @@ def new_plugin_definition_datas_attr[PluginDefinitionT: PluginDefinition](
     label: ResolvableLocalizable | None = None,
     description: ResolvableLocalizable | None = None,
 ) -> OwnerAttr[
-    HasProperties,
+    HasProps,
     MutableKeyedCollection[
         MachineName,
         ResolvablePluginId[PluginDefinitionT],

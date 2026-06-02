@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Any, final, override
 from betty.attr import ProxyAttr
 from betty.attrs.owner import OwnerAttr
 from betty.datas.aggregate.record import FieldDefinition
-from betty.property import HasProperties
+from betty.prop import HasProps
 
 if TYPE_CHECKING:
     from betty.attrs.collection_attr import CollectionAttrAttr
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 @final
 class DefaultCollectionAttr[
-    OwnerT: HasProperties,
+    OwnerT: HasProps,
     MutableCollectionT: Collection[Any],
     ValuesSetT: Iterable,
 ](

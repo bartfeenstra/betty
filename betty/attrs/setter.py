@@ -10,14 +10,14 @@ from sphinx.util.inspect import signature
 
 from betty.attr import ProxyAttr
 from betty.attrs.owner import OwnerAttr
-from betty.property import HasProperties
+from betty.prop import HasProps
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
 
 @final
-class SetterAttr[OwnerT: HasProperties, GetT, SetT](
+class SetterAttr[OwnerT: HasProps, GetT, SetT](
     ProxyAttr[OwnerT, GetT, SetT], OwnerAttr[OwnerT, GetT, SetT]
 ):
     """

@@ -4,7 +4,7 @@ from betty.attr import Attr
 from betty.attrs.setter import SetterAttr
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.str import StrDefinition
-from betty.property import HasProperties
+from betty.prop import HasProps
 
 
 class TestSetterAttr:
@@ -15,6 +15,6 @@ class TestSetterAttr:
         m_proxied = mocker.MagicMock(spec=Attr)
         m_proxied.field = FieldDefinition(StrDefinition(label="-"))
         sut = SetterAttr(m_proxied, _setter)
-        owner = HasProperties()
+        owner = HasProps()
         sut.set(owner, True)
         m_proxied.set.assert_called_once_with(owner, "True")

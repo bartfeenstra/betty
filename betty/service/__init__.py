@@ -9,7 +9,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, final, override
 
-from betty.property import HasProperties, Property
+from betty.prop import HasProps, Prop
 
 if TYPE_CHECKING:
     from betty.service_level import ServiceLevel
@@ -29,7 +29,7 @@ type ServiceOrFactory[ServiceProviderT: ServiceProvider, ServiceT, FactoryServic
 )
 
 
-class ServiceProvider(HasProperties):
+class ServiceProvider(HasProps):
     """
     A service provider.
     """
@@ -63,7 +63,7 @@ class ServiceManager[
     GetServiceT,
     GetterServiceT,
     FactoryServiceT,
-](Property[ServiceProviderT, GetServiceT]):
+](Prop[ServiceProviderT, GetServiceT]):
     """
     Manage a single service for a service provider.
     """
@@ -78,7 +78,7 @@ class ServiceManager[
         self._assert_service_not_initialized(service_provider)
         setattr(
             service_provider,
-            f"_service_{self.property.name}",
+            f"_service_{self.prop.name}",
             self._new_service_getter(service_provider),
         )
 
@@ -99,7 +99,7 @@ class ServiceManager[
     @override
     def get(self, service_provider: ServiceProviderT, /) -> GetServiceT:
         return self._get_service(
-            getattr(service_provider, f"_service_{self.property.name}")
+            getattr(service_provider, f"_service_{self.prop.name}")
         )
 
     @abstractmethod
@@ -114,7 +114,7 @@ class ServiceManager[
     ) -> ServiceOrFactory[ServiceProviderT, ServiceT, FactoryServiceT]:
         return getattr(
             service_provider,
-            f"_service_{self.property.name}_or_factory",
+            f"_service_{self.prop.name}_or_factory",
             self.__service_or_factory,
         )
 
@@ -122,9 +122,9 @@ class ServiceManager[
     def _assert_service_not_initialized(
         self, service_provider: ServiceProviderT, /
     ) -> None:
-        if hasattr(service_provider, f"_service_{self.property.name}"):
+        if hasattr(service_provider, f"_service_{self.prop.name}"):
             raise ServiceAlreadyInitialized(
-                f"{service_provider}.{self.property.name} was initialized already."
+                f"{service_provider}.{self.prop.name} was initialized already."
             )
 
     @final
@@ -142,7 +142,7 @@ class ServiceManager[
         This MUST only be called from ``instance.__init__()``.
         """
         self._assert_service_not_initialized(service_provider)
-        setattr(service_provider, f"_service_{self.property.name}_or_factory", service)
+        setattr(service_provider, f"_service_{self.prop.name}_or_factory", service)
 
 
 class ServiceNotYetInitialized(ServiceError):
