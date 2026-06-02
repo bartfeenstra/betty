@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
     from pathlib import Path
 
-    from aioresponses import aioresponses
+    from aiointercept import aiointercept
     from pytest_mock import MockerFixture
 
 
@@ -46,7 +46,7 @@ class TestClient:
     async def test_get_translations__should_error(
         self,
         response_body: str,
-        http_client_mock: aioresponses,
+        http_client_mock: aiointercept,
         mocker: MockerFixture,
         tmp_path: Path,
     ) -> None:
@@ -107,7 +107,7 @@ class TestClient:
         self,
         expected: Mapping[str, str],
         response_body: Mapping[str, Any],
-        http_client_mock: aioresponses,
+        http_client_mock: aiointercept,
         mocker: MockerFixture,
         tmp_path: Path,
     ) -> None:
@@ -159,7 +159,7 @@ class TestClient:
         self,
         expected: Summary | None,
         page_response_json: Mapping[str, Any],
-        http_client_mock: aioresponses,
+        http_client_mock: aiointercept,
         tmp_path: Path,
     ) -> None:
         page_language = "en"
@@ -216,7 +216,7 @@ class TestClient:
         self,
         expected: Summary,
         page_response_json: Mapping[str, Any],
-        http_client_mock: aioresponses,
+        http_client_mock: aiointercept,
         tmp_path: Path,
     ) -> None:
         page_language = "en"
@@ -305,7 +305,7 @@ class TestClient:
     async def test_get_place_coordinates__should_error(
         self,
         page_response_json: Mapping[str, Any],
-        http_client_mock: aioresponses,
+        http_client_mock: aiointercept,
         mocker: MockerFixture,
         tmp_path: Path,
     ) -> None:
@@ -392,7 +392,7 @@ class TestClient:
         self,
         expected: Point | None,
         page_response_json: Mapping[str, Any],
-        http_client_mock: aioresponses,
+        http_client_mock: aiointercept,
         mocker: MockerFixture,
         tmp_path: Path,
     ) -> None:
@@ -489,7 +489,7 @@ class TestClient:
         self,
         page_response_json: Mapping[str, Any],
         file_response_json: Mapping[str, Any] | None,
-        http_client_mock: aioresponses,
+        http_client_mock: aiointercept,
         mocker: MockerFixture,
         tmp_path: Path,
     ) -> None:
@@ -566,7 +566,7 @@ class TestClient:
         expected: bool,
         page_response_json: Mapping[str, Any],
         file_response_json: Mapping[str, Any] | None,
-        http_client_mock: aioresponses,
+        http_client_mock: aiointercept,
         mocker: MockerFixture,
         tmp_path: Path,
     ) -> None:

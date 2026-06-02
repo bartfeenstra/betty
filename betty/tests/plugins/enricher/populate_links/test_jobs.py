@@ -1,6 +1,6 @@
 import pytest
 from aiohttp import ClientSession
-from aioresponses import aioresponses
+from aiointercept import aiointercept
 
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugins.enricher.populate_links import PopulateLink
@@ -10,7 +10,7 @@ from betty.test_utils.job import do
 
 class TestPopulateLink:
     async def test_do__should_fetch_link_with_unsupported_content_type(
-        self, http_client_mock: aioresponses
+        self, http_client_mock: aiointercept
     ) -> None:
         link_url = "https://example.com"
         link = Link(link_url)
@@ -39,7 +39,7 @@ class TestPopulateLink:
         ],
     )
     async def test_do__should_fetch_link_with_invalid_html(
-        self, link_page_content_type: str, http_client_mock: aioresponses
+        self, link_page_content_type: str, http_client_mock: aiointercept
     ) -> None:
         link_url = "https://example.com"
         link_page_html = "<html></html>"
@@ -67,7 +67,7 @@ class TestPopulateLink:
         ],
     )
     async def test_do__should_fetch_link_label_from_valid_html_with_title(
-        self, link_page_content_type: str, http_client_mock: aioresponses
+        self, link_page_content_type: str, http_client_mock: aiointercept
     ) -> None:
         link_url = "https://example.com"
         link_page_title = "Hello, world!"
@@ -97,7 +97,7 @@ class TestPopulateLink:
         ],
     )
     async def test_do__should_fetch_link_label_with_valid_html_without_title(
-        self, link_page_content_type: str, http_client_mock: aioresponses
+        self, link_page_content_type: str, http_client_mock: aiointercept
     ) -> None:
         link_url = "https://example.com"
         link_page_html = "<html><head></head><body></body></html>"
@@ -130,7 +130,7 @@ class TestPopulateLink:
         link_page_content_type: str,
         meta_attr_name: str,
         meta_attr_value: str,
-        http_client_mock: aioresponses,
+        http_client_mock: aiointercept,
     ) -> None:
         link_url = "https://example.com"
         link_page_meta_description = "'Hello, world!' is a common internet greeting."

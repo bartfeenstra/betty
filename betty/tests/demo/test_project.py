@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from betty.app import App
 
 
-@pytest.mark.usefixtures("demo_project_aioresponses")
+@pytest.mark.usefixtures("demo_project_aiointercept")
 async def test_create_project(isolated_app: App, tmp_path: Path) -> None:
     project = await create_project(isolated_app, tmp_path)
     async with project:

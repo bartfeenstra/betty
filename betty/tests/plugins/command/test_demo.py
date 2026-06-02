@@ -10,7 +10,7 @@ from betty.test_utils.console import run
 from betty.test_utils.server import NoOpServer
 
 
-@pytest.mark.usefixtures("demo_project_aioresponses")
+@pytest.mark.usefixtures("demo_project_aiointercept")
 class TestDemo:
     async def test_configure__minimal(
         self, mocker: MockerFixture, isolated_app: App

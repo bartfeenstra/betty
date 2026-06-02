@@ -343,14 +343,12 @@ setuptools = [
     'wheel ~= 0.47.0',
 ]
 test = [
-    # Work around https://github.com/pnuckowski/aioresponses/issues/289.
-    'aiohttp ~= 3.12, < 3.14',
-    'aioresponses ~= 0.7.8',
+    'aiohttp ~= 3.12',
+    'aiointercept ~= 0.1.5',
     'coverage ~= 7.6',
     'packaging ~= 26.0',
     'puremagic ~= 2.0',
     'pytest ~= 9.0',
-    'pytest-aioresponses ~= 0.3.0',
     'pytest-asyncio ~= 1.0',
     'pytest-mock ~= 3.14',
     'pytest-order ~= 1.3',

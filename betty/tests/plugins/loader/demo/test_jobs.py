@@ -8,7 +8,7 @@ from betty.service_level import ServiceLevel
 from betty.test_utils.job import do
 
 
-@pytest.mark.usefixtures("demo_project_aioresponses")
+@pytest.mark.usefixtures("demo_project_aiointercept")
 class TestLoadAncestry:
     async def test_do(self) -> None:
         ancestry = EntityPool()

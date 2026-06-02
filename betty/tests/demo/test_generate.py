@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from betty.project import Project
 
 
-@pytest.mark.usefixtures("demo_project_aioresponses")
+@pytest.mark.usefixtures("demo_project_aiointercept")
 async def test_generate_with_cleanup__without_error(
     mocker: MockerFixture, isolated_project: Project
 ) -> None:
@@ -29,7 +29,7 @@ async def test_generate_with_cleanup__without_error(
     assert not (isolated_project.directory / "sentinel").exists()
 
 
-@pytest.mark.usefixtures("demo_project_aioresponses")
+@pytest.mark.usefixtures("demo_project_aiointercept")
 async def test_generate_with_cleanup__with_error(
     mocker: MockerFixture, isolated_project: Project
 ) -> None:

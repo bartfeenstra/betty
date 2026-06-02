@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 from aiohttp import ClientSession
-from aioresponses import aioresponses
+from aiointercept import aiointercept
 
 from betty.caches.file import BinaryFileCache
 from betty.license import LicenseDefinition
@@ -41,7 +41,7 @@ class TestSpdxLicenseDiscoverer:
     def without_licenses(
         self,
         binary_file_cache: BinaryFileCache,
-        http_client_mock: aioresponses,
+        http_client_mock: aiointercept,
         tmp_path: Path,
     ) -> None:
         spdx_directory = tmp_path / "spdx"
@@ -70,7 +70,7 @@ class TestSpdxLicenseDiscoverer:
     def with_licenses(
         self,
         binary_file_cache: BinaryFileCache,
-        http_client_mock: aioresponses,
+        http_client_mock: aiointercept,
         tmp_path: Path,
     ) -> None:
         spdx_directory = tmp_path / "spdx"

@@ -2,7 +2,7 @@ from json import dumps
 from typing import override
 
 import pytest
-from aioresponses import aioresponses
+from aiointercept import aiointercept
 
 from betty.app import App
 from betty.copyright_notice import CopyrightNotice
@@ -28,7 +28,7 @@ class TestWikipediaContributors(CopyrightNoticeTestBase):
     def sut(self, request: pytest.FixtureRequest) -> CopyrightNotice:
         return WikipediaContributors(request.param)
 
-    async def test_new(self, http_client_mock: aioresponses, isolated_app: App) -> None:
+    async def test_new(self, http_client_mock: aiointercept, isolated_app: App) -> None:
         response_json = {
             "continue": {"llcontinue": "49479|an", "continue": "||"},
             "query": {

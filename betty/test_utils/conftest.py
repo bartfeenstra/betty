@@ -14,7 +14,7 @@ __all__ = [
     "assert_template_file",
     "assert_template_string",
     "binary_file_cache",
-    "demo_project_aioresponses",
+    "demo_project_aiointercept",
     "http_client_mock",
     "isolated_app",
     "isolated_app_factory",
@@ -38,7 +38,7 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol, final
 
 import pytest
 import pytest_asyncio
-from aioresponses import aioresponses
+from aiointercept import aiointercept
 from jinja2 import Environment, Template
 
 from betty.app import App
@@ -55,7 +55,6 @@ if TYPE_CHECKING:
         AsyncIterator,
         Callable,
         Iterable,
-        Iterator,
         Mapping,
     )
     from concurrent import futures
@@ -89,12 +88,12 @@ if TYPE_CHECKING:
     from betty.user import User
 
 
-@pytest.fixture(autouse=True)
-def http_client_mock() -> Iterator[aioresponses]:
+@pytest_asyncio.fixture(autouse=True)
+async def http_client_mock() -> AsyncIterator[aiointercept]:
     """
     Mock HTTP responses.
     """
-    with aioresponses() as _http_client_mock:
+    async with aiointercept(True) as _http_client_mock:
         yield _http_client_mock
 
 
@@ -431,16 +430,16 @@ LICENSES = {
 
 
 @pytest.fixture
-def demo_project_aioresponses(http_client_mock: aioresponses, tmp_path: Path) -> None:
+def demo_project_aiointercept(http_client_mock: aiointercept, tmp_path: Path) -> None:
     """
     Mock the HTTP responses necessary to build the demonstration site in isolation.
     """
-    _demo_project_aioresponses_spdx_license_data(http_client_mock, tmp_path)
-    _demo_project_aioresponses_wiki_apis(http_client_mock, tmp_path)
+    _demo_project_aiointercept_spdx_license_data(http_client_mock, tmp_path)
+    _demo_project_aiointercept_wiki_apis(http_client_mock, tmp_path)
 
 
-def _demo_project_aioresponses_spdx_license_data(
-    http_client_mock: aioresponses, tmp_path: Path
+def _demo_project_aiointercept_spdx_license_data(
+    http_client_mock: aiointercept, tmp_path: Path
 ) -> None:
     spdx_directory = tmp_path / "spdx"
     spdx_directory.mkdir()
@@ -475,8 +474,8 @@ def _demo_project_aioresponses_spdx_license_data(
     http_client_mock.get(SpdxLicenseDiscoverer.URL, body=spdx_file.read())
 
 
-def _demo_project_aioresponses_wiki_apis(
-    http_client_mock: aioresponses, tmp_path: Path
+def _demo_project_aiointercept_wiki_apis(
+    http_client_mock: aiointercept, tmp_path: Path
 ) -> None:
     http_client_mock.get(
         re.compile(

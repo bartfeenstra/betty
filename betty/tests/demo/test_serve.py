@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from betty.test_utils.conftest import IsolatedAppFactory
 
 
-@pytest.mark.usefixtures("demo_project_aioresponses")
+@pytest.mark.usefixtures("demo_project_aiointercept")
 class TestDemoServer:
     @pytest.mark.order(0)
     @check_skip_webpack_entry_point_provider

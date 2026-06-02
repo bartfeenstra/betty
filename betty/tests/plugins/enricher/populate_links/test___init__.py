@@ -8,7 +8,7 @@ from betty.plugins.enricher.populate_links import PopulateLinks
 from betty.plugins.entity.link import Link
 
 if TYPE_CHECKING:
-    from aioresponses import aioresponses
+    from aiointercept import aiointercept
 
     from betty.test_utils.conftest import IsolatedProjectFactory
 
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 class TestPopulateLinks:
     async def test_enrich(
         self,
-        http_client_mock: aioresponses,
+        http_client_mock: aiointercept,
         isolated_project_factory: IsolatedProjectFactory,
     ) -> None:
 

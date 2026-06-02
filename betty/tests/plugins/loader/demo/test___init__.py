@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from betty.test_utils.conftest import IsolatedProjectFactory
 
 
-@pytest.mark.usefixtures("demo_project_aioresponses")
+@pytest.mark.usefixtures("demo_project_aiointercept")
 class TestDemo:
     async def test_load(
         self, mocker: MockerFixture, isolated_project_factory: IsolatedProjectFactory
