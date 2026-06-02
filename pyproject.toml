@@ -343,6 +343,8 @@ setuptools = [
     'wheel ~= 0.47.0',
 ]
 test = [
+    # Work around https://github.com/pnuckowski/aioresponses/issues/289.
+    'aiohttp ~= 3.12, < 3.14',
     'aioresponses ~= 0.7.8',
     'coverage ~= 7.6',
     'packaging ~= 26.0',
