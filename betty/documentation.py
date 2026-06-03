@@ -15,7 +15,8 @@ from sphinx.ext.autodoc import MethodDocumenter
 from betty.dirs import ROOT_DIRECTORY
 from betty.exception import HumanFacingException
 from betty.pathlib import StrPath, resolve_path
-from betty.server import Server, ServerNotStarted, builtin
+from betty.server import Server, ServerNotStarted
+from betty.servers import builtin
 from betty.user import User, Verbosity
 
 

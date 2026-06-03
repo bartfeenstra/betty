@@ -6,7 +6,7 @@ from pytest_mock import MockerFixture
 from requests import Response
 
 from betty.functools import Do
-from betty.server.builtin import BuiltinServer
+from betty.servers.builtin import BuiltinServer
 from betty.test_utils.user import StaticUser
 
 

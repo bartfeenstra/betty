@@ -596,13 +596,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/plugins/role/subject.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/role/unknown.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/role/witness.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/server/builtin.py": {
-        "Builtin": {
-            "public_url": MissingReason.COVERED_ELSEWHERE,
-            "start": MissingReason.COVERED_ELSEWHERE,
-            "stop": MissingReason.COVERED_ELSEWHERE,
-        },
-    },
     "betty/portable/__init__.py": {
         "Portable": MissingReason.ABSTRACT,
         "Porter": MissingReason.ABSTRACT,
@@ -673,14 +666,21 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "SerializerDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "SerializationError": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/server/__init__.py": {
+    "betty/server.py": {
         "Server": MissingReason.ABSTRACT,
         "ServerDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "ServerNotStarted": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/server/builtin.py": {
+    "betty/servers/builtin.py": {
         "BuiltinServer": {
             "public_url": MissingReason.COVERED_ELSEWHERE,
+            "stop": MissingReason.COVERED_ELSEWHERE,
+        },
+    },
+    "betty/servers/project_builtin.py": {
+        "ProjectBuiltinServer": {
+            "public_url": MissingReason.COVERED_ELSEWHERE,
+            "start": MissingReason.COVERED_ELSEWHERE,
             "stop": MissingReason.COVERED_ELSEWHERE,
         },
     },

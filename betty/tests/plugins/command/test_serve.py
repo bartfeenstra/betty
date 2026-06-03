@@ -19,8 +19,8 @@ class TestServe:
             "betty.plugins.command.serve:Serve._wait_forever",
             side_effect=KeyboardInterrupt,
         )
-        mocker.patch("betty.plugins.server.builtin.Builtin.show")
-        mocker.patch("betty.server.builtin.BuiltinServer", new=NoOpServer)
+        mocker.patch("betty.servers.project_builtin.ProjectBuiltinServer.show")
+        mocker.patch("betty.servers.builtin.BuiltinServer", new=NoOpServer)
         configuration = ProjectData(title="Betty", url="https://example.com")
         await write(
             tmp_path / "betty.json",
@@ -42,8 +42,8 @@ class TestServe:
             "betty.plugins.command.serve:Serve._wait_forever",
             side_effect=KeyboardInterrupt,
         )
-        mocker.patch("betty.plugins.server.builtin.Builtin.show")
-        mocker.patch("betty.server.builtin.BuiltinServer", new=NoOpServer)
+        mocker.patch("betty.servers.project_builtin.ProjectBuiltinServer.show")
+        mocker.patch("betty.servers.builtin.BuiltinServer", new=NoOpServer)
         configuration = ProjectData(title="Betty", url="https://example.com")
         await write(
             tmp_path / "betty.json",
