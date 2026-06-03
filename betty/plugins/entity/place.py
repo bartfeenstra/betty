@@ -16,8 +16,8 @@ from betty.entity.has_notes import HasNotes
 from betty.json_schema import Array, Number, Object
 from betty.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable.gettext import _, ngettext
+from betty.place_types.unknown import Unknown as UnknownPlaceType
 from betty.plugins.entity.place_name import PlaceName
-from betty.plugins.place_type.unknown import Unknown as UnknownPlaceType
 from betty.privacy import Privacy
 
 if TYPE_CHECKING:

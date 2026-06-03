@@ -68,6 +68,27 @@ from betty.locale.localizable.static import StaticTranslations
 from betty.media_type import InvalidMediaType, MediaType
 from betty.pathlib import resolve_path
 from betty.place_type import PlaceTypeManufacturer
+from betty.place_types.borough import Borough
+from betty.place_types.building import Building
+from betty.place_types.city import City
+from betty.place_types.country import Country
+from betty.place_types.county import County
+from betty.place_types.department import Department
+from betty.place_types.district import District
+from betty.place_types.farm import Farm
+from betty.place_types.hamlet import Hamlet
+from betty.place_types.locality import Locality
+from betty.place_types.municipality import Municipality
+from betty.place_types.neighborhood import Neighborhood
+from betty.place_types.number import Number
+from betty.place_types.parish import Parish
+from betty.place_types.province import Province
+from betty.place_types.region import Region
+from betty.place_types.state import State
+from betty.place_types.street import Street
+from betty.place_types.town import Town
+from betty.place_types.unknown import Unknown as UnknownPlaceType
+from betty.place_types.village import Village
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.error import PluginNotFound
 from betty.plugins.entity.citation import Citation
@@ -83,27 +104,6 @@ from betty.plugins.entity.place import Place
 from betty.plugins.entity.place_name import PlaceName
 from betty.plugins.entity.presence import Presence
 from betty.plugins.entity.source import Source
-from betty.plugins.place_type.borough import Borough
-from betty.plugins.place_type.building import Building
-from betty.plugins.place_type.city import City
-from betty.plugins.place_type.country import Country
-from betty.plugins.place_type.county import County
-from betty.plugins.place_type.department import Department
-from betty.plugins.place_type.district import District
-from betty.plugins.place_type.farm import Farm
-from betty.plugins.place_type.hamlet import Hamlet
-from betty.plugins.place_type.locality import Locality
-from betty.plugins.place_type.municipality import Municipality
-from betty.plugins.place_type.neighborhood import Neighborhood
-from betty.plugins.place_type.number import Number
-from betty.plugins.place_type.parish import Parish
-from betty.plugins.place_type.province import Province
-from betty.plugins.place_type.region import Region
-from betty.plugins.place_type.state import State
-from betty.plugins.place_type.street import Street
-from betty.plugins.place_type.town import Town
-from betty.plugins.place_type.unknown import Unknown as UnknownPlaceType
-from betty.plugins.place_type.village import Village
 from betty.role import RoleManufacturer
 from betty.roles.attendee import Attendee
 from betty.roles.celebrant import Celebrant
