@@ -98,6 +98,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "CacheItem": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/cache/_base.py": MissingReason.COVERED_ELSEWHERE,
+    "betty/commands/dev_profile_demo.py": MissingReason.DEVELOPMENT,
     "betty/console/__init__.py": {
         "SystemExitCode": MissingReason.ENUM,
     },
@@ -500,7 +501,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/plugins/asset_directory/project.py": MissingReason.COVERED_ELSEWHERE,
     "betty/plugins/asset_directory/webpack.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/asset_directory/wiki.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/command/dev_profile_demo.py": MissingReason.DEVELOPMENT,
     "betty/plugins/content/box.py": {
         "BoxData": {
             "min_height": MissingReason.INHERITED,

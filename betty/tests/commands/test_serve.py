@@ -16,7 +16,7 @@ class TestServe:
         self, mocker: MockerFixture, isolated_app: App, tmp_path: Path
     ) -> None:
         mocker.patch(
-            "betty.plugins.command.serve:Serve._wait_forever",
+            "betty.commands.serve:Serve._wait_forever",
             side_effect=KeyboardInterrupt,
         )
         mocker.patch("betty.servers.project_builtin.ProjectBuiltinServer.show")
@@ -39,7 +39,7 @@ class TestServe:
         self, mocker: MockerFixture, isolated_app: App, tmp_path: Path
     ) -> None:
         mocker.patch(
-            "betty.plugins.command.serve:Serve._wait_forever",
+            "betty.commands.serve:Serve._wait_forever",
             side_effect=KeyboardInterrupt,
         )
         mocker.patch("betty.servers.project_builtin.ProjectBuiltinServer.show")
