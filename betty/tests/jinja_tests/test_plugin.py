@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
-from betty.plugins.jinja_test.plugin import Plugin
+from betty.jinja_tests.plugin import Plugin
 from betty.test_utils.plugin import (
     DummyPluginDefinition,
     DummyPluginOne,
