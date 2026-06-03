@@ -308,8 +308,8 @@ betty = 'betty.console:main_standalone'
 'builtin' = 'betty.servers.project_builtin:ProjectBuiltinServer'
 
 [project.entry-points.'betty.renderer']
-'html' = 'betty.plugins.renderer.html:Html'
-'plain-text' = 'betty.plugins.renderer.plain_text:PlainText'
+'html' = 'betty.renderers.html:Html'
+'plain-text' = 'betty.renderers.plain_text:PlainText'
 
 [project.entry-points.'betty.content']
 'box' = 'betty.plugins.content.box:Box'

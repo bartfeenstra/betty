@@ -1,4 +1,4 @@
-from betty.plugins.renderer.plain_text import PlainText
+from betty.renderers.plain_text import PlainText
 
 
 class TestPlainText:
