@@ -29,7 +29,7 @@ Jinja2 templates
 
     resource | url
 
-The :py:func:`url <betty.plugins.jinja_filter.url.Url>` filter works almost identical to
+The :py:func:`url <betty.jinja_filters.url.Url>` filter works almost identical to
 :py:meth:`betty.url.UrlGenerator.generate`, except that it fills in some defaults from the Jinja2 environment, such as
 the template's current locale and media type. This means that if you are rendering an HTML page, and want to link to
 another HTML page in the same language, you will not need to provide this information explicitly.
