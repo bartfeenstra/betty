@@ -20,6 +20,7 @@ from betty.genders.non_binary import NonBinary
 from betty.genders.unknown import Unknown as UnknownGender
 from betty.gramps.error import UserFacingGrampsError
 from betty.gramps.loader import GrampsFileNotFound, GrampsLoader, LoaderUsedAlready
+from betty.licenses.public_domain import PublicDomain as PublicDomainLicense
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 from betty.media_type import MediaType
 from betty.place_types.city import City
@@ -34,7 +35,6 @@ from betty.plugins.entity.note import Note
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.source import Source
-from betty.plugins.license.public_domain import PublicDomain as PublicDomainLicense
 from betty.privacy import Privacy
 from betty.project import Project
 from betty.roles.subject import Subject

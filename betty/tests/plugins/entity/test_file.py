@@ -5,6 +5,7 @@ from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Any, cast, override
 
 from betty.entity import Entity
+from betty.licenses.public_domain import PublicDomain as PublicDomainLicense
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugins.copyright_notice.public_domain import (
@@ -16,7 +17,6 @@ from betty.plugins.entity.file_reference import FileReference
 from betty.plugins.entity.note import Note
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.source import Source
-from betty.plugins.license.public_domain import PublicDomain as PublicDomainLicense
 from betty.plugins.media_type.plain_text import PLAIN_TEXT
 from betty.privacy import Privacy
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences

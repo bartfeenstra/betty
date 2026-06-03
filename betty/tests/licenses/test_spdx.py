@@ -11,12 +11,12 @@ from aioresponses import aioresponses
 
 from betty.caches.file import BinaryFileCache
 from betty.license import LicenseDefinition
-from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.plugin.discovery import ResolvableDiscovery, discover
-from betty.plugins.license.spdx import (
+from betty.licenses.spdx import (
     SpdxLicenseDiscoverer,
     spdx_license_id_to_license_id,
 )
+from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.plugin.discovery import ResolvableDiscovery, discover
 from betty.service_level import ServiceLevel
 from betty.test_utils.conftest import IsolatedAppFactory
 from betty.test_utils.user import StaticUser
