@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Self, final, override
 from jinja2 import pass_context
 from markupsafe import Markup
 
-from betty.content import Content, build
+from betty.content import ContentBuilder, build
 from betty.factory import Factory, Manufacturable
 from betty.jinja import context_document
 from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
@@ -43,7 +43,7 @@ class BuildContent(JinjaFilter, Manufacturable):
     async def __call__(  # noqa: D102
         self,
         context: Context,
-        contents: Iterable[Content],
+        contents: Iterable[ContentBuilder],
         /,
     ) -> Markup:
         return await build(context_document(context), contents) or Markup("")

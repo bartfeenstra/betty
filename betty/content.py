@@ -24,9 +24,9 @@ if TYPE_CHECKING:
     from betty.requirement import Requires
 
 
-class Content(ABC, Plugin["ContentDefinition"]):
+class ContentBuilder(ABC, Plugin["ContentBuilderDefinition"]):
     """
-    A content plugin.
+    A content builder plugin.
     """
 
     @abstractmethod
@@ -38,14 +38,16 @@ class Content(ABC, Plugin["ContentDefinition"]):
 
 @final
 @PluginTypeDefinition(
-    "content",
-    label=_("Content"),
-    label_plural=_("Contents"),
-    label_countable=ngettext("{count} content", "{count} contents"),
+    "content-builder",
+    label=_("Content builder"),
+    label_plural=_("Content builders"),
+    label_countable=ngettext("{count} content builder", "{count} content builders"),
 )
-class ContentDefinition(HumanFacingDefinition, PluginClsDefinition[Content]):
+class ContentBuilderDefinition(
+    HumanFacingDefinition, PluginClsDefinition[ContentBuilder]
+):
     """
-    .. plugin_type:: content.
+    .. plugin_type:: content-builder.
     """
 
     def __init__(
@@ -67,14 +69,18 @@ class ContentDefinition(HumanFacingDefinition, PluginClsDefinition[Content]):
 
 
 @final
-@PluginManufacturerDefinition(ContentDefinition)
-class ContentManufacturer(PluginManufacturer[ContentDefinition, Content]):
+@PluginManufacturerDefinition(ContentBuilderDefinition)
+class ContentBuilderManufacturer(
+    PluginManufacturer[ContentBuilderDefinition, ContentBuilder]
+):
     """
-    The content manufacturer.
+    The content builder manufacturer.
     """
 
 
-async def build(document: Document, contents: Iterable[Content], /) -> Markup | None:
+async def build(
+    document: Document, contents: Iterable[ContentBuilder], /
+) -> Markup | None:
     """
     Build content for the given document and contents.
     """

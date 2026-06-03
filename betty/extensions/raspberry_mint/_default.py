@@ -2,7 +2,33 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
-from betty.content import Content, ContentDefinition, ContentManufacturer
+from betty.content import (
+    ContentBuilder,
+    ContentBuilderDefinition,
+    ContentBuilderManufacturer,
+)
+from betty.content_builders.box import Box, BoxData
+from betty.content_builders.map import Map
+from betty.content_builders.map_attribution import MapAttribution
+from betty.content_builders.notes import Notes
+from betty.content_builders.raspberry_mint_citations import Citations
+from betty.content_builders.raspberry_mint_color_style import ColorStyle, ColorStyleData
+from betty.content_builders.raspberry_mint_columns import Columns, ColumnsData
+from betty.content_builders.raspberry_mint_enclosees import Enclosees
+from betty.content_builders.raspberry_mint_external_links import ExternalLinks
+from betty.content_builders.raspberry_mint_facts import Facts
+from betty.content_builders.raspberry_mint_families import Families
+from betty.content_builders.raspberry_mint_file_referees import FileReferees
+from betty.content_builders.raspberry_mint_media import Media
+from betty.content_builders.raspberry_mint_media_gallery import MediaGallery
+from betty.content_builders.raspberry_mint_presences import (
+    Presences,
+    PresencesData,
+)
+from betty.content_builders.raspberry_mint_section import Section, SectionData
+from betty.content_builders.raspberry_mint_timeline import Timeline
+from betty.content_builders.tree import Tree
+from betty.content_builders.wikipedia_summary import WikipediaSummary
 from betty.extensions.raspberry_mint import (
     SINGLE_COLUMN_TEXT_WIDTH,
     Region,
@@ -12,31 +38,6 @@ from betty.extensions.raspberry_mint import ColorStyle as ColorStyleOption
 from betty.life_cycle import Bootstrappable
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
-from betty.plugins.content.box import Box, BoxData
-from betty.plugins.content.map import Map
-from betty.plugins.content.map_attribution import MapAttribution
-from betty.plugins.content.notes import Notes
-from betty.plugins.content.raspberry_mint_citations import Citations
-from betty.plugins.content.raspberry_mint_color_style import (
-    ColorStyle,
-    ColorStyleData,
-)
-from betty.plugins.content.raspberry_mint_columns import Columns, ColumnsData
-from betty.plugins.content.raspberry_mint_enclosees import Enclosees
-from betty.plugins.content.raspberry_mint_external_links import ExternalLinks
-from betty.plugins.content.raspberry_mint_facts import Facts
-from betty.plugins.content.raspberry_mint_families import Families
-from betty.plugins.content.raspberry_mint_file_referees import FileReferees
-from betty.plugins.content.raspberry_mint_media import Media
-from betty.plugins.content.raspberry_mint_media_gallery import MediaGallery
-from betty.plugins.content.raspberry_mint_presences import (
-    Presences,
-    PresencesData,
-)
-from betty.plugins.content.raspberry_mint_section import Section, SectionData
-from betty.plugins.content.raspberry_mint_timeline import Timeline
-from betty.plugins.content.tree import Tree
-from betty.plugins.content.wikipedia_summary import WikipediaSummary
 from betty.requirement import check
 from betty.roles.subject import Subject
 from betty.roles.witness import Witness
@@ -75,13 +76,15 @@ class DefaultRegionalContent(Bootstrappable):
 
     async def _get_for_entity_page(
         self,
-    ) -> AsyncIterable[ResolvablePluginManufacturer[ContentDefinition, Content]]:
+    ) -> AsyncIterable[
+        ResolvablePluginManufacturer[ContentBuilderDefinition, ContentBuilder]
+    ]:
         yield Media
         if await check(self._project, *WikipediaSummary.plugin().requires):
-            yield ContentManufacturer(
+            yield ContentBuilderManufacturer(
                 Section,
                 SectionData(
-                    ContentManufacturer(
+                    ContentBuilderManufacturer(
                         Columns,
                         ColumnsData(
                             [[WikipediaSummary]], width=SINGLE_COLUMN_TEXT_WIDTH
@@ -92,24 +95,26 @@ class DefaultRegionalContent(Bootstrappable):
                 ),
             )
         if await check(self._project, *Map.plugin().requires):
-            yield ContentManufacturer(
+            yield ContentBuilderManufacturer(
                 Box,
                 BoxData(Map, min_height="500px", height="75vh", max_height="1000px"),
             )
-            yield ContentManufacturer(
+            yield ContentBuilderManufacturer(
                 ColorStyle,
                 ColorStyleData(
-                    ContentManufacturer(Columns, ColumnsData([[MapAttribution]])),
+                    ContentBuilderManufacturer(
+                        Columns, ColumnsData([[MapAttribution]])
+                    ),
                     style=ColorStyleOption.LIGHT_CONTRAST,
                 ),
             )
-        yield ContentManufacturer(
+        yield ContentBuilderManufacturer(
             Columns, ColumnsData([[Enclosees]], width=SINGLE_COLUMN_TEXT_WIDTH)
         )
-        yield ContentManufacturer(
+        yield ContentBuilderManufacturer(
             Section,
             SectionData(
-                ContentManufacturer(
+                ContentBuilderManufacturer(
                     Columns,
                     ColumnsData([[Notes]], width=SINGLE_COLUMN_TEXT_WIDTH),
                 ),
@@ -117,55 +122,55 @@ class DefaultRegionalContent(Bootstrappable):
                 name="notes",
             ),
         )
-        yield ContentManufacturer(
+        yield ContentBuilderManufacturer(
             Section,
             SectionData(
-                ContentManufacturer(Presences, PresencesData(include=[Subject])),
+                ContentBuilderManufacturer(Presences, PresencesData(include=[Subject])),
                 heading=self._make_dumpable(_("Subjects")),
                 name="attendees-subject",
             ),
         )
-        yield ContentManufacturer(
+        yield ContentBuilderManufacturer(
             Section,
             SectionData(
-                ContentManufacturer(Presences, PresencesData(include=[Witness])),
+                ContentBuilderManufacturer(Presences, PresencesData(include=[Witness])),
                 heading=self._make_dumpable(_("Witnesses")),
                 name="attendees-witness",
             ),
         )
-        yield ContentManufacturer(
+        yield ContentBuilderManufacturer(
             Section,
             SectionData(
-                ContentManufacturer(
+                ContentBuilderManufacturer(
                     Presences, PresencesData(exclude=[Subject, Witness])
                 ),
                 heading=self._make_dumpable(_("Other attendees")),
                 name="attendees-other",
             ),
         )
-        yield ContentManufacturer(
+        yield ContentBuilderManufacturer(
             Section,
             SectionData(
                 Families, heading=self._make_dumpable(_("Family")), name="family"
             ),
         )
         if await check(self._project, *Tree.plugin().requires):
-            yield ContentManufacturer(
+            yield ContentBuilderManufacturer(
                 Box,
                 BoxData(Tree, min_height="500px", height="75vh", max_height="1000px"),
             )
-        yield ContentManufacturer(
+        yield ContentBuilderManufacturer(
             Section,
             SectionData(
-                ContentManufacturer(Columns, ColumnsData([[Timeline]])),
+                ContentBuilderManufacturer(Columns, ColumnsData([[Timeline]])),
                 heading=self._make_dumpable(_("Timeline")),
                 name="timeline",
             ),
         )
-        yield ContentManufacturer(
+        yield ContentBuilderManufacturer(
             Section,
             SectionData(
-                ContentManufacturer(
+                ContentBuilderManufacturer(
                     Columns,
                     ColumnsData([[Facts]], width=SINGLE_COLUMN_TEXT_WIDTH),
                 ),
@@ -173,10 +178,10 @@ class DefaultRegionalContent(Bootstrappable):
                 name="facts",
             ),
         )
-        yield ContentManufacturer(
+        yield ContentBuilderManufacturer(
             ColorStyle,
             ColorStyleData(
-                ContentManufacturer(
+                ContentBuilderManufacturer(
                     Section,
                     SectionData(
                         MediaGallery,
@@ -187,10 +192,10 @@ class DefaultRegionalContent(Bootstrappable):
                 style=ColorStyleOption.DARK,
             ),
         )
-        yield ContentManufacturer(
+        yield ContentBuilderManufacturer(
             Section,
             SectionData(
-                ContentManufacturer(
+                ContentBuilderManufacturer(
                     Columns,
                     ColumnsData([[FileReferees]], width=SINGLE_COLUMN_TEXT_WIDTH),
                 ),
@@ -198,10 +203,10 @@ class DefaultRegionalContent(Bootstrappable):
                 name="appearances",
             ),
         )
-        yield ContentManufacturer(
+        yield ContentBuilderManufacturer(
             Section,
             SectionData(
-                ContentManufacturer(
+                ContentBuilderManufacturer(
                     Columns,
                     ColumnsData([[Citations]], width=SINGLE_COLUMN_TEXT_WIDTH),
                 ),
@@ -209,10 +214,10 @@ class DefaultRegionalContent(Bootstrappable):
                 name="citations",
             ),
         )
-        yield ContentManufacturer(
+        yield ContentBuilderManufacturer(
             Section,
             SectionData(
-                ContentManufacturer(
+                ContentBuilderManufacturer(
                     Columns,
                     ColumnsData([[ExternalLinks]], width=SINGLE_COLUMN_TEXT_WIDTH),
                 ),
