@@ -1,6 +1,6 @@
+from betty.copyright_notices.wikipedia_contributors import WikipediaContributors
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugins.asset_directory.wiki import WIKI
-from betty.plugins.copyright_notice.wikipedia_contributors import WikipediaContributors
 from betty.test_utils.conftest import AssertTemplateFile
 from betty.wiki.client import Summary
 

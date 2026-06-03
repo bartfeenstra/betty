@@ -3,7 +3,7 @@ from typing import override
 import pytest
 
 from betty.copyright_notice import CopyrightNotice
-from betty.plugins.copyright_notice.public_domain import PublicDomain
+from betty.copyright_notices.public_domain import PublicDomain
 from betty.test_utils.copyright_notice import CopyrightNoticeTestBase
 
 

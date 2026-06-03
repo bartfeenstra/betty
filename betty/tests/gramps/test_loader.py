@@ -11,6 +11,9 @@ from unittest.mock import ANY
 import pytest
 from babel import Locale
 
+from betty.copyright_notices.public_domain import (
+    PublicDomain as PublicDomainCopyrightNotice,
+)
 from betty.date import Date, DateRange
 from betty.entity.collection.pool import EntityPool
 from betty.event_types.birth import Birth
@@ -25,9 +28,6 @@ from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 from betty.media_type import MediaType
 from betty.place_types.city import City
 from betty.place_types.unknown import Unknown as UnknownPlaceType
-from betty.plugins.copyright_notice.public_domain import (
-    PublicDomain as PublicDomainCopyrightNotice,
-)
 from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.file import File
