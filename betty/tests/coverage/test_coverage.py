@@ -136,9 +136,29 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/content.py": {
-        "Content": MissingReason.ABSTRACT,
-        "ContentDefinition": MissingReason.STATIC_CONTENT_ONLY,
-        "ContentManufacturer": MissingReason.STATIC_CONTENT_ONLY,
+        "ContentBuilder": MissingReason.ABSTRACT,
+        "ContentBuilderDefinition": MissingReason.STATIC_CONTENT_ONLY,
+        "ContentBuilderManufacturer": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/content_builders/box.py": {
+        "BoxData": {
+            "min_height": MissingReason.INHERITED,
+            "max_height": MissingReason.INHERITED,
+            "height": MissingReason.INHERITED,
+            "min_width": MissingReason.INHERITED,
+            "max_width": MissingReason.INHERITED,
+            "width": MissingReason.INHERITED,
+        },
+    },
+    "betty/content_builders/render.py": {
+        "RenderData": {
+            "media_type": MissingReason.INHERITED,
+        },
+    },
+    "betty/content_builders/template.py": {
+        "Template": {
+            "build_template": MissingReason.ABSTRACT,
+        },
     },
     "betty/contextlib.py": {
         "SynchronizedContextManager": {
@@ -507,26 +527,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/plugin/ordered.py": {
         "OrderedPluginClsDefinition": MissingReason.STATIC_CONTENT_ONLY,
-    },
-    "betty/plugins/content/box.py": {
-        "BoxData": {
-            "min_height": MissingReason.INHERITED,
-            "max_height": MissingReason.INHERITED,
-            "height": MissingReason.INHERITED,
-            "min_width": MissingReason.INHERITED,
-            "max_width": MissingReason.INHERITED,
-            "width": MissingReason.INHERITED,
-        },
-    },
-    "betty/plugins/content/render.py": {
-        "RenderData": {
-            "media_type": MissingReason.INHERITED,
-        },
-    },
-    "betty/plugins/content/template.py": {
-        "Template": {
-            "build_template": MissingReason.ABSTRACT,
-        },
     },
     "betty/portable/__init__.py": {
         "Portable": MissingReason.ABSTRACT,

@@ -17,7 +17,11 @@ from betty.collection.mapping.adapter import (
     MutableResolvedMappingAdapter,
     ResolvedMappingAdapter,
 )
-from betty.content import Content, ContentDefinition, ContentManufacturer
+from betty.content import (
+    ContentBuilder,
+    ContentBuilderDefinition,
+    ContentBuilderManufacturer,
+)
 from betty.data import Data
 from betty.datas.aggregate.collection.mapping import MappingDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
@@ -51,9 +55,10 @@ if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
     from betty.pathlib import StrPath
 
-type RegionalContent = ResolvedMapping[str, ResolvableRegion, Sequence[Content]]
+type RegionalContent = ResolvedMapping[str, ResolvableRegion, Sequence[ContentBuilder]]
 type RegionalContentManufacturers = Mapping[
-    ResolvableRegion, Iterable[ResolvablePluginManufacturer[ContentDefinition, Content]]
+    ResolvableRegion,
+    Iterable[ResolvablePluginManufacturer[ContentBuilderDefinition, ContentBuilder]],
 ]
 
 
@@ -116,7 +121,7 @@ class RaspberryMintData(Data, HasProps):
             label=_("Regions"),
             key=StrDefinition(label=_("Region")),
             value=PluginManufacturerSequenceDefinition(
-                ContentManufacturer, label=_("Regional content")
+                ContentBuilderManufacturer, label=_("Regional content")
             ),
         ),
         omit_load=True,
@@ -134,7 +139,9 @@ class RaspberryMintData(Data, HasProps):
         tertiary_color: str | None = None,
         regional_content: Mapping[
             ResolvableRegion,
-            Iterable[ResolvablePluginManufacturer[ContentDefinition, Content]],
+            Iterable[
+                ResolvablePluginManufacturer[ContentBuilderDefinition, ContentBuilder]
+            ],
         ]
         | None = None,
     ):
@@ -145,7 +152,9 @@ class RaspberryMintData(Data, HasProps):
         self.tertiary_color = tertiary_color
         if regional_content is not None:
             self.regional_content.update({
-                Region.resolve(region): ContentManufacturer.resolve_sequence(content)
+                Region.resolve(region): ContentBuilderManufacturer.resolve_sequence(
+                    content
+                )
                 for region, content in regional_content.items()
             })
 
@@ -315,7 +324,7 @@ class RaspberryMint(
                         gather(
                             *map(
                                 self._project.factory.new,
-                                map(ContentManufacturer.resolve, region_content),
+                                map(ContentBuilderManufacturer.resolve, region_content),
                             )
                         )
                         for region_content in regional_content_manufacturers.values()

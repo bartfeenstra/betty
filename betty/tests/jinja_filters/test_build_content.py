@@ -2,9 +2,9 @@ from collections.abc import Iterable
 
 import pytest
 
-from betty.content import Content, ContentDefinition
+from betty.content import ContentBuilder, ContentBuilderDefinition
+from betty.content_builders.static import Static
 from betty.plugin.factory import PluginManufacturer
-from betty.plugins.content.static import Static
 from betty.test_utils.conftest import AssertTemplateString
 
 
@@ -23,7 +23,9 @@ class TestBuildContent:
         self,
         assert_template_string: AssertTemplateString,
         expected: str,
-        contents: Iterable[PluginManufacturer[ContentDefinition, Content]],
+        contents: Iterable[
+            PluginManufacturer[ContentBuilderDefinition, ContentBuilder]
+        ],
     ) -> None:
         template = "{{ data | build_content }}"
         async with assert_template_string(

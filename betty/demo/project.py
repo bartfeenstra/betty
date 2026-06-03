@@ -6,7 +6,15 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.content import ContentManufacturer
+from betty.content import ContentBuilderManufacturer
+from betty.content_builders.raspberry_mint_columns import Columns, ColumnsData
+from betty.content_builders.raspberry_mint_entity_card import EntityCard
+from betty.content_builders.raspberry_mint_incomplete_translation_warning import (
+    IncompleteTranslationWarning,
+)
+from betty.content_builders.raspberry_mint_section import Section, SectionData
+from betty.content_builders.render import Render, RenderData
+from betty.content_builders.wikipedia_summary import WikipediaSummary
 from betty.enrichers.deriver import Deriver
 from betty.enrichers.wiki import Wiki
 from betty.entities.event import Event
@@ -33,14 +41,6 @@ from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Chain
 from betty.media_types.html import HTML
-from betty.plugins.content.raspberry_mint_columns import Columns, ColumnsData
-from betty.plugins.content.raspberry_mint_entity_card import EntityCard
-from betty.plugins.content.raspberry_mint_incomplete_translation_warning import (
-    IncompleteTranslationWarning,
-)
-from betty.plugins.content.raspberry_mint_section import Section, SectionData
-from betty.plugins.content.render import Render, RenderData
-from betty.plugins.content.wikipedia_summary import WikipediaSummary
 from betty.project import Project
 
 if TYPE_CHECKING:
@@ -74,19 +74,19 @@ async def create_project(
                 RaspberryMintData(
                     regional_content={
                         Region.FRONT_PAGE_CONTENT: [
-                            ContentManufacturer(
+                            ContentBuilderManufacturer(
                                 Columns,
                                 ColumnsData([[IncompleteTranslationWarning]]),
                             ),
-                            ContentManufacturer(
+                            ContentBuilderManufacturer(
                                 Section,
                                 SectionData(
-                                    ContentManufacturer(
+                                    ContentBuilderManufacturer(
                                         Columns,
                                         ColumnsData(
                                             [
                                                 [
-                                                    ContentManufacturer(
+                                                    ContentBuilderManufacturer(
                                                         Render,
                                                         RenderData(
                                                             Chain(
@@ -107,7 +107,7 @@ async def create_project(
                                                     ),
                                                 ],
                                                 [
-                                                    ContentManufacturer(
+                                                    ContentBuilderManufacturer(
                                                         Render,
                                                         RenderData(
                                                             Chain(
@@ -133,15 +133,15 @@ async def create_project(
                                     visually_hide_heading=True,
                                 ),
                             ),
-                            ContentManufacturer(
+                            ContentBuilderManufacturer(
                                 Section,
                                 SectionData(
-                                    ContentManufacturer(
+                                    ContentBuilderManufacturer(
                                         Columns,
                                         ColumnsData(
                                             [
                                                 [
-                                                    ContentManufacturer(
+                                                    ContentBuilderManufacturer(
                                                         EntityCard,
                                                         EntityReference(
                                                             Place,
@@ -150,7 +150,7 @@ async def create_project(
                                                     )
                                                 ],
                                                 [
-                                                    ContentManufacturer(
+                                                    ContentBuilderManufacturer(
                                                         EntityCard,
                                                         EntityReference(
                                                             Person,
@@ -159,7 +159,7 @@ async def create_project(
                                                     )
                                                 ],
                                                 [
-                                                    ContentManufacturer(
+                                                    ContentBuilderManufacturer(
                                                         EntityCard,
                                                         EntityReference(
                                                             Place,
@@ -180,7 +180,7 @@ async def create_project(
                             ),
                         ],
                         Region.FRONT_PAGE_SUMMARY: [
-                            ContentManufacturer(
+                            ContentBuilderManufacturer(
                                 Render,
                                 RenderData(
                                     _(

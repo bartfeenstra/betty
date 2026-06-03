@@ -4,17 +4,17 @@ from typing import override
 import pytest
 from markupsafe import Markup
 
-from betty.content import Content, build
+from betty.content import ContentBuilder, build
 from betty.document import Document
 
 
-class _NoneContent(Content):
+class _NoneContentBuilder(ContentBuilder):
     @override
     async def build(self, *, document: Document) -> str | None:
         return None
 
 
-class _SomeContent(Content):
+class _SomeContentBuilder(ContentBuilder):
     @override
     async def build(self, *, document: Document) -> str | None:
         return "SOME"
@@ -24,10 +24,12 @@ class _SomeContent(Content):
     ("expected", "contents"),
     [
         (None, []),
-        (None, [_NoneContent()]),
-        (Markup("SOME"), [_SomeContent()]),
-        (Markup("SOME"), [_NoneContent(), _SomeContent()]),
+        (None, [_NoneContentBuilder()]),
+        (Markup("SOME"), [_SomeContentBuilder()]),
+        (Markup("SOME"), [_NoneContentBuilder(), _SomeContentBuilder()]),
     ],
 )
-async def test_build(expected: Markup | None, contents: Iterable[Content]) -> None:
+async def test_build(
+    expected: Markup | None, contents: Iterable[ContentBuilder]
+) -> None:
     assert await build(Document(), contents) == expected
