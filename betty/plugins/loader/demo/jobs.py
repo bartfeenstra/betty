@@ -9,6 +9,9 @@ from typing import TYPE_CHECKING, override
 
 from betty.date import Date, DateRange
 from betty.dirs import BUILTIN_ASSET_DIRECTORY
+from betty.event_types.birth import Birth
+from betty.event_types.death import Death
+from betty.event_types.marriage import Marriage
 from betty.genders.man import Man
 from betty.genders.woman import Woman
 from betty.job import Job
@@ -26,9 +29,6 @@ from betty.plugins.entity.place import Place
 from betty.plugins.entity.place_name import PlaceName
 from betty.plugins.entity.presence import Presence
 from betty.plugins.entity.source import Source
-from betty.plugins.event_type.birth import Birth
-from betty.plugins.event_type.death import Death
-from betty.plugins.event_type.marriage import Marriage
 from betty.plugins.media_type.svg import SVG
 from betty.plugins.place_type.country import Country
 from betty.plugins.place_type.municipality import Municipality

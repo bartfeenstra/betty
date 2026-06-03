@@ -13,13 +13,13 @@ from betty.entity import Entity
 from betty.entity.has_citations import HasCitations
 from betty.entity.has_file_references import HasFileReferences
 from betty.entity.has_notes import HasNotes
+from betty.event_types.death import Death
 from betty.locale.localizable.gettext import _
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.presence import Presence
 from betty.plugins.entity.source import Source
-from betty.plugins.event_type.death import Death
 from betty.privacy import Privacy
 from betty.roles.subject import Subject
 

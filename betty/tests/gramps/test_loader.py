@@ -13,6 +13,9 @@ from babel import Locale
 
 from betty.date import Date, DateRange
 from betty.entity.collection.pool import EntityPool
+from betty.event_types.birth import Birth
+from betty.event_types.death import Death
+from betty.event_types.unknown import Unknown as UnknownEventType
 from betty.genders.non_binary import NonBinary
 from betty.genders.unknown import Unknown as UnknownGender
 from betty.gramps.error import UserFacingGrampsError
@@ -29,9 +32,6 @@ from betty.plugins.entity.note import Note
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.source import Source
-from betty.plugins.event_type.birth import Birth
-from betty.plugins.event_type.death import Death
-from betty.plugins.event_type.unknown import Unknown as UnknownEventType
 from betty.plugins.license.public_domain import PublicDomain as PublicDomainLicense
 from betty.plugins.place_type.city import City
 from betty.plugins.place_type.unknown import Unknown as UnknownPlaceType

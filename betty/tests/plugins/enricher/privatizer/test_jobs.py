@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from betty.event_types.birth import Birth
 from betty.load import load
 from betty.plugins.enricher.privatizer import Privatizer
 from betty.plugins.entity.citation import Citation
@@ -11,7 +12,6 @@ from betty.plugins.entity.file_reference import FileReference
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.presence import Presence
 from betty.plugins.entity.source import Source
-from betty.plugins.event_type.birth import Birth
 from betty.privacy import Privacy
 from betty.roles.subject import Subject
 

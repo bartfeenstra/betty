@@ -1,3 +1,5 @@
+from betty.event_types.birth import Birth
+from betty.event_types.death import Death
 from betty.genders.non_binary import NonBinary
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
@@ -7,8 +9,6 @@ from betty.plugins.entity.person import Person
 from betty.plugins.entity.person_name import PersonName
 from betty.plugins.entity.presence import Presence
 from betty.plugins.entity.source import Source
-from betty.plugins.event_type.birth import Birth
-from betty.plugins.event_type.death import Death
 from betty.privacy import Privacy
 from betty.roles.subject import Subject
 from betty.test_utils.conftest import AssertTemplateFile

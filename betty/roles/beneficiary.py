@@ -20,5 +20,5 @@ class Beneficiary(Role):
     .. plugin:: role:beneficiary.
 
     Someone was a `benificiary <https://en.wikipedia.org/wiki/Beneficiary>`_ in the event, such as a
-    :py:class:`betty.plugins.event_type.will.Will`.
+    :py:class:`betty.event_types.will.Will`.
     """
