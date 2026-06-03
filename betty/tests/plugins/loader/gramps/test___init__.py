@@ -6,6 +6,8 @@ from betty.event_type import EventTypeManufacturer
 from betty.event_types.birth import Birth
 from betty.load import LoaderManufacturer, load
 from betty.place_type import PlaceTypeManufacturer
+from betty.place_types.borough import Borough
+from betty.place_types.city import City
 from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.note import Note
@@ -13,8 +15,6 @@ from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.source import Source
 from betty.plugins.loader.gramps import FamilyTree, Gramps, GrampsData
-from betty.plugins.place_type.borough import Borough
-from betty.plugins.place_type.city import City
 from betty.role import RoleManufacturer
 from betty.roles.attendee import Attendee
 from betty.roles.subject import Subject

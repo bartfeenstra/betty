@@ -9,13 +9,13 @@ from betty.entity import Entity
 from betty.entity.association import AssociationRequired, TemporaryToOneResolver
 from betty.event_types.birth import Birth
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, to_language_tag
+from betty.place_types.hamlet import Hamlet
+from betty.place_types.unknown import Unknown as UnknownPlaceType
 from betty.plugins.entity.enclosure import Enclosure
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.link import Link
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.place_name import PlaceName
-from betty.plugins.place_type.hamlet import Hamlet
-from betty.plugins.place_type.unknown import Unknown as UnknownPlaceType
 from betty.test_utils.entity import EntityTestBase
 
 if TYPE_CHECKING:

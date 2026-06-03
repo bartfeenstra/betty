@@ -22,6 +22,8 @@ from betty.gramps.error import UserFacingGrampsError
 from betty.gramps.loader import GrampsFileNotFound, GrampsLoader, LoaderUsedAlready
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 from betty.media_type import MediaType
+from betty.place_types.city import City
+from betty.place_types.unknown import Unknown as UnknownPlaceType
 from betty.plugins.copyright_notice.public_domain import (
     PublicDomain as PublicDomainCopyrightNotice,
 )
@@ -33,8 +35,6 @@ from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.source import Source
 from betty.plugins.license.public_domain import PublicDomain as PublicDomainLicense
-from betty.plugins.place_type.city import City
-from betty.plugins.place_type.unknown import Unknown as UnknownPlaceType
 from betty.privacy import Privacy
 from betty.project import Project
 from betty.roles.subject import Subject
