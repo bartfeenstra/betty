@@ -10,10 +10,10 @@ from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.bool import BoolDefinition
 from betty.enrichers.populate_links import PopulateLinks
 from betty.enrichers.wiki.jobs import PopulateEntity
+from betty.extensions.wiki import Wiki as WikiExtension
 from betty.factory import DataManufacturable, Manufacturable
 from betty.load import Enricher, EnricherDefinition
 from betty.locale.localizable.gettext import _
-from betty.plugins.extension.wiki import Wiki as WikiExtension
 from betty.project import Project
 from betty.prop import HasProps
 from betty.sample import Sample, Size

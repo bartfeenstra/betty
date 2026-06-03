@@ -1,3 +1,3 @@
 """
-Test utilities for :py:mod:`betty.plugins.extension`.
+Test utilities for :py:mod:`betty.extensions`.
 """

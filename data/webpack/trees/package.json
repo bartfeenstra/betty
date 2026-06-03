@@ -1,5 +1,5 @@
 {
-  "name": "@betty.py/betty.plugins.extension.trees",
+  "name": "@betty.py/betty.extensions.trees",
   "dependencies": {
     "@betty.py/betty": "*",
     "cytoscape": "^3.30.3",

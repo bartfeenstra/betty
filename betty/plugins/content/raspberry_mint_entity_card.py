@@ -10,11 +10,11 @@ from betty.asset_directories.raspberry_mint import RASPBERRY_MINT
 from betty.content import ContentDefinition
 from betty.entity.has_file_references import HasFileReferences
 from betty.entity.reference import EntityReference
+from betty.extensions._theme import associated_file_references
 from betty.factory import DataManufacturable
 from betty.image import is_supported_media_type
 from betty.locale.localizable.gettext import _
 from betty.plugins.content.template import Template, TemplateBuild
-from betty.plugins.extension._theme import associated_file_references
 from betty.project import Project
 
 if TYPE_CHECKING:

@@ -2,6 +2,10 @@ import pytest
 
 from betty.content import ContentManufacturer
 from betty.document import Document
+from betty.extensions.raspberry_mint import (
+    Breakpoint,
+    JustifyContent,
+)
 from betty.plugins.content.raspberry_mint_columns import (
     Columns,
     ColumnsData,
@@ -9,10 +13,6 @@ from betty.plugins.content.raspberry_mint_columns import (
     ShorthandColumnsWidth,
 )
 from betty.plugins.content.render import Render, RenderData
-from betty.plugins.extension.raspberry_mint import (
-    Breakpoint,
-    JustifyContent,
-)
 from betty.test_utils.conftest import IsolatedProjectFactory
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE

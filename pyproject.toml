@@ -215,13 +215,13 @@ betty = 'betty.console:main_standalone'
 'will' = 'betty.event_types.will:Will'
 
 [project.entry-points.'betty.extension']
-'http-api-doc' = 'betty.plugins.extension.http_api_doc:HttpApiDoc'
-'maps' = 'betty.plugins.extension.maps:Maps'
-'raspberry-mint' = 'betty.plugins.extension.raspberry_mint:RaspberryMint'
-'spdx' = 'betty.plugins.extension.spdx:Spdx'
-'trees' = 'betty.plugins.extension.trees:Trees'
-'webpack' = 'betty.plugins.extension.webpack:Webpack'
-'wiki' = 'betty.plugins.extension.wiki:Wiki'
+'http-api-doc' = 'betty.extensions.http_api_doc:HttpApiDoc'
+'maps' = 'betty.extensions.maps:Maps'
+'raspberry-mint' = 'betty.extensions.raspberry_mint:RaspberryMint'
+'spdx' = 'betty.extensions.spdx:Spdx'
+'trees' = 'betty.extensions.trees:Trees'
+'webpack' = 'betty.extensions.webpack:Webpack'
+'wiki' = 'betty.extensions.wiki:Wiki'
 
 [project.entry-points.'betty.gender']
 'man' = 'betty.genders.man:Man'

@@ -25,11 +25,11 @@ from betty.datas.int import IntDefinition
 from betty.datas.plugin_manufacturer_sequence import (
     PluginManufacturerSequenceDefinition,
 )
+from betty.extensions.raspberry_mint import Breakpoint, JustifyContent
 from betty.factory import DataManufacturable
 from betty.locale.localizable.gettext import _
 from betty.plugins.content.render import Render, RenderData
 from betty.plugins.content.template import Template, TemplateBuild
-from betty.plugins.extension.raspberry_mint import Breakpoint, JustifyContent
 from betty.portable import CallbackPorter
 from betty.project import Project
 from betty.prop import HasProps

@@ -527,40 +527,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "build_template": MissingReason.ABSTRACT,
         },
     },
-    "betty/plugins/extension/http_api_doc/__init__.py": {
-        "HttpApiDoc": {
-            "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
-        },
-    },
-    "betty/plugins/extension/maps/__init__.py": {
-        "Maps": {
-            "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
-        },
-    },
-    "betty/plugins/extension/raspberry_mint/__init__.py": {
-        "Breakpoint": MissingReason.ENUM,
-        "ColorStyle": MissingReason.ENUM,
-        "JustifyContent": MissingReason.ENUM,
-        "RaspberryMint": {
-            "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
-        },
-        "Region": {
-            "name": MissingReason.INHERITED,
-            "value": MissingReason.INHERITED,
-        },
-    },
-    "betty/plugins/extension/trees/__init__.py": {
-        "Trees": {
-            "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
-        },
-    },
-    "betty/plugins/extension/spdx/__init__.py": {
-        "Spdx": MissingReason.STATIC_CONTENT_ONLY,
-    },
-    "betty/plugins/extension/webpack/build.py": {
-        "EntryPointProvider": MissingReason.ABSTRACT,
-        "webpack_build_id": MissingReason.SHOULD_BE_COVERED,
-    },
     "betty/plugins/js_resource/webpack_entry_point_loader.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/portable/__init__.py": {
         "Portable": MissingReason.ABSTRACT,
@@ -626,6 +592,40 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ExtensionTypeError": MissingReason.STATIC_CONTENT_ONLY,
         "ExtensionTypeInvalidError": MissingReason.SHOULD_BE_COVERED,
         "Theme": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/extensions/http_api_doc/__init__.py": {
+        "HttpApiDoc": {
+            "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
+        },
+    },
+    "betty/extensions/maps/__init__.py": {
+        "Maps": {
+            "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
+        },
+    },
+    "betty/extensions/raspberry_mint/__init__.py": {
+        "Breakpoint": MissingReason.ENUM,
+        "ColorStyle": MissingReason.ENUM,
+        "JustifyContent": MissingReason.ENUM,
+        "RaspberryMint": {
+            "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
+        },
+        "Region": {
+            "name": MissingReason.INHERITED,
+            "value": MissingReason.INHERITED,
+        },
+    },
+    "betty/extensions/trees/__init__.py": {
+        "Trees": {
+            "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
+        },
+    },
+    "betty/extensions/spdx/__init__.py": {
+        "Spdx": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/extensions/webpack/build.py": {
+        "EntryPointProvider": MissingReason.ABSTRACT,
+        "webpack_build_id": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/project/__init__.py": {
         "ProjectData": {

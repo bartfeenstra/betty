@@ -1,4 +1,4 @@
-from betty.plugins.extension.webpack import Webpack
+from betty.extensions.webpack import Webpack
 from betty.test_utils.conftest import AssertTemplateString
 
 

@@ -1,5 +1,5 @@
 {
-  "name": "@betty.py/betty.plugins.extension.maps",
+  "name": "@betty.py/betty.extensions.maps",
   "dependencies": {
     "@betty.py/betty": "*",
     "ol": "^10.4.0"
