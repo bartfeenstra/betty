@@ -35,7 +35,7 @@ if TYPE_CHECKING:
     from sphinx.util.typing import ExtensionMetadata
 
     from betty.plugin import PluginDefinition
-    from betty.serde import Serializer
+    from betty.serialize import Serializer
 
 
 type NodesLike = nodes.Node | Iterable[nodes.Node] | None

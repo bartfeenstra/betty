@@ -2,9 +2,9 @@ from typing import override
 
 import pytest
 
-from betty.plugins.serializer.yaml import Yaml
-from betty.serde import SerializationError, Serializer
-from betty.test_utils.serde import SerializerTestBase
+from betty.serialize import SerializationError, Serializer
+from betty.serializers.yaml import Yaml
+from betty.test_utils.serialize import SerializerTestBase
 
 
 class TestYaml(SerializerTestBase):

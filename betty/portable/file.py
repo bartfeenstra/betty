@@ -13,7 +13,7 @@ from betty.exception import reraise_with_indicator
 from betty.file import write
 from betty.indicator import Path as IndicatorPath
 from betty.pathlib import resolve_path
-from betty.serde import Serializer, serializer_for
+from betty.serialize import Serializer, serializer_for
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, cast, final, override
 from betty.locale.localizable.gettext import _
 from betty.media_types.json import JSON
 from betty.portable import PortableData
-from betty.serde import SerializationError, Serializer, SerializerDefinition
+from betty.serialize import SerializationError, Serializer, SerializerDefinition
 
 if TYPE_CHECKING:
     from betty.media_type import MediaType

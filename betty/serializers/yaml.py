@@ -12,7 +12,7 @@ import yaml
 from betty.locale.localizable.gettext import _
 from betty.media_types.yaml import YAML
 from betty.portable import PortableData
-from betty.serde import SerializationError, Serializer, SerializerDefinition
+from betty.serialize import SerializationError, Serializer, SerializerDefinition
 
 if TYPE_CHECKING:
     from betty.media_type import MediaType

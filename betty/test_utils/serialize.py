@@ -1,16 +1,16 @@
 """
-Test utilities for :py:mod:`betty.serde`.
+Test utilities for :py:mod:`betty.serialize`.
 """
 
 import pytest
 
 from betty.portable import PortableData
-from betty.serde import Serializer
+from betty.serialize import Serializer
 
 
 class SerializerTestBase[SerializerT: Serializer]:
     """
-    A base class for testing :py:class:`betty.serde.Serializer` implementations.
+    A base class for testing :py:class:`betty.serialize.Serializer` implementations.
     """
 
     @pytest.fixture
@@ -36,7 +36,7 @@ class SerializerTestBase[SerializerT: Serializer]:
     )
     def test_dump_and_load(self, portable: PortableData, sut: SerializerT) -> None:
         """
-        Tests :py:meth:`betty.serde.Serializer.load` and :py:meth:`betty.serde.Serializer.dump` implementations.
+        Tests :py:meth:`betty.serialize.Serializer.load` and :py:meth:`betty.serialize.Serializer.dump` implementations.
         """
         assert sut.load(sut.dump(portable)) == portable
 

@@ -37,7 +37,7 @@ from betty.multiprocessing import ProcessPoolExecutor
 from betty.portable.file import assert_load_file
 from betty.prop import HasProps
 from betty.sample import Sample, Size
-from betty.serde import SerializerDefinition
+from betty.serialize import SerializerDefinition
 from betty.service import Service
 from betty.service.plugin import PluginServiceProvider
 from betty.service.plugin.definition.collection.keyed import PluginDefinitionsService
