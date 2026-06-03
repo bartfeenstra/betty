@@ -11,6 +11,7 @@ from betty.factory import Manufacturable
 from betty.load import (
     LoaderManufacturer,
 )
+from betty.loaders.gramps import FamilyTree, Gramps, GrampsData
 from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
@@ -24,7 +25,6 @@ from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.plugins.extension.trees import Trees
 from betty.plugins.extension.webpack import Webpack
 from betty.plugins.extension.wiki import Wiki as WikiExtension
-from betty.plugins.loader.gramps import FamilyTree, Gramps, GrampsData
 from betty.project import ProjectData
 from betty.project.new import new
 from betty.typing import Void
