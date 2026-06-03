@@ -293,6 +293,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/link.py": {
         "Link": MissingReason.ABSTRACT,
     },
+    "betty/links/betty_documentation.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/links/betty_github.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/links/http_api_doc.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/linked_data.py": {
         "dump_context": MissingReason.SHOULD_BE_COVERED,
         "dump_link": MissingReason.SHOULD_BE_COVERED,
@@ -545,9 +548,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "webpack_build_id": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/plugins/js_resource/webpack_entry_point_loader.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/link/betty_documentation.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/link/betty_github.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/link/http_api_doc.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/loader/gramps/__init__.py": {
         "FamilyTree": {
             "event_types": MissingReason.INHERITED,
