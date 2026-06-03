@@ -17,7 +17,7 @@ from betty.extension import ExtensionDefinition, ExtensionManufacturer
 from betty.plugin.resolve import ResolvablePluginId
 from betty.plugins.entity.place import Place
 from betty.plugins.extension.maps import Maps
-from betty.plugins.server import builtin
+from betty.servers import project_builtin
 from betty.project import Project
 from betty.project.generate import generate
 from betty.server import Server
@@ -68,7 +68,9 @@ class MapsTestBase:
                 project.asset_directory,
             )
             await generate(project)
-            async with await builtin.Builtin.new(project) as server:
+            async with await project_builtin.ProjectBuiltinServer.new(
+                project
+            ) as server:
                 yield server
 
     @pytest.mark.asyncio(loop_scope="session")

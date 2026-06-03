@@ -305,7 +305,7 @@ betty = 'betty.console:main_standalone'
 'yaml' = 'betty.plugins.serializer.yaml:Yaml'
 
 [project.entry-points.'betty.server']
-'builtin' = 'betty.plugins.server.builtin:Builtin'
+'builtin' = 'betty.servers.project_builtin:ProjectBuiltinServer'
 
 [project.entry-points.'betty.renderer']
 'html' = 'betty.plugins.renderer.html:Html'

@@ -3,11 +3,11 @@ from pytest_mock import MockerFixture
 from requests import Response
 
 from betty.functools import Do
-from betty.plugins.server.builtin import Builtin
 from betty.project import Project
+from betty.servers.project_builtin import ProjectBuiltinServer
 
 
-class TestBuiltin:
+class TestProjectBuiltinServer:
     async def test__start_stop_and_public_url(
         self, isolated_project: Project, mocker: MockerFixture
     ) -> None:
@@ -18,7 +18,7 @@ class TestBuiltin:
             isolated_project.www_directory / "index.html", "w", encoding="utf-8"
         ) as f:
             f.write(content)
-        async with await Builtin.new(isolated_project) as server:
+        async with await ProjectBuiltinServer.new(isolated_project) as server:
 
             def _assert_response(response: Response) -> None:
                 assert response.status_code == 200

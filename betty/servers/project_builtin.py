@@ -12,7 +12,7 @@ from betty.locale.localizable.gettext import _
 from betty.plugin.cls import Plugin
 from betty.project import Project
 from betty.server import Server, ServerDefinition
-from betty.server.builtin import BuiltinServer
+from betty.servers.builtin import BuiltinServer
 
 
 @final
@@ -26,7 +26,7 @@ from betty.server.builtin import BuiltinServer
     after=lambda _: True,
     requires=[Project.require],
 )
-class Builtin(Server, Manufacturable, Plugin[ServerDefinition]):
+class ProjectBuiltinServer(Server, Manufacturable, Plugin[ServerDefinition]):
     """
     .. plugin:: server:builtin.
     """
