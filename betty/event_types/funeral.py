@@ -1,5 +1,5 @@
 """
-The burial event type.
+The funeral event type.
 """
 
 from __future__ import annotations
@@ -7,20 +7,20 @@ from __future__ import annotations
 from typing import final
 
 from betty.event_type import EventType, EventTypeDefinition
+from betty.event_types.death import Death
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugins.event_type.death import Death
 
 
 @final
 @EventTypeDefinition(
-    "burial",
-    label=_("Burial"),
-    label_plural=_("Burials"),
-    label_countable=ngettext("{count} burial", "{count} burials"),
+    "funeral",
+    label=_("Funeral"),
+    label_plural=_("Funerals"),
+    label_countable=ngettext("{count} funeral", "{count} funerals"),
     after={Death},
     indicates=Death,
 )
-class Burial(EventType):
+class Funeral(EventType):
     """
-    .. plugin:: event-type:burial.
+    .. plugin:: event-type:funeral.
     """

@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING, override
 
 import pytest
 
+from betty.event_types.unknown import Unknown as UnknownEventType
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.presence import Presence
-from betty.plugins.event_type.unknown import Unknown as UnknownEventType
 from betty.privacy import Privacy
 from betty.roles.subject import Subject
 from betty.roles.unknown import Unknown as UnknownRole

@@ -32,6 +32,27 @@ from betty.entity.association import ToManyResolver, ToOneResolver, resolve
 from betty.entity.has_links import HasLinks
 from betty.error import FileNotFound
 from betty.event_type import EventTypeManufacturer
+from betty.event_types.adoption import Adoption
+from betty.event_types.baptism import Baptism
+from betty.event_types.bar_mitzvah import BarMitzvah
+from betty.event_types.bat_mitzvah import BatMitzvah
+from betty.event_types.birth import Birth
+from betty.event_types.burial import Burial
+from betty.event_types.confirmation import Confirmation
+from betty.event_types.cremation import Cremation
+from betty.event_types.death import Death
+from betty.event_types.divorce import Divorce
+from betty.event_types.divorce_announcement import DivorceAnnouncement
+from betty.event_types.emigration import Emigration
+from betty.event_types.engagement import Engagement
+from betty.event_types.immigration import Immigration
+from betty.event_types.marriage import Marriage
+from betty.event_types.marriage_announcement import MarriageAnnouncement
+from betty.event_types.occupation import Occupation
+from betty.event_types.residence import Residence
+from betty.event_types.retirement import Retirement
+from betty.event_types.unknown import Unknown as UnknownEventType
+from betty.event_types.will import Will
 from betty.gender import GenderDefinition, GenderManufacturer
 from betty.genders.man import Man
 from betty.genders.non_binary import NonBinary
@@ -62,27 +83,6 @@ from betty.plugins.entity.place import Place
 from betty.plugins.entity.place_name import PlaceName
 from betty.plugins.entity.presence import Presence
 from betty.plugins.entity.source import Source
-from betty.plugins.event_type.adoption import Adoption
-from betty.plugins.event_type.baptism import Baptism
-from betty.plugins.event_type.bar_mitzvah import BarMitzvah
-from betty.plugins.event_type.bat_mitzvah import BatMitzvah
-from betty.plugins.event_type.birth import Birth
-from betty.plugins.event_type.burial import Burial
-from betty.plugins.event_type.confirmation import Confirmation
-from betty.plugins.event_type.cremation import Cremation
-from betty.plugins.event_type.death import Death
-from betty.plugins.event_type.divorce import Divorce
-from betty.plugins.event_type.divorce_announcement import DivorceAnnouncement
-from betty.plugins.event_type.emigration import Emigration
-from betty.plugins.event_type.engagement import Engagement
-from betty.plugins.event_type.immigration import Immigration
-from betty.plugins.event_type.marriage import Marriage
-from betty.plugins.event_type.marriage_announcement import MarriageAnnouncement
-from betty.plugins.event_type.occupation import Occupation
-from betty.plugins.event_type.residence import Residence
-from betty.plugins.event_type.retirement import Retirement
-from betty.plugins.event_type.unknown import Unknown as UnknownEventType
-from betty.plugins.event_type.will import Will
 from betty.plugins.place_type.borough import Borough
 from betty.plugins.place_type.building import Building
 from betty.plugins.place_type.city import City

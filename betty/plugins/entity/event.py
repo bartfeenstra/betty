@@ -22,6 +22,7 @@ from betty.entity.has_file_references import HasFileReferences
 from betty.entity.has_links import HasLinks
 from betty.entity.has_notes import HasNotes
 from betty.event_type import EventTypeDefinition
+from betty.event_types.unknown import Unknown as UnknownEventType
 from betty.json_schema import String
 from betty.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable.gettext import _, ngettext
@@ -31,7 +32,6 @@ from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.plugin.schema import PluginIdSchema
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.presence import Presence
-from betty.plugins.event_type.unknown import Unknown as UnknownEventType
 from betty.privacy import Privacy
 from betty.roles.subject import Subject
 

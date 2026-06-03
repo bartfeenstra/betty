@@ -7,6 +7,9 @@ import pytest
 
 from betty.date import AnyDate, Date, DateRange
 from betty.entity import persistent_id
+from betty.event_types.birth import Birth
+from betty.event_types.death import Death
+from betty.event_types.unknown import Unknown as UnknownEventType
 from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.file import File
@@ -16,9 +19,6 @@ from betty.plugins.entity.person_name import PersonName
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.presence import Presence
 from betty.plugins.entity.source import Source
-from betty.plugins.event_type.birth import Birth
-from betty.plugins.event_type.death import Death
-from betty.plugins.event_type.unknown import Unknown as UnknownEventType
 from betty.plugins.extension._theme import (
     associated_file_references,
     person_timeline_events,

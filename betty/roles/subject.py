@@ -20,6 +20,6 @@ class Subject(Role):
     .. plugin:: role:subject.
 
     The meaning of this role depends on the event type. For example, for
-    :py:class:`betty.plugins.event_type.marriage.Marriage`, the subjects are the people who got married. For
-    :py:class:`betty.plugins.event_type.death.Death` it is the person who died.
+    :py:class:`betty.event_types.marriage.Marriage`, the subjects are the people who got married. For
+    :py:class:`betty.event_types.death.Death` it is the person who died.
     """

@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING, Any, cast, override
 from betty.date import Date, DateRange
 from betty.entity import Entity
 from betty.entity.association import AssociationRequired, TemporaryToOneResolver
+from betty.event_types.birth import Birth
+from betty.event_types.unknown import Unknown as UnknownEventType
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugins.entity.citation import Citation
@@ -14,8 +16,6 @@ from betty.plugins.entity.place import Place
 from betty.plugins.entity.place_name import PlaceName
 from betty.plugins.entity.presence import Presence
 from betty.plugins.entity.source import Source
-from betty.plugins.event_type.birth import Birth
-from betty.plugins.event_type.unknown import Unknown as UnknownEventType
 from betty.privacy import Privacy
 from betty.roles.subject import Subject
 from betty.test_utils.entity import EntityTestBase

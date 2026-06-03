@@ -3,6 +3,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from betty.event_type import EventTypeManufacturer
+from betty.event_types.birth import Birth
 from betty.load import LoaderManufacturer, load
 from betty.place_type import PlaceTypeManufacturer
 from betty.plugins.entity.citation import Citation
@@ -11,7 +12,6 @@ from betty.plugins.entity.note import Note
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.source import Source
-from betty.plugins.event_type.birth import Birth
 from betty.plugins.loader.gramps import FamilyTree, Gramps, GrampsData
 from betty.plugins.place_type.borough import Borough
 from betty.plugins.place_type.city import City
