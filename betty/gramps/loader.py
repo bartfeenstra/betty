@@ -104,13 +104,13 @@ from betty.plugins.place_type.street import Street
 from betty.plugins.place_type.town import Town
 from betty.plugins.place_type.unknown import Unknown as UnknownPlaceType
 from betty.plugins.place_type.village import Village
-from betty.plugins.role.attendee import Attendee
-from betty.plugins.role.celebrant import Celebrant
-from betty.plugins.role.informant import Informant
-from betty.plugins.role.subject import Subject
-from betty.plugins.role.unknown import Unknown as UnknownRole
-from betty.plugins.role.witness import Witness
 from betty.role import RoleManufacturer
+from betty.roles.attendee import Attendee
+from betty.roles.celebrant import Celebrant
+from betty.roles.informant import Informant
+from betty.roles.subject import Subject
+from betty.roles.unknown import Unknown as UnknownRole
+from betty.roles.witness import Witness
 
 if TYPE_CHECKING:
     from asyncio.subprocess import Process

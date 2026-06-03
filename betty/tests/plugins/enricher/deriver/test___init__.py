@@ -11,7 +11,7 @@ from betty.plugins.entity.presence import Presence
 from betty.plugins.event_type.birth import Birth
 from betty.plugins.event_type.death import Death
 from betty.plugins.event_type.residence import Residence
-from betty.plugins.role.subject import Subject
+from betty.roles.subject import Subject
 from betty.test_utils.entity import record_added
 
 if TYPE_CHECKING:

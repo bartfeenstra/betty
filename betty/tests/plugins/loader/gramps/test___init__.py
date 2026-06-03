@@ -15,9 +15,9 @@ from betty.plugins.event_type.birth import Birth
 from betty.plugins.loader.gramps import FamilyTree, Gramps, GrampsData
 from betty.plugins.place_type.borough import Borough
 from betty.plugins.place_type.city import City
-from betty.plugins.role.attendee import Attendee
-from betty.plugins.role.subject import Subject
 from betty.role import RoleManufacturer
+from betty.roles.attendee import Attendee
+from betty.roles.subject import Subject
 from betty.test_utils.conftest import IsolatedProjectFactory
 from betty.test_utils.data import DataTestBase
 

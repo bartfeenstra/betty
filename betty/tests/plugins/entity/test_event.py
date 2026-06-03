@@ -16,8 +16,8 @@ from betty.plugins.entity.presence import Presence
 from betty.plugins.entity.source import Source
 from betty.plugins.event_type.birth import Birth
 from betty.plugins.event_type.unknown import Unknown as UnknownEventType
-from betty.plugins.role.subject import Subject
 from betty.privacy import Privacy
+from betty.roles.subject import Subject
 from betty.test_utils.entity import EntityTestBase
 
 if TYPE_CHECKING:

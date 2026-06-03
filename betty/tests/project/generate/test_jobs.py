@@ -17,7 +17,6 @@ from betty.plugins.entity.person_name import PersonName
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.presence import Presence
 from betty.plugins.entity.source import Source
-from betty.plugins.role.unknown import Unknown as UnknownRole
 from betty.privacy import Privacy
 from betty.project import Project, ProjectLocale
 from betty.project.generate.jobs import (
@@ -34,6 +33,7 @@ from betty.project.generate.jobs import (
     GenerateSitemap,
     GenerateStaticPublicAssets,
 )
+from betty.roles.unknown import Unknown as UnknownRole
 from betty.string import kebab_case_to_lower_camel_case
 from betty.test_utils.conftest import IsolatedProjectFactory
 from betty.test_utils.jinja import assert_betty_html, assert_betty_json

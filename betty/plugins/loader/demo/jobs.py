@@ -34,7 +34,7 @@ from betty.plugins.place_type.country import Country
 from betty.plugins.place_type.municipality import Municipality
 from betty.plugins.place_type.province import Province
 from betty.plugins.place_type.village import Village
-from betty.plugins.role.subject import Subject
+from betty.roles.subject import Subject
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence

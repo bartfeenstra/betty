@@ -37,9 +37,9 @@ from betty.plugins.extension.raspberry_mint import (
     RegionalContentManufacturers,
 )
 from betty.plugins.extension.raspberry_mint import ColorStyle as ColorStyleOption
-from betty.plugins.role.subject import Subject
-from betty.plugins.role.witness import Witness
 from betty.requirement import check
+from betty.roles.subject import Subject
+from betty.roles.witness import Witness
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterable, Sequence

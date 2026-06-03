@@ -9,8 +9,8 @@ from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.presence import Presence
-from betty.plugins.role.subject import Subject
-from betty.plugins.role.witness import Witness
+from betty.roles.subject import Subject
+from betty.roles.witness import Witness
 from betty.test_utils.conftest import IsolatedProjectFactory
 from betty.test_utils.data import DataTestBase
 
