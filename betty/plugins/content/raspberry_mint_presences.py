@@ -11,13 +11,13 @@ from betty.content import ContentDefinition
 from betty.data import Data
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.entities.event import Event
 from betty.factory import DataManufacturable, Manufacturable
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.content.template import Template, TemplateBuild
-from betty.plugins.entity.event import Event
 from betty.project import Project
 from betty.prop import HasProps
 from betty.role import RoleDefinition

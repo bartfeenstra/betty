@@ -3,8 +3,8 @@ from collections.abc import AsyncIterator
 import pytest
 from playwright.async_api import Page, expect
 
-from betty.plugins.entity.person import Person
-from betty.plugins.entity.person_name import PersonName
+from betty.entities.person import Person
+from betty.entities.person_name import PersonName
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.project import Project
 from betty.project.generate import generate

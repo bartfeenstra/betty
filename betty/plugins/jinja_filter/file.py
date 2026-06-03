@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
     from jinja2.runtime import Context
 
-    from betty.plugins.entity.file import File as FileEntity
+    from betty.entities.file import File as FileEntity
 
 
 @final

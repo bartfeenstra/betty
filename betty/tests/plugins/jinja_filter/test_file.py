@@ -1,7 +1,7 @@
 import pytest
 
+from betty.entities.file import File
 from betty.job import Context
-from betty.plugins.entity.file import File
 from betty.test_utils.conftest import AssertTemplateString
 
 _TEST_FILTER_FILE_PARAMETER_ARGNAMES = ("expected", "template", "file")

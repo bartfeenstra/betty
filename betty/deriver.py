@@ -11,11 +11,11 @@ from typing import TYPE_CHECKING, cast, final, override
 from uuid import NAMESPACE_URL, uuid5
 
 from betty.date import Date, DateRange
+from betty.entities.event import Event
+from betty.entities.person import Person
+from betty.entities.presence import Presence
 from betty.event_type import EventTypeDefinition, ShouldExistEventType
 from betty.locale.localizable.gettext import _
-from betty.plugins.entity.event import Event
-from betty.plugins.entity.person import Person
-from betty.plugins.entity.presence import Presence
 from betty.roles.subject import Subject
 
 if TYPE_CHECKING:

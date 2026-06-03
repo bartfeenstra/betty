@@ -1,12 +1,12 @@
 from betty.date import Date
 from betty.document import Document, EntityContexts
+from betty.entities.citation import Citation
+from betty.entities.event import Event
+from betty.entities.place import Place
+from betty.entities.place_name import PlaceName
+from betty.entities.source import Source
 from betty.event_types.birth import Birth
 from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
-from betty.plugins.entity.citation import Citation
-from betty.plugins.entity.event import Event
-from betty.plugins.entity.place import Place
-from betty.plugins.entity.place_name import PlaceName
-from betty.plugins.entity.source import Source
 from betty.test_utils.conftest import AssertTemplateFile
 
 

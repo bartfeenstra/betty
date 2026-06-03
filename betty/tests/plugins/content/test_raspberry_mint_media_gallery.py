@@ -1,9 +1,9 @@
 from betty.document import Document
+from betty.entities.file import File
+from betty.entities.file_reference import FileReference
+from betty.entities.person import Person
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugins.content.raspberry_mint_media_gallery import MediaGallery
-from betty.plugins.entity.file import File
-from betty.plugins.entity.file_reference import FileReference
-from betty.plugins.entity.person import Person
 from betty.test_utils.conftest import IsolatedProjectFactory
 
 

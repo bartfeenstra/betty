@@ -16,10 +16,10 @@ from betty.privacy.resolve import is_public, merge_secondary_privacies
 from betty.role import RoleDefinition
 
 if TYPE_CHECKING:
+    from betty.entities.event import Event
+    from betty.entities.person import Person
     from betty.linked_data import JsonLdObject
     from betty.locale.localizable import Localizable
-    from betty.plugins.entity.event import Event
-    from betty.plugins.entity.person import Person
     from betty.portable import PortableMapping
     from betty.project import Project
     from betty.role import Role
@@ -40,7 +40,7 @@ class Presence(HasPrivacy, Entity):
     """
 
     person = BidirectionalToOne["Presence", "Person"](
-        "betty.plugins.entity.person:Person",
+        "betty.entities.person:Person",
         "presences",
         label=_("Person"),
     )
@@ -49,7 +49,7 @@ class Presence(HasPrivacy, Entity):
     """
 
     event = BidirectionalToOne["Presence", "Event"](
-        "betty.plugins.entity.event:Event",
+        "betty.entities.event:Event",
         "presences",
         label=_("Event"),
     )

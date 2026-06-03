@@ -9,6 +9,10 @@ from collections import defaultdict
 from typing import TYPE_CHECKING
 
 from betty.concurrent import Lock, ThreadSafeLock
+from betty.entities.file import File
+from betty.entities.file_reference import FileReference
+from betty.entities.link import Link
+from betty.entities.place import Place
 from betty.entity.has_file_references import HasFileReferences
 from betty.entity.has_links import HasLinks
 from betty.functools import map_suppress
@@ -17,10 +21,6 @@ from betty.locale.error import LocaleError
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
 from betty.media_types.html import HTML
-from betty.plugins.entity.file import File
-from betty.plugins.entity.file_reference import FileReference
-from betty.plugins.entity.link import Link
-from betty.plugins.entity.place import Place
 from betty.typing import threadsafe
 from betty.wiki import NotAPageError, parse_page_link
 from betty.wiki.client import ClientError

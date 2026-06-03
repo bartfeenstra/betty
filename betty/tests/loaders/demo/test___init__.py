@@ -4,13 +4,13 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from betty.entities.citation import Citation
+from betty.entities.event import Event
+from betty.entities.person import Person
+from betty.entities.place import Place
+from betty.entities.source import Source
 from betty.load import load
 from betty.loaders.demo import Demo
-from betty.plugins.entity.citation import Citation
-from betty.plugins.entity.event import Event
-from betty.plugins.entity.person import Person
-from betty.plugins.entity.place import Place
-from betty.plugins.entity.source import Source
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture

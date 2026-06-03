@@ -1,6 +1,6 @@
 from betty.document import Document
+from betty.entities.note import Note
 from betty.plugins.content.notes import Notes
-from betty.plugins.entity.note import Note
 from betty.project import Project
 from betty.test_utils.ancestry.has_notes import DummyHasNotes
 

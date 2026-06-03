@@ -5,12 +5,12 @@ import pytest
 from geopy import Point
 
 from betty.document import Document
+from betty.entities.event import Event
+from betty.entities.person import Person
+from betty.entities.place import Place
+from betty.entities.presence import Presence
 from betty.entity import Entity
 from betty.plugins.content.map import Map
-from betty.plugins.entity.event import Event
-from betty.plugins.entity.person import Person
-from betty.plugins.entity.place import Place
-from betty.plugins.entity.presence import Presence
 from betty.roles.subject import Subject
 from betty.test_utils.conftest import IsolatedProjectFactory
 

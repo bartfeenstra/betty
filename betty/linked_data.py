@@ -14,8 +14,8 @@ from betty.portable import PortableData, PortableMapping
 from betty.string import snake_case_to_lower_camel_case
 
 if TYPE_CHECKING:
+    from betty.entities.link import Link
     from betty.locale.localizable import ResolvableLocalizable
-    from betty.plugins.entity.link import Link
     from betty.project import Project
 
 

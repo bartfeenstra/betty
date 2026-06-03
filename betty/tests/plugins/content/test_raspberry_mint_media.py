@@ -1,9 +1,9 @@
 from betty.dirs import BUILTIN_ASSET_DIRECTORY
 from betty.document import Document
+from betty.entities.file import File
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.plugins.content.raspberry_mint_media import Media
-from betty.plugins.entity.file import File
 from betty.test_utils.conftest import IsolatedProjectFactory
 
 

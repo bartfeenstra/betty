@@ -6,13 +6,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
+from betty.entities.file import File
 from betty.entity import Entity, EntityDefinition
 from betty.entity.association import (
     BidirectionalToOne,
     ToOneAssociate,
 )
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugins.entity.file import File
 
 if TYPE_CHECKING:
     from betty.entity.has_file_references import HasFileReferences
@@ -43,7 +43,7 @@ class FileReference(Entity):
     """
 
     file = BidirectionalToOne["FileReference", File](
-        "betty.plugins.entity.file:File",
+        "betty.entities.file:File",
         "referees",
         label=_("File"),
         description=_("The file being referenced"),

@@ -3,11 +3,11 @@ from collections.abc import Set
 import pytest
 
 from betty.document import Document
+from betty.entities.event import Event
+from betty.entities.person import Person
+from betty.entities.place import Place
 from betty.entity import Entity
 from betty.plugins.content.tree import Tree
-from betty.plugins.entity.event import Event
-from betty.plugins.entity.person import Person
-from betty.plugins.entity.place import Place
 from betty.test_utils.conftest import IsolatedProjectFactory
 
 

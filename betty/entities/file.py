@@ -23,15 +23,15 @@ from betty.privacy import Privacy
 
 if TYPE_CHECKING:
     from betty.copyright_notice import CopyrightNotice
+    from betty.entities.citation import Citation
+    from betty.entities.file_reference import FileReference  # noqa: F401
+    from betty.entities.link import Link
+    from betty.entities.note import Note
     from betty.license import License
     from betty.linked_data import JsonLdObject
     from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.media_type import ResolvableMediaType
     from betty.pathlib import StrPath
-    from betty.plugins.entity.citation import Citation
-    from betty.plugins.entity.file_reference import FileReference  # noqa: F401
-    from betty.plugins.entity.link import Link
-    from betty.plugins.entity.note import Note
     from betty.portable import PortableMapping
     from betty.project import Project
 
@@ -56,7 +56,7 @@ class File(
     """
 
     referees = BidirectionalToManyMultipleTypes["File", "FileReference"](
-        "betty.plugins.entity.file_reference:FileReference",
+        "betty.entities.file_reference:FileReference",
         "file",
         label=_("Referees"),
         description=_("The entities referencing this file"),

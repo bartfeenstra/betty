@@ -11,7 +11,7 @@ from betty.entity.association import BidirectionalToManySingleType, ToManyAssoci
 from betty.locale.localizable.gettext import _
 
 if TYPE_CHECKING:
-    from betty.plugins.entity.citation import Citation
+    from betty.entities.citation import Citation
 
 
 class HasCitations(Entity):
@@ -20,7 +20,7 @@ class HasCitations(Entity):
     """
 
     citations = BidirectionalToManySingleType["HasCitations", "Citation"](
-        "betty.plugins.entity.citation:Citation",
+        "betty.entities.citation:Citation",
         "facts",
         label=_("Citations"),
         description=_("The citations backing up the claims made by this entity"),

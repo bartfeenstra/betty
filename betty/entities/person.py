@@ -26,14 +26,14 @@ from betty.privacy import Privacy
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
+    from betty.entities.citation import Citation
+    from betty.entities.file_reference import FileReference
+    from betty.entities.link import Link
+    from betty.entities.note import Note
+    from betty.entities.person_name import PersonName
+    from betty.entities.presence import Presence
     from betty.gender import Gender
     from betty.locale.localizable import Localizable
-    from betty.plugins.entity.citation import Citation
-    from betty.plugins.entity.file_reference import FileReference
-    from betty.plugins.entity.link import Link
-    from betty.plugins.entity.note import Note
-    from betty.plugins.entity.person_name import PersonName
-    from betty.plugins.entity.presence import Presence
     from betty.portable import PortableMapping
     from betty.project import Project
 
@@ -51,7 +51,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
     """
 
     parents = BidirectionalToManySingleType["Person", "Person"](
-        "betty.plugins.entity.person:Person",
+        "betty.entities.person:Person",
         "children",
         label=_("Parents"),
     )
@@ -60,7 +60,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
     """
 
     children = BidirectionalToManySingleType["Person", "Person"](
-        "betty.plugins.entity.person:Person",
+        "betty.entities.person:Person",
         "parents",
         label=_("Children"),
     )
@@ -69,7 +69,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
     """
 
     presences = BidirectionalToManySingleType["Person", "Presence"](
-        "betty.plugins.entity.presence:Presence",
+        "betty.entities.presence:Presence",
         "person",
         label=_("Presences"),
         description=_("This person's presences at events"),
@@ -80,7 +80,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
     """
 
     names = BidirectionalToManySingleType["Person", "PersonName"](
-        "betty.plugins.entity.person_name:PersonName",
+        "betty.entities.person_name:PersonName",
         "person",
         label=_("Names"),
         linked_data_embedded=True,

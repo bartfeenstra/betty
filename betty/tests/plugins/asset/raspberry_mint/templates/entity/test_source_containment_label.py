@@ -1,5 +1,5 @@
+from betty.entities.source import Source
 from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
-from betty.plugins.entity.source import Source
 from betty.test_utils.conftest import AssertTemplateFile
 
 

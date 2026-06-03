@@ -3,8 +3,8 @@ from aiohttp import ClientSession
 from aioresponses import aioresponses
 
 from betty.enrichers.populate_links import PopulateLink
+from betty.entities.link import Link
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.plugins.entity.link import Link
 from betty.test_utils.job import do
 
 

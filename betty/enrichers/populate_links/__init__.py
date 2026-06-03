@@ -8,9 +8,9 @@ from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.enrichers.populate_links.jobs import PopulateLink
+from betty.entities.link import Link
 from betty.factory import Manufacturable
 from betty.load import Enricher, EnricherDefinition
-from betty.plugins.entity.link import Link
 from betty.project import Project
 
 if TYPE_CHECKING:

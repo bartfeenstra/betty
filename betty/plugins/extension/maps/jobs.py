@@ -7,10 +7,10 @@ from __future__ import annotations
 from asyncio import to_thread
 from typing import TYPE_CHECKING, override
 
+from betty.entities.place import Place
 from betty.file import write
 from betty.job import Job
 from betty.media_types.html import HTML
-from betty.plugins.entity.place import Place
 
 if TYPE_CHECKING:
     from babel import Locale

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.plugins.entity.event import Event
+from betty.entities.event import Event
 
 if TYPE_CHECKING:
     from betty.test_utils.conftest import AssertTemplateFile

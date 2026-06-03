@@ -3,13 +3,13 @@ from pathlib import Path
 
 import pytest
 
+from betty.entities.file import File
+from betty.entities.person import Person
+from betty.entities.person_name import PersonName
+from betty.entities.place import Place
+from betty.entities.place_name import PlaceName
 from betty.job import Context
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.plugins.entity.file import File
-from betty.plugins.entity.person import Person
-from betty.plugins.entity.person_name import PersonName
-from betty.plugins.entity.place import Place
-from betty.plugins.entity.place_name import PlaceName
 from betty.plugins.extension._theme.search import Index
 from betty.plugins.extension.raspberry_mint import RaspberryMint
 from betty.privacy import Privacy

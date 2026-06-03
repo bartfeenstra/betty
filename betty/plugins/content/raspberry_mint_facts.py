@@ -7,13 +7,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.content import ContentDefinition
+from betty.entities.citation import Citation
+from betty.entities.source import Source
 from betty.factory import Manufacturable
 from betty.functools import unique
 from betty.locale.localizable.gettext import _
 from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.content.template import Template, TemplateBuild
-from betty.plugins.entity.citation import Citation
-from betty.plugins.entity.source import Source
 from betty.privacy.resolve import is_public
 from betty.project import Project
 

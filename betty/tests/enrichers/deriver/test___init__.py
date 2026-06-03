@@ -4,13 +4,13 @@ from typing import TYPE_CHECKING
 
 from betty.date import Date, DateRange
 from betty.enrichers.deriver import Deriver
+from betty.entities.event import Event
+from betty.entities.person import Person
+from betty.entities.presence import Presence
 from betty.event_types.birth import Birth
 from betty.event_types.death import Death
 from betty.event_types.residence import Residence
 from betty.load import load
-from betty.plugins.entity.event import Event
-from betty.plugins.entity.person import Person
-from betty.plugins.entity.presence import Presence
 from betty.roles.subject import Subject
 from betty.test_utils.entity import record_added
 

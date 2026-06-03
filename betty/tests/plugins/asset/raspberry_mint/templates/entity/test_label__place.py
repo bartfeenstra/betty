@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING
 
 from betty.date import Date, DateRange
 from betty.document import Document, EntityContexts
-from betty.plugins.entity.place import Place
-from betty.plugins.entity.place_name import PlaceName
+from betty.entities.place import Place
+from betty.entities.place_name import PlaceName
 
 if TYPE_CHECKING:
     from betty.test_utils.conftest import AssertTemplateFile

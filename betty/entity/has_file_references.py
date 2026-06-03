@@ -11,18 +11,18 @@ from betty.entity.association import BidirectionalToManySingleType, ToManyAssoci
 from betty.locale.localizable.gettext import _
 
 if TYPE_CHECKING:
-    from betty.plugins.entity.file_reference import FileReference
+    from betty.entities.file_reference import FileReference
 
 
 class HasFileReferences(Entity):
     """
-    An entity that has associated :py:class:`betty.plugins.entity.file.File` entities.
+    An entity that has associated :py:class:`betty.entities.file.File` entities.
     """
 
     file_references = BidirectionalToManySingleType[
         "HasFileReferences", "FileReference"
     ](
-        "betty.plugins.entity.file_reference:FileReference",
+        "betty.entities.file_reference:FileReference",
         "referee",
         label=_("File references"),
         linked_data_embedded=True,

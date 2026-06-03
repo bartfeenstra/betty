@@ -3,15 +3,15 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from betty.enrichers.privatizer import Privatizer
+from betty.entities.citation import Citation
+from betty.entities.event import Event
+from betty.entities.file import File
+from betty.entities.file_reference import FileReference
+from betty.entities.person import Person
+from betty.entities.presence import Presence
+from betty.entities.source import Source
 from betty.event_types.birth import Birth
 from betty.load import load
-from betty.plugins.entity.citation import Citation
-from betty.plugins.entity.event import Event
-from betty.plugins.entity.file import File
-from betty.plugins.entity.file_reference import FileReference
-from betty.plugins.entity.person import Person
-from betty.plugins.entity.presence import Presence
-from betty.plugins.entity.source import Source
 from betty.privacy import Privacy
 from betty.roles.subject import Subject
 

@@ -6,13 +6,13 @@ from typing import Self, final, override
 
 from betty.content import ContentDefinition
 from betty.document import Document
+from betty.entities.event import Event
+from betty.entities.person import Person
+from betty.entities.place import Place
 from betty.factory import Manufacturable
 from betty.locale.localizable.gettext import _
 from betty.plugins.asset_directory.maps import MAPS
 from betty.plugins.content.template import Template, TemplateBuild
-from betty.plugins.entity.event import Event
-from betty.plugins.entity.person import Person
-from betty.plugins.entity.place import Place
 from betty.plugins.extension.webpack import Webpack
 from betty.plugins.jinja_filter.webpack_entry_point_js import WebpackEntryPointJs
 from betty.project import Project

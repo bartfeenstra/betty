@@ -28,11 +28,11 @@ from betty.privacy.resolve import is_public, merge_privacies
 
 if TYPE_CHECKING:
     from betty.date import AnyDate
+    from betty.entities.citation import Citation  # noqa: F401
+    from betty.entities.file_reference import FileReference
+    from betty.entities.link import Link
+    from betty.entities.note import Note
     from betty.locale.localizable import Localizable, ResolvableLocalizable
-    from betty.plugins.entity.citation import Citation  # noqa: F401
-    from betty.plugins.entity.file_reference import FileReference
-    from betty.plugins.entity.link import Link
-    from betty.plugins.entity.note import Note
     from betty.portable import PortableMapping
     from betty.project import Project
 
@@ -65,7 +65,7 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Enti
     """
 
     contained_by = BidirectionalToZeroOrOne["Source", "Source"](
-        "betty.plugins.entity.source:Source",
+        "betty.entities.source:Source",
         "contains",
         label=_("Contained by"),
         description=_("Another source this source may be contained by"),
@@ -75,7 +75,7 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Enti
     """
 
     contains = BidirectionalToManySingleType["Source", "Source"](
-        "betty.plugins.entity.source:Source",
+        "betty.entities.source:Source",
         "contained_by",
         label=_("Contains"),
         description=_("Other sources this source may contain"),
@@ -85,7 +85,7 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Enti
     """
 
     citations = BidirectionalToManySingleType["Source", "Citation"](
-        "betty.plugins.entity.citation:Citation",
+        "betty.entities.citation:Citation",
         "source",
         label=_("Citations"),
         description=_("The citations referencing this source"),

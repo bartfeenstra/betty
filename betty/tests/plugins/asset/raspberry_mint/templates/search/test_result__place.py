@@ -1,6 +1,6 @@
+from betty.entities.place import Place
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
-from betty.plugins.entity.place import Place
 from betty.test_utils.conftest import AssertTemplateFile
 
 

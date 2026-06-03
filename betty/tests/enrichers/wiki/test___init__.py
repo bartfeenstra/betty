@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from betty.enrichers.wiki import Wiki, WikiData
+from betty.entities.link import Link
 from betty.load import load
-from betty.plugins.entity.link import Link
 from betty.test_utils.data import DataTestBase
 
 if TYPE_CHECKING:

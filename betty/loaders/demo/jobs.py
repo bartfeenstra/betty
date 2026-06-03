@@ -9,6 +9,19 @@ from typing import TYPE_CHECKING, override
 
 from betty.date import Date, DateRange
 from betty.dirs import BUILTIN_ASSET_DIRECTORY
+from betty.entities.citation import Citation
+from betty.entities.enclosure import Enclosure
+from betty.entities.event import Event
+from betty.entities.file import File
+from betty.entities.file_reference import FileReference
+from betty.entities.link import Link
+from betty.entities.note import Note
+from betty.entities.person import Person
+from betty.entities.person_name import PersonName
+from betty.entities.place import Place
+from betty.entities.place_name import PlaceName
+from betty.entities.presence import Presence
+from betty.entities.source import Source
 from betty.event_types.birth import Birth
 from betty.event_types.death import Death
 from betty.event_types.marriage import Marriage
@@ -21,19 +34,6 @@ from betty.place_types.country import Country
 from betty.place_types.municipality import Municipality
 from betty.place_types.province import Province
 from betty.place_types.village import Village
-from betty.plugins.entity.citation import Citation
-from betty.plugins.entity.enclosure import Enclosure
-from betty.plugins.entity.event import Event
-from betty.plugins.entity.file import File
-from betty.plugins.entity.file_reference import FileReference
-from betty.plugins.entity.link import Link
-from betty.plugins.entity.note import Note
-from betty.plugins.entity.person import Person
-from betty.plugins.entity.person_name import PersonName
-from betty.plugins.entity.place import Place
-from betty.plugins.entity.place_name import PlaceName
-from betty.plugins.entity.presence import Presence
-from betty.plugins.entity.source import Source
 from betty.roles.subject import Subject
 
 if TYPE_CHECKING:

@@ -19,10 +19,10 @@ from betty.project import Project
 
 if TYPE_CHECKING:
     from betty.document import Document
+    from betty.entities.file_reference import FileReference
     from betty.entity import Entity
     from betty.entity.collection.pool import EntityPool
     from betty.jinja import Environment
-    from betty.plugins.entity.file_reference import FileReference
 
 
 @final

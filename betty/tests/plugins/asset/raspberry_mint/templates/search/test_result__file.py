@@ -2,10 +2,10 @@ from pathlib import Path
 
 from PIL import Image
 
+from betty.entities.file import File
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
-from betty.plugins.entity.file import File
 from betty.test_utils.conftest import AssertTemplateFile
 
 

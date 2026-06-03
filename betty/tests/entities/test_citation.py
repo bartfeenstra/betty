@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, cast, override
 
+from betty.entities.citation import Citation
+from betty.entities.event import Event
+from betty.entities.source import Source
 from betty.entity import Entity
 from betty.event_types.birth import Birth
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.plugins.entity.citation import Citation
-from betty.plugins.entity.event import Event
-from betty.plugins.entity.source import Source
 from betty.privacy import Privacy
 from betty.test_utils.ancestry.has_citations import DummyHasCitations
 from betty.test_utils.entity import EntityTestBase

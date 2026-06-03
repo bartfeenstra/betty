@@ -1,8 +1,8 @@
+from betty.entities.link import Link
 from betty.entity import EntityDefinition
 from betty.entity.has_links import HasLinks
 from betty.locale import DEFAULT_LOCALE
 from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
-from betty.plugins.entity.link import Link
 from betty.test_utils.conftest import AssertTemplateFile
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,

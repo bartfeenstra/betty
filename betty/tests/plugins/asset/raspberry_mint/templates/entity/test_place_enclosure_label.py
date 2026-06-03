@@ -1,6 +1,6 @@
+from betty.entities.enclosure import Enclosure
+from betty.entities.place import Place
 from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
-from betty.plugins.entity.enclosure import Enclosure
-from betty.plugins.entity.place import Place
 from betty.test_utils.conftest import AssertTemplateFile
 
 

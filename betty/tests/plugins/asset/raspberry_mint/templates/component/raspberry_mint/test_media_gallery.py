@@ -2,11 +2,11 @@ from pathlib import Path
 
 from PIL import Image
 
+from betty.entities.file import File
+from betty.entities.file_reference import FileReference
 from betty.entity.association import TemporaryToOneResolver
 from betty.media_type import MediaType
 from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
-from betty.plugins.entity.file import File
-from betty.plugins.entity.file_reference import FileReference
 from betty.privacy import Privacy
 from betty.test_utils.conftest import AssertTemplateFile
 

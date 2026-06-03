@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from betty.document import Document, EntityContexts
-from betty.plugins.entity.citation import Citation
-from betty.plugins.entity.source import Source
+from betty.entities.citation import Citation
+from betty.entities.source import Source
 from betty.privacy import Privacy
 
 if TYPE_CHECKING:

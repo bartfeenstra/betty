@@ -7,17 +7,17 @@ from typing import TYPE_CHECKING, Any, cast, override
 from betty.copyright_notices.public_domain import (
     PublicDomain as PublicDomainCopyrightNotice,
 )
+from betty.entities.citation import Citation
+from betty.entities.file import File
+from betty.entities.file_reference import FileReference
+from betty.entities.note import Note
+from betty.entities.person import Person
+from betty.entities.source import Source
 from betty.entity import Entity
 from betty.licenses.public_domain import PublicDomain as PublicDomainLicense
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_types.plain_text import PLAIN_TEXT
-from betty.plugins.entity.citation import Citation
-from betty.plugins.entity.file import File
-from betty.plugins.entity.file_reference import FileReference
-from betty.plugins.entity.note import Note
-from betty.plugins.entity.person import Person
-from betty.plugins.entity.source import Source
 from betty.privacy import Privacy
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 from betty.test_utils.entity import EntityTestBase

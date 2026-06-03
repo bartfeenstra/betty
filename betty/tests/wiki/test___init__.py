@@ -5,10 +5,10 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from betty.entities.link import Link
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localize import Localizer
-from betty.plugins.entity.link import Link
 from betty.wiki import NotAPageError, parse_page_link, parse_page_url
 
 if TYPE_CHECKING:

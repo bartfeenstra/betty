@@ -15,6 +15,13 @@ from betty.copyright_notices.public_domain import (
     PublicDomain as PublicDomainCopyrightNotice,
 )
 from betty.date import Date, DateRange
+from betty.entities.citation import Citation
+from betty.entities.event import Event
+from betty.entities.file import File
+from betty.entities.note import Note
+from betty.entities.person import Person
+from betty.entities.place import Place
+from betty.entities.source import Source
 from betty.entity.collection.pool import EntityPool
 from betty.event_types.birth import Birth
 from betty.event_types.death import Death
@@ -28,13 +35,6 @@ from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 from betty.media_type import MediaType
 from betty.place_types.city import City
 from betty.place_types.unknown import Unknown as UnknownPlaceType
-from betty.plugins.entity.citation import Citation
-from betty.plugins.entity.event import Event
-from betty.plugins.entity.file import File
-from betty.plugins.entity.note import Note
-from betty.plugins.entity.person import Person
-from betty.plugins.entity.place import Place
-from betty.plugins.entity.source import Source
 from betty.privacy import Privacy
 from betty.project import Project
 from betty.roles.subject import Subject
