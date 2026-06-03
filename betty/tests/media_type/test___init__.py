@@ -14,8 +14,8 @@ from betty.media_type import (
     match_media_type,
     resolve_media_type,
 )
-from betty.plugins.media_type.html import HTML
-from betty.plugins.media_type.plain_text import PLAIN_TEXT
+from betty.media_types.html import HTML
+from betty.media_types.plain_text import PLAIN_TEXT
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence

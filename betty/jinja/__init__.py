@@ -32,8 +32,8 @@ from betty.media_type import (
     match_extension,
     resolve_media_type,
 )
+from betty.media_types.jinja import JINJA
 from betty.pathlib import resolve_path
-from betty.plugins.media_type.jinja import JINJA
 from betty.string import kebab_case_to_snake_case
 from betty.warnings import deprecate
 

@@ -16,11 +16,11 @@ from betty.locale import negotiate_locale, resolve_locale
 from betty.locale.error import LocaleError
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
+from betty.media_types.html import HTML
 from betty.plugins.entity.file import File
 from betty.plugins.entity.file_reference import FileReference
 from betty.plugins.entity.link import Link
 from betty.plugins.entity.place import Place
-from betty.plugins.media_type.html import HTML
 from betty.typing import threadsafe
 from betty.wiki import NotAPageError, parse_page_link
 from betty.wiki.client import ClientError

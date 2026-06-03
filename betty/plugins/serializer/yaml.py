@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, cast, final, override
 import yaml
 
 from betty.locale.localizable.gettext import _
-from betty.plugins.media_type.yaml import YAML
+from betty.media_types.yaml import YAML
 from betty.portable import PortableData
 from betty.serde import SerializationError, Serializer, SerializerDefinition
 

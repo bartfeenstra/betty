@@ -14,7 +14,7 @@ from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.factory import DataManufacturable
 from betty.locale.localizable.gettext import _
 from betty.locale.localize import resolve_localized
-from betty.plugins.media_type.plain_text import PLAIN_TEXT
+from betty.media_types.plain_text import PLAIN_TEXT
 from betty.project import Project
 from betty.prop import HasProps
 from betty.sample import Sample, Size

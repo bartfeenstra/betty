@@ -28,11 +28,11 @@ from betty.linked_data import LinkedDataDumpable
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
+from betty.media_types.html import HTML
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
-from betty.plugins.media_type.html import HTML
 from betty.portable import PortableMapping
 
 if TYPE_CHECKING:

@@ -18,6 +18,7 @@ from betty.loaders.demo import Demo
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Chain
+from betty.media_types.html import HTML
 from betty.plugins.content.raspberry_mint_columns import Columns, ColumnsData
 from betty.plugins.content.raspberry_mint_entity_card import EntityCard
 from betty.plugins.content.raspberry_mint_incomplete_translation_warning import (
@@ -40,7 +41,6 @@ from betty.plugins.extension.raspberry_mint import (
 )
 from betty.plugins.extension.spdx import Spdx
 from betty.plugins.extension.trees import Trees
-from betty.plugins.media_type.html import HTML
 from betty.project import Project
 
 if TYPE_CHECKING:

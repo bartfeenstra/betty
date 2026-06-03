@@ -8,8 +8,8 @@ from PIL import UnidentifiedImageError
 from PIL.Image import EXTENSION, Image, init, preinit
 
 from betty.media_type import MediaType
+from betty.media_types.pdf import PDF
 from betty.pathlib import StrPath, resolve_path
-from betty.plugins.media_type.pdf import PDF
 
 type Percentage = int
 type Pixel = int

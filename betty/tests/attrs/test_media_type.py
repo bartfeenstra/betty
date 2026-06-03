@@ -6,7 +6,7 @@ import pytest
 
 from betty.attrs.media_type import HasMediaType, new_media_type_attr
 from betty.media_type import MediaType, MediaTypeDefinition
-from betty.plugins.media_type.plain_text import PLAIN_TEXT
+from betty.media_types.plain_text import PLAIN_TEXT
 from betty.prop import HasProps
 
 if TYPE_CHECKING:

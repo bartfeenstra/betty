@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING, Any
 import pytest
 
 from betty.media_type import MediaType
-from betty.plugins.media_type.pdf import PDF
-from betty.plugins.media_type.svg import SVG
+from betty.media_types.pdf import PDF
+from betty.media_types.svg import SVG
 
 if TYPE_CHECKING:
     from betty.test_utils.conftest import AssertTemplateString

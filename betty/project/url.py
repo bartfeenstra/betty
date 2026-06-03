@@ -10,9 +10,9 @@ from urllib.parse import urlsplit
 from betty.entity import Entity, EntityDefinition
 from betty.factory import Manufacturable
 from betty.media_type import resolve_media_type
-from betty.plugins.media_type.html import HTML
-from betty.plugins.media_type.json import JSON
-from betty.plugins.media_type.json_ld import JSON_LD
+from betty.media_types.html import HTML
+from betty.media_types.json import JSON
+from betty.media_types.json_ld import JSON_LD
 from betty.project import Project
 from betty.string import camel_case_to_kebab_case
 from betty.url import (

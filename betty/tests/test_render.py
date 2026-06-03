@@ -1,7 +1,7 @@
 from typing import ClassVar, override
 
 from betty.media_type import MediaType
-from betty.plugins.media_type.html import HTML
+from betty.media_types.html import HTML
 from betty.render import RenderDispatcher, Renderer
 
 

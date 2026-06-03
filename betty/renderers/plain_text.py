@@ -7,7 +7,7 @@ from typing import override
 from betty.html import plain_text_to_html
 from betty.locale.localizable.gettext import _
 from betty.media_type import MediaType
-from betty.plugins.media_type.plain_text import PLAIN_TEXT
+from betty.media_types.plain_text import PLAIN_TEXT
 from betty.render import Renderer, RendererDefinition
 
 

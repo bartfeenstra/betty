@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING, Any, override
 
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.media_types.html import HTML
 from betty.plugins.entity.link import Link
-from betty.plugins.media_type.html import HTML
 from betty.privacy import Privacy
 from betty.test_utils.ancestry.has_links import DummyHasLinks
 from betty.test_utils.entity import EntityTestBase

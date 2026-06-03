@@ -10,8 +10,8 @@ from typing import TYPE_CHECKING, override
 
 from betty.file import write
 from betty.job import Job
+from betty.media_types.html import HTML
 from betty.plugins.entity.person import Person
-from betty.plugins.media_type.html import HTML
 
 if TYPE_CHECKING:
     from babel import Locale

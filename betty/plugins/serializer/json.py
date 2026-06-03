@@ -8,7 +8,7 @@ import json
 from typing import TYPE_CHECKING, cast, final, override
 
 from betty.locale.localizable.gettext import _
-from betty.plugins.media_type.json import JSON
+from betty.media_types.json import JSON
 from betty.portable import PortableData
 from betty.serde import SerializationError, Serializer, SerializerDefinition
 
