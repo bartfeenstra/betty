@@ -257,7 +257,7 @@ betty = 'betty.console:main_standalone'
 
 
 [project.entry-points.'betty.js_resource']
-'webpack-entry-point-loader' = 'betty.plugins.js_resource.webpack_entry_point_loader:WEBPACK_ENTRY_POINT_LOADER'
+'webpack-entry-point-loader' = 'betty.js_resources.webpack_entry_point_loader:WEBPACK_ENTRY_POINT_LOADER'
 
 [project.entry-points.'betty.place_type']
 'borough' = 'betty.place_types.borough:Borough'
