@@ -138,7 +138,7 @@ betty = 'betty.console:main_standalone'
 'webpack' = 'betty.css_resources.webpack:WEBPACK'
 
 [project.entry-points.'betty.document_provider']
-'webpack' = 'betty.plugins.document_provider.webpack:Webpack'
+'webpack' = 'betty.document_providers.webpack:Webpack'
 
 [project.entry-points.'betty.license']
 'all-rights-reserved' = 'betty.licenses.all_rights_reserved:AllRightsReserved'

@@ -1,4 +1,4 @@
-from betty.plugins.document_provider.webpack import Webpack
+from betty.document_providers.webpack import Webpack
 from betty.project import Project
 
 

@@ -9,9 +9,9 @@ from typing import TYPE_CHECKING, cast, final
 
 from jinja2 import pass_context
 
+from betty.document_providers.webpack import Webpack
 from betty.jinja import context_document
 from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
-from betty.plugins.document_provider.webpack import Webpack
 from betty.project import Project
 
 if TYPE_CHECKING:
