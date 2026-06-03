@@ -3,9 +3,9 @@ from pathlib import Path
 from babel import Locale
 
 from betty.data import Data
+from betty.loaders.gramps import Gramps, GrampsData
 from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.plugins.loader.gramps import Gramps, GrampsData
 from betty.plugins.serializer.json import Json
 from betty.portable.file import assert_load_file
 from betty.project import ProjectData

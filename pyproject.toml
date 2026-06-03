@@ -152,8 +152,8 @@ betty = 'betty.console:main_standalone'
 'http-api-doc' = 'betty.links.http_api_doc:HTTP_API_DOC'
 
 [project.entry-points.'betty.loader']
-'demo' = 'betty.plugins.loader.demo:Demo'
-'gramps' = 'betty.plugins.loader.gramps:Gramps'
+'demo' = 'betty.loaders.demo:Demo'
+'gramps' = 'betty.loaders.gramps:Gramps'
 
 [project.entry-points.'betty.media_type']
 'html' = 'betty.plugins.media_type.html:HTML'

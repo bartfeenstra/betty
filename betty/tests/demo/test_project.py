@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from betty.demo.project import create_project
-from betty.plugins.loader.demo import Demo
+from betty.loaders.demo import Demo
 
 if TYPE_CHECKING:
     from pathlib import Path

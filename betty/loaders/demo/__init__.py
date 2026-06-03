@@ -9,9 +9,9 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.factory import Manufacturable
 from betty.license import LicenseDefinition
 from betty.load import Loader, LoaderDefinition
+from betty.loaders.demo.jobs import LoadAncestry
 from betty.plugins.copyright_notice.streetmix import Streetmix
 from betty.plugins.license.spdx import spdx_license_id_to_license_id
-from betty.plugins.loader.demo.jobs import LoadAncestry
 from betty.project import Project
 
 if TYPE_CHECKING:

@@ -1,9 +1,7 @@
 from unittest.mock import AsyncMock
 
 from betty.gramps.loader import GrampsLoader
-from betty.plugins.loader.gramps import (
-    LoadAncestry,
-)
+from betty.loaders.gramps import LoadAncestry
 from betty.test_utils.job import do
 
 

@@ -26,13 +26,12 @@ from betty.gramps.loader import (
     GrampsLoader,
 )
 from betty.load import Loader, LoaderDefinition
+from betty.loaders.gramps.jobs import LoadAncestry
 from betty.locale.localizable.gettext import _
 from betty.pathlib import resolve_path
 from betty.place_type import PlaceType, PlaceTypeDefinition, PlaceTypeManufacturer
-from betty.plugin import PluginDefinition as PluginDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
-from betty.plugins.loader.gramps.jobs import LoadAncestry
 from betty.project import Project
 from betty.prop import HasProps
 from betty.role import Role, RoleDefinition, RoleManufacturer
@@ -95,7 +94,7 @@ class FamilyTree(Data, HasProps):
     """
     A Gramps family tree.
 
-    .. data:: betty.plugins.loader.gramps:FamilyTree
+    .. data:: betty.loaders.gramps:FamilyTree
     """
 
     event_types = _new_plugin_mapping_attr(
@@ -226,9 +225,9 @@ class FamilyTree(Data, HasProps):
 )
 class GrampsData(Data, HasProps):
     """
-    Configuration for the :py:class:`betty.plugins.loader.gramps.Gramps` extension.
+    Configuration for the :py:class:`betty.loaders.gramps.Gramps` extension.
 
-    .. data:: betty.plugins.loader.gramps:GrampsData
+    .. data:: betty.loaders.gramps:GrampsData
     """
 
     family_trees = CollectionAttrAttr(

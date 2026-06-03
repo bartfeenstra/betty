@@ -316,6 +316,15 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "EnricherDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "EnricherManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
+    "betty/loaders/gramps/__init__.py": {
+        "FamilyTree": {
+            "event_types": MissingReason.INHERITED,
+            "file": MissingReason.INHERITED,
+            "name": MissingReason.INHERITED,
+            "place_types": MissingReason.INHERITED,
+            "roles": MissingReason.INHERITED,
+        },
+    },
     "betty/locale/__init__.py": {
         "Localized": MissingReason.ABSTRACT,
     },
@@ -546,15 +555,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "webpack_build_id": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/plugins/js_resource/webpack_entry_point_loader.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/loader/gramps/__init__.py": {
-        "FamilyTree": {
-            "event_types": MissingReason.INHERITED,
-            "file": MissingReason.INHERITED,
-            "name": MissingReason.INHERITED,
-            "place_types": MissingReason.INHERITED,
-            "roles": MissingReason.INHERITED,
-        },
-    },
     "betty/plugins/media_type/html.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/media_type/jinja.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/media_type/json.py": MissingReason.STATIC_CONTENT_ONLY,
