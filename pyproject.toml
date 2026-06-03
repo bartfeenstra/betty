@@ -224,11 +224,11 @@ betty = 'betty.console:main_standalone'
 'wiki' = 'betty.plugins.extension.wiki:Wiki'
 
 [project.entry-points.'betty.gender']
-'man' = 'betty.plugins.gender.man:Man'
-'non-binary' = 'betty.plugins.gender.non_binary:NonBinary'
+'man' = 'betty.genders.man:Man'
+'non-binary' = 'betty.genders.non_binary:NonBinary'
 'project-configuration' = 'betty.project._plugin_discovery:_discover_genders'
-'unknown' = 'betty.plugins.gender.unknown:Unknown'
-'woman' = 'betty.plugins.gender.woman:Woman'
+'unknown' = 'betty.genders.unknown:Unknown'
+'woman' = 'betty.genders.woman:Woman'
 
 [project.entry-points.'betty.jinja_filter']
 'build-content' = 'betty.plugins.jinja_filter.build_content:BuildContent'

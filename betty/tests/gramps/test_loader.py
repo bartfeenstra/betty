@@ -13,6 +13,8 @@ from babel import Locale
 
 from betty.date import Date, DateRange
 from betty.entity.collection.pool import EntityPool
+from betty.genders.non_binary import NonBinary
+from betty.genders.unknown import Unknown as UnknownGender
 from betty.gramps.error import UserFacingGrampsError
 from betty.gramps.loader import GrampsFileNotFound, GrampsLoader, LoaderUsedAlready
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
@@ -30,8 +32,6 @@ from betty.plugins.entity.source import Source
 from betty.plugins.event_type.birth import Birth
 from betty.plugins.event_type.death import Death
 from betty.plugins.event_type.unknown import Unknown as UnknownEventType
-from betty.plugins.gender.non_binary import NonBinary
-from betty.plugins.gender.unknown import Unknown as UnknownGender
 from betty.plugins.license.public_domain import PublicDomain as PublicDomainLicense
 from betty.plugins.place_type.city import City
 from betty.plugins.place_type.unknown import Unknown as UnknownPlaceType
