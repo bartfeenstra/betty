@@ -1,12 +1,12 @@
 from betty.content import ContentManufacturer
 from betty.document import Document
+from betty.extensions.raspberry_mint import ColorStyle as ColorStyleOption
 from betty.plugins.content.raspberry_mint_color_style import (
     ColorStyle,
     ColorStyleData,
 )
 from betty.plugins.content.render import Render, RenderData
 from betty.plugins.content.static import Static
-from betty.plugins.extension.raspberry_mint import ColorStyle as ColorStyleOption
 from betty.test_utils.conftest import IsolatedProjectFactory
 from betty.test_utils.data import DataTestBase
 

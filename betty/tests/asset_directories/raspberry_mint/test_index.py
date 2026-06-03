@@ -3,12 +3,12 @@ import pytest
 from betty.content import ContentManufacturer
 from betty.dirs import ASSET_DIRECTORY
 from betty.extension import ExtensionManufacturer
-from betty.plugins.content.render import Render, RenderData
-from betty.plugins.extension.raspberry_mint import (
+from betty.extensions.raspberry_mint import (
     RaspberryMint,
     RaspberryMintData,
     Region,
 )
+from betty.plugins.content.render import Render, RenderData
 from betty.test_utils.conftest import IsolatedProjectFactory
 
 

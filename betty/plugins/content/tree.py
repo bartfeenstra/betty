@@ -8,10 +8,10 @@ from betty.asset_directories.trees import TREES
 from betty.content import ContentDefinition
 from betty.document import Document
 from betty.entities.person import Person
+from betty.extensions.webpack import Webpack
 from betty.factory import Manufacturable
 from betty.locale.localizable.gettext import _
 from betty.plugins.content.template import Template, TemplateBuild
-from betty.plugins.extension.webpack import Webpack
 from betty.plugins.jinja_filter.webpack_entry_point_js import WebpackEntryPointJs
 from betty.project import Project
 

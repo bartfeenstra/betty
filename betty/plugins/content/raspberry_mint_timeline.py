@@ -10,10 +10,10 @@ from betty.asset_directories.raspberry_mint import RASPBERRY_MINT
 from betty.content import ContentDefinition
 from betty.entities.person import Person
 from betty.entities.place import Place
+from betty.extensions._theme import person_timeline_events, place_timeline_events
 from betty.factory import Manufacturable
 from betty.locale.localizable.gettext import _
 from betty.plugins.content.template import Template, TemplateBuild
-from betty.plugins.extension._theme import person_timeline_events, place_timeline_events
 from betty.project import Project
 
 if TYPE_CHECKING:

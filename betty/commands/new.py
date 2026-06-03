@@ -10,6 +10,12 @@ from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.enrichers.deriver import Deriver
 from betty.enrichers.privatizer import Privatizer
 from betty.enrichers.wiki import Wiki as WikiEnricher
+from betty.extensions.http_api_doc import HttpApiDoc
+from betty.extensions.maps import Maps
+from betty.extensions.raspberry_mint import RaspberryMint
+from betty.extensions.trees import Trees
+from betty.extensions.webpack import Webpack
+from betty.extensions.wiki import Wiki as WikiExtension
 from betty.factory import Manufacturable
 from betty.load import LoaderManufacturer
 from betty.loaders.gramps import FamilyTree, Gramps, GrampsData
@@ -17,12 +23,6 @@ from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
 from betty.machine_name import MachineName
-from betty.plugins.extension.http_api_doc import HttpApiDoc
-from betty.plugins.extension.maps import Maps
-from betty.plugins.extension.raspberry_mint import RaspberryMint
-from betty.plugins.extension.trees import Trees
-from betty.plugins.extension.webpack import Webpack
-from betty.plugins.extension.wiki import Wiki as WikiExtension
 from betty.project import ProjectData
 from betty.project.new import new
 from betty.typing import Void

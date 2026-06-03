@@ -15,6 +15,16 @@ from betty.entities.place import Place
 from betty.entities.source import Source
 from betty.entity.reference import EntityReference
 from betty.extension import ExtensionManufacturer
+from betty.extensions.http_api_doc import HttpApiDoc
+from betty.extensions.maps import Maps
+from betty.extensions.raspberry_mint import (
+    Breakpoint,
+    RaspberryMint,
+    RaspberryMintData,
+    Region,
+)
+from betty.extensions.spdx import Spdx
+from betty.extensions.trees import Trees
 from betty.license import LicenseManufacturer
 from betty.links.betty_documentation import BETTY_DOCUMENTATION
 from betty.links.betty_github import BETTY_GITHUB
@@ -31,16 +41,6 @@ from betty.plugins.content.raspberry_mint_incomplete_translation_warning import 
 from betty.plugins.content.raspberry_mint_section import Section, SectionData
 from betty.plugins.content.render import Render, RenderData
 from betty.plugins.content.wikipedia_summary import WikipediaSummary
-from betty.plugins.extension.http_api_doc import HttpApiDoc
-from betty.plugins.extension.maps import Maps
-from betty.plugins.extension.raspberry_mint import (
-    Breakpoint,
-    RaspberryMint,
-    RaspberryMintData,
-    Region,
-)
-from betty.plugins.extension.spdx import Spdx
-from betty.plugins.extension.trees import Trees
 from betty.project import Project
 
 if TYPE_CHECKING:

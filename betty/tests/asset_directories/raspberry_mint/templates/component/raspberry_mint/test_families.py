@@ -1,6 +1,6 @@
 from betty.asset_directories.raspberry_mint import RASPBERRY_MINT
 from betty.entities.person import Person
-from betty.plugins.extension._theme import person_descendant_families
+from betty.extensions._theme import person_descendant_families
 from betty.privacy import Privacy
 from betty.test_utils.conftest import AssertTemplateFile
 

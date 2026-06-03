@@ -1,5 +1,5 @@
 {
-  "name": "@betty.py/betty.plugins.extension.webpack",
+  "name": "@betty.py/betty.extensions.webpack",
   "dependencies": {
     "@babel/core": "^7.26.0",
     "@babel/preset-env": "^7.26.0",
