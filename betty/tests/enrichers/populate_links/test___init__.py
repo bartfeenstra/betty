@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from betty.enrichers.populate_links import PopulateLinks
 from betty.load import load
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.plugins.enricher.populate_links import PopulateLinks
 from betty.plugins.entity.link import Link
 
 if TYPE_CHECKING:

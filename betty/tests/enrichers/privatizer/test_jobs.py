@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from betty.enrichers.privatizer import Privatizer
 from betty.event_types.birth import Birth
 from betty.load import load
-from betty.plugins.enricher.privatizer import Privatizer
 from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.file import File

@@ -7,18 +7,16 @@ from betty.app import App
 from betty.assertions.locale import assert_locale
 from betty.assertions.path import assert_path
 from betty.console.command import Command, CommandDefinition, CommandFunction
+from betty.enrichers.deriver import Deriver
+from betty.enrichers.privatizer import Privatizer
+from betty.enrichers.wiki import Wiki as WikiEnricher
 from betty.factory import Manufacturable
-from betty.load import (
-    LoaderManufacturer,
-)
+from betty.load import LoaderManufacturer
 from betty.loaders.gramps import FamilyTree, Gramps, GrampsData
 from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
 from betty.machine_name import MachineName
-from betty.plugins.enricher.deriver import Deriver
-from betty.plugins.enricher.privatizer import Privatizer
-from betty.plugins.enricher.wiki import Wiki as WikiEnricher
 from betty.plugins.extension.http_api_doc import HttpApiDoc
 from betty.plugins.extension.maps import Maps
 from betty.plugins.extension.raspberry_mint import RaspberryMint

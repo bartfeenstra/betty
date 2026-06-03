@@ -1,6 +1,6 @@
 from pytest_mock import MockerFixture
 
-from betty.plugins.enricher.deriver.jobs import DeriveAncestry
+from betty.enrichers.deriver.jobs import DeriveAncestry
 from betty.project import Project
 from betty.test_utils.job import do
 

@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from betty.enrichers.wiki import Wiki, WikiData
 from betty.load import load
-from betty.plugins.enricher.wiki import Wiki, WikiData
 from betty.plugins.entity.link import Link
 from betty.test_utils.data import DataTestBase
 
@@ -18,7 +18,7 @@ class TestWiki:
         self, mocker: MockerFixture, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         m_populate_ancestry = mocker.patch(
-            "betty.plugins.enricher.wiki.jobs.PopulateEntity.do"
+            "betty.enrichers.wiki.jobs.PopulateEntity.do"
         )
 
         async with isolated_project_factory(enrichers=[Wiki]) as project:

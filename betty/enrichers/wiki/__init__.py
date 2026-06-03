@@ -8,11 +8,11 @@ from betty.attrs.attr import AttrAttr
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.bool import BoolDefinition
+from betty.enrichers.populate_links import PopulateLinks
+from betty.enrichers.wiki.jobs import PopulateEntity
 from betty.factory import DataManufacturable, Manufacturable
 from betty.load import Enricher, EnricherDefinition
 from betty.locale.localizable.gettext import _
-from betty.plugins.enricher.populate_links import PopulateLinks
-from betty.plugins.enricher.wiki.jobs import PopulateEntity
 from betty.plugins.extension.wiki import Wiki as WikiExtension
 from betty.project import Project
 from betty.prop import HasProps
@@ -32,9 +32,9 @@ if TYPE_CHECKING:
 )
 class WikiData(Data, HasProps):
     """
-    Configuration for the :py:class:`betty.plugins.enricher.wiki.Wiki` enricher.
+    Configuration for the :py:class:`betty.enrichers.wiki.Wiki` enricher.
 
-    .. data:: betty.plugins.enricher.wiki:WikiData
+    .. data:: betty.enrichers.wiki:WikiData
     """
 
     populate_images = AttrAttr(

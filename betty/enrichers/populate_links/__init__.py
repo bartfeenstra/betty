@@ -7,9 +7,9 @@ from __future__ import annotations
 from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.enrichers.populate_links.jobs import PopulateLink
 from betty.factory import Manufacturable
 from betty.load import Enricher, EnricherDefinition
-from betty.plugins.enricher.populate_links.jobs import PopulateLink
 from betty.plugins.entity.link import Link
 from betty.project import Project
 
