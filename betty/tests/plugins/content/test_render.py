@@ -8,8 +8,8 @@ from betty.locale.localizable import ResolvableLocalizable
 from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localize import Localizer
 from betty.plugins.content.render import Render, RenderData
-from betty.plugins.renderer.plain_text import PlainText
 from betty.render import RenderDispatcher
+from betty.renderers.plain_text import PlainText
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 

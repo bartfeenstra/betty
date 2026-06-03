@@ -3,7 +3,7 @@ from typing import Any, override
 
 from betty.locale import ResolvableLocale
 from betty.media_type import ResolvableMediaType
-from betty.plugins.renderer.html import Html
+from betty.renderers.html import Html
 from betty.url import UrlGenerator
 
 
