@@ -4,10 +4,10 @@ The incomplete translation warning content plugin.
 
 from typing import Self, final, override
 
+from betty.asset_directories.raspberry_mint import RASPBERRY_MINT
 from betty.content import ContentDefinition
 from betty.document import Document
 from betty.factory import Manufacturable
-from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project
 

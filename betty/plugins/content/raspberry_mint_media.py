@@ -6,11 +6,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.asset_directories.raspberry_mint import RASPBERRY_MINT
 from betty.content import ContentDefinition
 from betty.entities.file import File
 from betty.factory import Manufacturable
 from betty.locale.localizable.gettext import _
-from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project
 

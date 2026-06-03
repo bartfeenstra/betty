@@ -7,6 +7,7 @@ from __future__ import annotations
 from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.asset_directories.raspberry_mint import RASPBERRY_MINT
 from betty.attrs.attr import AttrAttr
 from betty.attrs.plugin_manufacturer_sequence import (
     new_plugin_manufacturer_sequence_attr,
@@ -17,7 +18,6 @@ from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.enum import EnumDefinition
 from betty.factory import DataManufacturable
 from betty.locale.localizable.gettext import _
-from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.extension.raspberry_mint import ColorStyle as RaspberryMintColorStyle
 from betty.project import Project
