@@ -1,10 +1,10 @@
 import pytest
 
 from betty.document import Document
+from betty.entities.enclosure import Enclosure
+from betty.entities.person import Person
+from betty.entities.place import Place
 from betty.plugins.content.raspberry_mint_enclosees import Enclosees
-from betty.plugins.entity.enclosure import Enclosure
-from betty.plugins.entity.person import Person
-from betty.plugins.entity.place import Place
 from betty.test_utils.conftest import IsolatedProjectFactory
 
 

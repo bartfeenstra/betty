@@ -7,11 +7,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.content import ContentDefinition
+from betty.entities.person import Person
 from betty.factory import Manufacturable
 from betty.locale.localizable.gettext import _
 from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.content.template import Template, TemplateBuild
-from betty.plugins.entity.person import Person
 from betty.plugins.extension._theme import person_descendant_families
 from betty.project import Project
 

@@ -2,6 +2,12 @@ import gzip
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from betty.entities.citation import Citation
+from betty.entities.event import Event
+from betty.entities.note import Note
+from betty.entities.person import Person
+from betty.entities.place import Place
+from betty.entities.source import Source
 from betty.event_type import EventTypeManufacturer
 from betty.event_types.birth import Birth
 from betty.load import LoaderManufacturer, load
@@ -9,12 +15,6 @@ from betty.loaders.gramps import FamilyTree, Gramps, GrampsData
 from betty.place_type import PlaceTypeManufacturer
 from betty.place_types.borough import Borough
 from betty.place_types.city import City
-from betty.plugins.entity.citation import Citation
-from betty.plugins.entity.event import Event
-from betty.plugins.entity.note import Note
-from betty.plugins.entity.person import Person
-from betty.plugins.entity.place import Place
-from betty.plugins.entity.source import Source
 from betty.role import RoleManufacturer
 from betty.roles.attendee import Attendee
 from betty.roles.subject import Subject

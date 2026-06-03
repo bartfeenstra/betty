@@ -6,10 +6,10 @@ from __future__ import annotations
 
 from typing import Any
 
+from betty.entities.note import Note
 from betty.entity import Entity
 from betty.entity.association import BidirectionalToManySingleType, ToManyAssociates
 from betty.locale.localizable.gettext import _
-from betty.plugins.entity.note import Note
 
 
 class HasNotes(Entity):
@@ -18,7 +18,7 @@ class HasNotes(Entity):
     """
 
     notes = BidirectionalToManySingleType["HasNotes", Note](
-        "betty.plugins.entity.note:Note",
+        "betty.entities.note:Note",
         "entity",
         label=_("Notes"),
     )

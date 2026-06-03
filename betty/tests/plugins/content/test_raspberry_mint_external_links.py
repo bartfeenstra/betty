@@ -1,7 +1,7 @@
 from betty.document import Document
+from betty.entities.link import Link
+from betty.entities.person import Person
 from betty.plugins.content.raspberry_mint_external_links import ExternalLinks
-from betty.plugins.entity.link import Link
-from betty.plugins.entity.person import Person
 from betty.test_utils.conftest import IsolatedProjectFactory
 
 

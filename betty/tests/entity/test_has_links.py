@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from betty.entities.link import Link
 from betty.locale import DEFAULT_LOCALE_TAG
-from betty.plugins.entity.link import Link
 from betty.test_utils.ancestry.has_links import DummyHasLinks
 
 if TYPE_CHECKING:

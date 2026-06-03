@@ -4,19 +4,19 @@ from pathlib import Path
 import pytest
 from lxml import etree
 
+from betty.entities.citation import Citation
+from betty.entities.enclosure import Enclosure
+from betty.entities.event import Event
+from betty.entities.file import File
+from betty.entities.note import Note
+from betty.entities.person import Person
+from betty.entities.person_name import PersonName
+from betty.entities.place import Place
+from betty.entities.presence import Presence
+from betty.entities.source import Source
 from betty.entity import Entity
 from betty.json_schema import JsonSchemaSchema
 from betty.openapi.schema import SpecificationSchema
-from betty.plugins.entity.citation import Citation
-from betty.plugins.entity.enclosure import Enclosure
-from betty.plugins.entity.event import Event
-from betty.plugins.entity.file import File
-from betty.plugins.entity.note import Note
-from betty.plugins.entity.person import Person
-from betty.plugins.entity.person_name import PersonName
-from betty.plugins.entity.place import Place
-from betty.plugins.entity.presence import Presence
-from betty.plugins.entity.source import Source
 from betty.privacy import Privacy
 from betty.project import Project, ProjectLocale
 from betty.project.generate.jobs import (

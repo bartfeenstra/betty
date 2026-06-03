@@ -5,11 +5,11 @@ from PIL import Image
 from puremagic import from_file
 
 from betty.dirs import BUILTIN_ASSET_DIRECTORY
+from betty.entities.file import File
+from betty.entities.file_reference import FileReference
 from betty.job import Context
 from betty.media_type import MediaType
 from betty.media_types.svg import SVG
-from betty.plugins.entity.file import File
-from betty.plugins.entity.file_reference import FileReference
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 from betty.test_utils.conftest import AssertTemplateString
 

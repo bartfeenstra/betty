@@ -405,6 +405,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "populate_images": MissingReason.SHOULD_BE_COVERED,
         },
     },
+    "betty/entities/event.py": {
+        "Event": {
+            "has_any_date_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
+        },
+    },
     "betty/entity/__init__.py": {
         "Entity": MissingReason.SHOULD_BE_COVERED,
         "EntityReferenceCollectionSchema": MissingReason.STATIC_CONTENT_ONLY,
@@ -522,11 +527,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/plugins/css_resource/webpack.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/entity/event.py": {
-        "Event": {
-            "has_any_date_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
-        },
-    },
     "betty/plugins/extension/http_api_doc/__init__.py": {
         "HttpApiDoc": {
             "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,

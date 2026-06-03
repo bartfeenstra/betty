@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.plugins.entity.citation import Citation
-from betty.plugins.entity.source import Source
+from betty.entities.citation import Citation
+from betty.entities.source import Source
 from betty.test_utils.ancestry.has_citations import DummyHasCitations
 
 if TYPE_CHECKING:

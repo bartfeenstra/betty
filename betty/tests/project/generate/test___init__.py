@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from betty.plugins.entity.person import Person
+from betty.entities.person import Person
 from betty.project import Project, ProjectLocale
 from betty.project.generate import generate
 from betty.test_utils.conftest import IsolatedProjectFactory

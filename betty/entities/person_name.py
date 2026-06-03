@@ -24,10 +24,10 @@ from betty.privacy import Privacy
 from betty.privacy.resolve import merge_privacies
 
 if TYPE_CHECKING:
+    from betty.entities.citation import Citation
+    from betty.entities.person import Person
     from betty.locale import ResolvableLocale
     from betty.locale.localizable import Localizable
-    from betty.plugins.entity.citation import Citation
-    from betty.plugins.entity.person import Person
     from betty.portable import PortableMapping
     from betty.project import Project
 
@@ -76,7 +76,7 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
         return name
 
     person = BidirectionalToOne["PersonName", "Person"](
-        "betty.plugins.entity.person:Person",
+        "betty.entities.person:Person",
         "names",
         label=_("Person"),
     )

@@ -20,10 +20,10 @@ if TYPE_CHECKING:
 
     from babel import Locale
 
+    from betty.entities.link import Link
     from betty.job.scheduler import Scheduler
     from betty.locale.localizable import StaticTranslationsMapping
     from betty.locale.localize import Localizer
-    from betty.plugins.entity.link import Link
 
 
 @final

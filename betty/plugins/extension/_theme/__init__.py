@@ -10,22 +10,22 @@ from collections import defaultdict
 from typing import TYPE_CHECKING, cast
 
 from betty.date import AnyDate, Date
+from betty.entities.event import Event
+from betty.entities.person import Person
+from betty.entities.place import Place
 from betty.entity import persistent_id
 from betty.event_types.birth import Birth
 from betty.event_types.death import Death
 from betty.functools import unique
-from betty.plugins.entity.event import Event
-from betty.plugins.entity.person import Person
-from betty.plugins.entity.place import Place
 from betty.privacy.resolve import is_public
 from betty.roles.subject import Subject
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
+    from betty.entities.file_reference import FileReference
+    from betty.entities.presence import Presence
     from betty.entity.has_file_references import HasFileReferences
-    from betty.plugins.entity.file_reference import FileReference
-    from betty.plugins.entity.presence import Presence
 
 
 def _is_person_timeline_presence(presence: Presence) -> bool:

@@ -2,12 +2,12 @@ import pytest
 
 from betty.date import Date
 from betty.document import Document
+from betty.entities.enclosure import Enclosure
+from betty.entities.event import Event
+from betty.entities.person import Person
+from betty.entities.place import Place
+from betty.entities.presence import Presence
 from betty.plugins.content.raspberry_mint_timeline import Timeline
-from betty.plugins.entity.enclosure import Enclosure
-from betty.plugins.entity.event import Event
-from betty.plugins.entity.person import Person
-from betty.plugins.entity.place import Place
-from betty.plugins.entity.presence import Presence
 from betty.roles.subject import Subject
 from betty.test_utils.conftest import IsolatedProjectFactory
 

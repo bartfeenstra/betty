@@ -9,13 +9,13 @@ from asyncio import gather, to_thread
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, TypeVar, final, override
 
+from betty.entities.file import File
+from betty.entities.person import Person
+from betty.entities.place import Place
 from betty.entity import Entity, EntityDefinition
 from betty.entity.has_notes import HasNotes
 from betty.file import write
 from betty.media_types.html import HTML
-from betty.plugins.entity.file import File
-from betty.plugins.entity.person import Person
-from betty.plugins.entity.place import Place
 from betty.privacy.resolve import is_private
 
 if TYPE_CHECKING:

@@ -19,16 +19,16 @@ from betty.plugin.ordered import (
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 
 if TYPE_CHECKING:
+    from betty.entities.person import Person
     from betty.locale.localizable import CountableLocalizable, ResolvableLocalizable
     from betty.machine_name import MachineName, ResolvableMachineName
-    from betty.plugins.entity.person import Person
     from betty.project import Project
     from betty.requirement import Requires
 
 
 class EventType(Plugin["EventTypeDefinition"]):
     """
-    Define an :py:class:`betty.plugins.entity.event.Event` type.
+    Define an :py:class:`betty.entities.event.Event` type.
     """
 
 

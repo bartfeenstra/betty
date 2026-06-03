@@ -13,7 +13,7 @@ from betty.entity.has_citations import HasCitations
 from betty.locale.localizable.gettext import _, ngettext
 
 if TYPE_CHECKING:
-    from betty.plugins.entity.place import Place
+    from betty.entities.place import Place
 
 
 @final
@@ -30,7 +30,7 @@ class Enclosure(HasAnyDate, HasCitations, Entity):
     """
 
     encloser = BidirectionalToOne["Enclosure", "Place"](
-        "betty.plugins.entity.place:Place",
+        "betty.entities.place:Place",
         "enclosees",
         label=_("Encloser"),
         description=_("The place that encloses or contains the enclosee"),
@@ -40,7 +40,7 @@ class Enclosure(HasAnyDate, HasCitations, Entity):
     """
 
     enclosee = BidirectionalToOne["Enclosure", "Place"](
-        "betty.plugins.entity.place:Place",
+        "betty.entities.place:Place",
         "enclosers",
         label=_("Enclosee"),
         description=_("The place that is enclosed or contained by the encloser"),

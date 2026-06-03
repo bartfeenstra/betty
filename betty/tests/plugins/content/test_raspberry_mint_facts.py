@@ -1,11 +1,11 @@
 import pytest
 
 from betty.document import Document
+from betty.entities.citation import Citation
+from betty.entities.person import Person
+from betty.entities.place import Place
+from betty.entities.source import Source
 from betty.plugins.content.raspberry_mint_facts import Facts
-from betty.plugins.entity.citation import Citation
-from betty.plugins.entity.person import Person
-from betty.plugins.entity.place import Place
-from betty.plugins.entity.source import Source
 from betty.test_utils.ancestry.has_citations import DummyHasCitations
 from betty.test_utils.conftest import IsolatedProjectFactory
 

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.plugins.entity.note import Note
+from betty.entities.note import Note
 from betty.test_utils.ancestry.has_notes import DummyHasNotes
 from betty.test_utils.locale.localizable import (
     DUMMY_LOCALIZABLE,

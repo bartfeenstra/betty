@@ -36,11 +36,11 @@ from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.portable import PortableMapping
 
 if TYPE_CHECKING:
+    from betty.entities.citation import Citation
     from betty.entity import Entity
     from betty.job import Context
     from betty.locale.localizable import Localizable
     from betty.machine_name import MachineName, ResolvableMachineName
-    from betty.plugins.entity.citation import Citation
     from betty.project import Project
     from betty.requirement import Requires
 

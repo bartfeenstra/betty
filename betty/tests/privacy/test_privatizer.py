@@ -6,18 +6,18 @@ from typing import TYPE_CHECKING
 import pytest
 
 from betty.date import Date, DateRange
+from betty.entities.citation import Citation
+from betty.entities.enclosure import Enclosure
+from betty.entities.event import Event
+from betty.entities.file import File
+from betty.entities.file_reference import FileReference
+from betty.entities.person import Person
+from betty.entities.place import Place
+from betty.entities.presence import Presence
+from betty.entities.source import Source
 from betty.event_types.birth import Birth
 from betty.event_types.death import Death
 from betty.event_types.marriage import Marriage
-from betty.plugins.entity.citation import Citation
-from betty.plugins.entity.enclosure import Enclosure
-from betty.plugins.entity.event import Event
-from betty.plugins.entity.file import File
-from betty.plugins.entity.file_reference import FileReference
-from betty.plugins.entity.person import Person
-from betty.plugins.entity.place import Place
-from betty.plugins.entity.presence import Presence
-from betty.plugins.entity.source import Source
 from betty.privacy import Privacy
 from betty.privacy.privatizer import Privatizer
 from betty.project import DEFAULT_LIFETIME_THRESHOLD

@@ -3,10 +3,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, override
 
 from betty.date import Date
-from betty.plugins.entity.citation import Citation
-from betty.plugins.entity.enclosure import Enclosure
-from betty.plugins.entity.place import Place
-from betty.plugins.entity.source import Source
+from betty.entities.citation import Citation
+from betty.entities.enclosure import Enclosure
+from betty.entities.place import Place
+from betty.entities.source import Source
 from betty.test_utils.entity import EntityTestBase
 
 if TYPE_CHECKING:

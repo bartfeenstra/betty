@@ -14,7 +14,7 @@ from betty.jinja.test import JinjaTest, JinjaTestDefinition
 @JinjaTestDefinition("has-file-references", auto=True)
 class HasFileReferences(JinjaTest):
     """
-    Test if a value has :py:class:`betty.plugins.entity.file_reference.FileReference` entities associated with it.
+    Test if a value has :py:class:`betty.entities.file_reference.FileReference` entities associated with it.
 
     .. plugin:: jinja-test:has-file-references
     """

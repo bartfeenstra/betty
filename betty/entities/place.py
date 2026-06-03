@@ -8,6 +8,7 @@ from contextlib import suppress
 from typing import TYPE_CHECKING, final, override
 
 from betty.attrs.privacy import HasPrivacy
+from betty.entities.place_name import PlaceName
 from betty.entity import EntityDefinition
 from betty.entity.association import BidirectionalToManySingleType, ToManyAssociates
 from betty.entity.has_file_references import HasFileReferences
@@ -17,7 +18,6 @@ from betty.json_schema import Array, Number, Object
 from betty.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable.gettext import _, ngettext
 from betty.place_types.unknown import Unknown as UnknownPlaceType
-from betty.plugins.entity.place_name import PlaceName
 from betty.privacy import Privacy
 
 if TYPE_CHECKING:
@@ -25,12 +25,12 @@ if TYPE_CHECKING:
 
     from geopy import Point
 
+    from betty.entities.enclosure import Enclosure
+    from betty.entities.event import Event
+    from betty.entities.link import Link
+    from betty.entities.note import Note
     from betty.locale.localizable import Localizable
     from betty.place_type import PlaceType
-    from betty.plugins.entity.enclosure import Enclosure
-    from betty.plugins.entity.event import Event
-    from betty.plugins.entity.link import Link
-    from betty.plugins.entity.note import Note
     from betty.portable import PortableMapping
     from betty.project import Project
 
@@ -48,7 +48,7 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
     """
 
     events = BidirectionalToManySingleType["Place", "Event"](
-        "betty.plugins.entity.event:Event",
+        "betty.entities.event:Event",
         "place",
         label=_("Events"),
         description=_("The events that happened in this place"),
@@ -58,7 +58,7 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
     """
 
     enclosers = BidirectionalToManySingleType["Place", "Enclosure"](
-        "betty.plugins.entity.enclosure:Enclosure",
+        "betty.entities.enclosure:Enclosure",
         "enclosee",
         label=_("Enclosers"),
         description=_("The places this place is enclosed or contained by"),
@@ -69,7 +69,7 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
     """
 
     enclosees = BidirectionalToManySingleType["Place", "Enclosure"](
-        "betty.plugins.entity.enclosure:Enclosure",
+        "betty.entities.enclosure:Enclosure",
         "encloser",
         label=_("Enclosees"),
         description=_("The places this place encloses or contains"),
@@ -112,7 +112,7 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
         """
         The place's names.
 
-        The first name is considered the :py:attr:`place label <betty.plugins.entity.place.Place.label>`.
+        The first name is considered the :py:attr:`place label <betty.entities.place.Place.label>`.
         """
         return self._names
 

@@ -8,10 +8,10 @@ import json
 from asyncio import gather, to_thread
 from typing import TYPE_CHECKING, override
 
+from betty.entities.person import Person
 from betty.file import write
 from betty.job import Job
 from betty.media_types.html import HTML
-from betty.plugins.entity.person import Person
 
 if TYPE_CHECKING:
     from babel import Locale

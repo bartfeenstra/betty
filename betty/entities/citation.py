@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, final, override
 from betty.attrs.date import HasAnyDate
 from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.privacy import HasPrivacy
+from betty.entities.source import Source
 from betty.entity import EntityDefinition
 from betty.entity.association import (
     BidirectionalToManyMultipleTypes,
@@ -21,16 +22,15 @@ from betty.entity.has_links import HasLinks
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
-from betty.plugins.entity.source import Source
 from betty.privacy import Privacy
 from betty.privacy.resolve import is_public, merge_secondary_privacies
 
 if TYPE_CHECKING:
     from betty.date import AnyDate
+    from betty.entities.file_reference import FileReference
     from betty.entity.has_citations import HasCitations
     from betty.linked_data import JsonLdObject
     from betty.locale.localizable import Localizable, ResolvableLocalizable
-    from betty.plugins.entity.file_reference import FileReference
     from betty.portable import PortableMapping
     from betty.project import Project
 
@@ -65,7 +65,7 @@ class Citation(HasAnyDate, HasFileReferences, HasPrivacy, HasLinks):
     """
 
     source = BidirectionalToOne["Citation", Source](
-        "betty.plugins.entity.source:Source",
+        "betty.entities.source:Source",
         "citations",
         label=_("Source"),
         description=_("The source this citation references."),

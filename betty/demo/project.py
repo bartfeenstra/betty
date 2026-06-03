@@ -9,6 +9,10 @@ from typing import TYPE_CHECKING
 from betty.content import ContentManufacturer
 from betty.enrichers.deriver import Deriver
 from betty.enrichers.wiki import Wiki
+from betty.entities.event import Event
+from betty.entities.person import Person
+from betty.entities.place import Place
+from betty.entities.source import Source
 from betty.entity.reference import EntityReference
 from betty.extension import ExtensionManufacturer
 from betty.license import LicenseManufacturer
@@ -27,10 +31,6 @@ from betty.plugins.content.raspberry_mint_incomplete_translation_warning import 
 from betty.plugins.content.raspberry_mint_section import Section, SectionData
 from betty.plugins.content.render import Render, RenderData
 from betty.plugins.content.wikipedia_summary import WikipediaSummary
-from betty.plugins.entity.event import Event
-from betty.plugins.entity.person import Person
-from betty.plugins.entity.place import Place
-from betty.plugins.entity.source import Source
 from betty.plugins.extension.http_api_doc import HttpApiDoc
 from betty.plugins.extension.maps import Maps
 from betty.plugins.extension.raspberry_mint import (

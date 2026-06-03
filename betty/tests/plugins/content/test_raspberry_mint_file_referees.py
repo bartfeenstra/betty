@@ -1,11 +1,11 @@
 import pytest
 
 from betty.document import Document
+from betty.entities.file import File
+from betty.entities.file_reference import FileReference
+from betty.entities.person import Person
+from betty.entities.place import Place
 from betty.plugins.content.raspberry_mint_file_referees import FileReferees
-from betty.plugins.entity.file import File
-from betty.plugins.entity.file_reference import FileReference
-from betty.plugins.entity.person import Person
-from betty.plugins.entity.place import Place
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 from betty.test_utils.conftest import IsolatedProjectFactory
 

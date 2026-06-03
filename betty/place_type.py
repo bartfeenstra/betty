@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 class PlaceType(Plugin["PlaceTypeDefinition"]):
     """
-    Define a :py:class:`betty.plugins.entity.place.Place` type.
+    Define a :py:class:`betty.entities.place.Place` type.
     """
 
 

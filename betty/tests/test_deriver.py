@@ -8,14 +8,14 @@ import pytest
 
 from betty.date import AnyDate, Date, DateRange
 from betty.deriver import Deriver
+from betty.entities.event import Event
+from betty.entities.person import Person
+from betty.entities.presence import Presence
 from betty.event_type import (
     EventType,
     EventTypeDefinition,
     ShouldExistEventType,
 )
-from betty.plugins.entity.event import Event
-from betty.plugins.entity.person import Person
-from betty.plugins.entity.presence import Presence
 from betty.project import Project
 from betty.roles.subject import Subject
 from betty.test_utils.entity import record_added

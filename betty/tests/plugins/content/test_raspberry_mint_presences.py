@@ -1,14 +1,14 @@
 import pytest
 
 from betty.document import Document
+from betty.entities.event import Event
+from betty.entities.person import Person
+from betty.entities.place import Place
+from betty.entities.presence import Presence
 from betty.plugins.content.raspberry_mint_presences import (
     Presences,
     PresencesData,
 )
-from betty.plugins.entity.event import Event
-from betty.plugins.entity.person import Person
-from betty.plugins.entity.place import Place
-from betty.plugins.entity.presence import Presence
 from betty.roles.subject import Subject
 from betty.roles.witness import Witness
 from betty.test_utils.conftest import IsolatedProjectFactory
