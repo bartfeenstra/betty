@@ -135,7 +135,7 @@ betty = 'betty.console:main_standalone'
 'wikipedia-contributors' = 'betty.copyright_notices.wikipedia_contributors:WikipediaContributors'
 
 [project.entry-points.'betty.css_resource']
-'webpack' = 'betty.plugins.css_resource.webpack:WEBPACK'
+'webpack' = 'betty.css_resources.webpack:WEBPACK'
 
 [project.entry-points.'betty.document_provider']
 'webpack' = 'betty.plugins.document_provider.webpack:Webpack'
