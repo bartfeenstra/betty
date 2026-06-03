@@ -2,7 +2,7 @@ import pytest
 from aiohttp import ClientRequest
 from yarl import URL
 
-from betty.plugins.rate_limit.wikipedia_rest_api import WIKIPEDIA_REST_API
+from betty.http_client.rate_limits.wikipedia_rest_api import WIKIPEDIA_REST_API
 
 
 class TestWikipediaRestApi:
