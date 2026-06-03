@@ -213,8 +213,8 @@ class Project(
         supported_plugins: SupportedPlugins = (),
         _plugin_discoveries: Iterable[PluginDefinition] = (),
     ):
+        from betty.copyright_notices.project_author import ProjectAuthor
         from betty.licenses.all_rights_reserved import AllRightsReserved
-        from betty.plugins.copyright_notice.project_author import ProjectAuthor
 
         cls = type(self)
         if cache is not None:
@@ -788,7 +788,7 @@ class ProjectData(Data, HasProps):
 
     @copyright_notice.default
     def copyright_notice(self) -> CopyrightNoticeManufacturer:  # noqa: D102
-        from betty.plugins.copyright_notice.project_author import ProjectAuthor
+        from betty.copyright_notices.project_author import ProjectAuthor
 
         return CopyrightNoticeManufacturer(ProjectAuthor)
 

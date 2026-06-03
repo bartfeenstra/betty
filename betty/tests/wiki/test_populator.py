@@ -7,12 +7,12 @@ from unittest.mock import AsyncMock, call
 from babel import Locale
 from geopy import Point
 
+from betty.copyright_notices.wikipedia_contributors import WikipediaContributors
 from betty.entity.collection.pool import EntityPool
 from betty.locale.localize import LocalizerRepository
 from betty.locale.translation import DEFAULT_TRANSLATION_REPOSITORY
 from betty.media_type import MediaType
 from betty.media_types.html import HTML
-from betty.plugins.copyright_notice.wikipedia_contributors import WikipediaContributors
 from betty.plugins.entity.link import Link
 from betty.plugins.entity.place import Place
 from betty.plugins.entity.source import Source

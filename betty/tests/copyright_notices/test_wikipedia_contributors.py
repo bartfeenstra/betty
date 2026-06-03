@@ -6,9 +6,9 @@ from aioresponses import aioresponses
 
 from betty.app import App
 from betty.copyright_notice import CopyrightNotice
+from betty.copyright_notices.wikipedia_contributors import WikipediaContributors
 from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.plugins.copyright_notice.wikipedia_contributors import WikipediaContributors
 from betty.test_utils.copyright_notice import CopyrightNoticeTestBase
 
 

@@ -4,14 +4,14 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Any, cast, override
 
+from betty.copyright_notices.public_domain import (
+    PublicDomain as PublicDomainCopyrightNotice,
+)
 from betty.entity import Entity
 from betty.licenses.public_domain import PublicDomain as PublicDomainLicense
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_types.plain_text import PLAIN_TEXT
-from betty.plugins.copyright_notice.public_domain import (
-    PublicDomain as PublicDomainCopyrightNotice,
-)
 from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.file import File
 from betty.plugins.entity.file_reference import FileReference
