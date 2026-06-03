@@ -2,9 +2,9 @@ from typing import override
 
 import pytest
 
-from betty.plugins.serializer.json import Json
-from betty.serde import SerializationError, Serializer
-from betty.test_utils.serde import SerializerTestBase
+from betty.serialize import SerializationError, Serializer
+from betty.serializers.json import Json
+from betty.test_utils.serialize import SerializerTestBase
 
 
 class TestJson(SerializerTestBase):

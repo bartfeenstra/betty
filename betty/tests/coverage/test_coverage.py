@@ -660,7 +660,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "SampleNotFound": MissingReason.STATIC_CONTENT_ONLY,
         "Size": MissingReason.ENUM,
     },
-    "betty/serde.py": {
+    "betty/serialize.py": {
         "Serializer": MissingReason.ABSTRACT,
         "SerializerDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "SerializationError": MissingReason.STATIC_CONTENT_ONLY,

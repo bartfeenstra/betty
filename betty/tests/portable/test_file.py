@@ -5,8 +5,8 @@ import pytest
 
 from betty.error import FileNotFound
 from betty.exception import HumanFacingException
-from betty.plugins.serializer.json import Json
 from betty.portable.file import assert_load_file, dump_file
+from betty.serializers.json import Json
 from betty.test_utils.data import DummyData
 
 

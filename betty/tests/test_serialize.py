@@ -4,7 +4,7 @@ import pytest
 
 from betty.media_type import MediaType
 from betty.portable import PortableData
-from betty.serde import (
+from betty.serialize import (
     SerializationError,
     Serializer,
     SerializerDefinition,
