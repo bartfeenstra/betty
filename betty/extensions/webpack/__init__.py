@@ -15,9 +15,7 @@ from betty.extensions.webpack.build import EntryPointProvider
 from betty.extensions.webpack.jobs import _GenerateAssets
 from betty.factory import Manufacturable
 from betty.jinja_filters.webpack_entry_point_js import WebpackEntryPointJs
-from betty.plugins.js_resource.webpack_entry_point_loader import (
-    WEBPACK_ENTRY_POINT_LOADER,
-)
+from betty.js_resources.webpack_entry_point_loader import WEBPACK_ENTRY_POINT_LOADER
 from betty.project import Project
 from betty.project.generate import Generator
 from betty.service import ServiceProvider

@@ -288,6 +288,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Released": MissingReason.STATIC_CONTENT_ONLY,
         "Scheduler": MissingReason.ABSTRACT,
     },
+    "betty/js_resources/webpack_entry_point_loader.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/json_schema.py": {
         "Schema": {
             "validate": MissingReason.SHOULD_BE_COVERED,
@@ -527,7 +528,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "build_template": MissingReason.ABSTRACT,
         },
     },
-    "betty/plugins/js_resource/webpack_entry_point_loader.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/portable/__init__.py": {
         "Portable": MissingReason.ABSTRACT,
         "Porter": MissingReason.ABSTRACT,
