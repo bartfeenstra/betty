@@ -7,6 +7,7 @@ from typing import Self, final, override
 
 from babel import Locale
 
+from betty.asset_directories.wiki import WIKI
 from betty.content import ContentDefinition
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.document import Document
@@ -17,7 +18,6 @@ from betty.jinja import Environment
 from betty.locale import negotiate_locale, resolve_locale
 from betty.locale.localizable.gettext import _
 from betty.locale.localize import LocalizerRepository
-from betty.plugins.asset_directory.wiki import WIKI
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.extension.wiki import Wiki as WikiExtension
 from betty.project import Project

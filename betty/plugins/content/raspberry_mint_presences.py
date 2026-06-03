@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.asset_directories.raspberry_mint import RASPBERRY_MINT
 from betty.attrs.attr import AttrAttr
 from betty.content import ContentDefinition
 from betty.data import Data
@@ -16,7 +17,6 @@ from betty.factory import DataManufacturable, Manufacturable
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
-from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.project import Project
 from betty.prop import HasProps

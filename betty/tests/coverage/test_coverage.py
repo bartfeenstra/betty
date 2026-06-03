@@ -77,6 +77,14 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "AssetError": MissingReason.ABSTRACT,
         "AssetRepository": MissingReason.ABSTRACT,
     },
+    "betty/asset_directories/builtin.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/asset_directories/http_api_doc.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/asset_directories/maps.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/asset_directories/raspberry_mint.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/asset_directories/trees.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/asset_directories/project.py": MissingReason.COVERED_ELSEWHERE,
+    "betty/asset_directories/webpack.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/asset_directories/wiki.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/asyncio.py": {
         "ReAwaitable": MissingReason.ABSTRACT,
     },
@@ -499,14 +507,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/plugin/ordered.py": {
         "OrderedPluginClsDefinition": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/plugins/asset_directory/builtin.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/asset_directory/http_api_doc.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/asset_directory/maps.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/asset_directory/raspberry_mint.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/asset_directory/trees.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/asset_directory/project.py": MissingReason.COVERED_ELSEWHERE,
-    "betty/plugins/asset_directory/webpack.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/asset_directory/wiki.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/content/box.py": {
         "BoxData": {
             "min_height": MissingReason.INHERITED,

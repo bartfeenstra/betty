@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.asset_directories.trees import TREES
 from betty.dirs import WEBPACK_ENTRY_POINT_DIRECTORY
 from betty.extension import ExtensionDefinition
 from betty.factory import Manufacturable
 from betty.locale.localizable.gettext import _
-from betty.plugins.asset_directory.trees import TREES
 from betty.plugins.extension.trees.jobs import _GeneratePeopleJson
 from betty.plugins.extension.webpack import Webpack
 from betty.plugins.extension.webpack.build import EntryPointProvider

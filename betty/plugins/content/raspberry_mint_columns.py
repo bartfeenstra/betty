@@ -13,6 +13,7 @@ from betty.assertions.if_else import assert_if_else
 from betty.assertions.int import assert_int
 from betty.assertions.mapping import assert_mapping
 from betty.assertions.sequence import assert_sequence
+from betty.asset_directories.raspberry_mint import RASPBERRY_MINT
 from betty.attrs.attr import AttrAttr
 from betty.content import Content, ContentDefinition, ContentManufacturer, build
 from betty.data import Data
@@ -26,7 +27,6 @@ from betty.datas.plugin_manufacturer_sequence import (
 )
 from betty.factory import DataManufacturable
 from betty.locale.localizable.gettext import _
-from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.content.render import Render, RenderData
 from betty.plugins.content.template import Template, TemplateBuild
 from betty.plugins.extension.raspberry_mint import Breakpoint, JustifyContent

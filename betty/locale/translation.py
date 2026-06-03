@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, final, override
 from polib import pofile
 
 import betty.dirs
+from betty.asset_directories.builtin import BUILTIN
 from betty.file import read
 from betty.hashid import hashid_file_meta
 from betty.life_cycle import Bootstrappable
@@ -28,7 +29,6 @@ from betty.locale.babel import run_babel
 from betty.locale.error import LocaleError
 from betty.locale.localizable.gettext import _
 from betty.pathlib import resolve_path
-from betty.plugins.asset_directory.builtin import BUILTIN
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
