@@ -45,8 +45,8 @@ from betty.app import App
 from betty.caches.file import BinaryFileCache
 from betty.exception import do_raise
 from betty.json_schema import Schema
+from betty.licenses.spdx import SpdxLicenseDiscoverer
 from betty.multiprocessing import ProcessPoolExecutor
-from betty.plugins.license.spdx import SpdxLicenseDiscoverer
 from betty.project import Project, ProjectLocale
 from betty.user import Verbosity
 

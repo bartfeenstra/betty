@@ -213,8 +213,8 @@ class Project(
         supported_plugins: SupportedPlugins = (),
         _plugin_discoveries: Iterable[PluginDefinition] = (),
     ):
+        from betty.licenses.all_rights_reserved import AllRightsReserved
         from betty.plugins.copyright_notice.project_author import ProjectAuthor
-        from betty.plugins.license.all_rights_reserved import AllRightsReserved
 
         cls = type(self)
         if cache is not None:
@@ -883,7 +883,7 @@ class ProjectData(Data, HasProps):
 
     @license.default  # noqa: A003
     def license(self) -> LicenseManufacturer:  # noqa: D102
-        from betty.plugins.license.all_rights_reserved import AllRightsReserved
+        from betty.licenses.all_rights_reserved import AllRightsReserved
 
         return LicenseManufacturer(AllRightsReserved)
 

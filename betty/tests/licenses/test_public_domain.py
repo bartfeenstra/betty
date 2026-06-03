@@ -3,7 +3,7 @@ from typing import override
 import pytest
 
 from betty.license import License
-from betty.plugins.license.public_domain import PublicDomain
+from betty.licenses.public_domain import PublicDomain
 from betty.test_utils.license import LicenseTestBase
 
 
