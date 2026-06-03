@@ -23,10 +23,10 @@ from betty.plugins.extension._theme import (
     associated_file_references,
     person_timeline_events,
 )
-from betty.plugins.role.subject import Subject
-from betty.plugins.role.unknown import Unknown as UnknownRole
 from betty.privacy import Privacy
 from betty.project import DEFAULT_LIFETIME_THRESHOLD
+from betty.roles.subject import Subject
+from betty.roles.unknown import Unknown as UnknownRole
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 
 if TYPE_CHECKING:

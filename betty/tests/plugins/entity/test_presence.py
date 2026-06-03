@@ -8,9 +8,9 @@ from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.presence import Presence
 from betty.plugins.event_type.unknown import Unknown as UnknownEventType
-from betty.plugins.role.subject import Subject
-from betty.plugins.role.unknown import Unknown as UnknownRole
 from betty.privacy import Privacy
+from betty.roles.subject import Subject
+from betty.roles.unknown import Unknown as UnknownRole
 from betty.test_utils.entity import EntityTestBase
 
 if TYPE_CHECKING:

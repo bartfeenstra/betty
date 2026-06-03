@@ -4,9 +4,9 @@ from betty.plugins.asset_directory.raspberry_mint import RASPBERRY_MINT
 from betty.plugins.entity.event import Event
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.presence import Presence
-from betty.plugins.role.attendee import Attendee
-from betty.plugins.role.subject import Subject
 from betty.privacy import Privacy
+from betty.roles.attendee import Attendee
+from betty.roles.subject import Subject
 from betty.test_utils.conftest import AssertTemplateFile
 
 

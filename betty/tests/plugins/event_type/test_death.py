@@ -8,7 +8,7 @@ from betty.plugins.entity.person import Person
 from betty.plugins.entity.presence import Presence
 from betty.plugins.event_type.birth import Birth
 from betty.plugins.event_type.death import Death
-from betty.plugins.role.subject import Subject
+from betty.roles.subject import Subject
 
 if TYPE_CHECKING:
     from betty.project import Project

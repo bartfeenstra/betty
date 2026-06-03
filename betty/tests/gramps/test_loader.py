@@ -35,9 +35,9 @@ from betty.plugins.event_type.unknown import Unknown as UnknownEventType
 from betty.plugins.license.public_domain import PublicDomain as PublicDomainLicense
 from betty.plugins.place_type.city import City
 from betty.plugins.place_type.unknown import Unknown as UnknownPlaceType
-from betty.plugins.role.subject import Subject
 from betty.privacy import Privacy
 from betty.project import Project
+from betty.roles.subject import Subject
 from betty.subprocess import CalledSubprocessError
 from betty.test_utils.user import StaticUser
 
