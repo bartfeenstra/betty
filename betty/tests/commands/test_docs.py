@@ -10,7 +10,7 @@ class TestDocs:
     async def test_configure(self, mocker: MockerFixture, isolated_app: App) -> None:
         mocker.patch("betty.documentation.DocumentationServer", new=NoOpServer)
         mocker.patch(
-            "betty.plugins.command.docs:Docs._wait_forever",
+            "betty.commands.docs:Docs._wait_forever",
             side_effect=KeyboardInterrupt,
         )
 

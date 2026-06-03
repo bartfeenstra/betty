@@ -16,7 +16,7 @@ class TestDemo:
         self, mocker: MockerFixture, isolated_app: App
     ) -> None:
         mocker.patch(
-            "betty.plugins.command.demo:Demo._wait_forever",
+            "betty.commands.demo:Demo._wait_forever",
             side_effect=KeyboardInterrupt,
         )
         mocker.patch("betty.demo.serve.DemoServer", new=NoOpServer)
