@@ -138,6 +138,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "__exit__": MissingReason.SHOULD_BE_COVERED,
         },
     },
+    "betty/css_resources/webpack.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/service/__init__.py": {
         "Service": MissingReason.DATACLASS,
         "ServiceAlreadyInitialized": MissingReason.STATIC_CONTENT_ONLY,
@@ -526,7 +527,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "build_template": MissingReason.ABSTRACT,
         },
     },
-    "betty/plugins/css_resource/webpack.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/extension/http_api_doc/__init__.py": {
         "HttpApiDoc": {
             "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,

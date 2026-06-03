@@ -7,10 +7,10 @@ from __future__ import annotations
 from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.css_resources.webpack import WEBPACK as WEBPACK_CSS_RESOURCE
 from betty.extension import Extension, ExtensionDefinition
 from betty.factory import Manufacturable
 from betty.plugins.asset_directory.webpack import WEBPACK as WEBPACK_ASSET
-from betty.plugins.css_resource.webpack import WEBPACK as WEBPACK_CSS_RESOURCE
 from betty.plugins.extension.webpack import build
 from betty.plugins.extension.webpack.build import EntryPointProvider
 from betty.plugins.extension.webpack.jobs import _GenerateAssets
