@@ -221,6 +221,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "result": MissingReason.COVERED_ELSEWHERE,
         }
     },
+    "betty/genders/man.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/genders/non_binary.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/genders/unknown.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/genders/woman.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/gramps/error.py": MissingReason.SHOULD_BE_COVERED,
     "betty/gramps/loader.py": {
         "GrampsEntityReference": MissingReason.SHOULD_BE_COVERED,
@@ -540,10 +544,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "EntryPointProvider": MissingReason.ABSTRACT,
         "webpack_build_id": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/plugins/gender/man.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/gender/non_binary.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/gender/unknown.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/gender/woman.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/js_resource/webpack_entry_point_loader.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/link/betty_documentation.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugins/link/betty_github.py": MissingReason.STATIC_CONTENT_ONLY,

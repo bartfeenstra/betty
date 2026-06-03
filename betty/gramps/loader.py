@@ -33,6 +33,10 @@ from betty.entity.has_links import HasLinks
 from betty.error import FileNotFound
 from betty.event_type import EventTypeManufacturer
 from betty.gender import GenderDefinition, GenderManufacturer
+from betty.genders.man import Man
+from betty.genders.non_binary import NonBinary
+from betty.genders.unknown import Unknown as UnknownGender
+from betty.genders.woman import Woman
 from betty.gramps.error import GrampsError, UserFacingGrampsError
 from betty.license import LicenseManufacturer
 from betty.locale import from_language_tag
@@ -79,10 +83,6 @@ from betty.plugins.event_type.residence import Residence
 from betty.plugins.event_type.retirement import Retirement
 from betty.plugins.event_type.unknown import Unknown as UnknownEventType
 from betty.plugins.event_type.will import Will
-from betty.plugins.gender.man import Man
-from betty.plugins.gender.non_binary import NonBinary
-from betty.plugins.gender.unknown import Unknown as UnknownGender
-from betty.plugins.gender.woman import Woman
 from betty.plugins.place_type.borough import Borough
 from betty.plugins.place_type.building import Building
 from betty.plugins.place_type.city import City

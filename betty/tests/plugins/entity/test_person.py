@@ -6,6 +6,8 @@ import pytest
 
 from betty.entity import Entity
 from betty.entity.association import AssociationRequired, TemporaryToOneResolver
+from betty.genders.non_binary import NonBinary
+from betty.genders.unknown import Unknown as UnknownGender
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, to_language_tag
 from betty.plugins.entity.citation import Citation
 from betty.plugins.entity.event import Event
@@ -15,8 +17,6 @@ from betty.plugins.entity.person_name import PersonName
 from betty.plugins.entity.presence import Presence
 from betty.plugins.entity.source import Source
 from betty.plugins.event_type.birth import Birth
-from betty.plugins.gender.non_binary import NonBinary
-from betty.plugins.gender.unknown import Unknown as UnknownGender
 from betty.plugins.role.subject import Subject
 from betty.privacy import Privacy
 from betty.test_utils.entity import EntityTestBase
