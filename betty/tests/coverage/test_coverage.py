@@ -387,6 +387,16 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "CopyrightNoticeDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "CopyrightNoticeManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
+    "betty/enrichers/privatizer/__init__.py": {
+        "Privatizer": {
+            "enrich": MissingReason.SHOULD_BE_COVERED,
+        },
+    },
+    "betty/enrichers/wiki/__init__.py": {
+        "WikiData": {
+            "populate_images": MissingReason.SHOULD_BE_COVERED,
+        },
+    },
     "betty/entity/__init__.py": {
         "Entity": MissingReason.SHOULD_BE_COVERED,
         "EntityReferenceCollectionSchema": MissingReason.STATIC_CONTENT_ONLY,
@@ -505,16 +515,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/plugins/css_resource/webpack.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/plugins/enricher/privatizer/__init__.py": {
-        "Privatizer": {
-            "enrich": MissingReason.SHOULD_BE_COVERED,
-        },
-    },
-    "betty/plugins/enricher/wiki/__init__.py": {
-        "WikiData": {
-            "populate_images": MissingReason.SHOULD_BE_COVERED,
-        },
-    },
     "betty/plugins/entity/event.py": {
         "Event": {
             "has_any_date_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,

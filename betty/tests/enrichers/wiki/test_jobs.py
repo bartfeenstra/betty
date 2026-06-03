@@ -1,8 +1,8 @@
 from pytest_mock import MockerFixture
 
+from betty.enrichers.populate_links import PopulateLink
+from betty.enrichers.wiki.jobs import PopulateEntity
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.plugins.enricher.populate_links import PopulateLink
-from betty.plugins.enricher.wiki.jobs import PopulateEntity
 from betty.plugins.entity.link import Link
 from betty.plugins.extension.wiki import Wiki
 from betty.test_utils.conftest import IsolatedProjectFactory

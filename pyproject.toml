@@ -166,10 +166,10 @@ betty = 'betty.console:main_standalone'
 'yaml' = 'betty.plugins.media_type.yaml:YAML'
 
 [project.entry-points.'betty.enricher']
-'deriver' = 'betty.plugins.enricher.deriver:Deriver'
-'populate-links' = 'betty.plugins.enricher.populate_links:PopulateLinks'
-'privatizer' = 'betty.plugins.enricher.privatizer:Privatizer'
-'wiki' = 'betty.plugins.enricher.wiki:Wiki'
+'deriver' = 'betty.enrichers.deriver:Deriver'
+'populate-links' = 'betty.enrichers.populate_links:PopulateLinks'
+'privatizer' = 'betty.enrichers.privatizer:Privatizer'
+'wiki' = 'betty.enrichers.wiki:Wiki'
 
 [project.entry-points.'betty.entity']
 'citation' = 'betty.plugins.entity.citation:Citation'

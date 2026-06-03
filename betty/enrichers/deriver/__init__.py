@@ -6,10 +6,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.enrichers.deriver.jobs import DeriveAncestry
 from betty.factory import Manufacturable
 from betty.load import Enricher, EnricherDefinition
 from betty.locale.localizable.gettext import _
-from betty.plugins.enricher.deriver.jobs import DeriveAncestry
 from betty.project import Project
 
 if TYPE_CHECKING:
