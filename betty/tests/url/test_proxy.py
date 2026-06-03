@@ -6,8 +6,8 @@ import pytest
 
 from betty.locale import ResolvableLocale
 from betty.media_type import ResolvableMediaType
-from betty.plugins.media_type.html import HTML
-from betty.plugins.media_type.json import JSON
+from betty.media_types.html import HTML
+from betty.media_types.json import JSON
 from betty.url import UnsupportedResource, UrlGenerator
 from betty.url.proxy import ProxyUrlGenerator
 

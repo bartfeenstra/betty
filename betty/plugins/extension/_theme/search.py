@@ -12,10 +12,10 @@ from typing import TYPE_CHECKING, TypeVar, final, override
 from betty.entity import Entity, EntityDefinition
 from betty.entity.has_notes import HasNotes
 from betty.file import write
+from betty.media_types.html import HTML
 from betty.plugins.entity.file import File
 from betty.plugins.entity.person import Person
 from betty.plugins.entity.place import Place
-from betty.plugins.media_type.html import HTML
 from betty.privacy.resolve import is_private
 
 if TYPE_CHECKING:

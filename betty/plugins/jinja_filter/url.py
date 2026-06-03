@@ -12,7 +12,7 @@ from betty.factory import Manufacturable
 from betty.jinja import context_document
 from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
 from betty.media_type import MediaType
-from betty.plugins.media_type.html import HTML
+from betty.media_types.html import HTML
 from betty.project import Project
 
 if TYPE_CHECKING:

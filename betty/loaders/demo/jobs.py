@@ -16,6 +16,7 @@ from betty.genders.man import Man
 from betty.genders.woman import Woman
 from betty.job import Job
 from betty.locale.localizable.gettext import _
+from betty.media_types.svg import SVG
 from betty.place_types.country import Country
 from betty.place_types.municipality import Municipality
 from betty.place_types.province import Province
@@ -33,7 +34,6 @@ from betty.plugins.entity.place import Place
 from betty.plugins.entity.place_name import PlaceName
 from betty.plugins.entity.presence import Presence
 from betty.plugins.entity.source import Source
-from betty.plugins.media_type.svg import SVG
 from betty.roles.subject import Subject
 
 if TYPE_CHECKING:
