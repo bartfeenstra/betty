@@ -6,13 +6,13 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.dirs import WEBPACK_ENTRY_POINT_DIRECTORY
 from betty.extension import ExtensionDefinition
+from betty.links.http_api_doc import HTTP_API_DOC as HTTP_API_DOC_LINK
 from betty.locale.localizable.gettext import _
 from betty.plugins.asset_directory.http_api_doc import (
     HTTP_API_DOC as HTTP_API_DOC_ASSET,
 )
 from betty.plugins.extension.webpack import Webpack
 from betty.plugins.extension.webpack.build import EntryPointProvider
-from betty.plugins.link.http_api_doc import HTTP_API_DOC as HTTP_API_DOC_LINK
 from betty.project import Project
 
 if TYPE_CHECKING:

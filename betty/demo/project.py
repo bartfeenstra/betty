@@ -10,6 +10,8 @@ from betty.content import ContentManufacturer
 from betty.entity.reference import EntityReference
 from betty.extension import ExtensionManufacturer
 from betty.license import LicenseManufacturer
+from betty.links.betty_documentation import BETTY_DOCUMENTATION
+from betty.links.betty_github import BETTY_GITHUB
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Chain
@@ -37,8 +39,6 @@ from betty.plugins.extension.raspberry_mint import (
 )
 from betty.plugins.extension.spdx import Spdx
 from betty.plugins.extension.trees import Trees
-from betty.plugins.link.betty_documentation import BETTY_DOCUMENTATION
-from betty.plugins.link.betty_github import BETTY_GITHUB
 from betty.plugins.loader.demo import Demo
 from betty.plugins.media_type.html import HTML
 from betty.project import Project
