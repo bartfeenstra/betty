@@ -1,8 +1,8 @@
-from betty.asset_directories.raspberry_mint import RASPBERRY_MINT
+from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.entities.link import Link
 from betty.entity import EntityDefinition
 from betty.entity.has_links import HasLinks
-from betty.locale import DEFAULT_LOCALE
+from betty.locale import default_locale
 from betty.test_utils.conftest import AssertTemplateFile
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
@@ -24,7 +24,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "links": [],
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="component/raspberry-mint/links.html.j2",
     ) as (actual, _):
         assert actual == ""
@@ -40,7 +40,7 @@ async def test_with_link_without_locale(
         data={
             "links": [link],
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="component/raspberry-mint/links.html.j2",
     ) as (actual, _):
         assert link_url in actual
@@ -51,14 +51,14 @@ async def test_with_link(assert_template_file: AssertTemplateFile) -> None:
     link_url = "https://example.com"
     link_label = "An example site"
     link = Link(
-        {DEFAULT_LOCALE: link_url},  # ty:ignore[invalid-argument-type]
+        {default_locale: link_url},  # ty:ignore[invalid-argument-type]
         label=link_label,
     )
     async with assert_template_file(
         data={
             "links": [link],
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="component/raspberry-mint/links.html.j2",
     ) as (actual, _):
         assert link_url in actual

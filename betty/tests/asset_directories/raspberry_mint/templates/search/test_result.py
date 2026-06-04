@@ -1,6 +1,6 @@
-from betty.asset_directories.raspberry_mint import RASPBERRY_MINT
+from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.entities.person import Person
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale.localize import default_localizer
 from betty.test_utils.conftest import AssertTemplateFile
 
 
@@ -10,8 +10,8 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": entity,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="search/result.html.j2",
     ) as (actual, _):
-        assert entity.label.localize(DEFAULT_LOCALIZER) in actual
+        assert entity.label.localize(default_localizer) in actual
         assert entity.public_id in actual

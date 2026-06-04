@@ -8,7 +8,7 @@ from random import choice
 from typing import TYPE_CHECKING, override
 
 from betty.date import Date, DateRange
-from betty.dirs import BUILTIN_ASSET_DIRECTORY
+from betty.dirs import builtin_asset_directory
 from betty.entities.citation import Citation
 from betty.entities.enclosure import Enclosure
 from betty.entities.event import Event
@@ -482,7 +482,7 @@ class LoadAncestry(Job):
     async def _load_streetmix_images(
         self,
     ) -> tuple[Mapping[MachineName, Sequence[File]], Sequence[File]]:
-        streetmix_image_directory = BUILTIN_ASSET_DIRECTORY / "vendor" / "streetmix"
+        streetmix_image_directory = builtin_asset_directory / "vendor" / "streetmix"
         masculine: Sequence[File] = []
         feminine: Sequence[File] = []
         androgynous: Sequence[File] = []

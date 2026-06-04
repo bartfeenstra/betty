@@ -8,7 +8,7 @@ from betty.app import App
 from betty.copyright_notice import CopyrightNotice
 from betty.copyright_notices.wikipedia_contributors import WikipediaContributors
 from betty.locale.localizable.static import StaticTranslations
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale.localize import default_localizer
 from betty.test_utils.copyright_notice import CopyrightNoticeTestBase
 
 
@@ -54,4 +54,4 @@ class TestWikipediaContributors(CopyrightNoticeTestBase):
             body=dumps(response_json),
         )
         sut = await WikipediaContributors.new(isolated_app)
-        assert sut.url.localize(DEFAULT_LOCALIZER)
+        assert sut.url.localize(default_localizer)

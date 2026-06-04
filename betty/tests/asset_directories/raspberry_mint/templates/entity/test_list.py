@@ -1,4 +1,4 @@
-from betty.asset_directories.raspberry_mint import RASPBERRY_MINT
+from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.entities.event import Event
 from betty.privacy import Privacy
 from betty.test_utils.conftest import AssertTemplateFile
@@ -10,7 +10,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entities": [],
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/list.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -25,7 +25,7 @@ async def test_without_public_entities(
         data={
             "entities": [entity],
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/list.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -37,7 +37,7 @@ async def test_with_public_entities(assert_template_file: AssertTemplateFile) ->
         data={
             "entities": [entity],
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/list.html.j2",
     ) as (actual, _):
         assert f"/event/{entity.public_id}/index.html" in actual

@@ -1,12 +1,12 @@
 from betty.datas.locale import LocaleDefinition
-from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
+from betty.locale import default_locale, default_locale_tag
 
 
 class TestLocaleDefinition:
     def test_load(self) -> None:
         sut = LocaleDefinition()
-        assert sut.porter.load(DEFAULT_LOCALE_TAG) == DEFAULT_LOCALE
+        assert sut.porter.load(default_locale_tag) == default_locale
 
     def test_dump(self) -> None:
         sut = LocaleDefinition()
-        assert sut.porter.dump(DEFAULT_LOCALE) == DEFAULT_LOCALE_TAG
+        assert sut.porter.dump(default_locale) == default_locale_tag

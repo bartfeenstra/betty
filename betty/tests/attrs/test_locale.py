@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any
 from babel import Locale
 
 from betty.attrs.locale import HasLocale, new_locale_attr
-from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, resolve_locale
+from betty.locale import default_locale, default_locale_tag, resolve_locale
 from betty.prop import HasProps
 
 if TYPE_CHECKING:
@@ -20,8 +20,8 @@ class _Owner(HasProps):
 
 def test_new_locale_attr__set() -> None:
     sut = _Owner()
-    sut.locale = DEFAULT_LOCALE_TAG
-    assert sut.locale == DEFAULT_LOCALE
+    sut.locale = default_locale_tag
+    assert sut.locale == default_locale
 
 
 class TestHasLocale:

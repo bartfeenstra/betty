@@ -8,22 +8,25 @@ from abc import ABC, abstractmethod
 from collections.abc import Sequence
 from contextlib import suppress
 from functools import lru_cache
-from typing import cast, final, override
+from typing import TYPE_CHECKING, Final, cast, final, override
 
 from babel import Locale
 from babel.core import UnknownLocaleError
 
 import betty.dirs
 
-_LOCALE_DIRECTORY = betty.dirs.BUILTIN_ASSET_DIRECTORY / "locale"
+if TYPE_CHECKING:
+    from pathlib import Path
+
+_locale_directory: Final[Path] = betty.dirs.builtin_asset_directory / "locale"
 
 
-DEFAULT_LOCALE = Locale("en", "US")
+default_locale: Final[Locale] = Locale("en", "US")
 """
 Betty's default locale (US English).
 """
 
-DEFAULT_LOCALE_TAG = "en-US"
+default_locale_tag: Final[str] = "en-US"
 """
 The `IETF BCP 47 <https://tools.ietf.org/html/bcp47>`_ language tag for Betty's default locale (US English).
 """

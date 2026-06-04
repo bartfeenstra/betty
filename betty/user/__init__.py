@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from enum import IntEnum
 from typing import TYPE_CHECKING, overload
 
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale.localize import default_localizer
 from betty.typing import Void, VoidType
 
 if TYPE_CHECKING:
@@ -69,7 +69,7 @@ class User(ABC):
     A user session.
     """
 
-    localizer: Localizer = DEFAULT_LOCALIZER
+    localizer: Localizer = default_localizer
 
     @property
     @abstractmethod

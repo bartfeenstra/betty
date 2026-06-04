@@ -1,6 +1,6 @@
 from markupsafe import Markup
 
-from betty.asset_directories.raspberry_mint import RASPBERRY_MINT
+from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.html.attributes import Attributes
 from betty.test_utils.conftest import AssertTemplateFile
 
@@ -10,7 +10,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "accordion_items": [],
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="component/accordion.html.j2",
     ) as (actual, _):
         assert actual == ""
@@ -30,7 +30,7 @@ async def test_with_items(assert_template_file: AssertTemplateFile) -> None:
                 },
             ],
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="component/accordion.html.j2",
     ) as (actual, _):
         assert f"<{accordion_heading_element}" in actual
@@ -51,7 +51,7 @@ async def test_with_html_attributes(assert_template_file: AssertTemplateFile) ->
             ],
             "attributes": Attributes(html_class=[html_class]),
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="component/accordion.html.j2",
     ) as (actual, _):
         assert html_class in actual

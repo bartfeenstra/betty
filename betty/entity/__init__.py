@@ -13,7 +13,7 @@ from betty.linked_data import (
     LinkedDataDumpableWithSchemaJsonLdObject,
 )
 from betty.locale.localizable.gettext import _, ngettext
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale.localize import default_localizer
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.prop import HasProps
@@ -131,7 +131,7 @@ class Entity(
     async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema._def_name = f"{kebab_case_to_lower_camel_case(cls.plugin().id)}Entity"
-        schema.title = cls.plugin().label.localize(DEFAULT_LOCALIZER)
+        schema.title = cls.plugin().label.localize(default_localizer)
         schema.add_property("$schema", JsonSchemaReference())
         schema.add_property("id", String(title="Entity ID"), False)
 

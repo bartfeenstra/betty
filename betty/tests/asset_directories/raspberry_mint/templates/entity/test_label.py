@@ -6,7 +6,7 @@ from betty.entities.event import Event
 
 if TYPE_CHECKING:
     from betty.test_utils.conftest import AssertTemplateFile
-from betty.asset_directories.raspberry_mint import RASPBERRY_MINT
+from betty.asset_directories.raspberry_mint import raspberry_mint
 
 
 async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
@@ -16,7 +16,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": entity,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/label.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -29,7 +29,7 @@ async def test_with_persistent_id(assert_template_file: AssertTemplateFile) -> N
         data={
             "entity": entity,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/label.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -43,7 +43,7 @@ async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
             "entity": entity,
             "embedded": True,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/label.html.j2",
     ) as (actual, _):
         assert actual == expected

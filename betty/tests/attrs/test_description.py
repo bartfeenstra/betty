@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING
 import pytest
 
 from betty.attrs.description import HasDescription
-from betty.locale import DEFAULT_LOCALE_TAG
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale import default_locale_tag
+from betty.locale.localize import default_localizer
 
 if TYPE_CHECKING:
     from betty.entity.has_links import HasLinks
@@ -19,7 +19,7 @@ class TestHasDescription:
         description = "Hello, world!"
         sut = HasDescription(description=description)
         assert sut.description is not None
-        assert sut.description.localize(DEFAULT_LOCALIZER) == description
+        assert sut.description.localize(default_localizer) == description
 
     def test_description(self) -> None:
         sut = HasDescription()
@@ -37,7 +37,7 @@ class TestHasDescription:
             (
                 {
                     "@context": {"description": "https://schema.org/description"},
-                    "description": {DEFAULT_LOCALE_TAG: "Hello, world!"},
+                    "description": {default_locale_tag: "Hello, world!"},
                 },
                 HasDescription(description="Hello, world!"),
             ),

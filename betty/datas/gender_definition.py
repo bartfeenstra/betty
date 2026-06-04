@@ -11,7 +11,7 @@ from betty.datas.countable_human_facing_plugin_definition import (
     CountableHumanFacingPluginDefinitionData,
 )
 from betty.gender import Gender, GenderDefinition
-from betty.locale import DEFAULT_LOCALE
+from betty.locale import default_locale
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import CountableStaticTranslations
 from betty.sample import Sample
@@ -27,7 +27,7 @@ from betty.sample import Sample
                 label="Genderqueer",
                 label_plural="Genderqueers",
                 label_countable=CountableStaticTranslations({
-                    DEFAULT_LOCALE: {
+                    default_locale: {
                         "one": "{count} genderqueer",
                         "other": "{count} genderqueers",
                     }

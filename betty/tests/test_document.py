@@ -15,7 +15,7 @@ from betty.document import (
 from betty.entities.citation import Citation
 from betty.entities.source import Source
 from betty.job import Context
-from betty.locale import DEFAULT_LOCALE
+from betty.locale import default_locale
 from betty.locale.localizable.plain import Plain
 from betty.locale.localize import Localizer
 from betty.media_type import MediaType
@@ -153,7 +153,7 @@ class TestDocument:
         "resource_url": object(),
         "entity_contexts": EntityContexts(),
         "context": Context(),
-        "localizer": Localizer(DEFAULT_LOCALE, NullTranslations()),
+        "localizer": Localizer(default_locale, NullTranslations()),
         "title": Plain("-"),
         "vars": {
             "my_first_var": "MY_FIRST_VAR",
@@ -193,7 +193,7 @@ class TestDocument:
         )
 
     def test_localizer__from___init___(self) -> None:
-        localizer = Localizer(DEFAULT_LOCALE, NullTranslations())
+        localizer = Localizer(default_locale, NullTranslations())
         assert Document(localizer=localizer).localizer is localizer
 
     def test_title__from___init___(self) -> None:
@@ -248,7 +248,7 @@ class TestDocument:
             (
                 False,
                 {
-                    "localizer": Localizer(DEFAULT_LOCALE, NullTranslations()),
+                    "localizer": Localizer(default_locale, NullTranslations()),
                 },
             ),
             (

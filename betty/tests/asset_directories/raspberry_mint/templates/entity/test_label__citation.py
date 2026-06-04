@@ -9,7 +9,7 @@ from betty.privacy import Privacy
 
 if TYPE_CHECKING:
     from betty.test_utils.conftest import AssertTemplateFile
-from betty.asset_directories.raspberry_mint import RASPBERRY_MINT
+from betty.asset_directories.raspberry_mint import raspberry_mint
 
 
 async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
@@ -20,7 +20,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": citation,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/label--citation.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -34,7 +34,7 @@ async def test_with_persistent_id(assert_template_file: AssertTemplateFile) -> N
         data={
             "entity": citation,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/label--citation.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -49,7 +49,7 @@ async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
             "entity": citation,
             "embedded": True,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/label--citation.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -65,7 +65,7 @@ async def test_with_location(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": citation,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/label--citation.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -80,7 +80,7 @@ async def test_with_citation_context(assert_template_file: AssertTemplateFile) -
             "entity": citation,
             "document": Document(entity_contexts=EntityContexts(citation)),
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/label--citation.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -94,7 +94,7 @@ async def test_private(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": citation,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/label--citation.html.j2",
     ) as (actual, _):
         assert actual == expected

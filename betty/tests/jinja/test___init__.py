@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from betty.document import Document
 from betty.jinja import make_copy_function, new_environment
 from betty.job import Context
-from betty.locale import DEFAULT_LOCALE_TAG
+from betty.locale import default_locale_tag
 from betty.test_utils import Counter
 
 if TYPE_CHECKING:
@@ -69,8 +69,8 @@ async def test_make_copy_function__www_directory_and_is_localized_and_multilingu
     with open(source_file, "w", encoding="utf-8") as f:
         f.write("{{ document.resource }}\n{{ document.resource_url }}")
     www_directory = tmp_path / "www"
-    destination_file = www_directory / DEFAULT_LOCALE_TAG / "destination.test.j2"
-    rendered_destination_file = www_directory / DEFAULT_LOCALE_TAG / "destination.test"
+    destination_file = www_directory / default_locale_tag / "destination.test.j2"
+    rendered_destination_file = www_directory / default_locale_tag / "destination.test"
     copy_function = make_copy_function(
         environment,
         www_directory=www_directory,

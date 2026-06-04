@@ -1,4 +1,4 @@
-from betty.asset_directories.raspberry_mint import RASPBERRY_MINT
+from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.entities.citation import Citation
 from betty.entities.event import Event
 from betty.entities.person import Person
@@ -8,7 +8,7 @@ from betty.entities.source import Source
 from betty.event_types.birth import Birth
 from betty.event_types.death import Death
 from betty.genders.non_binary import NonBinary
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale.localize import default_localizer
 from betty.privacy import Privacy
 from betty.roles.subject import Subject
 from betty.test_utils.conftest import AssertTemplateFile
@@ -20,7 +20,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": person,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/summary--person.html.j2",
     ) as (actual, _):
         assert actual == '<div class="small"></div>'
@@ -39,7 +39,7 @@ async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
             "entity": person,
             "embedded": True,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/summary--person.html.j2",
     ) as (actual, _):
         assert birth.id not in actual
@@ -65,12 +65,12 @@ async def test_private(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": person,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/summary--person.html.j2",
     ) as (actual, _):
         assert individual_name not in actual
-        assert birth.event_type.plugin().label.localize(DEFAULT_LOCALIZER) not in actual
-        assert death.event_type.plugin().label.localize(DEFAULT_LOCALIZER) not in actual
+        assert birth.event_type.plugin().label.localize(default_localizer) not in actual
+        assert death.event_type.plugin().label.localize(default_localizer) not in actual
         assert "#reference" not in actual
 
 
@@ -90,7 +90,7 @@ async def test_with_public_alternative_name(
         data={
             "entity": person,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/summary--person.html.j2",
     ) as (actual, _):
         assert individual_name in actual
@@ -114,7 +114,7 @@ async def test_with_private_alternative_name(
         data={
             "entity": person,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/summary--person.html.j2",
     ) as (actual, _):
         assert individual_name not in actual
@@ -130,10 +130,10 @@ async def test_with_birh_indicator(assert_template_file: AssertTemplateFile) -> 
         data={
             "entity": person,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/summary--person.html.j2",
     ) as (actual, _):
-        assert birth.event_type.plugin().label.localize(DEFAULT_LOCALIZER) in actual
+        assert birth.event_type.plugin().label.localize(default_localizer) in actual
         assert "#reference" in actual
 
 
@@ -146,10 +146,10 @@ async def test_with_death_indicator(assert_template_file: AssertTemplateFile) ->
         data={
             "entity": person,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/summary--person.html.j2",
     ) as (actual, _):
-        assert death.event_type.plugin().label.localize(DEFAULT_LOCALIZER) in actual
+        assert death.event_type.plugin().label.localize(default_localizer) in actual
         assert "#reference" in actual
 
 
@@ -159,7 +159,7 @@ async def test_with_gender(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": person,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/summary--person.html.j2",
     ) as (actual, _):
-        assert NonBinary.plugin().label.localize(DEFAULT_LOCALIZER) in actual
+        assert NonBinary.plugin().label.localize(default_localizer) in actual

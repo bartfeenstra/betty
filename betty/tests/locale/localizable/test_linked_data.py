@@ -4,7 +4,7 @@ from betty.locale.localizable import ShorthandStaticTranslations
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale.localize import default_localizer
 from betty.portable import PortableMapping
 from betty.test_utils.conftest import AssertLinkedDataDump
 
@@ -35,7 +35,7 @@ async def test_dump_linked_data(
     actual = await assert_linked_data_dump(
         StaticTranslationsSchema(),
         dump_linked_data(
-            StaticTranslations(translations), localizers=[DEFAULT_LOCALIZER]
+            StaticTranslations(translations), localizers=[default_localizer]
         ),
     )
     assert actual == expected

@@ -4,11 +4,11 @@ import pytest
 
 from betty.datas.localizable import LocalizableDefinition
 from betty.exception import HumanFacingException
-from betty.locale import DEFAULT_LOCALE_TAG
+from betty.locale import default_locale_tag
 from betty.locale.localizable.markup import Paragraph
 from betty.locale.localizable.plain import Plain
 from betty.locale.localizable.static import StaticTranslations
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale.localize import default_localizer
 from betty.portable.error import NotPortable
 
 if TYPE_CHECKING:
@@ -23,7 +23,7 @@ class TestLocalizableDefinition:
     def test_load__with_single_undetermined_translation(self) -> None:
         localizable = "Hello, world!"
         assert (
-            LocalizableDefinition().porter.load(localizable).localize(DEFAULT_LOCALIZER)
+            LocalizableDefinition().porter.load(localizable).localize(default_localizer)
             == localizable
         )
 
@@ -40,7 +40,7 @@ class TestLocalizableDefinition:
 
     def test_dump__with_static_translations(self) -> None:
         localizable: ShorthandStaticTranslations = {
-            DEFAULT_LOCALE_TAG: "Hello, world!",
+            default_locale_tag: "Hello, world!",
             "nl-NL": "Hallo, wereld!",
         }  # ty:ignore[invalid-assignment]
 

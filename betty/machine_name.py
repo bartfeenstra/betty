@@ -5,7 +5,7 @@ Machine names.
 from __future__ import annotations
 
 import re
-from typing import Self, final, override
+from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.assertions.str import assert_str
 from betty.data import Data, DataDefinition
@@ -14,12 +14,17 @@ from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Paragraph
 from betty.portable import Portable, PortableData
 
-_MACHINE_NAME_DESCRIPTION = _(
+if TYPE_CHECKING:
+    from betty.locale.localizable import Localizable
+
+_machine_name_description: Final[Localizable] = _(
     "A machine name is an identifier of at most 250 characters long, made up of lowercase letters, numbers, and/or hyphens (-)."
 )
-_MACHINE_NAME_PATTERN = re.compile(r"^[a-z0-9\-]{1,250}$")
-_MACHINIFY_DISALLOWED_CHARACTER_PATTERN = re.compile(r"[^a-z0-9\-]")
-_MACHINIFY_HYPHEN_PATTERN = re.compile(r"-{2,}")
+_machine_name_pattern: Final[re.Pattern[str]] = re.compile(r"^[a-z0-9\-]{1,250}$")
+_machinify_disallowed_character_pattern: Final[re.Pattern[str]] = re.compile(
+    r"[^a-z0-9\-]"
+)
+_machinify_hyphen_pattern: Final[re.Pattern[str]] = re.compile(r"-{2,}")
 
 
 @final
@@ -37,7 +42,7 @@ class MachineName(Portable[str], str, Data):
 
     @override
     def __new__(cls, machine_name: str, /):
-        if _MACHINE_NAME_PATTERN.fullmatch(machine_name) is None:
+        if _machine_name_pattern.fullmatch(machine_name) is None:
             raise InvalidMachineName(machine_name)
         return super().__new__(cls, machine_name)
 
@@ -68,8 +73,8 @@ class MachineName(Portable[str], str, Data):
         Attempt to convert a source string into a valid machine name.
         """
         machine_name = (
-            _MACHINIFY_HYPHEN_PATTERN.sub(
-                "-", _MACHINIFY_DISALLOWED_CHARACTER_PATTERN.sub("-", source.lower())
+            _machinify_hyphen_pattern.sub(
+                "-", _machinify_disallowed_character_pattern.sub("-", source.lower())
             ).strip("-")[:250]
             or None
         )
@@ -91,6 +96,6 @@ class InvalidMachineName(HumanFacingException, ValueError):
         super().__init__(
             Paragraph(
                 _('"{value}" is not a valid machine name.').format(value=value),
-                _MACHINE_NAME_DESCRIPTION,
+                _machine_name_description,
             )
         )

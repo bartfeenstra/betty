@@ -4,8 +4,8 @@ from babel import Locale
 
 from betty.data import Data
 from betty.loaders.gramps import Gramps, GrampsData
-from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale import default_locale_tag, to_language_tag
+from betty.locale.localize import default_localizer
 from betty.portable.file import assert_load_file
 from betty.project import ProjectData
 from betty.serializers.json import Json
@@ -37,7 +37,7 @@ class TestNew:
             ],
             inputs=[
                 str(configuration_file),
-                DEFAULT_LOCALE_TAG,
+                default_locale_tag,
                 title,
                 machine_name,
                 author,
@@ -47,10 +47,10 @@ class TestNew:
         async with isolated_app_factory(user=user) as app:
             await run(app, "new")
             configuration = _assert_new(configuration_file)
-        assert configuration.title.localize(DEFAULT_LOCALIZER) == title
+        assert configuration.title.localize(default_localizer) == title
         assert configuration.name == "my-first-project"
         assert configuration.author is not None
-        assert configuration.author.localize(DEFAULT_LOCALIZER) == author
+        assert configuration.author.localize(default_localizer) == author
         assert configuration.url == url
 
     async def test_configure__with_project_directory(
@@ -67,7 +67,7 @@ class TestNew:
             ],
             inputs=[
                 str(tmp_path),
-                DEFAULT_LOCALE_TAG,
+                default_locale_tag,
                 title,
                 machine_name,
                 author,
@@ -154,7 +154,7 @@ class TestNew:
             ],
             inputs=[
                 str(configuration_file),
-                DEFAULT_LOCALE_TAG,
+                default_locale_tag,
                 "My First Project",
                 name,
                 "My First Author",
@@ -178,7 +178,7 @@ class TestNew:
             ],
             inputs=[
                 str(configuration_file),
-                DEFAULT_LOCALE_TAG,
+                default_locale_tag,
                 "My First Project",
                 "my-first-project",
                 "My First Author",

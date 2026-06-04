@@ -7,7 +7,7 @@ from typing import Self, final, override
 
 from babel import Locale
 
-from betty.asset_directories.wiki import WIKI
+from betty.asset_directories.wiki import wiki
 from betty.content import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
@@ -30,7 +30,7 @@ from betty.wiki.client import Client, ClientError, Summary
     "wikipedia-summary",
     label=_("Wikipedia summary"),
     requires={
-        Project.asset_directories.require(WIKI),
+        Project.asset_directories.require(wiki),
         Project.extensions.require(WikiExtension),
     },
 )

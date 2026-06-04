@@ -2,7 +2,7 @@ import pytest
 from babel import Locale
 
 from betty.locale.localizable.plain import Plain
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale.localize import default_localizer
 
 
 class TestPlain:
@@ -22,4 +22,4 @@ class TestPlain:
         ],
     )
     def test_localize(self, string: str) -> None:
-        assert Plain(string).localize(DEFAULT_LOCALIZER) == string
+        assert Plain(string).localize(default_localizer) == string

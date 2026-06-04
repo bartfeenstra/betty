@@ -10,7 +10,7 @@ from typing import overload, override
 
 from betty.functools import Pipe
 from betty.locale.localizable import ResolvableLocalizable
-from betty.locale.localize import DEFAULT_LOCALIZER, resolve_localized
+from betty.locale.localize import default_localizer, resolve_localized
 from betty.progress import Progress
 from betty.progresses.no_op import NoOpProgress
 from betty.typing import Void, VoidType
@@ -75,7 +75,7 @@ class StaticUser(User):
             fragments,
             message_type,
             [
-                resolve_localized(message, localizer=DEFAULT_LOCALIZER)
+                resolve_localized(message, localizer=default_localizer)
                 for message in getattr(self, f"_messages_{message_type}")
             ],
         )
@@ -149,7 +149,7 @@ class StaticUser(User):
             fragments,
             message_type,
             [
-                resolve_localized(message, localizer=DEFAULT_LOCALIZER)
+                resolve_localized(message, localizer=default_localizer)
                 for message in getattr(self, f"_messages_{message_type}")
             ],
         )

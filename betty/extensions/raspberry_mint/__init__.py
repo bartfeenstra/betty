@@ -9,7 +9,7 @@ from collections import defaultdict
 from enum import Enum
 from typing import TYPE_CHECKING, Final, Self, final, override
 
-from betty.asset_directories.raspberry_mint import RASPBERRY_MINT
+from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.attrs.attr import AttrAttr
 from betty.attrs.collection_attr import CollectionAttrAttr
 from betty.collection.mapping import MutableResolvedMapping, ResolvedMapping
@@ -30,7 +30,7 @@ from betty.datas.plugin_manufacturer_sequence import (
     PluginManufacturerSequenceDefinition,
 )
 from betty.datas.str import StrDefinition
-from betty.dirs import WEBPACK_ENTRY_POINT_DIRECTORY
+from betty.dirs import webpack_entry_point_directory
 from betty.entity import EntityDefinition
 from betty.exception import HumanFacingException, reraise_with_indicator
 from betty.extension import ExtensionDefinition
@@ -52,6 +52,7 @@ from betty.service.simple import service
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterable, Mapping, Sequence
 
+    from betty.content_builders.raspberry_mint_columns import ShorthandColumnsWidth
     from betty.job.scheduler import Scheduler
     from betty.pathlib import StrPath
 
@@ -187,7 +188,7 @@ class RaspberryMintData(Data, HasProps):
     "raspberry-mint",
     label="Raspberry Mint",
     requires={
-        Project.asset_directories.require(RASPBERRY_MINT),
+        Project.asset_directories.require(raspberry_mint),
         Project.extensions.require(Webpack),
     },
 )
@@ -290,7 +291,7 @@ class RaspberryMint(
     @override
     @classmethod
     def webpack_entry_point_directory(cls) -> StrPath:
-        return WEBPACK_ENTRY_POINT_DIRECTORY / cls.plugin().id
+        return webpack_entry_point_directory / cls.plugin().id
 
     @override
     def webpack_entry_point_cache_keys(self) -> Sequence[str]:
@@ -417,7 +418,7 @@ class JustifyContent(Enum):
     EVENLY = "evenly"
 
 
-SINGLE_COLUMN_TEXT_WIDTH = {
+single_column_text_width: Final[ShorthandColumnsWidth] = {
     Breakpoint.XS: 12,
     Breakpoint.LG: 11,
     Breakpoint.XL: 10,

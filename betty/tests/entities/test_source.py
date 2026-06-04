@@ -10,9 +10,9 @@ from betty.entities.citation import Citation
 from betty.entities.link import Link
 from betty.entities.source import Source
 from betty.entity import Entity
-from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, to_language_tag
+from betty.locale import default_locale, default_locale_tag, to_language_tag
 from betty.locale.localizable.plain import Plain
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale.localize import default_localizer
 from betty.privacy import Privacy
 from betty.test_utils.entity import EntityTestBase
 
@@ -37,19 +37,19 @@ class TestSource(EntityTestBase):
         name = "The Source"
         sut = Source(name=name)
         assert sut.name is not None
-        assert sut.name.localize(DEFAULT_LOCALIZER) == name
+        assert sut.name.localize(default_localizer) == name
 
     def test___init____with_author(self) -> None:
         author = "Me"
         sut = Source(author=author)
         assert sut.author is not None
-        assert sut.author.localize(DEFAULT_LOCALIZER) == author
+        assert sut.author.localize(default_localizer) == author
 
     def test___init____with_publisher(self) -> None:
         publisher = "Me"
         sut = Source(publisher=publisher)
         assert sut.publisher is not None
-        assert sut.publisher.localize(DEFAULT_LOCALIZER) == publisher
+        assert sut.publisher.localize(default_localizer) == publisher
 
     def test___init____with_contained_by(self) -> None:
         contained_by_source = Source()
@@ -139,7 +139,7 @@ class TestSource(EntityTestBase):
             "@type": "https://schema.org/Thing",
             "id": "the_source",
             "privacy": False,
-            "name": {DEFAULT_LOCALE_TAG: "The Source"},
+            "name": {default_locale_tag: "The Source"},
             "fileReferences": [],
             "contains": [],
             "containedBy": None,
@@ -185,9 +185,9 @@ class TestSource(EntityTestBase):
             "@type": "https://schema.org/Thing",
             "id": "the_source",
             "privacy": False,
-            "name": {DEFAULT_LOCALE_TAG: "The Source"},
-            "author": {DEFAULT_LOCALE_TAG: "The Author"},
-            "publisher": {DEFAULT_LOCALE_TAG: "The Publisher"},
+            "name": {default_locale_tag: "The Source"},
+            "author": {default_locale_tag: "The Author"},
+            "publisher": {default_locale_tag: "The Publisher"},
             "fileReferences": [],
             "contains": [
                 "/source/the_contained_source/index.json",
@@ -210,11 +210,11 @@ class TestSource(EntityTestBase):
                     "id": link.id,
                     "url": {
                         to_language_tag(
-                            DEFAULT_LOCALE
+                            default_locale
                         ): "https://example.com/the-source",
                     },
                     "label": {
-                        DEFAULT_LOCALE_TAG: "The Source Online",
+                        default_locale_tag: "The Source Online",
                     },
                     "owner": "/source/the_source/index.json",
                     "privacy": False,

@@ -10,11 +10,11 @@ from asyncio import sleep
 from collections.abc import AsyncIterator, Hashable, MutableMapping
 from math import floor
 from types import TracebackType
-from typing import final, override
+from typing import Final, final, override
 
 from betty.typing import threadsafe
 
-MAX_STRANDS = 64
+max_strands: Final[int] = 64
 
 
 class Lock(ABC):

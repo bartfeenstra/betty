@@ -8,9 +8,9 @@ from betty.exception import (
     reraise_with_indicator,
 )
 from betty.indicator.selector import Attr, Key
-from betty.locale import DEFAULT_LOCALE_TAG
+from betty.locale import default_locale_tag
 from betty.locale.localizable.static import StaticTranslations
-from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
+from betty.locale.localize import Localizer, default_localizer
 
 
 def test_do_raise() -> None:
@@ -37,7 +37,7 @@ class TestHumanFacingException:
         sut = HumanFacingException(
             StaticTranslations(
                 {
-                    DEFAULT_LOCALE_TAG: "Hello, world!",
+                    default_locale_tag: "Hello, world!",
                     locale: localized_message,
                 }  # ty:ignore[invalid-argument-type]
             )
@@ -47,14 +47,14 @@ class TestHumanFacingException:
 
     def test_localize__without_indicators(self) -> None:
         sut = HumanFacingException(StaticTranslations("Something went wrong!"))
-        assert sut.localize(DEFAULT_LOCALIZER) == "Something went wrong!"
+        assert sut.localize(default_localizer) == "Something went wrong!"
 
     def test_localize__with_indicators(self) -> None:
         sut = HumanFacingException(StaticTranslations("Something went wrong!"))
         sut.with_indicator(Attr("my_first_indicator"))
         sut.with_indicator(Attr("my_second_indicator"))
         assert (
-            sut.localize(DEFAULT_LOCALIZER)
+            sut.localize(default_localizer)
             == "Something went wrong!\n- data.my_second_indicator.my_first_indicator"
         )
 

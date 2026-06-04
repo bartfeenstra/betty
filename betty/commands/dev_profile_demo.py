@@ -5,7 +5,7 @@ from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty import dirs
-from betty.about import IS_DEVELOPMENT
+from betty.about import is_development
 from betty.app import App
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.demo.generate import generate_with_cleanup
@@ -153,7 +153,7 @@ class DevProfileDemo(Manufacturable, Command):
         import yappi
 
         stats_file = (
-            dirs.DEV_OUTPUT_DIRECTORY / f"{self.plugin().id}-{clock_type}.ystats"
+            dirs.dev_output_directory / f"{self.plugin().id}-{clock_type}.ystats"
         )
         if not force and stats_file.exists():
             stats = yappi.get_func_stats()
@@ -177,6 +177,6 @@ class DevProfileDemo(Manufacturable, Command):
 
 
 def _discover(_: ServiceLevel) -> Iterable[ResolvableDiscovery[CommandDefinition]]:
-    if not IS_DEVELOPMENT:
+    if not is_development:
         raise UnmetRequirement("This is only available when developing Betty")
     yield DevProfileDemo

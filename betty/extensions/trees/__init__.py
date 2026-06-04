@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.asset_directories.trees import TREES
-from betty.dirs import WEBPACK_ENTRY_POINT_DIRECTORY
+from betty.asset_directories.trees import trees
+from betty.dirs import webpack_entry_point_directory
 from betty.extension import ExtensionDefinition
 from betty.extensions.trees.jobs import _GeneratePeopleJson
 from betty.extensions.webpack import Webpack
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     label="Trees",
     description=_("Display interactive family trees using Cytoscape."),
     requires={
-        Project.asset_directories.require(TREES),
+        Project.asset_directories.require(trees),
         Project.extensions.require(Webpack),
     },
 )
@@ -54,7 +54,7 @@ class Trees(Generator, EntryPointProvider, Manufacturable):
     @override
     @classmethod
     def webpack_entry_point_directory(cls) -> StrPath:
-        return WEBPACK_ENTRY_POINT_DIRECTORY / cls.plugin().id
+        return webpack_entry_point_directory / cls.plugin().id
 
     @override
     def webpack_entry_point_cache_keys(self) -> Sequence[str]:

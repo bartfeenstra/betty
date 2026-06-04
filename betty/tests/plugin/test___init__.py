@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Final, final
 
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.ordered import OrderedPluginClsDefinition
@@ -24,32 +24,43 @@ class _OrderedPluginDefinition(OrderedPluginClsDefinition[DummyPlugin]):
     pass
 
 
-_ORDERED_PLUGIN_COMES_BEFORE_TARGET = _OrderedPluginDefinition(
-    "ordered-plugin-comes-before-target"
+_ordered_plugin_comes_before_target: Final[OrderedPluginClsDefinition] = (
+    _OrderedPluginDefinition("ordered-plugin-comes-before-target")
 )
 
-_ORDERED_PLUGIN_HAS_COMES_BEFORE = _OrderedPluginDefinition(
-    "ordered-plugin-has-comes-before",
-    before={_ORDERED_PLUGIN_COMES_BEFORE_TARGET},
+_ordered_plugin_has_comes_before: Final[OrderedPluginClsDefinition] = (
+    _OrderedPluginDefinition(
+        "ordered-plugin-has-comes-before",
+        before={_ordered_plugin_comes_before_target},
+    )
 )
-_ORDERED_PLUGIN_COMES_AFTER_TARGET = _OrderedPluginDefinition(
-    "ordered-plugin-comes-after-target"
-)
-
-_ORDERED_PLUGIN_HAS_COMES_AFTER = _OrderedPluginDefinition(
-    "ordered-plugin-has-comes-after", after={_ORDERED_PLUGIN_COMES_AFTER_TARGET}
+_ordered_plugin_comes_after_target: Final[OrderedPluginClsDefinition] = (
+    _OrderedPluginDefinition("ordered-plugin-comes-after-target")
 )
 
-_ORDERED_PLUGIN_ISOLATED = _OrderedPluginDefinition("ordered-plugin-isolated")
-
-
-_ORDERED_PLUGIN_HAS_COMES_BEFORE_BIDIRECTIONAL = _OrderedPluginDefinition(
-    "ordered-plugin-has-comes-before-bidirectional",
-    before={"ordered-plugin-has-comes-after-bidirectional"},
+_ordered_plugin_has_comes_after: Final[OrderedPluginClsDefinition] = (
+    _OrderedPluginDefinition(
+        "ordered-plugin-has-comes-after", after={_ordered_plugin_comes_after_target}
+    )
 )
-_ORDERED_PLUGIN_HAS_COMES_AFTER_BIDIRECTIONAL = _OrderedPluginDefinition(
-    "ordered-plugin-has-comes-after-bidirectional",
-    after={_ORDERED_PLUGIN_HAS_COMES_BEFORE_BIDIRECTIONAL},
+
+_ordered_plugin_isolated: Final[OrderedPluginClsDefinition] = _OrderedPluginDefinition(
+    "ordered-plugin-isolated"
+)
+
+
+_ordered_plugin_has_comes_before_bidirectional: Final[OrderedPluginClsDefinition] = (
+    _OrderedPluginDefinition(
+        "ordered-plugin-has-comes-before-bidirectional",
+        before={"ordered-plugin-has-comes-after-bidirectional"},
+    )
+)
+
+_ordered_plugin_has_comes_after_bidirectional: Final[OrderedPluginClsDefinition] = (
+    _OrderedPluginDefinition(
+        "ordered-plugin-has-comes-after-bidirectional",
+        after={_ordered_plugin_has_comes_before_bidirectional},
+    )
 )
 
 

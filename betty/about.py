@@ -3,20 +3,24 @@
 from __future__ import annotations
 
 from importlib import metadata
+from typing import TYPE_CHECKING, Final
 
-_DEV_VERSION = "0.0.0"
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+_dev_version: Final[str] = "0.0.0"
 
 
-VERSION = metadata.version("betty")
+version: Final[str] = metadata.version("betty")
 """
 The current Betty installation's version.
 """
 
-_VERSION_MAJOR_PARTS = VERSION.split(".")
-VERSION_MAJOR = (
-    f"0.{_VERSION_MAJOR_PARTS[1]}"
-    if _VERSION_MAJOR_PARTS[0] == "0"
-    else _VERSION_MAJOR_PARTS[0]
+_version_major_parts: Final[Sequence[str]] = version.split(".")
+version_major: Final[str] = (
+    f"0.{_version_major_parts[1]}"
+    if _version_major_parts[0] == "0"
+    else _version_major_parts[0]
 )
 """
 The current Betty installation's major version.
@@ -26,25 +30,25 @@ information because that may disclose security issues.
 """
 
 
-IS_STABLE = VERSION != _DEV_VERSION
+is_stable: Final[bool] = version != _dev_version
 """
 Whether the current Betty installation is a stable version.
 """
 
 
-IS_DEVELOPMENT = not IS_STABLE
+is_development: Final[bool] = not is_stable
 """
 Whether the current Betty installation is an unstable development version.
 """
 
 
-VERSION_LABEL = "development" if IS_DEVELOPMENT else VERSION
+version_label: Final[str] = "development" if is_development else version
 """
 The human-readable label for the current Betty installation's version.
 """
 
 
-VERSION_MAJOR_LABEL = "development" if IS_DEVELOPMENT else VERSION_MAJOR
+version_major_label: Final[str] = "development" if is_development else version_major
 """
 The human-readable label for the current Betty installation's major version.
 

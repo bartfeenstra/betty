@@ -1,6 +1,7 @@
 import time
 from asyncio import gather
 from collections.abc import AsyncIterator, Awaitable, Callable, Sequence
+from typing import Final
 from unittest.mock import AsyncMock
 
 import pytest
@@ -9,9 +10,13 @@ from yarl import URL
 
 from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
 
-_LOW_RATE_LIMIT = RateLimitDefinition("-", limit=(1, 999999999), match="")
-_HIGH_RATE_LIMIT = RateLimitDefinition("-", limit=(999999999, 1), match="")
-_NEVER_RATE_LIMIT = RateLimitDefinition(
+_low_rate_limit: Final[RateLimitDefinition] = RateLimitDefinition(
+    "-", limit=(1, 999999999), match=""
+)
+_high_rate_limit: Final[RateLimitDefinition] = RateLimitDefinition(
+    "-", limit=(999999999, 1), match=""
+)
+_never_rate_limit: Final[RateLimitDefinition] = RateLimitDefinition(
     "-", limit=(1, 999999999), match="x" * 999999999
 )
 
@@ -75,7 +80,7 @@ class TestRateLimitMiddleware:
         await do_assert(
             expected,
             consumers,
-            [_NEVER_RATE_LIMIT, _NEVER_RATE_LIMIT, _NEVER_RATE_LIMIT],
+            [_never_rate_limit, _never_rate_limit, _never_rate_limit],
         )
 
     @pytest.mark.parametrize(
@@ -91,5 +96,5 @@ class TestRateLimitMiddleware:
         await do_assert(
             expected,
             consumers,
-            [_NEVER_RATE_LIMIT, _HIGH_RATE_LIMIT, _LOW_RATE_LIMIT],
+            [_never_rate_limit, _high_rate_limit, _low_rate_limit],
         )

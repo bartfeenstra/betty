@@ -20,17 +20,17 @@ from betty.caches.file import BinaryFileCache, PickledFileCache
 from betty.caches.no_op import NoOpCache
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
-from betty.dirs import APP_CONFIG_DIRECTORY, CACHE_DIRECTORY
+from betty.dirs import app_config_directory, cache_directory
 from betty.http_client import ClientErrorToUserMessageMiddleware
 from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
 from betty.life_cycle import Bootstrappable, Shutdownable
-from betty.locale import DEFAULT_LOCALE, ResolvableLocale, resolve_locale
+from betty.locale import ResolvableLocale, default_locale, resolve_locale
 from betty.locale.localizable.gettext import _
 from betty.locale.localize import Localizer, LocalizerRepository
 from betty.locale.translation import (
-    DEFAULT_TRANSLATION_REPOSITORY,
     AssetTranslationRepository,
     TranslationRepository,
+    default_translation_repository,
 )
 from betty.media_type import MediaTypeDefinition
 from betty.multiprocessing import ProcessPoolExecutor
@@ -143,7 +143,7 @@ class App(RequirableServiceLevel, PluginServiceProvider):
         cls.rate_limits.add_init_plugins(self, *rate_limits)
         cls.serializers.add_init_plugins(self, *serializers)
         self.life_cycle.on_bootstrap(self._bootstrap_localizer)
-        self._locale = DEFAULT_LOCALE if locale is None else resolve_locale(locale)
+        self._locale = default_locale if locale is None else resolve_locale(locale)
         if user is None:
             user = RichUser()
         if isinstance(user, Bootstrappable | Shutdownable):
@@ -169,10 +169,10 @@ class App(RequirableServiceLevel, PluginServiceProvider):
                 locale = data.locale
         else:
             locale = None
-        cache_directory = environ.get("BETTY_CACHE_DIRECTORY", CACHE_DIRECTORY)
+        app_cache_directory = environ.get("BETTY_CACHE_DIRECTORY", cache_directory)
         async with cls(
-            cache=PickledFileCache(cache_directory),
-            binary_file_cache=BinaryFileCache(cache_directory),
+            cache=PickledFileCache(app_cache_directory),
+            binary_file_cache=BinaryFileCache(app_cache_directory),
             locale=locale,
         ) as app:
             yield app
@@ -215,7 +215,7 @@ class App(RequirableServiceLevel, PluginServiceProvider):
                 plugins=plugins,
                 process_pool=process_pool,
                 user=NoOpUser() if user is None else user,
-                translations=DEFAULT_TRANSLATION_REPOSITORY
+                translations=default_translation_repository
                 if translations is False
                 else translations,
             ) as app:
@@ -306,7 +306,7 @@ class App(RequirableServiceLevel, PluginServiceProvider):
     label=_("Application configuration"),
     samples=[
         lambda: Sample(AppData(), label="Minimal", size=Size.MINIMAL),
-        lambda: Sample(AppData(locale=DEFAULT_LOCALE), label="Full", size=Size.FULL),
+        lambda: Sample(AppData(locale=default_locale), label="Full", size=Size.FULL),
     ],
 )
 class AppData(Data, HasProps):
@@ -316,7 +316,7 @@ class AppData(Data, HasProps):
     .. data:: betty.app:AppData
     """
 
-    FILE: Final[Path] = APP_CONFIG_DIRECTORY / "app.json"
+    FILE: Final[Path] = app_config_directory / "app.json"
 
     locale = new_locale_attr().optional
     """

@@ -7,7 +7,7 @@ from __future__ import annotations
 from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.asset_directories.raspberry_mint import RASPBERRY_MINT
+from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.attrs.attr import AttrAttr
 from betty.attrs.plugin_manufacturer_sequence import (
     new_plugin_manufacturer_sequence_attr,
@@ -83,7 +83,7 @@ class ColorStyleData(Data, HasProps):
 @ContentBuilderDefinition(
     "raspberry-mint-color-style",
     label=_("Color style"),
-    requires={Project.asset_directories.require(RASPBERRY_MINT)},
+    requires={Project.asset_directories.require(raspberry_mint)},
 )
 class ColorStyle(Template, DataManufacturable[ColorStyleData]):
     """

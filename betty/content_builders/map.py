@@ -4,7 +4,7 @@ The map content plugin.
 
 from typing import Self, final, override
 
-from betty.asset_directories.maps import MAPS
+from betty.asset_directories.maps import maps
 from betty.content import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.document import Document
@@ -23,7 +23,7 @@ from betty.project import Project
     "map",
     label=_("Map"),
     requires={
-        Project.asset_directories.require(MAPS),
+        Project.asset_directories.require(maps),
         Project.extensions.require(Webpack),
         Project.jinja_filters.require(WebpackEntryPointJs),
     },

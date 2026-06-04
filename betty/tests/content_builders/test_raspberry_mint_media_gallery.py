@@ -3,7 +3,7 @@ from betty.document import Document
 from betty.entities.file import File
 from betty.entities.file_reference import FileReference
 from betty.entities.person import Person
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale.localize import default_localizer
 from betty.test_utils.conftest import IsolatedProjectFactory
 
 
@@ -39,4 +39,4 @@ class TestMediaGallery:
             sut = await MediaGallery.new(project)
             actual = await sut.build(document=Document(resource))
         assert actual is not None
-        assert file.label.localize(DEFAULT_LOCALIZER) in actual
+        assert file.label.localize(default_localizer) in actual

@@ -4,7 +4,7 @@ The map attribution content plugin.
 
 from typing import Self, final, override
 
-from betty.asset_directories.maps import MAPS
+from betty.asset_directories.maps import maps
 from betty.content import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.document import Document
@@ -17,7 +17,7 @@ from betty.project import Project
 @ContentBuilderDefinition(
     "map-attribution",
     label=_("Map attribution"),
-    requires={Project.asset_directories.require(MAPS)},
+    requires={Project.asset_directories.require(maps)},
 )
 class MapAttribution(Template, Manufacturable):
     """

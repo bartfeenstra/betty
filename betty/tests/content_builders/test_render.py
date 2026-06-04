@@ -4,7 +4,7 @@ import pytest
 
 from betty.content_builders.render import Render, RenderData
 from betty.document import Document
-from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
+from betty.locale import default_locale, default_locale_tag
 from betty.locale.localizable import ResolvableLocalizable
 from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localize import Localizer
@@ -30,12 +30,12 @@ class TestRender:
             (
                 "<p>One<br>\nTwo<br>\nThree</p>",
                 "One\nTwo\nThree",
-                DEFAULT_LOCALE,
+                default_locale,
             ),
             (
                 "<p>Een<br>\nTwee<br>\nDrie</p>",
                 StaticTranslations(
-                    {DEFAULT_LOCALE_TAG: "One\nTwo\nThree", "nl": "Een\nTwee\nDrie"},  # ty:ignore[invalid-argument-type]
+                    {default_locale_tag: "One\nTwo\nThree", "nl": "Een\nTwee\nDrie"},  # ty:ignore[invalid-argument-type]
                 ),
                 "nl",
             ),

@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from betty.enrichers.populate_links import PopulateLinks
 from betty.entities.link import Link
 from betty.load import load
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale.localize import default_localizer
 
 if TYPE_CHECKING:
     from aioresponses import aioresponses
@@ -35,4 +35,4 @@ class TestPopulateLinks:
             link = Link("https://example.com")
             project.ancestry.add(link)
             await load(project)
-            assert link.label.localize(DEFAULT_LOCALIZER) == link_page_title
+            assert link.label.localize(default_localizer) == link_page_title

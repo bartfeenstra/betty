@@ -5,16 +5,16 @@ Localizers provide a wide range of localization utilities through a single entry
 from __future__ import annotations
 
 import gettext as gettext_api
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Final, final
 
 from betty.locale import (
-    DEFAULT_LOCALE,
-    LocalizedStr,
-    ResolvableLocale,
-    resolve_locale,
+    Localized as Localized,
 )
 from betty.locale import (
-    Localized as Localized,
+    LocalizedStr,
+    ResolvableLocale,
+    default_locale,
+    resolve_locale,
 )
 from betty.typing import threadsafe
 
@@ -100,7 +100,9 @@ class Localizer:
         )
 
 
-DEFAULT_LOCALIZER = Localizer(DEFAULT_LOCALE, gettext_api.NullTranslations())
+default_localizer: Final[Localizer] = Localizer(
+    default_locale, gettext_api.NullTranslations()
+)
 
 
 @final

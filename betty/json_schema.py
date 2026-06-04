@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any, ClassVar, cast, final, override
 from jsonschema.validators import Draft202012Validator
 from referencing import Registry, Resource
 
-from betty.locale.localize import DEFAULT_LOCALIZER, resolve_localized
+from betty.locale.localize import default_localizer, resolve_localized
 from betty.portable import PortableData, PortableMapping
 
 if TYPE_CHECKING:
@@ -69,7 +69,7 @@ class Schema:
 
     @title.setter
     def title(self, title: ResolvableLocalizable) -> None:
-        self._schema["title"] = resolve_localized(title, localizer=DEFAULT_LOCALIZER)
+        self._schema["title"] = resolve_localized(title, localizer=default_localizer)
 
     @property
     def description(self) -> str | None:
@@ -84,7 +84,7 @@ class Schema:
     @description.setter
     def description(self, description: ResolvableLocalizable) -> None:
         self._schema["description"] = resolve_localized(
-            description, localizer=DEFAULT_LOCALIZER
+            description, localizer=default_localizer
         )
 
     @property

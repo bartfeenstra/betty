@@ -13,10 +13,10 @@ from sphinx.util import import_object
 
 from betty.app import App
 from betty.console.command import CommandDefinition
-from betty.dirs import ROOT_DIRECTORY
+from betty.dirs import root_directory
 from betty.documentation import DocumentationServer
 from betty.functools import Do
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale.localize import default_localizer
 from betty.test_utils.documentation import PluginDocumentationTestBase
 from betty.test_utils.user import StaticUser
 
@@ -37,12 +37,12 @@ class TestDocumentationServer:
 class TestDocumentation:
     async def test_should_contain_console_help(self, isolated_app: App) -> None:
         with open(
-            ROOT_DIRECTORY / "documentation" / "usage" / "console.rst", encoding="utf-8"
+            root_directory / "documentation" / "usage" / "console.rst", encoding="utf-8"
         ) as f:
             actual = f.read()
         async for command in isolated_app.plugins[CommandDefinition]:
             assert command.id in actual
-            assert command.label.localize(DEFAULT_LOCALIZER) in actual
+            assert command.label.localize(default_localizer) in actual
 
 
 class TestPluginDocumentation(PluginDocumentationTestBase):
@@ -51,7 +51,7 @@ class TestPluginDocumentation(PluginDocumentationTestBase):
 
 class TestDocstringSphinxReferences:
     async def test(self, subtests: pytest.Subtests) -> None:
-        for directory, _, file_names in (ROOT_DIRECTORY / "betty").walk():
+        for directory, _, file_names in (root_directory / "betty").walk():
             for file_name in file_names:
                 if file_name.endswith(".py"):
                     await self._assert_docstring_file(directory / file_name, subtests)
@@ -75,7 +75,7 @@ class TestDocstringSphinxReferences:
 
 class TestDocumentationSphinxReferences:
     async def test(self, subtests: pytest.Subtests) -> None:
-        for directory, _, file_names in (ROOT_DIRECTORY / "documentation").walk():
+        for directory, _, file_names in (root_directory / "documentation").walk():
             for file_name in file_names:
                 if file_name.endswith(".rst"):
                     await self._assert_rst_file(directory / file_name, subtests)
@@ -132,7 +132,7 @@ async def _assert_sphinx_references(
                     ) from error
 
     for doc_ref, doc_ref_target in _sphinx_refs(source, "doc"):
-        doc_path = ROOT_DIRECTORY.joinpath(
+        doc_path = root_directory.joinpath(
             "documentation", *doc_ref_target.split("/")
         ).with_suffix(".rst")
         if not doc_path.is_file():

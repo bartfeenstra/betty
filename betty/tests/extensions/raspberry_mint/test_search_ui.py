@@ -1,4 +1,5 @@
 from collections.abc import AsyncIterator
+from typing import Final
 
 import pytest
 from playwright.async_api import Page, expect
@@ -17,13 +18,13 @@ from betty.tests.conftest import (
 
 
 class TestSearchUi:
-    INDIVIDUAL_NAME = "Janet"
+    individual_name: Final[str] = "Janet"
 
     @pytest.fixture(scope="session")
     async def served_project(self) -> AsyncIterator[tuple[Project, Server]]:
         person_id = "I0001"
         person = Person(id=person_id)
-        PersonName(individual=self.INDIVIDUAL_NAME, person=person)
+        PersonName(individual=self.individual_name, person=person)
         async with Project.new_isolated(extensions=[RaspberryMint]) as project:
             project.ancestry[Person].add(person)
             await generate(project)
@@ -46,7 +47,7 @@ class TestSearchUi:
         await expect(page.locator("#search-form")).to_be_visible()
 
         # Search for a person's name.
-        await page.keyboard.type(self.INDIVIDUAL_NAME)
+        await page.keyboard.type(self.individual_name)
         await page.locator(":focus").press("Enter")
 
         # Assert there is a search result.

@@ -9,9 +9,9 @@ from typing import TYPE_CHECKING
 from betty.attrs.attr import AttrAttr
 from betty.locale.localizable.gettext import _
 from betty.machine_name import (
-    _MACHINE_NAME_DESCRIPTION,
     MachineName,
     ResolvableMachineName,
+    _machine_name_description,
 )
 
 if TYPE_CHECKING:
@@ -31,5 +31,5 @@ def new_machine_name_attr(
     return AttrAttr(
         MachineName,
         label=_("Name") if label is None else label,
-        description=_MACHINE_NAME_DESCRIPTION if description is None else description,
+        description=_machine_name_description if description is None else description,
     ).setter(MachineName.resolve)

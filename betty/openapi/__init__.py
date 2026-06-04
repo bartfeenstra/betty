@@ -4,7 +4,7 @@ Provide the OpenAPI specification.
 
 from betty import about
 from betty.entity import EntityDefinition as EntityDefinition
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale.localize import default_localizer
 from betty.portable import PortableMapping
 from betty.project import Project
 from betty.project.schema import ProjectSchema
@@ -34,7 +34,7 @@ class Specification:
             ],
             "info": {
                 "title": "Betty",
-                "version": about.VERSION_LABEL,
+                "version": about.version_label,
             },
             "paths": specification_paths,
             "components": {
@@ -106,7 +106,7 @@ class Specification:
             else:
                 collection_path = f"/{entity_type.id}/index.json"
                 single_path = f"/{entity_type.id}/{{id}}/index.json"
-            entity_type_label = entity_type.label.localize(DEFAULT_LOCALIZER)
+            entity_type_label = entity_type.label.localize(default_localizer)
             specification_paths[collection_path] = {
                 "get": {
                     "summary": f"Retrieve the collection of {entity_type_label} entities.",

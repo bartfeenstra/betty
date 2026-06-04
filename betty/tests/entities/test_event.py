@@ -14,8 +14,8 @@ from betty.entity import Entity
 from betty.entity.association import AssociationRequired, TemporaryToOneResolver
 from betty.event_types.birth import Birth
 from betty.event_types.unknown import Unknown as UnknownEventType
-from betty.locale import DEFAULT_LOCALE_TAG
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale import default_locale_tag
+from betty.locale.localize import default_localizer
 from betty.privacy import Privacy
 from betty.roles.subject import Subject
 from betty.test_utils.entity import EntityTestBase
@@ -60,7 +60,7 @@ class TestEvent(EntityTestBase):
         name = "The Event"
         sut = Event(name=name)
         assert sut.name is not None
-        assert sut.name.localize(DEFAULT_LOCALIZER) == name
+        assert sut.name.localize(default_localizer) == name
 
     def test_id(self) -> None:
         event_id = "E1"
@@ -128,7 +128,7 @@ class TestEvent(EntityTestBase):
         sut = Event()
         sut.name = name
         assert sut.name is not None
-        assert sut.name.localize(DEFAULT_LOCALIZER) == name
+        assert sut.name.localize(default_localizer) == name
 
     async def test_dump_linked_data__should_dump_minimal(
         self, assert_dumps_linked_data: AssertDumpsLinkedData
@@ -234,8 +234,8 @@ class TestEvent(EntityTestBase):
             },
             "place": "/place/the_place/index.json",
             "links": [],
-            "name": {DEFAULT_LOCALE_TAG: "The Event"},
-            "description": {DEFAULT_LOCALE_TAG: "The Event Description"},
+            "name": {default_locale_tag: "The Event"},
+            "description": {default_locale_tag: "The Event Description"},
             "fileReferences": [],
         }
         actual = await assert_dumps_linked_data(event)

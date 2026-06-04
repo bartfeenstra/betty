@@ -12,7 +12,7 @@ from betty.datas.countable_human_facing_plugin_definition import (
 )
 from betty.datas.ordered_plugin_definition import OrderedPluginDefinitionData
 from betty.event_type import EventType, EventTypeDefinition
-from betty.locale import DEFAULT_LOCALE
+from betty.locale import default_locale
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import CountableStaticTranslations
 from betty.sample import Sample
@@ -28,7 +28,7 @@ from betty.sample import Sample
                 label="Moon landing",
                 label_plural="Moon landings",
                 label_countable=CountableStaticTranslations({
-                    DEFAULT_LOCALE: {
+                    default_locale: {
                         "one": "{count} moon landing",
                         "other": "{count} moon landings",
                     }

@@ -6,8 +6,8 @@ import sys
 from pathlib import Path
 
 import betty.dirs
-from betty.about import VERSION_MAJOR
-from betty.dirs import BUILTIN_ASSET_DIRECTORY, ROOT_DIRECTORY
+from betty.about import version_major
+from betty.dirs import builtin_asset_directory, root_directory
 
 sys.path.insert(0, str(Path(betty.__file__).parent.parent))
 project = "Betty"
@@ -24,17 +24,17 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
     "referencing": ("https://referencing.readthedocs.io/en/stable/", None),
 }
-html_favicon = str(BUILTIN_ASSET_DIRECTORY / "public" / "static" / "betty-512x512.png")
-html_logo = str(BUILTIN_ASSET_DIRECTORY / "public" / "static" / "betty-512x512.png")
+html_favicon = str(builtin_asset_directory / "public" / "static" / "betty-512x512.png")
+html_logo = str(builtin_asset_directory / "public" / "static" / "betty-512x512.png")
 html_theme = "shibuya"
 html_theme_options = {
     "accent_color": "pink",
 }
 html_context = {
-    "source_edit_template": f"https://github.com/bartfeenstra/betty/blob/{VERSION_MAJOR}.x/{{0}}",
+    "source_edit_template": f"https://github.com/bartfeenstra/betty/blob/{version_major}.x/{{0}}",
     "source_type": "github",
     "source_user": "bartfeenstra",
-    "source_version": VERSION_MAJOR + "x",
+    "source_version": version_major + "x",
     "source_repo": "betty",
 }
 highlight_language = "none"
@@ -58,12 +58,12 @@ apidoc_max_depth = 1
 apidoc_separate_modules = True
 apidoc_modules = [
     {
-        "path": str(ROOT_DIRECTORY / "betty"),
+        "path": str(root_directory / "betty"),
         "destination": "api",
     }
 ]
 apidoc_exclude_patterns = [
-    str(ROOT_DIRECTORY / "betty" / "tests"),
+    str(root_directory / "betty" / "tests"),
 ]
 
 # sphinx.ext.autodoc configuration.

@@ -6,10 +6,10 @@ import pytest
 from babel import Locale
 
 from betty.locale import (
-    DEFAULT_LOCALE,
     Localized,
     LocalizedStr,
     ResolvableLocale,
+    default_locale,
     from_language_tag,
     negotiate_has_locales,
     negotiate_locale,
@@ -125,7 +125,7 @@ def test_to_language_tag(expected: str, locale: Locale | None) -> None:
 
 
 def test_plural_tags() -> None:
-    assert "other" in plural_tags(DEFAULT_LOCALE)
+    assert "other" in plural_tags(default_locale)
 
 
 class TestLocalizedStr:

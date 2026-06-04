@@ -12,7 +12,7 @@ from typing import final, override
 from sphinx.application import Sphinx
 from sphinx.ext.autodoc import MethodDocumenter
 
-from betty.dirs import ROOT_DIRECTORY
+from betty.dirs import root_directory
 from betty.exception import HumanFacingException
 from betty.pathlib import StrPath, resolve_path
 from betty.server import Server, ServerNotStarted
@@ -33,7 +33,7 @@ async def _build(output_directory: Path, cache_directory: Path, *, user: User) -
     # to 'pollute' that with generated files that must not be committed, do our work in a
     # dedicated cache directory.
     source_directory = cache_directory / "source"
-    await to_thread(copytree, ROOT_DIRECTORY / "documentation", source_directory)
+    await to_thread(copytree, root_directory / "documentation", source_directory)
     sphinx_app = Sphinx(
         buildername="dirhtml",
         confdir=str(source_directory),

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.asset_directories.maps import MAPS
-from betty.dirs import WEBPACK_ENTRY_POINT_DIRECTORY
+from betty.asset_directories.maps import maps
+from betty.dirs import webpack_entry_point_directory
 from betty.extension import ExtensionDefinition
 from betty.extensions.maps.jobs import _GeneratePlacePreviews
 from betty.extensions.webpack import Webpack
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     label="Maps",
     description=_("Display interactive maps"),
     requires={
-        Project.asset_directories.require(MAPS),
+        Project.asset_directories.require(maps),
         Project.extensions.require(Webpack),
     },
 )
@@ -50,7 +50,7 @@ class Maps(Generator, EntryPointProvider, Manufacturable):
     @override
     @classmethod
     def webpack_entry_point_directory(cls) -> StrPath:
-        return WEBPACK_ENTRY_POINT_DIRECTORY / cls.plugin().id
+        return webpack_entry_point_directory / cls.plugin().id
 
     @override
     def webpack_entry_point_cache_keys(self) -> Sequence[str]:

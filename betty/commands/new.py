@@ -19,7 +19,7 @@ from betty.extensions.wiki import Wiki as WikiExtension
 from betty.factory import Manufacturable
 from betty.load import LoaderManufacturer
 from betty.loaders.gramps import FamilyTree, Gramps, GrampsData
-from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
+from betty.locale import default_locale_tag, to_language_tag
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
 from betty.machine_name import MachineName
@@ -75,7 +75,7 @@ class New(Manufacturable, Command):
                 _(
                     "Which language should your project site be generated in? Enter a language code."
                 ),
-                default=DEFAULT_LOCALE_TAG,
+                default=default_locale_tag,
                 assertion=assert_locale(),
             )
         ]

@@ -8,6 +8,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Mapping, MutableMapping, MutableSequence, Sequence
 from typing import (
     Any,
+    Final,
     NotRequired,
     Self,
     TypedDict,
@@ -380,14 +381,11 @@ class Attributes:
 
     # Compile all attributes once for this class, so we do not have to keep doing it runtime, which is expensive (e.g.
     # when using inspect.getmembers()).
-    _ATTRIBUTES = cast(
-        Mapping[str, _Attribute[Any, Any]],
-        {
-            attr_name: attr_value
-            for attr_name, attr_value in locals().items()
-            if attr_name.startswith("html_")
-        },
-    )
+    __attributes: Final[Mapping[str, _Attribute[Any, Any]]] = {
+        attr_name: attr_value
+        for attr_name, attr_value in locals().items()
+        if attr_name.startswith("html_")
+    }
 
     def __init__(self, **kwargs: Unpack[_AttributesKwargs]):
         self._attributes: MutableMapping[str, Any] = {}
@@ -399,14 +397,14 @@ class Attributes:
         Set values for the given HTML attributes.
         """
         for attribute_name, attribute_value in attributes.items():
-            self._ATTRIBUTES[attribute_name].set(self, attribute_value)
+            self.__attributes[attribute_name].set(self, attribute_value)
 
     def setdefault(self, **attributes: Unpack[_AttributesKwargs]) -> None:
         """
         Set values for the given HTML attributes, but only for those attributes that do not already have a value set.
         """
         for attribute_name, attribute_value in attributes.items():
-            self._ATTRIBUTES[attribute_name].setdefault(self, attribute_value)
+            self.__attributes[attribute_name].setdefault(self, attribute_value)
 
     def set_data(self, **attributes: str) -> None:
         """
@@ -431,7 +429,7 @@ class Attributes:
             *(
                 formatted_attribute
                 for formatted_attribute in (
-                    self._ATTRIBUTES[attr_name].format(attr_value)
+                    self.__attributes[attr_name].format(attr_value)
                     for attr_name, attr_value in self._attributes.items()
                 )
                 if formatted_attribute
