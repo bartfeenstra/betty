@@ -2,6 +2,7 @@
 Provide the Documentation API.
 """
 
+import multiprocessing
 from asyncio import to_thread
 from contextlib import AsyncExitStack
 from pathlib import Path
@@ -38,8 +39,7 @@ async def _build(output_directory: Path, cache_directory: Path, *, user: User) -
         confdir=str(source_directory),
         doctreedir=str(cache_directory / ".doctrees"),
         outdir=str(output_directory),
-        # @todo
-        # parallel=multiprocessing.cpu_count(),
+        parallel=multiprocessing.cpu_count(),
         srcdir=str(source_directory),
         verbosity=9 if user.verbosity is Verbosity.MOST_VERBOSE else 0,
         warningiserror=True,
