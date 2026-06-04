@@ -1,4 +1,4 @@
-from betty.asset_directories.raspberry_mint import RASPBERRY_MINT
+from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.entities.source import Source
 from betty.test_utils.conftest import AssertTemplateFile
 
@@ -9,7 +9,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": source,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/summary--source.html.j2",
     ) as (actual, _):
         assert actual
@@ -22,7 +22,7 @@ async def test_with_contained_by(assert_template_file: AssertTemplateFile) -> No
         data={
             "entity": source,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/summary--source.html.j2",
     ) as (actual, _):
         assert contained_by_source.public_id in actual

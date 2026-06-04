@@ -13,7 +13,7 @@ from math import ceil
 from os import cpu_count
 from typing import TYPE_CHECKING
 
-from betty.concurrent import MAX_STRANDS
+from betty.concurrent import max_strands
 from betty.job import Context
 from betty.job.executor.threading import ThreadPoolExecutor
 from betty.job.scheduler.default import DefaultScheduler
@@ -65,7 +65,7 @@ async def generate(project: Project, *, context: Context | None = None) -> None:
     scheduler = DefaultScheduler(context=context, user=project.upstream.user)
     async with ThreadPoolExecutor(
         scheduler,
-        async_concurrency=ceil(MAX_STRANDS / threading_concurrency),
+        async_concurrency=ceil(max_strands / threading_concurrency),
         threading_concurrency=threading_concurrency,
     ):
         await gather(*[

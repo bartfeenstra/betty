@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, override
 
 from betty.entities.note import Note
-from betty.locale import DEFAULT_LOCALE_TAG
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale import default_locale_tag
+from betty.locale.localize import default_localizer
 from betty.privacy import Privacy
 from betty.test_utils.ancestry.has_notes import DummyHasNotes
 from betty.test_utils.entity import EntityTestBase
@@ -37,7 +37,7 @@ class TestNote(EntityTestBase):
     def test_text(self) -> None:
         text = "Betty wrote this."
         sut = Note(text)
-        assert sut.text.localize(DEFAULT_LOCALIZER) == text
+        assert sut.text.localize(default_localizer) == text
 
     def test_entity(self) -> None:
         entity = DummyHasNotes()
@@ -54,7 +54,7 @@ class TestNote(EntityTestBase):
             "@type": "https://schema.org/Thing",
             "id": "the_note",
             "privacy": False,
-            "text": {DEFAULT_LOCALE_TAG: "The Note"},
+            "text": {default_locale_tag: "The Note"},
             "entity": None,
             "links": [],
         }

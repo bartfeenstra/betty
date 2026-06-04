@@ -7,7 +7,7 @@ from __future__ import annotations
 from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.asset_directories.raspberry_mint import RASPBERRY_MINT
+from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.attrs.attr import AttrAttr
 from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.machine_name import new_machine_name_attr
@@ -108,7 +108,7 @@ class SectionData(Data, HasProps):
 @ContentBuilderDefinition(
     "raspberry-mint-section",
     label=_("Section"),
-    requires={Project.asset_directories.require(RASPBERRY_MINT)},
+    requires={Project.asset_directories.require(raspberry_mint)},
 )
 class Section(Template, DataManufacturable[SectionData]):
     """

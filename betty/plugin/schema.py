@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final
 
 from betty.json_schema import Enum
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale.localize import default_localizer
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.string import kebab_case_to_lower_camel_case
 
@@ -27,7 +27,7 @@ class PluginIdSchema[PluginDefinitionT: PluginDefinition = PluginDefinition](Enu
         plugins: Iterable[PluginDefinitionT],
         /,
     ):
-        label = plugin_type.label.localize(DEFAULT_LOCALIZER)
+        label = plugin_type.label.localize(default_localizer)
         super().__init__(
             *[plugin.id for plugin in plugins],
             def_name=kebab_case_to_lower_camel_case(plugin_type.id),

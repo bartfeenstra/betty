@@ -15,8 +15,8 @@ from betty.entities.person import Person
 from betty.entities.source import Source
 from betty.entity import Entity
 from betty.licenses.public_domain import PublicDomain as PublicDomainLicense
-from betty.locale import DEFAULT_LOCALE_TAG
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale import default_locale_tag
+from betty.locale.localize import default_localizer
 from betty.media_types.plain_text import PLAIN_TEXT
 from betty.privacy import Privacy
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
@@ -98,7 +98,7 @@ class TestFile(EntityTestBase):
         description = "Hi, my name is Betty!"
         sut.description = description
         assert sut.description is not None
-        assert sut.description.localize(DEFAULT_LOCALIZER) == description
+        assert sut.description.localize(default_localizer) == description
 
     def test_notes(self) -> None:
         file_id = "BETTY01"
@@ -196,7 +196,7 @@ class TestFile(EntityTestBase):
                         "file": "/file/the_file/index.json",
                     },
                 ],
-                "description": {DEFAULT_LOCALE_TAG: "The Description"},
+                "description": {default_locale_tag: "The Description"},
                 "copyrightNotice": "public-domain",
                 "license": "public-domain",
             }

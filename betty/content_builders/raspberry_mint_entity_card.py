@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.asset_directories.raspberry_mint import RASPBERRY_MINT
+from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.content import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.entity.has_file_references import HasFileReferences
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 @ContentBuilderDefinition(
     "raspberry-mint-entity-card",
     label=_("Entity card"),
-    requires={Project.asset_directories.require(RASPBERRY_MINT)},
+    requires={Project.asset_directories.require(raspberry_mint)},
 )
 class EntityCard(Template, DataManufacturable[EntityReference]):
     """

@@ -9,7 +9,7 @@ from asyncio import gather
 from functools import partial
 from typing import TYPE_CHECKING, final
 
-from betty.concurrent import MAX_STRANDS
+from betty.concurrent import max_strands
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.job import Context
 from betty.job.executor.asyncio import AsyncExecutor
@@ -157,7 +157,7 @@ async def _do_jobs[PluginT: Plugin](
     callback: Callable[[Scheduler, PluginT], Awaitable[None]],
 ) -> None:
     scheduler = DefaultScheduler(context=context, user=project.upstream.user)
-    async with AsyncExecutor(scheduler, concurrency=MAX_STRANDS):
+    async with AsyncExecutor(scheduler, concurrency=max_strands):
         await gather(*map(partial(callback, scheduler), plugins))
         await scheduler.release()
         await scheduler.complete()

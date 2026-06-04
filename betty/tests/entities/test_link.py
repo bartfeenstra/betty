@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, override
 
 from betty.entities.link import Link
-from betty.locale import DEFAULT_LOCALE_TAG
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale import default_locale_tag
+from betty.locale.localize import default_localizer
 from betty.media_types.html import HTML
 from betty.privacy import Privacy
 from betty.test_utils.ancestry.has_links import DummyHasLinks
@@ -29,7 +29,7 @@ class TestLink(EntityTestBase):
         url = "https://example.com"
         label = "Hello, world!"
         sut = Link(url, label=label)
-        assert sut.label.localize(DEFAULT_LOCALIZER) == label
+        assert sut.label.localize(default_localizer) == label
 
     def test_owner__without_owner(self) -> None:
         sut = Link("https://example.com")
@@ -43,7 +43,7 @@ class TestLink(EntityTestBase):
     def test_url(self) -> None:
         url = "https://example.com"
         sut = Link(url)
-        assert sut.url.localize(DEFAULT_LOCALIZER) == url
+        assert sut.url.localize(default_localizer) == url
 
     def test_media_type(self) -> None:
         url = "https://example.com"
@@ -63,12 +63,12 @@ class TestLink(EntityTestBase):
     def test_label__without_label(self) -> None:
         url = "https://example.com"
         sut = Link(url)
-        assert url in sut.label.localize(DEFAULT_LOCALIZER)
+        assert url in sut.label.localize(default_localizer)
 
     def test_label__with_label(self) -> None:
         label = "Hello, world!"
         sut = Link("https://example.com", label=label)
-        assert label in sut.label.localize(DEFAULT_LOCALIZER)
+        assert label in sut.label.localize(default_localizer)
 
     def test_has_label__without_label(self) -> None:
         sut = Link("https://example.com")
@@ -86,7 +86,7 @@ class TestLink(EntityTestBase):
             "@context": {"description": "https://schema.org/description"},
             "id": link.id,
             "url": {
-                DEFAULT_LOCALE_TAG: "https://example.com",
+                default_locale_tag: "https://example.com",
             },
             "owner": None,
             "privacy": False,
@@ -110,14 +110,14 @@ class TestLink(EntityTestBase):
             "@context": {"description": "https://schema.org/description"},
             "id": link.id,
             "url": {
-                DEFAULT_LOCALE_TAG: "https://example.com",
+                default_locale_tag: "https://example.com",
             },
             "relationship": "external",
             "label": {
-                DEFAULT_LOCALE_TAG: "The Label",
+                default_locale_tag: "The Label",
             },
             "description": {
-                DEFAULT_LOCALE_TAG: "The Description",
+                default_locale_tag: "The Description",
             },
             "mediaType": "text/html",
             "owner": "/dummy-has-links/O1/index.json",

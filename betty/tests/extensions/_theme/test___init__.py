@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Final
 
 import pytest
 
@@ -24,25 +24,25 @@ from betty.extensions._theme import (
     person_timeline_events,
 )
 from betty.privacy import Privacy
-from betty.project import DEFAULT_LIFETIME_THRESHOLD
+from betty.project import default_lifetime_threshold
 from betty.roles.subject import Subject
 from betty.roles.unknown import Unknown as UnknownRole
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Sequence
 
     from betty.event_type import EventType
     from betty.role import Role
 
-__REFERENCE_DATE = Date(1970, 1, 1)
-_REFERENCE_DATES = (
-    __REFERENCE_DATE,
-    DateRange(__REFERENCE_DATE),
-    DateRange(None, __REFERENCE_DATE),
+__reference_date: Final[Date] = Date(1970, 1, 1)
+_reference_dates: Final[Sequence[AnyDate]] = (
+    __reference_date,
+    DateRange(__reference_date),
+    DateRange(None, __reference_date),
 )
-_BEFORE_REFERENCE_DATE = Date(1900, 1, 1)
-_AFTER_REFERENCE_DATE = Date(2000, 1, 1)
+_before_reference_date: Final[Date] = Date(1900, 1, 1)
+_after_reference_date: Final[Date] = Date(2000, 1, 1)
 
 
 def _parameterize_with_associated_events() -> Iterator[
@@ -67,7 +67,7 @@ def _parameterize_with_associated_events() -> Iterator[
         (False, Privacy.PRIVATE),
     )
     person_event_reference_resolvable_date = (
-        *((True, reference_date) for reference_date in _REFERENCE_DATES),
+        *((True, reference_date) for reference_date in _reference_dates),
         (False, None),
     )
     person_roles = (
@@ -79,10 +79,10 @@ def _parameterize_with_associated_events() -> Iterator[
         (False, UnknownEventType()),
     )
     event_resolvable_date_and_person_reference_event_types = (
-        (True, _AFTER_REFERENCE_DATE, Birth()),
-        (False, _BEFORE_REFERENCE_DATE, Birth()),
-        (True, _BEFORE_REFERENCE_DATE, Death()),
-        (False, _AFTER_REFERENCE_DATE, Death()),
+        (True, _after_reference_date, Birth()),
+        (False, _before_reference_date, Birth()),
+        (True, _before_reference_date, Death()),
+        (False, _after_reference_date, Death()),
     )
     for event_id_expected, event_id in ids:
         for event_privacy_expected, event_privacy in privacies:
@@ -155,7 +155,7 @@ class TestPersonLifetimeEvents:
             privacy=event_privacy,
         )
         Presence(person, UnknownRole(), event)
-        actual = list(person_timeline_events(person, DEFAULT_LIFETIME_THRESHOLD))
+        actual = list(person_timeline_events(person, default_lifetime_threshold))
         assert expected is (event in actual)
 
     @pytest.mark.parametrize(
@@ -243,7 +243,7 @@ class TestPersonLifetimeEvents:
         )
         Presence(sibling, role, sibling_event)
 
-        actual = list(person_timeline_events(person, DEFAULT_LIFETIME_THRESHOLD))
+        actual = list(person_timeline_events(person, default_lifetime_threshold))
         assert expected is (ancestor3_event in actual)
         assert expected is (descendant3_event in actual)
         assert expected is (sibling_event in actual)

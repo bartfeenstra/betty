@@ -16,7 +16,7 @@ from betty.entity.association import AssociationRequired, TemporaryToOneResolver
 from betty.event_types.birth import Birth
 from betty.genders.non_binary import NonBinary
 from betty.genders.unknown import Unknown as UnknownGender
-from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, to_language_tag
+from betty.locale import default_locale, default_locale_tag, to_language_tag
 from betty.privacy import Privacy
 from betty.roles.subject import Subject
 from betty.test_utils.entity import EntityTestBase
@@ -323,11 +323,11 @@ class TestPerson(EntityTestBase):
                     "id": link.id,
                     "url": {
                         to_language_tag(
-                            DEFAULT_LOCALE
+                            default_locale
                         ): "https://example.com/the-person",
                     },
                     "label": {
-                        DEFAULT_LOCALE_TAG: "The Person Online",
+                        default_locale_tag: "The Person Online",
                     },
                     "owner": "/person/the_person/index.json",
                     "privacy": False,

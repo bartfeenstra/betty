@@ -4,7 +4,7 @@ The incomplete translation warning content plugin.
 
 from typing import Self, final, override
 
-from betty.asset_directories.raspberry_mint import RASPBERRY_MINT
+from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.content import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.document import Document
@@ -16,7 +16,7 @@ from betty.project import Project
 @ContentBuilderDefinition(
     "raspberry-mint-incomplete-translation-warning",
     label="Incomplete translation warning",
-    requires={Project.asset_directories.require(RASPBERRY_MINT)},
+    requires={Project.asset_directories.require(raspberry_mint)},
 )
 class IncompleteTranslationWarning(Template, Manufacturable):
     """

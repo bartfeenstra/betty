@@ -1,8 +1,8 @@
 from betty.content_builders.raspberry_mint_media import Media
-from betty.dirs import BUILTIN_ASSET_DIRECTORY
+from betty.dirs import builtin_asset_directory
 from betty.document import Document
 from betty.entities.file import File
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale.localize import default_localizer
 from betty.media_type import MediaType
 from betty.test_utils.conftest import IsolatedProjectFactory
 
@@ -19,11 +19,11 @@ class TestMedia:
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         resource = File(
-            BUILTIN_ASSET_DIRECTORY / "public" / "static" / "betty-16x16.png",
+            builtin_asset_directory / "public" / "static" / "betty-16x16.png",
             media_type=MediaType("image/png"),
         )
         async with isolated_project_factory(supported_plugins=[Media]) as project:
             sut = await Media.new(project)
             actual = await sut.build(document=Document(resource))
         assert actual is not None
-        assert resource.label.localize(DEFAULT_LOCALIZER) in actual
+        assert resource.label.localize(default_localizer) in actual

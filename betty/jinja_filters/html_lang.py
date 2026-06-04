@@ -4,7 +4,7 @@ The ``html_lang`` Jinja filter.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Final, final
 
 from jinja2 import pass_context
 from markupsafe import Markup
@@ -14,10 +14,12 @@ from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
 from betty.locale import LocalizedStr, to_language_tag
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from jinja2.runtime import Context
 
 
-_CHARACTER_ORDER_TO_HTML_LANG_MAP = {
+_character_order_to_html_lang_map: Final[Mapping[str, str]] = {
     "left-to-right": "ltr",
     "right-to-left": "rtl",
 }
@@ -42,13 +44,13 @@ class HtmlLang(JinjaFilter):
         localizer = context_document(context).localizer
         result: str | Markup = has_locale
         if has_locale.locale != localizer.locale:
-            localizer_dir = _CHARACTER_ORDER_TO_HTML_LANG_MAP[
+            localizer_dir = _character_order_to_html_lang_map[
                 localizer.locale.character_order
             ]
             if has_locale.locale is None:
                 has_locale_dir = "auto"
             else:
-                has_locale_dir = _CHARACTER_ORDER_TO_HTML_LANG_MAP[
+                has_locale_dir = _character_order_to_html_lang_map[
                     has_locale.locale.character_order
                 ]
             dir_attribute = (

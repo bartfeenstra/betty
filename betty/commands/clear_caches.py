@@ -4,7 +4,7 @@ import shutil
 from asyncio import gather, to_thread
 from contextlib import suppress
 from pathlib import Path
-from typing import TYPE_CHECKING, Self, final, override
+from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.app import App
 from betty.argparse import add_yes_argument
@@ -19,13 +19,13 @@ if TYPE_CHECKING:
     from betty.project import Project
 
 
-_LEGACY_CACHE_DIRECTORY = Path.home() / ".betty" / "cache"
+_legacy_cache_directory: Final[Path] = Path.home() / ".betty" / "cache"
 
 
 async def _clear_legacy_cache() -> None:
     # Before Betty 0.5, Betty stored its caches in the home directory. Clear those until Betty 0.6.
     with suppress(FileNotFoundError):
-        await to_thread(shutil.rmtree, _LEGACY_CACHE_DIRECTORY)
+        await to_thread(shutil.rmtree, _legacy_cache_directory)
 
 
 @final

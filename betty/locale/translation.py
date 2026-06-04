@@ -9,18 +9,18 @@ from abc import ABC, abstractmethod
 from asyncio import to_thread
 from contextlib import redirect_stdout
 from io import BytesIO, StringIO
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, Final, final, override
 
 from polib import pofile
 
 import betty.dirs
-from betty.asset_directories.builtin import BUILTIN
+from betty.asset_directories.builtin import builtin
 from betty.file import read
 from betty.hashid import hashid_file_meta
 from betty.life_cycle import Bootstrappable
 from betty.locale import (
-    DEFAULT_LOCALE,
     ResolvableLocale,
+    default_locale,
     from_language_tag,
     resolve_locale,
     to_language_tag,
@@ -85,12 +85,12 @@ async def update_app_translations(override_output: Path | None = None, /) -> Non
     """
     Update the translations for Betty itself.
     """
-    source_directory = betty.dirs.ROOT_DIRECTORY / "betty"
+    source_directory = betty.dirs.root_directory / "betty"
     test_directory = source_directory / "tests"
     await _update_translations(
-        BUILTIN.assets if override_output is None else override_output,
+        builtin.assets if override_output is None else override_output,
         _find_source_files(
-            {source_directory, betty.dirs.ASSET_DIRECTORY}, {test_directory}
+            {source_directory, betty.dirs.asset_directory}, {test_directory}
         ),
     )
 
@@ -217,9 +217,9 @@ class StaticTranslationRepository(TranslationRepository):
             raise UntranslatedLocale(locale) from None
 
 
-DEFAULT_TRANSLATION_REPOSITORY = StaticTranslationRepository({
-    DEFAULT_LOCALE: gettext.NullTranslations()
-})
+default_translation_repository: Final[TranslationRepository] = (
+    StaticTranslationRepository({default_locale: gettext.NullTranslations()})
+)
 """
 The translation repository for the default locale.
 """
@@ -237,7 +237,7 @@ class AssetTranslationRepository(TranslationRepository, Bootstrappable):
         self._assets = assets
         self._cache = cache
         self._translations: MutableMapping[Locale, gettext.NullTranslations] = {}
-        self._locales: set[Locale] = {DEFAULT_LOCALE}
+        self._locales: set[Locale] = {default_locale}
         self._bootstrapped = False
 
     @override
@@ -320,7 +320,7 @@ class AssetTranslationRepository(TranslationRepository, Bootstrappable):
             translatable async for translatable in self._get_translatables()
         }
         locale = resolve_locale(locale)
-        if locale == DEFAULT_LOCALE:
+        if locale == default_locale:
             return len(translatables), len(translatables)
         translations = {
             translation async for translation in self._get_translations(locale)

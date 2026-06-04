@@ -6,27 +6,31 @@ from betty.render import RenderDispatcher, Renderer
 
 
 class _StaticRenderer(Renderer):
-    MEDIA_TYPE: ClassVar[MediaType]
-    RENDERED_CONTENT: ClassVar[str]
+    _media_type: ClassVar[MediaType]
+    _rendered_content: ClassVar[str]
 
     @override
     @property
     def media_type(self) -> MediaType:
-        return self.MEDIA_TYPE
+        return self._media_type
 
     @override
     async def render(self, content: str, /) -> str:
-        return self.RENDERED_CONTENT
+        return self._rendered_content
 
 
 class _StaticRendererOne(_StaticRenderer):
-    MEDIA_TYPE = MediaType("text/x.betty.test.one", extensions=[".one"])
-    RENDERED_CONTENT = "ONE"
+    _media_type: ClassVar[MediaType] = MediaType(
+        "text/x.betty.test.one", extensions=[".one"]
+    )
+    _rendered_content: ClassVar[str] = "ONE"
 
 
 class _StaticRendererTwo(_StaticRenderer):
-    MEDIA_TYPE = MediaType("text/x.betty.test.two", extensions=[".two"])
-    RENDERED_CONTENT = "TWO"
+    _media_type: ClassVar[MediaType] = MediaType(
+        "text/x.betty.test.two", extensions=[".two"]
+    )
+    _rendered_content: ClassVar[str] = "TWO"
 
 
 class TestRenderDispatcher:

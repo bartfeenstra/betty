@@ -13,7 +13,7 @@ from betty.entities.place_name import PlaceName
 from betty.entity import Entity
 from betty.entity.association import AssociationRequired, TemporaryToOneResolver
 from betty.event_types.birth import Birth
-from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, to_language_tag
+from betty.locale import default_locale, default_locale_tag, to_language_tag
 from betty.place_types.hamlet import Hamlet
 from betty.place_types.unknown import Unknown as UnknownPlaceType
 from betty.test_utils.entity import EntityTestBase
@@ -189,7 +189,7 @@ class TestPlace(EntityTestBase):
             "names": [
                 {
                     "id": place_name.id,
-                    "name": {DEFAULT_LOCALE_TAG: name},
+                    "name": {default_locale_tag: name},
                 }
             ],
             "events": [
@@ -202,11 +202,11 @@ class TestPlace(EntityTestBase):
                     "id": link.id,
                     "url": {
                         to_language_tag(
-                            DEFAULT_LOCALE
+                            default_locale
                         ): "https://example.com/the-place",
                     },
                     "label": {
-                        DEFAULT_LOCALE_TAG: "The Place Online",
+                        default_locale_tag: "The Place Online",
                     },
                     "owner": "/place/the_place/index.json",
                     "privacy": False,

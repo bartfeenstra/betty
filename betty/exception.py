@@ -54,20 +54,20 @@ class HumanFacingException(Exception, Localizable):
         *,
         indicators: Sequence[Indicator] = (),
     ):
-        from betty.locale.localize import DEFAULT_LOCALIZER
+        from betty.locale.localize import default_localizer
 
         super().__init__(
             # Provide a default localization so this exception can be displayed like any other.
-            resolve_localized(message, localizer=DEFAULT_LOCALIZER),
+            resolve_localized(message, localizer=default_localizer),
         )
         self._localizable_message = message
         self._indicators = list(indicators)
 
     @override
     def __str__(self) -> str:
-        from betty.locale.localize import DEFAULT_LOCALIZER
+        from betty.locale.localize import default_localizer
 
-        return self.localize(DEFAULT_LOCALIZER)
+        return self.localize(default_localizer)
 
     @override
     def localize(self, localizer: Localizer, /) -> LocalizedStr:

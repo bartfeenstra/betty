@@ -6,13 +6,13 @@ import pytest
 
 from betty.assertions.locale import assert_locale
 from betty.exception import HumanFacingException
-from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
+from betty.locale import default_locale_tag, to_language_tag
 
 
 @pytest.mark.parametrize(
     "value",
     [
-        DEFAULT_LOCALE_TAG,
+        default_locale_tag,
         "nl-NL",
         "uk",
     ],

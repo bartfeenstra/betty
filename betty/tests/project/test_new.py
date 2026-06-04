@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from betty.app import App
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale.localize import default_localizer
 from betty.portable.file import assert_load_file
 from betty.project import ProjectData
 from betty.project.new import new
@@ -17,5 +17,5 @@ async def test_new(isolated_app: App, tmp_path: Path) -> None:
     configuration = ProjectData.data().porter.load(
         assert_load_file(serializers=[Json()])(configuration_file)
     )
-    assert configuration.title.localize(DEFAULT_LOCALIZER) == title
+    assert configuration.title.localize(default_localizer) == title
     assert configuration.url == url

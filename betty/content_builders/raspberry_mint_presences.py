@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.asset_directories.raspberry_mint import RASPBERRY_MINT
+from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.attrs.attr import AttrAttr
 from betty.content import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
@@ -85,7 +85,7 @@ class PresencesData(Data, HasProps):
 @ContentBuilderDefinition(
     "raspberry-mint-presences",
     label=_("Presences"),
-    requires={Project.asset_directories.require(RASPBERRY_MINT)},
+    requires={Project.asset_directories.require(raspberry_mint)},
 )
 class Presences(Template, DataManufacturable[PresencesData], Manufacturable):
     """

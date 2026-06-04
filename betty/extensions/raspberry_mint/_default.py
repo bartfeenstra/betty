@@ -29,12 +29,12 @@ from betty.content_builders.raspberry_mint_section import Section, SectionData
 from betty.content_builders.raspberry_mint_timeline import Timeline
 from betty.content_builders.tree import Tree
 from betty.content_builders.wikipedia_summary import WikipediaSummary
+from betty.extensions.raspberry_mint import ColorStyle as ColorStyleOption
 from betty.extensions.raspberry_mint import (
-    SINGLE_COLUMN_TEXT_WIDTH,
     Region,
     RegionalContentManufacturers,
+    single_column_text_width,
 )
-from betty.extensions.raspberry_mint import ColorStyle as ColorStyleOption
 from betty.life_cycle import Bootstrappable
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
@@ -87,7 +87,7 @@ class DefaultRegionalContent(Bootstrappable):
                     ContentBuilderManufacturer(
                         Columns,
                         ColumnsData(
-                            [[WikipediaSummary]], width=SINGLE_COLUMN_TEXT_WIDTH
+                            [[WikipediaSummary]], width=single_column_text_width
                         ),
                     ),
                     heading=self._make_dumpable(_("Wikipedia says...")),
@@ -109,14 +109,14 @@ class DefaultRegionalContent(Bootstrappable):
                 ),
             )
         yield ContentBuilderManufacturer(
-            Columns, ColumnsData([[Enclosees]], width=SINGLE_COLUMN_TEXT_WIDTH)
+            Columns, ColumnsData([[Enclosees]], width=single_column_text_width)
         )
         yield ContentBuilderManufacturer(
             Section,
             SectionData(
                 ContentBuilderManufacturer(
                     Columns,
-                    ColumnsData([[Notes]], width=SINGLE_COLUMN_TEXT_WIDTH),
+                    ColumnsData([[Notes]], width=single_column_text_width),
                 ),
                 heading=self._make_dumpable(_("Notes")),
                 name="notes",
@@ -172,7 +172,7 @@ class DefaultRegionalContent(Bootstrappable):
             SectionData(
                 ContentBuilderManufacturer(
                     Columns,
-                    ColumnsData([[Facts]], width=SINGLE_COLUMN_TEXT_WIDTH),
+                    ColumnsData([[Facts]], width=single_column_text_width),
                 ),
                 heading=self._make_dumpable(_("Facts")),
                 name="facts",
@@ -197,7 +197,7 @@ class DefaultRegionalContent(Bootstrappable):
             SectionData(
                 ContentBuilderManufacturer(
                     Columns,
-                    ColumnsData([[FileReferees]], width=SINGLE_COLUMN_TEXT_WIDTH),
+                    ColumnsData([[FileReferees]], width=single_column_text_width),
                 ),
                 heading=self._make_dumpable(_("Appearances")),
                 name="appearances",
@@ -208,7 +208,7 @@ class DefaultRegionalContent(Bootstrappable):
             SectionData(
                 ContentBuilderManufacturer(
                     Columns,
-                    ColumnsData([[Citations]], width=SINGLE_COLUMN_TEXT_WIDTH),
+                    ColumnsData([[Citations]], width=single_column_text_width),
                 ),
                 heading=self._make_dumpable(_("Citations")),
                 name="citations",
@@ -219,7 +219,7 @@ class DefaultRegionalContent(Bootstrappable):
             SectionData(
                 ContentBuilderManufacturer(
                     Columns,
-                    ColumnsData([[ExternalLinks]], width=SINGLE_COLUMN_TEXT_WIDTH),
+                    ColumnsData([[ExternalLinks]], width=single_column_text_width),
                 ),
                 heading=self._make_dumpable(_("External links")),
                 name="external-links",

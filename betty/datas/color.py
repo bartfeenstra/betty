@@ -5,7 +5,7 @@ Color data.
 from __future__ import annotations
 
 import re
-from typing import final
+from typing import Final, final
 
 from betty.assertions.str import assert_str
 from betty.data import DataDefinition
@@ -14,11 +14,11 @@ from betty.locale.localizable.gettext import _
 from betty.portable import CallbackPorter
 from betty.sample import Sample
 
-_HEX_PATTERN = re.compile(r"^#[a-zA-Z0-9]{6}$")
+_hex_pattern: Final[re.Pattern[str]] = re.compile(r"^#[a-zA-Z0-9]{6}$")
 
 
 def _assert_hex(color: str) -> str:
-    if not _HEX_PATTERN.match(color):
+    if not _hex_pattern.match(color):
         raise HumanFacingException(
             _('"{color}" is not a valid hexadecimal color, such as #ffc0cb.').format(
                 color=color,

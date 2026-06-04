@@ -44,7 +44,7 @@ class TestClearCaches:
             legacy_cache_directory = tmp_path / "legacy-cache"
             legacy_cache_directory.mkdir()
             mocker.patch(
-                "betty.commands.clear_caches._LEGACY_CACHE_DIRECTORY",
+                "betty.commands.clear_caches._legacy_cache_directory",
                 legacy_cache_directory,
             )
             legacy_cache_item = legacy_cache_directory / "item"

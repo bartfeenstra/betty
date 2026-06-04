@@ -42,7 +42,7 @@ class Privatizer(Enricher, Manufacturable):
 
     People
       People are considered dead past the *lifetime threshold*, which
-      :py:const:`defaults to 123 years <betty.project.DEFAULT_LIFETIME_THRESHOLD>`, but can be changed in your
+      :py:const:`defaults to 123 years <betty.project.default_lifetime_threshold>`, but can be changed in your
       project's :py:class:`configuration <betty.project.ProjectData>`.
 
       * The person has an end-of-life event, such as a death, final disposition, or will.

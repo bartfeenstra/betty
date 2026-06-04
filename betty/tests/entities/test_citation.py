@@ -7,8 +7,8 @@ from betty.entities.event import Event
 from betty.entities.source import Source
 from betty.entity import Entity
 from betty.event_types.birth import Birth
-from betty.locale import DEFAULT_LOCALE_TAG
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale import default_locale_tag
+from betty.locale.localize import default_localizer
 from betty.privacy import Privacy
 from betty.test_utils.ancestry.has_citations import DummyHasCitations
 from betty.test_utils.entity import EntityTestBase
@@ -42,7 +42,7 @@ class TestCitation(EntityTestBase):
         location = "Somewhere"
         sut = Citation(source=Source(), location=location)
         assert sut.location is not None
-        assert sut.location.localize(DEFAULT_LOCALIZER) == location
+        assert sut.location.localize(default_localizer) == location
 
     def test_id(self) -> None:
         citation_id = "C1"
@@ -70,7 +70,7 @@ class TestCitation(EntityTestBase):
         location = "Somewhere"
         sut.location = location
         assert sut.location is not None
-        assert sut.location.localize(DEFAULT_LOCALIZER) == location
+        assert sut.location.localize(default_localizer) == location
 
     def test_date(self) -> None:
         sut = Citation(source=Source())
@@ -128,7 +128,7 @@ class TestCitation(EntityTestBase):
             "@type": "https://schema.org/Thing",
             "id": "the_citation",
             "privacy": False,
-            "location": {DEFAULT_LOCALE_TAG: "My First Location"},
+            "location": {default_locale_tag: "My First Location"},
             "source": "/source/the_source/index.json",
             "facts": ["/event/the_event/index.json"],
             "links": [],

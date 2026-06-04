@@ -10,7 +10,7 @@ from contextlib import contextmanager
 from io import BytesIO
 from json import loads
 from pathlib import Path
-from typing import Self, final, override
+from typing import Final, Self, final, override
 
 from aiohttp import ClientError, ClientSession
 
@@ -29,7 +29,7 @@ from betty.portable import PortableData, PortableSequence
 from betty.service_level import ServiceLevel
 from betty.user import User
 
-_SPDX_LICENSE_ID_PATTERN = re.compile(r"[^a-z0-9-]")
+_spdx_license_id_pattern: Final[re.Pattern[str]] = re.compile(r"[^a-z0-9-]")
 
 
 def spdx_license_id_to_license_id(spdx_license_id: str, /) -> MachineName:
@@ -37,7 +37,7 @@ def spdx_license_id_to_license_id(spdx_license_id: str, /) -> MachineName:
     Get the Betty license plugin ID for the given SPDX license ID.
     """
     return MachineName(
-        f"spdx-{_SPDX_LICENSE_ID_PATTERN.sub('--', spdx_license_id.lower())}"
+        f"spdx-{_spdx_license_id_pattern.sub('--', spdx_license_id.lower())}"
     )
 
 
@@ -47,9 +47,9 @@ class SpdxLicenseDiscoverer(Manufacturable):
     Discover licenses from the `SPDX License List <https://spdx.org/licenses/>`_.
     """
 
-    VERSION = "3.27.0"
-    URL = (
-        f"https://github.com/spdx/license-list-data/archive/refs/tags/v{VERSION}.tar.gz"
+    version: Final[str] = "3.27.0"
+    url: Final[str] = (
+        f"https://github.com/spdx/license-list-data/archive/refs/tags/v{version}.tar.gz"
     )
 
     def __init__(
@@ -64,7 +64,7 @@ class SpdxLicenseDiscoverer(Manufacturable):
         self._cache_directory = (
             binary_file_cache
             .with_scope("spdx-licenses")
-            .with_scope(self.VERSION)
+            .with_scope(self.version)
             .directory
         )
 
@@ -93,7 +93,7 @@ class SpdxLicenseDiscoverer(Manufacturable):
         """
         if not self._cache_directory.exists():
             try:
-                spdx_licenses_response = await self._http_client.get(self.URL)
+                spdx_licenses_response = await self._http_client.get(self.url)
                 spdx_licenses_data_tar = await spdx_licenses_response.read()
             except ClientError:
                 await self._user.message_warning(
@@ -109,7 +109,7 @@ class SpdxLicenseDiscoverer(Manufacturable):
 
         spdx_licenses_data_json = await read(
             self._cache_directory
-            / f"license-list-data-{self.VERSION}"
+            / f"license-list-data-{self.version}"
             / "json"
             / "licenses.json"
         )
@@ -155,7 +155,7 @@ class SpdxLicenseDiscoverer(Manufacturable):
     async def _build_license(self, license_id: str, url: str) -> LicenseDefinition:
         spdx_license_data_json = await read(
             self._cache_directory
-            / f"license-list-data-{self.VERSION}"
+            / f"license-list-data-{self.version}"
             / "json"
             / "details"
             / f"{license_id}.json"
@@ -203,13 +203,13 @@ class SpdxLicenseDiscoverer(Manufacturable):
                 cache_directory,
                 members=[
                     tar_file.getmember(
-                        f"license-list-data-{cls.VERSION}/json/licenses.json"
+                        f"license-list-data-{cls.version}/json/licenses.json"
                     ),
                     *[
                         tar_info
                         for tar_info in tar_file.getmembers()
                         if tar_info.name.startswith(
-                            f"license-list-data-{cls.VERSION}/json/details/"
+                            f"license-list-data-{cls.version}/json/details/"
                         )
                     ],
                 ],
@@ -222,5 +222,5 @@ class SpdxLicenseDiscoverer(Manufacturable):
             yield
         except (AssertionError, LookupError) as error:
             raise HumanFacingException(
-                Plain(f"Invalid JSON response received from {self.URL}")
+                Plain(f"Invalid JSON response received from {self.url}")
             ) from error

@@ -5,9 +5,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final, override
 
 from betty.asset_directories.http_api_doc import (
-    HTTP_API_DOC as HTTP_API_DOC_ASSET,
+    http_api_doc as HTTP_API_DOC_ASSET,
 )
-from betty.dirs import WEBPACK_ENTRY_POINT_DIRECTORY
+from betty.dirs import webpack_entry_point_directory
 from betty.extension import ExtensionDefinition
 from betty.extensions.webpack import Webpack
 from betty.extensions.webpack.build import EntryPointProvider
@@ -42,7 +42,7 @@ class HttpApiDoc(EntryPointProvider):
     @override
     @classmethod
     def webpack_entry_point_directory(cls) -> StrPath:
-        return WEBPACK_ENTRY_POINT_DIRECTORY / cls.plugin().id
+        return webpack_entry_point_directory / cls.plugin().id
 
     @override
     def webpack_entry_point_cache_keys(self) -> Sequence[str]:

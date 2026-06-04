@@ -4,9 +4,11 @@ Multiprocessing functionality.
 
 from concurrent import futures
 from multiprocessing import get_context
+from multiprocessing.context import SpawnContext
 from signal import SIG_IGN, SIGINT, signal
+from typing import Final
 
-CONTEXT = get_context("spawn")
+context: Final[SpawnContext] = get_context("spawn")
 
 
 class ProcessPoolExecutor(futures.ProcessPoolExecutor):
@@ -30,5 +32,5 @@ class ProcessPoolExecutor(futures.ProcessPoolExecutor):
             initargs=(SIGINT, SIG_IGN),
             max_workers=max_workers,
             max_tasks_per_child=max_tasks_per_child,
-            mp_context=CONTEXT,
+            mp_context=context,
         )

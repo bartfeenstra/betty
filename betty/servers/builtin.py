@@ -13,7 +13,7 @@ from os import symlink
 from pathlib import Path
 from shutil import rmtree
 from tempfile import mkdtemp
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, Final, final, override
 
 from betty.exception import HumanFacingException
 from betty.locale.localizable.gettext import _
@@ -42,7 +42,7 @@ class BuiltinServer(Server):
     A built-in server for a WWW directory.
     """
 
-    _DEFAULT_PORT = 8000
+    _default_port: Final[int] = 8000
 
     def __init__(
         self,
@@ -79,7 +79,7 @@ class BuiltinServer(Server):
             www_directory = self._www_directory
         await self._user.message_debug(_("Starting Python's built-in web server..."))
         for self._port in range(  # noqa: B020
-            self._DEFAULT_PORT,
+            self._default_port,
             65535,
         ):
             with contextlib.suppress(OSError):

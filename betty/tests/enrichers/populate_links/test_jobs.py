@@ -4,7 +4,7 @@ from aioresponses import aioresponses
 
 from betty.enrichers.populate_links import PopulateLink
 from betty.entities.link import Link
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale.localize import default_localizer
 from betty.test_utils.job import do
 
 
@@ -24,7 +24,7 @@ class TestPopulateLink:
         async with ClientSession() as http_client:
             await do(
                 PopulateLink(
-                    link, http_client=http_client, localizers=[DEFAULT_LOCALIZER]
+                    link, http_client=http_client, localizers=[default_localizer]
                 )
             )
 
@@ -52,7 +52,7 @@ class TestPopulateLink:
         async with ClientSession() as http_client:
             await do(
                 PopulateLink(
-                    link, http_client=http_client, localizers=[DEFAULT_LOCALIZER]
+                    link, http_client=http_client, localizers=[default_localizer]
                 )
             )
 
@@ -83,11 +83,11 @@ class TestPopulateLink:
         async with ClientSession() as http_client:
             await do(
                 PopulateLink(
-                    link, http_client=http_client, localizers=[DEFAULT_LOCALIZER]
+                    link, http_client=http_client, localizers=[default_localizer]
                 )
             )
 
-        assert link.label.localize(DEFAULT_LOCALIZER) == link_page_title
+        assert link.label.localize(default_localizer) == link_page_title
 
     @pytest.mark.parametrize(
         ("link_page_content_type"),
@@ -110,7 +110,7 @@ class TestPopulateLink:
         async with ClientSession() as http_client:
             await do(
                 PopulateLink(
-                    link, http_client=http_client, localizers=[DEFAULT_LOCALIZER]
+                    link, http_client=http_client, localizers=[default_localizer]
                 )
             )
 
@@ -144,11 +144,11 @@ class TestPopulateLink:
         async with ClientSession() as http_client:
             await do(
                 PopulateLink(
-                    link, http_client=http_client, localizers=[DEFAULT_LOCALIZER]
+                    link, http_client=http_client, localizers=[default_localizer]
                 )
             )
 
         assert link.description is not None
         assert (
-            link.description.localize(DEFAULT_LOCALIZER) == link_page_meta_description
+            link.description.localize(default_localizer) == link_page_meta_description
         )

@@ -6,14 +6,14 @@ from typing import TYPE_CHECKING
 import pytest
 from babel import Locale
 
-from betty.dirs import BUILTIN_ASSET_DIRECTORY
+from betty.dirs import builtin_asset_directory
 from betty.entity import EntityDefinition
 from betty.entity.collection.pool import EntityPool
 from betty.exception import HumanFacingException
 from betty.extension import Extension, ExtensionDefinition
-from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
+from betty.locale import default_locale, default_locale_tag
 from betty.locale.localizable.plain import Plain
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale.localize import default_localizer
 from betty.project import Project, ProjectData, ProjectLocale
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.entity import DummyEntityOne
@@ -123,7 +123,7 @@ class TestProject:
             await sut.url_generator
 
     async def test_logo(self, isolated_project_factory: IsolatedProjectFactory) -> None:
-        logo = BUILTIN_ASSET_DIRECTORY / "public" / "static" / "betty-256x256.png"
+        logo = builtin_asset_directory / "public" / "static" / "betty-256x256.png"
         async with isolated_project_factory(logo=logo) as sut:
             assert sut.logo == logo
 
@@ -185,17 +185,17 @@ class TestProject:
         self, isolated_project_factory: IsolatedProjectFactory, tmp_path: Path
     ) -> None:
         async with isolated_project_factory(directory=tmp_path) as sut:
-            actual = sut.localize_www_directory(DEFAULT_LOCALE)
+            actual = sut.localize_www_directory(default_locale)
             assert tmp_path in actual.parents
-            assert DEFAULT_LOCALE_TAG not in str(actual)
+            assert default_locale_tag not in str(actual)
 
     async def test_localize_www_directory__multilingual(
         self, isolated_project_factory: IsolatedProjectFactory, tmp_path: Path
     ) -> None:
-        async with isolated_project_factory(locales=[DEFAULT_LOCALE, "nl-NL"]) as sut:
-            actual = sut.localize_www_directory(DEFAULT_LOCALE)
+        async with isolated_project_factory(locales=[default_locale, "nl-NL"]) as sut:
+            actual = sut.localize_www_directory(default_locale)
             assert sut.directory in actual.parents
-            assert DEFAULT_LOCALE_TAG in str(actual)
+            assert default_locale_tag in str(actual)
 
     async def test_author(
         self, isolated_project_factory: IsolatedProjectFactory
@@ -203,7 +203,7 @@ class TestProject:
         author = "Bart"
         async with isolated_project_factory(author=author) as project:
             assert project.author is not None
-            assert project.author.localize(DEFAULT_LOCALIZER) == author
+            assert project.author.localize(default_localizer) == author
 
     async def test_base_url(
         self, isolated_project_factory: IsolatedProjectFactory
@@ -284,7 +284,7 @@ class TestProject:
     ) -> None:
         title = "My First Betty Site"
         async with isolated_project_factory(title=title) as sut:
-            assert sut.title.localize(DEFAULT_LOCALIZER) == title
+            assert sut.title.localize(default_localizer) == title
 
     async def test_url(self, isolated_project_factory: IsolatedProjectFactory) -> None:
         url = "https://betty.example.com"
@@ -307,7 +307,7 @@ class TestProjectLocale(DataTestBase[ProjectLocale]):
 
     def test_alias(self) -> None:
         alias = "nl"
-        sut = ProjectLocale(DEFAULT_LOCALE, alias=alias)
+        sut = ProjectLocale(default_locale, alias=alias)
         assert sut.alias == alias
 
     def test_slug__without_alias(self) -> None:

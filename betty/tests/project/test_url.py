@@ -6,7 +6,7 @@ from babel import Locale
 
 from betty.entity import EntityDefinition
 from betty.entity.collection.pool import EntityPool
-from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, ResolvableLocale
+from betty.locale import ResolvableLocale, default_locale, default_locale_tag
 from betty.media_type import MediaType
 from betty.media_types.html import HTML
 from betty.media_types.json import JSON
@@ -44,7 +44,7 @@ class Test_EntityUrlUrlGenerator:
                 "https://example.com",
                 "/",
                 {
-                    DEFAULT_LOCALE: DEFAULT_LOCALE_TAG,
+                    default_locale: default_locale_tag,
                 },
                 True,
             ),
@@ -64,7 +64,7 @@ class Test_EntityUrlUrlGenerator:
                 "https://example.com",
                 "/",
                 {
-                    DEFAULT_LOCALE: DEFAULT_LOCALE_TAG,
+                    default_locale: default_locale_tag,
                 },
                 True,
             ),
@@ -144,7 +144,7 @@ class Test_LocalizedPathUrlUrlGenerator:
             ],
             *[
                 (
-                    f"/{DEFAULT_LOCALE_TAG}/some/path/index.html",
+                    f"/{default_locale_tag}/some/path/index.html",
                     resource,
                     media_type,
                     False,
@@ -178,7 +178,7 @@ class Test_LocalizedPathUrlUrlGenerator:
         additional_project_locale: Locale | None,
         isolated_project_factory: IsolatedProjectFactory,
     ) -> None:
-        locales = [DEFAULT_LOCALE]
+        locales = [default_locale]
         if additional_project_locale:
             locales.append(additional_project_locale)
         async with isolated_project_factory(locales=locales) as project:
@@ -278,7 +278,7 @@ class Test_StaticPathUrlUrlGenerator:
         query: Mapping[str, Sequence[str]] | None,
         isolated_project_factory: IsolatedProjectFactory,
     ) -> None:
-        locales = [DEFAULT_LOCALE]
+        locales = [default_locale]
         if additional_project_locale:
             locales.append(additional_project_locale)
         async with isolated_project_factory(locales=locales) as project:
@@ -379,7 +379,7 @@ async def test_new_project_url_generator__generate(
     additional_project_locale: Locale | None,
     isolated_project_factory: IsolatedProjectFactory,
 ) -> None:
-    locales = [DEFAULT_LOCALE]
+    locales = [default_locale]
     if additional_project_locale:
         locales.append(additional_project_locale)
     async with isolated_project_factory(

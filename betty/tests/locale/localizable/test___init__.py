@@ -3,7 +3,7 @@ from typing import override
 
 from babel import Locale
 
-from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
+from betty.locale import default_locale, default_locale_tag
 from betty.locale.localizable import (
     CountableLocalizable,
     Localizable,
@@ -15,7 +15,7 @@ from betty.locale.localizable import (
 )
 from betty.locale.localizable.plain import Plain
 from betty.locale.localizable.static import CountableStaticTranslations
-from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
+from betty.locale.localize import Localizer, default_localizer
 
 
 class TestCountableLocalizable:
@@ -30,7 +30,7 @@ class TestCountableLocalizable:
             sut
             .count(9)
             .format(format_placeholder="format-value")
-            .localize(DEFAULT_LOCALIZER)
+            .localize(default_localizer)
             == "format-value"
         )
 
@@ -42,7 +42,7 @@ def test_resolve_localizable__with_localizable() -> None:
 
 def test_resolve_localizable__with_str() -> None:
     localizable = "My First Localizable"
-    assert resolve_localizable(localizable).localize(DEFAULT_LOCALIZER) == localizable
+    assert resolve_localizable(localizable).localize(default_localizer) == localizable
 
 
 def test_resolve_localizable__with_mapping() -> None:
@@ -50,7 +50,7 @@ def test_resolve_localizable__with_mapping() -> None:
     localizer = Localizer(locale, NullTranslations())
     localized = "Mijn Eerste, Ja, Wat Eigenlijk?"
     localizable: StaticTranslationsMapping = {
-        DEFAULT_LOCALE: "My First Localizable",
+        default_locale: "My First Localizable",
         locale: localized,
     }
     assert resolve_localizable(localizable).localize(localizer) == localized
@@ -58,7 +58,7 @@ def test_resolve_localizable__with_mapping() -> None:
 
 def test_resolve_countable_localizable__with_localizable() -> None:
     localizable = CountableStaticTranslations({
-        DEFAULT_LOCALE: {
+        default_locale: {
             "one": "{count} world",
             "other": "{count} worlds",
         },
@@ -68,12 +68,12 @@ def test_resolve_countable_localizable__with_localizable() -> None:
 
 def test_resolve_countable_localizable__with_mapping() -> None:
     localizable: ShorthandCountableStaticTranslations = {
-        DEFAULT_LOCALE_TAG: {
+        default_locale_tag: {
             "one": "{count} world",
             "other": "{count} worlds",
         },
     }
     assert (
-        resolve_countable_localizable(localizable).count(2).localize(DEFAULT_LOCALIZER)
+        resolve_countable_localizable(localizable).count(2).localize(default_localizer)
         == "2 worlds"
     )

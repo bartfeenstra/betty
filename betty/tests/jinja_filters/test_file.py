@@ -1,11 +1,18 @@
+from collections.abc import Sequence
+from typing import Final
+
 import pytest
 
 from betty.entities.file import File
 from betty.job import Context
 from betty.test_utils.conftest import AssertTemplateString
 
-_TEST_FILTER_FILE_PARAMETER_ARGNAMES = ("expected", "template", "file")
-_TEST_FILTER_FILE_PARAMETER_ARGVALUES = [
+_test_filter_file_parameter_argnames: Final[tuple[str, str, str]] = (
+    "expected",
+    "template",
+    "file",
+)
+_test_filter_file_parameter_argvalues: Final[Sequence[tuple[str, str, File]]] = [
     (
         "betty-static:///file/F1/file/test_file.py",
         "{{ file | file }}",
@@ -21,7 +28,7 @@ _TEST_FILTER_FILE_PARAMETER_ARGVALUES = [
 
 class TestFile:
     @pytest.mark.parametrize(
-        _TEST_FILTER_FILE_PARAMETER_ARGNAMES, _TEST_FILTER_FILE_PARAMETER_ARGVALUES
+        _test_filter_file_parameter_argnames, _test_filter_file_parameter_argvalues
     )
     async def test___call__(
         self,
@@ -41,7 +48,7 @@ class TestFile:
                 assert (project.www_directory / file_path[16:]).exists()
 
     @pytest.mark.parametrize(
-        _TEST_FILTER_FILE_PARAMETER_ARGNAMES, _TEST_FILTER_FILE_PARAMETER_ARGVALUES
+        _test_filter_file_parameter_argnames, _test_filter_file_parameter_argvalues
     )
     async def test___call____with_context(
         self,

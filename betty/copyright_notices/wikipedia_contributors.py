@@ -12,7 +12,7 @@ import aiohttp
 from betty.app import App
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.factory import Manufacturable
-from betty.locale import DEFAULT_LOCALE, resolve_locale
+from betty.locale import default_locale, resolve_locale
 from betty.locale.error import LocaleError
 from betty.locale.localizable import (
     Localizable,
@@ -45,7 +45,7 @@ class WikipediaContributors(Manufacturable, CopyrightNotice):
     async def new(cls, app: App, /) -> Self:
         http_client = await app.http_client
         urls: StaticTranslationsMapping = {
-            DEFAULT_LOCALE: _copyright_url("en", "Wikipedia:Copyrights"),
+            default_locale: _copyright_url("en", "Wikipedia:Copyrights"),
         }
         try:
             response = await http_client.get(

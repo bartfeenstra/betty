@@ -4,13 +4,14 @@ Classed plugins.
 
 from __future__ import annotations
 
-from typing import Any, TypeVar, final, override
+from typing import TYPE_CHECKING, Any, Final, TypeVar, final, override
 
 from betty.definition.cls import ClsDefinition
 from betty.importlib import fully_qualified_name
 from betty.plugin import PluginDefinition
 
-_PLUGINS = {}
+if TYPE_CHECKING:
+    from collections.abc import MutableMapping
 
 
 class Plugin[PluginClsDefinitionT: PluginClsDefinition]:
@@ -27,7 +28,7 @@ class Plugin[PluginClsDefinitionT: PluginClsDefinition]:
         The plugin definition.
         """
         try:
-            return _PLUGINS[cls]
+            return _plugins[cls]  # ty:ignore[invalid-return-type]
         except KeyError:
             raise NotImplementedError(
                 f"{fully_qualified_name(cls)} was not decorated with a {fully_qualified_name(PluginClsDefinition)} subclass."
@@ -48,4 +49,7 @@ class PluginClsDefinition(PluginDefinition, ClsDefinition[_PluginClsDefinitionPl
     def _set_cls(self, cls: type[_PluginClsDefinitionPluginT], /) -> None:
         super()._set_cls(cls)
         if issubclass(cls, Plugin):
-            _PLUGINS[cls] = self
+            _plugins[cls] = self
+
+
+_plugins: Final[MutableMapping[type, PluginClsDefinition]] = {}

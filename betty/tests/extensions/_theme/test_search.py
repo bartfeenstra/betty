@@ -11,7 +11,7 @@ from betty.entities.place_name import PlaceName
 from betty.extensions._theme.search import Index
 from betty.extensions.raspberry_mint import RaspberryMint
 from betty.job import Context
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale.localize import default_localizer
 from betty.privacy import Privacy
 from betty.project import Project, ProjectLocale
 from betty.test_utils.conftest import IsolatedProjectFactory
@@ -38,14 +38,14 @@ class TestIndex:
             yield project
 
     async def test_build_empty(self, dummy_project: Project) -> None:
-        actual = await Index(dummy_project, Context(), DEFAULT_LOCALIZER).build()
+        actual = await Index(dummy_project, Context(), default_localizer).build()
         assert actual == []
 
     async def test_build_person_without_names(self, dummy_project: Project) -> None:
         person_id = "P1"
         person = Person(id=person_id)
         dummy_project.ancestry.add(person)
-        actual = await Index(dummy_project, Context(), DEFAULT_LOCALIZER).build()
+        actual = await Index(dummy_project, Context(), default_localizer).build()
         assert actual[0].text == {"p1"}
 
     async def test_build_private_person(self, dummy_project: Project) -> None:
@@ -60,7 +60,7 @@ class TestIndex:
             individual=individual_name,
         )
         dummy_project.ancestry.add(person)
-        actual = await Index(dummy_project, Context(), DEFAULT_LOCALIZER).build()
+        actual = await Index(dummy_project, Context(), default_localizer).build()
         assert actual == []
 
     @pytest.mark.parametrize(
@@ -193,7 +193,7 @@ class TestIndex:
         actual = await Index(
             dummy_project,
             Context(),
-            DEFAULT_LOCALIZER,
+            default_localizer,
         ).build()
         assert actual == []
 
@@ -286,6 +286,6 @@ class TestIndex:
         actual = await Index(
             dummy_project,
             Context(),
-            DEFAULT_LOCALIZER,
+            default_localizer,
         ).build()
         assert actual == []

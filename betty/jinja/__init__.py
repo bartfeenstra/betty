@@ -94,7 +94,7 @@ async def new_environment(project: Project, /) -> Environment:
     environment.policies["ext.i18n.trimmed"] = True
 
     environment.globals.update({
-        "about_version_major": about.VERSION_MAJOR_LABEL,
+        "about_version_major": about.version_major_label,
         "app": project.upstream,
         "deprecate": deprecate,
         "generate_html_id": generate_html_id,

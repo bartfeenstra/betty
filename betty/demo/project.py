@@ -37,7 +37,7 @@ from betty.license import LicenseManufacturer
 from betty.links.betty_documentation import BETTY_DOCUMENTATION
 from betty.links.betty_github import BETTY_GITHUB
 from betty.loaders.demo import Demo
-from betty.locale import DEFAULT_LOCALE
+from betty.locale import default_locale
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Chain
 from betty.media_types.html import HTML
@@ -210,8 +210,8 @@ async def create_project(
         ],
         locales=[
             # The first configured locale is the project default.
-            DEFAULT_LOCALE,
-            *[locale for locale in translations.locales if locale != DEFAULT_LOCALE],
+            default_locale,
+            *[locale for locale in translations.locales if locale != default_locale],
         ],
         name="demo",
         supported_plugins=[

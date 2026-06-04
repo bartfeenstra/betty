@@ -11,9 +11,9 @@ import pytest
 
 from betty.entity import Entity, EntityDefinition
 from betty.entity.collection.multiple import MultipleTypesEntityCollection
-from betty.locale import DEFAULT_LOCALE
+from betty.locale import default_locale
 from betty.locale.localizable.static import CountableStaticTranslations
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale.localize import default_localizer
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -37,7 +37,7 @@ class EntityTestBase[EntityT: Entity]:
         """
         Tests :py:meth:`betty.entity.Entity.label` implementations.
         """
-        assert sut.label.localize(DEFAULT_LOCALIZER)
+        assert sut.label.localize(default_localizer)
 
 
 @final
@@ -46,7 +46,7 @@ class EntityTestBase[EntityT: Entity]:
     label="Dummy (one)",
     label_plural="Dummies (one)",
     label_countable=CountableStaticTranslations({
-        DEFAULT_LOCALE: {
+        default_locale: {
             "one": "{count} dummy (one)",
             "other": "{count} dummies (one)",
         }
@@ -64,7 +64,7 @@ class DummyEntityOne(Entity):
     label="Dummy (two)",
     label_plural="Dummies (two)",
     label_countable=CountableStaticTranslations({
-        DEFAULT_LOCALE: {
+        default_locale: {
             "one": "{count} dummy (two)",
             "other": "{count} dummies (two)",
         }
@@ -82,7 +82,7 @@ class DummyEntityTwo(Entity):
     label="Dummy (three)",
     label_plural="Dummies (three)",
     label_countable=CountableStaticTranslations({
-        DEFAULT_LOCALE: {
+        default_locale: {
             "one": "{count} dummy (three)",
             "other": "{count} dummies (three)",
         }
@@ -100,7 +100,7 @@ class DummyEntityThree(Entity):
     label="Dummy (four)",
     label_plural="Dummies (four)",
     label_countable=CountableStaticTranslations({
-        DEFAULT_LOCALE: {
+        default_locale: {
             "one": "{count} dummy (four)",
             "other": "{count} dummies (four)",
         }
@@ -118,7 +118,7 @@ class DummyEntityFour(Entity):
     label="Dummy non-public-facing (two)",
     label_plural="Dummies non-public-facing (two)",
     label_countable=CountableStaticTranslations({
-        DEFAULT_LOCALE: {
+        default_locale: {
             "one": "{count} dummy non-public-facing (one)",
             "other": "{count} dummies non-public-facing (one)",
         }

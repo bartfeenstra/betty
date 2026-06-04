@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.asset_directories.raspberry_mint import RASPBERRY_MINT
+from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.content import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.entities.person import Person
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 @ContentBuilderDefinition(
     "raspberry-mint-families",
     label=_("Families"),
-    requires={Project.asset_directories.require(RASPBERRY_MINT)},
+    requires={Project.asset_directories.require(raspberry_mint)},
 )
 class Families(Template, Manufacturable):
     """

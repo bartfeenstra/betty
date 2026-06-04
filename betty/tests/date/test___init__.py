@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, cast
 import pytest
 
 from betty.date import AnyDate, Date, DateRange, IncompleteDateError
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale.localize import default_localizer
 from betty.portable import PortableMapping
 
 if TYPE_CHECKING:
@@ -284,7 +284,7 @@ class TestDate:
         ],
     )
     async def test_localize(self, expected: str, sut: Date) -> None:
-        assert sut.localize(DEFAULT_LOCALIZER) == expected
+        assert sut.localize(default_localizer) == expected
 
     def test_load__minimal(self) -> None:
         Date.data().porter.load({})
@@ -957,7 +957,7 @@ class TestDateRange:
 
     @pytest.mark.parametrize(("expected", "sut"), _FORMAT_DATE_RANGE_TEST_PARAMETERS)
     async def test_localize(self, expected: str, sut: DateRange) -> None:
-        assert sut.localize(DEFAULT_LOCALIZER) == expected
+        assert sut.localize(default_localizer) == expected
 
     @pytest.mark.parametrize(
         "sut",
@@ -970,4 +970,4 @@ class TestDateRange:
     )
     async def test_localize__with_incomplete_date_range(self, sut: DateRange) -> None:
         with pytest.raises(IncompleteDateError):
-            assert sut.localize(DEFAULT_LOCALIZER)
+            assert sut.localize(default_localizer)

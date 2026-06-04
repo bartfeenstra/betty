@@ -4,7 +4,7 @@ The interactive family tree content plugin.
 
 from typing import Self, final, override
 
-from betty.asset_directories.trees import TREES
+from betty.asset_directories.trees import trees
 from betty.content import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.document import Document
@@ -21,7 +21,7 @@ from betty.project import Project
     "tree",
     label=_("Family tree"),
     requires={
-        Project.asset_directories.require(TREES),
+        Project.asset_directories.require(trees),
         Project.extensions.require(Webpack),
         Project.jinja_filters.require(WebpackEntryPointJs),
     },

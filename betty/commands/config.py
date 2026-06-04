@@ -8,7 +8,7 @@ from betty.argparse import assertion_to_argument_type
 from betty.assertions.locale import assert_locale
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.factory import Manufacturable
-from betty.locale import DEFAULT_LOCALE, to_language_tag
+from betty.locale import default_locale, to_language_tag
 from betty.locale.localizable.gettext import _
 from betty.portable.file import assert_load_file, dump_file
 
@@ -39,7 +39,7 @@ class Config(Manufacturable, Command):
         localizer = await self._app.localizer
         parser.add_argument(
             "--locale",
-            default=DEFAULT_LOCALE,
+            default=default_locale,
             help=localizer._(
                 "Set the locale for Betty's user interface. This must be an IETF BCP 47 language tag."
             ),

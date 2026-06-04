@@ -5,7 +5,7 @@ Fetch information from Wikipedia.
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Final, cast
 
 from betty.locale.localizable.static import StaticTranslations
 
@@ -22,7 +22,9 @@ class NotAPageError(ValueError):
     """
 
 
-_PAGE_URL_PATTERN = re.compile(r"^https?://([a-z]+)\.wikipedia\.org/wiki/([^/?#]+).*$")
+_page_url_pattern: Final[re.Pattern[str]] = re.compile(
+    r"^https?://([a-z]+)\.wikipedia\.org/wiki/([^/?#]+).*$"
+)
 
 
 def parse_page_url(url: str) -> tuple[str, str]:
@@ -31,7 +33,7 @@ def parse_page_url(url: str) -> tuple[str, str]:
 
     :return: A 2-tuple with the page language and the page name.
     """
-    match = _PAGE_URL_PATTERN.fullmatch(url)
+    match = _page_url_pattern.fullmatch(url)
     if match is None:
         raise NotAPageError
     return cast(tuple[str, str], match.groups())

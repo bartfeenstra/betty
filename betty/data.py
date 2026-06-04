@@ -4,7 +4,7 @@ Describe, access, and manipulate arbitrary data.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, final, override
+from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
@@ -14,12 +14,10 @@ from betty.portable.error import NotPortable
 from betty.sample import Samplable, Sample, Samples
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable
+    from collections.abc import Callable, Iterable, MutableMapping
 
     from betty.locale.localizable import ResolvableLocalizable
     from betty.typing import Intersection
-
-_DATAS = {}
 
 
 class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
@@ -64,7 +62,7 @@ class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
     def _set_cls(self, cls: type[DataClsT], /) -> None:
         super()._set_cls(cls)
         if issubclass(cls, Data):
-            _DATAS[cls] = self
+            _datas[cls] = self
 
     @property
     def samples(self) -> Samples:
@@ -76,6 +74,9 @@ class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
                 return Samples([self.cls])
             return Samples(())
         return Samples(self._samples)
+
+
+_datas: Final[MutableMapping[type, DataDefinition]] = {}
 
 
 class Data[DataDefinitionT: DataDefinition = DataDefinition]:
@@ -90,7 +91,7 @@ class Data[DataDefinitionT: DataDefinition = DataDefinition]:
         Define the data for instances of this class.
         """
         try:
-            return _DATAS[cls]
+            return _datas[cls]  # ty:ignore[invalid-return-type]
         except KeyError:
             raise NotImplementedError(
                 f"{fully_qualified_name(cls)} was not decorated with {fully_qualified_name(DataDefinition)} or any subclass."

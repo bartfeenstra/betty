@@ -1,10 +1,10 @@
 import pytest
 
-from betty.dirs import ROOT_DIRECTORY
+from betty.dirs import root_directory
 
 
 def test_python_modules(subtests: pytest.Subtests) -> None:
-    for directory, _directory_names, file_names in (ROOT_DIRECTORY / "betty").walk():
+    for directory, _directory_names, file_names in (root_directory / "betty").walk():
         python_file_names = [
             file_name for file_name in file_names if file_name.endswith(".py")
         ]

@@ -13,7 +13,7 @@ from warnings import warn
 from babel import Locale
 
 from betty.locale import LocalizedStr, ResolvableLocale
-from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
+from betty.locale.localize import Localizer, default_localizer
 
 if TYPE_CHECKING:
     from betty.typing import Intersection as Intersection
@@ -51,7 +51,7 @@ class Localizable(_Localizable["Localizable"]):
 
     @override
     def __str__(self) -> str:
-        localized = self.localize(DEFAULT_LOCALIZER)
+        localized = self.localize(default_localizer)
         warn(
             f'{type(self)} ("{localized}") SHOULD NOT be cast to a string. Instead, call {type(self)}.localize() to ensure it is always formatted in the desired locale.',
             stacklevel=2,

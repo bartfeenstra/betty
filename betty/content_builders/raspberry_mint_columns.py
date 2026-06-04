@@ -13,7 +13,7 @@ from betty.assertions.if_else import assert_if_else
 from betty.assertions.int import assert_int
 from betty.assertions.mapping import assert_mapping
 from betty.assertions.sequence import assert_sequence
-from betty.asset_directories.raspberry_mint import RASPBERRY_MINT
+from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.attrs.attr import AttrAttr
 from betty.content import (
     ContentBuilder,
@@ -218,7 +218,7 @@ class ColumnsData(Data, HasProps):
 @ContentBuilderDefinition(
     "raspberry-mint-columns",
     label=_("Columns"),
-    requires={Project.asset_directories.require(RASPBERRY_MINT)},
+    requires={Project.asset_directories.require(raspberry_mint)},
 )
 class Columns(Template, DataManufacturable[ColumnsData]):
     """

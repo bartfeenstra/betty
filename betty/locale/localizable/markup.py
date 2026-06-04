@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from textwrap import indent
-from typing import TYPE_CHECKING, Any, ClassVar, final, override
+from typing import TYPE_CHECKING, Any, ClassVar, Final, final, override
 
 from betty.locale import LocalizedStr
 from betty.locale.localizable import (
@@ -66,7 +66,7 @@ class Chain(_Join):
     Chain multiple localizables together, back to back.
     """
 
-    _SEPARATOR = ""
+    _SEPARATOR: ClassVar[str] = ""
 
 
 @final
@@ -75,7 +75,7 @@ class Paragraph(_Join):
     Represent multiple localizables as a single paragraph of text.
     """
 
-    _SEPARATOR = " "
+    _SEPARATOR: ClassVar[str] = " "
 
 
 @final
@@ -84,7 +84,7 @@ class Lines(_Join):
     Represent multiple localizables as multiple lines of text.
     """
 
-    _SEPARATOR = "\n"
+    _SEPARATOR: ClassVar[str] = "\n"
 
 
 @final
@@ -93,12 +93,12 @@ class Paragraphs(_Join):
     Represent multiple localizables as multiple paragraphs of text.
     """
 
-    _SEPARATOR = "\n\n"
+    _SEPARATOR: ClassVar[str] = "\n\n"
 
 
 class _List(_LocalizableSequence, Localizable):
-    _TEMPLATE_LEFT_TO_RIGHT = "{prefix} {localized}"
-    _TEMPLATE_RIGHT_TO_LEFT = "{localized} {prefix}"
+    _template_left_to_right: Final[str] = "{prefix} {localized}"
+    _template_right_to_left: Final[str] = "{localized} {prefix}"
 
     @override
     def localize(self, localizer: Localizer, /) -> LocalizedStr:
@@ -108,9 +108,9 @@ class _List(_LocalizableSequence, Localizable):
         prefixes = []
         prefix_lengths = []
         if localizer.locale.character_order == "right-to-left":
-            template = self._TEMPLATE_RIGHT_TO_LEFT
+            template = self._template_right_to_left
         else:
-            template = self._TEMPLATE_LEFT_TO_RIGHT
+            template = self._template_left_to_right
         for index, localizable in enumerate(self._localizables):
             localizeds.append(localizable.localize(localizer))
             prefix = self._get_prefix(localizer, index)
@@ -140,15 +140,15 @@ class OrderedList(_List):
     Represent multiple localizables in an ordered list.
     """
 
-    _PREFIX_TEMPLATE_LEFT_TO_RIGHT = "{index}."
-    _PREFIX_TEMPLATE_RIGHT_TO_LEFT = ".{index}"
+    _prefix_template_left_to_right: Final[str] = "{index}."
+    _prefix_template_right_to_left: Final[str] = ".{index}"
 
     @override
     def _get_prefix(self, localizer: Localizer, index: int, /) -> str:
         if localizer.locale.character_order == "right-to-left":
-            template = self._PREFIX_TEMPLATE_RIGHT_TO_LEFT
+            template = self._prefix_template_right_to_left
         else:
-            template = self._PREFIX_TEMPLATE_LEFT_TO_RIGHT
+            template = self._prefix_template_left_to_right
         return template.format(index=index + 1)
 
 
@@ -186,7 +186,7 @@ class AnyEnumeration(_Enumeration):
     An enumeration where any of the localizables may be applicable.
     """
 
-    _LOCALIZABLE = _("{most}, or {last}")
+    _LOCALIZABLE: ClassVar[Localizable] = _("{most}, or {last}")
 
 
 @final
@@ -195,7 +195,7 @@ class AllEnumeration(_Enumeration):
     An enumeration where all of the localizables are applicable.
     """
 
-    _LOCALIZABLE = _("{most}, and {last}")
+    _LOCALIZABLE: ClassVar[Localizable] = _("{most}, and {last}")
 
 
 def do_you_mean(*available_options: Any) -> Localizable:

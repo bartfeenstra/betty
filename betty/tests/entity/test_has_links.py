@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from betty.entities.link import Link
-from betty.locale import DEFAULT_LOCALE_TAG
+from betty.locale import default_locale_tag
 from betty.test_utils.ancestry.has_links import DummyHasLinks
 
 if TYPE_CHECKING:
@@ -43,7 +43,7 @@ class TestHasLinks:
                     "@context": {"description": "https://schema.org/description"},
                     "id": link.id,
                     "url": {
-                        DEFAULT_LOCALE_TAG: "https://example.com",
+                        default_locale_tag: "https://example.com",
                     },
                     "owner": None,
                     "privacy": False,

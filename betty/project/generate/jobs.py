@@ -9,7 +9,7 @@ from io import BytesIO
 from json import dumps
 from math import ceil
 from pathlib import Path
-from typing import TYPE_CHECKING, cast, final, override
+from typing import TYPE_CHECKING, Final, cast, final, override
 
 from PIL import Image
 
@@ -18,7 +18,7 @@ from betty.file import read, write
 from betty.jinja import make_copy_function
 from betty.job import Job
 from betty.locale.localizable.gettext import _
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale.localize import default_localizer
 from betty.media_types.html import HTML
 from betty.media_types.json import JSON
 from betty.openapi import Specification
@@ -99,24 +99,24 @@ class GenerateSitemap(Job):
     Generate a site's sitemap.
     """
 
-    _SITEMAP_URL_TEMPLATE = """<url>
+    _sitemap_url_template: Final[str] = """<url>
         <loc>{{{ loc }}}</loc>
         <lastmod>{{{ lastmod }}}</lastmod>
     </url>
     """
 
-    _SITEMAP_BATCH_TEMPLATE = """<?xml version="1.0" encoding="utf-8"?>
+    _sitemap_batch_template: Final[str] = """<?xml version="1.0" encoding="utf-8"?>
     <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
         {{{ urls }}}
     </urlset>
     """
 
-    _SITEMAP_SITEMAP_TEMPLATE = """<sitemap>
+    _sitemap_sitemap_template: Final[str] = """<sitemap>
         <loc>{{{ loc }}}</loc>
     </sitemap>
     """
 
-    _SITEMAP_TEMPLATE = """<?xml version="1.0" encoding="UTF-8"?>
+    _sitemap_template: Final[str] = """<?xml version="1.0" encoding="UTF-8"?>
     <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
         {{{ sitemaps }}}
     </sitemapindex>
@@ -179,10 +179,10 @@ class GenerateSitemap(Job):
                     absolute=True,
                 )
             )
-            rendered_sitemap_batch = self._SITEMAP_BATCH_TEMPLATE.replace(
+            rendered_sitemap_batch = self._sitemap_batch_template.replace(
                 "{{{ urls }}}",
                 "".join(
-                    self._SITEMAP_URL_TEMPLATE.replace(
+                    self._sitemap_url_template.replace(
                         "{{{ loc }}}", sitemap_batch_url
                     ).replace("{{{ lastmod }}}", context.start.isoformat())
                     for sitemap_batch_url in sitemap_batch_urls
@@ -193,10 +193,10 @@ class GenerateSitemap(Job):
                 rendered_sitemap_batch,
             )
 
-        rendered_sitemap = self._SITEMAP_TEMPLATE.replace(
+        rendered_sitemap = self._sitemap_template.replace(
             "{{{ sitemaps }}}",
             "".join(
-                self._SITEMAP_SITEMAP_TEMPLATE.replace("{{{ loc }}}", sitemap_url)
+                self._sitemap_sitemap_template.replace("{{{ loc }}}", sitemap_url)
                 for sitemap_url in sitemap_urls
             ),
         )
@@ -209,7 +209,7 @@ class GenerateRobotsTxt(Job):
     Generate a site's robots.txt.
     """
 
-    _ROBOTS_TXT_TEMPLATE = """Sitemap: {{{ sitemap }}}"""
+    _robots_txt_template: Final[str] = """Sitemap: {{{ sitemap }}}"""
 
     def __init__(self, *, project: Project):
         super().__init__(self.id_for())
@@ -225,7 +225,7 @@ class GenerateRobotsTxt(Job):
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
         url_generator = await self._project.url_generator
-        rendered_robots_txt = self._ROBOTS_TXT_TEMPLATE.replace(
+        rendered_robots_txt = self._robots_txt_template.replace(
             "{{{ sitemap }}}",
             url_generator.generate("betty-static:///sitemap.xml", absolute=True),
         )
@@ -380,7 +380,7 @@ class GenerateJsonErrorResponses(Job):
                         "$schema": await ProjectSchema.def_url(
                             self._project, "errorResponse"
                         ),
-                        "message": message.localize(DEFAULT_LOCALIZER),
+                        "message": message.localize(default_localizer),
                     }),
                 )
 

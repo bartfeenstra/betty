@@ -1,20 +1,22 @@
 from __future__ import annotations
 
 from gettext import NullTranslations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Final
 
 import pytest
 
 from betty.entities.link import Link
-from betty.locale import DEFAULT_LOCALE_TAG
+from betty.locale import default_locale_tag
 from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localize import Localizer
 from betty.wiki import NotAPageError, parse_page_link, parse_page_url
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from betty.locale.localizable import StaticTranslationsMapping
 
-_PAGE_URL_PARAMETERS = [
+_page_url_parameters: Final[Sequence[tuple[tuple[str, str], str]]] = [
     (
         ("en", "Amsterdam"),
         "http://en.wikipedia.org/wiki/Amsterdam",
@@ -44,7 +46,7 @@ _PAGE_URL_PARAMETERS = [
 
 @pytest.mark.parametrize(
     ("expected", "url"),
-    _PAGE_URL_PARAMETERS,
+    _page_url_parameters,
 )
 async def test_parse_page_url__should_return(
     expected: tuple[str, str], url: str
@@ -67,7 +69,7 @@ async def test_parse_page_url__should_error(url: str) -> None:
 
 @pytest.mark.parametrize(
     ("expected", "url"),
-    _PAGE_URL_PARAMETERS,
+    _page_url_parameters,
 )
 async def test_parse_page_link__should_return(
     expected: tuple[str, str], url: str
@@ -84,16 +86,16 @@ async def test_parse_page_link__should_return(
     "urls",
     [
         {
-            DEFAULT_LOCALE_TAG: "",
+            default_locale_tag: "",
         },
         {
-            DEFAULT_LOCALE_TAG: "ftp://en.wikipedia.org/wiki/Amsterdam",
+            default_locale_tag: "ftp://en.wikipedia.org/wiki/Amsterdam",
         },
         {
-            DEFAULT_LOCALE_TAG: "https://en.wikipedia.org/w/index.php?title=Amsterdam&action=edit",
+            default_locale_tag: "https://en.wikipedia.org/w/index.php?title=Amsterdam&action=edit",
         },
         {
-            DEFAULT_LOCALE_TAG: "https://en.wikipedia.org/wiki/Amsterdam",
+            default_locale_tag: "https://en.wikipedia.org/wiki/Amsterdam",
             None: "https://und.wikipedia.org/wiki/Amsterdam",
         },
     ],

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from betty.date import Date
 from betty.entities.place_name import PlaceName
-from betty.locale import DEFAULT_LOCALE_TAG
+from betty.locale import default_locale_tag
 from betty.locale.localizable.plain import Plain
 
 if TYPE_CHECKING:
@@ -32,5 +32,5 @@ class TestPlaceName:
         actual = await assert_dumps_linked_data(sut)
         assert actual == {
             "id": sut.id,
-            "name": {DEFAULT_LOCALE_TAG: "My First Name"},
+            "name": {default_locale_tag: "My First Name"},
         }

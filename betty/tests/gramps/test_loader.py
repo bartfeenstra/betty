@@ -5,7 +5,7 @@ import tarfile
 from asyncio.subprocess import Process
 from gettext import NullTranslations
 from pathlib import Path
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Final, Protocol
 from unittest.mock import ANY
 
 import pytest
@@ -31,7 +31,7 @@ from betty.genders.unknown import Unknown as UnknownGender
 from betty.gramps.error import UserFacingGrampsError
 from betty.gramps.loader import GrampsFileNotFound, GrampsLoader, LoaderUsedAlready
 from betty.licenses.public_domain import PublicDomain as PublicDomainLicense
-from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
+from betty.locale.localize import Localizer, default_localizer
 from betty.media_type import MediaType
 from betty.place_types.city import City
 from betty.place_types.unknown import Unknown as UnknownPlaceType
@@ -51,7 +51,7 @@ if TYPE_CHECKING:
     from betty.plugin.factory import ResolvablePluginManufacturer
     from betty.role import Role, RoleDefinition
 
-__MINIMAL_XML = """<?xml version="1.0" encoding="UTF-8"?>
+__minimal_xml: Final[str] = """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML {version}//EN"
 "http://gramps-project.org/xml/{version}/grampsxml.dtd">
 <database xmlns="http://gramps-project.org/xml/{version}/">
@@ -65,10 +65,10 @@ __MINIMAL_XML = """<?xml version="1.0" encoding="UTF-8"?>
 
 
 def _minimal_xml(version: str = "1.7.1") -> str:
-    return __MINIMAL_XML.format(version=version)
+    return __minimal_xml.format(version=version)
 
 
-_MINIMAL_GED = """
+_minimal_ged: Final[str] = """
 0 HEAD
 1 SOUR PAF
 2 NAME Personal Ancestral File
@@ -123,8 +123,8 @@ class LoadPartial(Protocol):
 
 
 class TestGrampsLoader:
-    ATTRIBUTE_PREFIX_KEY = "pre3f1x"
-    PROJECT_NAME = "pr0j3ct"
+    attribute_prefix_key: Final[str] = "pre3f1x"
+    project_name: Final[str] = "pr0j3ct"
 
     async def test_load_gramps(self, isolated_project: Project, tmp_path: Path) -> None:
         gramps_file = tmp_path / "betty.gramps"
@@ -134,7 +134,7 @@ class TestGrampsLoader:
             isolated_project.ancestry,
             user=StaticUser(),
             services=isolated_project,
-            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            attribute_prefix_key=self.attribute_prefix_key,
         )
         await sut.load_gramps(gramps_file)
 
@@ -145,7 +145,7 @@ class TestGrampsLoader:
             isolated_project.ancestry,
             user=StaticUser(),
             services=isolated_project,
-            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            attribute_prefix_key=self.attribute_prefix_key,
         )
         with pytest.raises(GrampsFileNotFound):
             await sut.load_gramps(tmp_path / "non-existent-file")
@@ -161,7 +161,7 @@ class TestGrampsLoader:
             isolated_project.ancestry,
             user=StaticUser(),
             services=isolated_project,
-            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            attribute_prefix_key=self.attribute_prefix_key,
         )
         await sut.load_gpkg(gpkg_file)
 
@@ -172,7 +172,7 @@ class TestGrampsLoader:
             isolated_project.ancestry,
             user=StaticUser(),
             services=isolated_project,
-            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            attribute_prefix_key=self.attribute_prefix_key,
         )
         with pytest.raises(GrampsFileNotFound):
             await sut.load_gpkg(tmp_path / "non-existent-file")
@@ -187,7 +187,7 @@ class TestGrampsLoader:
             isolated_project.ancestry,
             user=StaticUser(),
             services=isolated_project,
-            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            attribute_prefix_key=self.attribute_prefix_key,
         )
         await sut.load_file(gramps_file)
         with pytest.raises(LoaderUsedAlready):
@@ -206,7 +206,7 @@ class TestGrampsLoader:
             isolated_project.ancestry,
             user=StaticUser(),
             services=isolated_project,
-            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            attribute_prefix_key=self.attribute_prefix_key,
         )
         await sut.load_file(gpkg_file)
         with pytest.raises(LoaderUsedAlready):
@@ -224,7 +224,7 @@ class TestGrampsLoader:
             isolated_project.ancestry,
             user=StaticUser(),
             services=isolated_project,
-            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            attribute_prefix_key=self.attribute_prefix_key,
             executable="gramps",
         )
         await sut.load_file("my-first-family-tree.ged")
@@ -237,7 +237,7 @@ class TestGrampsLoader:
             isolated_project.ancestry,
             user=StaticUser(),
             services=isolated_project,
-            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            attribute_prefix_key=self.attribute_prefix_key,
         )
         with pytest.raises(UserFacingGrampsError):
             await sut.load_file(tmp_path / "non-existent-file")
@@ -249,7 +249,7 @@ class TestGrampsLoader:
             isolated_project.ancestry,
             user=StaticUser(),
             services=isolated_project,
-            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            attribute_prefix_key=self.attribute_prefix_key,
         )
         with pytest.raises(UserFacingGrampsError):
             await sut.load_file(Path(__file__).parent / "asset" / "minimal.invalid")
@@ -269,7 +269,7 @@ class TestGrampsLoader:
             isolated_project.ancestry,
             user=StaticUser(),
             services=isolated_project,
-            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            attribute_prefix_key=self.attribute_prefix_key,
             executable=gramps_executable,
         )
         await sut.load_name(family_tree_name)
@@ -291,7 +291,7 @@ class TestGrampsLoader:
             isolated_project.ancestry,
             user=StaticUser(),
             services=isolated_project,
-            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            attribute_prefix_key=self.attribute_prefix_key,
             executable=gramps_executable,
         )
         with pytest.raises(UserFacingGrampsError):
@@ -321,7 +321,7 @@ class TestGrampsLoader:
             ancestry,
             user=StaticUser(),
             services=project,
-            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            attribute_prefix_key=self.attribute_prefix_key,
             event_type_mapping=event_type_mapping,
             place_type_mapping=place_type_mapping,
             role_mapping=role_mapping,
@@ -331,7 +331,7 @@ class TestGrampsLoader:
 
     @pytest.fixture
     async def load_project(self) -> AsyncIterator[Project]:
-        async with Project.new_isolated(name=self.PROJECT_NAME) as project:
+        async with Project.new_isolated(name=self.project_name) as project:
             yield project
 
     @pytest.fixture
@@ -382,7 +382,7 @@ class TestGrampsLoader:
             isolated_project.ancestry,
             user=StaticUser(),
             services=isolated_project,
-            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            attribute_prefix_key=self.attribute_prefix_key,
         )
         await sut.load_xml(_minimal_xml())
 
@@ -401,7 +401,7 @@ class TestGrampsLoader:
             isolated_project.ancestry,
             user=StaticUser(),
             services=isolated_project,
-            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            attribute_prefix_key=self.attribute_prefix_key,
         )
         with pytest.raises(UserFacingGrampsError):
             await sut.load_xml(_minimal_xml(version))
@@ -424,7 +424,7 @@ class TestGrampsLoader:
             isolated_project.ancestry,
             user=StaticUser(),
             services=isolated_project,
-            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            attribute_prefix_key=self.attribute_prefix_key,
         )
         with pytest.raises(UserFacingGrampsError):
             await sut.load_xml(xml)
@@ -474,7 +474,7 @@ class TestGrampsLoader:
         names = place.names
         assert len(names) == 1
         name = names[0]
-        assert name.name.localize(DEFAULT_LOCALIZER) == "Amsterdam"
+        assert name.name.localize(default_localizer) == "Amsterdam"
 
     async def test_place_should_include_name_with_locale(
         self, load_partial: LoadPartial
@@ -491,7 +491,7 @@ class TestGrampsLoader:
         place = ancestry[Place]["P0000"]
         names = place.names
         name = names[0]
-        assert name.name.localize(DEFAULT_LOCALIZER).locale == Locale("nl")
+        assert name.name.localize(default_localizer).locale == Locale("nl")
 
     async def test_place_should_include_note(self, load_partial: LoadPartial) -> None:
         ancestry = await load_partial(
@@ -1089,7 +1089,7 @@ class TestGrampsLoader:
         )
         event = ancestry[Event]["E0000"]
         assert event.name is not None
-        assert event.name.localize(DEFAULT_LOCALIZER) == name_default
+        assert event.name.localize(default_localizer) == name_default
         assert event.name.localize(Localizer("nl", NullTranslations())) == name_nl
 
     async def test_event_should_include_description(
@@ -1107,7 +1107,7 @@ class TestGrampsLoader:
         )
         event = ancestry[Event]["E0000"]
         assert event.description is not None
-        assert event.description.localize(DEFAULT_LOCALIZER) == "Something happened!"
+        assert event.description.localize(default_localizer) == "Something happened!"
 
     async def test_event_should_include_note(self, load_partial: LoadPartial) -> None:
         ancestry = await load_partial(
@@ -1425,7 +1425,7 @@ class TestGrampsLoader:
         )
         source = ancestry[Source]["R0000"]
         assert source.name is not None
-        assert source.name.localize(DEFAULT_LOCALIZER) == "Library of Alexandria"
+        assert source.name.localize(default_localizer) == "Library of Alexandria"
 
     async def test_source_from_repository_should_include_link(
         self, load_partial: LoadPartial
@@ -1443,10 +1443,10 @@ class TestGrampsLoader:
         links = ancestry[Source]["R0000"].links
         assert len(links) == 1
         link = next(iter(links))
-        assert link.url.localize(DEFAULT_LOCALIZER) == "https://alexandria.example.com"
+        assert link.url.localize(default_localizer) == "https://alexandria.example.com"
         assert link.label is not None
         assert (
-            link.label.localize(DEFAULT_LOCALIZER) == "Library of Alexandria Catalogue"
+            link.label.localize(default_localizer) == "Library of Alexandria Catalogue"
         )
 
     async def test_source_from_source_should_include_title(
@@ -1463,7 +1463,7 @@ class TestGrampsLoader:
         )
         source = ancestry[Source]["S0000"]
         assert source.name is not None
-        assert source.name.localize(DEFAULT_LOCALIZER) == "A Whisper"
+        assert source.name.localize(default_localizer) == "A Whisper"
 
     async def test_source_from_source_should_include_author(
         self, load_partial: LoadPartial
@@ -1479,7 +1479,7 @@ class TestGrampsLoader:
         )
         source = ancestry[Source]["S0000"]
         assert source.author is not None
-        assert source.author.localize(DEFAULT_LOCALIZER) == "A Little Birdie"
+        assert source.author.localize(default_localizer) == "A Little Birdie"
 
     async def test_source_from_source_should_include_publisher(
         self, load_partial: LoadPartial
@@ -1496,7 +1496,7 @@ class TestGrampsLoader:
         source = ancestry[Source]["S0000"]
         assert source.publisher is not None
         assert (
-            source.publisher.localize(DEFAULT_LOCALIZER) == "Somewhere over the rainbow"
+            source.publisher.localize(default_localizer) == "Somewhere over the rainbow"
         )
 
     async def test_source_from_source_should_include_repository(
@@ -1583,7 +1583,7 @@ class TestGrampsLoader:
         source = ancestry[Source]["S0000"]
         assert source.links
         link = source.links.view[0]
-        assert link.url.localize(DEFAULT_LOCALIZER) == url
+        assert link.url.localize(default_localizer) == url
         assert not link.description
         assert not link.has_label
         assert link.media_type is None
@@ -1621,13 +1621,13 @@ class TestGrampsLoader:
         link = source.links.view[0]
         localizer_nl = Localizer("nl", NullTranslations())
         assert link.url.localize(localizer_nl) == url_nl
-        assert link.url.localize(DEFAULT_LOCALIZER) == url_undetermined
+        assert link.url.localize(default_localizer) == url_undetermined
         assert link.label is not None
         assert link.label.localize(localizer_nl) == label_nl
-        assert link.label.localize(DEFAULT_LOCALIZER) == label_undetermined
+        assert link.label.localize(default_localizer) == label_undetermined
         assert link.description is not None
         assert link.description.localize(localizer_nl) == description_nl
-        assert link.description.localize(DEFAULT_LOCALIZER) == description_undetermined
+        assert link.description.localize(default_localizer) == description_undetermined
         assert link.media_type == MediaType(media_type)
         assert link.relationship == relationship
 
@@ -1699,7 +1699,7 @@ class TestGrampsLoader:
         project_attribute = (
             ""
             if project_attribute_value is None
-            else f'<attribute type="betty-{self.ATTRIBUTE_PREFIX_KEY}:privacy" value="{project_attribute_value}"/>'
+            else f'<attribute type="betty-{self.attribute_prefix_key}:privacy" value="{project_attribute_value}"/>'
         )
         ancestry = await load_partial(
             f"""
@@ -1839,7 +1839,7 @@ class TestGrampsLoader:
         )
         file = ancestry[File]["O0000"]
         assert file.description is not None
-        assert file.description.localize(DEFAULT_LOCALIZER) == "My First Description"
+        assert file.description.localize(default_localizer) == "My First Description"
 
     async def test_file_not_exists_should_error(
         self, load_partial: LoadPartial, tmp_path: Path
@@ -2107,7 +2107,7 @@ class TestGrampsLoader:
 """
         )
         note = ancestry[Note]["N0000"]
-        assert note.text.localize(DEFAULT_LOCALIZER) == "I left this for you."
+        assert note.text.localize(default_localizer) == "I left this for you."
 
     async def test_note_should_include_privacy_from_element(
         self, load_partial: LoadPartial
@@ -2145,7 +2145,7 @@ class TestGrampsLoader:
         )
         citation = ancestry[Citation]["C0000"]
         assert citation.location is not None
-        assert citation.location.localize(DEFAULT_LOCALIZER) == "My First Page"
+        assert citation.location.localize(default_localizer) == "My First Page"
 
     async def test_citation_should_include_source(
         self, load_partial: LoadPartial
@@ -2232,7 +2232,7 @@ class TestGrampsLoader:
         links = ancestry[Person]["I0000"].links
         assert len(links) == 1
         link = next(iter(links))
-        assert link.url.localize(DEFAULT_LOCALIZER) == "https://alexandria.example.com"
+        assert link.url.localize(default_localizer) == "https://alexandria.example.com"
 
     async def test_url_should_include_description_as_label(
         self, load_partial: LoadPartial
@@ -2252,7 +2252,7 @@ class TestGrampsLoader:
         link = next(iter(links))
         assert link.label is not None
         assert (
-            link.label.localize(DEFAULT_LOCALIZER) == "Library of Alexandria Catalogue"
+            link.label.localize(default_localizer) == "Library of Alexandria Catalogue"
         )
 
     async def test_url_should_include_relationship(
@@ -2290,7 +2290,7 @@ class TestGrampsLoader:
             isolated_project.ancestry,
             services=isolated_project,
             user=user,
-            attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            attribute_prefix_key=self.attribute_prefix_key,
         )
         assert await sut.load_locale(locale) == expected
         if expected is None:

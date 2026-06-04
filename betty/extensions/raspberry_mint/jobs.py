@@ -5,7 +5,7 @@ Jobs for the Raspberry Mint extension.
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING, Final, override
 
 from betty.extensions._theme.search import generate_search_index
 from betty.extensions.raspberry_mint import RaspberryMint
@@ -15,11 +15,12 @@ from betty.locale import to_language_tag
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Chain
 from betty.locale.localizable.plain import Plain
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale.localize import default_localizer
 from betty.os import link_or_copy
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
+    from betty.locale.localizable import Localizable
     from betty.project import Project
 
 
@@ -37,13 +38,13 @@ class _GenerateLogo(Job):
 
 
 class _GenerateSearchIndex(Job):
-    _RESULT_CONTAINER_TEMPLATE = Plain("""
+    _result_container_template: Final[Localizable] = Plain("""
     <li class="d-flex gap-2 search-result">
         {{{ betty-search-result }}}
     </li>
     """)
 
-    _RESULTS_CONTAINER_TEMPLATE = Chain(
+    _results_container_template: Final[Localizable] = Chain(
         '<ul class="entity-list"><h3 class="h2">',
         _("Results ({{{ betty-search-results-count }}})"),
         "</h3>{{{ betty-search-results }}}</ul>",
@@ -57,8 +58,8 @@ class _GenerateSearchIndex(Job):
     async def do(self, scheduler: Scheduler, /) -> None:
         await generate_search_index(
             self._project,
-            self._RESULT_CONTAINER_TEMPLATE,
-            self._RESULTS_CONTAINER_TEMPLATE,
+            self._result_container_template,
+            self._results_container_template,
             context=scheduler.context,
         )
 
@@ -72,7 +73,7 @@ class _GenerateWebmanifest(Job):
     async def do(self, scheduler: Scheduler, /) -> None:
         raspberry_mint = await self._project.extensions[RaspberryMint]
         webmanifest = json.dumps({
-            "name": self._project.title.localize(DEFAULT_LOCALIZER),
+            "name": self._project.title.localize(default_localizer),
             "icons": [
                 {"src": "/logo" + self._project.logo.suffix},
             ],

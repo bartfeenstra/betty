@@ -15,7 +15,7 @@ from betty.licenses.spdx import (
     SpdxLicenseDiscoverer,
     spdx_license_id_to_license_id,
 )
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale.localize import default_localizer
 from betty.plugin.discovery import ResolvableDiscovery, discover
 from betty.service_level import ServiceLevel
 from betty.test_utils.conftest import IsolatedAppFactory
@@ -47,13 +47,13 @@ class TestSpdxLicenseDiscoverer:
         spdx_directory = tmp_path / "spdx"
         spdx_directory.mkdir()
         licenses_data: PortableMapping = {
-            "licenseListVersion": SpdxLicenseDiscoverer.VERSION,
+            "licenseListVersion": SpdxLicenseDiscoverer.version,
             "licenses": [],
             "releaseDate": "2024-08-19",
         }
         licenses_file = (
             spdx_directory
-            / f"license-list-data-{SpdxLicenseDiscoverer.VERSION}"
+            / f"license-list-data-{SpdxLicenseDiscoverer.version}"
             / "json"
             / "licenses.json"
         )
@@ -64,7 +64,7 @@ class TestSpdxLicenseDiscoverer:
         with tarfile.open(fileobj=spdx_file, mode="w:gz") as spdx_tar_file:
             spdx_tar_file.add(spdx_directory, "/")
         spdx_file.seek(0)
-        http_client_mock.get(SpdxLicenseDiscoverer.URL, body=spdx_file.read())
+        http_client_mock.get(SpdxLicenseDiscoverer.url, body=spdx_file.read())
 
     @pytest.fixture
     def with_licenses(
@@ -76,7 +76,7 @@ class TestSpdxLicenseDiscoverer:
         spdx_directory = tmp_path / "spdx"
         spdx_directory.mkdir()
         licenses_data: PortableMapping = {
-            "licenseListVersion": SpdxLicenseDiscoverer.VERSION,
+            "licenseListVersion": SpdxLicenseDiscoverer.version,
             "licenses": [
                 {
                     "reference": "https://spdx.org/licenses/0BSD.html",
@@ -96,7 +96,7 @@ class TestSpdxLicenseDiscoverer:
         }
         licenses_file = (
             spdx_directory
-            / f"license-list-data-{SpdxLicenseDiscoverer.VERSION}"
+            / f"license-list-data-{SpdxLicenseDiscoverer.version}"
             / "json"
             / "licenses.json"
         )
@@ -138,7 +138,7 @@ class TestSpdxLicenseDiscoverer:
         }
         license_file = (
             spdx_directory
-            / f"license-list-data-{SpdxLicenseDiscoverer.VERSION}"
+            / f"license-list-data-{SpdxLicenseDiscoverer.version}"
             / "json"
             / "details"
             / "0BSD.json"
@@ -153,7 +153,7 @@ class TestSpdxLicenseDiscoverer:
         with tarfile.open(fileobj=spdx_file, mode="w:gz") as spdx_tar_file:
             spdx_tar_file.add(spdx_directory, "/")
         spdx_file.seek(0)
-        http_client_mock.get(SpdxLicenseDiscoverer.URL, body=spdx_file.read())
+        http_client_mock.get(SpdxLicenseDiscoverer.url, body=spdx_file.read())
 
     async def assert_with_licenses(
         self, licenses: Iterable[ResolvableDiscovery[LicenseDefinition]]
@@ -163,17 +163,17 @@ class TestSpdxLicenseDiscoverer:
         assert discovered_licenses
         zero_bsd_type = discovered_licenses[0]
         assert (
-            zero_bsd_type.label.localize(DEFAULT_LOCALIZER) == "BSD Zero Clause License"
+            zero_bsd_type.label.localize(default_localizer) == "BSD Zero Clause License"
         )
         zero_bsd = await services.factory.new(zero_bsd_type.cls)
-        assert zero_bsd.summary.localize(DEFAULT_LOCALIZER) == "BSD Zero Clause License"
+        assert zero_bsd.summary.localize(default_localizer) == "BSD Zero Clause License"
         assert (
-            zero_bsd.text.localize(DEFAULT_LOCALIZER)
+            zero_bsd.text.localize(default_localizer)
             == 'Copyright (C) YEAR by AUTHOR EMAIL\n\nPermission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted.\n\nTHE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.\n'
         )
         url = zero_bsd.url
         assert url is not None
-        assert url.localize(DEFAULT_LOCALIZER) == "https://spdx.org/licenses/0BSD.html"
+        assert url.localize(default_localizer) == "https://spdx.org/licenses/0BSD.html"
 
     async def assert_without_licenses(
         self, licenses: Iterable[ResolvableDiscovery[LicenseDefinition]]

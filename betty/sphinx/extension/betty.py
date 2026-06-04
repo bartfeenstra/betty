@@ -23,7 +23,7 @@ from betty.definition.human_facing import HumanFacingDefinition
 from betty.factory import DataManufacturable
 from betty.functools import Result
 from betty.importlib import import_any
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale.localize import default_localizer
 from betty.machine_name import MachineName
 from betty.plugin.cls import PluginClsDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
@@ -127,14 +127,14 @@ class _PluginDirective(SphinxDirective):
 
     def _build_summary(self, plugin: PluginDefinition) -> nodes.Node:
         summary_nodes, _ = self.parse_inline(
-            f"The ``{plugin.id}`` :py:class:`{plugin.type().label.localize(DEFAULT_LOCALIZER).lower()} <{type(plugin).__module__}.{type(plugin).__qualname__}>` plugin."
+            f"The ``{plugin.id}`` :py:class:`{plugin.type().label.localize(default_localizer).lower()} <{type(plugin).__module__}.{type(plugin).__qualname__}>` plugin."
         )
         if isinstance(plugin, HumanFacingDefinition):
             description = plugin.description
             if description:
                 summary_nodes.append(nodes.Text(" "))
                 summary_nodes.append(
-                    nodes.Text(description.localize(DEFAULT_LOCALIZER))
+                    nodes.Text(description.localize(default_localizer))
                 )
         return nodes.paragraph("", "", *summary_nodes)
 
@@ -222,13 +222,13 @@ class _PluginTypeDirective(SphinxDirective):
             "",
             "",
             nodes.Text(
-                f"The {plugin_type.type().label.localize(DEFAULT_LOCALIZER).lower()} plugin type."
+                f"The {plugin_type.type().label.localize(default_localizer).lower()} plugin type."
             ),
         )
         description = plugin_type.type().description
         if description:
             summary_node.append(nodes.Text(" "))
-            summary_node.append(nodes.Text(description.localize(DEFAULT_LOCALIZER)))
+            summary_node.append(nodes.Text(description.localize(default_localizer)))
         return summary_node
 
     def _build_metadata(self, plugin_type: type[PluginDefinition]) -> list[nodes.Node]:
@@ -255,7 +255,7 @@ class _PluginTypeDirective(SphinxDirective):
                 "",
                 "",
                 nodes.Text(
-                    f"Built-in {plugin_type.type().label_plural.localize(DEFAULT_LOCALIZER).lower()}:"
+                    f"Built-in {plugin_type.type().label_plural.localize(default_localizer).lower()}:"
                 ),
             ),
             _build_definition_list([
@@ -276,10 +276,10 @@ class _PluginTypeDirective(SphinxDirective):
         )
         definition_nodes: MutableSequence[nodes.Node] | None = None
         if isinstance(plugin, HumanFacingDefinition):
-            definition_nodes = [nodes.Text(plugin.label.localize(DEFAULT_LOCALIZER))]
+            definition_nodes = [nodes.Text(plugin.label.localize(default_localizer))]
             if plugin.description:
                 definition_nodes.append(
-                    nodes.Text(f": {plugin.description.localize(DEFAULT_LOCALIZER)}")
+                    nodes.Text(f": {plugin.description.localize(default_localizer)}")
                 )
         return term_nodes, definition_nodes
 
@@ -293,7 +293,7 @@ class _PluginTypesDirective(SphinxDirective):
                 for plugin_type in sorted(
                     ServiceLevel().plugins,
                     key=lambda plugin_type: plugin_type.type.type().label.localize(
-                        DEFAULT_LOCALIZER
+                        default_localizer
                     ),
                 )
             ]),
@@ -303,11 +303,11 @@ class _PluginTypesDirective(SphinxDirective):
         self, plugin_type: type[PluginDefinition]
     ) -> tuple[NodesLike, NodesLike]:
         term_nodes, _ = self.parse_inline(
-            f":py:class:`{plugin_type.type().label.localize(DEFAULT_LOCALIZER)} <{plugin_type.__module__}.{plugin_type.__qualname__}>` (``{plugin_type.type().id}``)"
+            f":py:class:`{plugin_type.type().label.localize(default_localizer)} <{plugin_type.__module__}.{plugin_type.__qualname__}>` (``{plugin_type.type().id}``)"
         )
         description = plugin_type.type().description
         if description:
-            return term_nodes, nodes.Text(description.localize(DEFAULT_LOCALIZER))
+            return term_nodes, nodes.Text(description.localize(default_localizer))
         return term_nodes, None
 
 
@@ -340,7 +340,7 @@ Data
                 
 ``{field_selector.element}`` :sup:`{"optional" if isinstance(field.data, OptionalDefinition) else "required"}`
 
-    **{primary_label.localize(DEFAULT_LOCALIZER)}**
+    **{primary_label.localize(default_localizer)}**
 """
                 primary_description = (
                     field.data.description
@@ -349,7 +349,7 @@ Data
                 )
                 if primary_description is not None:
                     content += f"""
-    {primary_description.localize(DEFAULT_LOCALIZER)}
+    {primary_description.localize(default_localizer)}
 """
                 content += f"""
 
@@ -357,11 +357,11 @@ Data
 """
                 if field.label is not None:
                     content += f"""
-    *{field.data.label.localize(DEFAULT_LOCALIZER)}*
+    *{field.data.label.localize(default_localizer)}*
 """
                 if field.description is not None and field.data.description is not None:
                     content += f"""
-    *{field.data.description.localize(DEFAULT_LOCALIZER)}*
+    *{field.data.description.localize(default_localizer)}*
 """
 
         samples = list(data.samples)
@@ -376,7 +376,7 @@ Data
             for sample in samples:
                 example_content = ""
                 if len(samples) > 1:
-                    example_label = sample.label.localize(DEFAULT_LOCALIZER)
+                    example_label = sample.label.localize(default_localizer)
                     example_content += f"""
 {example_label}
 {"".join(["-" * len(example_label)])}
@@ -389,7 +389,7 @@ Data
                 for serializer in serializers:
                     serialized = serializer.dump(portable)
                     example_content += f"""
-   .. tab-item:: {serializer.plugin().label.localize(DEFAULT_LOCALIZER)}
+   .. tab-item:: {serializer.plugin().label.localize(default_localizer)}
 
       .. code-block:: {serializer.plugin().id}
 

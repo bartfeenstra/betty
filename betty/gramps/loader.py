@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from shutil import rmtree
-from typing import TYPE_CHECKING, cast, final, override
+from typing import TYPE_CHECKING, Final, cast, final, override
 from uuid import uuid4
 from xml.etree.ElementTree import tostring
 
@@ -289,16 +289,16 @@ DEFAULT_ROLE_MAPPING: Mapping[
     "Witness": Witness,
 }
 
-_DEFAULT_GRAMPS_EXECUTABLE = (
+_default_gramps_executable: Final[str] = (
     "Gramps.exe" if sys.platform.startswith("win32") else "gramps"
 )
-_GRAMPS_EXTENSIONS_NATIVE = (
+_gramps_extensions_native: Final[Sequence[str]] = (
     # Gramps package
     ".gpkg",
     # Gramps XML
     ".gramps",
 )
-_GRAMPS_EXTENSIONS_IMPORT = (
+_gramps_extensions_import: Final[Sequence[str]] = (
     # CSV
     ".csv",
     # GEDCOM
@@ -312,7 +312,10 @@ _GRAMPS_EXTENSIONS_IMPORT = (
     # vCard
     ".vcf",
 )
-_GRAMPS_EXTENSIONS = (*_GRAMPS_EXTENSIONS_NATIVE, *_GRAMPS_EXTENSIONS_IMPORT)
+_gramps_extensions: Final[Sequence[str]] = (
+    *_gramps_extensions_native,
+    *_gramps_extensions_import,
+)
 
 
 def _resolve_plugin_manufacturer_mapping[
@@ -339,7 +342,7 @@ class GrampsLoader:
     Load Gramps family history data into a project.
     """
 
-    _SUPPORTED_GRAMPS_XML_VERSION = (1, 7, 1)
+    _supported_gramps_xml_version: Final[tuple[int, int, int]] = (1, 7, 1)
 
     def __init__(
         self,
@@ -383,7 +386,7 @@ class GrampsLoader:
         self._role_mapping = _resolve_plugin_manufacturer_mapping(
             RoleManufacturer, role_mapping
         )
-        self._gramps_executable = executable or _DEFAULT_GRAMPS_EXECUTABLE
+        self._gramps_executable = executable or _default_gramps_executable
         self._services = services
 
     async def _run_gramps(self, runnee: Sequence[str]) -> Process:
@@ -432,13 +435,13 @@ class GrampsLoader:
             return await self.load_gpkg(file)
         if file.suffix == ".gramps":
             return await self.load_gramps(file)
-        if file.suffix in _GRAMPS_EXTENSIONS_IMPORT:
+        if file.suffix in _gramps_extensions_import:
             return await self._load_file_gramps_import(file)
 
         raise UserFacingGrampsError(
             _(
                 "The Gramps extension can only load the following file types: {file_extensions}"
-            ).format(file_extensions=AnyEnumeration(*sorted(_GRAMPS_EXTENSIONS)))
+            ).format(file_extensions=AnyEnumeration(*sorted(_gramps_extensions)))
         )
 
     async def _load_file_gramps_import(self, file: Path) -> None:
@@ -539,7 +542,7 @@ class GrampsLoader:
                 _(
                     "Gramps XML must be compatible with version {supported_gramps_xml_version}. Gramps XML {loaded_gramps_xml_version} is not supported."
                 ).format(
-                    supported_gramps_xml_version=f"{self._SUPPORTED_GRAMPS_XML_VERSION[0]}.{self._SUPPORTED_GRAMPS_XML_VERSION[1]}.{self._SUPPORTED_GRAMPS_XML_VERSION[2]}",
+                    supported_gramps_xml_version=f"{self._supported_gramps_xml_version[0]}.{self._supported_gramps_xml_version[1]}.{self._supported_gramps_xml_version[2]}",
                     loaded_gramps_xml_version=".".join(map(str, version)),
                 )
             )
@@ -618,11 +621,11 @@ class GrampsLoader:
         resolve(*self._ancestry)
 
     def _supports_xml_version(self, version: tuple[int, int, int]) -> bool:
-        if version[0] != self._SUPPORTED_GRAMPS_XML_VERSION[0]:
+        if version[0] != self._supported_gramps_xml_version[0]:
             return False
-        if version[1] != self._SUPPORTED_GRAMPS_XML_VERSION[1]:
+        if version[1] != self._supported_gramps_xml_version[1]:
             return False
-        return not version[2] < self._SUPPORTED_GRAMPS_XML_VERSION[2]
+        return not version[2] < self._supported_gramps_xml_version[2]
 
     def _resolve1[EntityT: Entity](
         self, entity_type: type[EntityT], handle: str
@@ -655,8 +658,8 @@ class GrampsLoader:
             )
         return found_element
 
-    _DATE_PATTERN = re.compile(r"^.{4}((-.{2})?-.{2})?$")
-    _DATE_PART_PATTERN = re.compile(r"^\d+$")
+    _date_pattern: Final[re.Pattern[str]] = re.compile(r"^.{4}((-.{2})?-.{2})?$")
+    _date_part_pattern: Final[re.Pattern[str]] = re.compile(r"^\d+$")
 
     def _load_date(self, element: ElementTree.Element) -> AnyDate | None:
         with suppress(XPathError):
@@ -705,11 +708,11 @@ class GrampsLoader:
         self, element: ElementTree.Element, value_attribute_name: str
     ) -> Date | None:
         dateval = str(element.get(value_attribute_name))
-        if self._DATE_PATTERN.fullmatch(dateval):
+        if self._date_pattern.fullmatch(dateval):
             date_parts: Sequence[int | None] = [
                 (
                     int(part)
-                    if self._DATE_PART_PATTERN.fullmatch(part) and int(part) > 0
+                    if self._date_part_pattern.fullmatch(part) and int(part) > 0
                     else None
                 )
                 for part in dateval.split("-", 2)
@@ -1309,7 +1312,9 @@ class GrampsLoader:
             )
         )
 
-    _STATICTRANSLATION_ATTRIBUTE_SUFFIX_PATTERN = re.compile(r"^:[^:]+$")
+    _static_translation_attribute_suffix_pattern: Final[re.Pattern[str]] = re.compile(
+        r"^:[^:]+$"
+    )
 
     async def _parse_attribute_static_translations(
         self, element: ElementTree.Element, tag: str, name: str
@@ -1322,7 +1327,7 @@ class GrampsLoader:
             if attribute_key == name:
                 translations[None] = attribute_value
             elif (
-                self._STATICTRANSLATION_ATTRIBUTE_SUFFIX_PATTERN.fullmatch(
+                self._static_translation_attribute_suffix_pattern.fullmatch(
                     attribute_key[name_length:]
                 )
                 is not None
@@ -1342,7 +1347,9 @@ class GrampsLoader:
             await self._user.message_warning(error)
             return None
 
-    _LINK_ATTRIBUTE_PATTERN = re.compile(r"^link-([^:]+?):(.+?)$")
+    _link_attribute_pattern: Final[re.Pattern[str]] = re.compile(
+        r"^link-([^:]+?):(.+?)$"
+    )
 
     async def _load_attribute_links(
         self,
@@ -1356,7 +1363,7 @@ class GrampsLoader:
             dict
         )
         for attribute_type, attribute_value in attributes.items():
-            match = self._LINK_ATTRIBUTE_PATTERN.fullmatch(attribute_type)
+            match = self._link_attribute_pattern.fullmatch(attribute_type)
             if match is None:
                 continue
             link_name = match.group(1)

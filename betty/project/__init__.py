@@ -13,12 +13,12 @@ from collections.abc import MutableSequence
 from contextlib import AsyncExitStack, asynccontextmanager
 from shutil import rmtree
 from tempfile import mkdtemp
-from typing import TYPE_CHECKING, Any, Literal, Self, final
+from typing import TYPE_CHECKING, Any, Final, Literal, Self, final
 from urllib.parse import urlsplit
 
 from babel import Locale
 
-from betty.about import VERSION_MAJOR
+from betty.about import version_major
 from betty.app import App
 from betty.assertions.int import assert_int
 from betty.assertions.url import assert_url
@@ -56,7 +56,7 @@ from betty.datas.license_definition import LicenseDefinitionData
 from betty.datas.place_type_definition import PlaceTypeDefinitionData
 from betty.datas.role_definition import RoleDefinitionData
 from betty.datas.str import StrDefinition
-from betty.dirs import BUILTIN_ASSET_DIRECTORY
+from betty.dirs import builtin_asset_directory
 from betty.document import Document, DocumentProviderDefinition
 from betty.entity import EntityDefinition
 from betty.entity.collection.pool import EntityPool
@@ -81,8 +81,8 @@ from betty.load import (
     LoaderManufacturer,
 )
 from betty.locale import (
-    DEFAULT_LOCALE,
     ResolvableLocale,
+    default_locale,
     resolve_locale,
     to_language_tag,
 )
@@ -138,7 +138,7 @@ if TYPE_CHECKING:
     from betty.url import UrlGenerator
 
 
-DEFAULT_LIFETIME_THRESHOLD = 123
+default_lifetime_threshold: Final[int] = 123
 """
 The default age by which people are presumed dead.
 
@@ -242,11 +242,11 @@ class Project(
             if generate_entity_list_html is None
             else tuple(map(resolve_plugin_id, generate_entity_list_html))
         )
-        self._lifetime_threshold = lifetime_threshold or DEFAULT_LIFETIME_THRESHOLD
+        self._lifetime_threshold = lifetime_threshold or default_lifetime_threshold
         self._locales = KeyedCollectionAdapter(
             {
                 project_locale.locale: project_locale
-                for locale in (locales or (DEFAULT_LOCALE,))
+                for locale in (locales or (default_locale,))
                 if (
                     project_locale := locale
                     if isinstance(locale, ProjectLocale)
@@ -256,7 +256,7 @@ class Project(
             key_resolver=resolve_locale,
         )
         self._logo = (
-            BUILTIN_ASSET_DIRECTORY / "public" / "static" / "betty-512x512.png"
+            builtin_asset_directory / "public" / "static" / "betty-512x512.png"
             if logo is None
             else resolve_path(logo)
         )
@@ -271,7 +271,7 @@ class Project(
         url_parts = urlsplit(self.url)
         self._base_url = f"{url_parts.scheme}://{url_parts.netloc}"
         self._root_path = url_parts.path.rstrip("/")
-        self._cache_directory = self.directory / ".cache" / VERSION_MAJOR
+        self._cache_directory = self.directory / ".cache" / version_major
 
     @classmethod
     async def new(cls, app: App, data: ProjectData, *, directory: StrPath) -> Self:
@@ -531,7 +531,7 @@ class Project(
         """
         The lifetime threshold indicates when people are considered dead.
 
-        This setting defaults to :py:const:`betty.project.DEFAULT_LIFETIME_THRESHOLD`.
+        This setting defaults to :py:const:`betty.project.default_lifetime_threshold`.
 
         The value is an integer expressing the age in years over which people are
         presumed to have died.
@@ -734,7 +734,7 @@ class ProjectLocale(Data["ObjectDefinition"], HasProps):
                     EventTypeDefinitionData.data().samples.get(Size.FULL).subject
                 ],
                 genders=[GenderDefinitionData.data().samples.get(Size.FULL).subject],
-                logo=BUILTIN_ASSET_DIRECTORY
+                logo=builtin_asset_directory
                 / "public"
                 / "static"
                 / "betty-512x512.png",
@@ -904,7 +904,7 @@ class ProjectData(Data, HasProps):
             )
         )
         .setter(assert_int(minimum=1))
-        .default(lambda: DEFAULT_LIFETIME_THRESHOLD)
+        .default(lambda: default_lifetime_threshold)
     )
     """
     The lifetime threshold indicates when people are considered dead.
@@ -946,7 +946,7 @@ class ProjectData(Data, HasProps):
         ),
         omit_load=True,
         omit_dump=lambda data: not data,
-    ).default(lambda: [DEFAULT_LOCALE])
+    ).default(lambda: [default_locale])
     """
     The configured locales.
     """
@@ -1015,7 +1015,7 @@ class ProjectData(Data, HasProps):
         genders: Iterable[GenderDefinitionData] = (),
         license: ResolvablePluginManufacturer[LicenseDefinition, License] | None = None,  # noqa: A002
         licenses: Iterable[LicenseDefinitionData] = (),
-        lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,
+        lifetime_threshold: int = default_lifetime_threshold,
         loaders: ResolvablePluginManufacturerSequence[LoaderDefinition, Loader] = (),
         locales: Iterable[ResolvableLocale | ProjectLocale] = (),
         logo: StrPath | None = None,

@@ -26,7 +26,7 @@ from typing import (
 
 from betty.linked_data import LinkedDataDumpable
 from betty.locale.localizable.gettext import _, ngettext
-from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
+from betty.locale.localize import Localizer, default_localizer
 from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
 from betty.media_types.html import HTML
 from betty.plugin import PluginTypeDefinition
@@ -75,7 +75,7 @@ class Document:
         self._resource_url = resource_url
         self._entity_contexts = entity_contexts if entity_contexts else EntityContexts()
         self._context = context
-        self._localizer = localizer if localizer else DEFAULT_LOCALIZER
+        self._localizer = localizer if localizer else default_localizer
         self._title = title
         self._vars = document_vars
         self._breadcrumbs = Breadcrumbs() if breadcrumbs is None else breadcrumbs

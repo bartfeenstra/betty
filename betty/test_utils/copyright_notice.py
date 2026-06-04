@@ -7,7 +7,7 @@ from __future__ import annotations
 import pytest
 
 from betty.copyright_notice import CopyrightNotice
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale.localize import default_localizer
 
 
 class CopyrightNoticeTestBase[CopyrightNoticeT: CopyrightNotice]:
@@ -26,13 +26,13 @@ class CopyrightNoticeTestBase[CopyrightNoticeT: CopyrightNotice]:
         """
         Tests :py:meth:`betty.copyright_notice.CopyrightNotice.summary` implementations.
         """
-        assert sut.summary.localize(DEFAULT_LOCALIZER)
+        assert sut.summary.localize(default_localizer)
 
     def test_text(self, sut: CopyrightNoticeT) -> None:
         """
         Tests :py:meth:`betty.copyright_notice.CopyrightNotice.text` implementations.
         """
-        assert sut.text.localize(DEFAULT_LOCALIZER)
+        assert sut.text.localize(default_localizer)
 
     def test_url(self, sut: CopyrightNoticeT) -> None:
         """
@@ -40,4 +40,4 @@ class CopyrightNoticeTestBase[CopyrightNoticeT: CopyrightNotice]:
         """
         url = sut.url
         if url is not None:
-            assert url.localize(DEFAULT_LOCALIZER)
+            assert url.localize(default_localizer)

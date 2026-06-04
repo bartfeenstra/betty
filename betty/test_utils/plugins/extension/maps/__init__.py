@@ -6,6 +6,7 @@ import re  # noqa: I001
 from collections.abc import AsyncIterator, Iterable
 from pathlib import Path
 from shutil import copytree
+from typing import Final
 
 import pytest
 from geopy import Point
@@ -26,8 +27,8 @@ from betty.tests.conftest import (
     check_skip_webpack_entry_point_provider,
 )
 
-_PLACE_ID = "P0001"
-_PLACE_NAME = "My First Place"
+_place_id: Final[str] = "P0001"
+_place_name: Final[str] = "My First Place"
 
 
 class MapsTestBase:
@@ -58,9 +59,9 @@ class MapsTestBase:
         ) as project:
             project.ancestry.add(
                 Place(
-                    id=_PLACE_ID,
+                    id=_place_id,
                     coordinates=Point(52.37277778, 4.89361111),
-                    names=[PlaceName(_PLACE_NAME)],
+                    names=[PlaceName(_place_name)],
                 ),
             )
             copytree(
@@ -104,7 +105,7 @@ class MapsTestBase:
         await expect(selected_place).to_have_class(
             re.compile("map-selected-place-visible")
         )
-        await expect(selected_place).to_contain_text(_PLACE_NAME)
+        await expect(selected_place).to_contain_text(_place_name)
         selected_place_close_button = selected_place.locator(
             ".map-selected-place-close"
         )

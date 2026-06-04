@@ -3,7 +3,7 @@ from __future__ import annotations  # noqa: D100
 import platform
 import sys
 from importlib import metadata
-from typing import TYPE_CHECKING, Self, final, override
+from typing import TYPE_CHECKING, Final, Self, final, override
 
 from rich.table import Table
 
@@ -32,7 +32,7 @@ class About(Manufacturable, Command):
     .. plugin:: command:about.
     """
 
-    _KEY_STYLE = "cyan"
+    _key_style: Final[str] = "cyan"
 
     def __init__(self, app: App, /):
         self._app = app
@@ -70,7 +70,7 @@ class About(Manufacturable, Command):
             ),
             show_header=False,
         )
-        about_project.add_column("", style=self._KEY_STYLE)
+        about_project.add_column("", style=self._key_style)
         about_project.add_column("")
         about_project.add_row(
             user.localizer._("Asset directory"),
@@ -85,7 +85,7 @@ class About(Manufacturable, Command):
     async def _about_plugins(self, user: RichUser, project: Project | None) -> None:
         services = self._app if project is None else project
         about_plugins = Table(title=user.localizer._("Plugins"))
-        about_plugins.add_column(user.localizer._("Type"), style=self._KEY_STYLE)
+        about_plugins.add_column(user.localizer._("Type"), style=self._key_style)
         about_plugins.add_column(user.localizer._("ID"))
         about_plugins.add_column(user.localizer._("Label"))
         for plugin_manager in sorted(
@@ -121,9 +121,9 @@ class About(Manufacturable, Command):
 
     async def _about_system(self, user: RichUser) -> None:
         about_system = Table(title=user.localizer._("System"), show_header=False)
-        about_system.add_column("", style=self._KEY_STYLE)
+        about_system.add_column("", style=self._key_style)
         about_system.add_column("")
-        about_system.add_row("Betty", about.VERSION_LABEL)
+        about_system.add_row("Betty", about.version_label)
         about_system.add_row(user.localizer._("Operating system"), platform.platform())
         about_system.add_row("Python", sys.version)
         user.console.print(about_system)
@@ -131,7 +131,7 @@ class About(Manufacturable, Command):
     async def _about_python_packages(self, user: RichUser) -> None:
         about_python_packages = Table(title=user.localizer._("Python packages"))
         about_python_packages.add_column(
-            user.localizer._("Package"), style=self._KEY_STYLE
+            user.localizer._("Package"), style=self._key_style
         )
         about_python_packages.add_column(user.localizer._("Version"))
         for x in sorted(

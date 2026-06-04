@@ -2,7 +2,8 @@
 Render HTML.
 """
 
-from typing import Self, override
+from collections.abc import Sequence
+from typing import Final, Self, override
 
 from betty.factory import Manufacturable
 from betty.html.url import generate_urls
@@ -14,7 +15,7 @@ from betty.project import Project
 from betty.render import Renderer, RendererDefinition
 from betty.url import UrlGenerator
 
-_ATTRIBUTES = ("href", "src")
+_attributes: Final[Sequence[str]] = ("href", "src")
 
 
 @RendererDefinition(
@@ -22,7 +23,7 @@ _ATTRIBUTES = ("href", "src")
     label="HTML",
     description=_(
         "The values of the following HTML attributes will automatically be replaced with the URLs generated from them where possible: {attributes}"
-    ).format(attributes=AllEnumeration(*_ATTRIBUTES)),
+    ).format(attributes=AllEnumeration(*_attributes)),
 )
 class Html(Manufacturable, Renderer):
     """
@@ -45,4 +46,4 @@ class Html(Manufacturable, Renderer):
 
     @override
     async def render(self, content: str, /) -> str:
-        return generate_urls(content, _ATTRIBUTES, url_generator=self._url_generator)
+        return generate_urls(content, _attributes, url_generator=self._url_generator)

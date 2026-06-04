@@ -9,7 +9,7 @@ from betty.entities.place_name import PlaceName
 
 if TYPE_CHECKING:
     from betty.test_utils.conftest import AssertTemplateFile
-from betty.asset_directories.raspberry_mint import RASPBERRY_MINT
+from betty.asset_directories.raspberry_mint import raspberry_mint
 
 
 async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
@@ -19,7 +19,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": place,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/label--place.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -32,7 +32,7 @@ async def test_with_persistent_id(assert_template_file: AssertTemplateFile) -> N
         data={
             "entity": place,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/label--place.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -45,7 +45,7 @@ async def test_with_name(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": place,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/label--place.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -62,7 +62,7 @@ async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
             "entity": place,
             "embedded": True,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/label--place.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -77,7 +77,7 @@ async def test_with_place_context(assert_template_file: AssertTemplateFile) -> N
             "entity": place,
             "document": Document(entity_contexts=EntityContexts(place)),
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/label--place.html.j2",
     ) as (actual, _):
         assert actual == expected
@@ -103,7 +103,7 @@ async def test_with_date_context(assert_template_file: AssertTemplateFile) -> No
             "entity": place,
             "date_context": Date(1970, 1, 1),
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/label--place.html.j2",
     ) as (actual, _):
         assert actual == expected

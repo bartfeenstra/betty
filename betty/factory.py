@@ -8,7 +8,7 @@ import inspect
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable
 from inspect import Parameter
-from typing import Self, final, overload
+from typing import Final, Self, final, overload
 
 from betty.asyncio import resolve_await
 from betty.data import Data
@@ -75,7 +75,9 @@ class Factory:
     The object factory.
     """
 
-    _SIGNATURE_MESSAGE = f'any required arguments, except optionally a first argument typed on {fully_qualified_name(ServiceLevel)} and/or named "services".'
+    _signature_message: Final[str] = (
+        f'any required arguments, except optionally a first argument typed on {fully_qualified_name(ServiceLevel)} and/or named "services".'
+    )
 
     def __init__(self, services: ServiceLevel, /):
         self._services = services
@@ -102,12 +104,12 @@ class Factory:
             args = self._args(target)
             if args is None:
                 raise UnsupportedTarget(
-                    f"{fully_qualified_name(target)} must subclass {fully_qualified_name(Manufacturable)} or have an __init__() method without  {self._SIGNATURE_MESSAGE}"
+                    f"{fully_qualified_name(target)} must subclass {fully_qualified_name(Manufacturable)} or have an __init__() method without  {self._signature_message}"
                 )
             return target(*args)
         args = self._args(target)
         if args is None:
-            raise UnsupportedTarget(f"{target} must not have {self._SIGNATURE_MESSAGE}")
+            raise UnsupportedTarget(f"{target} must not have {self._signature_message}")
         return await resolve_await(target(*args))
 
     def _args(self, target: FactoryTarget) -> tuple | None:

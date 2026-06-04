@@ -1,9 +1,9 @@
 from gettext import NullTranslations
 
 from betty.attrs.localizable import new_localizable_attr
-from betty.locale import DEFAULT_LOCALE_TAG
+from betty.locale import default_locale_tag
 from betty.locale.localizable.plain import Plain
-from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
+from betty.locale.localize import Localizer, default_localizer
 from betty.prop import HasProps
 
 
@@ -15,7 +15,7 @@ def test_new_localizable_attr____set___with_str() -> None:
     owner = _Owner()
     translation = "Hello, world!"
     owner.attr = translation
-    assert owner.attr.localize(DEFAULT_LOCALIZER) == translation
+    assert owner.attr.localize(default_localizer) == translation
 
 
 def test_new_localizable_attr____set___with_mapping() -> None:
@@ -23,7 +23,7 @@ def test_new_localizable_attr____set___with_mapping() -> None:
     translation = "Hello, world!"
     locale = "nl-NL"
     owner.attr = {  # ty:ignore[invalid-assignment]
-        DEFAULT_LOCALE_TAG: "Hello, world!",
+        default_locale_tag: "Hello, world!",
         locale: translation,
     }
     assert owner.attr.localize(Localizer(locale, NullTranslations())) == translation

@@ -2,7 +2,7 @@ from __future__ import annotations  # noqa: D100
 
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.about import IS_DEVELOPMENT
+from betty.about import is_development
 from betty.app import App
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.factory import Manufacturable
@@ -46,6 +46,6 @@ class DevUpdateTranslations(Manufacturable, Command):
 
 
 def _discover(_: ServiceLevel) -> Iterable[ResolvableDiscovery[CommandDefinition]]:
-    if not IS_DEVELOPMENT:
+    if not is_development:
         raise UnmetRequirement("This is only available when developing Betty")
     yield DevUpdateTranslations

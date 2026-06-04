@@ -1,7 +1,7 @@
-from betty.asset_directories.raspberry_mint import RASPBERRY_MINT
+from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.entities.enclosure import Enclosure
 from betty.entities.place import Place
-from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.locale.localize import default_localizer
 from betty.place_types.country import Country
 from betty.test_utils.conftest import AssertTemplateFile
 
@@ -12,7 +12,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": place,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/summary--place.html.j2",
     ) as (actual, _):
         assert actual == '<div class="small"></div>'
@@ -26,10 +26,10 @@ async def test_with_non_unknown_place_type(
         data={
             "entity": place,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/summary--place.html.j2",
     ) as (actual, _):
-        assert Country.plugin().label.localize(DEFAULT_LOCALIZER) in actual
+        assert Country.plugin().label.localize(default_localizer) in actual
 
 
 async def test_with_encloser(assert_template_file: AssertTemplateFile) -> None:
@@ -40,7 +40,7 @@ async def test_with_encloser(assert_template_file: AssertTemplateFile) -> None:
         data={
             "entity": place,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
         template="entity/summary--place.html.j2",
     ) as (actual, _):
         assert encloser_place.public_id in actual

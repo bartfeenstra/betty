@@ -1,4 +1,4 @@
-from betty.asset_directories.raspberry_mint import RASPBERRY_MINT
+from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.entities.source import Source
 from betty.test_utils.conftest import AssertTemplateFile
 
@@ -11,7 +11,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         data={
             "source": source,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
     ) as (actual, _):
         assert actual == expected
 
@@ -26,7 +26,7 @@ async def test_with_contained_by(assert_template_file: AssertTemplateFile) -> No
         data={
             "source": source,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
     ) as (actual, _):
         assert actual == expected
 
@@ -43,6 +43,6 @@ async def test_with_source_context(
             "source": source,
             "source_context": contained_by_source,
         },
-        assets={RASPBERRY_MINT},
+        assets={raspberry_mint},
     ) as (actual, _):
         assert actual == expected

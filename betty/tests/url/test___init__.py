@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any
 import pytest
 from babel import Locale
 
-from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, ResolvableLocale
+from betty.locale import ResolvableLocale, default_locale, default_locale_tag
 from betty.media_types.html import HTML
 from betty.url import PassthroughUrlGenerator, generate_from_path
 
@@ -54,7 +54,7 @@ class TestPassthroughUrlGenerator:
             (
                 expected,
                 "/",
-                {DEFAULT_LOCALE: DEFAULT_LOCALE_TAG},
+                {default_locale: default_locale_tag},
                 False,
                 path,
                 False,
@@ -75,7 +75,7 @@ class TestPassthroughUrlGenerator:
             (
                 expected,
                 "/",
-                {DEFAULT_LOCALE: DEFAULT_LOCALE_TAG},
+                {default_locale: default_locale_tag},
                 False,
                 path,
                 True,
@@ -96,7 +96,7 @@ class TestPassthroughUrlGenerator:
             (
                 expected,
                 "/",
-                {DEFAULT_LOCALE: DEFAULT_LOCALE_TAG},
+                {default_locale: default_locale_tag},
                 True,
                 path,
                 False,
@@ -117,7 +117,7 @@ class TestPassthroughUrlGenerator:
             (
                 expected,
                 "/",
-                {DEFAULT_LOCALE: DEFAULT_LOCALE_TAG, Locale("nl", "NL"): "nl"},
+                {default_locale: default_locale_tag, Locale("nl", "NL"): "nl"},
                 False,
                 path,
                 False,
@@ -138,7 +138,7 @@ class TestPassthroughUrlGenerator:
             (
                 expected,
                 "/",
-                {DEFAULT_LOCALE: DEFAULT_LOCALE_TAG},
+                {default_locale: default_locale_tag},
                 False,
                 path,
                 False,
@@ -159,7 +159,7 @@ class TestPassthroughUrlGenerator:
             (
                 expected,
                 "/",
-                {DEFAULT_LOCALE: DEFAULT_LOCALE_TAG},
+                {default_locale: default_locale_tag},
                 False,
                 path,
                 False,

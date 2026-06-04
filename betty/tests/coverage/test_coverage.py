@@ -7,12 +7,12 @@ from enum import Enum
 from importlib import import_module
 from inspect import getmembers, isclass, isdatadescriptor, isfunction
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Protocol, cast
+from typing import TYPE_CHECKING, Any, Final, Protocol, cast
 
 import pytest
 
 from betty.data import Data
-from betty.dirs import ROOT_DIRECTORY
+from betty.dirs import root_directory
 from betty.html.attributes import Attributes
 from betty.plugin import PluginDefinition
 from betty.plugin.cls import Plugin
@@ -748,7 +748,7 @@ class TestCoverage:
 
 
 def _module_path_to_name(module: Path) -> str:
-    relative_module_path = module.relative_to(ROOT_DIRECTORY)
+    relative_module_path = module.relative_to(root_directory)
     module_name_parts = relative_module_path.parent.parts
     if relative_module_path.name != "__init__.py":
         module_name_parts = (*module_name_parts, relative_module_path.name[:-3])
@@ -765,14 +765,14 @@ class CoverageTester:
     async def test(self) -> Mapping[Path, Iterable[str]]:
         return {
             file: self._test_python_file(file)
-            for directory, _, file_names in (ROOT_DIRECTORY / "betty").resolve().walk()
+            for directory, _, file_names in (root_directory / "betty").resolve().walk()
             for file_name in file_names
             if file_name.endswith(".py")
             if (file := directory / file_name)
         }
 
     def _test_python_file(self, file: Path, /) -> Iterable[str]:
-        if ROOT_DIRECTORY / "betty" / "tests" in file.parents:
+        if root_directory / "betty" / "tests" in file.parents:
             if file.name.startswith("test_"):
                 return self._test_python_test_file(file)
             return ()
@@ -780,10 +780,10 @@ class CoverageTester:
 
     def _test_python_src_file(self, file: Path, /) -> Iterable[str]:
         expected_test_module_path = (
-            ROOT_DIRECTORY
+            root_directory
             / "betty"
             / "tests"
-            / file.relative_to(ROOT_DIRECTORY / "betty").parent
+            / file.relative_to(root_directory / "betty").parent
             / f"test_{file.name}"
         )
         return _ModuleCoverageTester(
@@ -794,9 +794,9 @@ class CoverageTester:
 
     def _test_python_test_file(self, file: Path, /) -> Iterable[str]:
         expected_src_module_path = (
-            ROOT_DIRECTORY
+            root_directory
             / "betty"
-            / file.relative_to(ROOT_DIRECTORY / "betty" / "tests").parent
+            / file.relative_to(root_directory / "betty" / "tests").parent
             / file.name[5:]
         )
         if expected_src_module_path in self._ignore_src_module_paths and isinstance(
@@ -990,7 +990,7 @@ class _ModuleClassCoverageTester:
 
         yield f"Failed to find the test class {self._test_module_name}.{expected_test_class_name} for the source class {self._src_module_name}.{self._src_class.__name__}."
 
-    _EXCLUDE_DUNDER_METHODS = (
+    _exclude_dunder_methods: Final[Sequence[str]] = (
         "__annotate_func__",
         "__init__",
         "__new__",
@@ -1004,7 +1004,7 @@ class _ModuleClassCoverageTester:
             if (
                 name.startswith("__")
                 and name.endswith("__")
-                and name not in self._EXCLUDE_DUNDER_METHODS
+                and name not in self._exclude_dunder_methods
             ):
                 return True
             # Skip private members.

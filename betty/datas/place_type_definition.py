@@ -10,7 +10,7 @@ from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.countable_human_facing_plugin_definition import (
     CountableHumanFacingPluginDefinitionData,
 )
-from betty.locale import DEFAULT_LOCALE
+from betty.locale import default_locale
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import CountableStaticTranslations
 from betty.place_type import PlaceType, PlaceTypeDefinition
@@ -27,7 +27,7 @@ from betty.sample import Sample
                 label="Moon",
                 label_plural="Moons",
                 label_countable=CountableStaticTranslations({
-                    DEFAULT_LOCALE: {
+                    default_locale: {
                         "one": "{count} moon",
                         "other": "{count} moons",
                     }

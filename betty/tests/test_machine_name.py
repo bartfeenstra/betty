@@ -1,11 +1,12 @@
-from typing import Any
+from collections.abc import Sequence
+from typing import Any, Final
 
 import pytest
 
 from betty.exception import HumanFacingException
 from betty.machine_name import InvalidMachineName, MachineName
 
-VALID_MACHINE_NAMES = (
+VALID_MACHINE_NAMES: Final[Sequence[str]] = (
     "a",
     "-a",
     "--a",
@@ -20,7 +21,7 @@ VALID_MACHINE_NAMES = (
     "machinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachi",
 )
 
-INVALID_MACHINE_NAMES = (
+INVALID_MACHINE_NAMES: Final[Sequence[str]] = (
     # Underscores.
     "package_machine",
     "package_module_machine",
