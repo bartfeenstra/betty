@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from betty.attrs.collection_attr import CollectionAttrAttr
+from betty.attrs.owner import CollectionOwnerAttr
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
 from betty.datas.plugin_definition import PluginDefinitionData
 from betty.locale.localizable.gettext import _
@@ -27,12 +27,12 @@ class OrderedPluginDefinitionData[PluginDefinitionT: OrderedPluginDefinition](
     .. data:: betty.datas.ordered_plugin_definition:OrderedPluginDefinitionData
     """
 
-    after = CollectionAttrAttr(
+    after = CollectionOwnerAttr(
         SequenceDefinition(cls=list, label=_("After"), value=MachineName),
         omit_load=True,
         omit_dump=lambda data: not len(data),
     )
-    before = CollectionAttrAttr(
+    before = CollectionOwnerAttr(
         SequenceDefinition(cls=list, label=_("Before"), value=MachineName),
         omit_load=True,
         omit_dump=lambda data: not len(data),

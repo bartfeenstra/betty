@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
-from betty.attrs.attr import AttrAttr
 from betty.attrs.locale import HasLocale
+from betty.attrs.owner import OwnerAttr
 from betty.attrs.privacy import HasPrivacy
 from betty.datas.str import StrDefinition
 from betty.entity import Entity, EntityDefinition
@@ -45,7 +45,7 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
     .. plugin:: entity:person-name.
     """
 
-    affiliation = AttrAttr(StrDefinition(label=_("Affiliation name"))).optional
+    affiliation = OwnerAttr(StrDefinition(label=_("Affiliation name"))).optional
     """
     The name's affiliation, or family component.
 
@@ -60,7 +60,7 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
         self._assert_names(self.individual, name)
         return name
 
-    individual = AttrAttr(StrDefinition(label=_("Individual name"))).optional
+    individual = OwnerAttr(StrDefinition(label=_("Individual name"))).optional
     """
     The name's individual component.
 

@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from betty.datas.aggregate.record import FieldDefinition
 
 
-class Attr[OwnerT: HasProps, GetT, SetT](Prop[OwnerT, GetT, SetT]):
+class Attr[OwnerT: HasProps, GetT, SetT = Any](Prop[OwnerT, GetT, SetT]):
     """
     An object attribute with a data definition.
     """

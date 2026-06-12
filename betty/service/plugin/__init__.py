@@ -35,7 +35,7 @@ if TYPE_CHECKING:
     from betty.machine_name import MachineName
     from betty.requirement import Requirement
     from betty.service_level import ServiceLevel
-    from betty.typing import Intersection
+    from betty.typing import Intersection as Intersection
 
 
 type SupportedPlugins = Iterable[ResolvablePluginDefinition]
@@ -58,10 +58,7 @@ class _PluginServiceRequirementGetter(Singleton):
     def __get__(
         self,
         instance: PluginServiceManager[
-            Intersection[PluginServiceProvider, ServiceLevel],
-            PluginDefinition,
-            Any,
-            Any,
+            PluginServiceProvider, PluginDefinition, Any, Any
         ],
         owner: type[PluginServiceManager] | None = None,
     ) -> _PluginServiceRequirementPlugins:

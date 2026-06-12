@@ -1,75 +1,102 @@
 """
-Attributes that store data in instance attributes.
+Attributes that store data in owner instance attributes.
 """
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final
+from collections.abc import Callable, Collection, Iterable
+from typing import TYPE_CHECKING, Any, final, override
 
-from betty.attr import Attr
+from betty.attrs.default import DefaultCollectionAttr
+from betty.attrs.settable import SettableAttr
+from betty.data import DataDefinition, ResolvableDataDefinition, resolve_data_definition
+from betty.datas.aggregate.record import FieldDefinition
 from betty.prop import HasProps
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from betty.datas.aggregate.collection import CollectionDefinition
+    from betty.indicator.selector import Element
+    from betty.locale.localizable import ResolvableLocalizable
 
 
-class OwnerAttr[OwnerT: HasProps, GetT, SetT](Attr[OwnerT, GetT, SetT]):
+@final
+class OwnerAttr[OwnerT: HasProps, T](SettableAttr[OwnerT, T, T]):
     """
     An object attribute that stores its data on owner instances.
     """
 
-    @final
-    def _owner_attr(self, attr: str) -> str:
-        return f"_attr_{self.prop.name}_{attr}"
-
-    @final
-    def _has_owner_attr(self, owner: OwnerT, /) -> bool:
-        """
-        Check if the owner has an object attribute.
-        """
-        return hasattr(owner, self._owner_attr("value"))
-
-    @final
-    def _get_owner_attr(self, owner: OwnerT, /) -> GetT:
-        """
-        Get the value from the owner's object attribute.
-        """
-        return getattr(owner, self._owner_attr("value"))
-
-    @final
-    def _set_owner_attr(self, owner: OwnerT, value: GetT, /) -> None:
-        """
-        Set the value to the owner's object attribute.
-        """
-        setattr(owner, self._owner_attr("value"), value)
-
-    def default(
-        self, default: Callable[[], SetT] | Callable[[OwnerT], SetT]
-    ) -> OwnerAttr[OwnerT, GetT, SetT]:
-        """
-        Create a new attribute that proxies this one, and sets a default value.
-        """
-        from betty.attrs.default import DefaultAttr
-
-        return DefaultAttr(self, default)
-
-    @property
-    def optional(self) -> OwnerAttr[OwnerT, GetT | None, SetT | None]:
-        """
-        Return a new attribute like this one, but that also allows ``None``.
-        """
-        from betty.attrs.optional import Optional
-
-        return Optional(self)
-
-    def setter[SetterSetT](
+    def __init__(
         self,
-        setter: Callable[[SetterSetT], SetT] | Callable[[OwnerT, SetterSetT], SetT],
+        data: ResolvableDataDefinition[DataDefinition[T]],
         /,
-    ) -> OwnerAttr[OwnerT, GetT, SetterSetT]:
-        """
-        Return a new attribute like this one, but with the given setter.
-        """
-        from betty.attrs.setter import SetterAttr
+        *,
+        label: ResolvableLocalizable | None = None,
+        description: ResolvableLocalizable | None = None,
+    ):
+        super().__init__(
+            FieldDefinition(data, label=label, description=description),
+        )
+        self._data = data
 
-        return SetterAttr(self, setter)
+    @final
+    @override
+    def get(self, owner: OwnerT, /) -> T:
+        return getattr(owner, self.prop.owner_attr)
+
+    @override
+    def set(self, owner: OwnerT, value: T, /) -> None:
+        setattr(owner, self.prop.owner_attr, value)
+
+
+@final
+class CollectionOwnerAttr[
+    OwnerT: HasProps,
+    MutableCollectionT: Collection[Any],
+    ValuesSetT: Iterable,
+](SettableAttr[OwnerT, MutableCollectionT, ValuesSetT]):
+    """
+    An object attribute that stores its collection of data on owner instances.
+    """
+
+    def __init__(
+        self,
+        data: ResolvableDataDefinition[
+            CollectionDefinition[MutableCollectionT, ValuesSetT, Element[Any]]
+        ],
+        *,
+        description: ResolvableLocalizable | None = None,
+        label: ResolvableLocalizable | None = None,
+        omit_dump: Callable[[MutableCollectionT], bool]
+        | Callable[[OwnerT, MutableCollectionT], bool]
+        | None = None,
+        omit_load: bool = False,
+    ):
+        super().__init__(
+            FieldDefinition(
+                data,
+                label=label,
+                description=description,
+                omit_load=omit_load,
+                omit_dump=omit_dump,
+            ),
+        )
+        self._data_collection = resolve_data_definition(data)
+
+    @override
+    def init_owner(self, owner: OwnerT, /) -> None:
+        super().init_owner(owner)
+        setattr(owner, self.prop.owner_attr, self._data_collection.new())
+
+    @override
+    def get(self, owner: OwnerT, /) -> MutableCollectionT:
+        return getattr(owner, self.prop.owner_attr)
+
+    @override
+    def set(self, owner: OwnerT, value: ValuesSetT, /) -> None:
+        self._data_collection.replace(self.get(owner), value)
+
+    @override
+    def default(
+        self, default: Callable[[], ValuesSetT] | Callable[[OwnerT], ValuesSetT]
+    ) -> SettableAttr[OwnerT, MutableCollectionT, ValuesSetT]:
+        return DefaultCollectionAttr(self, default)

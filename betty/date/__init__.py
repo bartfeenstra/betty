@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any, final, override
 
 from babel import dates
 
-from betty.attrs.attr import AttrAttr
+from betty.attrs.owner import OwnerAttr
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.bool import BoolDefinition
@@ -81,10 +81,10 @@ class Date(Localizable, Data, HasProps):
         (False,): _("{date}"),
     }
 
-    year = AttrAttr(IntDefinition(label=_("Year"))).optional
-    month = AttrAttr(IntDefinition(label=_("Month"))).optional
-    day = AttrAttr(IntDefinition(label=_("Day"))).optional
-    fuzzy = AttrAttr(BoolDefinition(label=_("Fuzzy"))).default(lambda: False)
+    year = OwnerAttr(IntDefinition(label=_("Year"))).optional
+    month = OwnerAttr(IntDefinition(label=_("Month"))).optional
+    day = OwnerAttr(IntDefinition(label=_("Day"))).optional
+    fuzzy = OwnerAttr(BoolDefinition(label=_("Fuzzy"))).default(lambda: False)
 
     def __init__(
         self,
@@ -272,12 +272,12 @@ class DateRange(Localizable, Data, HasProps):
         (None, None, True, True): _("sometime before around {end_date}"),
     }
 
-    start = AttrAttr(Date).optional
-    start_is_boundary = AttrAttr(
+    start = OwnerAttr(Date).optional
+    start_is_boundary = OwnerAttr(
         BoolDefinition(label=_("Start date is a boundary"))
     ).default(lambda: False)
-    end = AttrAttr(Date).optional
-    end_is_boundary = AttrAttr(
+    end = OwnerAttr(Date).optional
+    end_is_boundary = OwnerAttr(
         BoolDefinition(label=_("End date is a boundary"))
     ).default(lambda: False)
 

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, override
 
-from betty.attrs.attr import AttrAttr
+from betty.attrs.owner import OwnerAttr
 from betty.datas.locale import LocaleDefinition
 from betty.json_schema import Null, OneOf
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
@@ -18,7 +18,7 @@ from betty.prop import HasProps
 if TYPE_CHECKING:
     from babel import Locale
 
-    from betty.attrs.owner import OwnerAttr
+    from betty.attrs.settable import SettableAttr
     from betty.locale.localizable import ResolvableLocalizable
     from betty.portable import PortableMapping
     from betty.project import Project
@@ -28,11 +28,11 @@ def new_locale_attr(
     *,
     label: ResolvableLocalizable | None = None,
     description: ResolvableLocalizable | None = None,
-) -> OwnerAttr[HasProps, Locale, ResolvableLocale]:
+) -> SettableAttr[HasProps, Locale, ResolvableLocale]:
     """
     Create an attribute containing a locale.
     """
-    return AttrAttr(LocaleDefinition(), label=label, description=description).setter(
+    return OwnerAttr(LocaleDefinition(), label=label, description=description).setter(
         resolve_locale
     )
 

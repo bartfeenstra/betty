@@ -12,8 +12,8 @@ from typing import TYPE_CHECKING, Final, Generic, Self, TypeVar, final, override
 from betty.assertions.if_else import assert_if_else
 from betty.assertions.mapping import assert_mapping
 from betty.assertions.record import Field, assert_record
-from betty.attrs.attr import AttrAttr
 from betty.attrs.machine_name import new_machine_name_attr
+from betty.attrs.owner import OwnerAttr
 from betty.data import Data, DataDefinition
 from betty.datas.aggregate.record import PortableRecord
 from betty.datas.aggregate.record.object import ObjectDefinition
@@ -66,7 +66,7 @@ class PluginManufacturer(
     The plugin ID.
     """
 
-    plugin_data = AttrAttr(
+    plugin_data = OwnerAttr(
         DataDefinition[Data | PortableData | VoidType, PortableData](
             cls=object, label=_("Data")
         )
