@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, final, override
 
 from sphinx.util.inspect import signature
 
-from betty.attrs.owner import OwnerAttr
+from betty.attrs.settable import SettableAttr
 from betty.prop import HasProps, ProxyProp
 
 if TYPE_CHECKING:
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 @final
 class SetterAttr[OwnerT: HasProps, GetT, SetT](
-    ProxyProp[OwnerT, GetT, SetT], OwnerAttr[OwnerT, GetT, SetT]
+    ProxyProp[OwnerT, GetT, SetT], SettableAttr[OwnerT, GetT, SetT]
 ):
     """
     An attribute with an additional setter.
@@ -25,7 +25,7 @@ class SetterAttr[OwnerT: HasProps, GetT, SetT](
 
     def __init__[ProxiedSetT](
         self,
-        proxied: OwnerAttr[OwnerT, GetT, ProxiedSetT],
+        proxied: SettableAttr[OwnerT, GetT, ProxiedSetT],
         setter: Callable[[SetT], ProxiedSetT] | Callable[[OwnerT, SetT], ProxiedSetT],
     ):
         super().__init__(proxied.field, proxied=proxied)

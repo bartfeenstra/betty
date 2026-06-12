@@ -6,14 +6,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.attrs.collection_attr import CollectionAttrAttr
+from betty.attrs.owner import CollectionOwnerAttr
 from betty.datas.plugin_manufacturer_sequence import (
     PluginManufacturerSequenceDefinition,
 )
 from betty.plugin.cls import PluginClsDefinition
 
 if TYPE_CHECKING:
-    from betty.attrs.owner import OwnerAttr
+    from betty.attrs.settable import SettableAttr
     from betty.collection.sequence import MutableResolvedSequence
     from betty.locale.localizable import ResolvableLocalizable
     from betty.plugin.factory import (
@@ -32,7 +32,7 @@ def new_plugin_manufacturer_sequence_attr[
     *,
     label: ResolvableLocalizable | None = None,
     description: ResolvableLocalizable | None = None,
-) -> OwnerAttr[
+) -> SettableAttr[
     HasProps,
     MutableResolvedSequence[
         PluginManufacturer[PluginDefinitionT, PluginT],
@@ -43,7 +43,7 @@ def new_plugin_manufacturer_sequence_attr[
     """
     Create an attribute containing a sequence of :py:class:`betty.plugin.factory.PluginManufacturer`.
     """
-    return CollectionAttrAttr(
+    return CollectionOwnerAttr(
         PluginManufacturerSequenceDefinition(manufacturer),
         label=label,
         description=description,

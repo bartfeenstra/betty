@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.attrs.attr import AttrAttr
+from betty.attrs.owner import OwnerAttr
 from betty.datas.countable_localizable import CountableLocalizableDefinition
 from betty.locale.localizable import (
     CountableLocalizable,
@@ -16,16 +16,16 @@ from betty.locale.localizable import (
 )
 
 if TYPE_CHECKING:
-    from betty.attrs.owner import OwnerAttr
+    from betty.attrs.settable import SettableAttr
     from betty.prop import HasProps
 
 
 def new_countable_localizable_attr(
     *, label: ResolvableLocalizable, description: ResolvableLocalizable | None = None
-) -> OwnerAttr[HasProps, CountableLocalizable, ResolvableCountableLocalizable]:
+) -> SettableAttr[HasProps, CountableLocalizable, ResolvableCountableLocalizable]:
     """
     Create an attribute containing a :py:class:`betty.locale.localizable.CountableLocalizable`.
     """
-    return AttrAttr(
+    return OwnerAttr(
         CountableLocalizableDefinition(), label=label, description=description
     ).setter(resolve_countable_localizable)

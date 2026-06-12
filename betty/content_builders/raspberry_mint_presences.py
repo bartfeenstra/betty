@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.asset_directories.raspberry_mint import raspberry_mint
-from betty.attrs.attr import AttrAttr
+from betty.attrs.owner import OwnerAttr
 from betty.content import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.data import Data
@@ -54,14 +54,14 @@ class PresencesData(Data, HasProps):
     .. data:: betty.content_builders.raspberry_mint_presences:PresencesData
     """
 
-    exclude = AttrAttr(
+    exclude = OwnerAttr(
         SequenceDefinition(cls=list, value=MachineName, label=_("Exclude"))
     ).optional
     """
     The presence roles for which to exclude presences.
     """
 
-    include = AttrAttr(
+    include = OwnerAttr(
         SequenceDefinition(cls=list, value=MachineName, label=_("Include"))
     ).optional
     """

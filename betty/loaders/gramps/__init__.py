@@ -6,8 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.attrs.attr import AttrAttr
-from betty.attrs.collection_attr import CollectionAttrAttr
+from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.attrs.path import new_path_attr
 from betty.collection.mapping import MutableResolvedMapping
 from betty.collection.mapping.adapter import MutableResolvedMappingAdapter
@@ -41,7 +40,8 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, MutableMapping
     from pathlib import Path
 
-    from betty.attr import Attr
+    from betty.attr import Attr as Attr
+    from betty.attrs.settable import SettableAttr
     from betty.entity.collection.pool import EntityPool
     from betty.job.scheduler import Scheduler
     from betty.locale.localizable import ResolvableLocalizable
@@ -54,12 +54,12 @@ def _new_plugin_mapping_attr[PluginDefinitionT: PluginClsDefinition, PluginT: Pl
     manufacturer: type[PluginManufacturer[PluginDefinitionT, PluginT]],
     gramps_label: ResolvableLocalizable,
     default: Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]],
-) -> Attr[
+) -> SettableAttr[
     HasProps,
     MutableMapping[str, PluginManufacturer[PluginDefinitionT, PluginT]],
     Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]],
 ]:
-    return CollectionAttrAttr(
+    return CollectionOwnerAttr(
         MappingDefinition(
             cls=MutableResolvedMapping,
             factory=lambda: MutableResolvedMappingAdapter[
@@ -109,7 +109,7 @@ class FamilyTree(Data, HasProps):
     The path to a Gramps family tree file.
     """
 
-    name = AttrAttr(StrDefinition(label=_("Name"))).optional
+    name = OwnerAttr(StrDefinition(label=_("Name"))).optional
     """
     The family tree's name in Gramps.
     """
@@ -230,7 +230,7 @@ class GrampsData(Data, HasProps):
     .. data:: betty.loaders.gramps:GrampsData
     """
 
-    family_trees = CollectionAttrAttr(
+    family_trees = CollectionOwnerAttr(
         SequenceDefinition(cls=list, value=FamilyTree, label=_("Family trees")),
         omit_load=True,
         omit_dump=lambda data: not len(data),

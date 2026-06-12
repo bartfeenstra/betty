@@ -10,8 +10,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.asset_directories.raspberry_mint import raspberry_mint
-from betty.attrs.attr import AttrAttr
-from betty.attrs.collection_attr import CollectionAttrAttr
+from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.collection.mapping import MutableResolvedMapping, ResolvedMapping
 from betty.collection.mapping.adapter import (
     MutableResolvedMappingAdapter,
@@ -98,22 +97,22 @@ class RaspberryMintData(Data, HasProps):
     .. data:: betty.extensions.raspberry_mint:RaspberryMintData
     """
 
-    primary_color = AttrAttr(ColorDefinition(), label=_("Primary color")).optional
+    primary_color = OwnerAttr(ColorDefinition(), label=_("Primary color")).optional
     """
     The primary color.
     """
 
-    secondary_color = AttrAttr(ColorDefinition(), label=_("Secondary color")).optional
+    secondary_color = OwnerAttr(ColorDefinition(), label=_("Secondary color")).optional
     """
     The secondary color.
     """
 
-    tertiary_color = AttrAttr(ColorDefinition(), label=_("Tertiary color")).optional
+    tertiary_color = OwnerAttr(ColorDefinition(), label=_("Tertiary color")).optional
     """
     The tertiary color.
     """
 
-    regional_content = CollectionAttrAttr(
+    regional_content = CollectionOwnerAttr(
         MappingDefinition(
             cls=MutableResolvedMapping,
             factory=lambda: MutableResolvedMappingAdapter(

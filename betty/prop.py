@@ -45,6 +45,7 @@ class PropDefinition[OwnerT: HasProps]:
     The definition of a property on a class.
     """
 
+    prop: Prop[OwnerT, Any]
     owner: type[OwnerT]
     name: str
 
@@ -55,6 +56,13 @@ class PropDefinition[OwnerT: HasProps]:
         """
         return f"{self.owner.__name__}.{self.name}"
 
+    @property
+    def owner_attr(self) -> str:
+        """
+        The name of the owner instance attribute to store data in, if needed/used.
+        """
+        return f"_prop__{type(self.prop).__name__}__{self.name}"
+
 
 class Prop[OwnerT: HasProps, GetT, SetT = Any](ABC):
     """
@@ -64,7 +72,7 @@ class Prop[OwnerT: HasProps, GetT, SetT = Any](ABC):
     __prop: PropDefinition[OwnerT]
 
     def __set_name__(self, owner: type[OwnerT], name: str) -> None:
-        self.__prop = PropDefinition(owner, name)
+        self.__prop = PropDefinition(self, owner, name)
 
     @final
     @property

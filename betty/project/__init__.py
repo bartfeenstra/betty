@@ -23,11 +23,10 @@ from betty.app import App
 from betty.assertions.int import assert_int
 from betty.assertions.url import assert_url
 from betty.asset import AssetRepositoryService
-from betty.attrs.attr import AttrAttr
-from betty.attrs.collection_attr import CollectionAttrAttr
 from betty.attrs.locale import new_locale_attr
 from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.machine_name import new_machine_name_attr
+from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.attrs.path import new_path_attr
 from betty.attrs.plugin_definitions import new_plugin_definition_datas_attr
 from betty.cache import Cache
@@ -687,7 +686,7 @@ class ProjectLocale(Data["ObjectDefinition"], HasProps):
     The locale.
     """
 
-    alias = AttrAttr(StrDefinition(label=_("Alias"))).optional
+    alias = OwnerAttr(StrDefinition(label=_("Alias"))).optional
     """
     A shorthand alias to use instead of the full language tag, such as when rendering URLs.
     """
@@ -767,7 +766,7 @@ class ProjectData(Data, HasProps):
     The project's author.
     """
 
-    clean_urls = AttrAttr(
+    clean_urls = OwnerAttr(
         BoolDefinition(
             label=_("Clean URLs"),
             description=_(
@@ -779,7 +778,7 @@ class ProjectData(Data, HasProps):
     Whether to generate clean URLs.
     """
 
-    copyright_notice = AttrAttr(CopyrightNoticeManufacturer).setter(
+    copyright_notice = OwnerAttr(CopyrightNoticeManufacturer).setter(
         CopyrightNoticeManufacturer.resolve
     )
     """
@@ -799,7 +798,7 @@ class ProjectData(Data, HasProps):
     The :py:class:`betty.copyright_notice.CopyrightNotice` plugins created by this project.
     """
 
-    debug = AttrAttr(
+    debug = OwnerAttr(
         BoolDefinition(
             label=_("Debugging mode"),
             description=_(
@@ -811,7 +810,7 @@ class ProjectData(Data, HasProps):
     Whether to enable debugging for project jobs.
     """
 
-    enrichers = CollectionAttrAttr(
+    enrichers = CollectionOwnerAttr(
         KeyedCollectionDefinition(
             value=EnricherManufacturer,
             label=EnricherDefinition.type().label_plural,
@@ -836,7 +835,7 @@ class ProjectData(Data, HasProps):
     The :py:class:`betty.event_type.EventType` plugins created by this project.
     """
 
-    extensions = CollectionAttrAttr(
+    extensions = CollectionOwnerAttr(
         KeyedCollectionDefinition(
             value=ExtensionManufacturer,
             label=ExtensionDefinition.type().label_plural,
@@ -854,7 +853,7 @@ class ProjectData(Data, HasProps):
     The extensions to enable for the project.
     """
 
-    generate_entity_list_html = CollectionAttrAttr(
+    generate_entity_list_html = CollectionOwnerAttr(
         SequenceDefinition[
             MutableSequence[ResolvablePluginId[EntityDefinition]],
             ResolvablePluginId[EntityDefinition],
@@ -876,7 +875,7 @@ class ProjectData(Data, HasProps):
     The :py:class:`betty.gender.Gender` plugins created by this project.
     """
 
-    license = AttrAttr(LicenseManufacturer).setter(LicenseManufacturer.resolve)
+    license = OwnerAttr(LicenseManufacturer).setter(LicenseManufacturer.resolve)
     """
     The project-wide license.
     """
@@ -895,7 +894,7 @@ class ProjectData(Data, HasProps):
     """
 
     lifetime_threshold = (
-        AttrAttr(
+        OwnerAttr(
             IntDefinition(
                 label=_("Lifetime threshold"),
                 description=_(
@@ -910,7 +909,7 @@ class ProjectData(Data, HasProps):
     The lifetime threshold indicates when people are considered dead.
     """
 
-    loaders = CollectionAttrAttr(
+    loaders = CollectionOwnerAttr(
         KeyedCollectionDefinition(
             value=LoaderManufacturer,
             label=LoaderDefinition.type().label_plural,
@@ -928,7 +927,7 @@ class ProjectData(Data, HasProps):
     The loaders to enable for the project.
     """
 
-    locales = CollectionAttrAttr(
+    locales = CollectionOwnerAttr(
         KeyedCollectionDefinition(
             value=ProjectLocale,
             label=_("Locales"),
@@ -978,7 +977,7 @@ class ProjectData(Data, HasProps):
     The human-readable project title.
     """
 
-    url = AttrAttr(
+    url = OwnerAttr(
         StrDefinition(
             label=_("URL"),
             description=_(

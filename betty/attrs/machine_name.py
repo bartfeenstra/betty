@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.attrs.attr import AttrAttr
+from betty.attrs.owner import OwnerAttr
 from betty.locale.localizable.gettext import _
 from betty.machine_name import (
     MachineName,
@@ -15,7 +15,7 @@ from betty.machine_name import (
 )
 
 if TYPE_CHECKING:
-    from betty.attrs.owner import OwnerAttr
+    from betty.attrs.settable import SettableAttr
     from betty.locale.localizable import ResolvableLocalizable
     from betty.prop import HasProps
 
@@ -24,11 +24,11 @@ def new_machine_name_attr(
     *,
     label: ResolvableLocalizable | None = None,
     description: ResolvableLocalizable | None = None,
-) -> OwnerAttr[HasProps, MachineName, ResolvableMachineName]:
+) -> SettableAttr[HasProps, MachineName, ResolvableMachineName]:
     """
     Create an attribute containing a machine name.
     """
-    return AttrAttr(
+    return OwnerAttr(
         MachineName,
         label=_("Name") if label is None else label,
         description=_machine_name_description if description is None else description,

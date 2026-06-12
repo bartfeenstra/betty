@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, override
 
-from betty.attrs.attr import AttrAttr
+from betty.attrs.owner import OwnerAttr
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
 from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
 from betty.media_type.schema import MediaTypeSchema
@@ -14,7 +14,7 @@ from betty.privacy.resolve import is_public
 from betty.prop import HasProps
 
 if TYPE_CHECKING:
-    from betty.attrs.owner import OwnerAttr
+    from betty.attrs.settable import SettableAttr
     from betty.locale.localizable import ResolvableLocalizable
     from betty.portable import PortableMapping
     from betty.project import Project
@@ -24,11 +24,11 @@ def new_media_type_attr(
     *,
     label: ResolvableLocalizable | None = None,
     description: ResolvableLocalizable | None = None,
-) -> OwnerAttr[HasProps, MediaType, ResolvableMediaType]:
+) -> SettableAttr[HasProps, MediaType, ResolvableMediaType]:
     """
     Create an attribute containing a media type.
     """
-    return AttrAttr(MediaType, label=label, description=description).setter(
+    return OwnerAttr(MediaType, label=label, description=description).setter(
         resolve_media_type
     )
 

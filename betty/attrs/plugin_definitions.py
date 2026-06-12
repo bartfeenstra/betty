@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.attrs.collection_attr import CollectionAttrAttr
+from betty.attrs.owner import CollectionOwnerAttr
 from betty.collection.keyed import MutableKeyedCollection
 from betty.collection.keyed.adapter import MutableKeyedCollectionAdapter
 from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
@@ -19,7 +19,7 @@ from betty.plugin.resolve import ResolvablePluginId
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from betty.attrs.owner import OwnerAttr
+    from betty.attrs.settable import SettableAttr
     from betty.locale.localizable import ResolvableLocalizable
     from betty.prop import HasProps
 
@@ -30,7 +30,7 @@ def new_plugin_definition_datas_attr[PluginDefinitionT: PluginDefinition](
     *,
     label: ResolvableLocalizable | None = None,
     description: ResolvableLocalizable | None = None,
-) -> OwnerAttr[
+) -> SettableAttr[
     HasProps,
     MutableKeyedCollection[
         MachineName,
@@ -43,7 +43,7 @@ def new_plugin_definition_datas_attr[PluginDefinitionT: PluginDefinition](
     """
     Create attribute containing a :py:class:`betty.collection.keyed.KeyedCollection` of :py:class:`betty.datas.plugin_definition.PluginDefinitionData`.
     """
-    return CollectionAttrAttr(
+    return CollectionOwnerAttr(
         KeyedCollectionDefinition[
             MutableKeyedCollection[
                 MachineName,

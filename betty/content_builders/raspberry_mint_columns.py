@@ -14,7 +14,7 @@ from betty.assertions.int import assert_int
 from betty.assertions.mapping import assert_mapping
 from betty.assertions.sequence import assert_sequence
 from betty.asset_directories.raspberry_mint import raspberry_mint
-from betty.attrs.attr import AttrAttr
+from betty.attrs.owner import OwnerAttr
 from betty.content import (
     ContentBuilder,
     ContentBuilderDefinition,
@@ -129,7 +129,7 @@ class ColumnsData(Data, HasProps):
     _DEFAULT_WIDTH: ClassVar[ColumnsWidth] = {Breakpoint.XS: [12]}
     _width: ColumnsWidth
 
-    content = AttrAttr(
+    content = OwnerAttr(
         SequenceDefinition(
             cls=list,
             value=PluginManufacturerSequenceDefinition(
@@ -142,14 +142,14 @@ class ColumnsData(Data, HasProps):
     The content within the columns.
     """
 
-    justify_content = AttrAttr(
+    justify_content = OwnerAttr(
         EnumDefinition(cls=JustifyContent, label=_("Justify content"))
     ).optional
     """
     If and how to justify content.
     """
 
-    width = AttrAttr(
+    width = OwnerAttr(
         MappingDefinition(
             cls=dict,
             key=EnumDefinition(

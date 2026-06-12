@@ -6,10 +6,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
-from betty.attrs.attr import AttrAttr
 from betty.attrs.description import HasDescription
 from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.media_type import HasMediaType
+from betty.attrs.owner import OwnerAttr
 from betty.attrs.privacy import HasPrivacy
 from betty.datas.str import StrDefinition
 from betty.entity import Entity, EntityDefinition
@@ -47,7 +47,7 @@ class Link(LinkType, HasMediaType, HasDescription, HasPrivacy, Entity):
     url = new_localizable_attr(label=_("URL"))
     _label = new_localizable_attr(label=_("Label")).optional
 
-    relationship = AttrAttr(StrDefinition(label=_("Relationship"))).optional
+    relationship = OwnerAttr(StrDefinition(label=_("Relationship"))).optional
     """
     The link's `IANA link relationship <https://www.iana.org/assignments/link-relations/link-relations.xhtml>`_.
     """

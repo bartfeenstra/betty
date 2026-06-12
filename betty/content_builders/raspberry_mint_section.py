@@ -8,9 +8,9 @@ from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.asset_directories.raspberry_mint import raspberry_mint
-from betty.attrs.attr import AttrAttr
 from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.machine_name import new_machine_name_attr
+from betty.attrs.owner import OwnerAttr
 from betty.attrs.plugin_manufacturer_sequence import (
     new_plugin_manufacturer_sequence_attr,
 )
@@ -78,7 +78,7 @@ class SectionData(Data, HasProps):
     The section's machine name, used to generate permanent links.
     """
 
-    visually_hide_heading = AttrAttr(
+    visually_hide_heading = OwnerAttr(
         BoolDefinition(label=_("Visually hide heading"))
     ).default(lambda: False)
     """

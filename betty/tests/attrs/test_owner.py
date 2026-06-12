@@ -1,29 +1,67 @@
+from collections.abc import Iterable, MutableSequence
 from typing import override
 
-from betty.attrs.default import DefaultAttr
-from betty.attrs.optional import Optional
-from betty.attrs.owner import OwnerAttr
-from betty.attrs.setter import SetterAttr
-from betty.datas.aggregate.record import FieldDefinition
+import pytest
+
+from betty.attrs.default import DefaultCollectionAttr
+from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
+from betty.datas.aggregate.collection import CollectionDefinition
 from betty.datas.str import StrDefinition
+from betty.indicator.selector import Index
 from betty.prop import HasProps
 
 
-class _OwnerAttr(OwnerAttr[HasProps, str, str]):
+class TestOwnerAttr:
+    class _Owner(HasProps):
+        my_first_attr = OwnerAttr(StrDefinition(label="-"))
+
+    def test_get(self) -> None:
+        owner = self._Owner()
+        with pytest.raises(AttributeError):
+            self._Owner.my_first_attr.get(owner)
+
+    def test_set(self) -> None:
+        owner = self._Owner()
+        value = "Hello, world!"
+        owner.my_first_attr = value
+        assert owner.my_first_attr == value
+
+
+class _CollectionDefinition(
+    CollectionDefinition[MutableSequence[str], Iterable[str], Index]
+):
     def __init__(self):
-        super().__init__(FieldDefinition(StrDefinition(label="-")))
+        super().__init__(
+            label="-", item=StrDefinition(label="-"), factory=lambda: ["Hello, world!"]
+        )
 
     @override
-    def get(self, owner: HasProps, /) -> str:
-        raise NotImplementedError
+    def clear(self, data: MutableSequence[str], /) -> None:
+        data.clear()
+
+    @override
+    def replace(self, data: MutableSequence[str], values: Iterable[str], /) -> None:
+        data.clear()
+        data.extend(values)
 
 
-class TestOwnerAttr:
+class _Owner(HasProps):
+    collection = CollectionOwnerAttr(_CollectionDefinition())
+
+
+class TestCollectionOwnerAttr:
+    def test_init_owner(self) -> None:
+        assert _Owner().collection == ["Hello, world!"]
+
+    def test_get(self) -> None:
+        _Owner().collection  # noqa: B018
+
+    def test_set(self) -> None:
+        owner = _Owner()
+        collection = owner.collection
+        owner.collection = ["Hello,", "world!"]
+        assert owner.collection is collection
+        assert owner.collection == ["Hello,", "world!"]
+
     def test_default(self) -> None:
-        assert isinstance(_OwnerAttr().default(lambda: ""), DefaultAttr)
-
-    def test_optional(self) -> None:
-        assert isinstance(_OwnerAttr().optional, Optional)
-
-    def test_setter(self) -> None:
-        assert isinstance(_OwnerAttr().setter(lambda value: value), SetterAttr)
+        assert isinstance(_Owner.collection.default(lambda: ()), DefaultCollectionAttr)

@@ -16,7 +16,6 @@ if TYPE_CHECKING:
     from collections.abc import Collection
 
     from betty.service.plugin import PluginServiceManager, PluginServiceProvider
-    from betty.typing import Intersection
 
 
 @final
@@ -29,10 +28,7 @@ class PluginServiceRequirement[PluginDefinitionT: PluginDefinition, GetServiceT]
     def __init__(
         self,
         service: PluginServiceManager[
-            Intersection[PluginServiceProvider, ServiceLevel],
-            PluginDefinitionT,
-            GetServiceT,
-            Any,
+            PluginServiceProvider, PluginDefinitionT, GetServiceT, Any
         ],
         /,
         *plugins: ResolvablePluginDefinition[PluginDefinitionT],
@@ -44,10 +40,7 @@ class PluginServiceRequirement[PluginDefinitionT: PluginDefinition, GetServiceT]
     def service(
         self,
     ) -> PluginServiceManager[
-        Intersection[PluginServiceProvider, ServiceLevel],
-        PluginDefinitionT,
-        GetServiceT,
-        Any,
+        PluginServiceProvider, PluginDefinitionT, GetServiceT, Any
     ]:
         """
         The service for which the plugin is required.
