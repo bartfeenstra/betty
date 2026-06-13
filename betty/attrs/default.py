@@ -6,15 +6,14 @@ from collections.abc import Callable
 from inspect import signature
 from typing import final, override
 
-from betty.attr import ProxyAttr
 from betty.attrs.owner import OwnerAttr
 from betty.datas.aggregate.record import FieldDefinition
-from betty.prop import HasProps
+from betty.prop import HasProps, ProxyProp
 
 
 @final
 class DefaultAttr[OwnerT: HasProps, GetT, SetT](
-    ProxyAttr[OwnerT, GetT, SetT], OwnerAttr[OwnerT, GetT, SetT]
+    ProxyProp[OwnerT, GetT, SetT], OwnerAttr[OwnerT, GetT, SetT]
 ):
     """
     An attribute with a default value.
@@ -28,14 +27,14 @@ class DefaultAttr[OwnerT: HasProps, GetT, SetT](
     ):
 
         super().__init__(
-            proxied,
-            field=FieldDefinition(
+            FieldDefinition(
                 proxied.field.data,
                 label=proxied.field.label,
                 description=proxied.field.description,
                 omit_load=True,
                 omit_dump=self._omit_dump,
             ),
+            proxied=proxied,
         )
         self._proxied = proxied
         self._default: Callable[[OwnerT], SetT] = (

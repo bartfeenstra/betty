@@ -80,6 +80,15 @@ class TestSequenceDefinition:
         with pytest.raises(NotPortable):
             sut.porter.dump(["Hello, world!"])
 
+    def test_clear(self) -> None:
+        data = ["foo", "bar"]
+        SequenceDefinition[list[str], str](
+            cls=list,
+            value=DataDefinition(cls=str, label="-"),
+            label="-",
+        ).clear(data)
+        assert not data
+
     @pytest.mark.parametrize(
         ("expected", "data", "values"),
         [

@@ -56,6 +56,11 @@ class SequenceDefinition[MutableSequenceT: MutableSequence[Any], ValueT](
 
     @final
     @override
+    def clear(self, data: MutableSequenceT, /) -> None:
+        data.clear()
+
+    @final
+    @override
     def replace(self, data: MutableSequenceT, values: Iterable[ValueT], /) -> None:
         data.clear()
         data.extend(values)

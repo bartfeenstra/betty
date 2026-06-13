@@ -85,6 +85,13 @@ class TestKeyedCollectionDefinition:
         )
         assert self._sut_ordered.porter.dump(data) == self._portable_ordered
 
+    def test_clear(self) -> None:
+        data = MutableKeyedCollectionAdapter(
+            ({"key": "qux"},), key=lambda value: value["key"]
+        )
+        self._sut_unordered.clear(data)
+        assert not data
+
     @pytest.mark.parametrize(
         ("expected", "data", "values"),
         [

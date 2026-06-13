@@ -19,6 +19,11 @@ class TestOptional:
         self._Owner.my_first_attr.set(owner, value)
         assert owner.my_first_attr == value
 
+    def test_delete(self) -> None:
+        owner = self._Owner()
+        self._Owner.my_first_attr.delete(owner)
+        assert owner.my_first_attr is None
+
     def test___set_name__(self) -> None:
         proxied = AttrAttr(StrDefinition(label="-"))
 

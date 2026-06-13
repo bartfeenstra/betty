@@ -291,6 +291,53 @@ class TestProject:
         async with isolated_project_factory(url=url) as sut:
             assert sut.url == url
 
+    async def test_asset_directories(self, isolated_project: Project) -> None:
+        assert isolated_project.asset_directories is isolated_project.asset_directories
+
+    async def test_binary_file_cache(self, isolated_project: Project) -> None:
+        assert isolated_project.binary_file_cache is isolated_project.binary_file_cache
+
+    async def test_cache(self, isolated_project: Project) -> None:
+        assert isolated_project.cache is isolated_project.cache
+
+    async def test_css_resources(self, isolated_project: Project) -> None:
+        assert isolated_project.css_resources is isolated_project.css_resources
+
+    async def test_document_providers(self, isolated_project: Project) -> None:
+        assert (
+            isolated_project.document_providers is isolated_project.document_providers
+        )
+
+    async def test_enrichers(self, isolated_project: Project) -> None:
+        assert isolated_project.enrichers is isolated_project.enrichers
+
+    async def test_jinja_filters(self, isolated_project: Project) -> None:
+        assert isolated_project.jinja_filters is isolated_project.jinja_filters
+
+    async def test_jinja_tests(self, isolated_project: Project) -> None:
+        assert isolated_project.jinja_tests is isolated_project.jinja_tests
+
+    async def test_js_resources(self, isolated_project: Project) -> None:
+        assert isolated_project.js_resources is isolated_project.js_resources
+
+    async def test_links(self, isolated_project: Project) -> None:
+        assert isolated_project.links is isolated_project.links
+
+    async def test_loaders(self, isolated_project: Project) -> None:
+        assert isolated_project.loaders is isolated_project.loaders
+
+    async def test_public_localizers(self, isolated_project: Project) -> None:
+        assert isolated_project.public_localizers is isolated_project.public_localizers
+
+    async def test_renderers(self, isolated_project: Project) -> None:
+        assert isolated_project.renderers is isolated_project.renderers
+
+    async def test_servers(self, isolated_project: Project) -> None:
+        assert isolated_project.servers is isolated_project.servers
+
+    async def test_translations(self, isolated_project: Project) -> None:
+        assert isolated_project.translations is isolated_project.translations
+
 
 class TestProjectLocale(DataTestBase[ProjectLocale]):
     sut_cls = ProjectLocale

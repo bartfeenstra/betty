@@ -88,6 +88,16 @@ class TestMappingDefinition:
         with pytest.raises(NotPortable):
             sut.porter.dump({"hello": "Hello, world!"})
 
+    def test_clear(self) -> None:
+        data = {"foo": "FOO", "bar": "BAR"}
+        MappingDefinition[dict[str, str], str, str](
+            cls=list,
+            key=StrDefinition(label="-"),
+            value=DataDefinition(cls=str, label="-"),
+            label="-",
+        ).clear(data)
+        assert not data
+
     @pytest.mark.parametrize(
         ("expected", "data", "values"),
         [

@@ -87,6 +87,11 @@ class KeyedCollectionDefinition[
 
     @final
     @override
+    def clear(self, data: MutableKeyedCollectionT, /) -> None:
+        data.clear()
+
+    @final
+    @override
     def replace(
         self, data: MutableKeyedCollectionT, values: Iterable[ValueT], /
     ) -> None:

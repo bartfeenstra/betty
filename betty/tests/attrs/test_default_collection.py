@@ -18,6 +18,10 @@ class _CollectionDefinition(
         )
 
     @override
+    def clear(self, data: MutableSequence[str], /) -> None:
+        data.clear()
+
+    @override
     def replace(self, data: MutableSequence[str], values: Iterable[str], /) -> None:
         data.clear()
         data.extend(values)
