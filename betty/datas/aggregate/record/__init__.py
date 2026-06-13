@@ -36,17 +36,24 @@ if TYPE_CHECKING:
 
     from betty.locale.localizable import Localizable, ResolvableLocalizable
     from betty.portable import PortableMapping
+    from betty.typing import Intersection
 
 
 @final
-class FieldDefinition[OwnerT, DataClsT]:
+class FieldDefinition[
+    OwnerT,
+    DataClsT,
+    DataDefinitionT: DataDefinition = DataDefinition[DataClsT],
+]:
     """
     A record field definition.
     """
 
     def __init__(
         self,
-        data: ResolvableDataDefinition[DataDefinition[DataClsT]],
+        data: ResolvableDataDefinition[
+            Intersection[DataDefinitionT, DataDefinition[DataClsT]]
+        ],
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
@@ -55,7 +62,7 @@ class FieldDefinition[OwnerT, DataClsT]:
         | Callable[[OwnerT, DataClsT], bool]
         | None = None,
     ):
-        self.data: Final[DataDefinition[DataClsT]] = resolve_data_definition(data)
+        self.data: Final[DataDefinitionT] = resolve_data_definition(data)
         """
         The field's data definition.
         """

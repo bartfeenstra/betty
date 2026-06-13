@@ -13,7 +13,7 @@ from betty.datas.plugin_manufacturer_sequence import (
 from betty.plugin.cls import PluginClsDefinition
 
 if TYPE_CHECKING:
-    from betty.attrs.settable import SettableAttr
+    from betty.attrs.common import CommonAttr
     from betty.collection.sequence import MutableResolvedSequence
     from betty.locale.localizable import ResolvableLocalizable
     from betty.plugin.factory import (
@@ -32,7 +32,7 @@ def new_plugin_manufacturer_sequence_attr[
     *,
     label: ResolvableLocalizable | None = None,
     description: ResolvableLocalizable | None = None,
-) -> SettableAttr[
+) -> CommonAttr[
     HasProps,
     MutableResolvedSequence[
         PluginManufacturer[PluginDefinitionT, PluginT],

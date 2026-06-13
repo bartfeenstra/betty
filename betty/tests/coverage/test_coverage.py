@@ -89,7 +89,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ReAwaitable": MissingReason.ABSTRACT,
     },
     "betty/attr.py": {
-        "Attr": MissingReason.SHOULD_BE_COVERED,
+        "Attr": {},
+    },
+    "betty/attrs/common.py": {
+        "CommonAttr": MissingReason.ABSTRACT,
     },
     "betty/attrs/date.py": {
         "HasAnyDate": {

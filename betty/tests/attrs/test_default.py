@@ -1,9 +1,8 @@
 from collections.abc import Callable, Iterable, MutableSequence
 from typing import override
 
-from betty.attrs.default import DefaultAttr, DefaultCollectionAttr
-from betty.attrs.owner import CollectionOwnerAttr
-from betty.attrs.settable import SettableAttr
+from betty.attr import Attr
+from betty.attrs.default import DefaultAttr
 from betty.datas.aggregate.collection import CollectionDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.str import StrDefinition
@@ -11,7 +10,7 @@ from betty.indicator.selector import Index
 from betty.prop import HasProps
 
 
-class _Attr(SettableAttr[HasProps, str, str]):
+class _Attr(Attr[HasProps, str, str]):
     def __init__(
         self,
         *,
@@ -56,13 +55,17 @@ class TestDefaultAttr:
         class _Owner(HasProps):
             my_first_attr = DefaultAttr(_Attr(omit_dump=lambda _: False), lambda: "")
 
-        assert not _Owner.my_first_attr.field.omit_dump(_Owner(), "Hello, world!")
+        owner = _Owner()
+        owner.my_first_attr = "Hello, world!"
+        assert not _Owner.my_first_attr.field.omit_dump(owner, owner.my_first_attr)
 
     def test_omit_dump__with_proxied_true(self) -> None:
         class _Owner(HasProps):
             my_first_attr = DefaultAttr(_Attr(omit_dump=lambda _: True), lambda: "")
 
-        assert _Owner.my_first_attr.field.omit_dump(_Owner(), "Hello, world!")
+        owner = _Owner()
+        owner.my_first_attr = "Hello, world!"
+        assert _Owner.my_first_attr.field.omit_dump(owner, owner.my_first_attr)
 
 
 class _CollectionDefinition(
@@ -81,43 +84,3 @@ class _CollectionDefinition(
     def replace(self, data: MutableSequence[str], values: Iterable[str], /) -> None:
         data.clear()
         data.extend(values)
-
-
-class TestDefaultCollectionAttr:
-    def test_init_owner(self) -> None:
-        default = ["Hello, my other world!"]
-
-        class _Owner(HasProps):
-            my_first_attr = DefaultCollectionAttr(
-                CollectionOwnerAttr(_CollectionDefinition()), lambda: default
-            )
-
-        assert _Owner().my_first_attr == default
-
-    def test_omit_dump__with_default(self) -> None:
-        default = ["Hello, my other world!"]
-
-        class _Owner(HasProps):
-            my_first_attr = DefaultCollectionAttr(
-                CollectionOwnerAttr(_CollectionDefinition()), lambda: default
-            )
-
-        assert _Owner.my_first_attr.field.omit_dump(_Owner(), default)
-
-    def test_omit_dump__with_proxied_false(self) -> None:
-        class _Owner(HasProps):
-            my_first_attr = DefaultCollectionAttr(
-                CollectionOwnerAttr(_CollectionDefinition(), omit_dump=lambda _: False),
-                lambda: [""],
-            )
-
-        assert not _Owner.my_first_attr.field.omit_dump(_Owner(), "Hello, world!")
-
-    def test_omit_dump__with_proxied_true(self) -> None:
-        class _Owner(HasProps):
-            my_first_attr = DefaultCollectionAttr(
-                CollectionOwnerAttr(_CollectionDefinition(), omit_dump=lambda _: True),
-                lambda: [""],
-            )
-
-        assert _Owner.my_first_attr.field.omit_dump(_Owner(), "Hello, world!")

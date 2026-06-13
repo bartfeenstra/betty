@@ -7,14 +7,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Literal, final, override
 
 from betty.attrs.owner import OwnerAttr
-from betty.attrs.settable import SettableAttr
-from betty.datas.aggregate.record import FieldDefinition
+from betty.attrs.proxy import ProxyAttr
+from betty.data import DataDefinition
 from betty.datas.enum import EnumDefinition
 from betty.linked_data import LinkedDataDumper
 from betty.locale.localizable.gettext import _
 from betty.privacy import Privacy
 from betty.privacy.schema import PrivacySchema
-from betty.prop import HasProps, ProxyProp
+from betty.prop import HasProps
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -22,8 +22,7 @@ if TYPE_CHECKING:
 
 @final
 class PrivacyAttr(
-    ProxyProp["HasPrivacy", Privacy, Privacy],
-    SettableAttr["HasPrivacy", Privacy, Privacy],
+    ProxyAttr["HasPrivacy", Privacy, Privacy, DataDefinition[Privacy]],
     LinkedDataDumper["HasPrivacy", PrivacySchema, bool],
 ):
     """
@@ -31,8 +30,7 @@ class PrivacyAttr(
     """
 
     def __init__(self):
-        data = EnumDefinition(Privacy, label=_("Privacy"))
-        super().__init__(FieldDefinition(data), proxied=OwnerAttr(data))
+        super().__init__(proxied=OwnerAttr(EnumDefinition(Privacy, label=_("Privacy"))))
 
     @override
     async def linked_data_schema_for(self, project: Project, /) -> PrivacySchema:

@@ -3,7 +3,7 @@ from typing import override
 
 import pytest
 
-from betty.attrs.default import DefaultCollectionAttr
+from betty.attrs.default import DefaultAttr
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.datas.aggregate.collection import CollectionDefinition
 from betty.datas.str import StrDefinition
@@ -64,4 +64,15 @@ class TestCollectionOwnerAttr:
         assert owner.collection == ["Hello,", "world!"]
 
     def test_default(self) -> None:
-        assert isinstance(_Owner.collection.default(lambda: ()), DefaultCollectionAttr)
+        assert isinstance(_Owner.collection.default(lambda: ()), DefaultAttr)
+
+    def test_eq__without_equal(self) -> None:
+        owner = _Owner()
+        owner.collection = ("Hello", "world!")
+        assert not _Owner.collection.eq(owner, ("Hello", "world...?"))
+
+    def test_eq__with_equal(self) -> None:
+        value = ("Hello", "world!")
+        owner = _Owner()
+        owner.collection = value
+        assert _Owner.collection.eq(owner, value)

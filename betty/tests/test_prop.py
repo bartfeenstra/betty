@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Never, override
+from typing import Never, override
 
 import pytest
 
@@ -11,11 +11,7 @@ from betty.prop import (
     OwnerError,
     Prop,
     PropError,
-    ProxyProp,
 )
-
-if TYPE_CHECKING:
-    from pytest_mock import MockerFixture
 
 
 class _PropOwner(HasProps):
@@ -122,68 +118,6 @@ class TestProp:
 
         assert _Owner.my_first_prop.prop.owner is _Owner
         assert _Owner.my_first_prop.prop.name == "my_first_prop"
-
-
-class TestProxyProp:
-    def test___set_name__(self, mocker: MockerFixture) -> None:
-        m_proxied = mocker.MagicMock(spec=Prop)
-
-        class _Owner(HasProps):
-            my_first_prop = ProxyProp(proxied=m_proxied)
-
-        m_proxied.__set_name__.assert_called_once_with(_Owner, "my_first_prop")
-
-    def test_get(self, mocker: MockerFixture) -> None:
-        value = "Hello, world!"
-        m_proxied = mocker.MagicMock(spec=Prop)
-        m_proxied.get.return_value = value
-
-        class _Owner(HasProps):
-            my_first_prop = ProxyProp(proxied=m_proxied)
-
-        owner = _Owner()
-        assert owner.my_first_prop == value
-        m_proxied.get.assert_called_once_with(owner)
-
-    def test_set(self, mocker: MockerFixture) -> None:
-        value = "Hello, world!"
-        m_proxied = mocker.MagicMock(spec=Prop)
-
-        class _Owner(HasProps):
-            my_first_prop = ProxyProp(proxied=m_proxied)
-
-        owner = _Owner()
-        owner.my_first_prop = value
-        m_proxied.set.assert_called_once_with(owner, value)
-
-    def test_delete(self, mocker: MockerFixture) -> None:
-        m_proxied = mocker.MagicMock(spec=Prop)
-
-        class _Owner(HasProps):
-            my_first_prop = ProxyProp(proxied=m_proxied)
-
-        owner = _Owner()
-        del owner.my_first_prop
-        m_proxied.delete.assert_called_once_with(owner)
-
-    def test_init_owner(self, mocker: MockerFixture) -> None:
-        m_proxied = mocker.MagicMock(spec=Prop)
-
-        class _Owner(HasProps):
-            my_first_prop = ProxyProp(proxied=m_proxied)
-
-        owner = _Owner()
-        m_proxied.init_owner.assert_called_once_with(owner)
-
-    def test_delete_owner(self, mocker: MockerFixture) -> None:
-        m_proxied = mocker.MagicMock(spec=Prop)
-
-        class _Owner(HasProps):
-            my_first_prop = ProxyProp(proxied=m_proxied)
-
-        owner = _Owner()
-        _Owner.my_first_prop.delete_owner(owner)
-        m_proxied.delete_owner.assert_called_once_with(owner)
 
 
 class TestPropError:

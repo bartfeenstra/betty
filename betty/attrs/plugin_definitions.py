@@ -19,7 +19,7 @@ from betty.plugin.resolve import ResolvablePluginId
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from betty.attrs.settable import SettableAttr
+    from betty.attrs.common import CommonAttr
     from betty.locale.localizable import ResolvableLocalizable
     from betty.prop import HasProps
 
@@ -30,7 +30,7 @@ def new_plugin_definition_datas_attr[PluginDefinitionT: PluginDefinition](
     *,
     label: ResolvableLocalizable | None = None,
     description: ResolvableLocalizable | None = None,
-) -> SettableAttr[
+) -> CommonAttr[
     HasProps,
     MutableKeyedCollection[
         MachineName,

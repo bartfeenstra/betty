@@ -14,7 +14,7 @@ from betty.privacy.resolve import is_public
 from betty.prop import HasProps
 
 if TYPE_CHECKING:
-    from betty.attrs.settable import SettableAttr
+    from betty.attrs.common import CommonAttr
     from betty.locale.localizable import ResolvableLocalizable
     from betty.portable import PortableMapping
     from betty.project import Project
@@ -24,7 +24,7 @@ def new_media_type_attr(
     *,
     label: ResolvableLocalizable | None = None,
     description: ResolvableLocalizable | None = None,
-) -> SettableAttr[HasProps, MediaType, ResolvableMediaType]:
+) -> CommonAttr[HasProps, MediaType, ResolvableMediaType]:
     """
     Create an attribute containing a media type.
     """

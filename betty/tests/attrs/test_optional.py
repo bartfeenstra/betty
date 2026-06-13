@@ -1,14 +1,14 @@
-from betty.attrs.optional import Optional
+from betty.attrs.optional import OptionalAttr
 from betty.attrs.owner import OwnerAttr
 from betty.datas.optional import OptionalDefinition
 from betty.datas.str import StrDefinition
 from betty.prop import HasProps
 
 
-class TestOptional:
+class TestOptionalAttr:
     class _Owner(HasProps):
         proxied = OwnerAttr(StrDefinition(label="-"))
-        my_first_attr = Optional(proxied)
+        my_first_attr = OptionalAttr(proxied)
 
     def test_get(self) -> None:
         assert self._Owner.my_first_attr.get(self._Owner()) is None
@@ -28,7 +28,7 @@ class TestOptional:
         proxied = OwnerAttr(StrDefinition(label="-"))
 
         class _Owner(HasProps):
-            my_first_attr = Optional(proxied)
+            my_first_attr = OptionalAttr(proxied)
 
         assert proxied.prop.name == "my_first_attr"
 
@@ -36,7 +36,7 @@ class TestOptional:
         data = StrDefinition(label="-")
 
         class _Owner(HasProps):
-            my_first_attr = Optional(OwnerAttr(data))
+            my_first_attr = OptionalAttr(OwnerAttr(data))
 
         optional_data = _Owner.my_first_attr.field.data
         assert isinstance(optional_data, OptionalDefinition)
@@ -46,7 +46,7 @@ class TestOptional:
         default = "Hello, world!"
 
         class _Owner(HasProps):
-            my_first_attr = Optional(
+            my_first_attr = OptionalAttr(
                 OwnerAttr(StrDefinition(label="-")).default(lambda: default)
             )
 
