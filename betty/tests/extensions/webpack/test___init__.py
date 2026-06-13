@@ -25,3 +25,10 @@ class TestWebpack:
         async with isolated_project_factory(extensions=[Webpack]) as project:
             await generate(project)
             assert await read(project.www_directory / self._SENTINEL) == self._SENTINEL
+
+    async def test_builder(
+        self, isolated_project_factory: IsolatedProjectFactory
+    ) -> None:
+        async with isolated_project_factory(extensions=[Webpack]) as project:
+            webpack = await project.extensions[Webpack]
+            assert await webpack.builder is await webpack.builder

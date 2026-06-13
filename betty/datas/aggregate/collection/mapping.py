@@ -67,6 +67,11 @@ class MappingDefinition[MutableMappingT: MutableMapping[Any, Any], KeyT, ValueT]
 
     @final
     @override
+    def clear(self, data: MutableMappingT, /) -> None:
+        data.clear()
+
+    @final
+    @override
     def replace(
         self,
         data: MutableMappingT,

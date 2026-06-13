@@ -73,6 +73,27 @@ class TestApp:
     async def test_process_pool(self, isolated_app: App) -> None:
         assert isolated_app.process_pool is isolated_app.process_pool
 
+    async def test_asset_directories(self, isolated_app: App) -> None:
+        assert isolated_app.asset_directories is isolated_app.asset_directories
+
+    async def test_binary_file_cache(self, isolated_app: App) -> None:
+        assert isolated_app.binary_file_cache is isolated_app.binary_file_cache
+
+    async def test_cache(self, isolated_app: App) -> None:
+        assert isolated_app.cache is isolated_app.cache
+
+    async def test_media_types(self, isolated_app: App) -> None:
+        assert isolated_app.media_types is isolated_app.media_types
+
+    async def test_rate_limits(self, isolated_app: App) -> None:
+        assert isolated_app.rate_limits is isolated_app.rate_limits
+
+    async def test_serializers(self, isolated_app: App) -> None:
+        assert isolated_app.serializers is isolated_app.serializers
+
+    async def test_translations(self, isolated_app: App) -> None:
+        assert isolated_app.translations is isolated_app.translations
+
 
 class TestAppData(DataTestBase[AppData]):
     sut_cls = AppData

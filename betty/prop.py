@@ -56,7 +56,7 @@ class PropDefinition[OwnerT: HasProps]:
         return f"{self.owner.__name__}.{self.name}"
 
 
-class Prop[OwnerT: HasProps, GetT](ABC):
+class Prop[OwnerT: HasProps, GetT, SetT = Any](ABC):
     """
     A property.
     """
@@ -80,6 +80,34 @@ class Prop[OwnerT: HasProps, GetT](ABC):
         """
         return
 
+    def delete_owner(self, owner: OwnerT, /) -> None:
+        """
+        Delete the property from an owner.
+        """
+        return
+
+    @abstractmethod
+    def get(self, owner: OwnerT, /) -> GetT:
+        """
+        Get the property value from the owner.
+        """
+
+    def set(self, owner: OwnerT, value: SetT, /) -> None:
+        """
+        Set the property value on the owner.
+
+        :raises NotSettable:
+        """
+        raise NotSettable(self, owner)
+
+    def delete(self, owner: OwnerT, /) -> None:
+        """
+        Delete the property value from the owner.
+
+        :raises NotDeletable:
+        """
+        raise NotDeletable(self, owner)
+
     @overload
     def __get__(self, instance: None, owner: type[OwnerT], /) -> Self:
         pass
@@ -94,11 +122,13 @@ class Prop[OwnerT: HasProps, GetT](ABC):
             return self
         return self.get(instance)
 
-    @abstractmethod
-    def get(self, owner: OwnerT, /) -> GetT:
-        """
-        Get the property value from the owner.
-        """
+    @final
+    def __set__(self, instance: OwnerT, value: SetT) -> None:
+        self.set(instance, value)
+
+    @final
+    def __delete__(self, instance: OwnerT) -> None:
+        self.delete(instance)
 
 
 class PropError(Exception):
@@ -122,12 +152,38 @@ class OwnerError(PropError, AttributeError):
         super().__init__(prop, message, name=prop.prop.name, obj=owner)
 
 
-class ProxyProp[OwnerT: HasProps, GetT](Prop[OwnerT, GetT]):
+class NotSettable(OwnerError):
+    """
+    Raised when a property is not settable.
+    """
+
+    def __init__[OwnerT: HasProps](self, prop: Prop[OwnerT, Any], owner: OwnerT, /):
+        super().__init__(
+            prop,
+            owner,
+            f"{fully_qualified_name(type(owner))}.{prop.prop.name} is not settable on {owner}.",
+        )
+
+
+class NotDeletable(OwnerError):
+    """
+    Raised when a property is not deletable.
+    """
+
+    def __init__[OwnerT: HasProps](self, prop: Prop[OwnerT, Any], owner: OwnerT, /):
+        super().__init__(
+            prop,
+            owner,
+            f"{fully_qualified_name(type(owner))}.{prop.prop.name} is not deletable from {owner}.",
+        )
+
+
+class ProxyProp[OwnerT: HasProps, GetT, SetT = Any](Prop[OwnerT, GetT, SetT]):
     """
     A property that proxies another property.
     """
 
-    def __init__(self, *args: Any, proxied: Prop[OwnerT, GetT], **kwargs: Any):
+    def __init__(self, *args: Any, proxied: Prop[OwnerT, GetT, SetT], **kwargs: Any):
         super().__init__(*args, **kwargs)
         self.__proxied = proxied
 
@@ -141,39 +197,19 @@ class ProxyProp[OwnerT: HasProps, GetT](Prop[OwnerT, GetT]):
         return self.__proxied.get(owner)
 
     @override
+    def set(self, owner: OwnerT, value: SetT, /) -> None:
+        return self.__proxied.set(owner, value)
+
+    @override
+    def delete(self, owner: OwnerT, /) -> None:
+        return self.__proxied.delete(owner)
+
+    @override
     def init_owner(self, owner: OwnerT, /) -> None:
         super().init_owner(owner)
         self.__proxied.init_owner(owner)
 
-
-class SettableProp[OwnerT: HasProps, GetT, SetT](Prop[OwnerT, GetT]):
-    """
-    A property whose value can be set.
-    """
-
-    def set(self, owner: OwnerT, value: SetT, /) -> None:
-        """
-        Set the value on the owner.
-
-        :raises NotSettable:
-        """
-        raise NotSettable(self, owner)
-
-    @final
-    def __set__(self, instance: OwnerT, value: SetT | GetT) -> None:
-        self.set(instance, value)
-
-
-class NotSettable(OwnerError):
-    """
-    Raised when a property is not settable.
-    """
-
-    def __init__[OwnerT: HasProps](
-        self, prop: SettableProp[OwnerT, Any, Any], owner: OwnerT, /
-    ):
-        super().__init__(
-            prop,
-            owner,
-            f"{fully_qualified_name(type(owner))}.{prop.prop.name} is not settable.",
-        )
+    @override
+    def delete_owner(self, owner: OwnerT, /) -> None:
+        super().delete_owner(owner)
+        self.__proxied.delete_owner(owner)

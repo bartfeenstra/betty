@@ -67,6 +67,10 @@ class CollectionAttrAttr[
         self._data_collection.replace(self.get(owner), value)
 
     @override
+    def delete(self, owner: OwnerT, /) -> None:
+        self._data_collection.clear(self.get(owner))
+
+    @override
     def default(
         self, default: Callable[[], ValuesSetT] | Callable[[OwnerT], ValuesSetT]
     ) -> OwnerAttr[OwnerT, MutableCollectionT, ValuesSetT]:

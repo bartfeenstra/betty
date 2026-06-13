@@ -18,6 +18,10 @@ class _CollectionDefinition(
         )
 
     @override
+    def clear(self, data: MutableSequence[str], /) -> None:
+        data.clear()
+
+    @override
     def replace(self, data: MutableSequence[str], values: Iterable[str], /) -> None:
         data.clear()
         data.extend(values)
@@ -40,6 +44,12 @@ class TestCollectionAttrAttr:
         owner.collection = ["Hello,", "world!"]
         assert owner.collection is collection
         assert owner.collection == ["Hello,", "world!"]
+
+    def test_delete(self) -> None:
+        owner = _Owner()
+        owner.collection = ["Hello,", "world!"]
+        del owner.collection
+        assert not owner.collection
 
     def test_default(self) -> None:
         assert isinstance(_Owner.collection.default(lambda: ()), DefaultCollectionAttr)

@@ -14,4 +14,11 @@ class TestWiki:
     ) -> None:
         async with isolated_project_factory(extensions=[Wiki]) as project:
             wiki = await project.extensions[Wiki]
-            await wiki.client
+            assert await wiki.client is await wiki.client
+
+    async def test_populator(
+        self, isolated_project_factory: IsolatedProjectFactory
+    ) -> None:
+        async with isolated_project_factory(extensions=[Wiki]) as project:
+            wiki = await project.extensions[Wiki]
+            assert await wiki.populator is await wiki.populator

@@ -60,6 +60,12 @@ class CollectionDefinition[
         return new
 
     @abstractmethod
+    def clear(self, data: CollectionT, /) -> None:
+        """
+        Clear (remove) all values from the collection.
+        """
+
+    @abstractmethod
     def replace(self, data: CollectionT, values: ValuesSetT, /) -> None:
         """
         Replace all values in the collection with the given ones.

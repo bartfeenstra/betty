@@ -6,12 +6,12 @@ import pytest
 
 from betty.prop import (
     HasProps,
+    NotDeletable,
     NotSettable,
     OwnerError,
     Prop,
     PropError,
     ProxyProp,
-    SettableProp,
 )
 
 if TYPE_CHECKING:
@@ -41,13 +41,6 @@ class _Prop(Prop[_PropOwner, tuple[_PropOwner, _Value]]):
         owner.init_properties.append(self)
 
 
-class _SettableProp(
-    _Prop,
-    SettableProp[_PropOwner, tuple[_PropOwner, _Value], tuple[_PropOwner, _Value]],
-):
-    pass
-
-
 class TestHasProps:
     def test___init__(self) -> None:
         class _Owner(_PropOwner):
@@ -58,6 +51,22 @@ class TestHasProps:
 
 
 class TestProp:
+    def test_set(self) -> None:
+        class _Owner(_PropOwner):
+            my_first_prop = _Prop(_Value())
+
+        owner = _Owner()
+        with pytest.raises(NotSettable):
+            _Owner.my_first_prop.set(owner, "")
+
+    def test_delete(self) -> None:
+        class _Owner(_PropOwner):
+            my_first_prop = _Prop(_Value())
+
+        owner = _Owner()
+        with pytest.raises(NotDeletable):
+            _Owner.my_first_prop.delete(owner)
+
     def test___get____with_class(self) -> None:
         class _Owner(_PropOwner):
             my_first_prop = _Prop(_Value())
@@ -74,12 +83,35 @@ class TestProp:
         owner = _Owner()
         assert owner.my_first_prop == (owner, value)
 
+    def test___set__(self) -> None:
+        class _Owner(_PropOwner):
+            my_first_prop = _Prop(_Value())
+
+        owner = _Owner()
+        with pytest.raises(NotSettable):
+            owner.my_first_prop = ""
+
+    def test___delete__(self) -> None:
+        class _Owner(_PropOwner):
+            my_first_prop = _Prop(_Value())
+
+        owner = _Owner()
+        with pytest.raises(NotDeletable):
+            del owner.my_first_prop
+
     def test_init_owner(self) -> None:
         class _Owner(_PropOwner):
             my_first_prop = _Prop(_Value())
 
         owner = _Owner()
         assert _Owner.my_first_prop in owner.init_properties
+
+    def test_delete_owner(self) -> None:
+        class _Owner(_PropOwner):
+            my_first_prop = _Prop(_Value())
+
+        owner = _Owner()
+        _Owner.my_first_prop.delete_owner(owner)
 
     def test_prop(self) -> None:
         class _Owner(_PropOwner):
@@ -110,6 +142,27 @@ class TestProxyProp:
         assert owner.my_first_prop == value
         m_proxied.get.assert_called_once_with(owner)
 
+    def test_set(self, mocker: MockerFixture) -> None:
+        value = "Hello, world!"
+        m_proxied = mocker.MagicMock(spec=Prop)
+
+        class _Owner(HasProps):
+            my_first_prop = ProxyProp(proxied=m_proxied)
+
+        owner = _Owner()
+        owner.my_first_prop = value
+        m_proxied.set.assert_called_once_with(owner, value)
+
+    def test_delete(self, mocker: MockerFixture) -> None:
+        m_proxied = mocker.MagicMock(spec=Prop)
+
+        class _Owner(HasProps):
+            my_first_prop = ProxyProp(proxied=m_proxied)
+
+        owner = _Owner()
+        del owner.my_first_prop
+        m_proxied.delete.assert_called_once_with(owner)
+
     def test_init_owner(self, mocker: MockerFixture) -> None:
         m_proxied = mocker.MagicMock(spec=Prop)
 
@@ -118,6 +171,16 @@ class TestProxyProp:
 
         owner = _Owner()
         m_proxied.init_owner.assert_called_once_with(owner)
+
+    def test_delete_owner(self, mocker: MockerFixture) -> None:
+        m_proxied = mocker.MagicMock(spec=Prop)
+
+        class _Owner(HasProps):
+            my_first_prop = ProxyProp(proxied=m_proxied)
+
+        owner = _Owner()
+        _Owner.my_first_prop.delete_owner(owner)
+        m_proxied.delete_owner.assert_called_once_with(owner)
 
 
 class TestPropError:
@@ -144,28 +207,19 @@ class TestOwnerError:
         assert sut.name == "my_first_prop"
 
 
-class TestSettableProp:
-    def test___set__(self) -> None:
-        class _Owner(_PropOwner):
-            my_first_prop = _SettableProp(_Value())
-
-        owner = _Owner()
-        with pytest.raises(NotSettable):
-            owner.my_first_prop = (owner, _Value())
-
-    def test_set(self) -> None:
-        class _Owner(_PropOwner):
-            my_first_prop = _SettableProp(_Value())
-
-        owner = _Owner()
-        with pytest.raises(NotSettable):
-            _Owner.my_first_prop.set(owner, (owner, _Value()))
-
-
 class TestNotSettable:
     def test___init__(self) -> None:
         class _Owner(_PropOwner):
-            my_first_prop = _SettableProp(_Value())
+            my_first_prop = _Prop(_Value())
 
         sut = NotSettable(_Owner.my_first_prop, _Owner())
+        assert "my_first_prop" in str(sut)
+
+
+class TestNotDeletable:
+    def test___init__(self) -> None:
+        class _Owner(_PropOwner):
+            my_first_prop = _Prop(_Value())
+
+        sut = NotDeletable(_Owner.my_first_prop, _Owner())
         assert "my_first_prop" in str(sut)

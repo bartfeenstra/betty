@@ -8,10 +8,9 @@ from collections.abc import Callable, Collection, Iterable
 from inspect import signature
 from typing import TYPE_CHECKING, Any, final, override
 
-from betty.attr import ProxyAttr
 from betty.attrs.owner import OwnerAttr
 from betty.datas.aggregate.record import FieldDefinition
-from betty.prop import HasProps
+from betty.prop import HasProps, ProxyProp
 
 if TYPE_CHECKING:
     from betty.attrs.collection_attr import CollectionAttrAttr
@@ -23,7 +22,7 @@ class DefaultCollectionAttr[
     MutableCollectionT: Collection[Any],
     ValuesSetT: Iterable,
 ](
-    ProxyAttr[OwnerT, MutableCollectionT, ValuesSetT],
+    ProxyProp[OwnerT, MutableCollectionT, ValuesSetT],
     OwnerAttr[OwnerT, MutableCollectionT, ValuesSetT],
 ):
     """
@@ -37,14 +36,14 @@ class DefaultCollectionAttr[
         /,
     ):
         super().__init__(
-            proxied,
-            field=FieldDefinition(
+            FieldDefinition(
                 proxied.field.data,
                 label=proxied.field.label,
                 description=proxied.field.description,
                 omit_load=True,
                 omit_dump=self._omit_dump,
             ),
+            proxied=proxied,
         )
         self._proxied = proxied
         self._default: Callable[[OwnerT], ValuesSetT] = (

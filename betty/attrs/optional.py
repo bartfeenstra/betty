@@ -6,16 +6,15 @@ from __future__ import annotations
 
 from typing import final, override
 
-from betty.attr import ProxyAttr
 from betty.attrs.owner import OwnerAttr
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.optional import OptionalDefinition
-from betty.prop import HasProps
+from betty.prop import HasProps, ProxyProp
 
 
 @final
 class Optional[OwnerT: HasProps, GetT, SetT](
-    ProxyAttr[OwnerT, GetT | None, SetT | None],
+    ProxyProp[OwnerT, GetT | None, SetT | None],
     OwnerAttr[OwnerT, GetT | None, SetT | None],
 ):
     """
@@ -24,14 +23,14 @@ class Optional[OwnerT: HasProps, GetT, SetT](
 
     def __init__(self, proxied: OwnerAttr[OwnerT, GetT, SetT], /):
         super().__init__(
-            proxied,
-            field=FieldDefinition(
+            FieldDefinition(
                 OptionalDefinition(proxied.field.data),
                 label=proxied.field.label,
                 description=proxied.field.description,
                 omit_load=True,
                 omit_dump=self._omit_dump,
             ),
+            proxied=proxied,
         )
         self._proxied = proxied
 
@@ -58,3 +57,7 @@ class Optional[OwnerT: HasProps, GetT, SetT](
             self._set_owner_attr(owner, None)
         else:
             super().set(owner, value)
+
+    @override
+    def delete(self, owner: OwnerT, /) -> None:
+        self.set(owner, None)
