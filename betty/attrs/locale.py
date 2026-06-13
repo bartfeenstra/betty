@@ -18,7 +18,7 @@ from betty.prop import HasProps
 if TYPE_CHECKING:
     from babel import Locale
 
-    from betty.attrs.settable import SettableAttr
+    from betty.attrs.common import CommonAttr
     from betty.locale.localizable import ResolvableLocalizable
     from betty.portable import PortableMapping
     from betty.project import Project
@@ -28,7 +28,7 @@ def new_locale_attr(
     *,
     label: ResolvableLocalizable | None = None,
     description: ResolvableLocalizable | None = None,
-) -> SettableAttr[HasProps, Locale, ResolvableLocale]:
+) -> CommonAttr[HasProps, Locale, ResolvableLocale]:
     """
     Create an attribute containing a locale.
     """

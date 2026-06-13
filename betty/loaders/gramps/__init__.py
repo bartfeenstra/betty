@@ -41,7 +41,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from betty.attr import Attr as Attr
-    from betty.attrs.settable import SettableAttr
+    from betty.attrs.common import CommonAttr
     from betty.entity.collection.pool import EntityPool
     from betty.job.scheduler import Scheduler
     from betty.locale.localizable import ResolvableLocalizable
@@ -54,7 +54,7 @@ def _new_plugin_mapping_attr[PluginDefinitionT: PluginClsDefinition, PluginT: Pl
     manufacturer: type[PluginManufacturer[PluginDefinitionT, PluginT]],
     gramps_label: ResolvableLocalizable,
     default: Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]],
-) -> SettableAttr[
+) -> CommonAttr[
     HasProps,
     MutableMapping[str, PluginManufacturer[PluginDefinitionT, PluginT]],
     Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]],

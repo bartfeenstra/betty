@@ -15,7 +15,7 @@ from betty.machine_name import (
 )
 
 if TYPE_CHECKING:
-    from betty.attrs.settable import SettableAttr
+    from betty.attrs.common import CommonAttr
     from betty.locale.localizable import ResolvableLocalizable
     from betty.prop import HasProps
 
@@ -24,7 +24,7 @@ def new_machine_name_attr(
     *,
     label: ResolvableLocalizable | None = None,
     description: ResolvableLocalizable | None = None,
-) -> SettableAttr[HasProps, MachineName, ResolvableMachineName]:
+) -> CommonAttr[HasProps, MachineName, ResolvableMachineName]:
     """
     Create an attribute containing a machine name.
     """
