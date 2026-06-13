@@ -4,7 +4,7 @@ Object attributes.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Final
+from typing import TYPE_CHECKING, Any, Final, Never
 
 from betty.prop import HasProps, Prop
 
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from betty.datas.aggregate.record import FieldDefinition
 
 
-class Attr[OwnerT: HasProps, GetT, SetT = Any](Prop[OwnerT, GetT, SetT]):
+class Attr[OwnerT: HasProps, GetT, SetT: Any = Never](Prop[OwnerT, GetT, SetT]):
     """
     An object attribute with a data definition.
     """

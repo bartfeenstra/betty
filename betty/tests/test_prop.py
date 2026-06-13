@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING, Never, override
 
 import pytest
 
@@ -57,7 +57,10 @@ class TestProp:
 
         owner = _Owner()
         with pytest.raises(NotSettable):
-            _Owner.my_first_prop.set(owner, "")
+            _Owner.my_first_prop.set(
+                owner,
+                Never,  # ty:ignore[invalid-argument-type]
+            )
 
     def test_delete(self) -> None:
         class _Owner(_PropOwner):
@@ -89,7 +92,7 @@ class TestProp:
 
         owner = _Owner()
         with pytest.raises(NotSettable):
-            owner.my_first_prop = ""
+            owner.my_first_prop = Never  # ty:ignore[invalid-assignment]
 
     def test___delete__(self) -> None:
         class _Owner(_PropOwner):

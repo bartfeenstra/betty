@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import cache
 from inspect import getmembers
-from typing import TYPE_CHECKING, Any, Final, Self, final, overload, override
+from typing import TYPE_CHECKING, Any, Final, Never, Self, final, overload, override
 
 from betty.importlib import fully_qualified_name
 
@@ -45,7 +45,7 @@ class PropDefinition[OwnerT: HasProps]:
     The definition of a property on a class.
     """
 
-    prop: Prop[OwnerT, Any]
+    prop: Prop[OwnerT, Any, Any]
     owner: type[OwnerT]
     name: str
 
@@ -64,7 +64,7 @@ class PropDefinition[OwnerT: HasProps]:
         return f"_prop__{type(self.prop).__name__}__{self.name}"
 
 
-class Prop[OwnerT: HasProps, GetT, SetT = Any](ABC):
+class Prop[OwnerT: HasProps, GetT, SetT: Any = Never](ABC):
     """
     A property.
     """
