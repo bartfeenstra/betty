@@ -8,16 +8,16 @@ from typing import TYPE_CHECKING, final
 
 from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.owner import OwnerAttr
-from betty.data import Data, Sample
+from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.str import StrDefinition
 from betty.locale.localizable.gettext import _
-from betty.plugin.resolve import resolve_plugin_id
+from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.prop import HasProps
+from betty.sample import Sample
 
 if TYPE_CHECKING:
     from betty.entity import EntityDefinition
-    from betty.plugin.resolve import ResolvablePluginId
 
 
 @final
@@ -31,7 +31,7 @@ class EntityReference(Data, HasProps):
     """
     A reference to an entity of any type.
 
-    .. data:: betty.entity.reference:EntityReference
+    .. data:: betty.datas.entity_reference:EntityReference
     """
 
     type = new_machine_name_attr(label=_("Entity type"))

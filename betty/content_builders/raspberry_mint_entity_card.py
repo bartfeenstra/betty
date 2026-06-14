@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.content import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
+from betty.datas.entity_reference import EntityReference
 from betty.entity.has_file_references import HasFileReferences
-from betty.entity.reference import EntityReference
 from betty.extensions._theme import associated_file_references
 from betty.factory import DataManufacturable
 from betty.image import is_supported_media_type

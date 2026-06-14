@@ -1,7 +1,7 @@
 from betty.content_builders.raspberry_mint_entity_card import EntityCard
+from betty.datas.entity_reference import EntityReference
 from betty.document import Document
 from betty.entities.person import Person
-from betty.entity.reference import EntityReference
 from betty.test_utils.conftest import IsolatedProjectFactory
 
 
