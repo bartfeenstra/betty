@@ -11,7 +11,7 @@ class TestColorDefinition:
         assert ColorDefinition().porter.load(color) == color
 
     @pytest.mark.parametrize(
-        "portable,",
+        "portable",
         [
             True,
             False,
