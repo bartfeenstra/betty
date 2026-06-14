@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from betty.entity.reference import EntityReference
+from betty.datas.entity_reference import EntityReference
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.entity import DummyEntityOne
 

@@ -15,13 +15,13 @@ from betty.content_builders.raspberry_mint_incomplete_translation_warning import
 from betty.content_builders.raspberry_mint_section import Section, SectionData
 from betty.content_builders.render import Render, RenderData
 from betty.content_builders.wikipedia_summary import WikipediaSummary
+from betty.datas.entity_reference import EntityReference
 from betty.enrichers.deriver import Deriver
 from betty.enrichers.wiki import Wiki
 from betty.entities.event import Event
 from betty.entities.person import Person
 from betty.entities.place import Place
 from betty.entities.source import Source
-from betty.entity.reference import EntityReference
 from betty.extension import ExtensionManufacturer
 from betty.extensions.http_api_doc import HttpApiDoc
 from betty.extensions.maps import Maps
