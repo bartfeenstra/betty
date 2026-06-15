@@ -219,7 +219,7 @@ class Populator:
                                 {
                                     locale: f"{image.wikimedia_commons_url}?uselang={locale}"
                                     for locale in self._locales
-                                },  # ty:ignore[invalid-argument-type]
+                                },
                             ),
                             label=_("Description, licensing, and image history"),
                             description=_(

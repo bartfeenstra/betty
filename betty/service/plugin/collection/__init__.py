@@ -37,7 +37,7 @@ class CollectionPluginServiceManager[
         service_provider: ServiceProviderT,
         /,
         *plugins: InitT | ResolvablePluginDefinition[PluginDefinitionT],
-    ) -> Iterable[InitT | ResolvablePluginDefinition[PluginDefinitionT]]:  # ty:ignore[invalid-method-override]
+    ) -> Iterable[InitT | ResolvablePluginDefinition[PluginDefinitionT]]:
         plugins_by_id = {
             self.resolve_init_plugin_id(plugin): plugin
             for plugin in await super().prepare_plugins(service_provider, *plugins)
@@ -52,7 +52,7 @@ class CollectionPluginServiceManager[
                     )
                 ),
             )
-        )  # ty:ignore[invalid-return-type]
+        )
 
     @final
     def __sort_plugins(

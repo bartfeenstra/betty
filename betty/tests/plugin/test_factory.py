@@ -72,18 +72,36 @@ class TestPluginManufacturer:
             ),
             (
                 True,
-                DummyPluginManufacturer("my-first-plugin", {"data": "my-first-value"}),
-                DummyPluginManufacturer("my-first-plugin", {"data": "my-first-value"}),
+                DummyPluginManufacturer(
+                    "my-first-plugin",
+                    {"data": "my-first-value"},  # ty:ignore[invalid-argument-type]
+                ),
+                DummyPluginManufacturer(
+                    "my-first-plugin",
+                    {"data": "my-first-value"},  # ty:ignore[invalid-argument-type]
+                ),
             ),
             (
                 False,
-                DummyPluginManufacturer("my-first-plugin", {"data": "my-first-value"}),
-                DummyPluginManufacturer("my-first-plugin", {"data": "my-second-value"}),
+                DummyPluginManufacturer(
+                    "my-first-plugin",
+                    {"data": "my-first-value"},  # ty:ignore[invalid-argument-type]
+                ),
+                DummyPluginManufacturer(
+                    "my-first-plugin",
+                    {"data": "my-second-value"},  # ty:ignore[invalid-argument-type]
+                ),
             ),
             (
                 False,
-                DummyPluginManufacturer("my-first-plugin", {"data": "my-first-value"}),
-                DummyPluginManufacturer("my-second-plugin", {"data": "my-first-value"}),
+                DummyPluginManufacturer(
+                    "my-first-plugin",
+                    {"data": "my-first-value"},  # ty:ignore[invalid-argument-type]
+                ),
+                DummyPluginManufacturer(
+                    "my-second-plugin",
+                    {"data": "my-first-value"},  # ty:ignore[invalid-argument-type]
+                ),
             ),
         ],
     )
@@ -101,8 +119,14 @@ class TestPluginManufacturer:
             lambda: DummyPluginManufacturer("my-second-plugin"),
             lambda: DummyPluginManufacturer("my-first-plugin", DummyData()),
             lambda: DummyPluginManufacturer("my-second-plugin", DummyData()),
-            lambda: DummyPluginManufacturer("my-first-plugin", {"dummy": "data"}),
-            lambda: DummyPluginManufacturer("my-second-plugin", {"dummy": "data"}),
+            lambda: DummyPluginManufacturer(
+                "my-first-plugin",
+                {"dummy": "data"},  # ty:ignore[invalid-argument-type]
+            ),
+            lambda: DummyPluginManufacturer(
+                "my-second-plugin",
+                {"dummy": "data"},  # ty:ignore[invalid-argument-type]
+            ),
         ]
         for new_sut in new_suts:
             assert hash(new_sut()) == hash(new_sut())
@@ -142,7 +166,7 @@ class TestPluginManufacturer:
     def test_load__with_configuration(self) -> None:
         configuration: PortableData = {
             "check": True,
-        }  # ty:ignore[invalid-assignment]
+        }
         sut = DummyPluginManufacturer.load({
             "plugin": _RequiredDataManufacturableDummyPlugin.plugin().id,
             "data": configuration,
@@ -160,7 +184,7 @@ class TestPluginManufacturer:
     def test_load_key__with_configuration(self) -> None:
         configuration: PortableData = {
             "check": True,
-        }  # ty:ignore[invalid-assignment]
+        }
         sut = DummyPluginManufacturer.load_key(
             {"data": configuration},
             Attr("plugin"),
@@ -186,7 +210,7 @@ class TestPluginManufacturer:
         }
 
     def test_dump__with_portable_configuration(self) -> None:
-        portable_configuration = {
+        portable_configuration: PortableData = {
             "value": "Hello, world!",
         }
         sut = DummyPluginManufacturer(
@@ -219,7 +243,7 @@ class TestPluginManufacturer:
         )
 
     def test_dump_key__with_portable_configuration(self) -> None:
-        portable_configuration = {
+        portable_configuration: PortableData = {
             "value": "Hello, world!",
         }
         sut = DummyPluginManufacturer(
@@ -257,7 +281,8 @@ class TestPluginManufacturer:
     ) -> None:
         value = "Hello, world~"
         sut = DummyPluginManufacturer(
-            _RequiredDataManufacturableDummyPlugin, {"value": value}
+            _RequiredDataManufacturableDummyPlugin,
+            {"value": value},  # ty:ignore[invalid-argument-type]
         )
         instance = await sut(self._SERVICES)
         assert isinstance(instance, _RequiredDataManufacturableDummyPlugin)

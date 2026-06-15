@@ -996,14 +996,7 @@ class GrampsLoader:
             date = self._load_date(name_element)
             name = name_element.get("value")
             assert name is not None
-            names.append(
-                PlaceName(
-                    StaticTranslations(
-                        {language: name},  # ty:ignore[invalid-argument-type]
-                    ),
-                    date=date,
-                )
-            )
+            names.append(PlaceName(StaticTranslations({language: name}), date=date))
 
         place_type: PlaceType
         try:

@@ -16,7 +16,7 @@ class TestCallbackPorter:
         assert sut.load(None) == "loaded"
 
     def test_dump(self) -> None:
-        sut = CallbackPorter(lambda _: "loaded", lambda _: "dumped")
+        sut = CallbackPorter(lambda _: None, lambda _: "dumped")
         assert sut.dump(None) == "dumped"
 
 

@@ -25,9 +25,7 @@ class TestJson(SerializerTestBase):
 
     def test_dump(self) -> None:
         sut = Json()
-        serialized = sut.dump(
-            {"hello": [123, "World!"]},  # ty:ignore[invalid-argument-type]
-        )
+        serialized = sut.dump({"hello": [123, "World!"]})
         assert (
             serialized
             == """

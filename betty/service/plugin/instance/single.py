@@ -34,7 +34,7 @@ class PluginInstanceService[
         ReAwaitable[PluginT],
         ServicePluginInstance[PluginDefinitionT],
     ],
-):  # ty:ignore[invalid-generic-class]
+):
     """
     A single plugin service.
     """

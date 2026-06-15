@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Final, Self, final, override
 
-from betty.definition.cls import ClsDefinition
+from betty.definition.cls import OptionalClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.importlib import fully_qualified_name
 from betty.portable import Portable, PortableData, PortablePorter, Porter
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 
 class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
-    HumanFacingDefinition, ClsDefinition[DataClsT]
+    HumanFacingDefinition, OptionalClsDefinition[DataClsT]
 ):
     """
     A data definition.
@@ -51,7 +51,7 @@ class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
         The porter for the data.
         """
         if self._porter is None:
-            if not issubclass(self.cls, Portable):
+            if not self.cls or not issubclass(self.cls, Portable):
                 raise NotPortable(
                     f"This definition does not have a porter. Either make the data class {fully_qualified_name(self.cls)} subclass {fully_qualified_name(Portable)}, or provide a porter when initializing the definition."
                 )
@@ -70,7 +70,7 @@ class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
         Any samples for this data.
         """
         if not self._samples:
-            if issubclass(self.cls, Samplable):
+            if self.cls and issubclass(self.cls, Samplable):
                 return Samples([self.cls])
             return Samples(())
         return Samples(self._samples)

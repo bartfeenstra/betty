@@ -287,13 +287,19 @@ class RecordDefinition[DataClsT, ElementT: Element[str] = Element[str]](
         The factory's arguments are kwargs whose names are this record's field names, and whose values are their fully
         typed values.
         """
-        return self.cls if self._factory is None else self._factory
+        if self._factory:
+            return self._factory
+        if self.cls:
+            return self.cls
+        raise ValueError(
+            "This definition does not have a factory. Either set a data class, or provide a factory when initializing the definition."
+        )
 
     @override
     @property
     def porter(self) -> RecordPorter[DataClsT]:
         if self._porter is None:
-            if issubclass(self.cls, PortableRecord):
+            if self.cls and issubclass(self.cls, PortableRecord):
                 self._porter = PortableRecordPorter(self.cls)  # ty:ignore[invalid-assignment]
             else:
                 self._porter = MappingPorter(  # ty:ignore[invalid-assignment]

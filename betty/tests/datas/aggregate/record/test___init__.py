@@ -231,7 +231,7 @@ class PortableRecordPorterTestPortableRecord(PortableRecord[Attr]):
 
     @override
     def dump_key(self, key: Attr, /) -> tuple[str, PortableData]:
-        return self.key, {"value": self.value}  # ty:ignore[invalid-return-type]
+        return self.key, {"value": self.value}
 
 
 class TestPortableRecordPorter:

@@ -42,7 +42,7 @@ class TestLocalizableDefinition:
         localizable: ShorthandStaticTranslations = {
             default_locale_tag: "Hello, world!",
             "nl-NL": "Hallo, wereld!",
-        }  # ty:ignore[invalid-assignment]
+        }
 
         assert (
             LocalizableDefinition().porter.dump(StaticTranslations(localizable))
