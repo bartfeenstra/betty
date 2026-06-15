@@ -32,7 +32,7 @@ class TestDataDefinition:
             sut.porter  # noqa: B018
 
     def test_porter__with_porter(self) -> None:
-        porter = CallbackPorter(lambda _: None, lambda _: None)
+        porter = CallbackPorter(lambda _: object(), lambda _: None)
         sut = DataDefinition(cls=object, label="-", porter=porter)
         assert sut.porter is porter
 
@@ -62,12 +62,13 @@ class TestDataDefinition:
         assert list(sut.samples) == [sample]
 
     def test_load__with_porter(self) -> None:
+        loaded = object()
         sut = DataDefinition(
             cls=object,
             label="-",
-            porter=CallbackPorter(lambda _: "loader", lambda _: None),
+            porter=CallbackPorter(lambda _: loaded, lambda _: None),
         )
-        assert sut.porter.load(None) == "loader"
+        assert sut.porter.load(None) is loaded
 
     def test_load__with_portable(self) -> None:
         sut = DataDefinition(cls=_DummyData, label="-")
@@ -83,9 +84,9 @@ class TestDataDefinition:
         sut = DataDefinition(
             cls=object,
             label="-",
-            porter=CallbackPorter(lambda _: None, lambda _: "dumper"),
+            porter=CallbackPorter(lambda _: object(), lambda _: "dumper"),
         )
-        assert sut.porter.dump(None) == "dumper"
+        assert sut.porter.dump(object()) == "dumper"
 
     def test_dump__with_portable(self) -> None:
         sut = DataDefinition(cls=_DummyData, label="-")

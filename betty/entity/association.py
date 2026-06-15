@@ -442,7 +442,7 @@ class _ToManyAssociation[
                     for associate in associates
                 ],
             )
-        )  # ty:ignore[invalid-return-type]
+        )
 
 
 class _BidirectionalAssociation[OwnerT: Entity, AssociateT: Entity](

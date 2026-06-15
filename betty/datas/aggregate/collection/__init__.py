@@ -39,7 +39,7 @@ class CollectionDefinition[
     ):
         super().__init__(cls=cls, label=label, description=description, porter=porter)
         self._item = resolve_data_definition(item)
-        self._factory = factory
+        self.__factory = factory
 
     @final
     @property
@@ -49,12 +49,22 @@ class CollectionDefinition[
         """
         return self._item
 
+    @property
+    def _factory(self) -> Callable[..., CollectionT]:
+        if self.__factory:
+            return self.__factory
+        if self.cls:
+            return self.cls
+        raise ValueError(
+            "This definition does not have a factory. Either set a data class, or provide a factory when initializing the definition."
+        )
+
     @final
     def new(self, values: ValuesSetT | None = None) -> CollectionT:
         """
         Create a new collection.
         """
-        new = (self.cls if not self._factory else self._factory)()
+        new = self._factory()
         if values is not None:
             self.replace(new, values)
         return new

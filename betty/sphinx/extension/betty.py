@@ -351,9 +351,13 @@ Data
                     content += f"""
     {primary_description.localize(default_localizer)}
 """
+                if field.data.cls:
+                    value = f":py:class:`{field.data.cls.__name__} <{field.data.cls.__module__}.{field.data.cls.__qualname__}>`"
+                else:
+                    value = "<complex type>"
                 content += f"""
 
-    Value: :py:class:`{field.data.cls.__name__} <{field.data.cls.__module__}.{field.data.cls.__qualname__}>`
+    Value: {value}
 """
                 if field.label is not None:
                     content += f"""

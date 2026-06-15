@@ -35,12 +35,10 @@ class TestHumanFacingException:
         locale = "nl"
         localized_message = "Hallo, wereld!"
         sut = HumanFacingException(
-            StaticTranslations(
-                {
-                    default_locale_tag: "Hello, world!",
-                    locale: localized_message,
-                }  # ty:ignore[invalid-argument-type]
-            )
+            StaticTranslations({
+                default_locale_tag: "Hello, world!",
+                locale: localized_message,
+            })
         )
         localizer = Localizer(locale, NullTranslations())
         assert sut.localize(localizer) == localized_message

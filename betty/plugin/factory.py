@@ -67,9 +67,7 @@ class PluginManufacturer(
     """
 
     plugin_data = OwnerAttr(
-        DataDefinition[Data | PortableData | VoidType, PortableData](
-            cls=object, label=_("Data")
-        )
+        DataDefinition[Data | PortableData | VoidType, PortableData](label=_("Data"))
     )
     """
     Get the plugin's own data.
@@ -129,7 +127,9 @@ class PluginManufacturer(
     @final
     def _dump_data(self, configuration: Data | PortableData) -> PortableData:
         if isinstance(configuration, Data):
-            return configuration.data().porter.dump(configuration)
+            return configuration.data().porter.dump(
+                configuration,  # ty:ignore[invalid-argument-type]
+            )
         return configuration
 
     @final
@@ -229,7 +229,7 @@ class PluginManufacturer(
                     "my-first-plugin-id",
                     {
                         "configuration-key": "configuration-value",
-                    },
+                    },  # ty:ignore[invalid-argument-type]
                 ),
                 label="Full",
                 size=Size.FULL,

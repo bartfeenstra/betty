@@ -19,7 +19,7 @@ from betty.service.plugin.definition.collection import (
 
 
 @final
-class PluginDefinitionsService[  # ty:ignore[abstract-method-in-final-class]
+class PluginDefinitionsService[
     ServiceProviderT: PluginServiceProvider,
     PluginDefinitionT: PluginDefinition,
 ](
@@ -34,7 +34,7 @@ class PluginDefinitionsService[  # ty:ignore[abstract-method-in-final-class]
         PluginDefinitionT,
         ResolvablePluginDefinition[PluginDefinitionT],
     ],
-):  # ty:ignore[invalid-generic-class]
+):
     """
     A service of plugin definitions keyed by their IDs.
     """

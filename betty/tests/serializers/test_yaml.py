@@ -26,7 +26,5 @@ class TestYaml(SerializerTestBase):
 
     def test_dump(self) -> None:
         sut = Yaml()
-        serialized = sut.dump(
-            {"hello": [123, "World!"]},  # ty:ignore[invalid-argument-type]
-        )
+        serialized = sut.dump({"hello": [123, "World!"]})
         assert serialized == "hello:\n- 123\n- World!\n"

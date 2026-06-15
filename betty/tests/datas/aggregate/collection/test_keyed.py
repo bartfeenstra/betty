@@ -47,13 +47,13 @@ class TestKeyedCollectionDefinition:
         "my_first_key": {
             "other_element": "my_first_other_element",
         }
-    }  # ty:ignore[invalid-assignment]
+    }
     _portable_ordered: ClassVar[PortableData] = [
         {
             "key": "my_first_key",
             "other_element": "my_first_other_element",
         }
-    ]  # ty:ignore[invalid-assignment]
+    ]
     _values: ClassVar[Sequence[dict[str, str]]] = [
         {
             "key": "my_first_key",

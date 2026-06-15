@@ -35,7 +35,7 @@ class CollectionPluginInstanceServiceManager[
         ReAwaitable[PluginT],
         ServicePluginInstance[PluginDefinitionT],
     ],
-):  # ty:ignore[invalid-generic-class]
+):
     """
     A service of plugin instances.
     """

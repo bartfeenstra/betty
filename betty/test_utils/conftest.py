@@ -742,9 +742,11 @@ async def assert_linked_data_dump() -> AssertLinkedDataDump:
 def _normalize[PortableDataT: PortableData](portable: PortableDataT) -> PortableDataT:
     if isinstance(portable, MutableMapping):
         return {
-            key: _normalize(value)
+            key: _normalize(
+                value,  # ty:ignore[invalid-argument-type]
+            )
             for key, value in portable.items()
-            if not key.startswith("$")
+            if not key.startswith("$")  # ty:ignore[unresolved-attribute]
         }  # ty:ignore[invalid-return-type]
     if isinstance(portable, MutableSequence) and not isinstance(portable, str):
         return list(

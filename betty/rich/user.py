@@ -218,7 +218,7 @@ class RichUser(ManagedLifeCycle, User):
                 console=self._console,
                 stream=stdin,
                 **ask_kwargs,
-            ),
+            ),  # ty:ignore[no-matching-overload]
         )
         if assertion is None:
             return value

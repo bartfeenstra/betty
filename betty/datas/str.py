@@ -30,8 +30,5 @@ class StrDefinition(DataDefinition[str, str]):
             cls=str,
             label=label,
             description=description,
-            porter=CallbackPorter(
-                assert_str(),  # ty:ignore[invalid-argument-type]
-                str,
-            ),  # ty:ignore[invalid-argument-type]
+            porter=CallbackPorter(assert_str(), str),
         )

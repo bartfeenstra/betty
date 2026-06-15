@@ -4,6 +4,7 @@ Integrate Betty with `Gramps <https://gramps-project.org>`_.
 
 from __future__ import annotations
 
+from collections.abc import Mapping, MutableMapping
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
@@ -37,7 +38,7 @@ from betty.role import Role, RoleDefinition, RoleManufacturer
 from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping, MutableMapping
+    from collections.abc import Iterable
     from pathlib import Path
 
     from betty.attr import Attr as Attr
@@ -59,7 +60,12 @@ def _new_plugin_mapping_attr[PluginDefinitionT: PluginClsDefinition, PluginT: Pl
     MutableMapping[str, PluginManufacturer[PluginDefinitionT, PluginT]],
     Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]],
 ]:
-    return CollectionOwnerAttr(
+    return CollectionOwnerAttr[
+        HasProps,
+        MutableMapping[str, PluginManufacturer[PluginDefinitionT, PluginT]],
+        Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]],
+        MappingDefinition,
+    ](
         MappingDefinition(
             cls=MutableResolvedMapping,
             factory=lambda: MutableResolvedMappingAdapter[

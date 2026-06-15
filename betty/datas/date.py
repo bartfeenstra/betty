@@ -37,5 +37,5 @@ class AnyDateDefinition(DataDefinition[AnyDate, PortableData]):
 
     def __init__(self):
         super().__init__(
-            object, label=_("Date"), porter=AnyDatePorter(), samples=[Date, DateRange]
+            label=_("Date"), porter=AnyDatePorter(), samples=[Date, DateRange]
         )

@@ -8,9 +8,7 @@ class TestAnyDatePorter:
 
     def test_load__with_date_range(self) -> None:
         assert isinstance(
-            AnyDatePorter().load(
-                {"start": {}},  # ty:ignore[invalid-argument-type]
-            ),
+            AnyDatePorter().load({"start": {}}),
             DateRange,
         )
 

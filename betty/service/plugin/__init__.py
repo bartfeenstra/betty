@@ -264,9 +264,12 @@ class PluginServiceInitializer(ManagedLifeCycle):
         super().__init__()
         self._services = services
         self._service_provider = service_provider
-        self._supported_plugins = tuple(
-            map(resolve_plugin_definition, supported_plugins)
-        )
+        self._supported_plugins: Sequence[PluginDefinition] = tuple(
+            map(
+                resolve_plugin_definition,
+                supported_plugins,  # ty:ignore[invalid-argument-type]
+            )
+        )  # ty:ignore[invalid-assignment]
         self._plugin_services: Sequence[
             PluginServiceManager[PluginServiceProvider, PluginDefinition, Any, Any]
         ] = tuple(

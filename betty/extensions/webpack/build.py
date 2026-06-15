@@ -12,11 +12,7 @@ from shutil import copy2, copytree
 from typing import TYPE_CHECKING, Final, cast
 
 from betty import npm
-from betty.dirs import (
-    js_directory,
-    root_directory,
-    webpack_entry_point_directory,
-)
+from betty.dirs import js_directory, root_directory, webpack_entry_point_directory
 from betty.document import Document
 from betty.extension import Extension
 from betty.file import read, write
@@ -154,7 +150,7 @@ class Builder:
                 root_directory / ".browserslistrc",
                 root_directory / "tsconfig.json",
             )
-        ])  # ty:ignore[no-matching-overload]
+        ])
 
     async def _prepare_webpack_entry_point_provider(
         self,

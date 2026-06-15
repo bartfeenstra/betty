@@ -140,16 +140,12 @@ class New(Manufacturable, Command):
 async def _user_input_static_translations(
     user: User, locales: Sequence[Locale], question: Localizable
 ) -> StaticTranslations:
-    return StaticTranslations(
-        {
-            locale: await user.ask_input(
-                question.format(
-                    locale=locale.get_display_name() or to_language_tag(locale)
-                )
-            )
-            for locale in locales
-        }  # ty:ignore[invalid-argument-type]
-    )
+    return StaticTranslations({
+        locale: await user.ask_input(
+            question.format(locale=locale.get_display_name() or to_language_tag(locale))
+        )
+        for locale in locales
+    })
 
 
 def _new_default_configuration() -> ProjectData:

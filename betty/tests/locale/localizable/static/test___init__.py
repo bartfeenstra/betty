@@ -123,7 +123,7 @@ class TestStaticTranslations:
         localizable: ShorthandStaticTranslations = {
             default_locale_tag: "Hello, world!",
             "nl-NL": "Hallo, wereld!",
-        }  # ty:ignore[invalid-assignment]
+        }
 
         assert StaticTranslations(localizable).dump() == localizable
 
