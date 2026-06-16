@@ -47,72 +47,72 @@ class TestResolvedMappingAdapter:
 
 class TestMutableResolvedMappingAdapter:
     def test___delitem__(self) -> None:
-        upstream = {"TRUE": "True", "FALSE": "False"}
+        proxied = {"TRUE": "True", "FALSE": "False"}
         sut = MutableResolvedMappingAdapter(
-            upstream, key_resolver=lambda key: str(key).upper(), value_resolver=str
+            proxied, key_resolver=lambda key: str(key).upper(), value_resolver=str
         )
         del sut[False]
-        assert upstream == {"TRUE": "True"}
+        assert proxied == {"TRUE": "True"}
 
     def test___setitem__(self) -> None:
-        upstream = {"TRUE": "True"}
+        proxied = {"TRUE": "True"}
         sut = MutableResolvedMappingAdapter(
-            upstream, key_resolver=lambda key: str(key).upper(), value_resolver=str
+            proxied, key_resolver=lambda key: str(key).upper(), value_resolver=str
         )
         sut[False] = False
-        assert upstream == {"TRUE": "True", "FALSE": "False"}
+        assert proxied == {"TRUE": "True", "FALSE": "False"}
 
     def test_pop(self) -> None:
-        upstream = {"TRUE": "True", "FALSE": "False"}
+        proxied = {"TRUE": "True", "FALSE": "False"}
         sut = MutableResolvedMappingAdapter(
-            upstream, key_resolver=lambda key: str(key).upper(), value_resolver=str
+            proxied, key_resolver=lambda key: str(key).upper(), value_resolver=str
         )
         assert sut.pop(True) == "True"
 
     def test_pop__with_default(self) -> None:
-        upstream = {"TRUE": "True"}
+        proxied = {"TRUE": "True"}
         sut = MutableResolvedMappingAdapter(
-            upstream, key_resolver=lambda key: str(key).upper(), value_resolver=str
+            proxied, key_resolver=lambda key: str(key).upper(), value_resolver=str
         )
         assert sut.pop(False, "Hello, world!") == "Hello, world!"
 
     def test_popitem(self) -> None:
-        upstream = {"TRUE": "True", "FALSE": "False"}
+        proxied = {"TRUE": "True", "FALSE": "False"}
         sut = MutableResolvedMappingAdapter(
-            upstream, key_resolver=passthrough, value_resolver=passthrough
+            proxied, key_resolver=passthrough, value_resolver=passthrough
         )
         assert sut.popitem() == ("FALSE", "False")
-        assert upstream == {"TRUE": "True"}
+        assert proxied == {"TRUE": "True"}
 
     def test_setdefault(self) -> None:
-        upstream = {"TRUE": "True"}
+        proxied = {"TRUE": "True"}
         sut = MutableResolvedMappingAdapter(
-            upstream, key_resolver=lambda key: str(key).upper(), value_resolver=str
+            proxied, key_resolver=lambda key: str(key).upper(), value_resolver=str
         )
         assert sut.setdefault(True, False) == "True"
         assert sut.setdefault(False, False) == "False"
-        assert upstream == {"TRUE": "True", "FALSE": "False"}
+        assert proxied == {"TRUE": "True", "FALSE": "False"}
 
     def test_update__with_mapping(self) -> None:
-        upstream = {"TRUE": "True"}
+        proxied = {"TRUE": "True"}
         sut = MutableResolvedMappingAdapter(
-            upstream, key_resolver=lambda key: str(key).upper(), value_resolver=str
+            proxied, key_resolver=lambda key: str(key).upper(), value_resolver=str
         )
         sut.update({False: False})
-        assert upstream == {"TRUE": "True", "FALSE": "False"}
+        assert proxied == {"TRUE": "True", "FALSE": "False"}
 
     def test_update__with_iterable(self) -> None:
-        upstream = {"TRUE": "True"}
+        proxied = {"TRUE": "True"}
         sut = MutableResolvedMappingAdapter(
-            upstream, key_resolver=lambda key: str(key).upper(), value_resolver=str
+            proxied, key_resolver=lambda key: str(key).upper(), value_resolver=str
         )
         sut.update([(False, False)])
-        assert upstream == {"TRUE": "True", "FALSE": "False"}
+        assert proxied == {"TRUE": "True", "FALSE": "False"}
 
     def test_update__with_kwargs(self) -> None:
-        upstream = {"TRUE": "True"}
+        proxied = {"TRUE": "True"}
         sut = MutableResolvedMappingAdapter(
-            upstream, key_resolver=lambda key: key.upper(), value_resolver=str
+            proxied, key_resolver=lambda key: key.upper(), value_resolver=str
         )
         sut.update(false=False)
-        assert upstream == {"TRUE": "True", "FALSE": "False"}
+        assert proxied == {"TRUE": "True", "FALSE": "False"}
