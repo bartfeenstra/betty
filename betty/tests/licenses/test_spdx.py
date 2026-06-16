@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     ("expected", "spdx_license_id"),
     [
         ("spdx-mit", "MIT"),
-        ("spdx-gpl-3--0-or-later", "GPL-3.0-or-later"),
+        ("spdx-gpl-3-0-or-later", "GPL-3.0-or-later"),
     ],
 )
 def test_spdx_license_id_to_license_id(expected: str, spdx_license_id: str) -> None:

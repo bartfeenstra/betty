@@ -27,69 +27,69 @@ _test_filter_image_resize_cover_parameter_argvalues: Final[
     Sequence[tuple[str, str, File | FileReference]]
 ] = [
     (
-        "betty-static:///file/F1-99x-.png",
+        "betty-static:///file/my-first-file-99x-.png",
         "{{ filey | image_resize_cover((99, none)) }}",
         File(
-            id="F1",
+            id="my-first-file",
             path=_test_filter_image_resize_cover_image_path,
             media_type=MediaType("image/png"),
         ),
     ),
     (
-        "betty-static:///file/F1--x99.png",
+        "betty-static:///file/my-first-file--x99.png",
         "{{ filey | image_resize_cover((none, 99)) }}",
         File(
-            id="F1",
+            id="my-first-file",
             path=_test_filter_image_resize_cover_image_path,
             media_type=MediaType("image/png"),
         ),
     ),
     (
-        "betty-static:///file/F1-99x99.png",
+        "betty-static:///file/my-first-file-99x99.png",
         "{{ filey | image_resize_cover((99, 99)) }}",
         File(
-            id="F1",
+            id="my-first-file",
             path=_test_filter_image_resize_cover_image_path,
             media_type=MediaType("image/png"),
         ),
     ),
     (
-        "betty-static:///file/F1-99x99-1x2x3x4.png",
+        "betty-static:///file/my-first-file-99x99-1x2x3x4.png",
         "{{ filey | image_resize_cover((99, 99), focus=(1, 2, 3, 4)) }}",
         File(
-            id="F1",
+            id="my-first-file",
             path=_test_filter_image_resize_cover_image_path,
             media_type=MediaType("image/png"),
         ),
     ),
     (
-        "betty-static:///file/F1-99x99.png#betty-static:///file/F1-99x99.png",
+        "betty-static:///file/my-first-file-99x99.png#betty-static:///file/my-first-file-99x99.png",
         "{{ filey | image_resize_cover((99, 99)) }}#{{ filey | image_resize_cover((99, 99)) }}",
         File(
-            id="F1",
+            id="my-first-file",
             path=_test_filter_image_resize_cover_image_path,
             media_type=MediaType("image/png"),
         ),
     ),
     (
-        "betty-static:///file/F1-99x99.png",
+        "betty-static:///file/my-first-file-99x99.png",
         "{{ filey | image_resize_cover((99, 99)) }}",
         FileReference(
             DummyHasFileReferences(),
             File(
-                id="F1",
+                id="my-first-file",
                 path=_test_filter_image_resize_cover_image_path,
                 media_type=MediaType("image/png"),
             ),
         ),
     ),
     (
-        "betty-static:///file/F1-99x99-0x0x9x9.png",
+        "betty-static:///file/my-first-file-99x99-0x0x9x9.png",
         "{{ filey | image_resize_cover((99, 99)) }}",
         FileReference(
             DummyHasFileReferences(),
             File(
-                id="F1",
+                id="my-first-file",
                 path=_test_filter_image_resize_cover_image_path,
                 media_type=MediaType("image/png"),
             ),
@@ -155,13 +155,13 @@ class TestImageResizeCover:
             template="{{ filey | image_resize_cover }}",
             data={
                 "filey": File(
-                    id="F1",
+                    id="my-first-file",
                     path=image_path,
                     media_type=SVG,
                 )
             },
         ) as (actual, project):
-            assert actual == "betty-static:///file/F1/file/image.svg"
+            assert actual == "betty-static:///file/my-first-file/file/image.svg"
             for file in actual.split("#"):
                 assert (project.www_directory / file[16:]).exists()
 
@@ -175,13 +175,13 @@ class TestImageResizeCover:
             template="{{ filey | image_resize_cover }}",
             data={
                 "filey": File(
-                    id="F1",
+                    id="my-first-file",
                     path=image_path,
                     media_type=MediaType("application/pdf"),
                 )
             },
         ) as (actual, project):
-            assert actual == "betty-static:///file/F1-.jpg"
+            assert actual == "betty-static:///file/my-first-file-.jpg"
             for public_file in actual.split("#"):
                 file = project.www_directory / public_file[16:]
                 assert file.exists()
@@ -197,7 +197,6 @@ class TestImageResizeCover:
                 template="{{ filey | image_resize_cover }}",
                 data={
                     "filey": File(
-                        id="F1",
                         path=file,
                         media_type=MediaType("text/plain"),
                     )
@@ -211,10 +210,6 @@ class TestImageResizeCover:
         with pytest.raises(ValueError):  # noqa: PT011
             async with assert_template_string(
                 template="{{ filey | image_resize_cover }}",
-                data={
-                    "filey": File(
-                        id="F1", path=_test_filter_image_resize_cover_image_path
-                    )
-                },
+                data={"filey": File(path=_test_filter_image_resize_cover_image_path)},
             ):
                 pass  # pragma: nocover

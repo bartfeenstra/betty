@@ -28,9 +28,10 @@ class TestPlaceName:
     async def test_dump_linked_data(
         self, assert_dumps_linked_data: AssertDumpsLinkedData
     ) -> None:
-        sut = PlaceName("My First Name")
+        sut = PlaceName("My First Name", id="my-first-place-name")
         actual = await assert_dumps_linked_data(sut)
         assert actual == {
-            "id": sut.id,
+            "@id": "https://example.com/place-name/my-first-place-name/index.json",
+            "id": "my-first-place-name",
             "name": {default_locale_tag: "My First Name"},
         }

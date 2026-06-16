@@ -1,5 +1,5 @@
 {% set attributes = attributes | default(new_attributes()) %}
-{% do attributes.setdefault(html_id=generate_html_id()) %}
+{% do attributes.setdefault(html_id=machine_name()) %}
 {% do attributes.html_class.append('accordion') %}
 {% if accordion_items | length > 0 %}
     <div {{ attributes }}>

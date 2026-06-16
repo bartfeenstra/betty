@@ -106,7 +106,7 @@ class _ProjectUrlGenerator(Manufacturable):
         return self._generate_from_path(
             pattern.format(
                 entity_type=camel_case_to_kebab_case(entity.plugin().id),
-                entity_id=entity.public_id,
+                entity_id=entity.id,
                 extension=extension,
             ),
             absolute=absolute,

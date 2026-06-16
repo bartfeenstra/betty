@@ -232,7 +232,7 @@ class TestDeriver:
             yield project
 
     async def test_derive__without_events(self, project: Project) -> None:
-        person = Person(id="P0")
+        person = Person(id="my-first-person")
         project.ancestry.add(person)
 
         with record_added(project.ancestry) as added:
@@ -260,7 +260,7 @@ class TestDeriver:
     async def test_derive__without_reference_events(
         self, event_type: EventType, project: Project
     ) -> None:
-        person = Person(id="P0")
+        person = Person(id="my-first-person")
         derivable_event = Event(event_type=event_type)
         Presence(person, Subject(), derivable_event)
         project.ancestry.add(person)
@@ -469,7 +469,7 @@ class TestDeriver:
             ComesBefore,
             ComesBeforeReference,
         }) as project:
-            person = Person(id="P0")
+            person = Person(id="my-first-person")
             Presence(
                 person,
                 Subject(),
@@ -543,7 +543,7 @@ class TestDeriver:
             ComesBeforeShouldExist,
             ComesBeforeReference,
         }) as project:
-            person = Person(id="P0")
+            person = Person(id="my-first-person")
             Presence(
                 person,
                 Subject(),
@@ -779,7 +779,7 @@ class TestDeriver:
             ComesAfter,
             ComesAfterReference,
         }) as project:
-            person = Person(id="P0")
+            person = Person(id="my-first-person")
             Presence(
                 person,
                 Subject(),
@@ -842,7 +842,7 @@ class TestDeriver:
             ComesAfterShouldExist,
             ComesAfterReference,
         }) as project:
-            person = Person(id="P0")
+            person = Person(id="my-first-person")
             Presence(
                 person,
                 Subject(),
@@ -903,7 +903,7 @@ class TestDeriver:
             ComesAfterShouldNotExist,
             ComesBeforeAndAfterShouldNotExist,
         }) as project:
-            person = Person(id="P0")
+            person = Person(id="my-first-person")
             presence = Presence(
                 person,
                 Subject(),

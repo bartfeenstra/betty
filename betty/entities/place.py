@@ -30,6 +30,7 @@ if TYPE_CHECKING:
     from betty.entities.link import Link
     from betty.entities.note import Note
     from betty.locale.localizable import Localizable
+    from betty.machine_name import ResolvableMachineName
     from betty.place_type import PlaceType
     from betty.portable import PortableMapping
     from betty.project import Project
@@ -62,7 +63,6 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
         "enclosee",
         label=_("Enclosers"),
         description=_("The places this place is enclosed or contained by"),
-        linked_data_embedded=True,
     )
     """
     Other places containing this one.
@@ -73,7 +73,6 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
         "encloser",
         label=_("Enclosees"),
         description=_("The places this place encloses or contains"),
-        linked_data_embedded=True,
     )
     """
     Other places contained by this one.
@@ -82,7 +81,7 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
     def __init__(
         self,
         *,
-        id: str | None = None,  # noqa: A002
+        id: ResolvableMachineName | None = None,  # noqa: A002
         names: Iterable[PlaceName] = (),
         events: ToManyAssociates[Event] = (),
         enclosers: ToManyAssociates[Enclosure] = (),
@@ -93,7 +92,7 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
         privacy: Privacy = Privacy.UNDETERMINED,
         place_type: PlaceType | None = None,
     ):
-        super().__init__(id, notes=notes, links=links, privacy=privacy)
+        super().__init__(id=id, notes=notes, links=links, privacy=privacy)
         self._names = list(names)
         self.coordinates = coordinates
         """

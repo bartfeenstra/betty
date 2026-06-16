@@ -30,6 +30,7 @@ if TYPE_CHECKING:
     from betty.license import License
     from betty.linked_data import JsonLdObject
     from betty.locale.localizable import Localizable, ResolvableLocalizable
+    from betty.machine_name import ResolvableMachineName
     from betty.media_type import ResolvableMediaType
     from betty.pathlib import StrPath
     from betty.portable import PortableMapping
@@ -60,7 +61,6 @@ class File(
         "file",
         label=_("Referees"),
         description=_("The entities referencing this file"),
-        linked_data_embedded=True,
     )
     """
     Other entities referencing this file.
@@ -85,7 +85,7 @@ class File(
         self,
         path: StrPath,
         *,
-        id: str | None = None,  # noqa: A002
+        id: ResolvableMachineName | None = None,  # noqa: A002
         name: str | None = None,
         media_type: ResolvableMediaType | None = None,
         description: ResolvableLocalizable | None = None,
@@ -97,7 +97,7 @@ class File(
         license: License | None = None,  # noqa: A002
     ):
         super().__init__(
-            id,
+            id=id,
             media_type=media_type,
             description=description,
             notes=notes,

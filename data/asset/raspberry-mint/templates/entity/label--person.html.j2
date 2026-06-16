@@ -1,6 +1,6 @@
 {% set embedded = embedded | default(False) %}
 {% set person_context = document.entity_contexts['person'] %}
-{% set label_as_link = not embedded and person_context != entity and entity is persistent_entity_id and entity is public %}
+{% set label_as_link = not embedded and person_context != entity and entity.id.persistent and entity is public %}
 {% if label_as_link -%}
     <a href="{{ entity | url }}">
 {%- endif %}

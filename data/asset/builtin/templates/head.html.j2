@@ -31,7 +31,7 @@
                 <link rel="alternate" href="{{ document.resource_url | url(locale=locale) }}" hreflang="{{ locale | to_language_tag }}" type="text/html">
             {% endif %}
         {% endfor %}
-        {% if document.resource is entity_plugin and document.resource is persistent_entity_id %}
+        {% if document.resource is entity_plugin %}
             <link rel="alternate" href="{{ document.resource_url | url(media_type='application/json') }}" hreflang="und" type="application/json">
         {% endif %}
     {% endif %}

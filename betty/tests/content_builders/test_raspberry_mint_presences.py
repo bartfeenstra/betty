@@ -52,20 +52,20 @@ class TestPresences:
     async def test_build_template__with_presences(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        person = Person(id="P1")
+        person = Person(id="my-first-person")
         resource = Event()
         Presence(person, Subject(), resource)
         async with isolated_project_factory(supported_plugins=[Presences]) as project:
             sut = Presences(jinja=await project.jinja)
             actual = await sut.build(document=Document(resource))
         assert actual is not None
-        assert person.public_id in actual
+        assert person.id in actual
 
     async def test_build_template__with_presences_with_include(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        person_include = Person(id="P1")
-        person_exclude = Person(id="P2")
+        person_include = Person(id="my-include-person")
+        person_exclude = Person(id="my-exclude-person")
         resource = Event()
         Presence(person_include, Subject(), resource)
         Presence(person_exclude, Witness(), resource)
@@ -73,14 +73,14 @@ class TestPresences:
             sut = Presences(include=[Subject], jinja=await project.jinja)
             actual = await sut.build(document=Document(resource))
         assert actual is not None
-        assert person_include.public_id in actual
-        assert person_exclude.public_id not in actual
+        assert person_include.id in actual
+        assert person_exclude.id not in actual
 
     async def test_build_template__with_presences_with_exclude(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        person_include = Person(id="P1")
-        person_exclude = Person(id="P2")
+        person_include = Person(id="my-include-person")
+        person_exclude = Person(id="my-exclude-person")
         resource = Event()
         Presence(person_include, Subject(), resource)
         Presence(person_exclude, Witness(), resource)
@@ -88,5 +88,5 @@ class TestPresences:
             sut = await Presences.new(project, PresencesData(exclude=[Witness]))
             actual = await sut.build(document=Document(resource))
         assert actual is not None
-        assert person_include.public_id in actual
-        assert person_exclude.public_id not in actual
+        assert person_include.id in actual
+        assert person_exclude.id not in actual

@@ -1,10 +1,10 @@
 {%- set embedded = embedded | default(False) -%}
 {% if entity is public %}
-    {%- if not embedded and entity is public and entity is persistent_entity_id -%}
+    {%- if not embedded and entity is public and entity.id.persistent -%}
         <a href="{{ entity | url }}">
     {%- endif -%}
     {{ entity.label | localize | html_lang }}
-    {%- if not embedded and entity is public and entity is persistent_entity_id -%}
+    {%- if not embedded and entity is public and entity.id.persistent -%}
         </a>
     {%- endif -%}
 {% else %}

@@ -15,7 +15,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         assets={raspberry_mint},
         template="entity/summary--citation.html.j2",
     ) as (actual, _):
-        assert source.public_id in actual
+        assert source.id in actual
 
 
 async def test_with_private_source(assert_template_file: AssertTemplateFile) -> None:

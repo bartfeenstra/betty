@@ -81,10 +81,14 @@ class TestLink(EntityTestBase):
     async def test_dump_linked_data__should_dump_minimal(
         self, assert_dumps_linked_data: AssertDumpsLinkedData
     ) -> None:
-        link = Link("https://example.com")
+        link = Link(
+            "https://example.com",
+            id="my-first-link",
+        )
         expected: Mapping[str, Any] = {
             "@context": {"description": "https://schema.org/description"},
-            "id": link.id,
+            "@id": "https://example.com/link/my-first-link/index.json",
+            "id": "my-first-link",
             "url": {
                 default_locale_tag: "https://example.com",
             },
@@ -97,9 +101,10 @@ class TestLink(EntityTestBase):
     async def test_dump_linked_data__should_dump_full(
         self, assert_dumps_linked_data: AssertDumpsLinkedData
     ) -> None:
-        owner = DummyHasLinks(id="O1")
+        owner = DummyHasLinks(id="my-first-has-links")
         link = Link(
             "https://example.com",
+            id="my-first-link",
             label="The Label",
             description="The Description",
             relationship="external",
@@ -108,7 +113,8 @@ class TestLink(EntityTestBase):
         )
         expected: Mapping[str, Any] = {
             "@context": {"description": "https://schema.org/description"},
-            "id": link.id,
+            "@id": "https://example.com/link/my-first-link/index.json",
+            "id": "my-first-link",
             "url": {
                 default_locale_tag: "https://example.com",
             },
@@ -120,7 +126,7 @@ class TestLink(EntityTestBase):
                 default_locale_tag: "The Description",
             },
             "mediaType": "text/html",
-            "owner": "/dummy-has-links/O1/index.json",
+            "owner": "/dummy-has-links/my-first-has-links/index.json",
             "privacy": False,
         }
         actual = await assert_dumps_linked_data(link)
@@ -129,9 +135,10 @@ class TestLink(EntityTestBase):
     async def test_dump_linked_data__should_dump_private(
         self, assert_dumps_linked_data: AssertDumpsLinkedData
     ) -> None:
-        owner = DummyHasLinks(id="O1")
+        owner = DummyHasLinks(id="my-first-has-links")
         link = Link(
             "https://example.com",
+            id="my-first-link",
             label="The Label",
             description="The Description",
             relationship="external",
@@ -141,8 +148,9 @@ class TestLink(EntityTestBase):
         )
         expected: Mapping[str, Any] = {
             "@context": {"description": "https://schema.org/description"},
-            "id": link.id,
-            "owner": "/dummy-has-links/O1/index.json",
+            "@id": "https://example.com/link/my-first-link/index.json",
+            "id": "my-first-link",
+            "owner": "/dummy-has-links/my-first-has-links/index.json",
             "privacy": True,
         }
         actual = await assert_dumps_linked_data(link)

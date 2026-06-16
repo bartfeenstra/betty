@@ -38,8 +38,8 @@ async def test_with_name(assert_template_file: AssertTemplateFile) -> None:
 
 
 async def test_with_persistent_id(assert_template_file: AssertTemplateFile) -> None:
-    person = Person(id="P0")
-    expected = f'<a href="/person/{person.public_id}/index.html"><span title="This person\'s name is unknown.">n.n.</span></a>'
+    person = Person(id="my-first-person")
+    expected = f'<a href="/person/{person.id}/index.html"><span title="This person\'s name is unknown.">n.n.</span></a>'
     async with assert_template_file(
         data={
             "entity": person,
@@ -51,7 +51,7 @@ async def test_with_persistent_id(assert_template_file: AssertTemplateFile) -> N
 
 
 async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
-    person = Person(id="P0")
+    person = Person(id="my-first-person")
     expected = '<span title="This person\'s name is unknown.">n.n.</span>'
     async with assert_template_file(
         data={
@@ -65,7 +65,7 @@ async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
 
 
 async def test_private(assert_template_file: AssertTemplateFile) -> None:
-    person = Person(id="P0", privacy=Privacy.PRIVATE)
+    person = Person(id="my-first-person", privacy=Privacy.PRIVATE)
     PersonName(
         person=person,
         individual="Jane",
@@ -102,7 +102,7 @@ async def test_with_private_name(assert_template_file: AssertTemplateFile) -> No
 
 
 async def test_person_is_context(assert_template_file: AssertTemplateFile) -> None:
-    person = Person(id="P0")
+    person = Person(id="my-first-person")
     expected = '<span title="This person\'s name is unknown.">n.n.</span>'
     async with assert_template_file(
         data={

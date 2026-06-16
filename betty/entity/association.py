@@ -10,7 +10,7 @@ from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any, ClassVar, Self, cast, final, overload, override
 from urllib.parse import quote
 
-from betty.entity import Entity, persistent_id
+from betty.entity import Entity
 from betty.entity.collection import (
     EntityCollection,
 )
@@ -18,21 +18,17 @@ from betty.entity.collection.multiple import MultipleTypesEntityCollection
 from betty.entity.collection.single import SingleTypeEntityCollection
 from betty.entity.schema import ToManySchema, ToZeroOrOneSchema
 from betty.importlib import fully_qualified_name, import_any
-from betty.json_schema import Array, Null, OneOf, Schema
 from betty.linked_data import LinkedDataDumper
 from betty.locale.localizable import resolve_localizable
 
 if TYPE_CHECKING:
+    from betty.json_schema import Schema
     from betty.locale.localizable import ResolvableLocalizable
     from betty.portable import PortableData
     from betty.project import Project
 
 
 async def _generate_associate_url(project: Project, associate: Entity, /) -> str | None:
-    if not persistent_id(associate):
-        return None
-    if not associate.plugin().public_facing:
-        return None
     url_generator = await project.url_generator
     return url_generator.generate(
         f"betty-static:///{associate.plugin().id}/{quote(associate.id)}/index.json"
@@ -130,10 +126,8 @@ class _Association[OwnerT: Entity, AssociateT: Entity](LinkedDataDumper[OwnerT])
         *,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
-        linked_data_embedded: bool = False,
     ):
         self._associate_type_name = associate_type_name
-        self._linked_data_embedded = linked_data_embedded
         self._label = resolve_localizable(label)
         self._description = (
             None if description is None else resolve_localizable(description)
@@ -152,7 +146,6 @@ class _Association[OwnerT: Entity, AssociateT: Entity](LinkedDataDumper[OwnerT])
             self._owner_type,
             self._owner_attr_name,
             self._associate_type_name,
-            self._linked_data_embedded,
             self._label,
             self._description,
         ))
@@ -256,10 +249,6 @@ class _ToOneAssociation[OwnerT: Entity, AssociateT: Entity](
 
     @override
     async def linked_data_schema_for(self, project: Project, /) -> Schema:
-        if self._linked_data_embedded:
-            return await self.associate_type.linked_data_schema(project)
-        # We must allow for the associate to be missing, for example if it has a generated entity ID and the linked data
-        # is not embedded, no URL can be generated.
         return ToZeroOrOneSchema(
             title=self._label,
             description=None if self._description is None else self._description,
@@ -269,10 +258,9 @@ class _ToOneAssociation[OwnerT: Entity, AssociateT: Entity](
     async def dump_linked_data_for(
         self, project: Project, target: OwnerT, /
     ) -> PortableData:
-        associate = self.__get__(target, type(target))
-        if self._linked_data_embedded:
-            return await associate.dump_linked_data(project)
-        return await _generate_associate_url(project, associate)
+        return await _generate_associate_url(
+            project, self.__get__(target, type(target))
+        )
 
 
 class _ToZeroOrOneAssociation[OwnerT: Entity, AssociateT: Entity](
@@ -325,13 +313,6 @@ class _ToZeroOrOneAssociation[OwnerT: Entity, AssociateT: Entity](
 
     @override
     async def linked_data_schema_for(self, project: Project, /) -> Schema:
-        if self._linked_data_embedded:
-            return OneOf(
-                await self.associate_type.linked_data_schema(project),
-                Null(),
-                title=self._label,
-                description=None if self._description is None else self._description,
-            )
         return ToZeroOrOneSchema(
             title=self._label,
             description=None if self._description is None else self._description,
@@ -344,8 +325,6 @@ class _ToZeroOrOneAssociation[OwnerT: Entity, AssociateT: Entity](
         associate = self.__get__(target, type(target))
         if associate is None:
             return None
-        if self._linked_data_embedded:
-            return await associate.dump_linked_data(project)
         return await _generate_associate_url(project, associate)
 
 
@@ -414,12 +393,6 @@ class _ToManyAssociation[
 
     @override
     async def linked_data_schema_for(self, project: Project, /) -> Schema:
-        if self._linked_data_embedded:
-            return Array(
-                await self.associate_type.linked_data_schema(project),
-                title=self._label,
-                description=None if self._description is None else self._description,
-            )
         return ToManySchema(
             title=self._label,
             description=None if self._description is None else self._description,
@@ -430,10 +403,6 @@ class _ToManyAssociation[
         self, project: Project, target: OwnerT, /
     ) -> PortableData:
         associates = self.__get__(target, type(target))
-        if self._linked_data_embedded:
-            return [
-                await associate.dump_linked_data(project) for associate in associates
-            ]
         return list(
             filter(
                 None,
@@ -454,16 +423,10 @@ class _BidirectionalAssociation[OwnerT: Entity, AssociateT: Entity](
         associate_attr_name: str,
         *,
         label: ResolvableLocalizable,
-        linked_data_embedded: bool = False,
         description: ResolvableLocalizable | None = None,
     ):
         self._associate_attr_name = associate_attr_name
-        super().__init__(
-            associate_type_name,
-            label=label,
-            description=description,
-            linked_data_embedded=linked_data_embedded,
-        )
+        super().__init__(associate_type_name, label=label, description=description)
 
     @override
     def __hash__(self) -> int:

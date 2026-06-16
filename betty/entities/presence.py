@@ -20,6 +20,7 @@ if TYPE_CHECKING:
     from betty.entities.person import Person
     from betty.linked_data import JsonLdObject
     from betty.locale.localizable import Localizable
+    from betty.machine_name import ResolvableMachineName
     from betty.portable import PortableMapping
     from betty.project import Project
     from betty.role import Role
@@ -68,9 +69,10 @@ class Presence(HasPrivacy, Entity):
         role: Role,
         event: ToOneAssociate[Event],
         *,
+        id: ResolvableMachineName | None = None,  # noqa: A002
         privacy: Privacy = Privacy.UNDETERMINED,
     ):
-        super().__init__(None, privacy=privacy)
+        super().__init__(id=id, privacy=privacy)
         self.person = person
         self.role = role
         self.event = event

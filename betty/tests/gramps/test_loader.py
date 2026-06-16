@@ -29,7 +29,12 @@ from betty.event_types.unknown import Unknown as UnknownEventType
 from betty.genders.non_binary import NonBinary
 from betty.genders.unknown import Unknown as UnknownGender
 from betty.gramps.error import UserFacingGrampsError
-from betty.gramps.loader import GrampsFileNotFound, GrampsLoader, LoaderUsedAlready
+from betty.gramps.loader import (
+    GrampsFileNotFound,
+    GrampsLoader,
+    LoaderUsedAlready,
+    machinify,
+)
 from betty.licenses.public_domain import PublicDomain as PublicDomainLicense
 from betty.locale.localize import Localizer, default_localizer
 from betty.media_type import MediaType
@@ -50,6 +55,11 @@ if TYPE_CHECKING:
     from betty.place_type import PlaceType, PlaceTypeDefinition
     from betty.plugin.factory import ResolvablePluginManufacturer
     from betty.role import Role, RoleDefinition
+
+
+def test_machinify() -> None:
+    assert machinify("Hello, world!") == "6cd3556deb0da54bca060b4c39479839"
+
 
 __minimal_xml: Final[str] = """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML {version}//EN"
@@ -442,7 +452,7 @@ class TestGrampsLoader:
         """,
             place_type_mapping={"MyFirstPlaceType": City},
         )
-        place = ancestry[Place]["P0000"]
+        place = ancestry[Place][machinify("P0000")]
         assert isinstance(place.place_type, City)
 
     async def test_place_should_ignore_unknown_place_type(
@@ -457,7 +467,7 @@ class TestGrampsLoader:
 </places>
         """
         )
-        place = ancestry[Place]["P0000"]
+        place = ancestry[Place][machinify("P0000")]
         assert isinstance(place.place_type, UnknownPlaceType)
 
     async def test_place_should_include_name(self, load_partial: LoadPartial) -> None:
@@ -470,7 +480,7 @@ class TestGrampsLoader:
 </places>
         """
         )
-        place = ancestry[Place]["P0000"]
+        place = ancestry[Place][machinify("P0000")]
         names = place.names
         assert len(names) == 1
         name = names[0]
@@ -488,7 +498,7 @@ class TestGrampsLoader:
 </places>
         """
         )
-        place = ancestry[Place]["P0000"]
+        place = ancestry[Place][machinify("P0000")]
         names = place.names
         name = names[0]
         assert name.name.localize(default_localizer).locale == Locale("nl")
@@ -508,10 +518,10 @@ class TestGrampsLoader:
 </notes>
 """
         )
-        place = ancestry[Place]["P0000"]
+        place = ancestry[Place][machinify("P0000")]
         assert place.notes
         note = next(iter(place.notes))
-        assert note.id == "N0000"
+        assert note.id == machinify("N0000")
 
     @pytest.mark.parametrize(
         ("expected_latitude", "expected_longitude", "latitude", "longitude"),
@@ -541,7 +551,7 @@ class TestGrampsLoader:
 </places>
         """
         )
-        coordinates = ancestry[Place]["P0000"].coordinates
+        coordinates = ancestry[Place][machinify("P0000")].coordinates
         assert coordinates
         assert pytest.approx(expected_latitude) == coordinates.latitude
         assert pytest.approx(expected_longitude) == coordinates.longitude
@@ -558,7 +568,7 @@ class TestGrampsLoader:
 </places>
         """
         )
-        coordinates = ancestry[Place]["P0000"].coordinates
+        coordinates = ancestry[Place][machinify("P0000")].coordinates
         assert coordinates is None
 
     async def test_place_should_include_events(self, load_partial: LoadPartial) -> None:
@@ -576,8 +586,8 @@ class TestGrampsLoader:
 </events>
 """
         )
-        place = ancestry[Place]["P0000"]
-        event = ancestry[Event]["E0000"]
+        place = ancestry[Place][machinify("P0000")]
+        event = ancestry[Event][machinify("E0000")]
         assert place == event.place
         assert event in place.events
 
@@ -599,20 +609,20 @@ class TestGrampsLoader:
 """
         )
         assert (
-            ancestry[Place]["P0000"]
-            == next(iter(ancestry[Place]["P0002"].enclosers)).encloser
+            ancestry[Place][machinify("P0000")]
+            == next(iter(ancestry[Place][machinify("P0002")].enclosers)).encloser
         )
         assert (
-            ancestry[Place]["P0001"]
-            == list(ancestry[Place]["P0002"].enclosers)[1].encloser
+            ancestry[Place][machinify("P0001")]
+            == list(ancestry[Place][machinify("P0002")].enclosers)[1].encloser
         )
         assert (
-            ancestry[Place]["P0002"]
-            == next(iter(ancestry[Place]["P0000"].enclosees)).enclosee
+            ancestry[Place][machinify("P0002")]
+            == next(iter(ancestry[Place][machinify("P0000")].enclosees)).enclosee
         )
         assert (
-            ancestry[Place]["P0002"]
-            == next(iter(ancestry[Place]["P0001"].enclosees)).enclosee
+            ancestry[Place][machinify("P0002")]
+            == next(iter(ancestry[Place][machinify("P0001")].enclosees)).enclosee
         )
 
     async def test_person_should_include_names(self, load_partial: LoadPartial) -> None:
@@ -642,7 +652,7 @@ class TestGrampsLoader:
 </people>
 """
         )
-        person = ancestry[Person]["I0000"]
+        person = ancestry[Person][machinify("I0000")]
 
         assert next(iter(person.names)).individual == "Jane"
         assert next(iter(person.names)).affiliation == "Doe"
@@ -673,9 +683,9 @@ class TestGrampsLoader:
 """,
             role_mapping={"MyFirstRole": Subject},
         )
-        event = next(iter(ancestry[Person]["I0000"].presences)).event
+        event = next(iter(ancestry[Person][machinify("I0000")].presences)).event
         assert event is not None
-        assert event.id == "E0000"
+        assert event.id == machinify("E0000")
 
     async def test_person_should_be_private(self, load_partial: LoadPartial) -> None:
         ancestry = await load_partial(
@@ -687,7 +697,7 @@ class TestGrampsLoader:
 </people>
 """
         )
-        person = ancestry[Person]["I0000"]
+        person = ancestry[Person][machinify("I0000")]
         assert person.private
 
     async def test_person_should_not_be_private(
@@ -702,7 +712,7 @@ class TestGrampsLoader:
 </people>
 """
         )
-        person = ancestry[Person]["I0000"]
+        person = ancestry[Person][machinify("I0000")]
         assert not person.private
 
     async def test_person_should_fallback_gender(
@@ -717,7 +727,7 @@ class TestGrampsLoader:
 </people>
 """
         )
-        person = ancestry[Person]["I0000"]
+        person = ancestry[Person][machinify("I0000")]
         assert isinstance(person.gender, UnknownGender)
 
     async def test_person_should_load_gender_element(
@@ -732,7 +742,7 @@ class TestGrampsLoader:
 </people>
 """
         )
-        person = ancestry[Person]["I0000"]
+        person = ancestry[Person][machinify("I0000")]
         assert isinstance(person.gender, NonBinary)
 
     async def test_person_should_load_gender_attribute(
@@ -748,7 +758,7 @@ class TestGrampsLoader:
 </people>
 """
         )
-        person = ancestry[Person]["I0000"]
+        person = ancestry[Person][machinify("I0000")]
         assert isinstance(person.gender, NonBinary)
 
     async def test_person_should_include_citation(
@@ -773,8 +783,8 @@ class TestGrampsLoader:
 </sources>
 """
         )
-        person = ancestry[Person]["I0000"]
-        citation = ancestry[Citation]["C0000"]
+        person = ancestry[Person][machinify("I0000")]
+        citation = ancestry[Citation][machinify("C0000")]
         assert citation in person.citations
 
     async def test_person_should_include_note(self, load_partial: LoadPartial) -> None:
@@ -793,10 +803,10 @@ class TestGrampsLoader:
 </notes>
 """
         )
-        person = ancestry[Person]["I0000"]
+        person = ancestry[Person][machinify("I0000")]
         assert person.notes
         note = next(iter(person.notes))
-        assert note.id == "N0000"
+        assert note.id == machinify("N0000")
 
     async def test_person_should_include_file(
         self, load_partial: LoadPartial, tmp_path: Path
@@ -819,10 +829,10 @@ class TestGrampsLoader:
 </objects>
 """
         )
-        person = ancestry[Person]["I0000"]
+        person = ancestry[Person][machinify("I0000")]
         assert person.file_references
         file_reference = next(iter(person.file_references))
-        assert file_reference.file.id == "O0000"
+        assert file_reference.file.id == machinify("O0000")
 
     async def test_person_should_include_file_with_focus(
         self, load_partial: LoadPartial, tmp_path: Path
@@ -846,11 +856,11 @@ class TestGrampsLoader:
 </objects>
 """
         )
-        person = ancestry[Person]["I0000"]
+        person = ancestry[Person][machinify("I0000")]
         assert person.file_references
         file_reference = next(iter(person.file_references))
         assert file_reference.focus == (1, 2, 3, 4)
-        assert file_reference.file.id == "O0000"
+        assert file_reference.file.id == machinify("O0000")
 
     async def test_family_should_set_parents(self, load_partial: LoadPartial) -> None:
         ancestry = await load_partial(
@@ -889,10 +899,10 @@ class TestGrampsLoader:
 </families>
 """
         )
-        father = ancestry[Person]["I0002"]
-        mother_one = ancestry[Person]["I0000"]
-        mother_two = ancestry[Person]["I0003"]
-        child = ancestry[Person]["I0001"]
+        father = ancestry[Person][machinify("I0002")]
+        mother_one = ancestry[Person][machinify("I0000")]
+        mother_two = ancestry[Person][machinify("I0003")]
+        child = ancestry[Person][machinify("I0001")]
         assert list(child.parents) == [father, mother_one, mother_two]
 
     async def test_family_should_set_children(self, load_partial: LoadPartial) -> None:
@@ -931,10 +941,10 @@ class TestGrampsLoader:
 </families>
 """
         )
-        father = ancestry[Person]["I0002"]
-        mother = ancestry[Person]["I0003"]
-        common_child = ancestry[Person]["I0000"]
-        mother_only_child = ancestry[Person]["I0001"]
+        father = ancestry[Person][machinify("I0002")]
+        mother = ancestry[Person][machinify("I0003")]
+        common_child = ancestry[Person][machinify("I0000")]
+        mother_only_child = ancestry[Person][machinify("I0001")]
         assert list(father.children) == [common_child]
         assert list(mother.children) == [common_child, mother_only_child]
 
@@ -969,11 +979,11 @@ class TestGrampsLoader:
 """,
             role_mapping={"Primary": Subject},
         )
-        event = ancestry[Event]["E0000"]
-        father = ancestry[Person]["I0000"]
+        event = ancestry[Event][machinify("E0000")]
+        father = ancestry[Person][machinify("I0000")]
         assert isinstance(next(iter(father.presences)).role, Subject)
         assert next(iter(father.presences)).event is event
-        mother = ancestry[Person]["I0001"]
+        mother = ancestry[Person][machinify("I0001")]
         assert isinstance(next(iter(mother.presences)).role, Subject)
         assert next(iter(mother.presences)).event is event
 
@@ -988,7 +998,7 @@ class TestGrampsLoader:
 """,
             event_type_mapping={"MyFirstEventType": Birth},
         )
-        assert isinstance(ancestry[Event]["E0000"].event_type, Birth)
+        assert isinstance(ancestry[Event][machinify("E0000")].event_type, Birth)
 
     async def test_event_should_be_death(self, load_partial: LoadPartial) -> None:
         ancestry = await load_partial(
@@ -1001,7 +1011,7 @@ class TestGrampsLoader:
 """,
             event_type_mapping={"Death": Death},
         )
-        assert isinstance(ancestry[Event]["E0000"].event_type, Death)
+        assert isinstance(ancestry[Event][machinify("E0000")].event_type, Death)
 
     async def test_event_should_load_unknown(self, load_partial: LoadPartial) -> None:
         ancestry = await load_partial(
@@ -1014,7 +1024,9 @@ class TestGrampsLoader:
 </events>
 """
         )
-        assert isinstance(ancestry[Event]["E0000"].event_type, UnknownEventType)
+        assert isinstance(
+            ancestry[Event][machinify("E0000")].event_type, UnknownEventType
+        )
 
     async def test_event_should_include_place(self, load_partial: LoadPartial) -> None:
         ancestry = await load_partial(
@@ -1032,8 +1044,8 @@ class TestGrampsLoader:
 </places>
 """
         )
-        event = ancestry[Event]["E0000"]
-        place = ancestry[Place]["P0000"]
+        event = ancestry[Event][machinify("E0000")]
+        place = ancestry[Place][machinify("P0000")]
         assert place == event.place
 
     async def test_event_should_include_date(self, load_partial: LoadPartial) -> None:
@@ -1047,7 +1059,7 @@ class TestGrampsLoader:
 </events>
 """
         )
-        event = ancestry[Event]["E0000"]
+        event = ancestry[Event][machinify("E0000")]
         assert isinstance(event.date, Date)
         assert event.date.year == 1970
         assert event.date.month == 1
@@ -1069,8 +1081,8 @@ class TestGrampsLoader:
 </events>
 """
         )
-        event = ancestry[Event]["E0000"]
-        expected_people = [ancestry[Person]["I0000"]]
+        event = ancestry[Event][machinify("E0000")]
+        expected_people = [ancestry[Person][machinify("I0000")]]
         assert expected_people == [presence.person for presence in event.presences]
 
     async def test_event_should_include_name(self, load_partial: LoadPartial) -> None:
@@ -1087,7 +1099,7 @@ class TestGrampsLoader:
 </events>
 """
         )
-        event = ancestry[Event]["E0000"]
+        event = ancestry[Event][machinify("E0000")]
         assert event.name is not None
         assert event.name.localize(default_localizer) == name_default
         assert event.name.localize(Localizer("nl", NullTranslations())) == name_nl
@@ -1105,7 +1117,7 @@ class TestGrampsLoader:
 </events>
 """
         )
-        event = ancestry[Event]["E0000"]
+        event = ancestry[Event][machinify("E0000")]
         assert event.description is not None
         assert event.description.localize(default_localizer) == "Something happened!"
 
@@ -1125,10 +1137,10 @@ class TestGrampsLoader:
 </notes>
 """
         )
-        event = ancestry[Event]["E0000"]
+        event = ancestry[Event][machinify("E0000")]
         assert event.notes
         note = next(iter(event.notes))
-        assert note.id == "N0000"
+        assert note.id == machinify("N0000")
 
     @pytest.mark.parametrize(
         ("expected", "dateval_val"),
@@ -1156,7 +1168,7 @@ class TestGrampsLoader:
 </events>
 """
         )
-        assert expected == ancestry[Event]["E0000"].date
+        assert expected == ancestry[Event][machinify("E0000")].date
 
     async def test_date_should_ignore_calendar_format(
         self, load_partial: LoadPartial
@@ -1171,7 +1183,7 @@ class TestGrampsLoader:
 </events>
 """
         )
-        assert ancestry[Event]["E0000"].date is None
+        assert ancestry[Event][machinify("E0000")].date is None
 
     async def test_date_should_load_before(self, load_partial: LoadPartial) -> None:
         ancestry = await load_partial(
@@ -1184,7 +1196,7 @@ class TestGrampsLoader:
 </events>
 """
         )
-        date = ancestry[Event]["E0000"].date
+        date = ancestry[Event][machinify("E0000")].date
         assert isinstance(date, DateRange)
         assert date.start is None
         assert date.end is not None
@@ -1205,7 +1217,7 @@ class TestGrampsLoader:
 </events>
 """
         )
-        date = ancestry[Event]["E0000"].date
+        date = ancestry[Event][machinify("E0000")].date
         assert isinstance(date, DateRange)
         assert date.start is not None
         assert date.end is None
@@ -1226,7 +1238,7 @@ class TestGrampsLoader:
 </events>
 """
         )
-        date = ancestry[Event]["E0000"].date
+        date = ancestry[Event][machinify("E0000")].date
         assert isinstance(date, Date)
         assert date.year == 1970
         assert date.month == 1
@@ -1244,7 +1256,7 @@ class TestGrampsLoader:
 </events>
 """
         )
-        date = ancestry[Event]["E0000"].date
+        date = ancestry[Event][machinify("E0000")].date
         assert isinstance(date, Date)
         assert date.year == 1970
         assert date.month == 1
@@ -1262,7 +1274,7 @@ class TestGrampsLoader:
 </events>
 """
         )
-        date = ancestry[Event]["E0000"].date
+        date = ancestry[Event][machinify("E0000")].date
         assert isinstance(date, Date)
         assert date.year == 1970
         assert date.month == 1
@@ -1280,7 +1292,7 @@ class TestGrampsLoader:
 </events>
 """
         )
-        date = ancestry[Event]["E0000"].date
+        date = ancestry[Event][machinify("E0000")].date
         assert isinstance(date, DateRange)
         start = date.start
         assert isinstance(start, Date)
@@ -1310,7 +1322,7 @@ class TestGrampsLoader:
 </events>
 """
         )
-        date = ancestry[Event]["E0000"].date
+        date = ancestry[Event][machinify("E0000")].date
         assert isinstance(date, DateRange)
         start = date.start
         assert isinstance(start, Date)
@@ -1332,7 +1344,7 @@ class TestGrampsLoader:
 </events>
 """
         )
-        date = ancestry[Event]["E0000"].date
+        date = ancestry[Event][machinify("E0000")].date
         assert isinstance(date, DateRange)
         start = date.start
         assert isinstance(start, Date)
@@ -1352,7 +1364,7 @@ class TestGrampsLoader:
 </events>
 """
         )
-        date = ancestry[Event]["E0000"].date
+        date = ancestry[Event][machinify("E0000")].date
         assert isinstance(date, DateRange)
         start = date.start
         assert isinstance(start, Date)
@@ -1380,7 +1392,7 @@ class TestGrampsLoader:
 </events>
 """
         )
-        date = ancestry[Event]["E0000"].date
+        date = ancestry[Event][machinify("E0000")].date
         assert isinstance(date, DateRange)
         start = date.start
         assert isinstance(start, Date)
@@ -1402,7 +1414,7 @@ class TestGrampsLoader:
 </events>
 """
         )
-        date = ancestry[Event]["E0000"].date
+        date = ancestry[Event][machinify("E0000")].date
         assert isinstance(date, DateRange)
         start = date.start
         assert isinstance(start, Date)
@@ -1423,7 +1435,7 @@ class TestGrampsLoader:
 </repositories>
 """
         )
-        source = ancestry[Source]["R0000"]
+        source = ancestry[Source][machinify("R0000")]
         assert source.name is not None
         assert source.name.localize(default_localizer) == "Library of Alexandria"
 
@@ -1440,7 +1452,7 @@ class TestGrampsLoader:
 </repositories>
 """
         )
-        links = ancestry[Source]["R0000"].links
+        links = ancestry[Source][machinify("R0000")].links
         assert len(links) == 1
         link = next(iter(links))
         assert link.url.localize(default_localizer) == "https://alexandria.example.com"
@@ -1461,7 +1473,7 @@ class TestGrampsLoader:
 </sources>
 """
         )
-        source = ancestry[Source]["S0000"]
+        source = ancestry[Source][machinify("S0000")]
         assert source.name is not None
         assert source.name.localize(default_localizer) == "A Whisper"
 
@@ -1477,7 +1489,7 @@ class TestGrampsLoader:
 </sources>
 """
         )
-        source = ancestry[Source]["S0000"]
+        source = ancestry[Source][machinify("S0000")]
         assert source.author is not None
         assert source.author.localize(default_localizer) == "A Little Birdie"
 
@@ -1493,7 +1505,7 @@ class TestGrampsLoader:
 </sources>
 """
         )
-        source = ancestry[Source]["S0000"]
+        source = ancestry[Source][machinify("S0000")]
         assert source.publisher is not None
         assert (
             source.publisher.localize(default_localizer) == "Somewhere over the rainbow"
@@ -1518,8 +1530,8 @@ class TestGrampsLoader:
 </repositories>
 """
         )
-        source = ancestry[Source]["S0000"]
-        containing_source = ancestry[Source]["R0000"]
+        source = ancestry[Source][machinify("S0000")]
+        containing_source = ancestry[Source][machinify("R0000")]
         assert containing_source == source.contained_by
 
     async def test_source_from_repository_should_include_note(
@@ -1540,10 +1552,10 @@ class TestGrampsLoader:
 </notes>
 """
         )
-        source = ancestry[Source]["R0000"]
+        source = ancestry[Source][machinify("R0000")]
         assert source.notes
         note = next(iter(source.notes))
-        assert note.id == "N0000"
+        assert note.id == machinify("N0000")
 
     async def test_source_from_source_should_include_note(
         self, load_partial: LoadPartial
@@ -1562,10 +1574,10 @@ class TestGrampsLoader:
 </notes>
 """
         )
-        source = ancestry[Source]["S0000"]
+        source = ancestry[Source][machinify("S0000")]
         assert source.notes
         note = next(iter(source.notes))
-        assert note.id == "N0000"
+        assert note.id == machinify("N0000")
 
     async def test__load_attribute_links_should_include_attribute_links_minimal(
         self, load_partial: LoadPartial
@@ -1580,7 +1592,7 @@ class TestGrampsLoader:
 </sources>
 """
         )
-        source = ancestry[Source]["S0000"]
+        source = ancestry[Source][machinify("S0000")]
         assert source.links
         link = source.links.view[0]
         assert link.url.localize(default_localizer) == url
@@ -1616,7 +1628,7 @@ class TestGrampsLoader:
 </sources>
 """
         )
-        source = ancestry[Source]["S0000"]
+        source = ancestry[Source][machinify("S0000")]
         assert source.links
         link = source.links.view[0]
         localizer_nl = Localizer("nl", NullTranslations())
@@ -1644,7 +1656,7 @@ class TestGrampsLoader:
 </sources>
 """
         )
-        source = ancestry[Source]["S0000"]
+        source = ancestry[Source][machinify("S0000")]
         assert not source.links
 
     async def test__load_attribute_links_should_warn_about_attribute_link_invalid_media_type(
@@ -1661,7 +1673,7 @@ class TestGrampsLoader:
 </sources>
 """
         )
-        source = ancestry[Source]["S0000"]
+        source = ancestry[Source][machinify("S0000")]
         assert source.links
         link_one = source.links.view[0]
         assert link_one.media_type is None
@@ -1712,7 +1724,7 @@ class TestGrampsLoader:
 </people>
 """
         )
-        person = ancestry[Person]["I0000"]
+        person = ancestry[Person][machinify("I0000")]
         assert expected == person.privacy
 
     async def test_event_should_include_privacy_from_element(
@@ -1727,7 +1739,7 @@ class TestGrampsLoader:
 </events>
 """
         )
-        event = ancestry[Event]["E0000"]
+        event = ancestry[Event][machinify("E0000")]
         assert event.private
 
     @pytest.mark.parametrize(
@@ -1752,7 +1764,7 @@ class TestGrampsLoader:
 </events>
 """
         )
-        event = ancestry[Event]["E0000"]
+        event = ancestry[Event][machinify("E0000")]
         assert expected == event.privacy
 
     async def _assert_file_should_include_path(
@@ -1772,7 +1784,7 @@ class TestGrampsLoader:
 """,
             media=media,
         )
-        file = ancestry[File]["O0000"]
+        file = ancestry[File][machinify("O0000")]
         assert file.path == expected
         assert file.path.is_absolute()
 
@@ -1837,7 +1849,7 @@ class TestGrampsLoader:
 </objects>
 """
         )
-        file = ancestry[File]["O0000"]
+        file = ancestry[File][machinify("O0000")]
         assert file.description is not None
         assert file.description.localize(default_localizer) == "My First Description"
 
@@ -1869,7 +1881,7 @@ class TestGrampsLoader:
 </objects>
 """
         )
-        file = ancestry[File]["O0000"]
+        file = ancestry[File][machinify("O0000")]
         assert file.private
 
     @pytest.mark.parametrize(
@@ -1900,7 +1912,7 @@ class TestGrampsLoader:
 </objects>
 """
         )
-        file = ancestry[File]["O0000"]
+        file = ancestry[File][machinify("O0000")]
         assert expected == file.privacy
 
     async def test_file_should_include_note(
@@ -1923,10 +1935,10 @@ class TestGrampsLoader:
 </notes>
 """
         )
-        file = ancestry[File]["O0000"]
+        file = ancestry[File][machinify("O0000")]
         assert file.notes
         note = next(iter(file.notes))
-        assert note.id == "N0000"
+        assert note.id == machinify("N0000")
 
     async def test_file_should_include_copyright_notice(
         self, load_partial: LoadPartial, tmp_path: Path
@@ -1943,7 +1955,7 @@ class TestGrampsLoader:
 </objects>
 """
         )
-        file = ancestry[File]["O0000"]
+        file = ancestry[File][machinify("O0000")]
         assert isinstance(file.copyright_notice, PublicDomainCopyrightNotice)
 
     async def test_file_should_ignore_unknown_copyright_notice(
@@ -1961,7 +1973,7 @@ class TestGrampsLoader:
 </objects>
 """
         )
-        file = ancestry[File]["O0000"]
+        file = ancestry[File][machinify("O0000")]
         assert file.copyright_notice is None
 
     async def test_file_should_include_license(
@@ -1979,7 +1991,7 @@ class TestGrampsLoader:
 </objects>
 """
         )
-        file = ancestry[File]["O0000"]
+        file = ancestry[File][machinify("O0000")]
         assert isinstance(file.license, PublicDomainLicense)
 
     async def test_file_should_ignore_unknown_license(
@@ -1997,7 +2009,7 @@ class TestGrampsLoader:
 </objects>
 """
         )
-        file = ancestry[File]["O0000"]
+        file = ancestry[File][machinify("O0000")]
         assert file.license is None
 
     async def test_source_from_source_should_include_privacy_from_element(
@@ -2012,7 +2024,7 @@ class TestGrampsLoader:
 </sources>
 """
         )
-        source = ancestry[Source]["S0000"]
+        source = ancestry[Source][machinify("S0000")]
         assert source.private
 
     @pytest.mark.parametrize(
@@ -2037,7 +2049,7 @@ class TestGrampsLoader:
 </sources>
 """
         )
-        source = ancestry[Source]["S0000"]
+        source = ancestry[Source][machinify("S0000")]
         assert expected == source.privacy
 
     async def test_citation_should_include_privacy_from_element(
@@ -2058,9 +2070,9 @@ class TestGrampsLoader:
 </sources>
 """
         )
-        source = ancestry[Source]["S0000"]
+        source = ancestry[Source][machinify("S0000")]
         source.public = True
-        citation = ancestry[Citation]["C0000"]
+        citation = ancestry[Citation][machinify("C0000")]
         assert citation.private
 
     @pytest.mark.parametrize(
@@ -2091,9 +2103,9 @@ class TestGrampsLoader:
 </sources>
 """
         )
-        source = ancestry[Source]["S0000"]
+        source = ancestry[Source][machinify("S0000")]
         source.public = True
-        citation = ancestry[Citation]["C0000"]
+        citation = ancestry[Citation][machinify("C0000")]
         assert expected == citation.privacy
 
     async def test_note_should_include_text(self, load_partial: LoadPartial) -> None:
@@ -2106,7 +2118,7 @@ class TestGrampsLoader:
 </notes>
 """
         )
-        note = ancestry[Note]["N0000"]
+        note = ancestry[Note][machinify("N0000")]
         assert note.text.localize(default_localizer) == "I left this for you."
 
     async def test_note_should_include_privacy_from_element(
@@ -2121,7 +2133,7 @@ class TestGrampsLoader:
 </notes>
 """
         )
-        note = ancestry[Note]["N0000"]
+        note = ancestry[Note][machinify("N0000")]
         assert note.private
 
     async def test_citation_should_include_location_from_page(
@@ -2143,7 +2155,7 @@ class TestGrampsLoader:
 </sources>
 """
         )
-        citation = ancestry[Citation]["C0000"]
+        citation = ancestry[Citation][machinify("C0000")]
         assert citation.location is not None
         assert citation.location.localize(default_localizer) == "My First Page"
 
@@ -2165,8 +2177,8 @@ class TestGrampsLoader:
 </sources>
 """
         )
-        citation = ancestry[Citation]["C0000"]
-        source = ancestry[Source]["S0000"]
+        citation = ancestry[Citation][machinify("C0000")]
+        source = ancestry[Source][machinify("S0000")]
         assert citation.source is source
 
     async def test__load_eventref_should_map_role(
@@ -2189,7 +2201,7 @@ class TestGrampsLoader:
 """,
             role_mapping={"MyFirstRole": Subject},
         )
-        person = ancestry[Person]["I0000"]
+        person = ancestry[Person][machinify("I0000")]
         presence = next(iter(person.presences))
         assert isinstance(presence.role, Subject)
 
@@ -2212,7 +2224,7 @@ class TestGrampsLoader:
 </events>
 """
         )
-        person = ancestry[Person]["I0000"]
+        person = ancestry[Person][machinify("I0000")]
         presence = next(iter(person.presences))
         assert presence.private
 
@@ -2229,7 +2241,7 @@ class TestGrampsLoader:
 </people>
 """
         )
-        links = ancestry[Person]["I0000"].links
+        links = ancestry[Person][machinify("I0000")].links
         assert len(links) == 1
         link = next(iter(links))
         assert link.url.localize(default_localizer) == "https://alexandria.example.com"
@@ -2247,7 +2259,7 @@ class TestGrampsLoader:
 </people>
 """
         )
-        links = ancestry[Person]["I0000"].links
+        links = ancestry[Person][machinify("I0000")].links
         assert len(links) == 1
         link = next(iter(links))
         assert link.label is not None
@@ -2268,7 +2280,7 @@ class TestGrampsLoader:
 </people>
 """
         )
-        links = ancestry[Person]["I0000"].links
+        links = ancestry[Person][machinify("I0000")].links
         assert len(links) == 1
         link = next(iter(links))
         assert link.relationship == "external"

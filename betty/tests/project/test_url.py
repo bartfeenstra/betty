@@ -78,7 +78,7 @@ class Test_EntityUrlUrlGenerator:
                 media_type=HTML,
                 query=query,
             )
-            == f"https://example.com/dummy-one/{entity.public_id}?my_first_query=my+first+value#my-first-fragment"
+            == f"https://example.com/dummy-one/{entity.id}?my_first_query=my+first+value#my-first-fragment"
         )
 
 
@@ -339,9 +339,9 @@ async def test_new_project_url_generator__supports(
     [
         # Entities
         (
-            "https://example.com/dummy-one/0e51a87ec173dd9534a056a403c85881/index.html",
+            "https://example.com/dummy-one/my-first-entity/index.html",
             False,
-            DummyEntityOne("E0"),
+            DummyEntityOne(id="my-first-entity"),
             HTML,
             True,
             None,

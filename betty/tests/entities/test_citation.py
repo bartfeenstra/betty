@@ -45,12 +45,11 @@ class TestCitation(EntityTestBase):
         assert sut.location.localize(default_localizer) == location
 
     def test_id(self) -> None:
-        citation_id = "C1"
         sut = Citation(
-            id=citation_id,
+            id="my-first-citation",
             source=Source(),
         )
-        assert sut.id == citation_id
+        assert sut.id == "my-first-citation"
 
     def test_facts(self) -> None:
         fact = DummyHasCitations()
@@ -90,18 +89,18 @@ class TestCitation(EntityTestBase):
         self, assert_dumps_linked_data: AssertDumpsLinkedData
     ) -> None:
         citation = Citation(
-            id="the_citation",
-            source=Source(name="The Source"),
+            id="my-first-citation",
+            source=Source(name="The Source", id="my-first-source"),
         )
         expected: Mapping[str, Any] = {
-            "@id": "https://example.com/citation/the_citation/index.json",
+            "@id": "https://example.com/citation/my-first-citation/index.json",
             "@type": "https://schema.org/Thing",
-            "id": "the_citation",
+            "id": "my-first-citation",
             "privacy": False,
             "facts": [],
             "links": [],
             "fileReferences": [],
-            "source": None,
+            "source": "/source/my-first-source/index.json",
         }
         actual = await assert_dumps_linked_data(citation)
         assert actual == expected
@@ -110,27 +109,27 @@ class TestCitation(EntityTestBase):
         self, assert_dumps_linked_data: AssertDumpsLinkedData
     ) -> None:
         citation = Citation(
-            id="the_citation",
+            id="my-first-citation",
             source=Source(
-                id="the_source",
+                id="my-first-source",
                 name="The Source",
             ),
             location="My First Location",
         )
         citation.facts.add(
             Event(
-                id="the_event",
+                id="my-first-event",
                 event_type=Birth(),
             )
         )
         expected: Mapping[str, Any] = {
-            "@id": "https://example.com/citation/the_citation/index.json",
+            "@id": "https://example.com/citation/my-first-citation/index.json",
             "@type": "https://schema.org/Thing",
-            "id": "the_citation",
+            "id": "my-first-citation",
             "privacy": False,
             "location": {default_locale_tag: "My First Location"},
-            "source": "/source/the_source/index.json",
-            "facts": ["/event/the_event/index.json"],
+            "source": "/source/my-first-source/index.json",
+            "facts": ["/event/my-first-event/index.json"],
             "links": [],
             "fileReferences": [],
         }
@@ -141,26 +140,26 @@ class TestCitation(EntityTestBase):
         self, assert_dumps_linked_data: AssertDumpsLinkedData
     ) -> None:
         citation = Citation(
-            id="the_citation",
+            id="my-first-citation",
             source=Source(
-                id="the_source",
+                id="my-first-source",
                 name="The Source",
             ),
             privacy=Privacy.PRIVATE,
         )
         citation.facts.add(
             Event(
-                id="the_event",
+                id="my-first-event",
                 event_type=Birth(),
             )
         )
         expected: Mapping[str, Any] = {
-            "@id": "https://example.com/citation/the_citation/index.json",
+            "@id": "https://example.com/citation/my-first-citation/index.json",
             "@type": "https://schema.org/Thing",
-            "id": "the_citation",
+            "id": "my-first-citation",
             "privacy": True,
-            "source": "/source/the_source/index.json",
-            "facts": ["/event/the_event/index.json"],
+            "source": "/source/my-first-source/index.json",
+            "facts": ["/event/my-first-event/index.json"],
             "links": [],
             "fileReferences": [],
         }

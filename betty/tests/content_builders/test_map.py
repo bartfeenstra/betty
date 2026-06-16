@@ -76,7 +76,7 @@ class TestMap:
             document = await project.new_document(has_associated_places)
             actual = await sut.build(document=document)
         assert actual is not None
-        assert place.public_id in actual
+        assert place.id in actual
         assert "webpack_js_entry_points" in document
         assert isinstance(document["webpack_js_entry_points"], Set)
         assert "maps" in document["webpack_js_entry_points"]

@@ -31,6 +31,7 @@ if TYPE_CHECKING:
     from betty.entity.has_citations import HasCitations
     from betty.linked_data import JsonLdObject
     from betty.locale.localizable import Localizable, ResolvableLocalizable
+    from betty.machine_name import ResolvableMachineName
     from betty.portable import PortableMapping
     from betty.project import Project
 
@@ -78,7 +79,7 @@ class Citation(HasAnyDate, HasFileReferences, HasPrivacy, HasLinks):
         self,
         *,
         source: ToOneAssociate[Source],
-        id: str | None = None,  # noqa: A002
+        id: ResolvableMachineName | None = None,  # noqa: A002
         facts: ToManyAssociates[HasCitations] = (),
         location: ResolvableLocalizable | None = None,
         date: AnyDate | None = None,
@@ -86,7 +87,7 @@ class Citation(HasAnyDate, HasFileReferences, HasPrivacy, HasLinks):
         privacy: Privacy = Privacy.UNDETERMINED,
     ):
         super().__init__(
-            id,
+            id=id,
             date=date,
             file_references=file_references,
             privacy=privacy,

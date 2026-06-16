@@ -45,9 +45,8 @@ class TestFile(EntityTestBase):
         return cast(Entity, request.param)
 
     def test_id(self) -> None:
-        file_id = "BETTY01"
-        sut = File(Path(__file__), id=file_id)
-        assert sut.id == file_id
+        sut = File(Path(__file__), id="my-first-file")
+        assert sut.id == "my-first-file"
 
     def test_name__with_name(self, tmp_path: Path) -> None:
         name = "a-file.a-suffix"
@@ -58,15 +57,13 @@ class TestFile(EntityTestBase):
         assert sut.name == name
 
     def test_private(self) -> None:
-        file_id = "BETTY01"
-        sut = File(Path(__file__), id=file_id)
+        sut = File(Path(__file__))
         assert sut.privacy is Privacy.UNDETERMINED
         sut.private = True
         assert sut.private is True
 
     def test_media_type(self) -> None:
-        file_id = "BETTY01"
-        sut = File(Path(__file__), id=file_id)
+        sut = File(Path(__file__))
         assert sut.media_type is None
         media_type = PLAIN_TEXT
         sut.media_type = media_type
@@ -74,26 +71,23 @@ class TestFile(EntityTestBase):
 
     def test_path__with_path(self) -> None:
         with NamedTemporaryFile() as f:
-            file_id = "BETTY01"
             file_path = Path(f.name)
             sut = File(
-                id=file_id,
+                id="my-first-file",
                 path=file_path,
             )
             assert sut.path == file_path
 
     def test_path__with_str(self) -> None:
         with NamedTemporaryFile() as f:
-            file_id = "BETTY01"
             sut = File(
-                id=file_id,
+                id="my-first-file",
                 path=Path(f.name),
             )
             assert sut.path == Path(f.name)
 
     def test_description(self) -> None:
-        file_id = "BETTY01"
-        sut = File(Path(__file__), id=file_id)
+        sut = File(Path(__file__))
         assert not sut.description
         description = "Hi, my name is Betty!"
         sut.description = description
@@ -101,16 +95,14 @@ class TestFile(EntityTestBase):
         assert sut.description.localize(default_localizer) == description
 
     def test_notes(self) -> None:
-        file_id = "BETTY01"
-        sut = File(Path(__file__), id=file_id)
+        sut = File(Path(__file__))
         assert list(sut.notes) == []
         notes = [Note(DUMMY_LOCALIZABLE), Note(DUMMY_LOCALIZABLE)]
         sut.notes = notes
         assert list(sut.notes) == notes
 
     def test_referees(self) -> None:
-        file_id = "BETTY01"
-        sut = File(Path(__file__), id=file_id)
+        sut = File(Path(__file__))
         assert list(sut.referees) == []
 
         entity_one = DummyHasFileReferences()
@@ -123,8 +115,7 @@ class TestFile(EntityTestBase):
         ]
 
     def test_citations(self) -> None:
-        file_id = "BETTY01"
-        sut = File(Path(__file__), id=file_id)
+        sut = File(Path(__file__))
         assert list(sut.citations) == []
 
     async def test_dump_linked_data__should_dump_minimal(
@@ -132,13 +123,13 @@ class TestFile(EntityTestBase):
     ) -> None:
         with NamedTemporaryFile() as f:
             file = File(
-                id="the_file",
+                id="my-first-file",
                 path=Path(f.name),
             )
             expected: Mapping[str, Any] = {
                 "@context": {"description": "https://schema.org/description"},
-                "@id": "https://example.com/file/the_file/index.json",
-                "id": "the_file",
+                "@id": "https://example.com/file/my-first-file/index.json",
+                "id": "my-first-file",
                 "privacy": False,
                 "citations": [],
                 "notes": [],
@@ -153,7 +144,7 @@ class TestFile(EntityTestBase):
     ) -> None:
         with NamedTemporaryFile() as f:
             file = File(
-                id="the_file",
+                id="my-first-file",
                 path=Path(f.name),
                 media_type=PLAIN_TEXT,
                 copyright_notice=PublicDomainCopyrightNotice(),
@@ -162,39 +153,37 @@ class TestFile(EntityTestBase):
             )
             file.notes.add(
                 Note(
-                    id="the_note",
+                    id="my-first-note",
                     text="The Note",
                 )
             )
-            reference = FileReference(Person(id="the_person"), file)
+            FileReference(
+                Person(id="my-first-person"), file, id="my-first-file-reference"
+            )
             file.citations.add(
                 Citation(
-                    id="the_citation",
+                    id="my-first-citation",
                     source=Source(
-                        id="the_source",
+                        id="my-first-source",
                         name="The Source",
                     ),
                 )
             )
             expected: Mapping[str, Any] = {
                 "@context": {"description": "https://schema.org/description"},
-                "@id": "https://example.com/file/the_file/index.json",
-                "id": "the_file",
+                "@id": "https://example.com/file/my-first-file/index.json",
+                "id": "my-first-file",
                 "privacy": False,
                 "mediaType": "text/plain",
                 "citations": [
-                    "/citation/the_citation/index.json",
+                    "/citation/my-first-citation/index.json",
                 ],
                 "notes": [
-                    "/note/the_note/index.json",
+                    "/note/my-first-note/index.json",
                 ],
                 "links": [],
                 "referees": [
-                    {
-                        "id": reference.id,
-                        "referee": "/person/the_person/index.json",
-                        "file": "/file/the_file/index.json",
-                    },
+                    "/file-reference/my-first-file-reference/index.json",
                 ],
                 "description": {default_locale_tag: "The Description"},
                 "copyrightNotice": "public-domain",
@@ -208,7 +197,7 @@ class TestFile(EntityTestBase):
     ) -> None:
         with NamedTemporaryFile() as f:
             file = File(
-                id="the_file",
+                id="my-first-file",
                 path=Path(f.name),
                 privacy=Privacy.PRIVATE,
                 media_type=PLAIN_TEXT,
@@ -216,38 +205,36 @@ class TestFile(EntityTestBase):
             )
             file.notes.add(
                 Note(
-                    id="the_note",
+                    id="my-first-note",
                     text="The Note",
                 )
             )
-            reference = FileReference(Person(id="the_person"), file)
+            FileReference(
+                Person(id="my-first-person"), file, id="my-first-file-reference"
+            )
             file.citations.add(
                 Citation(
-                    id="the_citation",
+                    id="my-first-citation",
                     source=Source(
-                        id="the_source",
+                        id="my-first-source",
                         name="The Source",
                     ),
                 )
             )
             expected: Mapping[str, Any] = {
                 "@context": {"description": "https://schema.org/description"},
-                "@id": "https://example.com/file/the_file/index.json",
-                "id": "the_file",
+                "@id": "https://example.com/file/my-first-file/index.json",
+                "id": "my-first-file",
                 "privacy": True,
                 "citations": [
-                    "/citation/the_citation/index.json",
+                    "/citation/my-first-citation/index.json",
                 ],
                 "notes": [
-                    "/note/the_note/index.json",
+                    "/note/my-first-note/index.json",
                 ],
                 "links": [],
                 "referees": [
-                    {
-                        "id": reference.id,
-                        "referee": "/person/the_person/index.json",
-                        "file": "/file/the_file/index.json",
-                    },
+                    "/file-reference/my-first-file-reference/index.json",
                 ],
             }
             actual = await assert_dumps_linked_data(file)

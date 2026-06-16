@@ -36,5 +36,5 @@ class TestFamilies:
             sut = await Families.new(project)
             actual = await sut.build(document=Document(resource))
         assert actual is not None
-        assert parent.public_id in actual
-        assert child.public_id in actual
+        assert parent.id in actual
+        assert child.id in actual

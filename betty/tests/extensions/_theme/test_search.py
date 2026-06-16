@@ -42,17 +42,15 @@ class TestIndex:
         assert actual == []
 
     async def test_build_person_without_names(self, dummy_project: Project) -> None:
-        person_id = "P1"
-        person = Person(id=person_id)
+        person = Person(id="my-first-person")
         dummy_project.ancestry.add(person)
         actual = await Index(dummy_project, Context(), default_localizer).build()
-        assert actual[0].text == {"p1"}
+        assert actual[0].text == {"my-first-person"}
 
     async def test_build_private_person(self, dummy_project: Project) -> None:
-        person_id = "P1"
         individual_name = "Jane"
         person = Person(
-            id=person_id,
+            id="my-first-person",
             privacy=Privacy.PRIVATE,
         )
         PersonName(
@@ -66,16 +64,15 @@ class TestIndex:
     @pytest.mark.parametrize(
         ("expected", "locale"),
         [
-            ("/nl/person/5f2b9323c39ee3c861a7b382d205c3d3/index.html", "nl-NL"),
-            ("/en/person/5f2b9323c39ee3c861a7b382d205c3d3/index.html", "en-US"),
+            ("/nl/person/my-first-person/index.html", "nl-NL"),
+            ("/en/person/my-first-person/index.html", "en-US"),
         ],
     )
     async def test_build_person_with_individual_name(
         self, expected: str, locale: str, dummy_project: Project
     ) -> None:
-        person_id = "P1"
         individual_name = "Jane"
-        person = Person(id=person_id)
+        person = Person(id="my-first-person")
         PersonName(
             person=person,
             individual=individual_name,
@@ -83,22 +80,21 @@ class TestIndex:
         dummy_project.ancestry.add(person)
         localizers = await dummy_project.localizers
         actual = await Index(dummy_project, Context(), localizers.get(locale)).build()
-        assert actual[0].text == {"p1", "jane"}
+        assert actual[0].text == {"my-first-person", "jane"}
         assert expected in actual[0].result
 
     @pytest.mark.parametrize(
         ("expected", "locale"),
         [
-            ("/nl/person/5f2b9323c39ee3c861a7b382d205c3d3/index.html", "nl-NL"),
-            ("/en/person/5f2b9323c39ee3c861a7b382d205c3d3/index.html", "en-US"),
+            ("/nl/person/my-first-person/index.html", "nl-NL"),
+            ("/en/person/my-first-person/index.html", "en-US"),
         ],
     )
     async def test_build_person_with_affiliation_name(
         self, expected: str, locale: str, dummy_project: Project
     ) -> None:
-        person_id = "P1"
         affiliation_name = "Doughnut"
-        person = Person(id=person_id)
+        person = Person(id="my-first-person")
         PersonName(
             person=person,
             affiliation=affiliation_name,
@@ -110,23 +106,22 @@ class TestIndex:
             Context(),
             localizers.get(locale),
         ).build()
-        assert actual[0].text == {"p1", "doughnut"}
+        assert actual[0].text == {"my-first-person", "doughnut"}
         assert expected in actual[0].result
 
     @pytest.mark.parametrize(
         ("expected", "locale"),
         [
-            ("/nl/person/5f2b9323c39ee3c861a7b382d205c3d3/index.html", "nl-NL"),
-            ("/en/person/5f2b9323c39ee3c861a7b382d205c3d3/index.html", "en-US"),
+            ("/nl/person/my-first-person/index.html", "nl-NL"),
+            ("/en/person/my-first-person/index.html", "en-US"),
         ],
     )
     async def test_build_person_with_individual_and_affiliation_names(
         self, expected: str, locale: str, dummy_project: Project
     ) -> None:
-        person_id = "P1"
         individual_name = "Jane"
         affiliation_name = "Doughnut"
-        person = Person(id=person_id)
+        person = Person(id="my-first-person")
         PersonName(
             person=person,
             individual=individual_name,
@@ -135,20 +130,20 @@ class TestIndex:
         dummy_project.ancestry.add(person)
         localizers = await dummy_project.localizers
         actual = await Index(dummy_project, Context(), localizers.get(locale)).build()
-        assert actual[0].text == {"p1", "jane", "doughnut"}
+        assert actual[0].text == {"my-first-person", "jane", "doughnut"}
         assert expected in actual[0].result
 
     @pytest.mark.parametrize(
         ("expected_result", "expected_text", "locale"),
         [
             (
-                "/nl/place/5f2b9323c39ee3c861a7b382d205c3d3/index.html",
-                {"p1", "nederland"},
+                "/nl/place/my-first-place/index.html",
+                {"my-first-place", "nederland"},
                 "nl-NL",
             ),
             (
-                "/en/place/5f2b9323c39ee3c861a7b382d205c3d3/index.html",
-                {"p1", "netherlands"},
+                "/en/place/my-first-place/index.html",
+                {"my-first-place", "netherlands"},
                 "en-US",
             ),
         ],
@@ -160,9 +155,8 @@ class TestIndex:
         locale: str,
         dummy_project: Project,
     ) -> None:
-        place_id = "P1"
         place = Place(
-            id=place_id,
+            id="my-first-place",
             names=[
                 PlaceName(
                     {
@@ -179,9 +173,8 @@ class TestIndex:
         assert expected_result in actual[0].result
 
     async def test_build_private_place(self, dummy_project: Project) -> None:
-        place_id = "P1"
         place = Place(
-            id=place_id,
+            id="my-first-place",
             names=[
                 PlaceName(
                     {"en": "Netherlands"},  # ty:ignore[invalid-argument-type]
@@ -203,7 +196,7 @@ class TestIndex:
             (
                 {
                     Path(__file__).name,
-                    "f1",
+                    "my-first-file",
                     '"file"',
                     "is",
                     "dutch",
@@ -211,14 +204,14 @@ class TestIndex:
                     '"traffic',
                     'jam"',
                 },
-                "/nl/file/e1dffc8709f31a4987c8a88334107e89/index.html",
+                "/nl/file/my-first-file/index.html",
                 '"file" is Dutch for "traffic jam"',
                 "nl-NL",
             ),
             (
                 {
                     Path(__file__).name,
-                    "f1",
+                    "my-first-file",
                     '"file"',
                     "is",
                     "dutch",
@@ -226,25 +219,25 @@ class TestIndex:
                     '"traffic',
                     'jam"',
                 },
-                "/en/file/e1dffc8709f31a4987c8a88334107e89/index.html",
+                "/en/file/my-first-file/index.html",
                 '"file" is Dutch for "traffic jam"',
                 "en-US",
             ),
             (
                 {
                     Path(__file__).name,
-                    "f1",
+                    "my-first-file",
                 },
-                "/nl/file/e1dffc8709f31a4987c8a88334107e89/index.html",
+                "/nl/file/my-first-file/index.html",
                 None,
                 "nl-NL",
             ),
             (
                 {
                     Path(__file__).name,
-                    "f1",
+                    "my-first-file",
                 },
-                "/en/file/e1dffc8709f31a4987c8a88334107e89/index.html",
+                "/en/file/my-first-file/index.html",
                 None,
                 "en-US",
             ),
@@ -258,9 +251,8 @@ class TestIndex:
         locale: str,
         dummy_project: Project,
     ) -> None:
-        file_id = "F1"
         file = File(
-            id=file_id,
+            id="my-first-file",
             path=__file__,
             description=description,
         )
@@ -275,9 +267,8 @@ class TestIndex:
         assert expected_result in actual[0].result
 
     async def test_build_private_file(self, dummy_project: Project) -> None:
-        file_id = "F1"
         file = File(
-            id=file_id,
+            id="my-first-file",
             path=__file__,
             description='"file" is Dutch for "traffic jam"',
             privacy=Privacy.PRIVATE,

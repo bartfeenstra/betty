@@ -1,6 +1,6 @@
 {% set embedded = embedded | default(False) %}
 {% set citation_context = document.entity_contexts['citation'] %}
-{% set is_link = not embedded and citation_context != entity and entity is persistent_entity_id %}
+{% set is_link = not embedded and citation_context != entity and entity.id.persistent %}
 {% if entity.public %}
     {%- if is_link -%}
         <a href="{{ entity | url }}">

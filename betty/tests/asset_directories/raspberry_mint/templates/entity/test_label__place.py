@@ -26,8 +26,8 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
 
 
 async def test_with_persistent_id(assert_template_file: AssertTemplateFile) -> None:
-    place = Place(id="P0")
-    expected = f'<a href="/place/{place.public_id}/index.html"><span lang="und" dir="auto">Place P0</span></a>'
+    place = Place(id="my-first-place")
+    expected = f'<a href="/place/{place.id}/index.html"><span lang="und" dir="auto">Place my-first-place</span></a>'
     async with assert_template_file(
         data={
             "entity": place,
@@ -53,7 +53,7 @@ async def test_with_name(assert_template_file: AssertTemplateFile) -> None:
 
 async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
     place = Place(
-        id="P0",
+        id="my-first-place",
         names=[PlaceName("The Place")],
     )
     expected = '<span lang="und" dir="auto">The Place</span>'
@@ -69,9 +69,9 @@ async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
 
 
 async def test_with_place_context(assert_template_file: AssertTemplateFile) -> None:
-    place = Place(id="P0")
+    place = Place(id="my-first-place")
 
-    expected = '<span lang="und" dir="auto">Place P0</span>'
+    expected = '<span lang="und" dir="auto">Place my-first-place</span>'
     async with assert_template_file(
         data={
             "entity": place,

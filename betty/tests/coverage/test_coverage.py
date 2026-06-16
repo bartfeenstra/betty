@@ -398,6 +398,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/locale/localizable/markup.py": {
         "LocalizableSequence": MissingReason.ABSTRACT,
     },
+    "betty/machine_name.py": {
+        "MachineName": {
+            "persistent": MissingReason.COVERED_ELSEWHERE,
+        },
+    },
     "betty/media_type/__init__.py": {
         "InvalidMediaType": MissingReason.STATIC_CONTENT_ONLY,
     },
@@ -445,9 +450,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/entity/__init__.py": {
         "Entity": MissingReason.SHOULD_BE_COVERED,
-        "EntityReferenceCollectionSchema": MissingReason.STATIC_CONTENT_ONLY,
-        "EntityReferenceSchema": MissingReason.STATIC_CONTENT_ONLY,
-        "NonPersistentId": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/entity/association.py": {
         "BidirectionalToOne": {

@@ -10,7 +10,7 @@ from betty.entities.citation import Citation
 from betty.entities.link import Link
 from betty.entities.source import Source
 from betty.entity import Entity
-from betty.locale import default_locale, default_locale_tag, to_language_tag
+from betty.locale import default_locale_tag
 from betty.locale.localizable.plain import Plain
 from betty.locale.localize import default_localizer
 from betty.privacy import Privacy
@@ -63,9 +63,8 @@ class TestSource(EntityTestBase):
         assert contains_source.contained_by is sut
 
     def test_id(self) -> None:
-        source_id = "S1"
-        sut = Source(id=source_id)
-        assert sut.id == source_id
+        sut = Source(id="my-first-source")
+        assert sut.id == "my-first-source"
 
     def test_name(self) -> None:
         sut = Source()
@@ -128,16 +127,16 @@ class TestSource(EntityTestBase):
         self, assert_dumps_linked_data: AssertDumpsLinkedData
     ) -> None:
         source = Source(
-            id="the_source",
+            id="my-first-source",
             name="The Source",
         )
         expected: Mapping[str, Any] = {
             "@context": {
                 "name": "https://schema.org/name",
             },
-            "@id": "https://example.com/source/the_source/index.json",
+            "@id": "https://example.com/source/my-first-source/index.json",
             "@type": "https://schema.org/Thing",
-            "id": "the_source",
+            "id": "my-first-source",
             "privacy": False,
             "name": {default_locale_tag: "The Source"},
             "fileReferences": [],
@@ -153,50 +152,50 @@ class TestSource(EntityTestBase):
     async def test_dump_linked_data__should_dump_full(
         self, assert_dumps_linked_data: AssertDumpsLinkedData
     ) -> None:
-        link = Link("https://example.com/the-source")
+        link = Link("https://example.com/the-source", id="my-first-link")
         link.label = "The Source Online"
         source = Source(
-            id="the_source",
+            id="my-first-source",
             name="The Source",
             author="The Author",
             publisher="The Publisher",
             date=Date(2000, 1, 1),
             contained_by=Source(
-                id="the_containing_source",
+                id="the-containing-source",
                 name="The Containing Source",
             ),
             contains=[
                 Source(
-                    id="the_contained_source",
+                    id="the-contained-source",
                     name="The Contained Source",
                 )
             ],
             links=[link],
         )
         Citation(
-            id="the_citation",
+            id="my-first-citation",
             source=source,
         )
         expected: Mapping[str, Any] = {
             "@context": {
                 "name": "https://schema.org/name",
             },
-            "@id": "https://example.com/source/the_source/index.json",
+            "@id": "https://example.com/source/my-first-source/index.json",
             "@type": "https://schema.org/Thing",
-            "id": "the_source",
+            "id": "my-first-source",
             "privacy": False,
             "name": {default_locale_tag: "The Source"},
             "author": {default_locale_tag: "The Author"},
             "publisher": {default_locale_tag: "The Publisher"},
             "fileReferences": [],
             "contains": [
-                "/source/the_contained_source/index.json",
+                "/source/the-contained-source/index.json",
             ],
             "citations": [
-                "/citation/the_citation/index.json",
+                "/citation/my-first-citation/index.json",
             ],
             "notes": [],
-            "containedBy": "/source/the_containing_source/index.json",
+            "containedBy": "/source/the-containing-source/index.json",
             "date": {
                 "year": 2000,
                 "month": 1,
@@ -205,20 +204,7 @@ class TestSource(EntityTestBase):
                 "fuzzy": False,
             },
             "links": [
-                {
-                    "@context": {"description": "https://schema.org/description"},
-                    "id": link.id,
-                    "url": {
-                        to_language_tag(
-                            default_locale
-                        ): "https://example.com/the-source",
-                    },
-                    "label": {
-                        default_locale_tag: "The Source Online",
-                    },
-                    "owner": "/source/the_source/index.json",
-                    "privacy": False,
-                },
+                "/link/my-first-link/index.json",
             ],
         }
         actual = await assert_dumps_linked_data(source)
@@ -230,18 +216,18 @@ class TestSource(EntityTestBase):
         link = Link("https://example.com/the-source")
         link.label = "The Source Online"
         source = Source(
-            id="the_source",
+            id="my-first-source",
             name="The Source",
             author="The Author",
             publisher="The Publisher",
             date=Date(2000, 1, 1),
             contained_by=Source(
-                id="the_containing_source",
+                id="the-containing-source",
                 name="The Containing Source",
             ),
             contains=[
                 Source(
-                    id="the_contained_source",
+                    id="the-contained-source",
                     name="The Contained Source",
                 )
             ],
@@ -249,71 +235,26 @@ class TestSource(EntityTestBase):
             privacy=Privacy.PRIVATE,
         )
         Citation(
-            id="the_citation",
+            id="my-first-citation",
             source=source,
         )
         expected: Mapping[str, Any] = {
             "@context": {
                 "name": "https://schema.org/name",
             },
-            "@id": "https://example.com/source/the_source/index.json",
+            "@id": "https://example.com/source/my-first-source/index.json",
             "@type": "https://schema.org/Thing",
-            "id": "the_source",
+            "id": "my-first-source",
             "privacy": True,
             "fileReferences": [],
             "contains": [
-                "/source/the_contained_source/index.json",
+                "/source/the-contained-source/index.json",
             ],
             "citations": [
-                "/citation/the_citation/index.json",
+                "/citation/my-first-citation/index.json",
             ],
             "notes": [],
-            "containedBy": "/source/the_containing_source/index.json",
-        }
-        actual = await assert_dumps_linked_data(source)
-        assert isinstance(actual, MutableMapping)
-        actual.pop("links")
-        assert actual == expected
-
-    async def test_dump_linked_data__should_dump_with_private_associations(
-        self, assert_dumps_linked_data: AssertDumpsLinkedData
-    ) -> None:
-        contained_by_source = Source(
-            id="the_containing_source",
-            name="The Containing Source",
-        )
-        contains_source = Source(
-            id="the_contained_source",
-            name="The Contained Source",
-            privacy=Privacy.PRIVATE,
-        )
-        source = Source(
-            id="the_source",
-            contained_by=contained_by_source,
-            contains=[contains_source],
-        )
-        Citation(
-            id="the_citation",
-            source=source,
-            privacy=Privacy.PRIVATE,
-        )
-        expected: Mapping[str, Any] = {
-            "@context": {
-                "name": "https://schema.org/name",
-            },
-            "@id": "https://example.com/source/the_source/index.json",
-            "@type": "https://schema.org/Thing",
-            "id": "the_source",
-            "privacy": False,
-            "fileReferences": [],
-            "contains": [
-                "/source/the_contained_source/index.json",
-            ],
-            "citations": [
-                "/citation/the_citation/index.json",
-            ],
-            "notes": [],
-            "containedBy": "/source/the_containing_source/index.json",
+            "containedBy": "/source/the-containing-source/index.json",
         }
         actual = await assert_dumps_linked_data(source)
         assert isinstance(actual, MutableMapping)

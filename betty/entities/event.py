@@ -44,6 +44,7 @@ if TYPE_CHECKING:
     from betty.entities.note import Note
     from betty.event_type import EventType
     from betty.locale.localizable import Localizable, ResolvableLocalizable
+    from betty.machine_name import ResolvableMachineName
     from betty.portable import PortableMapping
     from betty.project import Project
 
@@ -87,7 +88,6 @@ class Event(
         "event",
         label=_("Presences"),
         description=_("People's presences at this event"),
-        linked_data_embedded=True,
     )
     """
     People's presences at this event.
@@ -96,7 +96,7 @@ class Event(
     def __init__(
         self,
         *,
-        id: str | None = None,  # noqa: A002
+        id: ResolvableMachineName | None = None,  # noqa: A002
         event_type: EventType | None = None,
         date: AnyDate | None = None,
         file_references: ToManyAssociates[FileReference] = (),
@@ -109,7 +109,7 @@ class Event(
         name: ResolvableLocalizable | None = None,
     ):
         super().__init__(
-            id,
+            id=id,
             date=date,
             file_references=file_references,
             citations=citations,

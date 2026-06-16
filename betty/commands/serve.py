@@ -8,7 +8,6 @@ from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.console.project import add_project_argument
 from betty.factory import Manufacturable
 from betty.locale.localizable.gettext import _
-from betty.machine_name import MachineName
 
 if TYPE_CHECKING:
     import argparse
@@ -44,13 +43,10 @@ class Serve(Manufacturable, Command):
             "--server",
             dest="server_id",
             help=localizer._("The web server to use."),
-            type=MachineName.machinify,
         )
         return await add_project_argument(parser, self._command_function, self._app)
 
-    async def _command_function(
-        self, project: Project, server_id: MachineName | None
-    ) -> None:
+    async def _command_function(self, project: Project, server_id: str | None) -> None:
         async with project:
             if server_id is None:
                 server = await next(iter(project.servers))

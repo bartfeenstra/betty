@@ -33,6 +33,7 @@ if TYPE_CHECKING:
     from betty.entities.link import Link
     from betty.entities.note import Note
     from betty.locale.localizable import Localizable, ResolvableLocalizable
+    from betty.machine_name import ResolvableMachineName
     from betty.portable import PortableMapping
     from betty.project import Project
 
@@ -98,7 +99,7 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Enti
         self,
         name: ResolvableLocalizable | None = None,
         *,
-        id: str | None = None,  # noqa: A002
+        id: ResolvableMachineName | None = None,  # noqa: A002
         author: ResolvableLocalizable | None = None,
         publisher: ResolvableLocalizable | None = None,
         contained_by: ToZeroOrOneAssociate[Source] = None,
@@ -110,7 +111,7 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Enti
         privacy: Privacy = Privacy.UNDETERMINED,
     ):
         super().__init__(
-            id,
+            id=id,
             notes=notes,
             date=date,
             file_references=file_references,

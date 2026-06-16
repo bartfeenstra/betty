@@ -24,8 +24,8 @@ from betty import about
 from betty.cache import CacheItem
 from betty.date import Date
 from betty.file import read, write
-from betty.html import generate_html_id
 from betty.html.attributes import Attributes
+from betty.machine_name import MachineName
 from betty.media_type import (
     ResolvableMediaType,
     UnsupportedMediaType,
@@ -97,7 +97,7 @@ async def new_environment(project: Project, /) -> Environment:
         "about_version_major": about.version_major_label,
         "app": project.upstream,
         "deprecate": deprecate,
-        "generate_html_id": generate_html_id,
+        "machine_name": MachineName,
         "new_attributes": Attributes,
         "project": project,
         "primary_navigation_links": [

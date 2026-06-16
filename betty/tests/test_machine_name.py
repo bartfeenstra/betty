@@ -1,41 +1,23 @@
-from collections.abc import Sequence
-from typing import Any, Final
+from typing import Any
 
 import pytest
 
 from betty.exception import HumanFacingException
 from betty.machine_name import InvalidMachineName, MachineName
-
-VALID_MACHINE_NAMES: Final[Sequence[str]] = (
-    "a",
-    "-a",
-    "--a",
-    "a-",
-    "a--",
-    "a-b",
-    "a--b",
-    "-a-b",
-    "a-b-c",
-    "abc1234567890",
-    # Name is exactly 250 characters.
-    "machinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachi",
-)
-
-INVALID_MACHINE_NAMES: Final[Sequence[str]] = (
-    # Underscores.
-    "package_machine",
-    "package_module_machine",
-    # An empty name.
-    "",
-    # Name exceeds 250 characters.
-    "machinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachin",
-)
+from betty.test_utils.machine_name import INVALID_MACHINE_NAMES, VALID_MACHINE_NAMES
 
 
 class TestMachineName:
+    def test___init____without_value(self) -> None:
+        sut = MachineName()
+        assert len(sut) == 36
+        assert not sut.persistent
+
     @pytest.mark.parametrize("machine_name", VALID_MACHINE_NAMES)
     def test___init____with_valid_value(self, machine_name: str) -> None:
-        assert MachineName(machine_name) == machine_name
+        sut = MachineName(machine_name)
+        assert sut == machine_name
+        assert sut.persistent
 
     @pytest.mark.parametrize("machine_name", INVALID_MACHINE_NAMES)
     def test___init____with_invalid_value(self, machine_name: str) -> None:
@@ -44,7 +26,9 @@ class TestMachineName:
 
     @pytest.mark.parametrize("machine_name", VALID_MACHINE_NAMES)
     def test_load(self, machine_name: str) -> None:
-        assert MachineName.load(machine_name) == machine_name
+        sut = MachineName.load(machine_name)
+        assert sut == machine_name
+        assert sut.persistent
 
     @pytest.mark.parametrize(
         "machine_name", [*INVALID_MACHINE_NAMES, {}, None, True, 123]
@@ -91,7 +75,10 @@ class TestMachineName:
         ],
     )
     def test_machinify(self, expected: str | None, source: str) -> None:
-        assert MachineName.machinify(source) == expected
+        sut = MachineName.machinify(source)
+        assert sut == expected
+        if sut is not None:
+            assert sut.persistent
 
 
 class TestInvalidMachineName:

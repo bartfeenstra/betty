@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Self, final, override
-from uuid import uuid4
+from typing import TYPE_CHECKING, Any, Final, final, override
 
 from betty.definition.human_facing import CountableHumanFacingDefinition
-from betty.hashid import hashid
 from betty.json_schema import JsonSchemaReference, String
 from betty.linked_data import (
     JsonLdObject,
@@ -14,14 +12,13 @@ from betty.linked_data import (
 )
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localize import default_localizer
+from betty.machine_name import MachineName
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.prop import HasProps
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
-    import builtins
-
     from betty.locale.localizable import (
         CountableLocalizable,
         Localizable,
@@ -31,24 +28,6 @@ if TYPE_CHECKING:
     from betty.portable import PortableMapping
     from betty.project import Project
     from betty.requirement import Requires
-
-
-class NonPersistentId(str):
-    """
-    A randomly generated ID that is not persistent.
-
-    Entities must have IDs for identification. However, not all entities can be provided with an ID that exists in the
-    original data set (such as a third-party family tree loaded into Betty).
-
-    Non-persistent IDs are helpful in case there is no external ID that can be used. However, as they do not persist
-    when reloading an ancestry, they *MUST NOT* be in contexts where persistent identifiers are expected, such as in
-    URLs.
-    """
-
-    __slots__ = ()
-
-    def __new__(cls, entity_id: str | None = None, /):  # noqa: D102
-        return super().__new__(cls, entity_id or str(uuid4()))
 
 
 class Entity(
@@ -62,46 +41,23 @@ class Entity(
 
     def __init__(
         self,
-        id: str | None = None,  # noqa: A002
         *args: Any,
+        id: ResolvableMachineName | None = None,  # noqa: A002
         **kwargs: Any,
     ):
-        self._id = NonPersistentId() if id is None else id
-        self._public_id = self._id if id is None else hashid(id)
-        super().__init__(*args, **kwargs)
-
-    @override
-    def __hash__(self) -> int:
-        return hash(self.ancestry_id)
-
-    @property
-    def id(self) -> str:
+        self.id: Final[MachineName] = (
+            MachineName() if id is None else MachineName.resolve(id)
+        )
         """
         The entity ID.
 
         This MUST be unique per entity type, per ancestry.
         """
-        return self._id
+        super().__init__(*args, **kwargs)
 
-    @property
-    def public_id(self) -> str:
-        """
-        The public entity ID.
-
-        This MUST be unique per entity type, per ancestry.
-
-        A public ID consists of alphanumeric characters only, and can therefore safely be used across file systems.
-        """
-        return self._public_id
-
-    @property
-    def ancestry_id(self) -> tuple[builtins.type[Self], str]:
-        """
-        The ancestry ID.
-
-        This MUST be unique per ancestry.
-        """
-        return type(self), self.id
+    @override
+    def __hash__(self) -> int:
+        return hash((type(self), self.id))
 
     @property
     def label(self) -> Localizable:
@@ -116,12 +72,11 @@ class Entity(
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         portable = await super().dump_linked_data(project)
 
-        if persistent_id(self) and self.plugin().public_facing:
-            url_generator = await project.url_generator
-            portable["@id"] = url_generator.generate(
-                f"betty-static:///{self.plugin().id}/{self.id}/index.json",
-                absolute=True,
-            )
+        url_generator = await project.url_generator
+        portable["@id"] = url_generator.generate(
+            f"betty-static:///{self.plugin().id}/{self.id}/index.json",
+            absolute=True,
+        )
         portable["id"] = self.id
 
         return portable
@@ -174,26 +129,10 @@ class EntityDefinition(CountableHumanFacingDefinition, PluginClsDefinition[Entit
             description=description,
             requires=requires,
         )
-        self._public_facing = public_facing
-
-    @property
-    def public_facing(self) -> bool:
+        self.public_facing: Final[bool] = public_facing
         """
         Whether entities of this type are public-facing.
         """
-        return self._public_facing
 
 
-type AncestryEntityId = tuple[type[Entity], str]
-
-
-def persistent_id(entity_or_id: Entity | str, /) -> bool:
-    """
-    Test if an entity ID is persistent.
-
-    See :py:class:`betty.entity.NonPersistentId`.
-    """
-    return not isinstance(
-        entity_or_id if isinstance(entity_or_id, str) else entity_or_id.id,
-        NonPersistentId,
-    )
+type AncestryEntityId = tuple[type[Entity], MachineName]

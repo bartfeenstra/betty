@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from betty.html import generate_html_id, newlines_to_paragraphs, plain_text_to_html
+from betty.html import newlines_to_paragraphs, plain_text_to_html
 
 
 @pytest.mark.parametrize(
@@ -17,11 +17,6 @@ from betty.html import generate_html_id, newlines_to_paragraphs, plain_text_to_h
 )
 def test_newlines_to_paragraphs(expected: str, text: str) -> None:
     assert newlines_to_paragraphs(text) == expected
-
-
-def test_generate_html_id() -> None:
-    assert generate_html_id()
-    assert generate_html_id() != generate_html_id()
 
 
 def test_plain_text_to_html() -> None:

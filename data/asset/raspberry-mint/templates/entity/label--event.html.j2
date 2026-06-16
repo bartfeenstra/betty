@@ -5,7 +5,7 @@
 {%- else -%}
     {%- set formatted_event = entity.event_type.plugin().label | localize | html_lang | safe -%}
 {%- endif -%}
-{%- if entity is persistent_entity_id and not embedded -%}
+{%- if entity.id.persistent and not embedded -%}
     {%- set formatted_event -%}
         <a href="{{ entity | url }}">{{ formatted_event }}</a>
     {%- endset -%}

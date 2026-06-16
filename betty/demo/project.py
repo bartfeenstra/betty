@@ -200,7 +200,7 @@ async def create_project(
             Place,
             Source,
         ],
-        license=LicenseManufacturer("spdx-gpl-3--0-or-later"),
+        license=LicenseManufacturer("spdx-gpl-3-0-or-later"),
         links=[
             BETTY_DOCUMENTATION,
             BETTY_GITHUB,

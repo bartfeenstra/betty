@@ -68,10 +68,11 @@ class TestPresence(EntityTestBase):
         person = Person(id="my-first-person")
         event = Event(id="my-first-event")
         role = Subject()
-        sut = Presence(person, role, event)
+        sut = Presence(person, role, event, id="my-first-presence")
 
         expected: PortableMapping = {
-            "id": sut.id,
+            "@id": "https://example.com/presence/my-first-presence/index.json",
+            "id": "my-first-presence",
             "event": "/event/my-first-event/index.json",
             "person": "/person/my-first-person/index.json",
             "privacy": False,
@@ -86,10 +87,13 @@ class TestPresence(EntityTestBase):
         person = Person(id="my-first-person")
         event = Event(id="my-first-event")
         role = Subject()
-        sut = Presence(person, role, event, privacy=Privacy.PRIVATE)
+        sut = Presence(
+            person, role, event, id="my-first-presence", privacy=Privacy.PRIVATE
+        )
 
         expected: PortableMapping = {
-            "id": sut.id,
+            "@id": "https://example.com/presence/my-first-presence/index.json",
+            "id": "my-first-presence",
             "event": "/event/my-first-event/index.json",
             "person": "/person/my-first-person/index.json",
             "privacy": True,

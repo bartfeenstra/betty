@@ -28,6 +28,7 @@ if TYPE_CHECKING:
     from betty.entities.person import Person
     from betty.locale import ResolvableLocale
     from betty.locale.localizable import Localizable
+    from betty.machine_name import ResolvableMachineName
     from betty.portable import PortableMapping
     from betty.project import Project
 
@@ -88,7 +89,7 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
         self,
         *,
         person: ToOneAssociate[Person],
-        id: str | None = None,  # noqa: A002
+        id: ResolvableMachineName | None = None,  # noqa: A002
         individual: str | None = None,
         affiliation: str | None = None,
         privacy: Privacy = Privacy.UNDETERMINED,
@@ -96,7 +97,7 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
         citations: ToManyAssociates[Citation] = (),
     ):
         super().__init__(
-            id,
+            id=id,
             privacy=privacy,
             locale=locale,
             citations=citations,

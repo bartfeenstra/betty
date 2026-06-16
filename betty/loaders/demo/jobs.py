@@ -512,7 +512,7 @@ class LoadAncestry(Job):
         for file_name, appearance in file_names:
             file = File(
                 streetmix_image_directory / file_name,
-                id=f"streetmix-{file_name}",
+                id=f"streetmix-{file_name.replace('.', '-')}",
                 media_type=SVG,
                 copyright_notice=self._streetmix_copyright_notice,
                 license=self._streetmix_license,

@@ -26,6 +26,7 @@ if TYPE_CHECKING:
     from betty.entity.has_links import HasLinks
     from betty.linked_data import JsonLdObject
     from betty.locale.localizable import Localizable, ResolvableLocalizable
+    from betty.machine_name import ResolvableMachineName
     from betty.media_type import ResolvableMediaType
     from betty.portable import PortableMapping
     from betty.project import Project
@@ -65,6 +66,7 @@ class Link(LinkType, HasMediaType, HasDescription, HasPrivacy, Entity):
         self,
         url: ResolvableLocalizable,
         *,
+        id: ResolvableMachineName | None = None,  # noqa: A002
         relationship: str | None = None,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
@@ -73,7 +75,7 @@ class Link(LinkType, HasMediaType, HasDescription, HasPrivacy, Entity):
         privacy: Privacy = Privacy.UNDETERMINED,
     ):
         super().__init__(
-            media_type=media_type, description=description, privacy=privacy
+            id=id, media_type=media_type, description=description, privacy=privacy
         )
         self.url = url
         self._label = label

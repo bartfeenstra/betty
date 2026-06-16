@@ -14,6 +14,7 @@ from betty.locale.localizable.gettext import _, ngettext
 
 if TYPE_CHECKING:
     from betty.entities.place import Place
+    from betty.machine_name import ResolvableMachineName
 
 
 @final
@@ -50,8 +51,11 @@ class Enclosure(HasAnyDate, HasCitations, Entity):
     """
 
     def __init__(
-        self, enclosee: ToOneAssociate[Place], encloser: ToOneAssociate[Place]
+        self,
+        enclosee: ToOneAssociate[Place],
+        encloser: ToOneAssociate[Place],
+        id: ResolvableMachineName | None = None,  # noqa: A002
     ):
-        super().__init__()
+        super().__init__(id=id)
         self.enclosee = enclosee
         self.encloser = encloser
