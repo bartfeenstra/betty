@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, final, override
 from betty.attrs.date import HasAnyDate
 from betty.attrs.description import HasDescription
 from betty.attrs.localizable import new_localizable_attr
-from betty.attrs.privacy import HasPrivacy
 from betty.entities.place import Place
 from betty.entities.presence import Presence
 from betty.entity import EntityDefinition
@@ -57,13 +56,7 @@ if TYPE_CHECKING:
     label_countable=ngettext("{count} event", "{count} events"),
 )
 class Event(
-    HasAnyDate,
-    HasFileReferences,
-    HasCitations,
-    HasNotes,
-    HasDescription,
-    HasPrivacy,
-    HasLinks,
+    HasAnyDate, HasFileReferences, HasCitations, HasNotes, HasDescription, HasLinks
 ):
     """
     .. plugin:: entity:event.

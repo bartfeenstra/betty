@@ -251,7 +251,6 @@ betty = 'betty.console:main_standalone'
 'has-file-references' = 'betty.jinja_tests.has_file_references:HasFileReferences'
 'image-media-type-supported' = 'betty.jinja_tests.image_media_type_supported:ImageMediaTypeSupported'
 'linked-data-dumpable' = 'betty.jinja_tests.linked_data_dumpable:LinkedDataDumpable'
-'public' = 'betty.jinja_tests.public:Public'
 'plugin' = 'betty.jinja_tests.plugin:Plugin.discover'
 
 

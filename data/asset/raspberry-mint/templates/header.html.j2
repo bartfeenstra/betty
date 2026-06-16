@@ -149,7 +149,7 @@
                 filter_entity_type_html_ids = {}
             ) %}
             {% for entity_type in project.plugins['entity'] %}
-                {% if entity_type.public_facing and project.ancestry[entity_type] | select("public")| list %}
+                {% if entity_type.public_facing and project.ancestry[entity_type] | selectattr('public') | list %}
                     {% set entity_type_html_id = 'betty-search-form-filter-entity-type--' + entity_type.id %}
                     {% do ns.filter_entity_type_checkboxes.append({
                         'attributes': new_attributes(html_checked=true, html_id=entity_type_html_id),

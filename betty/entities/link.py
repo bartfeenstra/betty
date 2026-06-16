@@ -40,7 +40,7 @@ if TYPE_CHECKING:
     label_countable=ngettext("{count} link", "{count} links"),
     public_facing=False,
 )
-class Link(LinkType, HasMediaType, HasDescription, HasPrivacy, Entity):
+class Link(LinkType, HasMediaType, HasDescription, Entity):
     """
     .. plugin:: entity:link.
     """

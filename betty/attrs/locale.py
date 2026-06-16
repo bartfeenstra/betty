@@ -7,12 +7,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, override
 
 from betty.attrs.owner import OwnerAttr
+from betty.attrs.privacy import HasPrivacy
 from betty.datas.locale import LocaleDefinition
 from betty.json_schema import Null, OneOf
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
 from betty.locale import Localized, ResolvableLocale, resolve_locale, to_language_tag
 from betty.locale.schema import LocaleSchema
-from betty.privacy.resolve import is_public
 from betty.prop import HasProps
 
 if TYPE_CHECKING:
@@ -53,7 +53,11 @@ class HasLocale(Localized, LinkedDataDumpableWithSchemaJsonLdObject, HasProps):
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         portable = await super().dump_linked_data(project)
-        portable["locale"] = to_language_tag(self.locale) if is_public(self) else None
+        portable["locale"] = (
+            to_language_tag(self.locale)
+            if not isinstance(self, HasPrivacy) or self.public
+            else None
+        )
         return portable
 
     @override

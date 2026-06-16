@@ -8,8 +8,7 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.attrs.date import HasAnyDate
 from betty.attrs.localizable import new_localizable_attr
-from betty.attrs.privacy import HasPrivacy
-from betty.entity import Entity, EntityDefinition
+from betty.entity import EntityDefinition
 from betty.entity.association import (
     BidirectionalToManySingleType,
     BidirectionalToZeroOrOne,
@@ -24,7 +23,7 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.privacy import Privacy
-from betty.privacy.resolve import is_public, merge_privacies
+from betty.privacy.resolve import merge_privacies
 
 if TYPE_CHECKING:
     from betty.date import AnyDate
@@ -45,7 +44,7 @@ if TYPE_CHECKING:
     label_plural=_("Sources"),
     label_countable=ngettext("{count} source", "{count} sources"),
 )
-class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity):
+class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks):
     """
     .. plugin:: entity:source.
     """
@@ -151,7 +150,7 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Enti
         portable = await super().dump_linked_data(project)
         portable["@type"] = "https://schema.org/Thing"
         dump_context(portable, name="https://schema.org/name")
-        if is_public(self):
+        if self.public:
             public_localizers = await project.public_localizers
             if self.author is not None:
                 portable["author"] = dump_linked_data(

@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.attrs.date import HasAnyDate
 from betty.attrs.localizable import new_localizable_attr
-from betty.attrs.privacy import HasPrivacy
 from betty.entities.source import Source
 from betty.entity import EntityDefinition
 from betty.entity.association import (
@@ -23,7 +22,7 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.privacy import Privacy
-from betty.privacy.resolve import is_public, merge_secondary_privacies
+from betty.privacy.resolve import merge_secondary_privacies
 
 if TYPE_CHECKING:
     from betty.date import AnyDate
@@ -43,7 +42,7 @@ if TYPE_CHECKING:
     label_plural=_("Citations"),
     label_countable=ngettext("{count} citation", "{count} citations"),
 )
-class Citation(HasAnyDate, HasFileReferences, HasPrivacy, HasLinks):
+class Citation(HasAnyDate, HasFileReferences, HasLinks):
     """
     .. plugin:: entity:citation.
     """
@@ -109,7 +108,7 @@ class Citation(HasAnyDate, HasFileReferences, HasPrivacy, HasLinks):
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         portable = await super().dump_linked_data(project)
         portable["@type"] = "https://schema.org/Thing"
-        if is_public(self) and self.location is not None:
+        if self.public and self.location is not None:
             portable["location"] = dump_linked_data(
                 self.location, localizers=await project.public_localizers
             )

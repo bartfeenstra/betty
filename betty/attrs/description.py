@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, override
 
 from betty.attrs.localizable import new_localizable_attr
+from betty.attrs.privacy import HasPrivacy
 from betty.linked_data import (
     JsonLdObject,
     LinkedDataDumpableWithSchemaJsonLdObject,
@@ -15,7 +16,6 @@ from betty.linked_data import (
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
-from betty.privacy.resolve import is_public
 from betty.prop import HasProps
 
 if TYPE_CHECKING:
@@ -58,7 +58,9 @@ class HasDescription(LinkedDataDumpableWithSchemaJsonLdObject, HasProps):
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         portable = await super().dump_linked_data(project)
         dump_context(portable, description="https://schema.org/description")
-        if self.description is not None and is_public(self):
+        if self.description is not None and (
+            not isinstance(self, HasPrivacy) or self.public
+        ):
             portable["description"] = dump_linked_data(
                 self.description, localizers=await project.public_localizers
             )

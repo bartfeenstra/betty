@@ -14,7 +14,6 @@ from betty.entities.source import Source
 from betty.factory import Manufacturable
 from betty.functools import unique
 from betty.locale.localizable.gettext import _
-from betty.privacy.resolve import is_public
 from betty.project import Project
 
 if TYPE_CHECKING:
@@ -58,7 +57,8 @@ class Facts(Template, Manufacturable):
         return None
 
     def _source_facts(self, source: Source) -> Iterable[Entity]:
-        for citation in filter(is_public, source.citations):
-            yield from citation.facts
+        for citation in source.citations:
+            if citation.public:
+                yield from citation.facts
         for contained in source.contains:
             yield from self._source_facts(contained)

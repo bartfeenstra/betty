@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.media_type import HasMediaType
-from betty.attrs.privacy import HasPrivacy
 from betty.entity import EntityDefinition
 from betty.entity.association import (
     BidirectionalToZeroOrOne,
@@ -19,7 +18,6 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.privacy import Privacy
-from betty.privacy.resolve import is_public
 
 if TYPE_CHECKING:
     from betty.entity.has_notes import HasNotes
@@ -37,7 +35,7 @@ if TYPE_CHECKING:
     label_plural=_("Notes"),
     label_countable=ngettext("{count} note", "{count} notes"),
 )
-class Note(HasPrivacy, HasLinks, HasMediaType):
+class Note(HasLinks, HasMediaType):
     """
     .. plugin:: entity:note.
     """
@@ -79,7 +77,7 @@ class Note(HasPrivacy, HasLinks, HasMediaType):
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         portable = await super().dump_linked_data(project)
         portable["@type"] = "https://schema.org/Thing"
-        if is_public(self):
+        if self.public:
             portable["text"] = dump_linked_data(
                 self.text, localizers=await project.public_localizers
             )

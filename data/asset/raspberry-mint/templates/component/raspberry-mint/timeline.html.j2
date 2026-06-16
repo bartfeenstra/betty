@@ -1,5 +1,5 @@
 {% set person_context = document.entity_contexts['person'] %}
-{% set events = events | rejectattr('date', 'none') | selectattr('date.comparable') | select('public') | list | sort(attribute='date') %}
+{% set events = events | rejectattr('date', 'none') | selectattr('date.comparable') | selectattr('public') | list | sort(attribute='date') %}
 {% if events | length %}
     <ul class="timeline" style="--timeline-item-count: {{ events | length }};">
         {% for entity in events %}

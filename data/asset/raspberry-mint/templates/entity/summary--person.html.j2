@@ -8,7 +8,7 @@
         {% if entity.gender.plugin().id != 'unknown' %}
             <p class="m-0">{{ entity.gender.plugin().label | localize | html_lang }}</p>
         {% endif %}
-        {% set alternative_names = (entity.names | select('public') | list)[1:] %}
+        {% set alternative_names = (entity.names | selectattr('public') | list)[1:] %}
         {%- if alternative_names -%}
             {% set ns = namespace(formatted_alternative_names = []) %}
             {% for entity in alternative_names %}
@@ -18,7 +18,7 @@
             {%- set formatted_alternative_names = ns.formatted_alternative_names | join(', ') %}
             <span class="aka">{%- trans names = formatted_alternative_names -%}Also known as {{ names }}{%- endtrans -%}</span>
         {%- endif -%}
-        {% set events = entity.presences | selectattr('role', 'role_plugin', 'subject') | map(attribute='event') | reject('none') | select('public') | list %}
+        {% set events = entity.presences | selectattr('role', 'role_plugin', 'subject') | map(attribute='event') | reject('none') | selectattr('public') | list %}
         {% set ns = namespace(birth_indicators=[]) %}
         {% for event in events %}
             {% if event.event_type.plugin().id == 'birth' or event.event_type.plugin().indicates == 'birth' %}

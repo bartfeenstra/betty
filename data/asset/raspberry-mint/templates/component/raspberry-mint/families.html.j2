@@ -34,7 +34,7 @@
                         {% endif %}
                     </p>
                 </div>
-                {% set public_siblings = siblings | select('public') | list %}
+                {% set public_siblings = siblings | selectattr('public') | list %}
                 {% for public_sibling in public_siblings %}
                     <div class="col">
                         <div class="card">
@@ -84,7 +84,7 @@
                             {%- endif -%}
                         </p>
                     </div>
-                    {% set public_family_children = family_children | select('public') | list %}
+                    {% set public_family_children = family_children | selectattr('public') | list %}
                     {% for public_family_child in public_family_children %}
                         <div class="col">
                             <div class="card">

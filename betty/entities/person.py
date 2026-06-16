@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
-from betty.attrs.privacy import HasPrivacy
 from betty.entity import EntityDefinition
 from betty.entity.association import BidirectionalToManySingleType, ToManyAssociates
 from betty.entity.has_citations import HasCitations
@@ -46,7 +45,7 @@ if TYPE_CHECKING:
     label_plural=_("People"),
     label_countable=ngettext("{count} person", "{count} people"),
 )
-class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
+class Person(HasFileReferences, HasCitations, HasNotes, HasLinks):
     """
     .. plugin:: entity:person.
     """

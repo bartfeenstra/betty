@@ -7,7 +7,6 @@ from __future__ import annotations
 from contextlib import suppress
 from typing import TYPE_CHECKING, final, override
 
-from betty.attrs.privacy import HasPrivacy
 from betty.entities.place_name import PlaceName
 from betty.entity import EntityDefinition
 from betty.entity.association import BidirectionalToManySingleType, ToManyAssociates
@@ -43,7 +42,7 @@ if TYPE_CHECKING:
     label_plural=_("Places"),
     label_countable=ngettext("{count} place", "{count} places"),
 )
-class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
+class Place(HasLinks, HasFileReferences, HasNotes):
     """
     .. plugin:: entity:place.
     """

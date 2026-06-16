@@ -34,4 +34,5 @@ class TestPlaceName:
             "@id": "https://example.com/place-name/my-first-place-name/index.json",
             "id": "my-first-place-name",
             "name": {default_locale_tag: "My First Name"},
+            "privacy": False,
         }

@@ -16,7 +16,6 @@ from betty.entities.place import Place
 from betty.event_types.birth import Birth
 from betty.event_types.death import Death
 from betty.functools import unique
-from betty.privacy.resolve import is_public
 from betty.roles.subject import Subject
 
 if TYPE_CHECKING:
@@ -172,16 +171,10 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
                 end_date = reference_dates[-1]
 
     if start_date is not None and end_date is not None:
-        associated_people = filter(
-            is_public,
-            (
-                # All ancestors.
-                *person.ancestors,
-                # All descendants.
-                *person.descendants,
-                # All siblings.
-                *person.siblings,
-            ),
+        associated_people = (
+            person
+            for person in (*person.ancestors, *person.descendants, *person.siblings)
+            if person.public
         )
         for associated_person in associated_people:
             # For associated events, we are only interested in people's start- or end-of-life events.

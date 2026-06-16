@@ -7,10 +7,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, override
 
 from betty.attrs.owner import OwnerAttr
+from betty.attrs.privacy import HasPrivacy
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
 from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
 from betty.media_type.schema import MediaTypeSchema
-from betty.privacy.resolve import is_public
 from betty.prop import HasProps
 
 if TYPE_CHECKING:
@@ -52,7 +52,9 @@ class HasMediaType(LinkedDataDumpableWithSchemaJsonLdObject, HasProps):
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         portable = await super().dump_linked_data(project)
-        if is_public(self) and self.media_type is not None:
+        if (
+            not isinstance(self, HasPrivacy) or self.public
+        ) and self.media_type is not None:
             portable["mediaType"] = str(self.media_type)
         return portable
 

@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, override
 
 from betty.attrs.owner import OwnerAttr
+from betty.attrs.privacy import HasPrivacy
 from betty.datas.date import AnyDateDefinition
 from betty.date import AnyDate, Date
 from betty.date.linked_data import (
@@ -15,7 +16,6 @@ from betty.date.linked_data import (
 )
 from betty.date.schema import ResolvableDateSchema
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
-from betty.privacy.resolve import is_public
 from betty.prop import HasProps
 
 if TYPE_CHECKING:
@@ -55,7 +55,7 @@ class HasAnyDate(LinkedDataDumpableWithSchemaJsonLdObject, HasProps):
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         portable = await super().dump_linked_data(project)
-        if self.date and is_public(self):
+        if self.date and (not isinstance(self, HasPrivacy) or self.public):
             (
                 schema_org_date_definition,
                 schema_org_start_date_definition,

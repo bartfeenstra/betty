@@ -6,13 +6,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
-from betty.attrs.privacy import HasPrivacy
 from betty.entity import Entity, EntityDefinition
 from betty.entity.association import BidirectionalToOne, ToOneAssociate
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin.schema import PluginIdSchema
 from betty.privacy import Privacy
-from betty.privacy.resolve import is_public, merge_secondary_privacies
+from betty.privacy.resolve import merge_secondary_privacies
 from betty.role import RoleDefinition
 
 if TYPE_CHECKING:
@@ -35,7 +34,7 @@ if TYPE_CHECKING:
     description=_("A person's presence at an event."),
     public_facing=False,
 )
-class Presence(HasPrivacy, Entity):
+class Presence(Entity):
     """
     .. plugin:: entity:presence.
     """
@@ -110,6 +109,6 @@ class Presence(HasPrivacy, Entity):
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         portable = await super().dump_linked_data(project)
-        if is_public(self):
+        if self.public:
             portable["role"] = self.role.plugin().id
         return portable

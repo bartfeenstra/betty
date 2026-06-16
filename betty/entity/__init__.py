@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Final, final, override
 
+from betty.attrs.privacy import HasPrivacy
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.json_schema import JsonSchemaReference, String
 from betty.linked_data import (
@@ -15,7 +16,7 @@ from betty.locale.localize import default_localizer
 from betty.machine_name import MachineName
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.prop import HasProps
+from betty.privacy import Privacy
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
@@ -31,7 +32,7 @@ if TYPE_CHECKING:
 
 
 class Entity(
-    LinkedDataDumpableWithSchemaJsonLdObject, Plugin["EntityDefinition"], HasProps
+    LinkedDataDumpableWithSchemaJsonLdObject, Plugin["EntityDefinition"], HasPrivacy
 ):
     """
     An entity is a uniquely identifiable data container.
@@ -43,6 +44,7 @@ class Entity(
         self,
         *args: Any,
         id: ResolvableMachineName | None = None,  # noqa: A002
+        privacy: Privacy = Privacy.UNDETERMINED,
         **kwargs: Any,
     ):
         self.id: Final[MachineName] = (
@@ -53,7 +55,7 @@ class Entity(
 
         This MUST be unique per entity type, per ancestry.
         """
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, privacy=privacy, **kwargs)
 
     @override
     def __hash__(self) -> int:
