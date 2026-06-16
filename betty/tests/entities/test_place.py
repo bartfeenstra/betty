@@ -143,7 +143,7 @@ class TestPlace(EntityTestBase):
             "notes": [],
             "links": [],
             "privacy": False,
-            "fileReferences": [],
+            "files": [],
         }
         actual = await assert_dumps_linked_data(place)
         assert actual == expected
@@ -221,7 +221,7 @@ class TestPlace(EntityTestBase):
                 "/enclosure/the-enclosing-enclosure/index.json",
             ],
             "privacy": False,
-            "fileReferences": [],
+            "files": [],
         }
         actual = await assert_dumps_linked_data(place)
         assert actual == expected

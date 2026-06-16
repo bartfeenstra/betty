@@ -83,13 +83,13 @@ class Citation(HasAnyDate, HasFileReferences, HasPrivacy, HasLinks):
         facts: ToManyAssociates[HasCitations] = (),
         location: ResolvableLocalizable | None = None,
         date: AnyDate | None = None,
-        file_references: ToManyAssociates[FileReference] = (),
+        files: ToManyAssociates[FileReference] = (),
         privacy: Privacy = Privacy.UNDETERMINED,
     ):
         super().__init__(
             id=id,
             date=date,
-            file_references=file_references,
+            files=files,
             privacy=privacy,
         )
         self.facts = facts

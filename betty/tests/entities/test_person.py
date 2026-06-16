@@ -132,7 +132,7 @@ class TestPerson(EntityTestBase):
 
     def test_file_references(self) -> None:
         sut = Person()
-        assert list(sut.file_references) == []
+        assert list(sut.files) == []
 
     def test_citations(self) -> None:
         sut = Person()
@@ -212,7 +212,7 @@ class TestPerson(EntityTestBase):
             "citations": [],
             "notes": [],
             "links": [],
-            "fileReferences": [],
+            "files": [],
         }
         actual = await assert_dumps_linked_data(person)
         assert actual == expected
@@ -300,7 +300,7 @@ class TestPerson(EntityTestBase):
             "links": [
                 "/link/my-first-link/index.json",
             ],
-            "fileReferences": [],
+            "files": [],
         }
         actual = await assert_dumps_linked_data(person)
         assert actual == expected
@@ -384,7 +384,7 @@ class TestPerson(EntityTestBase):
             "links": [
                 "/link/my-first-link/index.json",
             ],
-            "fileReferences": [],
+            "files": [],
         }
         actual = await assert_dumps_linked_data(person)
         assert actual == expected

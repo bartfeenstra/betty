@@ -19,9 +19,7 @@ class HasFileReferences(Entity):
     An entity that has associated :py:class:`betty.entities.file.File` entities.
     """
 
-    file_references = BidirectionalToManySingleType[
-        "HasFileReferences", "FileReference"
-    ](
+    files = BidirectionalToManySingleType["HasFileReferences", "FileReference"](
         "betty.entities.file_reference:FileReference",
         "referee",
         label=_("File references"),
@@ -30,8 +28,8 @@ class HasFileReferences(Entity):
     def __init__(
         self,
         *args: Any,
-        file_references: ToManyAssociates[FileReference] = (),
+        files: ToManyAssociates[FileReference] = (),
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
-        self.file_references = file_references
+        self.files = files

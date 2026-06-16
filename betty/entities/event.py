@@ -99,7 +99,7 @@ class Event(
         id: ResolvableMachineName | None = None,  # noqa: A002
         event_type: EventType | None = None,
         date: AnyDate | None = None,
-        file_references: ToManyAssociates[FileReference] = (),
+        files: ToManyAssociates[FileReference] = (),
         citations: ToManyAssociates[Citation] = (),
         notes: ToManyAssociates[Note] = (),
         privacy: Privacy = Privacy.UNDETERMINED,
@@ -111,7 +111,7 @@ class Event(
         super().__init__(
             id=id,
             date=date,
-            file_references=file_references,
+            files=files,
             citations=citations,
             notes=notes,
             privacy=privacy,

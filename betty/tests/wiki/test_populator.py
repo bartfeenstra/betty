@@ -220,5 +220,5 @@ class TestPopulator:
         )
         await sut.populate(has_file_references_and_links)
 
-        file_reference = next(iter(has_file_references_and_links.file_references))
+        file_reference = next(iter(has_file_references_and_links.files))
         assert file_reference.file.path == image.path

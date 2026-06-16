@@ -77,7 +77,7 @@ class TestCitation(EntityTestBase):
 
     def test_file_references(self) -> None:
         sut = Citation(source=Source())
-        assert list(sut.file_references) == []
+        assert list(sut.files) == []
 
     def test_private(self) -> None:
         sut = Citation(source=Source())
@@ -99,7 +99,7 @@ class TestCitation(EntityTestBase):
             "privacy": False,
             "facts": [],
             "links": [],
-            "fileReferences": [],
+            "files": [],
             "source": "/source/my-first-source/index.json",
         }
         actual = await assert_dumps_linked_data(citation)
@@ -131,7 +131,7 @@ class TestCitation(EntityTestBase):
             "source": "/source/my-first-source/index.json",
             "facts": ["/event/my-first-event/index.json"],
             "links": [],
-            "fileReferences": [],
+            "files": [],
         }
         actual = await assert_dumps_linked_data(citation)
         assert actual == expected
@@ -161,7 +161,7 @@ class TestCitation(EntityTestBase):
             "source": "/source/my-first-source/index.json",
             "facts": ["/event/my-first-event/index.json"],
             "links": [],
-            "fileReferences": [],
+            "files": [],
         }
         actual = await assert_dumps_linked_data(citation)
         assert actual == expected

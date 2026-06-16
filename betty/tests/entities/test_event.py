@@ -103,7 +103,7 @@ class TestEvent(EntityTestBase):
 
     def test_file_references(self) -> None:
         sut = Event(event_type=UnknownEventType())
-        assert list(sut.file_references) == []
+        assert list(sut.files) == []
 
     def test_citations(self) -> None:
         sut = Event(event_type=UnknownEventType())
@@ -153,7 +153,7 @@ class TestEvent(EntityTestBase):
             "citations": [],
             "notes": [],
             "links": [],
-            "fileReferences": [],
+            "files": [],
             "place": None,
         }
         actual = await assert_dumps_linked_data(event)
@@ -229,7 +229,7 @@ class TestEvent(EntityTestBase):
             "links": [],
             "name": {default_locale_tag: "The Event"},
             "description": {default_locale_tag: "The Event Description"},
-            "fileReferences": [],
+            "files": [],
         }
         actual = await assert_dumps_linked_data(event)
         assert actual == expected
@@ -279,7 +279,7 @@ class TestEvent(EntityTestBase):
             "notes": [],
             "place": "/place/my-first-place/index.json",
             "links": [],
-            "fileReferences": [],
+            "files": [],
         }
         actual = await assert_dumps_linked_data(event)
         assert actual == expected

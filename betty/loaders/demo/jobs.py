@@ -74,7 +74,7 @@ class LoadAncestry(Job):
         ) = await self._load_streetmix_images()
 
         def _streetmix_image(person: Person) -> None:
-            if person.file_references:
+            if person.files:
                 return
 
             try:

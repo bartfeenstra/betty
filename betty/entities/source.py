@@ -106,7 +106,7 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Enti
         contains: ToManyAssociates[Source] = (),
         notes: ToManyAssociates[Note] = (),
         date: AnyDate | None = None,
-        file_references: ToManyAssociates[FileReference] = (),
+        files: ToManyAssociates[FileReference] = (),
         links: ToManyAssociates[Link] = (),
         privacy: Privacy = Privacy.UNDETERMINED,
     ):
@@ -114,7 +114,7 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Enti
             id=id,
             notes=notes,
             date=date,
-            file_references=file_references,
+            files=files,
             links=links,
             privacy=privacy,
         )

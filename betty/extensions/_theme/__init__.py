@@ -73,7 +73,7 @@ def associated_file_references(
 def _associated_file_references(
     has_file_references: HasFileReferences,
 ) -> Iterable[FileReference]:
-    yield from has_file_references.file_references
+    yield from has_file_references.files
 
     if isinstance(has_file_references, Event):
         for citation in has_file_references.citations:

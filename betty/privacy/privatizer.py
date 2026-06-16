@@ -156,7 +156,7 @@ class Privatizer:
         if not has_file_references.private:
             return
 
-        for file_reference in has_file_references.file_references:
+        for file_reference in has_file_references.files:
             await self._mark_private(file_reference.file, has_file_references)
             await self.privatize(file_reference.file)
 
