@@ -8,9 +8,8 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.attrs.locale import HasLocale
 from betty.attrs.owner import OwnerAttr
-from betty.attrs.privacy import HasPrivacy
 from betty.datas.str import StrDefinition
-from betty.entity import Entity, EntityDefinition
+from betty.entity import EntityDefinition
 from betty.entity.association import (
     BidirectionalToOne,
     ToManyAssociates,
@@ -41,7 +40,7 @@ if TYPE_CHECKING:
     label_countable=ngettext("{count} person name", "{count} person names"),
     public_facing=False,
 )
-class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
+class PersonName(HasLocale, HasCitations):
     """
     .. plugin:: entity:person-name.
     """

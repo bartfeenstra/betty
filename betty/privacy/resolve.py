@@ -4,28 +4,12 @@ Resolve privacies.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING
 
-from betty.attrs.privacy import HasPrivacy
 from betty.privacy import Privacy
 
-
-def is_private(target: Any) -> bool:
-    """
-    Check if the given target is private.
-    """
-    if isinstance(target, HasPrivacy):
-        return target.private
-    return False
-
-
-def is_public(target: Any) -> bool:
-    """
-    Check if the given target is public.
-    """
-    if isinstance(target, HasPrivacy):
-        return target.public
-    return True
+if TYPE_CHECKING:
+    from betty.attrs.privacy import HasPrivacy
 
 
 def resolve_privacy(privacy: Privacy | HasPrivacy) -> Privacy:

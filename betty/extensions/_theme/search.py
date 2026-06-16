@@ -16,7 +16,6 @@ from betty.entity import Entity, EntityDefinition
 from betty.entity.has_notes import HasNotes
 from betty.file import write
 from betty.media_types.html import HTML
-from betty.privacy.resolve import is_private
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
@@ -205,7 +204,7 @@ class Index:
     async def _build_entity[EntityT: Entity](
         self, indexer: EntityTypeIndexer[EntityT], entity: EntityT
     ) -> _Entry | None:
-        if is_private(entity):
+        if not entity.public:
             return None
         text = await indexer.text(self._localizer, entity)
         if not text:

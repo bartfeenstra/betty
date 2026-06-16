@@ -1,4 +1,4 @@
-{% set links = links | select('public') | list %}
+{% set links = links | selectattr('public') | list %}
 {% if links | length %}
     <ul>
         {% for link in links %}

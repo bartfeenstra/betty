@@ -1,15 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.privacy import (
-    Privacy,
-)
+from betty.privacy import Privacy
 from betty.privacy.resolve import (
-    is_private,
-    is_public,
     merge_privacies,
     merge_secondary_privacies,
     resolve_privacy,
@@ -18,32 +14,6 @@ from betty.test_utils.privacy import DummyHasPrivacy
 
 if TYPE_CHECKING:
     from betty.attrs.privacy import HasPrivacy
-
-
-@pytest.mark.parametrize(
-    ("expected", "target"),
-    [
-        (True, DummyHasPrivacy(privacy=Privacy.PRIVATE)),
-        (False, DummyHasPrivacy(privacy=Privacy.PUBLIC)),
-        (False, DummyHasPrivacy(privacy=Privacy.UNDETERMINED)),
-        (False, object()),
-    ],
-)
-def test_is_private(expected: bool, target: Any) -> None:
-    assert expected == is_private(target)
-
-
-@pytest.mark.parametrize(
-    ("expected", "target"),
-    [
-        (False, DummyHasPrivacy(privacy=Privacy.PRIVATE)),
-        (True, DummyHasPrivacy(privacy=Privacy.PUBLIC)),
-        (True, DummyHasPrivacy(privacy=Privacy.UNDETERMINED)),
-        (True, object()),
-    ],
-)
-def test_is_public(expected: bool, target: Any) -> None:
-    assert expected == is_public(target)
 
 
 @pytest.mark.parametrize(

@@ -22,7 +22,6 @@ from betty.locale.localize import default_localizer
 from betty.media_types.html import HTML
 from betty.media_types.json import JSON
 from betty.openapi import Specification
-from betty.privacy.resolve import is_public
 from betty.project.schema import ProjectSchema
 from betty.string import kebab_case_to_lower_camel_case
 
@@ -563,9 +562,11 @@ class _GenerateEntityTypeHtml(Job):
             page=self._page,
             per_page=self._per_page,
             page_count=self._page_count,
-            page_entities=list(
-                filter(is_public, self._project.ancestry[self._entity_type.cls])
-            )[
+            page_entities=[
+                entity
+                for entity in self._project.ancestry[self._entity_type.cls]
+                if entity.public
+            ][
                 self._per_page * self._page : self._per_page * self._page
                 + self._per_page
             ],
@@ -651,7 +652,7 @@ class GenerateEntitiesHtml(Job):
             async for entity_type in self._project.plugins[EntityDefinition]
             if entity_type.public_facing
             for entity in self._project.ancestry[entity_type.cls]
-            if entity.id.persistent and is_public(entity)
+            if entity.id.persistent and entity.public
             for locale in self._project.locales.keys()  # noqa: SIM118
         ])
 

@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, final, override
 from betty.attrs.description import HasDescription
 from betty.attrs.media_type import HasMediaType
 from betty.attrs.path import new_path_attr
-from betty.attrs.privacy import HasPrivacy
 from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.entity import EntityDefinition
 from betty.entity.association import BidirectionalToManyMultipleTypes, ToManyAssociates
@@ -44,14 +43,7 @@ if TYPE_CHECKING:
     label_plural=_("Files"),
     label_countable=ngettext("{count} file", "{count} files"),
 )
-class File(
-    HasDescription,
-    HasPrivacy,
-    HasLinks,
-    HasMediaType,
-    HasNotes,
-    HasCitations,
-):
+class File(HasDescription, HasLinks, HasMediaType, HasNotes, HasCitations):
     """
     .. plugin:: entity:file.
     """

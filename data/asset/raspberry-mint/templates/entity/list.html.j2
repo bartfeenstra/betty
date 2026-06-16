@@ -1,4 +1,4 @@
-{% set entities = entities | select('public') | list %}
+{% set entities = entities | selectattr('public') | list %}
 {% set ns = namespace(entities_and_names = []) %}
 {% for entity in entities %}
     {% do ns.entities_and_names.append((entity, entity.label | localize)) %}
