@@ -16,11 +16,11 @@ class ResolvedSequenceAdapter[ValueT, ResolvableValueT](Sequence[ValueT]):
 
     def __init__(
         self,
-        upstream: Sequence[ValueT],
+        proxied: Sequence[ValueT],
         *,
         value_resolver: Callable[[ValueT | ResolvableValueT], ValueT],
     ):
-        self._upstream = upstream
+        self._proxied = proxied
         self._value_resolver = value_resolver
 
     @overload
@@ -32,15 +32,15 @@ class ResolvedSequenceAdapter[ValueT, ResolvableValueT](Sequence[ValueT]):
         pass
 
     def __getitem__(self, index):
-        return self._upstream[index]
+        return self._proxied[index]
 
     def __len__(self):
-        return len(self._upstream)
+        return len(self._proxied)
 
     def __contains__(self, value: Any) -> bool:
         with suppress(Exception):
             value = self._value_resolver(value)
-        return value in self._upstream
+        return value in self._proxied
 
     @override
     def index(self, value: Any, start: int = 0, stop: int | None = None) -> int:
@@ -49,7 +49,7 @@ class ResolvedSequenceAdapter[ValueT, ResolvableValueT](Sequence[ValueT]):
         args = (value, start)
         if stop is not None:
             args = (*args, stop)
-        return self._upstream.index(*args)
+        return self._proxied.index(*args)
 
 
 class MutableResolvedSequenceAdapter[ValueT, ResolvableValueT](
@@ -60,19 +60,19 @@ class MutableResolvedSequenceAdapter[ValueT, ResolvableValueT](
     Decorate another sequence to resolve any values before proxying them.
     """
 
-    _upstream: MutableSequence[ValueT]
+    _proxied: MutableSequence[ValueT]
 
     def __init__(
         self,
-        upstream: MutableSequence[ValueT],
+        proxied: MutableSequence[ValueT],
         *,
         value_resolver: Callable[[ValueT | ResolvableValueT], ValueT],
     ):
-        super().__init__(upstream, value_resolver=value_resolver)
+        super().__init__(proxied, value_resolver=value_resolver)
 
     @override
     def insert(self, index: int, value: ValueT | ResolvableValueT) -> None:
-        self._upstream.insert(index, self._value_resolver(value))
+        self._proxied.insert(index, self._value_resolver(value))
 
     @overload
     def __setitem__(self, index: int, value: ValueT | ResolvableValueT) -> None:
@@ -86,13 +86,13 @@ class MutableResolvedSequenceAdapter[ValueT, ResolvableValueT](
 
     def __setitem__(self, index, value):
         if isinstance(index, int):
-            self._upstream[index] = self._value_resolver(value)
+            self._proxied[index] = self._value_resolver(value)
         else:
-            self._upstream[index] = map(self._value_resolver, value)
+            self._proxied[index] = map(self._value_resolver, value)
 
     def __delitem__(self, index: int | slice) -> None:
-        del self._upstream[index]
+        del self._proxied[index]
 
     @override
     def extend(self, values: Iterable[ValueT | ResolvableValueT]) -> None:
-        self._upstream.extend(map(self._value_resolver, values))
+        self._proxied.extend(map(self._value_resolver, values))

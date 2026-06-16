@@ -21,17 +21,17 @@ class ErroringKeyedCollection[KeyT, ResolvableKeyT, ValueT](
 
     def __init__(
         self,
-        upstream: KeyedCollection[KeyT, ResolvableKeyT, ValueT],
+        proxied: KeyedCollection[KeyT, ResolvableKeyT, ValueT],
         key_error: Callable[[KeyError, KeyT | ResolvableKeyT], KeyError],
         /,
     ):
-        super().__init__(upstream)
+        super().__init__(proxied)
         self._key_error = key_error
 
     @override
     def __getitem__(self, key: KeyT | ResolvableKeyT) -> ValueT:
         try:
-            return self._upstream[key]
+            return self._proxied[key]
         except KeyError as error:
             raise self._key_error(error, key) from error
 
@@ -44,19 +44,19 @@ class MutableErroringKeyedCollection[KeyT, ResolvableKeyT, ValueT, ResolvableVal
     A mutable keyed collection proxy that raises custom errors.
     """
 
-    _upstream: MutableKeyedCollection[KeyT, ResolvableKeyT, ValueT, ResolvableValueT]
+    _proxied: MutableKeyedCollection[KeyT, ResolvableKeyT, ValueT, ResolvableValueT]
 
     @override
     def remove(self, *keys: KeyT | ResolvableKeyT) -> None:
         for key in keys:
             try:
-                self._upstream.remove(key)
+                self._proxied.remove(key)
             except KeyError as error:
                 raise self._key_error(error, key) from error
 
     @override
     def __delitem__(self, key: KeyT | ResolvableKeyT) -> None:
         try:
-            del self._upstream[key]
+            del self._proxied[key]
         except KeyError as error:
             raise self._key_error(error, key) from error

@@ -140,17 +140,17 @@ class OptionalPorter[PortableT: Portable, PortableDataT: PortableData = Portable
     Add optional (``None``) support to another porter.
     """
 
-    def __init__(self, upstream: Porter[PortableT, PortableDataT]):
-        self._upstream = upstream
+    def __init__(self, proxied: Porter[PortableT, PortableDataT]):
+        self._proxied = proxied
 
     @override
     def load(self, portable: PortableData) -> PortableT | None:
         if portable is None:
             return None
-        return self._upstream.load(portable)
+        return self._proxied.load(portable)
 
     @override
     def dump(self, data: PortableT | None) -> PortableDataT | None:
         if data is None:
             return None
-        return self._upstream.dump(data)
+        return self._proxied.dump(data)

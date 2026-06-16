@@ -28,16 +28,16 @@ class ResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT](
 
     def __init__(
         self,
-        upstream: Mapping[KeyT, ValueT],
+        proxied: Mapping[KeyT, ValueT],
         *,
         key_resolver: Callable[[KeyT | ResolvableKeyT], KeyT] = passthrough,
     ):
-        self._upstream = upstream
+        self._proxied = proxied
         self._key_resolver = key_resolver
 
     @override
     def __getitem__(self, key: KeyT | ResolvableKeyT) -> ValueT:
-        return self._upstream[self._key_resolver(key)]
+        return self._proxied[self._key_resolver(key)]
 
     @overload
     def get[T](self, key: KeyT | ResolvableKeyT, default: T, /) -> ValueT | T:
@@ -49,21 +49,21 @@ class ResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT](
 
     @override
     def get(self, key, default=None):
-        return self._upstream.get(self._key_resolver(key), default)
+        return self._proxied.get(self._key_resolver(key), default)
 
     @override
     def __iter__(self) -> Iterator[KeyT]:
-        return iter(self._upstream)
+        return iter(self._proxied)
 
     @override
     def __len__(self) -> int:
-        return len(self._upstream)
+        return len(self._proxied)
 
     @override
     def __contains__(self, key: Any) -> bool:
         with suppress(Exception):
             key = self._key_resolver(key)
-        return key in self._upstream
+        return key in self._proxied
 
 
 class MutableResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
@@ -74,25 +74,25 @@ class MutableResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValu
     Decorate another mapping to resolve any values before proxying them.
     """
 
-    _upstream: MutableMapping[KeyT, ValueT]
+    _proxied: MutableMapping[KeyT, ValueT]
 
     def __init__(
         self,
-        upstream: MutableMapping[KeyT, ValueT],
+        proxied: MutableMapping[KeyT, ValueT],
         *,
         key_resolver: Callable[[KeyT | ResolvableKeyT], KeyT] = passthrough,
         value_resolver: Callable[[ValueT | ResolvableValueT], ValueT] = passthrough,
     ):
-        super().__init__(upstream, key_resolver=key_resolver)
+        super().__init__(proxied, key_resolver=key_resolver)
         self._value_resolver = value_resolver
 
     def __setitem__(
         self, key: KeyT | ResolvableKeyT, value: ValueT | ResolvableValueT
     ) -> None:
-        self._upstream[self._key_resolver(key)] = self._value_resolver(value)
+        self._proxied[self._key_resolver(key)] = self._value_resolver(value)
 
     def __delitem__(self, key: KeyT | ResolvableKeyT) -> None:
-        del self._upstream[self._key_resolver(key)]
+        del self._proxied[self._key_resolver(key)]
 
     @overload
     def update(
@@ -115,7 +115,7 @@ class MutableResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValu
             items = chain(items, other.items())  # ty:ignore[invalid-assignment]
         elif isinstance(other, Sequence):
             items = chain(items, other)  # ty:ignore[invalid-assignment]
-        self._upstream.update({
+        self._proxied.update({
             self._key_resolver(key): self._value_resolver(value)  # ty:ignore[invalid-argument-type]
             for key, value in items
         })
@@ -137,7 +137,7 @@ class MutableResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValu
 
     @override
     def setdefault(self, key, default=Void):
-        return self._upstream.setdefault(
+        return self._proxied.setdefault(
             self._key_resolver(key),
             None if default is Void else self._value_resolver(default),
         )  # ty:ignore[no-matching-overload]
@@ -160,9 +160,9 @@ class MutableResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValu
     def pop(self, key, default=Void):
         key = self._key_resolver(key)
         if default is Void:
-            return self._upstream.pop(key)
-        return self._upstream.pop(key, default)
+            return self._proxied.pop(key)
+        return self._proxied.pop(key, default)
 
     @override
     def popitem(self) -> tuple[KeyT, ValueT]:
-        return self._upstream.popitem()
+        return self._proxied.popitem()

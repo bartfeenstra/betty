@@ -53,31 +53,31 @@ class TestResolvedSequenceAdapter:
 
 class TestMutableResolvedSequenceAdapter:
     def test_insert(self) -> None:
-        upstream = []
-        sut = MutableResolvedSequenceAdapter(upstream, value_resolver=str)
+        proxied = []
+        sut = MutableResolvedSequenceAdapter(proxied, value_resolver=str)
         sut.insert(3, True)
-        assert upstream == ["True"]
+        assert proxied == ["True"]
 
     def test_extend(self) -> None:
-        upstream = ["False"]
-        sut = MutableResolvedSequenceAdapter(upstream, value_resolver=str)
+        proxied = ["False"]
+        sut = MutableResolvedSequenceAdapter(proxied, value_resolver=str)
         sut.extend([True])
-        assert upstream == ["False", "True"]
+        assert proxied == ["False", "True"]
 
     def test___setitem____with_index(self) -> None:
-        upstream = ["True"]
-        sut = MutableResolvedSequenceAdapter(upstream, value_resolver=str)
+        proxied = ["True"]
+        sut = MutableResolvedSequenceAdapter(proxied, value_resolver=str)
         sut[0] = False
-        assert upstream[0] == "False"
+        assert proxied[0] == "False"
 
     def test___setitem____with_slice(self) -> None:
-        upstream = ["True", "True", "True"]
-        sut = MutableResolvedSequenceAdapter(upstream, value_resolver=str)
+        proxied = ["True", "True", "True"]
+        sut = MutableResolvedSequenceAdapter(proxied, value_resolver=str)
         sut[1:3] = [False, False]
-        assert upstream == ["True", "False", "False"]
+        assert proxied == ["True", "False", "False"]
 
     def test___delitem__(self) -> None:
-        upstream = ["one"]
-        sut = MutableResolvedSequenceAdapter(upstream, value_resolver=passthrough)
+        proxied = ["one"]
+        sut = MutableResolvedSequenceAdapter(proxied, value_resolver=passthrough)
         del sut[0]
-        assert not upstream
+        assert not proxied

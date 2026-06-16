@@ -17,22 +17,14 @@ class OptionalDefinition[DataClsT](DataDefinition[DataClsT | None]):
     Wrap another data definition to make it optional, e.g. allow ``None``.
     """
 
-    def __init__(self, wrapped: DataDefinition[DataClsT], /):
+    def __init__(self, proxied: DataDefinition[DataClsT], /):
         super().__init__(
-            cls=wrapped.cls,
-            label=wrapped.label,
-            description=wrapped.description,
-            porter=OptionalPorter(wrapped.porter),  # ty:ignore[invalid-argument-type]
+            cls=proxied.cls,
+            label=proxied.label,
+            description=proxied.description,
+            porter=OptionalPorter(proxied.porter),  # ty:ignore[invalid-argument-type]
             samples=[
                 lambda: Sample(None, label="Minimal", size=Size.MINIMAL),
-                wrapped.samples,
+                proxied.samples,
             ],
         )
-        self._wrapped = wrapped
-
-    @property
-    def wrapped(self) -> DataDefinition[DataClsT]:
-        """
-        The wrapped, required (non-optional) data definition.
-        """
-        return self._wrapped

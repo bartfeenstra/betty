@@ -15,28 +15,28 @@ class KeyedCollectionProxy[KeyT, ResolvableKeyT, ValueT](
     A keyed collection proxy.
     """
 
-    def __init__(self, upstream: KeyedCollection[KeyT, ResolvableKeyT, ValueT], /):
-        self._upstream = upstream
+    def __init__(self, proxied: KeyedCollection[KeyT, ResolvableKeyT, ValueT], /):
+        self._proxied = proxied
 
     @override
     def __len__(self) -> int:
-        return len(self._upstream)
+        return len(self._proxied)
 
     @override
     def __iter__(self) -> Iterator[ValueT]:
-        return iter(self._upstream)
+        return iter(self._proxied)
 
     @override
     def __contains__(self, key: Any) -> bool:
-        return key in self._upstream
+        return key in self._proxied
 
     @override
     def __getitem__(self, key: KeyT | ResolvableKeyT) -> ValueT:
-        return self._upstream[key]
+        return self._proxied[key]
 
     @override
     def keys(self) -> Iterable[KeyT]:
-        return self._upstream.keys()
+        return self._proxied.keys()
 
 
 class MutableKeyedCollectionProxy[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
@@ -47,20 +47,20 @@ class MutableKeyedCollectionProxy[KeyT, ResolvableKeyT, ValueT, ResolvableValueT
     A mutable keyed collection proxy.
     """
 
-    _upstream: MutableKeyedCollection[KeyT, ResolvableKeyT, ValueT, ResolvableValueT]
+    _proxied: MutableKeyedCollection[KeyT, ResolvableKeyT, ValueT, ResolvableValueT]
 
     @override
     def remove(self, *keys: KeyT | ResolvableKeyT) -> None:
-        self._upstream.remove(*keys)
+        self._proxied.remove(*keys)
 
     @override
     def __delitem__(self, key: KeyT | ResolvableKeyT) -> None:
-        del self._upstream[key]
+        del self._proxied[key]
 
     @override
     def clear(self) -> None:
-        self._upstream.clear()
+        self._proxied.clear()
 
     @override
     def add(self, *values: ValueT | ResolvableValueT) -> None:
-        self._upstream.add(*values)
+        self._proxied.add(*values)

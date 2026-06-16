@@ -32,15 +32,13 @@ class TestOptionalAttr:
 
         assert proxied.prop.name == "my_first_attr"
 
-    def test_attr(self) -> None:
+    def test_field(self) -> None:
         data = StrDefinition(label="-")
 
         class _Owner(HasProps):
             my_first_attr = OptionalAttr(OwnerAttr(data))
 
-        optional_data = _Owner.my_first_attr.field.data
-        assert isinstance(optional_data, OptionalDefinition)
-        assert optional_data.wrapped is data
+        assert isinstance(_Owner.my_first_attr.field.data, OptionalDefinition)
 
     def test_init_owner__with_proxied_default(self) -> None:
         default = "Hello, world!"
