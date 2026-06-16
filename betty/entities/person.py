@@ -92,7 +92,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
         self,
         id: ResolvableMachineName | None = None,  # noqa: A002
         *,
-        file_references: ToManyAssociates[FileReference] = (),
+        files: ToManyAssociates[FileReference] = (),
         citations: ToManyAssociates[Citation] = (),
         links: ToManyAssociates[Link] = (),
         notes: ToManyAssociates[Note] = (),
@@ -105,7 +105,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
     ):
         super().__init__(
             id=id,
-            file_references=file_references,
+            files=files,
             citations=citations,
             links=links,
             notes=notes,

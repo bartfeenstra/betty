@@ -35,7 +35,7 @@ class FileReference(Entity):
 
     referee = BidirectionalToOne["FileReference", "HasFileReferences"](
         "betty.entity.has_file_references:HasFileReferences",
-        "file_references",
+        "files",
         label=_("Referee"),
         description=_("The entity referencing the file"),
     )

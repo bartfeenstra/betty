@@ -27,7 +27,7 @@
                 {% endblock %}
             </div>
             {% if document.resource is has_file_references %}
-                {% set page_image_reference = document.resource.file_references | selectattr('file', 'public') | selectattr('file.media_type', 'image_media_type_supported') | first %}
+                {% set page_image_reference = document.resource.files | selectattr('file', 'public') | selectattr('file.media_type', 'image_media_type_supported') | first %}
                 {% if page_image_reference is defined %}
                     <div class="align-items-center col-12 col-sm-3 d-flex justify-content-center">
                         <a href="{{ page_image_reference.file | url }}" class="image-link page-intro-image-link rounded-circle">

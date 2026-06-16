@@ -111,7 +111,7 @@ class TestSource(EntityTestBase):
 
     def test_file_references(self) -> None:
         sut = Source()
-        assert list(sut.file_references) == []
+        assert list(sut.files) == []
 
     def test_links(self) -> None:
         sut = Source()
@@ -139,7 +139,7 @@ class TestSource(EntityTestBase):
             "id": "my-first-source",
             "privacy": False,
             "name": {default_locale_tag: "The Source"},
-            "fileReferences": [],
+            "files": [],
             "contains": [],
             "containedBy": None,
             "citations": [],
@@ -187,7 +187,7 @@ class TestSource(EntityTestBase):
             "name": {default_locale_tag: "The Source"},
             "author": {default_locale_tag: "The Author"},
             "publisher": {default_locale_tag: "The Publisher"},
-            "fileReferences": [],
+            "files": [],
             "contains": [
                 "/source/the-contained-source/index.json",
             ],
@@ -246,7 +246,7 @@ class TestSource(EntityTestBase):
             "@type": "https://schema.org/Thing",
             "id": "my-first-source",
             "privacy": True,
-            "fileReferences": [],
+            "files": [],
             "contains": [
                 "/source/the-contained-source/index.json",
             ],

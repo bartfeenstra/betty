@@ -830,8 +830,8 @@ class TestGrampsLoader:
 """
         )
         person = ancestry[Person][machinify("I0000")]
-        assert person.file_references
-        file_reference = next(iter(person.file_references))
+        assert person.files
+        file_reference = next(iter(person.files))
         assert file_reference.file.id == machinify("O0000")
 
     async def test_person_should_include_file_with_focus(
@@ -857,8 +857,8 @@ class TestGrampsLoader:
 """
         )
         person = ancestry[Person][machinify("I0000")]
-        assert person.file_references
-        file_reference = next(iter(person.file_references))
+        assert person.files
+        file_reference = next(iter(person.files))
         assert file_reference.focus == (1, 2, 3, 4)
         assert file_reference.file.id == machinify("O0000")
 
