@@ -13,8 +13,8 @@ class TestUrl:
             ("/index.html", "betty:///index.html", False),
             ("/index.html", "betty-static:///index.html", False),
             (
-                "https://example.com/dummy-one/0e51a87ec173dd9534a056a403c85881/index.html",
-                DummyEntityOne("E0"),
+                "https://example.com/dummy-one/my-first-entity/index.html",
+                DummyEntityOne(id="my-first-entity"),
                 True,
             ),
         ],

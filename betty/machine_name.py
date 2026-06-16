@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import re
 from typing import TYPE_CHECKING, Final, Self, final, override
+from uuid import uuid4
 
 from betty.assertions.str import assert_str
 from betty.data import Data, DataDefinition
@@ -18,7 +19,7 @@ if TYPE_CHECKING:
     from betty.locale.localizable import Localizable
 
 _machine_name_description: Final[Localizable] = _(
-    "A machine name is an identifier of at most 250 characters long, made up of lowercase letters, numbers, and/or hyphens (-)."
+    "A machine name is an identifier of at most 250 characters long, made up of lowercase letters, numbers, and/or non-consecutive hyphens (-)."
 )
 _machine_name_pattern: Final[re.Pattern[str]] = re.compile(r"^[a-z0-9\-]{1,250}$")
 _machinify_disallowed_character_pattern: Final[re.Pattern[str]] = re.compile(
@@ -34,20 +35,40 @@ class MachineName(Portable[str], str, Data):
     A machine name.
 
     A machine name is a string that meets these criteria:
+    - At least 1 character long.
     - At most 250 characters long.
-    - Lowercase letters, numbers, and hyphens (-).
+    - Lowercase letters, numbers, and non-consecutive hyphens (-).
     """
 
     __slots__ = ()
 
-    @override
-    def __new__(cls, machine_name: str, /):
-        if _machine_name_pattern.fullmatch(machine_name) is None:
-            raise InvalidMachineName(machine_name)
-        return super().__new__(cls, machine_name)
+    _persistent: bool
 
-    def __init__(self, machine_name: str, /):
+    @override
+    def __new__(cls, machine_name: str | None = None, /):
+        if machine_name is None:
+            machine_name = str(uuid4())
+            persistent = False
+        else:
+            persistent = True
+            if (
+                _machine_name_pattern.fullmatch(machine_name) is None
+                or "--" in machine_name
+            ):
+                raise InvalidMachineName(machine_name)
+        new = super().__new__(cls, machine_name)
+        new._persistent = persistent
+        return new
+
+    def __init__(self, machine_name: str | None = None, /):
         pass
+
+    @property
+    def persistent(self) -> bool:
+        """
+        Whether this machine name is persistent, and will exist beyond the current Betty process.
+        """
+        return self._persistent
 
     @override
     @classmethod

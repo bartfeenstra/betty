@@ -10,6 +10,7 @@ from betty.entities.place import Place
 from betty.entities.source import Source
 from betty.event_type import EventTypeManufacturer
 from betty.event_types.birth import Birth
+from betty.gramps.loader import machinify
 from betty.load import LoaderManufacturer, load
 from betty.loaders.gramps import FamilyTree, Gramps, GrampsData
 from betty.place_type import PlaceTypeManufacturer
@@ -64,7 +65,9 @@ class TestGramps:
             ],
         ) as project:
             await load(project)
-            assert isinstance(project.ancestry[Event]["E0000"].event_type, Birth)
+            assert isinstance(
+                project.ancestry[Event][machinify("E0000")].event_type, Birth
+            )
 
     async def test_load__with_place_type_mapping(
         self, isolated_project_factory: IsolatedProjectFactory, tmp_path: Path
@@ -105,7 +108,9 @@ class TestGramps:
             ],
         ) as project:
             await load(project)
-            assert isinstance(project.ancestry[Place]["P0001"].place_type, City)
+            assert isinstance(
+                project.ancestry[Place][machinify("P0001")].place_type, City
+            )
 
     async def test_load__with_role_map(
         self, isolated_project_factory: IsolatedProjectFactory, tmp_path: Path
@@ -155,7 +160,8 @@ class TestGramps:
         ) as project:
             await load(project)
             assert isinstance(
-                next(iter(project.ancestry[Person]["I0000"].presences)).role, Subject
+                next(iter(project.ancestry[Person][machinify("I0000")].presences)).role,
+                Subject,
             )
 
     async def test_load__with_multiple_family_trees(
@@ -279,20 +285,20 @@ class TestGramps:
                 ],
             ) as project:
                 await load(project)
-                assert "I0001" in project.ancestry[Person]
-                assert "I0002" in project.ancestry[Person]
-                assert "P0001" in project.ancestry[Place]
-                assert "P0002" in project.ancestry[Place]
-                assert "E0001" in project.ancestry[Event]
-                assert "E0002" in project.ancestry[Event]
-                assert "S0001" in project.ancestry[Source]
-                assert "S0002" in project.ancestry[Source]
-                assert "R0001" in project.ancestry[Source]
-                assert "R0002" in project.ancestry[Source]
-                assert "C0001" in project.ancestry[Citation]
-                assert "C0002" in project.ancestry[Citation]
-                assert "N0001" in project.ancestry[Note]
-                assert "N0002" in project.ancestry[Note]
+                assert machinify("I0001") in project.ancestry[Person]
+                assert machinify("I0002") in project.ancestry[Person]
+                assert machinify("P0001") in project.ancestry[Place]
+                assert machinify("P0002") in project.ancestry[Place]
+                assert machinify("E0001") in project.ancestry[Event]
+                assert machinify("E0002") in project.ancestry[Event]
+                assert machinify("S0001") in project.ancestry[Source]
+                assert machinify("S0002") in project.ancestry[Source]
+                assert machinify("R0001") in project.ancestry[Source]
+                assert machinify("R0002") in project.ancestry[Source]
+                assert machinify("C0001") in project.ancestry[Citation]
+                assert machinify("C0002") in project.ancestry[Citation]
+                assert machinify("N0001") in project.ancestry[Note]
+                assert machinify("N0002") in project.ancestry[Note]
 
 
 class TestFamilyTree(DataTestBase[FamilyTree]):

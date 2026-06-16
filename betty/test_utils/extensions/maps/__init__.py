@@ -27,7 +27,7 @@ from betty.tests.conftest import (
     check_skip_webpack_entry_point_provider,
 )
 
-_place_id: Final[str] = "P0001"
+_place_id: Final[str] = "my-first-place"
 _place_name: Final[str] = "My First Place"
 
 

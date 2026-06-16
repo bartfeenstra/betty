@@ -25,7 +25,6 @@ class HasFileReferences(Entity):
         "betty.entities.file_reference:FileReference",
         "referee",
         label=_("File references"),
-        linked_data_embedded=True,
     )
 
     def __init__(

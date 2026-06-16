@@ -32,26 +32,26 @@ class TestTimeline:
     async def test_build_template__with_person(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        event = Event(id="E0", date=Date(1970, 1, 1))
+        event = Event(id="my-first-event", date=Date(1970, 1, 1))
         resource = Person()
         Presence(resource, Subject(), event)
         async with isolated_project_factory(supported_plugins=[Timeline]) as project:
             sut = await Timeline.new(project)
             actual = await sut.build(document=Document(resource))
         assert actual is not None
-        assert event.public_id in actual
+        assert event.id in actual
 
     async def test_build_template__with_place(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        enclosee_event = Event(id="E0", date=Date(1970, 1, 1))
+        enclosee_event = Event(id="my-first-event", date=Date(1970, 1, 1))
         enclosee = Place(events=[enclosee_event])
-        event = Event(id="E0", date=Date(1970, 1, 1))
+        event = Event(id="my-first-event", date=Date(1970, 1, 1))
         resource = Place(events=[event])
         Enclosure(enclosee, resource)
         async with isolated_project_factory(supported_plugins=[Timeline]) as project:
             sut = await Timeline.new(project)
             actual = await sut.build(document=Document(resource))
         assert actual is not None
-        assert event.public_id in actual
-        assert enclosee_event.public_id in actual
+        assert event.id in actual
+        assert enclosee_event.id in actual

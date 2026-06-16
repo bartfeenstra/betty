@@ -22,8 +22,7 @@ class TestSearchUi:
 
     @pytest.fixture(scope="session")
     async def served_project(self) -> AsyncIterator[tuple[Project, Server]]:
-        person_id = "I0001"
-        person = Person(id=person_id)
+        person = Person(id="my-first-person")
         PersonName(individual=self.individual_name, person=person)
         async with Project.new_isolated(extensions=[RaspberryMint]) as project:
             project.ancestry[Person].add(person)
@@ -63,8 +62,7 @@ class TestSearchUi:
         )
 
         # Assert we're at the page linked to by the search result.
-        person = project.ancestry[Person]["I0001"]
         await expect(page).to_have_url(
-            f"{server.public_url}/person/{person.public_id}/index.html"
+            f"{server.public_url}/person/my-first-person/index.html"
         )
         await page.close()

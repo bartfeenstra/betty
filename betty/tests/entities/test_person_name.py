@@ -43,7 +43,7 @@ class TestPersonName(EntityTestBase):
         assert list(sut.citations) == [citation]
 
     def test_person(self) -> None:
-        person = Person(id="1")
+        person = Person()
         sut = PersonName(
             person=person,
             individual="Janet",
@@ -53,7 +53,7 @@ class TestPersonName(EntityTestBase):
         assert [sut] == list(person.names)
 
     def test_locale(self) -> None:
-        person = Person(id="1")
+        person = Person()
         sut = PersonName(
             person=person,
             individual="Janet",
@@ -62,7 +62,7 @@ class TestPersonName(EntityTestBase):
         assert sut.locale is None
 
     def test_citations(self) -> None:
-        person = Person(id="1")
+        person = Person()
         sut = PersonName(
             person=person,
             individual="Janet",
@@ -71,7 +71,7 @@ class TestPersonName(EntityTestBase):
         assert list(sut.citations) == []
 
     def test_individual(self) -> None:
-        person = Person(id="1")
+        person = Person()
         individual = "Janet"
         sut = PersonName(
             person=person,
@@ -81,7 +81,7 @@ class TestPersonName(EntityTestBase):
         assert sut.individual == individual
 
     def test_affiliation(self) -> None:
-        person = Person(id="1")
+        person = Person()
         affiliation = "Not a Girl"
         sut = PersonName(
             person=person,
@@ -93,46 +93,57 @@ class TestPersonName(EntityTestBase):
     async def test_dump_linked_data__should_dump_minimal_individual(
         self, assert_dumps_linked_data: AssertDumpsLinkedData
     ) -> None:
-        sut = PersonName(person=Person(), individual="Jane")
+        sut = PersonName(
+            id="my-first-person-name",
+            person=Person(id="my-first-person"),
+            individual="Jane",
+        )
         actual = await assert_dumps_linked_data(sut)
         expected: PortableMapping = {
             "@context": {
                 "individual": "https://schema.org/givenName",
             },
-            "id": sut.id,
+            "@id": "https://example.com/person-name/my-first-person-name/index.json",
+            "id": "my-first-person-name",
             "individual": "Jane",
             "locale": "und",
             "privacy": False,
             "citations": [],
-            "person": None,
+            "person": "/person/my-first-person/index.json",
         }
         assert actual == expected
 
     async def test_dump_linked_data__should_dump_minimal_affiliation(
         self, assert_dumps_linked_data: AssertDumpsLinkedData
     ) -> None:
-        sut = PersonName(person=Person(), affiliation="Doe")
+        sut = PersonName(
+            id="my-first-person-name",
+            person=Person(id="my-first-person"),
+            affiliation="Doe",
+        )
         actual = await assert_dumps_linked_data(sut)
         expected: PortableMapping = {
             "@context": {
                 "affiliation": "https://schema.org/familyName",
             },
-            "id": sut.id,
+            "@id": "https://example.com/person-name/my-first-person-name/index.json",
+            "id": "my-first-person-name",
             "affiliation": "Doe",
             "locale": "und",
             "privacy": False,
             "citations": [],
-            "person": None,
+            "person": "/person/my-first-person/index.json",
         }
         assert actual == expected
 
     async def test_dump_linked_data__should_dump_full(
         self, assert_dumps_linked_data: AssertDumpsLinkedData
     ) -> None:
-        person = Person(id="P1")
-        citation = Citation(id="C1", source=Source())
+        person = Person(id="my-first-person")
+        citation = Citation(id="my-first-citation", source=Source())
         locale = "nl-NL"
         sut = PersonName(
+            id="my-first-person-name",
             person=person,
             individual="Jane",
             affiliation="Doe",
@@ -145,25 +156,27 @@ class TestPersonName(EntityTestBase):
                 "individual": "https://schema.org/givenName",
                 "affiliation": "https://schema.org/familyName",
             },
-            "id": sut.id,
+            "@id": "https://example.com/person-name/my-first-person-name/index.json",
+            "id": "my-first-person-name",
             "individual": "Jane",
             "affiliation": "Doe",
             "locale": locale,
             "privacy": False,
             "citations": [
-                "/citation/C1/index.json",
+                "/citation/my-first-citation/index.json",
             ],
-            "person": "/person/P1/index.json",
+            "person": "/person/my-first-person/index.json",
         }
         assert actual == expected
 
     async def test_dump_linked_data__should_dump_private(
         self, assert_dumps_linked_data: AssertDumpsLinkedData
     ) -> None:
-        person = Person(id="P1")
-        citation = Citation(id="C1", source=Source())
+        person = Person(id="my-first-person")
+        citation = Citation(id="my-first-citation", source=Source())
         locale = "nl-NL"
         sut = PersonName(
+            id="my-first-person-name",
             person=person,
             individual="Jane",
             affiliation="Doe",
@@ -173,12 +186,13 @@ class TestPersonName(EntityTestBase):
         )
         actual = await assert_dumps_linked_data(sut)
         expected = {
-            "id": sut.id,
+            "@id": "https://example.com/person-name/my-first-person-name/index.json",
+            "id": "my-first-person-name",
             "locale": None,
             "privacy": True,
             "citations": [
-                "/citation/C1/index.json",
+                "/citation/my-first-citation/index.json",
             ],
-            "person": "/person/P1/index.json",
+            "person": "/person/my-first-person/index.json",
         }
         assert actual == expected

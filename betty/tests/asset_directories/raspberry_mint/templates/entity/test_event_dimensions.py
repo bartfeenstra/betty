@@ -40,11 +40,11 @@ async def test_with_date(assert_template_file: AssertTemplateFile) -> None:
 
 async def test_with_place(assert_template_file: AssertTemplateFile) -> None:
     place = Place(
-        id="P0",
+        id="my-first-place",
         names=[PlaceName("The Place")],
     )
     event = Event(event_type=Birth(), place=place)
-    expected = f'in <a href="/place/{place.public_id}/index.html"><span lang="und" dir="auto">The Place</span></a>'
+    expected = f'in <a href="/place/{place.id}/index.html"><span lang="und" dir="auto">The Place</span></a>'
     async with assert_template_file(
         data={
             "event": event,
@@ -60,7 +60,7 @@ async def test_with_place_is_place_context(
 ) -> None:
     event = Event(event_type=Birth())
     place = Place(
-        id="P0",
+        id="my-first-place",
         names=[PlaceName("The Place")],
     )
     event.place = place
@@ -77,7 +77,7 @@ async def test_with_place_is_place_context(
 
 async def test_with_date_and_place(assert_template_file: AssertTemplateFile) -> None:
     place = Place(
-        id="P0",
+        id="my-first-place",
         names=[PlaceName("The Place")],
     )
     event = Event(
@@ -85,7 +85,7 @@ async def test_with_date_and_place(assert_template_file: AssertTemplateFile) -> 
         date=Date(1970),
         place=place,
     )
-    expected = f'1970 in <a href="/place/{place.public_id}/index.html"><span lang="und" dir="auto">The Place</span></a>'
+    expected = f'1970 in <a href="/place/{place.id}/index.html"><span lang="und" dir="auto">The Place</span></a>'
     async with assert_template_file(
         data={
             "event": event,
@@ -116,7 +116,7 @@ async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
         date=Date(1970),
     )
     event.place = Place(
-        id="P0",
+        id="my-first-place",
         names=[PlaceName("The Place")],
     )
     event.citations.add(Citation(source=Source(name="The Source")))

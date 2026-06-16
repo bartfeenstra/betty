@@ -19,7 +19,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         template="search/result--file.html.j2",
     ) as (actual, _):
         assert entity.label.localize(default_localizer) in actual
-        assert entity.public_id in actual
+        assert entity.id in actual
 
 
 async def test_with_image(
@@ -37,5 +37,5 @@ async def test_with_image(
         template="search/result--file.html.j2",
     ) as (actual, _):
         assert entity.label.localize(default_localizer) in actual
-        assert entity.public_id in actual
+        assert entity.id in actual
         assert "<img" in actual

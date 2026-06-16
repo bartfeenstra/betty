@@ -36,7 +36,7 @@ class TestFacts:
             sut = await Facts.new(project)
             actual = await sut.build(document=Document(resource))
         assert actual is not None
-        assert fact.public_id in actual
+        assert fact.id in actual
 
     async def test_build_template__with_source(
         self, isolated_project_factory: IsolatedProjectFactory
@@ -48,4 +48,4 @@ class TestFacts:
             sut = await Facts.new(project)
             actual = await sut.build(document=Document(resource))
         assert actual is not None
-        assert fact.public_id in actual
+        assert fact.id in actual

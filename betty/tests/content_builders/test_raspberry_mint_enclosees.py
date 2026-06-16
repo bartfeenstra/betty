@@ -35,4 +35,4 @@ class TestEnclosees:
             sut = await Enclosees.new(project)
             actual = await sut.build(document=Document(resource))
         assert actual is not None
-        assert enclosee.public_id in actual
+        assert enclosee.id in actual

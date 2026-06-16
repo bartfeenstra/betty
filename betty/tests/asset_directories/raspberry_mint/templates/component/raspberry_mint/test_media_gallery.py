@@ -37,7 +37,7 @@ async def test_with_public_file_references(
         assets={raspberry_mint},
         template="component/raspberry-mint/media-gallery.html.j2",
     ) as (actual, _):
-        assert file.public_id in actual
+        assert file.id in actual
 
 
 async def test_without_public_file_references(

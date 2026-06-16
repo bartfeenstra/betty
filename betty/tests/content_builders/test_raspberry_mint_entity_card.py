@@ -18,4 +18,4 @@ class TestEntityCard:
 
             provided_content = await sut.build(document=Document())
         assert provided_content is not None
-        assert entity.public_id in provided_content
+        assert entity.id in provided_content

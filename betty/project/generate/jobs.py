@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Final, cast, final, override
 
 from PIL import Image
 
-from betty.entity import EntityDefinition, persistent_id
+from betty.entity import EntityDefinition
 from betty.file import read, write
 from betty.jinja import make_copy_function
 from betty.job import Job
@@ -151,7 +151,7 @@ class GenerateSitemap(Job):
         sitemap_batches.append(sitemap_batch_urls)
         for locale in self._project.locales.keys():  # noqa: SIM118
             for entity in self._project.ancestry:
-                if not persistent_id(entity):
+                if not entity.id.persistent:
                     continue
                 if not entity.plugin().public_facing:
                     continue
@@ -574,7 +574,7 @@ class _GenerateEntityTypeHtml(Job):
             self._project.localize_www_directory(self._locale) / self._entity_type.id
         )
         if self._page > 0:
-            page_path /= f"page-{self._page + 1}"
+            page_path /= f"page--{self._page + 1}"
         await _create_html_resource(page_path, rendered_html)
 
 
@@ -601,7 +601,6 @@ class GenerateEntitiesJson(Job):
             scheduler.add(_GenerateEntityJson(self._project, entity_type, entity.id))
             async for entity_type in self._project.plugins[EntityDefinition]
             for entity in self._project.ancestry[entity_type.cls]
-            if persistent_id(entity)
         ])
 
 
@@ -620,9 +619,7 @@ class _GenerateEntityJson(Job):
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
         entity = self._project.ancestry[self._entity_type.cls][self._entity_id]
-        entity_path = (
-            self._project.www_directory / self._entity_type.id / entity.public_id
-        )
+        entity_path = self._project.www_directory / self._entity_type.id / entity.id
         await _create_json_resource(
             entity_path, dumps(await entity.dump_linked_data(self._project))
         )
@@ -654,7 +651,7 @@ class GenerateEntitiesHtml(Job):
             async for entity_type in self._project.plugins[EntityDefinition]
             if entity_type.public_facing
             for entity in self._project.ancestry[entity_type.cls]
-            if persistent_id(entity) and is_public(entity)
+            if entity.id.persistent and is_public(entity)
             for locale in self._project.locales.keys()  # noqa: SIM118
         ])
 
@@ -690,7 +687,7 @@ class _GenerateEntityHtml(Job):
         entity_path = (
             self._project.localize_www_directory(self._locale)
             / self._entity_type.id
-            / entity.public_id
+            / entity.id
         )
         rendered_html = await jinja.select_template([
             f"entity/page--{self._entity_type.id}.html.j2",

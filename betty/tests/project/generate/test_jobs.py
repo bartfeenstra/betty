@@ -69,12 +69,12 @@ class TestGenerateEntityTypesHtml:
         async with isolated_project_factory(
             generate_entity_list_html=[Place],
         ) as project:
-            place_one = Place(id="P1")
-            place_two = Place(id="P2")
+            place_one = Place(id="my-first-place")
+            place_two = Place(id="my-second-place")
             project.ancestry.add(place_one, place_two)
             await do(GenerateEntityTypesHtml(per_page=1, project=project))
 
-            await assert_betty_html(project, "/place/page-2/index.html")
+            await assert_betty_html(project, "/place/page--2/index.html")
 
 
 class TestGenerateEntityTypesJson:
@@ -109,13 +109,13 @@ class TestGenerateEntitiesHtml:
     @pytest.mark.parametrize(
         "entity",
         [
-            Citation(source=Source(), id="ID"),
-            Event(id="ID"),
-            File(__file__, id="ID"),
-            Note(DUMMY_LOCALIZABLE, id="ID"),
-            Person(id="ID"),
-            Place(id="ID"),
-            Source(id="ID"),
+            Citation(source=Source(), id="my-first-citation"),
+            Event(id="my-first-event"),
+            File(__file__, id="my-first-file"),
+            Note(DUMMY_LOCALIZABLE, id="my-first-note"),
+            Person(id="my-first-person"),
+            Place(id="my-first-place"),
+            Source(id="my-first-source"),
         ],
     )
     async def test_do(self, entity: Entity, isolated_project: Project) -> None:
@@ -123,29 +123,29 @@ class TestGenerateEntitiesHtml:
         await do(GenerateEntitiesHtml(project=isolated_project))
 
         await assert_betty_html(
-            isolated_project, f"/{entity.plugin().id}/{entity.public_id}/index.html"
+            isolated_project, f"/{entity.plugin().id}/{entity.id}/index.html"
         )
 
     @pytest.mark.parametrize(
         "entity",
         [
             Citation(source=Source()),
-            Citation(source=Source(), id="ID", privacy=Privacy.PRIVATE),
+            Citation(source=Source(), id="my-first-citation", privacy=Privacy.PRIVATE),
             Enclosure(enclosee=Place(), encloser=Place()),
             Event(),
-            Event(id="ID", privacy=Privacy.PRIVATE),
+            Event(id="my-first-event", privacy=Privacy.PRIVATE),
             File(__file__),
-            File(__file__, id="ID", privacy=Privacy.PRIVATE),
+            File(__file__, id="my-first-file", privacy=Privacy.PRIVATE),
             Note(DUMMY_LOCALIZABLE),
-            Note(DUMMY_LOCALIZABLE, id="ID", privacy=Privacy.PRIVATE),
+            Note(DUMMY_LOCALIZABLE, id="my-first-note", privacy=Privacy.PRIVATE),
             Person(),
-            Person(id="ID", privacy=Privacy.PRIVATE),
+            Person(id="my-first-person", privacy=Privacy.PRIVATE),
             PersonName(individual="Jane", person=Person()),
             Presence(Person(), UnknownRole(), Event()),
             Place(),
-            Place(id="ID", privacy=Privacy.PRIVATE),
+            Place(id="my-first-place", privacy=Privacy.PRIVATE),
             Source(),
-            Source(id="ID", privacy=Privacy.PRIVATE),
+            Source(id="my-first-source", privacy=Privacy.PRIVATE),
         ],
     )
     async def test_do__with_non_publishable_entity(
@@ -157,7 +157,7 @@ class TestGenerateEntitiesHtml:
         assert not (
             isolated_project.www_directory
             / entity.plugin().id
-            / entity.public_id
+            / entity.id
             / "index.html"
         ).exists()
 
@@ -166,13 +166,13 @@ class TestGenerateEntitiesJson:
     @pytest.mark.parametrize(
         "entity",
         [
-            Citation(source=Source(), id="ID"),
-            Event(id="ID"),
-            File(__file__, id="ID"),
-            Note(DUMMY_LOCALIZABLE, id="ID"),
-            Person(id="ID"),
-            Place(id="ID"),
-            Source(id="ID"),
+            Citation(source=Source(), id="my-first-citation"),
+            Event(id="my-first-event"),
+            File(__file__, id="my-first-file"),
+            Note(DUMMY_LOCALIZABLE, id="my-first-note"),
+            Person(id="my-first-person"),
+            Place(id="my-first-place"),
+            Source(id="my-first-source"),
         ],
     )
     async def test_do(self, entity: Entity, isolated_project: Project) -> None:
@@ -181,37 +181,9 @@ class TestGenerateEntitiesJson:
 
         await assert_betty_json(
             isolated_project,
-            f"/{entity.plugin().id}/{entity.public_id}/index.json",
+            f"/{entity.plugin().id}/{entity.id}/index.json",
             f"{kebab_case_to_lower_camel_case(entity.plugin().id)}Entity",
         )
-
-    @pytest.mark.parametrize(
-        "entity",
-        [
-            Citation(source=Source()),
-            Enclosure(enclosee=Place(), encloser=Place()),
-            Event(),
-            File(__file__),
-            Note(DUMMY_LOCALIZABLE),
-            Person(),
-            PersonName(individual="Jane", person=Person()),
-            Presence(Person(), UnknownRole(), Event()),
-            Place(),
-            Source(),
-        ],
-    )
-    async def test_do__with_non_publishable_entity(
-        self, entity: Entity, isolated_project: Project
-    ) -> None:
-        isolated_project.ancestry.add(entity)
-        await do(GenerateEntitiesJson(project=isolated_project))
-
-        assert not (
-            isolated_project.www_directory
-            / entity.plugin().id
-            / entity.public_id
-            / "index.json"
-        ).exists()
 
 
 class TestGenerateSitemap:

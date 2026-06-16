@@ -18,7 +18,7 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
 
 
 async def test_with_parents(assert_template_file: AssertTemplateFile) -> None:
-    parent = Person(id="P0")
+    parent = Person(id="my-first-person")
     person = Person(parents=[parent])
     async with assert_template_file(
         data={
@@ -27,11 +27,11 @@ async def test_with_parents(assert_template_file: AssertTemplateFile) -> None:
         assets={raspberry_mint},
         template="component/raspberry-mint/families.html.j2",
     ) as (actual, _):
-        assert parent.public_id in actual
+        assert parent.id in actual
 
 
 async def test_with_private_parents(assert_template_file: AssertTemplateFile) -> None:
-    parent = Person(id="P0", privacy=Privacy.PRIVATE)
+    parent = Person(id="my-first-person", privacy=Privacy.PRIVATE)
     person = Person(parents=[parent])
     async with assert_template_file(
         data={
@@ -44,8 +44,8 @@ async def test_with_private_parents(assert_template_file: AssertTemplateFile) ->
 
 
 async def test_with_siblings(assert_template_file: AssertTemplateFile) -> None:
-    parent = Person(id="P0")
-    sibling = Person(id="P1", parents=[parent])
+    parent = Person(id="my-first-person")
+    sibling = Person(id="my-second-person", parents=[parent])
     person = Person(parents=[parent])
     async with assert_template_file(
         data={
@@ -54,12 +54,12 @@ async def test_with_siblings(assert_template_file: AssertTemplateFile) -> None:
         assets={raspberry_mint},
         template="component/raspberry-mint/families.html.j2",
     ) as (actual, _):
-        assert sibling.public_id in actual
+        assert sibling.id in actual
 
 
 async def test_with_private_siblings(assert_template_file: AssertTemplateFile) -> None:
-    parent = Person(id="P0")
-    sibling = Person(id="P1", parents=[parent], privacy=Privacy.PRIVATE)
+    parent = Person(id="my-first-person")
+    sibling = Person(id="my-second-person", parents=[parent], privacy=Privacy.PRIVATE)
     person = Person(parents=[parent])
     async with assert_template_file(
         data={
@@ -72,7 +72,7 @@ async def test_with_private_siblings(assert_template_file: AssertTemplateFile) -
 
 
 async def test_with_children(assert_template_file: AssertTemplateFile) -> None:
-    child = Person(id="P0")
+    child = Person(id="my-first-person")
     person = Person(children=[child])
     async with assert_template_file(
         data={
@@ -82,11 +82,11 @@ async def test_with_children(assert_template_file: AssertTemplateFile) -> None:
         assets={raspberry_mint},
         template="component/raspberry-mint/families.html.j2",
     ) as (actual, _):
-        assert child.public_id in actual
+        assert child.id in actual
 
 
 async def test_with_private_children(assert_template_file: AssertTemplateFile) -> None:
-    child = Person(id="P0", privacy=Privacy.PRIVATE)
+    child = Person(id="my-first-person", privacy=Privacy.PRIVATE)
     person = Person(children=[child])
     async with assert_template_file(
         data={
@@ -100,7 +100,7 @@ async def test_with_private_children(assert_template_file: AssertTemplateFile) -
 
 async def test_with_co_parents(assert_template_file: AssertTemplateFile) -> None:
     child = Person()
-    co_parent = Person(id="P0", children=[child])
+    co_parent = Person(id="my-first-person", children=[child])
     person = Person(children=[child])
     async with assert_template_file(
         data={
@@ -110,14 +110,14 @@ async def test_with_co_parents(assert_template_file: AssertTemplateFile) -> None
         assets={raspberry_mint},
         template="component/raspberry-mint/families.html.j2",
     ) as (actual, _):
-        assert co_parent.public_id in actual
+        assert co_parent.id in actual
 
 
 async def test_with_private_co_parents(
     assert_template_file: AssertTemplateFile,
 ) -> None:
     child = Person()
-    co_parent = Person(id="P0", children=[child], privacy=Privacy.PRIVATE)
+    co_parent = Person(id="my-first-person", children=[child], privacy=Privacy.PRIVATE)
     person = Person(children=[child])
     async with assert_template_file(
         data={

@@ -72,12 +72,14 @@ from betty.genders.non_binary import NonBinary
 from betty.genders.unknown import Unknown as UnknownGender
 from betty.genders.woman import Woman
 from betty.gramps.error import GrampsError, UserFacingGrampsError
+from betty.hashid import hashid, hashid_sequence
 from betty.license import LicenseManufacturer
 from betty.locale import from_language_tag
 from betty.locale.error import LocaleError
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import AnyEnumeration
 from betty.locale.localizable.static import StaticTranslations
+from betty.machine_name import MachineName
 from betty.media_type import InvalidMediaType, MediaType
 from betty.pathlib import resolve_path
 from betty.place_type import PlaceTypeManufacturer
@@ -335,6 +337,22 @@ def _resolve_plugin_manufacturer_mapping[
         gramps_type: manufacturer.resolve(resolvable_manufacturer)
         for gramps_type, resolvable_manufacturer in resolvable_manufacturers.items()
     }
+
+
+def machinify(gramps_id: str, /) -> MachineName:
+    """
+    Convert a Gramps identifier into its machine name.
+    """
+    return MachineName(hashid(gramps_id))
+
+
+def _machinify_associate(
+    owner: Entity, associate: type[Entity], index: int = 0, /
+) -> MachineName:
+    assert index is None or index >= 0
+    return MachineName(
+        hashid_sequence(owner.id, associate.plugin().id, bytes(str(index).encode()))
+    )
 
 
 class GrampsLoader:
@@ -736,7 +754,7 @@ class GrampsLoader:
         assert text_element is not None
         text = str(text_element.text)
         note = Note(
-            id=note_id,
+            id=machinify(note_id),
             text=text,
         )
         if element.get("priv") == "1":
@@ -777,7 +795,7 @@ class GrampsLoader:
                 ).format(file_id=file_id, file_path=str(file_path))
             )
         file = File(
-            id=file_id,
+            id=machinify(file_id),
             path=file_path,
         )
         mime = file_element.get("mime")
@@ -850,12 +868,12 @@ class GrampsLoader:
             except PluginNotFound:
                 await self._user.message_warning(
                     _(
-                        'Betty is unfamiliar with Gramps file "{person_id}"\'s gender ID of "{gender_id}" and ignored it.',
+                        'Betty is unfamiliar with Gramps person "{person_id}"\'s gender ID of "{gender_id}" and ignored it.',
                     ).format(person_id=person_id, gender_id=gender_id)
                 )
                 gender = None
 
-        person = Person(id=element.get("id"), gender=gender)
+        person = Person(id=machinify(person_id), gender=gender)
 
         name_elements = sorted(
             self._xpath(element, "./ns:name"), key=lambda x: x.get("alt") == "1"
@@ -934,15 +952,16 @@ class GrampsLoader:
         self, person: Person, element: ElementTree.Element
     ) -> None:
         eventrefs = self._xpath(element, "./ns:eventref")
-        for eventref in eventrefs:
-            await self._load_eventref(person, eventref)
+        for index, eventref in enumerate(eventrefs):
+            await self._load_eventref(person, eventref, index)
 
     async def _load_eventref(
-        self, person: Person, eventref: ElementTree.Element
+        self, person: Person, eventref: ElementTree.Element, index: int
     ) -> None:
         event_handle = eventref.get("hlink")
         assert event_handle is not None
-        gramps_role = cast(str, eventref.get("role"))
+        gramps_role = eventref.get("role")
+        assert gramps_role is not None
 
         role: Role
         try:
@@ -961,10 +980,12 @@ class GrampsLoader:
             )
         else:
             role = await role_manufacturer(self._services)
+
         presence = Presence(
             person,
             role,
             self._resolve1(Event, event_handle),
+            id=_machinify_associate(person, Presence, index),
         )
         if eventref.get("priv") == "1":
             presence.private = True
@@ -1018,7 +1039,7 @@ class GrampsLoader:
             place_type = await place_type_manufacturer(self._services)
 
         place = Place(
-            id=place_id,
+            id=machinify(place_id),
             names=names,
             place_type=place_type,
         )
@@ -1088,7 +1109,7 @@ class GrampsLoader:
             event_type = await event_type_manufacturer(self._services)
 
         event = Event(
-            id=event_id,
+            id=machinify(event_id),
             event_type=event_type,
         )
 
@@ -1131,16 +1152,18 @@ class GrampsLoader:
             await self._load_repository(element)
 
     async def _load_repository(self, element: ElementTree.Element) -> None:
-        repository_source_handle = element.get("handle")
+        repository_handle = element.get("handle")
+        repository_id = element.get("id")
+        assert repository_id is not None
         source_name = self._xpath1(element, "./ns:rname").text
         source = Source(
-            id=element.get("id"),
+            id=machinify(repository_id),
             name=source_name,
         )
 
         self._load_urls(source, element)
         self._load_noteref(source, element)
-        self._add_entity(source, repository_source_handle)
+        self._add_entity(source, repository_handle)
 
     async def _load_sources(self, database: ElementTree.Element) -> None:
         for element in self._xpath(database, "./ns:sources/ns:source"):
@@ -1148,13 +1171,15 @@ class GrampsLoader:
 
     async def _load_source(self, element: ElementTree.Element) -> None:
         source_handle = element.get("handle")
+        source_id = element.get("id")
+        assert source_id is not None
         try:
             source_name = self._xpath1(element, "./ns:stitle").text
         except XPathError:
             source_name = None
 
         source = Source(
-            id=element.get("id"),
+            id=machinify(source_id),
             name=source_name,
         )
 
@@ -1194,11 +1219,14 @@ class GrampsLoader:
 
     async def _load_citation(self, element: ElementTree.Element) -> None:
         citation_handle = element.get("handle")
+        citation_id = element.get("id")
+        assert citation_id is not None
         source_handle = self._xpath1(element, "./ns:sourceref").get("hlink")
         assert source_handle is not None
 
         citation = Citation(
-            id=element.get("id"), source=self._resolve1(Source, source_handle)
+            id=machinify(citation_id),
+            source=self._resolve1(Source, source_handle),
         )
 
         citation.date = self._load_date(element)
@@ -1246,12 +1274,16 @@ class GrampsLoader:
         return None
 
     def _load_objref(
-        self, owner: HasFileReferences, element: ElementTree.Element
+        self, owner: HasFileReferences, element: ElementTree.Element, index: int = 0
     ) -> None:
         for handle_element in self._xpath(element, "./ns:objref"):
             file_handle = handle_element.get("hlink")
             assert file_handle is not None
-            file_reference = FileReference(owner, self._resolve1(File, file_handle))
+            file_reference = FileReference(
+                owner,
+                self._resolve1(File, file_handle),
+                id=_machinify_associate(owner, FileReference, index),
+            )
             try:
                 region_element = self._xpath1(handle_element, "./ns:region")
             except XPathError:

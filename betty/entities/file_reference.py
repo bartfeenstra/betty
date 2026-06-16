@@ -17,6 +17,7 @@ from betty.locale.localizable.gettext import _, ngettext
 if TYPE_CHECKING:
     from betty.entity.has_file_references import HasFileReferences
     from betty.image import FocusArea
+    from betty.machine_name import ResolvableMachineName
 
 
 @final
@@ -57,9 +58,10 @@ class FileReference(Entity):
         referee: ToOneAssociate[HasFileReferences],
         file: ToOneAssociate[File],
         *,
+        id: ResolvableMachineName | None = None,  # noqa: A002
         focus: FocusArea | None = None,
     ):
-        super().__init__()
+        super().__init__(id=id)
         self.referee = referee
         self.file = file
         self.focus = focus

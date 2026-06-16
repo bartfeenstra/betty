@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-06-03 13:27+0100\n"
+"POT-Creation-Date: 2026-06-16 20:19+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -75,7 +75,7 @@ msgstr ""
 
 msgid ""
 "A machine name is an identifier of at most 250 characters long, made up of"
-" lowercase letters, numbers, and/or hyphens (-)."
+" lowercase letters, numbers, and/or non-consecutive hyphens (-)."
 msgstr ""
 
 msgid "A person's presence at an event."
@@ -256,7 +256,7 @@ msgstr ""
 
 #, python-brace-format
 msgid ""
-"Betty is unfamiliar with Gramps file \"{person_id}\"'s gender ID of "
+"Betty is unfamiliar with Gramps person \"{person_id}\"'s gender ID of "
 "\"{gender_id}\" and ignored it."
 msgstr ""
 

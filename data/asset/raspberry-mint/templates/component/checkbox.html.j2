@@ -1,5 +1,5 @@
 {% set attributes = attributes | default(new_attributes()) %}
-{% do attributes.setdefault(html_id=generate_html_id()) %}
+{% do attributes.setdefault(html_id=machine_name()) %}
 {% set form_control_attributes = form_control_attributes | default(new_attributes()) %}
 {% do form_control_attributes.html_class.append("form-check") %}
 <div {{ form_control_attributes }}>

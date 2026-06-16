@@ -13,7 +13,6 @@ from betty.date import AnyDate, Date
 from betty.entities.event import Event
 from betty.entities.person import Person
 from betty.entities.place import Place
-from betty.entity import persistent_id
 from betty.event_types.birth import Birth
 from betty.event_types.death import Death
 from betty.functools import unique
@@ -198,7 +197,7 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
                     != Death.plugin().id
                 ):
                     continue
-                if not persistent_id(associated_presence.event):
+                if not associated_presence.event.id.persistent:
                     continue
                 if not isinstance(associated_presence.role, Subject):
                     continue

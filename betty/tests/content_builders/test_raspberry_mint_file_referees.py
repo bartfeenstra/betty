@@ -42,4 +42,4 @@ class TestFileReferees:
             sut = await FileReferees.new(project)
             actual = await sut.build(document=Document(resource))
         assert actual is not None
-        assert referee.public_id in actual
+        assert referee.id in actual

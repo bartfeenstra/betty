@@ -13,7 +13,7 @@ from betty.entities.place_name import PlaceName
 from betty.entity import Entity
 from betty.entity.association import AssociationRequired, TemporaryToOneResolver
 from betty.event_types.birth import Birth
-from betty.locale import default_locale, default_locale_tag, to_language_tag
+from betty.locale import default_locale_tag
 from betty.place_types.hamlet import Hamlet
 from betty.place_types.unknown import Unknown as UnknownPlaceType
 from betty.test_utils.entity import EntityTestBase
@@ -105,9 +105,8 @@ class TestPlace(EntityTestBase):
             enclosure.encloser  # noqa: B018
 
     def test_id(self) -> None:
-        place_id = "C1"
-        sut = Place(id=place_id)
-        assert sut.id == place_id
+        sut = Place(id="my-first-place")
+        assert sut.id == "my-first-place"
 
     def test_links(self) -> None:
         sut = Place()
@@ -126,8 +125,7 @@ class TestPlace(EntityTestBase):
     async def test_dump_linked_data__should_dump_minimal(
         self, assert_dumps_linked_data: AssertDumpsLinkedData
     ) -> None:
-        place_id = "the_place"
-        place = Place(id=place_id)
+        place = Place(id="my-first-place")
         expected: Mapping[str, Any] = {
             "@context": {
                 "names": "https://schema.org/name",
@@ -135,9 +133,9 @@ class TestPlace(EntityTestBase):
                 "enclosees": "https://schema.org/containsPlace",
                 "events": "https://schema.org/event",
             },
-            "@id": "https://example.com/place/the_place/index.json",
+            "@id": "https://example.com/place/my-first-place/index.json",
             "@type": "https://schema.org/Place",
-            "id": place_id,
+            "id": "my-first-place",
             "names": [],
             "enclosers": [],
             "enclosees": [],
@@ -153,28 +151,35 @@ class TestPlace(EntityTestBase):
     async def test_dump_linked_data__should_dump_full(
         self, assert_dumps_linked_data: AssertDumpsLinkedData
     ) -> None:
-        place_id = "the_place"
         name = "The Place"
-        place_name = PlaceName(name)
+        place_name = PlaceName(name, id="my-first-place-name")
         latitude = 12.345
         longitude = -54.321
         coordinates = Point(latitude, longitude)
-        link = Link("https://example.com/the-place")
+        link = Link("https://example.com/the-place", id="my-first-link")
         link.label = "The Place Online"
         place = Place(
-            id=place_id,
+            id="my-first-place",
             names=[place_name],
             events=[
                 Event(
-                    id="E1",
+                    id="my-first-event",
                     event_type=Birth(),
                 )
             ],
             links=[link],
         )
         place.coordinates = coordinates
-        encloser = Enclosure(enclosee=place, encloser=Place(id="the_enclosing_place"))
-        enclosee = Enclosure(enclosee=Place(id="the_enclosed_place"), encloser=place)
+        Enclosure(
+            enclosee=place,
+            encloser=Place(id="the-enclosing-place"),
+            id="the-enclosing-enclosure",
+        )
+        Enclosure(
+            enclosee=Place(id="the-enclosed-place"),
+            encloser=place,
+            id="the-enclosed-enclosure",
+        )
         expected: Mapping[str, Any] = {
             "@context": {
                 "names": "https://schema.org/name",
@@ -183,34 +188,22 @@ class TestPlace(EntityTestBase):
                 "events": "https://schema.org/event",
                 "coordinates": "https://schema.org/geo",
             },
-            "@id": "https://example.com/place/the_place/index.json",
+            "@id": "https://example.com/place/my-first-place/index.json",
             "@type": "https://schema.org/Place",
-            "id": place_id,
+            "id": "my-first-place",
             "names": [
                 {
-                    "id": place_name.id,
+                    "@id": "https://example.com/place-name/my-first-place-name/index.json",
+                    "id": "my-first-place-name",
                     "name": {default_locale_tag: name},
                 }
             ],
             "events": [
-                "/event/E1/index.json",
+                "/event/my-first-event/index.json",
             ],
             "notes": [],
             "links": [
-                {
-                    "@context": {"description": "https://schema.org/description"},
-                    "id": link.id,
-                    "url": {
-                        to_language_tag(
-                            default_locale
-                        ): "https://example.com/the-place",
-                    },
-                    "label": {
-                        default_locale_tag: "The Place Online",
-                    },
-                    "owner": "/place/the_place/index.json",
-                    "privacy": False,
-                },
+                "/link/my-first-link/index.json",
             ],
             "coordinates": {
                 "@context": {
@@ -222,20 +215,10 @@ class TestPlace(EntityTestBase):
                 "longitude": longitude,
             },
             "enclosees": [
-                {
-                    "id": enclosee.id,
-                    "enclosee": "/place/the_enclosed_place/index.json",
-                    "encloser": "/place/the_place/index.json",
-                    "citations": [],
-                }
+                "/enclosure/the-enclosed-enclosure/index.json",
             ],
             "enclosers": [
-                {
-                    "id": encloser.id,
-                    "enclosee": "/place/the_place/index.json",
-                    "encloser": "/place/the_enclosing_place/index.json",
-                    "citations": [],
-                }
+                "/enclosure/the-enclosing-enclosure/index.json",
             ],
             "privacy": False,
             "fileReferences": [],

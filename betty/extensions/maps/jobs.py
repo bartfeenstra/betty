@@ -53,7 +53,7 @@ class _GeneratePlacePreview(Job):
         place_path = (
             self._project.localize_www_directory(self._locale)
             / place.plugin().id
-            / place.public_id
+            / place.id
         )
         rendered_html = await jinja.get_template(
             "component/maps/selected-place-preview.html.j2",

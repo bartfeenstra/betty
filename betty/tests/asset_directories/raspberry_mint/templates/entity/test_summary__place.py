@@ -43,4 +43,4 @@ async def test_with_encloser(assert_template_file: AssertTemplateFile) -> None:
         assets={raspberry_mint},
         template="entity/summary--place.html.j2",
     ) as (actual, _):
-        assert encloser_place.public_id in actual
+        assert encloser_place.id in actual

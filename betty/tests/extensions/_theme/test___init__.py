@@ -15,7 +15,6 @@ from betty.entities.person_name import PersonName
 from betty.entities.place import Place
 from betty.entities.presence import Presence
 from betty.entities.source import Source
-from betty.entity import persistent_id
 from betty.event_types.birth import Birth
 from betty.event_types.death import Death
 from betty.event_types.unknown import Unknown as UnknownEventType
@@ -59,7 +58,7 @@ def _parameterize_with_associated_events() -> Iterator[
     ]
 ]:
     ids = (
-        (True, "E1"),
+        (True, "my-first-event"),
         (False, None),
     )
     privacies = (
@@ -130,14 +129,14 @@ class TestPersonLifetimeEvents:
         ("expected", "event_id", "event_privacy", "event_date"),
         [
             # Events without dates are omitted from timelines.
-            (False, "E1", Privacy.PUBLIC, None),
-            (True, "E1", Privacy.PUBLIC, Date(1970, 1, 1)),
+            (False, "my-first-event", Privacy.PUBLIC, None),
+            (True, "my-first-event", Privacy.PUBLIC, Date(1970, 1, 1)),
             # Events with generated IDs are included if they are the person's own.
             (True, None, Privacy.PUBLIC, Date(1970, 1, 1)),
             # Events with non-comparable dates are omitted from timelines.
-            (False, "E1", Privacy.PUBLIC, Date(None, 1, 1)),
+            (False, "my-first-event", Privacy.PUBLIC, Date(None, 1, 1)),
             # Private events are omitted from timelines.
-            (False, "E1", Privacy.PRIVATE, Date(1970, 1, 1)),
+            (False, "my-first-event", Privacy.PRIVATE, Date(1970, 1, 1)),
         ],
     )
     async def test_with_person_event(
@@ -191,8 +190,6 @@ class TestPersonLifetimeEvents:
 
             if event_id is None:
                 return None
-            if not persistent_id(event_id):
-                return event_id
             event_ids += 1
             return f"{event_id}-{event_ids}"
 

@@ -14,14 +14,14 @@ _test_filter_file_parameter_argnames: Final[tuple[str, str, str]] = (
 )
 _test_filter_file_parameter_argvalues: Final[Sequence[tuple[str, str, File]]] = [
     (
-        "betty-static:///file/F1/file/test_file.py",
+        "betty-static:///file/my-first-file/file/test_file.py",
         "{{ file | file }}",
-        File(id="F1", path=__file__),
+        File(id="my-first-file", path=__file__),
     ),
     (
-        "betty-static:///file/F1/file/test_file.py#betty-static:///file/F1/file/test_file.py",
+        "betty-static:///file/my-first-file/file/test_file.py#betty-static:///file/my-first-file/file/test_file.py",
         "{{ file | file }}#{{ file | file }}",
-        File(id="F1", path=__file__),
+        File(id="my-first-file", path=__file__),
     ),
 ]
 

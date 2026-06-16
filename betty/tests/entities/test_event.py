@@ -63,16 +63,15 @@ class TestEvent(EntityTestBase):
         assert sut.name.localize(default_localizer) == name
 
     def test_id(self) -> None:
-        event_id = "E1"
         sut = Event(
-            id=event_id,
+            id="my-first-event",
             event_type=UnknownEventType(),
         )
-        assert sut.id == event_id
+        assert sut.id == "my-first-event"
 
     def test_place(self) -> None:
         place = Place(
-            id="1",
+            id="my-first-place",
             names=[PlaceName("one")],
         )
         sut = Event(event_type=UnknownEventType())
@@ -84,7 +83,7 @@ class TestEvent(EntityTestBase):
         assert sut not in place.events
 
     def test_presences(self) -> None:
-        person = Person(id="P1")
+        person = Person()
         sut = Event(event_type=UnknownEventType())
         presence = Presence(person, Subject(), sut)
         sut.presences.add(presence)
@@ -134,7 +133,7 @@ class TestEvent(EntityTestBase):
         self, assert_dumps_linked_data: AssertDumpsLinkedData
     ) -> None:
         event = Event(
-            id="the_event",
+            id="my-first-event",
             event_type=Birth(),
         )
         expected: Mapping[str, Any] = {
@@ -143,9 +142,9 @@ class TestEvent(EntityTestBase):
                 "place": "https://schema.org/location",
                 "presences": "https://schema.org/performer",
             },
-            "@id": "https://example.com/event/the_event/index.json",
+            "@id": "https://example.com/event/my-first-event/index.json",
             "@type": "https://schema.org/Event",
-            "id": "the_event",
+            "id": "my-first-event",
             "privacy": False,
             "type": "birth",
             "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
@@ -164,22 +163,22 @@ class TestEvent(EntityTestBase):
         self, assert_dumps_linked_data: AssertDumpsLinkedData
     ) -> None:
         event = Event(
-            id="the_event",
+            id="my-first-event",
             event_type=Birth(),
             date=DateRange(Date(2000, 1, 1), Date(2019, 12, 31)),
             place=Place(
-                id="the_place",
+                id="my-first-place",
                 names=[PlaceName("The Place")],
             ),
             name="The Event",
             description="The Event Description",
         )
-        presence = Presence(Person(id="the_person"), Subject(), event)
+        Presence(Person(id="my-first-person"), Subject(), event, id="my-first-presence")
         event.citations.add(
             Citation(
-                id="the_citation",
+                id="my-first-citation",
                 source=Source(
-                    id="the_source",
+                    id="my-first-source",
                     name="The Source",
                 ),
             )
@@ -190,24 +189,18 @@ class TestEvent(EntityTestBase):
                 "place": "https://schema.org/location",
                 "presences": "https://schema.org/performer",
             },
-            "@id": "https://example.com/event/the_event/index.json",
+            "@id": "https://example.com/event/my-first-event/index.json",
             "@type": "https://schema.org/Event",
-            "id": "the_event",
+            "id": "my-first-event",
             "privacy": False,
             "type": "birth",
             "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
             "eventStatus": "https://schema.org/EventScheduled",
             "presences": [
-                {
-                    "id": presence.id,
-                    "role": "subject",
-                    "person": "/person/the_person/index.json",
-                    "event": "/event/the_event/index.json",
-                    "privacy": False,
-                },
+                "/presence/my-first-presence/index.json",
             ],
             "citations": [
-                "/citation/the_citation/index.json",
+                "/citation/my-first-citation/index.json",
             ],
             "notes": [],
             "date": {
@@ -232,7 +225,7 @@ class TestEvent(EntityTestBase):
                     "fuzzy": False,
                 },
             },
-            "place": "/place/the_place/index.json",
+            "place": "/place/my-first-place/index.json",
             "links": [],
             "name": {default_locale_tag: "The Event"},
             "description": {default_locale_tag: "The Event Description"},
@@ -245,21 +238,21 @@ class TestEvent(EntityTestBase):
         self, assert_dumps_linked_data: AssertDumpsLinkedData
     ) -> None:
         event = Event(
-            id="the_event",
+            id="my-first-event",
             event_type=Birth(),
             privacy=Privacy.PRIVATE,
             date=DateRange(Date(2000, 1, 1), Date(2019, 12, 31)),
             place=Place(
-                id="the_place",
+                id="my-first-place",
                 names=[PlaceName("The Place")],
             ),
         )
-        presence = Presence(Person(id="the_person"), Subject(), event)
+        Presence(Person(id="my-first-person"), Subject(), event, id="my-first-presence")
         event.citations.add(
             Citation(
-                id="the_citation",
+                id="my-first-citation",
                 source=Source(
-                    id="the_source",
+                    id="my-first-source",
                     name="The Source",
                 ),
             )
@@ -270,26 +263,21 @@ class TestEvent(EntityTestBase):
                 "place": "https://schema.org/location",
                 "presences": "https://schema.org/performer",
             },
-            "@id": "https://example.com/event/the_event/index.json",
+            "@id": "https://example.com/event/my-first-event/index.json",
             "@type": "https://schema.org/Event",
-            "id": "the_event",
+            "id": "my-first-event",
             "privacy": True,
             "type": "birth",
             "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
             "eventStatus": "https://schema.org/EventScheduled",
             "presences": [
-                {
-                    "id": presence.id,
-                    "person": "/person/the_person/index.json",
-                    "event": "/event/the_event/index.json",
-                    "privacy": True,
-                },
+                "/presence/my-first-presence/index.json",
             ],
             "citations": [
-                "/citation/the_citation/index.json",
+                "/citation/my-first-citation/index.json",
             ],
             "notes": [],
-            "place": "/place/the_place/index.json",
+            "place": "/place/my-first-place/index.json",
             "links": [],
             "fileReferences": [],
         }

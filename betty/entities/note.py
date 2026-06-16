@@ -25,6 +25,7 @@ if TYPE_CHECKING:
     from betty.entity.has_notes import HasNotes
     from betty.linked_data import JsonLdObject
     from betty.locale.localizable import Localizable, ResolvableLocalizable
+    from betty.machine_name import ResolvableMachineName
     from betty.portable import PortableMapping
     from betty.project import Project
 
@@ -60,11 +61,11 @@ class Note(HasPrivacy, HasLinks, HasMediaType):
         self,
         text: ResolvableLocalizable,
         *,
-        id: str | None = None,  # noqa: A002
+        id: ResolvableMachineName | None = None,  # noqa: A002
         entity: ToZeroOrOneAssociate[HasNotes] | None = None,
         privacy: Privacy = Privacy.UNDETERMINED,
     ):
-        super().__init__(id, privacy=privacy)
+        super().__init__(id=id, privacy=privacy)
         self.text = text
         if entity is not None:
             self.entity = entity

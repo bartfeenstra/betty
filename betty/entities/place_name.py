@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from betty.date import AnyDate
     from betty.linked_data import JsonLdObject
     from betty.locale.localizable import ResolvableLocalizable
+    from betty.machine_name import ResolvableMachineName
     from betty.portable import PortableMapping
     from betty.project import Project
 
@@ -41,8 +42,9 @@ class PlaceName(HasAnyDate, Entity):
         name: ResolvableLocalizable,
         *,
         date: AnyDate | None = None,
+        id: ResolvableMachineName | None = None,  # noqa: A002
     ):
-        super().__init__(date=date)
+        super().__init__(date=date, id=id)
         self.name = name
 
     @override

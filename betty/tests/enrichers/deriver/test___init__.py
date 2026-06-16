@@ -22,7 +22,7 @@ class TestDeriver:
     async def test_enrich(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        person = Person(id="P0")
+        person = Person(id="my-first-person")
         event = Event(
             event_type=Residence(),
             date=Date(1, 1, 1),

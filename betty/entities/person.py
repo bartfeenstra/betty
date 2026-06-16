@@ -5,10 +5,9 @@ Data types describing persons.
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
-from urllib.parse import quote
 
 from betty.attrs.privacy import HasPrivacy
-from betty.entity import EntityDefinition, persistent_id
+from betty.entity import EntityDefinition
 from betty.entity.association import BidirectionalToManySingleType, ToManyAssociates
 from betty.entity.has_citations import HasCitations
 from betty.entity.has_file_references import HasFileReferences
@@ -20,6 +19,7 @@ from betty.gender import GenderDefinition
 from betty.genders.unknown import Unknown as UnknownGender
 from betty.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable.gettext import _, ngettext
+from betty.media_types.json_ld import JSON_LD
 from betty.plugin.schema import PluginIdSchema
 from betty.privacy import Privacy
 
@@ -34,6 +34,7 @@ if TYPE_CHECKING:
     from betty.entities.presence import Presence
     from betty.gender import Gender
     from betty.locale.localizable import Localizable
+    from betty.machine_name import ResolvableMachineName
     from betty.portable import PortableMapping
     from betty.project import Project
 
@@ -73,7 +74,6 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
         "person",
         label=_("Presences"),
         description=_("This person's presences at events"),
-        linked_data_embedded=True,
     )
     """
     The person's presences at events.
@@ -83,7 +83,6 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
         "betty.entities.person_name:PersonName",
         "person",
         label=_("Names"),
-        linked_data_embedded=True,
     )
     """
     The person's names.
@@ -91,7 +90,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
 
     def __init__(
         self,
-        id: str | None = None,  # noqa: A002
+        id: ResolvableMachineName | None = None,  # noqa: A002
         *,
         file_references: ToManyAssociates[FileReference] = (),
         citations: ToManyAssociates[Citation] = (),
@@ -105,7 +104,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
         gender: Gender | None = None,
     ):
         super().__init__(
-            id,
+            id=id,
             file_references=file_references,
             citations=citations,
             links=links,
@@ -172,11 +171,8 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
         )
         portable["@type"] = "https://schema.org/Person"
         portable["siblings"] = [
-            url_generator.generate(
-                f"betty-static:///person/{quote(sibling.id)}/index.json"
-            )
+            url_generator.generate(sibling, media_type=JSON_LD)
             for sibling in self.siblings
-            if persistent_id(sibling)
         ]
         if self.public:
             portable["gender"] = self.gender.plugin().id

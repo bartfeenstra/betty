@@ -28,8 +28,8 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
 
 async def test_with_persistent_id(assert_template_file: AssertTemplateFile) -> None:
     source = Source()
-    citation = Citation(id="C0", source=source)
-    expected = f'<a href="/citation/{citation.public_id}/index.html"><i>Unknown</i></a> <sup>(<span lang="und" dir="auto">Source {source.id}</span>)</sup>'
+    citation = Citation(id="my-first-citation", source=source)
+    expected = f'<a href="/citation/{citation.id}/index.html"><i>Unknown</i></a> <sup>(<span lang="und" dir="auto">Source {source.id}</span>)</sup>'
     async with assert_template_file(
         data={
             "entity": citation,
@@ -42,7 +42,7 @@ async def test_with_persistent_id(assert_template_file: AssertTemplateFile) -> N
 
 async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
     source = Source()
-    citation = Citation(id="C0", source=source)
+    citation = Citation(id="my-first-citation", source=source)
     expected = f'<i>Unknown</i> <sup>(<span lang="und" dir="auto">Source {source.id}</span>)</sup>'
     async with assert_template_file(
         data={
@@ -73,7 +73,7 @@ async def test_with_location(assert_template_file: AssertTemplateFile) -> None:
 
 async def test_with_citation_context(assert_template_file: AssertTemplateFile) -> None:
     source = Source()
-    citation = Citation(id="C0", source=source)
+    citation = Citation(id="my-first-citation", source=source)
     expected = f'<i>Unknown</i> <sup>(<span lang="und" dir="auto">Source {source.id}</span>)</sup>'
     async with assert_template_file(
         data={

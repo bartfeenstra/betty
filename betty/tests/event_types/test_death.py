@@ -18,14 +18,14 @@ class TestDeath:
     async def test_may_create_may_not_for_person_without_presences(
         self, isolated_project: Project
     ) -> None:
-        person = Person(id="P0")
+        person = Person(id="my-first-person")
 
         assert await Death.should_exist(isolated_project, person) is False
 
     async def test_may_create_may_not_within_lifetime_threshold(
         self, isolated_project: Project
     ) -> None:
-        person = Person(id="P0")
+        person = Person(id="my-first-person")
         Presence(
             person,
             Subject(),
@@ -40,7 +40,7 @@ class TestDeath:
     async def test_may_create_may_over_lifetime_threshold(
         self, isolated_project: Project
     ) -> None:
-        person = Person(id="P0")
+        person = Person(id="my-first-person")
         Presence(
             person,
             Subject(),

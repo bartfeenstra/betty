@@ -16,10 +16,12 @@ from betty.entities.place import Place
 from betty.entity.has_file_references import HasFileReferences
 from betty.entity.has_links import HasLinks
 from betty.functools import map_suppress
+from betty.hashid import hashid
 from betty.locale import negotiate_locale, resolve_locale
 from betty.locale.error import LocaleError
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
+from betty.machine_name import MachineName
 from betty.media_types.html import HTML
 from betty.typing import threadsafe
 from betty.wiki import NotAPageError, parse_page_link
@@ -209,7 +211,7 @@ class Populator:
                 file = self._image_files[image]
             except KeyError:
                 file = File(
-                    id=f"wikipedia-{image.title}",
+                    id=f"wikipedia-{MachineName.machinify(hashid(image.wikimedia_commons_url))}",
                     name=image.name,
                     path=image.path,
                     media_type=image.media_type,

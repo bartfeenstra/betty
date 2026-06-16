@@ -32,7 +32,7 @@ async def test_without_public_entities(
 
 
 async def test_with_public_entities(assert_template_file: AssertTemplateFile) -> None:
-    entity = Event(id="E0")
+    entity = Event(id="my-first-event")
     async with assert_template_file(
         data={
             "entities": [entity],
@@ -40,4 +40,4 @@ async def test_with_public_entities(assert_template_file: AssertTemplateFile) ->
         assets={raspberry_mint},
         template="entity/list.html.j2",
     ) as (actual, _):
-        assert f"/event/{entity.public_id}/index.html" in actual
+        assert f"/event/{entity.id}/index.html" in actual

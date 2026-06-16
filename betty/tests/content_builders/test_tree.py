@@ -47,7 +47,7 @@ class TestTree:
             document = await project.new_document(person)
             actual = await sut.build(document=document)
         assert actual is not None
-        assert person.public_id in actual
+        assert person.id in actual
         assert "webpack_js_entry_points" in document
         assert isinstance(document["webpack_js_entry_points"], Set)
         assert "trees" in document["webpack_js_entry_points"]

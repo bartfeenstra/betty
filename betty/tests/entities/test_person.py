@@ -16,7 +16,6 @@ from betty.entity.association import AssociationRequired, TemporaryToOneResolver
 from betty.event_types.birth import Birth
 from betty.genders.non_binary import NonBinary
 from betty.genders.unknown import Unknown as UnknownGender
-from betty.locale import default_locale, default_locale_tag, to_language_tag
 from betty.privacy import Privacy
 from betty.roles.subject import Subject
 from betty.test_utils.entity import EntityTestBase
@@ -128,9 +127,8 @@ class TestPerson(EntityTestBase):
             name.person  # noqa: B018
 
     def test_id(self) -> None:
-        person_id = "P1"
-        sut = Person(id=person_id)
-        assert sut.id == person_id
+        sut = Person(id="my-first-person")
+        assert sut.id == "my-first-person"
 
     def test_file_references(self) -> None:
         sut = Person()
@@ -193,8 +191,7 @@ class TestPerson(EntityTestBase):
     async def test_dump_linked_data__should_dump_minimal(
         self, assert_dumps_linked_data: AssertDumpsLinkedData
     ) -> None:
-        person_id = "the_person"
-        person = Person(id=person_id)
+        person = Person(id="my-first-person")
         expected: Mapping[str, Any] = {
             "@context": {
                 "names": "https://schema.org/name",
@@ -202,9 +199,9 @@ class TestPerson(EntityTestBase):
                 "children": "https://schema.org/child",
                 "siblings": "https://schema.org/sibling",
             },
-            "@id": "https://example.com/person/the_person/index.json",
+            "@id": "https://example.com/person/my-first-person/index.json",
             "@type": "https://schema.org/Person",
-            "id": person_id,
+            "id": "my-first-person",
             "privacy": False,
             "gender": UnknownGender.plugin().id,
             "names": [],
@@ -223,21 +220,20 @@ class TestPerson(EntityTestBase):
     async def test_dump_linked_data__should_dump_full(
         self, assert_dumps_linked_data: AssertDumpsLinkedData
     ) -> None:
-        parent_id = "the_parent"
-        parent = Person(id=parent_id)
+        parent = Person(id="my-first-parent")
 
-        child_id = "the_child"
-        child = Person(id=child_id)
+        child = Person(id="my-first-child")
 
-        sibling_id = "the_sibling"
-        sibling = Person(id=sibling_id)
+        sibling = Person(id="my-first-sibling")
         sibling.parents.add(parent)
 
-        person_id = "the_person"
         person_affiliation_name = "Person"
         person_individual_name = "The"
-        person = Person(id=person_id, privacy=Privacy.PUBLIC, gender=NonBinary())
-        name = PersonName(
+        person = Person(
+            id="my-first-person", privacy=Privacy.PUBLIC, gender=NonBinary()
+        )
+        PersonName(
+            id="my-first-person-name",
             person=person,
             individual=person_individual_name,
             affiliation=person_affiliation_name,
@@ -247,25 +243,27 @@ class TestPerson(EntityTestBase):
         person.children.add(child)
         link = Link(
             "https://example.com/the-person",
+            id="my-first-link",
             label="The Person Online",
         )
         person.links.add(link)
         person.citations.add(
             Citation(
-                id="the_citation",
+                id="my-first-citation",
                 source=Source(
-                    id="the_source",
+                    id="my-first-source",
                     name="The Source",
                 ),
             )
         )
-        presence = Presence(
+        Presence(
             person,
             Subject(),
             Event(
-                id="the_event",
+                id="my-first-event",
                 event_type=Birth(),
             ),
+            id="my-first-presence",
         )
 
         expected: Mapping[str, Any] = {
@@ -275,63 +273,32 @@ class TestPerson(EntityTestBase):
                 "children": "https://schema.org/child",
                 "siblings": "https://schema.org/sibling",
             },
-            "@id": "https://example.com/person/the_person/index.json",
+            "@id": "https://example.com/person/my-first-person/index.json",
             "@type": "https://schema.org/Person",
-            "id": person_id,
+            "id": "my-first-person",
             "privacy": False,
             "gender": NonBinary.plugin().id,
             "names": [
-                {
-                    "@context": {
-                        "individual": "https://schema.org/givenName",
-                        "affiliation": "https://schema.org/familyName",
-                    },
-                    "id": name.id,
-                    "individual": person_individual_name,
-                    "affiliation": person_affiliation_name,
-                    "locale": "en-US",
-                    "citations": [],
-                    "privacy": False,
-                    "person": "/person/the_person/index.json",
-                },
+                "/person-name/my-first-person-name/index.json",
             ],
             "parents": [
-                "/person/the_parent/index.json",
+                "/person/my-first-parent/index.json",
             ],
             "children": [
-                "/person/the_child/index.json",
+                "/person/my-first-child/index.json",
             ],
             "siblings": [
-                "/person/the_sibling/index.json",
+                "/person/my-first-sibling/index.json",
             ],
             "presences": [
-                {
-                    "id": presence.id,
-                    "role": "subject",
-                    "event": "/event/the_event/index.json",
-                    "person": "/person/the_person/index.json",
-                    "privacy": False,
-                },
+                "/presence/my-first-presence/index.json",
             ],
             "citations": [
-                "/citation/the_citation/index.json",
+                "/citation/my-first-citation/index.json",
             ],
             "notes": [],
             "links": [
-                {
-                    "@context": {"description": "https://schema.org/description"},
-                    "id": link.id,
-                    "url": {
-                        to_language_tag(
-                            default_locale
-                        ): "https://example.com/the-person",
-                    },
-                    "label": {
-                        default_locale_tag: "The Person Online",
-                    },
-                    "owner": "/person/the_person/index.json",
-                    "privacy": False,
-                },
+                "/link/my-first-link/index.json",
             ],
             "fileReferences": [],
         }
@@ -341,49 +308,47 @@ class TestPerson(EntityTestBase):
     async def test_dump_linked_data__should_dump_private(
         self, assert_dumps_linked_data: AssertDumpsLinkedData
     ) -> None:
-        parent_id = "the_parent"
-        parent = Person(id=parent_id)
+        parent = Person(id="my-first-parent")
 
-        child_id = "the_child"
-        child = Person(id=child_id)
+        child = Person(id="my-first-child")
 
-        sibling_id = "the_sibling"
-        sibling = Person(id=sibling_id)
+        sibling = Person(id="my-first-sibling")
         sibling.parents.add(parent)
 
-        person_id = "the_person"
         person_affiliation_name = "Person"
         person_individual_name = "The"
         person = Person(
-            id=person_id,
+            id="my-first-person",
             privacy=Privacy.PRIVATE,
         )
-        name = PersonName(
+        PersonName(
+            id="my-first-person-name",
             person=person,
             individual=person_individual_name,
             affiliation=person_affiliation_name,
         )
         person.parents.add(parent)
         person.children.add(child)
-        link = Link("https://example.com/the-person")
+        link = Link("https://example.com/the-person", id="my-first-link")
         link.label = "The Person Online"
         person.links.add(link)
         person.citations.add(
             Citation(
-                id="the_citation",
+                id="my-first-citation",
                 source=Source(
-                    id="the_source",
+                    id="my-first-source",
                     name="The Source",
                 ),
             )
         )
-        presence = Presence(
+        Presence(
             person,
             Subject(),
             Event(
-                id="the_event",
+                id="my-first-event",
                 event_type=Birth(),
             ),
+            id="my-first-presence",
         )
 
         expected: Mapping[str, Any] = {
@@ -393,47 +358,31 @@ class TestPerson(EntityTestBase):
                 "children": "https://schema.org/child",
                 "siblings": "https://schema.org/sibling",
             },
-            "@id": "https://example.com/person/the_person/index.json",
+            "@id": "https://example.com/person/my-first-person/index.json",
             "@type": "https://schema.org/Person",
-            "id": person_id,
+            "id": "my-first-person",
             "names": [
-                {
-                    "id": name.id,
-                    "citations": [],
-                    "locale": None,
-                    "person": "/person/the_person/index.json",
-                    "privacy": True,
-                }
+                "/person-name/my-first-person-name/index.json",
             ],
             "parents": [
-                "/person/the_parent/index.json",
+                "/person/my-first-parent/index.json",
             ],
             "children": [
-                "/person/the_child/index.json",
+                "/person/my-first-child/index.json",
             ],
             "siblings": [
-                "/person/the_sibling/index.json",
+                "/person/my-first-sibling/index.json",
             ],
             "privacy": True,
             "presences": [
-                {
-                    "id": presence.id,
-                    "event": "/event/the_event/index.json",
-                    "person": "/person/the_person/index.json",
-                    "privacy": True,
-                },
+                "/presence/my-first-presence/index.json",
             ],
             "citations": [
-                "/citation/the_citation/index.json",
+                "/citation/my-first-citation/index.json",
             ],
             "notes": [],
             "links": [
-                {
-                    "@context": {"description": "https://schema.org/description"},
-                    "id": link.id,
-                    "owner": "/person/the_person/index.json",
-                    "privacy": True,
-                }
+                "/link/my-first-link/index.json",
             ],
             "fileReferences": [],
         }

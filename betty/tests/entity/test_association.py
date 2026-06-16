@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING, Self, override
 
 import pytest
 
@@ -32,9 +32,18 @@ from betty.test_utils.locale.localizable import (
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from betty.portable import PortableMapping
     from betty.project import Project
     from betty.test_utils.conftest import AssertDumpsLinkedDataFor
+
+
+class _OwnerBase(Entity):
+    def __init__(self):
+        super().__init__(id="my-first-owner")
+
+
+class _AssociateBase(Entity):
+    def __init__(self):
+        super().__init__(id="my-first-associate")
 
 
 class _PassthroughToOneResolver[EntityT: Entity](ToOneResolver[EntityT]):
@@ -65,38 +74,36 @@ class _PassthroughToManyResolver[EntityT: Entity](ToManyResolver[EntityT]):
 
 
 class TestAssociationRegistry:
-    class _OwnerBase(Entity):
+    class _OwnerSuper(_OwnerBase):
         base_associate = UnidirectionalToZeroOrOne[
-            "TestAssociationRegistry._OwnerBase",
-            "TestAssociationRegistry._Associate",
+            Self, "TestAssociationRegistry._Associate"
         ](
             "betty.tests.entity.test_association:TestAssociationRegistry._Associate",
             label="-",
         )
 
-    class _Owner(_OwnerBase):
+    class _OwnerSub(_OwnerSuper):
         associate = UnidirectionalToZeroOrOne[
-            "TestAssociationRegistry._Owner",
-            "TestAssociationRegistry._Associate",
+            Self, "TestAssociationRegistry._Associate"
         ](
             "betty.tests.entity.test_association:TestAssociationRegistry._Associate",
             label="-",
         )
 
-    class _Associate(Entity):
+    class _Associate(_AssociateBase):
         pass
 
-    def test_get_all_associations__with_base_class_should_return_base_associations(
+    def test_get_all_associations__with_super_class_should_return_base_associations(
         self,
     ) -> None:
-        actual = AssociationRegistry.get_all_associations(self._OwnerBase)
+        actual = AssociationRegistry.get_all_associations(self._OwnerSuper)
         assert len(actual) == 1
         assert (
             len(
                 list(
                     filter(
                         lambda association: (
-                            association.owner_type is self._OwnerBase
+                            association.owner_type is self._OwnerSuper
                             and association.owner_attr_name == "base_associate"
                             and association.associate_type is self._Associate
                         ),
@@ -110,14 +117,14 @@ class TestAssociationRegistry:
     def test_get_all_associations__with_concrete_class_should_return_all_associations(
         self,
     ) -> None:
-        actual = AssociationRegistry.get_all_associations(self._Owner)
+        actual = AssociationRegistry.get_all_associations(self._OwnerSub)
         assert len(actual) == 2
         assert (
             len(
                 list(
                     filter(
                         lambda association: (
-                            association.owner_type is self._OwnerBase
+                            association.owner_type is self._OwnerSuper
                             and association.owner_attr_name == "base_associate"
                             and association.associate_type is self._Associate
                         ),
@@ -132,7 +139,7 @@ class TestAssociationRegistry:
                 list(
                     filter(
                         lambda association: (
-                            association.owner_type is self._Owner
+                            association.owner_type is self._OwnerSub
                             and association.owner_attr_name == "associate"
                             and association.associate_type is self._Associate
                         ),
@@ -146,22 +153,22 @@ class TestAssociationRegistry:
     def test_get_association__with_base_class_should_return_base_association(
         self,
     ) -> None:
-        actual = AssociationRegistry.get_association(self._OwnerBase, "base_associate")
-        assert actual.owner_type is self._OwnerBase
+        actual = AssociationRegistry.get_association(self._OwnerSuper, "base_associate")
+        assert actual.owner_type is self._OwnerSuper
         assert actual.associate_type is self._Associate
 
     def test_get_association__with_concrete_class_should_return_base_association(
         self,
     ) -> None:
-        actual = AssociationRegistry.get_association(self._Owner, "base_associate")
-        assert actual.owner_type is self._OwnerBase
+        actual = AssociationRegistry.get_association(self._OwnerSub, "base_associate")
+        assert actual.owner_type is self._OwnerSuper
         assert actual.associate_type is self._Associate
 
     def test_get_association__with_concrete_class_should_return_concrete_association(
         self,
     ) -> None:
-        actual = AssociationRegistry.get_association(self._Owner, "associate")
-        assert actual.owner_type is self._Owner
+        actual = AssociationRegistry.get_association(self._OwnerSub, "associate")
+        assert actual.owner_type is self._OwnerSub
         assert actual.associate_type is self._Associate
 
 
@@ -172,7 +179,7 @@ class TestUnidirectionalToZeroOrOne:
         label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
-    class _Owner(Entity):
+    class _Owner(_OwnerBase):
         def __init__(
             self,
             associate: ToZeroOrOneAssociate[
@@ -183,55 +190,9 @@ class TestUnidirectionalToZeroOrOne:
             self.associate = associate
 
         associate = UnidirectionalToZeroOrOne[
-            "TestUnidirectionalToZeroOrOne._Owner",
-            "TestUnidirectionalToZeroOrOne._Associate",
+            Self, "TestUnidirectionalToZeroOrOne._Associate"
         ](
             "betty.tests.entity.test_association:TestUnidirectionalToZeroOrOne._Associate",
-            label="-",
-        )
-
-    @EntityDefinition(
-        "owner-embedded",
-        label="-",
-        label_plural="-",
-        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    )
-    class _OwnerEmbedded(Entity):
-        def __init__(
-            self, associate: TestUnidirectionalToZeroOrOne._Associate | None = None
-        ):
-            super().__init__()
-            self.associate = associate
-
-        associate = UnidirectionalToZeroOrOne[
-            "TestUnidirectionalToZeroOrOne._OwnerEmbedded",
-            "TestUnidirectionalToZeroOrOne._Associate",
-        ](
-            "betty.tests.entity.test_association:TestUnidirectionalToZeroOrOne._Associate",
-            label="-",
-            linked_data_embedded=True,
-        )
-
-    @EntityDefinition(
-        "owner-with-non-public-facing-associate",
-        label="-",
-        label_plural="-",
-        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    )
-    class _OwnerWithNonPublicFacingAssociate(Entity):
-        def __init__(
-            self,
-            associate: TestUnidirectionalToZeroOrOne._NonPublicFacingAssociate
-            | None = None,
-        ):
-            super().__init__()
-            self.associate = associate
-
-        associate = UnidirectionalToZeroOrOne[
-            "TestUnidirectionalToZeroOrOne._OwnerWithNonPublicFacingAssociate",
-            "TestUnidirectionalToZeroOrOne._NonPublicFacingAssociate",
-        ](
-            "betty.tests.entity.test_association:TestUnidirectionalToZeroOrOne._NonPublicFacingAssociate",
             label="-",
         )
 
@@ -241,17 +202,7 @@ class TestUnidirectionalToZeroOrOne:
         label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
-    class _Associate(Entity):
-        pass
-
-    @EntityDefinition(
-        "non-public-facing-associate",
-        label="-",
-        label_plural="-",
-        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-        public_facing=False,
-    )
-    class _NonPublicFacingAssociate(Entity):
+    class _Associate(_AssociateBase):
         pass
 
     def test(self) -> None:
@@ -294,58 +245,19 @@ class TestUnidirectionalToZeroOrOne:
     async def test_linked_data_schema_for(self, isolated_project: Project) -> None:
         await self._Owner.associate.linked_data_schema_for(isolated_project)
 
-    async def test_linked_data_schema_for__with_embedded(
-        self, isolated_project: Project
-    ) -> None:
-        await self._OwnerEmbedded.associate.linked_data_schema_for(isolated_project)
-
-    async def test_dump_linked_data_for__with_publishable(
+    async def test_dump_linked_data_for(
         self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
     ) -> None:
-        associate = self._Associate("my-first-associate")
+        associate = self._Associate()
         target = self._Owner(associate)
         actual = await assert_dumps_linked_data_for(type(target).associate, target)
         expected = "/associate/my-first-associate/index.json"
         assert actual == expected
 
-    async def test_dump_linked_data_for__with_generated_id(
-        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
-    ) -> None:
-        associate = self._NonPublicFacingAssociate()
-        target = self._OwnerWithNonPublicFacingAssociate(associate)
-        actual = await assert_dumps_linked_data_for(type(target).associate, target)
-        assert actual is None
-
-    async def test_dump_linked_data_for__with_non_public_facing(
-        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
-    ) -> None:
-        associate = self._NonPublicFacingAssociate("my-first-associate")
-        target = self._OwnerWithNonPublicFacingAssociate(associate)
-        actual = await assert_dumps_linked_data_for(type(target).associate, target)
-        assert actual is None
-
     async def test_dump_linked_data_for__without_associate(
         self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
     ) -> None:
         target = self._Owner()
-        actual = await assert_dumps_linked_data_for(type(target).associate, target)
-        assert actual is None
-
-    async def test_dump_linked_data_for__with_embedded(
-        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
-    ) -> None:
-        associate = self._Associate()
-        target = self._OwnerEmbedded(associate)
-        actual = await assert_dumps_linked_data_for(type(target).associate, target)
-        expected: PortableMapping = {
-            "id": associate.id,
-        }
-        assert actual == expected
-
-    async def test_dump_linked_data_for__with_embedded_without_associate(
-        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
-    ) -> None:
-        target = self._OwnerEmbedded()
         actual = await assert_dumps_linked_data_for(type(target).associate, target)
         assert actual is None
 
@@ -357,7 +269,7 @@ class TestBidirectionalToZeroOrOne:
         label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
-    class _Owner(Entity):
+    class _Owner(_OwnerBase):
         def __init__(
             self,
             associate: ToZeroOrOneAssociate[
@@ -368,58 +280,9 @@ class TestBidirectionalToZeroOrOne:
             self.associate = associate
 
         associate = BidirectionalToZeroOrOne[
-            "TestBidirectionalToZeroOrOne._Owner",
-            "TestBidirectionalToZeroOrOne._Associate",
+            Self, "TestBidirectionalToZeroOrOne._Associate"
         ](
             "betty.tests.entity.test_association:TestBidirectionalToZeroOrOne._Associate",
-            "owner",
-            label="-",
-        )
-
-    @EntityDefinition(
-        "owner-embedded",
-        label="-",
-        label_plural="-",
-        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    )
-    class _OwnerEmbedded(Entity):
-        def __init__(
-            self,
-            associate: TestBidirectionalToZeroOrOne._Associate | None = None,
-        ):
-            super().__init__()
-            self.associate = associate
-
-        associate = BidirectionalToZeroOrOne[
-            "TestBidirectionalToZeroOrOne._OwnerEmbedded",
-            "TestBidirectionalToZeroOrOne._Associate",
-        ](
-            "betty.tests.entity.test_association:TestBidirectionalToZeroOrOne._Associate",
-            "owner",
-            label="-",
-            linked_data_embedded=True,
-        )
-
-    @EntityDefinition(
-        "owner-with-non-public-facing-associate",
-        label="-",
-        label_plural="-",
-        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    )
-    class _OwnerWithNonPublicFacingAssociate(Entity):
-        def __init__(
-            self,
-            associate: TestBidirectionalToZeroOrOne._NonPublicFacingAssociate
-            | None = None,
-        ):
-            super().__init__()
-            self.associate = associate
-
-        associate = BidirectionalToZeroOrOne[
-            "TestBidirectionalToZeroOrOne._OwnerWithNonPublicFacingAssociate",
-            "TestBidirectionalToZeroOrOne._NonPublicFacingAssociate",
-        ](
-            "betty.tests.entity.test_association:TestBidirectionalToZeroOrOne._NonPublicFacingAssociate",
             "owner",
             label="-",
         )
@@ -430,29 +293,9 @@ class TestBidirectionalToZeroOrOne:
         label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
-    class _Associate(Entity):
-        owner = BidirectionalToZeroOrOne[
-            "TestBidirectionalToZeroOrOne._Associate",
-            "TestBidirectionalToZeroOrOne._Owner",
-        ](
+    class _Associate(_AssociateBase):
+        owner = BidirectionalToZeroOrOne[Self, "TestBidirectionalToZeroOrOne._Owner"](
             "betty.tests.entity.test_association:TestBidirectionalToZeroOrOne._Owner",
-            "associate",
-            label="-",
-        )
-
-    @EntityDefinition(
-        "non-public-facing-associate",
-        label="-",
-        label_plural="-",
-        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-        public_facing=False,
-    )
-    class _NonPublicFacingAssociate(Entity):
-        owner = BidirectionalToZeroOrOne[
-            "TestBidirectionalToZeroOrOne._NonPublicFacingAssociate",
-            "TestBidirectionalToZeroOrOne._OwnerWithNonPublicFacingAssociate",
-        ](
-            "betty.tests.entity.test_association:TestBidirectionalToZeroOrOne._OwnerWithNonPublicFacingAssociate",
             "associate",
             label="-",
         )
@@ -502,59 +345,19 @@ class TestBidirectionalToZeroOrOne:
     async def test_linked_data_schema_for(self, isolated_project: Project) -> None:
         await self._Owner.associate.linked_data_schema_for(isolated_project)
 
-    async def test_linked_data_schema_for__with_embedded(
-        self, isolated_project: Project
-    ) -> None:
-        await self._OwnerEmbedded.associate.linked_data_schema_for(isolated_project)
-
-    async def test_dump_linked_data_for__with_publishable(
+    async def test_dump_linked_data_for(
         self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
     ) -> None:
-        associate = self._Associate("my-first-associate")
+        associate = self._Associate()
         target = self._Owner(associate)
         actual = await assert_dumps_linked_data_for(type(target).associate, target)
         expected = "/associate/my-first-associate/index.json"
         assert actual == expected
 
-    async def test_dump_linked_data_for__with_generated_id(
-        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
-    ) -> None:
-        associate = self._NonPublicFacingAssociate()
-        target = self._OwnerWithNonPublicFacingAssociate(associate)
-        actual = await assert_dumps_linked_data_for(type(target).associate, target)
-        assert actual is None
-
-    async def test_dump_linked_data_for__with_non_public_facing(
-        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
-    ) -> None:
-        associate = self._NonPublicFacingAssociate("my-first-associate")
-        target = self._OwnerWithNonPublicFacingAssociate(associate)
-        actual = await assert_dumps_linked_data_for(type(target).associate, target)
-        assert actual is None
-
     async def test_dump_linked_data_for__without_associate(
         self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
     ) -> None:
         target = self._Owner()
-        actual = await assert_dumps_linked_data_for(type(target).associate, target)
-        assert actual is None
-
-    async def test_dump_linked_data_for__with_embedded(
-        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
-    ) -> None:
-        associate = self._Associate()
-        target = self._OwnerEmbedded(associate)
-        actual = await assert_dumps_linked_data_for(type(target).associate, target)
-        expected: PortableMapping = {
-            "id": associate.id,
-            "owner": None,
-        }
-        assert actual == expected
-
-    async def test_dump_linked_data_for__with_embedded_without_associate(
-        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
-    ) -> None:
-        target = self._OwnerEmbedded()
         actual = await assert_dumps_linked_data_for(type(target).associate, target)
         assert actual is None
 
@@ -566,58 +369,15 @@ class TestUnidirectionalToOne:
         label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
-    class _Owner(Entity):
+    class _Owner(_OwnerBase):
         def __init__(
             self, associate: ToOneAssociate[TestUnidirectionalToOne._Associate]
         ):
             super().__init__()
             self.associate = associate
 
-        associate = UnidirectionalToOne[
-            "TestUnidirectionalToOne._Owner", "TestUnidirectionalToOne._Associate"
-        ](
+        associate = UnidirectionalToOne[Self, "TestUnidirectionalToOne._Associate"](
             "betty.tests.entity.test_association:TestUnidirectionalToOne._Associate",
-            label="-",
-        )
-
-    @EntityDefinition(
-        "owner-embedded",
-        label="-",
-        label_plural="-",
-        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    )
-    class _OwnerEmbedded(Entity):
-        def __init__(self, associate: TestUnidirectionalToOne._Associate):
-            super().__init__()
-            self.associate = associate
-
-        associate = UnidirectionalToOne[
-            "TestUnidirectionalToOne._OwnerEmbedded",
-            "TestUnidirectionalToOne._Associate",
-        ](
-            "betty.tests.entity.test_association:TestUnidirectionalToOne._Associate",
-            label="-",
-            linked_data_embedded=True,
-        )
-
-    @EntityDefinition(
-        "owner-with-non-public-facing-associate",
-        label="-",
-        label_plural="-",
-        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    )
-    class _OwnerWithNonPublicFacingAssociate(Entity):
-        def __init__(
-            self, associate: TestUnidirectionalToOne._NonPublicFacingAssociate
-        ):
-            super().__init__()
-            self.associate = associate
-
-        associate = UnidirectionalToOne[
-            "TestUnidirectionalToOne._OwnerWithNonPublicFacingAssociate",
-            "TestUnidirectionalToOne._NonPublicFacingAssociate",
-        ](
-            "betty.tests.entity.test_association:TestUnidirectionalToOne._NonPublicFacingAssociate",
             label="-",
         )
 
@@ -627,17 +387,7 @@ class TestUnidirectionalToOne:
         label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
-    class _Associate(Entity):
-        pass
-
-    @EntityDefinition(
-        "non-public-facing-associate",
-        label="-",
-        label_plural="-",
-        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-        public_facing=False,
-    )
-    class _NonPublicFacingAssociate(Entity):
+    class _Associate(_AssociateBase):
         pass
 
     def test(self) -> None:
@@ -657,45 +407,13 @@ class TestUnidirectionalToOne:
     async def test_linked_data_schema_for(self, isolated_project: Project) -> None:
         await self._Owner.associate.linked_data_schema_for(isolated_project)
 
-    async def test_linked_data_schema_for__with_embedded(
-        self, isolated_project: Project
-    ) -> None:
-        await self._OwnerEmbedded.associate.linked_data_schema_for(isolated_project)
-
-    async def test_dump_linked_data_for__with_publishable(
-        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
-    ) -> None:
-        associate = self._Associate("my-first-associate")
-        target = self._Owner(associate)
-        actual = await assert_dumps_linked_data_for(type(target).associate, target)
-        expected = "/associate/my-first-associate/index.json"
-        assert actual == expected
-
-    async def test_dump_linked_data_for__with_generated_id(
-        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
-    ) -> None:
-        associate = self._NonPublicFacingAssociate()
-        target = self._OwnerWithNonPublicFacingAssociate(associate)
-        actual = await assert_dumps_linked_data_for(type(target).associate, target)
-        assert actual is None
-
-    async def test_dump_linked_data_for__with_non_public_facing(
-        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
-    ) -> None:
-        associate = self._NonPublicFacingAssociate("my-first-associate")
-        target = self._OwnerWithNonPublicFacingAssociate(associate)
-        actual = await assert_dumps_linked_data_for(type(target).associate, target)
-        assert actual is None
-
-    async def test_dump_linked_data_for__with_embedded(
+    async def test_dump_linked_data_for(
         self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
     ) -> None:
         associate = self._Associate()
-        target = self._OwnerEmbedded(associate)
+        target = self._Owner(associate)
         actual = await assert_dumps_linked_data_for(type(target).associate, target)
-        expected: PortableMapping = {
-            "id": associate.id,
-        }
+        expected = "/associate/my-first-associate/index.json"
         assert actual == expected
 
 
@@ -706,16 +424,14 @@ class TestBidirectionalToOne:
         label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
-    class _Owner(Entity):
+    class _Owner(_OwnerBase):
         def __init__(
             self, associate: ToOneAssociate[TestBidirectionalToOne._Associate]
         ):
             super().__init__()
             self.associate = associate
 
-        associate = BidirectionalToOne[
-            "TestBidirectionalToOne._Owner", "TestBidirectionalToOne._Associate"
-        ](
+        associate = BidirectionalToOne[Self, "TestBidirectionalToOne._Associate"](
             "betty.tests.entity.test_association:TestBidirectionalToOne._Associate",
             "owner",
             label="-",
@@ -727,85 +443,9 @@ class TestBidirectionalToOne:
         label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
-    class _Associate(Entity):
-        owner = BidirectionalToZeroOrOne[
-            "TestBidirectionalToOne._Associate", "TestBidirectionalToOne._Owner"
-        ](
+    class _Associate(_AssociateBase):
+        owner = BidirectionalToZeroOrOne[Self, "TestBidirectionalToOne._Owner"](
             "betty.tests.entity.test_association:TestBidirectionalToOne._Owner",
-            "associate",
-            label="-",
-        )
-
-    @EntityDefinition(
-        "owner-embedded",
-        label="-",
-        label_plural="-",
-        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    )
-    class _OwnerEmbedded(Entity):
-        def __init__(self, associate: TestBidirectionalToOne._AssociateEmbedded):
-            super().__init__()
-            self.associate = associate
-
-        associate = BidirectionalToOne[
-            "TestBidirectionalToOne._OwnerEmbedded",
-            "TestBidirectionalToOne._AssociateEmbedded",
-        ](
-            "betty.tests.entity.test_association:TestBidirectionalToOne._AssociateEmbedded",
-            "owner",
-            label="-",
-            linked_data_embedded=True,
-        )
-
-    @EntityDefinition(
-        "associate-embedded",
-        label="-",
-        label_plural="-",
-        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    )
-    class _AssociateEmbedded(Entity):
-        owner = BidirectionalToZeroOrOne[
-            "TestBidirectionalToOne._AssociateEmbedded",
-            "TestBidirectionalToOne._OwnerEmbedded",
-        ](
-            "betty.tests.entity.test_association:TestBidirectionalToOne._OwnerEmbedded",
-            "associate",
-            label="-",
-        )
-
-    @EntityDefinition(
-        "owner-with-non-public-facing-associate",
-        label="-",
-        label_plural="-",
-        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    )
-    class _OwnerWithNonPublicFacingAssociate(Entity):
-        def __init__(self, associate: TestBidirectionalToOne._NonPublicFacingAssociate):
-            super().__init__()
-            self.associate = associate
-
-        associate = BidirectionalToOne[
-            "TestBidirectionalToOne._OwnerWithNonPublicFacingAssociate",
-            "TestBidirectionalToOne._NonPublicFacingAssociate",
-        ](
-            "betty.tests.entity.test_association:TestBidirectionalToOne._NonPublicFacingAssociate",
-            "owner",
-            label="-",
-        )
-
-    @EntityDefinition(
-        "non-public-facing-associate",
-        label="-",
-        label_plural="-",
-        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-        public_facing=False,
-    )
-    class _NonPublicFacingAssociate(Entity):
-        owner = BidirectionalToZeroOrOne[
-            "TestBidirectionalToOne._NonPublicFacingAssociate",
-            "TestBidirectionalToOne._OwnerWithNonPublicFacingAssociate",
-        ](
-            "betty.tests.entity.test_association:TestBidirectionalToOne._OwnerWithNonPublicFacingAssociate",
             "associate",
             label="-",
         )
@@ -828,46 +468,13 @@ class TestBidirectionalToOne:
     async def test_linked_data_schema_for(self, isolated_project: Project) -> None:
         await self._Owner.associate.linked_data_schema_for(isolated_project)
 
-    async def test_linked_data_schema_for__with_embedded(
-        self, isolated_project: Project
-    ) -> None:
-        await self._OwnerEmbedded.associate.linked_data_schema_for(isolated_project)
-
-    async def test_dump_linked_data_for__with_publishable(
+    async def test_dump_linked_data_for(
         self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
     ) -> None:
-        associate = self._Associate("my-first-associate")
+        associate = self._Associate()
         target = self._Owner(associate)
         actual = await assert_dumps_linked_data_for(type(target).associate, target)
         expected = "/associate/my-first-associate/index.json"
-        assert actual == expected
-
-    async def test_dump_linked_data_for__with_generated_id(
-        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
-    ) -> None:
-        associate = self._NonPublicFacingAssociate()
-        target = self._OwnerWithNonPublicFacingAssociate(associate)
-        actual = await assert_dumps_linked_data_for(type(target).associate, target)
-        assert actual is None
-
-    async def test_dump_linked_data_for__with_non_public_facing(
-        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
-    ) -> None:
-        associate = self._NonPublicFacingAssociate("my-first-associate")
-        target = self._OwnerWithNonPublicFacingAssociate(associate)
-        actual = await assert_dumps_linked_data_for(type(target).associate, target)
-        assert actual is None
-
-    async def test_dump_linked_data_for__with_embedded(
-        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
-    ) -> None:
-        associate = self._AssociateEmbedded()
-        target = self._OwnerEmbedded(associate)
-        actual = await assert_dumps_linked_data_for(type(target).associate, target)
-        expected: PortableMapping = {
-            "id": associate.id,
-            "owner": None,
-        }
         assert actual == expected
 
 
@@ -878,29 +485,12 @@ class TestUnidirectionalToManySingleType:
         label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
-    class _Owner(Entity):
+    class _Owner(_OwnerBase):
         associates = UnidirectionalToManySingleType[
-            "TestUnidirectionalToManySingleType._Owner",
-            "TestUnidirectionalToManySingleType._Associate",
+            Self, "TestUnidirectionalToManySingleType._Associate"
         ](
             "betty.tests.entity.test_association:TestUnidirectionalToManySingleType._Associate",
             label="-",
-        )
-
-    @EntityDefinition(
-        "owner-embedded",
-        label="-",
-        label_plural="-",
-        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    )
-    class _OwnerEmbedded(Entity):
-        associates = UnidirectionalToManySingleType[
-            "TestUnidirectionalToManySingleType._OwnerEmbedded",
-            "TestUnidirectionalToManySingleType._Associate",
-        ](
-            "betty.tests.entity.test_association:TestUnidirectionalToManySingleType._Associate",
-            label="-",
-            linked_data_embedded=True,
         )
 
     @EntityDefinition(
@@ -909,17 +499,7 @@ class TestUnidirectionalToManySingleType:
         label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
-    class _Associate(Entity):
-        pass
-
-    @EntityDefinition(
-        "non-public-facing-associate",
-        label="-",
-        label_plural="-",
-        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-        public_facing=False,
-    )
-    class _NonPublicFacingAssociate(_Associate):
+    class _Associate(_AssociateBase):
         pass
 
     def test(self) -> None:
@@ -943,64 +523,21 @@ class TestUnidirectionalToManySingleType:
     async def test_linked_data_schema_for(self, isolated_project: Project) -> None:
         await self._Owner.associates.linked_data_schema_for(isolated_project)
 
-    async def test_linked_data_schema_for__with_embedded(
-        self, isolated_project: Project
-    ) -> None:
-        await self._OwnerEmbedded.associates.linked_data_schema_for(isolated_project)
-
     async def test_dump_linked_data_for(
         self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
     ) -> None:
-        publishable_associate = self._NonPublicFacingAssociate(
-            "my-first-non-public-facing-associate"
-        )
-        unpublishable_associate_because_generated_id = self._Associate(
-            "my-first-associate"
-        )
-        unpublishable_associate_because_not_public_facing = (
-            self._NonPublicFacingAssociate()
-        )
+        associate = self._Associate()
         target = self._Owner()
-        target.associates = [
-            publishable_associate,
-            unpublishable_associate_because_generated_id,
-            unpublishable_associate_because_not_public_facing,
-        ]
+        target.associates = [associate]
         actual = await assert_dumps_linked_data_for(type(target).associates, target)
         expected = ["/associate/my-first-associate/index.json"]
         assert actual == expected
 
-    async def test_dump_linked_data_for__with_embedded(
-        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
-    ) -> None:
-        associate_one = self._Associate("my-first-publishable-associate")
-        associate_two = self._NonPublicFacingAssociate()
-        associate_three = self._NonPublicFacingAssociate(
-            "my-first-non-public-facing-associate"
-        )
-        target = self._OwnerEmbedded()
-        target.associates = [associate_one, associate_two, associate_three]
-        actual = await assert_dumps_linked_data_for(type(target).associates, target)
-        expected = [
-            {
-                "@id": "https://example.com/associate/my-first-publishable-associate/index.json",
-                "id": associate_one.id,
-            },
-            {
-                "id": associate_two.id,
-            },
-            {
-                "id": associate_three.id,
-            },
-        ]
-        assert actual == expected
-
 
 class TestUnidirectionalToManyMultipleTypes:
-    class _Owner(Entity):
+    class _Owner(_OwnerBase):
         associates = UnidirectionalToManyMultipleTypes[
-            "TestUnidirectionalToManyMultipleTypes._Owner",
-            "TestUnidirectionalToManyMultipleTypes._TargetMixin",
+            Self, "TestUnidirectionalToManyMultipleTypes._TargetMixin"
         ](
             "betty.tests.entity.test_association:TestUnidirectionalToManyMultipleTypes._TargetMixin",
             label="-",
@@ -1008,8 +545,7 @@ class TestUnidirectionalToManyMultipleTypes:
 
     class _TargetMixin(Entity):
         owner = UnidirectionalToZeroOrOne[
-            "TestUnidirectionalToManyMultipleTypes._TargetMixin",
-            "TestUnidirectionalToManyMultipleTypes._Owner",
+            Self, "TestUnidirectionalToManyMultipleTypes._Owner"
         ](
             "betty.tests.entity.test_association:TestUnidirectionalToManyMultipleTypes._Owner",
             label="Owner",
@@ -1054,10 +590,9 @@ class TestBidirectionalToManySingleType:
         label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
-    class _Owner(Entity):
+    class _Owner(_OwnerBase):
         associates = BidirectionalToManySingleType[
-            "TestBidirectionalToManySingleType._Owner",
-            "TestBidirectionalToManySingleType._Associate",
+            Self, "TestBidirectionalToManySingleType._Associate"
         ](
             "betty.tests.entity.test_association:TestBidirectionalToManySingleType._Associate",
             "owner",
@@ -1070,88 +605,11 @@ class TestBidirectionalToManySingleType:
         label_plural="-",
         label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
-    class _Associate(Entity):
+    class _Associate(_AssociateBase):
         owner = BidirectionalToZeroOrOne[
-            "TestBidirectionalToManySingleType._Associate",
-            "TestBidirectionalToManySingleType._Owner",
+            Self, "TestBidirectionalToManySingleType._Owner"
         ](
             "betty.tests.entity.test_association:TestBidirectionalToManySingleType._Owner",
-            "associates",
-            label="-",
-        )
-
-    @EntityDefinition(
-        "owner-embedded",
-        label="-",
-        label_plural="-",
-        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    )
-    class _OwnerEmbedded(Entity):
-        associates = BidirectionalToManySingleType[
-            "TestBidirectionalToManySingleType._OwnerEmbedded",
-            "TestBidirectionalToManySingleType._AssociateEmbedded",
-        ](
-            "betty.tests.entity.test_association:TestBidirectionalToManySingleType._AssociateEmbedded",
-            "owner",
-            label="-",
-            linked_data_embedded=True,
-        )
-
-    @EntityDefinition(
-        "associate-embedded",
-        label="-",
-        label_plural="-",
-        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    )
-    class _AssociateEmbedded(Entity):
-        owner = BidirectionalToZeroOrOne[
-            "TestBidirectionalToManySingleType._AssociateEmbedded",
-            "TestBidirectionalToManySingleType._OwnerEmbedded",
-        ](
-            "betty.tests.entity.test_association:TestBidirectionalToManySingleType._OwnerEmbedded",
-            "associates",
-            label="-",
-        )
-
-    @EntityDefinition(
-        "non-public-facing-associate-embedded",
-        label="-",
-        label_plural="-",
-        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-        public_facing=False,
-    )
-    class _NonPublicFacingAssociateEmbedded(_AssociateEmbedded):
-        pass
-
-    @EntityDefinition(
-        "owner-with-non-public-facing-associate",
-        label="-",
-        label_plural="-",
-        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    )
-    class _OwnerWithNonPublicFacingAssociate(Entity):
-        associates = BidirectionalToManySingleType[
-            "TestBidirectionalToManySingleType._OwnerWithNonPublicFacingAssociate",
-            "TestBidirectionalToManySingleType._NonPublicFacingAssociate",
-        ](
-            "betty.tests.entity.test_association:TestBidirectionalToManySingleType._NonPublicFacingAssociate",
-            "owner",
-            label="-",
-        )
-
-    @EntityDefinition(
-        "non-public-facing-associate",
-        label="-",
-        label_plural="-",
-        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-        public_facing=False,
-    )
-    class _NonPublicFacingAssociate(Entity):
-        owner = BidirectionalToZeroOrOne[
-            "TestBidirectionalToManySingleType._NonPublicFacingAssociate",
-            "TestBidirectionalToManySingleType._OwnerWithNonPublicFacingAssociate",
-        ](
-            "betty.tests.entity.test_association:TestBidirectionalToManySingleType._OwnerWithNonPublicFacingAssociate",
             "associates",
             label="-",
         )
@@ -1180,91 +638,21 @@ class TestBidirectionalToManySingleType:
     async def test_linked_data_schema_for(self, isolated_project: Project) -> None:
         await self._Owner.associates.linked_data_schema_for(isolated_project)
 
-    async def test_linked_data_schema_for__with_embedded(
-        self, isolated_project: Project
-    ) -> None:
-        await self._OwnerEmbedded.associates.linked_data_schema_for(isolated_project)
-
-    async def test_dump_linked_data_for__with_publishable(
-        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
-    ) -> None:
-        associate = self._Associate("my-first-associate")
-        target = self._Owner()
-        target.associates = [associate]
-        actual = await assert_dumps_linked_data_for(type(target).associates, target)
-        expected = ["/associate/my-first-associate/index.json"]
-        assert actual == expected
-
-    async def test_dump_linked_data_for__with_generated_id(
+    async def test_dump_linked_data_for(
         self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
     ) -> None:
         associate = self._Associate()
         target = self._Owner()
         target.associates = [associate]
         actual = await assert_dumps_linked_data_for(type(target).associates, target)
-        assert actual == []
-
-    async def test_dump_linked_data_for__with_non_public_facing(
-        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
-    ) -> None:
-        associate = self._NonPublicFacingAssociate("my-first-associate")
-        target = self._OwnerWithNonPublicFacingAssociate()
-        target.associates = [associate]
-        actual = await assert_dumps_linked_data_for(type(target).associates, target)
-        assert actual == []
-
-    async def test_dump_linked_data_for__with_embedded_with_publishable(
-        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
-    ) -> None:
-        associate = self._AssociateEmbedded("my-first-associate")
-        target = self._OwnerEmbedded()
-        target.associates = [associate]
-        actual = await assert_dumps_linked_data_for(type(target).associates, target)
-        expected = [
-            {
-                "@id": "https://example.com/associate-embedded/my-first-associate/index.json",
-                "id": associate.id,
-                "owner": None,
-            }
-        ]
-        assert actual == expected
-
-    async def test_dump_linked_data_for__with_embedded_with_generated_id(
-        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
-    ) -> None:
-        associate = self._AssociateEmbedded()
-        target = self._OwnerEmbedded()
-        target.associates = [associate]
-        actual = await assert_dumps_linked_data_for(type(target).associates, target)
-        expected = [
-            {
-                "id": associate.id,
-                "owner": None,
-            },
-        ]
-        assert actual == expected
-
-    async def test_dump_linked_data_for__with_embedded_with_non_public_facing(
-        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
-    ) -> None:
-        associate = self._NonPublicFacingAssociateEmbedded("my-first-associate")
-        target = self._OwnerEmbedded()
-        target.associates = [associate]
-        actual = await assert_dumps_linked_data_for(type(target).associates, target)
-        expected = [
-            {
-                "id": associate.id,
-                "owner": None,
-            },
-        ]
+        expected = ["/associate/my-first-associate/index.json"]
         assert actual == expected
 
 
 class TestBidirectionalToManyMultipleTypes:
-    class _Owner(Entity):
+    class _Owner(_OwnerBase):
         associates = BidirectionalToManyMultipleTypes[
-            "TestBidirectionalToManyMultipleTypes._Owner",
-            "TestBidirectionalToManyMultipleTypes._TargetMixin",
+            Self, "TestBidirectionalToManyMultipleTypes._TargetMixin"
         ](
             "betty.tests.entity.test_association:TestBidirectionalToManyMultipleTypes._TargetMixin",
             "owner",
@@ -1273,8 +661,7 @@ class TestBidirectionalToManyMultipleTypes:
 
     class _TargetMixin(Entity):
         owner = BidirectionalToZeroOrOne[
-            "TestBidirectionalToManyMultipleTypes._TargetMixin",
-            "TestBidirectionalToManyMultipleTypes._Owner",
+            Self, "TestBidirectionalToManyMultipleTypes._Owner"
         ](
             "betty.tests.entity.test_association:TestBidirectionalToManyMultipleTypes._Owner",
             "associates",
@@ -1314,15 +701,13 @@ class TestBidirectionalToManyMultipleTypes:
 
 
 class TestAssociationRequired:
-    class _Owner(Entity):
-        associate = UnidirectionalToOne[
-            "TestAssociationRequired._Owner", "TestAssociationRequired._Associate"
-        ](
+    class _Owner(_OwnerBase):
+        associate = UnidirectionalToOne[Self, "TestAssociationRequired._Associate"](
             "betty.tests.entity.test_association:TestAssociationRequired._Associate",
             label="-",
         )
 
-    class _Associate(Entity):
+    class _Associate(_AssociateBase):
         pass
 
     def test_new(self) -> None:

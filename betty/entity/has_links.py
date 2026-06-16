@@ -23,7 +23,6 @@ class HasLinks(Entity):
         "betty.entities.link:Link",
         "owner",
         label=_("Links"),
-        linked_data_embedded=True,
     )
 
     def __init__(self, *args: Any, links: ToManyAssociates[Link] = (), **kwargs: Any):

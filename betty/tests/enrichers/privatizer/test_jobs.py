@@ -21,21 +21,21 @@ if TYPE_CHECKING:
 
 class TestPrivatizeAncestry:
     async def test_do(self, isolated_project_factory: IsolatedProjectFactory) -> None:
-        person = Person(id="P0")
+        person = Person(id="my-first-person")
         Presence(person, Subject(), Event(event_type=Birth()))
 
-        source_file = File(id="F0", path=__file__)
+        source_file = File(id="my-first-file", path=__file__)
         source = Source(
-            id="S0",
+            id="my-first-source",
             name="The Source",
             privacy=Privacy.PRIVATE,
         )
         FileReference(source, source_file)
 
-        citation_file = File(id="F0", path=__file__)
+        citation_file = File(id="my-first-file", path=__file__)
         citation_source = Source("The Source")
         citation = Citation(
-            id="C0",
+            id="my-first-citation",
             source=citation_source,
             privacy=Privacy.PRIVATE,
         )

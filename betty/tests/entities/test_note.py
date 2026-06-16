@@ -30,9 +30,8 @@ class TestNote(EntityTestBase):
         assert sut.entity is entity
 
     def test_id(self) -> None:
-        note_id = "N1"
-        sut = Note("Betty wrote this.", id=note_id)
-        assert sut.id == note_id
+        sut = Note("Betty wrote this.", id="my-first-note")
+        assert sut.id == "my-first-note"
 
     def test_text(self) -> None:
         text = "Betty wrote this."
@@ -48,11 +47,11 @@ class TestNote(EntityTestBase):
     async def test_dump_linked_data__should_dump_full(
         self, assert_dumps_linked_data: AssertDumpsLinkedData
     ) -> None:
-        note = Note("The Note", id="the_note")
+        note = Note("The Note", id="my-first-note")
         expected: Mapping[str, Any] = {
-            "@id": "https://example.com/note/the_note/index.json",
+            "@id": "https://example.com/note/my-first-note/index.json",
             "@type": "https://schema.org/Thing",
-            "id": "the_note",
+            "id": "my-first-note",
             "privacy": False,
             "text": {default_locale_tag: "The Note"},
             "entity": None,
@@ -66,13 +65,13 @@ class TestNote(EntityTestBase):
     ) -> None:
         note = Note(
             "The Note",
-            id="the_note",
+            id="my-first-note",
             privacy=Privacy.PRIVATE,
         )
         expected: Mapping[str, Any] = {
-            "@id": "https://example.com/note/the_note/index.json",
+            "@id": "https://example.com/note/my-first-note/index.json",
             "@type": "https://schema.org/Thing",
-            "id": "the_note",
+            "id": "my-first-note",
             "privacy": True,
             "links": [],
             "entity": None,

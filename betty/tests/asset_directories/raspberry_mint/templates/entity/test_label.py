@@ -23,8 +23,8 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
 
 
 async def test_with_persistent_id(assert_template_file: AssertTemplateFile) -> None:
-    entity = Event(id="E0")
-    expected = f'<a href="/event/{entity.public_id}/index.html"><span lang="und" dir="auto">Unknown</span></a>'
+    entity = Event(id="my-first-event")
+    expected = f'<a href="/event/{entity.id}/index.html"><span lang="und" dir="auto">Unknown</span></a>'
     async with assert_template_file(
         data={
             "entity": entity,
@@ -36,7 +36,7 @@ async def test_with_persistent_id(assert_template_file: AssertTemplateFile) -> N
 
 
 async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
-    entity = Event(id="E0")
+    entity = Event(id="my-first-event")
     expected = '<span lang="und" dir="auto">Unknown</span>'
     async with assert_template_file(
         data={
