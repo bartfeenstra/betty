@@ -17,20 +17,18 @@ from betty.concurrent import max_strands
 from betty.job import Context
 from betty.job.executor.threading import ThreadPoolExecutor
 from betty.job.scheduler.default import DefaultScheduler
-from betty.project.generate.jobs import (
-    GenerateEntitiesHtml,
-    GenerateEntitiesJson,
-    GenerateEntityTypesHtml,
-    GenerateEntityTypesJson,
-    GenerateFavicon,
-    GenerateJsonErrorResponses,
-    GenerateJsonSchema,
-    GenerateLocalizedPublicAssets,
-    GenerateOpenApi,
-    GenerateRobotsTxt,
-    GenerateSitemap,
-    GenerateStaticPublicAssets,
-)
+from betty.jobs.generate_entities_html import GenerateEntitiesHtml
+from betty.jobs.generate_entities_json import GenerateEntitiesJson
+from betty.jobs.generate_entity_types_html import GenerateEntityTypesHtml
+from betty.jobs.generate_entity_types_json import GenerateEntityTypesJson
+from betty.jobs.generate_favicon import GenerateFavicon
+from betty.jobs.generate_json_error_responses import GenerateJsonErrorResponses
+from betty.jobs.generate_json_schema import GenerateJsonSchema
+from betty.jobs.generate_localized_public_assets import GenerateLocalizedPublicAssets
+from betty.jobs.generate_openapi import GenerateOpenapi
+from betty.jobs.generate_robots_txt import GenerateRobotsTxt
+from betty.jobs.generate_sitemap import GenerateSitemap
+from betty.jobs.generate_static_public_assets import GenerateStaticPublicAssets
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -78,7 +76,7 @@ async def generate(project: Project, *, context: Context | None = None) -> None:
             GenerateStaticPublicAssets(project=project),
             GenerateSitemap(project=project),
             GenerateRobotsTxt(project=project),
-            GenerateOpenApi(project=project),
+            GenerateOpenapi(project=project),
             GenerateLocalizedPublicAssets(project=project),
             GenerateJsonSchema(project=project),
             GenerateJsonErrorResponses(project=project),

@@ -12,9 +12,9 @@ from betty.css_resources.webpack import WEBPACK as WEBPACK_CSS_RESOURCE
 from betty.extension import Extension, ExtensionDefinition
 from betty.extensions.webpack import build
 from betty.extensions.webpack.build import EntryPointProvider
-from betty.extensions.webpack.jobs import _GenerateAssets
 from betty.factory import Manufacturable
 from betty.jinja_filters.webpack_entry_point_js import WebpackEntryPointJs
+from betty.jobs._generate_webpack_assets import _GenerateWebpackAssets
 from betty.js_resources.webpack_entry_point_loader import WEBPACK_ENTRY_POINT_LOADER
 from betty.project import Project
 from betty.project.generate import Generator
@@ -54,7 +54,7 @@ class Webpack(Generator, Extension, ServiceProvider, Manufacturable):
     @override
     async def generate(self, scheduler: Scheduler) -> None:
         await scheduler.add(
-            _GenerateAssets(
+            _GenerateWebpackAssets(
                 builder=await self.builder,
                 cache_directory=self._project.binary_file_cache.with_scope(
                     "webpack"

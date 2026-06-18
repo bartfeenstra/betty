@@ -275,16 +275,18 @@ class RaspberryMint(
 
     @override
     async def generate(self, scheduler: Scheduler) -> None:
-        from betty.extensions.raspberry_mint.jobs import (
-            _GenerateLogo,
-            _GenerateSearchIndex,
-            _GenerateWebmanifest,
+        from betty.jobs._generate_raspberry_mint_search_index import (
+            _GenerateRaspberryMintSearchIndex,
         )
+        from betty.jobs._generate_raspberry_mint_webmanifest import (
+            _GenerateRaspberryMintWebmanifest,
+        )
+        from betty.jobs.generate_logo import GenerateLogo
 
         await scheduler.add(
-            _GenerateLogo(project=self._project),
-            _GenerateSearchIndex(project=self._project),
-            _GenerateWebmanifest(project=self._project),
+            GenerateLogo(project=self._project),
+            _GenerateRaspberryMintSearchIndex(project=self._project),
+            _GenerateRaspberryMintWebmanifest(project=self._project),
         )
 
     @override

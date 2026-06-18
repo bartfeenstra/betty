@@ -6,8 +6,8 @@ import pytest
 
 from betty.job import Context
 from betty.job.scheduler.default import DefaultScheduler
+from betty.jobs.no_op import NoOp
 from betty.progress import Progress
-from betty.test_utils.job import NoOpJob
 from betty.test_utils.job.scheduler import SchedulerTestBase
 from betty.user.no_op import NoOpUser
 
@@ -39,7 +39,7 @@ class TestDefaultScheduler(SchedulerTestBase):
         async with DefaultScheduler(
             context=Context(progress=progress), user=NoOpUser()
         ) as sut:
-            await sut.add(NoOpJob("job"))
+            await sut.add(NoOp("job"))
             assert progress.total == 1
             batch = await sut.get()
             await batch()
