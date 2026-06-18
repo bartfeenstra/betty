@@ -17,7 +17,7 @@ jobs:
             python: '3.14'
     steps:
       - name: Check out the source code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Get the pip cache directory
         run: echo "pip_cache_dir=$(pip cache dir)" >> $GITHUB_ENV
