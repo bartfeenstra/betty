@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from asyncio import create_task, sleep
 from collections.abc import Callable, Iterator, MutableSequence
-from typing import TYPE_CHECKING, cast, final, override
+from typing import TYPE_CHECKING, cast, override
 
 import pytest
 
@@ -23,6 +23,8 @@ from betty.job.scheduler import (
     Scheduler,
     UnknownJobError,
 )
+from betty.jobs.raise_exception import RaiseException
+from betty.jobs.sleep import Sleep
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
@@ -102,41 +104,6 @@ class _Job(Job):
                 await scheduler.add(additional_job(self.carrier))
         if self.carrier is not None:
             self.carrier.append(self)
-
-
-@final
-class Sleep(Job):
-    """
-    A job that sleeps for a long, long time.
-    """
-
-    @override
-    async def do(self, scheduler: Scheduler, /) -> None:
-        await sleep(999999999)
-
-
-class Raise(Job):
-    """
-    A job that raises an exception.
-    """
-
-    def __init__(
-        self,
-        job_id: str,
-        *,
-        reason: BaseException,
-        dependencies: Iterable[str] = (),
-        dependents: Iterable[str] = (),
-        priority: bool = False,
-    ):
-        super().__init__(
-            job_id, dependencies=dependencies, dependents=dependents, priority=priority
-        )
-        self._reason = reason
-
-    @override
-    async def do(self, scheduler: Scheduler, /) -> None:
-        raise self._reason
 
 
 class SchedulerTestBase:
@@ -363,7 +330,7 @@ class SchedulerTestBase:
         Tests :py:meth:`betty.job.scheduler.Scheduler.get` implementations.
         """
         reason = RuntimeError()
-        await sut.add(Raise("", reason=reason))
+        await sut.add(RaiseException("", reason=reason))
         with pytest.raises(Cancelled) as exc_info:  # noqa: PT012
             async with sut:
                 batch = await sut.get()

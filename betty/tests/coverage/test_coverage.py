@@ -311,6 +311,18 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Released": MissingReason.STATIC_CONTENT_ONLY,
         "Scheduler": MissingReason.ABSTRACT,
     },
+    "betty/jobs/generate_logo.py": {
+        "GenerateLogo": MissingReason.SHOULD_BE_COVERED,
+    },
+    "betty/jobs/no_op.py": {
+        "NoOp": MissingReason.SHOULD_BE_COVERED,
+    },
+    "betty/jobs/raise_exception.py": {
+        "RaiseException": MissingReason.SHOULD_BE_COVERED,
+    },
+    "betty/jobs/sleep.py": {
+        "Sleep": MissingReason.SHOULD_BE_COVERED,
+    },
     "betty/js_resources/webpack_entry_point_loader.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/json_schema.py": {
         "Schema": {
@@ -350,7 +362,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "EnricherDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "EnricherManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/loaders/gramps/__init__.py": {
+    "betty/loaders/gramps.py": {
         "FamilyTree": {
             "event_types": MissingReason.INHERITED,
             "file": MissingReason.INHERITED,
@@ -433,12 +445,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "CopyrightNoticeDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "CopyrightNoticeManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/enrichers/privatizer/__init__.py": {
+    "betty/enrichers/privatizer.py": {
         "Privatizer": {
             "enrich": MissingReason.SHOULD_BE_COVERED,
         },
     },
-    "betty/enrichers/wiki/__init__.py": {
+    "betty/enrichers/wiki.py": {
         "WikiData": {
             "populate_images": MissingReason.SHOULD_BE_COVERED,
         },
@@ -620,7 +632,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "value": MissingReason.INHERITED,
         },
     },
-    "betty/extensions/trees/__init__.py": {
+    "betty/extensions/trees.py": {
         "Trees": {
             "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
         },

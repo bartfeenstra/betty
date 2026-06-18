@@ -1,16 +1,16 @@
-"""Integrate Betty with `Leaflet.js <https://leafletjs.com/>`_."""
+"""Provide interactive family trees by integrating Betty with `Cytoscape.js <https://cytoscape.org/>`_."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.asset_directories.maps import maps
+from betty.asset_directories.trees import trees
 from betty.dirs import webpack_entry_point_directory
 from betty.extension import ExtensionDefinition
 from betty.extensions.webpack import Webpack
 from betty.extensions.webpack.build import EntryPointProvider
 from betty.factory import Manufacturable
-from betty.jobs._generate_maps_place_previews import _GenerateMapsPlacePreviews
+from betty.jobs._generate_trees_people_json import _GenerateTreesPeopleJson
 from betty.locale.localizable.gettext import _
 from betty.project import Project
 from betty.project.generate import Generator
@@ -24,17 +24,17 @@ if TYPE_CHECKING:
 
 @final
 @ExtensionDefinition(
-    "maps",
-    label="Maps",
-    description=_("Display interactive maps"),
+    "trees",
+    label="Trees",
+    description=_("Display interactive family trees using Cytoscape."),
     requires={
-        Project.asset_directories.require(maps),
+        Project.asset_directories.require(trees),
         Project.extensions.require(Webpack),
     },
 )
-class Maps(Generator, EntryPointProvider, Manufacturable):
+class Trees(Generator, EntryPointProvider, Manufacturable):
     """
-    .. plugin:: extension:maps.
+    .. plugin:: extension:trees.
     """
 
     def __init__(self, *, project: Project):
@@ -48,6 +48,10 @@ class Maps(Generator, EntryPointProvider, Manufacturable):
         return cls(project=project)
 
     @override
+    async def generate(self, scheduler: Scheduler) -> None:
+        await scheduler.add(_GenerateTreesPeopleJson(project=self._project))
+
+    @override
     @classmethod
     def webpack_entry_point_directory(cls) -> StrPath:
         return webpack_entry_point_directory / cls.plugin().id
@@ -55,7 +59,3 @@ class Maps(Generator, EntryPointProvider, Manufacturable):
     @override
     def webpack_entry_point_cache_keys(self) -> Sequence[str]:
         return ()
-
-    @override
-    async def generate(self, scheduler: Scheduler) -> None:
-        await scheduler.add(_GenerateMapsPlacePreviews(project=self._project))
