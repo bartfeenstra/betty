@@ -601,7 +601,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/event_types/retirement.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/event_types/unknown.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/event_types/will.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/extension/__init__.py": {
+    "betty/extension.py": {
         "Extension": MissingReason.SHOULD_BE_COVERED,
         "ExtensionDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "ExtensionManufacturer": MissingReason.INHERITED,
