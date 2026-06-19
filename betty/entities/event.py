@@ -23,7 +23,7 @@ from betty.entity.has_file_references import HasFileReferences
 from betty.entity.has_links import HasLinks
 from betty.entity.has_notes import HasNotes
 from betty.event_type import EventTypeDefinition
-from betty.event_types.unknown import Unknown as UnknownEventType
+from betty.event_types.unknown import UnknownEventType
 from betty.json_schema import String
 from betty.json_schemas.plugin_id import PluginIdSchema
 from betty.json_schemas.static_translations import StaticTranslationsSchema

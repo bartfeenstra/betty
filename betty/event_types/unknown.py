@@ -18,7 +18,7 @@ from betty.locale.localizable.gettext import _, ngettext
     label_plural=_("Unknowns"),
     label_countable=ngettext("{count} unknown", "{count} unknowns"),
 )
-class Unknown(EventType, Singleton):
+class UnknownEventType(EventType, Singleton):
     """
     .. plugin:: event-type:unknown.
     """

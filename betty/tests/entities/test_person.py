@@ -15,7 +15,7 @@ from betty.entity import Entity
 from betty.entity.association import AssociationRequired, TemporaryToOneResolver
 from betty.event_types.birth import Birth
 from betty.genders.non_binary import NonBinary
-from betty.genders.unknown import Unknown as UnknownGender
+from betty.genders.unknown import UnknownGender
 from betty.privacy import Privacy
 from betty.roles.subject import Subject
 from betty.test_utils.entity import EntityTestBase

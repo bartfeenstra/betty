@@ -316,7 +316,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "GenerateLogo": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/jobs/no_op.py": {
-        "NoOp": MissingReason.SHOULD_BE_COVERED,
+        "NoOpJob": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/jobs/raise_exception.py": {
         "RaiseException": MissingReason.SHOULD_BE_COVERED,

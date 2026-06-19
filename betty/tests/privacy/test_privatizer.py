@@ -22,7 +22,7 @@ from betty.privacy import Privacy
 from betty.privacy.privatizer import Privatizer
 from betty.project import default_lifetime_threshold
 from betty.roles.subject import Subject
-from betty.roles.unknown import Unknown as UnknownRole
+from betty.roles.unknown import UnknownRole
 from betty.test_utils.user import StaticUser
 
 if TYPE_CHECKING:

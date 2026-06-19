@@ -18,7 +18,7 @@ from betty.place_type import PlaceType, PlaceTypeDefinition
     label_plural=_("Unknowns"),
     label_countable=ngettext("{count} unknown", "{count} unknowns"),
 )
-class Unknown(PlaceType, Singleton):
+class UnknownPlaceType(PlaceType, Singleton):
     """
     .. plugin:: place-type:unknown.
     """
