@@ -6,7 +6,7 @@ import pytest
 
 from betty.assertions.if_else import assert_if_else
 from betty.exception import HumanFacingException
-from betty.tests.assertions.test___init__ import _always_invalid, _always_valid
+from betty.tests.test_assertions import _always_invalid, _always_valid
 
 if TYPE_CHECKING:
     from betty.functools import Pipe

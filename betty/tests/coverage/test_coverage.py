@@ -794,13 +794,22 @@ class CoverageTester:
         return self._test_python_src_file(file)
 
     def _test_python_src_file(self, file: Path, /) -> Iterable[str]:
-        expected_test_module_path = (
-            root_directory
-            / "betty"
-            / "tests"
-            / file.relative_to(root_directory / "betty").parent
-            / f"test_{file.name}"
-        )
+        if file.name == "__init__.py":
+            expected_test_module_path = (
+                root_directory
+                / "betty"
+                / "tests"
+                / file.relative_to(root_directory / "betty").parent.parent
+                / f"test_{file.parent.name}.py"
+            )
+        else:
+            expected_test_module_path = (
+                root_directory
+                / "betty"
+                / "tests"
+                / file.relative_to(root_directory / "betty").parent
+                / f"test_{file.name}"
+            )
         return _ModuleCoverageTester(
             file,
             expected_test_module_path,

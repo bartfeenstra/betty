@@ -1,7 +1,7 @@
 from betty.service.plugin import PluginServiceProvider
 from betty.service.plugin.definition.single import PluginDefinitionService
 from betty.test_utils.plugin import DummyPluginDefinition, DummyPluginOne
-from betty.tests.service.plugin.test___init__ import (
+from betty.tests.service.test_plugin import (
     PluginServiceManagerTestBase,
 )
 
