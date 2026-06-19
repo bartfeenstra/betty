@@ -13,7 +13,7 @@ from betty.media_types.html import HTML
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from betty.url import UrlGenerator
+    from betty.url_generator import UrlGenerator
 
 
 def generate_urls(

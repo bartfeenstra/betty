@@ -712,10 +712,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Intersection": MissingReason.STATIC_CONTENT_ONLY,
         "Void": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/url/__init__.py": {
+    "betty/url_generator.py": {
         "GenerationError": MissingReason.ABSTRACT,
-        "LocalizedUrlGenerator": MissingReason.ABSTRACT,
-        "StaticUrlGenerator": MissingReason.ABSTRACT,
         "UnsupportedMediaType": MissingReason.SHOULD_BE_COVERED,
         "UnsupportedResource": MissingReason.STATIC_CONTENT_ONLY,
         "UrlGenerator": MissingReason.ABSTRACT,

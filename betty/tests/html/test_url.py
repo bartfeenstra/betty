@@ -1,23 +1,24 @@
 from collections.abc import Mapping, Sequence
-from typing import Any, override
+from typing import Any, TypeGuard, override
 
 import pytest
 
 from betty.html.url import generate_urls
 from betty.locale import ResolvableLocale
 from betty.media_type import ResolvableMediaType
-from betty.url import UrlGenerator
+from betty.url_generator import UrlGenerator
 
 
-class _GenerateUrlsUrlGenerator(UrlGenerator):
+class _GenerateUrlsUrlGenerator(UrlGenerator[str]):
     @override
-    def supports(self, resource: Any, /) -> bool:
+    def supports(self, resource: Any, /) -> TypeGuard[str]:
         return isinstance(resource, str) and resource == "my-first-resource://"
 
     @override
     def generate(
         self,
         resource: str,
+        /,
         *,
         absolute: bool = False,
         fragment: str | None = None,

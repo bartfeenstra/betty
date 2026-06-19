@@ -1,12 +1,12 @@
 """
-Provide proxy URL generators.
+URL generators that dispatch to other URL generators.
 """
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, final, override
+from typing import TYPE_CHECKING, Any, TypeGuard, final, override
 
-from betty.url import UnsupportedResource, UrlGenerator
+from betty.url_generator import UnsupportedResource, UrlGenerator
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -16,22 +16,23 @@ if TYPE_CHECKING:
 
 
 @final
-class ProxyUrlGenerator(UrlGenerator):
+class UrlGeneratorDispatcher[ResourceT](UrlGenerator[ResourceT]):
     """
-    Expose multiple other URL generators as one unified URL generator.
+    Dispatch URL generator to the first supported upstream.
     """
 
-    def __init__(self, *upstreams: UrlGenerator):
+    def __init__(self, *upstreams: UrlGenerator[ResourceT]):
         self._upstreams = upstreams
 
     @override
-    def supports(self, resource: Any, /) -> bool:
+    def supports(self, resource: Any, /) -> TypeGuard[ResourceT]:
         return any(upstream.supports(resource) for upstream in self._upstreams)
 
     @override
     def generate(
         self,
         resource: Any,
+        /,
         *,
         absolute: bool = False,
         fragment: str | None = None,

@@ -135,7 +135,7 @@ if TYPE_CHECKING:
         ServicePluginInstances,
     )
     from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
-    from betty.url import UrlGenerator
+    from betty.url_generator import UrlGenerator
 
 
 default_lifetime_threshold: Final[int] = 123
@@ -538,9 +538,25 @@ class Project(
         """
         The URL generator.
         """
-        from betty.project.url import new_project_url_generator
+        from betty.url_generators.dispatcher import UrlGeneratorDispatcher
+        from betty.url_generators.entity import EntityUrlGenerator
+        from betty.url_generators.entity_type import EntityTypeUrlGenerator
+        from betty.url_generators.entity_url import EntityUrlUrlGenerator
+        from betty.url_generators.localized_path_url import LocalizedPathUrlUrlGenerator
+        from betty.url_generators.passthrough import PassthroughUrlGenerator
+        from betty.url_generators.path import PathUrlGenerator
+        from betty.url_generators.static_path_url import StaticPathUrlUrlGenerator
 
-        return await new_project_url_generator(self)
+        path_url_generator = await PathUrlGenerator.new(self)
+        entity_url_generator = EntityUrlGenerator(path_url_generator)
+        return UrlGeneratorDispatcher(
+            EntityTypeUrlGenerator(path_url_generator),
+            entity_url_generator,
+            EntityUrlUrlGenerator(self.ancestry, entity_url_generator),
+            LocalizedPathUrlUrlGenerator(path_url_generator),
+            StaticPathUrlUrlGenerator(path_url_generator),
+            PassthroughUrlGenerator(),
+        )
 
     @service
     async def jinja(self) -> Environment:
