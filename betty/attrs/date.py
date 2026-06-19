@@ -10,10 +10,6 @@ from betty.attrs.owner import OwnerAttr
 from betty.attrs.privacy import HasPrivacy
 from betty.datas.date import AnyDateDefinition
 from betty.date import AnyDate, Date
-from betty.date.linked_data import (
-    dump_linked_data_for_date,
-    dump_linked_data_for_date_range,
-)
 from betty.json_schemas.date import ResolvableDateSchema
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
 from betty.prop import HasProps
@@ -21,6 +17,8 @@ from betty.prop import HasProps
 if TYPE_CHECKING:
     from betty.portable import PortableMapping
     from betty.project import Project
+from betty.date import DateRange, _dump_date_iso8601
+from betty.linked_data import dump_context
 
 
 class HasAnyDate(LinkedDataDumpableWithSchemaJsonLdObject, HasProps):
@@ -62,11 +60,11 @@ class HasAnyDate(LinkedDataDumpableWithSchemaJsonLdObject, HasProps):
                 schema_org_end_date_definition,
             ) = self.has_any_date_linked_data_contexts()
             if isinstance(self.date, Date):
-                portable["date"] = dump_linked_data_for_date(
+                portable["date"] = _dump_linked_data_for_date(
                     self.date, context_definition=schema_org_date_definition
                 )
             else:
-                portable["date"] = dump_linked_data_for_date_range(
+                portable["date"] = _dump_linked_data_for_date_range(
                     self.date,
                     start_context_definition=schema_org_start_date_definition,
                     end_context_definition=schema_org_end_date_definition,
@@ -79,3 +77,44 @@ class HasAnyDate(LinkedDataDumpableWithSchemaJsonLdObject, HasProps):
         schema = await super().linked_data_schema(project)
         schema.add_property("date", ResolvableDateSchema(), False)
         return schema
+
+
+def _dump_linked_data_for_date(
+    date: Date, *, context_definition: str | None = None
+) -> PortableMapping:
+    portable: PortableMapping = {
+        "fuzzy": date.fuzzy,
+    }
+    if date.year:
+        portable["year"] = date.year
+    if date.month:
+        portable["month"] = date.month
+    if date.day:
+        portable["day"] = date.day
+    if date.comparable:
+        portable["iso8601"] = _dump_date_iso8601(date)
+        # Set a single term definition because JSON-LD does not let us apply multiple
+        # for the same term (key).
+        if context_definition:
+            dump_context(portable, iso8601=context_definition)
+    return portable
+
+
+def _dump_linked_data_for_date_range(
+    date_range: DateRange,
+    *,
+    start_context_definition: str | None = None,
+    end_context_definition: str | None = None,
+) -> PortableMapping:
+    return {
+        "start": _dump_linked_data_for_date(
+            date_range.start, context_definition=start_context_definition
+        )
+        if date_range.start
+        else None,
+        "end": _dump_linked_data_for_date(
+            date_range.end, context_definition=end_context_definition
+        )
+        if date_range.end
+        else None,
+    }
