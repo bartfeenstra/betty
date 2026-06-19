@@ -10,7 +10,7 @@ from betty.entities.place import Place
 from betty.entities.source import Source
 from betty.event_type import EventTypeManufacturer
 from betty.event_types.birth import Birth
-from betty.gramps.loader import machinify
+from betty.gramps import machinify
 from betty.load import LoaderManufacturer, load
 from betty.loaders.gramps import FamilyTree, Gramps, GrampsData
 from betty.place_type import PlaceTypeManufacturer

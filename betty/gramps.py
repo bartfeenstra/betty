@@ -1,6 +1,4 @@
-"""
-Provide an API to load `Gramps <https://gramps-project.org>`_ family trees into Betty ancestries.
-"""
+"""Integrate Betty with `Gramps <https://gramps-project.org>`_."""
 
 from __future__ import annotations
 
@@ -66,12 +64,12 @@ from betty.event_types.residence import Residence
 from betty.event_types.retirement import Retirement
 from betty.event_types.unknown import Unknown as UnknownEventType
 from betty.event_types.will import Will
+from betty.exception import HumanFacingException
 from betty.gender import GenderDefinition, GenderManufacturer
 from betty.genders.man import Man
 from betty.genders.non_binary import NonBinary
 from betty.genders.unknown import Unknown as UnknownGender
 from betty.genders.woman import Woman
-from betty.gramps.error import GrampsError, UserFacingGrampsError
 from betty.hashid import hashid, hashid_sequence
 from betty.license import LicenseManufacturer
 from betty.locale import from_language_tag
@@ -137,18 +135,27 @@ if TYPE_CHECKING:
     from betty.pathlib import StrPath
     from betty.place_type import PlaceType, PlaceTypeDefinition
     from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
-    from betty.role import (
-        Role,
-        RoleDefinition,
-    )
+    from betty.role import Role, RoleDefinition
     from betty.service_level import ServiceLevel
     from betty.typing import Intersection
     from betty.user import User
 
 
+class GrampsError(Exception):
+    """
+    A Gramps API error.
+    """
+
+
+class UserFacingGrampsError(GrampsError, HumanFacingException):
+    """
+    A user-facing Gramps API error.
+    """
+
+
 class LoaderUsedAlready(GrampsError):
     """
-    Raised when a :py:class:`betty.gramps.loader.GrampsLoader` is used more than once.
+    Raised when a :py:class:`betty.gramps.GrampsLoader` is used more than once.
     """
 
 

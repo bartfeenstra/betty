@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, final, override
 from betty.job import Job
 
 if TYPE_CHECKING:
-    from betty.gramps.loader import GrampsLoader
+    from betty.gramps import GrampsLoader
     from betty.job.scheduler import Scheduler
     from betty.pathlib import StrPath
 

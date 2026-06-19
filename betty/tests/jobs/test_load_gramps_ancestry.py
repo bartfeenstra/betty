@@ -1,6 +1,6 @@
 from unittest.mock import AsyncMock
 
-from betty.gramps.loader import GrampsLoader
+from betty.gramps import GrampsLoader
 from betty.jobs.load_gramps_ancestry import LoadGrampsAncestry
 from betty.test_utils.job import do
 

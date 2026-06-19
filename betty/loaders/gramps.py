@@ -19,7 +19,7 @@ from betty.datas.str import StrDefinition
 from betty.event_type import EventType, EventTypeDefinition, EventTypeManufacturer
 from betty.exception import HumanFacingException
 from betty.factory import DataManufacturable, Manufacturable
-from betty.gramps.loader import (
+from betty.gramps import (
     DEFAULT_EVENT_TYPE_MAPPING,
     DEFAULT_PLACE_TYPE_MAPPING,
     DEFAULT_ROLE_MAPPING,
