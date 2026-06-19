@@ -28,11 +28,11 @@ from betty.event_types.death import Death
 from betty.event_types.unknown import Unknown as UnknownEventType
 from betty.genders.non_binary import NonBinary
 from betty.genders.unknown import Unknown as UnknownGender
-from betty.gramps.error import UserFacingGrampsError
-from betty.gramps.loader import (
+from betty.gramps import (
     GrampsFileNotFound,
     GrampsLoader,
     LoaderUsedAlready,
+    UserFacingGrampsError,
     machinify,
 )
 from betty.licenses.public_domain import PublicDomain as PublicDomainLicense

@@ -258,13 +258,14 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/genders/non_binary.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/genders/unknown.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/genders/woman.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/gramps/error.py": MissingReason.SHOULD_BE_COVERED,
-    "betty/gramps/loader.py": {
+    "betty/gramps.py": {
         "GrampsEntityReference": MissingReason.SHOULD_BE_COVERED,
         "GrampsEntityType": MissingReason.ENUM,
+        "GrampsError": MissingReason.STATIC_CONTENT_ONLY,
         "GrampsFileNotFound": MissingReason.STATIC_CONTENT_ONLY,
         "LoaderUsedAlready": MissingReason.STATIC_CONTENT_ONLY,
         "XPathError": MissingReason.STATIC_CONTENT_ONLY,
+        "UserFacingGrampsError": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/html/attributes.py": {
         "Attributes": {
