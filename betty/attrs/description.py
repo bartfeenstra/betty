@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any, override
 
 from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.privacy import HasPrivacy
+from betty.json_schemas.static_translations import StaticTranslationsSchema
 from betty.linked_data import (
     JsonLdObject,
     LinkedDataDumpableWithSchemaJsonLdObject,
@@ -15,7 +16,6 @@ from betty.linked_data import (
 )
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.linked_data import dump_linked_data
-from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.prop import HasProps
 
 if TYPE_CHECKING:

@@ -9,7 +9,7 @@ from betty.portable import PortableMapping
 
 
 @final
-class SpecificationSchema(Schema):
+class OpenapiSchema(Schema):
     """
     The OpenAPI Specification schema.
     """

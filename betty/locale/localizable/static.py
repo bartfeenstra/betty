@@ -14,9 +14,6 @@ from betty.assertions.str import assert_str
 from betty.exception import reraise_with_indicator
 from betty.indicator.selector import Key
 from betty.locale import (
-    Localized as Localized,
-)
-from betty.locale import (
     LocalizedStr,
     ResolvableLocale,
     negotiate_locale,

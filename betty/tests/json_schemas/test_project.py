@@ -7,8 +7,8 @@ import pytest
 from betty.entities.event import Event
 from betty.entities.person import Person
 from betty.entities.place import Place
-from betty.json_schema import JsonSchemaSchema
-from betty.project.schema import ProjectSchema
+from betty.json_schemas.json_schema import JsonSchemaSchema
+from betty.json_schemas.project import ProjectSchema
 from betty.test_utils.json_schema import SchemaTestBase, SchemaTestBaseSut
 
 if TYPE_CHECKING:

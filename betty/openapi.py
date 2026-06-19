@@ -4,10 +4,10 @@ Provide the OpenAPI specification.
 
 from betty import about
 from betty.entity import EntityDefinition as EntityDefinition
+from betty.json_schemas.project import ProjectSchema
 from betty.locale.localize import default_localizer
 from betty.portable import PortableMapping
 from betty.project import Project
-from betty.project.schema import ProjectSchema
 from betty.string import kebab_case_to_lower_camel_case
 
 

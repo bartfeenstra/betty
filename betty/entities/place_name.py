@@ -9,9 +9,9 @@ from typing import TYPE_CHECKING, final, override
 from betty.attrs.date import HasAnyDate
 from betty.attrs.localizable import new_localizable_attr
 from betty.entity import Entity, EntityDefinition
+from betty.json_schemas.static_translations import StaticTranslationsSchema
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
-from betty.locale.localizable.static.schema import StaticTranslationsSchema
 
 if TYPE_CHECKING:
     from betty.date import AnyDate

@@ -13,7 +13,6 @@ from betty.json_schema import (
     Enum,
     Integer,
     JsonSchemaReference,
-    JsonSchemaSchema,
     Null,
     Number,
     Object,
@@ -136,13 +135,6 @@ class TestJsonSchemaReference(SchemaTestBase):
             ["https://json-schema.org/draft/2020-12/schema"],
             [True, False, None, 123, [], {}],
         )
-
-
-class TestJsonSchemaSchema(SchemaTestBase):
-    @override
-    @pytest.fixture
-    def sut_data(self) -> SchemaTestBaseSut:
-        return (JsonSchemaSchema(), [], [])
 
 
 class TestString(SchemaTestBase):

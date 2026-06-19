@@ -3,8 +3,8 @@ from typing import TYPE_CHECKING, cast, override
 
 import pytest
 
+from betty.json_schemas.static_translations import StaticTranslationsSchema
 from betty.locale import default_locale_tag
-from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.test_utils.json_schema import SchemaTestBase, SchemaTestBaseSut
 
 if TYPE_CHECKING:

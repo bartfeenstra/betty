@@ -5,7 +5,7 @@ from betty.date.linked_data import (
     dump_linked_data_for_date,
     dump_linked_data_for_date_range,
 )
-from betty.date.schema import DateRangeSchema, DateSchema
+from betty.json_schemas.date import DateRangeSchema, DateSchema
 from betty.portable import PortableMapping
 from betty.test_utils.conftest import AssertLinkedDataDump
 

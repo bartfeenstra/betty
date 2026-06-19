@@ -1,5 +1,5 @@
 """
-JSON schemas for the model API.
+JSON schemas for the entity association API.
 """
 
 from __future__ import annotations

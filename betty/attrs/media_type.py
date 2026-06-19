@@ -8,9 +8,9 @@ from typing import TYPE_CHECKING, Any, override
 
 from betty.attrs.owner import OwnerAttr
 from betty.attrs.privacy import HasPrivacy
+from betty.json_schemas.media_type import MediaTypeSchema
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
 from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
-from betty.media_type.schema import MediaTypeSchema
 from betty.prop import HasProps
 
 if TYPE_CHECKING:

@@ -11,8 +11,8 @@ from typing import TYPE_CHECKING, cast, final, override
 from betty.entity import EntityDefinition
 from betty.job import Job
 from betty.jobs import _create_json_resource
+from betty.json_schemas.project import ProjectSchema
 from betty.media_types.json import JSON
-from betty.project.schema import ProjectSchema
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:

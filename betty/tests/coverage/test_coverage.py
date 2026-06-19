@@ -329,6 +329,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "validate": MissingReason.SHOULD_BE_COVERED,
         },
     },
+    "betty/json_schemas/json_ld.py": MissingReason.SHOULD_BE_COVERED,
     "betty/life_cycle/__init__.py": {
         "AlreadyBootstrapped": MissingReason.STATIC_CONTENT_ONLY,
         "AlreadyShutDown": MissingReason.STATIC_CONTENT_ONLY,
@@ -347,7 +348,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "dump_link": MissingReason.SHOULD_BE_COVERED,
         "dump_schema": MissingReason.SHOULD_BE_COVERED,
         "JsonLdObject": MissingReason.SHOULD_BE_COVERED,
-        "JsonLdSchema": MissingReason.SHOULD_BE_COVERED,
         "LinkedDataDumpable": MissingReason.ABSTRACT,
         "LinkedDataDumpableWithSchema": MissingReason.ABSTRACT,
         "LinkedDataDumpableWithSchemaJsonLdObject": MissingReason.SHOULD_BE_COVERED,
@@ -415,7 +415,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "persistent": MissingReason.COVERED_ELSEWHERE,
         },
     },
-    "betty/media_type/__init__.py": {
+    "betty/media_type.py": {
         "InvalidMediaType": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/media_types/html.py": MissingReason.STATIC_CONTENT_ONLY,
@@ -499,9 +499,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/path.py": MissingReason.SHOULD_BE_COVERED,
     "betty/multiprocessing.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/openapi.py": {
-        "SpecificationSchema": {"__annotate_func__": MissingReason.DATACLASS},
-    },
     "betty/place_type.py": {
         "PlaceType": MissingReason.STATIC_CONTENT_ONLY,
         "PlaceTypeDefinition": MissingReason.STATIC_CONTENT_ONLY,

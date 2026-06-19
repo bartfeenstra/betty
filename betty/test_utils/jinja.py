@@ -11,7 +11,7 @@ from lxml.html import document_fromstring
 
 from betty.file import read
 from betty.json_schema import AllOf, Ref
-from betty.project.schema import ProjectSchema
+from betty.json_schemas.project import ProjectSchema
 
 if TYPE_CHECKING:
     from pathlib import Path

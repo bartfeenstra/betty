@@ -14,7 +14,7 @@ from betty.date.linked_data import (
     dump_linked_data_for_date,
     dump_linked_data_for_date_range,
 )
-from betty.date.schema import ResolvableDateSchema
+from betty.json_schemas.date import ResolvableDateSchema
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
 from betty.prop import HasProps
 

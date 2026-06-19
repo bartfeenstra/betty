@@ -18,10 +18,10 @@ from betty.entity.association import (
 from betty.entity.has_file_references import HasFileReferences
 from betty.entity.has_links import HasLinks
 from betty.entity.has_notes import HasNotes
+from betty.json_schemas.static_translations import StaticTranslationsSchema
 from betty.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
-from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.privacy import Privacy
 from betty.privacy.resolve import merge_privacies
 

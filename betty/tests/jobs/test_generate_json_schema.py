@@ -1,7 +1,7 @@
 import json
 
 from betty.jobs.generate_json_schema import GenerateJsonSchema
-from betty.json_schema import JsonSchemaSchema
+from betty.json_schemas.json_schema import JsonSchemaSchema
 from betty.project import Project
 from betty.test_utils.job import do
 

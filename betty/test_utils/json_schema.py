@@ -7,7 +7,8 @@ from collections.abc import MutableMapping, Sequence
 import pytest
 from jsonschema.exceptions import ValidationError
 
-from betty.json_schema import JsonSchemaSchema, Schema, String
+from betty.json_schema import Schema, String
+from betty.json_schemas.json_schema import JsonSchemaSchema
 from betty.portable import PortableData
 
 DUMMY_SCHEMAS: Sequence[
