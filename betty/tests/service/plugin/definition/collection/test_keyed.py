@@ -8,7 +8,7 @@ from betty.test_utils.plugin import (
     DummyPluginThree,
     DummyPluginTwo,
 )
-from betty.tests.service.plugin.test___init__ import (
+from betty.tests.service.test_plugin import (
     PluginServiceManagerTestBase,
 )
 

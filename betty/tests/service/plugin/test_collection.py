@@ -8,7 +8,7 @@ from betty.service.plugin import PluginServiceProvider
 from betty.service.plugin.collection import CollectionPluginServiceManager
 from betty.service_level import ServiceLevel
 from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
-from betty.tests.service.plugin.test___init__ import (
+from betty.tests.service.test_plugin import (
     PluginServiceManagerTestBase,
 )
 
