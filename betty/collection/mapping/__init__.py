@@ -71,7 +71,11 @@ class MutableResolvedMapping[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
     @override
     @abstractmethod
     def update(self, other=None, **kwargs) -> None:  # ty:ignore[invalid-method-override]
-        pass
+        """
+        Update the mapping with the provided values.
+
+        See :py:meth:`collections.abc.MutableMapping.update`.
+        """
 
     @overload
     def setdefault[T](
