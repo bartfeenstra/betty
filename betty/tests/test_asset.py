@@ -6,12 +6,9 @@ import pytest
 from betty.asset import (
     AssetDirectoryDefinition,
     AssetRepository,
-    AssetRepositoryService,
     StaticAssetRepository,
     UnknownAsset,
 )
-from betty.service.plugin import PluginServiceProvider
-from betty.service_level import ServiceLevel
 
 
 class TestAssetDirectoryDefinition:
@@ -105,22 +102,3 @@ class TestStaticAssetRepository:
             Path("basket") / "aubergines",
             Path("basket") / "courgettes",
         }
-
-
-class TestAssetRepositoryService:
-    async def test_new_service(self) -> None:
-        _ASSET = AssetDirectoryDefinition("my-first-asset", assets=Path(__file__))
-
-        class _ServiceProvider(PluginServiceProvider):
-            def __init__(self):
-                super().__init__(
-                    services=ServiceLevel(plugins={AssetDirectoryDefinition: [_ASSET]})
-                )
-                type(self).asset_directories.add_init_plugins(self, _ASSET)
-
-            asset_directories = AssetRepositoryService()
-
-        async with _ServiceProvider() as service_provider:
-            assert list(service_provider.asset_directories.directories) == [
-                _ASSET.assets
-            ]

@@ -50,7 +50,7 @@ from betty.project.generate import Generator
 from betty.prop import HasProps
 from betty.sample import Sample, Size
 from betty.service import ServiceProvider
-from betty.service.simple import service
+from betty.services.simple import service
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterable, Mapping, Sequence

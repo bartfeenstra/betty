@@ -13,10 +13,6 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.pathlib import resolve_path
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.ordered import Order, OrderedPluginDefinition
-from betty.service.plugin import PluginServiceProvider
-from betty.service.plugin.definition.collection import (
-    CollectionPluginDefinitionServiceManager,
-)
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
@@ -159,26 +155,3 @@ class AssetDirectoryDefinition(OrderedPluginDefinition):
         """
         The path on disk where the asset's assets are located.
         """
-
-
-@final
-class AssetRepositoryService[ServiceProviderT: PluginServiceProvider](
-    CollectionPluginDefinitionServiceManager[
-        ServiceProviderT, AssetDirectoryDefinition, AssetRepository
-    ]
-):
-    """
-    A service of plugin definitions keyed by their IDs.
-    """
-
-    def __init__(self):
-        super().__init__(AssetDirectoryDefinition)
-
-    @override
-    def new_service(self, instance: ServiceProviderT, /) -> AssetRepository:
-        return StaticAssetRepository(
-            *(
-                self.new_service_item(instance, asset).assets
-                for asset in self.get_plugins(instance)
-            )
-        )
