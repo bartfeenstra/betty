@@ -34,8 +34,17 @@ class UnsupportedMediaType(RuntimeError):
     Raised when a media type is not supported.
     """
 
-    def __init__(self, media_type: MediaTypeIndicator):
+    def __init__(self, media_type: MediaTypeIndicator, /):
         super().__init__(f"Unsupported media type: {media_type}")
+
+
+class MissingMediaType(RuntimeError):
+    """
+    Raised when a media type is not missing.
+    """
+
+    def __init__(self):
+        super().__init__("Missing media type")
 
 
 @final
@@ -105,8 +114,6 @@ class MediaType(Data, Portable):
 
     @override
     def __eq__(self, other: object) -> bool:
-        if isinstance(other, MediaTypeDefinition):
-            return self == other.media_type
         if isinstance(other, str):
             try:
                 return self == MediaType(other)
@@ -137,28 +144,30 @@ A media type, or a file path or name that indicates a media type through its fil
 """
 
 
-def match_media_type(source: MediaType, media_types: Iterable[MediaType]) -> MediaType:
+def match_media_type(
+    match: MediaType, supported_media_types: Iterable[MediaType], /
+) -> MediaType:
     """
     Match a media type against available media types.
     """
-    for media_type in media_types:
-        if source == media_type:
-            return media_type
-    raise UnsupportedMediaType(source)
+    for supported_media_type in supported_media_types:
+        if supported_media_type == match:
+            return supported_media_type
+    raise UnsupportedMediaType(match)
 
 
 def match_extension(
-    source: StrPath, media_types: Iterable[MediaType], /
+    match: StrPath, supported_media_types: Iterable[MediaType], /
 ) -> tuple[MediaType, str]:
     """
     Match a file extension indicator against available media types.
     """
-    source = str(source)
-    for media_type in media_types:
-        for extension in media_type.extensions:
-            if source.endswith(extension):
-                return media_type, extension
-    raise UnsupportedMediaType(source)
+    match = str(match)
+    for supported_media_type in supported_media_types:
+        for extension in supported_media_type.extensions:
+            if match.endswith(extension):
+                return supported_media_type, extension
+    raise UnsupportedMediaType(match)
 
 
 @final
@@ -193,6 +202,14 @@ class MediaTypeDefinition(HumanFacingDefinition, OrderedPluginDefinition):
             label=label,
         )
         self._media_type = media_type
+
+    @override
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, MediaType):
+            return self.media_type == other
+        if not isinstance(other, MediaTypeDefinition):
+            return NotImplemented
+        return self.id == other.id and self.media_type == other.media_type
 
     @property
     def media_type(self) -> MediaType:

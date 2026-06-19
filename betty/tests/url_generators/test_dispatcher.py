@@ -1,6 +1,6 @@
 from collections.abc import Mapping, Sequence
 from json import dumps, loads
-from typing import Any, override
+from typing import Any, TypeGuard, override
 
 import pytest
 
@@ -8,20 +8,21 @@ from betty.locale import ResolvableLocale
 from betty.media_type import ResolvableMediaType
 from betty.media_types.html import HTML
 from betty.media_types.json import JSON
-from betty.url import UnsupportedResource, UrlGenerator
-from betty.url.proxy import ProxyUrlGenerator
+from betty.url_generator import UnsupportedResource, UrlGenerator
+from betty.url_generators.dispatcher import UrlGeneratorDispatcher
 
 
-class TestProxyUrlGenerator:
-    class _SupportedUrlGenerator(UrlGenerator):
+class TestUrlGeneratorDispatcher:
+    class _SupportedUrlGenerator(UrlGenerator[Any]):
         @override
-        def supports(self, resource: Any, /) -> bool:
+        def supports(self, resource: Any, /) -> TypeGuard[Any]:
             return True
 
         @override
         def generate(
             self,
             resource: Any,
+            /,
             *,
             absolute: bool = False,
             fragment: str | None = None,
@@ -38,15 +39,16 @@ class TestProxyUrlGenerator:
                 "query": query,
             })
 
-    class _UnsupportedUrlGenerator(UrlGenerator):
+    class _UnsupportedUrlGenerator(UrlGenerator[Any]):
         @override
-        def supports(self, resource: Any, /) -> bool:
+        def supports(self, resource: Any, /) -> TypeGuard[Any]:
             return False
 
         @override
         def generate(
             self,
             resource: Any,
+            /,
             *,
             absolute: bool = False,
             fragment: str | None = None,
@@ -75,7 +77,7 @@ class TestProxyUrlGenerator:
     async def test_supports(
         self, expected: bool, resource: Any, upstreams: Sequence[UrlGenerator]
     ) -> None:
-        sut = ProxyUrlGenerator(*upstreams)
+        sut = UrlGeneratorDispatcher(*upstreams)
         assert sut.supports(resource) == expected
 
     @pytest.mark.parametrize(
@@ -147,7 +149,7 @@ class TestProxyUrlGenerator:
         fragment: str | None,
         query: Mapping[str, Sequence[str]] | None,
     ) -> None:
-        sut = ProxyUrlGenerator(
+        sut = UrlGeneratorDispatcher(
             self._UnsupportedUrlGenerator(),
             self._SupportedUrlGenerator(),
         )

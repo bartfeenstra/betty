@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.media_type import MediaType
-    from betty.url import UrlGenerator
+    from betty.url_generator import UrlGenerator
 
 _attributes: Final[Sequence[str]] = ("href", "src")
 

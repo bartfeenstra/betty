@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from jinja2.runtime import Context
 
     from betty.locale import ResolvableLocale
-    from betty.url import UrlGenerator
+    from betty.url_generator import UrlGenerator
 
 
 @final

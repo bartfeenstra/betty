@@ -9,6 +9,7 @@ from betty.media_type import (
     InvalidMediaType,
     MediaType,
     MediaTypeDefinition,
+    MissingMediaType,
     UnsupportedMediaType,
     match_extension,
     match_media_type,
@@ -339,7 +340,59 @@ class TestUnsupportedMediaType:
         assert str(PLAIN_TEXT.media_type) in str(sut)
 
 
+class TestMissingMediaType:
+    def test_new(self) -> None:
+        assert str(MissingMediaType())
+
+
 class TestMediaTypeDefinition:
+    @pytest.mark.parametrize(
+        ("expected", "sut", "other"),
+        [
+            (
+                True,
+                MediaTypeDefinition(
+                    "my-first-media-type",
+                    label="-",
+                    media_type=MediaType("myfirst/mediatype"),
+                ),
+                MediaTypeDefinition(
+                    "my-first-media-type",
+                    label="-",
+                    media_type=MediaType("myfirst/mediatype"),
+                ),
+            ),
+            (
+                False,
+                MediaTypeDefinition(
+                    "my-first-media-type",
+                    label="-",
+                    media_type=MediaType("myfirst/mediatype"),
+                ),
+                MediaTypeDefinition(
+                    "my-second-media-type",
+                    label="-",
+                    media_type=MediaType("myfirst/mediatype"),
+                ),
+            ),
+            (
+                False,
+                MediaTypeDefinition(
+                    "my-first-media-type",
+                    label="-",
+                    media_type=MediaType("myfirst/mediatype"),
+                ),
+                MediaTypeDefinition(
+                    "my-first-media-type",
+                    label="-",
+                    media_type=MediaType("mysecond/mediatype"),
+                ),
+            ),
+        ],
+    )
+    def test___eq__(self, expected: bool, sut: MediaTypeDefinition, other: Any) -> None:
+        assert (sut == other) is expected
+
     def test_media_type(self) -> None:
         media_type = MediaType("text/plain")
         assert (
