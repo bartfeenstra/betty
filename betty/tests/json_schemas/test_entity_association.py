@@ -3,7 +3,11 @@ from typing import cast, override
 
 import pytest
 
-from betty.entity.schema import ToManySchema, ToOneSchema, ToZeroOrOneSchema
+from betty.json_schemas.entity_association import (
+    ToManySchema,
+    ToOneSchema,
+    ToZeroOrOneSchema,
+)
 from betty.test_utils.json_schema import SchemaTestBase, SchemaTestBaseSut
 
 

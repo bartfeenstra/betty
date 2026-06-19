@@ -1,4 +1,4 @@
-from betty.plugin.schema import PluginIdSchema
+from betty.json_schemas.plugin_id import PluginIdSchema
 from betty.test_utils.plugin import (
     DummyPluginDefinition,
     DummyPluginOne,

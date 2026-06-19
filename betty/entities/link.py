@@ -15,10 +15,10 @@ from betty.datas.str import StrDefinition
 from betty.entity import Entity, EntityDefinition
 from betty.entity.association import BidirectionalToZeroOrOne
 from betty.json_schema import String
+from betty.json_schemas.static_translations import StaticTranslationsSchema
 from betty.link import Link as LinkType
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
-from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.privacy import Privacy
 from betty.privacy.resolve import merge_privacies
 

@@ -4,7 +4,7 @@ from typing import override
 
 import pytest
 
-from betty.date.schema import DateRangeSchema, DateSchema, ResolvableDateSchema
+from betty.json_schemas.date import DateRangeSchema, DateSchema, ResolvableDateSchema
 from betty.test_utils.json_schema import SchemaTestBase, SchemaTestBaseSut
 from betty.tests.date.test___init__ import (
     _DUMMY_DATE_DUMPS,

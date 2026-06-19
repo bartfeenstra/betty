@@ -25,12 +25,12 @@ from betty.entity.has_notes import HasNotes
 from betty.event_type import EventTypeDefinition
 from betty.event_types.unknown import Unknown as UnknownEventType
 from betty.json_schema import String
+from betty.json_schemas.plugin_id import PluginIdSchema
+from betty.json_schemas.static_translations import StaticTranslationsSchema
 from betty.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.markup import AllEnumeration
-from betty.locale.localizable.static.schema import StaticTranslationsSchema
-from betty.plugin.schema import PluginIdSchema
 from betty.privacy import Privacy
 from betty.roles.subject import Subject
 

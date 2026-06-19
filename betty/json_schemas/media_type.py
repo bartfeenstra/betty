@@ -1,5 +1,5 @@
 """
-JSON schemas for the media type API.
+Media type JSON Schemas.
 """
 
 from __future__ import annotations

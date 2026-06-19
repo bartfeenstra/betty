@@ -15,9 +15,9 @@ from betty.entity.association import BidirectionalToManyMultipleTypes, ToManyAss
 from betty.entity.has_citations import HasCitations
 from betty.entity.has_links import HasLinks
 from betty.entity.has_notes import HasNotes
+from betty.json_schemas.plugin_id import PluginIdSchema
 from betty.license import LicenseDefinition
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin.schema import PluginIdSchema
 from betty.privacy import Privacy
 
 if TYPE_CHECKING:

@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.entity import Entity, EntityDefinition
 from betty.entity.association import BidirectionalToOne, ToOneAssociate
+from betty.json_schemas.plugin_id import PluginIdSchema
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin.schema import PluginIdSchema
 from betty.privacy import Privacy
 from betty.privacy.resolve import merge_secondary_privacies
 from betty.role import RoleDefinition

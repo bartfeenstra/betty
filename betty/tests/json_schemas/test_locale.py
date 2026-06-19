@@ -4,7 +4,7 @@ from typing import override
 
 import pytest
 
-from betty.locale.schema import LocaleSchema
+from betty.json_schemas.locale import LocaleSchema
 from betty.test_utils.json_schema import SchemaTestBase, SchemaTestBaseSut
 
 

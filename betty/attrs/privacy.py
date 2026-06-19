@@ -10,10 +10,10 @@ from betty.attrs.owner import OwnerAttr
 from betty.attrs.proxy import ProxyAttr
 from betty.data import DataDefinition
 from betty.datas.enum import EnumDefinition
+from betty.json_schemas.privacy import PrivacySchema
 from betty.linked_data import LinkedDataDumper
 from betty.locale.localizable.gettext import _
 from betty.privacy import Privacy
-from betty.privacy.schema import PrivacySchema
 from betty.prop import HasProps
 
 if TYPE_CHECKING:

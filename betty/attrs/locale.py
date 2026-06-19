@@ -10,9 +10,9 @@ from betty.attrs.owner import OwnerAttr
 from betty.attrs.privacy import HasPrivacy
 from betty.datas.locale import LocaleDefinition
 from betty.json_schema import Null, OneOf
+from betty.json_schemas.locale import LocaleSchema
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
 from betty.locale import Localized, ResolvableLocale, resolve_locale, to_language_tag
-from betty.locale.schema import LocaleSchema
 from betty.prop import HasProps
 
 if TYPE_CHECKING:

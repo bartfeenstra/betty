@@ -7,9 +7,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.entity import EntityDefinition
-from betty.entity.schema import ToManySchema
 from betty.factory import Manufacturable
 from betty.json_schema import JsonSchemaReference, Schema
+from betty.json_schemas.entity_association import ToManySchema
 from betty.project import Project
 from betty.string import kebab_case_to_lower_camel_case
 

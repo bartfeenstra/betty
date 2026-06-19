@@ -12,14 +12,14 @@ from betty.entity.has_citations import HasCitations
 from betty.entity.has_file_references import HasFileReferences
 from betty.entity.has_links import HasLinks
 from betty.entity.has_notes import HasNotes
-from betty.entity.schema import ToManySchema
 from betty.functools import unique
 from betty.gender import GenderDefinition
 from betty.genders.unknown import Unknown as UnknownGender
+from betty.json_schemas.entity_association import ToManySchema
+from betty.json_schemas.plugin_id import PluginIdSchema
 from betty.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable.gettext import _, ngettext
 from betty.media_types.json_ld import JSON_LD
-from betty.plugin.schema import PluginIdSchema
 from betty.privacy import Privacy
 
 if TYPE_CHECKING:
