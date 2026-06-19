@@ -100,6 +100,7 @@ from betty.plugin.resolve import (
 from betty.privacy.privatizer import Privatizer
 from betty.prop import HasProps
 from betty.render import RenderDispatcher, RendererDefinition
+from betty.requirements.service_level import RequirableServiceLevel
 from betty.role import RoleDefinition
 from betty.sample import Sample, Size
 from betty.server import ServerDefinition
@@ -110,7 +111,6 @@ from betty.service.plugin.instance.collection.keyed import PluginInstancesServic
 from betty.service.plugin.instance.single import PluginInstanceService
 from betty.service.simple import service
 from betty.service_level import DownstreamServiceLevel
-from betty.service_level.requirement import RequirableServiceLevel
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterable, Mapping, Sequence

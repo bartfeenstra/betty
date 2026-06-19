@@ -3,11 +3,11 @@ from __future__ import annotations
 import pytest
 
 from betty.requirement import UnmetRequirement
-from betty.service_level import DownstreamServiceLevel, ServiceLevel
-from betty.service_level.requirement import (
+from betty.requirements.service_level import (
     RequirableServiceLevel,
     ServiceLevelRequirement,
 )
+from betty.service_level import DownstreamServiceLevel, ServiceLevel
 
 
 class _ServiceLevel(ServiceLevel):

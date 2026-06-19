@@ -36,6 +36,7 @@ from betty.media_type import MediaTypeDefinition
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.portable.file import assert_load_file
 from betty.prop import HasProps
+from betty.requirements.service_level import RequirableServiceLevel
 from betty.sample import Sample, Size
 from betty.serialize import SerializerDefinition
 from betty.service import Service
@@ -44,7 +45,6 @@ from betty.service.plugin.definition.collection.keyed import PluginDefinitionsSe
 from betty.service.plugin.instance.collection.keyed import PluginInstancesService
 from betty.service.simple import service
 from betty.service_level import ServiceLevel
-from betty.service_level.requirement import RequirableServiceLevel
 from betty.typing import threadsafe
 from betty.user.no_op import NoOpUser
 

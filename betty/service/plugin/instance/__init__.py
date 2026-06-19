@@ -13,8 +13,8 @@ from betty.locale.localizable.gettext import _
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.resolve import ResolvablePluginDefinition, resolve_plugin_id
+from betty.requirements.service import UnmetServiceRequirement
 from betty.service.plugin import PluginServiceManager, PluginServiceProvider
-from betty.service.requirement import UnmetServiceRequirement
 
 if TYPE_CHECKING:
     from betty.machine_name import MachineName
