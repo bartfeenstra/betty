@@ -9,7 +9,7 @@ from betty.job.scheduler import Scheduler
 
 
 @final
-class NoOp(Job):
+class NoOpJob(Job):
     """
     A job that does nothing.
     """

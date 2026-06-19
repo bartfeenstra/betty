@@ -14,7 +14,7 @@ from betty.entity import Entity
 from betty.jobs.generate_entities_html import GenerateEntitiesHtml
 from betty.privacy import Privacy
 from betty.project import Project
-from betty.roles.unknown import Unknown as UnknownRole
+from betty.roles.unknown import UnknownRole
 from betty.test_utils.jinja import assert_betty_html
 from betty.test_utils.job import do
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE

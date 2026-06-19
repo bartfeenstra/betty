@@ -25,9 +25,9 @@ from betty.entities.source import Source
 from betty.entity.collection.pool import EntityPool
 from betty.event_types.birth import Birth
 from betty.event_types.death import Death
-from betty.event_types.unknown import Unknown as UnknownEventType
+from betty.event_types.unknown import UnknownEventType
 from betty.genders.non_binary import NonBinary
-from betty.genders.unknown import Unknown as UnknownGender
+from betty.genders.unknown import UnknownGender
 from betty.gramps import (
     GrampsFileNotFound,
     GrampsLoader,
@@ -39,7 +39,7 @@ from betty.licenses.public_domain import PublicDomain as PublicDomainLicense
 from betty.locale.localize import Localizer, default_localizer
 from betty.media_type import MediaType
 from betty.place_types.city import City
-from betty.place_types.unknown import Unknown as UnknownPlaceType
+from betty.place_types.unknown import UnknownPlaceType
 from betty.privacy import Privacy
 from betty.project import Project
 from betty.roles.subject import Subject

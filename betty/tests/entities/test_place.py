@@ -15,7 +15,7 @@ from betty.entity.association import AssociationRequired, TemporaryToOneResolver
 from betty.event_types.birth import Birth
 from betty.locale import default_locale_tag
 from betty.place_types.hamlet import Hamlet
-from betty.place_types.unknown import Unknown as UnknownPlaceType
+from betty.place_types.unknown import UnknownPlaceType
 from betty.test_utils.entity import EntityTestBase
 
 if TYPE_CHECKING:

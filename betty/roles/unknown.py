@@ -16,7 +16,7 @@ from betty.role import Role, RoleDefinition
     label_plural=_("Unknowns"),
     label_countable=ngettext("{count} unknown", "{count} unknowns"),
 )
-class Unknown(Role, Singleton):
+class UnknownRole(Role, Singleton):
     """
     .. plugin:: role:unknown.
     """

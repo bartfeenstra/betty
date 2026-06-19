@@ -62,13 +62,13 @@ from betty.event_types.marriage_announcement import MarriageAnnouncement
 from betty.event_types.occupation import Occupation
 from betty.event_types.residence import Residence
 from betty.event_types.retirement import Retirement
-from betty.event_types.unknown import Unknown as UnknownEventType
+from betty.event_types.unknown import UnknownEventType
 from betty.event_types.will import Will
 from betty.exception import HumanFacingException
 from betty.gender import GenderDefinition, GenderManufacturer
 from betty.genders.man import Man
 from betty.genders.non_binary import NonBinary
-from betty.genders.unknown import Unknown as UnknownGender
+from betty.genders.unknown import UnknownGender
 from betty.genders.woman import Woman
 from betty.hashid import hashid, hashid_sequence
 from betty.license import LicenseManufacturer
@@ -100,7 +100,7 @@ from betty.place_types.region import Region
 from betty.place_types.state import State
 from betty.place_types.street import Street
 from betty.place_types.town import Town
-from betty.place_types.unknown import Unknown as UnknownPlaceType
+from betty.place_types.unknown import UnknownPlaceType
 from betty.place_types.village import Village
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.error import PluginNotFound
@@ -109,7 +109,7 @@ from betty.roles.attendee import Attendee
 from betty.roles.celebrant import Celebrant
 from betty.roles.informant import Informant
 from betty.roles.subject import Subject
-from betty.roles.unknown import Unknown as UnknownRole
+from betty.roles.unknown import UnknownRole
 from betty.roles.witness import Witness
 
 if TYPE_CHECKING:

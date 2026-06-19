@@ -7,10 +7,10 @@ import pytest
 from betty.entities.event import Event
 from betty.entities.person import Person
 from betty.entities.presence import Presence
-from betty.event_types.unknown import Unknown as UnknownEventType
+from betty.event_types.unknown import UnknownEventType
 from betty.privacy import Privacy
 from betty.roles.subject import Subject
-from betty.roles.unknown import Unknown as UnknownRole
+from betty.roles.unknown import UnknownRole
 from betty.test_utils.entity import EntityTestBase
 
 if TYPE_CHECKING:

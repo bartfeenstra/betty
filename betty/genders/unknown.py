@@ -18,7 +18,7 @@ from betty.locale.localizable.gettext import _, ngettext
         "{count} person of unknown gender", "{count} people of unknown gender"
     ),
 )
-class Unknown(Gender, Singleton):
+class UnknownGender(Gender, Singleton):
     """
     .. plugin:: gender:unknown.
     """
