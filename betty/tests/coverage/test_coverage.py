@@ -210,7 +210,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/datas/plugin_manufacturer_sequence.py": {
         "PluginManufacturerSequenceDefinition": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/date/__init__.py": {
+    "betty/date.py": {
         "DateRange": {
             "end": MissingReason.INHERITED,
             "end_is_boundary": MissingReason.INHERITED,

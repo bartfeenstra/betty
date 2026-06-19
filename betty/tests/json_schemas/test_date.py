@@ -6,7 +6,7 @@ import pytest
 
 from betty.json_schemas.date import DateRangeSchema, DateSchema, ResolvableDateSchema
 from betty.test_utils.json_schema import SchemaTestBase, SchemaTestBaseSut
-from betty.tests.date.test___init__ import (
+from betty.tests.test_date import (
     _DUMMY_DATE_DUMPS,
     _DUMMY_DATE_RANGE_DUMPS,
     _DUMMY_RESOLVABLE_DATE_DUMPS,
