@@ -1,8 +1,14 @@
+from collections.abc import Iterable
+from typing import override
+
 import pytest
 
+from betty.extension import ExtensionDefinition
 from betty.extensions.maps import Maps
+from betty.plugin.resolve import ResolvablePluginId
 from betty.project.generate import generate
 from betty.test_utils.conftest import IsolatedProjectFactory
+from betty.test_utils.extensions.maps import MapsTestBase
 from betty.tests.conftest import check_skip_webpack_entry_point_provider
 
 
@@ -26,3 +32,11 @@ class TestMaps:
             ) as f:
                 betty_css = f.read()
             assert Maps.plugin().id in betty_css
+
+
+class TestMapsMaps(MapsTestBase):
+    @override
+    def get_other_extensions(
+        self,
+    ) -> Iterable[ResolvablePluginId[ExtensionDefinition]]:
+        return ()

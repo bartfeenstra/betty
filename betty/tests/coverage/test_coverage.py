@@ -610,12 +610,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ExtensionTypeInvalidError": MissingReason.SHOULD_BE_COVERED,
         "Theme": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/extensions/http_api_doc/__init__.py": {
+    "betty/extensions/http_api_doc.py": {
         "HttpApiDoc": {
             "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
         },
     },
-    "betty/extensions/maps/__init__.py": {
+    "betty/extensions/maps.py": {
         "Maps": {
             "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
         },
@@ -637,7 +637,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
         },
     },
-    "betty/extensions/spdx/__init__.py": {
+    "betty/extensions/spdx.py": {
         "Spdx": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/extensions/webpack/build.py": {
@@ -650,7 +650,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "license": MissingReason.INHERITED,
         },
     },
-    "betty/project/generate/__init__.py": {
+    "betty/project/generate.py": {
         "Generator": MissingReason.ABSTRACT,
     },
     "betty/prop.py": {
