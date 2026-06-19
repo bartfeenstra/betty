@@ -7,15 +7,7 @@ from __future__ import annotations
 import gettext as gettext_api
 from typing import TYPE_CHECKING, Final, final
 
-from betty.locale import (
-    Localized as Localized,
-)
-from betty.locale import (
-    LocalizedStr,
-    ResolvableLocale,
-    default_locale,
-    resolve_locale,
-)
+from betty.locale import LocalizedStr, ResolvableLocale, default_locale, resolve_locale
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:

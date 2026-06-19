@@ -65,7 +65,7 @@ class MapsTestBase:
                 ),
             )
             copytree(
-                Path(__file__).parent / "asset",
+                Path(__file__).parent / "maps_assets",
                 project.asset_directory,
             )
             await generate(project)
