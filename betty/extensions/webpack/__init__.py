@@ -19,7 +19,7 @@ from betty.js_resources.webpack_entry_point_loader import WEBPACK_ENTRY_POINT_LO
 from betty.project import Project
 from betty.project.generate import Generator
 from betty.service import ServiceProvider
-from betty.service.simple import service
+from betty.services.simple import service
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler

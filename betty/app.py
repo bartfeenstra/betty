@@ -13,7 +13,6 @@ from typing import TYPE_CHECKING, Any, Final, Literal, Self, final
 from aiohttp_client_cache.backends.filesystem import FileBackend
 from aiohttp_client_cache.session import CachedSession
 
-from betty.asset import AssetRepositoryService
 from betty.attrs.locale import new_locale_attr
 from betty.cache import Cache
 from betty.caches.file import BinaryFileCache, PickledFileCache
@@ -41,11 +40,12 @@ from betty.rich.user import RichUser
 from betty.sample import Sample, Size
 from betty.serialize import SerializerDefinition
 from betty.service import Service
-from betty.service.plugin import PluginServiceProvider
-from betty.service.plugin.definition.collection.keyed import PluginDefinitionsService
-from betty.service.plugin.instance.collection.keyed import PluginInstancesService
-from betty.service.simple import service
 from betty.service_level import ServiceLevel
+from betty.services.asset import AssetRepositoryService
+from betty.services.plugin import PluginServiceProvider
+from betty.services.plugin.definition.collection.keyed import PluginDefinitionsService
+from betty.services.plugin.instance.collection.keyed import PluginInstancesService
+from betty.services.simple import service
 from betty.typing import threadsafe
 from betty.user.no_op import NoOpUser
 
@@ -60,10 +60,10 @@ if TYPE_CHECKING:
     from betty.plugin import PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.plugin.resolve import ResolvablePluginDefinition
-    from betty.service.plugin import SupportedPlugins
-    from betty.service.simple.asynchronous import TypedAsynchronousServiceOrFactory
-    from betty.service.simple.synchronous import TypedSynchronousServiceOrFactory
     from betty.service_level import Plugins
+    from betty.services.plugin import SupportedPlugins
+    from betty.services.simple.asynchronous import TypedAsynchronousServiceOrFactory
+    from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
     from betty.user import User
 
 

@@ -5,12 +5,12 @@ import pytest
 
 from betty.plugin.resolve import resolve_plugin_definition
 from betty.requirements.service import UnmetServiceRequirement
-from betty.service.plugin import (
+from betty.service_level import DownstreamServiceLevel, ServiceLevel
+from betty.services.plugin import (
     PluginServiceManager,
     PluginServiceProvider,
     PluginServiceRequirement,
 )
-from betty.service_level import DownstreamServiceLevel, ServiceLevel
 from betty.test_utils.plugin import (
     DummyPluginDefinition,
     DummyPluginOne,

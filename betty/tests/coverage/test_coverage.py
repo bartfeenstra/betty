@@ -170,18 +170,18 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/css_resources/webpack.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/service/__init__.py": {
+    "betty/service.py": {
         "Service": MissingReason.DATACLASS,
         "ServiceAlreadyInitialized": MissingReason.STATIC_CONTENT_ONLY,
         "ServiceError": MissingReason.ABSTRACT,
         "ServiceNotYetInitialized": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/service/plugin/__init__.py": {
+    "betty/services/plugin/__init__.py": {
         "PluginServiceManager": {
             "new_service": MissingReason.ABSTRACT,
         },
     },
-    "betty/service/plugin/collection/__init__.py": {
+    "betty/services/plugin/collection/__init__.py": {
         "CollectionPluginServiceManager": {
             "new_service_item": MissingReason.ABSTRACT,
         },

@@ -12,7 +12,7 @@ from betty.collection.keyed.adapter import KeyedCollectionAdapter
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.plugin.resolve import resolve_plugin_type_id
 from betty.service import ServiceProvider
-from betty.service.simple import service
+from betty.services.simple import service
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping

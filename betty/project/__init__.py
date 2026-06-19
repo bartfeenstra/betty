@@ -22,7 +22,6 @@ from betty.about import version_major
 from betty.app import App
 from betty.assertions.int import assert_int
 from betty.assertions.url import assert_url
-from betty.asset import AssetRepositoryService
 from betty.attrs.locale import new_locale_attr
 from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.machine_name import new_machine_name_attr
@@ -106,12 +105,13 @@ from betty.role import RoleDefinition
 from betty.sample import Sample, Size
 from betty.server import ServerDefinition
 from betty.service import Service
-from betty.service.plugin import PluginServiceProvider
-from betty.service.plugin.definition.collection.keyed import PluginDefinitionsService
-from betty.service.plugin.instance.collection.keyed import PluginInstancesService
-from betty.service.plugin.instance.single import PluginInstanceService
-from betty.service.simple import service
 from betty.service_level import DownstreamServiceLevel
+from betty.services.asset import AssetRepositoryService
+from betty.services.plugin import PluginServiceProvider
+from betty.services.plugin.definition.collection.keyed import PluginDefinitionsService
+from betty.services.plugin.instance.collection.keyed import PluginInstancesService
+from betty.services.plugin.instance.single import PluginInstanceService
+from betty.services.simple import service
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterable, Mapping, Sequence
@@ -129,12 +129,12 @@ if TYPE_CHECKING:
         ResolvablePluginManufacturer,
         ResolvablePluginManufacturerSequence,
     )
-    from betty.service.plugin import SupportedPlugins
-    from betty.service.plugin.instance import (
+    from betty.services.plugin import SupportedPlugins
+    from betty.services.plugin.instance import (
         ServicePluginInstance,
         ServicePluginInstances,
     )
-    from betty.service.simple.synchronous import TypedSynchronousServiceOrFactory
+    from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
     from betty.url import UrlGenerator
 
 

@@ -10,7 +10,7 @@ from betty.extension import Extension, ExtensionDefinition
 from betty.factory import Manufacturable
 from betty.project import Project
 from betty.service import ServiceProvider
-from betty.service.simple import service
+from betty.services.simple import service
 from betty.wiki import populator as populator_api
 from betty.wiki.client import Client
 

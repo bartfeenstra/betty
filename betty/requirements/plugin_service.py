@@ -15,7 +15,7 @@ from betty.service_level import DownstreamServiceLevel, ServiceLevel
 if TYPE_CHECKING:
     from collections.abc import Collection
 
-    from betty.service.plugin import PluginServiceManager, PluginServiceProvider
+    from betty.services.plugin import PluginServiceManager, PluginServiceProvider
 
 
 @final

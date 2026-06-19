@@ -62,7 +62,6 @@ if TYPE_CHECKING:
     from contextlib import AbstractAsyncContextManager
     from pathlib import Path
 
-    from betty.pathlib import StrPath
     from playwright.async_api import BrowserContext, Page
 
     from betty.asset import AssetDirectoryDefinition
@@ -70,22 +69,23 @@ if TYPE_CHECKING:
     from betty.entity import EntityDefinition
     from betty.entity.collection.pool import EntityPool
     from betty.extension import ExtensionDefinition
-    from betty.linked_data import LinkedDataDumpableWithSchema, LinkedDataDumper
     from betty.link import LinkDefinition
+    from betty.linked_data import LinkedDataDumpableWithSchema, LinkedDataDumper
     from betty.load import EnricherDefinition, LoaderDefinition
     from betty.locale import ResolvableLocale
     from betty.locale.localizable import ResolvableLocalizable
     from betty.locale.translation import TranslationRepository
     from betty.machine_name import ResolvableMachineName
+    from betty.pathlib import StrPath
     from betty.plugin import PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.plugin.resolve import ResolvablePluginDefinition, ResolvablePluginId
     from betty.portable import PortableData, PortableMapping
     from betty.server import ServerDefinition
-    from betty.service.plugin import SupportedPlugins
-    from betty.service.plugin.instance import ServicePluginInstances
-    from betty.service.simple.asynchronous import TypedAsynchronousServiceOrFactory
-    from betty.service.simple.synchronous import TypedSynchronousServiceOrFactory
+    from betty.services.plugin import SupportedPlugins
+    from betty.services.plugin.instance import ServicePluginInstances
+    from betty.services.simple.asynchronous import TypedAsynchronousServiceOrFactory
+    from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
     from betty.user import User
 
 
