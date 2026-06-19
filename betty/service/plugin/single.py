@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING, final, override
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import AllEnumeration
 from betty.plugin import PluginDefinition
+from betty.requirements.service import UnmetServiceRequirement
 from betty.service.plugin import PluginServiceManager, PluginServiceProvider
-from betty.service.requirement import UnmetServiceRequirement
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

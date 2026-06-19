@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, final
 from betty.locale.localizable.gettext import _
 from betty.plugin import PluginDefinition
 from betty.plugin.resolve import ResolvablePluginDefinition, resolve_plugin_definition
-from betty.service.requirement import UnmetServiceRequirement
+from betty.requirements.service import UnmetServiceRequirement
 from betty.service_level import DownstreamServiceLevel, ServiceLevel
 
 if TYPE_CHECKING:

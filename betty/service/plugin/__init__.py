@@ -20,6 +20,7 @@ from betty.plugin.resolve import (
     resolve_plugin_definition,
     resolve_plugin_id,
 )
+from betty.requirements.plugin_service import PluginServiceRequirement
 from betty.service import (
     Service,
     ServiceAlreadyInitialized,
@@ -27,7 +28,6 @@ from betty.service import (
     ServiceNotYetInitialized,
     ServiceProvider,
 )
-from betty.service.plugin.requirement import PluginServiceRequirement
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence

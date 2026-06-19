@@ -3,9 +3,9 @@ from typing import override
 import pytest
 
 from betty.plugin.resolve import ResolvablePluginDefinition
+from betty.requirements.service import UnmetServiceRequirement
 from betty.service.plugin import PluginServiceProvider
 from betty.service.plugin.single import SinglePluginServiceManager
-from betty.service.requirement import UnmetServiceRequirement
 from betty.service_level import ServiceLevel
 from betty.test_utils.plugin import (
     DummyPluginDefinition,

@@ -2,12 +2,12 @@ from typing import override
 
 import pytest
 
+from betty.requirements.service import UnmetServiceRequirement
 from betty.service.plugin import PluginServiceProvider
 from betty.service.plugin.instance import (
     PluginInstanceServiceManager,
     ServicePluginInstance,
 )
-from betty.service.requirement import UnmetServiceRequirement
 from betty.service_level import ServiceLevel
 from betty.test_utils.plugin import (
     DummyPlugin,
