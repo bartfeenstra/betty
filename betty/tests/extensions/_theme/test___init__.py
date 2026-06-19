@@ -29,7 +29,7 @@ from betty.roles.unknown import Unknown as UnknownRole
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Sequence
 
     from betty.event_type import EventType
     from betty.role import Role
@@ -44,7 +44,7 @@ _before_reference_date: Final[Date] = Date(1900, 1, 1)
 _after_reference_date: Final[Date] = Date(2000, 1, 1)
 
 
-def _parameterize_with_associated_events() -> Iterator[
+def _parameterize_with_associated_events() -> Sequence[
     tuple[
         bool,
         Role,
@@ -57,6 +57,10 @@ def _parameterize_with_associated_events() -> Iterator[
         AnyDate | None,
     ]
 ]:
+    return tuple(__parameterize_with_associated_events())
+
+
+def __parameterize_with_associated_events():  # noqa: ANN202
     ids = (
         (True, "my-first-event"),
         (False, None),
