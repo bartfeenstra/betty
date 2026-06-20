@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from asyncio import to_thread
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, Final, final, override
 
 from betty.concurrent import ThreadSafeLock
 from betty.locale.localizable.gettext import _, ngettext
@@ -155,14 +155,10 @@ class AssetDirectoryDefinition(OrderedPluginDefinition):
             before=before,
             requires=requires,
         )
-        self._assets = assets
-
-    @property
-    def assets(self) -> Path:
+        self.assets: Final[Path] = assets
         """
         The path on disk where the asset's assets are located.
         """
-        return self._assets
 
 
 @final

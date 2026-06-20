@@ -92,24 +92,14 @@ class PluginServiceManager[
 
     def __init__(self, plugin_type: type[PluginDefinitionT], /, *, auto: bool = True):
         super().__init__(self.new_service)
-        self.__plugin_type = plugin_type
-        self.__auto = auto
-
-    @final
-    @property
-    def plugin_type(self) -> type[PluginDefinitionT]:
+        self.plugin_type: Final[type[PluginDefinitionT]] = plugin_type
         """
         The type of service plugin.
         """
-        return self.__plugin_type
-
-    @final
-    @property
-    def auto(self) -> bool:
+        self.auto: Final[bool] = auto
         """
         Whether to automatically initialize plugins that declare themselves able to be enabled automatically.
         """
-        return self.__auto
 
     @override
     def init_owner(self, service_provider: ServiceProviderT, /) -> None:
@@ -348,12 +338,13 @@ class PluginServiceInitializer(ManagedLifeCycle):
                 *chain(
                     *await gather(*[
                         self._collect_plugin_requirements(
-                            requirement.service.plugin_type, plugin.id
+                            requirement.service.plugin_type,  # ty:ignore[invalid-argument-type]
+                            plugin.id,  # ty:ignore[unresolved-attribute]
                         )
                         for plugin in requirement.plugins
                     ])
                 ),
-            )
+            )  # ty:ignore[invalid-return-type]
         return ()
 
 

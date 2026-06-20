@@ -5,7 +5,7 @@ Provide JSON utilities.
 from __future__ import annotations
 
 import enum
-from typing import TYPE_CHECKING, Any, cast, override
+from typing import TYPE_CHECKING, Any, Final, cast, override
 
 from jsonschema.validators import Draft202012Validator
 from referencing import Registry, Resource
@@ -34,10 +34,13 @@ class Schema:
         description: ResolvableLocalizable | None = None,
     ):
         self._def_name = def_name
-        self._schema: PortableMapping = {
+        self.schema: Final[PortableMapping] = {
             # The entire API assumes this dialect, so enforce it.
             "$schema": "https://json-schema.org/draft/2020-12/schema",
         }
+        """
+        The raw JSON Schema.
+        """
         if title is not None:
             self.title = title
         if description is not None:
@@ -51,25 +54,18 @@ class Schema:
         return self._def_name
 
     @property
-    def schema(self) -> PortableMapping:
-        """
-        The raw JSON Schema.
-        """
-        return self._schema
-
-    @property
     def title(self) -> str | None:
         """
         The schema's human-readable US English (short) title.
         """
         try:
-            return cast(str, self._schema["title"])
+            return cast(str, self.schema["title"])
         except KeyError:
             return None
 
     @title.setter
     def title(self, title: ResolvableLocalizable) -> None:
-        self._schema["title"] = resolve_localized(title, localizer=default_localizer)
+        self.schema["title"] = resolve_localized(title, localizer=default_localizer)
 
     @property
     def description(self) -> str | None:
@@ -77,13 +73,13 @@ class Schema:
         The schema's human-readable US English (long) description.
         """
         try:
-            return cast(str, self._schema["description"])
+            return cast(str, self.schema["description"])
         except KeyError:
             return None
 
     @description.setter
     def description(self, description: ResolvableLocalizable) -> None:
-        self._schema["description"] = resolve_localized(
+        self.schema["description"] = resolve_localized(
             description, localizer=default_localizer
         )
 
@@ -95,7 +91,7 @@ class Schema:
         Only top-level definitions are supported. You **MUST NOT** nest definitions. Instead, prefix or suffix
         their names.
         """
-        return cast(PortableMapping, self._schema.setdefault("$defs", {}))
+        return cast(PortableMapping, self.schema.setdefault("$defs", {}))
 
     def embed(self, into: Schema, /) -> PortableMapping:
         """
@@ -110,10 +106,10 @@ class Schema:
             for child_name, child_schema in self.schema.items()
             if child_name not in ("$defs", "$schema")
         }
-        if self._def_name is None:
+        if self.def_name is None:
             return schema
-        into.defs[self._def_name] = schema
-        return Ref(self._def_name).embed(into)
+        into.defs[self.def_name] = schema
+        return Ref(self.def_name).embed(into)
 
     def validate(self, data: Any, /) -> None:
         """
@@ -141,7 +137,7 @@ class _Type(Schema):
         description: ResolvableLocalizable | None = None,
     ):
         super().__init__(def_name=def_name, title=title, description=description)
-        self._schema["type"] = self._type
+        self.schema["type"] = self._type
 
 
 class String(_Type):
@@ -193,13 +189,13 @@ class String(_Type):
             description=description,
         )
         if min_length is not None:
-            self._schema["minLength"] = min_length
+            self.schema["minLength"] = min_length
         if max_length is not None:
-            self._schema["maxLength"] = max_length
+            self.schema["maxLength"] = max_length
         if pattern is not None:
-            self._schema["pattern"] = pattern
+            self.schema["pattern"] = pattern
         if format is not None:
-            self._schema["format"] = format.value
+            self.schema["format"] = format.value
 
 
 class Boolean(_Type):
@@ -253,8 +249,8 @@ class Object(_Type):
             title=title,
             description=description,
         )
-        self._properties = self._schema["properties"] = {}
-        self._required = self._schema["required"] = []
+        self._properties = self.schema["properties"] = {}
+        self._required = self.schema["required"] = []
 
     def add_property(
         self,
@@ -291,7 +287,7 @@ class Array(_Type):
             title=title,
             description=description,
         )
-        self._schema["items"] = items.embed(self)
+        self.schema["items"] = items.embed(self)
 
 
 class _Container(Schema):
@@ -305,7 +301,7 @@ class _Container(Schema):
         description: ResolvableLocalizable | None = None,
     ):
         super().__init__(def_name=def_name, title=title, description=description)
-        self._schema[self._type] = [item.embed(self) for item in items]
+        self.schema[self._type] = [item.embed(self) for item in items]
 
 
 class AllOf(_Container):
@@ -346,7 +342,7 @@ class Const(Schema):
         description: ResolvableLocalizable | None = None,
     ):
         super().__init__(def_name=def_name, title=title, description=description)
-        self._schema["const"] = const
+        self.schema["const"] = const
 
 
 class Enum(Schema):
@@ -362,7 +358,7 @@ class Enum(Schema):
         description: ResolvableLocalizable | None = None,
     ):
         super().__init__(def_name=def_name, title=title, description=description)
-        self._schema["enum"] = list(values)
+        self.schema["enum"] = list(values)
 
 
 class Def(str):
@@ -389,7 +385,7 @@ class Ref(Schema):
 
     def __init__(self, def_name: str, /):
         super().__init__()
-        self._schema["$ref"] = Def(def_name)
+        self.schema["$ref"] = Def(def_name)
 
 
 class JsonSchemaReference(String):

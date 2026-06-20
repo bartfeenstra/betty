@@ -4,7 +4,7 @@ JavaScript resources for HTML pages.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, final
+from typing import TYPE_CHECKING, Any, Final, final
 
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
@@ -46,11 +46,7 @@ class JsResourceDefinition(OrderedPluginDefinition):
             before=before,
             requires=requires,
         )
-        self._resource = resource
-
-    @property
-    def resource(self) -> Any:
+        self.resource: Final[Any] = resource
         """
         The URL-generatable resource of a JS file to include on every HTML page.
         """
-        return self._resource

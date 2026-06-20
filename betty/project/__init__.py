@@ -231,45 +231,141 @@ class Project(
         cls.links.add_init_plugins(self, *links)
         cls.loaders.add_init_plugins(self, *loaders)
         cls.servers.add_init_plugins(self, *servers)
-        self._ancestry = EntityPool() if ancestry is None else ancestry
-        self._author = None if author is None else resolve_localizable(author)
-        self._clean_urls = clean_urls
-        self._debug = debug
-        self._directory = resolve_path(directory)
+        self.ancestry: Final[EntityPool] = (
+            EntityPool() if ancestry is None else ancestry
+        )
+        """
+        The project's ancestry.
+        """
+        self.author: Final[Localizable | None] = (
+            None if author is None else resolve_localizable(author)
+        )
+        """
+        The project's author.
+        """
+        self.clean_urls: Final[bool] = clean_urls
+        """
+        Whether to generate clean URLs such as ``/person/first-person`` instead of ``/person/first-person/index.html``.
+
+        Generated artifacts will require web server that supports this.
+        """
+        self.debug: Final[bool] = debug
+        """
+        Whether to enable debugging for project jobs.
+
+        This setting is disabled by default.
+
+        Enabling this generally results in:
+
+        - More verbose logging output
+        - job artifacts (e.g. generated sites)
+        """
+        self.directory: Final[Path] = resolve_path(directory)
+        """
+        The project directory path.
+
+        Betty will look for resources in this directory, and place generated artifacts there. It is expected
+        that no other applications or projects share this same directory.
+        """
+        self.output_directory: Final[Path] = self.directory / "output"
+        """
+        The output directory path.
+        """
+        self.asset_directory: Final[Path] = self.directory / "asset"
+        """
+        The :doc:`asset directory path </usage/assets>`.
+        """
+
+        self.www_directory: Final[Path] = self.output_directory / "www"
+        """
+        The WWW directory path.
+        """
         self._generate_entity_list_html = (
             ()
             if generate_entity_list_html is None
             else tuple(map(resolve_plugin_id, generate_entity_list_html))
         )
-        self._lifetime_threshold = lifetime_threshold or default_lifetime_threshold
-        self._locales = KeyedCollectionAdapter(
-            {
-                project_locale.locale: project_locale
-                for locale in (locales or (default_locale,))
-                if (
-                    project_locale := locale
-                    if isinstance(locale, ProjectLocale)
-                    else ProjectLocale(resolve_locale(locale))
-                )
-            },
-            key_resolver=resolve_locale,
+        self.lifetime_threshold: Final[int] = (
+            lifetime_threshold or default_lifetime_threshold
         )
-        self._logo = (
+        """
+        The lifetime threshold indicates when people are considered dead.
+
+        This setting defaults to :py:const:`betty.project.default_lifetime_threshold`.
+
+        The value is an integer expressing the age in years over which people are
+        presumed to have died.
+        """
+        self.locales: KeyedCollection[Locale, ResolvableLocale, ProjectLocale] = (
+            KeyedCollectionAdapter(
+                {
+                    project_locale.locale: project_locale
+                    for locale in (locales or (default_locale,))
+                    if (
+                        project_locale := locale
+                        if isinstance(locale, ProjectLocale)
+                        else ProjectLocale(resolve_locale(locale))
+                    )
+                },
+                key_resolver=resolve_locale,
+            )
+        )
+        """
+        The project locales.
+        """
+        self.default_locale: Final[ProjectLocale] = next(iter(self.locales))
+        """
+        The default locale.
+        """
+        self.multilingual: Final[bool] = len(self.locales) > 1
+        """
+        Whether the project is multilingual.
+        """
+        self.logo: Final[Path] = (
             builtin_asset_directory / "public" / "static" / "betty-512x512.png"
             if logo is None
             else resolve_path(logo)
         )
-        self._name = (
+        """
+        The path to the logo file.
+        """
+        self.name: Final[MachineName] = (
             MachineName(hashid(str(directory)))
             if name is None
             else MachineName.resolve(name)
         )
+        """
+        The project name.
+
+        If no project name was configured, this defaults to the hash of the project directory path.
+        """
         self._plugin_discoveries = _plugin_discoveries
-        self._title = None if title is None else resolve_localizable(title)
-        self._url = url
+        self.title: Final[Localizable] = (
+            None if title is None else resolve_localizable(title)
+        )
+        """
+        The human-readable project title.
+        """
+        self.url: Final[str] = url
+        """
+        The project's public URL.
+        """
         url_parts = urlsplit(self.url)
-        self._base_url = f"{url_parts.scheme}://{url_parts.netloc}"
-        self._root_path = url_parts.path.rstrip("/")
+        self.base_url: Final[str] = f"{url_parts.scheme}://{url_parts.netloc}"
+        """
+        The project's public URL's base URL.
+
+        If the public URL is ``https://example.com``, the base URL is ``https://example.com``.
+        If the public URL is ``https://example.com/my-ancestry-site``, the base URL is ``https://example.com``.
+        If the public URL is ``https://my-ancestry-site.example.com``, the base URL is ``https://my-ancestry-site.example.com``.
+        """
+        self.root_path: Final[str] = url_parts.path.rstrip("/")
+        """
+        The project's public URL's root path.
+
+        If the public URL is ``https://example.com``, the root path is an empty string.
+        If the public URL is ``https://example.com/my-ancestry-site``, the root path is ``/my-ancestry-site``.
+        """
         self._cache_directory = self.directory / ".cache" / version_major
 
     @classmethod
@@ -379,37 +475,6 @@ class Project(
             ) as project:
                 yield project
 
-    @property
-    def directory(self) -> Path:
-        """
-        The project directory path.
-
-        Betty will look for resources in this directory, and place generated artifacts there. It is expected
-        that no other applications or projects share this same directory.
-        """
-        return self._directory
-
-    @property
-    def output_directory(self) -> Path:
-        """
-        The output directory path.
-        """
-        return self.directory / "output"
-
-    @property
-    def asset_directory(self) -> Path:
-        """
-        The :doc:`asset directory path </usage/assets>`.
-        """
-        return self.directory / "asset"
-
-    @property
-    def www_directory(self) -> Path:
-        """
-        The WWW directory path.
-        """
-        return self.output_directory / "www"
-
     def localize_www_directory(self, locale: Locale) -> Path:
         """
         Get the WWW directory path for a locale.
@@ -417,63 +482,6 @@ class Project(
         if self.multilingual:
             return self.www_directory / self.locales[locale].slug
         return self.www_directory
-
-    @property
-    def name(self) -> MachineName:
-        """
-        The project name.
-
-        If no project name was configured, this defaults to the hash of the project directory path.
-        """
-        return self._name
-
-    @property
-    def ancestry(self) -> EntityPool:
-        """
-        The project's ancestry.
-        """
-        return self._ancestry
-
-    @property
-    def author(self) -> Localizable | None:
-        """
-        The project's author.
-        """
-        return self._author
-
-    @property
-    def base_url(self) -> str:
-        """
-        The project's public URL's base URL.
-
-        If the public URL is ``https://example.com``, the base URL is ``https://example.com``.
-        If the public URL is ``https://example.com/my-ancestry-site``, the base URL is ``https://example.com``.
-        If the public URL is ``https://my-ancestry-site.example.com``, the base URL is ``https://my-ancestry-site.example.com``.
-        """
-        return self._base_url
-
-    @property
-    def clean_urls(self) -> bool:
-        """
-        Whether to generate clean URLs such as ``/person/first-person`` instead of ``/person/first-person/index.html``.
-
-        Generated artifacts will require web server that supports this.
-        """
-        return self._clean_urls
-
-    @property
-    def debug(self) -> bool:
-        """
-        Whether to enable debugging for project jobs.
-
-        This setting is disabled by default.
-
-        Enabling this generally results in:
-
-        - More verbose logging output
-        - job artifacts (e.g. generated sites)
-        """
-        return self._debug
 
     @service
     async def generate_entity_list_html(
@@ -500,63 +508,6 @@ class Project(
             {entity_type.id: entity_type for entity_type in entity_types},
             key_resolver=resolve_plugin_id,
         )
-
-    @property
-    def root_path(self) -> str:
-        """
-        The project's public URL's root path.
-
-        If the public URL is ``https://example.com``, the root path is an empty string.
-        If the public URL is ``https://example.com/my-ancestry-site``, the root path is ``/my-ancestry-site``.
-        """
-        return self._root_path
-
-    @property
-    def title(self) -> Localizable:
-        """
-        The human-readable project title.
-        """
-        return self._title
-
-    @property
-    def url(self) -> str:
-        """
-        The project's public URL.
-        """
-        return self._url
-
-    @property
-    def lifetime_threshold(self) -> int:
-        """
-        The lifetime threshold indicates when people are considered dead.
-
-        This setting defaults to :py:const:`betty.project.default_lifetime_threshold`.
-
-        The value is an integer expressing the age in years over which people are
-        presumed to have died.
-        """
-        return self._lifetime_threshold
-
-    @property
-    def locales(self) -> KeyedCollection[Locale, ResolvableLocale, ProjectLocale]:
-        """
-        The project locales.
-        """
-        return self._locales
-
-    @property
-    def default_locale(self) -> ProjectLocale:
-        """
-        The default locale.
-        """
-        return next(iter(self._locales))
-
-    @property
-    def multilingual(self) -> bool:
-        """
-        Whether the project is multilingual.
-        """
-        return len(self._locales) > 1
 
     @service
     async def translations(self) -> TranslationRepository:
@@ -606,13 +557,6 @@ class Project(
         The content renderer.
         """
         return RenderDispatcher(*await gather(*self.renderers))
-
-    @property
-    def logo(self) -> Path:
-        """
-        The path to the logo file.
-        """
-        return self._logo
 
     @service
     def privatizer(self) -> Privatizer:
@@ -697,14 +641,10 @@ class ProjectLocale(Data["ObjectDefinition"], HasProps):
         if alias is not None and "/" in alias:
             raise HumanFacingException(_("Locale aliases must not contain slashes."))
         self.alias = alias
-        self._slug = alias or to_language_tag(self.locale)
-
-    @property
-    def slug(self) -> str:
+        self.slug: Final[str] = alias or to_language_tag(self.locale)
         """
         The URL slug.
         """
-        return self._slug
 
 
 @final

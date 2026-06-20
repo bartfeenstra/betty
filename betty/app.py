@@ -148,10 +148,13 @@ class App(RequirableServiceLevel, PluginServiceProvider):
             user = RichUser()
         if isinstance(user, Bootstrappable | Shutdownable):
             self.life_cycle.on_bootstrap(lambda: self.life_cycle.synchronize(user))
-        self._user = user
+        self.user: Final[User] = user
+        """
+        The current user session.
+        """
 
     async def _bootstrap_localizer(self) -> None:
-        self._user.localizer = await self.localizer
+        self.user.localizer = await self.localizer
 
     @classmethod
     @asynccontextmanager
@@ -220,13 +223,6 @@ class App(RequirableServiceLevel, PluginServiceProvider):
                 else translations,
             ) as app:
                 yield app
-
-    @property
-    def user(self) -> User:
-        """
-        The current user session.
-        """
-        return self._user
 
     @service
     async def translations(self) -> TranslationRepository:

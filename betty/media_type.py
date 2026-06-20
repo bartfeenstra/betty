@@ -5,7 +5,7 @@ Provide `media type <https://en.wikipedia.org/wiki/Media_type>`_ handling utilit
 from __future__ import annotations
 
 from email.message import EmailMessage
-from typing import TYPE_CHECKING, Self, final, override
+from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.assertions.str import assert_str
 from betty.data import Data, DataDefinition
@@ -58,66 +58,46 @@ class MediaType(Data, Portable):
         # invalid.
         if not media_type.startswith(type_part):
             raise InvalidMediaType(f'"{media_type}" is not a valid media type.')
-        self._parameters: Mapping[str, str] = dict(message["Content-Type"].params)
-        self._type, type_part_remainder = type_part.split("/")
+        self.parameters: Mapping[str, str] = dict(message["Content-Type"].params)
+        """
+        The parameters, e.g. ``{"charset": "UTF-8"}`` for ``"text/html; charset=UTF-8"``.
+        """
+        _type, type_part_remainder = type_part.split("/")
+        self.type: Final[str] = _type
+        """
+        The type, e.g. ``application`` for ``application/ld+json``.
+        """
         if not type_part_remainder:
             raise InvalidMediaType("The subtype must not be empty.")
         plus_position = type_part_remainder.find("+")
         if plus_position > 0:
-            self._subtype = type_part_remainder[0:plus_position]
-            self._suffix = type_part_remainder[plus_position:]
+            subtype = type_part_remainder[0:plus_position]
+            suffix = type_part_remainder[plus_position:]
         else:
-            self._subtype = type_part_remainder
-            self._suffix = None
-        self._extensions = extensions
-
-    @override
-    def __hash__(self) -> int:
-        return hash(self._str)
-
-    @property
-    def type(self) -> str:
-        """
-        The type, e.g. ``application`` for ``application/ld+json``.
-        """
-        return self._type
-
-    @property
-    def subtype(self) -> str:
+            subtype = type_part_remainder
+            suffix = None
+        self.subtype: Final[str] = subtype
         """
         The subtype, e.g. ``"vnd.oasis.opendocument.text"`` for ``"application/vnd.oasis.opendocument.text"``.
         """
-        return self._subtype
-
-    @property
-    def subtypes(self) -> Sequence[str]:
+        self.subtypes = subtype.split("+")[0].split(".")
         """
         The subtype parts, e.g. ``["vnd", "oasis", "opendocument", "text"]`` for ``"application/vnd.oasis.opendocument.text"``.
         """
-        return self._subtype.split("+")[0].split(".")
-
-    @property
-    def suffix(self) -> str | None:
+        self.suffix: Final[str | None] = suffix
         """
         The suffix, e.g. ``json`` for ``application/ld+json``.
         """
-        return self._suffix
-
-    @property
-    def parameters(self) -> Mapping[str, str]:
-        """
-        The parameters, e.g. ``{"charset": "UTF-8"}`` for ``"text/html; charset=UTF-8"``.
-        """
-        return self._parameters
-
-    @property
-    def extensions(self) -> Sequence[str]:
+        self.extensions: Sequence[str] = extensions
         """
         The file extensions associated with this media type.
 
         Extensions must include a leading dot, and are returned in order of decreasing priority.
         """
-        return self._extensions
+
+    @override
+    def __hash__(self) -> int:
+        return hash(self._str)
 
     @override
     def __str__(self) -> str:

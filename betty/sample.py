@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from enum import IntEnum, auto
-from typing import TYPE_CHECKING, Generic, Self, TypeVar, final
+from typing import TYPE_CHECKING, Final, Generic, Self, TypeVar, final
 
 from betty.locale.localizable import resolve_localizable
 
@@ -44,38 +44,24 @@ class Sample[T]:
         description: ResolvableLocalizable | None = None,
         size: Size = Size.INTERMEDIATE,
     ):
-        self._subject = subject
-        self._label = resolve_localizable(label)
-        self._description = resolve_localizable(description) if description else None
-        self._size = size
-
-    @property
-    def subject(self) -> T:
+        self.subject: Final[T] = subject
         """
         The sample subject.
         """
-        return self._subject
-
-    @property
-    def label(self) -> Localizable:
+        self.label: Final[Localizable] = resolve_localizable(label)
         """
         The sample's human-readable short label.
         """
-        return self._label
-
-    @property
-    def description(self) -> Localizable | None:
+        self.description: Final[Localizable | None] = (
+            resolve_localizable(description) if description else None
+        )
         """
         The sample's human-readable long description.
         """
-        return self._description
-
-    @property
-    def size(self) -> Size:
+        self.size: Final[Size] = size
         """
         The sample size.
         """
-        return self._size
 
 
 _SampleT = TypeVar("_SampleT", covariant=True)

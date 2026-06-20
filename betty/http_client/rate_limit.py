@@ -4,7 +4,7 @@ HTTP client rate limiting.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Final, final
 
 from betty.concurrent import RateLimiter, ThreadSafeLock
 from betty.locale.localizable.gettext import _, ngettext
@@ -100,15 +100,11 @@ class RateLimitDefinition(OrderedPluginDefinition):
         super().__init__(
             plugin_id, after=after, auto=auto, before=before, requires=requires
         )
-        self._limit = limit
-        self._match = match
-
-    @property
-    def limit(self) -> tuple[int, int]:
+        self.limit: Final[tuple[int, int]] = limit
         """
         The limit expressed as a 2-tuple of the maximum and the period (in seconds).
         """
-        return self._limit
+        self._match = match
 
     def match(self, request: ClientRequest, /) -> bool:
         """

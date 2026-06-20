@@ -4,7 +4,7 @@ Plugin service requirements.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, final
+from typing import TYPE_CHECKING, Any, Final, final
 
 from betty.locale.localizable.gettext import _
 from betty.plugin import PluginDefinition
@@ -33,26 +33,20 @@ class PluginServiceRequirement[PluginDefinitionT: PluginDefinition, GetServiceT]
         /,
         *plugins: ResolvablePluginDefinition[PluginDefinitionT],
     ):
-        self._service = service
-        self._plugins = tuple(map(resolve_plugin_definition, plugins))
-
-    @property
-    def service(
-        self,
-    ) -> PluginServiceManager[
-        PluginServiceProvider, PluginDefinitionT, GetServiceT, Any
-    ]:
+        self.service: Final[
+            PluginServiceManager[
+                PluginServiceProvider, PluginDefinitionT, GetServiceT, Any
+            ]
+        ] = service
         """
         The service for which the plugin is required.
         """
-        return self._service
-
-    @property
-    def plugins(self) -> Collection[PluginDefinitionT]:
+        self.plugins: Final[Collection[PluginDefinitionT]] = tuple(
+            map(resolve_plugin_definition, plugins)
+        )
         """
         The definitions of the required service plugins.
         """
-        return self._plugins
 
     async def __call__(self, services: ServiceLevel, /) -> GetServiceT:
         """
@@ -61,23 +55,23 @@ class PluginServiceRequirement[PluginDefinitionT: PluginDefinition, GetServiceT]
         if isinstance(services, self.service.prop.owner):
             service_plugins = list(
                 map(
-                    self._service.resolve_init_plugin_id,
-                    self._service.get_plugins(services),
+                    self.service.resolve_init_plugin_id,
+                    self.service.get_plugins(services),
                 )
             )
-            for plugin in self._plugins:
+            for plugin in self.plugins:
                 if plugin.id not in service_plugins:
                     raise UnmetServiceRequirement(
-                        self._service,
+                        self.service,
                         _(
                             "The {plugin} {plugin_type} plugin is required from the {service} service."
                         ).format(
                             plugin=plugin.id,
-                            plugin_type=self._service.plugin_type.type().label,
+                            plugin_type=self.service.plugin_type.type().label,
                             service=self.service.prop.id,
                         ),
                     )
-            return self._service.get(services)
+            return self.service.get(services)
         if isinstance(services, DownstreamServiceLevel):
             return await self(services.upstream)
         raise UnmetServiceRequirement(

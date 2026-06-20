@@ -12,18 +12,14 @@ class Counter:
     """
 
     def __init__(self):
-        self._count = 0
-
-    @property
-    def count(self) -> int:
+        self.count = 0
         """
         The call count.
         """
-        return self._count
 
     def __call__(self) -> int:
         """
         Increment the counter.
         """
-        self._count += 1
-        return self._count
+        self.count += 1
+        return self.count

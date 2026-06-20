@@ -34,8 +34,8 @@ class OrderedPluginDefinition(PluginDefinition):
         **kwargs: Any,
     ):
         super().__init__(plugin_id, auto=auto, requires=requires, **kwargs)
-        self._after = self.__resolve_order(after)
-        self._before = self.__resolve_order(before)
+        self.__after = self.__resolve_order(after)
+        self.__before = self.__resolve_order(before)
 
     def __resolve_order(self, order: Order) -> Callable[[MachineName], bool]:
         if callable(order):
@@ -48,14 +48,14 @@ class OrderedPluginDefinition(PluginDefinition):
         """
         Test if this plugin comes after another plugin.
         """
-        return self._after(other)
+        return self.__after(other)
 
     @final
     def before(self, other: MachineName, /) -> bool:
         """
         Test if this plugin comes before another plugin.
         """
-        return self._before(other)
+        return self.__before(other)
 
 
 class OrderedPluginClsDefinition[BaseClsT](
