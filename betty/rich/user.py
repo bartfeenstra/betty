@@ -5,7 +5,7 @@ Console user sessions.
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import TextIO, cast, final, overload, override
+from typing import Final, TextIO, cast, final, overload, override
 
 from rich.console import Console
 from rich.progress import BarColumn, TaskProgressColumn, TextColumn, TimeElapsedColumn
@@ -35,18 +35,14 @@ class RichUser(ManagedLifeCycle, User):
         super().__init__()
         self.life_cycle.on_bootstrap(self._propagate_verbosity)
         self.life_cycle.on_shutdown(self._shutdown_logging_handler)
-        self._console = Console(theme=Theme())
+        self.console: Final[Console] = Console(theme=Theme())
+        """
+        The Rich console.
+        """
         self._verbosity = Verbosity.DEFAULT
         self._logging_handler: UserHandler | None = None
         self._logger = logging.getLogger()
         self._log_formatter = logging.Formatter()
-
-    @property
-    def console(self) -> Console:
-        """
-        The Rich console.
-        """
-        return self._console
 
     @override
     @property
@@ -85,7 +81,7 @@ class RichUser(ManagedLifeCycle, User):
     @override
     async def message_exception(self) -> None:
         self._message_error(self.localizer._("An unexpected error occurred:"))
-        self._console.print_exception(show_locals=self.verbosity >= Verbosity.VERBOSE)
+        self.console.print_exception(show_locals=self.verbosity >= Verbosity.VERBOSE)
 
     @override
     async def message_error(self, message: ResolvableLocalizable, /) -> None:
@@ -93,14 +89,14 @@ class RichUser(ManagedLifeCycle, User):
 
     def _message_error(self, message: str) -> None:
         self.assert_alive()
-        self._console.print(f"[red]{message}[/]")
+        self.console.print(f"[red]{message}[/]")
 
     @override
     async def message_warning(self, message: ResolvableLocalizable, /) -> None:
         self.assert_alive()
         if self._verbosity < Verbosity.DEFAULT:
             return
-        self._console.print(
+        self.console.print(
             f"[yellow]{resolve_localized(message, localizer=self.localizer)}[/]"
         )
 
@@ -109,7 +105,7 @@ class RichUser(ManagedLifeCycle, User):
         self.assert_alive()
         if self._verbosity < Verbosity.DEFAULT:
             return
-        self._console.print(
+        self.console.print(
             f"[green]{resolve_localized(message, localizer=self.localizer)}[/]"
         )
 
@@ -120,7 +116,7 @@ class RichUser(ManagedLifeCycle, User):
         self.assert_alive()
         if self._verbosity < Verbosity.VERBOSE:
             return
-        self._console.print(
+        self.console.print(
             f"[green]{resolve_localized(message, localizer=self.localizer)}[/]"
         )
 
@@ -129,7 +125,7 @@ class RichUser(ManagedLifeCycle, User):
         self.assert_alive()
         if self._verbosity < Verbosity.MORE_VERBOSE:
             return
-        self._console.print(
+        self.console.print(
             f"[white]{resolve_localized(message, localizer=self.localizer)}[/]"
         )
 
@@ -138,7 +134,7 @@ class RichUser(ManagedLifeCycle, User):
         self.assert_bootstrapped()
         if self._verbosity < Verbosity.MOST_VERBOSE:
             return
-        self._console.print(f"[blue]{self._log_formatter.format(message)}[/]")
+        self.console.print(f"[blue]{self._log_formatter.format(message)}[/]")
 
     @override
     @asynccontextmanager
@@ -154,7 +150,7 @@ class RichUser(ManagedLifeCycle, User):
                 BarColumn(),
                 TaskProgressColumn(),
                 TimeElapsedColumn(),
-                console=self._console,
+                console=self.console,
             ) as rich_progress:
                 async with RichProgress(
                     rich_progress, resolve_localized(message, localizer=self.localizer)
@@ -172,7 +168,7 @@ class RichUser(ManagedLifeCycle, User):
         self.assert_alive()
         return Confirm.ask(
             resolve_localized(statement, localizer=self.localizer),
-            console=self._console,
+            console=self.console,
             default=default,
             stream=stdin,
         )
@@ -215,7 +211,7 @@ class RichUser(ManagedLifeCycle, User):
             str,
             Prompt.ask(
                 resolve_localized(question, localizer=self.localizer),
-                console=self._console,
+                console=self.console,
                 stream=stdin,
                 **ask_kwargs,
             ),  # ty:ignore[no-matching-overload]

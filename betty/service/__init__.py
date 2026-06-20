@@ -7,7 +7,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, final, override
+from typing import TYPE_CHECKING, Any, Final, final, override
 
 from betty.prop import HasProps, Prop
 
@@ -36,15 +36,10 @@ class ServiceProvider(HasProps):
 
     def __init__(self, *args: Any, services: ServiceLevel, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        self.__services = services
-
-    @final
-    @property
-    def services(self) -> ServiceLevel:
+        self.services: Final[ServiceLevel] = services
         """
         The service level the services are provided for.
         """
-        return self.__services
 
 
 @final

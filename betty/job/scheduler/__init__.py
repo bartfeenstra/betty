@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable, Sequence
-from typing import TYPE_CHECKING, Self, final
+from typing import TYPE_CHECKING, Final, Self, final
 
 from betty.job import Context
 
@@ -89,14 +89,10 @@ class Scheduler(ABC):
     """
 
     def __init__(self, context: Context | None = None, /):
-        self._context = Context() if context is None else context
-
-    @property
-    def context(self) -> Context:
+        self.context: Final[Context] = Context() if context is None else context
         """
         The context for all jobs in this scheduler.
         """
-        return self._context
 
     @abstractmethod
     async def add(self, *jobs: Job) -> None:

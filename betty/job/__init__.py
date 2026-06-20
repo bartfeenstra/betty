@@ -6,14 +6,14 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any, final
+from typing import TYPE_CHECKING, Any, Final, final
 from uuid import uuid4
 
 from betty.caches.memory import MemoryCache
 from betty.progresses.no_op import NoOpProgress
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Set
 
     from betty.cache import Cache
     from betty.job.scheduler import Scheduler
@@ -27,40 +27,24 @@ class Context:
     """
 
     def __init__(self, *, progress: Progress | None = None):
-        self._id = str(uuid4())
-        self._cache = MemoryCache()
-        self._start = datetime.now(tz=UTC)
-        self._progress = progress or NoOpProgress()
-
-    @property
-    def id(self) -> str:
+        self.id: Final[str] = str(uuid4())
         """
         The unique job context ID.
         """
-        return self._id
-
-    @property
-    def cache(self) -> Cache[Any]:
+        self.cache: Final[Cache[Any]] = MemoryCache()
         """
-        Provide a cache for this job context.
+        A cache for this job context.
 
         The cache is volatile and will be discarded once the job context is completed.
         """
-        return self._cache
-
-    @property
-    def start(self) -> datetime:
+        self.start: Final[datetime] = datetime.now(tz=UTC)
         """
         When the job started.
         """
-        return self._start
-
-    @property
-    def progress(self) -> Progress:
+        self.progress: Final[Progress] = progress or NoOpProgress()
         """
         The job progress.
         """
-        return self._progress
 
 
 class Job(ABC):
@@ -76,39 +60,22 @@ class Job(ABC):
         dependents: Iterable[str] = (),
         priority: bool = False,
     ):
-        self._called = False
-        self._id = job_id
-        self._dependencies = set(dependencies)
-        self._dependents = set(dependents)
-        self._priority = priority
-
-    @property
-    def id(self) -> str:
+        self.id: Final[str] = job_id
         """
         The unique job ID.
         """
-        return self._id
-
-    @property
-    def dependencies(self) -> set[str]:
+        self.dependencies: Final[Set[str]] = set(dependencies)
         """
         The IDs of any other jobs this job depends on.
         """
-        return self._dependencies
-
-    @property
-    def dependents(self) -> set[str]:
+        self.dependents: Final[Set[str]] = set(dependents)
         """
         The IDs of any other jobs that depend on this job.
         """
-        return self._dependents
-
-    @property
-    def priority(self) -> bool:
+        self.priority: Final[bool] = priority
         """
         Whether the job has priority over others.
         """
-        return self._priority
 
     @abstractmethod
     async def do(self, scheduler: Scheduler, /) -> None:

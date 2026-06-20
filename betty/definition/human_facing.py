@@ -4,7 +4,7 @@ Definitions that are human-facing and provide human-friendly information.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Final
 
 from betty.locale.localizable import resolve_localizable
 
@@ -29,24 +29,16 @@ class HumanFacingDefinition:
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
-        self._label = resolve_localizable(label)
-        self._description = (
-            None if description is None else resolve_localizable(description)
-        )
-
-    @property
-    def label(self) -> Localizable:
+        self.label: Final[Localizable] = resolve_localizable(label)
         """
         The human-readable short label (singular).
         """
-        return self._label
-
-    @property
-    def description(self) -> Localizable | None:
+        self.description: Final[Localizable | None] = (
+            None if description is None else resolve_localizable(description)
+        )
         """
         The human-readable long description.
         """
-        return self._description
 
 
 class CountableHumanFacingDefinition(HumanFacingDefinition):
@@ -64,19 +56,11 @@ class CountableHumanFacingDefinition(HumanFacingDefinition):
         **kwargs: Any,
     ):
         super().__init__(*args, label=label, description=description, **kwargs)
-        self._label_plural = resolve_localizable(label_plural)
-        self._label_countable = label_countable
-
-    @property
-    def label_plural(self) -> Localizable:
+        self.label_plural: Final[Localizable] = resolve_localizable(label_plural)
         """
         The human-readable short label (plural).
         """
-        return self._label_plural
-
-    @property
-    def label_countable(self) -> CountableLocalizable:
+        self.label_countable: Final[CountableLocalizable] = label_countable
         """
         The human-readable short label (countable).
         """
-        return self._label_countable

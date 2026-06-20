@@ -8,7 +8,7 @@ from asyncio import gather
 from collections.abc import AsyncIterator, Awaitable, Callable, Iterable, Mapping
 from contextlib import suppress
 from importlib import metadata
-from typing import TYPE_CHECKING, cast, final, override
+from typing import TYPE_CHECKING, Final, cast, final, override
 
 from betty.asyncio import resolve_await
 from betty.collection.keyed.error import ErroringKeyedCollection
@@ -82,19 +82,15 @@ class PluginDiscoverer[PluginDefinitionT: PluginDefinition = PluginDefinition]:
         /,
     ):
         self._services = services
-        self._type = plugin_type
+        self.type: Final[type[PluginDefinitionT]] = plugin_type
+        """
+        The plugin type.
+        """
         self._lock = ThreadSafeLock()
         self._discovery = (
             [self._discover] if plugin_overrides is None else plugin_overrides
         )
         self.__plugins: Mapping[MachineName, PluginDefinitionT] | None = None
-
-    @property
-    def type(self) -> builtins.type[PluginDefinitionT]:
-        """
-        The plugin type.
-        """
-        return self._type
 
     def _discover(
         self, services: ServiceLevel
@@ -128,7 +124,7 @@ class PluginDiscoverer[PluginDefinitionT: PluginDefinition = PluginDefinition]:
         try:
             return (await self._plugins())[key]
         except KeyError:
-            raise PluginNotFound(self._type, key, await self.ids()) from None
+            raise PluginNotFound(self.type, key, await self.ids()) from None
 
     def __getitem__(self, key: ResolvablePluginId) -> Awaitable[PluginDefinitionT]:
         return self.get(key)

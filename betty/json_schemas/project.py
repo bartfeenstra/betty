@@ -50,7 +50,7 @@ class ProjectSchema(Manufacturable, Schema):
     @classmethod
     async def new(cls, project: Project, /) -> Self:
         schema = cls()
-        schema._schema["$id"] = await cls.url(project)
+        schema.schema["$id"] = await cls.url(project)
 
         # Add entity schemas.
         async for entity_type in project.plugins[EntityDefinition]:
@@ -80,7 +80,7 @@ class ProjectSchema(Manufacturable, Schema):
             "additionalProperties": False,
         }
 
-        schema._schema["anyOf"] = [
+        schema.schema["anyOf"] = [
             {"$ref": f"#/$defs/{def_name}"} for def_name in schema.defs
         ]
 

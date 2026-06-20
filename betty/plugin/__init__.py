@@ -8,7 +8,7 @@ to Betty.
 from __future__ import annotations
 
 from functools import update_wrapper
-from typing import TYPE_CHECKING, Self, final, override
+from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import CountableHumanFacingDefinition
@@ -36,9 +36,23 @@ class PluginDefinition:
     ):
 
         super().__init__()
-        self._id = MachineName.resolve(plugin_id)
-        self._auto = auto
-        self._requires = tuple(requires)
+        self.id: Final[MachineName] = MachineName.resolve(plugin_id)
+        """
+        The plugin ID.
+
+        IDs are unique per plugin type:
+
+        - A plugin repository **MUST** at most have a single plugin for any ID.
+        - Different plugin repositories **MAY** each have a plugin with the same ID.
+        """
+        self.auto: Final[bool] = auto
+        """
+        Whether to enable this plugin automatically when its plugin type is used for a plugi. service.
+        """
+        self.requires: Final[Iterable[Requirement]] = tuple(requires)
+        """
+        The plugin's requirements.
+        """
 
     @classmethod
     def type(cls) -> PluginTypeDefinition[Self]:
@@ -48,32 +62,6 @@ class PluginDefinition:
         raise NotImplementedError(
             f"{fully_qualified_name(cls)} was not decorated with a {fully_qualified_name(PluginDefinition)} subclass."
         )
-
-    @property
-    def id(self) -> MachineName:
-        """
-        The plugin ID.
-
-        IDs are unique per plugin type:
-
-        - A plugin repository **MUST** at most have a single plugin for any ID.
-        - Different plugin repositories **MAY** each have a plugin with the same ID.
-        """
-        return self._id
-
-    @property
-    def auto(self) -> bool:
-        """
-        Whether to enable this plugin automatically when its plugin type is used for a plugi. service.
-        """
-        return self._auto
-
-    @property
-    def requires(self) -> Iterable[Requirement]:
-        """
-        The plugin's requirements.
-        """
-        return self._requires
 
 
 @final
@@ -100,14 +88,10 @@ class PluginTypeDefinition[PluginDefinitionT: PluginDefinition](
             description=description,
         )
 
-        self._id = MachineName.resolve(plugin_type_id)
-
-    @property
-    def id(self) -> MachineName:
+        self.id: Final[MachineName] = MachineName.resolve(plugin_type_id)
         """
         The plugin type ID.
         """
-        return self._id
 
     @override
     def _set_cls(self, cls: type[PluginDefinitionT], /) -> None:

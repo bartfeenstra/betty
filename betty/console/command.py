@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from collections.abc import Awaitable, Callable, Iterable, Sequence
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Final, final
 
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
@@ -62,11 +62,7 @@ class CommandDefinition(HumanFacingDefinition, PluginClsDefinition[Command]):
         super().__init__(
             plugin_id, label=label, description=description, requires=requires
         )
-        self._aliases = tuple(aliases)
-
-    @property
-    def aliases(self) -> Sequence[str]:
+        self.aliases: Final[Sequence[str]] = tuple(aliases)
         """
         Any aliases for the command.
         """
-        return self._aliases

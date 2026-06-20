@@ -73,11 +73,6 @@ class StaticScheduler(Scheduler):
         if not isinstance(self._batches, Completed):
             raise self._batches
 
-    @override
-    @property
-    def context(self) -> Context:
-        return self._context
-
 
 class _Job(Job):
     def __init__(
@@ -412,6 +407,6 @@ class SchedulerTestBase:
 
     async def test_context(self, sut: Scheduler) -> None:
         """
-        Tests :py:meth:`betty.job.scheduler.Scheduler.context` implementations.
+        Tests :py:attr:`betty.job.scheduler.Scheduler.context` implementations.
         """
         assert sut.context is sut.context

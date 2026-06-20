@@ -58,19 +58,15 @@ class ThreadSafeLock(Lock):
     __slots__ = ("_lock",)
 
     def __init__(self, lock: threading.Lock | None = None, /):
-        self._lock = lock or threading.Lock()
-
-    @property
-    def lock(self) -> threading.Lock:
+        self.lock: Final[threading.Lock] = lock or threading.Lock()
         """
         The underlying, synchronous lock.
         """
-        return self._lock
 
     @override
     async def acquire(self, *, wait: bool = True) -> bool:
         async for _ in backoff():
-            if self._lock.acquire(blocking=False):
+            if self.lock.acquire(blocking=False):
                 return True
             if wait:
                 continue
@@ -80,7 +76,7 @@ class ThreadSafeLock(Lock):
 
     @override
     async def release(self) -> None:
-        self._lock.release()
+        self.lock.release()
 
 
 @final

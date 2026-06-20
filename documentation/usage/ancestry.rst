@@ -16,7 +16,7 @@ associations between entities.
 A model with lots of data is a graph, a network, like a web of information that can be traversed,
 analyzed, expanded, and ultimately generated into a site.
 
-In code, you will be using :py:class:`betty.project.Project.ancestry`, through which you can
+In code, you will be using :py:attr:`betty.project.Project.ancestry`, through which you can
 access any entity of any type.
 
 .. tab-set::

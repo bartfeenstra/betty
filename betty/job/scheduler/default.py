@@ -131,7 +131,7 @@ class DefaultScheduler(Scheduler):
                 self._job_dependencies[job.id].update(
                     job.dependencies - self._done_jobs
                 )
-            await self._context.progress.add(len(jobs))
+            await self.context.progress.add(len(jobs))
 
     @override
     async def release(self) -> None:
@@ -234,7 +234,7 @@ class DefaultScheduler(Scheduler):
                     self._job_dependencies.pop(job_id)
                     for job_dependencies in self._job_dependencies.values():
                         job_dependencies.discard(job_id)
-            await self._context.progress.done(len(job_ids))
+            await self.context.progress.done(len(job_ids))
 
     @asynccontextmanager
     async def _cancel_on_exception(self) -> AsyncIterator[None]:

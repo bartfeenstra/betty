@@ -26,23 +26,19 @@ class ServiceLevelRequirement[ServiceLevelT: ServiceLevel](RequirableDecorator):
 
     def __init__(self, services: type[ServiceLevelT], /):
         super().__init__()
-        self._services = services
-
-    @property
-    def services(self) -> type[ServiceLevelT]:
+        self.services: Final[type[ServiceLevelT]] = services
         """
         The required service level.
         """
-        return self._services
 
     @override
     async def _check(self, services: ServiceLevel, /) -> ServiceLevelT:
-        if isinstance(services, self._services):
+        if isinstance(services, self.services):
             return services
         if isinstance(services, DownstreamServiceLevel):
             return await self._check(services.upstream)
         raise UnmetRequirement(
-            f"This requires a(n) {fully_qualified_name(self._services)}, but a(n) {services} was given."
+            f"This requires a(n) {fully_qualified_name(self.services)}, but a(n) {services} was given."
         )
 
 

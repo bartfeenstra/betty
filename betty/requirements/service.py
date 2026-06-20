@@ -4,7 +4,7 @@ Service requirements.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Final
 
 from betty.requirement import UnmetRequirement
 from betty.service import ServiceError, ServiceManager
@@ -29,11 +29,7 @@ class UnmetServiceRequirement(UnmetRequirement, ServiceError):
         indicators: Sequence[Indicator] = (),
     ):
         super().__init__(message, indicators=indicators)
-        self._service = service
-
-    @property
-    def service(self) -> ServiceManager:
+        self.service: Final[ServiceManager] = service
         """
         The service for which the error was raised.
         """
-        return self._service

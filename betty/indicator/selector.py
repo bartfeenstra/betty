@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, final, override
+from typing import TYPE_CHECKING, Any, Final, final, override
 
 from betty.indicator import Indicator
 
@@ -143,7 +143,10 @@ class Element[ElementT](Selector):
     """
 
     def __init__(self, element: ElementT, /):
-        self._element = element
+        self.element: Final[ElementT] = element
+        """
+        The element.
+        """
 
     def __hash__(self) -> int:
         return hash((type(self), self.element))
@@ -151,14 +154,7 @@ class Element[ElementT](Selector):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
             return NotImplemented
-        return self._element == other._element
-
-    @property
-    def element(self) -> ElementT:
-        """
-        The element.
-        """
-        return self._element
+        return self.element == other.element
 
 
 @final

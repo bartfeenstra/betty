@@ -5,7 +5,7 @@ Life cycle management.
 from __future__ import annotations
 
 from asyncio import gather
-from typing import TYPE_CHECKING, Any, final, override
+from typing import TYPE_CHECKING, Any, Final, final, override
 
 from betty.asyncio import resolve_await
 from betty.life_cycle import (
@@ -29,16 +29,11 @@ class ManagedLifeCycle(LifeCycle):
     """
 
     def __init__(self, *args: Any, **kwargs: Any):
-        self.__life_cycle = LifeCycleManager()
-        super().__init__(*args, **kwargs)
-
-    @final
-    @property
-    def life_cycle(self) -> LifeCycleManager:
+        self.life_cycle: Final[LifeCycleManager] = LifeCycleManager()
         """
         The life cycle manager.
         """
-        return self.__life_cycle
+        super().__init__(*args, **kwargs)
 
     @final
     @override
@@ -54,7 +49,7 @@ class ManagedLifeCycle(LifeCycle):
     @override
     async def shutdown(self, *, wait: bool = True) -> None:
         await super().shutdown(wait=wait)
-        await self.__life_cycle.shutdown(wait=wait)
+        await self.life_cycle.shutdown(wait=wait)
 
 
 @final

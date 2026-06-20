@@ -5,7 +5,7 @@ Provide Betty's ancestry event types.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Final, final
 
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
@@ -82,14 +82,12 @@ class EventTypeDefinition(
             before=before,
             requires=requires,
         )
-        self._indicates = None if indicates is None else resolve_plugin_id(indicates)
-
-    @property
-    def indicates(self) -> MachineName | None:
+        self.indicates: Final[MachineName | None] = (
+            None if indicates is None else resolve_plugin_id(indicates)
+        )
         """
         Return whether events of this type (approximately) indicate that an event of the retuned type has happened.
         """
-        return self._indicates
 
 
 @final

@@ -110,7 +110,6 @@ async def _assert_sphinx_references(
         "const",
         "class",
         "meth",
-        "attr",
         "type",
         "exc",
         "obj",

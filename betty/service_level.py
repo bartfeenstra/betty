@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from importlib import metadata
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Final
 
 from betty.collection.keyed.adapter import KeyedCollectionAdapter
 from betty.life_cycle.manage import ManagedLifeCycle
@@ -38,17 +38,13 @@ class ServiceLevel(ManagedLifeCycle, ServiceProvider):
         from betty.factory import Factory
 
         super().__init__(*args, services=self, **kwargs)
-        self._factory = Factory(self)
-        self._plugin_discovery = defaultdict(
-            lambda: None, {} if plugins is None else plugins
-        )
-
-    @property
-    def factory(self) -> Factory:
+        self.factory: Final[Factory] = Factory(self)
         """
         The object factory.
         """
-        return self._factory
+        self._plugin_discovery = defaultdict(
+            lambda: None, {} if plugins is None else plugins
+        )
 
     @service
     def plugins(self) -> PluginDiscovererCollection:
@@ -94,11 +90,7 @@ class DownstreamServiceLevel[UpstreamT: ServiceLevel = ServiceLevel](ServiceLeve
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
-        self._upstream = upstream
-
-    @property
-    def upstream(self) -> UpstreamT:
+        self.upstream: Final[UpstreamT] = upstream
         """
         The upstream service level.
         """
-        return self._upstream

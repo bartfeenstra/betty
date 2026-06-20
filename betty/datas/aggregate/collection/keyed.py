@@ -65,7 +65,7 @@ class KeyedCollectionDefinition[
 
     def _load(self, portable: PortableData, /) -> MutableKeyedCollectionT:
         if self._order_dump:
-            values = assert_sequence(self._item.porter.load)(portable)
+            values = assert_sequence(self.item.porter.load)(portable)
         else:
             values = [
                 self._item.porter.load_key(portable_item, self._key, portable_key)
@@ -80,7 +80,7 @@ class KeyedCollectionDefinition[
         self, data: MutableKeyedCollectionT
     ) -> PortableMapping | PortableSequence:
         if self._order_dump:
-            return [self._item.porter.dump(value) for value in data]
+            return [self.item.porter.dump(value) for value in data]
         return dict(
             self._item.porter.dump_key(item_data, self._key) for item_data in data
         )

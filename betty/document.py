@@ -19,6 +19,7 @@ from threading import Lock
 from typing import (
     TYPE_CHECKING,
     Any,
+    Final,
     Self,
     final,
     override,
@@ -68,83 +69,51 @@ class Document:
         title: Localizable | None = None,
         **document_vars: Any,
     ):
-        self._media_type = (
+        self.media_type: Final[MediaType | None] = (
             None if media_type is None else resolve_media_type(media_type)
         )
-        self._resource = resource
-        self._resource_url = resource_url
-        self._entity_contexts = entity_contexts if entity_contexts else EntityContexts()
-        self._context = context
-        self._localizer = localizer if localizer else default_localizer
-        self._title = title
-        self._vars = document_vars
-        self._breadcrumbs = Breadcrumbs() if breadcrumbs is None else breadcrumbs
-        self._citer = Citer() if citer is None else citer
-
-    @property
-    def media_type(self) -> MediaType | None:
         """
         The media type.
         """
-        return self._media_type
-
-    @property
-    def breadcrumbs(self) -> Breadcrumbs:
-        """
-        The breadcrumbs.
-        """
-        return self._breadcrumbs
-
-    @property
-    def citer(self) -> Citer:
-        """
-        The citer.
-        """
-        return self._citer
-
-    @property
-    def entity_contexts(self) -> EntityContexts:
-        """
-        The entity contexts.
-        """
-        return self._entity_contexts
-
-    @property
-    def context(self) -> Context | None:
-        """
-        The job context.
-        """
-        return self._context
-
-    @property
-    def localizer(self) -> Localizer:
-        """
-        The localizer.
-        """
-        return self._localizer
-
-    @property
-    def resource(self) -> object:
+        self.resource: Final[object] = resource
         """
         The resource itself.
         """
-        return self._resource
-
-    @property
-    def resource_url(self) -> object:
+        self.resource_url: Final[object] = resource_url
         """
         The URL-generatable version of the resource itself.
 
         This may be the resource itself or a completely different type of value.
         """
-        return self._resource_url
-
-    @property
-    def title(self) -> Localizable | None:
+        self.entity_contexts: Final[EntityContexts] = (
+            entity_contexts if entity_contexts else EntityContexts()
+        )
+        """
+        The entity contexts.
+        """
+        self.context: Final[Context | None] = context
+        """
+        The job context.
+        """
+        self.localizer: Final[Localizer] = localizer if localizer else default_localizer
+        """
+        The localizer.
+        """
+        self.title: Final[Localizable | None] = title
         """
         The human-readable title.
         """
-        return self._title
+        self._vars = document_vars
+        self.breadcrumbs: Final[Breadcrumbs] = (
+            Breadcrumbs() if breadcrumbs is None else breadcrumbs
+        )
+        """
+        The breadcrumbs.
+        """
+        self.citer: Final[Citer] = Citer() if citer is None else citer
+        """
+        The citer.
+        """
 
     def copy(
         self,
@@ -158,19 +127,19 @@ class Document:
         Create a copy of this document, with the given fields added.
         """
         return type(self)(
-            self._resource if resource is None else resource,
-            self._resource_url if resource_url is None else resource_url,
+            self.resource if resource is None else resource,
+            self.resource_url if resource_url is None else resource_url,
             **{
                 **self._vars,
-                "breadcrumbs": self._breadcrumbs,
-                "citer": self._citer,
-                "context": self._context,
-                "entity_contexts": self._entity_contexts,
-                "localizer": self._localizer,
-                "media_type": self._media_type
+                "breadcrumbs": self.breadcrumbs,
+                "citer": self.citer,
+                "context": self.context,
+                "entity_contexts": self.entity_contexts,
+                "localizer": self.localizer,
+                "media_type": self.media_type
                 if media_type is None
                 else resolve_media_type(media_type),
-                "title": self._title,
+                "title": self.title,
                 **document_vars,
             },  # ty:ignore[invalid-argument-type]
         )
@@ -189,15 +158,15 @@ class Document:
         if not isinstance(other, Document):
             return NotImplemented
         return (
-            self._breadcrumbs == other._breadcrumbs
-            and self._citer == other._citer
-            and self._context == other._context
-            and self._entity_contexts == other._entity_contexts
-            and self._localizer == other._localizer
-            and self._media_type == other._media_type
-            and self._resource == other._resource
-            and self._resource_url == other._resource_url
-            and self._title == other._title
+            self.breadcrumbs == other.breadcrumbs
+            and self.citer == other.citer
+            and self.context == other.context
+            and self.entity_contexts == other.entity_contexts
+            and self.localizer == other.localizer
+            and self.media_type == other.media_type
+            and self.resource == other.resource
+            and self.resource_url == other.resource_url
+            and self.title == other.title
             and self._vars == other._vars
         )
 
@@ -255,33 +224,25 @@ class Breadcrumb(LinkedDataDumpable[PortableMapping]):
     """
 
     def __init__(self, label: str, resource: object | None, /):
-        self._label = label
-        self._resource_url = resource
-
-    @property
-    def label(self) -> str:
+        self.label: Final[str] = label
         """
         The localized, human-readable label.
         """
-        return self._label
-
-    @property
-    def resource_url(self) -> object | None:
+        self.resource_url: Final[object | None] = resource
         """
         The resource URL.
         """
-        return self._resource_url
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         portable: PortableMapping = {
             "@type": "ListItem",
-            "name": self._label,
+            "name": self.label,
         }
-        if self._resource_url is not None:
+        if self.resource_url is not None:
             url_generator = await project.url_generator
             portable["item"] = url_generator.generate(
-                self._resource_url, absolute=True, media_type=HTML
+                self.resource_url, absolute=True, media_type=HTML
             )
         return portable
 
@@ -326,6 +287,7 @@ class Breadcrumbs(LinkedDataDumpable[PortableMapping], Iterable[Breadcrumb], Siz
         }
 
 
+@final
 class Citer:
     """
     Track citations when they are first used.
@@ -355,6 +317,7 @@ class Citer:
             return self._cited.index(citation) + 1
 
 
+@final
 class EntityContexts:
     """
     Track the current entity contexts.

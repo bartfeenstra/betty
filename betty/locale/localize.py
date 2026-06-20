@@ -29,15 +29,11 @@ class Localizer:
     def __init__(
         self, locale: ResolvableLocale, translations: gettext_api.NullTranslations, /
     ):
-        self._locale = resolve_locale(locale)
-        self._translations = translations
-
-    @property
-    def locale(self) -> Locale:
+        self.locale: Final[Locale] = resolve_locale(locale)
         """
         The locale.
         """
-        return self._locale
+        self._translations = translations
 
     def _(self, message: str, /) -> LocalizedStr:
         """
@@ -45,7 +41,7 @@ class Localizer:
 
         Arguments are identical to those of :py:meth:`gettext.gettext`.
         """
-        return LocalizedStr(self._translations.gettext(message), locale=self._locale)
+        return LocalizedStr(self._translations.gettext(message), locale=self.locale)
 
     def gettext(self, message: str, /) -> LocalizedStr:
         """
@@ -53,7 +49,7 @@ class Localizer:
 
         Arguments are identical to those of :py:meth:`gettext.gettext`.
         """
-        return LocalizedStr(self._translations.gettext(message), locale=self._locale)
+        return LocalizedStr(self._translations.gettext(message), locale=self.locale)
 
     def ngettext(
         self, message_singular: str, message_plural: str, n: int, /
@@ -65,7 +61,7 @@ class Localizer:
         """
         return LocalizedStr(
             self._translations.ngettext(message_singular, message_plural, n),
-            locale=self._locale,
+            locale=self.locale,
         )
 
     def pgettext(self, context: str, message: str, /) -> LocalizedStr:
@@ -75,7 +71,7 @@ class Localizer:
         Arguments are identical to those of :py:meth:`gettext.pgettext`.
         """
         return LocalizedStr(
-            self._translations.pgettext(context, message), locale=self._locale
+            self._translations.pgettext(context, message), locale=self.locale
         )
 
     def npgettext(
@@ -88,7 +84,7 @@ class Localizer:
         """
         return LocalizedStr(
             self._translations.npgettext(context, message_singular, message_plural, n),
-            locale=self._locale,
+            locale=self.locale,
         )
 
 

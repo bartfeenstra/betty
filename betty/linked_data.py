@@ -81,7 +81,7 @@ class JsonLdObject(Object):
             title=title,
             description=description,
         )
-        self._schema["allOf"] = [JsonLdSchema().embed(self)]
+        self.schema["allOf"] = [JsonLdSchema().embed(self)]
 
 
 class LinkedDataDumpableWithSchemaJsonLdObject(

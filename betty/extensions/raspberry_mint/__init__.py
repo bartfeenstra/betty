@@ -236,18 +236,27 @@ class RaspberryMint(
     ):
         super().__init__(services=project)
         self._project = project
-        self._primary_color = (
+        self.primary_color: Final[str] = (
             self.DEFAULT_PRIMARY_COLOR if primary_color is None else primary_color
         )
+        """
+        The primary color.
+        """
         self._regional_content_manufacturers: RegionalContentManufacturers = (
             regional_content or {}
         )
-        self._secondary_color = (
+        self.secondary_color = (
             self.DEFAULT_SECONDARY_COLOR if secondary_color is None else secondary_color
         )
-        self._tertiary_color = (
+        """
+        The secondary color.
+        """
+        self.tertiary_color = (
             self.DEFAULT_TERTIARY_COLOR if tertiary_color is None else tertiary_color
         )
+        """
+        The tertiary color.
+        """
 
     @override
     @classmethod
@@ -298,9 +307,9 @@ class RaspberryMint(
     def webpack_entry_point_cache_keys(self) -> Sequence[str]:
         return (
             self._project.root_path,
-            self._primary_color,
-            self._secondary_color,
-            self._tertiary_color,
+            self.primary_color,
+            self.secondary_color,
+            self.tertiary_color,
         )
 
     @service
@@ -336,27 +345,6 @@ class RaspberryMint(
             ),
             key_resolver=Region.resolve,
         )
-
-    @property
-    def primary_color(self) -> str:
-        """
-        The primary color.
-        """
-        return self._primary_color
-
-    @property
-    def secondary_color(self) -> str:
-        """
-        The secondary color.
-        """
-        return self._secondary_color
-
-    @property
-    def tertiary_color(self) -> str:
-        """
-        The tertiary color.
-        """
-        return self._tertiary_color
 
 
 @final

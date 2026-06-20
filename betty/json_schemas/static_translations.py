@@ -31,7 +31,7 @@ class StaticTranslationsSchema(Object):
                 "Keys are IETF BCP-47 language tags.",
             ),
         )
-        self._schema["additionalProperties"] = {
+        self.schema["additionalProperties"] = {
             "type": "string",
             "description": "A human-readable translation.",
         }

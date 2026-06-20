@@ -55,7 +55,7 @@ class MappingDefinition[MutableMappingT: MutableMapping[Any, Any], KeyT, ValueT]
 
         loaded = self.new()
         loaded.update(
-            assert_mapping(self._value.porter.load, self._item.porter.load)(portable)
+            assert_mapping(self._value.porter.load, self.item.porter.load)(portable)
         )
         return loaded
 
