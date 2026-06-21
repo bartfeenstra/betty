@@ -1,5 +1,5 @@
 """
-Content plugins.
+The content builder API.
 """
 
 from __future__ import annotations

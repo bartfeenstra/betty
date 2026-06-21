@@ -138,7 +138,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "release": MissingReason.ABSTRACT,
         },
     },
-    "betty/content.py": {
+    "betty/content_builder.py": {
         "ContentBuilder": MissingReason.ABSTRACT,
         "ContentBuilderDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "ContentBuilderManufacturer": MissingReason.STATIC_CONTENT_ONLY,

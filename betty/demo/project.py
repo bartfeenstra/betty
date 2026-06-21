@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.content import ContentBuilderManufacturer
+from betty.content_builder import ContentBuilderManufacturer
 from betty.content_builders.raspberry_mint_columns import Columns, ColumnsData
 from betty.content_builders.raspberry_mint_entity_card import EntityCard
 from betty.content_builders.raspberry_mint_incomplete_translation_warning import (

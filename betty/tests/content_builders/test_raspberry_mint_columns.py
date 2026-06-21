@@ -1,6 +1,6 @@
 import pytest
 
-from betty.content import ContentBuilderManufacturer
+from betty.content_builder import ContentBuilderManufacturer
 from betty.content_builders.raspberry_mint_columns import (
     Columns,
     ColumnsData,

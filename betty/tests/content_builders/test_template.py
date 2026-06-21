@@ -4,7 +4,7 @@ from gettext import NullTranslations
 from pathlib import Path
 from typing import Any, override
 
-from betty.content import ContentBuilderDefinition
+from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template
 from betty.document import Document
 from betty.file import write

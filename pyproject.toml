@@ -80,7 +80,7 @@ betty = 'betty.console:main_standalone'
 [project.entry-points.'betty.plugin']
 'asset-directory' = 'betty.asset:AssetDirectoryDefinition'
 'command' = 'betty.console.command:CommandDefinition'
-'content-builder' = 'betty.content:ContentBuilderDefinition'
+'content-builder' = 'betty.content_builder:ContentBuilderDefinition'
 'copyright-notice' = 'betty.copyright_notice:CopyrightNoticeDefinition'
 'css-resource' = 'betty.html.css:CssResourceDefinition'
 'document-provider' = 'betty.document:DocumentProviderDefinition'
