@@ -7,8 +7,8 @@ from betty.app import App
 from betty.console import SystemExitCode
 from betty.file import write
 from betty.project import ProjectData
+from betty.servers.no_op import NoOpServer
 from betty.test_utils.console import run
-from betty.test_utils.server import NoOpServer
 
 
 class TestServe:

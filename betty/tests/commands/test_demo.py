@@ -6,8 +6,8 @@ from pytest_mock import MockerFixture
 from betty.app import App
 from betty.console import SystemExitCode
 from betty.project import Project
+from betty.servers.no_op import NoOpServer
 from betty.test_utils.console import run
-from betty.test_utils.server import NoOpServer
 
 
 @pytest.mark.usefixtures("demo_project_aioresponses")
@@ -19,7 +19,7 @@ class TestDemo:
             "betty.commands.demo:Demo._wait_forever",
             side_effect=KeyboardInterrupt,
         )
-        mocker.patch("betty.demo.serve.DemoServer", new=NoOpServer)
+        mocker.patch("betty.servers.demo.DemoServer", new=NoOpServer)
 
         await run(isolated_app, "demo", expected_exit_code=SystemExitCode.USER_QUIT)
 
