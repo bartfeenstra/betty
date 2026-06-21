@@ -2,13 +2,19 @@
 Linked data for the localizable API.
 """
 
-from collections.abc import Iterable
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from betty.locale import to_language_tag
-from betty.locale.localizable import Localizable
 from betty.locale.localizable.static import StaticTranslations
-from betty.locale.localize import Localizer
-from betty.portable import PortableMapping
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from betty.locale.localizable import Localizable
+    from betty.locale.localize import Localizer
+    from betty.portable import PortableMapping
 
 
 def dump_linked_data(

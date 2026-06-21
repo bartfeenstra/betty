@@ -2,6 +2,8 @@
 Adapters between Betty and Python sequences.
 """
 
+from __future__ import annotations
+
 from collections.abc import Callable, Iterable, MutableSequence, Sequence
 from contextlib import suppress
 from typing import Any, overload, override

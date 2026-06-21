@@ -1,4 +1,6 @@
-from typing import Final  # noqa: D100
+from __future__ import annotations  # noqa: D100
+
+from typing import Final
 
 from betty.media_type import MediaType, MediaTypeDefinition
 

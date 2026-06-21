@@ -2,6 +2,8 @@
 The unknown role.
 """
 
+from __future__ import annotations
+
 from typing import final
 
 from betty.classtools import Singleton

@@ -2,12 +2,16 @@
 Adapters between keyed collections and Python data types.
 """
 
-from collections.abc import Callable, Iterable, Iterator, Mapping
+from __future__ import annotations
+
 from contextlib import suppress
-from typing import Any, override
+from typing import TYPE_CHECKING, Any, override
 
 from betty.collection.keyed import KeyedCollection, MutableKeyedCollection
 from betty.functools import passthrough
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Iterator, Mapping
 
 
 class KeyedCollectionAdapter[KeyT, ResolvableKeyT, ValueT](

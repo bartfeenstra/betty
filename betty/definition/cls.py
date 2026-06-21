@@ -2,6 +2,8 @@
 Class-based definitions.
 """
 
+from __future__ import annotations
+
 from typing import Any, final
 
 from betty.importlib import fully_qualified_name

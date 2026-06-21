@@ -2,13 +2,19 @@
 Provide the OpenAPI specification.
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from betty import about
 from betty.entity import EntityDefinition as EntityDefinition
 from betty.json_schemas.project import ProjectSchema
 from betty.locale.localize import default_localizer
-from betty.portable import PortableMapping
-from betty.project import Project
 from betty.string import kebab_case_to_lower_camel_case
+
+if TYPE_CHECKING:
+    from betty.portable import PortableMapping
+    from betty.project import Project
 
 
 class Specification:

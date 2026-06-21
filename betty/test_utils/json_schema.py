@@ -2,6 +2,8 @@
 Test utilities for :py:mod:`betty.json_schema`.
 """
 
+from __future__ import annotations
+
 from collections.abc import MutableMapping, Sequence
 
 import pytest

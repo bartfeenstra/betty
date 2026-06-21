@@ -2,10 +2,14 @@
 Keyed collection proxies.
 """
 
-from collections.abc import Iterable, Iterator
-from typing import Any, override
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, override
 
 from betty.collection.keyed import KeyedCollection, MutableKeyedCollection
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
 
 
 class KeyedCollectionProxy[KeyT, ResolvableKeyT, ValueT](

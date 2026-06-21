@@ -2,6 +2,8 @@
 Test utilities for :py:mod:`betty.entity.has_citations`.
 """
 
+from __future__ import annotations
+
 from betty.entity import EntityDefinition
 from betty.entity.has_citations import HasCitations
 from betty.test_utils.locale.localizable import (

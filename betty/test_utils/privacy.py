@@ -2,6 +2,8 @@
 Test utilities for :py:mod:`betty.privacy`.
 """
 
+from __future__ import annotations
+
 from betty.attrs.privacy import HasPrivacy
 
 

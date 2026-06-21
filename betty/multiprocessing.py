@@ -2,11 +2,15 @@
 Multiprocessing functionality.
 """
 
+from __future__ import annotations
+
 from concurrent import futures
 from multiprocessing import get_context
-from multiprocessing.context import SpawnContext
 from signal import SIG_IGN, SIGINT, signal
-from typing import Final
+from typing import TYPE_CHECKING, Final
+
+if TYPE_CHECKING:
+    from multiprocessing.context import SpawnContext
 
 context: Final[SpawnContext] = get_context("spawn")
 

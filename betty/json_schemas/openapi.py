@@ -2,10 +2,14 @@
 JSON schemas for the OpenAPI API.
 """
 
-from typing import ClassVar, final
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, ClassVar, final
 
 from betty.json_schema import Schema
-from betty.portable import PortableMapping
+
+if TYPE_CHECKING:
+    from betty.portable import PortableMapping
 
 
 @final

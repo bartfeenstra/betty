@@ -2,14 +2,19 @@
 Manipulate images.
 """
 
+from __future__ import annotations
+
 import math
+from typing import TYPE_CHECKING
 
 from PIL import UnidentifiedImageError
 from PIL.Image import EXTENSION, Image, init, preinit
 
-from betty.media_type import MediaType
 from betty.media_types.pdf import PDF
 from betty.pathlib import StrPath, resolve_path
+
+if TYPE_CHECKING:
+    from betty.media_type import MediaType
 
 type Percentage = int
 type Pixel = int

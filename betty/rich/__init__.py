@@ -2,6 +2,8 @@
 Rich integration.
 """
 
+from __future__ import annotations
+
 from rich.style import Style
 from rich.theme import Theme as RichTheme
 

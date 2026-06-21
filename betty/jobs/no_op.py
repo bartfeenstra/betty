@@ -2,10 +2,14 @@
 Jobs that do nothing.
 """
 
-from typing import final, override
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, final, override
 
 from betty.job import Job
-from betty.job.scheduler import Scheduler
+
+if TYPE_CHECKING:
+    from betty.job.scheduler import Scheduler
 
 
 @final

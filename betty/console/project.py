@@ -2,25 +2,30 @@
 Project support for the Console.
 """
 
-import argparse
+from __future__ import annotations
+
 from asyncio import gather
-from collections.abc import Iterable
 from contextlib import suppress
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from betty.app import App
 from betty.argparse import assertion_to_argument_type
 from betty.assertions.path import assert_path
-from betty.console.command import CommandFunction
 from betty.error import FileNotFound
 from betty.exception import HumanFacingException
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import AnyEnumeration
 from betty.portable.file import assert_load_file
 from betty.project import Project, ProjectData
-from betty.serialize import Serializer
-from betty.user import User
+
+if TYPE_CHECKING:
+    import argparse
+    from collections.abc import Iterable
+
+    from betty.app import App
+    from betty.console.command import CommandFunction
+    from betty.serialize import Serializer
+    from betty.user import User
 
 
 class ConfigurationFileNotFound(HumanFacingException):

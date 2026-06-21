@@ -2,6 +2,8 @@
 Test utilities for :py:mod:`betty.server`.
 """
 
+from __future__ import annotations
+
 from typing import Any, final, override
 
 from betty.server import Server

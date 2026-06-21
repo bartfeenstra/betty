@@ -2,12 +2,18 @@
 Integrate the console and assertion APIs.
 """
 
+from __future__ import annotations
+
 import argparse as stdargparse
-from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 from betty.exception import HumanFacingException
-from betty.functools import Pipe
-from betty.locale.localize import Localizer
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from betty.functools import Pipe
+    from betty.locale.localize import Localizer
 
 
 def assertion_to_argument_type[T](
