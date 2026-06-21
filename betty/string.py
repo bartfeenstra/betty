@@ -2,6 +2,8 @@
 Provide string handling utilities.
 """
 
+from __future__ import annotations
+
 import re
 from typing import Final
 

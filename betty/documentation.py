@@ -2,12 +2,13 @@
 Provide the Documentation API.
 """
 
+from __future__ import annotations
+
 import multiprocessing
 from asyncio import to_thread
 from contextlib import AsyncExitStack
-from pathlib import Path
 from shutil import copytree
-from typing import final, override
+from typing import TYPE_CHECKING, final, override
 
 from sphinx.application import Sphinx
 from sphinx.ext.autodoc import MethodDocumenter
@@ -18,6 +19,9 @@ from betty.pathlib import StrPath, resolve_path
 from betty.server import Server, ServerNotStarted
 from betty.servers import builtin
 from betty.user import User, Verbosity
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 async def _ensure_www_directory(

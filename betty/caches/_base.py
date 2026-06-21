@@ -1,13 +1,17 @@
-from collections.abc import AsyncIterator, Sequence
+from __future__ import annotations
+
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from functools import partial
-from typing import override
+from typing import TYPE_CHECKING, override
 
 from betty.cache import Cache, CacheItem, CacheItemValueSetter
 from betty.concurrent import Ledger, ThreadSafeLock
 from betty.typing import threadsafe
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator, Sequence
 
 
 class _StaticCacheItem[CacheItemValueT](CacheItem[CacheItemValueT]):

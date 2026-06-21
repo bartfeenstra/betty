@@ -2,6 +2,8 @@
 The witness role.
 """
 
+from __future__ import annotations
+
 from typing import final
 
 from betty.locale.localizable.gettext import _, ngettext

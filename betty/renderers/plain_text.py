@@ -2,13 +2,17 @@
 Render plain text to HTML.
 """
 
-from typing import override
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, override
 
 from betty.html import plain_text_to_html
 from betty.locale.localizable.gettext import _
-from betty.media_type import MediaType
 from betty.media_types.plain_text import PLAIN_TEXT
 from betty.render import Renderer, RendererDefinition
+
+if TYPE_CHECKING:
+    from betty.media_type import MediaType
 
 
 @RendererDefinition("plain-text", label=_("Plain text"))

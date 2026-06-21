@@ -2,6 +2,8 @@
 Logging utilities.
 """
 
+from __future__ import annotations
+
 import contextlib
 import logging
 import threading
@@ -15,11 +17,13 @@ from collections.abc import Callable, Coroutine
 from functools import partial
 from queue import Empty, Queue
 from time import sleep
-from typing import final, override
+from typing import TYPE_CHECKING, final, override
 
 from betty.functools import Result, ResultUnavailable, suppress
 from betty.life_cycle.manage import ManagedLifeCycle
-from betty.user import User
+
+if TYPE_CHECKING:
+    from betty.user import User
 
 
 @final

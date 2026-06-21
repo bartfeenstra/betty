@@ -2,6 +2,8 @@
 Test utilities for :py:mod:`betty.entity.has_file_references`.
 """
 
+from __future__ import annotations
+
 from betty.entity import EntityDefinition
 from betty.entity.has_file_references import HasFileReferences
 from betty.test_utils.locale.localizable import (

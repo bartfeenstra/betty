@@ -2,13 +2,17 @@
 Test utilities for :py:mod:`betty.console`.
 """
 
+from __future__ import annotations
+
 from contextlib import redirect_stderr, redirect_stdout
 from dataclasses import dataclass
 from io import StringIO
-from typing import final
+from typing import TYPE_CHECKING, final
 
-from betty.app import App
 from betty.console import SystemExitCode, main
+
+if TYPE_CHECKING:
+    from betty.app import App
 
 
 @final

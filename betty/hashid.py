@@ -4,12 +4,17 @@ Provides utilities to generate unique IDs through hashing.
 This module MUST NOT be used for security purposes.
 """
 
+from __future__ import annotations
+
 from asyncio import to_thread
 from hashlib import md5
 from os import stat
+from typing import TYPE_CHECKING
 
 from betty.file import read
-from betty.pathlib import StrPath
+
+if TYPE_CHECKING:
+    from betty.pathlib import StrPath
 
 
 def _hashid_bytes(key: bytes, /) -> str:

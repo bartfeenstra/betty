@@ -2,12 +2,17 @@
 Provide proxy URL generators.
 """
 
-from collections.abc import Mapping, Sequence
-from typing import Any, final, override
+from __future__ import annotations
 
-from betty.locale import ResolvableLocale
-from betty.media_type import ResolvableMediaType
+from typing import TYPE_CHECKING, Any, final, override
+
 from betty.url import UnsupportedResource, UrlGenerator
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
+
+    from betty.locale import ResolvableLocale
+    from betty.media_type import ResolvableMediaType
 
 
 @final

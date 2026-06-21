@@ -2,8 +2,12 @@
 Test utilities for :py:mod:`betty.machine_name`.
 """
 
-from collections.abc import Sequence
-from typing import Final
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Final
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 VALID_MACHINE_NAMES: Final[Sequence[str]] = (
     "a",

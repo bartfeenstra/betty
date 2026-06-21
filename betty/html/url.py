@@ -2,12 +2,18 @@
 URL handling within HTML.
 """
 
-from collections.abc import Iterable
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from lxml.html import fragment_fromstring, tostring
 
 from betty.media_types.html import HTML
-from betty.url import UrlGenerator
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from betty.url import UrlGenerator
 
 
 def generate_urls(

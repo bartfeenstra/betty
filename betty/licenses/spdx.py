@@ -2,6 +2,8 @@
 SPDX licenses.
 """
 
+from __future__ import annotations
+
 import re
 import tarfile
 from asyncio import gather, to_thread
@@ -9,25 +11,28 @@ from collections.abc import Iterable, Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from io import BytesIO
 from json import loads
-from pathlib import Path
-from typing import Final, Self, final, override
+from typing import TYPE_CHECKING, Final, Self, final, override
 
 from aiohttp import ClientError, ClientSession
 
 from betty.app import App
-from betty.caches.file import BinaryFileCache
 from betty.exception import HumanFacingException
 from betty.factory import Manufacturable
 from betty.file import read
 from betty.license import License, LicenseDefinition
-from betty.locale.localizable import Localizable
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.plain import Plain
 from betty.machine_name import MachineName
-from betty.plugin.discovery import ResolvableDiscovery
-from betty.portable import PortableData, PortableSequence
-from betty.service_level import ServiceLevel
-from betty.user import User
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from betty.caches.file import BinaryFileCache
+    from betty.locale.localizable import Localizable
+    from betty.plugin.discovery import ResolvableDiscovery
+    from betty.portable import PortableData, PortableSequence
+    from betty.service_level import ServiceLevel
+    from betty.user import User
 
 _spdx_license_id_pattern: Final[re.Pattern[str]] = re.compile(r"[^a-z0-9-]")
 

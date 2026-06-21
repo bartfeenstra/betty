@@ -2,17 +2,21 @@
 Provide utilities for concurrent programming.
 """
 
+from __future__ import annotations
+
 import asyncio
 import threading
 import time
 from abc import ABC, abstractmethod
 from asyncio import sleep
-from collections.abc import AsyncIterator, Hashable, MutableMapping
 from math import floor
-from types import TracebackType
-from typing import Final, final, override
+from typing import TYPE_CHECKING, Final, final, override
 
 from betty.typing import threadsafe
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator, Hashable, MutableMapping
+    from types import TracebackType
 
 max_strands: Final[int] = 64
 

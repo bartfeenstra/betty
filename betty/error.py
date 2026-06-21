@@ -2,9 +2,15 @@
 Provide error handling utilities.
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from betty.exception import HumanFacingException
 from betty.locale.localizable.gettext import _
-from betty.pathlib import StrPath
+
+if TYPE_CHECKING:
+    from betty.pathlib import StrPath
 
 
 class FileNotFound(HumanFacingException, FileNotFoundError):

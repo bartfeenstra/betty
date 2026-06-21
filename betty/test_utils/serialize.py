@@ -2,10 +2,16 @@
 Test utilities for :py:mod:`betty.serialize`.
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import pytest
 
-from betty.portable import PortableData
 from betty.serialize import Serializer
+
+if TYPE_CHECKING:
+    from betty.portable import PortableData
 
 
 class SerializerTestBase[SerializerT: Serializer]:

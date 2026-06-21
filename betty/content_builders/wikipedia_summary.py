@@ -2,27 +2,32 @@
 The Wikipedia summary content plugin.
 """
 
-from collections.abc import Iterable
-from typing import Self, final, override
+from __future__ import annotations
 
-from babel import Locale
+from typing import TYPE_CHECKING, Self, final, override
 
 from betty.asset_directories.wiki import wiki
 from betty.content import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
-from betty.document import Document
-from betty.entities.link import Link
 from betty.entity.has_links import HasLinks
 from betty.extensions.wiki import Wiki as WikiExtension
 from betty.factory import Manufacturable
-from betty.jinja import Environment
 from betty.locale import negotiate_locale, resolve_locale
 from betty.locale.localizable.gettext import _
-from betty.locale.localize import LocalizerRepository
 from betty.project import Project
 from betty.wiki import NotAPageError, parse_page_url
 from betty.wiki.client import Client, ClientError, Summary
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from babel import Locale
+
+    from betty.document import Document
+    from betty.entities.link import Link
+    from betty.jinja import Environment
+    from betty.locale.localize import LocalizerRepository
 
 
 @final

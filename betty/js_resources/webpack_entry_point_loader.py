@@ -2,6 +2,8 @@
 The Webpack entry point loader JavaScript resource.
 """
 
+from __future__ import annotations
+
 from typing import Final
 
 from betty.html.js import JsResourceDefinition

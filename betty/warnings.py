@@ -2,6 +2,8 @@
 Provide utilities for raising warnings.
 """
 
+from __future__ import annotations
+
 import warnings
 from typing import LiteralString
 

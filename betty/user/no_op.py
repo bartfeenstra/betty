@@ -2,17 +2,22 @@
 User sessions that do nothing.
 """
 
-import logging
-from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
-from typing import final, overload, override
+from __future__ import annotations
 
-from betty.functools import Pipe
-from betty.locale.localizable import ResolvableLocalizable
-from betty.progress import Progress
+from contextlib import asynccontextmanager
+from typing import TYPE_CHECKING, final, overload, override
+
 from betty.progresses.no_op import NoOpProgress
 from betty.typing import Void, VoidType
 from betty.user import User, UserTimeoutError, Verbosity
+
+if TYPE_CHECKING:
+    import logging
+    from collections.abc import AsyncIterator
+
+    from betty.functools import Pipe
+    from betty.locale.localizable import ResolvableLocalizable
+    from betty.progress import Progress
 
 
 @final

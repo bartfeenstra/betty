@@ -2,8 +2,9 @@
 Plugin assertions.
 """
 
-from collections.abc import Collection
-from typing import Any
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 from betty.assertions.str import assert_str
 from betty.exception import HumanFacingException
@@ -11,6 +12,9 @@ from betty.functools import Pipeline
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Paragraph, do_you_mean
 from betty.plugin import PluginDefinition
+
+if TYPE_CHECKING:
+    from collections.abc import Collection
 
 
 def assert_plugin[PluginDefinitionT: PluginDefinition](

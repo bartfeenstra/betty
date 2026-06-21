@@ -2,6 +2,8 @@
 Provide utilities for testing Betty or other software that depends on Betty.
 """
 
+from __future__ import annotations
+
 from typing import final
 
 

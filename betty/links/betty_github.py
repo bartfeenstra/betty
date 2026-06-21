@@ -2,6 +2,8 @@
 The link to Betty's GitHub.
 """
 
+from __future__ import annotations
+
 from typing import Final
 
 from betty.link import LinkDefinition, StaticLink

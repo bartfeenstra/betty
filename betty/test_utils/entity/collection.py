@@ -2,13 +2,18 @@
 Test utilities for :py:mod:`betty.entity.collection`.
 """
 
-from collections.abc import Sequence
-from typing import Any
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
 from betty.entity import Entity
-from betty.entity.collection import EntityCollection
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from betty.entity.collection import EntityCollection
 
 
 class EntityCollectionTestBase[EntityT: Entity]:

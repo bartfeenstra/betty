@@ -2,30 +2,34 @@
 Test utilities for :py:mod:`betty.extensions.maps`.
 """
 
+from __future__ import annotations
+
 import re  # noqa: I001
-from collections.abc import AsyncIterator, Iterable
 from pathlib import Path
 from shutil import copytree
-from typing import Final
+from typing import TYPE_CHECKING, Final
 
 import pytest
 from geopy import Point
 from playwright.async_api import Page, expect
 
-
+from betty.entities.place import Place
 from betty.entities.place_name import PlaceName
 from betty.extension import ExtensionDefinition, ExtensionManufacturer
-from betty.plugin.resolve import ResolvablePluginId
-from betty.entities.place import Place
 from betty.extensions.maps import Maps
-from betty.servers import project_builtin
 from betty.project import Project
 from betty.project.generate import generate
-from betty.server import Server
+from betty.servers import project_builtin
 from betty.tests.conftest import (
     check_skip_playwright,
     check_skip_webpack_entry_point_provider,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator, Iterable
+
+    from betty.plugin.resolve import ResolvablePluginId
+    from betty.server import Server
 
 _place_id: Final[str] = "my-first-place"
 _place_name: Final[str] = "My First Place"

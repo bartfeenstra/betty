@@ -2,14 +2,19 @@
 Keyed collection proxies that raise custom errors.
 """
 
-from collections.abc import Callable
-from typing import override
+from __future__ import annotations
 
-from betty.collection.keyed import KeyedCollection, MutableKeyedCollection
+from typing import TYPE_CHECKING, override
+
 from betty.collection.keyed.proxy import (
     KeyedCollectionProxy,
     MutableKeyedCollectionProxy,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from betty.collection.keyed import KeyedCollection, MutableKeyedCollection
 
 
 class ErroringKeyedCollection[KeyT, ResolvableKeyT, ValueT](

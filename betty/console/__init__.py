@@ -2,13 +2,14 @@
 The Betty console.
 """
 
+from __future__ import annotations
+
 import argparse
 import sys
 from asyncio import CancelledError, run
-from collections.abc import AsyncIterator, Iterable, Sequence
 from contextlib import asynccontextmanager
 from enum import IntEnum
-from typing import Any, cast, final, override
+from typing import TYPE_CHECKING, Any, cast, final, override
 
 import rich  # noqa: F401
 import rich_argparse
@@ -17,9 +18,13 @@ from betty.app import App
 from betty.console.command import CommandDefinition, CommandFunction
 from betty.exception import HumanFacingException
 from betty.locale.localizable.gettext import _
-from betty.locale.localize import Localizer
 from betty.rich.user import RichUser
 from betty.user import User, Verbosity
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator, Iterable, Sequence
+
+    from betty.locale.localize import Localizer
 
 
 @final

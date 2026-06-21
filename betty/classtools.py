@@ -2,6 +2,8 @@
 Tools to create classes.
 """
 
+from __future__ import annotations
+
 from typing import Self, final, override
 
 

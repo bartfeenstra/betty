@@ -2,6 +2,8 @@
 Sequence types and implementations.
 """
 
+from __future__ import annotations
+
 from abc import abstractmethod
 from collections.abc import Iterable, MutableSequence
 from typing import overload, override

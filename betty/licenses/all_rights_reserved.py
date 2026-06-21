@@ -2,11 +2,15 @@
 The all rights reserved license.
 """
 
-from typing import final, override
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, final, override
 
 from betty.license import License, LicenseDefinition
-from betty.locale.localizable import Localizable
 from betty.locale.localizable.gettext import _
+
+if TYPE_CHECKING:
+    from betty.locale.localizable import Localizable
 
 
 @final

@@ -2,18 +2,23 @@
 Render HTML.
 """
 
-from collections.abc import Sequence
-from typing import Final, Self, override
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Final, Self, override
 
 from betty.factory import Manufacturable
 from betty.html.url import generate_urls
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import AllEnumeration
-from betty.media_type import MediaType
 from betty.media_types.html import HTML
 from betty.project import Project
 from betty.render import Renderer, RendererDefinition
-from betty.url import UrlGenerator
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from betty.media_type import MediaType
+    from betty.url import UrlGenerator
 
 _attributes: Final[Sequence[str]] = ("href", "src")
 

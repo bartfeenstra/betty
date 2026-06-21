@@ -2,6 +2,8 @@
 File path tools.
 """
 
+from __future__ import annotations
+
 from os import PathLike
 from pathlib import Path
 

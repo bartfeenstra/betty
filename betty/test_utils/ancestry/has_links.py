@@ -2,6 +2,8 @@
 Test utilities for :py:mod:`betty.entity.has_links`.
 """
 
+from __future__ import annotations
+
 from betty.entity import EntityDefinition
 from betty.entity.has_links import HasLinks
 from betty.test_utils.locale.localizable import (

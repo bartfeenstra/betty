@@ -2,27 +2,32 @@
 Console user sessions.
 """
 
+from __future__ import annotations
+
 import logging
-from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import Final, TextIO, cast, final, overload, override
+from typing import TYPE_CHECKING, Final, TextIO, cast, final, overload, override
 
 from rich.console import Console
 from rich.progress import BarColumn, TaskProgressColumn, TextColumn, TimeElapsedColumn
 from rich.progress import Progress as _RichProgress
 from rich.prompt import Confirm, Prompt
 
-from betty.functools import Pipe
 from betty.life_cycle.manage import ManagedLifeCycle
-from betty.locale.localizable import ResolvableLocalizable
 from betty.locale.localize import resolve_localized
-from betty.progress import Progress
 from betty.progresses.no_op import NoOpProgress
 from betty.progresses.rich import RichProgress
 from betty.rich import Theme
 from betty.typing import Void, VoidType
 from betty.user import User, Verbosity
 from betty.user.logging import UserHandler
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
+
+    from betty.functools import Pipe
+    from betty.locale.localizable import ResolvableLocalizable
+    from betty.progress import Progress
 
 
 @final

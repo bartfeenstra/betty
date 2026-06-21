@@ -2,15 +2,19 @@
 The map attribution content plugin.
 """
 
-from typing import Self, final, override
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Self, final, override
 
 from betty.asset_directories.maps import maps
 from betty.content import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
-from betty.document import Document
 from betty.factory import Manufacturable
 from betty.locale.localizable.gettext import _
 from betty.project import Project
+
+if TYPE_CHECKING:
+    from betty.document import Document
 
 
 @final

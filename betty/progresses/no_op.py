@@ -2,6 +2,8 @@
 Progress tracking that does nothing.
 """
 
+from __future__ import annotations
+
 from typing import override
 
 from betty.progress import Progress

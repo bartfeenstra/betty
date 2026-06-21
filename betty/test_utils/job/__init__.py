@@ -2,10 +2,16 @@
 Test utilities for :py:mod:`betty.job`.
 """
 
-from betty.job import Job
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from betty.job.executor.asyncio import AsyncExecutor
 from betty.job.scheduler.default import DefaultScheduler
 from betty.user.no_op import NoOpUser
+
+if TYPE_CHECKING:
+    from betty.job import Job
 
 
 async def do(*jobs: Job) -> None:

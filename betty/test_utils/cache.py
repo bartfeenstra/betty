@@ -2,12 +2,17 @@
 Test utilities for :py:mod:`betty.cache`.
 """
 
-from collections.abc import Iterator, Sequence
-from contextlib import AbstractAsyncContextManager
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 import pytest
 
 from betty.cache import Cache, CacheItem
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
+    from contextlib import AbstractAsyncContextManager
 
 
 class CacheTestBase[CacheItemValueT]:

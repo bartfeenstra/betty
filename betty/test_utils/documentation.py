@@ -2,18 +2,22 @@
 Documentation testing utilities.
 """
 
-from typing import Any
+from __future__ import annotations
 
-import pytest
+from typing import TYPE_CHECKING, Any
 
 from betty.importlib import fully_qualified_name
-from betty.plugin import PluginDefinition
 from betty.plugin.cls import PluginClsDefinition
 from betty.service_level import ServiceLevel
-from betty.test_utils.conftest import (
-    IsolatedAppFactory,
-    IsolatedProjectFactory,
-)
+
+if TYPE_CHECKING:
+    import pytest
+
+    from betty.plugin import PluginDefinition
+    from betty.test_utils.conftest import (
+        IsolatedAppFactory,
+        IsolatedProjectFactory,
+    )
 
 
 class PluginDocumentationTestBase:

@@ -2,6 +2,8 @@
 Provide ``import`` utilities.
 """
 
+from __future__ import annotations
+
 from functools import reduce
 from importlib import import_module
 from typing import Any

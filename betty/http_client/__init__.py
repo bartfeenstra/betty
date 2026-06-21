@@ -2,11 +2,17 @@
 The HTTP client API.
 """
 
-from aiohttp import ClientError
-from aiohttp.client_middlewares import ClientHandlerType
-from aiohttp.client_reqrep import ClientRequest, ClientResponse
+from __future__ import annotations
 
-from betty.user import User
+from typing import TYPE_CHECKING
+
+from aiohttp import ClientError
+
+if TYPE_CHECKING:
+    from aiohttp.client_middlewares import ClientHandlerType
+    from aiohttp.client_reqrep import ClientRequest, ClientResponse
+
+    from betty.user import User
 
 
 class ClientErrorToUserMessageMiddleware:

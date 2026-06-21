@@ -2,12 +2,13 @@
 The map content plugin.
 """
 
-from typing import Self, final, override
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Self, final, override
 
 from betty.asset_directories.maps import maps
 from betty.content import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
-from betty.document import Document
 from betty.entities.event import Event
 from betty.entities.person import Person
 from betty.entities.place import Place
@@ -16,6 +17,9 @@ from betty.factory import Manufacturable
 from betty.jinja_filters.webpack_entry_point_js import WebpackEntryPointJs
 from betty.locale.localizable.gettext import _
 from betty.project import Project
+
+if TYPE_CHECKING:
+    from betty.document import Document
 
 
 @final

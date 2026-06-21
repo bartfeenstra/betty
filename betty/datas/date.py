@@ -2,6 +2,8 @@
 Date data.
 """
 
+from __future__ import annotations
+
 from typing import final, override
 
 from betty.assertions.if_else import assert_if_else
