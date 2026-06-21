@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING, Any
 from betty.assertions.str import assert_str
 from betty.exception import HumanFacingException
 from betty.functools import Pipeline
-from betty.locale.localizable.gettext import _
-from betty.locale.localizable.markup import Paragraph, do_you_mean
+from betty.localizables.gettext import _
+from betty.localizables.markup import Paragraph, do_you_mean
 from betty.plugin import PluginDefinition
 
 if TYPE_CHECKING:

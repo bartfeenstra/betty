@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from betty.date import Date
 from betty.entities.place_name import PlaceName
 from betty.locale import default_locale_tag
-from betty.locale.localizable.plain import Plain
+from betty.localizables.plain import Plain
 
 if TYPE_CHECKING:
     from betty.test_utils.conftest import AssertDumpsLinkedData

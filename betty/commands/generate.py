@@ -8,7 +8,7 @@ from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.console.project import add_project_argument
 from betty.factory import Manufacturable
 from betty.job import Context
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.project import generate
 
 if TYPE_CHECKING:

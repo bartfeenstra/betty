@@ -9,13 +9,13 @@ from babel import Locale
 from betty.asset import StaticAssetRepository
 from betty.caches.file import BinaryFileCache
 from betty.dirs import builtin_asset_directory
-from betty.locale import default_locale
-from betty.locale.translation import (
+from betty.gettext import (
     AssetTranslationRepository,
     StaticTranslationRepository,
     UntranslatedLocale,
     update_app_translations,
 )
+from betty.locale import default_locale
 from betty.test_utils.locale import PotFileTestBase
 
 if TYPE_CHECKING:

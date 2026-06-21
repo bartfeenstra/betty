@@ -4,8 +4,8 @@ import pytest
 from babel import Locale
 
 from betty.document import Document
-from betty.locale import LocalizedStr
-from betty.locale.localize import Localizer
+from betty.localized import LocalizedStr
+from betty.localizer import Localizer
 from betty.test_utils.conftest import AssertTemplateString
 
 

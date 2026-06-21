@@ -11,7 +11,7 @@ from betty.extensions.webpack import Webpack
 from betty.extensions.webpack.build import EntryPointProvider
 from betty.factory import Manufacturable
 from betty.jobs._generate_trees_people_json import _GenerateTreesPeopleJson
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.project import Project
 from betty.project.generate import Generator
 

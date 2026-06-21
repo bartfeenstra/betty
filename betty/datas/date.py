@@ -9,7 +9,7 @@ from typing import final, override
 from betty.assertions.if_else import assert_if_else
 from betty.data import DataDefinition
 from betty.date import AnyDate, Date, DateRange
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.portable import PortableData, Porter
 
 

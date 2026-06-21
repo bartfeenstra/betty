@@ -8,7 +8,7 @@ from collections.abc import Sized
 
 from betty.assertions import _HumanFacingValueError
 from betty.functools import Pipeline
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 
 
 def assert_len[SizedT: Sized](

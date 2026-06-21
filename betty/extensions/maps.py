@@ -11,7 +11,7 @@ from betty.extensions.webpack import Webpack
 from betty.extensions.webpack.build import EntryPointProvider
 from betty.factory import Manufacturable
 from betty.jobs._generate_maps_place_previews import _GenerateMapsPlacePreviews
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.project import Project
 from betty.project.generate import Generator
 

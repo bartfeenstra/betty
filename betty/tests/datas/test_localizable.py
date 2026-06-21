@@ -5,14 +5,14 @@ import pytest
 from betty.datas.localizable import LocalizableDefinition
 from betty.exception import HumanFacingException
 from betty.locale import default_locale_tag
-from betty.locale.localizable.markup import Paragraph
-from betty.locale.localizable.plain import Plain
-from betty.locale.localizable.static import StaticTranslations
-from betty.locale.localize import default_localizer
+from betty.localizables.markup import Paragraph
+from betty.localizables.plain import Plain
+from betty.localizables.static import StaticTranslations
+from betty.localizer import default_localizer
 from betty.portable.error import NotPortable
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import ShorthandStaticTranslations
+    from betty.localizable import ShorthandStaticTranslations
 
 
 class TestLocalizableDefinition:

@@ -25,7 +25,7 @@ from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.bool import BoolDefinition
 from betty.factory import DataManufacturable
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.project import Project
 from betty.prop import HasProps
 from betty.sample import Sample, Size
@@ -35,7 +35,7 @@ if TYPE_CHECKING:
 
     from betty.document import Document
     from betty.jinja import Environment
-    from betty.locale.localizable import ResolvableLocalizable
+    from betty.localizable import ResolvableLocalizable
     from betty.machine_name import MachineName, ResolvableMachineName
     from betty.plugin.factory import ResolvablePluginManufacturerSequence
 

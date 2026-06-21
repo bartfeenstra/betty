@@ -9,7 +9,7 @@ from urllib.parse import urlsplit, urlunsplit
 
 from betty.assertions import _HumanFacingValueError
 from betty.assertions.str import assert_str
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 
 if TYPE_CHECKING:
     from betty.functools import Pipeline

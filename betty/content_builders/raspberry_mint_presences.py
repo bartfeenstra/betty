@@ -15,7 +15,7 @@ from betty.datas.aggregate.collection.sequence import SequenceDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.entities.event import Event
 from betty.factory import DataManufacturable, Manufacturable
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.machine_name import MachineName
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.project import Project

@@ -4,13 +4,13 @@ from typing import TYPE_CHECKING, Final, final, override
 
 from betty.extensions._theme.search import generate_search_index
 from betty.job import Job
-from betty.locale.localizable.gettext import _
-from betty.locale.localizable.markup import Chain
-from betty.locale.localizable.plain import Plain
+from betty.localizables.gettext import _
+from betty.localizables.markup import Chain
+from betty.localizables.plain import Plain
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
-    from betty.locale.localizable import Localizable
+    from betty.localizable import Localizable
     from betty.project import Project
 
 

@@ -7,10 +7,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final, override
 
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
-from betty.locale.localizable.plain import Plain
+from betty.localizables.plain import Plain
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import Localizable
+    from betty.localizable import Localizable
 
 
 @final

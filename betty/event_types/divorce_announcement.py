@@ -11,7 +11,7 @@ from betty.event_types.birth import Birth
 from betty.event_types.death import Death
 from betty.event_types.divorce import Divorce
 from betty.event_types.marriage import Marriage
-from betty.locale.localizable.gettext import _, ngettext
+from betty.localizables.gettext import _, ngettext
 
 
 @final

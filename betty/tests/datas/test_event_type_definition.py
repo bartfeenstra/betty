@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from betty.datas.event_type_definition import EventTypeDefinitionData
-from betty.locale.localizable.plain import Plain
+from betty.localizables.plain import Plain
 from betty.machine_name import MachineName
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,

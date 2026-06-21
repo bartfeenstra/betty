@@ -8,7 +8,7 @@ from typing import final
 
 from betty.event_type import EventType, EventTypeDefinition
 from betty.event_types.death import Death
-from betty.locale.localizable.gettext import _, ngettext
+from betty.localizables.gettext import _, ngettext
 
 
 @final

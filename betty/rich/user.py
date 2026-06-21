@@ -14,7 +14,6 @@ from rich.progress import Progress as _RichProgress
 from rich.prompt import Confirm, Prompt
 
 from betty.life_cycle.manage import ManagedLifeCycle
-from betty.locale.localize import resolve_localized
 from betty.progresses.no_op import NoOpProgress
 from betty.progresses.rich import RichProgress
 from betty.rich import Theme
@@ -26,7 +25,7 @@ if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
     from betty.functools import Pipe
-    from betty.locale.localizable import ResolvableLocalizable
+    from betty.localizable import ResolvableLocalizable
     from betty.progress import Progress
 
 
@@ -90,7 +89,7 @@ class RichUser(ManagedLifeCycle, User):
 
     @override
     async def message_error(self, message: ResolvableLocalizable, /) -> None:
-        self._message_error(resolve_localized(message, localizer=self.localizer))
+        self._message_error(self.localizer.localize(message))
 
     def _message_error(self, message: str) -> None:
         self.assert_alive()
@@ -101,18 +100,14 @@ class RichUser(ManagedLifeCycle, User):
         self.assert_alive()
         if self._verbosity < Verbosity.DEFAULT:
             return
-        self.console.print(
-            f"[yellow]{resolve_localized(message, localizer=self.localizer)}[/]"
-        )
+        self.console.print(f"[yellow]{self.localizer.localize(message)}[/]")
 
     @override
     async def message_information(self, message: ResolvableLocalizable, /) -> None:
         self.assert_alive()
         if self._verbosity < Verbosity.DEFAULT:
             return
-        self.console.print(
-            f"[green]{resolve_localized(message, localizer=self.localizer)}[/]"
-        )
+        self.console.print(f"[green]{self.localizer.localize(message)}[/]")
 
     @override
     async def message_information_details(
@@ -121,18 +116,14 @@ class RichUser(ManagedLifeCycle, User):
         self.assert_alive()
         if self._verbosity < Verbosity.VERBOSE:
             return
-        self.console.print(
-            f"[green]{resolve_localized(message, localizer=self.localizer)}[/]"
-        )
+        self.console.print(f"[green]{self.localizer.localize(message)}[/]")
 
     @override
     async def message_debug(self, message: ResolvableLocalizable, /) -> None:
         self.assert_alive()
         if self._verbosity < Verbosity.MORE_VERBOSE:
             return
-        self.console.print(
-            f"[white]{resolve_localized(message, localizer=self.localizer)}[/]"
-        )
+        self.console.print(f"[white]{self.localizer.localize(message)}[/]")
 
     @override
     async def message_log(self, message: logging.LogRecord, /) -> None:
@@ -158,7 +149,7 @@ class RichUser(ManagedLifeCycle, User):
                 console=self.console,
             ) as rich_progress:
                 async with RichProgress(
-                    rich_progress, resolve_localized(message, localizer=self.localizer)
+                    rich_progress, self.localizer.localize(message)
                 ) as progress:
                     yield progress
 
@@ -172,7 +163,7 @@ class RichUser(ManagedLifeCycle, User):
     ) -> bool:
         self.assert_alive()
         return Confirm.ask(
-            resolve_localized(statement, localizer=self.localizer),
+            self.localizer.localize(statement),
             console=self.console,
             default=default,
             stream=stdin,
@@ -215,7 +206,7 @@ class RichUser(ManagedLifeCycle, User):
         value = cast(
             str,
             Prompt.ask(
-                resolve_localized(question, localizer=self.localizer),
+                self.localizer.localize(question),
                 console=self.console,
                 stream=stdin,
                 **ask_kwargs,

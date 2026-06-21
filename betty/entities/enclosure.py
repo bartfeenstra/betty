@@ -10,7 +10,7 @@ from betty.attrs.date import HasAnyDate
 from betty.entity import Entity, EntityDefinition
 from betty.entity.association import BidirectionalToOne, ToOneAssociate
 from betty.entity.has_citations import HasCitations
-from betty.locale.localizable.gettext import _, ngettext
+from betty.localizables.gettext import _, ngettext
 
 if TYPE_CHECKING:
     from betty.entities.place import Place

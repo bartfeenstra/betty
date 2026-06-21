@@ -36,7 +36,7 @@ from betty.gramps import (
     machinify,
 )
 from betty.licenses.public_domain import PublicDomain as PublicDomainLicense
-from betty.locale.localize import Localizer, default_localizer
+from betty.localizer import Localizer, default_localizer
 from betty.media_type import MediaType
 from betty.place_types.city import City
 from betty.place_types.unknown import UnknownPlaceType

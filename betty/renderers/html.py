@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING, Final, Self, override
 
 from betty.factory import Manufacturable
 from betty.html.url import generate_urls
-from betty.locale.localizable.gettext import _
-from betty.locale.localizable.markup import AllEnumeration
+from betty.localizables.gettext import _
+from betty.localizables.markup import AllEnumeration
 from betty.media_types.html import HTML
 from betty.project import Project
 from betty.render import Renderer, RendererDefinition

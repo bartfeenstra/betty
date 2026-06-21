@@ -17,14 +17,14 @@ import rich_argparse
 from betty.app import App
 from betty.console.command import CommandDefinition, CommandFunction
 from betty.exception import HumanFacingException
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.rich.user import RichUser
 from betty.user import User, Verbosity
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterable, Sequence
 
-    from betty.locale.localize import Localizer
+    from betty.localizer import Localizer
 
 
 @final

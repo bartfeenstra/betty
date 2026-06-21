@@ -20,8 +20,8 @@ from betty.factory import Manufacturable
 from betty.load import LoaderManufacturer
 from betty.loaders.gramps import FamilyTree, Gramps, GrampsData
 from betty.locale import default_locale_tag, to_language_tag
-from betty.locale.localizable.gettext import _
-from betty.locale.localizable.static import StaticTranslations
+from betty.localizables.gettext import _
+from betty.localizables.static import StaticTranslations
 from betty.machine_name import MachineName
 from betty.project import ProjectData
 from betty.project.new import new
@@ -33,7 +33,7 @@ if TYPE_CHECKING:
 
     from babel import Locale
 
-    from betty.locale.localizable import Localizable
+    from betty.localizable import Localizable
     from betty.user import User
 
 

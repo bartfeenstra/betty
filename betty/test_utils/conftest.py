@@ -73,8 +73,8 @@ if TYPE_CHECKING:
     from betty.linked_data import LinkedDataDumpableWithSchema, LinkedDataDumper
     from betty.load import EnricherDefinition, LoaderDefinition
     from betty.locale import ResolvableLocale
-    from betty.locale.localizable import ResolvableLocalizable
-    from betty.locale.translation import TranslationRepository
+    from betty.localizable import ResolvableLocalizable
+    from betty.gettext import TranslationRepository
     from betty.machine_name import ResolvableMachineName
     from betty.pathlib import StrPath
     from betty.plugin import PluginDefinition

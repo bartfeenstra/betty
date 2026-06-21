@@ -10,7 +10,7 @@ from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.entity.has_notes import HasNotes
 from betty.factory import Manufacturable
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.project import Project
 
 if TYPE_CHECKING:

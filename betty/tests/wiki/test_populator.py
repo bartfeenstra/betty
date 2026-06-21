@@ -12,8 +12,8 @@ from betty.entities.link import Link
 from betty.entities.place import Place
 from betty.entities.source import Source
 from betty.entity.collection.pool import EntityPool
-from betty.locale.localize import LocalizerRepository
-from betty.locale.translation import default_translation_repository
+from betty.gettext import default_translation_repository
+from betty.localizer import LocalizerRepository
 from betty.media_type import MediaType
 from betty.media_types.html import HTML
 from betty.test_utils.entity import DummyEntityOne

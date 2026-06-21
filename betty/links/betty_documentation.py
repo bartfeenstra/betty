@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import Final
 
 from betty.link import LinkDefinition, StaticLink
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 
 BETTY_DOCUMENTATION: Final[LinkDefinition] = LinkDefinition(
     "betty-documentation",

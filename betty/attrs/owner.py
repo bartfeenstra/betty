@@ -20,7 +20,7 @@ from betty.props.setter import SetterProp
 if TYPE_CHECKING:
     from betty.data import ResolvableDataDefinition
     from betty.indicator.selector import Element
-    from betty.locale.localizable import ResolvableLocalizable
+    from betty.localizable import ResolvableLocalizable
 
 
 class _Owner[

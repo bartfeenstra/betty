@@ -14,7 +14,7 @@ from betty.portable import CallbackPorter, PortableData
 
 if TYPE_CHECKING:
     from betty.data import Data, DataDefinition
-    from betty.locale.localizable import ResolvableLocalizable
+    from betty.localizable import ResolvableLocalizable
     from betty.typing import Intersection
 
 

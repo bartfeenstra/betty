@@ -8,7 +8,7 @@ from typing import final
 
 from betty.classtools import Singleton
 from betty.event_type import EventType, EventTypeDefinition
-from betty.locale.localizable.gettext import _, ngettext
+from betty.localizables.gettext import _, ngettext
 
 
 @final

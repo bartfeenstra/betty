@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from enum import IntEnum
 from typing import TYPE_CHECKING, overload
 
-from betty.locale.localize import default_localizer
+from betty.localizer import default_localizer
 from betty.typing import Void, VoidType
 
 if TYPE_CHECKING:
@@ -16,8 +16,8 @@ if TYPE_CHECKING:
     from contextlib import AbstractAsyncContextManager
 
     from betty.functools import Pipe
-    from betty.locale.localizable import ResolvableLocalizable
-    from betty.locale.localize import Localizer
+    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import Localizer
     from betty.progress import Progress
 
 

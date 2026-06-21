@@ -28,7 +28,7 @@ from betty.event_types.marriage import Marriage
 from betty.genders.man import Man
 from betty.genders.woman import Woman
 from betty.job import Job
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.media_types.svg import SVG
 from betty.place_types.country import Country
 from betty.place_types.municipality import Municipality

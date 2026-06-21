@@ -2,7 +2,7 @@ from __future__ import annotations  # noqa: D100
 
 from typing import Final
 
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.media_type import MediaType, MediaTypeDefinition
 
 JINJA: Final[MediaTypeDefinition] = MediaTypeDefinition(

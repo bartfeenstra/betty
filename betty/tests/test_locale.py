@@ -6,8 +6,6 @@ import pytest
 from babel import Locale
 
 from betty.locale import (
-    Localized,
-    LocalizedStr,
     ResolvableLocale,
     default_locale,
     from_language_tag,
@@ -18,6 +16,7 @@ from betty.locale import (
     to_language_tag,
 )
 from betty.locale.error import InvalidLocale, UnknownLocale
+from betty.localized import Localized, LocalizedStr
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -126,15 +125,6 @@ def test_to_language_tag(expected: str, locale: Locale | None) -> None:
 
 def test_plural_tags() -> None:
     assert "other" in plural_tags(default_locale)
-
-
-class TestLocalizedStr:
-    def test_locale(self) -> None:
-        string = "Hallo, wereld!"
-        locale = Locale("nl")
-        sut = LocalizedStr(string, locale=locale)
-        assert sut == string
-        assert sut.locale is locale
 
 
 @pytest.mark.parametrize(

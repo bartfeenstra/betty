@@ -27,7 +27,7 @@ from betty.gramps import (
 )
 from betty.jobs.load_gramps_ancestry import LoadGrampsAncestry
 from betty.load import Loader, LoaderDefinition
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.pathlib import resolve_path
 from betty.place_type import PlaceType, PlaceTypeDefinition, PlaceTypeManufacturer
 from betty.plugin.cls import Plugin, PluginClsDefinition
@@ -41,11 +41,10 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from pathlib import Path
 
-    from betty.attr import Attr as Attr
     from betty.attrs.common import CommonAttr
     from betty.entity.collection.pool import EntityPool
     from betty.job.scheduler import Scheduler
-    from betty.locale.localizable import ResolvableLocalizable
+    from betty.localizable import ResolvableLocalizable
     from betty.pathlib import StrPath
     from betty.service_level import ServiceLevel
     from betty.user import User

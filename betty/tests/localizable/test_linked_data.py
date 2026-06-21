@@ -1,10 +1,10 @@
 import pytest
 
 from betty.json_schemas.static_translations import StaticTranslationsSchema
-from betty.locale.localizable import ShorthandStaticTranslations
-from betty.locale.localizable.linked_data import dump_linked_data
-from betty.locale.localizable.static import StaticTranslations
-from betty.locale.localize import default_localizer
+from betty.localizable import ShorthandStaticTranslations
+from betty.localizable.linked_data import dump_linked_data
+from betty.localizables.static import StaticTranslations
+from betty.localizer import default_localizer
 from betty.portable import PortableMapping
 from betty.test_utils.conftest import AssertLinkedDataDump
 

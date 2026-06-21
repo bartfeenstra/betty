@@ -15,7 +15,7 @@ from betty.entity.association import AssociationRequired, TemporaryToOneResolver
 from betty.event_types.birth import Birth
 from betty.event_types.unknown import UnknownEventType
 from betty.locale import default_locale_tag
-from betty.locale.localize import default_localizer
+from betty.localizer import default_localizer
 from betty.privacy import Privacy
 from betty.roles.subject import Subject
 from betty.test_utils.entity import EntityTestBase

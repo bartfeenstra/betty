@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from betty.app import App
-from betty.locale.localize import default_localizer
+from betty.localizer import default_localizer
 from betty.portable.file import assert_load_file
 from betty.project import ProjectData
 from betty.project.new import new

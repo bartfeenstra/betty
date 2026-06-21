@@ -15,7 +15,7 @@ from betty.entities.event import Event
 from betty.entities.person import Person
 from betty.entities.presence import Presence
 from betty.event_type import EventTypeDefinition, ShouldExistEventType
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.roles.subject import Subject
 
 if TYPE_CHECKING:

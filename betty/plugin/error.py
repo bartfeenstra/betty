@@ -7,8 +7,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from betty.exception import HumanFacingException
-from betty.locale.localizable.gettext import _
-from betty.locale.localizable.markup import Paragraph, do_you_mean
+from betty.localizables.gettext import _
+from betty.localizables.markup import Paragraph, do_you_mean
 from betty.plugin import PluginDefinition
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 

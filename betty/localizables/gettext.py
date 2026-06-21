@@ -6,11 +6,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, cast, overload, override
 
-from betty.locale import LocalizedStr
-from betty.locale.localizable import CountableLocalizable, Localizable, LocalizableCount
+from betty.localizable import CountableLocalizable, Localizable, LocalizableCount
+from betty.localized import LocalizedStr
 
 if TYPE_CHECKING:
-    from betty.locale.localize import Localizer
+    from betty.localizer import Localizer
 
 
 class _GettextLocalizable(Localizable):
@@ -44,7 +44,7 @@ def gettext(message: str, /) -> Localizable:
 
     Positional arguments are identical to those of :py:meth:`gettext.gettext`.
     Keyword arguments are identical to those of :py:meth:`str.format`, except that
-    any :py:class:`betty.locale.localizable.Localizable` will be localized before string
+    any :py:class:`betty.localizable.Localizable` will be localized before string
     formatting.
     """
     return _GettextLocalizable("gettext", message)
@@ -52,11 +52,11 @@ def gettext(message: str, /) -> Localizable:
 
 def _(message: str, /) -> Localizable:
     """
-    Like :py:meth:`betty.locale.localizable.gettext`.
+    Like :py:meth:`betty.localizables.gettext.gettext`.
 
     Positional arguments are identical to those of :py:meth:`gettext.gettext`.
     Keyword arguments are identical to those of :py:meth:`str.format`, except that
-    any :py:class:`betty.locale.localizable.Localizable` will be localized before string
+    any :py:class:`betty.localizable.Localizable` will be localized before string
     formatting.
     """
     return gettext(message)
@@ -82,7 +82,7 @@ def ngettext(
 
     Positional arguments are identical to those of :py:meth:`gettext.ngettext`.
     Keyword arguments are identical to those of :py:meth:`str.format`, except that
-    any :py:class:`betty.locale.localizable.Localizable` will be localized before string
+    any :py:class:`betty.localizable.Localizable` will be localized before string
     formatting.
 
     Messages MUST have a ``{count}`` placeholder.
@@ -102,7 +102,7 @@ def pgettext(context: str, message: str, /) -> Localizable:
 
     Positional arguments are identical to those of :py:meth:`gettext.pgettext`.
     Keyword arguments are identical to those of :py:meth:`str.format`, except that
-    any :py:class:`betty.locale.localizable.Localizable` will be localized before string
+    any :py:class:`betty.localizable.Localizable` will be localized before string
     formatting.
     """
     return _GettextLocalizable("pgettext", context, message)
@@ -130,7 +130,7 @@ def npgettext(
 
     Positional arguments are identical to those of :py:meth:`gettext.npgettext`.
     Keyword arguments are identical to those of :py:meth:`str.format`, except that
-    any :py:class:`betty.locale.localizable.Localizable` will be localized before string
+    any :py:class:`betty.localizable.Localizable` will be localized before string
     formatting.
     """
     if n is None:

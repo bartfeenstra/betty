@@ -8,7 +8,7 @@ from betty.entities.source import Source
 from betty.entity import Entity
 from betty.event_types.birth import Birth
 from betty.locale import default_locale_tag
-from betty.locale.localize import default_localizer
+from betty.localizer import default_localizer
 from betty.privacy import Privacy
 from betty.test_utils.ancestry.has_citations import DummyHasCitations
 from betty.test_utils.entity import EntityTestBase

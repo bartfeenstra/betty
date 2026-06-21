@@ -6,7 +6,7 @@ import pytest
 
 from betty.attrs.description import HasDescription
 from betty.locale import default_locale_tag
-from betty.locale.localize import default_localizer
+from betty.localizer import default_localizer
 
 if TYPE_CHECKING:
     from betty.entity.has_links import HasLinks

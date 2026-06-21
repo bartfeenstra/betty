@@ -22,7 +22,7 @@ from betty.factory import DataManufacturable, FactoryError
 from betty.functools import Pipeline
 from betty.importlib import fully_qualified_name
 from betty.indicator.selector import Attr
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition

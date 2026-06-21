@@ -14,12 +14,12 @@ from betty.linked_data import (
     LinkedDataDumpableWithSchemaJsonLdObject,
     dump_context,
 )
-from betty.locale.localizable.gettext import _
-from betty.locale.localizable.linked_data import dump_linked_data
+from betty.localizable.linked_data import dump_linked_data
+from betty.localizables.gettext import _
 from betty.prop import HasProps
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import ResolvableLocalizable
+    from betty.localizable import ResolvableLocalizable
     from betty.portable import PortableMapping
     from betty.project import Project
 

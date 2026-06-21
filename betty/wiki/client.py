@@ -22,7 +22,7 @@ from betty.file import write
 from betty.hashid import hashid
 from betty.indicator import Url
 from betty.indicator.selector import Index, Key, SelectorError, Selectors
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.media_type import MediaType
 
 if TYPE_CHECKING:

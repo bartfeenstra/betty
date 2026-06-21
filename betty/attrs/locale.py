@@ -12,14 +12,15 @@ from betty.datas.locale import LocaleDefinition
 from betty.json_schema import Null, OneOf
 from betty.json_schemas.locale import LocaleSchema
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
-from betty.locale import Localized, ResolvableLocale, resolve_locale, to_language_tag
+from betty.locale import ResolvableLocale, resolve_locale, to_language_tag
+from betty.localized import Localized
 from betty.prop import HasProps
 
 if TYPE_CHECKING:
     from babel import Locale
 
     from betty.attrs.common import CommonAttr
-    from betty.locale.localizable import ResolvableLocalizable
+    from betty.localizable import ResolvableLocalizable
     from betty.portable import PortableMapping
     from betty.project import Project
 

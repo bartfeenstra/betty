@@ -11,11 +11,11 @@ from betty.attrs.localizable import new_localizable_attr
 from betty.datas.human_facing_plugin_definition import (
     HumanFacingPluginDefinitionData,
 )
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.plugin import PluginDefinition
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import (
+    from betty.localizable import (
         ResolvableCountableLocalizable,
         ResolvableLocalizable,
     )

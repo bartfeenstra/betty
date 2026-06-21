@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, final, override
 from betty.entity import Entity, EntityDefinition
 from betty.entity.association import BidirectionalToOne, ToOneAssociate
 from betty.json_schemas.plugin_id import PluginIdSchema
-from betty.locale.localizable.gettext import _, ngettext
+from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
 from betty.privacy.resolve import merge_secondary_privacies
 from betty.role import RoleDefinition
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from betty.entities.event import Event
     from betty.entities.person import Person
     from betty.linked_data import JsonLdObject
-    from betty.locale.localizable import Localizable
+    from betty.localizable import Localizable
     from betty.machine_name import ResolvableMachineName
     from betty.portable import PortableMapping
     from betty.project import Project

@@ -8,18 +8,18 @@ from abc import ABC, abstractmethod
 from textwrap import indent
 from typing import TYPE_CHECKING, Any, ClassVar, Final, final, override
 
-from betty.locale import LocalizedStr
-from betty.locale.localizable import (
+from betty.localizable import (
     Localizable,
     ResolvableLocalizable,
     resolve_localizable,
 )
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
+from betty.localized import LocalizedStr
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from betty.locale.localize import Localizer
+    from betty.localizer import Localizer
 
 
 class LocalizableSequence(ABC):

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any
 
 from betty.entity import Entity
 from betty.entity.association import BidirectionalToManySingleType, ToManyAssociates
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 
 if TYPE_CHECKING:
     from betty.entities.file_reference import FileReference

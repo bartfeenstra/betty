@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
-from betty.locale.localizable.gettext import _
-from betty.locale.localizable.markup import AllEnumeration
+from betty.localizables.gettext import _
+from betty.localizables.markup import AllEnumeration
 from betty.plugin import PluginDefinition
 from betty.requirements.service import UnmetServiceRequirement
 from betty.services.plugin import PluginServiceManager, PluginServiceProvider

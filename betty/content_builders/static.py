@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final, override
 
 from betty.content_builder import ContentBuilder, ContentBuilderDefinition
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 
 if TYPE_CHECKING:
     from betty.document import Document

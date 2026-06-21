@@ -7,7 +7,7 @@ from betty.extensions.raspberry_mint import RaspberryMint
 from betty.file import write
 from betty.job import Job
 from betty.locale import to_language_tag
-from betty.locale.localize import default_localizer
+from betty.localizer import default_localizer
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler

@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING, cast, final, override
 
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.media_types.json import JSON
 from betty.portable import PortableData
 from betty.serialize import SerializationError, Serializer, SerializerDefinition

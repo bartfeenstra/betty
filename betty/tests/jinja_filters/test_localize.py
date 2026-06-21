@@ -1,4 +1,4 @@
-from betty.locale.localizable.plain import Plain
+from betty.localizables.plain import Plain
 from betty.test_utils.conftest import AssertTemplateString
 
 

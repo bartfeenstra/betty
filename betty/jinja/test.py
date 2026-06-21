@@ -7,7 +7,7 @@ from __future__ import annotations
 from abc import ABC
 from typing import TYPE_CHECKING, final
 
-from betty.locale.localizable.gettext import _, ngettext
+from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition

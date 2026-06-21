@@ -18,8 +18,8 @@ from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.bool import BoolDefinition
 from betty.datas.int import IntDefinition
-from betty.locale.localizable import Localizable
-from betty.locale.localizable.gettext import _
+from betty.localizable import Localizable
+from betty.localizables.gettext import _
 from betty.prop import HasProps
 from betty.sample import Sample, Size
 
@@ -27,8 +27,8 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Mapping
     from types import NotImplementedType
 
-    from betty.locale import LocalizedStr
-    from betty.locale.localize import Localizer
+    from betty.localized import LocalizedStr
+    from betty.localizer import Localizer
     from betty.typing import Intersection as Intersection
 
 

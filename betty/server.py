@@ -14,14 +14,14 @@ from urllib.parse import urlsplit
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.exception import HumanFacingException
 from betty.functools import Do
-from betty.locale.localizable.gettext import _, ngettext
+from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.ordered import Order, OrderedPluginClsDefinition
 
 if TYPE_CHECKING:
     from types import TracebackType
 
-    from betty.locale.localizable import ResolvableLocalizable
+    from betty.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.requirement import Requires
     from betty.user import User

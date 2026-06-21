@@ -13,7 +13,7 @@ from betty.entities.citation import Citation
 from betty.entities.source import Source
 from betty.factory import Manufacturable
 from betty.functools import unique
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.project import Project
 
 if TYPE_CHECKING:

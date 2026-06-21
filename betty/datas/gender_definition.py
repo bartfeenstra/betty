@@ -12,8 +12,8 @@ from betty.datas.countable_human_facing_plugin_definition import (
 )
 from betty.gender import Gender, GenderDefinition
 from betty.locale import default_locale
-from betty.locale.localizable.gettext import _
-from betty.locale.localizable.static import CountableStaticTranslations
+from betty.localizables.gettext import _
+from betty.localizables.static import CountableStaticTranslations
 from betty.sample import Sample
 
 

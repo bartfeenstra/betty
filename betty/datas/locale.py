@@ -11,7 +11,7 @@ from babel import Locale
 from betty.assertions.locale import assert_locale
 from betty.data import DataDefinition
 from betty.locale import to_language_tag
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.portable import CallbackPorter
 
 

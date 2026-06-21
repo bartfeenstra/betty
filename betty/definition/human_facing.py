@@ -6,10 +6,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Final
 
-from betty.locale.localizable import resolve_localizable
+from betty.localizable import resolve_localizable
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import (
+    from betty.localizable import (
         CountableLocalizable,
         Localizable,
         ResolvableLocalizable,

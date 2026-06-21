@@ -19,7 +19,7 @@ from betty.entity.has_citations import HasCitations
 from betty.entity.has_file_references import HasFileReferences
 from betty.entity.has_notes import HasNotes
 from betty.event_types.death import Death
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.privacy import Privacy
 from betty.roles.subject import Subject
 

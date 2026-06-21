@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING, Any
 
 from betty.assertions import _HumanFacingValueError
 from betty.functools import Pipe, Pipeline
-from betty.locale.localizable import Localizable, ResolvableLocalizable
-from betty.locale.localizable.markup import Paragraphs
+from betty.localizable import Localizable, ResolvableLocalizable
+from betty.localizables.markup import Paragraphs
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence

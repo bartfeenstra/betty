@@ -11,8 +11,8 @@ from betty.linked_data import (
     JsonLdObject,
     LinkedDataDumpableWithSchemaJsonLdObject,
 )
-from betty.locale.localizable.gettext import _, ngettext
-from betty.locale.localize import default_localizer
+from betty.localizables.gettext import _, ngettext
+from betty.localizer import default_localizer
 from betty.machine_name import MachineName
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
@@ -20,7 +20,7 @@ from betty.privacy import Privacy
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import (
+    from betty.localizable import (
         CountableLocalizable,
         Localizable,
         ResolvableLocalizable,

@@ -18,7 +18,7 @@ from betty.genders.unknown import UnknownGender
 from betty.json_schemas.entity_association import ToManySchema
 from betty.json_schemas.plugin_id import PluginIdSchema
 from betty.linked_data import JsonLdObject, dump_context
-from betty.locale.localizable.gettext import _, ngettext
+from betty.localizables.gettext import _, ngettext
 from betty.media_types.json_ld import JSON_LD
 from betty.privacy import Privacy
 
@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     from betty.entities.person_name import PersonName
     from betty.entities.presence import Presence
     from betty.gender import Gender
-    from betty.locale.localizable import Localizable
+    from betty.localizable import Localizable
     from betty.machine_name import ResolvableMachineName
     from betty.portable import PortableMapping
     from betty.project import Project

@@ -18,7 +18,7 @@ from betty.datas.optional import OptionalDefinition
 from betty.datas.str import StrDefinition
 from betty.exception import HumanFacingException
 from betty.indicator.selector import Attr
-from betty.locale.localizable.plain import Plain
+from betty.localizables.plain import Plain
 from betty.portable import PortableData
 
 

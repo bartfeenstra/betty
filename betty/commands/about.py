@@ -13,7 +13,7 @@ from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.console.project import add_project_argument
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.factory import Manufacturable
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.rich.user import RichUser
 
 if TYPE_CHECKING:

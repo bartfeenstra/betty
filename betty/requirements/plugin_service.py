@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Final, final
 
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.plugin import PluginDefinition
 from betty.plugin.resolve import ResolvablePluginDefinition, resolve_plugin_definition
 from betty.requirements.service import UnmetServiceRequirement

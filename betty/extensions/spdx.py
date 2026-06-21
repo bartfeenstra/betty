@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import final
 
 from betty.extension import Extension, ExtensionDefinition
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 
 
 @final

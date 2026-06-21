@@ -9,7 +9,7 @@ from typing import Any
 from betty.entities.note import Note
 from betty.entity import Entity
 from betty.entity.association import BidirectionalToManySingleType, ToManyAssociates
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 
 
 class HasNotes(Entity):

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from betty.exception import HumanFacingException
-from betty.locale.localizable.static import StaticTranslations
+from betty.localizables.static import StaticTranslations
 
 
 def _always_valid(value: int) -> int:

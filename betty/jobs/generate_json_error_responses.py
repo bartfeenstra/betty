@@ -11,8 +11,8 @@ from typing import TYPE_CHECKING, final, override
 from betty.file import write
 from betty.job import Job
 from betty.json_schemas.project import ProjectSchema
-from betty.locale.localizable.gettext import _
-from betty.locale.localize import default_localizer
+from betty.localizables.gettext import _
+from betty.localizer import default_localizer
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler

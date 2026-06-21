@@ -36,8 +36,8 @@ from betty.extensions.raspberry_mint import (
     single_column_text_width,
 )
 from betty.life_cycle import Bootstrappable
-from betty.locale.localizable.gettext import _
-from betty.locale.localizable.static import StaticTranslations
+from betty.localizables.gettext import _
+from betty.localizables.static import StaticTranslations
 from betty.requirement import check
 from betty.roles.subject import Subject
 from betty.roles.witness import Witness
@@ -45,8 +45,8 @@ from betty.roles.witness import Witness
 if TYPE_CHECKING:
     from collections.abc import AsyncIterable, Sequence
 
-    from betty.locale.localizable import Localizable
-    from betty.locale.localize import Localizer
+    from betty.localizable import Localizable
+    from betty.localizer import Localizer
     from betty.plugin.factory import ResolvablePluginManufacturer
     from betty.project import Project
 

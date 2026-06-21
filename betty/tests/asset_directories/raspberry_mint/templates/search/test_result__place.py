@@ -1,6 +1,6 @@
 from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.entities.place import Place
-from betty.locale.localize import default_localizer
+from betty.localizer import default_localizer
 from betty.test_utils.conftest import AssertTemplateFile
 
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from betty.datas.place_type_definition import PlaceTypeDefinitionData
-from betty.locale.localizable.plain import Plain
+from betty.localizables.plain import Plain
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
 )

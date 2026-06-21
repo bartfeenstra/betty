@@ -12,8 +12,8 @@ import pytest
 from betty.entity import Entity, EntityDefinition
 from betty.entity.collection.multiple import MultipleTypesEntityCollection
 from betty.locale import default_locale
-from betty.locale.localizable.static import CountableStaticTranslations
-from betty.locale.localize import default_localizer
+from betty.localizables.static import CountableStaticTranslations
+from betty.localizer import default_localizer
 
 if TYPE_CHECKING:
     from collections.abc import Iterator

@@ -28,13 +28,13 @@ from betty.data import (
 )
 from betty.datas.aggregate import AggregateDefinition
 from betty.indicator.selector import Element
-from betty.locale.localizable import resolve_localizable
+from betty.localizable import resolve_localizable
 from betty.portable import Portable, PortableData, PortablePorter, Porter
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping, MutableMapping
 
-    from betty.locale.localizable import Localizable, ResolvableLocalizable
+    from betty.localizable import Localizable, ResolvableLocalizable
     from betty.portable import PortableMapping
     from betty.typing import Intersection
 

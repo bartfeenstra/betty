@@ -9,10 +9,10 @@ from typing import final
 from betty.classtools import Singleton
 from betty.data import DataDefinition
 from betty.importlib import fully_qualified_name
-from betty.locale.localizable import Localizable
-from betty.locale.localizable.gettext import _
-from betty.locale.localizable.plain import Plain
-from betty.locale.localizable.static import StaticTranslations
+from betty.localizable import Localizable
+from betty.localizables.gettext import _
+from betty.localizables.plain import Plain
+from betty.localizables.static import StaticTranslations
 from betty.portable import CallbackPorter, PortableData
 from betty.portable.error import NotPortable
 
@@ -20,7 +20,7 @@ from betty.portable.error import NotPortable
 @final
 class LocalizableDefinition(DataDefinition[Localizable], Singleton):
     """
-    The data definition for :py:class:`betty.locale.localizable.Localizable`.
+    The data definition for :py:class:`betty.localizable.Localizable`.
     """
 
     def __init__(self):

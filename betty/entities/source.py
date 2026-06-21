@@ -20,8 +20,8 @@ from betty.entity.has_links import HasLinks
 from betty.entity.has_notes import HasNotes
 from betty.json_schemas.static_translations import StaticTranslationsSchema
 from betty.linked_data import JsonLdObject, dump_context
-from betty.locale.localizable.gettext import _, ngettext
-from betty.locale.localizable.linked_data import dump_linked_data
+from betty.localizable.linked_data import dump_linked_data
+from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
 from betty.privacy.resolve import merge_privacies
 
@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     from betty.entities.file_reference import FileReference
     from betty.entities.link import Link
     from betty.entities.note import Note
-    from betty.locale.localizable import Localizable, ResolvableLocalizable
+    from betty.localizable import Localizable, ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.portable import PortableMapping
     from betty.project import Project

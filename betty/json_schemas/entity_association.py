@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from betty.json_schema import Array, Null, OneOf, String
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import ResolvableLocalizable
+    from betty.localizable import ResolvableLocalizable
 
 
 class ToZeroOrOneSchema(OneOf):

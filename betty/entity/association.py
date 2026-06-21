@@ -19,11 +19,11 @@ from betty.entity.collection.single import SingleTypeEntityCollection
 from betty.importlib import fully_qualified_name, import_any
 from betty.json_schemas.entity_association import ToManySchema, ToZeroOrOneSchema
 from betty.linked_data import LinkedDataDumper
-from betty.locale.localizable import resolve_localizable
+from betty.localizable import resolve_localizable
 
 if TYPE_CHECKING:
     from betty.json_schema import Schema
-    from betty.locale.localizable import ResolvableLocalizable
+    from betty.localizable import ResolvableLocalizable
     from betty.portable import PortableData
     from betty.project import Project
 

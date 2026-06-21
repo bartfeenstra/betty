@@ -9,8 +9,8 @@ from typing import Any
 
 from betty.assertions import _HumanFacingValueError
 from betty.functools import Pipeline
-from betty.locale.localizable.gettext import _
-from betty.locale.localizable.markup import Paragraph, do_you_mean
+from betty.localizables.gettext import _
+from betty.localizables.markup import Paragraph, do_you_mean
 
 
 def assert_enum[EnumT: Enum](options: type[EnumT]) -> Pipeline[Any, EnumT]:

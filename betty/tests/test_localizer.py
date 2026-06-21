@@ -5,22 +5,17 @@ from typing import TYPE_CHECKING
 
 from babel import Locale
 
+from betty.gettext import TranslationRepository
 from betty.locale import default_locale, default_locale_tag
-from betty.locale.localizable.plain import Plain
-from betty.locale.localize import (
-    Localizer,
-    LocalizerRepository,
-    default_localizer,
-    resolve_localized,
-)
-from betty.locale.translation import TranslationRepository
+from betty.localizables.plain import Plain
+from betty.localizer import Localizer, LocalizerRepository, default_localizer
 
 if TYPE_CHECKING:
     from pathlib import Path
 
     from pytest_mock import MockerFixture
 
-    from betty.locale.localizable import (
+    from betty.localizable import (
         ShorthandStaticTranslations,
         StaticTranslationsMapping,
     )
@@ -30,6 +25,34 @@ class TestLocalizer:
     def test_locale(self) -> None:
         sut = default_localizer
         assert sut.locale.language == "en"
+
+    def test_localize__with_localizable(self) -> None:
+        localizable = "My First Localizable"
+        assert default_localizer.localize(Plain(localizable)) == localizable
+
+    def test_localize__with_str(self) -> None:
+        localizable = "My First Localizable"
+        assert default_localizer.localize(localizable) == localizable
+
+    def test_localize__with_static_translations_mapping(self) -> None:
+        locale = "nl"
+        localizer = Localizer(locale, NullTranslations())
+        localized = "Mijn Eerste, Ja, Wat Eigenlijk?"
+        localizable: StaticTranslationsMapping = {
+            default_locale: "My First Localizable",
+            Locale(locale): localized,
+        }
+        assert localizer.localize(localizable) == localized
+
+    def test_localize__with_shorthand_static_translations_mapping(self) -> None:
+        locale = "nl-NL"
+        localizer = Localizer(locale, NullTranslations())
+        localized = "Mijn Eerste, Ja, Wat Eigenlijk?"
+        localizable: ShorthandStaticTranslations = {
+            default_locale_tag: "My First Localizable",
+            locale: localized,
+        }
+        assert localizer.localize(localizable) == localized
 
     def test__(self) -> None:
         sut = default_localizer
@@ -100,38 +123,3 @@ class TestLocalizerRepository:
         localizer = sut.get(locale)
         assert localizer.locale == Locale(locale)
         assert sut.get(locale) is localizer
-
-
-def test_resolve_localized__with_localizable() -> None:
-    localizable = "My First Localizable"
-    assert (
-        resolve_localized(Plain(localizable), localizer=default_localizer)
-        == localizable
-    )
-
-
-def test_resolve_localized__with_str() -> None:
-    localizable = "My First Localizable"
-    assert resolve_localized(localizable, localizer=default_localizer) == localizable
-
-
-def test_resolve_localized__with_static_translations_mapping() -> None:
-    locale = "nl"
-    localizer = Localizer(locale, NullTranslations())
-    localized = "Mijn Eerste, Ja, Wat Eigenlijk?"
-    localizable: StaticTranslationsMapping = {
-        default_locale: "My First Localizable",
-        Locale(locale): localized,
-    }
-    assert resolve_localized(localizable, localizer=localizer) == localized
-
-
-def test_resolve_localized__with_shorthand_static_translations_mapping() -> None:
-    locale = "nl-NL"
-    localizer = Localizer(locale, NullTranslations())
-    localized = "Mijn Eerste, Ja, Wat Eigenlijk?"
-    localizable: ShorthandStaticTranslations = {
-        default_locale_tag: "My First Localizable",
-        locale: localized,
-    }
-    assert resolve_localized(localizable, localizer=localizer) == localized

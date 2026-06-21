@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final, override
 
 from betty.event_type import EventTypeDefinition, ShouldExistEventType
-from betty.locale.localizable.gettext import _, ngettext
+from betty.localizables.gettext import _, ngettext
 
 if TYPE_CHECKING:
     from betty.entities.person import Person

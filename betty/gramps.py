@@ -74,9 +74,9 @@ from betty.hashid import hashid, hashid_sequence
 from betty.license import LicenseManufacturer
 from betty.locale import from_language_tag
 from betty.locale.error import LocaleError
-from betty.locale.localizable.gettext import _
-from betty.locale.localizable.markup import AnyEnumeration
-from betty.locale.localizable.static import StaticTranslations
+from betty.localizables.gettext import _
+from betty.localizables.markup import AnyEnumeration
+from betty.localizables.static import StaticTranslations
 from betty.machine_name import MachineName
 from betty.media_type import InvalidMediaType, MediaType
 from betty.pathlib import resolve_path
@@ -130,7 +130,7 @@ if TYPE_CHECKING:
     from betty.entity.has_notes import HasNotes
     from betty.event_type import EventType, EventTypeDefinition
     from betty.gender import Gender
-    from betty.locale.localizable import StaticTranslationsMapping
+    from betty.localizables.static import StaticTranslationsMapping
     from betty.machine_name import ResolvableMachineName
     from betty.pathlib import StrPath
     from betty.place_type import PlaceType, PlaceTypeDefinition

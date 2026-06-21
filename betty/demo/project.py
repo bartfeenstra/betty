@@ -38,8 +38,8 @@ from betty.links.betty_documentation import BETTY_DOCUMENTATION
 from betty.links.betty_github import BETTY_GITHUB
 from betty.loaders.demo import Demo
 from betty.locale import default_locale
-from betty.locale.localizable.gettext import _
-from betty.locale.localizable.markup import Chain
+from betty.localizables.gettext import _
+from betty.localizables.markup import Chain
 from betty.media_types.html import HTML
 from betty.project import Project
 

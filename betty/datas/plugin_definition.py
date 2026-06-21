@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 from betty.attrs.machine_name import new_machine_name_attr
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.plugin import PluginDefinition
 from betty.prop import HasProps
 

@@ -20,17 +20,17 @@ from betty.caches.no_op import NoOpCache
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.dirs import app_config_directory, cache_directory
-from betty.http_client import ClientErrorToUserMessageMiddleware
-from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
-from betty.life_cycle import Bootstrappable, Shutdownable
-from betty.locale import ResolvableLocale, default_locale, resolve_locale
-from betty.locale.localizable.gettext import _
-from betty.locale.localize import Localizer, LocalizerRepository
-from betty.locale.translation import (
+from betty.gettext import (
     AssetTranslationRepository,
     TranslationRepository,
     default_translation_repository,
 )
+from betty.http_client import ClientErrorToUserMessageMiddleware
+from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
+from betty.life_cycle import Bootstrappable, Shutdownable
+from betty.locale import ResolvableLocale, default_locale, resolve_locale
+from betty.localizables.gettext import _
+from betty.localizer import Localizer, LocalizerRepository
 from betty.media_type import MediaTypeDefinition
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.portable.file import assert_load_file

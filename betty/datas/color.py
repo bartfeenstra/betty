@@ -10,7 +10,7 @@ from typing import Final, final
 from betty.assertions.str import assert_str
 from betty.data import DataDefinition
 from betty.exception import HumanFacingException
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.portable import CallbackPorter
 from betty.sample import Sample
 

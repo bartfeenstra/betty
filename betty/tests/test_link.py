@@ -1,8 +1,8 @@
 from typing import Final
 
 from betty.link import Link, LinkDefinition, StaticLink
-from betty.locale.localizable.plain import Plain
-from betty.locale.localize import default_localizer
+from betty.localizables.plain import Plain
+from betty.localizer import default_localizer
 
 _dummy_link: Final[Link] = StaticLink("https://example.com", "My First Link")
 

@@ -16,7 +16,7 @@ from betty.sample import Samplable, Sample, Samples
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, MutableMapping
 
-    from betty.locale.localizable import ResolvableLocalizable
+    from betty.localizable import ResolvableLocalizable
     from betty.typing import Intersection
 
 

@@ -1,5 +1,5 @@
 """
-Integrate the Locale API with Babel.
+Babel integration.
 """
 
 from __future__ import annotations

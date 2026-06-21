@@ -11,10 +11,10 @@ from typing import TYPE_CHECKING, Any
 
 from betty.assertions import _HumanFacingValueError
 from betty.functools import Pipeline
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import Localizable
+    from betty.localizable import Localizable
 
 type AssertTypeType = (
     bool | float | int | Mapping[Any, Any] | None | Sequence[Any] | str

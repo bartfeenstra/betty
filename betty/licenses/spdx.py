@@ -20,15 +20,15 @@ from betty.exception import HumanFacingException
 from betty.factory import Manufacturable
 from betty.file import read
 from betty.license import License, LicenseDefinition
-from betty.locale.localizable.gettext import _
-from betty.locale.localizable.plain import Plain
+from betty.localizables.gettext import _
+from betty.localizables.plain import Plain
 from betty.machine_name import MachineName
 
 if TYPE_CHECKING:
     from pathlib import Path
 
     from betty.caches.file import BinaryFileCache
-    from betty.locale.localizable import Localizable
+    from betty.localizable import Localizable
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.portable import PortableData, PortableSequence
     from betty.service_level import ServiceLevel

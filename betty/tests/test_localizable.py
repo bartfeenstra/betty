@@ -4,7 +4,7 @@ from typing import override
 from babel import Locale
 
 from betty.locale import default_locale, default_locale_tag
-from betty.locale.localizable import (
+from betty.localizable import (
     CountableLocalizable,
     Localizable,
     LocalizableCount,
@@ -13,9 +13,9 @@ from betty.locale.localizable import (
     resolve_countable_localizable,
     resolve_localizable,
 )
-from betty.locale.localizable.plain import Plain
-from betty.locale.localizable.static import CountableStaticTranslations
-from betty.locale.localize import Localizer, default_localizer
+from betty.localizables.plain import Plain
+from betty.localizables.static import CountableStaticTranslations
+from betty.localizer import Localizer, default_localizer
 
 
 class TestCountableLocalizable:

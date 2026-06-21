@@ -9,16 +9,16 @@ from typing import TYPE_CHECKING, final
 
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.exception import HumanFacingException
-from betty.locale.localizable.gettext import _, ngettext
-from betty.locale.localizable.markup import AnyEnumeration
-from betty.locale.localizable.plain import Plain
+from betty.localizables.gettext import _, ngettext
+from betty.localizables.markup import AnyEnumeration
+from betty.localizables.plain import Plain
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from betty.locale.localizable import ResolvableLocalizable
+    from betty.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.media_type import MediaType
     from betty.portable import PortableData

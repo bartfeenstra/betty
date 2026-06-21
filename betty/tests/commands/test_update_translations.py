@@ -38,9 +38,7 @@ class TestUpdateTranslations:
     ) -> None:
         source = tmp_path / "source"
         source.mkdir()
-        m_update_translations = mocker.patch(
-            "betty.locale.translation.update_translations"
-        )
+        m_update_translations = mocker.patch("betty.gettext.update_translations")
         await run(
             isolated_app_with_assets,
             "update-translations",
@@ -62,9 +60,7 @@ class TestUpdateTranslations:
         excludes = [source / "exclude1", source / "exclude2", source / "exclude3"]
         for exclude in excludes:
             exclude.mkdir()
-        m_update_translations = mocker.patch(
-            "betty.locale.translation.update_translations"
-        )
+        m_update_translations = mocker.patch("betty.gettext.update_translations")
         await run(
             isolated_app_with_assets,
             "update-translations",

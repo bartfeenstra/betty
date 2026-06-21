@@ -1,8 +1,8 @@
 import pytest
 from babel import Locale
 
-from betty.locale.localizable.plain import Plain
-from betty.locale.localize import default_localizer
+from betty.localizables.plain import Plain
+from betty.localizer import default_localizer
 
 
 class TestPlain:

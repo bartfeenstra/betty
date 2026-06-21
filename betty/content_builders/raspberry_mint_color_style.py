@@ -24,7 +24,7 @@ from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.enum import EnumDefinition
 from betty.extensions.raspberry_mint import ColorStyle as RaspberryMintColorStyle
 from betty.factory import DataManufacturable
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.project import Project
 from betty.prop import HasProps
 from betty.sample import Sample

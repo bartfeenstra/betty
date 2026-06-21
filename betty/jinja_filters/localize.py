@@ -14,7 +14,7 @@ from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
 if TYPE_CHECKING:
     from jinja2.runtime import Context
 
-    from betty.locale.localizable import Localizable
+    from betty.localizable import Localizable
 
 
 @final

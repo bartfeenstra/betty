@@ -12,7 +12,7 @@ from aiohttp import ClientError, ClientSession
 from lxml.html import HtmlElement, document_fromstring
 
 from betty.job import Job
-from betty.locale.localizable.static import StaticTranslations
+from betty.localizables.static import StaticTranslations
 from betty.media_type import InvalidMediaType, MediaType
 
 if TYPE_CHECKING:
@@ -22,8 +22,8 @@ if TYPE_CHECKING:
 
     from betty.entities.link import Link
     from betty.job.scheduler import Scheduler
-    from betty.locale.localizable import StaticTranslationsMapping
-    from betty.locale.localize import Localizer
+    from betty.localizables.static import StaticTranslationsMapping
+    from betty.localizer import Localizer
 
 
 @final

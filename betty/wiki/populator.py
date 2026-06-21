@@ -19,8 +19,8 @@ from betty.functools import map_suppress
 from betty.hashid import hashid
 from betty.locale import negotiate_locale, resolve_locale
 from betty.locale.error import LocaleError
-from betty.locale.localizable.gettext import _
-from betty.locale.localizable.static import StaticTranslations
+from betty.localizables.gettext import _
+from betty.localizables.static import StaticTranslations
 from betty.machine_name import MachineName
 from betty.media_types.html import HTML
 from betty.typing import threadsafe
@@ -35,7 +35,7 @@ if TYPE_CHECKING:
     from betty.copyright_notice import CopyrightNotice
     from betty.entity import Entity
     from betty.entity.collection.pool import EntityPool
-    from betty.locale.localize import LocalizerRepository
+    from betty.localizer import LocalizerRepository
     from betty.typing import Intersection
     from betty.user import User
     from betty.wiki.client import Client, Image

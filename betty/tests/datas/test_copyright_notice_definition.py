@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from betty.datas.copyright_notice_definition import CopyrightNoticeDefinitionData
-from betty.locale.localizable.plain import Plain
+from betty.localizables.plain import Plain
 
 
 class TestCopyrightNoticeDefinitionData:

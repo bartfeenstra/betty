@@ -7,13 +7,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final
 
 from betty.definition.human_facing import CountableHumanFacingDefinition
-from betty.locale.localizable.gettext import _, ngettext
+from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import CountableLocalizable, ResolvableLocalizable
+    from betty.localizable import CountableLocalizable, ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.requirement import Requires
 

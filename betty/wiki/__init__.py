@@ -7,13 +7,13 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING, Final, cast
 
-from betty.locale.localizable.static import StaticTranslations
+from betty.localizables.static import StaticTranslations
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.link import Link
-    from betty.locale.localize import Localizer
+    from betty.localizer import Localizer
 
 
 class NotAPageError(ValueError):
