@@ -38,6 +38,10 @@ from betty.extensions.webpack.build import EntryPointProvider
 from betty.factory import DataManufacturable, Manufacturable
 from betty.indicator.selector import Attr as AttrSelector
 from betty.indicator.selector import Key
+from betty.jobs._generate_raspberry_mint_search_index import (
+    _GenerateRaspberryMintSearchIndex,
+)
+from betty.jobs.generate_logo import GenerateLogo
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Paragraph, do_you_mean
 from betty.plugin.factory import ResolvablePluginManufacturer
@@ -284,13 +288,9 @@ class RaspberryMint(
 
     @override
     async def generate(self, scheduler: Scheduler) -> None:
-        from betty.jobs._generate_raspberry_mint_search_index import (
-            _GenerateRaspberryMintSearchIndex,
-        )
         from betty.jobs._generate_raspberry_mint_webmanifest import (
             _GenerateRaspberryMintWebmanifest,
         )
-        from betty.jobs.generate_logo import GenerateLogo
 
         await scheduler.add(
             GenerateLogo(project=self._project),

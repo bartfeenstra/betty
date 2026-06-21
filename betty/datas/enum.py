@@ -7,6 +7,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import TYPE_CHECKING, final
 
+from betty.assertions.enum import assert_enum
 from betty.data import DataDefinition
 from betty.portable import CallbackPorter
 
@@ -28,8 +29,6 @@ class EnumDefinition[EnumT: Enum](DataDefinition[EnumT]):
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
     ):
-        from betty.assertions.enum import assert_enum
-
         super().__init__(
             cls=cls,
             label=label,

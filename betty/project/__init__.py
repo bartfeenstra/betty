@@ -70,6 +70,7 @@ from betty.indicator.selector import Attr as AttrSelector
 from betty.jinja.filter import JinjaFilterDefinition
 from betty.jinja.test import JinjaTestDefinition
 from betty.license import License, LicenseDefinition, LicenseManufacturer
+from betty.licenses.all_rights_reserved import AllRightsReserved
 from betty.link import LinkDefinition
 from betty.load import (
     Enricher,
@@ -213,7 +214,6 @@ class Project(
         _plugin_discoveries: Iterable[PluginDefinition] = (),
     ):
         from betty.copyright_notices.project_author import ProjectAuthor
-        from betty.licenses.all_rights_reserved import AllRightsReserved
 
         cls = type(self)
         if cache is not None:
@@ -822,8 +822,6 @@ class ProjectData(Data, HasProps):
 
     @license.default  # noqa: A003
     def license(self) -> LicenseManufacturer:  # noqa: D102
-        from betty.licenses.all_rights_reserved import AllRightsReserved
-
         return LicenseManufacturer(AllRightsReserved)
 
     licenses = new_plugin_definition_datas_attr(

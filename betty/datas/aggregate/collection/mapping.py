@@ -7,6 +7,7 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable, Mapping, MutableMapping
 from typing import TYPE_CHECKING, Any, final, override
 
+from betty.assertions.mapping import assert_mapping
 from betty.data import DataDefinition
 from betty.datas.aggregate.collection import CollectionDefinition
 from betty.indicator.selector import Key
@@ -51,8 +52,6 @@ class MappingDefinition[MutableMappingT: MutableMapping[Any, Any], KeyT, ValueT]
         self._value = value if isinstance(value, DataDefinition) else value.data()
 
     def _load(self, portable: PortableData, /) -> MutableMappingT:
-        from betty.assertions.mapping import assert_mapping
-
         loaded = self.new()
         loaded.update(
             assert_mapping(self._value.porter.load, self.item.porter.load)(portable)

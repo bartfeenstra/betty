@@ -37,6 +37,7 @@ from betty.multiprocessing import ProcessPoolExecutor
 from betty.portable.file import assert_load_file
 from betty.prop import HasProps
 from betty.requirements.service_level import RequirableServiceLevel
+from betty.rich.user import RichUser
 from betty.sample import Sample, Size
 from betty.serialize import SerializerDefinition
 from betty.service import Service
@@ -110,8 +111,6 @@ class App(RequirableServiceLevel, PluginServiceProvider):
         | None = None,
         user: User | None = None,
     ):
-        from betty.rich.user import RichUser
-
         cls = type(self)
         cls.binary_file_cache.override(
             self,
