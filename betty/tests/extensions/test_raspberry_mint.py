@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.content import ContentBuilderManufacturer
+from betty.content_builder import ContentBuilderManufacturer
 from betty.content_builders.static import Static
 from betty.entity import EntityDefinition
 from betty.exception import HumanFacingException

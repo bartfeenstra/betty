@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.media_type import new_media_type_attr
-from betty.content import ContentBuilder, ContentBuilderDefinition
+from betty.content_builder import ContentBuilder, ContentBuilderDefinition
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.factory import DataManufacturable

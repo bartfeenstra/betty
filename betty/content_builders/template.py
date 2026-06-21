@@ -8,7 +8,7 @@ from abc import abstractmethod
 from collections.abc import Iterable, Mapping, MutableSequence
 from typing import TYPE_CHECKING, Any, final, override
 
-from betty.content import ContentBuilder
+from betty.content_builder import ContentBuilder
 
 if TYPE_CHECKING:
     from betty.document import Document

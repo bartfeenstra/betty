@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.asset_directories.raspberry_mint import raspberry_mint
-from betty.content import ContentBuilderDefinition
+from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.entity.has_file_references import HasFileReferences
 from betty.extensions._theme import associated_file_references

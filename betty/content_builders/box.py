@@ -11,7 +11,7 @@ from betty.attrs.owner import OwnerAttr
 from betty.attrs.plugin_manufacturer_sequence import (
     new_plugin_manufacturer_sequence_attr,
 )
-from betty.content import (
+from betty.content_builder import (
     ContentBuilder,
     ContentBuilderDefinition,
     ContentBuilderManufacturer,

@@ -1,6 +1,6 @@
 import pytest
 
-from betty.content import ContentBuilderManufacturer
+from betty.content_builder import ContentBuilderManufacturer
 from betty.content_builders.render import Render, RenderData
 from betty.dirs import asset_directory
 from betty.extension import ExtensionManufacturer

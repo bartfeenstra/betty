@@ -1,4 +1,4 @@
-from betty.content import ContentBuilderManufacturer
+from betty.content_builder import ContentBuilderManufacturer
 from betty.content_builders.box import Box, BoxData
 from betty.content_builders.render import Render, RenderData
 from betty.document import Document

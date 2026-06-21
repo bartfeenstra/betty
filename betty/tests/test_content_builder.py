@@ -4,7 +4,7 @@ from typing import override
 import pytest
 from markupsafe import Markup
 
-from betty.content import ContentBuilder, build
+from betty.content_builder import ContentBuilder, build
 from betty.document import Document
 
 

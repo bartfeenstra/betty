@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.asset_directories.maps import maps
-from betty.content import ContentBuilderDefinition
+from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.factory import Manufacturable
 from betty.locale.localizable.gettext import _

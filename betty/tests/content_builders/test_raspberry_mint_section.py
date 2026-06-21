@@ -1,4 +1,4 @@
-from betty.content import ContentBuilderManufacturer
+from betty.content_builder import ContentBuilderManufacturer
 from betty.content_builders.raspberry_mint_section import Section, SectionData
 from betty.content_builders.render import Render, RenderData
 from betty.content_builders.static import Static

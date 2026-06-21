@@ -16,7 +16,7 @@ from betty.collection.mapping.adapter import (
     MutableResolvedMappingAdapter,
     ResolvedMappingAdapter,
 )
-from betty.content import (
+from betty.content_builder import (
     ContentBuilder,
     ContentBuilderDefinition,
     ContentBuilderManufacturer,
