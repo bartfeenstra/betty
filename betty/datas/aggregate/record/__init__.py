@@ -18,7 +18,7 @@ from typing import (
 )
 
 from betty.assertions.mapping import assert_mapping
-from betty.assertions.record import Field
+from betty.assertions.record import Field, assert_record
 from betty.data import (
     DataDefinition,
     ResolvableDataDefinition,
@@ -201,8 +201,6 @@ class MappingPorter[DataClsT, ElementT: Element[str] = Element[str]](
 
     @override
     def load(self, portable: PortableData, /) -> DataClsT:
-        from betty.assertions.record import assert_record
-
         return self._record.factory(
             **assert_record(*[
                 Field(

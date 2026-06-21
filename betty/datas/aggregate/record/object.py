@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import override
 
+from betty.attr import Attr
 from betty.datas.aggregate.record import RecordDefinition
 from betty.indicator.selector import Attr as AttrElement
 from betty.prop import HasProps
@@ -20,8 +21,6 @@ class ObjectDefinition[DataClsT](RecordDefinition[DataClsT, AttrElement]):
 
     @override
     def _set_cls(self, cls: type[DataClsT], /) -> None:
-        from betty.attr import Attr
-
         super()._set_cls(cls)
         if issubclass(cls, HasProps):
             for prop in cls.props():

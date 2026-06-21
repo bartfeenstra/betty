@@ -2,12 +2,14 @@ from __future__ import annotations  # noqa: D100
 
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty import load
 from betty.app import App
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.console.project import add_project_argument
 from betty.factory import Manufacturable
 from betty.job import Context
 from betty.locale.localizable.gettext import _
+from betty.project import generate
 
 if TYPE_CHECKING:
     import argparse
@@ -36,9 +38,6 @@ class Generate(Manufacturable, Command):
         return await add_project_argument(parser, self._command_function, self._app)
 
     async def _command_function(self, project: Project) -> None:
-        from betty import load
-        from betty.project import generate
-
         async with (
             project,
             project.upstream.user.message_progress(_("Generating site...")) as progress,

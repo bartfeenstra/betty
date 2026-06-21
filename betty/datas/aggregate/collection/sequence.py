@@ -7,6 +7,7 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable, MutableSequence
 from typing import TYPE_CHECKING, Any, final, override
 
+from betty.assertions.sequence import assert_sequence
 from betty.datas.aggregate.collection import CollectionDefinition
 from betty.indicator.selector import Index
 from betty.portable import CallbackPorter, PortableData
@@ -45,8 +46,6 @@ class SequenceDefinition[MutableSequenceT: MutableSequence[Any], ValueT](
         )
 
     def _load(self, portable: PortableData, /) -> MutableSequenceT:
-        from betty.assertions.sequence import assert_sequence
-
         loaded = self.new()
         loaded.extend(assert_sequence(self.item.porter.load)(portable))
         return loaded

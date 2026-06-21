@@ -7,6 +7,7 @@ from betty.app import App
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.demo import generate
 from betty.demo.project import create_project
+from betty.demo.serve import DemoServer
 from betty.factory import Manufacturable
 from betty.job import Context
 from betty.locale.localizable.gettext import _
@@ -44,8 +45,6 @@ class Demo(Manufacturable, Command):
         return self._command_function
 
     async def _command_function(self, *, path: str | None, url: str | None) -> None:
-        from betty.demo.serve import DemoServer
-
         if path is None:
             async with DemoServer(self._app) as server:
                 await server.show()
