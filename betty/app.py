@@ -321,4 +321,4 @@ class AppData(Data, HasProps):
 
     def __init__(self, *, locale: ResolvableLocale | None = None):
         super().__init__()
-        self.locale = None if locale is None else resolve_locale(locale)
+        self.locale = locale
