@@ -219,21 +219,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
         "IncompleteDateError": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/demo/serve.py": {
-        "DemoServer": {
-            "public_url": MissingReason.SHOULD_BE_COVERED,
-            "start": MissingReason.SHOULD_BE_COVERED,
-            "stop": MissingReason.SHOULD_BE_COVERED,
-        },
-    },
     "betty/deriver.py": {"Derivation": MissingReason.ENUM},
-    "betty/documentation.py": {
-        "DocumentationServer": {
-            "public_url": MissingReason.SHOULD_BE_COVERED,
-            "start": MissingReason.SHOULD_BE_COVERED,
-            "stop": MissingReason.SHOULD_BE_COVERED,
-        },
-    },
     "betty/dirs.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/error.py": {
         "FileNotFound": MissingReason.SHOULD_BE_COVERED,
@@ -689,6 +675,20 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "BuiltinServer": {
             "public_url": MissingReason.COVERED_ELSEWHERE,
             "stop": MissingReason.COVERED_ELSEWHERE,
+        },
+    },
+    "betty/servers/demo.py": {
+        "DemoServer": {
+            "public_url": MissingReason.SHOULD_BE_COVERED,
+            "start": MissingReason.SHOULD_BE_COVERED,
+            "stop": MissingReason.SHOULD_BE_COVERED,
+        },
+    },
+    "betty/servers/documentation.py": {
+        "DocumentationServer": {
+            "public_url": MissingReason.SHOULD_BE_COVERED,
+            "start": MissingReason.SHOULD_BE_COVERED,
+            "stop": MissingReason.SHOULD_BE_COVERED,
         },
     },
     "betty/servers/project_builtin.py": {

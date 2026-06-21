@@ -6,8 +6,8 @@ import pytest
 import requests
 from requests import Response
 
-from betty.demo.serve import DemoServer
 from betty.functools import Do
+from betty.servers.demo import DemoServer
 from betty.tests.conftest import check_skip_webpack_entry_point_provider
 
 if TYPE_CHECKING:

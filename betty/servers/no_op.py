@@ -1,5 +1,5 @@
 """
-Test utilities for :py:mod:`betty.server`.
+Servers that do nothing.
 """
 
 from __future__ import annotations
