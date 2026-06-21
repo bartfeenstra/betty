@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
     from betty.functools import Pipe
-    from betty.locale.localize import Localizer
+    from betty.localizer import Localizer
 
 
 def assertion_to_argument_type[T](

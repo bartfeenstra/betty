@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Self, override
 import pytest
 
 from betty.data import Sample
-from betty.locale.localizable.plain import Plain
+from betty.localizables.plain import Plain
 from betty.sample import Samplable, SampleNotFound, Samples, Size
 
 if TYPE_CHECKING:

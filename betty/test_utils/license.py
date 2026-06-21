@@ -7,7 +7,7 @@ from __future__ import annotations
 import pytest
 
 from betty.license import License
-from betty.locale.localize import default_localizer
+from betty.localizer import default_localizer
 
 
 class LicenseTestBase[LicenseT: License]:

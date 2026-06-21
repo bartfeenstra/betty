@@ -104,6 +104,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "linked_data_schema_for": MissingReason.STATIC_CONTENT_ONLY,
         },
     },
+    "betty/babel.py": {
+        "run_babel": MissingReason.SHOULD_BE_COVERED,
+    },
     "betty/cache.py": {
         "Cache": MissingReason.ABSTRACT,
         "CacheItem": MissingReason.SHOULD_BE_COVERED,
@@ -358,44 +361,32 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "roles": MissingReason.INHERITED,
         },
     },
-    "betty/locale/__init__.py": {
-        "Localized": MissingReason.ABSTRACT,
-    },
-    "betty/locale/babel.py": {
-        "run_babel": MissingReason.SHOULD_BE_COVERED,
-    },
     "betty/locale/error.py": {
         "LocaleError": MissingReason.ABSTRACT,
     },
-    "betty/locale/translation.py": {
-        "AssetTranslationRepository": {
-            "bootstrap": MissingReason.COVERED_ELSEWHERE,
-        },
-        "TranslationRepository": MissingReason.ABSTRACT,
-        "new_translation": MissingReason.SHOULD_BE_COVERED,
-        "update_translations": MissingReason.SHOULD_BE_COVERED,
-        "update_app_translations": MissingReason.SHOULD_BE_COVERED,
-    },
-    "betty/locale/localizable/__init__.py": {
+    "betty/localizable/__init__.py": {
         "CountableLocalizable": {
             "count": MissingReason.ABSTRACT,
         },
         "format": MissingReason.SHOULD_BE_COVERED,
         "Localizable": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/locale/localizable/error.py": {
+    "betty/localizable/error.py": {
         "InvalidPluralTag": MissingReason.STATIC_CONTENT_ONLY,
         "MissingPluralPlaceholder": MissingReason.STATIC_CONTENT_ONLY,
         "MissingPluralTag": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/locale/localizable/gettext.py": {
+    "betty/localizables/gettext.py": {
         "gettext": MissingReason.SHOULD_BE_COVERED,
         "ngettext": MissingReason.SHOULD_BE_COVERED,
         "npgettext": MissingReason.SHOULD_BE_COVERED,
         "pgettext": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/locale/localizable/markup.py": {
+    "betty/localizables/markup.py": {
         "LocalizableSequence": MissingReason.ABSTRACT,
+    },
+    "betty/localized.py": {
+        "Localized": MissingReason.ABSTRACT,
     },
     "betty/machine_name.py": {
         "MachineName": {
@@ -479,6 +470,15 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Gender": MissingReason.STATIC_CONTENT_ONLY,
         "GenderDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "GenderManufacturer": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/gettext.py": {
+        "AssetTranslationRepository": {
+            "bootstrap": MissingReason.COVERED_ELSEWHERE,
+        },
+        "TranslationRepository": MissingReason.ABSTRACT,
+        "new_translation": MissingReason.SHOULD_BE_COVERED,
+        "update_translations": MissingReason.SHOULD_BE_COVERED,
+        "update_app_translations": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/npm.py": {
         "npm": MissingReason.SHOULD_BE_COVERED,

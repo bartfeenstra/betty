@@ -9,7 +9,7 @@ from typing import Any
 from betty.assertions import _HumanFacingValueError
 from betty.assertions.type import assert_type
 from betty.functools import Pipeline
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 
 
 def assert_str(

@@ -8,7 +8,7 @@ from betty.entities.source import Source
 from betty.event_types.birth import Birth
 from betty.event_types.death import Death
 from betty.genders.non_binary import NonBinary
-from betty.locale.localize import default_localizer
+from betty.localizer import default_localizer
 from betty.privacy import Privacy
 from betty.roles.subject import Subject
 from betty.test_utils.conftest import AssertTemplateFile

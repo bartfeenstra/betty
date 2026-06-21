@@ -17,15 +17,15 @@ from betty.entity.association import BidirectionalToZeroOrOne
 from betty.json_schema import String
 from betty.json_schemas.static_translations import StaticTranslationsSchema
 from betty.link import Link as LinkType
-from betty.locale.localizable.gettext import _, ngettext
-from betty.locale.localizable.linked_data import dump_linked_data
+from betty.localizable.linked_data import dump_linked_data
+from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
 from betty.privacy.resolve import merge_privacies
 
 if TYPE_CHECKING:
     from betty.entity.has_links import HasLinks
     from betty.linked_data import JsonLdObject
-    from betty.locale.localizable import Localizable, ResolvableLocalizable
+    from betty.localizable import Localizable, ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.media_type import ResolvableMediaType
     from betty.portable import PortableMapping

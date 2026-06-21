@@ -1,6 +1,6 @@
 from betty.attrs.countable_localizable import new_countable_localizable_attr
 from betty.locale import default_locale, default_locale_tag
-from betty.locale.localize import default_localizer
+from betty.localizer import default_localizer
 from betty.prop import HasProps
 
 

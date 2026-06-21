@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, override
 
 from betty.entities.link import Link
 from betty.locale import default_locale_tag
-from betty.locale.localize import default_localizer
+from betty.localizer import default_localizer
 from betty.media_types.html import HTML
 from betty.privacy import Privacy
 from betty.test_utils.ancestry.has_links import DummyHasLinks

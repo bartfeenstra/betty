@@ -9,7 +9,7 @@ import sys
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, overload, override
 
-from betty.locale.localize import default_localizer, resolve_localized
+from betty.localizer import default_localizer
 from betty.progresses.no_op import NoOpProgress
 from betty.typing import Void, VoidType
 from betty.user import User, UserTimeoutError, Verbosity
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Collection, Iterable, MutableSequence
 
     from betty.functools import Pipe
-    from betty.locale.localizable import ResolvableLocalizable
+    from betty.localizable import ResolvableLocalizable
     from betty.progress import Progress
 
 
@@ -80,7 +80,7 @@ class StaticUser(User):
             fragments,
             message_type,
             [
-                resolve_localized(message, localizer=default_localizer)
+                default_localizer.localize(message)
                 for message in getattr(self, f"_messages_{message_type}")
             ],
         )
@@ -154,7 +154,7 @@ class StaticUser(User):
             fragments,
             message_type,
             [
-                resolve_localized(message, localizer=default_localizer)
+                default_localizer.localize(message)
                 for message in getattr(self, f"_messages_{message_type}")
             ],
         )

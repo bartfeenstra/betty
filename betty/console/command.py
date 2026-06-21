@@ -9,14 +9,14 @@ from collections.abc import Awaitable, Callable, Iterable, Sequence
 from typing import TYPE_CHECKING, Final, final
 
 from betty.definition.human_facing import HumanFacingDefinition
-from betty.locale.localizable.gettext import _, ngettext
+from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 
 if TYPE_CHECKING:
     import argparse
 
-    from betty.locale.localizable import ResolvableLocalizable
+    from betty.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.requirement import Requires
 

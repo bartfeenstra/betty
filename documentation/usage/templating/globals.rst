@@ -13,7 +13,7 @@ In addition to Jinja2's built-in globals, Betty provides the following:
     The ledger of primary entities in the current template context.
 ``machine_name`` (:py:meth:`betty.machine_name.MachineName`)
     Create new unique values that are valid as HTML IDs and classes.
-``localizer`` (:py:class:`betty.locale.localize.Localizer`)
+``localizer`` (:py:class:`betty.localizer.Localizer`)
     The localizer for the current template context.
 ``new_attributes`` (:py:class:`betty.html.attributes.Attributes`)
     Create new attributes for an HTML element.

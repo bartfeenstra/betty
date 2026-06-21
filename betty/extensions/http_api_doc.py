@@ -12,7 +12,7 @@ from betty.extension import ExtensionDefinition
 from betty.extensions.webpack import Webpack
 from betty.extensions.webpack.build import EntryPointProvider
 from betty.links.http_api_doc import HTTP_API_DOC as HTTP_API_DOC_LINK
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.project import Project
 
 if TYPE_CHECKING:

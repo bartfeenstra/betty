@@ -10,7 +10,7 @@ from betty.attrs.date import (
 )
 from betty.date import AnyDate, Date, DateRange, IncompleteDateError
 from betty.json_schemas.date import DateRangeSchema, DateSchema
-from betty.locale.localize import default_localizer
+from betty.localizer import default_localizer
 from betty.portable import PortableMapping
 
 if TYPE_CHECKING:

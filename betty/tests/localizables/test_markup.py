@@ -3,10 +3,7 @@ from gettext import NullTranslations
 
 import pytest
 
-from betty.locale.localizable import (
-    ResolvableLocalizable,
-)
-from betty.locale.localizable.markup import (
+from betty.localizables.markup import (
     AllEnumeration,
     AnyEnumeration,
     Chain,
@@ -14,11 +11,12 @@ from betty.locale.localizable.markup import (
     OrderedList,
     Paragraph,
     Paragraphs,
+    ResolvableLocalizable,
     UnorderedList,
     do_you_mean,
 )
-from betty.locale.localizable.plain import Plain
-from betty.locale.localize import Localizer, default_localizer
+from betty.localizables.plain import Plain
+from betty.localizer import Localizer, default_localizer
 
 
 @pytest.mark.parametrize(

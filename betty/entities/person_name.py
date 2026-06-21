@@ -18,7 +18,7 @@ from betty.entity.association import (
 from betty.entity.has_citations import HasCitations
 from betty.json_schema import String
 from betty.linked_data import JsonLdObject, dump_context
-from betty.locale.localizable.gettext import _, ngettext
+from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
 from betty.privacy.resolve import merge_privacies
 
@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from betty.entities.citation import Citation
     from betty.entities.person import Person
     from betty.locale import ResolvableLocale
-    from betty.locale.localizable import Localizable
+    from betty.localizable import Localizable
     from betty.machine_name import ResolvableMachineName
     from betty.portable import PortableMapping
     from betty.project import Project

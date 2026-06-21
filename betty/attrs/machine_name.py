@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from betty.attrs.owner import OwnerAttr
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.machine_name import (
     MachineName,
     ResolvableMachineName,
@@ -16,7 +16,7 @@ from betty.machine_name import (
 
 if TYPE_CHECKING:
     from betty.attrs.common import CommonAttr
-    from betty.locale.localizable import ResolvableLocalizable
+    from betty.localizable import ResolvableLocalizable
     from betty.prop import HasProps
 
 

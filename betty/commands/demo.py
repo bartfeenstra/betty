@@ -9,7 +9,7 @@ from betty.demo import generate
 from betty.demo.project import create_project
 from betty.factory import Manufacturable
 from betty.job import Context
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.servers import demo
 
 if TYPE_CHECKING:

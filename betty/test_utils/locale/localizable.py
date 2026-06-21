@@ -1,5 +1,5 @@
 """
-Test utilities for :py:mod:`betty.locale.localizable`.
+Test utilities for :py:mod:`betty.localizable`.
 """
 
 from __future__ import annotations
@@ -7,11 +7,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from betty.locale import default_locale
-from betty.locale.localizable.plain import Plain
-from betty.locale.localizable.static import CountableStaticTranslations
+from betty.localizables.plain import Plain
+from betty.localizables.static import CountableStaticTranslations
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import CountableLocalizable, Localizable
+    from betty.localizable import CountableLocalizable, Localizable
 
 DUMMY_LOCALIZABLE: Localizable = Plain("DUMMY_LOCALIZABLE")
 """

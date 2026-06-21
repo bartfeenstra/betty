@@ -16,8 +16,8 @@ from betty.entities.citation import Citation
 from betty.entities.source import Source
 from betty.job import Context
 from betty.locale import default_locale
-from betty.locale.localizable.plain import Plain
-from betty.locale.localize import Localizer
+from betty.localizables.plain import Plain
+from betty.localizer import Localizer
 from betty.media_type import MediaType
 from betty.test_utils.entity import DummyEntityOne
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE

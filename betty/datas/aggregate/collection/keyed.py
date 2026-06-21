@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
     from betty.data import Data
     from betty.datas.aggregate.record import RecordDefinition
-    from betty.locale.localizable import ResolvableLocalizable
+    from betty.localizable import ResolvableLocalizable
     from betty.typing import Intersection
 
 

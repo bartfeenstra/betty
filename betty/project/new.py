@@ -7,7 +7,7 @@ from __future__ import annotations
 from asyncio import gather
 from typing import TYPE_CHECKING
 
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.portable.file import dump_file
 
 if TYPE_CHECKING:

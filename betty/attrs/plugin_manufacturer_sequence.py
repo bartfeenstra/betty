@@ -15,7 +15,7 @@ from betty.plugin.cls import PluginClsDefinition
 if TYPE_CHECKING:
     from betty.attrs.common import CommonAttr
     from betty.collection.sequence import MutableResolvedSequence
-    from betty.locale.localizable import ResolvableLocalizable
+    from betty.localizable import ResolvableLocalizable
     from betty.plugin.factory import (
         PluginManufacturer,
         ResolvablePluginManufacturer,

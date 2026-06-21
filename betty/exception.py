@@ -8,15 +8,16 @@ from contextlib import contextmanager
 from typing import TYPE_CHECKING, Never, override
 
 from betty.indicator.selector import Selectors
-from betty.locale.localizable import Localizable, ResolvableLocalizable
-from betty.locale.localize import resolve_localized
+from betty.localizable import Localizable, ResolvableLocalizable
+from betty.localizables.markup import Lines, UnorderedList
+from betty.localizer import default_localizer
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
 
     from betty.indicator import Indicator
-    from betty.locale import LocalizedStr
-    from betty.locale.localize import Localizer
+    from betty.localized import LocalizedStr
+    from betty.localizer import Localizer
 
 
 def do_raise(exception: BaseException, /) -> Never:
@@ -54,25 +55,19 @@ class HumanFacingException(Exception, Localizable):
         *,
         indicators: Sequence[Indicator] = (),
     ):
-        from betty.locale.localize import default_localizer
-
         super().__init__(
             # Provide a default localization so this exception can be displayed like any other.
-            resolve_localized(message, localizer=default_localizer),
+            default_localizer.localize(message),
         )
         self._localizable_message = message
         self._indicators = list(indicators)
 
     @override
     def __str__(self) -> str:
-        from betty.locale.localize import default_localizer
-
         return self.localize(default_localizer)
 
     @override
     def localize(self, localizer: Localizer, /) -> LocalizedStr:
-        from betty.locale.localizable.markup import Lines, UnorderedList
-
         return Lines(
             self._localizable_message,
             UnorderedList(*[

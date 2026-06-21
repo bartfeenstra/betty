@@ -14,7 +14,7 @@ from betty.entity.has_file_references import HasFileReferences
 from betty.extensions._theme import associated_file_references
 from betty.factory import DataManufacturable
 from betty.image import is_supported_media_type
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.project import Project
 
 if TYPE_CHECKING:

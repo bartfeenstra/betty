@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.asyncio import LazyReAwaitable, ReAwaitable
 from betty.life_cycle import Bootstrappable, Shutdownable
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.resolve import ResolvablePluginDefinition, resolve_plugin_id

@@ -11,7 +11,7 @@ from betty.entities.place_name import PlaceName
 from betty.extensions._theme.search import Index
 from betty.extensions.raspberry_mint import RaspberryMint
 from betty.job import Context
-from betty.locale.localize import default_localizer
+from betty.localizer import default_localizer
 from betty.privacy import Privacy
 from betty.project import Project, ProjectLocale
 from betty.test_utils.conftest import IsolatedProjectFactory

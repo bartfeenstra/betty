@@ -12,8 +12,7 @@ from betty.content_builder import ContentBuilder, ContentBuilderDefinition
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.factory import DataManufacturable
-from betty.locale.localizable.gettext import _
-from betty.locale.localize import resolve_localized
+from betty.localizables.gettext import _
 from betty.media_types.plain_text import PLAIN_TEXT
 from betty.project import Project
 from betty.prop import HasProps
@@ -21,7 +20,7 @@ from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
     from betty.document import Document
-    from betty.locale.localizable import ResolvableLocalizable
+    from betty.localizable import ResolvableLocalizable
     from betty.media_type import ResolvableMediaType
     from betty.render import RenderDispatcher
 
@@ -90,6 +89,5 @@ class Render(DataManufacturable[RenderData], ContentBuilder):
     @override
     async def build(self, *, document: Document) -> str | None:
         return await self._renderer.render(
-            resolve_localized(self._content, localizer=document.localizer),
-            self._media_type,
+            document.localizer.localize(self._content), self._media_type
         )

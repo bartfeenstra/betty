@@ -12,7 +12,7 @@ from betty.content_builders.template import Template, TemplateBuild
 from betty.entities.person import Person
 from betty.extensions._theme import person_descendant_families
 from betty.factory import Manufacturable
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.project import Project
 
 if TYPE_CHECKING:

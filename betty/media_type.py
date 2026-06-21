@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Final, Self, final, override
 from betty.assertions.str import assert_str
 from betty.data import Data, DataDefinition
 from betty.definition.human_facing import HumanFacingDefinition
-from betty.locale.localizable.gettext import _, ngettext
+from betty.localizables.gettext import _, ngettext
 from betty.pathlib import StrPath
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.ordered import Order, OrderedPluginDefinition
@@ -19,7 +19,7 @@ from betty.portable import Portable, PortableData
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
 
-    from betty.locale.localizable import ResolvableLocalizable
+    from betty.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
 
 

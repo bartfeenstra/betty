@@ -7,14 +7,14 @@ import pytest
 
 from betty.entities.link import Link
 from betty.locale import default_locale_tag
-from betty.locale.localizable.static import StaticTranslations
-from betty.locale.localize import Localizer
+from betty.localizables.static import StaticTranslations
+from betty.localizer import Localizer
 from betty.wiki import NotAPageError, parse_page_link, parse_page_url
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from betty.locale.localizable import StaticTranslationsMapping
+    from betty.localizables.static import StaticTranslationsMapping
 
 _page_url_parameters: Final[Sequence[tuple[tuple[str, str], str]]] = [
     (

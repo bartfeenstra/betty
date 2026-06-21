@@ -9,7 +9,7 @@ from typing import final
 
 from betty.assertions.path import assert_path
 from betty.data import DataDefinition
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.portable import CallbackPorter
 
 

@@ -15,7 +15,7 @@ from betty.prop import HasProps
 
 if TYPE_CHECKING:
     from betty.attrs.common import CommonAttr
-    from betty.locale.localizable import ResolvableLocalizable
+    from betty.localizable import ResolvableLocalizable
     from betty.portable import PortableMapping
     from betty.project import Project
 

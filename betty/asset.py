@@ -9,7 +9,7 @@ from asyncio import to_thread
 from typing import TYPE_CHECKING, Final, final, override
 
 from betty.concurrent import ThreadSafeLock
-from betty.locale.localizable.gettext import _, ngettext
+from betty.localizables.gettext import _, ngettext
 from betty.pathlib import resolve_path
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.ordered import Order, OrderedPluginDefinition

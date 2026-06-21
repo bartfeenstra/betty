@@ -7,7 +7,8 @@ from __future__ import annotations
 import gettext as gettext_api
 from typing import TYPE_CHECKING, Final, final
 
-from betty.locale import LocalizedStr, ResolvableLocale, default_locale, resolve_locale
+from betty.locale import ResolvableLocale, default_locale, resolve_locale
+from betty.localized import LocalizedStr
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
@@ -15,8 +16,8 @@ if TYPE_CHECKING:
 
     from babel import Locale
 
-    from betty.locale.localizable import ResolvableLocalizable
-    from betty.locale.translation import TranslationRepository
+    from betty.gettext import TranslationRepository
+    from betty.localizable import ResolvableLocalizable
     from betty.typing import Intersection as Intersection
 
 
@@ -34,6 +35,20 @@ class Localizer:
         The locale.
         """
         self._translations = translations
+
+    def localize(self, localizable: ResolvableLocalizable, /) -> LocalizedStr:
+        """
+        Ensure that a localizable-like value is or is made to be localized.
+        """
+        from betty.localizable import Localizable
+
+        if isinstance(localizable, str):
+            return LocalizedStr(localizable)
+        if not isinstance(localizable, Localizable):
+            from betty.localizables.static import StaticTranslations
+
+            localizable = StaticTranslations(localizable)
+        return localizable.localize(self)
 
     def _(self, message: str, /) -> LocalizedStr:
         """
@@ -112,7 +127,7 @@ class LocalizerRepository:
         try:
             return self._localizers[locale]
         except KeyError:
-            from betty.locale.translation import UntranslatedLocale
+            from betty.gettext import UntranslatedLocale
 
             try:
                 translations = self._translations.get(locale)
@@ -120,20 +135,3 @@ class LocalizerRepository:
                 translations = gettext_api.NullTranslations()
             self._localizers[locale] = Localizer(locale, translations)
             return self._localizers[locale]
-
-
-def resolve_localized(
-    localizable: ResolvableLocalizable, *, localizer: Localizer
-) -> LocalizedStr:
-    """
-    Ensure that a localizable-like value is or is made to be localized.
-    """
-    from betty.locale.localizable import Localizable
-
-    if isinstance(localizable, str):
-        return LocalizedStr(localizable)
-    if not isinstance(localizable, Localizable):
-        from betty.locale.localizable.static import StaticTranslations
-
-        localizable = StaticTranslations(localizable)
-    return localizable.localize(localizer)

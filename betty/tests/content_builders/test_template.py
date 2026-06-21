@@ -9,7 +9,7 @@ from betty.content_builders.template import Template
 from betty.document import Document
 from betty.file import write
 from betty.job import Context
-from betty.locale.localize import Localizer
+from betty.localizer import Localizer
 from betty.project import Project
 
 

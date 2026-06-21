@@ -8,12 +8,12 @@ from typing import Self, final, override
 
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.factory import Manufacturable
-from betty.locale.localizable import (
+from betty.localizable import (
     Localizable,
     ResolvableLocalizable,
     resolve_localizable,
 )
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.project import Project
 
 

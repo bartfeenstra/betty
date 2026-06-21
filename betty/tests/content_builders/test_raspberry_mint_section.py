@@ -3,7 +3,7 @@ from betty.content_builders.raspberry_mint_section import Section, SectionData
 from betty.content_builders.render import Render, RenderData
 from betty.content_builders.static import Static
 from betty.document import Document
-from betty.locale.localizable.plain import Plain
+from betty.localizables.plain import Plain
 from betty.test_utils.conftest import IsolatedProjectFactory
 from betty.test_utils.data import DataTestBase
 

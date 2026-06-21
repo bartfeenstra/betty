@@ -10,11 +10,11 @@ from betty.attrs.localizable import new_localizable_attr
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.human_facing_plugin_definition import HumanFacingPluginDefinitionData
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.sample import Sample
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import Localizable, ResolvableLocalizable
+    from betty.localizable import Localizable, ResolvableLocalizable
 
 
 @final

@@ -10,7 +10,7 @@ from betty.event_type import EventType, EventTypeDefinition
 from betty.event_types.birth import Birth
 from betty.event_types.death import Death
 from betty.event_types.engagement import Engagement
-from betty.locale.localizable.gettext import _, ngettext
+from betty.localizables.gettext import _, ngettext
 
 
 @final

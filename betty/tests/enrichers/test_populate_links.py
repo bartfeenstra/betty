@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from betty.enrichers.populate_links import PopulateLinks
 from betty.entities.link import Link
 from betty.load import load
-from betty.locale.localize import default_localizer
+from betty.localizer import default_localizer
 
 if TYPE_CHECKING:
     from aioresponses import aioresponses

@@ -6,24 +6,24 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
-from betty.locale import LocalizedStr, ResolvableLocale, resolve_locale
-from betty.locale.localizable import Localizable
+from betty.assertions.str import assert_str
+from betty.locale import ResolvableLocale, resolve_locale
+from betty.localizable import Localizable
+from betty.localized import LocalizedStr
 
 if TYPE_CHECKING:
     from babel import Locale
 
-    from betty.locale.localize import Localizer
+    from betty.localizer import Localizer
 
 
 @final
 class Plain(Localizable):
     """
-    Turns a plain string into a :py:class:`betty.locale.localizable.Localizable` without any actual translations.
+    Turns a plain string into a :py:class:`betty.localizable.Localizable` without any actual translations.
     """
 
     def __init__(self, text: str, locale: ResolvableLocale | None = None, /):
-        from betty.assertions.str import assert_str
-
         assert_str(minimum_length=1)(text)
         self._text = text
         self._locale = None if locale is None else resolve_locale(locale)

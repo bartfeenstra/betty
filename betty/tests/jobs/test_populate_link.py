@@ -4,7 +4,7 @@ from aioresponses import aioresponses
 
 from betty.entities.link import Link
 from betty.jobs.populate_link import PopulateLink
-from betty.locale.localize import default_localizer
+from betty.localizer import default_localizer
 from betty.test_utils.job import do
 
 

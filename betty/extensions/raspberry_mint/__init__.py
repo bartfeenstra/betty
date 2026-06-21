@@ -42,8 +42,8 @@ from betty.jobs._generate_raspberry_mint_search_index import (
     _GenerateRaspberryMintSearchIndex,
 )
 from betty.jobs.generate_logo import GenerateLogo
-from betty.locale.localizable.gettext import _
-from betty.locale.localizable.markup import Paragraph, do_you_mean
+from betty.localizables.gettext import _
+from betty.localizables.markup import Paragraph, do_you_mean
 from betty.plugin.factory import ResolvablePluginManufacturer
 from betty.project import Project
 from betty.project.generate import Generator

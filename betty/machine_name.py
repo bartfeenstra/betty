@@ -11,12 +11,12 @@ from uuid import uuid4
 from betty.assertions.str import assert_str
 from betty.data import Data, DataDefinition
 from betty.exception import HumanFacingException
-from betty.locale.localizable.gettext import _
-from betty.locale.localizable.markup import Paragraph
+from betty.localizables.gettext import _
+from betty.localizables.markup import Paragraph
 from betty.portable import Portable, PortableData
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import Localizable
+    from betty.localizable import Localizable
 
 _machine_name_description: Final[Localizable] = _(
     "A machine name is an identifier of at most 250 characters long, made up of lowercase letters, numbers, and/or non-consecutive hyphens (-)."

@@ -11,7 +11,8 @@ from markupsafe import Markup
 
 from betty.jinja import context_document
 from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
-from betty.locale import LocalizedStr, to_language_tag
+from betty.locale import to_language_tag
+from betty.localized import LocalizedStr
 
 if TYPE_CHECKING:
     from collections.abc import Mapping

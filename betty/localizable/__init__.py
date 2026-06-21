@@ -12,8 +12,9 @@ from warnings import warn
 
 from babel import Locale
 
-from betty.locale import LocalizedStr, ResolvableLocale
-from betty.locale.localize import Localizer, default_localizer
+from betty.locale import ResolvableLocale
+from betty.localized import LocalizedStr
+from betty.localizer import Localizer, default_localizer
 
 if TYPE_CHECKING:
     from betty.typing import Intersection as Intersection
@@ -134,7 +135,7 @@ class _FormattedCountableLocalizable(CountableLocalizable):
 
 type StaticTranslationsMapping = MutableMapping[Locale | None, str]
 """
-Static translations for :py:class:`betty.locale.localizable.static.StaticTranslations`.
+Static translations for :py:class:`betty.localizables.static.StaticTranslations`.
 
 Values are a string, or a mapping of locales to translations.
 
@@ -146,7 +147,7 @@ type ShorthandStaticTranslations = (
     MutableMapping[ResolvableLocale | None, str] | str | StaticTranslationsMapping
 )
 """
-Static translations for :py:class:`betty.locale.localizable.static.StaticTranslations`.
+Static translations for :py:class:`betty.localizables.static.StaticTranslations`.
 
 Values are a string, or a mapping of locales or language tags to translations.
 
@@ -170,7 +171,7 @@ type ShorthandCountableStaticTranslations = MutableMapping[
     ResolvableLocale, MutableMapping[str, str]
 ]
 """
-Static translations for :py:class:`betty.locale.localizable.static.StaticTranslations`.
+Static translations for :py:class:`betty.localizables.static.StaticTranslations`.
 
 Values are mappings of locales or language tags to mappings of CLDR plural tags to translations.
 
@@ -199,10 +200,10 @@ def resolve_localizable(localizable: ResolvableLocalizable) -> Localizable:
     if isinstance(localizable, Localizable):
         return localizable
     if isinstance(localizable, str):
-        from betty.locale.localizable.plain import Plain
+        from betty.localizables.plain import Plain
 
         return Plain(localizable)
-    from betty.locale.localizable.static import StaticTranslations
+    from betty.localizables.static import StaticTranslations
 
     return StaticTranslations(localizable)
 
@@ -215,6 +216,6 @@ def resolve_countable_localizable(
     """
     if isinstance(localizable, CountableLocalizable):
         return localizable
-    from betty.locale.localizable.static import CountableStaticTranslations
+    from betty.localizables.static import CountableStaticTranslations
 
     return CountableStaticTranslations(localizable)

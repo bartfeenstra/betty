@@ -2,14 +2,14 @@ from __future__ import annotations  # noqa: D100
 
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty import gettext
 from betty.app import App
 from betty.argparse import assertion_to_argument_type
 from betty.assertions.directory import assert_directory
 from betty.asset import AssetDirectoryDefinition
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.factory import Manufacturable
-from betty.locale import translation
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.plugin.error import PluginNotFound
 
 if TYPE_CHECKING:
@@ -78,6 +78,6 @@ class UpdateTranslations(Manufacturable, Command):
         inputs: tuple[Path],
         excludes: tuple[Path],
     ) -> None:
-        await translation.update_translations(
+        await gettext.update_translations(
             output.assets, inputs, excludes, user=self._app.user
         )

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any
 
 from betty.assertions import _HumanFacingValueError
 from betty.assertions.path import assert_path
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 
 if TYPE_CHECKING:
     from pathlib import Path

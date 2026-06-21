@@ -16,7 +16,7 @@ from betty.entities.source import Source
 from betty.entity import Entity
 from betty.licenses.public_domain import PublicDomain as PublicDomainLicense
 from betty.locale import default_locale_tag
-from betty.locale.localize import default_localizer
+from betty.localizer import default_localizer
 from betty.media_types.plain_text import PLAIN_TEXT
 from betty.privacy import Privacy
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences

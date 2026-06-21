@@ -16,7 +16,7 @@ from betty.string import snake_case_to_lower_camel_case
 
 if TYPE_CHECKING:
     from betty.entities.link import Link
-    from betty.locale.localizable import ResolvableLocalizable
+    from betty.localizable import ResolvableLocalizable
     from betty.project import Project
 
 

@@ -2,14 +2,14 @@ from __future__ import annotations  # noqa: D100
 
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty import gettext
 from betty.app import App
 from betty.argparse import assertion_to_argument_type
 from betty.assertions.locale import assert_locale
 from betty.asset import AssetDirectoryDefinition
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.factory import Manufacturable
-from betty.locale import translation
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.plugin.error import PluginNotFound
 
 if TYPE_CHECKING:
@@ -65,4 +65,4 @@ class NewTranslation(Manufacturable, Command):
     async def _command_function(
         self, output: AssetDirectoryDefinition, locale: Locale
     ) -> None:
-        await translation.new_translation(output, locale, user=self._app.user)
+        await gettext.new_translation(output, locale, user=self._app.user)

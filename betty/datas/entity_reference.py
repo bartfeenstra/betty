@@ -11,7 +11,7 @@ from betty.attrs.owner import OwnerAttr
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.str import StrDefinition
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.prop import HasProps
 from betty.sample import Sample

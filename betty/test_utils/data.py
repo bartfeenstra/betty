@@ -13,8 +13,8 @@ from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.str import StrDefinition
 from betty.importlib import fully_qualified_name
-from betty.locale.localizable.plain import Plain
-from betty.locale.localize import default_localizer
+from betty.localizables.plain import Plain
+from betty.localizer import default_localizer
 from betty.prop import HasProps
 
 

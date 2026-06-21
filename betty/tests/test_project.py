@@ -12,8 +12,8 @@ from betty.entity.collection.pool import EntityPool
 from betty.exception import HumanFacingException
 from betty.extension import Extension, ExtensionDefinition
 from betty.locale import default_locale, default_locale_tag
-from betty.locale.localizable.plain import Plain
-from betty.locale.localize import default_localizer
+from betty.localizables.plain import Plain
+from betty.localizer import default_localizer
 from betty.project import Project, ProjectData, ProjectLocale
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.entity import DummyEntityOne

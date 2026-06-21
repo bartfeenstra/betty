@@ -12,7 +12,7 @@ from betty.data import DataDefinition
 from betty.datas.enum import EnumDefinition
 from betty.json_schemas.privacy import PrivacySchema
 from betty.linked_data import LinkedDataDumper
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.privacy import Privacy
 from betty.prop import HasProps
 

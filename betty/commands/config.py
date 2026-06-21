@@ -9,7 +9,7 @@ from betty.assertions.locale import assert_locale
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.factory import Manufacturable
 from betty.locale import default_locale, to_language_tag
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.portable.file import assert_load_file, dump_file
 
 if TYPE_CHECKING:

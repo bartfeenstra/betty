@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from betty import about
 from betty.entity import EntityDefinition as EntityDefinition
 from betty.json_schemas.project import ProjectSchema
-from betty.locale.localize import default_localizer
+from betty.localizer import default_localizer
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:

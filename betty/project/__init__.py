@@ -62,6 +62,7 @@ from betty.event_type import EventTypeDefinition
 from betty.exception import HumanFacingException
 from betty.extension import Extension, ExtensionDefinition, ExtensionManufacturer
 from betty.gender import GenderDefinition
+from betty.gettext import AssetTranslationRepository, TranslationRepository
 from betty.hashid import hashid
 from betty.html.css import CssResourceDefinition
 from betty.html.js import JsResourceDefinition
@@ -85,10 +86,9 @@ from betty.locale import (
     resolve_locale,
     to_language_tag,
 )
-from betty.locale.localizable import resolve_localizable
-from betty.locale.localizable.gettext import _
-from betty.locale.localize import Localizer, LocalizerRepository
-from betty.locale.translation import AssetTranslationRepository, TranslationRepository
+from betty.localizable import resolve_localizable
+from betty.localizables.gettext import _
+from betty.localizer import Localizer, LocalizerRepository
 from betty.machine_name import MachineName, ResolvableMachineName
 from betty.pathlib import resolve_path
 from betty.place_type import PlaceTypeDefinition
@@ -120,7 +120,7 @@ if TYPE_CHECKING:
     from betty.asset import AssetDirectoryDefinition
     from betty.collection.keyed import KeyedCollection
     from betty.jinja import Environment
-    from betty.locale.localizable import Localizable, ResolvableLocalizable
+    from betty.localizable import Localizable, ResolvableLocalizable
     from betty.media_type import ResolvableMediaType
     from betty.pathlib import StrPath
     from betty.plugin import PluginDefinition

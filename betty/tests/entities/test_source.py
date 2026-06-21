@@ -11,8 +11,8 @@ from betty.entities.link import Link
 from betty.entities.source import Source
 from betty.entity import Entity
 from betty.locale import default_locale_tag
-from betty.locale.localizable.plain import Plain
-from betty.locale.localize import default_localizer
+from betty.localizables.plain import Plain
+from betty.localizer import default_localizer
 from betty.privacy import Privacy
 from betty.test_utils.entity import EntityTestBase
 

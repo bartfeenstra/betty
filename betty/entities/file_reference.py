@@ -12,7 +12,7 @@ from betty.entity.association import (
     BidirectionalToOne,
     ToOneAssociate,
 )
-from betty.locale.localizable.gettext import _, ngettext
+from betty.localizables.gettext import _, ngettext
 
 if TYPE_CHECKING:
     from betty.entity.has_file_references import HasFileReferences

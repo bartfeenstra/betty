@@ -14,7 +14,7 @@ from betty.entity.has_links import HasLinks
 from betty.extensions.wiki import Wiki as WikiExtension
 from betty.factory import Manufacturable
 from betty.locale import negotiate_locale, resolve_locale
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.project import Project
 from betty.wiki import NotAPageError, parse_page_url
 from betty.wiki.client import Client, ClientError, Summary
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from betty.document import Document
     from betty.entities.link import Link
     from betty.jinja import Environment
-    from betty.locale.localize import LocalizerRepository
+    from betty.localizer import LocalizerRepository
 
 
 @final

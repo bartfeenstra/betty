@@ -7,15 +7,15 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from betty.json_schema import Object
-from betty.locale.localizable.markup import Paragraph
+from betty.localizables.markup import Paragraph
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import ResolvableLocalizable
+    from betty.localizable import ResolvableLocalizable
 
 
 class StaticTranslationsSchema(Object):
     """
-    A JSON Schema for :py:class:`betty.locale.localizable.static.StaticTranslations`.
+    A JSON Schema for :py:class:`betty.localizables.static.StaticTranslations`.
     """
 
     def __init__(

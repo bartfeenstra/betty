@@ -34,7 +34,7 @@ from betty.datas.plugin_manufacturer_sequence import (
 )
 from betty.extensions.raspberry_mint import Breakpoint, JustifyContent
 from betty.factory import DataManufacturable
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.portable import CallbackPorter
 from betty.project import Project
 from betty.prop import HasProps

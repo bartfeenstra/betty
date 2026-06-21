@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, final, override
 from betty.demo.generate import generate_with_cleanup
 from betty.demo.project import create_project
 from betty.job import Context
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.server import Server, ServerNotStarted
 from betty.servers import project_builtin
 

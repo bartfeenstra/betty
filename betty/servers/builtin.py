@@ -16,7 +16,7 @@ from tempfile import mkdtemp
 from typing import TYPE_CHECKING, Final, final, override
 
 from betty.exception import HumanFacingException
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.server import Server, ServerNotStarted
 
 if TYPE_CHECKING:

@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.factory import Manufacturable
 from betty.jobs.derive_ancestry import DeriveAncestry
 from betty.load import Enricher, EnricherDefinition
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.project import Project
 
 if TYPE_CHECKING:

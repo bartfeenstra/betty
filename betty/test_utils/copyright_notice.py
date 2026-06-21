@@ -7,7 +7,7 @@ from __future__ import annotations
 import pytest
 
 from betty.copyright_notice import CopyrightNotice
-from betty.locale.localize import default_localizer
+from betty.localizer import default_localizer
 
 
 class CopyrightNoticeTestBase[CopyrightNoticeT: CopyrightNotice]:

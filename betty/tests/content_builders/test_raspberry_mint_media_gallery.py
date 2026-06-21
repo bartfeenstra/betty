@@ -3,7 +3,7 @@ from betty.document import Document
 from betty.entities.file import File
 from betty.entities.file_reference import FileReference
 from betty.entities.person import Person
-from betty.locale.localize import default_localizer
+from betty.localizer import default_localizer
 from betty.test_utils.conftest import IsolatedProjectFactory
 
 

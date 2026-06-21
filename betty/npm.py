@@ -10,7 +10,7 @@ import sys
 from typing import TYPE_CHECKING, final
 
 from betty import subprocess
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.requirement import UnmetRequirement
 
 if TYPE_CHECKING:

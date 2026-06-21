@@ -13,7 +13,7 @@ from betty.plugin.cls import PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import ResolvableLocalizable
+    from betty.localizable import ResolvableLocalizable
 
 
 @final

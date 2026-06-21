@@ -4,11 +4,10 @@ Provide the Locale API.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from collections.abc import Sequence
 from contextlib import suppress
 from functools import lru_cache
-from typing import TYPE_CHECKING, Final, cast, final, override
+from typing import TYPE_CHECKING, Final, cast
 
 from babel import Locale
 from babel.core import UnknownLocaleError
@@ -17,6 +16,8 @@ import betty.dirs
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+    from betty.localized import Localized
 
 _locale_directory: Final[Path] = betty.dirs.builtin_asset_directory / "locale"
 
@@ -139,19 +140,6 @@ def plural_tags(locale: Locale) -> Sequence[str]:
     return tags
 
 
-class Localized(ABC):
-    """
-    A resource that has a locale, e.g. contains information in a specific locale.
-    """
-
-    @property
-    @abstractmethod
-    def locale(self) -> Locale | None:
-        """
-        The locale the data in this instance is in.
-        """
-
-
 def negotiate_has_locales(
     preferred_locales: Locale | Sequence[Locale],
     has_locales: Sequence[Localized],
@@ -177,28 +165,3 @@ def negotiate_has_locales(
     with suppress(IndexError):
         return has_locales[0]
     return None
-
-
-@final
-class LocalizedStr(Localized, str):
-    """
-    A string that has a locale.
-    """
-
-    __slots__ = ("_locale",)
-
-    _locale: Locale | None
-
-    @override
-    def __new__(cls, string: str, *, locale: Locale | None = None):
-        new = super().__new__(cls, string)
-        new._locale = locale
-        return new
-
-    def __init__(self, string: str, *, locale: Locale | None = None):
-        pass
-
-    @override
-    @property
-    def locale(self) -> Locale | None:
-        return self._locale

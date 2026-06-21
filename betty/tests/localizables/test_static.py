@@ -6,22 +6,19 @@ from babel import Locale
 from betty.exception import HumanFacingException
 from betty.locale import default_locale, default_locale_tag, resolve_locale
 from betty.locale.error import UnknownLocale
-from betty.locale.localizable import (
+from betty.localizable import (
     LocalizableCount,
     ShorthandCountableStaticTranslations,
     ShorthandStaticTranslations,
     StaticTranslationsMapping,
 )
-from betty.locale.localizable.error import (
+from betty.localizable.error import (
     InvalidPluralTag,
     MissingPluralPlaceholder,
     MissingPluralTag,
 )
-from betty.locale.localizable.static import (
-    CountableStaticTranslations,
-    StaticTranslations,
-)
-from betty.locale.localize import Localizer, default_localizer
+from betty.localizables.static import CountableStaticTranslations, StaticTranslations
+from betty.localizer import Localizer, default_localizer
 
 
 class TestStaticTranslations:

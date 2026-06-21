@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Final, final
 
 from betty.definition.human_facing import CountableHumanFacingDefinition
-from betty.locale.localizable.gettext import _, ngettext
+from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin
 from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
@@ -20,7 +20,7 @@ from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 
 if TYPE_CHECKING:
     from betty.entities.person import Person
-    from betty.locale.localizable import CountableLocalizable, ResolvableLocalizable
+    from betty.localizable import CountableLocalizable, ResolvableLocalizable
     from betty.machine_name import MachineName, ResolvableMachineName
     from betty.project import Project
     from betty.requirement import Requires

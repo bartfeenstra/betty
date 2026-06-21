@@ -10,7 +10,7 @@ from betty.assertions import _HumanFacingValueError
 from betty.assertions.if_else import assert_if_else
 from betty.assertions.type import assert_type
 from betty.functools import Pipeline
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.typing import Number
 
 

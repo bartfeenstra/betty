@@ -18,7 +18,7 @@ from betty.machine_name import MachineName, ResolvableMachineName
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from betty.locale.localizable import CountableLocalizable, ResolvableLocalizable
+    from betty.localizable import CountableLocalizable, ResolvableLocalizable
     from betty.requirement import Requirement, Requires
 
 

@@ -26,8 +26,8 @@ from typing import (
 )
 
 from betty.linked_data import LinkedDataDumpable
-from betty.locale.localizable.gettext import _, ngettext
-from betty.locale.localize import Localizer, default_localizer
+from betty.localizables.gettext import _, ngettext
+from betty.localizer import Localizer, default_localizer
 from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
 from betty.media_types.html import HTML
 from betty.plugin import PluginTypeDefinition
@@ -40,7 +40,7 @@ if TYPE_CHECKING:
     from betty.entities.citation import Citation
     from betty.entity import Entity
     from betty.job import Context
-    from betty.locale.localizable import Localizable
+    from betty.localizable import Localizable
     from betty.machine_name import MachineName, ResolvableMachineName
     from betty.project import Project
     from betty.requirement import Requires

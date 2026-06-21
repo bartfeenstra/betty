@@ -7,12 +7,12 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Final, final, override
 
-from betty.locale.localizable import (
+from betty.localizable import (
     Localizable,
     ResolvableLocalizable,
     resolve_localizable,
 )
-from betty.locale.localizable.gettext import _, ngettext
+from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.ordered import Order, OrderedPluginDefinition
 

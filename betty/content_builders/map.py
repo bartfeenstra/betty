@@ -15,7 +15,7 @@ from betty.entities.place import Place
 from betty.extensions.webpack import Webpack
 from betty.factory import Manufacturable
 from betty.jinja_filters.webpack_entry_point_js import WebpackEntryPointJs
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.project import Project
 
 if TYPE_CHECKING:

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from betty.datas.gender_definition import GenderDefinitionData
-from betty.locale.localizable.plain import Plain
+from betty.localizables.plain import Plain
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
 )

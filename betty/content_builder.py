@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, final
 from markupsafe import Markup
 
 from betty.definition.human_facing import HumanFacingDefinition
-from betty.locale.localizable.gettext import _, ngettext
+from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from betty.document import Document
-    from betty.locale.localizable import ResolvableLocalizable
+    from betty.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.requirement import Requires
 

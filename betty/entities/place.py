@@ -15,7 +15,7 @@ from betty.entity.has_links import HasLinks
 from betty.entity.has_notes import HasNotes
 from betty.json_schema import Array, Number, Object
 from betty.linked_data import JsonLdObject, dump_context
-from betty.locale.localizable.gettext import _, ngettext
+from betty.localizables.gettext import _, ngettext
 from betty.place_types.unknown import UnknownPlaceType
 from betty.privacy import Privacy
 
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from betty.entities.event import Event
     from betty.entities.link import Link
     from betty.entities.note import Note
-    from betty.locale.localizable import Localizable
+    from betty.localizable import Localizable
     from betty.machine_name import ResolvableMachineName
     from betty.place_type import PlaceType
     from betty.portable import PortableMapping

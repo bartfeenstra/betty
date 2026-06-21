@@ -2,12 +2,12 @@ from __future__ import annotations  # noqa: D100
 
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty import gettext
 from betty.about import is_development
 from betty.app import App
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.factory import Manufacturable
-from betty.locale import translation
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.requirement import UnmetRequirement
 
 if TYPE_CHECKING:
@@ -42,7 +42,7 @@ class DevUpdateTranslations(Manufacturable, Command):
         return self._command_function
 
     async def _command_function(self) -> None:
-        await translation.update_app_translations()
+        await gettext.update_app_translations()
 
 
 def _discover(_: ServiceLevel) -> Iterable[ResolvableDiscovery[CommandDefinition]]:

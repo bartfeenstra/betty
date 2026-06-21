@@ -17,7 +17,7 @@ from betty.entity.has_links import HasLinks
 from betty.entity.has_notes import HasNotes
 from betty.json_schemas.plugin_id import PluginIdSchema
 from betty.license import LicenseDefinition
-from betty.locale.localizable.gettext import _, ngettext
+from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
 
 if TYPE_CHECKING:
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from betty.entities.note import Note
     from betty.license import License
     from betty.linked_data import JsonLdObject
-    from betty.locale.localizable import Localizable, ResolvableLocalizable
+    from betty.localizable import Localizable, ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.media_type import ResolvableMediaType
     from betty.pathlib import StrPath

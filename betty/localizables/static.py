@@ -8,20 +8,20 @@ from contextlib import suppress
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.assertions.if_else import assert_if_else
+from betty.assertions.len import assert_len
 from betty.assertions.locale import assert_locale
 from betty.assertions.mapping import assert_mapping
 from betty.assertions.str import assert_str
 from betty.exception import reraise_with_indicator
 from betty.indicator.selector import Key
 from betty.locale import (
-    LocalizedStr,
     ResolvableLocale,
     negotiate_locale,
     plural_tags,
     resolve_locale,
     to_language_tag,
 )
-from betty.locale.localizable import (
+from betty.localizable import (
     CountableLocalizable,
     CountableStaticTranslationsMapping,
     Localizable,
@@ -30,18 +30,19 @@ from betty.locale.localizable import (
     ShorthandStaticTranslations,
     StaticTranslationsMapping,
 )
-from betty.locale.localizable.error import (
+from betty.localizable.error import (
     InvalidPluralTag,
     MissingPluralPlaceholder,
     MissingPluralTag,
 )
-from betty.locale.localizable.gettext import _
-from betty.locale.localizable.markup import (
+from betty.localizables.gettext import _
+from betty.localizables.markup import (
     AllEnumeration,
     Paragraphs,
     UnorderedList,
     do_you_mean,
 )
+from betty.localized import LocalizedStr
 from betty.portable import Portable, PortableData
 
 if TYPE_CHECKING:
@@ -49,7 +50,7 @@ if TYPE_CHECKING:
 
     from babel import Locale
 
-    from betty.locale.localize import Localizer
+    from betty.localizer import Localizer
     from betty.typing import Intersection as Intersection
 
 
@@ -62,8 +63,6 @@ class CountableStaticTranslations(CountableLocalizable, Portable):
     _translations: CountableStaticTranslationsMapping
 
     def __init__(self, translations: ShorthandCountableStaticTranslations, /):
-        from betty.assertions.len import assert_len
-
         assert_len(minimum=1)(translations)
         self._translations = {
             self._ensure_locale(locale, locale_translations): locale_translations
@@ -80,8 +79,6 @@ class CountableStaticTranslations(CountableLocalizable, Portable):
     def _ensure_locale(
         self, locale: ResolvableLocale, translations: Mapping[str, str]
     ) -> Locale:
-        from betty.assertions.len import assert_len
-
         locale = resolve_locale(locale)
         with reraise_with_indicator(Key(to_language_tag(locale))):
             for plural_tag, translation in translations.items():
@@ -253,8 +250,6 @@ class StaticTranslations(Localizable, Portable):
         """
         :param translations: Keys are locales, values are translations.
         """
-        from betty.assertions.len import assert_len
-
         super().__init__()
         assert_len(minimum=1)(translations)
         self._translations = (
@@ -289,7 +284,7 @@ class StaticTranslations(Localizable, Portable):
     @classmethod
     def resolve(cls, other: Localizable, localizers: Iterable[Localizer], /) -> Self:
         """
-        Create a new instance from another :py:class`betty.locale.localizable.Localizable`.
+        Create a new instance from another :py:class`betty.localizable.Localizable`.
         """
         if type(other) is cls:
             return other  # ty:ignore[invalid-return-type]

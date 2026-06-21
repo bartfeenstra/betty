@@ -6,10 +6,10 @@ from betty.datas.countable_localizable import CountableLocalizableDefinition
 from betty.exception import HumanFacingException
 from betty.locale import default_locale_tag
 from betty.locale.error import UnknownLocale
-from betty.locale.localizable import CountableLocalizable, Localizable, LocalizableCount
-from betty.locale.localizable.error import InvalidPluralTag, MissingPluralTag
-from betty.locale.localizable.static import CountableStaticTranslations
-from betty.locale.localize import default_localizer
+from betty.localizable import CountableLocalizable, Localizable, LocalizableCount
+from betty.localizable.error import InvalidPluralTag, MissingPluralTag
+from betty.localizables.static import CountableStaticTranslations
+from betty.localizer import default_localizer
 from betty.portable.error import NotPortable
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 

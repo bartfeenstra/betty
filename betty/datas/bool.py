@@ -12,7 +12,7 @@ from betty.functools import passthrough
 from betty.portable import CallbackPorter
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import ResolvableLocalizable
+    from betty.localizable import ResolvableLocalizable
 
 
 @final

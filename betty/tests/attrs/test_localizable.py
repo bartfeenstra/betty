@@ -2,8 +2,8 @@ from gettext import NullTranslations
 
 from betty.attrs.localizable import new_localizable_attr
 from betty.locale import default_locale_tag
-from betty.locale.localizable.plain import Plain
-from betty.locale.localize import Localizer, default_localizer
+from betty.localizables.plain import Plain
+from betty.localizer import Localizer, default_localizer
 from betty.prop import HasProps
 
 

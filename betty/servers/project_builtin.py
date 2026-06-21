@@ -8,7 +8,7 @@ from asyncio import to_thread
 from typing import Self, final, override
 
 from betty.factory import Manufacturable
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.plugin.cls import Plugin
 from betty.project import Project
 from betty.server import Server, ServerDefinition

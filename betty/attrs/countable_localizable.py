@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 from betty.attrs.owner import OwnerAttr
 from betty.datas.countable_localizable import CountableLocalizableDefinition
-from betty.locale.localizable import (
+from betty.localizable import (
     CountableLocalizable,
     ResolvableCountableLocalizable,
     ResolvableLocalizable,
@@ -24,7 +24,7 @@ def new_countable_localizable_attr(
     *, label: ResolvableLocalizable, description: ResolvableLocalizable | None = None
 ) -> CommonAttr[HasProps, CountableLocalizable, ResolvableCountableLocalizable]:
     """
-    Create an attribute containing a :py:class:`betty.locale.localizable.CountableLocalizable`.
+    Create an attribute containing a :py:class:`betty.localizable.CountableLocalizable`.
     """
     return OwnerAttr(
         CountableLocalizableDefinition(), label=label, description=description

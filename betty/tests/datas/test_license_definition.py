@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from betty.datas.license_definition import LicenseDefinitionData
-from betty.locale.localizable.plain import Plain
+from betty.localizables.plain import Plain
 
 
 class TestLicenseDefinitionData:

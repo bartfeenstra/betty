@@ -6,7 +6,7 @@ from betty.content_builders.raspberry_mint_incomplete_translation_warning import
     IncompleteTranslationWarning,
 )
 from betty.document import Document
-from betty.locale.translation import AssetTranslationRepository
+from betty.gettext import AssetTranslationRepository
 from betty.test_utils.conftest import IsolatedAppFactory, IsolatedProjectFactory
 
 

@@ -23,7 +23,7 @@ from betty.definition.human_facing import HumanFacingDefinition
 from betty.factory import DataManufacturable
 from betty.functools import Result
 from betty.importlib import import_any
-from betty.locale.localize import default_localizer
+from betty.localizer import default_localizer
 from betty.machine_name import MachineName
 from betty.plugin.cls import PluginClsDefinition
 from betty.plugin.ordered import OrderedPluginDefinition

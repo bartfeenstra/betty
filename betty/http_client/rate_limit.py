@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Final, final
 
 from betty.concurrent import RateLimiter, ThreadSafeLock
-from betty.locale.localizable.gettext import _, ngettext
+from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.typing import threadsafe

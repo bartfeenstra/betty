@@ -11,8 +11,8 @@ from betty.assertions import _HumanFacingValueError
 from betty.assertions.mapping import assert_mapping
 from betty.exception import reraise_with_indicator
 from betty.indicator.selector import Key
-from betty.locale.localizable.gettext import _
-from betty.locale.localizable.markup import Paragraph, do_you_mean
+from betty.localizables.gettext import _
+from betty.localizables.markup import Paragraph, do_you_mean
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, MutableMapping

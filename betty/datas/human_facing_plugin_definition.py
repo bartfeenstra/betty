@@ -9,11 +9,11 @@ from typing import TYPE_CHECKING, Any
 from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.optional import OptionalAttr
 from betty.datas.plugin_definition import PluginDefinitionData
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.plugin import PluginDefinition
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import ResolvableLocalizable
+    from betty.localizable import ResolvableLocalizable
 
 
 class HumanFacingPluginDefinitionData[

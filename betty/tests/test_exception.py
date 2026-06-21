@@ -9,8 +9,8 @@ from betty.exception import (
 )
 from betty.indicator.selector import Attr, Key
 from betty.locale import default_locale_tag
-from betty.locale.localizable.static import StaticTranslations
-from betty.locale.localize import Localizer, default_localizer
+from betty.localizables.static import StaticTranslations
+from betty.localizer import Localizer, default_localizer
 
 
 def test_do_raise() -> None:

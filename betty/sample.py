@@ -8,12 +8,12 @@ from abc import ABC, abstractmethod
 from enum import IntEnum, auto
 from typing import TYPE_CHECKING, Final, Generic, Self, TypeVar, final
 
-from betty.locale.localizable import resolve_localizable
+from betty.localizable import resolve_localizable
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
 
-    from betty.locale.localizable import Localizable, ResolvableLocalizable
+    from betty.localizable import Localizable, ResolvableLocalizable
     from betty.typing import Intersection
 
 

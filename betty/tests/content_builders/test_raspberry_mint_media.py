@@ -2,7 +2,7 @@ from betty.content_builders.raspberry_mint_media import Media
 from betty.dirs import builtin_asset_directory
 from betty.document import Document
 from betty.entities.file import File
-from betty.locale.localize import default_localizer
+from betty.localizer import default_localizer
 from betty.media_type import MediaType
 from betty.test_utils.conftest import IsolatedProjectFactory
 

@@ -12,7 +12,7 @@ from betty.content_builders.template import Template, TemplateBuild
 from betty.entity.has_file_references import HasFileReferences
 from betty.extensions._theme import associated_file_references
 from betty.factory import Manufacturable
-from betty.locale.localizable.gettext import _
+from betty.localizables.gettext import _
 from betty.project import Project
 
 if TYPE_CHECKING:

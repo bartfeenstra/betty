@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 from betty.attrs.owner import OwnerAttr
 from betty.datas.localizable import LocalizableDefinition
-from betty.locale.localizable import (
+from betty.localizable import (
     Localizable,
     ResolvableLocalizable,
     resolve_localizable,
@@ -25,7 +25,7 @@ def new_localizable_attr(
     description: ResolvableLocalizable | None = None,
 ) -> CommonAttr[HasProps, Localizable, ResolvableLocalizable]:
     """
-    Create an attribute containing a :py:class:`betty.locale.localizable.Localizable`.
+    Create an attribute containing a :py:class:`betty.localizable.Localizable`.
     """
     return OwnerAttr(
         LocalizableDefinition(), label=label, description=description

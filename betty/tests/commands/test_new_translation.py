@@ -38,7 +38,7 @@ class TestNewTranslation:
         isolated_app_with_assets: App,
     ) -> None:
         locale = "nl"
-        m_new_translation = mocker.patch("betty.locale.translation.new_translation")
+        m_new_translation = mocker.patch("betty.gettext.new_translation")
         await run(
             isolated_app_with_assets,
             "new-translation",
