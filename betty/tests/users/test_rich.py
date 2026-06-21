@@ -5,8 +5,8 @@ from io import StringIO
 import pytest
 
 from betty.assertions.int import assert_int
-from betty.rich.user import RichUser
 from betty.user import Verbosity
+from betty.users.rich import RichUser
 
 
 class TestRichUser:
@@ -41,9 +41,9 @@ class TestRichUser:
         message = "Hello, world!"
         stdout = StringIO()
         with redirect_stdout(stdout):
-            async with RichUser() as sut:
+            async with RichUser(force_terminal=True) as sut:
                 await sut.set_verbosity(verbosity)
-                logging.getLogger().debug(message)
+                sut.logger.debug(message)
         stdout.seek(0)
         stdout_str = stdout.read().replace("\n", "")
         if expected:

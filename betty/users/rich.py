@@ -36,17 +36,19 @@ class RichUser(ManagedLifeCycle, User):
     A Rich user session.
     """
 
-    def __init__(self):
+    def __init__(self, *, force_terminal: bool | None = None):
         super().__init__()
         self.life_cycle.on_bootstrap(self._propagate_verbosity)
         self.life_cycle.on_shutdown(self._shutdown_logging_handler)
-        self.console: Final[Console] = Console(theme=Theme())
+        self.console: Final[Console] = Console(
+            force_terminal=force_terminal, theme=Theme()
+        )
         """
         The Rich console.
         """
         self._verbosity = Verbosity.DEFAULT
         self._logging_handler: UserHandler | None = None
-        self._logger = logging.getLogger()
+        self.logger: Final[logging.Logger] = logging.getLogger()
         self._log_formatter = logging.Formatter()
 
     @override
@@ -72,16 +74,16 @@ class RichUser(ManagedLifeCycle, User):
                 return
 
             self._logging_handler = UserHandler(self)
-            self._logger.addHandler(self._logging_handler)
+            self.logger.addHandler(self._logging_handler)
             await self._logging_handler.bootstrap()
             level = logging.NOTSET
         else:
             if self._logging_handler is None:
                 return
-            self._logger.removeHandler(self._logging_handler)
+            self.logger.removeHandler(self._logging_handler)
             await self._logging_handler.shutdown()
             level = 999999999
-        self._logger.setLevel(level)
+        self.logger.setLevel(level)
 
     @override
     async def message_exception(self) -> None:

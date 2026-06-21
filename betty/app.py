@@ -36,7 +36,6 @@ from betty.multiprocessing import ProcessPoolExecutor
 from betty.portable.file import assert_load_file
 from betty.prop import HasProps
 from betty.requirements.service_level import RequirableServiceLevel
-from betty.rich.user import RichUser
 from betty.sample import Sample, Size
 from betty.serialize import SerializerDefinition
 from betty.service import Service
@@ -47,7 +46,8 @@ from betty.services.plugin.definition.collection.keyed import PluginDefinitionsS
 from betty.services.plugin.instance.collection.keyed import PluginInstancesService
 from betty.services.simple import service
 from betty.typing import threadsafe
-from betty.user.no_op import NoOpUser
+from betty.users.no_op import NoOpUser
+from betty.users.rich import RichUser
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterable, Mapping

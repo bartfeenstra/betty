@@ -18,8 +18,8 @@ from betty.app import App
 from betty.console.command import CommandDefinition, CommandFunction
 from betty.exception import HumanFacingException
 from betty.locale.localizable.gettext import _
-from betty.rich.user import RichUser
 from betty.user import User, Verbosity
+from betty.users.rich import RichUser
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterable, Sequence

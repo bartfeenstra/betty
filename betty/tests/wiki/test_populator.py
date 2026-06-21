@@ -18,7 +18,7 @@ from betty.media_type import MediaType
 from betty.media_types.html import HTML
 from betty.test_utils.entity import DummyEntityOne
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
-from betty.user.no_op import NoOpUser
+from betty.users.no_op import NoOpUser
 from betty.wiki.client import Client, Image, Summary
 from betty.wiki.populator import Populator
 

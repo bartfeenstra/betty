@@ -3,9 +3,9 @@ from pathlib import Path
 
 from betty.file import write
 from betty.project import ProjectData
-from betty.rich.user import RichUser
 from betty.test_utils.conftest import IsolatedAppFactory
 from betty.test_utils.console import run
+from betty.users.rich import RichUser
 
 
 class TestAbout:
