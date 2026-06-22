@@ -43,7 +43,7 @@ if TYPE_CHECKING:
 class FieldDefinition[
     OwnerT,
     DataClsT,
-    DataDefinitionT: DataDefinition = DataDefinition[DataClsT],
+    DataDefinitionT: DataDefinition = DataDefinition,
 ]:
     """
     A record field definition.
