@@ -7,7 +7,6 @@ import pytest
 from babel import Locale
 
 from betty.asset import StaticAssetRepository
-from betty.caches.file import BinaryFileCache
 from betty.dirs import builtin_asset_directory
 from betty.gettext import (
     AssetTranslationRepository,
@@ -16,6 +15,7 @@ from betty.gettext import (
     update_app_translations,
 )
 from betty.locale import default_locale
+from betty.stores.file import TransientBinaryFileStore
 from betty.test_utils.locale import PotFileTestBase
 
 if TYPE_CHECKING:
@@ -103,7 +103,7 @@ class TestAssetTranslationRepository:
         for _ in range(2):
             sut = AssetTranslationRepository(
                 StaticAssetRepository(asset_directory),
-                BinaryFileCache(tmp_path / "cache"),
+                TransientBinaryFileStore(tmp_path / "cache"),
             )
             await sut.bootstrap()
             translation = sut.get(locale)
@@ -114,7 +114,7 @@ class TestAssetTranslationRepository:
         locale = "nl"
         sut = AssetTranslationRepository(
             StaticAssetRepository(tmp_path / "asset"),
-            BinaryFileCache(tmp_path / "cache"),
+            TransientBinaryFileStore(tmp_path / "cache"),
         )
         await sut.bootstrap()
         translation = sut.get(locale)
@@ -128,7 +128,7 @@ class TestAssetTranslationRepository:
             f.write(_dummy_pot)
         sut = AssetTranslationRepository(
             StaticAssetRepository(asset_directory),
-            BinaryFileCache(tmp_path / "cache"),
+            TransientBinaryFileStore(tmp_path / "cache"),
         )
         await sut.bootstrap()
         translated_count, translatable_count = await sut.coverage(default_locale)
@@ -144,7 +144,7 @@ class TestAssetTranslationRepository:
             f.write(_dummy_pot)
         sut = AssetTranslationRepository(
             StaticAssetRepository(asset_directory),
-            BinaryFileCache(tmp_path / "cache"),
+            TransientBinaryFileStore(tmp_path / "cache"),
         )
         await sut.bootstrap()
         translated_count, translatable_count = await sut.coverage(locale)
@@ -164,7 +164,7 @@ class TestAssetTranslationRepository:
             f.write(_dummy_po)
         sut = AssetTranslationRepository(
             StaticAssetRepository(asset_directory),
-            BinaryFileCache(tmp_path / "cache"),
+            TransientBinaryFileStore(tmp_path / "cache"),
         )
         await sut.bootstrap()
         translated_count, translatable_count = await sut.coverage(locale)
@@ -174,7 +174,7 @@ class TestAssetTranslationRepository:
     async def test_locales__without_assets_directories(self, tmp_path: Path) -> None:
         sut = AssetTranslationRepository(
             StaticAssetRepository(),
-            BinaryFileCache(tmp_path / "cache"),
+            TransientBinaryFileStore(tmp_path / "cache"),
         )
         await sut.bootstrap()
         assert set(sut.locales) == {default_locale}
@@ -182,7 +182,7 @@ class TestAssetTranslationRepository:
     async def test_locales__with_empty_asset_directory(self, tmp_path: Path) -> None:
         sut = AssetTranslationRepository(
             StaticAssetRepository(tmp_path / "asset"),
-            BinaryFileCache(tmp_path / "cache"),
+            TransientBinaryFileStore(tmp_path / "cache"),
         )
         await sut.bootstrap()
         assert set(sut.locales) == {default_locale}
@@ -197,7 +197,7 @@ class TestAssetTranslationRepository:
 
         sut = AssetTranslationRepository(
             StaticAssetRepository(asset_directory),
-            BinaryFileCache(tmp_path / "cache"),
+            TransientBinaryFileStore(tmp_path / "cache"),
         )
         await sut.bootstrap()
         assert set(sut.locales) == {default_locale, Locale(locale)}

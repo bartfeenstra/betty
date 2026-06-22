@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     from concurrent.futures import ProcessPoolExecutor
     from pathlib import Path
 
-    from betty.caches.file import BinaryFileCache
+    from betty.stores.file import TransientBinaryFileStore
 
 if TYPE_CHECKING:
     from jinja2.runtime import Context
@@ -58,7 +58,7 @@ class ImageResizeCover(JinjaFilter, Manufacturable):
     def __init__(
         self,
         *,
-        binary_file_cache: BinaryFileCache,
+        binary_file_cache: TransientBinaryFileStore,
         file_filter: FileFilter,
         process_pool: ProcessPoolExecutor,
         www_directory: Path,
@@ -139,11 +139,11 @@ class ImageResizeCover(JinjaFilter, Manufacturable):
         else:
             raise ValueError("Cannot convert a file without a media type to an image.")
 
-        cache_item_id = f"{await hashid_file_meta(file.path)}:{destination_name}"
+        job_store_key = f"{await hashid_file_meta(file.path)}:{destination_name}"
         execute_filter = True
         if job_context:
-            async with job_context.cache.with_scope("filter_image").hasset(
-                cache_item_id
+            async with job_context.store.with_scope("filter_image").hasset(
+                job_store_key
             ) as setter:
                 if setter:
                     await setter(True)
@@ -156,7 +156,7 @@ class ImageResizeCover(JinjaFilter, Manufacturable):
                 _execute_filter_image,
                 image_loader,
                 file.path,
-                self._binary_file_cache.cache_item_file(cache_item_id),
+                self._binary_file_cache.file(job_store_key),
                 file_directory,
                 destination_name,
                 size,
@@ -182,7 +182,7 @@ def _load_image_application_pdf(file: Path) -> Image.Image:
 def _execute_filter_image(
     image_loader: Callable[[Path], Image.Image],
     file: Path,
-    cache_item_file: Path,
+    cache_file: Path,
     destination_directory: Path,
     destination_name: str,
     size: Size | None,
@@ -198,20 +198,20 @@ def _execute_filter_image(
 
     try:
         # Try using a previously cached image.
-        _link_or_copy(cache_item_file, destination_file)
+        _link_or_copy(cache_file, destination_file)
     except FileNotFoundError:
         # Apply customizations, and cache the customized image.
         original_image = converted_image = image_loader(file)
         try:
-            cache_item_file.parent.mkdir(exist_ok=True, parents=True)
+            cache_file.parent.mkdir(exist_ok=True, parents=True)
             if size is not None:
                 converted_image = resize_cover(converted_image, size, focus=focus)
             converted_image.save(
-                cache_item_file,
+                cache_file,
                 format=image_file_path_format(destination_file),
             )
             del converted_image
         finally:
             original_image.close()
             del original_image
-        _link_or_copy(cache_item_file, destination_file)
+        _link_or_copy(cache_file, destination_file)

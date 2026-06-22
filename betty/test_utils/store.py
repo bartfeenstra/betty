@@ -1,5 +1,5 @@
 """
-Test utilities for :py:mod:`betty.cache`.
+Test utilities for :py:mod:`betty.store`.
 """
 
 from __future__ import annotations
@@ -8,39 +8,39 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.cache import Cache, CacheItem
+from betty.store import StoreItem, TransientStore
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
     from contextlib import AbstractAsyncContextManager
 
 
-class CacheTestBase[CacheItemValueT]:
+def _scopes() -> pytest.MarkDecorator:
+    return pytest.mark.parametrize(
+        "scopes",
+        [
+            (),
+            ("scopey", "dopey"),
+        ],
+    )
+
+
+class StoreTestBase[ItemValueT]:
     """
-    A base class for tests of :py:class:`betty.cache.Cache` implementations.
+    A base class for tests of :py:class:`betty.store.Store` implementations.
     """
 
     def _new_sut(
         self, *, scopes: Sequence[str] = ()
-    ) -> AbstractAsyncContextManager[Cache[CacheItemValueT]]:
+    ) -> AbstractAsyncContextManager[TransientStore[ItemValueT]]:
         raise NotImplementedError
 
-    def _values(self) -> Iterator[CacheItemValueT]:
+    def _values(self) -> Iterator[ItemValueT]:
         raise NotImplementedError
-
-    @staticmethod
-    def _scopes() -> pytest.MarkDecorator:
-        return pytest.mark.parametrize(
-            "scopes",
-            [
-                (),
-                ("scopey", "dopey"),
-            ],
-        )
 
     async def test_with_scope(self) -> None:
         """
-        Test implementations of :py:meth:`betty.cache.Cache.with_scope`.
+        Test implementations of :py:meth:`betty.store.Store.with_scope`.
         """
         for value in self._values():
             async with self._new_sut() as sut:
@@ -48,16 +48,16 @@ class CacheTestBase[CacheItemValueT]:
                 sut_with_scope_two = sut.with_scope("scopey")
                 assert sut_with_scope_one is not sut
                 assert sut_with_scope_two is not sut
-                cache_item_id = "hello-world"
-                await sut_with_scope_one.set(cache_item_id, value)
-                cache_item = await sut_with_scope_two.get(cache_item_id)
-                assert cache_item
-                assert await cache_item.value() == value
+                key = "hello-world"
+                await sut_with_scope_one.set(key, value)
+                item = await sut_with_scope_two.get(key)
+                assert item
+                assert await item.value() == value
 
     @_scopes()
     async def test_has__without_hit(self, scopes: Sequence[str]) -> None:
         """
-        Test implementations of :py:meth:`betty.cache.Cache.has`.
+        Test implementations of :py:meth:`betty.store.Store.has`.
         """
         async with self._new_sut(scopes=scopes) as sut:
             assert not await sut.get("id")
@@ -65,7 +65,7 @@ class CacheTestBase[CacheItemValueT]:
     @_scopes()
     async def test_has__with_hit(self, scopes: Sequence[str]) -> None:
         """
-        Test implementations of :py:meth:`betty.cache.Cache.has`.
+        Test implementations of :py:meth:`betty.store.Store.has`.
         """
         for value in self._values():
             async with self._new_sut(scopes=scopes) as sut:
@@ -75,21 +75,21 @@ class CacheTestBase[CacheItemValueT]:
     @_scopes()
     async def test_hasset__without_hit(self, scopes: Sequence[str]) -> None:
         """
-        Test implementations of :py:meth:`betty.cache.Cache.hasset`.
+        Test implementations of :py:meth:`betty.store.Store.hasset`.
         """
         for value in self._values():
             async with self._new_sut(scopes=scopes) as sut:
                 async with sut.hasset("id") as result:
                     assert result is not None
                     await result(value)
-                cache_item = await sut.get("id")
-                assert cache_item is not None
-                assert await cache_item.value() == value
+                item = await sut.get("id")
+                assert item is not None
+                assert await item.value() == value
 
     @_scopes()
     async def test_hasset__with_hit(self, scopes: Sequence[str]) -> None:
         """
-        Test implementations of :py:meth:`betty.cache.Cache.hasset`.
+        Test implementations of :py:meth:`betty.store.Store.hasset`.
         """
         for value in self._values():
             async with self._new_sut(scopes=scopes) as sut:
@@ -100,79 +100,85 @@ class CacheTestBase[CacheItemValueT]:
     @_scopes()
     async def test_get__without_hit(self, scopes: Sequence[str]) -> None:
         """
-        Test implementations of :py:meth:`betty.cache.Cache.get`.
+        Test implementations of :py:meth:`betty.store.Store.get`.
         """
         async with self._new_sut(scopes=scopes) as sut:
-            cache_item = await sut.get("id")
-            assert cache_item is None
+            item = await sut.get("id")
+            assert item is None
 
     @_scopes()
     async def test_set__and_get(self, scopes: Sequence[str]) -> None:
         """
-        Test implementations of :py:meth:`betty.cache.Cache.get` and :py:meth:`betty.cache.Cache.set`.
+        Test implementations of :py:meth:`betty.store.Store.get` and :py:meth:`betty.store.Store.set`.
         """
         for value in self._values():
             async with self._new_sut(scopes=scopes) as sut:
                 await sut.set("id", value)
-                cache_item = await sut.get("id")
-                assert cache_item is not None
-                assert await cache_item.value() == value
+                item = await sut.get("id")
+                assert item is not None
+                assert await item.value() == value
 
     @_scopes()
     async def test_set__and_get_with_modified(self, scopes: Sequence[str]) -> None:
         """
-        Test implementations of :py:meth:`betty.cache.Cache.get` and :py:meth:`betty.cache.Cache.set`.
+        Test implementations of :py:meth:`betty.store.Store.get` and :py:meth:`betty.store.Store.set`.
         """
         modified = 123456789
         for value in self._values():
             async with self._new_sut(scopes=scopes) as sut:
                 await sut.set("id", value, modified=modified)
-                cache_item = await sut.get("id")
-                assert cache_item is not None
-                assert cache_item.modified == modified
+                item = await sut.get("id")
+                assert item is not None
+                assert item.modified == modified
 
     @_scopes()
     async def test_getset__without_hit(self, scopes: Sequence[str]) -> None:
         """
-        Test implementations of :py:meth:`betty.cache.Cache.getset`.
+        Test implementations of :py:meth:`betty.store.Store.getset`.
         """
         for value in self._values():
             async with self._new_sut(scopes=scopes) as sut:
                 async with sut.getset("id") as result:
-                    assert not isinstance(result, CacheItem)
+                    assert not isinstance(result, StoreItem)
                     await result(value)
-                cache_item = await sut.get("id")
-                assert cache_item is not None
-                assert await cache_item.value() == value
+                item = await sut.get("id")
+                assert item is not None
+                assert await item.value() == value
 
     @_scopes()
     async def test_getset__with_hit(self, scopes: Sequence[str]) -> None:
         """
-        Test implementations of :py:meth:`betty.cache.Cache.getset`.
+        Test implementations of :py:meth:`betty.store.Store.getset`.
         """
         for value in self._values():
             async with self._new_sut(scopes=scopes) as sut:
                 await sut.set("id", value)
                 async with sut.getset("id") as result:
-                    assert isinstance(result, CacheItem)
+                    assert isinstance(result, StoreItem)
                     assert await result.value() == value
 
-    @_scopes()
-    async def test_delete(self, scopes: Sequence[str]) -> None:
-        """
-        Test implementations of :py:meth:`betty.cache.Cache.delete`.
-        """
-        async with self._new_sut(scopes=scopes) as sut:
-            await sut.set("id", next(self._values()))
-            await sut.delete("id")
-            assert await sut.get("id") is None
+
+class TransientStoreTestBase[ItemValueT](StoreTestBase[ItemValueT]):
+    """
+    A base class for tests of :py:class:`betty.store.TransientStore` implementations.
+    """
 
     @_scopes()
     async def test_clear(self, scopes: Sequence[str]) -> None:
         """
-        Test implementations of :py:meth:`betty.cache.Cache.clear`.
+        Test implementations of :py:meth:`betty.store.TransientStore.clear`.
         """
         async with self._new_sut(scopes=scopes) as sut:
             await sut.set("id", next(self._values()))
             await sut.clear()
+            assert await sut.get("id") is None
+
+    @_scopes()
+    async def test_delete(self, scopes: Sequence[str]) -> None:
+        """
+        Test implementations of :py:meth:`betty.store.TransientStore.delete`.
+        """
+        async with self._new_sut(scopes=scopes) as sut:
+            await sut.set("id", next(self._values()))
+            await sut.delete("id")
             assert await sut.get("id") is None

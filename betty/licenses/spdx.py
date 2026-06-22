@@ -27,11 +27,11 @@ from betty.machine_name import MachineName
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from betty.caches.file import BinaryFileCache
     from betty.localizable import Localizable
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.portable import PortableData, PortableSequence
     from betty.service_level import ServiceLevel
+    from betty.stores.file import TransientBinaryFileStore
     from betty.user import User
 
 _spdx_license_id_pattern: Final[re.Pattern[str]] = re.compile(r"[^a-z0-9-]")
@@ -62,7 +62,7 @@ class SpdxLicenseDiscoverer(Manufacturable):
         *,
         http_client: ClientSession,
         user: User,
-        binary_file_cache: BinaryFileCache,
+        binary_file_cache: TransientBinaryFileStore,
     ):
         self._http_client = http_client
         self._user = user

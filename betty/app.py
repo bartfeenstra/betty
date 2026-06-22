@@ -14,9 +14,6 @@ from aiohttp_client_cache.backends.filesystem import FileBackend
 from aiohttp_client_cache.session import CachedSession
 
 from betty.attrs.locale import new_locale_attr
-from betty.cache import Cache
-from betty.caches.file import BinaryFileCache, PickledFileCache
-from betty.caches.no_op import NoOpCache
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.dirs import app_config_directory, cache_directory
@@ -46,6 +43,9 @@ from betty.services.plugin import PluginServiceProvider
 from betty.services.plugin.definition.collection.keyed import PluginDefinitionsService
 from betty.services.plugin.instance.collection.keyed import PluginInstancesService
 from betty.services.simple import service
+from betty.store import TransientStore
+from betty.stores.file import TransientBinaryFileStore, TransientPickledFileStore
+from betty.stores.no_op import NoOpStore
 from betty.typing import threadsafe
 from betty.user.no_op import NoOpUser
 
@@ -96,9 +96,11 @@ class App(RequirableServiceLevel, PluginServiceProvider):
     def __init__(
         self,
         *,
-        binary_file_cache: TypedSynchronousServiceOrFactory[App, BinaryFileCache],
+        binary_file_cache: TypedSynchronousServiceOrFactory[
+            App, TransientBinaryFileStore
+        ],
         assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
-        cache: TypedSynchronousServiceOrFactory[App, Cache[Any]] | None = None,
+        cache: TypedSynchronousServiceOrFactory[App, TransientStore[Any]] | None = None,
         locale: ResolvableLocale | None = None,
         meda_types: Iterable[ResolvablePluginDefinition[MediaTypeDefinition]] = (),
         plugins: Plugins | None = None,
@@ -115,7 +117,7 @@ class App(RequirableServiceLevel, PluginServiceProvider):
         cls.binary_file_cache.override(
             self,
             Service(binary_file_cache)
-            if isinstance(binary_file_cache, BinaryFileCache)
+            if isinstance(binary_file_cache, TransientBinaryFileStore)
             else binary_file_cache,
         )
         if process_pool is not None:
@@ -134,7 +136,7 @@ class App(RequirableServiceLevel, PluginServiceProvider):
             )
         if cache is not None:
             cls.cache.override(
-                self, Service(cache) if isinstance(cache, Cache) else cache
+                self, Service(cache) if isinstance(cache, TransientStore) else cache
             )
         super().__init__(plugins=plugins, supported_plugins=supported_plugins)
         cls.asset_directories.add_init_plugins(self, *assets)
@@ -173,8 +175,8 @@ class App(RequirableServiceLevel, PluginServiceProvider):
             locale = None
         app_cache_directory = environ.get("BETTY_CACHE_DIRECTORY", cache_directory)
         async with cls(
-            cache=PickledFileCache(app_cache_directory),
-            binary_file_cache=BinaryFileCache(app_cache_directory),
+            cache=TransientPickledFileStore(app_cache_directory),
+            binary_file_cache=TransientBinaryFileStore(app_cache_directory),
             locale=locale,
         ) as app:
             yield app
@@ -185,7 +187,7 @@ class App(RequirableServiceLevel, PluginServiceProvider):
         cls,
         *,
         binary_file_cache_directory: StrPath | None = None,
-        cache: TypedSynchronousServiceOrFactory[App, Cache[Any]] | None = None,
+        cache: TypedSynchronousServiceOrFactory[App, TransientStore[Any]] | None = None,
         plugins: Mapping[
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
         ]
@@ -212,8 +214,8 @@ class App(RequirableServiceLevel, PluginServiceProvider):
                     to_thread, rmtree, binary_file_cache_directory
                 )
             async with cls(
-                binary_file_cache=BinaryFileCache(binary_file_cache_directory),
-                cache=NoOpCache() if cache is None else cache,
+                binary_file_cache=TransientBinaryFileStore(binary_file_cache_directory),
+                cache=NoOpStore() if cache is None else cache,
                 plugins=plugins,
                 process_pool=process_pool,
                 user=NoOpUser() if user is None else user,
@@ -269,14 +271,14 @@ class App(RequirableServiceLevel, PluginServiceProvider):
         return http_client
 
     @service
-    def cache(self) -> Cache[Any]:
+    def cache(self) -> TransientStore[Any]:
         """
         The cache.
         """
-        return NoOpCache()
+        return NoOpStore()
 
     @service
-    def binary_file_cache(self) -> BinaryFileCache:
+    def binary_file_cache(self) -> TransientBinaryFileStore:
         """
         The binary file cache.
         """

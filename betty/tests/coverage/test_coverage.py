@@ -107,11 +107,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/babel.py": {
         "run_babel": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/cache.py": {
-        "Cache": MissingReason.ABSTRACT,
-        "CacheItem": MissingReason.SHOULD_BE_COVERED,
-    },
-    "betty/cache/_base.py": MissingReason.COVERED_ELSEWHERE,
     "betty/commands/dev_profile_demo.py": MissingReason.DEVELOPMENT,
     "betty/console/__init__.py": {
         "SystemExitCode": MissingReason.ENUM,
@@ -699,6 +694,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/sphinx/extension/betty.py": MissingReason.COVERED_ELSEWHERE,
+    "betty/store.py": {
+        "Store": MissingReason.ABSTRACT,
+        "StoreItem": MissingReason.SHOULD_BE_COVERED,
+        "TransientStore": MissingReason.ABSTRACT,
+    },
     "betty/subprocess.py": {
         "FileNotFound": MissingReason.STATIC_CONTENT_ONLY,
         "SubprocessError": MissingReason.STATIC_CONTENT_ONLY,

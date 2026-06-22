@@ -50,8 +50,7 @@ class File(JinjaFilter, Manufacturable):
 
         execute_filter = True
         if job_context:
-            job_cache_item_id = f"filter_file:{file.id}"
-            async with job_context.cache.hasset(job_cache_item_id) as setter:
+            async with job_context.store.hasset(f"filter_file:{file.id}") as setter:
                 if setter:
                     await setter(True)
                 else:

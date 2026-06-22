@@ -42,12 +42,12 @@ from aioresponses import aioresponses
 from jinja2 import Environment, Template
 
 from betty.app import App
-from betty.caches.file import BinaryFileCache
 from betty.exception import do_raise
 from betty.json_schema import Schema
 from betty.licenses.spdx import SpdxLicenseDiscoverer
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.project import Project, ProjectLocale
+from betty.stores.file import TransientBinaryFileStore
 from betty.user import Verbosity
 
 if TYPE_CHECKING:
@@ -65,7 +65,7 @@ if TYPE_CHECKING:
     from playwright.async_api import BrowserContext, Page
 
     from betty.asset import AssetDirectoryDefinition
-    from betty.cache import Cache
+    from betty.store import TransientStore
     from betty.entity import EntityDefinition
     from betty.entity.collection.pool import EntityPool
     from betty.extension import ExtensionDefinition
@@ -99,11 +99,11 @@ def http_client_mock() -> Iterator[aioresponses]:
 
 
 @pytest.fixture
-async def binary_file_cache(tmp_path: Path) -> BinaryFileCache:
+async def binary_file_cache(tmp_path: Path) -> TransientBinaryFileStore:
     """
     Create a temporary binary file cache.
     """
-    return BinaryFileCache(tmp_path)
+    return TransientBinaryFileStore(tmp_path)
 
 
 @pytest.fixture(scope="session")
@@ -136,7 +136,7 @@ class IsolatedAppFactory(Protocol):
     def __call__(
         self,
         *,
-        cache: TypedSynchronousServiceOrFactory[App, Cache[Any]] | None = None,
+        cache: TypedSynchronousServiceOrFactory[App, TransientStore[Any]] | None = None,
         binary_file_cache_directory: StrPath | None = None,
         plugins: Mapping[
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
@@ -164,7 +164,7 @@ def isolated_app_factory(
     @asynccontextmanager
     async def _isolated_app_factory(
         *,
-        cache: TypedSynchronousServiceOrFactory[App, Cache[Any]] | None = None,
+        cache: TypedSynchronousServiceOrFactory[App, TransientStore[Any]] | None = None,
         binary_file_cache_directory: StrPath | None = None,
         plugins: Mapping[
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
@@ -209,7 +209,7 @@ class IsolatedProjectFactory(Protocol):
         app: App | None = None,
         assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
         author: ResolvableLocalizable | None = None,
-        cache: TypedSynchronousServiceOrFactory[Project, Cache[Any]]
+        cache: TypedSynchronousServiceOrFactory[Project, TransientStore[Any]]
         | None
         | Literal[False] = False,
         clean_urls: bool = False,
@@ -250,7 +250,7 @@ def isolated_project_factory(isolated_app: App) -> IsolatedProjectFactory:
         app: App | None = None,
         assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
         author: ResolvableLocalizable | None = None,
-        cache: TypedSynchronousServiceOrFactory[Project, Cache[Any]]
+        cache: TypedSynchronousServiceOrFactory[Project, TransientStore[Any]]
         | None
         | Literal[False] = False,
         clean_urls: bool = False,
