@@ -210,6 +210,8 @@ setuptools = [
     'wheel ~= 0.44',
 ]
 test = [
+    # Work around https://github.com/pnuckowski/aioresponses/issues/289.
+    'aiohttp ~= 3.12, < 3.14',
     'aioresponses ~= 0.7',
     'basedmypy ~= 2.6',
     'coverage ~= 7.6',
