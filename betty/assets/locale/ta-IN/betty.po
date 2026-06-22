@@ -8,14 +8,16 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-04-24 14:22+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
-"Language: ta\n"
+"PO-Revision-Date: 2026-06-22 11:44+0000\n"
+"Last-Translator: தமிழ்நேரம் <tamilneram247@gmail.com>\n"
+"Language-Team: Tamil <https://hosted.weblate.org/projects/betty/betty-0-4-x/"
+"ta/>\n"
+"Language: ta-IN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 2026.7.dev0\n"
 "Generated-By: Babel 2.17.0\n"
 
 #, python-brace-format
@@ -24,11 +26,11 @@ msgstr ""
 
 #, python-brace-format
 msgid "\"{invalid_locale}\" is not a valid IETF BCP 47 language tag."
-msgstr ""
+msgstr "\"{invalid_locale}\" என்பது சரியான IETF BCP 47 மொழி குறிச்சொல் அல்ல."
 
 #, python-brace-format
 msgid "\"{path}\" is not a directory."
-msgstr ""
+msgstr "\"{path}\" என்பது அடைவு அல்ல."
 
 #, python-brace-format
 msgid ""
@@ -38,15 +40,15 @@ msgstr ""
 
 #, python-format
 msgid "%(date)s in %(place)s"
-msgstr ""
+msgstr "%(date)s %(place)s"
 
 #, python-format
 msgid "%(event)s of %(subjects)s"
-msgstr ""
+msgstr "%(event)s இன் %(subjects)s"
 
 #, python-format
 msgid "%(event)s with %(subjects)s"
-msgstr ""
+msgstr "%(event)s உடன் %(subjects)s"
 
 #, python-format
 msgid "%(person_individual_name)s had a child with %(co_parent_labels)s."
@@ -70,76 +72,79 @@ msgid ""
 "A family history as told by <a "
 "href=\"https://betty.readthedocs.io\">Betty👵</a>"
 msgstr ""
+"<a href=\"https://betty.readthedocs.io\">பெட்டி👵</a> கூறியது போல் குடும்ப வரலாறு"
 
 msgid "API documentation"
-msgstr ""
+msgstr "பநிஇ ஆவணங்கள்"
 
 msgid "About"
 msgstr ""
 
 msgid "Access denied"
-msgstr ""
+msgstr "அணுகல் மறுக்கப்பட்டது"
 
 #, python-format
 msgid "Accessed %(date)s"
 msgstr ""
 
 msgid "Adoption"
-msgstr ""
+msgstr "தத்தெடுப்பு"
 
 msgid "All caches cleared."
-msgstr ""
+msgstr "அனைத்து தற்காலிக சேமிப்புகளும் அழிக்கப்பட்டன."
 
 msgid "All of these requirements must be met"
 msgstr ""
 
 msgid "All rights reserved"
-msgstr ""
+msgstr "அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை"
 
 #, python-format
 msgid "Also known as %(names)s"
-msgstr ""
+msgstr "%(names)s என்றும் அறியப்படுகிறது"
 
 msgid "Ancestral names include"
 msgstr ""
 
 msgid "Announcement of divorce"
-msgstr ""
+msgstr "மணமுறிவு அறிவிப்பு"
 
 msgid "Announcement of marriage"
-msgstr ""
+msgstr "திருமண அறிவிப்பு"
 
 msgid "Appearances"
-msgstr ""
+msgstr "தோற்றங்கள்"
 
 #, python-brace-format
 msgid "At least {expected} items are required, but found {actual}."
 msgstr ""
+"குறைந்தபட்சம் {expected} உருப்படிகள் தேவை, ஆனால் {actual} கண்டறியப்பட்டது."
 
 #, python-brace-format
 msgid "At most {expected} items are allowed, but found {actual}."
 msgstr ""
+"அதிகபட்சம் {expected} உருப்படிகள் அனுமதிக்கப்படும், ஆனால் {actual} கண்டறியப்பட்டது."
 
 msgid "At which URL will your site be published?"
-msgstr ""
+msgstr "உங்கள் தளம் எந்த முகவரி இல் வெளியிடப்படும்?"
 
 msgid "Attendee"
-msgstr ""
+msgstr "பங்கேற்பாளர்"
 
 msgid "Baptism"
-msgstr ""
+msgstr "ஞானச்நானம்"
 
 msgid "Bar mitzvah"
-msgstr ""
+msgstr "பார் மிட்ச்வா"
 
 msgid "Bat mitzvah"
-msgstr ""
+msgstr "பேட் மிட்ச்வா"
 
 msgid "Beneficiary"
-msgstr ""
+msgstr "பயனாளி"
 
 msgid "Betty could not load the SPDX licenses"
-msgstr ""
+msgstr "பெட்டியால் SPDX உரிமங்களை ஏற்ற முடியவில்லை"
 
 msgid ""
 "Betty is an application that takes a family tree and builds a website out "
@@ -147,6 +152,10 @@ msgid ""
 "your genealogical research contains, the more interactivity Betty can add "
 "to your site, such as media galleries, maps, and browsable family trees."
 msgstr ""
+"பெட்டி என்பது குடும்ப மரத்தை எடுத்து அதிலிருந்து இணையதளத்தை உருவாக்கும் ஒரு பயன்பாடாகும், "
+"இது நீங்கள் இப்போது பார்த்துக் கொண்டிருப்பதைப் போன்றது. உங்கள் வம்சாவளி ஆராய்ச்சியில் உள்ள கூடுதல் "
+"தகவல்கள், மீடியா கேலரிகள், வரைபடங்கள் மற்றும் உலாவக்கூடிய குடும்ப மரங்கள் போன்ற உங்கள் தளத்தில் "
+"அதிக ஊடாடுதலை பெட்டி சேர்க்கலாம்."
 
 #, python-brace-format
 msgid ""
@@ -154,18 +163,25 @@ msgid ""
 "\"{gramps_event_type}\". The event was imported, but its type was set to "
 "\"{betty_event_type}\"."
 msgstr ""
+"பெட்டிக்கு கிராம்ப்ச் நிகழ்வு \"{event_id}\" இன் வகை \"{gramps_event_type}\" பற்றித் "
+"தெரியாது. நிகழ்வு இறக்குமதி செய்யப்பட்டது, ஆனால் அதன் வகை \"{betty_event_type}\" என "
+"அமைக்கப்பட்டது."
 
 #, python-brace-format
 msgid ""
 "Betty is unfamiliar with Gramps file \"{file_id}\"'s copyright notice ID "
 "of \"{copyright_notice_id}\" and ignored it."
 msgstr ""
+"பெட்டி \"{copyright_notice_id}\" இன் Gramps கோப்பு \"{file_id}\" இன் பதிப்புரிமை "
+"அறிவிப்பு ஐடியைப் பற்றி அறிந்திருக்கவில்லை, மேலும் அதைப் புறக்கணித்தார்."
 
 #, python-brace-format
 msgid ""
 "Betty is unfamiliar with Gramps file \"{file_id}\"'s license ID of "
 "\"{license_id}\" and ignored it."
 msgstr ""
+"பெட்டி, Gramps கோப்பு \"{file_id}\" இன் \"{license_id}\" உரிம ஐடியைப் பற்றி "
+"அறிந்திருக்கவில்லை, மேலும் அதைப் புறக்கணித்தார்."
 
 #, python-brace-format
 msgid ""
@@ -173,6 +189,9 @@ msgid ""
 "\"{gramps_place_type}\". The place was imported, but its type was set to "
 "\"{betty_place_type}\"."
 msgstr ""
+"பெட்டிக்கு கிராம்ப்ச் இடம் \"{place_id}\" இன் வகை \"{gramps_place_type}\" பற்றி "
+"அறிமுகம் இல்லை. இடம் இறக்குமதி செய்யப்பட்டது, ஆனால் அதன் வகை \"{betty_place_type}\" என "
+"அமைக்கப்பட்டது."
 
 #, python-brace-format
 msgid ""
@@ -191,25 +210,26 @@ msgstr ""
 
 #, python-brace-format
 msgid "Betty will talk to you in {locale}"
-msgstr ""
+msgstr "பெட்டி உங்களுடன் {locale} இல் பேசுவார்"
 
 msgid "Birth"
-msgstr ""
+msgstr "பிறப்பு"
 
 msgid "Borough"
-msgstr ""
+msgstr "பெருநகரம்"
 
 msgid "Building"
-msgstr ""
+msgstr "கட்டிடம்"
 
 msgid "Built the Webpack front-end assets."
 msgstr ""
 
 msgid "Burial"
-msgstr ""
+msgstr "அடக்கம்"
 
 msgid "Cannot find an available port to bind the web server to."
 msgstr ""
+"இணைய சேவையகத்தை இணைக்க கிடைக்கக்கூடிய போர்ட்டைக் கண்டுபிடிக்க முடியவில்லை."
 
 #, python-brace-format
 msgid "Cannot find and import \"{plugin_id}\"."
@@ -231,76 +251,83 @@ msgid ""
 "your family tree does not include a base path. In Gramps, add a \"base "
 "path for relative media paths\" to your family tree, and export it again."
 msgstr ""
+"உங்கள் குடும்ப மரத்தில் அடிப்படை பாதை இல்லாததால், Gramps கோப்பை {file_id} உடன் தொடர்புடைய "
+"பாதையுடன் {file_path} ஏற்ற முடியாது. Gramps இல், உங்கள் குடும்ப மரத்தில் \"சார்ந்த மீடியா "
+"பாதைகளுக்கான அடிப்படை பாதையை\" சேர்த்து, அதை மீண்டும் ஏற்றுமதி செய்யவும்."
 
 #, python-brace-format
 msgid "Cannot load Gramps file {file_id}, because {file_path} is not a file."
 msgstr ""
+"Gramps கோப்பை ஏற்ற முடியாது {file_id}, ஏனெனில் {file_path} ஒரு கோப்பு அல்ல."
 
 #, python-brace-format
 msgid ""
 "Cannot load coordinates \"{coordinates}\", because they are in an unknown "
 "format."
 msgstr ""
+"\"{coordinates}\" ஆயங்களை ஏற்ற முடியாது, ஏனெனில் அவை தெரியாத வடிவத்தில் உள்ளன."
 
 msgid "Celebrant"
-msgstr ""
+msgstr "கொண்டாடுபவர்"
 
 msgid "Citation"
-msgstr ""
+msgstr "மேற்கோள்"
 
 msgid "Citations"
-msgstr ""
+msgstr "மேற்கோள்கள்"
 
 msgid "City"
-msgstr ""
+msgstr "மாநகரம்"
 
 msgid "Clear all caches"
-msgstr ""
+msgstr "அனைத்து கேச்களையும் அழிக்கவும்"
 
 msgid "Close"
-msgstr ""
+msgstr "மூடு"
 
 msgid "Conference"
-msgstr ""
+msgstr "மாநாடு"
 
 msgid "Configure Betty"
-msgstr ""
+msgstr "பெட்டியை கட்டமைக்கவும்"
 
 msgid "Confirmation"
-msgstr ""
+msgstr "உறுதிப்படுத்தல்"
 
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
-msgstr ""
+msgstr "<a href=\"%(url)s\">விக்கிபீடியாவில்</a> தொடர்ந்து படிக்கவும்."
 
 msgid "Copyright"
-msgstr ""
+msgstr "காப்புரிமை"
 
 #, python-format
 msgid "Copyright <a href=\"%(url)s\">OpenStreetMap</a> contributors"
-msgstr ""
+msgstr "பதிப்புரிமை <a href=\"%(url)s\">OpenStreetMap</a> பங்களிப்பாளர்கள்"
 
 msgid "Copyright Wikipedia contributors"
-msgstr ""
+msgstr "பதிப்புரிமை விக்கிபீடியா பங்களிப்பாளர்கள்"
 
 msgid ""
 "Copyright of these works lies with the original authors who contributed "
 "them to Wikipedia."
 msgstr ""
+"இந்தப் படைப்புகளின் காப்புரிமை விக்கிபீடியாவில் அவற்றைப் பங்களித்த அசல் ஆசிரியர்களிடம் உள்ளது."
 
 msgid "Correspondence"
-msgstr ""
+msgstr "கடிதப் பரிமாற்றம்"
 
 msgid "Cotton Candy is Betty's legacy theme."
 msgstr ""
 
 #, python-brace-format
 msgid "Could not extract {file_path} as a gzip file  (*.gz)."
-msgstr ""
+msgstr "{file_path}ஐ gzip கோப்பாக (*.gz) பிரித்தெடுக்க முடியவில்லை."
 
 #, python-brace-format
 msgid "Could not extract {file_path} as a gzipped tar file  (*.tar.gz)."
 msgstr ""
+"சிசிப் செய்யப்பட்ட தார் கோப்பாக (*.tar.gz) {file_path} ஐப் பிரித்தெடுக்க முடியவில்லை."
 
 #, python-brace-format
 msgid "Could not find a plugin \"{plugin_id}\"."
@@ -311,10 +338,12 @@ msgid ""
 "Could not find any of the following configuration files in "
 "{project_directory_path}: {configuration_file_names}."
 msgstr ""
+"{project_directory_path} இல் பின்வரும் உள்ளமைவு கோப்புகள் எதையும் கண்டுபிடிக்க "
+"முடியவில்லை: {configuration_file_names}."
 
 #, python-brace-format
 msgid "Could not find the file \"{file_path}\"."
-msgstr ""
+msgstr "\"{file_path}\" கோப்பைக் கண்டுபிடிக்க முடியவில்லை."
 
 #, python-brace-format
 msgid ""
@@ -323,16 +352,16 @@ msgid ""
 msgstr ""
 
 msgid "Country"
-msgstr ""
+msgstr "நாடு"
 
 msgid "County"
-msgstr ""
+msgstr "மாவட்டம்"
 
 msgid "Create a new project"
-msgstr ""
+msgstr "புதிய திட்டத்தை உருவாக்கவும்"
 
 msgid "Create a new translation"
-msgstr ""
+msgstr "புதிய மொழிபெயர்ப்பை உருவாக்கவும்"
 
 msgid "Create a new translation for an extension"
 msgstr ""
@@ -341,21 +370,25 @@ msgid ""
 "Create events such as births and deaths by deriving their details from "
 "existing information."
 msgstr ""
+"பிறப்பு மற்றும் இறப்பு போன்ற நிகழ்வுகளை ஏற்கனவே உள்ள தகவல்களிலிருந்து அவற்றின் விவரங்களைப் "
+"பெறுவதன் மூலம் உருவாக்கவும்."
 
 #, python-brace-format
 msgid ""
 "Created {created_derivations} additional {event_type} events based on "
 "existing information."
 msgstr ""
+"ஏற்கனவே உள்ள தகவலின் அடிப்படையில் {created_derivations} கூடுதல் {event_type} "
+"நிகழ்வுகள் உருவாக்கப்பட்டது."
 
 msgid "Cremation"
-msgstr ""
+msgstr "தகனம்"
 
 msgid "Death"
-msgstr ""
+msgstr "இறப்பு"
 
 msgid "Department"
-msgstr ""
+msgstr "துறை"
 
 msgid "Deriver"
 msgstr ""
@@ -367,12 +400,14 @@ msgid "Descendant names include"
 msgstr ""
 
 msgid "Description, licensing, and image history"
-msgstr ""
+msgstr "விளக்கம், உரிமம் மற்றும் பட வரலாறு"
 
 msgid ""
 "Determine if people can be proven to have died. If not, mark them and "
 "their associated entities private."
 msgstr ""
+"மக்கள் இறந்துவிட்டார்கள் என்பதை நிரூபிக்க முடியுமா என்பதைத் தீர்மானிக்கவும். இல்லையெனில், "
+"அவற்றையும் அவற்றுடன் தொடர்புடைய நிறுவனங்களையும் தனிப்பட்டதாகக் குறிக்கவும்."
 
 msgid ""
 "Display interactive family trees using <a "
@@ -380,7 +415,7 @@ msgid ""
 msgstr ""
 
 msgid "Display interactive maps"
-msgstr ""
+msgstr "ஊடாடும் வரைபடங்களைக் காண்பி"
 
 msgid ""
 "Display the HTTP API documentation in a user-friendly way using <a "
@@ -388,10 +423,10 @@ msgid ""
 msgstr ""
 
 msgid "District"
-msgstr ""
+msgstr "மாவட்டம்"
 
 msgid "Divorce"
-msgstr ""
+msgstr "மணமுறிவு"
 
 #, python-brace-format
 msgid "Do you mean one of {available_options}?"
@@ -402,90 +437,90 @@ msgid "Do you mean {available_option}?"
 msgstr ""
 
 msgid "Do you want to add another locale?"
-msgstr ""
+msgstr "வேறொரு மொழியைச் சேர்க்க விரும்புகிறீர்களா?"
 
 msgid "Do you want to load a Gramps family tree?"
-msgstr ""
+msgstr "கிராம்ப்ச் குடும்ப மரத்தை ஏற்ற விரும்புகிறீர்களா?"
 
 #, python-format
 msgid "E.g. \"%(example)s\""
 msgstr ""
 
 msgid "Emigration"
-msgstr ""
+msgstr "குடியேறல்"
 
 msgid "Enclosure"
-msgstr ""
+msgstr "அடைப்பு"
 
 msgid "Enclosures"
-msgstr ""
+msgstr "அடைப்புகள்"
 
 msgid "Engagement"
-msgstr ""
+msgstr "மணஉறுதி"
 
 msgid "Enrich your ancestry with information from Wikipedia"
 msgstr ""
 
 msgid "Entity type"
-msgstr ""
+msgstr "பொருள் வகை"
 
 msgid "Event"
-msgstr ""
+msgstr "நிகழ்வு"
 
 msgid "Events"
-msgstr ""
+msgstr "நிகழ்வுகள்"
 
 #, python-brace-format
 msgid "Exactly {expected} items are required, but found {actual}."
-msgstr ""
+msgstr "சரியாக {expected} உருப்படிகள் தேவை, ஆனால் கண்டறியப்பட்டது {actual}."
 
 msgid "Exit the search"
 msgstr ""
 
 msgid "Explore a demonstration site"
-msgstr ""
+msgstr "ஒரு ஆர்ப்பாட்ட தளத்தை ஆராயுங்கள்"
 
 msgid "External links"
-msgstr ""
+msgstr "வெளி இணைப்புகள்"
 
 msgid "Facts"
-msgstr ""
+msgstr "உண்மைகள்"
 
 msgid "Family"
-msgstr ""
+msgstr "குடும்பம்"
 
 msgid "Farm"
-msgstr ""
+msgstr "பண்ணை"
 
 msgid "Female"
 msgstr ""
 
 msgid "File"
-msgstr ""
+msgstr "கோப்பு"
 
 msgid "File reference"
-msgstr ""
+msgstr "கோப்பு குறிப்பு"
 
 msgid "File references"
-msgstr ""
+msgstr "கோப்பு குறிப்புகள்"
 
 msgid "Files"
-msgstr ""
+msgstr "கோப்புகள்"
 
 msgid "Filters"
-msgstr ""
+msgstr "வடிப்பான்கள்"
 
 msgid "Find Betty on GitHub"
-msgstr ""
+msgstr "GitHub இல் பெட்டியைக் கண்டறியவும்"
 
 msgid "Find out more about this image on Wikimedia Commons."
-msgstr ""
+msgstr "விக்கிமீடியா காமன்சில் இந்தப் படத்தைப் பற்றி மேலும் அறியவும்."
 
 msgid "Funeral"
-msgstr ""
+msgstr "இறுதிச் சடங்கு"
 
 msgid "Generate a static site"
-msgstr ""
+msgstr "நிலையான தளத்தை உருவாக்கவும்"
 
 #, python-brace-format
 msgid ""
@@ -511,19 +546,21 @@ msgid "Generating your site to {output_directory}."
 msgstr ""
 
 msgid "Go to the front page"
-msgstr ""
+msgstr "முன் பக்கத்திற்குச் செல்லவும்"
 
 #, python-brace-format
 msgid ""
 "Gramps XML must be compatible with version {supported_gramps_xml_version}."
 " Gramps XML {loaded_gramps_xml_version} is not supported."
 msgstr ""
+"Gramps நீகுமொ ஆனது பதிப்பு {supported_gramps_xml_version} உடன் இணக்கமாக இருக்க "
+"வேண்டும். Gramps நீகுமொ {loaded_gramps_xml_version} ஆதரிக்கப்படவில்லை."
 
 msgid "HTTP API Documentation"
 msgstr ""
 
 msgid "Hamlet"
-msgstr ""
+msgstr "ஏம்லெட்"
 
 msgid "I'm sorry, dear, but it seems there are no events."
 msgstr ""
@@ -541,104 +578,105 @@ msgid "I'm sorry, dear, but it seems there are no sources."
 msgstr ""
 
 msgid "I'm sorry, dear, but it seems there is nothing to show."
-msgstr ""
+msgstr "மன்னிக்கவும், அன்பே, ஆனால் காட்ட எதுவும் இல்லை என்று தெரிகிறது."
 
 msgid "I'm sorry, dear, but it seems this page does not exist."
-msgstr ""
+msgstr "மன்னிக்கவும், அன்பே, ஆனால் இந்தப் பக்கம் இல்லை என்று தெரிகிறது."
 
 msgid "I'm sorry, dear, but it seems you're not allowed to view this page."
 msgstr ""
+"மன்னிக்கவும், அன்பே, இந்தப் பக்கத்தைப் பார்க்க உங்களுக்கு இசைவு இல்லை என்று தெரிகிறது."
 
 msgid "I'm sorry, dear, but it seems you're not logged in."
-msgstr ""
+msgstr "மன்னிக்கவும், அன்பே, ஆனால் நீங்கள் உள்நுழையவில்லை என்று தெரிகிறது."
 
 msgid "Immigration"
-msgstr ""
+msgstr "குடிநுழைவு"
 
 msgid "Informant"
-msgstr ""
+msgstr "தகவலர்/தகவலாள்"
 
 #, python-brace-format
 msgid "Invalid JSON: {error}."
-msgstr ""
+msgstr "தவறான JSON: {error}."
 
 #, python-brace-format
 msgid "Invalid YAML: {error}."
-msgstr ""
+msgstr "தவறான YAML: {error}."
 
 msgid "Keywords"
-msgstr ""
+msgstr "முக்கிய வார்த்தைகள்"
 
 msgid "Language"
-msgstr ""
+msgstr "மொழி"
 
 #, python-format
 msgid "Last modified on %(last_modified)s"
-msgstr ""
+msgstr "%(last_modified)s அன்று கடைசியாக மாற்றப்பட்டது"
 
 msgid "License"
-msgstr ""
+msgstr "உரிமம்"
 
 msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
 msgstr ""
 
 #, python-brace-format
 msgid "Loaded the configuration from {configuration_file_path}."
-msgstr ""
+msgstr "{configuration_file_path} இலிருந்து உள்ளமைவு ஏற்றப்பட்டது."
 
 #, python-brace-format
 msgid "Loaded {citation_count} citations."
-msgstr ""
+msgstr "{citation_count} மேற்கோள்கள் ஏற்றப்பட்டன."
 
 #, python-brace-format
 msgid "Loaded {event_count} events."
-msgstr ""
+msgstr "{event_count} நிகழ்வுகள் ஏற்றப்பட்டன."
 
 #, python-brace-format
 msgid "Loaded {file_count} files."
-msgstr ""
+msgstr "{file_count} கோப்புகள் ஏற்றப்பட்டன."
 
 #, python-brace-format
 msgid "Loaded {note_count} notes."
-msgstr ""
+msgstr "{note_count} குறிப்புகள் ஏற்றப்பட்டன."
 
 #, python-brace-format
 msgid "Loaded {person_count} people."
-msgstr ""
+msgstr "{person_count} பேர் ஏற்றப்பட்டனர்."
 
 #, python-brace-format
 msgid "Loaded {place_count} places."
-msgstr ""
+msgstr "{place_count} இடங்கள் ஏற்றப்பட்டன."
 
 #, python-brace-format
 msgid "Loaded {repository_count} repositories as sources."
-msgstr ""
+msgstr "{repository_count} களஞ்சியங்கள் ஆதாரங்களாக ஏற்றப்பட்டன."
 
 #, python-brace-format
 msgid "Loaded {source_count} sources."
-msgstr ""
+msgstr "{source_count} ஆதாரங்கள் ஏற்றப்பட்டன."
 
 #, python-brace-format
 msgid "Loading \"{file_path}\"..."
-msgstr ""
+msgstr "\"{file_path}\" ஐ ஏற்றுகிறது..."
 
 msgid "Locale aliases must not contain slashes."
-msgstr ""
+msgstr "உள்ளக மாற்றுப்பெயர்களில் ச்லாச்கள் இருக்கக்கூடாது."
 
 msgid "Locality"
-msgstr ""
+msgstr "உள்ளக"
 
 msgid "MMMM"
-msgstr ""
+msgstr "எம்எம்எம்எம்"
 
 msgid "MMMM d"
-msgstr ""
+msgstr "எம்எம்எம்எம் டி"
 
 msgid "MMMM d, y"
-msgstr ""
+msgstr "எம்எம்எம்எம் டி, ஒய்"
 
 msgid "MMMM, y"
-msgstr ""
+msgstr "எம்எம்எம்எம், ஒய்"
 
 msgid "Male"
 msgstr ""
@@ -647,85 +685,88 @@ msgid "Maps"
 msgstr ""
 
 msgid "Marriage"
-msgstr ""
+msgstr "திருமணம்"
 
 msgid "Media"
-msgstr ""
+msgstr "ஊடகம்"
 
 msgid "Media references"
 msgstr ""
 
 msgid "Menu"
-msgstr ""
+msgstr "பட்டியல்"
 
 msgid "Missing"
-msgstr ""
+msgstr "காணவில்லை"
 
 msgid "Municipality"
-msgstr ""
+msgstr "நகராட்சி"
 
 msgid "Neighborhood"
-msgstr ""
+msgstr "அக்கம்"
 
 msgid ""
 "No part may be reproduced or distributed in any form or by any means, "
 "without express written permission from the copyright holder, or unless "
 "permitted by copyright law."
 msgstr ""
+"பதிப்புரிமைதாரரிடமிருந்து வெளிப்படையான எழுத்துப்பூர்வ அனுமதியின்றி அல்லது பதிப்புரிமைச் "
+"சட்டத்தால் அனுமதிக்கப்படும் வரையில் எந்தப் பகுதியையும் எந்த வடிவத்திலும் அல்லது எந்த "
+"வகையிலும் மீண்டும் உருவாக்கவோ அல்லது விநியோகிக்கவோ முடியாது."
 
 msgid "Non-binary"
 msgstr ""
 
 msgid "Note"
-msgstr ""
+msgstr "குறிப்பு"
 
 msgid "Notes"
-msgstr ""
+msgstr "குறிப்புகள்"
 
 msgid "Number"
-msgstr ""
+msgstr "எண்"
 
 msgid "Occupation"
-msgstr ""
+msgstr "தொழில்"
 
 msgid "One or more of these requirements must be met"
 msgstr ""
 
 msgid "Organizer"
-msgstr ""
+msgstr "அமைப்பாளர்"
 
 msgid "Other attendees"
-msgstr ""
+msgstr "மற்ற பங்கேற்பாளர்கள்"
 
 msgid "Other places contained by this one"
-msgstr ""
+msgstr "இதில் உள்ள மற்ற இடங்கள்"
 
 msgid "Page not found"
-msgstr ""
+msgstr "பக்கம் கிடைக்கவில்லை"
 
 msgid "Parish"
-msgstr ""
+msgstr "திருச்சபை"
 
 msgid "People"
-msgstr ""
+msgstr "மக்கள்"
 
 msgid "Permanent link to this section."
-msgstr ""
+msgstr "இந்தப் பகுதிக்கான நிரந்தர இணைப்பு."
 
 msgid "Person"
-msgstr ""
+msgstr "ஆள்"
 
 msgid "Person name"
-msgstr ""
+msgstr "நபர் பெயர்"
 
 msgid "Person names"
-msgstr ""
+msgstr "நபர் பெயர்கள்"
 
 msgid "Place"
-msgstr ""
+msgstr "இடம்"
 
 msgid "Places"
-msgstr ""
+msgstr "இடங்கள்"
 
 #, python-brace-format
 msgid ""
@@ -734,30 +775,34 @@ msgid ""
 msgstr ""
 
 msgid "Presence"
-msgstr ""
+msgstr "இருப்பு"
 
 #, python-brace-format
 msgid "Presence of {person} at {event}"
-msgstr ""
+msgstr "{event} இல் {person} முன்னிலையில்"
 
 msgid "Presences"
-msgstr ""
+msgstr "இருத்தல்"
 
 #, python-brace-format
 msgid ""
 "Privatized person {privatized_person_id} ({privatized_person}) because "
 "they are likely still alive."
 msgstr ""
+"தனியார்மயமாக்கப்பட்ட நபர் {privatized_person_id} ({privatized_person}) ஏனெனில் அவர் "
+"இன்னும் உயிருடன் இருக்கலாம்."
 
 #, python-brace-format
 msgid ""
 "Privatized place {privatized_place_id} ({privatized_place}) because it is "
 "not associated with any public information."
 msgstr ""
+"பொதுத் தகவலுடன் தொடர்புபடுத்தப்படாததால், {privatized_place_id} ({privatized_place}) "
+"இடம் தனியார்மயமாக்கப்பட்டது."
 
 #, python-brace-format
 msgid "Privatized {count} people because they are likely still alive."
-msgstr ""
+msgstr "தனியார்மயமாக்கப்பட்ட {count} மக்கள் இன்னும் உயிருடன் இருப்பதால்."
 
 #, python-brace-format
 msgid ""
@@ -771,6 +816,9 @@ msgid ""
 "({privatized_entity}) because of {reason_entity_type} {reason_entity_id} "
 "({reason_entity})."
 msgstr ""
+"{reason_entity_type} {reason_entity_id} ({reason_entity}) காரணமாக "
+"{privatized_entity_type} {privatized_entity_id} ({privatized_entity}) "
+"தனியார்மயமாக்கப்பட்டது."
 
 msgid "Privatizer"
 msgstr ""
@@ -779,83 +827,83 @@ msgid "Privatizing..."
 msgstr ""
 
 msgid "Project author"
-msgstr ""
+msgstr "திட்ட ஆசிரியர்"
 
 msgid "Province"
-msgstr ""
+msgstr "மாகாணம்"
 
 msgid "Public domain"
-msgstr ""
+msgstr "பொது டொமைன்"
 
 msgid "Read more"
-msgstr ""
+msgstr "மேலும் படிக்கவும்"
 
 msgid "Read more on Wikipedia."
-msgstr ""
+msgstr "விக்கிபீடியாவில் மேலும் படிக்கவும்."
 
 msgid "Read the Betty documentation"
-msgstr ""
+msgstr "பெட்டி ஆவணங்களைப் படிக்கவும்"
 
 msgid "References"
-msgstr ""
+msgstr "குறிப்புகள்"
 
 msgid "Region"
-msgstr ""
+msgstr "பிராந்தியம்"
 
 msgid "Reset"
-msgstr ""
+msgstr "மீட்டமை"
 
 msgid "Residence"
-msgstr ""
+msgstr "குடியிருப்பு"
 
 #, python-brace-format
 msgid "Results ({{{ betty-search-results-count }}})"
-msgstr ""
+msgstr "முடிவுகள் ({{ betty-search-results-count }}})"
 
 msgid "Retirement"
-msgstr ""
+msgstr "ஓய்வு"
 
 #, python-brace-format
 msgid "Saved your project to {configuration_file}."
-msgstr ""
+msgstr "உங்கள் திட்டம் {configuration_file} இல் சேமிக்கப்பட்டது."
 
 msgid "Search"
-msgstr ""
+msgstr "தேடல்"
 
 msgid "Serve a generated site"
-msgstr ""
+msgstr "உருவாக்கப்பட்ட தளத்திற்கு பணி செய்யவும்"
 
 #, python-brace-format
 msgid "Serving your site at {url}..."
-msgstr ""
+msgstr "உங்கள் தளத்தை {url} இல் வழங்குகிறது..."
 
 msgid "Source"
-msgstr ""
+msgstr "மூலம்"
 
 msgid "Sources"
-msgstr ""
+msgstr "மூலங்கள்"
 
 msgid "Speaker"
-msgstr ""
+msgstr "ஒலிபெருக்கி, ஒலிபரப்பி"
 
 msgid "Starting Python's built-in web server..."
-msgstr ""
+msgstr "பைத்தானின் உள்ளமைக்கப்பட்ட இணைய சேவையகத்தைத் தொடங்குகிறது..."
 
 msgid "State"
-msgstr ""
+msgstr "மாநிலம்"
 
 msgid "Street"
-msgstr ""
+msgstr "தெரு"
 
 msgid "Subject"
-msgstr ""
+msgstr "பொருள்"
 
 msgid "Subjects"
-msgstr ""
+msgstr "பாடங்கள்"
 
 #, python-format
 msgid "The '%(project_title)s' logo"
-msgstr ""
+msgstr "'%(project_title)s' லோகோ"
 
 #, python-brace-format
 msgid ""
@@ -864,15 +912,20 @@ msgid ""
 "\"{media_type}\", which is not a valid IANA media type. This media type "
 "was ignored."
 msgstr ""
+"Gramps {gramps_entity_reference} உட்பொருளானது \"{media_type}\" மதிப்புடன் "
+"\"betty:link-{link_name}:media_type\" பண்புக்கூறைக் கொண்டுள்ளது, இது சரியான IANA "
+"மீடியா வகை அல்ல. இந்த மீடியா வகை புறக்கணிக்கப்பட்டது."
 
 #, python-brace-format
 msgid ""
 "The Gramps {gramps_entity_reference} entity requires a "
 "\"betty:link-{link_name}:url\" attribute. This link was ignored."
 msgstr ""
+"Gramps {gramps_entity_reference} உட்பொருளுக்கு \"betty:link-{link_name}:url\" "
+"பண்புக்கூறு தேவை. இந்த இணைப்பு புறக்கணிக்கப்பட்டது."
 
 msgid "The URL must include a host."
-msgstr ""
+msgstr "முகவரி இல் புரவலன் இருக்க வேண்டும்."
 
 msgid "The URL must start with a scheme such as https:// or http://."
 msgstr ""
@@ -883,6 +936,9 @@ msgid ""
 "\"private\", but \"{privacy_value}\" was given for {entity_type} "
 "{entity_id} ({entity_label}), which was ignored."
 msgstr ""
+"betty:privacy Gramps பண்புக்கூறில் \"பொது\" அல்லது \"தனியார்\" மதிப்பு இருக்க "
+"வேண்டும், ஆனால் \"{privacy_value}\" என்பது {entity_type} {entity_id} ("
+"{entity_label}) க்கு வழங்கப்பட்டது, அது புறக்கணிக்கப்பட்டது."
 
 #, python-brace-format
 msgid ""
@@ -903,68 +959,69 @@ msgstr ""
 
 #, python-brace-format
 msgid "The server at {url} was unreachable after starting."
-msgstr ""
+msgstr "{url} இல் உள்ள சேவையகத்தைத் தொடங்கிய பிறகு அணுக முடியவில்லை."
 
 msgid "There are no available options."
-msgstr ""
+msgstr "கிடைக்கக்கூடிய விருப்பங்கள் எதுவும் இல்லை."
 
 #, python-format
 msgid "They are the child of %(parent_labels)s."
-msgstr ""
+msgstr "அவர்கள் %(parent_labels)s குழந்தை."
 
 #, python-format
 msgid "They grew up with a sibling."
 msgid_plural "They grew up with %(sibling_count)s siblings."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "அவர்கள் ஒரு சகோதரனுடன் வளர்ந்தனர்."
+msgstr[1] "அவர்கள் %(sibling_count)s உடன்பிறந்தவர்களுடன் வளர்ந்தனர்."
 
 #, python-format
 msgid "They had a child with %(co_parent_labels)s."
 msgid_plural "They had %(child_count)s children with %(co_parent_labels)s."
-msgstr[0] ""
+msgstr[0] "அவர்களுக்கு %(co_parent_labels)s உடன் ஒரு குழந்தை இருந்தது."
 msgstr[1] ""
+"அவர்களுக்கு %(co_parent_labels)s உடன் %(child_count)s குழந்தைகள் இருந்தனர்."
 
 #, python-format
 msgid "They had a child."
 msgid_plural "They had %(child_count)s children."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "அவர்களுக்கு ஒரு குழந்தை இருந்தது."
+msgstr[1] "அவர்களுக்கு %(child_count)s குழந்தைகள் இருந்தனர்."
 
 msgid "This citation's details are unavailable to protect people's privacy."
 msgstr ""
 
 msgid "This field is required."
-msgstr ""
+msgstr "இந்த புலம் தேவை."
 
 msgid "This information is unavailable to protect people's privacy."
-msgstr ""
+msgstr "மக்களின் தனியுரிமையைப் பாதுகாக்க இந்தத் செய்தி இல்லை."
 
 msgid "This is not valid Gramps XML."
-msgstr ""
+msgstr "இது செல்லுபடியாகாத Gramps XML."
 
 msgid "This must be a boolean."
-msgstr ""
+msgstr "இது ஒரு பூலியனாக இருக்க வேண்டும்."
 
 msgid "This must be a decimal number."
-msgstr ""
+msgstr "இது ஒரு தசம எண்ணாக இருக்க வேண்டும்."
 
 msgid "This must be a key-value mapping."
-msgstr ""
+msgstr "இது ஒரு முக்கிய மதிப்பு மேப்பிங்காக இருக்க வேண்டும்."
 
 msgid "This must be a positive number."
 msgstr ""
 
 msgid "This must be a sequence."
-msgstr ""
+msgstr "இது ஒரு வரிசையாக இருக்க வேண்டும்."
 
 msgid "This must be a string."
-msgstr ""
+msgstr "இது ஒரு சரமாக இருக்க வேண்டும்."
 
 msgid "This must be a whole number."
-msgstr ""
+msgstr "இது முழு எண்ணாக இருக்க வேண்டும்."
 
 msgid "This must be none/null."
-msgstr ""
+msgstr "இது ஒன்றும் இல்லை/பூச்யமாக இருக்க வேண்டும்."
 
 msgid "This person's details are unavailable to protect their privacy."
 msgstr ""
@@ -973,28 +1030,28 @@ msgid "This person's name is unavailable to protect their privacy."
 msgstr ""
 
 msgid "This person's name is unknown."
-msgstr ""
+msgstr "இந்த நபரின் பெயர் தெரியவில்லை."
 
 msgid "This source's details are unavailable to protect people's privacy."
 msgstr ""
 
 msgid "Timeline"
-msgstr ""
+msgstr "காலவரிசை"
 
 msgid "Toggle full screen"
-msgstr ""
+msgstr "முழுத் திரையை நிலைமாற்று"
 
 msgid "Town"
-msgstr ""
+msgstr "நகரம்"
 
 msgid "Trees"
 msgstr ""
 
 msgid "Unauthorized"
-msgstr ""
+msgstr "அங்கீகரிக்கப்படாதது"
 
 msgid "Unknown"
-msgstr ""
+msgstr "தெரியவில்லை"
 
 #, python-brace-format
 msgid ""
@@ -1004,13 +1061,13 @@ msgstr ""
 
 #, python-brace-format
 msgid "Unknown key: {unknown_key}."
-msgstr ""
+msgstr "தெரியாத விசை: {unknown_key}."
 
 msgid "Update all existing translations"
 msgstr ""
 
 msgid "Update all existing translations for Betty itself"
-msgstr ""
+msgstr "பெட்டிக்காக ஏற்கனவே உள்ள அனைத்து மொழிபெயர்ப்புகளையும் புதுப்பிக்கவும்"
 
 msgid "Update all existing translations for an extension"
 msgstr ""
@@ -1020,6 +1077,8 @@ msgid ""
 "Updated {updated_derivations} {event_type} events based on existing "
 "information."
 msgstr ""
+"ஏற்கனவே உள்ள தகவலின் அடிப்படையில் {updated_derivations} {event_type} நிகழ்வுகள் "
+"புதுப்பிக்கப்பட்டன."
 
 msgid ""
 "Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
@@ -1030,31 +1089,31 @@ msgid "View original"
 msgstr ""
 
 msgid "View the documentation"
-msgstr ""
+msgstr "ஆவணங்களைப் பார்க்கவும்"
 
 msgid "Village"
-msgstr ""
+msgstr "சிற்றூர்"
 
 #, python-format
 msgid "Welcome to %(project_title)s"
-msgstr ""
+msgstr "%(project_title)sு வரவேற்கிறோம்"
 
 msgid "What is the path to your exported Gramps family tree file?"
-msgstr ""
+msgstr "நீங்கள் ஏற்றுமதி செய்த Gramps குடும்ப மரக் கோப்பிற்கான பாதை என்ன?"
 
 #, python-brace-format
 msgid "What is the project author called in {locale}?"
-msgstr ""
+msgstr "திட்ட ஆசிரியர் {locale} இல் என்ன அழைக்கப்படுகிறார்?"
 
 #, python-brace-format
 msgid "What is your project called in {locale}?"
-msgstr ""
+msgstr "உங்கள் திட்டம் {locale} இல் என்ன அழைக்கப்படுகிறது?"
 
 msgid "What is your project's machine name?"
-msgstr ""
+msgstr "உங்கள் திட்டத்தின் இயந்திரத்தின் பெயர் என்ன?"
 
 msgid "Where do you want to save your project's configuration file?"
-msgstr ""
+msgstr "உங்கள் திட்டத்தின் உள்ளமைவு கோப்பை எங்கே சேமிக்க விரும்புகிறீர்கள்?"
 
 msgid ""
 "Which language should your project site be generated in? Enter an IETF BCP"
@@ -1065,21 +1124,23 @@ msgid "Wikipedia"
 msgstr ""
 
 msgid "Wikipedia contributors"
-msgstr ""
+msgstr "விக்கிபீடியா பங்களிப்பாளர்கள்"
 
 msgid "Will"
-msgstr ""
+msgstr "முறி"
 
 msgid "Witness"
-msgstr ""
+msgstr "சான்று"
 
 msgid "Witnesses"
-msgstr ""
+msgstr "சாட்சிகள்"
 
 msgid ""
 "Works in the public domain can be used or referenced without permission, "
 "because nobody holds any exclusive rights over these works (anymore)."
 msgstr ""
+"பொது களத்தில் உள்ள படைப்புகள் அனுமதியின்றி பயன்படுத்தப்படலாம் அல்லது குறிப்பிடப்படலாம், "
+"ஏனெனில் இந்த படைப்புகள் மீது யாருக்கும் பிரத்தியேக உரிமைகள் இல்லை (இனி)."
 
 #, python-format
 msgid ""
@@ -1093,84 +1154,86 @@ msgid ""
 msgstr ""
 
 msgid "Zoom in"
-msgstr ""
+msgstr "பெரிதாக்கு"
 
 msgid "Zoom out"
-msgstr ""
+msgstr "சிறிதாக்கு"
 
 #, python-brace-format
 msgid "around {date}"
-msgstr ""
+msgstr "சுமார் {date}"
 
 #, python-brace-format
 msgid "from around {start_date}"
-msgstr ""
+msgstr "சுமார் {start_date} முதல்"
 
 #, python-brace-format
 msgid "from around {start_date} until around {end_date}"
-msgstr ""
+msgstr "{start_date} முதல் {end_date} வரை"
 
 #, python-brace-format
 msgid "from around {start_date} until sometime before around {end_date}"
-msgstr ""
+msgstr "ஏறக்குறைய {start_date} முதல் {end_date}க்கு முன்பு வரை"
 
 #, python-brace-format
 msgid "from around {start_date} until sometime before {end_date}"
-msgstr ""
+msgstr "{start_date} முதல் {end_date}க்கு முன்பு வரை"
 
 #, python-brace-format
 msgid "from around {start_date} until {end_date}"
-msgstr ""
+msgstr "{start_date} முதல் {end_date} வரை"
 
 #, python-brace-format
 msgid "from sometime after around {start_date} until around {end_date}"
-msgstr ""
+msgstr "{start_date}க்குப் பிறகு {end_date} வரை"
 
 #, python-brace-format
 msgid "from sometime after around {start_date} until {end_date}"
-msgstr ""
+msgstr "{start_date}க்குப் பிறகு {end_date} வரை சிறிது நேரம் கழித்து"
 
 #, python-brace-format
 msgid "from sometime after {start_date} until around {end_date}"
-msgstr ""
+msgstr "{start_date}க்குப் பிறகு சில நேரம் முதல் {end_date} வரை"
 
 #, python-brace-format
 msgid "from sometime after {start_date} until {end_date}"
-msgstr ""
+msgstr "{start_date}க்குப் பிறகு {end_date} வரை சில நேரம்"
 
 #, python-brace-format
 msgid "from {start_date}"
-msgstr ""
+msgstr "{start_date} முதல்"
 
 #, python-brace-format
 msgid "from {start_date} until around {end_date}"
-msgstr ""
+msgstr "{start_date} முதல் {end_date} வரை"
 
 #, python-brace-format
 msgid "from {start_date} until sometime before around {end_date}"
-msgstr ""
+msgstr "{start_date} முதல் {end_date}க்கு முன்பு வரை"
 
 #, python-brace-format
 msgid "from {start_date} until sometime before {end_date}"
-msgstr ""
+msgstr "{start_date} முதல் {end_date}க்கு முன்பு வரை"
 
 #, python-brace-format
 msgid "from {start_date} until {end_date}"
-msgstr ""
+msgstr "{start_date} முதல் {end_date} வரை"
 
 #, python-format
 msgid "in %(place)s"
-msgstr ""
+msgstr "%(place)s"
 
 #, python-format
 msgid "in %(source)s"
-msgstr ""
+msgstr "%(source)s இல்"
 
 msgid ""
 "npm (https://www.npmjs.com/) must be available for features that require "
 "Node.js packages to be installed. Ensure that the `npm` executable is "
 "available in your `PATH`."
 msgstr ""
+"Node.js தொகுப்புகள் நிறுவப்பட வேண்டிய அம்சங்களுக்கு npm (https://www.npmjs.com/) "
+"இருக்க வேண்டும். உங்கள் `PATH` இல் `npm` இயங்கக்கூடியது இருப்பதை உறுதிசெய்யவும்."
 
 msgid "npm is available"
 msgstr ""
@@ -1179,7 +1242,7 @@ msgid "npm is not available"
 msgstr ""
 
 msgid "private"
-msgstr ""
+msgstr "தனிப்பட்ட"
 
 #, python-format
 msgid "show %(name_count)s more"
@@ -1197,129 +1260,129 @@ msgid "show more"
 msgstr ""
 
 msgid "sometime"
-msgstr ""
+msgstr "சில சமயம்"
 
 #, python-brace-format
 msgid "sometime after around {start_date}"
-msgstr ""
+msgstr "சிறிது நேரம் கழித்து {start_date}"
 
 #, python-brace-format
 msgid "sometime after {start_date}"
-msgstr ""
+msgstr "{start_date}க்குப் பிறகு சிறிது நேரம்"
 
 #, python-brace-format
 msgid "sometime before around {end_date}"
-msgstr ""
+msgstr "{end_date}க்கு முன்பு எப்போதாவது"
 
 #, python-brace-format
 msgid "sometime before {end_date}"
-msgstr ""
+msgstr "{end_date}க்கு முன் எப்போதாவது"
 
 #, python-brace-format
 msgid "sometime between around {start_date} and around {end_date}"
-msgstr ""
+msgstr "{start_date} மற்றும் {end_date}க்கு இடைப்பட்ட நேரத்தில்"
 
 #, python-brace-format
 msgid "sometime between around {start_date} and {end_date}"
-msgstr ""
+msgstr "{start_date} மற்றும் {end_date}க்கு இடைப்பட்ட நேரத்தில்"
 
 #, python-brace-format
 msgid "sometime between {start_date} and around {end_date}"
-msgstr ""
+msgstr "{start_date} மற்றும் {end_date}க்கு இடைப்பட்ட நேரத்தில்"
 
 #, python-brace-format
 msgid "sometime between {start_date} and {end_date}"
-msgstr ""
+msgstr "{start_date} மற்றும் {end_date} க்கு இடையில் சில நேரம்"
 
 msgid "unknown date"
-msgstr ""
+msgstr "தெரியாத தேதி"
 
 #, python-brace-format
 msgid "until around {end_date}"
-msgstr ""
+msgstr "சுமார் {end_date} வரை"
 
 #, python-brace-format
 msgid "until {end_date}"
-msgstr ""
+msgstr "{end_date} வரை"
 
 msgid "y"
-msgstr ""
+msgstr "ஒய்"
 
 #, python-brace-format
 msgid "{count} citation"
 msgid_plural "{count} citations"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} மேற்கோள்"
+msgstr[1] "{count} மேற்கோள்கள்"
 
 #, python-brace-format
 msgid "{count} enclosure"
 msgid_plural "{count} enclosures"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} அடைப்பு"
+msgstr[1] "{count} உறைகள்"
 
 #, python-brace-format
 msgid "{count} entity"
 msgid_plural "{count} entities"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} நிறுவனம்"
+msgstr[1] "{count} உட்பொருள்கள்"
 
 #, python-brace-format
 msgid "{count} event"
 msgid_plural "{count} events"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} நிகழ்வு"
+msgstr[1] "{count} நிகழ்வுகள்"
 
 #, python-brace-format
 msgid "{count} file"
 msgid_plural "{count} files"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} கோப்பு"
+msgstr[1] "{count} கோப்புகள்"
 
 #, python-brace-format
 msgid "{count} file reference"
 msgid_plural "{count} file references"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} கோப்பு குறிப்பு"
+msgstr[1] "{count} கோப்பு குறிப்புகள்"
 
 #, python-brace-format
 msgid "{count} note"
 msgid_plural "{count} notes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} குறிப்பு"
+msgstr[1] "{count} குறிப்புகள்"
 
 #, python-brace-format
 msgid "{count} person"
 msgid_plural "{count} people"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} நபர்"
+msgstr[1] "{count} பேர்"
 
 #, python-brace-format
 msgid "{count} person name"
 msgid_plural "{count} person names"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} நபர் பெயர்"
+msgstr[1] "{count} நபர் பெயர்கள்"
 
 #, python-brace-format
 msgid "{count} place"
 msgid_plural "{count} places"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} இடம்"
+msgstr[1] "{count} இடங்கள்"
 
 #, python-brace-format
 msgid "{count} presence"
 msgid_plural "{count} presences"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} இருப்பு"
+msgstr[1] "{count} இருப்புகள்"
 
 #, python-brace-format
 msgid "{count} source"
 msgid_plural "{count} sources"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} சான்று"
+msgstr[1] "{count} ஆதாரங்கள்"
 
 #, python-brace-format
 msgid "{date}"
-msgstr ""
+msgstr "{date}"
 
 #, python-brace-format
 msgid "{dependent_label} requires {dependency_labels}."
@@ -1327,15 +1390,15 @@ msgstr ""
 
 #, python-brace-format
 msgid "{entity_type} {entity_id}"
-msgstr ""
+msgstr "{entity_type} {entity_id}"
 
 #, python-brace-format
 msgid "{event_type}"
-msgstr ""
+msgstr "{event_type}"
 
 #, python-brace-format
 msgid "{event_type} of {subjects}"
-msgstr ""
+msgstr "{subjects} இல் {event_type}"
 
 #, python-brace-format
 msgid "{extension} does not have an assets directory."
@@ -1343,11 +1406,11 @@ msgstr ""
 
 #, python-brace-format
 msgid "{individual_name} {affiliation_name}"
-msgstr ""
+msgstr "{individual_name} {affiliation_name}"
 
 msgid "© Copyright the author, unless otherwise credited"
-msgstr ""
+msgstr "© பதிப்புரிமை ஆசிரியர், இல்லையெனில் வரவு"
 
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
-msgstr ""
+msgstr "© பதிப்புரிமை {author}, இல்லையெனில் வரவு வைக்கப்படவில்லை"
