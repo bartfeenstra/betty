@@ -111,6 +111,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                 "ru-RU",
                 alias="ru",
             ),
+            LocaleConfiguration("ta"),
             LocaleConfiguration("uk"),
         ],
     )
