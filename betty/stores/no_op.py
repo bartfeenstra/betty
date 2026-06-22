@@ -1,5 +1,5 @@
 """
-Provide no-op caching.
+Key-value stores that do nothing.
 """
 
 from __future__ import annotations
@@ -7,7 +7,7 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, Any, Self, final, override
 
-from betty.cache import Cache, CacheItem, CacheItemValueSetter
+from betty.store import StoreItem, StoreItemValueSetter, TransientStore
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
@@ -16,9 +16,9 @@ if TYPE_CHECKING:
 
 @final
 @threadsafe
-class NoOpCache(Cache[Any]):
+class NoOpStore(TransientStore[Any]):
     """
-    Provide a cache that does nothing.
+    A key-value store that does nothing.
     """
 
     @override
@@ -29,25 +29,25 @@ class NoOpCache(Cache[Any]):
         pass
 
     @override
-    async def has(self, cache_item_id: str, /) -> bool:
+    async def has(self, key: str, /) -> bool:
         return False
 
     @override
     @asynccontextmanager
     async def hasset(
-        self, cache_item_id: str, /
-    ) -> AsyncIterator[CacheItemValueSetter[Any] | None]:
+        self, key: str, /
+    ) -> AsyncIterator[StoreItemValueSetter[Any] | None]:
         yield self._setter
         return
 
     @override
-    async def get(self, cache_item_id: str, /) -> CacheItem[Any] | None:
+    async def get(self, key: str, /) -> StoreItem[Any] | None:
         return None
 
     @override
     async def set(
         self,
-        cache_item_id: str,
+        key: str,
         value: Any,
         *,
         modified: float | None = None,
@@ -57,15 +57,15 @@ class NoOpCache(Cache[Any]):
     @override
     @asynccontextmanager
     async def getset(
-        self, cache_item_id: str, /
-    ) -> AsyncIterator[CacheItemValueSetter[Any] | CacheItem[Any]]:
+        self, key: str, /
+    ) -> AsyncIterator[StoreItemValueSetter[Any] | StoreItem[Any]]:
         yield self._setter
         return
 
     @override
-    async def delete(self, cache_item_id: str, /) -> None:
+    async def clear(self) -> None:
         return
 
     @override
-    async def clear(self) -> None:
+    async def delete(self, key: str, /) -> None:
         return

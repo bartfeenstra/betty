@@ -43,8 +43,8 @@ if TYPE_CHECKING:
     from babel import Locale
 
     from betty.asset import AssetDirectoryDefinition, AssetRepository
-    from betty.caches.file import BinaryFileCache
     from betty.pathlib import StrPath
+    from betty.stores.file import TransientBinaryFileStore
     from betty.user import User
 
 
@@ -232,7 +232,7 @@ class AssetTranslationRepository(TranslationRepository, Bootstrappable):
     Provide translations from assets.
     """
 
-    def __init__(self, assets: AssetRepository, cache: BinaryFileCache):
+    def __init__(self, assets: AssetRepository, cache: TransientBinaryFileStore):
         super().__init__()
         self._assets = assets
         self._cache = cache

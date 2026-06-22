@@ -28,9 +28,6 @@ from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.attrs.path import new_path_attr
 from betty.attrs.plugin_definitions import new_plugin_definition_datas_attr
-from betty.cache import Cache
-from betty.caches.file import BinaryFileCache, PickledFileCache
-from betty.caches.no_op import NoOpCache
 from betty.collection.keyed.adapter import (
     KeyedCollectionAdapter,
     MutableKeyedCollectionAdapter,
@@ -112,6 +109,9 @@ from betty.services.plugin.definition.collection.keyed import PluginDefinitionsS
 from betty.services.plugin.instance.collection.keyed import PluginInstancesService
 from betty.services.plugin.instance.single import PluginInstanceService
 from betty.services.simple import service
+from betty.store import TransientStore
+from betty.stores.file import TransientBinaryFileStore, TransientPickledFileStore
+from betty.stores.no_op import NoOpStore
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterable, Mapping, Sequence
@@ -189,7 +189,8 @@ class Project(
         ancestry: EntityPool | None = None,
         assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
         author: ResolvableLocalizable | None = None,
-        cache: TypedSynchronousServiceOrFactory[Project, Cache[Any]] | None = None,
+        cache: TypedSynchronousServiceOrFactory[Project, TransientStore[Any]]
+        | None = None,
         clean_urls: bool = False,
         copyright_notice: ServicePluginInstance[CopyrightNoticeDefinition]
         | None = None,
@@ -218,7 +219,7 @@ class Project(
         cls = type(self)
         if cache is not None:
             cls.cache.override(
-                self, Service(cache) if isinstance(cache, Cache) else cache
+                self, Service(cache) if isinstance(cache, TransientStore) else cache
             )
         super().__init__(
             plugins=plugins, supported_plugins=supported_plugins, upstream=app
@@ -410,7 +411,7 @@ class Project(
         app: App | None = None,
         assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
         author: ResolvableLocalizable | None = None,
-        cache: TypedSynchronousServiceOrFactory[Project, Cache[Any]]
+        cache: TypedSynchronousServiceOrFactory[Project, TransientStore[Any]]
         | None
         | Literal[False] = False,
         clean_urls: bool = False,
@@ -455,7 +456,7 @@ class Project(
                 app=app,
                 assets=assets,
                 author=author,
-                cache=NoOpCache() if cache is False else cache,
+                cache=NoOpStore() if cache is False else cache,
                 clean_urls=clean_urls,
                 debug=debug,
                 enrichers=enrichers,
@@ -606,18 +607,18 @@ class Project(
         )
 
     @service
-    def cache(self) -> Cache[Any]:
+    def cache(self) -> TransientStore[Any]:
         """
         The project cache.
         """
-        return PickledFileCache[Any](self._cache_directory)
+        return TransientPickledFileStore[Any](self._cache_directory)
 
     @service
-    def binary_file_cache(self) -> BinaryFileCache:
+    def binary_file_cache(self) -> TransientBinaryFileStore:
         """
         The project binary file cache.
         """
-        return BinaryFileCache(self._cache_directory)
+        return TransientBinaryFileStore(self._cache_directory)
 
 
 @final

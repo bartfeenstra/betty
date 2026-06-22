@@ -17,7 +17,7 @@ class TestContext:
 
     def test_cache(self) -> None:
         sut = Context()
-        sut.cache  # noqa: B018
+        sut.store  # noqa: B018
 
     def test_start(self) -> None:
         sut = Context()

@@ -9,15 +9,15 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Final, final
 from uuid import uuid4
 
-from betty.caches.memory import MemoryCache
 from betty.progresses.no_op import NoOpProgress
+from betty.stores.memory import MemoryStore
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Set
 
-    from betty.cache import Cache
     from betty.job.scheduler import Scheduler
     from betty.progress import Progress
+    from betty.store import Store
 
 
 @final
@@ -31,11 +31,11 @@ class Context:
         """
         The unique job context ID.
         """
-        self.cache: Final[Cache[Any]] = MemoryCache()
+        self.store: Final[Store[Any]] = MemoryStore()
         """
-        A cache for this job context.
+        The key-value store for this job context.
 
-        The cache is volatile and will be discarded once the job context is completed.
+        The store is guaranteed to be additive only, never deleting items, until the job context is done. 
         """
         self.start: Final[datetime] = datetime.now(tz=UTC)
         """

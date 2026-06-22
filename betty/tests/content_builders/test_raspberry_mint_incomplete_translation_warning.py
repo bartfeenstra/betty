@@ -1,12 +1,12 @@
 from pathlib import Path
 
 from betty.asset import StaticAssetRepository
-from betty.caches.file import BinaryFileCache
 from betty.content_builders.raspberry_mint_incomplete_translation_warning import (
     IncompleteTranslationWarning,
 )
 from betty.document import Document
 from betty.gettext import AssetTranslationRepository
+from betty.stores.file import TransientBinaryFileStore
 from betty.test_utils.conftest import IsolatedAppFactory, IsolatedProjectFactory
 
 
@@ -30,7 +30,7 @@ class TestIncompleteTranslationWarning:
         async with (
             isolated_app_factory(
                 translations=AssetTranslationRepository(
-                    StaticAssetRepository(), BinaryFileCache(tmp_path)
+                    StaticAssetRepository(), TransientBinaryFileStore(tmp_path)
                 ),
             ) as app,
             isolated_project_factory(

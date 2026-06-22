@@ -21,7 +21,6 @@ from jinja2.runtime import DebugUndefined, StrictUndefined
 from jinja2.utils import missing
 
 from betty import about
-from betty.cache import CacheItem
 from betty.date import Date
 from betty.file import read, write
 from betty.html.attributes import Attributes
@@ -34,6 +33,7 @@ from betty.media_type import (
 )
 from betty.media_types.jinja import JINJA
 from betty.pathlib import resolve_path
+from betty.store import StoreItem
 from betty.string import kebab_case_to_snake_case
 from betty.warnings import deprecate
 
@@ -238,8 +238,8 @@ class _CacheTagExtension(Extension):
             job_context = None
         if job_context is None:
             return await auto_await(caller())
-        async with job_context.cache.getset(f"jinja2_cache_tag:{cache_key}") as result:
-            if isinstance(result, CacheItem):
+        async with job_context.store.getset(f"jinja2_cache_tag:{cache_key}") as result:
+            if isinstance(result, StoreItem):
                 return cast(str, await result.value())
             rendered = await auto_await(caller())
             await result(rendered)

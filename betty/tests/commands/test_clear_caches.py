@@ -7,9 +7,9 @@ import pytest
 from pytest_mock import MockerFixture
 
 from betty.app import App
-from betty.caches.file import PickledFileCache
 from betty.file import write
 from betty.project import Project, ProjectData
+from betty.stores.file import TransientPickledFileStore
 from betty.test_utils.conftest import IsolatedAppFactory, IsolatedProjectFactory
 from betty.test_utils.console import run
 from betty.test_utils.user import StaticUser
@@ -52,25 +52,24 @@ class TestClearCaches:
 
             async with isolated_app_factory(
                 binary_file_cache_directory=app_binary_file_cache_directory,
-                cache=PickledFileCache(app_cache_directory),
+                cache=TransientPickledFileStore(app_cache_directory),
                 user=user,
             ) as app:
-                cache_item_key = "my-first-app-cache-item"
-                binary_file_cache_item_key = "my-first-app-binary-file-cache-item"
+                cache_key = "my-first-app-cache-item"
+                binary_file_cache_key = "my-first-app-binary-file-cache-item"
 
-                await app.cache.set(cache_item_key, "My First App Cache Item")
-                assert await app.cache.has(cache_item_key)
+                await app.cache.set(cache_key, "My First App Cache Item")
+                assert await app.cache.has(cache_key)
                 await app.binary_file_cache.set(
-                    binary_file_cache_item_key, b"My First App Binary File Cache Item"
+                    binary_file_cache_key, b"My First App Binary File Cache Item"
                 )
-                assert await app.binary_file_cache.has(binary_file_cache_item_key)
+                assert await app.binary_file_cache.has(binary_file_cache_key)
 
                 yield app
 
-                assert await app.cache.has(cache_item_key) is expected
+                assert await app.cache.has(cache_key) is expected
                 assert (
-                    await app.binary_file_cache.has(binary_file_cache_item_key)
-                    is expected
+                    await app.binary_file_cache.has(binary_file_cache_key) is expected
                 )
             assert legacy_cache_item.exists() is expected
 
@@ -99,22 +98,22 @@ class TestClearCaches:
             async with isolated_project_factory(
                 app=app, cache=None, directory=project_directory
             ) as project:
-                cache_item_key = "my-first-project-cache-item"
-                binary_file_cache_item_key = "my-first-project-binary-file-cache-item"
+                cache_key = "my-first-project-cache-item"
+                binary_file_cache_key = "my-first-project-binary-file-cache-item"
 
-                await project.cache.set(cache_item_key, "My First Project Cache Item")
-                assert await project.cache.has(cache_item_key)
+                await project.cache.set(cache_key, "My First Project Cache Item")
+                assert await project.cache.has(cache_key)
                 await project.binary_file_cache.set(
-                    binary_file_cache_item_key,
+                    binary_file_cache_key,
                     b"My First Project Binary File Cache Item",
                 )
-                assert await project.binary_file_cache.has(binary_file_cache_item_key)
+                assert await project.binary_file_cache.has(binary_file_cache_key)
 
                 yield project
 
-                assert await project.cache.has(cache_item_key) is expected
+                assert await project.cache.has(cache_key) is expected
                 assert (
-                    await project.binary_file_cache.has(binary_file_cache_item_key)
+                    await project.binary_file_cache.has(binary_file_cache_key)
                     is expected
                 )
 

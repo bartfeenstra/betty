@@ -9,7 +9,6 @@ import pytest
 from aiohttp import ClientSession
 from aioresponses import aioresponses
 
-from betty.caches.file import BinaryFileCache
 from betty.license import LicenseDefinition
 from betty.licenses.spdx import (
     SpdxLicenseDiscoverer,
@@ -18,6 +17,7 @@ from betty.licenses.spdx import (
 from betty.localizer import default_localizer
 from betty.plugin.discovery import ResolvableDiscovery, discover
 from betty.service_level import ServiceLevel
+from betty.stores.file import TransientBinaryFileStore
 from betty.test_utils.conftest import IsolatedAppFactory
 from betty.test_utils.user import StaticUser
 
@@ -40,7 +40,7 @@ class TestSpdxLicenseDiscoverer:
     @pytest.fixture
     def without_licenses(
         self,
-        binary_file_cache: BinaryFileCache,
+        binary_file_cache: TransientBinaryFileStore,
         http_client_mock: aioresponses,
         tmp_path: Path,
     ) -> None:
@@ -69,7 +69,7 @@ class TestSpdxLicenseDiscoverer:
     @pytest.fixture
     def with_licenses(
         self,
-        binary_file_cache: BinaryFileCache,
+        binary_file_cache: TransientBinaryFileStore,
         http_client_mock: aioresponses,
         tmp_path: Path,
     ) -> None:
@@ -182,7 +182,7 @@ class TestSpdxLicenseDiscoverer:
         assert not discovered_licenses
 
     async def test_discover__without_licenses(
-        self, binary_file_cache: BinaryFileCache, without_licenses: None
+        self, binary_file_cache: TransientBinaryFileStore, without_licenses: None
     ) -> None:
         async with ClientSession() as http_client:
             sut = SpdxLicenseDiscoverer(
@@ -193,7 +193,7 @@ class TestSpdxLicenseDiscoverer:
             await self.assert_without_licenses(await sut.discover())
 
     async def test_discover__with_licenses(
-        self, binary_file_cache: BinaryFileCache, with_licenses: None
+        self, binary_file_cache: TransientBinaryFileStore, with_licenses: None
     ) -> None:
         async with ClientSession() as http_client:
             sut = SpdxLicenseDiscoverer(
