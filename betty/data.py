@@ -91,7 +91,7 @@ class Data[DataDefinitionT: DataDefinition = DataDefinition]:
         Define the data for instances of this class.
         """
         try:
-            return _datas[cls]  # ty:ignore[invalid-return-type]
+            return _datas[cls]
         except KeyError:
             raise NotImplementedError(
                 f"{fully_qualified_name(cls)} was not decorated with {fully_qualified_name(DataDefinition)} or any subclass."

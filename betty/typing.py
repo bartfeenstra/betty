@@ -4,13 +4,13 @@ Providing typing utilities.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, final
+from typing import Any, final
 
 from betty.docstring import append
 
-if TYPE_CHECKING:
+try:
     from ty_extensions import Intersection
-else:
+except ImportError:
 
     class Intersection:
         """
