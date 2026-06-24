@@ -8,7 +8,6 @@ from requests import Response
 
 from betty.functools import Do
 from betty.servers.demo import DemoServer
-from betty.tests.conftest import check_skip_webpack_entry_point_provider
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
@@ -18,16 +17,17 @@ if TYPE_CHECKING:
 
 @pytest.mark.usefixtures("demo_project_aioresponses")
 class TestDemoServer:
-    @pytest.mark.order(0)
-    @check_skip_webpack_entry_point_provider
     async def test(
         self, mocker: MockerFixture, isolated_app_factory: IsolatedAppFactory
     ) -> None:
+        m_generate_with_cleanup = mocker.patch(
+            "betty.demo.generate.generate_with_cleanup"
+        )
         mocker.patch("webbrowser.open_new_tab")
         async with isolated_app_factory() as app, DemoServer(app) as server:
 
             def _assert_response(response: Response) -> None:
                 assert response.status_code == 200
-                assert "Betty" in response.content.decode("utf-8")
 
             await Do(requests.get, server.public_url).until(_assert_response)
+        m_generate_with_cleanup.assert_awaited_once()

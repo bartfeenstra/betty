@@ -7,7 +7,7 @@ from __future__ import annotations
 from contextlib import AsyncExitStack
 from typing import TYPE_CHECKING, final, override
 
-from betty.demo.generate import generate_with_cleanup
+from betty.demo import generate
 from betty.demo.project import create_project
 from betty.job import Context
 from betty.localizables.gettext import _
@@ -47,7 +47,9 @@ class DemoServer(Server):
             async with project.upstream.user.message_progress(
                 _("Generating site...")
             ) as progress:
-                await generate_with_cleanup(project, context=Context(progress=progress))
+                await generate.generate_with_cleanup(
+                    project, context=Context(progress=progress)
+                )
             self._server = await project_builtin.ProjectBuiltinServer.new(project)
             await self._exit_stack.enter_async_context(self._server)
         except BaseException:
