@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from betty.datas.copyright_notice_definition import CopyrightNoticeDefinitionData
+from betty.datas.plugin.definition.license import LicenseDefinitionData
 from betty.localizables.plain import Plain
 
 
-class TestCopyrightNoticeDefinitionData:
+class TestLicenseDefinitionData:
     def test_summary(self) -> None:
         summary = Plain("My First Summary")
-        sut = CopyrightNoticeDefinitionData(
+        sut = LicenseDefinitionData(
             id="-dummy",
             label="-",
             summary=summary,
@@ -17,17 +17,15 @@ class TestCopyrightNoticeDefinitionData:
 
     def test_text(self) -> None:
         text = Plain("My First Summary")
-        sut = CopyrightNoticeDefinitionData(
-            id="-dummy", label="-", summary="-", text=text
-        )
+        sut = LicenseDefinitionData(id="-dummy", label="-", summary="-", text=text)
         assert sut.text is text
 
     def test_new_plugin__minimal(self) -> None:
-        plugin_id = "my-first-copyright-notice"
+        plugin_id = "my-first-license"
         label = Plain("-")
         summary = Plain("-")
         text = Plain("-")
-        sut = CopyrightNoticeDefinitionData(
+        sut = LicenseDefinitionData(
             id=plugin_id,
             label=label,
             summary=summary,
@@ -41,8 +39,8 @@ class TestCopyrightNoticeDefinitionData:
 
     def test_new_plugin__full(self) -> None:
         description = Plain("-")
-        sut = CopyrightNoticeDefinitionData(
-            id="my-first-copyright-notice",
+        sut = LicenseDefinitionData(
+            id="my-first-license",
             label="-",
             description=description,
             summary="-",

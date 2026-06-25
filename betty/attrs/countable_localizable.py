@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from betty.attrs.owner import OwnerAttr
-from betty.datas.countable_localizable import CountableLocalizableDefinition
+from betty.datas.localizable import CountableLocalizableDefinition
 from betty.localizable import (
     CountableLocalizable,
     ResolvableCountableLocalizable,

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, final, override
 
 from betty.attrs.localizable import new_localizable_attr
 from betty.datas.aggregate.record.object import ObjectDefinition
-from betty.datas.human_facing_plugin_definition import HumanFacingPluginDefinitionData
+from betty.datas.plugin.definition.human_facing import HumanFacingPluginDefinitionData
 from betty.license import License, LicenseDefinition
 from betty.localizables.gettext import _
 from betty.sample import Sample
