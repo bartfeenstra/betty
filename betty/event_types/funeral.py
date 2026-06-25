@@ -18,7 +18,6 @@ from betty.localizables.gettext import _, ngettext
     label_plural=_("Funerals"),
     label_countable=ngettext("{count} funeral", "{count} funerals"),
     after={Death},
-    indicates=Death,
 )
 class Funeral(EventType):
     """

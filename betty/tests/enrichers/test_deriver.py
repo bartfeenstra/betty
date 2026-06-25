@@ -39,7 +39,6 @@ class TestDeriver:
                 presence
                 for presence in person.presences
                 if presence.event.event_type.plugin().id == Birth.plugin().id
-                or presence.event.event_type.plugin().indicates == Birth.plugin().id
             )
             assert birth is not None
             assert birth.event is not None
@@ -51,7 +50,6 @@ class TestDeriver:
                 presence
                 for presence in person.presences
                 if presence.event.event_type.plugin().id == Death.plugin().id
-                or presence.event.event_type.plugin().indicates == Death.plugin().id
             )
             assert end is not None
             assert end.event is not None

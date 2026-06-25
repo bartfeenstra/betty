@@ -454,6 +454,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/event_type.py": {
         "EventType": MissingReason.STATIC_CONTENT_ONLY,
+        "EventTypeDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "EventTypeManufacturer": MissingReason.INHERITED,
         "ShouldExistEventType": MissingReason.ABSTRACT,
     },

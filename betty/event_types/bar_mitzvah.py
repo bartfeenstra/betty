@@ -20,7 +20,6 @@ from betty.localizables.gettext import _, ngettext
     label_countable=ngettext("{count} bar mitzvah", "{count} bar mitzvahs"),
     after={Birth},
     before={Death},
-    indicates=Birth,
 )
 class BarMitzvah(EventType):
     """

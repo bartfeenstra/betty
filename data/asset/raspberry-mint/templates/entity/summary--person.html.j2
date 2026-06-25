@@ -21,7 +21,7 @@
         {% set events = entity.presences | selectattr('role', 'role_plugin', 'subject') | map(attribute='event') | reject('none') | selectattr('public') | list %}
         {% set ns = namespace(birth_indicators=[]) %}
         {% for event in events %}
-            {% if event.event_type.plugin().id == 'birth' or event.event_type.plugin().indicates == 'birth' %}
+            {% if event.event_type.plugin().id == 'birth' %}
                 {% do ns.birth_indicators.append(event) %}
             {% endif %}
         {% endfor %}
@@ -35,7 +35,7 @@
         {%- endif -%}
         {% set ns = namespace(death_indicators=[]) %}
         {% for event in events %}
-            {% if event.event_type.plugin().id == 'death' or event.event_type.plugin().indicates == 'death' %}
+            {% if event.event_type.plugin().id == 'death' %}
                 {% do ns.death_indicators.append(event) %}
             {% endif %}
         {% endfor %}
