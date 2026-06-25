@@ -4,7 +4,7 @@ Countable localizable data.
 
 from __future__ import annotations
 
-from typing import final
+from typing import TYPE_CHECKING, final
 
 from betty.classtools import Singleton
 from betty.data import DataDefinition
@@ -13,8 +13,11 @@ from betty.localizable import CountableLocalizable
 from betty.localizables.gettext import _
 from betty.localizables.plain import Plain
 from betty.localizables.static import CountableStaticTranslations
-from betty.portable import CallbackPorter, PortableData
 from betty.portable.error import NotPortable
+from betty.porters.callback import CallbackPorter
+
+if TYPE_CHECKING:
+    from betty.portable import PortableData
 
 
 @final

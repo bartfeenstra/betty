@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import final
 
 from betty.data import DataDefinition
-from betty.portable import OptionalPorter
+from betty.porters.optional import OptionalPorter
 from betty.sample import Sample, Size
 
 

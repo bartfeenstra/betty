@@ -11,11 +11,12 @@ from betty.assertions.mapping import assert_mapping
 from betty.data import DataDefinition
 from betty.datas.aggregate.collection import CollectionDefinition
 from betty.indicator.selector import Key
-from betty.portable import CallbackPorter, PortableData, Porter
+from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
     from betty.data import Data
     from betty.localizable import ResolvableLocalizable
+    from betty.portable import PortableData, Porter
     from betty.typing import Intersection
 
 

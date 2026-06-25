@@ -10,11 +10,12 @@ from typing import TYPE_CHECKING, Any, final, override
 from betty.assertions.sequence import assert_sequence
 from betty.datas.aggregate.collection import CollectionDefinition
 from betty.indicator.selector import Index
-from betty.portable import CallbackPorter, PortableData
+from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
     from betty.data import Data, DataDefinition
     from betty.localizable import ResolvableLocalizable
+    from betty.portable import PortableData
     from betty.typing import Intersection
 
 

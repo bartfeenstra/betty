@@ -7,8 +7,8 @@ Portable data can easily be persistent or transmitted across and between systems
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Callable, MutableMapping, MutableSequence
-from typing import Self, final, override
+from collections.abc import MutableMapping, MutableSequence
+from typing import Self
 
 type PortableData = (
     bool
@@ -85,72 +85,3 @@ class Porter[DataClsT, PortableDataT: PortableData = PortableData](ABC):
         Deep-copy data into a new instance.
         """
         return self.load(self.dump(data))
-
-
-@final
-class CallbackPorter[DataClsT, PortableDataT: PortableData = PortableData](
-    Porter[DataClsT, PortableDataT]
-):
-    """
-    Make data portable using a separate loader and dumper.
-    """
-
-    def __init__(
-        self,
-        loader: Callable[[PortableData], DataClsT],
-        dumper: Callable[[DataClsT], PortableDataT],
-        /,
-    ):
-        self._loader = loader
-        self._dumper = dumper
-
-    @override
-    def load(self, portable: PortableData) -> DataClsT:
-        return self._loader(portable)
-
-    @override
-    def dump(self, data: DataClsT) -> PortableDataT:
-        return self._dumper(data)
-
-
-class PortablePorter[PortableT: Portable, PortableDataT: PortableData = PortableData](
-    Porter[PortableT, PortableDataT]
-):
-    """
-    Expose a portable data type as a porter.
-    """
-
-    def __init__(self, cls: type[PortableT]):
-        self._cls = cls
-
-    @override
-    def load(self, portable: PortableData) -> PortableT:
-        return self._cls.load(portable)
-
-    @override
-    def dump(self, data: PortableT) -> PortableDataT:
-        return data.dump()
-
-
-@final
-class OptionalPorter[PortableT, PortableDataT: PortableData = PortableData](
-    Porter[PortableT | None, PortableDataT | None]
-):
-    """
-    Add optional (``None``) support to another porter.
-    """
-
-    def __init__(self, proxied: Porter[PortableT, PortableDataT]):
-        self._proxied = proxied
-
-    @override
-    def load(self, portable: PortableData) -> PortableT | None:
-        if portable is None:
-            return None
-        return self._proxied.load(portable)
-
-    @override
-    def dump(self, data: PortableT | None) -> PortableDataT | None:
-        if data is None:
-            return None
-        return self._proxied.dump(data)
