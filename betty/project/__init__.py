@@ -28,11 +28,11 @@ from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.attrs.path import new_path_attr
 from betty.attrs.plugin_definitions import new_plugin_definition_datas_attr
-from betty.collection.keyed.adapter import (
+from betty.collections.keyed.adapter import (
     KeyedCollectionAdapter,
     MutableKeyedCollectionAdapter,
 )
-from betty.collection.sequence.adapter import MutableResolvedSequenceAdapter
+from betty.collections.sequence.adapter import MutableResolvedSequenceAdapter
 from betty.copyright_notice import (
     CopyrightNotice,
     CopyrightNoticeDefinition,

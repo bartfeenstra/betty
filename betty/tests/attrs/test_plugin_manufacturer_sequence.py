@@ -1,7 +1,7 @@
 from betty.attrs.plugin_manufacturer_sequence import (
     new_plugin_manufacturer_sequence_attr,
 )
-from betty.collection.sequence.adapter import MutableResolvedSequenceAdapter
+from betty.collections.sequence.adapter import MutableResolvedSequenceAdapter
 from betty.prop import HasProps
 from betty.test_utils.plugin import DummyPluginManufacturer, DummyPluginOne
 

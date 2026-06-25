@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, override
 
-from betty.collection.keyed.proxy import (
+from betty.collections.keyed.proxy import (
     KeyedCollectionProxy,
     MutableKeyedCollectionProxy,
 )

@@ -1,6 +1,6 @@
 import pytest
 
-from betty.collection.mapping.adapter import (
+from betty.collections.mapping.adapter import (
     MutableResolvedMappingAdapter,
     ResolvedMappingAdapter,
 )

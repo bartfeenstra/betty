@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 from betty.attrs.owner import CollectionOwnerAttr
 from betty.collection.keyed import MutableKeyedCollection
-from betty.collection.keyed.adapter import MutableKeyedCollectionAdapter
+from betty.collections.keyed.adapter import MutableKeyedCollectionAdapter
 from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.datas.plugin_definition import PluginDefinitionData
 from betty.indicator.selector import Attr

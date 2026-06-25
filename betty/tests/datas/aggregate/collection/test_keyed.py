@@ -4,7 +4,7 @@ from typing import ClassVar
 import pytest
 
 from betty.collection.keyed import MutableKeyedCollection
-from betty.collection.keyed.adapter import MutableKeyedCollectionAdapter
+from betty.collections.keyed.adapter import MutableKeyedCollectionAdapter
 from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.mapping import TypedMappingDefinition

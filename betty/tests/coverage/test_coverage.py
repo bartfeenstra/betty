@@ -415,15 +415,15 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/collection/__init__.py": {
         "MutableCollection": MissingReason.ABSTRACT,
     },
-    "betty/collection/keyed/__init__.py": {
+    "betty/collection/keyed.py": {
         "KeyedCollection": MissingReason.ABSTRACT,
         "MutableKeyedCollection": MissingReason.ABSTRACT,
     },
-    "betty/collection/mapping/__init__.py": {
+    "betty/collection/mapping.py": {
         "MutableResolvedMapping": MissingReason.ABSTRACT,
         "ResolvedMapping": MissingReason.ABSTRACT,
     },
-    "betty/collection/sequence/__init__.py": {
+    "betty/collection/sequence.py": {
         "MutableResolvedSequence": MissingReason.ABSTRACT,
     },
     "betty/copyright_notice.py": {
@@ -519,7 +519,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "PluginManufacturerDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "PluginManufacturerError": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/plugin/discovery.py": {
+    "betty/collections/plugin/discoverer.py": {
         "PluginDiscovererCollection": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/plugin/ordered.py": {
