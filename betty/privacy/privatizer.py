@@ -184,10 +184,7 @@ class Privatizer:
 
         # A dead person is not private, regardless of when they died.
         for presence in person.presences:
-            if (
-                presence.event.event_type.plugin().id == Death.plugin().id
-                or presence.event.event_type.plugin().indicates == Death.plugin().id
-            ):
+            if presence.event.event_type.plugin().id == Death.plugin().id:
                 if presence.event.date is None:
                     person.public = True
                     return

@@ -109,15 +109,9 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
         assert presence.event.date is not None
         if presence.role.plugin().id != Subject.plugin().id:
             continue
-        if (
-            presence.event.event_type.plugin().id == Birth.plugin().id
-            or presence.event.event_type.plugin().indicates == Birth.plugin().id
-        ):
+        if presence.event.event_type.plugin().id == Birth.plugin().id:
             start_dates.append(presence.event.date)
-        if (
-            presence.event.event_type.plugin().id == Death.plugin().id
-            or presence.event.event_type.plugin().indicates == Death.plugin().id
-        ):
+        if presence.event.event_type.plugin().id == Death.plugin().id:
             end_dates.append(presence.event.date)
     start_date = sorted(start_dates)[0] if start_dates else None
     end_date = sorted(end_dates)[0] if end_dates else None
@@ -183,10 +177,6 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
                     associated_presence.event.event_type.plugin().id
                     != Birth.plugin().id
                     and associated_presence.event.event_type.plugin().id
-                    != Birth.plugin().id
-                    and associated_presence.event.event_type.plugin().id
-                    != Death.plugin().id
-                    and associated_presence.event.event_type.plugin().indicates
                     != Death.plugin().id
                 ):
                     continue
