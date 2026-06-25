@@ -1,4 +1,4 @@
-from collections.abc import Iterable, MutableSequence
+from collections.abc import Iterable
 from typing import override
 
 import pytest
@@ -27,20 +27,24 @@ class TestOwnerAttr:
         assert owner.my_first_attr == value
 
 
-class _CollectionDefinition(
-    CollectionDefinition[MutableSequence[str], Iterable[str], Index]
-):
+class _Collection(list[str]):
+    pass
+
+
+class _CollectionDefinition(CollectionDefinition[_Collection, Iterable[str], Index]):
     def __init__(self):
         super().__init__(
-            label="-", item=StrDefinition(label="-"), factory=lambda: ["Hello, world!"]
+            label="-",
+            item=StrDefinition(label="-"),
+            factory=lambda: _Collection(["Hello, world!"]),
         )
 
     @override
-    def clear(self, data: MutableSequence[str], /) -> None:
+    def clear(self, data: _Collection, /) -> None:
         data.clear()
 
     @override
-    def replace(self, data: MutableSequence[str], values: Iterable[str], /) -> None:
+    def replace(self, data: _Collection, values: Iterable[str], /) -> None:
         data.clear()
         data.extend(values)
 
@@ -66,13 +70,7 @@ class TestCollectionOwnerAttr:
     def test_default(self) -> None:
         assert isinstance(_Owner.collection.default(lambda: ()), DefaultAttr)
 
-    def test_eq__without_equal(self) -> None:
-        owner = _Owner()
-        owner.collection = ("Hello", "world!")
-        assert not _Owner.collection.eq(owner, ("Hello", "world...?"))
-
-    def test_eq__with_equal(self) -> None:
-        value = ("Hello", "world!")
-        owner = _Owner()
-        owner.collection = value
-        assert _Owner.collection.eq(owner, value)
+    def test_normalize(self) -> None:
+        assert _Owner.collection.normalize(
+            _Owner(), ["Hello", "world...?"]
+        ) == _Collection(["Hello", "world...?"])

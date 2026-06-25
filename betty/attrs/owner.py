@@ -155,8 +155,8 @@ class CollectionOwnerAttr[
         setattr(owner, self.prop.owner_attr, self.field.data.new())
 
     @override
-    def eq(self, owner: OwnerT, other: GetT | SetT, /) -> bool:
-        return self.get(owner) == self.field.data.new(other)
+    def normalize(self, owner: OwnerT, value: SetT, /) -> GetT:
+        return self.field.data.new(value)
 
     @override
     def get(self, owner: OwnerT, /) -> GetT:

@@ -35,8 +35,8 @@ class Attr[
         The attribute's field definition.
         """
 
-    def eq(self, owner: OwnerT, other: GetT | SetT, /) -> bool:
+    def normalize(self, owner: OwnerT, value: SetT, /) -> GetT:
         """
-        Compare the owner's attribute value to the other value.
+        Normalize a value from ``SetT`` to ``GetT``.
         """
-        return self.get(owner) == other
+        return value

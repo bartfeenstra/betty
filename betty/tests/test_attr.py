@@ -7,16 +7,14 @@ from betty.prop import HasProps
 
 
 class TestAttr:
-    class _EqAttr(Attr[HasProps, str]):
+    class _Attr(Attr[HasProps, object, object]):
         def __init__(self):
             super().__init__(FieldDefinition(DataDefinition(None, label="-")))
 
         @override
-        def get(self, owner: HasProps) -> str:
-            return "Hello, world!"
+        def get(self, owner: HasProps) -> object:
+            raise NotImplementedError
 
-    def test_eq__without_equal(self) -> None:
-        assert not self._EqAttr().eq(HasProps(), "Hello, world...?")
-
-    def test_eq__with_equal(self) -> None:
-        assert self._EqAttr().eq(HasProps(), "Hello, world!")
+    def test_normalize(self) -> None:
+        value = object()
+        assert self._Attr().normalize(HasProps(), value) is value
