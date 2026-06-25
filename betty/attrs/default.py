@@ -50,7 +50,7 @@ class DefaultAttr[
         )
 
     def __omit_dump(self, owner: OwnerT, data: GetT) -> bool:
-        if self.eq(owner, self.__default(owner)):
+        if data == self.normalize(owner, self.__default(owner)):
             return True
         return self._proxied_field.omit_dump(owner, data)
 
