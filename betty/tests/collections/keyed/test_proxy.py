@@ -1,8 +1,8 @@
-from betty.collection.keyed.adapter import (
+from betty.collections.keyed.adapter import (
     KeyedCollectionAdapter,
     MutableKeyedCollectionAdapter,
 )
-from betty.collection.keyed.proxy import (
+from betty.collections.keyed.proxy import (
     KeyedCollectionProxy,
     MutableKeyedCollectionProxy,
 )

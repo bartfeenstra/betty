@@ -1,10 +1,10 @@
 import pytest
 
-from betty.collection.keyed.adapter import (
+from betty.collections.keyed.adapter import (
     KeyedCollectionAdapter,
     MutableKeyedCollectionAdapter,
 )
-from betty.collection.keyed.error import (
+from betty.collections.keyed.error import (
     ErroringKeyedCollection,
     MutableErroringKeyedCollection,
 )

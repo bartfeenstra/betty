@@ -7,8 +7,8 @@ from __future__ import annotations
 from typing import final, override
 
 from betty.collection.keyed import KeyedCollection
-from betty.collection.keyed.adapter import KeyedCollectionAdapter
-from betty.collection.keyed.error import ErroringKeyedCollection
+from betty.collections.keyed.adapter import KeyedCollectionAdapter
+from betty.collections.keyed.error import ErroringKeyedCollection
 from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
 from betty.plugin.error import PluginNotFound

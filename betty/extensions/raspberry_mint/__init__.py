@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, Final, Self, final, override
 from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.collection.mapping import MutableResolvedMapping, ResolvedMapping
-from betty.collection.mapping.adapter import (
+from betty.collections.mapping.adapter import (
     MutableResolvedMappingAdapter,
     ResolvedMappingAdapter,
 )

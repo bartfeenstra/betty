@@ -8,12 +8,10 @@ from asyncio import gather
 from collections.abc import AsyncIterator, Awaitable, Callable, Iterable, Mapping
 from contextlib import suppress
 from importlib import metadata
-from typing import TYPE_CHECKING, Final, cast, final, override
+from typing import TYPE_CHECKING, Final, cast, final
 
 from betty.asyncio import resolve_await
-from betty.collection.keyed.error import ErroringKeyedCollection
 from betty.concurrent import ThreadSafeLock
-from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
 from betty.plugin.error import PluginNotFound
 from betty.plugin.resolve import (
@@ -29,6 +27,8 @@ from betty.typing import threadsafe
 
 if TYPE_CHECKING:
     import builtins
+
+    from betty.machine_name import MachineName
 
 
 type ResolvableDiscovery[PluginDefinitionT: PluginDefinition = PluginDefinition] = (
@@ -134,20 +134,3 @@ class PluginDiscoverer[PluginDefinitionT: PluginDefinition = PluginDefinition]:
         Iterate over the IDs of the available plugins.
         """
         return (await self._plugins()).keys()
-
-
-@final
-class PluginDiscovererCollection(
-    ErroringKeyedCollection[
-        MachineName, type[PluginDefinition] | MachineName | str, PluginDiscoverer
-    ]
-):
-    """
-    A collection of plugin discoverers.
-    """
-
-    @override
-    def __getitem__[PluginDefinitionT: PluginDefinition = PluginDefinition](
-        self, key: type[PluginDefinitionT] | MachineName | str
-    ) -> PluginDiscoverer[PluginDefinitionT]:
-        return super().__getitem__(key)  # ty:ignore[invalid-return-type]

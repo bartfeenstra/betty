@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.attrs.path import new_path_attr
 from betty.collection.mapping import MutableResolvedMapping
-from betty.collection.mapping.adapter import MutableResolvedMappingAdapter
+from betty.collections.mapping.adapter import MutableResolvedMappingAdapter
 from betty.data import Data
 from betty.datas.aggregate.collection.mapping import MappingDefinition
 from betty.datas.aggregate.collection.sequence import SequenceDefinition

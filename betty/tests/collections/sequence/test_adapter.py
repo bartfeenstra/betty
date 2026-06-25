@@ -2,7 +2,7 @@ from typing import Any
 
 import pytest
 
-from betty.collection.sequence.adapter import (
+from betty.collections.sequence.adapter import (
     MutableResolvedSequenceAdapter,
     ResolvedSequenceAdapter,
 )

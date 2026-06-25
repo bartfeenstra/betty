@@ -1,6 +1,6 @@
 from typing import Any
 
-from betty.collection.keyed.adapter import (
+from betty.collections.keyed.adapter import (
     KeyedCollectionAdapter,
     MutableKeyedCollectionAdapter,
 )

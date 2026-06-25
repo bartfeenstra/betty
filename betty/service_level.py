@@ -8,7 +8,7 @@ from collections import defaultdict
 from importlib import metadata
 from typing import TYPE_CHECKING, Any, Final
 
-from betty.collection.keyed.adapter import KeyedCollectionAdapter
+from betty.collections.keyed.adapter import KeyedCollectionAdapter
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.plugin.resolve import resolve_plugin_type_id
 from betty.service import ServiceProvider
@@ -17,9 +17,10 @@ from betty.services.simple import service
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
 
+    from betty.collections.plugin.discoverer import PluginDiscovererCollection
     from betty.factory import Factory
     from betty.plugin import PluginDefinition
-    from betty.plugin.discovery import PluginDiscovererCollection, ResolvableDiscovery
+    from betty.plugin.discovery import ResolvableDiscovery
 
 if TYPE_CHECKING:
     type Plugins = Mapping[
@@ -51,7 +52,8 @@ class ServiceLevel(ManagedLifeCycle, ServiceProvider):
         """
         The available plugin types and plugins.
         """
-        from betty.plugin.discovery import PluginDiscoverer, PluginDiscovererCollection
+        from betty.collections.plugin.discoverer import PluginDiscovererCollection
+        from betty.plugin.discovery import PluginDiscoverer
         from betty.plugin.error import PluginTypeNotFound
 
         class _PluginTypeNotFound(PluginTypeNotFound, KeyError):
