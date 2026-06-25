@@ -20,15 +20,14 @@ from betty.entities.presence import Presence
 from betty.entity import EntityDefinition
 from betty.event_type import EventTypeDefinition
 from betty.event_types.unknown import UnknownEventType
-from betty.json_schema import String
-from betty.json_schemas.plugin_id import PluginIdSchema
-from betty.json_schemas.static_translations import StaticTranslationsSchema
-from betty.linked_data import JsonLdObject, dump_context
+from betty.json_schemas.plugin_id import new_plugin_id_schema
+from betty.json_schemas.static_translations import new_static_translations_schema
 from betty.localizable.linked_data import dump_linked_data
 from betty.localizables.gettext import _, ngettext
 from betty.localizables.markup import AllEnumeration
 from betty.privacy import Privacy
 from betty.roles.subject import Subject
+from betty.typing import Voidable, VoidableType
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -39,6 +38,7 @@ if TYPE_CHECKING:
     from betty.entities.file_reference import FileReference
     from betty.entities.note import Note
     from betty.event_type import EventType
+    from betty.linked_data import LinkedData
     from betty.localizable import Localizable, ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.portable import PortableMapping
@@ -116,16 +116,6 @@ class Event(
         self.name = name
 
     @override
-    def has_any_date_linked_data_contexts(
-        self,
-    ) -> tuple[str | None, str | None, str | None]:
-        return (
-            "https://schema.org/startDate",
-            "https://schema.org/startDate",
-            "https://schema.org/endDate",
-        )
-
-    @override
     @property
     def label(self) -> Localizable:
         if self.name:
@@ -151,10 +141,32 @@ class Event(
         return _("{event_type}").format(**format_kwargs)
 
     @override
-    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
+    @classmethod
+    async def linked_data_schema_properties(
+        cls, project: Project, /
+    ) -> Mapping[str, VoidableType[PortableMapping]]:
+        return {
+            "name": Voidable(new_static_translations_schema()),
+            "type": new_plugin_id_schema(
+                EventTypeDefinition.type(),
+                [x async for x in project.plugins[EventTypeDefinition]],
+            ),
+            "eventStatus": {
+                "title": "Event status",
+                "type": "string",
+            },
+            "eventAttendanceMode": {
+                "title": "Event attendance mode",
+                "type": "string",
+            },
+        }
+
+    @override
+    async def dump_linked_data(self, project: Project, /) -> LinkedData:
         portable = await super().dump_linked_data(project)
-        dump_context(portable, place="https://schema.org/location")
-        dump_context(portable, presences="https://schema.org/performer")
+        # @todo
+        # dump_context(portable, place="https://schema.org/location")
+        # dump_context(portable, presences="https://schema.org/performer")
         portable["@type"] = "https://schema.org/Event"
         portable["type"] = self.event_type.plugin().id
         portable["eventAttendanceMode"] = (
@@ -166,25 +178,3 @@ class Event(
                 self.name, localizers=await project.public_localizers
             )
         return portable
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
-        schema = await super().linked_data_schema(project)
-        schema.add_property(
-            "name",
-            StaticTranslationsSchema(),
-            False,
-        )
-        schema.add_property(
-            "type",
-            PluginIdSchema(
-                EventTypeDefinition.type(),
-                [x async for x in project.plugins[EventTypeDefinition]],
-            ),
-        )
-        schema.add_property("eventStatus", String(title="Event status"))
-        schema.add_property(
-            "eventAttendanceMode", String(title="Event attendance mode")
-        )
-        return schema

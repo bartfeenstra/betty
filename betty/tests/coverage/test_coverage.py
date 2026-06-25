@@ -107,14 +107,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/attrs/common.py": {
         "CommonAttr": MissingReason.ABSTRACT,
     },
-    "betty/attrs/date.py": {
-        "HasAnyDate": {
-            "has_any_date_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
-        },
-    },
     "betty/attrs/privacy.py": {
         "PrivacyAttr": {
-            "linked_data_schema_for": MissingReason.STATIC_CONTENT_ONLY,
+            "schema": MissingReason.STATIC_CONTENT_ONLY,
         },
     },
     "betty/babel.py": {
@@ -439,11 +434,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/enrichers/wiki.py": {
         "WikiData": {
             "populate_images": MissingReason.SHOULD_BE_COVERED,
-        },
-    },
-    "betty/entities/event.py": {
-        "Event": {
-            "has_any_date_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
         },
     },
     "betty/entity/__init__.py": {

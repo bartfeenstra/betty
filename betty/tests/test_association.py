@@ -24,9 +24,10 @@ if TYPE_CHECKING:
 
     from pytest_mock import MockerFixture
 
-    from betty.json_schema import Schema
-    from betty.portable import PortableData
+    from betty.linked_data import LinkedData
+    from betty.portable import PortableMapping
     from betty.project import Project
+    from betty.typing import VoidableType, VoidType
 
 
 class _Association[OwnerT: Entity = Entity, AssociateT: Entity = Entity](
@@ -59,12 +60,10 @@ class _Association[OwnerT: Entity = Entity, AssociateT: Entity = Entity](
     def get_associates(self, owner: OwnerT, /) -> Iterable[AssociateT]:
         raise NotImplementedError
 
-    async def linked_data_schema_for(self, project: Project, /) -> Schema:
+    async def schema(self, project: Project, /) -> VoidableType[PortableMapping]:
         raise NotImplementedError
 
-    async def dump_linked_data_for(
-        self, project: Project, target: OwnerT, /
-    ) -> PortableData:
+    async def dump(self, project: Project, data: OwnerT, /) -> LinkedData | VoidType:
         raise NotImplementedError
 
     def get(self, owner: Entity, /) -> AssociateT:

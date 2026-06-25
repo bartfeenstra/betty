@@ -9,20 +9,22 @@ from typing import TYPE_CHECKING, Any, override
 from betty.attrs.owner import OwnerAttr
 from betty.attrs.privacy import HasPrivacy
 from betty.datas.locale import LocaleDefinition
-from betty.json_schema import Null, OneOf
-from betty.json_schemas.locale import LocaleSchema
-from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
+from betty.linked_data import HasLinkedDataAttrs, LinkedData
 from betty.locale import ResolvableLocale, resolve_locale, to_language_tag
 from betty.localized import Localized
 from betty.prop import HasProps
+from betty.typing import Voidable, VoidableType
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from babel import Locale
 
     from betty.attrs.common import CommonAttr
     from betty.localizable import ResolvableLocalizable
     from betty.portable import PortableMapping
     from betty.project import Project
+    from betty.typing import VoidType
 
 
 def new_locale_attr(
@@ -38,7 +40,7 @@ def new_locale_attr(
     )
 
 
-class HasLocale(Localized, LinkedDataDumpableWithSchemaJsonLdObject, HasProps):
+class HasLocale(Localized, HasLinkedDataAttrs, HasProps):
     """
     A resource that is localized, e.g. contains information in a specific locale.
     """
@@ -52,18 +54,37 @@ class HasLocale(Localized, LinkedDataDumpableWithSchemaJsonLdObject, HasProps):
         self.locale = locale
 
     @override
-    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
-        portable["locale"] = (
-            to_language_tag(self.locale)
-            if not isinstance(self, HasPrivacy) or self.public
-            else None
-        )
-        return portable
+    @classmethod
+    async def linked_data_schema_properties(
+        cls, project: Project, /
+    ) -> Mapping[str, VoidableType[PortableMapping]]:
+        return {
+            "locale": Voidable({
+                "oneOf": [
+                    {
+                        "$ref": "#/$defs/locale",
+                    },
+                    {
+                        "type": "null",
+                    },
+                ],
+                "$defs": {
+                    "locale": {
+                        "title": "Locale",
+                        "description": "A BCP 47 locale identifier (https://www.ietf.org/rfc/bcp/bcp47.txt).",
+                    }
+                },
+            }),
+        }
 
     @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
-        schema = await super().linked_data_schema(project)
-        schema.add_property("locale", OneOf(LocaleSchema(), Null()))
-        return schema
+    async def dump_linked_data_properties(
+        self, project: Project, /
+    ) -> Mapping[str, LinkedData | VoidType]:
+        if isinstance(self, HasPrivacy) and self.private:
+            return {}
+        return {
+            "locale": LinkedData(
+                None if self.locale is None else to_language_tag(self.locale)
+            )
+        }

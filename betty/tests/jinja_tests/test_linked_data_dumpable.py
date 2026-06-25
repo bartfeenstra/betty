@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
-from betty.linked_data import LinkedDataDumpableWithSchemaJsonLdObject
+from betty.linked_data import HasLinkedDataAttrs
 
 if TYPE_CHECKING:
     from betty.test_utils.conftest import AssertTemplateString
@@ -14,8 +14,8 @@ class TestLinkedDataDumpable:
     @pytest.mark.parametrize(
         ("expected", "data"),
         [
-            ("true", LinkedDataDumpableWithSchemaJsonLdObject()),
-            ("false", LinkedDataDumpableWithSchemaJsonLdObject),
+            ("true", HasLinkedDataAttrs()),
+            ("false", HasLinkedDataAttrs),
             ("false", object()),
         ],
     )

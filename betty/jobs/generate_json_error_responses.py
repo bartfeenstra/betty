@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.file import write
 from betty.job import Job
-from betty.json_schemas.project import ProjectSchema
+from betty.json_schemas.project import project_schema_def_url
 from betty.localizables.gettext import _
 from betty.localizer import default_localizer
 
@@ -55,7 +55,7 @@ class GenerateJsonErrorResponses(Job):
                 await write(
                     directory / f"{code}.json",
                     dumps({
-                        "$schema": await ProjectSchema.def_url(
+                        "$schema": await project_schema_def_url(
                             self._project, "errorResponse"
                         ),
                         "message": message.localize(default_localizer),

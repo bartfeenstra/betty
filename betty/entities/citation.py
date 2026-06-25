@@ -15,7 +15,7 @@ from betty.attrs.date import HasAnyDate
 from betty.attrs.localizable import new_localizable_attr
 from betty.entities.source import Source
 from betty.entity import EntityDefinition
-from betty.json_schemas.static_translations import StaticTranslationsSchema
+from betty.json_schemas.static_translations import new_static_translations_schema
 from betty.localizable.linked_data import dump_linked_data
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
@@ -24,11 +24,12 @@ from betty.privacy.resolve import merge_secondary_privacies
 if TYPE_CHECKING:
     from betty.date import AnyDate
     from betty.entities.file_reference import FileReference
-    from betty.linked_data import JsonLdObject
+    from betty.linked_data import LinkedData
     from betty.localizable import Localizable, ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.portable import PortableMapping
     from betty.project import Project
+    from betty.typing import VoidableType
 
 
 @final
@@ -101,7 +102,7 @@ class Citation(HasAnyDate, HasFileReferences, HasLinks):
         return self.location or super().label
 
     @override
-    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
+    async def dump_linked_data(self, project: Project, /) -> LinkedData:
         portable = await super().dump_linked_data(project)
         portable["@type"] = "https://schema.org/Thing"
         if self.public and self.location is not None:
@@ -112,11 +113,13 @@ class Citation(HasAnyDate, HasFileReferences, HasLinks):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
+    async def linked_data_schema(
+        cls, project: Project, /
+    ) -> VoidableType[PortableMapping]:
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "location",
-            StaticTranslationsSchema(),
+            new_static_translations_schema(),
             False,
         )
         return schema

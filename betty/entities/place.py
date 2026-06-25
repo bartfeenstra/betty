@@ -14,14 +14,14 @@ from betty.associations.to_many import ToMany, ToManyAssociates
 from betty.entities.enclosure import Enclosure
 from betty.entities.place_name import PlaceName
 from betty.entity import EntityDefinition
-from betty.json_schema import Array, Number, Object
-from betty.linked_data import JsonLdObject, dump_context
+from betty.linked_data import LinkedData
 from betty.localizables.gettext import _, ngettext
 from betty.place_types.unknown import UnknownPlaceType
 from betty.privacy import Privacy
+from betty.typing import Voidable, VoidableType
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, MutableSequence
+    from collections.abc import Iterable, Mapping
 
     from geopy import Point
 
@@ -33,6 +33,7 @@ if TYPE_CHECKING:
     from betty.place_type import PlaceType
     from betty.portable import PortableMapping
     from betty.project import Project
+    from betty.typing import VoidType
 
 
 @final
@@ -47,11 +48,14 @@ class Place(HasLinks, HasFileReferences, HasNotes):
     .. plugin:: entity:place.
     """
 
+    _linked_data_type = "https://schema.org/Place"
+
     events = ToMany[Self, "Event"](
         "betty.entities.event:Event",
         "place",
         label=_("Events"),
         description=_("The events that happened in this place"),
+        linked_data_context="https://schema.org/event",
     )
     """
     The events that happened here.
@@ -62,6 +66,7 @@ class Place(HasLinks, HasFileReferences, HasNotes):
         "enclosee",
         label=_("Enclosers"),
         description=_("The places this place is enclosed or contained by"),
+        linked_data_context="https://schema.org/containedInPlace",
     )
     """
     Other places containing this one.
@@ -72,9 +77,22 @@ class Place(HasLinks, HasFileReferences, HasNotes):
         "encloser",
         label=_("Enclosees"),
         description=_("The places this place encloses or contains"),
+        linked_data_context="https://schema.org/containsPlace",
     )
     """
     Other places contained by this one.
+    """
+
+    names = ToMany[Self, PlaceName](
+        PlaceName,
+        "place",
+        label=_("Names"),
+        linked_data_context="https://schema.org/name",
+    )
+    """
+    The place's names.
+
+    The first name is considered the :py:attr:`place label <betty.entities.place.Place.label>`.
     """
 
     def __init__(
@@ -92,7 +110,7 @@ class Place(HasLinks, HasFileReferences, HasNotes):
         place_type: PlaceType | None = None,
     ):
         super().__init__(id=id, notes=notes, links=links, privacy=privacy)
-        self._names = list(names)
+        self.names = names
         self.coordinates = coordinates
         """
         The place's coordinates.
@@ -105,15 +123,6 @@ class Place(HasLinks, HasFileReferences, HasNotes):
         The type of this place.
         """
 
-    @property
-    def names(self) -> MutableSequence[PlaceName]:
-        """
-        The place's names.
-
-        The first name is considered the :py:attr:`place label <betty.entities.place.Place.label>`.
-        """
-        return self._names
-
     @override
     @property
     def label(self) -> Localizable:
@@ -122,41 +131,43 @@ class Place(HasLinks, HasFileReferences, HasNotes):
         return super().label
 
     @override
-    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
-        dump_context(
-            portable,
-            names="https://schema.org/name",
-            events="https://schema.org/event",
-            enclosers="https://schema.org/containedInPlace",
-            enclosees="https://schema.org/containsPlace",
-        )
-        portable["@type"] = "https://schema.org/Place"
-        portable["names"] = [
-            await name.dump_linked_data(project) for name in self.names
-        ]
-        if self.coordinates is not None:
-            portable_coordinates: PortableMapping = {
-                "@type": "https://schema.org/GeoCoordinates",
-                "latitude": self.coordinates.latitude,
-                "longitude": self.coordinates.longitude,
-            }
-            dump_context(portable, coordinates="https://schema.org/geo")
-            dump_context(portable_coordinates, latitude="https://schema.org/latitude")
-            dump_context(portable_coordinates, longitude="https://schema.org/longitude")
-            portable["coordinates"] = portable_coordinates
-        return portable
+    @classmethod
+    async def linked_data_schema_properties(
+        cls, project: Project, /
+    ) -> Mapping[str, VoidableType[PortableMapping]]:
+        coordinate_schema = {
+            "title": "Coordinate",
+            "type": "number",
+        }
+        return {
+            "coordinates": Voidable({
+                "additionalProperties": False,
+                "properties": {
+                    "latitude": coordinate_schema,
+                    "longitude": coordinate_schema,
+                },
+                "title": "Coordinates",
+                "type": "object",
+            })
+        }
 
     @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
-        schema = await super().linked_data_schema(project)
-        schema.add_property(
-            "names", Array(await PlaceName.linked_data_schema(project), title="Names")
-        )
-        coordinate_schema = Number(title="Coordinate")
-        coordinates_schema = Object(title="Coordinates")
-        coordinates_schema.add_property("latitude", coordinate_schema, False)
-        coordinates_schema.add_property("longitude", coordinate_schema, False)
-        schema.add_property("coordinates", coordinates_schema, False)
-        return schema
+    async def dump_linked_data_properties(
+        self, project: Project, /
+    ) -> Mapping[str, LinkedData | VoidType]:
+        if self.private:
+            return {}
+        return {
+            "coordinates": LinkedData(
+                {
+                    "@type": "https://schema.org/GeoCoordinates",
+                    "@context": {
+                        "latitude": "https://schema.org/latitude",
+                        "longitude": "https://schema.org/longitude",
+                    },
+                    "latitude": self.coordinates.latitude,
+                    "longitude": self.coordinates.longitude,
+                },
+                context="https://schema.org/geo",
+            )
+        }

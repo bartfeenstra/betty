@@ -13,14 +13,14 @@ from betty.datas.aggregate.collection.sequence import SequenceDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.entity_as_reference import EntityAsReferenceDefinition
 from betty.entity import Entity
-from betty.json_schema import Array, String
+from betty.linked_data import LinkedData
 from betty.localizables.gettext import _
+from betty.localizer import default_localizer
 from betty.media_types.json_ld import JSON_LD
 
 if TYPE_CHECKING:
-    from betty.json_schema import Schema
     from betty.localizable import ResolvableLocalizable
-    from betty.portable import PortableData
+    from betty.portable import PortableMapping
     from betty.project import Project
 
 type ToManyAssociates[OwnerT: Entity, AssociateT: Entity] = Iterable[
@@ -49,6 +49,7 @@ class ToMany[OwnerT: Entity, AssociateT: Entity](
         *,
         description: ResolvableLocalizable | None = None,
         label: ResolvableLocalizable,
+        linked_data_context: str | None = None,
     ):
         self._data = SequenceDefinition(
             value=EntityAsReferenceDefinition(label=_("Associates")),
@@ -56,6 +57,7 @@ class ToMany[OwnerT: Entity, AssociateT: Entity](
             label=label,
         )
         super().__init__(FieldDefinition(self._data), associate, associate_attr)
+        self._linked_data_context = linked_data_context
 
     @override
     def init_owner(self, owner: OwnerT, /) -> None:
@@ -102,21 +104,26 @@ class ToMany[OwnerT: Entity, AssociateT: Entity](
         self.get(owner).resolve(project)
 
     @override
-    async def linked_data_schema_for(self, project: Project, /) -> Schema:
-        return Array(
-            String(
-                format=String.Format.URI,
-            ),
-            title=self.field.label,
-            description=self.field.description,
-        )
+    async def schema(self, project: Project, /) -> PortableMapping:
+        schema = {
+            "items": {
+                "type": "string",
+                "format": "uri",
+            },
+            "title": self.field.label.localize(default_localizer),
+            "type": "array",
+        }
+        if self.field.description is not None:
+            schema["description"] = self.field.description.localize(default_localizer)
+        return schema
 
     @override
-    async def dump_linked_data_for(
-        self, project: Project, owner: OwnerT, /
-    ) -> PortableData:
+    async def dump(self, project: Project, owner: OwnerT, /) -> LinkedData:
         url_generator = await project.url_generator
-        return [
-            url_generator.generate(associate, media_type=JSON_LD)
-            for associate in self.get(owner)
-        ]
+        return LinkedData(
+            [
+                url_generator.generate(associate, media_type=JSON_LD)
+                for associate in self.get(owner)
+            ],
+            context=self._linked_data_context,
+        )

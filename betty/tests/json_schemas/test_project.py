@@ -1,70 +1,33 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING
 
-import pytest
-
-from betty.entities.event import Event
-from betty.entities.person import Person
-from betty.entities.place import Place
-from betty.json_schemas.json_schema import JsonSchemaSchema
-from betty.json_schemas.project import ProjectSchema
-from betty.test_utils.json_schema import SchemaTestBase, SchemaTestBaseSut
+from betty.json_schema import validate
+from betty.json_schemas.json_schema import json_schema_schema
+from betty.json_schemas.project import (
+    new_project_schema,
+    project_schema_def_url,
+    project_schema_url,
+    project_schema_www_path,
+)
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
     from betty.project import Project
-    from betty.test_utils.conftest import IsolatedProjectFactory
 
 
-class TestProjectSchema(SchemaTestBase):
-    @staticmethod
-    def _sut_params() -> Iterable[tuple[str, bool]]:
-        for url in (
-            "http://example.com",
-            "https://example.com",
-            "https://example.com/root-path",
-        ):
-            for clean_urls in (True, False):
-                yield url, clean_urls
+async def test_new_project_schema(isolated_project: Project) -> None:
+    sut = await new_project_schema(isolated_project)
+    validate(json_schema_schema, sut)
 
-    @override
-    @pytest.fixture(params=_sut_params())
-    async def sut_data(
-        self,
-        isolated_project_factory: IsolatedProjectFactory,
-        request: pytest.FixtureRequest,
-    ) -> SchemaTestBaseSut:
-        url, clean_urls = request.param
-        async with isolated_project_factory(clean_urls=clean_urls, url=url) as project:
-            return (
-                await ProjectSchema.new(project),
-                [
-                    await Person().dump_linked_data(project),
-                    await Place().dump_linked_data(project),
-                    await Event().dump_linked_data(project),
-                ],
-                [],
-            )
 
-    @pytest.mark.parametrize(
-        "clean_urls",
-        [
-            True,
-            False,
-        ],
-    )
-    async def test_new(self, clean_urls: bool, isolated_project: Project) -> None:
-        sut = await ProjectSchema.new(isolated_project)
-        JsonSchemaSchema().validate(sut.schema)
+async def test_project_schema_def_url(isolated_project: Project) -> None:
+    def_name = "myFirstDefinition"
+    assert def_name in await project_schema_def_url(isolated_project, def_name)
 
-    async def test_def_url(self, isolated_project: Project) -> None:
-        def_name = "myFirstDefinition"
-        assert def_name in await ProjectSchema.def_url(isolated_project, def_name)
 
-    async def test_url(self, isolated_project: Project) -> None:
-        assert "http" in await ProjectSchema.url(isolated_project)
+async def test_project_schema_url(isolated_project: Project) -> None:
+    assert "http" in await project_schema_url(isolated_project)
 
-    async def test_www_path(self, isolated_project: Project) -> None:
-        assert str(ProjectSchema.www_path(isolated_project))
+
+async def test_project_schema_www_path(isolated_project: Project) -> None:
+    assert str(project_schema_www_path(isolated_project))

@@ -10,20 +10,21 @@ from betty.attrs.owner import OwnerAttr
 from betty.attrs.proxy import ProxyAttr
 from betty.data import DataDefinition
 from betty.datas.enum import EnumDefinition
-from betty.json_schemas.privacy import PrivacySchema
-from betty.linked_data import LinkedDataDumper
+from betty.linked_data import LinkedData, LinkedDataPorter
 from betty.localizables.gettext import _
 from betty.privacy import Privacy
 from betty.prop import HasProps
 
 if TYPE_CHECKING:
+    from betty.portable import PortableMapping
     from betty.project import Project
+    from betty.typing import VoidableType
 
 
 @final
 class PrivacyAttr(
     ProxyAttr["HasPrivacy", Privacy, Privacy, DataDefinition[Privacy]],
-    LinkedDataDumper["HasPrivacy", PrivacySchema, bool],
+    LinkedDataPorter["HasPrivacy"],
 ):
     """
     An attribute containing a privacy.
@@ -35,14 +36,21 @@ class PrivacyAttr(
         )
 
     @override
-    async def linked_data_schema_for(self, project: Project, /) -> PrivacySchema:
-        return PrivacySchema()
+    async def schema(self, project: Project, /) -> VoidableType[PortableMapping]:
+        return {
+            "$ref": "#/$defs/privacy",
+            "$defs": {
+                "privacy": {
+                    "description": "Whether this entity is private (true), or public (false).",
+                    "title": "Privacy",
+                    "type": "boolean",
+                },
+            },
+        }
 
     @override
-    async def dump_linked_data_for(
-        self, project: Project, target: HasPrivacy, /
-    ) -> bool:
-        return target.privacy is Privacy.PRIVATE
+    async def dump(self, project: Project, data: HasPrivacy, /) -> LinkedData:
+        return LinkedData(data.privacy is Privacy.PRIVATE)
 
 
 class HasPrivacy(HasProps):

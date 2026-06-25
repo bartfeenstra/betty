@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.file import write
 from betty.job import Job
-from betty.json_schemas.project import ProjectSchema
+from betty.json_schemas.project import new_project_schema, project_schema_www_path
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
@@ -36,8 +36,6 @@ class GenerateJsonSchema(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-        schema = await ProjectSchema.new(self._project)
-        rendered_json = dumps(schema.schema)
-        schema_file = ProjectSchema.www_path(self._project)
+        schema_file = project_schema_www_path(self._project)
         await to_thread(schema_file.parent.mkdir, exist_ok=True, parents=True)
-        await write(schema_file, rendered_json)
+        await write(schema_file, dumps(await new_project_schema(self._project)))

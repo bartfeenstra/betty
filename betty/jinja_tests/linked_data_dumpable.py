@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import Any, final
 
 from betty.jinja.test import JinjaTest, JinjaTestDefinition
-from betty.linked_data import LinkedDataDumpableWithSchema
+from betty.linked_data import LinkedDataPortable
 
 
 @final
@@ -24,4 +24,4 @@ class LinkedDataDumpable(JinjaTest):
         value: Any,
         /,
     ) -> bool:
-        return isinstance(value, LinkedDataDumpableWithSchema)
+        return isinstance(value, LinkedDataPortable)

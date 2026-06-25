@@ -1,12 +1,12 @@
 import pytest
 
-from betty.json_schemas.static_translations import StaticTranslationsSchema
+from betty.json_schemas.static_translations import new_static_translations_schema
 from betty.localizable import ShorthandStaticTranslations
 from betty.localizable.linked_data import dump_linked_data
 from betty.localizables.static import StaticTranslations
 from betty.localizer import default_localizer
 from betty.portable import PortableMapping
-from betty.test_utils.conftest import AssertLinkedDataDump
+from betty.test_utils.linked_data import validate
 
 
 @pytest.mark.parametrize(
@@ -28,14 +28,10 @@ from betty.test_utils.conftest import AssertLinkedDataDump
     ],
 )
 async def test_dump_linked_data(
-    assert_linked_data_dump: AssertLinkedDataDump,
-    expected: PortableMapping,
-    translations: ShorthandStaticTranslations,
+    expected: PortableMapping, translations: ShorthandStaticTranslations
 ) -> None:
-    actual = await assert_linked_data_dump(
-        StaticTranslationsSchema(),
-        dump_linked_data(
-            StaticTranslations(translations), localizers=[default_localizer]
-        ),
+    data = dump_linked_data(
+        StaticTranslations(translations), localizers=[default_localizer]
     )
-    assert actual == expected
+    validate(new_static_translations_schema(), data)
+    assert data == expected

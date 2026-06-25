@@ -11,11 +11,12 @@ from betty.associations.to_one import ToOne, ToOneAssociate
 from betty.attrs.optional import OptionalAttr
 from betty.data import DataDefinition
 from betty.entity import Entity
+from betty.typing import Void, VoidType
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from betty.portable import PortableData
+    from betty.linked_data import LinkedData
     from betty.project import Project
 
 
@@ -60,9 +61,7 @@ class OptionalToOne[OwnerT: Entity, AssociateT: Entity](
         return self._proxied_association.get_associates(owner)
 
     @override
-    async def dump_linked_data_for(
-        self, project: Project, target: OwnerT, /
-    ) -> PortableData:
-        if getattr(target, self.prop.owner_attr):
-            return None
-        return await super().dump_linked_data_for(project, target)
+    async def dump(self, project: Project, data: OwnerT, /) -> LinkedData | VoidType:
+        if getattr(data, self.prop.owner_attr):
+            return Void
+        return await super().dump(project, data)

@@ -12,16 +12,18 @@ from betty.attrs.locale import HasLocale
 from betty.attrs.owner import OwnerAttr
 from betty.datas.str import StrDefinition
 from betty.entity import EntityDefinition
-from betty.json_schema import String
-from betty.linked_data import JsonLdObject, dump_context
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
 from betty.privacy.resolve import merge_privacies
+from betty.typing import Voidable, VoidableType, VoidType
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from betty.associations.to_many import ToManyAssociates
     from betty.entities.citation import Citation
     from betty.entities.person import Person
+    from betty.linked_data import LinkedData
     from betty.locale import ResolvableLocale
     from betty.localizable import Localizable
     from betty.machine_name import ResolvableMachineName
@@ -128,35 +130,35 @@ class PersonName(HasLocale, HasCitations):
         )
 
     @override
-    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
-        if self.public:
-            if self.individual is not None:
-                dump_context(portable, individual="https://schema.org/givenName")
-                portable["individual"] = self.individual
-            if self.affiliation is not None:
-                dump_context(portable, affiliation="https://schema.org/familyName")
-                portable["affiliation"] = self.affiliation
-        return portable
+    @classmethod
+    async def linked_data_schema_properties(
+        cls, project: Project, /
+    ) -> Mapping[str, VoidableType[PortableMapping]]:
+        return {
+            "individual": Voidable({
+                "description": "The part of the name unique to this individual, such as a first name.",
+                "title": "Individual name",
+                "type": "string",
+            }),
+            "affiliation": Voidable({
+                "description": "The part of the name shared with others, such as a surname.",
+                "title": "Affiliation name",
+                "type": "string",
+            }),
+        }
 
     @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
-        schema = await super().linked_data_schema(project)
-        schema.add_property(
-            "individual",
-            String(
-                title="Individual name",
-                description="The part of the name unique to this individual, such as a first name.",
-            ),
-            False,
-        )
-        schema.add_property(
-            "affiliation",
-            String(
-                title="Affiliation name",
-                description="The part of the name shared with others, such as a surname.",
-            ),
-            False,
-        )
-        return schema
+    async def dump_linked_data_properties(
+        self, project: Project, /
+    ) -> Mapping[str, LinkedData | VoidType]:
+        if self.private:
+            return {}
+        data = {}
+        contexts = {}
+        if self.individual is not None:
+            contexts["individual"] = "https://schema.org/givenName"
+            data["individual"] = self.individual
+        if self.affiliation is not None:
+            contexts["affiliation"] = "https://schema.org/familyName"
+            data["affiliation"] = self.affiliation
+        return data

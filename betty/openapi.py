@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 from betty import about
 from betty.entity import EntityDefinition as EntityDefinition
-from betty.json_schemas.project import ProjectSchema
+from betty.json_schemas.project import project_schema_def_url, project_schema_url
 from betty.localizer import default_localizer
 from betty.string import kebab_case_to_lower_camel_case
 
@@ -50,7 +50,7 @@ class Specification:
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": await ProjectSchema.def_url(
+                                    "$ref": await project_schema_def_url(
                                         self._project, "errorResponse"
                                     ),
                                 },
@@ -62,7 +62,7 @@ class Specification:
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": await ProjectSchema.def_url(
+                                    "$ref": await project_schema_def_url(
                                         self._project, "errorResponse"
                                     ),
                                 },
@@ -74,7 +74,7 @@ class Specification:
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": await ProjectSchema.def_url(
+                                    "$ref": await project_schema_def_url(
                                         self._project, "errorResponse"
                                     ),
                                 },
@@ -95,7 +95,7 @@ class Specification:
                 },
                 "schemas": {
                     "betty": {
-                        "$ref": await ProjectSchema.url(self._project),
+                        "$ref": await project_schema_url(self._project),
                     },
                 },
             },
@@ -122,7 +122,7 @@ class Specification:
                             "content": {
                                 "application/json": {
                                     "schema": {
-                                        "$ref": await ProjectSchema.def_url(
+                                        "$ref": await project_schema_def_url(
                                             self._project,
                                             f"{kebab_case_to_lower_camel_case(entity_type.id)}EntityCollectionResponse",
                                         ),
@@ -143,7 +143,7 @@ class Specification:
                             "content": {
                                 "application/json": {
                                     "schema": {
-                                        "$ref": await ProjectSchema.def_url(
+                                        "$ref": await project_schema_def_url(
                                             self._project,
                                             f"{kebab_case_to_lower_camel_case(entity_type.id)}Entity",
                                         ),

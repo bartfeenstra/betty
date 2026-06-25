@@ -13,7 +13,7 @@ from betty.data import DataDefinition, ResolvableDataDefinition
 from betty.entity import Entity, EntityResolver, resolve
 from betty.entity.collection.multiple import MultipleTypesEntityCollection
 from betty.importlib import fully_qualified_name, import_any
-from betty.linked_data import LinkedDataDumper
+from betty.linked_data import LinkedDataPorter
 from betty.localizer import default_localizer
 from betty.typing import Intersection, Not, Void, VoidType
 
@@ -30,7 +30,7 @@ class Association[
     GetT = Any,
     SetT = Any,
     DataDefinitionT: DataDefinition = DataDefinition,
-](LinkedDataDumper[OwnerT], Attr[OwnerT, GetT, SetT, DataDefinitionT]):
+](LinkedDataPorter[OwnerT], Attr[OwnerT, GetT, SetT, DataDefinitionT]):
     """
     An entity association.
     """

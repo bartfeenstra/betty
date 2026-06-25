@@ -166,8 +166,8 @@ class TestToOne:
         type(owner).associate.resolve(isolated_project, owner)
         assert owner.associate is associate
 
-    async def test_linked_data_schema_for(self, isolated_project: Project) -> None:
-        await _BiOwner.associate.linked_data_schema_for(isolated_project)
+    async def test_schema(self, isolated_project: Project) -> None:
+        await _BiOwner.associate.schema(isolated_project)
 
     async def test_dump_linked_data_for(
         self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor

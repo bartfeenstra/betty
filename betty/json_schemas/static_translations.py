@@ -6,32 +6,22 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.json_schema import Object
-from betty.localizables.markup import Paragraph
-
 if TYPE_CHECKING:
-    from betty.localizable import ResolvableLocalizable
+    from betty.portable import PortableMapping
 
 
-class StaticTranslationsSchema(Object):
+def new_static_translations_schema(
+    *, title: str = "Static translations", description: str | None = None
+) -> PortableMapping:
     """
-    A JSON Schema for :py:class:`betty.localizables.static.StaticTranslations`.
+    Create a JSON Schema for :py:class:`betty.localizables.static.StaticTranslations`.
     """
-
-    def __init__(
-        self,
-        *,
-        title: ResolvableLocalizable = "Static translations",
-        description: ResolvableLocalizable | None = None,
-    ):
-        super().__init__(
-            title=title,
-            description=Paragraph(
-                *([] if description is None else [description]),
-                "Keys are IETF BCP-47 language tags.",
-            ),
-        )
-        self.schema["additionalProperties"] = {
+    return {
+        "additionalProperties": {
             "type": "string",
             "description": "A human-readable translation.",
-        }
+        },
+        "title": title,
+        "description": ("" if description is None else description + " ")
+        + "Keys are IETF BCP-47 language tags.",
+    }

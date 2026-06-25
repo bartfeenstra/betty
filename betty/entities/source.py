@@ -14,8 +14,7 @@ from betty.associations.to_one import ToOne
 from betty.attrs.date import HasAnyDate
 from betty.attrs.localizable import new_localizable_attr
 from betty.entity import EntityDefinition
-from betty.json_schemas.static_translations import StaticTranslationsSchema
-from betty.linked_data import JsonLdObject, dump_context
+from betty.json_schemas.static_translations import new_static_translations_schema
 from betty.localizable.linked_data import dump_linked_data
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
@@ -28,10 +27,12 @@ if TYPE_CHECKING:
     from betty.entities.file_reference import FileReference
     from betty.entities.link import Link
     from betty.entities.note import Note
+    from betty.linked_data import LinkedData
     from betty.localizable import Localizable, ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.portable import PortableMapping
     from betty.project import Project
+    from betty.typing import VoidableType
 
 
 @final
@@ -134,19 +135,22 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
+    async def linked_data_schema(
+        cls, project: Project, /
+    ) -> VoidableType[PortableMapping]:
         schema = await super().linked_data_schema(project)
-        static_translations_schema = StaticTranslationsSchema()
+        static_translations_schema = new_static_translations_schema()
         schema.add_property("author", static_translations_schema, False)
         schema.add_property("name", static_translations_schema, False)
         schema.add_property("publisher", static_translations_schema, False)
         return schema
 
     @override
-    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
+    async def dump_linked_data(self, project: Project, /) -> LinkedData:
         portable = await super().dump_linked_data(project)
         portable["@type"] = "https://schema.org/Thing"
-        dump_context(portable, name="https://schema.org/name")
+        # @todo
+        # dump_context(portable, name="https://schema.org/name")
         if self.public:
             public_localizers = await project.public_localizers
             if self.author is not None:

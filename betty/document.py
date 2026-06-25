@@ -25,7 +25,7 @@ from typing import (
     override,
 )
 
-from betty.linked_data import LinkedDataDumpable
+from betty.linked_data import LinkedData, LinkedDataPortable
 from betty.localizables.gettext import _, ngettext
 from betty.localizer import Localizer, default_localizer
 from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
@@ -34,7 +34,6 @@ from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
-from betty.portable import PortableMapping
 
 if TYPE_CHECKING:
     from betty.entities.citation import Citation
@@ -42,8 +41,10 @@ if TYPE_CHECKING:
     from betty.job import Context
     from betty.localizable import Localizable
     from betty.machine_name import MachineName, ResolvableMachineName
+    from betty.portable import PortableMapping
     from betty.project import Project
     from betty.requirement import Requires
+    from betty.typing import VoidableType
 
 type DocumentVars = Mapping[str, Any]
 
@@ -218,7 +219,7 @@ class DocumentProviderManufacturer(
 
 
 @final
-class Breadcrumb(LinkedDataDumpable[PortableMapping]):
+class Breadcrumb(LinkedDataPortable):
     """
     A breadcrumb.
     """
@@ -234,7 +235,14 @@ class Breadcrumb(LinkedDataDumpable[PortableMapping]):
         """
 
     @override
-    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
+    @classmethod
+    async def linked_data_schema(
+        cls, project: Project, /
+    ) -> VoidableType[PortableMapping]:
+        return {}
+
+    @override
+    async def dump_linked_data(self, project: Project, /) -> LinkedData:
         portable: PortableMapping = {
             "@type": "ListItem",
             "name": self.label,
@@ -248,7 +256,7 @@ class Breadcrumb(LinkedDataDumpable[PortableMapping]):
 
 
 @final
-class Breadcrumbs(LinkedDataDumpable[PortableMapping], Iterable[Breadcrumb], Sized):
+class Breadcrumbs(LinkedDataPortable, Iterable[Breadcrumb], Sized):
     """
     A trail of navigational breadcrumbs.
     """
@@ -271,7 +279,14 @@ class Breadcrumbs(LinkedDataDumpable[PortableMapping], Iterable[Breadcrumb], Siz
         self._breadcrumbs.append(Breadcrumb(label, resource_url))
 
     @override
-    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
+    @classmethod
+    async def linked_data_schema(
+        cls, project: Project, /
+    ) -> VoidableType[PortableMapping]:
+        return {}
+
+    @override
+    async def dump_linked_data(self, project: Project, /) -> LinkedData:
         if not self._breadcrumbs:
             return {}
         return {

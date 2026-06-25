@@ -8,16 +8,12 @@ from typing import TYPE_CHECKING, Any, Final, Self, final, override
 from betty.attrs.privacy import HasPrivacy
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.definition.human_facing import CountableHumanFacingDefinition
-from betty.json_schema import JsonSchemaReference, String
-from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
+from betty.linked_data import HasLinkedDataAttrs
 from betty.localizables.gettext import _, ngettext
-from betty.localizer import default_localizer
 from betty.machine_name import MachineName
-from betty.media_types.json_ld import JSON_LD
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.data import DataPlugin, DataPluginDefinition
 from betty.privacy import Privacy
-from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
@@ -29,14 +25,11 @@ if TYPE_CHECKING:
         ResolvableLocalizable,
     )
     from betty.machine_name import ResolvableMachineName
-    from betty.portable import PortableMapping
     from betty.project import Project
     from betty.requirement import Requires
 
 
-class Entity(
-    LinkedDataDumpableWithSchemaJsonLdObject, DataPlugin["EntityDefinition"], HasPrivacy
-):
+class Entity(HasLinkedDataAttrs, DataPlugin["EntityDefinition"], HasPrivacy):
     """
     An entity is a uniquely identifiable data container.
 
@@ -90,29 +83,6 @@ class Entity(
         return _("{entity_type} {entity_id}").format(
             entity_type=self.plugin().label, entity_id=self.id
         )
-
-    @override
-    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
-        url_generator = await project.url_generator
-        portable["@id"] = url_generator.generate(
-            self, media_type=JSON_LD, absolute=True
-        )
-        portable["id"] = self.id
-
-        return portable
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
-        schema = await super().linked_data_schema(project)
-        schema._def_name = f"{kebab_case_to_lower_camel_case(cls.plugin().id)}Entity"
-        schema.title = cls.plugin().label.localize(default_localizer)
-        schema.add_property("$schema", JsonSchemaReference())
-        schema.add_property("id", String(title="Entity ID"), False)
-        schema.add_property("public_id", String(title="Public entity ID"), False)
-
-        return schema
 
 
 @final
