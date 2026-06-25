@@ -1,18 +1,18 @@
 from __future__ import annotations
 
-from betty.datas.role_definition import RoleDefinitionData
+from betty.datas.plugin.definition.gender import GenderDefinitionData
 from betty.localizables.plain import Plain
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
 )
 
 
-class TestRoleDefinitionData:
+class TestGenderDefinitionData:
     def test_new_plugin__minimal(self) -> None:
-        plugin_id = "my-first-role"
+        plugin_id = "my-first-gender"
         label = Plain("-")
         label_plural = Plain("-")
-        sut = RoleDefinitionData(
+        sut = GenderDefinitionData(
             id=plugin_id,
             label=label,
             label_plural=label_plural,
@@ -26,8 +26,8 @@ class TestRoleDefinitionData:
 
     def test_new_plugin__full(self) -> None:
         description = Plain("-")
-        sut = RoleDefinitionData(
-            id="my-first-role",
+        sut = GenderDefinitionData(
+            id="my-first-gender",
             label="-",
             label_plural="-",
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,

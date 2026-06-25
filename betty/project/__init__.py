@@ -43,13 +43,13 @@ from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.bool import BoolDefinition
-from betty.datas.copyright_notice_definition import CopyrightNoticeDefinitionData
-from betty.datas.event_type_definition import EventTypeDefinitionData
-from betty.datas.gender_definition import GenderDefinitionData
 from betty.datas.int import IntDefinition
-from betty.datas.license_definition import LicenseDefinitionData
-from betty.datas.place_type_definition import PlaceTypeDefinitionData
-from betty.datas.role_definition import RoleDefinitionData
+from betty.datas.plugin.definition.copyright_notice import CopyrightNoticeDefinitionData
+from betty.datas.plugin.definition.event_type import EventTypeDefinitionData
+from betty.datas.plugin.definition.gender import GenderDefinitionData
+from betty.datas.plugin.definition.license import LicenseDefinitionData
+from betty.datas.plugin.definition.place_type import PlaceTypeDefinitionData
+from betty.datas.plugin.definition.role import RoleDefinitionData
 from betty.datas.str import StrDefinition
 from betty.dirs import builtin_asset_directory
 from betty.document import Document, DocumentProviderDefinition

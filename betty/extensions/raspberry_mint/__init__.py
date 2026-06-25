@@ -25,7 +25,7 @@ from betty.data import Data
 from betty.datas.aggregate.collection.mapping import MappingDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.color import ColorDefinition
-from betty.datas.plugin_manufacturer_sequence import (
+from betty.datas.plugin.manufacturer.sequence import (
     PluginManufacturerSequenceDefinition,
 )
 from betty.datas.str import StrDefinition

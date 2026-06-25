@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import final, override
 
 from betty.datas.aggregate.record.object import ObjectDefinition
-from betty.datas.countable_human_facing_plugin_definition import (
+from betty.datas.plugin.definition.human_facing import (
     CountableHumanFacingPluginDefinitionData,
 )
 from betty.gender import Gender, GenderDefinition

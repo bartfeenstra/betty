@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from betty.attrs.owner import CollectionOwnerAttr
-from betty.datas.plugin_manufacturer_sequence import (
+from betty.datas.plugin.manufacturer.sequence import (
     PluginManufacturerSequenceDefinition,
 )
 from betty.plugin.cls import PluginClsDefinition

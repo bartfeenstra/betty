@@ -1,5 +1,5 @@
 """
-Countable human-facing plugin definition data.
+Human-facing plugin definition data.
 """
 
 from __future__ import annotations
@@ -8,17 +8,37 @@ from typing import TYPE_CHECKING, Any
 
 from betty.attrs.countable_localizable import new_countable_localizable_attr
 from betty.attrs.localizable import new_localizable_attr
-from betty.datas.human_facing_plugin_definition import (
-    HumanFacingPluginDefinitionData,
-)
+from betty.attrs.optional import OptionalAttr
+from betty.datas.plugin.definition import PluginDefinitionData
 from betty.localizables.gettext import _
 from betty.plugin import PluginDefinition
 
 if TYPE_CHECKING:
-    from betty.localizable import (
-        ResolvableCountableLocalizable,
-        ResolvableLocalizable,
-    )
+    from betty.localizable import ResolvableCountableLocalizable, ResolvableLocalizable
+
+
+class HumanFacingPluginDefinitionData[
+    PluginDefinitionT: PluginDefinition = PluginDefinition
+](PluginDefinitionData[PluginDefinitionT]):
+    """
+    Configure a :py:class:`betty.definition.human_facing.HumanFacingDefinition`.
+
+    .. data:: betty.datas.human_facing_plugin_definition:HumanFacingPluginDefinitionData
+    """
+
+    label = new_localizable_attr(label=_("Label"))
+    description = OptionalAttr(new_localizable_attr(label=_("Description")))
+
+    def __init__(
+        self,
+        *,
+        label: ResolvableLocalizable,
+        description: ResolvableLocalizable | None = None,
+        **kwargs: Any,
+    ):
+        super().__init__(**kwargs)
+        self.label = label
+        self.description = description
 
 
 class CountableHumanFacingPluginDefinitionData[

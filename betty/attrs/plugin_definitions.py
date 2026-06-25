@@ -10,7 +10,7 @@ from betty.attrs.owner import CollectionOwnerAttr
 from betty.collection.keyed import MutableKeyedCollection
 from betty.collections.keyed.adapter import MutableKeyedCollectionAdapter
 from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
-from betty.datas.plugin_definition import PluginDefinitionData
+from betty.datas.plugin.definition import PluginDefinitionData
 from betty.indicator.selector import Attr
 from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
@@ -41,7 +41,7 @@ def new_plugin_definition_datas_attr[PluginDefinitionT: PluginDefinition](
     Iterable[PluginDefinitionData[PluginDefinitionT]],
 ]:
     """
-    Create attribute containing a :py:class:`betty.collection.keyed.KeyedCollection` of :py:class:`betty.datas.plugin_definition.PluginDefinitionData`.
+    Create attribute containing a :py:class:`betty.collection.keyed.KeyedCollection` of :py:class:`betty.datas.plugin.definition.PluginDefinitionData`.
     """
     return CollectionOwnerAttr(
         KeyedCollectionDefinition[

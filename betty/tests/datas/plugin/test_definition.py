@@ -1,6 +1,6 @@
 from typing import override
 
-from betty.datas.plugin_definition import PluginDefinitionData
+from betty.datas.plugin.definition import PluginDefinitionData
 from betty.test_utils.plugin import DummyPluginDefinition
 
 

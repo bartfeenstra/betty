@@ -1,5 +1,5 @@
 """
-Plugin definition data.
+Reusable data for plugin definitions.
 """
 
 from __future__ import annotations

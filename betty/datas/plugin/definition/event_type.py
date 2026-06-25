@@ -7,10 +7,10 @@ from __future__ import annotations
 from typing import final, override
 
 from betty.datas.aggregate.record.object import ObjectDefinition
-from betty.datas.countable_human_facing_plugin_definition import (
+from betty.datas.plugin.definition.human_facing import (
     CountableHumanFacingPluginDefinitionData,
 )
-from betty.datas.ordered_plugin_definition import OrderedPluginDefinitionData
+from betty.datas.plugin.definition.ordered import OrderedPluginDefinitionData
 from betty.event_type import EventType, EventTypeDefinition
 from betty.locale import default_locale
 from betty.localizables.gettext import _

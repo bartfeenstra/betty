@@ -29,7 +29,7 @@ from betty.datas.aggregate.collection.sequence import SequenceDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.enum import EnumDefinition
 from betty.datas.int import IntDefinition
-from betty.datas.plugin_manufacturer_sequence import (
+from betty.datas.plugin.manufacturer.sequence import (
     PluginManufacturerSequenceDefinition,
 )
 from betty.extensions.raspberry_mint import Breakpoint, JustifyContent
