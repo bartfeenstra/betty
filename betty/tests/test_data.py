@@ -6,8 +6,9 @@ import pytest
 
 from betty.assertions.str import assert_str
 from betty.data import Data, DataDefinition, Sample, resolve_data_definition
-from betty.portable import CallbackPorter, Portable, PortableData
+from betty.portable import Portable, PortableData
 from betty.portable.error import NotPortable
+from betty.porters.callback import CallbackPorter
 from betty.sample import Samplable, Samples
 
 

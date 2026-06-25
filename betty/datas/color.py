@@ -11,7 +11,7 @@ from betty.assertions.str import assert_str
 from betty.data import DataDefinition
 from betty.exception import HumanFacingException
 from betty.localizables.gettext import _
-from betty.portable import CallbackPorter
+from betty.porters.callback import CallbackPorter
 from betty.sample import Sample
 
 _hex_pattern: Final[re.Pattern[str]] = re.compile(r"^#[a-zA-Z0-9]{6}$")

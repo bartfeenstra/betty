@@ -9,8 +9,9 @@ from typing import TYPE_CHECKING, Final, Self, final, override
 from betty.definition.cls import OptionalClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.importlib import fully_qualified_name
-from betty.portable import Portable, PortableData, PortablePorter, Porter
+from betty.portable import Portable, PortableData, Porter
 from betty.portable.error import NotPortable
+from betty.porters.portable import PortablePorter
 from betty.sample import Samplable, Sample, Samples
 
 if TYPE_CHECKING:

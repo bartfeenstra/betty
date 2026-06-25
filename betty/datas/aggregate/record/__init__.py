@@ -6,19 +6,8 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from inspect import signature
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Final,
-    Generic,
-    Self,
-    TypeVar,
-    final,
-    override,
-)
+from typing import TYPE_CHECKING, Any, Final, Generic, Self, TypeVar, final, override
 
-from betty.assertions.mapping import assert_mapping
-from betty.assertions.record import Field, assert_record
 from betty.data import (
     DataDefinition,
     ResolvableDataDefinition,
@@ -29,13 +18,12 @@ from betty.data import (
 from betty.datas.aggregate import AggregateDefinition
 from betty.indicator.selector import Element
 from betty.localizable import resolve_localizable
-from betty.portable import Portable, PortableData, PortablePorter, Porter
+from betty.portable import Portable, PortableData, Porter
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping, MutableMapping
 
     from betty.localizable import Localizable, ResolvableLocalizable
-    from betty.portable import PortableMapping
     from betty.typing import Intersection
 
 
@@ -166,82 +154,6 @@ class RecordPorter[DataClsT, ElementT: Element[str] = Element[str]](Porter[DataC
         """
 
 
-@final
-class PortableRecordPorter[
-    PortableRecordT: PortableRecord,
-    ElementT: Element[str] = Element[str],
-](PortablePorter[PortableRecordT], RecordPorter[PortableRecordT, ElementT]):
-    """
-    Expose a portable record data type as a porter.
-    """
-
-    @override
-    def load_key(
-        self, portable: PortableData, key: ElementT, portable_key: str, /
-    ) -> PortableRecordT:
-        return self._cls.load_key(portable, key, portable_key)
-
-    @override
-    def dump_key(
-        self, data: PortableRecordT, key: ElementT, /
-    ) -> tuple[str, PortableData]:
-        return data.dump_key(key)
-
-
-@final
-class MappingPorter[DataClsT, ElementT: Element[str] = Element[str]](
-    RecordPorter[DataClsT]
-):
-    """
-    Load and dump a record from and to portable mappings.
-    """
-
-    def __init__(self, record: RecordDefinition[DataClsT, ElementT], /):
-        self._record = record
-
-    @override
-    def load(self, portable: PortableData, /) -> DataClsT:
-        return self._record.factory(
-            **assert_record(*[
-                Field(
-                    selector.element, field.data.porter.load, optional=field.omit_load
-                )
-                for selector, field in self._record.fields.items()
-            ])(portable)
-        )
-
-    @override
-    def dump(self, data: DataClsT, /) -> PortableMapping:
-        portable = {}
-        for selector, field in self._record.fields.items():
-            field_data = selector.get(data)
-            if not field.omit_dump(data, field_data):
-                portable[selector.element] = field.data.porter.dump(field_data)
-        return portable
-
-    @override
-    def load_key(
-        self,
-        portable: PortableData,
-        key: ElementT,
-        portable_key: str,
-        /,
-    ) -> DataClsT:  # ty:ignore[invalid-method-override]
-        return self.load({**assert_mapping()(portable), key.element: portable_key})
-
-    @override
-    def dump_key(
-        self,
-        data: DataClsT,
-        key: ElementT,
-        /,
-    ) -> tuple[str, PortableData]:  # ty:ignore[invalid-method-override]
-        portable = self.dump(data)
-        portable_key = portable.pop(key.element)
-        assert isinstance(portable_key, str)
-        return portable_key, portable
-
-
 class RecordDefinition[DataClsT, ElementT: Element[str] = Element[str]](
     AggregateDefinition[DataClsT, ElementT]
 ):
@@ -296,11 +208,14 @@ class RecordDefinition[DataClsT, ElementT: Element[str] = Element[str]](
     @override
     @property
     def porter(self) -> RecordPorter[DataClsT]:
+        from betty.porters.portable_record import PortableRecordPorter
+        from betty.porters.record_mapping import RecordMappingPorter
+
         if self._porter is None:
             if self.cls and issubclass(self.cls, PortableRecord):
                 self._porter = PortableRecordPorter(self.cls)  # ty:ignore[invalid-assignment]
             else:
-                self._porter = MappingPorter(  # ty:ignore[invalid-assignment]
+                self._porter = RecordMappingPorter(  # ty:ignore[invalid-assignment]
                     self,  # ty:ignore[invalid-argument-type]
                 )
         return self._porter  # ty:ignore[invalid-return-type]

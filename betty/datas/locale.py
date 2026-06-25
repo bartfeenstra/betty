@@ -12,7 +12,7 @@ from betty.assertions.locale import assert_locale
 from betty.data import DataDefinition
 from betty.locale import to_language_tag
 from betty.localizables.gettext import _
-from betty.portable import CallbackPorter
+from betty.porters.callback import CallbackPorter
 
 
 @final

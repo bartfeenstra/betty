@@ -1,25 +1,18 @@
 from dataclasses import dataclass
-from typing import Self, override
 from unittest.mock import Mock
-
-import pytest
 
 from betty.data import DataDefinition
 from betty.datas.aggregate.record import (
     FieldDefinition,
-    MappingPorter,
-    PortableRecord,
-    PortableRecordPorter,
     RecordDefinition,
     RecordPorter,
 )
 from betty.datas.bool import BoolDefinition
 from betty.datas.optional import OptionalDefinition
 from betty.datas.str import StrDefinition
-from betty.exception import HumanFacingException
 from betty.indicator.selector import Attr
 from betty.localizables.plain import Plain
-from betty.portable import PortableData
+from betty.porters.record_mapping import RecordMappingPorter
 
 
 class TestFieldDefinition:
@@ -110,7 +103,7 @@ class TestRecordDefinition:
         sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
             cls=RecordDefinitionTestRecord, label="-"
         )
-        assert isinstance(sut.porter, MappingPorter)
+        assert isinstance(sut.porter, RecordMappingPorter)
 
     def test_porter__with_porter(self) -> None:
         m_porter = Mock(spec=RecordPorter)
@@ -127,125 +120,3 @@ class TestRecordDefinition:
             fields={Attr("my_first_element"): field},
         )
         assert dict(sut.fields) == {Attr("my_first_element"): field}
-
-
-class TestMappingPorter:
-    def test_load__with_value(self) -> None:
-        field_name = "my_first_element"
-        sut = MappingPorter(
-            RecordDefinition[RecordDefinitionTestRecord, Attr](
-                cls=RecordDefinitionTestRecord,
-                label="-",
-                fields={Attr(field_name): FieldDefinition(StrDefinition(label="-"))},
-            )
-        )
-        value = "Hello, world!"
-        data = sut.load({field_name: value})
-        assert data.my_first_element == value
-
-    def test_load__without_value(self) -> None:
-        field_name = "my_first_element"
-        sut = MappingPorter(
-            RecordDefinition[RecordDefinitionTestRecord, Attr](
-                cls=RecordDefinitionTestRecord,
-                label="-",
-                fields={Attr(field_name): FieldDefinition(StrDefinition(label="-"))},
-            )
-        )
-        with pytest.raises(HumanFacingException):
-            sut.load({})
-
-    def test_load__with_factory(self) -> None:
-        field_name = "my_first_element"
-        sut = MappingPorter(
-            RecordDefinition[RecordDefinitionTestRecord, Attr](
-                cls=RecordDefinitionTestRecord,
-                label="-",
-                fields={Attr(field_name): FieldDefinition(StrDefinition(label="-"))},
-                factory=RecordDefinitionTestFactoryRecord,
-            )
-        )
-        value = "Hello, world!"
-        data = sut.load({field_name: value})
-        assert isinstance(data, RecordDefinitionTestFactoryRecord)
-        assert data.my_first_element == value
-
-    def test_dump(self) -> None:
-        field_name = "my_first_element"
-        sut = MappingPorter(
-            RecordDefinition[RecordDefinitionTestRecord, Attr](
-                cls=RecordDefinitionTestRecord,
-                label="-",
-                fields={Attr(field_name): FieldDefinition(StrDefinition(label="-"))},
-            )
-        )
-        value = "Hello, world!"
-        data = RecordDefinitionTestRecord(value)
-        assert sut.dump(data) == {field_name: value}
-
-    def test_load_key(self) -> None:
-        field_name = "my_first_element"
-        sut = MappingPorter(
-            RecordDefinition[RecordDefinitionTestRecord, Attr](
-                cls=RecordDefinitionTestRecord,
-                label="-",
-                fields={Attr(field_name): FieldDefinition(StrDefinition(label="-"))},
-            )
-        )
-        value = "Hello, world!"
-        data = sut.load_key({}, Attr(field_name), value)
-        assert data.my_first_element == value
-
-    def test_dump_key(self) -> None:
-        field_name = "my_first_element"
-        sut = MappingPorter(
-            RecordDefinition[RecordDefinitionTestRecord, Attr](
-                cls=RecordDefinitionTestRecord,
-                label="-",
-                fields={Attr(field_name): FieldDefinition(StrDefinition(label="-"))},
-            )
-        )
-        value = "Hello, world!"
-        data = RecordDefinitionTestRecord(value)
-        assert sut.dump_key(data, Attr(field_name)) == (value, {})
-
-
-class PortableRecordPorterTestPortableRecord(PortableRecord[Attr]):
-    def __init__(self, key: str, value: str):
-        self.key = key
-        self.value = value
-
-    @override
-    @classmethod
-    def load(cls, portable: PortableData, /) -> Self:
-        raise NotImplementedError
-
-    @override
-    def dump(self) -> PortableData:
-        raise NotImplementedError
-
-    @override
-    @classmethod
-    def load_key(cls, portable: PortableData, key: Attr, portable_key: str, /) -> Self:
-        return cls(portable_key, portable["value"])  # ty:ignore[invalid-argument-type, not-subscriptable]
-
-    @override
-    def dump_key(self, key: Attr, /) -> tuple[str, PortableData]:
-        return self.key, {"value": self.value}
-
-
-class TestPortableRecordPorter:
-    def test_load_key(self) -> None:
-        sut = PortableRecordPorter(PortableRecordPorterTestPortableRecord)
-        key = "hello-world"
-        value = "Hello, world!"
-        data = sut.load_key({"value": value}, Attr("key"), key)
-        assert data.key == key
-        assert data.value == value
-
-    def test_dump_key(self) -> None:
-        sut = PortableRecordPorter(PortableRecordPorterTestPortableRecord)
-        key = "hello-world"
-        value = "Hello, world!"
-        data = PortableRecordPorterTestPortableRecord(key, value)
-        assert sut.dump_key(data, Attr("key")) == (key, {"value": value})

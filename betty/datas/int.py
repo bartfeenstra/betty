@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, final
 
 from betty.assertions.int import assert_int
 from betty.data import DataDefinition
-from betty.portable import CallbackPorter
+from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable

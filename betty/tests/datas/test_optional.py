@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from betty.data import DataDefinition
 from betty.datas.optional import OptionalDefinition
-from betty.portable import OptionalPorter
+from betty.porters.optional import OptionalPorter
 from betty.tests.test_data import _DummyData
 
 

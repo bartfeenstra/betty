@@ -12,12 +12,7 @@ from betty.assertions.sequence import assert_sequence
 from betty.collection.keyed import MutableKeyedCollection
 from betty.datas.aggregate.collection import CollectionDefinition
 from betty.indicator.selector import Element
-from betty.portable import (
-    CallbackPorter,
-    PortableData,
-    PortableMapping,
-    PortableSequence,
-)
+from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -25,6 +20,11 @@ if TYPE_CHECKING:
     from betty.data import Data
     from betty.datas.aggregate.record import RecordDefinition
     from betty.localizable import ResolvableLocalizable
+    from betty.portable import (
+        PortableData,
+        PortableMapping,
+        PortableSequence,
+    )
     from betty.typing import Intersection
 
 
