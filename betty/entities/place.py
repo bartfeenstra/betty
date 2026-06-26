@@ -42,13 +42,12 @@ if TYPE_CHECKING:
     label=_("Place"),
     label_plural=_("Places"),
     label_countable=ngettext("{count} place", "{count} places"),
+    linked_data_type="https://schema.org/Place",
 )
 class Place(HasLinks, HasFileReferences, HasNotes):
     """
     .. plugin:: entity:place.
     """
-
-    _linked_data_type = "https://schema.org/Place"
 
     events = ToMany[Self, "Event"](
         "betty.entities.event:Event",

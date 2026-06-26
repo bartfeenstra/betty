@@ -8,9 +8,9 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, final, override
 
+from betty.attr import HasAttrs
 from betty.json_schema import embed_json_schema
 from betty.media_types.json_ld import JSON_LD
-from betty.prop import HasProps
 from betty.string import kebab_case_to_lower_camel_case, snake_case_to_lower_camel_case
 from betty.typing import Void, Voidable, VoidableType
 
@@ -73,12 +73,13 @@ class LinkedDataPorter[T](ABC):
 
 
 # @todo refactor this into a linked data porter
-class HasLinkedDataAttrs(LinkedDataPortable, HasProps):
+# @todo We should center it around RecordDefinition, because we will need to work with FieldDefinition to handle matters
+# @todo such as privacy checks.
+# @todo
+class HasLinkedDataAttrs(LinkedDataPortable, HasAttrs):
     """
     An object that has attributes and can be dumped to linked data.
     """
-
-    _linked_data_type = "https://schema.org/Thing"
 
     @final
     @override
@@ -90,11 +91,10 @@ class HasLinkedDataAttrs(LinkedDataPortable, HasProps):
         property_schemas = {
             **await cls.linked_data_schema_properties(project),
             **{
-                snake_case_to_lower_camel_case(prop.prop.name): await prop.schema(
-                    project
-                )
-                for prop in cls.props()
-                if isinstance(prop, LinkedDataPorter)
+                snake_case_to_lower_camel_case(
+                    attr.prop.name
+                ): await attr.field.data.linked_data_porter.schema(project)
+                for attr in cls.attrs()
             },
         }
         for property_name, property_schema in property_schemas.items():
@@ -149,11 +149,12 @@ class HasLinkedDataAttrs(LinkedDataPortable, HasProps):
             **embed_linked_datas(
                 await self.dump_linked_data_properties(project),
                 {
-                    snake_case_to_lower_camel_case(prop.prop.name): await prop.dump(
-                        project, prop.get(self)
+                    snake_case_to_lower_camel_case(
+                        attr.prop.name
+                    ): await attr.field.data.linked_data_porter.dump(
+                        project, attr.get(self)
                     )
-                    for prop in self.props()
-                    if isinstance(prop, LinkedDataPorter)
+                    for attr in self.attrs()
                 },
                 contexts=contexts,
             ),

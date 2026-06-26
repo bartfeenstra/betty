@@ -684,10 +684,10 @@ async def assert_dumps_linked_data_for(
     """
 
     async def _assert_dumps_linked_data_for[T](
-        sut: LinkedDataPorter[T], target: T, /
+        sut: LinkedDataPorter[T], data: T, /
     ) -> LinkedData | VoidType:
-        data = await sut.dump(isolated_project, target)
-        validate(await sut.schema(isolated_project), data)
-        return data
+        linked_data = await sut.dump(isolated_project, data)
+        validate(await sut.schema(isolated_project), linked_data)
+        return linked_data
 
     return _assert_dumps_linked_data_for

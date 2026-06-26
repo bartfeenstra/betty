@@ -14,8 +14,6 @@ from betty.associations.to_one import ToOne
 from betty.attrs.date import HasAnyDate
 from betty.attrs.localizable import new_localizable_attr
 from betty.entity import EntityDefinition
-from betty.json_schemas.static_translations import new_static_translations_schema
-from betty.localizable.linked_data import dump_linked_data
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
 from betty.privacy.resolve import merge_privacies
@@ -27,12 +25,8 @@ if TYPE_CHECKING:
     from betty.entities.file_reference import FileReference
     from betty.entities.link import Link
     from betty.entities.note import Note
-    from betty.linked_data import LinkedData
     from betty.localizable import Localizable, ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
-    from betty.portable import PortableMapping
-    from betty.project import Project
-    from betty.typing import VoidableType
 
 
 @final
@@ -47,7 +41,9 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks):
     .. plugin:: entity:source.
     """
 
-    name = new_localizable_attr(label=_("Name")).optional
+    name = new_localizable_attr(
+        label=_("Name"), linked_data_context="https://schema.org/name"
+    ).optional
     """
     The source's name.
     """
@@ -132,37 +128,3 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks):
     @property
     def label(self) -> Localizable:
         return self.name if self.name else super().label
-
-    @override
-    @classmethod
-    async def linked_data_schema(
-        cls, project: Project, /
-    ) -> VoidableType[PortableMapping]:
-        schema = await super().linked_data_schema(project)
-        static_translations_schema = new_static_translations_schema()
-        schema.add_property("author", static_translations_schema, False)
-        schema.add_property("name", static_translations_schema, False)
-        schema.add_property("publisher", static_translations_schema, False)
-        return schema
-
-    @override
-    async def dump_linked_data(self, project: Project, /) -> LinkedData:
-        portable = await super().dump_linked_data(project)
-        portable["@type"] = "https://schema.org/Thing"
-        # @todo
-        # dump_context(portable, name="https://schema.org/name")
-        if self.public:
-            public_localizers = await project.public_localizers
-            if self.author is not None:
-                portable["author"] = dump_linked_data(
-                    self.author, localizers=public_localizers
-                )
-            if self.name is not None:
-                portable["name"] = dump_linked_data(
-                    self.name, localizers=public_localizers
-                )
-            if self.publisher is not None:
-                portable["publisher"] = dump_linked_data(
-                    self.publisher, localizers=public_localizers
-                )
-        return portable

@@ -24,10 +24,15 @@ def new_localizable_attr(
     *,
     label: ResolvableLocalizable,
     description: ResolvableLocalizable | None = None,
+    linked_data_context: str | None = None,
 ) -> CommonAttr[HasProps, Localizable, ResolvableLocalizable]:
     """
     Create an attribute containing a :py:class:`betty.localizable.Localizable`.
     """
     return OwnerAttr(
-        FieldDefinition(LocalizableDefinition(), label=label, description=description)
+        FieldDefinition(
+            LocalizableDefinition(linked_data_context=linked_data_context),
+            label=label,
+            description=description,
+        )
     ).setter(resolve_localizable)

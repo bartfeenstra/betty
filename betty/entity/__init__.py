@@ -9,6 +9,7 @@ from betty.attrs.privacy import HasPrivacy
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.linked_data import HasLinkedDataAttrs
+from betty.linked_data_porters.callback import CallbackLinkedDataPorter
 from betty.localizables.gettext import _, ngettext
 from betty.machine_name import MachineName
 from betty.plugin import PluginTypeDefinition
@@ -113,6 +114,7 @@ class EntityDefinition[EntityT: Entity = Entity](
         label_countable: CountableLocalizable,
         auto: bool = True,
         description: ResolvableLocalizable | None = None,
+        linked_data_type: str = "https://schema.org/Thing",
         public_facing: bool = True,
         requires: Requires = (),
     ):
@@ -124,6 +126,9 @@ class EntityDefinition[EntityT: Entity = Entity](
             label_countable=label_countable,
             description=description,
             requires=requires,
+            linked_data_porter=CallbackLinkedDataPorter(
+                self._linked_data_schema, self._dump_linked_data, linked_data_type
+            ),
         )
         self.public_facing: Final[bool] = public_facing
         """

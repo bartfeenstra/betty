@@ -21,13 +21,10 @@ from betty.entity import EntityDefinition
 from betty.event_type import EventTypeDefinition
 from betty.event_types.unknown import UnknownEventType
 from betty.json_schemas.plugin_id import new_plugin_id_schema
-from betty.json_schemas.static_translations import new_static_translations_schema
-from betty.localizable.linked_data import dump_linked_data
 from betty.localizables.gettext import _, ngettext
 from betty.localizables.markup import AllEnumeration
 from betty.privacy import Privacy
 from betty.roles.subject import Subject
-from betty.typing import Voidable, VoidableType
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -43,6 +40,7 @@ if TYPE_CHECKING:
     from betty.machine_name import ResolvableMachineName
     from betty.portable import PortableMapping
     from betty.project import Project
+    from betty.typing import VoidableType
 
 
 @final
@@ -146,7 +144,6 @@ class Event(
         cls, project: Project, /
     ) -> Mapping[str, VoidableType[PortableMapping]]:
         return {
-            "name": Voidable(new_static_translations_schema()),
             "type": new_plugin_id_schema(
                 EventTypeDefinition.type(),
                 [x async for x in project.plugins[EventTypeDefinition]],
@@ -173,8 +170,4 @@ class Event(
             "https://schema.org/OfflineEventAttendanceMode"
         )
         portable["eventStatus"] = "https://schema.org/EventScheduled"
-        if self.name is not None:
-            portable["name"] = dump_linked_data(
-                self.name, localizers=await project.public_localizers
-            )
         return portable

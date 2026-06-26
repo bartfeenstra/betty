@@ -17,6 +17,7 @@ from betty.sample import Samplable, Sample, Samples
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, MutableMapping
 
+    from betty.linked_data import LinkedDataPorter
     from betty.localizable import ResolvableLocalizable
     from betty.typing import Intersection
 
@@ -34,6 +35,7 @@ class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
         cls: type[DataClsT] | None = None,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
+        linked_data_porter: LinkedDataPorter[DataClsT] | None = None,
         porter: Porter[DataClsT, PortableDataT] | None = None,
         samples: Iterable[
             Callable[[], Sample[DataClsT]]
@@ -44,6 +46,7 @@ class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
     ):
         super().__init__(*args, cls=cls, label=label, description=description, **kwargs)
         self._porter = porter
+        self.__linked_data_porter = linked_data_porter
         self._samples = tuple(samples)
 
     @property
@@ -58,6 +61,17 @@ class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
                 )
             self._porter = PortablePorter(self.cls)
         return self._porter  # ty:ignore[invalid-return-type]
+
+    @property
+    def linked_data_porter(self) -> LinkedDataPorter[DataClsT]:
+        """
+        The linked data porter.
+        """
+        if self.__linked_data_porter is None:
+            raise NotPortable(
+                "This definition does not have a linked data porter. Provide a linked data porter when initializing the definition."
+            )
+        return self.__linked_data_porter
 
     @override
     def _set_cls(self, cls: type[DataClsT], /) -> None:

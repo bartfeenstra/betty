@@ -62,5 +62,6 @@ class _GenerateEntityJson(Job):
         entity = self._project.ancestry[self._entity_type.cls][self._entity_id]
         entity_path = self._project.www_directory / self._entity_type.id / entity.id
         await _create_json_resource(
-            entity_path, dumps(await entity.dump_linked_data(self._project))
+            entity_path,
+            dumps(await entity.data().linked_data_porter.dump(self._project, entity)),
         )

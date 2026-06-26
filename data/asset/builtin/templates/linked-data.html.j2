@@ -1,8 +1,8 @@
 {% set linked_data=[
     document.breadcrumbs.dump_linked_data(project)
 ] %}
-{% if document.resource is linked_data_dumpable %}
-    {% do linked_data.append(document.resource.dump_linked_data(project)) %}
+{% if document.resource is entity_plugin %}
+    {% do linked_data.append(document.resource.data().linked_data_porter.dump(project)) %}
 {% endif %}
 {% if linked_data %}
     <script type="application/ld+json">

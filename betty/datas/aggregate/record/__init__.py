@@ -19,6 +19,7 @@ from betty.datas.aggregate import AggregateDefinition
 from betty.indicator.selector import Element
 from betty.localizable import resolve_localizable
 from betty.portable import Portable, PortableData, Porter
+from betty.privacy import Privacy
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping, MutableMapping
@@ -49,6 +50,7 @@ class FieldDefinition[
         omit_dump: Callable[[DataClsT], bool]
         | Callable[[OwnerT, DataClsT], bool]
         | None = None,
+        privacy: Privacy = Privacy.UNDETERMINED,
     ):
         self.data: Final[DataDefinitionT] = resolve_data_definition(data)
         """
@@ -89,6 +91,8 @@ class FieldDefinition[
                 else omit_dump
             )  # ty:ignore[invalid-assignment]
         )
+
+        self.privacy: Final[Privacy] = privacy
 
     def omit_dump(self, owner: OwnerT, data: DataClsT, /) -> bool:
         """

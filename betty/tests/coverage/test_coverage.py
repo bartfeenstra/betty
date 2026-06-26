@@ -336,16 +336,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/links/betty_documentation.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/links/betty_github.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/links/http_api_doc.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/linked_data.py": {
-        "dump_context": MissingReason.SHOULD_BE_COVERED,
-        "dump_link": MissingReason.SHOULD_BE_COVERED,
-        "dump_schema": MissingReason.SHOULD_BE_COVERED,
-        "JsonLdObject": MissingReason.SHOULD_BE_COVERED,
-        "LinkedDataDumpable": MissingReason.ABSTRACT,
-        "LinkedDataDumpableWithSchema": MissingReason.ABSTRACT,
-        "LinkedDataDumpableWithSchemaJsonLdObject": MissingReason.SHOULD_BE_COVERED,
-        "LinkedDataDumper": MissingReason.ABSTRACT,
-    },
     "betty/load.py": {
         "load": MissingReason.SHOULD_BE_COVERED,
         "Loader": MissingReason.ABSTRACT,

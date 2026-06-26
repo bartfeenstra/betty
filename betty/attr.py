@@ -4,11 +4,35 @@ Object attributes.
 
 from __future__ import annotations
 
-from typing import Any, Final, Never
+from typing import TYPE_CHECKING, Any, Final, Never, Self, final
 
 from betty.data import DataDefinition, ResolvableDataDefinition, resolve_data_definition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.prop import HasProps, Prop
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+
+class HasAttrs(HasProps):
+    """
+    An object that has :py:class:`attributes <betty.attr.Attr>`.
+    """
+
+    def __init__(self, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+        for prop in self.props():
+            prop.init_owner(self)
+
+    @final
+    @classmethod
+    def attrs(cls) -> Iterable[Attr[Self, Any]]:
+        """
+        Get all attributes on this class.
+        """
+        for prop in cls.props():
+            if isinstance(prop, Attr):
+                yield prop
 
 
 class Attr[

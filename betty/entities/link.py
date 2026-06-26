@@ -15,9 +15,7 @@ from betty.attrs.owner import OwnerAttr
 from betty.attrs.privacy import HasPrivacy
 from betty.datas.str import StrDefinition
 from betty.entity import Entity, EntityDefinition
-from betty.json_schemas.static_translations import new_static_translations_schema
 from betty.link import Link as LinkType
-from betty.localizable.linked_data import dump_linked_data
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
 from betty.privacy.resolve import merge_privacies
@@ -108,35 +106,18 @@ class Link(LinkType, HasMediaType, HasDescription, Entity):
         cls, project: Project, /
     ) -> Mapping[str, VoidableType[PortableMapping]]:
         return {
-            "url": Voidable(
-                new_static_translations_schema(
-                    title="URL", description="The full URL to the other resource."
-                )
-            ),
             "relationship": Voidable({
                 "description": "The relationship between this resource and the link target (https://en.wikipedia.org/wiki/Link_relation).",
                 "title": "Relationship",
                 "type": "string",
             }),
-            "label": Voidable(
-                new_static_translations_schema(
-                    title="Label", description="The human-readable link label."
-                )
-            ),
         }
 
     @override
     async def dump_linked_data(self, project: Project, /) -> LinkedData:
-        public_localizers = await project.public_localizers
         portable = await super().dump_linked_data(project)
-        if self.public:
-            portable["url"] = dump_linked_data(self.url, localizers=public_localizers)
-            if self._label is not None:
-                portable["label"] = dump_linked_data(
-                    self._label, localizers=public_localizers
-                )
-            if self.relationship is not None:
-                portable["relationship"] = self.relationship
+        if self.public and self.relationship is not None:
+            portable["relationship"] = self.relationship
         return portable
 
     @override
