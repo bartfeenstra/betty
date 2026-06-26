@@ -51,7 +51,6 @@ if TYPE_CHECKING:
     from babel import Locale
 
     from betty.localizer import Localizer
-    from betty.typing import Intersection as Intersection
 
 
 @final

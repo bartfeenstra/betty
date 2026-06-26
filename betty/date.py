@@ -29,7 +29,6 @@ if TYPE_CHECKING:
 
     from betty.localized import LocalizedStr
     from betty.localizer import Localizer
-    from betty.typing import Intersection as Intersection
 
 
 @final

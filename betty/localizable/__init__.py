@@ -7,7 +7,7 @@ from __future__ import annotations
 import decimal
 from abc import ABC, abstractmethod
 from collections.abc import Mapping, MutableMapping
-from typing import TYPE_CHECKING, override
+from typing import override
 from warnings import warn
 
 from babel import Locale
@@ -15,9 +15,6 @@ from babel import Locale
 from betty.locale import ResolvableLocale
 from betty.localized import LocalizedStr
 from betty.localizer import Localizer, default_localizer
-
-if TYPE_CHECKING:
-    from betty.typing import Intersection as Intersection
 
 
 class _Localizable[T](ABC):
