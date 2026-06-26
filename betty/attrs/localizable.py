@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from betty.attrs.owner import OwnerAttr
+from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.localizable import LocalizableDefinition
 from betty.localizable import (
     Localizable,
@@ -28,5 +29,5 @@ def new_localizable_attr(
     Create an attribute containing a :py:class:`betty.localizable.Localizable`.
     """
     return OwnerAttr(
-        LocalizableDefinition(), label=label, description=description
+        FieldDefinition(LocalizableDefinition(), label=label, description=description)
     ).setter(resolve_localizable)

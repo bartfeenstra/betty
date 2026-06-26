@@ -43,6 +43,7 @@ class PluginManufacturerSequenceDefinition[
         ],
         *,
         label: ResolvableLocalizable | None = None,
+        description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
             cls=MutableResolvedSequence,
@@ -53,4 +54,5 @@ class PluginManufacturerSequenceDefinition[
             label=manufacturer.data().plugin_type.type().label_plural
             if label is None
             else label,
+            description=description,
         )

@@ -10,6 +10,7 @@ from betty.attrs.owner import CollectionOwnerAttr
 from betty.collection.keyed import MutableKeyedCollection
 from betty.collections.keyed.adapter import MutableKeyedCollectionAdapter
 from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
+from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.plugin.definition import PluginDefinitionData
 from betty.indicator.selector import Attr
 from betty.machine_name import MachineName
@@ -44,22 +45,24 @@ def new_plugin_definition_datas_attr[PluginDefinitionT: PluginDefinition](
     Create attribute containing a :py:class:`betty.collection.keyed.KeyedCollection` of :py:class:`betty.datas.plugin.definition.PluginDefinitionData`.
     """
     return CollectionOwnerAttr(
-        KeyedCollectionDefinition[
-            MutableKeyedCollection[
-                MachineName,
-                ResolvablePluginId[PluginDefinitionT],
+        FieldDefinition(
+            KeyedCollectionDefinition[
+                MutableKeyedCollection[
+                    MachineName,
+                    ResolvablePluginId[PluginDefinitionT],
+                    PluginDefinitionData[PluginDefinitionT],
+                    PluginDefinitionData[PluginDefinitionT],
+                ],
                 PluginDefinitionData[PluginDefinitionT],
-                PluginDefinitionData[PluginDefinitionT],
-            ],
-            PluginDefinitionData[PluginDefinitionT],
-        ](
-            value=item,
-            label=plugin_type.type().label_plural,
-            key=Attr("id"),
-            factory=lambda: MutableKeyedCollectionAdapter(key=lambda item: item.id),
-        ),
-        label=label,
-        description=description,
-        omit_load=True,
-        omit_dump=lambda data: not len(data),
+            ](
+                value=item,
+                label=plugin_type.type().label_plural,
+                key=Attr("id"),
+                factory=lambda: MutableKeyedCollectionAdapter(key=lambda item: item.id),
+            ),
+            label=label,
+            description=description,
+            omit_load=True,
+            omit_dump=lambda data: not len(data),
+        )
     )

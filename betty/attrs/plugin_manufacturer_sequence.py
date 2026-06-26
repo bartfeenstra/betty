@@ -44,7 +44,9 @@ def new_plugin_manufacturer_sequence_attr[
     Create an attribute containing a sequence of :py:class:`betty.plugin.factory.PluginManufacturer`.
     """
     return CollectionOwnerAttr(
-        PluginManufacturerSequenceDefinition(manufacturer),
-        label=label,
-        description=description,
+        PluginManufacturerSequenceDefinition(
+            manufacturer,
+            label=label,
+            description=description,
+        )
     ).setter(manufacturer.resolve_sequence)

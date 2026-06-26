@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from betty.attr import Attr
-from betty.data import DataDefinition
+from betty.data import DataDefinition, ResolvableDataDefinition
 from betty.prop import HasProps
 from betty.props.proxy import ProxyProp
 
@@ -24,7 +24,9 @@ class ProxyAttr[OwnerT: HasProps, GetT, SetT, DataDefinitionT: DataDefinition](
 
     def __init__(
         self,
-        field: FieldDefinition[OwnerT, GetT, DataDefinitionT] | None = None,
+        field: FieldDefinition[OwnerT, GetT, DataDefinitionT]
+        | ResolvableDataDefinition[DataDefinitionT]
+        | None = None,
         *args: Any,
         proxied: Attr[OwnerT, GetT, SetT, DataDefinitionT],
         **kwargs: Any,

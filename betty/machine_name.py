@@ -18,7 +18,7 @@ from betty.portable import Portable, PortableData
 if TYPE_CHECKING:
     from betty.localizable import Localizable
 
-_machine_name_description: Final[Localizable] = _(
+machine_name_description: Final[Localizable] = _(
     "A machine name is an identifier of at most 250 characters long, made up of lowercase letters, numbers, and/or non-consecutive hyphens (-)."
 )
 _machine_name_pattern: Final[re.Pattern[str]] = re.compile(r"^[a-z0-9\-]{1,250}$")
@@ -29,7 +29,7 @@ _machinify_hyphen_pattern: Final[re.Pattern[str]] = re.compile(r"-{2,}")
 
 
 @final
-@DataDefinition(label=_("Machine name"))
+@DataDefinition(label=_("Machine name"), description=machine_name_description)
 class MachineName(Portable[str], str, Data):
     """
     A machine name.
@@ -117,6 +117,6 @@ class InvalidMachineName(HumanFacingException, ValueError):
         super().__init__(
             Paragraph(
                 _('"{value}" is not a valid machine name.').format(value=value),
-                _machine_name_description,
+                machine_name_description,
             )
         )

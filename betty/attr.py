@@ -4,13 +4,11 @@ Object attributes.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Final, Never
+from typing import Any, Final, Never
 
-from betty.data import DataDefinition
+from betty.data import DataDefinition, ResolvableDataDefinition, resolve_data_definition
+from betty.datas.aggregate.record import FieldDefinition
 from betty.prop import HasProps, Prop
-
-if TYPE_CHECKING:
-    from betty.datas.aggregate.record import FieldDefinition
 
 
 class Attr[
@@ -25,12 +23,17 @@ class Attr[
 
     def __init__(
         self,
-        field: FieldDefinition[OwnerT, GetT, DataDefinitionT],
+        field: FieldDefinition[OwnerT, GetT, DataDefinitionT]
+        | ResolvableDataDefinition[DataDefinitionT],
         *args: Any,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
-        self.field: Final[FieldDefinition[OwnerT, GetT, DataDefinitionT]] = field
+        self.field: Final[FieldDefinition[OwnerT, GetT, DataDefinitionT]] = (
+            field
+            if isinstance(field, FieldDefinition)
+            else FieldDefinition(resolve_data_definition(field))
+        )
         """
         The attribute's field definition.
         """

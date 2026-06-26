@@ -33,7 +33,7 @@ def new_locale_attr(
     """
     Create an attribute containing a locale.
     """
-    return OwnerAttr(LocaleDefinition(), label=label, description=description).setter(
+    return OwnerAttr(LocaleDefinition(label=label, description=description)).setter(
         resolve_locale
     )
 
