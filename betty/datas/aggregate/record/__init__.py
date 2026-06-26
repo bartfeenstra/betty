@@ -167,25 +167,27 @@ class RecordDefinition[DataClsT, ElementT: Element[str] = Element[str]](
 
     def __init__(
         self,
-        /,
+        *args: Any,
         cls: type[DataClsT] | None = None,
-        *,
         label: ResolvableLocalizable,
         fields: Mapping[ElementT, FieldDefinition[DataClsT, Any]] | None = None,
         description: ResolvableLocalizable | None = None,
         samples: Iterable[Callable[[], Sample[DataClsT]] | Samples] = (),
         factory: Callable[..., DataClsT] | None = None,
         porter: RecordPorter[DataClsT] | None = None,
+        **kwargs: Any,
     ):
         self._fields: MutableMapping[ElementT, FieldDefinition[DataClsT, Any]] = (
             {} if fields is None else dict(fields)
         )
         super().__init__(
+            *args,
             cls=cls,
             label=label,
             description=description,
             samples=samples,
             porter=porter,
+            **kwargs,
         )
         self._factory = factory
 

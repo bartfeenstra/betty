@@ -8,7 +8,7 @@ to Betty.
 from __future__ import annotations
 
 from functools import update_wrapper
-from typing import TYPE_CHECKING, Final, Self, final, override
+from typing import TYPE_CHECKING, Any, Final, Self, final, override
 
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import CountableHumanFacingDefinition
@@ -30,12 +30,13 @@ class PluginDefinition:
     def __init__(
         self,
         plugin_id: ResolvableMachineName,
-        *,
+        *args: Any,
         auto: bool = False,
         requires: Requires = (),
+        **kwargs: Any,
     ):
 
-        super().__init__()
+        super().__init__(*args, **kwargs)
         self.id: Final[MachineName] = MachineName.resolve(plugin_id)
         """
         The plugin ID.

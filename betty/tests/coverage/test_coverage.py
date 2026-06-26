@@ -513,6 +513,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/plugin/cls.py": {
         "Plugin": MissingReason.ABSTRACT,
     },
+    "betty/plugin/data.py": {
+        "DataPlugin": MissingReason.ABSTRACT,
+        "DataPluginDefinition": MissingReason.ABSTRACT,
+    },
     "betty/plugin/error.py": {
         "PluginError": MissingReason.ABSTRACT,
     },

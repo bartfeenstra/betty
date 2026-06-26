@@ -31,10 +31,9 @@ class MappingDefinition[MutableMappingT: MutableMapping[Any, Any], KeyT, ValueT]
 
     def __init__(
         self,
-        /,
+        *,
         cls: type[Intersection[MutableMappingT, MutableMapping[KeyT, ValueT]]]
         | None = None,
-        *,
         key: DataDefinition[KeyT, str] | type[Intersection[KeyT, Data]],
         value: DataDefinition[ValueT] | type[Intersection[ValueT, Data]],
         label: ResolvableLocalizable,

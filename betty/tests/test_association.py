@@ -273,6 +273,7 @@ def test_resolve_associates(isolated_project: Project, mocker: MockerFixture) ->
     )
     class _Entity(Entity):
         association = mocker.MagicMock(spec=Association)
+        association.field = FieldDefinition(DataDefinition(label="-"))
         association.resolve.return_value = associate
 
     entity = _Entity()

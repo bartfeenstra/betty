@@ -7,10 +7,9 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import TYPE_CHECKING, final
 
-from betty.definition.human_facing import HumanFacingDefinition
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import Plugin, PluginClsDefinition
+from betty.plugin.data import DataPlugin, DataPluginDefinition
 from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
 
 if TYPE_CHECKING:
@@ -19,7 +18,7 @@ if TYPE_CHECKING:
     from betty.requirement import Requires
 
 
-class CopyrightNotice(Plugin["CopyrightNoticeDefinition"]):
+class CopyrightNotice(DataPlugin["CopyrightNoticeDefinition"]):
     """
     A copyright notice.
 
@@ -55,9 +54,7 @@ class CopyrightNotice(Plugin["CopyrightNoticeDefinition"]):
     label_plural=_("Copyright notices"),
     label_countable=ngettext("{count} copyright notice", "{count} copyright notices"),
 )
-class CopyrightNoticeDefinition(
-    HumanFacingDefinition, PluginClsDefinition[CopyrightNotice]
-):
+class CopyrightNoticeDefinition(DataPluginDefinition[CopyrightNotice]):
     """
     .. plugin_type:: copyright-notice.
     """

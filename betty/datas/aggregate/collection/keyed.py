@@ -41,9 +41,8 @@ class KeyedCollectionDefinition[
 
     def __init__(
         self,
-        /,
-        cls: type[MutableKeyedCollection] | None = None,
         *,
+        cls: type[MutableKeyedCollection] | None = None,
         value: RecordDefinition[ValueT, ElementT]
         | type[Intersection[ValueT, Data[RecordDefinition[Any, ElementT]]]],
         key: ElementT,

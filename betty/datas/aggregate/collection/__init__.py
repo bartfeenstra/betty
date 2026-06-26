@@ -28,9 +28,8 @@ class CollectionDefinition[
 
     def __init__(
         self,
-        /,
-        cls: type[CollectionT] | None = None,
         *,
+        cls: type[CollectionT] | None = None,
         item: ResolvableDataDefinition[DataDefinition[Any, PortableData]],
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
