@@ -9,7 +9,7 @@ from betty.prop import HasProps
 class TestAttr:
     class _Attr(Attr[HasProps, object, object]):
         def __init__(self):
-            super().__init__(FieldDefinition(DataDefinition(None, label="-")))
+            super().__init__(FieldDefinition(DataDefinition(label="-")))
 
         @override
         def get(self, owner: HasProps) -> object:

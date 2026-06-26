@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, final
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import Plugin, PluginClsDefinition
+from betty.plugin.data import DataPlugin, DataPluginDefinition
 from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
 
 if TYPE_CHECKING:
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from betty.requirement import Requires
 
 
-class Gender(Plugin["GenderDefinition"]):
+class Gender(DataPlugin["GenderDefinition"]):
     """
     Define a gender.
     """
@@ -31,7 +31,7 @@ class Gender(Plugin["GenderDefinition"]):
     label_plural=_("Genders"),
     label_countable=ngettext("{count} gender", "{count} genders"),
 )
-class GenderDefinition(CountableHumanFacingDefinition, PluginClsDefinition[Gender]):
+class GenderDefinition(CountableHumanFacingDefinition, DataPluginDefinition[Gender]):
     """
     .. plugin_type:: gender.
 

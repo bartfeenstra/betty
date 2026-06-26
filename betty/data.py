@@ -4,7 +4,7 @@ Describe, access, and manipulate arbitrary data.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Final, Self, final, override
+from typing import TYPE_CHECKING, Any, Final, Self, final, override
 
 from betty.definition.cls import OptionalClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
@@ -30,9 +30,8 @@ class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
 
     def __init__(
         self,
-        /,
+        *args: Any,
         cls: type[DataClsT] | None = None,
-        *,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
         porter: Porter[DataClsT, PortableDataT] | None = None,
@@ -41,8 +40,9 @@ class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
             | Samples[DataClsT]
             | type[Intersection[DataClsT, Samplable]]
         ] = (),
+        **kwargs: Any,
     ):
-        super().__init__(cls=cls, label=label, description=description)
+        super().__init__(*args, cls=cls, label=label, description=description, **kwargs)
         self._porter = porter
         self._samples = tuple(samples)
 
@@ -99,6 +99,8 @@ class Data[DataDefinitionT: DataDefinition = DataDefinition]:
             ) from None
 
     def __eq__(self, other: object) -> bool:
+        if self is other:
+            return True
         if type(self) is not type(other):
             return NotImplemented
         porter = type(self).data().porter

@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, final
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import Plugin
+from betty.plugin.data import DataPlugin, DataPluginDefinition
 from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
 from betty.plugin.ordered import (
     Order,
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from betty.requirement import Requires
 
 
-class EventType(Plugin["EventTypeDefinition"]):
+class EventType(DataPlugin["EventTypeDefinition"]):
     """
     Define an :py:class:`betty.entities.event.Event` type.
     """
@@ -52,7 +52,9 @@ class ShouldExistEventType(EventType, ABC):
     label_countable=ngettext("{count} event type", "{count} event types"),
 )
 class EventTypeDefinition(
-    CountableHumanFacingDefinition, OrderedPluginClsDefinition[EventType]
+    CountableHumanFacingDefinition,
+    OrderedPluginClsDefinition[EventType],
+    DataPluginDefinition[EventType],
 ):
     """
     .. plugin_type:: event-type.

@@ -6,6 +6,7 @@ from inspect import signature
 from typing import TYPE_CHECKING, Any, Final, Self, final, override
 
 from betty.attrs.privacy import HasPrivacy
+from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.json_schema import JsonSchemaReference, String
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
@@ -14,7 +15,7 @@ from betty.localizer import default_localizer
 from betty.machine_name import MachineName
 from betty.media_types.json_ld import JSON_LD
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import Plugin, PluginClsDefinition
+from betty.plugin.data import DataPlugin, DataPluginDefinition
 from betty.privacy import Privacy
 from betty.string import kebab_case_to_lower_camel_case
 
@@ -34,7 +35,7 @@ if TYPE_CHECKING:
 
 
 class Entity(
-    LinkedDataDumpableWithSchemaJsonLdObject, Plugin["EntityDefinition"], HasPrivacy
+    LinkedDataDumpableWithSchemaJsonLdObject, DataPlugin["EntityDefinition"], HasPrivacy
 ):
     """
     An entity is a uniquely identifiable data container.
@@ -74,6 +75,12 @@ class Entity(
     @override
     def __hash__(self) -> int:
         return hash((type(self), self.id))
+
+    @override
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return False
+        return self.id == other.id
 
     @property
     def label(self) -> Localizable:
@@ -119,7 +126,9 @@ class Entity(
     ),
 )
 class EntityDefinition[EntityT: Entity = Entity](
-    CountableHumanFacingDefinition, PluginClsDefinition[EntityT]
+    CountableHumanFacingDefinition,
+    ObjectDefinition[EntityT],
+    DataPluginDefinition[EntityT],
 ):
     """
     .. plugin_type:: entity.

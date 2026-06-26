@@ -7,10 +7,9 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import TYPE_CHECKING, final
 
-from betty.definition.human_facing import HumanFacingDefinition
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import Plugin, PluginClsDefinition
+from betty.plugin.data import DataPlugin, DataPluginDefinition
 from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
 
 if TYPE_CHECKING:
@@ -19,7 +18,7 @@ if TYPE_CHECKING:
     from betty.requirement import Requires
 
 
-class License(Plugin["LicenseDefinition"]):
+class License(DataPlugin["LicenseDefinition"]):
     """
     A license.
 
@@ -55,7 +54,7 @@ class License(Plugin["LicenseDefinition"]):
     label_plural=_("Licenses"),
     label_countable=ngettext("{count} license", "{count} licenses"),
 )
-class LicenseDefinition(HumanFacingDefinition, PluginClsDefinition[License]):
+class LicenseDefinition(DataPluginDefinition[License]):
     """
     .. plugin_type:: license.
     """
