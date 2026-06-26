@@ -356,7 +356,7 @@ test = [
     'pytest-xdist ~= 3.8',
     'requests ~= 2.32',
     'ruff ~= 0.15.0',
-    'ty == 0.0.42',
+    'ty == 0.0.54',
     'types-babel ~= 2.11',
     'types-docutils ~= 0.21',
     'types-jsonschema ~= 4.23',
