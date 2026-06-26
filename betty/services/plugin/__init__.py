@@ -35,7 +35,6 @@ if TYPE_CHECKING:
     from betty.machine_name import MachineName
     from betty.requirement import Requirement
     from betty.service_level import ServiceLevel
-    from betty.typing import Intersection as Intersection
 
 
 type SupportedPlugins = Iterable[ResolvablePluginDefinition]

@@ -18,7 +18,6 @@ if TYPE_CHECKING:
 
     from betty.gettext import TranslationRepository
     from betty.localizable import ResolvableLocalizable
-    from betty.typing import Intersection as Intersection
 
 
 @final
