@@ -14,6 +14,7 @@ from betty.collections.mapping.adapter import MutableResolvedMappingAdapter
 from betty.data import Data
 from betty.datas.aggregate.collection.mapping import MappingDefinition
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
+from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.str import StrDefinition
 from betty.event_type import EventType, EventTypeDefinition, EventTypeManufacturer
@@ -62,22 +63,24 @@ def _new_plugin_mapping_attr[PluginDefinitionT: PluginClsDefinition, PluginT: Pl
         Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]],
         MappingDefinition,
     ](
-        MappingDefinition(
-            cls=MutableResolvedMapping,
-            factory=lambda: MutableResolvedMappingAdapter[
-                str,
-                str,
-                PluginManufacturer[PluginDefinitionT, PluginT],
-                ResolvablePluginManufacturer[PluginDefinitionT, PluginT],
-            ](
-                {},
-                value_resolver=manufacturer.resolve,
+        FieldDefinition(
+            MappingDefinition(
+                cls=MutableResolvedMapping,
+                factory=lambda: MutableResolvedMappingAdapter[
+                    str,
+                    str,
+                    PluginManufacturer[PluginDefinitionT, PluginT],
+                    ResolvablePluginManufacturer[PluginDefinitionT, PluginT],
+                ](
+                    {},
+                    value_resolver=manufacturer.resolve,
+                ),
+                key=StrDefinition(label=gramps_label),
+                value=manufacturer,
+                label=manufacturer.data().plugin_type.type().label_plural,
             ),
-            key=StrDefinition(label=gramps_label),
-            value=manufacturer,
-            label=manufacturer.data().plugin_type.type().label_plural,
-        ),
-        omit_load=True,
+            omit_load=True,
+        )
     ).default(
         lambda: {key: manufacturer.resolve(value) for key, value in default.items()}
     )
@@ -233,9 +236,11 @@ class GrampsData(Data, HasProps):
     """
 
     family_trees = CollectionOwnerAttr(
-        SequenceDefinition(cls=list, value=FamilyTree, label=_("Family trees")),
-        omit_load=True,
-        omit_dump=lambda data: not len(data),
+        FieldDefinition(
+            SequenceDefinition(cls=list, value=FamilyTree, label=_("Family trees")),
+            omit_load=True,
+            omit_dump=lambda data: not len(data),
+        )
     )
     """
     The Gramps family trees to load.

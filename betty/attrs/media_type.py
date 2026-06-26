@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any, override
 
 from betty.attrs.owner import OwnerAttr
 from betty.attrs.privacy import HasPrivacy
+from betty.datas.aggregate.record import FieldDefinition
 from betty.json_schemas.media_type import MediaTypeSchema
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
 from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
@@ -28,9 +29,9 @@ def new_media_type_attr(
     """
     Create an attribute containing a media type.
     """
-    return OwnerAttr(MediaType, label=label, description=description).setter(
-        resolve_media_type
-    )
+    return OwnerAttr(
+        FieldDefinition(MediaType, label=label, description=description)
+    ).setter(resolve_media_type)
 
 
 class HasMediaType(LinkedDataDumpableWithSchemaJsonLdObject, HasProps):

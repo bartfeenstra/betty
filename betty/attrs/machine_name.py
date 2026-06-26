@@ -7,11 +7,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from betty.attrs.owner import OwnerAttr
+from betty.datas.aggregate.record import FieldDefinition
 from betty.localizables.gettext import _
 from betty.machine_name import (
     MachineName,
     ResolvableMachineName,
-    _machine_name_description,
+    machine_name_description,
 )
 
 if TYPE_CHECKING:
@@ -29,7 +30,11 @@ def new_machine_name_attr(
     Create an attribute containing a machine name.
     """
     return OwnerAttr(
-        MachineName,
-        label=_("Name") if label is None else label,
-        description=_machine_name_description if description is None else description,
+        FieldDefinition(
+            MachineName,
+            label=_("Name") if label is None else label,
+            description=machine_name_description
+            if description is None
+            else description,
+        )
     ).setter(MachineName.resolve)

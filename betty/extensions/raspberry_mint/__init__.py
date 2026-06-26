@@ -23,6 +23,7 @@ from betty.content_builder import (
 )
 from betty.data import Data
 from betty.datas.aggregate.collection.mapping import MappingDefinition
+from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.color import ColorDefinition
 from betty.datas.plugin.manufacturer.sequence import (
@@ -101,35 +102,37 @@ class RaspberryMintData(Data, HasProps):
     .. data:: betty.extensions.raspberry_mint:RaspberryMintData
     """
 
-    primary_color = OwnerAttr(ColorDefinition(), label=_("Primary color")).optional
+    primary_color = OwnerAttr(ColorDefinition(label=_("Primary color"))).optional
     """
     The primary color.
     """
 
-    secondary_color = OwnerAttr(ColorDefinition(), label=_("Secondary color")).optional
+    secondary_color = OwnerAttr(ColorDefinition(label=_("Secondary color"))).optional
     """
     The secondary color.
     """
 
-    tertiary_color = OwnerAttr(ColorDefinition(), label=_("Tertiary color")).optional
+    tertiary_color = OwnerAttr(ColorDefinition(label=_("Tertiary color"))).optional
     """
     The tertiary color.
     """
 
     regional_content = CollectionOwnerAttr(
-        MappingDefinition(
-            cls=MutableResolvedMapping,
-            factory=lambda: MutableResolvedMappingAdapter(
-                {}, key_resolver=Region.resolve
+        FieldDefinition(
+            MappingDefinition(
+                cls=MutableResolvedMapping,
+                factory=lambda: MutableResolvedMappingAdapter(
+                    {}, key_resolver=Region.resolve
+                ),
+                label=_("Regions"),
+                key=StrDefinition(label=_("Region")),
+                value=PluginManufacturerSequenceDefinition(
+                    ContentBuilderManufacturer, label=_("Regional content")
+                ),
             ),
-            label=_("Regions"),
-            key=StrDefinition(label=_("Region")),
-            value=PluginManufacturerSequenceDefinition(
-                ContentBuilderManufacturer, label=_("Regional content")
-            ),
-        ),
-        omit_load=True,
-        omit_dump=lambda data: not len(data),
+            omit_load=True,
+            omit_dump=lambda data: not len(data),
+        )
     )
     """
     The regional content.

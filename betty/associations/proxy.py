@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, TypeGuard, override
 
 from betty.association import Associate, AssociateResolver, Association
 from betty.attrs.proxy import ProxyAttr
-from betty.data import DataDefinition
+from betty.data import DataDefinition, ResolvableDataDefinition
 from betty.entity import Entity
 
 if TYPE_CHECKING:
@@ -36,7 +36,9 @@ class ProxyAssociation[
 
     def __init__(
         self,
-        field: FieldDefinition[OwnerT, GetT, DataDefinitionT] | None = None,
+        field: FieldDefinition[OwnerT, GetT, DataDefinitionT]
+        | ResolvableDataDefinition[DataDefinitionT]
+        | None = None,
         *args: Any,
         proxied: Association[OwnerT, AssociateT, GetT, SetT, DataDefinitionT],
         **kwargs: Any,

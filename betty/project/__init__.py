@@ -41,6 +41,7 @@ from betty.copyright_notice import (
 from betty.data import Data
 from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
+from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.bool import BoolDefinition
 from betty.datas.int import IntDefinition
@@ -768,18 +769,20 @@ class ProjectData(Data, HasProps):
     """
 
     enrichers = CollectionOwnerAttr(
-        KeyedCollectionDefinition(
-            value=EnricherManufacturer,
-            label=EnricherDefinition.type().label_plural,
-            key=AttrSelector("plugin_id"),
-            factory=lambda: MutableKeyedCollectionAdapter(
-                key=lambda data: data.plugin_id,
-                key_resolver=resolve_plugin_id,
-                value_resolver=EnricherManufacturer.resolve,
+        FieldDefinition(
+            KeyedCollectionDefinition(
+                value=EnricherManufacturer,
+                label=EnricherDefinition.type().label_plural,
+                key=AttrSelector("plugin_id"),
+                factory=lambda: MutableKeyedCollectionAdapter(
+                    key=lambda data: data.plugin_id,
+                    key_resolver=resolve_plugin_id,
+                    value_resolver=EnricherManufacturer.resolve,
+                ),
             ),
-        ),
-        omit_load=True,
-        omit_dump=lambda data: not data,
+            omit_load=True,
+            omit_dump=lambda data: not data,
+        )
     )
     """
     The enrichers to enable for the project.
@@ -793,18 +796,20 @@ class ProjectData(Data, HasProps):
     """
 
     extensions = CollectionOwnerAttr(
-        KeyedCollectionDefinition(
-            value=ExtensionManufacturer,
-            label=ExtensionDefinition.type().label_plural,
-            key=AttrSelector("plugin_id"),
-            factory=lambda: MutableKeyedCollectionAdapter(
-                key=lambda data: data.plugin_id,
-                key_resolver=resolve_plugin_id,
-                value_resolver=ExtensionManufacturer.resolve,
+        FieldDefinition(
+            KeyedCollectionDefinition(
+                value=ExtensionManufacturer,
+                label=ExtensionDefinition.type().label_plural,
+                key=AttrSelector("plugin_id"),
+                factory=lambda: MutableKeyedCollectionAdapter(
+                    key=lambda data: data.plugin_id,
+                    key_resolver=resolve_plugin_id,
+                    value_resolver=ExtensionManufacturer.resolve,
+                ),
             ),
-        ),
-        omit_load=True,
-        omit_dump=lambda data: not data,
+            omit_load=True,
+            omit_dump=lambda data: not data,
+        )
     )
     """
     The extensions to enable for the project.
@@ -865,41 +870,45 @@ class ProjectData(Data, HasProps):
     """
 
     loaders = CollectionOwnerAttr(
-        KeyedCollectionDefinition(
-            value=LoaderManufacturer,
-            label=LoaderDefinition.type().label_plural,
-            key=AttrSelector("plugin_id"),
-            factory=lambda: MutableKeyedCollectionAdapter(
-                key=lambda data: data.plugin_id,
-                key_resolver=resolve_plugin_id,
-                value_resolver=LoaderManufacturer.resolve,
+        FieldDefinition(
+            KeyedCollectionDefinition(
+                value=LoaderManufacturer,
+                label=LoaderDefinition.type().label_plural,
+                key=AttrSelector("plugin_id"),
+                factory=lambda: MutableKeyedCollectionAdapter(
+                    key=lambda data: data.plugin_id,
+                    key_resolver=resolve_plugin_id,
+                    value_resolver=LoaderManufacturer.resolve,
+                ),
             ),
-        ),
-        omit_load=True,
-        omit_dump=lambda data: not data,
+            omit_load=True,
+            omit_dump=lambda data: not data,
+        )
     )
     """
     The loaders to enable for the project.
     """
 
     locales = CollectionOwnerAttr(
-        KeyedCollectionDefinition(
-            value=ProjectLocale,
-            label=_("Locales"),
-            key=AttrSelector("locale"),
-            order_dump=True,
-            factory=lambda: MutableKeyedCollectionAdapter(
-                key=lambda item: item.locale,
-                key_resolver=resolve_locale,
-                value_resolver=lambda value: (
-                    value
-                    if isinstance(value, ProjectLocale)
-                    else ProjectLocale(resolve_locale(value))
+        FieldDefinition(
+            KeyedCollectionDefinition(
+                value=ProjectLocale,
+                label=_("Locales"),
+                key=AttrSelector("locale"),
+                order_dump=True,
+                factory=lambda: MutableKeyedCollectionAdapter(
+                    key=lambda item: item.locale,
+                    key_resolver=resolve_locale,
+                    value_resolver=lambda value: (
+                        value
+                        if isinstance(value, ProjectLocale)
+                        else ProjectLocale(resolve_locale(value))
+                    ),
                 ),
             ),
-        ),
-        omit_load=True,
-        omit_dump=lambda data: not data,
+            omit_load=True,
+            omit_dump=lambda data: not data,
+        )
     ).default(lambda: [default_locale])
     """
     The configured locales.
@@ -987,16 +996,16 @@ class ProjectData(Data, HasProps):
         if copyright_notices is not None:
             self.copyright_notices = copyright_notices
         self.debug = debug
-        self.enrichers = enrichers  # ty:ignore[invalid-assignment]
+        self.enrichers = enrichers
         self.event_types = event_types
-        self.extensions = extensions  # ty:ignore[invalid-assignment]
+        self.extensions = extensions
         self.generate_entity_list_html = generate_entity_list_html
         self.genders = genders
         if license is not None:
             self.license = LicenseManufacturer.resolve(license)
         self.licenses = licenses
         self.lifetime_threshold = lifetime_threshold
-        self.loaders = loaders  # ty:ignore[invalid-assignment]
+        self.loaders = loaders
         if logo is not None:
             self.logo = resolve_path(logo)
         self.locales = locales

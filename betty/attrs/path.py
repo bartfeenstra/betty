@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 from betty.assertions.path import assert_path
 from betty.attrs.owner import OwnerAttr
+from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.path import PathDefinition
 
 if TYPE_CHECKING:
@@ -27,6 +28,6 @@ def new_path_attr(
     """
     An attribute containing a file system path.
     """
-    return OwnerAttr(PathDefinition(), label=label, description=description).setter(
-        assert_path()
-    )
+    return OwnerAttr(
+        FieldDefinition(PathDefinition(), label=label, description=description)
+    ).setter(assert_path())

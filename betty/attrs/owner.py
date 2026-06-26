@@ -5,7 +5,7 @@ Attributes that store data in owner instance attributes.
 from __future__ import annotations
 
 from collections.abc import Callable, Collection, Iterable
-from typing import TYPE_CHECKING, Any, final, override
+from typing import Any, final, override
 
 from betty.attrs.common import CommonAttr
 from betty.attrs.default import DefaultAttr
@@ -13,14 +13,8 @@ from betty.attrs.optional import OptionalAttr
 from betty.attrs.proxy import ProxyAttr
 from betty.data import DataDefinition
 from betty.datas.aggregate.collection import CollectionDefinition
-from betty.datas.aggregate.record import FieldDefinition
 from betty.prop import HasProps
 from betty.props.setter import SetterProp
-
-if TYPE_CHECKING:
-    from betty.data import ResolvableDataDefinition
-    from betty.indicator.selector import Element
-    from betty.localizable import ResolvableLocalizable
 
 
 class _Owner[
@@ -94,19 +88,6 @@ class OwnerAttr[OwnerT: HasProps, T, DataDefinitionT: DataDefinition = DataDefin
     An object attribute that stores its data on owner instances.
     """
 
-    def __init__(
-        self,
-        data: ResolvableDataDefinition[DataDefinitionT],
-        /,
-        *,
-        label: ResolvableLocalizable | None = None,
-        description: ResolvableLocalizable | None = None,
-    ):
-        super().__init__(
-            FieldDefinition(data, description=description, label=label),
-        )
-        self._data = data
-
     @final
     @override
     def get(self, owner: OwnerT, /) -> T:
@@ -127,27 +108,6 @@ class CollectionOwnerAttr[
     """
     An object attribute that stores its collection of data on owner instances.
     """
-
-    def __init__(
-        self,
-        data: ResolvableDataDefinition[CollectionDefinition[GetT, SetT, Element[Any]]],
-        *,
-        description: ResolvableLocalizable | None = None,
-        label: ResolvableLocalizable | None = None,
-        omit_dump: Callable[[GetT], bool]
-        | Callable[[OwnerT, GetT], bool]
-        | None = None,
-        omit_load: bool = False,
-    ):
-        super().__init__(
-            FieldDefinition[OwnerT, GetT, CollectionDefinition](
-                data,
-                description=description,
-                label=label,
-                omit_dump=omit_dump,
-                omit_load=omit_load,
-            ),
-        )
 
     @override
     def init_owner(self, owner: OwnerT, /) -> None:

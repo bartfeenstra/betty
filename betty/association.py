@@ -9,7 +9,7 @@ from inspect import signature
 from typing import TYPE_CHECKING, Any, Final, Never, TypeGuard, final, overload
 
 from betty.attr import Attr
-from betty.data import DataDefinition
+from betty.data import DataDefinition, ResolvableDataDefinition
 from betty.entity import Entity, EntityResolver, resolve
 from betty.entity.collection.multiple import MultipleTypesEntityCollection
 from betty.importlib import fully_qualified_name, import_any
@@ -37,7 +37,8 @@ class Association[
 
     def __init__(
         self,
-        field: FieldDefinition[OwnerT, GetT, DataDefinitionT],
+        field: FieldDefinition[OwnerT, GetT, DataDefinitionT]
+        | ResolvableDataDefinition[DataDefinitionT],
         associate: type[AssociateT] | str,
         associate_attr: Association[AssociateT, OwnerT, Any, Any] | str | None = None,
         /,
