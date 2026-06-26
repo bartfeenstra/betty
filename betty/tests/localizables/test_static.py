@@ -12,12 +12,13 @@ from betty.localizable import (
     ShorthandStaticTranslations,
     StaticTranslationsMapping,
 )
-from betty.localizable.error import (
+from betty.localizables.static import (
+    CountableStaticTranslations,
     InvalidPluralTag,
     MissingPluralPlaceholder,
     MissingPluralTag,
+    StaticTranslations,
 )
-from betty.localizables.static import CountableStaticTranslations, StaticTranslations
 from betty.localizer import Localizer, default_localizer
 
 
