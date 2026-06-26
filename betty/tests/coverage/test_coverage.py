@@ -379,11 +379,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "format": MissingReason.SHOULD_BE_COVERED,
         "Localizable": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/localizable/error.py": {
-        "InvalidPluralTag": MissingReason.STATIC_CONTENT_ONLY,
-        "MissingPluralPlaceholder": MissingReason.STATIC_CONTENT_ONLY,
-        "MissingPluralTag": MissingReason.STATIC_CONTENT_ONLY,
-    },
     "betty/localizables/gettext.py": {
         "gettext": MissingReason.SHOULD_BE_COVERED,
         "ngettext": MissingReason.SHOULD_BE_COVERED,
@@ -392,6 +387,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/localizables/markup.py": {
         "LocalizableSequence": MissingReason.ABSTRACT,
+    },
+    "betty/localizables/static.py": {
+        "InvalidPluralTag": MissingReason.STATIC_CONTENT_ONLY,
+        "MissingPluralPlaceholder": MissingReason.STATIC_CONTENT_ONLY,
+        "MissingPluralTag": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/localized.py": {
         "Localized": MissingReason.ABSTRACT,

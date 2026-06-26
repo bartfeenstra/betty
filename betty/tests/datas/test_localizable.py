@@ -14,10 +14,14 @@ from betty.localizable import (
     Localizable,
     LocalizableCount,
 )
-from betty.localizable.error import InvalidPluralTag, MissingPluralTag
 from betty.localizables.markup import Paragraph
 from betty.localizables.plain import Plain
-from betty.localizables.static import CountableStaticTranslations, StaticTranslations
+from betty.localizables.static import (
+    CountableStaticTranslations,
+    InvalidPluralTag,
+    MissingPluralTag,
+    StaticTranslations,
+)
 from betty.localizer import default_localizer
 from betty.portable.error import NotPortable
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE

@@ -21,6 +21,7 @@ from betty.locale import (
     resolve_locale,
     to_language_tag,
 )
+from betty.locale.error import LocaleError
 from betty.localizable import (
     CountableLocalizable,
     CountableStaticTranslationsMapping,
@@ -29,11 +30,6 @@ from betty.localizable import (
     ShorthandCountableStaticTranslations,
     ShorthandStaticTranslations,
     StaticTranslationsMapping,
-)
-from betty.localizable.error import (
-    InvalidPluralTag,
-    MissingPluralPlaceholder,
-    MissingPluralTag,
 )
 from betty.localizables.gettext import _
 from betty.localizables.markup import (
@@ -313,3 +309,24 @@ class StaticTranslations(Localizable, Portable):
             to_language_tag(locale): str(translation)
             for locale, translation in self.translations.items()
         }
+
+
+@final
+class MissingPluralPlaceholder(LocaleError):
+    """
+    Raised when a plural translation is missing a placeholder.
+    """
+
+
+@final
+class MissingPluralTag(LocaleError):
+    """
+    Raised when a countable localizable is missing a plural tag.
+    """
+
+
+@final
+class InvalidPluralTag(LocaleError):
+    """
+    Raised when a countable localizable defines an invalid plural tag.
+    """
