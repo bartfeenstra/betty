@@ -1,19 +1,15 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import pytest
 
 from betty.privacy import Privacy
 from betty.privacy.resolve import (
+    ResolvablePrivacy,
     merge_privacies,
     merge_secondary_privacies,
     resolve_privacy,
 )
 from betty.test_utils.privacy import DummyHasPrivacy
-
-if TYPE_CHECKING:
-    from betty.attrs.privacy import HasPrivacy
 
 
 @pytest.mark.parametrize(
@@ -27,7 +23,7 @@ if TYPE_CHECKING:
         (Privacy.UNDETERMINED, DummyHasPrivacy(privacy=Privacy.UNDETERMINED)),
     ],
 )
-def test_resolve_privacy(expected: Privacy, privacy: Privacy | HasPrivacy) -> None:
+def test_resolve_privacy(expected: Privacy, privacy: ResolvablePrivacy) -> None:
     assert resolve_privacy(privacy) == expected
 
 

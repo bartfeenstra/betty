@@ -19,6 +19,8 @@ from betty.datas.aggregate import AggregateDefinition
 from betty.indicator.selector import Element
 from betty.localizable import resolve_localizable
 from betty.portable import Portable, PortableData, Porter
+from betty.privacy import HasPrivacy, Privacy
+from betty.privacy.resolve import merge_privacies, negotiate_privacies
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping, MutableMapping
@@ -49,6 +51,7 @@ class FieldDefinition[
         omit_dump: Callable[[DataClsT], bool]
         | Callable[[OwnerT, DataClsT], bool]
         | None = None,
+        privacy: Privacy = Privacy.UNDETERMINED,
     ):
         self.data: Final[DataDefinitionT] = resolve_data_definition(data)
         """
@@ -90,6 +93,8 @@ class FieldDefinition[
             )  # ty:ignore[invalid-assignment]
         )
 
+        self._privacy: Final[Privacy] = privacy
+
     def omit_dump(self, owner: OwnerT, data: DataClsT, /) -> bool:
         """
         Check if the field may be omitted from the parent when dumping to portable data.
@@ -97,6 +102,28 @@ class FieldDefinition[
         if self._omit_dump is None:
             return False
         return self._omit_dump(owner, data)
+
+    def privacy(self, owner: OwnerT, data: DataClsT, /) -> Privacy:
+        """
+        Get the field data's effective privacy.
+        """
+        # @todo - if field def is public -> public
+        # @todo - if field def is private -> private
+        # @todo - if owner is private -> private
+        # @todo - if data def is private -> private
+        # @todo - if data is private -> private
+        # @todo - ELSE -> merge privacies
+        # @todo
+        # @todo HOWEVER...
+        # @todo - if field def is public and owner is private -> public
+        # @todo
+        # @todo
+        # @todo
+        # @todo
+        privacy = self.data.privacy(data)
+        if isinstance(owner, HasPrivacy):
+            privacy = merge_privacies(privacy, owner)
+        return negotiate_privacies(self._privacy, privacy)
 
 
 _PortableRecordElementT = TypeVar(

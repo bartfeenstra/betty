@@ -13,6 +13,7 @@ from betty.datas.enum import EnumDefinition
 from betty.json_schemas.privacy import PrivacySchema
 from betty.linked_data import LinkedDataDumper
 from betty.localizables.gettext import _
+from betty.privacy import HasPrivacy as HasPrivacyPrivacy
 from betty.privacy import Privacy
 from betty.prop import HasProps
 
@@ -45,7 +46,7 @@ class PrivacyAttr(
         return target.privacy is Privacy.PRIVATE
 
 
-class HasPrivacy(HasProps):
+class HasPrivacy(HasPrivacyPrivacy, HasProps):
     """
     A resource that has privacy.
     """
@@ -73,11 +74,9 @@ class HasPrivacy(HasProps):
     def _get_effective_privacy(self) -> Privacy:
         return self.own_privacy
 
+    @override
     @property
     def privacy(self) -> Privacy:
-        """
-        The resource's privacy.
-        """
         return self._get_effective_privacy()
 
     @privacy.setter

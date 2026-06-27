@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Self, final
 from betty.associations.has_citations import HasCitations
 from betty.associations.to_one import ToOne, ToOneAssociate
 from betty.attrs.date import HasAnyDate
-from betty.entity import Entity, EntityDefinition
+from betty.entity import EntityDefinition
 from betty.localizables.gettext import _, ngettext
 
 if TYPE_CHECKING:
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     label_countable=ngettext("{count} enclosure", "{count} enclosures"),
     public_facing=False,
 )
-class Enclosure(HasAnyDate, HasCitations, Entity):
+class Enclosure(HasAnyDate, HasCitations):
     """
     .. plugin:: entity:enclosure.
     """
