@@ -31,4 +31,4 @@ class Death(ShouldExistEventType):
     @override
     @classmethod
     async def should_exist(cls, project: Project, person: Person) -> bool:
-        return project.privatizer.person_has_expired(person, 1)
+        return project.lifetime.has_expired(person)

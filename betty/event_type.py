@@ -38,7 +38,7 @@ class ShouldExistEventType(EventType, ABC):
 
     @classmethod
     @abstractmethod
-    async def should_exist(cls, project: Project, person: Person) -> bool:
+    async def should_exist(cls, project: Project, person: Person, /) -> bool:
         """
         Whether at least one event of this type should exist for the given person.
         """

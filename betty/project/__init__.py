@@ -18,7 +18,6 @@ from urllib.parse import urlsplit
 
 from babel import Locale
 
-from betty import default_lifetime_threshold
 from betty.about import version_major
 from betty.app import App
 from betty.assertions.int import assert_int
@@ -70,6 +69,7 @@ from betty.jinja.filter import JinjaFilterDefinition
 from betty.jinja.test import JinjaTestDefinition
 from betty.license import License, LicenseDefinition, LicenseManufacturer
 from betty.licenses.all_rights_reserved import AllRightsReserved
+from betty.lifetime import Lifetime, default_lifetime_threshold
 from betty.link import LinkDefinition
 from betty.load import (
     Enricher,
@@ -569,13 +569,18 @@ class Project(
         return RenderDispatcher(*await gather(*self.renderers))
 
     @service
+    def lifetime(self) -> Lifetime:
+        """
+        The lifetime analyzer.
+        """
+        return Lifetime(lifetime_threshold=self.lifetime_threshold)
+
+    @service
     def privatizer(self) -> Privatizer:
         """
         The privatizer.
         """
-        return Privatizer(
-            lifetime_threshold=self.lifetime_threshold, user=self.upstream.user
-        )
+        return Privatizer(lifetime=self.lifetime, user=self.upstream.user)
 
     async def new_document(
         self,
