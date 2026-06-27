@@ -32,7 +32,7 @@ class RecordLinkedDataPorter[DataClsT: Data[RecordDefinition]](
         data: RecordDefinition,
         /,
         *,
-        type: str = "https://schema.org/Thing",  # noqa: A002
+        type: str | None = None,  # noqa: A002
     ):
         self._data = data
         self._type = type
@@ -42,6 +42,8 @@ class RecordLinkedDataPorter[DataClsT: Data[RecordDefinition]](
         defs = {}
         properties = {}
         required = []
+        # @todo Combine the two loops
+        # @todo Support privacy
         property_schemas = {
             snake_case_to_lower_camel_case(
                 field_name.element
@@ -86,6 +88,7 @@ class RecordLinkedDataPorter[DataClsT: Data[RecordDefinition]](
     async def dump(self, project: Project, data: DataClsT, /) -> LinkedData | VoidType:
         url_generator = await project.url_generator
         contexts = {}
+        # @todo Support privacy
         return LinkedData({
             **embed_linked_datas(
                 {
