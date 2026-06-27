@@ -35,7 +35,7 @@ class LocalizedStr(Localized, str):
     _locale: Locale | None
 
     @override
-    def __new__(cls, string: str, *, locale: Locale | None = None):
+    def __new__(cls, string: str, /, *, locale: Locale | None = None):
         new = super().__new__(cls, string)
         new._locale = locale
         return new

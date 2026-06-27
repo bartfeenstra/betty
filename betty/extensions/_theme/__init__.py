@@ -9,7 +9,7 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import TYPE_CHECKING, cast
 
-from betty.date import AnyDate, Date
+from betty.date import Date, DateExpression
 from betty.entities.event import Event
 from betty.entities.person import Person
 from betty.entities.place import Place
@@ -31,7 +31,7 @@ def _is_person_timeline_presence(presence: Presence) -> bool:
         return False
     if not presence.event.date:
         return False
-    return presence.event.date.comparable
+    return presence.event.date.normalized is not None
 
 
 def person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable[Event]:
@@ -121,7 +121,7 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
     if start_date is None and end_date is not None:
         if isinstance(end_date, Date):
             start_date_reference = end_date
-        elif end_date.end is not None and end_date.end.comparable:
+        elif end_date.end is not None:
             start_date_reference = end_date.end
         else:
             assert end_date.start is not None
@@ -131,7 +131,7 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
             start_date_reference.year - lifetime_threshold,
             start_date_reference.month,
             start_date_reference.day,
-            fuzzy=start_date_reference.fuzzy,
+            imprecise=start_date_reference.imprecise,
         )
 
     # If a start-of-life event exists, but no end-of-life event, create an end-of-life date based on the start date,
@@ -139,7 +139,7 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
     if end_date is None and start_date is not None:
         if isinstance(start_date, Date):
             end_date_reference = start_date
-        elif start_date.start and start_date.start.comparable:
+        elif start_date.start:
             end_date_reference = start_date.start
         else:
             assert start_date.end is not None
@@ -149,12 +149,12 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
             end_date_reference.year + lifetime_threshold,
             end_date_reference.month,
             end_date_reference.day,
-            fuzzy=end_date_reference.fuzzy,
+            imprecise=end_date_reference.imprecise,
         )
 
     if start_date is None or end_date is None:
         reference_dates = sorted(
-            cast(AnyDate, presence.event.date)
+            cast(DateExpression, presence.event.date)
             for presence in person.presences
             if _is_person_timeline_presence(presence)
         )

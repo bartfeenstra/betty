@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Final
 
 import pytest
 
-from betty.date import AnyDate, Date, DateRange
+from betty.date import Date, DateExpression, DateRange
 from betty.entities.citation import Citation
 from betty.entities.event import Event
 from betty.entities.file import File
@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     from betty.role import Role
 
 __reference_date: Final[Date] = Date(1970, 1, 1)
-_reference_dates: Final[Sequence[AnyDate]] = (
+_reference_dates: Final[Sequence[DateExpression]] = (
     __reference_date,
     DateRange(__reference_date),
     DateRange(None, __reference_date),
@@ -50,10 +50,10 @@ def _parameterize_with_associated_events() -> Sequence[
         str | None,
         Privacy,
         EventType,
-        AnyDate | None,
+        DateExpression | None,
         Privacy,
         EventType,
-        AnyDate | None,
+        DateExpression | None,
     ]
 ]:
     return tuple(__parameterize_with_associated_events())
@@ -147,7 +147,7 @@ class TestPersonLifetimeEvents:
         expected: bool,
         event_id: str | None,
         event_privacy: Privacy,
-        event_date: AnyDate | None,
+        event_date: DateExpression | None,
     ) -> None:
         person = Person()
         event = Event(
@@ -181,10 +181,10 @@ class TestPersonLifetimeEvents:
         event_id: str | None,
         event_privacy: Privacy,
         event_type: EventType,
-        event_date: AnyDate | None,
+        event_date: DateExpression | None,
         person_reference_event_privacy: Privacy,
         person_reference_event_type: EventType,
-        person_reference_event_date: AnyDate | None,
+        person_reference_event_date: DateExpression | None,
     ) -> None:
         event_ids = 0
 

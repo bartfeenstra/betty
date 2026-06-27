@@ -3,13 +3,13 @@ from typing import Any, override
 
 import pytest
 
-from betty.attrs.date import HasAnyDate
-from betty.date import AnyDate, Date, DateRange
+from betty.attrs.date import HasDate
+from betty.date import Date, DateExpression, DateRange
 from betty.test_utils.conftest import AssertTemplateString
 
 
-class _DummyHasDate(HasAnyDate):
-    def __init__(self, value: str, date: AnyDate | None = None):
+class _DummyHasDate(HasDate):
+    def __init__(self, value: str, date: DateExpression | None = None):
         super().__init__(date=date)
         self.value = value
 
@@ -37,15 +37,6 @@ class TestNegotiateHasDates:
                     "has_dates": [
                         _DummyHasDate("Apple"),
                     ],
-                    "date": Date(),
-                },
-            ),
-            (
-                "Apple",
-                {
-                    "has_dates": [
-                        _DummyHasDate("Apple"),
-                    ],
                     "date": Date(1970, 1, 1),
                 },
             ),
@@ -56,15 +47,6 @@ class TestNegotiateHasDates:
                         _DummyHasDate("Apple", Date(1970, 1, 1)),
                     ],
                     "date": None,
-                },
-            ),
-            (
-                "",
-                {
-                    "has_dates": [
-                        _DummyHasDate("Apple", Date(1970, 1, 1)),
-                    ],
-                    "date": Date(),
                 },
             ),
             (

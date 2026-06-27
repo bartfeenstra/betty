@@ -200,8 +200,8 @@ class TestSource(EntityTestBase):
                 "year": 2000,
                 "month": 1,
                 "day": 1,
-                "iso8601": "2000-01-01",
-                "fuzzy": False,
+                "date": "2000-01-01",
+                "imprecise": False,
             },
             "links": [
                 "/link/my-first-link/index.json",

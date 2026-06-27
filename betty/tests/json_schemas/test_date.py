@@ -4,12 +4,12 @@ from typing import override
 
 import pytest
 
-from betty.json_schemas.date import DateRangeSchema, DateSchema, ResolvableDateSchema
+from betty.json_schemas.date import DateExpressionSchema, DateRangeSchema, DateSchema
 from betty.test_utils.json_schema import SchemaTestBase, SchemaTestBaseSut
 from betty.tests.test_date import (
-    _DUMMY_DATE_DUMPS,
-    _DUMMY_DATE_RANGE_DUMPS,
-    _DUMMY_RESOLVABLE_DATE_DUMPS,
+    date_dumps,
+    dummy_date_expression_dumps,
+    dummy_date_range_dumps,
 )
 
 
@@ -17,18 +17,18 @@ class TestDateRangeSchema(SchemaTestBase):
     @override
     @pytest.fixture
     def sut_data(self) -> SchemaTestBaseSut:
-        return (DateRangeSchema(), *_DUMMY_DATE_RANGE_DUMPS)
+        return (DateRangeSchema(), *dummy_date_range_dumps)
 
 
 class TestDateSchema(SchemaTestBase):
     @override
     @pytest.fixture
     def sut_data(self) -> SchemaTestBaseSut:
-        return (DateSchema(), *_DUMMY_DATE_DUMPS)
+        return (DateSchema(), *date_dumps)
 
 
 class TestResolvableDateSchema(SchemaTestBase):
     @override
     @pytest.fixture
     def sut_data(self) -> SchemaTestBaseSut:
-        return (ResolvableDateSchema(), *_DUMMY_RESOLVABLE_DATE_DUMPS)
+        return (DateExpressionSchema(), *dummy_date_expression_dumps)

@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 class TestPlaceName:
     def test_date(self) -> None:
-        date = Date()
+        date = Date(1)
         sut = PlaceName(
             "Ikke",
             date=date,

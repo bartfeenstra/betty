@@ -37,7 +37,7 @@ class TestEnclosure(EntityTestBase):
         encloses = Place()
         enclosed_by = Place()
         sut = Enclosure(encloses=encloses, enclosed_by=enclosed_by)
-        date = Date()
+        date = Date(1)
         assert sut.date is None
         sut.date = date
         assert sut.date is date

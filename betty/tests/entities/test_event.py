@@ -97,7 +97,7 @@ class TestEvent(EntityTestBase):
     def test_date(self) -> None:
         sut = Event(event_type=UnknownEventType())
         assert sut.date is None
-        date = Date()
+        date = Date(1)
         sut.date = date
         assert sut.date == date
 
@@ -206,23 +206,23 @@ class TestEvent(EntityTestBase):
             "date": {
                 "start": {
                     "@context": {
-                        "iso8601": "https://schema.org/startDate",
+                        "date": "https://schema.org/startDate",
                     },
                     "year": 2000,
                     "month": 1,
                     "day": 1,
-                    "iso8601": "2000-01-01",
-                    "fuzzy": False,
+                    "date": "2000-01-01",
+                    "imprecise": False,
                 },
                 "end": {
                     "@context": {
-                        "iso8601": "https://schema.org/endDate",
+                        "date": "https://schema.org/endDate",
                     },
                     "year": 2019,
                     "month": 12,
                     "day": 31,
-                    "iso8601": "2019-12-31",
-                    "fuzzy": False,
+                    "date": "2019-12-31",
+                    "imprecise": False,
                 },
             },
             "place": "/place/my-first-place/index.json",

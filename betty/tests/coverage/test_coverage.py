@@ -108,8 +108,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "CommonAttr": MissingReason.ABSTRACT,
     },
     "betty/attrs/date.py": {
-        "HasAnyDate": {
-            "has_any_date_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
+        "HasDate": {
+            "has_date_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
         },
     },
     "betty/attrs/privacy.py": {
@@ -207,7 +207,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "FieldPorter": MissingReason.ABSTRACT,
     },
     "betty/datas/date.py": {
-        "AnyDateDefinition": MissingReason.STATIC_CONTENT_ONLY,
+        "DateExpressionDefinition": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/datas/plugin/definition/__init__.py": {
         "PluginDefinitionData": {
@@ -216,15 +216,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/datas/plugin/manufacturer/sequence.py": {
         "PluginManufacturerSequenceDefinition": MissingReason.SHOULD_BE_COVERED,
-    },
-    "betty/date.py": {
-        "DateRange": {
-            "end": MissingReason.INHERITED,
-            "end_is_boundary": MissingReason.INHERITED,
-            "start": MissingReason.INHERITED,
-            "start_is_boundary": MissingReason.INHERITED,
-        },
-        "IncompleteDateError": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/deriver.py": {"Derivation": MissingReason.ENUM},
     "betty/dirs.py": MissingReason.STATIC_CONTENT_ONLY,
@@ -439,7 +430,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/entities/event.py": {
         "Event": {
-            "has_any_date_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
+            "has_date_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
         },
     },
     "betty/entity/__init__.py": {
