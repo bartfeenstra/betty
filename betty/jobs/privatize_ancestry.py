@@ -49,14 +49,14 @@ class PrivatizeAncestry(Job):
         for entity in self._project.ancestry:
             if isinstance(entity, HasPrivacy):
                 entities.append(entity)
-                if entity.private:
+                if not entity.privacy.publishable:
                     newly_privatized[entity.plugin().id] -= 1
 
         for entity in entities:
             await self._project.privatizer.privatize(entity)
 
         for entity in entities:
-            if entity.private:
+            if not entity.privacy.publishable:
                 newly_privatized[entity.plugin().id] += 1
 
         if newly_privatized[Person.plugin().id] > 0:

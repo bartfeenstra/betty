@@ -33,6 +33,22 @@ class Privacy(enum.Enum):
     - when checking access, UNDETERMINED evaluates to PUBLIC.
     """
 
+    @property
+    def determined(self) -> bool:
+        """
+        Whether this privacy is determined (public or private).
+        """
+        return self is not Privacy.UNDETERMINED
+
+    @property
+    def publishable(self) -> bool:
+        """
+        Whether this privacy is publishable.
+
+        Something is publishable when it is not private.
+        """
+        return self is not Privacy.PRIVATE
+
 
 class HasPrivacy(ABC):
     """

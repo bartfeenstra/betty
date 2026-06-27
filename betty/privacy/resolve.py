@@ -47,7 +47,7 @@ def consider_privacies(*privacies: ResolvablePrivacy) -> Privacy:
 
     1. If any of the privacies resolve to :py:attr:`betty.privacy.Privacy.PRIVATE`, return :py:attr:`betty.privacy.Privacy.PRIVATE`.
     2. Else, return the first privacy if any were given.
-    2. Else, return :py:attr:`betty.privacy.Privacy.UNDETERMINED`.
+    3. Else, return :py:attr:`betty.privacy.Privacy.UNDETERMINED`.
     """
     resolved_privacies = [resolve_privacy(privacy) for privacy in privacies]
     if Privacy.PRIVATE in resolved_privacies:

@@ -664,7 +664,7 @@ class TestGrampsLoader:
 """
         )
         person = ancestry[Person][machinify("I0000")]
-        assert person.private
+        assert person.privacy is Privacy.PRIVATE
 
     async def test_person_should_not_be_private(
         self, load_partial: LoadPartial
@@ -679,7 +679,7 @@ class TestGrampsLoader:
 """
         )
         person = ancestry[Person][machinify("I0000")]
-        assert not person.private
+        assert not person.privacy is Privacy.PRIVATE
 
     async def test_person_should_fallback_gender(
         self, load_partial: LoadPartial
@@ -1706,7 +1706,7 @@ class TestGrampsLoader:
 """
         )
         event = ancestry[Event][machinify("E0000")]
-        assert event.private
+        assert event.privacy is Privacy.PRIVATE
 
     @pytest.mark.parametrize(
         ("expected", "attribute_value"),
@@ -1848,7 +1848,7 @@ class TestGrampsLoader:
 """
         )
         file = ancestry[File][machinify("O0000")]
-        assert file.private
+        assert file.privacy is Privacy.PRIVATE
 
     @pytest.mark.parametrize(
         ("expected", "attribute_value"),
@@ -1991,7 +1991,7 @@ class TestGrampsLoader:
 """
         )
         source = ancestry[Source][machinify("S0000")]
-        assert source.private
+        assert source.privacy is Privacy.PRIVATE
 
     @pytest.mark.parametrize(
         ("expected", "attribute_value"),
@@ -2037,9 +2037,9 @@ class TestGrampsLoader:
 """
         )
         source = ancestry[Source][machinify("S0000")]
-        source.public = True
+        assert source.privacy is Privacy.PRIVATE
         citation = ancestry[Citation][machinify("C0000")]
-        assert citation.private
+        assert citation.privacy is Privacy.PRIVATE
 
     @pytest.mark.parametrize(
         ("expected", "attribute_value"),
@@ -2070,7 +2070,7 @@ class TestGrampsLoader:
 """
         )
         source = ancestry[Source][machinify("S0000")]
-        source.public = True
+        source.privacy = Privacy.PUBLIC
         citation = ancestry[Citation][machinify("C0000")]
         assert expected == citation.privacy
 
@@ -2100,7 +2100,7 @@ class TestGrampsLoader:
 """
         )
         note = ancestry[Note][machinify("N0000")]
-        assert note.private
+        assert note.privacy is Privacy.PRIVATE
 
     async def test_citation_should_include_location_from_page(
         self, load_partial: LoadPartial
@@ -2192,7 +2192,7 @@ class TestGrampsLoader:
         )
         person = ancestry[Person][machinify("I0000")]
         presence = next(iter(person.presences))
-        assert presence.private
+        assert presence.privacy is Privacy.PRIVATE
 
     async def test_url_should_include_path_as_url(
         self, load_partial: LoadPartial

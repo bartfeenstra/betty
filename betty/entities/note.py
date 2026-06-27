@@ -75,7 +75,7 @@ class Note(HasLinks, HasMediaType):
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         portable = await super().dump_linked_data(project)
         portable["@type"] = "https://schema.org/Thing"
-        if self.public:
+        if self.privacy.publishable:
             portable["text"] = dump_linked_data(
                 self.text, localizers=await project.public_localizers
             )

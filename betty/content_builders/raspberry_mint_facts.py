@@ -58,7 +58,7 @@ class Facts(Template, Manufacturable):
 
     def _source_facts(self, source: Source) -> Iterable[Entity]:
         for citation in source.citations:
-            if citation.public:
+            if citation.publishable:
                 yield from citation.facts
         for contained in source.contains:
             yield from self._source_facts(contained)

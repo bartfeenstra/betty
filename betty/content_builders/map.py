@@ -54,11 +54,13 @@ class Map(Template, Manufacturable):
             places.extend(
                 presence.event.place
                 for presence in document.resource.presences
-                if presence.public and presence.event.public and presence.event.place
+                if presence.public
+                and presence.event.privacy.publishable
+                and presence.event.place
             )
         elif isinstance(document.resource, Place):
             places.append(document.resource)
-        places = [place for place in places if place.public]
+        places = [place for place in places if place.privacy.publishable]
         if places:
             return "component/maps/map.html.j2", {
                 "places": places,

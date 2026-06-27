@@ -307,7 +307,7 @@ class TestPrivatizer:
         await Privatizer(default_lifetime_threshold, user=StaticUser()).privatize(
             person
         )
-        assert person.public
+        assert person.privacy is Privacy.PUBLIC
         assert citation.privacy is Privacy.UNDETERMINED
         assert file.privacy is Privacy.UNDETERMINED
         assert presence_as_subject.privacy is Privacy.UNDETERMINED
@@ -326,11 +326,11 @@ class TestPrivatizer:
         await Privatizer(default_lifetime_threshold, user=StaticUser()).privatize(
             person
         )
-        assert person.private
-        assert citation.private
-        assert file.private
-        assert presence_as_subject.private
-        assert presence_as_unknown.private
+        assert person.privacy is Privacy.PRIVATE
+        assert citation.privacy is Privacy.PRIVATE
+        assert file.privacy is Privacy.PRIVATE
+        assert presence_as_subject.privacy is Privacy.PRIVATE
+        assert presence_as_unknown.privacy is Privacy.PRIVATE
 
     @pytest.mark.parametrize(("expected", "privacy", "event"), _expand_person(0))
     async def test_privatize__person_without_relatives(
@@ -345,7 +345,7 @@ class TestPrivatizer:
         await Privatizer(default_lifetime_threshold, user=StaticUser()).privatize(
             person
         )
-        assert expected == person.private
+        assert expected == person.privacy is Privacy.PRIVATE
 
     @pytest.mark.parametrize(("expected", "privacy", "event"), _expand_person(1))
     async def test_privatize__person_with_child(
@@ -362,7 +362,7 @@ class TestPrivatizer:
         await Privatizer(default_lifetime_threshold, user=StaticUser()).privatize(
             person
         )
-        assert expected == person.private
+        assert expected == person.privacy is Privacy.PRIVATE
 
     @pytest.mark.parametrize(("expected", "privacy", "event"), _expand_person(2))
     async def test_privatize__person_with_grandchild(
@@ -381,7 +381,7 @@ class TestPrivatizer:
         await Privatizer(default_lifetime_threshold, user=StaticUser()).privatize(
             person
         )
-        assert expected == person.private
+        assert expected == person.privacy is Privacy.PRIVATE
 
     @pytest.mark.parametrize(("expected", "privacy", "event"), _expand_person(3))
     async def test_privatize__person_with_great_grandchild(
@@ -402,7 +402,7 @@ class TestPrivatizer:
         await Privatizer(default_lifetime_threshold, user=StaticUser()).privatize(
             person
         )
-        assert expected == person.private
+        assert expected == person.privacy is Privacy.PRIVATE
 
     @pytest.mark.parametrize(("expected", "privacy", "event"), _expand_person(-1))
     async def test_privatize__person_with_parent(
@@ -419,7 +419,7 @@ class TestPrivatizer:
         await Privatizer(default_lifetime_threshold, user=StaticUser()).privatize(
             person
         )
-        assert expected == person.private
+        assert expected == person.privacy is Privacy.PRIVATE
 
     @pytest.mark.parametrize(("expected", "privacy", "event"), _expand_person(-2))
     async def test_privatize__person_with_grandparent(
@@ -438,7 +438,7 @@ class TestPrivatizer:
         await Privatizer(default_lifetime_threshold, user=StaticUser()).privatize(
             person
         )
-        assert expected == person.private
+        assert expected == person.privacy is Privacy.PRIVATE
 
     @pytest.mark.parametrize(("expected", "privacy", "event"), _expand_person(-3))
     async def test_privatize__person_with_great_grandparent(
@@ -459,7 +459,7 @@ class TestPrivatizer:
         await Privatizer(default_lifetime_threshold, user=StaticUser()).privatize(
             person
         )
-        assert expected == person.private
+        assert expected == person.privacy is Privacy.PRIVATE
 
     async def test_privatize__event_should_not_privatize_if_public(self) -> None:
         citation = Citation(source=Source())
@@ -473,7 +473,7 @@ class TestPrivatizer:
         person = Person()
         presence = Presence(person, Subject(), event)
         await Privatizer(default_lifetime_threshold, user=StaticUser()).privatize(event)
-        assert not event.private
+        assert not event.privacy is Privacy.PRIVATE
         assert event_file.privacy is Privacy.UNDETERMINED
         assert citation.privacy is Privacy.UNDETERMINED
         assert presence.privacy is Privacy.UNDETERMINED
@@ -490,10 +490,10 @@ class TestPrivatizer:
         person = Person()
         presence = Presence(person, Subject(), event)
         await Privatizer(default_lifetime_threshold, user=StaticUser()).privatize(event)
-        assert event.private
-        assert presence.private
-        assert file.private
-        assert citation.private
+        assert event.privacy is Privacy.PRIVATE
+        assert presence.privacy is Privacy.PRIVATE
+        assert file.privacy is Privacy.PRIVATE
+        assert citation.privacy is Privacy.PRIVATE
 
     async def test_privatize__source_should_not_privatize_if_public(self) -> None:
         file = File(__file__)
@@ -505,7 +505,7 @@ class TestPrivatizer:
         await Privatizer(default_lifetime_threshold, user=StaticUser()).privatize(
             source
         )
-        assert not source.private
+        assert not source.privacy is Privacy.PRIVATE
         assert file.privacy is Privacy.UNDETERMINED
 
     async def test_privatize__source_should_privatize_if_private(self) -> None:
@@ -518,8 +518,8 @@ class TestPrivatizer:
         await Privatizer(default_lifetime_threshold, user=StaticUser()).privatize(
             source
         )
-        assert source.private
-        assert file.private
+        assert source.privacy is Privacy.PRIVATE
+        assert file.privacy is Privacy.PRIVATE
 
     async def test_privatize__citation_should_not_privatize_if_public(self) -> None:
         file = File(__file__)
@@ -531,7 +531,7 @@ class TestPrivatizer:
         await Privatizer(default_lifetime_threshold, user=StaticUser()).privatize(
             citation
         )
-        assert citation.public
+        assert citation.privacy is Privacy.PUBLIC
         assert file.privacy is Privacy.UNDETERMINED
 
     async def test_privatize__citation_should_privatize_if_private(self) -> None:
@@ -544,15 +544,15 @@ class TestPrivatizer:
         await Privatizer(default_lifetime_threshold, user=StaticUser()).privatize(
             citation
         )
-        assert citation.private
-        assert file.private
+        assert citation.privacy is Privacy.PRIVATE
+        assert file.privacy is Privacy.PRIVATE
 
     async def test_privatize__file_should_not_privatize_if_public(self) -> None:
         citation = Citation(source=Source())
         file = File(__file__, privacy=Privacy.PUBLIC)
         file.citations.add(citation)
         await Privatizer(default_lifetime_threshold, user=StaticUser()).privatize(file)
-        assert file.public
+        assert file.privacy is Privacy.PUBLIC
         assert citation.privacy is Privacy.UNDETERMINED
 
     async def test_privatize__file_should_privatize_if_private(self) -> None:
@@ -560,8 +560,8 @@ class TestPrivatizer:
         file = File(__file__, privacy=Privacy.PRIVATE)
         file.citations.add(citation)
         await Privatizer(default_lifetime_threshold, user=StaticUser()).privatize(file)
-        assert file.private
-        assert citation.private
+        assert file.privacy is Privacy.PRIVATE
+        assert citation.privacy is Privacy.PRIVATE
 
     @pytest.mark.parametrize(
         ("expected", "privacy", "events", "enclosees"),
@@ -638,4 +638,4 @@ class TestPrivatizer:
         place = Place(privacy=Privacy.PRIVATE)
         Enclosure(enclosee, place)
         await Privatizer(default_lifetime_threshold, user=StaticUser()).privatize(place)
-        assert enclosee.private
+        assert enclosee.privacy is Privacy.PRIVATE

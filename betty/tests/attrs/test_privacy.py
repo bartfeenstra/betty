@@ -68,15 +68,3 @@ class TestHasPrivacy:
         privacy = Privacy.PUBLIC
         sut.privacy = privacy
         assert sut.own_privacy is privacy
-
-    def test_public(self) -> None:
-        sut = DummyHasPrivacy()
-        sut.public = True
-        assert sut.public
-        assert sut.privacy is Privacy.PUBLIC
-
-    def test_private(self) -> None:
-        sut = DummyHasPrivacy()
-        sut.private = True
-        assert sut.private
-        assert sut.privacy is Privacy.PRIVATE

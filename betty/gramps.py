@@ -106,6 +106,7 @@ from betty.place_types.unknown import UnknownPlaceType
 from betty.place_types.village import Village
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.error import PluginNotFound
+from betty.privacy import Privacy
 from betty.role import RoleManufacturer
 from betty.roles.attendee import Attendee
 from betty.roles.celebrant import Celebrant
@@ -744,7 +745,7 @@ class GrampsLoader:
             text=text,
         )
         if element.get("priv") == "1":
-            note.private = True
+            note.privacy = Privacy.PRIVATE
         self._add_entity(note, note_handle)
 
     def _load_noteref(self, owner: HasNotes, element: ElementTree.Element) -> None:
@@ -793,7 +794,7 @@ class GrampsLoader:
         if description:
             file.description = description
         if element.get("priv") == "1":
-            file.private = True
+            file.privacy = Privacy.PRIVATE
 
         await self._load_attributes_for(
             file,
@@ -903,7 +904,7 @@ class GrampsLoader:
 
         await self._load_eventrefs(person, element)
         if element.get("priv") == "1":
-            person.private = True
+            person.privacy = Privacy.PRIVATE
 
         await self._load_attributes_for(
             person,
@@ -977,7 +978,7 @@ class GrampsLoader:
             id=_machinify_associate(person, Presence, index),
         )
         if eventref.get("priv") == "1":
-            presence.private = True
+            presence.privacy = Privacy.PRIVATE
 
         await self._load_attributes_for(
             presence,
@@ -1116,7 +1117,7 @@ class GrampsLoader:
                 event.description = description
 
         if element.get("priv") == "1":
-            event.private = True
+            event.privacy = Privacy.PRIVATE
 
         self._load_objref(event, element)
         self._load_citationref(event, element)
@@ -1191,7 +1192,7 @@ class GrampsLoader:
                 source.publisher = publisher
 
         if element.get("priv") == "1":
-            source.private = True
+            source.privacy = Privacy.PRIVATE
 
         await self._load_attributes_for(
             source,
@@ -1222,7 +1223,7 @@ class GrampsLoader:
 
         citation.date = self._load_date(element)
         if element.get("priv") == "1":
-            citation.private = True
+            citation.privacy = Privacy.PRIVATE
 
         with suppress(XPathError):
             page = self._xpath1(element, "./ns:page").text
@@ -1312,10 +1313,10 @@ class GrampsLoader:
         if privacy_value is None:
             return
         if privacy_value == "private":
-            entity.private = True
+            entity.privacy = Privacy.PRIVATE
             return
         if privacy_value == "public":
-            entity.public = True
+            entity.privacy = Privacy.PUBLIC
             return
         await self._project.upstream.user.message_warning(
             _(

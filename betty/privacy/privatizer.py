@@ -89,7 +89,7 @@ class Privatizer:
             await self._privatize_has_notes(subject)
 
     async def _privatize_person(self, person: Person) -> None:
-        if not person.private:
+        if person.privacy.publishable:
             return
 
         for person_name in person.names:
@@ -100,7 +100,7 @@ class Privatizer:
             await self.privatize(presence)
 
     async def _privatize_presence(self, presence: Presence) -> None:
-        if not presence.private:
+        if presence.privacy.publishable:
             return
 
         if isinstance(presence.role, Subject):
@@ -110,7 +110,7 @@ class Privatizer:
         await self.privatize(presence.person)
 
     async def _privatize_event(self, event: Event) -> None:
-        if not event.private:
+        if event.privacy.publishable:
             return
 
         for presence in event.presences:
@@ -120,7 +120,7 @@ class Privatizer:
             await self.privatize(event.place)
 
     async def _privatize_place(self, place: Place) -> None:
-        if not place.private:
+        if place.privacy.publishable:
             return
 
         for enclosure in place.enclosees:
@@ -132,7 +132,7 @@ class Privatizer:
     async def _privatize_has_citations(
         self, has_citations: Intersection[HasCitations, HasPrivacy]
     ) -> None:
-        if not has_citations.private:
+        if has_citations.privacy.publishable:
             return
 
         for citation in has_citations.citations:
@@ -140,7 +140,7 @@ class Privatizer:
             await self.privatize(citation)
 
     async def _privatize_source(self, source: Source) -> None:
-        if not source.private:
+        if source.privacy.publishable:
             return
 
         for contained_source in source.contains:
@@ -153,7 +153,7 @@ class Privatizer:
     async def _privatize_has_file_references(
         self, has_file_references: Intersection[HasFileReferences, HasPrivacy]
     ) -> None:
-        if not has_file_references.private:
+        if has_file_references.privacy.publishable:
             return
 
         for file_reference in has_file_references.files:
@@ -163,7 +163,7 @@ class Privatizer:
     async def _privatize_has_notes(
         self, has_notes: Intersection[HasNotes, HasPrivacy]
     ) -> None:
-        if not has_notes.private:
+        if has_notes.privacy.publishable:
             return
 
         for note in has_notes.notes:
@@ -186,28 +186,28 @@ class Privatizer:
         for presence in person.presences:
             if presence.event.event_type.plugin().id == Death.plugin().id:
                 if presence.event.date is None:
-                    person.public = True
+                    person.privacy = Privacy.PUBLIC
                     return
                 if self.has_expired(presence.event, 0):
-                    person.public = True
+                    person.privacy = Privacy.PUBLIC
                     return
 
         if self.has_expired(person, 1):
-            person.public = True
+            person.privacy = Privacy.PUBLIC
             return
 
         for ancestor, generations_ago in self._ancestors_by_generation(person):
             if self.has_expired(ancestor, generations_ago + 1):
-                person.public = True
+                person.privacy = Privacy.PUBLIC
                 return
 
         # If any descendant has any expired event, the person is considered not private.
         for descendant in person.descendants:
             if self.has_expired(descendant, 1):
-                person.public = True
+                person.privacy = Privacy.PUBLIC
                 return
 
-        person.private = True
+        person.privacy = Privacy.PRIVATE
         await self._user.message_debug(
             _(
                 "Privatized person {privatized_person_id} ({privatized_person}) because they are likely still alive."
@@ -222,17 +222,17 @@ class Privatizer:
         if place.privacy is not Privacy.UNDETERMINED:
             return
 
-        # If there are non-private events, we will not privatize the place.
+        # If there are publishable events, we will not privatize the place.
         for event in place.events:
-            if not event.private:
+            if event.privacy.publishable:
                 return
 
-        # If there are non-private enclosed places, we will not privatize the place.
+        # If there are publishable enclosed places, we will not privatize the place.
         for enclosure in place.enclosees:
-            if not enclosure.enclosee.private:
+            if enclosure.enclosee.privacy.publishable:
                 return
 
-        place.private = True
+        place.privacy = Privacy.PRIVATE
         await self._user.message_debug(
             _(
                 "Privatized place {privatized_place_id} ({privatized_place}) because it is not associated with any public information."
@@ -297,7 +297,7 @@ class Privatizer:
         if target.own_privacy is not Privacy.UNDETERMINED:
             return
 
-        target.private = True
+        target.privacy = Privacy.PRIVATE
         with suppress(ValueError):
             self._seen.remove(target)
 

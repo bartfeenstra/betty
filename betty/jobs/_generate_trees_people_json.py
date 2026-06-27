@@ -42,12 +42,12 @@ class _GenerateTreesPeopleJson(Job):
             person.id: {
                 "id": person.id,
                 "label": person.label.localize(localizer)
-                if person.public
+                if person.privacy.publishable
                 else private_label,
                 "url": url_generator.generate(person, media_type=HTML),
                 "parentIds": [parent.id for parent in person.parents],
                 "childIds": [child.id for child in person.children],
-                "private": person.private,
+                "private": not person.privacy.publishable,
             }
             for person in self._project.ancestry[Person]
         }

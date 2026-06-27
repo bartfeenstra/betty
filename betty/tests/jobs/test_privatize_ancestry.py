@@ -45,6 +45,6 @@ class TestPrivatizeAncestry:
             project.ancestry.add(person, source, citation)
             await load(project)
 
-        assert person.private
-        assert source_file.private
-        assert citation_file.private
+        assert person.privacy is Privacy.PRIVATE
+        assert source_file.privacy is Privacy.PRIVATE
+        assert citation_file.privacy is Privacy.PRIVATE

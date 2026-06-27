@@ -139,7 +139,7 @@ class Event(
             for presence in self.presences
             if presence.public
             and isinstance(presence.role, Subject)
-            and presence.person.public
+            and presence.person.privacy.publishable
         ]
         if subjects:
             format_kwargs["subjects"] = AllEnumeration(

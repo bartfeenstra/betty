@@ -147,7 +147,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks):
     @property
     def label(self) -> Localizable:
         for name in self.names:
-            if name.public:
+            if name.privacy.publishable:
                 return name.label
         return super().label
 
@@ -161,7 +161,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks):
             children="https://schema.org/child",
         )
         portable["@type"] = "https://schema.org/Person"
-        if self.public:
+        if self.privacy.publishable:
             portable["gender"] = self.gender.plugin().id
         return portable
 

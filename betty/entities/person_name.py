@@ -130,7 +130,7 @@ class PersonName(HasLocale, HasCitations):
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         portable = await super().dump_linked_data(project)
-        if self.public:
+        if self.privacy.publishable:
             if self.individual is not None:
                 dump_context(portable, individual="https://schema.org/givenName")
                 portable["individual"] = self.individual

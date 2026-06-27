@@ -56,7 +56,7 @@ class HasLocale(Localized, LinkedDataDumpableWithSchemaJsonLdObject, HasProps):
         portable = await super().dump_linked_data(project)
         portable["locale"] = (
             to_language_tag(self.locale)
-            if not isinstance(self, HasPrivacy) or self.public
+            if not isinstance(self, HasPrivacy) or self.privacy.publishable
             else None
         )
         return portable

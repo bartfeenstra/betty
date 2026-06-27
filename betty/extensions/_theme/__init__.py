@@ -9,6 +9,7 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import TYPE_CHECKING, cast
 
+from betty.attrs.privacy import HasPrivacy as HasPrivacy
 from betty.date import AnyDate, Date
 from betty.entities.event import Event
 from betty.entities.person import Person
@@ -27,7 +28,7 @@ if TYPE_CHECKING:
 
 
 def _is_person_timeline_presence(presence: Presence) -> bool:
-    if presence.private:
+    if not presence.privacy.publishable:
         return False
     if not presence.event.date:
         return False
@@ -168,7 +169,7 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
         associated_people = (
             person
             for person in (*person.ancestors, *person.descendants, *person.siblings)
-            if person.public
+            if person.privacy.publishable
         )
         for associated_person in associated_people:
             # For associated events, we are only interested in people's start- or end-of-life events.

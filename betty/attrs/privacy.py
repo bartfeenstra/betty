@@ -4,7 +4,7 @@ Privacy attributes.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Literal, final, override
+from typing import TYPE_CHECKING, Any, final, override
 
 from betty.attrs.owner import OwnerAttr
 from betty.attrs.proxy import ProxyAttr
@@ -86,26 +86,3 @@ class HasPrivacy(HasPrivacyPrivacy, HasProps):
     @privacy.deleter
     def privacy(self) -> None:
         self.privacy = Privacy.UNDETERMINED
-
-    @property
-    def private(self) -> bool:
-        """
-        Whether this resource is private.
-        """
-        return self.privacy is Privacy.PRIVATE
-
-    @private.setter
-    def private(self, private: Literal[True]) -> None:
-        self.privacy = Privacy.PRIVATE
-
-    @property
-    def public(self) -> bool:
-        """
-        Whether this resource is public.
-        """
-        # Undetermined privacy defaults to public.
-        return self.privacy is not Privacy.PRIVATE
-
-    @public.setter
-    def public(self, public: Literal[True]) -> None:
-        self.privacy = Privacy.PUBLIC
