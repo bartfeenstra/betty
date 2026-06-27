@@ -5,10 +5,9 @@ The privatizer API.
 from __future__ import annotations
 
 from contextlib import suppress
-from typing import TYPE_CHECKING, Any, final
+from typing import TYPE_CHECKING, final
 
 from betty.entities.person import Person
-from betty.entity import Entity
 from betty.event_types.death import Death
 from betty.localizables.gettext import _
 from betty.privacy import Privacy
@@ -16,6 +15,7 @@ from betty.privacy import Privacy
 if TYPE_CHECKING:
     from collections.abc import Iterator, MutableSet
 
+    from betty.entity import Entity
     from betty.lifetime import Lifetime
     from betty.user import User
 
@@ -63,15 +63,10 @@ class Privatizer:
             yield from self._ancestors_by_generation(parent, generations_ago + 1)
 
     async def _determine_person_privacy(self, person: Person) -> None:
-        # A dead person is not private, regardless of when they died.
         for presence in person.presences:
             if presence.event.event_type.plugin().id == Death.plugin().id:
-                if presence.event.date is None:
-                    person.privacy = Privacy.PUBLIC
-                    return
-                if self._lifetime.has_expired(presence.event, 0):
-                    person.privacy = Privacy.PUBLIC
-                    return
+                person.privacy = Privacy.PUBLIC
+                return
 
         if self._lifetime.has_expired(person):
             person.privacy = Privacy.PUBLIC
@@ -99,29 +94,25 @@ class Privatizer:
         )
 
     async def _mark_private(
-        self,
-        target: Entity,
-        reason: Any,
-        seen: MutableSet[Entity],
+        self, owner: Entity, associate: Entity, seen: MutableSet[Entity]
     ) -> None:
         # Do not change existing explicit privacy declarations.
-        if target.privacy is not Privacy.UNDETERMINED:
+        if associate.privacy is not Privacy.UNDETERMINED:
             return
 
-        target.privacy = Privacy.PRIVATE
+        associate.privacy = Privacy.PRIVATE
         with suppress(ValueError):
-            seen.remove(target)
+            seen.remove(associate)
 
-        if isinstance(target, Entity) and isinstance(reason, Entity):
-            await self._user.message_debug(
-                _(
-                    "Privatized {privatized_entity_type} {privatized_entity_id} ({privatized_entity}) because of {reason_entity_type} {reason_entity_id} ({reason_entity})."
-                ).format(
-                    privatized_entity_type=target.plugin().label,
-                    privatized_entity_id=target.id,
-                    privatized_entity=target.label,
-                    reason_entity_type=reason.plugin().label,
-                    reason_entity_id=reason.id,
-                    reason_entity=reason.label,
-                )
+        await self._user.message_debug(
+            _(
+                "Privatized {associate_type} {associate_id} ({associate}) because of {owner_type} {owner_id} ({owner})."
+            ).format(
+                associate_type=associate.plugin().label,
+                associate_id=associate.id,
+                associate=associate.label,
+                owner_type=owner.plugin().label,
+                owner_id=owner.id,
+                owner=owner.label,
             )
+        )
