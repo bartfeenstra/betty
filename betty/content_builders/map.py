@@ -54,7 +54,7 @@ class Map(Template, Manufacturable):
             places.extend(
                 presence.event.place
                 for presence in document.resource.presences
-                if presence.public
+                if presence.privacy.publishable
                 and presence.event.privacy.publishable
                 and presence.event.place
             )

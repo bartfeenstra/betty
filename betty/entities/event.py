@@ -137,7 +137,7 @@ class Event(
         subjects = [
             presence.person
             for presence in self.presences
-            if presence.public
+            if presence.privacy.publishable
             and isinstance(presence.role, Subject)
             and presence.person.privacy.publishable
         ]
