@@ -43,6 +43,7 @@ class Association[
         associate_attr: Association[AssociateT, OwnerT, Any, Any] | str | None = None,
         /,
         *args: Any,
+        privatize: bool = False,
         **kwargs: Any,
     ):
         super().__init__(field, *args, **kwargs)
@@ -62,6 +63,7 @@ class Association[
         self.__associate_attr: (
             Association[AssociateT, OwnerT, Any, Any] | None | VoidType
         ) = associate_attr if isinstance(associate_attr, Association) else Void
+        self.privatize: Final[bool] = privatize
 
     @final
     @property

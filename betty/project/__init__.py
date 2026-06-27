@@ -581,7 +581,9 @@ class Project(
         """
         The privatizer.
         """
-        return Privatizer(self.lifetime_threshold, user=self.upstream.user)
+        return Privatizer(
+            lifetime_threshold=self.lifetime_threshold, user=self.upstream.user
+        )
 
     async def new_document(
         self,

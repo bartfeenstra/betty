@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from contextlib import suppress
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, final
 
 from betty.associations.has_citations import HasCitations
 from betty.associations.has_file_references import HasFileReferences
@@ -21,10 +21,11 @@ from betty.entity import Entity
 from betty.event_types.death import Death
 from betty.localizables.gettext import _
 from betty.privacy import Privacy
+from betty.project import default_lifetime_threshold
 from betty.roles.subject import Subject
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, MutableSequence
+    from collections.abc import Iterator
 
     from betty.attrs.privacy import HasPrivacy
     from betty.typing import Intersection
@@ -34,15 +35,18 @@ if TYPE_CHECKING:
 type _Expirable = Person | Event | Date | None
 
 
+@final
 class Privatizer:
     """
     Privatize resources.
     """
 
-    def __init__(self, lifetime_threshold: int, *, user: User):
+    def __init__(
+        self, *, lifetime_threshold: int = default_lifetime_threshold, user: User
+    ):
         self._lifetime_threshold = lifetime_threshold
         self._user = user
-        self._seen: MutableSequence[HasPrivacy] = []
+        self._seen = set()
 
     async def privatize(self, subject: HasPrivacy) -> None:
         """
@@ -60,9 +64,10 @@ class Privatizer:
         if subject.privacy is not Privacy.PRIVATE:
             return
 
+        # @todo Key by type and ID, and don't use a list
         if subject in self._seen:
             return
-        self._seen.append(subject)
+        self._seen.add(subject)
 
         if isinstance(subject, Person):
             await self._privatize_person(subject)
