@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2026-06-24 11:57+0100\n"
+"POT-Creation-Date: 2026-06-27 19:02+0100\n"
 "PO-Revision-Date: 2026-02-17 18:12+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: uk\n"
@@ -1430,11 +1430,9 @@ msgstr ""
 
 #, python-brace-format
 msgid ""
-"Privatized place {privatized_place_id} ({privatized_place}) because it is"
-" not associated with any public information."
+"Privatized {associate_type} {associate_id} ({associate}) because of "
+"{owner_type} {owner_id} ({owner})."
 msgstr ""
-"Місце {privatized_place_id} ({privatized_place}) було зроблене приватним,"
-" оскільки воно не пов’язане з жодною публічною інформацією."
 
 #, python-brace-format
 msgid ""
@@ -1450,16 +1448,6 @@ msgstr[2] ""
 #, python-brace-format
 msgid "Privatized {count} people because they are likely still alive."
 msgstr "Приватизовано {count} осіб, оскільки, ймовірно, вони ще живі."
-
-#, python-brace-format
-msgid ""
-"Privatized {privatized_entity_type} {privatized_entity_id} "
-"({privatized_entity}) because of {reason_entity_type} {reason_entity_id} "
-"({reason_entity})."
-msgstr ""
-"{privatized_entity_type} {privatized_entity_id} ({privatized_entity}) "
-"зроблено приватним через {reason_entity_type} {reason_entity_id} "
-"({reason_entity})."
 
 msgid "Project author"
 msgstr "Автор проєкту"
