@@ -68,18 +68,18 @@ class Privatizer:
                 person.privacy = Privacy.PUBLIC
                 return
 
-        if self._lifetime.has_expired(person):
+        if self._lifetime.is_expired(person):
             person.privacy = Privacy.PUBLIC
             return
 
         for ancestor, generations_ago in self._ancestors_by_generation(person):
-            if self._lifetime.has_expired(ancestor, generations_ago + 1):
+            if self._lifetime.is_expired(ancestor, generations_ago + 1):
                 person.privacy = Privacy.PUBLIC
                 return
 
         # If any descendant has any expired event, the person is considered not private.
         for descendant in person.descendants:
-            if self._lifetime.has_expired(descendant):
+            if self._lifetime.is_expired(descendant):
                 person.privacy = Privacy.PUBLIC
                 return
 
