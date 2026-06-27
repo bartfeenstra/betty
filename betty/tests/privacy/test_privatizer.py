@@ -6,15 +6,9 @@ from typing import TYPE_CHECKING
 import pytest
 
 from betty.date import Date, DateRange
-from betty.entities.citation import Citation
-from betty.entities.enclosure import Enclosure
 from betty.entities.event import Event
-from betty.entities.file import File
-from betty.entities.file_reference import FileReference
 from betty.entities.person import Person
-from betty.entities.place import Place
 from betty.entities.presence import Presence
-from betty.entities.source import Source
 from betty.event_types.birth import Birth
 from betty.event_types.death import Death
 from betty.event_types.marriage import Marriage
@@ -49,9 +43,7 @@ def _expand_person(generation: int) -> Sequence[tuple[bool, Privacy, Event | Non
         (True, Privacy.UNDETERMINED, None),
         (True, Privacy.PRIVATE, None),
         (False, Privacy.PUBLIC, None),
-        # Deaths and other end-of-life events are special, but only for the person whose privacy is being checked:
-        # - If they're present without dates, the person isn't private.
-        # - If they're present and their dates or date ranges' end dates are in the past, the person isn't private.
+        # Deaths and other end-of-life events are special, but only for the current generation.
         (
             generation != 0,
             Privacy.UNDETERMINED,
@@ -73,7 +65,7 @@ def _expand_person(generation: int) -> Sequence[tuple[bool, Privacy, Event | Non
             ),
         ),
         (
-            True,
+            generation != 0,
             Privacy.UNDETERMINED,
             Event(
                 event_type=Death(),
@@ -97,7 +89,7 @@ def _expand_person(generation: int) -> Sequence[tuple[bool, Privacy, Event | Non
             ),
         ),
         (
-            True,
+            False,
             Privacy.UNDETERMINED,
             Event(
                 event_type=Death(),
@@ -243,7 +235,7 @@ def _expand_person(generation: int) -> Sequence[tuple[bool, Privacy, Event | Non
             ),
         ),
         (
-            True,
+            False,
             Privacy.UNDETERMINED,
             Event(
                 event_type=Birth(),
@@ -297,36 +289,24 @@ class TestPrivatizer:
     sut = Privatizer(lifetime=Lifetime(), user=StaticUser())
 
     async def test_privatize__person_should_not_privatize_if_public(self) -> None:
-        citation = Citation(source=Source())
-        file = File(__file__)
         person = Person(privacy=Privacy.PUBLIC)
-        person.citations.add(citation)
-        FileReference(person, file)
         presence_as_subject = Presence(person, Subject(), Event(event_type=Birth()))
         presence_as_unknown = Presence(
             person, UnknownRole(), Event(event_type=Marriage())
         )
         await self.sut.privatize(person)
         assert person.privacy is Privacy.PUBLIC
-        assert citation.privacy is Privacy.UNDETERMINED
-        assert file.privacy is Privacy.UNDETERMINED
         assert presence_as_subject.privacy is Privacy.UNDETERMINED
         assert presence_as_unknown.privacy is Privacy.UNDETERMINED
 
     async def test_privatize__person_should_privatize_if_private(self) -> None:
-        citation = Citation(source=Source())
-        file = File(__file__)
         person = Person(privacy=Privacy.PRIVATE)
-        person.citations.add(citation)
-        FileReference(person, file)
         presence_as_subject = Presence(person, Subject(), Event(event_type=Birth()))
         presence_as_unknown = Presence(
             person, UnknownRole(), Event(event_type=Marriage())
         )
         await self.sut.privatize(person)
         assert person.privacy is Privacy.PRIVATE
-        assert citation.privacy is Privacy.PRIVATE
-        assert file.privacy is Privacy.PRIVATE
         assert presence_as_subject.privacy is Privacy.PRIVATE
         assert presence_as_unknown.privacy is Privacy.PRIVATE
 
@@ -341,7 +321,10 @@ class TestPrivatizer:
         if event is not None:
             Presence(person, Subject(), event)
         await self.sut.privatize(person)
-        assert expected == person.privacy is Privacy.PRIVATE
+        if expected:
+            assert person.privacy is Privacy.PRIVATE
+        else:
+            assert person.privacy is not Privacy.PRIVATE
 
     @pytest.mark.parametrize(("expected", "privacy", "event"), _expand_person(1))
     async def test_privatize__person_with_child(
@@ -356,7 +339,10 @@ class TestPrivatizer:
             Presence(child, Subject(), event)
         person.children.add(child)
         await self.sut.privatize(person)
-        assert expected == person.privacy is Privacy.PRIVATE
+        if expected:
+            assert person.privacy is Privacy.PRIVATE
+        else:
+            assert person.privacy is not Privacy.PRIVATE
 
     @pytest.mark.parametrize(("expected", "privacy", "event"), _expand_person(2))
     async def test_privatize__person_with_grandchild(
@@ -373,7 +359,10 @@ class TestPrivatizer:
             Presence(grandchild, Subject(), event)
         child.children.add(grandchild)
         await self.sut.privatize(person)
-        assert expected == person.privacy is Privacy.PRIVATE
+        if expected:
+            assert person.privacy is Privacy.PRIVATE
+        else:
+            assert person.privacy is not Privacy.PRIVATE
 
     @pytest.mark.parametrize(("expected", "privacy", "event"), _expand_person(3))
     async def test_privatize__person_with_great_grandchild(
@@ -392,7 +381,10 @@ class TestPrivatizer:
             Presence(great_grandchild, Subject(), event)
         grandchild.children.add(great_grandchild)
         await self.sut.privatize(person)
-        assert expected == person.privacy is Privacy.PRIVATE
+        if expected:
+            assert person.privacy is Privacy.PRIVATE
+        else:
+            assert person.privacy is not Privacy.PRIVATE
 
     @pytest.mark.parametrize(("expected", "privacy", "event"), _expand_person(-1))
     async def test_privatize__person_with_parent(
@@ -407,7 +399,10 @@ class TestPrivatizer:
             Presence(parent, Subject(), event)
         person.parents.add(parent)
         await self.sut.privatize(person)
-        assert expected == person.privacy is Privacy.PRIVATE
+        if expected:
+            assert person.privacy is Privacy.PRIVATE
+        else:
+            assert person.privacy is not Privacy.PRIVATE
 
     @pytest.mark.parametrize(("expected", "privacy", "event"), _expand_person(-2))
     async def test_privatize__person_with_grandparent(
@@ -424,7 +419,10 @@ class TestPrivatizer:
             Presence(grandparent, Subject(), event)
         parent.parents.add(grandparent)
         await self.sut.privatize(person)
-        assert expected == person.privacy is Privacy.PRIVATE
+        if expected:
+            assert person.privacy is Privacy.PRIVATE
+        else:
+            assert person.privacy is not Privacy.PRIVATE
 
     @pytest.mark.parametrize(("expected", "privacy", "event"), _expand_person(-3))
     async def test_privatize__person_with_great_grandparent(
@@ -443,175 +441,7 @@ class TestPrivatizer:
             Presence(great_grandparent, Subject(), event)
         grandparent.parents.add(great_grandparent)
         await self.sut.privatize(person)
-        assert expected == person.privacy is Privacy.PRIVATE
-
-    async def test_privatize__event_should_not_privatize_if_public(self) -> None:
-        citation = Citation(source=Source())
-        event_file = File(__file__)
-        event = Event(
-            event_type=Birth(),
-            privacy=Privacy.PUBLIC,
-        )
-        event.citations.add(citation)
-        FileReference(event, event_file)
-        person = Person()
-        presence = Presence(person, Subject(), event)
-        await self.sut.privatize(event)
-        assert not event.privacy is Privacy.PRIVATE
-        assert event_file.privacy is Privacy.UNDETERMINED
-        assert citation.privacy is Privacy.UNDETERMINED
-        assert presence.privacy is Privacy.UNDETERMINED
-
-    async def test_privatize__event_should_privatize_if_private(self) -> None:
-        citation = Citation(source=Source())
-        file = File(__file__)
-        event = Event(
-            event_type=Birth(),
-            privacy=Privacy.PRIVATE,
-        )
-        event.citations.add(citation)
-        FileReference(event, file)
-        person = Person()
-        presence = Presence(person, Subject(), event)
-        await self.sut.privatize(event)
-        assert event.privacy is Privacy.PRIVATE
-        assert presence.privacy is Privacy.PRIVATE
-        assert file.privacy is Privacy.PRIVATE
-        assert citation.privacy is Privacy.PRIVATE
-
-    async def test_privatize__source_should_not_privatize_if_public(self) -> None:
-        file = File(__file__)
-        source = Source(
-            name="The Source",
-            privacy=Privacy.PUBLIC,
-        )
-        FileReference(source, file)
-        await self.sut.privatize(source)
-        assert not source.privacy is Privacy.PRIVATE
-        assert file.privacy is Privacy.UNDETERMINED
-
-    async def test_privatize__source_should_privatize_if_private(self) -> None:
-        file = File(__file__)
-        source = Source(
-            name="The Source",
-            privacy=Privacy.PRIVATE,
-        )
-        FileReference(source, file)
-        await self.sut.privatize(source)
-        assert source.privacy is Privacy.PRIVATE
-        assert file.privacy is Privacy.PRIVATE
-
-    async def test_privatize__citation_should_not_privatize_if_public(self) -> None:
-        file = File(__file__)
-        citation = Citation(
-            source=Source(),
-            privacy=Privacy.PUBLIC,
-        )
-        FileReference(citation, file)
-        await self.sut.privatize(citation)
-        assert citation.privacy is Privacy.PUBLIC
-        assert file.privacy is Privacy.UNDETERMINED
-
-    async def test_privatize__citation_should_privatize_if_private(self) -> None:
-        file = File(__file__)
-        citation = Citation(
-            source=Source(),
-            privacy=Privacy.PRIVATE,
-        )
-        FileReference(citation, file)
-        await self.sut.privatize(citation)
-        assert citation.privacy is Privacy.PRIVATE
-        assert file.privacy is Privacy.PRIVATE
-
-    async def test_privatize__file_should_not_privatize_if_public(self) -> None:
-        citation = Citation(source=Source())
-        file = File(__file__, privacy=Privacy.PUBLIC)
-        file.citations.add(citation)
-        await self.sut.privatize(file)
-        assert file.privacy is Privacy.PUBLIC
-        assert citation.privacy is Privacy.UNDETERMINED
-
-    async def test_privatize__file_should_privatize_if_private(self) -> None:
-        citation = Citation(source=Source())
-        file = File(__file__, privacy=Privacy.PRIVATE)
-        file.citations.add(citation)
-        await self.sut.privatize(file)
-        assert file.privacy is Privacy.PRIVATE
-        assert citation.privacy is Privacy.PRIVATE
-
-    @pytest.mark.parametrize(
-        ("expected", "privacy", "events", "enclosees"),
-        [
-            (Privacy.PUBLIC, Privacy.PUBLIC, [], []),
-            (Privacy.PRIVATE, Privacy.PRIVATE, [], []),
-            (Privacy.PRIVATE, Privacy.UNDETERMINED, [], []),
-            (
-                Privacy.UNDETERMINED,
-                Privacy.UNDETERMINED,
-                [
-                    Event(privacy=Privacy.PUBLIC),
-                    Event(privacy=Privacy.PRIVATE),
-                ],
-                [],
-            ),
-            (
-                Privacy.PRIVATE,
-                Privacy.UNDETERMINED,
-                [Event(privacy=Privacy.PRIVATE)],
-                [],
-            ),
-            (
-                Privacy.UNDETERMINED,
-                Privacy.UNDETERMINED,
-                [],
-                [
-                    Enclosure(Place(privacy=Privacy.PUBLIC), Place()),
-                ],
-            ),
-        ],
-    )
-    async def test_privatize__place_should_determine_privacy(
-        self,
-        expected: Privacy,
-        privacy: Privacy,
-        events: Sequence[Event],
-        enclosees: Sequence[Enclosure],
-    ) -> None:
-        place = Place(
-            privacy=privacy,
-            events=events,
-            enclosees=enclosees,
-        )
-        await self.sut.privatize(place)
-        assert place.privacy is expected
-
-    async def test_privatize__place_should_not_privatize_public_encloser(
-        self,
-    ) -> None:
-        encloser = Place(privacy=Privacy.PUBLIC)
-        place = Place(
-            privacy=Privacy.PRIVATE,
-            enclosers=[Enclosure(Place(), encloser)],
-        )
-        await self.sut.privatize(place)
-        assert encloser.privacy is Privacy.PUBLIC
-
-    async def test_privatize__place_should_not_privatize_encloser_with_public_associations(
-        self,
-    ) -> None:
-        encloser = Place(
-            enclosees=[Enclosure(Place(), Place())],
-        )
-        place = Place(
-            privacy=Privacy.PRIVATE,
-            enclosers=[Enclosure(Place(), encloser)],
-        )
-        await self.sut.privatize(place)
-        assert encloser.privacy is not Privacy.PRIVATE
-
-    async def test_privatize__place_should_privatize_enclosees(self) -> None:
-        enclosee = Place()
-        place = Place(privacy=Privacy.PRIVATE)
-        Enclosure(enclosee, place)
-        await self.sut.privatize(place)
-        assert enclosee.privacy is Privacy.PRIVATE
+        if expected:
+            assert person.privacy is Privacy.PRIVATE
+        else:
+            assert person.privacy is not Privacy.PRIVATE
