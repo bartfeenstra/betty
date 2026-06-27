@@ -44,6 +44,10 @@ class PersonName(HasLocale, HasCitations):
     .. plugin:: entity:person-name.
     """
 
+    # @todo For fields like these, can we somehow automatically set a linked data porter that uses
+    # @todo the portable data porter internally, yet wraps everything in LinkedData with a context?
+    # @todo
+    # @todo
     affiliation = OwnerAttr(StrDefinition(label=_("Affiliation name"))).optional
     """
     The name's affiliation, or family component.
