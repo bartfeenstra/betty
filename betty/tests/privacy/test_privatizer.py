@@ -14,7 +14,7 @@ from betty.event_types.death import Death
 from betty.event_types.marriage import Marriage
 from betty.lifetime import Lifetime, default_lifetime_threshold
 from betty.privacy import Privacy
-from betty.privacy.privatizer import Privatizer
+from betty.privatizer import Privatizer
 from betty.roles.subject import Subject
 from betty.roles.unknown import UnknownRole
 from betty.test_utils.user import StaticUser

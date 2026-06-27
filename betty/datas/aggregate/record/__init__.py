@@ -19,8 +19,7 @@ from betty.datas.aggregate import AggregateDefinition
 from betty.indicator.selector import Element
 from betty.localizable import resolve_localizable
 from betty.portable import Portable, PortableData, Porter
-from betty.privacy import HasPrivacy, Privacy
-from betty.privacy.resolve import merge_privacies, override_privacies
+from betty.privacy import HasPrivacy, Privacy, merge_privacies, override_privacies
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping, MutableMapping

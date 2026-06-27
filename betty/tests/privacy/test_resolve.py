@@ -1,15 +1,14 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 
-from betty.privacy import Privacy
-from betty.privacy.resolve import (
-    ResolvablePrivacy,
-    merge_privacies,
-    override_privacies,
-    resolve_privacy,
-)
+from betty.privacy import Privacy, merge_privacies, override_privacies, resolve_privacy
 from betty.test_utils.privacy import DummyHasPrivacy
+
+if TYPE_CHECKING:
+    from betty.privacy import ResolvablePrivacy
 
 
 @pytest.mark.parametrize(

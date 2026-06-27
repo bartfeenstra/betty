@@ -12,8 +12,7 @@ from betty.importlib import fully_qualified_name
 from betty.portable import Portable, PortableData, Porter
 from betty.portable.error import NotPortable
 from betty.porters.portable import PortablePorter
-from betty.privacy import HasPrivacy, Privacy
-from betty.privacy.resolve import merge_privacies
+from betty.privacy import HasPrivacy, Privacy, merge_privacies
 from betty.sample import Samplable, Sample, Samples
 
 if TYPE_CHECKING:

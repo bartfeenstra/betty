@@ -96,7 +96,7 @@ from betty.plugin.resolve import (
     ResolvablePluginId,
     resolve_plugin_id,
 )
-from betty.privacy.privatizer import Privatizer
+from betty.privatizer import Privatizer
 from betty.prop import HasProps
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.requirements.service_level import RequirableServiceLevel
