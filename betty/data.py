@@ -13,7 +13,7 @@ from betty.portable import Portable, PortableData, Porter
 from betty.portable.error import NotPortable
 from betty.porters.portable import PortablePorter
 from betty.privacy import HasPrivacy, Privacy
-from betty.privacy.resolve import negotiate_privacies
+from betty.privacy.resolve import merge_privacies
 from betty.sample import Samplable, Sample, Samples
 
 if TYPE_CHECKING:
@@ -85,9 +85,8 @@ class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
         """
         Get the data's effective privacy.
         """
-        return negotiate_privacies()
         if isinstance(data, HasPrivacy):
-            return data.privacy
+            return merge_privacies(self.__privacy, data)
         return self.__privacy
 
 

@@ -11,7 +11,7 @@ from betty.entity import Entity, EntityDefinition
 from betty.json_schemas.plugin_id import PluginIdSchema
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
-from betty.privacy.resolve import merge_secondary_privacies
+from betty.privacy.resolve import consider_privacies
 from betty.role import RoleDefinition
 
 if TYPE_CHECKING:
@@ -86,7 +86,7 @@ class Presence(Entity):
 
     @override
     def _get_effective_privacy(self) -> Privacy:
-        return merge_secondary_privacies(
+        return consider_privacies(
             super()._get_effective_privacy(),
             self.person,
             self.event,

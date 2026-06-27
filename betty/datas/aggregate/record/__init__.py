@@ -20,7 +20,7 @@ from betty.indicator.selector import Element
 from betty.localizable import resolve_localizable
 from betty.portable import Portable, PortableData, Porter
 from betty.privacy import HasPrivacy, Privacy
-from betty.privacy.resolve import merge_privacies, negotiate_privacies
+from betty.privacy.resolve import merge_privacies, override_privacies
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping, MutableMapping
@@ -107,23 +107,10 @@ class FieldDefinition[
         """
         Get the field data's effective privacy.
         """
-        # @todo - if field def is public -> public
-        # @todo - if field def is private -> private
-        # @todo - if owner is private -> private
-        # @todo - if data def is private -> private
-        # @todo - if data is private -> private
-        # @todo - ELSE -> merge privacies
-        # @todo
-        # @todo HOWEVER...
-        # @todo - if field def is public and owner is private -> public
-        # @todo
-        # @todo
-        # @todo
-        # @todo
         privacy = self.data.privacy(data)
         if isinstance(owner, HasPrivacy):
             privacy = merge_privacies(privacy, owner)
-        return negotiate_privacies(self._privacy, privacy)
+        return override_privacies(self._privacy, privacy)
 
 
 _PortableRecordElementT = TypeVar(

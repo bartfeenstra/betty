@@ -27,6 +27,8 @@ def merge_privacies(*privacies: ResolvablePrivacy) -> Privacy:
     """
     Merge multiple privacies into one.
 
+    All privacies are treated equally.
+
     1. If any of the privacies resolve to :py:attr:`betty.privacy.Privacy.PRIVATE`, return :py:attr:`betty.privacy.Privacy.PRIVATE`.
     2. Else, if any of the privacies resolve to :py:attr:`betty.privacy.Privacy.PUBLIC`, return :py:attr:`betty.privacy.Privacy.PUBLIC`.
     3. Else, return :py:attr:`betty.privacy.Privacy.UNDETERMINED`.
@@ -39,25 +41,25 @@ def merge_privacies(*privacies: ResolvablePrivacy) -> Privacy:
     return Privacy.UNDETERMINED
 
 
-# @todo Can we remove this?
-def merge_secondary_privacies(
-    privacy: ResolvablePrivacy, *secondary_privacies: ResolvablePrivacy
-) -> Privacy:
+def consider_privacies(*privacies: ResolvablePrivacy) -> Privacy:
     """
     Merge multiple privacies into one.
+
+    1. If any of the privacies resolve to :py:attr:`betty.privacy.Privacy.PRIVATE`, return :py:attr:`betty.privacy.Privacy.PRIVATE`.
+    2. Else, return the first privacy if any were given.
+    2. Else, return :py:attr:`betty.privacy.Privacy.UNDETERMINED`.
     """
-    privacy = resolve_privacy(privacy)
-    if Privacy.PRIVATE in {
-        privacy,
-        *(resolve_privacy(privacy) for privacy in secondary_privacies),
-    }:
+    resolved_privacies = [resolve_privacy(privacy) for privacy in privacies]
+    if Privacy.PRIVATE in resolved_privacies:
         return Privacy.PRIVATE
-    return privacy
+    if resolved_privacies:
+        return resolved_privacies[0]
+    return Privacy.UNDETERMINED
 
 
-def negotiate_privacies(*privacies: ResolvablePrivacy) -> Privacy:
+def override_privacies(*privacies: ResolvablePrivacy) -> Privacy:
     """
-    Negotiate multiple privacies into one.
+    Merge multiple privacies into one, with earlier ones overriding later ones.
 
     1. The first privacy **NOT** to resolve to :py:attr:`betty.privacy.Privacy.UNDETERMINED` is returned.
     2. Else, return :py:attr:`betty.privacy.Privacy.UNDETERMINED`.
