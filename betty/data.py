@@ -6,12 +6,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Final, Self, final, override
 
+from betty.attrs.privacy import HasPrivacy
 from betty.definition.cls import OptionalClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.importlib import fully_qualified_name
 from betty.portable import Portable, PortableData, Porter
 from betty.portable.error import NotPortable
 from betty.porters.portable import PortablePorter
+from betty.privacy import Privacy
 from betty.sample import Samplable, Sample, Samples
 
 if TYPE_CHECKING:
@@ -37,6 +39,7 @@ class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
         description: ResolvableLocalizable | None = None,
         linked_data_porter: LinkedDataPorter[DataClsT] | None = None,
         porter: Porter[DataClsT, PortableDataT] | None = None,
+        privacy: Privacy = Privacy.UNDETERMINED,
         samples: Iterable[
             Callable[[], Sample[DataClsT]]
             | Samples[DataClsT]
@@ -47,6 +50,7 @@ class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
         super().__init__(*args, cls=cls, label=label, description=description, **kwargs)
         self._porter = porter
         self._linked_data_porter = linked_data_porter
+        self.__privacy = privacy
         self._samples = tuple(samples)
 
     @property
@@ -89,6 +93,15 @@ class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
                 return Samples([self.cls])
             return Samples(())
         return Samples(self._samples)
+
+    @final
+    def privacy(self, data: DataClsT, /) -> Privacy:
+        """
+        Get the data's effective privacy.
+        """
+        if isinstance(data, HasPrivacy):
+            return data.privacy
+        return self.__privacy
 
 
 _datas: Final[MutableMapping[type, DataDefinition]] = {}

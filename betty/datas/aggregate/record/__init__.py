@@ -93,12 +93,27 @@ class FieldDefinition[
             )  # ty:ignore[invalid-assignment]
         )
 
-        self.privacy: Final[Privacy] = privacy
+        self._privacy: Final[Privacy] = privacy
 
     def omit_dump(self, owner: OwnerT, data: DataClsT, /) -> bool:
         """
         Check if the field may be omitted from the parent when dumping to portable data.
         """
+        if self._omit_dump is None:
+            return False
+        return self._omit_dump(owner, data)
+
+    def privacy(self, owner: OwnerT, data: DataClsT, /) -> Privacy:
+        """
+        Get the field data's effective privacy.
+        """
+        if self._privacy is Privacy.PRIVATE:
+            return Privacy.PRIVATE
+        self.data.privacy(data)
+        # @todo merge_privacies() only returns PUBLIC if the inputs contain no PRIVATE or UNDETERMINED.
+        # @todo Do we want to refactor it so it only returns UNDETERMINED if the inputs contain neither PRIVATE nor PUBLIC?
+        # @todo
+        # @todo
         if self._omit_dump is None:
             return False
         return self._omit_dump(owner, data)
