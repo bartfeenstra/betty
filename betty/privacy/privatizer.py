@@ -286,6 +286,12 @@ class Privatizer:
         if not date.comparable:
             return False
 
+        # @todo Add some caching?
+        # @todo Also, is this the moment where we split the lifetime threshold into upper and lower constraints?
+        # @todo We don't have to make the lower one configurable (yet...)
+        # @todo
+        # @todo
+        # @todo
         return date <= Date(
             datetime.now(tz=UTC).year - self._lifetime_threshold * generations_ago,
             datetime.now(tz=UTC).month,
