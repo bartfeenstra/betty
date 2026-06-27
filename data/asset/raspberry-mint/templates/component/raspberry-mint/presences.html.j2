@@ -1,5 +1,5 @@
 {% set ns = namespace(people = []) %}
-{% for presence in presences | selectattr('public') %}
+{% for presence in presences | selectattr('privacy.publishable') %}
     {% set ns.people = ns.people + [presence.person] %}
 {% endfor %}
 {% if ns.people | length > 0 %}

@@ -1,4 +1,4 @@
-{% set file_references = file_references | selectattr('file.public') | list %}
+{% set file_references = file_references | selectattr('file.privacy.publishable') | list %}
 {% if file_references %}
     <div class="container">
         <div class="media row row-cols-md-2 row-cols-lg-3 row-cols-xxl-4">

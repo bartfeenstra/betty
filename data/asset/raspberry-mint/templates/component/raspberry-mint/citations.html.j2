@@ -1,4 +1,4 @@
-{% set citations = citations | selectattr('public') | list %}
+{% set citations = citations | selectattr('privacy.publishable') | list %}
 {% if citations %}
     {%- include 'component/reference.html.j2' -%}
 {% endif %}

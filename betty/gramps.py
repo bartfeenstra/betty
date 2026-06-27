@@ -26,7 +26,6 @@ from betty.association import AssociateResolver, BiResolver, resolve_associates
 from betty.associations.has_citations import HasCitations
 from betty.associations.has_links import HasLinks
 from betty.associations.has_notes import HasNotes
-from betty.attrs.privacy import HasPrivacy
 from betty.copyright_notice import CopyrightNoticeManufacturer
 from betty.date import AnyDate, Date, DateRange
 from betty.entities.citation import Citation
@@ -137,7 +136,6 @@ if TYPE_CHECKING:
     from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
     from betty.project import Project
     from betty.role import Role, RoleDefinition
-    from betty.typing import Intersection
 
 
 class GrampsError(Exception):
@@ -1304,10 +1302,7 @@ class GrampsLoader:
             owner.links.add(link)
 
     async def _load_attribute_privacy(
-        self,
-        entity: Intersection[HasPrivacy, Entity],
-        element: ElementTree.Element,
-        tag: str,
+        self, entity: Entity, element: ElementTree.Element, tag: str
     ) -> None:
         privacy_value = self._load_attribute("privacy", element, tag)
         if privacy_value is None:
@@ -1474,8 +1469,7 @@ class GrampsLoader:
         element: ElementTree.Element,
         tag: str,
     ) -> None:
-        if isinstance(entity, HasPrivacy):
-            await self._load_attribute_privacy(entity, element, tag)
+        await self._load_attribute_privacy(entity, element, tag)
         if isinstance(entity, HasLinks):
             await self._load_attribute_links(
                 entity, gramps_entity_reference, element, tag

@@ -1,4 +1,4 @@
-{% set places = places | selectattr('public') | rejectattr('coordinates', 'none') | list %}
+{% set places = places | selectattr('privacy.publishable') | rejectattr('coordinates', 'none') | list %}
 {% if places | length > 0 %}
     {% set ns = namespace(places_data=[]) %}
     {% for place in places %}

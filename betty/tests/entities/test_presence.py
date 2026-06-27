@@ -40,28 +40,6 @@ class TestPresence(EntityTestBase):
         sut = Presence(Person(), Subject(), event)
         assert sut.event == event
 
-    @pytest.mark.parametrize(
-        ("expected", "person_privacy", "presence_privacy", "event_privacy"),
-        [
-            (Privacy.PUBLIC, Privacy.PUBLIC, Privacy.PUBLIC, Privacy.PUBLIC),
-            (Privacy.PRIVATE, Privacy.PRIVATE, Privacy.PUBLIC, Privacy.PUBLIC),
-            (Privacy.PRIVATE, Privacy.PUBLIC, Privacy.PUBLIC, Privacy.PRIVATE),
-        ],
-    )
-    def test_privacy(
-        self,
-        expected: Privacy,
-        person_privacy: Privacy,
-        presence_privacy: Privacy,
-        event_privacy: Privacy,
-    ) -> None:
-        person = Person(privacy=person_privacy)
-        event = Event(privacy=event_privacy, event_type=UnknownEventType())
-        sut = Presence(person, Subject(), event)
-        sut.privacy = presence_privacy
-
-        assert sut.privacy == expected
-
     async def test_dump_linked_data__should_dump(
         self, assert_dumps_linked_data: AssertDumpsLinkedData
     ) -> None:

@@ -34,7 +34,7 @@
                         {% endif %}
                     </p>
                 </div>
-                {% set public_siblings = siblings | selectattr('public') | list %}
+                {% set public_siblings = siblings | selectattr('privacy.publishable') | list %}
                 {% for public_sibling in public_siblings %}
                     <div class="col">
                         <div class="card">
@@ -84,7 +84,7 @@
                             {%- endif -%}
                         </p>
                     </div>
-                    {% set public_family_children = family_children | selectattr('public') | list %}
+                    {% set public_family_children = family_children | selectattr('privacy.publishable') | list %}
                     {% for public_family_child in public_family_children %}
                         <div class="col">
                             <div class="card">
