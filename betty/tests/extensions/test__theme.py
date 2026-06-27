@@ -19,8 +19,8 @@ from betty.event_types.birth import Birth
 from betty.event_types.death import Death
 from betty.event_types.unknown import UnknownEventType
 from betty.extensions._theme import associated_file_references, person_timeline_events
+from betty.lifetime import default_lifetime_threshold
 from betty.privacy import Privacy
-from betty.project import default_lifetime_threshold
 from betty.roles.subject import Subject
 from betty.roles.unknown import UnknownRole
 from betty.test_utils.entity.associations.has_file_references import (

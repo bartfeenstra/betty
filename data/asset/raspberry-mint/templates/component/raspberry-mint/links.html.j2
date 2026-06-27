@@ -1,4 +1,4 @@
-{% set links = links | selectattr('public') | list %}
+{% set links = links | selectattr('privacy.publishable') | list %}
 {% if links | length %}
     <ul>
         {% for link in links %}

@@ -59,7 +59,7 @@ class HasDescription(LinkedDataDumpableWithSchemaJsonLdObject, HasProps):
         portable = await super().dump_linked_data(project)
         dump_context(portable, description="https://schema.org/description")
         if self.description is not None and (
-            not isinstance(self, HasPrivacy) or self.public
+            not isinstance(self, HasPrivacy) or self.privacy.publishable
         ):
             portable["description"] = dump_linked_data(
                 self.description, localizers=await project.public_localizers

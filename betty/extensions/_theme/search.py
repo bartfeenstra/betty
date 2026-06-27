@@ -204,7 +204,7 @@ class Index:
     async def _build_entity[EntityT: Entity](
         self, indexer: EntityTypeIndexer[EntityT], entity: EntityT
     ) -> _Entry | None:
-        if not entity.public:
+        if not entity.privacy.publishable:
             return None
         text = await indexer.text(self._localizer, entity)
         if not text:

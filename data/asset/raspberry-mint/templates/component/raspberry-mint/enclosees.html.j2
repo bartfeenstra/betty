@@ -1,4 +1,4 @@
-{% set enclosees = enclosees | selectattr('public') | list %}
+{% set enclosees = enclosees | selectattr('privacy.publishable') | list %}
 {% if enclosees %}
     {% with entities = enclosees %}
         {% set accordion_item_body %}

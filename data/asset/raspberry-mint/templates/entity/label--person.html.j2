@@ -1,14 +1,14 @@
 {% set embedded = embedded | default(False) %}
 {% set person_context = document.entity_contexts['person'] %}
-{% set label_as_link = not embedded and person_context != entity and entity.id.persistent and entity.public %}
+{% set label_as_link = not embedded and person_context != entity and entity.id.persistent and entity.privacy.publishable %}
 {% if label_as_link -%}
     <a href="{{ entity | url }}">
 {%- endif %}
-{% if entity.private -%}
+{% if not entity.privacy.publishable -%}
     {% include 'entity/private.html.j2' %}
 {%- else -%}
     {%- if entity.names | length -%}
-        {% with entity = entity.names | selectattr('public') | first | default(entity.names | first) %}
+        {% with entity = entity.names | selectattr('privacy.publishable') | first | default(entity.names | first) %}
             {% include 'entity/person-name-label.html.j2' %}
         {% endwith %}
     {%- else -%}

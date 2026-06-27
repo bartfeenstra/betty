@@ -53,7 +53,7 @@ class HasAnyDate(LinkedDataDumpableWithSchemaJsonLdObject, HasProps):
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         portable = await super().dump_linked_data(project)
-        if self.date and (not isinstance(self, HasPrivacy) or self.public):
+        if self.date and (not isinstance(self, HasPrivacy) or self.privacy.publishable):
             (
                 schema_org_date_definition,
                 schema_org_start_date_definition,

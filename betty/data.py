@@ -12,6 +12,7 @@ from betty.importlib import fully_qualified_name
 from betty.portable import Portable, PortableData, Porter
 from betty.portable.error import NotPortable
 from betty.porters.portable import PortablePorter
+from betty.privacy import HasPrivacy, Privacy, merge_privacies
 from betty.sample import Samplable, Sample, Samples
 
 if TYPE_CHECKING:
@@ -35,6 +36,7 @@ class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
         porter: Porter[DataClsT, PortableDataT] | None = None,
+        privacy: Privacy = Privacy.UNDETERMINED,
         samples: Iterable[
             Callable[[], Sample[DataClsT]]
             | Samples[DataClsT]
@@ -44,6 +46,7 @@ class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
     ):
         super().__init__(*args, cls=cls, label=label, description=description, **kwargs)
         self._porter = porter
+        self.__privacy = privacy
         self._samples = tuple(samples)
 
     @property
@@ -75,6 +78,15 @@ class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
                 return Samples([self.cls])
             return Samples(())
         return Samples(self._samples)
+
+    @final
+    def privacy(self, data: DataClsT, /) -> Privacy:
+        """
+        Get the data's effective privacy.
+        """
+        if isinstance(data, HasPrivacy):
+            return merge_privacies(self.__privacy, data)
+        return self.__privacy
 
 
 _datas: Final[MutableMapping[type, DataDefinition]] = {}

@@ -1,3 +1,3 @@
-{% for note in notes | selectattr('public') %}
+{% for note in notes | selectattr('privacy.publishable') %}
     {% include 'note.html.j2' %}
 {% endfor %}

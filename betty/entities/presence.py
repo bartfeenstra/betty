@@ -11,8 +11,8 @@ from betty.entity import Entity, EntityDefinition
 from betty.json_schemas.plugin_id import PluginIdSchema
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
-from betty.privacy.resolve import merge_secondary_privacies
 from betty.role import RoleDefinition
+from betty.roles.subject import Subject
 
 if TYPE_CHECKING:
     from betty.entities.event import Event
@@ -52,6 +52,7 @@ class Presence(Entity):
         "betty.entities.event:Event",
         "presences",
         label=_("Event"),
+        privatize=lambda presence, event: isinstance(presence.role, Subject),
     )
     """
     The event the person was present at.
@@ -85,14 +86,6 @@ class Presence(Entity):
         )
 
     @override
-    def _get_effective_privacy(self) -> Privacy:
-        return merge_secondary_privacies(
-            super()._get_effective_privacy(),
-            self.person,
-            self.event,
-        )
-
-    @override
     @classmethod
     async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
@@ -109,6 +102,6 @@ class Presence(Entity):
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         portable = await super().dump_linked_data(project)
-        if self.public:
+        if self.privacy.publishable:
             portable["role"] = self.role.plugin().id
         return portable

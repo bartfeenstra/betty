@@ -1,4 +1,4 @@
-{%- if entity.public and (entity.author or entity.publisher) -%}
+{%- if entity.privacy.publishable and (entity.author or entity.publisher) -%}
     <dl class="d-table mt-2 small">
         {% if entity.author %}
             <div class="d-table-row">

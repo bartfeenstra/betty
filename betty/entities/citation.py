@@ -19,7 +19,6 @@ from betty.json_schemas.static_translations import StaticTranslationsSchema
 from betty.localizable.linked_data import dump_linked_data
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
-from betty.privacy.resolve import merge_secondary_privacies
 
 if TYPE_CHECKING:
     from betty.date import AnyDate
@@ -92,10 +91,6 @@ class Citation(HasAnyDate, HasFileReferences, HasLinks):
         self.source = source
 
     @override
-    def _get_effective_privacy(self) -> Privacy:
-        return merge_secondary_privacies(super()._get_effective_privacy(), self.source)
-
-    @override
     @property
     def label(self) -> Localizable:
         return self.location or super().label
@@ -104,7 +99,7 @@ class Citation(HasAnyDate, HasFileReferences, HasLinks):
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         portable = await super().dump_linked_data(project)
         portable["@type"] = "https://schema.org/Thing"
-        if self.public and self.location is not None:
+        if self.privacy.publishable and self.location is not None:
             portable["location"] = dump_linked_data(
                 self.location, localizers=await project.public_localizers
             )

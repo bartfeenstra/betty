@@ -16,7 +16,6 @@ from betty.json_schema import String
 from betty.linked_data import JsonLdObject, dump_context
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
-from betty.privacy.resolve import merge_privacies
 
 if TYPE_CHECKING:
     from betty.associations.to_many import ToManyAssociates
@@ -116,10 +115,6 @@ class PersonName(HasLocale, HasCitations):
             )
 
     @override
-    def _get_effective_privacy(self) -> Privacy:
-        return merge_privacies(super()._get_effective_privacy(), self.person)
-
-    @override
     @property
     def label(self) -> Localizable:
         return _("{individual_name} {affiliation_name}").format(
@@ -130,7 +125,7 @@ class PersonName(HasLocale, HasCitations):
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         portable = await super().dump_linked_data(project)
-        if self.public:
+        if self.privacy.publishable:
             if self.individual is not None:
                 dump_context(portable, individual="https://schema.org/givenName")
                 portable["individual"] = self.individual

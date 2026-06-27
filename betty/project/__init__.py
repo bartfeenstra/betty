@@ -69,6 +69,7 @@ from betty.jinja.filter import JinjaFilterDefinition
 from betty.jinja.test import JinjaTestDefinition
 from betty.license import License, LicenseDefinition, LicenseManufacturer
 from betty.licenses.all_rights_reserved import AllRightsReserved
+from betty.lifetime import Lifetime, default_lifetime_threshold
 from betty.link import LinkDefinition
 from betty.load import (
     Enricher,
@@ -95,7 +96,7 @@ from betty.plugin.resolve import (
     ResolvablePluginId,
     resolve_plugin_id,
 )
-from betty.privacy.privatizer import Privatizer
+from betty.privatizer import Privatizer
 from betty.prop import HasProps
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.requirements.service_level import RequirableServiceLevel
@@ -137,15 +138,6 @@ if TYPE_CHECKING:
     )
     from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
     from betty.url_generator import UrlGenerator
-
-
-default_lifetime_threshold: Final[int] = 123
-"""
-The default age by which people are presumed dead.
-
-This is based on `Jeanne Louise Calment <https://www.guinnessworldrecords.com/world-records/oldest-person/>`_ who is
-the oldest verified person to ever have lived.
-"""
 
 
 @final
@@ -577,11 +569,18 @@ class Project(
         return RenderDispatcher(*await gather(*self.renderers))
 
     @service
+    def lifetime(self) -> Lifetime:
+        """
+        The lifetime analyzer.
+        """
+        return Lifetime(lifetime_threshold=self.lifetime_threshold)
+
+    @service
     def privatizer(self) -> Privatizer:
         """
         The privatizer.
         """
-        return Privatizer(self.lifetime_threshold, user=self.upstream.user)
+        return Privatizer(lifetime=self.lifetime, user=self.upstream.user)
 
     async def new_document(
         self,

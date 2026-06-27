@@ -78,6 +78,7 @@ class Event(
         "event",
         label=_("Presences"),
         description=_("People's presences at this event"),
+        privatize=True,
     )
     """
     People's presences at this event.
@@ -137,9 +138,9 @@ class Event(
         subjects = [
             presence.person
             for presence in self.presences
-            if presence.public
+            if presence.privacy.publishable
             and isinstance(presence.role, Subject)
-            and presence.person.public
+            and presence.person.privacy.publishable
         ]
         if subjects:
             format_kwargs["subjects"] = AllEnumeration(

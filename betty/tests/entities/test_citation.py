@@ -79,12 +79,6 @@ class TestCitation(EntityTestBase):
         sut = Citation(source=Source())
         assert list(sut.files) == []
 
-    def test_private(self) -> None:
-        sut = Citation(source=Source())
-        assert sut.privacy is Privacy.UNDETERMINED
-        sut.private = True
-        assert sut.private is True
-
     async def test_dump_linked_data__should_dump_minimal(
         self, assert_dumps_linked_data: AssertDumpsLinkedData
     ) -> None:

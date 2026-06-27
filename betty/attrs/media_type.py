@@ -54,7 +54,7 @@ class HasMediaType(LinkedDataDumpableWithSchemaJsonLdObject, HasProps):
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         portable = await super().dump_linked_data(project)
         if (
-            not isinstance(self, HasPrivacy) or self.public
+            not isinstance(self, HasPrivacy) or self.privacy.publishable
         ) and self.media_type is not None:
             portable["mediaType"] = str(self.media_type)
         return portable

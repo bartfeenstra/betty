@@ -21,7 +21,7 @@ from betty.json_schema import Null, OneOf, String
 from betty.media_types.json_ld import JSON_LD
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Callable, Iterable
 
     from betty.data import DataDefinition
     from betty.json_schema import Schema
@@ -112,6 +112,7 @@ class ToOne[OwnerT: Entity, AssociateT: Entity](
         *,
         description: ResolvableLocalizable | None = None,
         label: ResolvableLocalizable,
+        privatize: Callable[[OwnerT, Associate], bool] | bool = False,
     ):
         super().__init__(
             FieldDefinition(
@@ -119,6 +120,7 @@ class ToOne[OwnerT: Entity, AssociateT: Entity](
             ),
             associate,
             associate_attr,
+            privatize=privatize,
         )
 
     def _is_missing(

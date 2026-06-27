@@ -58,12 +58,6 @@ class TestFile(EntityTestBase):
         )
         assert sut.name == name
 
-    def test_private(self) -> None:
-        sut = File(Path(__file__))
-        assert sut.privacy is Privacy.UNDETERMINED
-        sut.private = True
-        assert sut.private is True
-
     def test_media_type(self) -> None:
         sut = File(Path(__file__))
         assert sut.media_type is None

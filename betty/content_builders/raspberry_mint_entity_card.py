@@ -72,7 +72,7 @@ class EntityCard(Template, DataManufacturable[EntityReference]):
     def _get_image_reference(self, entity: Entity) -> FileReference | None:
         if isinstance(entity, HasFileReferences):
             for file_reference in associated_file_references(entity):
-                if file_reference.file.private:
+                if not file_reference.file.privacy.publishable:
                     continue
                 if file_reference.file.media_type is None:
                     continue

@@ -45,7 +45,7 @@ class GenerateEntitiesHtml(Job):
             async for entity_type in self._project.plugins[EntityDefinition]
             if entity_type.public_facing
             for entity in self._project.ancestry[entity_type.cls]
-            if entity.id.persistent and entity.public
+            if entity.id.persistent and entity.privacy.publishable
             for locale in self._project.locales.keys()  # noqa: SIM118
         ])
 

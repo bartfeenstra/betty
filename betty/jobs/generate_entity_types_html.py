@@ -114,7 +114,7 @@ class _GenerateEntityTypeHtml(Job):
             page_entities=[
                 entity
                 for entity in self._project.ancestry[self._entity_type.cls]
-                if entity.public
+                if entity.privacy.publishable
             ][
                 self._per_page * self._page : self._per_page * self._page
                 + self._per_page

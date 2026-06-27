@@ -71,12 +71,15 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks):
         "person",
         label=_("Presences"),
         description=_("This person's presences at events"),
+        privatize=True,
     )
     """
     The person's presences at events.
     """
 
-    names = ToMany[Self, PersonName](PersonName, "person", label=_("Names"))
+    names = ToMany[Self, PersonName](
+        PersonName, "person", label=_("Names"), privatize=True
+    )
     """
     The person's names.
     """
@@ -147,7 +150,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks):
     @property
     def label(self) -> Localizable:
         for name in self.names:
-            if name.public:
+            if name.privacy.publishable:
                 return name.label
         return super().label
 
@@ -161,7 +164,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks):
             children="https://schema.org/child",
         )
         portable["@type"] = "https://schema.org/Person"
-        if self.public:
+        if self.privacy.publishable:
             portable["gender"] = self.gender.plugin().id
         return portable
 

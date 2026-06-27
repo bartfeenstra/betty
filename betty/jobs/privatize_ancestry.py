@@ -7,7 +7,6 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import TYPE_CHECKING, final, override
 
-from betty.attrs.privacy import HasPrivacy
 from betty.entities.person import Person
 from betty.job import Job
 from betty.localizables.gettext import _, ngettext
@@ -19,7 +18,6 @@ if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
     from betty.machine_name import MachineName
     from betty.project import Project
-    from betty.typing import Intersection
 
 
 @final
@@ -45,18 +43,16 @@ class PrivatizeAncestry(Job):
         user = self._project.upstream.user
 
         newly_privatized: MutableMapping[MachineName, int] = defaultdict(lambda: 0)
-        entities: MutableSequence[Intersection[HasPrivacy, Entity]] = []
+        entities: MutableSequence[Entity] = []
         for entity in self._project.ancestry:
-            if isinstance(entity, HasPrivacy):
-                entities.append(entity)
-                if entity.private:
-                    newly_privatized[entity.plugin().id] -= 1
+            entities.append(entity)
+            if not entity.privacy.publishable:
+                newly_privatized[entity.plugin().id] -= 1
+
+        await self._project.privatizer.privatize(*entities)
 
         for entity in entities:
-            await self._project.privatizer.privatize(entity)
-
-        for entity in entities:
-            if entity.private:
+            if not entity.privacy.publishable:
                 newly_privatized[entity.plugin().id] += 1
 
         if newly_privatized[Person.plugin().id] > 0:
