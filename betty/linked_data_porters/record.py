@@ -20,7 +20,9 @@ if TYPE_CHECKING:
 
 
 @final
-class RecordLinkedDataPorter[DataClsT: Data[RecordDefinition]](LinkedDataPorter):
+class RecordLinkedDataPorter[DataClsT: Data[RecordDefinition]](
+    LinkedDataPorter[DataClsT]
+):
     """
     Port record data to linked data.
     """

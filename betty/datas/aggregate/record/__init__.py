@@ -17,7 +17,6 @@ from betty.data import (
 )
 from betty.datas.aggregate import AggregateDefinition
 from betty.indicator.selector import Element
-from betty.linked_data_porters.record import RecordLinkedDataPorter
 from betty.localizable import resolve_localizable
 from betty.portable import Portable, PortableData, Porter
 from betty.privacy import Privacy
@@ -182,6 +181,8 @@ class RecordDefinition[DataClsT, ElementT: Element[str] = Element[str]](
         porter: RecordPorter[DataClsT] | None = None,
         **kwargs: Any,
     ):
+        from betty.linked_data_porters.record import RecordLinkedDataPorter
+
         self._fields: MutableMapping[ElementT, FieldDefinition[DataClsT, Any]] = (
             {} if fields is None else dict(fields)
         )
