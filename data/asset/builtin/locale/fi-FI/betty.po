@@ -8,16 +8,17 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-06-24 11:57+0100\n"
-"PO-Revision-Date: 2026-02-17 18:12+0000\n"
-"Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
-"Language: fi_FI\n"
-"Language-Team: Finnish "
-"<https://hosted.weblate.org/projects/betty/betty-0-5-x/fi/>\n"
+"PO-Revision-Date: 2026-06-28 13:01+0000\n"
+"Last-Translator: Kieli Puoli <kielipuoli@gmail.com>\n"
+"Language: fi-FI\n"
+"Language-Team: Finnish <https://hosted.weblate.org/projects/betty/betty-0-5-"
+"x/fi/>\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
+"X-Generator: Weblate 2026.7.dev0\n"
 
 #, python-brace-format
 msgid "\"{color}\" is not a valid hexadecimal color, such as #ffc0cb."
@@ -289,10 +290,10 @@ msgstr ""
 
 #, python-brace-format
 msgid "Betty will talk to you in {locale}"
-msgstr ""
+msgstr "Bettyn keskustelukieli on {locale}"
 
 msgid "Birth"
-msgstr ""
+msgstr "Syntymä"
 
 msgid "Births"
 msgstr ""
@@ -319,7 +320,7 @@ msgid "Breakpoints"
 msgstr ""
 
 msgid "Building"
-msgstr ""
+msgstr "Rakennus"
 
 msgid "Buildings"
 msgstr ""
@@ -328,7 +329,7 @@ msgid "Built-in"
 msgstr ""
 
 msgid "Burial"
-msgstr ""
+msgstr "Hautajaiset"
 
 msgid "Burials"
 msgstr ""
@@ -347,6 +348,8 @@ msgstr ""
 
 msgid "Cannot find an available port to bind the web server to."
 msgstr ""
+"Järjestelmästä ei löydy vapaata porttia, johon verkkopalvelin voitaisiin "
+"yhdistää."
 
 #, python-brace-format
 msgid "Cannot find the \"{plugin_id}\" {plugin_type} plugin."
@@ -393,25 +396,25 @@ msgid "Children"
 msgstr ""
 
 msgid "Citation"
-msgstr ""
+msgstr "Lainaus"
 
 msgid "Citations"
-msgstr ""
+msgstr "Lainaukset"
 
 msgid "Cities"
 msgstr ""
 
 msgid "City"
-msgstr ""
+msgstr "Kaupunki"
 
 msgid "Clean URLs"
 msgstr ""
 
 msgid "Clear all caches"
-msgstr ""
+msgstr "Tyhjennä kaikki välimuistit"
 
 msgid "Close"
-msgstr ""
+msgstr "Sulje"
 
 msgid "Color"
 msgstr ""
@@ -450,10 +453,10 @@ msgid "Conferences"
 msgstr ""
 
 msgid "Configure Betty"
-msgstr ""
+msgstr "Säädä Bettyn asetuksia"
 
 msgid "Confirmation"
-msgstr ""
+msgstr "Vahvistus"
 
 msgid "Confirmations"
 msgstr ""
@@ -475,13 +478,13 @@ msgstr ""
 
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
-msgstr ""
+msgstr "Lue lisää <a href=\"%(url)s\">Wikipediasta</a>."
 
 msgid "Coordinates"
 msgstr ""
 
 msgid "Copyright"
-msgstr ""
+msgstr "Tekijänoikeudet"
 
 #, python-format
 msgid "Copyright <a href=\"%(url)s\">OpenStreetMap</a> contributors"
@@ -526,36 +529,40 @@ msgstr ""
 
 #, python-brace-format
 msgid "Could not find the file \"{file_path}\"."
-msgstr ""
+msgstr "Tiedostoa {file_path} ei löydy."
 
 msgid "Counties"
 msgstr ""
 
 msgid "Country"
-msgstr ""
+msgstr "Maa"
 
 msgid "County"
-msgstr ""
+msgstr "Piirikunta"
 
 msgid "Create a new project"
-msgstr ""
+msgstr "Luo uusi projekti"
 
 msgid "Create a new translation"
-msgstr ""
+msgstr "Luo uusi käännös"
 
 msgid ""
 "Create events such as births and deaths by deriving their details from "
 "existing information."
 msgstr ""
+"Luo syntymän ja kuoleman kaltaisia tapahtumia noutamalla niiden tiedot "
+"olemassa olevasta datasta."
 
 #, python-brace-format
 msgid ""
 "Created {created_derivations} additional {event_type} events based on "
 "existing information."
 msgstr ""
+"Olemassa olevien tietojen pohjalta luotiin {created_derivations} "
+"ylimääräistä tyypin {event_type} tapahtumaa."
 
 msgid "Cremation"
-msgstr ""
+msgstr "Polttohautaus"
 
 msgid "Cremations"
 msgstr ""
@@ -573,7 +580,7 @@ msgid "Day"
 msgstr ""
 
 msgid "Death"
-msgstr ""
+msgstr "Kuolema"
 
 msgid "Deaths"
 msgstr ""
@@ -624,7 +631,7 @@ msgid "Districts"
 msgstr ""
 
 msgid "Divorce"
-msgstr ""
+msgstr "Avioero"
 
 msgid "Divorces"
 msgstr ""
@@ -649,7 +656,7 @@ msgid "Document providers"
 msgstr ""
 
 msgid "Emigration"
-msgstr ""
+msgstr "Maastamuutto"
 
 msgid "Emigrations"
 msgstr ""
@@ -676,7 +683,7 @@ msgid "End date is a boundary"
 msgstr ""
 
 msgid "Engagement"
-msgstr ""
+msgstr "Kihlautuminen"
 
 msgid "Engagements"
 msgstr ""
@@ -717,7 +724,7 @@ msgid "Entity types to generate list HTML pages for"
 msgstr ""
 
 msgid "Event"
-msgstr ""
+msgstr "Tapahtuma"
 
 msgid "Event type"
 msgstr ""
@@ -729,11 +736,11 @@ msgid "Event types"
 msgstr ""
 
 msgid "Events"
-msgstr ""
+msgstr "Tapahtumat"
 
 #, python-brace-format
 msgid "Exactly {expected} items are required, but found {actual}."
-msgstr ""
+msgstr "{expected} kohdetta vaaditaan, mutta niitä löytyi vain {actual}."
 
 msgid "Exclude"
 msgstr ""
@@ -742,7 +749,7 @@ msgid "Executable"
 msgstr ""
 
 msgid "Explore a demonstration site"
-msgstr ""
+msgstr "Tutustu esittelysivustoon"
 
 msgid "Explore a family history..."
 msgstr ""
@@ -754,7 +761,7 @@ msgid "Extensions"
 msgstr ""
 
 msgid "External links"
-msgstr ""
+msgstr "Ulkoiset linkit"
 
 msgid "Facts"
 msgstr ""
@@ -781,22 +788,22 @@ msgid "Farms"
 msgstr ""
 
 msgid "File"
-msgstr ""
+msgstr "Tiedosto"
 
 msgid "File referees"
 msgstr ""
 
 msgid "File reference"
-msgstr ""
+msgstr "Tiedostoviite"
 
 msgid "File references"
-msgstr ""
+msgstr "Tiedostoviitteet"
 
 msgid "Files"
-msgstr ""
+msgstr "Tiedostot"
 
 msgid "Filters"
-msgstr ""
+msgstr "Suodattimet"
 
 msgid "Find Betty on GitHub"
 msgstr ""
@@ -808,7 +815,7 @@ msgid "First page"
 msgstr ""
 
 msgid "Funeral"
-msgstr ""
+msgstr "Hautajaiset"
 
 msgid "Funerals"
 msgstr ""
@@ -829,7 +836,7 @@ msgid "Genders"
 msgstr ""
 
 msgid "Generate a static site"
-msgstr ""
+msgstr "Luo staattinen sivusto"
 
 msgid "Generating site..."
 msgstr ""
@@ -838,7 +845,7 @@ msgid "Get started"
 msgstr ""
 
 msgid "Go to the front page"
-msgstr ""
+msgstr "Siirry etusivulle"
 
 #, python-brace-format
 msgid ""
@@ -846,6 +853,8 @@ msgid ""
 "{supported_gramps_xml_version}. Gramps XML {loaded_gramps_xml_version} is"
 " not supported."
 msgstr ""
+"Gramps-XML:n on oltava yhteensopiva version {supported_gramps_xml_version} "
+"kanssa. Gramps-XML:ää {loaded_gramps_xml_version} ei tueta."
 
 msgid "Gramps configuration"
 msgstr ""
@@ -894,16 +903,18 @@ msgid "Home"
 msgstr ""
 
 msgid "I'm sorry, dear, but it seems there is nothing to show."
-msgstr ""
+msgstr "Harmin paikka, mutta mitään näytettävää ei tunnu olevan."
 
 msgid "I'm sorry, dear, but it seems this page does not exist."
-msgstr ""
+msgstr "Harmin paikka, mutta tätä sivua ei ilmeisesti ole."
 
 msgid "I'm sorry, dear, but it seems you're not allowed to view this page."
 msgstr ""
+"Harmin paikka, mutta sinulla ei ilmeisesti ole oikeuksia tarkastella tätä "
+"sivua."
 
 msgid "I'm sorry, dear, but it seems you're not logged in."
-msgstr ""
+msgstr "Harmin paikka, mutta et ilmeisesti ole kirjautunut sisään."
 
 msgid "ID"
 msgstr ""
@@ -912,7 +923,7 @@ msgid "Ilpendam"
 msgstr ""
 
 msgid "Immigration"
-msgstr ""
+msgstr "Maahanmuutto"
 
 msgid "Immigrations"
 msgstr ""
@@ -931,11 +942,11 @@ msgstr ""
 
 #, python-brace-format
 msgid "Invalid JSON: {error}."
-msgstr ""
+msgstr "Virheellinen JSON: {error}."
 
 #, python-brace-format
 msgid "Invalid YAML: {error}."
-msgstr ""
+msgstr "Virheellinen YAML: {error}."
 
 #, python-brace-format
 msgid "Invalid argument {argument}: {error}"
@@ -981,7 +992,7 @@ msgid "Justify content"
 msgstr ""
 
 msgid "Keywords"
-msgstr ""
+msgstr "Hakusanat"
 
 msgid "Label"
 msgstr ""
@@ -993,17 +1004,17 @@ msgid "Label (plural)"
 msgstr ""
 
 msgid "Language"
-msgstr ""
+msgstr "Kieli"
 
 #, python-format
 msgid "Last modified on %(last_modified)s"
-msgstr ""
+msgstr "Muokattu viimeksi %(last_modified)s"
 
 msgid "Last page"
 msgstr ""
 
 msgid "License"
-msgstr ""
+msgstr "Lisenssi"
 
 msgid "License configuration"
 msgstr ""
@@ -1025,39 +1036,39 @@ msgstr ""
 
 #, python-brace-format
 msgid "Loaded the configuration from {configuration_file_path}."
-msgstr ""
+msgstr "Asetukset ladattiin hakemistosta {configuration_file_path}."
 
 #, python-brace-format
 msgid "Loaded {citation_count} citations."
-msgstr ""
+msgstr "Ladattiin {citation_count} lainausta."
 
 #, python-brace-format
 msgid "Loaded {event_count} events."
-msgstr ""
+msgstr "Ladattiin {event_count} tapahtumaa."
 
 #, python-brace-format
 msgid "Loaded {file_count} files."
-msgstr ""
+msgstr "Ladattiin {file_count} tiedostoa."
 
 #, python-brace-format
 msgid "Loaded {note_count} notes."
-msgstr ""
+msgstr "Ladattiin {note_count} muistiinpanoa."
 
 #, python-brace-format
 msgid "Loaded {person_count} people."
-msgstr ""
+msgstr "Ladattiin {person_count} ihmistä."
 
 #, python-brace-format
 msgid "Loaded {place_count} places."
-msgstr ""
+msgstr "Ladattiin {place_count} paikkaa."
 
 #, python-brace-format
 msgid "Loaded {repository_count} repositories as sources."
-msgstr ""
+msgstr "Ladattiin {repository_count} arkistoa lähteinä."
 
 #, python-brace-format
 msgid "Loaded {source_count} sources."
-msgstr ""
+msgstr "Ladattiin {source_count} lähdettä."
 
 msgid "Loader"
 msgstr ""
@@ -1067,13 +1078,13 @@ msgstr ""
 
 #, python-brace-format
 msgid "Loading \"{file_path}\"..."
-msgstr ""
+msgstr "Ladataan tiedostoa {file_path}..."
 
 msgid "Locale"
 msgstr ""
 
 msgid "Locale aliases must not contain slashes."
-msgstr ""
+msgstr "Paikallisten kielten nimissä ei saa olla kauttaviivoja."
 
 #, python-brace-format
 msgid "Locale {locale} is not known by your system."
@@ -1119,7 +1130,7 @@ msgid "Map attribution"
 msgstr ""
 
 msgid "Marriage"
-msgstr ""
+msgstr "Avioliitto"
 
 msgid "Marriages"
 msgstr ""
@@ -1131,7 +1142,7 @@ msgid "Maximum width"
 msgstr ""
 
 msgid "Media"
-msgstr ""
+msgstr "Mediatiedosto"
 
 msgid "Media gallery"
 msgstr ""
@@ -1146,7 +1157,7 @@ msgid "Men"
 msgstr ""
 
 msgid "Menu"
-msgstr ""
+msgstr "Valikko"
 
 msgid "Minimum height"
 msgstr ""
@@ -1217,19 +1228,19 @@ msgid "North Holland"
 msgstr "Pohjois-Holland"
 
 msgid "Note"
-msgstr ""
+msgstr "Huomautus"
 
 msgid "Notes"
-msgstr ""
+msgstr "Huomautuksia"
 
 msgid "Number"
-msgstr ""
+msgstr "Numero"
 
 msgid "Numbers"
 msgstr ""
 
 msgid "Occupation"
-msgstr ""
+msgstr "Ammatti"
 
 msgid "Occupations"
 msgstr ""
@@ -1241,13 +1252,13 @@ msgid "Options"
 msgstr ""
 
 msgid "Organizer"
-msgstr ""
+msgstr "Järjestäjä"
 
 msgid "Organizers"
 msgstr ""
 
 msgid "Other attendees"
-msgstr ""
+msgstr "Muut osallistujat"
 
 msgid ""
 "Other entities that reference a citation or source to back up their "
@@ -1255,7 +1266,7 @@ msgid ""
 msgstr ""
 
 msgid "Other places contained by this one"
-msgstr ""
+msgstr "Muut tähän paikkaan sisältyvät paikat"
 
 msgid "Other sources this source may contain"
 msgstr ""
@@ -1280,7 +1291,7 @@ msgid "Page navigation"
 msgstr ""
 
 msgid "Page not found"
-msgstr ""
+msgstr "Sivua ei löydy"
 
 msgid "Parents"
 msgstr ""
@@ -2784,4 +2795,3 @@ msgstr ""
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr ""
-
