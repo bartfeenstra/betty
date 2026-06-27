@@ -35,8 +35,8 @@ class TestPrivacyAttr:
     ) -> None:
         assert (
             await assert_linked_data_dump(
-                type(sut)._privacy.linked_data_schema_for,
-                lambda project: type(sut)._privacy.dump_linked_data_for(project, sut),
+                type(sut).privacy.linked_data_schema_for,
+                lambda project: type(sut).privacy.dump_linked_data_for(project, sut),
             )
             == expected
         )
@@ -51,20 +51,6 @@ class TestHasPrivacy:
             (Privacy.PRIVATE, Privacy.PRIVATE),
         ],
     )
-    def test___init__(self, expected: Privacy, privacy: Privacy) -> None:
+    def test_privacy(self, expected: Privacy, privacy: Privacy) -> None:
         sut = DummyHasPrivacy(privacy=privacy)
         assert sut.privacy is expected
-
-    def test_privacy(self) -> None:
-        sut = DummyHasPrivacy()
-        privacy = Privacy.PUBLIC
-        sut.privacy = privacy
-        assert sut.privacy is privacy
-        del sut.privacy
-        assert sut.privacy is Privacy.UNDETERMINED
-
-    def test_own_privacy(self) -> None:
-        sut = DummyHasPrivacy()
-        privacy = Privacy.PUBLIC
-        sut.privacy = privacy
-        assert sut.own_privacy is privacy

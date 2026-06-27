@@ -19,7 +19,6 @@ from betty.linked_data import JsonLdObject, dump_context
 from betty.localizable.linked_data import dump_linked_data
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
-from betty.privacy.resolve import merge_privacies
 
 if TYPE_CHECKING:
     from betty.association import Associate
@@ -76,6 +75,7 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks):
         "contained_by",
         label=_("Contains"),
         description=_("Other sources this source may contain"),
+        privatize=True,
     )
     """
     Other sources this source may contain
@@ -86,6 +86,7 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks):
         "source",
         label=_("Citations"),
         description=_("The citations referencing this source"),
+        privatize=True,
     )
     """
     The citations referencing this source
@@ -119,13 +120,6 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks):
         self.publisher = publisher
         self.contained_by = contained_by
         self.contains = contains
-
-    @override
-    def _get_effective_privacy(self) -> Privacy:
-        privacy = super()._get_effective_privacy()
-        if self.contained_by:
-            return merge_privacies(privacy, self.contained_by)
-        return privacy
 
     @override
     @property

@@ -19,7 +19,9 @@ class HasLinks(Entity):
     An entity that has associated :py:class:`betty.entities.link.Link` entities.
     """
 
-    links = ToMany[Self, "Link"]("betty.entities.link:Link", "owner", label=_("Links"))
+    links = ToMany[Self, "Link"](
+        "betty.entities.link:Link", "owner", label=_("Links"), privatize=True
+    )
     """
     The links owned by this entity.
     """

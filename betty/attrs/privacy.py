@@ -48,41 +48,16 @@ class PrivacyAttr(
 
 class HasPrivacy(HasPrivacyPrivacy, HasProps):
     """
-    A resource that has privacy.
+    Data that has privacy.
     """
 
-    _privacy = PrivacyAttr()
+    privacy = PrivacyAttr()
+    """
+    The data's privacy.
+    """
 
     def __init__(
         self, *args: Any, privacy: Privacy = Privacy.UNDETERMINED, **kwargs: Any
     ):
         super().__init__(*args, **kwargs)
-        self._privacy = privacy
-
-    @property
-    def own_privacy(self) -> Privacy:
-        """
-        The resource's own privacy.
-
-        This returns the value that was set for :py:attr:`betty.attrs.privacy.HasPrivacy.privacy` and ignores
-        computed privacies.
-
-        For access control and permissions checking, use :py:attr:`betty.attrs.privacy.HasPrivacy.privacy`.
-        """
-        return self._privacy
-
-    def _get_effective_privacy(self) -> Privacy:
-        return self.own_privacy
-
-    @override
-    @property
-    def privacy(self) -> Privacy:
-        return self._get_effective_privacy()
-
-    @privacy.setter
-    def privacy(self, privacy: Privacy) -> None:
-        self._privacy = privacy
-
-    @privacy.deleter
-    def privacy(self) -> None:
-        self.privacy = Privacy.UNDETERMINED
+        self.privacy = privacy

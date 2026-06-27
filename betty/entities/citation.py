@@ -19,7 +19,6 @@ from betty.json_schemas.static_translations import StaticTranslationsSchema
 from betty.localizable.linked_data import dump_linked_data
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
-from betty.privacy.resolve import consider_privacies
 
 if TYPE_CHECKING:
     from betty.date import AnyDate
@@ -90,10 +89,6 @@ class Citation(HasAnyDate, HasFileReferences, HasLinks):
         self.facts = facts
         self.location = location
         self.source = source
-
-    @override
-    def _get_effective_privacy(self) -> Privacy:
-        return consider_privacies(super()._get_effective_privacy(), self.source)
 
     @override
     @property

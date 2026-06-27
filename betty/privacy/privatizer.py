@@ -1,174 +1,74 @@
 """
-Provide an API to determine if information should be kept private.
+The privatizer API.
 """
 
 from __future__ import annotations
 
 from contextlib import suppress
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, final
 
-from betty.associations.has_citations import HasCitations
-from betty.associations.has_file_references import HasFileReferences
-from betty.associations.has_notes import HasNotes
+from betty import default_lifetime_threshold
 from betty.date import Date, DateRange
-from betty.entities.event import Event
 from betty.entities.person import Person
 from betty.entities.place import Place
-from betty.entities.presence import Presence
-from betty.entities.source import Source
 from betty.entity import Entity
 from betty.event_types.death import Death
 from betty.localizables.gettext import _
 from betty.privacy import Privacy
-from betty.roles.subject import Subject
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, MutableSequence
+    from collections.abc import Iterator, MutableSet
 
-    from betty.attrs.privacy import HasPrivacy
-    from betty.typing import Intersection
+    from betty.entities.event import Event
     from betty.user import User
 
 
-type _Expirable = Person | Event | Date | None
-
-
+@final
 class Privatizer:
     """
-    Privatize resources.
+    Privatize entities.
     """
 
-    def __init__(self, lifetime_threshold: int, *, user: User):
+    def __init__(
+        self, *, lifetime_threshold: int = default_lifetime_threshold, user: User
+    ):
         self._lifetime_threshold = lifetime_threshold
         self._user = user
-        self._seen: MutableSequence[HasPrivacy] = []
 
-    async def privatize(self, subject: HasPrivacy) -> None:
+    async def privatize(self, *entities: Entity) -> None:
         """
-        Privatize a resource.
+        Privatize entities.
         """
-        if subject.privacy is Privacy.PUBLIC:
+        seen = set()
+        for entity in entities:
+            await self._privatize(entity, seen)
+
+    async def _privatize(self, entity: Entity, seen: MutableSet[Entity], /) -> None:
+        if entity.privacy is Privacy.PUBLIC:
             return
 
-        if isinstance(subject, Person):
-            await self._determine_person_privacy(subject)
+        if isinstance(entity, Person):
+            await self._determine_person_privacy(entity)
 
-        if isinstance(subject, Place):
-            await self._determine_place_privacy(subject)
+        if isinstance(entity, Place):
+            await self._determine_place_privacy(entity)
 
-        if subject.privacy is not Privacy.PRIVATE:
+        if entity.privacy is not Privacy.PRIVATE:
             return
 
-        if subject in self._seen:
+        if entity in seen:
             return
-        self._seen.append(subject)
+        seen.add(entity)
 
-        if isinstance(subject, Person):
-            await self._privatize_person(subject)
-
-        if isinstance(subject, Presence):
-            await self._privatize_presence(subject)
-
-        if isinstance(subject, Event):
-            await self._privatize_event(subject)
-
-        if isinstance(subject, Place):
-            await self._privatize_place(subject)
-
-        if isinstance(subject, Source):
-            await self._privatize_source(subject)
-
-        if isinstance(subject, HasCitations):
-            await self._privatize_has_citations(subject)
-
-        if isinstance(subject, HasFileReferences):
-            await self._privatize_has_file_references(subject)
-
-        if isinstance(subject, HasNotes):
-            await self._privatize_has_notes(subject)
-
-    async def _privatize_person(self, person: Person) -> None:
-        if person.privacy.publishable:
+        if entity.privacy.publishable:
             return
 
-        for person_name in person.names:
-            await self._mark_private(person_name, person)
-            await self.privatize(person_name)
-        for presence in person.presences:
-            await self._mark_private(presence, person)
-            await self.privatize(presence)
-
-    async def _privatize_presence(self, presence: Presence) -> None:
-        if presence.privacy.publishable:
-            return
-
-        if isinstance(presence.role, Subject):
-            await self._mark_private(presence.event, presence)
-            await self.privatize(presence.event)
-        await self._mark_private(presence.person, presence)
-        await self.privatize(presence.person)
-
-    async def _privatize_event(self, event: Event) -> None:
-        if event.privacy.publishable:
-            return
-
-        for presence in event.presences:
-            await self._mark_private(presence, event)
-            await self.privatize(presence)
-        if event.place:
-            await self.privatize(event.place)
-
-    async def _privatize_place(self, place: Place) -> None:
-        if place.privacy.publishable:
-            return
-
-        for enclosure in place.enclosees:
-            await self._mark_private(enclosure.enclosee, place)
-            await self.privatize(enclosure.enclosee)
-        for enclosure in place.enclosers:
-            await self.privatize(enclosure.encloser)
-
-    async def _privatize_has_citations(
-        self, has_citations: Intersection[HasCitations, HasPrivacy]
-    ) -> None:
-        if has_citations.privacy.publishable:
-            return
-
-        for citation in has_citations.citations:
-            await self._mark_private(citation, has_citations)
-            await self.privatize(citation)
-
-    async def _privatize_source(self, source: Source) -> None:
-        if source.privacy.publishable:
-            return
-
-        for contained_source in source.contains:
-            await self._mark_private(contained_source, source)
-            await self.privatize(contained_source)
-        for citation in source.citations:
-            await self._mark_private(citation, source)
-            await self.privatize(citation)
-
-    async def _privatize_has_file_references(
-        self, has_file_references: Intersection[HasFileReferences, HasPrivacy]
-    ) -> None:
-        if has_file_references.privacy.publishable:
-            return
-
-        for file_reference in has_file_references.files:
-            await self._mark_private(file_reference.file, has_file_references)
-            await self.privatize(file_reference.file)
-
-    async def _privatize_has_notes(
-        self, has_notes: Intersection[HasNotes, HasPrivacy]
-    ) -> None:
-        if has_notes.privacy.publishable:
-            return
-
-        for note in has_notes.notes:
-            await self._mark_private(note, has_notes)
-            await self.privatize(note)
+        for association in entity.associations():
+            for associate in association.get_associates(entity):
+                if association.privatize(entity, associate):
+                    await self._mark_private(associate, entity, seen)
+                    await self.privatize(associate)
 
     def _ancestors_by_generation(
         self, person: Person, generations_ago: int = 1
@@ -188,22 +88,22 @@ class Privatizer:
                 if presence.event.date is None:
                     person.privacy = Privacy.PUBLIC
                     return
-                if self.has_expired(presence.event, 0):
+                if self._event_has_expired(presence.event, 0):
                     person.privacy = Privacy.PUBLIC
                     return
 
-        if self.has_expired(person, 1):
+        if self.person_has_expired(person, 1):
             person.privacy = Privacy.PUBLIC
             return
 
         for ancestor, generations_ago in self._ancestors_by_generation(person):
-            if self.has_expired(ancestor, generations_ago + 1):
+            if self.person_has_expired(ancestor, generations_ago + 1):
                 person.privacy = Privacy.PUBLIC
                 return
 
         # If any descendant has any expired event, the person is considered not private.
         for descendant in person.descendants:
-            if self.has_expired(descendant, 1):
+            if self.person_has_expired(descendant, 1):
                 person.privacy = Privacy.PUBLIC
                 return
 
@@ -242,26 +142,11 @@ class Privatizer:
             )
         )
 
-    def has_expired(
-        self,
-        subject: _Expirable,
-        generations_ago: int = 0,
-    ) -> bool:
+    @final
+    def person_has_expired(self, person: Person, generations_ago: int, /) -> bool:
         """
-        Check if a subject of the given generation has expired.
+        Check if a person has expired.
         """
-        if isinstance(subject, Person):
-            return self._person_has_expired(subject, generations_ago)
-
-        if isinstance(subject, Event):
-            return self._event_has_expired(subject, generations_ago)
-
-        if isinstance(subject, Date):
-            return self._date_has_expired(subject, generations_ago)
-
-        return False
-
-    def _person_has_expired(self, person: Person, generations_ago: int) -> bool:
         for presence in person.presences:
             if self._event_has_expired(presence.event, generations_ago):
                 return True
@@ -276,7 +161,9 @@ class Privatizer:
             # expiration.
             date = date.end
 
-        return self.has_expired(date, generations_ago)
+        if date is None:
+            return False
+        return self._date_has_expired(date, generations_ago)
 
     def _date_has_expired(
         self,
@@ -298,14 +185,19 @@ class Privatizer:
             datetime.now(tz=UTC).day,
         )
 
-    async def _mark_private(self, target: HasPrivacy, reason: Any) -> None:
+    async def _mark_private(
+        self,
+        target: Entity,
+        reason: Any,
+        seen: MutableSet[Entity],
+    ) -> None:
         # Do not change existing explicit privacy declarations.
-        if target.own_privacy is not Privacy.UNDETERMINED:
+        if target.privacy is not Privacy.UNDETERMINED:
             return
 
         target.privacy = Privacy.PRIVATE
         with suppress(ValueError):
-            self._seen.remove(target)
+            seen.remove(target)
 
         if isinstance(target, Entity) and isinstance(reason, Entity):
             await self._user.message_debug(

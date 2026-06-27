@@ -12,7 +12,6 @@ from betty.attrs.description import HasDescription
 from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.media_type import HasMediaType
 from betty.attrs.owner import OwnerAttr
-from betty.attrs.privacy import HasPrivacy
 from betty.datas.str import StrDefinition
 from betty.entity import Entity, EntityDefinition
 from betty.json_schema import String
@@ -21,7 +20,6 @@ from betty.link import Link as LinkType
 from betty.localizable.linked_data import dump_linked_data
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
-from betty.privacy.resolve import merge_privacies
 
 if TYPE_CHECKING:
     from betty.association import Associate
@@ -140,10 +138,3 @@ class Link(LinkType, HasMediaType, HasDescription, Entity):
             False,
         )
         return schema
-
-    @override
-    def _get_effective_privacy(self) -> Privacy:
-        privacy = super()._get_effective_privacy()
-        if isinstance(self.owner, HasPrivacy):
-            return merge_privacies(privacy, self.owner)
-        return privacy

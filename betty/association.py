@@ -43,6 +43,7 @@ class Association[
         associate_attr: Association[AssociateT, OwnerT, Any, Any] | str | None = None,
         /,
         *args: Any,
+        privatize: Callable[[OwnerT, Associate], bool] | bool = False,
         **kwargs: Any,
     ):
         super().__init__(field, *args, **kwargs)
@@ -62,6 +63,9 @@ class Association[
         self.__associate_attr: (
             Association[AssociateT, OwnerT, Any, Any] | None | VoidType
         ) = associate_attr if isinstance(associate_attr, Association) else Void
+        self._privatize: Final[Callable[[OwnerT, Associate], bool]] = (
+            (lambda _, __: privatize) if isinstance(privatize, bool) else privatize
+        )
 
     @final
     @property
@@ -101,6 +105,13 @@ class Association[
         if self.__associate is None:
             self.__associate = import_any(self.associate_name)
         return self.__associate
+
+    @final
+    def privatize(self, owner: OwnerT, associate: Associate, /) -> bool:
+        """
+        Whether privatization should propagate to the associate for the owner.
+        """
+        return self._privatize(owner, associate)
 
     @overload
     def assert_not_resolver[T](

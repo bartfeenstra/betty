@@ -16,7 +16,6 @@ from betty.json_schema import String
 from betty.linked_data import JsonLdObject, dump_context
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
-from betty.privacy.resolve import merge_privacies
 
 if TYPE_CHECKING:
     from betty.associations.to_many import ToManyAssociates
@@ -114,10 +113,6 @@ class PersonName(HasLocale, HasCitations):
             raise ValueError(
                 "The individual and affiliation names must not both be empty."
             )
-
-    @override
-    def _get_effective_privacy(self) -> Privacy:
-        return merge_privacies(super()._get_effective_privacy(), self.person)
 
     @override
     @property

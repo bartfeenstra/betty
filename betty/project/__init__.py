@@ -18,6 +18,7 @@ from urllib.parse import urlsplit
 
 from babel import Locale
 
+from betty import default_lifetime_threshold
 from betty.about import version_major
 from betty.app import App
 from betty.assertions.int import assert_int
@@ -137,15 +138,6 @@ if TYPE_CHECKING:
     )
     from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
     from betty.url_generator import UrlGenerator
-
-
-default_lifetime_threshold: Final[int] = 123
-"""
-The default age by which people are presumed dead.
-
-This is based on `Jeanne Louise Calment <https://www.guinnessworldrecords.com/world-records/oldest-person/>`_ who is
-the oldest verified person to ever have lived.
-"""
 
 
 @final
@@ -581,7 +573,9 @@ class Project(
         """
         The privatizer.
         """
-        return Privatizer(self.lifetime_threshold, user=self.upstream.user)
+        return Privatizer(
+            lifetime_threshold=self.lifetime_threshold, user=self.upstream.user
+        )
 
     async def new_document(
         self,

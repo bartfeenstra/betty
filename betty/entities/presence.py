@@ -11,8 +11,8 @@ from betty.entity import Entity, EntityDefinition
 from betty.json_schemas.plugin_id import PluginIdSchema
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
-from betty.privacy.resolve import consider_privacies
 from betty.role import RoleDefinition
+from betty.roles.subject import Subject
 
 if TYPE_CHECKING:
     from betty.entities.event import Event
@@ -52,6 +52,7 @@ class Presence(Entity):
         "betty.entities.event:Event",
         "presences",
         label=_("Event"),
+        privatize=lambda presence, event: isinstance(presence.role, Subject),
     )
     """
     The event the person was present at.
@@ -82,14 +83,6 @@ class Presence(Entity):
         return _("Presence of {person} at {event}").format(
             person=self.person.label,
             event=self.event.label,
-        )
-
-    @override
-    def _get_effective_privacy(self) -> Privacy:
-        return consider_privacies(
-            super()._get_effective_privacy(),
-            self.person,
-            self.event,
         )
 
     @override

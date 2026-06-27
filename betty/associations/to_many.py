@@ -4,7 +4,7 @@ To-many entity associations.
 
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from typing import TYPE_CHECKING, TypeGuard, final, override
 
 from betty.association import Associate, AssociateResolver, Association
@@ -49,13 +49,16 @@ class ToMany[OwnerT: Entity, AssociateT: Entity](
         *,
         description: ResolvableLocalizable | None = None,
         label: ResolvableLocalizable,
+        privatize: Callable[[OwnerT, Associate], bool] | bool = False,
     ):
         self._data = SequenceDefinition(
             value=EntityAsReferenceDefinition(label=_("Associates")),
             description=description,
             label=label,
         )
-        super().__init__(FieldDefinition(self._data), associate, associate_attr)
+        super().__init__(
+            FieldDefinition(self._data), associate, associate_attr, privatize=privatize
+        )
 
     @override
     def init_owner(self, owner: OwnerT, /) -> None:

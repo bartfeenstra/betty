@@ -78,6 +78,7 @@ class Event(
         "event",
         label=_("Presences"),
         description=_("People's presences at this event"),
+        privatize=True,
     )
     """
     People's presences at this event.
