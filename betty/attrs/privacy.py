@@ -6,14 +6,15 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Literal, final, override
 
+from betty.attr import Object
 from betty.attrs.owner import OwnerAttr
 from betty.attrs.proxy import ProxyAttr
 from betty.data import DataDefinition
+from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.enum import EnumDefinition
 from betty.linked_data import LinkedData, LinkedDataPorter
 from betty.localizables.gettext import _
 from betty.privacy import Privacy
-from betty.prop import HasProps
 
 if TYPE_CHECKING:
     from betty.portable import PortableMapping
@@ -53,7 +54,9 @@ class PrivacyAttr(
         return LinkedData(data.privacy is Privacy.PRIVATE)
 
 
-class HasPrivacy(HasProps):
+class HasPrivacy[DataDefinitionT: ObjectDefinition = ObjectDefinition](
+    Object[DataDefinitionT]
+):
     """
     A resource that has privacy.
     """

@@ -16,8 +16,8 @@ from betty.localizable import (
 )
 
 if TYPE_CHECKING:
+    from betty.attr import Object
     from betty.attrs.common import CommonAttr
-    from betty.prop import HasProps
 
 
 def new_localizable_attr(
@@ -25,7 +25,7 @@ def new_localizable_attr(
     label: ResolvableLocalizable,
     description: ResolvableLocalizable | None = None,
     linked_data_context: str | None = None,
-) -> CommonAttr[HasProps, Localizable, ResolvableLocalizable]:
+) -> CommonAttr[Object, Localizable, ResolvableLocalizable]:
     """
     Create an attribute containing a :py:class:`betty.localizable.Localizable`.
     """

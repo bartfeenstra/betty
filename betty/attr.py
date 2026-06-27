@@ -6,7 +6,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Final, Never, Self, final
 
-from betty.data import DataDefinition, ResolvableDataDefinition, resolve_data_definition
+from betty.data import (
+    Data,
+    DataDefinition,
+    ResolvableDataDefinition,
+    resolve_data_definition,
+)
 from betty.datas.aggregate.record import FieldDefinition
 from betty.prop import HasProps, Prop
 
@@ -14,15 +19,12 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
 
-class HasAttrs(HasProps):
+class Object[DataDefinitionT: DataDefinition = DataDefinition](
+    Data[DataDefinitionT], HasProps
+):
     """
     An object that has :py:class:`attributes <betty.attr.Attr>`.
     """
-
-    def __init__(self, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
-        for prop in self.props():
-            prop.init_owner(self)
 
     @final
     @classmethod
@@ -36,7 +38,7 @@ class HasAttrs(HasProps):
 
 
 class Attr[
-    OwnerT: HasProps,
+    OwnerT: Object,
     GetT,
     SetT: Any = Never,
     DataDefinitionT: DataDefinition = DataDefinition,

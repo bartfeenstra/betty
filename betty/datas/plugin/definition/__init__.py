@@ -7,19 +7,18 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
+from betty.attr import Object
 from betty.attrs.machine_name import new_machine_name_attr
-from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.localizables.gettext import _
 from betty.plugin import PluginDefinition
-from betty.prop import HasProps
 
 if TYPE_CHECKING:
     from betty.machine_name import ResolvableMachineName
 
 
 class PluginDefinitionData[PluginDefinitionT: PluginDefinition = PluginDefinition](
-    Data[ObjectDefinition["PluginDefinitionData"]], HasProps, ABC
+    Object[ObjectDefinition["PluginDefinitionData"]], ABC
 ):
     """
     Configure a :py:class:`betty.plugin.PluginDefinition`.

@@ -17,6 +17,7 @@ from betty.data import (
 )
 from betty.datas.aggregate import AggregateDefinition
 from betty.indicator.selector import Element
+from betty.linked_data_porters.record import RecordLinkedDataPorter
 from betty.localizable import resolve_localizable
 from betty.portable import Portable, PortableData, Porter
 from betty.privacy import Privacy
@@ -24,6 +25,7 @@ from betty.privacy import Privacy
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping, MutableMapping
 
+    from betty.linked_data import LinkedDataPorter
     from betty.localizable import Localizable, ResolvableLocalizable
     from betty.typing import Intersection
 
@@ -167,8 +169,6 @@ class RecordDefinition[DataClsT, ElementT: Element[str] = Element[str]](
     Records have explicitly defined fields.
     """
 
-    _porter: RecordPorter[DataClsT] | None
-
     def __init__(
         self,
         *args: Any,
@@ -176,6 +176,7 @@ class RecordDefinition[DataClsT, ElementT: Element[str] = Element[str]](
         label: ResolvableLocalizable,
         fields: Mapping[ElementT, FieldDefinition[DataClsT, Any]] | None = None,
         description: ResolvableLocalizable | None = None,
+        linked_data_porter: LinkedDataPorter[DataClsT] | None = None,
         samples: Iterable[Callable[[], Sample[DataClsT]] | Samples] = (),
         factory: Callable[..., DataClsT] | None = None,
         porter: RecordPorter[DataClsT] | None = None,
@@ -191,9 +192,11 @@ class RecordDefinition[DataClsT, ElementT: Element[str] = Element[str]](
             description=description,
             samples=samples,
             porter=porter,
+            linked_data_porter=linked_data_porter or RecordLinkedDataPorter(self),
             **kwargs,
         )
         self._factory = factory
+        self._porter = porter
 
     @property
     def factory(self) -> Callable[..., DataClsT]:
@@ -219,9 +222,9 @@ class RecordDefinition[DataClsT, ElementT: Element[str] = Element[str]](
 
         if self._porter is None:
             if self.cls and issubclass(self.cls, PortableRecord):
-                self._porter = PortableRecordPorter(self.cls)  # ty:ignore[invalid-assignment]
+                self._porter = PortableRecordPorter(self.cls)
             else:
-                self._porter = RecordMappingPorter(  # ty:ignore[invalid-assignment]
+                self._porter = RecordMappingPorter(
                     self,  # ty:ignore[invalid-argument-type]
                 )
         return self._porter  # ty:ignore[invalid-return-type]

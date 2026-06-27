@@ -7,10 +7,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.asset_directories.raspberry_mint import raspberry_mint
+from betty.attr import Object
 from betty.attrs.owner import OwnerAttr
 from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
-from betty.data import Data
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.entities.event import Event
@@ -19,7 +19,6 @@ from betty.localizables.gettext import _
 from betty.machine_name import MachineName
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.project import Project
-from betty.prop import HasProps
 from betty.role import RoleDefinition
 from betty.sample import Sample, Size
 
@@ -47,7 +46,7 @@ if TYPE_CHECKING:
         ),
     ],
 )
-class PresencesData(Data, HasProps):
+class PresencesData(Object):
     """
     Configuration for :py:class:`betty.content_builders.raspberry_mint_presences.Presences`.
 

@@ -46,7 +46,7 @@ class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
     ):
         super().__init__(*args, cls=cls, label=label, description=description, **kwargs)
         self._porter = porter
-        self.__linked_data_porter = linked_data_porter
+        self._linked_data_porter = linked_data_porter
         self._samples = tuple(samples)
 
     @property
@@ -67,11 +67,11 @@ class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
         """
         The linked data porter.
         """
-        if self.__linked_data_porter is None:
+        if self._linked_data_porter is None:
             raise NotPortable(
                 "This definition does not have a linked data porter. Provide a linked data porter when initializing the definition."
             )
-        return self.__linked_data_porter
+        return self._linked_data_porter
 
     @override
     def _set_cls(self, cls: type[DataClsT], /) -> None:

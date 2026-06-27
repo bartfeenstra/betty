@@ -7,16 +7,15 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import TYPE_CHECKING
 
-from betty.attr import Attr
+from betty.attr import Attr, Object
 from betty.data import DataDefinition
-from betty.prop import HasProps
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
 
 class CommonAttr[
-    OwnerT: HasProps,
+    OwnerT: Object,
     GetT,
     SetT,
     DataDefinitionT: DataDefinition = DataDefinition,

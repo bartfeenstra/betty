@@ -8,6 +8,7 @@ from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.asset_directories.raspberry_mint import raspberry_mint
+from betty.attr import Object
 from betty.attrs.owner import OwnerAttr
 from betty.attrs.plugin_manufacturer_sequence import (
     new_plugin_manufacturer_sequence_attr,
@@ -19,14 +20,12 @@ from betty.content_builder import (
     build,
 )
 from betty.content_builders.template import Template, TemplateBuild
-from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.enum import EnumDefinition
 from betty.extensions.raspberry_mint import ColorStyle as RaspberryMintColorStyle
 from betty.factory import DataManufacturable
 from betty.localizables.gettext import _
 from betty.project import Project
-from betty.prop import HasProps
 from betty.sample import Sample
 
 if TYPE_CHECKING:
@@ -47,7 +46,7 @@ if TYPE_CHECKING:
         )
     ],
 )
-class ColorStyleData(Data, HasProps):
+class ColorStyleData(Object):
     """
     Configuration for :py:class:`betty.content_builders.raspberry_mint_color_style.ColorStyle`.
 

@@ -8,8 +8,7 @@ from typing import TYPE_CHECKING, Any, Final, Self, final, override
 from betty.attrs.privacy import HasPrivacy
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.definition.human_facing import CountableHumanFacingDefinition
-from betty.linked_data import HasLinkedDataAttrs
-from betty.linked_data_porters.callback import CallbackLinkedDataPorter
+from betty.linked_data_porters.record import RecordLinkedDataPorter
 from betty.localizables.gettext import _, ngettext
 from betty.machine_name import MachineName
 from betty.plugin import PluginTypeDefinition
@@ -30,7 +29,7 @@ if TYPE_CHECKING:
     from betty.requirement import Requires
 
 
-class Entity(HasLinkedDataAttrs, DataPlugin["EntityDefinition"], HasPrivacy):
+class Entity(DataPlugin["EntityDefinition"], HasPrivacy["EntityDefinition"]):
     """
     An entity is a uniquely identifiable data container.
 
@@ -126,8 +125,8 @@ class EntityDefinition[EntityT: Entity = Entity](
             label_countable=label_countable,
             description=description,
             requires=requires,
-            linked_data_porter=CallbackLinkedDataPorter(
-                self._linked_data_schema, self._dump_linked_data, linked_data_type
+            linked_data_porter=RecordLinkedDataPorter[EntityT](
+                self, type=linked_data_type
             ),
         )
         self.public_facing: Final[bool] = public_facing

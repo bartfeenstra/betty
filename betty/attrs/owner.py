@@ -7,18 +7,18 @@ from __future__ import annotations
 from collections.abc import Callable, Collection, Iterable
 from typing import Any, final, override
 
+from betty.attr import Object
 from betty.attrs.common import CommonAttr
 from betty.attrs.default import DefaultAttr
 from betty.attrs.optional import OptionalAttr
 from betty.attrs.proxy import ProxyAttr
 from betty.data import DataDefinition
 from betty.datas.aggregate.collection import CollectionDefinition
-from betty.prop import HasProps
 from betty.props.setter import SetterProp
 
 
 class _Owner[
-    OwnerT: HasProps,
+    OwnerT: Object,
     GetT,
     SetT,
     DataDefinitionT: DataDefinition = DataDefinition,
@@ -49,7 +49,7 @@ class _Owner[
 
 
 class _Default[
-    OwnerT: HasProps,
+    OwnerT: Object,
     GetT,
     SetT,
     DataDefinitionT: DataDefinition = DataDefinition,
@@ -60,7 +60,7 @@ class _Default[
     pass
 
 
-class _Optional[OwnerT: HasProps, GetT, SetT](
+class _Optional[OwnerT: Object, GetT, SetT](
     OptionalAttr[OwnerT, GetT, SetT],
     _Owner[OwnerT, GetT | None, SetT | None, DataDefinition[GetT | None]],
 ):
@@ -68,7 +68,7 @@ class _Optional[OwnerT: HasProps, GetT, SetT](
 
 
 class _Setter[
-    OwnerT: HasProps,
+    OwnerT: Object,
     GetT,
     SetT,
     DataDefinitionT: DataDefinition = DataDefinition,
@@ -81,7 +81,7 @@ class _Setter[
 
 
 @final
-class OwnerAttr[OwnerT: HasProps, T, DataDefinitionT: DataDefinition = DataDefinition](
+class OwnerAttr[OwnerT: Object, T, DataDefinitionT: DataDefinition = DataDefinition](
     _Owner[OwnerT, T, T, DataDefinitionT]
 ):
     """
@@ -100,7 +100,7 @@ class OwnerAttr[OwnerT: HasProps, T, DataDefinitionT: DataDefinition = DataDefin
 
 @final
 class CollectionOwnerAttr[
-    OwnerT: HasProps,
+    OwnerT: Object,
     GetT: Collection[Any],
     SetT: Iterable,
     DataDefinitionT: CollectionDefinition = CollectionDefinition,

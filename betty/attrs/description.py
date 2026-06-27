@@ -6,16 +6,18 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from betty.attr import Object
 from betty.attrs.localizable import new_localizable_attr
-from betty.linked_data import HasLinkedDataAttrs
+from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.localizables.gettext import _
-from betty.prop import HasProps
 
 if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
 
 
-class HasDescription(HasLinkedDataAttrs, HasProps):
+class HasDescription[DataDefinitionT: ObjectDefinition = ObjectDefinition](
+    Object[DataDefinitionT]
+):
     """
     Data with a description.
     """

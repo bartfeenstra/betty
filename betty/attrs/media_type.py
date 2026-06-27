@@ -6,12 +6,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, override
 
+from betty.attr import Object
 from betty.attrs.owner import OwnerAttr
 from betty.attrs.privacy import HasPrivacy
 from betty.datas.aggregate.record import FieldDefinition
-from betty.linked_data import HasLinkedDataAttrs, LinkedData
+from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.linked_data import LinkedData
 from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
-from betty.prop import HasProps
 from betty.typing import Voidable, VoidableType
 
 if TYPE_CHECKING:
@@ -28,7 +29,7 @@ def new_media_type_attr(
     *,
     label: ResolvableLocalizable | None = None,
     description: ResolvableLocalizable | None = None,
-) -> CommonAttr[HasProps, MediaType, ResolvableMediaType]:
+) -> CommonAttr[Object, MediaType, ResolvableMediaType]:
     """
     Create an attribute containing a media type.
     """
@@ -37,7 +38,9 @@ def new_media_type_attr(
     ).setter(resolve_media_type)
 
 
-class HasMediaType(HasLinkedDataAttrs, HasProps):
+class HasMediaType[DataDefinitionT: ObjectDefinition = ObjectDefinition](
+    Object[DataDefinitionT]
+):
     """
     A resource with an `IANA media type <https://www.iana.org/assignments/media-types/media-types.xhtml>`_.
     """

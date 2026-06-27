@@ -36,7 +36,7 @@ if TYPE_CHECKING:
     label_plural=_("Sources"),
     label_countable=ngettext("{count} source", "{count} sources"),
 )
-class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks):
+class Source(HasAnyDate[EntityDefinition], HasFileReferences, HasNotes, HasLinks):
     """
     .. plugin:: entity:source.
     """

@@ -1,16 +1,15 @@
 from collections.abc import Iterable
 from typing import override
 
+from betty.attr import Object
 from betty.attrs.plugin_definitions import new_plugin_definition_datas_attr
-from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.plugin.definition import PluginDefinitionData
-from betty.prop import HasProps
 from betty.test_utils.plugin import DummyPluginDefinition
 
 
 @ObjectDefinition(label="-")
-class _Owner(Data, HasProps):
+class _Owner(Object):
     @ObjectDefinition(label="-")
     class _Item(PluginDefinitionData[DummyPluginDefinition]):
         @override

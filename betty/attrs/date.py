@@ -6,12 +6,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, override
 
+from betty.attr import Object
 from betty.attrs.owner import OwnerAttr
 from betty.attrs.privacy import HasPrivacy
+from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.date import AnyDateDefinition
 from betty.date import AnyDate, Date, DateRange, _dump_date_iso8601
-from betty.linked_data import HasLinkedDataAttrs, LinkedData
-from betty.prop import HasProps
+from betty.linked_data import LinkedData
 from betty.typing import Voidable, VoidableType, VoidType
 
 if TYPE_CHECKING:
@@ -21,7 +22,9 @@ if TYPE_CHECKING:
     from betty.project import Project
 
 
-class HasAnyDate(HasLinkedDataAttrs, HasProps):
+class HasAnyDate[DataDefinitionT: ObjectDefinition = ObjectDefinition](
+    Object[DataDefinitionT]
+):
     """
     A resource with date information.
     """

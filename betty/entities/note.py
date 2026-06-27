@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     label_plural=_("Notes"),
     label_countable=ngettext("{count} note", "{count} notes"),
 )
-class Note(HasLinks, HasMediaType):
+class Note(HasLinks, HasMediaType[EntityDefinition]):
     """
     .. plugin:: entity:note.
     """

@@ -7,11 +7,11 @@ from __future__ import annotations
 from collections.abc import Mapping, MutableMapping
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.attr import Object
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.attrs.path import new_path_attr
 from betty.collection.mapping import MutableResolvedMapping
 from betty.collections.mapping.adapter import MutableResolvedMappingAdapter
-from betty.data import Data
 from betty.datas.aggregate.collection.mapping import MappingDefinition
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
 from betty.datas.aggregate.record import FieldDefinition
@@ -34,7 +34,6 @@ from betty.place_type import PlaceType, PlaceTypeDefinition, PlaceTypeManufactur
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
 from betty.project import Project
-from betty.prop import HasProps
 from betty.role import Role, RoleDefinition, RoleManufacturer
 from betty.sample import Sample, Size
 
@@ -53,12 +52,12 @@ def _new_plugin_mapping_attr[PluginDefinitionT: PluginClsDefinition, PluginT: Pl
     gramps_label: ResolvableLocalizable,
     default: Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]],
 ) -> CommonAttr[
-    HasProps,
+    Object,
     MutableMapping[str, PluginManufacturer[PluginDefinitionT, PluginT]],
     Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]],
 ]:
     return CollectionOwnerAttr[
-        HasProps,
+        Object,
         MutableMapping[str, PluginManufacturer[PluginDefinitionT, PluginT]],
         Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]],
         MappingDefinition,
@@ -95,7 +94,7 @@ def _new_plugin_mapping_attr[PluginDefinitionT: PluginClsDefinition, PluginT: Pl
         )
     ],
 )
-class FamilyTree(Data, HasProps):
+class FamilyTree(Object):
     """
     A Gramps family tree.
 
@@ -228,7 +227,7 @@ class FamilyTree(Data, HasProps):
         ),
     ],
 )
-class GrampsData(Data, HasProps):
+class GrampsData(Object):
     """
     Configuration for the :py:class:`betty.loaders.gramps.Gramps` extension.
 

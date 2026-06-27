@@ -10,16 +10,15 @@ from typing import TYPE_CHECKING, final, override
 from betty.attrs.proxy import ProxyAttr
 from betty.data import DataDefinition
 from betty.datas.aggregate.record import FieldDefinition
-from betty.prop import HasProps
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from betty.attr import Attr
+    from betty.attr import Attr, Object
 
 
 class DefaultAttr[
-    OwnerT: HasProps,
+    OwnerT: Object,
     GetT,
     SetT,
     DataDefinitionT: DataDefinition = DataDefinition,

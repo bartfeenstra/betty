@@ -10,13 +10,12 @@ from betty.attrs.proxy import ProxyAttr
 from betty.data import DataDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.optional import OptionalDefinition
-from betty.prop import HasProps
 
 if TYPE_CHECKING:
-    from betty.attr import Attr
+    from betty.attr import Attr, Object
 
 
-class OptionalAttr[OwnerT: HasProps, GetT, SetT](
+class OptionalAttr[OwnerT: Object, GetT, SetT](
     ProxyAttr[OwnerT, GetT | None, SetT | None, DataDefinition[GetT | None]]
 ):
     """

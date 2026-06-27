@@ -33,7 +33,7 @@ if TYPE_CHECKING:
     label_plural=_("Citations"),
     label_countable=ngettext("{count} citation", "{count} citations"),
 )
-class Citation(HasAnyDate, HasFileReferences, HasLinks):
+class Citation(HasAnyDate[EntityDefinition], HasFileReferences, HasLinks):
     """
     .. plugin:: entity:citation.
     """

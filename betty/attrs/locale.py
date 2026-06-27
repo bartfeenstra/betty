@@ -6,13 +6,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, override
 
+from betty.attr import Object
 from betty.attrs.owner import OwnerAttr
 from betty.attrs.privacy import HasPrivacy
+from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.locale import LocaleDefinition
-from betty.linked_data import HasLinkedDataAttrs, LinkedData
+from betty.linked_data import LinkedData
 from betty.locale import ResolvableLocale, resolve_locale, to_language_tag
 from betty.localized import Localized
-from betty.prop import HasProps
 from betty.typing import Voidable, VoidableType
 
 if TYPE_CHECKING:
@@ -31,7 +32,7 @@ def new_locale_attr(
     *,
     label: ResolvableLocalizable | None = None,
     description: ResolvableLocalizable | None = None,
-) -> CommonAttr[HasProps, Locale, ResolvableLocale]:
+) -> CommonAttr[Object, Locale, ResolvableLocale]:
     """
     Create an attribute containing a locale.
     """
@@ -40,7 +41,9 @@ def new_locale_attr(
     )
 
 
-class HasLocale(Localized, HasLinkedDataAttrs, HasProps):
+class HasLocale[DataDefinitionT: ObjectDefinition = ObjectDefinition](
+    Localized, Object[DataDefinitionT]
+):
     """
     A resource that is localized, e.g. contains information in a specific locale.
     """

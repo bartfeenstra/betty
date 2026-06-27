@@ -51,7 +51,12 @@ if TYPE_CHECKING:
     label_countable=ngettext("{count} event", "{count} events"),
 )
 class Event(
-    HasAnyDate, HasFileReferences, HasCitations, HasNotes, HasDescription, HasLinks
+    HasAnyDate[EntityDefinition],
+    HasFileReferences,
+    HasCitations,
+    HasNotes,
+    HasDescription[EntityDefinition],
+    HasLinks,
 ):
     """
     .. plugin:: entity:event.
