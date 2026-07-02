@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-04-24 14:22+0100\n"
-"PO-Revision-Date: 2026-06-30 09:01+0000\n"
+"PO-Revision-Date: 2026-07-03 10:01+0000\n"
 "Last-Translator: Libre <6n0n1m0s@proton.me>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-4-"
 "x/es/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.7.dev0\n"
+"X-Generator: Weblate 2026.7.1.dev0\n"
 "Generated-By: Babel 2.17.0\n"
 
 #, python-brace-format
@@ -26,17 +26,19 @@ msgstr "«{hex_value}» no es un color hexadecimal válido, tal como #ffc0cb."
 
 #, python-brace-format
 msgid "\"{invalid_locale}\" is not a valid IETF BCP 47 language tag."
-msgstr ""
+msgstr "«{invalid_locale}» no es una etiqueta de idioma IETF BCP 47 válida."
 
 #, python-brace-format
 msgid "\"{path}\" is not a directory."
-msgstr ""
+msgstr "«{path}» no es un directorio."
 
 #, python-brace-format
 msgid ""
 "\"{value}\" is not a valid machine name: only lowercase letters, digits, "
 "and hyphens (-) are allowed."
 msgstr ""
+"«{value}» no es un nombre de máquina válido: solo letras minúsculas, dígitos "
+"y guiones (-) están concedidos."
 
 #, python-format
 msgid "%(date)s in %(place)s"
@@ -79,23 +81,23 @@ msgid "API documentation"
 msgstr "Documentación de API"
 
 msgid "About"
-msgstr ""
+msgstr "Acerca de"
 
 msgid "Access denied"
-msgstr ""
+msgstr "Acceso denegado"
 
 #, python-format
 msgid "Accessed %(date)s"
-msgstr ""
+msgstr "Accedido el %(date)s"
 
 msgid "Adoption"
 msgstr "Adopción"
 
 msgid "All caches cleared."
-msgstr ""
+msgstr "Todas las cachés vaciadas."
 
 msgid "All of these requirements must be met"
-msgstr ""
+msgstr "Todos de estos requisitos deben cumplirse"
 
 msgid "All rights reserved"
 msgstr "Todos los derechos reservados"
@@ -105,13 +107,13 @@ msgid "Also known as %(names)s"
 msgstr "También conocide como %(names)s"
 
 msgid "Ancestral names include"
-msgstr ""
+msgstr "Incluye nombres de ancestros"
 
 msgid "Announcement of divorce"
-msgstr ""
+msgstr "Declaración de divorcio"
 
 msgid "Announcement of marriage"
-msgstr ""
+msgstr "Declaración de matrimonio"
 
 msgid "Appearances"
 msgstr "Apariciónes"
