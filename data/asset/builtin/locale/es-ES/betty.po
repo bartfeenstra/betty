@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-06-24 11:57+0100\n"
-"PO-Revision-Date: 2026-06-30 10:01+0000\n"
+"PO-Revision-Date: 2026-07-03 10:01+0000\n"
 "Last-Translator: Libre <6n0n1m0s@proton.me>\n"
 "Language: es-ES\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-5-"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
-"X-Generator: Weblate 2026.7.dev0\n"
+"X-Generator: Weblate 2026.7.1.dev0\n"
 
 #, python-brace-format
 msgid "\"{color}\" is not a valid hexadecimal color, such as #ffc0cb."
@@ -26,11 +26,11 @@ msgstr ""
 
 #, python-brace-format
 msgid "\"{invalid_locale}\" is not a valid IETF BCP 47 language tag."
-msgstr ""
+msgstr "«{invalid_locale}» no es una etiqueta de idioma IETF BCP 47 válida."
 
 #, python-brace-format
 msgid "\"{path}\" is not a directory."
-msgstr ""
+msgstr "«{path}» no es un directorio."
 
 #, python-brace-format
 msgid "\"{target}\" is not configurable, but configuration was given."
@@ -96,7 +96,7 @@ msgid "API documentation"
 msgstr "Documentación de API"
 
 msgid "Access denied"
-msgstr ""
+msgstr "Acceso denegado"
 
 msgid "Accessed"
 msgstr ""
@@ -117,7 +117,7 @@ msgid "Alias"
 msgstr ""
 
 msgid "All caches cleared."
-msgstr ""
+msgstr "Todas las cachés vaciadas."
 
 msgid "All rights reserved"
 msgstr "Todos los derechos reservados"
@@ -151,10 +151,10 @@ msgid "An unexpected error occurred:"
 msgstr ""
 
 msgid "Announcement of divorce"
-msgstr ""
+msgstr "Declaración de divorcio"
 
 msgid "Announcement of marriage"
-msgstr ""
+msgstr "Declaración de matrimonio"
 
 msgid "Announcements of divorce"
 msgstr ""
