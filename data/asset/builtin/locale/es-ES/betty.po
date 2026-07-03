@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-06-24 11:57+0100\n"
-"PO-Revision-Date: 2026-07-03 10:01+0000\n"
-"Last-Translator: Libre <6n0n1m0s@proton.me>\n"
+"PO-Revision-Date: 2026-07-03 13:12+0000\n"
+"Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: es-ES\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-5-"
 "x/es/>\n"
@@ -26,7 +26,7 @@ msgstr ""
 
 #, python-brace-format
 msgid "\"{invalid_locale}\" is not a valid IETF BCP 47 language tag."
-msgstr "«{invalid_locale}» no es una etiqueta de idioma IETF BCP 47 válida."
+msgstr "«{invalid_locale}» no es una código de idioma IETF BCP 47 válida."
 
 #, python-brace-format
 msgid "\"{path}\" is not a directory."
