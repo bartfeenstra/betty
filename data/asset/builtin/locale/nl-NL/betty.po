@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-06-24 11:57+0100\n"
-"PO-Revision-Date: 2026-07-03 15:53+0000\n"
+"PO-Revision-Date: 2026-07-04 11:22+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl-NL\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/betty/betty-0-5-x/"
@@ -291,6 +291,8 @@ msgid ""
 "Betty is unfamiliar with Gramps person \"{person_id}\"'s gender ID of "
 "\"{gender_id}\" and ignored it."
 msgstr ""
+"Betty is niet bekend met het gender \"{gender_id}\" van Gramps-persoon \""
+"{person_id}\" en heeft het genegeerd."
 
 #, python-brace-format
 msgid ""
@@ -378,6 +380,8 @@ msgid ""
 "Cannot add more than one manufacturer for the {plugin} {plugin_type} "
 "plugin to the {service} service."
 msgstr ""
+"Kan niet meer dan één fabrikant voor {plugin_type} {plugin} toevoegen aan de "
+"{service}-service."
 
 msgid "Cannot find an available port to bind the web server to."
 msgstr "Kan geen beschikbare poort voor de webserver vinden."
@@ -415,7 +419,7 @@ msgstr ""
 
 #, python-brace-format
 msgid "Cannot locate the {service} service on any available service level."
-msgstr ""
+msgstr "Kan service {service} op geen enkel serviceniveau vinden."
 
 msgid "Celebrant"
 msgstr "Ambtenaar"
@@ -661,7 +665,7 @@ msgstr ""
 "regering in Den Haag zit?"
 
 msgid "Display interactive family trees using Cytoscape."
-msgstr ""
+msgstr "Laat interactieve stambomen zien met Cytoscape."
 
 msgid "Display interactive maps"
 msgstr "Geef plaatsen weer als interactieve kaarten"
@@ -875,7 +879,6 @@ msgstr "Uitvaarten"
 msgid "Fuzzy"
 msgstr "Vaag"
 
-#, fuzzy
 msgid "Gemeente Amsterdam"
 msgstr "Gemeente Amsterdam"
 
@@ -921,6 +924,8 @@ msgid ""
 "Gramps exited with the following error:\n"
 "{error}"
 msgstr ""
+"Gramps stopte met de volgende foutmelding:\n"
+"{error}"
 
 msgid "Gramps place type"
 msgstr "Gramps-plaatstype"
@@ -936,7 +941,7 @@ msgstr ""
 
 #, python-brace-format
 msgid "HTTP {http_status_code} response returned by {url}"
-msgstr ""
+msgstr "HTTP {http_status_code} response ontvangen van {url}"
 
 msgid "Hamlet"
 msgstr "Gehucht"
@@ -1028,19 +1033,19 @@ msgid "JavaScript resources"
 msgstr ""
 
 msgid "Jinja filter"
-msgstr ""
+msgstr "Jinja-filter"
 
 msgid "Jinja filters"
-msgstr ""
+msgstr "Jinja-filters"
 
 msgid "Jinja template"
-msgstr ""
+msgstr "Jinja-template"
 
 msgid "Jinja test"
-msgstr ""
+msgstr "Jinja-test"
 
 msgid "Jinja tests"
-msgstr ""
+msgstr "Jinja-tests"
 
 msgid "Justify content"
 msgstr "Justify inhoud"
@@ -1151,7 +1156,7 @@ msgid "Localities"
 msgstr "Gebieden"
 
 msgid "Locality"
-msgstr "Plaats"
+msgstr "Gebied"
 
 msgid "Location"
 msgstr "Locatie"
@@ -1205,7 +1210,7 @@ msgid "Media type"
 msgstr "Mediatype"
 
 msgid "Media types"
-msgstr ""
+msgstr "Mediatypes"
 
 msgid "Men"
 msgstr "Mannen"
@@ -1354,7 +1359,7 @@ msgid "Parents"
 msgstr "Ouders"
 
 msgid "Parish"
-msgstr "Parish"
+msgstr "Parochie"
 
 msgid "Parishes"
 msgstr "Parochies"
@@ -1423,7 +1428,7 @@ msgid "Populate images"
 msgstr ""
 
 msgid "Positional arguments"
-msgstr ""
+msgstr "Positionele argumenten"
 
 msgid "Presence"
 msgstr "Aanwezigheid"
@@ -1436,7 +1441,7 @@ msgid "Presences"
 msgstr "Aanwezigheden"
 
 msgid "Presences configuration"
-msgstr ""
+msgstr "Aanwezighedenconfiguratie"
 
 msgid "Previous page"
 msgstr "Vorige pagina"
@@ -1722,12 +1727,16 @@ msgid ""
 "Subprocess `{command}` stderr:\n"
 "{stderr}"
 msgstr ""
+"Stderr van subprocess `{command}`:\n"
+"{stderr}"
 
 #, python-brace-format
 msgid ""
 "Subprocess `{command}` stdout:\n"
 "{stdout}"
 msgstr ""
+"Stdout van subprocess `{command}`:\n"
+"{stdout}"
 
 msgid "Summary"
 msgstr "Samenvatting"
@@ -1821,7 +1830,7 @@ msgid "The file being referenced"
 msgstr ""
 
 msgid "The location of the event"
-msgstr ""
+msgstr "De locatie van de gebeurtenis"
 
 msgid ""
 "The number of years people are expected to live at most, e.g. after which"
