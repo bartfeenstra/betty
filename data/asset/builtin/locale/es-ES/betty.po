@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-06-24 11:57+0100\n"
-"PO-Revision-Date: 2026-07-03 13:12+0000\n"
+"PO-Revision-Date: 2026-07-04 19:56+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: es-ES\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-5-"
@@ -105,13 +105,13 @@ msgid "Adoption"
 msgstr "Adopción"
 
 msgid "Adoptions"
-msgstr ""
+msgstr "Adopciones"
 
 msgid "Affiliation name"
 msgstr ""
 
 msgid "After"
-msgstr ""
+msgstr "Despues de"
 
 msgid "Alias"
 msgstr ""
@@ -207,7 +207,7 @@ msgid "Baptism"
 msgstr "Bautismo"
 
 msgid "Baptisms"
-msgstr ""
+msgstr "Bautismos"
 
 msgid "Bar mitzvah"
 msgstr "Bar mitzvá"
@@ -225,7 +225,7 @@ msgid "Bat mitzvahs"
 msgstr ""
 
 msgid "Before"
-msgstr ""
+msgstr "Antes de"
 
 msgid "Beneficiaries"
 msgstr ""
@@ -313,7 +313,7 @@ msgid "Box configuration"
 msgstr ""
 
 msgid "Breadcrumbs"
-msgstr ""
+msgstr "Migas de pan"
 
 msgid "Breakpoint"
 msgstr ""
@@ -325,7 +325,7 @@ msgid "Building"
 msgstr "Edificio"
 
 msgid "Buildings"
-msgstr ""
+msgstr "Edificios"
 
 msgid "Built-in"
 msgstr ""
@@ -387,13 +387,13 @@ msgid "Celebrants"
 msgstr ""
 
 msgid "Cemeteries"
-msgstr ""
+msgstr "Cementerios"
 
 msgid "Cemetery"
-msgstr ""
+msgstr "Cementerio"
 
 msgid "Children"
-msgstr ""
+msgstr "Hijes"
 
 msgid "Citation"
 msgstr ""
@@ -435,7 +435,7 @@ msgid "Column widths"
 msgstr ""
 
 msgid "Columns"
-msgstr ""
+msgstr "Columnas"
 
 msgid "Columns configuration"
 msgstr ""
@@ -459,7 +459,7 @@ msgid "Confirmation"
 msgstr "Confirmación"
 
 msgid "Confirmations"
-msgstr ""
+msgstr "Confirmaciones"
 
 msgid "Contained by"
 msgstr ""
@@ -468,7 +468,7 @@ msgid "Contains"
 msgstr ""
 
 msgid "Content"
-msgstr ""
+msgstr "Contenido"
 
 msgid "Content builder"
 msgstr ""
@@ -481,7 +481,7 @@ msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
 msgstr ""
 
 msgid "Coordinates"
-msgstr ""
+msgstr "Coordenadas"
 
 msgid "Copyright"
 msgstr "Derechos de autor"
@@ -563,25 +563,25 @@ msgid "Cremation"
 msgstr "Cremación"
 
 msgid "Cremations"
-msgstr ""
+msgstr "Cremaciones"
 
 msgid "Data"
-msgstr ""
+msgstr "Datos"
 
 msgid "Date"
-msgstr ""
+msgstr "Fecha"
 
 msgid "Date range"
 msgstr ""
 
 msgid "Day"
-msgstr ""
+msgstr "Día"
 
 msgid "Death"
 msgstr "Muerte"
 
 msgid "Deaths"
-msgstr ""
+msgstr "Muertes"
 
 msgid "Debugging mode"
 msgstr ""
@@ -681,10 +681,10 @@ msgid "End date is a boundary"
 msgstr ""
 
 msgid "Engagement"
-msgstr ""
+msgstr "Compromiso"
 
 msgid "Engagements"
-msgstr ""
+msgstr "Compromisos"
 
 msgid "Enrich your ancestry with information from Wikipedia and Wikimedia Commons"
 msgstr ""
@@ -696,7 +696,7 @@ msgid "Enrichers"
 msgstr ""
 
 msgid "Entities"
-msgstr ""
+msgstr "Entidades"
 
 msgid ""
 "Entities represent the information in your ancestry, such as people and "
@@ -704,7 +704,7 @@ msgid ""
 msgstr ""
 
 msgid "Entity"
-msgstr ""
+msgstr "Entidad"
 
 msgid "Entity ID"
 msgstr ""
@@ -722,7 +722,7 @@ msgid "Entity types to generate list HTML pages for"
 msgstr ""
 
 msgid "Event"
-msgstr ""
+msgstr "Evento"
 
 msgid "Event type"
 msgstr ""
@@ -734,14 +734,14 @@ msgid "Event types"
 msgstr ""
 
 msgid "Events"
-msgstr ""
+msgstr "Eventos"
 
 #, python-brace-format
 msgid "Exactly {expected} items are required, but found {actual}."
 msgstr ""
 
 msgid "Exclude"
-msgstr ""
+msgstr "Excluir"
 
 msgid "Executable"
 msgstr ""
@@ -765,7 +765,7 @@ msgid "Facts"
 msgstr "Hechos"
 
 msgid "Families"
-msgstr ""
+msgstr "Familias"
 
 msgid "Family"
 msgstr "Familia"
@@ -816,22 +816,22 @@ msgid "Funeral"
 msgstr "Funeral"
 
 msgid "Funerals"
-msgstr ""
+msgstr "Funerales"
 
 msgid "Fuzzy"
-msgstr ""
+msgstr "Impreciso"
 
 msgid "Gemeente Amsterdam"
 msgstr ""
 
 msgid "Gender"
-msgstr ""
+msgstr "Género"
 
 msgid "Gender configuration"
 msgstr ""
 
 msgid "Genders"
-msgstr ""
+msgstr "Géneros"
 
 msgid "Generate a static site"
 msgstr ""
@@ -890,7 +890,7 @@ msgid "Heading"
 msgstr ""
 
 msgid "Height"
-msgstr ""
+msgstr "Altura"
 
 msgid "Help improve the translations"
 msgstr ""
@@ -911,10 +911,10 @@ msgid "I'm sorry, dear, but it seems you're not logged in."
 msgstr ""
 
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgid "Ilpendam"
-msgstr ""
+msgstr "Ilpendam"
 
 msgid "Immigration"
 msgstr "Inmigración"
@@ -989,7 +989,7 @@ msgid "Keywords"
 msgstr "Palabras clave"
 
 msgid "Label"
-msgstr ""
+msgstr "Etiqueta"
 
 msgid "Label (countable)"
 msgstr ""
@@ -1008,22 +1008,22 @@ msgid "Last page"
 msgstr ""
 
 msgid "License"
-msgstr ""
+msgstr "Licencia"
 
 msgid "License configuration"
 msgstr ""
 
 msgid "Licenses"
-msgstr ""
+msgstr "Licencias"
 
 msgid "Lifetime threshold"
 msgstr ""
 
 msgid "Link"
-msgstr ""
+msgstr "Enlace"
 
 msgid "Links"
-msgstr ""
+msgstr "Enlaces"
 
 msgid "Load Gramps family trees."
 msgstr ""
@@ -1075,7 +1075,7 @@ msgid "Loading \"{file_path}\"..."
 msgstr ""
 
 msgid "Locale"
-msgstr ""
+msgstr "Configuración regional"
 
 msgid "Locale aliases must not contain slashes."
 msgstr ""
@@ -1085,7 +1085,7 @@ msgid "Locale {locale} is not known by your system."
 msgstr ""
 
 msgid "Locales"
-msgstr ""
+msgstr "Configuraciones regional"
 
 msgid "Localities"
 msgstr ""
@@ -1097,7 +1097,7 @@ msgid "Location"
 msgstr ""
 
 msgid "Logo"
-msgstr ""
+msgstr "Logo"
 
 msgid "MMMM"
 msgstr "MMMM"
@@ -1118,7 +1118,7 @@ msgid "Man"
 msgstr "Hombre"
 
 msgid "Map"
-msgstr ""
+msgstr "Mapa"
 
 msgid "Map attribution"
 msgstr ""
@@ -1127,7 +1127,7 @@ msgid "Marriage"
 msgstr "Matrimonio"
 
 msgid "Marriages"
-msgstr ""
+msgstr "Matrimonios"
 
 msgid "Maximum height"
 msgstr ""
@@ -1148,10 +1148,10 @@ msgid "Media types"
 msgstr ""
 
 msgid "Men"
-msgstr ""
+msgstr "Hombres"
 
 msgid "Menu"
-msgstr ""
+msgstr "Menú"
 
 msgid "Minimum height"
 msgstr ""
@@ -1243,7 +1243,7 @@ msgid "Operating system"
 msgstr ""
 
 msgid "Options"
-msgstr ""
+msgstr "Opciones"
 
 msgid "Organizer"
 msgstr "Organizadore"
@@ -1288,7 +1288,7 @@ msgid "Page not found"
 msgstr ""
 
 msgid "Parents"
-msgstr ""
+msgstr "Xadres"
 
 msgid "Parish"
 msgstr ""
@@ -1297,7 +1297,7 @@ msgid "Parishes"
 msgstr ""
 
 msgid "Path"
-msgstr ""
+msgstr "Ruta"
 
 msgid "People"
 msgstr "Personas"
@@ -1435,7 +1435,7 @@ msgid "Province"
 msgstr "Provincia"
 
 msgid "Provinces"
-msgstr ""
+msgstr "Provincias"
 
 msgid "Public domain"
 msgstr ""
@@ -1490,7 +1490,7 @@ msgid "Regional content"
 msgstr ""
 
 msgid "Regions"
-msgstr ""
+msgstr "Regiones"
 
 msgid "Relationship"
 msgstr ""
@@ -1527,13 +1527,13 @@ msgid "Retirements"
 msgstr ""
 
 msgid "Role"
-msgstr ""
+msgstr "Rol"
 
 msgid "Role configuration"
 msgstr ""
 
 msgid "Roles"
-msgstr ""
+msgstr "Roles"
 
 #, python-brace-format
 msgid "Running subprocess `{command}`..."
@@ -2191,7 +2191,7 @@ msgid "until {end_date}"
 msgstr "hasta {end_date}"
 
 msgid "y"
-msgstr ""
+msgstr "y"
 
 #, python-brace-format
 msgid "{count} "
@@ -2759,7 +2759,7 @@ msgstr[1] "{count} mujeres"
 
 #, python-brace-format
 msgid "{date}"
-msgstr ""
+msgstr "{date}"
 
 #, python-brace-format
 msgid "{entity_type} {entity_id}"
@@ -2767,7 +2767,7 @@ msgstr "{entity_type} {entity_id}"
 
 #, python-brace-format
 msgid "{event_type}"
-msgstr ""
+msgstr "{event_type}"
 
 #, python-brace-format
 msgid "{event_type} of {subjects}"
