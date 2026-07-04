@@ -199,7 +199,7 @@ async def _prompt_static_translations(
     default: Any | None = None,
     hide_input: bool = False,
     confirmation_prompt: bool | str = False,
-    type: click.ParamType | Any | None = None,  # noqa: A002
+    type: click.ParamType[Any] | Any | None = None,  # noqa: A002
     value_proc: Callable[[str], Any] | None = None,
     prompt_suffix: str = ": ",
     show_default: bool = True,
