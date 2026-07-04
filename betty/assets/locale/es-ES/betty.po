@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-04-24 14:22+0100\n"
-"PO-Revision-Date: 2026-07-03 13:12+0000\n"
+"PO-Revision-Date: 2026-07-04 19:56+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-4-"
 "x/es/>\n"
@@ -429,7 +429,7 @@ msgid "Enclosures"
 msgstr ""
 
 msgid "Engagement"
-msgstr ""
+msgstr "Compromiso"
 
 msgid "Enrich your ancestry with information from Wikipedia"
 msgstr ""
@@ -438,10 +438,10 @@ msgid "Entity type"
 msgstr "Tipo de entidad"
 
 msgid "Event"
-msgstr ""
+msgstr "Evento"
 
 msgid "Events"
-msgstr ""
+msgstr "Eventos"
 
 #, python-brace-format
 msgid "Exactly {expected} items are required, but found {actual}."
@@ -585,7 +585,7 @@ msgid "Last modified on %(last_modified)s"
 msgstr "Última modificación el %(last_modified)s"
 
 msgid "License"
-msgstr ""
+msgstr "Licencia"
 
 msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
 msgstr ""
@@ -652,7 +652,7 @@ msgid "Male"
 msgstr "Hombre"
 
 msgid "Maps"
-msgstr ""
+msgstr "Mapas"
 
 msgid "Marriage"
 msgstr "Matrimonio"
@@ -664,7 +664,7 @@ msgid "Media references"
 msgstr "Referencias a los medios"
 
 msgid "Menu"
-msgstr ""
+msgstr "Menú"
 
 msgid "Missing"
 msgstr "Desaparecide"
@@ -1070,7 +1070,7 @@ msgid ""
 msgstr ""
 
 msgid "Wikipedia"
-msgstr ""
+msgstr "Wikipedia"
 
 msgid "Wikipedia contributors"
 msgstr "Colaboradores de Wikipedia"
@@ -1252,7 +1252,7 @@ msgid "until {end_date}"
 msgstr "hasta {end_date}"
 
 msgid "y"
-msgstr ""
+msgstr "y"
 
 #, python-brace-format
 msgid "{count} citation"
@@ -1328,7 +1328,7 @@ msgstr[1] "{count} fuentes"
 
 #, python-brace-format
 msgid "{date}"
-msgstr ""
+msgstr "{date}"
 
 #, python-brace-format
 msgid "{dependent_label} requires {dependency_labels}."
@@ -1340,7 +1340,7 @@ msgstr "{entity_type} {entity_id}"
 
 #, python-brace-format
 msgid "{event_type}"
-msgstr ""
+msgstr "{event_type}"
 
 #, python-brace-format
 msgid "{event_type} of {subjects}"
