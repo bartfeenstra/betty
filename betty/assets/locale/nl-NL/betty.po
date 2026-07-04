@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-04-23 16:11+0100\n"
-"PO-Revision-Date: 2026-02-18 18:09+0000\n"
+"PO-Revision-Date: 2026-07-04 11:22+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/betty/betty-0-4-x/"
 "nl/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.16.1-dev\n"
+"X-Generator: Weblate 2026.7.1.dev0\n"
 "Generated-By: Babel 2.17.0\n"
 
 #, python-brace-format
@@ -650,7 +650,7 @@ msgid "License"
 msgstr "Licentie"
 
 msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
-msgstr "Laad <a href=\"https://gramps-project.org/\">Gramps-</a>stambomen."
+msgstr "Laad <a href=\"https://gramps-project.org/\">Gramps</a>-stambomen."
 
 #, python-brace-format
 msgid "Loaded the configuration from {configuration_file_path}."
@@ -696,7 +696,7 @@ msgid "Locale aliases must not contain slashes."
 msgstr "Taalregioaliassen mogen geen schuine streep bevatten."
 
 msgid "Locality"
-msgstr "Plaats"
+msgstr "Gebied"
 
 msgid "MMMM"
 msgstr "MMMM"
@@ -777,7 +777,7 @@ msgid "Page not found"
 msgstr "Pagina niet gevonden"
 
 msgid "Parish"
-msgstr "Parish"
+msgstr "Parochie"
 
 msgid "People"
 msgstr "Personen"
