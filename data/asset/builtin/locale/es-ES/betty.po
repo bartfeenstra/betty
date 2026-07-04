@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-06-24 11:57+0100\n"
-"PO-Revision-Date: 2026-07-04 19:56+0000\n"
+"PO-Revision-Date: 2026-07-04 21:30+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: es-ES\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-5-"
@@ -1249,7 +1249,7 @@ msgid "Organizer"
 msgstr "Organizadore"
 
 msgid "Organizers"
-msgstr ""
+msgstr "Organizadores"
 
 msgid "Other attendees"
 msgstr "Otres asistentes"
@@ -1272,10 +1272,10 @@ msgid "Output information about Betty, and optionally your project"
 msgstr ""
 
 msgid "Owner"
-msgstr ""
+msgstr "Dueñe"
 
 msgid "Package"
-msgstr ""
+msgstr "Paquete"
 
 #, python-format
 msgid "Page %(page)s"
@@ -1291,10 +1291,10 @@ msgid "Parents"
 msgstr "Xadres"
 
 msgid "Parish"
-msgstr ""
+msgstr "Parroquia"
 
 msgid "Parishes"
-msgstr ""
+msgstr "Parroquias"
 
 msgid "Path"
 msgstr "Ruta"
@@ -1382,7 +1382,7 @@ msgid "Primary color"
 msgstr ""
 
 msgid "Privacy"
-msgstr ""
+msgstr "Privacidad"
 
 #, python-brace-format
 msgid ""
@@ -1441,13 +1441,13 @@ msgid "Public domain"
 msgstr ""
 
 msgid "Publisher"
-msgstr ""
+msgstr "Publicador"
 
 msgid "Python packages"
 msgstr ""
 
 msgid "Quitting..."
-msgstr ""
+msgstr "Cerrando..."
 
 msgid "Raspberry Mint configuration"
 msgstr ""
@@ -1573,10 +1573,10 @@ msgid ""
 msgstr ""
 
 msgid "Server"
-msgstr ""
+msgstr "Servidor"
 
 msgid "Servers"
-msgstr ""
+msgstr "Servidores"
 
 #, python-brace-format
 msgid "Serving your site at {url}..."
@@ -1612,7 +1612,7 @@ msgid "Speaker"
 msgstr "Oradore"
 
 msgid "Speakers"
-msgstr ""
+msgstr "Oradores"
 
 msgid "Start date is a boundary"
 msgstr ""
@@ -1624,7 +1624,7 @@ msgid "State"
 msgstr "Estado"
 
 msgid "States"
-msgstr ""
+msgstr "Estados"
 
 msgid "Static content"
 msgstr ""
@@ -1633,10 +1633,10 @@ msgid "Street"
 msgstr "Calle"
 
 msgid "Streets"
-msgstr ""
+msgstr "Calles"
 
 msgid "Style"
-msgstr ""
+msgstr "Estilo"
 
 msgid "Subcommands"
 msgstr ""
@@ -1904,7 +1904,7 @@ msgid "Type"
 msgstr ""
 
 msgid "URL"
-msgstr ""
+msgstr "LRU"
 
 msgid "Unauthorized"
 msgstr ""
@@ -1949,7 +1949,7 @@ msgid "Usage: "
 msgstr ""
 
 msgid "Version"
-msgstr ""
+msgstr "Versión"
 
 msgid "View Betty's interactive documentation. This will open your web browser."
 msgstr ""
@@ -1967,13 +1967,13 @@ msgid "Village"
 msgstr "Pueblo"
 
 msgid "Villages"
-msgstr ""
+msgstr "Pueblos"
 
 msgid "Visually hide heading"
 msgstr ""
 
 msgid "Welcome"
-msgstr ""
+msgstr "Bienvenido"
 
 #, python-format
 msgid "Welcome to %(project_title)s"
@@ -2015,7 +2015,7 @@ msgid ""
 msgstr ""
 
 msgid "Width"
-msgstr ""
+msgstr "Ancho"
 
 msgid "Wiki enricher configuration"
 msgstr ""
