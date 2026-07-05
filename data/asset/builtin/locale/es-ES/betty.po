@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-05 20:43+0100\n"
 "PO-Revision-Date: 2026-07-05 19:57+0000\n"
-"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: es-ES\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-5-"
 "x/es/>\n"
@@ -307,7 +307,7 @@ msgid "Boroughs"
 msgstr ""
 
 msgid "Box"
-msgstr ""
+msgstr "Caja"
 
 msgid "Box configuration"
 msgstr ""
@@ -334,7 +334,7 @@ msgid "Burial"
 msgstr "Entierro"
 
 msgid "Burials"
-msgstr ""
+msgstr "Entierros"
 
 msgid "CSS resource"
 msgstr ""
@@ -856,7 +856,7 @@ msgid ""
 msgstr ""
 
 msgid "Gramps configuration"
-msgstr ""
+msgstr "Configuración de Gramps"
 
 msgid "Gramps event type"
 msgstr ""
@@ -1157,7 +1157,7 @@ msgid "Menu"
 msgstr "Menú"
 
 msgid "Minimum height"
-msgstr ""
+msgstr "Altura mínima"
 
 msgid "Minimum width"
 msgstr ""
@@ -1243,7 +1243,7 @@ msgid "Occupations"
 msgstr ""
 
 msgid "Operating system"
-msgstr ""
+msgstr "Sistema operativo"
 
 msgid "Options"
 msgstr "Opciones"
@@ -1282,7 +1282,7 @@ msgstr "Paquete"
 
 #, python-format
 msgid "Page %(page)s"
-msgstr ""
+msgstr "Página %(page)s"
 
 msgid "Page navigation"
 msgstr ""
@@ -1351,7 +1351,7 @@ msgid "Places"
 msgstr "Lugares"
 
 msgid "Plain text"
-msgstr ""
+msgstr "Texto sin formato"
 
 msgid "Plugin ID"
 msgstr ""
@@ -1382,7 +1382,7 @@ msgid "Previous page"
 msgstr ""
 
 msgid "Primary color"
-msgstr ""
+msgstr "Color primario"
 
 msgid "Privacy"
 msgstr "Privacidad"
@@ -1424,7 +1424,7 @@ msgid "Project author"
 msgstr "Autore del proyecto"
 
 msgid "Project configuration"
-msgstr ""
+msgstr "Configuración del proyecto"
 
 msgid "Project locale"
 msgstr ""
@@ -1447,7 +1447,7 @@ msgid "Publisher"
 msgstr "Publicador"
 
 msgid "Python packages"
-msgstr ""
+msgstr "Paquetas de Python"
 
 msgid "Quitting..."
 msgstr "Cerrando..."
@@ -1490,7 +1490,7 @@ msgid "Region"
 msgstr "Región"
 
 msgid "Regional content"
-msgstr ""
+msgstr "Contenido regional"
 
 msgid "Regions"
 msgstr "Regiones"
@@ -1533,7 +1533,7 @@ msgid "Role"
 msgstr "Rol"
 
 msgid "Role configuration"
-msgstr ""
+msgstr "Configuración de rol"
 
 msgid "Roles"
 msgstr "Roles"
@@ -1553,7 +1553,7 @@ msgid "Search"
 msgstr "Buscar"
 
 msgid "Secondary color"
-msgstr ""
+msgstr "Color secundario"
 
 msgid "Section"
 msgstr ""
