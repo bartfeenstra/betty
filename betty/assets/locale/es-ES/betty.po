@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-04-24 14:22+0100\n"
-"PO-Revision-Date: 2026-07-05 03:21+0000\n"
+"PO-Revision-Date: 2026-07-05 20:10+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-4-"
 "x/es/>\n"
@@ -68,7 +68,7 @@ msgstr[1] ""
 
 #, python-format
 msgid "%(person_individual_name)s is the child of %(parent_labels)s."
-msgstr "%(person_individual_name)s une hije de %(parent_labels)s."
+msgstr "%(person_individual_name)s es le hije de %(parent_labels)s."
 
 msgid ""
 "A family history as told by <a "
