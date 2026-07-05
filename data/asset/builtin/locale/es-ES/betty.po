@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-06-24 11:57+0100\n"
-"PO-Revision-Date: 2026-07-04 21:30+0000\n"
+"PO-Revision-Date: 2026-07-05 03:21+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: es-ES\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-5-"
@@ -108,7 +108,7 @@ msgid "Adoptions"
 msgstr "Adopciones"
 
 msgid "Affiliation name"
-msgstr ""
+msgstr "Nombre de afiliación"
 
 msgid "After"
 msgstr "Despues de"
@@ -420,7 +420,7 @@ msgid "Color"
 msgstr ""
 
 msgid "Color style"
-msgstr ""
+msgstr "Estilo de color"
 
 msgid "Color style configuration"
 msgstr ""
@@ -453,7 +453,7 @@ msgid "Conferences"
 msgstr ""
 
 msgid "Configure Betty"
-msgstr ""
+msgstr "Configurar Betty"
 
 msgid "Confirmation"
 msgstr "Confirmación"
@@ -496,13 +496,13 @@ msgid "Copyright Wikipedia contributors"
 msgstr "Derechos de autor de los colaboradores de Wikipedia"
 
 msgid "Copyright notice"
-msgstr ""
+msgstr "Aviso de derechos de autor"
 
 msgid "Copyright notice configuration"
 msgstr ""
 
 msgid "Copyright notices"
-msgstr ""
+msgstr "Avisos de derechos de autor"
 
 msgid ""
 "Copyright of these works lies with the original authors who contributed "
@@ -707,7 +707,7 @@ msgid "Entity"
 msgstr "Entidad"
 
 msgid "Entity ID"
-msgstr ""
+msgstr "ID de entidad"
 
 msgid "Entity card"
 msgstr ""
@@ -725,13 +725,13 @@ msgid "Event"
 msgstr "Evento"
 
 msgid "Event type"
-msgstr ""
+msgstr "Tipo de evento"
 
 msgid "Event type configuration"
 msgstr ""
 
 msgid "Event types"
-msgstr ""
+msgstr "Tipos de eventos"
 
 msgid "Events"
 msgstr "Eventos"
@@ -771,13 +771,13 @@ msgid "Family"
 msgstr "Familia"
 
 msgid "Family tree"
-msgstr ""
+msgstr "Árbol genealógico"
 
 msgid "Family tree configuration must either have a \"file\" or a \"name\""
 msgstr ""
 
 msgid "Family trees"
-msgstr ""
+msgstr "Árboles genealógicos"
 
 msgid "Farm"
 msgstr "Granja"
@@ -1315,10 +1315,10 @@ msgid "Person"
 msgstr "Persona"
 
 msgid "Person name"
-msgstr ""
+msgstr "Nombre de la persona"
 
 msgid "Person names"
-msgstr ""
+msgstr "Nombres de personas"
 
 msgid "Person of unknown gender"
 msgstr ""
@@ -1418,7 +1418,7 @@ msgid ""
 msgstr ""
 
 msgid "Project author"
-msgstr ""
+msgstr "Autore del proyecto"
 
 msgid "Project configuration"
 msgstr ""
@@ -1438,7 +1438,7 @@ msgid "Provinces"
 msgstr "Provincias"
 
 msgid "Public domain"
-msgstr ""
+msgstr "Dominio público"
 
 msgid "Publisher"
 msgstr "Publicador"
@@ -1890,7 +1890,7 @@ msgid "Town"
 msgstr "Pueblo"
 
 msgid "Towns"
-msgstr ""
+msgstr "Pueblos"
 
 #, python-brace-format
 msgid "Translations for {locale} already exist at {po_file_path}."
@@ -1901,7 +1901,7 @@ msgid "Translations for {locale} initialized at {po_file_path}."
 msgstr ""
 
 msgid "Type"
-msgstr ""
+msgstr "Tipo"
 
 msgid "URL"
 msgstr "LRU"
@@ -2045,7 +2045,7 @@ msgid "Woman"
 msgstr "Mujer"
 
 msgid "Women"
-msgstr ""
+msgstr "Mujeres"
 
 msgid ""
 "Works in the public domain can be used or referenced without permission, "
@@ -2053,7 +2053,7 @@ msgid ""
 msgstr ""
 
 msgid "Year"
-msgstr ""
+msgstr "Año"
 
 #, python-brace-format
 msgid "Your project at {path}"
@@ -2140,7 +2140,7 @@ msgid ""
 msgstr ""
 
 msgid "private"
-msgstr ""
+msgstr "privade"
 
 msgid "sometime"
 msgstr "en algún día"
@@ -2775,7 +2775,7 @@ msgstr "{event_type} de {subjects}"
 
 #, python-brace-format
 msgid "{individual_name} {affiliation_name}"
-msgstr ""
+msgstr "{individual_name} {affiliation_name}"
 
 #, python-brace-format
 msgid "{most}, and {last}"
