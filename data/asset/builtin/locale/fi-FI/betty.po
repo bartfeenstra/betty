@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-05 20:43+0100\n"
 "PO-Revision-Date: 2026-07-05 19:57+0000\n"
-"Last-Translator: Kieli Puoli <kielipuoli@gmail.com>\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language: fi-FI\n"
 "Language-Team: Finnish <https://hosted.weblate.org/projects/betty/betty-0-5-"
 "x/fi/>\n"
@@ -65,7 +65,8 @@ msgstr ""
 msgid ""
 "A family history as told by <a "
 "href=\"https://betty.readthedocs.io\">Betty👵</a>"
-msgstr "Sukuhistorian kertoja: <a href=\"https://betty.readthedocs.io\">Betty👵</a>"
+msgstr ""
+"Sukuhistorian kertoja: <a href=\"https://betty.readthedocs.io\">Betty👵</a>"
 
 msgid "A formal witness to an event."
 msgstr ""
@@ -183,7 +184,8 @@ msgstr ""
 
 #, python-brace-format
 msgid "At least {expected} items are required, but found {actual}."
-msgstr "Vähintään {expected} kohdetta vaaditaan, mutta niitä löytyi vain {actual}."
+msgstr ""
+"Vähintään {expected} kohdetta vaaditaan, mutta niitä löytyi vain {actual}."
 
 #, python-brace-format
 msgid "At most {expected} items are allowed, but found {actual}."
