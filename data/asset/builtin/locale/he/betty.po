@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-06-24 11:57+0100\n"
+"POT-Creation-Date: 2026-07-05 20:43+0100\n"
 "PO-Revision-Date: 2026-02-17 18:12+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
 "Language: he\n"
@@ -529,6 +529,9 @@ msgid "Could not find the file \"{file_path}\"."
 msgstr ""
 
 msgid "Counties"
+msgstr ""
+
+msgid "Countries"
 msgstr ""
 
 msgid "Country"
@@ -2187,12 +2190,6 @@ msgid "y"
 msgstr ""
 
 #, python-brace-format
-msgid "{count} "
-msgid_plural "{count} "
-msgstr[0] ""
-msgstr[1] ""
-
-#, python-brace-format
 msgid "{count} CSS resource"
 msgid_plural "{count} CSS resources"
 msgstr[0] ""
@@ -2357,6 +2354,12 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} correspondence"
 msgid_plural "{count} correspondences"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} country"
+msgid_plural "{count} countries"
 msgstr[0] ""
 msgstr[1] ""
 

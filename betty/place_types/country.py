@@ -14,8 +14,8 @@ from betty.place_type import PlaceType, PlaceTypeDefinition
 @PlaceTypeDefinition(
     "country",
     label=_("Country"),
-    label_plural=_(""),
-    label_countable=ngettext("{count} ", "{count} "),
+    label_plural=_("Countries"),
+    label_countable=ngettext("{count} country", "{count} countries"),
 )
 class Country(PlaceType):
     """

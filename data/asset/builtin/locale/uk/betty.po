@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2026-06-24 11:57+0100\n"
+"POT-Creation-Date: 2026-07-05 20:43+0100\n"
 "PO-Revision-Date: 2026-02-17 18:12+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: uk\n"
@@ -559,6 +559,9 @@ msgid "Could not find the file \"{file_path}\"."
 msgstr "Не вдалося знайти файл \"{file_path}\"."
 
 msgid "Counties"
+msgstr ""
+
+msgid "Countries"
 msgstr ""
 
 msgid "Country"
@@ -2254,13 +2257,6 @@ msgid "y"
 msgstr "y року"
 
 #, python-brace-format
-msgid "{count} "
-msgid_plural "{count} "
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-
-#, python-brace-format
 msgid "{count} CSS resource"
 msgid_plural "{count} CSS resources"
 msgstr[0] ""
@@ -2452,6 +2448,13 @@ msgstr[2] ""
 #, python-brace-format
 msgid "{count} correspondence"
 msgid_plural "{count} correspondences"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
+msgid "{count} country"
+msgid_plural "{count} countries"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""

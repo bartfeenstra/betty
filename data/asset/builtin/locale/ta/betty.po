@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-06-24 11:57+0100\n"
+"POT-Creation-Date: 2026-07-05 20:43+0100\n"
 "PO-Revision-Date: 2026-06-23 09:58+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ta\n"
@@ -586,6 +586,9 @@ msgstr "\"{file_path}\" கோப்பைக் கண்டுபிடிக�
 
 msgid "Counties"
 msgstr "மாவட்டங்கள்"
+
+msgid "Countries"
+msgstr ""
 
 msgid "Country"
 msgstr "நாடு"
@@ -2348,12 +2351,6 @@ msgid "y"
 msgstr "ஒய்"
 
 #, python-brace-format
-msgid "{count} "
-msgid_plural "{count} "
-msgstr[0] "{count} "
-msgstr[1] "{count} "
-
-#, python-brace-format
 msgid "{count} CSS resource"
 msgid_plural "{count} CSS resources"
 msgstr[0] "{count} சிஎச்எச் சான்று"
@@ -2520,6 +2517,12 @@ msgid "{count} correspondence"
 msgid_plural "{count} correspondences"
 msgstr[0] "{count} கடிதப் பரிமாற்றம்"
 msgstr[1] "{count} கடிதங்கள்"
+
+#, python-brace-format
+msgid "{count} country"
+msgid_plural "{count} countries"
+msgstr[0] ""
+msgstr[1] ""
 
 #, python-brace-format
 msgid "{count} county"
