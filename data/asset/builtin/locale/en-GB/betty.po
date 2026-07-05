@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-05 20:43+0100\n"
 "PO-Revision-Date: 2026-07-05 19:57+0000\n"
-"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: en-GB\n"
 "Language-Team: English (United Kingdom) <https://hosted.weblate.org/projects/"
 "betty/betty-0-5-x/en_GB/>\n"
@@ -22,7 +22,7 @@ msgstr ""
 
 #, python-brace-format
 msgid "\"{color}\" is not a valid hexadecimal color, such as #ffc0cb."
-msgstr ""
+msgstr "\"{color}\" is not a valid hexadecimal colour, such as #ffc0cb."
 
 #, python-brace-format
 msgid "\"{invalid_locale}\" is not a valid IETF BCP 47 language tag."
@@ -73,7 +73,7 @@ msgid "A formal witness to an event."
 msgstr ""
 
 msgid "A hexadecimal color, such as #ff0000"
-msgstr ""
+msgstr "A hexadecimal colour, such as #ff0000"
 
 msgid "A localizable string"
 msgstr ""
@@ -436,13 +436,13 @@ msgid "Close"
 msgstr "Close"
 
 msgid "Color"
-msgstr ""
+msgstr "Colour"
 
 msgid "Color style"
-msgstr ""
+msgstr "Colour style"
 
 msgid "Color style configuration"
-msgstr ""
+msgstr "Colour style configuration"
 
 msgid "Column content"
 msgstr ""
@@ -1284,7 +1284,7 @@ msgid "Organizer"
 msgstr "Organiser"
 
 msgid "Organizers"
-msgstr ""
+msgstr "Organisers"
 
 msgid "Other attendees"
 msgstr "Other attendees"
@@ -1414,7 +1414,7 @@ msgid "Previous page"
 msgstr ""
 
 msgid "Primary color"
-msgstr ""
+msgstr "Primary colour"
 
 msgid "Privacy"
 msgstr ""
@@ -1592,7 +1592,7 @@ msgid "Search"
 msgstr "Search"
 
 msgid "Secondary color"
-msgstr ""
+msgstr "Secondary colour"
 
 msgid "Section"
 msgstr ""
@@ -1708,7 +1708,7 @@ msgid "System"
 msgstr ""
 
 msgid "Tertiary color"
-msgstr ""
+msgstr "Tertiary colour"
 
 msgid "Text"
 msgstr ""
@@ -2647,8 +2647,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} organizer"
 msgid_plural "{count} organizers"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} organiser"
+msgstr[1] "{count} organisers"
 
 #, python-brace-format
 msgid "{count} parish"
