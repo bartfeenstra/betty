@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-05 20:43+0100\n"
-"PO-Revision-Date: 2026-07-05 19:58+0000\n"
+"PO-Revision-Date: 2026-07-05 20:10+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl-NL\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/betty/betty-0-5-x/"
@@ -578,7 +578,7 @@ msgid "Counties"
 msgstr "Counties"
 
 msgid "Countries"
-msgstr ""
+msgstr "Landen"
 
 msgid "Country"
 msgstr "Land"
@@ -1991,7 +1991,7 @@ msgstr "Vertalingen voor {locale} bestaan al op {po_file_path}."
 
 #, python-brace-format
 msgid "Translations for {locale} initialized at {po_file_path}."
-msgstr ""
+msgstr "Vertalingen voor {locale} geïnitialiseerd op {po_file_path}."
 
 msgid "Type"
 msgstr "Type"
@@ -2406,8 +2406,8 @@ msgstr[1] "{count} begravenissen"
 #, python-brace-format
 msgid "{count} celebrant"
 msgid_plural "{count} celebrants"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} ambtenaar van de burgerlijke stand"
+msgstr[1] "{count} ambtenaren van de burgerlijke stand"
 
 #, python-brace-format
 msgid "{count} cemetery"
@@ -2466,14 +2466,14 @@ msgstr[1] "{count} correspondenties"
 #, python-brace-format
 msgid "{count} country"
 msgid_plural "{count} countries"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} land"
+msgstr[1] "{count} landen"
 
 #, python-brace-format
 msgid "{count} county"
 msgid_plural "{count} counties"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} graafschap"
+msgstr[1] "{count} graafschappen"
 
 #, python-brace-format
 msgid "{count} cremation"
@@ -2532,8 +2532,8 @@ msgstr[1] "{count} verlovingen"
 #, python-brace-format
 msgid "{count} enricher"
 msgid_plural "{count} enrichers"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} verrijker"
+msgstr[1] "{count} verrijkers"
 
 #, python-brace-format
 msgid "{count} entity"
@@ -2646,8 +2646,8 @@ msgstr[1] "{count} huwelijken"
 #, python-brace-format
 msgid "{count} media type"
 msgid_plural "{count} media types"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} mediatype"
+msgstr[1] "{count} mediatypes"
 
 #, python-brace-format
 msgid "{count} missing"
