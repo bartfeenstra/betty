@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-04-24 14:22+0100\n"
-"PO-Revision-Date: 2026-07-06 14:07+0000\n"
+"PO-Revision-Date: 2026-07-06 16:26+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-4-"
 "x/es/>\n"
@@ -252,10 +252,10 @@ msgid "Celebrant"
 msgstr "Celebrante"
 
 msgid "Citation"
-msgstr ""
+msgstr "Referencia bibliográfica"
 
 msgid "Citations"
-msgstr ""
+msgstr "Referencias bibliográficas"
 
 msgid "City"
 msgstr "Ciudad"
@@ -369,7 +369,7 @@ msgid "Deriver"
 msgstr ""
 
 msgid "Deriving..."
-msgstr ""
+msgstr "Derivando..."
 
 msgid "Descendant names include"
 msgstr ""
@@ -564,7 +564,7 @@ msgid "Immigration"
 msgstr "Inmigración"
 
 msgid "Informant"
-msgstr ""
+msgstr "Informante"
 
 #, python-brace-format
 msgid "Invalid JSON: {error}."
@@ -781,10 +781,10 @@ msgid ""
 msgstr ""
 
 msgid "Privatizer"
-msgstr ""
+msgstr "Privatizador"
 
 msgid "Privatizing..."
-msgstr ""
+msgstr "Privatizando..."
 
 msgid "Project author"
 msgstr "Autore del proyecto"
@@ -1181,7 +1181,7 @@ msgid ""
 msgstr ""
 
 msgid "npm is available"
-msgstr ""
+msgstr "npm está disponible"
 
 msgid "npm is not available"
 msgstr ""
@@ -1257,8 +1257,8 @@ msgstr "y"
 #, python-brace-format
 msgid "{count} citation"
 msgid_plural "{count} citations"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} referencia bibliográfica"
+msgstr[1] "{count} referencias bibliográficas"
 
 #, python-brace-format
 msgid "{count} enclosure"
@@ -1332,7 +1332,7 @@ msgstr "{date}"
 
 #, python-brace-format
 msgid "{dependent_label} requires {dependency_labels}."
-msgstr ""
+msgstr "{dependent_label} requiere {dependency_labels}."
 
 #, python-brace-format
 msgid "{entity_type} {entity_id}"
