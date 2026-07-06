@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-05 20:43+0100\n"
-"PO-Revision-Date: 2026-07-06 02:47+0000\n"
+"PO-Revision-Date: 2026-07-06 11:35+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: es-ES\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-5-"
@@ -298,7 +298,7 @@ msgid "Birth"
 msgstr "Nacimiento"
 
 msgid "Births"
-msgstr ""
+msgstr "Nacimientos"
 
 msgid "Borough"
 msgstr ""
@@ -316,7 +316,7 @@ msgid "Breadcrumbs"
 msgstr "Migas de pan"
 
 msgid "Breakpoint"
-msgstr ""
+msgstr "Punto de ruptura"
 
 msgid "Breakpoints"
 msgstr ""
@@ -426,25 +426,25 @@ msgid "Color style configuration"
 msgstr ""
 
 msgid "Column content"
-msgstr ""
+msgstr "Contenido de columna"
 
 msgid "Column width"
-msgstr ""
+msgstr "Ancho de columna"
 
 msgid "Column widths"
-msgstr ""
+msgstr "Anchos de columna"
 
 msgid "Columns"
 msgstr "Columnas"
 
 msgid "Columns configuration"
-msgstr ""
+msgstr "Configuración de columnas"
 
 msgid "Command"
-msgstr ""
+msgstr "Orden"
 
 msgid "Commands"
-msgstr ""
+msgstr "Órdenes"
 
 msgid "Conference"
 msgstr "Conferencia"
@@ -596,7 +596,7 @@ msgid "Departments"
 msgstr ""
 
 msgid "Description"
-msgstr ""
+msgstr "Descripción"
 
 msgid "Description, licensing, and image history"
 msgstr "Descripción, licencia, e historial de la imagen"
@@ -660,7 +660,7 @@ msgid "Emigration"
 msgstr "Emigración"
 
 msgid "Emigrations"
-msgstr ""
+msgstr "Emigraciones"
 
 msgid "Enclosee"
 msgstr ""
@@ -756,7 +756,7 @@ msgid "Explore a family history..."
 msgstr ""
 
 msgid "Extension"
-msgstr ""
+msgstr "Extensión"
 
 msgid "Extensions"
 msgstr ""
@@ -825,13 +825,13 @@ msgid "Fuzzy"
 msgstr "Impreciso"
 
 msgid "Gemeente Amsterdam"
-msgstr ""
+msgstr "Gemeente Amsterdam"
 
 msgid "Gender"
 msgstr "Género"
 
 msgid "Gender configuration"
-msgstr ""
+msgstr "Configuración de género"
 
 msgid "Genders"
 msgstr "Géneros"
@@ -923,13 +923,13 @@ msgid "Immigration"
 msgstr "Inmigración"
 
 msgid "Immigrations"
-msgstr ""
+msgstr "Inmigraciones"
 
 msgid "Include"
 msgstr "Incluir"
 
 msgid "Individual name"
-msgstr ""
+msgstr "Nombre individual"
 
 msgid "Informant"
 msgstr ""
@@ -939,11 +939,11 @@ msgstr ""
 
 #, python-brace-format
 msgid "Invalid JSON: {error}."
-msgstr ""
+msgstr "JSON no válido: {error}."
 
 #, python-brace-format
 msgid "Invalid YAML: {error}."
-msgstr ""
+msgstr "YAML no válido: {error}."
 
 #, python-brace-format
 msgid "Invalid argument {argument}: {error}"
@@ -951,7 +951,7 @@ msgstr ""
 
 #, python-brace-format
 msgid "Invalid option {value}."
-msgstr ""
+msgstr "Opción no válido: {value}."
 
 #, python-brace-format
 msgid "Invalid plural tag(s) {plural_tags} for {locale} translations."
@@ -971,19 +971,19 @@ msgid "JavaScript resources"
 msgstr ""
 
 msgid "Jinja filter"
-msgstr ""
+msgstr "Filtro de Jinja"
 
 msgid "Jinja filters"
-msgstr ""
+msgstr "Filtros de Jinja"
 
 msgid "Jinja template"
-msgstr ""
+msgstr "Plantilla de Jinja"
 
 msgid "Jinja test"
-msgstr ""
+msgstr "Prueba de Jinja"
 
 msgid "Jinja tests"
-msgstr ""
+msgstr "Pruebas de Jinja"
 
 msgid "Justify content"
 msgstr ""
@@ -995,7 +995,7 @@ msgid "Label"
 msgstr "Etiqueta"
 
 msgid "Label (countable)"
-msgstr ""
+msgstr "Etiqueta (contable)"
 
 msgid "Label (plural)"
 msgstr ""
@@ -1133,7 +1133,7 @@ msgid "Marriages"
 msgstr "Matrimonios"
 
 msgid "Maximum height"
-msgstr ""
+msgstr "Altura máxima"
 
 msgid "Maximum width"
 msgstr ""
@@ -1145,10 +1145,10 @@ msgid "Media gallery"
 msgstr ""
 
 msgid "Media type"
-msgstr ""
+msgstr "Tipo de medio"
 
 msgid "Media types"
-msgstr ""
+msgstr "Tipos de medio"
 
 msgid "Men"
 msgstr "Hombres"
@@ -1160,7 +1160,7 @@ msgid "Minimum height"
 msgstr "Altura mínima"
 
 msgid "Minimum width"
-msgstr ""
+msgstr "Ancho mínimo"
 
 msgid "Missing"
 msgstr "Desaparecide"
@@ -1207,7 +1207,7 @@ msgid "Netherlands"
 msgstr "Países Bajos"
 
 msgid "Next page"
-msgstr ""
+msgstr "Página siguiente"
 
 msgid ""
 "No part may be reproduced or distributed in any form or by any means, "
@@ -1453,7 +1453,7 @@ msgid "Quitting..."
 msgstr "Cerrando..."
 
 msgid "Raspberry Mint configuration"
-msgstr ""
+msgstr "Configuración de Raspberry Mint"
 
 msgid ""
 "Rate limits ensure that Betty's HTTP client does not make more requests "
@@ -1475,7 +1475,7 @@ msgid "Read the Betty documentation"
 msgstr "Lea la documentación de Betty"
 
 msgid "Read the documentation"
-msgstr ""
+msgstr "Leer la documentación"
 
 msgid "Referee"
 msgstr ""
@@ -1663,16 +1663,16 @@ msgid ""
 msgstr ""
 
 msgid "Summary"
-msgstr ""
+msgstr "Resumen"
 
 msgid "System"
-msgstr ""
+msgstr "Sistema"
 
 msgid "Tertiary color"
 msgstr ""
 
 msgid "Text"
-msgstr ""
+msgstr "Texto"
 
 #, python-format
 msgid ""
@@ -1682,7 +1682,7 @@ msgstr ""
 
 #, python-format
 msgid "The '%(project_title)s' logo"
-msgstr ""
+msgstr "Logo de '%(project_title)s'"
 
 msgid "The 'birth of the author', so to speak."
 msgstr ""
@@ -1964,7 +1964,7 @@ msgid "View the code"
 msgstr ""
 
 msgid "View the documentation"
-msgstr ""
+msgstr "Ver la documentación"
 
 msgid "Village"
 msgstr "Pueblo"
@@ -2030,7 +2030,7 @@ msgid "Wikipedia says..."
 msgstr ""
 
 msgid "Wikipedia summary"
-msgstr ""
+msgstr "Resumen de Wikipedia"
 
 msgid "Will"
 msgstr "Testamento"
@@ -2070,11 +2070,11 @@ msgstr ""
 
 #, python-brace-format
 msgid "around {date}"
-msgstr ""
+msgstr "alrededor {date}"
 
 #, python-brace-format
 msgid "from around {start_date}"
-msgstr ""
+msgstr "desde alrededor {start_date}"
 
 #, python-brace-format
 msgid "from around {start_date} until around {end_date}"
@@ -2110,7 +2110,7 @@ msgstr ""
 
 #, python-brace-format
 msgid "from {start_date}"
-msgstr ""
+msgstr "desde {start_date}"
 
 #, python-brace-format
 msgid "from {start_date} until around {end_date}"
@@ -2781,7 +2781,7 @@ msgstr "{individual_name} {affiliation_name}"
 
 #, python-brace-format
 msgid "{most}, and {last}"
-msgstr ""
+msgstr "{most}, y {last}"
 
 #, python-brace-format
 msgid "{most}, or {last}"
