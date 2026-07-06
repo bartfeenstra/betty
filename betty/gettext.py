@@ -106,8 +106,10 @@ async def _update_translations(output: StrPath, inputs: Iterable[StrPath]) -> No
     await run_babel(
         "",
         "extract",
-        "--no-location",
         "--no-wrap",
+        "--width",
+        "77",
+        "--no-location",
         "--sort-output",
         "-F",
         "babel.ini",
@@ -124,6 +126,9 @@ async def _update_translations(output: StrPath, inputs: Iterable[StrPath]) -> No
         await run_babel(
             "",
             "update",
+            "--no-wrap",
+            "--width",
+            "77",
             "--domain",
             "betty",
             "--input-file",
