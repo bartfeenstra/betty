@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-06 22:11+0100\n"
+"POT-Creation-Date: 2026-07-06 22:14+0100\n"
 "PO-Revision-Date: 2026-07-06 21:01+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -207,6 +207,9 @@ msgstr "Bar mitswa's"
 
 msgid "Bart Feenstra and contributors"
 msgstr "Bart Feenstra en samenwerkers"
+
+msgid "Bart's parent"
+msgstr ""
 
 msgid "Bat mitzvah"
 msgstr "Bat mitswa"

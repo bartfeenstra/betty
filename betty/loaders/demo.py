@@ -40,8 +40,7 @@ class Demo(Manufacturable, Loader):
         licenses = self._project.plugins[LicenseDefinition]
         await scheduler.add(
             LoadDemoAncestry(
-                ancestry=self._project.ancestry,
-                factory=self._project.factory,
+                project=self._project,
                 streetmix_copyright_notice=await self._project.factory.new(Streetmix),
                 streetmix_license=await self._project.factory.new(
                     (
