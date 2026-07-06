@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-05 20:43+0100\n"
-"PO-Revision-Date: 2026-07-06 14:07+0000\n"
+"PO-Revision-Date: 2026-07-06 16:26+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: es-ES\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-5-"
@@ -328,7 +328,7 @@ msgid "Buildings"
 msgstr "Edificios"
 
 msgid "Built-in"
-msgstr ""
+msgstr "Incorporado"
 
 msgid "Burial"
 msgstr "Entierro"
@@ -384,7 +384,7 @@ msgid "Celebrant"
 msgstr "Celebrante"
 
 msgid "Celebrants"
-msgstr ""
+msgstr "Celebrantes"
 
 msgid "Cemeteries"
 msgstr "Cementerios"
@@ -396,10 +396,10 @@ msgid "Children"
 msgstr "Hijes"
 
 msgid "Citation"
-msgstr ""
+msgstr "Referencia bibliográfica"
 
 msgid "Citations"
-msgstr ""
+msgstr "Referencias bibliográficas"
 
 msgid "Cities"
 msgstr "Ciudades"
@@ -465,7 +465,7 @@ msgid "Contained by"
 msgstr ""
 
 msgid "Contains"
-msgstr ""
+msgstr "Contiene"
 
 msgid "Content"
 msgstr "Contenido"
@@ -513,7 +513,7 @@ msgid "Correspondence"
 msgstr "Correspondencia"
 
 msgid "Correspondences"
-msgstr ""
+msgstr "Correspondencias"
 
 #, python-brace-format
 msgid "Could not extract {file_path} as a gzip file  (*.gz)."
@@ -747,7 +747,7 @@ msgid "Exclude"
 msgstr "Excluir"
 
 msgid "Executable"
-msgstr ""
+msgstr "Ejecutable"
 
 msgid "Explore a demonstration site"
 msgstr ""
@@ -859,7 +859,7 @@ msgid "Gramps configuration"
 msgstr "Configuración de Gramps"
 
 msgid "Gramps event type"
-msgstr ""
+msgstr "Tipo de evento de Gramps"
 
 #, python-brace-format
 msgid ""
@@ -868,7 +868,7 @@ msgid ""
 msgstr ""
 
 msgid "Gramps place type"
-msgstr ""
+msgstr "Tipo de lugar de Gramps"
 
 msgid "Gramps role"
 msgstr "Rol de Gramps"
@@ -932,10 +932,10 @@ msgid "Individual name"
 msgstr "Nombre individual"
 
 msgid "Informant"
-msgstr ""
+msgstr "Informante"
 
 msgid "Informants"
-msgstr ""
+msgstr "Informantes"
 
 #, python-brace-format
 msgid "Invalid JSON: {error}."
@@ -1333,7 +1333,7 @@ msgid "Place"
 msgstr "Lugar"
 
 msgid "Place name"
-msgstr ""
+msgstr "Nombre de lugar"
 
 msgid "Place names"
 msgstr "Nombres de lugar"
@@ -1342,7 +1342,7 @@ msgid "Place type"
 msgstr "Tipo de lugar"
 
 msgid "Place type configuration"
-msgstr ""
+msgstr "Configuración de tipo de lugar"
 
 msgid "Place types"
 msgstr "Tipos de lugar"
@@ -1502,7 +1502,7 @@ msgid "Rendered content"
 msgstr "Contenido renderizado"
 
 msgid "Rendered content configuration"
-msgstr ""
+msgstr "Configuración de contenido renderizado"
 
 msgid "Renderer"
 msgstr "Renderizador"
@@ -1669,7 +1669,7 @@ msgid "System"
 msgstr "Sistema"
 
 msgid "Tertiary color"
-msgstr ""
+msgstr "Color terciario"
 
 msgid "Text"
 msgstr "Texto"
@@ -1907,7 +1907,7 @@ msgid "Type"
 msgstr "Tipo"
 
 msgid "URL"
-msgstr "LRU"
+msgstr "URL"
 
 msgid "Unauthorized"
 msgstr "No autorizado"
@@ -1958,10 +1958,10 @@ msgid "View Betty's interactive documentation. This will open your web browser."
 msgstr ""
 
 msgid "View original size"
-msgstr ""
+msgstr "Ver tamaño original"
 
 msgid "View the code"
-msgstr ""
+msgstr "Ver el código"
 
 msgid "View the documentation"
 msgstr "Ver la documentación"
@@ -2318,8 +2318,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} citation"
 msgid_plural "{count} citations"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} referencia bibliográfica"
+msgstr[1] "{count} referencias bibliográficas"
 
 #, python-brace-format
 msgid "{count} city"
