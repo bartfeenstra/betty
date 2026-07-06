@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-04-24 14:22+0100\n"
-"PO-Revision-Date: 2026-07-06 02:47+0000\n"
+"PO-Revision-Date: 2026-07-06 11:35+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-4-"
 "x/es/>\n"
@@ -568,11 +568,11 @@ msgstr ""
 
 #, python-brace-format
 msgid "Invalid JSON: {error}."
-msgstr ""
+msgstr "JSON no válido: {error}."
 
 #, python-brace-format
 msgid "Invalid YAML: {error}."
-msgstr ""
+msgstr "YAML no válido: {error}."
 
 msgid "Keywords"
 msgstr "Palabras clave"
@@ -863,7 +863,7 @@ msgstr "Sujetes"
 
 #, python-format
 msgid "The '%(project_title)s' logo"
-msgstr ""
+msgstr "Logo de '%(project_title)s'"
 
 #, python-brace-format
 msgid ""
@@ -1038,7 +1038,7 @@ msgid "View original"
 msgstr "Ver original"
 
 msgid "View the documentation"
-msgstr ""
+msgstr "Ver la documentación"
 
 msgid "Village"
 msgstr "Pueblo"
@@ -1108,11 +1108,11 @@ msgstr ""
 
 #, python-brace-format
 msgid "around {date}"
-msgstr ""
+msgstr "alrededor {date}"
 
 #, python-brace-format
 msgid "from around {start_date}"
-msgstr ""
+msgstr "desde alrededor {start_date}"
 
 #, python-brace-format
 msgid "from around {start_date} until around {end_date}"
@@ -1148,7 +1148,7 @@ msgstr ""
 
 #, python-brace-format
 msgid "from {start_date}"
-msgstr ""
+msgstr "desde {start_date}"
 
 #, python-brace-format
 msgid "from {start_date} until around {end_date}"
