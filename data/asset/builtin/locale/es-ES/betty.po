@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-05 20:43+0100\n"
-"PO-Revision-Date: 2026-07-05 20:10+0000\n"
+"PO-Revision-Date: 2026-07-06 02:47+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: es-ES\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-5-"
@@ -114,7 +114,7 @@ msgid "After"
 msgstr "Despues de"
 
 msgid "Alias"
-msgstr ""
+msgstr "Alias"
 
 msgid "All caches cleared."
 msgstr "Todas las cachés vaciadas."
@@ -198,10 +198,10 @@ msgid "Attendee"
 msgstr "Asistente"
 
 msgid "Attendees"
-msgstr ""
+msgstr "Asistentes"
 
 msgid "Author"
-msgstr ""
+msgstr "Autore"
 
 msgid "Baptism"
 msgstr "Bautismo"
@@ -417,7 +417,7 @@ msgid "Close"
 msgstr "Cerrar"
 
 msgid "Color"
-msgstr ""
+msgstr "Color"
 
 msgid "Color style"
 msgstr "Estilo de color"
@@ -890,7 +890,7 @@ msgid "Hamlets"
 msgstr ""
 
 msgid "Heading"
-msgstr ""
+msgstr "Título"
 
 msgid "Height"
 msgstr "Altura"
@@ -926,7 +926,7 @@ msgid "Immigrations"
 msgstr ""
 
 msgid "Include"
-msgstr ""
+msgstr "Incluir"
 
 msgid "Individual name"
 msgstr ""
@@ -1068,10 +1068,10 @@ msgid "Loaded {source_count} sources."
 msgstr ""
 
 msgid "Loader"
-msgstr ""
+msgstr "Cargador"
 
 msgid "Loaders"
-msgstr ""
+msgstr "Cargadores"
 
 #, python-brace-format
 msgid "Loading \"{file_path}\"..."
@@ -1177,7 +1177,7 @@ msgid "Missings"
 msgstr ""
 
 msgid "Month"
-msgstr ""
+msgstr "Mes"
 
 msgid "More plugins may be available when running this command with --project."
 msgstr ""
@@ -1186,22 +1186,22 @@ msgid "Multiple files in a media gallery display"
 msgstr ""
 
 msgid "Municipalities"
-msgstr ""
+msgstr "Municipios"
 
 msgid "Municipality"
 msgstr "Municipio"
 
 msgid "Name"
-msgstr ""
+msgstr "Nombre"
 
 msgid "Names"
-msgstr ""
+msgstr "Nombres"
 
 msgid "Neighborhood"
 msgstr "Barrio"
 
 msgid "Neighborhoods"
-msgstr ""
+msgstr "Barrios"
 
 msgid "Netherlands"
 msgstr "Países Bajos"
@@ -1234,7 +1234,7 @@ msgid "Number"
 msgstr "Número"
 
 msgid "Numbers"
-msgstr ""
+msgstr "Números"
 
 msgid "Occupation"
 msgstr "Ocupación"
@@ -1884,7 +1884,7 @@ msgid "Timeline"
 msgstr "Linea de tiempo"
 
 msgid "Title"
-msgstr ""
+msgstr "Título"
 
 msgid "Toggle full screen"
 msgstr ""
@@ -1910,7 +1910,7 @@ msgid "URL"
 msgstr "LRU"
 
 msgid "Unauthorized"
-msgstr ""
+msgstr "No autorizado"
 
 msgid "Unknown"
 msgstr "Desconocide"
@@ -1949,7 +1949,7 @@ msgid ""
 msgstr ""
 
 msgid "Usage: "
-msgstr ""
+msgstr "Uso: "
 
 msgid "Version"
 msgstr "Versión"
@@ -2036,7 +2036,7 @@ msgid "Will"
 msgstr "Testamento"
 
 msgid "Wills"
-msgstr ""
+msgstr "Testamentos"
 
 msgid "Witness"
 msgstr "Testigue"
