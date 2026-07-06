@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-06 22:11+0100\n"
+"POT-Creation-Date: 2026-07-06 22:14+0100\n"
 "PO-Revision-Date: 2026-07-06 21:02+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language: ta\n"
@@ -207,6 +207,9 @@ msgstr "பார் மிட்ச்வாக்கள்"
 
 msgid "Bart Feenstra and contributors"
 msgstr "பார்ட் ஃபீன்ச்ட்ரா மற்றும் பங்களிப்பாளர்கள்"
+
+msgid "Bart's parent"
+msgstr ""
 
 msgid "Bat mitzvah"
 msgstr "பேட் மிட்ச்வா"
