@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-06 22:14+0100\n"
-"PO-Revision-Date: 2026-07-06 22:19+0000\n"
+"PO-Revision-Date: 2026-07-07 01:16+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de-DE\n"
 "Language-Team: German <https://hosted.weblate.org/projects/betty/betty-0-5-x/de/>\n"
@@ -92,7 +92,7 @@ msgid "Access denied"
 msgstr "Zugriff verweigert"
 
 msgid "Accessed"
-msgstr ""
+msgstr "Zugriff"
 
 msgid "Adoption"
 msgstr "Adoption"
@@ -258,7 +258,7 @@ msgid "Betty is unfamiliar with person \"{person_id}\"'s Gramps role of \"{gramp
 msgstr ""
 
 msgid "Betty was named after <a href=\"betty-entity://person/betty-demo-liberta-lankester\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
-msgstr ""
+msgstr "Betty wurde nach <a href=\"betty-entity://person/betty-demo-liberta-lankester\">Liberta „Betty“ Lankester</a> benannt, und diese Website zeigt einen kleinen Ausschnitt ihrer Familiengeschichte. Sie können die Seiten über sie und einige ihrer Familienmitglieder durchstöbern, um einen Eindruck davon zu bekommen, wie eine Betty-Website aussieht."
 
 #, python-brace-format
 msgid "Betty will talk to you in {locale}"
@@ -444,7 +444,7 @@ msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
 msgstr "Auf <a href=\"%(url)s\">Wikipedia</a> weiterlesen."
 
 msgid "Coordinates"
-msgstr ""
+msgstr "Koordinaten"
 
 msgid "Copyright"
 msgstr "Urheberrecht"
@@ -558,10 +558,10 @@ msgid "Determine if people can be proven to have died. If not, mark them and the
 msgstr "Stellen Sie fest, ob der Tod von Personen nachgewiesen werden kann. Wenn nicht, markieren Sie sie und die zugehörigen Entitäten als privat."
 
 msgid "Did you know that Liberta \"Betty\" Lankester is Betty's namesake?"
-msgstr ""
+msgstr "Wusstest du, dass Liberta „Betty“ Lankester die Namensgeberin von Betty ist?"
 
 msgid "Did you know that while Amsterdam is the country's official capital, The Hague is the Netherlands' administrative center and seat of government?"
-msgstr ""
+msgstr "Wusstest du, dass Amsterdam zwar die offizielle Hauptstadt des Landes ist, Den Haag aber das Verwaltungszentrum und der Regierungssitz der Niederlande ist?"
 
 msgid "Display interactive family trees using Cytoscape."
 msgstr ""
@@ -841,7 +841,7 @@ msgid "Help improve the translations"
 msgstr "Hilf mit, die Übersetzungen zu verbessern"
 
 msgid "Home"
-msgstr ""
+msgstr "Start"
 
 msgid "I'm sorry, dear, but it seems there is nothing to show."
 msgstr ""
