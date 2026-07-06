@@ -7,17 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-06 21:52+0100\n"
+"POT-Creation-Date: 2026-07-06 22:11+0100\n"
 "PO-Revision-Date: 2026-07-06 21:01+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
-"Language: nl-NL\n"
+"Language: nl_NL\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/betty/betty-0-5-x/nl/>\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
-"X-Generator: Weblate 2026.7.1.dev0\n"
 
 #, python-brace-format
 msgid "\"{color}\" is not a valid hexadecimal color, such as #ffc0cb."
@@ -61,9 +60,7 @@ msgstr "Een Betty-demonstratie"
 msgid "A countable localizable string"
 msgstr "Een telbare lokaliseerbare tekenreeks"
 
-msgid ""
-"A family history as told by <a "
-"href=\"https://betty.readthedocs.io\">Betty👵</a>"
+msgid "A family history as told by <a href=\"https://betty.readthedocs.io\">Betty👵</a>"
 msgstr "Een familieverhaal verteld door <a href=\"https://betty.readthedocs.io\">Betty👵</a>"
 
 msgid "A formal witness to an event."
@@ -75,9 +72,7 @@ msgstr "Een hexadecimale kleur, zoals #ff0000"
 msgid "A localizable string"
 msgstr "Een lokaliseerbare tekenreeks"
 
-msgid ""
-"A machine name is an identifier of at most 250 characters long, made up "
-"of lowercase letters, numbers, and/or non-consecutive hyphens (-)."
+msgid "A machine name is an identifier of at most 250 characters long, made up of lowercase letters, numbers, and/or non-consecutive hyphens (-)."
 msgstr "Een machinenaam is een identificator van maximaal 250 tekens, bestaande uit kleine letters, cijfers, en niet-opeenvolgense koppeltekens (-)."
 
 msgid "A person's presence at an event."
@@ -139,9 +134,7 @@ msgid "An IETF BCP 47 language tag, such as \"nl-NL\"."
 msgstr "Een IETF BCP 47 taal-tag, zoals \"nl-NL\"."
 
 #, python-brace-format
-msgid ""
-"An unexpected error occurred. If you believe this is a problem with "
-"Betty, please report this at {url}."
+msgid "An unexpected error occurred. If you believe this is a problem with Betty, please report this at {url}."
 msgstr "Er is een onverwachte fout opgetreden. Als dit volgens jou een bug in Betty is, laat het ons alsjeblieft weten op {url}."
 
 msgid "An unexpected error occurred:"
@@ -233,58 +226,34 @@ msgstr "Begunstigde"
 msgid "Betty could not load the SPDX licenses"
 msgstr "Betty kon de SPDX-licenties niet laden"
 
-msgid ""
-"Betty is an application that takes a family tree and builds a website out"
-" of it, much like the one you are viewing right now. The more information"
-" your genealogical research contains, the more interactivity Betty can "
-"add to your site, such as media galleries, maps, and browsable family "
-"trees."
+msgid "Betty is an application that takes a family tree and builds a website out of it, much like the one you are viewing right now. The more information your genealogical research contains, the more interactivity Betty can add to your site, such as media galleries, maps, and browsable family trees."
 msgstr "Betty is een programma dat van een stamboom een website bouwt zoals de site die je nu aan het bezoeken bent. Des te meer informatie je genealogisch onderzoek bevat, des te meer interactiviteit Betty aan je site toe kan voegen, zoals mediagalerijen, kaarten, en visuele stambomen."
 
 #, python-brace-format
-msgid ""
-"Betty is unfamiliar with Gramps event \"{event_id}\"'s type of "
-"\"{gramps_event_type}\". The event was imported, but its type was set to "
-"\"{betty_event_type}\"."
+msgid "Betty is unfamiliar with Gramps event \"{event_id}\"'s type of \"{gramps_event_type}\". The event was imported, but its type was set to \"{betty_event_type}\"."
 msgstr "Betty kent het Gramps-gebeurtenistype \"{gramps_event_type}\" van gebeurtenis \"{event_id}\" niet. De gebeurtenis is geladen, maar hun type is nu \"{betty_event_type}\"."
 
 #, python-brace-format
-msgid ""
-"Betty is unfamiliar with Gramps file \"{file_id}\"'s copyright notice ID "
-"of \"{copyright_notice_id}\" and ignored it."
+msgid "Betty is unfamiliar with Gramps file \"{file_id}\"'s copyright notice ID of \"{copyright_notice_id}\" and ignored it."
 msgstr "Betty kent copyrightvermelding-ID \"{copyright_notice_id}\" van Gramps-bestand \"{file_id}\" niet en heeft het genegeerd."
 
 #, python-brace-format
-msgid ""
-"Betty is unfamiliar with Gramps file \"{file_id}\"'s license ID of "
-"\"{license_id}\" and ignored it."
+msgid "Betty is unfamiliar with Gramps file \"{file_id}\"'s license ID of \"{license_id}\" and ignored it."
 msgstr "Betty kent licentie-ID \"{license_id}\" van Gramps-bestand \"{file_id}\" niet en heeft het genegeerd."
 
 #, python-brace-format
-msgid ""
-"Betty is unfamiliar with Gramps person \"{person_id}\"'s gender ID of "
-"\"{gender_id}\" and ignored it."
+msgid "Betty is unfamiliar with Gramps person \"{person_id}\"'s gender ID of \"{gender_id}\" and ignored it."
 msgstr "Betty is niet bekend met het gender \"{gender_id}\" van Gramps-persoon \"{person_id}\" en heeft het genegeerd."
 
 #, python-brace-format
-msgid ""
-"Betty is unfamiliar with Gramps place \"{place_id}\"'s type of "
-"\"{gramps_place_type}\". The place was imported, but its type was set to "
-"\"{betty_place_type}\"."
+msgid "Betty is unfamiliar with Gramps place \"{place_id}\"'s type of \"{gramps_place_type}\". The place was imported, but its type was set to \"{betty_place_type}\"."
 msgstr "Betty kent het Gramps-plaatstype \"{gramps_place_type}\" van plaats \"{place_id}\" niet. De plaats is geladen, maar hun type is nu \"{betty_place_type}\"."
 
 #, python-brace-format
-msgid ""
-"Betty is unfamiliar with person \"{person_id}\"'s Gramps role of "
-"\"{gramps_role}\" for the event with Gramps handle \"{event_handle}\". "
-"The role was imported, but set to \"{betty_role}\"."
+msgid "Betty is unfamiliar with person \"{person_id}\"'s Gramps role of \"{gramps_role}\" for the event with Gramps handle \"{event_handle}\". The role was imported, but set to \"{betty_role}\"."
 msgstr ""
 
-msgid ""
-"Betty was named after <a href=\"betty-entity://person/betty-demo-liberta-"
-"lankester\">Liberta 'Betty' Lankester</a>, and this website shows a small"
-" sample of her family history. You can browse the pages about her and "
-"some of her family to get an idea of what a Betty site looks like."
+msgid "Betty was named after <a href=\"betty-entity://person/betty-demo-liberta-lankester\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
 msgstr "Betty is vernoemd naar <a href=\"betty-entity://person/betty-demo-liberta-lankester\">Liberta 'Betty' Lankester</a>, en deze website laat een kleine greep uit haar familiegeschiedenis zien. Blader door de pagina's over haar en haar familie om een idee te krijgen hoe een Betty-site eruit ziet."
 
 #, python-brace-format
@@ -340,9 +309,7 @@ msgid "CSS resources"
 msgstr ""
 
 #, python-brace-format
-msgid ""
-"Cannot add more than one manufacturer for the {plugin} {plugin_type} "
-"plugin to the {service} service."
+msgid "Cannot add more than one manufacturer for the {plugin} {plugin_type} plugin to the {service} service."
 msgstr "Kan niet meer dan één fabrikant voor {plugin_type} {plugin} toevoegen aan de {service}-service."
 
 msgid "Cannot find an available port to bind the web server to."
@@ -357,10 +324,7 @@ msgid "Cannot find the \"{plugin_type}\" plugin type."
 msgstr "Kan het plugintype \"{plugin_type}\" niet vinden."
 
 #, python-brace-format
-msgid ""
-"Cannot load Gramps file {file_id} with relative path {file_path}, because"
-" your family tree does not include a base path. In Gramps, add a \"base "
-"path for relative media paths\" to your family tree, and export it again."
+msgid "Cannot load Gramps file {file_id} with relative path {file_path}, because your family tree does not include a base path. In Gramps, add a \"base path for relative media paths\" to your family tree, and export it again."
 msgstr "Kan Grampsbestand {file_id} met relatief pad {file_path} niet laden, omdat je stamboom geen basispad heeft. In gramps, stel een \"Basispad voor relatieve mediapaden\" in voor je stamboom, en exporteer deze opnieuw."
 
 #, python-brace-format
@@ -368,9 +332,7 @@ msgid "Cannot load Gramps file {file_id}, because {file_path} is not a file."
 msgstr "Kan Grampsbestand {file_id} niet laden, omdat {file_path} geen bestand is."
 
 #, python-brace-format
-msgid ""
-"Cannot load coordinates \"{coordinates}\", because they are in an unknown"
-" format."
+msgid "Cannot load coordinates \"{coordinates}\", because they are in an unknown format."
 msgstr "Can de coördinaten \"{coordinates}\" niet laden, omdat ze in een onbekend formaat geschreven zijn."
 
 #, python-brace-format
@@ -499,9 +461,7 @@ msgstr "Copyrightberichtconfiguratie"
 msgid "Copyright notices"
 msgstr "Copyrightberichten"
 
-msgid ""
-"Copyright of these works lies with the original authors who contributed "
-"them to Wikipedia."
+msgid "Copyright of these works lies with the original authors who contributed them to Wikipedia."
 msgstr "Het copyright op deze werken ligt bij de originele auteurs die ze aan Wikipedia bijgedragen hebben."
 
 msgid "Correspondence"
@@ -519,9 +479,7 @@ msgid "Could not extract {file_path} as a gzipped tar file  (*.tar.gz)."
 msgstr "Kan het bestand {file_path} niet als een ge-gzipt tar-bestand (*.tar.gz) uitpakken."
 
 #, python-brace-format
-msgid ""
-"Could not find any of the following configuration files in "
-"{project_directory_path}: {configuration_file_names}."
+msgid "Could not find any of the following configuration files in {project_directory_path}: {configuration_file_names}."
 msgstr "Kon geen van de volgende configuratiebestanden vinden in {project_directory_path}: {configuration_file_names}."
 
 #, python-brace-format
@@ -546,15 +504,11 @@ msgstr "Maak een nieuw project"
 msgid "Create a new translation"
 msgstr "Maak een nieuwe vertaling"
 
-msgid ""
-"Create events such as births and deaths by deriving their details from "
-"existing information."
+msgid "Create events such as births and deaths by deriving their details from existing information."
 msgstr "Maak gebeurtenissen zoals geboortes en overlijdens door de details hiervoor af te leiden van bestaande informatie."
 
 #, python-brace-format
-msgid ""
-"Created {created_derivations} additional {event_type} events based on "
-"existing information."
+msgid "Created {created_derivations} additional {event_type} events based on existing information."
 msgstr "{created_derivations} nieuwe {event_type}-gebeurtenissen toegevoegd gebaseerd op bestaande informatie."
 
 msgid "Cremation"
@@ -596,17 +550,13 @@ msgstr "Beschrijving"
 msgid "Description, licensing, and image history"
 msgstr "Beschrijving, licentie, en afbeeldingsgeschiedenis"
 
-msgid ""
-"Determine if people can be proven to have died. If not, mark them and "
-"their associated entities private."
+msgid "Determine if people can be proven to have died. If not, mark them and their associated entities private."
 msgstr "Bepaal of bewezen kan worden dat personen overleden zijn. Indien niet, markeer hen en gerelateerde entiteiten privé."
 
 msgid "Did you know that Liberta \"Betty\" Lankester is Betty's namesake?"
 msgstr "Wist je dat Betty vernoemd is naar Liberta \"Betty\" Lankester?"
 
-msgid ""
-"Did you know that while Amsterdam is the country's official capital, The "
-"Hague is the Netherlands' administrative center and seat of government?"
+msgid "Did you know that while Amsterdam is the country's official capital, The Hague is the Netherlands' administrative center and seat of government?"
 msgstr "Wist je dat terwijl Amsterdam de officiële hoofdstad is, de Nederlandse regering in Den Haag zit?"
 
 msgid "Display interactive family trees using Cytoscape."
@@ -615,9 +565,7 @@ msgstr "Laat interactieve stambomen zien met Cytoscape."
 msgid "Display interactive maps"
 msgstr "Geef plaatsen weer als interactieve kaarten"
 
-msgid ""
-"Display the HTTP API documentation in a user-friendly way using Swagger "
-"UI."
+msgid "Display the HTTP API documentation in a user-friendly way using Swagger UI."
 msgstr ""
 
 msgid "District"
@@ -696,9 +644,7 @@ msgstr "Verrijkers"
 msgid "Entities"
 msgstr "Entiteiten"
 
-msgid ""
-"Entities represent the information in your ancestry, such as people and "
-"places."
+msgid "Entities represent the information in your ancestry, such as people and places."
 msgstr "De informatie uit je familiegeschiedenis wordt vertegenwoordigd door entiteiten zoals personen en plaatsen."
 
 msgid "Entity"
@@ -844,10 +790,7 @@ msgid "Go to the front page"
 msgstr "Ga naar de voorpagina"
 
 #, python-brace-format
-msgid ""
-"Gramps XML must be compatible with version "
-"{supported_gramps_xml_version}. Gramps XML {loaded_gramps_xml_version} is"
-" not supported."
+msgid "Gramps XML must be compatible with version {supported_gramps_xml_version}. Gramps XML {loaded_gramps_xml_version} is not supported."
 msgstr "Gramps-XML moet compatibel zijn met versie {supported_gramps_xml_version}. Gramps-XML {loaded_gramps_xml_version} is niet ondersteund."
 
 msgid "Gramps configuration"
@@ -1206,10 +1149,7 @@ msgstr "Nederland"
 msgid "Next page"
 msgstr "Volgende pagina"
 
-msgid ""
-"No part may be reproduced or distributed in any form or by any means, "
-"without express written permission from the copyright holder, or unless "
-"permitted by copyright law."
+msgid "No part may be reproduced or distributed in any form or by any means, without express written permission from the copyright holder, or unless permitted by copyright law."
 msgstr "Geen deel mag worden gereproduceerd of gedistribueerd, in welke vorm of op welke manier, zonder expliciete geschreven toestemming van de copyrighthouder, of indien toegestaan door copyrightwetgeving."
 
 msgid "Non-binary people"
@@ -1254,9 +1194,7 @@ msgstr "Organisators"
 msgid "Other attendees"
 msgstr "Overige aanwezigen"
 
-msgid ""
-"Other entities that reference a citation or source to back up their "
-"claims."
+msgid "Other entities that reference a citation or source to back up their claims."
 msgstr ""
 
 msgid "Other places contained by this one"
@@ -1385,24 +1323,16 @@ msgid "Privacy"
 msgstr "Privacy"
 
 #, python-brace-format
-msgid ""
-"Privatized person {privatized_person_id} ({privatized_person}) because "
-"they are likely still alive."
+msgid "Privatized person {privatized_person_id} ({privatized_person}) because they are likely still alive."
 msgstr "Persoon {privatized_person_id} ({privatized_person}) geprivatiseerd omdat hen waarschijnlijk nog leeft."
 
 #, python-brace-format
-msgid ""
-"Privatized place {privatized_place_id} ({privatized_place}) because it is"
-" not associated with any public information."
+msgid "Privatized place {privatized_place_id} ({privatized_place}) because it is not associated with any public information."
 msgstr "Plaats {privatized_place_id} ({privatized_place}) geprivatiseerd omdat deze niet met enige openbare informatie geassocieerd is."
 
 #, python-brace-format
-msgid ""
-"Privatized {count} \"{entity_type_id}\" entity, because it is associated "
-"with private information."
-msgid_plural ""
-"Privatized {count} \"{entity_type_id}\" entities, because they are "
-"associated with private information."
+msgid "Privatized {count} \"{entity_type_id}\" entity, because it is associated with private information."
+msgid_plural "Privatized {count} \"{entity_type_id}\" entities, because they are associated with private information."
 msgstr[0] ""
 msgstr[1] ""
 
@@ -1411,10 +1341,7 @@ msgid "Privatized {count} people because they are likely still alive."
 msgstr "{count} personen geprivatiseerd omdat zij waarschijnlijk nog leven."
 
 #, python-brace-format
-msgid ""
-"Privatized {privatized_entity_type} {privatized_entity_id} "
-"({privatized_entity}) because of {reason_entity_type} {reason_entity_id} "
-"({reason_entity})."
+msgid "Privatized {privatized_entity_type} {privatized_entity_id} ({privatized_entity}) because of {reason_entity_type} {reason_entity_id} ({reason_entity})."
 msgstr "{privatized_entity_type} {privatized_entity_id} ({privatized_entity}) geprivatiseerd vanwege {reason_entity_type} {reason_entity_id} ({reason_entity})."
 
 msgid "Project author"
@@ -1426,9 +1353,7 @@ msgstr "Projectconfiguratie"
 msgid "Project locale"
 msgstr "Projecttaalregio"
 
-msgid ""
-"Provide license plugins from the SPDX License List "
-"(https://spdx.org/licenses/) "
+msgid "Provide license plugins from the SPDX License List (https://spdx.org/licenses/) "
 msgstr ""
 
 msgid "Province"
@@ -1452,10 +1377,7 @@ msgstr "Afsluiten..."
 msgid "Raspberry Mint configuration"
 msgstr "Raspberry Mint-configuratie"
 
-msgid ""
-"Rate limits ensure that Betty's HTTP client does not make more requests "
-"to a web service than that service supports or allows, by enforcing a "
-"maximum number of requests per timeframe."
+msgid "Rate limits ensure that Betty's HTTP client does not make more requests to a web service than that service supports or allows, by enforcing a maximum number of requests per timeframe."
 msgstr ""
 
 msgid "Read more"
@@ -1567,9 +1489,7 @@ msgstr "Serialiseerders"
 msgid "Serve a generated site"
 msgstr "Serveer een gegenereerde site"
 
-msgid ""
-"Serve your site using Python's built-in web server. This is for local use"
-" only, and unsafe for publishing your site."
+msgid "Serve your site using Python's built-in web server. This is for local use only, and unsafe for publishing your site."
 msgstr ""
 
 msgid "Server"
@@ -1582,9 +1502,7 @@ msgstr "Servers"
 msgid "Serving your site at {url}..."
 msgstr "Je site op {url} aan het serveren..."
 
-msgid ""
-"Set the locale for Betty's user interface. This must be an IETF BCP 47 "
-"language tag."
+msgid "Set the locale for Betty's user interface. This must be an IETF BCP 47 language tag."
 msgstr ""
 
 msgid "Show all available commands"
@@ -1676,9 +1594,7 @@ msgid "Text"
 msgstr "Tekst"
 
 #, python-format
-msgid ""
-"The %(language)s translations are only %(translated)s%% complete. Some "
-"things may be shown in English."
+msgid "The %(language)s translations are only %(translated)s%% complete. Some things may be shown in English."
 msgstr "De vertalingen naar het %(language)s zijn voor slechts %(translated)s%% voltooid. Sommige teksten kunnen in het Engels weergegeven worden."
 
 #, python-format
@@ -1689,23 +1605,15 @@ msgid "The 'birth of the author', so to speak."
 msgstr "De 'geboorte van de auteur', om het zo maar even te zeggen."
 
 #, python-brace-format
-msgid ""
-"The Gramps extension can only load the following file types: "
-"{file_extensions}"
+msgid "The Gramps extension can only load the following file types: {file_extensions}"
 msgstr "De Gramps-extensie kan alleen de volgende bestandstypes laden: {file_extensions}"
 
 #, python-brace-format
-msgid ""
-"The Gramps {gramps_entity_reference} entity has a "
-"\"betty:link-{link_name}:media_type\" attribute with value "
-"\"{media_type}\", which is not a valid IANA media type. This media type "
-"was ignored."
+msgid "The Gramps {gramps_entity_reference} entity has a \"betty:link-{link_name}:media_type\" attribute with value \"{media_type}\", which is not a valid IANA media type. This media type was ignored."
 msgstr "De Gramps-entiteit {gramps_entity_reference} heeft een attribuut \"betty:link-{link_name}:media_type\" met waarde \"{media_type}\", wat geen geldig IANA-mediatype is. Dit mediatype is genegeerd."
 
 #, python-brace-format
-msgid ""
-"The Gramps {gramps_entity_reference} entity requires a "
-"\"betty:link-{link_name}:url\" attribute. This link was ignored."
+msgid "The Gramps {gramps_entity_reference} entity requires a \"betty:link-{link_name}:url\" attribute. This link was ignored."
 msgstr "De Gramps-entiteit {gramps_entity_reference} vereist het attribuut \"betty:link-{link_name}:url\". Deze link is genegeerd."
 
 msgid "The URL must include a host."
@@ -1715,10 +1623,7 @@ msgid "The absolute, public URL at which the site will be published."
 msgstr "De absolute, openbare URL waarop de site gepubliceerd wordt."
 
 #, python-brace-format
-msgid ""
-"The betty:privacy Gramps attribute must have a value of \"public\" or "
-"\"private\", but \"{privacy_value}\" was given for {entity_type} "
-"{entity_id} ({entity_label}), which was ignored."
+msgid "The betty:privacy Gramps attribute must have a value of \"public\" or \"private\", but \"{privacy_value}\" was given for {entity_type} {entity_id} ({entity_label}), which was ignored."
 msgstr "Het betty:privacy Gramps-attribuut moet \"public\" of \"private\" zijn, maar {entity_type} {entity_id} ({entity_label}) bevat \"{privacy_value}\", en is daarom genegeerd."
 
 msgid "The citations backing up the claims made by this entity"
@@ -1745,18 +1650,14 @@ msgstr "Het bestand waar naar verwezen wordt"
 msgid "The location of the event"
 msgstr "De locatie van de gebeurtenis"
 
-msgid ""
-"The number of years people are expected to live at most, e.g. after which"
-" they are presumed to have died."
+msgid "The number of years people are expected to live at most, e.g. after which they are presumed to have died."
 msgstr ""
 
 msgid "The other entities that reference these citations to back up their claims."
 msgstr ""
 
 #, python-brace-format
-msgid ""
-"The path to a Betty project directory or configuration file. Defaults to "
-"{default} in the current working directory."
+msgid "The path to a Betty project directory or configuration file. Defaults to {default} in the current working directory."
 msgstr ""
 
 msgid "The place that encloses or contains the enclosee"
@@ -1779,9 +1680,7 @@ msgid "The source this citation references."
 msgstr ""
 
 #, python-brace-format
-msgid ""
-"The values of the following HTML attributes will automatically be "
-"replaced with the URLs generated from them where possible: {attributes}"
+msgid "The values of the following HTML attributes will automatically be replaced with the URLs generated from them where possible: {attributes}"
 msgstr ""
 
 msgid "The web server to use."
@@ -1792,9 +1691,7 @@ msgid "The {plugin} {plugin_type} plugin is required from the {service} service.
 msgstr ""
 
 #, python-brace-format
-msgid ""
-"The {service} service must have exactly one {plugin_type} plugin, but "
-"{actual} were given."
+msgid "The {service} service must have exactly one {plugin_type} plugin, but {actual} were given."
 msgstr ""
 
 msgid "There are no available options."
@@ -1928,9 +1825,7 @@ msgid "Unknowns"
 msgstr "Onbekenden"
 
 #, python-brace-format
-msgid ""
-"Unsupported file \"{unsupported_type}\". Supported types are: "
-"{available_types}."
+msgid "Unsupported file \"{unsupported_type}\". Supported types are: {available_types}."
 msgstr "Niet ondersteund bestand \"{unsupported_type}\". Ondersteunde bestandstypes zijn: {available_types}."
 
 #, python-brace-format
@@ -1944,9 +1839,7 @@ msgid "Update existing translations"
 msgstr "Update bestaande vertalingen"
 
 #, python-brace-format
-msgid ""
-"Updated {updated_derivations} {event_type} events based on existing "
-"information."
+msgid "Updated {updated_derivations} {event_type} events based on existing information."
 msgstr "{updated_derivations} {event_type}-gebeurtenissen bijgewerkt op basis van bestaande informatie."
 
 msgid "Usage: "
@@ -2000,22 +1893,16 @@ msgstr "Wat is de machinenaam van je project?"
 msgid "Where do you want to save your project's configuration file?"
 msgstr "Waar wil je je projectconfiguratiebestand opslaan?"
 
-msgid ""
-"Whether to download additional images found through Wikipedia links in "
-"the ancestry"
+msgid "Whether to download additional images found through Wikipedia links in the ancestry"
 msgstr ""
 
-msgid ""
-"Whether to output more detailed logs and disable optimizations that make "
-"debugging harder."
+msgid "Whether to output more detailed logs and disable optimizations that make debugging harder."
 msgstr ""
 
 msgid "Whether to use clean URLs: \"/path\" instead of \"/path/index.html\"."
 msgstr ""
 
-msgid ""
-"Which language should your project site be generated in? Enter a language"
-" code."
+msgid "Which language should your project site be generated in? Enter a language code."
 msgstr "In welke taal moet de site voor je project gegenereerd worden? Voer een taalcode in."
 
 msgid "Width"
@@ -2051,9 +1938,7 @@ msgstr "Vrouw"
 msgid "Women"
 msgstr "Vrouwen"
 
-msgid ""
-"Works in the public domain can be used or referenced without permission, "
-"because nobody holds any exclusive rights over these works (anymore)."
+msgid "Works in the public domain can be used or referenced without permission, because nobody holds any exclusive rights over these works (anymore)."
 msgstr "Werken in het publieke domein mogen gebruikt of naar verwezen worden zonder toestemming, omdat niemand (meer) exclusieve rechten over deze werken heeft."
 
 msgid "Year"
@@ -2137,10 +2022,7 @@ msgstr "te %(place)s"
 msgid "in %(source)s"
 msgstr "in %(source)s"
 
-msgid ""
-"npm (https://www.npmjs.com/) must be available for features that require "
-"Node.js packages to be installed. Ensure that the `npm` executable is "
-"available in your `PATH`."
+msgid "npm (https://www.npmjs.com/) must be available for features that require Node.js packages to be installed. Ensure that the `npm` executable is available in your `PATH`."
 msgstr "npm (https://www.npmjs.com/) moet beschikbaar zijn voor functionaliteit waarvoor Node.js packages geïnstalleerd moeten worden. Zorg ervoor dat het `npm`-programma beschikbaar is in je `PATH`."
 
 msgid "private"
@@ -2793,3 +2675,4 @@ msgstr "© Copyright de auteur, tenzij anders vermeld"
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Copyright {author}, tenzij anders vermeld"
+
