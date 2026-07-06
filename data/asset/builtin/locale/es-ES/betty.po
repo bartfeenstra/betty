@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-05 20:43+0100\n"
-"PO-Revision-Date: 2026-07-06 16:26+0000\n"
+"PO-Revision-Date: 2026-07-06 20:29+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: es-ES\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-5-"
@@ -99,7 +99,7 @@ msgid "Access denied"
 msgstr "Acceso denegado"
 
 msgid "Accessed"
-msgstr ""
+msgstr "Accecide"
 
 msgid "Adoption"
 msgstr "Adopción"
@@ -169,16 +169,16 @@ msgid "Appearances"
 msgstr "Apariciónes"
 
 msgid "Application configuration"
-msgstr ""
+msgstr "Configuración de aplicación"
 
 msgid "Are you sure you want to clear all caches?"
 msgstr ""
 
 msgid "Asset directories"
-msgstr ""
+msgstr "Directorios de activo"
 
 msgid "Asset directory"
-msgstr ""
+msgstr "Directorio de activo"
 
 msgid "Associates"
 msgstr "Asociados"
@@ -216,7 +216,7 @@ msgid "Bar mitzvahs"
 msgstr ""
 
 msgid "Bart Feenstra and contributors"
-msgstr ""
+msgstr "Bart Feenstra y colaboradores"
 
 msgid "Bat mitzvah"
 msgstr "Bat mitzvá"
@@ -411,7 +411,7 @@ msgid "Clean URLs"
 msgstr "URLs limpias"
 
 msgid "Clear all caches"
-msgstr ""
+msgstr "Vaciar todas las cachés"
 
 msgid "Close"
 msgstr "Cerrar"
@@ -478,7 +478,7 @@ msgstr ""
 
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
-msgstr ""
+msgstr "Continúa leyendo en <a href=\"%(url)s\">Wikipedia</a>."
 
 msgid "Coordinates"
 msgstr "Coordenadas"
@@ -499,7 +499,7 @@ msgid "Copyright notice"
 msgstr "Aviso de derechos de autor"
 
 msgid "Copyright notice configuration"
-msgstr ""
+msgstr "Configuración de aviso de derechos de autor"
 
 msgid "Copyright notices"
 msgstr "Avisos de derechos de autor"
@@ -546,10 +546,10 @@ msgid "County"
 msgstr "Condado"
 
 msgid "Create a new project"
-msgstr ""
+msgstr "Crear un nuevo proyecto"
 
 msgid "Create a new translation"
-msgstr ""
+msgstr "Crear una nueva traducción"
 
 msgid ""
 "Create events such as births and deaths by deriving their details from "
@@ -618,7 +618,7 @@ msgid "Display interactive family trees using Cytoscape."
 msgstr ""
 
 msgid "Display interactive maps"
-msgstr ""
+msgstr "Mostrar mapas interactivos"
 
 msgid ""
 "Display the HTTP API documentation in a user-friendly way using Swagger "
@@ -693,10 +693,10 @@ msgid "Enrich your ancestry with information from Wikipedia and Wikimedia Common
 msgstr ""
 
 msgid "Enricher"
-msgstr ""
+msgstr "Enriquecedor"
 
 msgid "Enrichers"
-msgstr ""
+msgstr "Enriquecedores"
 
 msgid "Entities"
 msgstr "Entidades"
@@ -750,10 +750,10 @@ msgid "Executable"
 msgstr "Ejecutable"
 
 msgid "Explore a demonstration site"
-msgstr ""
+msgstr "Explora un sitio de demostración"
 
 msgid "Explore a family history..."
-msgstr ""
+msgstr "Descubre la historia de una familia..."
 
 msgid "Extension"
 msgstr "Extensión"
@@ -840,10 +840,10 @@ msgid "Generate a static site"
 msgstr ""
 
 msgid "Generating site..."
-msgstr ""
+msgstr "Generando el sitio..."
 
 msgid "Get started"
-msgstr ""
+msgstr "Empezando"
 
 msgid "Go to the front page"
 msgstr ""
@@ -986,7 +986,7 @@ msgid "Jinja tests"
 msgstr "Pruebas de Jinja"
 
 msgid "Justify content"
-msgstr ""
+msgstr "Justifica el contenido"
 
 msgid "Keywords"
 msgstr "Palabras clave"
@@ -1091,10 +1091,10 @@ msgid "Locales"
 msgstr "Configuraciones regional"
 
 msgid "Localities"
-msgstr ""
+msgstr "Localidades"
 
 msgid "Locality"
-msgstr ""
+msgstr "Localidad"
 
 msgid "Location"
 msgstr "Ubicación"
@@ -1142,7 +1142,7 @@ msgid "Media"
 msgstr "Medios"
 
 msgid "Media gallery"
-msgstr ""
+msgstr "Galería multimedia"
 
 msgid "Media type"
 msgstr "Tipo de medio"
@@ -1269,7 +1269,7 @@ msgid "Other sources this source may contain"
 msgstr ""
 
 msgid "Output directory"
-msgstr ""
+msgstr "Directorio de salida"
 
 msgid "Output information about Betty, and optionally your project"
 msgstr ""
@@ -1594,7 +1594,7 @@ msgid "Show all available commands"
 msgstr ""
 
 msgid "Show this help message"
-msgstr ""
+msgstr "Mostrar este mensaje de ayuda"
 
 msgid "Skip interactions and answer \"yes\" to all questions."
 msgstr ""
@@ -2216,14 +2216,14 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} Jinja filter"
 msgid_plural "{count} Jinja filters"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} filtro de Jinja"
+msgstr[1] "{count} filtros de Jinja"
 
 #, python-brace-format
 msgid "{count} Jinja test"
 msgid_plural "{count} Jinja tests"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} prueba de Jinja"
+msgstr[1] "{count} pruebas de Jinja"
 
 #, python-brace-format
 msgid "{count} adoption"
@@ -2246,8 +2246,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} asset directory"
 msgid_plural "{count} asset directories"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} directorio de activo"
+msgstr[1] "{count} directorios de activo"
 
 #, python-brace-format
 msgid "{count} attendee"
@@ -2282,8 +2282,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} birth"
 msgid_plural "{count} births"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} nacimiento"
+msgstr[1] "{count} nacimientos"
 
 #, python-brace-format
 msgid "{count} borough"
@@ -2294,26 +2294,26 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} building"
 msgid_plural "{count} buildings"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} edificio"
+msgstr[1] "{count} edificios"
 
 #, python-brace-format
 msgid "{count} burial"
 msgid_plural "{count} burials"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} entierro"
+msgstr[1] "{count} entierros"
 
 #, python-brace-format
 msgid "{count} celebrant"
 msgid_plural "{count} celebrants"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} celebrante"
+msgstr[1] "{count} celebrantes"
 
 #, python-brace-format
 msgid "{count} cemetery"
 msgid_plural "{count} cemeteries"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} cementerio"
+msgstr[1] "{count} cementerios"
 
 #, python-brace-format
 msgid "{count} citation"
@@ -2324,26 +2324,26 @@ msgstr[1] "{count} referencias bibliográficas"
 #, python-brace-format
 msgid "{count} city"
 msgid_plural "{count} cities"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} ciudad"
+msgstr[1] "{count} ciudades"
 
 #, python-brace-format
 msgid "{count} command"
 msgid_plural "{count} commands"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} orden"
+msgstr[1] "{count} órdenes"
 
 #, python-brace-format
 msgid "{count} conference"
 msgid_plural "{count} conferences"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} conferencia"
+msgstr[1] "{count} conferencias"
 
 #, python-brace-format
 msgid "{count} confirmation"
 msgid_plural "{count} confirmations"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} confirmación"
+msgstr[1] "{count} confirmaciones"
 
 #, python-brace-format
 msgid "{count} content builder"
@@ -2354,14 +2354,14 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} copyright notice"
 msgid_plural "{count} copyright notices"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} aviso de derechos de autor"
+msgstr[1] "{count} avisos de derechos de autor"
 
 #, python-brace-format
 msgid "{count} correspondence"
 msgid_plural "{count} correspondences"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} correspondencia"
+msgstr[1] "{count} correspondencias"
 
 #, python-brace-format
 msgid "{count} country"
@@ -2372,38 +2372,38 @@ msgstr[1] "{count} países"
 #, python-brace-format
 msgid "{count} county"
 msgid_plural "{count} counties"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} condado"
+msgstr[1] "{count} condados"
 
 #, python-brace-format
 msgid "{count} cremation"
 msgid_plural "{count} cremations"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} cremación"
+msgstr[1] "{count} cremaciones"
 
 #, python-brace-format
 msgid "{count} death"
 msgid_plural "{count} deaths"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} muerto"
+msgstr[1] "{count} muertos"
 
 #, python-brace-format
 msgid "{count} department"
 msgid_plural "{count} departments"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} departamento"
+msgstr[1] "{count} departamentos"
 
 #, python-brace-format
 msgid "{count} district"
 msgid_plural "{count} districts"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} distrito"
+msgstr[1] "{count} distritos"
 
 #, python-brace-format
 msgid "{count} divorce"
 msgid_plural "{count} divorces"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} divorcio"
+msgstr[1] "{count} divorcios"
 
 #, python-brace-format
 msgid "{count} document provider"
@@ -2414,8 +2414,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} emigration"
 msgid_plural "{count} emigrations"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} emigración"
+msgstr[1] "{count} emigraciones"
 
 #, python-brace-format
 msgid "{count} enclosure"
@@ -2426,14 +2426,14 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} engagement"
 msgid_plural "{count} engagements"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} compromiso"
+msgstr[1] "{count} compromisos"
 
 #, python-brace-format
 msgid "{count} enricher"
 msgid_plural "{count} enrichers"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} enriquecedor"
+msgstr[1] "{count} enriquecedores"
 
 #, python-brace-format
 msgid "{count} entity"
@@ -2450,20 +2450,20 @@ msgstr[1] "{count} eventos"
 #, python-brace-format
 msgid "{count} event type"
 msgid_plural "{count} event types"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} tipo de evento"
+msgstr[1] "{count} tipos de evento"
 
 #, python-brace-format
 msgid "{count} extension"
 msgid_plural "{count} extensions"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} extensión"
+msgstr[1] "{count} extensiones"
 
 #, python-brace-format
 msgid "{count} farm"
 msgid_plural "{count} farms"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} granja"
+msgstr[1] "{count} granjas"
 
 #, python-brace-format
 msgid "{count} file"
@@ -2480,14 +2480,14 @@ msgstr[1] "{count} referencias de archivos"
 #, python-brace-format
 msgid "{count} funeral"
 msgid_plural "{count} funerals"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} funeral"
+msgstr[1] "{count} funerales"
 
 #, python-brace-format
 msgid "{count} gender"
 msgid_plural "{count} genders"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} género"
+msgstr[1] "{count} géneros"
 
 #, python-brace-format
 msgid "{count} hamlet"
@@ -2498,38 +2498,38 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} immigration"
 msgid_plural "{count} immigrations"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} inmigración"
+msgstr[1] "{count} inmigraciones"
 
 #, python-brace-format
 msgid "{count} informant"
 msgid_plural "{count} informants"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} informante"
+msgstr[1] "{count} informantes"
 
 #, python-brace-format
 msgid "{count} license"
 msgid_plural "{count} licenses"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} licencia"
+msgstr[1] "{count} licencias"
 
 #, python-brace-format
 msgid "{count} link"
 msgid_plural "{count} links"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} enlace"
+msgstr[1] "{count} enlaces"
 
 #, python-brace-format
 msgid "{count} loader"
 msgid_plural "{count} loaders"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} cargador"
+msgstr[1] "{count} cargadores"
 
 #, python-brace-format
 msgid "{count} locality"
 msgid_plural "{count} localities"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} localidad"
+msgstr[1] "{count} localidades"
 
 #, python-brace-format
 msgid "{count} man"
@@ -2540,14 +2540,14 @@ msgstr[1] "{count} hombres"
 #, python-brace-format
 msgid "{count} marriage"
 msgid_plural "{count} marriages"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} matrimonio"
+msgstr[1] "{count} matrimonios"
 
 #, python-brace-format
 msgid "{count} media type"
 msgid_plural "{count} media types"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} tipo de media"
+msgstr[1] "{count} tipos de media"
 
 #, python-brace-format
 msgid "{count} missing"
@@ -2558,14 +2558,14 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} municipality"
 msgid_plural "{count} municipalities"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} municipio"
+msgstr[1] "{count} municipios"
 
 #, python-brace-format
 msgid "{count} neighborhood"
 msgid_plural "{count} neighborhoods"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} barrio"
+msgstr[1] "{count} barrios"
 
 #, python-brace-format
 msgid "{count} non-binary person"
@@ -2582,26 +2582,26 @@ msgstr[1] "{count} notas"
 #, python-brace-format
 msgid "{count} number"
 msgid_plural "{count} numbers"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} número"
+msgstr[1] "{count} números"
 
 #, python-brace-format
 msgid "{count} occupation"
 msgid_plural "{count} occupations"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} ocupación"
+msgstr[1] "{count} ocupaciones"
 
 #, python-brace-format
 msgid "{count} organizer"
 msgid_plural "{count} organizers"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} organizadore"
+msgstr[1] "{count} organizadores"
 
 #, python-brace-format
 msgid "{count} parish"
 msgid_plural "{count} parishes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} parroquia"
+msgstr[1] "{count} parroquias"
 
 #, python-brace-format
 msgid "{count} person"
@@ -2630,14 +2630,14 @@ msgstr[1] "{count} lugares"
 #, python-brace-format
 msgid "{count} place name"
 msgid_plural "{count} place names"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} nombre de lugar"
+msgstr[1] "{count} nombres de lugar"
 
 #, python-brace-format
 msgid "{count} place type"
 msgid_plural "{count} place types"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} tipo de lugar"
+msgstr[1] "{count} tipos de lugar"
 
 #, python-brace-format
 msgid "{count} presence"
@@ -2648,50 +2648,50 @@ msgstr[1] "{count} presencias"
 #, python-brace-format
 msgid "{count} province"
 msgid_plural "{count} provinces"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} provincia"
+msgstr[1] "{count} provincias"
 
 #, python-brace-format
 msgid "{count} region"
 msgid_plural "{count} regions"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} región"
+msgstr[1] "{count} regiones"
 
 #, python-brace-format
 msgid "{count} renderer"
 msgid_plural "{count} renderers"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} renderizador"
+msgstr[1] "{count} renderizadores"
 
 #, python-brace-format
 msgid "{count} residence"
 msgid_plural "{count} residences"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} residencia"
+msgstr[1] "{count} residencias"
 
 #, python-brace-format
 msgid "{count} retirement"
 msgid_plural "{count} retirements"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} jubilación"
+msgstr[1] "{count} jubilaciones"
 
 #, python-brace-format
 msgid "{count} role"
 msgid_plural "{count} roles"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} rol"
+msgstr[1] "{count} roles"
 
 #, python-brace-format
 msgid "{count} serializer"
 msgid_plural "{count} serializers"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} serializador"
+msgstr[1] "{count} serializadores"
 
 #, python-brace-format
 msgid "{count} server"
 msgid_plural "{count} servers"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} servidor"
+msgstr[1] "{count} servidores"
 
 #, python-brace-format
 msgid "{count} source"
@@ -2702,56 +2702,56 @@ msgstr[1] "{count} fuentes"
 #, python-brace-format
 msgid "{count} speaker"
 msgid_plural "{count} speakers"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} oradore"
+msgstr[1] "{count} oradores"
 
 #, python-brace-format
 msgid "{count} state"
 msgid_plural "{count} states"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} estado"
+msgstr[1] "{count} estados"
 
 #, python-brace-format
 msgid "{count} street"
 msgid_plural "{count} streets"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} calle"
+msgstr[1] "{count} calles"
 
 #, python-brace-format
 msgid "{count} subjects"
 msgid_plural "{count} subjects"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} sujete"
+msgstr[1] "{count} sujetes"
 
 #, python-brace-format
 msgid "{count} town"
 msgid_plural "{count} towns"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} pueblo"
+msgstr[1] "{count} pueblos"
 
 #, python-brace-format
 msgid "{count} unknown"
 msgid_plural "{count} unknowns"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} desconocide"
+msgstr[1] "{count} desconocides"
 
 #, python-brace-format
 msgid "{count} village"
 msgid_plural "{count} villages"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} pueblo"
+msgstr[1] "{count} pueblos"
 
 #, python-brace-format
 msgid "{count} will"
 msgid_plural "{count} wills"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} testamento"
+msgstr[1] "{count} testamentos"
 
 #, python-brace-format
 msgid "{count} witness"
 msgid_plural "{count} witnesses"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} testigue"
+msgstr[1] "{count} testigues"
 
 #, python-brace-format
 msgid "{count} woman"
