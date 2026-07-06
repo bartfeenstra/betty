@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-05 20:43+0100\n"
-"PO-Revision-Date: 2026-07-06 11:35+0000\n"
+"PO-Revision-Date: 2026-07-06 14:07+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: es-ES\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-5-"
@@ -181,7 +181,7 @@ msgid "Asset directory"
 msgstr ""
 
 msgid "Associates"
-msgstr ""
+msgstr "Asociados"
 
 #, python-brace-format
 msgid "At least {expected} items are required, but found {actual}."
@@ -228,7 +228,7 @@ msgid "Before"
 msgstr "Antes de"
 
 msgid "Beneficiaries"
-msgstr ""
+msgstr "Beneficiaries"
 
 msgid "Beneficiary"
 msgstr "Beneficiario"
@@ -301,7 +301,7 @@ msgid "Births"
 msgstr "Nacimientos"
 
 msgid "Borough"
-msgstr ""
+msgstr "Borough"
 
 msgid "Boroughs"
 msgstr ""
@@ -310,7 +310,7 @@ msgid "Box"
 msgstr "Caja"
 
 msgid "Box configuration"
-msgstr ""
+msgstr "Configuración de caja"
 
 msgid "Breadcrumbs"
 msgstr "Migas de pan"
@@ -319,7 +319,7 @@ msgid "Breakpoint"
 msgstr "Punto de ruptura"
 
 msgid "Breakpoints"
-msgstr ""
+msgstr "Puntos de ruptura"
 
 msgid "Building"
 msgstr "Edificio"
@@ -402,13 +402,13 @@ msgid "Citations"
 msgstr ""
 
 msgid "Cities"
-msgstr ""
+msgstr "Ciudades"
 
 msgid "City"
 msgstr "Ciudad"
 
 msgid "Clean URLs"
-msgstr ""
+msgstr "URLs limpias"
 
 msgid "Clear all caches"
 msgstr ""
@@ -450,7 +450,7 @@ msgid "Conference"
 msgstr "Conferencia"
 
 msgid "Conferences"
-msgstr ""
+msgstr "Conferencias"
 
 msgid "Configure Betty"
 msgstr "Configurar Betty"
@@ -534,7 +534,7 @@ msgid "Could not find the file \"{file_path}\"."
 msgstr ""
 
 msgid "Counties"
-msgstr ""
+msgstr "Condados"
 
 msgid "Countries"
 msgstr "Países"
@@ -575,7 +575,7 @@ msgid "Date"
 msgstr "Fecha"
 
 msgid "Date range"
-msgstr ""
+msgstr "Rango de fechas"
 
 msgid "Day"
 msgstr "Día"
@@ -593,7 +593,7 @@ msgid "Department"
 msgstr "Departamento"
 
 msgid "Departments"
-msgstr ""
+msgstr "Departamentos"
 
 msgid "Description"
 msgstr "Descripción"
@@ -629,13 +629,13 @@ msgid "District"
 msgstr "Distrito"
 
 msgid "Districts"
-msgstr ""
+msgstr "Distritos"
 
 msgid "Divorce"
 msgstr "Divorcio"
 
 msgid "Divorces"
-msgstr ""
+msgstr "Divorcios"
 
 msgid "Do not show any output, except error messages"
 msgstr ""
@@ -713,10 +713,10 @@ msgid "Entity ID"
 msgstr "ID de entidad"
 
 msgid "Entity card"
-msgstr ""
+msgstr "Postal de entidad"
 
 msgid "Entity reference"
-msgstr ""
+msgstr "Referencia de entidad"
 
 msgid "Entity type"
 msgstr "Tipo de entidad"
@@ -759,7 +759,7 @@ msgid "Extension"
 msgstr "Extensión"
 
 msgid "Extensions"
-msgstr ""
+msgstr "Extensiones"
 
 msgid "External links"
 msgstr "Enlaces externos"
@@ -786,7 +786,7 @@ msgid "Farm"
 msgstr "Granja"
 
 msgid "Farms"
-msgstr ""
+msgstr "Granjas"
 
 msgid "File"
 msgstr "Archivo"
@@ -813,7 +813,7 @@ msgid "Find out more about this image on Wikimedia Commons."
 msgstr "Descubre más sobre esta imagen en Wikimedia Commons."
 
 msgid "First page"
-msgstr ""
+msgstr "Primera página"
 
 msgid "Funeral"
 msgstr "Funeral"
@@ -871,7 +871,7 @@ msgid "Gramps place type"
 msgstr ""
 
 msgid "Gramps role"
-msgstr ""
+msgstr "Rol de Gramps"
 
 msgid "HTTP client rate limit"
 msgstr ""
@@ -998,7 +998,7 @@ msgid "Label (countable)"
 msgstr "Etiqueta (contable)"
 
 msgid "Label (plural)"
-msgstr ""
+msgstr "Etiqueta (plural)"
 
 msgid "Language"
 msgstr "Idioma"
@@ -1008,13 +1008,13 @@ msgid "Last modified on %(last_modified)s"
 msgstr "Última modificación el %(last_modified)s"
 
 msgid "Last page"
-msgstr ""
+msgstr "Última página"
 
 msgid "License"
 msgstr "Licencia"
 
 msgid "License configuration"
-msgstr ""
+msgstr "Configuración de licencia"
 
 msgid "Licenses"
 msgstr "Licencias"
@@ -1075,7 +1075,7 @@ msgstr "Cargadores"
 
 #, python-brace-format
 msgid "Loading \"{file_path}\"..."
-msgstr ""
+msgstr "Cargando \"{file_path}\"..."
 
 msgid "Locale"
 msgstr "Configuración regional"
@@ -1097,7 +1097,7 @@ msgid "Locality"
 msgstr ""
 
 msgid "Location"
-msgstr ""
+msgstr "Ubicación"
 
 msgid "Logo"
 msgstr "Logo"
@@ -1115,7 +1115,7 @@ msgid "MMMM, y"
 msgstr "MMMM 'de' y"
 
 msgid "Machine name"
-msgstr ""
+msgstr "Nombre de máquina"
 
 msgid "Man"
 msgstr "Hombre"
@@ -1136,7 +1136,7 @@ msgid "Maximum height"
 msgstr "Altura máxima"
 
 msgid "Maximum width"
-msgstr ""
+msgstr "Ancho máximo"
 
 msgid "Media"
 msgstr "Medios"
@@ -1240,7 +1240,7 @@ msgid "Occupation"
 msgstr "Ocupación"
 
 msgid "Occupations"
-msgstr ""
+msgstr "Ocupaciones"
 
 msgid "Operating system"
 msgstr "Sistema operativo"
@@ -1336,16 +1336,16 @@ msgid "Place name"
 msgstr ""
 
 msgid "Place names"
-msgstr ""
+msgstr "Nombres de lugar"
 
 msgid "Place type"
-msgstr ""
+msgstr "Tipo de lugar"
 
 msgid "Place type configuration"
 msgstr ""
 
 msgid "Place types"
-msgstr ""
+msgstr "Tipos de lugar"
 
 msgid "Places"
 msgstr "Lugares"
@@ -1376,10 +1376,10 @@ msgid "Presences"
 msgstr "Presencias"
 
 msgid "Presences configuration"
-msgstr ""
+msgstr "Configuración de precencias"
 
 msgid "Previous page"
-msgstr ""
+msgstr "Página anterior"
 
 msgid "Primary color"
 msgstr "Color primario"
@@ -1496,19 +1496,19 @@ msgid "Regions"
 msgstr "Regiones"
 
 msgid "Relationship"
-msgstr ""
+msgstr "Relación"
 
 msgid "Rendered content"
-msgstr ""
+msgstr "Contenido renderizado"
 
 msgid "Rendered content configuration"
 msgstr ""
 
 msgid "Renderer"
-msgstr ""
+msgstr "Renderizador"
 
 msgid "Renderers"
-msgstr ""
+msgstr "Renderizadores"
 
 msgid "Reset"
 msgstr "Resetear"
@@ -1517,7 +1517,7 @@ msgid "Residence"
 msgstr "Residencia"
 
 msgid "Residences"
-msgstr ""
+msgstr "Residencias"
 
 #, python-brace-format
 msgid "Results ({{{ betty-search-results-count }}})"
@@ -1527,7 +1527,7 @@ msgid "Retirement"
 msgstr "Jubilación"
 
 msgid "Retirements"
-msgstr ""
+msgstr "Jubilaciones"
 
 msgid "Role"
 msgstr "Rol"
@@ -1543,7 +1543,7 @@ msgid "Running subprocess `{command}`..."
 msgstr ""
 
 msgid "SPDX licenses"
-msgstr ""
+msgstr "Licencias de SPDX"
 
 #, python-brace-format
 msgid "Saved your project to {configuration_file}."
@@ -1556,16 +1556,16 @@ msgid "Secondary color"
 msgstr "Color secundario"
 
 msgid "Section"
-msgstr ""
+msgstr "Sección"
 
 msgid "Section configuration"
-msgstr ""
+msgstr "Configuración de sección"
 
 msgid "Serializer"
-msgstr ""
+msgstr "Serializador"
 
 msgid "Serializers"
-msgstr ""
+msgstr "Serializadores"
 
 msgid "Serve a generated site"
 msgstr ""
@@ -1630,7 +1630,7 @@ msgid "States"
 msgstr "Estados"
 
 msgid "Static content"
-msgstr ""
+msgstr "Contenido estático"
 
 msgid "Street"
 msgstr "Calle"
@@ -1924,7 +1924,7 @@ msgid "Unknown plugin \"{plugin_id}\"."
 msgstr ""
 
 msgid "Unknowns"
-msgstr ""
+msgstr "Desconocides"
 
 #, python-brace-format
 msgid ""
@@ -2027,7 +2027,7 @@ msgid "Wikipedia contributors"
 msgstr "Colaboradores de Wikipedia"
 
 msgid "Wikipedia says..."
-msgstr ""
+msgstr "Wikipedia dice..."
 
 msgid "Wikipedia summary"
 msgstr "Resumen de Wikipedia"
