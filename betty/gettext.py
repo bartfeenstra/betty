@@ -107,9 +107,7 @@ async def _update_translations(output: StrPath, inputs: Iterable[StrPath]) -> No
         "",
         "extract",
         "--no-location",
-        "--width",
-        # Weblate uses 77 characters.
-        "77",
+        "--no-wrap",
         "--sort-output",
         "-F",
         "babel.ini",
