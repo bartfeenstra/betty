@@ -1,4 +1,4 @@
-# Translations template for Betty.
+# Finnish (Finland) translations for Betty.
 # Copyright (C) 2025 Bart Feenstra & contributors
 # This file is distributed under the same license as the Betty project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
@@ -7,18 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-04-24 14:22+0100\n"
+"POT-Creation-Date: 2026-07-06 22:23+0100\n"
 "PO-Revision-Date: 2026-07-06 21:01+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
-"Language-Team: Finnish <https://hosted.weblate.org/projects/betty/betty-0-4-"
-"x/fi/>\n"
-"Language: fi-FI\n"
+"Language: fi_FI\n"
+"Language-Team: Finnish <https://hosted.weblate.org/projects/betty/betty-0-4-x/fi/>\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.7.1.dev0\n"
-"Generated-By: Babel 2.17.0\n"
+"Generated-By: Babel 2.18.0\n"
 
 #, python-brace-format
 msgid "\"{hex_value}\" is not a valid hexadecimal color, such as #ffc0cb."
@@ -33,12 +31,8 @@ msgid "\"{path}\" is not a directory."
 msgstr "\"{path}\" ei ole hakemisto."
 
 #, python-brace-format
-msgid ""
-"\"{value}\" is not a valid machine name: only lowercase letters, digits, "
-"and hyphens (-) are allowed."
-msgstr ""
-"\"{value}\" ei ole kelvollinen koneen nimi: nimissä saa olla vain pieniä "
-"kirjaimia, numeroita ja viivoja (-)."
+msgid "\"{value}\" is not a valid machine name: only lowercase letters, digits, and hyphens (-) are allowed."
+msgstr "\"{value}\" ei ole kelvollinen koneen nimi: nimissä saa olla vain pieniä kirjaimia, numeroita ja viivoja (-)."
 
 #, python-format
 msgid "%(date)s in %(place)s"
@@ -54,13 +48,9 @@ msgstr ""
 
 #, python-format
 msgid "%(person_individual_name)s had a child with %(co_parent_labels)s."
-msgid_plural ""
-"%(person_individual_name)s had %(child_count)s children with "
-"%(co_parent_labels)s."
+msgid_plural "%(person_individual_name)s had %(child_count)s children with %(co_parent_labels)s."
 msgstr[0] "%(person_individual_name)s ja %(co_parent_labels)s saivat lapsen."
-msgstr[1] ""
-"%(person_individual_name)s ja %(co_parent_labels)s saivat %(child_count)s "
-"lasta."
+msgstr[1] "%(person_individual_name)s ja %(co_parent_labels)s saivat %(child_count)s lasta."
 
 #, python-format
 msgid "%(person_individual_name)s had a child."
@@ -72,11 +62,8 @@ msgstr[1] "%(person_individual_name)s sai %(child_count)s lasta."
 msgid "%(person_individual_name)s is the child of %(parent_labels)s."
 msgstr "%(person_individual_name)s on henkilön %(parent_labels)s lapsi."
 
-msgid ""
-"A family history as told by <a "
-"href=\"https://betty.readthedocs.io\">Betty👵</a>"
-msgstr ""
-"Sukuhistorian kertoja: <a href=\"https://betty.readthedocs.io\">Betty👵</a>"
+msgid "A family history as told by <a href=\"https://betty.readthedocs.io\">Betty👵</a>"
+msgstr "Sukuhistorian kertoja: <a href=\"https://betty.readthedocs.io\">Betty👵</a>"
 
 msgid "API documentation"
 msgstr "API-asiakirjat"
@@ -121,8 +108,7 @@ msgstr ""
 
 #, python-brace-format
 msgid "At least {expected} items are required, but found {actual}."
-msgstr ""
-"Vähintään {expected} kohdetta vaaditaan, mutta niitä löytyi vain {actual}."
+msgstr "Vähintään {expected} kohdetta vaaditaan, mutta niitä löytyi vain {actual}."
 
 #, python-brace-format
 msgid "At most {expected} items are allowed, but found {actual}."
@@ -149,56 +135,31 @@ msgstr "Edunsaaja"
 msgid "Betty could not load the SPDX licenses"
 msgstr "Betty ei voinut ladata SPDX-lisenssejä"
 
-msgid ""
-"Betty is an application that takes a family tree and builds a website out "
-"of it, much like the one you are viewing right now. The more information "
-"your genealogical research contains, the more interactivity Betty can add "
-"to your site, such as media galleries, maps, and browsable family trees."
-msgstr ""
-"Betty on sovellus, joka luo sukupuista tässä näkyvän kaltaisia sivustoja. "
-"Mitä enemmän tietoja sukututkimuksessasi on, sitä enemmän interaktiivisia "
-"toimintoja, kuten mediatiedostojen gallerioita, karttoja ja selattavia "
-"sukupuita, Betty voi lisätä sivustollesi."
+msgid "Betty is an application that takes a family tree and builds a website out of it, much like the one you are viewing right now. The more information your genealogical research contains, the more interactivity Betty can add to your site, such as media galleries, maps, and browsable family trees."
+msgstr "Betty on sovellus, joka luo sukupuista tässä näkyvän kaltaisia sivustoja. Mitä enemmän tietoja sukututkimuksessasi on, sitä enemmän interaktiivisia toimintoja, kuten mediatiedostojen gallerioita, karttoja ja selattavia sukupuita, Betty voi lisätä sivustollesi."
 
 #, python-brace-format
-msgid ""
-"Betty is unfamiliar with Gramps event \"{event_id}\"'s type of "
-"\"{gramps_event_type}\". The event was imported, but its type was set to "
-"\"{betty_event_type}\"."
+msgid "Betty is unfamiliar with Gramps event \"{event_id}\"'s type of \"{gramps_event_type}\". The event was imported, but its type was set to \"{betty_event_type}\"."
 msgstr ""
 
 #, python-brace-format
-msgid ""
-"Betty is unfamiliar with Gramps file \"{file_id}\"'s copyright notice ID "
-"of \"{copyright_notice_id}\" and ignored it."
+msgid "Betty is unfamiliar with Gramps file \"{file_id}\"'s copyright notice ID of \"{copyright_notice_id}\" and ignored it."
 msgstr ""
 
 #, python-brace-format
-msgid ""
-"Betty is unfamiliar with Gramps file \"{file_id}\"'s license ID of "
-"\"{license_id}\" and ignored it."
+msgid "Betty is unfamiliar with Gramps file \"{file_id}\"'s license ID of \"{license_id}\" and ignored it."
 msgstr ""
 
 #, python-brace-format
-msgid ""
-"Betty is unfamiliar with Gramps place \"{place_id}\"'s type of "
-"\"{gramps_place_type}\". The place was imported, but its type was set to "
-"\"{betty_place_type}\"."
+msgid "Betty is unfamiliar with Gramps place \"{place_id}\"'s type of \"{gramps_place_type}\". The place was imported, but its type was set to \"{betty_place_type}\"."
 msgstr ""
 
 #, python-brace-format
-msgid ""
-"Betty is unfamiliar with person \"{person_id}\"'s Gramps presence role of "
-"\"{gramps_presence_role}\" for the event with Gramps handle "
-"\"{event_handle}\". The role was imported, but set to "
-"\"{betty_presence_role}\"."
+msgid "Betty is unfamiliar with person \"{person_id}\"'s Gramps presence role of \"{gramps_presence_role}\" for the event with Gramps handle \"{event_handle}\". The role was imported, but set to \"{betty_presence_role}\"."
 msgstr ""
 
 #, python-format
-msgid ""
-"Betty was named after %(liberta_lankester_label)s, and this website shows "
-"a small sample of her family history. You can browse the pages about her "
-"and some of her family to get an idea of what a Betty site looks like."
+msgid "Betty was named after %(liberta_lankester_label)s, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
 msgstr ""
 
 #, python-brace-format
@@ -221,9 +182,7 @@ msgid "Burial"
 msgstr "Hautajaiset"
 
 msgid "Cannot find an available port to bind the web server to."
-msgstr ""
-"Järjestelmästä ei löydy vapaata porttia, johon verkkopalvelin voitaisiin "
-"yhdistää."
+msgstr "Järjestelmästä ei löydy vapaata porttia, johon verkkopalvelin voitaisiin yhdistää."
 
 #, python-brace-format
 msgid "Cannot find and import \"{plugin_id}\"."
@@ -234,16 +193,11 @@ msgid "Cannot find locale {locale}."
 msgstr "Kieltä {locale} ei löydy."
 
 #, python-brace-format
-msgid ""
-"Cannot generate pages for {entity_type}, because it is not a user-facing "
-"entity type."
+msgid "Cannot generate pages for {entity_type}, because it is not a user-facing entity type."
 msgstr ""
 
 #, python-brace-format
-msgid ""
-"Cannot load Gramps file {file_id} with relative path {file_path}, because "
-"your family tree does not include a base path. In Gramps, add a \"base "
-"path for relative media paths\" to your family tree, and export it again."
+msgid "Cannot load Gramps file {file_id} with relative path {file_path}, because your family tree does not include a base path. In Gramps, add a \"base path for relative media paths\" to your family tree, and export it again."
 msgstr ""
 
 #, python-brace-format
@@ -251,9 +205,7 @@ msgid "Cannot load Gramps file {file_id}, because {file_path} is not a file."
 msgstr ""
 
 #, python-brace-format
-msgid ""
-"Cannot load coordinates \"{coordinates}\", because they are in an unknown "
-"format."
+msgid "Cannot load coordinates \"{coordinates}\", because they are in an unknown format."
 msgstr ""
 
 msgid "Celebrant"
@@ -297,9 +249,7 @@ msgstr ""
 msgid "Copyright Wikipedia contributors"
 msgstr ""
 
-msgid ""
-"Copyright of these works lies with the original authors who contributed "
-"them to Wikipedia."
+msgid "Copyright of these works lies with the original authors who contributed them to Wikipedia."
 msgstr ""
 
 msgid "Correspondence"
@@ -321,9 +271,7 @@ msgid "Could not find a plugin \"{plugin_id}\"."
 msgstr ""
 
 #, python-brace-format
-msgid ""
-"Could not find any of the following configuration files in "
-"{project_directory_path}: {configuration_file_names}."
+msgid "Could not find any of the following configuration files in {project_directory_path}: {configuration_file_names}."
 msgstr ""
 
 #, python-brace-format
@@ -331,11 +279,8 @@ msgid "Could not find the file \"{file_path}\"."
 msgstr "Tiedostoa {file_path} ei löydy."
 
 #, python-brace-format
-msgid ""
-"Could not load \"{file_path}\" as a *.gpkg, a *.gramps, or an *.xml family"
-" tree."
-msgstr ""
-"Tiedostoa {file_path} ei voitu ladata *.gpkg-, *.gramps- tai *.xml-sukupuuna."
+msgid "Could not load \"{file_path}\" as a *.gpkg, a *.gramps, or an *.xml family tree."
+msgstr "Tiedostoa {file_path} ei voitu ladata *.gpkg-, *.gramps- tai *.xml-sukupuuna."
 
 msgid "Country"
 msgstr "Maa"
@@ -352,20 +297,12 @@ msgstr "Luo uusi käännös"
 msgid "Create a new translation for an extension"
 msgstr "Luo uusi käännös laajennukselle"
 
-msgid ""
-"Create events such as births and deaths by deriving their details from "
-"existing information."
-msgstr ""
-"Luo syntymän ja kuoleman kaltaisia tapahtumia noutamalla niiden tiedot "
-"olemassa olevasta datasta."
+msgid "Create events such as births and deaths by deriving their details from existing information."
+msgstr "Luo syntymän ja kuoleman kaltaisia tapahtumia noutamalla niiden tiedot olemassa olevasta datasta."
 
 #, python-brace-format
-msgid ""
-"Created {created_derivations} additional {event_type} events based on "
-"existing information."
-msgstr ""
-"Olemassa olevien tietojen pohjalta luotiin {created_derivations} "
-"ylimääräistä tyypin {event_type} tapahtumaa."
+msgid "Created {created_derivations} additional {event_type} events based on existing information."
+msgstr "Olemassa olevien tietojen pohjalta luotiin {created_derivations} ylimääräistä tyypin {event_type} tapahtumaa."
 
 msgid "Cremation"
 msgstr "Polttohautaus"
@@ -388,22 +325,16 @@ msgstr ""
 msgid "Description, licensing, and image history"
 msgstr ""
 
-msgid ""
-"Determine if people can be proven to have died. If not, mark them and "
-"their associated entities private."
+msgid "Determine if people can be proven to have died. If not, mark them and their associated entities private."
 msgstr ""
 
-msgid ""
-"Display interactive family trees using <a "
-"href=\"https://cytoscape.org/\">Cytoscape</a>."
+msgid "Display interactive family trees using <a href=\"https://cytoscape.org/\">Cytoscape</a>."
 msgstr ""
 
 msgid "Display interactive maps"
 msgstr ""
 
-msgid ""
-"Display the HTTP API documentation in a user-friendly way using <a "
-"href=\"https://swagger.io/tools/swagger-ui\">Swagger UI</a>."
+msgid "Display the HTTP API documentation in a user-friendly way using <a href=\"https://swagger.io/tools/swagger-ui\">Swagger UI</a>."
 msgstr ""
 
 msgid "District"
@@ -507,12 +438,8 @@ msgid "Generate a static site"
 msgstr "Luo staattinen sivusto"
 
 #, python-brace-format
-msgid ""
-"Generated {completed_job_count} out of {total_job_count} items "
-"({completed_job_percentage}%)."
-msgstr ""
-"Luotiin {completed_job_count}/{total_job_count} kohdetta ("
-"{completed_job_percentage} %)."
+msgid "Generated {completed_job_count} out of {total_job_count} items ({completed_job_percentage}%)."
+msgstr "Luotiin {completed_job_count}/{total_job_count} kohdetta ({completed_job_percentage} %)."
 
 msgid "Generating JSON Schema..."
 msgstr ""
@@ -535,12 +462,8 @@ msgid "Go to the front page"
 msgstr "Siirry etusivulle"
 
 #, python-brace-format
-msgid ""
-"Gramps XML must be compatible with version {supported_gramps_xml_version}."
-" Gramps XML {loaded_gramps_xml_version} is not supported."
-msgstr ""
-"Gramps-XML:n on oltava yhteensopiva version {supported_gramps_xml_version} "
-"kanssa. Gramps-XML:ää {loaded_gramps_xml_version} ei tueta."
+msgid "Gramps XML must be compatible with version {supported_gramps_xml_version}. Gramps XML {loaded_gramps_xml_version} is not supported."
+msgstr "Gramps-XML:n on oltava yhteensopiva version {supported_gramps_xml_version} kanssa. Gramps-XML:ää {loaded_gramps_xml_version} ei tueta."
 
 msgid "HTTP API Documentation"
 msgstr "HTTP API -asiakirjat"
@@ -570,9 +493,7 @@ msgid "I'm sorry, dear, but it seems this page does not exist."
 msgstr "Harmin paikka, mutta tätä sivua ei ilmeisesti ole."
 
 msgid "I'm sorry, dear, but it seems you're not allowed to view this page."
-msgstr ""
-"Harmin paikka, mutta sinulla ei ilmeisesti ole oikeuksia tarkastella tätä "
-"sivua."
+msgstr "Harmin paikka, mutta sinulla ei ilmeisesti ole oikeuksia tarkastella tätä sivua."
 
 msgid "I'm sorry, dear, but it seems you're not logged in."
 msgstr "Harmin paikka, mutta et ilmeisesti ole kirjautunut sisään."
@@ -692,10 +613,7 @@ msgstr ""
 msgid "Neighborhood"
 msgstr ""
 
-msgid ""
-"No part may be reproduced or distributed in any form or by any means, "
-"without express written permission from the copyright holder, or unless "
-"permitted by copyright law."
+msgid "No part may be reproduced or distributed in any form or by any means, without express written permission from the copyright holder, or unless permitted by copyright law."
 msgstr ""
 
 msgid "Non-binary"
@@ -753,9 +671,7 @@ msgid "Places"
 msgstr ""
 
 #, python-brace-format
-msgid ""
-"Plugin {plugin_label} ({plugin_id}) is not configurable, but configuration"
-" was given."
+msgid "Plugin {plugin_label} ({plugin_id}) is not configurable, but configuration was given."
 msgstr ""
 
 msgid "Presence"
@@ -769,15 +685,11 @@ msgid "Presences"
 msgstr ""
 
 #, python-brace-format
-msgid ""
-"Privatized person {privatized_person_id} ({privatized_person}) because "
-"they are likely still alive."
+msgid "Privatized person {privatized_person_id} ({privatized_person}) because they are likely still alive."
 msgstr ""
 
 #, python-brace-format
-msgid ""
-"Privatized place {privatized_place_id} ({privatized_place}) because it is "
-"not associated with any public information."
+msgid "Privatized place {privatized_place_id} ({privatized_place}) because it is not associated with any public information."
 msgstr ""
 
 #, python-brace-format
@@ -785,16 +697,11 @@ msgid "Privatized {count} people because they are likely still alive."
 msgstr ""
 
 #, python-brace-format
-msgid ""
-"Privatized {count} {entity_type}, because they are associated with private"
-" information."
+msgid "Privatized {count} {entity_type}, because they are associated with private information."
 msgstr ""
 
 #, python-brace-format
-msgid ""
-"Privatized {privatized_entity_type} {privatized_entity_id} "
-"({privatized_entity}) because of {reason_entity_type} {reason_entity_id} "
-"({reason_entity})."
+msgid "Privatized {privatized_entity_type} {privatized_entity_id} ({privatized_entity}) because of {reason_entity_type} {reason_entity_id} ({reason_entity})."
 msgstr ""
 
 msgid "Privatizer"
@@ -883,17 +790,11 @@ msgid "The '%(project_title)s' logo"
 msgstr ""
 
 #, python-brace-format
-msgid ""
-"The Gramps {gramps_entity_reference} entity has a "
-"\"betty:link-{link_name}:media_type\" attribute with value "
-"\"{media_type}\", which is not a valid IANA media type. This media type "
-"was ignored."
+msgid "The Gramps {gramps_entity_reference} entity has a \"betty:link-{link_name}:media_type\" attribute with value \"{media_type}\", which is not a valid IANA media type. This media type was ignored."
 msgstr ""
 
 #, python-brace-format
-msgid ""
-"The Gramps {gramps_entity_reference} entity requires a "
-"\"betty:link-{link_name}:url\" attribute. This link was ignored."
+msgid "The Gramps {gramps_entity_reference} entity requires a \"betty:link-{link_name}:url\" attribute. This link was ignored."
 msgstr ""
 
 msgid "The URL must include a host."
@@ -903,24 +804,15 @@ msgid "The URL must start with a scheme such as https:// or http://."
 msgstr ""
 
 #, python-brace-format
-msgid ""
-"The betty:privacy Gramps attribute must have a value of \"public\" or "
-"\"private\", but \"{privacy_value}\" was given for {entity_type} "
-"{entity_id} ({entity_label}), which was ignored."
+msgid "The betty:privacy Gramps attribute must have a value of \"public\" or \"private\", but \"{privacy_value}\" was given for {entity_type} {entity_id} ({entity_label}), which was ignored."
 msgstr ""
 
 #, python-brace-format
-msgid ""
-"The entity reference must be for an entity of type "
-"{expected_entity_type_id}, but instead does not specify an entity type at "
-"all."
+msgid "The entity reference must be for an entity of type {expected_entity_type_id}, but instead does not specify an entity type at all."
 msgstr ""
 
 #, python-brace-format
-msgid ""
-"The entity reference must be for an entity of type "
-"{expected_entity_type_id}, but instead is for an entity of type "
-"{actual_entity_type_id}."
+msgid "The entity reference must be for an entity of type {expected_entity_type_id}, but instead is for an entity of type {actual_entity_type_id}."
 msgstr ""
 
 msgid "The following errors occurred"
@@ -1022,9 +914,7 @@ msgid "Unknown"
 msgstr ""
 
 #, python-brace-format
-msgid ""
-"Unknown file format \"{extension}\". Supported formats are: "
-"{available_formats}."
+msgid "Unknown file format \"{extension}\". Supported formats are: {available_formats}."
 msgstr ""
 
 #, python-brace-format
@@ -1041,14 +931,10 @@ msgid "Update all existing translations for an extension"
 msgstr ""
 
 #, python-brace-format
-msgid ""
-"Updated {updated_derivations} {event_type} events based on existing "
-"information."
+msgid "Updated {updated_derivations} {event_type} events based on existing information."
 msgstr ""
 
-msgid ""
-"Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
-"to exit the search."
+msgid "Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> to exit the search."
 msgstr ""
 
 msgid "View original"
@@ -1081,9 +967,7 @@ msgstr ""
 msgid "Where do you want to save your project's configuration file?"
 msgstr ""
 
-msgid ""
-"Which language should your project site be generated in? Enter an IETF BCP"
-" 47 language code."
+msgid "Which language should your project site be generated in? Enter an IETF BCP 47 language code."
 msgstr ""
 
 msgid "Wikipedia"
@@ -1101,20 +985,14 @@ msgstr ""
 msgid "Witnesses"
 msgstr ""
 
-msgid ""
-"Works in the public domain can be used or referenced without permission, "
-"because nobody holds any exclusive rights over these works (anymore)."
+msgid "Works in the public domain can be used or referenced without permission, because nobody holds any exclusive rights over these works (anymore)."
 msgstr ""
 
 #, python-format
-msgid ""
-"Your browser cannot show PDF documents. <a href=\"%(file_url)s\">Download "
-"%(file_name)s</a> to view it on your device instead."
+msgid "Your browser cannot show PDF documents. <a href=\"%(file_url)s\">Download %(file_name)s</a> to view it on your device instead."
 msgstr ""
 
-msgid ""
-"Your project has no theme enabled. This means your site's pages may look "
-"bare. Try the \"raspberry-mint\" extension."
+msgid "Your project has no theme enabled. This means your site's pages may look bare. Try the \"raspberry-mint\" extension."
 msgstr ""
 
 msgid "Zoom in"
@@ -1191,10 +1069,7 @@ msgstr ""
 msgid "in %(source)s"
 msgstr ""
 
-msgid ""
-"npm (https://www.npmjs.com/) must be available for features that require "
-"Node.js packages to be installed. Ensure that the `npm` executable is "
-"available in your `PATH`."
+msgid "npm (https://www.npmjs.com/) must be available for features that require Node.js packages to be installed. Ensure that the `npm` executable is available in your `PATH`."
 msgstr ""
 
 msgid "npm is available"
@@ -1376,3 +1251,4 @@ msgstr ""
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr ""
+

@@ -182,10 +182,8 @@ async def _update_translations(
     await run_babel(
         "",
         "extract",
+        "--no-wrap",
         "--no-location",
-        "--width",
-        # Weblate uses 77 characters.
-        "77",
         "--sort-output",
         "-F",
         "babel.ini",
@@ -210,6 +208,7 @@ async def _update_translations(
         await run_babel(
             "",
             "update",
+            "--no-wrap",
             "--domain",
             "betty",
             "--input-file",
