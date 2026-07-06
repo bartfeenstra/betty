@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-06 22:14+0100\n"
-"PO-Revision-Date: 2026-07-06 21:25+0000\n"
+"PO-Revision-Date: 2026-07-06 21:30+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: es-ES\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-5-x/es/>\n"
@@ -838,7 +838,7 @@ msgid "Height"
 msgstr "Altura"
 
 msgid "Help improve the translations"
-msgstr ""
+msgstr "Ayuda a mejorar las traducciones"
 
 msgid "Home"
 msgstr "Portada"
@@ -1593,7 +1593,7 @@ msgstr "Texto"
 
 #, python-format
 msgid "The %(language)s translations are only %(translated)s%% complete. Some things may be shown in English."
-msgstr ""
+msgstr "Las traducciones al %(language)s solo están completas en un %(translated)s%%. Es posible que algunos elementos aparezcan en inglés."
 
 #, python-format
 msgid "The '%(project_title)s' logo"
