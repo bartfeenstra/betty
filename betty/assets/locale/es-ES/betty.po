@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-04-24 14:22+0100\n"
-"PO-Revision-Date: 2026-07-06 16:26+0000\n"
+"PO-Revision-Date: 2026-07-06 20:29+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-4-"
 "x/es/>\n"
@@ -261,7 +261,7 @@ msgid "City"
 msgstr "Ciudad"
 
 msgid "Clear all caches"
-msgstr ""
+msgstr "Vaciar todas las cachés"
 
 msgid "Close"
 msgstr "Cerrar"
@@ -277,7 +277,7 @@ msgstr "Confirmación"
 
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
-msgstr ""
+msgstr "Continúa leyendo en <a href=\"%(url)s\">Wikipedia</a>."
 
 msgid "Copyright"
 msgstr "Derechos de autor"
@@ -337,10 +337,10 @@ msgid "County"
 msgstr "Condado"
 
 msgid "Create a new project"
-msgstr ""
+msgstr "Crear un nuevo proyecto"
 
 msgid "Create a new translation"
-msgstr ""
+msgstr "Crear una nueva traducción"
 
 msgid "Create a new translation for an extension"
 msgstr ""
@@ -388,7 +388,7 @@ msgid ""
 msgstr ""
 
 msgid "Display interactive maps"
-msgstr ""
+msgstr "Mostrar mapas interactivos"
 
 msgid ""
 "Display the HTTP API documentation in a user-friendly way using <a "
@@ -451,7 +451,7 @@ msgid "Exit the search"
 msgstr "Salir de la búsqueda"
 
 msgid "Explore a demonstration site"
-msgstr ""
+msgstr "Explora un sitio de demostración"
 
 msgid "External links"
 msgstr "Enlaces externos"
@@ -634,7 +634,7 @@ msgid "Locale aliases must not contain slashes."
 msgstr ""
 
 msgid "Locality"
-msgstr ""
+msgstr "Localidad"
 
 msgid "MMMM"
 msgstr "MMMM"
@@ -1202,7 +1202,7 @@ msgid "show less"
 msgstr ""
 
 msgid "show more"
-msgstr ""
+msgstr "mostrar más"
 
 msgid "sometime"
 msgstr "en algún día"
