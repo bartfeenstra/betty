@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-04-24 14:22+0100\n"
-"PO-Revision-Date: 2026-07-06 11:35+0000\n"
+"PO-Revision-Date: 2026-07-06 14:07+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-4-"
 "x/es/>\n"
@@ -203,7 +203,7 @@ msgid "Birth"
 msgstr "Nacimiento"
 
 msgid "Borough"
-msgstr ""
+msgstr "Borough"
 
 msgid "Building"
 msgstr "Edificio"
@@ -628,7 +628,7 @@ msgstr ""
 
 #, python-brace-format
 msgid "Loading \"{file_path}\"..."
-msgstr ""
+msgstr "Cargando \"{file_path}\"..."
 
 msgid "Locale aliases must not contain slashes."
 msgstr ""
