@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-06 22:14+0100\n"
-"PO-Revision-Date: 2026-07-07 01:16+0000\n"
+"PO-Revision-Date: 2026-07-07 13:22+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de-DE\n"
 "Language-Team: German <https://hosted.weblate.org/projects/betty/betty-0-5-x/de/>\n"
@@ -98,13 +98,13 @@ msgid "Adoption"
 msgstr "Adoption"
 
 msgid "Adoptions"
-msgstr ""
+msgstr "Adoptionen"
 
 msgid "Affiliation name"
 msgstr ""
 
 msgid "After"
-msgstr ""
+msgstr "Nach"
 
 msgid "Alias"
 msgstr ""
@@ -189,16 +189,16 @@ msgid "Attendee"
 msgstr "Teilnehmer"
 
 msgid "Attendees"
-msgstr ""
+msgstr "Teilnehmer"
 
 msgid "Author"
-msgstr ""
+msgstr "Autor(in)"
 
 msgid "Baptism"
 msgstr "Taufe"
 
 msgid "Baptisms"
-msgstr ""
+msgstr "Taufen"
 
 msgid "Bar mitzvah"
 msgstr "Bar Mitzwa"
@@ -219,10 +219,10 @@ msgid "Bat mitzvahs"
 msgstr ""
 
 msgid "Before"
-msgstr ""
+msgstr "Vor"
 
 msgid "Beneficiaries"
-msgstr ""
+msgstr "Begünstigte"
 
 msgid "Beneficiary"
 msgstr "Begünstigter"
@@ -268,7 +268,7 @@ msgid "Birth"
 msgstr "Geburt"
 
 msgid "Births"
-msgstr ""
+msgstr "Geburten"
 
 msgid "Borough"
 msgstr ""
@@ -295,7 +295,7 @@ msgid "Building"
 msgstr "Gebäude"
 
 msgid "Buildings"
-msgstr ""
+msgstr "Gebäude"
 
 msgid "Built-in"
 msgstr ""
@@ -304,7 +304,7 @@ msgid "Burial"
 msgstr "Beerdigung"
 
 msgid "Burials"
-msgstr ""
+msgstr "Beerdigungen"
 
 msgid "CSS resource"
 msgstr ""
@@ -353,10 +353,10 @@ msgid "Cemeteries"
 msgstr ""
 
 msgid "Cemetery"
-msgstr ""
+msgstr "Friedhof"
 
 msgid "Children"
-msgstr ""
+msgstr "Kinder"
 
 msgid "Citation"
 msgstr "Zitat"
@@ -365,7 +365,7 @@ msgid "Citations"
 msgstr "Zitate"
 
 msgid "Cities"
-msgstr ""
+msgstr "Städte"
 
 msgid "City"
 msgstr "Großstadt"
@@ -380,7 +380,7 @@ msgid "Close"
 msgstr "Schließen"
 
 msgid "Color"
-msgstr ""
+msgstr "Farbe"
 
 msgid "Color style"
 msgstr ""
@@ -1228,7 +1228,7 @@ msgid "Page not found"
 msgstr "Seite nicht gefunden"
 
 msgid "Parents"
-msgstr ""
+msgstr "Eltern"
 
 msgid "Parish"
 msgstr "Pfarrgemeinde"
@@ -1270,19 +1270,19 @@ msgid "Place"
 msgstr "Ort"
 
 msgid "Place name"
-msgstr ""
+msgstr "Ortsname"
 
 msgid "Place names"
-msgstr ""
+msgstr "Ortsnamen"
 
 msgid "Place type"
-msgstr ""
+msgstr "Ortstyp"
 
 msgid "Place type configuration"
 msgstr ""
 
 msgid "Place types"
-msgstr ""
+msgstr "Ortstypen"
 
 msgid "Places"
 msgstr "Orte"
@@ -1477,7 +1477,7 @@ msgid "Secondary color"
 msgstr ""
 
 msgid "Section"
-msgstr ""
+msgstr "Abschnitt"
 
 msgid "Section configuration"
 msgstr ""
@@ -1556,7 +1556,7 @@ msgid "Streets"
 msgstr ""
 
 msgid "Style"
-msgstr ""
+msgstr "Stil"
 
 msgid "Subcommands"
 msgstr ""
@@ -1844,7 +1844,7 @@ msgid "Usage: "
 msgstr ""
 
 msgid "Version"
-msgstr ""
+msgstr "Version"
 
 msgid "View Betty's interactive documentation. This will open your web browser."
 msgstr ""
@@ -2108,8 +2108,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} adoption"
 msgid_plural "{count} adoptions"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} Adoption"
+msgstr[1] "{count} Adoptionen"
 
 #, python-brace-format
 msgid "{count} announcement of divorce"
@@ -2132,14 +2132,14 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} attendee"
 msgid_plural "{count} attendees"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} Teilnehmer"
+msgstr[1] "{count} Teilnehmer"
 
 #, python-brace-format
 msgid "{count} baptism"
 msgid_plural "{count} baptisms"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} Taufe"
+msgstr[1] "{count} Taufen"
 
 #, python-brace-format
 msgid "{count} bar mitzvah"
@@ -2156,14 +2156,14 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} beneficiary"
 msgid_plural "{count} beneficiaries"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} Begünstigter"
+msgstr[1] "{count} Begünstigte"
 
 #, python-brace-format
 msgid "{count} birth"
 msgid_plural "{count} births"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} Geburt"
+msgstr[1] "{count} Geburten"
 
 #, python-brace-format
 msgid "{count} borough"
@@ -2174,14 +2174,14 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} building"
 msgid_plural "{count} buildings"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} Gebäude"
+msgstr[1] "{count} Gebäude"
 
 #, python-brace-format
 msgid "{count} burial"
 msgid_plural "{count} burials"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} Beerdigung"
+msgstr[1] "{count} Beerdigungen"
 
 #, python-brace-format
 msgid "{count} celebrant"
@@ -2192,8 +2192,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} cemetery"
 msgid_plural "{count} cemeteries"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} Friedhof"
+msgstr[1] "{count} Friedhöfe"
 
 #, python-brace-format
 msgid "{count} citation"
@@ -2204,8 +2204,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} city"
 msgid_plural "{count} cities"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} Stadt"
+msgstr[1] "{count} Städte"
 
 #, python-brace-format
 msgid "{count} command"
@@ -2510,14 +2510,14 @@ msgstr[1] "{count} Orte"
 #, python-brace-format
 msgid "{count} place name"
 msgid_plural "{count} place names"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} Ortsname"
+msgstr[1] "{count} Ortsnamen"
 
 #, python-brace-format
 msgid "{count} place type"
 msgid_plural "{count} place types"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} Ortstyp"
+msgstr[1] "{count} Ortstypen"
 
 #, python-brace-format
 msgid "{count} presence"
