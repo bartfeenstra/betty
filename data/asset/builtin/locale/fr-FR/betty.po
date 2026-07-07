@@ -8,15 +8,16 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-06 22:14+0100\n"
-"PO-Revision-Date: 2026-07-06 21:01+0000\n"
-"Last-Translator: Anonymous <noreply@weblate.org>\n"
-"Language: fr_FR\n"
+"PO-Revision-Date: 2026-07-07 13:46+0000\n"
+"Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
+"Language: fr-FR\n"
 "Language-Team: French <https://hosted.weblate.org/projects/betty/betty-0-5-x/fr/>\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
+"X-Generator: Weblate 2026.7.1.dev0\n"
 
 #, python-brace-format
 msgid "\"{color}\" is not a valid hexadecimal color, such as #ffc0cb."
@@ -55,13 +56,13 @@ msgid "%(event)s with %(subjects)s"
 msgstr "%(event)s avec %(subjects)s"
 
 msgid "A Betty demonstration"
-msgstr ""
+msgstr "Une démonstration de Betty"
 
 msgid "A countable localizable string"
 msgstr ""
 
 msgid "A family history as told by <a href=\"https://betty.readthedocs.io\">Betty👵</a>"
-msgstr "Une histoire familiale racontée par<a href=\"https://betty.readthedocs.io\">Betty👵</a>"
+msgstr "Une histoire familiale racontée par <a href=\"https://betty.readthedocs.io\">Betty👵</a>"
 
 msgid "A formal witness to an event."
 msgstr ""
@@ -85,7 +86,7 @@ msgid "A single file in a media display"
 msgstr ""
 
 msgid "API documentation"
-msgstr "documentation de l'API"
+msgstr "Documentation de l'API"
 
 msgid "Access denied"
 msgstr ""
@@ -206,7 +207,7 @@ msgid "Bar mitzvahs"
 msgstr ""
 
 msgid "Bart Feenstra and contributors"
-msgstr ""
+msgstr "Bart Feenstra et les contributeurs"
 
 msgid "Bart's parent"
 msgstr ""
@@ -443,17 +444,17 @@ msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
 msgstr "Poursuivez votre lecture sur <a href=\"%(url)s\">Wikipedia</a>."
 
 msgid "Coordinates"
-msgstr ""
+msgstr "Coordonnées"
 
 msgid "Copyright"
 msgstr "Copyright"
 
 #, python-format
 msgid "Copyright <a href=\"%(url)s\">OpenStreetMap</a> contributors"
-msgstr ""
+msgstr "Droits d'auteur des contributeurs d' <a href=\"%(url)s\">OpenStreetMap</a>"
 
 msgid "Copyright Wikipedia contributors"
-msgstr ""
+msgstr "Droits d'auteur des contributeurs de Wikipédia"
 
 msgid "Copyright notice"
 msgstr ""
@@ -697,7 +698,7 @@ msgid "Explore a demonstration site"
 msgstr "Explorer un site de démonstration"
 
 msgid "Explore a family history..."
-msgstr ""
+msgstr "Découvrez l'histoire d'une famille..."
 
 msgid "Extension"
 msgstr ""
@@ -787,7 +788,7 @@ msgid "Generating site..."
 msgstr ""
 
 msgid "Get started"
-msgstr ""
+msgstr "Commencer"
 
 msgid "Go to the front page"
 msgstr ""
@@ -837,10 +838,10 @@ msgid "Height"
 msgstr ""
 
 msgid "Help improve the translations"
-msgstr ""
+msgstr "Contribuez à améliorer les traductions"
 
 msgid "Home"
-msgstr ""
+msgstr "Accueil"
 
 msgid "I'm sorry, dear, but it seems there is nothing to show."
 msgstr "Je suis désolé, très cher(e), mais il semble qu’il n’y ait rien à montrer."
@@ -946,7 +947,7 @@ msgstr "Langage"
 
 #, python-format
 msgid "Last modified on %(last_modified)s"
-msgstr ""
+msgstr "Dernière modification le %(last_modified)s"
 
 msgid "Last page"
 msgstr ""
@@ -1059,7 +1060,7 @@ msgid "Machine name"
 msgstr ""
 
 msgid "Man"
-msgstr ""
+msgstr "Homme"
 
 msgid "Map"
 msgstr ""
@@ -1395,7 +1396,7 @@ msgid "Read the Betty documentation"
 msgstr "Lire la documentation de Betty"
 
 msgid "Read the documentation"
-msgstr ""
+msgstr "Lire la documentation"
 
 msgid "Referee"
 msgstr ""
@@ -1592,7 +1593,7 @@ msgstr ""
 
 #, python-format
 msgid "The %(language)s translations are only %(translated)s%% complete. Some things may be shown in English."
-msgstr ""
+msgstr "Les traductions de %(language)s ne sont que %(translated)s%% complètes. Certains éléments peuvent être affichés en anglais."
 
 #, python-format
 msgid "The '%(project_title)s' logo"
@@ -1852,7 +1853,7 @@ msgid "View original size"
 msgstr ""
 
 msgid "View the code"
-msgstr ""
+msgstr "Afficher le code"
 
 msgid "View the documentation"
 msgstr "Voir la documentation"
@@ -1912,7 +1913,7 @@ msgid "Wikipedia contributors"
 msgstr "Contributeurs Wikipédia"
 
 msgid "Wikipedia says..."
-msgstr ""
+msgstr "Wikipédia dit..."
 
 msgid "Wikipedia summary"
 msgstr ""
@@ -1930,7 +1931,7 @@ msgid "Witnesses"
 msgstr "Témoins"
 
 msgid "Woman"
-msgstr ""
+msgstr "Femme"
 
 msgid "Women"
 msgstr ""
@@ -1961,31 +1962,31 @@ msgstr "à partir d'environ le {start_date}"
 
 #, python-brace-format
 msgid "from around {start_date} until around {end_date}"
-msgstr "entre approximativement le {start_date} et jusqu'approximativement le {end_date} OK3"
+msgstr "entre approximativement le {start_date} et jusqu'approximativement le {end_date}"
 
 #, python-brace-format
 msgid "from around {start_date} until sometime before around {end_date}"
-msgstr "entre approximativement le {start_date} et jusqu'approximativement quelques temps avant le {end_date} OK3"
+msgstr "entre approximativement le {start_date} et jusqu'approximativement quelques temps avant le {end_date}"
 
 #, python-brace-format
 msgid "from around {start_date} until sometime before {end_date}"
-msgstr "entre approximativement le {start_date} et jusqu'à quelques temps avant le {end_date} OK3"
+msgstr "entre approximativement le {start_date} et jusqu'à quelques temps avant le {end_date}"
 
 #, python-brace-format
 msgid "from around {start_date} until {end_date}"
-msgstr "entre approximativement le {start_date} et jusqu'au {end_date} OK3"
+msgstr "entre approximativement le {start_date} et jusqu'au {end_date}"
 
 #, python-brace-format
 msgid "from sometime after around {start_date} until around {end_date}"
-msgstr "entre approximativement après le {start_date} et jusqu'approximativement le {end_date} OK3"
+msgstr "entre approximativement après le {start_date} et jusqu'approximativement le {end_date}"
 
 #, python-brace-format
 msgid "from sometime after around {start_date} until {end_date}"
-msgstr "entre approximativement quelques temps après le {start_date} et jusqu'au {end_date} OK3"
+msgstr "entre approximativement quelques temps après le {start_date} et jusqu'au {end_date}"
 
 #, python-brace-format
 msgid "from sometime after {start_date} until around {end_date}"
-msgstr "entre quelque temps après le {start_date} et jusqu'approximativement le {end_date} OK3"
+msgstr "entre quelque temps après le {start_date} et jusqu'approximativement le {end_date}"
 
 #, python-brace-format
 msgid "from sometime after {start_date} until {end_date}"
@@ -2046,19 +2047,19 @@ msgstr "quelques temps avant le {end_date}"
 
 #, python-brace-format
 msgid "sometime between around {start_date} and around {end_date}"
-msgstr "quelques temps entre approximativement le {start_date} et approximativement le {end_date} OK3"
+msgstr "quelques temps entre approximativement le {start_date} et approximativement le {end_date}"
 
 #, python-brace-format
 msgid "sometime between around {start_date} and {end_date}"
-msgstr "quelques temps entre approximativement le {start_date} et le {end_date} OK3"
+msgstr "quelques temps entre approximativement le {start_date} et le {end_date}"
 
 #, python-brace-format
 msgid "sometime between {start_date} and around {end_date}"
-msgstr "quelques temps entre le {start_date} et approximativement le {end_date} OK3"
+msgstr "quelques temps entre le {start_date} et approximativement le {end_date}"
 
 #, python-brace-format
 msgid "sometime between {start_date} and {end_date}"
-msgstr "quelques temps entre le {start_date} et le {end_date} OK3"
+msgstr "quelques temps entre le {start_date} et le {end_date}"
 
 msgid "unknown date"
 msgstr "date inconnue"
@@ -2323,8 +2324,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} event"
 msgid_plural "{count} events"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} événement"
+msgstr[1] "{count} événements"
 
 #, python-brace-format
 msgid "{count} event type"
@@ -2455,8 +2456,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} note"
 msgid_plural "{count} notes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} note"
+msgstr[1] "{count} notes"
 
 #, python-brace-format
 msgid "{count} number"
@@ -2485,8 +2486,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} person"
 msgid_plural "{count} people"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} personne"
+msgstr[1] "{count} personnes"
 
 #, python-brace-format
 msgid "{count} person name"
@@ -2503,8 +2504,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} place"
 msgid_plural "{count} places"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} lieu"
+msgstr[1] "{count} lieux"
 
 #, python-brace-format
 msgid "{count} place name"
@@ -2635,8 +2636,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} woman"
 msgid_plural "{count} women"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} femme"
+msgstr[1] "{count} femmes"
 
 #, python-brace-format
 msgid "{date}"
@@ -2672,4 +2673,3 @@ msgstr "© Copyright l’auteur, sauf indication contraire"
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Copyright {author}, sauf crédit contraire"
-
