@@ -40,7 +40,7 @@ class TestMachineName:
     @pytest.mark.parametrize("machine_name", VALID_MACHINE_NAMES)
     def test_dump(self, machine_name: str) -> None:
         sut = MachineName(machine_name)
-        assert sut.data().porter.dump(sut) == machine_name
+        assert MachineName.data().porter.dump(sut) == machine_name
 
     @pytest.mark.parametrize(
         ("expected", "source"),

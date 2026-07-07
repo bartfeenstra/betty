@@ -1,46 +1,44 @@
 from dataclasses import dataclass
 from unittest.mock import Mock
 
+import pytest
+from pytest_mock import MockerFixture
+
 from betty.data import DataDefinition
-from betty.datas.aggregate.record import FieldDefinition, RecordDefinition
+from betty.datas.aggregate.record import (
+    FieldDefinition,
+    FieldPorter,
+    RecordDefinition,
+    resolve_field_definition,
+)
 from betty.datas.bool import BoolDefinition
 from betty.datas.optional import OptionalDefinition
 from betty.datas.str import StrDefinition
 from betty.indicator.selector import Attr
 from betty.localizables.plain import Plain
 from betty.portable import Porter
+from betty.portable.error import NotPortable
+from betty.porters.data_definition_field import DataDefinitionFieldPorter
 from betty.porters.fields import FieldsPorter
 
 
 class TestFieldDefinition:
-    def test_omit_load(self) -> None:
+    def test_optional(self) -> None:
         sut = FieldDefinition(BoolDefinition(label="-"))
-        assert not sut.omit_load
+        assert not sut.optional
 
-    def test_omit_load__with_omit_load(self) -> None:
+    def test_optional__with_optional(self) -> None:
         sut = FieldDefinition(
             BoolDefinition(label="-"),
-            omit_load=True,
+            optional=True,
         )
-        assert sut.omit_load
+        assert sut.optional
 
-    def test_omit_load__with_optional_definition(self) -> None:
+    def test_optional__with_optional_definition(self) -> None:
         sut = FieldDefinition(
-            OptionalDefinition(BoolDefinition(label="-")), omit_load=True
+            OptionalDefinition(BoolDefinition(label="-")), optional=True
         )
-        assert sut.omit_load
-
-    def test_omit_dump__with_callable_false(self) -> None:
-        sut = FieldDefinition(BoolDefinition(label="-"), omit_dump=lambda _: False)
-        assert not sut.omit_dump(object(), True)
-
-    def test_omit_dump__with_callable_true(self) -> None:
-        sut = FieldDefinition(BoolDefinition(label="-"), omit_dump=lambda _: True)
-        assert sut.omit_dump(object(), True)
-
-    def test_omit_dump__with_none(self) -> None:
-        sut = FieldDefinition(BoolDefinition(label="-"), omit_dump=None)
-        assert not sut.omit_dump(object(), True)
+        assert sut.optional
 
     def test_data(self) -> None:
         data = DataDefinition(label="-")
@@ -61,13 +59,40 @@ class TestFieldDefinition:
         sut = FieldDefinition(DataDefinition(label="-"), description=description)
         assert sut.description is description
 
-    def test_omit__without_callback(self) -> None:
+    def test_porter__without_porter_without_data_porter(self) -> None:
         sut = FieldDefinition(DataDefinition(label="-"))
-        assert not sut.omit_dump(object(), object())
+        with pytest.raises(NotPortable):
+            assert sut.porter
 
-    def test_omit__with_callback(self) -> None:
-        sut = FieldDefinition(DataDefinition(label="-"), omit_dump=lambda _: True)
-        assert sut.omit_dump(object(), object())
+    def test_porter__without_porter_with_data_porter(
+        self, mocker: MockerFixture
+    ) -> None:
+        sut = FieldDefinition(
+            DataDefinition(label="-", porter=mocker.MagicMock(spec=Porter))
+        )
+        assert isinstance(sut.porter, DataDefinitionFieldPorter)
+
+    def test_porter__with_porter(self, mocker: MockerFixture) -> None:
+        porter = mocker.MagicMock(spec=FieldPorter)
+        sut = FieldDefinition(DataDefinition(label="-"), porter=porter)
+        assert sut.porter is porter
+
+    def test_try_porter__without_porter_without_data_porter(self) -> None:
+        sut = FieldDefinition(DataDefinition(label="-"))
+        assert sut.try_porter is None
+
+    def test_try_porter__without_porter_with_data_porter(
+        self, mocker: MockerFixture
+    ) -> None:
+        sut = FieldDefinition(
+            DataDefinition(label="-", porter=mocker.MagicMock(spec=Porter))
+        )
+        assert isinstance(sut.porter, DataDefinitionFieldPorter)
+
+    def test_try_porter__with_porter(self, mocker: MockerFixture) -> None:
+        porter = mocker.MagicMock(spec=FieldPorter)
+        sut = FieldDefinition(DataDefinition(label="-"), porter=porter)
+        assert sut.try_porter is porter
 
 
 @dataclass(frozen=True)
@@ -100,14 +125,14 @@ class TestRecordDefinition:
         sut = RecordDefinition[RecordDefinitionTestRecord, Porter, Attr](
             cls=RecordDefinitionTestRecord, label="-"
         )
-        assert isinstance(sut.porter, FieldsPorter)
+        assert isinstance(sut.try_porter, FieldsPorter)
 
     def test_porter__with_porter(self) -> None:
         m_porter = Mock(spec=Porter)
         sut = RecordDefinition[RecordDefinitionTestRecord, Porter, Attr](
             cls=RecordDefinitionTestRecord, label="-", porter=m_porter
         )
-        assert sut.porter is m_porter
+        assert sut.try_porter is m_porter
 
     def test_fields(self) -> None:
         field = FieldDefinition(StrDefinition(label="-"))
@@ -117,3 +142,13 @@ class TestRecordDefinition:
             fields={Attr("my_first_element"): field},
         )
         assert dict(sut.fields) == {Attr("my_first_element"): field}
+
+
+def test_resolve_field_definition__with_field_definition() -> None:
+    field = FieldDefinition(DataDefinition(label="-"))
+    assert resolve_field_definition(field) is field
+
+
+def test_resolve_field_definition__with_resolvable_data_definition() -> None:
+    data = DataDefinition(label="-")
+    assert resolve_field_definition(data).data is data

@@ -171,7 +171,7 @@ class App(RequirableServiceLevel, PluginServiceProvider):
                 data = AppData.data().porter.load(
                     assert_load_file(serializers=await gather(*services.serializers))(
                         AppData.FILE
-                    )
+                    ),
                 )
                 locale = data.locale
         else:

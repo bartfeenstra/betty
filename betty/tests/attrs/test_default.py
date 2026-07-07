@@ -1,4 +1,4 @@
-from collections.abc import Callable, Iterable, MutableSequence
+from collections.abc import Iterable, MutableSequence
 from typing import override
 
 from betty.attr import Attr
@@ -10,13 +10,8 @@ from betty.prop import HasProps
 
 
 class _Attr(Attr[HasProps, str, str]):
-    def __init__(
-        self,
-        *,
-        init_value: str | None = None,
-        omit_dump: Callable[[str], bool] | None = None,
-    ):
-        super().__init__(FieldDefinition(StrDefinition(label="-"), omit_dump=omit_dump))
+    def __init__(self, *, init_value: str | None = None):
+        super().__init__(FieldDefinition(StrDefinition(label="-")))
         self._init_value = init_value
 
     @override
@@ -41,30 +36,6 @@ class TestDefaultAttr:
             my_first_attr = DefaultAttr(_Attr(), lambda: default)
 
         assert _Owner().my_first_attr == default
-
-    def test_omit_dump__with_default(self) -> None:
-        default = "Hello, world!"
-
-        class _Owner(HasProps):
-            my_first_attr = DefaultAttr(_Attr(), lambda: default)
-
-        assert _Owner.my_first_attr.field.omit_dump(_Owner(), default)
-
-    def test_omit_dump__with_proxied_false(self) -> None:
-        class _Owner(HasProps):
-            my_first_attr = DefaultAttr(_Attr(omit_dump=lambda _: False), lambda: "")
-
-        owner = _Owner()
-        owner.my_first_attr = "Hello, world!"
-        assert not _Owner.my_first_attr.field.omit_dump(owner, owner.my_first_attr)
-
-    def test_omit_dump__with_proxied_true(self) -> None:
-        class _Owner(HasProps):
-            my_first_attr = DefaultAttr(_Attr(omit_dump=lambda _: True), lambda: "")
-
-        owner = _Owner()
-        owner.my_first_attr = "Hello, world!"
-        assert _Owner.my_first_attr.field.omit_dump(owner, owner.my_first_attr)
 
 
 class _CollectionDefinition(CollectionDefinition[MutableSequence[str], Iterable[str]]):

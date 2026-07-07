@@ -10,6 +10,7 @@ from betty.attrs.proxy import ProxyAttr
 from betty.data import DataDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.optional import OptionalDefinition
+from betty.porters.omit_field import OmitFieldPorter
 from betty.prop import HasProps
 
 if TYPE_CHECKING:
@@ -25,20 +26,15 @@ class OptionalAttr[OwnerT: HasProps, GetT, SetT](
 
     def __init__(self, proxied: Attr[OwnerT, GetT, SetT, DataDefinition[GetT]], /):
         super().__init__(
-            FieldDefinition(
+            FieldDefinition[OwnerT, GetT, DataDefinition[GetT | None]](
                 OptionalDefinition(proxied.field.data),
                 label=proxied.field.label,
                 description=proxied.field.description,
-                omit_load=True,
-                omit_dump=self.__omit_dump,
+                optional=True,
+                porter=OmitFieldPorter.new_is_none,
             ),
             proxied=proxied,
         )
-
-    def __omit_dump(self, owner: OwnerT, data: GetT | None) -> bool:
-        if data is None:
-            return True
-        return self._proxied_field.omit_dump(owner, data)
 
     @final
     @override

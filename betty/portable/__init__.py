@@ -25,13 +25,13 @@ Data of this type is portable and can easily be persisted or transmitted.
 """
 
 
-type PortableSequence[PortableDataT: PortableData] = MutableSequence[PortableDataT]
+type PortableSequence = MutableSequence[PortableData]
 """
 A sequence of portable data.
 """
 
 
-type PortableMapping[PortableDataT: PortableData] = MutableMapping[str, PortableDataT]
+type PortableMapping = MutableMapping[str, PortableData]
 """
 A key-value mapping of portable data.
 
@@ -39,7 +39,7 @@ Keys are strings.
 """
 
 
-class Porter[DataT, PortableDataT: PortableData = PortableData](ABC):
+class Porter[DataT](ABC):
     """
     An object capable of dumping and loading data to and from portable data.
     """
@@ -51,15 +51,13 @@ class Porter[DataT, PortableDataT: PortableData = PortableData](ABC):
         """
 
     @abstractmethod
-    def dump(self, data: DataT, /) -> PortableDataT:
+    def dump(self, data: DataT, /) -> PortableData:
         """
         Dump data to its portable form.
         """
 
 
-class KeyedPorter[DataT, PortableDataT: PortableData = PortableData](
-    Porter[DataT, PortableDataT]
-):
+class KeyedPorter[DataT](Porter[DataT]):
     """
     An object capable of dumping and loading data to and from portable data and a paired primary key.
     """
@@ -73,7 +71,7 @@ class KeyedPorter[DataT, PortableDataT: PortableData = PortableData](
         """
 
     @abstractmethod
-    def dump_keyed(self, data: DataT, /) -> tuple[str, PortableDataT]:
+    def dump_keyed(self, data: DataT, /) -> tuple[str, PortableData]:
         """
         Dump the data to portable data and a portable primary key.
 

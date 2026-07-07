@@ -4,27 +4,55 @@ Record data types.
 
 from __future__ import annotations
 
-from inspect import signature
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Final, Self, final
 
 from betty.data import (
     DataDefinition,
     ResolvableDataDefinition,
-    ResolvableDataDefinitionManufacturable,
+    ResolvableDataDefinitionFeature,
     Sample,
     Samples,
     resolve_data_definition,
 )
 from betty.indicator.selector import Element
 from betty.localizable import resolve_localizable
-from betty.portable import Porter
-from betty.porters.fields import FieldsPorter
+from betty.portable import PortableData, Porter
+from betty.portable.error import NotPortable
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping, MutableMapping
 
     from betty.localizable import Localizable, ResolvableLocalizable
+    from betty.nothing import NothingType
     from betty.typing import Intersection
+
+
+class FieldPorter[OwnerT, DataT, FieldPorterLoadDataT = Any](ABC):
+    """
+    An object capable of dumping and loading field data to and from portable data.
+    """
+
+    @abstractmethod
+    def dump(self, owner: OwnerT, data: DataT, /) -> PortableData | NothingType:
+        """
+        Dump data to its portable form.
+        """
+
+    @abstractmethod
+    def load(self, data: PortableData, /) -> FieldPorterLoadDataT:
+        """
+        Load data from its portable form.
+        """
+
+
+type FieldDefinitionFeatureManufacturer[ManufacturableT, OwnerT, DataT] = Callable[
+    [FieldDefinition[OwnerT, DataT]], ManufacturableT
+]
+
+type ResolvableFieldDefinitionFeature[ManufacturableT, OwnerT, DataT] = (
+    ManufacturableT | FieldDefinitionFeatureManufacturer[ManufacturableT, OwnerT, DataT]
+)
 
 
 @final
@@ -32,6 +60,7 @@ class FieldDefinition[
     OwnerT,
     DataT,
     DataDefinitionT: DataDefinition = DataDefinition,
+    FieldPorterT: FieldPorter = FieldPorter,
 ]:
     """
     A record field definition.
@@ -45,11 +74,14 @@ class FieldDefinition[
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
-        omit_load: bool = False,
-        omit_dump: Callable[[DataT], bool]
-        | Callable[[OwnerT, DataT], bool]
+        optional: bool = False,
+        porter: ResolvableFieldDefinitionFeature[
+            Intersection[FieldPorterT, FieldPorter[OwnerT, DataT]], OwnerT, DataT
+        ]
         | None = None,
     ):
+        from betty.porters.data_definition_field import DataDefinitionFieldPorter
+
         self.data: Final[DataDefinitionT] = resolve_data_definition(data)
         """
         The field's data definition.
@@ -71,32 +103,62 @@ class FieldDefinition[
         The human-readable long field description.
         """
 
-        self.omit_load: Final[bool] = omit_load
+        self.optional: Final[bool] = optional
         """
-        Whether the field may be omitted from the parent when loading from portable data.
+        Whether the field is optional within its enclosing record.
         """
 
-        self._omit_dump: Callable[[OwnerT, DataT], bool] | None = (
-            None
-            if omit_dump is None
-            else (
-                (
-                    lambda _, data: omit_dump(
-                        data,  # ty:ignore[invalid-argument-type]
-                    )  # ty:ignore[missing-argument]
-                )
-                if len(signature(omit_dump).parameters) == 1
-                else omit_dump
-            )  # ty:ignore[invalid-assignment]
-        )
+        if porter is None:
+            if self.data.try_porter:
+                porter: FieldPorterT = DataDefinitionFieldPorter(
+                    self.data,
+                )  # ty:ignore[invalid-assignment]
+        elif not isinstance(porter, FieldPorter):
+            porter: FieldPorterT = porter(self)
+        self.try_porter: Final[
+            Intersection[FieldPorterT, FieldPorter[OwnerT, DataT]] | None
+        ] = porter
+        """
+        The porter for field data, if it has one.
+        """
 
-    def omit_dump(self, owner: OwnerT, data: DataT, /) -> bool:
+    @property
+    def porter(self) -> Intersection[FieldPorterT, FieldPorter[OwnerT, DataT]]:
         """
-        Check if the field may be omitted from the parent when dumping to portable data.
+        The porter for the data.
+
+        :raises betty.portable.error.NotPortable:
         """
-        if self._omit_dump is None:
-            return False
-        return self._omit_dump(owner, data)
+        if not self.try_porter:
+            raise NotPortable("This data does not have a porter.")
+        return self.try_porter
+
+
+type ResolvableFieldDefinition[
+    OwnerT,
+    DataT,
+    DataDefinitionT: DataDefinition = DataDefinition,
+    FieldPorterT: FieldPorter = FieldPorter,
+] = (
+    FieldDefinition[OwnerT, DataT, DataDefinitionT, FieldPorterT]
+    | ResolvableDataDefinition[DataDefinitionT]
+)
+
+
+def resolve_field_definition[
+    OwnerT,
+    DataT,
+    DataDefinitionT: DataDefinition,
+    FieldPorterT: FieldPorter,
+](
+    field: ResolvableFieldDefinition[OwnerT, DataT, DataDefinitionT, FieldPorterT],
+) -> FieldDefinition[OwnerT, DataT, DataDefinitionT, FieldPorterT]:
+    """
+    Resolve a value to a field definition.
+    """
+    if isinstance(field, FieldDefinition):
+        return field
+    return FieldDefinition(resolve_data_definition(field))
 
 
 class RecordDefinition[
@@ -115,19 +177,26 @@ class RecordDefinition[
         *args: Any,
         cls: type[DataT] | None = None,
         label: ResolvableLocalizable,
-        fields: Mapping[ElementT, FieldDefinition[DataT, Any]] | None = None,
+        fields: Mapping[ElementT, ResolvableFieldDefinition[DataT, Any]] | None = None,
         description: ResolvableLocalizable | None = None,
         samples: Iterable[Callable[[], Sample[DataT]] | Samples] = (),
         factory: Callable[..., DataT] | None = None,
-        porter: ResolvableDataDefinitionManufacturable[
+        porter: ResolvableDataDefinitionFeature[
             Intersection[PorterT, Porter[DataT]], Self, DataT
         ]
         | None = None,
         **kwargs: Any,
     ):
+        from betty.porters.fields import FieldsPorter
+
         self._factory = factory
         self._fields: MutableMapping[ElementT, FieldDefinition[DataT, Any]] = (
-            {} if fields is None else dict(fields)
+            {}
+            if fields is None
+            else {
+                element: resolve_field_definition(field)
+                for element, field in fields.items()
+            }
         )
 
         super().__init__(

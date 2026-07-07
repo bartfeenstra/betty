@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, final, override
 
 from betty.assertions.record import Field, assert_record
+from betty.nothing import Nothing
 from betty.portable import PortableData, PortableMapping, Porter
 
 if TYPE_CHECKING:
@@ -14,7 +15,7 @@ if TYPE_CHECKING:
 
 
 @final
-class FieldsPorter[DataT](Porter[DataT, PortableMapping[PortableData]]):
+class FieldsPorter[DataT](Porter[DataT]):
     """
     Load and dump a record using its fields.
     """
@@ -22,8 +23,9 @@ class FieldsPorter[DataT](Porter[DataT, PortableMapping[PortableData]]):
     def __init__(self, record: RecordDefinition[DataT, Porter, Any], /):
         self._record = record
         self._load = assert_record(*[
-            Field(selector.element, field.data.porter.load, optional=field.omit_load)
+            Field(selector.element, field_porter.load, optional=field.optional)
             for selector, field in self._record.fields.items()
+            if (field_porter := field.try_porter)
         ])
 
     @override
@@ -31,10 +33,11 @@ class FieldsPorter[DataT](Porter[DataT, PortableMapping[PortableData]]):
         return self._record.factory(**self._load(data))
 
     @override
-    def dump(self, data: DataT, /) -> PortableMapping[PortableData]:
+    def dump(self, data: DataT, /) -> PortableMapping:
         portable = {}
         for selector, field in self._record.fields.items():
-            field_data = selector.get(data)
-            if not field.omit_dump(data, field_data):
-                portable[selector.element] = field.data.porter.dump(field_data)
+            if field_porter := field.try_porter:
+                field_data = selector.get(data)
+                if (field_dump := field_porter.dump(data, field_data)) is not Nothing:
+                    portable[selector.element] = field_dump
         return portable

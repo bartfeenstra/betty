@@ -8,4 +8,4 @@ from betty.porters.optional import OptionalPorter
 class TestOptionalDefinition:
     def test_porter(self) -> None:
         sut = OptionalDefinition(DataDefinition(label="-"))
-        assert isinstance(sut.porter, OptionalPorter)
+        assert isinstance(sut.try_porter, OptionalPorter)

@@ -5,10 +5,12 @@ from betty.test_utils.entity import DummyEntityOne
 class TestEntityAsReferenceDefinition:
     def test_porter_load(self) -> None:
         sut = EntityAsReferenceDefinition(label="-")
-        loaded = sut.porter.load({
-            "type": DummyEntityOne.plugin().id,
-            "id": "my-first-entity",
-        })
+        loaded = sut.porter.load(
+            {
+                "type": DummyEntityOne.plugin().id,
+                "id": "my-first-entity",
+            },
+        )
         assert loaded.type == DummyEntityOne.plugin().id
         assert loaded.id == "my-first-entity"
 

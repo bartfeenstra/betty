@@ -30,7 +30,7 @@ class Specification:
         Build the OpenAPI specification.
         """
         url_generator = await self._project.url_generator
-        specification_paths: PortableMapping[PortableMapping] = {}
+        specification_paths: PortableMapping = {}
         specification: PortableMapping = {
             "openapi": "3.1.0",
             "servers": [
@@ -158,7 +158,7 @@ class Specification:
 
         # Add default behavior to all requests.
         for path_specification in specification_paths.values():
-            path_specification["get"]["responses"].update({
+            path_specification["get"]["responses"].update({  # ty:ignore[invalid-argument-type, not-subscriptable, unresolved-attribute]
                 "401": {
                     "$ref": "#/components/responses/401",
                 },

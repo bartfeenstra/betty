@@ -34,6 +34,7 @@ from betty.pathlib import resolve_path
 from betty.place_type import PlaceType, PlaceTypeDefinition, PlaceTypeManufacturer
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
+from betty.porters.omit_field import OmitFieldPorter
 from betty.project import Project
 from betty.prop import HasProps
 from betty.role import Role, RoleDefinition, RoleManufacturer
@@ -80,7 +81,7 @@ def _new_plugin_mapping_attr[PluginDefinitionT: PluginClsDefinition, PluginT: Pl
                 value=manufacturer,
                 label=manufacturer.data().plugin_type.type().label_plural,
             ),
-            omit_load=True,
+            optional=True,
         )
     ).default(
         lambda: {key: manufacturer.resolve(value) for key, value in default.items()}
@@ -241,8 +242,8 @@ class GrampsData(Data, HasProps):
     family_trees = CollectionOwnerAttr(
         FieldDefinition(
             SequenceDefinition(cls=list, value=FamilyTree, label=_("Family trees")),
-            omit_load=True,
-            omit_dump=lambda data: not len(data),
+            optional=True,
+            porter=OmitFieldPorter.new_is_empty,
         )
     )
     """

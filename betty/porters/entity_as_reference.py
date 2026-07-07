@@ -13,7 +13,7 @@ from betty.portable import PortableData, Porter
 
 @final
 class EntityAsReferencePorter[AssociateT: Entity](
-    Porter[AssociateT | EntityReference[AssociateT], PortableData]
+    Porter[AssociateT | EntityReference[AssociateT]]
 ):
     """
     Port entities as entity references.

@@ -205,7 +205,6 @@ class PluginManufacturerPorter[PluginManufacturerT: PluginManufacturer](
         ),
     )
 
-    @final
     @override
     def load(self, data: PortableData, /) -> PluginManufacturerT:
         record = self._load(data)
@@ -213,19 +212,16 @@ class PluginManufacturerPorter[PluginManufacturerT: PluginManufacturer](
 
     _load_keyed = assert_mapping()
 
-    @final
     @override
     def load_keyed(self, key: str, data: PortableData, /) -> PluginManufacturerT:
         return self.load({**self._load_keyed(data), "plugin": key})
 
-    @final
     @classmethod
     def _dump_data(cls, configuration: Data | PortableData) -> PortableData:
         if isinstance(configuration, Data):
             return configuration.data().porter.dump(configuration)
         return configuration
 
-    @final
     @override
     def dump(self, data: PluginManufacturerT, /) -> PortableData:
         plugin_data = data.plugin_data
@@ -236,7 +232,6 @@ class PluginManufacturerPorter[PluginManufacturerT: PluginManufacturer](
             "data": self._dump_data(plugin_data),
         }
 
-    @final
     @override
     def dump_keyed(self, data: PluginManufacturerT, /) -> tuple[str, PortableData]:
         return data.plugin_id, {} if data.plugin_data is Nothing else {

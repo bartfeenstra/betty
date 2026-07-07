@@ -10,12 +10,14 @@ from typing import TYPE_CHECKING, final, override
 from betty.attrs.proxy import ProxyAttr
 from betty.data import DataDefinition
 from betty.datas.aggregate.record import FieldDefinition
+from betty.porters.omit_field import OmitFieldPorter
 from betty.prop import HasProps
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
     from betty.attr import Attr
+    from betty.typing import Intersection
 
 
 class DefaultAttr[
@@ -30,7 +32,9 @@ class DefaultAttr[
 
     def __init__(
         self,
-        proxied: Attr[OwnerT, GetT, SetT, DataDefinitionT],
+        proxied: Attr[
+            OwnerT, GetT, SetT, Intersection[DataDefinitionT, DataDefinition[GetT]]
+        ],
         default: Callable[[], SetT] | Callable[[OwnerT], SetT],
         /,
     ):
@@ -40,19 +44,18 @@ class DefaultAttr[
                 proxied.field.data,
                 label=proxied.field.label,
                 description=proxied.field.description,
-                omit_load=True,
-                omit_dump=self.__omit_dump,
+                optional=True,
+                porter=OmitFieldPorter[OwnerT, GetT].new(
+                    lambda owner, field, data: (
+                        data == self.normalize(owner, self.__default(owner))
+                    )
+                ),
             ),
             proxied=proxied,
         )
         self.__default: Callable[[OwnerT], SetT] = (
             default if len(signature(default).parameters) == 1 else lambda _: default()  # ty:ignore[invalid-assignment, missing-argument]
         )
-
-    def __omit_dump(self, owner: OwnerT, data: GetT) -> bool:
-        if data == self.normalize(owner, self.__default(owner)):
-            return True
-        return self._proxied_field.omit_dump(owner, data)
 
     @final
     @override

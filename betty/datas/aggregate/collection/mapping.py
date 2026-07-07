@@ -8,7 +8,7 @@ from collections.abc import Callable, Iterable, Mapping, MutableMapping
 from typing import TYPE_CHECKING, Any, final, override
 
 from betty.assertions.mapping import assert_mapping
-from betty.data import DataDefinition, ResolvableDataDefinition
+from betty.data import DataDefinition, ResolvableDataDefinition, resolve_data_definition
 from betty.datas.aggregate.collection import CollectionDefinition
 from betty.porters.callback import CallbackPorter
 
@@ -32,7 +32,7 @@ class MappingDefinition[MutableMappingT: MutableMapping[Any, Any], KeyT, ValueT]
         *,
         cls: type[Intersection[MutableMappingT, MutableMapping[KeyT, ValueT]]]
         | None = None,
-        key: ResolvableDataDefinition[DataDefinition[KeyT, Porter[KeyT, str]]],
+        key: ResolvableDataDefinition[DataDefinition[KeyT, Porter[KeyT]]],
         value: ResolvableDataDefinition[DataDefinition[ValueT]],
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
@@ -47,20 +47,26 @@ class MappingDefinition[MutableMappingT: MutableMapping[Any, Any], KeyT, ValueT]
             factory=factory,
             porter=CallbackPorter(self._load, self._dump) if porter is None else porter,
         )
-        self._value = value if isinstance(value, DataDefinition) else value.data()
+        self._key = resolve_data_definition(key)
+        self._value = resolve_data_definition(value)
 
     def _load(self, portable: PortableData, /) -> MutableMappingT:
         loaded = self.new()
         loaded.update(
-            assert_mapping(self._value.porter.load, self.item.porter.load)(portable)
+            assert_mapping(self._value.porter.load, self._key.porter.load)(portable)
         )
         return loaded
 
     def _dump(self, data: MutableMappingT) -> PortableData:
         return {
-            self._item.porter.dump(key): self._value.porter.dump(item)
+            self._dump_key(key): self._value.porter.dump(item)
             for key, item in data.items()
         }
+
+    def _dump_key(self, key: KeyT, /) -> str:
+        dumped = self._key.porter.dump(key)
+        assert isinstance(dumped, str)
+        return dumped
 
     @final
     @override
