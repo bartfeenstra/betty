@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-06 22:14+0100\n"
-"PO-Revision-Date: 2026-07-06 21:30+0000\n"
+"PO-Revision-Date: 2026-07-07 01:16+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: es-ES\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-5-x/es/>\n"
@@ -21,7 +21,7 @@ msgstr ""
 
 #, python-brace-format
 msgid "\"{color}\" is not a valid hexadecimal color, such as #ffc0cb."
-msgstr ""
+msgstr "\"{color}\" no es un color hexadecimal válido, como por ejemplo #ffc0cb."
 
 #, python-brace-format
 msgid "\"{invalid_locale}\" is not a valid IETF BCP 47 language tag."
@@ -37,11 +37,11 @@ msgstr ""
 
 #, python-brace-format
 msgid "\"{url}\" is not a valid URL."
-msgstr ""
+msgstr "\"{url}\" no es una URL válida."
 
 #, python-brace-format
 msgid "\"{value}\" is not a valid machine name."
-msgstr ""
+msgstr "\"{value}\" no es un nombre de máquina válido."
 
 #, python-format
 msgid "%(date)s in %(place)s"
@@ -59,7 +59,7 @@ msgid "A Betty demonstration"
 msgstr "Una demostración de Betty"
 
 msgid "A countable localizable string"
-msgstr ""
+msgstr "Una cadena de caracteres localizable contable"
 
 msgid "A family history as told by <a href=\"https://betty.readthedocs.io\">Betty👵</a>"
 msgstr "Una historia familiar contada por <a href=\"https://betty.readthedocs.io\">Betty👵</a>"
@@ -68,13 +68,13 @@ msgid "A formal witness to an event."
 msgstr ""
 
 msgid "A hexadecimal color, such as #ff0000"
-msgstr ""
+msgstr "Un color hexadecimal, como por ejemplo #ff0000"
 
 msgid "A localizable string"
-msgstr ""
+msgstr "Una cadena de caracteres localizable"
 
 msgid "A machine name is an identifier of at most 250 characters long, made up of lowercase letters, numbers, and/or non-consecutive hyphens (-)."
-msgstr ""
+msgstr "Un nombre de máquina es un identificador de como máximo 250 caracteres de longitud, compuesto por letras minúsculas, números y/o guiones no consecutivos (-)."
 
 msgid "A person's presence at an event."
 msgstr ""
@@ -1847,7 +1847,7 @@ msgid "Version"
 msgstr "Versión"
 
 msgid "View Betty's interactive documentation. This will open your web browser."
-msgstr ""
+msgstr "Consulta la documentación interactiva de Betty. Esto abrirá tu navegador web."
 
 msgid "View original size"
 msgstr "Ver tamaño original"
