@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-06 22:23+0100\n"
-"PO-Revision-Date: 2026-07-07 13:46+0000\n"
+"PO-Revision-Date: 2026-07-07 17:21+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: fr-FR\n"
 "Language-Team: French <https://hosted.weblate.org/projects/betty/betty-0-4-x/fr/>\n"
@@ -241,7 +241,7 @@ msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
 msgstr "Poursuivez votre lecture sur <a href=\"%(url)s\">Wikipedia</a>."
 
 msgid "Copyright"
-msgstr "Copyright"
+msgstr "Droits d'auteur"
 
 #, python-format
 msgid "Copyright <a href=\"%(url)s\">OpenStreetMap</a> contributors"
@@ -381,10 +381,10 @@ msgid "Entity type"
 msgstr "Type d'entité"
 
 msgid "Event"
-msgstr "Evénement"
+msgstr "Événement"
 
 msgid "Events"
-msgstr "Evénements"
+msgstr "Événements"
 
 #, python-brace-format
 msgid "Exactly {expected} items are required, but found {actual}."
@@ -651,7 +651,7 @@ msgid "Parish"
 msgstr "Paroisse"
 
 msgid "People"
-msgstr "Individu"
+msgstr "Personnes"
 
 msgid "Permanent link to this section."
 msgstr "Permaliens vers ce paragraphe."
