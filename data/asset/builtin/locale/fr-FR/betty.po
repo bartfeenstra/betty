@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-06 22:14+0100\n"
-"PO-Revision-Date: 2026-07-07 13:46+0000\n"
+"PO-Revision-Date: 2026-07-07 17:21+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: fr-FR\n"
 "Language-Team: French <https://hosted.weblate.org/projects/betty/betty-0-5-x/fr/>\n"
@@ -92,7 +92,7 @@ msgid "Access denied"
 msgstr ""
 
 msgid "Accessed"
-msgstr ""
+msgstr "Accédé"
 
 msgid "Adoption"
 msgstr "Adoption"
@@ -192,7 +192,7 @@ msgid "Attendees"
 msgstr ""
 
 msgid "Author"
-msgstr ""
+msgstr "Auteur(e)"
 
 msgid "Baptism"
 msgstr "Baptême"
@@ -447,7 +447,7 @@ msgid "Coordinates"
 msgstr "Coordonnées"
 
 msgid "Copyright"
-msgstr "Copyright"
+msgstr "Droits d'auteur"
 
 #, python-format
 msgid "Copyright <a href=\"%(url)s\">OpenStreetMap</a> contributors"
@@ -457,13 +457,13 @@ msgid "Copyright Wikipedia contributors"
 msgstr "Droits d'auteur des contributeurs de Wikipédia"
 
 msgid "Copyright notice"
-msgstr ""
+msgstr "Avis de droit d'auteur"
 
 msgid "Copyright notice configuration"
 msgstr ""
 
 msgid "Copyright notices"
-msgstr ""
+msgstr "Avis de droit d'auteur"
 
 msgid "Copyright of these works lies with the original authors who contributed them to Wikipedia."
 msgstr ""
@@ -670,7 +670,7 @@ msgid "Entity types to generate list HTML pages for"
 msgstr ""
 
 msgid "Event"
-msgstr "Evénement"
+msgstr "Événement"
 
 msgid "Event type"
 msgstr ""
@@ -682,7 +682,7 @@ msgid "Event types"
 msgstr ""
 
 msgid "Events"
-msgstr "Evénements"
+msgstr "Événements"
 
 #, python-brace-format
 msgid "Exactly {expected} items are required, but found {actual}."
@@ -959,7 +959,7 @@ msgid "License configuration"
 msgstr ""
 
 msgid "Licenses"
-msgstr ""
+msgstr "Licenses"
 
 msgid "Lifetime threshold"
 msgstr ""
@@ -1240,7 +1240,7 @@ msgid "Path"
 msgstr ""
 
 msgid "People"
-msgstr "Individu"
+msgstr "Personnes"
 
 msgid "People of unknown gender"
 msgstr ""
@@ -1368,7 +1368,7 @@ msgid "Public domain"
 msgstr "Domaine public"
 
 msgid "Publisher"
-msgstr ""
+msgstr "Éditeur(e)"
 
 msgid "Python packages"
 msgstr ""
@@ -1464,7 +1464,7 @@ msgid "Running subprocess `{command}`..."
 msgstr ""
 
 msgid "SPDX licenses"
-msgstr ""
+msgstr "Licenses de SPDX"
 
 #, python-brace-format
 msgid "Saved your project to {configuration_file}."
@@ -1850,7 +1850,7 @@ msgid "View Betty's interactive documentation. This will open your web browser."
 msgstr ""
 
 msgid "View original size"
-msgstr ""
+msgstr "Voir la taille originale"
 
 msgid "View the code"
 msgstr "Afficher le code"
@@ -2234,8 +2234,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} copyright notice"
 msgid_plural "{count} copyright notices"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} avis de droit d'auteur"
+msgstr[1] "{count} avis de droit d'auteur"
 
 #, python-brace-format
 msgid "{count} correspondence"
@@ -2390,8 +2390,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} license"
 msgid_plural "{count} licenses"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} license"
+msgstr[1] "{count} licenses"
 
 #, python-brace-format
 msgid "{count} link"
