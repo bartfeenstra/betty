@@ -41,9 +41,7 @@ async def test_dump_file(tmp_path: Path) -> None:
     configuration = DummyData(value)
     file = tmp_path / "config.json"
     await dump_file(
-        configuration.data().porter.dump(configuration),
-        file,
-        serializers=[Json()],
+        DummyData.data().porter.dump(configuration), file, serializers=[Json()]
     )
     with open(file, encoding="utf-8") as f:
         file_contents = f.read()

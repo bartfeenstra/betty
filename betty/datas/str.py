@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 @final
-class StrDefinition(DataDefinition[str, Porter[str, str]]):
+class StrDefinition(DataDefinition[str, Porter[str]]):
     """
     A string data definition.
     """
@@ -31,8 +31,5 @@ class StrDefinition(DataDefinition[str, Porter[str, str]]):
             cls=str,
             label=label,
             description=description,
-            porter=CallbackPorter(
-                assert_str(),  # ty:ignore[invalid-argument-type]
-                str,
-            ),
+            porter=CallbackPorter(assert_str(), str),
         )

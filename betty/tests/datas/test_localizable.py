@@ -79,12 +79,14 @@ class _NotDumpableCountableLocalizable(CountableLocalizable):
 
 class TestCountableLocalizableDefinition:
     def test_load_countable_localizable(self) -> None:
-        loaded = CountableLocalizableDefinition().porter.load({
-            default_locale_tag: {
-                "one": "{count} thing",
-                "other": "{count} things",
+        loaded = CountableLocalizableDefinition().porter.load(
+            {
+                default_locale_tag: {
+                    "one": "{count} thing",
+                    "other": "{count} things",
+                },
             },
-        })
+        )
         assert loaded.count(1).localize(default_localizer) == "1 thing"
 
     def test_load_countable_localizable__without_locales(self) -> None:
@@ -93,25 +95,31 @@ class TestCountableLocalizableDefinition:
 
     def test_load_countable_localizable__with_unknown_locale(self) -> None:
         with pytest.raises(UnknownLocale):
-            CountableLocalizableDefinition().porter.load({
-                "unknownlocale": {},
-            })
+            CountableLocalizableDefinition().porter.load(
+                {
+                    "unknownlocale": {},
+                },
+            )
 
     def test_load_countable_localizable__with_missing_plural_tag(self) -> None:
         with pytest.raises(MissingPluralTag):
-            CountableLocalizableDefinition().porter.load({
-                default_locale_tag: {},
-            })
+            CountableLocalizableDefinition().porter.load(
+                {
+                    default_locale_tag: {},
+                },
+            )
 
     def test_load_countable_localizable__wth_invalid_plural_tag(self) -> None:
         with pytest.raises(InvalidPluralTag):
-            CountableLocalizableDefinition().porter.load({
-                default_locale_tag: {
-                    "one": "{count}",
-                    "other": "{count}",
-                    "invalid": "{count}",
+            CountableLocalizableDefinition().porter.load(
+                {
+                    default_locale_tag: {
+                        "one": "{count}",
+                        "other": "{count}",
+                        "invalid": "{count}",
+                    },
                 },
-            })
+            )
 
     def test_dump_countable_localizable(self) -> None:
         assert CountableLocalizableDefinition().porter.dump(
@@ -120,7 +128,7 @@ class TestCountableLocalizableDefinition:
                     "one": "{count} thing",
                     "other": "{count} things",
                 }
-            })
+            }),
         ) == {
             default_locale_tag: {
                 "one": "{count} thing",

@@ -36,7 +36,10 @@ class TestPluginDefinitionDefinition:
     def test_porter__dump_keyed(self) -> None:
         assert _DummyPluginDefinitionData.data().porter.dump_keyed(
             _DummyPluginDefinitionData(id="hello-world")
-        ) == ("hello-world", {})
+        ) == (
+            "hello-world",
+            {},
+        )
 
     def test_porter__load(self) -> None:
         assert _DummyPluginDefinitionData.data().porter.load({

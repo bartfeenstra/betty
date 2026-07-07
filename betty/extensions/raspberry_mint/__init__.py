@@ -46,6 +46,7 @@ from betty.jobs.generate_logo import GenerateLogo
 from betty.localizables.gettext import _
 from betty.localizables.markup import Paragraph, do_you_mean
 from betty.plugin.factory import ResolvablePluginManufacturer
+from betty.porters.omit_field import OmitFieldPorter
 from betty.project import Project
 from betty.project.generate import Generator
 from betty.prop import HasProps
@@ -130,8 +131,8 @@ class RaspberryMintData(Data, HasProps):
                     ContentBuilderManufacturer, label=_("Regional content")
                 ),
             ),
-            omit_load=True,
-            omit_dump=lambda data: not len(data),
+            optional=True,
+            porter=OmitFieldPorter.new_is_empty,
         )
     )
     """

@@ -20,14 +20,22 @@ if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
     from betty.typing import Intersection
 
-type ResolvableDataDefinitionManufacturable[
+type DataDefinitionFeatureManufacturer[
+    ManufacturableT,
+    DataDefinitionT: DataDefinition,
+    DataT,
+] = (
+    Callable[[DataDefinitionT], ManufacturableT]
+    | Callable[[DataDefinitionT, type[DataT]], ManufacturableT]
+)
+
+type ResolvableDataDefinitionFeature[
     ManufacturableT,
     DataDefinitionT: DataDefinition,
     DataT,
 ] = (
     ManufacturableT
-    | Callable[[DataDefinitionT], ManufacturableT]
-    | Callable[[DataDefinitionT, type[DataT]], ManufacturableT]
+    | DataDefinitionFeatureManufacturer[ManufacturableT, DataDefinitionT, DataT]
 )
 
 
@@ -44,7 +52,7 @@ class DataDefinition[DataT, PorterT: Porter = Porter](
         cls: type[DataT] | None = None,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
-        porter: ResolvableDataDefinitionManufacturable[
+        porter: ResolvableDataDefinitionFeature[
             Intersection[PorterT, Porter[DataT]], Self, DataT
         ]
         | None = None,
@@ -77,9 +85,19 @@ class DataDefinition[DataT, PorterT: Porter = Porter](
     def porter(self) -> Intersection[PorterT, Porter[DataT]]:
         """
         The porter for the data.
+
+        :raises betty.portable.error.NotPortable:
         """
-        if self._porter is None:
-            raise NotPortable(f"{self} does not have a porter.")
+        if not self._porter:
+            raise NotPortable("This data does not have a porter.")
+        return self._porter
+
+    @final
+    @property
+    def try_porter(self) -> Intersection[PorterT, Porter[DataT]] | None:
+        """
+        The porter for the data, if it has one.
+        """
         return self._porter
 
     @override
@@ -133,6 +151,8 @@ class Data[DataDefinitionT: DataDefinition = DataDefinition]:
         if type(self) is not type(other):
             return NotImplemented
         porter = type(self).data().porter
+        if porter is None:
+            return NotImplemented
         return porter.dump(self) == porter.dump(other)
 
 

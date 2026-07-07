@@ -87,13 +87,6 @@ class TestFieldDefinition:
         sut = FieldDefinition(BoolDefinition(label="-"), description=description)
         assert sut.description is description
 
-    def test_omit_load(self) -> None:
-        sut = FieldDefinition(BoolDefinition(label="-"), omit_load=True)
-        assert sut.omit_load
-
-    def test_omit_dump(self) -> None:
-        def _omit_dump(_: bool) -> bool:
-            return True
-
-        sut = FieldDefinition(BoolDefinition(label="-"), omit_dump=_omit_dump)
-        assert sut.omit_dump(object(), False)
+    def test_optional(self) -> None:
+        sut = FieldDefinition(BoolDefinition(label="-"), optional=True)
+        assert sut.optional

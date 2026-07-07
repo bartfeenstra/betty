@@ -202,15 +202,15 @@ class Builder:
     async def _update_package_json(
         self,
         npm_project_directory: Path,
-        package_jsons_by_package_name: PortableMapping[PortableMapping],
+        package_jsons_by_package_name: PortableMapping,
         package_name: str,
     ) -> None:
         package_json = package_jsons_by_package_name[package_name]
         try:
-            dependencies = package_json["dependencies"]
+            dependencies = package_json["dependencies"]  # ty:ignore[invalid-argument-type, not-subscriptable]
         except KeyError:
             return
-        for dependency_package_name in dependencies:
+        for dependency_package_name in dependencies:  # ty:ignore[not-iterable]
             if dependency_package_name not in package_jsons_by_package_name:
                 continue
             # Manually compute the relative path to the dependency's package directory, because
@@ -231,12 +231,12 @@ class Builder:
                 *(
                     npm_project_directory
                     / "packages"
-                    / _package_name_to_path(dependency_package_name)
+                    / _package_name_to_path(dependency_package_name)  # ty:ignore[invalid-argument-type]
                 )
                 .relative_to(npm_project_directory)
                 .parts,
             )
-            dependencies[dependency_package_name] = f"file:{dependency_package}"
+            dependencies[dependency_package_name] = f"file:{dependency_package}"  # ty:ignore[invalid-assignment]
         await write(
             npm_project_directory / "packages" / package_name / "package.json",
             dumps(package_json),
@@ -251,7 +251,7 @@ class Builder:
             *(
                 self._update_package_json(
                     npm_project_directory,
-                    package_jsons_by_package_name,
+                    package_jsons_by_package_name,  # ty:ignore[invalid-argument-type]
                     package_name,
                 )
                 for package_name in package_jsons_by_package_name

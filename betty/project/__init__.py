@@ -98,6 +98,7 @@ from betty.plugin.resolve import (
 from betty.portable import KeyedPorter
 from betty.porters.fields import FieldsPorter
 from betty.porters.keyed_mapping import KeyedMappingPorter
+from betty.porters.omit_field import OmitFieldPorter
 from betty.privacy.privatizer import Privatizer
 from betty.prop import HasProps
 from betty.render import RenderDispatcher, RendererDefinition
@@ -795,8 +796,8 @@ class ProjectData(Data, HasProps):
                     value_resolver=EnricherManufacturer.resolve,
                 ),
             ),
-            omit_load=True,
-            omit_dump=lambda data: not data,
+            optional=True,
+            porter=OmitFieldPorter.new_is_empty,
         )
     )
     """
@@ -821,8 +822,8 @@ class ProjectData(Data, HasProps):
                     value_resolver=ExtensionManufacturer.resolve,
                 ),
             ),
-            omit_load=True,
-            omit_dump=lambda data: not data,
+            optional=True,
+            porter=OmitFieldPorter.new_is_empty,
         )
     )
     """
@@ -894,8 +895,8 @@ class ProjectData(Data, HasProps):
                     value_resolver=LoaderManufacturer.resolve,
                 ),
             ),
-            omit_load=True,
-            omit_dump=lambda data: not data,
+            optional=True,
+            porter=OmitFieldPorter.new_is_empty,
         )
     )
     """
@@ -918,8 +919,8 @@ class ProjectData(Data, HasProps):
                     ),
                 ),
             ),
-            omit_load=True,
-            omit_dump=lambda data: not data,
+            optional=True,
+            porter=OmitFieldPorter.new_is_empty,
         )
     ).default(lambda: [default_locale])
     """

@@ -10,13 +10,19 @@ from typing import TYPE_CHECKING, final, override
 from betty.assertions.mapping import assert_mapping
 from betty.assertions.sequence import assert_sequence
 from betty.collection.keyed import MutableKeyedCollection
+from betty.data import (
+    resolve_data_definition,
+)
 from betty.datas.aggregate.collection import CollectionDefinition
 from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from betty.data import DataDefinition, ResolvableDataDefinition
+    from betty.data import (
+        DataDefinition,
+        ResolvableDataDefinition,
+    )
     from betty.localizable import ResolvableLocalizable
     from betty.portable import (
         KeyedPorter,
@@ -53,13 +59,14 @@ class KeyedCollectionDefinition[
             factory=factory,
         )
         self._order_dump = order_dump
+        self._value = resolve_data_definition(value)
 
     def _load(self, portable: PortableData, /) -> MutableKeyedCollectionT:
         if self._order_dump:
-            values = assert_sequence(self.item.porter.load)(portable)
+            values = assert_sequence(self._value.porter.load)(portable)
         else:
             values = [
-                self._item.porter.load_keyed(*x)
+                self._value.porter.load_keyed(*x)
                 for x in assert_mapping()(portable).items()
             ]
 
@@ -71,8 +78,8 @@ class KeyedCollectionDefinition[
         self, data: MutableKeyedCollectionT
     ) -> PortableMapping | PortableSequence:
         if self._order_dump:
-            return [self.item.porter.dump(value) for value in data]
-        return dict(self._item.porter.dump_keyed(item_data) for item_data in data)
+            return [self._value.porter.dump(value) for value in data]
+        return dict(self._value.porter.dump_keyed(item_data) for item_data in data)
 
     @final
     @override

@@ -4,6 +4,7 @@ Keyed porters for portable mappings.
 
 from __future__ import annotations
 
+from collections.abc import MutableMapping
 from typing import final, override
 
 from betty.assertions.mapping import assert_mapping
@@ -12,17 +13,12 @@ from betty.porters.proxy import ProxyPorter
 
 
 @final
-class KeyedMappingPorter[DataT](
-    ProxyPorter[DataT, PortableMapping[PortableData]],
-    KeyedPorter[DataT, PortableMapping[PortableData]],
-):
+class KeyedMappingPorter[DataT](ProxyPorter[DataT], KeyedPorter[DataT]):
     """
     Make an existing porter that dumps to portable mappings, a keyed porter.
     """
 
-    def __init__(
-        self, key: str, proxied: Porter[DataT, PortableMapping[PortableData]], /
-    ):
+    def __init__(self, key: str, proxied: Porter[DataT], /):
         super().__init__(proxied=proxied)
         self._key = key
 
@@ -33,9 +29,11 @@ class KeyedMappingPorter[DataT](
         return self.load({**self._load_keyed(data), self._key: key})
 
     @override
-    def dump_keyed(self, data: DataT, /) -> tuple[str, PortableMapping[PortableData]]:
+    def dump_keyed(self, data: DataT, /) -> tuple[str, PortableMapping]:
         dumped = self.dump(data)
-        return (
-            dumped.pop(self._key),
-            dumped,
-        )  # ty:ignore[invalid-return-type]
+        assert isinstance(dumped, MutableMapping)
+        key = dumped.pop(
+            self._key,  # ty:ignore[invalid-argument-type]
+        )
+        assert isinstance(key, str)
+        return (key, dumped)  # ty:ignore[invalid-return-type]

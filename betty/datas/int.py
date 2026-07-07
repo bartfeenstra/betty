@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 @final
-class IntDefinition(DataDefinition[int, Porter[int, int]]):
+class IntDefinition(DataDefinition[int, Porter[int]]):
     """
     An integer data definition.
     """
@@ -31,5 +31,5 @@ class IntDefinition(DataDefinition[int, Porter[int, int]]):
             cls=int,
             label=label,
             description=description,
-            porter=CallbackPorter[int, int](assert_int(), int),
+            porter=CallbackPorter[int](assert_int(), int),
         )

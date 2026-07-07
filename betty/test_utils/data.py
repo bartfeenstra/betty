@@ -58,20 +58,19 @@ class DataTestBase[DataT: Data]:
         Tests that the data definition can consistently dump and load its samples.
         """
         samples = list(self.sut_cls.data().samples)
+        porter = self.sut_cls.data().porter
         for sample in samples:
             with subtests.test(str(sample.label.localize(default_localizer))):
                 portable = self.sut_cls.data().porter.dump(sample.subject)
-                loaded = self.sut_cls.data().porter.load(portable)
-                dumped = self.sut_cls.data().porter.dump(loaded)
-                assert self.sut_cls.data().porter.dump(loaded) == dumped, (
+                loaded = porter.load(portable)
+                dumped = porter.dump(loaded)
+                assert porter.dump(loaded) == dumped, (
                     f'Failed asserting that repeatedly loading and dumping sample "{sample.label.localize(default_localizer)}" keeps producing the same portable data'
                 )
                 for other_sample in samples:
                     if other_sample is sample:
                         continue
-                    assert (
-                        self.sut_cls.data().porter.dump(other_sample.subject) != dumped
-                    ), (
+                    assert porter.dump(other_sample.subject) != dumped, (
                         f'Failed asserting that sample "{sample.label.localize(default_localizer)}" instance is not equal to sample "{other_sample.label.localize(default_localizer)}"'
                     )
 

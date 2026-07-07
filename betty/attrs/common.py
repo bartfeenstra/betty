@@ -30,14 +30,14 @@ class CommonAttr[
     @abstractmethod
     def default(
         self, default: Callable[[], SetT] | Callable[[OwnerT], SetT], /
-    ) -> CommonAttr[OwnerT, GetT, SetT]:
+    ) -> CommonAttr[OwnerT, GetT, SetT, DataDefinitionT]:
         """
         Create a new attribute that proxies this one, and sets a default value.
         """
 
     @property
     @abstractmethod
-    def optional(self) -> CommonAttr[OwnerT, GetT | None, SetT | None]:
+    def optional(self) -> CommonAttr[OwnerT, GetT | None, SetT | None, DataDefinitionT]:
         """
         Return a new attribute like this one, but that also allows ``None``.
         """
@@ -47,7 +47,7 @@ class CommonAttr[
         self,
         setter: Callable[[SetterSetT], SetT] | Callable[[OwnerT, SetterSetT], SetT],
         /,
-    ) -> CommonAttr[OwnerT, GetT, SetterSetT]:
+    ) -> CommonAttr[OwnerT, GetT, SetterSetT, DataDefinitionT]:
         """
         Return a new attribute like this one, but with the given setter.
         """

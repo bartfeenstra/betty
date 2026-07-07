@@ -14,6 +14,7 @@ from betty.localizables.gettext import _
 from betty.machine_name import MachineName
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
+from betty.porters.omit_field import OmitFieldPorter
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -31,15 +32,15 @@ class OrderedPluginDefinitionData[PluginDefinitionT: OrderedPluginDefinition](
     after = CollectionOwnerAttr(
         FieldDefinition(
             SequenceDefinition(cls=list, label=_("After"), value=MachineName),
-            omit_load=True,
-            omit_dump=lambda data: not len(data),
+            optional=True,
+            porter=OmitFieldPorter.new_is_empty,
         )
     )
     before = CollectionOwnerAttr(
         FieldDefinition(
             SequenceDefinition(cls=list, label=_("Before"), value=MachineName),
-            omit_load=True,
-            omit_dump=lambda data: not len(data),
+            optional=True,
+            porter=OmitFieldPorter.new_is_empty,
         )
     )
 

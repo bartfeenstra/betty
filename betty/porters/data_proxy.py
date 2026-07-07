@@ -13,14 +13,12 @@ if TYPE_CHECKING:
 
 
 @final
-class DataDefinitionProxyPorter[DataT, PortableDataT: PortableData = PortableData](
-    Porter[DataT, PortableDataT]
-):
+class DataDefinitionProxyPorter[DataT](Porter[DataT]):
     """
     Proxy a data definition's porter.
     """
 
-    def __init__(self, data: DataDefinition[DataT, Porter[DataT, PortableDataT]], /):
+    def __init__(self, data: DataDefinition[DataT, Porter[DataT]], /):
         self._data = data
 
     @override
@@ -28,5 +26,5 @@ class DataDefinitionProxyPorter[DataT, PortableDataT: PortableData = PortableDat
         return self._data.porter.load(data)
 
     @override
-    def dump(self, data: DataT) -> PortableDataT:
+    def dump(self, data: DataT) -> PortableData:
         return self._data.porter.dump(data)

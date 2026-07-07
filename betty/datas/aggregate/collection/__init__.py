@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Collection, Iterable
-from typing import TYPE_CHECKING, Any, final
+from typing import TYPE_CHECKING, Any, Final, final
 
 from betty.data import DataDefinition, ResolvableDataDefinition, resolve_data_definition
 
@@ -33,16 +33,11 @@ class CollectionDefinition[CollectionT: Collection, ValuesSetT: Iterable](
         factory: Callable[[], CollectionT] | None = None,
     ):
         super().__init__(cls=cls, label=label, description=description, porter=porter)
-        self._item = resolve_data_definition(item)
-        self.__factory = factory
-
-    @final
-    @property
-    def item(self) -> DataDefinition[Any]:
+        self.item: Final[DataDefinition[Any]] = resolve_data_definition(item)
         """
         The definition of the items contained by this collection.
         """
-        return self._item
+        self.__factory = factory
 
     @property
     def _factory(self) -> Callable[..., CollectionT]:

@@ -6,8 +6,12 @@ from __future__ import annotations
 
 from typing import Any, Final, Never
 
-from betty.data import DataDefinition, ResolvableDataDefinition, resolve_data_definition
-from betty.datas.aggregate.record import FieldDefinition
+from betty.data import DataDefinition
+from betty.datas.aggregate.record import (
+    FieldDefinition,
+    ResolvableFieldDefinition,
+    resolve_field_definition,
+)
 from betty.prop import HasProps, Prop
 
 
@@ -23,16 +27,13 @@ class Attr[
 
     def __init__(
         self,
-        field: FieldDefinition[OwnerT, GetT, DataDefinitionT]
-        | ResolvableDataDefinition[DataDefinitionT],
+        field: ResolvableFieldDefinition[OwnerT, GetT, DataDefinitionT],
         *args: Any,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
         self.field: Final[FieldDefinition[OwnerT, GetT, DataDefinitionT]] = (
-            field
-            if isinstance(field, FieldDefinition)
-            else FieldDefinition(resolve_data_definition(field))
+            resolve_field_definition(field)
         )
         """
         The attribute's field definition.

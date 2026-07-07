@@ -12,22 +12,31 @@ from betty.sample import Samplable, Samples
 
 class TestDataDefinition:
     def test_porter__without_porter(self) -> None:
-        sut = DataDefinition(cls=object, label="-")
+        sut = DataDefinition(label="-")
         with pytest.raises(NotPortable):
-            sut.porter  # noqa: B018
+            assert sut.porter
 
     def test_porter__with_porter(self) -> None:
         porter = CallbackPorter(lambda _: object(), lambda _: None)
-        sut = DataDefinition(cls=object, label="-", porter=porter)
+        sut = DataDefinition(label="-", porter=porter)
         assert sut.porter is porter
 
+    def test_try_porter__without_porter(self) -> None:
+        sut = DataDefinition(label="-")
+        assert sut.try_porter is None
+
+    def test_try_porter__with_porter(self) -> None:
+        porter = CallbackPorter(lambda _: object(), lambda _: None)
+        sut = DataDefinition(label="-", porter=porter)
+        assert sut.try_porter is porter
+
     def test_samples__without_samples(self) -> None:
-        sut = DataDefinition(cls=object, label="-")
+        sut = DataDefinition(label="-")
         assert list(sut.samples) == []
 
     def test_samples__with_samples(self) -> None:
         sample = Sample(object(), label="-")
-        sut = DataDefinition(cls=object, label="-", samples=[lambda: sample])
+        sut = DataDefinition(label="-", samples=[lambda: sample])
         assert list(sut.samples) == [sample]
 
     def test_samples__with_samplable(self) -> None:
@@ -41,33 +50,6 @@ class TestDataDefinition:
 
         sut = DataDefinition(cls=_Samplable, label="-")
         assert list(sut.samples) == [sample]
-
-    def test_load__with_porter(self) -> None:
-        loaded = object()
-        sut = DataDefinition(
-            cls=object,
-            label="-",
-            porter=CallbackPorter(lambda _: loaded, lambda _: None),
-        )
-        assert sut.porter.load(None) is loaded
-
-    def test_load__should_error(self) -> None:
-        sut = DataDefinition(cls=object, label="-")
-        with pytest.raises(NotPortable):
-            sut.porter.load(None)
-
-    def test_dump__with_porter(self) -> None:
-        sut = DataDefinition(
-            cls=object,
-            label="-",
-            porter=CallbackPorter(lambda _: object(), lambda _: "dumper"),
-        )
-        assert sut.porter.dump(object()) == "dumper"
-
-    def test_dump__should_error(self) -> None:
-        sut = DataDefinition(cls=object, label="-")
-        with pytest.raises(NotPortable):
-            sut.porter.dump(None)
 
 
 def test_resolve_data_definition__with_definition() -> None:

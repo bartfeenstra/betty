@@ -15,6 +15,7 @@ from betty.datas.plugin.definition import PluginDefinitionData
 from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
 from betty.plugin.resolve import ResolvablePluginId
+from betty.porters.omit_field import OmitFieldPorter
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -60,7 +61,7 @@ def new_plugin_definition_datas_attr[PluginDefinitionT: PluginDefinition](
             ),
             label=label,
             description=description,
-            omit_load=True,
-            omit_dump=lambda data: not len(data),
+            optional=True,
+            porter=OmitFieldPorter.new_is_empty,
         )
     )
