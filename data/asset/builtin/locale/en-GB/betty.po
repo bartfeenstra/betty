@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-06 22:14+0100\n"
-"PO-Revision-Date: 2026-07-07 01:16+0000\n"
+"PO-Revision-Date: 2026-07-07 17:21+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: en-GB\n"
 "Language-Team: English (United Kingdom) <https://hosted.weblate.org/projects/betty/betty-0-5-x/en_GB/>\n"
@@ -552,7 +552,7 @@ msgid "Description"
 msgstr ""
 
 msgid "Description, licensing, and image history"
-msgstr "Description, licensing, and image history"
+msgstr "Description, licencing, and image history"
 
 msgid "Determine if people can be proven to have died. If not, mark them and their associated entities private."
 msgstr "Determine if people can be proven to have died. If not, mark them and their associated entities private."
@@ -956,10 +956,10 @@ msgid "License"
 msgstr "Licence"
 
 msgid "License configuration"
-msgstr ""
+msgstr "Licence configuration"
 
 msgid "Licenses"
-msgstr ""
+msgstr "Licences"
 
 msgid "Lifetime threshold"
 msgstr ""
@@ -1356,7 +1356,7 @@ msgid "Project locale"
 msgstr ""
 
 msgid "Provide license plugins from the SPDX License List (https://spdx.org/licenses/) "
-msgstr ""
+msgstr "Provide licence plugins from the SPDX License List (https://spdx.org/licenses/) "
 
 msgid "Province"
 msgstr "Province"
@@ -1464,7 +1464,7 @@ msgid "Running subprocess `{command}`..."
 msgstr ""
 
 msgid "SPDX licenses"
-msgstr ""
+msgstr "SPDX licences"
 
 #, python-brace-format
 msgid "Saved your project to {configuration_file}."
@@ -1483,10 +1483,10 @@ msgid "Section configuration"
 msgstr ""
 
 msgid "Serializer"
-msgstr ""
+msgstr "Serialiser"
 
 msgid "Serializers"
-msgstr ""
+msgstr "Serialisers"
 
 msgid "Serve a generated site"
 msgstr "Serve a generated site"
@@ -2390,8 +2390,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} license"
 msgid_plural "{count} licenses"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} licence"
+msgstr[1] "{count} licences"
 
 #, python-brace-format
 msgid "{count} link"
@@ -2564,8 +2564,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} serializer"
 msgid_plural "{count} serializers"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} serialiser"
+msgstr[1] "{count} serialisers"
 
 #, python-brace-format
 msgid "{count} server"
