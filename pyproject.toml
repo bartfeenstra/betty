@@ -36,7 +36,7 @@ dependencies = [
     'referencing ~= 0.37.0',
     'rich ~= 15.0',
     'rich-argparse ~= 1.7',
-    'shibuya == 2026.5.19',
+    'shibuya == 2026.7.8',
     'sphinx ~= 8.2',
     'sphinx-design ~= 0.7.0',
 ]
