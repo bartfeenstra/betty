@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-06 22:14+0100\n"
-"PO-Revision-Date: 2026-07-11 21:01+0000\n"
+"PO-Revision-Date: 2026-07-11 23:54+0000\n"
 "Last-Translator: Libre <6n0n1m0s@proton.me>\n"
 "Language: es-ES\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-5-x/es/>\n"
@@ -147,14 +147,17 @@ msgstr "Declaración de divorcio"
 msgid "Announcement of marriage"
 msgstr "Declaración de matrimonio"
 
+#, fuzzy
 msgid "Announcements of divorce"
-msgstr ""
+msgstr "Declaración de divorcio"
 
+#, fuzzy
 msgid "Announcements of marriage"
-msgstr ""
+msgstr "Anuncios de matrimonio"
 
+#, fuzzy
 msgid "Another source this source may be contained by"
-msgstr ""
+msgstr "Otra fuente esta fuente puede ser contenida por"
 
 msgid "Appearances"
 msgstr "Apariciónes"
@@ -560,8 +563,9 @@ msgstr "Determinar si las personas pueden ser probadas que hayan fallecido. Si n
 msgid "Did you know that Liberta \"Betty\" Lankester is Betty's namesake?"
 msgstr "¿Sabías que Liberta \"Betty\" Lankester es el tocayo de Betty?"
 
+#, fuzzy
 msgid "Did you know that while Amsterdam is the country's official capital, The Hague is the Netherlands' administrative center and seat of government?"
-msgstr ""
+msgstr "¿Sabías que mientras Amsterdam es la capital oficial del país, La Haya es el centro administrativo de Holanda y sede del gobierno?"
 
 msgid "Display interactive family trees using Cytoscape."
 msgstr "Exhibe los árboles familiares interactivos que utilizan Cytoscape."
