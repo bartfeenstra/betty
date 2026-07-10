@@ -243,11 +243,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Manufacturable": MissingReason.ABSTRACT,
         "UnsupportedTarget": MissingReason.ABSTRACT,
     },
-    "betty/functools.py": {
-        "Result": {
-            "result": MissingReason.COVERED_ELSEWHERE,
-        }
-    },
     "betty/genders/man.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/genders/non_binary.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/genders/unknown.py": MissingReason.STATIC_CONTENT_ONLY,
@@ -714,7 +709,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/typing.py": {
         "Intersection": MissingReason.STATIC_CONTENT_ONLY,
         "Not": MissingReason.STATIC_CONTENT_ONLY,
-        "Void": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/url_generator.py": {
         "GenerationError": MissingReason.ABSTRACT,

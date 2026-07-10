@@ -1,6 +1,7 @@
 import argparse
 from asyncio import CancelledError
 from collections.abc import Awaitable, Callable
+from functools import partial
 from threading import Thread
 from typing import Any, override
 
@@ -11,7 +12,8 @@ from betty.app import App
 from betty.console import SystemExitCode, call_command_func, main_standalone
 from betty.console.command import Command, CommandDefinition
 from betty.exception import HumanFacingException
-from betty.functools import Result, suppress
+from betty.functools import Snapshot
+from betty.result import new_from
 from betty.test_utils.conftest import IsolatedAppFactory
 from betty.test_utils.console import run
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
@@ -115,13 +117,13 @@ async def test_main_standalone(
         main_standalone()
 
     # Run this in a thread so as not to conflict with pytest-playwright-asyncio's session-scoped event loop.
-    result = Result(_target)
-    thread = Thread(target=suppress(result, BaseException))
+    result = Snapshot(partial(new_from, BaseException, _target))
+    thread = Thread(target=result)
     thread.start()
     thread.join()
 
     with pytest.raises(SystemExit) as exc_info:
-        result.result()
+        result.snapshot()()
     assert exc_info.value.code is expected
 
 

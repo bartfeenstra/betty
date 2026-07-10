@@ -303,5 +303,4 @@ class TestRichUser:
                 await sut.ask_input(
                     "", stdin=stdin, assertion=_assertion, default="123"
                 )
-                == 123
-            )
+            ) == 123

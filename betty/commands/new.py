@@ -23,9 +23,9 @@ from betty.locale import default_locale_tag, to_language_tag
 from betty.localizables.gettext import _
 from betty.localizables.static import StaticTranslations
 from betty.machine_name import MachineName
+from betty.maybe import Nothing
 from betty.project import ProjectData
 from betty.project.new import new
-from betty.typing import Void
 
 if TYPE_CHECKING:
     import argparse
@@ -97,12 +97,12 @@ class New(Manufacturable, Command):
             self._app.user, locales, _("What is your project called in {locale}?")
         )
 
+        default_machine_name = MachineName.machinify(
+            configuration.title.localize(localizers.get(default_locale))
+        )
         configuration.name = await self._app.user.ask_input(
             _("What is your project's machine name?"),
-            default=MachineName.machinify(
-                configuration.title.localize(localizers.get(default_locale))
-            )
-            or Void,
+            default=default_machine_name or Nothing,
         )
 
         configuration.author = await _user_input_static_translations(

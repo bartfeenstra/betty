@@ -18,7 +18,7 @@ from typing import Any, overload, override
 
 from betty.collection.mapping import MutableResolvedMapping, ResolvedMapping
 from betty.functools import passthrough
-from betty.typing import Void
+from betty.maybe import Nothing
 
 
 class ResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT](
@@ -138,10 +138,10 @@ class MutableResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValu
         pass
 
     @override
-    def setdefault(self, key, default=Void):
+    def setdefault(self, key, default=Nothing):
         return self._proxied.setdefault(
             self._key_resolver(key),
-            None if default is Void else self._value_resolver(default),
+            None if default is Nothing else self._value_resolver(default),
         )  # ty:ignore[no-matching-overload]
 
     @overload
@@ -159,9 +159,9 @@ class MutableResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValu
         pass
 
     @override
-    def pop(self, key, default=Void):
+    def pop(self, key, default=Nothing):
         key = self._key_resolver(key)
-        if default is Void:
+        if default is Nothing:
             return self._proxied.pop(key)
         return self._proxied.pop(key, default)
 

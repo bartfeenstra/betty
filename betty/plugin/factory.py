@@ -24,13 +24,13 @@ from betty.importlib import fully_qualified_name
 from betty.indicator.selector import Attr
 from betty.localizables.gettext import _
 from betty.machine_name import MachineName
+from betty.maybe import Nothing, NothingType
 from betty.plugin import PluginDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.portable import PortableData
 from betty.prop import HasProps
 from betty.sample import Samplable, Sample, Samples, Size
-from betty.typing import Void, VoidType
 
 if TYPE_CHECKING:
     from betty.service_level import ServiceLevel
@@ -67,7 +67,7 @@ class PluginManufacturer(
     """
 
     plugin_data = OwnerAttr(
-        DataDefinition[Data | PortableData | VoidType, PortableData](label=_("Data"))
+        DataDefinition[Data | PortableData | NothingType, PortableData](label=_("Data"))
     )
     """
     Get the plugin's own data.
@@ -77,7 +77,7 @@ class PluginManufacturer(
     def __init__(
         self,
         plugin: ResolvablePluginId[_PluginManufacturerPluginDefinitionT],
-        data: Data | PortableData | VoidType = Void,
+        data: Data | PortableData | NothingType = Nothing,
         /,
     ):
         super().__init__()
@@ -89,8 +89,8 @@ class PluginManufacturer(
         return hash((
             self.data().plugin_type,
             self.plugin_id,
-            Void
-            if self.plugin_data is Void
+            Nothing
+            if self.plugin_data is Nothing
             else dumps(
                 self.plugin_data.data().porter.dump(self.plugin_data)
                 if isinstance(self.plugin_data, Data)
@@ -116,7 +116,7 @@ class PluginManufacturer(
                 Field("data", optional=True),
             ),
         )(portable)
-        return cls(record["plugin"], record.get("data", Void))
+        return cls(record["plugin"], record.get("data", Nothing))
 
     @final
     @override
@@ -136,7 +136,7 @@ class PluginManufacturer(
     @override
     def dump(self) -> PortableData:
         data = self.plugin_data
-        if data is Void:
+        if data is Nothing:
             return self.plugin_id
         return {
             "plugin": self.plugin_id,
@@ -146,7 +146,7 @@ class PluginManufacturer(
     @final
     @override
     def dump_key(self, key: Attr, /) -> tuple[str, PortableData]:
-        return self.plugin_id, {} if self.plugin_data is Void else {
+        return self.plugin_id, {} if self.plugin_data is Nothing else {
             "data": self._dump_data(self.plugin_data)
         }
 
@@ -158,7 +158,7 @@ class PluginManufacturer(
         plugin_cls = (
             await services.plugins[self.data().plugin_type][self.plugin_id]
         ).cls  # ty:ignore[unresolved-attribute]
-        if self.plugin_data is Void:
+        if self.plugin_data is Nothing:
             return await services.factory.new(plugin_cls)
         if not issubclass(plugin_cls, DataManufacturable):
             raise PluginManufacturerError(
