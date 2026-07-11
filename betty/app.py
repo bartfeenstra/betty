@@ -13,8 +13,8 @@ from typing import TYPE_CHECKING, Any, Final, Literal, Self, final
 from aiohttp_client_cache.backends.filesystem import FileBackend
 from aiohttp_client_cache.session import CachedSession
 
+from betty.attr import Object
 from betty.attrs.locale import new_locale_attr
-from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.dirs import app_config_directory, cache_directory
 from betty.gettext import (
@@ -31,7 +31,6 @@ from betty.localizer import Localizer, LocalizerRepository
 from betty.media_type import MediaTypeDefinition
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.portable.file import assert_load_file
-from betty.prop import HasProps
 from betty.requirements.service_level import RequirableServiceLevel
 from betty.rich.user import RichUser
 from betty.sample import Sample, Size
@@ -306,7 +305,7 @@ class App(RequirableServiceLevel, PluginServiceProvider):
         lambda: Sample(AppData(locale=default_locale), label="Full", size=Size.FULL),
     ],
 )
-class AppData(Data, HasProps):
+class AppData(Object):
     """
     Configuration for :py:class:`betty.app.App`.
 

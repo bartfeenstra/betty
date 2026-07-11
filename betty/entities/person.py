@@ -17,13 +17,14 @@ from betty.entity import EntityDefinition
 from betty.functools import unique
 from betty.gender import GenderDefinition
 from betty.genders.unknown import UnknownGender
-from betty.json_schemas.plugin_id import PluginIdSchema
-from betty.linked_data import JsonLdObject, dump_context
+from betty.json_schemas.plugin_id import new_plugin_id_schema
+from betty.linked_data import LinkedData
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
+from betty.typing import Voidable, VoidableType
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Mapping
 
     from betty.entities.citation import Citation
     from betty.entities.file_reference import FileReference
@@ -34,6 +35,7 @@ if TYPE_CHECKING:
     from betty.machine_name import ResolvableMachineName
     from betty.portable import PortableMapping
     from betty.project import Project
+    from betty.typing import VoidType
 
 
 @final
@@ -79,6 +81,8 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks):
     names = ToMany[Self, PersonName](PersonName, "person", label=_("Names"))
     """
     The person's names.
+
+    The first name is considered the :py:attr:`person label <betty.entities.person.Person.label>`.
     """
 
     def __init__(
@@ -152,29 +156,24 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks):
         return super().label
 
     @override
-    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
-        dump_context(
-            portable,
-            names="https://schema.org/name",
-            parents="https://schema.org/parent",
-            children="https://schema.org/child",
-        )
-        portable["@type"] = "https://schema.org/Person"
-        if self.public:
-            portable["gender"] = self.gender.plugin().id
-        return portable
+    @classmethod
+    async def linked_data_schema_properties(
+        cls, project: Project, /
+    ) -> Mapping[str, VoidableType[PortableMapping]]:
+        return {
+            "gender": Voidable(
+                new_plugin_id_schema(
+                    GenderDefinition.type(),
+                    [x async for x in project.plugins[GenderDefinition]],
+                )
+            ),
+        }
 
     @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
-        schema = await super().linked_data_schema(project)
-        schema.add_property(
-            "gender",
-            PluginIdSchema(
-                GenderDefinition.type(),
-                [x async for x in project.plugins[GenderDefinition]],
-            ),
-            False,
-        )
-        return schema
+    async def dump_linked_data_properties(
+        self, project: Project, /
+    ) -> Mapping[str, LinkedData | VoidType]:
+        dump = {}
+        if self.public:
+            dump["gender"] = LinkedData(self.gender.plugin().id)
+        return dump

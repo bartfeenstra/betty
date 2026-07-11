@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, cast, final, override
 from betty.entity import EntityDefinition
 from betty.job import Job
 from betty.jobs import _create_json_resource
-from betty.json_schemas.project import ProjectSchema
+from betty.json_schemas.project import project_schema_def_url
 from betty.media_types.json import JSON
 from betty.string import kebab_case_to_lower_camel_case
 
@@ -64,7 +64,7 @@ class _GenerateEntityTypeJson(Job):
         url_generator = await self._project.url_generator
         entity_type_directory = self._project.www_directory / self._entity_type.id
         data: PortableMapping = {
-            "$schema": await ProjectSchema.def_url(
+            "$schema": await project_schema_def_url(
                 self._project,
                 f"{kebab_case_to_lower_camel_case(self._entity_type.id)}EntityCollectionResponse",
             ),

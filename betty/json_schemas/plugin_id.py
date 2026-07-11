@@ -4,9 +4,8 @@ Access discovered plugins.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING
 
-from betty.json_schema import Enum
 from betty.localizer import default_localizer
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.string import kebab_case_to_lower_camel_case
@@ -14,23 +13,27 @@ from betty.string import kebab_case_to_lower_camel_case
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from betty.portable import PortableMapping
 
-@final
-class PluginIdSchema[PluginDefinitionT: PluginDefinition = PluginDefinition](Enum):
-    """
-    The JSON schema for the IDs of the plugins in this repository.
-    """
 
-    def __init__(
-        self,
-        plugin_type: PluginTypeDefinition[PluginDefinitionT],
-        plugins: Iterable[PluginDefinitionT],
-        /,
-    ):
-        label = plugin_type.label.localize(default_localizer)
-        super().__init__(
-            *[plugin.id for plugin in plugins],
-            def_name=kebab_case_to_lower_camel_case(plugin_type.id),
-            title=label,
-            description=f"A {label} plugin ID",
-        )
+def new_plugin_id_schema[PluginDefinitionT: PluginDefinition](
+    plugin_type: PluginTypeDefinition[PluginDefinitionT],
+    plugins: Iterable[PluginDefinitionT],
+    /,
+) -> PortableMapping:
+    """
+    Create a JSON schema for the IDs of the plugins of a type.
+    """
+    label = plugin_type.label.localize(default_localizer)
+    def_name = kebab_case_to_lower_camel_case(plugin_type.id)
+    return {
+        "$ref": f"#/$defs/{def_name}",
+        "$defs": {
+            def_name: {
+                "description": f"A {label} plugin ID",
+                "options": [plugin.id for plugin in plugins],
+                "title": label,
+                "type": "enum",
+            }
+        },
+    }

@@ -8,6 +8,7 @@ from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.asset_directories.raspberry_mint import raspberry_mint
+from betty.attr import Object
 from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.owner import OwnerAttr
@@ -21,13 +22,11 @@ from betty.content_builder import (
     build,
 )
 from betty.content_builders.template import Template, TemplateBuild
-from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.bool import BoolDefinition
 from betty.factory import DataManufacturable
 from betty.localizables.gettext import _
 from betty.project import Project
-from betty.prop import HasProps
 from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
@@ -54,7 +53,7 @@ if TYPE_CHECKING:
         ),
     ],
 )
-class SectionData(Data, HasProps):
+class SectionData(Object):
     """
     Configuration for :py:class:`betty.content_builders.raspberry_mint_section.Section`.
 

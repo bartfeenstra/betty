@@ -15,9 +15,10 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from betty.datas.aggregate.record import FieldDefinition
-    from betty.json_schema import Schema
-    from betty.portable import PortableData
+    from betty.linked_data import LinkedData
+    from betty.portable import PortableMapping
     from betty.project import Project
+    from betty.typing import VoidableType, VoidType
 
 
 class ProxyAssociation[
@@ -76,11 +77,9 @@ class ProxyAssociation[
         return self._proxied_association.get_associates(owner)
 
     @override
-    async def linked_data_schema_for(self, project: Project, /) -> Schema:
-        return await self._proxied_association.linked_data_schema_for(project)
+    async def schema(self, project: Project, /) -> VoidableType[PortableMapping]:
+        return await self._proxied_association.schema(project)
 
     @override
-    async def dump_linked_data_for(
-        self, project: Project, target: OwnerT, /
-    ) -> PortableData:
-        return await self._proxied_association.dump_linked_data_for(project, target)
+    async def dump(self, project: Project, data: OwnerT, /) -> LinkedData | VoidType:
+        return await self._proxied_association.dump(project, data)

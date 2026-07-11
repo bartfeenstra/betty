@@ -1,13 +1,13 @@
 from gettext import NullTranslations
 
+from betty.attr import Object
 from betty.attrs.localizable import new_localizable_attr
 from betty.locale import default_locale_tag
 from betty.localizables.plain import Plain
 from betty.localizer import Localizer, default_localizer
-from betty.prop import HasProps
 
 
-class _Owner(HasProps):
+class _Owner(Object):
     attr = new_localizable_attr(label="-")
 
 

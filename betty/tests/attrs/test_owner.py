@@ -3,16 +3,16 @@ from typing import override
 
 import pytest
 
+from betty.attr import Object
 from betty.attrs.default import DefaultAttr
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.datas.aggregate.collection import CollectionDefinition
 from betty.datas.str import StrDefinition
 from betty.indicator.selector import Index
-from betty.prop import HasProps
 
 
 class TestOwnerAttr:
-    class _Owner(HasProps):
+    class _Owner(Object):
         my_first_attr = OwnerAttr(StrDefinition(label="-"))
 
     def test_get(self) -> None:
@@ -49,7 +49,7 @@ class _CollectionDefinition(CollectionDefinition[_Collection, Iterable[str], Ind
         data.extend(values)
 
 
-class _Owner(HasProps):
+class _Owner(Object):
     collection = CollectionOwnerAttr(_CollectionDefinition())
 
 

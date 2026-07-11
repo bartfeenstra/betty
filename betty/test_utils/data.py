@@ -8,6 +8,7 @@ from typing import Any
 
 import pytest
 
+from betty.attr import Object
 from betty.attrs.owner import OwnerAttr
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
@@ -15,7 +16,6 @@ from betty.datas.str import StrDefinition
 from betty.importlib import fully_qualified_name
 from betty.localizables.plain import Plain
 from betty.localizer import default_localizer
-from betty.prop import HasProps
 
 
 class DataTestBase[DataT: Data]:
@@ -119,7 +119,7 @@ class DataTestBase[DataT: Data]:
 
 
 @ObjectDefinition(label=Plain("Dummy data"))
-class DummyData(Data, HasProps):
+class DummyData(Object):
     """
     A dummy :py:class:`betty.data.Data` implementation.
     """

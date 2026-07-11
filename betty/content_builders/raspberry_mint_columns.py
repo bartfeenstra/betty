@@ -14,6 +14,7 @@ from betty.assertions.int import assert_int
 from betty.assertions.mapping import assert_mapping
 from betty.assertions.sequence import assert_sequence
 from betty.asset_directories.raspberry_mint import raspberry_mint
+from betty.attr import Object
 from betty.attrs.owner import OwnerAttr
 from betty.content_builder import (
     ContentBuilder,
@@ -23,7 +24,6 @@ from betty.content_builder import (
 )
 from betty.content_builders.render import Render, RenderData
 from betty.content_builders.template import Template, TemplateBuild
-from betty.data import Data
 from betty.datas.aggregate.collection.mapping import MappingDefinition
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
@@ -37,7 +37,6 @@ from betty.factory import DataManufacturable
 from betty.localizables.gettext import _
 from betty.porters.callback import CallbackPorter
 from betty.project import Project
-from betty.prop import HasProps
 from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
@@ -119,7 +118,7 @@ type ShorthandColumnsWidth = (
         ),
     ],
 )
-class ColumnsData(Data, HasProps):
+class ColumnsData(Object):
     """
     Configuration for :py:class:`betty.content_builders.raspberry_mint_columns.Columns`.
 

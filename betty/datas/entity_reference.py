@@ -6,15 +6,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
+from betty.attr import Object
 from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.owner import OwnerAttr
-from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.str import StrDefinition
 from betty.entity import Entity, EntityDefinition
 from betty.localizables.gettext import _
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
-from betty.prop import HasProps
 from betty.sample import Sample
 
 if TYPE_CHECKING:
@@ -28,7 +27,7 @@ if TYPE_CHECKING:
         lambda: Sample(EntityReference("person", "123"), label="Default"),
     ],
 )
-class EntityReference[EntityT: Entity = Entity](Data, HasProps):
+class EntityReference[EntityT: Entity = Entity](Object):
     """
     A reference to an entity of any type.
 

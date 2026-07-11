@@ -7,6 +7,7 @@ from __future__ import annotations
 from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.attr import Object
 from betty.attrs.owner import OwnerAttr
 from betty.attrs.plugin_manufacturer_sequence import (
     new_plugin_manufacturer_sequence_attr,
@@ -19,13 +20,11 @@ from betty.content_builder import (
 )
 from betty.content_builders.render import Render, RenderData
 from betty.content_builders.template import Template, TemplateBuild
-from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.str import StrDefinition
 from betty.factory import DataManufacturable
 from betty.localizables.gettext import _
 from betty.project import Project
-from betty.prop import HasProps
 from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
@@ -56,7 +55,7 @@ if TYPE_CHECKING:
         ),
     ],
 )
-class BoxData(Data, HasProps):
+class BoxData(Object):
     """
     Configuration for :py:class:`betty.content_builders.box.Box`.
 

@@ -17,16 +17,16 @@ from betty.association import (
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.entity_as_reference import EntityAsReferenceDefinition
 from betty.entity import Entity
-from betty.json_schema import Null, OneOf, String
+from betty.linked_data import LinkedData
+from betty.localizer import default_localizer
 from betty.media_types.json_ld import JSON_LD
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from betty.data import DataDefinition
-    from betty.json_schema import Schema
     from betty.localizable import ResolvableLocalizable
-    from betty.portable import PortableData
+    from betty.portable import PortableMapping
     from betty.project import Project
 
 
@@ -112,6 +112,7 @@ class ToOne[OwnerT: Entity, AssociateT: Entity](
         *,
         description: ResolvableLocalizable | None = None,
         label: ResolvableLocalizable,
+        linked_data_context: str | None = None,
     ):
         super().__init__(
             FieldDefinition(
@@ -120,6 +121,7 @@ class ToOne[OwnerT: Entity, AssociateT: Entity](
             associate,
             associate_attr,
         )
+        self._linked_data_context = linked_data_context
 
     def _is_missing(
         self, value: ToOneAssociate[OwnerT, AssociateT]
@@ -219,20 +221,21 @@ class ToOne[OwnerT: Entity, AssociateT: Entity](
         yield self.get(owner)
 
     @override
-    async def linked_data_schema_for(self, project: Project, /) -> Schema:
-        return OneOf(
-            String(
-                title=self.field.label,
-                description=self.field.description,
-                format=String.Format.URI,
-            ),
-            Null(),
-        )
+    async def schema(self, project: Project, /) -> PortableMapping:
+        schema = {
+            "format": "uri",
+            "title": self.field.label.localize(default_localizer),
+            "type": "string",
+        }
+        if self.field.description is not None:
+            schema["description"] = self.field.description.localize(default_localizer)
+        return schema
 
     @override
-    async def dump_linked_data_for(
-        self, project: Project, owner: OwnerT, /
-    ) -> PortableData:
+    async def dump(self, project: Project, owner: OwnerT, /) -> LinkedData:
         associate = self.get(owner)
         url_generator = await project.url_generator
-        return url_generator.generate(associate, media_type=JSON_LD)
+        return LinkedData(
+            url_generator.generate(associate, media_type=JSON_LD),
+            context=self._linked_data_context,
+        )

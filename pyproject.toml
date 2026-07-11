@@ -250,7 +250,6 @@ betty = 'betty.console:main_standalone'
 [project.entry-points.'betty.jinja_test']
 'has-file-references' = 'betty.jinja_tests.has_file_references:HasFileReferences'
 'image-media-type-supported' = 'betty.jinja_tests.image_media_type_supported:ImageMediaTypeSupported'
-'linked-data-dumpable' = 'betty.jinja_tests.linked_data_dumpable:LinkedDataDumpable'
 'plugin' = 'betty.jinja_tests.plugin:Plugin.discover'
 
 

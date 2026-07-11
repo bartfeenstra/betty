@@ -19,10 +19,12 @@ from betty.datas.aggregate import AggregateDefinition
 from betty.indicator.selector import Element
 from betty.localizable import resolve_localizable
 from betty.portable import Portable, PortableData, Porter
+from betty.privacy import Privacy
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping, MutableMapping
 
+    from betty.linked_data import LinkedDataPorter
     from betty.localizable import Localizable, ResolvableLocalizable
     from betty.typing import Intersection
 
@@ -49,6 +51,7 @@ class FieldDefinition[
         omit_dump: Callable[[DataClsT], bool]
         | Callable[[OwnerT, DataClsT], bool]
         | None = None,
+        privacy: Privacy = Privacy.UNDETERMINED,
     ):
         self.data: Final[DataDefinitionT] = resolve_data_definition(data)
         """
@@ -90,10 +93,27 @@ class FieldDefinition[
             )  # ty:ignore[invalid-assignment]
         )
 
+        self._privacy: Final[Privacy] = privacy
+
     def omit_dump(self, owner: OwnerT, data: DataClsT, /) -> bool:
         """
         Check if the field may be omitted from the parent when dumping to portable data.
         """
+        if self._omit_dump is None:
+            return False
+        return self._omit_dump(owner, data)
+
+    def privacy(self, owner: OwnerT, data: DataClsT, /) -> Privacy:
+        """
+        Get the field data's effective privacy.
+        """
+        if self._privacy is Privacy.PRIVATE:
+            return Privacy.PRIVATE
+        self.data.privacy(data)
+        # @todo merge_privacies() only returns PUBLIC if the inputs contain no PRIVATE or UNDETERMINED.
+        # @todo Do we want to refactor it so it only returns UNDETERMINED if the inputs contain neither PRIVATE nor PUBLIC?
+        # @todo
+        # @todo
         if self._omit_dump is None:
             return False
         return self._omit_dump(owner, data)
@@ -163,8 +183,6 @@ class RecordDefinition[DataClsT, ElementT: Element[str] = Element[str]](
     Records have explicitly defined fields.
     """
 
-    _porter: RecordPorter[DataClsT] | None
-
     def __init__(
         self,
         *args: Any,
@@ -172,11 +190,14 @@ class RecordDefinition[DataClsT, ElementT: Element[str] = Element[str]](
         label: ResolvableLocalizable,
         fields: Mapping[ElementT, FieldDefinition[DataClsT, Any]] | None = None,
         description: ResolvableLocalizable | None = None,
+        linked_data_porter: LinkedDataPorter[DataClsT] | None = None,
         samples: Iterable[Callable[[], Sample[DataClsT]] | Samples] = (),
         factory: Callable[..., DataClsT] | None = None,
         porter: RecordPorter[DataClsT] | None = None,
         **kwargs: Any,
     ):
+        from betty.linked_data_porters.record import RecordLinkedDataPorter
+
         self._fields: MutableMapping[ElementT, FieldDefinition[DataClsT, Any]] = (
             {} if fields is None else dict(fields)
         )
@@ -187,9 +208,11 @@ class RecordDefinition[DataClsT, ElementT: Element[str] = Element[str]](
             description=description,
             samples=samples,
             porter=porter,
+            linked_data_porter=linked_data_porter or RecordLinkedDataPorter(self),
             **kwargs,
         )
         self._factory = factory
+        self._porter = porter
 
     @property
     def factory(self) -> Callable[..., DataClsT]:
@@ -215,9 +238,9 @@ class RecordDefinition[DataClsT, ElementT: Element[str] = Element[str]](
 
         if self._porter is None:
             if self.cls and issubclass(self.cls, PortableRecord):
-                self._porter = PortableRecordPorter(self.cls)  # ty:ignore[invalid-assignment]
+                self._porter = PortableRecordPorter(self.cls)
             else:
-                self._porter = RecordMappingPorter(  # ty:ignore[invalid-assignment]
+                self._porter = RecordMappingPorter(
                     self,  # ty:ignore[invalid-argument-type]
                 )
         return self._porter  # ty:ignore[invalid-return-type]

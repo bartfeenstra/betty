@@ -1,16 +1,15 @@
 from collections.abc import Callable, Iterable, MutableSequence
 from typing import override
 
-from betty.attr import Attr
+from betty.attr import Attr, Object
 from betty.attrs.default import DefaultAttr
 from betty.datas.aggregate.collection import CollectionDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.str import StrDefinition
 from betty.indicator.selector import Index
-from betty.prop import HasProps
 
 
-class _Attr(Attr[HasProps, str, str]):
+class _Attr(Attr[Object, str, str]):
     def __init__(
         self,
         *,
@@ -21,16 +20,16 @@ class _Attr(Attr[HasProps, str, str]):
         self._init_value = init_value
 
     @override
-    def init_owner(self, owner: HasProps, /) -> None:
+    def init_owner(self, owner: Object, /) -> None:
         if self._init_value is not None:
             setattr(owner, type(self).__name__, self._init_value)
 
     @override
-    def get(self, owner: HasProps, /) -> str:
+    def get(self, owner: Object, /) -> str:
         return getattr(owner, type(self).__name__)
 
     @override
-    def set(self, owner: HasProps, value: str, /) -> None:
+    def set(self, owner: Object, value: str, /) -> None:
         setattr(owner, type(self).__name__, value)
 
 
@@ -38,7 +37,7 @@ class TestDefaultAttr:
     def test_init_owner(self) -> None:
         default = "Hello, world!"
 
-        class _Owner(HasProps):
+        class _Owner(Object):
             my_first_attr = DefaultAttr(_Attr(), lambda: default)
 
         assert _Owner().my_first_attr == default
@@ -46,13 +45,13 @@ class TestDefaultAttr:
     def test_omit_dump__with_default(self) -> None:
         default = "Hello, world!"
 
-        class _Owner(HasProps):
+        class _Owner(Object):
             my_first_attr = DefaultAttr(_Attr(), lambda: default)
 
         assert _Owner.my_first_attr.field.omit_dump(_Owner(), default)
 
     def test_omit_dump__with_proxied_false(self) -> None:
-        class _Owner(HasProps):
+        class _Owner(Object):
             my_first_attr = DefaultAttr(_Attr(omit_dump=lambda _: False), lambda: "")
 
         owner = _Owner()
@@ -60,7 +59,7 @@ class TestDefaultAttr:
         assert not _Owner.my_first_attr.field.omit_dump(owner, owner.my_first_attr)
 
     def test_omit_dump__with_proxied_true(self) -> None:
-        class _Owner(HasProps):
+        class _Owner(Object):
             my_first_attr = DefaultAttr(_Attr(omit_dump=lambda _: True), lambda: "")
 
         owner = _Owner()

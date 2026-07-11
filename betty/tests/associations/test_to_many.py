@@ -110,8 +110,8 @@ class TestToMany:
         type(owner).associates.resolve(isolated_project, owner)
         assert associate in owner.associates
 
-    async def test_linked_data_schema_for(self, isolated_project: Project) -> None:
-        await _Owner.associates.linked_data_schema_for(isolated_project)
+    async def test_schema(self, isolated_project: Project) -> None:
+        await _Owner.associates.schema(isolated_project)
 
     async def test_dump_linked_data_for(
         self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor

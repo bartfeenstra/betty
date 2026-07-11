@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.associations.to_one import ToOne, ToOneAssociate
 from betty.entity import Entity, EntityDefinition
-from betty.json_schemas.plugin_id import PluginIdSchema
+from betty.json_schemas.plugin_id import new_plugin_id_schema
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
 from betty.privacy.resolve import merge_secondary_privacies
@@ -17,12 +17,13 @@ from betty.role import RoleDefinition
 if TYPE_CHECKING:
     from betty.entities.event import Event
     from betty.entities.person import Person
-    from betty.linked_data import JsonLdObject
+    from betty.linked_data import LinkedData
     from betty.localizable import Localizable
     from betty.machine_name import ResolvableMachineName
     from betty.portable import PortableMapping
     from betty.project import Project
     from betty.role import Role
+    from betty.typing import VoidableType
 
 
 @final
@@ -94,11 +95,13 @@ class Presence(Entity):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
+    async def linked_data_schema(
+        cls, project: Project, /
+    ) -> VoidableType[PortableMapping]:
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "role",
-            PluginIdSchema(
+            new_plugin_id_schema(
                 RoleDefinition.type(),
                 [x async for x in project.plugins[RoleDefinition]],
             ),
@@ -107,7 +110,7 @@ class Presence(Entity):
         return schema
 
     @override
-    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
+    async def dump_linked_data(self, project: Project, /) -> LinkedData:
         portable = await super().dump_linked_data(project)
         if self.public:
             portable["role"] = self.role.plugin().id

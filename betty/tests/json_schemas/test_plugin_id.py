@@ -1,24 +1,16 @@
-from betty.json_schemas.plugin_id import PluginIdSchema
-from betty.test_utils.plugin import (
-    DummyPluginDefinition,
-    DummyPluginOne,
-    DummyPluginThree,
-    DummyPluginTwo,
-)
+import pytest
+from jsonschema import ValidationError
+
+from betty.json_schema import validate
+from betty.json_schemas.plugin_id import new_plugin_id_schema
+from betty.test_utils.plugin import DummyPluginDefinition, DummyPluginOne
 
 
-class TestPluginIdSchema:
-    def test(self) -> None:
-        sut = PluginIdSchema(
-            DummyPluginDefinition.type(),
-            [
-                DummyPluginOne.plugin(),
-                DummyPluginTwo.plugin(),
-                DummyPluginThree.plugin(),
-            ],
-        )
-        assert sut.schema["enum"] == [
-            "dummy-plugin-one",
-            "dummy-plugin-two",
-            "dummy-plugin-three",
-        ]
+def test_new_plugin_id_schema() -> None:
+    sut = new_plugin_id_schema(
+        DummyPluginDefinition.type(),
+        [DummyPluginOne.plugin()],
+    )
+    validate(sut, "dummy-plugin-one")
+    with pytest.raises(ValidationError):
+        validate(sut, "dummy-plugin-two")

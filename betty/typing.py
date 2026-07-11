@@ -4,6 +4,7 @@ Providing typing utilities.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any, final
 
 from betty.docstring import append
@@ -66,3 +67,16 @@ class Void:
 
 
 type VoidType = type[Void]
+
+
+@final
+@dataclass(frozen=True)
+class Voidable[T]:
+    """
+    A marker to indicate that whatever the wrapped value represents, may also be :py:class:`betty.typing.Void`.
+    """
+
+    wrapped: T
+
+
+type VoidableType[T] = T | Voidable[T]

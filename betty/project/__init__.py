@@ -22,6 +22,7 @@ from betty.about import version_major
 from betty.app import App
 from betty.assertions.int import assert_int
 from betty.assertions.url import assert_url
+from betty.attr import Object
 from betty.attrs.locale import new_locale_attr
 from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.machine_name import new_machine_name_attr
@@ -38,7 +39,6 @@ from betty.copyright_notice import (
     CopyrightNoticeDefinition,
     CopyrightNoticeManufacturer,
 )
-from betty.data import Data
 from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
 from betty.datas.aggregate.record import FieldDefinition
@@ -96,7 +96,6 @@ from betty.plugin.resolve import (
     resolve_plugin_id,
 )
 from betty.privacy.privatizer import Privatizer
-from betty.prop import HasProps
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.requirements.service_level import RequirableServiceLevel
 from betty.role import RoleDefinition
@@ -636,7 +635,7 @@ class Project(
         ),
     ],
 )
-class ProjectLocale(Data["ObjectDefinition"], HasProps):
+class ProjectLocale(Object["ObjectDefinition"]):
     """
     A locale to use for a project.
 
@@ -712,7 +711,7 @@ class ProjectLocale(Data["ObjectDefinition"], HasProps):
         ),
     ],
 )
-class ProjectData(Data, HasProps):
+class ProjectData(Object):
     """
     Configuration for a :py:class:`betty.project.Project`.
 

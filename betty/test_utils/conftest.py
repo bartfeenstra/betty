@@ -10,7 +10,6 @@ from __future__ import annotations
 __all__ = [
     "assert_dumps_linked_data",
     "assert_dumps_linked_data_for",
-    "assert_linked_data_dump",
     "assert_template_file",
     "assert_template_string",
     "binary_file_cache",
@@ -26,11 +25,7 @@ __all__ = [
 
 import re
 import tarfile
-from collections.abc import (
-    Awaitable,
-    MutableMapping,
-    MutableSequence,
-)
+from collections.abc import Awaitable, Mapping, MutableMapping
 from contextlib import asynccontextmanager
 from io import BytesIO
 from json import dumps
@@ -43,21 +38,17 @@ from jinja2 import Environment, Template
 
 from betty.app import App
 from betty.exception import do_raise
-from betty.json_schema import Schema
 from betty.licenses.spdx import SpdxLicenseDiscoverer
+from betty.linked_data import LinkedData
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.project import Project, ProjectLocale
 from betty.stores.file import TransientBinaryFileStore
+from betty.test_utils.linked_data import validate
+from betty.typing import VoidType
 from betty.user import Verbosity
 
 if TYPE_CHECKING:
-    from collections.abc import (  # noqa: I001
-        AsyncIterator,
-        Callable,
-        Iterable,
-        Iterator,
-        Mapping,
-    )
+    from collections.abc import AsyncIterator, Callable, Iterable, Iterator
     from concurrent import futures
     from contextlib import AbstractAsyncContextManager
     from pathlib import Path
@@ -65,27 +56,27 @@ if TYPE_CHECKING:
     from playwright.async_api import BrowserContext, Page
 
     from betty.asset import AssetDirectoryDefinition
-    from betty.store import TransientStore
     from betty.entity import EntityDefinition
     from betty.entity.collection.pool import EntityPool
     from betty.extension import ExtensionDefinition
+    from betty.gettext import TranslationRepository
     from betty.link import LinkDefinition
-    from betty.linked_data import LinkedDataDumpableWithSchema, LinkedDataDumper
+    from betty.linked_data import LinkedDataPortable, LinkedDataPorter
     from betty.load import EnricherDefinition, LoaderDefinition
     from betty.locale import ResolvableLocale
     from betty.localizable import ResolvableLocalizable
-    from betty.gettext import TranslationRepository
     from betty.machine_name import ResolvableMachineName
     from betty.pathlib import StrPath
     from betty.plugin import PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.plugin.resolve import ResolvablePluginDefinition, ResolvablePluginId
-    from betty.portable import PortableData, PortableMapping
+    from betty.portable import PortableMapping
     from betty.server import ServerDefinition
     from betty.services.plugin import SupportedPlugins
     from betty.services.plugin.instance import ServicePluginInstances
     from betty.services.simple.asynchronous import TypedAsynchronousServiceOrFactory
     from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
+    from betty.store import TransientStore
     from betty.user import User
 
 
@@ -657,102 +648,46 @@ def assert_template_file(
     return _assert_template_file
 
 
-type AssertDumpsLinkedData[PortableDataT: PortableData] = Callable[
-    [LinkedDataDumpableWithSchema[Schema, PortableDataT]], PortableDataT
+type AssertDumpsLinkedData = Callable[
+    [LinkedDataPortable[PortableMapping, LinkedData | VoidType]],
+    Awaitable[LinkedData | VoidType],
 ]
 
 
 @pytest.fixture
-async def assert_dumps_linked_data(
-    assert_linked_data_dump: AssertLinkedDataDump,
-) -> AssertDumpsLinkedData:
+async def assert_dumps_linked_data(isolated_project: Project) -> AssertDumpsLinkedData:
     """
     Dump an object's linked data and assert it is valid.
     """
 
-    async def _assert_dumps_linked_data[PortableDataT: PortableData](
-        sut: LinkedDataDumpableWithSchema[Schema, PortableDataT],
-    ) -> PortableDataT:
-        return await assert_linked_data_dump(
-            sut.linked_data_schema, sut.dump_linked_data
-        )
+    async def _assert_dumps_linked_data(
+        sut: LinkedDataPortable[PortableMapping], /
+    ) -> LinkedData | VoidType:
+        data = await sut.dump_linked_data(isolated_project)
+        validate(await sut.linked_data_schema(isolated_project), data)
+        return data
 
     return _assert_dumps_linked_data
 
 
-type AssertDumpsLinkedDataFor[PortableDataT: PortableData, T] = Callable[
-    [LinkedDataDumper[T, Schema, PortableDataT], T], PortableDataT
+type AssertDumpsLinkedDataFor[T] = Callable[
+    [LinkedDataPorter[T], T], Awaitable[LinkedData | VoidType]
 ]
 
 
 @pytest.fixture
 async def assert_dumps_linked_data_for(
-    assert_linked_data_dump: AssertLinkedDataDump,
+    isolated_project: Project,
 ) -> AssertDumpsLinkedDataFor:
     """
     Dump an object's linked data and assert it is valid.
     """
 
-    async def _assert_dumps_linked_data_for[PortableDataT: PortableData, T](
-        sut: LinkedDataDumper[T, Schema, PortableDataT],
-        target: T,
-    ) -> PortableDataT:
-
-        async def _dump(project: Project) -> PortableDataT:
-            return await sut.dump_linked_data_for(project, target)
-
-        return await assert_linked_data_dump(sut.linked_data_schema_for, _dump)
+    async def _assert_dumps_linked_data_for[T](
+        sut: LinkedDataPorter[T], data: T, /
+    ) -> LinkedData | VoidType:
+        linked_data = await sut.dump(isolated_project, data)
+        validate(await sut.schema(isolated_project), linked_data)
+        return linked_data
 
     return _assert_dumps_linked_data_for
-
-
-type AssertLinkedDataDump[PortableDataT: PortableData] = Callable[
-    [
-        Callable[[Project], Awaitable[Schema]] | Schema,
-        Callable[[Project], Awaitable[PortableDataT]] | PortableDataT,
-    ],
-    Awaitable[PortableDataT],
-]
-
-
-@pytest.fixture
-async def assert_linked_data_dump() -> AssertLinkedDataDump:
-    """
-    Assert that dumped linked data is valid against a schema.
-    """
-
-    async def _assert_linked_data_dump[PortableDataT: PortableData](
-        schema: Callable[[Project], Awaitable[Schema]] | Schema,
-        portable: Callable[[Project], Awaitable[PortableDataT]] | PortableDataT,
-    ) -> PortableDataT:
-        async with Project.new_isolated() as project:
-            actual = await portable(project) if callable(portable) else portable  # ty:ignore[call-top-callable]
-
-            # Validate the raw dump.
-            sut_schema = schema if isinstance(schema, Schema) else await schema(project)
-            sut_schema.validate(actual)
-
-            # Normalize the dump after validation (so we are assured it is absolutely valid),
-            # but before returning, so calling code can use simpler comparisons.
-            return _normalize(actual)
-
-    return _assert_linked_data_dump
-
-
-def _normalize[PortableDataT: PortableData](portable: PortableDataT) -> PortableDataT:
-    if isinstance(portable, MutableMapping):
-        return {
-            key: _normalize(
-                value,  # ty:ignore[invalid-argument-type]
-            )
-            for key, value in portable.items()
-            if not key.startswith("$")  # ty:ignore[unresolved-attribute]
-        }  # ty:ignore[invalid-return-type]
-    if isinstance(portable, MutableSequence) and not isinstance(portable, str):
-        return list(
-            map(
-                _normalize,  # ty:ignore[invalid-argument-type]
-                portable,
-            )
-        )  # ty:ignore[invalid-return-type]
-    return portable

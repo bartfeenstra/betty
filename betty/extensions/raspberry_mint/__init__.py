@@ -10,6 +10,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.asset_directories.raspberry_mint import raspberry_mint
+from betty.attr import Object
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.collection.mapping import MutableResolvedMapping, ResolvedMapping
 from betty.collections.mapping.adapter import (
@@ -21,7 +22,6 @@ from betty.content_builder import (
     ContentBuilderDefinition,
     ContentBuilderManufacturer,
 )
-from betty.data import Data
 from betty.datas.aggregate.collection.mapping import MappingDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
@@ -48,7 +48,6 @@ from betty.localizables.markup import Paragraph, do_you_mean
 from betty.plugin.factory import ResolvablePluginManufacturer
 from betty.project import Project
 from betty.project.generate import Generator
-from betty.prop import HasProps
 from betty.sample import Sample, Size
 from betty.service import ServiceProvider
 from betty.services.simple import service
@@ -95,7 +94,7 @@ type RegionalContentManufacturers = Mapping[
         ),
     ],
 )
-class RaspberryMintData(Data, HasProps):
+class RaspberryMintData(Object):
     """
     Configuration for the :py:class:`betty.extensions.raspberry_mint.RaspberryMint` extension.
 

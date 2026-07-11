@@ -16,7 +16,7 @@ from betty.attrs.path import new_path_attr
 from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.entities.file_reference import FileReference
 from betty.entity import EntityDefinition
-from betty.json_schemas.plugin_id import PluginIdSchema
+from betty.json_schemas.plugin_id import new_plugin_id_schema
 from betty.license import LicenseDefinition
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
@@ -27,13 +27,14 @@ if TYPE_CHECKING:
     from betty.entities.link import Link
     from betty.entities.note import Note
     from betty.license import License
-    from betty.linked_data import JsonLdObject
+    from betty.linked_data import LinkedData
     from betty.localizable import Localizable, ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.media_type import ResolvableMediaType
     from betty.pathlib import StrPath
     from betty.portable import PortableMapping
     from betty.project import Project
+    from betty.typing import VoidableType
 
 
 @final
@@ -116,11 +117,13 @@ class File(HasDescription, HasLinks, HasMediaType, HasNotes, HasCitations):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
+    async def linked_data_schema(
+        cls, project: Project, /
+    ) -> VoidableType[PortableMapping]:
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "copyrightNotice",
-            PluginIdSchema(
+            new_plugin_id_schema(
                 CopyrightNoticeDefinition.type(),
                 [x async for x in project.plugins[CopyrightNoticeDefinition]],
             ),
@@ -128,7 +131,7 @@ class File(HasDescription, HasLinks, HasMediaType, HasNotes, HasCitations):
         )
         schema.add_property(
             "license",
-            PluginIdSchema(
+            new_plugin_id_schema(
                 LicenseDefinition.type(),
                 [x async for x in project.plugins[LicenseDefinition]],
             ),
@@ -137,7 +140,7 @@ class File(HasDescription, HasLinks, HasMediaType, HasNotes, HasCitations):
         return schema
 
     @override
-    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
+    async def dump_linked_data(self, project: Project, /) -> LinkedData:
         portable = await super().dump_linked_data(project)
         if self.copyright_notice:
             portable["copyrightNotice"] = self.copyright_notice.plugin().id

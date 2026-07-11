@@ -14,17 +14,17 @@ from betty.datas.path import PathDefinition
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from betty.attr import Object
     from betty.attrs.common import CommonAttr
     from betty.localizable import ResolvableLocalizable
     from betty.pathlib import StrPath
-    from betty.prop import HasProps
 
 
 def new_path_attr(
     *,
     label: ResolvableLocalizable | None = None,
     description: ResolvableLocalizable | None = None,
-) -> CommonAttr[HasProps, Path, StrPath]:
+) -> CommonAttr[Object, Path, StrPath]:
     """
     An attribute containing a file system path.
     """

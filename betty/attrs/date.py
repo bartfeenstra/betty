@@ -6,22 +6,25 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, override
 
+from betty.attr import Object
 from betty.attrs.owner import OwnerAttr
 from betty.attrs.privacy import HasPrivacy
+from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.date import AnyDateDefinition
-from betty.date import AnyDate, Date
-from betty.json_schemas.date import ResolvableDateSchema
-from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
-from betty.prop import HasProps
+from betty.date import AnyDate, Date, DateRange, _dump_date_iso8601
+from betty.linked_data import LinkedData
+from betty.typing import Voidable, VoidableType, VoidType
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from betty.portable import PortableMapping
     from betty.project import Project
-from betty.date import DateRange, _dump_date_iso8601
-from betty.linked_data import dump_context
 
 
-class HasAnyDate(LinkedDataDumpableWithSchemaJsonLdObject, HasProps):
+class HasAnyDate[DataDefinitionT: ObjectDefinition = ObjectDefinition](
+    Object[DataDefinitionT]
+):
     """
     A resource with date information.
     """
@@ -40,81 +43,130 @@ class HasAnyDate(LinkedDataDumpableWithSchemaJsonLdObject, HasProps):
         super().__init__(*args, **kwargs)
         self.date = date
 
-    def has_any_date_linked_data_contexts(
-        self,
-    ) -> tuple[str | None, str | None, str | None]:
-        """
-        Get the JSON-LD context term definition IRIs for the possible dates.
-
-        :returns: A 3-tuple with the IRI for a single date, a start date, and an end date, respectively.
-        """
-        return None, None, None
-
-    @override
-    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
-        if self.date and (not isinstance(self, HasPrivacy) or self.public):
-            (
-                schema_org_date_definition,
-                schema_org_start_date_definition,
-                schema_org_end_date_definition,
-            ) = self.has_any_date_linked_data_contexts()
-            if isinstance(self.date, Date):
-                portable["date"] = _dump_linked_data_for_date(
-                    self.date, context_definition=schema_org_date_definition
-                )
-            else:
-                portable["date"] = _dump_linked_data_for_date_range(
-                    self.date,
-                    start_context_definition=schema_org_start_date_definition,
-                    end_context_definition=schema_org_end_date_definition,
-                )
-        return portable
-
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
-        schema = await super().linked_data_schema(project)
-        schema.add_property("date", ResolvableDateSchema(), False)
-        return schema
+    async def linked_data_schema_properties(
+        cls, project: Project, /
+    ) -> Mapping[str, VoidableType[PortableMapping]]:
+        return {
+            "date": Voidable({
+                "$ref": "#/$defs/anyDate",
+                "$defs": {
+                    "date": {
+                        "title": "Date",
+                        "type": "object",
+                        "properties": {
+                            "fuzzy": {
+                                "title": "Fuzzy",
+                                "type": "bool",
+                            },
+                            "year": {
+                                "title": "Year",
+                                "type": "number",
+                            },
+                            "month": {
+                                "title": "Month",
+                                "type": "number",
+                            },
+                            "day": {
+                                "title": "Day",
+                                "type": "number",
+                            },
+                            "iso8601": {
+                                "pattern": "^\\d\\d\\d\\d-\\d\\d-\\d\\d$",
+                                "title": "ISO 8601",
+                                "type": "string",
+                            },
+                        },
+                        "requiredProperties": ["fuzzy"],
+                    },
+                    "dateRange": {
+                        "additionalProperties": False,
+                        "start": {
+                            "oneOf": [
+                                {
+                                    "$ref": "#/$defs/date",
+                                },
+                                {
+                                    "type": "null",
+                                },
+                            ],
+                            "title": "Start date",
+                        },
+                        "end": {
+                            "oneOf": [
+                                {
+                                    "$ref": "#/$defs/date",
+                                },
+                                {
+                                    "type": "null",
+                                },
+                            ],
+                            "title": "End date",
+                        },
+                        "title": "Date range",
+                        "type": "object",
+                    },
+                    "anyDate": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/$defs/date",
+                            },
+                            {
+                                "$ref": "#/$defs/dateRange",
+                            },
+                        ],
+                        "title": "Date or date range",
+                    },
+                },
+            })
+        }
+
+    @override
+    async def dump_linked_data_properties(
+        self, project: Project, /
+    ) -> Mapping[str, LinkedData | VoidType]:
+        if not self.date:
+            return {}
+        if isinstance(self, HasPrivacy) and self.private:
+            return {}
+        if isinstance(self.date, Date):
+            return {
+                "date": LinkedData(
+                    _dump_linked_data_for_date(
+                        self.date, "https://schema.org/startDate"
+                    )
+                )
+            }
+        return {"date": LinkedData(_dump_linked_data_for_date_range(self.date))}
 
 
-def _dump_linked_data_for_date(
-    date: Date, *, context_definition: str | None = None
-) -> PortableMapping:
-    portable: PortableMapping = {
+def _dump_linked_data_for_date(date: Date, context: str) -> PortableMapping:
+    data: PortableMapping = {
+        "@context": {
+            "iso8601": context,
+        },
         "fuzzy": date.fuzzy,
     }
     if date.year:
-        portable["year"] = date.year
+        data["year"] = date.year
     if date.month:
-        portable["month"] = date.month
+        data["month"] = date.month
     if date.day:
-        portable["day"] = date.day
+        data["day"] = date.day
     if date.comparable:
-        portable["iso8601"] = _dump_date_iso8601(date)
-        # Set a single term definition because JSON-LD does not let us apply multiple
-        # for the same term (key).
-        if context_definition:
-            dump_context(portable, iso8601=context_definition)
-    return portable
+        data["iso8601"] = _dump_date_iso8601(date)
+    return data
 
 
-def _dump_linked_data_for_date_range(
-    date_range: DateRange,
-    *,
-    start_context_definition: str | None = None,
-    end_context_definition: str | None = None,
-) -> PortableMapping:
+def _dump_linked_data_for_date_range(date_range: DateRange) -> PortableMapping:
     return {
         "start": _dump_linked_data_for_date(
-            date_range.start, context_definition=start_context_definition
+            date_range.start, "https://schema.org/startDate"
         )
         if date_range.start
         else None,
-        "end": _dump_linked_data_for_date(
-            date_range.end, context_definition=end_context_definition
-        )
+        "end": _dump_linked_data_for_date(date_range.end, "https://schema.org/endDate")
         if date_range.end
         else None,
     }

@@ -1,94 +1,86 @@
 """
-JSON schemas for the project API.
+JSON schemas for projects.
 """
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, final, override
+from typing import TYPE_CHECKING
 
 from betty.entity import EntityDefinition
-from betty.factory import Manufacturable
-from betty.json_schema import Array, JsonSchemaReference, Schema, String
-from betty.project import Project
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from betty.portable import PortableMapping
+    from betty.project import Project
 
-@final
-class ProjectSchema(Manufacturable, Schema):
+
+async def project_schema_def_url(project: Project, def_name: str) -> str:
     """
-    A JSON Schema for a project.
+    Get the URL to a project's JSON Schema definition.
     """
+    return f"{await project_schema_url(project)}#/$defs/{def_name}"
 
-    @classmethod
-    async def def_url(cls, project: Project, def_name: str) -> str:
-        """
-        Get the URL to a project's JSON Schema definition.
-        """
-        return f"{await cls.url(project)}#/$defs/{def_name}"
 
-    @classmethod
-    async def url(cls, project: Project) -> str:
-        """
-        Get the URL to a project's JSON Schema.
-        """
-        url_generator = await project.url_generator
-        return url_generator.generate("betty-static:///schema.json", absolute=True)
+async def project_schema_url(project: Project) -> str:
+    """
+    Get the URL to a project's JSON Schema.
+    """
+    url_generator = await project.url_generator
+    return url_generator.generate("betty-static:///schema.json", absolute=True)
 
-    @classmethod
-    def www_path(cls, project: Project) -> Path:
-        """
-        Get the path to the schema file in a site's public WWW directory.
-        """
-        return project.www_directory / "schema.json"
 
-    @override
-    @Project.require
-    @classmethod
-    async def new(cls, project: Project, /) -> Self:
-        schema = cls()
-        schema.schema["$id"] = await cls.url(project)
+def project_schema_www_path(project: Project) -> Path:
+    """
+    Get the path to the schema file in a site's public WWW directory.
+    """
+    return project.www_directory / "schema.json"
 
-        # Add entity schemas.
-        async for entity_type in project.plugins[EntityDefinition]:
-            entity_type_schema = await entity_type.cls.linked_data_schema(project)
-            entity_type_schema.embed(schema)
-            def_name = f"{kebab_case_to_lower_camel_case(entity_type.id)}EntityCollectionResponse"
-            schema.defs[def_name] = {
+
+async def new_project_schema(project: Project) -> PortableMapping:
+    """
+    Create a JSON Schema for a project.
+    """
+    defs = {}
+    entity_type_schemas = []
+    async for entity_type in project.plugins[EntityDefinition]:
+        entity_type_schema = await entity_type.cls.linked_data_schema(project)
+        entity_type_schemas.append((entity_type, entity_type_schema))
+        defs.update(entity_type_schema.defs)
+    return {
+        "$id": await project_schema_url(project),
+        "anyOf": [{"$ref": f"#/$defs/{def_name}"} for def_name in defs],
+        **{
+            f"{kebab_case_to_lower_camel_case(entity_type.id)}EntityCollectionResponse": {
                 "type": "object",
                 "properties": {
-                    "collection": Array(
-                        String(
-                            title="Entity",
-                            description="A reference to an entity's JSON resource",
-                            format=String.Format.URI,
-                        ),
-                        title="Entities",
-                        description="References to entities' JSON resources",
-                    ).schema,
+                    "collection": {
+                        "items": {
+                            "description": "A reference to an entity's JSON resource",
+                            "format": "uri",
+                            "title": "Entity",
+                            "type": "string",
+                        },
+                        "title": "Entities",
+                        "description": "References to entities' JSON resources",
+                        "type": "array",
+                    },
                 },
             }
-
-        # Add the HTTP error response.
-        schema.defs["errorResponse"] = {
+            for entity_type, entity_type_schema in entity_type_schemas
+        },
+        "errorResponse": {
             "type": "object",
             "properties": {
-                "$schema": JsonSchemaReference().embed(schema),
                 "message": {
                     "type": "string",
                 },
             },
             "required": [
-                "$schema",
                 "message",
             ],
             "additionalProperties": False,
-        }
-
-        schema.schema["anyOf"] = [
-            {"$ref": f"#/$defs/{def_name}"} for def_name in schema.defs
-        ]
-
-        return schema
+        },
+        "$defs": defs,
+    }

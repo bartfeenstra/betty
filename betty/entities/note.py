@@ -12,18 +12,13 @@ from betty.associations.to_one import ToOne
 from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.media_type import HasMediaType
 from betty.entity import EntityDefinition
-from betty.json_schemas.static_translations import StaticTranslationsSchema
-from betty.localizable.linked_data import dump_linked_data
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
 
 if TYPE_CHECKING:
     from betty.association import Associate
-    from betty.linked_data import JsonLdObject
     from betty.localizable import Localizable, ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
-    from betty.portable import PortableMapping
-    from betty.project import Project
 
 
 @final
@@ -33,7 +28,7 @@ if TYPE_CHECKING:
     label_plural=_("Notes"),
     label_countable=ngettext("{count} note", "{count} notes"),
 )
-class Note(HasLinks, HasMediaType):
+class Note(HasLinks, HasMediaType[EntityDefinition]):
     """
     .. plugin:: entity:note.
     """
@@ -70,24 +65,3 @@ class Note(HasLinks, HasMediaType):
     @property
     def label(self) -> Localizable:
         return self.text
-
-    @override
-    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
-        portable["@type"] = "https://schema.org/Thing"
-        if self.public:
-            portable["text"] = dump_linked_data(
-                self.text, localizers=await project.public_localizers
-            )
-        return portable
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
-        schema = await super().linked_data_schema(project)
-        schema.add_property(
-            "text",
-            StaticTranslationsSchema(),
-            False,
-        )
-        return schema

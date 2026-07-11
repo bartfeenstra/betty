@@ -7,7 +7,7 @@ Portable data can easily be persistent or transmitted across and between systems
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import MutableMapping, MutableSequence
+from collections.abc import Callable, MutableMapping, MutableSequence
 from typing import Self
 
 type PortableData = (
@@ -85,3 +85,28 @@ class Porter[DataClsT, PortableDataT: PortableData = PortableData](ABC):
         Deep-copy data into a new instance.
         """
         return self.load(self.dump(data))
+
+
+# @todo Do we (want to) use the skip_key functionality anywhere?
+def normalize[PortableDataT: PortableData](
+    data: PortableDataT, /, *, skip_key: Callable[[str], bool] | None = None
+) -> PortableDataT:
+    """
+    Normalize portable data.
+    """
+    if isinstance(data, MutableMapping):
+        return {
+            key: normalize(
+                data[key],  # ty:ignore[invalid-argument-type]
+            )
+            for key in sorted(data.keys())
+            if skip_key is None or not skip_key(key)
+        }  # ty:ignore[invalid-return-type]
+    if isinstance(data, MutableSequence) and not isinstance(data, str):
+        return list(
+            map(
+                normalize,  # ty:ignore[invalid-argument-type]
+                data,
+            )
+        )  # ty:ignore[invalid-return-type]
+    return data
