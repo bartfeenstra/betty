@@ -12,7 +12,7 @@ from asyncio import sleep
 from math import floor
 from typing import TYPE_CHECKING, Final, final, override
 
-from betty.typing import threadsafe
+from betty.threading import threadsafe
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Hashable, MutableMapping

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, override
 
 from betty.concurrent import Ledger, ThreadSafeLock
 from betty.store import Store, StoreItem, StoreItemValueSetter
-from betty.typing import threadsafe
+from betty.threading import threadsafe
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Sequence

@@ -29,7 +29,7 @@ from betty.locale import (
 from betty.locale.error import LocaleError
 from betty.localizables.gettext import _
 from betty.pathlib import resolve_path
-from betty.typing import threadsafe
+from betty.threading import threadsafe
 
 if TYPE_CHECKING:
     from collections.abc import (

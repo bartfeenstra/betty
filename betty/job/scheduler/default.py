@@ -23,7 +23,7 @@ from betty.job.scheduler import (
     Scheduler,
     UnknownJobError,
 )
-from betty.typing import threadsafe
+from betty.threading import threadsafe
 
 if TYPE_CHECKING:
     from collections.abc import (

@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, Self
 
-from betty.typing import threadsafe
+from betty.threading import threadsafe
 
 if TYPE_CHECKING:
     from contextlib import AbstractAsyncContextManager

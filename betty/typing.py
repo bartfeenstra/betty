@@ -6,8 +6,6 @@ from __future__ import annotations
 
 from typing import Any, final
 
-from betty.docstring import append
-
 try:
     from ty_extensions import Intersection, Not
 except ImportError:
@@ -30,26 +28,6 @@ except ImportError:
 
 
 type Number = int | float
-
-
-def _should_mark(target: Any, key: str, /) -> bool:
-    attr_name = f"_betty_typing_{key}"
-    if hasattr(target, attr_name):
-        return False
-    setattr(target, attr_name, True)
-    return True
-
-
-def threadsafe[T](target: T, /) -> T:
-    """
-    Mark a target as thread-safe.
-    """
-    if _should_mark(target, "threadsafe"):
-        target.__doc__ = append(
-            target.__doc__ or "",
-            "This is thread-safe, which means you can safely use this between different threads.",
-        )
-    return target
 
 
 @final

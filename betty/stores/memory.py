@@ -10,7 +10,7 @@ from typing import Self, final, override
 
 from betty.store import StoreItem, TransientStore
 from betty.stores._base import _CommonStoreBase, _CommonStoreBaseState, _StaticStoreItem
-from betty.typing import threadsafe
+from betty.threading import threadsafe
 
 type _MemoryStoreData[ItemValueT] = MutableMapping[
     tuple[str, ...],
