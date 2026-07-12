@@ -167,7 +167,7 @@ class User(ABC):
 
     @abstractmethod
     async def ask_confirmation(
-        self, statement: ResolvableLocalizable, *, default: bool = False
+        self, statement: ResolvableLocalizable, /, *, default: bool = False
     ) -> bool:
         """
         Ask the user to confirm a statement.
@@ -179,7 +179,9 @@ class User(ABC):
     async def ask_input(
         self,
         question: ResolvableLocalizable,
+        /,
         *,
+        assertion: None = None,
         default: str | VoidType = Void,
     ) -> str:
         pass
@@ -188,6 +190,7 @@ class User(ABC):
     async def ask_input[T](
         self,
         question: ResolvableLocalizable,
+        /,
         *,
         assertion: Pipe[str, T],
         default: str | VoidType = Void,
@@ -195,13 +198,7 @@ class User(ABC):
         pass
 
     @abstractmethod
-    async def ask_input[T](
-        self,
-        question: ResolvableLocalizable,
-        *,
-        assertion: Pipe[str, T] | None = None,
-        default: str | T | VoidType = Void,
-    ) -> str | T:
+    async def ask_input(self, question, /, *, assertion=None, default=Void):
         """
         Ask the user to input text.
 

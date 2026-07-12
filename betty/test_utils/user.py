@@ -248,7 +248,7 @@ class StaticUser(User):
 
     @override
     async def ask_confirmation(
-        self, statement: ResolvableLocalizable, *, default: bool = False
+        self, statement: ResolvableLocalizable, /, *, default: bool = False
     ) -> bool:
         confirmation = next(self._confirmations)
         if confirmation is None:
@@ -259,29 +259,26 @@ class StaticUser(User):
     async def ask_input(
         self,
         question: ResolvableLocalizable,
+        /,
         *,
+        assertion: None = None,
         default: str | VoidType = Void,
     ) -> str:
-        raise NotImplementedError  # ty:ignore[useless-overload-body]
+        pass
 
     @overload
     async def ask_input[T](
         self,
         question: ResolvableLocalizable,
+        /,
         *,
         assertion: Pipe[str, T],
         default: str | VoidType = Void,
     ) -> T:
-        raise NotImplementedError  # ty:ignore[useless-overload-body]
+        pass
 
     @override
-    async def ask_input[T](
-        self,
-        question: ResolvableLocalizable,
-        *,
-        assertion: Pipe[str, T] | None = None,
-        default: str | T | VoidType = Void,
-    ) -> str | T:
+    async def ask_input(self, question, /, *, assertion=None, default=Void):
         value = next(self._inputs)
         if value is None:
             if default is Void:

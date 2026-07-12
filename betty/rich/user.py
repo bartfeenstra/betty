@@ -157,6 +157,7 @@ class RichUser(ManagedLifeCycle, User):
     async def ask_confirmation(
         self,
         statement: ResolvableLocalizable,
+        /,
         *,
         default: bool = False,
         stdin: TextIO | None = None,
@@ -173,7 +174,9 @@ class RichUser(ManagedLifeCycle, User):
     async def ask_input(
         self,
         question: ResolvableLocalizable,
+        /,
         *,
+        assertion: None = None,
         default: str | VoidType = Void,
         stdin: TextIO | None = None,
     ) -> str:
@@ -183,6 +186,7 @@ class RichUser(ManagedLifeCycle, User):
     async def ask_input[T](
         self,
         question: ResolvableLocalizable,
+        /,
         *,
         assertion: Pipe[str, T],
         default: str | VoidType = Void,
@@ -191,14 +195,9 @@ class RichUser(ManagedLifeCycle, User):
         pass
 
     @override
-    async def ask_input[T](
-        self,
-        question: ResolvableLocalizable,
-        *,
-        assertion: Pipe[str, T] | None = None,
-        default: str | VoidType = Void,
-        stdin: TextIO | None = None,
-    ) -> str | T:
+    async def ask_input(
+        self, question, /, *, assertion=None, default=Void, stdin: TextIO | None = None
+    ):
         self.assert_alive()
         ask_kwargs = {}
         if default is not Void:
@@ -210,7 +209,7 @@ class RichUser(ManagedLifeCycle, User):
                 console=self.console,
                 stream=stdin,
                 **ask_kwargs,
-            ),  # ty:ignore[no-matching-overload]
+            ),
         )
         if assertion is None:
             return value

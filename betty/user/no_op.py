@@ -71,7 +71,7 @@ class NoOpUser(User):
 
     @override
     async def ask_confirmation(
-        self, statement: ResolvableLocalizable, *, default: bool = False
+        self, statement: ResolvableLocalizable, /, *, default: bool = False
     ) -> bool:
         raise UserTimeoutError
 
@@ -79,7 +79,9 @@ class NoOpUser(User):
     async def ask_input(
         self,
         question: ResolvableLocalizable,
+        /,
         *,
+        assertion: None = None,
         default: str | VoidType = Void,
     ) -> str:
         pass
@@ -88,6 +90,7 @@ class NoOpUser(User):
     async def ask_input[T](
         self,
         question: ResolvableLocalizable,
+        /,
         *,
         assertion: Pipe[str, T],
         default: str | VoidType = Void,
@@ -95,11 +98,5 @@ class NoOpUser(User):
         pass
 
     @override
-    async def ask_input[T](
-        self,
-        question: ResolvableLocalizable,
-        *,
-        assertion: Pipe[str, T] | None = None,
-        default: str | T | VoidType = Void,
-    ) -> str | T:
+    async def ask_input(self, question, /, *, assertion=None, default=Void):
         raise UserTimeoutError
