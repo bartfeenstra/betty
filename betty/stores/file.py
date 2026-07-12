@@ -20,7 +20,7 @@ from betty.hashid import hashid
 from betty.pathlib import resolve_path
 from betty.store import StoreItem, StoreItemValueSetter, TransientStore
 from betty.stores._base import _CommonStoreBase, _CommonStoreBaseState
-from betty.typing import threadsafe
+from betty.threading import threadsafe
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Sequence

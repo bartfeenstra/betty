@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Final, final
 
 from betty.locale import ResolvableLocale, default_locale, resolve_locale
 from betty.localized import LocalizedStr
-from betty.typing import threadsafe
+from betty.threading import threadsafe
 
 if TYPE_CHECKING:
     from collections.abc import MutableMapping

@@ -20,7 +20,8 @@ from typing import (
 )
 
 from betty.asyncio import resolve_await
-from betty.typing import Void, threadsafe
+from betty.threading import threadsafe
+from betty.typing import Void
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable, Iterator

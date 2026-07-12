@@ -10,7 +10,7 @@ from betty.concurrent import RateLimiter, ThreadSafeLock
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
-from betty.typing import threadsafe
+from betty.threading import threadsafe
 
 if TYPE_CHECKING:
     import re

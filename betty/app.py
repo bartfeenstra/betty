@@ -46,7 +46,7 @@ from betty.services.simple import service
 from betty.store import TransientStore
 from betty.stores.file import TransientBinaryFileStore, TransientPickledFileStore
 from betty.stores.no_op import NoOpStore
-from betty.typing import threadsafe
+from betty.threading import threadsafe
 from betty.user.no_op import NoOpUser
 
 if TYPE_CHECKING:

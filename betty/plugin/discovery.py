@@ -23,7 +23,7 @@ from betty.plugin.resolve import (
 from betty.requirement import UnmetRequirement
 from betty.service_level import ServiceLevel
 from betty.string import kebab_case_to_snake_case
-from betty.typing import threadsafe
+from betty.threading import threadsafe
 
 if TYPE_CHECKING:
     import builtins

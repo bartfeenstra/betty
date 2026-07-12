@@ -8,7 +8,7 @@ from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, Any, Self, final, override
 
 from betty.store import StoreItem, StoreItemValueSetter, TransientStore
-from betty.typing import threadsafe
+from betty.threading import threadsafe
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator

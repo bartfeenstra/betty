@@ -9,7 +9,7 @@ from inspect import isawaitable
 from typing import TYPE_CHECKING, Any, final, override
 
 from betty.concurrent import ThreadSafeLock
-from betty.typing import threadsafe
+from betty.threading import threadsafe
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Generator
