@@ -99,15 +99,15 @@ class FieldDefinition[
         return self._omit_dump(owner, data)
 
 
-class RecordPorter[DataClsT, ElementT: Element[str] = Element[str]](Porter[DataClsT]):
+class RecordPorter[DataClsT, PortableDataT: PortableData = PortableData](
+    Porter[DataClsT, PortableDataT]
+):
     """
     An object capable of dumping and loading record data to and from portable data.
     """
 
     @abstractmethod
-    def load_key(
-        self, portable: PortableData, key: ElementT, portable_key: str, /
-    ) -> DataClsT:
+    def load_key(self, portable: PortableDataT, key: str, /) -> DataClsT:
         """
         Create a new data instance from portable data and a portable primary key.
 
@@ -115,7 +115,7 @@ class RecordPorter[DataClsT, ElementT: Element[str] = Element[str]](Porter[DataC
         """
 
     @abstractmethod
-    def dump_key(self, data: DataClsT, key: ElementT, /) -> tuple[str, PortableData]:
+    def dump_key(self, data: DataClsT, /) -> tuple[str, PortableDataT]:
         """
         Dump the data to portable data and a portable primary key.
         """
