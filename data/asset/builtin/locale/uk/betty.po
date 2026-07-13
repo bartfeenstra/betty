@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
 "POT-Creation-Date: 2026-07-13 12:24+0100\n"
-"PO-Revision-Date: 2026-07-13 11:21+0000\n"
+"PO-Revision-Date: 2026-07-13 12:02+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: uk\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/betty/betty-0-5-x/uk/>\n"
@@ -17,6 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
+"X-Generator: Weblate 2026.7.1.dev0\n"
 
 #, python-brace-format
 msgid "\"{color}\" is not a valid hexadecimal color, such as #ffc0cb."
@@ -1595,7 +1596,7 @@ msgid "Tertiary color"
 msgstr ""
 
 msgid "Testimonies"
-msgstr ""
+msgstr "Свідчення"
 
 msgid "Text"
 msgstr ""
@@ -2782,4 +2783,3 @@ msgstr "© Авторське право належить автору, якщо
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Авторське право {author}, якщо не зазначено інше"
-
