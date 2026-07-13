@@ -145,22 +145,22 @@
     {% set nav_search_body %}
         <div class="container">
             {% set ns = namespace(
-                filter_entity_type_checkboxes = [],
-                filter_entity_type_html_ids = {}
+                filter_type_checkboxes = [],
+                filter_type_html_ids = {}
             ) %}
             {% for entity_type in project.plugins['entity'] %}
                 {% if entity_type.public_facing and project.ancestry[entity_type] | selectattr('public') | list %}
-                    {% set entity_type_html_id = 'betty-search-form-filter-entity-type--' + entity_type.id %}
-                    {% do ns.filter_entity_type_checkboxes.append({
-                        'attributes': new_attributes(html_checked=true, html_id=entity_type_html_id),
-                        'form_control_attributes': new_attributes(html_class=['search-form-filter-entity-type']),
-                        'label': entity_type.label | localize,
+                    {% set filter_type_html_id = 'betty-search-form-filter-type--' + entity_type.id %}
+                    {% do ns.filter_type_checkboxes.append({
+                        'attributes': new_attributes(html_checked=true, html_id=filter_type_html_id),
+                        'form_control_attributes': new_attributes(html_class=['search-form-filter-type']),
+                        'label': entity_type.label_plural | localize,
                         'value': entity_type.id,
                     }) %}
-                    {% do ns.filter_entity_type_html_ids.setdefault(entity_type_html_id, entity_type.id) %}
+                    {% do ns.filter_type_html_ids.setdefault(filter_type_html_id, entity_type.id) %}
                 {% endif %}
             {% endfor %}
-            <form id="search-form" data-betty-search-form-index="{{ 'betty:///search-index.json' | url }}" data-betty-search-form-filter-entity-type="{{ ns.filter_entity_type_html_ids | json_dump }}">
+            <form id="search-form" data-betty-search-form-index="{{ 'betty:///search-index.json' | url }}" data-betty-search-form-filter-type="{{ ns.filter_type_html_ids | json_dump }}">
                 <div class="align-items-end d-flex gap-2">
                     <div class="flex-grow-1 form-control-text">
                         <label for="search-form-query" class="form-label">{% trans %}Keywords{% endtrans %}</label>
@@ -175,9 +175,9 @@
                 <div class="mt-3 row">
                     <div class="col col-12 col-md-4 col-lg-3">
                         <h3 class="h2 section-heading">{% trans %}Filters{% endtrans %}</h3>
-                        {% set search_form_filter_entity_type %}
-                            {% with checkboxes = ns.filter_entity_type_checkboxes | sort(attribute="label"),
-                                checkboxes_label = _('Entity type'),
+                        {% set search_form_filter_type %}
+                            {% with checkboxes = ns.filter_type_checkboxes | sort(attribute="label"),
+                                checkboxes_label = _('Types'),
                                 checkboxes_label_visually_hidden = true
                             %}
                                 {% include 'component/checkboxes.html.j2' %}
@@ -188,8 +188,8 @@
                             accordion_id = 'search-filters',
                             accordion_items = [
                                 {
-                                    'header': _('Entity type'),
-                                    'body': search_form_filter_entity_type,
+                                    'header': _('Types'),
+                                    'body': search_form_filter_type,
                                 },
                             ],
                             html_class = ['mt-2']

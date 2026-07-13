@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2026-07-13 09:55+0100\n"
+"POT-Creation-Date: 2026-07-13 10:23+0100\n"
 "PO-Revision-Date: 2026-07-13 08:45+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: uk\n"
@@ -1803,6 +1803,9 @@ msgid "Translations for {locale} initialized at {po_file_path}."
 msgstr ""
 
 msgid "Type"
+msgstr ""
+
+msgid "Types"
 msgstr ""
 
 msgid "URL"

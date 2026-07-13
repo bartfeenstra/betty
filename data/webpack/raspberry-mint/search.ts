@@ -17,7 +17,7 @@ class Search {
     private readonly searchFormFilterResetElement: HTMLElement
     private readonly resultsContainer: HTMLElement
     private index: Index | undefined
-    private readonly filterEntityTypeHtmlIds: Record<string, string>
+    private readonly filterTypeHtmlIds: Record<string, string>
 
     public constructor() {
         this.searchModalElement = this.getElementById("nav-search")
@@ -33,7 +33,7 @@ class Search {
             "submit",
             (e) => {
                 void (async (): Promise<void> => {
-                    await this.search(this.searchFormQueryElement.value, this.getFilterEntityTypeIds())
+                    await this.search(this.searchFormQueryElement.value, this.getFilterTypeIds())
                 })()
                 e.preventDefault()
                 e.stopPropagation()
@@ -42,11 +42,11 @@ class Search {
         this.searchFormFilterResetElement.addEventListener("click", () => {
             this.resetFilters()
         })
-        const searchFormFilterEntityType = this.searchFormElement.dataset.bettySearchFormFilterEntityType
-        if (searchFormFilterEntityType === undefined) {
-            throw new Error(`Element does not have the expected "data-betty-search-form-filter-entity-type" attribute.`)
+        const searchFormFilterType = this.searchFormElement.dataset.bettySearchFormFilterType
+        if (searchFormFilterType === undefined) {
+            throw new Error(`Element does not have the expected "data-betty-search-form-filter-type" attribute.`)
         }
-        this.filterEntityTypeHtmlIds = JSON.parse(searchFormFilterEntityType) as Record<string, string>
+        this.filterTypeHtmlIds = JSON.parse(searchFormFilterType) as Record<string, string>
     }
 
     private getElementById(id: string): HTMLElement {
@@ -58,25 +58,25 @@ class Search {
     }
 
     private resetFilters(): void {
-        this.resetFilterEntityType()
+        this.resetFilterType()
     }
 
-    private getFilterEntityTypeElements(): HTMLInputElement[] {
-        return Array.from(this.searchFormElement.querySelectorAll(".search-form-filter-entity-type input"))
+    private getFilterTypeElements(): HTMLInputElement[] {
+        return Array.from(this.searchFormElement.querySelectorAll(".search-form-filter-type input"))
     }
 
-    private getFilterEntityTypeIds(): string[] {
-        const filterEntityTypeIds: string[] = []
-        for (const entityTypeFilterElement of this.getFilterEntityTypeElements()) {
+    private getFilterTypeIds(): string[] {
+        const filterTypeIds: string[] = []
+        for (const entityTypeFilterElement of this.getFilterTypeElements()) {
             if (entityTypeFilterElement.checked) {
-                filterEntityTypeIds.push(this.filterEntityTypeHtmlIds[entityTypeFilterElement.id])
+                filterTypeIds.push(this.filterTypeHtmlIds[entityTypeFilterElement.id])
             }
         }
-        return filterEntityTypeIds
+        return filterTypeIds
     }
 
-    private resetFilterEntityType(): void {
-        for (const entityTypeFilterElement of this.getFilterEntityTypeElements()) {
+    private resetFilterType(): void {
+        for (const entityTypeFilterElement of this.getFilterTypeElements()) {
             entityTypeFilterElement.checked = true
         }
     }

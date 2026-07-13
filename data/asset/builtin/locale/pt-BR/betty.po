@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-13 09:55+0100\n"
+"POT-Creation-Date: 2026-07-13 10:23+0100\n"
 "PO-Revision-Date: 2026-07-13 08:44+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language: pt_BR\n"
@@ -1799,6 +1799,9 @@ msgid "Translations for {locale} initialized at {po_file_path}."
 msgstr ""
 
 msgid "Type"
+msgstr ""
+
+msgid "Types"
 msgstr ""
 
 msgid "URL"
