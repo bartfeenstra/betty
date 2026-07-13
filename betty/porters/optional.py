@@ -1,5 +1,5 @@
 """
-Porters for optional daa.
+Porters for optional data.
 """
 
 from __future__ import annotations
@@ -21,10 +21,10 @@ class OptionalPorter[PortableT, PortableDataT: PortableData = PortableData](
         self._proxied = proxied
 
     @override
-    def load(self, portable: PortableData) -> PortableT | None:
-        if portable is None:
+    def load(self, data: PortableData) -> PortableT | None:
+        if data is None:
             return None
-        return self._proxied.load(portable)
+        return self._proxied.load(data)
 
     @override
     def dump(self, data: PortableT | None) -> PortableDataT | None:

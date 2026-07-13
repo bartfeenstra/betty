@@ -11,12 +11,14 @@ from uuid import uuid4
 from betty.assertions.str import assert_str
 from betty.data import Data, DataDefinition
 from betty.exception import HumanFacingException
+from betty.functools import passthrough
 from betty.localizables.gettext import _
 from betty.localizables.markup import Paragraph
-from betty.portable import Portable, PortableData
+from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
     from betty.localizable import Localizable
+    from betty.portable import PortableData
 
 machine_name_description: Final[Localizable] = _(
     "A machine name is an identifier of at most 250 characters long, made up of lowercase letters, numbers, and/or non-consecutive hyphens (-)."
@@ -27,10 +29,20 @@ _machinify_disallowed_character_pattern: Final[re.Pattern[str]] = re.compile(
 )
 _machinify_hyphen_pattern: Final[re.Pattern[str]] = re.compile(r"-{2,}")
 
+__load = assert_str()
+
+
+def _load(portable: PortableData, /) -> MachineName:
+    return MachineName(__load(portable))
+
 
 @final
-@DataDefinition(label=_("Machine name"), description=machine_name_description)
-class MachineName(Portable[str], str, Data):
+@DataDefinition(
+    label=_("Machine name"),
+    description=machine_name_description,
+    porter=CallbackPorter(_load, passthrough),
+)
+class MachineName(str, Data):
     """
     A machine name.
 
@@ -69,17 +81,6 @@ class MachineName(Portable[str], str, Data):
         Whether this machine name is persistent, and will exist beyond the current Betty process.
         """
         return self._persistent
-
-    _load = assert_str()
-
-    @override
-    @classmethod
-    def load(cls, portable: PortableData, /) -> Self:
-        return cls(cls._load(portable))
-
-    @override
-    def dump(self) -> str:
-        return self
 
     @classmethod
     def resolve(cls, machine_name: ResolvableMachineName) -> MachineName:

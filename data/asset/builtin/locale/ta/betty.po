@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-13 13:08+0100\n"
+"POT-Creation-Date: 2026-07-14 17:08+0100\n"
 "PO-Revision-Date: 2026-07-13 08:45+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ta\n"
@@ -462,9 +462,6 @@ msgstr "பதிப்புரிமை விக்கிபீடியா �
 msgid "Copyright notice"
 msgstr "காப்புரிமை அறிவிப்பு"
 
-msgid "Copyright notice configuration"
-msgstr "பதிப்புரிமை அறிவிப்பு உள்ளமைவு"
-
 msgid "Copyright notices"
 msgstr "காப்புரிமை அறிவிப்புகள்"
 
@@ -678,9 +675,6 @@ msgstr "நிகழ்வு"
 msgid "Event type"
 msgstr "நிகழ்வு வகை"
 
-msgid "Event type configuration"
-msgstr "நிகழ்வு வகை கட்டமைப்பு"
-
 msgid "Event types"
 msgstr "நிகழ்வு வகைகள்"
 
@@ -771,9 +765,6 @@ msgstr "தெளிவற்ற"
 
 msgid "Gender"
 msgstr "பாலினம்"
-
-msgid "Gender configuration"
-msgstr "பாலின கட்டமைப்பு"
 
 msgid "Genders"
 msgstr "பாலினங்கள்"
@@ -953,9 +944,6 @@ msgstr "கடைசி பக்கம்"
 
 msgid "License"
 msgstr "உரிமம்"
-
-msgid "License configuration"
-msgstr "உரிம அமைப்பு"
 
 msgid "Licenses"
 msgstr "உரிமங்கள்"
@@ -1282,9 +1270,6 @@ msgstr "இடப் பெயர்கள்"
 msgid "Place type"
 msgstr "இட வகை"
 
-msgid "Place type configuration"
-msgstr "இட வகை கட்டமைப்பு"
-
 msgid "Place types"
 msgstr "இட வகைகள்"
 
@@ -1456,9 +1441,6 @@ msgstr "ஓய்வு"
 
 msgid "Role"
 msgstr "பங்கு"
-
-msgid "Role configuration"
-msgstr "பங்கு கட்டமைப்பு"
 
 msgid "Roles"
 msgstr "பாத்திரங்கள்"
@@ -2683,6 +2665,10 @@ msgstr "{most}, மற்றும் {last}"
 #, python-brace-format
 msgid "{most}, or {last}"
 msgstr "{most}, அல்லது {last}"
+
+#, python-brace-format
+msgid "{plugin_type} configuration"
+msgstr ""
 
 msgid "© Copyright the author, unless otherwise credited"
 msgstr "© பதிப்புரிமை ஆசிரியர், இல்லையெனில் வரவு"

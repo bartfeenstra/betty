@@ -12,7 +12,7 @@ from betty.data import DataDefinition, ResolvableDataDefinition, resolve_data_de
 
 if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
-    from betty.portable import PortableData, Porter
+    from betty.portable import Porter
 
 
 class CollectionDefinition[CollectionT: Collection, ValuesSetT: Iterable](
@@ -26,7 +26,7 @@ class CollectionDefinition[CollectionT: Collection, ValuesSetT: Iterable](
         self,
         *,
         cls: type[CollectionT] | None = None,
-        item: ResolvableDataDefinition[DataDefinition[Any, PortableData]],
+        item: ResolvableDataDefinition[DataDefinition[Any]],
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
         porter: Porter[CollectionT] | None = None,
@@ -38,7 +38,7 @@ class CollectionDefinition[CollectionT: Collection, ValuesSetT: Iterable](
 
     @final
     @property
-    def item(self) -> DataDefinition[Any, PortableData]:
+    def item(self) -> DataDefinition[Any]:
         """
         The definition of the items contained by this collection.
         """

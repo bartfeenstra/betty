@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2026-07-13 13:08+0100\n"
+"POT-Creation-Date: 2026-07-14 17:08+0100\n"
 "PO-Revision-Date: 2026-07-13 12:30+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: uk\n"
@@ -17,7 +17,6 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
-"X-Generator: Weblate 2026.7.1.dev0\n"
 
 #, python-brace-format
 msgid "\"{color}\" is not a valid hexadecimal color, such as #ffc0cb."
@@ -463,9 +462,6 @@ msgstr "Авторське право належить учасникам Вік
 msgid "Copyright notice"
 msgstr ""
 
-msgid "Copyright notice configuration"
-msgstr ""
-
 msgid "Copyright notices"
 msgstr ""
 
@@ -679,9 +675,6 @@ msgstr "Подія"
 msgid "Event type"
 msgstr ""
 
-msgid "Event type configuration"
-msgstr ""
-
 msgid "Event types"
 msgstr ""
 
@@ -771,9 +764,6 @@ msgid "Fuzzy"
 msgstr ""
 
 msgid "Gender"
-msgstr ""
-
-msgid "Gender configuration"
 msgstr ""
 
 msgid "Genders"
@@ -952,9 +942,6 @@ msgstr ""
 
 msgid "License"
 msgstr "Ліцензія"
-
-msgid "License configuration"
-msgstr ""
 
 msgid "Licenses"
 msgstr ""
@@ -1281,9 +1268,6 @@ msgstr ""
 msgid "Place type"
 msgstr ""
 
-msgid "Place type configuration"
-msgstr ""
-
 msgid "Place types"
 msgstr ""
 
@@ -1455,9 +1439,6 @@ msgid "Retirements"
 msgstr ""
 
 msgid "Role"
-msgstr ""
-
-msgid "Role configuration"
 msgstr ""
 
 msgid "Roles"
@@ -2777,9 +2758,14 @@ msgstr ""
 msgid "{most}, or {last}"
 msgstr ""
 
+#, python-brace-format
+msgid "{plugin_type} configuration"
+msgstr ""
+
 msgid "© Copyright the author, unless otherwise credited"
 msgstr "© Авторське право належить автору, якщо не зазначено інше"
 
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Авторське право {author}, якщо не зазначено інше"
+

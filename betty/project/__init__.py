@@ -64,7 +64,6 @@ from betty.gettext import AssetTranslationRepository, TranslationRepository
 from betty.hashid import hashid
 from betty.html.css import CssResourceDefinition
 from betty.html.js import JsResourceDefinition
-from betty.indicator.selector import Attr as AttrSelector
 from betty.jinja.filter import JinjaFilterDefinition
 from betty.jinja.test import JinjaTestDefinition
 from betty.license import License, LicenseDefinition, LicenseManufacturer
@@ -95,6 +94,9 @@ from betty.plugin.resolve import (
     ResolvablePluginId,
     resolve_plugin_id,
 )
+from betty.portable import KeyedPorter
+from betty.porters.fields import FieldsPorter
+from betty.porters.keyed_mapping import KeyedMappingPorter
 from betty.privacy.privatizer import Privatizer
 from betty.prop import HasProps
 from betty.render import RenderDispatcher, RendererDefinition
@@ -625,6 +627,7 @@ class Project(
 @final
 @ObjectDefinition(
     label=_("Project locale"),
+    porter=lambda field, _: KeyedMappingPorter("locale", FieldsPorter(field)),
     samples=[
         lambda: Sample(
             ProjectLocale(Locale("nl", "NL")), label="Minimal", size=Size.MINIMAL
@@ -636,7 +639,9 @@ class Project(
         ),
     ],
 )
-class ProjectLocale(Data["ObjectDefinition"], HasProps):
+class ProjectLocale(
+    Data[ObjectDefinition["ProjectLocale", KeyedPorter["ProjectLocale"]]], HasProps
+):
     """
     A locale to use for a project.
 
@@ -773,7 +778,6 @@ class ProjectData(Data, HasProps):
             KeyedCollectionDefinition(
                 value=EnricherManufacturer,
                 label=EnricherDefinition.type().label_plural,
-                key=AttrSelector("plugin_id"),
                 factory=lambda: MutableKeyedCollectionAdapter(
                     key=lambda data: data.plugin_id,
                     key_resolver=resolve_plugin_id,
@@ -800,7 +804,6 @@ class ProjectData(Data, HasProps):
             KeyedCollectionDefinition(
                 value=ExtensionManufacturer,
                 label=ExtensionDefinition.type().label_plural,
-                key=AttrSelector("plugin_id"),
                 factory=lambda: MutableKeyedCollectionAdapter(
                     key=lambda data: data.plugin_id,
                     key_resolver=resolve_plugin_id,
@@ -874,7 +877,6 @@ class ProjectData(Data, HasProps):
             KeyedCollectionDefinition(
                 value=LoaderManufacturer,
                 label=LoaderDefinition.type().label_plural,
-                key=AttrSelector("plugin_id"),
                 factory=lambda: MutableKeyedCollectionAdapter(
                     key=lambda data: data.plugin_id,
                     key_resolver=resolve_plugin_id,
@@ -894,7 +896,6 @@ class ProjectData(Data, HasProps):
             KeyedCollectionDefinition(
                 value=ProjectLocale,
                 label=_("Locales"),
-                key=AttrSelector("locale"),
                 order_dump=True,
                 factory=lambda: MutableKeyedCollectionAdapter(
                     key=lambda item: item.locale,

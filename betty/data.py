@@ -4,14 +4,14 @@ Describe, access, and manipulate arbitrary data.
 
 from __future__ import annotations
 
+from inspect import signature
 from typing import TYPE_CHECKING, Any, Final, Self, final, override
 
 from betty.definition.cls import OptionalClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.importlib import fully_qualified_name
-from betty.portable import Portable, PortableData, Porter
+from betty.portable import Porter
 from betty.portable.error import NotPortable
-from betty.porters.portable import PortablePorter
 from betty.sample import Samplable, Sample, Samples
 
 if TYPE_CHECKING:
@@ -20,8 +20,18 @@ if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
     from betty.typing import Intersection
 
+type ResolvableDataDefinitionManufacturable[
+    ManufacturableT,
+    DataDefinitionT: DataDefinition,
+    DataClsT,
+] = (
+    ManufacturableT
+    | Callable[[DataDefinitionT], ManufacturableT]
+    | Callable[[DataDefinitionT, type[DataClsT]], ManufacturableT]
+)
 
-class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
+
+class DataDefinition[DataClsT, PorterT: Porter = Porter](
     HumanFacingDefinition, OptionalClsDefinition[DataClsT]
 ):
     """
@@ -34,7 +44,10 @@ class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
         cls: type[DataClsT] | None = None,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
-        porter: Porter[DataClsT, PortableDataT] | None = None,
+        porter: ResolvableDataDefinitionManufacturable[
+            Intersection[PorterT, Porter[DataClsT]], Self, DataClsT
+        ]
+        | None = None,
         samples: Iterable[
             Callable[[], Sample[DataClsT]]
             | Samples[DataClsT]
@@ -42,29 +55,46 @@ class DataDefinition[DataClsT, PortableDataT: PortableData = PortableData](
         ] = (),
         **kwargs: Any,
     ):
-        super().__init__(*args, cls=cls, label=label, description=description, **kwargs)
-        self._porter = porter
         self._samples = tuple(samples)
+        self._porter: Intersection[PorterT, Porter[DataClsT]] | None = None
+        self._porter_set_cls_factory: (
+            Callable[[Self, type[DataClsT]], Intersection[PorterT, Porter[DataClsT]]]
+            | None
+        ) = None
+        factory_signature: int | None = None
+        if porter is not None:
+            if isinstance(porter, Porter):
+                self._porter = porter
+            else:
+                factory_signature = len(signature(porter).parameters)
+                if factory_signature == 2:
+                    self._porter_set_cls_factory = porter  # ty:ignore[invalid-assignment]
+        super().__init__(*args, cls=cls, label=label, description=description, **kwargs)
+        if factory_signature == 1:
+            self._porter = porter(self)  # ty:ignore[call-non-callable, missing-argument]
 
+    @final
     @property
-    def porter(self) -> Porter[DataClsT, PortableDataT]:
+    def porter(self) -> Intersection[PorterT, Porter[DataClsT]]:
         """
         The porter for the data.
         """
         if self._porter is None:
-            if not self.cls or not issubclass(self.cls, Portable):
-                raise NotPortable(
-                    f"This definition does not have a porter. Either make the data class {fully_qualified_name(self.cls)} subclass {fully_qualified_name(Portable)}, or provide a porter when initializing the definition."
-                )
-            self._porter = PortablePorter(self.cls)
-        return self._porter  # ty:ignore[invalid-return-type]
+            raise NotPortable(f"{self} does not have a porter.")
+        return self._porter
 
     @override
     def _set_cls(self, cls: type[DataClsT], /) -> None:
         super()._set_cls(cls)
         if issubclass(cls, Data):
+            assert cls not in _datas, (
+                f"Found an existing data definition {_datas[cls]} when adding {self} for {cls}"
+            )
             _datas[cls] = self
+        if self._porter_set_cls_factory:
+            self._porter = self._porter_set_cls_factory(self, cls)
 
+    @final
     @property
     def samples(self) -> Samples:
         """

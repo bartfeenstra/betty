@@ -4,14 +4,9 @@ Static translations.
 
 from __future__ import annotations
 
-from contextlib import suppress
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.assertions.if_else import assert_if_else
 from betty.assertions.len import assert_len
-from betty.assertions.locale import assert_locale
-from betty.assertions.mapping import assert_mapping
-from betty.assertions.str import assert_str
 from betty.exception import reraise_with_indicator
 from betty.indicator.selector import Key
 from betty.locale import (
@@ -32,14 +27,8 @@ from betty.localizable import (
     StaticTranslationsMapping,
 )
 from betty.localizables.gettext import _
-from betty.localizables.markup import (
-    JoinAnd,
-    Paragraphs,
-    UnorderedList,
-    do_you_mean,
-)
+from betty.localizables.markup import JoinAnd, Paragraphs, UnorderedList, do_you_mean
 from betty.localized import LocalizedStr
-from betty.portable import Portable, PortableData
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
@@ -50,7 +39,7 @@ if TYPE_CHECKING:
 
 
 @final
-class CountableStaticTranslations(CountableLocalizable, Portable):
+class CountableStaticTranslations(CountableLocalizable):
     """
     A countable localizable backed by static translations.
     """
@@ -146,29 +135,9 @@ class CountableStaticTranslations(CountableLocalizable, Portable):
             for locale in self._translations
         }).format(count=str(count))
 
-    _load = assert_mapping(
-        assert_mapping(
-            assert_str(),
-            assert_str(),
-        ),
-        assert_locale(),
-    )
-
-    @override
-    @classmethod
-    def load(cls, portable: PortableData, /) -> Self:
-        return cls(cls._load(portable))
-
-    @override
-    def dump(self) -> PortableData:
-        return {
-            to_language_tag(locale): translations
-            for locale, translations in self.translations.items()
-        }  # ty:ignore[invalid-return-type]
-
 
 @final
-class StaticTranslations(Localizable, Portable):
+class StaticTranslations(Localizable):
     """
     A localizable backed by static translations.
 
@@ -286,28 +255,6 @@ class StaticTranslations(Localizable, Portable):
         return cls({
             localizer.locale: other.localize(localizer) for localizer in localizers
         })
-
-    _load = assert_if_else(
-        assert_str().pipe(lambda translation: {None: translation}),
-        assert_mapping(assert_str(), assert_locale()),
-    )
-
-    @override
-    @classmethod
-    def load(cls, portable: PortableData, /) -> Self:
-        return cls(cls._load(portable))
-
-    @override
-    def dump(self) -> PortableData:
-        if len(self.translations) == 1:
-            with suppress(KeyError):
-                # Explicitly cast to a string because pyyaml cannot dump ``str`` subclasses.
-                return str(self.translations[None])
-        return {
-            # Explicitly cast to a string because pyyaml cannot dump ``str`` subclasses.
-            to_language_tag(locale): str(translation)
-            for locale, translation in self.translations.items()
-        }
 
 
 @final

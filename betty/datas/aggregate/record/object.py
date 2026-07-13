@@ -9,10 +9,13 @@ from typing import override
 from betty.attr import Attr
 from betty.datas.aggregate.record import RecordDefinition
 from betty.indicator.selector import Attr as AttrElement
+from betty.portable import Porter
 from betty.prop import HasProps
 
 
-class ObjectDefinition[DataClsT](RecordDefinition[DataClsT, AttrElement]):
+class ObjectDefinition[DataClsT, PorterT: Porter = Porter](
+    RecordDefinition[DataClsT, PorterT, AttrElement]
+):
     """
     Define an object with attributes.
 
@@ -21,8 +24,8 @@ class ObjectDefinition[DataClsT](RecordDefinition[DataClsT, AttrElement]):
 
     @override
     def _set_cls(self, cls: type[DataClsT], /) -> None:
-        super()._set_cls(cls)
         if issubclass(cls, HasProps):
             for prop in cls.props():
                 if isinstance(prop, Attr):
                     self._fields[AttrElement(prop.prop.name)] = prop.field
+        super()._set_cls(cls)

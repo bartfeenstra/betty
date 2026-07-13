@@ -26,7 +26,7 @@ class TestMachineName:
 
     @pytest.mark.parametrize("machine_name", VALID_MACHINE_NAMES)
     def test_load(self, machine_name: str) -> None:
-        sut = MachineName.load(machine_name)
+        sut = MachineName.data().porter.load(machine_name)
         assert sut == machine_name
         assert sut.persistent
 
@@ -35,12 +35,12 @@ class TestMachineName:
     )
     def test_load__with_invalid_value(self, machine_name: Any) -> None:
         with pytest.raises(HumanFacingException):
-            MachineName.load(machine_name)
+            MachineName.data().porter.load(machine_name)
 
     @pytest.mark.parametrize("machine_name", VALID_MACHINE_NAMES)
     def test_dump(self, machine_name: str) -> None:
         sut = MachineName(machine_name)
-        assert sut.dump() == machine_name
+        assert sut.data().porter.dump(sut) == machine_name
 
     @pytest.mark.parametrize(
         ("expected", "source"),

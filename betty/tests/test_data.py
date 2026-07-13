@@ -4,26 +4,10 @@ from typing import Self, override
 
 import pytest
 
-from betty.assertions.str import assert_str
 from betty.data import Data, DataDefinition, Sample, resolve_data_definition
-from betty.portable import Portable, PortableData
 from betty.portable.error import NotPortable
 from betty.porters.callback import CallbackPorter
 from betty.sample import Samplable, Samples
-
-
-class _DummyData(Portable, Data):
-    def __init__(self, value: str):
-        self.value = value
-
-    @override
-    @classmethod
-    def load(cls, portable: PortableData, /) -> Self:
-        return cls(assert_str()(portable))
-
-    @override
-    def dump(self) -> PortableData:
-        return self.value
 
 
 class TestDataDefinition:
@@ -36,10 +20,6 @@ class TestDataDefinition:
         porter = CallbackPorter(lambda _: object(), lambda _: None)
         sut = DataDefinition(cls=object, label="-", porter=porter)
         assert sut.porter is porter
-
-    def test_porter__with_portable(self) -> None:
-        sut = DataDefinition(cls=_DummyData, label="-")
-        sut.porter  # noqa: B018
 
     def test_samples__without_samples(self) -> None:
         sut = DataDefinition(cls=object, label="-")
@@ -71,11 +51,6 @@ class TestDataDefinition:
         )
         assert sut.porter.load(None) is loaded
 
-    def test_load__with_portable(self) -> None:
-        sut = DataDefinition(cls=_DummyData, label="-")
-        value = "Hello, world!"
-        assert sut.porter.load(value).value == value
-
     def test_load__should_error(self) -> None:
         sut = DataDefinition(cls=object, label="-")
         with pytest.raises(NotPortable):
@@ -88,11 +63,6 @@ class TestDataDefinition:
             porter=CallbackPorter(lambda _: object(), lambda _: "dumper"),
         )
         assert sut.porter.dump(object()) == "dumper"
-
-    def test_dump__with_portable(self) -> None:
-        sut = DataDefinition(cls=_DummyData, label="-")
-        value = "Hello, world!"
-        assert sut.porter.dump(_DummyData(value)) == value
 
     def test_dump__should_error(self) -> None:
         sut = DataDefinition(cls=object, label="-")

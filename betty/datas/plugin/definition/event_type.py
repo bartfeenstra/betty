@@ -6,21 +6,20 @@ from __future__ import annotations
 
 from typing import final, override
 
-from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.plugin.definition import PluginDefinitionDefinition
 from betty.datas.plugin.definition.human_facing import (
     CountableHumanFacingPluginDefinitionData,
 )
 from betty.datas.plugin.definition.ordered import OrderedPluginDefinitionData
 from betty.event_type import EventType, EventTypeDefinition
 from betty.locale import default_locale
-from betty.localizables.gettext import _
 from betty.localizables.static import CountableStaticTranslations
 from betty.sample import Sample
 
 
 @final
-@ObjectDefinition(
-    label=_("Event type configuration"),
+@PluginDefinitionDefinition(
+    EventTypeDefinition,
     samples=[
         lambda: Sample(
             EventTypeDefinitionData(

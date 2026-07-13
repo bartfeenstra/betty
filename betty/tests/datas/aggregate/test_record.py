@@ -2,17 +2,14 @@ from dataclasses import dataclass
 from unittest.mock import Mock
 
 from betty.data import DataDefinition
-from betty.datas.aggregate.record import (
-    FieldDefinition,
-    RecordDefinition,
-    RecordPorter,
-)
+from betty.datas.aggregate.record import FieldDefinition, RecordDefinition
 from betty.datas.bool import BoolDefinition
 from betty.datas.optional import OptionalDefinition
 from betty.datas.str import StrDefinition
 from betty.indicator.selector import Attr
 from betty.localizables.plain import Plain
-from betty.porters.record_mapping import RecordMappingPorter
+from betty.portable import Porter
+from betty.porters.fields import FieldsPorter
 
 
 class TestFieldDefinition:
@@ -85,7 +82,7 @@ class RecordDefinitionTestFactoryRecord(RecordDefinitionTestRecord):
 
 class TestRecordDefinition:
     def test_factory__without_factory(self) -> None:
-        sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
+        sut = RecordDefinition[RecordDefinitionTestRecord, Porter, Attr](
             cls=RecordDefinitionTestRecord, label="-"
         )
         assert sut.factory is RecordDefinitionTestRecord
@@ -94,27 +91,27 @@ class TestRecordDefinition:
         def factory() -> RecordDefinitionTestRecord:
             return RecordDefinitionTestRecord()
 
-        sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
+        sut = RecordDefinition[RecordDefinitionTestRecord, Porter, Attr](
             cls=RecordDefinitionTestRecord, label="-", factory=factory
         )
         assert sut.factory is factory
 
     def test_porter__without_porter(self) -> None:
-        sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
+        sut = RecordDefinition[RecordDefinitionTestRecord, Porter, Attr](
             cls=RecordDefinitionTestRecord, label="-"
         )
-        assert isinstance(sut.porter, RecordMappingPorter)
+        assert isinstance(sut.porter, FieldsPorter)
 
     def test_porter__with_porter(self) -> None:
-        m_porter = Mock(spec=RecordPorter)
-        sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
+        m_porter = Mock(spec=Porter)
+        sut = RecordDefinition[RecordDefinitionTestRecord, Porter, Attr](
             cls=RecordDefinitionTestRecord, label="-", porter=m_porter
         )
         assert sut.porter is m_porter
 
     def test_fields(self) -> None:
         field = FieldDefinition(StrDefinition(label="-"))
-        sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
+        sut = RecordDefinition[RecordDefinitionTestRecord, Porter, Attr](
             cls=RecordDefinitionTestRecord,
             label="-",
             fields={Attr("my_first_element"): field},

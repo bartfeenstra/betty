@@ -5,7 +5,7 @@ Provide `media type <https://en.wikipedia.org/wiki/Media_type>`_ handling utilit
 from __future__ import annotations
 
 from email.message import EmailMessage
-from typing import TYPE_CHECKING, Final, Self, final, override
+from typing import TYPE_CHECKING, Final, final, override
 
 from betty.assertions.str import assert_str
 from betty.data import Data, DataDefinition
@@ -14,13 +14,14 @@ from betty.localizables.gettext import _, ngettext
 from betty.pathlib import StrPath
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.ordered import Order, OrderedPluginDefinition
-from betty.portable import Portable, PortableData
+from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
 
     from betty.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
+    from betty.portable import PortableData
 
 
 class InvalidMediaType(ValueError):
@@ -47,9 +48,19 @@ class MissingMediaType(RuntimeError):
         super().__init__("Missing media type")
 
 
+__load = assert_str()
+
+
+def _load(portable: PortableData, /) -> MediaType:
+    return MediaType(__load(portable))
+
+
 @final
-@DataDefinition(label=_("Media type"))
-class MediaType(Data, Portable):
+@DataDefinition(
+    label=_("Media type"),
+    porter=CallbackPorter(_load, lambda media_type: media_type._str),
+)
+class MediaType(Data):
     """
     Define a `media type <https://en.wikipedia.org/wiki/Media_type>`_.
 
@@ -127,17 +138,6 @@ class MediaType(Data, Portable):
             self.suffix,
             other.parameters,
         )
-
-    _load = assert_str()
-
-    @override
-    @classmethod
-    def load(cls, portable: PortableData, /) -> Self:
-        return cls(cls._load(portable))
-
-    @override
-    def dump(self) -> PortableData:
-        return self._str
 
 
 type MediaTypeIndicator = MediaType | StrPath

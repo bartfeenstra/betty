@@ -10,35 +10,34 @@ from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.mapping import TypedMappingDefinition
 from betty.datas.str import StrDefinition
 from betty.indicator.selector import Key
-from betty.portable import PortableData
+from betty.portable import KeyedPorter, PortableData
+from betty.porters.fields import FieldsPorter
+from betty.porters.keyed_mapping import KeyedMappingPorter
 
 
 class TestKeyedCollectionDefinition:
-    _item = TypedMappingDefinition[dict[str, str]](
+    _item = TypedMappingDefinition[dict[str, str], KeyedPorter](
         cls=dict,
         label="-",
         fields={
             Key("key"): FieldDefinition(StrDefinition(label="-")),
             Key("other_element"): FieldDefinition(StrDefinition(label="-")),
         },
+        porter=lambda field: KeyedMappingPorter("key", FieldsPorter(field)),
     )
     _sut_unordered = KeyedCollectionDefinition[
         MutableKeyedCollection[str, str, dict[str, str], dict[str, str]],
         dict[str, str],
-        Key,
     ](
         value=_item,
-        key=Key("key"),
         label="-",
         factory=lambda: MutableKeyedCollectionAdapter(key=lambda value: value["key"]),
     )
     _sut_ordered = KeyedCollectionDefinition[
         MutableKeyedCollection[str, str, dict[str, str], dict[str, str]],
         dict[str, str],
-        Key,
     ](
         value=_item,
-        key=Key("key"),
         order_dump=True,
         label="-",
         factory=lambda: MutableKeyedCollectionAdapter(key=lambda value: value["key"]),
