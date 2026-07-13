@@ -700,8 +700,8 @@ msgstr "Executable"
 msgid "Explore a demonstration site"
 msgstr "Explore a demonstration site"
 
-msgid "Explore a family history..."
-msgstr "Explore a family history..."
+msgid "Explore a family history…"
+msgstr "Explore a family history…"
 
 msgid "Extension"
 msgstr "Extension"
@@ -784,8 +784,8 @@ msgstr "Genders"
 msgid "Generate a static site"
 msgstr "Generate a static site"
 
-msgid "Generating site..."
-msgstr "Generating site..."
+msgid "Generating site…"
+msgstr "Generating site…"
 
 msgid "Get started"
 msgstr "Get started"
@@ -1018,8 +1018,8 @@ msgid "Loaders"
 msgstr "Loaders"
 
 #, python-brace-format
-msgid "Loading \"{file_path}\"..."
-msgstr "Loading \"{file_path}\"..."
+msgid "Loading \"{file_path}\"…"
+msgstr "Loading \"{file_path}\"…"
 
 msgid "Locale"
 msgstr "Locale"
@@ -1380,8 +1380,8 @@ msgstr "Publisher"
 msgid "Python packages"
 msgstr "Python packages"
 
-msgid "Quitting..."
-msgstr "Quitting..."
+msgid "Quitting…"
+msgstr "Quitting…"
 
 msgid "Raspberry Mint configuration"
 msgstr "Raspberry Mint configuration"
@@ -1467,8 +1467,8 @@ msgid "Roles"
 msgstr "Roles"
 
 #, python-brace-format
-msgid "Running subprocess `{command}`..."
-msgstr "Running subprocess `{command}`..."
+msgid "Running subprocess `{command}`…"
+msgstr "Running subprocess `{command}`…"
 
 msgid "SPDX licenses"
 msgstr "SPDX licences"
@@ -1508,8 +1508,8 @@ msgid "Servers"
 msgstr "Servers"
 
 #, python-brace-format
-msgid "Serving your site at {url}..."
-msgstr "Serving your site at {url}..."
+msgid "Serving your site at {url}…"
+msgstr "Serving your site at {url}…"
 
 msgid "Set the locale for Betty's user interface. This must be an IETF BCP 47 language tag."
 msgstr "Set the locale for Betty's user interface. This must be an IETF BCP 47 language tag."
@@ -1544,8 +1544,8 @@ msgstr "Speakers"
 msgid "Start date is a boundary"
 msgstr "Start date is a boundary"
 
-msgid "Starting Python's built-in web server..."
-msgstr "Starting Python's built-in web server..."
+msgid "Starting Python's built-in web server…"
+msgstr "Starting Python's built-in web server…"
 
 msgid "State"
 msgstr "State"
@@ -1926,8 +1926,8 @@ msgstr "Wiki enricher configuration"
 msgid "Wikipedia contributors"
 msgstr "Wikipedia contributors"
 
-msgid "Wikipedia says..."
-msgstr "Wikipedia says..."
+msgid "Wikipedia says…"
+msgstr "Wikipedia says…"
 
 msgid "Wikipedia summary"
 msgstr "Wikipedia summary"

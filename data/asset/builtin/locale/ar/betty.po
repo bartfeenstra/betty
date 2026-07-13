@@ -700,7 +700,7 @@ msgstr ""
 msgid "Explore a demonstration site"
 msgstr ""
 
-msgid "Explore a family history..."
+msgid "Explore a family history…"
 msgstr ""
 
 msgid "Extension"
@@ -784,7 +784,7 @@ msgstr ""
 msgid "Generate a static site"
 msgstr ""
 
-msgid "Generating site..."
+msgid "Generating site…"
 msgstr ""
 
 msgid "Get started"
@@ -1016,7 +1016,7 @@ msgid "Loaders"
 msgstr ""
 
 #, python-brace-format
-msgid "Loading \"{file_path}\"..."
+msgid "Loading \"{file_path}\"…"
 msgstr ""
 
 msgid "Locale"
@@ -1382,7 +1382,7 @@ msgstr ""
 msgid "Python packages"
 msgstr ""
 
-msgid "Quitting..."
+msgid "Quitting…"
 msgstr ""
 
 msgid "Raspberry Mint configuration"
@@ -1469,7 +1469,7 @@ msgid "Roles"
 msgstr ""
 
 #, python-brace-format
-msgid "Running subprocess `{command}`..."
+msgid "Running subprocess `{command}`…"
 msgstr ""
 
 msgid "SPDX licenses"
@@ -1510,7 +1510,7 @@ msgid "Servers"
 msgstr ""
 
 #, python-brace-format
-msgid "Serving your site at {url}..."
+msgid "Serving your site at {url}…"
 msgstr ""
 
 msgid "Set the locale for Betty's user interface. This must be an IETF BCP 47 language tag."
@@ -1546,7 +1546,7 @@ msgstr ""
 msgid "Start date is a boundary"
 msgstr ""
 
-msgid "Starting Python's built-in web server..."
+msgid "Starting Python's built-in web server…"
 msgstr ""
 
 msgid "State"
@@ -1936,7 +1936,7 @@ msgstr ""
 msgid "Wikipedia contributors"
 msgstr ""
 
-msgid "Wikipedia says..."
+msgid "Wikipedia says…"
 msgstr ""
 
 msgid "Wikipedia summary"

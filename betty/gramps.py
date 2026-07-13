@@ -424,7 +424,7 @@ class GrampsLoader:
         """
         file = resolve_path(file).resolve()
         await self._project.upstream.user.message_information_details(
-            _('Loading "{file_path}"...').format(
+            _('Loading "{file_path}"…').format(
                 file_path=str(file),
             )
         )

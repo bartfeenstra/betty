@@ -61,7 +61,7 @@ async def run_process(
     """
     command = " ".join(runnee)
     await user.message_debug(
-        _("Running subprocess `{command}`...").format(command=command)
+        _("Running subprocess `{command}`…").format(command=command)
     )
 
     try:

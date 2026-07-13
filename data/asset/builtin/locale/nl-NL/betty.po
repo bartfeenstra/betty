@@ -700,8 +700,8 @@ msgstr "Uitvoerbaar bestand"
 msgid "Explore a demonstration site"
 msgstr "Verken een demonstratiesite"
 
-msgid "Explore a family history..."
-msgstr "Ontdek een familiegeschiedenis..."
+msgid "Explore a family history…"
+msgstr "Ontdek een familiegeschiedenis…"
 
 msgid "Extension"
 msgstr "Extensie"
@@ -784,8 +784,8 @@ msgstr "Genders"
 msgid "Generate a static site"
 msgstr "Genereer een statische site"
 
-msgid "Generating site..."
-msgstr "Site genereren..."
+msgid "Generating site…"
+msgstr "Site genereren…"
 
 msgid "Get started"
 msgstr "Ga van start"
@@ -1018,8 +1018,8 @@ msgid "Loaders"
 msgstr "Laders"
 
 #, python-brace-format
-msgid "Loading \"{file_path}\"..."
-msgstr "\"{file_path}\" aan het laden..."
+msgid "Loading \"{file_path}\"…"
+msgstr "\"{file_path}\" aan het laden…"
 
 msgid "Locale"
 msgstr "Taalregio"
@@ -1380,8 +1380,8 @@ msgstr "Uitgever"
 msgid "Python packages"
 msgstr "Python-packages"
 
-msgid "Quitting..."
-msgstr "Afsluiten..."
+msgid "Quitting…"
+msgstr "Afsluiten…"
 
 msgid "Raspberry Mint configuration"
 msgstr "Raspberry Mint-configuratie"
@@ -1467,8 +1467,8 @@ msgid "Roles"
 msgstr "Rollen"
 
 #, python-brace-format
-msgid "Running subprocess `{command}`..."
-msgstr "Subprocess `{command}`aan het uitvoeren..."
+msgid "Running subprocess `{command}`…"
+msgstr "Subprocess `{command}`aan het uitvoeren…"
 
 msgid "SPDX licenses"
 msgstr "SPDX-licenties"
@@ -1508,8 +1508,8 @@ msgid "Servers"
 msgstr "Servers"
 
 #, python-brace-format
-msgid "Serving your site at {url}..."
-msgstr "Je site op {url} aan het serveren..."
+msgid "Serving your site at {url}…"
+msgstr "Je site op {url} aan het serveren…"
 
 msgid "Set the locale for Betty's user interface. This must be an IETF BCP 47 language tag."
 msgstr ""
@@ -1544,8 +1544,8 @@ msgstr "Sprekers"
 msgid "Start date is a boundary"
 msgstr "Startdatum is ondergrens"
 
-msgid "Starting Python's built-in web server..."
-msgstr "Pythons ingebouwde webserver aan het starten..."
+msgid "Starting Python's built-in web server…"
+msgstr "Pythons ingebouwde webserver aan het starten…"
 
 msgid "State"
 msgstr "Staat"
@@ -1926,8 +1926,8 @@ msgstr "Wiki-verrijkerconfiguratie"
 msgid "Wikipedia contributors"
 msgstr "Wikipedia-bijdragers"
 
-msgid "Wikipedia says..."
-msgstr "Wikipedia zegt..."
+msgid "Wikipedia says…"
+msgstr "Wikipedia zegt…"
 
 msgid "Wikipedia summary"
 msgstr "Wikipedia-samenvatting"

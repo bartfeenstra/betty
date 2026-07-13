@@ -55,7 +55,7 @@ class _ScheduledJobBatch:
     async def __call__(self) -> None:
         try:
             for job in self._jobs:
-                await self._user.message_debug(f'Doing job "{job.id}"...')
+                await self._user.message_debug(f'Doing job "{job.id}"…')
                 await job.do(self._scheduler)
         except BaseException as reason:
             await self._scheduler.cancel(reason)

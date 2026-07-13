@@ -77,7 +77,7 @@ class BuiltinServer(Server):
             www_directory = self._temporary_root_directory
         else:
             www_directory = self._www_directory
-        await self._user.message_debug(_("Starting Python's built-in web server..."))
+        await self._user.message_debug(_("Starting Python's built-in web server…"))
         for self._port in range(  # noqa: B020
             self._default_port,
             65535,

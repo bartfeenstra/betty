@@ -29,7 +29,7 @@ async def _target(user: User) -> None:
     async with App.new_isolated() as app:
         with TemporaryDirectory() as project_directory:
             project = await create_project(app, project_directory)
-            async with project, user.message_progress("Generating site...") as progress:
+            async with project, user.message_progress("Generating site…") as progress:
                 await generate_with_cleanup(project, context=Context(progress=progress))
 
 

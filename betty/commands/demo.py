@@ -54,7 +54,7 @@ class Demo(Manufacturable, Command):
             async with (
                 project,
                 project.upstream.user.message_progress(
-                    _("Generating site...")
+                    _("Generating site…")
                 ) as progress,
             ):
                 context = Context(progress=progress)
