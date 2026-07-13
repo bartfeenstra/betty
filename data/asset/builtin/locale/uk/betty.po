@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
 "POT-Creation-Date: 2026-07-06 22:14+0100\n"
-"PO-Revision-Date: 2026-07-06 21:02+0000\n"
-"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"PO-Revision-Date: 2026-07-13 07:49+0000\n"
+"Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: uk\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/betty/betty-0-5-x/uk/>\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
@@ -17,6 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
+"X-Generator: Weblate 2026.7.1.dev0\n"
 
 #, python-brace-format
 msgid "\"{color}\" is not a valid hexadecimal color, such as #ffc0cb."
@@ -55,7 +56,7 @@ msgid "%(event)s with %(subjects)s"
 msgstr "%(event)s з %(subjects)s"
 
 msgid "A Betty demonstration"
-msgstr ""
+msgstr "Демонстрація Betty"
 
 msgid "A countable localizable string"
 msgstr ""
@@ -191,7 +192,7 @@ msgid "Attendees"
 msgstr ""
 
 msgid "Author"
-msgstr ""
+msgstr "Автор"
 
 msgid "Baptism"
 msgstr "Хрещення"
@@ -206,7 +207,7 @@ msgid "Bar mitzvahs"
 msgstr ""
 
 msgid "Bart Feenstra and contributors"
-msgstr ""
+msgstr "Bart Feenstra та учасники"
 
 msgid "Bart's parent"
 msgstr ""
@@ -443,7 +444,7 @@ msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
 msgstr "Продовжуйте читати у <a href=\"%(url)s\">Вікіпедії</a>."
 
 msgid "Coordinates"
-msgstr ""
+msgstr "Координати"
 
 msgid "Copyright"
 msgstr "Авторське право"
@@ -453,7 +454,7 @@ msgid "Copyright <a href=\"%(url)s\">OpenStreetMap</a> contributors"
 msgstr "Авторські права авторів <a href=\"%(url)s\">OpenStreetMap</a>"
 
 msgid "Copyright Wikipedia contributors"
-msgstr "Авторське право належить учасникам Wikipedia"
+msgstr "Авторське право належить учасникам Вікіпедії"
 
 msgid "Copyright notice"
 msgstr ""
@@ -465,7 +466,7 @@ msgid "Copyright notices"
 msgstr ""
 
 msgid "Copyright of these works lies with the original authors who contributed them to Wikipedia."
-msgstr "Авторське право на ці роботи належить оригінальним авторам, які додали їх до Wikipedia."
+msgstr "Авторське право на ці роботи належить оригінальним авторам, які додали їх до Вікіпедії."
 
 msgid "Correspondence"
 msgstr "Листування"
@@ -840,7 +841,7 @@ msgid "Help improve the translations"
 msgstr ""
 
 msgid "Home"
-msgstr ""
+msgstr "Домашня"
 
 msgid "I'm sorry, dear, but it seems there is nothing to show."
 msgstr "Вибачте, любий, але, здається, нема чого показати."
@@ -1059,7 +1060,7 @@ msgid "Machine name"
 msgstr ""
 
 msgid "Man"
-msgstr ""
+msgstr "Чоловік"
 
 msgid "Map"
 msgstr ""
@@ -1092,7 +1093,7 @@ msgid "Media types"
 msgstr ""
 
 msgid "Men"
-msgstr ""
+msgstr "Чоловіки"
 
 msgid "Menu"
 msgstr "Меню"
@@ -1368,7 +1369,7 @@ msgid "Public domain"
 msgstr "Публічний домен"
 
 msgid "Publisher"
-msgstr ""
+msgstr "Видавець"
 
 msgid "Python packages"
 msgstr ""
@@ -1853,7 +1854,7 @@ msgid "View Betty's interactive documentation. This will open your web browser."
 msgstr ""
 
 msgid "View original size"
-msgstr ""
+msgstr "Переглянути оригінальний розмір"
 
 msgid "View the code"
 msgstr ""
@@ -1916,7 +1917,7 @@ msgid "Wikipedia contributors"
 msgstr "Учасники Вікіпедії"
 
 msgid "Wikipedia says..."
-msgstr ""
+msgstr "Вікіпедія каже..."
 
 msgid "Wikipedia summary"
 msgstr ""
@@ -1934,7 +1935,7 @@ msgid "Witnesses"
 msgstr "Свідки"
 
 msgid "Woman"
-msgstr ""
+msgstr "Жінка"
 
 msgid "Women"
 msgstr ""
@@ -2473,9 +2474,9 @@ msgstr[2] ""
 #, python-brace-format
 msgid "{count} man"
 msgid_plural "{count} men"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{count} чоловік"
+msgstr[1] "{count} »чоловіки"
+msgstr[2] "{count} чоловіків"
 
 #, python-brace-format
 msgid "{count} marriage"
@@ -2770,4 +2771,3 @@ msgstr "© Авторське право належить автору, якщо
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Авторське право {author}, якщо не зазначено інше"
-
