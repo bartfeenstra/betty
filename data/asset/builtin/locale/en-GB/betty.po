@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-13 09:36+0100\n"
-"PO-Revision-Date: 2026-07-13 08:43+0000\n"
+"PO-Revision-Date: 2026-07-13 08:52+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: en-GB\n"
 "Language-Team: English (United Kingdom) <https://hosted.weblate.org/projects/betty/betty-0-5-x/en_GB/>\n"
@@ -1328,11 +1328,11 @@ msgstr "Privacy"
 
 #, python-brace-format
 msgid "Privatized person {privatized_person_id} ({privatized_person}) because they are likely still alive."
-msgstr "Privatized person {privatized_person_id} ({privatized_person}) because they are likely still alive."
+msgstr "Privatised person {privatized_person_id} ({privatized_person}) because they are likely still alive."
 
 #, python-brace-format
 msgid "Privatized place {privatized_place_id} ({privatized_place}) because it is not associated with any public information."
-msgstr "Privatized place {privatized_place_id} ({privatized_place}) because it is not associated with any public information."
+msgstr "Privatised place {privatized_place_id} ({privatized_place}) because it is not associated with any public information."
 
 #, python-brace-format
 msgid "Privatized {count} \"{entity_type_id}\" entity, because it is associated with private information."
@@ -1342,11 +1342,11 @@ msgstr[1] "Privatised {count} \"{entity_type_id}\" entities, because they are as
 
 #, python-brace-format
 msgid "Privatized {count} people because they are likely still alive."
-msgstr "Privatized {count} people because they are likely still alive."
+msgstr "Privatised {count} people because they are likely still alive."
 
 #, python-brace-format
 msgid "Privatized {privatized_entity_type} {privatized_entity_id} ({privatized_entity}) because of {reason_entity_type} {reason_entity_id} ({reason_entity})."
-msgstr "Privatized {privatized_entity_type} {privatized_entity_id} ({privatized_entity}) because of {reason_entity_type} {reason_entity_id} ({reason_entity})."
+msgstr "Privatised {privatized_entity_type} {privatized_entity_id} ({privatized_entity}) because of {reason_entity_type} {reason_entity_id} ({reason_entity})."
 
 msgid "Project author"
 msgstr "Project author"
@@ -1812,7 +1812,7 @@ msgid "URL"
 msgstr "URL"
 
 msgid "Unauthorized"
-msgstr "Unauthorized"
+msgstr "Unauthorised"
 
 msgid "Unknown"
 msgstr "Unknown"
