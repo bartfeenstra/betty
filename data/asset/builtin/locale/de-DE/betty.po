@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-13 10:23+0100\n"
-"PO-Revision-Date: 2026-07-13 09:47+0000\n"
+"PO-Revision-Date: 2026-07-13 10:24+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de-DE\n"
 "Language-Team: German <https://hosted.weblate.org/projects/betty/betty-0-5-x/de/>\n"
@@ -231,7 +231,7 @@ msgid "Betty could not load the SPDX licenses"
 msgstr ""
 
 msgid "Betty is an application that takes a family tree and builds a website out of it, much like the one you are viewing right now. The more information your genealogical research contains, the more interactivity Betty can add to your site, such as media galleries, maps, and browsable family trees."
-msgstr "Betty ist eine Anwendung, die aus Familienstammbäumen Webseiten bauen kann, so ähnlich, wie diese Seite, die du dir gerade anschaust. Je mehr Information deine genealogische Forschung beinhaltet, desto mehr Interaktion kann Betty zu deiner Seite beitragen . Betty kann Medien-Gallerien, Karten und verlinkte Stammbäume erzeugen."
+msgstr "Betty ist eine Anwendung, die aus Familienstammbäumen Webseiten bauen kann, so ähnlich, wie diese Seite, die du dir gerade anschaust. Je mehr Information deine genealogische Forschung beinhaltet, desto mehr Interaktion kann Betty zu deiner Seite beitragen. Betty kann Medien-Gallerien, Karten und verlinkte Stammbäume erzeugen."
 
 #, python-brace-format
 msgid "Betty is unfamiliar with Gramps event \"{event_id}\"'s type of \"{gramps_event_type}\". The event was imported, but its type was set to \"{betty_event_type}\"."
@@ -770,7 +770,7 @@ msgid "Fuzzy"
 msgstr ""
 
 msgid "Gemeente Amsterdam"
-msgstr ""
+msgstr "Gemeinde Amsterdam"
 
 msgid "Gender"
 msgstr ""
