@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import final
 
 from betty.data import DataDefinition
+from betty.porters.data_proxy import DataDefinitionProxyPorter
 from betty.porters.optional import OptionalPorter
 from betty.sample import Sample, Size
 
@@ -21,7 +22,7 @@ class OptionalDefinition[DataClsT](DataDefinition[DataClsT | None]):
         super().__init__(
             label=proxied.label,
             description=proxied.description,
-            porter=OptionalPorter(proxied.porter),
+            porter=OptionalPorter(DataDefinitionProxyPorter(proxied)),
             samples=[
                 lambda: Sample(None, label="Minimal", size=Size.MINIMAL),
                 proxied.samples,

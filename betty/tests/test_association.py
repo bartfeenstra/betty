@@ -16,6 +16,7 @@ from betty.association import (
 from betty.data import DataDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.entity import Entity, EntityDefinition
+from betty.porters.callback import CallbackPorter
 from betty.test_utils.entity import DummyEntityOne
 from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
 
@@ -39,7 +40,13 @@ class _Association[OwnerT: Entity = Entity, AssociateT: Entity = Entity](
         /,
     ):
         super().__init__(
-            FieldDefinition(DataDefinition(label="-")), associate, associate_attr
+            FieldDefinition(
+                DataDefinition(
+                    label="-", porter=CallbackPorter(lambda _: None, lambda _: None)
+                )
+            ),
+            associate,
+            associate_attr,
         )
 
     def is_resolver(
@@ -273,7 +280,11 @@ def test_resolve_associates(isolated_project: Project, mocker: MockerFixture) ->
     )
     class _Entity(Entity):
         association = mocker.MagicMock(spec=Association)
-        association.field = FieldDefinition(DataDefinition(label="-"))
+        association.field = FieldDefinition(
+            DataDefinition(
+                label="-", porter=CallbackPorter(lambda _: None, lambda _: None)
+            )
+        )
         association.resolve.return_value = associate
 
     entity = _Entity()

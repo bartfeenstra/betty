@@ -30,8 +30,8 @@ class CallbackPorter[DataClsT, PortableDataT: PortableData = PortableData](
         self._dumper = dumper
 
     @override
-    def load(self, portable: PortableData) -> DataClsT:
-        return self._loader(portable)
+    def load(self, data: PortableData) -> DataClsT:
+        return self._loader(data)
 
     @override
     def dump(self, data: DataClsT) -> PortableDataT:

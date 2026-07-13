@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-13 13:08+0100\n"
+"POT-Creation-Date: 2026-07-14 17:08+0100\n"
 "PO-Revision-Date: 2026-07-13 08:44+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language: pt_BR\n"
@@ -462,9 +462,6 @@ msgstr "Colaboradores da Wikipédia com direitos autorais"
 msgid "Copyright notice"
 msgstr ""
 
-msgid "Copyright notice configuration"
-msgstr ""
-
 msgid "Copyright notices"
 msgstr ""
 
@@ -678,9 +675,6 @@ msgstr ""
 msgid "Event type"
 msgstr ""
 
-msgid "Event type configuration"
-msgstr ""
-
 msgid "Event types"
 msgstr ""
 
@@ -770,9 +764,6 @@ msgid "Fuzzy"
 msgstr ""
 
 msgid "Gender"
-msgstr ""
-
-msgid "Gender configuration"
 msgstr ""
 
 msgid "Genders"
@@ -950,9 +941,6 @@ msgid "Last page"
 msgstr ""
 
 msgid "License"
-msgstr ""
-
-msgid "License configuration"
 msgstr ""
 
 msgid "Licenses"
@@ -1280,9 +1268,6 @@ msgstr ""
 msgid "Place type"
 msgstr ""
 
-msgid "Place type configuration"
-msgstr ""
-
 msgid "Place types"
 msgstr ""
 
@@ -1453,9 +1438,6 @@ msgid "Retirements"
 msgstr ""
 
 msgid "Role"
-msgstr ""
-
-msgid "Role configuration"
 msgstr ""
 
 msgid "Roles"
@@ -2676,6 +2658,10 @@ msgstr ""
 
 #, python-brace-format
 msgid "{most}, or {last}"
+msgstr ""
+
+#, python-brace-format
+msgid "{plugin_type} configuration"
 msgstr ""
 
 msgid "© Copyright the author, unless otherwise credited"

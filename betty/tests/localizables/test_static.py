@@ -3,9 +3,7 @@ from gettext import NullTranslations
 import pytest
 from babel import Locale
 
-from betty.exception import HumanFacingException
 from betty.locale import default_locale, default_locale_tag, resolve_locale
-from betty.locale.error import UnknownLocale
 from betty.localizable import (
     LocalizableCount,
     ShorthandCountableStaticTranslations,
@@ -19,7 +17,7 @@ from betty.localizables.static import (
     MissingPluralTag,
     StaticTranslations,
 )
-from betty.localizer import Localizer, default_localizer
+from betty.localizer import Localizer
 
 
 class TestStaticTranslations:
@@ -101,29 +99,6 @@ class TestStaticTranslations:
     ) -> None:
         sut = StaticTranslations(translations)
         assert sut.translations == expected
-
-    def test_load__without_translations_should_error(self) -> None:
-        with pytest.raises(HumanFacingException):
-            StaticTranslations.load({})
-
-    def test_load__with_single_undetermined_translation(self) -> None:
-        localizable = "Hello, world!"
-        assert (
-            StaticTranslations.load(localizable).localize(default_localizer)
-            == localizable
-        )
-
-    def test_dump__with_static_translations_single_undetermined(self) -> None:
-        localizable = "Hello, world!"
-        assert StaticTranslations(localizable).dump() == localizable
-
-    def test_dump_localizable__with_static_translations(self) -> None:
-        localizable: ShorthandStaticTranslations = {
-            default_locale_tag: "Hello, world!",
-            "nl-NL": "Hallo, wereld!",
-        }
-
-        assert StaticTranslations(localizable).dump() == localizable
 
 
 class TestCountableStaticTranslations:
@@ -213,51 +188,3 @@ class TestCountableStaticTranslations:
             )
             == expected
         )
-
-    def test_load(self) -> None:
-        loaded = CountableStaticTranslations.load({
-            default_locale_tag: {
-                "one": "{count} thing",
-                "other": "{count} things",
-            },
-        })
-        assert loaded.count(1).localize(default_localizer) == "1 thing"
-
-    def test_load__without_locales(self) -> None:
-        with pytest.raises(HumanFacingException):
-            CountableStaticTranslations.load({})
-
-    def test_load__with_unknown_locale(self) -> None:
-        with pytest.raises(UnknownLocale):
-            CountableStaticTranslations.load({
-                "unknownlocale": {},
-            })
-
-    def test_load__with_missing_plural_tag(self) -> None:
-        with pytest.raises(MissingPluralTag):
-            CountableStaticTranslations.load({
-                default_locale_tag: {},
-            })
-
-    def test_load__with_invalid_plural_tag(self) -> None:
-        with pytest.raises(InvalidPluralTag):
-            CountableStaticTranslations.load({
-                default_locale_tag: {
-                    "one": "{count}",
-                    "other": "{count}",
-                    "invalid": "{count}",
-                },
-            })
-
-    def test_dump(self) -> None:
-        assert CountableStaticTranslations({
-            default_locale_tag: {
-                "one": "{count} thing",
-                "other": "{count} things",
-            }
-        }).dump() == {
-            default_locale_tag: {
-                "one": "{count} thing",
-                "other": "{count} things",
-            }
-        }

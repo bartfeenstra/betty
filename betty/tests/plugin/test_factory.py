@@ -4,8 +4,11 @@ import pytest
 
 from betty.exception import HumanFacingException
 from betty.factory import DataManufacturable, UnsupportedTarget
-from betty.indicator.selector import Attr
-from betty.plugin.factory import PluginManufacturer, PluginManufacturerError
+from betty.plugin.factory import (
+    PluginManufacturer,
+    PluginManufacturerError,
+    PluginManufacturerPorter,
+)
 from betty.service_level import ServiceLevel
 from betty.test_utils.data import DummyData
 from betty.test_utils.plugin import (
@@ -149,111 +152,6 @@ class TestPluginManufacturer:
         assert sut.plugin_data == sut.plugin_data
         assert sut.plugin_data == configuration
 
-    def test_load__without_id(self) -> None:
-        with pytest.raises(HumanFacingException):
-            PluginManufacturer.load({})
-
-    def test_load__minimal(self) -> None:
-        sut = DummyPluginManufacturer.load({"plugin": DummyPluginOne.plugin().id})
-        assert sut.plugin_id == DummyPluginOne.plugin().id
-        assert sut.plugin_data is Void
-
-    def test_load__minimal_compact(self) -> None:
-        sut = DummyPluginManufacturer.load(DummyPluginOne.plugin().id)
-        assert sut.plugin_id == DummyPluginOne.plugin().id
-        assert sut.plugin_data is Void
-
-    def test_load__with_configuration(self) -> None:
-        configuration: PortableData = {
-            "check": True,
-        }
-        sut = DummyPluginManufacturer.load({
-            "plugin": _RequiredDataManufacturableDummyPlugin.plugin().id,
-            "data": configuration,
-        })
-        assert sut.plugin_id == _RequiredDataManufacturableDummyPlugin.plugin().id
-        assert sut.plugin_data == configuration
-
-    def test_load_key(self) -> None:
-        sut = DummyPluginManufacturer.load_key(
-            {}, Attr("plugin"), DummyPluginOne.plugin().id
-        )
-        assert sut.plugin_id == DummyPluginOne.plugin().id
-        assert sut.plugin_data is Void
-
-    def test_load_key__with_configuration(self) -> None:
-        configuration: PortableData = {
-            "check": True,
-        }
-        sut = DummyPluginManufacturer.load_key(
-            {"data": configuration},
-            Attr("plugin"),
-            _RequiredDataManufacturableDummyPlugin.plugin().id,
-        )
-        assert sut.plugin_id == _RequiredDataManufacturableDummyPlugin.plugin().id
-        assert sut.plugin_data == configuration
-
-    def test_dump__minimal(self) -> None:
-        sut = DummyPluginManufacturer(DummyPluginOne.plugin())
-        assert sut.dump() == DummyPluginOne.plugin().id
-
-    def test_dump__with_configuration(self) -> None:
-        value = "Hello, world!"
-        sut = DummyPluginManufacturer(
-            _RequiredDataManufacturableDummyPlugin, DummyData(value)
-        )
-        assert sut.dump() == {
-            "plugin": _RequiredDataManufacturableDummyPlugin.plugin().id,
-            "data": {
-                "value": value,
-            },
-        }
-
-    def test_dump__with_portable_configuration(self) -> None:
-        portable_configuration: PortableData = {
-            "value": "Hello, world!",
-        }
-        sut = DummyPluginManufacturer(
-            _RequiredDataManufacturableDummyPlugin, portable_configuration
-        )
-        assert sut.dump() == {
-            "plugin": _RequiredDataManufacturableDummyPlugin.plugin().id,
-            "data": portable_configuration,
-        }
-
-    def test_dump_key__minimal(self) -> None:
-        sut = DummyPluginManufacturer(DummyPluginOne.plugin())
-        assert sut.dump_key(Attr("plugin")) == (
-            DummyPluginOne.plugin().id,
-            {},
-        )
-
-    def test_dump_key__with_configuration(self) -> None:
-        value = "Hello, world!"
-        sut = DummyPluginManufacturer(
-            _RequiredDataManufacturableDummyPlugin, DummyData(value)
-        )
-        assert sut.dump_key(Attr("plugin")) == (
-            _RequiredDataManufacturableDummyPlugin.plugin().id,
-            {
-                "data": {
-                    "value": value,
-                },
-            },
-        )
-
-    def test_dump_key__with_portable_configuration(self) -> None:
-        portable_configuration: PortableData = {
-            "value": "Hello, world!",
-        }
-        sut = DummyPluginManufacturer(
-            _RequiredDataManufacturableDummyPlugin, portable_configuration
-        )
-        assert sut.dump_key(Attr("plugin")) == (
-            _RequiredDataManufacturableDummyPlugin.plugin().id,
-            {"data": portable_configuration},
-        )
-
     async def test___call____with_required_data_manufacturable_without_data(
         self,
     ) -> None:
@@ -287,3 +185,115 @@ class TestPluginManufacturer:
         instance = await sut(self._SERVICES)
         assert isinstance(instance, _RequiredDataManufacturableDummyPlugin)
         assert instance.data.value == value
+
+
+class TestPluginManufacturerPorter:
+    def test_load__without_id(self) -> None:
+        with pytest.raises(HumanFacingException):
+            PluginManufacturerPorter(DummyPluginManufacturer).load({})
+
+    def test_load__minimal(self) -> None:
+        sut = PluginManufacturerPorter(DummyPluginManufacturer).load({
+            "plugin": DummyPluginOne.plugin().id
+        })
+        assert sut.plugin_id == DummyPluginOne.plugin().id
+        assert sut.plugin_data is Void
+
+    def test_load__minimal_compact(self) -> None:
+        sut = PluginManufacturerPorter(DummyPluginManufacturer).load(
+            DummyPluginOne.plugin().id
+        )
+        assert sut.plugin_id == DummyPluginOne.plugin().id
+        assert sut.plugin_data is Void
+
+    def test_load__with_configuration(self) -> None:
+        configuration: PortableData = {
+            "check": True,
+        }
+        sut = PluginManufacturerPorter(DummyPluginManufacturer).load({
+            "plugin": _RequiredDataManufacturableDummyPlugin.plugin().id,
+            "data": configuration,
+        })
+        assert sut.plugin_id == _RequiredDataManufacturableDummyPlugin.plugin().id
+        assert sut.plugin_data == configuration
+
+    def test_load_keyed(self) -> None:
+        sut = PluginManufacturerPorter(DummyPluginManufacturer).load_keyed(
+            DummyPluginOne.plugin().id, {}
+        )
+        assert sut.plugin_id == DummyPluginOne.plugin().id
+        assert sut.plugin_data is Void
+
+    def test_load_keyed__with_configuration(self) -> None:
+        configuration: PortableData = {
+            "check": True,
+        }
+        sut = PluginManufacturerPorter(DummyPluginManufacturer).load_keyed(
+            _RequiredDataManufacturableDummyPlugin.plugin().id, {"data": configuration}
+        )
+        assert sut.plugin_id == _RequiredDataManufacturableDummyPlugin.plugin().id
+        assert sut.plugin_data == configuration
+
+    def test_dump__minimal(self) -> None:
+        data = DummyPluginManufacturer(DummyPluginOne.plugin())
+        assert (
+            PluginManufacturerPorter(DummyPluginManufacturer).dump(data)
+            == DummyPluginOne.plugin().id
+        )
+
+    def test_dump__with_configuration(self) -> None:
+        value = "Hello, world!"
+        sut = DummyPluginManufacturer(
+            _RequiredDataManufacturableDummyPlugin, DummyData(value)
+        )
+        assert PluginManufacturerPorter(DummyPluginManufacturer).dump(sut) == {
+            "plugin": _RequiredDataManufacturableDummyPlugin.plugin().id,
+            "data": {
+                "value": value,
+            },
+        }
+
+    def test_dump__with_portable_configuration(self) -> None:
+        portable_configuration: PortableData = {
+            "value": "Hello, world!",
+        }
+        data = DummyPluginManufacturer(
+            _RequiredDataManufacturableDummyPlugin, portable_configuration
+        )
+        assert PluginManufacturerPorter(DummyPluginManufacturer).dump(data) == {
+            "plugin": _RequiredDataManufacturableDummyPlugin.plugin().id,
+            "data": portable_configuration,
+        }
+
+    def test_dump_keyed__minimal(self) -> None:
+        data = DummyPluginManufacturer(DummyPluginOne.plugin())
+        assert PluginManufacturerPorter(DummyPluginManufacturer).dump_keyed(data) == (
+            DummyPluginOne.plugin().id,
+            {},
+        )
+
+    def test_dump_keyed__with_configuration(self) -> None:
+        value = "Hello, world!"
+        data = DummyPluginManufacturer(
+            _RequiredDataManufacturableDummyPlugin, DummyData(value)
+        )
+        assert PluginManufacturerPorter(DummyPluginManufacturer).dump_keyed(data) == (
+            _RequiredDataManufacturableDummyPlugin.plugin().id,
+            {
+                "data": {
+                    "value": value,
+                },
+            },
+        )
+
+    def test_dump_keyed__with_portable_configuration(self) -> None:
+        portable_configuration: PortableData = {
+            "value": "Hello, world!",
+        }
+        data = DummyPluginManufacturer(
+            _RequiredDataManufacturableDummyPlugin, portable_configuration
+        )
+        assert PluginManufacturerPorter(DummyPluginManufacturer).dump_keyed(data) == (
+            _RequiredDataManufacturableDummyPlugin.plugin().id,
+            {"data": portable_configuration},
+        )

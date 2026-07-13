@@ -12,7 +12,6 @@ from betty.collections.keyed.adapter import MutableKeyedCollectionAdapter
 from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.plugin.definition import PluginDefinitionData
-from betty.indicator.selector import Attr
 from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
 from betty.plugin.resolve import ResolvablePluginId
@@ -57,7 +56,6 @@ def new_plugin_definition_datas_attr[PluginDefinitionT: PluginDefinition](
             ](
                 value=item,
                 label=plugin_type.type().label_plural,
-                key=Attr("id"),
                 factory=lambda: MutableKeyedCollectionAdapter(key=lambda item: item.id),
             ),
             label=label,

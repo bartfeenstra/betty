@@ -4,18 +4,19 @@ from betty.datas.aggregate.record import FieldDefinition, RecordDefinition
 from betty.datas.str import StrDefinition
 from betty.exception import HumanFacingException
 from betty.indicator.selector import Attr
-from betty.porters.record_mapping import RecordMappingPorter
+from betty.portable import Porter
+from betty.porters.fields import FieldsPorter
 from betty.tests.datas.aggregate.test_record import (
     RecordDefinitionTestFactoryRecord,
     RecordDefinitionTestRecord,
 )
 
 
-class TestRecordMappingPorter:
+class TestFieldsPorter:
     def test_load__with_value(self) -> None:
         field_name = "my_first_element"
-        sut = RecordMappingPorter(
-            RecordDefinition[RecordDefinitionTestRecord, Attr](
+        sut = FieldsPorter(
+            RecordDefinition[RecordDefinitionTestRecord, Porter, Attr](
                 cls=RecordDefinitionTestRecord,
                 label="-",
                 fields={Attr(field_name): FieldDefinition(StrDefinition(label="-"))},
@@ -27,8 +28,8 @@ class TestRecordMappingPorter:
 
     def test_load__without_value(self) -> None:
         field_name = "my_first_element"
-        sut = RecordMappingPorter(
-            RecordDefinition[RecordDefinitionTestRecord, Attr](
+        sut = FieldsPorter(
+            RecordDefinition[RecordDefinitionTestRecord, Porter, Attr](
                 cls=RecordDefinitionTestRecord,
                 label="-",
                 fields={Attr(field_name): FieldDefinition(StrDefinition(label="-"))},
@@ -39,8 +40,8 @@ class TestRecordMappingPorter:
 
     def test_load__with_factory(self) -> None:
         field_name = "my_first_element"
-        sut = RecordMappingPorter(
-            RecordDefinition[RecordDefinitionTestRecord, Attr](
+        sut = FieldsPorter(
+            RecordDefinition[RecordDefinitionTestRecord, Porter, Attr](
                 cls=RecordDefinitionTestRecord,
                 label="-",
                 fields={Attr(field_name): FieldDefinition(StrDefinition(label="-"))},
@@ -54,8 +55,8 @@ class TestRecordMappingPorter:
 
     def test_dump(self) -> None:
         field_name = "my_first_element"
-        sut = RecordMappingPorter(
-            RecordDefinition[RecordDefinitionTestRecord, Attr](
+        sut = FieldsPorter(
+            RecordDefinition[RecordDefinitionTestRecord, Porter, Attr](
                 cls=RecordDefinitionTestRecord,
                 label="-",
                 fields={Attr(field_name): FieldDefinition(StrDefinition(label="-"))},
@@ -64,29 +65,3 @@ class TestRecordMappingPorter:
         value = "Hello, world!"
         data = RecordDefinitionTestRecord(value)
         assert sut.dump(data) == {field_name: value}
-
-    def test_load_key(self) -> None:
-        field_name = "my_first_element"
-        sut = RecordMappingPorter(
-            RecordDefinition[RecordDefinitionTestRecord, Attr](
-                cls=RecordDefinitionTestRecord,
-                label="-",
-                fields={Attr(field_name): FieldDefinition(StrDefinition(label="-"))},
-            )
-        )
-        value = "Hello, world!"
-        data = sut.load_key({}, Attr(field_name), value)
-        assert data.my_first_element == value
-
-    def test_dump_key(self) -> None:
-        field_name = "my_first_element"
-        sut = RecordMappingPorter(
-            RecordDefinition[RecordDefinitionTestRecord, Attr](
-                cls=RecordDefinitionTestRecord,
-                label="-",
-                fields={Attr(field_name): FieldDefinition(StrDefinition(label="-"))},
-            )
-        )
-        value = "Hello, world!"
-        data = RecordDefinitionTestRecord(value)
-        assert sut.dump_key(data, Attr(field_name)) == (value, {})

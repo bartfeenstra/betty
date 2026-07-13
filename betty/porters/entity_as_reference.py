@@ -20,9 +20,8 @@ class EntityAsReferencePorter[AssociateT: Entity](
     """
 
     @override
-    @classmethod
-    def load(cls, portable: PortableData, /) -> EntityReference[AssociateT]:
-        return EntityReference.data().porter.load(portable)
+    def load(self, data: PortableData, /) -> EntityReference[AssociateT]:
+        return EntityReference.data().porter.load(data)
 
     @override
     @classmethod

@@ -6,20 +6,19 @@ from __future__ import annotations
 
 from typing import final, override
 
-from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.plugin.definition import PluginDefinitionDefinition
 from betty.datas.plugin.definition.human_facing import (
     CountableHumanFacingPluginDefinitionData,
 )
 from betty.locale import default_locale
-from betty.localizables.gettext import _
 from betty.localizables.static import CountableStaticTranslations
 from betty.place_type import PlaceType, PlaceTypeDefinition
 from betty.sample import Sample
 
 
 @final
-@ObjectDefinition(
-    label=_("Place type configuration"),
+@PluginDefinitionDefinition(
+    PlaceTypeDefinition,
     samples=[
         lambda: Sample(
             PlaceTypeDefinitionData(

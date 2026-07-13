@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, final
 
 from betty.assertions.str import assert_str
 from betty.data import DataDefinition
+from betty.portable import Porter
 from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
@@ -15,7 +16,7 @@ if TYPE_CHECKING:
 
 
 @final
-class StrDefinition(DataDefinition[str, str]):
+class StrDefinition(DataDefinition[str, Porter[str, str]]):
     """
     A string data definition.
     """
@@ -30,5 +31,8 @@ class StrDefinition(DataDefinition[str, str]):
             cls=str,
             label=label,
             description=description,
-            porter=CallbackPorter(assert_str(), str),
+            porter=CallbackPorter(
+                assert_str(),  # ty:ignore[invalid-argument-type]
+                str,
+            ),
         )

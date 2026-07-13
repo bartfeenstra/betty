@@ -4,20 +4,21 @@ Record data types.
 
 from __future__ import annotations
 
-from abc import abstractmethod
 from inspect import signature
-from typing import TYPE_CHECKING, Any, Final, Generic, Self, TypeVar, final, override
+from typing import TYPE_CHECKING, Any, Final, Self, final
 
 from betty.data import (
     DataDefinition,
     ResolvableDataDefinition,
+    ResolvableDataDefinitionManufacturable,
     Sample,
     Samples,
     resolve_data_definition,
 )
 from betty.indicator.selector import Element
 from betty.localizable import resolve_localizable
-from betty.portable import Portable, PortableData, Porter
+from betty.portable import Porter
+from betty.porters.fields import FieldsPorter
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping, MutableMapping
@@ -98,71 +99,16 @@ class FieldDefinition[
         return self._omit_dump(owner, data)
 
 
-_PortableRecordElementT = TypeVar(
-    "_PortableRecordElementT", bound=Element[str], default=Element[str], covariant=True
-)
-
-
-class PortableRecord(
-    Portable,
-    Generic[_PortableRecordElementT],  # noqa: UP046
-):
-    """
-    A record object capable of dumping and loading itself to and from portable data.
-    """
-
-    @classmethod
-    @abstractmethod
-    def load_key(
-        cls, portable: PortableData, key: _PortableRecordElementT, portable_key: str, /
-    ) -> Self:
-        """
-        Create a new instance from portable data and a portable primary key.
-
-        :raises betty.exception.HumanFacingException: Raised if the portable data is invalid.
-        """
-
-    @abstractmethod
-    def dump_key(self, key: _PortableRecordElementT, /) -> tuple[str, PortableData]:
-        """
-        Dump the instance to portable data and a portable primary key.
-
-        :raises betty.portable.error.NotPortable: Raised if any part of the data is not portable.
-        """
-
-
-class RecordPorter[DataClsT, ElementT: Element[str] = Element[str]](Porter[DataClsT]):
-    """
-    An object capable of dumping and loading record data to and from portable data.
-    """
-
-    @abstractmethod
-    def load_key(
-        self, portable: PortableData, key: ElementT, portable_key: str, /
-    ) -> DataClsT:
-        """
-        Create a new data instance from portable data and a portable primary key.
-
-        :raises betty.exception.HumanFacingException: Raised if the portable data is invalid.
-        """
-
-    @abstractmethod
-    def dump_key(self, data: DataClsT, key: ElementT, /) -> tuple[str, PortableData]:
-        """
-        Dump the data to portable data and a portable primary key.
-        """
-
-
-class RecordDefinition[DataClsT, ElementT: Element[str] = Element[str]](
-    DataDefinition[DataClsT]
-):
+class RecordDefinition[
+    DataClsT,
+    PorterT: Porter = Porter,
+    ElementT: Element[str] = Element[str],
+](DataDefinition[DataClsT, PorterT]):
     """
     A record data definition.
 
     Records have explicitly defined fields.
     """
-
-    _porter: RecordPorter[DataClsT] | None
 
     def __init__(
         self,
@@ -173,22 +119,26 @@ class RecordDefinition[DataClsT, ElementT: Element[str] = Element[str]](
         description: ResolvableLocalizable | None = None,
         samples: Iterable[Callable[[], Sample[DataClsT]] | Samples] = (),
         factory: Callable[..., DataClsT] | None = None,
-        porter: RecordPorter[DataClsT] | None = None,
+        porter: ResolvableDataDefinitionManufacturable[
+            Intersection[PorterT, Porter[DataClsT]], Self, DataClsT
+        ]
+        | None = None,
         **kwargs: Any,
     ):
+        self._factory = factory
         self._fields: MutableMapping[ElementT, FieldDefinition[DataClsT, Any]] = (
             {} if fields is None else dict(fields)
         )
+
         super().__init__(
             *args,
             cls=cls,
             label=label,
             description=description,
             samples=samples,
-            porter=porter,
+            porter=porter or (lambda record, __: FieldsPorter(record)),
             **kwargs,
         )
-        self._factory = factory
 
     @property
     def factory(self) -> Callable[..., DataClsT]:
@@ -205,21 +155,6 @@ class RecordDefinition[DataClsT, ElementT: Element[str] = Element[str]](
         raise ValueError(
             "This definition does not have a factory. Either set a data class, or provide a factory when initializing the definition."
         )
-
-    @override
-    @property
-    def porter(self) -> RecordPorter[DataClsT]:
-        from betty.porters.portable_record import PortableRecordPorter
-        from betty.porters.record_mapping import RecordMappingPorter
-
-        if self._porter is None:
-            if self.cls and issubclass(self.cls, PortableRecord):
-                self._porter = PortableRecordPorter(self.cls)  # ty:ignore[invalid-assignment]
-            else:
-                self._porter = RecordMappingPorter(  # ty:ignore[invalid-assignment]
-                    self,  # ty:ignore[invalid-argument-type]
-                )
-        return self._porter  # ty:ignore[invalid-return-type]
 
     @property
     def fields(self) -> Mapping[ElementT, FieldDefinition[DataClsT, Any]]:

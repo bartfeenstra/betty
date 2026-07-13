@@ -15,19 +15,17 @@ from betty.assertions.record import Field, assert_record
 from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.owner import OwnerAttr
 from betty.data import Data, DataDefinition
-from betty.datas.aggregate.record import PortableRecord
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.exception import HumanFacingException
 from betty.factory import DataManufacturable, FactoryError
 from betty.functools import Pipeline
 from betty.importlib import fully_qualified_name
-from betty.indicator.selector import Attr
 from betty.localizables.gettext import _
 from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
-from betty.portable import PortableData
+from betty.portable import KeyedPorter, PortableData
 from betty.prop import HasProps
 from betty.sample import Samplable, Sample, Samples, Size
 from betty.typing import Void, VoidType
@@ -50,7 +48,6 @@ _PluginManufacturerPluginDefinitionT = TypeVar(
 
 
 class PluginManufacturer(
-    PortableRecord[Attr],
     Samplable,
     Data["PluginManufacturerDefinition"],
     HasProps,
@@ -67,7 +64,7 @@ class PluginManufacturer(
     """
 
     plugin_data = OwnerAttr(
-        DataDefinition[Data | PortableData | VoidType, PortableData](label=_("Data"))
+        DataDefinition[Data | PortableData | VoidType](label=_("Data"))
     )
     """
     Get the plugin's own data.
@@ -91,11 +88,7 @@ class PluginManufacturer(
             self.plugin_id,
             Void
             if self.plugin_data is Void
-            else dumps(
-                self.plugin_data.data().porter.dump(self.plugin_data)
-                if isinstance(self.plugin_data, Data)
-                else self.plugin_data,
-            ),
+            else dumps(PluginManufacturerPorter._dump_data(self.plugin_data)),
         ))
 
     @final
@@ -104,55 +97,6 @@ class PluginManufacturer(
         if not isinstance(other, type(self)):
             return NotImplemented
         return hash(self) == hash(other)
-
-    _load = assert_if_else(
-        Pipeline(MachineName.load) | (lambda plugin_id: {"plugin": plugin_id}),
-        assert_record(
-            Field("plugin", MachineName.load),
-            Field("data", optional=True),
-        ),
-    )
-
-    @final
-    @override
-    @classmethod
-    def load(cls, portable: PortableData, /) -> Self:
-        record = cls._load(portable)
-        return cls(record["plugin"], record.get("data", Void))
-
-    _load_keyed = assert_mapping()
-
-    @final
-    @override
-    @classmethod
-    def load_key(cls, portable: PortableData, key: Attr, portable_key: str, /) -> Self:
-        return cls.load({**cls._load_keyed(portable), "plugin": portable_key})
-
-    @final
-    def _dump_data(self, configuration: Data | PortableData) -> PortableData:
-        if isinstance(configuration, Data):
-            return configuration.data().porter.dump(
-                configuration,  # ty:ignore[invalid-argument-type]
-            )
-        return configuration
-
-    @final
-    @override
-    def dump(self) -> PortableData:
-        data = self.plugin_data
-        if data is Void:
-            return self.plugin_id
-        return {
-            "plugin": self.plugin_id,
-            "data": self._dump_data(data),
-        }
-
-    @final
-    @override
-    def dump_key(self, key: Attr, /) -> tuple[str, PortableData]:
-        return self.plugin_id, {} if self.plugin_data is Void else {
-            "data": self._dump_data(self.plugin_data)
-        }
 
     @final
     async def __call__(self, services: ServiceLevel, /) -> _PluginManufacturerPluginT:
@@ -242,8 +186,70 @@ class PluginManufacturer(
 
 
 @final
+class PluginManufacturerPorter[PluginManufacturerT: PluginManufacturer](
+    KeyedPorter[PluginManufacturerT]
+):
+    """
+    Port :py:class:`betty.plugin.factory.PluginManufacturer` to portable data.
+    """
+
+    def __init__(self, cls: type[PluginManufacturerT]):
+        self._cls = cls
+
+    _load = assert_if_else(
+        Pipeline(MachineName.data().porter.load)
+        | (lambda plugin_id: {"plugin": plugin_id}),
+        assert_record(
+            Field("plugin", MachineName.data().porter.load),
+            Field("data", optional=True),
+        ),
+    )
+
+    @final
+    @override
+    def load(self, data: PortableData, /) -> PluginManufacturerT:
+        record = self._load(data)
+        return self._cls(record["plugin"], record.get("data", Void))
+
+    _load_keyed = assert_mapping()
+
+    @final
+    @override
+    def load_keyed(self, key: str, data: PortableData, /) -> PluginManufacturerT:
+        return self.load({**self._load_keyed(data), "plugin": key})
+
+    @final
+    @classmethod
+    def _dump_data(cls, configuration: Data | PortableData) -> PortableData:
+        if isinstance(configuration, Data):
+            return configuration.data().porter.dump(configuration)
+        return configuration
+
+    @final
+    @override
+    def dump(self, data: PluginManufacturerT, /) -> PortableData:
+        plugin_data = data.plugin_data
+        if plugin_data is Void:
+            return data.plugin_id
+        return {
+            "plugin": data.plugin_id,
+            "data": self._dump_data(plugin_data),
+        }
+
+    @final
+    @override
+    def dump_keyed(self, data: PluginManufacturerT, /) -> tuple[str, PortableData]:
+        return data.plugin_id, {} if data.plugin_data is Void else {
+            "data": self._dump_data(data.plugin_data)
+        }
+
+
+@final
 class PluginManufacturerDefinition[PluginDefinitionT: PluginClsDefinition, PluginT](
-    ObjectDefinition[PluginManufacturer[PluginDefinitionT, PluginT]]
+    ObjectDefinition[
+        PluginManufacturer[PluginDefinitionT, PluginT],
+        KeyedPorter[PluginManufacturer[PluginDefinitionT, PluginT]],
+    ]
 ):
     """
     Define a plugin manufacturer.
@@ -256,7 +262,10 @@ class PluginManufacturerDefinition[PluginDefinitionT: PluginClsDefinition, Plugi
         ],
         /,
     ):
-        super().__init__(label=plugin_type.type().label)
+        super().__init__(
+            label=plugin_type.type().label,
+            porter=lambda _, cls: PluginManufacturerPorter(cls),
+        )
         self.plugin_type: Final[type[PluginDefinition]] = plugin_type
 
 

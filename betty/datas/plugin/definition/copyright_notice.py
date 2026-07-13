@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, final, override
 
 from betty.attrs.localizable import new_localizable_attr
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
-from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.plugin.definition import PluginDefinitionDefinition
 from betty.datas.plugin.definition.human_facing import HumanFacingPluginDefinitionData
 from betty.localizables.gettext import _
 from betty.sample import Sample
@@ -18,8 +18,8 @@ if TYPE_CHECKING:
 
 
 @final
-@ObjectDefinition(
-    label=_("Copyright notice configuration"),
+@PluginDefinitionDefinition(
+    CopyrightNoticeDefinition,
     samples=[
         lambda: Sample(
             CopyrightNoticeDefinitionData(

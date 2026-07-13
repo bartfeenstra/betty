@@ -5,47 +5,40 @@ Keyed collection definitions.
 from __future__ import annotations
 
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, final, override
+from typing import TYPE_CHECKING, final, override
 
 from betty.assertions.mapping import assert_mapping
 from betty.assertions.sequence import assert_sequence
 from betty.collection.keyed import MutableKeyedCollection
 from betty.datas.aggregate.collection import CollectionDefinition
-from betty.indicator.selector import Element
 from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from betty.data import Data
-    from betty.datas.aggregate.record import RecordDefinition
+    from betty.data import DataDefinition, ResolvableDataDefinition
     from betty.localizable import ResolvableLocalizable
     from betty.portable import (
+        KeyedPorter,
         PortableData,
         PortableMapping,
         PortableSequence,
     )
-    from betty.typing import Intersection
 
 
 class KeyedCollectionDefinition[
     MutableKeyedCollectionT: MutableKeyedCollection,
     ValueT,
-    ElementT: Element[str] = Element[str],
 ](CollectionDefinition[MutableKeyedCollectionT, Iterable[ValueT]]):
     """
     A definition for :py:class:`betty.collection.keyed.MutableKeyedCollection`.
     """
 
-    _item: RecordDefinition[Any, ElementT]
-
     def __init__(
         self,
         *,
         cls: type[MutableKeyedCollection] | None = None,
-        value: RecordDefinition[ValueT, ElementT]
-        | type[Intersection[ValueT, Data[RecordDefinition[Any, ElementT]]]],
-        key: ElementT,
+        value: ResolvableDataDefinition[DataDefinition[ValueT, KeyedPorter[ValueT]]],
         order_dump: bool = False,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
@@ -59,7 +52,6 @@ class KeyedCollectionDefinition[
             item=value,
             factory=factory,
         )
-        self._key = key
         self._order_dump = order_dump
 
     def _load(self, portable: PortableData, /) -> MutableKeyedCollectionT:
@@ -67,8 +59,8 @@ class KeyedCollectionDefinition[
             values = assert_sequence(self.item.porter.load)(portable)
         else:
             values = [
-                self._item.porter.load_key(portable_item, self._key, portable_key)
-                for portable_key, portable_item in assert_mapping()(portable).items()
+                self._item.porter.load_keyed(*x)
+                for x in assert_mapping()(portable).items()
             ]
 
         loaded = self.new()
@@ -80,9 +72,7 @@ class KeyedCollectionDefinition[
     ) -> PortableMapping | PortableSequence:
         if self._order_dump:
             return [self.item.porter.dump(value) for value in data]
-        return dict(
-            self._item.porter.dump_key(item_data, self._key) for item_data in data
-        )
+        return dict(self._item.porter.dump_keyed(item_data) for item_data in data)
 
     @final
     @override

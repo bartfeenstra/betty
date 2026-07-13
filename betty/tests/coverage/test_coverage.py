@@ -203,10 +203,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/datas/aggregate/collection/__init__.py": {
         "CollectionDefinition": MissingReason.ABSTRACT,
     },
-    "betty/datas/aggregate/record/__init__.py": {
-        "PortableRecord": MissingReason.ABSTRACT,
-        "RecordPorter": MissingReason.ABSTRACT,
-    },
     "betty/datas/date.py": {
         "AnyDateDefinition": MissingReason.STATIC_CONTENT_ONLY,
     },
@@ -528,6 +524,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "OrderedPluginClsDefinition": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/portable/__init__.py": {
+        "KeyedPorter": MissingReason.ABSTRACT,
         "Portable": MissingReason.ABSTRACT,
         "Porter": MissingReason.ABSTRACT,
     },

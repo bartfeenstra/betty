@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, final, override
 
 from betty.attrs.localizable import new_localizable_attr
-from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.plugin.definition import PluginDefinitionDefinition
 from betty.datas.plugin.definition.human_facing import HumanFacingPluginDefinitionData
 from betty.license import License, LicenseDefinition
 from betty.localizables.gettext import _
@@ -18,8 +18,8 @@ if TYPE_CHECKING:
 
 
 @final
-@ObjectDefinition(
-    label=_("License configuration"),
+@PluginDefinitionDefinition(
+    LicenseDefinition,
     samples=[
         lambda: Sample(
             LicenseDefinitionData(

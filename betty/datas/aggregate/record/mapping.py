@@ -9,12 +9,14 @@ from typing import Any, final
 
 from betty.datas.aggregate.record import RecordDefinition
 from betty.indicator.selector import Key
+from betty.portable import Porter
 
 
 @final
-class TypedMappingDefinition[MutableMappingT: MutableMapping[str, Any]](
-    RecordDefinition[MutableMappingT, Key]
-):
+class TypedMappingDefinition[
+    MutableMappingT: MutableMapping[str, Any],
+    PorterT: Porter[MutableMapping] = Porter,
+](RecordDefinition[MutableMappingT, PorterT, Key]):
     """
     A typed mapping definition.
 

@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, final
 
 from betty.assertions.int import assert_int
 from betty.data import DataDefinition
+from betty.portable import Porter
 from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
@@ -15,7 +16,7 @@ if TYPE_CHECKING:
 
 
 @final
-class IntDefinition(DataDefinition[int, int]):
+class IntDefinition(DataDefinition[int, Porter[int, int]]):
     """
     An integer data definition.
     """

@@ -14,45 +14,6 @@ from betty.plugin.cls import Plugin, PluginClsDefinition
 if TYPE_CHECKING:
     from betty.typing import Intersection
 
-type ResolvablePluginTypeDefinition = (
-    PluginTypeDefinition | type[PluginDefinition] | ResolvablePluginDefinition
-)
-
-
-type ResolvablePluginTypeId = ResolvablePluginTypeDefinition | ResolvableMachineName
-"""
-Use :py:func:`betty.plugin.resolve_plugin_type_id` to resolve this to a plugin type ID.
-"""
-
-
-@overload
-def resolve_plugin_type_id(plugin_type_id: ResolvablePluginTypeId, /) -> MachineName:
-    pass
-
-
-@overload
-def resolve_plugin_type_id(plugin_type_id: Any, /) -> Never:
-    pass
-
-
-def resolve_plugin_type_id(plugin_type_id):
-    """
-    Resolve a plugin type identifier to a plugin type ID.
-
-    :raises ValueError: Raised if the value cannot be resolved to a plugin type ID.
-    """
-    if isinstance(plugin_type_id, PluginTypeDefinition):
-        return plugin_type_id.id
-    if isinstance(plugin_type_id, str):
-        return MachineName.resolve(plugin_type_id)
-    if isinstance(plugin_type_id, type) and issubclass(
-        plugin_type_id, PluginDefinition
-    ):
-        return plugin_type_id.type().id
-    with suppress(ValueError):
-        return resolve_plugin_definition(plugin_type_id).type().id
-    raise ValueError(f"'{plugin_type_id}' cannot be resolved to a plugin type ID.")
-
 
 type ResolvablePluginDefinition[
     PluginDefinitionT: PluginDefinition = PluginDefinition
@@ -123,3 +84,50 @@ def resolve_plugin_id(plugin_id):
     with suppress(ValueError):
         return resolve_plugin_definition(plugin_id).id
     raise ValueError(f"'{plugin_id}' cannot be resolved to a plugin ID.") from None
+
+
+type ResolvablePluginTypeDefinition[PluginDefinitionT: PluginDefinition] = (
+    PluginTypeDefinition[PluginDefinitionT]
+    | type[PluginDefinitionT]
+    | ResolvablePluginDefinition[PluginDefinitionT]
+)
+
+
+def resolve_plugin_type_definition[PluginDefinitionT: PluginDefinition](
+    plugin_type_definition: ResolvablePluginTypeDefinition[PluginDefinitionT],
+) -> PluginTypeDefinition[PluginDefinitionT]:
+    """
+    Resolve a value to a plugin type definition.
+    """
+    if isinstance(plugin_type_definition, PluginTypeDefinition):
+        return plugin_type_definition
+    if isinstance(plugin_type_definition, type) and issubclass(
+        plugin_type_definition, PluginDefinition
+    ):
+        return plugin_type_definition.type()
+    return resolve_plugin_definition(plugin_type_definition).type()
+
+
+type ResolvablePluginTypeId = ResolvablePluginTypeDefinition | ResolvableMachineName
+"""
+Use :py:func:`betty.plugin.resolve_plugin_type_id` to resolve this to a plugin type ID.
+"""
+
+
+@overload
+def resolve_plugin_type_id(plugin_type_id: ResolvablePluginTypeId, /) -> MachineName:
+    pass
+
+
+@overload
+def resolve_plugin_type_id(plugin_type_id: Any, /) -> Never:
+    pass
+
+
+def resolve_plugin_type_id(plugin_type_id):
+    """
+    Resolve a plugin type identifier to a plugin type ID.
+    """
+    if isinstance(plugin_type_id, str):
+        return MachineName.resolve(plugin_type_id)
+    return resolve_plugin_type_definition(plugin_type_id).id

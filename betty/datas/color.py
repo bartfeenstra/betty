@@ -11,6 +11,7 @@ from betty.assertions.str import assert_str
 from betty.data import DataDefinition
 from betty.exception import HumanFacingException
 from betty.localizables.gettext import _
+from betty.portable import Porter
 from betty.porters.callback import CallbackPorter
 from betty.sample import Sample
 
@@ -31,7 +32,7 @@ def _assert_hex(color: str) -> str:
 
 
 @final
-class ColorDefinition(DataDefinition[str, str]):
+class ColorDefinition(DataDefinition[str, Porter[str, str]]):
     """
     Define a color.
     """

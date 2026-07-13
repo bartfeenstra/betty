@@ -7,17 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-13 13:08+0100\n"
+"POT-Creation-Date: 2026-07-14 17:08+0100\n"
 "PO-Revision-Date: 2026-07-13 12:30+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
-"Language: es-ES\n"
+"Language: es_ES\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-5-x/es/>\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
-"X-Generator: Weblate 2026.7.1.dev0\n"
 
 #, python-brace-format
 msgid "\"{color}\" is not a valid hexadecimal color, such as #ffc0cb."
@@ -463,9 +462,6 @@ msgstr "Derechos de autor de los colaboradores de Wikipedia"
 msgid "Copyright notice"
 msgstr "Aviso de derechos de autor"
 
-msgid "Copyright notice configuration"
-msgstr "Configuración de aviso de derechos de autor"
-
 msgid "Copyright notices"
 msgstr "Avisos de derechos de autor"
 
@@ -679,9 +675,6 @@ msgstr "Evento"
 msgid "Event type"
 msgstr "Tipo de evento"
 
-msgid "Event type configuration"
-msgstr "Configuración de tipo de evento"
-
 msgid "Event types"
 msgstr "Tipos de eventos"
 
@@ -772,9 +765,6 @@ msgstr "Impreciso"
 
 msgid "Gender"
 msgstr "Género"
-
-msgid "Gender configuration"
-msgstr "Configuración de género"
 
 msgid "Genders"
 msgstr "Géneros"
@@ -952,9 +942,6 @@ msgstr "Última página"
 
 msgid "License"
 msgstr "Licencia"
-
-msgid "License configuration"
-msgstr "Configuración de licencia"
 
 msgid "Licenses"
 msgstr "Licencias"
@@ -1281,9 +1268,6 @@ msgstr "Nombres de lugar"
 msgid "Place type"
 msgstr "Tipo de lugar"
 
-msgid "Place type configuration"
-msgstr "Configuración de tipo de lugar"
-
 msgid "Place types"
 msgstr "Tipos de lugar"
 
@@ -1455,9 +1439,6 @@ msgstr "Jubilaciones"
 
 msgid "Role"
 msgstr "Rol"
-
-msgid "Role configuration"
-msgstr "Configuración de rol"
 
 msgid "Roles"
 msgstr "Roles"
@@ -2679,9 +2660,14 @@ msgstr "{most}, y {last}"
 msgid "{most}, or {last}"
 msgstr "{most}, o {last}"
 
+#, python-brace-format
+msgid "{plugin_type} configuration"
+msgstr ""
+
 msgid "© Copyright the author, unless otherwise credited"
 msgstr "© Derechos de autor al autore, a menos que se indique lo contrario"
 
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Derechos de autor {author}, a menos que se indique lo contrario"
+
