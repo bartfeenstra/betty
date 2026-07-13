@@ -26,7 +26,7 @@ from betty.json_schemas.static_translations import StaticTranslationsSchema
 from betty.linked_data import JsonLdObject, dump_context
 from betty.localizable.linked_data import dump_linked_data
 from betty.localizables.gettext import _, ngettext
-from betty.localizables.markup import AllEnumeration
+from betty.localizables.markup import JoinAnd
 from betty.privacy import Privacy
 from betty.roles.subject import Subject
 
@@ -142,9 +142,7 @@ class Event(
             and presence.person.public
         ]
         if subjects:
-            format_kwargs["subjects"] = AllEnumeration(
-                *(person.label for person in subjects)
-            )
+            format_kwargs["subjects"] = JoinAnd(*(person.label for person in subjects))
 
         if subjects:
             return _("{event_type} of {subjects}").format(**format_kwargs)

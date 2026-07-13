@@ -163,7 +163,7 @@ class UnorderedList(_List):
         return "-"
 
 
-class _Enumeration(_LocalizableSequence, Localizable):
+class _TwoPartJoin(_LocalizableSequence, Localizable):
     _LOCALIZABLE: ClassVar[Localizable]
 
     @override
@@ -181,7 +181,7 @@ class _Enumeration(_LocalizableSequence, Localizable):
 
 
 @final
-class AnyEnumeration(_Enumeration):
+class JoinOr(_TwoPartJoin):
     """
     An enumeration where any of the localizables may be applicable.
     """
@@ -190,7 +190,7 @@ class AnyEnumeration(_Enumeration):
 
 
 @final
-class AllEnumeration(_Enumeration):
+class JoinAnd(_TwoPartJoin):
     """
     An enumeration where all of the localizables are applicable.
     """
@@ -204,6 +204,6 @@ def do_you_mean(*available_options: Any) -> Localizable:
     """
     if available_options:
         return _("Do you mean {available_options}?").format(
-            available_options=AnyEnumeration(*sorted(map(str, available_options)))
+            available_options=JoinOr(*sorted(map(str, available_options)))
         )
     return _("There are no available options.")

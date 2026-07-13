@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, final
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.exception import HumanFacingException
 from betty.localizables.gettext import _, ngettext
-from betty.localizables.markup import AnyEnumeration
+from betty.localizables.markup import JoinOr
 from betty.localizables.plain import Plain
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
@@ -102,7 +102,7 @@ def serializer_for(
             'Unsupported file "{unsupported_type}". Supported types are: {available_types}.'
         ).format(
             unsupported_type=extension,
-            available_types=AnyEnumeration(*[
+            available_types=JoinOr(*[
                 Plain("{extension} ({available_type})").format(
                     extension=extension,
                     available_type=available_serializer.plugin().label,

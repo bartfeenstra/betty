@@ -17,7 +17,7 @@
     {% set formatted_subject %}{% include 'entity/label--person.html.j2' %}{% endset %}
     {% do ns.formatted_subjects.append(formatted_subject) %}
 {% endfor %}
-{%- set formatted_subjects = ns.formatted_subjects | join(', ') %}
+{%- set formatted_subjects = localizable_join_and(*ns.formatted_subjects) | localize | safe %}
 {%- if non_context_subjects | length == 0 -%}
     {{ formatted_event }}
 {%- else -%}

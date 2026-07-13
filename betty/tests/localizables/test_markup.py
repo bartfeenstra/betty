@@ -4,9 +4,9 @@ from gettext import NullTranslations
 import pytest
 
 from betty.localizables.markup import (
-    AllEnumeration,
-    AnyEnumeration,
     Chain,
+    JoinAnd,
+    JoinOr,
     Lines,
     OrderedList,
     Paragraph,
@@ -200,7 +200,7 @@ class TestChain:
         assert sut.localize(default_localizer) == expected
 
 
-class TestAnyEnumeration:
+class TestJoinOr:
     @pytest.mark.parametrize(
         ("expected", "localizables"),
         [
@@ -218,11 +218,11 @@ class TestAnyEnumeration:
     def test(
         self, expected: str, localizables: Sequence[ResolvableLocalizable]
     ) -> None:
-        sut = AnyEnumeration(*localizables)
+        sut = JoinOr(*localizables)
         assert sut.localize(default_localizer) == expected
 
 
-class TestAllEnumeration:
+class TestJoinAnd:
     @pytest.mark.parametrize(
         ("expected", "localizables"),
         [
@@ -240,5 +240,5 @@ class TestAllEnumeration:
     def test(
         self, expected: str, localizables: Sequence[ResolvableLocalizable]
     ) -> None:
-        sut = AllEnumeration(*localizables)
+        sut = JoinAnd(*localizables)
         assert sut.localize(default_localizer) == expected

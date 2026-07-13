@@ -14,7 +14,7 @@ from betty.assertions.path import assert_path
 from betty.error import FileNotFound
 from betty.exception import HumanFacingException
 from betty.localizables.gettext import _
-from betty.localizables.markup import AnyEnumeration
+from betty.localizables.markup import JoinOr
 from betty.portable.file import assert_load_file
 from betty.project import Project, ProjectData
 
@@ -99,7 +99,7 @@ async def _read_project_configuration(
             _(
                 "Could not find any of the following configuration files in {project_directory_path}: {configuration_file_names}."
             ).format(
-                configuration_file_names=AnyEnumeration(
+                configuration_file_names=JoinOr(
                     *(
                         str(x.relative_to(project_directory))
                         for x in try_configuration_files

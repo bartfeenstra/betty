@@ -33,7 +33,7 @@ from betty.localizable import (
 )
 from betty.localizables.gettext import _
 from betty.localizables.markup import (
-    AllEnumeration,
+    JoinAnd,
     Paragraphs,
     UnorderedList,
     do_you_mean,
@@ -99,7 +99,7 @@ class CountableStaticTranslations(CountableLocalizable, Portable):
                             "Invalid plural tag(s) {plural_tags} for {locale} translations."
                         ).format(
                             locale=to_language_tag(locale),
-                            plural_tags=AllEnumeration(
+                            plural_tags=JoinAnd(
                                 *self._format_plural_tags(invalid_plural_tags)
                             ),
                         ),
@@ -115,7 +115,7 @@ class CountableStaticTranslations(CountableLocalizable, Portable):
                             "Missing plural tag(s) {plural_tags} for {locale} translations."
                         ).format(
                             locale=to_language_tag(locale),
-                            plural_tags=AllEnumeration(
+                            plural_tags=JoinAnd(
                                 *self._format_plural_tags(missing_plural_tags)
                             ),
                         ),

@@ -77,7 +77,7 @@ from betty.license import LicenseManufacturer
 from betty.locale import from_language_tag
 from betty.locale.error import LocaleError
 from betty.localizables.gettext import _
-from betty.localizables.markup import AnyEnumeration
+from betty.localizables.markup import JoinOr
 from betty.localizables.static import StaticTranslations
 from betty.machine_name import MachineName
 from betty.media_type import InvalidMediaType, MediaType
@@ -439,7 +439,7 @@ class GrampsLoader:
         raise UserFacingGrampsError(
             _(
                 "The Gramps extension can only load the following file types: {file_extensions}"
-            ).format(file_extensions=AnyEnumeration(*sorted(_gramps_extensions)))
+            ).format(file_extensions=JoinOr(*sorted(_gramps_extensions)))
         )
 
     async def _load_file_gramps_import(self, file: Path) -> None:
