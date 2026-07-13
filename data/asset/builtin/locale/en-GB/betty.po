@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-06 22:14+0100\n"
-"PO-Revision-Date: 2026-07-07 17:21+0000\n"
+"PO-Revision-Date: 2026-07-13 07:49+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: en-GB\n"
 "Language-Team: English (United Kingdom) <https://hosted.weblate.org/projects/betty/betty-0-5-x/en_GB/>\n"
@@ -56,7 +56,7 @@ msgid "%(event)s with %(subjects)s"
 msgstr "%(event)s with %(subjects)s"
 
 msgid "A Betty demonstration"
-msgstr ""
+msgstr "A Betty demonstration"
 
 msgid "A countable localizable string"
 msgstr ""
@@ -444,7 +444,7 @@ msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
 msgstr "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
 
 msgid "Coordinates"
-msgstr ""
+msgstr "Coordinates"
 
 msgid "Copyright"
 msgstr "Copyright"
@@ -841,7 +841,7 @@ msgid "Help improve the translations"
 msgstr ""
 
 msgid "Home"
-msgstr ""
+msgstr "Home"
 
 msgid "I'm sorry, dear, but it seems there is nothing to show."
 msgstr "I'm sorry, dear, but it seems there is nothing to show."
@@ -1060,7 +1060,7 @@ msgid "Machine name"
 msgstr ""
 
 msgid "Man"
-msgstr ""
+msgstr "Man"
 
 msgid "Map"
 msgstr ""
@@ -1093,7 +1093,7 @@ msgid "Media types"
 msgstr ""
 
 msgid "Men"
-msgstr ""
+msgstr "Men"
 
 msgid "Menu"
 msgstr "Menu"
@@ -1931,7 +1931,7 @@ msgid "Witnesses"
 msgstr "Witnesses"
 
 msgid "Woman"
-msgstr ""
+msgstr "Woman"
 
 msgid "Women"
 msgstr ""
@@ -2414,8 +2414,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} man"
 msgid_plural "{count} men"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} man"
+msgstr[1] "{count} men"
 
 #, python-brace-format
 msgid "{count} marriage"
@@ -2636,8 +2636,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} woman"
 msgid_plural "{count} women"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} woman"
+msgstr[1] "{count} women"
 
 #, python-brace-format
 msgid "{date}"
