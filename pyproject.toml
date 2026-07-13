@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    'setuptools ~= 82.0',
+    'setuptools ~= 83.0',
 ]
 build-backend = 'setuptools.build_meta'
 
@@ -364,7 +364,7 @@ test = [
     'types-polib ~= 1.2',
     'types-pyyaml ~= 6.0',
     'types-requests ~= 2.32',
-    'types-setuptools ~= 82.0',
+    'types-setuptools ~= 83.0',
     'virtualenv ~= 21.1',
     'yappi ~= 1.7',
     'yarl ~= 1.22',
