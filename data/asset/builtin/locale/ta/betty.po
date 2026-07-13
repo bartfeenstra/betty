@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-13 09:36+0100\n"
+"POT-Creation-Date: 2026-07-13 09:55+0100\n"
 "PO-Revision-Date: 2026-07-13 08:45+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ta\n"
@@ -17,7 +17,6 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
-"X-Generator: Weblate 2026.7.1.dev0\n"
 
 #, python-brace-format
 msgid "\"{color}\" is not a valid hexadecimal color, such as #ffc0cb."
@@ -1598,8 +1597,8 @@ msgid "Text"
 msgstr "உரை"
 
 #, python-format
-msgid "The %(language)s translations are only %(translated)s%% complete. Some things may be shown in English."
-msgstr "%(language)s மொழிபெயர்ப்புகள் %(translated)s%% மட்டுமே முடிந்தது. சில விசயங்கள் ஆங்கிலத்தில் காட்டப்படலாம்."
+msgid "The %(translation_language)s translations are only %(translated)s%% complete. Some things may be shown in %(default_language)s."
+msgstr ""
 
 #, python-format
 msgid "The '%(project_title)s' logo"
@@ -2679,3 +2678,4 @@ msgstr "© பதிப்புரிமை ஆசிரியர், இல்
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© பதிப்புரிமை {author}, இல்லையெனில் வரவு வைக்கப்படவில்லை"
+
