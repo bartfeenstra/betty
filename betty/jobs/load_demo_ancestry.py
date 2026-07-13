@@ -7,6 +7,7 @@ from __future__ import annotations
 from random import choice
 from typing import TYPE_CHECKING, final, override
 
+from betty.associations.to_one import Placeholder
 from betty.date import Date, DateRange
 from betty.dirs import builtin_asset_directory
 from betty.entities.citation import Citation
@@ -82,6 +83,18 @@ class LoadDemoAncestry(Job):
             streetmix_file = choice(streetmix_files)
             self._project.ancestry.add(FileReference(person, streetmix_file))
 
+        bart_feenstra = Person(
+            id="betty-demo-bart-feenstra",
+            gender=Man(),
+            names=[
+                PersonName(
+                    individual="Bart", affiliation="Feenstra", person=Placeholder()
+                )
+            ],
+        )
+        _streetmix_image(bart_feenstra)
+        self._project.ancestry.add(bart_feenstra)
+
         netherlands = Place(
             id="betty-demo-netherlands",
             names=[
@@ -149,6 +162,12 @@ class LoadDemoAncestry(Job):
             id="betty-demo-testimony-bart-feenstra",
             source=testimonies,
             location="Bart Feenstra",
+            links=[
+                Link(
+                    "betty-entity://person/betty-demo-bart-feenstra",
+                    label=bart_feenstra.label,
+                )
+            ],
         )
         self._project.ancestry.add(cite_testimonies_bart_feenstra)
 
@@ -465,21 +484,8 @@ class LoadDemoAncestry(Job):
         )
         self._project.ancestry.add(birth_of_johan_de_boer)
 
-        bart_feenstra = Person(
-            id="betty-demo-bart-feenstra",
-            gender=Man(),
-            parents=[parent_of_bart_feenstra_child_of_liberta_lankester],
-        )
+        bart_feenstra.parents.add(parent_of_bart_feenstra_child_of_liberta_lankester)
         Presence(bart_feenstra, Subject(), birth_of_bart_feenstra)
-        _streetmix_image(bart_feenstra)
-        self._project.ancestry.add(
-            PersonName(
-                person=bart_feenstra,
-                individual="Bart",
-                affiliation="Feenstra",
-            )
-        )
-        self._project.ancestry.add(bart_feenstra)
 
     async def _load_streetmix_images(
         self,

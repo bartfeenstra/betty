@@ -43,5 +43,4 @@ class PassthroughUrlGenerator(UrlGenerator[str]):
         media_type: ResolvableMediaType | None = None,
         query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
-        assert isinstance(resource, str)
         return resource
