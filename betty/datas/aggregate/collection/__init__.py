@@ -9,19 +9,15 @@ from collections.abc import Callable, Collection, Iterable
 from typing import TYPE_CHECKING, Any, final
 
 from betty.data import DataDefinition, ResolvableDataDefinition, resolve_data_definition
-from betty.datas.aggregate import AggregateDefinition
-from betty.indicator.selector import Element
 
 if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
     from betty.portable import PortableData, Porter
 
 
-class CollectionDefinition[
-    CollectionT: Collection,
-    ValuesSetT: Iterable,
-    ElementT: Element[Any],
-](AggregateDefinition[CollectionT, ElementT], ABC):
+class CollectionDefinition[CollectionT: Collection, ValuesSetT: Iterable](
+    DataDefinition[CollectionT], ABC
+):
     """
     A homogenous collection data definition.
     """

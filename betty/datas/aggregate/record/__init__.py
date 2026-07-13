@@ -15,7 +15,6 @@ from betty.data import (
     Samples,
     resolve_data_definition,
 )
-from betty.datas.aggregate import AggregateDefinition
 from betty.indicator.selector import Element
 from betty.localizable import resolve_localizable
 from betty.portable import Portable, PortableData, Porter
@@ -155,7 +154,7 @@ class RecordPorter[DataClsT, ElementT: Element[str] = Element[str]](Porter[DataC
 
 
 class RecordDefinition[DataClsT, ElementT: Element[str] = Element[str]](
-    AggregateDefinition[DataClsT, ElementT]
+    DataDefinition[DataClsT]
 ):
     """
     A record data definition.
