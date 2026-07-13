@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2026-07-13 10:23+0100\n"
+"POT-Creation-Date: 2026-07-13 11:38+0100\n"
 "PO-Revision-Date: 2026-07-13 10:24+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: uk\n"
@@ -17,7 +17,6 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
-"X-Generator: Weblate 2026.7.1.dev0\n"
 
 #, python-brace-format
 msgid "\"{color}\" is not a valid hexadecimal color, such as #ffc0cb."
@@ -369,6 +368,10 @@ msgstr ""
 
 msgid "City"
 msgstr "Місто"
+
+msgctxt "Bevolkingsregister Amsterdam"
+msgid "Civil Registry of Amsterdam"
+msgstr ""
 
 msgid "Clean URLs"
 msgstr ""
@@ -769,9 +772,6 @@ msgstr ""
 msgid "Fuzzy"
 msgstr ""
 
-msgid "Gemeente Amsterdam"
-msgstr "Муніципалітет Амстердама"
-
 msgid "Gender"
 msgstr ""
 
@@ -1133,6 +1133,10 @@ msgstr ""
 msgid "Municipality"
 msgstr "Муніципалітет"
 
+msgctxt "Gemeente Amsterdam"
+msgid "Municipality of Amsterdam"
+msgstr "Муніципалітет Амстердама"
+
 msgid "Name"
 msgstr ""
 
@@ -1162,6 +1166,10 @@ msgstr ""
 
 msgid "North Holland"
 msgstr "Північна Голландія"
+
+msgctxt "Noord-Hollands Archief"
+msgid "North Holland Archives"
+msgstr ""
 
 msgid "Note"
 msgstr "Нотатка"
@@ -1261,9 +1269,6 @@ msgid "Person names"
 msgstr "Імена осіб"
 
 msgid "Person of unknown gender"
-msgstr ""
-
-msgid "Personal accounts"
 msgstr ""
 
 msgid "Place"
@@ -1933,6 +1938,9 @@ msgstr ""
 
 msgid "Witness"
 msgstr "Свідок"
+
+msgid "Witness statements"
+msgstr ""
 
 msgid "Witnesses"
 msgstr "Свідки"
@@ -2774,3 +2782,4 @@ msgstr "© Авторське право належить автору, якщо
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Авторське право {author}, якщо не зазначено інше"
+
