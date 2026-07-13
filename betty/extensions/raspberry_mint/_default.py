@@ -15,7 +15,6 @@ from betty.content_builders.raspberry_mint_citations import Citations
 from betty.content_builders.raspberry_mint_color_style import ColorStyle, ColorStyleData
 from betty.content_builders.raspberry_mint_columns import Columns, ColumnsData
 from betty.content_builders.raspberry_mint_enclosees import Enclosees
-from betty.content_builders.raspberry_mint_external_links import ExternalLinks
 from betty.content_builders.raspberry_mint_facts import Facts
 from betty.content_builders.raspberry_mint_families import Families
 from betty.content_builders.raspberry_mint_file_referees import FileReferees
@@ -26,6 +25,7 @@ from betty.content_builders.raspberry_mint_presences import (
     PresencesData,
 )
 from betty.content_builders.raspberry_mint_section import Section, SectionData
+from betty.content_builders.raspberry_mint_see_also import SeeAlso
 from betty.content_builders.raspberry_mint_timeline import Timeline
 from betty.content_builders.tree import Tree
 from betty.content_builders.wikipedia_summary import WikipediaSummary
@@ -219,9 +219,9 @@ class DefaultRegionalContent(Bootstrappable):
             SectionData(
                 ContentBuilderManufacturer(
                     Columns,
-                    ColumnsData([[ExternalLinks]], width=single_column_text_width),
+                    ColumnsData([[SeeAlso]], width=single_column_text_width),
                 ),
-                heading=self._make_dumpable(_("External links")),
-                name="external-links",
+                heading=self._make_dumpable(_("See also")),
+                name="see-also",
             ),
         )
