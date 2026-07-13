@@ -26,7 +26,7 @@ if TYPE_CHECKING:
                 id="my-first-license",
                 label="My First License",
                 summary="My First License is my first license",
-                text="My First License is my first license, and allows you o...",
+                text="My First License is my first license, and allows you o…",
             ),
             label="Default",
         )

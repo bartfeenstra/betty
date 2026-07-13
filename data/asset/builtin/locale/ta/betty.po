@@ -700,8 +700,8 @@ msgstr "செயல்படுத்தக்கூடியது"
 msgid "Explore a demonstration site"
 msgstr "ஒரு ஆர்ப்பாட்ட தளத்தை ஆராயுங்கள்"
 
-msgid "Explore a family history..."
-msgstr "குடும்ப வரலாற்றை ஆராயுங்கள்..."
+msgid "Explore a family history…"
+msgstr "குடும்ப வரலாற்றை ஆராயுங்கள்…"
 
 msgid "Extension"
 msgstr "நீட்டிப்பு"
@@ -784,8 +784,8 @@ msgstr "பாலினங்கள்"
 msgid "Generate a static site"
 msgstr "நிலையான தளத்தை உருவாக்கவும்"
 
-msgid "Generating site..."
-msgstr "தளத்தை உருவாக்குகிறது..."
+msgid "Generating site…"
+msgstr "தளத்தை உருவாக்குகிறது…"
 
 msgid "Get started"
 msgstr "தொடங்குங்கள்"
@@ -1018,8 +1018,8 @@ msgid "Loaders"
 msgstr "ஏற்றிகள்"
 
 #, python-brace-format
-msgid "Loading \"{file_path}\"..."
-msgstr "\"{file_path}\" ஐ ஏற்றுகிறது..."
+msgid "Loading \"{file_path}\"…"
+msgstr "\"{file_path}\" ஐ ஏற்றுகிறது…"
 
 msgid "Locale"
 msgstr "வட்டாரம்"
@@ -1380,8 +1380,8 @@ msgstr "பதிப்பாளர்"
 msgid "Python packages"
 msgstr "பைதான் தொகுப்புகள்"
 
-msgid "Quitting..."
-msgstr "வெளியேறுகிறது..."
+msgid "Quitting…"
+msgstr "வெளியேறுகிறது…"
 
 msgid "Raspberry Mint configuration"
 msgstr "ராச்பெர்ரி புதினா கட்டமைப்பு"
@@ -1467,8 +1467,8 @@ msgid "Roles"
 msgstr "பாத்திரங்கள்"
 
 #, python-brace-format
-msgid "Running subprocess `{command}`..."
-msgstr "துணைச் செயலாக்கம் `{command}` இயங்குகிறது..."
+msgid "Running subprocess `{command}`…"
+msgstr "துணைச் செயலாக்கம் `{command}` இயங்குகிறது…"
 
 msgid "SPDX licenses"
 msgstr "SPDX உரிமங்கள்"
@@ -1508,8 +1508,8 @@ msgid "Servers"
 msgstr "சேவையகங்கள்"
 
 #, python-brace-format
-msgid "Serving your site at {url}..."
-msgstr "உங்கள் தளத்தை {url} இல் வழங்குகிறது..."
+msgid "Serving your site at {url}…"
+msgstr "உங்கள் தளத்தை {url} இல் வழங்குகிறது…"
 
 msgid "Set the locale for Betty's user interface. This must be an IETF BCP 47 language tag."
 msgstr "பெட்டியின் பயனர் இடைமுகத்திற்கான இடத்தை அமைக்கவும். இது IETF BCP 47 மொழி குறிச்சொல்லாக இருக்க வேண்டும்."
@@ -1544,8 +1544,8 @@ msgstr "பேச்சாளர்கள்"
 msgid "Start date is a boundary"
 msgstr "தொடக்க தேதி ஒரு எல்லை"
 
-msgid "Starting Python's built-in web server..."
-msgstr "பைத்தானின் உள்ளமைக்கப்பட்ட இணைய சேவையகத்தைத் தொடங்குகிறது..."
+msgid "Starting Python's built-in web server…"
+msgstr "பைத்தானின் உள்ளமைக்கப்பட்ட இணைய சேவையகத்தைத் தொடங்குகிறது…"
 
 msgid "State"
 msgstr "மாநிலம்"
@@ -1926,8 +1926,8 @@ msgstr "விக்கி செறிவூட்டல் உள்ளமை�
 msgid "Wikipedia contributors"
 msgstr "விக்கிபீடியா பங்களிப்பாளர்கள்"
 
-msgid "Wikipedia says..."
-msgstr "விக்கிபீடியா சொல்கிறது..."
+msgid "Wikipedia says…"
+msgstr "விக்கிபீடியா சொல்கிறது…"
 
 msgid "Wikipedia summary"
 msgstr "விக்கிபீடியா சுருக்கம்"

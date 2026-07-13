@@ -175,7 +175,7 @@ async def create_project(
                                             },
                                         ),
                                     ),
-                                    heading=_("Explore a family history..."),
+                                    heading=_("Explore a family history…"),
                                 ),
                             ),
                         ],

@@ -90,7 +90,7 @@ class DefaultRegionalContent(Bootstrappable):
                             [[WikipediaSummary]], width=single_column_text_width
                         ),
                     ),
-                    heading=self._make_dumpable(_("Wikipedia says...")),
+                    heading=self._make_dumpable(_("Wikipedia says…")),
                     name="wikipedia",
                 ),
             )

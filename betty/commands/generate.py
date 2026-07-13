@@ -40,7 +40,7 @@ class Generate(Manufacturable, Command):
     async def _command_function(self, project: Project) -> None:
         async with (
             project,
-            project.upstream.user.message_progress(_("Generating site...")) as progress,
+            project.upstream.user.message_progress(_("Generating site…")) as progress,
         ):
             context = Context(progress=progress)
             await load.load(project, context=context)

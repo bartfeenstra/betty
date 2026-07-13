@@ -52,7 +52,7 @@ class Server(ABC):
         Show the served site to the user.
         """
         await self._user.message_information(
-            _("Serving your site at {url}...").format(
+            _("Serving your site at {url}…").format(
                 url=self.public_url,
             )
         )

@@ -700,8 +700,8 @@ msgstr "Ejecutable"
 msgid "Explore a demonstration site"
 msgstr "Explora un sitio de demostración"
 
-msgid "Explore a family history..."
-msgstr "Descubre la historia de una familia..."
+msgid "Explore a family history…"
+msgstr "Descubre la historia de una familia…"
 
 msgid "Extension"
 msgstr "Extensión"
@@ -784,8 +784,8 @@ msgstr "Géneros"
 msgid "Generate a static site"
 msgstr "Genera un sitio estático"
 
-msgid "Generating site..."
-msgstr "Generando el sitio..."
+msgid "Generating site…"
+msgstr "Generando el sitio…"
 
 msgid "Get started"
 msgstr "Empezando"
@@ -1016,8 +1016,8 @@ msgid "Loaders"
 msgstr "Cargadores"
 
 #, python-brace-format
-msgid "Loading \"{file_path}\"..."
-msgstr "Cargando \"{file_path}\"..."
+msgid "Loading \"{file_path}\"…"
+msgstr "Cargando \"{file_path}\"…"
 
 msgid "Locale"
 msgstr "Configuración regional"
@@ -1378,8 +1378,8 @@ msgstr "Publicador"
 msgid "Python packages"
 msgstr "Paquetas de Python"
 
-msgid "Quitting..."
-msgstr "Cerrando..."
+msgid "Quitting…"
+msgstr "Cerrando…"
 
 msgid "Raspberry Mint configuration"
 msgstr "Configuración de Raspberry Mint"
@@ -1465,7 +1465,7 @@ msgid "Roles"
 msgstr "Roles"
 
 #, python-brace-format
-msgid "Running subprocess `{command}`..."
+msgid "Running subprocess `{command}`…"
 msgstr ""
 
 msgid "SPDX licenses"
@@ -1506,7 +1506,7 @@ msgid "Servers"
 msgstr "Servidores"
 
 #, python-brace-format
-msgid "Serving your site at {url}..."
+msgid "Serving your site at {url}…"
 msgstr "Sirve a su sitio en {url}…"
 
 msgid "Set the locale for Betty's user interface. This must be an IETF BCP 47 language tag."
@@ -1542,7 +1542,7 @@ msgstr "Oradores"
 msgid "Start date is a boundary"
 msgstr ""
 
-msgid "Starting Python's built-in web server..."
+msgid "Starting Python's built-in web server…"
 msgstr "Inicio del servidor web embebido en Python…"
 
 msgid "State"
@@ -1920,8 +1920,8 @@ msgstr ""
 msgid "Wikipedia contributors"
 msgstr "Colaboradores de Wikipedia"
 
-msgid "Wikipedia says..."
-msgstr "Wikipedia dice..."
+msgid "Wikipedia says…"
+msgstr "Wikipedia dice…"
 
 msgid "Wikipedia summary"
 msgstr "Resumen de Wikipedia"

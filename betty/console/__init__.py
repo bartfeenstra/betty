@@ -271,7 +271,7 @@ async def main(app: App, args: Sequence[str]) -> None:
                 await user.message_error(error)
         raise SystemExit(SystemExitCode.ERROR_UNEXPECTED) from None
     except (CancelledError, KeyboardInterrupt):
-        await app.user.message_information(_("Quitting..."))
+        await app.user.message_information(_("Quitting…"))
         if always_print_exception_tracebacks:
             await app.user.message_exception()
         raise SystemExit(SystemExitCode.USER_QUIT) from None
