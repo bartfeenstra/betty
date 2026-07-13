@@ -24,6 +24,7 @@ from betty.privacy.resolve import merge_secondary_privacies
 if TYPE_CHECKING:
     from betty.date import AnyDate
     from betty.entities.file_reference import FileReference
+    from betty.entities.link import Link
     from betty.linked_data import JsonLdObject
     from betty.localizable import Localizable, ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
@@ -79,12 +80,14 @@ class Citation(HasAnyDate, HasFileReferences, HasLinks):
         location: ResolvableLocalizable | None = None,
         date: AnyDate | None = None,
         files: ToManyAssociates[Self, FileReference] = (),
+        links: ToManyAssociates[Self, Link] = (),
         privacy: Privacy = Privacy.UNDETERMINED,
     ):
         super().__init__(
             id=id,
             date=date,
             files=files,
+            links=links,
             privacy=privacy,
         )
         self.facts = facts
