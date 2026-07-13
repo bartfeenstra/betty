@@ -15,7 +15,7 @@ from betty.role import Role, RoleDefinition
     "subject",
     label=_("Subject"),
     label_plural=_("Subjects"),
-    label_countable=ngettext("{count} subjects", "{count} subjects"),
+    label_countable=ngettext("{count} subject", "{count} subjects"),
 )
 class Subject(Role):
     """
