@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-13 09:36+0100\n"
 "PO-Revision-Date: 2026-07-13 08:43+0000\n"
-"Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
+"Last-Translator: Libre <6n0n1m0s@proton.me>\n"
 "Language: es-ES\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-5-x/es/>\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
@@ -329,11 +329,11 @@ msgstr "No se puede encontrar el tipo de complemento \"{plugin_type}\"."
 
 #, python-brace-format
 msgid "Cannot load Gramps file {file_id} with relative path {file_path}, because your family tree does not include a base path. In Gramps, add a \"base path for relative media paths\" to your family tree, and export it again."
-msgstr ""
+msgstr "No se puede cargar el archivo Gramps {file_id} con ruta relativa {file_path}, porque su árbol familiar no incluye una ruta base. En Gramps, agregue una «ruta base para rutas de medio relativo» a su árbol familiar, y expórtelo de nuevo."
 
 #, python-brace-format
 msgid "Cannot load Gramps file {file_id}, because {file_path} is not a file."
-msgstr ""
+msgstr "No se puede cargar el archivo Gramps {file_id}, porque {file_path} no es un archivo."
 
 #, python-brace-format
 msgid "Cannot load coordinates \"{coordinates}\", because they are in an unknown format."
@@ -1330,7 +1330,7 @@ msgstr "Persona privatizada {privatized_person_id} ({privatized_person}) porque 
 
 #, python-brace-format
 msgid "Privatized place {privatized_place_id} ({privatized_place}) because it is not associated with any public information."
-msgstr ""
+msgstr "Lugar privatizado {privatized_place_id} ({privatized_place}) porque no está asociado con ninguna información pública."
 
 #, python-brace-format
 msgid "Privatized {count} \"{entity_type_id}\" entity, because it is associated with private information."
@@ -1340,11 +1340,11 @@ msgstr[1] ""
 
 #, python-brace-format
 msgid "Privatized {count} people because they are likely still alive."
-msgstr ""
+msgstr "{count} de la gente privatizada porque probablemente aún está viva."
 
 #, python-brace-format
 msgid "Privatized {privatized_entity_type} {privatized_entity_id} ({privatized_entity}) because of {reason_entity_type} {reason_entity_id} ({reason_entity})."
-msgstr ""
+msgstr "Se privatiza {privatized_entity_type} {privatized_entity_id} ({privatized_entity}) debido a {reason_entity_type} {reason_entity_id} ({reason_entity})."
 
 msgid "Project author"
 msgstr "Autore del proyecto"
@@ -1468,7 +1468,7 @@ msgstr "Licencias de SPDX"
 
 #, python-brace-format
 msgid "Saved your project to {configuration_file}."
-msgstr ""
+msgstr "Se ha guardado su proyecto a {configuration_file}."
 
 msgid "Search"
 msgstr "Buscar"
@@ -1489,7 +1489,7 @@ msgid "Serializers"
 msgstr "Serializadores"
 
 msgid "Serve a generated site"
-msgstr ""
+msgstr "Sirve a un sitio generado"
 
 msgid "Serve your site using Python's built-in web server. This is for local use only, and unsafe for publishing your site."
 msgstr ""
@@ -1502,7 +1502,7 @@ msgstr "Servidores"
 
 #, python-brace-format
 msgid "Serving your site at {url}..."
-msgstr ""
+msgstr "Sirve a su sitio en {url}…"
 
 msgid "Set the locale for Betty's user interface. This must be an IETF BCP 47 language tag."
 msgstr ""
@@ -1538,7 +1538,7 @@ msgid "Start date is a boundary"
 msgstr ""
 
 msgid "Starting Python's built-in web server..."
-msgstr ""
+msgstr "Inicio del servidor web embebido en Python…"
 
 msgid "State"
 msgstr "Estado"
@@ -1608,14 +1608,14 @@ msgstr ""
 
 #, python-brace-format
 msgid "The Gramps {gramps_entity_reference} entity has a \"betty:link-{link_name}:media_type\" attribute with value \"{media_type}\", which is not a valid IANA media type. This media type was ignored."
-msgstr ""
+msgstr "La entidad Gramps {gramps_entity_reference} tiene un atributo «betty:link-{link_name}:media_type» con valor «{media_type}», que no es un tipo de medio IANA válido. Este tipo de medios fue ignorado."
 
 #, python-brace-format
 msgid "The Gramps {gramps_entity_reference} entity requires a \"betty:link-{link_name}:url\" attribute. This link was ignored."
-msgstr ""
+msgstr "La entidad Gramps {gramps_entity_reference} requiere un atributo “betty:link-{link_name}:url”. Este enlace fue ignorado."
 
 msgid "The URL must include a host."
-msgstr ""
+msgstr "La URL debe incluir un host."
 
 msgid "The absolute, public URL at which the site will be published."
 msgstr ""
@@ -1693,7 +1693,7 @@ msgid "The {service} service must have exactly one {plugin_type} plugin, but {ac
 msgstr ""
 
 msgid "There are no available options."
-msgstr ""
+msgstr "No hay opciones disponibles."
 
 #, python-format
 msgid "They are the child of %(parent_labels)s."
@@ -1702,8 +1702,8 @@ msgstr "Elle es le hije de %(parent_labels)s."
 #, python-format
 msgid "They grew up with a sibling."
 msgid_plural "They grew up with %(sibling_count)s siblings."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Crecieron con un hermano."
+msgstr[1] "Crecieron con %(sibling_count)s hermanos."
 
 #, python-format
 msgid "They had a child with %(co_parent_labels)s."
