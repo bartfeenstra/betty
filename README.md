@@ -11,7 +11,9 @@ Betty visualizes and publishes your family history by building interactive, ency
 
 ## Demonstration & examples
 
-View the official Betty demonstration site at [bartfeenstra.github.io/betty-demo](https://bartfeenstra.github.io/betty-demo).
+View the official Betty demonstration sites at:
+- [bartfeenstra.github.io/betty-demo](https://bartfeenstra.github.io/betty-demo) (stable)
+- [bartfeenstra.github.io/betty-demo-latest](https://bartfeenstra.github.io/betty-demo-latest) (latest)
 
 View the author's own Betty site at [ancestry.bartfeenstra.com](https://ancestry.bartfeenstra.com).
 
