@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-13 10:23+0100\n"
+"POT-Creation-Date: 2026-07-13 11:38+0100\n"
 "PO-Revision-Date: 2026-07-13 08:45+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ta\n"
@@ -368,6 +368,10 @@ msgstr "மாநகரங்கள்"
 
 msgid "City"
 msgstr "மாநகரம்"
+
+msgctxt "Bevolkingsregister Amsterdam"
+msgid "Civil Registry of Amsterdam"
+msgstr ""
 
 msgid "Clean URLs"
 msgstr "URLகளை தூய்மை செய்யவும்"
@@ -768,9 +772,6 @@ msgstr "இறுதிச் சடங்குகள்"
 msgid "Fuzzy"
 msgstr "தெளிவற்ற"
 
-msgid "Gemeente Amsterdam"
-msgstr "ஆம்ச்டர்டாம் நகராட்சி"
-
 msgid "Gender"
 msgstr "பாலினம்"
 
@@ -1134,6 +1135,10 @@ msgstr "நகராட்சிகள்"
 msgid "Municipality"
 msgstr "நகராட்சி"
 
+msgctxt "Gemeente Amsterdam"
+msgid "Municipality of Amsterdam"
+msgstr "ஆம்ச்டர்டாம் நகராட்சி"
+
 msgid "Name"
 msgstr "பெயர்"
 
@@ -1163,6 +1168,10 @@ msgstr "பைனரி அல்லாத நபர்"
 
 msgid "North Holland"
 msgstr "வடக்கு ஆலந்து"
+
+msgctxt "Noord-Hollands Archief"
+msgid "North Holland Archives"
+msgstr ""
 
 msgid "Note"
 msgstr "குறிப்பு"
@@ -1263,9 +1272,6 @@ msgstr "நபர் பெயர்கள்"
 
 msgid "Person of unknown gender"
 msgstr "பாலினம் தெரியாத நபர்"
-
-msgid "Personal accounts"
-msgstr "தனிப்பட்ட கணக்குகள்"
 
 msgid "Place"
 msgstr "இடம்"
@@ -1934,6 +1940,9 @@ msgstr "உயில்கள்"
 
 msgid "Witness"
 msgstr "சான்று"
+
+msgid "Witness statements"
+msgstr ""
 
 msgid "Witnesses"
 msgstr "சாட்சிகள்"

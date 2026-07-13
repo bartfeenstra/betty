@@ -28,7 +28,7 @@ from betty.event_types.marriage import Marriage
 from betty.genders.man import Man
 from betty.genders.woman import Woman
 from betty.job import Job
-from betty.localizables.gettext import _
+from betty.localizables.gettext import _, pgettext
 from betty.media_types.svg import SVG
 from betty.place_types.country import Country
 from betty.place_types.municipality import Municipality
@@ -142,34 +142,36 @@ class LoadDemoAncestry(Job):
         self._project.ancestry.add(Enclosure(enclosee=ilpendam, encloser=north_holland))
         self._project.ancestry.add(ilpendam)
 
-        personal_accounts = Source(
-            id="betty-demo-personal-accounts",
-            name=_("Personal accounts"),
+        witness_statements = Source(
+            id="betty-demo-witness-statements",
+            name=_("Witness statements"),
         )
-        self._project.ancestry.add(personal_accounts)
+        self._project.ancestry.add(witness_statements)
 
-        cite_first_person_account = Citation(
-            id="betty-demo-first-person-account",
-            source=personal_accounts,
+        cite_first_person_witness_statement = Citation(
+            id="betty-demo-witness-statement-bart-feenstra",
+            source=witness_statements,
             location="Bart Feenstra",
         )
-        self._project.ancestry.add(cite_first_person_account)
+        self._project.ancestry.add(cite_first_person_witness_statement)
 
         noord_hollands_archief = Source(
             id="betty-demo-noord-hollands-archief",
-            name="Noord-Hollands Archief",
+            name=pgettext("Noord-Hollands Archief", "North Holland Archives"),
             links=[Link("https://noord-hollandsarchief.nl/")],
         )
         self._project.ancestry.add(noord_hollands_archief)
 
-        bevolkingsregister_amsterdam = Source(
-            id="betty-demo-bevolkingsregister-amsterdam",
-            name="Bevolkingsregister Amsterdam",
-            author=_("Gemeente Amsterdam"),
-            publisher=_("Gemeente Amsterdam"),
+        civil_registry_amsterdam = Source(
+            id="betty-demo-civil-registry-of-amsterdam",
+            name=pgettext(
+                "Bevolkingsregister Amsterdam", "Civil Registry of Amsterdam"
+            ),
+            author=pgettext("Gemeente Amsterdam", "Municipality of Amsterdam"),
+            publisher=pgettext("Gemeente Amsterdam", "Municipality of Amsterdam"),
             contained_by=noord_hollands_archief,
         )
-        self._project.ancestry.add(bevolkingsregister_amsterdam)
+        self._project.ancestry.add(civil_registry_amsterdam)
 
         david_marinus_lankester = Person(
             id="betty-demo-david-marinus-lankester", gender=Man()
@@ -341,14 +343,14 @@ class LoadDemoAncestry(Job):
         )
         self._project.ancestry.add(marriage_of_johan_de_boer_and_liberta_lankester)
 
-        cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam = Citation(
-            id="betty-demo-birth-of-liberta-lankester-from-bevolkingsregister-amsterdam",
-            source=bevolkingsregister_amsterdam,
+        cite_birth_of_liberta_lankester_from_civil_registry_amsterdam = Citation(
+            id="betty-demo-birth-of-liberta-lankester-from-civil-registry-of-amsterdam",
+            source=civil_registry_amsterdam,
             location=_("Amsterdam"),
             date=DateRange(None, Date(2000, 1, 1), end_is_boundary=True),
         )
         self._project.ancestry.add(
-            cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam
+            cite_birth_of_liberta_lankester_from_civil_registry_amsterdam
         )
 
         birth_of_liberta_lankester = Event(
@@ -356,9 +358,7 @@ class LoadDemoAncestry(Job):
             event_type=Birth(),
             date=Date(1929, 12, 22),
             place=amsterdam,
-            citations=[
-                cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam
-            ],
+            citations=[cite_birth_of_liberta_lankester_from_civil_registry_amsterdam],
         )
         self._project.ancestry.add(birth_of_liberta_lankester)
 
@@ -367,7 +367,7 @@ class LoadDemoAncestry(Job):
             event_type=Death(),
             date=Date(2015, 1, 17),
             place=amsterdam,
-            citations=[cite_first_person_account],
+            citations=[cite_first_person_witness_statement],
         )
         self._project.ancestry.add(death_of_liberta_lankester)
 
@@ -391,7 +391,7 @@ class LoadDemoAncestry(Job):
             PersonName(
                 person=liberta_lankester,
                 individual="Betty",
-                citations=[cite_first_person_account],
+                citations=[cite_first_person_witness_statement],
             ),
             Presence(liberta_lankester, Subject(), birth_of_liberta_lankester),
             Presence(liberta_lankester, Subject(), death_of_liberta_lankester),
@@ -416,7 +416,7 @@ class LoadDemoAncestry(Job):
             event_type=Death(),
             date=Date(1999, 3, 10),
             place=amsterdam,
-            citations=[cite_first_person_account],
+            citations=[cite_first_person_witness_statement],
         )
         self._project.ancestry.add(death_of_johan_de_boer)
 
@@ -461,7 +461,7 @@ class LoadDemoAncestry(Job):
             event_type=Birth(),
             date=DateRange(Date(1970, 1, 1), start_is_boundary=True),
             place=netherlands,
-            citations=[cite_first_person_account],
+            citations=[cite_first_person_witness_statement],
             description=_(
                 "The 'birth of the author', so to speak.",
             ),

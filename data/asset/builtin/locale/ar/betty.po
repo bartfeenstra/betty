@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-13 10:23+0100\n"
+"POT-Creation-Date: 2026-07-13 11:38+0100\n"
 "PO-Revision-Date: 2026-07-13 08:42+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language: ar\n"
@@ -367,6 +367,10 @@ msgid "Cities"
 msgstr ""
 
 msgid "City"
+msgstr ""
+
+msgctxt "Bevolkingsregister Amsterdam"
+msgid "Civil Registry of Amsterdam"
 msgstr ""
 
 msgid "Clean URLs"
@@ -768,9 +772,6 @@ msgstr ""
 msgid "Fuzzy"
 msgstr ""
 
-msgid "Gemeente Amsterdam"
-msgstr ""
-
 msgid "Gender"
 msgstr ""
 
@@ -1132,6 +1133,10 @@ msgstr ""
 msgid "Municipality"
 msgstr ""
 
+msgctxt "Gemeente Amsterdam"
+msgid "Municipality of Amsterdam"
+msgstr ""
+
 msgid "Name"
 msgstr ""
 
@@ -1161,6 +1166,10 @@ msgstr ""
 
 msgid "North Holland"
 msgstr "شمال-هولندا"
+
+msgctxt "Noord-Hollands Archief"
+msgid "North Holland Archives"
+msgstr ""
 
 msgid "Note"
 msgstr ""
@@ -1260,9 +1269,6 @@ msgid "Person names"
 msgstr ""
 
 msgid "Person of unknown gender"
-msgstr ""
-
-msgid "Personal accounts"
 msgstr ""
 
 msgid "Place"
@@ -1943,6 +1949,9 @@ msgid "Wills"
 msgstr ""
 
 msgid "Witness"
+msgstr ""
+
+msgid "Witness statements"
 msgstr ""
 
 msgid "Witnesses"
