@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from inspect import signature
-from typing import TYPE_CHECKING, Any, Final, Generic, Self, TypeVar, final, override
+from typing import TYPE_CHECKING, Any, Final, final, override
 
 from betty.data import (
     DataDefinition,
@@ -18,7 +18,7 @@ from betty.data import (
 from betty.datas.aggregate import AggregateDefinition
 from betty.indicator.selector import Element
 from betty.localizable import resolve_localizable
-from betty.portable import Portable, PortableData, Porter
+from betty.portable import PortableData, Porter
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping, MutableMapping
@@ -99,39 +99,6 @@ class FieldDefinition[
         return self._omit_dump(owner, data)
 
 
-_PortableRecordElementT = TypeVar(
-    "_PortableRecordElementT", bound=Element[str], default=Element[str], covariant=True
-)
-
-
-class PortableRecord(
-    Portable,
-    Generic[_PortableRecordElementT],  # noqa: UP046
-):
-    """
-    A record object capable of dumping and loading itself to and from portable data.
-    """
-
-    @classmethod
-    @abstractmethod
-    def load_key(
-        cls, portable: PortableData, key: _PortableRecordElementT, portable_key: str, /
-    ) -> Self:
-        """
-        Create a new instance from portable data and a portable primary key.
-
-        :raises betty.exception.HumanFacingException: Raised if the portable data is invalid.
-        """
-
-    @abstractmethod
-    def dump_key(self, key: _PortableRecordElementT, /) -> tuple[str, PortableData]:
-        """
-        Dump the instance to portable data and a portable primary key.
-
-        :raises betty.portable.error.NotPortable: Raised if any part of the data is not portable.
-        """
-
-
 class RecordPorter[DataClsT, ElementT: Element[str] = Element[str]](Porter[DataClsT]):
     """
     An object capable of dumping and loading record data to and from portable data.
@@ -210,16 +177,12 @@ class RecordDefinition[DataClsT, ElementT: Element[str] = Element[str]](
     @override
     @property
     def porter(self) -> RecordPorter[DataClsT]:
-        from betty.porters.portable_record import PortableRecordPorter
         from betty.porters.record_mapping import RecordMappingPorter
 
         if self._porter is None:
-            if self.cls and issubclass(self.cls, PortableRecord):
-                self._porter = PortableRecordPorter(self.cls)  # ty:ignore[invalid-assignment]
-            else:
-                self._porter = RecordMappingPorter(  # ty:ignore[invalid-assignment]
-                    self,  # ty:ignore[invalid-argument-type]
-                )
+            self._porter = RecordMappingPorter(  # ty:ignore[invalid-assignment]
+                self,  # ty:ignore[invalid-argument-type]
+            )
         return self._porter  # ty:ignore[invalid-return-type]
 
     @property

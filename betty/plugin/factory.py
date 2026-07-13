@@ -15,13 +15,11 @@ from betty.assertions.record import Field, assert_record
 from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.owner import OwnerAttr
 from betty.data import Data, DataDefinition
-from betty.datas.aggregate.record import PortableRecord
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.exception import HumanFacingException
 from betty.factory import DataManufacturable, FactoryError
 from betty.functools import Pipeline
 from betty.importlib import fully_qualified_name
-from betty.indicator.selector import Attr
 from betty.localizables.gettext import _
 from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
@@ -33,6 +31,7 @@ from betty.sample import Samplable, Sample, Samples, Size
 from betty.typing import Void, VoidType
 
 if TYPE_CHECKING:
+    from betty.indicator.selector import Attr
     from betty.service_level import ServiceLevel
     from betty.typing import Intersection
 
@@ -50,7 +49,6 @@ _PluginManufacturerPluginDefinitionT = TypeVar(
 
 
 class PluginManufacturer(
-    PortableRecord[Attr],
     Samplable,
     Data["PluginManufacturerDefinition"],
     HasProps,
