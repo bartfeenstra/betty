@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-13 11:38+0100\n"
+"POT-Creation-Date: 2026-07-13 12:24+0100\n"
 "PO-Revision-Date: 2026-07-13 08:43+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language: fi_FI\n"
@@ -1593,6 +1593,9 @@ msgstr ""
 msgid "Tertiary color"
 msgstr ""
 
+msgid "Testimonies"
+msgstr ""
+
 msgid "Text"
 msgstr ""
 
@@ -1933,9 +1936,6 @@ msgid "Wills"
 msgstr ""
 
 msgid "Witness"
-msgstr ""
-
-msgid "Witness statements"
 msgstr ""
 
 msgid "Witnesses"

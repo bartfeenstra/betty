@@ -142,18 +142,15 @@ class LoadDemoAncestry(Job):
         self._project.ancestry.add(Enclosure(enclosee=ilpendam, encloser=north_holland))
         self._project.ancestry.add(ilpendam)
 
-        witness_statements = Source(
-            id="betty-demo-witness-statements",
-            name=_("Witness statements"),
-        )
-        self._project.ancestry.add(witness_statements)
+        testimonies = Source(id="betty-demo-testimonies", name=_("Testimonies"))
+        self._project.ancestry.add(testimonies)
 
-        cite_first_person_witness_statement = Citation(
-            id="betty-demo-witness-statement-bart-feenstra",
-            source=witness_statements,
+        cite_testimonies_bart_feenstra = Citation(
+            id="betty-demo-testimony-bart-feenstra",
+            source=testimonies,
             location="Bart Feenstra",
         )
-        self._project.ancestry.add(cite_first_person_witness_statement)
+        self._project.ancestry.add(cite_testimonies_bart_feenstra)
 
         noord_hollands_archief = Source(
             id="betty-demo-noord-hollands-archief",
@@ -367,7 +364,7 @@ class LoadDemoAncestry(Job):
             event_type=Death(),
             date=Date(2015, 1, 17),
             place=amsterdam,
-            citations=[cite_first_person_witness_statement],
+            citations=[cite_testimonies_bart_feenstra],
         )
         self._project.ancestry.add(death_of_liberta_lankester)
 
@@ -391,7 +388,7 @@ class LoadDemoAncestry(Job):
             PersonName(
                 person=liberta_lankester,
                 individual="Betty",
-                citations=[cite_first_person_witness_statement],
+                citations=[cite_testimonies_bart_feenstra],
             ),
             Presence(liberta_lankester, Subject(), birth_of_liberta_lankester),
             Presence(liberta_lankester, Subject(), death_of_liberta_lankester),
@@ -416,7 +413,7 @@ class LoadDemoAncestry(Job):
             event_type=Death(),
             date=Date(1999, 3, 10),
             place=amsterdam,
-            citations=[cite_first_person_witness_statement],
+            citations=[cite_testimonies_bart_feenstra],
         )
         self._project.ancestry.add(death_of_johan_de_boer)
 
@@ -461,7 +458,7 @@ class LoadDemoAncestry(Job):
             event_type=Birth(),
             date=DateRange(Date(1970, 1, 1), start_is_boundary=True),
             place=netherlands,
-            citations=[cite_first_person_witness_statement],
+            citations=[cite_testimonies_bart_feenstra],
             description=_(
                 "The 'birth of the author', so to speak.",
             ),
