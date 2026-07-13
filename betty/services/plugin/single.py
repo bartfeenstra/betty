@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final, override
 
 from betty.localizables.gettext import _
-from betty.localizables.markup import AllEnumeration
+from betty.localizables.markup import JoinAnd
 from betty.plugin import PluginDefinition
 from betty.requirements.service import UnmetServiceRequirement
 from betty.services.plugin import PluginServiceManager, PluginServiceProvider
@@ -49,7 +49,7 @@ class SinglePluginServiceManager[
                 ).format(
                     service=self.prop.id,
                     plugin_type=self.plugin_type.type().label,
-                    actual=AllEnumeration(*map(self.resolve_init_plugin_id, plugins))
+                    actual=JoinAnd(*map(self.resolve_init_plugin_id, plugins))
                     if plugins
                     else "0",
                 ),

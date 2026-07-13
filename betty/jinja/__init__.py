@@ -25,6 +25,7 @@ from betty.date import Date
 from betty.file import read, write
 from betty.html.attributes import Attributes
 from betty.locale import default_locale
+from betty.localizables.markup import JoinAnd, JoinOr
 from betty.machine_name import MachineName
 from betty.media_type import (
     ResolvableMediaType,
@@ -99,6 +100,8 @@ async def new_environment(project: Project, /) -> Environment:
         "app": project.upstream,
         "default_locale": default_locale,
         "deprecate": deprecate,
+        "localizable_join_and": JoinAnd,
+        "localizable_join_or": JoinOr,
         "machine_name": MachineName,
         "new_attributes": Attributes,
         "project": project,
