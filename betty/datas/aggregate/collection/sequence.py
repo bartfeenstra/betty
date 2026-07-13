@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, Any, final, override
 
 from betty.assertions.sequence import assert_sequence
 from betty.datas.aggregate.collection import CollectionDefinition
-from betty.indicator.selector import Index
 from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
@@ -20,7 +19,7 @@ if TYPE_CHECKING:
 
 
 class SequenceDefinition[MutableSequenceT: MutableSequence[Any], ValueT](
-    CollectionDefinition[MutableSequenceT, Iterable[ValueT], Index]
+    CollectionDefinition[MutableSequenceT, Iterable[ValueT]]
 ):
     """
     A sequence data definition.

@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, Any, final, override
 from betty.assertions.mapping import assert_mapping
 from betty.data import DataDefinition
 from betty.datas.aggregate.collection import CollectionDefinition
-from betty.indicator.selector import Key
 from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
@@ -22,7 +21,7 @@ if TYPE_CHECKING:
 
 class MappingDefinition[MutableMappingT: MutableMapping[Any, Any], KeyT, ValueT](
     CollectionDefinition[
-        MutableMappingT, Mapping[KeyT, ValueT] | Iterable[tuple[KeyT, ValueT]], Key
+        MutableMappingT, Mapping[KeyT, ValueT] | Iterable[tuple[KeyT, ValueT]]
     ]
 ):
     """

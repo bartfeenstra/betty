@@ -6,7 +6,6 @@ from betty.attrs.default import DefaultAttr
 from betty.datas.aggregate.collection import CollectionDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.str import StrDefinition
-from betty.indicator.selector import Index
 from betty.prop import HasProps
 
 
@@ -68,9 +67,7 @@ class TestDefaultAttr:
         assert _Owner.my_first_attr.field.omit_dump(owner, owner.my_first_attr)
 
 
-class _CollectionDefinition(
-    CollectionDefinition[MutableSequence[str], Iterable[str], Index]
-):
+class _CollectionDefinition(CollectionDefinition[MutableSequence[str], Iterable[str]]):
     def __init__(self):
         super().__init__(
             label="-", item=StrDefinition(label="-"), factory=lambda: ["Hello, world!"]

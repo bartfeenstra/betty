@@ -7,7 +7,6 @@ from betty.attrs.default import DefaultAttr
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.datas.aggregate.collection import CollectionDefinition
 from betty.datas.str import StrDefinition
-from betty.indicator.selector import Index
 from betty.prop import HasProps
 
 
@@ -31,7 +30,7 @@ class _Collection(list[str]):
     pass
 
 
-class _CollectionDefinition(CollectionDefinition[_Collection, Iterable[str], Index]):
+class _CollectionDefinition(CollectionDefinition[_Collection, Iterable[str]]):
     def __init__(self):
         super().__init__(
             label="-",

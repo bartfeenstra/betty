@@ -32,7 +32,7 @@ class KeyedCollectionDefinition[
     MutableKeyedCollectionT: MutableKeyedCollection,
     ValueT,
     ElementT: Element[str] = Element[str],
-](CollectionDefinition[MutableKeyedCollectionT, Iterable[ValueT], ElementT]):
+](CollectionDefinition[MutableKeyedCollectionT, Iterable[ValueT]]):
     """
     A definition for :py:class:`betty.collection.keyed.MutableKeyedCollection`.
     """
