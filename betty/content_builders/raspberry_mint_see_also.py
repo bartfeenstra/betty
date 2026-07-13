@@ -1,5 +1,5 @@
 """
-The external links content plugin.
+The "see also" content plugin.
 """
 
 from __future__ import annotations
@@ -20,15 +20,15 @@ if TYPE_CHECKING:
 
 @final
 @ContentBuilderDefinition(
-    "raspberry-mint-external-links",
-    label=_("External links"),
+    "raspberry-mint-see-also",
+    label=_("See also"),
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class ExternalLinks(Template, Manufacturable):
+class SeeAlso(Template, Manufacturable):
     """
-    External links.
+    "See also" links.
 
-    .. plugin:: content-builder:raspberry-mint-external-links
+    .. plugin:: content-builder:raspberry-mint-see-also
     """
 
     @override

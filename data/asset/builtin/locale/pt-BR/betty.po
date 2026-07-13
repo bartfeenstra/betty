@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-13 12:24+0100\n"
+"POT-Creation-Date: 2026-07-13 13:08+0100\n"
 "PO-Revision-Date: 2026-07-13 08:44+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language: pt_BR\n"
@@ -707,9 +707,6 @@ msgid "Extension"
 msgstr ""
 
 msgid "Extensions"
-msgstr ""
-
-msgid "External links"
 msgstr ""
 
 msgid "Facts"
@@ -1485,6 +1482,9 @@ msgid "Section"
 msgstr ""
 
 msgid "Section configuration"
+msgstr ""
+
+msgid "See also"
 msgstr ""
 
 msgid "Serializer"

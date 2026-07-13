@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-13 12:24+0100\n"
+"POT-Creation-Date: 2026-07-13 13:08+0100\n"
 "PO-Revision-Date: 2026-07-13 08:45+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ta\n"
@@ -708,9 +708,6 @@ msgstr "நீட்டிப்பு"
 
 msgid "Extensions"
 msgstr "நீட்டிப்புகள்"
-
-msgid "External links"
-msgstr "வெளி இணைப்புகள்"
 
 msgid "Facts"
 msgstr "உண்மைகள்"
@@ -1488,6 +1485,9 @@ msgstr "பிரிவு"
 
 msgid "Section configuration"
 msgstr "பிரிவு கட்டமைப்பு"
+
+msgid "See also"
+msgstr ""
 
 msgid "Serializer"
 msgstr "சீரியலைசர்"
