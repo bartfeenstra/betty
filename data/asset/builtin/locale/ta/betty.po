@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-13 11:38+0100\n"
+"POT-Creation-Date: 2026-07-13 12:24+0100\n"
 "PO-Revision-Date: 2026-07-13 08:45+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ta\n"
@@ -1599,6 +1599,9 @@ msgstr "மண்டலம்"
 msgid "Tertiary color"
 msgstr "மூன்றாம் நிலை நிறம்"
 
+msgid "Testimonies"
+msgstr ""
+
 msgid "Text"
 msgstr "உரை"
 
@@ -1940,9 +1943,6 @@ msgstr "உயில்கள்"
 
 msgid "Witness"
 msgstr "சான்று"
-
-msgid "Witness statements"
-msgstr ""
 
 msgid "Witnesses"
 msgstr "சாட்சிகள்"
