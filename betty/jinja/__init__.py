@@ -24,6 +24,7 @@ from betty import about
 from betty.date import Date
 from betty.file import read, write
 from betty.html.attributes import Attributes
+from betty.locale import default_locale
 from betty.machine_name import MachineName
 from betty.media_type import (
     ResolvableMediaType,
@@ -96,6 +97,7 @@ async def new_environment(project: Project, /) -> Environment:
     environment.globals.update({
         "about_version_major": about.version_major_label,
         "app": project.upstream,
+        "default_locale": default_locale,
         "deprecate": deprecate,
         "machine_name": MachineName,
         "new_attributes": Attributes,

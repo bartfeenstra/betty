@@ -4,8 +4,8 @@
     {% if translated < 100 %}
         <div class="border d-inline-block my-2 p-2" style="border-color: #ffd77a !important;">
             <p class="fw-bold">
-                {% trans language = document.localizer.locale.get_display_name(), translated = translated | int -%}
-                    The {{ language }} translations are only {{ translated }}% complete. Some things may be shown in English.
+                {% trans translation_language = document.localizer.locale.get_display_name(), translated = translated | int, default_language = default_locale.get_display_name(document.localizer.locale) -%}
+                    The {{ translation_language }} translations are only {{ translated }}% complete. Some things may be shown in {{ default_language }}.
                 {%- endtrans %}
             </p>
             <a href="https://hosted.weblate.org/projects/betty/" class="view-more">{% trans %}Help improve the translations{% endtrans %}</a>
