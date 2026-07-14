@@ -70,10 +70,12 @@ class MachineName(Portable[str], str, Data):
         """
         return self._persistent
 
+    _load = assert_str()
+
     @override
     @classmethod
     def load(cls, portable: PortableData, /) -> Self:
-        return cls(assert_str()(portable))
+        return cls(cls._load(portable))
 
     @override
     def dump(self) -> str:

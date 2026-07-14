@@ -17,12 +17,12 @@ class AnyDatePorter(Porter[AnyDate, PortableData]):
     Port a date or date range.
     """
 
-    @override
-    def load(self, portable: PortableData, /) -> AnyDate:
-        return assert_if_else(
+    load = override(
+        assert_if_else(
             Date.data().porter.load,
             DateRange.data().porter.load,
-        )(portable)
+        )
+    )
 
     @override
     def dump(self, data: AnyDate, /) -> PortableData:

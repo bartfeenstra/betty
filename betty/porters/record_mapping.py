@@ -26,17 +26,15 @@ class RecordMappingPorter[DataClsT, ElementT: Element[str] = Element[str]](
 
     def __init__(self, record: RecordDefinition[DataClsT, ElementT], /):
         self._record = record
+        self._load = assert_record(*[
+            Field(selector.element, field.data.porter.load, optional=field.omit_load)
+            for selector, field in record.fields.items()
+        ])
+        self._load_keyed = assert_mapping()
 
     @override
     def load(self, portable: PortableData, /) -> DataClsT:
-        return self._record.factory(
-            **assert_record(*[
-                Field(
-                    selector.element, field.data.porter.load, optional=field.omit_load
-                )
-                for selector, field in self._record.fields.items()
-            ])(portable)
-        )
+        return self._record.factory(**self._load(portable))
 
     @override
     def dump(self, data: DataClsT, /) -> PortableMapping:
@@ -55,7 +53,7 @@ class RecordMappingPorter[DataClsT, ElementT: Element[str] = Element[str]](
         portable_key: str,
         /,
     ) -> DataClsT:  # ty:ignore[invalid-method-override]
-        return self.load({**assert_mapping()(portable), key.element: portable_key})
+        return self.load({**self._load_keyed(portable), key.element: portable_key})
 
     @override
     def dump_key(

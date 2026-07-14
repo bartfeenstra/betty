@@ -105,24 +105,28 @@ class PluginManufacturer(
             return NotImplemented
         return hash(self) == hash(other)
 
+    _load = assert_if_else(
+        Pipeline(MachineName.load) | (lambda plugin_id: {"plugin": plugin_id}),
+        assert_record(
+            Field("plugin", MachineName.load),
+            Field("data", optional=True),
+        ),
+    )
+
     @final
     @override
     @classmethod
     def load(cls, portable: PortableData, /) -> Self:
-        record = assert_if_else(
-            Pipeline(MachineName.load) | (lambda plugin_id: {"plugin": plugin_id}),
-            assert_record(
-                Field("plugin", MachineName.load),
-                Field("data", optional=True),
-            ),
-        )(portable)
+        record = cls._load(portable)
         return cls(record["plugin"], record.get("data", Void))
+
+    _load_keyed = assert_mapping()
 
     @final
     @override
     @classmethod
     def load_key(cls, portable: PortableData, key: Attr, portable_key: str, /) -> Self:
-        return cls.load({**assert_mapping()(portable), "plugin": portable_key})
+        return cls.load({**cls._load_keyed(portable), "plugin": portable_key})
 
     @final
     def _dump_data(self, configuration: Data | PortableData) -> PortableData:
