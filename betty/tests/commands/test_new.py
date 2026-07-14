@@ -6,13 +6,13 @@ from betty.data import Data
 from betty.loaders.gramps import Gramps, GrampsData
 from betty.locale import default_locale_tag, to_language_tag
 from betty.localizer import default_localizer
+from betty.maybe import Nothing
 from betty.portable.file import assert_load_file
 from betty.project import ProjectData
 from betty.serializers.json import Json
 from betty.test_utils.conftest import IsolatedAppFactory
 from betty.test_utils.console import run
 from betty.test_utils.user import StaticUser
-from betty.typing import Void
 
 
 def _assert_new(configuration_file: Path) -> ProjectData:
@@ -191,7 +191,7 @@ class TestNew:
             configuration = _assert_new(configuration_file)
             assert Gramps in configuration.loaders
             portable_gramps_configuration = configuration.loaders[Gramps].plugin_data
-            assert portable_gramps_configuration is not Void
+            assert portable_gramps_configuration is not Nothing
             assert not isinstance(portable_gramps_configuration, Data)
             gramps_configuration = GrampsData.data().porter.load(
                 portable_gramps_configuration

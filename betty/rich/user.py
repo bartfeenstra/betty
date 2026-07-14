@@ -14,10 +14,10 @@ from rich.progress import Progress as _RichProgress
 from rich.prompt import Confirm, Prompt
 
 from betty.life_cycle.manage import ManagedLifeCycle
+from betty.maybe import Nothing, NothingType
 from betty.progresses.no_op import NoOpProgress
 from betty.progresses.rich import RichProgress
 from betty.rich import Theme
-from betty.typing import Void, VoidType
 from betty.user import User, Verbosity
 from betty.user.logging import UserHandler
 
@@ -177,7 +177,7 @@ class RichUser(ManagedLifeCycle, User):
         /,
         *,
         assertion: None = None,
-        default: str | VoidType = Void,
+        default: str | NothingType = Nothing,
         stdin: TextIO | None = None,
     ) -> str:
         pass
@@ -189,18 +189,24 @@ class RichUser(ManagedLifeCycle, User):
         /,
         *,
         assertion: Pipe[str, T],
-        default: str | VoidType = Void,
+        default: str | NothingType = Nothing,
         stdin: TextIO | None = None,
     ) -> T:
         pass
 
     @override
     async def ask_input(
-        self, question, /, *, assertion=None, default=Void, stdin: TextIO | None = None
+        self,
+        question,
+        /,
+        *,
+        assertion=None,
+        default=Nothing,
+        stdin: TextIO | None = None,
     ):
         self.assert_alive()
         ask_kwargs = {}
-        if default is not Void:
+        if default is not Nothing:
             ask_kwargs["default"] = default
         value = cast(
             str,

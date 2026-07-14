@@ -19,8 +19,10 @@ from queue import Empty, Queue
 from time import sleep
 from typing import TYPE_CHECKING, final, override
 
-from betty.functools import Result, ResultUnavailable, suppress
+from betty.functools import Snapshot
 from betty.life_cycle.manage import ManagedLifeCycle
+from betty.maybe import IsNothing
+from betty.result import new_from
 
 if TYPE_CHECKING:
     from betty.user import User
@@ -35,9 +37,9 @@ class UserHandler(ManagedLifeCycle, logging.Handler):
     def __init__(self, user: User, /):
         super().__init__()
         self._user = user
-        self._result = Result(self._consume)
+        self._result = Snapshot(partial(new_from, BaseException, self._consume))
         self._thread = threading.Thread(
-            name=self.__class__.__name__, target=suppress(self._result, BaseException)
+            name=self.__class__.__name__, target=self._result
         )
         self.life_cycle.on((self._thread.start, self._shutdown_thread))
         self._queue = Queue[Callable[[], Coroutine[None, None, None]]]()
@@ -49,8 +51,8 @@ class UserHandler(ManagedLifeCycle, logging.Handler):
         with contextlib.suppress(CancelledError):
             await to_thread(self._thread.join)
         # If no log messages were recorded, there is no result.
-        with contextlib.suppress(ResultUnavailable):
-            self._result.result()
+        with contextlib.suppress(IsNothing):
+            self._result.snapshot()()
 
     def _consume(self) -> None:
         final_iteration = False

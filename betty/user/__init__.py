@@ -9,7 +9,7 @@ from enum import IntEnum
 from typing import TYPE_CHECKING, overload
 
 from betty.localizer import default_localizer
-from betty.typing import Void, VoidType
+from betty.maybe import Nothing
 
 if TYPE_CHECKING:
     import logging
@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from betty.functools import Pipe
     from betty.localizable import ResolvableLocalizable
     from betty.localizer import Localizer
+    from betty.maybe import NothingType
     from betty.progress import Progress
 
 
@@ -182,7 +183,7 @@ class User(ABC):
         /,
         *,
         assertion: None = None,
-        default: str | VoidType = Void,
+        default: str | NothingType = Nothing,
     ) -> str:
         pass
 
@@ -193,12 +194,12 @@ class User(ABC):
         /,
         *,
         assertion: Pipe[str, T],
-        default: str | VoidType = Void,
+        default: str | NothingType = Nothing,
     ) -> T:
         pass
 
     @abstractmethod
-    async def ask_input(self, question, /, *, assertion=None, default=Void):
+    async def ask_input(self, question, /, *, assertion=None, default=Nothing):
         """
         Ask the user to input text.
 

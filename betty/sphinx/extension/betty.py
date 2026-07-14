@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from asyncio import gather, run
 from collections.abc import Callable, Iterable, Mapping, MutableSequence, Sequence
-from functools import cmp_to_key
+from functools import cmp_to_key, partial
 from textwrap import indent
 from threading import Thread
 from typing import TYPE_CHECKING, override
@@ -21,13 +21,14 @@ from betty.datas.aggregate.record import RecordDefinition
 from betty.datas.optional import OptionalDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.factory import DataManufacturable
-from betty.functools import Result
+from betty.functools import Snapshot
 from betty.importlib import import_any
 from betty.localizer import default_localizer
 from betty.machine_name import MachineName
 from betty.plugin.cls import PluginClsDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.project import Project
+from betty.result import new_from
 from betty.service_level import ServiceLevel
 
 if TYPE_CHECKING:
@@ -42,11 +43,11 @@ type NodesLike = nodes.Node | Iterable[nodes.Node] | None
 
 
 def _to_thread[T](target: Callable[[], T]) -> T:
-    result = Result(target)
+    result = Snapshot(partial(new_from, BaseException, target))
     thread = Thread(target=result)
     thread.start()
     thread.join()
-    return result.result()
+    return result.snapshot()()
 
 
 type _Plugins = Mapping[MachineName, Mapping[MachineName, PluginDefinition]]

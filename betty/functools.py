@@ -4,7 +4,6 @@ Provide functional programming utilities.
 
 from __future__ import annotations
 
-import contextlib
 import threading
 from asyncio import sleep
 from itertools import chain
@@ -20,8 +19,8 @@ from typing import (
 )
 
 from betty.asyncio import resolve_await
+from betty.maybe import Maybe, Nothing, Something
 from betty.threading import threadsafe
-from betty.typing import Void
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable, Iterator
@@ -119,72 +118,6 @@ def passthrough[T](value: T, /) -> T:
     Return the value.
     """
     return value
-
-
-def suppress[**P, T](
-    target: Callable[P, T], *exceptions: type[BaseException]
-) -> Callable[P, T | type[Void]]:
-    """
-    Return the value, but suppress any errors.
-    """
-
-    def _suppress(*target_args: P.args, **target_kwargs: P.kwargs) -> T | type[Void]:
-        with contextlib.suppress(*exceptions):
-            return target(*target_args, **target_kwargs)
-        return Void
-
-    return _suppress
-
-
-class ResultUnavailable(RuntimeError):
-    """
-    A :py:attr:`betty.functools.Result.result` is unavailable.
-    """
-
-    def __init__(self):
-        super().__init__(
-            "The result is unavailable because the target has not been called yet."
-        )
-
-
-@final
-class Result[**P, T]:
-    """
-    Decorate a callable and store its return value or raised exception.
-    """
-
-    __slots__ = "_error", "_result", "_target"
-    _error: BaseException
-    _result: T
-
-    def __init__(self, target: Callable[P, T], /):
-        self._target = target
-
-    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> T:
-        """
-        Call the target.
-        """
-        try:
-            self._result = self._target(*args, **kwargs)
-        except BaseException as error:
-            self._error = error
-            raise
-        else:
-            return self._result
-
-    def result(self) -> T:
-        """
-        Get the target's return value.
-
-        If the target raised an exception, calling this method will re-raise the exception.
-        """
-        try:
-            raise self._error
-        except AttributeError:
-            try:
-                return self._result
-            except AttributeError:
-                raise ResultUnavailable from None
 
 
 type DecoratorCallableType[
@@ -344,3 +277,35 @@ class Pipeline[ValueT, ReturnT]:
         Invoke the pipeline with a value.
         """
         return self._pipe(value)
+
+
+@final
+class Snapshot[**P, ReturnT]:
+    """
+    Decorate a callable to store a snapshot of the last call's return value.
+    """
+
+    __slots__ = "_function", "_snapshot"
+
+    def __init__(
+        self,
+        function: Callable[P, ReturnT],
+        /,
+    ):
+        self._function = function
+        self._snapshot: Maybe[ReturnT] = Nothing
+
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> ReturnT:
+        """
+        Call the function.
+        """
+        snapshot = self._function(*args, **kwargs)
+        self._snapshot = Something(snapshot)
+        return snapshot
+
+    @property
+    def snapshot(self) -> Maybe[ReturnT]:
+        """
+        The snapshot of the last call's return value.
+        """
+        return self._snapshot

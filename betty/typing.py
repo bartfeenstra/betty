@@ -4,7 +4,7 @@ Providing typing utilities.
 
 from __future__ import annotations
 
-from typing import Any, final
+from typing import Any
 
 try:
     from ty_extensions import Intersection, Not
@@ -28,19 +28,3 @@ except ImportError:
 
 
 type Number = int | float
-
-
-@final
-class Void:
-    """
-    A sentinel that describes the absence of a value.
-
-    Using this sentinel allows for actual values to be ``None``. Like ``None``,
-    ``Void`` is only ever used through its type, and never instantiated.
-    """
-
-    def __new__():  # noqa: D102
-        raise NotImplementedError
-
-
-type VoidType = type[Void]
