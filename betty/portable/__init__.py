@@ -79,9 +79,3 @@ class Porter[DataClsT, PortableDataT: PortableData = PortableData](ABC):
         """
         Dump data to its portable form.
         """
-
-    def copy(self, data: DataClsT) -> DataClsT:
-        """
-        Deep-copy data into a new instance.
-        """
-        return self.load(self.dump(data))
