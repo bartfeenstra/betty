@@ -128,10 +128,12 @@ class MediaType(Data, Portable):
             other.parameters,
         )
 
+    _load = assert_str()
+
     @override
     @classmethod
     def load(cls, portable: PortableData, /) -> Self:
-        return cls(assert_str()(portable))
+        return cls(cls._load(portable))
 
     @override
     def dump(self) -> PortableData:

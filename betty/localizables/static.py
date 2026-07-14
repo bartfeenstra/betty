@@ -146,18 +146,18 @@ class CountableStaticTranslations(CountableLocalizable, Portable):
             for locale in self._translations
         }).format(count=str(count))
 
+    _load = assert_mapping(
+        assert_mapping(
+            assert_str(),
+            assert_str(),
+        ),
+        assert_locale(),
+    )
+
     @override
     @classmethod
     def load(cls, portable: PortableData, /) -> Self:
-        return cls(
-            assert_mapping(
-                assert_mapping(
-                    assert_str(),
-                    assert_str(),
-                ),
-                assert_locale(),
-            )(portable)
-        )
+        return cls(cls._load(portable))
 
     @override
     def dump(self) -> PortableData:
@@ -287,15 +287,15 @@ class StaticTranslations(Localizable, Portable):
             localizer.locale: other.localize(localizer) for localizer in localizers
         })
 
+    _load = assert_if_else(
+        assert_str().pipe(lambda translation: {None: translation}),
+        assert_mapping(assert_str(), assert_locale()),
+    )
+
     @override
     @classmethod
     def load(cls, portable: PortableData, /) -> Self:
-        return cls(
-            assert_if_else(
-                assert_str().pipe(lambda translation: {None: translation}),
-                assert_mapping(assert_str(), assert_locale()),
-            )(portable)
-        )
+        return cls(cls._load(portable))
 
     @override
     def dump(self) -> PortableData:
