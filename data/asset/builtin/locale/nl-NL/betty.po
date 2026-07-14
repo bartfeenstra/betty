@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-14 17:08+0100\n"
-"PO-Revision-Date: 2026-07-14 19:51+0000\n"
+"PO-Revision-Date: 2026-07-14 22:36+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl-NL\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/betty/betty-0-5-x/nl/>\n"
@@ -255,7 +255,7 @@ msgstr "Betty kent het Gramps-plaatstype \"{gramps_place_type}\" van plaats \"{p
 
 #, python-brace-format
 msgid "Betty is unfamiliar with person \"{person_id}\"'s Gramps role of \"{gramps_role}\" for the event with Gramps handle \"{event_handle}\". The role was imported, but set to \"{betty_role}\"."
-msgstr ""
+msgstr "Betty is niet bekend met de Gramps-rol \"{gramps_role}\" van persoon \"{person_id}\" in de gebeurtenis met Gramps-handle \"{event_handle}\". De rol is geïmporteerd als \"{betty_role}\"."
 
 msgid "Betty was named after <a href=\"betty-entity://person/betty-demo-liberta-lankester\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
 msgstr "Betty is vernoemd naar <a href=\"betty-entity://person/betty-demo-liberta-lankester\">Liberta 'Betty' Lankester</a>, en deze website laat een kleine greep uit haar familiegeschiedenis zien. Blader door de pagina's over haar en haar familie om een idee te krijgen hoe een Betty-site eruit ziet."
@@ -307,10 +307,10 @@ msgid "Burials"
 msgstr "Begravenissen"
 
 msgid "CSS resource"
-msgstr ""
+msgstr "CSS-resource"
 
 msgid "CSS resources"
-msgstr ""
+msgstr "CSS-resources"
 
 #, python-brace-format
 msgid "Cannot add more than one manufacturer for the {plugin} {plugin_type} plugin to the {service} service."
@@ -599,10 +599,10 @@ msgid "Do you want to load a Gramps family tree?"
 msgstr "Wil je een Gramps-stamboom laden?"
 
 msgid "Document provider"
-msgstr ""
+msgstr "Documentprovider"
 
 msgid "Document providers"
-msgstr ""
+msgstr "Documentproviders"
 
 msgid "Emigration"
 msgstr "Emigratie"
@@ -732,7 +732,7 @@ msgid "File"
 msgstr "Bestand"
 
 msgid "File referees"
-msgstr ""
+msgstr "Bestandsverwijzers"
 
 msgid "File reference"
 msgstr "Bestandsverwijzing"
@@ -898,10 +898,10 @@ msgid "It appears you called Betty without a command or arguments"
 msgstr ""
 
 msgid "JavaScript resource"
-msgstr ""
+msgstr "JavaScript-resource"
 
 msgid "JavaScript resources"
-msgstr ""
+msgstr "JavaScript-resources"
 
 msgid "Jinja filter"
 msgstr "Jinja-filter"
@@ -1287,7 +1287,7 @@ msgid "Plugins"
 msgstr "Plugins"
 
 msgid "Populate images"
-msgstr ""
+msgstr "Vul afbeeldingen aan"
 
 msgid "Positional arguments"
 msgstr "Positionele argumenten"
@@ -1631,7 +1631,7 @@ msgid "The entities referencing this file"
 msgstr "De entiteiten die naar dit bestand verwijzen"
 
 msgid "The entity referencing the file"
-msgstr ""
+msgstr "De entiteit die naar dit bestand verwijst"
 
 msgid "The entity the note belongs to"
 msgstr "De entiteit waartoe deze notitie behoort"
@@ -1649,7 +1649,7 @@ msgid "The number of years people are expected to live at most, e.g. after which
 msgstr ""
 
 msgid "The other entities that reference these citations to back up their claims."
-msgstr ""
+msgstr "De andere entiteiten die naar deze verwijzingen verwijzen om hun feiten te onderbouwen."
 
 #, python-brace-format
 msgid "The path to a Betty project directory or configuration file. Defaults to {default} in the current working directory."
@@ -1672,7 +1672,7 @@ msgid "The server at {url} was unreachable after starting."
 msgstr "De server op {url} was onbereikbaar na het starten."
 
 msgid "The source this citation references."
-msgstr ""
+msgstr "De bron waar deze verwijzing naar verwijst."
 
 #, python-brace-format
 msgid "The values of the following HTML attributes will automatically be replaced with the URLs generated from them where possible: {attributes}"
@@ -2078,8 +2078,8 @@ msgstr "y"
 #, python-brace-format
 msgid "{count} CSS resource"
 msgid_plural "{count} CSS resources"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} CSS-resource"
+msgstr[1] "{count} CSS-resources"
 
 #, python-brace-format
 msgid "{count} HTTP client rate limit"
@@ -2090,8 +2090,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} JavaScript resource"
 msgid_plural "{count} JavaScript resources"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} JavaScript-resource"
+msgstr[1] "{count} JavaScript-resources"
 
 #, python-brace-format
 msgid "{count} Jinja filter"
@@ -2288,8 +2288,8 @@ msgstr[1] "{count} scheidingen"
 #, python-brace-format
 msgid "{count} document provider"
 msgid_plural "{count} document providers"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} documentprovider"
+msgstr[1] "{count} documentproviders"
 
 #, python-brace-format
 msgid "{count} emigration"
