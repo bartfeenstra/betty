@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-14 17:08+0100\n"
-"PO-Revision-Date: 2026-07-14 19:44+0000\n"
+"PO-Revision-Date: 2026-07-14 19:51+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de-DE\n"
 "Language-Team: German <https://hosted.weblate.org/projects/betty/betty-0-5-x/de/>\n"
@@ -2663,7 +2663,7 @@ msgstr ""
 
 #, python-brace-format
 msgid "{plugin_type} configuration"
-msgstr ""
+msgstr "{plugin_type}-Konfiguration"
 
 msgid "© Copyright the author, unless otherwise credited"
 msgstr ""
