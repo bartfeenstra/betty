@@ -133,6 +133,7 @@ class Ok[OkT, ErrorT: BaseException](_Result[OkT, ErrorT]):
     """
 
     __slots__ = ("_ok",)
+    __match_args__ = ("ok",)
 
     def __init__(self, ok: OkT, /):
         self._ok = ok
@@ -180,6 +181,7 @@ class Error[ErrorT: BaseException](_Result[Never, ErrorT]):
     """
 
     __slots__ = ("_error",)
+    __match_args__ = ("error",)
 
     def __init__(self, error: ErrorT, /):
         self._error = error

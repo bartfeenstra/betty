@@ -27,6 +27,7 @@ class Something[SomethingT]:
     """
 
     __slots__ = ("_something",)
+    __match_args__ = ("something",)
 
     def __init__(self, something: SomethingT, /):
         self._something = something
