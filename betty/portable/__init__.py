@@ -39,33 +39,33 @@ Keys are strings.
 """
 
 
-class Porter[DataClsT, PortableDataT: PortableData = PortableData](ABC):
+class Porter[DataT, PortableDataT: PortableData = PortableData](ABC):
     """
     An object capable of dumping and loading data to and from portable data.
     """
 
     @abstractmethod
-    def load(self, data: PortableData, /) -> DataClsT:
+    def load(self, data: PortableData, /) -> DataT:
         """
         Load data from its portable form.
         """
 
     @abstractmethod
-    def dump(self, data: DataClsT, /) -> PortableDataT:
+    def dump(self, data: DataT, /) -> PortableDataT:
         """
         Dump data to its portable form.
         """
 
 
-class KeyedPorter[DataClsT, PortableDataT: PortableData = PortableData](
-    Porter[DataClsT, PortableDataT]
+class KeyedPorter[DataT, PortableDataT: PortableData = PortableData](
+    Porter[DataT, PortableDataT]
 ):
     """
     An object capable of dumping and loading data to and from portable data and a paired primary key.
     """
 
     @abstractmethod
-    def load_keyed(self, key: str, data: PortableData, /) -> DataClsT:
+    def load_keyed(self, key: str, data: PortableData, /) -> DataT:
         """
         Create a new data instance from portable data and a portable primary key.
 
@@ -73,7 +73,7 @@ class KeyedPorter[DataClsT, PortableDataT: PortableData = PortableData](
         """
 
     @abstractmethod
-    def dump_keyed(self, data: DataClsT, /) -> tuple[str, PortableDataT]:
+    def dump_keyed(self, data: DataT, /) -> tuple[str, PortableDataT]:
         """
         Dump the data to portable data and a portable primary key.
 

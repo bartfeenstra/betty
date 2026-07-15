@@ -9,20 +9,20 @@ from typing import override
 from betty.portable import PortableData, Porter
 
 
-class ProxyPorter[DataClsT, PortableDataT: PortableData = PortableData](
-    Porter[DataClsT, PortableDataT]
+class ProxyPorter[DataT, PortableDataT: PortableData = PortableData](
+    Porter[DataT, PortableDataT]
 ):
     """
     Proxy another porter.
     """
 
-    def __init__(self, *, proxied: Porter[DataClsT, PortableDataT]):
+    def __init__(self, *, proxied: Porter[DataT, PortableDataT]):
         self._proxied = proxied
 
     @override
-    def load(self, data: PortableData) -> DataClsT:
+    def load(self, data: PortableData) -> DataT:
         return self._proxied.load(data)
 
     @override
-    def dump(self, data: DataClsT) -> PortableDataT:
+    def dump(self, data: DataT) -> PortableDataT:
         return self._proxied.dump(data)

@@ -13,12 +13,12 @@ from betty.sample import Sample, Size
 
 
 @final
-class OptionalDefinition[DataClsT](DataDefinition[DataClsT | None]):
+class OptionalDefinition[DataT](DataDefinition[DataT | None]):
     """
     Wrap another data definition to make it optional, e.g. allow ``None``.
     """
 
-    def __init__(self, proxied: DataDefinition[DataClsT], /):
+    def __init__(self, proxied: DataDefinition[DataT], /):
         super().__init__(
             label=proxied.label,
             description=proxied.description,

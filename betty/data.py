@@ -23,16 +23,16 @@ if TYPE_CHECKING:
 type ResolvableDataDefinitionManufacturable[
     ManufacturableT,
     DataDefinitionT: DataDefinition,
-    DataClsT,
+    DataT,
 ] = (
     ManufacturableT
     | Callable[[DataDefinitionT], ManufacturableT]
-    | Callable[[DataDefinitionT, type[DataClsT]], ManufacturableT]
+    | Callable[[DataDefinitionT, type[DataT]], ManufacturableT]
 )
 
 
-class DataDefinition[DataClsT, PorterT: Porter = Porter](
-    HumanFacingDefinition, OptionalClsDefinition[DataClsT]
+class DataDefinition[DataT, PorterT: Porter = Porter](
+    HumanFacingDefinition, OptionalClsDefinition[DataT]
 ):
     """
     A data definition.
@@ -41,25 +41,24 @@ class DataDefinition[DataClsT, PorterT: Porter = Porter](
     def __init__(
         self,
         *args: Any,
-        cls: type[DataClsT] | None = None,
+        cls: type[DataT] | None = None,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
         porter: ResolvableDataDefinitionManufacturable[
-            Intersection[PorterT, Porter[DataClsT]], Self, DataClsT
+            Intersection[PorterT, Porter[DataT]], Self, DataT
         ]
         | None = None,
         samples: Iterable[
-            Callable[[], Sample[DataClsT]]
-            | Samples[DataClsT]
-            | type[Intersection[DataClsT, Samplable]]
+            Callable[[], Sample[DataT]]
+            | Samples[DataT]
+            | type[Intersection[DataT, Samplable]]
         ] = (),
         **kwargs: Any,
     ):
         self._samples = tuple(samples)
-        self._porter: Intersection[PorterT, Porter[DataClsT]] | None = None
+        self._porter: Intersection[PorterT, Porter[DataT]] | None = None
         self._porter_set_cls_factory: (
-            Callable[[Self, type[DataClsT]], Intersection[PorterT, Porter[DataClsT]]]
-            | None
+            Callable[[Self, type[DataT]], Intersection[PorterT, Porter[DataT]]] | None
         ) = None
         factory_signature: int | None = None
         if porter is not None:
@@ -75,7 +74,7 @@ class DataDefinition[DataClsT, PorterT: Porter = Porter](
 
     @final
     @property
-    def porter(self) -> Intersection[PorterT, Porter[DataClsT]]:
+    def porter(self) -> Intersection[PorterT, Porter[DataT]]:
         """
         The porter for the data.
         """
@@ -84,7 +83,7 @@ class DataDefinition[DataClsT, PorterT: Porter = Porter](
         return self._porter
 
     @override
-    def _set_cls(self, cls: type[DataClsT], /) -> None:
+    def _set_cls(self, cls: type[DataT], /) -> None:
         super()._set_cls(cls)
         if issubclass(cls, Data):
             assert cls not in _datas, (
