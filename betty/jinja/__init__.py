@@ -97,6 +97,10 @@ async def new_environment(project: Project, /) -> Environment:
 
     environment.globals.update({
         "about_version_major": about.version_major_label,
+        "about_url": about.url,
+        "about_url_code": about.url_code,
+        "about_url_documentation": about.url_documentation,
+        "about_url_report_issue": about.url_report_issue,
         "app": project.upstream,
         "default_locale": default_locale,
         "deprecate": deprecate,

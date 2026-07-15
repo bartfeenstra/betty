@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, final
 
 from babel import Locale
 
+from betty import samples
 from betty.assertions.locale import assert_locale
 from betty.data import DataDefinition
 from betty.locale import to_language_tag
@@ -30,7 +31,9 @@ class LocaleDefinition(DataDefinition[Locale]):
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
     ):
-        _description = _('An IETF BCP 47 language tag, such as "nl-NL".')
+        _description = _(
+            "An IETF BCP 47 language tag, such as {example_language_tag}."
+        ).format(example_language_tag=samples.language_tag)
         if description:
             _description = Paragraph(description, _description)
         super().__init__(

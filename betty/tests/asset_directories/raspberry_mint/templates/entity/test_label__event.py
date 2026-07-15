@@ -119,7 +119,7 @@ async def test_with_subjects_without_person_context(
     other_subject = Person()
     Presence(context_subject, Subject(), event)
     Presence(other_subject, Subject(), event)
-    expected = 'Marriage of <span title="This person\'s name is unknown.">n.n.</span>, and <span title="This person\'s name is unknown.">n.n.</span>'
+    expected = 'Marriage of <span title="This person\'s name is unknown.">n.n.</span> and <span title="This person\'s name is unknown.">n.n.</span>'
     async with assert_template_file(
         data={
             "entity": event,

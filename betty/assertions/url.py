@@ -10,6 +10,7 @@ from urllib.parse import urlsplit, urlunsplit
 from betty.assertions import _HumanFacingValueError
 from betty.assertions.str import assert_str
 from betty.localizables.gettext import _
+from betty.localizables.markup import Quote
 
 if TYPE_CHECKING:
     from betty.functools import Pipeline
@@ -25,7 +26,7 @@ def assert_url() -> Pipeline[Any, str]:
             url_parts = urlsplit(value)
         except ValueError:
             raise _HumanFacingValueError(
-                _('"{url}" is not a valid URL.').format(url=value)
+                _("{url} is not a valid URL.").format(url=Quote(value))
             ) from None
         if not url_parts.netloc:
             raise _HumanFacingValueError(_("The URL must include a host."))

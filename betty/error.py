@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 from betty.exception import HumanFacingException
 from betty.localizables.gettext import _
+from betty.localizables.markup import Quote
 
 if TYPE_CHECKING:
     from betty.pathlib import StrPath
@@ -20,5 +21,5 @@ class FileNotFound(HumanFacingException, FileNotFoundError):
 
     def __init__(self, file: StrPath, /):
         super().__init__(
-            _('Could not find the file "{file_path}".').format(file_path=str(file))
+            _("Could not find the file {file_path}.").format(file_path=Quote(str(file)))
         )

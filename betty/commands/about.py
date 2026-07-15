@@ -14,6 +14,7 @@ from betty.console.project import add_project_argument
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.factory import Manufacturable
 from betty.localizables.gettext import _
+from betty.localizables.markup import Quote
 from betty.rich.user import RichUser
 
 if TYPE_CHECKING:
@@ -114,9 +115,11 @@ class About(Manufacturable, Command):
         if project is None:
             user.console.print(
                 "[yellow]"
-                + user.localizer._(
-                    "More plugins may be available when running this command with --project."
+                + _(
+                    "More plugins may be available when running this command with {argument}."
                 )
+                .format(argument=Quote("--project"))
+                .localize(user.localizer)
             )
 
     async def _about_system(self, user: RichUser) -> None:

@@ -7,41 +7,21 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-14 17:08+0100\n"
+"POT-Creation-Date: 2026-07-15 13:27+0100\n"
 "PO-Revision-Date: 2026-07-14 19:51+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
-"Language: en-GB\n"
+"Language: en_GB\n"
 "Language-Team: English (United Kingdom) <https://hosted.weblate.org/projects/betty/betty-0-5-x/en_GB/>\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
-"X-Generator: Weblate 2026.8.dev0\n"
 
 #, python-brace-format
-msgid "\"{color}\" is not a valid hexadecimal color, such as #ffc0cb."
-msgstr "\"{color}\" is not a valid hexadecimal colour, such as #ffc0cb."
-
-#, python-brace-format
-msgid "\"{invalid_locale}\" is not a valid IETF BCP 47 language tag."
-msgstr "\"{invalid_locale}\" is not a valid IETF BCP 47 language tag."
-
-#, python-brace-format
-msgid "\"{path}\" is not a directory."
-msgstr "\"{path}\" is not a directory."
-
-#, python-brace-format
-msgid "\"{target}\" is not configurable, but configuration was given."
-msgstr "\"{target}\" is not configurable, but configuration was given."
-
-#, python-brace-format
-msgid "\"{url}\" is not a valid URL."
-msgstr "\"{url}\" is not a valid URL."
-
-#, python-brace-format
-msgid "\"{value}\" is not a valid machine name."
-msgstr "\"{value}\" is not a valid machine name."
+msgctxt "localizable-quote"
+msgid "\"{text}\""
+msgstr "\"{text}\""
 
 #, python-format
 msgid "%(date)s in %(place)s"
@@ -55,20 +35,26 @@ msgstr "%(event)s of %(subjects)s"
 msgid "%(event)s with %(subjects)s"
 msgstr "%(event)s with %(subjects)s"
 
+msgctxt "localizable-join-separator"
+msgid ", "
+msgstr ", "
+
 msgid "A Betty demonstration"
 msgstr "A Betty demonstration"
 
 msgid "A countable localizable string"
 msgstr "A countable localisable string"
 
-msgid "A family history as told by <a href=\"https://betty.readthedocs.io\">Betty👵</a>"
-msgstr "A family history as told by <a href=\"https://betty.readthedocs.io\">Betty👵</a>"
+#, python-format
+msgid "A family history as told by <a href=\"%(betty_url)s\">Betty👵</a>"
+msgstr "A family history as told by <a href=\"%(betty_url)s\">Betty👵</a>"
 
 msgid "A formal witness to an event."
 msgstr "A formal witness to an event."
 
-msgid "A hexadecimal color, such as #ff0000"
-msgstr "A hexadecimal colour, such as #ff0000"
+#, python-brace-format
+msgid "A hexadecimal color, such as {example_color}"
+msgstr "A hexadecimal colour, such as {example_color}"
 
 msgid "A localizable string"
 msgstr "A localisable string"
@@ -131,8 +117,9 @@ msgstr "Also show log messages"
 msgid "Amsterdam"
 msgstr "Amsterdam"
 
-msgid "An IETF BCP 47 language tag, such as \"nl-NL\"."
-msgstr "An IETF BCP 47 language tag, such as \"nl-NL\"."
+#, python-brace-format
+msgid "An IETF BCP 47 language tag, such as {example_language_tag}."
+msgstr "An IETF BCP 47 language tag, such as {example_language_tag}."
 
 #, python-brace-format
 msgid "An unexpected error occurred. If you believe this is a problem with Betty, please report this at {url}."
@@ -234,31 +221,32 @@ msgid "Betty is an application that takes a family tree and builds a website out
 msgstr "Betty is an application that takes a family tree and builds a website out of it, much like the one you are viewing right now. The more information your genealogical research contains, the more interactivity Betty can add to your site, such as media galleries, maps, and browsable family trees."
 
 #, python-brace-format
-msgid "Betty is unfamiliar with Gramps event \"{event_id}\"'s type of \"{gramps_event_type}\". The event was imported, but its type was set to \"{betty_event_type}\"."
-msgstr "Betty is unfamiliar with Gramps event \"{event_id}\"'s type of \"{gramps_event_type}\". The event was imported, but its type was set to \"{betty_event_type}\"."
+msgid "Betty is unfamiliar with Gramps event {event}'s type of {gramps_event_type}. The event was imported, but its type was set to {betty_event_type}."
+msgstr "Betty is unfamiliar with Gramps event {event}'s type of {gramps_event_type}. The event was imported, but its type was set to {betty_event_type}."
 
 #, python-brace-format
-msgid "Betty is unfamiliar with Gramps file \"{file_id}\"'s copyright notice ID of \"{copyright_notice_id}\" and ignored it."
-msgstr "Betty is unfamiliar with Gramps file \"{file_id}\"'s copyright notice ID of \"{copyright_notice_id}\" and ignored it."
+msgid "Betty is unfamiliar with Gramps file {file}'s copyright notice of {copyright_notice} and ignored it."
+msgstr "Betty is unfamiliar with Gramps file {file}'s copyright notice of {copyright_notice} and ignored it."
 
 #, python-brace-format
-msgid "Betty is unfamiliar with Gramps file \"{file_id}\"'s license ID of \"{license_id}\" and ignored it."
-msgstr "Betty is unfamiliar with Gramps file \"{file_id}\"'s licence ID of \"{license_id}\" and ignored it."
+msgid "Betty is unfamiliar with Gramps file {file}'s license of {license} and ignored it."
+msgstr "Betty is unfamiliar with Gramps file {file}'s license of {license} and ignored it."
 
 #, python-brace-format
-msgid "Betty is unfamiliar with Gramps person \"{person_id}\"'s gender ID of \"{gender_id}\" and ignored it."
-msgstr "Betty is unfamiliar with Gramps person \"{person_id}\"'s gender ID of \"{gender_id}\" and ignored it."
+msgid "Betty is unfamiliar with Gramps person {person}'s gender of {gender} and ignored it."
+msgstr "Betty is unfamiliar with Gramps person {person}'s gender of {gender} and ignored it."
 
 #, python-brace-format
-msgid "Betty is unfamiliar with Gramps place \"{place_id}\"'s type of \"{gramps_place_type}\". The place was imported, but its type was set to \"{betty_place_type}\"."
-msgstr "Betty is unfamiliar with Gramps place \"{place_id}\"'s type of \"{gramps_place_type}\". The place was imported, but its type was set to \"{betty_place_type}\"."
+msgid "Betty is unfamiliar with Gramps place {place}'s type of {gramps_place_type}. The place was imported, but its type was set to {betty_place_type}."
+msgstr "Betty is unfamiliar with Gramps place {place}'s type of {gramps_place_type}. The place was imported, but its type was set to {betty_place_type}."
 
 #, python-brace-format
-msgid "Betty is unfamiliar with person \"{person_id}\"'s Gramps role of \"{gramps_role}\" for the event with Gramps handle \"{event_handle}\". The role was imported, but set to \"{betty_role}\"."
-msgstr "Betty is unfamiliar with person \"{person_id}\"'s Gramps role of \"{gramps_role}\" for the event with Gramps handle \"{event_handle}\". The role was imported, but set to \"{betty_role}\"."
+msgid "Betty is unfamiliar with person {person}'s Gramps role of {gramps_role} for the event with Gramps handle {event_handle}. The role was imported, but set to {betty_role}."
+msgstr "Betty is unfamiliar with person {person}'s Gramps role of {gramps_role} for the event with Gramps handle {event_handle}. The role was imported, but set to {betty_role}."
 
-msgid "Betty was named after <a href=\"betty-entity://person/betty-demo-liberta-lankester\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
-msgstr "Betty was named after <a href=\"betty-entity://person/betty-demo-liberta-lankester\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
+#, python-brace-format
+msgid "Betty was named after <a href=\"{liberta_lankester_url}\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
+msgstr "Betty was named after <a href=\"{liberta_lankester_url}\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
 
 #, python-brace-format
 msgid "Betty will talk to you in {locale}"
@@ -320,24 +308,24 @@ msgid "Cannot find an available port to bind the web server to."
 msgstr "Cannot find an available port to bind the web server to."
 
 #, python-brace-format
-msgid "Cannot find the \"{plugin_id}\" {plugin_type} plugin."
-msgstr "Cannot find the \"{plugin_id}\" {plugin_type} plugin."
+msgid "Cannot find the {plugin_id} {plugin_type} plugin."
+msgstr "Cannot find the {plugin_id} {plugin_type} plugin."
 
 #, python-brace-format
-msgid "Cannot find the \"{plugin_type}\" plugin type."
-msgstr "Cannot find the \"{plugin_type}\" plugin type."
+msgid "Cannot find the {plugin_type} plugin type."
+msgstr "Cannot find the {plugin_type} plugin type."
 
 #, python-brace-format
-msgid "Cannot load Gramps file {file_id} with relative path {file_path}, because your family tree does not include a base path. In Gramps, add a \"base path for relative media paths\" to your family tree, and export it again."
-msgstr "Cannot load Gramps file {file_id} with relative path {file_path}, because your family tree does not include a base path. In Gramps, add a \"base path for relative media paths\" to your family tree, and export it again."
+msgid "Cannot load Gramps file {file} with relative path {file_path}, because your family tree does not include a base path. In Gramps, add a {gramps_setting} to your family tree, and export it again."
+msgstr "Cannot load Gramps file {file} with relative path {file_path}, because your family tree does not include a base path. In Gramps, add a {gramps_setting} to your family tree, and export it again."
 
 #, python-brace-format
-msgid "Cannot load Gramps file {file_id}, because {file_path} is not a file."
-msgstr "Cannot load Gramps file {file_id}, because {file_path} is not a file."
+msgid "Cannot load Gramps file {file}, because {file_path} is not a file."
+msgstr "Cannot load Gramps file {file}, because {file_path} is not a file."
 
 #, python-brace-format
-msgid "Cannot load coordinates \"{coordinates}\", because they are in an unknown format."
-msgstr "Cannot load coordinates \"{coordinates}\", because they are in an unknown format."
+msgid "Cannot load coordinates {coordinates}, because they are in an unknown format."
+msgstr "Cannot load coordinates {coordinates}, because they are in an unknown format."
 
 #, python-brace-format
 msgid "Cannot locate the {service} service on any available service level."
@@ -488,8 +476,8 @@ msgid "Could not find any of the following configuration files in {project_direc
 msgstr "Could not find any of the following configuration files in {project_directory_path}: {configuration_file_names}."
 
 #, python-brace-format
-msgid "Could not find the file \"{file_path}\"."
-msgstr "Could not find the file \"{file_path}\"."
+msgid "Could not find the file {file_path}."
+msgstr "Could not find the file {file_path}."
 
 msgid "Counties"
 msgstr "Counties"
@@ -716,8 +704,9 @@ msgstr "Family"
 msgid "Family tree"
 msgstr "Family tree"
 
-msgid "Family tree configuration must either have a \"file\" or a \"name\""
-msgstr "Family tree configuration must either have a \"file\" or a \"name\""
+#, python-brace-format
+msgid "Family tree configuration must either have a {file} or a {name}"
+msgstr "Family tree configuration must either have a {file} or a {name}"
 
 msgid "Family trees"
 msgstr "Family trees"
@@ -1004,8 +993,8 @@ msgid "Loaders"
 msgstr "Loaders"
 
 #, python-brace-format
-msgid "Loading \"{file_path}\"…"
-msgstr "Loading \"{file_path}\"…"
+msgid "Loading {file_path}…"
+msgstr "Loading {file_path}…"
 
 msgid "Locale"
 msgstr "Locale"
@@ -1109,8 +1098,9 @@ msgstr "Missings"
 msgid "Month"
 msgstr "Month"
 
-msgid "More plugins may be available when running this command with --project."
-msgstr "More plugins may be available when running this command with --project."
+#, python-brace-format
+msgid "More plugins may be available when running this command with {argument}."
+msgstr "More plugins may be available when running this command with {argument}."
 
 msgid "Multiple files in a media gallery display"
 msgstr "Multiple files in a media gallery display"
@@ -1323,14 +1313,14 @@ msgid "Privatized place {privatized_place_id} ({privatized_place}) because it is
 msgstr "Privatised place {privatized_place_id} ({privatized_place}) because it is not associated with any public information."
 
 #, python-brace-format
-msgid "Privatized {count} \"{entity_type_id}\" entity, because it is associated with private information."
-msgid_plural "Privatized {count} \"{entity_type_id}\" entities, because they are associated with private information."
-msgstr[0] "Privatised {count} \"{entity_type_id}\" entity, because it is associated with private information."
-msgstr[1] "Privatised {count} \"{entity_type_id}\" entities, because they are associated with private information."
-
-#, python-brace-format
 msgid "Privatized {count} people because they are likely still alive."
 msgstr "Privatised {count} people because they are likely still alive."
+
+#, python-brace-format
+msgid "Privatized {count} {entity_type} entity, because it is associated with private information."
+msgid_plural "Privatized {count} {entity_type} entities, because they are associated with private information."
+msgstr[0] ""
+msgstr[1] ""
 
 #, python-brace-format
 msgid "Privatized {privatized_entity_type} {privatized_entity_id} ({privatized_entity}) because of {reason_entity_type} {reason_entity_id} ({reason_entity})."
@@ -1345,8 +1335,9 @@ msgstr "Project configuration"
 msgid "Project locale"
 msgstr "Project locale"
 
-msgid "Provide license plugins from the SPDX License List (https://spdx.org/licenses/) "
-msgstr "Provide licence plugins from the SPDX License List (https://spdx.org/licenses/) "
+#, python-brace-format
+msgid "Provide license plugins from the SPDX License List ({spdx_url})"
+msgstr "Provide licence plugins from the SPDX License List ({spdx_url})"
 
 msgid "Province"
 msgstr "Province"
@@ -1503,8 +1494,9 @@ msgstr "Show all available commands"
 msgid "Show this help message"
 msgstr "Show this help message"
 
-msgid "Skip interactions and answer \"yes\" to all questions."
-msgstr "Skip interactions and answer \"yes\" to all questions."
+#, python-brace-format
+msgid "Skip interactions and answer {yes} to all questions."
+msgstr "Skip interactions and answer {yes} to all questions."
 
 msgid "Someone performed public speaking at the event."
 msgstr "Someone performed public speaking at the event."
@@ -1604,22 +1596,18 @@ msgid "The Gramps extension can only load the following file types: {file_extens
 msgstr "The Gramps extension can only load the following file types: {file_extensions}"
 
 #, python-brace-format
-msgid "The Gramps {gramps_entity_reference} entity has a \"betty:link-{link_name}:media_type\" attribute with value \"{media_type}\", which is not a valid IANA media type. This media type was ignored."
-msgstr "The Gramps {gramps_entity_reference} entity has a \"betty:link-{link_name}:media_type\" attribute with value \"{media_type}\", which is not a valid IANA media type. This media type was ignored."
+msgid "The Gramps {gramps_entity_reference} entity has a {attribute_name} attribute with value {attribute_value}, which is not a valid IANA media type. This media type was ignored."
+msgstr "The Gramps {gramps_entity_reference} entity has a {attribute_name} attribute with value {attribute_value}, which is not a valid IANA media type. This media type was ignored."
 
 #, python-brace-format
-msgid "The Gramps {gramps_entity_reference} entity requires a \"betty:link-{link_name}:url\" attribute. This link was ignored."
-msgstr "The Gramps {gramps_entity_reference} entity requires a \"betty:link-{link_name}:url\" attribute. This link was ignored."
+msgid "The Gramps {gramps_entity_reference} entity requires a {attribute_name} attribute. This link was ignored."
+msgstr "The Gramps {gramps_entity_reference} entity requires a {attribute_name} attribute. This link was ignored."
 
 msgid "The URL must include a host."
 msgstr "The URL must include a host."
 
 msgid "The absolute, public URL at which the site will be published."
 msgstr "The absolute, public URL at which the site will be published."
-
-#, python-brace-format
-msgid "The betty:privacy Gramps attribute must have a value of \"public\" or \"private\", but \"{privacy_value}\" was given for {entity_type} {entity_id} ({entity_label}), which was ignored."
-msgstr "The betty:privacy Gramps attribute must have a value of \"public\" or \"private\", but \"{privacy_value}\" was given for {entity_type} {entity_id} ({entity_label}), which was ignored."
 
 msgid "The citations backing up the claims made by this entity"
 msgstr "The citations backing up the claims made by this entity"
@@ -1680,6 +1668,10 @@ msgstr "The values of the following HTML attributes will automatically be replac
 
 msgid "The web server to use."
 msgstr "The web server to use."
+
+#, python-brace-format
+msgid "The {attribute_name} Gramps attribute must have a value of {valid_public_value} or {valid_private_value}, but {attribute_value} was given for {entity_type} {entity_id} ({entity_label}), which was ignored."
+msgstr "The {attribute_name} Gramps attribute must have a value of {valid_public_value} or {valid_private_value}, but {attribute_value} was given for {entity_type} {entity_id} ({entity_label}), which was ignored."
 
 #, python-brace-format
 msgid "The {plugin} {plugin_type} plugin is required from the {service} service."
@@ -1816,15 +1808,15 @@ msgid "Unknown key: {unknown_key}."
 msgstr "Unknown key: {unknown_key}."
 
 #, python-brace-format
-msgid "Unknown plugin \"{plugin_id}\"."
-msgstr "Unknown plugin \"{plugin_id}\"."
+msgid "Unknown plugin {plugin}."
+msgstr "Unknown plugin {plugin}."
 
 msgid "Unknowns"
 msgstr "Unknowns"
 
 #, python-brace-format
-msgid "Unsupported file \"{unsupported_type}\". Supported types are: {available_types}."
-msgstr "Unsupported file \"{unsupported_type}\". Supported types are: {available_types}."
+msgid "Unsupported file {unsupported}. Supported types are: {supported}."
+msgstr "Unsupported file {unsupported}. Supported types are: {supported}."
 
 #, python-brace-format
 msgid "Untranslated locale {locale}."
@@ -1897,8 +1889,9 @@ msgstr "Whether to download additional images found through Wikipedia links in t
 msgid "Whether to output more detailed logs and disable optimizations that make debugging harder."
 msgstr "Whether to output more detailed logs and disable optimisations that make debugging harder."
 
-msgid "Whether to use clean URLs: \"/path\" instead of \"/path/index.html\"."
-msgstr "Whether to use clean URLs: \"/path\" instead of \"/path/index.html\"."
+#, python-brace-format
+msgid "Whether to use clean URLs: {clean_example} instead of {unclean_example}."
+msgstr "Whether to use clean URLs: {clean_example} instead of {unclean_example}."
 
 msgid "Which language should your project site be generated in? Enter a language code."
 msgstr "Which language should your project site be generated in? Enter a language code."
@@ -1955,6 +1948,14 @@ msgstr "Zoom out"
 #, python-brace-format
 msgid "around {date}"
 msgstr "around {date}"
+
+msgctxt "gramps-quote"
+msgid "base path for relative media paths"
+msgstr "base path for relative media paths"
+
+msgctxt "sample-language-tag"
+msgid "en-US"
+msgstr ""
 
 #, python-brace-format
 msgid "from around {start_date}"
@@ -2020,8 +2021,9 @@ msgstr "in %(place)s"
 msgid "in %(source)s"
 msgstr "in %(source)s"
 
-msgid "npm (https://www.npmjs.com/) must be available for features that require Node.js packages to be installed. Ensure that the `npm` executable is available in your `PATH`."
-msgstr "npm (https://www.npmjs.com/) must be available for features that require Node.js packages to be installed. Ensure that the `npm` executable is available in your `PATH`."
+#, python-brace-format
+msgid "npm ({npm_url}) must be available for features that require Node.js packages to be installed. Ensure that the {npm_executable} executable is available in your PATH."
+msgstr "npm ({npm_url}) must be available for features that require Node.js packages to be installed. Ensure that the {npm_executable} executable is available in your PATH."
 
 msgid "private"
 msgstr "private"
@@ -2656,20 +2658,56 @@ msgid "{event_type} of {subjects}"
 msgstr "{event_type} of {subjects}"
 
 #, python-brace-format
+msgctxt "localizable-join-and"
+msgid "{first} and {second}"
+msgstr "{first} and {second}"
+
+#, python-brace-format
+msgctxt "localizable-join-or"
+msgid "{first} or {second}"
+msgstr "{first} or {second}"
+
+#, python-brace-format
 msgid "{individual_name} {affiliation_name}"
 msgstr "{individual_name} {affiliation_name}"
 
 #, python-brace-format
+msgid "{invalid_color} is not a valid hexadecimal color, such as {example_color}."
+msgstr "{invalid_color} is not a valid hexadecimal colour, such as {example_color}."
+
+#, python-brace-format
+msgid "{invalid_locale} is not a valid IETF BCP 47 language tag."
+msgstr "{invalid_locale} is not a valid IETF BCP 47 language tag."
+
+#, python-brace-format
+msgctxt "localizable-join-and-many"
 msgid "{most}, and {last}"
 msgstr "{most}, and {last}"
 
 #, python-brace-format
+msgctxt "localizable-join-or-many"
 msgid "{most}, or {last}"
 msgstr "{most}, or {last}"
 
 #, python-brace-format
+msgid "{path} is not a directory."
+msgstr "{path} is not a directory."
+
+#, python-brace-format
 msgid "{plugin_type} configuration"
 msgstr "{plugin_type} configuration"
+
+#, python-brace-format
+msgid "{target} is not configurable, but configuration was given."
+msgstr "{target} is not configurable, but configuration was given."
+
+#, python-brace-format
+msgid "{url} is not a valid URL."
+msgstr "{url} is not a valid URL."
+
+#, python-brace-format
+msgid "{value} is not a valid machine name."
+msgstr "{value} is not a valid machine name."
 
 msgid "© Copyright the author, unless otherwise credited"
 msgstr "© Copyright the author, unless otherwise credited"
@@ -2677,3 +2715,4 @@ msgstr "© Copyright the author, unless otherwise credited"
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Copyright {author}, unless otherwise credited"
+

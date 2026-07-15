@@ -8,6 +8,8 @@ import argparse as stdargparse
 from typing import TYPE_CHECKING
 
 from betty.exception import HumanFacingException
+from betty.localizables.gettext import _
+from betty.localizables.markup import Quote
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -44,5 +46,7 @@ def add_yes_argument(
         dest="yes",
         default=False,
         action="store_true",
-        help=localizer._('Skip interactions and answer "yes" to all questions.'),
+        help=_("Skip interactions and answer {yes} to all questions.")
+        .format(yes=Quote("y"))
+        .localize(localizer),
     )

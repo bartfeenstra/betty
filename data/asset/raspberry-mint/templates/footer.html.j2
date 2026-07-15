@@ -27,7 +27,11 @@
             </div>
             <div class="d-flex justify-content-center">
                 <div class="mt-3 pt-3 px-2 border-top border-white">
-                    <small>{% trans %}A family history as told by <a href="https://betty.readthedocs.io">Betty👵</a>{% endtrans %}</small>
+                    <small>
+                        {% trans betty_url = about_url -%}
+                            A family history as told by <a href="{{ betty_url }}">Betty👵</a>
+                        {%- endtrans %}
+                    </small>
                 </div>
             </div>
         </div>

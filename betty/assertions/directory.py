@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any
 from betty.assertions import _HumanFacingValueError
 from betty.assertions.path import assert_path
 from betty.localizables.gettext import _
+from betty.localizables.markup import Quote
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -25,7 +26,7 @@ def assert_directory() -> Pipeline[Any, Path]:
         if directory.is_dir():
             return directory
         raise _HumanFacingValueError(
-            _('"{path}" is not a directory.').format(path=str(directory))
+            _("{path} is not a directory.").format(path=Quote(str(directory)))
         )
 
     return assert_path() | _assert_directory

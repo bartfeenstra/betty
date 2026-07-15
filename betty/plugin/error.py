@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 from betty.exception import HumanFacingException
 from betty.localizables.gettext import _
-from betty.localizables.markup import Paragraph, do_you_mean
+from betty.localizables.markup import Paragraph, Quote, do_you_mean
 from betty.plugin import PluginDefinition
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 
@@ -37,8 +37,8 @@ class PluginTypeNotFound(PluginError, HumanFacingException):
     ):
         super().__init__(
             Paragraph(
-                _('Cannot find the "{plugin_type}" plugin type.').format(
-                    plugin_type=plugin_type_not_found
+                _("Cannot find the {plugin_type} plugin type.").format(
+                    plugin_type=Quote(plugin_type_not_found)
                 ),
                 do_you_mean(*[
                     f'"{available_plugin_type}"'
@@ -62,8 +62,9 @@ class PluginNotFound(PluginError, HumanFacingException):
     ):
         super().__init__(
             Paragraph(
-                _('Cannot find the "{plugin_id}" {plugin_type} plugin.').format(
-                    plugin_type=plugin_type.type().label, plugin_id=plugin_not_found
+                _("Cannot find the {plugin_id} {plugin_type} plugin.").format(
+                    plugin_type=plugin_type.type().label,
+                    plugin_id=Quote(plugin_not_found),
                 ),
                 do_you_mean(*[
                     f'"{resolve_plugin_id(available_plugin)}"'

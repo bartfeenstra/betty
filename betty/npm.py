@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, final
 
 from betty import subprocess
 from betty.localizables.gettext import _
+from betty.localizables.markup import Quote
 from betty.requirement import UnmetRequirement
 
 if TYPE_CHECKING:
@@ -30,8 +31,8 @@ class NpmUnavailable(UnmetRequirement, RuntimeError):
     def __init__(self):
         super().__init__(
             _(
-                "npm (https://www.npmjs.com/) must be available for features that require Node.js packages to be installed. Ensure that the `npm` executable is available in your `PATH`."
-            )
+                "npm ({npm_url}) must be available for features that require Node.js packages to be installed. Ensure that the {npm_executable} executable is available in your PATH."
+            ).format(npm_url="https://www.npmjs.com/", npm_executable=Quote("npm"))
         )
 
 

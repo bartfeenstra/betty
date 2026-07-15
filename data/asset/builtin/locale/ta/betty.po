@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-14 17:08+0100\n"
+"POT-Creation-Date: 2026-07-15 13:27+0100\n"
 "PO-Revision-Date: 2026-07-14 19:47+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ta\n"
@@ -17,31 +17,11 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
-"X-Generator: Weblate 2026.8.dev0\n"
 
 #, python-brace-format
-msgid "\"{color}\" is not a valid hexadecimal color, such as #ffc0cb."
-msgstr "\"{color}\" என்பது #ffc0cb போன்ற சரியான எக்சாடெசிமல் வண்ணம் அல்ல."
-
-#, python-brace-format
-msgid "\"{invalid_locale}\" is not a valid IETF BCP 47 language tag."
-msgstr "\"{invalid_locale}\" என்பது சரியான IETF BCP 47 மொழி குறிச்சொல் அல்ல."
-
-#, python-brace-format
-msgid "\"{path}\" is not a directory."
-msgstr "\"{path}\" என்பது அடைவு அல்ல."
-
-#, python-brace-format
-msgid "\"{target}\" is not configurable, but configuration was given."
-msgstr "\"{target}\" உள்ளமைக்க முடியாது, ஆனால் உள்ளமைவு கொடுக்கப்பட்டது."
-
-#, python-brace-format
-msgid "\"{url}\" is not a valid URL."
-msgstr "\"{url}\" சரியான முகவரி அல்ல."
-
-#, python-brace-format
-msgid "\"{value}\" is not a valid machine name."
-msgstr "\"{value}\" என்பது சரியான இயந்திரப் பெயர் அல்ல."
+msgctxt "localizable-quote"
+msgid "\"{text}\""
+msgstr ""
 
 #, python-format
 msgid "%(date)s in %(place)s"
@@ -55,20 +35,26 @@ msgstr "%(event)s இன் %(subjects)s"
 msgid "%(event)s with %(subjects)s"
 msgstr "%(event)s உடன் %(subjects)s"
 
+msgctxt "localizable-join-separator"
+msgid ", "
+msgstr ""
+
 msgid "A Betty demonstration"
 msgstr "ஒரு பெட்டி ஆர்ப்பாட்டம்"
 
 msgid "A countable localizable string"
 msgstr "கணக்கிடக்கூடிய உள்ளூர்மயமாக்கக்கூடிய சரம்"
 
-msgid "A family history as told by <a href=\"https://betty.readthedocs.io\">Betty👵</a>"
-msgstr "<a href=\"https://betty.readthedocs.io\">பெட்டி👵</a> கூறியது போல் குடும்ப வரலாறு"
+#, python-format
+msgid "A family history as told by <a href=\"%(betty_url)s\">Betty👵</a>"
+msgstr "<a href=\"%(betty_url)s\">பெட்டி👵</a> கூறியது போல் குடும்ப வரலாறு"
 
 msgid "A formal witness to an event."
 msgstr "ஒரு நிகழ்வின் முறையான சான்று."
 
-msgid "A hexadecimal color, such as #ff0000"
-msgstr "#ff0000 போன்ற எக்சாடெசிமல் வண்ணம்"
+#, python-brace-format
+msgid "A hexadecimal color, such as {example_color}"
+msgstr "{example_color} போன்ற எக்சாடெசிமல் வண்ணம்"
 
 msgid "A localizable string"
 msgstr "உள்ளூர்மயமாக்கக்கூடிய சரம்"
@@ -131,8 +117,9 @@ msgstr "பதிவு செய்திகளையும் காட்ட�
 msgid "Amsterdam"
 msgstr "ஆம்ச்டர்டாம்"
 
-msgid "An IETF BCP 47 language tag, such as \"nl-NL\"."
-msgstr "\"nl-NL\" போன்ற IETF BCP 47 மொழி குறிச்சொல்."
+#, python-brace-format
+msgid "An IETF BCP 47 language tag, such as {example_language_tag}."
+msgstr "{example_language_tag} போன்ற IETF BCP 47 மொழி குறிச்சொல்."
 
 #, python-brace-format
 msgid "An unexpected error occurred. If you believe this is a problem with Betty, please report this at {url}."
@@ -234,31 +221,32 @@ msgid "Betty is an application that takes a family tree and builds a website out
 msgstr "பெட்டி என்பது குடும்ப மரத்தை எடுத்து அதிலிருந்து இணையதளத்தை உருவாக்கும் ஒரு பயன்பாடாகும், இது நீங்கள் இப்போது பார்த்துக் கொண்டிருப்பதைப் போன்றது. உங்கள் வம்சாவளி ஆராய்ச்சியில் உள்ள கூடுதல் தகவல்கள், மீடியா கேலரிகள், வரைபடங்கள் மற்றும் உலாவக்கூடிய குடும்ப மரங்கள் போன்ற உங்கள் தளத்தில் அதிக ஊடாடுதலை பெட்டி சேர்க்கலாம்."
 
 #, python-brace-format
-msgid "Betty is unfamiliar with Gramps event \"{event_id}\"'s type of \"{gramps_event_type}\". The event was imported, but its type was set to \"{betty_event_type}\"."
-msgstr "பெட்டிக்கு கிராம்ப்ச் நிகழ்வு \"{event_id}\" இன் வகை \"{gramps_event_type}\" பற்றித் தெரியாது. நிகழ்வு இறக்குமதி செய்யப்பட்டது, ஆனால் அதன் வகை \"{betty_event_type}\" என அமைக்கப்பட்டது."
+msgid "Betty is unfamiliar with Gramps event {event}'s type of {gramps_event_type}. The event was imported, but its type was set to {betty_event_type}."
+msgstr "பெட்டிக்கு கிராம்ப்ச் நிகழ்வு {event} இன் வகை {gramps_event_type} பற்றித் தெரியாது. நிகழ்வு இறக்குமதி செய்யப்பட்டது, ஆனால் அதன் வகை {betty_event_type} என அமைக்கப்பட்டது."
+
+#, fuzzy, python-brace-format
+msgid "Betty is unfamiliar with Gramps file {file}'s copyright notice of {copyright_notice} and ignored it."
+msgstr "பெட்டி {copyright_notice} இன் Gramps கோப்பு {file} இன் பதிப்புரிமை அறிவிப்பு ஐடியைப் பற்றி அறிந்திருக்கவில்லை, மேலும் அதைப் புறக்கணித்தார்."
+
+#, fuzzy, python-brace-format
+msgid "Betty is unfamiliar with Gramps file {file}'s license of {license} and ignored it."
+msgstr "பெட்டி, Gramps கோப்பு {file} இன் {license} உரிம ஐடியைப் பற்றி அறிந்திருக்கவில்லை, மேலும் அதைப் புறக்கணித்தார்."
 
 #, python-brace-format
-msgid "Betty is unfamiliar with Gramps file \"{file_id}\"'s copyright notice ID of \"{copyright_notice_id}\" and ignored it."
-msgstr "பெட்டி \"{copyright_notice_id}\" இன் Gramps கோப்பு \"{file_id}\" இன் பதிப்புரிமை அறிவிப்பு ஐடியைப் பற்றி அறிந்திருக்கவில்லை, மேலும் அதைப் புறக்கணித்தார்."
+msgid "Betty is unfamiliar with Gramps person {person}'s gender of {gender} and ignored it."
+msgstr "பெட்டி {person} இன் {gender} என்ற கிராம்ப்ச் நபரின் பாலின ஐடியைப் பற்றி அறிந்திருக்கவில்லை, மேலும் அதைப் புறக்கணித்தார்."
 
 #, python-brace-format
-msgid "Betty is unfamiliar with Gramps file \"{file_id}\"'s license ID of \"{license_id}\" and ignored it."
-msgstr "பெட்டி, Gramps கோப்பு \"{file_id}\" இன் \"{license_id}\" உரிம ஐடியைப் பற்றி அறிந்திருக்கவில்லை, மேலும் அதைப் புறக்கணித்தார்."
+msgid "Betty is unfamiliar with Gramps place {place}'s type of {gramps_place_type}. The place was imported, but its type was set to {betty_place_type}."
+msgstr "பெட்டிக்கு கிராம்ப்ச் இடம் {place} இன் வகை {gramps_place_type} பற்றி அறிமுகம் இல்லை. இடம் இறக்குமதி செய்யப்பட்டது, ஆனால் அதன் வகை {betty_place_type} என அமைக்கப்பட்டது."
 
 #, python-brace-format
-msgid "Betty is unfamiliar with Gramps person \"{person_id}\"'s gender ID of \"{gender_id}\" and ignored it."
-msgstr "பெட்டி \"{person_id}\" இன் \"{gender_id}\" என்ற கிராம்ப்ச் நபரின் பாலின ஐடியைப் பற்றி அறிந்திருக்கவில்லை, மேலும் அதைப் புறக்கணித்தார்."
+msgid "Betty is unfamiliar with person {person}'s Gramps role of {gramps_role} for the event with Gramps handle {event_handle}. The role was imported, but set to {betty_role}."
+msgstr "{person} என்ற நபரின் கிராம்ப்ச் ரோல் {gramps_role} என்ற நிகழ்வில் {event_handle} என்ற கிராம்ப்ச் ஏண்டில் பெட்டிக்கு அறிமுகம் இல்லை. பங்கு இறக்குமதி செய்யப்பட்டது, ஆனால் {betty_role} என அமைக்கப்பட்டது."
 
 #, python-brace-format
-msgid "Betty is unfamiliar with Gramps place \"{place_id}\"'s type of \"{gramps_place_type}\". The place was imported, but its type was set to \"{betty_place_type}\"."
-msgstr "பெட்டிக்கு கிராம்ப்ச் இடம் \"{place_id}\" இன் வகை \"{gramps_place_type}\" பற்றி அறிமுகம் இல்லை. இடம் இறக்குமதி செய்யப்பட்டது, ஆனால் அதன் வகை \"{betty_place_type}\" என அமைக்கப்பட்டது."
-
-#, python-brace-format
-msgid "Betty is unfamiliar with person \"{person_id}\"'s Gramps role of \"{gramps_role}\" for the event with Gramps handle \"{event_handle}\". The role was imported, but set to \"{betty_role}\"."
-msgstr "\"{person_id}\" என்ற நபரின் கிராம்ப்ச் ரோல் \"{gramps_role}\" என்ற நிகழ்வில் \"{event_handle}\" என்ற கிராம்ப்ச் ஏண்டில் பெட்டிக்கு அறிமுகம் இல்லை. பங்கு இறக்குமதி செய்யப்பட்டது, ஆனால் \"{betty_role}\" என அமைக்கப்பட்டது."
-
-msgid "Betty was named after <a href=\"betty-entity://person/betty-demo-liberta-lankester\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
-msgstr "பெட்டிக்கு <a href=\"betty-entity://person/betty-demo-liberta-lankester\">Liberta 'Betty' Lankester</a> பெயரிடப்பட்டது, மேலும் இந்த இணையதளம் அவரது குடும்ப வரலாற்றின் சிறிய மாதிரியைக் காட்டுகிறது. பெட்டி தளம் எப்படி இருக்கும் என்பதைப் பற்றிய யோசனையைப் பெற நீங்கள் அவளைப் பற்றிய பக்கங்களையும் அவரது குடும்பத்தில் சிலரையும் உலாவலாம்."
+msgid "Betty was named after <a href=\"{liberta_lankester_url}\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
+msgstr "பெட்டிக்கு <a href=\"{liberta_lankester_url}\">Liberta 'Betty' Lankester</a> பெயரிடப்பட்டது, மேலும் இந்த இணையதளம் அவரது குடும்ப வரலாற்றின் சிறிய மாதிரியைக் காட்டுகிறது. பெட்டி தளம் எப்படி இருக்கும் என்பதைப் பற்றிய யோசனையைப் பெற நீங்கள் அவளைப் பற்றிய பக்கங்களையும் அவரது குடும்பத்தில் சிலரையும் உலாவலாம்."
 
 #, python-brace-format
 msgid "Betty will talk to you in {locale}"
@@ -320,24 +308,24 @@ msgid "Cannot find an available port to bind the web server to."
 msgstr "இணைய சேவையகத்தை இணைக்க கிடைக்கக்கூடிய போர்ட்டைக் கண்டுபிடிக்க முடியவில்லை."
 
 #, python-brace-format
-msgid "Cannot find the \"{plugin_id}\" {plugin_type} plugin."
-msgstr "\"{plugin_id}\" {plugin_type} செருகுநிரலைக் கண்டறிய முடியவில்லை."
+msgid "Cannot find the {plugin_id} {plugin_type} plugin."
+msgstr "{plugin_id} {plugin_type} செருகுநிரலைக் கண்டறிய முடியவில்லை."
 
 #, python-brace-format
-msgid "Cannot find the \"{plugin_type}\" plugin type."
-msgstr "\"{plugin_type}\" செருகுநிரல் வகையைக் கண்டறிய முடியவில்லை."
+msgid "Cannot find the {plugin_type} plugin type."
+msgstr "{plugin_type} செருகுநிரல் வகையைக் கண்டறிய முடியவில்லை."
 
 #, python-brace-format
-msgid "Cannot load Gramps file {file_id} with relative path {file_path}, because your family tree does not include a base path. In Gramps, add a \"base path for relative media paths\" to your family tree, and export it again."
-msgstr "உங்கள் குடும்ப மரத்தில் அடிப்படை பாதை இல்லாததால், Gramps கோப்பை {file_id} உடன் தொடர்புடைய பாதையுடன் {file_path} ஏற்ற முடியாது. Gramps இல், உங்கள் குடும்ப மரத்தில் \"சார்ந்த மீடியா பாதைகளுக்கான அடிப்படை பாதையை\" சேர்த்து, அதை மீண்டும் ஏற்றுமதி செய்யவும்."
+msgid "Cannot load Gramps file {file} with relative path {file_path}, because your family tree does not include a base path. In Gramps, add a {gramps_setting} to your family tree, and export it again."
+msgstr "உங்கள் குடும்ப மரத்தில் அடிப்படை பாதை இல்லாததால், Gramps கோப்பை {file} உடன் தொடர்புடைய பாதையுடன் {file_path} ஏற்ற முடியாது. Gramps இல், உங்கள் குடும்ப மரத்தில் {gramps_setting} சேர்த்து, அதை மீண்டும் ஏற்றுமதி செய்யவும்."
 
 #, python-brace-format
-msgid "Cannot load Gramps file {file_id}, because {file_path} is not a file."
-msgstr "Gramps கோப்பை ஏற்ற முடியாது {file_id}, ஏனெனில் {file_path} ஒரு கோப்பு அல்ல."
+msgid "Cannot load Gramps file {file}, because {file_path} is not a file."
+msgstr "Gramps கோப்பை ஏற்ற முடியாது {file}, ஏனெனில் {file_path} ஒரு கோப்பு அல்ல."
 
 #, python-brace-format
-msgid "Cannot load coordinates \"{coordinates}\", because they are in an unknown format."
-msgstr "\"{coordinates}\" ஆயங்களை ஏற்ற முடியாது, ஏனெனில் அவை தெரியாத வடிவத்தில் உள்ளன."
+msgid "Cannot load coordinates {coordinates}, because they are in an unknown format."
+msgstr "{coordinates} ஆயங்களை ஏற்ற முடியாது, ஏனெனில் அவை தெரியாத வடிவத்தில் உள்ளன."
 
 #, python-brace-format
 msgid "Cannot locate the {service} service on any available service level."
@@ -488,8 +476,8 @@ msgid "Could not find any of the following configuration files in {project_direc
 msgstr "{project_directory_path} இல் பின்வரும் உள்ளமைவு கோப்புகள் எதையும் கண்டுபிடிக்க முடியவில்லை: {configuration_file_names}."
 
 #, python-brace-format
-msgid "Could not find the file \"{file_path}\"."
-msgstr "\"{file_path}\" கோப்பைக் கண்டுபிடிக்க முடியவில்லை."
+msgid "Could not find the file {file_path}."
+msgstr "{file_path} கோப்பைக் கண்டுபிடிக்க முடியவில்லை."
 
 msgid "Counties"
 msgstr "மாவட்டங்கள்"
@@ -716,8 +704,9 @@ msgstr "குடும்பம்"
 msgid "Family tree"
 msgstr "குடும்ப மரம்"
 
-msgid "Family tree configuration must either have a \"file\" or a \"name\""
-msgstr "குடும்ப மர அமைப்பில் \"கோப்பு\" அல்லது \"பெயர்\" இருக்க வேண்டும்"
+#, python-brace-format
+msgid "Family tree configuration must either have a {file} or a {name}"
+msgstr "குடும்ப மர அமைப்பில் {file} அல்லது {name} இருக்க வேண்டும்"
 
 msgid "Family trees"
 msgstr "குடும்ப மரங்கள்"
@@ -1004,8 +993,8 @@ msgid "Loaders"
 msgstr "ஏற்றிகள்"
 
 #, python-brace-format
-msgid "Loading \"{file_path}\"…"
-msgstr "\"{file_path}\" ஐ ஏற்றுகிறது…"
+msgid "Loading {file_path}…"
+msgstr "{file_path} ஐ ஏற்றுகிறது…"
 
 msgid "Locale"
 msgstr "வட்டாரம்"
@@ -1109,8 +1098,9 @@ msgstr "காணவில்லை"
 msgid "Month"
 msgstr "மாதம்"
 
-msgid "More plugins may be available when running this command with --project."
-msgstr "--project உடன் இந்தக் கட்டளையை இயக்கும்போது கூடுதல் செருகுநிரல்கள் கிடைக்கலாம்."
+#, python-brace-format
+msgid "More plugins may be available when running this command with {argument}."
+msgstr "{argument} உடன் இந்தக் கட்டளையை இயக்கும்போது கூடுதல் செருகுநிரல்கள் கிடைக்கலாம்."
 
 msgid "Multiple files in a media gallery display"
 msgstr "மீடியா கேலரி காட்சியில் பல கோப்புகள்"
@@ -1323,14 +1313,14 @@ msgid "Privatized place {privatized_place_id} ({privatized_place}) because it is
 msgstr "பொதுத் தகவலுடன் தொடர்புபடுத்தப்படாததால், {privatized_place_id} ({privatized_place}) இடம் தனியார்மயமாக்கப்பட்டது."
 
 #, python-brace-format
-msgid "Privatized {count} \"{entity_type_id}\" entity, because it is associated with private information."
-msgid_plural "Privatized {count} \"{entity_type_id}\" entities, because they are associated with private information."
-msgstr[0] "{count} \"{entity_type_id}\" நிறுவனம், தனிப்பட்ட தகவலுடன் தொடர்புடையதாக இருப்பதால், தனியார்மயமாக்கப்பட்டது."
-msgstr[1] "{count} \"{entity_type_id}\" நிறுவனங்கள், தனிப்பட்ட தகவலுடன் தொடர்புடையதாக இருப்பதால், தனியார்மயமாக்கப்பட்டன."
-
-#, python-brace-format
 msgid "Privatized {count} people because they are likely still alive."
 msgstr "தனியார்மயமாக்கப்பட்ட {count} மக்கள் இன்னும் உயிருடன் இருப்பதால்."
+
+#, python-brace-format
+msgid "Privatized {count} {entity_type} entity, because it is associated with private information."
+msgid_plural "Privatized {count} {entity_type} entities, because they are associated with private information."
+msgstr[0] "{count} {entity_type} நிறுவனம், தனிப்பட்ட தகவலுடன் தொடர்புடையதாக இருப்பதால், தனியார்மயமாக்கப்பட்டது."
+msgstr[1] "{count} {entity_type} நிறுவனங்கள், தனிப்பட்ட தகவலுடன் தொடர்புடையதாக இருப்பதால், தனியார்மயமாக்கப்பட்டன."
 
 #, python-brace-format
 msgid "Privatized {privatized_entity_type} {privatized_entity_id} ({privatized_entity}) because of {reason_entity_type} {reason_entity_id} ({reason_entity})."
@@ -1345,8 +1335,9 @@ msgstr "திட்ட கட்டமைப்பு"
 msgid "Project locale"
 msgstr "திட்ட இடம்"
 
-msgid "Provide license plugins from the SPDX License List (https://spdx.org/licenses/) "
-msgstr "SPDX உரிமப் பட்டியலில் இருந்து உரிமம் செருகுநிரல்களை வழங்கவும் (https://spdx.org/licenses/) "
+#, python-brace-format
+msgid "Provide license plugins from the SPDX License List ({spdx_url})"
+msgstr "SPDX உரிமப் பட்டியலில் இருந்து உரிமம் செருகுநிரல்களை வழங்கவும் ({spdx_url})"
 
 msgid "Province"
 msgstr "மாகாணம்"
@@ -1503,8 +1494,9 @@ msgstr "கிடைக்கக்கூடிய அனைத்து கட�
 msgid "Show this help message"
 msgstr "இந்த உதவி செய்தியைக் காட்டு"
 
-msgid "Skip interactions and answer \"yes\" to all questions."
-msgstr "தொடர்புகளைத் தவிர்த்து, எல்லா கேள்விகளுக்கும் \"ஆம்\" என்று பதிலளிக்கவும்."
+#, python-brace-format
+msgid "Skip interactions and answer {yes} to all questions."
+msgstr "தொடர்புகளைத் தவிர்த்து, எல்லா கேள்விகளுக்கும் {yes} என்று பதிலளிக்கவும்."
 
 msgid "Someone performed public speaking at the event."
 msgstr "இந்நிகழ்ச்சியில் ஒருவர் பொது உரை நிகழ்த்தினார்."
@@ -1604,22 +1596,18 @@ msgid "The Gramps extension can only load the following file types: {file_extens
 msgstr "Gramps நீட்டிப்பு பின்வரும் கோப்பு வகைகளை மட்டுமே ஏற்ற முடியும்: {file_extensions}"
 
 #, python-brace-format
-msgid "The Gramps {gramps_entity_reference} entity has a \"betty:link-{link_name}:media_type\" attribute with value \"{media_type}\", which is not a valid IANA media type. This media type was ignored."
-msgstr "Gramps {gramps_entity_reference} உட்பொருளானது \"{media_type}\" மதிப்புடன் \"betty:link-{link_name}:media_type\" பண்புக்கூறைக் கொண்டுள்ளது, இது சரியான IANA மீடியா வகை அல்ல. இந்த மீடியா வகை புறக்கணிக்கப்பட்டது."
+msgid "The Gramps {gramps_entity_reference} entity has a {attribute_name} attribute with value {attribute_value}, which is not a valid IANA media type. This media type was ignored."
+msgstr "Gramps {gramps_entity_reference} உட்பொருளானது {attribute_value} மதிப்புடன் {attribute_name} பண்புக்கூறைக் கொண்டுள்ளது, இது சரியான IANA மீடியா வகை அல்ல. இந்த மீடியா வகை புறக்கணிக்கப்பட்டது."
 
 #, python-brace-format
-msgid "The Gramps {gramps_entity_reference} entity requires a \"betty:link-{link_name}:url\" attribute. This link was ignored."
-msgstr "Gramps {gramps_entity_reference} உட்பொருளுக்கு \"betty:link-{link_name}:url\" பண்புக்கூறு தேவை. இந்த இணைப்பு புறக்கணிக்கப்பட்டது."
+msgid "The Gramps {gramps_entity_reference} entity requires a {attribute_name} attribute. This link was ignored."
+msgstr "Gramps {gramps_entity_reference} உட்பொருளுக்கு {attribute_name}} பண்புக்கூறு தேவை. இந்த இணைப்பு புறக்கணிக்கப்பட்டது."
 
 msgid "The URL must include a host."
 msgstr "முகவரி இல் புரவலன் இருக்க வேண்டும்."
 
 msgid "The absolute, public URL at which the site will be published."
 msgstr "தளம் வெளியிடப்படும் முழுமையான, பொது URL."
-
-#, python-brace-format
-msgid "The betty:privacy Gramps attribute must have a value of \"public\" or \"private\", but \"{privacy_value}\" was given for {entity_type} {entity_id} ({entity_label}), which was ignored."
-msgstr "betty:privacy Gramps பண்புக்கூறில் \"பொது\" அல்லது \"தனியார்\" மதிப்பு இருக்க வேண்டும், ஆனால் \"{privacy_value}\" என்பது {entity_type} {entity_id} ({entity_label}) க்கு வழங்கப்பட்டது, அது புறக்கணிக்கப்பட்டது."
 
 msgid "The citations backing up the claims made by this entity"
 msgstr "மேற்கோள்கள் இந்த நிறுவனத்தால் செய்யப்பட்ட உரிமைகோரல்களை ஆதரிக்கின்றன"
@@ -1680,6 +1668,10 @@ msgstr "பின்வரும் உஉகுமொ பண்புக்க�
 
 msgid "The web server to use."
 msgstr "பயன்படுத்த வேண்டிய இணைய சேவையகம்."
+
+#, python-brace-format
+msgid "The {attribute_name} Gramps attribute must have a value of {valid_public_value} or {valid_private_value}, but {attribute_value} was given for {entity_type} {entity_id} ({entity_label}), which was ignored."
+msgstr "{attribute_name} Gramps பண்புக்கூறில் {valid_public_value}} அல்லது {valid_private_value} மதிப்பு இருக்க வேண்டும், ஆனால் {attribute_value} என்பது {entity_type} {entity_id} ({entity_label}) க்கு வழங்கப்பட்டது, அது புறக்கணிக்கப்பட்டது."
 
 #, python-brace-format
 msgid "The {plugin} {plugin_type} plugin is required from the {service} service."
@@ -1816,15 +1808,15 @@ msgid "Unknown key: {unknown_key}."
 msgstr "தெரியாத விசை: {unknown_key}."
 
 #, python-brace-format
-msgid "Unknown plugin \"{plugin_id}\"."
-msgstr "தெரியாத செருகுநிரல் \"{plugin_id}\"."
+msgid "Unknown plugin {plugin}."
+msgstr "தெரியாத செருகுநிரல் {plugin_id}."
 
 msgid "Unknowns"
 msgstr "தெரியாதவர்கள்"
 
 #, python-brace-format
-msgid "Unsupported file \"{unsupported_type}\". Supported types are: {available_types}."
-msgstr "ஆதரிக்கப்படாத கோப்பு \"{unsupported_type}\". ஆதரிக்கப்படும் வகைகள்: {available_types}."
+msgid "Unsupported file {unsupported}. Supported types are: {supported}."
+msgstr "ஆதரிக்கப்படாத கோப்பு {unsupported}. ஆதரிக்கப்படும் வகைகள்: {supported}."
 
 #, python-brace-format
 msgid "Untranslated locale {locale}."
@@ -1897,8 +1889,9 @@ msgstr "பரம்பரையில் விக்கிபீடியா �
 msgid "Whether to output more detailed logs and disable optimizations that make debugging harder."
 msgstr "மேலும் விரிவான பதிவுகளை வெளியிட வேண்டுமா மற்றும் பிழைத்திருத்தத்தை கடினமாக்கும் மேம்படுத்தல்களை முடக்க வேண்டுமா."
 
-msgid "Whether to use clean URLs: \"/path\" instead of \"/path/index.html\"."
-msgstr "தூய்மையான URLகளைப் பயன்படுத்த வேண்டுமா: \"/path/index.html\" என்பதற்குப் பதிலாக \"/path\"."
+#, python-brace-format
+msgid "Whether to use clean URLs: {clean_example} instead of {unclean_example}."
+msgstr "தூய்மையான URLகளைப் பயன்படுத்த வேண்டுமா: {unclean_example} என்பதற்குப் பதிலாக {clean_example}."
 
 msgid "Which language should your project site be generated in? Enter a language code."
 msgstr "உங்கள் திட்ட தளம் எந்த மொழியில் உருவாக்கப்பட வேண்டும்? மொழிக் குறியீட்டை உள்ளிடவும்."
@@ -1955,6 +1948,14 @@ msgstr "சிறிதாக்கு"
 #, python-brace-format
 msgid "around {date}"
 msgstr "சுமார் {date}"
+
+msgctxt "gramps-quote"
+msgid "base path for relative media paths"
+msgstr "சார்ந்த மீடியா பாதைகளுக்கான அடிப்படை பாதையை"
+
+msgctxt "sample-language-tag"
+msgid "en-US"
+msgstr ""
 
 #, python-brace-format
 msgid "from around {start_date}"
@@ -2020,8 +2021,9 @@ msgstr "%(place)s"
 msgid "in %(source)s"
 msgstr "%(source)s இல்"
 
-msgid "npm (https://www.npmjs.com/) must be available for features that require Node.js packages to be installed. Ensure that the `npm` executable is available in your `PATH`."
-msgstr "Node.js தொகுப்புகள் நிறுவப்பட வேண்டிய அம்சங்களுக்கு npm (https://www.npmjs.com/) இருக்க வேண்டும். உங்கள் `PATH` இல் `npm` இயங்கக்கூடியது இருப்பதை உறுதிசெய்யவும்."
+#, python-brace-format
+msgid "npm ({npm_url}) must be available for features that require Node.js packages to be installed. Ensure that the {npm_executable} executable is available in your PATH."
+msgstr "Node.js தொகுப்புகள் நிறுவப்பட வேண்டிய அம்சங்களுக்கு npm ({npm_url}) இருக்க வேண்டும். உங்கள் `PATH` இல் {npm_executable} இயங்கக்கூடியது இருப்பதை உறுதிசெய்யவும்."
 
 msgid "private"
 msgstr "தனிப்பட்ட"
@@ -2656,20 +2658,56 @@ msgid "{event_type} of {subjects}"
 msgstr "{subjects} இல் {event_type}"
 
 #, python-brace-format
+msgctxt "localizable-join-and"
+msgid "{first} and {second}"
+msgstr ""
+
+#, python-brace-format
+msgctxt "localizable-join-or"
+msgid "{first} or {second}"
+msgstr ""
+
+#, python-brace-format
 msgid "{individual_name} {affiliation_name}"
 msgstr "{individual_name} {affiliation_name}"
 
 #, python-brace-format
+msgid "{invalid_color} is not a valid hexadecimal color, such as {example_color}."
+msgstr "{invalid_color} என்பது {example_color} போன்ற சரியான எக்சாடெசிமல் வண்ணம் அல்ல."
+
+#, python-brace-format
+msgid "{invalid_locale} is not a valid IETF BCP 47 language tag."
+msgstr "{invalid_locale} என்பது சரியான IETF BCP 47 மொழி குறிச்சொல் அல்ல."
+
+#, python-brace-format
+msgctxt "localizable-join-and-many"
 msgid "{most}, and {last}"
 msgstr "{most}, மற்றும் {last}"
 
 #, python-brace-format
+msgctxt "localizable-join-or-many"
 msgid "{most}, or {last}"
 msgstr "{most}, அல்லது {last}"
 
 #, python-brace-format
+msgid "{path} is not a directory."
+msgstr "{path} என்பது அடைவு அல்ல."
+
+#, python-brace-format
 msgid "{plugin_type} configuration"
 msgstr ""
+
+#, python-brace-format
+msgid "{target} is not configurable, but configuration was given."
+msgstr "{target} உள்ளமைக்க முடியாது, ஆனால் உள்ளமைவு கொடுக்கப்பட்டது."
+
+#, python-brace-format
+msgid "{url} is not a valid URL."
+msgstr "{url} சரியான முகவரி அல்ல."
+
+#, python-brace-format
+msgid "{value} is not a valid machine name."
+msgstr "{value} என்பது சரியான இயந்திரப் பெயர் அல்ல."
 
 msgid "© Copyright the author, unless otherwise credited"
 msgstr "© பதிப்புரிமை ஆசிரியர், இல்லையெனில் வரவு"
@@ -2677,3 +2715,4 @@ msgstr "© பதிப்புரிமை ஆசிரியர், இல்
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© பதிப்புரிமை {author}, இல்லையெனில் வரவு வைக்கப்படவில்லை"
+

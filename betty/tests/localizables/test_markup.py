@@ -11,6 +11,7 @@ from betty.localizables.markup import (
     OrderedList,
     Paragraph,
     Paragraphs,
+    Quote,
     ResolvableLocalizable,
     UnorderedList,
     do_you_mean,
@@ -210,8 +211,16 @@ class TestJoinOr:
                 ["Foo"],
             ),
             (
-                "Foo, or Bar",
+                "Foo or Bar",
                 ["Foo", "Bar"],
+            ),
+            (
+                "Foo, Bar, or Baz",
+                ["Foo", "Bar", "Baz"],
+            ),
+            (
+                "Foo, Bar, Baz, or Qux",
+                ["Foo", "Bar", "Baz", "Qux"],
             ),
         ],
     )
@@ -232,8 +241,16 @@ class TestJoinAnd:
                 ["Foo"],
             ),
             (
-                "Foo, and Bar",
+                "Foo and Bar",
                 ["Foo", "Bar"],
+            ),
+            (
+                "Foo, Bar, and Baz",
+                ["Foo", "Bar", "Baz"],
+            ),
+            (
+                "Foo, Bar, Baz, and Qux",
+                ["Foo", "Bar", "Baz", "Qux"],
             ),
         ],
     )
@@ -242,3 +259,8 @@ class TestJoinAnd:
     ) -> None:
         sut = JoinAnd(*localizables)
         assert sut.localize(default_localizer) == expected
+
+
+class TestQuote:
+    def test(self) -> None:
+        assert Quote("Hello, world!").localize(default_localizer) == '"Hello, world!"'

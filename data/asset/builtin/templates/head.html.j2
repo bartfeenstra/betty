@@ -1,7 +1,7 @@
 <title>{% if page_title is defined %}{{ page_title | striptags }} - {% endif %}{{ project.title | localize }}</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="generator" content="Betty {{ about_version_major }} (https://betty.readthedocs.io)">
+<meta name="generator" content="Betty {{ about_version_major }} ({{ about_url }})">
 {% if project.author %}
     <meta name="author" content="{{ project.author | localize }}">
 {% endif %}
