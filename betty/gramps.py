@@ -778,7 +778,10 @@ class GrampsLoader:
                     file=file_id,
                     file_path=str(file_path),
                     gramps_setting=Quote(
-                        pgettext("gramps-quote", "base path for relative media paths")
+                        pgettext(
+                            "original-gramps:base path for relative media paths",
+                            "base path for relative media paths",
+                        )
                     ),
                 )
             )
