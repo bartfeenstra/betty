@@ -8,20 +8,21 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-15 13:27+0100\n"
-"PO-Revision-Date: 2026-07-14 19:46+0000\n"
-"Last-Translator: Anonymous <noreply@weblate.org>\n"
-"Language: pt_BR\n"
+"PO-Revision-Date: 2026-07-15 13:31+0000\n"
+"Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
+"Language: pt-BR\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/betty/betty-0-5-x/pt_BR/>\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
+"X-Generator: Weblate 2026.8.dev0\n"
 
 #, python-brace-format
 msgctxt "localizable-quote"
 msgid "\"{text}\""
-msgstr ""
+msgstr "“{text}”"
 
 #, python-format
 msgid "%(date)s in %(place)s"
@@ -1949,7 +1950,7 @@ msgstr "caminho base para caminhos de mídia relativos"
 
 msgctxt "sample-language-tag"
 msgid "en-US"
-msgstr ""
+msgstr "pt-BR"
 
 #, python-brace-format
 msgid "from around {start_date}"
@@ -2654,12 +2655,12 @@ msgstr ""
 #, python-brace-format
 msgctxt "localizable-join-and"
 msgid "{first} and {second}"
-msgstr ""
+msgstr "{first} e {second}"
 
 #, python-brace-format
 msgctxt "localizable-join-or"
 msgid "{first} or {second}"
-msgstr ""
+msgstr "{first} ou {second}"
 
 #, python-brace-format
 msgid "{individual_name} {affiliation_name}"
@@ -2676,12 +2677,12 @@ msgstr "{invalid_locale} não é uma etiqueta de idioma válida segundo o padrã
 #, python-brace-format
 msgctxt "localizable-join-and-many"
 msgid "{most}, and {last}"
-msgstr ""
+msgstr "{most}, e {last}"
 
 #, python-brace-format
 msgctxt "localizable-join-or-many"
 msgid "{most}, or {last}"
-msgstr ""
+msgstr "{most}, ou {last}"
 
 #, python-brace-format
 msgid "{path} is not a directory."
@@ -2709,4 +2710,3 @@ msgstr ""
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr ""
-
