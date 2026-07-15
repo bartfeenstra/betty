@@ -1,5 +1,5 @@
 """
-The place enclosees content plugin.
+The place enclosures content plugin.
 """
 
 from __future__ import annotations
@@ -22,15 +22,15 @@ if TYPE_CHECKING:
 
 @final
 @ContentBuilderDefinition(
-    "raspberry-mint-enclosees",
-    label=_("Enclosees"),
+    "raspberry-mint-enclosures",
+    label=_("Enclosures"),
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class Enclosees(Template, Manufacturable):
+class Enclosures(Template, Manufacturable):
     """
     Show the places enclosed by a place document resource.
 
-    .. plugin:: content-builder:raspberry-mint-enclosees
+    .. plugin:: content-builder:raspberry-mint-enclosures
     """
 
     @override
@@ -42,12 +42,12 @@ class Enclosees(Template, Manufacturable):
     @override
     async def build_template(self, document: Document) -> TemplateBuild:
         if isinstance(document.resource, Place):
-            return "component/raspberry-mint/enclosees.html.j2", {
-                "enclosees": list(self._enclosees(document.resource))
+            return "component/raspberry-mint/enclosures.html.j2", {
+                "enclosures": list(self._encloses(document.resource))
             }
         return None
 
-    def _enclosees(self, place: Place) -> Iterable[Place]:
-        for enclosure in place.enclosees:
-            yield enclosure.enclosee
-            yield from self._enclosees(enclosure.enclosee)
+    def _encloses(self, place: Place) -> Iterable[Place]:
+        for enclosure in place.encloses:
+            yield enclosure.encloses
+            yield from self._encloses(enclosure.encloses)

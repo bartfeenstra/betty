@@ -17,17 +17,17 @@ async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
         assert actual == expected
 
 
-async def test_with_encloser(assert_template_file: AssertTemplateFile) -> None:
-    encloser_encloser_place = Place()
-    encloser_place = Place()
-    Enclosure(encloser_place, encloser_encloser_place)
-    place = Place()
-    Enclosure(place, encloser_place)
-    expected = f'<span lang="und" dir="auto">Place {place.id}</span>, <span lang="und" dir="auto">Place {encloser_place.id}</span>, <span lang="und" dir="auto">Place {encloser_encloser_place.id}</span>'
+async def test_with_enclosed_by(assert_template_file: AssertTemplateFile) -> None:
+    enclosed_by_enclosed_by = Place()
+    enclosed_by = Place()
+    Enclosure(enclosed_by=enclosed_by_enclosed_by, encloses=enclosed_by)
+    encloses = Place()
+    Enclosure(encloses=encloses, enclosed_by=enclosed_by)
+    expected = f'<span lang="und" dir="auto">Place {encloses.id}</span>, <span lang="und" dir="auto">Place {enclosed_by.id}</span>, <span lang="und" dir="auto">Place {enclosed_by_enclosed_by.id}</span>'
     async with assert_template_file(
         "entity/place-enclosure-label.html.j2",
         data={
-            "place": place,
+            "place": encloses,
         },
         assets={raspberry_mint},
     ) as (actual, _):
@@ -35,15 +35,15 @@ async def test_with_encloser(assert_template_file: AssertTemplateFile) -> None:
 
 
 async def test_with_place_context(assert_template_file: AssertTemplateFile) -> None:
-    encloser_place = Place()
-    place = Place()
-    Enclosure(place, encloser_place)
-    expected = f'<span lang="und" dir="auto">Place {place.id}</span>'
+    enclosed_by = Place()
+    encloses = Place()
+    Enclosure(enclosed_by=enclosed_by, encloses=encloses)
+    expected = f'<span lang="und" dir="auto">Place {encloses.id}</span>'
     async with assert_template_file(
         "entity/place-enclosure-label.html.j2",
         data={
-            "place": place,
-            "place_context": encloser_place,
+            "place": encloses,
+            "place_context": enclosed_by,
         },
         assets={raspberry_mint},
     ) as (actual, _):

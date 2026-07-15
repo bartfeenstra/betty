@@ -57,24 +57,24 @@ class Place(HasLinks, HasFileReferences, HasNotes):
     The events that happened here.
     """
 
-    enclosers = ToMany[Self, Enclosure](
+    enclosed_by = ToMany[Self, Enclosure](
         Enclosure,
-        "enclosee",
-        label=_("Enclosers"),
-        description=_("The places this place is enclosed or contained by"),
+        "encloses",
+        label=_("Enclosed by"),
+        description=_("Other places this place is enclosed by"),
     )
     """
-    Other places containing this one.
+    Other places this place is enclosed by.
     """
 
-    enclosees = ToMany[Self, Enclosure](
+    encloses = ToMany[Self, Enclosure](
         Enclosure,
-        "encloser",
-        label=_("Enclosees"),
-        description=_("The places this place encloses or contains"),
+        "enclosed_by",
+        label=_("Encloses"),
+        description=_("Other places this place encloses"),
     )
     """
-    Other places contained by this one.
+    Other places this place encloses.
     """
 
     def __init__(
@@ -83,8 +83,8 @@ class Place(HasLinks, HasFileReferences, HasNotes):
         id: ResolvableMachineName | None = None,  # noqa: A002
         names: Iterable[PlaceName] = (),
         events: ToManyAssociates[Self, Event] = (),
-        enclosers: ToManyAssociates[Self, Enclosure] = (),
-        enclosees: ToManyAssociates[Self, Enclosure] = (),
+        enclosed_by: ToManyAssociates[Self, Enclosure] = (),
+        encloses: ToManyAssociates[Self, Enclosure] = (),
         notes: ToManyAssociates[Self, Note] = (),
         coordinates: Point | None = None,
         links: ToManyAssociates[Self, Link] = (),
@@ -98,8 +98,8 @@ class Place(HasLinks, HasFileReferences, HasNotes):
         The place's coordinates.
         """
         self.events = events
-        self.enclosers = enclosers
-        self.enclosees = enclosees
+        self.enclosed_by = enclosed_by
+        self.encloses = encloses
         self.place_type = place_type or UnknownPlaceType()
         """
         The type of this place.
@@ -128,8 +128,8 @@ class Place(HasLinks, HasFileReferences, HasNotes):
             portable,
             names="https://schema.org/name",
             events="https://schema.org/event",
-            enclosers="https://schema.org/containedInPlace",
-            enclosees="https://schema.org/containsPlace",
+            enclosedBy="https://schema.org/containedInPlace",
+            encloses="https://schema.org/containsPlace",
         )
         portable["@type"] = "https://schema.org/Place"
         portable["names"] = [

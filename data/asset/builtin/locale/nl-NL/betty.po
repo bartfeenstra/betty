@@ -7,17 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-15 13:27+0100\n"
+"POT-Creation-Date: 2026-07-15 15:18+0100\n"
 "PO-Revision-Date: 2026-07-15 13:30+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
-"Language: nl-NL\n"
+"Language: nl_NL\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/betty/betty-0-5-x/nl/>\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
-"X-Generator: Weblate 2026.8.dev0\n"
 
 #, python-brace-format
 msgctxt "localizable-quote"
@@ -141,8 +140,8 @@ msgstr "Scheidingsaankondigingen"
 msgid "Announcements of marriage"
 msgstr "Huwelijksaankondigingen"
 
-msgid "Another source this source may be contained by"
-msgstr "Een mogelijke andere bron waar deze bron door wordt omvat"
+msgid "Another source this source is contained by"
+msgstr ""
 
 msgid "Appearances"
 msgstr "Verschijningen"
@@ -599,17 +598,11 @@ msgstr "Emigratie"
 msgid "Emigrations"
 msgstr "Emigraties"
 
-msgid "Enclosee"
-msgstr "Omheinde plaats"
+msgid "Enclosed by"
+msgstr ""
 
-msgid "Enclosees"
-msgstr "Omheinde plaatsen"
-
-msgid "Encloser"
-msgstr "Omheinende plaats"
-
-msgid "Enclosers"
-msgstr "Omheinende plaatsen"
+msgid "Encloses"
+msgstr ""
 
 msgid "Enclosure"
 msgstr "Omsluiting"
@@ -1186,11 +1179,14 @@ msgstr "Overige aanwezigen"
 msgid "Other entities that reference a citation or source to back up their claims."
 msgstr "Andere entiteiten die naar een verwijzing of bron verwijzen om hun claims te onderbouwen."
 
-msgid "Other places contained by this one"
-msgstr "Overige plaatsen binnen deze"
+msgid "Other places this place encloses"
+msgstr ""
 
-msgid "Other sources this source may contain"
-msgstr "Andere bronnen die deze bron bevat"
+msgid "Other places this place is enclosed by"
+msgstr ""
+
+msgid "Other sources this source contains"
+msgstr ""
 
 msgid "Output directory"
 msgstr "Uitvoerdirectory"
@@ -1644,16 +1640,10 @@ msgstr "De andere entiteiten die naar deze verwijzingen verwijzen om hun claims 
 msgid "The path to a Betty project directory or configuration file. Defaults to {default} in the current working directory."
 msgstr "Het pad naar een Betty-projectdirectory of -configuratiebestand. Dit is standaard {default} in de huidige werkdirectory."
 
-msgid "The place that encloses or contains the enclosee"
+msgid "The place that encloses the other place"
 msgstr ""
 
-msgid "The place that is enclosed or contained by the encloser"
-msgstr ""
-
-msgid "The places this place encloses or contains"
-msgstr "De plaatsen die deze plaats omheint of omvat"
-
-msgid "The places this place is enclosed or contained by"
+msgid "The place that is enclosed by the other place"
 msgstr ""
 
 #, python-brace-format
@@ -2716,3 +2706,4 @@ msgstr "© Copyright de auteur, tenzij anders vermeld"
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Copyright {author}, tenzij anders vermeld"
+

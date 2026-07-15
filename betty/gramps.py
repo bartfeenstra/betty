@@ -1049,10 +1049,10 @@ class GrampsLoader:
 
         self._add_entity(place, place_handle)
 
-        for encloser_handle in self._load_handles("placeref", element):
+        for enclosed_by_handle in self._load_handles("placeref", element):
             enclosure = Enclosure(
-                enclosee=self._resolve_one(Enclosure, Place, place_handle),
-                encloser=self._resolve_one(Enclosure, Place, encloser_handle),
+                encloses=self._resolve_one(Enclosure, Place, place_handle),
+                enclosed_by=self._resolve_one(Enclosure, Place, enclosed_by_handle),
             )
             self._add_entity(enclosure)
 

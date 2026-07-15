@@ -1,0 +1,17 @@
+{% set places = enclosures | selectattr('public') | list %}
+{% if places %}
+    {% with entities = places %}
+        {% set accordion_item_body %}
+            {% include 'entity/list.html.j2' %}
+        {% endset %}
+        {% with accordion_heading_element = 'h2',
+            attributes = new_attributes(html_id='enclosures'),
+            accordion_items = [{
+               'header': _('Other places this place encloses'),
+               'body': accordion_item_body,
+            }]
+        %}
+            {% include 'component/accordion.html.j2' %}
+        {% endwith %}
+    {% endwith %}
+{% endif %}

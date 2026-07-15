@@ -204,5 +204,5 @@ def place_timeline_events(place: Place, /) -> Iterable[Event]:
 
 def _place_timeline_events(place: Place, /) -> Iterable[Event]:
     yield from place.events
-    for enclosee in place.enclosees:
-        yield from enclosee.enclosee.events
+    for enclosure in place.encloses:
+        yield from enclosure.encloses.events

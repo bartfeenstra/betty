@@ -117,7 +117,7 @@ class LoadDemoAncestry(Job):
             place_type=Province(),
         )
         self._project.ancestry.add(
-            Enclosure(enclosee=north_holland, encloser=netherlands)
+            Enclosure(encloses=north_holland, enclosed_by=netherlands)
         )
         self._project.ancestry.add(north_holland)
 
@@ -140,7 +140,7 @@ class LoadDemoAncestry(Job):
             place_type=Municipality(),
         )
         self._project.ancestry.add(
-            Enclosure(enclosee=amsterdam, encloser=north_holland)
+            Enclosure(encloses=amsterdam, enclosed_by=north_holland)
         )
         self._project.ancestry.add(amsterdam)
 
@@ -152,7 +152,9 @@ class LoadDemoAncestry(Job):
             links=[Link("https://nl.wikipedia.org/wiki/Ilpendam")],
             place_type=Village(),
         )
-        self._project.ancestry.add(Enclosure(enclosee=ilpendam, encloser=north_holland))
+        self._project.ancestry.add(
+            Enclosure(encloses=ilpendam, enclosed_by=north_holland)
+        )
         self._project.ancestry.add(ilpendam)
 
         testimonies = Source(id="betty-demo-testimonies", name=_("Testimonies"))
