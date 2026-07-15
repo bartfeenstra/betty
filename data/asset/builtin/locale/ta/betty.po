@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-15 13:27+0100\n"
-"PO-Revision-Date: 2026-07-14 19:47+0000\n"
+"PO-Revision-Date: 2026-07-15 13:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ta\n"
 "Language-Team: Tamil <https://hosted.weblate.org/projects/betty/betty-0-5-x/ta/>\n"
@@ -17,6 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
+"X-Generator: Weblate 2026.8.dev0\n"
 
 #, python-brace-format
 msgctxt "localizable-quote"
@@ -1955,7 +1956,7 @@ msgstr "சார்ந்த மீடியா பாதைகளுக்க�
 
 msgctxt "sample-language-tag"
 msgid "en-US"
-msgstr ""
+msgstr "ta"
 
 #, python-brace-format
 msgid "from around {start_date}"
@@ -2715,4 +2716,3 @@ msgstr "© பதிப்புரிமை ஆசிரியர், இல்
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© பதிப்புரிமை {author}, இல்லையெனில் வரவு வைக்கப்படவில்லை"
-
