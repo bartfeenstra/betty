@@ -76,8 +76,8 @@ from betty.hashid import hashid, hashid_sequence
 from betty.license import LicenseManufacturer
 from betty.locale import from_language_tag
 from betty.locale.error import LocaleError
-from betty.localizables.gettext import _
-from betty.localizables.markup import JoinOr
+from betty.localizables.gettext import _, pgettext
+from betty.localizables.markup import JoinOr, Quote
 from betty.localizables.static import StaticTranslations
 from betty.machine_name import MachineName
 from betty.media_type import InvalidMediaType, MediaType
@@ -424,7 +424,7 @@ class GrampsLoader:
         """
         file = resolve_path(file).resolve()
         await self._project.upstream.user.message_information_details(
-            _('Loading "{file_path}"…').format(
+            _("Loading {file_path}…").format(
                 file_path=str(file),
             )
         )
@@ -773,14 +773,20 @@ class GrampsLoader:
         if not file_path.is_absolute():
             raise UserFacingGrampsError(
                 _(
-                    'Cannot load Gramps file {file_id} with relative path {file_path}, because your family tree does not include a base path. In Gramps, add a "base path for relative media paths" to your family tree, and export it again.'
-                ).format(file_id=file_id, file_path=str(file_path))
+                    "Cannot load Gramps file {file} with relative path {file_path}, because your family tree does not include a base path. In Gramps, add a {gramps_setting} to your family tree, and export it again."
+                ).format(
+                    file=file_id,
+                    file_path=str(file_path),
+                    gramps_setting=Quote(
+                        pgettext("gramps-quote", "base path for relative media paths")
+                    ),
+                )
             )
         if not await to_thread(file_path.is_file):
             raise UserFacingGrampsError(
                 _(
-                    "Cannot load Gramps file {file_id}, because {file_path} is not a file."
-                ).format(file_id=file_id, file_path=str(file_path))
+                    "Cannot load Gramps file {file}, because {file_path} is not a file."
+                ).format(file=file_id, file_path=str(file_path))
             )
         file = File(
             id=machinify(file_id),
@@ -812,8 +818,8 @@ class GrampsLoader:
             except PluginNotFound:
                 await self._project.upstream.user.message_warning(
                     _(
-                        'Betty is unfamiliar with Gramps file "{file_id}"\'s copyright notice ID of "{copyright_notice_id}" and ignored it.',
-                    ).format(file_id=file_id, copyright_notice_id=copyright_notice_id)
+                        "Betty is unfamiliar with Gramps file {file}'s copyright notice of {copyright_notice} and ignored it.",
+                    ).format(file=file_id, copyright_notice=Quote(copyright_notice_id))
                 )
         license_id = self._load_attribute("license", element, "attribute")
         if license_id:
@@ -822,8 +828,8 @@ class GrampsLoader:
             except PluginNotFound:
                 await self._project.upstream.user.message_warning(
                     _(
-                        'Betty is unfamiliar with Gramps file "{file_id}"\'s license ID of "{license_id}" and ignored it.',
-                    ).format(file_id=file_id, license_id=license_id)
+                        "Betty is unfamiliar with Gramps file {file}'s license of {license} and ignored it.",
+                    ).format(file=Quote(file_id), license=Quote(license_id))
                 )
 
         self._add_entity(file, file_handle)
@@ -856,8 +862,8 @@ class GrampsLoader:
             except PluginNotFound:
                 await self._project.upstream.user.message_warning(
                     _(
-                        'Betty is unfamiliar with Gramps person "{person_id}"\'s gender ID of "{gender_id}" and ignored it.',
-                    ).format(person_id=person_id, gender_id=gender_id)
+                        "Betty is unfamiliar with Gramps person {person}'s gender of {gender} and ignored it.",
+                    ).format(person=Quote(person_id), gender=Quote(gender_id))
                 )
                 gender = None
 
@@ -958,11 +964,11 @@ class GrampsLoader:
             role = UnknownRole()
             await self._project.upstream.user.message_warning(
                 _(
-                    'Betty is unfamiliar with person "{person_id}"\'s Gramps role of "{gramps_role}" for the event with Gramps handle "{event_handle}". The role was imported, but set to "{betty_role}".',
+                    "Betty is unfamiliar with person {person}'s Gramps role of {gramps_role} for the event with Gramps handle {event_handle}. The role was imported, but set to {betty_role}.",
                 ).format(
-                    person_id=person.id,
-                    event_handle=event_handle,
-                    gramps_role=gramps_role,
+                    person=Quote(person.id),
+                    event_handle=Quote(event_handle),
+                    gramps_role=Quote(gramps_role),
                     betty_role=role.plugin().label.localize(
                         self._project.upstream.user.localizer
                     ),
@@ -1015,10 +1021,10 @@ class GrampsLoader:
             place_type = UnknownPlaceType()
             await self._project.upstream.user.message_warning(
                 _(
-                    'Betty is unfamiliar with Gramps place "{place_id}"\'s type of "{gramps_place_type}". The place was imported, but its type was set to "{betty_place_type}".',
+                    "Betty is unfamiliar with Gramps place {place}'s type of {gramps_place_type}. The place was imported, but its type was set to {betty_place_type}.",
                 ).format(
-                    place_id=place_id,
-                    gramps_place_type=gramps_type,
+                    place=Quote(place_id),
+                    gramps_place_type=Quote(gramps_type),
                     betty_place_type=place_type.plugin().label.localize(
                         self._project.upstream.user.localizer
                     ),
@@ -1060,9 +1066,9 @@ class GrampsLoader:
             except ValueError:
                 await self._project.upstream.user.message_warning(
                     _(
-                        'Cannot load coordinates "{coordinates}", because they are in an unknown format.',
+                        "Cannot load coordinates {coordinates}, because they are in an unknown format.",
                     ).format(
-                        coordinates=coordinates,
+                        coordinates=Quote(coordinates),
                     )
                 )
         return None
@@ -1085,10 +1091,10 @@ class GrampsLoader:
             event_type = UnknownEventType()
             await self._project.upstream.user.message_warning(
                 _(
-                    'Betty is unfamiliar with Gramps event "{event_id}"\'s type of "{gramps_event_type}". The event was imported, but its type was set to "{betty_event_type}".',
+                    "Betty is unfamiliar with Gramps event {event}'s type of {gramps_event_type}. The event was imported, but its type was set to {betty_event_type}.",
                 ).format(
-                    event_id=event_id,
-                    gramps_event_type=gramps_type,
+                    event=Quote(event_id),
+                    gramps_event_type=Quote(gramps_type),
                     betty_event_type=event_type.plugin().label.localize(
                         self._project.upstream.user.localizer
                     ),
@@ -1319,9 +1325,10 @@ class GrampsLoader:
             return
         await self._project.upstream.user.message_warning(
             _(
-                'The betty:privacy Gramps attribute must have a value of "public" or "private", but "{privacy_value}" was given for {entity_type} {entity_id} ({entity_label}), which was ignored.',
+                "The {attribute_name} Gramps attribute must have a value of {valid_public_value} or {valid_private_value}, but {attribute_value} was given for {entity_type} {entity_id} ({entity_label}), which was ignored.",
             ).format(
-                privacy_value=privacy_value,
+                attribute_name=Quote("betty:privacy"),
+                attribute_value=Quote(privacy_value),
                 entity_type=entity.plugin().label.localize(
                     self._project.upstream.user.localizer
                 ),
@@ -1329,6 +1336,8 @@ class GrampsLoader:
                 entity_label=entity.label.localize(
                     self._project.upstream.user.localizer
                 ),
+                valid_public_value=Quote("public"),
+                valid_private_value=Quote("private"),
             )
         )
 
@@ -1393,10 +1402,10 @@ class GrampsLoader:
             if "url" not in link_attributes:
                 await self._project.upstream.user.message_warning(
                     _(
-                        'The Gramps {gramps_entity_reference} entity requires a "betty:link-{link_name}:url" attribute. This link was ignored.',
+                        "The Gramps {gramps_entity_reference} entity requires a {attribute_name} attribute. This link was ignored.",
                     ).format(
                         gramps_entity_reference=str(gramps_entity_reference),
-                        link_name=link_name,
+                        attribute_name=Quote(f"betty:link-{link_name}:url"),
                     )
                 )
                 continue
@@ -1426,11 +1435,12 @@ class GrampsLoader:
                 except InvalidMediaType:
                     await self._project.upstream.user.message_warning(
                         _(
-                            'The Gramps {gramps_entity_reference} entity has a "betty:link-{link_name}:media_type" attribute with value "{media_type}", which is not a valid IANA media type. This media type was ignored.',
+                            "The Gramps {gramps_entity_reference} entity has a {attribute_name} attribute with value {attribute_value}, which is not a valid IANA media type. This media type was ignored.",
                         ).format(
                             gramps_entity_reference=str(gramps_entity_reference),
                             link_name=link_name,
-                            media_type=link_attributes["media_type"],
+                            attribute_name=Quote(f"betty:link-{link_name}:media_type"),
+                            attribute_value=Quote(link_attributes["media_type"]),
                         )
                     )
                 else:

@@ -110,9 +110,9 @@ class PluginManufacturer(
             return await services.factory.new(plugin_cls)
         if not issubclass(plugin_cls, DataManufacturable):
             raise PluginManufacturerError(
-                _(
-                    '"{target}" is not configurable, but configuration was given.'
-                ).format(target=fully_qualified_name(plugin_cls))
+                _("{target} is not configurable, but configuration was given.").format(
+                    target=fully_qualified_name(plugin_cls)
+                )
             )
         plugin_data = self.plugin_data
         if not isinstance(plugin_data, Data):

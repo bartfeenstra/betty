@@ -12,7 +12,7 @@ from babel.localedata import locale_identifiers
 from betty.exception import HumanFacingException
 from betty.locale import to_language_tag
 from betty.localizables.gettext import _
-from betty.localizables.markup import Paragraph, do_you_mean
+from betty.localizables.markup import Paragraph, Quote, do_you_mean
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -32,8 +32,8 @@ class InvalidLocale(LocaleError):
 
     def __init__(self, invalid_locale: str, /) -> None:
         super().__init__(
-            _('"{invalid_locale}" is not a valid IETF BCP 47 language tag.').format(
-                invalid_locale=invalid_locale
+            _("{invalid_locale} is not a valid IETF BCP 47 language tag.").format(
+                invalid_locale=Quote(invalid_locale)
             )
         )
 

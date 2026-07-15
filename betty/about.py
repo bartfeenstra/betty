@@ -55,3 +55,23 @@ The human-readable label for the current Betty installation's major version.
 Use this instead of :py:const:`betty.about.VERSION_LABEL` in public situations, where we do not want to include minor
 version information because that may disclose security issues.
 """
+
+url_code: Final[str] = "https://github.com/bartfeenstra/betty"
+"""
+The URL to the source code.
+"""
+
+url_documentation: Final[str] = "https://betty.readthedocs.io"
+"""
+The URL to the documentation.
+"""
+
+url_report_issue: Final[str] = "https://github.com/bartfeenstra/betty/issues/new"
+"""
+The URL to report an issue with Betty.
+"""
+
+url: Final[str] = url_documentation
+"""
+The main, generic URL to Betty on the web.
+"""

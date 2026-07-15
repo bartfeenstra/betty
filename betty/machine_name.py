@@ -13,7 +13,7 @@ from betty.data import Data, DataDefinition
 from betty.exception import HumanFacingException
 from betty.functools import passthrough
 from betty.localizables.gettext import _
-from betty.localizables.markup import Paragraph
+from betty.localizables.markup import Paragraph, Quote
 from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
@@ -119,7 +119,7 @@ class InvalidMachineName(HumanFacingException, ValueError):
     def __init__(self, value: str, /):
         super().__init__(
             Paragraph(
-                _('"{value}" is not a valid machine name.').format(value=value),
+                _("{value} is not a valid machine name.").format(value=Quote(value)),
                 machine_name_description,
             )
         )

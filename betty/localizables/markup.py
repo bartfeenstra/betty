@@ -13,13 +13,23 @@ from betty.localizable import (
     ResolvableLocalizable,
     resolve_localizable,
 )
-from betty.localizables.gettext import _
+from betty.localizables.gettext import _, pgettext
 from betty.localized import LocalizedStr
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.localizer import Localizer
+
+join_separator: Final[Localizable] = pgettext("localizable-join-separator", ", ")
+join_and: Final[Localizable] = pgettext("localizable-join-and", "{first} and {second}")
+join_and_many: Final[Localizable] = pgettext(
+    "localizable-join-and-many", "{most}, and {last}"
+)
+join_or: Final[Localizable] = pgettext("localizable-join-or", "{first} or {second}")
+join_or_many: Final[Localizable] = pgettext(
+    "localizable-join-or-many", "{most}, or {last}"
+)
 
 
 class LocalizableSequence(ABC):
@@ -46,12 +56,12 @@ class _LocalizableSequence(LocalizableSequence):
 
 
 class _Join(_LocalizableSequence, Localizable):
-    _SEPARATOR: ClassVar[str]
+    _separator: ClassVar[str]
 
     @override
     def localize(self, localizer: Localizer, /) -> LocalizedStr:
         return LocalizedStr(
-            self._SEPARATOR.join(
+            self._separator.join(
                 localized
                 for part in self.localizables
                 if (localized := part.localize(localizer))
@@ -66,7 +76,7 @@ class Chain(_Join):
     Chain multiple localizables together, back to back.
     """
 
-    _SEPARATOR: ClassVar[str] = ""
+    _separator: ClassVar[str] = ""
 
 
 @final
@@ -75,7 +85,7 @@ class Paragraph(_Join):
     Represent multiple localizables as a single paragraph of text.
     """
 
-    _SEPARATOR: ClassVar[str] = " "
+    _separator: ClassVar[str] = " "
 
 
 @final
@@ -84,7 +94,7 @@ class Lines(_Join):
     Represent multiple localizables as multiple lines of text.
     """
 
-    _SEPARATOR: ClassVar[str] = "\n"
+    _separator: ClassVar[str] = "\n"
 
 
 @final
@@ -93,7 +103,7 @@ class Paragraphs(_Join):
     Represent multiple localizables as multiple paragraphs of text.
     """
 
-    _SEPARATOR: ClassVar[str] = "\n\n"
+    _separator: ClassVar[str] = "\n\n"
 
 
 class _List(_LocalizableSequence, Localizable):
@@ -163,17 +173,24 @@ class UnorderedList(_List):
         return "-"
 
 
-class _TwoPartJoin(_LocalizableSequence, Localizable):
-    _LOCALIZABLE: ClassVar[Localizable]
+class _NaturalJoin(_LocalizableSequence, Localizable):
+    _join: ClassVar[Localizable]
+    _join_many: ClassVar[Localizable]
 
+    @final
     @override
     def localize(self, localizer: Localizer, /) -> LocalizedStr:
-        if len(self.localizables) == 0:
-            return LocalizedStr("")
-        if len(self.localizables) == 1:
-            return self.localizables[0].localize(localizer)
-        return self._LOCALIZABLE.format(
-            most=", ".join(
+        match len(self.localizables):
+            case 0:
+                return LocalizedStr("")
+            case 1:
+                return self.localizables[0].localize(localizer)
+            case 2:
+                return self._join.format(
+                    first=self._localizables[0], second=self._localizables[1]
+                ).localize(localizer)
+        return self._join_many.format(
+            most=join_separator.localize(localizer).join(
                 part.localize(localizer) for part in self.localizables[0:-1]
             ),
             last=self.localizables[-1],
@@ -181,21 +198,45 @@ class _TwoPartJoin(_LocalizableSequence, Localizable):
 
 
 @final
-class JoinOr(_TwoPartJoin):
-    """
-    An enumeration where any of the localizables may be applicable.
-    """
-
-    _LOCALIZABLE: ClassVar[Localizable] = _("{most}, or {last}")
-
-
-@final
-class JoinAnd(_TwoPartJoin):
+class JoinAnd(_NaturalJoin):
     """
     An enumeration where all of the localizables are applicable.
     """
 
-    _LOCALIZABLE: ClassVar[Localizable] = _("{most}, and {last}")
+    _join: ClassVar[Localizable] = join_and
+    _join_many: ClassVar[Localizable] = join_and_many
+
+
+@final
+class JoinOr(_NaturalJoin):
+    """
+    An enumeration where any of the localizables may be applicable.
+    """
+
+    _join: ClassVar[Localizable] = join_or
+    _join_many: ClassVar[Localizable] = join_or_many
+
+
+class _Template(Localizable):
+    _template: ClassVar[Localizable]
+
+    @final
+    def __init__(self, text: ResolvableLocalizable, /):
+        self._text = text
+
+    @final
+    @override
+    def localize(self, localizer: Localizer, /) -> LocalizedStr:
+        return self._template.format(text=self._text).localize(localizer)
+
+
+@final
+class Quote(_Template):
+    """
+    Format text as a literal quote.
+    """
+
+    _template: ClassVar[Localizable] = pgettext("localizable-quote", '"{text}"')
 
 
 def do_you_mean(*available_options: Any) -> Localizable:

@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, Any, Final, Literal, Self, final
 from aiohttp_client_cache.backends.filesystem import FileBackend
 from aiohttp_client_cache.session import CachedSession
 
+from betty import about
 from betty.attrs.locale import new_locale_attr
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
@@ -258,7 +259,7 @@ class App(RequirableServiceLevel, PluginServiceProvider):
                 self.binary_file_cache.with_scope("http-client").directory
             ),
             headers={
-                "User-Agent": "Betty (https://betty.readthedocs.io/)",
+                "User-Agent": f"Betty ({about.url})",
             },
             middlewares=[
                 ClientErrorToUserMessageMiddleware(self.user),

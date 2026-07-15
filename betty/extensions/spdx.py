@@ -13,8 +13,8 @@ from betty.localizables.gettext import _
     "spdx",
     label=_("SPDX licenses"),
     description=_(
-        "Provide license plugins from the SPDX License List (https://spdx.org/licenses/) "
-    ),
+        "Provide license plugins from the SPDX License List ({spdx_url})"
+    ).format(spdx_url="https://spdx.org/licenses/"),
 )
 class Spdx(Extension):
     """

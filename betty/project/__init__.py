@@ -85,6 +85,7 @@ from betty.locale import (
 )
 from betty.localizable import resolve_localizable
 from betty.localizables.gettext import _
+from betty.localizables.markup import Quote
 from betty.localizer import Localizer, LocalizerRepository
 from betty.machine_name import MachineName, ResolvableMachineName
 from betty.pathlib import resolve_path
@@ -733,7 +734,9 @@ class ProjectData(Data, HasProps):
         BoolDefinition(
             label=_("Clean URLs"),
             description=_(
-                'Whether to use clean URLs: "/path" instead of "/path/index.html".'
+                "Whether to use clean URLs: {clean_example} instead of {unclean_example}."
+            ).format(
+                clean_example=Quote("/path"), unclean_example=Quote("/path/index.html")
             ),
         )
     ).default(lambda: False)

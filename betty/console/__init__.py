@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, Any, cast, final, override
 import rich  # noqa: F401
 import rich_argparse
 
+from betty import about
 from betty.app import App
 from betty.console.command import CommandDefinition, CommandFunction
 from betty.exception import HumanFacingException
@@ -281,7 +282,7 @@ async def main(app: App, args: Sequence[str]) -> None:
             await user.message_warning(
                 _(
                     "An unexpected error occurred. If you believe this is a problem with Betty, please report this at {url}."
-                ).format(url="https://github.com/bartfeenstra/betty/issues/new")
+                ).format(url=about.url_report_issue)
             )
         raise SystemExit(SystemExitCode.ERROR_UNEXPECTED) from None
     else:

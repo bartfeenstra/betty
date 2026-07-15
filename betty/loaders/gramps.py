@@ -29,6 +29,7 @@ from betty.gramps import (
 from betty.jobs.load_gramps_ancestry import LoadGrampsAncestry
 from betty.load import Loader, LoaderDefinition
 from betty.localizables.gettext import _
+from betty.localizables.markup import Quote
 from betty.pathlib import resolve_path
 from betty.place_type import PlaceType, PlaceTypeDefinition, PlaceTypeManufacturer
 from betty.plugin.cls import Plugin, PluginClsDefinition
@@ -172,7 +173,9 @@ class FamilyTree(Data, HasProps):
         if self.name is not None:
             return self.name
         raise HumanFacingException(
-            _('Family tree configuration must either have a "file" or a "name"')
+            _("Family tree configuration must either have a {file} or a {name}").format(
+                file=Quote("file"), name=Quote("name")
+            )
         )
 
 

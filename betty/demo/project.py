@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from betty import about
 from betty.content_builder import ContentBuilderManufacturer
 from betty.content_builders.raspberry_mint_columns import Columns, ColumnsData
 from betty.content_builders.raspberry_mint_entity_card import EntityCard
@@ -93,12 +94,12 @@ async def create_project(
                                                                 "<h2>",
                                                                 _("Get started"),
                                                                 "</h2>"
-                                                                '<a href="https://betty.readthedocs.io/" class="view-more">',
+                                                                f'<a href="{about.url_documentation}" class="view-more">',
                                                                 _(
                                                                     "Read the documentation"
                                                                 ),
                                                                 "</a>",
-                                                                '<a href="https://github.com/bartfeenstra/betty/" class="view-more">',
+                                                                f'<a href="{about.url_code}" class="view-more">',
                                                                 _("View the code"),
                                                                 "</a>",
                                                             ),
@@ -113,7 +114,9 @@ async def create_project(
                                                             Chain(
                                                                 "<p>",
                                                                 _(
-                                                                    "Betty was named after <a href=\"betty-entity://person/betty-demo-liberta-lankester\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
+                                                                    "Betty was named after <a href=\"{liberta_lankester_url}\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
+                                                                ).format(
+                                                                    liberta_lankester_url="betty-entity://person/betty-demo-liberta-lankester"
                                                                 ),
                                                                 "</p>",
                                                             ),

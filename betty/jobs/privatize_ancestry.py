@@ -11,6 +11,7 @@ from betty.attrs.privacy import HasPrivacy
 from betty.entities.person import Person
 from betty.job import Job
 from betty.localizables.gettext import _, ngettext
+from betty.localizables.markup import Quote
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, MutableMapping, MutableSequence
@@ -71,10 +72,10 @@ class PrivatizeAncestry(Job):
             if newly_privatized[entity_type_id] > 0:
                 await user.message_information_details(
                     ngettext(
-                        'Privatized {count} "{entity_type_id}" entity, because it is associated with private information.',
-                        'Privatized {count} "{entity_type_id}" entities, because they are associated with private information.',
+                        "Privatized {count} {entity_type} entity, because it is associated with private information.",
+                        "Privatized {count} {entity_type} entities, because they are associated with private information.",
                         newly_privatized[entity_type_id],
                     ).format(
-                        entity_type_id=entity_type_id,
+                        entity_type=Quote(entity_type_id),
                     )
                 )
