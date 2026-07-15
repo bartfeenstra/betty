@@ -65,10 +65,10 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks):
         "betty.entities.source:Source",
         "contains",
         label=_("Contained by"),
-        description=_("Another source this source is contained by"),
+        description=_("Another source that contains this source"),
     ).optional
     """
-    Another source this source is contained by.
+    Another source that contains this source.
     """
 
     contains = ToMany[Self, "Source"](

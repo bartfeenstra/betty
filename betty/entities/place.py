@@ -61,10 +61,10 @@ class Place(HasLinks, HasFileReferences, HasNotes):
         Enclosure,
         "encloses",
         label=_("Enclosed by"),
-        description=_("Other places this place is enclosed by"),
+        description=_("Other places that enclose this place"),
     )
     """
-    Other places this place is enclosed by.
+    Other places that enclose this place.
     """
 
     encloses = ToMany[Self, Enclosure](
