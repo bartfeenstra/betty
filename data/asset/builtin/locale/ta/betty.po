@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-15 15:18+0100\n"
+"POT-Creation-Date: 2026-07-15 15:34+0100\n"
 "PO-Revision-Date: 2026-07-15 13:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ta\n"
@@ -552,6 +552,10 @@ msgstr "பெட்டியின் பெயர் லிபர்ட்ட�
 msgid "Did you know that while Amsterdam is the country's official capital, The Hague is the Netherlands' administrative center and seat of government?"
 msgstr "ஆம்ச்டர்டாம் நாட்டின் உத்தியோகபூர்வ தலைநகரமாக இருக்கும்போது, ஏக் நெதர்லாந்தின் நிர்வாக நடுவண் மற்றும் அரசாங்கத்தின் இருக்கை என்பது உங்களுக்குத் தெரியுமா?"
 
+#, fuzzy
+msgid "Discover the history of a family…"
+msgstr "குடும்ப வரலாற்றை ஆராயுங்கள்…"
+
 msgid "Display interactive family trees using Cytoscape."
 msgstr "சைட்டோச்கேப்பைப் பயன்படுத்தி ஊடாடும் குடும்ப மரங்களைக் காண்பி."
 
@@ -676,9 +680,6 @@ msgstr "செயல்படுத்தக்கூடியது"
 
 msgid "Explore a demonstration site"
 msgstr "ஒரு ஆர்ப்பாட்ட தளத்தை ஆராயுங்கள்"
-
-msgid "Explore a family history…"
-msgstr "குடும்ப வரலாற்றை ஆராயுங்கள்…"
 
 msgid "Extension"
 msgstr "நீட்டிப்பு"
