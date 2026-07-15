@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
 "POT-Creation-Date: 2026-07-15 13:27+0100\n"
-"PO-Revision-Date: 2026-07-14 19:51+0000\n"
+"PO-Revision-Date: 2026-07-15 13:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: uk\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/betty/betty-0-5-x/uk/>\n"
@@ -17,6 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
+"X-Generator: Weblate 2026.8.dev0\n"
 
 #, python-brace-format
 msgctxt "localizable-quote"
@@ -37,7 +38,7 @@ msgstr "%(event)s з %(subjects)s"
 
 msgctxt "localizable-join-separator"
 msgid ", "
-msgstr ""
+msgstr ", "
 
 msgid "A Betty demonstration"
 msgstr "Демонстрація Betty"
@@ -1949,11 +1950,11 @@ msgstr "близько {date}"
 
 msgctxt "gramps-quote"
 msgid "base path for relative media paths"
-msgstr "Базовий шлях для відносних медіа шляхів"
+msgstr "базовий шлях для відносних шляхів медіа"
 
 msgctxt "sample-language-tag"
 msgid "en-US"
-msgstr ""
+msgstr "uk"
 
 #, python-brace-format
 msgid "from around {start_date}"
@@ -2752,12 +2753,12 @@ msgstr "{event_type} {subjects}"
 #, python-brace-format
 msgctxt "localizable-join-and"
 msgid "{first} and {second}"
-msgstr ""
+msgstr "{first} та {second}"
 
 #, python-brace-format
 msgctxt "localizable-join-or"
 msgid "{first} or {second}"
-msgstr ""
+msgstr "{first} або {second}"
 
 #, python-brace-format
 msgid "{individual_name} {affiliation_name}"
@@ -2774,12 +2775,12 @@ msgstr "{invalid_locale} не є дійсним мовним тегом IETF BCP
 #, python-brace-format
 msgctxt "localizable-join-and-many"
 msgid "{most}, and {last}"
-msgstr ""
+msgstr "{most}, та {last}"
 
 #, python-brace-format
 msgctxt "localizable-join-or-many"
 msgid "{most}, or {last}"
-msgstr ""
+msgstr "{most}, або {last}"
 
 #, python-brace-format
 msgid "{path} is not a directory."
@@ -2807,4 +2808,3 @@ msgstr "© Авторське право належить автору, якщо
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Авторське право {author}, якщо не зазначено інше"
-
