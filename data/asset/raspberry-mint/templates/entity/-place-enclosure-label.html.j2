@@ -1,9 +1,9 @@
-{%- set encloser_enclosure = place.enclosers | negotiate_has_dates(date_context | default(none)) -%}
-{%- if encloser_enclosure is not none and (place_context is none or place_context != encloser_enclosure.encloser) -%}
-    {%- with entity = encloser_enclosure.encloser -%}
+{%- set enclosed_by = place.enclosed_by | negotiate_has_dates(date_context | default(none)) -%}
+{%- if enclosed_by is not none and (place_context is none or place_context != enclosed_by.enclosed_by) -%}
+    {%- with entity = enclosed_by.enclosed_by -%}
         , {% include 'entity/label--place.html.j2' -%}
     {%- endwith -%}
-    {% with place = encloser_enclosure.encloser %}
+    {% with place = enclosed_by.enclosed_by %}
         {% include 'entity/-place-enclosure-label.html.j2' %}
     {% endwith %}
 {%- endif -%}

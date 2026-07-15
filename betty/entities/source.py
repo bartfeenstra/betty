@@ -65,20 +65,20 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks):
         "betty.entities.source:Source",
         "contains",
         label=_("Contained by"),
-        description=_("Another source this source may be contained by"),
+        description=_("Another source this source is contained by"),
     ).optional
     """
-    Another source this source may be contained by
+    Another source this source is contained by.
     """
 
     contains = ToMany[Self, "Source"](
         "betty.entities.source:Source",
         "contained_by",
         label=_("Contains"),
-        description=_("Other sources this source may contain"),
+        description=_("Other sources this source contains"),
     )
     """
-    Other sources this source may contain
+    Other sources this source contains.
     """
 
     citations = ToMany[Self, "Citation"](
@@ -88,7 +88,7 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks):
         description=_("The citations referencing this source"),
     )
     """
-    The citations referencing this source
+    The citations referencing this source.
     """
 
     def __init__(

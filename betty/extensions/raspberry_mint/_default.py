@@ -14,7 +14,7 @@ from betty.content_builders.notes import Notes
 from betty.content_builders.raspberry_mint_citations import Citations
 from betty.content_builders.raspberry_mint_color_style import ColorStyle, ColorStyleData
 from betty.content_builders.raspberry_mint_columns import Columns, ColumnsData
-from betty.content_builders.raspberry_mint_enclosees import Enclosees
+from betty.content_builders.raspberry_mint_enclosures import Enclosures
 from betty.content_builders.raspberry_mint_facts import Facts
 from betty.content_builders.raspberry_mint_families import Families
 from betty.content_builders.raspberry_mint_file_referees import FileReferees
@@ -109,7 +109,7 @@ class DefaultRegionalContent(Bootstrappable):
                 ),
             )
         yield ContentBuilderManufacturer(
-            Columns, ColumnsData([[Enclosees]], width=single_column_text_width)
+            Columns, ColumnsData([[Enclosures]], width=single_column_text_width)
         )
         yield ContentBuilderManufacturer(
             Section,

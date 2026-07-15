@@ -123,11 +123,11 @@ class Privatizer:
         if not place.private:
             return
 
-        for enclosure in place.enclosees:
-            await self._mark_private(enclosure.enclosee, place)
-            await self.privatize(enclosure.enclosee)
-        for enclosure in place.enclosers:
-            await self.privatize(enclosure.encloser)
+        for enclosure in place.encloses:
+            await self._mark_private(enclosure.encloses, place)
+            await self.privatize(enclosure.encloses)
+        for enclosure in place.enclosed_by:
+            await self.privatize(enclosure.enclosed_by)
 
     async def _privatize_has_citations(
         self, has_citations: Intersection[HasCitations, HasPrivacy]
@@ -228,8 +228,8 @@ class Privatizer:
                 return
 
         # If there are non-private enclosed places, we will not privatize the place.
-        for enclosure in place.enclosees:
-            if not enclosure.enclosee.private:
+        for enclosure in place.encloses:
+            if not enclosure.encloses.private:
                 return
 
         place.private = True

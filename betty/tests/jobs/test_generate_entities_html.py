@@ -46,7 +46,7 @@ class TestGenerateEntitiesHtml:
         [
             Citation(source=Source()),
             Citation(source=Source(), id="my-first-citation", privacy=Privacy.PRIVATE),
-            Enclosure(enclosee=Place(), encloser=Place()),
+            Enclosure(encloses=Place(), enclosed_by=Place()),
             Event(),
             Event(id="my-first-event", privacy=Privacy.PRIVATE),
             File(__file__),

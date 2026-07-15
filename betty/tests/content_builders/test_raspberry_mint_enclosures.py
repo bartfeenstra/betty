@@ -1,6 +1,6 @@
 import pytest
 
-from betty.content_builders.raspberry_mint_enclosees import Enclosees
+from betty.content_builders.raspberry_mint_enclosures import Enclosures
 from betty.document import Document
 from betty.entities.enclosure import Enclosure
 from betty.entities.person import Person
@@ -8,7 +8,7 @@ from betty.entities.place import Place
 from betty.test_utils.conftest import IsolatedProjectFactory
 
 
-class TestEnclosees:
+class TestEnclosures:
     @pytest.mark.parametrize(
         "resource",
         [
@@ -18,21 +18,21 @@ class TestEnclosees:
             Place(),
         ],
     )
-    async def test_build_template__without_enclosees(
+    async def test_build_template__without_enclosures(
         self, resource: object, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(supported_plugins=[Enclosees]) as project:
-            sut = await Enclosees.new(project)
+        async with isolated_project_factory(supported_plugins=[Enclosures]) as project:
+            sut = await Enclosures.new(project)
         assert await sut.build(document=Document(resource)) is None
 
-    async def test_build_template__with_enclosee(
+    async def test_build_template__with_enclosures(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        enclosee = Place()
+        encloses = Place()
         resource = Place()
-        Enclosure(enclosee, resource)
-        async with isolated_project_factory(supported_plugins=[Enclosees]) as project:
-            sut = await Enclosees.new(project)
+        Enclosure(encloses=encloses, enclosed_by=resource)
+        async with isolated_project_factory(supported_plugins=[Enclosures]) as project:
+            sut = await Enclosures.new(project)
             actual = await sut.build(document=Document(resource))
         assert actual is not None
-        assert enclosee.id in actual
+        assert encloses.id in actual

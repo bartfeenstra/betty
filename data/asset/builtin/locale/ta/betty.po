@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-15 13:27+0100\n"
+"POT-Creation-Date: 2026-07-15 15:18+0100\n"
 "PO-Revision-Date: 2026-07-15 13:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ta\n"
@@ -17,7 +17,6 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
-"X-Generator: Weblate 2026.8.dev0\n"
 
 #, python-brace-format
 msgctxt "localizable-quote"
@@ -141,8 +140,8 @@ msgstr "மணமுறிவு அறிவிப்புகள்"
 msgid "Announcements of marriage"
 msgstr "திருமண அறிவிப்புகள்"
 
-msgid "Another source this source may be contained by"
-msgstr "இந்த சான்று மற்றொரு ஆதாரமாக இருக்கலாம்"
+msgid "Another source this source is contained by"
+msgstr ""
 
 msgid "Appearances"
 msgstr "தோற்றங்கள்"
@@ -599,17 +598,11 @@ msgstr "குடியேறல்"
 msgid "Emigrations"
 msgstr "குடியேற்றம்"
 
-msgid "Enclosee"
-msgstr "மூடப்பட்டது"
+msgid "Enclosed by"
+msgstr ""
 
-msgid "Enclosees"
-msgstr "அடைக்கிறது"
-
-msgid "Encloser"
-msgstr "அடைப்பான்"
-
-msgid "Enclosers"
-msgstr "அடைப்பு"
+msgid "Encloses"
+msgstr ""
 
 msgid "Enclosure"
 msgstr "அடைப்பு"
@@ -1186,11 +1179,14 @@ msgstr "மற்ற பங்கேற்பாளர்கள்"
 msgid "Other entities that reference a citation or source to back up their claims."
 msgstr "தங்கள் உரிமைகோரல்களை காப்புப் பிரதி எடுக்க மேற்கோள் அல்லது மூலத்தைக் குறிப்பிடும் பிற நிறுவனங்கள்."
 
-msgid "Other places contained by this one"
-msgstr "இதில் உள்ள மற்ற இடங்கள்"
+msgid "Other places this place encloses"
+msgstr ""
 
-msgid "Other sources this source may contain"
-msgstr "இந்த மூலத்தில் உள்ள பிற ஆதாரங்கள் இருக்கலாம்"
+msgid "Other places this place is enclosed by"
+msgstr ""
+
+msgid "Other sources this source contains"
+msgstr ""
 
 msgid "Output directory"
 msgstr "வெளியீட்டு அடைவு"
@@ -1644,17 +1640,11 @@ msgstr "இந்த மேற்கோள்களைக் குறிப்�
 msgid "The path to a Betty project directory or configuration file. Defaults to {default} in the current working directory."
 msgstr "பெட்டி திட்ட அடைவு அல்லது உள்ளமைவு கோப்பிற்கான பாதை. தற்போதைய வேலை கோப்பகத்தில் இயல்புநிலை {default}."
 
-msgid "The place that encloses or contains the enclosee"
-msgstr "மூடப்பட்ட அல்லது உள்ளடக்கிய இடம்"
+msgid "The place that encloses the other place"
+msgstr ""
 
-msgid "The place that is enclosed or contained by the encloser"
-msgstr "அடைப்பால் மூடப்பட்ட அல்லது உள்ளடக்கிய இடம்"
-
-msgid "The places this place encloses or contains"
-msgstr "இந்த இடம் உள்ளடக்கிய அல்லது உள்ளடக்கிய இடங்கள்"
-
-msgid "The places this place is enclosed or contained by"
-msgstr "இந்த இடம் மூடப்பட்ட அல்லது உள்ளடக்கிய இடங்கள்"
+msgid "The place that is enclosed by the other place"
+msgstr ""
 
 #, python-brace-format
 msgid "The server at {url} was unreachable after starting."
@@ -2716,3 +2706,4 @@ msgstr "© பதிப்புரிமை ஆசிரியர், இல்
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© பதிப்புரிமை {author}, இல்லையெனில் வரவு வைக்கப்படவில்லை"
+

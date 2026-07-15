@@ -32,15 +32,15 @@ async def test_with_non_unknown_place_type(
         assert Country.plugin().label.localize(default_localizer) in actual
 
 
-async def test_with_encloser(assert_template_file: AssertTemplateFile) -> None:
-    encloser_place = Place()
-    place = Place()
-    Enclosure(place, encloser_place)
+async def test_with_enclosed_by(assert_template_file: AssertTemplateFile) -> None:
+    enclosed_by = Place()
+    encloses = Place()
+    Enclosure(enclosed_by=enclosed_by, encloses=encloses)
     async with assert_template_file(
         data={
-            "entity": place,
+            "entity": encloses,
         },
         assets={raspberry_mint},
         template="entity/summary--place.html.j2",
     ) as (actual, _):
-        assert encloser_place.id in actual
+        assert enclosed_by.id in actual

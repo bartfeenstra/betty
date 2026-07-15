@@ -7,17 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-15 13:27+0100\n"
+"POT-Creation-Date: 2026-07-15 15:18+0100\n"
 "PO-Revision-Date: 2026-07-15 13:30+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
-"Language: de-DE\n"
+"Language: de_DE\n"
 "Language-Team: German <https://hosted.weblate.org/projects/betty/betty-0-5-x/de/>\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
-"X-Generator: Weblate 2026.8.dev0\n"
 
 #, python-brace-format
 msgctxt "localizable-quote"
@@ -141,7 +140,7 @@ msgstr ""
 msgid "Announcements of marriage"
 msgstr ""
 
-msgid "Another source this source may be contained by"
+msgid "Another source this source is contained by"
 msgstr ""
 
 msgid "Appearances"
@@ -599,16 +598,10 @@ msgstr "Auswanderung"
 msgid "Emigrations"
 msgstr ""
 
-msgid "Enclosee"
+msgid "Enclosed by"
 msgstr ""
 
-msgid "Enclosees"
-msgstr ""
-
-msgid "Encloser"
-msgstr ""
-
-msgid "Enclosers"
+msgid "Encloses"
 msgstr ""
 
 msgid "Enclosure"
@@ -1184,10 +1177,13 @@ msgstr "Andere Teilnehmer"
 msgid "Other entities that reference a citation or source to back up their claims."
 msgstr ""
 
-msgid "Other places contained by this one"
+msgid "Other places this place encloses"
 msgstr ""
 
-msgid "Other sources this source may contain"
+msgid "Other places this place is enclosed by"
+msgstr ""
+
+msgid "Other sources this source contains"
 msgstr ""
 
 msgid "Output directory"
@@ -1638,16 +1634,10 @@ msgstr ""
 msgid "The path to a Betty project directory or configuration file. Defaults to {default} in the current working directory."
 msgstr ""
 
-msgid "The place that encloses or contains the enclosee"
+msgid "The place that encloses the other place"
 msgstr ""
 
-msgid "The place that is enclosed or contained by the encloser"
-msgstr ""
-
-msgid "The places this place encloses or contains"
-msgstr ""
-
-msgid "The places this place is enclosed or contained by"
+msgid "The place that is enclosed by the other place"
 msgstr ""
 
 #, python-brace-format
@@ -2710,3 +2700,4 @@ msgstr ""
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Copyright {author}, außer anders erwähnt"
+

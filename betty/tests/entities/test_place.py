@@ -47,17 +47,17 @@ class TestPlace(EntityTestBase):
         assert list(sut.events) == [event]
         assert event.place is sut
 
-    def test___init____with_enclosers(self) -> None:
-        enclosure = Enclosure(enclosee=Placeholder(), encloser=Place())
-        sut = Place(enclosers=[enclosure])
-        assert list(sut.enclosers) == [enclosure]
-        assert enclosure.enclosee is sut
+    def test___init____with_enclosed_by(self) -> None:
+        enclosure = Enclosure(encloses=Placeholder(), enclosed_by=Place())
+        sut = Place(enclosed_by=[enclosure])
+        assert list(sut.enclosed_by) == [enclosure]
+        assert enclosure.encloses is sut
 
-    def test___init____with_enclosees(self) -> None:
-        enclosure = Enclosure(enclosee=Place(), encloser=Placeholder())
-        sut = Place(enclosees=[enclosure])
-        assert list(sut.enclosees) == [enclosure]
-        assert enclosure.encloser is sut
+    def test___init____with_encloses(self) -> None:
+        enclosure = Enclosure(encloses=Place(), enclosed_by=Placeholder())
+        sut = Place(encloses=[enclosure])
+        assert list(sut.encloses) == [enclosure]
+        assert enclosure.enclosed_by is sut
 
     def test___init____with_place_type(self) -> None:
         place_type = Hamlet()
@@ -80,29 +80,29 @@ class TestPlace(EntityTestBase):
         assert list(sut.events) == []
         assert event.place is None
 
-    def test_enclosers(self) -> None:
+    def test_enclosed_by(self) -> None:
         sut = Place()
-        assert list(sut.enclosers) == []
-        encloser = Place()
-        enclosure = Enclosure(enclosee=sut, encloser=encloser)
-        assert enclosure in sut.enclosers
-        assert sut == enclosure.enclosee
-        sut.enclosers.remove(enclosure)
-        assert list(sut.enclosers) == []
+        assert list(sut.enclosed_by) == []
+        enclosed_by = Place()
+        enclosure = Enclosure(encloses=sut, enclosed_by=enclosed_by)
+        assert enclosure in sut.enclosed_by
+        assert sut == enclosure.encloses
+        sut.enclosed_by.remove(enclosure)
+        assert list(sut.enclosed_by) == []
         with pytest.raises(MissingAssociate):
-            enclosure.enclosee  # noqa: B018
+            enclosure.encloses  # noqa: B018
 
-    def test_enclosees(self) -> None:
+    def test_encloses(self) -> None:
         sut = Place()
-        assert list(sut.enclosees) == []
-        enclosee = Place()
-        enclosure = Enclosure(enclosee=enclosee, encloser=sut)
-        assert enclosure in sut.enclosees
-        assert sut == enclosure.encloser
-        sut.enclosees.remove(enclosure)
-        assert list(sut.enclosees) == []
+        assert list(sut.encloses) == []
+        encloses = Place()
+        enclosure = Enclosure(encloses=encloses, enclosed_by=sut)
+        assert enclosure in sut.encloses
+        assert sut == enclosure.enclosed_by
+        sut.encloses.remove(enclosure)
+        assert list(sut.encloses) == []
         with pytest.raises(MissingAssociate):
-            enclosure.encloser  # noqa: B018
+            enclosure.enclosed_by  # noqa: B018
 
     def test_id(self) -> None:
         sut = Place(id="my-first-place")
@@ -129,16 +129,16 @@ class TestPlace(EntityTestBase):
         expected: Mapping[str, Any] = {
             "@context": {
                 "names": "https://schema.org/name",
-                "enclosers": "https://schema.org/containedInPlace",
-                "enclosees": "https://schema.org/containsPlace",
+                "enclosedBy": "https://schema.org/containedInPlace",
+                "encloses": "https://schema.org/containsPlace",
                 "events": "https://schema.org/event",
             },
             "@id": "https://example.com/place/my-first-place/index.json",
             "@type": "https://schema.org/Place",
             "id": "my-first-place",
             "names": [],
-            "enclosers": [],
-            "enclosees": [],
+            "enclosedBy": [],
+            "encloses": [],
             "events": [],
             "notes": [],
             "links": [],
@@ -171,20 +171,20 @@ class TestPlace(EntityTestBase):
         )
         place.coordinates = coordinates
         Enclosure(
-            enclosee=place,
-            encloser=Place(id="the-enclosing-place"),
+            encloses=place,
+            enclosed_by=Place(id="the-enclosing-place"),
             id="the-enclosing-enclosure",
         )
         Enclosure(
-            enclosee=Place(id="the-enclosed-place"),
-            encloser=place,
+            encloses=Place(id="the-enclosed-place"),
+            enclosed_by=place,
             id="the-enclosed-enclosure",
         )
         expected: Mapping[str, Any] = {
             "@context": {
                 "names": "https://schema.org/name",
-                "enclosers": "https://schema.org/containedInPlace",
-                "enclosees": "https://schema.org/containsPlace",
+                "enclosedBy": "https://schema.org/containedInPlace",
+                "encloses": "https://schema.org/containsPlace",
                 "events": "https://schema.org/event",
                 "coordinates": "https://schema.org/geo",
             },
@@ -215,10 +215,10 @@ class TestPlace(EntityTestBase):
                 "latitude": latitude,
                 "longitude": longitude,
             },
-            "enclosees": [
+            "encloses": [
                 "/enclosure/the-enclosed-enclosure/index.json",
             ],
-            "enclosers": [
+            "enclosedBy": [
                 "/enclosure/the-enclosing-enclosure/index.json",
             ],
             "privacy": False,

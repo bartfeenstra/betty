@@ -564,7 +564,7 @@ class TestPrivatizer:
         assert citation.private
 
     @pytest.mark.parametrize(
-        ("expected", "privacy", "events", "enclosees"),
+        ("expected", "privacy", "events", "enclosures"),
         [
             (Privacy.PUBLIC, Privacy.PUBLIC, [], []),
             (Privacy.PRIVATE, Privacy.PRIVATE, [], []),
@@ -589,7 +589,9 @@ class TestPrivatizer:
                 Privacy.UNDETERMINED,
                 [],
                 [
-                    Enclosure(Place(privacy=Privacy.PUBLIC), Place()),
+                    Enclosure(
+                        enclosed_by=Place(privacy=Privacy.PUBLIC), encloses=Place()
+                    ),
                 ],
             ),
         ],
@@ -599,43 +601,43 @@ class TestPrivatizer:
         expected: Privacy,
         privacy: Privacy,
         events: Sequence[Event],
-        enclosees: Sequence[Enclosure],
+        enclosures: Sequence[Enclosure],
     ) -> None:
         place = Place(
             privacy=privacy,
             events=events,
-            enclosees=enclosees,
+            encloses=enclosures,
         )
         await Privatizer(default_lifetime_threshold, user=StaticUser()).privatize(place)
         assert place.privacy is expected
 
-    async def test_privatize__place_should_not_privatize_public_encloser(
+    async def test_privatize__place_should_not_privatize_public_enclosed_by(
         self,
     ) -> None:
-        encloser = Place(privacy=Privacy.PUBLIC)
+        enclosed_by = Place(privacy=Privacy.PUBLIC)
         place = Place(
             privacy=Privacy.PRIVATE,
-            enclosers=[Enclosure(Place(), encloser)],
+            enclosed_by=[Enclosure(enclosed_by=enclosed_by, encloses=Place())],
         )
         await Privatizer(default_lifetime_threshold, user=StaticUser()).privatize(place)
-        assert encloser.privacy is Privacy.PUBLIC
+        assert enclosed_by.privacy is Privacy.PUBLIC
 
-    async def test_privatize__place_should_not_privatize_encloser_with_public_associations(
+    async def test_privatize__place_should_not_privatize_enclosed_by_with_public_associations(
         self,
     ) -> None:
-        encloser = Place(
-            enclosees=[Enclosure(Place(), Place())],
+        enclosed_by = Place(
+            encloses=[Enclosure(encloses=Place(), enclosed_by=Place())],
         )
         place = Place(
             privacy=Privacy.PRIVATE,
-            enclosers=[Enclosure(Place(), encloser)],
+            enclosed_by=[Enclosure(enclosed_by=enclosed_by, encloses=Place())],
         )
         await Privatizer(default_lifetime_threshold, user=StaticUser()).privatize(place)
-        assert encloser.privacy is not Privacy.PRIVATE
+        assert enclosed_by.privacy is not Privacy.PRIVATE
 
-    async def test_privatize__place_should_privatize_enclosees(self) -> None:
-        enclosee = Place()
+    async def test_privatize__place_should_privatize_encloses(self) -> None:
+        encloses = Place()
         place = Place(privacy=Privacy.PRIVATE)
-        Enclosure(enclosee, place)
+        Enclosure(encloses=encloses, enclosed_by=place)
         await Privatizer(default_lifetime_threshold, user=StaticUser()).privatize(place)
-        assert enclosee.private
+        assert encloses.private

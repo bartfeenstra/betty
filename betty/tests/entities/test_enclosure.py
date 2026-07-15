@@ -19,33 +19,33 @@ class TestEnclosure(EntityTestBase):
     @override
     @pytest.fixture
     def sut(self) -> Entity:
-        return Enclosure(Place(), Place())
+        return Enclosure(encloses=Place(), enclosed_by=Place())
 
-    def test_enclosee(self) -> None:
-        enclosee = Place()
-        encloser = Place()
-        sut = Enclosure(enclosee, encloser)
-        assert sut.enclosee is enclosee
+    def test_encloses(self) -> None:
+        encloses = Place()
+        enclosed_by = Place()
+        sut = Enclosure(encloses=encloses, enclosed_by=enclosed_by)
+        assert sut.encloses is encloses
 
-    def test_encloser(self) -> None:
-        enclosee = Place()
-        encloser = Place()
-        sut = Enclosure(enclosee, encloser)
-        assert sut.encloser is encloser
+    def test_enclosed_by(self) -> None:
+        encloses = Place()
+        enclosed_by = Place()
+        sut = Enclosure(encloses=encloses, enclosed_by=enclosed_by)
+        assert sut.enclosed_by is enclosed_by
 
     def test_date(self) -> None:
-        enclosee = Place()
-        encloser = Place()
-        sut = Enclosure(enclosee, encloser)
+        encloses = Place()
+        enclosed_by = Place()
+        sut = Enclosure(encloses=encloses, enclosed_by=enclosed_by)
         date = Date()
         assert sut.date is None
         sut.date = date
         assert sut.date is date
 
     def test_citations(self) -> None:
-        enclosee = Place()
-        encloser = Place()
-        sut = Enclosure(enclosee, encloser)
+        encloses = Place()
+        enclosed_by = Place()
+        sut = Enclosure(encloses=encloses, enclosed_by=enclosed_by)
         citation = Citation(source=Source())
         assert sut.date is None
         sut.citations = [citation]

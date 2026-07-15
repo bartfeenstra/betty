@@ -30,32 +30,33 @@ class Enclosure(HasAnyDate, HasCitations, Entity):
     .. plugin:: entity:enclosure.
     """
 
-    encloser = ToOne[Self, "Place"](
+    enclosed_by = ToOne[Self, "Place"](
         "betty.entities.place:Place",
-        "enclosees",
-        label=_("Encloser"),
-        description=_("The place that encloses or contains the enclosee"),
+        "encloses",
+        label=_("Enclosed by"),
+        description=_("The place that encloses the other place"),
     )
     """
-    The outer place.
+    The place that encloses the other place.
     """
 
-    enclosee = ToOne[Self, "Place"](
+    encloses = ToOne[Self, "Place"](
         "betty.entities.place:Place",
-        "enclosers",
-        label=_("Enclosee"),
-        description=_("The place that is enclosed or contained by the encloser"),
+        "enclosed_by",
+        label=_("Encloses"),
+        description=_("The place that is enclosed by the other place"),
     )
     """
-    The inner place.
+    The place that is enclosed by the other place.
     """
 
     def __init__(
         self,
-        enclosee: ToOneAssociate[Self, Place],
-        encloser: ToOneAssociate[Self, Place],
+        *,
+        enclosed_by: ToOneAssociate[Self, Place],
+        encloses: ToOneAssociate[Self, Place],
         id: ResolvableMachineName | None = None,  # noqa: A002
     ):
         super().__init__(id=id)
-        self.enclosee = enclosee
-        self.encloser = encloser
+        self.enclosed_by = enclosed_by
+        self.encloses = encloses
