@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-14 17:08+0100\n"
-"PO-Revision-Date: 2026-07-14 22:36+0000\n"
+"PO-Revision-Date: 2026-07-15 01:47+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl-NL\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/betty/betty-0-5-x/nl/>\n"
@@ -571,7 +571,7 @@ msgid "Display interactive maps"
 msgstr "Geef plaatsen weer als interactieve kaarten"
 
 msgid "Display the HTTP API documentation in a user-friendly way using Swagger UI."
-msgstr ""
+msgstr "Geef de HTTP API-documentatie gebruiksvriendelijk weer met Swagger UI."
 
 msgid "District"
 msgstr "District"
@@ -807,10 +807,10 @@ msgid "Gramps role"
 msgstr "Gramps-rol"
 
 msgid "HTTP client rate limit"
-msgstr ""
+msgstr "HTTP client rate limit"
 
 msgid "HTTP client rate limits"
-msgstr ""
+msgstr "HTTP client rate limits"
 
 #, python-brace-format
 msgid "HTTP {http_status_code} response returned by {url}"
@@ -888,14 +888,14 @@ msgstr "Ongeldige optie {value}."
 
 #, python-brace-format
 msgid "Invalid plural tag(s) {plural_tags} for {locale} translations."
-msgstr ""
+msgstr "Ongeldige plural tag(s) {plural_tags} voor de {locale}-vertalingen."
 
 #, python-brace-format
 msgid "Invalid region {invalid_region}."
 msgstr "Ongeldige regio {invalid_region}."
 
 msgid "It appears you called Betty without a command or arguments"
-msgstr ""
+msgstr "Het lijkt erop dat je Betty hebt aangeroepen zonder een commando of argumenten"
 
 msgid "JavaScript resource"
 msgstr "JavaScript-resource"
@@ -1097,11 +1097,11 @@ msgstr "Vermist"
 
 #, python-brace-format
 msgid "Missing `{{count}}` placeholder in {locale} plural translations"
-msgstr ""
+msgstr "Ontbrekende `{{count}}`-plaatshouder in de {locale}-meervoudsvertalingen"
 
 #, python-brace-format
 msgid "Missing plural tag(s) {plural_tags} for {locale} translations."
-msgstr ""
+msgstr "Ontbrekende plural tag(s) {plural_tags} voor de {locale}-vertalingen."
 
 msgid "Missings"
 msgstr "Vermissingen"
@@ -1110,7 +1110,7 @@ msgid "Month"
 msgstr "Maand"
 
 msgid "More plugins may be available when running this command with --project."
-msgstr ""
+msgstr "Er zijn mogelijk meer plugins beschikbaar als dit commando met --project gebruikt wordt."
 
 msgid "Multiple files in a media gallery display"
 msgstr "Meerdere bestanden in mediagalerijweergave"
@@ -1193,13 +1193,13 @@ msgid "Other attendees"
 msgstr "Overige aanwezigen"
 
 msgid "Other entities that reference a citation or source to back up their claims."
-msgstr ""
+msgstr "Andere entiteiten die naar een verwijzing of bron verwijzen om hun claims te onderbouwen."
 
 msgid "Other places contained by this one"
 msgstr "Overige plaatsen binnen deze"
 
 msgid "Other sources this source may contain"
-msgstr ""
+msgstr "Andere bronnen die deze bron bevat"
 
 msgid "Output directory"
 msgstr "Uitvoerdirectory"
@@ -1325,8 +1325,8 @@ msgstr "Plaats {privatized_place_id} ({privatized_place}) geprivatiseerd omdat d
 #, python-brace-format
 msgid "Privatized {count} \"{entity_type_id}\" entity, because it is associated with private information."
 msgid_plural "Privatized {count} \"{entity_type_id}\" entities, because they are associated with private information."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Er is {count} \"{entity_type_id}\"-entiteit geprivatiseerd, omdat het met privéinformatie geassocieerd is."
+msgstr[1] "Er zijn {count} \"{entity_type_id}\"-entiteiten geprivatiseerd, omdat ze met privéinformatie geassocieerd zijn."
 
 #, python-brace-format
 msgid "Privatized {count} people because they are likely still alive."
@@ -1346,7 +1346,7 @@ msgid "Project locale"
 msgstr "Projecttaalregio"
 
 msgid "Provide license plugins from the SPDX License List (https://spdx.org/licenses/) "
-msgstr ""
+msgstr "Maak licenties beschikbaar van de SPDX License List (https://spdx.org/licenses/) "
 
 msgid "Province"
 msgstr "Provincie"
@@ -1370,7 +1370,7 @@ msgid "Raspberry Mint configuration"
 msgstr "Raspberry Mint-configuratie"
 
 msgid "Rate limits ensure that Betty's HTTP client does not make more requests to a web service than that service supports or allows, by enforcing a maximum number of requests per timeframe."
-msgstr ""
+msgstr "Rate limits zorgen ervoor dat Betty's HTTP client niet meer requests maakt naar een web service, dan dat deze service aan kan of toestaat, door een maximaal aantal requests per tijdsspanne af te dwingen."
 
 msgid "Read more"
 msgstr "Meer lezen"
@@ -1482,7 +1482,7 @@ msgid "Serve a generated site"
 msgstr "Serveer een gegenereerde site"
 
 msgid "Serve your site using Python's built-in web server. This is for local use only, and unsafe for publishing your site."
-msgstr ""
+msgstr "Serveer je site met Pythons ingebouwde webserver. Dit is enkel voor lokaal gebruik, en niet veilig om je site te publiceren."
 
 msgid "Server"
 msgstr "Server"
@@ -1495,7 +1495,7 @@ msgid "Serving your site at {url}…"
 msgstr "Je site op {url} aan het serveren…"
 
 msgid "Set the locale for Betty's user interface. This must be an IETF BCP 47 language tag."
-msgstr ""
+msgstr "Stel de taalregio in voor Betty's gebruikersinterface. Dit moet een IETF BCP 47-taaltag zijn."
 
 msgid "Show all available commands"
 msgstr "Laat alle beschikbare commando's zien"
@@ -1510,7 +1510,7 @@ msgid "Someone performed public speaking at the event."
 msgstr "Iemand sprak in het openbaar tijdens deze gebeurtenis."
 
 msgid "Someone reported the event with a record-keeping institution."
-msgstr ""
+msgstr "Iemand heeft de gebeurtenis bij een instantie aangegeven."
 
 msgid "Source"
 msgstr "Bron"
@@ -1622,10 +1622,10 @@ msgid "The betty:privacy Gramps attribute must have a value of \"public\" or \"p
 msgstr "Het betty:privacy Gramps-attribuut moet \"public\" of \"private\" zijn, maar {entity_type} {entity_id} ({entity_label}) bevat \"{privacy_value}\", en is daarom genegeerd."
 
 msgid "The citations backing up the claims made by this entity"
-msgstr ""
+msgstr "De verwijzingen die de claims van deze entiteit onderbouwen"
 
 msgid "The citations referencing this source"
-msgstr ""
+msgstr "De verwijzingen die naar deze bron verwijzen"
 
 msgid "The entities referencing this file"
 msgstr "De entiteiten die naar dit bestand verwijzen"
@@ -1646,14 +1646,14 @@ msgid "The location of the event"
 msgstr "De locatie van de gebeurtenis"
 
 msgid "The number of years people are expected to live at most, e.g. after which they are presumed to have died."
-msgstr ""
+msgstr "Het aantal jaren dat mensen ten hoogste leven, en waarna ze worden verondersteld te zijn overleden."
 
 msgid "The other entities that reference these citations to back up their claims."
-msgstr "De andere entiteiten die naar deze verwijzingen verwijzen om hun feiten te onderbouwen."
+msgstr "De andere entiteiten die naar deze verwijzingen verwijzen om hun claims te onderbouwen."
 
 #, python-brace-format
 msgid "The path to a Betty project directory or configuration file. Defaults to {default} in the current working directory."
-msgstr ""
+msgstr "Het pad naar een Betty-projectdirectory of -configuratiebestand. Dit is standaard {default} in de huidige werkdirectory."
 
 msgid "The place that encloses or contains the enclosee"
 msgstr ""
@@ -1676,18 +1676,18 @@ msgstr "De bron waar deze verwijzing naar verwijst."
 
 #, python-brace-format
 msgid "The values of the following HTML attributes will automatically be replaced with the URLs generated from them where possible: {attributes}"
-msgstr ""
+msgstr "De waardes van de volgende HTML-attributen worden waar mogelijk automatisch vervangen door URL's van ze te genereren: {attributes}"
 
 msgid "The web server to use."
 msgstr "De te gebruiken webserver."
 
 #, python-brace-format
 msgid "The {plugin} {plugin_type} plugin is required from the {service} service."
-msgstr ""
+msgstr "De {plugin} {plugin_type}-plugin is vereist door de {service}-service."
 
 #, python-brace-format
 msgid "The {service} service must have exactly one {plugin_type} plugin, but {actual} were given."
-msgstr ""
+msgstr "De {service}-service vereist exact één {plugin_type}-plugin, maar er zijn er {actual} gegeven."
 
 msgid "There are no available options."
 msgstr "Er zijn geen mogelijkheden beschikbaar."
@@ -1892,13 +1892,13 @@ msgid "Where do you want to save your project's configuration file?"
 msgstr "Waar wil je je projectconfiguratiebestand opslaan?"
 
 msgid "Whether to download additional images found through Wikipedia links in the ancestry"
-msgstr ""
+msgstr "Of er aanvullende afbeeldingen gedownload moeten worden via Wikipedia-links in de familiegeschiedenis"
 
 msgid "Whether to output more detailed logs and disable optimizations that make debugging harder."
-msgstr ""
+msgstr "Of er meer gedetailleerde logberichten moeten worden laten zien, en of optimalisaties, die het debuggen moeilijker maken, moeten worden uitgeschakeld."
 
 msgid "Whether to use clean URLs: \"/path\" instead of \"/path/index.html\"."
-msgstr ""
+msgstr "Gebruik schone URL's: \"/path\" in plaats van \"/path/index.html\"."
 
 msgid "Which language should your project site be generated in? Enter a language code."
 msgstr "In welke taal moet de site voor je project gegenereerd worden? Voer een taalcode in."
@@ -2084,8 +2084,8 @@ msgstr[1] "{count} CSS-resources"
 #, python-brace-format
 msgid "{count} HTTP client rate limit"
 msgid_plural "{count} HTTP client rate limits"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} HTTP client rate limit"
+msgstr[1] "{count} HTTP client rate limits"
 
 #, python-brace-format
 msgid "{count} JavaScript resource"
