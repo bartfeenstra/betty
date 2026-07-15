@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-15 13:27+0100\n"
-"PO-Revision-Date: 2026-07-14 19:45+0000\n"
-"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"PO-Revision-Date: 2026-07-15 13:30+0000\n"
+"Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: he\n"
 "Language-Team: Hebrew <https://hosted.weblate.org/projects/betty/betty-0-5-x/he/>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -17,6 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
+"X-Generator: Weblate 2026.8.dev0\n"
 
 #, python-brace-format
 msgctxt "localizable-quote"
@@ -1949,7 +1950,7 @@ msgstr ""
 
 msgctxt "sample-language-tag"
 msgid "en-US"
-msgstr ""
+msgstr "he"
 
 #, python-brace-format
 msgid "from around {start_date}"
@@ -2709,4 +2710,3 @@ msgstr ""
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr ""
-
