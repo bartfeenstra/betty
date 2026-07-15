@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-15 15:18+0100\n"
+"POT-Creation-Date: 2026-07-15 15:34+0100\n"
 "PO-Revision-Date: 2026-07-15 13:30+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: es_ES\n"
@@ -552,6 +552,9 @@ msgstr "¿Sabías que Liberta \"Betty\" Lankester es el tocayo de Betty?"
 msgid "Did you know that while Amsterdam is the country's official capital, The Hague is the Netherlands' administrative center and seat of government?"
 msgstr "¿Sabías que mientras Amsterdam es la capital oficial del país, La Haya es el centro administrativo de Holanda y sede del gobierno?"
 
+msgid "Discover the history of a family…"
+msgstr "Descubre la historia de una familia…"
+
 msgid "Display interactive family trees using Cytoscape."
 msgstr "Exhibe los árboles familiares interactivos que utilizan Cytoscape."
 
@@ -676,9 +679,6 @@ msgstr "Ejecutable"
 
 msgid "Explore a demonstration site"
 msgstr "Explora un sitio de demostración"
-
-msgid "Explore a family history…"
-msgstr "Descubre la historia de una familia…"
 
 msgid "Extension"
 msgstr "Extensión"
