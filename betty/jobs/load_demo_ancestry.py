@@ -175,7 +175,9 @@ class LoadDemoAncestry(Job):
 
         noord_hollands_archief = Source(
             id="betty-demo-noord-hollands-archief",
-            name=pgettext("Noord-Hollands Archief", "North Holland Archives"),
+            name=pgettext(
+                "original:nl-NL:Noord-Hollands Archief", "North Holland Archives"
+            ),
             links=[Link("https://noord-hollandsarchief.nl/")],
         )
         self._project.ancestry.add(noord_hollands_archief)
@@ -183,10 +185,15 @@ class LoadDemoAncestry(Job):
         civil_registry_amsterdam = Source(
             id="betty-demo-civil-registry-of-amsterdam",
             name=pgettext(
-                "Bevolkingsregister Amsterdam", "Civil Registry of Amsterdam"
+                "original:nl-NL:Bevolkingsregister Amsterdam",
+                "Civil Registry of Amsterdam",
             ),
-            author=pgettext("Gemeente Amsterdam", "Municipality of Amsterdam"),
-            publisher=pgettext("Gemeente Amsterdam", "Municipality of Amsterdam"),
+            author=pgettext(
+                "original:nl-NL:Gemeente Amsterdam", "Municipality of Amsterdam"
+            ),
+            publisher=pgettext(
+                "original:nl-NL:Gemeente Amsterdam", "Municipality of Amsterdam"
+            ),
             contained_by=noord_hollands_archief,
         )
         self._project.ancestry.add(civil_registry_amsterdam)
