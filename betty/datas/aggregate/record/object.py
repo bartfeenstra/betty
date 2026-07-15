@@ -13,8 +13,8 @@ from betty.portable import Porter
 from betty.prop import HasProps
 
 
-class ObjectDefinition[DataClsT, PorterT: Porter = Porter](
-    RecordDefinition[DataClsT, PorterT, AttrElement]
+class ObjectDefinition[DataT, PorterT: Porter = Porter](
+    RecordDefinition[DataT, PorterT, AttrElement]
 ):
     """
     Define an object with attributes.
@@ -23,7 +23,7 @@ class ObjectDefinition[DataClsT, PorterT: Porter = Porter](
     """
 
     @override
-    def _set_cls(self, cls: type[DataClsT], /) -> None:
+    def _set_cls(self, cls: type[DataT], /) -> None:
         if issubclass(cls, HasProps):
             for prop in cls.props():
                 if isinstance(prop, Attr):

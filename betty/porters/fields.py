@@ -14,12 +14,12 @@ if TYPE_CHECKING:
 
 
 @final
-class FieldsPorter[DataClsT](Porter[DataClsT, PortableMapping[PortableData]]):
+class FieldsPorter[DataT](Porter[DataT, PortableMapping[PortableData]]):
     """
     Load and dump a record using its fields.
     """
 
-    def __init__(self, record: RecordDefinition[DataClsT, Porter, Any], /):
+    def __init__(self, record: RecordDefinition[DataT, Porter, Any], /):
         self._record = record
         self._load = assert_record(*[
             Field(selector.element, field.data.porter.load, optional=field.omit_load)
@@ -27,11 +27,11 @@ class FieldsPorter[DataClsT](Porter[DataClsT, PortableMapping[PortableData]]):
         ])
 
     @override
-    def load(self, data: PortableData, /) -> DataClsT:
+    def load(self, data: PortableData, /) -> DataT:
         return self._record.factory(**self._load(data))
 
     @override
-    def dump(self, data: DataClsT, /) -> PortableMapping[PortableData]:
+    def dump(self, data: DataT, /) -> PortableMapping[PortableData]:
         portable = {}
         for selector, field in self._record.fields.items():
             field_data = selector.get(data)

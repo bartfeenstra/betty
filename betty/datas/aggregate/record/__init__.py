@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 @final
 class FieldDefinition[
     OwnerT,
-    DataClsT,
+    DataT,
     DataDefinitionT: DataDefinition = DataDefinition,
 ]:
     """
@@ -40,14 +40,14 @@ class FieldDefinition[
     def __init__(
         self,
         data: ResolvableDataDefinition[
-            Intersection[DataDefinitionT, DataDefinition[DataClsT]]
+            Intersection[DataDefinitionT, DataDefinition[DataT]]
         ],
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
         omit_load: bool = False,
-        omit_dump: Callable[[DataClsT], bool]
-        | Callable[[OwnerT, DataClsT], bool]
+        omit_dump: Callable[[DataT], bool]
+        | Callable[[OwnerT, DataT], bool]
         | None = None,
     ):
         self.data: Final[DataDefinitionT] = resolve_data_definition(data)
@@ -76,7 +76,7 @@ class FieldDefinition[
         Whether the field may be omitted from the parent when loading from portable data.
         """
 
-        self._omit_dump: Callable[[OwnerT, DataClsT], bool] | None = (
+        self._omit_dump: Callable[[OwnerT, DataT], bool] | None = (
             None
             if omit_dump is None
             else (
@@ -90,7 +90,7 @@ class FieldDefinition[
             )  # ty:ignore[invalid-assignment]
         )
 
-    def omit_dump(self, owner: OwnerT, data: DataClsT, /) -> bool:
+    def omit_dump(self, owner: OwnerT, data: DataT, /) -> bool:
         """
         Check if the field may be omitted from the parent when dumping to portable data.
         """
@@ -100,10 +100,10 @@ class FieldDefinition[
 
 
 class RecordDefinition[
-    DataClsT,
+    DataT,
     PorterT: Porter = Porter,
     ElementT: Element[str] = Element[str],
-](DataDefinition[DataClsT, PorterT]):
+](DataDefinition[DataT, PorterT]):
     """
     A record data definition.
 
@@ -113,20 +113,20 @@ class RecordDefinition[
     def __init__(
         self,
         *args: Any,
-        cls: type[DataClsT] | None = None,
+        cls: type[DataT] | None = None,
         label: ResolvableLocalizable,
-        fields: Mapping[ElementT, FieldDefinition[DataClsT, Any]] | None = None,
+        fields: Mapping[ElementT, FieldDefinition[DataT, Any]] | None = None,
         description: ResolvableLocalizable | None = None,
-        samples: Iterable[Callable[[], Sample[DataClsT]] | Samples] = (),
-        factory: Callable[..., DataClsT] | None = None,
+        samples: Iterable[Callable[[], Sample[DataT]] | Samples] = (),
+        factory: Callable[..., DataT] | None = None,
         porter: ResolvableDataDefinitionManufacturable[
-            Intersection[PorterT, Porter[DataClsT]], Self, DataClsT
+            Intersection[PorterT, Porter[DataT]], Self, DataT
         ]
         | None = None,
         **kwargs: Any,
     ):
         self._factory = factory
-        self._fields: MutableMapping[ElementT, FieldDefinition[DataClsT, Any]] = (
+        self._fields: MutableMapping[ElementT, FieldDefinition[DataT, Any]] = (
             {} if fields is None else dict(fields)
         )
 
@@ -141,7 +141,7 @@ class RecordDefinition[
         )
 
     @property
-    def factory(self) -> Callable[..., DataClsT]:
+    def factory(self) -> Callable[..., DataT]:
         """
         The factory to create new instances.
 
@@ -157,7 +157,7 @@ class RecordDefinition[
         )
 
     @property
-    def fields(self) -> Mapping[ElementT, FieldDefinition[DataClsT, Any]]:
+    def fields(self) -> Mapping[ElementT, FieldDefinition[DataT, Any]]:
         """
         The definitions of the fields contained by this record.
         """

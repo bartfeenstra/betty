@@ -10,24 +10,24 @@ from betty.portable import PortableData, Porter
 
 
 @final
-class OptionalPorter[PortableT, PortableDataT: PortableData = PortableData](
-    Porter[PortableT | None, PortableDataT | None]
+class OptionalPorter[DataT, PortableDataT: PortableData = PortableData](
+    Porter[DataT | None, PortableDataT | None]
 ):
     """
     Add optional (``None``) support to another porter.
     """
 
-    def __init__(self, proxied: Porter[PortableT, PortableDataT]):
+    def __init__(self, proxied: Porter[DataT, PortableDataT]):
         self._proxied = proxied
 
     @override
-    def load(self, data: PortableData) -> PortableT | None:
+    def load(self, data: PortableData) -> DataT | None:
         if data is None:
             return None
         return self._proxied.load(data)
 
     @override
-    def dump(self, data: PortableT | None) -> PortableDataT | None:
+    def dump(self, data: DataT | None) -> PortableDataT | None:
         if data is None:
             return None
         return self._proxied.dump(data)

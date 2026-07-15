@@ -13,8 +13,8 @@ if TYPE_CHECKING:
 
 
 @final
-class CallbackPorter[DataClsT, PortableDataT: PortableData = PortableData](
-    Porter[DataClsT, PortableDataT]
+class CallbackPorter[DataT, PortableDataT: PortableData = PortableData](
+    Porter[DataT, PortableDataT]
 ):
     """
     Make data portable using a separate loader and dumper.
@@ -22,17 +22,17 @@ class CallbackPorter[DataClsT, PortableDataT: PortableData = PortableData](
 
     def __init__(
         self,
-        loader: Callable[[PortableData], DataClsT],
-        dumper: Callable[[DataClsT], PortableDataT],
+        loader: Callable[[PortableData], DataT],
+        dumper: Callable[[DataT], PortableDataT],
         /,
     ):
         self._loader = loader
         self._dumper = dumper
 
     @override
-    def load(self, data: PortableData) -> DataClsT:
+    def load(self, data: PortableData) -> DataT:
         return self._loader(data)
 
     @override
-    def dump(self, data: DataClsT) -> PortableDataT:
+    def dump(self, data: DataT) -> PortableDataT:
         return self._dumper(data)
