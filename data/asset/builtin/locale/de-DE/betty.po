@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-15 16:04+0100\n"
-"PO-Revision-Date: 2026-07-15 15:46+0000\n"
+"PO-Revision-Date: 2026-07-16 00:21+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de-DE\n"
 "Language-Team: German <https://hosted.weblate.org/projects/betty/betty-0-5-x/de/>\n"
@@ -266,7 +266,7 @@ msgid "Boroughs"
 msgstr ""
 
 msgid "Box"
-msgstr ""
+msgstr "Box"
 
 msgid "Box configuration"
 msgstr ""
@@ -339,7 +339,7 @@ msgid "Celebrants"
 msgstr ""
 
 msgid "Cemeteries"
-msgstr ""
+msgstr "Friedhöfe"
 
 msgid "Cemetery"
 msgstr "Friedhof"
@@ -382,31 +382,31 @@ msgid "Color style configuration"
 msgstr ""
 
 msgid "Column content"
-msgstr ""
+msgstr "Spalteninhalt"
 
 msgid "Column width"
-msgstr ""
+msgstr "Spaltenbreite"
 
 msgid "Column widths"
-msgstr ""
+msgstr "Spaltenbreiten"
 
 msgid "Columns"
-msgstr ""
+msgstr "Spalten"
 
 msgid "Columns configuration"
-msgstr ""
+msgstr "Spaltenkonfiguration"
 
 msgid "Command"
-msgstr ""
+msgstr "Kommando"
 
 msgid "Commands"
-msgstr ""
+msgstr "Kommandos"
 
 msgid "Conference"
 msgstr "Konferenz"
 
 msgid "Conferences"
-msgstr ""
+msgstr "Konferenzen"
 
 msgid "Configure Betty"
 msgstr "Betty konfigurieren"
@@ -415,16 +415,16 @@ msgid "Confirmation"
 msgstr "Bestätigung"
 
 msgid "Confirmations"
-msgstr ""
+msgstr "Konfirmationen"
 
 msgid "Contained by"
 msgstr ""
 
 msgid "Contains"
-msgstr ""
+msgstr "Enthält"
 
 msgid "Content"
-msgstr ""
+msgstr "Inhalt"
 
 msgid "Content builder"
 msgstr ""
@@ -509,7 +509,7 @@ msgid "Cremation"
 msgstr "Feuerbestattung"
 
 msgid "Cremations"
-msgstr ""
+msgstr "Einäscherungen"
 
 msgid "Data"
 msgstr ""
@@ -521,13 +521,13 @@ msgid "Date range"
 msgstr ""
 
 msgid "Day"
-msgstr ""
+msgstr "Tag"
 
 msgid "Death"
 msgstr "Tod"
 
 msgid "Deaths"
-msgstr ""
+msgstr "Todesfälle"
 
 msgid "Debugging mode"
 msgstr ""
@@ -2198,8 +2198,8 @@ msgstr[1] "{count} Städte"
 #, python-brace-format
 msgid "{count} command"
 msgid_plural "{count} commands"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} Kommando"
+msgstr[1] "{count} Kommandos"
 
 #, python-brace-format
 msgid "{count} conference"
@@ -2246,14 +2246,14 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} cremation"
 msgid_plural "{count} cremations"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} Einäscherung"
+msgstr[1] "{count} Einäscherungen"
 
 #, python-brace-format
 msgid "{count} death"
 msgid_plural "{count} deaths"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} Tod"
+msgstr[1] "{count} Todesfälle"
 
 #, python-brace-format
 msgid "{count} department"
