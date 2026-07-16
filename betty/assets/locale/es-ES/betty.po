@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-06 22:23+0100\n"
-"PO-Revision-Date: 2026-07-17 08:05+0000\n"
+"PO-Revision-Date: 2026-07-17 10:10+0000\n"
 "Last-Translator: Libre <6n0n1m0s@proton.me>\n"
 "Language: es-ES\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-4-x/es/>\n"
@@ -1018,7 +1018,7 @@ msgstr "desde {start_date} aproximado hasta {end_date} aproximado"
 msgid "from around {start_date} until sometime before around {end_date}"
 msgstr "desde alrededor de {start_date} hasta algún tiempo antes de alrededor de {end_date}"
 
-#, python-brace-format
+#, fuzzy, python-brace-format
 msgid "from around {start_date} until sometime before {end_date}"
 msgstr "desde alrededor {start_date} hasta algún momento antes de {end_date}"
 
