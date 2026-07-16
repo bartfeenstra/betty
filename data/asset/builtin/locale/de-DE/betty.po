@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-15 16:04+0100\n"
-"PO-Revision-Date: 2026-07-16 00:21+0000\n"
+"PO-Revision-Date: 2026-07-17 08:05+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de-DE\n"
 "Language-Team: German <https://hosted.weblate.org/projects/betty/betty-0-5-x/de/>\n"
@@ -533,10 +533,10 @@ msgid "Debugging mode"
 msgstr ""
 
 msgid "Department"
-msgstr ""
+msgstr "Departement"
 
 msgid "Departments"
-msgstr ""
+msgstr "Departementen"
 
 msgid "Description"
 msgstr ""
@@ -1926,10 +1926,10 @@ msgid "Your project at {path}"
 msgstr ""
 
 msgid "Zoom in"
-msgstr ""
+msgstr "Hineinzoomen"
 
 msgid "Zoom out"
-msgstr ""
+msgstr "Herauszoomen"
 
 #, python-brace-format
 msgid "around {date}"
@@ -2186,8 +2186,8 @@ msgstr[1] "{count} Friedhöfe"
 #, python-brace-format
 msgid "{count} citation"
 msgid_plural "{count} citations"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} Zitat"
+msgstr[1] "{count} Zitate"
 
 #, python-brace-format
 msgid "{count} city"
@@ -2258,8 +2258,8 @@ msgstr[1] "{count} Todesfälle"
 #, python-brace-format
 msgid "{count} department"
 msgid_plural "{count} departments"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} Departement"
+msgstr[1] "{count} Departementen"
 
 #, python-brace-format
 msgid "{count} district"
