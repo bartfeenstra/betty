@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-06 22:23+0100\n"
-"PO-Revision-Date: 2026-07-14 19:51+0000\n"
+"PO-Revision-Date: 2026-07-17 08:05+0000\n"
 "Last-Translator: Libre <6n0n1m0s@proton.me>\n"
 "Language: es-ES\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-4-x/es/>\n"
@@ -171,7 +171,7 @@ msgid "Birth"
 msgstr "Nacimiento"
 
 msgid "Borough"
-msgstr "Borough"
+msgstr "Barrio"
 
 msgid "Building"
 msgstr "Edificio"
@@ -945,7 +945,7 @@ msgid "View the documentation"
 msgstr "Ver la documentación"
 
 msgid "Village"
-msgstr "Pueblo"
+msgstr "Villa"
 
 #, python-format
 msgid "Welcome to %(project_title)s"
@@ -963,7 +963,7 @@ msgid "What is your project called in {locale}?"
 msgstr "¿Cuál es su proyecto llamado en {locale}?"
 
 msgid "What is your project's machine name?"
-msgstr ""
+msgstr "¿Cuál es su nombre de máquina del proyecto?"
 
 msgid "Where do you want to save your project's configuration file?"
 msgstr "¿Dónde deseas guardar su archivo de configuración de su proyecto?"
