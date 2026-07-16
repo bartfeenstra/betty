@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-15 16:04+0100\n"
-"PO-Revision-Date: 2026-07-17 08:05+0000\n"
+"PO-Revision-Date: 2026-07-17 10:10+0000\n"
 "Last-Translator: Libre <6n0n1m0s@proton.me>\n"
 "Language: es-ES\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-5-x/es/>\n"
@@ -203,6 +203,7 @@ msgstr "Xadre de Bart"
 msgid "Bat mitzvah"
 msgstr "Bat mitzvá"
 
+#, fuzzy
 msgid "Bat mitzvahs"
 msgstr "Bat mitzvahs"
 
@@ -1358,8 +1359,9 @@ msgstr "Cerrando…"
 msgid "Raspberry Mint configuration"
 msgstr "Configuración de Raspberry Mint"
 
+#, fuzzy
 msgid "Rate limits ensure that Betty's HTTP client does not make more requests to a web service than that service supports or allows, by enforcing a maximum number of requests per timeframe."
-msgstr ""
+msgstr "Los límites de tarifas aseguran que el cliente HTTP de Betty no haga más solicitudes a un servicio web que el servicio soporta o permite, mediante la ejecución de un número máximo de solicitudes por plazo."
 
 msgid "Read more"
 msgstr "Leer más"
@@ -1875,24 +1877,28 @@ msgstr "¿Cuál es su nombre de máquina del proyecto?"
 msgid "Where do you want to save your project's configuration file?"
 msgstr "¿Dónde deseas guardar su archivo de configuración de su proyecto?"
 
+#, fuzzy
 msgid "Whether to download additional images found through Wikipedia links in the ancestry"
-msgstr ""
+msgstr "Ya sea para descargar imágenes adicionales encontradas a través de enlaces de Wikipedia en la ascendencia"
 
+#, fuzzy
 msgid "Whether to output more detailed logs and disable optimizations that make debugging harder."
-msgstr ""
+msgstr "Ya sea para producir registros más detallados y desactivar optimizaciones que hacen más difícil depurar."
 
 #, python-brace-format
 msgid "Whether to use clean URLs: {clean_example} instead of {unclean_example}."
 msgstr "Si para utilizar purga de URL: {clean_example} en vez de {unclean_example}."
 
+#, fuzzy
 msgid "Which language should your project site be generated in? Enter a language code."
-msgstr ""
+msgstr "¿Cual idioma sería generado dentro de su sitio del proyecto? Introduzca un código de idioma IETF BCP 47."
 
 msgid "Width"
 msgstr "Ancho"
 
+#, fuzzy
 msgid "Wiki enricher configuration"
-msgstr ""
+msgstr "Configuración de enriquecimiento Wiki"
 
 msgid "Wikipedia contributors"
 msgstr "Colaboradores de Wikipedia"
@@ -1961,9 +1967,9 @@ msgstr "desde {start_date} aproximado hasta {end_date} aproximado"
 msgid "from around {start_date} until sometime before around {end_date}"
 msgstr "desde alrededor de {start_date} hasta algún tiempo antes de alrededor de {end_date}"
 
-#, python-brace-format
+#, fuzzy, python-brace-format
 msgid "from around {start_date} until sometime before {end_date}"
-msgstr ""
+msgstr "desde alrededor {start_date} hasta algún momento antes de {end_date}"
 
 #, python-brace-format
 msgid "from around {start_date} until {end_date}"
@@ -2141,7 +2147,7 @@ msgid_plural "{count} bar mitzvahs"
 msgstr[0] "{count} bar mitzvah"
 msgstr[1] "{count} bar mitzvahs"
 
-#, python-brace-format
+#, fuzzy, python-brace-format
 msgid "{count} bat mitzvah"
 msgid_plural "{count} bat mitzvahs"
 msgstr[0] "{count} bat mitzvah"
