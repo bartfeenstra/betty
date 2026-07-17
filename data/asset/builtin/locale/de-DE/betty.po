@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-15 16:04+0100\n"
-"PO-Revision-Date: 2026-07-17 08:05+0000\n"
+"PO-Revision-Date: 2026-07-17 21:25+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de-DE\n"
 "Language-Team: German <https://hosted.weblate.org/projects/betty/betty-0-5-x/de/>\n"
@@ -515,10 +515,10 @@ msgid "Data"
 msgstr ""
 
 msgid "Date"
-msgstr ""
+msgstr "Datum"
 
 msgid "Date range"
-msgstr ""
+msgstr "Datumsbereich"
 
 msgid "Day"
 msgstr "Tag"
@@ -575,7 +575,7 @@ msgid "Divorce"
 msgstr "Scheidung"
 
 msgid "Divorces"
-msgstr ""
+msgstr "Scheidungen"
 
 msgid "Do not show any output, except error messages"
 msgstr ""
@@ -600,7 +600,7 @@ msgid "Emigration"
 msgstr "Auswanderung"
 
 msgid "Emigrations"
-msgstr ""
+msgstr "Auswanderungen"
 
 msgid "Enclosed by"
 msgstr ""
@@ -633,13 +633,13 @@ msgid "Enrichers"
 msgstr ""
 
 msgid "Entities"
-msgstr ""
+msgstr "Entitäten"
 
 msgid "Entities represent the information in your ancestry, such as people and places."
 msgstr ""
 
 msgid "Entity"
-msgstr ""
+msgstr "Entität"
 
 msgid "Entity ID"
 msgstr ""
@@ -673,7 +673,7 @@ msgid "Exactly {expected} items are required, but found {actual}."
 msgstr ""
 
 msgid "Exclude"
-msgstr ""
+msgstr "Ausschließen"
 
 msgid "Executable"
 msgstr ""
@@ -682,16 +682,16 @@ msgid "Explore a demonstration site"
 msgstr ""
 
 msgid "Extension"
-msgstr ""
+msgstr "Erweiterung"
 
 msgid "Extensions"
-msgstr ""
+msgstr "Erweiterungen"
 
 msgid "Facts"
 msgstr "Fakten"
 
 msgid "Families"
-msgstr ""
+msgstr "Familien"
 
 msgid "Family"
 msgstr "Familie"
@@ -710,7 +710,7 @@ msgid "Farm"
 msgstr "Bauernhof"
 
 msgid "Farms"
-msgstr ""
+msgstr "Bauernhöfe"
 
 msgid "File"
 msgstr "Datei"
@@ -841,7 +841,7 @@ msgid "Immigrations"
 msgstr ""
 
 msgid "Include"
-msgstr ""
+msgstr "Enthalten"
 
 msgid "Individual name"
 msgstr ""
@@ -1812,7 +1812,7 @@ msgid "Update all existing translations for Betty itself"
 msgstr "Alle vorhandenen Übersetzungen für Betty selbst aktualisieren"
 
 msgid "Update existing translations"
-msgstr ""
+msgstr "Bestehende Übersetzungen aktualisieren"
 
 #, python-brace-format
 msgid "Updated {updated_derivations} {event_type} events based on existing information."
@@ -2270,8 +2270,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} divorce"
 msgid_plural "{count} divorces"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} Scheidung"
+msgstr[1] "{count} Scheidungen"
 
 #, python-brace-format
 msgid "{count} document provider"
@@ -2282,8 +2282,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} emigration"
 msgid_plural "{count} emigrations"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} Auswanderung"
+msgstr[1] "{count} Auswanderungen"
 
 #, python-brace-format
 msgid "{count} enclosure"
@@ -2324,14 +2324,14 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} extension"
 msgid_plural "{count} extensions"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} Erweiterung"
+msgstr[1] "{count} Erweiterungen"
 
 #, python-brace-format
 msgid "{count} farm"
 msgid_plural "{count} farms"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} Bauernhof"
+msgstr[1] "{count} Bauernhöfe"
 
 #, python-brace-format
 msgid "{count} file"
