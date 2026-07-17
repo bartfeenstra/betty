@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-15 16:04+0100\n"
-"PO-Revision-Date: 2026-07-17 10:11+0000\n"
+"PO-Revision-Date: 2026-07-17 21:25+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: es-ES\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty-0-5-x/es/>\n"
@@ -76,7 +76,7 @@ msgid "API documentation"
 msgstr "Documentación de API"
 
 msgid "Access denied"
-msgstr "Acceso denegado"
+msgstr ""
 
 msgid "Accessed"
 msgstr "Accecide"
@@ -97,7 +97,7 @@ msgid "Alias"
 msgstr "Alias"
 
 msgid "All caches cleared."
-msgstr "Todas las cachés vaciadas."
+msgstr ""
 
 msgid "All rights reserved"
 msgstr "Todos los derechos reservados"
@@ -164,14 +164,14 @@ msgstr "Asociados"
 
 #, python-brace-format
 msgid "At least {expected} items are required, but found {actual}."
-msgstr "Al menos son requeridos {expected} elementos, pero se encontraron {actual}."
+msgstr ""
 
 #, python-brace-format
 msgid "At most {expected} items are allowed, but found {actual}."
-msgstr "Como mucho se conceden {expected} elementos, pero se encontraron {actual}."
+msgstr ""
 
 msgid "At which URL will your site be published?"
-msgstr "¿En cual URL su sitio será publicado?"
+msgstr ""
 
 msgid "Attendee"
 msgstr "Asistente"
@@ -216,10 +216,10 @@ msgid "Beneficiary"
 msgstr "Beneficiario"
 
 msgid "Betty could not load the SPDX licenses"
-msgstr "Betty no pudo cargar las licencias SPDX"
+msgstr ""
 
 msgid "Betty is an application that takes a family tree and builds a website out of it, much like the one you are viewing right now. The more information your genealogical research contains, the more interactivity Betty can add to your site, such as media galleries, maps, and browsable family trees."
-msgstr "Betty es una aplicación que toma un árbol familiar y construye un sitio web fuera de éste, como el que estás viendo ahora mismo. Cuanta más información contiene su investigación genealógica, puede añadir más interactividad Betty a su sitio web, como galerías de medios, mapas y árboles familiares explorables."
+msgstr ""
 
 #, python-brace-format
 msgid "Betty is unfamiliar with Gramps event {event}'s type of {gramps_event_type}. The event was imported, but its type was set to {betty_event_type}."
@@ -251,7 +251,7 @@ msgstr ""
 
 #, python-brace-format
 msgid "Betty will talk to you in {locale}"
-msgstr "Betty hablará contigo en {locale}"
+msgstr ""
 
 msgid "Birth"
 msgstr "Nacimiento"
@@ -306,7 +306,7 @@ msgid "Cannot add more than one manufacturer for the {plugin} {plugin_type} plug
 msgstr ""
 
 msgid "Cannot find an available port to bind the web server to."
-msgstr "No puede encontrar un puerto disponible para vincular el servidor web destino."
+msgstr ""
 
 #, python-brace-format
 msgid "Cannot find the {plugin_id} {plugin_type} plugin."
@@ -456,7 +456,7 @@ msgid "Copyright notices"
 msgstr "Avisos de derechos de autor"
 
 msgid "Copyright of these works lies with the original authors who contributed them to Wikipedia."
-msgstr "El derecho de copia de estas obras reside en los autores originales que las aportaron a Wikipedia."
+msgstr ""
 
 msgid "Correspondence"
 msgstr "Correspondencia"
@@ -466,7 +466,7 @@ msgstr "Correspondencias"
 
 #, python-brace-format
 msgid "Could not extract {file_path} as a gzip file  (*.gz)."
-msgstr "No se pudo extraer {file_path} como un archivo gzip  (*.gz)."
+msgstr ""
 
 #, python-brace-format
 msgid "Could not extract {file_path} as a gzipped tar file  (*.tar.gz)."
