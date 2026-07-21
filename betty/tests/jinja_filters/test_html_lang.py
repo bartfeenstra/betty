@@ -1,5 +1,3 @@
-from gettext import NullTranslations
-
 import pytest
 from babel import Locale
 
@@ -66,9 +64,7 @@ class TestHtmlLang:
             template=template,
             data={
                 "has_locale": has_locale,
-                "document": Document(
-                    localizer=Localizer(localizer_locale, NullTranslations())
-                ),
+                "document": Document(localizer=Localizer(localizer_locale)),
             },
             autoescape=autoescape,
         ) as (actual, _):

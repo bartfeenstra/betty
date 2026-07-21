@@ -76,7 +76,6 @@ class _GenerateEntityHtml(Job):
     async def do(self, scheduler: Scheduler, /) -> None:
         context = scheduler.context
 
-        localizers = await self._project.localizers
         jinja = await self._project.jinja
         entity = self._project.ancestry[self._entity_type.cls][self._entity_id]
         entity_path = (
@@ -92,7 +91,7 @@ class _GenerateEntityHtml(Job):
                 entity,
                 entity,
                 context=context,
-                localizer=localizers.get(self._locale),
+                localizer=await self._project.localizers.get(self._locale),
                 media_type=HTML,
             )
         )

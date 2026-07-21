@@ -42,14 +42,13 @@ class GenerateLocalizedPublicAssets(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-        localizers = await self._project.localizers
         jinja = await self._project.jinja
         copy_functions = {
             locale: make_copy_function(
                 jinja,
                 document=await self._project.new_document(
                     context=scheduler.context,
-                    localizer=localizers.get(locale),
+                    localizer=await self._project.localizers.get(locale),
                 ),
                 www_directory=self._project.www_directory,
                 is_localized_and_multilingual=self._project.multilingual,

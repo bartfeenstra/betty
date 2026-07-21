@@ -60,7 +60,7 @@ from betty.event_type import EventTypeDefinition
 from betty.exception import HumanFacingException
 from betty.extension import Extension, ExtensionDefinition, ExtensionManufacturer
 from betty.gender import GenderDefinition
-from betty.gettext import AssetTranslationRepository, TranslationRepository
+from betty.gettext import TranslationsRepository
 from betty.hashid import hashid
 from betty.html.css import CssResourceDefinition
 from betty.html.js import JsResourceDefinition
@@ -208,6 +208,8 @@ class Project(
         links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
         loaders: ServicePluginInstances[LoaderDefinition] = (),
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
+        localizers: TypedSynchronousServiceOrFactory[Project, LocalizerRepository]
+        | None = None,
         logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
         plugins: Mapping[
@@ -224,6 +226,13 @@ class Project(
         if cache is not None:
             cls.cache.override(
                 self, Service(cache) if isinstance(cache, TransientStore) else cache
+            )
+        if localizers is not None:
+            cls.localizers.override(
+                self,
+                Service(localizers)
+                if isinstance(localizers, LocalizerRepository)
+                else localizers,
             )
         super().__init__(
             plugins=plugins, supported_plugins=supported_plugins, upstream=app
@@ -429,6 +438,8 @@ class Project(
         links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
         loaders: ServicePluginInstances[LoaderDefinition] = (),
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
+        localizers: TypedSynchronousServiceOrFactory[Project, LocalizerRepository]
+        | None = None,
         logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
         plugins: Mapping[
@@ -470,6 +481,7 @@ class Project(
                 links=links,
                 loaders=loaders,
                 locales=locales,
+                localizers=localizers or LocalizerRepository(),
                 logo=logo,
                 name=name,
                 plugins=plugins,
@@ -515,28 +527,24 @@ class Project(
         )
 
     @service
-    async def translations(self) -> TranslationRepository:
-        """
-        The available translations.
-        """
-        return AssetTranslationRepository(
-            self.asset_directories, self.binary_file_cache
-        )
-
-    @service
-    async def localizers(self) -> LocalizerRepository:
+    def localizers(self) -> LocalizerRepository:
         """
         The available localizers.
         """
-        return LocalizerRepository(await self.translations)
+        return LocalizerRepository(
+            translations=TranslationsRepository(
+                assets=self.asset_directories, cache=self.binary_file_cache
+            )
+        )
 
     @service
     async def public_localizers(self) -> Sequence[Localizer]:
         """
         The public localizers.
         """
-        localizers = await self.localizers
-        return [localizers.get(locale) for locale in self.locales.keys()]  # noqa: SIM118
+        return await gather(*[
+            self.localizers.get(locale.locale) for locale in self.locales
+        ])
 
     @service
     async def url_generator(self) -> UrlGenerator:

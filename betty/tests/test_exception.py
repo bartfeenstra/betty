@@ -1,5 +1,3 @@
-from gettext import NullTranslations
-
 import pytest
 
 from betty.exception import (
@@ -40,7 +38,7 @@ class TestHumanFacingException:
                 locale: localized_message,
             })
         )
-        localizer = Localizer(locale, NullTranslations())
+        localizer = Localizer(locale)
         assert sut.localize(localizer) == localized_message
 
     def test_localize__without_indicators(self) -> None:

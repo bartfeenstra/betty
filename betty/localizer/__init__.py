@@ -4,9 +4,10 @@ Localizers provide a wide range of localization utilities through a single entry
 
 from __future__ import annotations
 
-import gettext as gettext_api
 from typing import TYPE_CHECKING, Final, final
 
+from betty.concurrent import Ledger, ThreadSafeLock
+from betty.gettext import TranslationsRepository, Translator
 from betty.locale import ResolvableLocale, default_locale, resolve_locale
 from betty.localized import LocalizedStr
 from betty.localizer.coordinate import CoordinateFormatter
@@ -16,7 +17,6 @@ if TYPE_CHECKING:
 
     from babel import Locale
 
-    from betty.gettext import TranslationRepository
     from betty.localizable import ResolvableLocalizable
 
 
@@ -27,16 +27,21 @@ class Localizer:
     """
 
     def __init__(
-        self, locale: ResolvableLocale, translations: gettext_api.NullTranslations, /
+        self, locale: ResolvableLocale, /, *, translator: Translator | None = None
     ):
         self.locale: Final[Locale] = resolve_locale(locale)
         """
         The locale.
         """
-        self._translations = translations
-        self.coordinate = CoordinateFormatter()
+
+        self.coordinate: Final[CoordinateFormatter] = CoordinateFormatter()
         """
         The geographic coordinate formatter.
+        """
+
+        self.translate: Final[Translator] = translator or Translator()
+        """
+        The string translator.
         """
 
     def localize(self, localizable: ResolvableLocalizable, /) -> LocalizedStr:
@@ -53,87 +58,37 @@ class Localizer:
             localizable = StaticTranslations(localizable)
         return localizable.localize(self)
 
-    def _(self, message: str, /) -> LocalizedStr:
-        """
-        Like :py:meth:`gettext.gettext`.
 
-        Arguments are identical to those of :py:meth:`gettext.gettext`.
-        """
-        return LocalizedStr(self._translations.gettext(message), locale=self.locale)
-
-    def gettext(self, message: str, /) -> LocalizedStr:
-        """
-        Like :py:meth:`gettext.gettext`.
-
-        Arguments are identical to those of :py:meth:`gettext.gettext`.
-        """
-        return LocalizedStr(self._translations.gettext(message), locale=self.locale)
-
-    def ngettext(
-        self, message_singular: str, message_plural: str, n: int, /
-    ) -> LocalizedStr:
-        """
-        Like :py:meth:`gettext.ngettext`.
-
-        Arguments are identical to those of :py:meth:`gettext.ngettext`.
-        """
-        return LocalizedStr(
-            self._translations.ngettext(message_singular, message_plural, n),
-            locale=self.locale,
-        )
-
-    def pgettext(self, context: str, message: str, /) -> LocalizedStr:
-        """
-        Like :py:meth:`gettext.pgettext`.
-
-        Arguments are identical to those of :py:meth:`gettext.pgettext`.
-        """
-        return LocalizedStr(
-            self._translations.pgettext(context, message), locale=self.locale
-        )
-
-    def npgettext(
-        self, context: str, message_singular: str, message_plural: str, n: int, /
-    ) -> LocalizedStr:
-        """
-        Like :py:meth:`gettext.npgettext`.
-
-        Arguments are identical to those of :py:meth:`gettext.npgettext`.
-        """
-        return LocalizedStr(
-            self._translations.npgettext(context, message_singular, message_plural, n),
-            locale=self.locale,
-        )
-
-
-default_localizer: Final[Localizer] = Localizer(
-    default_locale, gettext_api.NullTranslations()
-)
+default_localizer: Final[Localizer] = Localizer(default_locale)
 
 
 @final
 class LocalizerRepository:
     """
-    Exposes the available localizers.
+    Expose localizers.
     """
 
-    def __init__(self, translations: TranslationRepository, /):
+    def __init__(self, *, translations: TranslationsRepository | None = None):
         self._translations = translations
+        self._ledger = Ledger(ThreadSafeLock())
         self._localizers: MutableMapping[Locale, Localizer] = {}
 
-    def get(self, locale: ResolvableLocale, /) -> Localizer:
+    async def get(self, locale: ResolvableLocale, /) -> Localizer:
         """
         Get the localizer for the given locale.
         """
         locale = resolve_locale(locale)
-        try:
-            return self._localizers[locale]
-        except KeyError:
-            from betty.gettext import UntranslatedLocale
-
-            try:
-                translations = self._translations.get(locale)
-            except UntranslatedLocale:
-                translations = gettext_api.NullTranslations()
-            self._localizers[locale] = Localizer(locale, translations)
-            return self._localizers[locale]
+        localizer = self._localizers.get(locale, None)
+        if localizer is not None:
+            return localizer
+        async with self._ledger.ledger(str(locale)):
+            localizer = self._localizers.get(locale, None)
+            if localizer is not None:
+                return localizer
+            localizer = self._localizers[locale] = Localizer(
+                locale,
+                translator=Translator(*await self._translations.get(locale))
+                if self._translations
+                else None,
+            )
+            return localizer

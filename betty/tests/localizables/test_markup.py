@@ -1,5 +1,4 @@
 from collections.abc import Sequence
-from gettext import NullTranslations
 
 import pytest
 
@@ -102,7 +101,7 @@ class TestOrderedList:
             ),
             (
                 "Foo .1\nBar .2",
-                Localizer("ar", NullTranslations()),
+                Localizer("ar"),
                 ["Foo", "Bar"],
             ),
             (
@@ -157,7 +156,7 @@ class TestUnorderedList:
             ),
             (
                 "Foo -\nBar -",
-                Localizer("ar", NullTranslations()),
+                Localizer("ar"),
                 [
                     Plain("Foo"),
                     Plain("Bar"),

@@ -66,7 +66,7 @@ class WikipediaSummary(Template, Manufacturable):
         return cls(
             client=await (await project.extensions[WikiExtension]).client,
             jinja=await project.jinja,
-            localizers=await project.upstream.localizers,
+            localizers=project.localizers,
             copyright_notice=await project.factory.new(
                 (
                     await project.plugins[CopyrightNoticeDefinition][
@@ -95,7 +95,7 @@ class WikipediaSummary(Template, Manufacturable):
         for link in links:
             try:
                 page_language, page_name = parse_page_url(
-                    link.url.localize(self._localizers.get(locale))
+                    link.url.localize(await self._localizers.get(locale))
                 )
             except NotAPageError:
                 continue

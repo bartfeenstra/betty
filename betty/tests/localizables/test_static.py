@@ -1,5 +1,3 @@
-from gettext import NullTranslations
-
 import pytest
 from babel import Locale
 
@@ -62,7 +60,7 @@ class TestStaticTranslations:
         self, expected: str, locale: str, translations: ShorthandStaticTranslations
     ) -> None:
         sut = StaticTranslations(translations)
-        localizer = Localizer(locale, NullTranslations())
+        localizer = Localizer(locale)
         assert sut.localize(localizer) == expected
 
     @pytest.mark.parametrize(
@@ -182,9 +180,4 @@ class TestCountableStaticTranslations:
         translations: ShorthandCountableStaticTranslations,
     ) -> None:
         sut = CountableStaticTranslations(translations)
-        assert (
-            sut.count(count).localize(
-                Localizer(resolve_locale(locale), NullTranslations())
-            )
-            == expected
-        )
+        assert sut.count(count).localize(Localizer(resolve_locale(locale))) == expected

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-15 16:04+0100\n"
+"POT-Creation-Date: 2026-07-22 14:03+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1571,7 +1571,7 @@ msgid "Text"
 msgstr ""
 
 #, python-format
-msgid "The %(translation_language)s translations are only %(translated)s%% complete. Some things may be shown in %(default_language)s."
+msgid "The %(translation_language)s translations are only %(translation_completion)s%% complete. Some things may be shown in %(default_language)s."
 msgstr ""
 
 #, python-format
@@ -1800,10 +1800,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "Unsupported file {unsupported}. Supported types are: {supported}."
-msgstr ""
-
-#, python-brace-format
-msgid "Untranslated locale {locale}."
 msgstr ""
 
 msgid "Update all existing translations for Betty itself"

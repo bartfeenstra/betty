@@ -462,13 +462,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "GenderManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/gettext.py": {
-        "AssetTranslationRepository": {
-            "bootstrap": MissingReason.COVERED_ELSEWHERE,
-        },
-        "TranslationRepository": MissingReason.ABSTRACT,
         "new_translation": MissingReason.SHOULD_BE_COVERED,
+        "Translations": MissingReason.ABSTRACT,
         "update_translations": MissingReason.SHOULD_BE_COVERED,
-        "update_app_translations": MissingReason.SHOULD_BE_COVERED,
+        "update_builtin_translations": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/npm.py": {
         "npm": MissingReason.SHOULD_BE_COVERED,

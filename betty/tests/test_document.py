@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from gettext import NullTranslations
 from typing import TYPE_CHECKING, Any, ClassVar
 
 import pytest
@@ -153,7 +152,7 @@ class TestDocument:
         "resource_url": object(),
         "entity_contexts": EntityContexts(),
         "context": Context(),
-        "localizer": Localizer(default_locale, NullTranslations()),
+        "localizer": Localizer(default_locale),
         "title": Plain("-"),
         "vars": {
             "my_first_var": "MY_FIRST_VAR",
@@ -193,7 +192,7 @@ class TestDocument:
         )
 
     def test_localizer__from___init___(self) -> None:
-        localizer = Localizer(default_locale, NullTranslations())
+        localizer = Localizer(default_locale)
         assert Document(localizer=localizer).localizer is localizer
 
     def test_title__from___init___(self) -> None:
@@ -248,7 +247,7 @@ class TestDocument:
             (
                 False,
                 {
-                    "localizer": Localizer(default_locale, NullTranslations()),
+                    "localizer": Localizer(default_locale),
                 },
             ),
             (

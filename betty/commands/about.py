@@ -66,7 +66,7 @@ class About(Manufacturable, Command):
 
     async def _about_project(self, user: RichUser, project: Project) -> None:
         about_project = Table(
-            title=user.localizer._("Your project at {path}").format(
+            title=user.localizer.translate._("Your project at {path}").format(
                 path=str(project.directory)
             ),
             show_header=False,
@@ -74,21 +74,23 @@ class About(Manufacturable, Command):
         about_project.add_column("", style=self._key_style)
         about_project.add_column("")
         about_project.add_row(
-            user.localizer._("Asset directory"),
+            user.localizer.translate._("Asset directory"),
             str(project.asset_directory),
         )
         about_project.add_row(
-            user.localizer._("Output directory"),
+            user.localizer.translate._("Output directory"),
             str(project.output_directory),
         )
         user.console.print(about_project)
 
     async def _about_plugins(self, user: RichUser, project: Project | None) -> None:
         services = self._app if project is None else project
-        about_plugins = Table(title=user.localizer._("Plugins"))
-        about_plugins.add_column(user.localizer._("Type"), style=self._key_style)
-        about_plugins.add_column(user.localizer._("ID"))
-        about_plugins.add_column(user.localizer._("Label"))
+        about_plugins = Table(title=user.localizer.translate._("Plugins"))
+        about_plugins.add_column(
+            user.localizer.translate._("Type"), style=self._key_style
+        )
+        about_plugins.add_column(user.localizer.translate._("ID"))
+        about_plugins.add_column(user.localizer.translate._("Label"))
         for plugin_manager in sorted(
             services.plugins,
             key=lambda plugin_type: plugin_type.type.type().label.localize(
@@ -123,20 +125,26 @@ class About(Manufacturable, Command):
             )
 
     async def _about_system(self, user: RichUser) -> None:
-        about_system = Table(title=user.localizer._("System"), show_header=False)
+        about_system = Table(
+            title=user.localizer.translate._("System"), show_header=False
+        )
         about_system.add_column("", style=self._key_style)
         about_system.add_column("")
         about_system.add_row("Betty", about.version_label)
-        about_system.add_row(user.localizer._("Operating system"), platform.platform())
+        about_system.add_row(
+            user.localizer.translate._("Operating system"), platform.platform()
+        )
         about_system.add_row("Python", sys.version)
         user.console.print(about_system)
 
     async def _about_python_packages(self, user: RichUser) -> None:
-        about_python_packages = Table(title=user.localizer._("Python packages"))
-        about_python_packages.add_column(
-            user.localizer._("Package"), style=self._key_style
+        about_python_packages = Table(
+            title=user.localizer.translate._("Python packages")
         )
-        about_python_packages.add_column(user.localizer._("Version"))
+        about_python_packages.add_column(
+            user.localizer.translate._("Package"), style=self._key_style
+        )
+        about_python_packages.add_column(user.localizer.translate._("Version"))
         for x in sorted(
             metadata.distributions(),
             key=lambda x: x.metadata["Name"].lower(),

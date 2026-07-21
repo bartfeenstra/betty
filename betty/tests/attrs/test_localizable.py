@@ -1,5 +1,3 @@
-from gettext import NullTranslations
-
 from betty.attrs.localizable import new_localizable_attr
 from betty.locale import default_locale_tag
 from betty.localizables.plain import Plain
@@ -26,7 +24,7 @@ def test_new_localizable_attr____set___with_mapping() -> None:
         default_locale_tag: "Hello, world!",
         locale: translation,
     }
-    assert owner.attr.localize(Localizer(locale, NullTranslations())) == translation
+    assert owner.attr.localize(Localizer(locale)) == translation
 
 
 def test_new_localizable_attr____set___with_localizable() -> None:

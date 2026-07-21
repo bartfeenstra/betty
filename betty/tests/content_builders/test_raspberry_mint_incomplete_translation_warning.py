@@ -1,17 +1,17 @@
 from pathlib import Path
 
-from betty.asset import StaticAssetRepository
+from babel import Locale
+
 from betty.content_builders.raspberry_mint_incomplete_translation_warning import (
     IncompleteTranslationWarning,
 )
 from betty.document import Document
-from betty.gettext import AssetTranslationRepository
-from betty.stores.file import TransientBinaryFileStore
+from betty.localizer import Localizer
 from betty.test_utils.conftest import IsolatedAppFactory, IsolatedProjectFactory
 
 
 class TestIncompleteTranslationWarning:
-    async def test_build_template__with_complete_translations(
+    async def test_build_template__with_default_locale(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         async with isolated_project_factory(
@@ -21,18 +21,14 @@ class TestIncompleteTranslationWarning:
             actual = await sut.build(document=Document())
         assert actual is None
 
-    async def test_build_template__with_incomplete_translations(
+    async def test_build_template__with_missing_translations(
         self,
         tmp_path: Path,
         isolated_app_factory: IsolatedAppFactory,
         isolated_project_factory: IsolatedProjectFactory,
     ) -> None:
         async with (
-            isolated_app_factory(
-                translations=AssetTranslationRepository(
-                    StaticAssetRepository(), TransientBinaryFileStore(tmp_path)
-                ),
-            ) as app,
+            isolated_app_factory() as app,
             isolated_project_factory(
                 app=app,
                 locales=["nl"],
@@ -40,5 +36,8 @@ class TestIncompleteTranslationWarning:
             ) as project,
         ):
             sut = await IncompleteTranslationWarning.new(project)
-            actual = await sut.build(document=Document())
+            actual = await sut.build(
+                document=Document(localizer=Localizer(Locale("nl")))
+            )
         assert actual is not None
+        assert "0%" in actual

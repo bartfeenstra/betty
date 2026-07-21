@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-15 16:04+0100\n"
+"POT-Creation-Date: 2026-07-22 14:03+0100\n"
 "PO-Revision-Date: 2026-07-15 13:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ta\n"
@@ -1579,7 +1579,7 @@ msgid "Text"
 msgstr "உரை"
 
 #, python-format
-msgid "The %(translation_language)s translations are only %(translated)s%% complete. Some things may be shown in %(default_language)s."
+msgid "The %(translation_language)s translations are only %(translation_completion)s%% complete. Some things may be shown in %(default_language)s."
 msgstr ""
 
 #, python-format
@@ -1809,10 +1809,6 @@ msgstr "தெரியாதவர்கள்"
 #, python-brace-format
 msgid "Unsupported file {unsupported}. Supported types are: {supported}."
 msgstr "ஆதரிக்கப்படாத கோப்பு {unsupported}. ஆதரிக்கப்படும் வகைகள்: {supported}."
-
-#, python-brace-format
-msgid "Untranslated locale {locale}."
-msgstr "மொழிபெயர்க்கப்படாத மொழி {locale}."
 
 msgid "Update all existing translations for Betty itself"
 msgstr "பெட்டிக்காக ஏற்கனவே உள்ள அனைத்து மொழிபெயர்ப்புகளையும் புதுப்பிக்கவும்"

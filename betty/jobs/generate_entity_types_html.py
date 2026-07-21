@@ -94,7 +94,6 @@ class _GenerateEntityTypeHtml(Job):
     async def do(self, scheduler: Scheduler, /) -> None:
         context = scheduler.context
 
-        localizers = await self._project.localizers
         jinja = await self._project.jinja
         template = jinja.select_template([
             f"entity/page-list--{self._entity_type.id}.html.j2",
@@ -105,7 +104,7 @@ class _GenerateEntityTypeHtml(Job):
                 self._entity_type,
                 self._entity_type,
                 context=context,
-                localizer=localizers.get(self._locale),
+                localizer=await self._project.localizers.get(self._locale),
                 media_type=HTML,
             ),
             page=self._page,

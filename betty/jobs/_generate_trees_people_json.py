@@ -35,9 +35,8 @@ class _GenerateTreesPeopleJson(Job):
         self, scheduler: Scheduler, locale: Locale
     ) -> None:
         url_generator = await self._project.url_generator
-        localizers = await self._project.localizers
-        localizer = localizers.get(locale)
-        private_label = localizer._("private")
+        localizer = await self._project.localizers.get(locale)
+        private_label = localizer.translate._("private")
         people = {
             person.id: {
                 "id": person.id,

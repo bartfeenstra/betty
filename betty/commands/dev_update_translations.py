@@ -42,7 +42,7 @@ class DevUpdateTranslations(Manufacturable, Command):
         return self._command_function
 
     async def _command_function(self) -> None:
-        await gettext.update_app_translations()
+        await gettext.update_builtin_translations()
 
 
 def _discover(_: ServiceLevel) -> Iterable[ResolvableDiscovery[CommandDefinition]]:

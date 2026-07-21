@@ -80,7 +80,7 @@ class Populator:
     async def _populate_link(self, link: Link) -> None:
         try:
             page_language, page_name = parse_page_link(
-                link, [self._localizers.get(locale) for locale in self._locales]
+                link, await gather(*map(self._localizers.get, self._locales))
             )
         except NotAPageError:
             return
@@ -155,7 +155,7 @@ class Populator:
     async def _populate_place_coordinates_link(self, place: Place, link: Link) -> None:
         try:
             page_language, page_name = parse_page_link(
-                link, [self._localizers.get(locale) for locale in self._locales]
+                link, await gather(*map(self._localizers.get, self._locales))
             )
         except NotAPageError:
             return
@@ -187,7 +187,7 @@ class Populator:
     ) -> None:
         try:
             page_language, page_name = parse_page_link(
-                link, [self._localizers.get(locale) for locale in self._locales]
+                link, await gather(*map(self._localizers.get, self._locales))
             )
         except NotAPageError:
             return

@@ -49,7 +49,7 @@ async def add_project_argument(
         "-p",
         "--project",
         dest="project_configuration_file",
-        help=localizer._(
+        help=localizer.translate._(
             "The path to a Betty project directory or configuration file. Defaults to {default} in the current working directory."
         ).format(
             default=f"betty.{'|'.join([extension[1:] for serializer in serializers for extension in serializer.media_type().extensions])}"

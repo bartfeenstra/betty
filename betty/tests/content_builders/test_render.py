@@ -1,5 +1,3 @@
-from gettext import NullTranslations
-
 import pytest
 
 from betty.content_builders.render import Render, RenderData
@@ -47,8 +45,5 @@ class TestRender:
     ) -> None:
         sut = Render(content=content, renderer=RenderDispatcher(PlainText()))
         assert (
-            await sut.build(
-                document=Document(localizer=Localizer(locale, NullTranslations()))
-            )
-            == expected
+            await sut.build(document=Document(localizer=Localizer(locale))) == expected
         )

@@ -4,39 +4,29 @@ Manage translations of built-in translatable strings.
 
 from __future__ import annotations
 
-import gettext
 from abc import ABC, abstractmethod
-from asyncio import to_thread
+from asyncio import gather, to_thread
 from contextlib import redirect_stdout
+from gettext import GNUTranslations
 from io import BytesIO, StringIO
-from typing import TYPE_CHECKING, Final, final, override
+from typing import TYPE_CHECKING, final, override
 
-from polib import pofile
-
-import betty.dirs
-from betty.asset_directories.builtin import builtin
+from betty import dirs
 from betty.babel import run_babel
+from betty.concurrent import Ledger, ThreadSafeLock
 from betty.file import read
 from betty.hashid import hashid_file_meta
-from betty.life_cycle import Bootstrappable
 from betty.locale import (
     ResolvableLocale,
     default_locale,
-    from_language_tag,
     resolve_locale,
     to_language_tag,
 )
-from betty.locale.error import LocaleError
-from betty.localizables.gettext import _
+from betty.localized import LocalizedStr
 from betty.pathlib import resolve_path
 
 if TYPE_CHECKING:
-    from collections.abc import (
-        AsyncIterator,
-        Iterable,
-        Mapping,
-        MutableMapping,
-    )
+    from collections.abc import Iterable, MutableMapping
     from pathlib import Path
 
     from babel import Locale
@@ -50,7 +40,9 @@ if TYPE_CHECKING:
 async def _new_translation(
     output: AssetDirectoryDefinition, locale: Locale, *, user: User
 ) -> None:
-    po_file = output.assets / "locale" / to_language_tag(locale) / "betty.po"
+    from betty.localizables.gettext import _
+
+    po_file = output.assets / "locale" / str(locale) / "betty.po"
     with redirect_stdout(StringIO()):
         if po_file.exists():
             await user.message_information(
@@ -80,17 +72,17 @@ async def _new_translation(
         )
 
 
-async def update_app_translations(override_output: Path | None = None, /) -> None:
+async def update_builtin_translations(override_output: Path | None = None, /) -> None:
     """
     Update the translations for Betty itself.
     """
-    source_directory = betty.dirs.root_directory / "betty"
+    from betty.asset_directories.builtin import builtin
+
+    source_directory = dirs.root_directory / "betty"
     test_directory = source_directory / "tests"
     await _update_translations(
         builtin.assets if override_output is None else override_output,
-        _find_source_files(
-            {source_directory, betty.dirs.asset_directory}, {test_directory}
-        ),
+        _find_source_files({source_directory, dirs.asset_directory}, {test_directory}),
     )
 
 
@@ -119,7 +111,6 @@ async def _update_translations(output: StrPath, inputs: Iterable[StrPath]) -> No
         *map(str, inputs),
     )
     for output_po_file in output.glob("locale/*/betty.po"):
-        locale = resolve_locale(output_po_file.parent.name)
         await run_babel(
             "",
             "update",
@@ -130,7 +121,7 @@ async def _update_translations(output: StrPath, inputs: Iterable[StrPath]) -> No
             str(pot_file),
             "--ignore-obsolete",
             "--locale",
-            str(locale),
+            output_po_file.parent.name,
             "--no-fuzzy-matching",
             "--output-file",
             str(output_po_file),
@@ -173,124 +164,216 @@ def _find_source_files(
                 yield input_file
 
 
-class TranslationRepository(ABC):
+class Translations(ABC):
     """
-    Provide translations.
+    A set of translations.
     """
 
-    @property
-    @abstractmethod
-    def locales(self) -> Iterable[Locale]:
+    def _(self, message: str, /) -> LocalizedStr | None:
         """
-        The available locales.
+        Like :py:meth:`gettext.gettext`.
+
+        Arguments are identical to those of :py:meth:`gettext.gettext`.
+        """
+        return self.gettext(message)
+
+    @abstractmethod
+    def gettext(self, message: str, /) -> LocalizedStr | None:
+        """
+        Like :py:meth:`gettext.gettext`.
+
+        Arguments are identical to those of :py:meth:`gettext.gettext`.
         """
 
     @abstractmethod
-    def get(self, locale: ResolvableLocale) -> gettext.NullTranslations:
+    def ngettext(
+        self, message_singular: str, message_plural: str, n: int, /
+    ) -> LocalizedStr | None:
         """
-        Get the translations for the given locale.
+        Like :py:meth:`gettext.ngettext`.
+
+        Arguments are identical to those of :py:meth:`gettext.ngettext`.
+        """
+
+    @abstractmethod
+    def pgettext(self, context: str, message: str, /) -> LocalizedStr | None:
+        """
+        Like :py:meth:`gettext.pgettext`.
+
+        Arguments are identical to those of :py:meth:`gettext.pgettext`.
+        """
+
+    @abstractmethod
+    def npgettext(
+        self, context: str, message_singular: str, message_plural: str, n: int, /
+    ) -> LocalizedStr | None:
+        """
+        Like :py:meth:`gettext.npgettext`.
+
+        Arguments are identical to those of :py:meth:`gettext.npgettext`.
         """
 
 
 @final
-class StaticTranslationRepository(TranslationRepository):
+class MoTranslations(Translations):
     """
-    Provide static translations.
+    Translations from ``*.mo`` file data.
     """
 
-    def __init__(self, translations: Mapping[Locale, gettext.NullTranslations]):
+    def __init__(self, locale: Locale, mo: bytes, /):
+        gnu = GNUTranslations(BytesIO(mo))
+        self._catalog = gnu._catalog  # ty:ignore[unresolved-attribute]
+        self._plural = gnu.plural  # ty:ignore[unresolved-attribute]
+        self._context = gnu.CONTEXT
+        self._locale = locale
+
+    def _ls(self, translation: str | None, /) -> LocalizedStr | None:
+        if translation is None:
+            return None
+        return LocalizedStr(translation, locale=self._locale)
+
+    @override
+    def gettext(self, message: str, /) -> LocalizedStr | None:
+        translation = self._catalog.get(message, None)
+        if translation is None:
+            translation = self._catalog.get((message, self._plural(1)), None)
+        return self._ls(translation)
+
+    @override
+    def ngettext(
+        self, message_singular: str, message_plural: str, n: int, /
+    ) -> LocalizedStr | None:
+        return self._ls(self._catalog.get((message_singular, self._plural(n)), None))
+
+    @override
+    def pgettext(self, context: str, message: str, /) -> LocalizedStr | None:
+        context_msg_id = self._context % (context, message)
+        translation = self._catalog.get(context_msg_id, None)
+        if translation is None:
+            translation = self._catalog.get((context_msg_id, self._plural(1)), None)
+        return self._ls(translation)
+
+    @override
+    def npgettext(
+        self, context: str, message_singular: str, message_plural: str, n: int, /
+    ) -> LocalizedStr | None:
+        return self._ls(
+            self._catalog.get(
+                (self._context % (context, message_singular), self._plural(n)), None
+            )
+        )
+
+
+@final
+class Translator(Translations):
+    """
+    Translate strings.
+
+    The translator always reliably returns strings. If no translations can be found, the original source strings are
+    returned with the correct locale information.
+    """
+
+    def __init__(self, *translations: Translations):
         self._translations = translations
 
     @override
-    @property
-    def locales(self) -> Iterable[Locale]:
-        return self._translations.keys()
+    def _(self, message: str, /) -> LocalizedStr:
+        return self.gettext(message)
 
     @override
-    def get(self, locale: ResolvableLocale) -> gettext.NullTranslations:
-        locale = resolve_locale(locale)
-        try:
-            return self._translations[locale]
-        except KeyError:
-            raise UntranslatedLocale(locale) from None
+    def gettext(self, message: str, /) -> LocalizedStr:
+        for translations in self._translations:
+            if translation := translations.gettext(message):
+                return translation
+        return LocalizedStr(message, locale=default_locale)
 
+    @override
+    def ngettext(
+        self, message_singular: str, message_plural: str, n: int, /
+    ) -> LocalizedStr:
+        for translations in self._translations:
+            if translation := translations.ngettext(
+                message_singular, message_plural, n
+            ):
+                return translation
+        return LocalizedStr(
+            message_singular if n == 1 else message_plural, locale=default_locale
+        )
 
-default_translation_repository: Final[TranslationRepository] = (
-    StaticTranslationRepository({default_locale: gettext.NullTranslations()})
-)
-"""
-The translation repository for the default locale.
-"""
+    @override
+    def pgettext(self, context: str, message: str, /) -> LocalizedStr:
+        for translations in self._translations:
+            if translation := translations.pgettext(context, message):
+                return translation
+        return LocalizedStr(message, locale=default_locale)
+
+    @override
+    def npgettext(
+        self, context: str, message_singular: str, message_plural: str, n: int, /
+    ) -> LocalizedStr:
+        for translations in self._translations:
+            if translation := translations.npgettext(
+                context, message_singular, message_plural, n
+            ):
+                return translation
+        return LocalizedStr(
+            message_singular if n == 1 else message_plural, locale=default_locale
+        )
 
 
 @final
-class AssetTranslationRepository(TranslationRepository, Bootstrappable):
+class TranslationsRepository:
     """
-    Provide translations from assets.
+    Expose translations.
     """
 
-    def __init__(self, assets: AssetRepository, cache: TransientBinaryFileStore):
-        super().__init__()
+    def __init__(self, *, assets: AssetRepository, cache: TransientBinaryFileStore):
         self._assets = assets
-        self._cache = cache
-        self._translations: MutableMapping[Locale, gettext.NullTranslations] = {}
-        self._locales: set[Locale] = {default_locale}
-        self._bootstrapped = False
+        self._cache_directory = cache.with_scope("gettext").directory
+        self._ledger = Ledger(ThreadSafeLock())
+        self._translations: MutableMapping[Locale, tuple[Translations, ...]] = {}
 
-    @override
-    async def bootstrap(self) -> None:
-        await super().bootstrap()
-        for asset_directory in reversed(self._assets.directories):
-            for po_file in asset_directory.glob("locale/*/betty.po"):
-                self._locales.add(from_language_tag(po_file.parent.name))
-        for locale in self._locales:
-            await self._build_translation(locale)
-        self._bootstrapped = True
-
-    @override
-    @property
-    def locales(self) -> Iterable[Locale]:
-        assert self._bootstrapped
-        return self._locales
-
-    @override
-    def get(self, locale: ResolvableLocale) -> gettext.NullTranslations:
+    async def get(self, locale: ResolvableLocale, /) -> Iterable[Translations]:
+        """
+        Get the translations for the given locale.
+        """
         locale = resolve_locale(locale)
-        try:
-            return self._translations[locale]
-        except KeyError:
-            self._translations[locale] = gettext.NullTranslations()
-            return self._translations[locale]
+        translations = self._translations.get(locale, None)
+        if translations is not None:
+            return translations
+        async with self._ledger.ledger(str(locale)):
+            translations = self._translations.get(locale, None)
+            if translations is not None:
+                return translations
+            translations = self._translations[locale] = tuple(
+                filter(
+                    None,
+                    await gather(*[
+                        self._get_po_file(locale, asset_directory)
+                        for asset_directory in reversed(self._assets.directories)
+                    ]),
+                )
+            )
+            return translations
 
-    async def _build_translation(self, locale: Locale) -> gettext.NullTranslations:
-        translations = gettext.NullTranslations()
-        for asset_directory in reversed(self._assets.directories):
-            opened_translations = await self._open_translations(locale, asset_directory)
-            if opened_translations:
-                opened_translations.add_fallback(translations)
-                translations = opened_translations
-        self._translations[locale] = translations
-        return self._translations[locale]
-
-    async def _open_translations(
+    async def _get_po_file(
         self, locale: Locale, asset_directory: Path
-    ) -> gettext.GNUTranslations | None:
-        po_file = asset_directory / "locale" / to_language_tag(locale) / "betty.po"
+    ) -> Translations | None:
+        po_file = asset_directory / "locale" / str(locale) / "betty.po"
         try:
-            translation_version = await hashid_file_meta(po_file)
+            po_file_version = await hashid_file_meta(po_file)
         except FileNotFoundError:
             return None
-        cache_directory = self._cache.directory / "locale" / translation_version
-        mo_file = cache_directory / "betty.mo"
+        mo_file = self._cache_directory / po_file_version / "betty.mo"
 
         try:
             mo = await read(mo_file, mode="rb")
         except FileNotFoundError:
             pass
         else:
-            return gettext.GNUTranslations(BytesIO(mo))
+            return MoTranslations(locale, mo)
 
-        cache_directory.mkdir(exist_ok=True, parents=True)
+        mo_file.parent.mkdir(exist_ok=True, parents=True)
 
         await run_babel(
             "",
@@ -300,61 +383,8 @@ class AssetTranslationRepository(TranslationRepository, Bootstrappable):
             "-o",
             str(mo_file),
             "-l",
-            str(resolve_locale(locale)),
+            str(locale),
             "-D",
             "betty",
         )
-        return gettext.GNUTranslations(BytesIO(await read(mo_file, mode="rb")))
-
-    async def coverage(self, locale: ResolvableLocale) -> tuple[int, int]:
-        """
-        Get the translation coverage for the given locale.
-
-        :return: A 2-tuple of the number of available translations and the
-            number of translatable source strings.
-        """
-        translatables = {
-            translatable async for translatable in self._get_translatables()
-        }
-        locale = resolve_locale(locale)
-        if locale == default_locale:
-            return len(translatables), len(translatables)
-        translations = {
-            translation async for translation in self._get_translations(locale)
-        }
-        return len(translations), len(translatables)
-
-    async def _get_translatables(self) -> AsyncIterator[str]:
-        for asset_directory in self._assets.directories:
-            try:
-                pot = await read(asset_directory / "locale" / "betty.pot")
-            except FileNotFoundError:
-                pass
-            else:
-                for entry in pofile(pot):
-                    yield entry.msgid_with_context
-
-    async def _get_translations(self, locale: Locale) -> AsyncIterator[str]:
-        for asset_directory in reversed(self._assets.directories):
-            try:
-                po = await read(
-                    asset_directory / "locale" / to_language_tag(locale) / "betty.po"
-                )
-            except FileNotFoundError:
-                pass
-            else:
-                for entry in pofile(po):
-                    if entry.translated():
-                        yield entry.msgid_with_context
-
-
-@final
-class UntranslatedLocale(LocaleError):
-    """
-    Raised when no translations exist for a locale.
-    """
-
-    def __init__(self, locale: Locale, /):
-        super().__init__(
-            _("Untranslated locale {locale}.").format(locale=to_language_tag(locale))
-        )
+        return MoTranslations(locale, await read(mo_file, mode="rb"))

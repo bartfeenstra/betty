@@ -84,7 +84,7 @@ class RichUser(ManagedLifeCycle, User):
 
     @override
     async def message_exception(self) -> None:
-        self._message_error(self.localizer._("An unexpected error occurred:"))
+        self._message_error(self.localizer.translate._("An unexpected error occurred:"))
         self.console.print_exception(show_locals=self.verbosity >= Verbosity.VERBOSE)
 
     @override

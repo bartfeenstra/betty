@@ -58,9 +58,7 @@ class New(Manufacturable, Command):
         return self._command_function
 
     async def _command_function(self) -> None:
-        localizers, translations, serializers = await gather(
-            self._app.localizers, self._app.translations, gather(*self._app.serializers)
-        )
+        serializers = await gather(*self._app.serializers)
         configuration = _new_default_configuration()
 
         configuration_file = await self._app.user.ask_input(
@@ -100,7 +98,9 @@ class New(Manufacturable, Command):
         configuration.name = await self._app.user.ask_input(
             _("What is your project's machine name?"),
             default=MachineName.machinify(
-                configuration.title.localize(localizers.get(default_locale))
+                configuration.title.localize(
+                    await self._app.localizers.get(default_locale)
+                )
             )
             or Nothing,
         )
