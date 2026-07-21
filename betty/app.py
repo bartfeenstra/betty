@@ -47,7 +47,6 @@ from betty.services.simple import service
 from betty.store import TransientStore
 from betty.stores.file import TransientBinaryFileStore, TransientPickledFileStore
 from betty.stores.no_op import NoOpStore
-from betty.threading import threadsafe
 from betty.user.no_op import NoOpUser
 
 if TYPE_CHECKING:
@@ -73,7 +72,6 @@ class _AppBootstrapServiceLevel(ServiceLevel, PluginServiceProvider):
 
 
 @final
-@threadsafe
 class App(RequirableServiceLevel, PluginServiceProvider):
     """
     The Betty application.

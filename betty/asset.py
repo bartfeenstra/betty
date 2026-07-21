@@ -13,7 +13,6 @@ from betty.localizables.gettext import _, ngettext
 from betty.pathlib import resolve_path
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.ordered import Order, OrderedPluginDefinition
-from betty.threading import threadsafe
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterable, Iterable, Mapping, Sequence
@@ -41,7 +40,6 @@ class UnknownAsset(AssetError):
         )
 
 
-@threadsafe
 class AssetRepository(ABC):
     """
     Manages a set of assets.

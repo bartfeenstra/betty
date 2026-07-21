@@ -23,7 +23,6 @@ from betty.localizables.gettext import _
 from betty.localizables.static import StaticTranslations
 from betty.machine_name import MachineName
 from betty.media_types.html import HTML
-from betty.threading import threadsafe
 from betty.wiki import NotAPageError, parse_page_link
 from betty.wiki.client import ClientError
 
@@ -41,7 +40,6 @@ if TYPE_CHECKING:
     from betty.wiki.client import Client, Image
 
 
-@threadsafe
 class Populator:
     """
     Populate an ancestry with information from Wikipedia and Wikimedia.
