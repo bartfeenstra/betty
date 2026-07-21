@@ -15,7 +15,7 @@
     </div>
     {% block preview %}
         {% if entity_image_reference %}
-            <img src="{{ entity_image_reference | image_resize_cover((500, 500)) | url }}" alt="{{ entity_image_reference.file.label | localize }}" class="card-img-bottom" loading="lazy">
+            <img src="{{ entity_image_reference | image_resize_cover((500, 500)) | url }}" alt="{{ entity_image_reference.file.label }}" class="card-img-bottom" loading="lazy">
         {% endif %}
     {% endblock %}
 </div>

@@ -8,7 +8,7 @@
 {% set image_reference = entity.files | selectattr('file.public') | selectattr('file.media_type', 'image_media_type_supported') | first %}
 {% if image_reference is defined %}
     <div class="search-result-preview">
-        <img src="{{ image_reference | image_resize_cover((100, 100)) | url }}" class="image rounded-circle" alt="{{ image_reference.file.label | localize }}" loading="lazy">
+        <img src="{{ image_reference | image_resize_cover((100, 100)) | url }}" class="image rounded-circle" alt="{{ image_reference.file.label }}" loading="lazy">
     </div>
 {% endif %}
 <a href="{{ entity | url }}" class="stretched-link"><span class="visually-hidden">View {{ entity.label | localize | html_lang }}</span></a>

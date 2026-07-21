@@ -3,6 +3,6 @@
 {% set form_control_attributes = form_control_attributes | default(new_attributes()) %}
 {% do form_control_attributes.html_class.append("form-check") %}
 <div {{ form_control_attributes }}>
-    <input class="form-check-input" type="checkbox" value="{{ checkbox_value }}" {{ attributes }}>
+    <input class="form-check-input" type="checkbox" value="{{ checkbox_value }}"{{ attributes }}>
     <label class="form-check-label" for="{{ attributes.html_id }}">{{ checkbox_label }}</label>
 </div>

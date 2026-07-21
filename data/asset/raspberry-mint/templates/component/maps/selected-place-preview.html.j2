@@ -9,6 +9,6 @@
     {% if place_image_reference is defined %}
         <img src="{{ place_image_reference | image_resize_cover((100, 100)) | url }}"
              class="image map-selected-place-preview-image rounded-circle"
-             alt="{{ place_image_reference.file.label | localize }}">
+             alt="{{ place_image_reference.file.label }}">
     {% endif %}
 </div>

@@ -1,6 +1,6 @@
 {% extends 'base.html.j2' %}
 {% set page_title %}
-    {% trans project_title=project.title | localize -%}
+    {% trans project_title=project.title -%}
         Welcome to {{ project_title }}
     {%- endtrans %}
 {% endset %}

@@ -9,9 +9,9 @@
                    hreflang="{{ localized_link_url.locale | to_language_tag }}"{% endif %}
                         {% if link.relationship is not none %} rel="{{ link.relationship }}"{% endif %}
                         {% if link.media_type is not none %}
-                   type="{{ link.media_type }}"{% endif %}>{{ link.label | localize or generated_link_url }}</a>
+                   type="{{ link.media_type }}"{% endif %}>{{ link.label or generated_link_url }}</a>
                 {% if link.description %}
-                    <p class="small">{{ link.description | localize }}</p>
+                    <p class="small">{{ link.description }}</p>
                 {% endif %}
             </li>
         {% endfor %}

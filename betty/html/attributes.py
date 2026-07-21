@@ -7,6 +7,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import Mapping, MutableMapping, MutableSequence, Sequence
 from typing import (
+    TYPE_CHECKING,
     Any,
     Final,
     NotRequired,
@@ -19,7 +20,12 @@ from typing import (
     override,
 )
 
+from betty.localizable import Localizable, ResolvableLocalizable
+from betty.localizer import default_localizer
 from betty.string import kebab_case_to_snake_case, snake_case_to_kebab_case
+
+if TYPE_CHECKING:
+    from betty.localizer import Localizer
 
 
 class _Attribute[AttributeGetT, AttributeSetT](ABC):
@@ -68,7 +74,7 @@ class _Attribute[AttributeGetT, AttributeSetT](ABC):
         pass
 
     @abstractmethod
-    def format(self, value: AttributeGetT) -> str:
+    def format(self, value: AttributeGetT, /, *, localizer: Localizer) -> str:
         """
         Format the attribute to a string.
         """
@@ -80,7 +86,7 @@ class _BooleanAttribute(_Attribute[bool, bool]):
         instance._attributes[self._attr_name] = value
 
     @override
-    def format(self, value: bool) -> str:
+    def format(self, value: bool, /, *, localizer: Localizer) -> str:
         return self._html_name
 
     @override
@@ -94,8 +100,8 @@ class _StringAttribute(_Attribute[str, str]):
         instance._attributes[self._attr_name] = value
 
     @override
-    def format(self, value: str) -> str:
-        return f'{self._html_name}="{value}"'
+    def format(self, value: str, /, *, localizer: Localizer) -> str:
+        return f'{self._html_name}="{value.localize(localizer) if isinstance(value, Localizable) else value}"'
 
     @override
     def _new_default(self) -> str:
@@ -114,8 +120,8 @@ class _MultipleStringAttribute(_Attribute[MutableSequence[str], Sequence[str]]):
         sequence.extend(value)
 
     @override
-    def format(self, value: Sequence[str]) -> str:
-        return f'{self._html_name}="{self._separator.join(value)}"'
+    def format(self, values: Sequence[str], /, *, localizer: Localizer) -> str:
+        return f'{self._html_name}="{self._separator.join(value.localize(localizer) if isinstance(value, Localizable) else value for value in values)}"'
 
     @override
     def _new_default(self) -> MutableSequence[str]:
@@ -128,130 +134,134 @@ class _BooleanOrStringAttribute(_Attribute[bool | str, bool | str]):
         instance._attributes[self._attr_name] = value
 
     @override
-    def format(self, value: bool | str) -> str:
+    def format(self, value: bool | str, /, *, localizer: Localizer) -> str:
         if isinstance(value, bool):
             return self._html_name
-        return f'{self._html_name}="{value}"'
+        return f'{self._html_name}="{value.localize(localizer) if isinstance(value, Localizable) else value}"'
 
     @override
     def _new_default(self) -> bool | str:
         return False
 
 
-class _AttributesKwargs(TypedDict):
-    html_accept: NotRequired[Sequence[str]]
-    html_accept_charset: NotRequired[str]
-    html_accesskey: NotRequired[str]
-    html_action: NotRequired[str]
-    html_allow: NotRequired[str]
-    html_alt: NotRequired[str]
-    html_aria_controls: NotRequired[Sequence[str]]
+class AttributesKwargs(TypedDict):
+    """
+    HTML attributes as keyword arguments.
+    """
+
+    html_accept: NotRequired[Sequence[ResolvableLocalizable]]
+    html_accept_charset: NotRequired[ResolvableLocalizable]
+    html_accesskey: NotRequired[ResolvableLocalizable]
+    html_action: NotRequired[ResolvableLocalizable]
+    html_allow: NotRequired[ResolvableLocalizable]
+    html_alt: NotRequired[ResolvableLocalizable]
+    html_aria_controls: NotRequired[Sequence[ResolvableLocalizable]]
     html_aria_expanded: NotRequired[bool]
-    html_as: NotRequired[str]
+    html_as: NotRequired[ResolvableLocalizable]
     html_async: NotRequired[bool]
-    html_autocapitalize: NotRequired[str]
-    html_autocomplete: NotRequired[str]
+    html_autocapitalize: NotRequired[ResolvableLocalizable]
+    html_autocomplete: NotRequired[ResolvableLocalizable]
     html_autoplay: NotRequired[bool]
-    html_capture: NotRequired[str]
-    html_charset: NotRequired[str]
+    html_capture: NotRequired[ResolvableLocalizable]
+    html_charset: NotRequired[ResolvableLocalizable]
     html_checked: NotRequired[bool]
-    html_cite: NotRequired[str]
-    html_class: NotRequired[Sequence[str]]
-    html_cols: NotRequired[str]
-    html_colspan: NotRequired[str]
-    html_content: NotRequired[str]
-    html_contenteditable: NotRequired[str]
+    html_cite: NotRequired[ResolvableLocalizable]
+    html_class: NotRequired[Sequence[ResolvableLocalizable]]
+    html_cols: NotRequired[ResolvableLocalizable]
+    html_colspan: NotRequired[ResolvableLocalizable]
+    html_content: NotRequired[ResolvableLocalizable]
+    html_contenteditable: NotRequired[ResolvableLocalizable]
     html_controls: NotRequired[bool]
-    html_coords: NotRequired[str]
-    html_crossorigin: NotRequired[str]
-    html_data: NotRequired[str]
-    html_datetime: NotRequired[str]
-    html_decoding: NotRequired[str]
+    html_coords: NotRequired[ResolvableLocalizable]
+    html_crossorigin: NotRequired[ResolvableLocalizable]
+    html_data: NotRequired[ResolvableLocalizable]
+    html_datetime: NotRequired[ResolvableLocalizable]
+    html_decoding: NotRequired[ResolvableLocalizable]
     html_default: NotRequired[bool]
     html_defer: NotRequired[bool]
-    html_dir: NotRequired[str]
-    html_dirname: NotRequired[str]
+    html_dir: NotRequired[ResolvableLocalizable]
+    html_dirname: NotRequired[ResolvableLocalizable]
     html_disabled: NotRequired[bool]
     html_download: NotRequired[bool | str]
-    html_draggable: NotRequired[str]
-    html_enctype: NotRequired[str]
-    html_enterkeyhint: NotRequired[str]
-    html_for: NotRequired[str]
-    html_formaction: NotRequired[str]
-    html_formenctype: NotRequired[str]
-    html_formmethod: NotRequired[str]
+    html_draggable: NotRequired[ResolvableLocalizable]
+    html_enctype: NotRequired[ResolvableLocalizable]
+    html_enterkeyhint: NotRequired[ResolvableLocalizable]
+    html_for: NotRequired[ResolvableLocalizable]
+    html_formaction: NotRequired[ResolvableLocalizable]
+    html_formenctype: NotRequired[ResolvableLocalizable]
+    html_formmethod: NotRequired[ResolvableLocalizable]
     html_formnovalidate: NotRequired[bool]
-    html_formtarget: NotRequired[str]
-    html_headers: NotRequired[Sequence[str]]
-    html_height: NotRequired[str]
-    html_hidden: NotRequired[str]
-    html_high: NotRequired[str]
-    html_href: NotRequired[str]
-    html_hreflang: NotRequired[str]
-    html_http_equiv: NotRequired[str]
-    html_id: NotRequired[str]
-    html_integrity: NotRequired[str]
-    html_inputmode: NotRequired[str]
+    html_formtarget: NotRequired[ResolvableLocalizable]
+    html_headers: NotRequired[Sequence[ResolvableLocalizable]]
+    html_height: NotRequired[ResolvableLocalizable]
+    html_hidden: NotRequired[ResolvableLocalizable]
+    html_high: NotRequired[ResolvableLocalizable]
+    html_href: NotRequired[ResolvableLocalizable]
+    html_hreflang: NotRequired[ResolvableLocalizable]
+    html_http_equiv: NotRequired[ResolvableLocalizable]
+    html_id: NotRequired[ResolvableLocalizable]
+    html_integrity: NotRequired[ResolvableLocalizable]
+    html_inputmode: NotRequired[ResolvableLocalizable]
     html_ismap: NotRequired[bool]
-    html_itemprop: NotRequired[str]
-    html_kind: NotRequired[str]
-    html_label: NotRequired[str]
-    html_lang: NotRequired[str]
-    html_loading: NotRequired[str]
-    html_list: NotRequired[str]
+    html_itemprop: NotRequired[ResolvableLocalizable]
+    html_kind: NotRequired[ResolvableLocalizable]
+    html_label: NotRequired[ResolvableLocalizable]
+    html_lang: NotRequired[ResolvableLocalizable]
+    html_loading: NotRequired[ResolvableLocalizable]
+    html_list: NotRequired[ResolvableLocalizable]
     html_loop: NotRequired[bool]
-    html_low: NotRequired[str]
-    html_max: NotRequired[str]
-    html_maxlength: NotRequired[str]
-    html_minlength: NotRequired[str]
-    html_media: NotRequired[str]
-    html_method: NotRequired[str]
-    html_min: NotRequired[str]
+    html_low: NotRequired[ResolvableLocalizable]
+    html_max: NotRequired[ResolvableLocalizable]
+    html_maxlength: NotRequired[ResolvableLocalizable]
+    html_minlength: NotRequired[ResolvableLocalizable]
+    html_media: NotRequired[ResolvableLocalizable]
+    html_method: NotRequired[ResolvableLocalizable]
+    html_min: NotRequired[ResolvableLocalizable]
     html_multiple: NotRequired[bool]
     html_muted: NotRequired[bool]
-    html_name: NotRequired[str]
+    html_name: NotRequired[ResolvableLocalizable]
     html_novalidate: NotRequired[bool]
     html_open: NotRequired[bool]
-    html_optimum: NotRequired[str]
-    html_pattern: NotRequired[str]
-    html_ping: NotRequired[Sequence[str]]
-    html_placeholder: NotRequired[str]
+    html_optimum: NotRequired[ResolvableLocalizable]
+    html_pattern: NotRequired[ResolvableLocalizable]
+    html_ping: NotRequired[Sequence[ResolvableLocalizable]]
+    html_placeholder: NotRequired[ResolvableLocalizable]
     html_playsinline: NotRequired[bool]
-    html_poster: NotRequired[str]
-    html_preload: NotRequired[str]
+    html_poster: NotRequired[ResolvableLocalizable]
+    html_preload: NotRequired[ResolvableLocalizable]
     html_readonly: NotRequired[bool]
-    html_referrerpolicy: NotRequired[str]
-    html_rel: NotRequired[str]
+    html_referrerpolicy: NotRequired[ResolvableLocalizable]
+    html_rel: NotRequired[ResolvableLocalizable]
     html_required: NotRequired[bool]
     html_reversed: NotRequired[bool]
-    html_role: NotRequired[str]
-    html_rows: NotRequired[str]
-    html_rowspan: NotRequired[str]
-    html_sandbox: NotRequired[Sequence[str]]
-    html_scope: NotRequired[str]
+    html_role: NotRequired[ResolvableLocalizable]
+    html_rows: NotRequired[ResolvableLocalizable]
+    html_rowspan: NotRequired[ResolvableLocalizable]
+    html_sandbox: NotRequired[Sequence[ResolvableLocalizable]]
+    html_scope: NotRequired[ResolvableLocalizable]
     html_selected: NotRequired[bool]
-    html_shape: NotRequired[str]
-    html_size: NotRequired[str]
-    html_sizes: NotRequired[str]
-    html_slot: NotRequired[str]
-    html_span: NotRequired[str]
-    html_spellcheck: NotRequired[str]
-    html_src: NotRequired[str]
-    html_srcdoc: NotRequired[str]
-    html_srclang: NotRequired[str]
-    html_srcset: NotRequired[Sequence[str]]
-    html_start: NotRequired[str]
-    html_step: NotRequired[str]
-    html_style: NotRequired[str]
-    html_tabindex: NotRequired[str]
-    html_target: NotRequired[str]
-    html_title: NotRequired[str]
-    html_translate: NotRequired[str]
-    html_type: NotRequired[str]
-    html_usemap: NotRequired[str]
-    html_value: NotRequired[str]
-    html_width: NotRequired[str]
-    html_wrap: NotRequired[str]
+    html_shape: NotRequired[ResolvableLocalizable]
+    html_size: NotRequired[ResolvableLocalizable]
+    html_sizes: NotRequired[ResolvableLocalizable]
+    html_slot: NotRequired[ResolvableLocalizable]
+    html_span: NotRequired[ResolvableLocalizable]
+    html_spellcheck: NotRequired[ResolvableLocalizable]
+    html_src: NotRequired[ResolvableLocalizable]
+    html_srcdoc: NotRequired[ResolvableLocalizable]
+    html_srclang: NotRequired[ResolvableLocalizable]
+    html_srcset: NotRequired[Sequence[ResolvableLocalizable]]
+    html_start: NotRequired[ResolvableLocalizable]
+    html_step: NotRequired[ResolvableLocalizable]
+    html_style: NotRequired[ResolvableLocalizable]
+    html_tabindex: NotRequired[ResolvableLocalizable]
+    html_target: NotRequired[ResolvableLocalizable]
+    html_title: NotRequired[ResolvableLocalizable]
+    html_translate: NotRequired[ResolvableLocalizable]
+    html_type: NotRequired[ResolvableLocalizable]
+    html_usemap: NotRequired[ResolvableLocalizable]
+    html_value: NotRequired[ResolvableLocalizable]
+    html_width: NotRequired[ResolvableLocalizable]
+    html_wrap: NotRequired[ResolvableLocalizable]
 
 
 @final
@@ -260,7 +270,7 @@ class Attributes:
     Manage attributes for an HTML element.
     """
 
-    __slots__ = ("_attributes", "_data_attributes")
+    __slots__ = ("_attributes", "_data_attributes", "_localizer")
 
     # Based on https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes.
     html_accept = _MultipleStringAttribute("accept", ", ")
@@ -387,30 +397,33 @@ class Attributes:
         if attr_name.startswith("html_")
     }
 
-    def __init__(self, **kwargs: Unpack[_AttributesKwargs]):
+    def __init__(self, *, localizer: Localizer = default_localizer):
         self._attributes: MutableMapping[str, Any] = {}
         self._data_attributes: MutableMapping[str, str] = {}
-        self.set(**kwargs)
+        self._localizer = localizer
 
-    def set(self, **attributes: Unpack[_AttributesKwargs]) -> None:
+    def set(self, **attributes: Unpack[AttributesKwargs]) -> Self:
         """
         Set values for the given HTML attributes.
         """
         for attribute_name, attribute_value in attributes.items():
             self.__attributes[attribute_name].set(self, attribute_value)
+        return self
 
-    def setdefault(self, **attributes: Unpack[_AttributesKwargs]) -> None:
+    def setdefault(self, **attributes: Unpack[AttributesKwargs]) -> Self:
         """
         Set values for the given HTML attributes, but only for those attributes that do not already have a value set.
         """
         for attribute_name, attribute_value in attributes.items():
             self.__attributes[attribute_name].setdefault(self, attribute_value)
+        return self
 
-    def set_data(self, **attributes: str) -> None:
+    def set_data(self, **attributes: str) -> Self:
         """
         Set values for the given HTML data attributes.
         """
         self._data_attributes.update(attributes)
+        return self
 
     def get_data(self, attribute_name: str) -> str | None:
         """
@@ -429,7 +442,9 @@ class Attributes:
             *(
                 formatted_attribute
                 for formatted_attribute in (
-                    self.__attributes[attr_name].format(attr_value)
+                    self.__attributes[attr_name].format(
+                        attr_value, localizer=self._localizer
+                    )
                     for attr_name, attr_value in self._attributes.items()
                 )
                 if formatted_attribute
@@ -445,4 +460,7 @@ class Attributes:
         return self.format()
 
     def __html__(self) -> str:
-        return self.format()
+        formatted = self.format()
+        if formatted:
+            return " " + formatted
+        return ""

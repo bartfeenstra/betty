@@ -49,7 +49,7 @@ async def test_with_html_attributes(assert_template_file: AssertTemplateFile) ->
                     "body": Markup("<p>Lorem ipsum dolor sit amet</p>"),
                 },
             ],
-            "attributes": Attributes(html_class=[html_class]),
+            "attributes": Attributes().set(html_class=[html_class]),
         },
         assets={raspberry_mint},
         template="component/accordion.html.j2",

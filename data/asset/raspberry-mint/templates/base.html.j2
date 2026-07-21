@@ -16,7 +16,7 @@
         <div class="row row-gap-3">
             <div class="col col-12 col-sm-9">
                 {% include 'component/breadcrumbs.html.j2' %}
-                <h1 class="page-intro-title">{{ page_title | default(project.title | localize) | html_lang }}</h1>
+                {{ tag('h1', page_title | default(project.title), html_class = ['page-intro-title']) }}
                 {% block page_summary %}
                     {% if document.resource is entity_plugin %}
                         {% with entity = document.resource %}
@@ -31,7 +31,7 @@
                 {% if page_image_reference is defined %}
                     <div class="align-items-center col-12 col-sm-3 d-flex justify-content-center">
                         <a href="{{ page_image_reference.file | url }}" class="image-link page-intro-image-link rounded-circle">
-                            <img src="{{ page_image_reference | image_resize_cover((500, 500)) | url }}" class="image page-intro-image rounded-circle" alt="{{ page_image_reference.file.label | localize }}">
+                            <img src="{{ page_image_reference | image_resize_cover((500, 500)) | url }}" class="image page-intro-image rounded-circle" alt="{{ page_image_reference.file.label }}">
                         </a>
                     </div>
                 {% endif %}

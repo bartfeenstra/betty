@@ -6,7 +6,7 @@
             {% if entity_type_id == 'event' %}
                 {% trans %}Timeline{% endtrans %}
             {% else %}
-                {{ entity_type.label_plural | localize }}
+                {{ entity_type.label_plural }}
             {% endif %}
         {%- endset %}
         {% do ns.primary_navigation_links.update({entity_type | url: entity_type_label}) %}
@@ -19,7 +19,7 @@
                     <div class="d-flex gap-1">
                         <img src="{{ ('betty-static:///logo' ~ project.logo.suffix) | url }}" alt="{% trans project_title = project.title | localize %}The '{{ project_title }}' logo{% endtrans %}" class="header-site-logo">
                         <a class="flex-grow-1 header-site-title no-link" href="{{ 'betty:///index.html' | url }}" title="{% trans %}Go to the front page{% endtrans %}">
-                            {{ project.title | localize }}
+                            {{ project.title }}
                         </a>
                     </div>
                     <div class="d-none d-md-block">
@@ -31,7 +31,7 @@
                             {% endfor %}
                             {% for link in primary_navigation_links %}
                                 <li>
-                                    <a href="{{ link.url | localize | url }}">{{ link.label | localize | html_lang }}</a>
+                                    {{ tag('a', link.label, html_href = link.url | url) }}
                                 </li>
                             {% endfor %}
                         </ul>

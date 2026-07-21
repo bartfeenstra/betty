@@ -58,7 +58,7 @@ async def test_with_full_items(assert_template_file: AssertTemplateFile) -> None
                 {
                     "label": "Check me out!",
                     "value": "Look at this treasure",
-                    "attributes": Attributes(html_id=html_id),
+                    "attributes": Attributes().set(html_id=html_id),
                 }
             ],
             "checkboxes_label": "Check these out!",

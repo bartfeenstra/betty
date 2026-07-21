@@ -10,21 +10,24 @@ from collections.abc import Awaitable, Callable, Iterable
 from os import makedirs
 from pathlib import Path
 from shutil import copy2
-from typing import TYPE_CHECKING, Final, cast, override
+from typing import TYPE_CHECKING, Any, Final, Unpack, cast, final, override
 
 from jinja2 import Environment, FileSystemLoader, pass_context, select_autoescape
 from jinja2.async_utils import auto_await
+from jinja2.compiler import CodeGenerator, Frame
 from jinja2.ext import Extension
-from jinja2.nodes import CallBlock, ContextReference, Node
-from jinja2.runtime import Context as JinjaContext
-from jinja2.runtime import DebugUndefined, StrictUndefined
+from jinja2.nodes import CallBlock, ContextReference, Expr, Node, Template
+from jinja2.runtime import Context, DebugUndefined, StrictUndefined
 from jinja2.utils import missing
+from markupsafe import Markup
 
 from betty import about
 from betty.date import Date
 from betty.file import read, write
-from betty.html.attributes import Attributes
-from betty.locale import default_locale
+from betty.html.attributes import Attributes, AttributesKwargs
+from betty.locale import default_locale, to_language_tag
+from betty.localizable import Localizable, ResolvableLocalizable
+from betty.localizables.gettext import gettext, ngettext, npgettext, pgettext
 from betty.localizables.markup import JoinAnd, JoinOr
 from betty.machine_name import MachineName
 from betty.media_type import (
@@ -50,7 +53,7 @@ if TYPE_CHECKING:
 type CopyFunction = Callable[[Path, Path], Awaitable[None]]
 
 
-def context_document(context: JinjaContext) -> Document:
+def context_document(context: Context) -> Document:
     """
     Get the current document from the Jinja2 context.
     """
@@ -60,6 +63,20 @@ def context_document(context: JinjaContext) -> Document:
             "No `document` context variable exists in this Jinja2 template."
         ) from None
     return document
+
+
+@final
+class _GlobalGettext[*Ts]:
+    def __init__(self, factory: Callable[[*Ts], Localizable]):
+        self._factory = factory
+
+    def __call__(
+        self, *args: *Ts, **format_kwargs: ResolvableLocalizable
+    ) -> Localizable:
+        localizable = self._factory(*args)
+        if format_kwargs:
+            return localizable.format(**format_kwargs)
+        return localizable
 
 
 async def new_environment(project: Project, /) -> Environment:
@@ -84,15 +101,16 @@ async def new_environment(project: Project, /) -> Environment:
             _CacheTagExtension,
         ],
     )
+    environment.code_generator_class = _CodeGenerator
     if project.debug:
         environment.add_extension("jinja2.ext.debug")
-    environment.install_gettext_callables(  # ty:ignore[unresolved-attribute]
-        gettext=_gettext,
-        ngettext=_ngettext,
-        pgettext=_pgettext,
-        npgettext=_npgettext,
-        newstyle=True,
+    environment.globals.update(
+        gettext=_GlobalGettext(gettext),  # ty:ignore[invalid-argument-type]
+        ngettext=_GlobalGettext(ngettext),  # ty:ignore[invalid-argument-type]
+        pgettext=_GlobalGettext(pgettext),  # ty:ignore[invalid-argument-type]
+        npgettext=_GlobalGettext(npgettext),  # ty:ignore[invalid-argument-type]
     )
+    environment.newstyle_gettext = True  # ty:ignore[unresolved-attribute]
     environment.policies["ext.i18n.trimmed"] = True
 
     environment.globals.update({
@@ -107,7 +125,7 @@ async def new_environment(project: Project, /) -> Environment:
         "localizable_join_and": JoinAnd,
         "localizable_join_or": JoinOr,
         "machine_name": MachineName,
-        "new_attributes": Attributes,
+        "new_attributes": _new_html_attributes,
         "project": project,
         "primary_navigation_links": [
             link.link for link in project.links if link.primary
@@ -117,6 +135,7 @@ async def new_environment(project: Project, /) -> Environment:
         "secondary_navigation_links": [
             link.link for link in project.links if not link.primary
         ],
+        "tag": _html_tag,
         "today": Date(today.year, today.month, today.day),
     })  # ty:ignore[no-matching-overload]
     environment.filters.update({
@@ -130,38 +149,6 @@ async def new_environment(project: Project, /) -> Environment:
         if (test := await awaitable_test)
     })
     return environment
-
-
-@pass_context
-def _gettext(context: JinjaContext, message: str) -> str:
-    return context_document(context).localizer.gettext(message)
-
-
-@pass_context
-def _ngettext(
-    context: JinjaContext, message_singular: str, message_plural: str, n: int
-) -> str:
-    return context_document(context).localizer.ngettext(
-        message_singular, message_plural, n
-    )
-
-
-@pass_context
-def _pgettext(context: JinjaContext, gettext_context: str, message: str) -> str:
-    return context_document(context).localizer.pgettext(gettext_context, message)
-
-
-@pass_context
-def _npgettext(
-    context: JinjaContext,
-    gettext_context: str,
-    message_singular: str,
-    message_plural: str,
-    n: int,
-) -> str:
-    return context_document(context).localizer.npgettext(
-        gettext_context, message_singular, message_plural, n
-    )
 
 
 def make_copy_function(
@@ -239,7 +226,7 @@ class _CacheTagExtension(Extension):
         ).set_lineno(lineno)
 
     async def _cache(
-        self, cache_key: str, context: JinjaContext, caller: Callable[[], str]
+        self, cache_key: str, context: Context, caller: Callable[[], str]
     ) -> str:
         try:
             job_context = context_document(context).context
@@ -253,3 +240,51 @@ class _CacheTagExtension(Extension):
             rendered = await auto_await(caller())
             await result(rendered)
             return rendered
+
+
+@final
+class _CodeGenerator(CodeGenerator):
+    @override
+    def visit_Template(self, node: Template, frame: Frame | None = None) -> None:
+        self.writeline("from betty.jinja import _CodeGenerator")
+        super().visit_Template(node, frame)
+
+    @override
+    def _output_child_pre(
+        self, node: Expr, frame: Frame, finalize: CodeGenerator._FinalizeInfo
+    ) -> None:
+        super()._output_child_pre(node, frame, finalize)
+        self.write("_CodeGenerator._output_child(context, ")
+
+    @override
+    def _output_child_post(
+        self, node: Expr, frame: Frame, finalize: CodeGenerator._FinalizeInfo
+    ) -> None:
+        self.write(")")
+        super()._output_child_post(node, frame, finalize)
+
+    @classmethod
+    def _output_child(cls, ctx: Context, value: Any, /) -> Any:
+        if isinstance(value, Localizable):
+            return value.localize(context_document(ctx).localizer)
+        return value
+
+
+@pass_context
+def _new_html_attributes(
+    context: Context, **attributes: Unpack[AttributesKwargs]
+) -> Attributes:
+    return Attributes(localizer=context_document(context).localizer).set(**attributes)
+
+
+@pass_context
+def _html_tag(
+    context: Context, name: str, body: Any, /, **attributes: Unpack[AttributesKwargs]
+) -> str:
+    localizer = context_document(context).localizer
+    if isinstance(body, Localizable):
+        body = body.localize(localizer)
+        attributes["html_lang"] = to_language_tag(body.locale)
+    return Markup(
+        f"<{name}{Attributes(localizer=context_document(context).localizer).set(**attributes)}>{body}</{name}>"
+    )
