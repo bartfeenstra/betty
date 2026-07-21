@@ -3,7 +3,6 @@ from __future__ import annotations
 import gzip
 import tarfile
 from asyncio.subprocess import Process
-from gettext import NullTranslations
 from pathlib import Path
 from typing import TYPE_CHECKING, Final, Protocol
 from unittest.mock import ANY
@@ -1068,7 +1067,7 @@ class TestGrampsLoader:
         event = ancestry[Event][machinify("E0000")]
         assert event.name is not None
         assert event.name.localize(default_localizer) == name_default
-        assert event.name.localize(Localizer("nl", NullTranslations())) == name_nl
+        assert event.name.localize(Localizer("nl")) == name_nl
 
     async def test_event_should_include_description(
         self, load_partial: LoadPartial
@@ -1597,7 +1596,7 @@ class TestGrampsLoader:
         source = ancestry[Source][machinify("S0000")]
         assert source.links
         link = next(iter(source.links))
-        localizer_nl = Localizer("nl", NullTranslations())
+        localizer_nl = Localizer("nl")
         assert link.url.localize(localizer_nl) == url_nl
         assert link.url.localize(default_localizer) == url_undetermined
         assert link.label is not None

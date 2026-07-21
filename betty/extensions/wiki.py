@@ -50,15 +50,13 @@ class Wiki(Extension, ServiceProvider, Manufacturable):
         """
         The ancestry populator.
         """
-        copyright_notice, http_client, localizers = await gather(
-            self._project.factory.new(WikipediaContributors),
-            self.client,
-            self._project.localizers,
+        copyright_notice, http_client = await gather(
+            self._project.factory.new(WikipediaContributors), self.client
         )
         return populator_api.Populator(
             self._project.ancestry,
             list(self._project.locales.keys()),
-            localizers,
+            self._project.localizers,
             http_client,
             copyright_notice,
             user=self._project.upstream.user,

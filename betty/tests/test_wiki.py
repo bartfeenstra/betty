@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from gettext import NullTranslations
 from typing import TYPE_CHECKING, Final
 
 import pytest
@@ -75,8 +74,8 @@ async def test_parse_page_link__should_return(
     expected: tuple[str, str], url: str
 ) -> None:
     localizers = [
-        Localizer("en", NullTranslations()),
-        Localizer("nl", NullTranslations()),
+        Localizer("en"),
+        Localizer("nl"),
     ]
     link = Link(url)
     assert expected == parse_page_link(link, localizers)
@@ -102,8 +101,8 @@ async def test_parse_page_link__should_return(
 )
 async def test_parse_page_link__should_error(urls: StaticTranslationsMapping) -> None:
     localizers = [
-        Localizer("en", NullTranslations()),
-        Localizer("nl", NullTranslations()),
+        Localizer("en"),
+        Localizer("nl"),
     ]
     link = Link(StaticTranslations(urls))
     with pytest.raises(NotAPageError):

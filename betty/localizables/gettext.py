@@ -26,7 +26,9 @@ class _GettextLocalizable(__GettextLocalizable, Localizable):
     def localize(self, localizer: Localizer, /) -> LocalizedStr:
         return cast(
             LocalizedStr,
-            getattr(localizer, self._gettext_method_name)(*self._gettext_args),
+            getattr(localizer.translate, self._gettext_method_name)(
+                *self._gettext_args
+            ),
         )
 
 

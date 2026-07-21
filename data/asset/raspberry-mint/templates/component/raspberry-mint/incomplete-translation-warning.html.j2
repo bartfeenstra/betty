@@ -1,14 +1,8 @@
-{% if app.translations.coverage is defined %}
-    {% set coverage = app.translations.coverage(document.localizer.locale) %}
-    {% set translated =  coverage[0] / coverage[1] * 100 | round if coverage[1] else 0 %}
-    {% if translated < 100 %}
-        <div class="border d-inline-block my-2 p-2" style="border-color: #ffd77a !important;">
-            <p class="fw-bold">
-                {% trans translation_language = document.localizer.locale.get_display_name(), translated = translated | int, default_language = default_locale.get_display_name(document.localizer.locale) -%}
-                    The {{ translation_language }} translations are only {{ translated }}% complete. Some things may be shown in {{ default_language }}.
-                {%- endtrans %}
-            </p>
-            <a href="https://hosted.weblate.org/projects/betty/" class="view-more">{% trans %}Help improve the translations{% endtrans %}</a>
-        </div>
-    {% endif %}
-{% endif %}
+<div class="border d-inline-block my-2 p-2" style="border-color: #ffd77a !important;">
+    <p class="fw-bold">
+        {% trans translation_language = document.localizer.locale.get_display_name(), translation_completion = incomplete_translation_warning_percentage, default_language = default_locale.get_display_name(document.localizer.locale) -%}
+            The {{ translation_language }} translations are only {{ translation_completion }}% complete. Some things may be shown in {{ default_language }}.
+        {%- endtrans %}
+    </p>
+    <a href="https://hosted.weblate.org/projects/betty/" class="view-more">{% trans %}Help improve the translations{% endtrans %}</a>
+</div>

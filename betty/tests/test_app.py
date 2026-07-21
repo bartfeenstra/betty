@@ -63,12 +63,11 @@ class TestApp:
     async def test_http_client(self, isolated_app: App) -> None:
         assert await isolated_app.http_client is await isolated_app.http_client
 
+    async def test_localizers(self, isolated_app: App) -> None:
+        assert isolated_app.localizers is isolated_app.localizers
+
     async def test_localizer(self, isolated_app: App) -> None:
         assert await isolated_app.localizer is await isolated_app.localizer
-
-    async def test_localizers(self, isolated_app: App) -> None:
-        localizers = await isolated_app.localizers
-        assert localizers is await isolated_app.localizers
 
     async def test_process_pool(self, isolated_app: App) -> None:
         assert isolated_app.process_pool is isolated_app.process_pool
@@ -90,9 +89,6 @@ class TestApp:
 
     async def test_serializers(self, isolated_app: App) -> None:
         assert isolated_app.serializers is isolated_app.serializers
-
-    async def test_translations(self, isolated_app: App) -> None:
-        assert isolated_app.translations is isolated_app.translations
 
 
 class TestAppData(DataTestBase[AppData]):

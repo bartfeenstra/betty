@@ -134,21 +134,23 @@ async def new_environment(project: Project, /) -> Environment:
 
 @pass_context
 def _gettext(context: JinjaContext, message: str) -> str:
-    return context_document(context).localizer.gettext(message)
+    return context_document(context).localizer.translate.gettext(message)
 
 
 @pass_context
 def _ngettext(
     context: JinjaContext, message_singular: str, message_plural: str, n: int
 ) -> str:
-    return context_document(context).localizer.ngettext(
+    return context_document(context).localizer.translate.ngettext(
         message_singular, message_plural, n
     )
 
 
 @pass_context
 def _pgettext(context: JinjaContext, gettext_context: str, message: str) -> str:
-    return context_document(context).localizer.pgettext(gettext_context, message)
+    return context_document(context).localizer.translate.pgettext(
+        gettext_context, message
+    )
 
 
 @pass_context
@@ -159,7 +161,7 @@ def _npgettext(
     message_plural: str,
     n: int,
 ) -> str:
-    return context_document(context).localizer.npgettext(
+    return context_document(context).localizer.translate.npgettext(
         gettext_context, message_singular, message_plural, n
     )
 

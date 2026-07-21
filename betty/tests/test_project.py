@@ -96,8 +96,7 @@ class TestProject:
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         async with isolated_project_factory() as sut:
-            localizers = await sut.localizers
-            assert localizers is await sut.localizers
+            assert sut.localizers is sut.localizers
 
     async def test_name(self, isolated_project_factory: IsolatedProjectFactory) -> None:
         name = "hello-world"
@@ -334,9 +333,6 @@ class TestProject:
 
     async def test_servers(self, isolated_project: Project) -> None:
         assert isolated_project.servers is isolated_project.servers
-
-    async def test_translations(self, isolated_project: Project) -> None:
-        assert isolated_project.translations is isolated_project.translations
 
 
 class TestProjectLocale(DataTestBase[ProjectLocale]):

@@ -8,7 +8,7 @@ from contextlib import AsyncExitStack, asynccontextmanager
 from os import environ
 from shutil import rmtree
 from tempfile import mkdtemp
-from typing import TYPE_CHECKING, Any, Final, Literal, Self, final
+from typing import TYPE_CHECKING, Any, Final, Self, final
 
 from aiohttp_client_cache.backends.filesystem import FileBackend
 from aiohttp_client_cache.session import CachedSession
@@ -20,11 +20,7 @@ from betty.attrs.locale import new_locale_attr
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.dirs import app_config_directory, cache_directory
-from betty.gettext import (
-    AssetTranslationRepository,
-    TranslationRepository,
-    default_translation_repository,
-)
+from betty.gettext import TranslationsRepository
 from betty.http_client import ClientErrorToUserMessageMiddleware
 from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
 from betty.life_cycle import Bootstrappable, Shutdownable
@@ -64,7 +60,6 @@ if TYPE_CHECKING:
     from betty.plugin.resolve import ResolvablePluginDefinition
     from betty.service_level import Plugins
     from betty.services.plugin import SupportedPlugins
-    from betty.services.simple.asynchronous import TypedAsynchronousServiceOrFactory
     from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
     from betty.user import User
 
@@ -103,6 +98,8 @@ class App(RequirableServiceLevel, PluginServiceProvider):
         assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
         cache: TypedSynchronousServiceOrFactory[App, TransientStore[Any]] | None = None,
         locale: ResolvableLocale | None = None,
+        localizers: TypedSynchronousServiceOrFactory[App, LocalizerRepository]
+        | None = None,
         media_types: Iterable[ResolvablePluginDefinition[MediaTypeDefinition]] = (),
         plugins: Plugins | None = None,
         process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
@@ -110,8 +107,6 @@ class App(RequirableServiceLevel, PluginServiceProvider):
         rate_limits: Iterable[RateLimitDefinition] = (),
         serializers: Iterable[ResolvablePluginDefinition[SerializerDefinition]] = (),
         supported_plugins: SupportedPlugins = (),
-        translations: TypedAsynchronousServiceOrFactory[App, TranslationRepository]
-        | None = None,
         user: User | None = None,
     ):
         cls = type(self)
@@ -128,16 +123,16 @@ class App(RequirableServiceLevel, PluginServiceProvider):
                 if isinstance(process_pool, futures.ProcessPoolExecutor)
                 else process_pool,
             )
-        if translations is not None:
-            cls.translations.override(
-                self,
-                Service(translations)
-                if isinstance(translations, TranslationRepository)
-                else translations,
-            )
         if cache is not None:
             cls.cache.override(
                 self, Service(cache) if isinstance(cache, TransientStore) else cache
+            )
+        if localizers is not None:
+            cls.localizers.override(
+                self,
+                Service(localizers)
+                if isinstance(localizers, LocalizerRepository)
+                else localizers,
             )
         super().__init__(plugins=plugins, supported_plugins=supported_plugins)
         cls.asset_directories.add_init_plugins(self, *assets)
@@ -196,6 +191,8 @@ class App(RequirableServiceLevel, PluginServiceProvider):
         *,
         binary_file_cache_directory: StrPath | None = None,
         cache: TypedSynchronousServiceOrFactory[App, TransientStore[Any]] | None = None,
+        localizers: TypedSynchronousServiceOrFactory[App, LocalizerRepository]
+        | None = None,
         plugins: Mapping[
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
         ]
@@ -203,9 +200,6 @@ class App(RequirableServiceLevel, PluginServiceProvider):
         process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
         | None = None,
         user: User | None = None,
-        translations: TypedAsynchronousServiceOrFactory[App, TranslationRepository]
-        | None
-        | Literal[False] = False,
     ) -> AsyncIterator[Self]:
         """
         Create a new, isolated, temporary application.
@@ -224,37 +218,30 @@ class App(RequirableServiceLevel, PluginServiceProvider):
             async with cls(
                 binary_file_cache=TransientBinaryFileStore(binary_file_cache_directory),
                 cache=NoOpStore() if cache is None else cache,
+                localizers=localizers or LocalizerRepository(),
                 plugins=plugins,
                 process_pool=process_pool,
                 user=NoOpUser() if user is None else user,
-                translations=default_translation_repository
-                if translations is False
-                else translations,
             ) as app:
                 yield app
 
     @service
-    async def translations(self) -> TranslationRepository:
+    def localizers(self) -> LocalizerRepository:
         """
-        The available translations.
+        The available localizers.
         """
-        return AssetTranslationRepository(
-            self.asset_directories, self.binary_file_cache
+        return LocalizerRepository(
+            translations=TranslationsRepository(
+                assets=self.asset_directories, cache=self.binary_file_cache
+            )
         )
 
     @service
     async def localizer(self) -> Localizer:
         """
-        Get the application's user-facing localizer.
+        The application's user-facing localizer.
         """
-        return (await self.localizers).get(self._locale)
-
-    @service
-    async def localizers(self) -> LocalizerRepository:
-        """
-        The available localizers.
-        """
-        return LocalizerRepository(await self.translations)
+        return await self.localizers.get(self._locale)
 
     @service
     async def http_client(self) -> aiohttp.ClientSession:

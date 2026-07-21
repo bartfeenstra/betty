@@ -1,4 +1,3 @@
-from gettext import NullTranslations
 from typing import override
 
 from babel import Locale
@@ -47,7 +46,7 @@ def test_resolve_localizable__with_str() -> None:
 
 def test_resolve_localizable__with_mapping() -> None:
     locale = Locale("nl", "NL")
-    localizer = Localizer(locale, NullTranslations())
+    localizer = Localizer(locale)
     localized = "Mijn Eerste, Ja, Wat Eigenlijk?"
     localizable: StaticTranslationsMapping = {
         default_locale: "My First Localizable",

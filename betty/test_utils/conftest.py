@@ -74,7 +74,6 @@ if TYPE_CHECKING:
     from betty.load import EnricherDefinition, LoaderDefinition
     from betty.locale import ResolvableLocale
     from betty.localizable import ResolvableLocalizable
-    from betty.gettext import TranslationRepository
     from betty.machine_name import ResolvableMachineName
     from betty.pathlib import StrPath
     from betty.plugin import PluginDefinition
@@ -84,7 +83,6 @@ if TYPE_CHECKING:
     from betty.server import ServerDefinition
     from betty.services.plugin import SupportedPlugins
     from betty.services.plugin.instance import ServicePluginInstances
-    from betty.services.simple.asynchronous import TypedAsynchronousServiceOrFactory
     from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
     from betty.user import User
 
@@ -144,9 +142,6 @@ class IsolatedAppFactory(Protocol):
         | None = None,
         process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
         | None = None,
-        translations: TypedAsynchronousServiceOrFactory[App, TranslationRepository]
-        | None
-        | Literal[False] = False,
         user: User | None = None,
     ) -> AbstractAsyncContextManager[App]:
         raise NotImplementedError
@@ -172,9 +167,6 @@ def isolated_app_factory(
         | None = None,
         process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
         | None = None,
-        translations: TypedAsynchronousServiceOrFactory[App, TranslationRepository]
-        | None
-        | Literal[False] = False,
         user: User | None = None,
     ) -> AsyncIterator[App]:
         async with App.new_isolated(
@@ -182,7 +174,6 @@ def isolated_app_factory(
             cache=cache,
             process_pool=process_pool or fixture_process_pool,
             plugins=plugins,
-            translations=translations,
             user=user,
         ) as app:
             await _configure_isolated_app(app)

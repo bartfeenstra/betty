@@ -1,6 +1,5 @@
 from asyncio import to_thread
 from collections.abc import Iterable, Mapping
-from gettext import NullTranslations
 from pathlib import Path
 from typing import Any, override
 
@@ -46,7 +45,7 @@ class TestTemplate:
         provided_content = await sut.build(
             document=Document(
                 "my-first-page-resource",
-                localizer=Localizer("nl-NL", NullTranslations()),
+                localizer=Localizer("nl-NL"),
                 context=context,
             )
         )

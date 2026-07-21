@@ -12,7 +12,6 @@ from betty.entities.link import Link
 from betty.entities.place import Place
 from betty.entities.source import Source
 from betty.entity.collection.pool import EntityPool
-from betty.gettext import default_translation_repository
 from betty.localizer import LocalizerRepository
 from betty.media_type import MediaType
 from betty.media_types.html import HTML
@@ -44,7 +43,7 @@ class TestPopulator:
         ]
         link = Link("http://en.wikipedia.org/wiki/Amsterdam")
         ancestry = EntityPool(link)
-        localizers = LocalizerRepository(default_translation_repository)
+        localizers = LocalizerRepository()
         sut = Populator(
             ancestry,
             [Locale("en"), Locale("nl"), Locale("uk")],
@@ -54,9 +53,9 @@ class TestPopulator:
             user=NoOpUser(),
         )
         await sut.populate(link)
-        localizer_en = localizers.get("en")
-        localizer_nl = localizers.get("nl")
-        localizer_uk = localizers.get("uk")
+        localizer_en = await localizers.get("en")
+        localizer_nl = await localizers.get("nl")
+        localizer_uk = await localizers.get("uk")
         assert (
             link.url.localize(localizer_en) == "https://en.wikipedia.org/wiki/Amsterdam"
         )
@@ -95,7 +94,7 @@ class TestPopulator:
         ]
         link = Link("http://en.wikipedia.org/wiki/Amsterdam")
         ancestry = EntityPool(link)
-        localizers = LocalizerRepository(default_translation_repository)
+        localizers = LocalizerRepository()
         sut = Populator(
             ancestry,
             [Locale("en"), Locale("nl"), Locale("uk")],
@@ -105,7 +104,7 @@ class TestPopulator:
             user=NoOpUser(),
         )
         await sut.populate(link)
-        localizer_en = localizers.get("en")
+        localizer_en = await localizers.get("en")
         assert (
             link.url.localize(localizer_en) == "http://en.wikipedia.org/wiki/Amsterdam"
         )
@@ -124,7 +123,7 @@ class TestPopulator:
         )
         link = Link("https://example.com")
         ancestry = EntityPool(link)
-        localizers = LocalizerRepository(default_translation_repository)
+        localizers = LocalizerRepository()
         sut = Populator(
             ancestry,
             [Locale("en"), Locale("nl"), Locale("uk")],
@@ -147,7 +146,7 @@ class TestPopulator:
         sut = Populator(
             ancestry,
             [],
-            LocalizerRepository(default_translation_repository),
+            LocalizerRepository(),
             m_client,
             WikipediaContributors(DUMMY_LOCALIZABLE),
             user=NoOpUser(),
@@ -177,7 +176,7 @@ class TestPopulator:
         sut = Populator(
             ancestry,
             [Locale("en")],
-            LocalizerRepository(default_translation_repository),
+            LocalizerRepository(),
             m_client,
             WikipediaContributors(DUMMY_LOCALIZABLE),
             user=NoOpUser(),
@@ -213,7 +212,7 @@ class TestPopulator:
         sut = Populator(
             ancestry,
             [Locale("en")],
-            LocalizerRepository(default_translation_repository),
+            LocalizerRepository(),
             m_client,
             WikipediaContributors(DUMMY_LOCALIZABLE),
             user=NoOpUser(),

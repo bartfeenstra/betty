@@ -49,8 +49,6 @@ class _GenerateMapsPlacePreview(Job):
     async def do(self, scheduler: Scheduler, /) -> None:
         context = scheduler.context
         place = self._project.ancestry[Place][self._place_id]
-        app = self._project.upstream
-        localizers = await app.localizers
         jinja = await self._project.jinja
         place_path = (
             self._project.localize_www_directory(self._locale)
@@ -61,7 +59,9 @@ class _GenerateMapsPlacePreview(Job):
             "component/maps/selected-place-preview.html.j2",
         ).render_async(
             document=await self._project.new_document(
-                HTML, context=context, localizer=localizers.get(self._locale)
+                HTML,
+                context=context,
+                localizer=await self._project.localizers.get(self._locale),
             ),
             place=place,
         )

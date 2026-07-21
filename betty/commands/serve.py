@@ -42,7 +42,7 @@ class Serve(Manufacturable, Command):
             "-s",
             "--server",
             dest="server_id",
-            help=localizer._("The web server to use."),
+            help=localizer.translate._("The web server to use."),
         )
         return await add_project_argument(parser, self._command_function, self._app)
 

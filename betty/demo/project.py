@@ -6,7 +6,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty import about
+from babel import Locale
+
+from betty import about, dirs
 from betty.content_builder import ContentBuilderManufacturer
 from betty.content_builders.raspberry_mint_columns import Columns, ColumnsData
 from betty.content_builders.raspberry_mint_entity_card import EntityCard
@@ -55,8 +57,6 @@ async def create_project(
     """
     Create a new demonstration project.
     """
-    translations = await app.translations
-
     return Project(
         app=app,
         author=_("Bart Feenstra and contributors"),
@@ -214,7 +214,12 @@ async def create_project(
         locales=[
             # The first configured locale is the project default.
             default_locale,
-            *[locale for locale in translations.locales if locale != default_locale],
+            *[
+                locale
+                for po_file in dirs.builtin_asset_directory.glob("locale/*/betty.po")
+                if (locale := Locale.parse(po_file.parent.name))
+                and locale != default_locale
+            ],
         ],
         name="demo",
         supported_plugins=[

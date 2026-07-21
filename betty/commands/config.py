@@ -40,7 +40,7 @@ class Config(Manufacturable, Command):
         parser.add_argument(
             "--locale",
             default=default_locale,
-            help=localizer._(
+            help=localizer.translate._(
                 "Set the locale for Betty's user interface. This must be an IETF BCP 47 language tag."
             ),
             type=assertion_to_argument_type(assert_locale(), localizer=localizer),
@@ -48,9 +48,7 @@ class Config(Manufacturable, Command):
         return self._command_function
 
     async def _command_function(self, *, locale: Locale) -> None:
-        localizers, serializers = await gather(
-            self._app.localizers, gather(*self._app.serializers)
-        )
+        serializers = await gather(*self._app.serializers)
 
         if AppData.FILE.exists():
             updated_configuration = AppData.data().porter.load(
@@ -59,7 +57,7 @@ class Config(Manufacturable, Command):
         else:
             updated_configuration = AppData()
         updated_configuration.locale = locale
-        self._app.user.localizer = localizers.get(locale)
+        self._app.user.localizer = await self._app.localizers.get(locale)
         await self._app.user.message_information(
             _("Betty will talk to you in {locale}").format(
                 locale=locale.get_display_name() or to_language_tag(locale)

@@ -78,8 +78,9 @@ class TestIndex:
             individual=individual_name,
         )
         dummy_project.ancestry.add(person)
-        localizers = await dummy_project.localizers
-        actual = await Index(dummy_project, Context(), localizers.get(locale)).build()
+        actual = await Index(
+            dummy_project, Context(), await dummy_project.localizers.get(locale)
+        ).build()
         assert actual[0].text == {"my-first-person", "jane"}
         assert expected in actual[0].result
 
@@ -100,11 +101,10 @@ class TestIndex:
             affiliation=affiliation_name,
         )
         dummy_project.ancestry.add(person)
-        localizers = await dummy_project.localizers
         actual = await Index(
             dummy_project,
             Context(),
-            localizers.get(locale),
+            await dummy_project.localizers.get(locale),
         ).build()
         assert actual[0].text == {"my-first-person", "doughnut"}
         assert expected in actual[0].result
@@ -128,8 +128,9 @@ class TestIndex:
             affiliation=affiliation_name,
         )
         dummy_project.ancestry.add(person)
-        localizers = await dummy_project.localizers
-        actual = await Index(dummy_project, Context(), localizers.get(locale)).build()
+        actual = await Index(
+            dummy_project, Context(), await dummy_project.localizers.get(locale)
+        ).build()
         assert actual[0].text == {"my-first-person", "jane", "doughnut"}
         assert expected in actual[0].result
 
@@ -167,8 +168,9 @@ class TestIndex:
             ],
         )
         dummy_project.ancestry.add(place)
-        localizers = await dummy_project.localizers
-        actual = await Index(dummy_project, Context(), localizers.get(locale)).build()
+        actual = await Index(
+            dummy_project, Context(), await dummy_project.localizers.get(locale)
+        ).build()
         assert actual[0].text == expected_text
         assert expected_result in actual[0].result
 
@@ -257,11 +259,10 @@ class TestIndex:
             description=description,
         )
         dummy_project.ancestry.add(file)
-        localizers = await dummy_project.localizers
         actual = await Index(
             dummy_project,
             Context(),
-            localizers.get(locale),
+            await dummy_project.localizers.get(locale),
         ).build()
         assert actual[0].text == expected_text
         assert expected_result in actual[0].result
