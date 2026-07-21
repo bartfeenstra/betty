@@ -10,7 +10,6 @@ from betty.concurrent import RateLimiter, ThreadSafeLock
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
-from betty.threading import threadsafe
 
 if TYPE_CHECKING:
     import re
@@ -25,7 +24,6 @@ if TYPE_CHECKING:
 
 
 @final
-@threadsafe
 class RateLimitMiddleware:
     """
     HTTP client middleware to rate-limit requests.

@@ -20,7 +20,6 @@ from typing import (
 )
 
 from betty.asyncio import resolve_await
-from betty.threading import threadsafe
 from betty.typing import Void
 
 if TYPE_CHECKING:
@@ -283,7 +282,6 @@ class CallableDecorator[**P, ReturnT, **DecoratedP, DecoratedReturnT]:
 
 
 @final
-@threadsafe
 class LazyReCallable[ValueT]:
     """
     A value that can be called multiple times while always returning the exact same value.

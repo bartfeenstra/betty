@@ -29,7 +29,6 @@ from betty.locale import (
 from betty.locale.error import LocaleError
 from betty.localizables.gettext import _
 from betty.pathlib import resolve_path
-from betty.threading import threadsafe
 
 if TYPE_CHECKING:
     from collections.abc import (
@@ -225,7 +224,6 @@ The translation repository for the default locale.
 
 
 @final
-@threadsafe
 class AssetTranslationRepository(TranslationRepository, Bootstrappable):
     """
     Provide translations from assets.

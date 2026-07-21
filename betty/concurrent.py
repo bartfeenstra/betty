@@ -12,8 +12,6 @@ from asyncio import sleep
 from math import floor
 from typing import TYPE_CHECKING, Final, final, override
 
-from betty.threading import threadsafe
-
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Hashable, MutableMapping
     from types import TracebackType
@@ -53,7 +51,6 @@ class Lock(ABC):
 
 
 @final
-@threadsafe
 class ThreadSafeLock(Lock):
     """
     An asynchronous thread-safe lock.
@@ -84,7 +81,6 @@ class ThreadSafeLock(Lock):
 
 
 @final
-@threadsafe
 class RateLimiter:
     """
     Rate-limit operations.
@@ -185,7 +181,6 @@ class _Transaction(Lock):
         self._ledger[self._transaction_id] = False
 
 
-@threadsafe
 class Ledger:
     """
     Lazily create locks by keeping a ledger.

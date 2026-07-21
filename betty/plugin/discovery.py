@@ -23,7 +23,6 @@ from betty.plugin.resolve import (
 from betty.requirement import UnmetRequirement
 from betty.service_level import ServiceLevel
 from betty.string import kebab_case_to_snake_case
-from betty.threading import threadsafe
 
 if TYPE_CHECKING:
     import builtins
@@ -68,7 +67,6 @@ async def _discover[PluginDefinitionT: PluginDefinition](
 
 
 @final
-@threadsafe
 class PluginDiscoverer[PluginDefinitionT: PluginDefinition = PluginDefinition]:
     """
     Discover plugin definitions of a specific plugin type.

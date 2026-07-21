@@ -8,14 +8,12 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.concurrent import ThreadSafeLock
 from betty.progress import Progress
-from betty.threading import threadsafe
 
 if TYPE_CHECKING:
     from rich.progress import Progress as _RichProgress
 
 
 @final
-@threadsafe
 class RichProgress(Progress):
     """
     Output progress to Rich.

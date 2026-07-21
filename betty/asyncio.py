@@ -9,7 +9,6 @@ from inspect import isawaitable
 from typing import TYPE_CHECKING, Any, final, override
 
 from betty.concurrent import ThreadSafeLock
-from betty.threading import threadsafe
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Generator
@@ -38,7 +37,6 @@ class ReAwaitable[ValueT](ABC):
 
 
 @final
-@threadsafe
 class LazyReAwaitable[ValueT](ReAwaitable[ValueT]):
     """
     A value that can be awaited multiple times while always returning the exact same value.

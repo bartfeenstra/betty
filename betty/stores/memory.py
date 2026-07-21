@@ -10,7 +10,6 @@ from typing import Self, final, override
 
 from betty.store import StoreItem, TransientStore
 from betty.stores._base import _CommonStoreBase, _CommonStoreBaseState, _StaticStoreItem
-from betty.threading import threadsafe
 
 type _MemoryStoreData[ItemValueT] = MutableMapping[
     tuple[str, ...],
@@ -61,7 +60,6 @@ class _MemoryStore[ItemValueT](_CommonStoreBase[ItemValueT]):
 
 
 @final
-@threadsafe
 class MemoryStore[ItemValueT](_MemoryStore[ItemValueT]):
     """
     A key-value store that stores items in volatile memory.
@@ -69,7 +67,6 @@ class MemoryStore[ItemValueT](_MemoryStore[ItemValueT]):
 
 
 @final
-@threadsafe
 class TransientMemoryStore[ItemValueT](
     _MemoryStore[ItemValueT], TransientStore[ItemValueT]
 ):

@@ -20,7 +20,6 @@ from betty.hashid import hashid
 from betty.pathlib import resolve_path
 from betty.store import StoreItem, StoreItemValueSetter, TransientStore
 from betty.stores._base import _CommonStoreBase, _CommonStoreBaseState
-from betty.threading import threadsafe
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Sequence
@@ -195,7 +194,6 @@ class _PickledFileStore[ItemValueT](_FileStore[ItemValueT]):
 
 
 @final
-@threadsafe
 class PickledFileStore[ItemValueT](_PickledFileStore[ItemValueT]):
     """
     A key-value store that pickles values and persists them to files.
@@ -203,7 +201,6 @@ class PickledFileStore[ItemValueT](_PickledFileStore[ItemValueT]):
 
 
 @final
-@threadsafe
 class TransientPickledFileStore[ItemValueT](
     _PickledFileStore[ItemValueT], _TransientFileStore[ItemValueT]
 ):
@@ -236,7 +233,6 @@ class _BinaryFileStore(_FileStore[bytes]):
 
 
 @final
-@threadsafe
 class BinaryFileStore(_BinaryFileStore):
     """
     A key-value store that persists bytes values to binary files.
@@ -244,7 +240,6 @@ class BinaryFileStore(_BinaryFileStore):
 
 
 @final
-@threadsafe
 class TransientBinaryFileStore(_BinaryFileStore, _TransientFileStore[bytes]):
     """
     A transient key-value store that persists bytes values to binary files.

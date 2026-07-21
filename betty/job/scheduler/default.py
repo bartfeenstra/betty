@@ -23,7 +23,6 @@ from betty.job.scheduler import (
     Scheduler,
     UnknownJobError,
 )
-from betty.threading import threadsafe
 
 if TYPE_CHECKING:
     from collections.abc import (
@@ -69,7 +68,6 @@ class _UnknownJob(Singleton):
 
 
 @final
-@threadsafe
 class DefaultScheduler(Scheduler):
     """
     Betty's default job scheduler.

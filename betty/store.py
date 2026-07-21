@@ -8,8 +8,6 @@ from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, Self
 
-from betty.threading import threadsafe
-
 if TYPE_CHECKING:
     from contextlib import AbstractAsyncContextManager
 
@@ -36,7 +34,6 @@ class StoreItem[ItemValueT](ABC):
 type StoreItemValueSetter[_ItemValueT] = Callable[[_ItemValueT], Awaitable[None]]
 
 
-@threadsafe
 class Store[ItemValueT](ABC):
     """
     A key-value store.

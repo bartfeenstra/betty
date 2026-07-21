@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, override
 
 from betty.concurrent import Ledger, ThreadSafeLock
 from betty.store import Store, StoreItem, StoreItemValueSetter
-from betty.threading import threadsafe
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Sequence
@@ -43,7 +42,6 @@ class _CommonStoreBaseState:
     item_ledger: Ledger
 
 
-@threadsafe
 class _CommonStoreBase[ItemValueT](Store[ItemValueT]):
     def __init__(
         self,
