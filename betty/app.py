@@ -101,7 +101,7 @@ class App(RequirableServiceLevel, PluginServiceProvider):
         assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
         cache: TypedSynchronousServiceOrFactory[App, TransientStore[Any]] | None = None,
         locale: ResolvableLocale | None = None,
-        meda_types: Iterable[ResolvablePluginDefinition[MediaTypeDefinition]] = (),
+        media_types: Iterable[ResolvablePluginDefinition[MediaTypeDefinition]] = (),
         plugins: Plugins | None = None,
         process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
         | None = None,
@@ -139,7 +139,7 @@ class App(RequirableServiceLevel, PluginServiceProvider):
             )
         super().__init__(plugins=plugins, supported_plugins=supported_plugins)
         cls.asset_directories.add_init_plugins(self, *assets)
-        cls.media_types.add_init_plugins(self, *meda_types)
+        cls.media_types.add_init_plugins(self, *media_types)
         cls.rate_limits.add_init_plugins(self, *rate_limits)
         cls.serializers.add_init_plugins(self, *serializers)
         self.life_cycle.on_bootstrap(self._bootstrap_localizer)
