@@ -179,13 +179,13 @@ async def _create_list_commands_action_class(
             dest: str = argparse.SUPPRESS,
             default: Any = argparse.SUPPRESS,
             help: str | None = None,  # noqa: A002
-            # Python 3.13 added the ``deprecated`` argument. For compatibility with all, allow it, but do not use it.
             deprecated: bool = False,
         ):
             super().__init__(
                 option_strings=option_strings,
                 dest=dest,
                 default=default,
+                deprecated=deprecated,
                 nargs=0,
                 help=help,
             )
