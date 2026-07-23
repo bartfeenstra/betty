@@ -81,7 +81,7 @@ class About(Manufacturable, Command):
             user.localizer.translate._("Output directory"),
             str(project.output_directory),
         )
-        user.console.print(about_project)
+        user.console.print(about_project, emoji=False, markup=False)
 
     async def _about_plugins(self, user: RichUser, project: Project | None) -> None:
         services = self._app if project is None else project
@@ -113,15 +113,16 @@ class About(Manufacturable, Command):
                     plugin.id,
                     "\n".join(third_column_lines),
                 )
-        user.console.print(about_plugins)
+        user.console.print(about_plugins, emoji=False, markup=False)
         if project is None:
             user.console.print(
-                "[yellow]"
-                + _(
+                _(
                     "More plugins may be available when running this command with {argument}."
                 )
                 .format(argument=Quote("--project"))
-                .localize(user.localizer)
+                .localize(user.localizer),
+                markup=False,
+                style="yellow",
             )
 
     async def _about_system(self, user: RichUser) -> None:
@@ -135,7 +136,7 @@ class About(Manufacturable, Command):
             user.localizer.translate._("Operating system"), platform.platform()
         )
         about_system.add_row("Python", sys.version)
-        user.console.print(about_system)
+        user.console.print(about_system, emoji=False, markup=False)
 
     async def _about_python_packages(self, user: RichUser) -> None:
         about_python_packages = Table(
@@ -150,4 +151,4 @@ class About(Manufacturable, Command):
             key=lambda x: x.metadata["Name"].lower(),
         ):
             about_python_packages.add_row(x.metadata["Name"], x.version)
-        user.console.print(about_python_packages)
+        user.console.print(about_python_packages, emoji=False, markup=False)
