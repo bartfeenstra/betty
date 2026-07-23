@@ -15,13 +15,14 @@ from betty.entity.collection.multiple import MultipleTypesEntityCollection
 from betty.importlib import fully_qualified_name, import_any
 from betty.linked_data import LinkedDataDumper
 from betty.localizer import default_localizer
-from betty.typing import Intersection, Not, Void, VoidType
+from betty.nothing import Nothing, NothingType
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
 
     from betty.datas.aggregate.record import FieldDefinition
     from betty.project import Project
+    from betty.typing import Intersection, Not
 
 
 class Association[
@@ -60,8 +61,8 @@ class Association[
             else associate_attr
         )
         self.__associate_attr: (
-            Association[AssociateT, OwnerT, Any, Any] | None | VoidType
-        ) = associate_attr if isinstance(associate_attr, Association) else Void
+            Association[AssociateT, OwnerT, Any, Any] | None | NothingType
+        ) = associate_attr if isinstance(associate_attr, Association) else Nothing
 
     @final
     @property
@@ -71,7 +72,7 @@ class Association[
         """
         Get the inverse association, if this association is bidirectional.
         """
-        if self.__associate_attr is Void:
+        if self.__associate_attr is Nothing:
             if self.associate_attr_name is None:
                 self.__associate_attr = self._bi_associate_attr()
             else:

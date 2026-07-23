@@ -20,7 +20,7 @@ from typing import (
 )
 
 from betty.asyncio import resolve_await
-from betty.typing import Void
+from betty.nothing import Nothing
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable, Iterator
@@ -122,15 +122,15 @@ def passthrough[T](value: T, /) -> T:
 
 def suppress[**P, T](
     target: Callable[P, T], *exceptions: type[BaseException]
-) -> Callable[P, T | type[Void]]:
+) -> Callable[P, T | type[Nothing]]:
     """
     Return the value, but suppress any errors.
     """
 
-    def _suppress(*target_args: P.args, **target_kwargs: P.kwargs) -> T | type[Void]:
+    def _suppress(*target_args: P.args, **target_kwargs: P.kwargs) -> T | type[Nothing]:
         with contextlib.suppress(*exceptions):
             return target(*target_args, **target_kwargs)
-        return Void
+        return Nothing
 
     return _suppress
 

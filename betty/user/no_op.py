@@ -7,8 +7,8 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, final, overload, override
 
+from betty.nothing import Nothing, NothingType
 from betty.progresses.no_op import NoOpProgress
-from betty.typing import Void, VoidType
 from betty.user import User, UserTimeoutError, Verbosity
 
 if TYPE_CHECKING:
@@ -82,7 +82,7 @@ class NoOpUser(User):
         /,
         *,
         assertion: None = None,
-        default: str | VoidType = Void,
+        default: str | NothingType = Nothing,
     ) -> str:
         pass
 
@@ -93,10 +93,10 @@ class NoOpUser(User):
         /,
         *,
         assertion: Pipe[str, T],
-        default: str | VoidType = Void,
+        default: str | NothingType = Nothing,
     ) -> T:
         pass
 
     @override
-    async def ask_input(self, question, /, *, assertion=None, default=Void):
+    async def ask_input(self, question, /, *, assertion=None, default=Nothing):
         raise UserTimeoutError

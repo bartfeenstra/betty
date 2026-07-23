@@ -4,6 +4,7 @@ import pytest
 
 from betty.exception import HumanFacingException
 from betty.factory import DataManufacturable, UnsupportedTarget
+from betty.nothing import Nothing
 from betty.plugin.factory import (
     PluginManufacturer,
     PluginManufacturerError,
@@ -17,7 +18,6 @@ from betty.test_utils.plugin import (
     DummyPluginManufacturer,
     DummyPluginOne,
 )
-from betty.typing import Void
 
 if TYPE_CHECKING:
     from betty.portable import PortableData
@@ -197,14 +197,14 @@ class TestPluginManufacturerPorter:
             "plugin": DummyPluginOne.plugin().id
         })
         assert sut.plugin_id == DummyPluginOne.plugin().id
-        assert sut.plugin_data is Void
+        assert sut.plugin_data is Nothing
 
     def test_load__minimal_compact(self) -> None:
         sut = PluginManufacturerPorter(DummyPluginManufacturer).load(
             DummyPluginOne.plugin().id
         )
         assert sut.plugin_id == DummyPluginOne.plugin().id
-        assert sut.plugin_data is Void
+        assert sut.plugin_data is Nothing
 
     def test_load__with_configuration(self) -> None:
         configuration: PortableData = {
@@ -222,7 +222,7 @@ class TestPluginManufacturerPorter:
             DummyPluginOne.plugin().id, {}
         )
         assert sut.plugin_id == DummyPluginOne.plugin().id
-        assert sut.plugin_data is Void
+        assert sut.plugin_data is Nothing
 
     def test_load_keyed__with_configuration(self) -> None:
         configuration: PortableData = {
