@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-22 14:03+0100\n"
+"POT-Creation-Date: 2026-07-24 12:55+0100\n"
 "PO-Revision-Date: 2026-07-15 13:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ta\n"
@@ -105,14 +105,11 @@ msgstr "அனைத்து உரிமைகளும் பாதுகா�
 msgid "Also known as %(names)s"
 msgstr "%(names)s என்றும் அறியப்படுகிறது"
 
-msgid "Also show debug messages and all exception tracebacks"
-msgstr "பிழைத்திருத்த செய்திகள் மற்றும் அனைத்து விதிவிலக்கு ட்ரேச்பேக்குகளையும் காட்டவும்"
+msgid "Also show debug messages"
+msgstr ""
 
 msgid "Also show detailed information messages"
 msgstr "விரிவான செய்தி செய்திகளையும் காட்டவும்"
-
-msgid "Also show log messages"
-msgstr "பதிவு செய்திகளையும் காட்டு"
 
 msgid "Amsterdam"
 msgstr "ஆம்ச்டர்டாம்"
@@ -124,9 +121,6 @@ msgstr "{example_language_tag} போன்ற IETF BCP 47 மொழி கு�
 #, python-brace-format
 msgid "An unexpected error occurred. If you believe this is a problem with Betty, please report this at {url}."
 msgstr "எதிர்பாராத பிழை ஏற்பட்டது. பெட்டியுடன் இது ஒரு சிக்கல் என்று நீங்கள் நம்பினால், இதை {url} இல் புகாரளிக்கவும்."
-
-msgid "An unexpected error occurred:"
-msgstr "எதிர்பாராத பிழை ஏற்பட்டது:"
 
 msgid "Announcement of divorce"
 msgstr "மணமுறிவு அறிவிப்பு"
@@ -247,10 +241,6 @@ msgstr "{person} என்ற நபரின் கிராம்ப்ச் 
 #, python-brace-format
 msgid "Betty was named after <a href=\"{liberta_lankester_url}\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
 msgstr "பெட்டிக்கு <a href=\"{liberta_lankester_url}\">Liberta 'Betty' Lankester</a> பெயரிடப்பட்டது, மேலும் இந்த இணையதளம் அவரது குடும்ப வரலாற்றின் சிறிய மாதிரியைக் காட்டுகிறது. பெட்டி தளம் எப்படி இருக்கும் என்பதைப் பற்றிய யோசனையைப் பெற நீங்கள் அவளைப் பற்றிய பக்கங்களையும் அவரது குடும்பத்தில் சிலரையும் உலாவலாம்."
-
-#, python-brace-format
-msgid "Betty will talk to you in {locale}"
-msgstr "பெட்டி உங்களுடன் {locale} இல் பேசுவார்"
 
 msgid "Birth"
 msgstr "பிறப்பு"
@@ -576,6 +566,9 @@ msgstr "மணமுறிவு"
 
 msgid "Divorces"
 msgstr "விவாகரத்துகள்"
+
+msgid "Do not show any output, except error and warning messages"
+msgstr ""
 
 msgid "Do not show any output, except error messages"
 msgstr "பிழை செய்திகளைத் தவிர, எந்த வெளியீட்டையும் காட்ட வேண்டாம்"
@@ -1128,6 +1121,10 @@ msgstr "நெதர்லாந்து"
 msgid "Next page"
 msgstr "அடுத்த பக்கம்"
 
+#, python-brace-format
+msgid "Next time, Betty will talk to you in {locale}"
+msgstr ""
+
 msgid "No part may be reproduced or distributed in any form or by any means, without express written permission from the copyright holder, or unless permitted by copyright law."
 msgstr "பதிப்புரிமைதாரரிடமிருந்து வெளிப்படையான எழுத்துப்பூர்வ அனுமதியின்றி அல்லது பதிப்புரிமைச் சட்டத்தால் அனுமதிக்கப்படும் வரையில் எந்தப் பகுதியையும் எந்த வடிவத்திலும் அல்லது எந்த வகையிலும் மீண்டும் உருவாக்கவோ அல்லது விநியோகிக்கவோ முடியாது."
 
@@ -1489,8 +1486,14 @@ msgstr "பெட்டியின் பயனர் இடைமுகத்�
 msgid "Show all available commands"
 msgstr "கிடைக்கக்கூடிய அனைத்து கட்டளைகளையும் காட்டு"
 
+msgid "Show log messages"
+msgstr ""
+
 msgid "Show this help message"
 msgstr "இந்த உதவி செய்தியைக் காட்டு"
+
+msgid "Show tracebacks for all exceptions"
+msgstr ""
 
 #, python-brace-format
 msgid "Skip interactions and answer {yes} to all questions."

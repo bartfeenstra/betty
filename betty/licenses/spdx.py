@@ -23,6 +23,7 @@ from betty.license import License, LicenseDefinition
 from betty.localizables.gettext import _
 from betty.localizables.plain import Plain
 from betty.machine_name import MachineName
+from betty.user import Severity
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -101,8 +102,8 @@ class SpdxLicenseDiscoverer(Manufacturable):
                 spdx_licenses_response = await self._http_client.get(self.url)
                 spdx_licenses_data_tar = await spdx_licenses_response.read()
             except ClientError:
-                await self._user.message_warning(
-                    _("Betty could not load the SPDX licenses")
+                await self._user.message(
+                    _("Betty could not load the SPDX licenses"), Severity.WARN
                 )
                 return [lambda _: ()]
 

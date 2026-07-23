@@ -48,7 +48,6 @@ from betty.licenses.spdx import SpdxLicenseDiscoverer
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.project import Project, ProjectLocale
 from betty.stores.file import TransientBinaryFileStore
-from betty.user import Verbosity
 
 if TYPE_CHECKING:
     from collections.abc import (  # noqa: I001
@@ -113,10 +112,6 @@ async def process_pool() -> AsyncIterator[futures.ProcessPoolExecutor]:
         yield process_pool
 
 
-async def _configure_isolated_app(app: App) -> None:
-    await app.user.set_verbosity(Verbosity.QUIET)
-
-
 @pytest.fixture(scope="session")
 async def isolated_app(
     process_pool: futures.ProcessPoolExecutor,
@@ -125,7 +120,6 @@ async def isolated_app(
     Create a new, isolated, temporary :py:class:`betty.app.App`.
     """
     async with App.new_isolated(process_pool=process_pool) as app:
-        await _configure_isolated_app(app)
         yield app
 
 
@@ -176,7 +170,6 @@ def isolated_app_factory(
             plugins=plugins,
             user=user,
         ) as app:
-            await _configure_isolated_app(app)
             yield app
 
     return _isolated_app_factory

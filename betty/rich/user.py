@@ -14,74 +14,50 @@ from rich.progress import BarColumn, TaskProgressColumn, TextColumn, TimeElapsed
 from rich.progress import Progress as _RichProgress
 from rich.prompt import Confirm, Prompt
 
-from betty.life_cycle.manage import ManagedLifeCycle
+from betty.localizer import default_localizer
 from betty.nothing import Nothing, NothingType
 from betty.progresses.no_op import NoOpProgress
 from betty.progresses.rich import RichProgress
 from betty.rich import Theme
-from betty.user import User, Verbosity
-from betty.user.logging import UserHandler
+from betty.user import Severity, User
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator
+    from collections.abc import AsyncIterator, Mapping
 
     from betty.functools import Pipe
     from betty.localizable import ResolvableLocalizable
+    from betty.localizer import Localizer
     from betty.progress import Progress
 
 
 @final
-class RichUser(ManagedLifeCycle, User):
+class RichUser(User):
     """
     A Rich user session.
     """
 
-    def __init__(self):
+    _severity_to_style: Final[Mapping[Severity, str]] = {
+        Severity.ERROR: "red",
+        Severity.WARN: "yellow",
+        Severity.CONFIRM: "green",
+        Severity.INFO: "white",
+        Severity.DEBUG: "white",
+    }
+
+    def __init__(
+        self,
+        *,
+        localizer: Localizer = default_localizer,
+        severity: Severity | bool = User.default_severity,
+    ):
         super().__init__()
-        self.life_cycle.on_bootstrap(self._propagate_verbosity)
-        self.life_cycle.on_shutdown(self._shutdown_logging_handler)
         self.console: Final[Console] = Console(theme=Theme())
         """
         The Rich console.
         """
-        self._verbosity = Verbosity.DEFAULT
-        self._logging_handler: UserHandler | None = None
-        self._logger = logging.getLogger()
         self._log_formatter = logging.Formatter()
-
-    @override
-    @property
-    def verbosity(self) -> Verbosity:
-        return self._verbosity
-
-    @override
-    async def set_verbosity(self, verbosity: Verbosity, /) -> None:
-        if verbosity is self._verbosity:
-            return
-        self._verbosity = verbosity
-        if self.bootstrapped:
-            await self._propagate_verbosity()
-
-    async def _shutdown_logging_handler(self, *, wait: bool = True) -> None:
-        if self._logging_handler is not None:
-            await self._logging_handler.shutdown(wait=wait)
-
-    async def _propagate_verbosity(self) -> None:
-        if self.verbosity >= Verbosity.MOST_VERBOSE:
-            if self._logging_handler is not None:
-                return
-
-            self._logging_handler = UserHandler(self)
-            self._logger.addHandler(self._logging_handler)
-            await self._logging_handler.bootstrap()
-            level = logging.NOTSET
-        else:
-            if self._logging_handler is None:
-                return
-            self._logger.removeHandler(self._logging_handler)
-            await self._logging_handler.shutdown()
-            level = 999999999
-        self._logger.setLevel(level)
+        self._localizer = localizer
+        self.severity = severity
 
     def _print(self, message: ResolvableLocalizable, style: str, /) -> None:
         self.console.print(
@@ -89,64 +65,37 @@ class RichUser(ManagedLifeCycle, User):
         )
 
     @override
-    async def message_exception(self) -> None:
-        self._message_error(self.localizer.translate._("An unexpected error occurred:"))
-        self.console.print_exception(show_locals=self.verbosity >= Verbosity.VERBOSE)
+    @property
+    def localizer(self) -> Localizer:
+        return self._localizer
 
     @override
-    async def message_error(self, message: ResolvableLocalizable, /) -> None:
-        self._message_error(self.localizer.localize(message))
-
-    def _message_error(self, message: str) -> None:
-        self.assert_alive()
-        self._print(message, "red")
+    async def exception(self) -> None:
+        self.console.print_exception(show_locals=self.shows(Severity.DEBUG))
 
     @override
-    async def message_warning(self, message: ResolvableLocalizable, /) -> None:
-        self.assert_alive()
-        if self._verbosity < Verbosity.DEFAULT:
-            return
-        self._print(self.localizer.localize(message), "yellow")
-
-    @override
-    async def message_information(self, message: ResolvableLocalizable, /) -> None:
-        self.assert_alive()
-        if self._verbosity < Verbosity.DEFAULT:
-            return
-        self._print(self.localizer.localize(message), "green")
-
-    @override
-    async def message_information_details(
-        self, message: ResolvableLocalizable, /
+    async def message(
+        self, message: ResolvableLocalizable, severity: Severity, /
     ) -> None:
-        self.assert_alive()
-        if self._verbosity < Verbosity.VERBOSE:
-            return
-        self._print(self.localizer.localize(message), "green")
+        if self.shows(severity):
+            self._print(
+                self.localizer.localize(message), self._severity_to_style[severity]
+            )
 
     @override
-    async def message_debug(self, message: ResolvableLocalizable, /) -> None:
-        self.assert_alive()
-        if self._verbosity < Verbosity.MORE_VERBOSE:
-            return
-        self._print(self.localizer.localize(message), "white")
-
-    @override
-    async def message_log(self, message: logging.LogRecord, /) -> None:
-        self.assert_bootstrapped()
-        if self._verbosity < Verbosity.MOST_VERBOSE:
-            return
-        self._print(self._log_formatter.format(message), "blue")
+    async def log(self, record: logging.LogRecord, /) -> None:
+        if severity := self.logs(record.levelno):
+            self.console.print(
+                f"[blue]LOG:[/] [{self._severity_to_style[severity]}]{escape(self._log_formatter.format(record))}[/]",
+                emoji=False,
+            )
 
     @override
     @asynccontextmanager
-    async def message_progress(
+    async def progress(
         self, message: ResolvableLocalizable, /
     ) -> AsyncIterator[Progress]:
-        self.assert_alive()
-        if self.verbosity < Verbosity.DEFAULT:
-            yield NoOpProgress()
-        else:
+        if self.shows(Severity.CONFIRM):
             with _RichProgress(
                 TextColumn("[progress.description]{task.description}"),
                 BarColumn(),
@@ -158,6 +107,8 @@ class RichUser(ManagedLifeCycle, User):
                     rich_progress, self.localizer.localize(message)
                 ) as progress:
                     yield progress
+        else:
+            yield NoOpProgress()
 
     @override
     async def ask_confirmation(
@@ -168,7 +119,6 @@ class RichUser(ManagedLifeCycle, User):
         default: bool = False,
         stdin: TextIO | None = None,
     ) -> bool:
-        self.assert_alive()
         return Confirm.ask(
             escape(self.localizer.localize(statement)),
             console=self.console,
@@ -210,7 +160,6 @@ class RichUser(ManagedLifeCycle, User):
         default=Nothing,
         stdin: TextIO | None = None,
     ):
-        self.assert_alive()
         ask_kwargs = {}
         if default is not Nothing:
             ask_kwargs["default"] = default

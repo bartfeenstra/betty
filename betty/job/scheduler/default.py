@@ -23,6 +23,7 @@ from betty.job.scheduler import (
     Scheduler,
     UnknownJobError,
 )
+from betty.user import Severity
 
 if TYPE_CHECKING:
     from collections.abc import (
@@ -54,7 +55,7 @@ class _ScheduledJobBatch:
     async def __call__(self) -> None:
         try:
             for job in self._jobs:
-                await self._user.message_debug(f'Doing job "{job.id}"…')
+                await self._user.message(f'Doing job "{job.id}"…', Severity.DEBUG)
                 await job.do(self._scheduler)
         except BaseException as reason:
             await self._scheduler.cancel(reason)

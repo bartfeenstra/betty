@@ -7,7 +7,7 @@ import pytest
 from betty.file import write
 from betty.subprocess import CalledSubprocessError, SubprocessError, run_process
 from betty.test_utils.user import StaticUser
-from betty.user import Verbosity
+from betty.user import Severity
 
 
 class TestCalledSubprocessError:
@@ -44,7 +44,7 @@ async def test_run_process__without_errors(shell: bool) -> None:
 
 
 @_parameterize_shell
-async def test_run_process__without_errors_with_most_verbose(
+async def test_run_process__without_errors_with_debug(
     shell: bool, tmp_path: Path
 ) -> None:
     await write(
@@ -56,11 +56,10 @@ print('Hello, Stdout!')
 print('Hello, Stderr!', file=stderr)
 """,
     )
-    user = StaticUser()
-    user.verbosity = Verbosity.MOST_VERBOSE
+    user = StaticUser(severity=Severity.DEBUG)
     await run_process(["python", str(tmp_path / "process.py")], shell=shell, user=user)
-    user.assert_message_debug("stdout:\nHello, Stdout!")
-    user.assert_message_debug("stderr:\nHello, Stderr!")
+    user.assert_message("stdout:\nHello, Stdout!", Severity.DEBUG)
+    user.assert_message("stderr:\nHello, Stderr!", Severity.DEBUG)
 
 
 @_parameterize_shell
@@ -79,8 +78,8 @@ sys.exit(1)"""
             shell=shell,
             user=user,
         )
-    user.assert_not_message_debug("stdout:\n")
-    user.assert_not_message_debug("stderr:\n")
+    user.assert_not_message("stdout:\n", Severity.DEBUG)
+    user.assert_not_message("stderr:\n", Severity.DEBUG)
 
 
 @_parameterize_shell
@@ -103,8 +102,8 @@ sys.exit(1)"""
             shell=shell,
             user=user,
         )
-    user.assert_message_debug(["stdout:", stdout])
-    user.assert_message_debug(["stderr:", stderr])
+    user.assert_message(["stdout:", stdout], Severity.DEBUG)
+    user.assert_message(["stderr:", stderr], Severity.DEBUG)
 
 
 @_parameterize_shell

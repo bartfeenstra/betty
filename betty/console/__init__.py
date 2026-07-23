@@ -7,11 +7,10 @@ from __future__ import annotations
 import argparse
 import sys
 from asyncio import CancelledError, run
-from contextlib import asynccontextmanager
 from enum import IntEnum
+from functools import partial
 from typing import TYPE_CHECKING, Any, cast, final, override
 
-import rich  # noqa: F401
 import rich_argparse
 
 from betty import about
@@ -19,11 +18,10 @@ from betty.app import App
 from betty.console.command import CommandDefinition, CommandFunction
 from betty.exception import HumanFacingException
 from betty.localizables.gettext import _
-from betty.rich.user import RichUser
-from betty.user import User, Verbosity
+from betty.user import Severity, User, UserHandler
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Iterable, Sequence
+    from collections.abc import Iterable, Sequence
 
     from betty.localizer import Localizer
 
@@ -111,61 +109,77 @@ async def _create_command_parser(
     subparsers: argparse._SubParsersAction,
     command_plugin: CommandDefinition,
     formatter_class: type[argparse.HelpFormatter],
+    /,
 ) -> argparse.ArgumentParser:
-    localizer = await app.localizer
     command = await app.factory.new(command_plugin.cls)
     command_parser: argparse.ArgumentParser = subparsers.add_parser(
         command.plugin().id,
         aliases=command.plugin().aliases,
-        description=command.plugin().label.localize(localizer),
+        description=command.plugin().label.localize(app.user.localizer),
         exit_on_error=False,
         formatter_class=formatter_class,
     )
     command_parser.set_defaults(
-        _command_func=await command.configure(command_parser),
-        _verbosity=Verbosity.DEFAULT,
+        __command_func=await command.configure(command_parser),
+        __show_severity=User.default_severity,
+        __show_logs=False,
+        __show_tracebacks=False,
     )
     verbosity_group = command_parser.add_mutually_exclusive_group()
     verbosity_group.add_argument(
+        "-qq",
+        "--more-quiet",
+        dest="__show_severity",
+        action="store_const",
+        const=Severity.ERROR,
+        help=app.user.localizer.translate._(
+            "Do not show any output, except error messages"
+        ),
+    )
+    verbosity_group.add_argument(
         "-q",
         "--quiet",
-        dest="_verbosity",
+        dest="__show_severity",
         action="store_const",
-        const=Verbosity.QUIET,
-        help=localizer.translate._("Do not show any output, except error messages"),
+        const=Severity.WARN,
+        help=app.user.localizer.translate._(
+            "Do not show any output, except error and warning messages"
+        ),
     )
     verbosity_group.add_argument(
         "-v",
         "--verbose",
-        dest="_verbosity",
+        dest="__show_severity",
         action="store_const",
-        const=Verbosity.VERBOSE,
-        help=localizer.translate._("Also show detailed information messages"),
+        const=Severity.INFO,
+        help=app.user.localizer.translate._("Also show detailed information messages"),
     )
     verbosity_group.add_argument(
         "-vv",
         "--more-verbose",
-        dest="_verbosity",
+        dest="__show_severity",
         action="store_const",
-        const=Verbosity.MORE_VERBOSE,
-        help=localizer.translate._(
-            "Also show debug messages and all exception tracebacks"
-        ),
+        const=Severity.DEBUG,
+        help=app.user.localizer.translate._("Also show debug messages"),
     )
-    verbosity_group.add_argument(
-        "-vvv",
-        "--most-verbose",
-        dest="_verbosity",
-        action="store_const",
-        const=Verbosity.MOST_VERBOSE,
-        help=localizer.translate._("Also show log messages"),
+    command_parser.add_argument(
+        "--show-logs",
+        dest="__show_logs",
+        action="store_true",
+        help=app.user.localizer.translate._("Show log messages"),
+    )
+    command_parser.add_argument(
+        "--show-tracebacks",
+        dest="__show_tracebacks",
+        action="store_true",
+        help=app.user.localizer.translate._("Show tracebacks for all exceptions"),
     )
 
     return command_parser
 
 
 async def _create_list_commands_action_class(
-    app: App, *, localizer: Localizer
+    app: App, /, *, localizer: Localizer
 ) -> type[argparse.Action]:
     command_definitions = sorted(
         [x async for x in app.plugins[CommandDefinition]],
@@ -219,26 +233,29 @@ async def _create_list_commands_action_class(
     return _ListCommandsAction
 
 
-async def _create_parser(app: App) -> argparse.ArgumentParser:
-    localizer = await app.localizer
-    argument_parser_class = _create_parser_class(localizer=localizer)
-    formatter_class = _create_formatter_class(localizer=localizer)
+async def _create_parser(app: App, /) -> argparse.ArgumentParser:
+    argument_parser_class = _create_parser_class(localizer=app.user.localizer)
+    formatter_class = _create_formatter_class(localizer=app.user.localizer)
     parser = argument_parser_class(
         exit_on_error=False, formatter_class=formatter_class, prog="betty"
     )
     parser.add_argument(
         "--commands",
-        action=await _create_list_commands_action_class(app, localizer=localizer),
+        action=await _create_list_commands_action_class(
+            app, localizer=app.user.localizer
+        ),
         default=argparse.SUPPRESS,
-        help=localizer.translate._("Show all available commands"),
+        help=app.user.localizer.translate._("Show all available commands"),
     )
-    subparsers = parser.add_subparsers(title=localizer.translate._("Subcommands"))
+    subparsers = parser.add_subparsers(
+        title=app.user.localizer.translate._("Subcommands")
+    )
     async for command_plugin in app.plugins[CommandDefinition]:
         await _create_command_parser(app, subparsers, command_plugin, formatter_class)
     return parser
 
 
-async def main(app: App, args: Sequence[str]) -> None:
+async def main(app: App, args: Sequence[str], /) -> None:
     """
     Launch Betty's console.
 
@@ -248,50 +265,54 @@ async def main(app: App, args: Sequence[str]) -> None:
     try:
         namespace = parser.parse_args(args)
     except argparse.ArgumentError as error:
-        await app.user.message_error(
+        await app.user.message(
             _("Invalid argument {argument}: {error}").format(
                 argument=str(error.argument_name), error=error.message
-            )
+            ),
+            Severity.ERROR,
         )
         raise SystemExit(SystemExitCode.ERROR_CONSOLE_USAGE) from None
     try:
-        command_func = cast(CommandFunction, namespace._command_func)
+        command_func = cast(CommandFunction, namespace.__command_func)
     except AttributeError:
-        await app.user.message_error(
-            _("It appears you called Betty without a command or arguments")
+        await app.user.message(
+            _("It appears you called Betty without a command or arguments"),
+            Severity.WARN,
         )
         parser.print_help()
         raise SystemExit(SystemExitCode.ERROR_CONSOLE_USAGE) from None
-    await app.user.set_verbosity(namespace._verbosity)
-    always_print_exception_tracebacks = app.user.verbosity >= Verbosity.MORE_VERBOSE
+    app.user.severity = namespace.__show_severity
+    command_func = partial(call_command_func, command_func, namespace)
     try:
-        await call_command_func(command_func, namespace)
+        if namespace.__show_logs:
+            async with UserHandler(app.user):
+                await command_func()
+        else:
+            await command_func()
     except HumanFacingException as error:
-        async with _ensure_rich_user(app.user) as user:
-            if always_print_exception_tracebacks:
-                await user.message_exception()
-            else:
-                await user.message_error(error)
+        if namespace.__show_tracebacks:
+            await app.user.exception()
+        await app.user.message(error, Severity.ERROR)
         raise SystemExit(SystemExitCode.ERROR_UNEXPECTED) from None
     except (CancelledError, KeyboardInterrupt):
-        await app.user.message_information(_("Quitting…"))
-        if always_print_exception_tracebacks:
-            await app.user.message_exception()
+        if namespace.__show_tracebacks:
+            await app.user.exception()
+        await app.user.message(_("Quitting…"), Severity.CONFIRM)
         raise SystemExit(SystemExitCode.USER_QUIT) from None
     except Exception:
-        async with _ensure_rich_user(app.user) as user:
-            await user.message_exception()
-            await user.message_warning(
-                _(
-                    "An unexpected error occurred. If you believe this is a problem with Betty, please report this at {url}."
-                ).format(url=about.url_report_issue)
-            )
+        await app.user.exception()
+        await app.user.message(
+            _(
+                "An unexpected error occurred. If you believe this is a problem with Betty, please report this at {url}."
+            ).format(url=about.url_report_issue),
+            Severity.WARN,
+        )
         raise SystemExit(SystemExitCode.ERROR_UNEXPECTED) from None
     else:
         raise SystemExit(SystemExitCode.OK) from None
 
 
-def main_standalone() -> None:
+def main_from_environment() -> None:
     """
     Launch Betty's console.
 
@@ -299,16 +320,16 @@ def main_standalone() -> None:
 
     :raises: SystemExit
     """
-    run(_main_standalone())
+    run(_main_from_environment())
 
 
-async def _main_standalone() -> None:
+async def _main_from_environment() -> None:
     async with App.new_from_environment() as app:
         await main(app, sys.argv[1:])
 
 
 async def call_command_func(
-    command_func: CommandFunction, namespace: argparse.Namespace
+    command_func: CommandFunction, namespace: argparse.Namespace, /
 ) -> None:
     """
     Call a command function.
@@ -318,13 +339,3 @@ async def call_command_func(
         for name, value in vars(namespace).items()
         if not name.startswith("_")
     })
-
-
-@asynccontextmanager
-async def _ensure_rich_user(user: User) -> AsyncIterator[User]:
-    if isinstance(user, RichUser):
-        yield user
-    else:
-        async with RichUser() as rich_user:
-            rich_user.localizer = user.localizer
-            yield rich_user

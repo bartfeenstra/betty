@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 
 from betty.localizables.gettext import _
 from betty.portable.file import dump_file
+from betty.user import Severity
 
 if TYPE_CHECKING:
     from betty.app import App
@@ -27,8 +28,9 @@ async def new(
         configuration_file,
         serializers=await gather(*app.serializers),
     )
-    await app.user.message_information(
+    await app.user.message(
         _("Saved your project to {configuration_file}.").format(
             configuration_file=str(configuration_file)
-        )
+        ),
+        Severity.CONFIRM,
     )

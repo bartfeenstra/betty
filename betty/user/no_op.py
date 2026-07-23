@@ -5,11 +5,12 @@ User sessions that do nothing.
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING, final, overload, override
+from typing import TYPE_CHECKING, Final, final, overload, override
 
+from betty.localizer import Localizer, default_localizer
 from betty.nothing import Nothing, NothingType
 from betty.progresses.no_op import NoOpProgress
-from betty.user import User, UserTimeoutError, Verbosity
+from betty.user import Severity, User, UserTimeoutError
 
 if TYPE_CHECKING:
     import logging
@@ -26,45 +27,25 @@ class NoOpUser(User):
     A user session that does nothing.
     """
 
-    verbosity = Verbosity.DEFAULT
+    localizer: Final[Localizer] = default_localizer
 
     @override
-    async def set_verbosity(self, verbosity: Verbosity, /) -> None:
-        self.verbosity = verbosity
-
-    @override
-    async def message_exception(self) -> None:
+    async def exception(self) -> None:
         pass
 
     @override
-    async def message_error(self, message: ResolvableLocalizable, /) -> None:
-        pass
-
-    @override
-    async def message_warning(self, message: ResolvableLocalizable, /) -> None:
-        pass
-
-    @override
-    async def message_information(self, message: ResolvableLocalizable, /) -> None:
-        pass
-
-    @override
-    async def message_information_details(
-        self, message: ResolvableLocalizable, /
+    async def message(
+        self, message: ResolvableLocalizable, severity: Severity, /
     ) -> None:
         pass
 
     @override
-    async def message_debug(self, message: ResolvableLocalizable, /) -> None:
-        pass
-
-    @override
-    async def message_log(self, message: logging.LogRecord, /) -> None:
+    async def log(self, record: logging.LogRecord, /) -> None:
         pass
 
     @override
     @asynccontextmanager
-    async def message_progress(
+    async def progress(
         self, message: ResolvableLocalizable, /
     ) -> AsyncIterator[Progress]:
         yield NoOpProgress()

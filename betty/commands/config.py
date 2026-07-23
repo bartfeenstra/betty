@@ -11,6 +11,7 @@ from betty.factory import Manufacturable
 from betty.locale import default_locale, to_language_tag
 from betty.localizables.gettext import _
 from betty.portable.file import assert_load_file, dump_file
+from betty.user import Severity
 
 if TYPE_CHECKING:
     import argparse
@@ -36,14 +37,15 @@ class Config(Manufacturable, Command):
 
     @override
     async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
-        localizer = await self._app.localizer
         parser.add_argument(
             "--locale",
             default=default_locale,
-            help=localizer.translate._(
+            help=self._app.user.localizer.translate._(
                 "Set the locale for Betty's user interface. This must be an IETF BCP 47 language tag."
             ),
-            type=assertion_to_argument_type(assert_locale(), localizer=localizer),
+            type=assertion_to_argument_type(
+                assert_locale(), localizer=self._app.user.localizer
+            ),
         )
         return self._command_function
 
@@ -57,11 +59,11 @@ class Config(Manufacturable, Command):
         else:
             updated_configuration = AppData()
         updated_configuration.locale = locale
-        self._app.user.localizer = await self._app.localizers.get(locale)
-        await self._app.user.message_information(
-            _("Betty will talk to you in {locale}").format(
+        await self._app.user.message(
+            _("Next time, Betty will talk to you in {locale}").format(
                 locale=locale.get_display_name() or to_language_tag(locale)
-            )
+            ),
+            Severity.CONFIRM,
         )
 
         await dump_file(

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-22 14:03+0100\n"
+"POT-Creation-Date: 2026-07-24 12:55+0100\n"
 "PO-Revision-Date: 2026-07-15 15:46+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -105,14 +105,11 @@ msgstr "Alle rechten voorbehouden"
 msgid "Also known as %(names)s"
 msgstr "Ook bekend als %(names)s"
 
-msgid "Also show debug messages and all exception tracebacks"
-msgstr "Laat ook debugberichten en alle exception tracebacks zien"
+msgid "Also show debug messages"
+msgstr ""
 
 msgid "Also show detailed information messages"
 msgstr "Laat ook gedetailleerde informatieberichten zien"
-
-msgid "Also show log messages"
-msgstr "Laat ook logberichten zien"
 
 msgid "Amsterdam"
 msgstr "Amsterdam"
@@ -124,9 +121,6 @@ msgstr "Een IETF BCP 47 taal-tag, zoals {example_language_tag}."
 #, python-brace-format
 msgid "An unexpected error occurred. If you believe this is a problem with Betty, please report this at {url}."
 msgstr "Er is een onverwachte fout opgetreden. Als dit volgens jou een bug in Betty is, laat het ons alsjeblieft weten op {url}."
-
-msgid "An unexpected error occurred:"
-msgstr "Een onverwachte fout is opgetreden:"
 
 msgid "Announcement of divorce"
 msgstr "Scheidingsaankondiging"
@@ -247,10 +241,6 @@ msgstr "Betty is niet bekend met de Gramps-rol {gramps_role} van persoon {person
 #, python-brace-format
 msgid "Betty was named after <a href=\"{liberta_lankester_url}\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
 msgstr "Betty is vernoemd naar <a href=\"{liberta_lankester_url}\">Liberta 'Betty' Lankester</a>, en deze website laat een kleine greep uit haar familiegeschiedenis zien. Blader door de pagina's over haar en haar familie om een idee te krijgen hoe een Betty-site eruit ziet."
-
-#, python-brace-format
-msgid "Betty will talk to you in {locale}"
-msgstr "Betty zal in het {locale} tegen je praten"
 
 msgid "Birth"
 msgstr "Geboorte"
@@ -575,6 +565,9 @@ msgstr "Echtscheiding"
 
 msgid "Divorces"
 msgstr "Scheidingen"
+
+msgid "Do not show any output, except error and warning messages"
+msgstr ""
 
 msgid "Do not show any output, except error messages"
 msgstr "Laat geen enkele uitvoer zien, behalve foutmeldingen"
@@ -1127,6 +1120,10 @@ msgstr "Nederland"
 msgid "Next page"
 msgstr "Volgende pagina"
 
+#, python-brace-format
+msgid "Next time, Betty will talk to you in {locale}"
+msgstr ""
+
 msgid "No part may be reproduced or distributed in any form or by any means, without express written permission from the copyright holder, or unless permitted by copyright law."
 msgstr "Geen deel mag worden gereproduceerd of gedistribueerd, in welke vorm of op welke manier, zonder expliciete geschreven toestemming van de copyrighthouder, of indien toegestaan door copyrightwetgeving."
 
@@ -1488,8 +1485,14 @@ msgstr "Stel de taalregio in voor Betty's gebruikersinterface. Dit moet een IETF
 msgid "Show all available commands"
 msgstr "Laat alle beschikbare commando's zien"
 
+msgid "Show log messages"
+msgstr ""
+
 msgid "Show this help message"
 msgstr "Laat dit hulpbericht zien"
+
+msgid "Show tracebacks for all exceptions"
+msgstr ""
 
 #, python-brace-format
 msgid "Skip interactions and answer {yes} to all questions."

@@ -113,6 +113,7 @@ from betty.roles.informant import Informant
 from betty.roles.subject import Subject
 from betty.roles.unknown import UnknownRole
 from betty.roles.witness import Witness
+from betty.user import Severity
 
 if TYPE_CHECKING:
     from asyncio.subprocess import Process
@@ -423,10 +424,11 @@ class GrampsLoader:
         :raises betty.gramps.error.GrampsError:
         """
         file = resolve_path(file).resolve()
-        await self._project.upstream.user.message_information_details(
+        await self._project.upstream.user.message(
             _("Loading {file_path}…").format(
                 file_path=str(file),
-            )
+            ),
+            Severity.INFO,
         )
 
         if file.suffix == ".gpkg":
@@ -557,61 +559,69 @@ class GrampsLoader:
 
         with self._project.ancestry.unchecked():
             await self._load_notes(database)
-            await self._project.upstream.user.message_information_details(
+            await self._project.upstream.user.message(
                 _("Loaded {note_count} notes.").format(
                     note_count=str(self._added_entity_counts[Note])
-                )
+                ),
+                Severity.INFO,
             )
             await self._load_objects(database, media)
-            await self._project.upstream.user.message_information_details(
+            await self._project.upstream.user.message(
                 _("Loaded {file_count} files.").format(
                     file_count=str(self._added_entity_counts[File])
-                )
+                ),
+                Severity.INFO,
             )
 
             await self._load_repositories(database)
             repository_count = self._added_entity_counts[Source]
-            await self._project.upstream.user.message_information_details(
+            await self._project.upstream.user.message(
                 _("Loaded {repository_count} repositories as sources.").format(
                     repository_count=str(repository_count)
-                )
+                ),
+                Severity.INFO,
             )
 
             await self._load_sources(database)
-            await self._project.upstream.user.message_information_details(
+            await self._project.upstream.user.message(
                 _("Loaded {source_count} sources.").format(
                     source_count=str(
                         self._added_entity_counts[Source] - repository_count
                     )
-                )
+                ),
+                Severity.INFO,
             )
 
             await self._load_citations(database)
-            await self._project.upstream.user.message_information_details(
+            await self._project.upstream.user.message(
                 _("Loaded {citation_count} citations.").format(
                     citation_count=str(self._added_entity_counts[Citation])
-                )
+                ),
+                Severity.INFO,
             )
 
             await self._load_places(database)
-            await self._project.upstream.user.message_information_details(
+            await self._project.upstream.user.message(
                 _("Loaded {place_count} places.").format(
                     place_count=str(self._added_entity_counts[Place])
-                )
+                ),
+                Severity.INFO,
             )
 
             await self._load_events(database)
-            await self._project.upstream.user.message_information_details(
+            await self._project.upstream.user.message(
                 _("Loaded {event_count} events.").format(
                     event_count=str(self._added_entity_counts[Event])
-                )
+                ),
+                Severity.INFO,
             )
 
             await self._load_people(database)
-            await self._project.upstream.user.message_information_details(
+            await self._project.upstream.user.message(
                 _("Loaded {person_count} people.").format(
                     person_count=str(self._added_entity_counts[Person])
-                )
+                ),
+                Severity.INFO,
             )
 
             await self._load_families(database)
@@ -819,20 +829,22 @@ class GrampsLoader:
                     copyright_notice_id
                 )(self._project)
             except PluginNotFound:
-                await self._project.upstream.user.message_warning(
+                await self._project.upstream.user.message(
                     _(
                         "Betty is unfamiliar with Gramps file {file}'s copyright notice of {copyright_notice} and ignored it.",
-                    ).format(file=file_id, copyright_notice=Quote(copyright_notice_id))
+                    ).format(file=file_id, copyright_notice=Quote(copyright_notice_id)),
+                    Severity.WARN,
                 )
         license_id = self._load_attribute("license", element, "attribute")
         if license_id:
             try:
                 file.license = await LicenseManufacturer(license_id)(self._project)
             except PluginNotFound:
-                await self._project.upstream.user.message_warning(
+                await self._project.upstream.user.message(
                     _(
                         "Betty is unfamiliar with Gramps file {file}'s license of {license} and ignored it.",
-                    ).format(file=Quote(file_id), license=Quote(license_id))
+                    ).format(file=Quote(file_id), license=Quote(license_id)),
+                    Severity.WARN,
                 )
 
         self._add_entity(file, file_handle)
@@ -863,10 +875,11 @@ class GrampsLoader:
                     (await self._project.plugins[GenderDefinition][gender_id]).cls
                 )
             except PluginNotFound:
-                await self._project.upstream.user.message_warning(
+                await self._project.upstream.user.message(
                     _(
                         "Betty is unfamiliar with Gramps person {person}'s gender of {gender} and ignored it.",
-                    ).format(person=Quote(person_id), gender=Quote(gender_id))
+                    ).format(person=Quote(person_id), gender=Quote(gender_id)),
+                    Severity.WARN,
                 )
                 gender = None
 
@@ -965,7 +978,7 @@ class GrampsLoader:
             role_manufacturer = self._role_mapping[gramps_role]
         except KeyError:
             role = UnknownRole()
-            await self._project.upstream.user.message_warning(
+            await self._project.upstream.user.message(
                 _(
                     "Betty is unfamiliar with person {person}'s Gramps role of {gramps_role} for the event with Gramps handle {event_handle}. The role was imported, but set to {betty_role}.",
                 ).format(
@@ -975,7 +988,8 @@ class GrampsLoader:
                     betty_role=role.plugin().label.localize(
                         self._project.upstream.user.localizer
                     ),
-                )
+                ),
+                Severity.WARN,
             )
         else:
             role = await role_manufacturer(self._project)
@@ -1022,7 +1036,7 @@ class GrampsLoader:
             place_type_manufacturer = self._place_type_mapping[gramps_type]
         except KeyError:
             place_type = UnknownPlaceType()
-            await self._project.upstream.user.message_warning(
+            await self._project.upstream.user.message(
                 _(
                     "Betty is unfamiliar with Gramps place {place}'s type of {gramps_place_type}. The place was imported, but its type was set to {betty_place_type}.",
                 ).format(
@@ -1031,7 +1045,8 @@ class GrampsLoader:
                     betty_place_type=place_type.plugin().label.localize(
                         self._project.upstream.user.localizer
                     ),
-                )
+                ),
+                Severity.WARN,
             )
         else:
             place_type = await place_type_manufacturer(self._project)
@@ -1067,12 +1082,13 @@ class GrampsLoader:
             try:
                 return Point.from_string(coordinates)
             except ValueError:
-                await self._project.upstream.user.message_warning(
+                await self._project.upstream.user.message(
                     _(
                         "Cannot load coordinates {coordinates}, because they are in an unknown format.",
                     ).format(
                         coordinates=Quote(coordinates),
-                    )
+                    ),
+                    Severity.WARN,
                 )
         return None
 
@@ -1092,7 +1108,7 @@ class GrampsLoader:
             event_type_manufacturer = self._event_type_mapping[gramps_type]
         except KeyError:
             event_type = UnknownEventType()
-            await self._project.upstream.user.message_warning(
+            await self._project.upstream.user.message(
                 _(
                     "Betty is unfamiliar with Gramps event {event}'s type of {gramps_event_type}. The event was imported, but its type was set to {betty_event_type}.",
                 ).format(
@@ -1101,7 +1117,8 @@ class GrampsLoader:
                     betty_event_type=event_type.plugin().label.localize(
                         self._project.upstream.user.localizer
                     ),
-                )
+                ),
+                Severity.WARN,
             )
         else:
             event_type = await event_type_manufacturer(self._project)
@@ -1326,7 +1343,7 @@ class GrampsLoader:
         if privacy_value == "public":
             entity.public = True
             return
-        await self._project.upstream.user.message_warning(
+        await self._project.upstream.user.message(
             _(
                 "The {attribute_name} Gramps attribute must have a value of {valid_public_value} or {valid_private_value}, but {attribute_value} was given for {entity_type} {entity_id} ({entity_label}), which was ignored.",
             ).format(
@@ -1341,7 +1358,8 @@ class GrampsLoader:
                 ),
                 valid_public_value=Quote("public"),
                 valid_private_value=Quote("private"),
-            )
+            ),
+            Severity.WARN,
         )
 
     _static_translation_attribute_suffix_pattern: Final[re.Pattern[str]] = re.compile(
@@ -1376,7 +1394,7 @@ class GrampsLoader:
         try:
             return from_language_tag(locale)
         except LocaleError as error:
-            await self._project.upstream.user.message_warning(error)
+            await self._project.upstream.user.message(error, Severity.WARN)
             return None
 
     _link_attribute_pattern: Final[re.Pattern[str]] = re.compile(
@@ -1403,13 +1421,14 @@ class GrampsLoader:
             links_attributes[link_name][link_attribute_name] = attribute_value
         for link_name, link_attributes in links_attributes.items():
             if "url" not in link_attributes:
-                await self._project.upstream.user.message_warning(
+                await self._project.upstream.user.message(
                     _(
                         "The Gramps {gramps_entity_reference} entity requires a {attribute_name} attribute. This link was ignored.",
                     ).format(
                         gramps_entity_reference=str(gramps_entity_reference),
                         attribute_name=Quote(f"betty:link-{link_name}:url"),
-                    )
+                    ),
+                    Severity.WARN,
                 )
                 continue
             link = Link(
@@ -1436,7 +1455,7 @@ class GrampsLoader:
                 try:
                     media_type = MediaType(link_attributes["media_type"])
                 except InvalidMediaType:
-                    await self._project.upstream.user.message_warning(
+                    await self._project.upstream.user.message(
                         _(
                             "The Gramps {gramps_entity_reference} entity has a {attribute_name} attribute with value {attribute_value}, which is not a valid IANA media type. This media type was ignored.",
                         ).format(
@@ -1444,7 +1463,8 @@ class GrampsLoader:
                             link_name=link_name,
                             attribute_name=Quote(f"betty:link-{link_name}:media_type"),
                             attribute_value=Quote(link_attributes["media_type"]),
-                        )
+                        ),
+                        Severity.WARN,
                     )
                 else:
                     link.media_type = media_type

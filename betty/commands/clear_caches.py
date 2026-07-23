@@ -12,6 +12,7 @@ from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.console.project import add_project_argument
 from betty.factory import Manufacturable
 from betty.localizables.gettext import _
+from betty.user import Severity
 
 if TYPE_CHECKING:
     import argparse
@@ -66,4 +67,4 @@ class ClearCaches(Manufacturable, Command):
                 tasks.append(project.cache.clear())
                 tasks.append(project.binary_file_cache.clear())
             await gather(*tasks)
-            await self._app.user.message_information(_("All caches cleared."))
+            await self._app.user.message(_("All caches cleared."), Severity.CONFIRM)

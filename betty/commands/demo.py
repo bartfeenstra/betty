@@ -53,9 +53,7 @@ class Demo(Manufacturable, Command):
             project = await create_project(self._app, path, url=url)
             async with (
                 project,
-                project.upstream.user.message_progress(
-                    _("Generating site…")
-                ) as progress,
+                project.upstream.user.progress(_("Generating site…")) as progress,
             ):
                 context = Context(progress=progress)
                 await generate.generate_with_cleanup(project, context=context)

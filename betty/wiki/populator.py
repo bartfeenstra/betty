@@ -23,6 +23,7 @@ from betty.localizables.gettext import _
 from betty.localizables.static import StaticTranslations
 from betty.machine_name import MachineName
 from betty.media_types.html import HTML
+from betty.user import Severity
 from betty.wiki import NotAPageError, parse_page_link
 from betty.wiki.client import ClientError
 
@@ -95,7 +96,7 @@ class Populator:
                 await self._client.get_translations(page_language, page_name)
             )
         except ClientError as error:
-            await self._user.message_warning(error)
+            await self._user.message(error, Severity.WARN)
             return
         if page_translations:
             # For convenience, we add the original page language and name to the available translations.
@@ -137,7 +138,7 @@ class Populator:
         try:
             summary = await self._client.get_summary(page_language, page_name)
         except ClientError as error:
-            await self._user.message_warning(error)
+            await self._user.message(error, Severity.WARN)
             return None
         return summary.title
 
@@ -165,7 +166,7 @@ class Populator:
                     page_language, page_name
                 )
             except ClientError as error:
-                await self._user.message_warning(error)
+                await self._user.message(error, Severity.WARN)
                 return
             if coordinates:
                 place.coordinates = coordinates
@@ -195,7 +196,7 @@ class Populator:
             try:
                 image = await self._client.get_image(page_language, page_name)
             except ClientError as error:
-                await self._user.message_warning(error)
+                await self._user.message(error, Severity.WARN)
                 return
             if not image:
                 return

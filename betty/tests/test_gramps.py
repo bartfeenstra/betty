@@ -43,6 +43,7 @@ from betty.project import Project
 from betty.roles.subject import Subject
 from betty.subprocess import CalledSubprocessError
 from betty.test_utils.user import StaticUser
+from betty.user import Severity
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Mapping
@@ -2274,4 +2275,4 @@ class TestGrampsLoader:
             sut = GrampsLoader(project, attribute_prefix_key=self.attribute_prefix_key)
             assert await sut.load_locale(locale) == expected
             if expected is None:
-                user.assert_message_warning(locale)
+                user.assert_message(locale, Severity.WARN)

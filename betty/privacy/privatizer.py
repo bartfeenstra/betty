@@ -22,6 +22,7 @@ from betty.event_types.death import Death
 from betty.localizables.gettext import _
 from betty.privacy import Privacy
 from betty.roles.subject import Subject
+from betty.user import Severity
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, MutableSequence
@@ -29,7 +30,6 @@ if TYPE_CHECKING:
     from betty.attrs.privacy import HasPrivacy
     from betty.typing import Intersection
     from betty.user import User
-
 
 type _Expirable = Person | Event | Date | None
 
@@ -208,13 +208,14 @@ class Privatizer:
                 return
 
         person.private = True
-        await self._user.message_debug(
+        await self._user.message(
             _(
                 "Privatized person {privatized_person_id} ({privatized_person}) because they are likely still alive."
             ).format(
                 privatized_person_id=person.id,
                 privatized_person=person.label,
-            )
+            ),
+            Severity.DEBUG,
         )
 
     async def _determine_place_privacy(self, place: Place) -> None:
@@ -233,13 +234,14 @@ class Privatizer:
                 return
 
         place.private = True
-        await self._user.message_debug(
+        await self._user.message(
             _(
                 "Privatized place {privatized_place_id} ({privatized_place}) because it is not associated with any public information."
             ).format(
                 privatized_place_id=place.id,
                 privatized_place=place.label,
-            )
+            ),
+            Severity.DEBUG,
         )
 
     def has_expired(
@@ -302,7 +304,7 @@ class Privatizer:
             self._seen.remove(target)
 
         if isinstance(target, Entity) and isinstance(reason, Entity):
-            await self._user.message_debug(
+            await self._user.message(
                 _(
                     "Privatized {privatized_entity_type} {privatized_entity_id} ({privatized_entity}) because of {reason_entity_type} {reason_entity_id} ({reason_entity})."
                 ).format(
@@ -312,5 +314,6 @@ class Privatizer:
                     reason_entity_type=reason.plugin().label,
                     reason_entity_id=reason.id,
                     reason_entity=reason.label,
-                )
+                ),
+                Severity.DEBUG,
             )

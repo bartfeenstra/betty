@@ -45,15 +45,7 @@ class TestApp:
             f.write(dumps({"locale": "nl-NL"}))
         mocker.patch("betty.app.AppData.FILE", configuration_file)
         async with App.new_from_environment() as sut:
-            localizer = await sut.localizer
-            assert localizer.locale == Locale("nl", "NL")
-
-    async def test_bootstrap__should_set_user_localizer(
-        self, isolated_app_factory: IsolatedAppFactory
-    ) -> None:
-        user = StaticUser()
-        async with isolated_app_factory(user=user) as sut:
-            assert sut.user.localizer is await sut.localizer
+            assert sut.user.localizer.locale == Locale("nl", "NL")
 
     async def test_user(self, isolated_app_factory: IsolatedAppFactory) -> None:
         user = StaticUser()
@@ -65,9 +57,6 @@ class TestApp:
 
     async def test_localizers(self, isolated_app: App) -> None:
         assert isolated_app.localizers is isolated_app.localizers
-
-    async def test_localizer(self, isolated_app: App) -> None:
-        assert await isolated_app.localizer is await isolated_app.localizer
 
     async def test_process_pool(self, isolated_app: App) -> None:
         assert isolated_app.process_pool is isolated_app.process_pool
