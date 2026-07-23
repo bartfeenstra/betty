@@ -4,7 +4,7 @@ Static translations.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, final, override
+from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.assertions.len import assert_len
 from betty.exception import reraise_with_indicator
@@ -44,21 +44,17 @@ class CountableStaticTranslations(CountableLocalizable):
     A countable localizable backed by static translations.
     """
 
-    _translations: CountableStaticTranslationsMapping
+    __slots__ = ("translations",)
 
     def __init__(self, translations: ShorthandCountableStaticTranslations, /):
         assert_len(minimum=1)(translations)
-        self._translations = {
+        self.translations: Final[CountableStaticTranslationsMapping] = {
             self._ensure_locale(locale, locale_translations): locale_translations
             for locale, locale_translations in translations.items()
         }
-
-    @property
-    def translations(self) -> CountableStaticTranslationsMapping:
         """
         The translations.
         """
-        return dict(self._translations)
 
     def _ensure_locale(
         self, locale: ResolvableLocale, translations: Mapping[str, str]
@@ -131,8 +127,8 @@ class CountableStaticTranslations(CountableLocalizable):
     @override
     def count(self, count: LocalizableCount, /) -> Localizable:
         return StaticTranslations({
-            locale: self._translations[locale][locale.plural_form(count)]
-            for locale in self._translations
+            locale: self.translations[locale][locale.plural_form(count)]
+            for locale in self.translations
         }).format(count=str(count))
 
 
@@ -208,7 +204,7 @@ class StaticTranslations(Localizable):
               }
     """
 
-    _translations: StaticTranslationsMapping
+    __slots__ = ("translations",)
 
     def __init__(self, translations: ShorthandStaticTranslations, /):
         """
@@ -216,7 +212,7 @@ class StaticTranslations(Localizable):
         """
         super().__init__()
         assert_len(minimum=1)(translations)
-        self._translations = (
+        self.translations: Final[StaticTranslationsMapping] = (
             {None: translations}
             if isinstance(translations, str)
             else {
@@ -224,25 +220,21 @@ class StaticTranslations(Localizable):
                 for locale, translation in translations.items()
             }
         )
-        assert len(self._translations) > 0
-
-    @property
-    def translations(self) -> StaticTranslationsMapping:
         """
         The translations.
         """
-        return dict(self._translations)
+        assert len(self.translations) > 0
 
     @override
     def localize(self, localizer: Localizer, /) -> LocalizedStr:
-        if len(self._translations) > 1:
-            available_locales = tuple(filter(None, self._translations.keys()))
+        if len(self.translations) > 1:
+            available_locales = tuple(filter(None, self.translations.keys()))
             negotiated_locale = negotiate_locale(localizer.locale, available_locales)
             if negotiated_locale is not None:
                 return LocalizedStr(
-                    self._translations[negotiated_locale], locale=negotiated_locale
+                    self.translations[negotiated_locale], locale=negotiated_locale
                 )
-        locale, translation = next(iter(self._translations.items()))
+        locale, translation = next(iter(self.translations.items()))
         return LocalizedStr(translation, locale=locale)
 
     @classmethod

@@ -46,6 +46,8 @@ class LocalizableSequence(ABC):
 
 
 class _LocalizableSequence(LocalizableSequence):
+    __slots__ = ("_localizables",)
+
     def __init__(self, *localizables: ResolvableLocalizable):
         self._localizables = tuple(map(resolve_localizable, localizables))
 
@@ -218,6 +220,7 @@ class JoinOr(_NaturalJoin):
 
 
 class _Template(Localizable):
+    __slots__ = ("_text",)
     _template: ClassVar[Localizable]
 
     @final

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import decimal
 from abc import ABC, abstractmethod
-from collections.abc import Mapping, MutableMapping
+from collections.abc import Mapping
 from typing import override
 from warnings import warn
 
@@ -130,7 +130,7 @@ class _FormattedCountableLocalizable(CountableLocalizable):
         )
 
 
-type StaticTranslationsMapping = MutableMapping[Locale | None, str]
+type StaticTranslationsMapping = Mapping[Locale | None, str]
 """
 Static translations for :py:class:`betty.localizables.static.StaticTranslations`.
 
@@ -141,7 +141,7 @@ See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 
 
 type ShorthandStaticTranslations = (
-    MutableMapping[ResolvableLocale | None, str] | str | StaticTranslationsMapping
+    Mapping[ResolvableLocale | None, str] | str | StaticTranslationsMapping
 )
 """
 Static translations for :py:class:`betty.localizables.static.StaticTranslations`.
@@ -152,9 +152,7 @@ See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 """
 
 
-type CountableStaticTranslationsMapping = MutableMapping[
-    Locale, MutableMapping[str, str]
-]
+type CountableStaticTranslationsMapping = Mapping[Locale, Mapping[str, str]]
 """
 Countable static translations for :py:class:`betty.locale.localizable.CountableStaticTranslations`.
 
@@ -164,9 +162,7 @@ See :py:func:`betty.locale.localizable.assertion.assert_countable_static_transla
 """
 
 
-type ShorthandCountableStaticTranslations = MutableMapping[
-    ResolvableLocale, MutableMapping[str, str]
-]
+type ShorthandCountableStaticTranslations = Mapping[ResolvableLocale, Mapping[str, str]]
 """
 Static translations for :py:class:`betty.localizables.static.StaticTranslations`.
 
