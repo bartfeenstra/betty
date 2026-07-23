@@ -12,6 +12,8 @@ from typing import TYPE_CHECKING, Any, Final, Literal, Self, final
 
 from aiohttp_client_cache.backends.filesystem import FileBackend
 from aiohttp_client_cache.session import CachedSession
+from babel import Locale
+from babel import default_locale as babel_default_locale
 
 from betty import about
 from betty.attrs.locale import new_locale_attr
@@ -143,7 +145,14 @@ class App(RequirableServiceLevel, PluginServiceProvider):
         cls.rate_limits.add_init_plugins(self, *rate_limits)
         cls.serializers.add_init_plugins(self, *serializers)
         self.life_cycle.on_bootstrap(self._bootstrap_localizer)
-        self._locale = default_locale if locale is None else resolve_locale(locale)
+        if locale is None:
+            if system_default_locale := babel_default_locale():
+                locale = Locale.parse(system_default_locale)
+            else:
+                locale = default_locale
+        else:
+            locale = resolve_locale(locale)
+        self._locale = locale
         if user is None:
             user = RichUser()
         if isinstance(user, Bootstrappable | Shutdownable):
