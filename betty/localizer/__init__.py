@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Final, final
 
 from betty.locale import ResolvableLocale, default_locale, resolve_locale
 from betty.localized import LocalizedStr
+from betty.localizer.coordinate import CoordinateFormatter
 
 if TYPE_CHECKING:
     from collections.abc import MutableMapping
@@ -33,6 +34,10 @@ class Localizer:
         The locale.
         """
         self._translations = translations
+        self.coordinate = CoordinateFormatter()
+        """
+        The geographic coordinate formatter.
+        """
 
     def localize(self, localizable: ResolvableLocalizable, /) -> LocalizedStr:
         """
