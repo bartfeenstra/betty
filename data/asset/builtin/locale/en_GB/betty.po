@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-22 14:03+0100\n"
+"POT-Creation-Date: 2026-07-24 12:55+0100\n"
 "PO-Revision-Date: 2026-07-15 15:46+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: en_GB\n"
@@ -105,14 +105,11 @@ msgstr "All rights reserved"
 msgid "Also known as %(names)s"
 msgstr "Also known as %(names)s"
 
-msgid "Also show debug messages and all exception tracebacks"
-msgstr "Also show debug messages and all exception tracebacks"
+msgid "Also show debug messages"
+msgstr ""
 
 msgid "Also show detailed information messages"
 msgstr "Also show detailed information messages"
-
-msgid "Also show log messages"
-msgstr "Also show log messages"
 
 msgid "Amsterdam"
 msgstr "Amsterdam"
@@ -124,9 +121,6 @@ msgstr "An IETF BCP 47 language tag, such as {example_language_tag}."
 #, python-brace-format
 msgid "An unexpected error occurred. If you believe this is a problem with Betty, please report this at {url}."
 msgstr "An unexpected error occurred. If you believe this is a problem with Betty, please report this at {url}."
-
-msgid "An unexpected error occurred:"
-msgstr "An unexpected error occurred:"
 
 msgid "Announcement of divorce"
 msgstr "Announcement of divorce"
@@ -247,10 +241,6 @@ msgstr "Betty is unfamiliar with person {person}'s Gramps role of {gramps_role} 
 #, python-brace-format
 msgid "Betty was named after <a href=\"{liberta_lankester_url}\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
 msgstr "Betty was named after <a href=\"{liberta_lankester_url}\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
-
-#, python-brace-format
-msgid "Betty will talk to you in {locale}"
-msgstr "Betty will talk to you in {locale}"
 
 msgid "Birth"
 msgstr "Birth"
@@ -575,6 +565,9 @@ msgstr "Divorce"
 
 msgid "Divorces"
 msgstr "Divorces"
+
+msgid "Do not show any output, except error and warning messages"
+msgstr ""
 
 msgid "Do not show any output, except error messages"
 msgstr "Do not show any output, except error messages"
@@ -1127,6 +1120,10 @@ msgstr "Netherlands"
 msgid "Next page"
 msgstr "Next page"
 
+#, python-brace-format
+msgid "Next time, Betty will talk to you in {locale}"
+msgstr ""
+
 msgid "No part may be reproduced or distributed in any form or by any means, without express written permission from the copyright holder, or unless permitted by copyright law."
 msgstr "No part may be reproduced or distributed in any form or by any means, without express written permission from the copyright holder, or unless permitted by copyright law."
 
@@ -1488,8 +1485,14 @@ msgstr "Set the locale for Betty's user interface. This must be an IETF BCP 47 l
 msgid "Show all available commands"
 msgstr "Show all available commands"
 
+msgid "Show log messages"
+msgstr ""
+
 msgid "Show this help message"
 msgstr "Show this help message"
+
+msgid "Show tracebacks for all exceptions"
+msgstr ""
 
 #, python-brace-format
 msgid "Skip interactions and answer {yes} to all questions."

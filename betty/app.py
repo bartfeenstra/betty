@@ -12,10 +12,9 @@ from typing import TYPE_CHECKING, Any, Final, Self, final
 
 from aiohttp_client_cache.backends.filesystem import FileBackend
 from aiohttp_client_cache.session import CachedSession
-from babel import Locale
-from babel import default_locale as babel_default_locale
 
 from betty import about
+from betty.asyncio import ResolvableAwaitable, resolve_await
 from betty.attrs.locale import new_locale_attr
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
@@ -24,9 +23,9 @@ from betty.gettext import TranslationsRepository
 from betty.http_client import ClientErrorToUserMessageMiddleware
 from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
 from betty.life_cycle import Bootstrappable, Shutdownable
-from betty.locale import ResolvableLocale, default_locale, resolve_locale
+from betty.locale import ResolvableLocale, default_locale
 from betty.localizables.gettext import _
-from betty.localizer import Localizer, LocalizerRepository
+from betty.localizer import LocalizerRepository
 from betty.media_type import MediaTypeDefinition
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.portable.file import assert_load_file
@@ -45,13 +44,15 @@ from betty.services.simple import service
 from betty.store import TransientStore
 from betty.stores.file import TransientBinaryFileStore, TransientPickledFileStore
 from betty.stores.no_op import NoOpStore
+from betty.user import User
 from betty.user.no_op import NoOpUser
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Iterable, Mapping
+    from collections.abc import AsyncIterator, Callable, Iterable, Mapping
     from pathlib import Path
 
     import aiohttp
+    from babel import Locale
 
     from betty.asset import AssetDirectoryDefinition
     from betty.pathlib import StrPath
@@ -61,7 +62,6 @@ if TYPE_CHECKING:
     from betty.service_level import Plugins
     from betty.services.plugin import SupportedPlugins
     from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
-    from betty.user import User
 
 
 class _AppBootstrapServiceLevel(ServiceLevel, PluginServiceProvider):
@@ -97,9 +97,6 @@ class App(RequirableServiceLevel, PluginServiceProvider):
         ],
         assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
         cache: TypedSynchronousServiceOrFactory[App, TransientStore[Any]] | None = None,
-        locale: ResolvableLocale | None = None,
-        localizers: TypedSynchronousServiceOrFactory[App, LocalizerRepository]
-        | None = None,
         media_types: Iterable[ResolvablePluginDefinition[MediaTypeDefinition]] = (),
         plugins: Plugins | None = None,
         process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
@@ -107,7 +104,7 @@ class App(RequirableServiceLevel, PluginServiceProvider):
         rate_limits: Iterable[RateLimitDefinition] = (),
         serializers: Iterable[ResolvablePluginDefinition[SerializerDefinition]] = (),
         supported_plugins: SupportedPlugins = (),
-        user: User | None = None,
+        user: User | Callable[[App], ResolvableAwaitable[User]] | None = None,
     ):
         cls = type(self)
         cls.binary_file_cache.override(
@@ -127,38 +124,35 @@ class App(RequirableServiceLevel, PluginServiceProvider):
             cls.cache.override(
                 self, Service(cache) if isinstance(cache, TransientStore) else cache
             )
-        if localizers is not None:
-            cls.localizers.override(
-                self,
-                Service(localizers)
-                if isinstance(localizers, LocalizerRepository)
-                else localizers,
-            )
         super().__init__(plugins=plugins, supported_plugins=supported_plugins)
         cls.asset_directories.add_init_plugins(self, *assets)
         cls.media_types.add_init_plugins(self, *media_types)
         cls.rate_limits.add_init_plugins(self, *rate_limits)
         cls.serializers.add_init_plugins(self, *serializers)
-        self.life_cycle.on_bootstrap(self._bootstrap_localizer)
-        if locale is None:
-            if system_default_locale := babel_default_locale():
-                locale = Locale.parse(system_default_locale)
-            else:
-                locale = default_locale
-        else:
-            locale = resolve_locale(locale)
-        self._locale = locale
+        self._user: User
         if user is None:
-            user = RichUser()
+            self.life_cycle.on_bootstrap(self._set_default_user)
+        elif isinstance(user, User):
+            self._user = user
+            if isinstance(user, Bootstrappable | Shutdownable):
+                self.life_cycle.on_bootstrap(lambda: self.life_cycle.synchronize(user))
+        else:
+            self.life_cycle.on_bootstrap(lambda: self._set_user(user))
+
+    async def _set_default_user(self) -> None:
+        self._user = RichUser()
+
+    async def _set_user(self, user: Callable[[App], ResolvableAwaitable[User]]) -> None:
+        self._user = await resolve_await(user(self))
         if isinstance(user, Bootstrappable | Shutdownable):
-            self.life_cycle.on_bootstrap(lambda: self.life_cycle.synchronize(user))
-        self.user: Final[User] = user
+            await self.life_cycle.synchronize(self._user)
+
+    @property
+    def user(self) -> User:
         """
         The current user session.
         """
-
-    async def _bootstrap_localizer(self) -> None:
-        self.user.localizer = await self.localizer
+        return self._user
 
     @classmethod
     @asynccontextmanager
@@ -180,9 +174,17 @@ class App(RequirableServiceLevel, PluginServiceProvider):
         async with cls(
             cache=TransientPickledFileStore(app_cache_directory),
             binary_file_cache=TransientBinaryFileStore(app_cache_directory),
-            locale=locale,
+            user=lambda app: cls._new_from_environment_user(app, locale),
         ) as app:
             yield app
+
+    @classmethod
+    async def _new_from_environment_user(
+        cls, app: App, locale: Locale | None, /
+    ) -> User:
+        return RichUser(
+            localizer=await app.localizers.get(locale or User.default_locale)
+        )
 
     @classmethod
     @asynccontextmanager
@@ -191,8 +193,6 @@ class App(RequirableServiceLevel, PluginServiceProvider):
         *,
         binary_file_cache_directory: StrPath | None = None,
         cache: TypedSynchronousServiceOrFactory[App, TransientStore[Any]] | None = None,
-        localizers: TypedSynchronousServiceOrFactory[App, LocalizerRepository]
-        | None = None,
         plugins: Mapping[
             type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
         ]
@@ -218,7 +218,6 @@ class App(RequirableServiceLevel, PluginServiceProvider):
             async with cls(
                 binary_file_cache=TransientBinaryFileStore(binary_file_cache_directory),
                 cache=NoOpStore() if cache is None else cache,
-                localizers=localizers or LocalizerRepository(),
                 plugins=plugins,
                 process_pool=process_pool,
                 user=NoOpUser() if user is None else user,
@@ -235,13 +234,6 @@ class App(RequirableServiceLevel, PluginServiceProvider):
                 assets=self.asset_directories, cache=self.binary_file_cache
             )
         )
-
-    @service
-    async def localizer(self) -> Localizer:
-        """
-        The application's user-facing localizer.
-        """
-        return await self.localizers.get(self._locale)
 
     @service
     async def http_client(self) -> aiohttp.ClientSession:

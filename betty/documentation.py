@@ -14,7 +14,7 @@ from sphinx.ext.autodoc import MethodDocumenter
 
 from betty.dirs import root_directory
 from betty.exception import HumanFacingException
-from betty.user import User, Verbosity
+from betty.user import Severity, User
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -41,7 +41,7 @@ async def _build(output_directory: Path, cache_directory: Path, *, user: User) -
         outdir=str(output_directory),
         parallel=multiprocessing.cpu_count(),
         srcdir=str(source_directory),
-        verbosity=9 if user.verbosity is Verbosity.MOST_VERBOSE else 0,
+        verbosity=9 if user.shows(Severity.DEBUG) else 0,
         warningiserror=True,
     )
     # Work around a bug in Sphinx where MethodDocumenter.can_document_member would erroneously consider our descriptors

@@ -12,6 +12,7 @@ from betty.entities.person import Person
 from betty.job import Job
 from betty.localizables.gettext import _, ngettext
 from betty.localizables.markup import Quote
+from betty.user import Severity
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, MutableMapping, MutableSequence
@@ -42,7 +43,6 @@ class PrivatizeAncestry(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-        await self._project.upstream.localizer
         user = self._project.upstream.user
 
         newly_privatized: MutableMapping[MachineName, int] = defaultdict(lambda: 0)
@@ -61,21 +61,23 @@ class PrivatizeAncestry(Job):
                 newly_privatized[entity.plugin().id] += 1
 
         if newly_privatized[Person.plugin().id] > 0:
-            await user.message_information_details(
+            await user.message(
                 _(
                     "Privatized {count} people because they are likely still alive."
                 ).format(
                     count=str(newly_privatized[Person.plugin().id]),
-                )
+                ),
+                Severity.INFO,
             )
         for entity_type_id in set(newly_privatized) - {Person.plugin().id}:
             if newly_privatized[entity_type_id] > 0:
-                await user.message_information_details(
+                await user.message(
                     ngettext(
                         "Privatized {count} {entity_type} entity, because it is associated with private information.",
                         "Privatized {count} {entity_type} entities, because they are associated with private information.",
                         newly_privatized[entity_type_id],
                     ).format(
                         entity_type=Quote(entity_type_id),
-                    )
+                    ),
+                    Severity.INFO,
                 )

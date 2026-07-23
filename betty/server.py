@@ -17,6 +17,7 @@ from betty.functools import Do
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.ordered import Order, OrderedPluginClsDefinition
+from betty.user import Severity
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -51,10 +52,11 @@ class Server(ABC):
         """
         Show the served site to the user.
         """
-        await self._user.message_information(
+        await self._user.message(
             _("Serving your site at {url}…").format(
                 url=self.public_url,
-            )
+            ),
+            Severity.INFO,
         )
         webbrowser.open_new_tab(self.public_url)
 

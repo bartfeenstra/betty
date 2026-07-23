@@ -75,7 +75,7 @@ Documentation = 'https://betty.readthedocs.io'
 GitHub = 'https://github.com/bartfeenstra/betty'
 
 [project.entry-points.'console_scripts']
-betty = 'betty.console:main_standalone'
+betty = 'betty.console:main_from_environment'
 
 [project.entry-points.'betty.plugin']
 'asset-directory' = 'betty.asset:AssetDirectoryDefinition'

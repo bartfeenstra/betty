@@ -13,6 +13,7 @@ from betty.demo.project import create_project
 from betty.factory import Manufacturable
 from betty.job import Context
 from betty.requirement import UnmetRequirement
+from betty.user import Severity
 
 if TYPE_CHECKING:
     import argparse
@@ -29,7 +30,7 @@ async def _target(user: User) -> None:
     async with App.new_isolated() as app:
         with TemporaryDirectory() as project_directory:
             project = await create_project(app, project_directory)
-            async with project, user.message_progress("Generating site…") as progress:
+            async with project, user.progress("Generating site…") as progress:
                 await generate_with_cleanup(project, context=Context(progress=progress))
 
 
@@ -159,8 +160,8 @@ class DevProfileDemo(Manufacturable, Command):
             stats = yappi.get_func_stats()
             stats.add([stats_file])
             _print(stats, sort_column, sort_direction)
-            await self._app.user.message_information(
-                f"Showing existing stats from {stats_file}"
+            await self._app.user.message(
+                f"Showing existing stats from {stats_file}", Severity.INFO
             )
         else:
             await to_thread(stats_file.parent.mkdir, exist_ok=True, parents=True)
@@ -171,8 +172,8 @@ class DevProfileDemo(Manufacturable, Command):
             stats = yappi.get_func_stats()
             stats.save(stats_file)
             _print(stats, sort_column, sort_direction)
-            await self._app.user.message_information(
-                f"Showing newly generated stats from {stats_file}"
+            await self._app.user.message(
+                f"Showing newly generated stats from {stats_file}", Severity.INFO
             )
 
 

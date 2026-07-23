@@ -17,6 +17,7 @@ from betty.entities.presence import Presence
 from betty.event_type import EventTypeDefinition, ShouldExistEventType
 from betty.localizables.gettext import _
 from betty.roles.subject import Subject
+from betty.user import Severity
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterable, Mapping, Sequence, Set
@@ -113,22 +114,24 @@ class Deriver:
                 created_derivations += created
                 updated_derivations += updated
             if updated_derivations > 0:
-                await self._project.upstream.user.message_information_details(
+                await self._project.upstream.user.message(
                     _(
                         "Updated {updated_derivations} {event_type} events based on existing information."
                     ).format(
                         updated_derivations=str(updated_derivations),
                         event_type=derivable_event_type.label,
-                    )
+                    ),
+                    Severity.INFO,
                 )
             if created_derivations > 0:
-                await self._project.upstream.user.message_information_details(
+                await self._project.upstream.user.message(
                     _(
                         "Created {created_derivations} additional {event_type} events based on existing information."
                     ).format(
                         created_derivations=str(created_derivations),
                         event_type=derivable_event_type.label,
-                    )
+                    ),
+                    Severity.INFO,
                 )
 
     async def _derive_person(

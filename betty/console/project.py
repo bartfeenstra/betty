@@ -17,6 +17,7 @@ from betty.localizables.gettext import _
 from betty.localizables.markup import JoinOr
 from betty.portable.file import assert_load_file
 from betty.project import Project, ProjectData
+from betty.user import Severity
 
 if TYPE_CHECKING:
     import argparse
@@ -44,17 +45,17 @@ async def add_project_argument(
     """
     Add an argument to load a :py:class:`betty.project.Project` into a ``project`` keyword argument.
     """
-    localizer, serializers = await gather(app.localizer, gather(*app.serializers))
+    serializers = await gather(*app.serializers)
     parser.add_argument(
         "-p",
         "--project",
         dest="project_configuration_file",
-        help=localizer.translate._(
+        help=app.user.localizer.translate._(
             "The path to a Betty project directory or configuration file. Defaults to {default} in the current working directory."
         ).format(
             default=f"betty.{'|'.join([extension[1:] for serializer in serializers for extension in serializer.media_type().extensions])}"
         ),
-        type=assertion_to_argument_type(assert_path(), localizer=localizer),
+        type=assertion_to_argument_type(assert_path(), localizer=app.user.localizer),
     )
 
     async def _command_function_with_project_argument(
@@ -122,12 +123,13 @@ async def _read_project_configuration_file(
     try:
         portable = assert_configuration(configuration_file)
     except HumanFacingException as error:
-        await user.message_debug(error)
+        await user.message(error, Severity.DEBUG)
         raise
     else:
-        await user.message_information_details(
+        await user.message(
             _("Loaded the configuration from {configuration_file_path}.").format(
                 configuration_file_path=str(configuration_file)
             ),
+            Severity.INFO,
         )
         return ProjectData.data().porter.load(portable), configuration_file

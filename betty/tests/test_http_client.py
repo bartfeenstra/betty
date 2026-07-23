@@ -6,6 +6,7 @@ from yarl import URL
 
 from betty.http_client import ClientErrorToUserMessageMiddleware
 from betty.test_utils.user import StaticUser
+from betty.user import Severity
 
 
 class TestClientErrorToUserMessageMiddleware:
@@ -39,4 +40,4 @@ class TestClientErrorToUserMessageMiddleware:
             await sut(request, _handler)
         assert exc_info.value is error
         assert handler_called_request[0] is request
-        user.assert_message_debug(error_message)
+        user.assert_message(error_message, Severity.DEBUG)

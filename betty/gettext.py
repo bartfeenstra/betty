@@ -24,6 +24,7 @@ from betty.locale import (
 )
 from betty.localized import LocalizedStr
 from betty.pathlib import resolve_path
+from betty.user import Severity
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, MutableMapping
@@ -45,10 +46,11 @@ async def _new_translation(
     po_file = output.assets / "locale" / str(locale) / "betty.po"
     with redirect_stdout(StringIO()):
         if po_file.exists():
-            await user.message_information(
+            await user.message(
                 _("Translations for {locale} already exist at {po_file_path}.").format(
                     locale=to_language_tag(locale), po_file_path=str(po_file)
-                )
+                ),
+                Severity.INFO,
             )
             return
 
@@ -65,10 +67,11 @@ async def _new_translation(
             "-D",
             "betty",
         )
-        await user.message_information(
+        await user.message(
             _("Translations for {locale} initialized at {po_file_path}.").format(
                 locale=to_language_tag(locale), po_file_path=str(po_file)
-            )
+            ),
+            Severity.CONFIRM,
         )
 
 

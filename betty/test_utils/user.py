@@ -6,242 +6,170 @@ from __future__ import annotations
 
 import logging
 import sys
+from collections import defaultdict
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING, overload, override
+from typing import TYPE_CHECKING, Final, final, overload, override
 
-from betty.localizer import default_localizer
+from betty.localizer import Localizer, default_localizer
 from betty.nothing import Nothing, NothingType
 from betty.progresses.no_op import NoOpProgress
-from betty.user import User, UserTimeoutError, Verbosity
+from betty.user import Severity, User, UserTimeoutError
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Collection, Iterable, MutableSequence
+    from collections.abc import (
+        AsyncIterator,
+        Collection,
+        Iterable,
+        Mapping,
+        MutableSequence,
+    )
 
     from betty.functools import Pipe
     from betty.localizable import ResolvableLocalizable
     from betty.progress import Progress
 
 
+@final
 class StaticUser(User):
     """
     A static user with predefined responses.
     """
 
-    verbosity = Verbosity.DEFAULT
+    localizer: Final[Localizer] = default_localizer
 
     def __init__(
         self,
         *,
         confirmations: Iterable[bool | None] = (),
         inputs: Iterable[str | None] = (),
+        severity: Severity | bool = User.default_severity,
     ):
         self._confirmations = iter(confirmations)
         self._inputs = iter(inputs)
-        self._messages_exception: MutableSequence[BaseException] = []
-        self._messages_error: MutableSequence[ResolvableLocalizable] = []
-        self._messages_warning: MutableSequence[ResolvableLocalizable] = []
-        self._messages_information: MutableSequence[ResolvableLocalizable] = []
-        self._messages_information_details: MutableSequence[ResolvableLocalizable] = []
-        self._messages_debug: MutableSequence[ResolvableLocalizable] = []
-        self._messages_log: MutableSequence[logging.LogRecord] = []
+        self._exceptions: MutableSequence[BaseException] = []
+        self._messages: Mapping[Severity, MutableSequence[ResolvableLocalizable]] = (
+            defaultdict(list)
+        )
+        self._logs: MutableSequence[logging.LogRecord] = []
         self._log_formatter = logging.Formatter()
-
-    @override
-    async def set_verbosity(self, verbosity: Verbosity, /) -> None:
-        self.verbosity = verbosity
+        self.severity = severity
 
     def _format_fragments(self, fragments: str | Iterable[str]) -> str:
         if isinstance(fragments, str):
             fragments = [fragments]
         return ", ".join(f'"{fragment}"' for fragment in fragments)
 
-    def _message_contains(self, message: str, fragments: Iterable[str]) -> bool:
+    def _contains_fragments(self, message: str, fragments: Iterable[str]) -> bool:
         return all(fragment in message for fragment in fragments)
 
     def _assert_message(
         self,
         fragments: str | Iterable[str],
-        message_type: str,
+        message_kind: str,
         messages: Collection[str],
     ) -> None:
         if isinstance(fragments, str):
             fragments = [fragments]
         for message in messages:
-            if self._message_contains(message, fragments):
+            if self._contains_fragments(message, fragments):
                 return
         raise AssertionError(
-            f'Failed asserting that a(n) "{message_type}" message was sent containing the fragment(s) {self._format_fragments(fragments)}.'
+            f"Failed asserting that {message_kind} was sent containing the fragment(s) {self._format_fragments(fragments)}."
         )
 
-    def _assert_localizable_message(
-        self, fragments: str | Iterable[str], message_type: str
-    ) -> None:
-        self._assert_message(
-            fragments,
-            message_type,
-            [
-                default_localizer.localize(message)
-                for message in getattr(self, f"_messages_{message_type}")
-            ],
-        )
-
-    def assert_message_exception(self, fragments: str | Iterable[str]) -> None:
+    def assert_exception(self, fragments: str | Iterable[str]) -> None:
         """
         Assert that an exception message was sent.
         """
         self._assert_message(
-            fragments, "exception", list(map(str, self._messages_exception))
+            fragments, "an exception", list(map(str, self._exceptions))
         )
 
-    def assert_message_error(self, fragments: str | Iterable[str]) -> None:
+    def assert_message(
+        self, fragments: str | Iterable[str], severity: Severity, /
+    ) -> None:
         """
         Assert that an error message was sent.
         """
-        self._assert_localizable_message(fragments, "error")
+        self._assert_message(
+            fragments,
+            f"a(n) {severity.name} message",
+            [
+                default_localizer.localize(message)
+                for message in self._messages[severity]
+            ],
+        )
 
-    def assert_message_warning(self, fragments: str | Iterable[str]) -> None:
-        """
-        Assert that a warning message was sent.
-        """
-        self._assert_localizable_message(fragments, "warning")
-
-    def assert_message_information(self, fragments: str | Iterable[str]) -> None:
-        """
-        Assert that an information message was sent.
-        """
-        self._assert_localizable_message(fragments, "information")
-
-    def assert_message_information_details(
-        self, fragments: str | Iterable[str]
-    ) -> None:
-        """
-        Assert that a detailed information message was sent.
-        """
-        self._assert_localizable_message(fragments, "information_details")
-
-    def assert_message_debug(self, fragments: str | Iterable[str]) -> None:
-        """
-        Assert that a debug message was sent.
-        """
-        self._assert_localizable_message(fragments, "debug")
-
-    def assert_message_log(self, fragments: str | Iterable[str]) -> None:
+    def assert_log(self, fragments: str | Iterable[str], /) -> None:
         """
         Assert that a log message was sent.
         """
         self._assert_message(
-            fragments, "log", list(map(self._log_formatter.format, self._messages_log))
+            fragments, "a log record", list(map(self._log_formatter.format, self._logs))
         )
 
-    def _assert_not_message(
+    def _assert_fragments(
         self,
         fragments: str | Iterable[str],
-        message_type: str,
+        message_kind: str,
         messages: Collection[str],
     ) -> None:
         if isinstance(fragments, str):
             fragments = [fragments]
         for message in messages:
-            if self._message_contains(message, fragments):
+            if self._contains_fragments(message, fragments):
                 raise AssertionError(
-                    f'Failed asserting that a(n) "{message_type}" message was sent containing the fragment(s) {self._format_fragments(fragments)}.'
+                    f'Failed asserting that "{message_kind}" was sent containing the fragment(s) {self._format_fragments(fragments)}.'
                 )
 
-    def _assert_not_localizable_message(
-        self, fragments: str | Iterable[str], message_type: str
-    ) -> None:
-        self._assert_not_message(
-            fragments,
-            message_type,
-            [
-                default_localizer.localize(message)
-                for message in getattr(self, f"_messages_{message_type}")
-            ],
-        )
-
-    def assert_not_message_exception(self, fragments: str | Iterable[str]) -> None:
+    def assert_not_exception(self, fragments: str | Iterable[str], /) -> None:
         """
         Assert that no exception message was sent.
         """
-        self._assert_not_message(
-            fragments, "exception", list(map(str, self._messages_exception))
-        )
+        self._assert_fragments(fragments, "exception", list(map(str, self._exceptions)))
 
-    def assert_not_message_error(self, fragments: str | Iterable[str]) -> None:
-        """
-        Assert that no error message was sent.
-        """
-        self._assert_not_localizable_message(fragments, "error")
-
-    def assert_not_message_warning(self, fragments: str | Iterable[str]) -> None:
-        """
-        Assert that no warning message was sent.
-        """
-        self._assert_not_localizable_message(fragments, "warning")
-
-    def assert_not_message_information(self, fragments: str | Iterable[str]) -> None:
-        """
-        Assert that no information message was sent.
-        """
-        self._assert_not_localizable_message(fragments, "information")
-
-    def assert_not_message_information_details(
-        self, fragments: str | Iterable[str]
+    def assert_not_message(
+        self, fragments: str | Iterable[str], severity: Severity, /
     ) -> None:
         """
-        Assert that no detailed information message was sent.
+        Assert that a given message was not sent.
         """
-        self._assert_not_localizable_message(fragments, "information_details")
+        self._assert_fragments(
+            fragments,
+            f"a(n) {severity.name} message",
+            [
+                default_localizer.localize(message)
+                for message in self._messages[severity]
+            ],
+        )
 
-    def assert_not_message_debug(self, fragments: str | Iterable[str]) -> None:
-        """
-        Assert that no debug message was sent.
-        """
-        self._assert_not_localizable_message(fragments, "debug")
-
-    def assert_not_message_log(self, fragments: str | Iterable[str]) -> None:
+    def assert_not_log(self, fragments: str | Iterable[str]) -> None:
         """
         Assert that no log message was sent.
         """
-        self._assert_not_message(
-            fragments, "log", list(map(self._log_formatter.format, self._messages_log))
+        self._assert_fragments(
+            fragments, "log", list(map(self._log_formatter.format, self._logs))
         )
 
     @override
-    async def message_exception(self) -> None:
+    async def exception(self) -> None:
         exception = sys.exception()
         assert exception
-        self._messages_exception.append(exception)
+        self._exceptions.append(exception)
 
     @override
-    async def message_error(self, message: ResolvableLocalizable, /) -> None:
-        self._messages_error.append(message)
-
-    @override
-    async def message_warning(self, message: ResolvableLocalizable, /) -> None:
-        self._messages_warning.append(message)
-
-    @override
-    async def message_information(self, message: ResolvableLocalizable, /) -> None:
-        self._messages_information.append(message)
-
-    @override
-    async def message_information_details(
-        self, message: ResolvableLocalizable, /
+    async def message(
+        self, message: ResolvableLocalizable, severity: Severity, /
     ) -> None:
-        self._messages_information_details.append(message)
+        self._messages[severity].append(message)
 
     @override
-    async def message_debug(self, message: ResolvableLocalizable, /) -> None:
-        self._messages_debug.append(message)
-
-    @override
-    async def message_log(self, message: logging.LogRecord, /) -> None:
-        self._messages_log.append(message)
+    async def log(self, record: logging.LogRecord, /) -> None:
+        self._logs.append(record)
 
     @override
     @asynccontextmanager
-    async def message_progress(
+    async def progress(
         self, message: ResolvableLocalizable, /
     ) -> AsyncIterator[Progress]:
         yield NoOpProgress()

@@ -8,14 +8,14 @@ import pytest
 from pytest_mock import MockerFixture
 
 from betty.app import App
-from betty.console import SystemExitCode, call_command_func, main_standalone
+from betty.console import SystemExitCode, call_command_func, main_from_environment
 from betty.console.command import Command, CommandDefinition
 from betty.exception import HumanFacingException
 from betty.functools import Result, suppress
 from betty.test_utils.conftest import IsolatedAppFactory
 from betty.test_utils.console import run
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
-from betty.user import Verbosity
+from betty.user import Severity
 
 
 @CommandDefinition("no-op", label="No-op")
@@ -100,7 +100,7 @@ async def test_main__with_user_facing_exception(
         (SystemExitCode.ERROR_UNEXPECTED, _create_raising_command(RuntimeError())),
     ],
 )
-async def test_main_standalone(
+async def test_main_from_environment(
     expected: SystemExitCode,
     command: CommandDefinition,
     isolated_app_factory: IsolatedAppFactory,
@@ -112,7 +112,7 @@ async def test_main_standalone(
             return_value=isolated_app_factory(plugins={CommandDefinition: [command]}),
         )
         mocker.patch("sys.argv", new=["betty", command.id])
-        main_standalone()
+        main_from_environment()
 
     # Run this in a thread so as not to conflict with pytest-playwright-asyncio's session-scoped event loop.
     result = Result(_target)
@@ -127,29 +127,29 @@ async def test_main_standalone(
 
 class TestVerbosity:
     @pytest.mark.parametrize(
-        ("expected", "verbosity"),
+        ("expected", "severity"),
         [
-            (Verbosity.QUIET, "-q"),
-            (Verbosity.DEFAULT, None),
-            (Verbosity.VERBOSE, "-v"),
-            (Verbosity.MORE_VERBOSE, "-vv"),
-            (Verbosity.MOST_VERBOSE, "-vvv"),
+            (Severity.ERROR, "-qq"),
+            (Severity.WARN, "-q"),
+            (Severity.CONFIRM, None),
+            (Severity.INFO, "-v"),
+            (Severity.DEBUG, "-vv"),
         ],
     )
     async def test(
         self,
-        expected: Verbosity,
+        expected: Severity,
         isolated_app_factory: IsolatedAppFactory,
-        verbosity: str | None,
+        severity: str | None,
     ) -> None:
         async with isolated_app_factory(
             plugins={CommandDefinition: [_NoOpCommand]}
         ) as app:
             args = ["no-op"]
-            if verbosity is not None:
-                args.append(verbosity)
+            if severity is not None:
+                args.append(severity)
             await run(app, *args)
-            assert app.user.verbosity is expected
+            assert app.user.severity is expected
 
 
 async def test_call_command_func() -> None:

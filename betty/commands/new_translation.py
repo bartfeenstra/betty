@@ -37,7 +37,6 @@ class NewTranslation(Manufacturable, Command):
 
     @override
     async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
-        localizer = await self._app.localizer
         assets: Mapping[str, AssetDirectoryDefinition] = {
             asset.id: asset
             async for asset in self._app.plugins[AssetDirectoryDefinition]
@@ -54,11 +53,15 @@ class NewTranslation(Manufacturable, Command):
 
         parser.add_argument(
             "output",
-            type=assertion_to_argument_type(_assert_asset, localizer=localizer),
+            type=assertion_to_argument_type(
+                _assert_asset, localizer=self._app.user.localizer
+            ),
         )
         parser.add_argument(
             "locale",
-            type=assertion_to_argument_type(assert_locale(), localizer=localizer),
+            type=assertion_to_argument_type(
+                assert_locale(), localizer=self._app.user.localizer
+            ),
         )
         return self._command_function
 

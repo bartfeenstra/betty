@@ -37,12 +37,11 @@ class Serve(Manufacturable, Command):
 
     @override
     async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
-        localizer = await self._app.localizer
         parser.add_argument(
             "-s",
             "--server",
             dest="server_id",
-            help=localizer.translate._("The web server to use."),
+            help=self._app.user.localizer.translate._("The web server to use."),
         )
         return await add_project_argument(parser, self._command_function, self._app)
 

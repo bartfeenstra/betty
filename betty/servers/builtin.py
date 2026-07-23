@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Final, final, override
 from betty.exception import HumanFacingException
 from betty.localizables.gettext import _
 from betty.server import Server, ServerNotStarted
+from betty.user import Severity
 
 if TYPE_CHECKING:
     from betty.pathlib import StrPath
@@ -77,7 +78,9 @@ class BuiltinServer(Server):
             www_directory = self._temporary_root_directory
         else:
             www_directory = self._www_directory
-        await self._user.message_debug(_("Starting Python's built-in web server…"))
+        await self._user.message(
+            _("Starting Python's built-in web server…"), Severity.DEBUG
+        )
         for self._port in range(  # noqa: B020
             self._default_port,
             65535,

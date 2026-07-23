@@ -8,6 +8,8 @@ from typing import TYPE_CHECKING
 
 from aiohttp import ClientError
 
+from betty.user import Severity
+
 if TYPE_CHECKING:
     from aiohttp.client_middlewares import ClientHandlerType
     from aiohttp.client_reqrep import ClientRequest, ClientResponse
@@ -32,5 +34,5 @@ class ClientErrorToUserMessageMiddleware:
         try:
             return await handler(request)
         except ClientError as error:
-            await self._user.message_debug(str(error))
+            await self._user.message(str(error), Severity.DEBUG)
             raise

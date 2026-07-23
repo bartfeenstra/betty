@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-22 14:03+0100\n"
+"POT-Creation-Date: 2026-07-24 12:55+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -104,13 +104,10 @@ msgstr ""
 msgid "Also known as %(names)s"
 msgstr ""
 
-msgid "Also show debug messages and all exception tracebacks"
+msgid "Also show debug messages"
 msgstr ""
 
 msgid "Also show detailed information messages"
-msgstr ""
-
-msgid "Also show log messages"
 msgstr ""
 
 msgid "Amsterdam"
@@ -122,9 +119,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "An unexpected error occurred. If you believe this is a problem with Betty, please report this at {url}."
-msgstr ""
-
-msgid "An unexpected error occurred:"
 msgstr ""
 
 msgid "Announcement of divorce"
@@ -245,10 +239,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "Betty was named after <a href=\"{liberta_lankester_url}\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
-msgstr ""
-
-#, python-brace-format
-msgid "Betty will talk to you in {locale}"
 msgstr ""
 
 msgid "Birth"
@@ -573,6 +563,9 @@ msgid "Divorce"
 msgstr ""
 
 msgid "Divorces"
+msgstr ""
+
+msgid "Do not show any output, except error and warning messages"
 msgstr ""
 
 msgid "Do not show any output, except error messages"
@@ -1124,6 +1117,10 @@ msgstr ""
 msgid "Next page"
 msgstr ""
 
+#, python-brace-format
+msgid "Next time, Betty will talk to you in {locale}"
+msgstr ""
+
 msgid "No part may be reproduced or distributed in any form or by any means, without express written permission from the copyright holder, or unless permitted by copyright law."
 msgstr ""
 
@@ -1485,7 +1482,13 @@ msgstr ""
 msgid "Show all available commands"
 msgstr ""
 
+msgid "Show log messages"
+msgstr ""
+
 msgid "Show this help message"
+msgstr ""
+
+msgid "Show tracebacks for all exceptions"
 msgstr ""
 
 #, python-brace-format

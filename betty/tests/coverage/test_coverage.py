@@ -723,14 +723,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "User": MissingReason.ABSTRACT,
         "UserError": MissingReason.ABSTRACT,
         "UserFacing": MissingReason.STATIC_CONTENT_ONLY,
-        "UserTimeoutError": MissingReason.STATIC_CONTENT_ONLY,
-        "Verbosity": MissingReason.ENUM,
-    },
-    "betty/user/logging.py": {
         "UserHandler": {
-            "start": MissingReason.COVERED_ELSEWHERE,
-            "stop": MissingReason.COVERED_ELSEWHERE,
+            "bootstrap": MissingReason.COVERED_ELSEWHERE,
+            "shutdown": MissingReason.COVERED_ELSEWHERE,
         },
+        "UserTimeoutError": MissingReason.STATIC_CONTENT_ONLY,
+        "Severity": MissingReason.ENUM,
     },
     "betty/warnings.py": {
         "BettyDeprecationWarning": MissingReason.STATIC_CONTENT_ONLY,

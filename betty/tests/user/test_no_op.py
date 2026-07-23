@@ -3,54 +3,26 @@ from unittest.mock import Mock
 
 import pytest
 
-from betty.user import UserTimeoutError, Verbosity
+from betty.user import Severity, UserTimeoutError
 from betty.user.no_op import NoOpUser
 
 
 class TestNoOpUser:
-    def test_verbosity(self) -> None:
+    async def test_exception(self) -> None:
         sut = NoOpUser()
-        sut.verbosity  # noqa: B018
+        await sut.exception()
 
-    @pytest.mark.parametrize(
-        "verbosity",
-        [verbosity.value for verbosity in Verbosity],
-    )
-    async def test_set_verbosity(self, verbosity: Verbosity) -> None:
+    async def test_message(self) -> None:
         sut = NoOpUser()
-        await sut.set_verbosity(verbosity)
+        await sut.message("Hello, world!", Severity.DEBUG)
 
-    async def test_message_exception(self) -> None:
+    async def test_log(self) -> None:
         sut = NoOpUser()
-        await sut.message_exception()
+        await sut.log(Mock(logging.LogRecord))
 
-    async def test_message_error(self) -> None:
+    async def test_progress(self) -> None:
         sut = NoOpUser()
-        await sut.message_error("Hello, world!")
-
-    async def test_message_warning(self) -> None:
-        sut = NoOpUser()
-        await sut.message_warning("Hello, world!")
-
-    async def test_message_information(self) -> None:
-        sut = NoOpUser()
-        await sut.message_information("Hello, world!")
-
-    async def test_message_information_details(self) -> None:
-        sut = NoOpUser()
-        await sut.message_information_details("Hello, world!")
-
-    async def test_message_debug(self) -> None:
-        sut = NoOpUser()
-        await sut.message_debug("Hello, world!")
-
-    async def test_message_log(self) -> None:
-        sut = NoOpUser()
-        await sut.message_log(Mock(logging.LogRecord))
-
-    async def test_message_progress(self) -> None:
-        sut = NoOpUser()
-        async with sut.message_progress("Hello, world!"):
+        async with sut.progress("Hello, world!"):
             pass
 
     async def test_ask_confirmation(self) -> None:
