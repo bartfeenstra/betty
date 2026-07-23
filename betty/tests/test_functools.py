@@ -17,7 +17,7 @@ from betty.functools import (
     suppress,
     unique,
 )
-from betty.typing import Void
+from betty.nothing import Nothing
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable, Sequence
@@ -209,7 +209,7 @@ def test_suppress__with_suppressed_raised_exception() -> None:
     def _target() -> Any:
         raise _Exception
 
-    assert suppress(_target, _Exception)() is Void
+    assert suppress(_target, _Exception)() is Nothing
 
 
 def test_suppress__with_unsuppressed_raised_exception() -> None:

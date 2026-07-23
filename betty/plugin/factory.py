@@ -22,13 +22,13 @@ from betty.functools import Pipeline
 from betty.importlib import fully_qualified_name
 from betty.localizables.gettext import _
 from betty.machine_name import MachineName
+from betty.nothing import Nothing, NothingType
 from betty.plugin import PluginDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.portable import KeyedPorter, PortableData
 from betty.prop import HasProps
 from betty.sample import Samplable, Sample, Samples, Size
-from betty.typing import Void, VoidType
 
 if TYPE_CHECKING:
     from betty.service_level import ServiceLevel
@@ -64,7 +64,7 @@ class PluginManufacturer(
     """
 
     plugin_data = OwnerAttr(
-        DataDefinition[Data | PortableData | VoidType](label=_("Data"))
+        DataDefinition[Data | PortableData | NothingType](label=_("Data"))
     )
     """
     Get the plugin's own data.
@@ -74,7 +74,7 @@ class PluginManufacturer(
     def __init__(
         self,
         plugin: ResolvablePluginId[_PluginManufacturerPluginDefinitionT],
-        data: Data | PortableData | VoidType = Void,
+        data: Data | PortableData | NothingType = Nothing,
         /,
     ):
         super().__init__()
@@ -86,8 +86,8 @@ class PluginManufacturer(
         return hash((
             self.data().plugin_type,
             self.plugin_id,
-            Void
-            if self.plugin_data is Void
+            Nothing
+            if self.plugin_data is Nothing
             else dumps(PluginManufacturerPorter._dump_data(self.plugin_data)),
         ))
 
@@ -106,7 +106,7 @@ class PluginManufacturer(
         plugin_cls = (
             await services.plugins[self.data().plugin_type][self.plugin_id]
         ).cls  # ty:ignore[unresolved-attribute]
-        if self.plugin_data is Void:
+        if self.plugin_data is Nothing:
             return await services.factory.new(plugin_cls)
         if not issubclass(plugin_cls, DataManufacturable):
             raise PluginManufacturerError(
@@ -209,7 +209,7 @@ class PluginManufacturerPorter[PluginManufacturerT: PluginManufacturer](
     @override
     def load(self, data: PortableData, /) -> PluginManufacturerT:
         record = self._load(data)
-        return self._cls(record["plugin"], record.get("data", Void))
+        return self._cls(record["plugin"], record.get("data", Nothing))
 
     _load_keyed = assert_mapping()
 
@@ -229,7 +229,7 @@ class PluginManufacturerPorter[PluginManufacturerT: PluginManufacturer](
     @override
     def dump(self, data: PluginManufacturerT, /) -> PortableData:
         plugin_data = data.plugin_data
-        if plugin_data is Void:
+        if plugin_data is Nothing:
             return data.plugin_id
         return {
             "plugin": data.plugin_id,
@@ -239,7 +239,7 @@ class PluginManufacturerPorter[PluginManufacturerT: PluginManufacturer](
     @final
     @override
     def dump_keyed(self, data: PluginManufacturerT, /) -> tuple[str, PortableData]:
-        return data.plugin_id, {} if data.plugin_data is Void else {
+        return data.plugin_id, {} if data.plugin_data is Nothing else {
             "data": self._dump_data(data.plugin_data)
         }
 

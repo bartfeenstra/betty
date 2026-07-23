@@ -23,9 +23,9 @@ from betty.locale import default_locale_tag, to_language_tag
 from betty.localizables.gettext import _
 from betty.localizables.static import StaticTranslations
 from betty.machine_name import MachineName
+from betty.nothing import Nothing
 from betty.project import ProjectData
 from betty.project.new import new
-from betty.typing import Void
 
 if TYPE_CHECKING:
     import argparse
@@ -102,7 +102,7 @@ class New(Manufacturable, Command):
             default=MachineName.machinify(
                 configuration.title.localize(localizers.get(default_locale))
             )
-            or Void,
+            or Nothing,
         )
 
         configuration.author = await _user_input_static_translations(

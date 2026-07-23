@@ -712,7 +712,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/typing.py": {
         "Intersection": MissingReason.STATIC_CONTENT_ONLY,
         "Not": MissingReason.STATIC_CONTENT_ONLY,
-        "Void": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/url_generator.py": {
         "GenerationError": MissingReason.ABSTRACT,
