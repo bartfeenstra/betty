@@ -1,13 +1,13 @@
 {% set embedded=True %}
 <div class="flex-grow-1 search-result-description">
-    <span class="link">{{ entity.label | localize }}</span>
+    <span class="link">{{ entity.label }}</span>
     {% with entity = entity %}
         {% include 'entity/summary--file.html.j2' %}
     {% endwith %}
 </div>
 {% if entity.media_type and entity.media_type.type== 'image' %}
     <div class="search-result-preview">
-        <img src="{{ entity | image_resize_cover((100, 100)) | url }}" class="image rounded-circle"{% if entity.description %} alt="{{ entity.description | localize }}"{% endif %} loading="lazy">
+        <img src="{{ entity | image_resize_cover((100, 100)) | url }}" class="image rounded-circle"{% if entity.description %} alt="{{ entity.description }}"{% endif %} loading="lazy">
     </div>
     {% endif %}
 <a href="{{ entity | url }}" class="stretched-link"><span class="visually-hidden">View {{ entity.label | localize | html_lang }}</span></a>

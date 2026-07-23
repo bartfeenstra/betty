@@ -2,17 +2,17 @@ from __future__ import annotations
 
 from inspect import getmembers
 
-from betty.html.attributes import Attributes, _Attribute, _AttributesKwargs
+from betty.html.attributes import Attributes, AttributesKwargs, _Attribute
 
 
 class TestAttributes:
     def test_against_descriptors_against_kwargs(self) -> None:
         for attr_name, attr_value in getmembers(Attributes):
             if isinstance(attr_value, _Attribute):
-                assert attr_name in _AttributesKwargs.__required_keys__
+                assert attr_name in AttributesKwargs.__required_keys__
 
     def test_kwargs_against_descriptors(self) -> None:
-        for attr_name in _AttributesKwargs.__required_keys__:
+        for attr_name in AttributesKwargs.__required_keys__:
             assert isinstance(getattr(Attributes, attr_name), _Attribute)
 
     def test___str__(self) -> None:
@@ -28,27 +28,27 @@ class TestAttributes:
         assert sut.format() == ""
 
     def test_format__with_values(self) -> None:
-        sut = Attributes(html_class=["my-first-class"], html_id="my-first-id")
+        sut = Attributes().set(html_class=["my-first-class"], html_id="my-first-id")
         assert sut.format() == 'class="my-first-class" id="my-first-id"'
 
     def test_format__with_boolean_attribute(self) -> None:
-        sut = Attributes(html_checked=True)
+        sut = Attributes().set(html_checked=True)
         assert sut.format() == "checked"
 
     def test_format__with_string_attribute(self) -> None:
-        sut = Attributes(html_id="my-first-id")
+        sut = Attributes().set(html_id="my-first-id")
         assert sut.format() == 'id="my-first-id"'
 
     def test_format__with_multiple_string_attribute(self) -> None:
-        sut = Attributes(html_class=["my-first-class", "my-second-class"])
+        sut = Attributes().set(html_class=["my-first-class", "my-second-class"])
         assert sut.format() == 'class="my-first-class my-second-class"'
 
     def test_format__with_boolean_or_string_attribute_with_boolean_value(self) -> None:
-        sut = Attributes(html_download=True)
+        sut = Attributes().set(html_download=True)
         assert sut.format() == "download"
 
     def test_format__with_boolean_or_string_attribute_with_string_value(self) -> None:
-        sut = Attributes(html_download="my-first-file")
+        sut = Attributes().set(html_download="my-first-file")
         assert sut.format() == 'download="my-first-file"'
 
     def test_set__with_boolean_attribute(self) -> None:

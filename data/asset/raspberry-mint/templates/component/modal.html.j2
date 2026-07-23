@@ -2,7 +2,7 @@
 {% do attributes.html_class.append("modal") %}
 {% set dialog_attributes = dialog_attributes | default(new_attributes()) %}
 {% do dialog_attributes.html_class.append("modal-dialog") %}
-<div {{ attributes }}>
+<div{{ attributes }}>
     <div {{ dialog_attributes }}>
         <div class="modal-content">
             <div class="modal-header">

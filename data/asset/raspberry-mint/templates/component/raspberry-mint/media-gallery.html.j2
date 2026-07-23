@@ -8,7 +8,7 @@
                         <figure>
                             <picture>
                                 <source srcset="{{ file_reference | image_resize_cover((900, 900)) | url }}" media="(min-width: 500px)">
-                                <img src="{{ file_reference | image_resize_cover((500, 500)) | url }}" alt="{{ file_reference.file.label | localize }}" class="image" loading="lazy">
+                                <img src="{{ file_reference | image_resize_cover((500, 500)) | url }}" alt="{{ file_reference.file.label }}" class="image" loading="lazy">
                             </picture>
                             <figcaption class="mt-1 small text-truncate">{{ file_reference.file.label | localize | html_lang }}</figcaption>
                         </figure>

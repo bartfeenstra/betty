@@ -2,4 +2,4 @@
 {% do attributes.set(html_type='submit') %}
 {% do attributes.html_class.append('button') %}
 {% do attributes.html_class.append('button-secondary' if button_secondary | default(false) else 'button-primary') %}
-<input value="{{ button_label }}" {{ attributes }}>
+<input value="{{ button_label }}"{{ attributes }}>

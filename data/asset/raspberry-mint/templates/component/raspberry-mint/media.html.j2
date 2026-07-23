@@ -9,10 +9,10 @@
                                 {% for size, breakpoint in [(1300, 900), (900, 500)] %}
                                     <source srcset="{{ file | image_resize_cover((size, size)) | url }}" media="(min-width: {{ breakpoint }}px)">
                                 {% endfor %}
-                                <img src="{{ file | image_resize_cover((500, 500)) | url }}" alt="{{ file.label | localize }}" class="image">
+                                <img src="{{ file | image_resize_cover((500, 500)) | url }}" alt="{{ file.label }}" class="image">
                             </picture>
                         </a>
-                        <figcaption class="mt-1">{{ file.label | localize }}</figcaption>
+                        <figcaption class="mt-1">{{ file.label }}</figcaption>
                     </figure>
                 </div>
             </div>
@@ -34,7 +34,7 @@
                         <h2>{% trans %}Copyright{% endtrans %}</h2>
                         <p>
                             {% if file.copyright_notice.url is not none %}
-                                <a href="{{ file.copyright_notice.url | localize }}">
+                                <a href="{{ file.copyright_notice.url }}">
                             {% endif %}
                             {{ file.copyright_notice.summary | localize | html_lang }}
                             {% if file.copyright_notice.url is not none %}
@@ -48,7 +48,7 @@
                         <h2>{% trans %}License{% endtrans %}</h2>
                         <p>
                             {% if file.license.url is not none %}
-                                <a href="{{ file.license.url | localize }}">
+                                <a href="{{ file.license.url }}">
                             {% endif %}
                             {{ file.license.summary | localize | html_lang }}
                             {% if file.license.url is not none %}

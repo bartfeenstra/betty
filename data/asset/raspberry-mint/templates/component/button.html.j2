@@ -2,5 +2,5 @@
     {% do attributes.set(html_type='button') %}
     {% do attributes.html_class.append('button') %}
     {% do attributes.html_class.append('button-secondary' if button_secondary | default(false) else 'button-primary') %}
-    <button {{ attributes }}>{{ button_label }}</button>
+    <button{{ attributes }}>{{ button_label }}</button>
 {% endwith %}

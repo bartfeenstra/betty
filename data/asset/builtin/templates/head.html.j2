@@ -1,12 +1,12 @@
-<title>{% if page_title is defined %}{{ page_title | striptags }} - {% endif %}{{ project.title | localize }}</title>
+<title>{% if page_title is defined %}{{ page_title | striptags }} - {% endif %}{{ project.title }}</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="generator" content="Betty {{ about_version_major }} ({{ about_url }})">
 {% if project.author %}
-    <meta name="author" content="{{ project.author | localize }}">
+    <meta name="author" content="{{ project.author }}">
 {% endif %}
 <meta name="og:title" content="{{ page_title | default(project.title | localize) | striptags }}">
-<meta name="og:site_name" content="{{ project.title | localize }}">
+<meta name="og:site_name" content="{{ project.title }}">
 <meta name="twitter:title" content="{{ page_title | default(project.title | localize) | striptags }}">
 <meta name="twitter:card" content="summary_large_image">
 {% if document.resource %}
@@ -19,8 +19,8 @@
             <meta name="og:image:type" content="{{ page_image.media_type }}">
             <meta name="twitter:image" content="{{ page_image_url }}">
             {% if page_image.description %}
-                <meta name="og:image:description" content="{{ page_image.description | localize }}">
-                <meta name="twitter:image:alt" content="{{ page_image.description | localize }}">
+                <meta name="og:image:description" content="{{ page_image.description }}">
+                <meta name="twitter:image:alt" content="{{ page_image.description }}">
             {% endif %}
         {% endif %}
     {% endif %}

@@ -3,12 +3,8 @@
         <div class="container">
             <div class="row">
                 <div class="col col-12 col-lg-6 p-3">
-                    <p>
-                        {{ project.copyright_notice.summary | localize | html_lang }}
-                    </p>
-                    <p>
-                        {{ project.license.summary | localize | html_lang }}
-                    </p>
+                    {{ tag('p', project.copyright_notice.summary) }}
+                    {{ tag('p', project.license.summary) }}
                 </div>
                 <div class="col col-12 col-lg-6 p-3">
                     {% if document.context %}
@@ -20,7 +16,7 @@
                     {% endif %}
                     {% for link in secondary_navigation_links %}
                         <p>
-                            <a href="{{ link.url | localize | url }}">{{ link.label | localize | html_lang }}</a>
+                            {{ tag('a', link.label, html_href = link.url | url) }}
                         </p>
                     {% endfor %}
                 </div>

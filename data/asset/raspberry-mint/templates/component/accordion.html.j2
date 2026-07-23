@@ -2,7 +2,7 @@
 {% do attributes.setdefault(html_id=machine_name()) %}
 {% do attributes.html_class.append('accordion') %}
 {% if accordion_items | length > 0 %}
-    <div {{ attributes }}>
+    <div{{ attributes }}>
         {% for item in accordion_items %}
             <div class="accordion-item">
                 <{{ accordion_heading_element }} class="accordion-header{% if accordion_heading_class is defined %} {{ accordion_heading_class }}{% endif %}">

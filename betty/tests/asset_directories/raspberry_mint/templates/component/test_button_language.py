@@ -15,7 +15,7 @@ async def test_with_html_attribute(assert_template_file: AssertTemplateFile) -> 
     html_id = "my-first-id"
     async with assert_template_file(
         data={
-            "attributes": Attributes(html_id=html_id),
+            "attributes": Attributes().set(html_id=html_id),
         },
         assets={raspberry_mint},
         template="component/button-language.html.j2",

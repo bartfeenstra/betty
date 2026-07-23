@@ -6,7 +6,7 @@
         <a href="{{ entity | url }}">
     {%- endif -%}
     {%- if entity.location -%}
-        {{ entity.location | localize }}
+        {{ entity.location }}
     {%- else -%}
         <i>{% trans %}Unknown{% endtrans %}</i>
     {%- endif -%}

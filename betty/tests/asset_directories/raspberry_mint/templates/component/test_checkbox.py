@@ -25,7 +25,7 @@ async def test_with_html_attributes(assert_template_file: AssertTemplateFile) ->
     async with assert_template_file(
         data={
             "checkbox_label": "Check me out!",
-            "attributes": Attributes(html_id=html_id),
+            "attributes": Attributes().set(html_id=html_id),
         },
         assets={raspberry_mint},
         template="component/checkbox.html.j2",

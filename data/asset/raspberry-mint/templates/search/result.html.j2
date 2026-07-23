@@ -3,4 +3,6 @@
     <span class="link">{% include ['entity/label--' + entity.plugin().id + '.html.j2', 'entity/label.html.j2'] %}</span>
     {% include 'entity/summary--' + entity.plugin().id + '.html.j2' ignore missing %}
 </div>
-<a href="{{ entity | url }}" class="stretched-link"><span class="visually-hidden">View {{ entity.label | localize | html_lang }}</span></a>
+<a href="{{ entity | url }}" class="stretched-link">
+    {{ tag('span', _('View {subject}', subject = entity.label), html_class = ['visually-hidden']) }}
+</a>

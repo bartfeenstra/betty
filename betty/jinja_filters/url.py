@@ -11,6 +11,7 @@ from jinja2 import pass_context
 from betty.factory import Manufacturable
 from betty.jinja import context_document
 from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
+from betty.localizable import Localizable
 from betty.media_type import MediaType
 from betty.media_types.html import HTML
 from betty.project import Project
@@ -49,9 +50,12 @@ class Url(JinjaFilter, Manufacturable):
         media_type: str | None = None,
         **kwargs: Any,
     ) -> str:
+        localizer = context_document(context).localizer
+        if isinstance(resource, Localizable):
+            resource = resource.localize(localizer)
         return self._url_generator.generate(
             resource,
             media_type=MediaType(media_type) if media_type else HTML,
-            locale=locale or context_document(context).localizer.locale,
+            locale=locale or localizer.locale,
             **kwargs,
         )
