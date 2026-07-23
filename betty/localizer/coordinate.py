@@ -1,5 +1,5 @@
 """
-The ``format_degrees`` Jinja filter.
+The geographic coordinate formatter.
 """
 
 from __future__ import annotations
@@ -9,21 +9,17 @@ from typing import final
 from geopy import units
 from geopy.format import DEGREES_FORMAT
 
-from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
-
 
 @final
-@JinjaFilterDefinition("format-degrees", auto=True)
-class FormatDegrees(JinjaFilter):
+class CoordinateFormatter:
     """
     Format geographic coordinates.
-
-    .. plugin:: jinja-filter:format-degrees
     """
 
-    def __call__(  # noqa: D102
-        self, degrees: int
-    ) -> str:
+    def format_degrees(self, degrees: float, /) -> str:
+        """
+        Format degrees.
+        """
         arcminutes = units.arcminutes(degrees=degrees - int(degrees))
         arcseconds = units.arcseconds(arcminutes=arcminutes - int(arcminutes))
         format_dict = {
