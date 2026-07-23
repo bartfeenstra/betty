@@ -6,6 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
+from markupsafe import escape
+
 from betty.concurrent import ThreadSafeLock
 from betty.progress import Progress
 
@@ -22,7 +24,7 @@ class RichProgress(Progress):
     def __init__(self, rich_progress: _RichProgress, rich_task_description: str):
         self._rich_progress = rich_progress
         self._rich_task = self._rich_progress.add_task(
-            f"[green]{rich_task_description}", total=0
+            f"[green]{escape(rich_task_description)}", total=0
         )
         self._lock = ThreadSafeLock()
         self._total = 0

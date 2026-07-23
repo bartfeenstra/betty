@@ -9,6 +9,7 @@ from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, Final, TextIO, cast, final, overload, override
 
 from rich.console import Console
+from rich.markup import escape
 from rich.progress import BarColumn, TaskProgressColumn, TextColumn, TimeElapsedColumn
 from rich.progress import Progress as _RichProgress
 from rich.prompt import Confirm, Prompt
@@ -82,6 +83,11 @@ class RichUser(ManagedLifeCycle, User):
             level = 999999999
         self._logger.setLevel(level)
 
+    def _print(self, message: ResolvableLocalizable, style: str, /) -> None:
+        self.console.print(
+            self.localizer.localize(message), emoji=False, markup=False, style=style
+        )
+
     @override
     async def message_exception(self) -> None:
         self._message_error(self.localizer.translate._("An unexpected error occurred:"))
@@ -93,21 +99,21 @@ class RichUser(ManagedLifeCycle, User):
 
     def _message_error(self, message: str) -> None:
         self.assert_alive()
-        self.console.print(f"[red]{message}[/]")
+        self._print(message, "red")
 
     @override
     async def message_warning(self, message: ResolvableLocalizable, /) -> None:
         self.assert_alive()
         if self._verbosity < Verbosity.DEFAULT:
             return
-        self.console.print(f"[yellow]{self.localizer.localize(message)}[/]")
+        self._print(self.localizer.localize(message), "yellow")
 
     @override
     async def message_information(self, message: ResolvableLocalizable, /) -> None:
         self.assert_alive()
         if self._verbosity < Verbosity.DEFAULT:
             return
-        self.console.print(f"[green]{self.localizer.localize(message)}[/]")
+        self._print(self.localizer.localize(message), "green")
 
     @override
     async def message_information_details(
@@ -116,21 +122,21 @@ class RichUser(ManagedLifeCycle, User):
         self.assert_alive()
         if self._verbosity < Verbosity.VERBOSE:
             return
-        self.console.print(f"[green]{self.localizer.localize(message)}[/]")
+        self._print(self.localizer.localize(message), "green")
 
     @override
     async def message_debug(self, message: ResolvableLocalizable, /) -> None:
         self.assert_alive()
         if self._verbosity < Verbosity.MORE_VERBOSE:
             return
-        self.console.print(f"[white]{self.localizer.localize(message)}[/]")
+        self._print(self.localizer.localize(message), "white")
 
     @override
     async def message_log(self, message: logging.LogRecord, /) -> None:
         self.assert_bootstrapped()
         if self._verbosity < Verbosity.MOST_VERBOSE:
             return
-        self.console.print(f"[blue]{self._log_formatter.format(message)}[/]")
+        self._print(self._log_formatter.format(message), "blue")
 
     @override
     @asynccontextmanager
@@ -164,7 +170,7 @@ class RichUser(ManagedLifeCycle, User):
     ) -> bool:
         self.assert_alive()
         return Confirm.ask(
-            self.localizer.localize(statement),
+            escape(self.localizer.localize(statement)),
             console=self.console,
             default=default,
             stream=stdin,
@@ -211,7 +217,7 @@ class RichUser(ManagedLifeCycle, User):
         value = cast(
             str,
             Prompt.ask(
-                self.localizer.localize(question),
+                escape(self.localizer.localize(question)),
                 console=self.console,
                 stream=stdin,
                 **ask_kwargs,
