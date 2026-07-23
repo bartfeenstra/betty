@@ -10,12 +10,12 @@ from collections.abc import Awaitable, Callable, Iterable
 from os import makedirs
 from pathlib import Path
 from shutil import copy2
-from typing import TYPE_CHECKING, Final, cast, override
+from typing import TYPE_CHECKING, Any, Final, cast, override
 
 from jinja2 import Environment, FileSystemLoader, pass_context, select_autoescape
 from jinja2.async_utils import auto_await
 from jinja2.ext import Extension
-from jinja2.nodes import CallBlock, ContextReference, Node
+from jinja2.nodes import CallBlock, Const, ContextReference, Node
 from jinja2.runtime import Context as JinjaContext
 from jinja2.runtime import DebugUndefined, StrictUndefined
 from jinja2.utils import missing
@@ -229,17 +229,20 @@ class _CacheTagExtension(Extension):
     @override
     def parse(self, parser: Parser) -> Node | list[Node]:
         lineno = next(parser.stream).lineno
-        cache_key = parser.parse_expression()
+        assert parser.name is not None, "Caching is only supported for named templates"
+        cache_keys = [Const(parser.name), parser.parse_expression()]
+        while parser.stream.skip_if("comma"):
+            cache_keys.append(parser.parse_expression())
         body = parser.parse_statements(("name:endcache",), drop_needle=True)
         return CallBlock(
-            self.call_method("_cache", [cache_key, ContextReference()]),
+            self.call_method("_cache", [ContextReference(), *cache_keys]),
             [],
             [],
             body,
         ).set_lineno(lineno)
 
     async def _cache(
-        self, cache_key: str, context: JinjaContext, caller: Callable[[], str]
+        self, context: JinjaContext, *cache_keys: Any, caller: Callable[[], str]
     ) -> str:
         try:
             job_context = context_document(context).context
@@ -247,6 +250,7 @@ class _CacheTagExtension(Extension):
             job_context = None
         if job_context is None:
             return await auto_await(caller())
+        cache_key = ":".join(map(str, cache_keys))
         async with job_context.store.getset(f"jinja2_cache_tag:{cache_key}") as result:
             if isinstance(result, StoreItem):
                 return cast(str, await result.value())

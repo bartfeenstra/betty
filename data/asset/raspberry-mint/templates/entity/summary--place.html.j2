@@ -1,20 +1,22 @@
 {%- set embedded = embedded | default(False) -%}
 {%- set place_context = document.entity_contexts['place'] -%}
-<div class="small">
-    {%- if entity.place_type.plugin().id != 'unknown' -%}
-        <p class="m-0">{{ entity.place_type.plugin().label | localize | html_lang }}</p>
-    {%- endif -%}
-    {%- set enclosed_by = entity.enclosed_by | negotiate_has_dates(date_context | default(none)) -%}
-    {%- if enclosed_by -%}
-        {%- set enclosed_by_label -%}
-            {%- with place = enclosed_by.enclosed_by -%}
-                {% include 'entity/place-enclosure-label.html.j2' %}
-            {%- endwith -%}
-        {%- endset -%}
-        {%- if enclosed_by_label -%}
-            {%- trans place = enclosed_by_label | html_lang -%}
-                in {{ place }}
-            {%- endtrans -%}
+{% cache entity.id, document.localizer.locale, place_context.id | default(None), embedded %}
+    <div class="small">
+        {%- if entity.place_type.plugin().id != 'unknown' -%}
+            <p class="m-0">{{ entity.place_type.plugin().label | localize | html_lang }}</p>
         {%- endif -%}
-    {%- endif -%}
-</div>
+        {%- set enclosed_by = entity.enclosed_by | negotiate_has_dates(date_context | default(none)) -%}
+        {%- if enclosed_by -%}
+            {%- set enclosed_by_label -%}
+                {%- with place = enclosed_by.enclosed_by -%}
+                    {% include 'entity/place-enclosure-label.html.j2' %}
+                {%- endwith -%}
+            {%- endset -%}
+            {%- if enclosed_by_label -%}
+                {%- trans place = enclosed_by_label | html_lang -%}
+                    in {{ place }}
+                {%- endtrans -%}
+            {%- endif -%}
+        {%- endif -%}
+    </div>
+{% endcache %}
