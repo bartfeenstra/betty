@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import datetime
 from asyncio import to_thread
-from collections.abc import Awaitable, Callable, Iterable
+from collections.abc import Awaitable, Callable, Iterable, Mapping
 from os import makedirs
 from pathlib import Path
 from shutil import copy2
@@ -29,6 +29,7 @@ from betty.locale import default_locale, to_language_tag
 from betty.localizable import Localizable, ResolvableLocalizable
 from betty.localizables.gettext import gettext, ngettext, npgettext, pgettext
 from betty.localizables.markup import JoinAnd, JoinOr
+from betty.localized import LocalizedStr
 from betty.machine_name import MachineName
 from betty.media_type import (
     ResolvableMediaType,
@@ -36,6 +37,7 @@ from betty.media_type import (
     match_extension,
     resolve_media_type,
 )
+from betty.media_types.html import HTML
 from betty.media_types.jinja import JINJA
 from betty.pathlib import resolve_path
 from betty.store import StoreItem
@@ -244,6 +246,11 @@ class _CacheTagExtension(Extension):
 
 @final
 class _CodeGenerator(CodeGenerator):
+    _character_order_to_html_lang_map: Final[Mapping[str, str]] = {
+        "left-to-right": "ltr",
+        "right-to-left": "rtl",
+    }
+
     @override
     def visit_Template(self, node: Template, frame: Frame | None = None) -> None:
         self.writeline("from betty.jinja import _CodeGenerator")
@@ -264,10 +271,44 @@ class _CodeGenerator(CodeGenerator):
         super()._output_child_post(node, frame, finalize)
 
     @classmethod
-    def _output_child(cls, ctx: Context, value: Any, /) -> Any:
+    def _output_child(cls, context: Context, value: Any, /) -> Any:
         if isinstance(value, Localizable):
-            return value.localize(context_document(ctx).localizer)
+            value = cls._output_localizable(context, value)
+        if isinstance(value, LocalizedStr):
+            value = cls._output_localized_str(context, value)
         return value
+
+    @classmethod
+    def _output_localizable(
+        cls, context: Context, value: Localizable, /
+    ) -> LocalizedStr:
+        return value.localize(context_document(context).localizer)
+
+    @classmethod
+    def _output_localized_str(cls, context: Context, value: LocalizedStr, /) -> str:
+        output: str = value
+        document = context_document(context)
+        if document.media_type != HTML:
+            return output
+        localizer = document.localizer
+        if value.locale != localizer.locale:
+            localizer_dir = cls._character_order_to_html_lang_map[
+                localizer.locale.character_order
+            ]
+            if value.locale is None:
+                has_locale_dir = "auto"
+            else:
+                has_locale_dir = cls._character_order_to_html_lang_map[
+                    value.locale.character_order
+                ]
+            dir_attribute = (
+                f' dir="{has_locale_dir}"' if has_locale_dir != localizer_dir else ""
+            )
+            output = f'<span lang="{to_language_tag(value.locale)}"{dir_attribute}>{value}</span>'
+        # @todo Do we need this?
+        if context.eval_ctx.autoescape:
+            output = Markup(output)
+        return output
 
 
 @pass_context
