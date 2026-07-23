@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from asyncio import gather
 from collections import defaultdict
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, final, override
 
 from aiohttp import ClientError, ClientSession
@@ -18,12 +19,16 @@ from betty.media_type import InvalidMediaType, MediaType
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from babel import Locale
-
     from betty.entities.link import Link
     from betty.job.scheduler import Scheduler
-    from betty.localizables.static import StaticTranslationsMapping
     from betty.localizer import Localizer
+
+
+@final
+@dataclass(frozen=True, slots=True)
+class _Population:
+    label: str | None
+    description: str | None
 
 
 @final
@@ -54,66 +59,61 @@ class PopulateLink(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-        if self._link.has_label and self._link.description:
+        if self._link.has_label or self._link.description:
             return
 
-        urls = StaticTranslations.resolve(self._link.url, self._localizers)
-        urls_to_locales = defaultdict(set)
-        for locale, url in urls.translations.items():
-            urls_to_locales[url].add(locale)
-        labels: StaticTranslationsMapping = {}
-        descriptions: StaticTranslationsMapping = {}
-        await gather(
-            *(
-                self._populate_link_from_url(
-                    url,
-                    [localizer.locale for localizer in self._localizers],
-                    labels,
-                    descriptions,
-                )
-                for url in urls_to_locales
-            )
+        locales_to_urls = StaticTranslations.resolve(
+            self._link.url, self._localizers
+        ).translations
+        urls = set(locales_to_urls.values())
+        urls_to_populations = defaultdict(
+            lambda: None,
+            zip(urls, await gather(*map(self._get_population, urls)), strict=False),
         )
-        if not self._link.has_label and labels:
-            self._link.label = StaticTranslations(labels)
-        if not self._link.description and descriptions:
-            self._link.description = StaticTranslations(descriptions)
+        if not self._link.has_label:
+            labels = {
+                locale: label
+                for locale, url in locales_to_urls.items()
+                if (population := urls_to_populations[url])
+                and (label := population.label)
+            }
+            if labels:
+                self._link.label = StaticTranslations(labels)
+        if not self._link.description:
+            descriptions = {
+                locale: description
+                for locale, url in locales_to_urls.items()
+                if (population := urls_to_populations[url])
+                and (description := population.description)
+            }
+            if descriptions:
+                self._link.description = StaticTranslations(descriptions)
 
-    async def _populate_link_from_url(
-        self,
-        url: str,
-        locales: Iterable[Locale],
-        labels: StaticTranslationsMapping,
-        descriptions: StaticTranslationsMapping,
-    ) -> None:
+    async def _get_population(self, url: str) -> _Population | None:
         try:
             response = await self._http_client.get(url)
         except ClientError:
-            return
+            return None
         try:
             content_type = MediaType(response.headers["Content-Type"])
         except InvalidMediaType:
-            return
+            return None
 
         if (content_type.type, content_type.subtype, content_type.suffix) not in (
             ("text", "html", None),
             ("application", "xhtml", "+xml"),
         ):
-            return
+            return None
 
         document = document_fromstring(await response.text())
-        if not self._link.has_label:
-            title = self._extract_html_title(document)
-            if title is not None:
-                for locale in locales:
-                    labels[locale] = title
-        if not self._link.description:
-            description = self._extract_html_meta_description(document)
-            if description is not None:
-                for locale in locales:
-                    descriptions[locale] = description
+        return _Population(
+            self._extract_html_title(document),
+            self._extract_html_meta_description(document),
+        )
 
     def _extract_html_title(self, document: HtmlElement) -> str | None:
+        if self._link.has_label:
+            return None
         head = document.find("head")
         if head is None:
             return None
@@ -123,6 +123,8 @@ class PopulateLink(Job):
         return title.text
 
     def _extract_html_meta_description(self, document: HtmlElement) -> str | None:
+        if self._link.description:
+            return None
         head = document.find("head")
         if head is None:
             return None

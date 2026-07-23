@@ -13,11 +13,15 @@ if TYPE_CHECKING:
     from betty.localizer import Localizer
 
 
-class _GettextLocalizable(Localizable):
+class __GettextLocalizable:
+    __slots__ = ("_gettext_args", "_gettext_method_name")
+
     def __init__(self, gettext_method_name: str, *gettext_args: Any) -> None:
         self._gettext_method_name = gettext_method_name
         self._gettext_args = gettext_args
 
+
+class _GettextLocalizable(__GettextLocalizable, Localizable):
     @override
     def localize(self, localizer: Localizer, /) -> LocalizedStr:
         return cast(
@@ -26,11 +30,7 @@ class _GettextLocalizable(Localizable):
         )
 
 
-class _CountableGettextLocalizable(CountableLocalizable):
-    def __init__(self, gettext_method_name: str, *gettext_args: Any) -> None:
-        self._gettext_method_name = gettext_method_name
-        self._gettext_args = gettext_args
-
+class _CountableGettextLocalizable(__GettextLocalizable, CountableLocalizable):
     @override
     def count(self, count: LocalizableCount, /) -> Localizable:
         return _GettextLocalizable(
