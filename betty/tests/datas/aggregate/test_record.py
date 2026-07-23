@@ -18,8 +18,8 @@ from betty.indicator.selector import Attr
 from betty.localizables.plain import Plain
 from betty.portable import Porter
 from betty.portable.error import NotPortable
-from betty.porters.data_definition_field import DataDefinitionFieldPorter
 from betty.porters.fields import FieldsPorter
+from betty.porters.porter_field import PorterFieldPorter
 
 
 class TestFieldDefinition:
@@ -70,7 +70,7 @@ class TestFieldDefinition:
         sut = FieldDefinition(
             DataDefinition(label="-", porter=mocker.MagicMock(spec=Porter))
         )
-        assert isinstance(sut.porter, DataDefinitionFieldPorter)
+        assert isinstance(sut.porter, PorterFieldPorter)
 
     def test_porter__with_porter(self, mocker: MockerFixture) -> None:
         porter = mocker.MagicMock(spec=FieldPorter)
@@ -87,7 +87,7 @@ class TestFieldDefinition:
         sut = FieldDefinition(
             DataDefinition(label="-", porter=mocker.MagicMock(spec=Porter))
         )
-        assert isinstance(sut.porter, DataDefinitionFieldPorter)
+        assert isinstance(sut.porter, PorterFieldPorter)
 
     def test_try_porter__with_porter(self, mocker: MockerFixture) -> None:
         porter = mocker.MagicMock(spec=FieldPorter)

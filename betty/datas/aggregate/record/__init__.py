@@ -80,7 +80,7 @@ class FieldDefinition[
         ]
         | None = None,
     ):
-        from betty.porters.data_definition_field import DataDefinitionFieldPorter
+        from betty.porters.porter_field import PorterFieldPorter
 
         self.data: Final[DataDefinitionT] = resolve_data_definition(data)
         """
@@ -109,10 +109,8 @@ class FieldDefinition[
         """
 
         if porter is None:
-            if self.data.try_porter:
-                porter: FieldPorterT = DataDefinitionFieldPorter(
-                    self.data,
-                )  # ty:ignore[invalid-assignment]
+            if data_porter := self.data.try_porter:
+                porter: FieldPorterT = PorterFieldPorter(data_porter)  # ty:ignore[invalid-assignment]
         elif not isinstance(porter, FieldPorter):
             porter: FieldPorterT = porter(self)
         self.try_porter: Final[
