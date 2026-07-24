@@ -132,6 +132,8 @@ class Data[DataDefinitionT: DataDefinition = DataDefinition]:
     A class that defines data for its instances.
     """
 
+    __slots__ = ()
+
     @final
     @classmethod
     def data(cls) -> Intersection[DataDefinitionT, DataDefinition[Self]]:

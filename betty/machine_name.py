@@ -52,7 +52,7 @@ class MachineName(str, Data):
     - Lowercase letters, numbers, and non-consecutive hyphens (-).
     """
 
-    __slots__ = ()
+    __slots__ = ("_persistent",)
 
     _persistent: bool
 
