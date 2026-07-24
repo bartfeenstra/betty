@@ -7,6 +7,7 @@ from __future__ import annotations
 from asyncio import gather
 from collections import defaultdict
 from enum import Enum
+from operator import not_
 from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.asset_directories.raspberry_mint import raspberry_mint
@@ -132,7 +133,7 @@ class RaspberryMintData(Data, HasProps):
                 ),
             ),
             optional=True,
-            porter=OmitFieldPorter.new_is_empty,
+            porter=OmitFieldPorter.new(not_),
         )
     )
     """

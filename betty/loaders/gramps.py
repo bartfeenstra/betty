@@ -5,6 +5,7 @@ Integrate Betty with `Gramps <https://gramps-project.org>`_.
 from __future__ import annotations
 
 from collections.abc import Mapping, MutableMapping
+from operator import not_
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
@@ -243,7 +244,7 @@ class GrampsData(Data, HasProps):
         FieldDefinition(
             SequenceDefinition(cls=list, value=FamilyTree, label=_("Family trees")),
             optional=True,
-            porter=OmitFieldPorter.new_is_empty,
+            porter=OmitFieldPorter.new(not_),
         )
     )
     """

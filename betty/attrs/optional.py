@@ -31,7 +31,7 @@ class OptionalAttr[OwnerT: HasProps, GetT, SetT](
                 label=proxied.field.label,
                 description=proxied.field.description,
                 optional=True,
-                porter=OmitFieldPorter.new_is_none,
+                porter=OmitFieldPorter.new(lambda data: data is None),
             ),
             proxied=proxied,
         )

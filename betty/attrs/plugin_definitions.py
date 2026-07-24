@@ -4,6 +4,7 @@ Plugin definition configurations attributes.
 
 from __future__ import annotations
 
+from operator import not_
 from typing import TYPE_CHECKING
 
 from betty.attrs.owner import CollectionOwnerAttr
@@ -62,6 +63,6 @@ def new_plugin_definition_datas_attr[PluginDefinitionT: PluginDefinition](
             label=label,
             description=description,
             optional=True,
-            porter=OmitFieldPorter.new_is_empty,
+            porter=OmitFieldPorter.new(not_),
         )
     )
