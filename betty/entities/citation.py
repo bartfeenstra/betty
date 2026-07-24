@@ -11,7 +11,7 @@ from betty.associations.has_file_references import HasFileReferences
 from betty.associations.has_links import HasLinks
 from betty.associations.to_many import ToMany, ToManyAssociates
 from betty.associations.to_one import ToOne, ToOneAssociate
-from betty.attrs.date import HasAnyDate
+from betty.attrs.date import HasDate
 from betty.attrs.localizable import new_localizable_attr
 from betty.entities.source import Source
 from betty.entity import EntityDefinition
@@ -22,7 +22,7 @@ from betty.privacy import Privacy
 from betty.privacy.resolve import merge_secondary_privacies
 
 if TYPE_CHECKING:
-    from betty.date import AnyDate
+    from betty.date import DateExpression
     from betty.entities.file_reference import FileReference
     from betty.entities.link import Link
     from betty.linked_data import JsonLdObject
@@ -39,7 +39,7 @@ if TYPE_CHECKING:
     label_plural=_("Citations"),
     label_countable=ngettext("{count} citation", "{count} citations"),
 )
-class Citation(HasAnyDate, HasFileReferences, HasLinks):
+class Citation(HasDate, HasFileReferences, HasLinks):
     """
     .. plugin:: entity:citation.
     """
@@ -78,7 +78,7 @@ class Citation(HasAnyDate, HasFileReferences, HasLinks):
         facts: ToManyAssociates[Self, HasCitations] = (),
         id: ResolvableMachineName | None = None,  # noqa: A002
         location: ResolvableLocalizable | None = None,
-        date: AnyDate | None = None,
+        date: DateExpression | None = None,
         files: ToManyAssociates[Self, FileReference] = (),
         links: ToManyAssociates[Self, Link] = (),
         privacy: Privacy = Privacy.UNDETERMINED,

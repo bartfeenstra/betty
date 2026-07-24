@@ -219,8 +219,8 @@ class _DateDeriver(ABC):
         reference_events = _get_reference_events(
             person, reference_event_types, derivable_event.event_type.plugin()
         )
-        reference_events_dates: Iterable[tuple[Event, Date]] = filter(
-            lambda x: x[1].comparable, cls._get_events_dates(reference_events)
+        reference_events_dates: Iterable[tuple[Event, Date]] = cls._get_events_dates(
+            reference_events
         )
         if derivable_event.date is not None:
             reference_events_dates = filter(
@@ -233,15 +233,11 @@ class _DateDeriver(ABC):
         except IndexError:
             return False
 
-        if derivable_event.date is None:
-            derivable_event.date = DateRange()
-        cls._set(
-            cast(DateRange, derivable_event.date),
+        derivable_event.date = cls._set(
+            derivable_event.date,
             Date(
-                reference_date.year,
-                reference_date.month,
-                reference_date.day,
-                fuzzy=reference_date.fuzzy,
+                *reference_date.parts,
+                imprecise=reference_date.imprecise,
             ),
         )
         derivable_event.citations.add(*reference_event.citations)
@@ -276,7 +272,7 @@ class _DateDeriver(ABC):
 
     @classmethod
     @abstractmethod
-    def _set(cls, derivable_date: DateRange, derived_date: Date) -> None:
+    def _set(cls, derivable_date: DateRange | None, derived_date: Date) -> DateRange:
         pass
 
 
@@ -304,9 +300,15 @@ class _ComesBeforeDateDeriver(_DateDeriver):
 
     @override
     @classmethod
-    def _set(cls, derivable_date: DateRange, derived_date: Date) -> None:
-        derivable_date.end = derived_date
-        derivable_date.end_is_boundary = True
+    def _set(cls, derivable_date: DateRange | None, derived_date: Date) -> DateRange:
+        return DateRange(
+            derivable_date.start if derivable_date else None,
+            derived_date,
+            start_is_boundary=derivable_date.start_is_boundary
+            if derivable_date
+            else False,
+            end_is_boundary=True,
+        )
 
 
 @final
@@ -333,9 +335,13 @@ class _ComesAfterDateDeriver(_DateDeriver):
 
     @override
     @classmethod
-    def _set(cls, derivable_date: DateRange, derived_date: Date) -> None:
-        derivable_date.start = derived_date
-        derivable_date.start_is_boundary = True
+    def _set(cls, derivable_date: DateRange | None, derived_date: Date) -> DateRange:
+        return DateRange(
+            derived_date,
+            derivable_date.end if derivable_date else None,
+            start_is_boundary=True,
+            end_is_boundary=derivable_date.end_is_boundary if derivable_date else False,
+        )
 
 
 def _get_derivable_events(
@@ -379,7 +385,7 @@ def _get_reference_events(
                 reference_date = reference_event.date.end
             if reference_date is None:
                 continue
-            if reference_date.fuzzy:
+            if reference_date.imprecise:
                 continue
 
         # Ignore reference events of the wrong type.

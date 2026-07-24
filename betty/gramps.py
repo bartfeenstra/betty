@@ -27,8 +27,9 @@ from betty.associations.has_citations import HasCitations
 from betty.associations.has_links import HasLinks
 from betty.associations.has_notes import HasNotes
 from betty.attrs.privacy import HasPrivacy
+from betty.calendars import ProlepticIso8601, ProlepticJulian
 from betty.copyright_notice import CopyrightNoticeManufacturer
-from betty.date import AnyDate, Date, DateRange
+from betty.date import Date, DateExpression, DateRange, validate_date_parts
 from betty.entities.citation import Citation
 from betty.entities.enclosure import Enclosure
 from betty.entities.event import Event
@@ -128,6 +129,7 @@ if TYPE_CHECKING:
     from babel import Locale
 
     from betty.associations.has_file_references import HasFileReferences
+    from betty.calendar import Calendar
     from betty.event_type import EventType, EventTypeDefinition
     from betty.gender import Gender
     from betty.localizables.static import StaticTranslationsMapping
@@ -197,6 +199,17 @@ class GrampsEntityReference:
         return f"{self.entity_type.value} ({self.entity_id})"
 
 
+calendar_mapping: Final[Mapping[str | None, type[Calendar]]] = {
+    None: ProlepticIso8601,
+    "Gregorian": ProlepticIso8601,
+    "Julian": ProlepticJulian,
+    # @todo
+    # "Hebrew": None,
+    # "French Republican": None,
+    # "Persian": None,
+    # "Islamic": None,
+    # "Swedish": None,
+}
 DEFAULT_GENDER_MAPPING: Mapping[
     str, ResolvablePluginManufacturer[GenderDefinition, Gender]
 ] = {
@@ -672,70 +685,88 @@ class GrampsLoader:
             )
         return found_element
 
-    _date_pattern: Final[re.Pattern[str]] = re.compile(r"^.{4}((-.{2})?-.{2})?$")
-    _date_part_pattern: Final[re.Pattern[str]] = re.compile(r"^\d+$")
-
-    def _load_date(self, element: ElementTree.Element) -> AnyDate | None:
+    def _load_date(self, element: ElementTree.Element) -> DateExpression | None:
         with suppress(XPathError):
             dateval_element = self._xpath1(element, "./ns:dateval")
-            if dateval_element.get("cformat") is None:
-                dateval_type = dateval_element.get("type")
-                if dateval_type is None:
-                    return self._load_dateval(dateval_element, "val")
-                dateval_type = str(dateval_type)
-                if dateval_type == "about":
-                    date = self._load_dateval(dateval_element, "val")
-                    if date is None:
-                        return None
-                    date.fuzzy = True
-                    return date
-                if dateval_type == "before":
-                    return DateRange(
-                        None,
-                        self._load_dateval(dateval_element, "val"),
-                        end_is_boundary=True,
-                    )
-                if dateval_type == "after":
-                    return DateRange(
-                        self._load_dateval(dateval_element, "val"),
-                        start_is_boundary=True,
-                    )
+            calendar = calendar_mapping[dateval_element.get("cformat")]
+            dateval_type = dateval_element.get("type")
+            if dateval_type is None:
+                return self._load_dateval(dateval_element, "val", calendar=calendar)
+            dateval_type = str(dateval_type)
+            if dateval_type == "about":
+                return self._load_dateval(
+                    dateval_element, "val", calendar=calendar, imprecise=True
+                )
+            if dateval_type == "before":
+                end = self._load_dateval(dateval_element, "val", calendar=calendar)
+                # @todo Log an error
+                assert end
+                return DateRange(None, end, end_is_boundary=True)
+            if dateval_type == "after":
+                start = self._load_dateval(dateval_element, "val", calendar=calendar)
+                # @todo Log an error
+                assert start
+                return DateRange(start, start_is_boundary=True)
         with suppress(XPathError):
             datespan_element = self._xpath1(element, "./ns:datespan")
-            if datespan_element.get("cformat") is None:
-                return DateRange(
-                    self._load_dateval(datespan_element, "start"),
-                    self._load_dateval(datespan_element, "stop"),
-                )
+            calendar = calendar_mapping[datespan_element.get("cformat")]
+            start = self._load_dateval(datespan_element, "start", calendar=calendar)
+            end = self._load_dateval(datespan_element, "stop", calendar=calendar)
+            # @todo Log an error
+            assert start or end
+            return DateRange(
+                start,
+                end,
+            )  # ty:ignore[no-matching-overload]
         with suppress(XPathError):
             daterange_element = self._xpath1(element, "./ns:daterange")
-            if daterange_element.get("cformat") is None:
-                return DateRange(
-                    self._load_dateval(daterange_element, "start"),
-                    self._load_dateval(daterange_element, "stop"),
-                    start_is_boundary=True,
-                    end_is_boundary=True,
-                )
+            calendar = calendar_mapping[daterange_element.get("cformat")]
+            start = self._load_dateval(datespan_element, "start", calendar=calendar)
+            end = self._load_dateval(datespan_element, "stop", calendar=calendar)
+            # @todo Log an error
+            assert start or end
+            return DateRange(
+                start,
+                end,
+                start_is_boundary=True,
+                end_is_boundary=True,
+            )
         return None
 
+    # @todo Gramps only allows YYY-MM-DD, with any character being a digit.
+    # @todo We'd have to use text comments to properly support partial dates.
+    # @todo
+    _dateval_pattern: Final[re.Pattern[str]] = re.compile(
+        r"^(\d{4})(-(\d{2}))?(-(\d{2}))?$"
+    )
+
+    def _load_dateval_part(self, part: str, /) -> int | None:
+        if set(part) == {"."}:
+            return None
+        return int(part)
+
     def _load_dateval(
-        self, element: ElementTree.Element, value_attribute_name: str
+        self,
+        element: ElementTree.Element,
+        value_attribute_name: str,
+        *,
+        calendar: type[Calendar],
+        imprecise: bool | None = None,
     ) -> Date | None:
         dateval = str(element.get(value_attribute_name))
-        if self._date_pattern.fullmatch(dateval):
-            date_parts: Sequence[int | None] = [
-                (
-                    int(part)
-                    if self._date_part_pattern.fullmatch(part) and int(part) > 0
-                    else None
+        if dateval_match := self._dateval_pattern.fullmatch(dateval):
+            date_parts = (
+                self._load_dateval_part(dateval_match.group(1)),
+                self._load_dateval_part(dateval_match.group(3)),
+                self._load_dateval_part(dateval_match.group(5)),
+            )
+            if validate_date_parts(date_parts):
+                return Date(
+                    *date_parts,
+                    calendar=calendar,
+                    imprecise=imprecise or element.get("quality") == "estimated",
                 )
-                for part in dateval.split("-", 2)
-            ]
-            date = Date(*date_parts)
-            dateval_quality = element.get("quality")
-            if dateval_quality == "estimated":
-                date.fuzzy = True
-            return date
+        # @todo Log an error
         return None
 
     async def _load_notes(self, database: ElementTree.Element) -> None:

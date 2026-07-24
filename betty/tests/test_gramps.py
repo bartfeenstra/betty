@@ -1111,7 +1111,6 @@ class TestGrampsLoader:
     @pytest.mark.parametrize(
         ("expected", "dateval_val"),
         [
-            (Date(), "0000-00-00"),
             (Date(None, None, 1), "0000-00-01"),
             (Date(None, 1), "0000-01-00"),
             (Date(None, 1, 1), "0000-01-01"),
@@ -1170,7 +1169,7 @@ class TestGrampsLoader:
         assert date.end.month == 1
         assert date.end.day == 1
         assert date.end_is_boundary
-        assert not date.end.fuzzy
+        assert not date.end.imprecise
 
     async def test_date_should_load_after(self, load_partial: LoadPartial) -> None:
         ancestry = await load_partial(
@@ -1191,7 +1190,7 @@ class TestGrampsLoader:
         assert date.start.month == 1
         assert date.start.day == 1
         assert date.start_is_boundary
-        assert not date.start.fuzzy
+        assert not date.start.imprecise
 
     async def test_date_should_load_calculated(self, load_partial: LoadPartial) -> None:
         ancestry = await load_partial(
@@ -1209,7 +1208,7 @@ class TestGrampsLoader:
         assert date.year == 1970
         assert date.month == 1
         assert date.day == 1
-        assert not date.fuzzy
+        assert not date.imprecise
 
     async def test_date_should_load_estimated(self, load_partial: LoadPartial) -> None:
         ancestry = await load_partial(
@@ -1227,7 +1226,7 @@ class TestGrampsLoader:
         assert date.year == 1970
         assert date.month == 1
         assert date.day == 1
-        assert date.fuzzy
+        assert date.imprecise
 
     async def test_date_should_load_about(self, load_partial: LoadPartial) -> None:
         ancestry = await load_partial(
@@ -1245,7 +1244,7 @@ class TestGrampsLoader:
         assert date.year == 1970
         assert date.month == 1
         assert date.day == 1
-        assert date.fuzzy
+        assert date.imprecise
 
     async def test_daterange_should_load(self, load_partial: LoadPartial) -> None:
         ancestry = await load_partial(
@@ -1267,13 +1266,13 @@ class TestGrampsLoader:
         assert start.year == 1970
         assert start.month == 1
         assert start.day == 1
-        assert not start.fuzzy
+        assert not start.imprecise
         assert date.start_is_boundary
         assert end.year == 1999
         assert end.month == 12
         assert end.day == 31
         assert date.end_is_boundary
-        assert not end.fuzzy
+        assert not end.imprecise
 
     async def test_daterange_should_load_calculated(
         self, load_partial: LoadPartial
@@ -1292,10 +1291,10 @@ class TestGrampsLoader:
         assert isinstance(date, DateRange)
         start = date.start
         assert isinstance(start, Date)
-        assert not start.fuzzy
+        assert not start.imprecise
         end = date.end
         assert isinstance(end, Date)
-        assert not end.fuzzy
+        assert not end.imprecise
 
     async def test_daterange_should_load_estimated(
         self, load_partial: LoadPartial
@@ -1314,10 +1313,10 @@ class TestGrampsLoader:
         assert isinstance(date, DateRange)
         start = date.start
         assert isinstance(start, Date)
-        assert start.fuzzy
+        assert start.imprecise
         end = date.end
         assert isinstance(end, Date)
-        assert end.fuzzy
+        assert end.imprecise
 
     async def test_datespan_should_load(self, load_partial: LoadPartial) -> None:
         ancestry = await load_partial(
@@ -1339,11 +1338,11 @@ class TestGrampsLoader:
         assert start.year == 1970
         assert start.month == 1
         assert start.day == 1
-        assert not start.fuzzy
+        assert not start.imprecise
         assert end.year == 1999
         assert end.month == 12
         assert end.day == 31
-        assert not end.fuzzy
+        assert not end.imprecise
 
     async def test_datespan_should_load_calculated(
         self, load_partial: LoadPartial
@@ -1362,10 +1361,10 @@ class TestGrampsLoader:
         assert isinstance(date, DateRange)
         start = date.start
         assert isinstance(start, Date)
-        assert not start.fuzzy
+        assert not start.imprecise
         end = date.end
         assert isinstance(end, Date)
-        assert not end.fuzzy
+        assert not end.imprecise
 
     async def test_datespan_should_load_estimated(
         self, load_partial: LoadPartial
@@ -1384,10 +1383,10 @@ class TestGrampsLoader:
         assert isinstance(date, DateRange)
         start = date.start
         assert isinstance(start, Date)
-        assert start.fuzzy
+        assert start.imprecise
         end = date.end
         assert isinstance(end, Date)
-        assert end.fuzzy
+        assert end.imprecise
 
     async def test_source_from_repository_should_include_name(
         self, load_partial: LoadPartial

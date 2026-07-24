@@ -12,7 +12,7 @@ from betty.associations.has_links import HasLinks
 from betty.associations.has_notes import HasNotes
 from betty.associations.to_many import ToMany, ToManyAssociates
 from betty.associations.to_one import ToOne
-from betty.attrs.date import HasAnyDate
+from betty.attrs.date import HasDate
 from betty.attrs.description import HasDescription
 from betty.attrs.localizable import new_localizable_attr
 from betty.entities.place import Place
@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
 
     from betty.association import Associate
-    from betty.date import AnyDate
+    from betty.date import DateExpression
     from betty.entities.citation import Citation
     from betty.entities.file_reference import FileReference
     from betty.entities.note import Note
@@ -53,7 +53,7 @@ if TYPE_CHECKING:
     label_countable=ngettext("{count} event", "{count} events"),
 )
 class Event(
-    HasAnyDate, HasFileReferences, HasCitations, HasNotes, HasDescription, HasLinks
+    HasDate, HasFileReferences, HasCitations, HasNotes, HasDescription, HasLinks
 ):
     """
     .. plugin:: entity:event.
@@ -88,7 +88,7 @@ class Event(
         *,
         id: ResolvableMachineName | None = None,  # noqa: A002
         event_type: EventType | None = None,
-        date: AnyDate | None = None,
+        date: DateExpression | None = None,
         files: ToManyAssociates[Self, FileReference] = (),
         citations: ToManyAssociates[Self, Citation] = (),
         notes: ToManyAssociates[Self, Note] = (),
@@ -116,7 +116,7 @@ class Event(
         self.name = name
 
     @override
-    def has_any_date_linked_data_contexts(
+    def has_date_linked_data_contexts(
         self,
     ) -> tuple[str | None, str | None, str | None]:
         return (

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, override
 
 import pytest
 
-from betty.attrs.date import HasAnyDate
+from betty.attrs.date import HasDate
 from betty.date import Date, DateRange
 
 if TYPE_CHECKING:
@@ -13,17 +13,17 @@ if TYPE_CHECKING:
     from betty.test_utils.conftest import AssertDumpsLinkedData
 
 
-class DummyHasDateWithContextDefinitions(HasAnyDate):
+class DummyHasDateWithContextDefinitions(HasDate):
     @override
-    def has_any_date_linked_data_contexts(
+    def has_date_linked_data_contexts(
         self,
     ) -> tuple[str | None, str | None, str | None]:
         return "single-date", "start-date", "end-date"
 
 
-class TestHasAnyDate:
+class TestHasDate:
     def test_date(self) -> None:
-        sut = HasAnyDate()
+        sut = HasDate()
         assert sut.date is None
 
     @pytest.mark.parametrize(
@@ -32,7 +32,7 @@ class TestHasAnyDate:
             # No date information.
             (
                 {},
-                HasAnyDate(),
+                HasDate(),
             ),
             (
                 {},
@@ -45,21 +45,21 @@ class TestHasAnyDate:
                         "year": 1970,
                         "month": 1,
                         "day": 1,
-                        "iso8601": "1970-01-01",
-                        "fuzzy": False,
+                        "date": "1970-01-01",
+                        "imprecise": False,
                     }
                 },
-                HasAnyDate(date=Date(1970, 1, 1)),
+                HasDate(date=Date(1970, 1, 1)),
             ),
             (
                 {
                     "date": {
-                        "@context": {"iso8601": "single-date"},
+                        "@context": {"date": "single-date"},
                         "year": 1970,
                         "month": 1,
                         "day": 1,
-                        "iso8601": "1970-01-01",
-                        "fuzzy": False,
+                        "date": "1970-01-01",
+                        "imprecise": False,
                     }
                 },
                 DummyHasDateWithContextDefinitions(date=Date(1970, 1, 1)),
@@ -72,24 +72,24 @@ class TestHasAnyDate:
                             "year": 1970,
                             "month": 1,
                             "day": 1,
-                            "iso8601": "1970-01-01",
-                            "fuzzy": False,
+                            "date": "1970-01-01",
+                            "imprecise": False,
                         },
                         "end": None,
                     },
                 },
-                HasAnyDate(date=DateRange(Date(1970, 1, 1))),
+                HasDate(date=DateRange(Date(1970, 1, 1))),
             ),
             (
                 {
                     "date": {
                         "start": {
-                            "@context": {"iso8601": "start-date"},
+                            "@context": {"date": "start-date"},
                             "year": 1970,
                             "month": 1,
                             "day": 1,
-                            "iso8601": "1970-01-01",
-                            "fuzzy": False,
+                            "date": "1970-01-01",
+                            "imprecise": False,
                         },
                         "end": None,
                     },
@@ -105,24 +105,24 @@ class TestHasAnyDate:
                             "year": 2000,
                             "month": 12,
                             "day": 31,
-                            "iso8601": "2000-12-31",
-                            "fuzzy": False,
+                            "date": "2000-12-31",
+                            "imprecise": False,
                         },
                     },
                 },
-                HasAnyDate(date=DateRange(None, Date(2000, 12, 31))),
+                HasDate(date=DateRange(None, Date(2000, 12, 31))),
             ),
             (
                 {
                     "date": {
                         "start": None,
                         "end": {
-                            "@context": {"iso8601": "end-date"},
+                            "@context": {"date": "end-date"},
                             "year": 2000,
                             "month": 12,
                             "day": 31,
-                            "iso8601": "2000-12-31",
-                            "fuzzy": False,
+                            "date": "2000-12-31",
+                            "imprecise": False,
                         },
                     },
                 },
@@ -138,38 +138,38 @@ class TestHasAnyDate:
                             "year": 1970,
                             "month": 1,
                             "day": 1,
-                            "iso8601": "1970-01-01",
-                            "fuzzy": False,
+                            "date": "1970-01-01",
+                            "imprecise": False,
                         },
                         "end": {
                             "year": 2000,
                             "month": 12,
                             "day": 31,
-                            "iso8601": "2000-12-31",
-                            "fuzzy": False,
+                            "date": "2000-12-31",
+                            "imprecise": False,
                         },
                     },
                 },
-                HasAnyDate(date=DateRange(Date(1970, 1, 1), Date(2000, 12, 31))),
+                HasDate(date=DateRange(Date(1970, 1, 1), Date(2000, 12, 31))),
             ),
             (
                 {
                     "date": {
                         "start": {
-                            "@context": {"iso8601": "start-date"},
+                            "@context": {"date": "start-date"},
                             "year": 1970,
                             "month": 1,
                             "day": 1,
-                            "iso8601": "1970-01-01",
-                            "fuzzy": False,
+                            "date": "1970-01-01",
+                            "imprecise": False,
                         },
                         "end": {
-                            "@context": {"iso8601": "end-date"},
+                            "@context": {"date": "end-date"},
                             "year": 2000,
                             "month": 12,
                             "day": 31,
-                            "iso8601": "2000-12-31",
-                            "fuzzy": False,
+                            "date": "2000-12-31",
+                            "imprecise": False,
                         },
                     },
                 },

@@ -285,9 +285,8 @@ class Privatizer:
         date: Date,
         generations_ago: int,
     ) -> bool:
-        if not date.comparable:
+        if date.year is None:
             return False
-
         return date <= Date(
             datetime.now(tz=UTC).year - self._lifetime_threshold * generations_ago,
             datetime.now(tz=UTC).month,

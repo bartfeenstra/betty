@@ -188,7 +188,8 @@ class RecordDefinition[
         from betty.porters.fields import FieldsPorter
 
         self._factory = factory
-        self._fields: MutableMapping[ElementT, FieldDefinition[DataT, Any]] = (
+        self._factory = factory
+        self._fields: Final[MutableMapping[ElementT, FieldDefinition[DataT, Any]]] = (
             {}
             if fields is None
             else {
@@ -196,7 +197,6 @@ class RecordDefinition[
                 for element, field in fields.items()
             }
         )
-
         super().__init__(
             *args,
             cls=cls,

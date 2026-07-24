@@ -125,7 +125,7 @@ def _expand_person(generation: int) -> Sequence[tuple[bool, Privacy, Event | Non
             Privacy.UNDETERMINED,
             Event(
                 event_type=Birth(),
-                date=Date(),
+                date=Date(None, None, 1),
             ),
         ),
         (
@@ -133,7 +133,7 @@ def _expand_person(generation: int) -> Sequence[tuple[bool, Privacy, Event | Non
             Privacy.PRIVATE,
             Event(
                 event_type=Birth(),
-                date=Date(),
+                date=Date(None, None, 1),
             ),
         ),
         (
@@ -141,7 +141,7 @@ def _expand_person(generation: int) -> Sequence[tuple[bool, Privacy, Event | Non
             Privacy.PUBLIC,
             Event(
                 event_type=Birth(),
-                date=Date(),
+                date=Date(None, None, 1),
             ),
         ),
         # Regular events under the lifetime threshold do not affect privacy.

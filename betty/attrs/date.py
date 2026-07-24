@@ -8,25 +8,25 @@ from typing import TYPE_CHECKING, Any, override
 
 from betty.attrs.owner import OwnerAttr
 from betty.attrs.privacy import HasPrivacy
-from betty.datas.date import AnyDateDefinition
-from betty.date import AnyDate, Date
-from betty.json_schemas.date import ResolvableDateSchema
+from betty.datas.date import DateExpressionDefinition
+from betty.date import Date, DateExpression
+from betty.json_schemas.date import DateExpressionSchema
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
 from betty.prop import HasProps
 
 if TYPE_CHECKING:
     from betty.portable import PortableMapping
     from betty.project import Project
-from betty.date import DateRange, _dump_date_iso8601
+from betty.date import DateRange
 from betty.linked_data import dump_context
 
 
-class HasAnyDate(LinkedDataDumpableWithSchemaJsonLdObject, HasProps):
+class HasDate(LinkedDataDumpableWithSchemaJsonLdObject, HasProps):
     """
-    A resource with date information.
+    A resource with a date.
     """
 
-    date = OwnerAttr(AnyDateDefinition()).optional
+    date = OwnerAttr(DateExpressionDefinition()).optional
     """
     The date.
     """
@@ -34,13 +34,13 @@ class HasAnyDate(LinkedDataDumpableWithSchemaJsonLdObject, HasProps):
     def __init__(
         self,
         *args: Any,
-        date: AnyDate | None = None,
+        date: DateExpression | None = None,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
         self.date = date
 
-    def has_any_date_linked_data_contexts(
+    def has_date_linked_data_contexts(
         self,
     ) -> tuple[str | None, str | None, str | None]:
         """
@@ -58,7 +58,7 @@ class HasAnyDate(LinkedDataDumpableWithSchemaJsonLdObject, HasProps):
                 schema_org_date_definition,
                 schema_org_start_date_definition,
                 schema_org_end_date_definition,
-            ) = self.has_any_date_linked_data_contexts()
+            ) = self.has_date_linked_data_contexts()
             if isinstance(self.date, Date):
                 portable["date"] = _dump_linked_data_for_date(
                     self.date, context_definition=schema_org_date_definition
@@ -75,7 +75,7 @@ class HasAnyDate(LinkedDataDumpableWithSchemaJsonLdObject, HasProps):
     @classmethod
     async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
-        schema.add_property("date", ResolvableDateSchema(), False)
+        schema.add_property("date", DateExpressionSchema(), False)
         return schema
 
 
@@ -83,7 +83,7 @@ def _dump_linked_data_for_date(
     date: Date, *, context_definition: str | None = None
 ) -> PortableMapping:
     portable: PortableMapping = {
-        "fuzzy": date.fuzzy,
+        "imprecise": date.imprecise,
     }
     if date.year:
         portable["year"] = date.year
@@ -91,12 +91,14 @@ def _dump_linked_data_for_date(
         portable["month"] = date.month
     if date.day:
         portable["day"] = date.day
-    if date.comparable:
-        portable["iso8601"] = _dump_date_iso8601(date)
+    if date.year and date.month and date.day:
+        portable["date"] = (
+            f"{'-' if date.year < 0 else '-'}{date.year:04d}-{date.month:02d}-{date.day:02d}"
+        )
         # Set a single term definition because JSON-LD does not let us apply multiple
         # for the same term (key).
         if context_definition:
-            dump_context(portable, iso8601=context_definition)
+            dump_context(portable, date=context_definition)
     return portable
 
 

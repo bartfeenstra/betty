@@ -11,7 +11,7 @@ from betty.associations.has_links import HasLinks
 from betty.associations.has_notes import HasNotes
 from betty.associations.to_many import ToMany, ToManyAssociates
 from betty.associations.to_one import ToOne
-from betty.attrs.date import HasAnyDate
+from betty.attrs.date import HasDate
 from betty.attrs.localizable import new_localizable_attr
 from betty.entity import EntityDefinition
 from betty.json_schemas.static_translations import StaticTranslationsSchema
@@ -23,7 +23,7 @@ from betty.privacy.resolve import merge_privacies
 
 if TYPE_CHECKING:
     from betty.association import Associate
-    from betty.date import AnyDate
+    from betty.date import DateExpression
     from betty.entities.citation import Citation  # noqa: F401
     from betty.entities.file_reference import FileReference
     from betty.entities.link import Link
@@ -41,7 +41,7 @@ if TYPE_CHECKING:
     label_plural=_("Sources"),
     label_countable=ngettext("{count} source", "{count} sources"),
 )
-class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks):
+class Source(HasDate, HasFileReferences, HasNotes, HasLinks):
     """
     .. plugin:: entity:source.
     """
@@ -101,7 +101,7 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks):
         contained_by: Associate[Self, Source] | None = None,
         contains: ToManyAssociates[Self, Source] = (),
         notes: ToManyAssociates[Self, Note] = (),
-        date: AnyDate | None = None,
+        date: DateExpression | None = None,
         files: ToManyAssociates[Self, FileReference] = (),
         links: ToManyAssociates[Self, Link] = (),
         privacy: Privacy = Privacy.UNDETERMINED,

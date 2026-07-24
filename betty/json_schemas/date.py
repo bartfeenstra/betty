@@ -18,7 +18,7 @@ class DateSchema(JsonLdObject):
 
     def __init__(self):
         super().__init__(def_name="date", title="Date")
-        self.add_property("fuzzy", Boolean(title="Fuzzy"))
+        self.add_property("imprecise", Boolean(title="Imprecise"))
         self.add_property("year", Number(title="Year"), False)
         self.add_property("month", Number(title="Month"), False)
         self.add_property("day", Number(title="Day"), False)
@@ -46,15 +46,15 @@ class DateRangeSchema(JsonLdObject):
 
 
 @final
-class ResolvableDateSchema(OneOf):
+class DateExpressionSchema(OneOf):
     """
-    A JSON Schema for :py:type:`betty.date.AnyDate`.
+    A JSON Schema for :py:type:`betty.date.DateExpression`.
     """
 
     def __init__(self):
         super().__init__(
             DateSchema(),
             DateRangeSchema(),
-            def_name="dateLike",
-            title="Date or date range",
+            def_name="dateExpression",
+            title="A date, date range, or date series.",
         )

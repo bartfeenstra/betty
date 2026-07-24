@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, final, override
 
 import pytest
 
-from betty.date import AnyDate, Date, DateRange
+from betty.date import Date, DateExpression, DateRange
 from betty.deriver import Deriver
 from betty.entities.event import Event
 from betty.entities.person import Person
@@ -460,9 +460,9 @@ class TestDeriver:
     )
     async def test_derive__update_comes_before(
         self,
-        expected_date: AnyDate | None,
-        before_date: AnyDate | None,
-        derivable_date: AnyDate | None,
+        expected_date: DateExpression | None,
+        before_date: DateExpression | None,
+        derivable_date: DateExpression | None,
         new_project: NewProject,
     ) -> None:
         async with new_project({
@@ -512,16 +512,12 @@ class TestDeriver:
                 Date(1970, 1, 1),
             ),
             (
-                None,
-                DateRange(None, None),
-            ),
-            (
                 DateRange(None, Date(1970, 1, 1), end_is_boundary=True),
                 DateRange(Date(1970, 1, 1)),
             ),
             (
                 None,
-                DateRange(Date(1970, 1, 1, fuzzy=True)),
+                DateRange(Date(1970, 1, 1, imprecise=True)),
             ),
             (
                 None,
@@ -535,8 +531,8 @@ class TestDeriver:
     )
     async def test_derive__create_comes_before(
         self,
-        expected_date: AnyDate | None,
-        before_date: AnyDate | None,
+        expected_date: DateExpression | None,
+        before_date: DateExpression | None,
         new_project: NewProject,
     ) -> None:
         async with new_project({
@@ -770,9 +766,9 @@ class TestDeriver:
     )
     async def test_derive__update_comes_after(
         self,
-        expected_date: AnyDate | None,
-        after_date: AnyDate | None,
-        derivable_date: AnyDate | None,
+        expected_date: DateExpression | None,
+        after_date: DateExpression | None,
+        derivable_date: DateExpression | None,
         new_project: NewProject,
     ) -> None:
         async with new_project({
@@ -814,14 +810,13 @@ class TestDeriver:
         ("expected_date", "after_date"),
         [
             (None, None),
-            (None, Date()),
             (DateRange(Date(1970, 1, 1), start_is_boundary=True), Date(1970, 1, 1)),
             (None, DateRange(Date(1970, 1, 1))),
             (
                 DateRange(Date(1999, 12, 31), start_is_boundary=True),
                 DateRange(None, Date(1999, 12, 31)),
             ),
-            (None, DateRange(None, Date(1999, 12, 31, fuzzy=True))),
+            (None, DateRange(None, Date(1999, 12, 31, imprecise=True))),
             (
                 DateRange(Date(1999, 12, 31), start_is_boundary=True),
                 DateRange(Date(1970, 1, 1), Date(1999, 12, 31)),
@@ -834,8 +829,8 @@ class TestDeriver:
     )
     async def test_derive__create_comes_after(
         self,
-        expected_date: AnyDate | None,
-        after_date: AnyDate | None,
+        expected_date: DateExpression | None,
+        after_date: DateExpression | None,
         new_project: NewProject,
     ) -> None:
         async with new_project({
@@ -885,7 +880,6 @@ class TestDeriver:
         "after_date",
         [
             None,
-            Date(),
             Date(1970, 1, 1),
             DateRange(Date(1970, 1, 1)),
             DateRange(None, Date(1999, 12, 31)),
@@ -894,7 +888,7 @@ class TestDeriver:
         ],
     )
     async def test_derive__should_not_exist(
-        self, after_date: AnyDate | None, new_project: NewProject
+        self, after_date: DateExpression | None, new_project: NewProject
     ) -> None:
         async with new_project({
             ComesBeforeReference,
