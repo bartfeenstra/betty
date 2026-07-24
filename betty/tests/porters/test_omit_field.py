@@ -1,6 +1,3 @@
-from collections.abc import Sized
-
-import pytest
 from pytest_mock import MockerFixture
 
 from betty.data import DataDefinition
@@ -61,58 +58,3 @@ class TestOmitFieldPorter:
             FieldDefinition(DataDefinition(label="-"))
         )
         assert sut.dump(object(), object()) is Nothing
-
-    @pytest.mark.parametrize(
-        "data",
-        [
-            " ",
-            [""],
-            ("",),
-            {""},
-            {"": ""},
-        ],
-    )
-    def test_new_is_empty__dump_without_omit(
-        self, data: Sized, mocker: MockerFixture
-    ) -> None:
-        dumped: PortableData = {
-            "hello": "World!",
-        }
-        m_porter = mocker.MagicMock(spec=Porter)
-        m_porter.dump.return_value = dumped
-        sut = OmitFieldPorter.new_is_empty(
-            FieldDefinition(DataDefinition(label="-", porter=m_porter))
-        )
-        assert sut.dump(object(), data) == dumped
-        m_porter.dump.assert_called_once_with(data)
-
-    @pytest.mark.parametrize(
-        "data",
-        [
-            "",
-            [],
-            (),
-            set(),
-            {},
-        ],
-    )
-    def test_new_is_empty__dump_with_omit(self, data: Sized) -> None:
-        sut = OmitFieldPorter.new_is_empty(FieldDefinition(DataDefinition(label="-")))
-        assert sut.dump(object(), data) is Nothing
-
-    def test_new_is_none__dump_without_omit(self, mocker: MockerFixture) -> None:
-        dumped: PortableData = {
-            "hello": "World!",
-        }
-        m_porter = mocker.MagicMock(spec=Porter)
-        m_porter.dump.return_value = dumped
-        sut = OmitFieldPorter.new_is_none(
-            FieldDefinition(DataDefinition(label="-", porter=m_porter))
-        )
-        data = object()
-        assert sut.dump(object(), data) == dumped
-        m_porter.dump.assert_called_once_with(data)
-
-    def test_new_is_none__dump_with_omit(self) -> None:
-        sut = OmitFieldPorter.new_is_none(FieldDefinition(DataDefinition(label="-")))
-        assert sut.dump(object(), None) is Nothing

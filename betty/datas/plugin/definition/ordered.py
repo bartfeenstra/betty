@@ -4,6 +4,7 @@ Ordered plugin definition data.
 
 from __future__ import annotations
 
+from operator import not_
 from typing import TYPE_CHECKING, Any
 
 from betty.attrs.owner import CollectionOwnerAttr
@@ -33,14 +34,14 @@ class OrderedPluginDefinitionData[PluginDefinitionT: OrderedPluginDefinition](
         FieldDefinition(
             SequenceDefinition(cls=list, label=_("After"), value=MachineName),
             optional=True,
-            porter=OmitFieldPorter.new_is_empty,
+            porter=OmitFieldPorter.new(not_),
         )
     )
     before = CollectionOwnerAttr(
         FieldDefinition(
             SequenceDefinition(cls=list, label=_("Before"), value=MachineName),
             optional=True,
-            porter=OmitFieldPorter.new_is_empty,
+            porter=OmitFieldPorter.new(not_),
         )
     )
 

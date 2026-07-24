@@ -4,7 +4,7 @@ Porters to conditionally port field data.
 
 from __future__ import annotations
 
-from collections.abc import Callable, Sized
+from collections.abc import Callable
 from inspect import signature
 from typing import TYPE_CHECKING, Any, final, override
 
@@ -63,24 +63,6 @@ class OmitFieldPorter[OwnerT, DataT](FieldPorter[OwnerT, DataT, DataT]):
         Create a field manufacturer to create a new porter.
         """
         return lambda field: OmitFieldPorter[OwnerT, DataT](field, omit_dump)
-
-    @classmethod
-    def new_is_empty[NewDataT: Sized](
-        cls, field: FieldDefinition[OwnerT, NewDataT]
-    ) -> OmitFieldPorter[OwnerT, NewDataT]:
-        """
-        Create a new porter that omits dumps if the data is empty.
-        """
-        return OmitFieldPorter(field, lambda data: not len(data))
-
-    @classmethod
-    def new_is_none(
-        cls, field: FieldDefinition[OwnerT, DataT]
-    ) -> OmitFieldPorter[OwnerT, DataT]:
-        """
-        Create a new porter that omits dumps if the data is ``None``.
-        """
-        return OmitFieldPorter(field, lambda data: data is None)
 
     @override
     def dump(self, owner: OwnerT, data: DataT, /) -> PortableData | NothingType:

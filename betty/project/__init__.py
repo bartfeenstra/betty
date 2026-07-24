@@ -11,6 +11,7 @@ from __future__ import annotations
 from asyncio import gather, to_thread
 from collections.abc import MutableSequence
 from contextlib import AsyncExitStack, asynccontextmanager
+from operator import not_
 from shutil import rmtree
 from tempfile import mkdtemp
 from typing import TYPE_CHECKING, Any, Final, Literal, Self, final
@@ -797,7 +798,7 @@ class ProjectData(Data, HasProps):
                 ),
             ),
             optional=True,
-            porter=OmitFieldPorter.new_is_empty,
+            porter=OmitFieldPorter.new(not_),
         )
     )
     """
@@ -823,7 +824,7 @@ class ProjectData(Data, HasProps):
                 ),
             ),
             optional=True,
-            porter=OmitFieldPorter.new_is_empty,
+            porter=OmitFieldPorter.new(not_),
         )
     )
     """
@@ -896,7 +897,7 @@ class ProjectData(Data, HasProps):
                 ),
             ),
             optional=True,
-            porter=OmitFieldPorter.new_is_empty,
+            porter=OmitFieldPorter.new(not_),
         )
     )
     """
@@ -920,7 +921,7 @@ class ProjectData(Data, HasProps):
                 ),
             ),
             optional=True,
-            porter=OmitFieldPorter.new_is_empty,
+            porter=OmitFieldPorter.new(not_),
         )
     ).default(lambda: [default_locale])
     """
