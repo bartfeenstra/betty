@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-24 12:55+0100\n"
-"PO-Revision-Date: 2026-07-15 15:46+0000\n"
-"Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
+"PO-Revision-Date: 2026-07-27 17:01+0000\n"
+"Last-Translator: Andi Chandler <andi@gowling.com>\n"
 "Language: en_GB\n"
 "Language-Team: English (United Kingdom) <https://hosted.weblate.org/projects/betty/betty-0-5-x/en_GB/>\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
@@ -17,6 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
+"X-Generator: Weblate 2026.8.dev0\n"
 
 #, python-brace-format
 msgctxt "localizable-quote"
@@ -106,7 +107,7 @@ msgid "Also known as %(names)s"
 msgstr "Also known as %(names)s"
 
 msgid "Also show debug messages"
-msgstr ""
+msgstr "Also show debug messages"
 
 msgid "Also show detailed information messages"
 msgstr "Also show detailed information messages"
@@ -567,7 +568,7 @@ msgid "Divorces"
 msgstr "Divorces"
 
 msgid "Do not show any output, except error and warning messages"
-msgstr ""
+msgstr "Do not show any output, except error and warning messages"
 
 msgid "Do not show any output, except error messages"
 msgstr "Do not show any output, except error messages"
@@ -1122,7 +1123,7 @@ msgstr "Next page"
 
 #, python-brace-format
 msgid "Next time, Betty will talk to you in {locale}"
-msgstr ""
+msgstr "Next time, Betty will talk to you in {locale}"
 
 msgid "No part may be reproduced or distributed in any form or by any means, without express written permission from the copyright holder, or unless permitted by copyright law."
 msgstr "No part may be reproduced or distributed in any form or by any means, without express written permission from the copyright holder, or unless permitted by copyright law."
@@ -1486,13 +1487,13 @@ msgid "Show all available commands"
 msgstr "Show all available commands"
 
 msgid "Show log messages"
-msgstr ""
+msgstr "Show log messages"
 
 msgid "Show this help message"
 msgstr "Show this help message"
 
 msgid "Show tracebacks for all exceptions"
-msgstr ""
+msgstr "Show tracebacks for all exceptions"
 
 #, python-brace-format
 msgid "Skip interactions and answer {yes} to all questions."
@@ -2705,4 +2706,3 @@ msgstr "© Copyright the author, unless otherwise credited"
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Copyright {author}, unless otherwise credited"
-
