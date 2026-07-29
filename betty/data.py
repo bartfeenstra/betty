@@ -12,6 +12,7 @@ from betty.definition.human_facing import HumanFacingDefinition
 from betty.importlib import fully_qualified_name
 from betty.portable import Porter
 from betty.sample import Samplable, Sample, Samples
+from betty.search import Indexer
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping, MutableMapping
@@ -25,6 +26,7 @@ class DataDefinition[
     DataT,
     StageT: Stage = ClsDefinitionCapabilityStage,
     PorterT: Porter = Porter,
+    IndexerT: Indexer = Indexer,
 ](
     HumanFacingDefinition[StageT | ClsDefinitionCapabilityStage],
     OptionalClsDefinition[DataT, StageT],
@@ -50,6 +52,8 @@ class DataDefinition[
         description: ResolvableLocalizable | None = None,
         porter: ResolvableCapability[Self, Intersection[PorterT, Porter[DataT]]]
         | None = None,
+        indexer: ResolvableCapability[Self, Intersection[IndexerT, Indexer[DataT]]]
+        | None = None,
         samples: Iterable[
             Callable[[], Sample[DataT]]
             | Samples[DataT]
@@ -65,6 +69,7 @@ class DataDefinition[
             description=description,
             capabilities={
                 **capabilities,
+                "indexer": (Indexer.__value__, indexer),
                 "porter": (Porter, porter),
             },
             **kwargs,
@@ -85,6 +90,22 @@ class DataDefinition[
         The porter for the data, if it has one.
         """
         return self.try_capability("porter")
+
+    @final
+    @property
+    def indexer(self) -> IndexerT:
+        """
+        The search indexer for the data.
+        """
+        return self.capability("indexer")
+
+    @final
+    @property
+    def try_indexer(self) -> IndexerT | None:
+        """
+        The search indexer for the data, if it has one.
+        """
+        return self.try_capability("indexer")
 
     @override
     def _set_cls(self, cls: type[DataT], /) -> None:

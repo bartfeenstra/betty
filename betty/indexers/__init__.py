@@ -1,0 +1,3 @@
+"""
+Reusable search indexers.
+"""
