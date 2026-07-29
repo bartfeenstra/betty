@@ -7,7 +7,7 @@ from __future__ import annotations
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Never, override
 
-from betty.indicator.selector import Selectors
+from betty.indicator.operator import Operators
 from betty.localizable import Localizable, ResolvableLocalizable
 from betty.localizables.markup import Lines, UnorderedList
 from betty.localizer import default_localizer
@@ -71,8 +71,8 @@ class HumanFacingException(Exception, Localizable):
         return Lines(
             self._localizable_message,
             UnorderedList(*[
-                selector.format()
-                for selector in Selectors.reduce(*reversed(self.indicators))
+                operator.format()
+                for operator in Operators.reduce(*reversed(self.indicators))
             ]),
         ).localize(localizer)
 

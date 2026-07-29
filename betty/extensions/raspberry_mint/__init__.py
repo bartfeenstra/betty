@@ -38,8 +38,7 @@ from betty.extension import ExtensionDefinition
 from betty.extensions.webpack import Webpack
 from betty.extensions.webpack.build import EntryPointProvider
 from betty.factory import DataManufacturable, Manufacturable
-from betty.indicator.selector import Attr as AttrSelector
-from betty.indicator.selector import Key
+from betty.indicator.operator import Attr, Key
 from betty.jobs._generate_raspberry_mint_search_index import (
     _GenerateRaspberryMintSearchIndex,
 )
@@ -172,7 +171,7 @@ class RaspberryMintData(Data, HasProps):
         Validate the configuration.
         """
         available_regions = await Region.all(project)
-        with reraise_with_indicator(AttrSelector("regional_content")):
+        with reraise_with_indicator(Attr("regional_content")):
             for region in self.regional_content:
                 with reraise_with_indicator(Key(region)):
                     if region not in available_regions:

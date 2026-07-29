@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any, final
 from betty.assertions import _HumanFacingValueError
 from betty.assertions.mapping import assert_mapping
 from betty.exception import reraise_with_indicator
-from betty.indicator.selector import Key
+from betty.indicator.operator import Key
 from betty.localizables.gettext import _
 from betty.localizables.markup import Paragraph, do_you_mean
 

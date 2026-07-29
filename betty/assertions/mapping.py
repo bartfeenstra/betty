@@ -10,7 +10,7 @@ from typing import Any, overload
 from betty.assertions.type import assert_type
 from betty.exception import reraise_with_indicator
 from betty.functools import Pipe, Pipeline
-from betty.indicator.selector import Key
+from betty.indicator.operator import Key
 
 
 @overload

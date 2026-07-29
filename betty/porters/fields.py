@@ -20,11 +20,11 @@ class FieldsPorter[DataT](Porter[DataT]):
     Load and dump a record using its fields.
     """
 
-    def __init__(self, record: RecordDefinition[DataT, Porter, Any], /):
+    def __init__(self, record: RecordDefinition[DataT, Any, Porter], /):
         self._record = record
         self._load = assert_record(*[
-            Field(selector.element, field_porter.load, optional=field.optional)
-            for selector, field in self._record.fields.items()
+            Field(operator.operator, field_porter.load, optional=field.optional)
+            for operator, field in self._record.fields.items()
             if (field_porter := field.try_porter)
         ])
 
@@ -35,9 +35,9 @@ class FieldsPorter[DataT](Porter[DataT]):
     @override
     def dump(self, data: DataT, /) -> PortableMapping:
         portable = {}
-        for selector, field in self._record.fields.items():
+        for operator, field in self._record.fields.items():
             if field_porter := field.try_porter:
-                field_data = selector.get(data)
+                field_data = operator.get(data)
                 if (field_dump := field_porter.dump(data, field_data)) is not Nothing:
-                    portable[selector.element] = field_dump
+                    portable[operator.operator] = field_dump
         return portable

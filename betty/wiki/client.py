@@ -21,7 +21,7 @@ from betty.exception import HumanFacingException, reraise_with_indicator
 from betty.file import write
 from betty.hashid import hashid
 from betty.indicator import Url
-from betty.indicator.selector import Index, Key, SelectorError, Selectors
+from betty.indicator.operator import Index, Key, OperatorError, Operators
 from betty.localizables.gettext import _
 from betty.media_type import MediaType
 
@@ -92,7 +92,7 @@ class Client:
             yield
         except HumanFacingException as error:
             raise ClientError(error) from error
-        except SelectorError as error:
+        except OperatorError as error:
             raise ClientError(str(error)) from error
 
     @asynccontextmanager
@@ -119,7 +119,7 @@ class Client:
             self._human_facing_exception_to_client_error(),
             reraise_with_indicator(Url(url)),
         ):
-            return Selectors(Key("query"), Key("pages"), Index(0)).get(
+            return Operators(Key("query"), Key("pages"), Index(0)).get(
                 data, assert_mapping(None, assert_str())
             )
 
@@ -158,10 +158,10 @@ class Client:
         ):
             api_data = await self._get_json(url)
 
-            title = Selectors(Key("titles"), Key("normalized")).get(
+            title = Operators(Key("titles"), Key("normalized")).get(
                 api_data, assert_str()
             )
-            extract = Selectors(
+            extract = Operators(
                 Key("extract_html") if "extract_html" in api_data else Key("extract")
             ).get(api_data, assert_str())
         return Summary(
@@ -193,7 +193,7 @@ class Client:
             self._human_facing_exception_to_client_error(),
             reraise_with_indicator(Url(url)),
         ):
-            image_info = Selectors(*image_info_selectors).get(
+            image_info = Operators(*image_info_selectors).get(
                 image_info_api_data, assert_mapping()
             )
             with reraise_with_indicator(*image_info_selectors):

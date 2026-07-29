@@ -8,13 +8,13 @@ from typing import override
 
 from betty.attr import Attr
 from betty.datas.aggregate.record import RecordDefinition
-from betty.indicator.selector import Attr as AttrElement
+from betty.indicator.operator import Attr as AttrOperator
 from betty.portable import Porter
 from betty.prop import HasProps
 
 
 class ObjectDefinition[DataT, PorterT: Porter = Porter](
-    RecordDefinition[DataT, PorterT, AttrElement]
+    RecordDefinition[DataT, AttrOperator, PorterT]
 ):
     """
     Define an object with attributes.
@@ -27,5 +27,5 @@ class ObjectDefinition[DataT, PorterT: Porter = Porter](
         if issubclass(cls, HasProps):
             for prop in cls.props():
                 if isinstance(prop, Attr):
-                    self._fields[AttrElement(prop.prop.name)] = prop.field
+                    self._fields[AttrOperator(prop.prop.name)] = prop.field
         super()._set_cls(cls)

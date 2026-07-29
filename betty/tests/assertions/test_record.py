@@ -7,7 +7,7 @@ import pytest
 from betty.assertions.record import Field, assert_record
 from betty.assertions.str import assert_str
 from betty.exception import HumanFacingException
-from betty.indicator.selector import Key
+from betty.indicator.operator import Key
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
