@@ -3,7 +3,7 @@ from typing import Any, TypeGuard
 
 from pytest_mock import MockerFixture
 
-from betty.association import AssociateResolver, Association
+from betty.association import AssociateResolver, Association, HasAssociations
 from betty.associations.proxy import ProxyAssociation
 from betty.data import DataDefinition
 from betty.datas.aggregate.record import FieldDefinition
@@ -20,30 +20,30 @@ class _Association(Association):
 
     def is_resolver(
         self, value: Any, /
-    ) -> TypeGuard[AssociateResolver[Entity, Entity]]:
+    ) -> TypeGuard[AssociateResolver[HasAssociations, Entity]]:
         raise NotImplementedError
 
-    def resolve(self, project: Project, owner: Entity, /) -> None:
+    def resolve(self, project: Project, owner: HasAssociations, /) -> None:
         raise NotImplementedError
 
-    def associate(self, owner: Entity, associate: Entity, /) -> None:
+    def associate(self, owner: HasAssociations, associate: Entity, /) -> None:
         raise NotImplementedError
 
-    def disassociate(self, owner: Entity, associate: Entity, /) -> None:
+    def disassociate(self, owner: HasAssociations, associate: Entity, /) -> None:
         raise NotImplementedError
 
-    def get_associates(self, owner: Entity, /) -> Iterable[Entity]:
+    def get_associates(self, owner: HasAssociations, /) -> Iterable[Entity]:
         raise NotImplementedError
 
     async def linked_data_schema_for(self, project: Project, /) -> Schema:
         raise NotImplementedError
 
     async def dump_linked_data_for(
-        self, project: Project, target: Entity, /
+        self, project: Project, target: HasAssociations, /
     ) -> PortableData:
         raise NotImplementedError
 
-    def get(self, owner: Entity, /) -> Any:
+    def get(self, owner: HasAssociations, /) -> Any:
         raise NotImplementedError
 
 

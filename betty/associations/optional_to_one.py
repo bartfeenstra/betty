@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
+from betty.association import HasAssociations
 from betty.associations.proxy import ProxyAssociation
 from betty.associations.to_one import ToOne, ToOneAssociate
 from betty.attrs.optional import OptionalAttr
@@ -20,7 +21,7 @@ if TYPE_CHECKING:
 
 
 @final
-class OptionalToOne[OwnerT: Entity, AssociateT: Entity](
+class OptionalToOne[OwnerT: HasAssociations, AssociateT: Entity](
     OptionalAttr[OwnerT, AssociateT, ToOneAssociate[OwnerT, AssociateT]],
     ProxyAssociation[
         OwnerT,

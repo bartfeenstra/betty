@@ -9,6 +9,7 @@ from betty.association import (
     AssociateResolver,
     Association,
     BiResolver,
+    HasAssociations,
     UnresolvedAssociate,
     resolve_associate,
     resolve_associates,
@@ -27,15 +28,19 @@ if TYPE_CHECKING:
     from betty.json_schema import Schema
     from betty.portable import PortableData
     from betty.project import Project
+    from betty.typing import Intersection
 
 
-class _Association[OwnerT: Entity = Entity, AssociateT: Entity = Entity](
-    Association[OwnerT, AssociateT, AssociateT, AssociateT]
-):
+class _Association[
+    OwnerT: HasAssociations = HasAssociations,
+    AssociateT: Entity = Entity,
+](Association[OwnerT, AssociateT, AssociateT, AssociateT]):
     def __init__(
         self,
         associate: type[AssociateT] | str,
-        associate_attr: Association[AssociateT, OwnerT, Any, Any] | str | None = None,
+        associate_attr: Association[AssociateT, Intersection[OwnerT, Entity], Any, Any]
+        | str
+        | None = None,
         /,
     ):
         super().__init__(
@@ -69,7 +74,7 @@ class _Association[OwnerT: Entity = Entity, AssociateT: Entity = Entity](
     ) -> PortableData:
         raise NotImplementedError
 
-    def get(self, owner: Entity, /) -> AssociateT:
+    def get(self, owner: HasAssociations, /) -> AssociateT:
         raise NotImplementedError
 
 
@@ -166,7 +171,7 @@ class TestAssociation:
         class IsNoResolverAssociation(_Association):
             def is_resolver(
                 self, value: Any, /
-            ) -> TypeGuard[AssociateResolver[Entity, Entity]]:
+            ) -> TypeGuard[AssociateResolver[HasAssociations, Entity]]:
                 return False
 
         @EntityDefinition(
@@ -184,7 +189,7 @@ class TestAssociation:
         class IsResolverAssociation(_Association):
             def is_resolver(
                 self, value: Any, /
-            ) -> TypeGuard[AssociateResolver[Entity, Entity]]:
+            ) -> TypeGuard[AssociateResolver[HasAssociations, Entity]]:
                 return True
 
         @EntityDefinition(
@@ -228,11 +233,13 @@ def test_resolve_associate__with_project(isolated_project: Project) -> None:
 def test_resolve_associate__with_owner_and_association(
     isolated_project: Project,
 ) -> None:
-    owner = Entity()
+    owner = HasAssociations()
     association = MagicMock(spec=Association)
     associate = Entity()
 
-    def resolver(resolver_owner: Entity, resolver_association: Association) -> Entity:
+    def resolver(
+        resolver_owner: HasAssociations, resolver_association: Association
+    ) -> Entity:
         assert resolver_owner is owner
         assert resolver_association is association
         return associate
@@ -245,13 +252,13 @@ def test_resolve_associate__with_owner_and_association(
 def test_resolve_associate__with_project_and_owner_and_association(
     isolated_project: Project,
 ) -> None:
-    owner = Entity()
+    owner = HasAssociations()
     association = MagicMock(spec=Association)
     associate = Entity()
 
     def resolver(
         resolver_project: Project,
-        resolver_owner: Entity,
+        resolver_owner: HasAssociations,
         resolver_association: Association,
     ) -> Entity:
         assert resolver_project is isolated_project
@@ -300,3 +307,12 @@ class TestBiResolver:
         m_associate = mocker.patch.object(_BiTypedEntity.association, "associate")
         assert sut(isolated_project, owner, _BiNamedEntity.association) is associate
         m_associate.assert_called_once_with(associate, owner)
+
+
+class TestHasAssociations:
+    def test___init__(self) -> None:
+        class _Owner(HasAssociations):
+            my_first_association = _Association(DummyEntityOne)
+
+        owner = _Owner()
+        assert list(owner.associations()) == [_Owner.my_first_association]

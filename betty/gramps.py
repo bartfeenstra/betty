@@ -22,7 +22,12 @@ from geopy import Point
 from lxml import etree
 
 from betty import subprocess
-from betty.association import AssociateResolver, BiResolver, resolve_associates
+from betty.association import (
+    AssociateResolver,
+    BiResolver,
+    HasAssociations,
+    resolve_associates,
+)
 from betty.associations.has_citations import HasCitations
 from betty.associations.has_links import HasLinks
 from betty.associations.has_notes import HasNotes
@@ -635,7 +640,7 @@ class GrampsLoader:
             return False
         return not version[2] < self._supported_gramps_xml_version[2]
 
-    def _resolve_one[OwnerT: Entity, AssociateT: Entity](
+    def _resolve_one[OwnerT: HasAssociations, AssociateT: Entity](
         self,
         _owner_type: type[OwnerT],
         _associate_type: type[AssociateT],
@@ -644,7 +649,7 @@ class GrampsLoader:
     ) -> AssociateResolver[OwnerT, AssociateT]:
         return BiResolver(lambda: self._handles_to_entities[handle])
 
-    def _resolve_many[OwnerT: Entity, AssociateT: Entity](
+    def _resolve_many[OwnerT: HasAssociations, AssociateT: Entity](
         self, owner_type: type[OwnerT], associate_type: type[AssociateT], *handles: str
     ) -> Iterable[AssociateResolver[OwnerT, AssociateT]]:
         return (

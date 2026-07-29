@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any, final, overload, override
 from betty.association import (
     Associate,
     AssociateResolver,
+    HasAssociations,
     UnresolvedAssociate,
     resolve_associate,
 )
@@ -26,7 +27,7 @@ if TYPE_CHECKING:
 
 
 @final
-class ToManyCollection[OwnerT: Entity, AssociateT: Entity](
+class ToManyCollection[OwnerT: HasAssociations, AssociateT: Entity](
     MutableCollection[AssociateT],
     Sequence[AssociateT],
 ):
