@@ -7,7 +7,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, TypeGuard, final, override
 
-from betty.association import Associate, AssociateResolver, Association
+from betty.association import Associate, AssociateResolver, Association, HasAssociations
 from betty.collections.to_many import ToManyCollection
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
 from betty.datas.aggregate.record import FieldDefinition
@@ -23,13 +23,13 @@ if TYPE_CHECKING:
     from betty.portable import PortableData
     from betty.project import Project
 
-type ToManyAssociates[OwnerT: Entity, AssociateT: Entity] = Iterable[
+type ToManyAssociates[OwnerT: HasAssociations, AssociateT: Entity] = Iterable[
     Associate[OwnerT, AssociateT]
 ]
 
 
 @final
-class ToMany[OwnerT: Entity, AssociateT: Entity](
+class ToMany[OwnerT: HasAssociations, AssociateT: Entity](
     Association[
         OwnerT,
         AssociateT,

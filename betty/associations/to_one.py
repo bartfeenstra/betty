@@ -12,6 +12,7 @@ from betty.association import (
     Associate,
     AssociateResolver,
     Association,
+    HasAssociations,
     resolve_associate,
 )
 from betty.datas.aggregate.record import FieldDefinition
@@ -31,7 +32,7 @@ if TYPE_CHECKING:
 
 
 @final
-class MissingAssociate[OwnerT: Entity](AttributeError):
+class MissingAssociate[OwnerT: HasAssociations](AttributeError):
     """
     Raised when a to-one association is missing its required associate.
     """
@@ -91,13 +92,13 @@ class Placeholder(_MissingAssociate):
         return "A placeholder was set, but never explicitly replaced by a real associate entity."
 
 
-type ToOneAssociate[OwnerT: Entity, AssociateT: Entity] = (
+type ToOneAssociate[OwnerT: HasAssociations, AssociateT: Entity] = (
     Associate[OwnerT, AssociateT] | _MissingAssociate
 )
 
 
 @final
-class ToOne[OwnerT: Entity, AssociateT: Entity](
+class ToOne[OwnerT: HasAssociations, AssociateT: Entity](
     Association[OwnerT, AssociateT, AssociateT, ToOneAssociate[OwnerT, AssociateT]]
 ):
     r"""

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, TypeGuard, override
 
-from betty.association import Associate, AssociateResolver, Association
+from betty.association import Associate, AssociateResolver, Association, HasAssociations
 from betty.attrs.proxy import ProxyAttr
 from betty.data import DataDefinition, ResolvableDataDefinition
 from betty.entity import Entity
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 
 class ProxyAssociation[
-    OwnerT: Entity,
+    OwnerT: HasAssociations,
     AssociateT: Entity,
     GetT = Any,
     SetT = Any,

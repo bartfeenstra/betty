@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 from inspect import signature
-from typing import TYPE_CHECKING, Any, Final, Self, final, override
+from typing import TYPE_CHECKING, Any, Final, final, override
 
+from betty.association import HasAssociations
 from betty.attrs.privacy import HasPrivacy
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.definition.human_facing import CountableHumanFacingDefinition
@@ -20,9 +21,8 @@ from betty.privacy import Privacy
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable
+    from collections.abc import Callable
 
-    from betty.association import Association
     from betty.localizable import (
         CountableLocalizable,
         Localizable,
@@ -35,7 +35,10 @@ if TYPE_CHECKING:
 
 
 class Entity(
-    LinkedDataDumpableWithSchemaJsonLdObject, DataPlugin["EntityDefinition"], HasPrivacy
+    LinkedDataDumpableWithSchemaJsonLdObject,
+    DataPlugin["EntityDefinition"],
+    HasPrivacy,
+    HasAssociations,
 ):
     """
     An entity is a uniquely identifiable data container.
@@ -59,18 +62,6 @@ class Entity(
         This MUST be unique per entity type, per ancestry.
         """
         super().__init__(*args, privacy=privacy, **kwargs)
-
-    @final
-    @classmethod
-    def associations(cls) -> Iterable[Association[Self]]:
-        """
-        Get all associations on entities of this type.
-        """
-        from betty.association import Association
-
-        for prop in cls.props():
-            if isinstance(prop, Association):
-                yield prop
 
     @override
     def __hash__(self) -> int:
