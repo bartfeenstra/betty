@@ -4,14 +4,14 @@ from typing import Any, override
 import pytest
 
 from betty.indicator import Indicator
-from betty.indicator.selector import (
+from betty.indicator.operator import (
     Attr,
-    Element,
     Index,
     Key,
-    Selector,
-    SelectorError,
-    Selectors,
+    Operator,
+    OperatorError,
+    Operators,
+    _Operator,
 )
 
 
@@ -22,8 +22,8 @@ class DummyIndicator(Indicator):
 
 
 class TestAttr:
-    def test_element(self) -> None:
-        assert Attr("my_first_attr").element == "my_first_attr"
+    def test_operator(self) -> None:
+        assert Attr("my_first_attr").operator == "my_first_attr"
 
     def test_format(self) -> None:
         assert Attr("attr").format() == ".attr"
@@ -96,9 +96,17 @@ class TestKey:
         assert data == {}
 
 
-class TestSelectors:
+class TestOperators:
+    def test___hash__(self) -> None:
+        assert hash(Operators()) == hash(Operators())
+        assert hash(Operators()) != hash(Operators(Index(0)))
+
+    def test___eq__(self) -> None:
+        assert Operators() == Operators()
+        assert Operators() != Operators(Index(0))
+
     @pytest.mark.parametrize(
-        ("expected", "selectors"),
+        ("expected", "operators"),
         [
             (
                 "data",
@@ -113,11 +121,11 @@ class TestSelectors:
             ),
         ],
     )
-    def test_format(self, expected: str, selectors: Sequence[Selector]) -> None:
-        assert Selectors(*selectors).format() == expected
+    def test_format(self, expected: str, operators: Sequence[Operator]) -> None:
+        assert Operators(*operators).format() == expected
 
     @pytest.mark.parametrize(
-        ("expected", "selectors"),
+        ("expected", "operators"),
         [
             (
                 "",
@@ -136,32 +144,32 @@ class TestSelectors:
             ),
         ],
     )
-    def test_reduce(self, expected: str, selectors: Sequence[Selector]) -> None:
+    def test_reduce(self, expected: str, operators: Sequence[Operator]) -> None:
         assert (
             "\n".join([
-                selector.format() for selector in Selectors.reduce(*selectors)
+                operator.format() for operator in Operators.reduce(*operators)
             ]).format()
             == expected
         )
 
     def test_get(self) -> None:
         assert (
-            Selectors(Index(1), Index(0)).get([[], ["my-first-value"]])
+            Operators(Index(1), Index(0)).get([[], ["my-first-value"]])
             == "my-first-value"
         )
 
     def test_set(self) -> None:
         data = [[], ["my-first-value"]]
-        Selectors(Index(1), Index(0)).set(data, "my-second-value")
+        Operators(Index(1), Index(0)).set(data, "my-second-value")
         assert data[1][0] == "my-second-value"
 
     def test_delete(self) -> None:
         data = [[], ["my-first-value"]]
-        Selectors(Index(1), Index(0)).delete(data)
+        Operators(Index(1), Index(0)).delete(data)
         assert data[1] == []
 
 
-class ElementTestElement(Element[Any]):
+class OperatorTest_Operator(_Operator):
     @override
     def _get(self, data: Any, /) -> Any:
         raise NotImplementedError
@@ -179,21 +187,21 @@ class ElementTestElement(Element[Any]):
         raise NotImplementedError
 
 
-class TestElement:
-    def test_element(self) -> None:
-        element = "my_first_element"
-        sut = ElementTestElement(element)
-        assert sut.element == element
+class Test_Operator:
+    def test_operator(self) -> None:
+        operator = "my_first_operator"
+        sut = OperatorTest_Operator(operator)
+        assert sut.operator == operator
 
     @pytest.mark.parametrize(
         ("expected", "one", "other"),
         [
-            (True, ElementTestElement(1), ElementTestElement(1)),
-            (False, ElementTestElement(1), ElementTestElement(2)),
-            (False, ElementTestElement(1), ElementTestElement("1")),
+            (True, OperatorTest_Operator(1), OperatorTest_Operator(1)),
+            (False, OperatorTest_Operator(1), OperatorTest_Operator(2)),
+            (False, OperatorTest_Operator(1), OperatorTest_Operator("1")),
         ],
     )
-    def test___hash__(self, expected: bool, one: Element, other: Element) -> None:
+    def test___hash__(self, expected: bool, one: Operator, other: Operator) -> None:
         assert hash(one) == hash(one)
         assert hash(other) == hash(other)
         assert (hash(one) == hash(other)) is expected
@@ -201,17 +209,17 @@ class TestElement:
     @pytest.mark.parametrize(
         ("expected", "one", "other"),
         [
-            (True, ElementTestElement(1), ElementTestElement(1)),
-            (False, ElementTestElement(1), ElementTestElement(2)),
-            (False, ElementTestElement(1), ElementTestElement("1")),
+            (True, OperatorTest_Operator(1), OperatorTest_Operator(1)),
+            (False, OperatorTest_Operator(1), OperatorTest_Operator(2)),
+            (False, OperatorTest_Operator(1), OperatorTest_Operator("1")),
         ],
     )
-    def test___eq__(self, expected: bool, one: Element, other: Element) -> None:
+    def test___eq__(self, expected: bool, one: Operator, other: Operator) -> None:
         assert one == one
         assert other == other
         assert (one == other) is expected
 
 
-class TestSelectorError:
+class TestOperatorError:
     def test(self) -> None:
-        assert "[0]" in str(SelectorError(Index(0)))
+        assert "[0]" in str(OperatorError(Index(0)))

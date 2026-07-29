@@ -338,7 +338,7 @@ Data
                 primary_label = field.data.label if field.label is None else field.label
                 content += f"""
                 
-``{field_selector.element}`` :sup:`{"optional" if isinstance(field.data, OptionalDefinition) else "required"}`
+``{field_selector.operator}`` :sup:`{"optional" if isinstance(field.data, OptionalDefinition) else "required"}`
 
     **{primary_label.localize(default_localizer)}**
 """

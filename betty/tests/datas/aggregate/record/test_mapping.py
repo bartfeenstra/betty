@@ -1,7 +1,7 @@
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.mapping import TypedMappingDefinition
 from betty.datas.str import StrDefinition
-from betty.indicator.selector import Key
+from betty.indicator.operator import Key
 
 
 class TestTypedMappingDefinition:

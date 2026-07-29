@@ -9,7 +9,7 @@ from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.mapping import TypedMappingDefinition
 from betty.datas.str import StrDefinition
-from betty.indicator.selector import Key
+from betty.indicator.operator import Key
 from betty.portable import KeyedPorter, PortableData
 from betty.porters.fields import FieldsPorter
 from betty.porters.keyed_mapping import KeyedMappingPorter

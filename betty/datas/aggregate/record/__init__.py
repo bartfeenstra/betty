@@ -15,7 +15,8 @@ from betty.data import (
     Samples,
     resolve_data_definition,
 )
-from betty.indicator.selector import Element
+from betty.indicator.operator import Attr, Key
+from betty.indicator.operator import Operator as Operator
 from betty.localizable import resolve_localizable
 from betty.portable import PortableData, Porter
 from betty.portable.error import NotPortable
@@ -26,6 +27,9 @@ if TYPE_CHECKING:
     from betty.localizable import Localizable, ResolvableLocalizable
     from betty.nothing import NothingType
     from betty.typing import Intersection
+
+
+type FieldOperator = Attr | Key
 
 
 class FieldPorter[OwnerT, DataT, FieldPorterLoadDataT = Any](ABC):
@@ -159,11 +163,9 @@ def resolve_field_definition[
     return FieldDefinition(resolve_data_definition(field))
 
 
-class RecordDefinition[
-    DataT,
-    PorterT: Porter = Porter,
-    ElementT: Element[str] = Element[str],
-](DataDefinition[DataT, PorterT]):
+class RecordDefinition[DataT, OperatorT: FieldOperator, PorterT: Porter = Porter](
+    DataDefinition[DataT, PorterT]
+):
     """
     A record data definition.
 
@@ -175,7 +177,7 @@ class RecordDefinition[
         *args: Any,
         cls: type[DataT] | None = None,
         label: ResolvableLocalizable,
-        fields: Mapping[ElementT, ResolvableFieldDefinition[DataT, Any]] | None = None,
+        fields: Mapping[OperatorT, ResolvableFieldDefinition[DataT, Any]] | None = None,
         description: ResolvableLocalizable | None = None,
         samples: Iterable[Callable[[], Sample[DataT]] | Samples] = (),
         factory: Callable[..., DataT] | None = None,
@@ -188,7 +190,7 @@ class RecordDefinition[
         from betty.porters.fields import FieldsPorter
 
         self._factory = factory
-        self._fields: MutableMapping[ElementT, FieldDefinition[DataT, Any]] = (
+        self._fields: MutableMapping[OperatorT, FieldDefinition[DataT, Any]] = (
             {}
             if fields is None
             else {
@@ -224,7 +226,7 @@ class RecordDefinition[
         )
 
     @property
-    def fields(self) -> Mapping[ElementT, FieldDefinition[DataT, Any]]:
+    def fields(self) -> Mapping[OperatorT, FieldDefinition[DataT, Any]]:
         """
         The definitions of the fields contained by this record.
         """

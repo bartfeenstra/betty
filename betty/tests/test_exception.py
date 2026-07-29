@@ -5,7 +5,7 @@ from betty.exception import (
     do_raise,
     reraise_with_indicator,
 )
-from betty.indicator.selector import Attr, Key
+from betty.indicator.operator import Attr, Key
 from betty.locale import default_locale_tag
 from betty.localizables.static import StaticTranslations
 from betty.localizer import Localizer, default_localizer

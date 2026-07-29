@@ -273,9 +273,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/indicator/__init__.py": {
         "Indicator": MissingReason.ABSTRACT,
     },
-    "betty/indicator/selector.py": {
+    "betty/indicator/operator.py": {
         "Indicator": MissingReason.ABSTRACT,
-        "Selector": MissingReason.ABSTRACT,
+        "Operator": MissingReason.ABSTRACT,
     },
     "betty/jinja/__init__.py": {
         "context_document": MissingReason.SHOULD_BE_COVERED,

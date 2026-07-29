@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.assertions.len import assert_len
 from betty.exception import reraise_with_indicator
-from betty.indicator.selector import Key
+from betty.indicator.operator import Key
 from betty.locale import (
     ResolvableLocale,
     negotiate_locale,

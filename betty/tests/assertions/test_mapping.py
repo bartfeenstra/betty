@@ -7,7 +7,7 @@ import pytest
 from betty.assertions.mapping import assert_mapping
 from betty.assertions.str import assert_str
 from betty.exception import HumanFacingException
-from betty.indicator.selector import Key
+from betty.indicator.operator import Key
 
 if TYPE_CHECKING:
     from betty.functools import Pipe
