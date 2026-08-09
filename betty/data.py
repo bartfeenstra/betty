@@ -15,7 +15,7 @@ from betty.portable.error import NotPortable
 from betty.sample import Samplable, Sample, Samples
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, MutableMapping
+    from collections.abc import Callable, Iterable, Mapping, MutableMapping
 
     from betty.localizable import ResolvableLocalizable
     from betty.typing import Intersection
@@ -63,22 +63,35 @@ class DataDefinition[DataT, PorterT: Porter = Porter](
         ] = (),
         **kwargs: Any,
     ):
-        self._samples = tuple(samples)
+        self.__samples = tuple(samples)
         self._porter: Intersection[PorterT, Porter[DataT]] | None = None
-        self._porter_set_cls_factory: (
-            Callable[[Self, type[DataT]], Intersection[PorterT, Porter[DataT]]] | None
-        ) = None
-        factory_signature: int | None = None
-        if porter is not None:
-            if isinstance(porter, Porter):
-                self._porter = porter
-            else:
-                factory_signature = len(signature(porter).parameters)
-                if factory_signature == 2:
-                    self._porter_set_cls_factory = porter  # ty:ignore[invalid-assignment]
+        self.__set_cls_feature_factories: MutableMapping[
+            str, Callable[[Self, type[DataT]], Any]
+        ] = {}
+        post_super_init_feature_factories = self.__init_features(
+            porter=(Porter, porter)
+        )
         super().__init__(*args, cls=cls, label=label, description=description, **kwargs)
-        if factory_signature == 1:
-            self._porter = porter(self)  # ty:ignore[call-non-callable, missing-argument]
+        for feature_name, feature_factory in post_super_init_feature_factories.items():
+            setattr(self, f"_{feature_name}", feature_factory(self))
+
+    def __init_features(
+        self, **features: tuple[type, ResolvableDataDefinitionFeature]
+    ) -> Mapping[str, Any]:
+        post_super_init_feature_factories: MutableMapping[str, Any] = {}
+        for feature_name, (feature_type, feature_value) in features.items():
+            factory_signature: int | None = None
+            if feature_value is not None:
+                if isinstance(feature_value, feature_type):
+                    setattr(self, f"_{feature_name}", feature_value)
+                else:
+                    factory_signature = len(signature(feature_value).parameters)
+                    if factory_signature == 2:
+                        self.__set_cls_feature_factories[feature_name] = feature_value  # ty:ignore[invalid-assignment]
+
+            if factory_signature == 1:
+                post_super_init_feature_factories[feature_name] = feature_value
+        return post_super_init_feature_factories
 
     @final
     @property
@@ -108,8 +121,8 @@ class DataDefinition[DataT, PorterT: Porter = Porter](
                 f"Found an existing data definition {_datas[cls]} when adding {self} for {cls}"
             )
             _datas[cls] = self
-        if self._porter_set_cls_factory:
-            self._porter = self._porter_set_cls_factory(self, cls)
+        for feature_name, feature_factory in self.__set_cls_feature_factories.items():
+            setattr(self, f"_{feature_name}", feature_factory(self, cls))
 
     @final
     @property
@@ -117,11 +130,11 @@ class DataDefinition[DataT, PorterT: Porter = Porter](
         """
         Any samples for this data.
         """
-        if not self._samples:
+        if not self.__samples:
             if self.cls and issubclass(self.cls, Samplable):
                 return Samples([self.cls])
             return Samples(())
-        return Samples(self._samples)
+        return Samples(self.__samples)
 
 
 _datas: Final[MutableMapping[type, DataDefinition]] = {}
