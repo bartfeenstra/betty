@@ -7,9 +7,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final, override
 
 from betty.entities.link import Link
-from betty.extensions.wiki import Wiki
 from betty.job import Job
 from betty.jobs.populate_link import PopulateLink
+from betty.service_providers.wiki import Wiki
 
 if TYPE_CHECKING:
     from betty.entity import Entity
@@ -42,6 +42,6 @@ class PopulateWikiEntity(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-        wiki = await self._project.extensions[Wiki]
+        wiki = await self._project.service_providers[Wiki]
         populator = await wiki.populator
         await populator.populate(self._entity)

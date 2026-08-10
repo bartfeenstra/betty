@@ -37,7 +37,7 @@ from betty.serialize import SerializerDefinition
 from betty.service import Service
 from betty.service_level import ServiceLevel
 from betty.services.asset import AssetRepositoryService
-from betty.services.plugin import PluginServiceProvider
+from betty.services.plugin import HasPluginServices
 from betty.services.plugin.definition.collection.keyed import PluginDefinitionsService
 from betty.services.plugin.instance.collection.keyed import PluginInstancesService
 from betty.services.simple import service
@@ -64,12 +64,12 @@ if TYPE_CHECKING:
     from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
 
 
-class _AppBootstrapServiceLevel(ServiceLevel, PluginServiceProvider):
+class _AppBootstrapServiceLevel(ServiceLevel, HasPluginServices):
     serializers = PluginInstancesService(SerializerDefinition)
 
 
 @final
-class App(RequirableServiceLevel, PluginServiceProvider):
+class App(RequirableServiceLevel, HasPluginServices):
     """
     The Betty application.
 

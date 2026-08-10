@@ -5,10 +5,10 @@ Object factories.
 from __future__ import annotations
 
 import inspect
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from collections.abc import Awaitable, Callable
 from inspect import Parameter
-from typing import Final, Self, final, overload
+from typing import Self, final, overload
 
 from betty.asyncio import resolve_await
 from betty.data import Data
@@ -28,7 +28,13 @@ class UnsupportedTarget(FactoryError):
     """
 
 
-class Manufacturable(ABC):
+class TargetError(FactoryError):
+    """
+    Raised when a target raised an error while creating a new object.
+    """
+
+
+class Manufacturable(metaclass=ABCMeta):
     """
     Allow this type to be instantiated using a :py:class:`betty.service_level.ServiceLevel`.
     """
@@ -49,7 +55,7 @@ type Manufacturer[T] = (
 type FactoryTarget = type[Manufacturable] | Manufacturer
 
 
-class DataManufacturable[DataT: Data](ABC):
+class DataManufacturable[DataT: Data](metaclass=ABCMeta):
     """
     A class that can be initialized using defined data.
     """
@@ -75,10 +81,6 @@ class Factory:
     The object factory.
     """
 
-    _signature_message: Final[str] = (
-        f'any required arguments, except optionally a first argument typed on {fully_qualified_name(ServiceLevel)} and/or named "services".'
-    )
-
     def __init__(self, services: ServiceLevel, /):
         self._services = services
 
@@ -98,19 +100,19 @@ class Factory:
 
         :raises FactoryError: raised when ``target`` could not be called.
         """
-        if isinstance(target, type):
-            if issubclass(target, Manufacturable):
-                return await target.new(self._services)
-            args = self._args(target)
-            if args is None:
-                raise UnsupportedTarget(
-                    f"{fully_qualified_name(target)} must subclass {fully_qualified_name(Manufacturable)} or have an __init__() method without  {self._signature_message}"
-                )
-            return target(*args)
+        if isinstance(target, type) and issubclass(target, Manufacturable):
+            return await target.new(self._services)
         args = self._args(target)
         if args is None:
-            raise UnsupportedTarget(f"{target} must not have {self._signature_message}")
-        return await resolve_await(target(*args))
+            raise UnsupportedTarget(
+                f'{target} must not have any required arguments, except optionally a first argument typed on {fully_qualified_name(ServiceLevel)} and/or named "services".'
+            )
+        try:
+            return await resolve_await(target(*args))
+        except Exception as error:
+            raise TargetError(
+                f"{repr(target)} raised an unexpected error when creating a new object."
+            ) from error
 
     def _args(self, target: FactoryTarget) -> tuple | None:
         parameters = tuple(inspect.signature(target).parameters.values())

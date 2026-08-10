@@ -25,17 +25,6 @@ from betty.entities.event import Event
 from betty.entities.person import Person
 from betty.entities.place import Place
 from betty.entities.source import Source
-from betty.extension import ExtensionManufacturer
-from betty.extensions.http_api_doc import HttpApiDoc
-from betty.extensions.maps import Maps
-from betty.extensions.raspberry_mint import (
-    Breakpoint,
-    RaspberryMint,
-    RaspberryMintData,
-    Region,
-)
-from betty.extensions.spdx import Spdx
-from betty.extensions.trees import Trees
 from betty.license import LicenseManufacturer
 from betty.links.betty_documentation import BETTY_DOCUMENTATION
 from betty.links.betty_github import BETTY_GITHUB
@@ -45,6 +34,17 @@ from betty.localizables.gettext import _
 from betty.localizables.markup import Chain
 from betty.media_types.html import HTML
 from betty.project import Project
+from betty.service_provider import ServiceProviderManufacturer
+from betty.service_providers.http_api_doc import HttpApiDoc
+from betty.service_providers.maps import Maps
+from betty.service_providers.raspberry_mint import (
+    Breakpoint,
+    RaspberryMint,
+    RaspberryMintData,
+    Region,
+)
+from betty.service_providers.spdx import Spdx
+from betty.service_providers.trees import Trees
 
 if TYPE_CHECKING:
     from betty.app import App
@@ -65,12 +65,12 @@ async def create_project(
             Deriver,
             Wiki,
         ],
-        extensions=[
+        service_providers=[
             HttpApiDoc,
             Maps,
             RaspberryMint,
             Spdx,
-            ExtensionManufacturer(
+            ServiceProviderManufacturer(
                 RaspberryMint,
                 RaspberryMintData(
                     regional_content={

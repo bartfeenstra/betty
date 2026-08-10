@@ -240,6 +240,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "DataManufacturable": MissingReason.ABSTRACT,
         "FactoryError": MissingReason.ABSTRACT,
         "Manufacturable": MissingReason.ABSTRACT,
+        "TargetError": MissingReason.ABSTRACT,
         "UnsupportedTarget": MissingReason.ABSTRACT,
     },
     "betty/functools.py": {
@@ -580,26 +581,21 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/event_types/retirement.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/event_types/unknown.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/event_types/will.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/extension.py": {
-        "Extension": MissingReason.SHOULD_BE_COVERED,
-        "ExtensionDefinition": MissingReason.STATIC_CONTENT_ONLY,
-        "ExtensionManufacturer": MissingReason.INHERITED,
-        "ExtensionError": MissingReason.STATIC_CONTENT_ONLY,
-        "ExtensionTypeError": MissingReason.STATIC_CONTENT_ONLY,
-        "ExtensionTypeInvalidError": MissingReason.SHOULD_BE_COVERED,
-        "Theme": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/service_provider.py": {
+        "ServiceProviderDefinition": MissingReason.STATIC_CONTENT_ONLY,
+        "ServiceProviderManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/extensions/http_api_doc.py": {
+    "betty/service_providers/http_api_doc.py": {
         "HttpApiDoc": {
             "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
         },
     },
-    "betty/extensions/maps.py": {
+    "betty/service_providers/maps.py": {
         "Maps": {
             "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
         },
     },
-    "betty/extensions/raspberry_mint/__init__.py": {
+    "betty/service_providers/raspberry_mint/__init__.py": {
         "Breakpoint": MissingReason.ENUM,
         "ColorStyle": MissingReason.ENUM,
         "JustifyContent": MissingReason.ENUM,
@@ -611,15 +607,15 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "value": MissingReason.INHERITED,
         },
     },
-    "betty/extensions/trees.py": {
+    "betty/service_providers/trees.py": {
         "Trees": {
             "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
         },
     },
-    "betty/extensions/spdx.py": {
+    "betty/service_providers/spdx.py": {
         "Spdx": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/extensions/webpack/build.py": {
+    "betty/service_providers/webpack/build.py": {
         "EntryPointProvider": MissingReason.ABSTRACT,
         "webpack_build_id": MissingReason.SHOULD_BE_COVERED,
     },

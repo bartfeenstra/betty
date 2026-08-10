@@ -13,7 +13,7 @@ from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
 from betty.plugin.error import PluginNotFound
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
-from betty.services.plugin import PluginServiceProvider
+from betty.services.plugin import HasPluginServices
 from betty.services.plugin.collection import CollectionPluginServiceManager
 
 type KeyedPluginCollectionService[PluginDefinitionT: PluginDefinition, ItemT] = (
@@ -26,13 +26,13 @@ class _PluginNotFound(PluginNotFound, KeyError):
 
 
 class KeyedCollectionPluginServiceManager[
-    ServiceProviderT: PluginServiceProvider,
+    OwnerT: HasPluginServices,
     PluginDefinitionT: PluginDefinition,
     GetServiceItemT,
     InitT,
 ](
     CollectionPluginServiceManager[
-        ServiceProviderT,
+        OwnerT,
         PluginDefinitionT,
         KeyedPluginCollectionService[PluginDefinitionT, GetServiceItemT],
         GetServiceItemT,
@@ -46,7 +46,7 @@ class KeyedCollectionPluginServiceManager[
     @final
     @override
     def new_service(
-        self, service_provider: ServiceProviderT, /
+        self, owner: OwnerT, /
     ) -> KeyedPluginCollectionService[PluginDefinitionT, GetServiceItemT]:
         return ErroringKeyedCollection[
             MachineName, ResolvablePluginId[PluginDefinitionT], GetServiceItemT
@@ -56,15 +56,15 @@ class KeyedCollectionPluginServiceManager[
             ](
                 {
                     self.resolve_init_plugin_id(plugin): self.new_service_item(
-                        service_provider, plugin
+                        owner, plugin
                     )
-                    for plugin in self.get_plugins(service_provider)
+                    for plugin in self.get_plugins(owner)
                 },
                 key_resolver=resolve_plugin_id,
             ),
             lambda error, key: _PluginNotFound(
                 self.plugin_type,
                 resolve_plugin_id(key),
-                map(self.resolve_init_plugin_id, self.get_plugins(service_provider)),
+                map(self.resolve_init_plugin_id, self.get_plugins(owner)),
             ),
         )

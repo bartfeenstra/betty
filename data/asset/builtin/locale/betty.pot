@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-24 12:55+0100\n"
+"POT-Creation-Date: 2026-08-11 11:26+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -672,12 +672,6 @@ msgstr ""
 msgid "Explore a demonstration site"
 msgstr ""
 
-msgid "Extension"
-msgstr ""
-
-msgid "Extensions"
-msgstr ""
-
 msgid "Facts"
 msgstr ""
 
@@ -1155,6 +1149,10 @@ msgstr ""
 msgid "Occupations"
 msgstr ""
 
+#, python-brace-format
+msgid "Only the following file types can be loaded: {file_extensions}"
+msgstr ""
+
 msgid "Operating system"
 msgstr ""
 
@@ -1472,6 +1470,12 @@ msgstr ""
 msgid "Servers"
 msgstr ""
 
+msgid "Service provider"
+msgstr ""
+
+msgid "Service providers"
+msgstr ""
+
 #, python-brace-format
 msgid "Serving your site at {url}…"
 msgstr ""
@@ -1582,10 +1586,6 @@ msgid "The '%(project_title)s' logo"
 msgstr ""
 
 msgid "The 'birth of the author', so to speak."
-msgstr ""
-
-#, python-brace-format
-msgid "The Gramps extension can only load the following file types: {file_extensions}"
 msgstr ""
 
 #, python-brace-format
@@ -2319,12 +2319,6 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, python-brace-format
-msgid "{count} extension"
-msgid_plural "{count} extensions"
-msgstr[0] ""
-msgstr[1] ""
-
-#, python-brace-format
 msgid "{count} farm"
 msgid_plural "{count} farms"
 msgstr[0] ""
@@ -2555,6 +2549,12 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} server"
 msgid_plural "{count} servers"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} service provider"
+msgid_plural "{count} service providers"
 msgstr[0] ""
 msgstr[1] ""
 

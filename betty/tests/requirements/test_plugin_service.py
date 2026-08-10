@@ -7,8 +7,8 @@ from betty.plugin.resolve import resolve_plugin_definition
 from betty.requirements.service import UnmetServiceRequirement
 from betty.service_level import DownstreamServiceLevel, ServiceLevel
 from betty.services.plugin import (
+    HasPluginServices,
     PluginServiceManager,
-    PluginServiceProvider,
     PluginServiceRequirement,
 )
 from betty.test_utils.plugin import (
@@ -21,7 +21,7 @@ from betty.test_utils.plugin import (
 
 class _PluginServiceRequirementTestPluginServiceManager(
     PluginServiceManager[
-        PluginServiceProvider,
+        HasPluginServices,
         DummyPluginDefinition,
         Sequence[DummyPluginDefinition],
         DummyPluginDefinition,
@@ -32,14 +32,12 @@ class _PluginServiceRequirementTestPluginServiceManager(
 
     @override
     def new_service(
-        self, service_provider: PluginServiceProvider, /
+        self, owner: HasPluginServices, /
     ) -> Sequence[DummyPluginDefinition]:
-        return tuple(
-            map(resolve_plugin_definition, self.get_init_plugins(service_provider))
-        )
+        return tuple(map(resolve_plugin_definition, self.get_init_plugins(owner)))
 
 
-class _PluginServiceRequirementTestServices(ServiceLevel, PluginServiceProvider):
+class _PluginServiceRequirementTestServices(ServiceLevel, HasPluginServices):
     def __init__(self):
         super().__init__(
             plugins={

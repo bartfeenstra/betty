@@ -8,7 +8,7 @@ from typing import final, override
 
 from betty.asyncio import ReAwaitable
 from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.services.plugin import PluginServiceProvider
+from betty.services.plugin import HasPluginServices
 from betty.services.plugin.instance import (
     PluginInstanceServiceManager,
     ServicePluginInstance,
@@ -18,18 +18,18 @@ from betty.services.plugin.single import SinglePluginServiceManager
 
 @final
 class PluginInstanceService[
-    ServiceProviderT: PluginServiceProvider,
+    OwnerT: HasPluginServices,
     PluginDefinitionT: PluginClsDefinition,
     PluginT: Plugin,
 ](
     PluginInstanceServiceManager[
-        ServiceProviderT,
+        OwnerT,
         PluginDefinitionT,
         ReAwaitable[PluginT],
         PluginT,
     ],
     SinglePluginServiceManager[
-        ServiceProviderT,
+        OwnerT,
         PluginDefinitionT,
         ReAwaitable[PluginT],
         ServicePluginInstance[PluginDefinitionT],
@@ -40,9 +40,5 @@ class PluginInstanceService[
     """
 
     @override
-    def new_service(
-        self, service_provider: ServiceProviderT, /
-    ) -> ReAwaitable[PluginT]:
-        return self.new_plugin_instance_service_item(
-            service_provider, self.get_plugins(service_provider)[0]
-        )
+    def new_service(self, owner: OwnerT, /) -> ReAwaitable[PluginT]:
+        return self.new_plugin_instance_service_item(owner, self.get_plugins(owner)[0])

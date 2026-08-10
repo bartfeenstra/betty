@@ -12,11 +12,11 @@ from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.datas.entity_reference import EntityReference
 from betty.entity import ResolvableEntity, resolve
-from betty.extensions._theme import associated_file_references
 from betty.factory import DataManufacturable
 from betty.image import is_supported_media_type
 from betty.localizables.gettext import _
 from betty.project import Project
+from betty.service_providers._theme import associated_file_references
 
 if TYPE_CHECKING:
     from betty.document import Document

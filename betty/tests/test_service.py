@@ -7,26 +7,24 @@ import pytest
 
 from betty.functools import LazyReCallable
 from betty.service import (
+    HasServices,
     Service,
     ServiceAlreadyInitialized,
     ServiceManager,
-    ServiceProvider,
 )
 from betty.service_level import ServiceLevel
 
 
-class _DummyServiceManager[ServiceProviderT: ServiceProvider](
-    ServiceManager[ServiceProviderT, object, object, Callable[[], object], object]
+class _DummyServiceManager[OwnerT: HasServices](
+    ServiceManager[OwnerT, object, object, Callable[[], object], object]
 ):
     @override
-    def _new_service_getter(
-        self, service_provider: ServiceProviderT, /
-    ) -> Callable[[], object]:
+    def _new_service_getter(self, owner: OwnerT, /) -> Callable[[], object]:
         def _factory() -> object:
-            factory = self._get_service_or_factory(service_provider)
+            factory = self._get_service_or_factory(owner)
             if isinstance(factory, Service):
                 return factory.service
-            return factory(service_provider)
+            return factory(owner)
 
         return LazyReCallable(_factory)
 
@@ -39,30 +37,25 @@ class TestServiceManager:
     def test_get(self) -> None:
         service = object()
 
-        class _ServiceProvider(ServiceProvider):
+        class _Owner(HasServices):
             @_DummyServiceManager
             def my_first_service(self) -> object:
                 return service
 
-        assert (
-            _ServiceProvider.my_first_service.get(
-                _ServiceProvider(services=ServiceLevel())
-            )
-            is service
-        )
+        assert _Owner.my_first_service.get(_Owner(services=ServiceLevel())) is service
 
     def test_init_owner__initialized_already(self) -> None:
-        class _ServiceProvider(ServiceProvider):
+        class _Owner(HasServices):
             @_DummyServiceManager
             def my_first_service(self) -> object:
                 raise NotImplementedError
 
-        service_provider = _ServiceProvider(services=ServiceLevel())
+        owner = _Owner(services=ServiceLevel())
         with pytest.raises(ServiceAlreadyInitialized):
-            _ServiceProvider.my_first_service.init_owner(service_provider)
+            _Owner.my_first_service.init_owner(owner)
 
     def test_override(self) -> None:
-        class _ServiceProvider(ServiceProvider):
+        class _Owner(HasServices):
             def __init__(self, my_first_service: object, /):
                 type(self).my_first_service.override(self, Service(my_first_service))
                 super().__init__(services=ServiceLevel())
@@ -72,24 +65,25 @@ class TestServiceManager:
                 raise NotImplementedError
 
         service = object()
-        service_provider = _ServiceProvider(service)
-        assert service_provider.my_first_service is service
+        owner = _Owner(service)
+        assert owner.my_first_service is service
 
     def test_override__initialized_already(self) -> None:
-        class _ServiceProvider(ServiceProvider):
+        class _Owner(HasServices):
             @_DummyServiceManager
             def my_first_service(self) -> object:
                 raise NotImplementedError
 
-        service_provider = _ServiceProvider(services=ServiceLevel())
+        owner = _Owner(services=ServiceLevel())
         with pytest.raises(ServiceAlreadyInitialized):
-            _ServiceProvider.my_first_service.override(
-                service_provider, Service(object())
-            )
+            _Owner.my_first_service.override(owner, Service(object()))
 
 
-class TestServiceProvider:
-    def test_services(self) -> None:
+class TestHasServices:
+    def test___init__(self) -> None:
+        class _Owner(HasServices):
+            pass
+
         services = ServiceLevel()
-        sut = ServiceProvider(services=services)
-        assert sut.services is services
+        owner = _Owner(services=services)
+        assert owner.services is services

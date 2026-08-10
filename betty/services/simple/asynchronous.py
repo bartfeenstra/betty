@@ -15,32 +15,32 @@ from betty.asyncio import (
 from betty.life_cycle import Bootstrappable, Shutdownable
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.service import (
+    HasServices,
     Service,
     ServiceFactory,
     ServiceManager,
     ServiceOrFactory,
-    ServiceProvider,
 )
 from betty.typing import Intersection
 
-type AsynchronousServiceFactory[ServiceProviderT: ServiceProvider, ServiceT] = (
-    ServiceFactory[ServiceProviderT, ResolvableAwaitable[ServiceT]]
-)
-type AsynchronousServiceOrFactory[ServiceProviderT: ServiceProvider, ServiceT] = (
-    ServiceOrFactory[ServiceProviderT, ServiceT, ResolvableAwaitable[ServiceT]]
-)
-type TypedAsynchronousServiceOrFactory[ServiceProviderT: ServiceProvider, ServiceT] = (
-    ServiceT | AsynchronousServiceOrFactory[ServiceProviderT, ServiceT]
+type AsynchronousServiceFactory[OwnerT: HasServices, ServiceT] = ServiceFactory[
+    OwnerT, ResolvableAwaitable[ServiceT]
+]
+type AsynchronousServiceOrFactory[OwnerT: HasServices, ServiceT] = ServiceOrFactory[
+    OwnerT, ServiceT, ResolvableAwaitable[ServiceT]
+]
+type TypedAsynchronousServiceOrFactory[OwnerT: HasServices, ServiceT] = (
+    ServiceT | AsynchronousServiceOrFactory[OwnerT, ServiceT]
 )
 
 
 @final
 class AsynchronousServiceManager[
-    ServiceProviderT: Intersection[ServiceProvider, ManagedLifeCycle],
+    OwnerT: Intersection[HasServices, ManagedLifeCycle],
     ServiceT,
 ](
     ServiceManager[
-        ServiceProviderT,
+        OwnerT,
         ServiceT,
         ReAwaitable[ServiceT],
         ReAwaitable[ServiceT],
@@ -52,17 +52,15 @@ class AsynchronousServiceManager[
     """
 
     @override
-    def _new_service_getter(
-        self, service_provider: ServiceProviderT, /
-    ) -> ReAwaitable[ServiceT]:
+    def _new_service_getter(self, owner: OwnerT, /) -> ReAwaitable[ServiceT]:
         async def _factory() -> ServiceT:
-            factory = self._get_service_or_factory(service_provider)
+            factory = self._get_service_or_factory(owner)
             if isinstance(factory, Service):
                 service = factory.service
             else:
-                service = await resolve_await(factory(service_provider))
+                service = await resolve_await(factory(owner))
             if isinstance(service, Bootstrappable | Shutdownable):
-                await service_provider.life_cycle.synchronize(service)
+                await owner.life_cycle.synchronize(service)
             return service
 
         return LazyReAwaitable(_factory)

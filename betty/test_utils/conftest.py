@@ -67,7 +67,7 @@ if TYPE_CHECKING:
     from betty.store import TransientStore
     from betty.entity import EntityDefinition
     from betty.entity.collection.pool import EntityPool
-    from betty.extension import ExtensionDefinition
+    from betty.service_provider import ServiceProviderDefinition
     from betty.link import LinkDefinition
     from betty.linked_data import LinkedDataDumpableWithSchema, LinkedDataDumper
     from betty.load import EnricherDefinition, LoaderDefinition
@@ -200,7 +200,7 @@ class IsolatedProjectFactory(Protocol):
         debug: bool = False,
         directory: StrPath | None = None,
         enrichers: ServicePluginInstances[EnricherDefinition] = (),
-        extensions: ServicePluginInstances[ExtensionDefinition] = (),
+        service_providers: ServicePluginInstances[ServiceProviderDefinition] = (),
         generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]]
         | None = None,
         lifetime_threshold: int | None = None,
@@ -241,7 +241,7 @@ def isolated_project_factory(isolated_app: App) -> IsolatedProjectFactory:
         debug: bool = False,
         directory: StrPath | None = None,
         enrichers: ServicePluginInstances[EnricherDefinition] = (),
-        extensions: ServicePluginInstances[ExtensionDefinition] = (),
+        service_providers: ServicePluginInstances[ServiceProviderDefinition] = (),
         generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]]
         | None = None,
         lifetime_threshold: int | None = None,
@@ -269,7 +269,7 @@ def isolated_project_factory(isolated_app: App) -> IsolatedProjectFactory:
             debug=debug,
             directory=directory,
             enrichers=enrichers,
-            extensions=extensions,
+            service_providers=service_providers,
             generate_entity_list_html=generate_entity_list_html,
             lifetime_threshold=lifetime_threshold,
             links=links,
@@ -510,7 +510,7 @@ async def _assert_template(
     autoescape: bool | None = None,
     data: MutableMapping[str, Any] | None = None,
     enrichers: ServicePluginInstances[EnricherDefinition] = (),
-    extensions: ServicePluginInstances[ExtensionDefinition] = (),
+    service_providers: ServicePluginInstances[ServiceProviderDefinition] = (),
     links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
     loaders: ServicePluginInstances[LoaderDefinition] = (),
 ) -> AsyncIterator[tuple[str, Project]]:
@@ -518,7 +518,7 @@ async def _assert_template(
         assets=assets,
         debug=True,
         enrichers=enrichers,
-        extensions=extensions,
+        service_providers=service_providers,
         links=links,
         loaders=loaders,
     ) as project:
@@ -543,7 +543,7 @@ class AssertTemplateString(Protocol):
         autoescape: bool | None = None,
         data: MutableMapping[str, Any] | None = None,
         enrichers: ServicePluginInstances[EnricherDefinition] = (),
-        extensions: ServicePluginInstances[ExtensionDefinition] = (),
+        service_providers: ServicePluginInstances[ServiceProviderDefinition] = (),
         links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
         loaders: ServicePluginInstances[LoaderDefinition] = (),
     ) -> AbstractAsyncContextManager[tuple[str, Project]]:
@@ -567,7 +567,7 @@ def assert_template_string(
         autoescape: bool | None = None,
         data: MutableMapping[str, Any] | None = None,
         enrichers: ServicePluginInstances[EnricherDefinition] = (),
-        extensions: ServicePluginInstances[ExtensionDefinition] = (),
+        service_providers: ServicePluginInstances[ServiceProviderDefinition] = (),
         links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
         loaders: ServicePluginInstances[LoaderDefinition] = (),
     ) -> AbstractAsyncContextManager[tuple[str, Project]]:
@@ -579,7 +579,7 @@ def assert_template_string(
             autoescape=autoescape,
             data=data,
             enrichers=enrichers,
-            extensions=extensions,
+            service_providers=service_providers,
             links=links,
             loaders=loaders,
         )
@@ -597,7 +597,7 @@ class AssertTemplateFile(Protocol):
         autoescape: bool | None = None,
         data: MutableMapping[str, Any] | None = None,
         enrichers: ServicePluginInstances[EnricherDefinition] = (),
-        extensions: ServicePluginInstances[ExtensionDefinition] = (),
+        service_providers: ServicePluginInstances[ServiceProviderDefinition] = (),
         links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
         loaders: ServicePluginInstances[LoaderDefinition] = (),
     ) -> AbstractAsyncContextManager[tuple[str, Project]]:
@@ -621,7 +621,7 @@ def assert_template_file(
         autoescape: bool | None = None,
         data: MutableMapping[str, Any] | None = None,
         enrichers: ServicePluginInstances[EnricherDefinition] = (),
-        extensions: ServicePluginInstances[ExtensionDefinition] = (),
+        service_providers: ServicePluginInstances[ServiceProviderDefinition] = (),
         links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
         loaders: ServicePluginInstances[LoaderDefinition] = (),
     ) -> AbstractAsyncContextManager[tuple[str, Project]]:
@@ -633,7 +633,7 @@ def assert_template_file(
             autoescape=autoescape,
             data=data,
             enrichers=enrichers,
-            extensions=extensions,
+            service_providers=service_providers,
             links=links,
             loaders=loaders,
         )

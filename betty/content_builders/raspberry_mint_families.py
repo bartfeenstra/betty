@@ -10,10 +10,10 @@ from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.entities.person import Person
-from betty.extensions._theme import person_descendant_families
 from betty.factory import Manufacturable
 from betty.localizables.gettext import _
 from betty.project import Project
+from betty.service_providers._theme import person_descendant_families
 
 if TYPE_CHECKING:
     from betty.document import Document

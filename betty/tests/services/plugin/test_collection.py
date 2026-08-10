@@ -5,7 +5,7 @@ from betty.plugin import PluginTypeDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.plugin.resolve import ResolvablePluginDefinition
 from betty.service_level import ServiceLevel
-from betty.services.plugin import PluginServiceProvider
+from betty.services.plugin import HasPluginServices
 from betty.services.plugin.collection import CollectionPluginServiceManager
 from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
 from betty.tests.services.test_plugin import (
@@ -25,7 +25,7 @@ class _DummyOrderedPluginDefinition(OrderedPluginDefinition):
 
 class _CollectionPluginServiceManagerTestSut(
     CollectionPluginServiceManager[
-        PluginServiceProvider,
+        HasPluginServices,
         _DummyOrderedPluginDefinition,
         Sequence[_DummyOrderedPluginDefinition],
         _DummyOrderedPluginDefinition,
@@ -37,21 +37,21 @@ class _CollectionPluginServiceManagerTestSut(
 
     @override
     def new_service(
-        self, service_provider: PluginServiceProvider, /
+        self, owner: HasPluginServices, /
     ) -> Sequence[_DummyOrderedPluginDefinition]:
         raise NotImplementedError
 
     @override
     def new_service_item(
         self,
-        service_provider: PluginServiceProvider,
+        owner: HasPluginServices,
         plugin: ResolvablePluginDefinition[_DummyOrderedPluginDefinition],
         /,
     ) -> _DummyOrderedPluginDefinition:
         raise NotImplementedError
 
 
-class _CollectionPluginServiceManagerTestServiceProvider(PluginServiceProvider):
+class _CollectionPluginServiceManagerTestOwner(HasPluginServices):
     my_first_service = _CollectionPluginServiceManagerTestSut()
 
 
@@ -65,7 +65,7 @@ class TestCollectionPluginServiceManager(PluginServiceManagerTestBase):
         after_center_2 = _DummyOrderedPluginDefinition(
             "after-center-2", after={"center"}
         )
-        async with _CollectionPluginServiceManagerTestServiceProvider(
+        async with _CollectionPluginServiceManagerTestOwner(
             services=ServiceLevel(
                 plugins={
                     _DummyOrderedPluginDefinition: (
@@ -78,7 +78,7 @@ class TestCollectionPluginServiceManager(PluginServiceManagerTestBase):
             )
         ) as service_provider:
             assert list(
-                await _CollectionPluginServiceManagerTestServiceProvider.my_first_service.prepare_plugins(
+                await _CollectionPluginServiceManagerTestOwner.my_first_service.prepare_plugins(
                     service_provider,
                     after_center_2,
                     after_center,

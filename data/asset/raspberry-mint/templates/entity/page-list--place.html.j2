@@ -3,7 +3,7 @@
     {{ super() }}
 
     <div class="my-5">
-        {% if "maps" in project.extensions %}
+        {% if "maps" in project.service_providers %}
             {% set map -%}
                 {% with places = project.ancestry['place'] %}
                     {% include 'component/maps/map.html.j2' %}

@@ -8,17 +8,17 @@ from typing import final, override
 
 from betty.plugin import PluginDefinition
 from betty.plugin.resolve import ResolvablePluginDefinition, resolve_plugin_definition
-from betty.services.plugin import PluginServiceProvider
+from betty.services.plugin import HasPluginServices
 from betty.services.plugin.single import SinglePluginServiceManager
 
 
 @final
 class PluginDefinitionService[
-    ServiceProviderT: PluginServiceProvider,
+    OwnerT: HasPluginServices,
     PluginDefinitionT: PluginDefinition,
 ](
     SinglePluginServiceManager[
-        ServiceProviderT,
+        OwnerT,
         PluginDefinitionT,
         PluginDefinitionT,
         ResolvablePluginDefinition[PluginDefinitionT],
@@ -29,5 +29,5 @@ class PluginDefinitionService[
     """
 
     @override
-    def new_service(self, service_provider: ServiceProviderT, /) -> PluginDefinitionT:
-        return resolve_plugin_definition(self.get_plugins(service_provider)[0])
+    def new_service(self, owner: OwnerT, /) -> PluginDefinitionT:
+        return resolve_plugin_definition(self.get_plugins(owner)[0])

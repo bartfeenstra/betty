@@ -444,9 +444,9 @@ class GrampsLoader:
             return await self._load_file_gramps_import(file)
 
         raise UserFacingGrampsError(
-            _(
-                "The Gramps extension can only load the following file types: {file_extensions}"
-            ).format(file_extensions=JoinOr(*sorted(_gramps_extensions)))
+            _("Only the following file types can be loaded: {file_extensions}").format(
+                file_extensions=JoinOr(*sorted(_gramps_extensions))
+            )
         )
 
     async def _load_file_gramps_import(self, file: Path) -> None:

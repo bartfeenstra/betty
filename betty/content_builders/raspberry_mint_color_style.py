@@ -22,12 +22,12 @@ from betty.content_builders.template import Template, TemplateBuild
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.enum import EnumDefinition
-from betty.extensions.raspberry_mint import ColorStyle as RaspberryMintColorStyle
 from betty.factory import DataManufacturable
 from betty.localizables.gettext import _
 from betty.project import Project
 from betty.prop import HasProps
 from betty.sample import Sample
+from betty.service_providers.raspberry_mint import ColorStyle as RaspberryMintColorStyle
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

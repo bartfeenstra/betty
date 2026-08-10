@@ -14,7 +14,7 @@ from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.resolve import ResolvablePluginDefinition, resolve_plugin_id
 from betty.requirements.service import UnmetServiceRequirement
-from betty.services.plugin import PluginServiceManager, PluginServiceProvider
+from betty.services.plugin import HasPluginServices, PluginServiceManager
 
 if TYPE_CHECKING:
     from betty.machine_name import MachineName
@@ -31,13 +31,13 @@ type ServicePluginInstances[PluginDefinitionT: PluginClsDefinition] = Iterable[
 
 
 class PluginInstanceServiceManager[
-    ServiceProviderT: PluginServiceProvider,
+    OwnerT: HasPluginServices,
     PluginDefinitionT: PluginClsDefinition,
     GetServiceT,
     PluginT: Plugin,
 ](
     PluginServiceManager[
-        ServiceProviderT,
+        OwnerT,
         PluginDefinitionT,
         GetServiceT,
         ServicePluginInstance[PluginDefinitionT],
@@ -50,7 +50,7 @@ class PluginInstanceServiceManager[
     @final
     def new_plugin_instance_service_item(
         self,
-        service_provider: ServiceProviderT,
+        owner: OwnerT,
         item: ServicePluginInstance[PluginDefinitionT],
         /,
     ) -> ReAwaitable[PluginT]:
@@ -59,11 +59,11 @@ class PluginInstanceServiceManager[
         """
 
         async def _get_plugin() -> PluginT:
-            plugin = await service_provider.services.factory.new(
+            plugin = await owner.services.factory.new(
                 item.cls if isinstance(item, PluginClsDefinition) else item
             )
             if isinstance(plugin, Bootstrappable | Shutdownable):
-                await service_provider.life_cycle.synchronize(plugin)
+                await owner.life_cycle.synchronize(plugin)
             return plugin
 
         return LazyReAwaitable(_get_plugin)
@@ -71,7 +71,7 @@ class PluginInstanceServiceManager[
     @override
     async def prepare_plugins(
         self,
-        service_provider: ServiceProviderT,
+        owner: OwnerT,
         /,
         *plugins: ServicePluginInstance[PluginDefinitionT],
     ) -> Iterable[ServicePluginInstance[PluginDefinitionT]]:
@@ -97,9 +97,7 @@ class PluginInstanceServiceManager[
                     deduplicated_plugins[plugin_id] = plugin
             else:
                 deduplicated_plugins[plugin_id] = plugin
-        return await super().prepare_plugins(
-            service_provider, *deduplicated_plugins.values()
-        )
+        return await super().prepare_plugins(owner, *deduplicated_plugins.values())
 
     @override
     def resolve_init_plugin_id(

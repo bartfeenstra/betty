@@ -15,7 +15,7 @@ from betty.service_level import DownstreamServiceLevel, ServiceLevel
 if TYPE_CHECKING:
     from collections.abc import Collection
 
-    from betty.services.plugin import PluginServiceManager, PluginServiceProvider
+    from betty.services.plugin import HasPluginServices, PluginServiceManager
 
 
 @final
@@ -28,15 +28,13 @@ class PluginServiceRequirement[PluginDefinitionT: PluginDefinition, GetServiceT]
     def __init__(
         self,
         service: PluginServiceManager[
-            PluginServiceProvider, PluginDefinitionT, GetServiceT, Any
+            HasPluginServices, PluginDefinitionT, GetServiceT, Any
         ],
         /,
         *plugins: ResolvablePluginDefinition[PluginDefinitionT],
     ):
         self.service: Final[
-            PluginServiceManager[
-                PluginServiceProvider, PluginDefinitionT, GetServiceT, Any
-            ]
+            PluginServiceManager[HasPluginServices, PluginDefinitionT, GetServiceT, Any]
         ] = service
         """
         The service for which the plugin is required.

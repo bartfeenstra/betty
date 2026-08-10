@@ -10,11 +10,11 @@ from betty.dirs import builtin_asset_directory
 from betty.entity import EntityDefinition
 from betty.entity.collection.pool import EntityPool
 from betty.exception import HumanFacingException
-from betty.extension import Extension, ExtensionDefinition
 from betty.locale import default_locale, default_locale_tag
 from betty.localizables.plain import Plain
 from betty.localizer import default_localizer
 from betty.project import Project, ProjectData, ProjectLocale
+from betty.service_provider import ServiceProvider, ServiceProviderDefinition
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.entity import DummyEntityOne
 
@@ -23,13 +23,13 @@ if TYPE_CHECKING:
     from betty.test_utils.conftest import IsolatedProjectFactory
 
 
-@ExtensionDefinition("dummy-a", label="-")
-class _DummyExtensionA(Extension):
+@ServiceProviderDefinition("dummy-a", label="-")
+class _DummyServiceProviderA(ServiceProvider):
     pass
 
 
-@ExtensionDefinition("dummy-b", label="-")
-class _DummyExtensionB(Extension):
+@ServiceProviderDefinition("dummy-b", label="-")
+class _DummyServiceProviderB(ServiceProvider):
     pass
 
 
@@ -48,24 +48,24 @@ class TestProject:
         async with Project.new_isolated(app=isolated_app) as sut:
             assert sut.upstream is isolated_app
 
-    async def test_bootstrap__should_initialize_extensions(
+    async def test_bootstrap__should_initialize_service_providers(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         async with isolated_project_factory(
-            plugins={ExtensionDefinition: [_DummyExtensionA]},
-            extensions=[_DummyExtensionA],
+            plugins={ServiceProviderDefinition: [_DummyServiceProviderA]},
+            service_providers=[_DummyServiceProviderA],
         ) as sut:
-            extension = await sut.extensions[_DummyExtensionA]
-            assert extension.bootstrapped
+            service_provider = await sut.service_providers[_DummyServiceProviderA]
+            assert service_provider.bootstrapped
 
-    async def test_extensions(
+    async def test_service_providers(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         async with isolated_project_factory(
-            plugins={ExtensionDefinition: [_DummyExtensionA]},
-            extensions=[_DummyExtensionA],
+            plugins={ServiceProviderDefinition: [_DummyServiceProviderA]},
+            service_providers=[_DummyServiceProviderA],
         ) as sut:
-            assert _DummyExtensionA in sut.extensions
+            assert _DummyServiceProviderA in sut.service_providers
 
     async def test_ancestry__with___init___ancestry(
         self, isolated_project_factory: IsolatedProjectFactory
@@ -380,9 +380,9 @@ class TestProjectData(DataTestBase[ProjectData]):
         sut = ProjectData(title="Betty", url="https://example.com")
         assert len(sut.enrichers) == 0
 
-    async def test_extensions(self) -> None:
+    async def test_service_providers(self) -> None:
         sut = ProjectData(title="Betty", url="https://example.com")
-        assert len(sut.extensions) == 0
+        assert len(sut.service_providers) == 0
 
     async def test_generate_entity_list_html(self) -> None:
         sut = ProjectData(

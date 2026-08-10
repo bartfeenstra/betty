@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-24 12:55+0100\n"
+"POT-Creation-Date: 2026-08-11 11:26+0100\n"
 "PO-Revision-Date: 2026-07-15 15:46+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -673,12 +673,6 @@ msgstr "Uitvoerbaar bestand"
 msgid "Explore a demonstration site"
 msgstr "Verken een demonstratiesite"
 
-msgid "Extension"
-msgstr "Extensie"
-
-msgid "Extensions"
-msgstr "Extensies"
-
 msgid "Facts"
 msgstr "Feiten"
 
@@ -1158,6 +1152,10 @@ msgstr "Beroep"
 msgid "Occupations"
 msgstr "Bezigheden"
 
+#, python-brace-format
+msgid "Only the following file types can be loaded: {file_extensions}"
+msgstr ""
+
 msgid "Operating system"
 msgstr "Besturingssysteem"
 
@@ -1475,6 +1473,12 @@ msgstr "Server"
 msgid "Servers"
 msgstr "Servers"
 
+msgid "Service provider"
+msgstr ""
+
+msgid "Service providers"
+msgstr ""
+
 #, python-brace-format
 msgid "Serving your site at {url}…"
 msgstr "Je site op {url} aan het serveren…"
@@ -1590,10 +1594,6 @@ msgstr "Het logo van '%(project_title)s'"
 
 msgid "The 'birth of the author', so to speak."
 msgstr "De 'geboorte van de auteur', om het zo maar even te zeggen."
-
-#, python-brace-format
-msgid "The Gramps extension can only load the following file types: {file_extensions}"
-msgstr "De Gramps-extensie kan alleen de volgende bestandstypes laden: {file_extensions}"
 
 #, python-brace-format
 msgid "The Gramps {gramps_entity_reference} entity has a {attribute_name} attribute with value {attribute_value}, which is not a valid IANA media type. This media type was ignored."
@@ -2326,12 +2326,6 @@ msgstr[0] "{count} gebeurtenistype"
 msgstr[1] "{count} gebeurtenistypes"
 
 #, python-brace-format
-msgid "{count} extension"
-msgid_plural "{count} extensions"
-msgstr[0] "{count} extensie"
-msgstr[1] "{count} extensies"
-
-#, python-brace-format
 msgid "{count} farm"
 msgid_plural "{count} farms"
 msgstr[0] "{count} boerderij"
@@ -2564,6 +2558,12 @@ msgid "{count} server"
 msgid_plural "{count} servers"
 msgstr[0] "{count} server"
 msgstr[1] "{count} servers"
+
+#, python-brace-format
+msgid "{count} service provider"
+msgid_plural "{count} service providers"
+msgstr[0] ""
+msgstr[1] ""
 
 #, python-brace-format
 msgid "{count} source"

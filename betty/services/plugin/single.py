@@ -10,7 +10,7 @@ from betty.localizables.gettext import _
 from betty.localizables.markup import JoinAnd
 from betty.plugin import PluginDefinition
 from betty.requirements.service import UnmetServiceRequirement
-from betty.services.plugin import PluginServiceManager, PluginServiceProvider
+from betty.services.plugin import HasPluginServices, PluginServiceManager
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -19,11 +19,11 @@ if TYPE_CHECKING:
 
 
 class SinglePluginServiceManager[
-    ServiceProviderT: PluginServiceProvider,
+    OwnerT: HasPluginServices,
     PluginDefinitionT: PluginDefinition,
     GetServiceT,
     InitT,
-](PluginServiceManager[ServiceProviderT, PluginDefinitionT, GetServiceT, InitT]):
+](PluginServiceManager[OwnerT, PluginDefinitionT, GetServiceT, InitT]):
     """
     A service containing a single plugin item.
     """
@@ -35,11 +35,11 @@ class SinglePluginServiceManager[
     @override
     async def prepare_plugins(
         self,
-        service_provider: ServiceProviderT,
+        owner: OwnerT,
         /,
         *plugins: InitT | ResolvablePluginDefinition[PluginDefinitionT],
     ) -> Iterable[InitT | ResolvablePluginDefinition[PluginDefinitionT]]:
-        plugins = tuple(await super().prepare_plugins(service_provider, *plugins))
+        plugins = tuple(await super().prepare_plugins(owner, *plugins))
         # Ensure there is exactly one unique init plugin.
         if len(plugins) != 1:
             raise UnmetServiceRequirement(

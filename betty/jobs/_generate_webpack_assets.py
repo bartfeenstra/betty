@@ -9,8 +9,8 @@ from betty.job import Job
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from betty.extensions.webpack.build import Builder
     from betty.job.scheduler import Context, Scheduler
+    from betty.service_providers.webpack.build import Builder
 
 
 @final
