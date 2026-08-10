@@ -59,6 +59,7 @@ from betty.entity import EntityDefinition
 from betty.entity.collection.pool import EntityPool
 from betty.event_type import EventTypeDefinition
 from betty.exception import HumanFacingException
+from betty.freezer import Frozen
 from betty.gender import GenderDefinition
 from betty.gettext import TranslationsRepository
 from betty.hashid import hashid
@@ -653,7 +654,9 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
     ],
 )
 class ProjectLocale(
-    Data[ObjectDefinition["ProjectLocale", KeyedPorter["ProjectLocale"]]], HasProps
+    Data[ObjectDefinition["ProjectLocale", KeyedPorter["ProjectLocale"]]],
+    HasProps,
+    Frozen,
 ):
     """
     A locale to use for a project.

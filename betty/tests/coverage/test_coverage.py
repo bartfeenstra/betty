@@ -124,6 +124,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/babel.py": {
         "run_babel": MissingReason.SHOULD_BE_COVERED,
     },
+    "betty/classtools.py": {
+        "InitMeta": MissingReason.COVERED_ELSEWHERE,
+        "InitABCMeta": MissingReason.STATIC_CONTENT_ONLY,
+    },
     "betty/commands/dev_profile_demo.py": MissingReason.DEVELOPMENT,
     "betty/console/__init__.py": {
         "SystemExitCode": MissingReason.ENUM,
@@ -187,9 +191,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/css_resources/webpack.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/service.py": {
         "Service": MissingReason.DATACLASS,
-        "ServiceAlreadyInitialized": MissingReason.STATIC_CONTENT_ONLY,
-        "ServiceError": MissingReason.ABSTRACT,
-        "ServiceNotYetInitialized": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/services/plugin/__init__.py": {
         "PluginServiceManager": {
@@ -251,6 +252,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Result": {
             "result": MissingReason.COVERED_ELSEWHERE,
         }
+    },
+    "betty/freezer.py": {
+        "Frozen": MissingReason.ABSTRACT,
     },
     "betty/genders/man.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/genders/non_binary.py": MissingReason.STATIC_CONTENT_ONLY,

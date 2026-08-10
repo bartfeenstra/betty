@@ -52,11 +52,10 @@ class TestPluginInstanceServiceManager(PluginServiceManagerTestBase):
     async def test_new_plugin_instance_service_item(
         self, item: ServicePluginInstance
     ) -> None:
-        async with _PluginInstanceServiceManagerTestOwner(
-            services=self._SERVICES
-        ) as service_provider:
+        owner = _PluginInstanceServiceManagerTestOwner(services=self._SERVICES)
+        async with owner:
             service_item = _PluginInstanceServiceManagerTestOwner.my_first_service.new_plugin_instance_service_item(
-                service_provider, item
+                owner, item
             )
             plugin = await service_item
             assert isinstance(plugin, DummyPluginOne)
@@ -73,11 +72,10 @@ class TestPluginInstanceServiceManager(PluginServiceManagerTestBase):
     async def test_new_plugin_instance_service_item__with_life_cycle(
         self, item: ServicePluginInstance
     ) -> None:
-        async with _PluginInstanceServiceManagerTestOwner(
-            services=self._SERVICES
-        ) as service_provider:
+        owner = _PluginInstanceServiceManagerTestOwner(services=self._SERVICES)
+        async with owner:
             service_item = _PluginInstanceServiceManagerTestOwner.my_first_service.new_plugin_instance_service_item(
-                service_provider, item
+                owner, item
             )
             plugin = await service_item
             assert isinstance(plugin, DummyPluginWithLifeCycle)

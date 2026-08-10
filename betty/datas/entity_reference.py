@@ -12,6 +12,7 @@ from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.str import StrDefinition
 from betty.entity import Entity, EntityDefinition
+from betty.freezer import Frozen
 from betty.localizables.gettext import _
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.prop import HasProps
@@ -28,7 +29,7 @@ if TYPE_CHECKING:
         lambda: Sample(EntityReference("person", "123"), label="Default"),
     ],
 )
-class EntityReference[EntityT: Entity = Entity](Data, HasProps):
+class EntityReference[EntityT: Entity = Entity](Data, HasProps, Frozen):
     """
     A reference to an entity of any type.
 

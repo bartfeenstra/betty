@@ -4,10 +4,11 @@ Reusable data for plugin definitions.
 
 from __future__ import annotations
 
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod
 from typing import TYPE_CHECKING, final
 
 from betty.attrs.machine_name import new_machine_name_attr
+from betty.classtools import InitABCMeta
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.definition.human_facing import HumanFacingDefinition
@@ -72,7 +73,7 @@ class PluginDefinitionData[
 ](
     Data[PluginDefinitionDefinition[PluginDefinitionT, "PluginDefinitionData"]],
     HasProps,
-    metaclass=ABCMeta,
+    metaclass=InitABCMeta,
 ):
     """
     Configure a :py:class:`betty.plugin.PluginDefinition`.

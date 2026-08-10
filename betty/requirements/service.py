@@ -7,16 +7,16 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Final
 
 from betty.requirement import UnmetRequirement
-from betty.service import ServiceError, ServiceManager
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.indicator import Indicator
     from betty.localizable import ResolvableLocalizable
+    from betty.service import ServiceManager
 
 
-class UnmetServiceRequirement(UnmetRequirement, ServiceError):
+class UnmetServiceRequirement(UnmetRequirement):
     """
     Raised when a requirement on a service is not met.
     """

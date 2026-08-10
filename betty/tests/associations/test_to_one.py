@@ -73,7 +73,7 @@ class TestToOne:
         with pytest.raises(MissingAssociate):
             assert associate.owner
 
-    def test_init_owner(self) -> None:
+    def test_pre_init_owner(self) -> None:
         _Owner()
 
     def test_delete_owner__without_bidirectional_without_entity(self) -> None:

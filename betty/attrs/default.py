@@ -38,7 +38,6 @@ class DefaultAttr[
         default: Callable[[], SetT] | Callable[[OwnerT], SetT],
         /,
     ):
-
         super().__init__(
             FieldDefinition(
                 proxied.field.data,
@@ -59,6 +58,6 @@ class DefaultAttr[
 
     @final
     @override
-    def init_owner(self, owner: OwnerT, /) -> None:
-        self.prop.setattrdefault(owner, self.normalize(owner, self.__default(owner)))
-        super().init_owner(owner)
+    def pre_init_owner(self, owner: OwnerT, /) -> None:
+        super().pre_init_owner(owner)
+        self.set(owner, self.__default(owner))

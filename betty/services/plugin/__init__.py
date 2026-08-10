@@ -20,15 +20,8 @@ from betty.plugin.resolve import (
     resolve_plugin_definition,
     resolve_plugin_id,
 )
-from betty.prop import HasProps as HasProps
 from betty.requirements.plugin_service import PluginServiceRequirement
-from betty.service import (
-    HasServices,
-    Service,
-    ServiceAlreadyInitialized,
-    ServiceManager,
-    ServiceNotYetInitialized,
-)
+from betty.service import HasServices, Service, ServiceManager
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
@@ -100,8 +93,8 @@ class PluginServiceManager[
         """
 
     @override
-    def init_owner(self, owner: OwnerT, /) -> None:
-        super().init_owner(owner)
+    def pre_init_owner(self, owner: OwnerT, /) -> None:
+        super().pre_init_owner(owner)
         setattr(owner, f"_plugin_service_init_plugins_{self.prop.name}", [])
 
     @final
@@ -145,7 +138,7 @@ class PluginServiceManager[
         """
         Add one or more plugins to initialize.
         """
-        self.assert_plugins_not_initialized(owner)
+        owner.assert_not_initialized()
         self.__get_init_plugins(owner).extend(plugins)
 
     @final
@@ -158,7 +151,6 @@ class PluginServiceManager[
         """
         Initialize the plugins.
         """
-        self.assert_plugins_not_initialized(owner)
         setattr(
             owner,
             f"_plugin_service_plugins_{self.prop.name}",
@@ -188,32 +180,8 @@ class PluginServiceManager[
         """
         Get the initialized plugins.
         """
-        self.assert_plugins_initialized(owner)
+        owner.assert_initialized()
         return getattr(owner, f"_plugin_service_plugins_{self.prop.name}")
-
-    @final
-    def assert_plugins_not_initialized(self, owner: OwnerT, /) -> None:
-        """
-        Assert that the plugins have not yet been initialized for the given service provider.
-
-        :raise ServiceAlreadyInitialized:
-        """
-        if hasattr(owner, f"_plugin_service_plugins_{self.prop.name}"):
-            raise ServiceAlreadyInitialized(
-                f"Service {self.prop.fully_qualified_name}'s plugins were initialized already."
-            )
-
-    @final
-    def assert_plugins_initialized(self, owner: OwnerT, /) -> None:
-        """
-        Assert that the plugins have been initialized already for the given service provider.
-
-        :raise ServiceNotYetInitialized:
-        """
-        if not hasattr(owner, f"_plugin_service_plugins_{self.prop.name}"):
-            raise ServiceNotYetInitialized(
-                f"Service {self.prop.fully_qualified_name}'s plugins were not yet initialized."
-            )
 
     @abstractmethod
     def new_service(self, owner: OwnerT, /) -> GetServiceT:
@@ -256,7 +224,7 @@ class PluginServiceInitializer(ManagedLifeCycle):
             PluginServiceManager[HasPluginServices, PluginDefinition, Any, Any]
         ] = tuple(
             prop for prop in owner.props() if isinstance(prop, PluginServiceManager)
-        )
+        )  # ty:ignore[invalid-assignment]
         self.life_cycle.on_bootstrap(self._initialize_plugin_services)
 
     async def _initialize_plugin_services(self) -> None:

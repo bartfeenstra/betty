@@ -51,14 +51,23 @@ class TestProxyProp:
         del owner.my_first_prop
         m_proxied.delete.assert_called_once_with(owner)
 
-    def test_init_owner(self, mocker: MockerFixture) -> None:
+    def test_pre_init_owner(self, mocker: MockerFixture) -> None:
         m_proxied = mocker.MagicMock(spec=Prop)
 
         class _Owner(HasProps):
             my_first_prop = ProxyProp(proxied=m_proxied)
 
         owner = _Owner()
-        m_proxied.init_owner.assert_called_once_with(owner)
+        m_proxied.pre_init_owner.assert_called_once_with(owner)
+
+    def test_post_init_owner(self, mocker: MockerFixture) -> None:
+        m_proxied = mocker.MagicMock(spec=Prop)
+
+        class _Owner(HasProps):
+            my_first_prop = ProxyProp(proxied=m_proxied)
+
+        owner = _Owner()
+        m_proxied.post_init_owner.assert_called_once_with(owner)
 
     def test_delete_owner(self, mocker: MockerFixture) -> None:
         m_proxied = mocker.MagicMock(spec=Prop)
@@ -69,3 +78,25 @@ class TestProxyProp:
         owner = _Owner()
         _Owner.my_first_prop.delete_owner(owner)
         m_proxied.delete_owner.assert_called_once_with(owner)
+
+    def test_is_settable(self, mocker: MockerFixture) -> None:
+        m_proxied = mocker.MagicMock(spec=Prop)
+        m_proxied.is_settable.return_value = True
+
+        class _Owner(HasProps):
+            my_first_prop = ProxyProp(proxied=m_proxied)
+
+        owner = _Owner()
+        assert _Owner.my_first_prop.is_settable(owner)
+        m_proxied.is_settable.assert_called_once_with(owner)
+
+    def test_is_deletable(self, mocker: MockerFixture) -> None:
+        m_proxied = mocker.MagicMock(spec=Prop)
+        m_proxied.is_deletable.return_value = True
+
+        class _Owner(HasProps):
+            my_first_prop = ProxyProp(proxied=m_proxied)
+
+        owner = _Owner()
+        assert _Owner.my_first_prop.is_deletable(owner)
+        m_proxied.is_deletable.assert_called_once_with(owner)

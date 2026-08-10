@@ -7,11 +7,14 @@ from betty.tests.services.test_plugin import (
 
 
 class TestPluginDefinitionService(PluginServiceManagerTestBase):
-    class Cls(HasPluginServices):
+    class _Owner(HasPluginServices):
         my_first_service = PluginDefinitionService(DummyPluginDefinition)
 
+        def __init__(self):
+            super().__init__(services=TestPluginDefinitionService._SERVICES)
+            type(self).my_first_service.add_init_plugins(self, DummyPluginOne)
+
     async def test_new_service(self) -> None:
-        owner = self.Cls(services=self._SERVICES)
-        self.Cls.my_first_service.add_init_plugins(owner, DummyPluginOne)
+        owner = self._Owner()
         async with owner:
             assert owner.my_first_service is DummyPluginOne.plugin()

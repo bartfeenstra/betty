@@ -53,7 +53,7 @@ class _Owner(HasProps):
 
 
 class TestCollectionOwnerAttr:
-    def test_init_owner(self) -> None:
+    def test_pre_init_owner(self) -> None:
         assert _Owner().collection == ["Hello, world!"]
 
     def test_get(self) -> None:

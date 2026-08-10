@@ -233,10 +233,11 @@ class _DateDeriver(metaclass=ABCMeta):
         except IndexError:
             return False
 
-        if derivable_event.date is None:
-            derivable_event.date = DateRange()
-        cls._set(
-            cast(DateRange, derivable_event.date),
+        derivable_date = derivable_event.date
+        if derivable_date is None:
+            derivable_date = DateRange()
+        derivable_event.date = cls._derive(
+            derivable_date,
             Date(
                 reference_date.year,
                 reference_date.month,
@@ -276,7 +277,7 @@ class _DateDeriver(metaclass=ABCMeta):
 
     @classmethod
     @abstractmethod
-    def _set(cls, derivable_date: DateRange, derived_date: Date) -> None:
+    def _derive(cls, derivable_date: DateRange, derived_date: Date) -> DateRange:
         pass
 
 
@@ -304,9 +305,13 @@ class _ComesBeforeDateDeriver(_DateDeriver):
 
     @override
     @classmethod
-    def _set(cls, derivable_date: DateRange, derived_date: Date) -> None:
-        derivable_date.end = derived_date
-        derivable_date.end_is_boundary = True
+    def _derive(cls, derivable_date: DateRange, derived_date: Date) -> DateRange:
+        return DateRange(
+            derivable_date.start,
+            derived_date,
+            start_is_boundary=derivable_date.start_is_boundary,
+            end_is_boundary=True,
+        )
 
 
 @final
@@ -333,9 +338,13 @@ class _ComesAfterDateDeriver(_DateDeriver):
 
     @override
     @classmethod
-    def _set(cls, derivable_date: DateRange, derived_date: Date) -> None:
-        derivable_date.start = derived_date
-        derivable_date.start_is_boundary = True
+    def _derive(cls, derivable_date: DateRange, derived_date: Date) -> DateRange:
+        return DateRange(
+            derived_date,
+            derivable_date.end,
+            start_is_boundary=True,
+            end_is_boundary=derivable_date.end_is_boundary,
+        )
 
 
 def _get_derivable_events(

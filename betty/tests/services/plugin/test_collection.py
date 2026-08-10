@@ -65,7 +65,7 @@ class TestCollectionPluginServiceManager(PluginServiceManagerTestBase):
         after_center_2 = _DummyOrderedPluginDefinition(
             "after-center-2", after={"center"}
         )
-        async with _CollectionPluginServiceManagerTestOwner(
+        owner = _CollectionPluginServiceManagerTestOwner(
             services=ServiceLevel(
                 plugins={
                     _DummyOrderedPluginDefinition: (
@@ -76,10 +76,11 @@ class TestCollectionPluginServiceManager(PluginServiceManagerTestBase):
                     )
                 }
             )
-        ) as service_provider:
+        )
+        async with owner:
             assert list(
                 await _CollectionPluginServiceManagerTestOwner.my_first_service.prepare_plugins(
-                    service_provider,
+                    owner,
                     after_center_2,
                     after_center,
                     center,

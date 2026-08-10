@@ -14,8 +14,12 @@ from betty.tests.services.test_plugin import (
 
 
 class TestPluginInstanceService(PluginServiceManagerTestBase):
-    class Cls(HasPluginServices):
+    class _Owner(HasPluginServices):
         my_first_service = PluginInstanceService(DummyPluginDefinition)
+
+        def __init__(self, init_plugin: ServicePluginInstance[DummyPluginDefinition]):
+            super().__init__(services=TestPluginInstanceService._SERVICES)
+            type(self).my_first_service.add_init_plugins(self, init_plugin)
 
     @pytest.mark.parametrize(
         "init_plugin",
@@ -28,8 +32,7 @@ class TestPluginInstanceService(PluginServiceManagerTestBase):
     async def test_new_service(
         self, init_plugin: ServicePluginInstance[DummyPluginDefinition]
     ) -> None:
-        owner = self.Cls(services=self._SERVICES)
-        self.Cls.my_first_service.add_init_plugins(owner, init_plugin)
+        owner = self._Owner(init_plugin)
         async with owner:
             plugin = await owner.my_first_service
             assert plugin.bootstrapped

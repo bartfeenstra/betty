@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any, override
 
 from betty.attrs.owner import OwnerAttr
 from betty.attrs.privacy import HasPrivacy
+from betty.classtools import InitABCMeta
 from betty.datas.aggregate.record import FieldDefinition
 from betty.json_schemas.media_type import MediaTypeSchema
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
@@ -34,7 +35,9 @@ def new_media_type_attr(
     ).setter(resolve_media_type)
 
 
-class HasMediaType(LinkedDataDumpableWithSchemaJsonLdObject, HasProps):
+class HasMediaType(
+    LinkedDataDumpableWithSchemaJsonLdObject, HasProps, metaclass=InitABCMeta
+):
     """
     A resource with an `IANA media type <https://www.iana.org/assignments/media-types/media-types.xhtml>`_.
     """

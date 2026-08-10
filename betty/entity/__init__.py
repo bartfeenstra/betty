@@ -6,7 +6,9 @@ from inspect import signature
 from typing import TYPE_CHECKING, Any, Final, final, override
 
 from betty.association import HasAssociations
+from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.privacy import HasPrivacy
+from betty.classtools import InitABCMeta
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.json_schema import JsonSchemaReference, String
@@ -39,11 +41,19 @@ class Entity(
     DataPlugin["EntityDefinition"],
     HasPrivacy,
     HasAssociations,
+    metaclass=InitABCMeta,
 ):
     """
     An entity is a uniquely identifiable data container.
 
     To test your own subclasses, use :py:class:`betty.test_utils.entity.EntityTestBase`.
+    """
+
+    id = new_machine_name_attr(label=_("ID"), frozen=True)
+    """
+    The entity ID.
+
+    This MUST be unique per entity type, per ancestry.
     """
 
     def __init__(
@@ -53,14 +63,7 @@ class Entity(
         privacy: Privacy = Privacy.UNDETERMINED,
         **kwargs: Any,
     ):
-        self.id: Final[MachineName] = (
-            MachineName() if id is None else MachineName.resolve(id)
-        )
-        """
-        The entity ID.
-
-        This MUST be unique per entity type, per ancestry.
-        """
+        self.id = MachineName() if id is None else MachineName.resolve(id)
         super().__init__(*args, privacy=privacy, **kwargs)
 
     @override

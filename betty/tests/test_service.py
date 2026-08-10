@@ -5,13 +5,9 @@ from typing import override
 
 import pytest
 
+from betty.classtools import AlreadyInitialized
 from betty.functools import LazyReCallable
-from betty.service import (
-    HasServices,
-    Service,
-    ServiceAlreadyInitialized,
-    ServiceManager,
-)
+from betty.service import HasServices, Service, ServiceManager
 from betty.service_level import ServiceLevel
 
 
@@ -44,15 +40,15 @@ class TestServiceManager:
 
         assert _Owner.my_first_service.get(_Owner(services=ServiceLevel())) is service
 
-    def test_init_owner__initialized_already(self) -> None:
+    def test_pre_init_owner__initialized_already(self) -> None:
         class _Owner(HasServices):
             @_DummyServiceManager
             def my_first_service(self) -> object:
                 raise NotImplementedError
 
         owner = _Owner(services=ServiceLevel())
-        with pytest.raises(ServiceAlreadyInitialized):
-            _Owner.my_first_service.init_owner(owner)
+        with pytest.raises(AlreadyInitialized):
+            _Owner.my_first_service.pre_init_owner(owner)
 
     def test_override(self) -> None:
         class _Owner(HasServices):
@@ -75,7 +71,7 @@ class TestServiceManager:
                 raise NotImplementedError
 
         owner = _Owner(services=ServiceLevel())
-        with pytest.raises(ServiceAlreadyInitialized):
+        with pytest.raises(AlreadyInitialized):
             _Owner.my_first_service.override(owner, Service(object()))
 
 

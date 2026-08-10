@@ -204,6 +204,9 @@ class TestAssociation:
         with pytest.raises(UnresolvedAssociate):
             _Entity.association.assert_not_resolver(_Entity(), _TypedEntity())
 
+    def test_is_settable(self) -> None:
+        assert _Association(_TypedEntity).is_settable(_TypedEntity())
+
 
 def test_resolve_associate__without_arguments(isolated_project: Project) -> None:
     associate = Entity()

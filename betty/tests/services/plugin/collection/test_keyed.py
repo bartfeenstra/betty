@@ -37,15 +37,18 @@ class _KeyedCollectionPluginServiceManagerTestSut(
         return resolve_plugin_definition(plugin)
 
 
+class TestKeyedCollectionPluginServiceManager(PluginServiceManagerTestBase):
+    async def test_new_service(self) -> None:
+        owner = _KeyedCollectionPluginServiceManagerTestOwner()
+        async with owner:
+            assert owner.my_first_service[DummyPluginOne] is DummyPluginOne.plugin()
+
+
 class _KeyedCollectionPluginServiceManagerTestOwner(HasPluginServices):
     my_first_service = _KeyedCollectionPluginServiceManagerTestSut()
 
-
-class TestKeyedCollectionPluginServiceManager(PluginServiceManagerTestBase):
-    async def test_new_service(self) -> None:
-        owner = _KeyedCollectionPluginServiceManagerTestOwner(services=self._SERVICES)
-        _KeyedCollectionPluginServiceManagerTestOwner.my_first_service.add_init_plugins(
-            owner, DummyPluginThree, DummyPluginTwo, DummyPluginOne
+    def __init__(self):
+        super().__init__(services=TestKeyedCollectionPluginServiceManager._SERVICES)
+        type(self).my_first_service.add_init_plugins(
+            self, DummyPluginThree, DummyPluginTwo, DummyPluginOne
         )
-        async with owner:
-            assert owner.my_first_service[DummyPluginOne] is DummyPluginOne.plugin()

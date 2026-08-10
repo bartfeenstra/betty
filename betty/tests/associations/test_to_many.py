@@ -78,7 +78,7 @@ class TestToMany:
         owner.associates.add(associate)
         assert list(_Owner.associates.get_associates(owner)) == [associate]
 
-    def test_init_owner(self) -> None:
+    def test_pre_init_owner(self) -> None:
         _Owner()
 
     def test_set(self) -> None:
@@ -122,3 +122,6 @@ class TestToMany:
         actual = await assert_dumps_linked_data_for(type(owner).associates, owner)
         expected = ["/associate/my-first-associate/index.json"]
         assert actual == expected
+
+    def test_is_deletable(self) -> None:
+        assert _Associate.owners.is_deletable(_Associate())
