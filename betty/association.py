@@ -206,7 +206,7 @@ class UnresolvedAssociate(ValueError):
         /,
     ):
         super().__init__(
-            f"{owner} unexpectedly contains an unresolved associate entity ({resolver}) in {type(owner).__name__}.{association.prop.name}. You MUST call {fully_qualified_name(resolve_associates)}() on your objects after setting your resolvers on their associations."
+            f"{repr(owner)} unexpectedly contains an unresolved associate entity ({repr(resolver)}) in {type(owner).__name__}.{association.prop.name}. You MUST call {fully_qualified_name(resolve_associates)}() on your objects after setting your resolvers on their associations."
         )
 
 
@@ -246,7 +246,7 @@ def resolve_associates(project: Project, *owners: HasAssociations) -> None:
             if associate_attr := association.associate_attr:
                 for associate in association.get_associates(owner):
                     assert owner in associate_attr.get_associates(associate), (
-                        f"Corrupt bidirectional association. Found {associate} in {association.prop.id} on {owner}, but did not find {owner} in {associate_attr.prop.id} on {associate}."
+                        f"Corrupt bidirectional association. Found {associate} in {association.prop.fully_qualified_name} on {owner}, but did not find {owner} in {associate_attr.prop.fully_qualified_name} on {associate}."
                     )
 
 

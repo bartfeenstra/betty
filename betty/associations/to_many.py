@@ -60,11 +60,11 @@ class ToMany[OwnerT: HasAssociations, AssociateT: Entity](
     @override
     def init_owner(self, owner: OwnerT, /) -> None:
         super().init_owner(owner)
-        setattr(owner, self.prop.owner_attr, ToManyCollection(owner, self))
+        self.prop.setattrdefault(owner, ToManyCollection(owner, self))
 
     @override
     def get(self, owner: OwnerT, /) -> ToManyCollection[OwnerT, AssociateT]:
-        return getattr(owner, self.prop.owner_attr)
+        return self.prop.getattr(owner)
 
     @override
     def set(

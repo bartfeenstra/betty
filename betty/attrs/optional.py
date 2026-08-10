@@ -36,22 +36,15 @@ class OptionalAttr[OwnerT: HasProps, GetT, SetT](
             proxied=proxied,
         )
 
-    @final
     @override
     def init_owner(self, owner: OwnerT, /) -> None:
         super().init_owner(owner)
-        try:
-            super().get(owner)
-        except AttributeError:
-            optional = True
-        else:
-            optional = False
-        setattr(owner, self.prop.owner_attr, optional)
+        self.prop.setattrdefault(owner, None)
 
     @final
     @override
     def get(self, owner: OwnerT, /) -> GetT | None:
-        if getattr(owner, self.prop.owner_attr):
+        if self.prop.getattr(owner) is None:
             return None
         return super().get(owner)
 
@@ -59,10 +52,9 @@ class OptionalAttr[OwnerT: HasProps, GetT, SetT](
     @override
     def set(self, owner: OwnerT, value: SetT | None, /) -> None:
         if value is None:
-            setattr(owner, self.prop.owner_attr, True)
             super().delete_owner(owner)
+            self.prop.setattr(owner, None)
         else:
-            setattr(owner, self.prop.owner_attr, False)
             super().set(owner, value)
 
     @final

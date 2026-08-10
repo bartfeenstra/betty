@@ -6,7 +6,8 @@ from betty.test_utils.entity import DummyEntityOne
 
 
 class _Owner(Entity):
-    associate = OptionalToOne(ToOne(DummyEntityOne, label="-"))
+    to_one_associate = ToOne(DummyEntityOne, label="-")
+    associate = OptionalToOne(to_one_associate)
 
 
 class TestOptionalToOne:
@@ -72,3 +73,12 @@ class TestOptionalToOne:
         associate = DummyEntityOne()
         owner.associate = associate
         assert list(_Owner.associate.get_associates(owner)) == [associate]
+
+    def test_init_owner(self) -> None:
+        assert _Owner().associate is None
+
+    def test_is_resolver__without_none(self) -> None:
+        assert _Owner.associate.is_resolver(DummyEntityOne)
+
+    def test_is_resolver__with_none(self) -> None:
+        assert not _Owner.associate.is_resolver(None)

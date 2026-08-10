@@ -81,6 +81,6 @@ class ProxyAssociation[
 
     @override
     async def dump_linked_data_for(
-        self, project: Project, target: OwnerT, /
+        self, project: Project, owner: OwnerT, /
     ) -> PortableData:
-        return await self._proxied_association.dump_linked_data_for(project, target)
+        return await self._proxied_association.dump_linked_data_for(project, owner)

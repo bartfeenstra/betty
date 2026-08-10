@@ -17,15 +17,15 @@ class _Attr(Attr[HasProps, str, str]):
     @override
     def init_owner(self, owner: HasProps, /) -> None:
         if self._init_value is not None:
-            setattr(owner, type(self).__name__, self._init_value)
+            self.prop.setattr(owner, self._init_value)
 
     @override
     def get(self, owner: HasProps, /) -> str:
-        return getattr(owner, type(self).__name__)
+        return self.prop.getattr(owner)
 
     @override
     def set(self, owner: HasProps, value: str, /) -> None:
-        setattr(owner, type(self).__name__, value)
+        self.prop.setattr(owner, value)
 
 
 class TestDefaultAttr:

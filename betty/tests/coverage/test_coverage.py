@@ -637,7 +637,13 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "__set_name__": MissingReason.COVERED_ELSEWHERE,
             "get": MissingReason.ABSTRACT,
         },
-        "PropDefinition": MissingReason.DATACLASS,
+        "PropDefinition": {
+            "__delattr__": MissingReason.DATACLASS,
+            "__eq__": MissingReason.DATACLASS,
+            "__hash__": MissingReason.DATACLASS,
+            "__replace__": MissingReason.DATACLASS,
+            "__setattr__": MissingReason.DATACLASS,
+        },
     },
     "betty/render.py": {
         "Renderer": MissingReason.ABSTRACT,
