@@ -67,9 +67,9 @@ async def generate(project: Project, *, context: Context | None = None) -> None:
         threading_concurrency=threading_concurrency,
     ):
         await gather(*[
-            extension.generate(scheduler)
-            for extension in await gather(*project.extensions)
-            if isinstance(extension, Generator)
+            service_provider.generate(scheduler)
+            for service_provider in await gather(*project.service_providers)
+            if isinstance(service_provider, Generator)
         ])
         await scheduler.release()
         await scheduler.add(

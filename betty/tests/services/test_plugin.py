@@ -9,9 +9,9 @@ from betty.plugin.resolve import ResolvablePluginDefinition
 from betty.service import Service, ServiceAlreadyInitialized, ServiceNotYetInitialized
 from betty.service_level import ServiceLevel
 from betty.services.plugin import (
+    HasPluginServices,
     PluginServiceInitializer,
     PluginServiceManager,
-    PluginServiceProvider,
 )
 from betty.services.plugin.definition.collection.keyed import (
     PluginDefinitionsService,
@@ -29,144 +29,136 @@ from betty.test_utils.plugin import (
 class TestPluginServiceInitializer:
     async def test_bootstrap__without_services(self) -> None:
         async with PluginServiceInitializer(
-            ServiceLevel(), PluginServiceProvider(services=ServiceLevel())
+            ServiceLevel(), HasPluginServices(services=ServiceLevel())
         ):
             pass
 
     async def test_bootstrap__without_plugins(self, isolated_app: App) -> None:
-        class ServiceProvider(PluginServiceProvider):
+        class _Owner(HasPluginServices):
             plugins = PluginDefinitionsService(DummyPluginDefinition)
 
-        service_provider = ServiceProvider(
-            services=ServiceLevel(plugins={DummyPluginDefinition: []})
-        )
-        async with service_provider:
-            assert not service_provider.plugins
+        owner = _Owner(services=ServiceLevel(plugins={DummyPluginDefinition: []}))
+        async with owner:
+            assert not owner.plugins
 
     async def test_bootstrap__with_isolated(self, isolated_app: App) -> None:
-        class ServiceProvider(PluginServiceProvider):
+        class _Owner(HasPluginServices):
             plugins = PluginDefinitionsService(DummyPluginDefinition)
 
         plugin = DummyPluginDefinition("plugin")
-        service_provider = ServiceProvider(
-            services=ServiceLevel(plugins={DummyPluginDefinition: [plugin]})
-        )
-        ServiceProvider.plugins.add_init_plugins(service_provider, plugin)
-        async with service_provider:
-            assert plugin in service_provider.plugins
+        owner = _Owner(services=ServiceLevel(plugins={DummyPluginDefinition: [plugin]}))
+        _Owner.plugins.add_init_plugins(owner, plugin)
+        async with owner:
+            assert plugin in owner.plugins
 
     async def test_bootstrap__without_auto_service_without_auto_plugin(
         self, isolated_app: App
     ) -> None:
-        class ServiceProvider(PluginServiceProvider):
+        class _Owner(HasPluginServices):
             plugins = PluginDefinitionsService(DummyPluginDefinition, auto=False)
 
-        service_provider = ServiceProvider(
+        owner = _Owner(
             services=ServiceLevel(
                 plugins={DummyPluginDefinition: [DummyPluginDefinition("plugin")]}
             )
         )
-        async with service_provider:
-            assert not service_provider.plugins
+        async with owner:
+            assert not owner.plugins
 
     async def test_bootstrap__without_auto_service_with_auto_plugin(
         self, isolated_app: App
     ) -> None:
-        class ServiceProvider(PluginServiceProvider):
+        class _Owner(HasPluginServices):
             plugins = PluginDefinitionsService(DummyPluginDefinition, auto=False)
 
-        service_provider = ServiceProvider(
+        owner = _Owner(
             services=ServiceLevel(
                 plugins={
                     DummyPluginDefinition: [DummyPluginDefinition("plugin", auto=True)]
                 }
             )
         )
-        async with service_provider:
-            assert not service_provider.plugins
+        async with owner:
+            assert not owner.plugins
 
     async def test_bootstrap__with_auto_service_without_auto_plugin(
         self, isolated_app: App
     ) -> None:
-        class ServiceProvider(PluginServiceProvider):
+        class _Owner(HasPluginServices):
             plugins = PluginDefinitionsService(DummyPluginDefinition)
 
-        service_provider = ServiceProvider(
+        owner = _Owner(
             services=ServiceLevel(
                 plugins={DummyPluginDefinition: [DummyPluginDefinition("plugin")]}
             )
         )
-        async with service_provider:
-            assert not service_provider.plugins
+        async with owner:
+            assert not owner.plugins
 
     async def test_bootstrap__with_auto_service_with_auto_plugin(
         self, isolated_app: App
     ) -> None:
-        class ServiceProvider(PluginServiceProvider):
+        class _Owner(HasPluginServices):
             plugins = PluginDefinitionsService(DummyPluginDefinition)
 
         plugin = DummyPluginDefinition("plugin", auto=True)
-        service_provider = ServiceProvider(
-            services=ServiceLevel(plugins={DummyPluginDefinition: [plugin]})
-        )
-        async with service_provider:
-            assert plugin in service_provider.plugins
+        owner = _Owner(services=ServiceLevel(plugins={DummyPluginDefinition: [plugin]}))
+        async with owner:
+            assert plugin in owner.plugins
 
     async def test_bootstrap__with_irrelevant_requirement(
         self, isolated_app: App
     ) -> None:
-        class ServiceProvider(PluginServiceProvider):
+        class _Owner(HasPluginServices):
             plugins = PluginDefinitionsService(DummyPluginDefinition)
 
         plugin = DummyPluginDefinition("dependent", requires={lambda _: None})
-        service_provider = ServiceProvider(
-            services=ServiceLevel(plugins={DummyPluginDefinition: [plugin]})
-        )
-        ServiceProvider.plugins.add_init_plugins(service_provider, plugin)
-        async with service_provider:
-            assert plugin in service_provider.plugins
+        owner = _Owner(services=ServiceLevel(plugins={DummyPluginDefinition: [plugin]}))
+        _Owner.plugins.add_init_plugins(owner, plugin)
+        async with owner:
+            assert plugin in owner.plugins
 
     async def test_bootstrap__with_plugin_service_requirement(
         self, isolated_app: App
     ) -> None:
-        class ServiceProvider(PluginServiceProvider):
+        class _Owner(HasPluginServices):
             dependencies = PluginDefinitionsService(DummyPluginDefinition)
             dependents = PluginDefinitionsService(DummyPluginDefinition)
 
         dependency = DummyPluginDefinition("dependency")
         dependent = DummyPluginDefinition(
-            "dependent", requires={ServiceProvider.dependencies.require(dependency)}
+            "dependent", requires={_Owner.dependencies.require(dependency)}
         )
-        service_provider = ServiceProvider(
+        owner = _Owner(
             services=ServiceLevel(
                 plugins={DummyPluginDefinition: [dependent, dependency]}
             )
         )
-        ServiceProvider.dependents.add_init_plugins(service_provider, dependent)
-        async with service_provider:
-            assert dependent in service_provider.dependents
-            assert dependency in service_provider.dependencies
+        _Owner.dependents.add_init_plugins(owner, dependent)
+        async with owner:
+            assert dependent in owner.dependents
+            assert dependency in owner.dependencies
 
     async def test_bootstrap__with_supported_plugin_plugin_service_requirement(
         self, isolated_app: App
     ) -> None:
-        class ServiceProvider(PluginServiceProvider):
+        class _Owner(HasPluginServices):
             dependencies = PluginDefinitionsService(DummyPluginDefinition)
             dependents = PluginDefinitionsService(DummyPluginDefinition)
 
         dependency = DummyPluginDefinition("dependency")
         dependent = DummyPluginDefinition(
-            "dependent", requires={ServiceProvider.dependencies.require(dependency)}
+            "dependent", requires={_Owner.dependencies.require(dependency)}
         )
-        service_provider = ServiceProvider(
+        owner = _Owner(
             services=ServiceLevel(
                 plugins={DummyPluginDefinition: [dependent, dependency]}
             ),
             supported_plugins={dependent},
         )
-        async with service_provider:
-            assert dependent not in service_provider.dependents
-            assert dependency in service_provider.dependencies
+        async with owner:
+            assert dependent not in owner.dependents
+            assert dependency in owner.dependencies
 
 
 class PluginServiceManagerTestBase:
@@ -182,15 +174,15 @@ class PluginServiceManagerTestBase:
     )
 
 
-class TestPluginServiceProvider:
+class TestHasPluginServices:
     async def test(self) -> None:
-        async with PluginServiceProvider(services=ServiceLevel(plugins={})):
+        async with HasPluginServices(services=ServiceLevel(plugins={})):
             pass
 
 
 class _PluginServiceManagerTestSut(
     PluginServiceManager[
-        PluginServiceProvider,
+        HasPluginServices,
         DummyPluginDefinition,
         Sequence[MachineName],
         ResolvablePluginDefinition[DummyPluginDefinition] | DummyPluginManufacturer,
@@ -200,59 +192,45 @@ class _PluginServiceManagerTestSut(
         super().__init__(DummyPluginDefinition, auto=auto)
 
     @override
-    def new_service(
-        self, service_provider: PluginServiceProvider, /
-    ) -> Sequence[MachineName]:
+    def new_service(self, owner: HasPluginServices, /) -> Sequence[MachineName]:
         raise NotImplementedError
 
 
-class _PluginServiceManagerTestServiceProvider(PluginServiceProvider):
+class _PluginServiceManagerTestOwner(HasPluginServices):
     my_first_service = _PluginServiceManagerTestSut()
 
 
 class TestPluginServiceManager:
     def test_add_init_plugins(self) -> None:
-        service_provider = _PluginServiceManagerTestServiceProvider(
-            services=ServiceLevel()
+        owner = _PluginServiceManagerTestOwner(services=ServiceLevel())
+        _PluginServiceManagerTestOwner.my_first_service.add_init_plugins(
+            owner, DummyPluginOne.plugin(), DummyPluginTwo.plugin()
         )
-        _PluginServiceManagerTestServiceProvider.my_first_service.add_init_plugins(
-            service_provider, DummyPluginOne.plugin(), DummyPluginTwo.plugin()
-        )
-        init_plugins = (
-            _PluginServiceManagerTestServiceProvider.my_first_service.get_init_plugins(
-                service_provider
-            )
+        init_plugins = _PluginServiceManagerTestOwner.my_first_service.get_init_plugins(
+            owner
         )
         assert tuple(init_plugins) == (DummyPluginOne.plugin(), DummyPluginTwo.plugin())
 
     async def test_assert_plugins_initialized(self) -> None:
-        service_provider = _PluginServiceManagerTestServiceProvider(
-            services=ServiceLevel()
-        )
+        owner = _PluginServiceManagerTestOwner(services=ServiceLevel())
         with pytest.raises(ServiceNotYetInitialized):
-            _PluginServiceManagerTestServiceProvider.my_first_service.assert_plugins_initialized(
-                service_provider
+            _PluginServiceManagerTestOwner.my_first_service.assert_plugins_initialized(
+                owner
             )
-        await _PluginServiceManagerTestServiceProvider.my_first_service.init_plugins(
-            service_provider
-        )
-        _PluginServiceManagerTestServiceProvider.my_first_service.assert_plugins_initialized(
-            service_provider
+        await _PluginServiceManagerTestOwner.my_first_service.init_plugins(owner)
+        _PluginServiceManagerTestOwner.my_first_service.assert_plugins_initialized(
+            owner
         )
 
     async def test_assert_plugins_not_initialized(self) -> None:
-        service_provider = _PluginServiceManagerTestServiceProvider(
-            services=ServiceLevel()
+        owner = _PluginServiceManagerTestOwner(services=ServiceLevel())
+        _PluginServiceManagerTestOwner.my_first_service.assert_plugins_not_initialized(
+            owner
         )
-        _PluginServiceManagerTestServiceProvider.my_first_service.assert_plugins_not_initialized(
-            service_provider
-        )
-        await _PluginServiceManagerTestServiceProvider.my_first_service.init_plugins(
-            service_provider
-        )
+        await _PluginServiceManagerTestOwner.my_first_service.init_plugins(owner)
         with pytest.raises(ServiceAlreadyInitialized):
-            _PluginServiceManagerTestServiceProvider.my_first_service.assert_plugins_not_initialized(
-                service_provider
+            _PluginServiceManagerTestOwner.my_first_service.assert_plugins_not_initialized(
+                owner
             )
 
     def test_auto__without_auto(self) -> None:
@@ -264,90 +242,59 @@ class TestPluginServiceManager:
         assert sut.auto
 
     def test_get_init_plugins__without_plugins(self) -> None:
-        assert not _PluginServiceManagerTestServiceProvider.my_first_service.get_init_plugins(
-            _PluginServiceManagerTestServiceProvider(services=ServiceLevel())
+        assert not _PluginServiceManagerTestOwner.my_first_service.get_init_plugins(
+            _PluginServiceManagerTestOwner(services=ServiceLevel())
         )
 
     async def test_get_init_plugins__with_plugins(self) -> None:
-        service_provider = _PluginServiceManagerTestServiceProvider(
-            services=ServiceLevel()
+        owner = _PluginServiceManagerTestOwner(services=ServiceLevel())
+        _PluginServiceManagerTestOwner.my_first_service.add_init_plugins(
+            owner, DummyPluginOne
         )
-        _PluginServiceManagerTestServiceProvider.my_first_service.add_init_plugins(
-            service_provider, DummyPluginOne
-        )
-        assert (
-            _PluginServiceManagerTestServiceProvider.my_first_service.get_init_plugins(
-                service_provider
-            )
-            == [DummyPluginOne]
-        )
+        assert _PluginServiceManagerTestOwner.my_first_service.get_init_plugins(
+            owner
+        ) == [DummyPluginOne]
 
     async def test_get_plugins__with_plugins(self) -> None:
-        service_provider = _PluginServiceManagerTestServiceProvider(
-            services=ServiceLevel()
-        )
-        await _PluginServiceManagerTestServiceProvider.my_first_service.init_plugins(
-            service_provider, DummyPluginOne
+        owner = _PluginServiceManagerTestOwner(services=ServiceLevel())
+        await _PluginServiceManagerTestOwner.my_first_service.init_plugins(
+            owner, DummyPluginOne
         )
         assert list(
-            _PluginServiceManagerTestServiceProvider.my_first_service.get_plugins(
-                service_provider
-            )
+            _PluginServiceManagerTestOwner.my_first_service.get_plugins(owner)
         ) == [DummyPluginOne]
 
     async def test_get_plugins__without_plugins(self) -> None:
-        service_provider = _PluginServiceManagerTestServiceProvider(
-            services=ServiceLevel()
-        )
-        await _PluginServiceManagerTestServiceProvider.my_first_service.init_plugins(
-            service_provider
-        )
-        assert (
-            not _PluginServiceManagerTestServiceProvider.my_first_service.get_plugins(
-                service_provider
-            )
-        )
+        owner = _PluginServiceManagerTestOwner(services=ServiceLevel())
+        await _PluginServiceManagerTestOwner.my_first_service.init_plugins(owner)
+        assert not _PluginServiceManagerTestOwner.my_first_service.get_plugins(owner)
 
     def test_init_owner(self) -> None:
-        service_provider = _PluginServiceManagerTestServiceProvider(
-            services=ServiceLevel()
-        )
-        assert not _PluginServiceManagerTestServiceProvider.my_first_service.get_init_plugins(
-            service_provider
+        owner = _PluginServiceManagerTestOwner(services=ServiceLevel())
+        assert not _PluginServiceManagerTestOwner.my_first_service.get_init_plugins(
+            owner
         )
 
     async def test_init_plugins__without_plugins(self) -> None:
-        service_provider = _PluginServiceManagerTestServiceProvider(
-            services=ServiceLevel()
-        )
-        await _PluginServiceManagerTestServiceProvider.my_first_service.init_plugins(
-            service_provider
-        )
+        owner = _PluginServiceManagerTestOwner(services=ServiceLevel())
+        await _PluginServiceManagerTestOwner.my_first_service.init_plugins(owner)
 
     async def test_init_plugins__with_plugins_already_initialized(self) -> None:
-        service_provider = _PluginServiceManagerTestServiceProvider(
-            services=ServiceLevel()
-        )
-        await _PluginServiceManagerTestServiceProvider.my_first_service.init_plugins(
-            service_provider
-        )
+        owner = _PluginServiceManagerTestOwner(services=ServiceLevel())
+        await _PluginServiceManagerTestOwner.my_first_service.init_plugins(owner)
         with pytest.raises(ServiceAlreadyInitialized):
-            await (
-                _PluginServiceManagerTestServiceProvider.my_first_service.init_plugins(
-                    service_provider
-                )
-            )
+            await _PluginServiceManagerTestOwner.my_first_service.init_plugins(owner)
 
     def test_override(self) -> None:
         machine_names = [MachineName("foo"), MachineName("bar")]
 
-        class _ServiceProvider(_PluginServiceManagerTestServiceProvider):
+        class _Owner(_PluginServiceManagerTestOwner):
             def __init__(self):
                 type(self).my_first_service.override(self, Service(machine_names))
                 super().__init__(services=ServiceLevel())
 
-        service_provider = _ServiceProvider()
-        assert service_provider.my_first_service == machine_names
+        owner = _Owner()
+        assert owner.my_first_service == machine_names
 
     def test_plugin_type(self) -> None:
         assert _PluginServiceManagerTestSut().plugin_type is DummyPluginDefinition
@@ -356,7 +303,7 @@ class TestPluginServiceManager:
         assert (
             list(
                 await _PluginServiceManagerTestSut().prepare_plugins(
-                    _PluginServiceManagerTestServiceProvider(services=ServiceLevel())
+                    _PluginServiceManagerTestOwner(services=ServiceLevel())
                 )
             )
             == []
@@ -365,7 +312,7 @@ class TestPluginServiceManager:
     async def test_prepare_plugins__deduplicates(self) -> None:
         assert list(
             await _PluginServiceManagerTestSut().prepare_plugins(
-                _PluginServiceManagerTestServiceProvider(services=ServiceLevel()),
+                _PluginServiceManagerTestOwner(services=ServiceLevel()),
                 DummyPluginOne,
                 DummyPluginOne.plugin(),
                 DummyPluginTwo.plugin(),

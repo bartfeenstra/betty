@@ -9,6 +9,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Final, final, override
 
+from betty.life_cycle.manage import ManagedLifeCycle
 from betty.prop import HasProps, Prop
 
 if TYPE_CHECKING:
@@ -21,25 +22,24 @@ class ServiceError(RuntimeError):
     """
 
 
-type ServiceFactory[ServiceProviderT: ServiceProvider, FactoryServiceT] = Callable[
-    [ServiceProviderT], FactoryServiceT
+type ServiceFactory[OwnerT: HasServices, FactoryServiceT] = Callable[
+    [OwnerT], FactoryServiceT
 ]
-type ServiceOrFactory[ServiceProviderT: ServiceProvider, ServiceT, FactoryServiceT] = (
-    Service[ServiceT] | ServiceFactory[ServiceProviderT, FactoryServiceT]
+type ServiceOrFactory[OwnerT: HasServices, ServiceT, FactoryServiceT] = (
+    Service[ServiceT] | ServiceFactory[OwnerT, FactoryServiceT]
 )
 
 
-class ServiceProvider(HasProps):
+class HasServices[ServiceLevelT: ServiceLevel = ServiceLevel](
+    ManagedLifeCycle, HasProps
+):
     """
-    A service provider.
+    An object that has services.
     """
 
-    def __init__(self, *args: Any, services: ServiceLevel, **kwargs: Any):
+    def __init__(self, *args: Any, services: ServiceLevelT, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        self.services: Final[ServiceLevel] = services
-        """
-        The service level the services are provided for.
-        """
+        self.services: Final[ServiceLevelT] = services
 
 
 @final
@@ -53,34 +53,30 @@ class Service[ServiceT]:
 
 
 class ServiceManager[
-    ServiceProviderT: ServiceProvider,
+    OwnerT: HasServices,
     ServiceT,
     GetServiceT,
     GetterServiceT,
     FactoryServiceT,
-](Prop[ServiceProviderT, GetServiceT]):
+](Prop[OwnerT, GetServiceT]):
     """
     Manage a single service for a service provider.
     """
 
-    def __init__(
-        self, factory: ServiceOrFactory[ServiceProviderT, ServiceT, FactoryServiceT], /
-    ):
+    def __init__(self, factory: ServiceOrFactory[OwnerT, ServiceT, FactoryServiceT], /):
         self.__service_or_factory = factory
 
     @override
-    def init_owner(self, service_provider: ServiceProviderT, /) -> None:
-        self._assert_service_not_initialized(service_provider)
+    def init_owner(self, owner: OwnerT, /) -> None:
+        self._assert_service_not_initialized(owner)
         setattr(
-            service_provider,
+            owner,
             f"_service_{self.prop.name}",
-            self._new_service_getter(service_provider),
+            self._new_service_getter(owner),
         )
 
     @abstractmethod
-    def _new_service_getter(
-        self, service_provider: ServiceProviderT, /
-    ) -> GetterServiceT:
+    def _new_service_getter(self, owner: OwnerT, /) -> GetterServiceT:
         """
         Create a new service getter.
 
@@ -92,10 +88,8 @@ class ServiceManager[
 
     @final
     @override
-    def get(self, service_provider: ServiceProviderT, /) -> GetServiceT:
-        return self._get_service(
-            getattr(service_provider, f"_service_{self.prop.name}")
-        )
+    def get(self, owner: OwnerT, /) -> GetServiceT:
+        return self._get_service(getattr(owner, f"_service_{self.prop.name}"))
 
     @abstractmethod
     def _get_service(self, service: GetterServiceT, /) -> GetServiceT:
@@ -105,28 +99,24 @@ class ServiceManager[
 
     @final
     def _get_service_or_factory(
-        self, service_provider: ServiceProviderT, /
-    ) -> ServiceOrFactory[ServiceProviderT, ServiceT, FactoryServiceT]:
+        self, owner: OwnerT, /
+    ) -> ServiceOrFactory[OwnerT, ServiceT, FactoryServiceT]:
         return getattr(
-            service_provider,
-            f"_service_{self.prop.name}_or_factory",
-            self.__service_or_factory,
+            owner, f"_service_{self.prop.name}_or_factory", self.__service_or_factory
         )
 
     @final
-    def _assert_service_not_initialized(
-        self, service_provider: ServiceProviderT, /
-    ) -> None:
-        if hasattr(service_provider, f"_service_{self.prop.name}"):
+    def _assert_service_not_initialized(self, owner: OwnerT, /) -> None:
+        if hasattr(owner, f"_service_{self.prop.name}"):
             raise ServiceAlreadyInitialized(
-                f"{service_provider}.{self.prop.name} was initialized already."
+                f"{owner}.{self.prop.name} was initialized already."
             )
 
     @final
     def override(
         self,
-        service_provider: ServiceProviderT,
-        service: ServiceOrFactory[ServiceProviderT, ServiceT, FactoryServiceT],
+        owner: OwnerT,
+        service: ServiceOrFactory[OwnerT, ServiceT, FactoryServiceT],
         /,
     ) -> None:
         """
@@ -136,8 +126,8 @@ class ServiceManager[
 
         This MUST only be called from ``instance.__init__()``.
         """
-        self._assert_service_not_initialized(service_provider)
-        setattr(service_provider, f"_service_{self.prop.name}_or_factory", service)
+        self._assert_service_not_initialized(owner)
+        setattr(owner, f"_service_{self.prop.name}_or_factory", service)
 
 
 class ServiceNotYetInitialized(ServiceError):

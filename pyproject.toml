@@ -87,7 +87,6 @@ betty = 'betty.console:main_from_environment'
 'enricher' = 'betty.load:EnricherDefinition'
 'entity' = 'betty.entity:EntityDefinition'
 'event-type' = 'betty.event_type:EventTypeDefinition'
-'extension' = 'betty.extension:ExtensionDefinition'
 'gender' = 'betty.gender:GenderDefinition'
 'http-rate-limit' = 'betty.http_client.rate_limit:RateLimitDefinition'
 'jinja-filter' = 'betty.jinja.filter:JinjaFilterDefinition'
@@ -102,6 +101,7 @@ betty = 'betty.console:main_from_environment'
 'role' = 'betty.role:RoleDefinition'
 'serializer' = 'betty.serialize:SerializerDefinition'
 'server' = 'betty.server:ServerDefinition'
+'service-provider' = 'betty.service_provider:ServiceProviderDefinition'
 
 [project.entry-points.'betty.asset_directory']
 'builtin' = 'betty.asset_directories.builtin:builtin'
@@ -214,14 +214,14 @@ betty = 'betty.console:main_from_environment'
 'unknown' = 'betty.event_types.unknown:UnknownEventType'
 'will' = 'betty.event_types.will:Will'
 
-[project.entry-points.'betty.extension']
-'http-api-doc' = 'betty.extensions.http_api_doc:HttpApiDoc'
-'maps' = 'betty.extensions.maps:Maps'
-'raspberry-mint' = 'betty.extensions.raspberry_mint:RaspberryMint'
-'spdx' = 'betty.extensions.spdx:Spdx'
-'trees' = 'betty.extensions.trees:Trees'
-'webpack' = 'betty.extensions.webpack:Webpack'
-'wiki' = 'betty.extensions.wiki:Wiki'
+[project.entry-points.'betty.service_provider']
+'http-api-doc' = 'betty.service_providers.http_api_doc:HttpApiDoc'
+'maps' = 'betty.service_providers.maps:Maps'
+'raspberry-mint' = 'betty.service_providers.raspberry_mint:RaspberryMint'
+'spdx' = 'betty.service_providers.spdx:Spdx'
+'trees' = 'betty.service_providers.trees:Trees'
+'webpack' = 'betty.service_providers.webpack:Webpack'
+'wiki' = 'betty.service_providers.wiki:Wiki'
 
 [project.entry-points.'betty.gender']
 'man' = 'betty.genders.man:Man'

@@ -10,12 +10,6 @@ from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.enrichers.deriver import Deriver
 from betty.enrichers.privatizer import Privatizer
 from betty.enrichers.wiki import Wiki as WikiEnricher
-from betty.extensions.http_api_doc import HttpApiDoc
-from betty.extensions.maps import Maps
-from betty.extensions.raspberry_mint import RaspberryMint
-from betty.extensions.trees import Trees
-from betty.extensions.webpack import Webpack
-from betty.extensions.wiki import Wiki as WikiExtension
 from betty.factory import Manufacturable
 from betty.load import LoaderManufacturer
 from betty.loaders.gramps import FamilyTree, Gramps, GrampsData
@@ -26,6 +20,12 @@ from betty.machine_name import MachineName
 from betty.nothing import Nothing
 from betty.project import ProjectData
 from betty.project.new import new
+from betty.service_providers.http_api_doc import HttpApiDoc
+from betty.service_providers.maps import Maps
+from betty.service_providers.raspberry_mint import RaspberryMint
+from betty.service_providers.trees import Trees
+from betty.service_providers.webpack import Webpack
+from betty.service_providers.wiki import Wiki as WikiExtension
 
 if TYPE_CHECKING:
     import argparse
@@ -155,7 +155,7 @@ def _new_default_configuration() -> ProjectData:
             Privatizer,
             WikiEnricher,
         ],
-        extensions=[
+        service_providers=[
             HttpApiDoc,
             Maps,
             RaspberryMint,

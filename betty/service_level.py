@@ -9,9 +9,8 @@ from importlib import metadata
 from typing import TYPE_CHECKING, Any, Final
 
 from betty.collections.keyed.adapter import KeyedCollectionAdapter
-from betty.life_cycle.manage import ManagedLifeCycle
 from betty.plugin.resolve import resolve_plugin_type_id
-from betty.service import ServiceProvider
+from betty.service import HasServices
 from betty.services.simple import service
 
 if TYPE_CHECKING:
@@ -30,7 +29,7 @@ else:
     type Plugins = Any
 
 
-class ServiceLevel(ManagedLifeCycle, ServiceProvider):
+class ServiceLevel(HasServices):
     """
     A service level.
     """

@@ -1,7 +1,7 @@
 from typing import override
 
 from betty.plugin.resolve import ResolvablePluginDefinition, resolve_plugin_definition
-from betty.services.plugin import PluginServiceProvider
+from betty.services.plugin import HasPluginServices
 from betty.services.plugin.collection.keyed import (
     KeyedCollectionPluginServiceManager,
 )
@@ -18,7 +18,7 @@ from betty.tests.services.test_plugin import (
 
 class _KeyedCollectionPluginServiceManagerTestSut(
     KeyedCollectionPluginServiceManager[
-        PluginServiceProvider,
+        HasPluginServices,
         DummyPluginDefinition,
         DummyPluginDefinition,
         ResolvablePluginDefinition[DummyPluginDefinition],
@@ -30,27 +30,22 @@ class _KeyedCollectionPluginServiceManagerTestSut(
     @override
     def new_service_item(
         self,
-        service_provider: PluginServiceProvider,
+        owner: HasPluginServices,
         plugin: ResolvablePluginDefinition[DummyPluginDefinition],
         /,
     ) -> DummyPluginDefinition:
         return resolve_plugin_definition(plugin)
 
 
-class _KeyedCollectionPluginServiceManagerTestServiceProvider(PluginServiceProvider):
+class _KeyedCollectionPluginServiceManagerTestOwner(HasPluginServices):
     my_first_service = _KeyedCollectionPluginServiceManagerTestSut()
 
 
 class TestKeyedCollectionPluginServiceManager(PluginServiceManagerTestBase):
     async def test_new_service(self) -> None:
-        service_provider = _KeyedCollectionPluginServiceManagerTestServiceProvider(
-            services=self._SERVICES
+        owner = _KeyedCollectionPluginServiceManagerTestOwner(services=self._SERVICES)
+        _KeyedCollectionPluginServiceManagerTestOwner.my_first_service.add_init_plugins(
+            owner, DummyPluginThree, DummyPluginTwo, DummyPluginOne
         )
-        _KeyedCollectionPluginServiceManagerTestServiceProvider.my_first_service.add_init_plugins(
-            service_provider, DummyPluginThree, DummyPluginTwo, DummyPluginOne
-        )
-        async with service_provider:
-            assert (
-                service_provider.my_first_service[DummyPluginOne]
-                is DummyPluginOne.plugin()
-            )
+        async with owner:
+            assert owner.my_first_service[DummyPluginOne] is DummyPluginOne.plugin()

@@ -59,7 +59,6 @@ from betty.entity import EntityDefinition
 from betty.entity.collection.pool import EntityPool
 from betty.event_type import EventTypeDefinition
 from betty.exception import HumanFacingException
-from betty.extension import Extension, ExtensionDefinition, ExtensionManufacturer
 from betty.gender import GenderDefinition
 from betty.gettext import TranslationsRepository
 from betty.hashid import hashid
@@ -107,10 +106,17 @@ from betty.requirements.service_level import RequirableServiceLevel
 from betty.role import RoleDefinition
 from betty.sample import Sample, Size
 from betty.server import ServerDefinition
-from betty.service import Service
+from betty.service import (
+    Service,
+)
 from betty.service_level import DownstreamServiceLevel
+from betty.service_provider import (
+    ServiceProvider,
+    ServiceProviderDefinition,
+    ServiceProviderManufacturer,
+)
 from betty.services.asset import AssetRepositoryService
-from betty.services.plugin import PluginServiceProvider
+from betty.services.plugin import HasPluginServices
 from betty.services.plugin.definition.collection.keyed import PluginDefinitionsService
 from betty.services.plugin.instance.collection.keyed import PluginInstancesService
 from betty.services.plugin.instance.single import PluginInstanceService
@@ -154,9 +160,7 @@ the oldest verified person to ever have lived.
 
 
 @final
-class Project(
-    DownstreamServiceLevel[App], RequirableServiceLevel, PluginServiceProvider
-):
+class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServices):
     """
     Define a Betty project.
 
@@ -175,7 +179,6 @@ class Project(
     css_resources = PluginDefinitionsService(CssResourceDefinition)
     document_providers = PluginInstancesService(DocumentProviderDefinition)
     enrichers = PluginInstancesService(EnricherDefinition)
-    extensions = PluginInstancesService(ExtensionDefinition)
     jinja_filters = PluginInstancesService(JinjaFilterDefinition)
     jinja_tests = PluginInstancesService(JinjaTestDefinition)
     js_resources = PluginDefinitionsService(JsResourceDefinition)
@@ -184,6 +187,7 @@ class Project(
     loaders = PluginInstancesService(LoaderDefinition)
     renderers = PluginInstancesService(RendererDefinition)
     servers = PluginInstancesService(ServerDefinition)
+    service_providers = PluginInstancesService(ServiceProviderDefinition)
 
     def __init__(
         self,
@@ -202,7 +206,7 @@ class Project(
         | None = None,
         debug: bool = False,
         enrichers: ServicePluginInstances[EnricherDefinition] = (),
-        extensions: ServicePluginInstances[ExtensionDefinition] = (),
+        service_providers: ServicePluginInstances[ServiceProviderDefinition] = (),
         generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]]
         | None = None,
         license: ServicePluginInstance[LicenseDefinition] | None = None,  # noqa: A002
@@ -242,7 +246,7 @@ class Project(
         cls.asset_directories.add_init_plugins(self, *assets)
         cls.copyright_notice.add_init_plugins(self, copyright_notice or ProjectAuthor)
         cls.enrichers.add_init_plugins(self, *enrichers)
-        cls.extensions.add_init_plugins(self, *extensions)
+        cls.service_providers.add_init_plugins(self, *service_providers)
         cls.license.add_init_plugins(self, license or AllRightsReserved)
         cls.links.add_init_plugins(self, *links)
         cls.loaders.add_init_plugins(self, *loaders)
@@ -412,7 +416,7 @@ class Project(
             loaders=data.loaders,
             locales=data.locales,
             logo=data.logo,
-            extensions=data.extensions,
+            service_providers=data.service_providers,
             title=data.title,
             url=data.url,
         )
@@ -435,7 +439,7 @@ class Project(
         enrichers: ServicePluginInstances[EnricherDefinition] = (),
         generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]]
         | None = None,
-        extensions: ServicePluginInstances[ExtensionDefinition] = (),
+        service_providers: ServicePluginInstances[ServiceProviderDefinition] = (),
         lifetime_threshold: int | None = None,
         links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
         loaders: ServicePluginInstances[LoaderDefinition] = (),
@@ -477,7 +481,7 @@ class Project(
                 clean_urls=clean_urls,
                 debug=debug,
                 enrichers=enrichers,
-                extensions=extensions,
+                service_providers=service_providers,
                 generate_entity_list_html=generate_entity_list_html,
                 lifetime_threshold=lifetime_threshold,
                 links=links,
@@ -812,15 +816,15 @@ class ProjectData(Data, HasProps):
     The :py:class:`betty.event_type.EventType` plugins created by this project.
     """
 
-    extensions = CollectionOwnerAttr(
+    service_providers = CollectionOwnerAttr(
         FieldDefinition(
             KeyedCollectionDefinition(
-                value=ExtensionManufacturer,
-                label=ExtensionDefinition.type().label_plural,
+                value=ServiceProviderManufacturer,
+                label=ServiceProviderDefinition.type().label_plural,
                 factory=lambda: MutableKeyedCollectionAdapter(
                     key=lambda data: data.plugin_id,
                     key_resolver=resolve_plugin_id,
-                    value_resolver=ExtensionManufacturer.resolve,
+                    value_resolver=ServiceProviderManufacturer.resolve,
                 ),
             ),
             optional=True,
@@ -828,7 +832,7 @@ class ProjectData(Data, HasProps):
         )
     )
     """
-    The extensions to enable for the project.
+    The service providers to enable for the project.
     """
 
     generate_entity_list_html = CollectionOwnerAttr(
@@ -984,8 +988,8 @@ class ProjectData(Data, HasProps):
             EnricherDefinition, Enricher
         ] = (),
         event_types: Iterable[EventTypeDefinitionData] = (),
-        extensions: ResolvablePluginManufacturerSequence[
-            ExtensionDefinition, Extension
+        service_providers: ResolvablePluginManufacturerSequence[
+            ServiceProviderDefinition, ServiceProvider
         ] = (),
         generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]]
         | None = None,
@@ -1012,7 +1016,7 @@ class ProjectData(Data, HasProps):
         self.debug = debug
         self.enrichers = enrichers
         self.event_types = event_types
-        self.extensions = extensions
+        self.service_providers = service_providers
         self.generate_entity_list_html = generate_entity_list_html
         self.genders = genders
         if license is not None:

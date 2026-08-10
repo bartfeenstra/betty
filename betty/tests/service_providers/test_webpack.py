@@ -1,0 +1,34 @@
+from pathlib import Path
+
+from pytest_mock import MockerFixture
+
+from betty.file import read, write
+from betty.project.generate import generate
+from betty.service_providers.webpack import Webpack
+from betty.test_utils.conftest import IsolatedProjectFactory
+
+
+class TestWebpack:
+    _SENTINEL = "s3nt1n3l"
+
+    async def test_generate__with_npm(
+        self,
+        mocker: MockerFixture,
+        isolated_project_factory: IsolatedProjectFactory,
+        tmp_path: Path,
+    ) -> None:
+        webpack_build_directory = tmp_path
+        m_build = mocker.patch("betty.service_providers.webpack.build.Builder.build")
+        m_build.return_value = webpack_build_directory
+
+        await write(webpack_build_directory / self._SENTINEL, self._SENTINEL)
+        async with isolated_project_factory(service_providers=[Webpack]) as project:
+            await generate(project)
+            assert await read(project.www_directory / self._SENTINEL) == self._SENTINEL
+
+    async def test_builder(
+        self, isolated_project_factory: IsolatedProjectFactory
+    ) -> None:
+        async with isolated_project_factory(service_providers=[Webpack]) as project:
+            webpack = await project.service_providers[Webpack]
+            assert await webpack.builder is await webpack.builder

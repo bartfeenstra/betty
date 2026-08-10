@@ -7,16 +7,16 @@ from __future__ import annotations
 from typing import final, override
 
 from betty.asset import AssetDirectoryDefinition, AssetRepository, StaticAssetRepository
-from betty.services.plugin import PluginServiceProvider
+from betty.services.plugin import HasPluginServices
 from betty.services.plugin.definition.collection import (
     CollectionPluginDefinitionServiceManager,
 )
 
 
 @final
-class AssetRepositoryService[ServiceProviderT: PluginServiceProvider](
+class AssetRepositoryService[OwnerT: HasPluginServices](
     CollectionPluginDefinitionServiceManager[
-        ServiceProviderT, AssetDirectoryDefinition, AssetRepository
+        OwnerT, AssetDirectoryDefinition, AssetRepository
     ]
 ):
     """
@@ -27,7 +27,7 @@ class AssetRepositoryService[ServiceProviderT: PluginServiceProvider](
         super().__init__(AssetDirectoryDefinition)
 
     @override
-    def new_service(self, instance: ServiceProviderT, /) -> AssetRepository:
+    def new_service(self, instance: OwnerT, /) -> AssetRepository:
         return StaticAssetRepository(
             *(
                 self.new_service_item(instance, asset).assets

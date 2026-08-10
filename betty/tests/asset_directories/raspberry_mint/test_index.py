@@ -3,8 +3,12 @@ import pytest
 from betty.content_builder import ContentBuilderManufacturer
 from betty.content_builders.render import Render, RenderData
 from betty.dirs import asset_directory
-from betty.extension import ExtensionManufacturer
-from betty.extensions.raspberry_mint import RaspberryMint, RaspberryMintData, Region
+from betty.service_provider import ServiceProviderManufacturer
+from betty.service_providers.raspberry_mint import (
+    RaspberryMint,
+    RaspberryMintData,
+    Region,
+)
 from betty.test_utils.conftest import IsolatedProjectFactory
 
 
@@ -21,8 +25,8 @@ async def test_regional_content_front_page_summary(
     file: str, isolated_project_factory: IsolatedProjectFactory
 ) -> None:
     async with isolated_project_factory(
-        extensions=[
-            ExtensionManufacturer(
+        service_providers=[
+            ServiceProviderManufacturer(
                 RaspberryMint,
                 RaspberryMintData(
                     regional_content={
@@ -48,8 +52,8 @@ async def test_regional_content_front_page_content(
     file: str, isolated_project_factory: IsolatedProjectFactory
 ) -> None:
     async with isolated_project_factory(
-        extensions=[
-            ExtensionManufacturer(
+        service_providers=[
+            ServiceProviderManufacturer(
                 RaspberryMint,
                 RaspberryMintData(
                     regional_content={

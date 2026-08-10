@@ -8,4 +8,4 @@ To build a site from your GEDCOM files, you must first convert them to *Gramps X
 #. Import your GEDCOM file under *Family Trees* > *Import...*
 #. Export your family tree under *Family Trees* > *Export...*
 #. As output format, choose one of the *Gramps XML* options
-#. Use the :py:class:`Gramps <betty.loaders.gramps.Gramps>` extension to load the exported file
+#. Use the :py:class:`Gramps <betty.loaders.gramps.Gramps>` plugin to load the exported file

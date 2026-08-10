@@ -20,13 +20,14 @@ from betty.plugin.resolve import (
     resolve_plugin_definition,
     resolve_plugin_id,
 )
+from betty.prop import HasProps as HasProps
 from betty.requirements.plugin_service import PluginServiceRequirement
 from betty.service import (
+    HasServices,
     Service,
     ServiceAlreadyInitialized,
     ServiceManager,
     ServiceNotYetInitialized,
-    ServiceProvider,
 )
 
 if TYPE_CHECKING:
@@ -56,9 +57,7 @@ class _PluginServiceRequirementGetter(Singleton):
     @overload
     def __get__(
         self,
-        instance: PluginServiceManager[
-            PluginServiceProvider, PluginDefinition, Any, Any
-        ],
+        instance: PluginServiceManager[HasPluginServices, PluginDefinition, Any, Any],
         owner: type[PluginServiceManager] | None = None,
     ) -> _PluginServiceRequirementPlugins:
         pass
@@ -70,13 +69,13 @@ class _PluginServiceRequirementGetter(Singleton):
 
 
 class PluginServiceManager[
-    ServiceProviderT: PluginServiceProvider,
+    OwnerT: HasPluginServices,
     PluginDefinitionT: PluginDefinition,
     GetServiceT,
     InitT,
 ](
     ServiceManager[
-        ServiceProviderT,
+        OwnerT,
         GetServiceT,
         GetServiceT,
         Callable[[], GetServiceT],
@@ -101,20 +100,18 @@ class PluginServiceManager[
         """
 
     @override
-    def init_owner(self, service_provider: ServiceProviderT, /) -> None:
-        super().init_owner(service_provider)
-        setattr(service_provider, f"_plugin_service_init_plugins_{self.prop.name}", [])
+    def init_owner(self, owner: OwnerT, /) -> None:
+        super().init_owner(owner)
+        setattr(owner, f"_plugin_service_init_plugins_{self.prop.name}", [])
 
     @final
     @override
-    def _new_service_getter(
-        self, service_provider: ServiceProviderT, /
-    ) -> Callable[[], GetServiceT]:
+    def _new_service_getter(self, owner: OwnerT, /) -> Callable[[], GetServiceT]:
         def plugin_service_manager_getter() -> GetServiceT:
-            factory = self._get_service_or_factory(service_provider)
+            factory = self._get_service_or_factory(owner)
             if isinstance(factory, Service):
                 return factory.service
-            return factory(service_provider)
+            return factory(owner)
 
         return LazyReCallable(plugin_service_manager_getter)
 
@@ -125,54 +122,52 @@ class PluginServiceManager[
 
     @final
     def __get_init_plugins(
-        self, service_provider: ServiceProviderT, /
+        self, owner: OwnerT, /
     ) -> MutableSequence[InitT | ResolvablePluginDefinition[PluginDefinitionT]]:
-        return getattr(
-            service_provider, f"_plugin_service_init_plugins_{self.prop.name}"
-        )
+        return getattr(owner, f"_plugin_service_init_plugins_{self.prop.name}")
 
     @final
     def get_init_plugins(
-        self, service_provider: ServiceProviderT, /
+        self, owner: OwnerT, /
     ) -> Iterable[InitT | ResolvablePluginDefinition[PluginDefinitionT]]:
         """
         Get the initial plugins for the given service provider.
         """
-        return self.__get_init_plugins(service_provider)
+        return self.__get_init_plugins(owner)
 
     @final
     def add_init_plugins(
         self,
-        service_provider: ServiceProviderT,
+        owner: OwnerT,
         /,
         *plugins: InitT | ResolvablePluginDefinition[PluginDefinitionT],
     ) -> None:
         """
         Add one or more plugins to initialize.
         """
-        self.assert_plugins_not_initialized(service_provider)
-        self.__get_init_plugins(service_provider).extend(plugins)
+        self.assert_plugins_not_initialized(owner)
+        self.__get_init_plugins(owner).extend(plugins)
 
     @final
     async def init_plugins(
         self,
-        service_provider: ServiceProviderT,
+        owner: OwnerT,
         /,
         *plugins: InitT | ResolvablePluginDefinition[PluginDefinitionT],
     ) -> None:
         """
         Initialize the plugins.
         """
-        self.assert_plugins_not_initialized(service_provider)
+        self.assert_plugins_not_initialized(owner)
         setattr(
-            service_provider,
+            owner,
             f"_plugin_service_plugins_{self.prop.name}",
-            tuple(await self.prepare_plugins(service_provider, *plugins)),
+            tuple(await self.prepare_plugins(owner, *plugins)),
         )
 
     async def prepare_plugins(
         self,
-        service_provider: ServiceProviderT,
+        owner: OwnerT,
         /,
         *plugins: InitT | ResolvablePluginDefinition[PluginDefinitionT],
     ) -> Iterable[InitT | ResolvablePluginDefinition[PluginDefinitionT]]:
@@ -188,42 +183,40 @@ class PluginServiceManager[
 
     @final
     def get_plugins(
-        self, service_provider: ServiceProviderT, /
+        self, owner: OwnerT, /
     ) -> Sequence[InitT | ResolvablePluginDefinition[PluginDefinitionT]]:
         """
         Get the initialized plugins.
         """
-        self.assert_plugins_initialized(service_provider)
-        return getattr(service_provider, f"_plugin_service_plugins_{self.prop.name}")
+        self.assert_plugins_initialized(owner)
+        return getattr(owner, f"_plugin_service_plugins_{self.prop.name}")
 
     @final
-    def assert_plugins_not_initialized(
-        self, service_provider: ServiceProviderT, /
-    ) -> None:
+    def assert_plugins_not_initialized(self, owner: OwnerT, /) -> None:
         """
         Assert that the plugins have not yet been initialized for the given service provider.
 
         :raise ServiceAlreadyInitialized:
         """
-        if hasattr(service_provider, f"_plugin_service_plugins_{self.prop.name}"):
+        if hasattr(owner, f"_plugin_service_plugins_{self.prop.name}"):
             raise ServiceAlreadyInitialized(
                 f"Service {self.prop.fully_qualified_name}'s plugins were initialized already."
             )
 
     @final
-    def assert_plugins_initialized(self, service_provider: ServiceProviderT, /) -> None:
+    def assert_plugins_initialized(self, owner: OwnerT, /) -> None:
         """
         Assert that the plugins have been initialized already for the given service provider.
 
         :raise ServiceNotYetInitialized:
         """
-        if not hasattr(service_provider, f"_plugin_service_plugins_{self.prop.name}"):
+        if not hasattr(owner, f"_plugin_service_plugins_{self.prop.name}"):
             raise ServiceNotYetInitialized(
                 f"Service {self.prop.fully_qualified_name}'s plugins were not yet initialized."
             )
 
     @abstractmethod
-    def new_service(self, service_provider: ServiceProviderT, /) -> GetServiceT:
+    def new_service(self, owner: OwnerT, /) -> GetServiceT:
         """
         Create the new service value for the given service provider.
         """
@@ -246,13 +239,13 @@ class PluginServiceInitializer(ManagedLifeCycle):
     def __init__(
         self,
         services: ServiceLevel,
-        service_provider: PluginServiceProvider,
+        owner: HasPluginServices,
         supported_plugins: SupportedPlugins = (),
         /,
     ):
         super().__init__()
         self._services = services
-        self._service_provider = service_provider
+        self._owner = owner
         self._supported_plugins: Sequence[PluginDefinition] = tuple(
             map(
                 resolve_plugin_definition,
@@ -260,11 +253,9 @@ class PluginServiceInitializer(ManagedLifeCycle):
             )
         )  # ty:ignore[invalid-assignment]
         self._plugin_services: Sequence[
-            PluginServiceManager[PluginServiceProvider, PluginDefinition, Any, Any]
+            PluginServiceManager[HasPluginServices, PluginDefinition, Any, Any]
         ] = tuple(
-            prop
-            for prop in service_provider.props()
-            if isinstance(prop, PluginServiceManager)
+            prop for prop in owner.props() if isinstance(prop, PluginServiceManager)
         )
         self.life_cycle.on_bootstrap(self._initialize_plugin_services)
 
@@ -274,7 +265,7 @@ class PluginServiceInitializer(ManagedLifeCycle):
                 *(
                     self._collect_init_plugin(service, init_plugin)
                     for service in self._plugin_services
-                    for init_plugin in service.get_init_plugins(self._service_provider)
+                    for init_plugin in service.get_init_plugins(self._owner)
                 ),
                 self._collect_auto_plugins(),
                 *(
@@ -289,15 +280,13 @@ class PluginServiceInitializer(ManagedLifeCycle):
         for service, plugin in init_plugins:
             service_init_plugins[service].append(plugin)
         await gather(*[
-            service.init_plugins(self._service_provider, *plugins)
+            service.init_plugins(self._owner, *plugins)
             for service, plugins in service_init_plugins.items()
         ])
 
     async def _collect_init_plugin[InitT](
         self,
-        service: PluginServiceManager[
-            PluginServiceProvider, PluginDefinition, Any, InitT
-        ],
+        service: PluginServiceManager[HasPluginServices, PluginDefinition, Any, InitT],
         init_plugin: InitT,
     ) -> Iterable[tuple[PluginServiceManager, Any]]:
         plugin = await self._services.plugins[service.plugin_type][
@@ -347,7 +336,7 @@ class PluginServiceInitializer(ManagedLifeCycle):
         return ()
 
 
-class PluginServiceProvider(ManagedLifeCycle, ServiceProvider):
+class HasPluginServices(HasServices):
     """
     A plugin service provider.
     """
@@ -360,5 +349,5 @@ class PluginServiceProvider(ManagedLifeCycle, ServiceProvider):
         **kwargs: Any,
     ):
         super().__init__(*args, services=services, **kwargs)
-        initializer = PluginServiceInitializer(self.services, self, supported_plugins)
+        initializer = PluginServiceInitializer(services, self, supported_plugins)
         self.life_cycle.on((initializer.bootstrap, initializer.shutdown))

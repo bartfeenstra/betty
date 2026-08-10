@@ -9,7 +9,6 @@ from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.bool import BoolDefinition
 from betty.enrichers.populate_links import PopulateLinks
-from betty.extensions.wiki import Wiki as WikiExtension
 from betty.factory import DataManufacturable, Manufacturable
 from betty.jobs.populate_wiki_entity import PopulateWikiEntity
 from betty.load import Enricher, EnricherDefinition
@@ -17,6 +16,7 @@ from betty.localizables.gettext import _
 from betty.project import Project
 from betty.prop import HasProps
 from betty.sample import Sample, Size
+from betty.service_providers.wiki import Wiki as WikiExtension
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
@@ -62,7 +62,7 @@ class WikiData(Data, HasProps):
     ),
     requires={
         Project.enrichers.require(PopulateLinks),
-        Project.extensions.require(WikiExtension),
+        Project.service_providers.require(WikiExtension),
     },
 )
 class Wiki(Enricher, DataManufacturable[WikiData], Manufacturable):

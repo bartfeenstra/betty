@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-24 12:55+0100\n"
+"POT-Creation-Date: 2026-08-11 11:26+0100\n"
 "PO-Revision-Date: 2026-07-17 21:25+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: es_ES\n"
@@ -673,12 +673,6 @@ msgstr "Ejecutable"
 msgid "Explore a demonstration site"
 msgstr "Explora un sitio de demostración"
 
-msgid "Extension"
-msgstr "Extensión"
-
-msgid "Extensions"
-msgstr "Extensiones"
-
 msgid "Facts"
 msgstr "Hechos"
 
@@ -1156,6 +1150,10 @@ msgstr "Ocupación"
 msgid "Occupations"
 msgstr "Ocupaciones"
 
+#, python-brace-format
+msgid "Only the following file types can be loaded: {file_extensions}"
+msgstr ""
+
 msgid "Operating system"
 msgstr "Sistema operativo"
 
@@ -1473,6 +1471,12 @@ msgstr "Servidor"
 msgid "Servers"
 msgstr "Servidores"
 
+msgid "Service provider"
+msgstr ""
+
+msgid "Service providers"
+msgstr ""
+
 #, python-brace-format
 msgid "Serving your site at {url}…"
 msgstr "Sirve a su sitio en {url}…"
@@ -1583,10 +1587,6 @@ msgid "The '%(project_title)s' logo"
 msgstr "Logo de '%(project_title)s'"
 
 msgid "The 'birth of the author', so to speak."
-msgstr ""
-
-#, python-brace-format
-msgid "The Gramps extension can only load the following file types: {file_extensions}"
 msgstr ""
 
 #, python-brace-format
@@ -2320,12 +2320,6 @@ msgstr[0] "{count} tipo de evento"
 msgstr[1] "{count} tipos de evento"
 
 #, python-brace-format
-msgid "{count} extension"
-msgid_plural "{count} extensions"
-msgstr[0] "{count} extensión"
-msgstr[1] "{count} extensiones"
-
-#, python-brace-format
 msgid "{count} farm"
 msgid_plural "{count} farms"
 msgstr[0] "{count} granja"
@@ -2558,6 +2552,12 @@ msgid "{count} server"
 msgid_plural "{count} servers"
 msgstr[0] "{count} servidor"
 msgstr[1] "{count} servidores"
+
+#, python-brace-format
+msgid "{count} service provider"
+msgid_plural "{count} service providers"
+msgstr[0] ""
+msgstr[1] ""
 
 #, python-brace-format
 msgid "{count} source"

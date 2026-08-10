@@ -32,13 +32,13 @@ from betty.datas.int import IntDefinition
 from betty.datas.plugin.manufacturer.sequence import (
     PluginManufacturerSequenceDefinition,
 )
-from betty.extensions.raspberry_mint import Breakpoint, JustifyContent
 from betty.factory import DataManufacturable
 from betty.localizables.gettext import _
 from betty.porters.callback import CallbackPorter
 from betty.project import Project
 from betty.prop import HasProps
 from betty.sample import Sample, Size
+from betty.service_providers.raspberry_mint import Breakpoint, JustifyContent
 
 if TYPE_CHECKING:
     from betty.document import Document

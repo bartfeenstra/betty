@@ -11,11 +11,11 @@ from betty.associations.has_links import HasLinks
 from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
-from betty.extensions.wiki import Wiki as WikiExtension
 from betty.factory import Manufacturable
 from betty.locale import negotiate_locale, resolve_locale
 from betty.localizables.gettext import _
 from betty.project import Project
+from betty.service_providers.wiki import Wiki as WikiExtension
 from betty.wiki import NotAPageError, parse_page_url
 from betty.wiki.client import Client, ClientError, Summary
 
@@ -36,7 +36,7 @@ if TYPE_CHECKING:
     label=_("Wikipedia summary"),
     requires={
         Project.asset_directories.require(wiki),
-        Project.extensions.require(WikiExtension),
+        Project.service_providers.require(WikiExtension),
     },
 )
 class WikipediaSummary(Template, Manufacturable):
@@ -64,7 +64,7 @@ class WikipediaSummary(Template, Manufacturable):
     @classmethod
     async def new(cls, project: Project, /) -> Self:
         return cls(
-            client=await (await project.extensions[WikiExtension]).client,
+            client=await (await project.service_providers[WikiExtension]).client,
             jinja=await project.jinja,
             localizers=project.localizers,
             copyright_notice=await project.factory.new(

@@ -10,7 +10,7 @@
     document.resource
 ) %}
 {% block page_content %}
-    {% set regional_content = project.extensions['raspberry-mint'].regional_content %}
+    {% set regional_content = project.service_providers['raspberry-mint'].regional_content %}
     {% if 'entity-page-content--' ~ document.resource.plugin().id in regional_content %}
         {{ regional_content['entity-page-content--' ~ document.resource.plugin().id] | build_content }}
     {% elif 'entity-page-content' in regional_content %}

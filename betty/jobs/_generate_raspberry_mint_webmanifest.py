@@ -3,11 +3,11 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING, final, override
 
-from betty.extensions.raspberry_mint import RaspberryMint
 from betty.file import write
 from betty.job import Job
 from betty.locale import to_language_tag
 from betty.localizer import default_localizer
+from betty.service_providers.raspberry_mint import RaspberryMint
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
@@ -22,7 +22,7 @@ class _GenerateRaspberryMintWebmanifest(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-        raspberry_mint = await self._project.extensions[RaspberryMint]
+        raspberry_mint = await self._project.service_providers[RaspberryMint]
         webmanifest = json.dumps({
             "name": self._project.title.localize(default_localizer),
             "icons": [

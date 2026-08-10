@@ -4,7 +4,7 @@ from typing import override
 import pytest
 
 from betty.plugin.resolve import ResolvablePluginDefinition
-from betty.services.plugin import PluginServiceProvider
+from betty.services.plugin import HasPluginServices
 from betty.services.plugin.definition.collection import (
     CollectionPluginDefinitionServiceManager,
 )
@@ -19,18 +19,18 @@ from betty.tests.services.test_plugin import (
 
 class _CollectionPluginDefinitionServiceManagerTestSut(
     CollectionPluginDefinitionServiceManager[
-        PluginServiceProvider, DummyPluginDefinition, Sequence[DummyPluginDefinition]
+        HasPluginServices, DummyPluginDefinition, Sequence[DummyPluginDefinition]
     ]
 ):
     @override
     def new_service(
-        self, service_provider: PluginServiceProvider, /
+        self, owner: HasPluginServices, /
     ) -> Sequence[DummyPluginDefinition]:
         raise NotImplementedError
 
 
 class TestCollectionPluginDefinitionServiceManager(PluginServiceManagerTestBase):
-    class Cls(PluginServiceProvider):
+    class Cls(HasPluginServices):
         my_first_service = _CollectionPluginDefinitionServiceManagerTestSut(
             DummyPluginDefinition
         )

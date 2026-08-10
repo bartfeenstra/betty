@@ -12,11 +12,11 @@ from betty.content_builders.template import Template, TemplateBuild
 from betty.entities.event import Event
 from betty.entities.person import Person
 from betty.entities.place import Place
-from betty.extensions.webpack import Webpack
 from betty.factory import Manufacturable
 from betty.jinja_filters.webpack_entry_point_js import WebpackEntryPointJs
 from betty.localizables.gettext import _
 from betty.project import Project
+from betty.service_providers.webpack import Webpack
 
 if TYPE_CHECKING:
     from betty.document import Document
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     label=_("Map"),
     requires={
         Project.asset_directories.require(maps),
-        Project.extensions.require(Webpack),
+        Project.service_providers.require(Webpack),
         Project.jinja_filters.require(WebpackEntryPointJs),
     },
 )

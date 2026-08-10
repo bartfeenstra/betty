@@ -8,7 +8,7 @@ from functools import update_wrapper
 from inspect import iscoroutinefunction
 from typing import TYPE_CHECKING, overload
 
-from betty.service import ServiceManager, ServiceProvider
+from betty.service import HasServices
 from betty.services.simple.asynchronous import AsynchronousServiceManager
 from betty.services.simple.synchronous import SynchronousServiceManager
 
@@ -16,13 +16,14 @@ if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
 
     from betty.asyncio import ReAwaitable, ResolvableAwaitable
+    from betty.service import ServiceManager
 
 
 @overload
-def service[ServiceProviderT: ServiceProvider, ServiceT](
-    factory: Callable[[ServiceProviderT], Awaitable[ServiceT]], /
+def service[OwnerT: HasServices, ServiceT](
+    factory: Callable[[OwnerT], Awaitable[ServiceT]], /
 ) -> ServiceManager[
-    ServiceProviderT,
+    OwnerT,
     ServiceT,
     ReAwaitable[ServiceT],
     ReAwaitable[ServiceT],
@@ -32,11 +33,9 @@ def service[ServiceProviderT: ServiceProvider, ServiceT](
 
 
 @overload
-def service[ServiceProviderT: ServiceProvider, ServiceT](
-    factory: Callable[[ServiceProviderT], ServiceT], /
-) -> ServiceManager[
-    ServiceProviderT, ServiceT, ServiceT, Callable[[], ServiceT], ServiceT
-]:
+def service[OwnerT: HasServices, ServiceT](
+    factory: Callable[[OwnerT], ServiceT], /
+) -> ServiceManager[OwnerT, ServiceT, ServiceT, Callable[[], ServiceT], ServiceT]:
     pass
 
 

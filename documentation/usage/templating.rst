@@ -16,7 +16,7 @@ receive data from your ancestry, read configuration, any much more.
 
 Adding or overriding templates
 ------------------------------
-Any template file can be overridden by adding a file with the same name to the same subdirectory within your extension
+Any template file can be overridden by adding a file with the same name to the same subdirectory within your plugin's
 or project's asset directory.
 
 In this section

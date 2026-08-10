@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-24 12:55+0100\n"
+"POT-Creation-Date: 2026-08-11 11:26+0100\n"
 "PO-Revision-Date: 2026-07-27 17:01+0000\n"
 "Last-Translator: Andi Chandler <andi@gowling.com>\n"
 "Language: en_GB\n"
@@ -17,7 +17,6 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
-"X-Generator: Weblate 2026.8.dev0\n"
 
 #, python-brace-format
 msgctxt "localizable-quote"
@@ -674,12 +673,6 @@ msgstr "Executable"
 msgid "Explore a demonstration site"
 msgstr "Explore a demonstration site"
 
-msgid "Extension"
-msgstr "Extension"
-
-msgid "Extensions"
-msgstr "Extensions"
-
 msgid "Facts"
 msgstr "Facts"
 
@@ -1159,6 +1152,10 @@ msgstr "Occupation"
 msgid "Occupations"
 msgstr "Occupations"
 
+#, python-brace-format
+msgid "Only the following file types can be loaded: {file_extensions}"
+msgstr ""
+
 msgid "Operating system"
 msgstr "Operating system"
 
@@ -1476,6 +1473,12 @@ msgstr "Server"
 msgid "Servers"
 msgstr "Servers"
 
+msgid "Service provider"
+msgstr ""
+
+msgid "Service providers"
+msgstr ""
+
 #, python-brace-format
 msgid "Serving your site at {url}…"
 msgstr "Serving your site at {url}…"
@@ -1591,10 +1594,6 @@ msgstr "The '%(project_title)s' logo"
 
 msgid "The 'birth of the author', so to speak."
 msgstr "The 'birth of the author', so to speak."
-
-#, python-brace-format
-msgid "The Gramps extension can only load the following file types: {file_extensions}"
-msgstr "The Gramps extension can only load the following file types: {file_extensions}"
 
 #, python-brace-format
 msgid "The Gramps {gramps_entity_reference} entity has a {attribute_name} attribute with value {attribute_value}, which is not a valid IANA media type. This media type was ignored."
@@ -2327,12 +2326,6 @@ msgstr[0] "{count} event type"
 msgstr[1] "{count} event types"
 
 #, python-brace-format
-msgid "{count} extension"
-msgid_plural "{count} extensions"
-msgstr[0] "{count} extension"
-msgstr[1] "{count} extensions"
-
-#, python-brace-format
 msgid "{count} farm"
 msgid_plural "{count} farms"
 msgstr[0] "{count} farm"
@@ -2567,6 +2560,12 @@ msgstr[0] "{count} server"
 msgstr[1] "{count} servers"
 
 #, python-brace-format
+msgid "{count} service provider"
+msgid_plural "{count} service providers"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "{count} source"
 msgid_plural "{count} sources"
 msgstr[0] "{count} source"
@@ -2706,3 +2705,4 @@ msgstr "© Copyright the author, unless otherwise credited"
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Copyright {author}, unless otherwise credited"
+

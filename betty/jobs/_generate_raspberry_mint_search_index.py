@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Final, final, override
 
-from betty.extensions._theme.search import generate_search_index
 from betty.job import Job
 from betty.localizables.gettext import _
 from betty.localizables.markup import Chain
 from betty.localizables.plain import Plain
+from betty.service_providers._theme.search import generate_search_index
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler

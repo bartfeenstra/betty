@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, final, override
 from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
-from betty.services.plugin import PluginServiceManager, PluginServiceProvider
+from betty.services.plugin import HasPluginServices, PluginServiceManager
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -21,12 +21,12 @@ if TYPE_CHECKING:
 
 
 class CollectionPluginServiceManager[
-    ServiceProviderT: PluginServiceProvider,
+    OwnerT: HasPluginServices,
     PluginDefinitionT: PluginDefinition,
     GetServiceT,
     GetServiceItemT,
     InitT,
-](PluginServiceManager[ServiceProviderT, PluginDefinitionT, GetServiceT, InitT]):
+](PluginServiceManager[OwnerT, PluginDefinitionT, GetServiceT, InitT]):
     """
     A service containing a collection of plugin items.
     """
@@ -34,20 +34,20 @@ class CollectionPluginServiceManager[
     @override
     async def prepare_plugins(
         self,
-        service_provider: ServiceProviderT,
+        owner: OwnerT,
         /,
         *plugins: InitT | ResolvablePluginDefinition[PluginDefinitionT],
     ) -> Iterable[InitT | ResolvablePluginDefinition[PluginDefinitionT]]:
         plugins_by_id = {
             self.resolve_init_plugin_id(plugin): plugin
-            for plugin in await super().prepare_plugins(service_provider, *plugins)
+            for plugin in await super().prepare_plugins(owner, *plugins)
         }
         return (
             plugins_by_id[plugin_id]
             for plugin_id in self.__sort_plugins(
                 await gather(
                     *map(
-                        service_provider.services.plugins[self.plugin_type].get,
+                        owner.services.plugins[self.plugin_type].get,
                         plugins_by_id.keys(),
                     )
                 ),
@@ -76,7 +76,7 @@ class CollectionPluginServiceManager[
     @abstractmethod
     def new_service_item(
         self,
-        service_provider: ServiceProviderT,
+        owner: OwnerT,
         plugin: InitT | ResolvablePluginDefinition[PluginDefinitionT],
         /,
     ) -> GetServiceItemT:

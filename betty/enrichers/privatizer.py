@@ -85,7 +85,7 @@ class Privatizer(Enricher, Manufacturable):
         await scheduler.add(
             PrivatizeAncestry(
                 dependencies={DeriveAncestry.id_for()}
-                if Deriver in self._project.extensions
+                if Deriver in self._project.service_providers
                 else set(),
                 project=self._project,
             )
