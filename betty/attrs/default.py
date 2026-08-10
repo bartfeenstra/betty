@@ -60,5 +60,5 @@ class DefaultAttr[
     @final
     @override
     def init_owner(self, owner: OwnerT, /) -> None:
+        self.prop.setattrdefault(owner, self.normalize(owner, self.__default(owner)))
         super().init_owner(owner)
-        self.set(owner, self.__default(owner))

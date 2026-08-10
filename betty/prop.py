@@ -5,7 +5,7 @@ The property API.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import cache
 from inspect import getmembers
 from typing import TYPE_CHECKING, Any, Final, Never, Self, final, overload
@@ -48,20 +48,55 @@ class PropDefinition[OwnerT: HasProps]:
     prop: Prop[OwnerT, Any, Any]
     owner: type[OwnerT]
     name: str
+    """
+    The name of the attribute on the owner the property is assigned to.
+    """
 
-    @property
-    def id(self) -> str:
-        """
-        The global property ID.
-        """
-        return f"{fully_qualified_name(self.owner)}.{self.name}"
+    fully_qualified_name: str = field(init=False)
+    """
+    The fully qualified property name.
+    """
 
-    @property
-    def owner_attr(self) -> str:
+    _owner_attr_name: str = field(init=False)
+
+    def __post_init__(self):
+        object.__setattr__(
+            self,
+            "fully_qualified_name",
+            f"{fully_qualified_name(self.owner)}.{self.name}",
+        )
+        object.__setattr__(self, "_owner_attr_name", f"_betty_prop__{self.name}")
+
+    def hasattr(self, owner: OwnerT, /) -> bool:
         """
-        The name of the owner instance attribute to store data in, if needed/used.
+        Check if a property value is stored on the owner.
         """
-        return f"_prop__{type(self.prop).__name__}__{self.name}"
+        return hasattr(owner, self._owner_attr_name)
+
+    def getattr(self, owner: OwnerT, /) -> Any:
+        """
+        Get the property value from the owner, if any.
+        """
+        return getattr(owner, self._owner_attr_name)
+
+    def setattr(self, owner: OwnerT, value: Any, /) -> None:
+        """
+        Set the property value on the owner.
+        """
+        setattr(owner, self._owner_attr_name, value)
+
+    def setattrdefault(self, owner: OwnerT, value: Any, /) -> None:
+        """
+        Set the property value on the owner, if no value is stored yet.
+        """
+        if not self.hasattr(owner):
+            setattr(owner, self._owner_attr_name, value)
+
+    def delattr(self, owner: OwnerT, /) -> None:
+        """
+        Delete the property value from the owner, if any.
+        """
+        delattr(owner, self._owner_attr_name)
 
 
 class Prop[OwnerT: HasProps, GetT, SetT: Any = Never](ABC):

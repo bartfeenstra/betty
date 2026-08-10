@@ -91,11 +91,11 @@ class OwnerAttr[OwnerT: HasProps, T, DataDefinitionT: DataDefinition = DataDefin
     @final
     @override
     def get(self, owner: OwnerT, /) -> T:
-        return getattr(owner, self.prop.owner_attr)
+        return self.prop.getattr(owner)
 
     @override
     def set(self, owner: OwnerT, value: T, /) -> None:
-        setattr(owner, self.prop.owner_attr, value)
+        self.prop.setattr(owner, value)
 
 
 @final
@@ -112,7 +112,7 @@ class CollectionOwnerAttr[
     @override
     def init_owner(self, owner: OwnerT, /) -> None:
         super().init_owner(owner)
-        setattr(owner, self.prop.owner_attr, self.field.data.new())
+        self.prop.setattrdefault(owner, self.field.data.new())
 
     @override
     def normalize(self, owner: OwnerT, value: SetT, /) -> GetT:
@@ -120,7 +120,7 @@ class CollectionOwnerAttr[
 
     @override
     def get(self, owner: OwnerT, /) -> GetT:
-        return getattr(owner, self.prop.owner_attr)
+        return self.prop.getattr(owner)
 
     @override
     def set(self, owner: OwnerT, value: SetT, /) -> None:

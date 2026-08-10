@@ -4,9 +4,9 @@ Optional to-one associations.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, TypeGuard, final, override
 
-from betty.association import HasAssociations
+from betty.association import Associate, AssociateResolver, HasAssociations
 from betty.associations.proxy import ProxyAssociation
 from betty.associations.to_one import ToOne, ToOneAssociate
 from betty.attrs.optional import OptionalAttr
@@ -39,31 +39,43 @@ class OptionalToOne[OwnerT: HasAssociations, AssociateT: Entity](
         super().__init__(proxied)
 
     @override
+    def init_owner(self, owner: OwnerT, /) -> None:
+        self.prop.setattrdefault(owner, None)
+        super().init_owner(owner)
+
+    @override
+    def is_resolver(
+        self, value: Associate[OwnerT, AssociateT] | None, /
+    ) -> TypeGuard[AssociateResolver[OwnerT, AssociateT]]:
+        if value is None:
+            return False
+        return super().is_resolver(value)
+
+    @override
     def resolve(self, project: Project, owner: OwnerT, /) -> None:
-        if getattr(owner, self.prop.owner_attr):
+        if self.prop.getattr(owner) is None:
             return
         super().resolve(project, owner)
 
     @override
     def associate(self, owner: OwnerT, associate: AssociateT, /) -> None:
         self._proxied_association.associate(owner, associate)
-        setattr(owner, self.prop.owner_attr, False)
 
     @override
     def disassociate(self, owner: OwnerT, associate: AssociateT, /) -> None:
         self._proxied_association.disassociate(owner, associate)
-        setattr(owner, self.prop.owner_attr, True)
+        self.prop.setattr(owner, None)
 
     @override
     def get_associates(self, owner: OwnerT, /) -> Iterable[AssociateT]:
-        if getattr(owner, self.prop.owner_attr):
+        if self.prop.getattr(owner) is None:
             return ()
         return self._proxied_association.get_associates(owner)
 
     @override
     async def dump_linked_data_for(
-        self, project: Project, target: OwnerT, /
+        self, project: Project, owner: OwnerT, /
     ) -> PortableData:
-        if getattr(target, self.prop.owner_attr):
+        if self.prop.getattr(owner) is None:
             return None
-        return await super().dump_linked_data_for(project, target)
+        return await super().dump_linked_data_for(project, owner)

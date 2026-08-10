@@ -10,6 +10,7 @@ from betty.prop import (
     NotSettable,
     OwnerError,
     Prop,
+    PropDefinition,
     PropError,
 )
 
@@ -160,3 +161,48 @@ class TestNotDeletable:
 
         sut = NotDeletable(_Owner.my_first_prop, _Owner())
         assert "my_first_prop" in str(sut)
+
+
+class TestPropDefinition:
+    sut = PropDefinition(_Prop(_Value()), _PropOwner, "my_first_prop")
+
+    def test___post_init__(self) -> None:
+        assert (
+            self.sut.fully_qualified_name
+            == "betty.tests.test_prop:_PropOwner.my_first_prop"
+        )
+
+    def test_hasattr(self) -> None:
+        owner = _PropOwner()
+        assert not self.sut.hasattr(owner)
+        owner._betty_prop__my_first_prop = _Value()  # ty:ignore[unresolved-attribute]
+        assert self.sut.hasattr(owner)
+
+    def test_getattr(self) -> None:
+        owner = _PropOwner()
+        with pytest.raises(AttributeError):
+            self.sut.getattr(owner)
+        value = _Value()
+        owner._betty_prop__my_first_prop = value  # ty:ignore[unresolved-attribute]
+        assert self.sut.getattr(owner) is value
+
+    def test_setattr(self) -> None:
+        owner = _PropOwner()
+        value = _Value()
+        self.sut.setattr(owner, value)
+        assert owner._betty_prop__my_first_prop is value  # ty:ignore[unresolved-attribute]
+
+    def test_setattrdefault(self) -> None:
+        owner = _PropOwner()
+        value = _Value()
+        owner._betty_prop__my_first_prop = value  # ty:ignore[unresolved-attribute]
+        self.sut.setattrdefault(owner, _Value())
+        assert owner._betty_prop__my_first_prop is value  # ty:ignore[unresolved-attribute]
+
+    def test_delattr(self) -> None:
+        owner = _PropOwner()
+        with pytest.raises(AttributeError):
+            self.sut.delattr(owner)
+        owner._betty_prop__my_first_prop = _Value()  # ty:ignore[unresolved-attribute]
+        self.sut.delattr(owner)
+        assert not hasattr(owner, "_betty_prop__my_first_prop")

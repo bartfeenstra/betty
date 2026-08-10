@@ -207,7 +207,7 @@ class PluginServiceManager[
         """
         if hasattr(service_provider, f"_plugin_service_plugins_{self.prop.name}"):
             raise ServiceAlreadyInitialized(
-                f"Service {self.prop.id}'s plugins were initialized already."
+                f"Service {self.prop.fully_qualified_name}'s plugins were initialized already."
             )
 
     @final
@@ -219,7 +219,7 @@ class PluginServiceManager[
         """
         if not hasattr(service_provider, f"_plugin_service_plugins_{self.prop.name}"):
             raise ServiceNotYetInitialized(
-                f"Service {self.prop.id}'s plugins were not yet initialized."
+                f"Service {self.prop.fully_qualified_name}'s plugins were not yet initialized."
             )
 
     @abstractmethod

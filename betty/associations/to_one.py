@@ -45,7 +45,7 @@ class MissingAssociate[OwnerT: HasAssociations](AttributeError):
         /,
     ):
         super().__init__(
-            f"Missing associate for {association.prop.id} on {owner}. {reason}"
+            f"Missing associate for {association.prop.fully_qualified_name} on {owner}. {reason}"
         )
 
 
@@ -161,39 +161,38 @@ class ToOne[OwnerT: HasAssociations, AssociateT: Entity](
     @override
     def resolve(self, project: Project, owner: OwnerT, /) -> None:
         try:
-            value = getattr(owner, self.prop.owner_attr)
+            value = self.prop.getattr(owner)
         except AttributeError:
             return
         if not isinstance(value, Entity):
             self._assert_not_missing(owner, value)
-            setattr(
+            self.prop.setattr(
                 owner,
-                self.prop.owner_attr,
                 resolve_associate(project, owner, self, value),
             )
 
     @override
     def init_owner(self, owner: OwnerT, /) -> None:
-        setattr(owner, self.prop.owner_attr, _NotInitialized())
+        self.prop.setattrdefault(owner, _NotInitialized())
 
     @override
     def delete_owner(self, owner: OwnerT, /) -> None:
         if associate_attr := self.associate_attr:
-            existing_associate = getattr(owner, self.prop.owner_attr)
+            existing_associate = self.prop.getattr(owner)
             if isinstance(existing_associate, Entity):
                 associate_attr.disassociate(existing_associate, owner)
-        setattr(owner, self.prop.owner_attr, _OwnerDeleted())
+        self.prop.setattr(owner, _OwnerDeleted())
 
     @override
     def set(self, owner: OwnerT, value: ToOneAssociate[OwnerT, AssociateT], /) -> None:
         existing_associate: ToOneAssociate[OwnerT, AssociateT] | None = None
         with suppress(AttributeError):
-            existing_associate = getattr(owner, self.prop.owner_attr)
+            existing_associate = self.prop.getattr(owner)
         if existing_associate is not None:
             self.assert_not_resolver(owner, existing_associate)
         if existing_associate == value:
             return
-        setattr(owner, self.prop.owner_attr, value)
+        self.prop.setattr(owner, value)
         if associate_attr := self.associate_attr:
             if isinstance(existing_associate, Entity):
                 associate_attr.disassociate(existing_associate, owner)
@@ -202,15 +201,15 @@ class ToOne[OwnerT: HasAssociations, AssociateT: Entity](
 
     @override
     def associate(self, owner: OwnerT, associate: AssociateT, /) -> None:
-        setattr(owner, self.prop.owner_attr, associate)
+        self.prop.setattr(owner, associate)
 
     @override
     def disassociate(self, owner: OwnerT, associate: AssociateT, /) -> None:
-        setattr(owner, self.prop.owner_attr, _Disassociated())
+        self.prop.setattr(owner, _Disassociated())
 
     @override
     def get(self, owner: OwnerT, /) -> AssociateT:
-        value = getattr(owner, self.prop.owner_attr)
+        value = self.prop.getattr(owner)
         self._assert_not_missing(owner, value)
         self.assert_not_resolver(owner, value)
         return value

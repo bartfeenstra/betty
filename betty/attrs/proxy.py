@@ -4,7 +4,7 @@ Proxy properties.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, override
 
 from betty.attr import Attr
 from betty.data import DataDefinition
@@ -33,3 +33,8 @@ class ProxyAttr[OwnerT: HasProps, GetT, SetT, DataDefinitionT: DataDefinition](
             proxied.field if field is None else field, *args, proxied=proxied, **kwargs
         )
         self._proxied_field = proxied.field
+        self.__proxied_attr = proxied
+
+    @override
+    def normalize(self, owner: OwnerT, value: SetT, /) -> GetT:
+        return self.__proxied_attr.normalize(owner, value)
