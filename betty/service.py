@@ -16,12 +16,6 @@ if TYPE_CHECKING:
     from betty.service_level import ServiceLevel
 
 
-class ServiceError(RuntimeError):
-    """
-    A service API error.
-    """
-
-
 type ServiceFactory[OwnerT: HasServices, FactoryServiceT] = Callable[
     [OwnerT], FactoryServiceT
 ]
@@ -67,8 +61,8 @@ class ServiceManager[
         self.__service_or_factory = factory
 
     @override
-    def init_owner(self, owner: OwnerT, /) -> None:
-        self._assert_service_not_initialized(owner)
+    def pre_init_owner(self, owner: OwnerT, /) -> None:
+        owner.assert_not_initialized()
         setattr(
             owner,
             f"_service_{self.prop.name}",
@@ -106,13 +100,6 @@ class ServiceManager[
         )
 
     @final
-    def _assert_service_not_initialized(self, owner: OwnerT, /) -> None:
-        if hasattr(owner, f"_service_{self.prop.name}"):
-            raise ServiceAlreadyInitialized(
-                f"{owner}.{self.prop.name} was initialized already."
-            )
-
-    @final
     def override(
         self,
         owner: OwnerT,
@@ -126,17 +113,5 @@ class ServiceManager[
 
         This MUST only be called from ``instance.__init__()``.
         """
-        self._assert_service_not_initialized(owner)
+        owner.assert_not_initialized()
         setattr(owner, f"_service_{self.prop.name}_or_factory", service)
-
-
-class ServiceNotYetInitialized(ServiceError):
-    """
-    A service was unexpectedly not yet initialized.
-    """
-
-
-class ServiceAlreadyInitialized(ServiceError):
-    """
-    A service was unexpectedly initialized already.
-    """

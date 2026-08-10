@@ -30,7 +30,7 @@ class _CollectionPluginDefinitionServiceManagerTestSut(
 
 
 class TestCollectionPluginDefinitionServiceManager(PluginServiceManagerTestBase):
-    class Cls(HasPluginServices):
+    class _Owner(HasPluginServices):
         my_first_service = _CollectionPluginDefinitionServiceManagerTestSut(
             DummyPluginDefinition
         )
@@ -45,10 +45,9 @@ class TestCollectionPluginDefinitionServiceManager(PluginServiceManagerTestBase)
     async def test_new_service_item(
         self, init_plugin: ResolvablePluginDefinition[DummyPluginDefinition]
     ) -> None:
-        async with self.Cls(services=self._SERVICES) as service_provider:
+        owner = self._Owner(services=self._SERVICES)
+        async with owner:
             assert (
-                self.Cls.my_first_service.new_service_item(
-                    service_provider, init_plugin
-                )
+                self._Owner.my_first_service.new_service_item(owner, init_plugin)
                 is DummyPluginWithLifeCycle.plugin()
             )

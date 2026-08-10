@@ -5,7 +5,7 @@ Attributes that store data in owner instance attributes.
 from __future__ import annotations
 
 from collections.abc import Callable, Collection, Iterable
-from typing import Any, final, override
+from typing import TYPE_CHECKING, Any, Final, final, override
 
 from betty.attrs.common import CommonAttr, OptionableCommonAttr
 from betty.attrs.default import DefaultAttr
@@ -13,8 +13,45 @@ from betty.attrs.optional import OptionalAttr
 from betty.attrs.proxy import ProxyAttr
 from betty.data import DataDefinition
 from betty.datas.aggregate.collection import CollectionDefinition
+from betty.freezer import is_frozen
 from betty.prop import HasProps
 from betty.props.setter import SetterProp
+
+if TYPE_CHECKING:
+    from betty.datas.aggregate.record import ResolvableFieldDefinition
+
+
+class __Owner[
+    OwnerT: HasProps,
+    GetT,
+    SetT,
+    DataDefinitionT: DataDefinition = DataDefinition,
+](CommonAttr[OwnerT, GetT, SetT, DataDefinitionT]):
+    def __init__(
+        self,
+        field: ResolvableFieldDefinition[OwnerT, GetT, DataDefinitionT],
+        *args: Any,
+        frozen: bool = False,
+        **kwargs: Any,
+    ):
+        super().__init__(field, *args, **kwargs)
+        self._frozen: Final[bool] = frozen
+
+    @final
+    def _is_mutable(self, owner: OwnerT, /) -> bool:
+        if self._frozen or is_frozen(owner):
+            return not owner.is_initialized
+        return True
+
+    @final
+    @override
+    def is_settable(self, owner: OwnerT, /) -> bool:
+        return self._is_mutable(owner)
+
+    @final
+    @override
+    def is_deletable(self, owner: OwnerT, /) -> bool:
+        return self._is_mutable(owner)
 
 
 class _Owner[
@@ -22,7 +59,10 @@ class _Owner[
     GetT,
     SetT,
     DataDefinitionT: DataDefinition = DataDefinition,
-](OptionableCommonAttr[OwnerT, GetT, SetT, DataDefinitionT]):
+](
+    __Owner[OwnerT, GetT, SetT, DataDefinitionT],
+    OptionableCommonAttr[OwnerT, GetT, SetT, DataDefinitionT],
+):
     @final
     @override
     def default(
@@ -103,7 +143,10 @@ class _CollectionOwner[
     GetT,
     SetT,
     DataDefinitionT: DataDefinition = DataDefinition,
-](CommonAttr[OwnerT, GetT, SetT, DataDefinitionT]):
+](
+    __Owner[OwnerT, GetT, SetT, DataDefinitionT],
+    CommonAttr[OwnerT, GetT, SetT, DataDefinitionT],
+):
     @final
     @override
     def default(
@@ -160,9 +203,9 @@ class CollectionOwnerAttr[
     """
 
     @override
-    def init_owner(self, owner: OwnerT, /) -> None:
-        super().init_owner(owner)
-        self.prop.setattrdefault(owner, self.field.data.new())
+    def pre_init_owner(self, owner: OwnerT, /) -> None:
+        super().pre_init_owner(owner)
+        self.prop.setattr(owner, self.field.data.new())
 
     @override
     def normalize(self, owner: OwnerT, value: SetT, /) -> GetT:

@@ -40,12 +40,8 @@ class TestOptionalAttr:
 
         assert isinstance(_Owner.my_first_attr.field.data, OptionalDefinition)
 
-    def test_init_owner__with_proxied_default(self) -> None:
-        default = "Hello, world!"
-
+    def test_pre_init_owner(self) -> None:
         class _Owner(HasProps):
-            my_first_attr = OptionalAttr(
-                OwnerAttr(StrDefinition(label="-")).default(lambda: default)
-            )
+            my_first_attr = OptionalAttr(OwnerAttr(StrDefinition(label="-")))
 
-        assert _Owner().my_first_attr == default
+        assert _Owner().my_first_attr is None

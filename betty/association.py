@@ -6,7 +6,17 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from inspect import signature
-from typing import TYPE_CHECKING, Any, Final, Never, Self, TypeGuard, final, overload
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Final,
+    Never,
+    Self,
+    TypeGuard,
+    final,
+    overload,
+    override,
+)
 
 from betty.attr import Attr
 from betty.data import DataDefinition, ResolvableDataDefinition
@@ -82,6 +92,11 @@ class Association[
             | None
             | NothingType
         ) = associate_attr if isinstance(associate_attr, Association) else Nothing
+
+    @final
+    @override
+    def is_settable(self, owner: OwnerT, /) -> bool:
+        return True
 
     @final
     @property
@@ -246,7 +261,7 @@ def resolve_associates(project: Project, *owners: HasAssociations) -> None:
             if associate_attr := association.associate_attr:
                 for associate in association.get_associates(owner):
                     assert owner in associate_attr.get_associates(associate), (
-                        f"Corrupt bidirectional association. Found {associate} in {association.prop.fully_qualified_name} on {owner}, but did not find {owner} in {associate_attr.prop.fully_qualified_name} on {associate}."
+                        f"Corrupt bidirectional association. Found {associate} in {association.prop.fully_qualified_name} on {repr(owner)}, but did not find {repr(owner)} in {associate_attr.prop.fully_qualified_name} on {associate}."
                     )
 
 

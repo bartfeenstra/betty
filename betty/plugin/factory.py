@@ -4,7 +4,6 @@ Plugin factories.
 
 from __future__ import annotations
 
-from abc import ABCMeta
 from collections.abc import Iterable, MutableSequence
 from json import dumps
 from typing import TYPE_CHECKING, Final, Generic, Self, TypeVar, final, override
@@ -14,10 +13,12 @@ from betty.assertions.mapping import assert_mapping
 from betty.assertions.record import Field, assert_record
 from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.owner import OwnerAttr
+from betty.classtools import InitABCMeta
 from betty.data import Data, DataDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.exception import HumanFacingException
 from betty.factory import DataManufacturable, FactoryError
+from betty.freezer import Frozen
 from betty.functools import Pipeline
 from betty.importlib import fully_qualified_name
 from betty.localizables.gettext import _
@@ -51,8 +52,9 @@ class PluginManufacturer(
     Samplable,
     Data["PluginManufacturerDefinition"],
     HasProps,
+    Frozen,
     Generic[_PluginManufacturerPluginDefinitionT, _PluginManufacturerPluginT],  # noqa: UP046
-    metaclass=ABCMeta,
+    metaclass=InitABCMeta,
 ):
     """
     Configure a single plugin instance.

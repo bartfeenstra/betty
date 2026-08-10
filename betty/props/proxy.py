@@ -28,17 +28,30 @@ class ProxyProp[OwnerT: HasProps, GetT, SetT](Prop[OwnerT, GetT, SetT]):
         return self.__proxied.get(owner)
 
     @override
+    def is_settable(self, owner: OwnerT, /) -> bool:
+        return self.__proxied.is_settable(owner)
+
+    @override
     def set(self, owner: OwnerT, value: SetT, /) -> None:
         return self.__proxied.set(owner, value)
+
+    @override
+    def is_deletable(self, owner: OwnerT, /) -> bool:
+        return self.__proxied.is_deletable(owner)
 
     @override
     def delete(self, owner: OwnerT, /) -> None:
         return self.__proxied.delete(owner)
 
     @override
-    def init_owner(self, owner: OwnerT, /) -> None:
-        super().init_owner(owner)
-        self.__proxied.init_owner(owner)
+    def pre_init_owner(self, owner: OwnerT, /) -> None:
+        super().pre_init_owner(owner)
+        self.__proxied.pre_init_owner(owner)
+
+    @override
+    def post_init_owner(self, owner: OwnerT, /) -> None:
+        super().post_init_owner(owner)
+        self.__proxied.post_init_owner(owner)
 
     @override
     def delete_owner(self, owner: OwnerT, /) -> None:

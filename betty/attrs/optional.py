@@ -36,9 +36,8 @@ class OptionalAttr[OwnerT: HasProps, GetT, SetT](
         )
 
     @override
-    def init_owner(self, owner: OwnerT, /) -> None:
-        super().init_owner(owner)
-        self.prop.setattrdefault(owner, None)
+    def pre_init_owner(self, owner: OwnerT, /) -> None:
+        self.prop.setattr(owner, None)
 
     @final
     @override
@@ -50,6 +49,7 @@ class OptionalAttr[OwnerT: HasProps, GetT, SetT](
     @final
     @override
     def set(self, owner: OwnerT, value: SetT | None, /) -> None:
+        self.assert_settable(owner)
         if value is None:
             super().delete_owner(owner)
             self.prop.setattr(owner, None)
@@ -59,6 +59,7 @@ class OptionalAttr[OwnerT: HasProps, GetT, SetT](
     @final
     @override
     def delete(self, owner: OwnerT, /) -> None:
+        self.assert_deletable(owner)
         self.set(owner, None)
 
 

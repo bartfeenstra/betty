@@ -15,7 +15,7 @@ class _Attr(Attr[HasProps, str, str]):
         self._init_value = init_value
 
     @override
-    def init_owner(self, owner: HasProps, /) -> None:
+    def pre_init_owner(self, owner: HasProps, /) -> None:
         if self._init_value is not None:
             self.prop.setattr(owner, self._init_value)
 
@@ -29,7 +29,7 @@ class _Attr(Attr[HasProps, str, str]):
 
 
 class TestDefaultAttr:
-    def test_init_owner(self) -> None:
+    def test_pre_init_owner(self) -> None:
         default = "Hello, world!"
 
         class _Owner(HasProps):

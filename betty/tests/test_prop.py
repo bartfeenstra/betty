@@ -16,9 +16,15 @@ from betty.prop import (
 
 
 class _PropOwner(HasProps):
-    def __init__(self):
-        self.init_properties = []
-        super().__init__()
+    @override
+    def _pre_init(self) -> None:
+        self.pre_init_properties = []
+        super()._pre_init()
+
+    @override
+    def _post_init(self) -> None:
+        self.post_init_properties = []
+        super()._post_init()
 
 
 class _Value:
@@ -26,32 +32,35 @@ class _Value:
 
 
 class _Prop(Prop[_PropOwner, tuple[_PropOwner, _Value]]):
-    def __init__(self, value: _Value, /):
-        self.__value = value
+    def __init__(self, value: _Value | None = None, /):
+        self.__value = value or _Value()
 
     @override
     def get(self, owner: _PropOwner, /) -> tuple[_PropOwner, _Value]:
         return owner, self.__value
 
     @override
-    def init_owner(self, owner: _PropOwner, /) -> None:
-        owner.init_properties.append(self)
+    def pre_init_owner(self, owner: _PropOwner, /) -> None:
+        owner.pre_init_properties.append(self)
+
+    @override
+    def post_init_owner(self, owner: _PropOwner, /) -> None:
+        owner.post_init_properties.append(self)
+
+
+class _Owner(_PropOwner):
+    my_first_prop = _Prop()
 
 
 class TestHasProps:
     def test___init__(self) -> None:
-        class _Owner(_PropOwner):
-            my_first_prop = _Prop(_Value())
-
         owner = _Owner()
-        assert _Owner.my_first_prop in owner.init_properties
+        assert _Owner.my_first_prop in owner.pre_init_properties
+        assert _Owner.my_first_prop in owner.post_init_properties
 
 
 class TestProp:
     def test_set(self) -> None:
-        class _Owner(_PropOwner):
-            my_first_prop = _Prop(_Value())
-
         owner = _Owner()
         with pytest.raises(NotSettable):
             _Owner.my_first_prop.set(
@@ -60,17 +69,11 @@ class TestProp:
             )
 
     def test_delete(self) -> None:
-        class _Owner(_PropOwner):
-            my_first_prop = _Prop(_Value())
-
         owner = _Owner()
         with pytest.raises(NotDeletable):
             _Owner.my_first_prop.delete(owner)
 
     def test___get____with_class(self) -> None:
-        class _Owner(_PropOwner):
-            my_first_prop = _Prop(_Value())
-
         assert isinstance(_Owner.my_first_prop, _Prop)
         assert _Owner.my_first_prop is _Owner.my_first_prop
 
@@ -84,48 +87,68 @@ class TestProp:
         assert owner.my_first_prop == (owner, value)
 
     def test___set__(self) -> None:
-        class _Owner(_PropOwner):
-            my_first_prop = _Prop(_Value())
-
         owner = _Owner()
         with pytest.raises(NotSettable):
             owner.my_first_prop = Never  # ty:ignore[invalid-assignment]
 
     def test___delete__(self) -> None:
-        class _Owner(_PropOwner):
-            my_first_prop = _Prop(_Value())
-
         owner = _Owner()
         with pytest.raises(NotDeletable):
             del owner.my_first_prop
 
-    def test_init_owner(self) -> None:
-        class _Owner(_PropOwner):
-            my_first_prop = _Prop(_Value())
+    def test_pre_init_owner(self) -> None:
+        assert _Owner.my_first_prop in _Owner().pre_init_properties
 
-        owner = _Owner()
-        assert _Owner.my_first_prop in owner.init_properties
+    def test_post_init_owner(self) -> None:
+        assert _Owner.my_first_prop in _Owner().post_init_properties
 
     def test_delete_owner(self) -> None:
-        class _Owner(_PropOwner):
-            my_first_prop = _Prop(_Value())
-
         owner = _Owner()
         _Owner.my_first_prop.delete_owner(owner)
 
     def test_prop(self) -> None:
-        class _Owner(_PropOwner):
-            my_first_prop = _Prop(_Value())
-
         assert _Owner.my_first_prop.prop.owner is _Owner
         assert _Owner.my_first_prop.prop.name == "my_first_prop"
+
+    def test_is_settable(self) -> None:
+        assert not _Owner.my_first_prop.is_settable(_Owner())
+
+    def test_assert_settable__without_settable(self) -> None:
+        with pytest.raises(NotSettable):
+            _Owner.my_first_prop.assert_settable(_Owner())
+
+    def test_assert_settable__with_settable(self) -> None:
+        class _SettableProp(_Prop):
+            @override
+            def is_settable(self, owner: _PropOwner, /) -> bool:
+                return True
+
+        class _SettableOwner(_PropOwner):
+            my_first_prop = _SettableProp()
+
+        _SettableOwner.my_first_prop.assert_settable(_SettableOwner())
+
+    def test_is_deletable(self) -> None:
+        assert not _Owner.my_first_prop.is_deletable(_Owner())
+
+    def test_assert_deletable__without_deletable(self) -> None:
+        with pytest.raises(NotDeletable):
+            _Owner.my_first_prop.assert_deletable(_Owner())
+
+    def test_assert_deletable__with_deletable(self) -> None:
+        class _DeletableProp(_Prop):
+            @override
+            def is_deletable(self, owner: _PropOwner, /) -> bool:
+                return True
+
+        class _DeletableOwner(_PropOwner):
+            my_first_prop = _DeletableProp()
+
+        _DeletableOwner.my_first_prop.assert_deletable(_DeletableOwner())
 
 
 class TestPropError:
     def test___init__(self) -> None:
-        class _Owner(_PropOwner):
-            my_first_prop = _Prop(_Value())
-
         message = "Hello, world!"
         sut = PropError(_Owner.my_first_prop, message)
         assert str(sut) == message
@@ -134,9 +157,6 @@ class TestPropError:
 
 class TestOwnerError:
     def test___init__(self) -> None:
-        class _Owner(_PropOwner):
-            my_first_prop = _Prop(_Value())
-
         owner = _Owner()
         message = "Hello, world!"
         sut = OwnerError(_Owner.my_first_prop, owner, message)
@@ -147,24 +167,18 @@ class TestOwnerError:
 
 class TestNotSettable:
     def test___init__(self) -> None:
-        class _Owner(_PropOwner):
-            my_first_prop = _Prop(_Value())
-
         sut = NotSettable(_Owner.my_first_prop, _Owner())
         assert "my_first_prop" in str(sut)
 
 
 class TestNotDeletable:
     def test___init__(self) -> None:
-        class _Owner(_PropOwner):
-            my_first_prop = _Prop(_Value())
-
         sut = NotDeletable(_Owner.my_first_prop, _Owner())
         assert "my_first_prop" in str(sut)
 
 
 class TestPropDefinition:
-    sut = PropDefinition(_Prop(_Value()), _PropOwner, "my_first_prop")
+    sut = PropDefinition(_Prop(), _PropOwner, "my_first_prop")
 
     def test___post_init__(self) -> None:
         assert (
@@ -190,13 +204,6 @@ class TestPropDefinition:
         owner = _PropOwner()
         value = _Value()
         self.sut.setattr(owner, value)
-        assert owner._betty_prop__my_first_prop is value  # ty:ignore[unresolved-attribute]
-
-    def test_setattrdefault(self) -> None:
-        owner = _PropOwner()
-        value = _Value()
-        owner._betty_prop__my_first_prop = value  # ty:ignore[unresolved-attribute]
-        self.sut.setattrdefault(owner, _Value())
         assert owner._betty_prop__my_first_prop is value  # ty:ignore[unresolved-attribute]
 
     def test_delattr(self) -> None:

@@ -38,10 +38,10 @@ class OptionalToOne[OwnerT: HasAssociations, AssociateT: Entity](
     def __init__(self, proxied: ToOne[OwnerT, AssociateT], /):
         super().__init__(proxied)
 
+    @final
     @override
-    def init_owner(self, owner: OwnerT, /) -> None:
-        self.prop.setattrdefault(owner, None)
-        super().init_owner(owner)
+    def pre_init_owner(self, owner: OwnerT, /) -> None:
+        self.prop.setattr(owner, None)
 
     @override
     def is_resolver(
@@ -56,10 +56,6 @@ class OptionalToOne[OwnerT: HasAssociations, AssociateT: Entity](
         if self.prop.getattr(owner) is None:
             return
         super().resolve(project, owner)
-
-    @override
-    def associate(self, owner: OwnerT, associate: AssociateT, /) -> None:
-        self._proxied_association.associate(owner, associate)
 
     @override
     def disassociate(self, owner: OwnerT, associate: AssociateT, /) -> None:

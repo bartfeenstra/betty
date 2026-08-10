@@ -3,7 +3,7 @@ from typing import override
 
 import pytest
 
-from betty.plugin.resolve import resolve_plugin_definition
+from betty.plugin.resolve import ResolvablePluginDefinition, resolve_plugin_definition
 from betty.requirements.service import UnmetServiceRequirement
 from betty.service_level import DownstreamServiceLevel, ServiceLevel
 from betty.services.plugin import (
@@ -38,7 +38,9 @@ class _PluginServiceRequirementTestPluginServiceManager(
 
 
 class _PluginServiceRequirementTestServices(ServiceLevel, HasPluginServices):
-    def __init__(self):
+    def __init__(
+        self, *my_first_plugins: ResolvablePluginDefinition[DummyPluginDefinition]
+    ):
         super().__init__(
             plugins={
                 DummyPluginDefinition: (
@@ -48,6 +50,7 @@ class _PluginServiceRequirementTestServices(ServiceLevel, HasPluginServices):
                 )
             }
         )
+        type(self).my_first_plugins.add_init_plugins(self, *my_first_plugins)
 
     my_first_plugins = _PluginServiceRequirementTestPluginServiceManager()
 
@@ -74,7 +77,8 @@ class TestPluginServiceRequirement:
         sut = PluginServiceRequirement(
             _PluginServiceRequirementTestServices.my_first_plugins, DummyPluginOne
         )
-        async with _PluginServiceRequirementTestServices() as services:
+        services = _PluginServiceRequirementTestServices()
+        async with services:
             with pytest.raises(UnmetServiceRequirement):
                 await sut(services)
 
@@ -82,10 +86,7 @@ class TestPluginServiceRequirement:
         sut = PluginServiceRequirement(
             _PluginServiceRequirementTestServices.my_first_plugins, DummyPluginOne
         )
-        services = _PluginServiceRequirementTestServices()
-        _PluginServiceRequirementTestServices.my_first_plugins.add_init_plugins(
-            services, DummyPluginOne.plugin()
-        )
+        services = _PluginServiceRequirementTestServices(DummyPluginOne.plugin())
         async with services:
             assert DummyPluginOne.plugin() in await sut(services)
 
@@ -96,10 +97,7 @@ class TestPluginServiceRequirement:
             _PluginServiceRequirementTestServices.my_first_plugins, DummyPluginOne
         )
         services = _PluginServiceRequirementTestServices()
-        _PluginServiceRequirementTestServices.my_first_plugins.add_init_plugins(
-            services, DummyPluginOne.plugin()
-        )
-        async with _PluginServiceRequirementTestServices() as services:
+        async with services:
             with pytest.raises(UnmetServiceRequirement):
                 await sut(DownstreamServiceLevel(upstream=services))
 
@@ -109,10 +107,7 @@ class TestPluginServiceRequirement:
         sut = PluginServiceRequirement(
             _PluginServiceRequirementTestServices.my_first_plugins, DummyPluginOne
         )
-        services = _PluginServiceRequirementTestServices()
-        _PluginServiceRequirementTestServices.my_first_plugins.add_init_plugins(
-            services, DummyPluginOne.plugin()
-        )
+        services = _PluginServiceRequirementTestServices(DummyPluginOne.plugin())
         async with services:
             assert DummyPluginOne.plugin() in await sut(
                 DownstreamServiceLevel(upstream=services)

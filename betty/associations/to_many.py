@@ -57,10 +57,15 @@ class ToMany[OwnerT: HasAssociations, AssociateT: Entity](
         )
         super().__init__(FieldDefinition(self._data), associate, associate_attr)
 
+    @final
     @override
-    def init_owner(self, owner: OwnerT, /) -> None:
-        super().init_owner(owner)
-        self.prop.setattrdefault(owner, ToManyCollection(owner, self))
+    def is_deletable(self, owner: OwnerT, /) -> bool:
+        return True
+
+    @override
+    def pre_init_owner(self, owner: OwnerT, /) -> None:
+        super().pre_init_owner(owner)
+        self.prop.setattr(owner, ToManyCollection(owner, self))
 
     @override
     def get(self, owner: OwnerT, /) -> ToManyCollection[OwnerT, AssociateT]:

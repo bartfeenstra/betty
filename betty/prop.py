@@ -6,36 +6,29 @@ from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass, field
-from functools import cache
-from inspect import getmembers
 from typing import TYPE_CHECKING, Any, Final, Never, Self, final, overload
 
+from betty.classtools import Init, InitClassVar
 from betty.importlib import fully_qualified_name
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
 
-class HasProps:
+class HasProps(Init):
     """
     An object that has :py:class:`properties <betty.prop.Prop>`.
     """
 
-    def __init__(self, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
-        for prop in self.props():
-            prop.init_owner(self)
-
     @final
     @classmethod
-    @cache
     def props(cls) -> Iterable[Prop[Self, Any]]:
         """
         Get all properties on this class.
         """
-        return tuple(
-            member for _, member in getmembers(cls) if isinstance(member, Prop)
-        )
+        for class_var in cls.init_class_vars():
+            if isinstance(class_var, Prop):
+                yield class_var
 
 
 @final
@@ -85,13 +78,6 @@ class PropDefinition[OwnerT: HasProps]:
         """
         setattr(owner, self._owner_attr_name, value)
 
-    def setattrdefault(self, owner: OwnerT, value: Any, /) -> None:
-        """
-        Set the property value on the owner, if no value is stored yet.
-        """
-        if not self.hasattr(owner):
-            setattr(owner, self._owner_attr_name, value)
-
     def delattr(self, owner: OwnerT, /) -> None:
         """
         Delete the property value from the owner, if any.
@@ -99,7 +85,9 @@ class PropDefinition[OwnerT: HasProps]:
         delattr(owner, self._owner_attr_name)
 
 
-class Prop[OwnerT: HasProps, GetT, SetT: Any = Never](metaclass=ABCMeta):
+class Prop[OwnerT: HasProps, GetT, SetT: Any = Never](
+    InitClassVar[OwnerT], metaclass=ABCMeta
+):
     """
     A property.
     """
@@ -117,12 +105,6 @@ class Prop[OwnerT: HasProps, GetT, SetT: Any = Never](metaclass=ABCMeta):
         """
         return self.__prop
 
-    def init_owner(self, owner: OwnerT, /) -> None:
-        """
-        Initialize the property on an owner.
-        """
-        return
-
     def delete_owner(self, owner: OwnerT, /) -> None:
         """
         Delete the property from an owner.
@@ -135,13 +117,45 @@ class Prop[OwnerT: HasProps, GetT, SetT: Any = Never](metaclass=ABCMeta):
         Get the property value from the owner.
         """
 
+    @final
+    def assert_settable(self, owner: OwnerT, /) -> None:
+        """
+        Assert that the property is settable for the given owner.
+
+        :raises NotSettable:
+        """
+        if not self.is_settable(owner):
+            raise NotSettable(self, owner)
+
+    def is_settable(self, owner: OwnerT, /) -> bool:
+        """
+        Check if the property is settable for the given owner.
+        """
+        return False
+
     def set(self, owner: OwnerT, value: SetT, /) -> None:
         """
         Set the property value on the owner.
 
         :raises NotSettable:
         """
-        raise NotSettable(self, owner)
+        self.assert_settable(owner)
+
+    @final
+    def assert_deletable(self, owner: OwnerT, /) -> None:
+        """
+        Assert that the property is deletable for the given owner.
+
+        :raises NotDeletable:
+        """
+        if not self.is_deletable(owner):
+            raise NotDeletable(self, owner)
+
+    def is_deletable(self, owner: OwnerT, /) -> bool:
+        """
+        Check if the property is deletable for the given owner.
+        """
+        return False
 
     def delete(self, owner: OwnerT, /) -> None:
         """
@@ -149,7 +163,7 @@ class Prop[OwnerT: HasProps, GetT, SetT: Any = Never](metaclass=ABCMeta):
 
         :raises NotDeletable:
         """
-        raise NotDeletable(self, owner)
+        self.assert_deletable(owner)
 
     @overload
     def __get__(self, instance: None, owner: type[OwnerT], /) -> Self:
@@ -204,7 +218,7 @@ class NotSettable(OwnerError):
         super().__init__(
             prop,
             owner,
-            f"{fully_qualified_name(type(owner))}.{prop.prop.name} is not settable on {owner}.",
+            f"{fully_qualified_name(type(owner))}.{prop.prop.name} is not settable on {repr(owner)}.",
         )
 
 
@@ -217,5 +231,5 @@ class NotDeletable(OwnerError):
         super().__init__(
             prop,
             owner,
-            f"{fully_qualified_name(type(owner))}.{prop.prop.name} is not deletable from {owner}.",
+            f"{fully_qualified_name(type(owner))}.{prop.prop.name} is not deletable from {repr(owner)}.",
         )

@@ -44,7 +44,7 @@ class MissingAssociate[OwnerT: HasAssociations](AttributeError):
         /,
     ):
         super().__init__(
-            f"Missing associate for {association.prop.fully_qualified_name} on {owner}. {reason}"
+            f"Missing associate for {association.prop.fully_qualified_name} on {repr(owner)}. {reason}"
         )
 
 
@@ -163,8 +163,8 @@ class ToOne[OwnerT: HasAssociations, AssociateT: Entity](
             )
 
     @override
-    def init_owner(self, owner: OwnerT, /) -> None:
-        self.prop.setattrdefault(owner, _NotInitialized)
+    def pre_init_owner(self, owner: OwnerT, /) -> None:
+        self.prop.setattr(owner, _NotInitialized)
 
     @override
     def delete_owner(self, owner: OwnerT, /) -> None:

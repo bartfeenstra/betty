@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.classtools import InitABCMeta
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.factory import Manufacturable
 from betty.localizables.gettext import _, ngettext
@@ -22,7 +23,10 @@ if TYPE_CHECKING:
 
 
 class ServiceProvider[ServiceLevelT: ServiceLevel = ServiceLevel](
-    HasServices[ServiceLevelT], Plugin["ServiceProviderDefinition"], Manufacturable
+    HasServices[ServiceLevelT],
+    Plugin["ServiceProviderDefinition"],
+    Manufacturable,
+    metaclass=InitABCMeta,
 ):
     """
     Integrate custom services with a :py:class:`service level <betty.service_level.ServiceLevel>`.

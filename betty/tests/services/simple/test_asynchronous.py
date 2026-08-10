@@ -37,7 +37,8 @@ class TestAsynchronousServiceManager:
                 Service(my_first_service_value)
             )
 
-        async with _Owner(services=ServiceLevel()) as service_provider:
-            actual = await service_provider.my_first_service
+        owner = _Owner(services=ServiceLevel())
+        async with owner:
+            actual = await owner.my_first_service
             assert actual is my_first_service_value
             assert actual.bootstrapped
