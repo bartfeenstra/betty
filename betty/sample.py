@@ -4,7 +4,7 @@ Samples are used to generate documentation about various parts of Betty.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from enum import IntEnum, auto
 from typing import TYPE_CHECKING, Final, Generic, Self, TypeVar, final
 
@@ -104,7 +104,7 @@ class Samples(
         raise SampleNotFound
 
 
-class Samplable(ABC):
+class Samplable(metaclass=ABCMeta):
     """
     Allow a class to provide its own samples.
     """

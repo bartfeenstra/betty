@@ -4,7 +4,7 @@ Complex/markup localizables.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from textwrap import indent
 from typing import TYPE_CHECKING, Any, ClassVar, Final, final, override
 
@@ -32,7 +32,7 @@ join_or_many: Final[Localizable] = pgettext(
 )
 
 
-class LocalizableSequence(ABC):
+class LocalizableSequence(metaclass=ABCMeta):
     """
     A sequence of localizables.
     """

@@ -4,7 +4,7 @@ The key-value store API.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, Self
 
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from contextlib import AbstractAsyncContextManager
 
 
-class StoreItem[ItemValueT](ABC):
+class StoreItem[ItemValueT](metaclass=ABCMeta):
     """
     A store item.
     """
@@ -34,7 +34,7 @@ class StoreItem[ItemValueT](ABC):
 type StoreItemValueSetter[_ItemValueT] = Callable[[_ItemValueT], Awaitable[None]]
 
 
-class Store[ItemValueT](ABC):
+class Store[ItemValueT](metaclass=ABCMeta):
     """
     A key-value store.
 

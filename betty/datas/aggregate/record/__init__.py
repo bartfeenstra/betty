@@ -4,7 +4,7 @@ Record data types.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Any, Final, Self, final
 
 from betty.data import (
@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 type FieldOperator = Attr | Key
 
 
-class FieldPorter[OwnerT, DataT, FieldPorterLoadDataT = Any](ABC):
+class FieldPorter[OwnerT, DataT, FieldPorterLoadDataT = Any](metaclass=ABCMeta):
     """
     An object capable of dumping and loading field data to and from portable data.
     """

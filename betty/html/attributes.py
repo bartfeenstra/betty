@@ -4,7 +4,7 @@ Provide the HTML API, for generating HTML pages.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from collections.abc import Mapping, MutableMapping, MutableSequence, Sequence
 from typing import (
     Any,
@@ -22,7 +22,7 @@ from typing import (
 from betty.string import kebab_case_to_snake_case, snake_case_to_kebab_case
 
 
-class _Attribute[AttributeGetT, AttributeSetT](ABC):
+class _Attribute[AttributeGetT, AttributeSetT](metaclass=ABCMeta):
     def __init__(self, html_name: str):
         self._html_name = html_name
         self._attr_name = f"html_{kebab_case_to_snake_case(html_name)}"

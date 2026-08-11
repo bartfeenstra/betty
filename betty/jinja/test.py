@@ -4,7 +4,7 @@ The Jinja test API.
 
 from __future__ import annotations
 
-from abc import ABC
+from abc import ABCMeta
 from typing import TYPE_CHECKING, final
 
 from betty.localizables.gettext import _, ngettext
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from betty.requirement import Requires
 
 
-class JinjaTest(Plugin["JinjaTestDefinition"], ABC):
+class JinjaTest(Plugin["JinjaTestDefinition"], metaclass=ABCMeta):
     """
     A Jinja test.
 

@@ -4,7 +4,7 @@ The ancestry data loading API.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from asyncio import gather
 from functools import partial
 from typing import TYPE_CHECKING, final
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from betty.requirement import Requires
 
 
-class Loader(ABC, Plugin["LoaderDefinition"]):
+class Loader(Plugin["LoaderDefinition"], metaclass=ABCMeta):
     """
     An ancestry data loader.
     """
@@ -79,7 +79,7 @@ class LoaderManufacturer(PluginManufacturer[LoaderDefinition, Loader]):
     """
 
 
-class Enricher(ABC, Plugin["EnricherDefinition"]):
+class Enricher(Plugin["EnricherDefinition"], metaclass=ABCMeta):
     """
     An ancestry data enricher.
     """

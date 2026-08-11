@@ -4,7 +4,7 @@ An API for linking to web resources.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Final, final, override
 
 from betty.localizable import (
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from betty.machine_name import ResolvableMachineName
 
 
-class Link(ABC):
+class Link(metaclass=ABCMeta):
     """
     A link to a web resource.
     """

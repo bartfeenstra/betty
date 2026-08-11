@@ -4,7 +4,7 @@ The property API.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass, field
 from functools import cache
 from inspect import getmembers
@@ -99,7 +99,7 @@ class PropDefinition[OwnerT: HasProps]:
         delattr(owner, self._owner_attr_name)
 
 
-class Prop[OwnerT: HasProps, GetT, SetT: Any = Never](ABC):
+class Prop[OwnerT: HasProps, GetT, SetT: Any = Never](metaclass=ABCMeta):
     """
     A property.
     """

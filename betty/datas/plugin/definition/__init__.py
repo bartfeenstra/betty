@@ -4,7 +4,7 @@ Reusable data for plugin definitions.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, final
 
 from betty.attrs.machine_name import new_machine_name_attr
@@ -72,7 +72,7 @@ class PluginDefinitionData[
 ](
     Data[PluginDefinitionDefinition[PluginDefinitionT, "PluginDefinitionData"]],
     HasProps,
-    ABC,
+    metaclass=ABCMeta,
 ):
     """
     Configure a :py:class:`betty.plugin.PluginDefinition`.

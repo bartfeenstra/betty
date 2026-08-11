@@ -4,7 +4,7 @@ Provide asynchronous programming utilities.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from inspect import isawaitable
 from typing import TYPE_CHECKING, Any, final, override
 
@@ -26,7 +26,7 @@ async def resolve_await[T](value: ResolvableAwaitable[T]) -> T:
     return value
 
 
-class ReAwaitable[ValueT](ABC):
+class ReAwaitable[ValueT](metaclass=ABCMeta):
     """
     A value that can be awaited multiple times.
     """

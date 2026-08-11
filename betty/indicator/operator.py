@@ -4,7 +4,7 @@ Data operators.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, Final, final, override
 
@@ -26,7 +26,7 @@ class OperatorError(ValueError):
         super().__init__(f"Cannot access {selector.format()}")
 
 
-class Operator(Indicator, ABC):
+class Operator(Indicator, metaclass=ABCMeta):
     """
     Indicate and interact with an aggregate data element.
     """

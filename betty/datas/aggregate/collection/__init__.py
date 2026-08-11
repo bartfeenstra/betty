@@ -4,7 +4,7 @@ Collection data types.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from collections.abc import Callable, Collection, Iterable
 from typing import TYPE_CHECKING, Any, Final, final
 
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 class CollectionDefinition[CollectionT: Collection, ValuesSetT: Iterable](
-    DataDefinition[CollectionT], ABC
+    DataDefinition[CollectionT], metaclass=ABCMeta
 ):
     """
     A homogenous collection data definition.

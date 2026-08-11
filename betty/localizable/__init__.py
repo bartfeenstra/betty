@@ -5,7 +5,7 @@ The localizable API allows objects to be localized at the point of use.
 from __future__ import annotations
 
 import decimal
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from collections.abc import Mapping
 from typing import override
 from warnings import warn
@@ -17,7 +17,7 @@ from betty.localized import LocalizedStr
 from betty.localizer import Localizer, default_localizer
 
 
-class _Localizable[T](ABC):
+class _Localizable[T](metaclass=ABCMeta):
     @abstractmethod
     def format(self, **format_kwargs: ResolvableLocalizable) -> T:
         """

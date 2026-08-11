@@ -4,7 +4,7 @@ To-one entity associations.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from contextlib import suppress
 from typing import TYPE_CHECKING, Any, TypeGuard, final, override
 
@@ -49,7 +49,7 @@ class MissingAssociate[OwnerT: HasAssociations](AttributeError):
         )
 
 
-class _MissingAssociate(ABC):
+class _MissingAssociate(metaclass=ABCMeta):
     @classmethod
     @abstractmethod
     def message(cls) -> str:

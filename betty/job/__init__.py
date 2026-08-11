@@ -4,7 +4,7 @@ Provide utilities for running jobs concurrently.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Final, final
 from uuid import uuid4
@@ -47,7 +47,7 @@ class Context:
         """
 
 
-class Job(ABC):
+class Job(metaclass=ABCMeta):
     """
     A job.
     """

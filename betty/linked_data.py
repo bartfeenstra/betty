@@ -4,7 +4,7 @@ Provide `JSON-LD <https://json-ld.org/>`_ utilities.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from collections.abc import MutableSequence
 from inspect import getmembers
 from typing import TYPE_CHECKING, cast, override
@@ -85,7 +85,7 @@ class JsonLdObject(Object):
 
 
 class LinkedDataDumpableWithSchemaJsonLdObject(
-    LinkedDataDumpableWithSchema[JsonLdObject, PortableMapping], ABC
+    LinkedDataDumpableWithSchema[JsonLdObject, PortableMapping], metaclass=ABCMeta
 ):
     """
     A :py:class:`betty.linked_data.LinkedDataDumpable` implementation for object/mapping data.
@@ -128,7 +128,7 @@ class LinkedDataDumper[
     T,
     SchemaT: Schema = Schema,
     PortableDataT: PortableData = PortableData,
-](ABC):
+](metaclass=ABCMeta):
     """
     Provide linked data for instances of a target type.
     """

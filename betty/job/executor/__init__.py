@@ -4,14 +4,14 @@ Job execution.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Self
 
 if TYPE_CHECKING:
     from types import TracebackType
 
 
-class Executor(ABC):
+class Executor(metaclass=ABCMeta):
     """
     A job executor.
     """

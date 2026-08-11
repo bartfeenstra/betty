@@ -4,7 +4,7 @@ Provide Betty's ancestry event types.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, final
 
 from betty.definition.human_facing import CountableHumanFacingDefinition
@@ -31,7 +31,7 @@ class EventType(DataPlugin["EventTypeDefinition"]):
     """
 
 
-class ShouldExistEventType(EventType, ABC):
+class ShouldExistEventType(EventType, metaclass=ABCMeta):
     """
     An event type that controls whether at least one event of this type should exist for a person.
     """

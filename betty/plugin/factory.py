@@ -4,7 +4,7 @@ Plugin factories.
 
 from __future__ import annotations
 
-from abc import ABC
+from abc import ABCMeta
 from collections.abc import Iterable, MutableSequence
 from json import dumps
 from typing import TYPE_CHECKING, Final, Generic, Self, TypeVar, final, override
@@ -51,8 +51,8 @@ class PluginManufacturer(
     Samplable,
     Data["PluginManufacturerDefinition"],
     HasProps,
-    ABC,
     Generic[_PluginManufacturerPluginDefinitionT, _PluginManufacturerPluginT],  # noqa: UP046
+    metaclass=ABCMeta,
 ):
     """
     Configure a single plugin instance.

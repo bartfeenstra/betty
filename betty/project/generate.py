@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import asyncio
 import shutil
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from asyncio import gather, to_thread
 from contextlib import suppress
 from math import ceil
@@ -37,7 +37,7 @@ if TYPE_CHECKING:
     from betty.project import Project
 
 
-class Generator(ABC):
+class Generator(metaclass=ABCMeta):
     """
     Generate (part of) a project's site.
     """
