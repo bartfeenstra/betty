@@ -8,6 +8,7 @@ to start using these utilities.
 from __future__ import annotations
 
 __all__ = [
+    "_isolated_project",
     "assert_dumps_linked_data",
     "assert_dumps_linked_data_for",
     "assert_linked_data_dump",
@@ -175,13 +176,20 @@ def isolated_app_factory(
     return _isolated_app_factory
 
 
+@pytest.fixture(scope="session")
+async def _isolated_project(isolated_app: App) -> AsyncIterator[Project]:
+    async with Project.new_isolated(app=isolated_app, cache=False) as project:
+        yield project
+
+
 @pytest.fixture
-async def isolated_project(isolated_app: App) -> AsyncIterator[Project]:
+async def isolated_project(_isolated_project: Project) -> Project:
     """
     Create a new, isolated, temporary :py:class:`betty.project.Project`.
     """
-    async with Project.new_isolated(app=isolated_app) as project:
-        yield project
+    # Clear the ancestry as it is the only thing on Project that is still mutable.
+    _isolated_project.ancestry.clear()
+    return _isolated_project
 
 
 @final
