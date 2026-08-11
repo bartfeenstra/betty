@@ -8,6 +8,7 @@ from abc import abstractmethod
 from typing import TYPE_CHECKING
 
 from betty.attr import Attr
+from betty.attrs.optional import OptionableAttr
 from betty.data import DataDefinition
 from betty.prop import HasProps
 
@@ -22,7 +23,7 @@ class CommonAttr[
     DataDefinitionT: DataDefinition = DataDefinition,
 ](Attr[OwnerT, GetT, SetT, DataDefinitionT]):
     """
-    An object attribute that supports common configuration operations.
+    An attribute that supports common configuration operations.
 
     This is a helper mix-in that provides shorthand access to common features to improve Developer Experience (DX).
     """
@@ -35,13 +36,6 @@ class CommonAttr[
         Create a new attribute that proxies this one, and sets a default value.
         """
 
-    @property
-    @abstractmethod
-    def optional(self) -> CommonAttr[OwnerT, GetT | None, SetT | None, DataDefinitionT]:
-        """
-        Return a new attribute like this one, but that also allows ``None``.
-        """
-
     @abstractmethod
     def setter[SetterSetT](
         self,
@@ -51,3 +45,17 @@ class CommonAttr[
         """
         Return a new attribute like this one, but with the given setter.
         """
+
+
+class OptionableCommonAttr[
+    OwnerT: HasProps,
+    GetT,
+    SetT,
+    DataDefinitionT: DataDefinition = DataDefinition,
+](
+    OptionableAttr[OwnerT, GetT, SetT, DataDefinitionT],
+    CommonAttr[OwnerT, GetT, SetT, DataDefinitionT],
+):
+    """
+    An attribute that supports common configuration operations and can be made optional.
+    """

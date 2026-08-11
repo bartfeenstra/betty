@@ -7,7 +7,7 @@ from __future__ import annotations
 from collections.abc import Callable, Collection, Iterable
 from typing import Any, final, override
 
-from betty.attrs.common import CommonAttr
+from betty.attrs.common import CommonAttr, OptionableCommonAttr
 from betty.attrs.default import DefaultAttr
 from betty.attrs.optional import OptionalAttr
 from betty.attrs.proxy import ProxyAttr
@@ -22,21 +22,13 @@ class _Owner[
     GetT,
     SetT,
     DataDefinitionT: DataDefinition = DataDefinition,
-](CommonAttr[OwnerT, GetT, SetT, DataDefinitionT]):
+](OptionableCommonAttr[OwnerT, GetT, SetT, DataDefinitionT]):
     @final
     @override
     def default(
         self, default: Callable[[], SetT] | Callable[[OwnerT], SetT], /
-    ) -> CommonAttr[OwnerT, GetT, SetT, DataDefinitionT]:
+    ) -> OptionableCommonAttr[OwnerT, GetT, SetT, DataDefinitionT]:
         return _Default[OwnerT, GetT, SetT, DataDefinitionT](self, default)
-
-    @final
-    @override
-    @property
-    def optional(
-        self,
-    ) -> CommonAttr[OwnerT, GetT | None, SetT | None, DataDefinition[GetT | None]]:
-        return _Optional(self)
 
     @final
     @override
@@ -44,8 +36,16 @@ class _Owner[
         self,
         setter: Callable[[SetterSetT], SetT] | Callable[[OwnerT, SetterSetT], SetT],
         /,
-    ) -> CommonAttr[OwnerT, GetT, SetterSetT, DataDefinitionT]:
+    ) -> OptionableCommonAttr[OwnerT, GetT, SetterSetT, DataDefinitionT]:
         return _Setter[OwnerT, GetT, SetterSetT, DataDefinitionT](setter, proxied=self)
+
+    @final
+    @override
+    @property
+    def optional(
+        self,
+    ) -> OptionableCommonAttr[OwnerT, GetT | None, SetT | None]:
+        return _Optional(self)
 
 
 class _Default[
@@ -98,13 +98,63 @@ class OwnerAttr[OwnerT: HasProps, T, DataDefinitionT: DataDefinition = DataDefin
         self.prop.setattr(owner, value)
 
 
+class _CollectionOwner[
+    OwnerT: HasProps,
+    GetT,
+    SetT,
+    DataDefinitionT: DataDefinition = DataDefinition,
+](CommonAttr[OwnerT, GetT, SetT, DataDefinitionT]):
+    @final
+    @override
+    def default(
+        self, default: Callable[[], SetT] | Callable[[OwnerT], SetT], /
+    ) -> CommonAttr[OwnerT, GetT, SetT, DataDefinitionT]:
+        return _CollectionDefault[OwnerT, GetT, SetT, DataDefinitionT](self, default)
+
+    @final
+    @override
+    def setter[SetterSetT](
+        self,
+        setter: Callable[[SetterSetT], SetT] | Callable[[OwnerT, SetterSetT], SetT],
+        /,
+    ) -> CommonAttr[OwnerT, GetT, SetterSetT, DataDefinitionT]:
+        return _CollectionSetter[OwnerT, GetT, SetterSetT, DataDefinitionT](
+            setter, proxied=self
+        )
+
+
+class _CollectionDefault[
+    OwnerT: HasProps,
+    GetT,
+    SetT,
+    DataDefinitionT: DataDefinition = DataDefinition,
+](
+    DefaultAttr[OwnerT, GetT, SetT, DataDefinitionT],
+    _CollectionOwner[OwnerT, GetT, SetT, DataDefinitionT],
+):
+    pass
+
+
+class _CollectionSetter[
+    OwnerT: HasProps,
+    GetT,
+    SetT,
+    DataDefinitionT: DataDefinition = DataDefinition,
+](
+    SetterProp[OwnerT, GetT, SetT],
+    ProxyAttr[OwnerT, GetT, SetT, DataDefinitionT],
+    _CollectionOwner[OwnerT, GetT, SetT, DataDefinitionT],
+):
+    pass
+
+
 @final
 class CollectionOwnerAttr[
     OwnerT: HasProps,
     GetT: Collection[Any],
     SetT: Iterable,
     DataDefinitionT: CollectionDefinition = CollectionDefinition,
-](_Owner[OwnerT, GetT, SetT, DataDefinitionT]):
+](_CollectionOwner[OwnerT, GetT, SetT, DataDefinitionT]):
     """
     An object attribute that stores its collection of data on owner instances.
     """

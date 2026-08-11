@@ -207,8 +207,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         debug: bool = False,
         enrichers: ServicePluginInstances[EnricherDefinition] = (),
         service_providers: ServicePluginInstances[ServiceProviderDefinition] = (),
-        generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]]
-        | None = None,
+        generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]] = (),
         license: ServicePluginInstance[LicenseDefinition] | None = None,  # noqa: A002
         lifetime_threshold: int | None = None,
         links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
@@ -437,8 +436,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         debug: bool = False,
         directory: StrPath | None = None,
         enrichers: ServicePluginInstances[EnricherDefinition] = (),
-        generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]]
-        | None = None,
+        generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]] = (),
         service_providers: ServicePluginInstances[ServiceProviderDefinition] = (),
         lifetime_threshold: int | None = None,
         links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
@@ -836,18 +834,22 @@ class ProjectData(Data, HasProps):
     """
 
     generate_entity_list_html = CollectionOwnerAttr(
-        SequenceDefinition[
-            MutableSequence[ResolvablePluginId[EntityDefinition]],
-            ResolvablePluginId[EntityDefinition],
-        ](
-            cls=list,
-            label=_("Entity types to generate list HTML pages for"),
-            value=MachineName,
-            factory=lambda: MutableResolvedSequenceAdapter(
-                [], value_resolver=resolve_plugin_id
+        FieldDefinition(
+            SequenceDefinition[
+                MutableSequence[ResolvablePluginId[EntityDefinition]],
+                ResolvablePluginId[EntityDefinition],
+            ](
+                cls=list,
+                label=_("Entity types to generate list HTML pages for"),
+                value=MachineName,
+                factory=lambda: MutableResolvedSequenceAdapter(
+                    [], value_resolver=resolve_plugin_id
+                ),
             ),
+            optional=True,
+            porter=OmitFieldPorter.new(not_),
         )
-    ).optional
+    )
     """
     Which entity types to generate list HTML pages for.
     """
@@ -991,8 +993,7 @@ class ProjectData(Data, HasProps):
         service_providers: ResolvablePluginManufacturerSequence[
             ServiceProviderDefinition, ServiceProvider
         ] = (),
-        generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]]
-        | None = None,
+        generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]] = (),
         genders: Iterable[GenderDefinitionData] = (),
         license: ResolvablePluginManufacturer[LicenseDefinition, License] | None = None,  # noqa: A002
         licenses: Iterable[LicenseDefinitionData] = (),
