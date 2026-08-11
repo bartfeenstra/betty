@@ -4,9 +4,8 @@ To-one entity associations.
 
 from __future__ import annotations
 
-from abc import ABCMeta, abstractmethod
 from contextlib import suppress
-from typing import TYPE_CHECKING, Any, TypeGuard, final, override
+from typing import TYPE_CHECKING, Any, ClassVar, TypeGuard, final, override
 
 from betty.association import (
     Associate,
@@ -49,35 +48,30 @@ class MissingAssociate[OwnerT: HasAssociations](AttributeError):
         )
 
 
-class _MissingAssociate(metaclass=ABCMeta):
-    @classmethod
-    @abstractmethod
-    def message(cls) -> str:
-        pass
+class _MissingAssociate:
+    message: ClassVar[str]
+
+    def __new__(cls):  # noqa: D102
+        raise TypeError(f"{cls.__name__} cannot be initialized.")
 
 
 @final
 class _NotInitialized(_MissingAssociate):
-    @override
-    @classmethod
-    def message(cls) -> str:
-        return "It was never initialized with a value. You **MUST** ensure a value is set by the time the owner is fully initialized."
+    message: ClassVar[str] = (
+        "It was never initialized with a value. You **MUST** ensure a value is set by the time the owner is fully initialized."
+    )
 
 
 @final
 class _Disassociated(_MissingAssociate):
-    @override
-    @classmethod
-    def message(cls) -> str:
-        return "It was disassociated through its inverse association."
+    message: ClassVar[str] = (
+        "The existing associate was removed from its inverse association."
+    )
 
 
 @final
 class _OwnerDeleted(_MissingAssociate):
-    @override
-    @classmethod
-    def message(cls) -> str:
-        return "It was deleted from its owning entity."
+    message: ClassVar[str] = "The association was deleted from its owning entity."
 
 
 @final
@@ -86,14 +80,11 @@ class Placeholder(_MissingAssociate):
     A placeholder.
     """
 
-    @override
-    @classmethod
-    def message(cls) -> str:
-        return "A placeholder was set, but never explicitly replaced by a real associate entity."
+    message = "A placeholder was set, but never explicitly replaced by a real associate entity."
 
 
 type ToOneAssociate[OwnerT: HasAssociations, AssociateT: Entity] = (
-    Associate[OwnerT, AssociateT] | _MissingAssociate
+    Associate[OwnerT, AssociateT] | type[_MissingAssociate]
 )
 
 
@@ -125,13 +116,13 @@ class ToOne[OwnerT: HasAssociations, AssociateT: Entity](
     def _is_missing(
         self, value: ToOneAssociate[OwnerT, AssociateT]
     ) -> TypeGuard[_MissingAssociate]:
-        return isinstance(value, _MissingAssociate)
+        return isinstance(value, type) and issubclass(value, _MissingAssociate)
 
     def _assert_not_missing(
         self, owner: OwnerT, value: ToOneAssociate[OwnerT, AssociateT]
     ) -> None:
         if self._is_missing(value):
-            raise MissingAssociate(self, owner, value.message())
+            raise MissingAssociate(self, owner, value.message)
 
     @property
     def optional(
@@ -173,7 +164,7 @@ class ToOne[OwnerT: HasAssociations, AssociateT: Entity](
 
     @override
     def init_owner(self, owner: OwnerT, /) -> None:
-        self.prop.setattrdefault(owner, _NotInitialized())
+        self.prop.setattrdefault(owner, _NotInitialized)
 
     @override
     def delete_owner(self, owner: OwnerT, /) -> None:
@@ -181,7 +172,7 @@ class ToOne[OwnerT: HasAssociations, AssociateT: Entity](
             existing_associate = self.prop.getattr(owner)
             if isinstance(existing_associate, Entity):
                 associate_attr.disassociate(existing_associate, owner)
-        self.prop.setattr(owner, _OwnerDeleted())
+        self.prop.setattr(owner, _OwnerDeleted)
 
     @override
     def set(self, owner: OwnerT, value: ToOneAssociate[OwnerT, AssociateT], /) -> None:
@@ -205,7 +196,7 @@ class ToOne[OwnerT: HasAssociations, AssociateT: Entity](
 
     @override
     def disassociate(self, owner: OwnerT, associate: AssociateT, /) -> None:
-        self.prop.setattr(owner, _Disassociated())
+        self.prop.setattr(owner, _Disassociated)
 
     @override
     def get(self, owner: OwnerT, /) -> AssociateT:

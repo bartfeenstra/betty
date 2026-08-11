@@ -29,7 +29,7 @@ async def test_with_public_file_references(
     image = Image.new("1", (1, 1))
     image.save(image_path)
     file = File(image_path, media_type=MediaType("image/png"))
-    file_reference = FileReference(Placeholder(), file)
+    file_reference = FileReference(Placeholder, file)
     async with assert_template_file(
         data={
             "file_references": [file_reference],
@@ -47,7 +47,7 @@ async def test_without_public_file_references(
     image = Image.new("1", (1, 1))
     image.save(image_path)
     file = File(image_path, media_type=MediaType("image/png"), privacy=Privacy.PRIVATE)
-    file_reference = FileReference(Placeholder(), file)
+    file_reference = FileReference(Placeholder, file)
     async with assert_template_file(
         data={
             "file_references": [file_reference],

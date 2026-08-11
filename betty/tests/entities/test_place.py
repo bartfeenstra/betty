@@ -48,13 +48,13 @@ class TestPlace(EntityTestBase):
         assert event.place is sut
 
     def test___init____with_enclosed_by(self) -> None:
-        enclosure = Enclosure(encloses=Placeholder(), enclosed_by=Place())
+        enclosure = Enclosure(encloses=Placeholder, enclosed_by=Place())
         sut = Place(enclosed_by=[enclosure])
         assert list(sut.enclosed_by) == [enclosure]
         assert enclosure.encloses is sut
 
     def test___init____with_encloses(self) -> None:
-        enclosure = Enclosure(encloses=Place(), enclosed_by=Placeholder())
+        enclosure = Enclosure(encloses=Place(), enclosed_by=Placeholder)
         sut = Place(encloses=[enclosure])
         assert list(sut.encloses) == [enclosure]
         assert enclosure.enclosed_by is sut

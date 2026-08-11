@@ -65,14 +65,14 @@ class TestPerson(EntityTestBase):
 
     def test___init____with_presences(self) -> None:
         event = Event(event_type=Birth())
-        presence = Presence(Placeholder(), Subject(), event)
+        presence = Presence(Placeholder, Subject(), event)
         sut = Person(presences=[presence])
         assert list(sut.presences) == [presence]
         assert sut == presence.person
 
     def test___init____with_names(self) -> None:
         name = PersonName(
-            person=Placeholder(),
+            person=Placeholder,
             individual="Janet",
             affiliation="Not a Girl",
         )
