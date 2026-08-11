@@ -15,7 +15,7 @@ from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
 from betty.prop import HasProps
 
 if TYPE_CHECKING:
-    from betty.attrs.common import CommonAttr
+    from betty.attrs.common import OptionableCommonAttr
     from betty.localizable import ResolvableLocalizable
     from betty.portable import PortableMapping
     from betty.project import Project
@@ -25,7 +25,7 @@ def new_media_type_attr(
     *,
     label: ResolvableLocalizable | None = None,
     description: ResolvableLocalizable | None = None,
-) -> CommonAttr[HasProps, MediaType, ResolvableMediaType]:
+) -> OptionableCommonAttr[HasProps, MediaType, ResolvableMediaType]:
     """
     Create an attribute containing a media type.
     """

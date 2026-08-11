@@ -4,17 +4,16 @@ Optional attributes.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final, override
+from abc import abstractmethod
+from typing import final, override
 
+from betty.attr import Attr
 from betty.attrs.proxy import ProxyAttr
 from betty.data import DataDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.optional import OptionalDefinition
 from betty.porters.omit_field import OmitFieldPorter
 from betty.prop import HasProps
-
-if TYPE_CHECKING:
-    from betty.attr import Attr
 
 
 class OptionalAttr[OwnerT: HasProps, GetT, SetT](
@@ -61,3 +60,18 @@ class OptionalAttr[OwnerT: HasProps, GetT, SetT](
     @override
     def delete(self, owner: OwnerT, /) -> None:
         self.set(owner, None)
+
+
+class OptionableAttr[OwnerT: HasProps, GetT, SetT, DataDefinitionT: DataDefinition](
+    Attr[OwnerT, GetT, SetT, DataDefinitionT]
+):
+    """
+    An attribute that can be made optional.
+    """
+
+    @property
+    @abstractmethod
+    def optional(self) -> OptionalAttr[OwnerT, GetT | None, SetT | None]:
+        """
+        Return a new attribute like this one, but that also allows ``None``.
+        """

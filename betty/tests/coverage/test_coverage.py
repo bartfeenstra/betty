@@ -105,12 +105,16 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Attr": {},
     },
     "betty/attrs/common.py": {
-        "CommonAttr": MissingReason.ABSTRACT,
+        "CommonAttr": MissingReason.STATIC_CONTENT_ONLY,
+        "OptionableCommonAttr": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/attrs/date.py": {
         "HasAnyDate": {
             "has_any_date_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
         },
+    },
+    "betty/attrs/optional.py": {
+        "OptionableAttr": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/attrs/privacy.py": {
         "PrivacyAttr": {

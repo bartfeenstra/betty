@@ -201,8 +201,7 @@ class IsolatedProjectFactory(Protocol):
         directory: StrPath | None = None,
         enrichers: ServicePluginInstances[EnricherDefinition] = (),
         service_providers: ServicePluginInstances[ServiceProviderDefinition] = (),
-        generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]]
-        | None = None,
+        generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]] = (),
         lifetime_threshold: int | None = None,
         links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
         loaders: ServicePluginInstances[LoaderDefinition] = (),
@@ -242,8 +241,7 @@ def isolated_project_factory(isolated_app: App) -> IsolatedProjectFactory:
         directory: StrPath | None = None,
         enrichers: ServicePluginInstances[EnricherDefinition] = (),
         service_providers: ServicePluginInstances[ServiceProviderDefinition] = (),
-        generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]]
-        | None = None,
+        generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]] = (),
         lifetime_threshold: int | None = None,
         links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
         loaders: ServicePluginInstances[LoaderDefinition] = (),
