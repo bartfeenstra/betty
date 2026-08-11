@@ -4,7 +4,7 @@ The Assets API.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from asyncio import to_thread
 from typing import TYPE_CHECKING, Final, final, override
 
@@ -40,7 +40,7 @@ class UnknownAsset(AssetError):
         )
 
 
-class AssetRepository(ABC):
+class AssetRepository(metaclass=ABCMeta):
     """
     Manages a set of assets.
 

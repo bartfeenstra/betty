@@ -4,7 +4,7 @@ The (de)serialization API.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, final
 
 from betty.definition.human_facing import HumanFacingDefinition
@@ -31,7 +31,7 @@ class SerializationError(HumanFacingException):
     """
 
 
-class Serializer(ABC, Plugin["SerializerDefinition"]):
+class Serializer(Plugin["SerializerDefinition"], metaclass=ABCMeta):
     """
     A serializer.
     """

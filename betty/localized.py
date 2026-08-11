@@ -4,14 +4,14 @@ The localized API, to describe data that is localized.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, final, override
 
 if TYPE_CHECKING:
     from babel import Locale
 
 
-class Localized(ABC):
+class Localized(metaclass=ABCMeta):
     """
     A resource that has a locale, e.g. contains information in a specific locale.
     """

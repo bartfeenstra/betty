@@ -4,7 +4,7 @@ Data indicators.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, final, override
 
 from betty.pathlib import resolve_path
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from betty.pathlib import StrPath
 
 
-class Indicator(ABC):
+class Indicator(metaclass=ABCMeta):
     """
     Describe a location of a piece of data.
     """

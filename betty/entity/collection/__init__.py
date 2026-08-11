@@ -4,7 +4,7 @@ Entity collections.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Any
 
 from betty.entity import Entity
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence
 
 
-class EntityCollection[TargetT: Entity = Entity](ABC):
+class EntityCollection[TargetT: Entity = Entity](metaclass=ABCMeta):
     """
     Provide a collection of entities.
 

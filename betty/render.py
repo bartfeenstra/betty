@@ -4,7 +4,7 @@ Provide the Render API.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, final
 
 from betty.definition.human_facing import HumanFacingDefinition
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from betty.requirement import Requires
 
 
-class Renderer(ABC, Plugin["RendererDefinition"]):
+class Renderer(Plugin["RendererDefinition"], metaclass=ABCMeta):
     """
     Render content in a different media type to HTML.
     """

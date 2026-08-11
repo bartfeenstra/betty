@@ -4,7 +4,7 @@ Provide an API to derive information from ancestries, and create new entities or
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from collections import defaultdict
 from enum import Enum
 from typing import TYPE_CHECKING, cast, final, override
@@ -205,7 +205,7 @@ class Deriver:
         return created_derivations, updated_derivations
 
 
-class _DateDeriver(ABC):
+class _DateDeriver(metaclass=ABCMeta):
     @classmethod
     def derive(
         cls,

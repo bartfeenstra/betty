@@ -4,7 +4,7 @@ Provide a URL generation API.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Any, TypeGuard
 
 if TYPE_CHECKING:
@@ -31,7 +31,7 @@ class UnsupportedResource(GenerationError):
         super().__init__(f"Unsupported resource: {resource}")
 
 
-class UrlGenerator[ResourceT](ABC):
+class UrlGenerator[ResourceT](metaclass=ABCMeta):
     """
     Generate URLs for resources.
     """

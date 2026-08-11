@@ -4,7 +4,7 @@ The content builder API.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, final
 
 from markupsafe import Markup
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from betty.requirement import Requires
 
 
-class ContentBuilder(ABC, Plugin["ContentBuilderDefinition"]):
+class ContentBuilder(Plugin["ContentBuilderDefinition"], metaclass=ABCMeta):
     """
     A content builder plugin.
     """

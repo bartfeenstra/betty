@@ -5,7 +5,7 @@ The web server API.
 from __future__ import annotations
 
 import webbrowser
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from asyncio import to_thread
 from http.client import HTTPConnection
 from typing import TYPE_CHECKING, Any, Self, final
@@ -34,7 +34,7 @@ class ServerNotStarted(RuntimeError):
     """
 
 
-class Server(ABC):
+class Server(metaclass=ABCMeta):
     """
     A web server.
     """

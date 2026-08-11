@@ -4,7 +4,7 @@ Job scheduling.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from collections.abc import Awaitable, Callable, Sequence
 from typing import TYPE_CHECKING, Final, Self, final
 
@@ -83,7 +83,7 @@ class Completed(Closed):
     """
 
 
-class Scheduler(ABC):
+class Scheduler(metaclass=ABCMeta):
     """
     A job scheduler.
     """

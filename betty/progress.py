@@ -4,14 +4,14 @@ Task progress management.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Self, final
 
 if TYPE_CHECKING:
     from types import TracebackType
 
 
-class Progress(ABC):
+class Progress(metaclass=ABCMeta):
     """
     Track the progress of a number of tasks.
 

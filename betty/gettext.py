@@ -4,7 +4,7 @@ Manage translations of built-in translatable strings.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from asyncio import gather, to_thread
 from contextlib import redirect_stdout
 from gettext import GNUTranslations
@@ -167,7 +167,7 @@ def _find_source_files(
                 yield input_file
 
 
-class Translations(ABC):
+class Translations(metaclass=ABCMeta):
     """
     A set of translations.
     """

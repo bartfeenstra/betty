@@ -6,7 +6,7 @@ Portable data can easily be persistent or transmitted across and between systems
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from collections.abc import MutableMapping, MutableSequence
 
 type PortableData = (
@@ -39,7 +39,7 @@ Keys are strings.
 """
 
 
-class Porter[DataT](ABC):
+class Porter[DataT](metaclass=ABCMeta):
     """
     An object capable of dumping and loading data to and from portable data.
     """

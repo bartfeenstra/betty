@@ -4,7 +4,7 @@ Requirements checking.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from asyncio import gather
 from functools import partial
 from typing import TYPE_CHECKING, Any, Concatenate, Self, final, overload, override
@@ -31,7 +31,7 @@ class UnmetRequirement(HumanFacingException):
 type Requires[CheckT] = Iterable[Requirement[CheckT]]
 
 
-class RequirableDecorator[CheckT](CallableDecorator, ABC):
+class RequirableDecorator[CheckT](CallableDecorator, metaclass=ABCMeta):
     """
     A base class for requirements that can also be used as decorators.
     """

@@ -9,7 +9,7 @@ import logging
 import threading
 from _asyncio import get_running_loop
 from _queue import Empty
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from asyncio import CancelledError, run_coroutine_threadsafe, to_thread
 from collections.abc import Callable, Coroutine
 from enum import IntEnum
@@ -107,7 +107,7 @@ class UserTimeoutError(UserError):
     """
 
 
-class User(ABC):
+class User(metaclass=ABCMeta):
     """
     A user session.
     """

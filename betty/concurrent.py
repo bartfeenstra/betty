@@ -7,7 +7,7 @@ from __future__ import annotations
 import asyncio
 import threading
 import time
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from asyncio import sleep
 from math import floor
 from typing import TYPE_CHECKING, Final, final, override
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 max_strands: Final[int] = 64
 
 
-class Lock(ABC):
+class Lock(metaclass=ABCMeta):
     """
     Provide an asynchronous lock.
     """
