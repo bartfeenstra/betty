@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-08-11 11:26+0100\n"
-"PO-Revision-Date: 2026-07-15 15:46+0000\n"
+"PO-Revision-Date: 2026-08-11 11:39+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/betty/betty-0-5-x/nl/>\n"
@@ -17,6 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
+"X-Generator: Weblate 2026.9.dev0\n"
 
 #, python-brace-format
 msgctxt "localizable-quote"
@@ -106,7 +107,7 @@ msgid "Also known as %(names)s"
 msgstr "Ook bekend als %(names)s"
 
 msgid "Also show debug messages"
-msgstr ""
+msgstr "Laat ook debugberichten zien"
 
 msgid "Also show detailed information messages"
 msgstr "Laat ook gedetailleerde informatieberichten zien"
@@ -567,7 +568,7 @@ msgid "Divorces"
 msgstr "Scheidingen"
 
 msgid "Do not show any output, except error and warning messages"
-msgstr ""
+msgstr "Laat geen enkele uitvoer zien, behalve fout- en waarschuwingsberichten"
 
 msgid "Do not show any output, except error messages"
 msgstr "Laat geen enkele uitvoer zien, behalve foutmeldingen"
@@ -1116,7 +1117,7 @@ msgstr "Volgende pagina"
 
 #, python-brace-format
 msgid "Next time, Betty will talk to you in {locale}"
-msgstr ""
+msgstr "De volgende keer zal Betty in het {locale} tegen je praten"
 
 msgid "No part may be reproduced or distributed in any form or by any means, without express written permission from the copyright holder, or unless permitted by copyright law."
 msgstr "Geen deel mag worden gereproduceerd of gedistribueerd, in welke vorm of op welke manier, zonder expliciete geschreven toestemming van de copyrighthouder, of indien toegestaan door copyrightwetgeving."
@@ -1154,7 +1155,7 @@ msgstr "Bezigheden"
 
 #, python-brace-format
 msgid "Only the following file types can be loaded: {file_extensions}"
-msgstr ""
+msgstr "Alleen de volgende bestandstypes kunnen worden geladen: {file_extensions}"
 
 msgid "Operating system"
 msgstr "Besturingssysteem"
@@ -1474,10 +1475,10 @@ msgid "Servers"
 msgstr "Servers"
 
 msgid "Service provider"
-msgstr ""
+msgstr "Serviceaanbieder"
 
 msgid "Service providers"
-msgstr ""
+msgstr "Serviceaanbieders"
 
 #, python-brace-format
 msgid "Serving your site at {url}…"
@@ -1490,13 +1491,13 @@ msgid "Show all available commands"
 msgstr "Laat alle beschikbare commando's zien"
 
 msgid "Show log messages"
-msgstr ""
+msgstr "Laat logberichten zien"
 
 msgid "Show this help message"
 msgstr "Laat dit hulpbericht zien"
 
 msgid "Show tracebacks for all exceptions"
-msgstr ""
+msgstr "Laat tracebacks zien voor alle exceptions"
 
 #, python-brace-format
 msgid "Skip interactions and answer {yes} to all questions."
@@ -2562,8 +2563,8 @@ msgstr[1] "{count} servers"
 #, python-brace-format
 msgid "{count} service provider"
 msgid_plural "{count} service providers"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} serviceaanbieder"
+msgstr[1] "{count} serviceaanbieders"
 
 #, python-brace-format
 msgid "{count} source"
@@ -2705,4 +2706,3 @@ msgstr "© Copyright de auteur, tenzij anders vermeld"
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Copyright {author}, tenzij anders vermeld"
-
