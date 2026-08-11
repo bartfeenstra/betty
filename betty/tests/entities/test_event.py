@@ -36,7 +36,7 @@ class TestEvent(EntityTestBase):
             Event(description="My First Event"),
             Event(
                 description="My First Event",
-                presences=[Presence(Person(), Subject(), Placeholder())],
+                presences=[Presence(Person(), Subject(), Placeholder)],
             ),
         ]
 
@@ -51,7 +51,7 @@ class TestEvent(EntityTestBase):
         assert sut.place is place
 
     def test___init____with_presences(self) -> None:
-        presence = Presence(Person(), Subject(), Placeholder())
+        presence = Presence(Person(), Subject(), Placeholder)
         sut = Event(presences=[presence])
         assert presence in sut.presences
         assert presence.event is sut

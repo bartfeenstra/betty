@@ -150,7 +150,7 @@ class TestToOne:
             (True, lambda _, __: _BiAssociate()),
             (True, lambda _, __, ___: _BiAssociate()),
             (False, _BiAssociate()),
-            (False, Placeholder()),
+            (False, Placeholder),
         ],
     )
     def test_is_resolver(

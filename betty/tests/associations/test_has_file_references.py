@@ -14,8 +14,8 @@ class TestHasFileReferences:
     def test_files(self) -> None:
         file_one = File(path=Path())
         file_two = File(path=Path())
-        file_reference_1 = FileReference(Placeholder(), file_one)
-        file_reference_2 = FileReference(Placeholder(), file_two)
+        file_reference_1 = FileReference(Placeholder, file_one)
+        file_reference_2 = FileReference(Placeholder, file_two)
         sut = DummyHasFileReferences(files=[file_reference_1, file_reference_2])
         assert list(sut.files) == [file_reference_1, file_reference_2]
         assert file_reference_1.referee is sut

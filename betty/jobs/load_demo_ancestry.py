@@ -88,7 +88,7 @@ class LoadDemoAncestry(Job):
             gender=Man(),
             names=[
                 PersonName(
-                    individual="Bart", affiliation="Feenstra", person=Placeholder()
+                    individual="Bart", affiliation="Feenstra", person=Placeholder
                 )
             ],
         )
