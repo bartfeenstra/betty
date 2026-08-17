@@ -4,12 +4,10 @@ Tools to create definition classes.
 
 from __future__ import annotations
 
-from typing import Never
-
-from betty.capability import HasCapabilities, Stage
+from betty.prop import HasProps
 
 
-class Definition[StageT: Stage = Never](HasCapabilities[StageT]):
+class Definition(HasProps):
     """
     A definition.
     """

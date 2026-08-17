@@ -6,24 +6,11 @@ from __future__ import annotations
 
 from typing import Any, final
 
-from betty.capability import Stage
 from betty.definition import Definition
 from betty.importlib import fully_qualified_name
 
 
-@final
-class OnSetCls(Stage):
-    """
-    The capability manufacturer stage for when a class is set on a definition.
-    """
-
-
-type ClsDefinitionCapabilityStage = OnSetCls
-
-
-class _ClsDefinition[BaseClsT = Any, StageT: Stage = ClsDefinitionCapabilityStage](
-    Definition[StageT | ClsDefinitionCapabilityStage]
-):
+class _ClsDefinition[BaseClsT = Any](Definition):
     def __init__(self, *args: Any, cls: type[BaseClsT] | None = None, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self._cls: type[BaseClsT] | None = None
@@ -46,12 +33,9 @@ class _ClsDefinition[BaseClsT = Any, StageT: Stage = ClsDefinitionCapabilityStag
                 f"This definition already has a class: {fully_qualified_name(self._cls)}."
             )
         self._cls = cls
-        self._init_staged_capabilities(OnSetCls)
 
 
-class ClsDefinition[BaseClsT = Any, StageT: Stage = ClsDefinitionCapabilityStage](
-    _ClsDefinition[BaseClsT, StageT]
-):
+class ClsDefinition[BaseClsT = Any](_ClsDefinition[BaseClsT]):
     """
     A definition with a Python class.
     """
@@ -69,10 +53,7 @@ class ClsDefinition[BaseClsT = Any, StageT: Stage = ClsDefinitionCapabilityStage
         return self._cls
 
 
-class OptionalClsDefinition[
-    BaseClsT = Any,
-    StageT: Stage = ClsDefinitionCapabilityStage,
-](_ClsDefinition[BaseClsT, StageT]):
+class OptionalClsDefinition[BaseClsT = Any](_ClsDefinition[BaseClsT]):
     """
     A definition with an optional Python class.
     """

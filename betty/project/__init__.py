@@ -54,7 +54,6 @@ from betty.datas.plugin.definition.license import LicenseDefinitionData
 from betty.datas.plugin.definition.place_type import PlaceTypeDefinitionData
 from betty.datas.plugin.definition.role import RoleDefinitionData
 from betty.datas.str import StrDefinition
-from betty.definition.cls import OnSetCls
 from betty.dirs import builtin_asset_directory
 from betty.document import Document, DocumentProviderDefinition
 from betty.entity import EntityDefinition

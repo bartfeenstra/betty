@@ -5,10 +5,8 @@ Plugins that can declare their order.
 from __future__ import annotations
 
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Never, final
+from typing import TYPE_CHECKING, Any, final
 
-from betty.capability import Stage
-from betty.definition.cls import ClsDefinitionCapabilityStage
 from betty.machine_name import MachineName, ResolvableMachineName
 from betty.plugin import PluginDefinition
 from betty.plugin.cls import PluginClsDefinition
@@ -20,7 +18,7 @@ if TYPE_CHECKING:
     from betty.requirement import Requires
 
 
-class OrderedPluginDefinition[StageT: Stage = Never](PluginDefinition[StageT]):
+class OrderedPluginDefinition(PluginDefinition):
     """
     A plugin definition that can declare its order with respect to other plugin definitions.
     """
@@ -60,12 +58,8 @@ class OrderedPluginDefinition[StageT: Stage = Never](PluginDefinition[StageT]):
         return self.__before(other)
 
 
-class OrderedPluginClsDefinition[
-    BaseClsT,
-    StageT: Stage = ClsDefinitionCapabilityStage,
-](
-    OrderedPluginDefinition[StageT | ClsDefinitionCapabilityStage],
-    PluginClsDefinition[BaseClsT, StageT],
+class OrderedPluginClsDefinition[BaseClsT](
+    OrderedPluginDefinition, PluginClsDefinition[BaseClsT]
 ):
     """
     A definition of a classed plugin that can declare its order with respect to other plugins.

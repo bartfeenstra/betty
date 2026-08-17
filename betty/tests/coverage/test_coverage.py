@@ -124,11 +124,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/babel.py": {
         "run_babel": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/capability.py": {
-        "CapabilityError": MissingReason.STATIC_CONTENT_ONLY,
-        "HasCapabilities": MissingReason.STATIC_CONTENT_ONLY,
-        "Stage": MissingReason.STATIC_CONTENT_ONLY,
-    },
     "betty/classtools.py": {
         "InitMeta": MissingReason.COVERED_ELSEWHERE,
         "InitABCMeta": MissingReason.STATIC_CONTENT_ONLY,

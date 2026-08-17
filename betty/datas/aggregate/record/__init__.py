@@ -7,7 +7,7 @@ from __future__ import annotations
 from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Any, Final, Self, final
 
-from betty.capability import Stage
+from betty import service
 from betty.collections import _empty_frozen_mapping
 from betty.data import (
     DataDefinition,
@@ -17,7 +17,6 @@ from betty.data import (
     resolve_data_definition,
 )
 from betty.definition import Definition
-from betty.definition.cls import ClsDefinitionCapabilityStage, OnSetCls
 from betty.indicator.operator import Attr, Key
 from betty.localizable import resolve_localizable
 from betty.portable import PortableData, Porter
@@ -25,7 +24,6 @@ from betty.portable import PortableData, Porter
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping, MutableMapping
 
-    from betty.capability import ResolvableCapability
     from betty.localizable import Localizable, ResolvableLocalizable
     from betty.nothing import NothingType
     from betty.typing import Intersection
@@ -79,6 +77,8 @@ class FieldDefinition[
     ):
         from betty.porters.porter_field import PorterFieldPorter
 
+        cls = type(self)
+
         self.data: Final[DataDefinitionT] = resolve_data_definition(data)
         """
         The field's data definition.
@@ -110,8 +110,12 @@ class FieldDefinition[
                 porter: FieldPorterT = PorterFieldPorter(data_porter)  # ty:ignore[invalid-assignment]
         elif not isinstance(porter, FieldPorter):
             porter: FieldPorterT = porter(self)
-
-        super().__init__(capabilities={"porter": (FieldPorter, porter)})
+        if porter is not None:
+            cls.try_porter.override(
+                self,
+                service.Service(porter) if isinstance(porter, FieldPorter) else porter,
+            )
+        super().__init__()
 
     @property
     def porter(self) -> Intersection[FieldPorterT, FieldPorter[OwnerT, DataT]]:
@@ -120,7 +124,7 @@ class FieldDefinition[
         """
         return self.capability("porter")
 
-    @property
+    @service
     def try_porter(
         self,
     ) -> Intersection[FieldPorterT, FieldPorter[OwnerT, DataT]] | None:
@@ -160,9 +164,8 @@ def resolve_field_definition[
 class RecordDefinition[
     DataT,
     OperatorT: FieldOperator,
-    StageT: Stage = ClsDefinitionCapabilityStage,
     PorterT: Porter = Porter,
-](DataDefinition[DataT, StageT, PorterT]):
+](DataDefinition[DataT, PorterT]):
     """
     A record data definition.
 

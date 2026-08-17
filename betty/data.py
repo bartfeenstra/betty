@@ -6,28 +6,25 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Final, Self, final, override
 
-from betty.collections import _empty_frozen_mapping
-from betty.definition.cls import ClsDefinitionCapabilityStage, OptionalClsDefinition
+from betty.definition.cls import OptionalClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.importlib import fully_qualified_name
 from betty.portable import Porter
 from betty.sample import Samplable, Sample, Samples
+from betty.service import Service
+from betty.services.simple import service
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Mapping, MutableMapping
+    from collections.abc import Callable, Iterable, MutableMapping
 
-    from betty.capability import ResolvableCapability, ResolvableStagedCapability, Stage
     from betty.localizable import ResolvableLocalizable
+    from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
     from betty.typing import Intersection
 
 
-class DataDefinition[
-    DataT,
-    StageT: Stage = ClsDefinitionCapabilityStage,
-    PorterT: Porter = Porter,
-](
-    HumanFacingDefinition[StageT | ClsDefinitionCapabilityStage],
-    OptionalClsDefinition[DataT, StageT],
+class DataDefinition[DataT, PorterT: Porter = Porter](
+    HumanFacingDefinition,
+    OptionalClsDefinition[DataT],
 ):
     """
     A data definition.
@@ -38,17 +35,10 @@ class DataDefinition[
         *args: Any,
         cls: type[DataT] | None = None,
         label: ResolvableLocalizable,
-        capabilities: Mapping[
-            str,
-            tuple[
-                type,
-                ResolvableStagedCapability[
-                    Self, Any, StageT | ClsDefinitionCapabilityStage
-                ],
-            ],
-        ] = _empty_frozen_mapping,
         description: ResolvableLocalizable | None = None,
-        porter: ResolvableCapability[Self, Intersection[PorterT, Porter[DataT]]]
+        porter: TypedSynchronousServiceOrFactory[
+            Self, Intersection[PorterT, Porter[DataT]] | None
+        ]
         | None = None,
         samples: Iterable[
             Callable[[], Sample[DataT]]
@@ -57,18 +47,13 @@ class DataDefinition[
         ] = (),
         **kwargs: Any,
     ):
+        cls = type(self)
+        if porter is not None:
+            cls.try_porter.override(
+                self, Service(porter) if isinstance(porter, Porter) else porter
+            )
         self.__samples = tuple(samples)
-        super().__init__(
-            *args,
-            cls=cls,
-            label=label,
-            description=description,
-            capabilities={
-                **capabilities,
-                "porter": (Porter, porter),
-            },
-            **kwargs,
-        )
+        super().__init__(*args, cls=cls, label=label, description=description, **kwargs)
 
     @final
     @property
@@ -76,15 +61,20 @@ class DataDefinition[
         """
         The porter for the data.
         """
-        return self.capability("porter")
+        porter = self.try_porter
+        if porter is None:
+            # @todo
+            # raise NotPortable
+            raise RuntimeError
+        return porter
 
     @final
-    @property
+    @service
     def try_porter(self) -> Intersection[PorterT, Porter[DataT]] | None:
         """
         The porter for the data, if it has one.
         """
-        return self.try_capability("porter")
+        return None
 
     @override
     def _set_cls(self, cls: type[DataT], /) -> None:
