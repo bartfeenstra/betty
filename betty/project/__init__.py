@@ -644,6 +644,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
             {
                 entity_type.id: entity_type
                 async for entity_type in self.plugins[EntityDefinition]
+                if entity_type.try_indexer
             },
             project=self,
         )

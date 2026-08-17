@@ -11,6 +11,7 @@ from betty.search import FieldIndexer
 
 if TYPE_CHECKING:
     from betty.localizer import Localizer
+    from betty.project import Project
 
 
 @final
@@ -20,5 +21,9 @@ class StrIndexer(FieldIndexer[str]):
     """
 
     @override
-    async def index(self, data: str, /, *, localizer: Localizer) -> LocalizedStr:
-        return LocalizedStr(data, locale=None)
+    async def index(
+        self, data: str, /, *, localizer: Localizer, project: Project
+    ) -> LocalizedStr | None:
+        if data:
+            return LocalizedStr(data, locale=None)
+        return None

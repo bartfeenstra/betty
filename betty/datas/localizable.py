@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from betty.localized import LocalizedStr
     from betty.localizer import Localizer
     from betty.portable import PortableData
+    from betty.project import Project
 
 
 @final
@@ -44,10 +45,10 @@ class LocalizableDefinition(DataDefinition[Localizable], Singleton):
         )
 
 
-class _LocalizableIndexer(FieldIndexer[StaticTranslations]):
+class _LocalizableIndexer(FieldIndexer[Localizable]):
     @override
     async def index(
-        self, data: StaticTranslations, /, *, localizer: Localizer
+        self, data: Localizable, /, *, localizer: Localizer, project: Project
     ) -> LocalizedStr:
         return data.localize(localizer)
 

@@ -21,7 +21,7 @@ from betty.definition.cls import ClsDefinitionCapabilityStage, OnSetCls
 from betty.indicator.operator import Attr, Key
 from betty.localizable import resolve_localizable
 from betty.portable import PortableData, Porter
-from betty.search import Field
+from betty.search import Field, RecordIndexer
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping, MutableMapping
@@ -115,7 +115,7 @@ class FieldDefinition[
 
         super().__init__(capabilities={"porter": (FieldPorter, porter)})
 
-        if search is not None:
+        if search:
             assert self.data.indexer
         if search is None and self.data.try_indexer:
             search = Field()
@@ -175,7 +175,8 @@ class RecordDefinition[
     OperatorT: FieldOperator,
     StageT: Stage = ClsDefinitionCapabilityStage,
     PorterT: Porter = Porter,
-](DataDefinition[DataT, StageT, PorterT]):
+    IndexerT: RecordIndexer = RecordIndexer,
+](DataDefinition[DataT, StageT, PorterT, IndexerT]):
     """
     A record data definition.
 
@@ -193,6 +194,10 @@ class RecordDefinition[
         description: ResolvableLocalizable | None = None,
         samples: Iterable[Callable[[], Sample[DataT]] | Samples] = (),
         factory: Callable[..., DataT] | None = None,
+        indexer: ResolvableCapability[
+            Self, Intersection[IndexerT, RecordIndexer[DataT]]
+        ]
+        | None = None,
         porter: ResolvableCapability[Self, Intersection[PorterT, Porter[DataT]]]
         | None = None,
         **kwargs: Any,
@@ -211,6 +216,7 @@ class RecordDefinition[
             label=label,
             description=description,
             samples=samples,
+            indexer=indexer,
             porter=porter or OnSetCls(FieldsPorter),
             **kwargs,
         )

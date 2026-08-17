@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 from inspect import signature
-from typing import TYPE_CHECKING, Any, Final, Self, final, override
+from typing import TYPE_CHECKING, Any, Final, final, override
 
 from betty.association import HasAssociations
 from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.privacy import HasPrivacy
 from betty.classtools import InitABCMeta
+from betty.definition.cls import ClsDefinitionCapabilityStage, OnSetCls
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.indexers.entity import EntitySearcher
 from betty.json_schema import JsonSchemaReference, String
@@ -19,14 +20,14 @@ from betty.machine_name import MachineName
 from betty.media_types.json_ld import JSON_LD
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.data import DataPlugin, DataPluginDefinition
+from betty.portable import Porter
 from betty.privacy import Privacy
+from betty.search import Searcher
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from betty.capability import ResolvableStagedCapability
-    from betty.definition.cls import ClsDefinitionCapabilityStage
     from betty.localizable import (
         CountableLocalizable,
         Localizable,
@@ -36,7 +37,6 @@ if TYPE_CHECKING:
     from betty.portable import PortableMapping
     from betty.project import Project
     from betty.requirement import Requires
-    from betty.search import Indexer
 
 
 class Entity(
@@ -124,7 +124,9 @@ class Entity(
 )
 class EntityDefinition[EntityT: Entity = Entity](
     CountableHumanFacingDefinition,
-    DataPluginDefinition[EntityT],
+    DataPluginDefinition[
+        EntityT, ClsDefinitionCapabilityStage, Porter[EntityT], Searcher[EntityT]
+    ],
 ):
     """
     .. plugin_type:: entity.
@@ -141,10 +143,6 @@ class EntityDefinition[EntityT: Entity = Entity](
         description: ResolvableLocalizable | None = None,
         public_facing: bool = True,
         requires: Requires = (),
-        indexer: ResolvableStagedCapability[
-            Self, Indexer[EntityT], ClsDefinitionCapabilityStage
-        ]
-        | None = None,
     ):
         super().__init__(
             plugin_id,
@@ -154,8 +152,8 @@ class EntityDefinition[EntityT: Entity = Entity](
             label_countable=label_countable,
             description=description,
             requires=requires,
-            indexer=(lambda project: EntitySearcher(self.cls, project=project))
-            if indexer is None and public_facing
+            indexer=OnSetCls(lambda definition: EntitySearcher(definition.cls))
+            if public_facing
             else None,
         )
         self.public_facing: Final[bool] = public_facing

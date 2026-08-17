@@ -17,7 +17,7 @@ from betty.search import Indexer
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping, MutableMapping
 
-    from betty.capability import ResolvableCapability, ResolvableStagedCapability, Stage
+    from betty.capability import ResolvableStagedCapability, Stage
     from betty.localizable import ResolvableLocalizable
     from betty.typing import Intersection
 
@@ -50,9 +50,17 @@ class DataDefinition[
             ],
         ] = _empty_frozen_mapping,
         description: ResolvableLocalizable | None = None,
-        porter: ResolvableCapability[Self, Intersection[PorterT, Porter[DataT]]]
+        porter: ResolvableStagedCapability[
+            Self,
+            Intersection[PorterT, Porter[DataT]],
+            StageT | ClsDefinitionCapabilityStage,
+        ]
         | None = None,
-        indexer: ResolvableCapability[Self, Intersection[IndexerT, Indexer[DataT]]]
+        indexer: ResolvableStagedCapability[
+            Self,
+            Intersection[IndexerT, Indexer[DataT]],
+            StageT | ClsDefinitionCapabilityStage,
+        ]
         | None = None,
         samples: Iterable[
             Callable[[], Sample[DataT]]
@@ -69,7 +77,7 @@ class DataDefinition[
             description=description,
             capabilities={
                 **capabilities,
-                "indexer": (Indexer.__value__, indexer),
+                "indexer": (Indexer, indexer),
                 "porter": (Porter, porter),
             },
             **kwargs,

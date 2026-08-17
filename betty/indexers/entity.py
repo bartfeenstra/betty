@@ -26,14 +26,9 @@ class EntitySearcher[EntityT: Entity = Entity](Searcher[EntityT]):
     """
 
     def __init__(
-        self,
-        entity_type: ResolvablePluginDefinition[EntityDefinition[EntityT]],
-        /,
-        *,
-        project: Project,
+        self, entity_type: ResolvablePluginDefinition[EntityDefinition[EntityT]], /
     ):
         self._entity_type = resolve_plugin_definition(entity_type)
-        self._project = project
 
     @override
     @property
@@ -41,8 +36,8 @@ class EntitySearcher[EntityT: Entity = Entity](Searcher[EntityT]):
         return self._entity_type
 
     @override
-    async def datas(self) -> Iterable[EntityT]:
-        return self._project.ancestry[self._entity_type]
+    async def datas(self, project: Project) -> Iterable[EntityT]:
+        return project.ancestry[self._entity_type]
 
     # @todo We need scaffolding that does this for any RecordDefinition data.
     # @todo Make it easy to override the importance (or any part of the field config?), and perhaps to disable
@@ -72,15 +67,23 @@ class EntitySearcher[EntityT: Entity = Entity](Searcher[EntityT]):
         }
 
     @override
-    async def index(self, entity: EntityT, /, *, localizer: Localizer) -> Index:
+    async def index(
+        self, entity: EntityT, /, *, localizer: Localizer, project: Project
+    ) -> Index:
         # @todo This is where we want a generic RecordDefinition-based indexer.
         raise NotImplementedError
 
     @override
     async def render_result(
-        self, entity: EntityT, /, *, localizer: Localizer, context: Context | None
+        self,
+        entity: EntityT,
+        /,
+        *,
+        localizer: Localizer,
+        context: Context | None,
+        project: Project,
     ) -> str:
-        jinja = await self._project.jinja
+        jinja = await project.jinja
         return await jinja.select_template([
             # @todo Now that we support other searchable data types besides entities, we should namespace these
             # @todo templates, perhaps? Maybe move them into the entity namespace (instead of the search)?
@@ -88,7 +91,7 @@ class EntitySearcher[EntityT: Entity = Entity](Searcher[EntityT]):
             f"search/result--{entity.plugin().id}.html.j2",
             "search/result.html.j2",
         ]).render_async(
-            document=await self._project.new_document(
+            document=await project.new_document(
                 HTML,
                 context=context,
                 localizer=localizer,

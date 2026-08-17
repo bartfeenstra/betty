@@ -13,9 +13,12 @@ from betty.attrs.optional import OptionalAttr
 from betty.attrs.proxy import ProxyAttr
 from betty.data import DataDefinition
 from betty.datas.aggregate.collection import CollectionDefinition
+from betty.definition.cls import ClsDefinitionCapabilityStage
 from betty.freezer import is_frozen
+from betty.portable import Porter
 from betty.prop import HasProps
 from betty.props.setter import SetterProp
+from betty.search import Indexer
 
 if TYPE_CHECKING:
     from betty.datas.aggregate.record import ResolvableFieldDefinition
@@ -102,7 +105,17 @@ class _Default[
 
 class _Optional[OwnerT: HasProps, GetT, SetT](
     OptionalAttr[OwnerT, GetT, SetT],
-    _Owner[OwnerT, GetT | None, SetT | None, DataDefinition[GetT | None]],
+    _Owner[
+        OwnerT,
+        GetT | None,
+        SetT | None,
+        DataDefinition[
+            GetT | None,
+            ClsDefinitionCapabilityStage,
+            Porter[GetT | None],
+            Indexer[GetT | None],
+        ],
+    ],
 ):
     pass
 

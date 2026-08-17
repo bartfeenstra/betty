@@ -4,7 +4,7 @@ Provide search functionality.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from asyncio import gather
 from dataclasses import dataclass
 from itertools import chain
@@ -29,13 +29,25 @@ if TYPE_CHECKING:
 type Index = Mapping[str, LocalizedStr]
 
 
-class FieldIndexer[DataT](ABC):
+class Indexer[DataT]:
+    """
+    A search indexer.
+    """
+
+    @final
+    def __init_subclass__(cls) -> None:
+        assert cls.__module__.startswith("betty.")
+
+
+class FieldIndexer[DataT](Indexer[DataT], metaclass=ABCMeta):
     """
     Index data.
     """
 
     @abstractmethod
-    async def index(self, data: DataT, /, *, localizer: Localizer) -> LocalizedStr:
+    async def index(
+        self, data: DataT, /, *, localizer: Localizer, project: Project
+    ) -> LocalizedStr | None:
         """
         Index the data.
         """
@@ -51,7 +63,7 @@ class Field:
         self.importance: Final[Number] = importance
 
 
-class RecordIndexer[DataT](ABC):
+class RecordIndexer[DataT](Indexer[DataT], metaclass=ABCMeta):
     """
     Index record data built up from multiple fields.
     """
@@ -63,13 +75,12 @@ class RecordIndexer[DataT](ABC):
         """
 
     @abstractmethod
-    async def index(self, data: DataT, /, *, localizer: Localizer) -> Index:
+    async def index(
+        self, data: DataT, /, *, localizer: Localizer, project: Project
+    ) -> Index:
         """
         Index the data.
         """
-
-
-type Indexer[DataT] = FieldIndexer[DataT] | RecordIndexer[DataT]
 
 
 class Searcher[DataT](RecordIndexer[DataT]):
@@ -85,14 +96,20 @@ class Searcher[DataT](RecordIndexer[DataT]):
         """
 
     @abstractmethod
-    async def datas(self) -> Iterable[DataT]:
+    async def datas(self, project: Project) -> Iterable[DataT]:
         """
         The searchable data objects.
         """
 
     @abstractmethod
     async def render_result(
-        self, data: DataT, /, *, localizer: Localizer, context: Context | None
+        self,
+        data: DataT,
+        /,
+        *,
+        localizer: Localizer,
+        context: Context | None,
+        project: Project,
     ) -> str:
         """
         Render the search result.
@@ -118,7 +135,10 @@ class Search:
 
     def __init__(
         self,
-        datas: Mapping[MachineName, ResolvableDataDefinition],
+        datas: Mapping[
+            MachineName,
+            ResolvableDataDefinition[DataDefinition[Any, Any, Any, Searcher]],
+        ],
         /,
         *,
         project: Project,
@@ -129,7 +149,6 @@ class Search:
             searcher_id: searcher_data
             for searcher_id, resolvable_searcher_data in datas.items()
             if (searcher_data := resolve_data_definition(resolvable_searcher_data))
-            and isinstance(searcher_data.try_indexer, Searcher)
         }
         self._project = project
 
@@ -155,7 +174,7 @@ class Search:
         searcher = data.indexer
         return await gather(*[
             self._build_entry(searcher, data, context, localizer)
-            for data in await searcher.datas()
+            for data in await searcher.datas(project=self._project)
         ])
 
     async def _build_entry[DataT](
@@ -166,6 +185,8 @@ class Search:
         localizer: Localizer,
     ) -> Entry:
         return Entry(
-            await searcher.index(data, localizer=localizer),
-            await searcher.render_result(data, context=context, localizer=localizer),
+            await searcher.index(data, localizer=localizer, project=self._project),
+            await searcher.render_result(
+                data, context=context, localizer=localizer, project=self._project
+            ),
         )
