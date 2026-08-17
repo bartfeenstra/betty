@@ -5,7 +5,7 @@ Enumerated data types.
 from __future__ import annotations
 
 from enum import Enum
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Never, final
 
 from betty.assertions.enum import assert_enum
 from betty.data import DataDefinition
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 @final
 class EnumDefinition[EnumT: Enum[bool | int | float | str]](
-    DataDefinition[EnumT, Porter[EnumT]]
+    DataDefinition[EnumT, Never, Porter[EnumT]]
 ):
     """
     An enum data definition.

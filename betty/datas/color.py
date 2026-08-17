@@ -5,7 +5,7 @@ Color data.
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Final, final
+from typing import TYPE_CHECKING, Final, Never, final
 
 from betty import samples
 from betty.assertions.str import assert_str
@@ -34,7 +34,7 @@ def _assert_hex(color: str) -> str:
 
 
 @final
-class ColorDefinition(DataDefinition[str, Porter[str]]):
+class ColorDefinition(DataDefinition[str, Never, Porter[str]]):
     """
     Define a color.
     """

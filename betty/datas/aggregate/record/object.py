@@ -8,7 +8,6 @@ from typing import override
 
 from betty.attr import Attr
 from betty.capability import Stage
-from betty.data import DataDefinitionCapabilityStage
 from betty.datas.aggregate.record import RecordDefinition
 from betty.definition.cls import ClsDefinitionCapabilityStage
 from betty.indicator.operator import Attr as AttrOperator
@@ -18,9 +17,9 @@ from betty.prop import HasProps
 
 class ObjectDefinition[
     DataT,
+    StageT: Stage = ClsDefinitionCapabilityStage,
     PorterT: Porter = Porter,
-    StageT: Stage = DataDefinitionCapabilityStage | ClsDefinitionCapabilityStage,
-](RecordDefinition[DataT, AttrOperator, PorterT, StageT]):
+](RecordDefinition[DataT, AttrOperator, StageT, PorterT]):
     """
     Define an object with attributes.
 

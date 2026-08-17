@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, MutableSequence
 from json import dumps
-from typing import TYPE_CHECKING, Final, Generic, Self, TypeVar, final, override
+from typing import TYPE_CHECKING, Final, Generic, Never, Self, TypeVar, final, override
 
 from betty.assertions.if_else import assert_if_else
 from betty.assertions.mapping import assert_mapping
@@ -246,6 +246,7 @@ class PluginManufacturerPorter[PluginManufacturerT: PluginManufacturer](
 class PluginManufacturerDefinition[PluginDefinitionT: PluginClsDefinition, PluginT](
     ObjectDefinition[
         PluginManufacturer[PluginDefinitionT, PluginT],
+        Never,
         KeyedPorter[PluginManufacturer[PluginDefinitionT, PluginT]],
     ]
 ):

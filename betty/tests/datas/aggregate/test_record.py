@@ -107,7 +107,7 @@ class RecordDefinitionTestFactoryRecord(RecordDefinitionTestRecord):
 
 class TestRecordDefinition:
     def test_factory__without_factory(self) -> None:
-        sut = RecordDefinition[RecordDefinitionTestRecord, Attr, Porter](
+        sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
             cls=RecordDefinitionTestRecord, label="-"
         )
         assert sut.factory is RecordDefinitionTestRecord
@@ -116,27 +116,27 @@ class TestRecordDefinition:
         def factory() -> RecordDefinitionTestRecord:
             return RecordDefinitionTestRecord()
 
-        sut = RecordDefinition[RecordDefinitionTestRecord, Attr, Porter](
+        sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
             cls=RecordDefinitionTestRecord, label="-", factory=factory
         )
         assert sut.factory is factory
 
     def test_porter__without_porter(self) -> None:
-        sut = RecordDefinition[RecordDefinitionTestRecord, Attr, Porter](
+        sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
             cls=RecordDefinitionTestRecord, label="-"
         )
         assert isinstance(sut.try_porter, FieldsPorter)
 
     def test_porter__with_porter(self) -> None:
         m_porter = Mock(spec=Porter)
-        sut = RecordDefinition[RecordDefinitionTestRecord, Attr, Porter](
+        sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
             cls=RecordDefinitionTestRecord, label="-", porter=m_porter
         )
         assert sut.try_porter is m_porter
 
     def test_fields(self) -> None:
         field = FieldDefinition(StrDefinition(label="-"))
-        sut = RecordDefinition[RecordDefinitionTestRecord, Attr, Porter](
+        sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
             cls=RecordDefinitionTestRecord,
             label="-",
             fields={Attr("my_first_element"): field},

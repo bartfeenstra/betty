@@ -5,15 +5,17 @@ Keyed collection definitions.
 from __future__ import annotations
 
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, Never, final, override
 
 from betty.assertions.mapping import assert_mapping
 from betty.assertions.sequence import assert_sequence
+from betty.capability import Stage
 from betty.collection.keyed import MutableKeyedCollection
 from betty.data import (
     resolve_data_definition,
 )
 from betty.datas.aggregate.collection import CollectionDefinition
+from betty.definition.cls import ClsDefinitionCapabilityStage
 from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
@@ -35,7 +37,8 @@ if TYPE_CHECKING:
 class KeyedCollectionDefinition[
     MutableKeyedCollectionT: MutableKeyedCollection,
     ValueT,
-](CollectionDefinition[MutableKeyedCollectionT, Iterable[ValueT]]):
+    StageT: Stage = ClsDefinitionCapabilityStage,
+](CollectionDefinition[MutableKeyedCollectionT, Iterable[ValueT], StageT]):
     """
     A definition for :py:class:`betty.collection.keyed.MutableKeyedCollection`.
     """
@@ -44,7 +47,9 @@ class KeyedCollectionDefinition[
         self,
         *,
         cls: type[MutableKeyedCollection] | None = None,
-        value: ResolvableDataDefinition[DataDefinition[ValueT, KeyedPorter[ValueT]]],
+        value: ResolvableDataDefinition[
+            DataDefinition[ValueT, Never, KeyedPorter[ValueT]]
+        ],
         order_dump: bool = False,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,

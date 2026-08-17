@@ -4,7 +4,6 @@ from betty.datas.aggregate.record import FieldDefinition, RecordDefinition
 from betty.datas.str import StrDefinition
 from betty.exception import HumanFacingException
 from betty.indicator.operator import Attr
-from betty.portable import Porter
 from betty.porters.fields import FieldsPorter
 from betty.tests.datas.aggregate.test_record import (
     RecordDefinitionTestFactoryRecord,
@@ -16,7 +15,7 @@ class TestFieldsPorter:
     def test_load__with_value(self) -> None:
         field_name = "my_first_element"
         sut = FieldsPorter(
-            RecordDefinition[RecordDefinitionTestRecord, Attr, Porter](
+            RecordDefinition[RecordDefinitionTestRecord, Attr](
                 cls=RecordDefinitionTestRecord,
                 label="-",
                 fields={Attr(field_name): FieldDefinition(StrDefinition(label="-"))},
@@ -29,7 +28,7 @@ class TestFieldsPorter:
     def test_load__without_value(self) -> None:
         field_name = "my_first_element"
         sut = FieldsPorter(
-            RecordDefinition[RecordDefinitionTestRecord, Attr, Porter](
+            RecordDefinition[RecordDefinitionTestRecord, Attr](
                 cls=RecordDefinitionTestRecord,
                 label="-",
                 fields={Attr(field_name): FieldDefinition(StrDefinition(label="-"))},
@@ -41,7 +40,7 @@ class TestFieldsPorter:
     def test_load__with_factory(self) -> None:
         field_name = "my_first_element"
         sut = FieldsPorter(
-            RecordDefinition[RecordDefinitionTestRecord, Attr, Porter](
+            RecordDefinition[RecordDefinitionTestRecord, Attr](
                 cls=RecordDefinitionTestRecord,
                 label="-",
                 fields={Attr(field_name): FieldDefinition(StrDefinition(label="-"))},
@@ -56,7 +55,7 @@ class TestFieldsPorter:
     def test_dump(self) -> None:
         field_name = "my_first_element"
         sut = FieldsPorter(
-            RecordDefinition[RecordDefinitionTestRecord, Attr, Porter](
+            RecordDefinition[RecordDefinitionTestRecord, Attr](
                 cls=RecordDefinitionTestRecord,
                 label="-",
                 fields={Attr(field_name): FieldDefinition(StrDefinition(label="-"))},

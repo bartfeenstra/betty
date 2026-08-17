@@ -4,7 +4,7 @@ Integer data types.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Never, final
 
 from betty.assertions.int import assert_int
 from betty.data import DataDefinition
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 @final
-class IntDefinition(DataDefinition[int, Porter[int]]):
+class IntDefinition(DataDefinition[int, Never, Porter[int]]):
     """
     An integer data definition.
     """

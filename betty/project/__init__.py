@@ -14,7 +14,7 @@ from contextlib import AsyncExitStack, asynccontextmanager
 from operator import not_
 from shutil import rmtree
 from tempfile import mkdtemp
-from typing import TYPE_CHECKING, Any, Final, Literal, Self, final
+from typing import TYPE_CHECKING, Any, Final, Literal, Never, Self, final
 from urllib.parse import urlsplit
 
 from babel import Locale
@@ -657,7 +657,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
     ],
 )
 class ProjectLocale(
-    Data[ObjectDefinition["ProjectLocale", KeyedPorter["ProjectLocale"]]],
+    Data[ObjectDefinition["ProjectLocale", Never, KeyedPorter["ProjectLocale"]]],
     HasProps,
     Frozen,
 ):

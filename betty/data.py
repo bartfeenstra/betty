@@ -21,20 +21,13 @@ if TYPE_CHECKING:
     from betty.typing import Intersection
 
 
-type DataDefinitionCapabilityStage = ClsDefinitionCapabilityStage
-
-
 class DataDefinition[
     DataT,
+    StageT: Stage = ClsDefinitionCapabilityStage,
     PorterT: Porter = Porter,
-    StageT: Stage = DataDefinitionCapabilityStage,
 ](
-    HumanFacingDefinition[
-        StageT | DataDefinitionCapabilityStage | ClsDefinitionCapabilityStage
-    ],
-    OptionalClsDefinition[
-        DataT, StageT | DataDefinitionCapabilityStage | ClsDefinitionCapabilityStage
-    ],
+    HumanFacingDefinition[StageT | ClsDefinitionCapabilityStage],
+    OptionalClsDefinition[DataT, StageT],
 ):
     """
     A data definition.
@@ -50,7 +43,7 @@ class DataDefinition[
             tuple[
                 type,
                 ResolvableStagedCapability[
-                    Self, Any, StageT | DataDefinitionCapabilityStage
+                    Self, Any, StageT | ClsDefinitionCapabilityStage
                 ],
             ],
         ] = _empty_frozen_mapping,
