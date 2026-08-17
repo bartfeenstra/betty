@@ -29,17 +29,7 @@ if TYPE_CHECKING:
 type Index = Mapping[str, LocalizedStr]
 
 
-class Indexer[DataT]:
-    """
-    A search indexer.
-    """
-
-    @final
-    def __init_subclass__(cls) -> None:
-        assert cls.__module__.startswith("betty.")
-
-
-class FieldIndexer[DataT](Indexer[DataT], metaclass=ABCMeta):
+class FieldIndexer[DataT](metaclass=ABCMeta):
     """
     Index data.
     """
@@ -63,7 +53,7 @@ class Field:
         self.importance: Final[Number] = importance
 
 
-class RecordIndexer[DataT](Indexer[DataT], metaclass=ABCMeta):
+class RecordIndexer[DataT](metaclass=ABCMeta):
     """
     Index record data built up from multiple fields.
     """
@@ -81,6 +71,10 @@ class RecordIndexer[DataT](Indexer[DataT], metaclass=ABCMeta):
         """
         Index the data.
         """
+
+
+type Indexer[DataT] = FieldIndexer[DataT] | RecordIndexer[DataT]
+IndexerTypes: Final[tuple[type, ...]] = (FieldIndexer, RecordIndexer)
 
 
 class Searcher[DataT](RecordIndexer[DataT]):

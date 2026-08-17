@@ -8,15 +8,14 @@ from abc import ABCMeta, abstractmethod
 from collections.abc import Callable, Collection, Iterable
 from typing import TYPE_CHECKING, Any, Final, Self, final
 
-from betty.capability import ResolvableCapability as ResolvableCapability
 from betty.capability import ResolvableStagedCapability, Stage
 from betty.data import DataDefinition, ResolvableDataDefinition, resolve_data_definition
 from betty.definition.cls import ClsDefinitionCapabilityStage
+from betty.portable import Porter
 from betty.search import Indexer
 
 if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
-    from betty.portable import Porter
     from betty.typing import Intersection
 
 

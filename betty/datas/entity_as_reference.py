@@ -10,6 +10,7 @@ from betty.data import DataDefinition
 from betty.datas.entity_reference import EntityReference
 from betty.entity import Entity
 from betty.porters.entity_as_reference import EntityAsReferencePorter
+from betty.search import Indexer
 
 if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
@@ -21,6 +22,7 @@ class EntityAsReferenceDefinition[AssociateT: Entity](
         AssociateT | EntityReference[AssociateT],
         Never,
         EntityAsReferencePorter[AssociateT],
+        Indexer[AssociateT | EntityReference[AssociateT]],
     ]
 ):
     """

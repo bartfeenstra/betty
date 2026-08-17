@@ -54,6 +54,15 @@ class _OptionalRecordIndexer[DataT](RecordIndexer[DataT | None]):
         return await self.__proxied.index(data, localizer=localizer, project=project)
 
 
+def _indexer(data: DataDefinition, /) -> Indexer | None:
+    indexer = data.try_indexer
+    if indexer is None:
+        return None
+    if isinstance(indexer, FieldIndexer):
+        return _OptionalFieldIndexer(indexer)
+    return _OptionalRecordIndexer(indexer)
+
+
 @final
 class OptionalDefinition[DataT](
     DataDefinition[DataT | None, Never, Porter[DataT | None], Indexer[DataT | None]]
@@ -66,15 +75,7 @@ class OptionalDefinition[DataT](
         super().__init__(
             label=proxied.label,
             description=proxied.description,
-            indexer=OnSetCls(
-                lambda definition: (
-                    None
-                    if definition.try_indexer is None
-                    else _OptionalFieldIndexer(definition.indexer)
-                    if isinstance(definition.indexer, FieldIndexer)
-                    else _OptionalRecordIndexer(definition.indexer)
-                )
-            ),
+            indexer=_indexer(proxied) if proxied.cls else OnSetCls(_indexer),
             porter=OptionalPorter(DataDefinitionProxyPorter(proxied)),
             samples=[
                 lambda: Sample(None, label="Minimal", size=Size.MINIMAL),

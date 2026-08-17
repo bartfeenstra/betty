@@ -12,7 +12,7 @@ from betty.definition.human_facing import HumanFacingDefinition
 from betty.importlib import fully_qualified_name
 from betty.portable import Porter
 from betty.sample import Samplable, Sample, Samples
-from betty.search import Indexer
+from betty.search import Indexer, IndexerTypes
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping, MutableMapping
@@ -77,7 +77,7 @@ class DataDefinition[
             description=description,
             capabilities={
                 **capabilities,
-                "indexer": (Indexer, indexer),
+                "indexer": (IndexerTypes, indexer),
                 "porter": (Porter, porter),
             },
             **kwargs,
