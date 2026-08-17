@@ -75,6 +75,12 @@ class OptionalDefinition[DataT](
         super().__init__(
             label=proxied.label,
             description=proxied.description,
+            # @todo This reliance on a cls, from the outside, is no good.
+            # @todo This problem may appear elsewhere and in the future, as it is inherent to proxying things
+            # @todo that aren't complete at proxy-time.
+            # @todo
+            # @todo
+            # @todo
             indexer=_indexer(proxied) if proxied.cls else OnSetCls(_indexer),
             porter=OptionalPorter(DataDefinitionProxyPorter(proxied)),
             samples=[
