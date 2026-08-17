@@ -8,8 +8,10 @@ to Betty.
 from __future__ import annotations
 
 from functools import update_wrapper
-from typing import TYPE_CHECKING, Any, Final, Self, final, override
+from typing import TYPE_CHECKING, Any, Final, Never, Self, final, override
 
+from betty.capability import Stage
+from betty.definition import Definition
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.importlib import fully_qualified_name
@@ -22,7 +24,7 @@ if TYPE_CHECKING:
     from betty.requirement import Requirement, Requires
 
 
-class PluginDefinition:
+class PluginDefinition[StageT: Stage = Never](Definition[StageT]):
     """
     A plugin definition.
     """

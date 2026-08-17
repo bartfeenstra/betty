@@ -20,7 +20,7 @@ from betty.localizables.gettext import _
 from betty.localizables.plain import Plain
 from betty.localizables.static import CountableStaticTranslations, StaticTranslations
 from betty.portable import Porter
-from betty.portable.error import NotPortable
+from betty.portable.error import NotDumpable
 
 if TYPE_CHECKING:
     from betty.portable import PortableData
@@ -54,7 +54,7 @@ class _LocalizablePorter(Porter[StaticTranslations]):
         if isinstance(data, Plain):
             data = StaticTranslations({data.locale: data.text})
         if not isinstance(data, StaticTranslations):
-            raise NotPortable(
+            raise NotDumpable(
                 Plain(
                     "Only static translations and plain text can be dumped to portable data, not `{localizable}` objects."
                 ).format(localizable=fully_qualified_name(type(data)))
@@ -99,7 +99,7 @@ class _CountableLocalizablePorter(Porter[CountableLocalizable]):
     @override
     def dump(self, data: CountableLocalizable) -> PortableData:
         if not isinstance(data, CountableStaticTranslations):
-            raise NotPortable(
+            raise NotDumpable(
                 Plain(
                     "Only static translations and plain text can be dumped to portable data, not `{localizable}` objects."
                 ).format(localizable=fully_qualified_name(type(data)))

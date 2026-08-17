@@ -23,7 +23,7 @@ from betty.localizables.static import (
     StaticTranslations,
 )
 from betty.localizer import default_localizer
-from betty.portable.error import NotPortable
+from betty.portable.error import NotDumpable
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 if TYPE_CHECKING:
@@ -67,7 +67,7 @@ class TestLocalizableDefinition:
         )
 
     def test_dump__with_unsupported_localizable(self) -> None:
-        with pytest.raises(NotPortable):
+        with pytest.raises(NotDumpable):
             LocalizableDefinition().porter.dump(Paragraph("Hello, world!"))
 
 
@@ -137,7 +137,7 @@ class TestCountableLocalizableDefinition:
         }
 
     def test_dump_countable_localizable__with_unsupported_localizable(self) -> None:
-        with pytest.raises(NotPortable):
+        with pytest.raises(NotDumpable):
             CountableLocalizableDefinition().porter.dump(
                 _NotDumpableCountableLocalizable()
             )

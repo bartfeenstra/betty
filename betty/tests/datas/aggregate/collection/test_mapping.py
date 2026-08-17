@@ -2,10 +2,10 @@ from collections.abc import Mapping
 
 import pytest
 
+from betty.capability import Incapable
 from betty.data import DataDefinition
 from betty.datas.aggregate.collection.mapping import MappingDefinition
 from betty.datas.str import StrDefinition
-from betty.portable.error import NotPortable
 
 
 class TestMappingDefinition:
@@ -50,14 +50,14 @@ class TestMappingDefinition:
         )
         assert isinstance(sut.porter.load({}), FactoryDict)
 
-    def test_load__with_item_not_loadable(self) -> None:
+    def test_load__with_item_without_porter(self) -> None:
         sut = MappingDefinition[dict[str, str], str, str](
             cls=dict,
             key=StrDefinition(label="-"),
             value=DataDefinition(cls=str, label="-"),
             label="-",
         )
-        with pytest.raises(NotPortable):
+        with pytest.raises(Incapable):
             sut.porter.load({"hello": "Hello, world!"})
 
     def test_dump__without_items(self) -> None:
@@ -78,14 +78,14 @@ class TestMappingDefinition:
         )
         assert sut.porter.dump({"hello": "Hello, world!"}) == {"hello": "Hello, world!"}
 
-    def test_dump__with_item_not_dumpable(self) -> None:
+    def test_dump__with_item_without_porter(self) -> None:
         sut = MappingDefinition[dict[str, str], str, str](
             cls=dict,
             key=StrDefinition(label="-"),
             value=DataDefinition(cls=str, label="-"),
             label="-",
         )
-        with pytest.raises(NotPortable):
+        with pytest.raises(Incapable):
             sut.porter.dump({"hello": "Hello, world!"})
 
     def test_clear(self) -> None:

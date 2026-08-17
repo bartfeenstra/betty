@@ -4,8 +4,10 @@ Definitions that are human-facing and provide human-friendly information.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Final
+from typing import TYPE_CHECKING, Any, Final, Never
 
+from betty.capability import Stage
+from betty.definition import Definition
 from betty.localizable import resolve_localizable
 
 if TYPE_CHECKING:
@@ -16,7 +18,7 @@ if TYPE_CHECKING:
     )
 
 
-class HumanFacingDefinition:
+class HumanFacingDefinition[StageT: Stage = Never](Definition[StageT]):
     """
     A definition that is human-facing and provides human-friendly information.
     """
@@ -41,7 +43,9 @@ class HumanFacingDefinition:
         """
 
 
-class CountableHumanFacingDefinition(HumanFacingDefinition):
+class CountableHumanFacingDefinition[StageT: Stage = Never](
+    HumanFacingDefinition[StageT]
+):
     """
     A definition that is human-facing and provides countable human-friendly information.
     """

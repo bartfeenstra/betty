@@ -53,6 +53,7 @@ from betty.datas.plugin.definition.license import LicenseDefinitionData
 from betty.datas.plugin.definition.place_type import PlaceTypeDefinitionData
 from betty.datas.plugin.definition.role import RoleDefinitionData
 from betty.datas.str import StrDefinition
+from betty.definition.cls import OnSetCls
 from betty.dirs import builtin_asset_directory
 from betty.document import Document, DocumentProviderDefinition
 from betty.entity import EntityDefinition
@@ -641,7 +642,9 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
 @final
 @ObjectDefinition(
     label=_("Project locale"),
-    porter=lambda field, _: KeyedMappingPorter("locale", FieldsPorter(field)),
+    porter=OnSetCls(
+        lambda definition: KeyedMappingPorter("locale", FieldsPorter(definition))
+    ),
     samples=[
         lambda: Sample(
             ProjectLocale(Locale("nl", "NL")), label="Minimal", size=Size.MINIMAL

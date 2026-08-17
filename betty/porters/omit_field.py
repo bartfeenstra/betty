@@ -9,14 +9,11 @@ from inspect import signature
 from typing import TYPE_CHECKING, Any, final, override
 
 from betty.data import DataDefinition
-from betty.datas.aggregate.record import (
-    FieldDefinition,
-    FieldDefinitionFeatureManufacturer,
-    FieldPorter,
-)
+from betty.datas.aggregate.record import FieldDefinition, FieldPorter
 from betty.nothing import Nothing, NothingType
 
 if TYPE_CHECKING:
+    from betty.capability import CapabilityManufacturer
     from betty.portable import PortableData
 
 type OmitDump[OwnerT, DataT] = Callable[
@@ -56,11 +53,9 @@ class OmitFieldPorter[OwnerT, DataT](FieldPorter[OwnerT, DataT, DataT]):
     @classmethod
     def new[NewDataT](
         cls, omit_dump: Callable[[NewDataT], bool] | OmitDump[OwnerT, NewDataT], /
-    ) -> FieldDefinitionFeatureManufacturer[
-        OmitFieldPorter[OwnerT, NewDataT], Any, NewDataT
-    ]:
+    ) -> CapabilityManufacturer[Any, OmitFieldPorter[OwnerT, NewDataT]]:
         """
-        Create a field manufacturer to create a new porter.
+        Create a new capability manufacturer.
         """
         return lambda field: OmitFieldPorter[OwnerT, DataT](field, omit_dump)
 

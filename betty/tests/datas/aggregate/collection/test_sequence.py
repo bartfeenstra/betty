@@ -2,10 +2,10 @@ from collections.abc import Iterable
 
 import pytest
 
+from betty.capability import Incapable
 from betty.data import DataDefinition
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
 from betty.datas.str import StrDefinition
-from betty.portable.error import NotPortable
 
 
 class TestSequenceDefinition:
@@ -46,13 +46,13 @@ class TestSequenceDefinition:
         )
         assert isinstance(sut.porter.load([]), FactoryList)
 
-    def test_porter__load__with_item_not_loadable(self) -> None:
+    def test_porter__load__with_item_without_porter(self) -> None:
         sut = SequenceDefinition[list[str], str](
             cls=list,
             value=DataDefinition(cls=str, label="-"),
             label="-",
         )
-        with pytest.raises(NotPortable):
+        with pytest.raises(Incapable):
             sut.porter.load(["Hello, world!"])
 
     def test_porter__dump__without_items(self) -> None:
@@ -71,13 +71,13 @@ class TestSequenceDefinition:
         )
         assert sut.porter.dump(["Hello, world!"]) == ["Hello, world!"]
 
-    def test_porter__dump__with_item_not_dumpable(self) -> None:
+    def test_porter__dump__with_item_without_porter(self) -> None:
         sut = SequenceDefinition[list[str], str](
             cls=list,
             value=DataDefinition(cls=str, label="-"),
             label="-",
         )
-        with pytest.raises(NotPortable):
+        with pytest.raises(Incapable):
             sut.porter.dump(["Hello, world!"])
 
     def test_clear(self) -> None:
