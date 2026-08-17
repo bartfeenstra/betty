@@ -8,7 +8,6 @@ from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any, Never, final
 
 from betty.capability import Stage
-from betty.data import DataDefinitionCapabilityStage
 from betty.definition.cls import ClsDefinitionCapabilityStage
 from betty.machine_name import MachineName, ResolvableMachineName
 from betty.plugin import PluginDefinition
@@ -63,7 +62,7 @@ class OrderedPluginDefinition[StageT: Stage = Never](PluginDefinition[StageT]):
 
 class OrderedPluginClsDefinition[
     BaseClsT,
-    StageT: Stage = DataDefinitionCapabilityStage,
+    StageT: Stage = ClsDefinitionCapabilityStage,
 ](
     OrderedPluginDefinition[StageT | ClsDefinitionCapabilityStage],
     PluginClsDefinition[BaseClsT, StageT],

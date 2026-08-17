@@ -4,7 +4,7 @@ String data types.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Never, final
 
 from betty.assertions.str import assert_str
 from betty.data import DataDefinition
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 @final
-class StrDefinition(DataDefinition[str, Porter[str]]):
+class StrDefinition(DataDefinition[str, Never, Porter[str]]):
     """
     A string data definition.
     """

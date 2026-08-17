@@ -5,7 +5,7 @@ Key-value mapping record data types.
 from __future__ import annotations
 
 from collections.abc import MutableMapping
-from typing import Any, final
+from typing import Any, Never, final
 
 from betty.datas.aggregate.record import RecordDefinition
 from betty.indicator.operator import Key
@@ -16,7 +16,7 @@ from betty.portable import Porter
 class TypedMappingDefinition[
     MutableMappingT: MutableMapping[str, Any],
     PorterT: Porter[MutableMapping] = Porter,
-](RecordDefinition[MutableMappingT, Key, PorterT]):
+](RecordDefinition[MutableMappingT, Key, Never, PorterT]):
     """
     A typed mapping definition.
 

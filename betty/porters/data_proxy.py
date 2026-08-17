@@ -4,7 +4,7 @@ Data definition proxy porters.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, Never, final, override
 
 from betty.portable import PortableData, Porter
 
@@ -18,7 +18,7 @@ class DataDefinitionProxyPorter[DataT](Porter[DataT]):
     Proxy a data definition's porter.
     """
 
-    def __init__(self, data: DataDefinition[DataT, Porter[DataT]], /):
+    def __init__(self, data: DataDefinition[DataT, Never, Porter[DataT]], /):
         self._data = data
 
     @override

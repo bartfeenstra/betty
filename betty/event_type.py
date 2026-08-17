@@ -7,8 +7,6 @@ from __future__ import annotations
 from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, final
 
-from betty.data import DataDefinitionCapabilityStage
-from betty.definition.cls import ClsDefinitionCapabilityStage
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
@@ -18,7 +16,6 @@ from betty.plugin.ordered import (
     Order,
     OrderedPluginClsDefinition,
 )
-from betty.portable import Porter
 
 if TYPE_CHECKING:
     from betty.entities.person import Person
@@ -55,13 +52,9 @@ class ShouldExistEventType(EventType, metaclass=ABCMeta):
     label_countable=ngettext("{count} event type", "{count} event types"),
 )
 class EventTypeDefinition(
-    CountableHumanFacingDefinition[
-        DataDefinitionCapabilityStage | ClsDefinitionCapabilityStage
-    ],
-    OrderedPluginClsDefinition[
-        EventType, DataDefinitionCapabilityStage | ClsDefinitionCapabilityStage
-    ],
-    DataPluginDefinition[EventType, Porter, DataDefinitionCapabilityStage],
+    CountableHumanFacingDefinition,
+    OrderedPluginClsDefinition[EventType],
+    DataPluginDefinition[EventType],
 ):
     """
     .. plugin_type:: event-type.

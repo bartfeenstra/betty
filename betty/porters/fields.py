@@ -4,7 +4,7 @@ Porters for records using their fields.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, final, override
+from typing import TYPE_CHECKING, Any, Never, final, override
 
 from betty.assertions.record import Field, assert_record
 from betty.nothing import Nothing
@@ -20,7 +20,7 @@ class FieldsPorter[DataT](Porter[DataT]):
     Load and dump a record using its fields.
     """
 
-    def __init__(self, record: RecordDefinition[DataT, Any, Porter], /):
+    def __init__(self, record: RecordDefinition[DataT, Any, Never, Porter], /):
         self._record = record
         self._load = assert_record(*[
             Field(operator.operator, field_porter.load, optional=field.optional)

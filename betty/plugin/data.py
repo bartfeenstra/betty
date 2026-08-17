@@ -5,7 +5,7 @@ Data plugins.
 from __future__ import annotations
 
 from betty.capability import Stage
-from betty.data import Data, DataDefinition, DataDefinitionCapabilityStage
+from betty.data import Data, DataDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.definition.cls import ClsDefinitionCapabilityStage
 from betty.plugin.cls import Plugin, PluginClsDefinition
@@ -23,18 +23,9 @@ class DataPlugin[
 
 class DataPluginDefinition[
     ClsT: Intersection[Data, Plugin],
+    StageT: Stage = ClsDefinitionCapabilityStage,
     PorterT: Porter = Porter,
-    StageT: Stage = DataDefinitionCapabilityStage,
-](
-    PluginClsDefinition[
-        ClsT, StageT | DataDefinitionCapabilityStage | ClsDefinitionCapabilityStage
-    ],
-    ObjectDefinition[
-        ClsT,
-        PorterT,
-        StageT | DataDefinitionCapabilityStage | ClsDefinitionCapabilityStage,
-    ],
-):
+](PluginClsDefinition[ClsT, StageT], ObjectDefinition[ClsT, StageT, PorterT]):
     """
     A data plugin definition.
     """

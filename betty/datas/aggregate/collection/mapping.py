@@ -5,7 +5,7 @@ Key-value mapping data types.
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable, Mapping, MutableMapping
-from typing import TYPE_CHECKING, Any, final, override
+from typing import TYPE_CHECKING, Any, Never, final, override
 
 from betty.assertions.mapping import assert_mapping
 from betty.data import DataDefinition, ResolvableDataDefinition, resolve_data_definition
@@ -32,7 +32,7 @@ class MappingDefinition[MutableMappingT: MutableMapping[Any, Any], KeyT, ValueT]
         *,
         cls: type[Intersection[MutableMappingT, MutableMapping[KeyT, ValueT]]]
         | None = None,
-        key: ResolvableDataDefinition[DataDefinition[KeyT, Porter[KeyT]]],
+        key: ResolvableDataDefinition[DataDefinition[KeyT, Never, Porter[KeyT]]],
         value: ResolvableDataDefinition[DataDefinition[ValueT]],
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,

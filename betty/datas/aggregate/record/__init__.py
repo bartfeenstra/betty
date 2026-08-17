@@ -11,14 +11,13 @@ from betty.capability import Stage
 from betty.collections import _empty_frozen_mapping
 from betty.data import (
     DataDefinition,
-    DataDefinitionCapabilityStage,
     ResolvableDataDefinition,
     Sample,
     Samples,
     resolve_data_definition,
 )
 from betty.definition import Definition
-from betty.definition.cls import OnSetCls
+from betty.definition.cls import ClsDefinitionCapabilityStage, OnSetCls
 from betty.indicator.operator import Attr, Key
 from betty.localizable import resolve_localizable
 from betty.portable import PortableData, Porter
@@ -161,9 +160,9 @@ def resolve_field_definition[
 class RecordDefinition[
     DataT,
     OperatorT: FieldOperator,
+    StageT: Stage = ClsDefinitionCapabilityStage,
     PorterT: Porter = Porter,
-    StageT: Stage = DataDefinitionCapabilityStage,
-](DataDefinition[DataT, PorterT, StageT]):
+](DataDefinition[DataT, StageT, PorterT]):
     """
     A record data definition.
 
