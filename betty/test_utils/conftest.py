@@ -23,7 +23,6 @@ __all__ = [
     "page",
     "process_pool",
 ]
-
 import re
 import tarfile
 from collections.abc import (
@@ -42,6 +41,7 @@ from aioresponses import aioresponses
 from jinja2 import Environment, Template
 
 from betty.app import App
+from betty.collections import _empty_frozen_mapping
 from betty.exception import do_raise
 from betty.json_schema import Schema
 from betty.licenses.spdx import SpdxLicenseDiscoverer
@@ -55,7 +55,6 @@ if TYPE_CHECKING:
         Callable,
         Iterable,
         Iterator,
-        Mapping,
     )
     from concurrent import futures
     from contextlib import AbstractAsyncContextManager
@@ -64,10 +63,8 @@ if TYPE_CHECKING:
     from playwright.async_api import BrowserContext, Page
 
     from betty.asset import AssetDirectoryDefinition
-    from betty.store import TransientStore
     from betty.entity import EntityDefinition
     from betty.entity.collection.pool import EntityPool
-    from betty.service_provider import ServiceProviderDefinition
     from betty.link import LinkDefinition
     from betty.linked_data import LinkedDataDumpableWithSchema, LinkedDataDumper
     from betty.load import EnricherDefinition, LoaderDefinition
@@ -75,14 +72,15 @@ if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.pathlib import StrPath
-    from betty.plugin import PluginDefinition
-    from betty.plugin.discovery import ResolvableDiscovery
     from betty.plugin.resolve import ResolvablePluginDefinition, ResolvablePluginId
     from betty.portable import PortableData, PortableMapping
     from betty.server import ServerDefinition
+    from betty.service_level import Plugins
+    from betty.service_provider import ServiceProviderDefinition
     from betty.services.plugin import SupportedPlugins
     from betty.services.plugin.instance import ServicePluginInstances
     from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
+    from betty.store import TransientStore
     from betty.user import User
 
 
@@ -130,10 +128,7 @@ class IsolatedAppFactory(Protocol):
         *,
         cache: TypedSynchronousServiceOrFactory[App, TransientStore[Any]] | None = None,
         binary_file_cache_directory: StrPath | None = None,
-        plugins: Mapping[
-            type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
-        ]
-        | None = None,
+        plugins: Plugins = _empty_frozen_mapping,
         process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
         | None = None,
         user: User | None = None,
@@ -155,10 +150,7 @@ def isolated_app_factory(
         *,
         cache: TypedSynchronousServiceOrFactory[App, TransientStore[Any]] | None = None,
         binary_file_cache_directory: StrPath | None = None,
-        plugins: Mapping[
-            type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
-        ]
-        | None = None,
+        plugins: Plugins = _empty_frozen_mapping,
         process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
         | None = None,
         user: User | None = None,
@@ -208,10 +200,7 @@ class IsolatedProjectFactory(Protocol):
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
         logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
-        plugins: Mapping[
-            type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
-        ]
-        | None = None,
+        plugins: Plugins = _empty_frozen_mapping,
         servers: ServicePluginInstances[ServerDefinition] = (),
         supported_plugins: SupportedPlugins = (),
         title: ResolvableLocalizable | None = None,
@@ -248,10 +237,7 @@ def isolated_project_factory(isolated_app: App) -> IsolatedProjectFactory:
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
         logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
-        plugins: Mapping[
-            type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
-        ]
-        | None = None,
+        plugins: Plugins = _empty_frozen_mapping,
         servers: ServicePluginInstances[ServerDefinition] = (),
         supported_plugins: SupportedPlugins = (),
         title: ResolvableLocalizable | None = None,

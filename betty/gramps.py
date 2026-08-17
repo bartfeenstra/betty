@@ -32,6 +32,7 @@ from betty.associations.has_citations import HasCitations
 from betty.associations.has_links import HasLinks
 from betty.associations.has_notes import HasNotes
 from betty.attrs.privacy import HasPrivacy
+from betty.collections import _empty_frozen_mapping
 from betty.copyright_notice import CopyrightNoticeManufacturer
 from betty.date import AnyDate, Date, DateRange
 from betty.entities.citation import Citation
@@ -318,11 +319,8 @@ def _resolve_plugin_manufacturer_mapping[
     manufacturer: type[PluginManufacturer[PluginDefinitionT, PluginT]],
     resolvable_manufacturers: Mapping[
         T, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]
-    ]
-    | None,
+    ],
 ) -> MutableMapping[T, PluginManufacturer[PluginDefinitionT, PluginT]]:
-    if resolvable_manufacturers is None:
-        return {}
     return {
         gramps_type: manufacturer.resolve(resolvable_manufacturer)
         for gramps_type, resolvable_manufacturer in resolvable_manufacturers.items()
@@ -359,14 +357,13 @@ class GrampsLoader:
         attribute_prefix_key: str | None = None,
         event_type_mapping: Mapping[
             str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
-        ]
-        | None = None,
+        ] = _empty_frozen_mapping,
         place_type_mapping: Mapping[
             str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
-        ]
-        | None = None,
-        role_mapping: Mapping[str, ResolvablePluginManufacturer[RoleDefinition, Role]]
-        | None = None,
+        ] = _empty_frozen_mapping,
+        role_mapping: Mapping[
+            str, ResolvablePluginManufacturer[RoleDefinition, Role]
+        ] = _empty_frozen_mapping,
         executable: StrPath | None = None,
     ):
         super().__init__()

@@ -105,7 +105,7 @@ class TestStaticPathUrlUrlGenerator:
         locale: ResolvableLocale | None,
         additional_project_locale: Locale | None,
         fragment: str | None,
-        query: Mapping[str, Sequence[str]] | None,
+        query: Mapping[str, Sequence[str]],
     ) -> None:
         locales = [default_locale]
         if additional_project_locale:

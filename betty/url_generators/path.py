@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Final, Self, TypeGuard, final, override
 from urllib.parse import urlencode
 
+from betty.collections import _empty_frozen_mapping
 from betty.factory import Manufacturable
 from betty.locale import negotiate_locale, resolve_locale, to_language_tag
 from betty.project import Project
@@ -73,7 +74,7 @@ class PathUrlGenerator(Manufacturable, UrlGenerator[str]):
         fragment: str | None = None,
         locale: ResolvableLocale | None = None,
         media_type: ResolvableMediaType | None = None,
-        query: Mapping[str, Sequence[str]] | None = None,
+        query: Mapping[str, Sequence[str]] = _empty_frozen_mapping,
     ) -> str:
         url = self._base_url.rstrip("/") if absolute else ""
         url += self._root_path.rstrip("/")
@@ -102,7 +103,7 @@ class PathUrlGenerator(Manufacturable, UrlGenerator[str]):
         # Ensure URLs are root-relative.
         if not absolute:
             url = f"/{url.lstrip('/')}"
-        if query is not None:
+        if query:
             url += "?" + urlencode(query)
         if fragment is not None:
             url += "#" + fragment

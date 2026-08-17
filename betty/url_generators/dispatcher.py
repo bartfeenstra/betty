@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, TypeGuard, final, override
 
+from betty.collections import _empty_frozen_mapping
 from betty.url_generator import UnsupportedResource, UrlGenerator
 
 if TYPE_CHECKING:
@@ -38,7 +39,7 @@ class UrlGeneratorDispatcher[ResourceT](UrlGenerator[ResourceT]):
         fragment: str | None = None,
         locale: ResolvableLocale | None = None,
         media_type: ResolvableMediaType | None = None,
-        query: Mapping[str, Sequence[str]] | None = None,
+        query: Mapping[str, Sequence[str]] = _empty_frozen_mapping,
     ) -> str:
         for upstream in self._upstreams:
             if upstream.supports(resource):
