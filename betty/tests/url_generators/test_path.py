@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any
 import pytest
 from babel import Locale
 
+from betty.collections import _empty_frozen_mapping
 from betty.locale import ResolvableLocale, default_locale, default_locale_tag
 from betty.url_generators.path import PathUrlGenerator
 
@@ -60,7 +61,7 @@ class TestPathUrlGenerator:
                     False,
                     None,
                     None,
-                    None,
+                    _empty_frozen_mapping,
                 )
                 for expected, path in [
                     ("/", "/"),
@@ -81,7 +82,7 @@ class TestPathUrlGenerator:
                     True,
                     None,
                     None,
-                    None,
+                    _empty_frozen_mapping,
                 )
                 for expected, path in [
                     ("https://example.com", "/"),
@@ -102,7 +103,7 @@ class TestPathUrlGenerator:
                     False,
                     None,
                     None,
-                    None,
+                    _empty_frozen_mapping,
                 )
                 for expected, path in [
                     ("/", "/"),
@@ -123,7 +124,7 @@ class TestPathUrlGenerator:
                     False,
                     "nl-NL",
                     None,
-                    None,
+                    _empty_frozen_mapping,
                 )
                 for expected, path in [
                     ("/nl", "/"),
@@ -144,7 +145,7 @@ class TestPathUrlGenerator:
                     False,
                     None,
                     "my-first-fragment",
-                    None,
+                    _empty_frozen_mapping,
                 )
                 for expected, path in [
                     ("/#my-first-fragment", "/"),
@@ -190,7 +191,7 @@ class TestPathUrlGenerator:
         absolute: bool,
         locale: ResolvableLocale | None,
         fragment: str | None,
-        query: Mapping[str, Sequence[str]] | None,
+        query: Mapping[str, Sequence[str]],
     ) -> None:
         sut = PathUrlGenerator(
             base_url="https://example.com",

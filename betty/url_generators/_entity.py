@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
+from betty.collections import _empty_frozen_mapping
 from betty.media_type import (
     MissingMediaType,
     match_media_type,
@@ -40,7 +41,7 @@ class _EntityUrlGenerator[ResourceT](UrlGenerator[ResourceT]):
         fragment: str | None = None,
         locale: ResolvableLocale | None = None,
         media_type: ResolvableMediaType | None = None,
-        query: Mapping[str, Sequence[str]] | None = None,
+        query: Mapping[str, Sequence[str]] = _empty_frozen_mapping,
     ) -> str:
         if media_type is None:
             raise MissingMediaType()

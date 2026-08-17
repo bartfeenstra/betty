@@ -4,6 +4,7 @@ from typing import Any, TypeGuard, override
 
 import pytest
 
+from betty.collections import _empty_frozen_mapping
 from betty.locale import ResolvableLocale
 from betty.media_type import ResolvableMediaType
 from betty.media_types.html import HTML
@@ -28,7 +29,7 @@ class TestUrlGeneratorDispatcher:
             fragment: str | None = None,
             locale: ResolvableLocale | None = None,
             media_type: ResolvableMediaType | None = None,
-            query: Mapping[str, Sequence[str]] | None = None,
+            query: Mapping[str, Sequence[str]] = _empty_frozen_mapping,
         ) -> str:
             return dumps({
                 "resource": resource,
@@ -36,7 +37,7 @@ class TestUrlGeneratorDispatcher:
                 "absolute": absolute,
                 "locale": locale,
                 "fragment": fragment,
-                "query": query,
+                "query": dict(query),
             })
 
     class _UnsupportedUrlGenerator(UrlGenerator[Any]):
@@ -54,7 +55,7 @@ class TestUrlGeneratorDispatcher:
             fragment: str | None = None,
             locale: ResolvableLocale | None = None,
             media_type: ResolvableMediaType | None = None,
-            query: Mapping[str, Sequence[str]] | None = None,
+            query: Mapping[str, Sequence[str]] = _empty_frozen_mapping,
         ) -> str:
             raise UnsupportedResource(resource)  # pragma: nocover
 
@@ -96,7 +97,7 @@ class TestUrlGeneratorDispatcher:
                 False,
                 None,
                 None,
-                None,
+                _empty_frozen_mapping,
             ),
             (
                 "/",
@@ -104,7 +105,7 @@ class TestUrlGeneratorDispatcher:
                 False,
                 None,
                 None,
-                None,
+                _empty_frozen_mapping,
             ),
             (
                 "/",
@@ -112,7 +113,7 @@ class TestUrlGeneratorDispatcher:
                 True,
                 None,
                 None,
-                None,
+                _empty_frozen_mapping,
             ),
             (
                 "/",
@@ -120,7 +121,7 @@ class TestUrlGeneratorDispatcher:
                 False,
                 "nl-NL",
                 None,
-                None,
+                _empty_frozen_mapping,
             ),
             (
                 "/",
@@ -128,7 +129,7 @@ class TestUrlGeneratorDispatcher:
                 False,
                 None,
                 "my-first-fragment",
-                None,
+                _empty_frozen_mapping,
             ),
             (
                 "/",
@@ -147,7 +148,7 @@ class TestUrlGeneratorDispatcher:
         absolute: bool,
         locale: ResolvableLocale | None,
         fragment: str | None,
-        query: Mapping[str, Sequence[str]] | None,
+        query: Mapping[str, Sequence[str]],
     ) -> None:
         sut = UrlGeneratorDispatcher(
             self._UnsupportedUrlGenerator(),

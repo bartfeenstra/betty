@@ -4,10 +4,10 @@ Service levels.
 
 from __future__ import annotations
 
-from collections import defaultdict
 from importlib import metadata
 from typing import TYPE_CHECKING, Any, Final
 
+from betty.collections import _empty_frozen_mapping
 from betty.collections.keyed.adapter import KeyedCollectionAdapter
 from betty.plugin.resolve import resolve_plugin_type_id
 from betty.service import HasServices
@@ -34,7 +34,9 @@ class ServiceLevel(HasServices):
     A service level.
     """
 
-    def __init__(self, *args: Any, plugins: Plugins | None = None, **kwargs: Any):
+    def __init__(
+        self, *args: Any, plugins: Plugins = _empty_frozen_mapping, **kwargs: Any
+    ):
         from betty.factory import Factory
 
         super().__init__(*args, services=self, **kwargs)
@@ -42,9 +44,7 @@ class ServiceLevel(HasServices):
         """
         The object factory.
         """
-        self._plugin_discovery = defaultdict(
-            lambda: None, {} if plugins is None else plugins
-        )
+        self._plugin_discovery = plugins
 
     @service
     def plugins(self) -> PluginDiscovererCollection:
@@ -67,7 +67,9 @@ class ServiceLevel(HasServices):
             KeyedCollectionAdapter(
                 {
                     plugin_type.type().id: PluginDiscoverer(
-                        self, plugin_type, self._plugin_discovery[plugin_type]
+                        self,
+                        plugin_type,
+                        self._plugin_discovery.get(plugin_type, None),
                     )
                     for plugin_type in plugin_types
                 },

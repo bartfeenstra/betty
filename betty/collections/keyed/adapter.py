@@ -8,6 +8,7 @@ from contextlib import suppress
 from typing import TYPE_CHECKING, Any, override
 
 from betty.collection.keyed import KeyedCollection, MutableKeyedCollection
+from betty.collections import _empty_frozen_mapping
 from betty.functools import passthrough
 
 if TYPE_CHECKING:
@@ -23,11 +24,12 @@ class KeyedCollectionAdapter[KeyT, ResolvableKeyT, ValueT](
 
     def __init__(
         self,
-        values: Mapping[KeyT, ValueT] | Iterable[tuple[KeyT, ValueT]] | None = None,
+        values: Mapping[KeyT, ValueT]
+        | Iterable[tuple[KeyT, ValueT]] = _empty_frozen_mapping,
         *,
         key_resolver: Callable[[ResolvableKeyT | KeyT], KeyT] = passthrough,
     ):
-        self._values = {} if values is None else dict(values)
+        self._values = dict(values)
         self._key_resolver = key_resolver
 
     @override

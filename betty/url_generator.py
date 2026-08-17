@@ -7,6 +7,8 @@ from __future__ import annotations
 from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Any, TypeGuard
 
+from betty.collections import _empty_frozen_mapping
+
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
@@ -52,7 +54,7 @@ class UrlGenerator[ResourceT](metaclass=ABCMeta):
         fragment: str | None = None,
         locale: ResolvableLocale | None = None,
         media_type: ResolvableMediaType | None = None,
-        query: Mapping[str, Sequence[str]] | None = None,
+        query: Mapping[str, Sequence[str]] = _empty_frozen_mapping,
     ) -> str:
         """
         Generate a URL for a resource.

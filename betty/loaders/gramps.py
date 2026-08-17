@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.attrs.path import new_path_attr
 from betty.collection.mapping import MutableResolvedMapping
+from betty.collections import _empty_frozen_mapping
 from betty.collections.mapping.adapter import MutableResolvedMappingAdapter
 from betty.data import Data
 from betty.datas.aggregate.collection.mapping import MappingDefinition
@@ -142,14 +143,13 @@ class FamilyTree(Data, HasProps):
         name: str | None = None,
         event_types: Mapping[
             str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
-        ]
-        | None = None,
+        ] = _empty_frozen_mapping,
         place_types: Mapping[
             str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
-        ]
-        | None = None,
-        roles: Mapping[str, ResolvablePluginManufacturer[RoleDefinition, Role]]
-        | None = None,
+        ] = _empty_frozen_mapping,
+        roles: Mapping[
+            str, ResolvablePluginManufacturer[RoleDefinition, Role]
+        ] = _empty_frozen_mapping,
     ):
         super().__init__()
         if file is not None:

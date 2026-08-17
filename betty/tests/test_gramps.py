@@ -10,6 +10,7 @@ from unittest.mock import ANY
 import pytest
 from babel import Locale
 
+from betty.collections import _empty_frozen_mapping
 from betty.copyright_notices.public_domain import (
     PublicDomain as PublicDomainCopyrightNotice,
 )
@@ -121,14 +122,13 @@ class LoadPartial(Protocol):
         media: Path | None = None,
         event_type_mapping: Mapping[
             str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
-        ]
-        | None = None,
+        ] = _empty_frozen_mapping,
         place_type_mapping: Mapping[
             str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
-        ]
-        | None = None,
-        role_mapping: Mapping[str, ResolvablePluginManufacturer[RoleDefinition, Role]]
-        | None = None,
+        ] = _empty_frozen_mapping,
+        role_mapping: Mapping[
+            str, ResolvablePluginManufacturer[RoleDefinition, Role]
+        ] = _empty_frozen_mapping,
     ) -> EntityPool:
         pass
 
@@ -296,14 +296,13 @@ class TestGrampsLoader:
         xml: str,
         event_type_mapping: Mapping[
             str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
-        ]
-        | None = None,
+        ] = _empty_frozen_mapping,
         place_type_mapping: Mapping[
             str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
-        ]
-        | None = None,
-        role_mapping: Mapping[str, ResolvablePluginManufacturer[RoleDefinition, Role]]
-        | None = None,
+        ] = _empty_frozen_mapping,
+        role_mapping: Mapping[
+            str, ResolvablePluginManufacturer[RoleDefinition, Role]
+        ] = _empty_frozen_mapping,
     ) -> None:
         await GrampsLoader(
             project,
@@ -326,16 +325,13 @@ class TestGrampsLoader:
             media: Path | None = None,
             event_type_mapping: Mapping[
                 str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
-            ]
-            | None = None,
+            ] = _empty_frozen_mapping,
             place_type_mapping: Mapping[
                 str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
-            ]
-            | None = None,
+            ] = _empty_frozen_mapping,
             role_mapping: Mapping[
                 str, ResolvablePluginManufacturer[RoleDefinition, Role]
-            ]
-            | None = None,
+            ] = _empty_frozen_mapping,
         ) -> EntityPool:
             mediapath = "" if media is None else f"<mediapath>{media}</mediapath>"
             await self._load(

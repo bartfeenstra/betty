@@ -29,6 +29,7 @@ from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.attrs.path import new_path_attr
 from betty.attrs.plugin_definitions import new_plugin_definition_datas_attr
+from betty.collections import _empty_frozen_mapping
 from betty.collections.keyed.adapter import (
     KeyedCollectionAdapter,
     MutableKeyedCollectionAdapter,
@@ -111,7 +112,7 @@ from betty.server import ServerDefinition
 from betty.service import (
     Service,
 )
-from betty.service_level import DownstreamServiceLevel
+from betty.service_level import DownstreamServiceLevel, Plugins
 from betty.service_provider import (
     ServiceProvider,
     ServiceProviderDefinition,
@@ -128,7 +129,7 @@ from betty.stores.file import TransientBinaryFileStore, TransientPickledFileStor
 from betty.stores.no_op import NoOpStore
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Iterable, Mapping, Sequence
+    from collections.abc import AsyncIterator, Iterable, Sequence
     from pathlib import Path
 
     from betty.asset import AssetDirectoryDefinition
@@ -138,7 +139,7 @@ if TYPE_CHECKING:
     from betty.media_type import ResolvableMediaType
     from betty.pathlib import StrPath
     from betty.plugin import PluginDefinition
-    from betty.plugin.discovery import ResolvableDiscovery
+    from betty.plugin.discovery import ResolvableDiscovery as ResolvableDiscovery
     from betty.plugin.factory import (
         ResolvablePluginManufacturer,
         ResolvablePluginManufacturerSequence,
@@ -219,10 +220,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         | None = None,
         logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
-        plugins: Mapping[
-            type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
-        ]
-        | None = None,
+        plugins: Plugins = _empty_frozen_mapping,
         servers: ServicePluginInstances[ServerDefinition] = (),
         supported_plugins: SupportedPlugins = (),
         _plugin_discoveries: Iterable[PluginDefinition] = (),
@@ -448,10 +446,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         | None = None,
         logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
-        plugins: Mapping[
-            type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
-        ]
-        | None = None,
+        plugins: Plugins = _empty_frozen_mapping,
         servers: ServicePluginInstances[ServerDefinition] = (),
         supported_plugins: SupportedPlugins = (),
         title: ResolvableLocalizable | None = None,

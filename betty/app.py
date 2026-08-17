@@ -16,6 +16,7 @@ from aiohttp_client_cache.session import CachedSession
 from betty import about
 from betty.asyncio import ResolvableAwaitable, resolve_await
 from betty.attrs.locale import new_locale_attr
+from betty.collections import _empty_frozen_mapping
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.dirs import app_config_directory, cache_directory
@@ -48,7 +49,7 @@ from betty.user import User
 from betty.user.no_op import NoOpUser
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Callable, Iterable, Mapping
+    from collections.abc import AsyncIterator, Callable, Iterable
     from pathlib import Path
 
     import aiohttp
@@ -56,8 +57,6 @@ if TYPE_CHECKING:
 
     from betty.asset import AssetDirectoryDefinition
     from betty.pathlib import StrPath
-    from betty.plugin import PluginDefinition
-    from betty.plugin.discovery import ResolvableDiscovery
     from betty.plugin.resolve import ResolvablePluginDefinition
     from betty.service_level import Plugins
     from betty.services.plugin import SupportedPlugins
@@ -98,7 +97,7 @@ class App(RequirableServiceLevel, HasPluginServices):
         assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
         cache: TypedSynchronousServiceOrFactory[App, TransientStore[Any]] | None = None,
         media_types: Iterable[ResolvablePluginDefinition[MediaTypeDefinition]] = (),
-        plugins: Plugins | None = None,
+        plugins: Plugins = _empty_frozen_mapping,
         process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
         | None = None,
         rate_limits: Iterable[RateLimitDefinition] = (),
@@ -193,10 +192,7 @@ class App(RequirableServiceLevel, HasPluginServices):
         *,
         binary_file_cache_directory: StrPath | None = None,
         cache: TypedSynchronousServiceOrFactory[App, TransientStore[Any]] | None = None,
-        plugins: Mapping[
-            type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
-        ]
-        | None = None,
+        plugins: Plugins = _empty_frozen_mapping,
         process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
         | None = None,
         user: User | None = None,

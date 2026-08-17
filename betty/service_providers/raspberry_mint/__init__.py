@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, Final, Self, final, override
 from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.collection.mapping import MutableResolvedMapping, ResolvedMapping
+from betty.collections import _empty_frozen_mapping
 from betty.collections.mapping.adapter import (
     MutableResolvedMappingAdapter,
     ResolvedMappingAdapter,
@@ -149,21 +150,17 @@ class RaspberryMintData(Data, HasProps):
             Iterable[
                 ResolvablePluginManufacturer[ContentBuilderDefinition, ContentBuilder]
             ],
-        ]
-        | None = None,
+        ] = _empty_frozen_mapping,
     ):
 
         super().__init__()
         self.primary_color = primary_color
         self.secondary_color = secondary_color
         self.tertiary_color = tertiary_color
-        if regional_content is not None:
-            self.regional_content.update({
-                Region.resolve(region): ContentBuilderManufacturer.resolve_sequence(
-                    content
-                )
-                for region, content in regional_content.items()
-            })
+        self.regional_content.update({
+            Region.resolve(region): ContentBuilderManufacturer.resolve_sequence(content)
+            for region, content in regional_content.items()
+        })
 
     async def validate(self, project: Project, /) -> None:
         """

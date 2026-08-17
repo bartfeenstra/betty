@@ -8,6 +8,7 @@ from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Any, Final, Self, final
 
 from betty.capability import Stage
+from betty.collections import _empty_frozen_mapping
 from betty.data import (
     DataDefinition,
     DataDefinitionCapabilityStage,
@@ -174,7 +175,9 @@ class RecordDefinition[
         *args: Any,
         cls: type[DataT] | None = None,
         label: ResolvableLocalizable,
-        fields: Mapping[OperatorT, ResolvableFieldDefinition[DataT, Any]] | None = None,
+        fields: Mapping[
+            OperatorT, ResolvableFieldDefinition[DataT, Any]
+        ] = _empty_frozen_mapping,
         description: ResolvableLocalizable | None = None,
         samples: Iterable[Callable[[], Sample[DataT]] | Samples] = (),
         factory: Callable[..., DataT] | None = None,
@@ -185,14 +188,10 @@ class RecordDefinition[
         from betty.porters.fields import FieldsPorter
 
         self._factory = factory
-        self._fields: MutableMapping[OperatorT, FieldDefinition[DataT, Any]] = (
-            {}
-            if fields is None
-            else {
-                element: resolve_field_definition(field)
-                for element, field in fields.items()
-            }
-        )
+        self._fields: MutableMapping[OperatorT, FieldDefinition[DataT, Any]] = {
+            element: resolve_field_definition(field)
+            for element, field in fields.items()
+        }
 
         super().__init__(
             *args,
