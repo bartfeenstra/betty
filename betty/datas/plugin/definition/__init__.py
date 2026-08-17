@@ -11,6 +11,7 @@ from betty.attrs.machine_name import new_machine_name_attr
 from betty.classtools import InitABCMeta
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.definition.cls import OnSetCls
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.localizables.gettext import _
 from betty.plugin import PluginDefinition
@@ -61,7 +62,9 @@ class PluginDefinitionDefinition[
             label=_("{plugin_type} configuration").format(
                 plugin_type=plugin_type.label
             ),
-            porter=lambda field, _: KeyedMappingPorter("id", FieldsPorter(field)),
+            porter=OnSetCls(
+                lambda definition: KeyedMappingPorter("id", FieldsPorter(definition))
+            ),
             samples=samples,
         )
 

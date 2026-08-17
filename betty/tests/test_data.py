@@ -4,8 +4,8 @@ from typing import Self, override
 
 import pytest
 
+from betty.capability import Incapable
 from betty.data import Data, DataDefinition, Sample, resolve_data_definition
-from betty.portable.error import NotPortable
 from betty.porters.callback import CallbackPorter
 from betty.sample import Samplable, Samples
 
@@ -13,7 +13,7 @@ from betty.sample import Samplable, Samples
 class TestDataDefinition:
     def test_porter__without_porter(self) -> None:
         sut = DataDefinition(label="-")
-        with pytest.raises(NotPortable):
+        with pytest.raises(Incapable):
             assert sut.porter
 
     def test_porter__with_porter(self) -> None:

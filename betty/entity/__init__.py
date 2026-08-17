@@ -9,7 +9,6 @@ from betty.association import HasAssociations
 from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.privacy import HasPrivacy
 from betty.classtools import InitABCMeta
-from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.json_schema import JsonSchemaReference, String
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
@@ -121,7 +120,6 @@ class Entity(
 )
 class EntityDefinition[EntityT: Entity = Entity](
     CountableHumanFacingDefinition,
-    ObjectDefinition[EntityT],
     DataPluginDefinition[EntityT],
 ):
     """

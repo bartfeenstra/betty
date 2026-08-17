@@ -75,5 +75,5 @@ class KeyedPorter[DataT](Porter[DataT]):
         """
         Dump the data to portable data and a portable primary key.
 
-        :raises betty.portable.error.NotPortable: Raised if any part of the data is not portable.
+        :raises betty.portable.error.NotDumpable: Raised if any part of the data is not portable.
         """

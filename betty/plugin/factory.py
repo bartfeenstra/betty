@@ -16,6 +16,7 @@ from betty.attrs.owner import OwnerAttr
 from betty.classtools import InitABCMeta
 from betty.data import Data, DataDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.definition.cls import OnSetCls
 from betty.exception import HumanFacingException
 from betty.factory import DataManufacturable, FactoryError
 from betty.freezer import Frozen
@@ -261,7 +262,9 @@ class PluginManufacturerDefinition[PluginDefinitionT: PluginClsDefinition, Plugi
     ):
         super().__init__(
             label=plugin_type.type().label,
-            porter=lambda _, cls: PluginManufacturerPorter(cls),
+            porter=OnSetCls(
+                lambda definition: PluginManufacturerPorter(definition.cls)
+            ),
         )
         self.plugin_type: Final[type[PluginDefinition]] = plugin_type
 

@@ -7,15 +7,20 @@ from __future__ import annotations
 from typing import override
 
 from betty.attr import Attr
+from betty.capability import Stage
+from betty.data import DataDefinitionCapabilityStage
 from betty.datas.aggregate.record import RecordDefinition
+from betty.definition.cls import ClsDefinitionCapabilityStage
 from betty.indicator.operator import Attr as AttrOperator
 from betty.portable import Porter
 from betty.prop import HasProps
 
 
-class ObjectDefinition[DataT, PorterT: Porter = Porter](
-    RecordDefinition[DataT, AttrOperator, PorterT]
-):
+class ObjectDefinition[
+    DataT,
+    PorterT: Porter = Porter,
+    StageT: Stage = DataDefinitionCapabilityStage | ClsDefinitionCapabilityStage,
+](RecordDefinition[DataT, AttrOperator, PorterT, StageT]):
     """
     Define an object with attributes.
 

@@ -6,7 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Final, TypeVar, final, override
 
-from betty.definition.cls import ClsDefinition
+from betty.capability import Stage
+from betty.definition.cls import ClsDefinition, ClsDefinitionCapabilityStage
 from betty.importlib import fully_qualified_name
 from betty.plugin import PluginDefinition
 
@@ -39,8 +40,15 @@ _PluginClsDefinitionPluginT = TypeVar(
     "_PluginClsDefinitionPluginT", covariant=True, default=Any
 )
 
+_PluginClsDefinitionStageT = TypeVar(
+    "_PluginClsDefinitionStageT", bound=Stage, default=ClsDefinitionCapabilityStage
+)
 
-class PluginClsDefinition(PluginDefinition, ClsDefinition[_PluginClsDefinitionPluginT]):
+
+class PluginClsDefinition(
+    ClsDefinition[_PluginClsDefinitionPluginT, _PluginClsDefinitionStageT],
+    PluginDefinition[_PluginClsDefinitionStageT | ClsDefinitionCapabilityStage],
+):
     """
     A classed plugin definition.
     """
@@ -52,4 +60,4 @@ class PluginClsDefinition(PluginDefinition, ClsDefinition[_PluginClsDefinitionPl
             _plugins[cls] = self
 
 
-_plugins: Final[MutableMapping[type, PluginClsDefinition]] = {}
+_plugins: Final[MutableMapping[type, PluginClsDefinition[Any, Any]]] = {}

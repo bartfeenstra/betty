@@ -124,6 +124,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/babel.py": {
         "run_babel": MissingReason.SHOULD_BE_COVERED,
     },
+    "betty/capability.py": {
+        "CapabilityError": MissingReason.STATIC_CONTENT_ONLY,
+        "HasCapabilities": MissingReason.STATIC_CONTENT_ONLY,
+        "Stage": MissingReason.STATIC_CONTENT_ONLY,
+    },
     "betty/classtools.py": {
         "InitMeta": MissingReason.COVERED_ELSEWHERE,
         "InitABCMeta": MissingReason.STATIC_CONTENT_ONLY,
@@ -231,7 +236,15 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
         "IncompleteDateError": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/deriver.py": {"Derivation": MissingReason.ENUM},
+    "betty/definition/__init__.py": {
+        "Definition": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/definition/cls.py": {
+        "OnSetCls": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/deriver.py": {
+        "Derivation": MissingReason.ENUM,
+    },
     "betty/dirs.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/error.py": {
         "FileNotFound": MissingReason.SHOULD_BE_COVERED,
@@ -538,7 +551,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Porter": MissingReason.ABSTRACT,
     },
     "betty/portable/error.py": {
-        "NotPortable": MissingReason.STATIC_CONTENT_ONLY,
+        "NotDumpable": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/role.py": {
         "Role": MissingReason.STATIC_CONTENT_ONLY,
