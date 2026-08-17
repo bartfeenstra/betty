@@ -36,7 +36,7 @@ class _PluginInstanceServiceManagerTestSut(
         raise NotImplementedError
 
 
-class _PluginInstanceServiceManagerTestOwner(HasPluginServices):
+class _PluginInstanceServiceManagerTestOwner(HasPluginServices, ServiceLevel):
     my_first_service = _PluginInstanceServiceManagerTestSut()
 
 

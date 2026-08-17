@@ -10,10 +10,10 @@ class TestAssetRepositoryService:
     async def test_new_service(self) -> None:
         _ASSET = AssetDirectoryDefinition("my-first-asset", assets=Path(__file__))
 
-        class _Owner(HasPluginServices):
+        class _Owner(HasPluginServices, ServiceLevel):
             def __init__(self):
                 super().__init__(
-                    services=ServiceLevel(plugins={AssetDirectoryDefinition: [_ASSET]})
+                    services=self, plugins={AssetDirectoryDefinition: [_ASSET]}
                 )
                 type(self).asset_directories.add_init_plugins(self, _ASSET)
 

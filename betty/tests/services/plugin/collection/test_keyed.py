@@ -1,6 +1,7 @@
 from typing import override
 
 from betty.plugin.resolve import ResolvablePluginDefinition, resolve_plugin_definition
+from betty.service_level import ServiceLevel
 from betty.services.plugin import HasPluginServices
 from betty.services.plugin.collection.keyed import (
     KeyedCollectionPluginServiceManager,
@@ -44,7 +45,7 @@ class TestKeyedCollectionPluginServiceManager(PluginServiceManagerTestBase):
             assert owner.my_first_service[DummyPluginOne] is DummyPluginOne.plugin()
 
 
-class _KeyedCollectionPluginServiceManagerTestOwner(HasPluginServices):
+class _KeyedCollectionPluginServiceManagerTestOwner(HasPluginServices, ServiceLevel):
     my_first_service = _KeyedCollectionPluginServiceManagerTestSut()
 
     def __init__(self):

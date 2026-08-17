@@ -32,7 +32,7 @@ class TestPluginServiceInitializer:
             pass
 
     async def test_bootstrap__without_plugins(self, isolated_app: App) -> None:
-        class _Owner(HasPluginServices):
+        class _Owner(HasPluginServices, ServiceLevel):
             plugins = PluginDefinitionsService(DummyPluginDefinition)
 
         owner = _Owner(services=ServiceLevel(plugins={DummyPluginDefinition: []}))
@@ -42,12 +42,12 @@ class TestPluginServiceInitializer:
     async def test_bootstrap__with_isolated(self, isolated_app: App) -> None:
         plugin = DummyPluginDefinition("plugin")
 
-        class _Owner(HasPluginServices):
+        class _Owner(HasPluginServices, ServiceLevel):
             plugins = PluginDefinitionsService(DummyPluginDefinition)
 
             def __init__(self):
                 super().__init__(
-                    services=ServiceLevel(plugins={DummyPluginDefinition: [plugin]})
+                    services=self, plugins={DummyPluginDefinition: [plugin]}
                 )
                 type(self).plugins.add_init_plugins(self, plugin)
 
@@ -57,7 +57,7 @@ class TestPluginServiceInitializer:
     async def test_bootstrap__without_auto_service_without_auto_plugin(
         self, isolated_app: App
     ) -> None:
-        class _Owner(HasPluginServices):
+        class _Owner(HasPluginServices, ServiceLevel):
             plugins = PluginDefinitionsService(DummyPluginDefinition, auto=False)
 
         owner = _Owner(
@@ -71,7 +71,7 @@ class TestPluginServiceInitializer:
     async def test_bootstrap__without_auto_service_with_auto_plugin(
         self, isolated_app: App
     ) -> None:
-        class _Owner(HasPluginServices):
+        class _Owner(HasPluginServices, ServiceLevel):
             plugins = PluginDefinitionsService(DummyPluginDefinition, auto=False)
 
         owner = _Owner(
@@ -87,7 +87,7 @@ class TestPluginServiceInitializer:
     async def test_bootstrap__with_auto_service_without_auto_plugin(
         self, isolated_app: App
     ) -> None:
-        class _Owner(HasPluginServices):
+        class _Owner(HasPluginServices, ServiceLevel):
             plugins = PluginDefinitionsService(DummyPluginDefinition)
 
         owner = _Owner(
@@ -101,7 +101,7 @@ class TestPluginServiceInitializer:
     async def test_bootstrap__with_auto_service_with_auto_plugin(
         self, isolated_app: App
     ) -> None:
-        class _Owner(HasPluginServices):
+        class _Owner(HasPluginServices, ServiceLevel):
             plugins = PluginDefinitionsService(DummyPluginDefinition)
 
         plugin = DummyPluginDefinition("plugin", auto=True)
@@ -114,7 +114,7 @@ class TestPluginServiceInitializer:
     ) -> None:
         plugin = DummyPluginDefinition("dependent", requires={lambda _: None})
 
-        class _Owner(HasPluginServices):
+        class _Owner(HasPluginServices, ServiceLevel):
             plugins = PluginDefinitionsService(DummyPluginDefinition)
 
             def __init__(self):
@@ -129,7 +129,7 @@ class TestPluginServiceInitializer:
     async def test_bootstrap__with_plugin_service_requirement(
         self, isolated_app: App
     ) -> None:
-        class _Owner(HasPluginServices):
+        class _Owner(HasPluginServices, ServiceLevel):
             dependencies = PluginDefinitionsService(DummyPluginDefinition)
             dependents = PluginDefinitionsService(DummyPluginDefinition)
 
@@ -155,7 +155,7 @@ class TestPluginServiceInitializer:
     async def test_bootstrap__with_supported_plugin_plugin_service_requirement(
         self, isolated_app: App
     ) -> None:
-        class _Owner(HasPluginServices):
+        class _Owner(HasPluginServices, ServiceLevel):
             dependencies = PluginDefinitionsService(DummyPluginDefinition)
             dependents = PluginDefinitionsService(DummyPluginDefinition)
 
@@ -209,7 +209,7 @@ class _PluginServiceManagerTestSut(
         raise NotImplementedError
 
 
-class _PluginServiceManagerTestOwner(HasPluginServices):
+class _PluginServiceManagerTestOwner(HasPluginServices, ServiceLevel):
     my_first_service = _PluginServiceManagerTestSut()
 
     def __init__(self, *plugins: ResolvablePluginDefinition[DummyPluginDefinition]):

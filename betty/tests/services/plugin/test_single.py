@@ -30,7 +30,7 @@ class _SinglePluginServiceManagerTestSut(
         raise NotImplementedError
 
 
-class _SinglePluginServiceManagerTestOwner(HasPluginServices):
+class _SinglePluginServiceManagerTestOwner(HasPluginServices, ServiceLevel):
     my_first_service = _SinglePluginServiceManagerTestSut()
 
 

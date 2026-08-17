@@ -1,5 +1,6 @@
 import pytest
 
+from betty.service_level import ServiceLevel
 from betty.services.plugin import HasPluginServices
 from betty.services.plugin.instance import ServicePluginInstance
 from betty.services.plugin.instance.single import PluginInstanceService
@@ -14,7 +15,7 @@ from betty.tests.services.test_plugin import (
 
 
 class TestPluginInstanceService(PluginServiceManagerTestBase):
-    class _Owner(HasPluginServices):
+    class _Owner(HasPluginServices, ServiceLevel):
         my_first_service = PluginInstanceService(DummyPluginDefinition)
 
         def __init__(self, init_plugin: ServicePluginInstance[DummyPluginDefinition]):
