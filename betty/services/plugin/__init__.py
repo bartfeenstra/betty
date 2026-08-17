@@ -20,16 +20,20 @@ from betty.plugin.resolve import (
     resolve_plugin_definition,
     resolve_plugin_id,
 )
+from betty.prop import HasProps
 from betty.requirements.plugin_service import PluginServiceRequirement
-from betty.service import HasServices, Service, ServiceManager
+from betty.service import Service, ServiceManager
+from betty.typing import Intersection
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
     from betty.machine_name import MachineName
     from betty.requirement import Requirement
-    from betty.service_level import ServiceLevel
-
+    from betty.service_level import (
+        ResolvableServiceLevel,
+        ServiceLevel,
+    )
 
 type SupportedPlugins = Iterable[ResolvablePluginDefinition]
 
@@ -61,8 +65,11 @@ class _PluginServiceRequirementGetter(Singleton):
         return partial(PluginServiceRequirement, instance)
 
 
+type PluginServiceManagerOwner = Intersection[HasPluginServices, ResolvableServiceLevel]
+
+
 class PluginServiceManager[
-    OwnerT: HasPluginServices,
+    OwnerT: PluginServiceManagerOwner,
     PluginDefinitionT: PluginDefinition,
     GetServiceT,
     InitT,
@@ -304,7 +311,9 @@ class PluginServiceInitializer(ManagedLifeCycle):
         return ()
 
 
-class HasPluginServices(HasServices):
+class HasPluginServices[ServiceLevelT: ServiceLevel = ServiceLevel](
+    ManagedLifeCycle, HasProps
+):
     """
     A plugin service provider.
     """
@@ -312,10 +321,10 @@ class HasPluginServices(HasServices):
     def __init__(
         self,
         *args: Any,
-        services: ServiceLevel,
+        services: ServiceLevelT,
         supported_plugins: SupportedPlugins = (),
         **kwargs: Any,
     ):
-        super().__init__(*args, services=services, **kwargs)
+        super().__init__(*args, **kwargs)
         initializer = PluginServiceInitializer(services, self, supported_plugins)
         self.life_cycle.on((initializer.bootstrap, initializer.shutdown))

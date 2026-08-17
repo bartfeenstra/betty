@@ -8,12 +8,12 @@ from typing import final, override
 
 from betty.plugin import PluginDefinition
 from betty.plugin.resolve import ResolvablePluginDefinition, resolve_plugin_definition
-from betty.services.plugin import HasPluginServices
+from betty.services.plugin import PluginServiceManagerOwner
 from betty.services.plugin.collection import CollectionPluginServiceManager
 
 
 class CollectionPluginDefinitionServiceManager[
-    OwnerT: HasPluginServices,
+    OwnerT: PluginServiceManagerOwner,
     PluginDefinitionT: PluginDefinition,
     GetServiceT,
 ](

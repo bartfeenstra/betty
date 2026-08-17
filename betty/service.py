@@ -1,5 +1,5 @@
 """
-An API for providing application-wide services.
+The service API.
 """
 
 from __future__ import annotations
@@ -7,33 +7,16 @@ from __future__ import annotations
 from abc import abstractmethod
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Final, final, override
+from typing import final, override
 
-from betty.life_cycle.manage import ManagedLifeCycle
 from betty.prop import HasProps, Prop
 
-if TYPE_CHECKING:
-    from betty.service_level import ServiceLevel
-
-
-type ServiceFactory[OwnerT: HasServices, FactoryServiceT] = Callable[
+type ServiceFactory[OwnerT: HasProps, FactoryServiceT] = Callable[
     [OwnerT], FactoryServiceT
 ]
-type ServiceOrFactory[OwnerT: HasServices, ServiceT, FactoryServiceT] = (
+type ServiceOrFactory[OwnerT: HasProps, ServiceT, FactoryServiceT] = (
     Service[ServiceT] | ServiceFactory[OwnerT, FactoryServiceT]
 )
-
-
-class HasServices[ServiceLevelT: ServiceLevel = ServiceLevel](
-    ManagedLifeCycle, HasProps
-):
-    """
-    An object that has services.
-    """
-
-    def __init__(self, *args: Any, services: ServiceLevelT, **kwargs: Any):
-        super().__init__(*args, **kwargs)
-        self.services: Final[ServiceLevelT] = services
 
 
 @final
@@ -47,7 +30,7 @@ class Service[ServiceT]:
 
 
 class ServiceManager[
-    OwnerT: HasServices,
+    OwnerT: HasProps,
     ServiceT,
     GetServiceT,
     GetterServiceT,

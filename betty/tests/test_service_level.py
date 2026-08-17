@@ -1,7 +1,12 @@
 import pytest
 
 from betty.plugin.error import PluginTypeNotFound
-from betty.service_level import DownstreamServiceLevel, ServiceLevel
+from betty.service_level import (
+    DownstreamServiceLevel,
+    HasServiceLevel,
+    ServiceLevel,
+    resolve_service_level,
+)
 from betty.test_utils.plugin import DummyPluginDefinition, DummyPluginOne
 
 
@@ -36,3 +41,19 @@ class TestDownstreamServiceLevel:
         upstream = ServiceLevel()
         sut = DownstreamServiceLevel(upstream=upstream)
         assert sut.upstream is upstream
+
+
+class TestHasServiceLevel:
+    def test_services(self) -> None:
+        services = ServiceLevel()
+        assert HasServiceLevel(services=services).services is services
+
+
+def test_resolve_service_level__with_service_level() -> None:
+    services = ServiceLevel()
+    assert resolve_service_level(services) is services
+
+
+def test_resolve_service_level__with_has_service_level() -> None:
+    services = ServiceLevel()
+    assert resolve_service_level(HasServiceLevel(services=services)) is services

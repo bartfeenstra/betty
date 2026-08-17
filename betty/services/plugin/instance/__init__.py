@@ -14,7 +14,8 @@ from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer
 from betty.plugin.resolve import ResolvablePluginDefinition, resolve_plugin_id
 from betty.requirements.service import UnmetServiceRequirement
-from betty.services.plugin import HasPluginServices, PluginServiceManager
+from betty.service_level import resolve_service_level
+from betty.services.plugin import PluginServiceManager, PluginServiceManagerOwner
 
 if TYPE_CHECKING:
     from betty.machine_name import MachineName
@@ -31,7 +32,7 @@ type ServicePluginInstances[PluginDefinitionT: PluginClsDefinition] = Iterable[
 
 
 class PluginInstanceServiceManager[
-    OwnerT: HasPluginServices,
+    OwnerT: PluginServiceManagerOwner,
     PluginDefinitionT: PluginClsDefinition,
     GetServiceT,
     PluginT: Plugin,
@@ -59,7 +60,7 @@ class PluginInstanceServiceManager[
         """
 
         async def _get_plugin() -> PluginT:
-            plugin = await owner.services.factory.new(
+            plugin = await resolve_service_level(owner).factory.new(
                 item.cls if isinstance(item, PluginClsDefinition) else item
             )
             if isinstance(plugin, Bootstrappable | Shutdownable):

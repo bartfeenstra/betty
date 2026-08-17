@@ -12,33 +12,30 @@ from betty.asyncio import (
     ResolvableAwaitable,
     resolve_await,
 )
+from betty.importlib import fully_qualified_name
 from betty.life_cycle import Bootstrappable, Shutdownable
 from betty.life_cycle.manage import ManagedLifeCycle
+from betty.prop import HasProps
 from betty.service import (
-    HasServices,
     Service,
     ServiceFactory,
     ServiceManager,
     ServiceOrFactory,
 )
-from betty.typing import Intersection
 
-type AsynchronousServiceFactory[OwnerT: HasServices, ServiceT] = ServiceFactory[
+type AsynchronousServiceFactory[OwnerT: HasProps, ServiceT] = ServiceFactory[
     OwnerT, ResolvableAwaitable[ServiceT]
 ]
-type AsynchronousServiceOrFactory[OwnerT: HasServices, ServiceT] = ServiceOrFactory[
+type AsynchronousServiceOrFactory[OwnerT: HasProps, ServiceT] = ServiceOrFactory[
     OwnerT, ServiceT, ResolvableAwaitable[ServiceT]
 ]
-type TypedAsynchronousServiceOrFactory[OwnerT: HasServices, ServiceT] = (
+type TypedAsynchronousServiceOrFactory[OwnerT: HasProps, ServiceT] = (
     ServiceT | AsynchronousServiceOrFactory[OwnerT, ServiceT]
 )
 
 
 @final
-class AsynchronousServiceManager[
-    OwnerT: Intersection[HasServices, ManagedLifeCycle],
-    ServiceT,
-](
+class AsynchronousServiceManager[OwnerT: HasProps, ServiceT](
     ServiceManager[
         OwnerT,
         ServiceT,
@@ -60,7 +57,12 @@ class AsynchronousServiceManager[
             else:
                 service = await resolve_await(factory(owner))
             if isinstance(service, Bootstrappable | Shutdownable):
-                await owner.life_cycle.synchronize(service)
+                if isinstance(owner, ManagedLifeCycle):
+                    await owner.life_cycle.synchronize(service)
+                else:
+                    raise TypeError(
+                        f"Cannot synchronize {fully_qualified_name(type(service))}'s life cycle with {fully_qualified_name(type(owner))}, because the latter does not subclass {fully_qualified_name(ManagedLifeCycle)}."
+                    )
             return service
 
         return LazyReAwaitable(_factory)

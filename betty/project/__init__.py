@@ -240,7 +240,10 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
                 else localizers,
             )
         super().__init__(
-            plugins=plugins, supported_plugins=supported_plugins, upstream=app
+            plugins=plugins,
+            services=self,
+            supported_plugins=supported_plugins,
+            upstream=app,
         )
         cls.asset_directories.add_init_plugins(self, *assets)
         cls.copyright_notice.add_init_plugins(self, copyright_notice or ProjectAuthor)

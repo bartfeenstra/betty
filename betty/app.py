@@ -66,6 +66,9 @@ if TYPE_CHECKING:
 class _AppBootstrapServiceLevel(ServiceLevel, HasPluginServices):
     serializers = PluginInstancesService(SerializerDefinition)
 
+    def __init__(self):
+        super().__init__(services=self)
+
 
 @final
 class App(RequirableServiceLevel, HasPluginServices):
@@ -123,7 +126,9 @@ class App(RequirableServiceLevel, HasPluginServices):
             cls.cache.override(
                 self, Service(cache) if isinstance(cache, TransientStore) else cache
             )
-        super().__init__(plugins=plugins, supported_plugins=supported_plugins)
+        super().__init__(
+            plugins=plugins, services=self, supported_plugins=supported_plugins
+        )
         cls.asset_directories.add_init_plugins(self, *assets)
         cls.media_types.add_init_plugins(self, *media_types)
         cls.rate_limits.add_init_plugins(self, *rate_limits)

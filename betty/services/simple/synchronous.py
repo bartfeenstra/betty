@@ -8,27 +8,27 @@ from collections.abc import Callable
 from typing import final, override
 
 from betty.functools import LazyReCallable
+from betty.prop import HasProps
 from betty.service import (
-    HasServices,
     Service,
     ServiceFactory,
     ServiceManager,
     ServiceOrFactory,
 )
 
-type SynchronousServiceFactory[OwnerT: HasServices, ServiceT] = ServiceFactory[
+type SynchronousServiceFactory[OwnerT: HasProps, ServiceT] = ServiceFactory[
     OwnerT, ServiceT
 ]
-type SynchronousServiceOrFactory[OwnerT: HasServices, ServiceT] = ServiceOrFactory[
+type SynchronousServiceOrFactory[OwnerT: HasProps, ServiceT] = ServiceOrFactory[
     OwnerT, ServiceT, ServiceT
 ]
-type TypedSynchronousServiceOrFactory[OwnerT: HasServices, ServiceT] = (
+type TypedSynchronousServiceOrFactory[OwnerT: HasProps, ServiceT] = (
     ServiceT | SynchronousServiceOrFactory[OwnerT, ServiceT]
 )
 
 
 @final
-class SynchronousServiceManager[OwnerT: HasServices, ServiceT](
+class SynchronousServiceManager[OwnerT: HasProps, ServiceT](
     ServiceManager[OwnerT, ServiceT, ServiceT, Callable[[], ServiceT], ServiceT]
 ):
     """

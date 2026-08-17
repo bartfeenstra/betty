@@ -48,7 +48,8 @@ class _PluginServiceRequirementTestServices(ServiceLevel, HasPluginServices):
                     DummyPluginTwo,
                     DummyPluginThree,
                 )
-            }
+            },
+            services=self,
         )
         type(self).my_first_plugins.add_init_plugins(self, *my_first_plugins)
 

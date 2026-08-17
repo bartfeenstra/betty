@@ -54,7 +54,9 @@ class PluginServiceRequirement[PluginDefinitionT: PluginDefinition, GetServiceT]
             service_plugins = list(
                 map(
                     self.service.resolve_init_plugin_id,
-                    self.service.get_plugins(services),
+                    self.service.get_plugins(
+                        services,  # ty:ignore[invalid-argument-type]
+                    ),
                 )
             )
             for plugin in self.plugins:
@@ -69,7 +71,9 @@ class PluginServiceRequirement[PluginDefinitionT: PluginDefinition, GetServiceT]
                             service=self.service.prop.fully_qualified_name,
                         ),
                     )
-            return self.service.get(services)
+            return self.service.get(
+                services,  # ty:ignore[invalid-argument-type]
+            )
         if isinstance(services, DownstreamServiceLevel):
             return await self(services.upstream)
         raise UnmetServiceRequirement(
