@@ -233,9 +233,7 @@ class DecoratedCallable[**P, ReturnT]:
             decorated = self._decorated.__get__(instance, owner)
         else:
             decorated = self._decorated
-        return self._decorator(
-            decorated,  # ty:ignore[invalid-argument-type]
-        )
+        return self._decorator(decorated)
 
     def __call__(self, *args: P.args, **kwargs: P.kwargs) -> ReturnT:
         """

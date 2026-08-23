@@ -146,14 +146,14 @@ class SpdxLicenseDiscoverer(Manufacturable):
     ) -> LicenseDefinition | None:
         assert isinstance(data, Mapping)
 
-        if data.get("isDeprecatedLicenseId", False):  # ty:ignore[no-matching-overload]
+        if data.get("isDeprecatedLicenseId", False):
             return None
 
-        spdx_license_id = data["licenseId"]  # ty:ignore[invalid-argument-type]
+        spdx_license_id = data["licenseId"]
         assert isinstance(spdx_license_id, str)
         spdx_license_id_to_license_id(spdx_license_id)
 
-        spdx_reference = data["reference"]  # ty:ignore[invalid-argument-type]
+        spdx_reference = data["reference"]
         assert isinstance(spdx_reference, str)
 
         return await self._build_license(spdx_license_id, spdx_reference)

@@ -695,7 +695,7 @@ async def assert_linked_data_dump() -> AssertLinkedDataDump:
         portable: Callable[[Project], Awaitable[PortableDataT]] | PortableDataT,
     ) -> PortableDataT:
         async with Project.new_isolated() as project:
-            actual = await portable(project) if callable(portable) else portable  # ty:ignore[call-top-callable]
+            actual = await portable(project) if callable(portable) else portable  # ty: ignore[invalid-await]
 
             # Validate the raw dump.
             sut_schema = schema if isinstance(schema, Schema) else await schema(project)
@@ -711,17 +711,10 @@ async def assert_linked_data_dump() -> AssertLinkedDataDump:
 def _normalize[PortableDataT: PortableData](portable: PortableDataT) -> PortableDataT:
     if isinstance(portable, MutableMapping):
         return {
-            key: _normalize(
-                value,  # ty:ignore[invalid-argument-type]
-            )
+            key: _normalize(value)
             for key, value in portable.items()
-            if not key.startswith("$")  # ty:ignore[unresolved-attribute]
+            if not key.startswith("$")
         }  # ty:ignore[invalid-return-type]
     if isinstance(portable, MutableSequence) and not isinstance(portable, str):
-        return list(
-            map(
-                _normalize,  # ty:ignore[invalid-argument-type]
-                portable,
-            )
-        )  # ty:ignore[invalid-return-type]
+        return list(map(_normalize, portable))  # ty:ignore[invalid-return-type]
     return portable

@@ -13,7 +13,7 @@ from betty.service_level import DownstreamServiceLevel, ServiceLevel
 
 class _ServiceLevelRequirement:
     def __get__[ServiceLevelT: ServiceLevel](
-        self, instance: ServiceLevelT, owner: type[ServiceLevelT]
+        self, instance: None, owner: type[ServiceLevelT]
     ):
         return ServiceLevelRequirement(owner)
 

@@ -9,9 +9,10 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, final, override
 
+from ty_extensions import Intersection
+
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.prop import HasProps, Prop
-from betty.typing import Intersection
 
 if TYPE_CHECKING:
     from betty.service_level import ResolvableServiceLevel

@@ -17,7 +17,6 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
     from betty.attr import Attr
-    from betty.typing import Intersection
 
 
 class DefaultAttr[
@@ -32,9 +31,7 @@ class DefaultAttr[
 
     def __init__(
         self,
-        proxied: Attr[
-            OwnerT, GetT, SetT, Intersection[DataDefinitionT, DataDefinition[GetT]]
-        ],
+        proxied: Attr[OwnerT, GetT, SetT, DataDefinitionT],
         default: Callable[[], SetT] | Callable[[OwnerT], SetT],
         /,
     ):

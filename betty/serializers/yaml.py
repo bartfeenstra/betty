@@ -53,22 +53,11 @@ def _safe_str(value: PortableData) -> PortableData:
     if isinstance(value, Mapping):
         return dict(
             zip(
-                map(
-                    _safe_str,  # ty:ignore[invalid-argument-type]
-                    value.keys(),
-                ),
-                map(
-                    _safe_str,  # ty:ignore[invalid-argument-type]
-                    value.values(),
-                ),
+                map(_safe_str, value.keys()),
+                map(_safe_str, value.values()),
                 strict=False,
             )
         )  # ty:ignore[invalid-return-type]
     if isinstance(value, Sequence):
-        return list(
-            map(
-                _safe_str,  # ty:ignore[invalid-argument-type]
-                value,
-            )
-        )  # ty:ignore[invalid-return-type]
+        return list(map(_safe_str, value))
     return value

@@ -24,9 +24,10 @@ from betty.portable.error import NotPortable
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping, MutableMapping
 
+    from ty_extensions import Intersection
+
     from betty.localizable import Localizable, ResolvableLocalizable
     from betty.nothing import NothingType
-    from betty.typing import Intersection
 
 
 type FieldOperator = Attr | Key
@@ -116,7 +117,7 @@ class FieldDefinition[
         self._porter = porter
 
     @property
-    def porter(self) -> Intersection[FieldPorterT, FieldPorter[OwnerT, DataT]]:
+    def porter(self) -> FieldPorterT:
         """
         The porter for the data.
         """
@@ -125,9 +126,7 @@ class FieldDefinition[
         return self._porter
 
     @property
-    def try_porter(
-        self,
-    ) -> Intersection[FieldPorterT, FieldPorter[OwnerT, DataT]] | None:
+    def try_porter(self) -> FieldPorterT | None:
         """
         The porter for the data, if it has one.
         """

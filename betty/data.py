@@ -17,8 +17,9 @@ from betty.sample import Samplable, Sample, Samples
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, MutableMapping
 
+    from ty_extensions import Intersection
+
     from betty.localizable import ResolvableLocalizable
-    from betty.typing import Intersection
 
 
 type ResolvableDataPorter[DataDefinitionT: DataDefinition, PorterT: Porter = Porter] = (
@@ -50,10 +51,12 @@ class DataDefinition[DataT, PorterT: Porter = Porter](
         **kwargs: Any,
     ):
         self.__samples = tuple(samples)
-        self._porter = LazyReCallable(
+        self.__porter = LazyReCallable[PorterT | None](
             lambda: (
-                porter(self) if porter and not isinstance(porter, Porter) else porter
-            )
+                porter(self)
+                if porter is not None and not isinstance(porter, Porter)
+                else porter
+            )  # ty: ignore[invalid-argument-type]
         )
         super().__init__(
             *args,
@@ -65,7 +68,7 @@ class DataDefinition[DataT, PorterT: Porter = Porter](
 
     @final
     @property
-    def porter(self) -> Intersection[PorterT, Porter[DataT]]:
+    def porter(self) -> PorterT:
         """
         The porter for the data.
         """
@@ -75,11 +78,11 @@ class DataDefinition[DataT, PorterT: Porter = Porter](
 
     @final
     @property
-    def try_porter(self) -> Intersection[PorterT, Porter[DataT]] | None:
+    def try_porter(self) -> PorterT | None:
         """
         The porter for the data, if it has one.
         """
-        return self._porter()
+        return self.__porter()
 
     @override
     def _set_cls(self, cls: type[DataT], /) -> None:
@@ -115,12 +118,12 @@ class Data[DataDefinitionT: DataDefinition = DataDefinition]:
 
     @final
     @classmethod
-    def data(cls) -> Intersection[DataDefinitionT, DataDefinition[Self]]:
+    def data(cls) -> DataDefinitionT:
         """
         Define the data for instances of this class.
         """
         try:
-            return _datas[cls]
+            return _datas[cls]  # ty: ignore[invalid-return-type]
         except KeyError:  # pragma: no cover
             raise NotImplementedError(
                 f"{fully_qualified_name(cls)} was not decorated with {fully_qualified_name(DataDefinition)} or any subclass."
@@ -134,7 +137,9 @@ class Data[DataDefinitionT: DataDefinition = DataDefinition]:
         porter = type(self).data().porter
         if porter is None:
             return NotImplemented
-        return porter.dump(self) == porter.dump(other)
+        return porter.dump(self) == porter.dump(
+            other,  # ty: ignore[invalid-argument-type]
+        )
 
 
 type ResolvableDataDefinition[DataDefinitionT: DataDefinition = DataDefinition] = (

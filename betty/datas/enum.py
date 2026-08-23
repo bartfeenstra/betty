@@ -17,9 +17,7 @@ if TYPE_CHECKING:
 
 
 @final
-class EnumDefinition[EnumT: Enum[bool | int | float | str]](
-    DataDefinition[EnumT, Porter[EnumT]]
-):
+class EnumDefinition[EnumT: Enum](DataDefinition[EnumT, Porter[EnumT]]):
     """
     An enum data definition.
     """

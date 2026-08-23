@@ -32,8 +32,6 @@ class KeyedMappingPorter[DataT](ProxyPorter[DataT], KeyedPorter[DataT]):
     def dump_keyed(self, data: DataT, /) -> tuple[str, PortableMapping]:
         dumped = self.dump(data)
         assert isinstance(dumped, MutableMapping)
-        key = dumped.pop(
-            self._key,  # ty:ignore[invalid-argument-type]
-        )
+        key = dumped.pop(self._key)
         assert isinstance(key, str)
-        return (key, dumped)  # ty:ignore[invalid-return-type]
+        return key, dumped

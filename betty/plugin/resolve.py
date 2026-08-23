@@ -12,7 +12,7 @@ from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 
 if TYPE_CHECKING:
-    from betty.typing import Intersection
+    from ty_extensions import Intersection
 
 
 type ResolvablePluginDefinition[

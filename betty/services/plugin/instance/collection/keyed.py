@@ -20,7 +20,7 @@ from betty.services.plugin.instance.collection import (
 
 
 @final
-class PluginInstancesService[  # ty:ignore[abstract-method-in-final-class]
+class PluginInstancesService[
     OwnerT: ResolvableServiceLevelHasPluginServices,
     PluginDefinitionT: PluginClsDefinition,
     PluginT: Plugin,
@@ -28,7 +28,7 @@ class PluginInstancesService[  # ty:ignore[abstract-method-in-final-class]
     CollectionPluginInstanceServiceManager[
         OwnerT,
         PluginDefinitionT,
-        KeyedPluginCollectionService[PluginDefinitionT, PluginT],
+        KeyedPluginCollectionService[PluginDefinitionT, ReAwaitable[PluginT]],
         PluginT,
     ],
     KeyedCollectionPluginServiceManager[
@@ -37,7 +37,7 @@ class PluginInstancesService[  # ty:ignore[abstract-method-in-final-class]
         ReAwaitable[PluginT],
         ServicePluginInstance[PluginDefinitionT],
     ],
-):  # ty:ignore[invalid-generic-class]
+):
     """
     A service of plugins keyed by their IDs.
     """

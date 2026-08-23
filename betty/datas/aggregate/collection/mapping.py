@@ -13,9 +13,10 @@ from betty.datas.aggregate.collection import CollectionDefinition
 from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
+    from ty_extensions import Intersection
+
     from betty.localizable import ResolvableLocalizable
     from betty.portable import PortableData, Porter
-    from betty.typing import Intersection
 
 
 class MappingDefinition[MutableMappingT: MutableMapping[Any, Any], KeyT, ValueT](

@@ -9,7 +9,7 @@ from asyncio import gather
 from collections.abc import Callable, MutableSequence
 from functools import partial
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Final, Protocol, Self, final, overload, override
+from typing import TYPE_CHECKING, Any, Final, Protocol, Self, final, override
 
 from betty.classtools import Singleton
 from betty.functools import LazyReCallable
@@ -29,9 +29,10 @@ from betty.typing import Unreachable
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
+    from ty_extensions import Intersection
+
     from betty.machine_name import MachineName
     from betty.requirement import Requirement
-    from betty.typing import Intersection
 
 type SupportedPlugins = Iterable[ResolvablePluginDefinition]
 
@@ -45,21 +46,13 @@ class _PluginServiceRequirementPlugins[PluginDefinitionT: PluginDefinition](Prot
 
 @final
 class _PluginServiceRequirementGetter(Singleton):
-    @overload
-    def __get__(self, instance: None, owner: type[PluginServiceManager]) -> Self:
-        pass
-
-    @overload
     def __get__(
         self,
-        instance: PluginServiceManager[HasPluginServices, PluginDefinition, Any, Any],
+        instance: PluginServiceManager[
+            ResolvableServiceLevelHasPluginServices, PluginDefinition, Any, Any
+        ],
         owner: type[PluginServiceManager] | None = None,
     ) -> _PluginServiceRequirementPlugins:
-        pass
-
-    def __get__(self, instance, owner):
-        if instance is None:
-            return self
         return partial(PluginServiceRequirement, instance)
 
 
@@ -218,15 +211,17 @@ class HasPluginServices(HasProps, ManagedLifeCycle):
                 resolve_plugin_definition,
                 supported_plugins,  # ty:ignore[invalid-argument-type]
             )
-        )  # ty:ignore[invalid-assignment]
+        )
         self._plugin_services: Sequence[
-            PluginServiceManager[HasPluginServices, PluginDefinition, Any, Any]
+            PluginServiceManager[
+                ResolvableServiceLevelHasPluginServices, PluginDefinition, Any, Any
+            ]
         ] = tuple(
             prop for prop in self.props() if isinstance(prop, PluginServiceManager)
         )  # ty:ignore[invalid-assignment]
         self.life_cycle.on_bootstrap(self.__initialize)
 
-    async def __initialize(self) -> None:
+    async def __initialize(self: Intersection[Self, ResolvableServiceLevel]) -> None:
         init_plugins = chain(
             *await gather(*[
                 *(
@@ -253,7 +248,9 @@ class HasPluginServices(HasProps, ManagedLifeCycle):
 
     async def __collect_init_plugin[InitT](
         self,
-        service: PluginServiceManager[HasPluginServices, PluginDefinition, Any, InitT],
+        service: PluginServiceManager[
+            ResolvableServiceLevelHasPluginServices, PluginDefinition, Any, InitT
+        ],
         init_plugin: InitT,
     ) -> Iterable[tuple[PluginServiceManager, Any]]:
         plugin = await self._services.plugins[service.plugin_type][
@@ -293,13 +290,12 @@ class HasPluginServices(HasProps, ManagedLifeCycle):
                 *chain(
                     *await gather(*[
                         self.__collect_plugin_requirements(
-                            requirement.service.plugin_type,  # ty:ignore[invalid-argument-type]
-                            plugin.id,  # ty:ignore[unresolved-attribute]
+                            requirement.service.plugin_type, plugin.id
                         )
                         for plugin in requirement.plugins
                     ])
                 ),
-            )  # ty:ignore[invalid-return-type]
+            )
         return ()
 
 

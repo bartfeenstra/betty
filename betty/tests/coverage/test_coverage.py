@@ -29,7 +29,7 @@ from betty.tests.coverage.fixtures import (
 )
 
 if TYPE_CHECKING:
-    from betty.typing import Intersection
+    from ty_extensions import Intersection
 
 
 class MissingReason(Enum):

@@ -32,8 +32,9 @@ from betty.prop import HasProps
 from betty.sample import Samplable, Sample, Samples, Size
 
 if TYPE_CHECKING:
+    from ty_extensions import Intersection
+
     from betty.service_level import ServiceLevel
-    from betty.typing import Intersection
 
 
 class PluginManufacturerError(HumanFacingException, FactoryError):
@@ -158,7 +159,7 @@ class PluginManufacturer(
         Resolve a value to a sequence of plugin manufacturers.
         """
         if isinstance(manufacturers, PluginManufacturer):
-            return [manufacturers]  # ty:ignore[invalid-return-type]
+            return [manufacturers]
         if (
             isinstance(manufacturers, (str, PluginDefinition))
             or isinstance(manufacturers, type)

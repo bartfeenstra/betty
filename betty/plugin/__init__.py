@@ -98,8 +98,5 @@ class PluginTypeDefinition[PluginDefinitionT: PluginDefinition](
     def _set_cls(self, cls: type[PluginDefinitionT], /) -> None:
         super()._set_cls(cls)
         cls.type = staticmethod(  # ty:ignore[invalid-assignment]
-            update_wrapper(
-                lambda: self,  # ty:ignore[invalid-argument-type]
-                cls.type,
-            )
+            update_wrapper(lambda: self, cls.type)
         )

@@ -17,11 +17,12 @@ from betty.user import Severity
 if TYPE_CHECKING:
     from collections.abc import Iterable, MutableMapping, MutableSequence
 
+    from ty_extensions import Intersection
+
     from betty.entity import Entity
     from betty.job.scheduler import Scheduler
     from betty.machine_name import MachineName
     from betty.project import Project
-    from betty.typing import Intersection
 
 
 @final

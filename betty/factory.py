@@ -10,11 +10,12 @@ from collections.abc import Callable, Coroutine
 from inspect import Parameter
 from typing import Any, Self, final
 
+from ty_extensions import Intersection
+
 from betty.asyncio import resolve_await
 from betty.data import Data
 from betty.importlib import fully_qualified_name
 from betty.service_level import ServiceLevel
-from betty.typing import Intersection
 
 
 class FactoryError(RuntimeError):

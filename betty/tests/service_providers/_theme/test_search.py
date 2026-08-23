@@ -159,12 +159,10 @@ class TestIndex:
         place = Place(
             id="my-first-place",
             names=[
-                PlaceName(
-                    {
-                        "en": "Netherlands",
-                        "nl": "Nederland",
-                    },  # ty:ignore[invalid-argument-type]
-                ),
+                PlaceName({
+                    "en": "Netherlands",
+                    "nl": "Nederland",
+                }),
             ],
         )
         dummy_project.ancestry.add(place)
@@ -178,9 +176,7 @@ class TestIndex:
         place = Place(
             id="my-first-place",
             names=[
-                PlaceName(
-                    {"en": "Netherlands"},  # ty:ignore[invalid-argument-type]
-                ),
+                PlaceName({"en": "Netherlands"}),
             ],
             privacy=Privacy.PRIVATE,
         )

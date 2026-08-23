@@ -4,7 +4,7 @@ Asynchronous simple services.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final, override
+from typing import final, override
 
 from betty.asyncio import (
     LazyReAwaitable,
@@ -13,7 +13,6 @@ from betty.asyncio import (
     resolve_await,
 )
 from betty.life_cycle import Bootstrappable, Shutdownable
-from betty.life_cycle.manage import ManagedLifeCycle
 from betty.service import (
     ResolvableServiceLevelHasServices,
     Service,
@@ -21,10 +20,6 @@ from betty.service import (
     ServiceManager,
     ServiceOrFactory,
 )
-from betty.typing import Intersection
-
-if TYPE_CHECKING:
-    from betty.service_level import ResolvableServiceLevel
 
 type AsynchronousServiceFactory[OwnerT: ResolvableServiceLevelHasServices, ServiceT] = (
     ServiceFactory[OwnerT, ResolvableAwaitable[ServiceT]]
@@ -40,10 +35,7 @@ type TypedAsynchronousServiceOrFactory[
 
 
 @final
-class AsynchronousServiceManager[
-    OwnerT: Intersection[ResolvableServiceLevel, ManagedLifeCycle],
-    ServiceT,
-](
+class AsynchronousServiceManager[OwnerT: ResolvableServiceLevelHasServices, ServiceT](
     ServiceManager[
         OwnerT,
         ServiceT,
