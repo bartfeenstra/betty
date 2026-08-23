@@ -11,11 +11,10 @@ from betty.assertions.type import assert_type
 
 if TYPE_CHECKING:
     from betty.functools import Pipeline
-    from betty.typing import Number
 
 
 def assert_float(
-    *, minimum: Number | None = None, maximum: Number | None = None
+    *, minimum: float | None = None, maximum: float | None = None
 ) -> Pipeline[Any, float]:
     """
     Assert that a value is a Python ``float``.
