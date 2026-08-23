@@ -3,9 +3,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final, override
 
 from betty.content_builder import (
-    ContentBuilder,
-    ContentBuilderDefinition,
     ContentBuilderManufacturer,
+    ResolvableContentBuilderManufacturer,
 )
 from betty.content_builders.box import Box, BoxData
 from betty.content_builders.map import Map
@@ -37,8 +36,8 @@ from betty.roles.subject import Subject
 from betty.roles.witness import Witness
 from betty.service_providers.raspberry_mint import ColorStyle as ColorStyleOption
 from betty.service_providers.raspberry_mint import (
+    ManufacturableRegionalContent,
     Region,
-    RegionalContentManufacturers,
     single_column_text_width,
 )
 
@@ -47,7 +46,6 @@ if TYPE_CHECKING:
 
     from betty.localizable import Localizable
     from betty.localizer import Localizer
-    from betty.plugin.factory import ResolvablePluginManufacturer
     from betty.project import Project
 
 
@@ -67,7 +65,7 @@ class DefaultRegionalContent(Bootstrappable):
     def _make_dumpable(self, localizable: Localizable) -> StaticTranslations:
         return StaticTranslations.resolve(localizable, self._localizers)
 
-    async def get(self) -> RegionalContentManufacturers:
+    async def get(self) -> ManufacturableRegionalContent:
         return {
             Region.ENTITY_PAGE_CONTENT: [
                 content async for content in self._get_for_entity_page()
@@ -76,9 +74,7 @@ class DefaultRegionalContent(Bootstrappable):
 
     async def _get_for_entity_page(
         self,
-    ) -> AsyncIterable[
-        ResolvablePluginManufacturer[ContentBuilderDefinition, ContentBuilder]
-    ]:
+    ) -> AsyncIterable[ResolvableContentBuilderManufacturer]:
         yield Media
         if await check(self._project, *WikipediaSummary.plugin().requires):
             yield ContentBuilderManufacturer(
@@ -86,9 +82,7 @@ class DefaultRegionalContent(Bootstrappable):
                 SectionData(
                     ContentBuilderManufacturer(
                         Columns,
-                        ColumnsData(
-                            [[WikipediaSummary]], width=single_column_text_width
-                        ),
+                        ColumnsData([WikipediaSummary], width=single_column_text_width),
                     ),
                     heading=self._make_dumpable(_("Wikipedia says…")),
                     name="wikipedia",
@@ -102,21 +96,19 @@ class DefaultRegionalContent(Bootstrappable):
             yield ContentBuilderManufacturer(
                 ColorStyle,
                 ColorStyleData(
-                    ContentBuilderManufacturer(
-                        Columns, ColumnsData([[MapAttribution]])
-                    ),
+                    ContentBuilderManufacturer(Columns, ColumnsData([MapAttribution])),
                     style=ColorStyleOption.LIGHT_CONTRAST,
                 ),
             )
         yield ContentBuilderManufacturer(
-            Columns, ColumnsData([[Enclosures]], width=single_column_text_width)
+            Columns, ColumnsData([Enclosures], width=single_column_text_width)
         )
         yield ContentBuilderManufacturer(
             Section,
             SectionData(
                 ContentBuilderManufacturer(
                     Columns,
-                    ColumnsData([[Notes]], width=single_column_text_width),
+                    ColumnsData([Notes], width=single_column_text_width),
                 ),
                 heading=self._make_dumpable(_("Notes")),
                 name="notes",
@@ -162,7 +154,7 @@ class DefaultRegionalContent(Bootstrappable):
         yield ContentBuilderManufacturer(
             Section,
             SectionData(
-                ContentBuilderManufacturer(Columns, ColumnsData([[Timeline]])),
+                ContentBuilderManufacturer(Columns, ColumnsData([Timeline])),
                 heading=self._make_dumpable(_("Timeline")),
                 name="timeline",
             ),
@@ -172,7 +164,7 @@ class DefaultRegionalContent(Bootstrappable):
             SectionData(
                 ContentBuilderManufacturer(
                     Columns,
-                    ColumnsData([[Facts]], width=single_column_text_width),
+                    ColumnsData([Facts], width=single_column_text_width),
                 ),
                 heading=self._make_dumpable(_("Facts")),
                 name="facts",
@@ -197,7 +189,7 @@ class DefaultRegionalContent(Bootstrappable):
             SectionData(
                 ContentBuilderManufacturer(
                     Columns,
-                    ColumnsData([[FileReferees]], width=single_column_text_width),
+                    ColumnsData([FileReferees], width=single_column_text_width),
                 ),
                 heading=self._make_dumpable(_("Appearances")),
                 name="appearances",
@@ -208,7 +200,7 @@ class DefaultRegionalContent(Bootstrappable):
             SectionData(
                 ContentBuilderManufacturer(
                     Columns,
-                    ColumnsData([[Citations]], width=single_column_text_width),
+                    ColumnsData([Citations], width=single_column_text_width),
                 ),
                 heading=self._make_dumpable(_("Citations")),
                 name="citations",
@@ -219,7 +211,7 @@ class DefaultRegionalContent(Bootstrappable):
             SectionData(
                 ContentBuilderManufacturer(
                     Columns,
-                    ColumnsData([[SeeAlso]], width=single_column_text_width),
+                    ColumnsData([SeeAlso], width=single_column_text_width),
                 ),
                 heading=self._make_dumpable(_("See also")),
                 name="see-also",

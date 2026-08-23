@@ -44,7 +44,7 @@ class TestFieldsPorter:
                 cls=RecordDefinitionTestRecord,
                 label="-",
                 fields={Attr(field_name): FieldDefinition(StrDefinition(label="-"))},
-                factory=RecordDefinitionTestFactoryRecord,
+                manufacturer=RecordDefinitionTestFactoryRecord,
             )
         )
         value = "Hello, world!"

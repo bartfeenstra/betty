@@ -13,7 +13,11 @@ from betty.definition.human_facing import HumanFacingDefinition
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
+from betty.plugin.factory import (
+    PluginManufacturer,
+    PluginManufacturerDefinition,
+    ResolvablePluginManufacturer,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -76,6 +80,11 @@ class ContentBuilderManufacturer(
     """
     The content builder manufacturer.
     """
+
+
+type ResolvableContentBuilderManufacturer = ResolvablePluginManufacturer[
+    ContentBuilderDefinition, ContentBuilderManufacturer
+]
 
 
 async def build(

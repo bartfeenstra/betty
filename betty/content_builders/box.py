@@ -15,6 +15,7 @@ from betty.content_builder import (
     ContentBuilder,
     ContentBuilderDefinition,
     ContentBuilderManufacturer,
+    ResolvableContentBuilderManufacturer,
     build,
 )
 from betty.content_builders.render import Render, RenderData
@@ -29,21 +30,18 @@ from betty.prop import HasProps
 from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
     from betty.document import Document
     from betty.jinja import Environment
-    from betty.plugin.factory import ResolvablePluginManufacturerSequence
 
 
 @final
 @ObjectDefinition(
     label=_("Box configuration"),
     samples=[
-        lambda: Sample(BoxData([]), label="Minimal", size=Size.MINIMAL),
+        lambda: Sample(BoxData(), label="Minimal", size=Size.MINIMAL),
         lambda: Sample(
             BoxData(
-                [ContentBuilderManufacturer(Render, RenderData("Hello, world!"))],
+                ContentBuilderManufacturer(Render, RenderData("Hello, world!")),
                 min_height="100px",
                 max_height="1000px",
                 height="500px",
@@ -55,6 +53,7 @@ if TYPE_CHECKING:
             size=Size.FULL,
         ),
     ],
+    manufacturer=lambda **fields: BoxData(*fields.pop("content"), **fields),
 )
 class BoxData(Data, HasProps):
     """
@@ -79,10 +78,7 @@ class BoxData(Data, HasProps):
 
     def __init__(
         self,
-        content: ResolvablePluginManufacturerSequence[
-            ContentBuilderDefinition, ContentBuilder
-        ],
-        *,
+        *content: ResolvableContentBuilderManufacturer,
         min_height: str | None = None,
         max_height: str | None = None,
         height: str | None = None,
@@ -110,8 +106,7 @@ class Box(Template, DataManufacturable[BoxData]):
     def __init__(
         self,
         /,
-        content: Iterable[ContentBuilder],
-        *,
+        *content: ContentBuilder,
         jinja: Environment,
         min_height: str | None = None,
         max_height: str | None = None,
@@ -148,7 +143,7 @@ class Box(Template, DataManufacturable[BoxData]):
             project.jinja,
         )
         return cls(
-            content=content,
+            *content,
             min_height=data.min_height,
             max_height=data.max_height,
             height=data.height,

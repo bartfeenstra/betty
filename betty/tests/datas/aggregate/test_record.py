@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Any
 from unittest.mock import Mock
 
 import pytest
@@ -106,20 +107,25 @@ class RecordDefinitionTestFactoryRecord(RecordDefinitionTestRecord):
 
 
 class TestRecordDefinition:
-    def test_factory__without_factory(self) -> None:
-        sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
-            cls=RecordDefinitionTestRecord, label="-"
-        )
-        assert sut.factory is RecordDefinitionTestRecord
+    def test_new__without_manufacturer_or_cls(self) -> None:
+        sut = RecordDefinition[RecordDefinitionTestRecord, Attr](label="-")
+        with pytest.raises(TypeError):
+            sut.new()
 
-    def test_factory__with_factory(self) -> None:
-        def factory() -> RecordDefinitionTestRecord:
+    def test_new__without_manufacturer_with_cls(self) -> None:
+        sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
+            label="-", cls=RecordDefinitionTestRecord
+        )
+        assert isinstance(sut.new(), RecordDefinitionTestRecord)
+
+    def test_new__with_manufacturer(self) -> None:
+        def manufacturer(**fields: Any) -> RecordDefinitionTestRecord:
             return RecordDefinitionTestRecord()
 
         sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
-            cls=RecordDefinitionTestRecord, label="-", factory=factory
+            label="-", manufacturer=manufacturer
         )
-        assert sut.factory is factory
+        assert isinstance(sut.new(), RecordDefinitionTestRecord)
 
     def test_porter__without_porter(self) -> None:
         sut = RecordDefinition[RecordDefinitionTestRecord, Attr](

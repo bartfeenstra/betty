@@ -20,7 +20,7 @@ def test_new_localizable_attr____set___with_mapping() -> None:
     owner = _Owner()
     translation = "Hello, world!"
     locale = "nl-NL"
-    owner.attr = {  # ty:ignore[invalid-assignment]
+    owner.attr = {
         default_locale_tag: "Hello, world!",
         locale: translation,
     }

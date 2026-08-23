@@ -40,5 +40,5 @@ class LocaleDefinition(DataDefinition[Locale]):
             cls=Locale,
             label=label or _("Locale"),
             description=_description,
-            porter=CallbackPorter[Locale](assert_locale(), to_language_tag),
+            porter=CallbackPorter[Locale](assert_locale, to_language_tag),
         )

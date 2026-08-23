@@ -39,6 +39,7 @@ dependencies = [
     'shibuya == 2026.7.12',
     'sphinx ~= 8.2',
     'sphinx-design ~= 0.7.0',
+    'typing_extensions ~= 4.16',
 ]
 classifiers = [
     'Environment :: Console',
@@ -357,7 +358,7 @@ test = [
     'requests ~= 2.32',
     'ruff ~= 0.16.0',
     'slotscheck ~= 0.20.1',
-    'ty == 0.0.42',
+    'ty == 0.0.80',
     'types-babel ~= 2.11',
     'types-docutils ~= 0.21',
     'types-jsonschema ~= 4.23',

@@ -2,13 +2,14 @@ from typing import override
 
 import pytest
 
+from betty.plugin.factory import ManufacturablePlugin
 from betty.requirements.service import UnmetServiceRequirement
 from betty.service_level import HasServiceLevel, ServiceLevel
-from betty.services.plugin import HasPluginServices
-from betty.services.plugin.instance import (
-    PluginInstanceServiceManager,
-    ServicePluginInstance,
+from betty.services.plugin import (
+    HasPluginServices,
+    ResolvableServiceLevelHasPluginServices,
 )
+from betty.services.plugin.instance import PluginInstanceServiceManager
 from betty.test_utils.plugin import (
     DummyPlugin,
     DummyPluginDefinition,
@@ -26,7 +27,11 @@ from betty.typing import Unreachable
 
 class _PluginInstanceServiceManagerTestSut(
     PluginInstanceServiceManager[
-        HasPluginServices, DummyPluginDefinition, DummyPlugin, DummyPlugin
+        ResolvableServiceLevelHasPluginServices,
+        DummyPluginDefinition,
+        DummyPlugin,
+        DummyPluginManufacturer,
+        DummyPlugin,
     ]
 ):
     def __init__(self):
@@ -51,7 +56,7 @@ class TestPluginInstanceServiceManager(PluginServiceManagerTestBase):
         ],
     )
     async def test_new_plugin_instance_service_item(
-        self, item: ServicePluginInstance
+        self, item: ManufacturablePlugin
     ) -> None:
         owner = _PluginInstanceServiceManagerTestOwner(services=self._SERVICES)
         async with owner:
@@ -71,7 +76,7 @@ class TestPluginInstanceServiceManager(PluginServiceManagerTestBase):
         ],
     )
     async def test_new_plugin_instance_service_item__with_life_cycle(
-        self, item: ServicePluginInstance
+        self, item: ManufacturablePlugin
     ) -> None:
         owner = _PluginInstanceServiceManagerTestOwner(services=self._SERVICES)
         async with owner:

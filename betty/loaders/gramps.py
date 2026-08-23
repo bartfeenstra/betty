@@ -19,7 +19,7 @@ from betty.datas.aggregate.collection.mapping import MappingDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.str import StrDefinition
-from betty.event_type import EventType, EventTypeDefinition, EventTypeManufacturer
+from betty.event_type import EventTypeManufacturer, ResolvableEventTypeManufacturer
 from betty.exception import HumanFacingException
 from betty.factory import DataManufacturable, Manufacturable
 from betty.gramps import (
@@ -33,13 +33,13 @@ from betty.load import Loader, LoaderDefinition
 from betty.localizables.gettext import _
 from betty.localizables.markup import Quote
 from betty.pathlib import resolve_path
-from betty.place_type import PlaceType, PlaceTypeDefinition, PlaceTypeManufacturer
+from betty.place_type import PlaceTypeManufacturer, ResolvablePlaceTypeManufacturer
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
 from betty.porters.omit_field import OmitFieldPorter
 from betty.project import Project
 from betty.prop import HasProps
-from betty.role import Role, RoleDefinition, RoleManufacturer
+from betty.role import ResolvableRoleManufacturer, RoleManufacturer
 from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
@@ -52,31 +52,41 @@ if TYPE_CHECKING:
     from betty.pathlib import StrPath
 
 
-def _new_plugin_mapping_attr[PluginDefinitionT: PluginClsDefinition, PluginT: Plugin](
-    manufacturer: type[PluginManufacturer[PluginDefinitionT, PluginT]],
+def _new_plugin_mapping_attr[
+    PluginDefinitionT: PluginClsDefinition,
+    PluginManufacturerT: PluginManufacturer,
+    PluginT: Plugin,
+](
+    manufacturer: type[PluginManufacturerT],
     gramps_label: ResolvableLocalizable,
-    default: Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]],
+    default: Mapping[
+        str, ResolvablePluginManufacturer[PluginDefinitionT, PluginManufacturerT]
+    ],
 ) -> CommonAttr[
     HasProps,
-    MutableMapping[str, PluginManufacturer[PluginDefinitionT, PluginT]],
-    Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]],
+    MutableMapping[str, PluginManufacturerT],
+    Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginManufacturerT]],
 ]:
     return CollectionOwnerAttr[
         HasProps,
-        MutableMapping[str, PluginManufacturer[PluginDefinitionT, PluginT]],
-        Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]],
+        MutableMapping[str, PluginManufacturerT],
+        Mapping[
+            str, ResolvablePluginManufacturer[PluginDefinitionT, PluginManufacturerT]
+        ],
         MappingDefinition,
     ](
         FieldDefinition(
             MappingDefinition(
                 cls=MutableResolvedMapping,
-                factory=lambda values: MutableResolvedMappingAdapter[
+                manufacturer=lambda values: MutableResolvedMappingAdapter[
                     str,
                     str,
-                    PluginManufacturer[PluginDefinitionT, PluginT],
-                    ResolvablePluginManufacturer[PluginDefinitionT, PluginT],
+                    PluginManufacturerT,
+                    ResolvablePluginManufacturer[
+                        PluginDefinitionT, PluginManufacturerT
+                    ],
                 ](
-                    values or {},
+                    {} if values is None else dict(values),
                     value_resolver=manufacturer.resolve,
                 ),
                 key=StrDefinition(label=gramps_label),
@@ -84,7 +94,7 @@ def _new_plugin_mapping_attr[PluginDefinitionT: PluginClsDefinition, PluginT: Pl
                 label=manufacturer.data().plugin_type.type().label_plural,
             ),
             optional=True,
-        )
+        )  # ty: ignore[invalid-argument-type]
     ).default(
         lambda: {key: manufacturer.resolve(value) for key, value in default.items()}
     )
@@ -142,14 +152,12 @@ class FamilyTree(Data, HasProps):
         file: StrPath | None = None,
         name: str | None = None,
         event_types: Mapping[
-            str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
+            str, ResolvableEventTypeManufacturer
         ] = _empty_frozen_mapping,
         place_types: Mapping[
-            str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
+            str, ResolvablePlaceTypeManufacturer
         ] = _empty_frozen_mapping,
-        roles: Mapping[
-            str, ResolvablePluginManufacturer[RoleDefinition, Role]
-        ] = _empty_frozen_mapping,
+        roles: Mapping[str, ResolvableRoleManufacturer] = _empty_frozen_mapping,
     ):
         super().__init__()
         if file is not None:

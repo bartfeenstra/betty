@@ -164,7 +164,7 @@ class TestRaspberryMintData(DataTestBase[RaspberryMintData]):
         content = ContentBuilderManufacturer("my-first-plugin")
         sut = RaspberryMintData(
             regional_content={
-                Region.FRONT_PAGE_CONTENT: content,
-            }  # ty:ignore[invalid-argument-type]
+                Region.FRONT_PAGE_CONTENT: [content],
+            }
         )
         assert sut.regional_content[Region.FRONT_PAGE_CONTENT][0] is content

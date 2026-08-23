@@ -4,9 +4,12 @@ Class-based definitions.
 
 from __future__ import annotations
 
-from typing import Any, final
+from typing import TYPE_CHECKING, Any, final
 
 from betty.importlib import fully_qualified_name
+
+if TYPE_CHECKING:
+    from ty_extensions import Intersection
 
 
 class _ClsDefinition[BaseClsT = Any]:
@@ -17,7 +20,7 @@ class _ClsDefinition[BaseClsT = Any]:
             self._set_cls(cls)
 
     @final
-    def __call__[ClsT](self, cls: type[ClsT]) -> type[ClsT]:
+    def __call__[ClsT](self, cls: type[Intersection[ClsT, BaseClsT]]) -> type[ClsT]:
         """
         Decorate a class and set it on this definition.
 

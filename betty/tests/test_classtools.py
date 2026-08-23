@@ -108,10 +108,10 @@ class TestObject:
 
 class TestObjectClassVar:
     def test_pre_init_owner(self) -> None:
-        assert not ObjectClassVar().pre_init_owner(Object())
+        ObjectClassVar().pre_init_owner(Object())
 
     def test_post_init_owner(self) -> None:
-        assert not ObjectClassVar().post_init_owner(Object())
+        ObjectClassVar().post_init_owner(Object())
 
 
 class _ClassVarOwner:

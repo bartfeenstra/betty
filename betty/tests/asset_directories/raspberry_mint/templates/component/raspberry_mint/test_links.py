@@ -50,10 +50,7 @@ async def test_with_link_without_locale(
 async def test_with_link(assert_template_file: AssertTemplateFile) -> None:
     link_url = "https://example.com"
     link_label = "An example site"
-    link = Link(
-        {default_locale: link_url},  # ty:ignore[invalid-argument-type]
-        label=link_label,
-    )
+    link = Link({default_locale: link_url}, label=link_label)
     async with assert_template_file(
         data={
             "links": [link],

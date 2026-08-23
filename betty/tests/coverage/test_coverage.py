@@ -29,7 +29,7 @@ from betty.tests.coverage.fixtures import (
 )
 
 if TYPE_CHECKING:
-    from betty.typing import Intersection
+    from ty_extensions import Intersection
 
 
 class MissingReason(Enum):
@@ -347,7 +347,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "AlreadyShutDown": MissingReason.STATIC_CONTENT_ONLY,
         "LifeCycleError": MissingReason.STATIC_CONTENT_ONLY,
         "NotYetBootstrapped": MissingReason.STATIC_CONTENT_ONLY,
-        "ShutdownerKwargs": MissingReason.TYPED_DICT,
+        "Shutdowner": MissingReason.PROTOCOL,
     },
     "betty/link.py": {
         "Link": MissingReason.ABSTRACT,
@@ -684,6 +684,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/server.py": {
         "Server": MissingReason.ABSTRACT,
         "ServerDefinition": MissingReason.STATIC_CONTENT_ONLY,
+        "ServerManufacturer": MissingReason.STATIC_CONTENT_ONLY,
         "ServerNotStarted": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/servers/builtin.py": {
@@ -924,11 +925,11 @@ class _ModuleCoverageTester:
             sorted(
                 self._get_members(module_name, isfunction),
                 key=lambda member: member.__name__,
-            ),
+            ),  # ty: ignore[no-matching-overload]
             sorted(
                 self._get_members(module_name, isclass),
                 key=lambda member: member.__name__,
-            ),
+            ),  # ty: ignore[no-matching-overload]
         )
 
     def _get_members(

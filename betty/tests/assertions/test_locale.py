@@ -18,7 +18,7 @@ from betty.locale import default_locale_tag, to_language_tag
     ],
 )
 def test_assert_locale__with_valid_value(value: str) -> None:
-    assert to_language_tag(assert_locale()(value)) == value
+    assert to_language_tag(assert_locale(value)) == value
 
 
 @pytest.mark.parametrize(
@@ -36,4 +36,4 @@ def test_assert_locale__with_valid_value(value: str) -> None:
 )
 def test_assert_locale__with_invalid_value(value: Any) -> None:
     with pytest.raises(HumanFacingException):
-        assert_locale()(value)
+        assert_locale(value)

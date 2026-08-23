@@ -14,9 +14,11 @@ from betty.services.plugin.definition.collection import (
 
 
 @final
-class AssetRepositoryService[OwnerT: ResolvableServiceLevelHasPluginServices](
+class AssetRepositoryService(
     CollectionPluginDefinitionServiceManager[
-        OwnerT, AssetDirectoryDefinition, AssetRepository
+        ResolvableServiceLevelHasPluginServices,
+        AssetDirectoryDefinition,
+        AssetRepository,
     ]
 ):
     """
@@ -27,7 +29,9 @@ class AssetRepositoryService[OwnerT: ResolvableServiceLevelHasPluginServices](
         super().__init__(AssetDirectoryDefinition)
 
     @override
-    def new_service(self, instance: OwnerT, /) -> AssetRepository:
+    def new_service(
+        self, instance: ResolvableServiceLevelHasPluginServices, /
+    ) -> AssetRepository:
         return StaticAssetRepository(
             *(
                 self.new_service_item(instance, asset).assets

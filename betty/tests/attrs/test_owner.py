@@ -29,7 +29,7 @@ class _Owner(HasProps):
         SequenceDefinition(
             label="-",
             value=StrDefinition(label="-"),
-            factory=lambda values: list(values) if values else ["Hello, world!"],
+            manufacturer=lambda values: list(values) if values else ["Hello, world!"],
         )
     )
     mutable_collection = CollectionOwnerAttr(

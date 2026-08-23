@@ -223,9 +223,6 @@ class CollectionOwnerAttr[
     def set(self, owner: OwnerT, value: SetT, /) -> None:
         self.assert_settable(owner)
         if isinstance(self.field.data, MutableCollectionDefinition):
-            self.field.data.replace(
-                self.get(owner),  # ty:ignore[invalid-argument-type]
-                value,  # ty:ignore[invalid-argument-type]
-            )
+            self.field.data.replace(self.get(owner), value)
         else:
             self._storage.set(owner, self.field.data.new(value))

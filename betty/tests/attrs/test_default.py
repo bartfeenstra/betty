@@ -45,5 +45,5 @@ class _CollectionDefinition(
         super().__init__(
             label="-",
             item=StrDefinition(label="-"),
-            factory=lambda _: ["Hello, world!"],
+            manufacturer=lambda _: ["Hello, world!"],
         )

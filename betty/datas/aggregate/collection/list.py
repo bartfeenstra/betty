@@ -30,5 +30,5 @@ class ListDefinition[ValueT](MutableSequenceDefinition[list[ValueT], ValueT]):
             value=value,
             label=label,
             description=description,
-            factory=lambda values: list(values) if values else [],
+            manufacturer=lambda values: [] if values is None else list(values),
         )

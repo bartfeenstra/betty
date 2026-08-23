@@ -5,7 +5,7 @@ Record data types.
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from typing import TYPE_CHECKING, Any, Final, Self, final
+from typing import TYPE_CHECKING, Any, Final, Protocol, Self, final
 
 from betty.collections import _empty_frozen_mapping
 from betty.data import (
@@ -23,10 +23,11 @@ from betty.portable.error import NotPortable
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping, MutableMapping
 
+    from ty_extensions import Intersection
+
     from betty.localizable import Localizable, ResolvableLocalizable
     from betty.nothing import NothingType
     from betty.portable import PortableData
-    from betty.typing import Intersection
 
 
 type FieldOperator = Attr | Key
@@ -145,6 +146,14 @@ def resolve_field_definition[OwnerT, DataT, DataDefinitionT: DataDefinition](
     return FieldDefinition(resolve_data_definition(field))
 
 
+class _RecordManufacturer[DataT](Protocol):
+    def __call__(self, **fields: Any) -> DataT:
+        pass
+
+
+type RecordManufacturer[DataT] = type[DataT] | _RecordManufacturer[DataT]
+
+
 class RecordDefinition[DataT, OperatorT: FieldOperator](DataDefinition[DataT]):
     """
     A record data definition.
@@ -162,13 +171,13 @@ class RecordDefinition[DataT, OperatorT: FieldOperator](DataDefinition[DataT]):
         ] = _empty_frozen_mapping,
         description: ResolvableLocalizable | None = None,
         samples: Iterable[Callable[[], Sample[DataT]] | Samples] = (),
-        factory: Callable[..., DataT] | None = None,
+        manufacturer: RecordManufacturer[DataT] | None = None,
         porter: ResolvableDataPorter[Self, DataT] | None = None,
         **kwargs: Any,
     ):
         from betty.porters.fields import FieldsPorter
 
-        self._factory = factory
+        self.__manufacturer = manufacturer
         self._fields: MutableMapping[OperatorT, FieldDefinition[DataT, Any]] = {
             element: resolve_field_definition(field)
             for element, field in fields.items()
@@ -184,21 +193,17 @@ class RecordDefinition[DataT, OperatorT: FieldOperator](DataDefinition[DataT]):
             **kwargs,
         )
 
-    @property
-    def factory(self) -> Callable[..., DataT]:
+    @final
+    def new(self, **fields: Any) -> DataT:
         """
-        The factory to create new instances.
-
-        The factory's arguments are kwargs whose names are this record's field names, and whose values are their fully
-        typed values.
+        Create a new record.
         """
-        if self._factory:
-            return self._factory
-        if self.cls:
-            return self.cls
-        raise ValueError(
-            "This definition does not have a factory. Either set a data class, or provide a factory when initializing the definition."
-        )
+        manufacturer = self.__manufacturer or self.cls
+        if not manufacturer:
+            raise TypeError(
+                "This definition does not have a manufacturer. Either set a data class, or provide a manufacturer when initializing the definition."
+            )
+        return manufacturer(**fields)
 
     @property
     def fields(self) -> Mapping[OperatorT, FieldDefinition[DataT, Any]]:

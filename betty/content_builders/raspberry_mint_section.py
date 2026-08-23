@@ -18,6 +18,7 @@ from betty.content_builder import (
     ContentBuilder,
     ContentBuilderDefinition,
     ContentBuilderManufacturer,
+    ResolvableContentBuilderManufacturer,
     build,
 )
 from betty.content_builders.template import Template, TemplateBuild
@@ -31,13 +32,10 @@ from betty.prop import HasProps
 from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
     from betty.document import Document
     from betty.jinja import Environment
     from betty.localizable import ResolvableLocalizable
     from betty.machine_name import MachineName, ResolvableMachineName
-    from betty.plugin.factory import ResolvablePluginManufacturerSequence
 
 
 @final
@@ -53,6 +51,7 @@ if TYPE_CHECKING:
             size=Size.MINIMAL,
         ),
     ],
+    manufacturer=lambda **fields: SectionData(*fields.pop("content"), **fields),
 )
 class SectionData(Data, HasProps):
     """
@@ -89,10 +88,7 @@ class SectionData(Data, HasProps):
 
     def __init__(
         self,
-        content: ResolvablePluginManufacturerSequence[
-            ContentBuilderDefinition, ContentBuilder
-        ],
-        *,
+        *content: ResolvableContentBuilderManufacturer,
         heading: ResolvableLocalizable,
         name: ResolvableMachineName | None = None,
         visually_hide_heading: bool = False,
@@ -118,8 +114,7 @@ class Section(Template, DataManufacturable[SectionData]):
     def __init__(
         self,
         /,
-        content: Iterable[ContentBuilder],
-        *,
+        *content: ContentBuilder,
         heading: ResolvableLocalizable,
         name: MachineName | None = None,
         visually_hide_heading: bool = False,
@@ -150,7 +145,7 @@ class Section(Template, DataManufacturable[SectionData]):
             project.jinja,
         )
         return cls(
-            content=content,
+            *content,
             heading=data.heading,
             jinja=jinja,
             name=data.name,

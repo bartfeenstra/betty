@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from betty.portable import Porter
 
 
-type DataFactory[DataT, NewT] = Callable[[NewT | None], DataT]
+type CollectionManufacturer[DataT, NewT: Iterable] = Callable[[NewT | None], DataT]
 
 
 class CollectionDefinition[CollectionT: Collection, ItemT, NewT: Iterable](
@@ -33,25 +33,25 @@ class CollectionDefinition[CollectionT: Collection, ItemT, NewT: Iterable](
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
         porter: Porter[CollectionT] | None = None,
-        factory: DataFactory[CollectionT, NewT] | None = None,
+        manufacturer: CollectionManufacturer[CollectionT, NewT] | None = None,
     ):
         super().__init__(cls=cls, label=label, description=description, porter=porter)
         self.item: Final[DataDefinition[ItemT]] = resolve_data_definition(item)
         """
         The definition of the items contained by this collection.
         """
-        self.__factory = factory
+        self.__manufacturer = manufacturer
 
     @final
     def new(self, values: NewT | None = None, /) -> CollectionT:
         """
         Create a new collection.
         """
-        if not self.__factory:
-            raise ValueError(
-                "This definition does not have a factory. Either set a data class, or provide a factory when initializing the definition."
+        if not self.__manufacturer:
+            raise TypeError(
+                "This definition does not have a manufacturer. Either set a data class, or provide a manufacturer when initializing the definition."
             )
-        return self.__factory(values)
+        return self.__manufacturer(values)
 
 
 class MutableCollectionDefinition[CollectionT: Collection, ItemT, NewT: Iterable](

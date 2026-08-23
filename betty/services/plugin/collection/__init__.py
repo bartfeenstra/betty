@@ -46,7 +46,9 @@ class CollectionPluginServiceManager[
             self.resolve_init_plugin_id(plugin): plugin
             for plugin in await super().prepare_plugins(owner, *plugins)
         }
-        services = resolve_service_level(owner)
+        services = resolve_service_level(
+            owner,  # ty:ignore[invalid-argument-type]
+        )
         return (
             plugins_by_id[plugin_id]
             for plugin_id in self.__sort_plugins(

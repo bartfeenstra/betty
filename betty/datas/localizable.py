@@ -5,17 +5,21 @@ Localizable data.
 from __future__ import annotations
 
 from contextlib import suppress
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, cast, final, override
 
 from betty.assertions.if_else import assert_if_else
-from betty.assertions.locale import assert_locale
+from betty.assertions.locale import assert_optional_locale
 from betty.assertions.mapping import assert_mapping
 from betty.assertions.str import assert_str
 from betty.classtools import Singleton
 from betty.data import DataDefinition
 from betty.importlib import fully_qualified_name
 from betty.locale import to_language_tag
-from betty.localizable import CountableLocalizable, Localizable
+from betty.localizable import (
+    CountableLocalizable,
+    Localizable,
+    StaticTranslationsMapping,
+)
 from betty.localizables.gettext import _
 from betty.localizables.plain import Plain
 from betty.localizables.static import CountableStaticTranslations, StaticTranslations
@@ -43,8 +47,10 @@ class LocalizableDefinition(DataDefinition[Localizable], Singleton):
 class _LocalizablePorter(Porter[Localizable]):
     load = override(
         assert_if_else(
-            assert_str().pipe(lambda translation: {None: translation}),
-            assert_mapping(assert_str(), assert_locale()),
+            assert_str().pipe(
+                lambda translation: cast(StaticTranslationsMapping, {None: translation})
+            ),
+            assert_mapping(assert_str(), assert_optional_locale),
         )
         | StaticTranslations
     )
@@ -87,11 +93,7 @@ class CountableLocalizableDefinition(DataDefinition[CountableLocalizable], Singl
 class _CountableLocalizablePorter(Porter[CountableLocalizable]):
     load = override(
         assert_mapping(
-            assert_mapping(
-                assert_str(),
-                assert_str(),
-            ),
-            assert_locale(),
+            assert_mapping(assert_str(), assert_str()), assert_optional_locale
         )
         | CountableStaticTranslations
     )

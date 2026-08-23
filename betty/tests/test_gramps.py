@@ -52,10 +52,9 @@ if TYPE_CHECKING:
     from pytest_mock import MockerFixture
 
     from betty.entity.collection.pool import EntityPool
-    from betty.event_type import EventType, EventTypeDefinition
-    from betty.place_type import PlaceType, PlaceTypeDefinition
-    from betty.plugin.factory import ResolvablePluginManufacturer
-    from betty.role import Role, RoleDefinition
+    from betty.event_type import ResolvableEventTypeManufacturer
+    from betty.place_type import ResolvablePlaceTypeManufacturer
+    from betty.role import ResolvableRoleManufacturer
     from betty.test_utils.conftest import IsolatedAppFactory, IsolatedProjectFactory
 
 
@@ -121,14 +120,12 @@ class LoadPartial(Protocol):
         *,
         media: Path | None = None,
         event_type_mapping: Mapping[
-            str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
+            str, ResolvableEventTypeManufacturer
         ] = _empty_frozen_mapping,
         place_type_mapping: Mapping[
-            str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
+            str, ResolvablePlaceTypeManufacturer
         ] = _empty_frozen_mapping,
-        role_mapping: Mapping[
-            str, ResolvablePluginManufacturer[RoleDefinition, Role]
-        ] = _empty_frozen_mapping,
+        role_mapping: Mapping[str, ResolvableRoleManufacturer] = _empty_frozen_mapping,
     ) -> EntityPool:
         pass
 
@@ -295,14 +292,12 @@ class TestGrampsLoader:
         project: Project,
         xml: str,
         event_type_mapping: Mapping[
-            str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
+            str, ResolvableEventTypeManufacturer
         ] = _empty_frozen_mapping,
         place_type_mapping: Mapping[
-            str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
+            str, ResolvablePlaceTypeManufacturer
         ] = _empty_frozen_mapping,
-        role_mapping: Mapping[
-            str, ResolvablePluginManufacturer[RoleDefinition, Role]
-        ] = _empty_frozen_mapping,
+        role_mapping: Mapping[str, ResolvableRoleManufacturer] = _empty_frozen_mapping,
     ) -> None:
         await GrampsLoader(
             project,
@@ -324,13 +319,13 @@ class TestGrampsLoader:
             *,
             media: Path | None = None,
             event_type_mapping: Mapping[
-                str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
+                str, ResolvableEventTypeManufacturer
             ] = _empty_frozen_mapping,
             place_type_mapping: Mapping[
-                str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
+                str, ResolvablePlaceTypeManufacturer
             ] = _empty_frozen_mapping,
             role_mapping: Mapping[
-                str, ResolvablePluginManufacturer[RoleDefinition, Role]
+                str, ResolvableRoleManufacturer
             ] = _empty_frozen_mapping,
         ) -> EntityPool:
             mediapath = "" if media is None else f"<mediapath>{media}</mediapath>"

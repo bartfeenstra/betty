@@ -21,7 +21,7 @@ class TestMappingDefinition:
 
     def test_load__without_items(self) -> None:
         sut = MappingDefinition[dict[str, str], str, str](
-            factory=lambda values: dict(values) if values else {},
+            manufacturer=lambda values: dict(values) if values else {},
             key=StrDefinition(label="-"),
             value=StrDefinition(label="-"),
             label="-",
@@ -30,7 +30,7 @@ class TestMappingDefinition:
 
     def test_load__with_items(self) -> None:
         sut = MappingDefinition[dict[str, str], str, str](
-            factory=lambda values: dict(values) if values else {},
+            manufacturer=lambda values: dict(values) if values else {},
             key=StrDefinition(label="-"),
             value=StrDefinition(label="-"),
             label="-",
@@ -39,7 +39,7 @@ class TestMappingDefinition:
 
     def test_load__with_item_without_porter(self) -> None:
         sut = MappingDefinition[dict[str, str], str, str](
-            factory=lambda values: dict(values) if values else {},
+            manufacturer=lambda values: dict(values) if values else {},
             key=StrDefinition(label="-"),
             value=DataDefinition(cls=str, label="-"),
             label="-",
@@ -49,7 +49,7 @@ class TestMappingDefinition:
 
     def test_dump__without_items(self) -> None:
         sut = MappingDefinition[dict[str, str], str, str](
-            factory=lambda values: dict(values) if values else {},
+            manufacturer=lambda values: dict(values) if values else {},
             key=StrDefinition(label="-"),
             value=StrDefinition(label="-"),
             label="-",
@@ -58,7 +58,7 @@ class TestMappingDefinition:
 
     def test_dump__with_items(self) -> None:
         sut = MappingDefinition[dict[str, str], str, str](
-            factory=lambda values: dict(values) if values else {},
+            manufacturer=lambda values: dict(values) if values else {},
             key=StrDefinition(label="-"),
             value=StrDefinition(label="-"),
             label="-",
@@ -67,7 +67,7 @@ class TestMappingDefinition:
 
     def test_dump__with_item_without_porter(self) -> None:
         sut = MappingDefinition[dict[str, str], str, str](
-            factory=lambda values: dict(values) if values else {},
+            manufacturer=lambda values: dict(values) if values else {},
             key=StrDefinition(label="-"),
             value=DataDefinition(cls=str, label="-"),
             label="-",

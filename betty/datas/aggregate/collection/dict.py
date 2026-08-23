@@ -36,6 +36,6 @@ class DictDefinition[KeyT, ValueT](
             value=value,
             label=label,
             description=description,
-            factory=lambda values: dict(values) if values else {},
+            manufacturer=lambda values: {} if values is None else dict(values),
             porter=porter,
         )

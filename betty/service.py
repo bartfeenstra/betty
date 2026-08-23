@@ -11,9 +11,10 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.prop import HasProps, Prop
-from betty.typing import Intersection
 
 if TYPE_CHECKING:
+    from ty_extensions import Intersection
+
     from betty.service_level import ResolvableServiceLevel
 
 type ServiceFactory[OwnerT: ResolvableServiceLevelHasServices, FactoryServiceT] = (

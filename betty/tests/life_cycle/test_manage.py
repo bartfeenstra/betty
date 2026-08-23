@@ -19,7 +19,7 @@ class TestManagedLifeCycle:
 
     def test_life_cycle(self) -> None:
         sut = ManagedLifeCycle()
-        assert sut.life_cycle
+        assert isinstance(sut.life_cycle, LifeCycleManager)
 
     @pytest.mark.parametrize(
         "wait",

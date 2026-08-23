@@ -60,7 +60,7 @@ class NewTranslation(Manufacturable, Command):
         parser.add_argument(
             "locale",
             type=assertion_to_argument_type(
-                assert_locale(), localizer=self._app.user.localizer
+                assert_locale, localizer=self._app.user.localizer
             ),
         )
         return self._command_function

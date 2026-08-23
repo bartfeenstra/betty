@@ -13,12 +13,9 @@ from betty.services.plugin.single import SinglePluginServiceManager
 
 
 @final
-class PluginDefinitionService[
-    OwnerT: ResolvableServiceLevelHasPluginServices,
-    PluginDefinitionT: PluginDefinition,
-](
+class PluginDefinitionService[PluginDefinitionT: PluginDefinition](
     SinglePluginServiceManager[
-        OwnerT,
+        ResolvableServiceLevelHasPluginServices,
         PluginDefinitionT,
         PluginDefinitionT,
         ResolvablePluginDefinition[PluginDefinitionT],
@@ -29,5 +26,7 @@ class PluginDefinitionService[
     """
 
     @override
-    def new_service(self, owner: OwnerT, /) -> PluginDefinitionT:
+    def new_service(
+        self, owner: ResolvableServiceLevelHasPluginServices, /
+    ) -> PluginDefinitionT:
         return resolve_plugin_definition(self.get_plugins(owner)[0])

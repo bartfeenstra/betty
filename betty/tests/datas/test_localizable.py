@@ -8,7 +8,6 @@ from betty.datas.localizable import (
 )
 from betty.exception import HumanFacingException
 from betty.locale import default_locale_tag
-from betty.locale.error import UnknownLocale
 from betty.localizable import (
     CountableLocalizable,
     Localizable,
@@ -92,14 +91,6 @@ class TestCountableLocalizableDefinition:
     def test_load_countable_localizable__without_locales(self) -> None:
         with pytest.raises(HumanFacingException):
             CountableLocalizableDefinition().porter.load({})
-
-    def test_load_countable_localizable__with_unknown_locale(self) -> None:
-        with pytest.raises(UnknownLocale):
-            CountableLocalizableDefinition().porter.load(
-                {
-                    "unknownlocale": {},
-                },
-            )
 
     def test_load_countable_localizable__with_missing_plural_tag(self) -> None:
         with pytest.raises(MissingPluralTag):

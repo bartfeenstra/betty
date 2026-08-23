@@ -27,10 +27,11 @@ from betty.prop import HasProps
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
 
+    from ty_extensions import Intersection, Not
+
     from betty.datas.aggregate.record import FieldDefinition
     from betty.entity import Entity, EntityResolver
     from betty.project import Project
-    from betty.typing import Intersection, Not
 
 
 class HasAssociations(HasProps):
@@ -82,9 +83,9 @@ class Association[
             associate if isinstance(associate, type) else None
         )
         self.associate_attr_name: Final[str | None] = (
-            associate_attr.ownership.name
-            if isinstance(associate_attr, Association)
-            else associate_attr
+            associate_attr
+            if isinstance(associate_attr, str) or associate_attr is None
+            else associate_attr.ownership.name
         )
         self.__associate_attr: Association | None | NothingType = (
             associate_attr if isinstance(associate_attr, Association) else Nothing
@@ -232,7 +233,7 @@ def resolve_associate[AssociateT: Entity](
         case _:
             return resolve(  # ty:ignore[invalid-return-type]
                 project,
-                resolver,
+                resolver,  # ty: ignore[invalid-argument-type]
             )
 
 

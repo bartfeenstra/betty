@@ -12,7 +12,7 @@ from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 
 if TYPE_CHECKING:
-    from betty.typing import Intersection
+    from ty_extensions import Intersection
 
 
 type ResolvablePluginDefinition[
@@ -104,7 +104,7 @@ def resolve_plugin_type_definition[PluginDefinitionT: PluginDefinition](
     if isinstance(plugin_type_definition, type) and issubclass(
         plugin_type_definition, PluginDefinition
     ):
-        return plugin_type_definition.type()
+        return plugin_type_definition.type()  # ty: ignore[invalid-return-type]
     return resolve_plugin_definition(plugin_type_definition).type()
 
 

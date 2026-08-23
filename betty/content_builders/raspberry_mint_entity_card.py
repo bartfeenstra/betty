@@ -60,13 +60,11 @@ class EntityCard(Template, DataManufacturable[EntityReference]):
     async def build_template(self, document: Document) -> TemplateBuild:
         entity = resolve(self._project, self._entity)
         return [
-            "entity/card--" + entity.plugin().id + ".html.j2",  # ty:ignore[unresolved-attribute]
+            "entity/card--" + entity.plugin().id + ".html.j2",
             "entity/card.html.j2",
         ], {
             "entity": entity,
-            "entity_image_reference": self._get_image_reference(
-                entity,  # ty:ignore[invalid-argument-type]
-            ),
+            "entity_image_reference": self._get_image_reference(entity),
         }
 
     def _get_image_reference(self, entity: Entity) -> FileReference | None:

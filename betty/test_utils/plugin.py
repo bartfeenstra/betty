@@ -9,7 +9,11 @@ from typing import final
 from betty.life_cycle import LifeCycle
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
+from betty.plugin.factory import (
+    ManufacturablePlugin,
+    PluginManufacturer,
+    PluginManufacturerDefinition,
+)
 from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
 
 
@@ -80,3 +84,8 @@ class DummyPluginManufacturer(PluginManufacturer[DummyPluginDefinition, DummyPlu
     """
     The dummy plugin manufacturer.
     """
+
+
+type ManufacturableDummyPlugin = ManufacturablePlugin[
+    DummyPluginDefinition, DummyPluginManufacturer, DummyPlugin
+]

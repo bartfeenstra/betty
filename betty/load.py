@@ -17,7 +17,12 @@ from betty.job.scheduler.default import DefaultScheduler
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
+from betty.plugin.factory import (
+    ManufacturablePlugin,
+    PluginManufacturer,
+    PluginManufacturerDefinition,
+    ResolvablePluginManufacturer,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Collection
@@ -79,6 +84,16 @@ class LoaderManufacturer(PluginManufacturer[LoaderDefinition, Loader]):
     """
 
 
+type ResolvableLoaderManufacturer = ResolvablePluginManufacturer[
+    LoaderDefinition, LoaderManufacturer
+]
+
+
+type ManufacturableLoader = ManufacturablePlugin[
+    LoaderDefinition, LoaderManufacturer, Loader
+]
+
+
 class Enricher(Plugin["EnricherDefinition"], metaclass=ABCMeta):
     """
     An ancestry data enricher.
@@ -127,6 +142,16 @@ class EnricherManufacturer(PluginManufacturer[EnricherDefinition, Enricher]):
     """
     The enricher manufacturer.
     """
+
+
+type ResolvableEnricherManufacturer = ResolvablePluginManufacturer[
+    EnricherDefinition, EnricherManufacturer
+]
+
+
+type ManufacturableEnricher = ManufacturablePlugin[
+    EnricherDefinition, EnricherManufacturer, Enricher
+]
 
 
 async def load(project: Project, *, context: Context | None = None) -> None:

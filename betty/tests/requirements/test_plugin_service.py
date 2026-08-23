@@ -10,6 +10,7 @@ from betty.services.plugin import (
     HasPluginServices,
     PluginServiceManager,
     PluginServiceRequirement,
+    ResolvableServiceLevelHasPluginServices,
 )
 from betty.test_utils.plugin import (
     DummyPluginDefinition,
@@ -21,7 +22,7 @@ from betty.test_utils.plugin import (
 
 class _PluginServiceRequirementTestPluginServiceManager(
     PluginServiceManager[
-        HasPluginServices,
+        ResolvableServiceLevelHasPluginServices,
         DummyPluginDefinition,
         Sequence[DummyPluginDefinition],
         DummyPluginDefinition,
@@ -32,9 +33,14 @@ class _PluginServiceRequirementTestPluginServiceManager(
 
     @override
     def new_service(
-        self, owner: HasPluginServices, /
+        self, owner: ResolvableServiceLevelHasPluginServices, /
     ) -> Sequence[DummyPluginDefinition]:
-        return tuple(map(resolve_plugin_definition, self.get_init_plugins(owner)))
+        return tuple(
+            map(
+                resolve_plugin_definition,
+                self.get_init_plugins(owner),  # ty: ignore[invalid-argument-type]
+            )
+        )
 
 
 class _PluginServiceRequirementTestServices(ServiceLevel, HasPluginServices):

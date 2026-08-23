@@ -12,6 +12,6 @@ class _Owner(HasProps):
 
 def test_new_plugin_manufacturer_sequence_attr__set() -> None:
     owner = _Owner()
-    owner.attr = DummyPluginOne
+    owner.attr = [DummyPluginOne]
     assert isinstance(owner.attr, MutableResolvedSequenceAdapter)
     assert list(owner.attr) == [DummyPluginManufacturer(DummyPluginOne)]

@@ -8,24 +8,36 @@ from betty.datas.plugin.definition import (
     PluginDefinitionData,
     PluginDefinitionDefinition,
 )
+from betty.definition.human_facing import HumanFacingDefinition
+from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.prop import HasProps
-from betty.test_utils.plugin import DummyPluginDefinition
+from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
 from betty.typing import Unreachable
+
+
+@PluginTypeDefinition(
+    "dummy-plugin",
+    label="dummy plugin",
+    label_plural="dummy plugin",
+    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+)
+class _DummyPluginDefinition(PluginDefinition, HumanFacingDefinition):
+    pass
 
 
 @ObjectDefinition(label="-")
 class _Owner(Data, HasProps):
-    @PluginDefinitionDefinition(DummyPluginDefinition)
-    class _Item(PluginDefinitionData[DummyPluginDefinition]):
+    @PluginDefinitionDefinition(_DummyPluginDefinition)
+    class _Item(PluginDefinitionData[_DummyPluginDefinition]):
         @override
-        def new_plugin(self) -> DummyPluginDefinition:
+        def new_plugin(self) -> _DummyPluginDefinition:
             raise Unreachable
 
     def __init__(self, plugins: Iterable[_Item] = ()):
         super().__init__()
         self.plugins = plugins
 
-    plugins = new_plugin_definition_datas_attr(DummyPluginDefinition, _Item)
+    plugins = new_plugin_definition_datas_attr(_DummyPluginDefinition, _Item)
 
 
 def test_new_plugin_definition_datas_attr__key() -> None:

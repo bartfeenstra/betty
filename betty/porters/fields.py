@@ -30,7 +30,7 @@ class FieldsPorter[DataT](Porter[DataT, PortableMapping]):
 
     @override
     def load(self, data: PortableData, /) -> DataT:
-        return self._record.factory(**self._load(data))
+        return self._record.new(**self._load(data))
 
     @override
     def dump(self, data: DataT, /) -> PortableMapping:

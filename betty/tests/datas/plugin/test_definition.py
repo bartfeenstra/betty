@@ -4,16 +4,28 @@ from betty.datas.plugin.definition import (
     PluginDefinitionData,
     PluginDefinitionDefinition,
 )
+from betty.definition.human_facing import HumanFacingDefinition
 from betty.localizer import default_localizer
+from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.portable import KeyedPorter
-from betty.test_utils.plugin import DummyPluginDefinition
+from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
 from betty.typing import Unreachable
 
 
-@PluginDefinitionDefinition(DummyPluginDefinition)
-class _DummyPluginDefinitionData(PluginDefinitionData[DummyPluginDefinition]):
+@PluginTypeDefinition(
+    "dummy-plugin",
+    label="dummy plugin",
+    label_plural="dummy plugin",
+    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+)
+class _DummyPluginDefinition(PluginDefinition, HumanFacingDefinition):
+    pass
+
+
+@PluginDefinitionDefinition(_DummyPluginDefinition)
+class _DummyPluginDefinitionData(PluginDefinitionData[_DummyPluginDefinition]):
     @override
-    def new_plugin(self) -> DummyPluginDefinition:
+    def new_plugin(self) -> _DummyPluginDefinition:
         raise Unreachable
 
 
@@ -26,7 +38,7 @@ class TestPluginDefinitionData:
 
 class TestPluginDefinitionDefinition:
     def test_label(self) -> None:
-        assert PluginDefinitionDefinition(DummyPluginDefinition).label.localize(
+        assert PluginDefinitionDefinition(_DummyPluginDefinition).label.localize(
             default_localizer
         )
 
@@ -38,9 +50,7 @@ class TestPluginDefinitionDefinition:
     def test_porter__dump_keyed(self) -> None:
         porter = _DummyPluginDefinitionData.data().porter
         assert isinstance(porter, KeyedPorter)
-        assert porter.dump_keyed(
-            _DummyPluginDefinitionData(id="hello-world"),  # ty:ignore[invalid-argument-type]
-        ) == (
+        assert porter.dump_keyed(_DummyPluginDefinitionData(id="hello-world")) == (
             "hello-world",
             {},
         )

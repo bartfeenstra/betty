@@ -12,7 +12,7 @@ from betty.assertions.sequence import assert_sequence
 from betty.collection.keyed import KeyedCollection, MutableKeyedCollection
 from betty.datas.aggregate.collection import (
     CollectionDefinition,
-    DataFactory,
+    CollectionManufacturer,
     MutableCollectionDefinition,
 )
 from betty.portable import (
@@ -45,7 +45,8 @@ class KeyedCollectionDefinition[KeyedCollectionT: KeyedCollection, ValueT](
         order_dump: bool = False,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
-        factory: DataFactory[KeyedCollectionT, Iterable[ValueT]] | None = None,
+        manufacturer: CollectionManufacturer[KeyedCollectionT, Iterable[ValueT]]
+        | None = None,
     ):
         super().__init__(
             cls=cls,
@@ -53,7 +54,7 @@ class KeyedCollectionDefinition[KeyedCollectionT: KeyedCollection, ValueT](
             description=description,
             porter=CallbackPorter(self._load, self._dump),
             item=value,
-            factory=factory,
+            manufacturer=manufacturer,
         )
         self._order_dump = order_dump
         value_porter = self.item.porter

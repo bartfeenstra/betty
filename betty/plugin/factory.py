@@ -4,9 +4,10 @@ Plugin factories.
 
 from __future__ import annotations
 
-from collections.abc import Iterable, MutableSequence
 from json import dumps
-from typing import TYPE_CHECKING, Final, Generic, Self, TypeVar, final, override
+from typing import TYPE_CHECKING, Final, Self, final, override
+
+from typing_extensions import disjoint_base
 
 from betty.assertions.if_else import assert_if_else
 from betty.assertions.mapping import assert_mapping
@@ -24,16 +25,17 @@ from betty.localizables.gettext import _
 from betty.localizables.markup import Quote
 from betty.machine_name import MachineName
 from betty.nothing import Nothing, NothingType
-from betty.plugin import PluginDefinition
-from betty.plugin.cls import Plugin, PluginClsDefinition
+from betty.plugin.cls import PluginClsDefinition
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.portable import KeyedPorter, PortableData
 from betty.prop import HasProps
 from betty.sample import Samplable, Sample, Samples, Size
 
 if TYPE_CHECKING:
+    from ty_extensions import Intersection
+
+    from betty.plugin import PluginDefinition
     from betty.service_level import ServiceLevel
-    from betty.typing import Intersection
 
 
 class PluginManufacturerError(HumanFacingException, FactoryError):
@@ -42,18 +44,12 @@ class PluginManufacturerError(HumanFacingException, FactoryError):
     """
 
 
-_PluginManufacturerPluginT = TypeVar("_PluginManufacturerPluginT", covariant=True)
-_PluginManufacturerPluginDefinitionT = TypeVar(
-    "_PluginManufacturerPluginDefinitionT", bound=PluginClsDefinition
-)
-
-
-class PluginManufacturer(
+@disjoint_base
+class PluginManufacturer[PluginDefinitionT: PluginClsDefinition, PluginT](
     Samplable,
     Data["PluginManufacturerDefinition"],
     HasProps,
     Frozen,
-    Generic[_PluginManufacturerPluginDefinitionT, _PluginManufacturerPluginT],  # noqa: UP046
     metaclass=TypeABCMeta,
 ):
     """
@@ -75,7 +71,7 @@ class PluginManufacturer(
     @final
     def __init__(
         self,
-        plugin: ResolvablePluginId[_PluginManufacturerPluginDefinitionT],
+        plugin: ResolvablePluginId[PluginDefinitionT],
         data: Data | PortableData | NothingType = Nothing,
         /,
     ):
@@ -101,7 +97,7 @@ class PluginManufacturer(
         return hash(self) == hash(other)
 
     @final
-    async def __call__(self, services: ServiceLevel, /) -> _PluginManufacturerPluginT:
+    async def __call__(self, services: ServiceLevel, /) -> PluginT:
         """
         Create a new instance of the configured plugin.
         """
@@ -127,45 +123,14 @@ class PluginManufacturer(
     @final
     @classmethod
     def resolve(
-        cls,
-        manufacturer: ResolvablePluginManufacturer[
-            _PluginManufacturerPluginDefinitionT, _PluginManufacturerPluginT
-        ],
-    ) -> PluginManufacturer[
-        _PluginManufacturerPluginDefinitionT, _PluginManufacturerPluginT
-    ]:
+        cls, manufacturer: ResolvablePluginManufacturer[PluginDefinitionT, Self]
+    ) -> Self:
         """
         Resolve a value to a plugin manufacturer.
         """
-        try:
-            return cls(resolve_plugin_id(manufacturer))
-        except ValueError:
-            return manufacturer  # ty:ignore[invalid-return-type]
-
-    @final
-    @classmethod
-    def resolve_sequence(
-        cls,
-        manufacturers: ResolvablePluginManufacturerSequence[
-            _PluginManufacturerPluginDefinitionT, _PluginManufacturerPluginT
-        ],
-    ) -> MutableSequence[
-        PluginManufacturer[
-            _PluginManufacturerPluginDefinitionT, _PluginManufacturerPluginT
-        ]
-    ]:
-        """
-        Resolve a value to a sequence of plugin manufacturers.
-        """
-        if isinstance(manufacturers, PluginManufacturer):
-            return [manufacturers]  # ty:ignore[invalid-return-type]
-        if (
-            isinstance(manufacturers, (str, PluginDefinition))
-            or isinstance(manufacturers, type)
-            and issubclass(manufacturers, Plugin)
-        ):
-            return [cls.resolve(manufacturers)]  # ty:ignore[invalid-argument-type]
-        return list(map(cls.resolve, manufacturers))
+        if isinstance(manufacturer, cls):
+            return manufacturer
+        return cls(resolve_plugin_id(manufacturer))
 
     @final
     @override
@@ -224,9 +189,7 @@ class PluginManufacturerPorter[PluginManufacturerT: PluginManufacturer](
     @classmethod
     def _dump_data(cls, configuration: Data | PortableData) -> PortableData:
         if isinstance(configuration, Data):
-            return configuration.data().porter.dump(
-                configuration,  # ty:ignore[invalid-argument-type]
-            )
+            return configuration.data().porter.dump(configuration)
         return configuration
 
     @override
@@ -268,16 +231,14 @@ class PluginManufacturerDefinition[PluginDefinitionT: PluginClsDefinition, Plugi
         self.plugin_type: Final[type[PluginDefinition]] = plugin_type
 
 
-type ResolvablePluginManufacturer[PluginDefinitionT: PluginClsDefinition, PluginT] = (
-    ResolvablePluginId[PluginDefinitionT]
-    | PluginManufacturer[PluginDefinitionT, PluginT]
-)
-
-
-type ResolvablePluginManufacturerSequence[
+type ResolvablePluginManufacturer[
     PluginDefinitionT: PluginClsDefinition,
+    PluginManufacturerT: PluginManufacturer,
+] = ResolvablePluginId[PluginDefinitionT] | PluginManufacturerT
+
+
+type ManufacturablePlugin[
+    PluginDefinitionT: PluginClsDefinition,
+    PluginManufacturerT: PluginManufacturer,
     PluginT,
-] = (
-    ResolvablePluginManufacturer[PluginDefinitionT, PluginT]
-    | Iterable[ResolvablePluginManufacturer[PluginDefinitionT, PluginT]]
-)
+] = ResolvablePluginManufacturer[PluginDefinitionT, PluginManufacturerT] | PluginT

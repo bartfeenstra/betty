@@ -331,7 +331,7 @@ Data
             for field_selector, field in sorted(
                 data.fields.items(),
                 key=lambda field: (
-                    isinstance(field[1].subject, OptionalDefinition),
+                    isinstance(field[1].data, OptionalDefinition),
                     field[0].element,
                 ),
             ):

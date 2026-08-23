@@ -35,7 +35,7 @@ class TestColumnsData(DataTestBase[ColumnsData]):
     def test_width(self, expected: ColumnsWidth, width: ShorthandColumnsWidth) -> None:
         assert (
             ColumnsData(
-                [[ContentBuilderManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))]],
+                [ContentBuilderManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))],
                 width=width,
             ).width
             == expected
@@ -44,7 +44,7 @@ class TestColumnsData(DataTestBase[ColumnsData]):
     def test_justify_content(self) -> None:
         justify_content = JustifyContent.CENTER
         sut = ColumnsData(
-            [[ContentBuilderManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))]],
+            [ContentBuilderManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))],
             justify_content=justify_content,
         )
         assert sut.justify_content == justify_content
@@ -58,7 +58,7 @@ class TestColumns:
             sut = await Columns.new(
                 project,
                 ColumnsData([
-                    [ContentBuilderManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))]
+                    ContentBuilderManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))
                 ]),
             )
             actual = await sut.build(document=Document())
@@ -72,13 +72,7 @@ class TestColumns:
             sut = await Columns.new(
                 project,
                 ColumnsData(
-                    [
-                        [
-                            ContentBuilderManufacturer(
-                                Render, RenderData(DUMMY_LOCALIZABLE)
-                            )
-                        ]
-                    ],
+                    [ContentBuilderManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))],
                     width={Breakpoint.XS: 12, Breakpoint.LG: 6},
                 ),
             )
@@ -93,18 +87,8 @@ class TestColumns:
             sut = await Columns.new(
                 project,
                 ColumnsData(
-                    [
-                        [
-                            ContentBuilderManufacturer(
-                                Render, RenderData(DUMMY_LOCALIZABLE)
-                            )
-                        ],
-                        [
-                            ContentBuilderManufacturer(
-                                Render, RenderData(DUMMY_LOCALIZABLE)
-                            )
-                        ],
-                    ],
+                    [ContentBuilderManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))],
+                    [ContentBuilderManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))],
                     width=[8, 4],
                 ),
             )
@@ -120,18 +104,8 @@ class TestColumns:
             sut = await Columns.new(
                 project,
                 ColumnsData(
-                    [
-                        [
-                            ContentBuilderManufacturer(
-                                Render, RenderData(DUMMY_LOCALIZABLE)
-                            )
-                        ],
-                        [
-                            ContentBuilderManufacturer(
-                                Render, RenderData(DUMMY_LOCALIZABLE)
-                            )
-                        ],
-                    ],
+                    [ContentBuilderManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))],
+                    [ContentBuilderManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))],
                     width={Breakpoint.XS: [8, 4], Breakpoint.LG: [7, 5]},
                 ),
             )

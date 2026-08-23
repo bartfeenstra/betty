@@ -13,6 +13,7 @@ from betty.collections.keyed.adapter import MutableKeyedCollectionAdapter
 from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.plugin.definition import PluginDefinitionData
+from betty.definition.human_facing import HumanFacingDefinition
 from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
 from betty.plugin.resolve import ResolvablePluginId
@@ -21,12 +22,16 @@ from betty.porters.omit_field import OmitFieldPorter
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from ty_extensions import Intersection
+
     from betty.attrs.common import CommonAttr
     from betty.localizable import ResolvableLocalizable
     from betty.prop import HasProps
 
 
-def new_plugin_definition_datas_attr[PluginDefinitionT: PluginDefinition](
+def new_plugin_definition_datas_attr[
+    PluginDefinitionT: Intersection[PluginDefinition, HumanFacingDefinition]
+](
     plugin_type: type[PluginDefinitionT],
     item: type[PluginDefinitionData[PluginDefinitionT]],
     *,
@@ -58,8 +63,8 @@ def new_plugin_definition_datas_attr[PluginDefinitionT: PluginDefinition](
             ](
                 value=item,
                 label=plugin_type.type().label_plural,
-                factory=lambda values: MutableKeyedCollectionAdapter(
-                    values or (), key=lambda item: item.id
+                manufacturer=lambda values: MutableKeyedCollectionAdapter(
+                    [] if values is None else list(values), key=lambda item: item.id
                 ),
             ),
             label=label,

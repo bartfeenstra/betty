@@ -25,7 +25,7 @@ class OptionalAttr[OwnerT: HasProps, GetT, SetT](
 
     def __init__(self, proxied: Attr[OwnerT, GetT, SetT, DataDefinition[GetT]], /):
         super().__init__(
-            FieldDefinition[OwnerT, GetT, DataDefinition[GetT | None]](
+            FieldDefinition[OwnerT, GetT | None, DataDefinition[GetT | None]](
                 OptionalDefinition(proxied.field.data),
                 label=proxied.field.label,
                 description=proxied.field.description,

@@ -4,8 +4,10 @@ from typing import override
 import pytest
 
 from betty.service_level import HasServiceLevel
-from betty.services.plugin import HasPluginServices
-from betty.services.plugin.instance import ServicePluginInstance
+from betty.services.plugin import (
+    HasPluginServices,
+    ResolvableServiceLevelHasPluginServices,
+)
 from betty.services.plugin.instance.collection import (
     CollectionPluginInstanceServiceManager,
 )
@@ -14,6 +16,7 @@ from betty.test_utils.plugin import (
     DummyPluginDefinition,
     DummyPluginManufacturer,
     DummyPluginWithLifeCycle,
+    ManufacturableDummyPlugin,
 )
 from betty.tests.services.test_plugin import (
     PluginServiceManagerTestBase,
@@ -23,7 +26,11 @@ from betty.typing import Unreachable
 
 class _CollectionPluginInstanceServiceManagerTestSut(
     CollectionPluginInstanceServiceManager[
-        HasPluginServices, DummyPluginDefinition, Sequence[DummyPlugin], DummyPlugin
+        ResolvableServiceLevelHasPluginServices,
+        DummyPluginDefinition,
+        Sequence[DummyPlugin],
+        DummyPluginManufacturer,
+        DummyPlugin,
     ]
 ):
     @override
@@ -46,7 +53,7 @@ class TestCollectionPluginInstanceServiceManager(PluginServiceManagerTestBase):
         ],
     )
     async def test_new_service_item(
-        self, init_plugin: ServicePluginInstance[DummyPluginDefinition]
+        self, init_plugin: ManufacturableDummyPlugin
     ) -> None:
         owner = self._Owner(services=self._SERVICES)
         async with owner:

@@ -17,8 +17,9 @@ from betty.sample import Samplable, Sample, Samples
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, MutableMapping
 
+    from ty_extensions import Intersection
+
     from betty.localizable import ResolvableLocalizable
-    from betty.typing import Intersection
 
 
 type ResolvableDataPorter[DataDefinitionT: DataDefinition, DataT] = (
@@ -111,18 +112,18 @@ class Data[DataDefinitionT: DataDefinition = DataDefinition]:
 
     @final
     @classmethod
-    def data(cls) -> Intersection[DataDefinitionT, DataDefinition[Self]]:
+    def data(cls) -> DataDefinitionT:
         """
         Define the data for instances of this class.
         """
         try:
-            return _datas[cls]
+            return _datas[cls]  # ty:ignore[invalid-return-type]
         except KeyError:  # pragma: no cover
             raise NotImplementedError(
                 f"{fully_qualified_name(cls)} was not decorated with {fully_qualified_name(DataDefinition)} or any subclass."
             ) from None
 
-    def __eq__(self, other: object) -> bool:
+    def __eq__(self, other: object, /) -> bool:
         if self is other:
             return True
         if type(self) is not type(other):

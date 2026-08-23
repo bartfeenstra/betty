@@ -74,7 +74,7 @@ class New(Manufacturable, Command):
                     "Which language should your project site be generated in? Enter a language code."
                 ),
                 default=default_locale_tag,
-                assertion=assert_locale(),
+                assertion=assert_locale,
             )
         ]
         while await self._app.user.ask_confirmation(
@@ -85,7 +85,7 @@ class New(Manufacturable, Command):
                     _(
                         "Which language should your project site be generated in? Enter a language code."
                     ),
-                    assertion=assert_locale(),
+                    assertion=assert_locale,
                 )
             )
         locales = tuple(configuration.locales.keys())

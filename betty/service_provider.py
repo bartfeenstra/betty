@@ -13,7 +13,12 @@ from betty.life_cycle.manage import ManagedLifeCycle
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
+from betty.plugin.factory import (
+    ManufacturablePlugin,
+    PluginManufacturer,
+    PluginManufacturerDefinition,
+    ResolvablePluginManufacturer,
+)
 from betty.prop import HasProps
 from betty.service_level import HasServiceLevel, ServiceLevel
 
@@ -81,3 +86,15 @@ class ServiceProviderManufacturer(
     """
     The service provider manufacturer.
     """
+
+
+type ResolvableServiceProviderManufacturer = ResolvablePluginManufacturer[
+    ServiceProviderDefinition, ServiceProviderManufacturer
+]
+
+
+type ManufacturableServiceProvider[ServiceLevelT: ServiceLevel] = ManufacturablePlugin[
+    ServiceProviderDefinition,
+    ServiceProviderManufacturer,
+    ServiceProvider[ServiceLevelT],
+]

@@ -30,7 +30,7 @@ class TestTypedMappingDefinition:
             fields={
                 Key(field_name): FieldDefinition(StrDefinition(label="-")),
             },
-            factory=FactoryDict,
+            manufacturer=FactoryDict,
         )
         assert isinstance(sut.porter.load({field_name: "Hello, world!"}), FactoryDict)
 
