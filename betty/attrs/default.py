@@ -16,8 +16,9 @@ from betty.prop import HasProps
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    from ty_extensions import Intersection
+
     from betty.attr import Attr
-    from betty.typing import Intersection
 
 
 class DefaultAttr[

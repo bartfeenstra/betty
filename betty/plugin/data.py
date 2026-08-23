@@ -4,13 +4,14 @@ Data plugins.
 
 from __future__ import annotations
 
+from ty_extensions import Intersection
+
 from betty.capability import Stage
 from betty.data import Data, DataDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.definition.cls import ClsDefinitionCapabilityStage
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.portable import Porter
-from betty.typing import Intersection
 
 
 class DataPlugin[

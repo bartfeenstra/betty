@@ -25,10 +25,11 @@ from betty.portable import PortableData, Porter
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping, MutableMapping
 
+    from ty_extensions import Intersection
+
     from betty.capability import ResolvableCapability
     from betty.localizable import Localizable, ResolvableLocalizable
     from betty.nothing import NothingType
-    from betty.typing import Intersection
 
 
 type FieldOperator = Attr | Key
