@@ -31,6 +31,8 @@ class Operator(Indicator, metaclass=ABCMeta):
     Indicate and interact with an aggregate data element.
     """
 
+    __slots__ = ()
+
     @abstractmethod
     def __hash__(self) -> int:
         pass

@@ -18,6 +18,8 @@ class Indicator(metaclass=ABCMeta):
     Describe a location of a piece of data.
     """
 
+    __slots__ = ()
+
     @abstractmethod
     def format(self) -> str:
         """

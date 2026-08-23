@@ -37,6 +37,8 @@ class LocalizableSequence(metaclass=ABCMeta):
     A sequence of localizables.
     """
 
+    __slots__ = ()
+
     @property
     @abstractmethod
     def localizables(self) -> Sequence[Localizable]:

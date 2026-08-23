@@ -31,6 +31,8 @@ class ReAwaitable[ValueT](metaclass=ABCMeta):
     A value that can be awaited multiple times.
     """
 
+    __slots__ = ()
+
     @abstractmethod
     def __await__(self) -> Generator[Any, Any, ValueT]:
         pass
@@ -44,7 +46,7 @@ class LazyReAwaitable[ValueT](ReAwaitable[ValueT]):
     The proxied awaitable will at most be awaited once.
     """
 
-    __slots__ = "_lock", "_producer", "_value"
+    __slots__ = "_factory", "_lock", "_value"
     _value: ValueT
 
     def __init__(self, factory: Callable[[], Awaitable[ValueT]], /):
@@ -60,7 +62,6 @@ class LazyReAwaitable[ValueT](ReAwaitable[ValueT]):
                 # Check if the value was created since we last checked (this is usually done within the lock anyway).
                 if not hasattr(self, "_value"):
                     self._value = yield from self._factory().__await__()
-                    self._awaited = True
             finally:
                 yield from self._lock.release().__await__()
         return self._value
