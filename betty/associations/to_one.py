@@ -163,7 +163,7 @@ class ToOne[OwnerT: HasAssociations, AssociateT: Entity](
             )
 
     @override
-    def pre_init_owner(self, owner: OwnerT, /) -> None:
+    def _pre_init_owner(self, owner: OwnerT, /) -> None:
         self.prop.setattr(owner, _NotInitialized)
 
     @override

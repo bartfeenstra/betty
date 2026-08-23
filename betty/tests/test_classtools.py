@@ -106,7 +106,7 @@ class TestInit:
 
 class TestInitClassVar:
     def test_pre_init_owner(self) -> None:
-        assert not InitClassVar().pre_init_owner(Init())
+        assert not InitClassVar()._pre_init_owner(Init())
 
     def test_post_init_owner(self) -> None:
-        assert not InitClassVar().post_init_owner(Init())
+        assert not InitClassVar()._post_init_owner(Init())

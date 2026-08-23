@@ -58,7 +58,7 @@ class TestProxyProp:
             my_first_prop = ProxyProp(proxied=m_proxied)
 
         owner = _Owner()
-        m_proxied.pre_init_owner.assert_called_once_with(owner)
+        m_proxied._pre_init_owner.assert_called_once_with(owner)
 
     def test_post_init_owner(self, mocker: MockerFixture) -> None:
         m_proxied = mocker.MagicMock(spec=Prop)
@@ -67,7 +67,7 @@ class TestProxyProp:
             my_first_prop = ProxyProp(proxied=m_proxied)
 
         owner = _Owner()
-        m_proxied.post_init_owner.assert_called_once_with(owner)
+        m_proxied._post_init_owner.assert_called_once_with(owner)
 
     def test_delete_owner(self, mocker: MockerFixture) -> None:
         m_proxied = mocker.MagicMock(spec=Prop)

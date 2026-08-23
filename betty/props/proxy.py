@@ -44,14 +44,14 @@ class ProxyProp[OwnerT: HasProps, GetT, SetT](Prop[OwnerT, GetT, SetT]):
         return self.__proxied.delete(owner)
 
     @override
-    def pre_init_owner(self, owner: OwnerT, /) -> None:
-        super().pre_init_owner(owner)
-        self.__proxied.pre_init_owner(owner)
+    def _pre_init_owner(self, owner: OwnerT, /) -> None:
+        super()._pre_init_owner(owner)
+        self.__proxied._pre_init_owner(owner)
 
     @override
-    def post_init_owner(self, owner: OwnerT, /) -> None:
-        super().post_init_owner(owner)
-        self.__proxied.post_init_owner(owner)
+    def _post_init_owner(self, owner: OwnerT, /) -> None:
+        super()._post_init_owner(owner)
+        self.__proxied._post_init_owner(owner)
 
     @override
     def delete_owner(self, owner: OwnerT, /) -> None:

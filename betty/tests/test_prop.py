@@ -40,11 +40,11 @@ class _Prop(Prop[_PropOwner, tuple[_PropOwner, _Value]]):
         return owner, self.__value
 
     @override
-    def pre_init_owner(self, owner: _PropOwner, /) -> None:
+    def _pre_init_owner(self, owner: _PropOwner, /) -> None:
         owner.pre_init_properties.append(self)
 
     @override
-    def post_init_owner(self, owner: _PropOwner, /) -> None:
+    def _post_init_owner(self, owner: _PropOwner, /) -> None:
         owner.post_init_properties.append(self)
 
 

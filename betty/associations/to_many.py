@@ -63,8 +63,8 @@ class ToMany[OwnerT: HasAssociations, AssociateT: Entity](
         return True
 
     @override
-    def pre_init_owner(self, owner: OwnerT, /) -> None:
-        super().pre_init_owner(owner)
+    def _pre_init_owner(self, owner: OwnerT, /) -> None:
+        super()._pre_init_owner(owner)
         self.prop.setattr(owner, ToManyCollection(owner, self))
 
     @override
