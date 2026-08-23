@@ -132,6 +132,7 @@ if TYPE_CHECKING:
     from xml.etree import ElementTree
 
     from babel import Locale
+    from ty_extensions import Intersection
 
     from betty.associations.has_file_references import HasFileReferences
     from betty.event_type import EventType, EventTypeDefinition
@@ -143,7 +144,6 @@ if TYPE_CHECKING:
     from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
     from betty.project import Project
     from betty.role import Role, RoleDefinition
-    from betty.typing import Intersection
 
 
 class GrampsError(Exception):

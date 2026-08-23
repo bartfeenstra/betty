@@ -33,8 +33,9 @@ from betty.prop import HasProps
 from betty.sample import Samplable, Sample, Samples, Size
 
 if TYPE_CHECKING:
+    from ty_extensions import Intersection
+
     from betty.service_level import ServiceLevel
-    from betty.typing import Intersection
 
 
 class PluginManufacturerError(HumanFacingException, FactoryError):

@@ -5,11 +5,13 @@ Life cycle and resource management.
 from __future__ import annotations
 
 from collections.abc import Awaitable, Callable
-from typing import TYPE_CHECKING, Any, Self, TypedDict, Unpack, final
+from typing import TYPE_CHECKING, Any, Protocol, Self, final
 from warnings import warn
 
 if TYPE_CHECKING:
     from types import TracebackType
+
+    from betty.asyncio import ResolvableAwaitable
 
 
 class LifeCycleError(RuntimeError):
@@ -175,18 +177,12 @@ A callback to bootstrap resources.
 """
 
 
-class ShutdownerKwargs(TypedDict):
+class Shutdowner(Protocol):
     """
-    The keyword arguments to a shutdown callback.
-    """
-
-    wait: bool
-    """
-    ``True`` to wait for the component to shut down gracefully, or ``False`` to attempt an immediate forced shutdown.
+    A callback to shut down resources.
     """
 
-
-type Shutdowner = Callable[[Unpack[ShutdownerKwargs]], Awaitable[None] | None]
-"""
-A callback to shut down resources.
-"""
+    def __call__(self, *, wait: bool) -> ResolvableAwaitable[None]:
+        """
+        Shut down resources.
+        """

@@ -7,10 +7,11 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping, MutableMapping
 from typing import Any, Final, Never, Self, final
 
+from ty_extensions import Intersection
+
 from betty.collections import _empty_frozen_mapping
 from betty.importlib import fully_qualified_name
 from betty.nothing import Nothing
-from betty.typing import Intersection
 
 type CapabilityManufacturer[OwnerT, ManufacturableT] = Callable[
     [OwnerT], ManufacturableT
