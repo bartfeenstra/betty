@@ -158,6 +158,10 @@ class PluginServiceManager[
         """
         Initialize the plugins.
         """
+        print("INIT PLUGINS")
+        print(owner)
+        print(owner)
+        print(owner)
         setattr(
             owner,
             f"_plugin_service_plugins_{self.prop.name}",

@@ -59,6 +59,10 @@ class InitMeta(type):
         """
         new = cls.__new__(cls, *args, **kwargs)
         assert isinstance(new, Init)
+        print("INIT META")
+        print(new)
+        print(new)
+        print(new)
         new._pre_init()
         new.__init__(*args, **kwargs)
         new._post_init()

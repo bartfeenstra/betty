@@ -50,6 +50,10 @@ class TestPluginServiceInitializer:
                     services=self, plugins={DummyPluginDefinition: [plugin]}
                 )
                 type(self).plugins.add_init_plugins(self, plugin)
+                print("TEST")
+                print(self)
+                print(self)
+                print(self)
 
         async with _Owner() as owner:
             assert plugin in owner.plugins
