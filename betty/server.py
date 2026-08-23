@@ -16,6 +16,11 @@ from betty.exception import HumanFacingException
 from betty.functools import Do
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
+from betty.plugin.factory import (
+    ManufacturablePlugin,
+    PluginManufacturer,
+    PluginManufacturerDefinition,
+)
 from betty.plugin.ordered import Order, OrderedPluginClsDefinition
 from betty.user import Severity
 
@@ -151,3 +156,16 @@ class ServerDefinition(HumanFacingDefinition, OrderedPluginClsDefinition[Server]
             description=description,
             requires=requires,
         )
+
+
+@final
+@PluginManufacturerDefinition(ServerDefinition)
+class ServerManufacturer(PluginManufacturer[ServerDefinition, Server]):
+    """
+    The server manufacturer.
+    """
+
+
+type ManufacturableServer = ManufacturablePlugin[
+    ServerDefinition, ServerManufacturer, Server
+]

@@ -26,14 +26,12 @@ class ResolvedMapping[KeyT, ResolvableKeyT, ValueT](Mapping[KeyT, ValueT]):
         pass
 
     @overload
-    def get(self, key: KeyT | ResolvableKeyT, default: None = None, /) -> ValueT | None:
+    def get(self, key: KeyT | ResolvableKeyT, /) -> ValueT:
         pass
 
     @override
     @abstractmethod
-    def get[T](
-        self, key: KeyT | ResolvableKeyT, default: T | None = None, /
-    ) -> ValueT | None:
+    def get(self, key, *args):  # ty: ignore[invalid-method-override]
         pass
 
 

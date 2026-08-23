@@ -41,7 +41,7 @@ class TestObjectDefinition:
             fields={
                 AttrSelector(field_name): FieldDefinition(StrDefinition(label="-")),
             },
-            factory=ObjectDefinitionTestFactoryObject,
+            manufacturer=ObjectDefinitionTestFactoryObject,
         )
         assert isinstance(
             sut.porter.load({"my_first_element": "Hello, world!"}),

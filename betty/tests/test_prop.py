@@ -62,10 +62,7 @@ class TestProp:
     def test_set(self) -> None:
         owner = _Owner()
         with pytest.raises(NotSettable):
-            _Owner.my_first_prop.set(
-                owner,
-                Never,  # ty:ignore[invalid-argument-type]
-            )
+            _Owner.my_first_prop.set(owner, Never)
 
     def test_delete(self) -> None:
         owner = _Owner()

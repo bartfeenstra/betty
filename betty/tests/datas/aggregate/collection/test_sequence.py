@@ -22,7 +22,7 @@ class TestSequenceDefinition:
 
     def test_porter__load__without_items(self) -> None:
         sut = SequenceDefinition[Sequence[str], str](
-            factory=lambda values: list(values) if values else [],
+            manufacturer=lambda values: list(values) if values else [],
             value=StrDefinition(label="-"),
             label="-",
         )
@@ -30,7 +30,7 @@ class TestSequenceDefinition:
 
     def test_porter__load__with_items(self) -> None:
         sut = SequenceDefinition[Sequence[str], str](
-            factory=lambda values: list(values) if values else [],
+            manufacturer=lambda values: list(values) if values else [],
             value=StrDefinition(label="-"),
             label="-",
         )
@@ -38,7 +38,7 @@ class TestSequenceDefinition:
 
     def test_porter__load__with_item_without_porter(self) -> None:
         sut = SequenceDefinition[Sequence[str], str](
-            factory=lambda values: list(values) if values else [],
+            manufacturer=lambda values: list(values) if values else [],
             value=DataDefinition(cls=str, label="-"),
             label="-",
         )
@@ -47,7 +47,7 @@ class TestSequenceDefinition:
 
     def test_porter__dump__without_items(self) -> None:
         sut = SequenceDefinition[Sequence[str], str](
-            factory=lambda values: list(values) if values else [],
+            manufacturer=lambda values: list(values) if values else [],
             value=StrDefinition(label="-"),
             label="-",
         )
@@ -55,7 +55,7 @@ class TestSequenceDefinition:
 
     def test_porter__dump__with_items(self) -> None:
         sut = SequenceDefinition[Sequence[str], str](
-            factory=lambda values: list(values) if values else [],
+            manufacturer=lambda values: list(values) if values else [],
             value=StrDefinition(label="-"),
             label="-",
         )
@@ -63,7 +63,7 @@ class TestSequenceDefinition:
 
     def test_porter__dump__with_item_without_porter(self) -> None:
         sut = SequenceDefinition[Sequence[str], str](
-            factory=lambda values: list(values) if values else [],
+            manufacturer=lambda values: list(values) if values else [],
             value=DataDefinition(cls=str, label="-"),
             label="-",
         )

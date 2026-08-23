@@ -34,11 +34,12 @@ from betty.collections.keyed.adapter import (
     KeyedCollectionAdapter,
     MutableKeyedCollectionAdapter,
 )
-from betty.collections.sequence.adapter import MutableResolvedSequenceAdapter
+from betty.collections.sequence.list import ResolvedList
 from betty.copyright_notice import (
-    CopyrightNotice,
     CopyrightNoticeDefinition,
     CopyrightNoticeManufacturer,
+    ManufacturableCopyrightNotice,
+    ResolvableCopyrightNoticeManufacturer,
 )
 from betty.data import Data
 from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
@@ -68,16 +69,23 @@ from betty.html.css import CssResourceDefinition
 from betty.html.js import JsResourceDefinition
 from betty.jinja.filter import JinjaFilterDefinition
 from betty.jinja.test import JinjaTestDefinition
-from betty.license import License, LicenseDefinition, LicenseManufacturer
+from betty.license import (
+    LicenseDefinition,
+    LicenseManufacturer,
+    ManufacturableLicense,
+    ResolvableLicenseManufacturer,
+)
 from betty.licenses.all_rights_reserved import AllRightsReserved
 from betty.link import LinkDefinition
 from betty.load import (
-    Enricher,
     EnricherDefinition,
     EnricherManufacturer,
-    Loader,
     LoaderDefinition,
     LoaderManufacturer,
+    ManufacturableEnricher,
+    ManufacturableLoader,
+    ResolvableEnricherManufacturer,
+    ResolvableLoaderManufacturer,
 )
 from betty.locale import (
     ResolvableLocale,
@@ -106,13 +114,14 @@ from betty.render import RenderDispatcher, RendererDefinition
 from betty.requirements.service_level import RequirableServiceLevel
 from betty.role import RoleDefinition
 from betty.sample import Sample, Size
-from betty.server import ServerDefinition
+from betty.server import ManufacturableServer, ServerDefinition
 from betty.service import (
     Service,
 )
 from betty.service_level import DownstreamServiceLevel, Plugins
 from betty.service_provider import (
-    ServiceProvider,
+    ManufacturableServiceProvider,
+    ResolvableServiceProviderManufacturer,
     ServiceProviderDefinition,
     ServiceProviderManufacturer,
 )
@@ -137,15 +146,7 @@ if TYPE_CHECKING:
     from betty.media_type import ResolvableMediaType
     from betty.pathlib import StrPath
     from betty.plugin import PluginDefinition
-    from betty.plugin.factory import (
-        ResolvablePluginManufacturer,
-        ResolvablePluginManufacturerSequence,
-    )
     from betty.services.plugin import SupportedPlugins
-    from betty.services.plugin.instance import (
-        ServicePluginInstance,
-        ServicePluginInstances,
-    )
     from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
     from betty.url_generator import UrlGenerator
 
@@ -202,23 +203,22 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         cache: TypedSynchronousServiceOrFactory[Project, TransientStore[Any]]
         | None = None,
         clean_urls: bool = False,
-        copyright_notice: ServicePluginInstance[CopyrightNoticeDefinition]
-        | None = None,
+        copyright_notice: ManufacturableCopyrightNotice | None = None,
         debug: bool = False,
-        enrichers: ServicePluginInstances[EnricherDefinition] = (),
-        service_providers: ServicePluginInstances[ServiceProviderDefinition] = (),
+        enrichers: Iterable[ManufacturableEnricher] = (),
+        service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
         generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]] = (),
-        license: ServicePluginInstance[LicenseDefinition] | None = None,  # noqa: A002
+        license: ManufacturableLicense | None = None,  # noqa: A002
         lifetime_threshold: int | None = None,
         links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
-        loaders: ServicePluginInstances[LoaderDefinition] = (),
+        loaders: Iterable[ManufacturableLoader] = (),
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
         localizers: TypedSynchronousServiceOrFactory[Project, LocalizerRepository]
         | None = None,
         logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
         plugins: Plugins = _empty_frozen_mapping,
-        servers: ServicePluginInstances[ServerDefinition] = (),
+        servers: Iterable[ManufacturableServer] = (),
         supported_plugins: SupportedPlugins = (),
         _plugin_discoveries: Iterable[PluginDefinition] = (),
     ):
@@ -432,19 +432,19 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         clean_urls: bool = False,
         debug: bool = False,
         directory: StrPath | None = None,
-        enrichers: ServicePluginInstances[EnricherDefinition] = (),
+        enrichers: Iterable[ManufacturableEnricher] = (),
         generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]] = (),
-        service_providers: ServicePluginInstances[ServiceProviderDefinition] = (),
+        service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
         lifetime_threshold: int | None = None,
         links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
-        loaders: ServicePluginInstances[LoaderDefinition] = (),
+        loaders: Iterable[ManufacturableLoader] = (),
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
         localizers: TypedSynchronousServiceOrFactory[Project, LocalizerRepository]
         | None = None,
         logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
         plugins: Plugins = _empty_frozen_mapping,
-        servers: ServicePluginInstances[ServerDefinition] = (),
+        servers: Iterable[ManufacturableServer] = (),
         supported_plugins: SupportedPlugins = (),
         title: ResolvableLocalizable | None = None,
         url: str | None = None,
@@ -785,8 +785,8 @@ class ProjectData(Data, HasProps):
             KeyedCollectionDefinition(
                 value=EnricherManufacturer,
                 label=EnricherDefinition.type().label_plural,
-                factory=lambda values: MutableKeyedCollectionAdapter(
-                    values or (),
+                manufacturer=lambda values: MutableKeyedCollectionAdapter(
+                    [] if values is None else list(values),
                     key=lambda data: data.plugin_id,
                     key_resolver=resolve_plugin_id,
                     value_resolver=EnricherManufacturer.resolve,
@@ -812,8 +812,8 @@ class ProjectData(Data, HasProps):
             KeyedCollectionDefinition(
                 value=ServiceProviderManufacturer,
                 label=ServiceProviderDefinition.type().label_plural,
-                factory=lambda values: MutableKeyedCollectionAdapter(
-                    values or (),
+                manufacturer=lambda values: MutableKeyedCollectionAdapter(
+                    [] if values is None else list(values),
                     key=lambda data: data.plugin_id,
                     key_resolver=resolve_plugin_id,
                     value_resolver=ServiceProviderManufacturer.resolve,
@@ -835,9 +835,9 @@ class ProjectData(Data, HasProps):
             ](
                 label=_("Entity types to generate list HTML pages for"),
                 value=MachineName,
-                factory=lambda values: MutableResolvedSequenceAdapter[
+                manufacturer=lambda values: ResolvedList[
                     MachineName, ResolvablePluginId[EntityDefinition]
-                ](values or [], value_resolver=resolve_plugin_id),  # ty:ignore[invalid-argument-type]
+                ](values, value_resolver=resolve_plugin_id),  # ty:ignore[invalid-argument-type]
             ),
             optional=True,
             porter=OmitFieldPorter.new(not_),
@@ -889,8 +889,8 @@ class ProjectData(Data, HasProps):
             KeyedCollectionDefinition(
                 value=LoaderManufacturer,
                 label=LoaderDefinition.type().label_plural,
-                factory=lambda values: MutableKeyedCollectionAdapter(
-                    values or (),
+                manufacturer=lambda values: MutableKeyedCollectionAdapter(
+                    [] if values is None else list(values),
                     key=lambda data: data.plugin_id,
                     key_resolver=resolve_plugin_id,
                     value_resolver=LoaderManufacturer.resolve,
@@ -910,8 +910,8 @@ class ProjectData(Data, HasProps):
                 value=ProjectLocale,
                 label=_("Locales"),
                 order_dump=True,
-                factory=lambda values: MutableKeyedCollectionAdapter(
-                    values or (),
+                manufacturer=lambda values: MutableKeyedCollectionAdapter(
+                    [] if values is None else list(values),
                     key=lambda item: item.locale,
                     key_resolver=resolve_locale,
                     value_resolver=lambda value: (
@@ -975,25 +975,18 @@ class ProjectData(Data, HasProps):
         url: str,
         author: ResolvableLocalizable | None = None,
         clean_urls: bool = False,
-        copyright_notice: ResolvablePluginManufacturer[
-            CopyrightNoticeDefinition, CopyrightNotice
-        ]
-        | None = None,
+        copyright_notice: ResolvableCopyrightNoticeManufacturer | None = None,
         copyright_notices: Iterable[CopyrightNoticeDefinitionData] = (),
         debug: bool = False,
-        enrichers: ResolvablePluginManufacturerSequence[
-            EnricherDefinition, Enricher
-        ] = (),
+        enrichers: Iterable[ResolvableEnricherManufacturer] = (),
         event_types: Iterable[EventTypeDefinitionData] = (),
-        service_providers: ResolvablePluginManufacturerSequence[
-            ServiceProviderDefinition, ServiceProvider
-        ] = (),
+        service_providers: Iterable[ResolvableServiceProviderManufacturer] = (),
         generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]] = (),
         genders: Iterable[GenderDefinitionData] = (),
-        license: ResolvablePluginManufacturer[LicenseDefinition, License] | None = None,  # noqa: A002
+        license: ResolvableLicenseManufacturer | None = None,  # noqa: A002
         licenses: Iterable[LicenseDefinitionData] = (),
         lifetime_threshold: int = default_lifetime_threshold,
-        loaders: ResolvablePluginManufacturerSequence[LoaderDefinition, Loader] = (),
+        loaders: Iterable[ResolvableLoaderManufacturer] = (),
         locales: Iterable[ResolvableLocale | ProjectLocale] = (),
         logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
@@ -1004,9 +997,7 @@ class ProjectData(Data, HasProps):
         self.author = author
         self.clean_urls = clean_urls
         if copyright_notice is not None:
-            self.copyright_notice = CopyrightNoticeManufacturer.resolve(
-                copyright_notice
-            )
+            self.copyright_notice = copyright_notice
         if copyright_notices is not None:
             self.copyright_notices = copyright_notices
         self.debug = debug
@@ -1016,12 +1007,11 @@ class ProjectData(Data, HasProps):
         self.generate_entity_list_html = generate_entity_list_html
         self.genders = genders
         if license is not None:
-            self.license = LicenseManufacturer.resolve(license)
+            self.license = license
         self.licenses = licenses
         self.lifetime_threshold = lifetime_threshold
         self.loaders = loaders
-        if logo is not None:
-            self.logo = resolve_path(logo)
+        self.logo = logo
         self.locales = locales
         self.name = name
         self.place_types = place_types

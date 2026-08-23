@@ -114,10 +114,7 @@ class _BiNamedEntity(Entity):
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class _BiTypedEntity(Entity):
-    association = _Association(
-        _BiNamedEntity,
-        _BiNamedEntity.association,  # ty:ignore[invalid-argument-type]
-    )
+    association = _Association(_BiNamedEntity, _BiNamedEntity.association)
 
 
 class _AssociateDeclaresBidirectionalityOwner(Entity):
@@ -129,7 +126,7 @@ class _AssociateDeclaresBidirectionalityOwner(Entity):
 class _AssociateDeclaresBidirectionalityAssociate(Entity):
     association = _Association(
         _AssociateDeclaresBidirectionalityOwner,
-        _AssociateDeclaresBidirectionalityOwner.association,  # ty:ignore[invalid-argument-type]
+        _AssociateDeclaresBidirectionalityOwner.association,
     )
 
 

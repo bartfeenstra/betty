@@ -2,7 +2,10 @@ from typing import override
 
 from betty.plugin.resolve import ResolvablePluginDefinition, resolve_plugin_definition
 from betty.service_level import HasServiceLevel
-from betty.services.plugin import HasPluginServices
+from betty.services.plugin import (
+    HasPluginServices,
+    ResolvableServiceLevelHasPluginServices,
+)
 from betty.services.plugin.collection.keyed import (
     KeyedCollectionPluginServiceManager,
 )
@@ -19,7 +22,7 @@ from betty.tests.services.test_plugin import (
 
 class _KeyedCollectionPluginServiceManagerTestSut(
     KeyedCollectionPluginServiceManager[
-        HasPluginServices,
+        ResolvableServiceLevelHasPluginServices,
         DummyPluginDefinition,
         DummyPluginDefinition,
         ResolvablePluginDefinition[DummyPluginDefinition],

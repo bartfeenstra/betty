@@ -8,36 +8,37 @@ from typing import final
 
 from betty.asyncio import ReAwaitable
 from betty.plugin.cls import Plugin, PluginClsDefinition
+from betty.plugin.factory import ManufacturablePlugin, PluginManufacturer
 from betty.services.plugin import ResolvableServiceLevelHasPluginServices
 from betty.services.plugin.collection.keyed import (
     KeyedCollectionPluginServiceManager,
     KeyedPluginCollectionService,
 )
-from betty.services.plugin.instance import ServicePluginInstance
 from betty.services.plugin.instance.collection import (
     CollectionPluginInstanceServiceManager,
 )
 
 
 @final
-class PluginInstancesService[  # ty:ignore[abstract-method-in-final-class]
-    OwnerT: ResolvableServiceLevelHasPluginServices,
+class PluginInstancesService[
     PluginDefinitionT: PluginClsDefinition,
+    PluginManufacturerT: PluginManufacturer,
     PluginT: Plugin,
 ](
     CollectionPluginInstanceServiceManager[
-        OwnerT,
+        ResolvableServiceLevelHasPluginServices,
         PluginDefinitionT,
-        KeyedPluginCollectionService[PluginDefinitionT, PluginT],
+        KeyedPluginCollectionService[PluginDefinitionT, ReAwaitable[PluginT]],
+        PluginManufacturerT,
         PluginT,
     ],
     KeyedCollectionPluginServiceManager[
-        OwnerT,
+        ResolvableServiceLevelHasPluginServices,
         PluginDefinitionT,
         ReAwaitable[PluginT],
-        ServicePluginInstance[PluginDefinitionT],
+        ManufacturablePlugin[PluginDefinitionT, PluginManufacturerT, PluginT],
     ],
-):  # ty:ignore[invalid-generic-class]
+):
     """
     A service of plugins keyed by their IDs.
     """

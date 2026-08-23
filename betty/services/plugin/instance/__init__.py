@@ -4,15 +4,14 @@ Plugin instance services.
 
 from __future__ import annotations
 
-from collections.abc import Iterable
 from typing import TYPE_CHECKING, final, override
 
 from betty.asyncio import LazyReAwaitable, ReAwaitable
 from betty.life_cycle import Bootstrappable, Shutdownable
 from betty.localizables.gettext import _
 from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.plugin.factory import PluginManufacturer
-from betty.plugin.resolve import ResolvablePluginDefinition, resolve_plugin_id
+from betty.plugin.factory import ManufacturablePlugin, PluginManufacturer
+from betty.plugin.resolve import resolve_plugin_id
 from betty.requirements.service import UnmetServiceRequirement
 from betty.service_level import resolve_service_level
 from betty.services.plugin import (
@@ -21,30 +20,23 @@ from betty.services.plugin import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from betty.machine_name import MachineName
-
-type ServicePluginInstance[PluginDefinitionT: PluginClsDefinition] = (
-    PluginManufacturer[PluginDefinitionT, Plugin[PluginDefinitionT]]
-    | ResolvablePluginDefinition[PluginDefinitionT]
-)
-
-
-type ServicePluginInstances[PluginDefinitionT: PluginClsDefinition] = Iterable[
-    ServicePluginInstance[PluginDefinitionT]
-]
 
 
 class PluginInstanceServiceManager[
     OwnerT: ResolvableServiceLevelHasPluginServices,
     PluginDefinitionT: PluginClsDefinition,
     GetServiceT,
+    PluginManufacturerT: PluginManufacturer,
     PluginT: Plugin,
 ](
     PluginServiceManager[
         OwnerT,
         PluginDefinitionT,
         GetServiceT,
-        ServicePluginInstance[PluginDefinitionT],
+        ManufacturablePlugin[PluginDefinitionT, PluginManufacturerT, PluginT],
     ]
 ):
     """
@@ -55,13 +47,15 @@ class PluginInstanceServiceManager[
     def new_plugin_instance_service_item(
         self,
         owner: OwnerT,
-        item: ServicePluginInstance[PluginDefinitionT],
+        item: ManufacturablePlugin[PluginDefinitionT, PluginManufacturerT, PluginT],
         /,
     ) -> ReAwaitable[PluginT]:
         """
         Create a new plugin instance service item from its init value.
         """
-        services = resolve_service_level(owner)
+        services = resolve_service_level(
+            owner,  # ty:ignore[invalid-argument-type]
+        )
 
         async def _get_plugin() -> PluginT:
             plugin = await services.factory.new(
@@ -78,8 +72,10 @@ class PluginInstanceServiceManager[
         self,
         owner: OwnerT,
         /,
-        *plugins: ServicePluginInstance[PluginDefinitionT],
-    ) -> Iterable[ServicePluginInstance[PluginDefinitionT]]:
+        *plugins: ManufacturablePlugin[PluginDefinitionT, PluginManufacturerT, PluginT],
+    ) -> Iterable[
+        ManufacturablePlugin[PluginDefinitionT, PluginManufacturerT, PluginT]
+    ]:
         # Deduplicate init plugins, ensuring there is at most one per plugin ID, where manufacturers override any other
         # init plugin definitions.
         deduplicated_plugins = {}
@@ -106,7 +102,9 @@ class PluginInstanceServiceManager[
 
     @override
     def resolve_init_plugin_id(
-        self, plugin: ServicePluginInstance[PluginDefinitionT], /
+        self,
+        plugin: ManufacturablePlugin[PluginDefinitionT, PluginManufacturerT, PluginT],
+        /,
     ) -> MachineName:
         if isinstance(plugin, PluginManufacturer):
             return plugin.plugin_id

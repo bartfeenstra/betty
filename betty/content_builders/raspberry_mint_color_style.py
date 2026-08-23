@@ -16,6 +16,7 @@ from betty.content_builder import (
     ContentBuilder,
     ContentBuilderDefinition,
     ContentBuilderManufacturer,
+    ResolvableContentBuilderManufacturer,
     build,
 )
 from betty.content_builders.template import Template, TemplateBuild
@@ -30,11 +31,8 @@ from betty.sample import Sample
 from betty.service_providers.raspberry_mint import ColorStyle as RaspberryMintColorStyle
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
     from betty.document import Document
     from betty.jinja import Environment
-    from betty.plugin.factory import ResolvablePluginManufacturerSequence
 
 
 @final
@@ -46,6 +44,7 @@ if TYPE_CHECKING:
             label="Default",
         )
     ],
+    manufacturer=lambda **fields: ColorStyleData(*fields.pop("content"), **fields),
 )
 class ColorStyleData(Data, HasProps):
     """
@@ -68,10 +67,7 @@ class ColorStyleData(Data, HasProps):
 
     def __init__(
         self,
-        content: ResolvablePluginManufacturerSequence[
-            ContentBuilderDefinition, ContentBuilder
-        ],
-        *,
+        *content: ResolvableContentBuilderManufacturer,
         style: RaspberryMintColorStyle,
     ):
         super().__init__()
@@ -95,8 +91,7 @@ class ColorStyle(Template, DataManufacturable[ColorStyleData]):
     def __init__(
         self,
         /,
-        content: Iterable[ContentBuilder],
-        *,
+        *content: ContentBuilder,
         jinja: Environment,
         style: RaspberryMintColorStyle,
     ):
@@ -122,7 +117,7 @@ class ColorStyle(Template, DataManufacturable[ColorStyleData]):
             ),
             project.jinja,
         )
-        return cls(content=content, jinja=jinja, style=data.style)
+        return cls(*content, jinja=jinja, style=data.style)
 
     @override
     async def build_template(self, document: Document) -> TemplateBuild:

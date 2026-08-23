@@ -5,7 +5,10 @@ import pytest
 from betty.plugin.resolve import ResolvablePluginDefinition
 from betty.requirements.service import UnmetServiceRequirement
 from betty.service_level import HasServiceLevel, ServiceLevel
-from betty.services.plugin import HasPluginServices
+from betty.services.plugin import (
+    HasPluginServices,
+    ResolvableServiceLevelHasPluginServices,
+)
 from betty.services.plugin.single import SinglePluginServiceManager
 from betty.test_utils.plugin import (
     DummyPluginDefinition,
@@ -17,7 +20,7 @@ from betty.typing import Unreachable
 
 class _SinglePluginServiceManagerTestSut(
     SinglePluginServiceManager[
-        HasPluginServices,
+        ResolvableServiceLevelHasPluginServices,
         DummyPluginDefinition,
         DummyPluginDefinition,
         ResolvablePluginDefinition[DummyPluginDefinition],

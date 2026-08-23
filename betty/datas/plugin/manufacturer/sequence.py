@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final
 
 from betty.collection.sequence import MutableResolvedSequence
-from betty.collections.sequence.adapter import MutableResolvedSequenceAdapter
+from betty.collections.sequence.list import ResolvedList
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
 from betty.plugin.cls import PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
@@ -19,14 +19,14 @@ if TYPE_CHECKING:
 @final
 class PluginManufacturerSequenceDefinition[
     PluginDefinitionT: PluginClsDefinition,
-    PluginT,
+    PluginManufacturerT: PluginManufacturer,
 ](
     SequenceDefinition[
         MutableResolvedSequence[
-            PluginManufacturer[PluginDefinitionT, PluginT],
-            ResolvablePluginManufacturer[PluginDefinitionT, PluginT],
+            PluginManufacturerT,
+            ResolvablePluginManufacturer[PluginDefinitionT, PluginManufacturerT],
         ],
-        PluginManufacturer[PluginDefinitionT, PluginT],
+        PluginManufacturerT,
     ]
 ):
     """
@@ -35,22 +35,17 @@ class PluginManufacturerSequenceDefinition[
 
     def __init__(
         self,
-        manufacturer: type[
-            PluginManufacturer[
-                PluginDefinitionT,
-                PluginT,
-            ]
-        ],
+        manufacturer: type[PluginManufacturerT],
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
             cls=MutableResolvedSequence,
-            factory=lambda values: MutableResolvedSequenceAdapter(
-                values or [], value_resolver=manufacturer.resolve
-            ),
-            value=manufacturer,
+            manufacturer=lambda values: ResolvedList(
+                values, value_resolver=manufacturer.resolve
+            ),  # ty: ignore[invalid-argument-type]
+            value=manufacturer,  # ty: ignore[invalid-argument-type]
             label=manufacturer.data().plugin_type.type().label_plural
             if label is None
             else label,

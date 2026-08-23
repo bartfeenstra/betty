@@ -5,7 +5,10 @@ from betty.plugin import PluginTypeDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.plugin.resolve import ResolvablePluginDefinition
 from betty.service_level import HasServiceLevel, ServiceLevel
-from betty.services.plugin import HasPluginServices
+from betty.services.plugin import (
+    HasPluginServices,
+    ResolvableServiceLevelHasPluginServices,
+)
 from betty.services.plugin.collection import CollectionPluginServiceManager
 from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
 from betty.tests.services.test_plugin import (
@@ -26,7 +29,7 @@ class _DummyOrderedPluginDefinition(OrderedPluginDefinition):
 
 class _CollectionPluginServiceManagerTestSut(
     CollectionPluginServiceManager[
-        HasPluginServices,
+        ResolvableServiceLevelHasPluginServices,
         _DummyOrderedPluginDefinition,
         Sequence[_DummyOrderedPluginDefinition],
         _DummyOrderedPluginDefinition,

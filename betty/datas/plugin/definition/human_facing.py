@@ -10,15 +10,21 @@ from betty.attrs.countable_localizable import new_countable_localizable_attr
 from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.optional import OptionalAttr
 from betty.datas.plugin.definition import PluginDefinitionData
+from betty.definition.human_facing import (
+    CountableHumanFacingDefinition,
+    HumanFacingDefinition,
+)
 from betty.localizables.gettext import _
 from betty.plugin import PluginDefinition
 
 if TYPE_CHECKING:
+    from ty_extensions import Intersection
+
     from betty.localizable import ResolvableCountableLocalizable, ResolvableLocalizable
 
 
 class HumanFacingPluginDefinitionData[
-    PluginDefinitionT: PluginDefinition = PluginDefinition
+    PluginDefinitionT: Intersection[PluginDefinition, HumanFacingDefinition]
 ](PluginDefinitionData[PluginDefinitionT]):
     """
     Configure a :py:class:`betty.definition.human_facing.HumanFacingDefinition`.
@@ -42,7 +48,7 @@ class HumanFacingPluginDefinitionData[
 
 
 class CountableHumanFacingPluginDefinitionData[
-    PluginDefinitionT: PluginDefinition = PluginDefinition
+    PluginDefinitionT: Intersection[PluginDefinition, CountableHumanFacingDefinition]
 ](HumanFacingPluginDefinitionData[PluginDefinitionT]):
     """
     Configure a :py:class:`betty.definition.human_facing.CountableHumanFacingDefinition`.

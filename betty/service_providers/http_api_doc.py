@@ -34,7 +34,7 @@ if TYPE_CHECKING:
         Project.links.require(HTTP_API_DOC_LINK),
     },
 )
-class HttpApiDoc(EntryPointProvider):
+class HttpApiDoc(EntryPointProvider[Project]):
     """
     .. plugin:: service-provider:http-api-doc.
     """

@@ -27,8 +27,9 @@ from betty.user import Severity
 if TYPE_CHECKING:
     from collections.abc import Iterator, MutableSequence
 
+    from ty_extensions import Intersection
+
     from betty.attrs.privacy import HasPrivacy
-    from betty.typing import Intersection
     from betty.user import User
 
 type _Expirable = Person | Event | Date | None

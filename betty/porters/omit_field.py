@@ -15,9 +15,12 @@ from betty.nothing import Nothing, NothingType
 if TYPE_CHECKING:
     from betty.portable import PortableData
 
-type OmitDump[OwnerT, DataT] = Callable[
+type _InternalOmitDump[OwnerT, DataT] = Callable[
     [OwnerT, FieldDefinition[OwnerT, DataT, DataDefinition[DataT]], DataT], bool
 ]
+type _OmitDump[OwnerT, DataT] = (
+    _InternalOmitDump[OwnerT, DataT] | Callable[[DataT], bool]
+)
 
 
 @final
@@ -29,19 +32,21 @@ class OmitFieldPorter[OwnerT, DataT](FieldPorter[OwnerT, DataT, DataT]):
     def __init__(
         self,
         field: FieldDefinition[OwnerT, DataT, DataDefinition],
-        omit_dump: Callable[[DataT], bool] | OmitDump[OwnerT, DataT],
+        omit_dump: _OmitDump[OwnerT, DataT],
         /,
     ):
         self._field = field
-        self._omit_dump: OmitDump[OwnerT, DataT] = (
+        self._omit_dump: _InternalOmitDump[OwnerT, DataT] = (
             omit_dump
             if len(signature(omit_dump).parameters) == 3
-            else lambda _, __, data: omit_dump(data)  # ty:ignore[invalid-assignment, missing-argument]
+            else lambda _, __, data: omit_dump(
+                data,  # ty: ignore[invalid-argument-type]
+            )  # ty: ignore[invalid-assignment, missing-argument]
         )
 
     @classmethod
     def new[NewDataT](
-        cls, omit_dump: Callable[[NewDataT], bool] | OmitDump[OwnerT, NewDataT], /
+        cls, omit_dump: _OmitDump[OwnerT, NewDataT], /
     ) -> Callable[[Any], OmitFieldPorter[OwnerT, NewDataT]]:
         """
         Create a new field porter.

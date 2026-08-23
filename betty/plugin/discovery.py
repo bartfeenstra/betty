@@ -10,7 +10,7 @@ from contextlib import suppress
 from importlib import metadata
 from typing import TYPE_CHECKING, Final, cast, final
 
-from betty.asyncio import resolve_await
+from betty.asyncio import ResolvableAwaitable, resolve_await
 from betty.concurrent import ThreadSafeLock
 from betty.plugin import PluginDefinition
 from betty.plugin.error import PluginNotFound
@@ -34,8 +34,7 @@ type ResolvableDiscovery[PluginDefinitionT: PluginDefinition = PluginDefinition]
     ResolvablePluginDefinition[PluginDefinitionT]
     | Callable[
         [ServiceLevel],
-        Awaitable[Iterable[ResolvableDiscovery[PluginDefinitionT]]]
-        | Iterable[ResolvableDiscovery[PluginDefinitionT]],
+        ResolvableAwaitable[Iterable[ResolvableDiscovery[PluginDefinitionT]]],
     ]
 )
 
@@ -61,7 +60,14 @@ async def _discover[PluginDefinitionT: PluginDefinition](
     with suppress(ValueError):
         return [resolve_plugin_definition(discovery)]
     try:
-        return await discover(services, *await resolve_await(discovery(services)))
+        return await discover(
+            services,
+            *await resolve_await(
+                discovery(
+                    services,  # ty: ignore[too-many-positional-arguments]
+                )  # ty: ignore[call-non-callable]
+            ),
+        )
     except UnmetRequirement:
         return ()
 

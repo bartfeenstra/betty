@@ -11,9 +11,10 @@ from betty.requirement import RequirableDecorator, UnmetRequirement
 from betty.service_level import DownstreamServiceLevel, ServiceLevel
 
 
-class _ServiceLevelRequirement:
+@final
+class _ServiceLevelRequirementGetter:
     def __get__[ServiceLevelT: ServiceLevel](
-        self, instance: ServiceLevelT, owner: type[ServiceLevelT]
+        self, instance: None, owner: type[ServiceLevelT]
     ):
         return ServiceLevelRequirement(owner)
 
@@ -47,4 +48,4 @@ class RequirableServiceLevel(ServiceLevel):
     A service level that can be required.
     """
 
-    require: Final[_ServiceLevelRequirement] = _ServiceLevelRequirement()
+    require: Final[_ServiceLevelRequirementGetter] = _ServiceLevelRequirementGetter()

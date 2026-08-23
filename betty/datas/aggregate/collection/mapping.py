@@ -11,15 +11,16 @@ from betty.assertions.mapping import assert_mapping
 from betty.data import DataDefinition, ResolvableDataDefinition, resolve_data_definition
 from betty.datas.aggregate.collection import (
     CollectionDefinition,
-    DataFactory,
+    CollectionManufacturer,
     MutableCollectionDefinition,
 )
 from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
+    from ty_extensions import Intersection
+
     from betty.localizable import ResolvableLocalizable
     from betty.portable import PortableData, Porter
-    from betty.typing import Intersection
 
 
 type NewMapping[KeyT, ValueT] = Mapping[KeyT, ValueT] | Iterable[tuple[KeyT, ValueT]]
@@ -40,7 +41,8 @@ class MappingDefinition[MappingT: Mapping[Any, Any], KeyT, ValueT](
         value: ResolvableDataDefinition[DataDefinition[ValueT]],
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
-        factory: DataFactory[MappingT, NewMapping[KeyT, ValueT]] | None = None,
+        manufacturer: CollectionManufacturer[MappingT, NewMapping[KeyT, ValueT]]
+        | None = None,
         porter: Porter[MappingT] | None = None,
     ):
         super().__init__(
@@ -48,7 +50,7 @@ class MappingDefinition[MappingT: Mapping[Any, Any], KeyT, ValueT](
             item=key,
             label=label,
             description=description,
-            factory=factory,
+            manufacturer=manufacturer,
             porter=CallbackPorter(self._load, self._dump) if porter is None else porter,
         )
         self._value = resolve_data_definition(value)

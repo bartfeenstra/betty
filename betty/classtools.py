@@ -9,6 +9,8 @@ from functools import cache
 from inspect import getmembers
 from typing import TYPE_CHECKING, Any, Final, Self, final, override
 
+from typing_extensions import disjoint_base
+
 from betty.importlib import fully_qualified_name
 
 if TYPE_CHECKING:
@@ -164,6 +166,7 @@ class ClassVarOwnership[OwnerT, ClassVarT]:
         """
 
 
+@disjoint_base
 class OwnedClassVar[OwnerT]:
     """
     A class var with access to its owner.

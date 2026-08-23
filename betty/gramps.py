@@ -50,7 +50,7 @@ from betty.entities.presence import Presence
 from betty.entities.source import Source
 from betty.entity import Entity
 from betty.error import FileNotFound
-from betty.event_type import EventTypeManufacturer
+from betty.event_type import EventTypeManufacturer, ResolvableEventTypeManufacturer
 from betty.event_types.adoption import Adoption
 from betty.event_types.baptism import Baptism
 from betty.event_types.bar_mitzvah import BarMitzvah
@@ -73,7 +73,11 @@ from betty.event_types.retirement import Retirement
 from betty.event_types.unknown import UnknownEventType
 from betty.event_types.will import Will
 from betty.exception import HumanFacingException
-from betty.gender import GenderDefinition, GenderManufacturer
+from betty.gender import (
+    GenderDefinition,
+    GenderManufacturer,
+    ResolvableGenderManufacturer,
+)
 from betty.genders.man import Man
 from betty.genders.non_binary import NonBinary
 from betty.genders.unknown import UnknownGender
@@ -88,7 +92,7 @@ from betty.localizables.static import StaticTranslations
 from betty.machine_name import MachineName
 from betty.media_type import InvalidMediaType, MediaType
 from betty.pathlib import resolve_path
-from betty.place_type import PlaceTypeManufacturer
+from betty.place_type import PlaceTypeManufacturer, ResolvablePlaceTypeManufacturer
 from betty.place_types.borough import Borough
 from betty.place_types.building import Building
 from betty.place_types.city import City
@@ -110,9 +114,9 @@ from betty.place_types.street import Street
 from betty.place_types.town import Town
 from betty.place_types.unknown import UnknownPlaceType
 from betty.place_types.village import Village
-from betty.plugin.cls import Plugin, PluginClsDefinition
+from betty.plugin.cls import PluginClsDefinition
 from betty.plugin.error import PluginNotFound
-from betty.role import RoleManufacturer
+from betty.role import ResolvableRoleManufacturer, RoleManufacturer
 from betty.roles.attendee import Attendee
 from betty.roles.celebrant import Celebrant
 from betty.roles.informant import Informant
@@ -135,15 +139,14 @@ if TYPE_CHECKING:
     from ty_extensions import Intersection
 
     from betty.associations.has_file_references import HasFileReferences
-    from betty.event_type import EventType, EventTypeDefinition
-    from betty.gender import Gender
+    from betty.event_type import EventType
     from betty.localizables.static import StaticTranslationsMapping
     from betty.machine_name import ResolvableMachineName
     from betty.pathlib import StrPath
-    from betty.place_type import PlaceType, PlaceTypeDefinition
+    from betty.place_type import PlaceType
     from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
     from betty.project import Project
-    from betty.role import Role, RoleDefinition
+    from betty.role import Role
 
 
 class GrampsError(Exception):
@@ -203,18 +206,14 @@ class GrampsEntityReference:
         return f"{self.entity_type.value} ({self.entity_id})"
 
 
-DEFAULT_GENDER_MAPPING: Mapping[
-    str, ResolvablePluginManufacturer[GenderDefinition, Gender]
-] = {
+DEFAULT_GENDER_MAPPING: Mapping[str, ResolvableGenderManufacturer] = {
     "F": Woman,
     "M": Man,
     "U": UnknownGender,
     "X": NonBinary,
 }
 
-DEFAULT_EVENT_TYPE_MAPPING: Mapping[
-    str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
-] = {
+DEFAULT_EVENT_TYPE_MAPPING: Mapping[str, ResolvableEventTypeManufacturer] = {
     "Adopted": Adoption,
     "Adult Christening": Baptism,
     "Baptism": Baptism,
@@ -240,9 +239,7 @@ DEFAULT_EVENT_TYPE_MAPPING: Mapping[
 }
 
 
-DEFAULT_PLACE_TYPE_MAPPING: Mapping[
-    str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
-] = {
+DEFAULT_PLACE_TYPE_MAPPING: Mapping[str, ResolvablePlaceTypeManufacturer] = {
     "Borough": Borough,
     "Building": Building,
     "City": City,
@@ -267,9 +264,7 @@ DEFAULT_PLACE_TYPE_MAPPING: Mapping[
 }
 
 
-DEFAULT_ROLE_MAPPING: Mapping[
-    str, ResolvablePluginManufacturer[RoleDefinition, Role]
-] = {
+DEFAULT_ROLE_MAPPING: Mapping[str, ResolvableRoleManufacturer] = {
     "Aide": Attendee,
     "Bride": Subject,
     "Celebrant": Celebrant,
@@ -314,13 +309,13 @@ _gramps_extensions: Final[Sequence[str]] = (
 def _resolve_plugin_manufacturer_mapping[
     T,
     PluginDefinitionT: PluginClsDefinition,
-    PluginT: Plugin,
+    PluginManufacturerT: PluginManufacturer,
 ](
-    manufacturer: type[PluginManufacturer[PluginDefinitionT, PluginT]],
+    manufacturer: type[PluginManufacturerT],
     resolvable_manufacturers: Mapping[
-        T, ResolvablePluginManufacturer[PluginDefinitionT, PluginT]
+        T, ResolvablePluginManufacturer[PluginDefinitionT, PluginManufacturerT]
     ],
-) -> MutableMapping[T, PluginManufacturer[PluginDefinitionT, PluginT]]:
+) -> MutableMapping[T, PluginManufacturerT]:
     return {
         gramps_type: manufacturer.resolve(resolvable_manufacturer)
         for gramps_type, resolvable_manufacturer in resolvable_manufacturers.items()
@@ -356,14 +351,12 @@ class GrampsLoader:
         *,
         attribute_prefix_key: str | None = None,
         event_type_mapping: Mapping[
-            str, ResolvablePluginManufacturer[EventTypeDefinition, EventType]
+            str, ResolvableEventTypeManufacturer
         ] = _empty_frozen_mapping,
         place_type_mapping: Mapping[
-            str, ResolvablePluginManufacturer[PlaceTypeDefinition, PlaceType]
+            str, ResolvablePlaceTypeManufacturer
         ] = _empty_frozen_mapping,
-        role_mapping: Mapping[
-            str, ResolvablePluginManufacturer[RoleDefinition, Role]
-        ] = _empty_frozen_mapping,
+        role_mapping: Mapping[str, ResolvableRoleManufacturer] = _empty_frozen_mapping,
         executable: StrPath | None = None,
     ):
         super().__init__()

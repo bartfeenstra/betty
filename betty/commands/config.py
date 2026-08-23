@@ -44,7 +44,7 @@ class Config(Manufacturable, Command):
                 "Set the locale for Betty's user interface. This must be an IETF BCP 47 language tag."
             ),
             type=assertion_to_argument_type(
-                assert_locale(), localizer=self._app.user.localizer
+                assert_locale, localizer=self._app.user.localizer
             ),
         )
         return self._command_function

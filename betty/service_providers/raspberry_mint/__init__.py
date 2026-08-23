@@ -12,7 +12,8 @@ from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
-from betty.collection.mapping import MutableResolvedMapping, ResolvedMapping
+from betty.collection.mapping import MutableResolvedMapping as MutableResolvedMapping
+from betty.collection.mapping import ResolvedMapping
 from betty.collections import _empty_frozen_mapping
 from betty.collections.mapping.adapter import (
     MutableResolvedMappingAdapter,
@@ -20,9 +21,10 @@ from betty.collections.mapping.adapter import (
 )
 from betty.content_builder import (
     ContentBuilder,
-    ContentBuilderDefinition,
     ContentBuilderManufacturer,
+    ResolvableContentBuilderManufacturer,
 )
+from betty.content_builders.render import Render, RenderData
 from betty.data import Data
 from betty.datas.aggregate.collection.mapping import MutableMappingDefinition
 from betty.datas.aggregate.record import FieldDefinition
@@ -43,7 +45,6 @@ from betty.jobs._generate_raspberry_mint_search_index import (
 from betty.jobs.generate_logo import GenerateLogo
 from betty.localizables.gettext import _
 from betty.localizables.markup import Paragraph, do_you_mean
-from betty.plugin.factory import ResolvablePluginManufacturer
 from betty.porters.omit_field import OmitFieldPorter
 from betty.project import Project
 from betty.project.generate import Generator
@@ -62,9 +63,11 @@ if TYPE_CHECKING:
     from betty.pathlib import StrPath
 
 type RegionalContent = ResolvedMapping[str, ResolvableRegion, Sequence[ContentBuilder]]
-type RegionalContentManufacturers = Mapping[
-    ResolvableRegion,
-    Iterable[ResolvablePluginManufacturer[ContentBuilderDefinition, ContentBuilder]],
+type ResolvableRegionalContent = Mapping[
+    ResolvableRegion, Iterable[ResolvableContentBuilderManufacturer]
+]
+type ManufacturableRegionalContent = Mapping[
+    ResolvableRegion, Iterable[ResolvableContentBuilderManufacturer]
 ]
 
 
@@ -84,12 +87,9 @@ type RegionalContentManufacturers = Mapping[
         lambda: Sample(
             RaspberryMintData(
                 regional_content={
-                    "front-page-content": {
-                        "id": "render",
-                        "configuration": {
-                            "content": "Hello, world!",
-                        },
-                    }
+                    "front-page-content": [
+                        ContentBuilderManufacturer(Render, RenderData("Hello, world!")),
+                    ]
                 }
             ),
             label="Regional content",
@@ -121,9 +121,8 @@ class RaspberryMintData(Data, HasProps):
     regional_content = CollectionOwnerAttr(
         FieldDefinition(
             MutableMappingDefinition(
-                cls=MutableResolvedMapping,
-                factory=lambda values: MutableResolvedMappingAdapter(
-                    values or {}, key_resolver=Region.resolve
+                manufacturer=lambda values: MutableResolvedMappingAdapter(
+                    {} if values is None else dict(values), key_resolver=Region.resolve
                 ),
                 label=_("Regions"),
                 key=StrDefinition(label=_("Region")),
@@ -145,22 +144,14 @@ class RaspberryMintData(Data, HasProps):
         primary_color: str | None = None,
         secondary_color: str | None = None,
         tertiary_color: str | None = None,
-        regional_content: Mapping[
-            ResolvableRegion,
-            Iterable[
-                ResolvablePluginManufacturer[ContentBuilderDefinition, ContentBuilder]
-            ],
-        ] = _empty_frozen_mapping,
+        regional_content: ResolvableRegionalContent = _empty_frozen_mapping,
     ):
 
         super().__init__()
         self.primary_color = primary_color
         self.secondary_color = secondary_color
         self.tertiary_color = tertiary_color
-        self.regional_content.update({
-            Region.resolve(region): ContentBuilderManufacturer.resolve_sequence(content)
-            for region, content in regional_content.items()
-        })
+        self.regional_content.update(regional_content)
 
     async def validate(self, project: Project, /) -> None:
         """
@@ -230,7 +221,7 @@ class RaspberryMint(
         *,
         project: Project,
         primary_color: str | None = None,
-        regional_content: RegionalContentManufacturers | None = None,
+        regional_content: ManufacturableRegionalContent | None = None,
         secondary_color: str | None = None,
         tertiary_color: str | None = None,
     ):
@@ -241,7 +232,7 @@ class RaspberryMint(
         """
         The primary color.
         """
-        self._regional_content_manufacturers: RegionalContentManufacturers = (
+        self._regional_content_manufacturers: ManufacturableRegionalContent = (
             regional_content or {}
         )
         self.secondary_color = (
@@ -276,7 +267,7 @@ class RaspberryMint(
         return cls(
             primary_color=data.primary_color,
             project=project,
-            regional_content=data.regional_content,  # ty:ignore[invalid-argument-type]
+            regional_content=data.regional_content,
             secondary_color=data.secondary_color,
             tertiary_color=data.tertiary_color,
         )

@@ -8,13 +8,15 @@ import inspect
 from abc import ABCMeta, abstractmethod
 from collections.abc import Callable, Coroutine
 from inspect import Parameter
-from typing import Any, Self, final
+from typing import TYPE_CHECKING, Any, Self, final
 
 from betty.asyncio import resolve_await
 from betty.data import Data
 from betty.importlib import fully_qualified_name
 from betty.service_level import ServiceLevel
-from betty.typing import Intersection
+
+if TYPE_CHECKING:
+    from ty_extensions import Intersection
 
 
 class FactoryError(RuntimeError):

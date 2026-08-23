@@ -4,7 +4,7 @@ Classed plugins.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Final, TypeVar, final, override
+from typing import TYPE_CHECKING, Any, Final, final, override
 
 from betty.definition.cls import ClsDefinition
 from betty.importlib import fully_qualified_name
@@ -35,18 +35,13 @@ class Plugin[PluginClsDefinitionT: PluginClsDefinition]:
             ) from None
 
 
-_PluginClsDefinitionPluginT = TypeVar(
-    "_PluginClsDefinitionPluginT", covariant=True, default=Any
-)
-
-
-class PluginClsDefinition(ClsDefinition[_PluginClsDefinitionPluginT], PluginDefinition):
+class PluginClsDefinition[PluginT = Any](ClsDefinition[PluginT], PluginDefinition):
     """
     A classed plugin definition.
     """
 
     @override
-    def _set_cls(self, cls: type[_PluginClsDefinitionPluginT], /) -> None:
+    def _set_cls(self, cls: type[PluginT], /) -> None:
         super()._set_cls(cls)
         if issubclass(cls, Plugin):
             _plugins[cls] = self

@@ -5,7 +5,10 @@ import pytest
 
 from betty.plugin.resolve import ResolvablePluginDefinition
 from betty.service_level import HasServiceLevel
-from betty.services.plugin import HasPluginServices
+from betty.services.plugin import (
+    HasPluginServices,
+    ResolvableServiceLevelHasPluginServices,
+)
 from betty.services.plugin.definition.collection import (
     CollectionPluginDefinitionServiceManager,
 )
@@ -21,7 +24,9 @@ from betty.typing import Unreachable
 
 class _CollectionPluginDefinitionServiceManagerTestSut(
     CollectionPluginDefinitionServiceManager[
-        HasPluginServices, DummyPluginDefinition, Sequence[DummyPluginDefinition]
+        ResolvableServiceLevelHasPluginServices,
+        DummyPluginDefinition,
+        Sequence[DummyPluginDefinition],
     ]
 ):
     @override

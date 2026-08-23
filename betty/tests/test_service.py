@@ -9,12 +9,12 @@ from betty.classtools import ObjectAlreadyInitialized
 from betty.functools import LazyReCallable
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.prop import HasProps
-from betty.service import Service, ServiceManager
-from betty.service_level import HasServiceLevel, ResolvableServiceLevel, ServiceLevel
+from betty.service import ResolvableServiceLevelHasServices, Service, ServiceManager
+from betty.service_level import HasServiceLevel, ServiceLevel
 from betty.typing import Unreachable
 
 
-class _DummyServiceManager[OwnerT: ResolvableServiceLevel](
+class _DummyServiceManager[OwnerT: ResolvableServiceLevelHasServices](
     ServiceManager[OwnerT, object, object, Callable[[], object], object]
 ):
     @override

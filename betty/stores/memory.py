@@ -49,7 +49,7 @@ class _MemoryStore[ItemValueT](_CommonStoreBase[ItemValueT]):
     async def get(self, key: str, /) -> StoreItem[ItemValueT] | None:
         item = self._data.get(self._item_key(key), None)
         if isinstance(item, StoreItem):
-            return item  # ty:ignore[invalid-return-type]
+            return item
         return None
 
     @override

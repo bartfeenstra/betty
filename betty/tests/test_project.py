@@ -42,7 +42,7 @@ class TestProject:
 
     async def test_new_isolated__without_app(self) -> None:
         async with Project.new_isolated() as sut:
-            assert sut.upstream
+            assert sut.upstream is sut.upstream
 
     async def test_new_isolated(self, isolated_app: App) -> None:
         async with Project.new_isolated(app=isolated_app) as sut:

@@ -11,6 +11,7 @@ from betty.attrs.owner import CollectionOwnerAttr
 from betty.datas.aggregate.collection.list import ListDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.plugin.definition import PluginDefinitionData
+from betty.definition.human_facing import HumanFacingDefinition
 from betty.localizables.gettext import _
 from betty.machine_name import MachineName
 from betty.plugin.ordered import OrderedPluginDefinition
@@ -20,10 +21,12 @@ from betty.porters.omit_field import OmitFieldPorter
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from ty_extensions import Intersection
 
-class OrderedPluginDefinitionData[PluginDefinitionT: OrderedPluginDefinition](
-    PluginDefinitionData[PluginDefinitionT]
-):
+
+class OrderedPluginDefinitionData[
+    PluginDefinitionT: Intersection[OrderedPluginDefinition, HumanFacingDefinition]
+](PluginDefinitionData[PluginDefinitionT]):
     """
     Configure a :py:class:`betty.plugin.ordered.OrderedPluginDefinition`.
 

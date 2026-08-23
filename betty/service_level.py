@@ -7,13 +7,14 @@ from __future__ import annotations
 from importlib import metadata
 from typing import TYPE_CHECKING, Any, Final
 
+from typing_extensions import disjoint_base
+
 from betty.collections import _empty_frozen_mapping
 from betty.collections.keyed.adapter import KeyedCollectionAdapter
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.plugin.resolve import resolve_plugin_type_id
 from betty.prop import HasProps
 from betty.services.simple import service
-from betty.typing import Intersection, Not
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
@@ -31,6 +32,7 @@ else:
     type Plugins = Any
 
 
+@disjoint_base
 class ServiceLevel(HasProps, ManagedLifeCycle):
     """
     A service level.
@@ -101,6 +103,7 @@ class DownstreamServiceLevel[UpstreamT: ServiceLevel = ServiceLevel](ServiceLeve
         """
 
 
+@disjoint_base
 class HasServiceLevel[ServiceLevelT: ServiceLevel = ServiceLevel]:
     """
     An object that exposes a service level.
@@ -112,8 +115,7 @@ class HasServiceLevel[ServiceLevelT: ServiceLevel = ServiceLevel]:
 
 
 type ResolvableServiceLevel[ServiceLevelT: ServiceLevel = ServiceLevel] = (
-    Intersection[ServiceLevelT, Not[HasServiceLevel]]
-    | Intersection[HasServiceLevel[ServiceLevelT], Not[ServiceLevel]]
+    ServiceLevelT | HasServiceLevel[ServiceLevelT]
 )
 
 

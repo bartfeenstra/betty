@@ -55,8 +55,8 @@ class TestKeyedCollectionDefinition:
     ](
         value=_item,
         label="-",
-        factory=lambda values: KeyedCollectionAdapter(
-            {value["key"]: value for value in values} or {}
+        manufacturer=lambda values: KeyedCollectionAdapter(
+            {value["key"]: value for value in values} if values else {}
         ),
     )
     _sut_ordered = KeyedCollectionDefinition[
@@ -66,8 +66,8 @@ class TestKeyedCollectionDefinition:
         value=_item,
         order_dump=True,
         label="-",
-        factory=lambda values: KeyedCollectionAdapter(
-            {value["key"]: value for value in values} or {}
+        manufacturer=lambda values: KeyedCollectionAdapter(
+            {value["key"]: value for value in values} if values else {}
         ),
     )
 
@@ -99,7 +99,9 @@ class TestMutableKeyedCollectionDefinition:
     ](
         value=_item,
         label="-",
-        factory=lambda _: MutableKeyedCollectionAdapter(key=lambda value: value["key"]),
+        manufacturer=lambda _: MutableKeyedCollectionAdapter(
+            key=lambda value: value["key"]
+        ),
     )
 
     def test_clear(self) -> None:

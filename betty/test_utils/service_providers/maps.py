@@ -62,9 +62,7 @@ class MapsTestBase:
         async with Project.new_isolated(
             service_providers=[
                 Maps,
-                *ServiceProviderManufacturer.resolve_sequence(
-                    self.get_other_extensions()
-                ),
+                *map(ServiceProviderManufacturer.resolve, self.get_other_extensions()),
             ],
         ) as project:
             project.ancestry.add(

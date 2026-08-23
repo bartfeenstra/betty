@@ -14,16 +14,15 @@ from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.localizables.gettext import _
 from betty.plugin import PluginDefinition
-from betty.plugin.resolve import (
-    resolve_plugin_type_definition,
-)
+from betty.plugin.resolve import resolve_plugin_type_definition
 from betty.porters.fields import FieldsPorter
 from betty.porters.keyed_mapping import KeyedMappingPorter
 from betty.prop import HasProps
-from betty.typing import Intersection
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
+
+    from ty_extensions import Intersection
 
     from betty.machine_name import ResolvableMachineName
     from betty.plugin.resolve import ResolvablePluginTypeDefinition
@@ -32,13 +31,8 @@ if TYPE_CHECKING:
 
 @final
 class PluginDefinitionDefinition[
-    PluginDefinitionT: Intersection[PluginDefinition, HumanFacingDefinition],
-    PluginDefinitionDataT: "PluginDefinitionData",
-](
-    ObjectDefinition[
-        Intersection[PluginDefinitionDataT, "PluginDefinitionData[PluginDefinitionT]"]
-    ]
-):
+    PluginDefinitionT: Intersection[PluginDefinition, HumanFacingDefinition]
+](ObjectDefinition["PluginDefinitionData[PluginDefinitionT]"]):
     """
     Define a plugin definition.
     """
@@ -48,7 +42,9 @@ class PluginDefinitionDefinition[
         plugin_type: ResolvablePluginTypeDefinition[PluginDefinitionT],
         /,
         *,
-        samples: Iterable[Callable[[], Sample[PluginDefinitionDataT]] | Samples] = (),
+        samples: Iterable[
+            Callable[[], Sample[PluginDefinitionData[PluginDefinitionT]]] | Samples
+        ] = (),
     ):
         plugin_type = resolve_plugin_type_definition(plugin_type)
         super().__init__(
@@ -63,14 +59,8 @@ class PluginDefinitionDefinition[
 
 
 class PluginDefinitionData[
-    PluginDefinitionT: PluginDefinition = Intersection[
-        PluginDefinition, HumanFacingDefinition
-    ]
-](
-    Data[PluginDefinitionDefinition[PluginDefinitionT, "PluginDefinitionData"]],
-    HasProps,
-    metaclass=TypeABCMeta,
-):
+    PluginDefinitionT: Intersection[PluginDefinition, HumanFacingDefinition]
+](Data[PluginDefinitionDefinition[PluginDefinitionT]], HasProps, metaclass=TypeABCMeta):
     """
     Configure a :py:class:`betty.plugin.PluginDefinition`.
 

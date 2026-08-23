@@ -13,7 +13,7 @@ class TestNoOpServer:
     async def test_public_url(self) -> None:
         sut = NoOpServer()
         assert sut.public_url
-        assert urlparse(sut.public_url)
+        assert any(urlparse(sut.public_url))
 
     async def test_show(self) -> None:
         await NoOpServer().show()

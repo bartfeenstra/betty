@@ -77,7 +77,7 @@ async def create_project(
                         Region.FRONT_PAGE_CONTENT: [
                             ContentBuilderManufacturer(
                                 Columns,
-                                ColumnsData([[IncompleteTranslationWarning]]),
+                                ColumnsData([IncompleteTranslationWarning]),
                             ),
                             ContentBuilderManufacturer(
                                 Section,
@@ -86,44 +86,40 @@ async def create_project(
                                         Columns,
                                         ColumnsData(
                                             [
-                                                [
-                                                    ContentBuilderManufacturer(
-                                                        Render,
-                                                        RenderData(
-                                                            Chain(
-                                                                "<h2>",
-                                                                _("Get started"),
-                                                                "</h2>"
-                                                                f'<a href="{about.url_documentation}" class="view-more">',
-                                                                _(
-                                                                    "Read the documentation"
-                                                                ),
-                                                                "</a>",
-                                                                f'<a href="{about.url_code}" class="view-more">',
-                                                                _("View the code"),
-                                                                "</a>",
-                                                            ),
-                                                            HTML,
+                                                ContentBuilderManufacturer(
+                                                    Render,
+                                                    RenderData(
+                                                        Chain(
+                                                            "<h2>",
+                                                            _("Get started"),
+                                                            "</h2>"
+                                                            f'<a href="{about.url_documentation}" class="view-more">',
+                                                            _("Read the documentation"),
+                                                            "</a>",
+                                                            f'<a href="{about.url_code}" class="view-more">',
+                                                            _("View the code"),
+                                                            "</a>",
                                                         ),
+                                                        HTML,
                                                     ),
-                                                ],
-                                                [
-                                                    ContentBuilderManufacturer(
-                                                        Render,
-                                                        RenderData(
-                                                            Chain(
-                                                                "<p>",
-                                                                _(
-                                                                    "Betty was named after <a href=\"{liberta_lankester_url}\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
-                                                                ).format(
-                                                                    liberta_lankester_url="betty-entity://person/betty-demo-liberta-lankester"
-                                                                ),
-                                                                "</p>",
+                                                ),
+                                            ],
+                                            [
+                                                ContentBuilderManufacturer(
+                                                    Render,
+                                                    RenderData(
+                                                        Chain(
+                                                            "<p>",
+                                                            _(
+                                                                "Betty was named after <a href=\"{liberta_lankester_url}\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
+                                                            ).format(
+                                                                liberta_lankester_url="betty-entity://person/betty-demo-liberta-lankester"
                                                             ),
-                                                            HTML,
+                                                            "</p>",
                                                         ),
+                                                        HTML,
                                                     ),
-                                                ],
+                                                ),
                                             ],
                                             width={
                                                 Breakpoint.XS: [12, 12],
@@ -143,33 +139,31 @@ async def create_project(
                                         Columns,
                                         ColumnsData(
                                             [
-                                                [
-                                                    ContentBuilderManufacturer(
-                                                        EntityCard,
-                                                        EntityReference(
-                                                            Place,
-                                                            "betty-demo-amsterdam",
-                                                        ),
-                                                    )
-                                                ],
-                                                [
-                                                    ContentBuilderManufacturer(
-                                                        EntityCard,
-                                                        EntityReference(
-                                                            Person,
-                                                            "betty-demo-liberta-lankester",
-                                                        ),
-                                                    )
-                                                ],
-                                                [
-                                                    ContentBuilderManufacturer(
-                                                        EntityCard,
-                                                        EntityReference(
-                                                            Place,
-                                                            "betty-demo-netherlands",
-                                                        ),
-                                                    )
-                                                ],
+                                                ContentBuilderManufacturer(
+                                                    EntityCard,
+                                                    EntityReference(
+                                                        Place,
+                                                        "betty-demo-amsterdam",
+                                                    ),
+                                                )
+                                            ],
+                                            [
+                                                ContentBuilderManufacturer(
+                                                    EntityCard,
+                                                    EntityReference(
+                                                        Person,
+                                                        "betty-demo-liberta-lankester",
+                                                    ),
+                                                )
+                                            ],
+                                            [
+                                                ContentBuilderManufacturer(
+                                                    EntityCard,
+                                                    EntityReference(
+                                                        Place,
+                                                        "betty-demo-netherlands",
+                                                    ),
+                                                )
                                             ],
                                             width={
                                                 Breakpoint.XS: [12, 12, 12],

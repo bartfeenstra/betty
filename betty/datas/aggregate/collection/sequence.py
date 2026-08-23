@@ -10,16 +10,17 @@ from typing import TYPE_CHECKING, Any, final, override
 from betty.assertions.sequence import assert_sequence
 from betty.datas.aggregate.collection import (
     CollectionDefinition,
-    DataFactory,
+    CollectionManufacturer,
     MutableCollectionDefinition,
 )
 from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
+    from ty_extensions import Intersection
+
     from betty.data import DataDefinition, ResolvableDataDefinition
     from betty.localizable import ResolvableLocalizable
     from betty.portable import PortableData
-    from betty.typing import Intersection
 
 
 class SequenceDefinition[SequenceT: Sequence[Any], ValueT](
@@ -36,14 +37,14 @@ class SequenceDefinition[SequenceT: Sequence[Any], ValueT](
         value: ResolvableDataDefinition[DataDefinition[ValueT]],
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
-        factory: DataFactory[SequenceT, Iterable[ValueT]] | None = None,
+        manufacturer: CollectionManufacturer[SequenceT, Iterable[ValueT]] | None = None,
     ):
         super().__init__(
             cls=cls,
             item=value,
             label=label,
             description=description,
-            factory=factory,
+            manufacturer=manufacturer,
             porter=CallbackPorter(self._load, self._dump),
         )
 
