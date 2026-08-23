@@ -18,6 +18,8 @@ from betty.localizer import Localizer, default_localizer
 
 
 class _Localizable[T](metaclass=ABCMeta):
+    __slots__ = ()
+
     @abstractmethod
     def format(self, **format_kwargs: ResolvableLocalizable) -> T:
         """
@@ -36,6 +38,8 @@ class Localizable(_Localizable["Localizable"]):
 
     Objects of this type can convert themselves to localized strings at the point of use.
     """
+
+    __slots__ = ()
 
     @abstractmethod
     def localize(self, localizer: Localizer, /) -> LocalizedStr:
@@ -69,6 +73,8 @@ class CountableLocalizable(_Localizable["CountableLocalizable"]):
     """
     An object that can be localized for a specific count (number of things).
     """
+
+    __slots__ = ()
 
     @abstractmethod
     def count(self, count: LocalizableCount, /) -> Localizable:

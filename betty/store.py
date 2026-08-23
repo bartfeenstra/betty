@@ -17,6 +17,8 @@ class StoreItem[ItemValueT](metaclass=ABCMeta):
     A store item.
     """
 
+    __slots__ = ()
+
     @property
     @abstractmethod
     def modified(self) -> int | float:

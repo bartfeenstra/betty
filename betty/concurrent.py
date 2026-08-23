@@ -24,6 +24,8 @@ class Lock(metaclass=ABCMeta):
     Provide an asynchronous lock.
     """
 
+    __slots__ = ()
+
     @final
     async def __aenter__(self):
         await self.acquire()
@@ -56,7 +58,7 @@ class ThreadSafeLock(Lock):
     An asynchronous thread-safe lock.
     """
 
-    __slots__ = ("_lock",)
+    __slots__ = ("lock",)
 
     def __init__(self, lock: threading.Lock | None = None, /):
         self.lock: Final[threading.Lock] = lock or threading.Lock()

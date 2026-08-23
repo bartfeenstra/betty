@@ -11,6 +11,7 @@ check_call([sys.executable, path.join("bin", "clean-build.py")])
 if "BETTY_TEST_SKIP_RUFF" not in environ or not environ["BETTY_TEST_SKIP_RUFF"]:
     check_call([sys.executable, path.join("bin", "test-ruff.py")])
 check_call([sys.executable, path.join("bin", "test-ty.py")])
+check_call([sys.executable, path.join("bin", "test-slotscheck.py")])
 if (
     "BETTY_TEST_SKIP_STYLELINT" not in environ
     or not environ["BETTY_TEST_SKIP_STYLELINT"]

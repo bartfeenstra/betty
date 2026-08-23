@@ -16,6 +16,8 @@ class Localized(metaclass=ABCMeta):
     A resource that has a locale, e.g. contains information in a specific locale.
     """
 
+    __slots__ = ()
+
     @property
     @abstractmethod
     def locale(self) -> Locale | None:
