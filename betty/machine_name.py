@@ -12,6 +12,7 @@ from betty.assertions.str import assert_str
 from betty.data import Data, DataDefinition
 from betty.exception import HumanFacingException
 from betty.functools import passthrough
+from betty.indexers.str import StrIndexer
 from betty.localizables.gettext import _
 from betty.localizables.markup import Paragraph, Quote
 from betty.porters.callback import CallbackPorter
@@ -40,6 +41,7 @@ def _load(portable: PortableData, /) -> MachineName:
 @DataDefinition(
     label=_("Machine name"),
     description=machine_name_description,
+    indexer=StrIndexer(),
     porter=CallbackPorter(_load, passthrough),
 )
 class MachineName(str, Data):

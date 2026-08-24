@@ -5,7 +5,7 @@ Record data types.
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from typing import TYPE_CHECKING, Any, Final, Self, final
+from typing import TYPE_CHECKING, Any, Final, Literal, Self, final
 
 from betty.capability import Stage
 from betty.collections import _empty_frozen_mapping
@@ -21,6 +21,7 @@ from betty.definition.cls import ClsDefinitionCapabilityStage, OnSetCls
 from betty.indicator.operator import Attr, Key
 from betty.localizable import resolve_localizable
 from betty.portable import PortableData, Porter
+from betty.search import Field, RecordIndexer
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping, MutableMapping
@@ -76,6 +77,7 @@ class FieldDefinition[
             Self, Intersection[FieldPorterT, FieldPorter[OwnerT, DataT]]
         ]
         | None = None,
+        search: Field | None | Literal[False] = None,
     ):
         from betty.porters.porter_field import PorterFieldPorter
 
@@ -112,6 +114,17 @@ class FieldDefinition[
             porter: FieldPorterT = porter(self)
 
         super().__init__(capabilities={"porter": (FieldPorter, porter)})
+
+        if search:
+            assert self.data.indexer
+        if search is None and self.data.try_indexer:
+            search = Field()
+        elif search is False:
+            search = None
+        self.search: Final[Field | None] = search
+        """
+        The field's search integration, if any.
+        """
 
     @property
     def porter(self) -> Intersection[FieldPorterT, FieldPorter[OwnerT, DataT]]:
@@ -162,7 +175,8 @@ class RecordDefinition[
     OperatorT: FieldOperator,
     StageT: Stage = ClsDefinitionCapabilityStage,
     PorterT: Porter = Porter,
-](DataDefinition[DataT, StageT, PorterT]):
+    IndexerT: RecordIndexer = RecordIndexer,
+](DataDefinition[DataT, StageT, PorterT, IndexerT]):
     """
     A record data definition.
 
@@ -180,6 +194,10 @@ class RecordDefinition[
         description: ResolvableLocalizable | None = None,
         samples: Iterable[Callable[[], Sample[DataT]] | Samples] = (),
         factory: Callable[..., DataT] | None = None,
+        indexer: ResolvableCapability[
+            Self, Intersection[IndexerT, RecordIndexer[DataT]]
+        ]
+        | None = None,
         porter: ResolvableCapability[Self, Intersection[PorterT, Porter[DataT]]]
         | None = None,
         **kwargs: Any,
@@ -198,6 +216,7 @@ class RecordDefinition[
             label=label,
             description=description,
             samples=samples,
+            indexer=indexer,
             porter=porter or OnSetCls(FieldsPorter),
             **kwargs,
         )

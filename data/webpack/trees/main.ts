@@ -6,7 +6,7 @@ import { initializeAncestryTrees } from "./trees.js"
 import { BETTY } from "@betty.py/betty/main.ts"
 // @ts-expect-error: options.json is generated dynamically.
 import optionsJson from "./options.json"
-import { TreeOptions } from "@betty.py/betty.extensions.trees/tree"
+import { TreeOptions } from "@betty.py/betty.service_providers.trees/tree"
 
 const treeOptions = JSON.parse(optionsJson as string) as TreeOptions
 await BETTY.addInitializer(async (element: HTMLElement) => {

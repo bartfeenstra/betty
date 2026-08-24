@@ -37,9 +37,6 @@ from betty.entity import EntityDefinition
 from betty.exception import HumanFacingException, reraise_with_indicator
 from betty.factory import DataManufacturable
 from betty.indicator.operator import Attr, Key
-from betty.jobs._generate_raspberry_mint_search_index import (
-    _GenerateRaspberryMintSearchIndex,
-)
 from betty.jobs.generate_logo import GenerateLogo
 from betty.localizables.gettext import _
 from betty.localizables.markup import Paragraph, do_you_mean
@@ -50,6 +47,7 @@ from betty.project.generate import Generator
 from betty.prop import HasProps
 from betty.sample import Sample, Size
 from betty.service_provider import ServiceProviderDefinition
+from betty.service_providers.search import Search
 from betty.service_providers.webpack import Webpack
 from betty.service_providers.webpack.build import EntryPointProvider
 from betty.services.simple import service
@@ -192,7 +190,7 @@ class RaspberryMintData(Data, HasProps):
     label="Raspberry Mint",
     requires={
         Project.asset_directories.require(raspberry_mint),
-        Project.service_providers.require(Webpack),
+        Project.service_providers.require(Search, Webpack),
     },
 )
 class RaspberryMint(
@@ -289,7 +287,6 @@ class RaspberryMint(
 
         await scheduler.add(
             GenerateLogo(project=self.services),
-            _GenerateRaspberryMintSearchIndex(project=self.services),
             _GenerateRaspberryMintWebmanifest(project=self.services),
         )
 

@@ -11,7 +11,10 @@ from betty.associations.proxy import ProxyAssociation
 from betty.associations.to_one import ToOne, ToOneAssociate
 from betty.attrs.optional import OptionalAttr
 from betty.data import DataDefinition
+from betty.definition.cls import ClsDefinitionCapabilityStage
 from betty.entity import Entity
+from betty.portable import Porter
+from betty.search import Indexer
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -28,7 +31,12 @@ class OptionalToOne[OwnerT: HasAssociations, AssociateT: Entity](
         AssociateT,
         AssociateT | None,
         ToOneAssociate[OwnerT, AssociateT] | None,
-        DataDefinition[AssociateT | None],
+        DataDefinition[
+            AssociateT | None,
+            ClsDefinitionCapabilityStage,
+            Porter[AssociateT | None],
+            Indexer[AssociateT | None],
+        ],
     ],
 ):
     """

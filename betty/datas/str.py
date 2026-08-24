@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Never, final
 
 from betty.assertions.str import assert_str
 from betty.data import DataDefinition
+from betty.indexers.str import StrIndexer
 from betty.portable import Porter
 from betty.porters.callback import CallbackPorter
 
@@ -31,5 +32,6 @@ class StrDefinition(DataDefinition[str, Never, Porter[str]]):
             cls=str,
             label=label,
             description=description,
+            indexer=StrIndexer(),
             porter=CallbackPorter(assert_str(), str),
         )

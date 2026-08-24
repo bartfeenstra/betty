@@ -13,13 +13,15 @@ from betty.definition.cls import ClsDefinitionCapabilityStage
 from betty.indicator.operator import Attr as AttrOperator
 from betty.portable import Porter
 from betty.prop import HasProps
+from betty.search import RecordIndexer
 
 
 class ObjectDefinition[
     DataT,
     StageT: Stage = ClsDefinitionCapabilityStage,
     PorterT: Porter = Porter,
-](RecordDefinition[DataT, AttrOperator, StageT, PorterT]):
+    IndexerT: RecordIndexer = RecordIndexer,
+](RecordDefinition[DataT, AttrOperator, StageT, PorterT, IndexerT]):
     """
     Define an object with attributes.
 

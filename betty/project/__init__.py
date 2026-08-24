@@ -108,6 +108,7 @@ from betty.render import RenderDispatcher, RendererDefinition
 from betty.requirements.service_level import RequirableServiceLevel
 from betty.role import RoleDefinition
 from betty.sample import Sample, Size
+from betty.search import Search
 from betty.server import ServerDefinition
 from betty.service import (
     Service,
@@ -127,6 +128,7 @@ from betty.services.simple import service
 from betty.store import TransientStore
 from betty.stores.file import TransientBinaryFileStore, TransientPickledFileStore
 from betty.stores.no_op import NoOpStore
+from betty.url_generators import entity_type as entity_type
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterable, Sequence
@@ -632,6 +634,20 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         The project binary file cache.
         """
         return TransientBinaryFileStore(self._cache_directory)
+
+    @service
+    async def search(self) -> Search:
+        """
+        The search index.
+        """
+        return Search(
+            {
+                entity_type.id: entity_type
+                async for entity_type in self.plugins[EntityDefinition]
+                if entity_type.try_indexer
+            },
+            project=self,
+        )
 
 
 @final

@@ -12,12 +12,25 @@ from betty.attrs.proxy import ProxyAttr
 from betty.data import DataDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.optional import OptionalDefinition
+from betty.definition.cls import ClsDefinitionCapabilityStage
+from betty.portable import Porter
 from betty.porters.omit_field import OmitFieldPorter
 from betty.prop import HasProps
+from betty.search import Indexer
 
 
 class OptionalAttr[OwnerT: HasProps, GetT, SetT](
-    ProxyAttr[OwnerT, GetT | None, SetT | None, DataDefinition[GetT | None]]
+    ProxyAttr[
+        OwnerT,
+        GetT | None,
+        SetT | None,
+        DataDefinition[
+            GetT | None,
+            ClsDefinitionCapabilityStage,
+            Porter[GetT | None],
+            Indexer[GetT | None],
+        ],
+    ]
 ):
     """
     Make another attribute optional, e.g. allow ``None``.

@@ -6,22 +6,28 @@ from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
 from collections.abc import Callable, Collection, Iterable
-from typing import TYPE_CHECKING, Any, Final, final
+from typing import TYPE_CHECKING, Any, Final, Self, final
 
-from betty.capability import Stage
+from betty.capability import ResolvableStagedCapability, Stage
 from betty.data import DataDefinition, ResolvableDataDefinition, resolve_data_definition
 from betty.definition.cls import ClsDefinitionCapabilityStage
+from betty.portable import Porter
+from betty.search import Indexer
 
 if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
-    from betty.portable import Porter
+    from betty.typing import Intersection
 
 
 class CollectionDefinition[
     CollectionT: Collection,
     ValuesSetT: Iterable,
     StageT: Stage = ClsDefinitionCapabilityStage,
-](DataDefinition[CollectionT, StageT], metaclass=ABCMeta):
+    PorterT: Porter = Porter,
+](
+    DataDefinition[CollectionT, StageT, PorterT, Indexer[CollectionT]],
+    metaclass=ABCMeta,
+):
     """
     A homogenous collection data definition.
     """
@@ -33,10 +39,20 @@ class CollectionDefinition[
         item: ResolvableDataDefinition[DataDefinition[Any]],
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
-        porter: Porter[CollectionT] | None = None,
+        porter: ResolvableStagedCapability[
+            Self,
+            Intersection[PorterT, Porter[CollectionT]],
+            StageT | ClsDefinitionCapabilityStage,
+        ]
+        | None = None,
         factory: Callable[[], CollectionT] | None = None,
     ):
-        super().__init__(cls=cls, label=label, description=description, porter=porter)
+        super().__init__(
+            cls=cls,
+            label=label,
+            description=description,
+            porter=porter,
+        )
         self.item: Final[DataDefinition[Any]] = resolve_data_definition(item)
         """
         The definition of the items contained by this collection.

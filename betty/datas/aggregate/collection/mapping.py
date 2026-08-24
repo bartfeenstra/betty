@@ -5,22 +5,31 @@ Key-value mapping data types.
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable, Mapping, MutableMapping
-from typing import TYPE_CHECKING, Any, Never, final, override
+from typing import TYPE_CHECKING, Any, Never, Self, final, override
 
 from betty.assertions.mapping import assert_mapping
+from betty.capability import ResolvableStagedCapability, Stage
 from betty.data import DataDefinition, ResolvableDataDefinition, resolve_data_definition
 from betty.datas.aggregate.collection import CollectionDefinition
+from betty.definition.cls import ClsDefinitionCapabilityStage
+from betty.portable import Porter
 from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
-    from betty.portable import PortableData, Porter
+    from betty.portable import PortableData
     from betty.typing import Intersection
 
 
-class MappingDefinition[MutableMappingT: MutableMapping[Any, Any], KeyT, ValueT](
+class MappingDefinition[
+    MappingT: MutableMapping[Any, Any],
+    KeyT,
+    ValueT,
+    StageT: Stage = ClsDefinitionCapabilityStage,
+    PorterT: Porter = Porter,
+](
     CollectionDefinition[
-        MutableMappingT, Mapping[KeyT, ValueT] | Iterable[tuple[KeyT, ValueT]]
+        MappingT, Mapping[KeyT, ValueT] | Iterable[tuple[KeyT, ValueT]], StageT, PorterT
     ]
 ):
     """
@@ -30,14 +39,18 @@ class MappingDefinition[MutableMappingT: MutableMapping[Any, Any], KeyT, ValueT]
     def __init__(
         self,
         *,
-        cls: type[Intersection[MutableMappingT, MutableMapping[KeyT, ValueT]]]
-        | None = None,
+        cls: type[Intersection[MappingT, MutableMapping[KeyT, ValueT]]] | None = None,
         key: ResolvableDataDefinition[DataDefinition[KeyT, Never, Porter[KeyT]]],
         value: ResolvableDataDefinition[DataDefinition[ValueT]],
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
-        factory: Callable[[], MutableMappingT] | None = None,
-        porter: Porter[MutableMappingT] | None = None,
+        factory: Callable[[], MappingT] | None = None,
+        porter: ResolvableStagedCapability[
+            Self,
+            Intersection[PorterT, Porter[MappingT]],
+            StageT | ClsDefinitionCapabilityStage,
+        ]
+        | None = None,
     ):
         super().__init__(
             cls=cls,
@@ -50,14 +63,14 @@ class MappingDefinition[MutableMappingT: MutableMapping[Any, Any], KeyT, ValueT]
         self._key = resolve_data_definition(key)
         self._value = resolve_data_definition(value)
 
-    def _load(self, portable: PortableData, /) -> MutableMappingT:
+    def _load(self, portable: PortableData, /) -> MappingT:
         loaded = self.new()
         loaded.update(
             assert_mapping(self._value.porter.load, self._key.porter.load)(portable)
         )
         return loaded
 
-    def _dump(self, data: MutableMappingT) -> PortableData:
+    def _dump(self, data: MappingT) -> PortableData:
         return {
             self._dump_key(key): self._value.porter.dump(item)
             for key, item in data.items()
@@ -70,14 +83,14 @@ class MappingDefinition[MutableMappingT: MutableMapping[Any, Any], KeyT, ValueT]
 
     @final
     @override
-    def clear(self, data: MutableMappingT, /) -> None:
+    def clear(self, data: MappingT, /) -> None:
         data.clear()
 
     @final
     @override
     def replace(
         self,
-        data: MutableMappingT,
+        data: MappingT,
         values: Mapping[KeyT, ValueT] | Iterable[tuple[KeyT, ValueT]],
         /,
     ) -> None:

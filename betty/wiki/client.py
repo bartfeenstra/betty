@@ -216,7 +216,7 @@ class Client:
             image_path,
             image_media_type,
             # Strip "File:" or any translated equivalent from the beginning of the image's title.
-            image_title[image_title.index(":") + 1 :],
+            image_title[image_title.build(":") + 1 :],
             image_wikimedia_commons_url,
             Path(urlsplit(image_url).path).name,
         )

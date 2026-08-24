@@ -5,7 +5,7 @@ Provide the place entity.
 from __future__ import annotations
 
 from contextlib import suppress
-from typing import TYPE_CHECKING, Self, final, override
+from typing import TYPE_CHECKING, Self, override
 
 from betty.associations.has_file_references import HasFileReferences
 from betty.associations.has_links import HasLinks
@@ -35,7 +35,6 @@ if TYPE_CHECKING:
     from betty.project import Project
 
 
-@final
 @EntityDefinition(
     "place",
     label=_("Place"),

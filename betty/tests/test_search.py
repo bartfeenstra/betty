@@ -1,4 +1,4 @@
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Iterable
 from pathlib import Path
 
 import pytest
@@ -12,12 +12,23 @@ from betty.job import Context
 from betty.localizer import default_localizer
 from betty.privacy import Privacy
 from betty.project import Project, ProjectLocale
-from betty.service_providers._theme.search import Index
+from betty.search import Entry, Search
 from betty.service_providers.raspberry_mint import RaspberryMint
 from betty.test_utils.conftest import IsolatedProjectFactory
 
 
-class TestIndex:
+def assert_contains(entries: Iterable[Entry], *expecteds: str) -> Entry:
+    indexes = []
+    for entry in entries:
+        for actual in entry.index.values():
+            for expected in expecteds:
+                if expected in actual:
+                    return entry
+            indexes.append(entry.index)
+    raise AssertionError(f'Failed to find "{expected}" in {repr(indexes)}')
+
+
+class TestSearch:
     @pytest.fixture
     async def dummy_project(
         self, isolated_project_factory: IsolatedProjectFactory
@@ -38,14 +49,20 @@ class TestIndex:
             yield project
 
     async def test_build_empty(self, dummy_project: Project) -> None:
-        actual = await Index(dummy_project, Context(), default_localizer).build()
-        assert actual == []
+        entries = await Search({}, project=dummy_project).build(
+            context=Context(), localizer=default_localizer
+        )
+        assert entries == []
 
     async def test_build_person_without_names(self, dummy_project: Project) -> None:
         person = Person(id="my-first-person")
         dummy_project.ancestry.add(person)
-        actual = await Index(dummy_project, Context(), default_localizer).build()
-        assert actual[0].text == {"my-first-person"}
+        entries = list(
+            await Search({Person.plugin().id: Person}, project=dummy_project).build(
+                context=Context(), localizer=default_localizer
+            )
+        )
+        assert_contains(entries, "my-first-person")
 
     async def test_build_private_person(self, dummy_project: Project) -> None:
         individual_name = "Jane"
@@ -58,8 +75,12 @@ class TestIndex:
             individual=individual_name,
         )
         dummy_project.ancestry.add(person)
-        actual = await Index(dummy_project, Context(), default_localizer).build()
-        assert actual == []
+        entries = list(
+            await Search({Person.plugin().id: Person}, project=dummy_project).build(
+                context=Context(), localizer=default_localizer
+            )
+        )
+        assert entries == []
 
     @pytest.mark.parametrize(
         ("expected", "locale"),
@@ -78,11 +99,12 @@ class TestIndex:
             individual=individual_name,
         )
         dummy_project.ancestry.add(person)
-        actual = await Index(
-            dummy_project, Context(), await dummy_project.localizers.get(locale)
-        ).build()
-        assert actual[0].text == {"my-first-person", "jane"}
-        assert expected in actual[0].result
+        entries = list(
+            await Search({Person.plugin().id: Person}, project=dummy_project).build(
+                context=Context(), localizer=await dummy_project.localizers.get(locale)
+            )
+        )
+        assert expected in assert_contains(entries, "my-first-person", "jane").result
 
     @pytest.mark.parametrize(
         ("expected", "locale"),
@@ -101,13 +123,14 @@ class TestIndex:
             affiliation=affiliation_name,
         )
         dummy_project.ancestry.add(person)
-        actual = await Index(
-            dummy_project,
-            Context(),
-            await dummy_project.localizers.get(locale),
-        ).build()
-        assert actual[0].text == {"my-first-person", "doughnut"}
-        assert expected in actual[0].result
+        entries = list(
+            await Search({Person.plugin().id: Person}, project=dummy_project).build(
+                context=Context(), localizer=await dummy_project.localizers.get(locale)
+            )
+        )
+        assert (
+            expected in assert_contains(entries, "my-first-person", "doughnut").result
+        )
 
     @pytest.mark.parametrize(
         ("expected", "locale"),
@@ -128,11 +151,15 @@ class TestIndex:
             affiliation=affiliation_name,
         )
         dummy_project.ancestry.add(person)
-        actual = await Index(
-            dummy_project, Context(), await dummy_project.localizers.get(locale)
-        ).build()
-        assert actual[0].text == {"my-first-person", "jane", "doughnut"}
-        assert expected in actual[0].result
+        entries = list(
+            await Search({Person.plugin().id: Person}, project=dummy_project).build(
+                context=Context(), localizer=await dummy_project.localizers.get(locale)
+            )
+        )
+        assert (
+            expected
+            in assert_contains(entries, "my-first-person", "jane", "doughnut").result
+        )
 
     @pytest.mark.parametrize(
         ("expected_result", "expected_text", "locale"),
@@ -152,7 +179,7 @@ class TestIndex:
     async def test_build_place(
         self,
         expected_result: str,
-        expected_text: set[str],
+        expected_text: Iterable[str],
         locale: str,
         dummy_project: Project,
     ) -> None:
@@ -168,11 +195,12 @@ class TestIndex:
             ],
         )
         dummy_project.ancestry.add(place)
-        actual = await Index(
-            dummy_project, Context(), await dummy_project.localizers.get(locale)
-        ).build()
-        assert actual[0].text == expected_text
-        assert expected_result in actual[0].result
+        entries = list(
+            await Search({Place.plugin().id: Place}, project=dummy_project).build(
+                context=Context(), localizer=await dummy_project.localizers.get(locale)
+            )
+        )
+        assert expected_result in assert_contains(entries, *expected_text).result
 
     async def test_build_private_place(self, dummy_project: Project) -> None:
         place = Place(
@@ -185,11 +213,11 @@ class TestIndex:
             privacy=Privacy.PRIVATE,
         )
         dummy_project.ancestry.add(place)
-        actual = await Index(
-            dummy_project,
-            Context(),
-            default_localizer,
-        ).build()
+        actual = list(
+            await Search({Place.plugin().id: Place}, project=dummy_project).build(
+                context=Context(), localizer=default_localizer
+            )
+        )
         assert actual == []
 
     @pytest.mark.parametrize(
@@ -247,7 +275,7 @@ class TestIndex:
     )
     async def test_build_file(
         self,
-        expected_text: set[str],
+        expected_text: Iterable[str],
         expected_result: str,
         description: str | None,
         locale: str,
@@ -259,13 +287,12 @@ class TestIndex:
             description=description,
         )
         dummy_project.ancestry.add(file)
-        actual = await Index(
-            dummy_project,
-            Context(),
-            await dummy_project.localizers.get(locale),
-        ).build()
-        assert actual[0].text == expected_text
-        assert expected_result in actual[0].result
+        entries = list(
+            await Search({File.plugin().id: File}, project=dummy_project).build(
+                context=Context(), localizer=await dummy_project.localizers.get(locale)
+            )
+        )
+        assert expected_result in assert_contains(entries, *expected_text).result
 
     async def test_build_private_file(self, dummy_project: Project) -> None:
         file = File(
@@ -275,9 +302,9 @@ class TestIndex:
             privacy=Privacy.PRIVATE,
         )
         dummy_project.ancestry.add(file)
-        actual = await Index(
-            dummy_project,
-            Context(),
-            default_localizer,
-        ).build()
-        assert actual == []
+        entries = list(
+            await Search({File.plugin().id: File}, project=dummy_project).build(
+                context=Context(), localizer=default_localizer
+            )
+        )
+        assert entries == []
