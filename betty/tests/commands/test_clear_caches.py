@@ -8,6 +8,7 @@ from pytest_mock import MockerFixture
 
 from betty.app import App
 from betty.file import write
+from betty.nothing import Nothing, NothingType
 from betty.project import Project, ProjectData
 from betty.stores.file import TransientPickledFileStore
 from betty.test_utils.conftest import IsolatedAppFactory, IsolatedProjectFactory
@@ -16,7 +17,7 @@ from betty.test_utils.user import StaticUser
 from betty.user import User
 
 type AssertAppCacheDirectories = Callable[
-    [bool, User | None], AbstractAsyncContextManager[App]
+    [bool, User | NothingType], AbstractAsyncContextManager[App]
 ]
 type AssertProjectCacheDirectories = Callable[
     [bool, App], AbstractAsyncContextManager[Project]
@@ -33,7 +34,7 @@ class TestClearCaches:
     ) -> AssertAppCacheDirectories:
         @asynccontextmanager
         async def _assert_app_cache_directories(
-            expected: bool, user: User | None = None, /
+            expected: bool, user: User | NothingType = Nothing, /
         ) -> AsyncIterator[App]:
             app_cache_directory = tmp_path / "app-cache"
 
@@ -96,7 +97,7 @@ class TestClearCaches:
             )
 
             async with isolated_project_factory(
-                app=app, cache=None, directory=project_directory
+                app=app, cache=Nothing, directory=project_directory
             ) as project:
                 cache_key = "my-first-project-cache-item"
                 binary_file_cache_key = "my-first-project-binary-file-cache-item"
@@ -136,7 +137,7 @@ class TestClearCaches:
     async def test_configure__with_yes(
         self, assert_app_cache_directories: AssertAppCacheDirectories
     ) -> None:
-        async with assert_app_cache_directories(False, None) as app:
+        async with assert_app_cache_directories(False, Nothing) as app:
             await run(app, "clear-caches", "--yes")
 
     async def test_configure__with_project_without_confirmation(
@@ -173,7 +174,7 @@ class TestClearCaches:
         assert_project_cache_directories: AssertProjectCacheDirectories,
     ) -> None:
         async with (
-            assert_app_cache_directories(False, None) as app,
+            assert_app_cache_directories(False, Nothing) as app,
             assert_project_cache_directories(False, app) as project,
         ):
             await run(

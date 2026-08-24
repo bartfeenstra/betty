@@ -6,13 +6,11 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from asyncio import gather
-from collections.abc import Callable, MutableSequence
 from functools import partial
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Final, Protocol, Self, final, overload, override
 
 from betty.classtools import Singleton
-from betty.functools import LazyReCallable
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.plugin import PluginDefinition
 from betty.plugin.resolve import (
@@ -22,11 +20,11 @@ from betty.plugin.resolve import (
 )
 from betty.prop import HasProps
 from betty.requirements.plugin_service import PluginServiceRequirement
-from betty.service import Service, ServiceManager
 from betty.service_level import ResolvableServiceLevel, resolve_service_level
+from betty.services.synchronous import SynchronousServiceManager
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+    from collections.abc import Iterable, MutableSequence, Sequence
 
     from betty.machine_name import MachineName
     from betty.requirement import Requirement
@@ -65,17 +63,9 @@ class _PluginServiceRequirementGetter(Singleton):
 class PluginServiceManager[
     OwnerT: ResolvableServiceLevelHasPluginServices,
     PluginDefinitionT: PluginDefinition,
-    GetServiceT,
+    GetT,
     InitT,
-](
-    ServiceManager[
-        OwnerT,
-        GetServiceT,
-        GetServiceT,
-        Callable[[], GetServiceT],
-        GetServiceT,
-    ]
-):
+](SynchronousServiceManager[OwnerT, GetT]):
     """
     A plugin service manager.
     """
@@ -97,22 +87,6 @@ class PluginServiceManager[
     def pre_init_owner(self, owner: OwnerT, /) -> None:
         super().pre_init_owner(owner)
         setattr(owner, f"_plugin_service_init_plugins_{self.ownership.name}", [])
-
-    @final
-    @override
-    def _new_service_getter(self, owner: OwnerT, /) -> Callable[[], GetServiceT]:
-        def plugin_service_manager_getter() -> GetServiceT:
-            factory = self._get_service_or_factory(owner)
-            if isinstance(factory, Service):
-                return factory.service
-            return factory(owner)
-
-        return LazyReCallable(plugin_service_manager_getter)
-
-    @final
-    @override
-    def _get_service(self, service: Callable[[], GetServiceT], /) -> GetServiceT:
-        return service()
 
     @final
     def __get_init_plugins(
@@ -185,7 +159,7 @@ class PluginServiceManager[
         return getattr(owner, f"_plugin_service_plugins_{self.ownership.name}")
 
     @abstractmethod
-    def new_service(self, owner: OwnerT, /) -> GetServiceT:
+    def new_service(self, owner: OwnerT, /) -> GetT:
         """
         Create the new service value for the given service provider.
         """

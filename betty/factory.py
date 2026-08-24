@@ -47,9 +47,9 @@ class Manufacturable(metaclass=ABCMeta):
         """
 
 
-type Manufacturer[T] = (
+type Manufacturer[T, ServiceLevelT: ServiceLevel = ServiceLevel] = (
     Callable[[], Coroutine[Any, Any, T] | T]
-    | Callable[[ServiceLevel], Coroutine[Any, Any, T] | T]
+    | Callable[[ServiceLevelT], Coroutine[Any, Any, T] | T]
 )
 
 

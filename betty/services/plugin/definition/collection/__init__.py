@@ -15,12 +15,12 @@ from betty.services.plugin.collection import CollectionPluginServiceManager
 class CollectionPluginDefinitionServiceManager[
     OwnerT: ResolvableServiceLevelHasPluginServices,
     PluginDefinitionT: PluginDefinition,
-    GetServiceT,
+    GetT,
 ](
     CollectionPluginServiceManager[
         OwnerT,
         PluginDefinitionT,
-        GetServiceT,
+        GetT,
         PluginDefinitionT,
         ResolvablePluginDefinition[PluginDefinitionT],
     ]

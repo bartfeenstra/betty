@@ -14,7 +14,6 @@ from aiohttp_client_cache.backends.filesystem import FileBackend
 from aiohttp_client_cache.session import CachedSession
 
 from betty import about
-from betty.asyncio import ResolvableAwaitable, resolve_await
 from betty.attrs.locale import new_locale_attr
 from betty.collections import _empty_frozen_mapping
 from betty.data import Data
@@ -23,19 +22,19 @@ from betty.dirs import app_config_directory, cache_directory
 from betty.gettext import TranslationsRepository
 from betty.http_client import ClientErrorToUserMessageMiddleware
 from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
-from betty.life_cycle import Bootstrappable, Shutdownable
 from betty.locale import ResolvableLocale, default_locale
 from betty.localizables.gettext import _
 from betty.localizer import LocalizerRepository
 from betty.media_type import MediaTypeDefinition
 from betty.multiprocessing import ProcessPoolExecutor
+from betty.nothing import Nothing
 from betty.portable.file import assert_load_file
 from betty.prop import HasProps
 from betty.requirements.service_level import RequirableServiceLevel
 from betty.rich.user import RichUser
 from betty.sample import Sample, Size
 from betty.serialize import SerializerDefinition
-from betty.service import Service
+from betty.service import OptionalWrappableServiceInit, WrappableServiceInit, wrap
 from betty.service_level import ServiceLevel
 from betty.services.asset import AssetRepositoryService
 from betty.services.plugin import HasPluginServices
@@ -49,7 +48,7 @@ from betty.user import User
 from betty.user.no_op import NoOpUser
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Callable, Iterable
+    from collections.abc import AsyncIterator, Iterable
     from pathlib import Path
 
     import aiohttp
@@ -60,7 +59,6 @@ if TYPE_CHECKING:
     from betty.plugin.resolve import ResolvablePluginDefinition
     from betty.service_level import Plugins
     from betty.services.plugin import SupportedPlugins
-    from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
 
 
 class _AppBootstrapServiceLevel(ServiceLevel, HasPluginServices):
@@ -91,67 +89,29 @@ class App(RequirableServiceLevel, HasPluginServices):
     def __init__(
         self,
         *,
-        binary_file_cache: TypedSynchronousServiceOrFactory[
-            App, TransientBinaryFileStore
-        ],
+        binary_file_cache: WrappableServiceInit[TransientBinaryFileStore, App, App],
         assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
-        cache: TypedSynchronousServiceOrFactory[App, TransientStore[Any]] | None = None,
+        cache: OptionalWrappableServiceInit[TransientStore[Any], App, App] = Nothing,
         media_types: Iterable[ResolvablePluginDefinition[MediaTypeDefinition]] = (),
         plugins: Plugins = _empty_frozen_mapping,
-        process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
-        | None = None,
+        process_pool: OptionalWrappableServiceInit[
+            futures.ProcessPoolExecutor, App, App
+        ] = Nothing,
         rate_limits: Iterable[RateLimitDefinition] = (),
         serializers: Iterable[ResolvablePluginDefinition[SerializerDefinition]] = (),
         supported_plugins: SupportedPlugins = (),
-        user: User | Callable[[App], ResolvableAwaitable[User]] | None = None,
+        user: OptionalWrappableServiceInit[User, App, App] = Nothing,
     ):
-        cls = type(self)
-        cls.binary_file_cache.override(
-            self,
-            Service(binary_file_cache)
-            if isinstance(binary_file_cache, TransientBinaryFileStore)
-            else binary_file_cache,
-        )
-        if process_pool is not None:
-            cls.process_pool.override(
-                self,
-                Service(process_pool)
-                if isinstance(process_pool, futures.ProcessPoolExecutor)
-                else process_pool,
-            )
-        if cache is not None:
-            cls.cache.override(
-                self, Service(cache) if isinstance(cache, TransientStore) else cache
-            )
         super().__init__(plugins=plugins, supported_plugins=supported_plugins)
+        self.binary_file_cache = wrap(binary_file_cache, TransientBinaryFileStore)
+        self.process_pool = wrap(process_pool, futures.ProcessPoolExecutor)
+        self.cache = wrap(cache, TransientStore)
+        self.user = wrap(user, User)
+        cls = type(self)
         cls.asset_directories.add_init_plugins(self, *assets)
         cls.media_types.add_init_plugins(self, *media_types)
         cls.rate_limits.add_init_plugins(self, *rate_limits)
         cls.serializers.add_init_plugins(self, *serializers)
-        self._user: User
-        if user is None:
-            self.life_cycle.on_bootstrap(self._set_default_user)
-        elif isinstance(user, User):
-            self._user = user
-            if isinstance(user, Bootstrappable | Shutdownable):
-                self.life_cycle.on_bootstrap(lambda: self.life_cycle.synchronize(user))
-        else:
-            self.life_cycle.on_bootstrap(lambda: self._set_user(user))
-
-    async def _set_default_user(self) -> None:
-        self._user = RichUser()
-
-    async def _set_user(self, user: Callable[[App], ResolvableAwaitable[User]]) -> None:
-        self._user = await resolve_await(user(self))
-        if isinstance(user, Bootstrappable | Shutdownable):
-            await self.life_cycle.synchronize(self._user)
-
-    @property
-    def user(self) -> User:
-        """
-        The current user session.
-        """
-        return self._user
 
     @classmethod
     @asynccontextmanager
@@ -191,11 +151,12 @@ class App(RequirableServiceLevel, HasPluginServices):
         cls,
         *,
         binary_file_cache_directory: StrPath | None = None,
-        cache: TypedSynchronousServiceOrFactory[App, TransientStore[Any]] | None = None,
+        cache: OptionalWrappableServiceInit[TransientStore[Any], App, App] = Nothing,
         plugins: Plugins = _empty_frozen_mapping,
-        process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
-        | None = None,
-        user: User | None = None,
+        process_pool: OptionalWrappableServiceInit[
+            futures.ProcessPoolExecutor, App, App
+        ] = Nothing,
+        user: OptionalWrappableServiceInit[User, App, App] = Nothing,
     ) -> AsyncIterator[Self]:
         """
         Create a new, isolated, temporary application.
@@ -219,6 +180,13 @@ class App(RequirableServiceLevel, HasPluginServices):
                 user=NoOpUser() if user is None else user,
             ) as app:
                 yield app
+
+    @service
+    def user(self) -> User:
+        """
+        The current user session.
+        """
+        return RichUser()
 
     @service
     def localizers(self) -> LocalizerRepository:
