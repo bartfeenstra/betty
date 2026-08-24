@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, Final, final, override
 from betty.association import HasAssociations
 from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.privacy import HasPrivacy
-from betty.classtools import InitABCMeta
+from betty.classtools import TypeABCMeta
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.json_schema import JsonSchemaReference, String
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
@@ -40,7 +40,7 @@ class Entity(
     DataPlugin["EntityDefinition"],
     HasPrivacy,
     HasAssociations,
-    metaclass=InitABCMeta,
+    metaclass=TypeABCMeta,
 ):
     """
     An entity is a uniquely identifiable data container.

@@ -3,10 +3,10 @@ from typing import Any
 import pytest
 
 from betty.classtools import (
-    AlreadyInitialized,
-    Init,
-    InitClassVar,
-    NotYetInitialized,
+    Object,
+    ObjectAlreadyInitialized,
+    ObjectClassVar,
+    ObjectNotYetInitialized,
     Singleton,
 )
 from betty.importlib import fully_qualified_name
@@ -17,96 +17,96 @@ class TestSingleton:
         assert Singleton() is Singleton()
 
 
-class _Init(Init):
+class _Object(Object):
     def __repr__(self) -> str:
         return fully_qualified_name(type(self))
 
 
-class _InitWithArg(_Init):
+class _ObjectWithArg(_Object):
     def __init__(self, arg: Any, /):
         super().__init__()
 
 
-class _InitWithKwarg(_Init):
+class _ObjectWithKwarg(_Object):
     def __init__(self, *, kwarg: Any):
         super().__init__()
 
 
-class _InitWithArgAndKwarg(_Init):
+class _ObjectWithArgAndKwarg(_Object):
     def __init__(self, arg: Any, /, *, kwarg: Any):
         super().__init__()
 
 
-class TestNotYetInitialized:
+class TestObjectNotYetInitialized:
     def test(self) -> None:
         assert (
-            str(NotYetInitialized(_Init()))
-            == "betty.tests.test_classtools:_Init was unexpectedly not yet initialized"
+            str(ObjectNotYetInitialized(_Object()))
+            == "betty.tests.test_classtools:_Object was unexpectedly not yet initialized"
         )
 
 
-class TestAlreadyInitialized:
+class TestObjectAlreadyInitialized:
     def test(self) -> None:
         assert (
-            str(AlreadyInitialized(_Init()))
-            == "betty.tests.test_classtools:_Init was unexpectedly initialized already"
+            str(ObjectAlreadyInitialized(_Object()))
+            == "betty.tests.test_classtools:_Object was unexpectedly initialized already"
         )
 
 
-class TestInit:
+class TestObject:
     def test___new__(self) -> None:
-        assert Init().is_initialized
+        assert Object().is_initialized
 
     def test___new____with_subclass(self) -> None:
-        assert _Init().is_initialized
+        assert _Object().is_initialized
 
     def test___new____with_subclass_with_init_arg(self) -> None:
-        assert _InitWithArg("Arg").is_initialized
+        assert _ObjectWithArg("Arg").is_initialized
 
     def test___new____with_subclass_with_init_kwarg(self) -> None:
-        assert _InitWithKwarg(kwarg="Kwarg").is_initialized
+        assert _ObjectWithKwarg(kwarg="Kwarg").is_initialized
 
     def test___new____with_subclass_with_init_arg_and_kwarg(self) -> None:
-        assert _InitWithArgAndKwarg("Arg", kwarg="Kwarg").is_initialized
+        assert _ObjectWithArgAndKwarg("Arg", kwarg="Kwarg").is_initialized
 
     def test_is_initialized(self) -> None:
-        class _Init(Init):
+        class _Object(Object):
             def __init__(self):
                 assert not self.is_initialized
 
-        assert _Init().is_initialized
+        assert _Object().is_initialized
 
     def test_assert_initialized(self) -> None:
-        class _Init(Init):
+        class _Object(Object):
             def __init__(self):
-                with pytest.raises(NotYetInitialized):
+                with pytest.raises(ObjectNotYetInitialized):
                     self.assert_initialized()
 
-        _Init().assert_initialized()
+        _Object().assert_initialized()
 
     def test_assert_not_initialized(self) -> None:
-        class _Init(Init):
+        class _Object(Object):
             def __init__(self):
                 self.assert_not_initialized()
 
-        with pytest.raises(AlreadyInitialized):
-            _Init().assert_not_initialized()
+        with pytest.raises(ObjectAlreadyInitialized):
+            _Object().assert_not_initialized()
 
     def test_init_class_vars__without_class_vars(self) -> None:
-        assert not list(Init.init_class_vars())
+        assert not list(Object.init_class_vars())
 
     def test_init_class_vars__with_class_var(self) -> None:
-        class_var = InitClassVar()
+        class_var = ObjectClassVar()
 
-        class _Init(Init):
+        class _Object(Object):
             my_first_class_var = class_var
 
-        assert list(_Init.init_class_vars()) == [class_var]
+        assert list(_Object.init_class_vars()) == [class_var]
 
 
-class TestInitClassVar:
+class TestObjectClassVar:
     def test_pre_init_owner(self) -> None:
-        assert not InitClassVar().pre_init_owner(Init())
+        assert not ObjectClassVar().pre_init_owner(Object())
 
     def test_post_init_owner(self) -> None:
-        assert not InitClassVar().post_init_owner(Init())
+        assert not ObjectClassVar().post_init_owner(Object())

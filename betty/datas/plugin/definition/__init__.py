@@ -8,7 +8,7 @@ from abc import abstractmethod
 from typing import TYPE_CHECKING, Never, final
 
 from betty.attrs.machine_name import new_machine_name_attr
-from betty.classtools import InitABCMeta
+from betty.classtools import TypeABCMeta
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.definition.cls import (
@@ -80,7 +80,7 @@ class PluginDefinitionData[
 ](
     Data[PluginDefinitionDefinition[PluginDefinitionT, "PluginDefinitionData"]],
     HasProps,
-    metaclass=InitABCMeta,
+    metaclass=TypeABCMeta,
 ):
     """
     Configure a :py:class:`betty.plugin.PluginDefinition`.
