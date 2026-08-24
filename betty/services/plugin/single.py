@@ -50,7 +50,7 @@ class SinglePluginServiceManager[
                 _(
                     "The {service} service must have exactly one {plugin_type} plugin, but {actual} were given."
                 ).format(
-                    service=self.prop.fully_qualified_name,
+                    service=self.ownership.fully_qualified_name,
                     plugin_type=self.plugin_type.type().label,
                     actual=JoinAnd(*map(self.resolve_init_plugin_id, plugins))
                     if plugins
