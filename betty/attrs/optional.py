@@ -36,7 +36,7 @@ class OptionalAttr[OwnerT: HasProps, GetT, SetT](
         )
 
     @override
-    def pre_init_owner(self, owner: OwnerT, /) -> None:
+    def _pre_init_owner(self, owner: OwnerT, /) -> None:
         self.prop.setattr(owner, None)
 
     @final

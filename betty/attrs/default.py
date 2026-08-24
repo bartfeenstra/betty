@@ -58,6 +58,6 @@ class DefaultAttr[
 
     @final
     @override
-    def pre_init_owner(self, owner: OwnerT, /) -> None:
-        super().pre_init_owner(owner)
+    def _pre_init_owner(self, owner: OwnerT, /) -> None:
+        super()._pre_init_owner(owner)
         self.set(owner, self.__default(owner))

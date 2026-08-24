@@ -48,12 +48,27 @@ class AlreadyInitialized(RuntimeError):
         super().__init__(f"{repr(init)} was unexpectedly initialized already")
 
 
-class InitMeta(type):
+class InitMeta(type["Init"]):
     """
     The metaclass for :py:class:`betty.classtools.Init`.
     """
 
-    def __call__(cls, *args: Any, **kwargs: Any):
+    def __new__(
+        cls,
+        name: str,
+        bases: tuple[type, ...],
+        namespace: dict[str, Any],
+        **kwargs: Any,
+    ):
+        """
+        Create a new class.
+        """
+        new = type.__new__(cls, name, bases, namespace, **kwargs)
+        assert issubclass(new, Init)
+        new._post_new_cls()
+        return new
+
+    def __call__(cls: type[Init], *args: Any, **kwargs: Any):
         """
         Create a new instance.
         """
@@ -68,18 +83,23 @@ class InitMeta(type):
 
 class Init(metaclass=InitMeta):
     """
-    An object that supports cooperative initialization.
+    A class that supports cooperative creation and initialization.
     """
 
     _is_initialized = False
 
+    @classmethod
+    def _post_new_cls(cls) -> None:
+        for class_var in cls.init_class_vars():
+            class_var._post_new_cls(cls)
+
     def _pre_init(self) -> None:
         for class_var in self.init_class_vars():
-            class_var.pre_init_owner(self)
+            class_var._pre_init_owner(self)
 
     def _post_init(self) -> None:
         for class_var in self.init_class_vars():
-            class_var.post_init_owner(self)
+            class_var._post_init_owner(self)
 
     @final
     @property
@@ -128,13 +148,19 @@ class InitClassVar[OwnerT: Init]:
     A class variable on an :py:class:`betty.classtools.Init`.
     """
 
-    def pre_init_owner(self, owner: OwnerT, /) -> None:
+    def _post_new_cls(self, cls: type[OwnerT], /) -> None:
+        """
+        Post-create a new owner class.
+        """
+        return
+
+    def _pre_init_owner(self, owner: OwnerT, /) -> None:
         """
         Pre-initialize the class variable on an owner.
         """
         return
 
-    def post_init_owner(self, owner: OwnerT, /) -> None:
+    def _post_init_owner(self, owner: OwnerT, /) -> None:
         """
         Pos-initialize the class variable on an owner.
         """

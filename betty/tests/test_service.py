@@ -48,7 +48,7 @@ class TestServiceManager:
 
         owner = _Owner(services=ServiceLevel())
         with pytest.raises(AlreadyInitialized):
-            _Owner.my_first_service.pre_init_owner(owner)
+            _Owner.my_first_service._pre_init_owner(owner)
 
     def test_override(self) -> None:
         class _Owner(HasServices):

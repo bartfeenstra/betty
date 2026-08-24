@@ -40,7 +40,7 @@ class OptionalToOne[OwnerT: HasAssociations, AssociateT: Entity](
 
     @final
     @override
-    def pre_init_owner(self, owner: OwnerT, /) -> None:
+    def _pre_init_owner(self, owner: OwnerT, /) -> None:
         self.prop.setattr(owner, None)
 
     @override
