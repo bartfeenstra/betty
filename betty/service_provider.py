@@ -9,12 +9,13 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.classtools import InitABCMeta
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.factory import Manufacturable
+from betty.life_cycle.manage import ManagedLifeCycle
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import Plugin, PluginClsDefinition
 from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
-from betty.service import HasServices
-from betty.service_level import ServiceLevel
+from betty.prop import HasProps
+from betty.service_level import HasServiceLevel, ServiceLevel
 
 if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
@@ -23,9 +24,11 @@ if TYPE_CHECKING:
 
 
 class ServiceProvider[ServiceLevelT: ServiceLevel = ServiceLevel](
-    HasServices[ServiceLevelT],
+    HasServiceLevel[ServiceLevelT],
     Plugin["ServiceProviderDefinition"],
     Manufacturable,
+    HasProps,
+    ManagedLifeCycle,
     metaclass=InitABCMeta,
 ):
     """

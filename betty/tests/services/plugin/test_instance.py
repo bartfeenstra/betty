@@ -3,7 +3,7 @@ from typing import override
 import pytest
 
 from betty.requirements.service import UnmetServiceRequirement
-from betty.service_level import ServiceLevel
+from betty.service_level import HasServiceLevel, ServiceLevel
 from betty.services.plugin import HasPluginServices
 from betty.services.plugin.instance import (
     PluginInstanceServiceManager,
@@ -36,7 +36,7 @@ class _PluginInstanceServiceManagerTestSut(
         raise NotImplementedError
 
 
-class _PluginInstanceServiceManagerTestOwner(HasPluginServices):
+class _PluginInstanceServiceManagerTestOwner(HasPluginServices, HasServiceLevel):
     my_first_service = _PluginInstanceServiceManagerTestSut()
 
 

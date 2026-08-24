@@ -20,16 +20,17 @@ from betty.plugin.resolve import (
     resolve_plugin_definition,
     resolve_plugin_id,
 )
+from betty.prop import HasProps
 from betty.requirements.plugin_service import PluginServiceRequirement
-from betty.service import HasServices, Service, ServiceManager
+from betty.service import Service, ServiceManager
+from betty.service_level import ResolvableServiceLevel, resolve_service_level
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
     from betty.machine_name import MachineName
     from betty.requirement import Requirement
-    from betty.service_level import ServiceLevel
-
+    from betty.typing import Intersection
 
 type SupportedPlugins = Iterable[ResolvablePluginDefinition]
 
@@ -62,7 +63,7 @@ class _PluginServiceRequirementGetter(Singleton):
 
 
 class PluginServiceManager[
-    OwnerT: HasPluginServices,
+    OwnerT: ResolvableServiceLevelHasPluginServices,
     PluginDefinitionT: PluginDefinition,
     GetServiceT,
     InitT,
@@ -198,22 +199,19 @@ class PluginServiceManager[
         return resolve_plugin_id(plugin)
 
 
-@final
-class PluginServiceInitializer(ManagedLifeCycle):
+class HasPluginServices(HasProps, ManagedLifeCycle):
     """
-    The plugin service initializer.
+    A plugin service provider.
     """
 
     def __init__(
-        self,
-        services: ServiceLevel,
-        owner: HasPluginServices,
+        self: Intersection[Self, ResolvableServiceLevel],
+        *args: Any,
         supported_plugins: SupportedPlugins = (),
-        /,
+        **kwargs: Any,
     ):
-        super().__init__()
-        self._services = services
-        self._owner = owner
+        super().__init__(*args, **kwargs)
+        self._services = resolve_service_level(self)
         self._supported_plugins: Sequence[PluginDefinition] = tuple(
             map(
                 resolve_plugin_definition,
@@ -223,21 +221,21 @@ class PluginServiceInitializer(ManagedLifeCycle):
         self._plugin_services: Sequence[
             PluginServiceManager[HasPluginServices, PluginDefinition, Any, Any]
         ] = tuple(
-            prop for prop in owner.props() if isinstance(prop, PluginServiceManager)
+            prop for prop in self.props() if isinstance(prop, PluginServiceManager)
         )  # ty:ignore[invalid-assignment]
-        self.life_cycle.on_bootstrap(self._initialize_plugin_services)
+        self.life_cycle.on_bootstrap(self.__initialize)
 
-    async def _initialize_plugin_services(self) -> None:
+    async def __initialize(self) -> None:
         init_plugins = chain(
             *await gather(*[
                 *(
-                    self._collect_init_plugin(service, init_plugin)
+                    self.__collect_init_plugin(service, init_plugin)
                     for service in self._plugin_services
-                    for init_plugin in service.get_init_plugins(self._owner)
+                    for init_plugin in service.get_init_plugins(self)
                 ),
-                self._collect_auto_plugins(),
+                self.__collect_auto_plugins(),
                 *(
-                    self._collect_plugin_requirements(
+                    self.__collect_plugin_requirements(
                         type(supported_plugin), supported_plugin.id
                     )
                     for supported_plugin in self._supported_plugins
@@ -248,11 +246,11 @@ class PluginServiceInitializer(ManagedLifeCycle):
         for service, plugin in init_plugins:
             service_init_plugins[service].append(plugin)
         await gather(*[
-            service.init_plugins(self._owner, *plugins)
+            service.init_plugins(self, *plugins)
             for service, plugins in service_init_plugins.items()
         ])
 
-    async def _collect_init_plugin[InitT](
+    async def __collect_init_plugin[InitT](
         self,
         service: PluginServiceManager[HasPluginServices, PluginDefinition, Any, InitT],
         init_plugin: InitT,
@@ -262,16 +260,16 @@ class PluginServiceInitializer(ManagedLifeCycle):
         ]
         return (
             (service, init_plugin),
-            *chain(*await gather(*map(self._collect_requirement, plugin.requires))),
+            *chain(*await gather(*map(self.__collect_requirement, plugin.requires))),
         )
 
-    async def _collect_auto_plugins(
+    async def __collect_auto_plugins(
         self,
     ) -> Iterable[tuple[PluginServiceManager, PluginDefinition]]:
         return chain(*[
             (
                 (service, plugin),
-                *await self._collect_plugin_requirements(type(plugin), plugin.id),
+                *await self.__collect_plugin_requirements(type(plugin), plugin.id),
             )
             for service in self._plugin_services
             if service.auto
@@ -279,13 +277,13 @@ class PluginServiceInitializer(ManagedLifeCycle):
             if plugin.auto
         ])
 
-    async def _collect_plugin_requirements(
+    async def __collect_plugin_requirements(
         self, plugin_type: type[PluginDefinition], plugin_id: MachineName
     ) -> Iterable[tuple[PluginServiceManager, PluginDefinition]]:
         plugin = await self._services.plugins[plugin_type][plugin_id]
-        return chain(*await gather(*map(self._collect_requirement, plugin.requires)))
+        return chain(*await gather(*map(self.__collect_requirement, plugin.requires)))
 
-    async def _collect_requirement(
+    async def __collect_requirement(
         self, requirement: Requirement
     ) -> Iterable[tuple[PluginServiceManager, PluginDefinition]]:
         if isinstance(requirement, PluginServiceRequirement):
@@ -293,7 +291,7 @@ class PluginServiceInitializer(ManagedLifeCycle):
                 *[(requirement.service, plugin) for plugin in requirement.plugins],
                 *chain(
                     *await gather(*[
-                        self._collect_plugin_requirements(
+                        self.__collect_plugin_requirements(
                             requirement.service.plugin_type,  # ty:ignore[invalid-argument-type]
                             plugin.id,  # ty:ignore[unresolved-attribute]
                         )
@@ -304,18 +302,6 @@ class PluginServiceInitializer(ManagedLifeCycle):
         return ()
 
 
-class HasPluginServices(HasServices):
-    """
-    A plugin service provider.
-    """
-
-    def __init__(
-        self,
-        *args: Any,
-        services: ServiceLevel,
-        supported_plugins: SupportedPlugins = (),
-        **kwargs: Any,
-    ):
-        super().__init__(*args, services=services, **kwargs)
-        initializer = PluginServiceInitializer(services, self, supported_plugins)
-        self.life_cycle.on((initializer.bootstrap, initializer.shutdown))
+type ResolvableServiceLevelHasPluginServices = Intersection[
+    ResolvableServiceLevel, HasPluginServices
+]

@@ -9,26 +9,28 @@ from typing import final, override
 
 from betty.functools import LazyReCallable
 from betty.service import (
-    HasServices,
+    ResolvableServiceLevelHasServices,
     Service,
     ServiceFactory,
     ServiceManager,
     ServiceOrFactory,
 )
 
-type SynchronousServiceFactory[OwnerT: HasServices, ServiceT] = ServiceFactory[
-    OwnerT, ServiceT
-]
-type SynchronousServiceOrFactory[OwnerT: HasServices, ServiceT] = ServiceOrFactory[
-    OwnerT, ServiceT, ServiceT
-]
-type TypedSynchronousServiceOrFactory[OwnerT: HasServices, ServiceT] = (
-    ServiceT | SynchronousServiceOrFactory[OwnerT, ServiceT]
+type SynchronousServiceFactory[OwnerT: ResolvableServiceLevelHasServices, ServiceT] = (
+    ServiceFactory[OwnerT, ServiceT]
 )
+type SynchronousServiceOrFactory[
+    OwnerT: ResolvableServiceLevelHasServices,
+    ServiceT,
+] = ServiceOrFactory[OwnerT, ServiceT, ServiceT]
+type TypedSynchronousServiceOrFactory[
+    OwnerT: ResolvableServiceLevelHasServices,
+    ServiceT,
+] = ServiceT | SynchronousServiceOrFactory[OwnerT, ServiceT]
 
 
 @final
-class SynchronousServiceManager[OwnerT: HasServices, ServiceT](
+class SynchronousServiceManager[OwnerT: ResolvableServiceLevelHasServices, ServiceT](
     ServiceManager[OwnerT, ServiceT, ServiceT, Callable[[], ServiceT], ServiceT]
 ):
     """

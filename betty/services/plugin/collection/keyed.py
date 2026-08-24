@@ -13,7 +13,7 @@ from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
 from betty.plugin.error import PluginNotFound
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
-from betty.services.plugin import HasPluginServices
+from betty.services.plugin import ResolvableServiceLevelHasPluginServices
 from betty.services.plugin.collection import CollectionPluginServiceManager
 
 type KeyedPluginCollectionService[PluginDefinitionT: PluginDefinition, ItemT] = (
@@ -26,7 +26,7 @@ class _PluginNotFound(PluginNotFound, KeyError):
 
 
 class KeyedCollectionPluginServiceManager[
-    OwnerT: HasPluginServices,
+    OwnerT: ResolvableServiceLevelHasPluginServices,
     PluginDefinitionT: PluginDefinition,
     GetServiceItemT,
     InitT,

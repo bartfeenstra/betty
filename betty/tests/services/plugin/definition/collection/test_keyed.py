@@ -1,4 +1,5 @@
 from betty.plugin.resolve import ResolvablePluginDefinition
+from betty.service_level import HasServiceLevel
 from betty.services.plugin import HasPluginServices
 from betty.services.plugin.definition.collection.keyed import (
     PluginDefinitionsService,
@@ -15,7 +16,7 @@ from betty.tests.services.test_plugin import (
 
 
 class TestPluginDefinitionsService(PluginServiceManagerTestBase):
-    class _Owner(HasPluginServices):
+    class _Owner(HasPluginServices, HasServiceLevel):
         my_first_service = PluginDefinitionsService(DummyPluginDefinition)
 
         def __init__(

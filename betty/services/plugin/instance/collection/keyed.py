@@ -8,7 +8,7 @@ from typing import final
 
 from betty.asyncio import ReAwaitable
 from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.services.plugin import HasPluginServices
+from betty.services.plugin import ResolvableServiceLevelHasPluginServices
 from betty.services.plugin.collection.keyed import (
     KeyedCollectionPluginServiceManager,
     KeyedPluginCollectionService,
@@ -21,7 +21,7 @@ from betty.services.plugin.instance.collection import (
 
 @final
 class PluginInstancesService[  # ty:ignore[abstract-method-in-final-class]
-    OwnerT: HasPluginServices,
+    OwnerT: ResolvableServiceLevelHasPluginServices,
     PluginDefinitionT: PluginClsDefinition,
     PluginT: Plugin,
 ](

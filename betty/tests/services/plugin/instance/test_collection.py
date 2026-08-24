@@ -3,6 +3,7 @@ from typing import override
 
 import pytest
 
+from betty.service_level import HasServiceLevel
 from betty.services.plugin import HasPluginServices
 from betty.services.plugin.instance import ServicePluginInstance
 from betty.services.plugin.instance.collection import (
@@ -30,7 +31,7 @@ class _CollectionPluginInstanceServiceManagerTestSut(
 
 
 class TestCollectionPluginInstanceServiceManager(PluginServiceManagerTestBase):
-    class _Owner(HasPluginServices):
+    class _Owner(HasPluginServices, HasServiceLevel):
         my_first_service = _CollectionPluginInstanceServiceManagerTestSut(
             DummyPluginDefinition
         )

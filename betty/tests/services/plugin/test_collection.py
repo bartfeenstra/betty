@@ -4,7 +4,7 @@ from typing import override
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.plugin.resolve import ResolvablePluginDefinition
-from betty.service_level import ServiceLevel
+from betty.service_level import HasServiceLevel, ServiceLevel
 from betty.services.plugin import HasPluginServices
 from betty.services.plugin.collection import CollectionPluginServiceManager
 from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
@@ -51,7 +51,7 @@ class _CollectionPluginServiceManagerTestSut(
         raise NotImplementedError
 
 
-class _CollectionPluginServiceManagerTestOwner(HasPluginServices):
+class _CollectionPluginServiceManagerTestOwner(HasPluginServices, HasServiceLevel):
     my_first_service = _CollectionPluginServiceManagerTestSut()
 
 

@@ -4,7 +4,7 @@ import pytest
 
 from betty.plugin.resolve import ResolvablePluginDefinition
 from betty.requirements.service import UnmetServiceRequirement
-from betty.service_level import ServiceLevel
+from betty.service_level import HasServiceLevel, ServiceLevel
 from betty.services.plugin import HasPluginServices
 from betty.services.plugin.single import SinglePluginServiceManager
 from betty.test_utils.plugin import (
@@ -30,7 +30,7 @@ class _SinglePluginServiceManagerTestSut(
         raise NotImplementedError
 
 
-class _SinglePluginServiceManagerTestOwner(HasPluginServices):
+class _SinglePluginServiceManagerTestOwner(HasPluginServices, HasServiceLevel):
     my_first_service = _SinglePluginServiceManagerTestSut()
 
 

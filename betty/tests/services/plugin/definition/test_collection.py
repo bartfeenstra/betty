@@ -4,6 +4,7 @@ from typing import override
 import pytest
 
 from betty.plugin.resolve import ResolvablePluginDefinition
+from betty.service_level import HasServiceLevel
 from betty.services.plugin import HasPluginServices
 from betty.services.plugin.definition.collection import (
     CollectionPluginDefinitionServiceManager,
@@ -30,7 +31,7 @@ class _CollectionPluginDefinitionServiceManagerTestSut(
 
 
 class TestCollectionPluginDefinitionServiceManager(PluginServiceManagerTestBase):
-    class _Owner(HasPluginServices):
+    class _Owner(HasPluginServices, HasServiceLevel):
         my_first_service = _CollectionPluginDefinitionServiceManagerTestSut(
             DummyPluginDefinition
         )
