@@ -4,7 +4,7 @@ Asynchronous simple services.
 
 from __future__ import annotations
 
-from typing import final, override
+from typing import TYPE_CHECKING, final, override
 
 from betty.asyncio import (
     LazyReAwaitable,
@@ -15,7 +15,7 @@ from betty.asyncio import (
 from betty.life_cycle import Bootstrappable, Shutdownable
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.service import (
-    HasServices,
+    ResolvableServiceLevelHasServices,
     Service,
     ServiceFactory,
     ServiceManager,
@@ -23,20 +23,25 @@ from betty.service import (
 )
 from betty.typing import Intersection
 
-type AsynchronousServiceFactory[OwnerT: HasServices, ServiceT] = ServiceFactory[
-    OwnerT, ResolvableAwaitable[ServiceT]
-]
-type AsynchronousServiceOrFactory[OwnerT: HasServices, ServiceT] = ServiceOrFactory[
-    OwnerT, ServiceT, ResolvableAwaitable[ServiceT]
-]
-type TypedAsynchronousServiceOrFactory[OwnerT: HasServices, ServiceT] = (
-    ServiceT | AsynchronousServiceOrFactory[OwnerT, ServiceT]
+if TYPE_CHECKING:
+    from betty.service_level import ResolvableServiceLevel
+
+type AsynchronousServiceFactory[OwnerT: ResolvableServiceLevelHasServices, ServiceT] = (
+    ServiceFactory[OwnerT, ResolvableAwaitable[ServiceT]]
 )
+type AsynchronousServiceOrFactory[
+    OwnerT: ResolvableServiceLevelHasServices,
+    ServiceT,
+] = ServiceOrFactory[OwnerT, ServiceT, ResolvableAwaitable[ServiceT]]
+type TypedAsynchronousServiceOrFactory[
+    OwnerT: ResolvableServiceLevelHasServices,
+    ServiceT,
+] = ServiceT | AsynchronousServiceOrFactory[OwnerT, ServiceT]
 
 
 @final
 class AsynchronousServiceManager[
-    OwnerT: Intersection[HasServices, ManagedLifeCycle],
+    OwnerT: Intersection[ResolvableServiceLevel, ManagedLifeCycle],
     ServiceT,
 ](
     ServiceManager[

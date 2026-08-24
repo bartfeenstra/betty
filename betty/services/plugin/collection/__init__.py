@@ -12,7 +12,11 @@ from typing import TYPE_CHECKING, final, override
 from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
-from betty.services.plugin import HasPluginServices, PluginServiceManager
+from betty.service_level import resolve_service_level
+from betty.services.plugin import (
+    PluginServiceManager,
+    ResolvableServiceLevelHasPluginServices,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -21,7 +25,7 @@ if TYPE_CHECKING:
 
 
 class CollectionPluginServiceManager[
-    OwnerT: HasPluginServices,
+    OwnerT: ResolvableServiceLevelHasPluginServices,
     PluginDefinitionT: PluginDefinition,
     GetServiceT,
     GetServiceItemT,
@@ -42,14 +46,12 @@ class CollectionPluginServiceManager[
             self.resolve_init_plugin_id(plugin): plugin
             for plugin in await super().prepare_plugins(owner, *plugins)
         }
+        services = resolve_service_level(owner)
         return (
             plugins_by_id[plugin_id]
             for plugin_id in self.__sort_plugins(
                 await gather(
-                    *map(
-                        owner.services.plugins[self.plugin_type].get,
-                        plugins_by_id.keys(),
-                    )
+                    *map(services.plugins[self.plugin_type].get, plugins_by_id.keys())
                 ),
             )
         )

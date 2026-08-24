@@ -7,14 +7,14 @@ from __future__ import annotations
 from typing import final, override
 
 from betty.asset import AssetDirectoryDefinition, AssetRepository, StaticAssetRepository
-from betty.services.plugin import HasPluginServices
+from betty.services.plugin import ResolvableServiceLevelHasPluginServices
 from betty.services.plugin.definition.collection import (
     CollectionPluginDefinitionServiceManager,
 )
 
 
 @final
-class AssetRepositoryService[OwnerT: HasPluginServices](
+class AssetRepositoryService[OwnerT: ResolvableServiceLevelHasPluginServices](
     CollectionPluginDefinitionServiceManager[
         OwnerT, AssetDirectoryDefinition, AssetRepository
     ]

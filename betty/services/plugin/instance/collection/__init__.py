@@ -8,7 +8,7 @@ from typing import final, override
 
 from betty.asyncio import ReAwaitable
 from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.services.plugin import HasPluginServices
+from betty.services.plugin import ResolvableServiceLevelHasPluginServices
 from betty.services.plugin.collection import CollectionPluginServiceManager
 from betty.services.plugin.instance import (
     PluginInstanceServiceManager,
@@ -17,7 +17,7 @@ from betty.services.plugin.instance import (
 
 
 class CollectionPluginInstanceServiceManager[
-    OwnerT: HasPluginServices,
+    OwnerT: ResolvableServiceLevelHasPluginServices,
     PluginDefinitionT: PluginClsDefinition,
     GetServiceT,
     PluginT: Plugin,

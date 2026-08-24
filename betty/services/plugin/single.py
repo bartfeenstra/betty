@@ -10,7 +10,10 @@ from betty.localizables.gettext import _
 from betty.localizables.markup import JoinAnd
 from betty.plugin import PluginDefinition
 from betty.requirements.service import UnmetServiceRequirement
-from betty.services.plugin import HasPluginServices, PluginServiceManager
+from betty.services.plugin import (
+    PluginServiceManager,
+    ResolvableServiceLevelHasPluginServices,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -19,7 +22,7 @@ if TYPE_CHECKING:
 
 
 class SinglePluginServiceManager[
-    OwnerT: HasPluginServices,
+    OwnerT: ResolvableServiceLevelHasPluginServices,
     PluginDefinitionT: PluginDefinition,
     GetServiceT,
     InitT,

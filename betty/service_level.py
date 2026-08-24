@@ -9,9 +9,11 @@ from typing import TYPE_CHECKING, Any, Final
 
 from betty.collections import _empty_frozen_mapping
 from betty.collections.keyed.adapter import KeyedCollectionAdapter
+from betty.life_cycle.manage import ManagedLifeCycle
 from betty.plugin.resolve import resolve_plugin_type_id
-from betty.service import HasServices
+from betty.prop import HasProps
 from betty.services.simple import service
+from betty.typing import Intersection, Not
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
@@ -29,7 +31,7 @@ else:
     type Plugins = Any
 
 
-class ServiceLevel(HasServices):
+class ServiceLevel(HasProps, ManagedLifeCycle):
     """
     A service level.
     """
@@ -39,7 +41,7 @@ class ServiceLevel(HasServices):
     ):
         from betty.factory import Factory
 
-        super().__init__(*args, services=self, **kwargs)
+        super().__init__(*args, **kwargs)
         self.factory: Final[Factory] = Factory(self)
         """
         The object factory.
@@ -97,3 +99,30 @@ class DownstreamServiceLevel[UpstreamT: ServiceLevel = ServiceLevel](ServiceLeve
         """
         The upstream service level.
         """
+
+
+class HasServiceLevel[ServiceLevelT: ServiceLevel = ServiceLevel]:
+    """
+    An object that exposes a service level.
+    """
+
+    def __init__(self, *args: Any, services: ServiceLevelT, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+        self.services: Final[ServiceLevelT] = services
+
+
+type ResolvableServiceLevel[ServiceLevelT: ServiceLevel = ServiceLevel] = (
+    Intersection[ServiceLevelT, Not[HasServiceLevel]]
+    | Intersection[HasServiceLevel[ServiceLevelT], Not[ServiceLevel]]
+)
+
+
+def resolve_service_level[ServiceLevelT: ServiceLevel = ServiceLevel](
+    services: ResolvableServiceLevel[ServiceLevelT], /
+) -> ServiceLevelT:
+    """
+    Resolve a value to a service level.
+    """
+    if isinstance(services, ServiceLevel):
+        return services
+    return services.services
