@@ -65,11 +65,11 @@ class ToMany[OwnerT: HasAssociations, AssociateT: Entity](
     @override
     def pre_init_owner(self, owner: OwnerT, /) -> None:
         super().pre_init_owner(owner)
-        self.prop.setattr(owner, ToManyCollection(owner, self))
+        self.ownership.storage.set(owner, ToManyCollection(owner, self))
 
     @override
     def get(self, owner: OwnerT, /) -> ToManyCollection[OwnerT, AssociateT]:
-        return self.prop.getattr(owner)
+        return self.ownership.storage.get(owner)
 
     @override
     def set(

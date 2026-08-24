@@ -5,11 +5,11 @@ The property API.
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Final, Never, Self, final, overload
 
 from betty.classtools import Object, ObjectClassVar
 from betty.importlib import fully_qualified_name
+from betty.objecttools import AttrOperators
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -32,57 +32,23 @@ class HasProps(Object):
 
 
 @final
-@dataclass(frozen=True)
-class PropDefinition[OwnerT: HasProps]:
+class PropOwnership[OwnerT: HasProps]:
     """
-    The definition of a property on a class.
-    """
-
-    prop: Prop[OwnerT, Any, Any]
-    owner: type[OwnerT]
-    name: str
-    """
-    The name of the attribute on the owner the property is assigned to.
+    The ownership of a property on a class.
     """
 
-    fully_qualified_name: str = field(init=False)
-    """
-    The fully qualified property name.
-    """
-
-    _owner_attr_name: str = field(init=False)
-
-    def __post_init__(self):
-        object.__setattr__(
-            self,
-            "fully_qualified_name",
-            f"{fully_qualified_name(self.owner)}.{self.name}",
-        )
-        object.__setattr__(self, "_owner_attr_name", f"_betty_prop__{self.name}")
-
-    def hasattr(self, owner: OwnerT, /) -> bool:
+    def __init__(self, prop: Prop[OwnerT, Any, Any], owner: type[OwnerT], name: str):
+        self.prop: Final[Prop[OwnerT, Any, Any]] = prop
+        self.owner: Final[type[OwnerT]] = owner
+        self.name: Final[str] = name
         """
-        Check if a property value is stored on the owner.
+        The name of the attribute on the owner the property is assigned to.
         """
-        return hasattr(owner, self._owner_attr_name)
-
-    def getattr(self, owner: OwnerT, /) -> Any:
+        self.fully_qualified_name: Final[str] = f"{fully_qualified_name(owner)}.{name}"
         """
-        Get the property value from the owner, if any.
+        The fully qualified property name.
         """
-        return getattr(owner, self._owner_attr_name)
-
-    def setattr(self, owner: OwnerT, value: Any, /) -> None:
-        """
-        Set the property value on the owner.
-        """
-        setattr(owner, self._owner_attr_name, value)
-
-    def delattr(self, owner: OwnerT, /) -> None:
-        """
-        Delete the property value from the owner, if any.
-        """
-        delattr(owner, self._owner_attr_name)
+        self.storage: Final[AttrOperators] = AttrOperators(f"_betty_prop__{name}")
 
 
 class Prop[OwnerT: HasProps, GetT, SetT: Any = Never](
@@ -92,18 +58,18 @@ class Prop[OwnerT: HasProps, GetT, SetT: Any = Never](
     A property.
     """
 
-    __prop: PropDefinition[OwnerT]
+    __ownership: PropOwnership[OwnerT]
 
     def __set_name__(self, owner: type[OwnerT], name: str) -> None:
-        self.__prop = PropDefinition(self, owner, name)
+        self.__ownership = PropOwnership(self, owner, name)
 
     @final
     @property
-    def prop(self) -> PropDefinition[OwnerT]:
+    def ownership(self) -> PropOwnership[OwnerT]:
         """
-        The property definition.
+        The property ownership.
         """
-        return self.__prop
+        return self.__ownership
 
     def delete_owner(self, owner: OwnerT, /) -> None:
         """
@@ -206,7 +172,7 @@ class OwnerError(PropError, AttributeError):
     def __init__[OwnerT: HasProps](
         self, prop: Prop[OwnerT, Any], owner: OwnerT, message: str, /
     ):
-        super().__init__(prop, message, name=prop.prop.name, obj=owner)
+        super().__init__(prop, message, name=prop.ownership.name, obj=owner)
 
 
 class NotSettable(OwnerError):
@@ -218,7 +184,7 @@ class NotSettable(OwnerError):
         super().__init__(
             prop,
             owner,
-            f"{fully_qualified_name(type(owner))}.{prop.prop.name} is not settable on {repr(owner)}.",
+            f"{fully_qualified_name(type(owner))}.{prop.ownership.name} is not settable on {repr(owner)}.",
         )
 
 
@@ -231,5 +197,5 @@ class NotDeletable(OwnerError):
         super().__init__(
             prop,
             owner,
-            f"{fully_qualified_name(type(owner))}.{prop.prop.name} is not deletable from {repr(owner)}.",
+            f"{fully_qualified_name(type(owner))}.{prop.ownership.name} is not deletable from {repr(owner)}.",
         )

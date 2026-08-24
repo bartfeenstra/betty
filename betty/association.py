@@ -83,7 +83,7 @@ class Association[
             associate if isinstance(associate, type) else None
         )
         self.associate_attr_name: Final[str | None] = (
-            associate_attr.prop.name
+            associate_attr.ownership.name
             if isinstance(associate_attr, Association)
             else associate_attr  # ty:ignore[invalid-assignment]
         )
@@ -121,8 +121,8 @@ class Association[
     ) -> Association[AssociateT, Intersection[OwnerT, Entity], Any, Any] | None:
         for associate_association in self.associate_type.associations():
             if (
-                associate_association.associate_type is self.prop.owner
-                and associate_association.associate_attr_name == self.prop.name
+                associate_association.associate_type is self.ownership.owner
+                and associate_association.associate_attr_name == self.ownership.name
             ):
                 return associate_association
         return None
@@ -221,7 +221,7 @@ class UnresolvedAssociate(ValueError):
         /,
     ):
         super().__init__(
-            f"{repr(owner)} unexpectedly contains an unresolved associate entity ({repr(resolver)}) in {type(owner).__name__}.{association.prop.name}. You MUST call {fully_qualified_name(resolve_associates)}() on your objects after setting your resolvers on their associations."
+            f"{repr(owner)} unexpectedly contains an unresolved associate entity ({repr(resolver)}) in {type(owner).__name__}.{association.ownership.name}. You MUST call {fully_qualified_name(resolve_associates)}() on your objects after setting your resolvers on their associations."
         )
 
 
@@ -261,7 +261,7 @@ def resolve_associates(project: Project, *owners: HasAssociations) -> None:
             if associate_attr := association.associate_attr:
                 for associate in association.get_associates(owner):
                     assert owner in associate_attr.get_associates(associate), (
-                        f"Corrupt bidirectional association. Found {associate} in {association.prop.fully_qualified_name} on {repr(owner)}, but did not find {repr(owner)} in {associate_attr.prop.fully_qualified_name} on {associate}."
+                        f"Corrupt bidirectional association. Found {associate} in {association.ownership.fully_qualified_name} on {repr(owner)}, but did not find {repr(owner)} in {associate_attr.ownership.fully_qualified_name} on {associate}."
                     )
 
 

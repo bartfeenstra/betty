@@ -30,7 +30,7 @@ class TestOptionalAttr:
         class _Owner(HasProps):
             my_first_attr = OptionalAttr(proxied)
 
-        assert proxied.prop.name == "my_first_attr"
+        assert proxied.ownership.name == "my_first_attr"
 
     def test_field(self) -> None:
         data = StrDefinition(label="-")

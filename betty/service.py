@@ -60,7 +60,7 @@ class ServiceManager[
         owner.assert_not_initialized()
         setattr(
             owner,
-            f"_service_{self.prop.name}",
+            f"_service_{self.ownership.name}",
             self._new_service_getter(owner),
         )
 
@@ -78,7 +78,7 @@ class ServiceManager[
     @final
     @override
     def get(self, owner: OwnerT, /) -> GetServiceT:
-        return self._get_service(getattr(owner, f"_service_{self.prop.name}"))
+        return self._get_service(getattr(owner, f"_service_{self.ownership.name}"))
 
     @abstractmethod
     def _get_service(self, service: GetterServiceT, /) -> GetServiceT:
@@ -91,7 +91,9 @@ class ServiceManager[
         self, owner: OwnerT, /
     ) -> ServiceOrFactory[OwnerT, ServiceT, FactoryServiceT]:
         return getattr(
-            owner, f"_service_{self.prop.name}_or_factory", self.__service_or_factory
+            owner,
+            f"_service_{self.ownership.name}_or_factory",
+            self.__service_or_factory,
         )
 
     @final
@@ -109,4 +111,4 @@ class ServiceManager[
         This MUST only be called from ``instance.__init__()``.
         """
         owner.assert_not_initialized()
-        setattr(owner, f"_service_{self.prop.name}_or_factory", service)
+        setattr(owner, f"_service_{self.ownership.name}_or_factory", service)

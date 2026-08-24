@@ -31,5 +31,5 @@ class ObjectDefinition[
         if issubclass(cls, HasProps):
             for prop in cls.props():
                 if isinstance(prop, Attr):
-                    self._fields[AttrOperator(prop.prop.name)] = prop.field  # ty:ignore[invalid-assignment]
+                    self._fields[AttrOperator(prop.ownership.name)] = prop.field  # ty:ignore[invalid-assignment]
         super()._set_cls(cls)

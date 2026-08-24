@@ -96,7 +96,7 @@ class PluginServiceManager[
     @override
     def pre_init_owner(self, owner: OwnerT, /) -> None:
         super().pre_init_owner(owner)
-        setattr(owner, f"_plugin_service_init_plugins_{self.prop.name}", [])
+        setattr(owner, f"_plugin_service_init_plugins_{self.ownership.name}", [])
 
     @final
     @override
@@ -118,7 +118,7 @@ class PluginServiceManager[
     def __get_init_plugins(
         self, owner: OwnerT, /
     ) -> MutableSequence[InitT | ResolvablePluginDefinition[PluginDefinitionT]]:
-        return getattr(owner, f"_plugin_service_init_plugins_{self.prop.name}")
+        return getattr(owner, f"_plugin_service_init_plugins_{self.ownership.name}")
 
     @final
     def get_init_plugins(
@@ -154,7 +154,7 @@ class PluginServiceManager[
         """
         setattr(
             owner,
-            f"_plugin_service_plugins_{self.prop.name}",
+            f"_plugin_service_plugins_{self.ownership.name}",
             tuple(await self.prepare_plugins(owner, *plugins)),
         )
 
@@ -182,7 +182,7 @@ class PluginServiceManager[
         Get the initialized plugins.
         """
         owner.assert_initialized()
-        return getattr(owner, f"_plugin_service_plugins_{self.prop.name}")
+        return getattr(owner, f"_plugin_service_plugins_{self.ownership.name}")
 
     @abstractmethod
     def new_service(self, owner: OwnerT, /) -> GetServiceT:

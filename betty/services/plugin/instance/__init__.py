@@ -95,7 +95,7 @@ class PluginInstanceServiceManager[
                             ).format(
                                 plugin=plugin_id,
                                 plugin_type=self.plugin_type.type().label,
-                                service=self.prop.fully_qualified_name,
+                                service=self.ownership.fully_qualified_name,
                             ),
                         )
                 else:

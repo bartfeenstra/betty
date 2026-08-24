@@ -41,7 +41,7 @@ class OptionalToOne[OwnerT: HasAssociations, AssociateT: Entity](
     @final
     @override
     def pre_init_owner(self, owner: OwnerT, /) -> None:
-        self.prop.setattr(owner, None)
+        self.ownership.storage.set(owner, None)
 
     @override
     def is_resolver(
@@ -53,18 +53,18 @@ class OptionalToOne[OwnerT: HasAssociations, AssociateT: Entity](
 
     @override
     def resolve(self, project: Project, owner: OwnerT, /) -> None:
-        if self.prop.getattr(owner) is None:
+        if self.ownership.storage.get(owner) is None:
             return
         super().resolve(project, owner)
 
     @override
     def disassociate(self, owner: OwnerT, associate: AssociateT, /) -> None:
         self._proxied_association.disassociate(owner, associate)
-        self.prop.setattr(owner, None)
+        self.ownership.storage.set(owner, None)
 
     @override
     def get_associates(self, owner: OwnerT, /) -> Iterable[AssociateT]:
-        if self.prop.getattr(owner) is None:
+        if self.ownership.storage.get(owner) is None:
             return ()
         return self._proxied_association.get_associates(owner)
 
@@ -72,6 +72,6 @@ class OptionalToOne[OwnerT: HasAssociations, AssociateT: Entity](
     async def dump_linked_data_for(
         self, project: Project, owner: OwnerT, /
     ) -> PortableData:
-        if self.prop.getattr(owner) is None:
+        if self.ownership.storage.get(owner) is None:
             return None
         return await super().dump_linked_data_for(project, owner)
