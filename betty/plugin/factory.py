@@ -13,7 +13,7 @@ from betty.assertions.mapping import assert_mapping
 from betty.assertions.record import Field, assert_record
 from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.owner import OwnerAttr
-from betty.classtools import InitABCMeta
+from betty.classtools import TypeABCMeta
 from betty.data import Data, DataDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.definition.cls import OnSetCls
@@ -55,7 +55,7 @@ class PluginManufacturer(
     HasProps,
     Frozen,
     Generic[_PluginManufacturerPluginDefinitionT, _PluginManufacturerPluginT],  # noqa: UP046
-    metaclass=InitABCMeta,
+    metaclass=TypeABCMeta,
 ):
     """
     Configure a single plugin instance.

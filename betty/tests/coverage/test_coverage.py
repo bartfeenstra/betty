@@ -130,8 +130,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Stage": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/classtools.py": {
-        "InitMeta": MissingReason.COVERED_ELSEWHERE,
-        "InitABCMeta": MissingReason.STATIC_CONTENT_ONLY,
+        "Type": MissingReason.COVERED_ELSEWHERE,
+        "TypeABCMeta": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/commands/dev_profile_demo.py": MissingReason.DEVELOPMENT,
     "betty/console/__init__.py": {

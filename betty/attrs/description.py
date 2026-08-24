@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, override
 
 from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.privacy import HasPrivacy
-from betty.classtools import InitABCMeta
+from betty.classtools import TypeABCMeta
 from betty.json_schemas.static_translations import StaticTranslationsSchema
 from betty.linked_data import (
     JsonLdObject,
@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 
 
 class HasDescription(
-    LinkedDataDumpableWithSchemaJsonLdObject, HasProps, metaclass=InitABCMeta
+    LinkedDataDumpableWithSchemaJsonLdObject, HasProps, metaclass=TypeABCMeta
 ):
     """
     Data with a description.

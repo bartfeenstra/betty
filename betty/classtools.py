@@ -29,28 +29,28 @@ class Singleton:
 
 
 @final
-class NotYetInitialized(RuntimeError):
+class ObjectNotYetInitialized(RuntimeError):
     """
-    An :py:class:`betty.classtools.Init` was unexpectedly not yet initialized.
+    An :py:class:`betty.classtools.Object` was unexpectedly not yet initialized.
     """
 
-    def __init__(self, init: Init, /):
-        super().__init__(f"{repr(init)} was unexpectedly not yet initialized")
+    def __init__(self, object_: Object, /):
+        super().__init__(f"{repr(object_)} was unexpectedly not yet initialized")
 
 
 @final
-class AlreadyInitialized(RuntimeError):
+class ObjectAlreadyInitialized(RuntimeError):
     """
-    An :py:class:`betty.classtools.Init` was unexpectedly initialized already.
+    An :py:class:`betty.classtools.Object` was unexpectedly initialized already.
     """
 
-    def __init__(self, init: Init, /):
-        super().__init__(f"{repr(init)} was unexpectedly initialized already")
+    def __init__(self, object_: Object, /):
+        super().__init__(f"{repr(object_)} was unexpectedly initialized already")
 
 
-class InitMeta(type):
+class Type(type):
     """
-    The metaclass for :py:class:`betty.classtools.Init`.
+    The metaclass for :py:class:`betty.classtools.Object`.
     """
 
     def __call__(cls, *args: Any, **kwargs: Any):
@@ -58,7 +58,7 @@ class InitMeta(type):
         Create a new instance.
         """
         new = cls.__new__(cls, *args, **kwargs)
-        assert isinstance(new, Init)
+        assert isinstance(new, Object)
         new._pre_init()
         new.__init__(*args, **kwargs)
         new._post_init()
@@ -66,7 +66,7 @@ class InitMeta(type):
         return new
 
 
-class Init(metaclass=InitMeta):
+class Object(metaclass=Type):
     """
     An object that supports cooperative initialization.
     """
@@ -95,7 +95,7 @@ class Init(metaclass=InitMeta):
         Assert that the object is initialized.
         """
         if not self.is_initialized:
-            raise NotYetInitialized(self)
+            raise ObjectNotYetInitialized(self)
 
     @final
     def assert_not_initialized(self) -> None:
@@ -103,29 +103,31 @@ class Init(metaclass=InitMeta):
         Assert that the object is not yet initialized.
         """
         if self.is_initialized:
-            raise AlreadyInitialized(self)
+            raise ObjectAlreadyInitialized(self)
 
     @final
     @classmethod
     @cache
-    def init_class_vars(cls) -> Iterable[InitClassVar[Self]]:
+    def init_class_vars(cls) -> Iterable[ObjectClassVar[Self]]:
         """
         Get all init class variables on this class.
         """
         return tuple(
-            member for _, member in getmembers(cls) if isinstance(member, InitClassVar)
+            member
+            for _, member in getmembers(cls)
+            if isinstance(member, ObjectClassVar)
         )
 
 
-class InitABCMeta(InitMeta, ABCMeta):
+class TypeABCMeta(Type, ABCMeta):
     """
-    The metaclass for abstract :py:class:`betty.classtools.Init` subclasses.
+    The metaclass for abstract :py:class:`betty.classtools.Object` subclasses.
     """
 
 
-class InitClassVar[OwnerT: Init]:
+class ObjectClassVar[OwnerT: Object]:
     """
-    A class variable on an :py:class:`betty.classtools.Init`.
+    A class variable on an :py:class:`betty.classtools.Object`.
     """
 
     def pre_init_owner(self, owner: OwnerT, /) -> None:

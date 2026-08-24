@@ -8,14 +8,14 @@ from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Final, Never, Self, final, overload
 
-from betty.classtools import Init, InitClassVar
+from betty.classtools import Object, ObjectClassVar
 from betty.importlib import fully_qualified_name
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
 
-class HasProps(Init):
+class HasProps(Object):
     """
     An object that has :py:class:`properties <betty.prop.Prop>`.
     """
@@ -86,7 +86,7 @@ class PropDefinition[OwnerT: HasProps]:
 
 
 class Prop[OwnerT: HasProps, GetT, SetT: Any = Never](
-    InitClassVar[OwnerT], metaclass=ABCMeta
+    ObjectClassVar[OwnerT], metaclass=ABCMeta
 ):
     """
     A property.

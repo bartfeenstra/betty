@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, override
 
 from betty.attrs.owner import OwnerAttr
 from betty.attrs.privacy import HasPrivacy
-from betty.classtools import InitABCMeta
+from betty.classtools import TypeABCMeta
 from betty.datas.locale import LocaleDefinition
 from betty.json_schema import Null, OneOf
 from betty.json_schemas.locale import LocaleSchema
@@ -41,7 +41,7 @@ def new_locale_attr(
 
 
 class HasLocale(
-    Localized, LinkedDataDumpableWithSchemaJsonLdObject, HasProps, metaclass=InitABCMeta
+    Localized, LinkedDataDumpableWithSchemaJsonLdObject, HasProps, metaclass=TypeABCMeta
 ):
     """
     A resource that is localized, e.g. contains information in a specific locale.

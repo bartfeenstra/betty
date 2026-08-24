@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.classtools import InitABCMeta
+from betty.classtools import TypeABCMeta
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.factory import Manufacturable
 from betty.life_cycle.manage import ManagedLifeCycle
@@ -29,7 +29,7 @@ class ServiceProvider[ServiceLevelT: ServiceLevel = ServiceLevel](
     Manufacturable,
     HasProps,
     ManagedLifeCycle,
-    metaclass=InitABCMeta,
+    metaclass=TypeABCMeta,
 ):
     """
     Integrate custom services with a :py:class:`service level <betty.service_level.ServiceLevel>`.

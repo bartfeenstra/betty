@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, override
 
 from betty.attrs.owner import OwnerAttr
 from betty.attrs.privacy import HasPrivacy
-from betty.classtools import InitABCMeta
+from betty.classtools import TypeABCMeta
 from betty.datas.date import AnyDateDefinition
 from betty.date import AnyDate, Date
 from betty.json_schemas.date import ResolvableDateSchema
@@ -23,7 +23,7 @@ from betty.linked_data import dump_context
 
 
 class HasAnyDate(
-    LinkedDataDumpableWithSchemaJsonLdObject, HasProps, metaclass=InitABCMeta
+    LinkedDataDumpableWithSchemaJsonLdObject, HasProps, metaclass=TypeABCMeta
 ):
     """
     A resource with date information.
