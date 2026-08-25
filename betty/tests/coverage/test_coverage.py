@@ -258,8 +258,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "DataManufacturable": MissingReason.ABSTRACT,
         "FactoryError": MissingReason.ABSTRACT,
         "Manufacturable": MissingReason.ABSTRACT,
-        "TargetError": MissingReason.ABSTRACT,
-        "UnsupportedTarget": MissingReason.ABSTRACT,
+        "ManufacturerError": MissingReason.ABSTRACT,
+        "UnsupportedManufacturer": MissingReason.ABSTRACT,
     },
     "betty/functools.py": {
         "Result": {

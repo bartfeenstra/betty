@@ -22,15 +22,15 @@ class FactoryError(RuntimeError):
     """
 
 
-class UnsupportedTarget(FactoryError):
+class UnsupportedManufacturer(FactoryError):
     """
-    Raised when a factory target cannot be used to create a new object.
+    Raised when a manufacturer cannot be used to create a new object.
     """
 
 
-class TargetError(FactoryError):
+class ManufacturerError(FactoryError):
     """
-    Raised when a target raised an error while creating a new object.
+    Raised when a manufacturer raised an error while creating a new object.
     """
 
 
@@ -50,9 +50,6 @@ class Manufacturable(metaclass=ABCMeta):
 type Manufacturer[T] = (
     Callable[[ServiceLevel], Awaitable[T] | T] | Callable[[], Awaitable[T] | T]
 )
-
-
-type FactoryTarget = type[Manufacturable] | Manufacturer
 
 
 class DataManufacturable[DataT: Data](metaclass=ABCMeta):
@@ -86,36 +83,36 @@ class Factory:
 
     @overload
     async def new[ManufacturableT: Manufacturable](
-        self, target: type[ManufacturableT], /
+        self, manufacturer: type[ManufacturableT], /
     ) -> ManufacturableT:
         pass
 
     @overload
-    async def new[T](self, target: Manufacturer[T], /) -> T:
+    async def new[T](self, manufacturer: Manufacturer[T], /) -> T:
         pass
 
-    async def new(self, target, /):
+    async def new(self, manufacturer, /):
         """
         Create a new instance.
 
-        :raises FactoryError: raised when ``target`` could not be called.
+        :raises FactoryError: raised when ``manufacturer`` could not be called.
         """
-        if isinstance(target, type) and issubclass(target, Manufacturable):
-            return await target.new(self._services)
-        args = self._args(target)
+        if isinstance(manufacturer, type) and issubclass(manufacturer, Manufacturable):
+            return await manufacturer.new(self._services)
+        args = self._args(manufacturer)
         if args is None:
-            raise UnsupportedTarget(
-                f'{target} must not have any required arguments, except optionally a first argument typed on {fully_qualified_name(ServiceLevel)} and/or named "services".'
+            raise UnsupportedManufacturer(
+                f'{manufacturer} must not have any required arguments, except optionally a first argument typed on {fully_qualified_name(ServiceLevel)} and/or named "services".'
             )
         try:
-            return await resolve_await(target(*args))
+            return await resolve_await(manufacturer(*args))
         except Exception as error:
-            raise TargetError(
-                f"{repr(target)} raised an unexpected error when creating a new object."
+            raise ManufacturerError(
+                f"{repr(manufacturer)} raised an unexpected error when creating a new object."
             ) from error
 
-    def _args(self, target: FactoryTarget) -> tuple | None:
-        parameters = tuple(inspect.signature(target).parameters.values())
+    def _args(self, manufacturer: Manufacturer) -> tuple | None:
+        parameters = tuple(inspect.signature(manufacturer).parameters.values())
         if not parameters:
             return ()
         if (
