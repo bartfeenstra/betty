@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any, Self, final, override
 import pytest
 
 from betty.exception import HumanFacingException
-from betty.factory import DataManufacturable, UnsupportedTarget
+from betty.factory import DataManufacturable, UnsupportedManufacturer
 from betty.nothing import Nothing
 from betty.plugin.factory import (
     PluginManufacturer,
@@ -156,7 +156,7 @@ class TestPluginManufacturer:
         self,
     ) -> None:
         DummyPluginManufacturer(_RequiredDataManufacturableDummyPlugin)
-        with pytest.raises(UnsupportedTarget):
+        with pytest.raises(UnsupportedManufacturer):
             await DummyPluginManufacturer(_RequiredDataManufacturableDummyPlugin)(
                 self._SERVICES
             )

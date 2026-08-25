@@ -21,8 +21,8 @@ from betty.exception import HumanFacingException
 from betty.factory import DataManufacturable, FactoryError
 from betty.freezer import Frozen
 from betty.functools import Pipeline
-from betty.importlib import fully_qualified_name
 from betty.localizables.gettext import _
+from betty.localizables.markup import Quote
 from betty.machine_name import MachineName
 from betty.nothing import Nothing, NothingType
 from betty.plugin import PluginDefinition
@@ -113,8 +113,11 @@ class PluginManufacturer(
             return await services.factory.new(plugin_cls)
         if not issubclass(plugin_cls, DataManufacturable):
             raise PluginManufacturerError(
-                _("{target} is not configurable, but configuration was given.").format(
-                    target=fully_qualified_name(plugin_cls)
+                _(
+                    "{plugin_type} {plugin} is not configurable, but configuration was given."
+                ).format(
+                    plugin_type=self.data().label,
+                    plugin=Quote(self.plugin_id),
                 )
             )
         plugin_data = self.plugin_data
