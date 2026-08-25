@@ -6,9 +6,9 @@ from __future__ import annotations
 
 import inspect
 from abc import ABCMeta, abstractmethod
-from collections.abc import Awaitable, Callable
+from collections.abc import Callable, Coroutine
 from inspect import Parameter
-from typing import Self, final, overload
+from typing import Any, Self, final, overload
 
 from betty.asyncio import resolve_await
 from betty.data import Data
@@ -48,7 +48,8 @@ class Manufacturable(metaclass=ABCMeta):
 
 
 type Manufacturer[T] = (
-    Callable[[ServiceLevel], Awaitable[T] | T] | Callable[[], Awaitable[T] | T]
+    Callable[[], Coroutine[Any, Any, T] | T]
+    | Callable[[ServiceLevel], Coroutine[Any, Any, T] | T]
 )
 
 
