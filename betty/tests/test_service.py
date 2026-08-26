@@ -17,7 +17,7 @@ class _DummyServiceManager[OwnerT: ResolvableServiceLevel](
     ServiceManager[OwnerT, object, object, Callable[[], object]]
 ):
     @override
-    def _new_resolver(
+    def _init_manufacturer(
         self,
         owner: OwnerT,
         manufacturer: ServiceManufacturer[object, ServiceLevel, OwnerT],

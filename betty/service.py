@@ -26,9 +26,9 @@ if TYPE_CHECKING:
 type ServiceType[_ServiceT] = Intersection[_ServiceT, Not[Service], Not[NothingType]]
 
 
-type ResolvableServiceLevelHasServices = Intersection[
-    ResolvableServiceLevel, HasProps, ManagedLifeCycle
-]
+type ResolvableServiceLevelHasServices[ServiceLevelT: ServiceLevel = ServiceLevel] = (
+    Intersection[ResolvableServiceLevel[ServiceLevelT], HasProps, ManagedLifeCycle]
+)
 
 
 type _ManufacturerReturn[ServiceT: ServiceType] = (
@@ -62,10 +62,7 @@ async def new[OwnerT: ResolvableServiceLevelHasServices, ServiceT: ServiceType](
     from betty.service_level import resolve_service_level
 
     services = resolve_service_level(owner)
-    if (
-        not isinstance(manufacturer, type)
-        and len(signature(manufacturer).parameters) == 2
-    ):
+    if len(signature(manufacturer).parameters) >= 2:
         return resolve_await(
             cast(_OwnerDependentServiceManufacturer, manufacturer)(services, owner)
         )
@@ -107,21 +104,21 @@ type ServiceInit[
     ServiceT: ServiceType,
     ServiceLevelT: ServiceLevel,
     OwnerT: ResolvableServiceLevelHasServices,
-] = Service[ServiceT] | ServiceManufacturer[OwnerT, ServiceT, ServiceLevelT]
+] = Service[ServiceT] | ServiceManufacturer[ServiceT, ServiceLevelT, OwnerT]
 
 
 type WrappableServiceInit[
     ServiceT: ServiceType,
     ServiceLevelT: ServiceLevel,
     OwnerT: ResolvableServiceLevelHasServices,
-] = ServiceT | ServiceInit[OwnerT, ServiceT, ServiceLevelT]
+] = ServiceT | ServiceInit[ServiceT, ServiceLevelT, OwnerT]
 
 
 type OptionalWrappableServiceInit[
     ServiceT: ServiceType,
     ServiceLevelT: ServiceLevel,
     OwnerT: ResolvableServiceLevelHasServices,
-] = WrappableServiceInit[ServiceT | NothingType, ServiceLevelT, OwnerT] | NothingType
+] = WrappableServiceInit[ServiceT, ServiceLevelT, OwnerT] | NothingType
 
 
 class ServiceManager[
@@ -129,14 +126,15 @@ class ServiceManager[
     ServiceT: ServiceType,
     GetT,
     ResolverT,
-](Prop[OwnerT, GetT, ServiceInit[ServiceT, ServiceLevel, OwnerT] | NothingType]):
+    ServiceLevelT: ServiceLevel = ServiceLevel,
+](Prop[OwnerT, GetT, ServiceInit[ServiceT, ServiceLevelT, OwnerT] | NothingType]):
     """
     Manage a single service for a service provider.
     """
 
     __service_init_storage: AttrOperators[OwnerT]
 
-    def __init__(self, manufacturer: ServiceInit[ServiceT, ServiceLevel, OwnerT], /):
+    def __init__(self, manufacturer: ServiceInit[ServiceT, ServiceLevelT, OwnerT], /):
         self.__service_init = manufacturer
 
     @override
@@ -154,24 +152,19 @@ class ServiceManager[
         self.ownership.storage.set(
             owner,
             service_init
-            if isinstance(service_init, Service)
-            else self._new_resolver(owner, service_init),
+            if isinstance(service_init, Service) or service_init is Nothing
+            else self._init_manufacturer(owner, service_init),
         )
 
     @abstractmethod
-    def _new_resolver(
+    def _init_manufacturer(
         self,
         owner: OwnerT,
-        manufacturer: ServiceManufacturer[ServiceT, ServiceLevel, OwnerT],
+        manufacturer: ServiceManufacturer[ServiceT, ServiceLevelT, OwnerT],
         /,
-    ) -> ResolverT:
+    ) -> Service[ServiceT] | ResolverT | NothingType:
         """
-        Create a new service resolver.
-
-        The resolver is capable of lazily returning the service, creating a new one, returning a cached one, or
-        returning a service override.
-
-        The resolver MUST be thread-safe.
+        Initialize the service with a manufacturer.
         """
 
     @final
@@ -195,7 +188,7 @@ class ServiceManager[
     def set(
         self,
         owner: OwnerT,
-        service: ServiceInit[ServiceT, ServiceLevel, OwnerT] | NothingType,
+        service: ServiceInit[ServiceT, ServiceLevelT, OwnerT] | NothingType,
         /,
     ) -> None:
         self.assert_settable(owner)

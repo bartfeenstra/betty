@@ -8,6 +8,7 @@ from functools import update_wrapper
 from inspect import iscoroutinefunction
 from typing import TYPE_CHECKING, Any, overload
 
+from betty.service_level import ServiceLevel
 from betty.services.asynchronous import AsynchronousServiceManager
 from betty.services.synchronous import SynchronousServiceManager
 
@@ -16,22 +17,48 @@ if TYPE_CHECKING:
 
     from betty.asyncio import ReAwaitable
     from betty.service import ResolvableServiceLevelHasServices, ServiceManager
+    from betty.typing import Intersection
 
 
 @overload
-def service[OwnerT: ResolvableServiceLevelHasServices, ServiceT](
-    manufacturer: Callable[[OwnerT], Coroutine[Any, Any, ServiceT]],
+def service[
+    OwnerT: ResolvableServiceLevelHasServices,
+    ServiceT,
+    ServiceLevelT: ServiceLevel,
+](
+    manufacturer: Callable[
+        [Intersection[OwnerT, ResolvableServiceLevelHasServices[ServiceLevelT]]],
+        Coroutine[Any, Any, ServiceT],
+    ],
     /,
     *,
     sync: bool = False,
-) -> ServiceManager[OwnerT, ServiceT, ReAwaitable[ServiceT], ReAwaitable[ServiceT]]:
+) -> ServiceManager[
+    Intersection[OwnerT, ResolvableServiceLevelHasServices[ServiceLevelT]],
+    ServiceT,
+    ReAwaitable[ServiceT],
+    ReAwaitable[ServiceT],
+]:
     pass
 
 
 @overload
-def service[OwnerT: ResolvableServiceLevelHasServices, ServiceT](
-    manufacturer: Callable[[OwnerT], ServiceT], /
-) -> ServiceManager[OwnerT, ServiceT, ServiceT, Callable[[], ServiceT]]:
+def service[
+    OwnerT: ResolvableServiceLevelHasServices,
+    ServiceT,
+    ServiceLevelT: ServiceLevel,
+](
+    manufacturer: Callable[
+        [Intersection[OwnerT, ResolvableServiceLevelHasServices[ServiceLevelT]]],
+        ServiceT,
+    ],
+    /,
+) -> ServiceManager[
+    Intersection[OwnerT, ResolvableServiceLevelHasServices[ServiceLevelT]],
+    ServiceT,
+    ServiceT,
+    Callable[[], ServiceT],
+]:
     pass
 
 
