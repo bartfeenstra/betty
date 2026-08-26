@@ -27,10 +27,10 @@ if TYPE_CHECKING:
 class CollectionPluginServiceManager[
     OwnerT: ResolvableServiceLevelHasPluginServices,
     PluginDefinitionT: PluginDefinition,
-    GetServiceT,
+    GetT,
     GetServiceItemT,
     InitT,
-](PluginServiceManager[OwnerT, PluginDefinitionT, GetServiceT, InitT]):
+](PluginServiceManager[OwnerT, PluginDefinitionT, GetT, InitT]):
     """
     A service containing a collection of plugin items.
     """

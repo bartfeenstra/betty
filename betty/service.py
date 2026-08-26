@@ -5,30 +5,73 @@ An API for providing application-wide services.
 from __future__ import annotations
 
 from abc import abstractmethod
-from collections.abc import Callable
+from collections.abc import Callable, Coroutine
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, final, override
+from inspect import signature
+from typing import TYPE_CHECKING, Any, cast, final, overload, override
 
+from betty.asyncio import resolve_await
+from betty.factory import Manufacturer
 from betty.life_cycle.manage import ManagedLifeCycle
+from betty.nothing import Nothing, NothingType
+from betty.objecttools import AttrOperators
 from betty.prop import HasProps, Prop
-from betty.typing import Intersection
+from betty.service_level import ServiceLevel
+from betty.typing import Intersection, Not
 
 if TYPE_CHECKING:
     from betty.service_level import ResolvableServiceLevel
 
-type ServiceFactory[OwnerT: ResolvableServiceLevelHasServices, FactoryServiceT] = (
-    Callable[[OwnerT], FactoryServiceT]
+
+type ServiceType[_ServiceT] = Intersection[_ServiceT, Not[Service], Not[NothingType]]
+
+
+type ResolvableServiceLevelHasServices[ServiceLevelT: ServiceLevel = ServiceLevel] = (
+    Intersection[ResolvableServiceLevel[ServiceLevelT], HasProps, ManagedLifeCycle]
 )
-type ServiceOrFactory[
+
+
+type _ManufacturerReturn[ServiceT: ServiceType] = (
+    ServiceT | Coroutine[Any, Any, ServiceT]
+)
+
+
+type _OwnerDependentServiceManufacturer[
+    ServiceT: ServiceType,
+    ServiceLevelT: ServiceLevel,
     OwnerT: ResolvableServiceLevelHasServices,
-    ServiceT,
-    FactoryServiceT,
-] = Service[ServiceT] | ServiceFactory[OwnerT, FactoryServiceT]
+] = Callable[[ServiceLevelT, OwnerT], _ManufacturerReturn[ServiceT]]
+
+
+type ServiceManufacturer[
+    ServiceT: ServiceType,
+    ServiceLevelT: ServiceLevel,
+    OwnerT: ResolvableServiceLevelHasServices,
+] = (
+    Manufacturer[ServiceT, ServiceLevelT]
+    | _OwnerDependentServiceManufacturer[ServiceT, ServiceLevelT, OwnerT]
+)
+
+
+async def new[OwnerT: ResolvableServiceLevelHasServices, ServiceT: ServiceType](
+    manufacturer: ServiceManufacturer[ServiceT, ServiceLevel, OwnerT], owner: OwnerT, /
+) -> ServiceT:
+    """
+    Create a new service from a manufacturer.
+    """
+    from betty.service_level import resolve_service_level
+
+    services = resolve_service_level(owner)
+    if len(signature(manufacturer).parameters) >= 2:
+        return resolve_await(
+            cast(_OwnerDependentServiceManufacturer, manufacturer)(services, owner)
+        )
+    return await services.factory.new(manufacturer)
 
 
 @final
 @dataclass(frozen=True)
-class Service[ServiceT]:
+class Service[ServiceT: ServiceType]:
     """
     Wrap a service so it can be type-checked as such.
     """
@@ -36,79 +79,117 @@ class Service[ServiceT]:
     service: ServiceT
 
 
-type ResolvableServiceLevelHasServices = Intersection[
-    ResolvableServiceLevel, HasProps, ManagedLifeCycle
-]
+@overload
+def wrap[ServiceT: ServiceType](
+    init: ServiceT, guard: type[ServiceT], /
+) -> Service[ServiceT]:
+    pass
+
+
+@overload
+def wrap[T: Not[ServiceType]](init: T, guard: type[ServiceType], /) -> T:
+    pass
+
+
+def wrap(init, guard, /):
+    """
+    Wrap a service in a :py:class:`betty.service.Service`.
+    """
+    if isinstance(init, guard):
+        return Service(init)
+    return init
+
+
+type ServiceInit[
+    ServiceT: ServiceType,
+    ServiceLevelT: ServiceLevel,
+    OwnerT: ResolvableServiceLevelHasServices,
+] = Service[ServiceT] | ServiceManufacturer[ServiceT, ServiceLevelT, OwnerT]
+
+
+type WrappableServiceInit[
+    ServiceT: ServiceType,
+    ServiceLevelT: ServiceLevel,
+    OwnerT: ResolvableServiceLevelHasServices,
+] = ServiceT | ServiceInit[ServiceT, ServiceLevelT, OwnerT]
+
+
+type OptionalWrappableServiceInit[
+    ServiceT: ServiceType,
+    ServiceLevelT: ServiceLevel,
+    OwnerT: ResolvableServiceLevelHasServices,
+] = WrappableServiceInit[ServiceT, ServiceLevelT, OwnerT] | NothingType
 
 
 class ServiceManager[
     OwnerT: ResolvableServiceLevelHasServices,
-    ServiceT,
-    GetServiceT,
-    GetterServiceT,
-    FactoryServiceT,
-](Prop[OwnerT, GetServiceT]):
+    ServiceT: ServiceType,
+    GetT,
+    ResolverT,
+    ServiceLevelT: ServiceLevel = ServiceLevel,
+](Prop[OwnerT, GetT, ServiceInit[ServiceT, ServiceLevelT, OwnerT] | NothingType]):
     """
     Manage a single service for a service provider.
     """
 
-    def __init__(self, factory: ServiceOrFactory[OwnerT, ServiceT, FactoryServiceT], /):
-        self.__service_or_factory = factory
+    __service_init_storage: AttrOperators[OwnerT]
+
+    def __init__(self, manufacturer: ServiceInit[ServiceT, ServiceLevelT, OwnerT], /):
+        self.__service_init = manufacturer
 
     @override
-    def pre_init_owner(self, owner: OwnerT, /) -> None:
-        owner.assert_not_initialized()
-        setattr(
+    def __set_name__(self, owner: type[OwnerT], name: str):
+        super().__set_name__(owner, name)
+        self.__service_init_storage = AttrOperators(
+            f"{self.ownership.storage.name}_service_init"
+        )
+
+    @override
+    def post_init_owner(self, owner: OwnerT, /) -> None:
+        service_init = self.__service_init_storage.get(owner, Nothing)
+        if service_init is Nothing:
+            service_init = self.__service_init
+        self.ownership.storage.set(
             owner,
-            f"_service_{self.ownership.name}",
-            self._new_service_getter(owner),
+            service_init
+            if isinstance(service_init, Service) or service_init is Nothing
+            else self._init_manufacturer(owner, service_init),
         )
 
     @abstractmethod
-    def _new_service_getter(self, owner: OwnerT, /) -> GetterServiceT:
-        """
-        Create a new service getter.
-
-        The getter is capable of lazily returning the service, creating a new one, returning a cache one, or returning
-        a service override.
-
-        The getter MUST be thread-safe.
-        """
-
-    @final
-    @override
-    def get(self, owner: OwnerT, /) -> GetServiceT:
-        return self._get_service(getattr(owner, f"_service_{self.ownership.name}"))
-
-    @abstractmethod
-    def _get_service(self, service: GetterServiceT, /) -> GetServiceT:
-        """
-        Get the service from the getter.
-        """
-
-    @final
-    def _get_service_or_factory(
-        self, owner: OwnerT, /
-    ) -> ServiceOrFactory[OwnerT, ServiceT, FactoryServiceT]:
-        return getattr(
-            owner,
-            f"_service_{self.ownership.name}_or_factory",
-            self.__service_or_factory,
-        )
-
-    @final
-    def override(
+    def _init_manufacturer(
         self,
         owner: OwnerT,
-        service: ServiceOrFactory[OwnerT, ServiceT, FactoryServiceT],
+        manufacturer: ServiceManufacturer[ServiceT, ServiceLevelT, OwnerT],
+        /,
+    ) -> Service[ServiceT] | ResolverT | NothingType:
+        """
+        Initialize the service with a manufacturer.
+        """
+
+    @final
+    @override
+    def get(self, owner: OwnerT, /) -> GetT:
+        return self._resolve(self.ownership.storage.get(owner))
+
+    @abstractmethod
+    def _resolve(self, resolver: ResolverT, /) -> GetT:
+        """
+        Resolve the service.
+        """
+
+    @final
+    @override
+    def is_settable(self, owner: OwnerT, /) -> bool:
+        return not owner.is_initialized
+
+    @final
+    @override
+    def set(
+        self,
+        owner: OwnerT,
+        service: ServiceInit[ServiceT, ServiceLevelT, OwnerT] | NothingType,
         /,
     ) -> None:
-        """
-        Override the service for the given service provider.
-
-        Calling this will prevent the existing factory from being called.
-
-        This MUST only be called from ``instance.__init__()``.
-        """
-        owner.assert_not_initialized()
-        setattr(owner, f"_service_{self.ownership.name}_or_factory", service)
+        self.assert_settable(owner)
+        self.__service_init_storage.set(owner, service)

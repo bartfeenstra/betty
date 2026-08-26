@@ -274,8 +274,8 @@ class TestPluginServiceManager:
 
         class _Owner(_PluginServiceManagerTestOwner):
             def __init__(self):
-                type(self).my_first_service.override(self, Service(machine_names))
                 super().__init__()
+                self.my_first_service = Service(machine_names)
 
         owner = _Owner()
         assert owner.my_first_service == machine_names

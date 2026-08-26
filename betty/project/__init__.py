@@ -91,6 +91,7 @@ from betty.localizables.gettext import _
 from betty.localizables.markup import Quote
 from betty.localizer import Localizer, LocalizerRepository
 from betty.machine_name import MachineName, ResolvableMachineName
+from betty.nothing import Nothing
 from betty.pathlib import resolve_path
 from betty.place_type import PlaceTypeDefinition
 from betty.plugin.resolve import (
@@ -109,9 +110,7 @@ from betty.requirements.service_level import RequirableServiceLevel
 from betty.role import RoleDefinition
 from betty.sample import Sample, Size
 from betty.server import ServerDefinition
-from betty.service import (
-    Service,
-)
+from betty.service import OptionalWrappableServiceInit, wrap
 from betty.service_level import DownstreamServiceLevel, Plugins
 from betty.service_provider import (
     ServiceProvider,
@@ -139,7 +138,6 @@ if TYPE_CHECKING:
     from betty.media_type import ResolvableMediaType
     from betty.pathlib import StrPath
     from betty.plugin import PluginDefinition
-    from betty.plugin.discovery import ResolvableDiscovery as ResolvableDiscovery
     from betty.plugin.factory import (
         ResolvablePluginManufacturer,
         ResolvablePluginManufacturerSequence,
@@ -149,7 +147,6 @@ if TYPE_CHECKING:
         ServicePluginInstance,
         ServicePluginInstances,
     )
-    from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
     from betty.url_generator import UrlGenerator
 
 
@@ -202,8 +199,9 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         ancestry: EntityPool | None = None,
         assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
         author: ResolvableLocalizable | None = None,
-        cache: TypedSynchronousServiceOrFactory[Project, TransientStore[Any]]
-        | None = None,
+        cache: OptionalWrappableServiceInit[
+            TransientStore[Any], Project, Project
+        ] = Nothing,
         clean_urls: bool = False,
         copyright_notice: ServicePluginInstance[CopyrightNoticeDefinition]
         | None = None,
@@ -216,8 +214,9 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
         loaders: ServicePluginInstances[LoaderDefinition] = (),
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
-        localizers: TypedSynchronousServiceOrFactory[Project, LocalizerRepository]
-        | None = None,
+        localizers: OptionalWrappableServiceInit[
+            LocalizerRepository, Project, Project
+        ] = Nothing,
         logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
         plugins: Plugins = _empty_frozen_mapping,
@@ -227,21 +226,12 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
     ):
         from betty.copyright_notices.project_author import ProjectAuthor
 
-        cls = type(self)
-        if cache is not None:
-            cls.cache.override(
-                self, Service(cache) if isinstance(cache, TransientStore) else cache
-            )
-        if localizers is not None:
-            cls.localizers.override(
-                self,
-                Service(localizers)
-                if isinstance(localizers, LocalizerRepository)
-                else localizers,
-            )
         super().__init__(
             plugins=plugins, supported_plugins=supported_plugins, upstream=app
         )
+        self.cache = wrap(cache, TransientStore)
+        self.localizers = wrap(localizers, LocalizerRepository)
+        cls = type(self)
         cls.asset_directories.add_init_plugins(self, *assets)
         cls.copyright_notice.add_init_plugins(self, copyright_notice or ProjectAuthor)
         cls.enrichers.add_init_plugins(self, *enrichers)
@@ -429,8 +419,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         app: App | None = None,
         assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
         author: ResolvableLocalizable | None = None,
-        cache: TypedSynchronousServiceOrFactory[Project, TransientStore[Any]]
-        | None
+        cache: OptionalWrappableServiceInit[TransientStore[Any], Project, Project]
         | Literal[False] = False,
         clean_urls: bool = False,
         debug: bool = False,
@@ -442,8 +431,9 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
         loaders: ServicePluginInstances[LoaderDefinition] = (),
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
-        localizers: TypedSynchronousServiceOrFactory[Project, LocalizerRepository]
-        | None = None,
+        localizers: OptionalWrappableServiceInit[
+            LocalizerRepository, Project, Project
+        ] = Nothing,
         logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
         plugins: Plugins = _empty_frozen_mapping,

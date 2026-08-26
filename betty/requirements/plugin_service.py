@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 
 @final
-class PluginServiceRequirement[PluginDefinitionT: PluginDefinition, GetServiceT]:
+class PluginServiceRequirement[PluginDefinitionT: PluginDefinition, GetT]:
     """
     A requirement on a plugin service.
     """
@@ -31,7 +31,7 @@ class PluginServiceRequirement[PluginDefinitionT: PluginDefinition, GetServiceT]
     def __init__(
         self,
         service: PluginServiceManager[
-            ResolvableServiceLevelHasPluginServices, PluginDefinitionT, GetServiceT, Any
+            ResolvableServiceLevelHasPluginServices, PluginDefinitionT, GetT, Any
         ],
         /,
         *plugins: ResolvablePluginDefinition[PluginDefinitionT],
@@ -40,7 +40,7 @@ class PluginServiceRequirement[PluginDefinitionT: PluginDefinition, GetServiceT]
             PluginServiceManager[
                 ResolvableServiceLevelHasPluginServices,
                 PluginDefinitionT,
-                GetServiceT,
+                GetT,
                 Any,
             ]
         ] = service
@@ -54,7 +54,7 @@ class PluginServiceRequirement[PluginDefinitionT: PluginDefinition, GetServiceT]
         The definitions of the required service plugins.
         """
 
-    async def __call__(self, services: ServiceLevel, /) -> GetServiceT:
+    async def __call__(self, services: ServiceLevel, /) -> GetT:
         """
         Check the requirement.
         """

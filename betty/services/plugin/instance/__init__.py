@@ -37,13 +37,13 @@ type ServicePluginInstances[PluginDefinitionT: PluginClsDefinition] = Iterable[
 class PluginInstanceServiceManager[
     OwnerT: ResolvableServiceLevelHasPluginServices,
     PluginDefinitionT: PluginClsDefinition,
-    GetServiceT,
+    GetT,
     PluginT: Plugin,
 ](
     PluginServiceManager[
         OwnerT,
         PluginDefinitionT,
-        GetServiceT,
+        GetT,
         ServicePluginInstance[PluginDefinitionT],
     ]
 ):

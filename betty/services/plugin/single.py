@@ -24,9 +24,9 @@ if TYPE_CHECKING:
 class SinglePluginServiceManager[
     OwnerT: ResolvableServiceLevelHasPluginServices,
     PluginDefinitionT: PluginDefinition,
-    GetServiceT,
+    GetT,
     InitT,
-](PluginServiceManager[OwnerT, PluginDefinitionT, GetServiceT, InitT]):
+](PluginServiceManager[OwnerT, PluginDefinitionT, GetT, InitT]):
     """
     A service containing a single plugin item.
     """

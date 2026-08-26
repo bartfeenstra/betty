@@ -46,6 +46,7 @@ from betty.exception import do_raise
 from betty.json_schema import Schema
 from betty.licenses.spdx import SpdxLicenseDiscoverer
 from betty.multiprocessing import ProcessPoolExecutor
+from betty.nothing import Nothing
 from betty.project import Project, ProjectLocale
 from betty.stores.file import TransientBinaryFileStore
 
@@ -75,11 +76,11 @@ if TYPE_CHECKING:
     from betty.plugin.resolve import ResolvablePluginDefinition, ResolvablePluginId
     from betty.portable import PortableData, PortableMapping
     from betty.server import ServerDefinition
+    from betty.service import OptionalWrappableServiceInit
     from betty.service_level import Plugins
     from betty.service_provider import ServiceProviderDefinition
     from betty.services.plugin import SupportedPlugins
     from betty.services.plugin.instance import ServicePluginInstances
-    from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
     from betty.store import TransientStore
     from betty.user import User
 
@@ -126,12 +127,13 @@ class IsolatedAppFactory(Protocol):
     def __call__(
         self,
         *,
-        cache: TypedSynchronousServiceOrFactory[App, TransientStore[Any]] | None = None,
+        cache: OptionalWrappableServiceInit[TransientStore[Any], App, App] = Nothing,
         binary_file_cache_directory: StrPath | None = None,
         plugins: Plugins = _empty_frozen_mapping,
-        process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
-        | None = None,
-        user: User | None = None,
+        process_pool: OptionalWrappableServiceInit[
+            futures.ProcessPoolExecutor, App, App
+        ] = Nothing,
+        user: OptionalWrappableServiceInit[User, App, App] = Nothing,
     ) -> AbstractAsyncContextManager[App]:
         raise NotImplementedError
 
@@ -148,12 +150,13 @@ def isolated_app_factory(
     @asynccontextmanager
     async def _isolated_app_factory(
         *,
-        cache: TypedSynchronousServiceOrFactory[App, TransientStore[Any]] | None = None,
+        cache: OptionalWrappableServiceInit[TransientStore[Any], App, App] = Nothing,
         binary_file_cache_directory: StrPath | None = None,
         plugins: Plugins = _empty_frozen_mapping,
-        process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
-        | None = None,
-        user: User | None = None,
+        process_pool: OptionalWrappableServiceInit[
+            futures.ProcessPoolExecutor, App, App
+        ] = Nothing,
+        user: OptionalWrappableServiceInit[User, App, App] = Nothing,
     ) -> AsyncIterator[App]:
         async with App.new_isolated(
             binary_file_cache_directory=binary_file_cache_directory,
@@ -185,8 +188,7 @@ class IsolatedProjectFactory(Protocol):
         app: App | None = None,
         assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
         author: ResolvableLocalizable | None = None,
-        cache: TypedSynchronousServiceOrFactory[Project, TransientStore[Any]]
-        | None
+        cache: OptionalWrappableServiceInit[TransientStore[Any], Project, Project]
         | Literal[False] = False,
         clean_urls: bool = False,
         debug: bool = False,
@@ -222,8 +224,7 @@ def isolated_project_factory(isolated_app: App) -> IsolatedProjectFactory:
         app: App | None = None,
         assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
         author: ResolvableLocalizable | None = None,
-        cache: TypedSynchronousServiceOrFactory[Project, TransientStore[Any]]
-        | None
+        cache: OptionalWrappableServiceInit[TransientStore[Any], Project, Project]
         | Literal[False] = False,
         clean_urls: bool = False,
         debug: bool = False,

@@ -19,19 +19,19 @@ from betty.services.plugin.instance import (
 class CollectionPluginInstanceServiceManager[
     OwnerT: ResolvableServiceLevelHasPluginServices,
     PluginDefinitionT: PluginClsDefinition,
-    GetServiceT,
+    GetT,
     PluginT: Plugin,
 ](
     PluginInstanceServiceManager[
         OwnerT,
         PluginDefinitionT,
-        GetServiceT,
+        GetT,
         PluginT,
     ],
     CollectionPluginServiceManager[
         OwnerT,
         PluginDefinitionT,
-        GetServiceT,
+        GetT,
         ReAwaitable[PluginT],
         ServicePluginInstance[PluginDefinitionT],
     ],
