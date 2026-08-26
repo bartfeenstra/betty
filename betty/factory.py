@@ -8,12 +8,13 @@ import inspect
 from abc import ABCMeta, abstractmethod
 from collections.abc import Callable, Coroutine
 from inspect import Parameter
-from typing import Any, Self, final, overload
+from typing import Any, Self, final
 
 from betty.asyncio import resolve_await
 from betty.data import Data
 from betty.importlib import fully_qualified_name
 from betty.service_level import ServiceLevel
+from betty.typing import Intersection
 
 
 class FactoryError(RuntimeError):
@@ -48,7 +49,8 @@ class Manufacturable(metaclass=ABCMeta):
 
 
 type Manufacturer[T] = (
-    Callable[[], Coroutine[Any, Any, T] | T]
+    type[Intersection[T, Manufacturable]]
+    | Callable[[], Coroutine[Any, Any, T] | T]
     | Callable[[ServiceLevel], Coroutine[Any, Any, T] | T]
 )
 
@@ -82,24 +84,14 @@ class Factory:
     def __init__(self, services: ServiceLevel, /):
         self._services = services
 
-    @overload
-    async def new[ManufacturableT: Manufacturable](
-        self, manufacturer: type[ManufacturableT], /
-    ) -> ManufacturableT:
-        pass
-
-    @overload
     async def new[T](self, manufacturer: Manufacturer[T], /) -> T:
-        pass
-
-    async def new(self, manufacturer, /):
         """
         Create a new instance.
 
         :raises FactoryError: raised when ``manufacturer`` could not be called.
         """
         if isinstance(manufacturer, type) and issubclass(manufacturer, Manufacturable):
-            return await manufacturer.new(self._services)
+            return await manufacturer.new(self._services)  # ty:ignore[invalid-return-type]
         args = self._args(manufacturer)
         if args is None:
             raise UnsupportedManufacturer(
