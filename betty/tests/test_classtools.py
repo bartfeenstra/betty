@@ -3,10 +3,12 @@ from typing import Any
 import pytest
 
 from betty.classtools import (
+    ClassVarOwnership,
     Object,
     ObjectAlreadyInitialized,
     ObjectClassVar,
     ObjectNotYetInitialized,
+    OwnedClassVar,
     Singleton,
 )
 from betty.importlib import fully_qualified_name
@@ -110,3 +112,32 @@ class TestObjectClassVar:
 
     def test_post_init_owner(self) -> None:
         assert not ObjectClassVar().post_init_owner(Object())
+
+
+class _ClassVarOwner:
+    pass
+
+
+class _OwnedClassVar(OwnedClassVar[_ClassVarOwner]):
+    pass
+
+
+class _OwnerWithClassVar(_ClassVarOwner):
+    my_first_class_var = _OwnedClassVar()
+
+
+class TestClassVarOwnership:
+    def test_fully_qualified_name(self) -> None:
+        sut = ClassVarOwnership(_ClassVarOwner, "my_first_class_var", _OwnedClassVar())
+        assert (
+            sut.fully_qualified_name
+            == "betty.tests.test_classtools:_ClassVarOwner.my_first_class_var"
+        )
+
+
+class TestOwnedClassVar:
+    def test_ownership(self) -> None:
+        assert (
+            _OwnerWithClassVar.my_first_class_var.ownership.fully_qualified_name
+            == "betty.tests.test_classtools:_OwnerWithClassVar.my_first_class_var"
+        )

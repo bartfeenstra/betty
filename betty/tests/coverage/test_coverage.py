@@ -130,6 +130,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Stage": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/classtools.py": {
+        "OwnedClassVar": {
+            "__set_name__": MissingReason.COVERED_ELSEWHERE,
+        },
         "Type": MissingReason.COVERED_ELSEWHERE,
         "TypeABCMeta": MissingReason.STATIC_CONTENT_ONLY,
     },
