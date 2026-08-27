@@ -37,12 +37,12 @@ class OptionalAttr[OwnerT: HasProps, GetT, SetT](
 
     @override
     def pre_init_owner(self, owner: OwnerT, /) -> None:
-        self.ownership.storage.set(owner, None)
+        self._storage.set(owner, None)
 
     @final
     @override
     def get(self, owner: OwnerT, /) -> GetT | None:
-        if self.ownership.storage.get(owner) is None:
+        if self._storage.get(owner) is None:
             return None
         return super().get(owner)
 
@@ -52,7 +52,7 @@ class OptionalAttr[OwnerT: HasProps, GetT, SetT](
         self.assert_settable(owner)
         if value is None:
             super().delete_owner(owner)
-            self.ownership.storage.set(owner, None)
+            self._storage.set(owner, None)
         else:
             super().set(owner, value)
 
