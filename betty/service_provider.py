@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.classtools import TypeABCMeta
 from betty.definition.human_facing import HumanFacingDefinition
-from betty.factory import Manufacturable
+from betty.factory import Arg1Manufacturable
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 class ServiceProvider[ServiceLevelT: ServiceLevel = ServiceLevel](
     HasServiceLevel[ServiceLevelT],
     Plugin["ServiceProviderDefinition"],
-    Manufacturable,
+    Arg1Manufacturable[ServiceLevelT],
     HasProps,
     ManagedLifeCycle,
     metaclass=TypeABCMeta,

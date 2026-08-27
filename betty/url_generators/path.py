@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, Final, Self, TypeGuard, final, override
 from urllib.parse import urlencode
 
 from betty.collections import _empty_frozen_mapping
-from betty.factory import Manufacturable
+from betty.factory import Arg1Manufacturable
 from betty.locale import negotiate_locale, resolve_locale, to_language_tag
 from betty.project import Project
 from betty.url_generator import UrlGenerator
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 
 @final
-class PathUrlGenerator(Manufacturable, UrlGenerator[str]):
+class PathUrlGenerator(Arg1Manufacturable, UrlGenerator[str]):
     """
     Generate URLs for URL paths.
     """

@@ -11,7 +11,7 @@ from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.entities.person import Person
 from betty.entities.place import Place
-from betty.factory import Manufacturable
+from betty.factory import Arg1Manufacturable
 from betty.localizables.gettext import _
 from betty.project import Project
 from betty.service_providers._theme import person_timeline_events, place_timeline_events
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     label=_("Timeline"),
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class Timeline(Template, Manufacturable):
+class Timeline(Template, Arg1Manufacturable):
     """
     A timeline of events.
 

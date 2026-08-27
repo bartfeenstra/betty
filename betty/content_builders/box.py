@@ -20,9 +20,10 @@ from betty.content_builder import (
 from betty.content_builders.render import Render, RenderData
 from betty.content_builders.template import Template, TemplateBuild
 from betty.data import Data
+from betty.data.factory import DataManufacturable
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.str import StrDefinition
-from betty.factory import DataManufacturable
+from betty.factory import new
 from betty.localizables.gettext import _
 from betty.project import Project
 from betty.prop import HasProps
@@ -102,7 +103,7 @@ class BoxData(Data, HasProps):
 
 @final
 @ContentBuilderDefinition("box", label=_("Box"))
-class Box(Template, DataManufacturable[BoxData]):
+class Box(Template, DataManufacturable[Project, BoxData]):
     """
     .. plugin:: content-builder:box.
     """
@@ -141,7 +142,7 @@ class Box(Template, DataManufacturable[BoxData]):
         content, jinja = await gather(
             gather(
                 *map(
-                    project.factory.new,
+                    lambda manufacturer: new(manufacturer, project),
                     map(ContentBuilderManufacturer.resolve, data.content),
                 )
             ),

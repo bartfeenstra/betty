@@ -15,10 +15,11 @@ from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.owner import OwnerAttr
 from betty.classtools import TypeABCMeta
 from betty.data import Data, DataDefinition
+from betty.data.factory import DataManufacturable
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.definition.cls import OnSetCls
 from betty.exception import HumanFacingException
-from betty.factory import DataManufacturable, FactoryError
+from betty.factory import FactoryError, new
 from betty.freezer import Frozen
 from betty.functools import Pipeline
 from betty.localizables.gettext import _
@@ -37,7 +38,7 @@ if TYPE_CHECKING:
     from betty.typing import Intersection
 
 
-class PluginManufacturerError(HumanFacingException, FactoryError):
+class PluginFactoryError(HumanFacingException, FactoryError):
     """
     Raised when a plugin manufacturer could not create a new plugin instance.
     """
@@ -110,9 +111,9 @@ class PluginManufacturer(
             await services.plugins[self.data().plugin_type][self.plugin_id]
         ).cls  # ty:ignore[unresolved-attribute]
         if self.plugin_data is Nothing:
-            return await services.factory.new(plugin_cls)
+            return await new(plugin_cls, services)
         if not issubclass(plugin_cls, DataManufacturable):
-            raise PluginManufacturerError(
+            raise PluginFactoryError(
                 _(
                     "{plugin_type} {plugin} is not configurable, but configuration was given."
                 ).format(

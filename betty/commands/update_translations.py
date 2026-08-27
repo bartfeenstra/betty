@@ -8,7 +8,7 @@ from betty.argparse import assertion_to_argument_type
 from betty.assertions.directory import assert_directory
 from betty.asset import AssetDirectoryDefinition
 from betty.console.command import Command, CommandDefinition, CommandFunction
-from betty.factory import Manufacturable
+from betty.factory import Arg1Manufacturable
 from betty.localizables.gettext import _
 from betty.plugin.error import PluginNotFound
 
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     "update-translations",
     label=_("Update existing translations"),
 )
-class UpdateTranslations(Manufacturable, Command):
+class UpdateTranslations(Arg1Manufacturable[App], Command):
     """
     .. plugin:: command:update-translations.
     """

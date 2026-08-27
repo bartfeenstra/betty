@@ -20,9 +20,10 @@ from betty.content_builder import (
 )
 from betty.content_builders.template import Template, TemplateBuild
 from betty.data import Data
+from betty.data.factory import DataManufacturable
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.enum import EnumDefinition
-from betty.factory import DataManufacturable
+from betty.factory import new
 from betty.localizables.gettext import _
 from betty.project import Project
 from betty.prop import HasProps
@@ -85,7 +86,7 @@ class ColorStyleData(Data, HasProps):
     label=_("Color style"),
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class ColorStyle(Template, DataManufacturable[ColorStyleData]):
+class ColorStyle(Template, DataManufacturable[Project, ColorStyleData]):
     """
     Change the color style for all containing content.
 
@@ -116,7 +117,7 @@ class ColorStyle(Template, DataManufacturable[ColorStyleData]):
         content, jinja = await gather(
             gather(
                 *map(
-                    project.factory.new,
+                    lambda manufacturer: new(manufacturer, project),
                     data.content,
                 )
             ),

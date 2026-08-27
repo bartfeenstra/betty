@@ -210,8 +210,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "new_service_item": MissingReason.ABSTRACT,
         },
     },
-    "betty/data.py": {
+    "betty/data/__init__.py": {
         "Data": MissingReason.ABSTRACT,
+    },
+    "betty/data/factory.py": {
+        "DataManufacturable": MissingReason.ABSTRACT,
     },
     "betty/datas/aggregate/collection/__init__.py": {
         "CollectionDefinition": MissingReason.ABSTRACT,
@@ -258,11 +261,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/factory.py": {
-        "DataManufacturable": MissingReason.ABSTRACT,
         "FactoryError": MissingReason.ABSTRACT,
         "Manufacturable": MissingReason.ABSTRACT,
-        "ManufacturerError": MissingReason.ABSTRACT,
-        "UnsupportedManufacturer": MissingReason.ABSTRACT,
+        "Arg1Manufacturable": MissingReason.ABSTRACT,
+        "Arg2Manufacturable": MissingReason.ABSTRACT,
     },
     "betty/functools.py": {
         "Result": {
@@ -539,8 +541,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "PluginError": MissingReason.ABSTRACT,
     },
     "betty/plugin/factory.py": {
+        "PluginFactoryError": MissingReason.STATIC_CONTENT_ONLY,
         "PluginManufacturerDefinition": MissingReason.STATIC_CONTENT_ONLY,
-        "PluginManufacturerError": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/collections/plugin/discoverer.py": {
         "PluginDiscovererCollection": MissingReason.STATIC_CONTENT_ONLY,

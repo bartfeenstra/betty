@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.asset_directories.trees import trees
 from betty.dirs import webpack_entry_point_directory
-from betty.factory import Manufacturable
+from betty.factory import Arg1Manufacturable
 from betty.jobs._generate_trees_people_json import _GenerateTreesPeopleJson
 from betty.localizables.gettext import _
 from betty.project import Project
@@ -32,7 +32,7 @@ if TYPE_CHECKING:
         Project.service_providers.require(Webpack),
     },
 )
-class Trees(Generator, EntryPointProvider[Project], Manufacturable):
+class Trees(Generator, EntryPointProvider[Project], Arg1Manufacturable[Project]):
     """
     .. plugin:: service-provider:trees.
     """

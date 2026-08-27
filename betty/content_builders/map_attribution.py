@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.asset_directories.maps import maps
 from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
-from betty.factory import Manufacturable
+from betty.factory import Arg1Manufacturable
 from betty.localizables.gettext import _
 from betty.project import Project
 
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     label=_("Map attribution"),
     requires={Project.asset_directories.require(maps)},
 )
-class MapAttribution(Template, Manufacturable):
+class MapAttribution(Template, Arg1Manufacturable[Project]):
     """
     The attribution for an interactive map.
 
