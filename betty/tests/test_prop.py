@@ -11,7 +11,6 @@ from betty.prop import (
     OwnerError,
     Prop,
     PropError,
-    PropOwnership,
 )
 
 
@@ -175,13 +174,3 @@ class TestNotDeletable:
     def test___init__(self) -> None:
         sut = NotDeletable(_Owner.my_first_prop, _Owner())
         assert "my_first_prop" in str(sut)
-
-
-class TestPropOwnership:
-    sut = PropOwnership(_Prop(), _PropOwner, "my_first_prop")
-
-    def test___post_init__(self) -> None:
-        assert (
-            self.sut.fully_qualified_name
-            == "betty.tests.test_prop:_PropOwner.my_first_prop"
-        )

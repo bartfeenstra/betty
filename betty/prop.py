@@ -7,7 +7,7 @@ from __future__ import annotations
 from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Any, Final, Never, Self, final, overload
 
-from betty.classtools import Object, ObjectClassVar
+from betty.classtools import Object, ObjectClassVar, OwnedClassVar
 from betty.importlib import fully_qualified_name
 from betty.objecttools import AttrOperators
 
@@ -31,46 +31,18 @@ class HasProps(Object):
                 yield class_var
 
 
-@final
-class PropOwnership[OwnerT: HasProps]:
-    """
-    The ownership of a property on a class.
-    """
-
-    def __init__(self, prop: Prop[OwnerT, Any, Any], owner: type[OwnerT], name: str):
-        self.prop: Final[Prop[OwnerT, Any, Any]] = prop
-        self.owner: Final[type[OwnerT]] = owner
-        self.name: Final[str] = name
-        """
-        The name of the attribute on the owner the property is assigned to.
-        """
-        self.fully_qualified_name: Final[str] = f"{fully_qualified_name(owner)}.{name}"
-        """
-        The fully qualified property name.
-        """
-
-
 class Prop[OwnerT: HasProps, GetT, SetT: Any = Never](
-    ObjectClassVar[OwnerT], metaclass=ABCMeta
+    OwnedClassVar[OwnerT], ObjectClassVar[OwnerT], metaclass=ABCMeta
 ):
     """
     A property.
     """
 
-    __ownership: PropOwnership[OwnerT]
-    _storage: AttrOperators[OwnerT]
+    _storage: AttrOperators[OwnerT, Any]
 
     def __set_name__(self, owner: type[OwnerT], name: str) -> None:
-        self.__ownership = PropOwnership(self, owner, name)
+        super().__set_name__(owner, name)
         self._storage = AttrOperators(f"_betty_prop__{name}")
-
-    @final
-    @property
-    def ownership(self) -> PropOwnership[OwnerT]:
-        """
-        The property ownership.
-        """
-        return self.__ownership
 
     def delete_owner(self, owner: OwnerT, /) -> None:
         """

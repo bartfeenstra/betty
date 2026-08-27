@@ -7,7 +7,9 @@ from __future__ import annotations
 from abc import ABCMeta
 from functools import cache
 from inspect import getmembers
-from typing import TYPE_CHECKING, Any, Self, final, override
+from typing import TYPE_CHECKING, Any, Final, Self, final, override
+
+from betty.importlib import fully_qualified_name
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -141,3 +143,41 @@ class ObjectClassVar[OwnerT: Object]:
         Pos-initialize the class variable on an owner.
         """
         return
+
+
+@final
+class ClassVarOwnership[OwnerT, ClassVarT]:
+    """
+    The ownership of a class var on an owner class.
+    """
+
+    def __init__(self, owner: type[OwnerT], name: str, var: ClassVarT, /):
+        self.var: Final[ClassVarT] = var
+        self.owner: Final[type[OwnerT]] = owner
+        self.name: Final[str] = name
+        """
+        The name of the attribute on the owner the class var is assigned to.
+        """
+        self.fully_qualified_name: Final[str] = f"{fully_qualified_name(owner)}.{name}"
+        """
+        The fully qualified class var name.
+        """
+
+
+class OwnedClassVar[OwnerT]:
+    """
+    A class var with access to its owner.
+    """
+
+    __ownership: ClassVarOwnership[OwnerT, Self]
+
+    def __set_name__(self, owner: type[OwnerT], name: str) -> None:
+        self.__ownership = ClassVarOwnership(owner, name, self)
+
+    @final
+    @property
+    def ownership(self) -> ClassVarOwnership[OwnerT, Self]:
+        """
+        The class var ownership.
+        """
+        return self.__ownership
