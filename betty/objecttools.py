@@ -4,11 +4,11 @@ Tools for managing objects.
 
 from __future__ import annotations
 
-from typing import Any, Final, final
+from typing import Final, final, overload
 
 
 @final
-class AttrOperators[ObjectT]:
+class AttrOperators[ObjectT, ValueT]:
     """
     Implement ``hasattr()``, ``getattr()``, ``setattr()``, and ``delattr()``, but pre-fill the attribute name.
     """
@@ -27,13 +27,25 @@ class AttrOperators[ObjectT]:
         """
         return hasattr(object_, self.name)
 
-    def get(self, object_: ObjectT, /) -> Any:
+    @overload
+    def get(self, object_: ObjectT, /) -> ValueT:
+        pass
+
+    @overload
+    def get(self, object_: ObjectT, default: ValueT, /) -> ValueT:
+        pass
+
+    def get(self, *args):
         """
         Get the attribute value from the object, if any.
         """
-        return getattr(object_, self.name)
+        match len(args):
+            case 1:
+                return getattr(args[0], self.name)
+            case 2:
+                return getattr(args[0], self.name, args[1])
 
-    def set(self, object_: ObjectT, value: Any, /) -> None:
+    def set(self, object_: ObjectT, value: ValueT, /) -> None:
         """
         Set the attribute value on the object.
         """
