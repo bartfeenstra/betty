@@ -48,7 +48,6 @@ class PropOwnership[OwnerT: HasProps]:
         """
         The fully qualified property name.
         """
-        self.storage: Final[AttrOperators] = AttrOperators(f"_betty_prop__{name}")
 
 
 class Prop[OwnerT: HasProps, GetT, SetT: Any = Never](
@@ -59,9 +58,11 @@ class Prop[OwnerT: HasProps, GetT, SetT: Any = Never](
     """
 
     __ownership: PropOwnership[OwnerT]
+    _storage: AttrOperators[OwnerT]
 
     def __set_name__(self, owner: type[OwnerT], name: str) -> None:
         self.__ownership = PropOwnership(self, owner, name)
+        self._storage = AttrOperators(f"_betty_prop__{name}")
 
     @final
     @property

@@ -152,38 +152,38 @@ class ToOne[OwnerT: HasAssociations, AssociateT: Entity](
     @override
     def resolve(self, project: Project, owner: OwnerT, /) -> None:
         try:
-            value = self.ownership.storage.get(owner)
+            value = self._storage.get(owner)
         except AttributeError:
             return
         if not isinstance(value, Entity):
             self._assert_not_missing(owner, value)
-            self.ownership.storage.set(
+            self._storage.set(
                 owner,
                 resolve_associate(project, owner, self, value),
             )
 
     @override
     def pre_init_owner(self, owner: OwnerT, /) -> None:
-        self.ownership.storage.set(owner, _NotInitialized)
+        self._storage.set(owner, _NotInitialized)
 
     @override
     def delete_owner(self, owner: OwnerT, /) -> None:
         if associate_attr := self.associate_attr:
-            existing_associate = self.ownership.storage.get(owner)
+            existing_associate = self._storage.get(owner)
             if isinstance(existing_associate, Entity):
                 associate_attr.disassociate(existing_associate, owner)
-        self.ownership.storage.set(owner, _OwnerDeleted)
+        self._storage.set(owner, _OwnerDeleted)
 
     @override
     def set(self, owner: OwnerT, value: ToOneAssociate[OwnerT, AssociateT], /) -> None:
         existing_associate: ToOneAssociate[OwnerT, AssociateT] | None = None
         with suppress(AttributeError):
-            existing_associate = self.ownership.storage.get(owner)
+            existing_associate = self._storage.get(owner)
         if existing_associate is not None:
             self.assert_not_resolver(owner, existing_associate)
         if existing_associate == value:
             return
-        self.ownership.storage.set(owner, value)
+        self._storage.set(owner, value)
         if associate_attr := self.associate_attr:
             if isinstance(existing_associate, Entity):
                 associate_attr.disassociate(existing_associate, owner)
@@ -192,15 +192,15 @@ class ToOne[OwnerT: HasAssociations, AssociateT: Entity](
 
     @override
     def associate(self, owner: OwnerT, associate: AssociateT, /) -> None:
-        self.ownership.storage.set(owner, associate)
+        self._storage.set(owner, associate)
 
     @override
     def disassociate(self, owner: OwnerT, associate: AssociateT, /) -> None:
-        self.ownership.storage.set(owner, _Disassociated)
+        self._storage.set(owner, _Disassociated)
 
     @override
     def get(self, owner: OwnerT, /) -> AssociateT:
-        value = self.ownership.storage.get(owner)
+        value = self._storage.get(owner)
         self._assert_not_missing(owner, value)
         self.assert_not_resolver(owner, value)
         return value

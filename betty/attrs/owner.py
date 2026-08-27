@@ -131,11 +131,11 @@ class OwnerAttr[OwnerT: HasProps, T, DataDefinitionT: DataDefinition = DataDefin
     @final
     @override
     def get(self, owner: OwnerT, /) -> T:
-        return self.ownership.storage.get(owner)
+        return self._storage.get(owner)
 
     @override
     def set(self, owner: OwnerT, value: T, /) -> None:
-        self.ownership.storage.set(owner, value)
+        self._storage.set(owner, value)
 
 
 class _CollectionOwner[
@@ -205,7 +205,7 @@ class CollectionOwnerAttr[
     @override
     def pre_init_owner(self, owner: OwnerT, /) -> None:
         super().pre_init_owner(owner)
-        self.ownership.storage.set(owner, self.field.data.new())
+        self._storage.set(owner, self.field.data.new())
 
     @override
     def normalize(self, owner: OwnerT, value: SetT, /) -> GetT:
@@ -213,7 +213,7 @@ class CollectionOwnerAttr[
 
     @override
     def get(self, owner: OwnerT, /) -> GetT:
-        return self.ownership.storage.get(owner)
+        return self._storage.get(owner)
 
     @override
     def set(self, owner: OwnerT, value: SetT, /) -> None:
