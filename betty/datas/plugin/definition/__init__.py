@@ -7,6 +7,8 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import TYPE_CHECKING, Never, final
 
+from ty_extensions import Intersection
+
 from betty.attrs.machine_name import new_machine_name_attr
 from betty.classtools import TypeABCMeta
 from betty.data import Data
@@ -25,7 +27,6 @@ from betty.portable import KeyedPorter
 from betty.porters.fields import FieldsPorter
 from betty.porters.keyed_mapping import KeyedMappingPorter
 from betty.prop import HasProps
-from betty.typing import Intersection
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable

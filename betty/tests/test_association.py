@@ -24,11 +24,11 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from pytest_mock import MockerFixture
+    from ty_extensions import Intersection
 
     from betty.json_schema import Schema
     from betty.portable import PortableData
     from betty.project import Project
-    from betty.typing import Intersection
 
 
 class _Association[

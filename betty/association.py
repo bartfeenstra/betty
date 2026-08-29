@@ -28,10 +28,11 @@ from betty.prop import HasProps
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
 
+    from ty_extensions import Intersection, Not
+
     from betty.datas.aggregate.record import FieldDefinition
     from betty.entity import Entity, EntityResolver
     from betty.project import Project
-    from betty.typing import Intersection, Not
 
 
 class HasAssociations(HasProps):

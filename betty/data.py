@@ -16,9 +16,10 @@ from betty.sample import Samplable, Sample, Samples
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping, MutableMapping
 
+    from ty_extensions import Intersection
+
     from betty.capability import ResolvableCapability, ResolvableStagedCapability, Stage
     from betty.localizable import ResolvableLocalizable
-    from betty.typing import Intersection
 
 
 class DataDefinition[

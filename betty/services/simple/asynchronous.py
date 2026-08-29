@@ -6,6 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
+from ty_extensions import Intersection
+
 from betty.asyncio import (
     LazyReAwaitable,
     ReAwaitable,
@@ -21,7 +23,6 @@ from betty.service import (
     ServiceManager,
     ServiceOrFactory,
 )
-from betty.typing import Intersection
 
 if TYPE_CHECKING:
     from betty.service_level import ResolvableServiceLevel
