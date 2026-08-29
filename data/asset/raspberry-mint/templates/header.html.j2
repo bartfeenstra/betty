@@ -1,4 +1,4 @@
-{% cache 'raspberry-mint-template-header--before:' ~ document.localizer.locale %}
+{% cache 'before', document.localizer.locale %}
     {% set ns = namespace(primary_navigation_links = {}) %}
     {% for entity_type_id in project.generate_entity_list_html %}
         {% set entity_type = project.plugins['entity'][entity_type_id] %}
@@ -141,7 +141,7 @@
     {% endif %}
 {% endif %}
 
-{% cache 'raspberry-mint-template-header--after:' ~ document.localizer.locale %}
+{% cache 'after', document.localizer.locale %}
     {% set nav_search_body %}
         <div class="container">
             {% set ns = namespace(
