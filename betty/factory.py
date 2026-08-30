@@ -152,8 +152,7 @@ def _resolve_callable[T, *ArgTs](
                     manufacturer.new,  # ty:ignore[unresolved-attribute]
                     args[0:cls_arg_count],
                 )
-        # Because class's __init__() methods are their own, do not try to map any arguments. Instead, do not pass on
-        # any arguments at all.
+        # Because class's __init__() methods are their own, do not try to map any arguments.
         return manufacturer, ()
     return (
         manufacturer,
