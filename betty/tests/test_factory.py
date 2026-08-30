@@ -87,11 +87,12 @@ def _parameterize_test_new_arg_count(
             f"arg{manufacturer_arg_number}"
             for manufacturer_arg_number in range(1, manufacturer_arg_count)
         )
-        # @todo Test with arguments that are both positional and keyword
-        # @todo
         # @todo For each of the following variations here in the loop, also create classes with a .new() with the same signature.
         yield from _create_new_manufacturer_functions(
-            "with_individual_args",
+            "with_individual_args", manufacturer_parameters, manufacturer_arg_mappers
+        )
+        yield from _create_new_manufacturer_functions(
+            "with_individual_positional_only_args",
             [*manufacturer_parameters, "/"] if manufacturer_parameters else [],
             manufacturer_arg_mappers,
         )
