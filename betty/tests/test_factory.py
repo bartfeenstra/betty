@@ -1,10 +1,11 @@
 from collections.abc import Callable, Iterable, Iterator, Sequence
 from textwrap import indent
-from typing import Any, Final, final
+from typing import Any, Final, Self, final
 
 import pytest
 
-from betty.factory import FactoryError, _arg_counts_to_manufacturables, new
+from betty.factory import FactoryError, _new_arg_counts_to_manufacturables, new
+from betty.importlib import fully_qualified_name
 from betty.string import snake_case_to_upper_camel_case
 
 
@@ -54,48 +55,61 @@ def _parameterize_test_new_arg_count(
     new_arg_count: int, /
 ) -> Iterator[tuple[_Value, Any]]:
     for manufacturer_arg_count in range(new_arg_count + 1):
-        manufacturer_parameters = tuple(
-            f"arg{manufacturer_arg_number}: _Arg{manufacturer_arg_number}"
-            for manufacturer_arg_number in range(1, manufacturer_arg_count)
+        new_parameters = tuple(
+            f"arg{arg_number}: _Arg{arg_number}"
+            for arg_number in range(1, new_arg_count)
         )
+        manufacturer_parameters = new_parameters[:manufacturer_arg_count]
         manufacturer_arg_mappers = tuple(
             f"arg{manufacturer_arg_number}"
             for manufacturer_arg_number in range(1, manufacturer_arg_count)
         )
-        # @todo For each of the following variations here in the loop, also create classes with a .new() with the same signature.
-        yield from _create_new_manufacturer_functions_and_manufacturable_class(
-            new_arg_count,
+        if manufacturer_arg_count == new_arg_count:
+            creator = _create_new_manufacturer_functions_and_manufacturable_class
+            creator_args = (new_arg_count,)
+            creator_parameters = new_parameters
+        else:
+            creator = _create_new_manufacturer_functions
+            creator_args = ()
+            creator_parameters = manufacturer_parameters
+        yield from creator(
+            *creator_args,
             "with_individual_args",
-            manufacturer_parameters,
+            creator_parameters,
             manufacturer_arg_mappers,
         )
-        yield from _create_new_manufacturer_functions(
+        yield from creator(
+            *creator_args,
             "with_individual_positional_only_args",
-            [*manufacturer_parameters, "/"] if manufacturer_parameters else [],
+            [*creator_parameters, "/"] if creator_parameters else [],
             manufacturer_arg_mappers,
         )
-        yield from _create_new_manufacturer_functions(
+        yield from creator(
+            *creator_args,
             "with_variadic_args",
-            [*manufacturer_parameters, "*args: Any"],
+            [*creator_parameters, "*args: Any"],
             manufacturer_arg_mappers,
         )
-        yield from _create_new_manufacturer_functions(
+        yield from creator(
+            *creator_args,
             "with_variadic_kwargs",
             [
-                *([*manufacturer_parameters, "/"] if manufacturer_parameters else []),
+                *([*creator_parameters, "/"] if creator_parameters else []),
                 "**kwargs: Any",
             ],
             manufacturer_arg_mappers,
         )
-        yield from _create_new_manufacturer_functions(
+        yield from creator(
+            *creator_args,
             "with_variadic_args_and_kwargs",
-            [*manufacturer_parameters, "*args: Any", "**kwargs: Any"],
+            [*creator_parameters, "*args: Any", "**kwargs: Any"],
             manufacturer_arg_mappers,
         )
-        yield from _create_new_manufacturer_functions(
+        yield from creator(
+            *creator_args,
             "with_default_kwarg",
             [
-                *([*manufacturer_parameters, "/"] if manufacturer_parameters else []),
+                *([*creator_parameters, "/"] if creator_parameters else []),
                 "*",
                 "kwarg: Any = None",
             ],
@@ -128,7 +142,7 @@ def _parameterize_test_new_arg_count(
     )
 
 
-def _create_from_source(name: str, source: str, /) -> Any:
+def _create_from_source(name: str, source: str) -> Any:
     locals_ = {}
     exec(source, locals=locals_)
     created = locals_[name]
@@ -140,19 +154,24 @@ def _create_new_function_args(args: Sequence[str], /) -> str:
     return "\n".join(map(lambda line: f"{line},", args))
 
 
+def _create_new_imports_source(*imports: Any) -> str:
+    sources = []
+    for import_ in imports:
+        module, name = fully_qualified_name(import_).split(":")
+        sources.append(f"from {module} import {name}")
+    return "\n".join(sorted(sources))
+
+
 def _create_new_function_source(
     name: str,
     parameters: Sequence[str],
-    return_type: str | None,
+    return_type: str,
     body: str,
     sync: bool = True,
     /,
-) -> tuple[str, str]:
+) -> str:
     source = ""
-    if sync:
-        name += "_sync"
-    else:
-        name += "_async"
+    if not sync:
         source += "async "
     source += "def "
     source += name
@@ -166,7 +185,7 @@ def _create_new_function_source(
         source += " -> " + return_type
     source += ":\n"
     source += indent(body, "  ")
-    return name, source
+    return source
 
 
 def _create_new_manufacturer_functions(
@@ -178,17 +197,23 @@ def _create_new_manufacturer_functions(
 )
 """
     expected = _Value(*_args[: len(arg_mappers)])
+    name_sync = name + "_sync"
+    name_async = name + "_async"
     yield (
         expected,
         _create_from_source(
-            *_create_new_function_source(name, parameters, "_Value", body_source, True),
+            name_sync,
+            _create_new_function_source(
+                name_sync, parameters, "_Value", body_source, True
+            ),
         ),
     )
     yield (
         expected,
         _create_from_source(
-            *_create_new_function_source(
-                name, parameters, "_Value", body_source, False
+            name_async,
+            _create_new_function_source(
+                name_async, parameters, "_Value", body_source, False
             ),
         ),
     )
@@ -197,26 +222,23 @@ def _create_new_manufacturer_functions(
 def _create_new_manufacturable_class(
     new_arg_count: int, name: str, parameters: Sequence[str], arg_mappers: Sequence[str]
 ) -> tuple[_Value, type]:
-    # @todo
-    name = f"ClassWith{len(arg_mappers)}ManufacturerArgs{snake_case_to_upper_camel_case(name)}"
+    name = f"Manufacturable{snake_case_to_upper_camel_case(name)}"
     new_body_source = f"""return cls(
 {indent(_create_new_function_args(arg_mappers), "  ")}
 )
 """
-    source = f"""class {name}({
-        _arg_counts_to_manufacturables[new_arg_count][0][0]
-    }, _Value):
+    manufacturable_cls = _new_arg_counts_to_manufacturables[new_arg_count][0][0]
+    source = f"""{_create_new_imports_source(manufacturable_cls, Self)}
+
+class {name}({manufacturable_cls.__name__}, _Value):
+  @classmethod
 {
+        # @todo These tests fail because this function is called with reduced args sometimes, which is fine for any
+        # @todo callable manufacturer, but not new()
+        # @todo
         indent(
             _create_new_function_source(
-                # @todo _create_new_function_source() alters the name with a _sync/_async suffix...
-                # @todo
-                # @todo
-                "new",
-                parameters,
-                None,
-                new_body_source,
-                False,
+                "new", ["cls", *parameters], "Self", new_body_source, False
             ),
             "  ",
         )
