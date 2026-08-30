@@ -1,10 +1,16 @@
+from abc import ABCMeta, abstractmethod
 from collections.abc import Callable, Iterable, Iterator, Sequence
 from textwrap import indent
-from typing import Any, Final, Self, final
+from typing import Any, Final, Self, final, override
 
 import pytest
 
-from betty.factory import FactoryError, _new_arg_counts_to_manufacturables, new
+from betty.factory import (
+    Arg2Manufacturer,
+    FactoryError,
+    _new_arg_counts_to_manufacturables,
+    new,
+)
 from betty.importlib import fully_qualified_name
 from betty.string import snake_case_to_upper_camel_case
 
@@ -47,99 +53,148 @@ def _parameterize_test_new(
 ) -> Iterator[tuple[_Value, Any, tuple[Any, ...]]]:
     assert max_new_arg_count > 1
     for new_arg_count in range(max_new_arg_count):
-        for test_parameters in _parameterize_test_new_arg_count(new_arg_count):
+        for manufacturer_arg_count in range(new_arg_count):
+            for (
+                test_parameters
+            ) in _TestNewArgCountIsGreaterThanManufacturerArgCountParameterizer(
+                new_arg_count, manufacturer_arg_count
+            ).parameterize():
+                yield (*test_parameters, _args[:new_arg_count])
+        for (
+            test_parameters
+        ) in _TestNewArgCountIsEqualToManufacturerArgCountParameterizer(
+            new_arg_count
+        ).parameterize():
             yield (*test_parameters, _args[:new_arg_count])
 
 
-def _parameterize_test_new_arg_count(
-    new_arg_count: int, /
-) -> Iterator[tuple[_Value, Any]]:
-    for manufacturer_arg_count in range(new_arg_count + 1):
-        new_parameters = tuple(
+class __TestNewParameterizer(metaclass=ABCMeta):
+    def __init__(self, new_arg_count: int, manufacturer_arg_count: int, /):
+        assert new_arg_count >= manufacturer_arg_count
+        self._new_arg_count = new_arg_count
+        self._manufacturer_arg_count = manufacturer_arg_count
+        self._manufacturer_parameters = tuple(
             f"arg{arg_number}: _Arg{arg_number}"
-            for arg_number in range(1, new_arg_count)
+            for arg_number in range(1, manufacturer_arg_count)
         )
-        manufacturer_parameters = new_parameters[:manufacturer_arg_count]
-        manufacturer_arg_mappers = tuple(
-            f"arg{manufacturer_arg_number}"
-            for manufacturer_arg_number in range(1, manufacturer_arg_count)
+        self._manufacturer_arg_mappers = tuple(
+            f"arg{arg_number}" for arg_number in range(1, manufacturer_arg_count)
         )
-        if manufacturer_arg_count == new_arg_count:
-            creator = _create_new_manufacturer_functions_and_manufacturable_class
-            creator_args = (new_arg_count,)
-            creator_parameters = new_parameters
-        else:
-            creator = _create_new_manufacturer_functions
-            creator_args = ()
-            creator_parameters = manufacturer_parameters
-        yield from creator(
-            *creator_args,
+
+    def parameterize(self) -> Iterator[tuple[_Value, Any]]:
+        yield from self._create(
             "with_individual_args",
-            creator_parameters,
-            manufacturer_arg_mappers,
+            self._manufacturer_parameters,
+            self._manufacturer_arg_mappers,
         )
-        yield from creator(
-            *creator_args,
+        yield from self._create(
             "with_individual_positional_only_args",
-            [*creator_parameters, "/"] if creator_parameters else [],
-            manufacturer_arg_mappers,
+            [*self._manufacturer_parameters, "/"]
+            if self._manufacturer_parameters
+            else [],
+            self._manufacturer_arg_mappers,
         )
-        yield from creator(
-            *creator_args,
+        yield from self._create(
             "with_variadic_args",
-            [*creator_parameters, "*args: Any"],
-            manufacturer_arg_mappers,
+            [*self._manufacturer_parameters, "*args: Any"],
+            self._manufacturer_arg_mappers,
         )
-        yield from creator(
-            *creator_args,
+        yield from self._create(
             "with_variadic_kwargs",
             [
-                *([*creator_parameters, "/"] if creator_parameters else []),
+                *(
+                    [*self._manufacturer_parameters, "/"]
+                    if self._manufacturer_parameters
+                    else []
+                ),
                 "**kwargs: Any",
             ],
-            manufacturer_arg_mappers,
+            self._manufacturer_arg_mappers,
         )
-        yield from creator(
-            *creator_args,
+        yield from self._create(
             "with_variadic_args_and_kwargs",
-            [*creator_parameters, "*args: Any", "**kwargs: Any"],
-            manufacturer_arg_mappers,
+            [*self._manufacturer_parameters, "*args: Any", "**kwargs: Any"],
+            self._manufacturer_arg_mappers,
         )
-        yield from creator(
-            *creator_args,
+        yield from self._create(
             "with_default_kwarg",
             [
-                *([*creator_parameters, "/"] if creator_parameters else []),
+                *(
+                    [*self._manufacturer_parameters, "/"]
+                    if self._manufacturer_parameters
+                    else []
+                ),
                 "*",
                 "kwarg: Any = None",
             ],
-            manufacturer_arg_mappers,
+            self._manufacturer_arg_mappers,
         )
-        manufacturer_arg_count_minus_n = manufacturer_arg_count
-        while (
-            manufacturer_arg_count_minus_n := manufacturer_arg_count_minus_n - 1
-        ) >= 0:
-            yield from _create_new_manufacturer_functions(
-                f"with_n_minus_{str(manufacturer_arg_count_minus_n).replace('-', '_')}_individual_args_and_variadic_arg",
-                [
-                    *manufacturer_parameters[:-manufacturer_arg_count_minus_n],
-                    "*args: Any",
-                ],
-                [
-                    *manufacturer_arg_mappers[:-manufacturer_arg_count_minus_n],
-                    *map(lambda i: "args[0]", range(manufacturer_arg_count_minus_n)),
-                ],
-            )
-    yield from _create_new_manufacturer_functions(
-        "with_all_new_args_and_default_arg",
-        [*manufacturer_parameters, "arg: Any = None", "/"],
-        manufacturer_arg_mappers,
-    )
-    yield from _create_new_manufacturer_functions(
-        "with_all_new_args_and_default_arg_and_kwarg",
-        [*manufacturer_parameters, "arg: Any = None", "/", "*", "kwarg: Any = None"],
-        manufacturer_arg_mappers,
-    )
+
+    @abstractmethod
+    def _create(
+        self, name: str, parameters: Sequence[str], arg_mappers: Sequence[str], /
+    ) -> Iterable[tuple[_Value, Arg2Manufacturer]]:
+        raise NotImplementedError
+
+
+class _TestNewArgCountIsEqualToManufacturerArgCountParameterizer(
+    __TestNewParameterizer
+):
+    def __init__(self, arg_count: int, /):
+        super().__init__(arg_count, arg_count)
+
+    @override
+    def parameterize(self) -> Iterator[tuple[_Value, Any]]:
+        yield from super().parameterize()
+        yield from _create_new_manufacturer_functions(
+            "with_all_new_args_and_default_arg",
+            [*self._manufacturer_parameters, "arg: Any = None", "/"],
+            self._manufacturer_arg_mappers,
+        )
+        yield from _create_new_manufacturer_functions(
+            "with_all_new_args_and_default_arg_and_kwarg",
+            [
+                *self._manufacturer_parameters,
+                "arg: Any = None",
+                "/",
+                "*",
+                "kwarg: Any = None",
+            ],
+            self._manufacturer_arg_mappers,
+        )
+
+    @override
+    def _create(
+        self, name: str, parameters: Sequence[str], arg_mappers: Sequence[str], /
+    ) -> Iterable[tuple[_Value, Arg2Manufacturer]]:
+        return _create_new_manufacturer_functions_and_manufacturable_class(
+            self._new_arg_count, name, parameters, arg_mappers
+        )
+
+
+class _TestNewArgCountIsGreaterThanManufacturerArgCountParameterizer(
+    __TestNewParameterizer
+):
+    @override
+    def parameterize(self) -> Iterator[tuple[_Value, Any]]:
+        yield from super().parameterize()
+        yield from _create_new_manufacturer_functions(
+            f"with_n_minus_{str(self._manufacturer_arg_count).replace('-', '_')}_individual_args_and_variadic_arg",
+            [
+                *self._manufacturer_parameters[: self._manufacturer_arg_count],
+                "*args: Any",
+            ],
+            [
+                *self._manufacturer_arg_mappers[: self._manufacturer_arg_count],
+                *map(lambda i: f"args[{i}]", range(self._manufacturer_arg_count)),
+            ],
+        )
+
+    @override
+    def _create(
+        self, name: str, parameters: Sequence[str], arg_mappers: Sequence[str], /
+    ) -> Iterable[tuple[_Value, Arg2Manufacturer]]:
+        return _create_new_manufacturer_functions(name, parameters, arg_mappers)
 
 
 def _create_from_source(name: str, source: str) -> Any:
