@@ -7,16 +7,66 @@ from __future__ import annotations
 from abc import ABCMeta, abstractmethod
 from collections.abc import Callable, Coroutine, Mapping
 from inspect import Parameter, signature
-from typing import Any, Final, Self, overload
+from textwrap import indent
+from typing import Any, Final, Self, final, overload
 
 from betty.asyncio import resolve_await
 from betty.typing import Intersection, Not
 
+max_arg_count: Final[int] = 2
 
-class FactoryError(RuntimeError):
+
+def _format_args_for_error_message(*args: Any) -> str:
+    return f"({', '.join(map(repr, args))})"
+
+
+class FactoryError(Exception):
     """
-    Raised when the factory could not create an object.
+    Raised for errors occurring in the factory API.
     """
+
+
+@final
+class InvalidManufacturer(FactoryError, ValueError):
+    """
+    Raised when something is not a valid manufacturer.
+    """
+
+    def __init__(self, manufacturer: Any, reason: str, /):
+        # @todo Add details on what does make a valid manufacturer.
+        # @todo
+        super().__init__(f"{manufacturer!r} is not a valid manufacturer: {reason}")
+
+
+@final
+class UnsupportedManufacturer(FactoryError, ValueError):
+    """
+    Raised when a manufacturer is not supported for the given :py:func:`new() <betty.factory.new>` call.
+    """
+
+    # @todo Can we type ``manufacturer`` properly?
+    # @todo
+    def __init__(self, manufacturer: Any, reason: str, *args: Any):
+        formatted_args = []
+        for arg_count in reversed(range(len(args))):
+            formatted_args.append(_format_args_for_error_message(args[0:arg_count]))
+        super().__init__(
+            f"{manufacturer!r} cannot be called with any of the following args:\n{indent('\n'.join(formatted_args), '- ')}."
+        )
+
+
+@final
+class ManufacturerError(FactoryError, RuntimeError):
+    """
+    Raised when a manufacturer cannot not create an object.
+    """
+
+    # @todo Can we type ``manufacturer`` properly?
+    # @todo
+    def __init__(self, manufacturer: Any, args: tuple[Any, ...], /):
+        super().__init__(
+            f"{manufacturer!r} raised an unexpected error when creating a new object. Args: {_format_args_for_error_message(*args)}."
+        )
 
 
 class Manufacturable(metaclass=ABCMeta):
@@ -137,9 +187,7 @@ async def new(manufacturer, *args):
     try:
         return await resolve_await(callable_(*callable_args))
     except Exception as error:
-        raise FactoryError(
-            f"{repr(callable_)} raised an unexpected error when creating a new object."
-        ) from error
+        raise ManufacturerError(callable_, callable_args) from error
 
 
 def _resolve_callable[T, *ArgTs](
@@ -161,8 +209,11 @@ def _resolve_callable[T, *ArgTs](
 
 
 def _resolve_callable_args(manufacturer: Callable, *args: Any) -> tuple[Any, ...]:
-    args_count = len(args)
-    parameters = signature(manufacturer).parameters.values()
+    arg_count = len(args)
+    try:
+        parameters = signature(manufacturer).parameters.values()
+    except TypeError:
+        raise InvalidManufacturer(manufacturer, "it is not callable") from None
     required_arg_count = 0
     optional_arg_count = 0
     for parameter in parameters:
@@ -170,15 +221,31 @@ def _resolve_callable_args(manufacturer: Callable, *args: Any) -> tuple[Any, ...
             Parameter.POSITIONAL_ONLY,
             Parameter.POSITIONAL_OR_KEYWORD,
         ):
-            optional_arg_count += 1
+            if parameter.default is Parameter.empty:
+                required_arg_count += 1
+            else:
+                optional_arg_count += 1
         elif parameter.kind is Parameter.VAR_POSITIONAL:
             # Consider a variadic argument as an infinite number of optional arguments, which means that however
             # many arguments we've got, the variadic argument can capture them all.
-            optional_arg_count = 999999999
-    if required_arg_count > args_count:
-        _raise_invalid_manufacturer(manufacturer)
-    return args[: min(required_arg_count + optional_arg_count, args_count)]
-
-
-def _raise_invalid_manufacturer(manufacturer: Any) -> None:
-    raise ValueError(f"{manufacturer!r} is not a valid manufacturer.")
+            optional_arg_count = max_arg_count
+        elif (
+            parameter.kind is Parameter.KEYWORD_ONLY
+            and parameter.default is Parameter.empty
+        ):
+            raise InvalidManufacturer(
+                manufacturer,
+                f"requires kwarg {parameter.name}, but kwargs are not supported.",
+            )
+    if required_arg_count > max_arg_count:
+        raise InvalidManufacturer(
+            manufacturer,
+            f"requires {required_arg_count}, but any manufacturer can at most require {max_arg_count} args.",
+        )
+    if required_arg_count > arg_count:
+        raise UnsupportedManufacturer(
+            manufacturer,
+            f"requires {required_arg_count} args, but only {arg_count} were given.",
+            *args,
+        )
+    return args[: min(required_arg_count + optional_arg_count, arg_count)]

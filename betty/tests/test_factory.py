@@ -1,13 +1,16 @@
 from abc import ABCMeta, abstractmethod
 from collections.abc import Callable, Iterable, Iterator, Sequence
 from textwrap import indent
-from typing import Any, Final, Self, final, override
+from typing import Any, Final, Never, Self, final, override
 
 import pytest
 
 from betty.factory import (
     Arg2Manufacturer,
     FactoryError,
+    InvalidManufacturer,
+    ManufacturerError,
+    max_arg_count,
     new,
     new_arg_counts_to_manufacturables,
 )
@@ -48,27 +51,24 @@ class _Value:
         return f"<{type(self).__name__!r} args={self.args!r}>"
 
 
-def _parameterize_test_new(
-    max_new_arg_count: int, /
-) -> Iterator[tuple[_Value, Any, tuple[Any, ...]]]:
-    assert max_new_arg_count > 1
-    for new_arg_count in range(max_new_arg_count):
+def _parameterize_test_new__should_create() -> Iterator[
+    tuple[_Value, Any, tuple[Any, ...]]
+]:
+    for new_arg_count in range(max_arg_count):
         for manufacturer_arg_count in range(new_arg_count):
-            for (
-                test_parameters
-            ) in _TestNewArgCountIsGreaterThanManufacturerArgCountParameterizer(
+            for test_parameters in _TestNewShouldCreateArgCountIsGreaterThanManufacturerArgCountParameterizer(
                 new_arg_count, manufacturer_arg_count
             ).parameterize():
                 yield (*test_parameters, _args[:new_arg_count])
         for (
             test_parameters
-        ) in _TestNewArgCountIsEqualToManufacturerArgCountParameterizer(
+        ) in _TestNewShouldCreateArgCountIsEqualToManufacturerArgCountParameterizer(
             new_arg_count
         ).parameterize():
             yield (*test_parameters, _args[:new_arg_count])
 
 
-class __TestNewParameterizer(metaclass=ABCMeta):
+class __TestNewShouldCreateParameterizer(metaclass=ABCMeta):
     def __init__(self, new_arg_count: int, manufacturer_arg_count: int, /):
         assert new_arg_count >= manufacturer_arg_count
         self._new_arg_count: Final[int] = new_arg_count
@@ -125,8 +125,8 @@ class __TestNewParameterizer(metaclass=ABCMeta):
         pass
 
 
-class _TestNewArgCountIsEqualToManufacturerArgCountParameterizer(
-    __TestNewParameterizer
+class _TestNewShouldCreateArgCountIsEqualToManufacturerArgCountParameterizer(
+    __TestNewShouldCreateParameterizer
 ):
     def __init__(self, arg_count: int, /):
         super().__init__(arg_count, arg_count)
@@ -160,8 +160,8 @@ class _TestNewArgCountIsEqualToManufacturerArgCountParameterizer(
         )
 
 
-class _TestNewArgCountIsGreaterThanManufacturerArgCountParameterizer(
-    __TestNewParameterizer
+class _TestNewShouldCreateArgCountIsGreaterThanManufacturerArgCountParameterizer(
+    __TestNewShouldCreateParameterizer
 ):
     @override
     def parameterize(self) -> Iterator[tuple[_Value, Any]]:
@@ -301,9 +301,9 @@ def _create_new_manufacturer_functions_and_manufacturable_class(
 
 @pytest.mark.parametrize(
     ("expected", "manufacturer", "new_args"),
-    list(_parameterize_test_new(2)),
+    list(_parameterize_test_new__should_create()),
 )
-async def test_new(
+async def test_new__should_create(
     expected: _Value, manufacturer: Any, new_args: tuple[Any, ...]
 ) -> None:
     manufacturer_message = (
@@ -319,3 +319,41 @@ async def test_new(
         assert value == expected, (
             f"{manufacturer!r} returned {value} but {expected!r} was expected.{manufacturer_message}"
         )
+
+
+@pytest.mark.parametrize(
+    "manufacturer",
+    [
+        # Not a callable.
+        "manufacturer",
+        1234567890,
+        object(),
+        # Too many required args.
+        lambda arg1, arg2, arg3: None,
+        # Required kwargs.
+        lambda *, kwarg: None,
+    ],
+)
+async def test_new__should_raise_invalid_manufacturer(manufacturer: Any) -> None:
+    with pytest.raises(InvalidManufacturer):
+        await new(manufacturer)
+
+
+@pytest.mark.parametrize(
+    "manufacturer",
+    [],
+)
+async def test_new__should_raise_unsupported_manufacturer(manufacturer: Any) -> None:
+    raise NotImplementedError
+
+
+async def test_new__should_raise_manufacturer_error() -> None:
+    class _ThirdPartyManufacturerError(Exception):
+        pass
+
+    def _manufacturer() -> Never:
+        raise _ThirdPartyManufacturerError
+
+    with pytest.raises(ManufacturerError) as exc_info:
+        await new(_manufacturer)
+    assert isinstance(exc_info.value.__cause__, _ThirdPartyManufacturerError)
