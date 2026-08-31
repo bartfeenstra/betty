@@ -98,9 +98,7 @@ type Arg2Manufacturer[T, Arg1T, Arg2T] = (
 _Arg0Manufacturables = ((Manufacturable, 0),)
 _Arg1Manufacturables = ((Arg1Manufacturable, 1), *_Arg0Manufacturables)
 _Arg2Manufacturables = ((Arg2Manufacturable, 2), *_Arg1Manufacturables)
-_new_arg_counts_to_manufacturables: Final[
-    Mapping[int, tuple[tuple[type, int], ...]]
-] = {
+new_arg_counts_to_manufacturables: Final[Mapping[int, tuple[tuple[type, int], ...]]] = {
     0: _Arg0Manufacturables,
     1: _Arg1Manufacturables,
     2: _Arg2Manufacturables,
@@ -148,7 +146,7 @@ def _resolve_callable[T, *ArgTs](
     manufacturer: Arg2Manufacturer[T, Any, Any], *args: Any
 ) -> tuple[Callable[[*ArgTs], T], tuple[*ArgTs]]:
     if isinstance(manufacturer, type):
-        for cls, cls_arg_count in _new_arg_counts_to_manufacturables[len(args)]:
+        for cls, cls_arg_count in new_arg_counts_to_manufacturables[len(args)]:
             if issubclass(manufacturer, cls):
                 return (
                     manufacturer.new,  # ty:ignore[unresolved-attribute]
