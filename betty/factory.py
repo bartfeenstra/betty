@@ -183,29 +183,17 @@ async def new(manufacturer, *args):
 
     :raises FactoryError: raised when ``manufacturer`` could not be called.
     """
-    callable_, callable_args = _resolve_callable(manufacturer, *args)
-    try:
-        return await resolve_await(callable_(*callable_args))
-    except Exception as error:
-        raise ManufacturerError(callable_, callable_args) from error
-
-
-def _resolve_callable[T, *ArgTs](
-    manufacturer: Arg2Manufacturer[T, Any, Any], *args: Any
-) -> tuple[Callable[[*ArgTs], T], tuple[*ArgTs]]:
     if isinstance(manufacturer, type):
         for cls, cls_arg_count in new_arg_counts_to_manufacturables[len(args)]:
             if issubclass(manufacturer, cls):
-                return (
-                    manufacturer.new,  # ty:ignore[unresolved-attribute]
-                    args[0:cls_arg_count],
-                )
-        # Because class's __init__() methods are their own, do not try to map any arguments.
-        return manufacturer, ()
-    return (
-        manufacturer,
-        _resolve_callable_args(manufacturer, *args),
-    )  # ty:ignore[invalid-return-type]
+                manufacturer = manufacturer.new
+                args = args[0:cls_arg_count]
+                break
+    args = _resolve_callable_args(manufacturer, *args)
+    try:
+        return await resolve_await(manufacturer(*args))
+    except Exception as error:
+        raise ManufacturerError(manufacturer, args) from error
 
 
 def _resolve_callable_args(manufacturer: Callable, *args: Any) -> tuple[Any, ...]:
@@ -216,11 +204,26 @@ def _resolve_callable_args(manufacturer: Callable, *args: Any) -> tuple[Any, ...
         raise InvalidManufacturer(manufacturer, "it is not callable") from None
     required_arg_count = 0
     optional_arg_count = 0
-    for parameter in parameters:
+    for arg_number, parameter in enumerate(parameters):
         if parameter.kind in (
             Parameter.POSITIONAL_ONLY,
             Parameter.POSITIONAL_OR_KEYWORD,
         ):
+            # @todo Finish this
+            # @todo
+            # @todo If this is a required parameter that's too much (e.g. more than the number of new args we've got)
+            # @todo then error.
+            # @todo If it's not too much, and a correspondng new arg exists, only then validate the type hint.
+            # @todo
+            # @todo USE THE typeguard PACKAGE INSTEAD, IT SUPPORTS MANY TYPES OUT OF THE BOX, AND IS EXTENSBIBLE
+            # @todo
+            # @todo
+            # @todo
+            if not isinstance(args[arg_number], parameter.annotation):
+                raise UnsupportedManufacturer(
+                    manufacturer,
+                    f"argument {arg_number} is a {type(args[arg_number])}, but the manufacturer requires {parameter.annotation}.",
+                )
             if parameter.default is Parameter.empty:
                 required_arg_count += 1
             else:
@@ -228,7 +231,9 @@ def _resolve_callable_args(manufacturer: Callable, *args: Any) -> tuple[Any, ...
         elif parameter.kind is Parameter.VAR_POSITIONAL:
             # Consider a variadic argument as an infinite number of optional arguments, which means that however
             # many arguments we've got, the variadic argument can capture them all.
+            # @todo Validate all remaining args against this parameter.
             optional_arg_count = max_arg_count
+            break
         elif (
             parameter.kind is Parameter.KEYWORD_ONLY
             and parameter.default is Parameter.empty

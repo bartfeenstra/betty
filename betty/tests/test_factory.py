@@ -10,6 +10,7 @@ from betty.factory import (
     FactoryError,
     InvalidManufacturer,
     ManufacturerError,
+    UnsupportedManufacturer,
     max_arg_count,
     new,
     new_arg_counts_to_manufacturables,
@@ -328,7 +329,7 @@ async def test_new__should_create(
         "manufacturer",
         1234567890,
         object(),
-        # Too many required args.
+        # More required args than the API supports.
         lambda arg1, arg2, arg3: None,
         # Required kwargs.
         lambda *, kwarg: None,
@@ -339,12 +340,24 @@ async def test_new__should_raise_invalid_manufacturer(manufacturer: Any) -> None
         await new(manufacturer)
 
 
+def _unsupported_because_too_many_required_args(arg1: _Arg1, too_many: Any) -> _Value:
+    raise NotImplementedError
+
+
+def _unsupported_because_incompatible_arg_type(arg1: _Arg2) -> _Value:
+    raise NotImplementedError
+
+
 @pytest.mark.parametrize(
     "manufacturer",
-    [],
+    [
+        _unsupported_because_too_many_required_args,
+        _unsupported_because_incompatible_arg_type,
+    ],
 )
 async def test_new__should_raise_unsupported_manufacturer(manufacturer: Any) -> None:
-    raise NotImplementedError
+    with pytest.raises(UnsupportedManufacturer):
+        await new(manufacturer, _Arg1())
 
 
 async def test_new__should_raise_manufacturer_error() -> None:
