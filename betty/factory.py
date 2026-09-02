@@ -7,12 +7,13 @@ from __future__ import annotations
 from abc import ABCMeta, abstractmethod
 from collections.abc import Callable, Coroutine, Iterable, Mapping
 from inspect import Parameter, signature
-from textwrap import indent
 from typing import Any, Final, Self, final, overload
 
 from typeguard import TypeCheckError, check_type
 
 from betty.asyncio import resolve_await
+from betty.localizables.markup import JoinOr
+from betty.localizer import default_localizer
 from betty.typing import Intersection, Not
 
 # @todo Do we need this at all? Or here? Move it with the tests?
@@ -20,7 +21,7 @@ max_arg_count: Final[int] = 2
 
 
 def _format_args_for_error_message(*args: Any) -> str:
-    return f"({', '.join(map(repr, args))})"
+    return f"{', '.join(map(repr, args))}"
 
 
 class FactoryError(Exception):
@@ -62,7 +63,7 @@ class ManufacturerNotCallable(InvalidManufacturer):
 
 
 @final
-class ManufacturerRequiresKwarg(InvalidManufacturer):
+class RequiredManufacturerKwarg(InvalidManufacturer):
     """
     Raised when a manufacturer has a required kwarg.
     """
@@ -72,23 +73,22 @@ class ManufacturerRequiresKwarg(InvalidManufacturer):
             manufacturer,
             f"it has a required kwarg `{kwarg}`, and required kwargs are not allowed",
         )
+        self.kwarg: Final[str] = kwarg
 
 
 class UnsupportedManufacturer(ManufacturerError, ValueError):
     """
-    Raised when a manufacturer is not supported for the given :py:func:`new() <betty.factory.new>` args.
+    Raised when a manufacturer is not supported for the given args.
     """
 
-    def __init__(self, manufacturer: Any, new_args: tuple[Any, ...], reason: str, /):
-        assert type(self) is not UnsupportedManufacturer
-        formatted_args = []
-        for arg_count in reversed(range(len(new_args))):
-            formatted_args.append(_format_args_for_error_message(new_args[0:arg_count]))
+    def __init__(
+        self, manufacturer: Arg2Manufacturer, args: tuple[Any, ...], reason: str, /
+    ):
         super().__init__(
             manufacturer,
-            f"{manufacturer!r} cannot be called with any of the following args:\n{indent('\n'.join(formatted_args), '- ')}.",
+            f"{manufacturer!r} cannot be called with args {_format_args_for_error_message(args)}, because {reason}.",
         )
-        self.new_args: Final[tuple[Any, ...]] = new_args
+        self.args_: Final[tuple[Any, ...]] = args
 
 
 class UnsupportedManufacturerArg(UnsupportedManufacturer):
@@ -97,13 +97,15 @@ class UnsupportedManufacturerArg(UnsupportedManufacturer):
     """
 
     def __init__(
-        self, manufacturer: Any, new_args: tuple[Any, ...], reason: str, arg: str, /
+        self,
+        manufacturer: Arg2Manufacturer,
+        args: tuple[Any, ...],
+        reason: str,
+        arg: str,
+        /,
     ):
-        super().__init__(
-            manufacturer,
-            new_args,
-            f"it has a required arg `{arg}`, and not enough new args to be able to map one to it",
-        )
+        super().__init__(manufacturer, args, reason)
+        self.arg: Final[str] = arg
 
 
 @final
@@ -112,10 +114,12 @@ class RequiredManufacturerArg(UnsupportedManufacturerArg):
     Raised when a manufacturer has a required arg, and there are not enough new args to be able to map one to it.
     """
 
-    def __init__(self, manufacturer: Any, new_args: tuple[Any, ...], arg: str, /):
+    def __init__(
+        self, manufacturer: Arg2Manufacturer, args: tuple[Any, ...], arg: str, /
+    ):
         super().__init__(
             manufacturer,
-            new_args,
+            args,
             f"it has a required arg `{arg}`, and not enough new args to be able to map one to it",
             arg,
         )
@@ -127,13 +131,13 @@ class IncompatibleManufacturerArg(UnsupportedManufacturerArg):
     Raised when a manufacturer arg has a type that is incompatible with the given new arg.
     """
 
-    def __init__(self, manufacturer: Any, new_args: tuple[Any, ...], arg: str, /):
-        # @todo
-        raise NotImplementedError
+    def __init__(
+        self, manufacturer: Arg2Manufacturer, args: tuple[Any, ...], arg: str, /
+    ):
         super().__init__(
             manufacturer,
-            new_args,
-            f"it has a required arg `{arg}`, and not enough new args to be able to map one to it",
+            args,
+            f"it has an arg `{arg}` that is incompatible with the given value",
             arg,
         )
 
@@ -265,9 +269,9 @@ async def new(manufacturer, *new_args):
     return await resolve_await(matched_manufacturer(*matched_manufacturer_args))
 
 
-def _expand_manufacturers[T](
-    manufacturer: Callable[..., T], /
-) -> Iterable[Callable[..., T]]:
+def _expand_manufacturers(
+    manufacturer: Arg2Manufacturer, /
+) -> Iterable[Arg2Manufacturer]:
     if isinstance(manufacturer, type):
         for manufacturable_cls in _manufacturables:
             if issubclass(manufacturer, manufacturable_cls):
@@ -276,19 +280,22 @@ def _expand_manufacturers[T](
     yield manufacturer
 
 
-def _match_manufacturers[T](
-    manufacturers: Iterable[Callable[..., T]], *new_args: Any
-) -> tuple[Callable[..., T], tuple[Any, ...]]:
+def _match_manufacturers(
+    manufacturers: Iterable[Arg2Manufacturer], *new_args: Any
+) -> tuple[Arg2Manufacturer, tuple[Any, ...]]:
+    errors = []
     for manufacturer in manufacturers:
-        # @todo Use ExceptionGroup?
-        return manufacturer, _match_manufacturer(manufacturer, *new_args)
-    # @todo Finish this so it actually works if there are multiple manufacturers
-    raise NotImplementedError
+        try:
+            return manufacturer, _match_manufacturer(manufacturer, *new_args)
+        except* UnsupportedManufacturer as error:
+            errors.extend(error.exceptions)
+    raise ExceptionGroup(
+        f"Could not match {JoinOr(*map(repr, manufacturers)).localize(default_localizer)} to the given new args.",
+        errors,
+    )
 
 
-def _validate_manufacturer[T](
-    manufacturer: Callable[..., T], /
-) -> tuple[Parameter, ...]:
+def _validate_manufacturer(manufacturer: Arg2Manufacturer, /) -> tuple[Parameter, ...]:
     try:
         parameters = tuple(signature(manufacturer).parameters.values())
     except TypeError:
@@ -299,64 +306,63 @@ def _validate_manufacturer[T](
             parameter.kind is Parameter.KEYWORD_ONLY
             and parameter.default is Parameter.empty
         ):
-            raise ManufacturerRequiresKwarg(manufacturer, parameter.name)
+            raise RequiredManufacturerKwarg(manufacturer, parameter.name)
     return parameters
 
 
-def _match_manufacturer[T](
-    manufacturer: Callable[..., T], *new_args: Any
+def _match_manufacturer(
+    manufacturer: Arg2Manufacturer, *new_args: Any
 ) -> tuple[Any, ...]:
     new_arg_count = len(new_args)
     parameters = _validate_manufacturer(manufacturer)
-    for match_arg_count in reversed(range(new_arg_count)):
-        # @todo Use ExceptionGroup?
+    errors = []
+    for match_arg_count in reversed(range(new_arg_count + 1)):
         try:
-            return manufacturer, _match_manufacturer_arg_count(
-                manufacturer, new_args, match_arg_count, parameters
+            return _match_manufacturer_args(
+                manufacturer, new_args[-match_arg_count:], parameters
             )
-        except UnsupportedManufacturer:
-            continue
-    # @todo
-    raise NotImplementedError
+        except* UnsupportedManufacturer as error:
+            errors.extend(error.exceptions)
+    raise ExceptionGroup(
+        f"Could not match {manufacturer} to the given new args.", errors
+    )
 
 
-def _match_manufacturer_arg_count[T](
-    manufacturer: Callable[..., T],
-    new_args: tuple[Any, ...],
-    match_arg_count: int,
+def _match_manufacturer_args(
+    manufacturer: Arg2Manufacturer,
+    args: tuple[Any, ...],
     parameters: tuple[Parameter, ...],
     /,
 ) -> tuple[Any, ...]:
-    new_arg_count = len(new_args)
-    match_new_args = new_args[new_arg_count - match_arg_count :]
-    match_parameters = parameters[:match_arg_count]
+    arg_count = len(args)
+    match_parameters = parameters[:arg_count]
+    matched_new_args = []
     for parameter_number, match_parameter in enumerate(match_parameters):
         if (
             match_parameter.default is Parameter.empty
-            and parameter_number not in match_new_args
+            and (parameter_number + 1) > arg_count
         ):
-            raise RequiredManufacturerArg(manufacturer, new_args, match_parameter.name)
-        if (
-            match_parameter.kind
-            in (
-                Parameter.POSITIONAL_ONLY,
-                Parameter.POSITIONAL_OR_KEYWORD,
-            )
-            and match_parameter.annotation is not Parameter.empty
+            raise RequiredManufacturerArg(manufacturer, args, match_parameter.name)
+        if match_parameter.kind in (
+            Parameter.POSITIONAL_ONLY,
+            Parameter.POSITIONAL_OR_KEYWORD,
         ):
-            try:
-                check_type(match_new_args[parameter_number], match_parameter.annotation)
-            except TypeCheckError:
-                raise IncompatibleManufacturerArg() from None
-        if (
-            match_parameter.kind is Parameter.VAR_POSITIONAL
-            and match_parameter.annotation is not Parameter.empty
-        ):
-            try:
-                check_type(
-                    match_new_args[parameter_number:],
-                    match_parameter.annotation,
-                )
-            except TypeCheckError:
-                raise IncompatibleManufacturerArg() from None
-    return match_new_args
+            if match_parameter.annotation is not Parameter.empty:
+                try:
+                    check_type(args[parameter_number], match_parameter.annotation)
+                except TypeCheckError:
+                    raise IncompatibleManufacturerArg(
+                        manufacturer, args, match_parameter.name
+                    ) from None
+            matched_new_args.append(args[parameter_number])
+        if match_parameter.kind is Parameter.VAR_POSITIONAL:
+            if match_parameter.annotation is not Parameter.empty:
+                try:
+                    check_type(args[parameter_number:], match_parameter.annotation)
+                except TypeCheckError:
+                    raise IncompatibleManufacturerArg(
+                        manufacturer, args, match_parameter.name
+                    ) from None
+            matched_new_args.extend(args[parameter_number:])
+            break
+    return tuple(matched_new_args[:arg_count])

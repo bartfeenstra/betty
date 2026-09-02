@@ -1,16 +1,21 @@
 from abc import ABCMeta, abstractmethod
 from collections.abc import Callable, Iterable, Iterator, Sequence
 from textwrap import indent
-from typing import Any, Final, Never, Self, final, override
+from typing import Any, Final, Self, final, override
 
 import pytest
 
 from betty.factory import (
     Arg2Manufacturer,
     FactoryError,
+    IncompatibleManufacturerArg,
     InvalidManufacturer,
     ManufacturerError,
+    ManufacturerNotCallable,
+    RequiredManufacturerArg,
+    RequiredManufacturerKwarg,
     UnsupportedManufacturer,
+    UnsupportedManufacturerArg,
     _new_arg_counts_to_manufacturables,
     max_arg_count,
     new,
@@ -36,6 +41,74 @@ _arg2 = _Arg2()
 _args = (_arg1, _arg2)
 
 
+class TestManufacturerError:
+    def test(self) -> None:
+        manufacturer = object()
+        message = "Oops!"
+        sut = ManufacturerError(manufacturer, message)
+        assert sut.manufacturer is manufacturer
+        assert str(sut) == message
+
+
+class TestInvalidManufacturer:
+    def test(self) -> None:
+        manufacturer = object()
+        reason = "Oops!"
+        sut = InvalidManufacturer(manufacturer, reason)
+        assert reason in str(sut)
+
+
+class TestManufacturerNotCallable:
+    def test(self) -> None:
+        manufacturer = object()
+        sut = ManufacturerNotCallable(manufacturer)
+        assert str(sut)
+
+
+class TestRequiredManufacturerKwarg:
+    def test(self) -> None:
+        manufacturer = object()
+        kwarg = "my_first_kwarg"
+        sut = RequiredManufacturerKwarg(manufacturer, kwarg)
+        assert sut.kwarg == kwarg
+        assert kwarg in str(sut)
+
+
+class TestUnsupportedManufacturer:
+    def test(self) -> None:
+        manufacturer = object()
+        reason = "Oops!"
+        sut = UnsupportedManufacturer(manufacturer, _args, reason)
+        assert sut.manufacturer is manufacturer
+        assert sut.args_ == _args
+        assert reason in str(sut)
+
+
+class TestUnsupportedManufacturerArg:
+    def test(self) -> None:
+        manufacturer = object()
+        reason = "Oops!"
+        arg = "my_first_arg"
+        sut = UnsupportedManufacturerArg(manufacturer, _args, reason, arg)
+        assert sut.arg == arg
+
+
+class TestRequiredManufacturerArg:
+    def test(self) -> None:
+        manufacturer = object()
+        arg = "my_first_arg"
+        sut = RequiredManufacturerArg(manufacturer, _args, arg)
+        assert "required" in str(sut)
+
+
+class TestIncompatibleManufacturerArg:
+    def test(self) -> None:
+        manufacturer = object()
+        arg = "my_first_arg"
+        sut = IncompatibleManufacturerArg(manufacturer, _args, arg)
+        assert "incompatible" in str(sut)
+
+
 class _Value:
     @final
     def __init__(self, *args: Any):
@@ -52,7 +125,7 @@ class _Value:
         return f"<{type(self).__name__!r} args={self.args!r}>"
 
 
-def _parameterize_test_new__should_create() -> Iterator[
+def _parameterize_test_new__should_return() -> Iterator[
     tuple[_Value, Any, tuple[Any, ...]]
 ]:
     for new_arg_count in range(max_arg_count):
@@ -302,9 +375,9 @@ def _create_new_manufacturer_functions_and_manufacturable_class(
 
 @pytest.mark.parametrize(
     ("expected", "manufacturer", "new_args"),
-    list(_parameterize_test_new__should_create()),
+    list(_parameterize_test_new__should_return()),
 )
-async def test_new__should_create(
+async def test_new__should_return(
     expected: _Value, manufacturer: Any, new_args: tuple[Any, ...]
 ) -> None:
     manufacturer_message = (
@@ -322,51 +395,27 @@ async def test_new__should_create(
         )
 
 
-@pytest.mark.parametrize(
-    "manufacturer",
-    [
-        # Not a callable.
-        "manufacturer",
-        1234567890,
-        object(),
-        # More required args than the API supports.
-        lambda arg1, arg2, arg3: None,
-        # Required kwargs.
-        lambda *, kwarg: None,
-    ],
-)
-async def test_new__should_raise_invalid_manufacturer(manufacturer: Any) -> None:
-    with pytest.raises(InvalidManufacturer):
-        await new(manufacturer)
-
-
-def _unsupported_because_too_many_required_args(arg1: _Arg1, too_many: Any) -> _Value:
-    raise NotImplementedError
-
-
-def _unsupported_because_incompatible_arg_type(arg1: _Arg2) -> _Value:
+def _unsupported_because_incompatible_arg_type(arg1: None) -> _Value:
     raise NotImplementedError
 
 
 @pytest.mark.parametrize(
-    "manufacturer",
+    ("expected", "manufacturer", "args"),
     [
-        _unsupported_because_too_many_required_args,
-        _unsupported_because_incompatible_arg_type,
+        (ManufacturerNotCallable, "manufacturer", ()),
+        (ManufacturerNotCallable, 1234567890, ()),
+        (ManufacturerNotCallable, object(), ()),
+        (RequiredManufacturerKwarg, lambda *, kwarg: None, ()),
+        (RequiredManufacturerArg, lambda arg: None, ()),
+        (
+            IncompatibleManufacturerArg,
+            _unsupported_because_incompatible_arg_type,
+            (_Arg1(),),
+        ),
     ],
 )
-async def test_new__should_raise_unsupported_manufacturer(manufacturer: Any) -> None:
-    with pytest.raises(UnsupportedManufacturer):
-        await new(manufacturer, _Arg1())
-
-
-async def test_new__should_raise_manufacturer_error() -> None:
-    class _ThirdPartyManufacturerError(Exception):
-        pass
-
-    def _manufacturer() -> Never:
-        raise _ThirdPartyManufacturerError
-
-    with pytest.raises(ManufacturerError) as exc_info:
-        await new(_manufacturer)
-    assert isinstance(exc_info.value.__cause__, _ThirdPartyManufacturerError)
+async def test_new__should_raise(
+    expected: type[FactoryError], manufacturer: Any, args: tuple[Any, ...]
+) -> None:
+    with pytest.RaisesGroup(expected, allow_unwrapped=True):
+        await new(manufacturer, *args)
