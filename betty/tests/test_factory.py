@@ -52,60 +52,53 @@ class TestManufacturerError:
 
 class TestInvalidManufacturer:
     def test(self) -> None:
-        manufacturer = object()
         reason = "Oops!"
-        sut = InvalidManufacturer(manufacturer, reason)
+        sut = InvalidManufacturer(object, reason)
         assert reason in str(sut)
 
 
 class TestManufacturerNotCallable:
     def test(self) -> None:
-        manufacturer = object()
-        sut = ManufacturerNotCallable(manufacturer)
+        sut = ManufacturerNotCallable(object)
         assert str(sut)
 
 
 class TestRequiredManufacturerKwarg:
     def test(self) -> None:
-        manufacturer = object()
         kwarg = "my_first_kwarg"
-        sut = RequiredManufacturerKwarg(manufacturer, kwarg)
+        sut = RequiredManufacturerKwarg(object, kwarg)
         assert sut.kwarg == kwarg
         assert kwarg in str(sut)
 
 
 class TestUnsupportedManufacturer:
     def test(self) -> None:
-        manufacturer = object()
         reason = "Oops!"
-        sut = UnsupportedManufacturer(manufacturer, _args, reason)
-        assert sut.manufacturer is manufacturer
+        sut = UnsupportedManufacturer(object, _args, reason)
+        assert sut.manufacturer is object
         assert sut.args_ == _args
         assert reason in str(sut)
 
 
 class TestUnsupportedManufacturerArg:
     def test(self) -> None:
-        manufacturer = object()
         reason = "Oops!"
         arg = "my_first_arg"
-        sut = UnsupportedManufacturerArg(manufacturer, _args, reason, arg)
+        sut = UnsupportedManufacturerArg(object, _args, reason, arg)
         assert sut.arg == arg
 
 
 class TestRequiredManufacturerArg:
     def test(self) -> None:
-        manufacturer = object()
         arg = "my_first_arg"
-        sut = RequiredManufacturerArg(manufacturer, _args, arg)
+        sut = RequiredManufacturerArg(object, _args, arg)
         assert "required" in str(sut)
 
 
 class TestIncompatibleManufacturerArg:
     def test(self) -> None:
-        manufacturer = object()
         arg = "my_first_arg"
-        sut = IncompatibleManufacturerArg(manufacturer, _args, arg)
+        sut = IncompatibleManufacturerArg(object, _args, arg)
         assert "incompatible" in str(sut)
 
 

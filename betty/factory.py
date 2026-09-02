@@ -14,7 +14,6 @@ from typeguard import TypeCheckError, check_type
 from betty.asyncio import resolve_await
 from betty.localizables.markup import JoinOr
 from betty.localizer import default_localizer
-from betty.typing import Intersection, Not
 
 # @todo Do we need this at all? Or here? Move it with the tests?
 max_arg_count: Final[int] = 2
@@ -184,37 +183,16 @@ class Arg2Manufacturable[Arg1T, Arg2T](metaclass=ABCMeta):
 type _ManufacturerReturn[T] = Coroutine[Any, Any, T] | T
 
 
-type _CallableObject[T, *ArgTs] = Intersection[
-    Callable[[*ArgTs], _ManufacturerReturn[T]], Not[type]
-]
-
-
-type _ClsWithoutInitArgs[T] = Intersection[type[T], Callable[[], T]]
-
-
-type Manufacturer[T] = (
-    type[Intersection[T, Manufacturable]] | _CallableObject[T] | _ClsWithoutInitArgs[T]
-)
+type Manufacturer[T] = Callable[[], _ManufacturerReturn[T]]
 
 
 type Arg1Manufacturer[T, Arg1T] = (
-    type[Intersection[T, Arg1Manufacturable[Arg1T]]]
-    | _CallableObject[
-        T,
-        Arg1T,  # ty:ignore[invalid-type-arguments]
-    ]
-    | Manufacturer[T]
+    Callable[[Arg1T], _ManufacturerReturn[T]] | Manufacturer[T]
 )
 
 
 type Arg2Manufacturer[T, Arg1T, Arg2T] = (
-    type[Intersection[T, Arg2Manufacturable[Arg1T, Arg2T]]]
-    | _CallableObject[
-        T,
-        Arg1T,  # ty:ignore[invalid-type-arguments]
-        Arg2T,
-    ]
-    | Arg1Manufacturer[T, Arg1T]
+    Callable[[Arg1T, Arg2T], _ManufacturerReturn[T]] | Arg1Manufacturer[T, Arg1T]
 )
 
 
