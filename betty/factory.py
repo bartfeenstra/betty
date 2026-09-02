@@ -5,14 +5,17 @@ Object factories.
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from collections.abc import Callable, Coroutine, Mapping
+from collections.abc import Callable, Coroutine, Iterable, Mapping
 from inspect import Parameter, signature
 from textwrap import indent
 from typing import Any, Final, Self, final, overload
 
+from typeguard import TypeCheckError, check_type
+
 from betty.asyncio import resolve_await
 from betty.typing import Intersection, Not
 
+# @todo Do we need this at all? Or here? Move it with the tests?
 max_arg_count: Final[int] = 2
 
 
@@ -26,46 +29,79 @@ class FactoryError(Exception):
     """
 
 
-@final
-class InvalidManufacturer(FactoryError, ValueError):
+class ManufacturerError(FactoryError):
     """
-    Raised when something is not a valid manufacturer.
+    Raised if something went wrong with a specific manufacturer.
+    """
+
+    def __init__(self, manufacturer: Any, message: str, /):
+        super().__init__(message)
+        self.manufacturer: Final[Any] = manufacturer
+
+
+class InvalidManufacturer(ManufacturerError, TypeError):
+    """
+    Raised if a value would never be a valid manufacturer under any circumstances.
     """
 
     def __init__(self, manufacturer: Any, reason: str, /):
-        # @todo Add details on what does make a valid manufacturer.
-        # @todo
-        super().__init__(f"{manufacturer!r} is not a valid manufacturer: {reason}")
-
-
-@final
-class UnsupportedManufacturer(FactoryError, ValueError):
-    """
-    Raised when a manufacturer is not supported for the given :py:func:`new() <betty.factory.new>` call.
-    """
-
-    # @todo Can we type ``manufacturer`` properly?
-    # @todo
-    def __init__(self, manufacturer: Any, reason: str, *args: Any):
-        formatted_args = []
-        for arg_count in reversed(range(len(args))):
-            formatted_args.append(_format_args_for_error_message(args[0:arg_count]))
         super().__init__(
-            f"{manufacturer!r} cannot be called with any of the following args:\n{indent('\n'.join(formatted_args), '- ')}."
+            manufacturer,
+            f"{manufacturer!r} is not a valid manufacturer, because {reason}.",
         )
 
 
 @final
-class ManufacturerError(FactoryError, RuntimeError):
+class ManufacturerNotCallable(InvalidManufacturer):
     """
-    Raised when a manufacturer cannot not create an object.
+    Raised when a manufacturer is not callable.
     """
 
-    # @todo Can we type ``manufacturer`` properly?
-    # @todo
-    def __init__(self, manufacturer: Any, args: tuple[Any, ...], /):
+    def __init__(self, manufacturer: Any, /):
+        super().__init__(manufacturer, "it is not callable")
+
+
+@final
+class ManufacturerRequiresKwarg(InvalidManufacturer):
+    """
+    Raised when a manufacturer has a required kwarg.
+    """
+
+    def __init__(self, manufacturer: Any, kwarg: str, /):
         super().__init__(
-            f"{manufacturer!r} raised an unexpected error when creating a new object. Args: {_format_args_for_error_message(*args)}."
+            manufacturer,
+            f"it has a required kwarg `{kwarg}`, and required kwargs are not allowed",
+        )
+
+
+class UnsupportedManufacturer(ManufacturerError, ValueError):
+    """
+    Raised when a manufacturer is not supported for the given :py:func:`new() <betty.factory.new>` args.
+    """
+
+    def __init__(self, manufacturer: Any, new_args: tuple[Any, ...], reason: str, /):
+        assert type(self) is not UnsupportedManufacturer
+        formatted_args = []
+        for arg_count in reversed(range(len(new_args))):
+            formatted_args.append(_format_args_for_error_message(new_args[0:arg_count]))
+        super().__init__(
+            manufacturer,
+            f"{manufacturer!r} cannot be called with any of the following args:\n{indent('\n'.join(formatted_args), '- ')}.",
+        )
+        self.new_args: Final[tuple[Any, ...]] = new_args
+
+
+@final
+class ManufacturerRequiresArg(UnsupportedManufacturer):
+    """
+    Raised when a manufacturer has a required arg, and there are not enough new args to be able to map one to it.
+    """
+
+    def __init__(self, manufacturer: Any, new_args: tuple[Any, ...], arg: str, /):
+        super().__init__(
+            manufacturer,
+            new_args,
+            f"it has a required arg `{arg}`, and not enough new args to be able to map one to it",
         )
 
 
@@ -145,10 +181,15 @@ type Arg2Manufacturer[T, Arg1T, Arg2T] = (
 )
 
 
+# @todo Do we need this still?
+_manufacturables = (Arg2Manufacturable, Arg1Manufacturable, Manufacturable)
+# @todo These can be moved to the tests, I think
 _Arg0Manufacturables = ((Manufacturable, 0),)
 _Arg1Manufacturables = ((Arg1Manufacturable, 1), *_Arg0Manufacturables)
 _Arg2Manufacturables = ((Arg2Manufacturable, 2), *_Arg1Manufacturables)
-new_arg_counts_to_manufacturables: Final[Mapping[int, tuple[tuple[type, int], ...]]] = {
+_new_arg_counts_to_manufacturables: Final[
+    Mapping[int, tuple[tuple[type, int], ...]]
+] = {
     0: _Arg0Manufacturables,
     1: _Arg1Manufacturables,
     2: _Arg2Manufacturables,
@@ -175,82 +216,116 @@ async def new[T, Arg1T, Arg2T](
     pass
 
 
-async def new(manufacturer, *args):
+async def new(manufacturer, *new_args):
     """
     Create a new object from a manufacturer.
 
-    :param args: Any arguments to pass on to the manufacturer, if it accepts them.
+    :param new_args: Any arguments to pass on to the manufacturer, if it accepts them.
 
-    :raises FactoryError: raised when ``manufacturer`` could not be called.
+    :raises FactoryError:
+    :raises InvalidManufacturer:
+    :raises SupportedManufacturer:
     """
+    matched_manufacturer, matched_manufacturer_args = _match_manufacturers(
+        _expand_manufacturers(manufacturer), *new_args
+    )
+    return await resolve_await(matched_manufacturer(*matched_manufacturer_args))
+
+
+def _expand_manufacturers[T](
+    manufacturer: Callable[..., T], /
+) -> Iterable[Callable[..., T]]:
     if isinstance(manufacturer, type):
-        for cls, cls_arg_count in new_arg_counts_to_manufacturables[len(args)]:
-            if issubclass(manufacturer, cls):
-                manufacturer = manufacturer.new
-                args = args[0:cls_arg_count]
+        for manufacturable_cls in _manufacturables:
+            if issubclass(manufacturer, manufacturable_cls):
+                yield manufacturer.new
                 break
-    args = _resolve_callable_args(manufacturer, *args)
-    try:
-        return await resolve_await(manufacturer(*args))
-    except Exception as error:
-        raise ManufacturerError(manufacturer, args) from error
+    yield manufacturer
 
 
-def _resolve_callable_args(manufacturer: Callable, *args: Any) -> tuple[Any, ...]:
-    arg_count = len(args)
+def _match_manufacturers[T](
+    manufacturers: Iterable[Callable[..., T]], *new_args: Any
+) -> tuple[Callable[..., T], tuple[Any, ...]]:
+    for manufacturer in manufacturers:
+        # @todo Use ExceptionGroup?
+        return manufacturer, _match_manufacturer(manufacturer, *new_args)
+    # @todo Finish this so it actually works if there are multiple manufacturers
+    raise NotImplementedError
+
+
+def _validate_manufacturer[T](
+    manufacturer: Callable[..., T], /
+) -> tuple[Parameter, ...]:
     try:
-        parameters = signature(manufacturer).parameters.values()
+        parameters = tuple(signature(manufacturer).parameters.values())
     except TypeError:
-        raise InvalidManufacturer(manufacturer, "it is not callable") from None
-    required_arg_count = 0
-    optional_arg_count = 0
-    for arg_number, parameter in enumerate(parameters):
-        if parameter.kind in (
-            Parameter.POSITIONAL_ONLY,
-            Parameter.POSITIONAL_OR_KEYWORD,
-        ):
-            # @todo Finish this
-            # @todo
-            # @todo If this is a required parameter that's too much (e.g. more than the number of new args we've got)
-            # @todo then error.
-            # @todo If it's not too much, and a correspondng new arg exists, only then validate the type hint.
-            # @todo
-            # @todo USE THE typeguard PACKAGE INSTEAD, IT SUPPORTS MANY TYPES OUT OF THE BOX, AND IS EXTENSBIBLE
-            # @todo
-            # @todo
-            # @todo
-            if not isinstance(args[arg_number], parameter.annotation):
-                raise UnsupportedManufacturer(
-                    manufacturer,
-                    f"argument {arg_number} is a {type(args[arg_number])}, but the manufacturer requires {parameter.annotation}.",
-                )
-            if parameter.default is Parameter.empty:
-                required_arg_count += 1
-            else:
-                optional_arg_count += 1
-        elif parameter.kind is Parameter.VAR_POSITIONAL:
-            # Consider a variadic argument as an infinite number of optional arguments, which means that however
-            # many arguments we've got, the variadic argument can capture them all.
-            # @todo Validate all remaining args against this parameter.
-            optional_arg_count = max_arg_count
-            break
-        elif (
+        raise ManufacturerNotCallable(manufacturer) from None
+
+    for parameter in parameters:
+        if (
             parameter.kind is Parameter.KEYWORD_ONLY
             and parameter.default is Parameter.empty
         ):
-            raise InvalidManufacturer(
-                manufacturer,
-                f"requires kwarg {parameter.name}, but kwargs are not supported.",
+            raise ManufacturerRequiresKwarg(manufacturer, parameter.name)
+    return parameters
+
+
+def _match_manufacturer[T](
+    manufacturer: Callable[..., T], *new_args: Any
+) -> tuple[Any, ...]:
+    new_arg_count = len(new_args)
+    parameters = _validate_manufacturer(manufacturer)
+    for match_arg_count in reversed(range(new_arg_count)):
+        # @todo Use ExceptionGroup?
+        try:
+            return manufacturer, _match_manufacturer_arg_count(
+                manufacturer, new_args, match_arg_count, parameters
             )
-    if required_arg_count > max_arg_count:
-        raise InvalidManufacturer(
-            manufacturer,
-            f"requires {required_arg_count}, but any manufacturer can at most require {max_arg_count} args.",
-        )
-    if required_arg_count > arg_count:
-        raise UnsupportedManufacturer(
-            manufacturer,
-            f"requires {required_arg_count} args, but only {arg_count} were given.",
-            *args,
-        )
-    return args[: min(required_arg_count + optional_arg_count, arg_count)]
+        except UnsupportedManufacturer:
+            continue
+    # @todo
+    raise NotImplementedError
+
+
+def _match_manufacturer_arg_count[T](
+    manufacturer: Callable[..., T],
+    new_args: tuple[Any, ...],
+    match_arg_count: int,
+    parameters: tuple[Parameter, ...],
+    /,
+) -> tuple[Any, ...]:
+    new_arg_count = len(new_args)
+    match_new_args = new_args[new_arg_count - match_arg_count :]
+    match_parameters = parameters[:match_arg_count]
+    for parameter_number, match_parameter in enumerate(match_parameters):
+        if (
+            match_parameter.default is Parameter.empty
+            and parameter_number not in match_new_args
+        ):
+            raise ManufacturerRequiresArg(manufacturer, new_args, match_parameter.name)
+        if (
+            match_parameter.kind
+            in (
+                Parameter.POSITIONAL_ONLY,
+                Parameter.POSITIONAL_OR_KEYWORD,
+            )
+            and match_parameter.annotation is not Parameter.empty
+        ):
+            try:
+                check_type(match_new_args[parameter_number], match_parameter.annotation)
+            except TypeCheckError:
+                # @todo continue the OUTER loop (we'll need to extract this into another function to do that)
+                raise NotImplementedError from None
+        if (
+            match_parameter.kind is Parameter.VAR_POSITIONAL
+            and match_parameter.annotation is not Parameter.empty
+        ):
+            try:
+                check_type(
+                    match_new_args[parameter_number:],
+                    match_parameter.annotation,
+                )
+            except TypeCheckError:
+                # @todo continue the OUTER loop (we'll need to extract this into another function to do that)
+                raise NotImplementedError from None
+    return match_new_args

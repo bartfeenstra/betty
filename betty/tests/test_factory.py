@@ -11,9 +11,9 @@ from betty.factory import (
     InvalidManufacturer,
     ManufacturerError,
     UnsupportedManufacturer,
+    _new_arg_counts_to_manufacturables,
     max_arg_count,
     new,
-    new_arg_counts_to_manufacturables,
 )
 from betty.importlib import fully_qualified_name
 from betty.string import snake_case_to_upper_camel_case
@@ -272,7 +272,7 @@ def _create_new_manufacturable_class(
 {indent(_create_new_function_args(arg_mappers), "  ")}
 )
 """
-    manufacturable_cls = new_arg_counts_to_manufacturables[new_arg_count][0][0]
+    manufacturable_cls = _new_arg_counts_to_manufacturables[new_arg_count][0][0]
     source = f"""{_create_new_imports_source(manufacturable_cls, Self)}
 
 class {name}({manufacturable_cls.__name__}, _Value):
