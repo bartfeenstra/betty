@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from collections.abc import Callable, Iterable, Iterator, Sequence
 from textwrap import indent
-from typing import Any, Final, Self, final, override
+from typing import Any, Final, Never, Self, final, override
 
 import pytest
 
@@ -418,5 +418,16 @@ def _unsupported_because_incompatible_arg_type(arg1: None) -> _Value:
 async def test_new__should_raise(
     expected: type[FactoryError], manufacturer: Any, args: tuple[Any, ...]
 ) -> None:
-    with pytest.RaisesGroup(expected, allow_unwrapped=True):
+    with pytest.RaisesGroup(expected):
         await new(manufacturer, *args)
+
+
+async def test_new__should_pass_through_manufacturer_exception() -> None:
+    class _ManufacturerException(Exception):
+        pass
+
+    def _manufacturer() -> Never:
+        raise _ManufacturerException
+
+    with pytest.raises(_ManufacturerException):
+        await new(_manufacturer)
