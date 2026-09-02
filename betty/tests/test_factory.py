@@ -406,7 +406,8 @@ def _unsupported_because_incompatible_arg_type(arg1: None) -> _Value:
         (ManufacturerNotCallable, 1234567890, ()),
         (ManufacturerNotCallable, object(), ()),
         (RequiredManufacturerKwarg, lambda *, kwarg: None, ()),
-        (RequiredManufacturerArg, lambda arg: None, ()),
+        (RequiredManufacturerArg, lambda arg1: None, ()),
+        (RequiredManufacturerArg, lambda arg1, arg2: None, (_Arg1(),)),
         (
             IncompatibleManufacturerArg,
             _unsupported_because_incompatible_arg_type,
