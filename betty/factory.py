@@ -91,8 +91,23 @@ class UnsupportedManufacturer(ManufacturerError, ValueError):
         self.new_args: Final[tuple[Any, ...]] = new_args
 
 
+class UnsupportedManufacturerArg(UnsupportedManufacturer):
+    """
+    Raised when a manufacturer arg is not supported.
+    """
+
+    def __init__(
+        self, manufacturer: Any, new_args: tuple[Any, ...], reason: str, arg: str, /
+    ):
+        super().__init__(
+            manufacturer,
+            new_args,
+            f"it has a required arg `{arg}`, and not enough new args to be able to map one to it",
+        )
+
+
 @final
-class ManufacturerRequiresArg(UnsupportedManufacturer):
+class RequiredManufacturerArg(UnsupportedManufacturerArg):
     """
     Raised when a manufacturer has a required arg, and there are not enough new args to be able to map one to it.
     """
@@ -102,6 +117,24 @@ class ManufacturerRequiresArg(UnsupportedManufacturer):
             manufacturer,
             new_args,
             f"it has a required arg `{arg}`, and not enough new args to be able to map one to it",
+            arg,
+        )
+
+
+@final
+class IncompatibleManufacturerArg(UnsupportedManufacturerArg):
+    """
+    Raised when a manufacturer arg has a type that is incompatible with the given new arg.
+    """
+
+    def __init__(self, manufacturer: Any, new_args: tuple[Any, ...], arg: str, /):
+        # @todo
+        raise NotImplementedError
+        super().__init__(
+            manufacturer,
+            new_args,
+            f"it has a required arg `{arg}`, and not enough new args to be able to map one to it",
+            arg,
         )
 
 
@@ -302,7 +335,7 @@ def _match_manufacturer_arg_count[T](
             match_parameter.default is Parameter.empty
             and parameter_number not in match_new_args
         ):
-            raise ManufacturerRequiresArg(manufacturer, new_args, match_parameter.name)
+            raise RequiredManufacturerArg(manufacturer, new_args, match_parameter.name)
         if (
             match_parameter.kind
             in (
@@ -314,8 +347,7 @@ def _match_manufacturer_arg_count[T](
             try:
                 check_type(match_new_args[parameter_number], match_parameter.annotation)
             except TypeCheckError:
-                # @todo continue the OUTER loop (we'll need to extract this into another function to do that)
-                raise NotImplementedError from None
+                raise IncompatibleManufacturerArg() from None
         if (
             match_parameter.kind is Parameter.VAR_POSITIONAL
             and match_parameter.annotation is not Parameter.empty
@@ -326,6 +358,5 @@ def _match_manufacturer_arg_count[T](
                     match_parameter.annotation,
                 )
             except TypeCheckError:
-                # @todo continue the OUTER loop (we'll need to extract this into another function to do that)
-                raise NotImplementedError from None
+                raise IncompatibleManufacturerArg() from None
     return match_new_args
