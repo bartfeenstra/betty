@@ -14,6 +14,7 @@ from betty.jinja import context_document
 from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
 from betty.os import link_or_copy
 from betty.project import Project
+from betty.service_level import ServiceLevel
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -25,7 +26,7 @@ if TYPE_CHECKING:
 
 @final
 @JinjaFilterDefinition("file", auto=True)
-class File(JinjaFilter, Arg1Manufacturable[Project]):
+class File(JinjaFilter, Arg1Manufacturable[ServiceLevel]):
     """
     Preprocess a file for use in a page.
 
@@ -36,6 +37,7 @@ class File(JinjaFilter, Arg1Manufacturable[Project]):
         self._www_directory = www_directory
 
     @override
+    @Project.require
     @classmethod
     async def new(cls, project: Project, /) -> Self:
         return cls(www_directory=project.www_directory)
