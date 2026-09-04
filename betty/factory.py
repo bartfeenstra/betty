@@ -38,6 +38,12 @@ class ManufacturerError(FactoryError):
         self.manufacturer: Final[Any] = manufacturer
 
 
+class _ManufacturerParameterError(ManufacturerError):
+    def __init__(self, *args: Any, parameter: Parameter, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+        self.parameter: Final[Parameter] = parameter
+
+
 class InvalidManufacturer(ManufacturerError, TypeError):
     """
     Raised if a value would never be a valid manufacturer under any circumstances.
@@ -61,34 +67,17 @@ class ManufacturerNotCallable(InvalidManufacturer):
 
 
 @final
-class UnevaluatedManufacturerArgType(InvalidManufacturer):
-    """
-    Raised when a manufacturer has an arg whose type is unevaluated.
-
-    Type hints may be unevaluated for a number of reasons, such as when any of the types they use are imported only
-    conditionally in an ``if TYPE_CHECKING:`` block.
-    """
-
-    def __init__(self, manufacturer: Any, arg: str, /):
-        super().__init__(
-            manufacturer,
-            f"it has an arg `{arg}` whose type hint is unevaluated",
-        )
-        self.arg: Final[str] = arg
-
-
-@final
-class RequiredManufacturerKwarg(InvalidManufacturer):
+class RequiredManufacturerKwarg(_ManufacturerParameterError, InvalidManufacturer):
     """
     Raised when a manufacturer has a required kwarg.
     """
 
-    def __init__(self, manufacturer: Any, kwarg: str, /):
+    def __init__(self, manufacturer: Any, parameter: Parameter, /):
         super().__init__(
             manufacturer,
-            f"it has a required kwarg `{kwarg}`, and required kwargs are not allowed",
+            f"it has a required kwarg `{parameter.name}`, and required kwargs are not allowed",
+            parameter=parameter,
         )
-        self.kwarg: Final[str] = kwarg
 
 
 class UnsupportedManufacturer(ManufacturerError, ValueError):
@@ -106,7 +95,7 @@ class UnsupportedManufacturer(ManufacturerError, ValueError):
         self.args_: Final[tuple[Any, ...]] = args
 
 
-class UnsupportedManufacturerArg(UnsupportedManufacturer):
+class UnsupportedManufacturerArg(_ManufacturerParameterError, UnsupportedManufacturer):
     """
     Raised when a manufacturer arg is not supported.
     """
@@ -116,11 +105,10 @@ class UnsupportedManufacturerArg(UnsupportedManufacturer):
         manufacturer: Arg2Manufacturer,
         args: tuple[Any, ...],
         reason: str,
-        arg: str,
+        parameter: Parameter,
         /,
     ):
-        super().__init__(manufacturer, args, reason)
-        self.arg: Final[str] = arg
+        super().__init__(manufacturer, args, reason, parameter=parameter)
 
 
 @final
@@ -130,13 +118,62 @@ class RequiredManufacturerArg(UnsupportedManufacturerArg):
     """
 
     def __init__(
-        self, manufacturer: Arg2Manufacturer, args: tuple[Any, ...], arg: str, /
+        self,
+        manufacturer: Arg2Manufacturer,
+        args: tuple[Any, ...],
+        parameter: Parameter,
+        /,
     ):
         super().__init__(
             manufacturer,
             args,
-            f"it has a required arg `{arg}`, and not enough new args to be able to map one to it",
-            arg,
+            f"it has a required arg `{parameter.name}`, and not enough new args to be able to map one to it",
+            parameter,
+        )
+
+
+@final
+class UntypedManufacturerArg(UnsupportedManufacturerArg):
+    """
+    Raised when a manufacturer has an arg without a type hint.
+    """
+
+    def __init__(
+        self,
+        manufacturer: Arg2Manufacturer,
+        args: tuple[Any, ...],
+        parameter: Parameter,
+        /,
+    ):
+        super().__init__(
+            manufacturer,
+            args,
+            f"it has an arg `{parameter.name}` without a type hint",
+            parameter,
+        )
+
+
+@final
+class UnevaluatedManufacturerArgType(UnsupportedManufacturerArg):
+    """
+    Raised when a manufacturer has an arg whose type is unevaluated.
+
+    Type hints may be unevaluated for a number of reasons, such as when any of the types they use are imported only
+    conditionally in an ``if TYPE_CHECKING:`` block.
+    """
+
+    def __init__(
+        self,
+        manufacturer: Arg2Manufacturer,
+        args: tuple[Any, ...],
+        parameter: Parameter,
+        /,
+    ):
+        super().__init__(
+            manufacturer,
+            args,
+            f'it has an arg `{parameter.name}` whose type hint "{parameter.annotation}" is unevaluated',
+            parameter,
         )
 
 
@@ -147,13 +184,17 @@ class IncompatibleManufacturerArg(UnsupportedManufacturerArg):
     """
 
     def __init__(
-        self, manufacturer: Arg2Manufacturer, args: tuple[Any, ...], arg: str, /
+        self,
+        manufacturer: Arg2Manufacturer,
+        args: tuple[Any, ...],
+        parameter: Parameter,
+        /,
     ):
         super().__init__(
             manufacturer,
             args,
-            f"it has an arg `{arg}` that is incompatible with the given value",
-            arg,
+            f"it has an arg `{parameter.name}` that is incompatible with the given value",
+            parameter,
         )
 
 
@@ -301,13 +342,11 @@ def _validate_manufacturer(manufacturer: Arg2Manufacturer, /) -> tuple[Parameter
             raise ManufacturerNotCallable(manufacturer) from None
 
         for parameter in parameters:
-            if isinstance(parameter.annotation, str):
-                raise UnevaluatedManufacturerArgType(manufacturer, parameter.name)
             if (
                 parameter.kind is Parameter.KEYWORD_ONLY
                 and parameter.default is Parameter.empty
             ):
-                raise RequiredManufacturerKwarg(manufacturer, parameter.name)
+                raise RequiredManufacturerKwarg(manufacturer, parameter)
     except InvalidManufacturer as error:
         raise ExceptionGroup("Invalid manufacturer", [error]) from None
     return parameters
@@ -348,7 +387,7 @@ def _match_manufacturer_args(
         ):
             if parameter_number >= arg_count:
                 if parameter.default is Parameter.empty:
-                    raise RequiredManufacturerArg(manufacturer, args, parameter.name)
+                    raise RequiredManufacturerArg(manufacturer, args, parameter)
                 break
             _assert_type(manufacturer, args, parameter, args[parameter_number])
             matched_args.append(args[parameter_number])
@@ -366,7 +405,11 @@ def _assert_type(
     value: Any,
 ) -> None:
     if parameter.annotation is Parameter.empty:
-        return
+        if manufacturer.__code__.co_name == "<lambda>":  # ty:ignore[unresolved-attribute]
+            return
+        raise UntypedManufacturerArg(manufacturer, args, parameter)
+    if isinstance(parameter.annotation, str):
+        raise UnevaluatedManufacturerArgType(manufacturer, args, parameter)
     try:
         check_type(
             value,
@@ -374,4 +417,4 @@ def _assert_type(
             collection_check_strategy=CollectionCheckStrategy.ALL_ITEMS,
         )
     except TypeCheckError:
-        raise IncompatibleManufacturerArg(manufacturer, args, parameter.name) from None
+        raise IncompatibleManufacturerArg(manufacturer, args, parameter) from None

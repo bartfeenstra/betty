@@ -1,5 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from collections.abc import Callable, Iterable, Iterator, Sequence
+from inspect import Parameter
 from textwrap import indent
 from typing import Any, Final, Never, Self, final, override
 
@@ -66,8 +67,9 @@ class TestManufacturerNotCallable:
 class TestRequiredManufacturerKwarg:
     def test(self) -> None:
         kwarg = "my_first_kwarg"
-        sut = RequiredManufacturerKwarg(object, kwarg)
-        assert sut.kwarg == kwarg
+        parameter = Parameter(kwarg, Parameter.KEYWORD_ONLY)
+        sut = RequiredManufacturerKwarg(object, parameter)
+        assert sut.parameter is parameter
         assert kwarg in str(sut)
 
 
@@ -84,21 +86,24 @@ class TestUnsupportedManufacturerArg:
     def test(self) -> None:
         reason = "Oops!"
         arg = "my_first_arg"
-        sut = UnsupportedManufacturerArg(object, _args, reason, arg)
-        assert sut.arg == arg
+        parameter = Parameter(arg, Parameter.POSITIONAL_OR_KEYWORD)
+        sut = UnsupportedManufacturerArg(object, _args, reason, parameter)
+        assert sut.parameter is parameter
 
 
 class TestRequiredManufacturerArg:
     def test(self) -> None:
-        arg = "my_first_arg"
-        sut = RequiredManufacturerArg(object, _args, arg)
+        sut = RequiredManufacturerArg(
+            object, _args, Parameter("my_first_arg", Parameter.POSITIONAL_OR_KEYWORD)
+        )
         assert "required" in str(sut)
 
 
 class TestIncompatibleManufacturerArg:
     def test(self) -> None:
-        arg = "my_first_arg"
-        sut = IncompatibleManufacturerArg(object, _args, arg)
+        sut = IncompatibleManufacturerArg(
+            object, _args, Parameter("my_first_arg", Parameter.POSITIONAL_OR_KEYWORD)
+        )
         assert "incompatible" in str(sut)
 
 
