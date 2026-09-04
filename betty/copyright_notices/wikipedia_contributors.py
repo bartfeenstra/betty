@@ -22,7 +22,7 @@ from betty.localizable import (
 )
 from betty.localizables.gettext import _
 from betty.localizables.static import StaticTranslations
-from betty.service_level import ServiceLevel
+from betty.service_level import ResolvableServiceLevel
 
 
 def _copyright_url(language: str, page: str) -> str:
@@ -31,7 +31,9 @@ def _copyright_url(language: str, page: str) -> str:
 
 @final
 @CopyrightNoticeDefinition("wikipedia-contributors", label=_("Wikipedia contributors"))
-class WikipediaContributors(Arg1Manufacturable[ServiceLevel], CopyrightNotice):
+class WikipediaContributors(
+    Arg1Manufacturable[ResolvableServiceLevel[App]], CopyrightNotice
+):
     """
     .. plugin:: copyright-notice:wikipedia-contributors.
     """

@@ -183,16 +183,20 @@ class Arg2Manufacturable[Arg1T, Arg2T](metaclass=ABCMeta):
 type _ManufacturerReturn[T] = Coroutine[Any, Any, T] | T
 
 
-type Manufacturer[T] = Callable[[], _ManufacturerReturn[T]]
+type Manufacturer[T] = type[Manufacturable] | Callable[[], _ManufacturerReturn[T]]
 
 
 type Arg1Manufacturer[T, Arg1T] = (
-    Callable[[Arg1T], _ManufacturerReturn[T]] | Manufacturer[T]
+    type[Arg1Manufacturable[Arg1T]]
+    | Callable[[Arg1T], _ManufacturerReturn[T]]
+    | Manufacturer[T]
 )
 
 
 type Arg2Manufacturer[T, Arg1T, Arg2T] = (
-    Callable[[Arg1T, Arg2T], _ManufacturerReturn[T]] | Arg1Manufacturer[T, Arg1T]
+    type[Arg2Manufacturable[Arg1T, Arg2T]]
+    | Callable[[Arg1T, Arg2T], _ManufacturerReturn[T]]
+    | Arg1Manufacturer[T, Arg1T]
 )
 
 

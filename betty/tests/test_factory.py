@@ -395,23 +395,23 @@ def _unsupported_because_incompatible_arg_type(arg1: None) -> _Value:
 @pytest.mark.parametrize(
     ("expected", "manufacturer", "args"),
     [
-        (ManufacturerNotCallable, "manufacturer", ()),
-        (ManufacturerNotCallable, 1234567890, ()),
-        (ManufacturerNotCallable, object(), ()),
-        (RequiredManufacturerKwarg, lambda *, kwarg: None, ()),
-        (RequiredManufacturerArg, lambda arg1: None, ()),
-        (RequiredManufacturerArg, lambda arg1, arg2: None, (_Arg1(),)),
+        ([ManufacturerNotCallable], "manufacturer", ()),
+        ([ManufacturerNotCallable], 1234567890, ()),
+        ([ManufacturerNotCallable], object(), ()),
+        ([RequiredManufacturerKwarg], lambda *, kwarg: None, ()),
+        ([RequiredManufacturerArg], lambda arg1: None, ()),
+        ([RequiredManufacturerArg], lambda arg1, arg2: None, (_Arg1(),)),
         (
-            IncompatibleManufacturerArg,
+            [IncompatibleManufacturerArg, RequiredManufacturerArg],
             _unsupported_because_incompatible_arg_type,
             (_Arg1(),),
         ),
     ],
 )
 async def test_new__should_raise(
-    expected: type[FactoryError], manufacturer: Any, args: tuple[Any, ...]
+    expected: Iterable[type[FactoryError]], manufacturer: Any, args: tuple[Any, ...]
 ) -> None:
-    with pytest.RaisesGroup(expected):
+    with pytest.RaisesGroup(*expected):
         await new(manufacturer, *args)
 
 
