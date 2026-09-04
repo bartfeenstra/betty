@@ -61,6 +61,23 @@ class ManufacturerNotCallable(InvalidManufacturer):
 
 
 @final
+class UnevaluatedManufacturerArgType(InvalidManufacturer):
+    """
+    Raised when a manufacturer has an arg whose type is unevaluated.
+
+    Type hints may be unevaluated for a number of reasons, such as when any of the types they use are imported only
+    conditionally in an ``if TYPE_CHECKING:`` block.
+    """
+
+    def __init__(self, manufacturer: Any, arg: str, /):
+        super().__init__(
+            manufacturer,
+            f"it has an arg `{arg}` whose type hint is unevaluated",
+        )
+        self.arg: Final[str] = arg
+
+
+@final
 class RequiredManufacturerKwarg(InvalidManufacturer):
     """
     Raised when a manufacturer has a required kwarg.
@@ -284,6 +301,8 @@ def _validate_manufacturer(manufacturer: Arg2Manufacturer, /) -> tuple[Parameter
             raise ManufacturerNotCallable(manufacturer) from None
 
         for parameter in parameters:
+            if isinstance(parameter.annotation, str):
+                raise UnevaluatedManufacturerArgType(manufacturer, parameter.name)
             if (
                 parameter.kind is Parameter.KEYWORD_ONLY
                 and parameter.default is Parameter.empty
@@ -348,11 +367,6 @@ def _assert_type(
 ) -> None:
     if parameter.annotation is Parameter.empty:
         return
-    # @todo Check for forward references, and raise a helpful error.
-    # @todo Violatons MUST raise InvalidManufacturer rather than UnsupporterManufacturer
-    # @todo
-    # @todo
-    assert not isinstance(parameter.annotation, str)
     try:
         check_type(
             value,
