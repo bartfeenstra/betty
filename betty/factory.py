@@ -12,8 +12,7 @@ from typing import Any, Final, Self, final, overload
 from typeguard import TypeCheckError, check_type
 
 from betty.asyncio import resolve_await
-from betty.localizables.markup import JoinOr
-from betty.localizer import default_localizer
+from betty.string import join_or
 
 # @todo Do we need this at all? Or here? Move it with the tests?
 max_arg_count: Final[int] = 2
@@ -272,7 +271,7 @@ def _match_manufacturers(
         except* ManufacturerError as error:
             errors.extend(error.exceptions)
     raise ExceptionGroup(
-        f"Could not match {JoinOr(*map(repr, manufacturers)).localize(default_localizer)} to the given new args.",
+        f"Could not match {join_or(*map(repr, manufacturers))} to the given new args.",
         errors,
     )
 
