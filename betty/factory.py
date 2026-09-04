@@ -9,7 +9,7 @@ from collections.abc import Callable, Coroutine, Iterable, Mapping, Sequence
 from inspect import Parameter, signature
 from typing import Any, Final, Self, final, overload
 
-from typeguard import TypeCheckError, check_type
+from typeguard import CollectionCheckStrategy, TypeCheckError, check_type
 
 from betty.asyncio import resolve_await
 from betty.string import join_or
@@ -331,22 +331,33 @@ def _match_manufacturer_args(
                 if parameter.default is Parameter.empty:
                     raise RequiredManufacturerArg(manufacturer, args, parameter.name)
                 break
-            if parameter.annotation is not Parameter.empty:
-                try:
-                    check_type(args[parameter_number], parameter.annotation)
-                except TypeCheckError:
-                    raise IncompatibleManufacturerArg(
-                        manufacturer, args, parameter.name
-                    ) from None
+            _assert_type(manufacturer, args, parameter, args[parameter_number])
             matched_args.append(args[parameter_number])
         elif parameter.kind is Parameter.VAR_POSITIONAL:
-            if parameter.annotation is not Parameter.empty:
-                try:
-                    check_type(args[parameter_number:], parameter.annotation)
-                except TypeCheckError:
-                    raise IncompatibleManufacturerArg(
-                        manufacturer, args, parameter.name
-                    ) from None
+            _assert_type(manufacturer, args, parameter, args[parameter_number:])
             matched_args.extend(args[parameter_number:])
             break
     return tuple(matched_args[:arg_count])
+
+
+def _assert_type(
+    manufacturer: Arg2Manufacturer,
+    args: tuple[Any, ...],
+    parameter: Parameter,
+    value: Any,
+) -> None:
+    if parameter.annotation is Parameter.empty:
+        return
+    # @todo Check for forward references, and raise a helpful error.
+    # @todo Violatons MUST raise InvalidManufacturer rather than UnsupporterManufacturer
+    # @todo
+    # @todo
+    assert not isinstance(parameter.annotation, str)
+    try:
+        check_type(
+            value,
+            parameter.annotation,
+            collection_check_strategy=CollectionCheckStrategy.ALL_ITEMS,
+        )
+    except TypeCheckError:
+        raise IncompatibleManufacturerArg(manufacturer, args, parameter.name) from None
