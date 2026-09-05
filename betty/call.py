@@ -239,7 +239,7 @@ async def call(callback, *args):
 
 def _expand_callbacks(callback: AnyCallback, /) -> Iterable[AnyCallback]:
     # @todo Handle overloads and forward references
-    raise NotImplementedError
+    yield callback
 
 
 def _match_callbacks(
