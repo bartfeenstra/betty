@@ -17,7 +17,7 @@ from aiohttp import ClientError, ClientSession
 
 from betty.app import App
 from betty.exception import HumanFacingException
-from betty.factory import Manufacturable
+from betty.factory import Arg1Manufacturable
 from betty.file import read
 from betty.license import License, LicenseDefinition
 from betty.localizables.gettext import _
@@ -48,7 +48,7 @@ def spdx_license_id_to_license_id(spdx_license_id: str, /) -> MachineName:
 
 
 @final
-class SpdxLicenseDiscoverer(Manufacturable):
+class SpdxLicenseDiscoverer(Arg1Manufacturable):
     """
     Discover licenses from the `SPDX License List <https://spdx.org/licenses/>`_.
     """

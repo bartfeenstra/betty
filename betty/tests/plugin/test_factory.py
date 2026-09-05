@@ -2,8 +2,8 @@ from typing import TYPE_CHECKING, Any, Self, final, override
 
 import pytest
 
+from betty.data.factory import DataManufacturable
 from betty.exception import HumanFacingException
-from betty.factory import DataManufacturable, UnsupportedManufacturer
 from betty.nothing import Nothing
 from betty.plugin.factory import (
     PluginManufacturer,
@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 @final
 @DummyPluginDefinition("required-data-manufacturable-dummy-plugin")
 class _RequiredDataManufacturableDummyPlugin(
-    DataManufacturable[DummyData], DummyPlugin
+    DataManufacturable[ServiceLevel, DummyData], DummyPlugin
 ):
     def __init__(self, *args: Any, data: DummyData, **kwargs: Any):
         super().__init__(*args, **kwargs)
@@ -151,15 +151,6 @@ class TestPluginManufacturer:
         )
         assert sut.plugin_data == sut.plugin_data
         assert sut.plugin_data == configuration
-
-    async def test___call____with_required_data_manufacturable_without_data(
-        self,
-    ) -> None:
-        DummyPluginManufacturer(_RequiredDataManufacturableDummyPlugin)
-        with pytest.raises(UnsupportedManufacturer):
-            await DummyPluginManufacturer(_RequiredDataManufacturableDummyPlugin)(
-                self._SERVICES
-            )
 
     async def test___call____without_data_manufacturable_with_data(self) -> None:
         with pytest.raises(PluginManufacturerError):

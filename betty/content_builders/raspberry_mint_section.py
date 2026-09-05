@@ -22,9 +22,10 @@ from betty.content_builder import (
 )
 from betty.content_builders.template import Template, TemplateBuild
 from betty.data import Data
+from betty.data.factory import DataManufacturable
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.bool import BoolDefinition
-from betty.factory import DataManufacturable
+from betty.factory import new
 from betty.localizables.gettext import _
 from betty.project import Project
 from betty.prop import HasProps
@@ -110,7 +111,7 @@ class SectionData(Data, HasProps):
     label=_("Section"),
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class Section(Template, DataManufacturable[SectionData]):
+class Section(Template, DataManufacturable[Project, SectionData]):
     """
     .. plugin:: content-builder:raspberry-mint-section.
     """
@@ -143,7 +144,7 @@ class Section(Template, DataManufacturable[SectionData]):
         content, jinja = await gather(
             gather(
                 *map(
-                    project.factory.new,
+                    lambda manufacturer: new(manufacturer, project),
                     map(ContentBuilderManufacturer.resolve, data.content),
                 )
             ),

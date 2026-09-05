@@ -19,7 +19,6 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
 
     from betty.collections.plugin.discoverer import PluginDiscovererCollection
-    from betty.factory import Factory
     from betty.plugin import PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
 
@@ -39,13 +38,7 @@ class ServiceLevel(HasProps, ManagedLifeCycle):
     def __init__(
         self, *args: Any, plugins: Plugins = _empty_frozen_mapping, **kwargs: Any
     ):
-        from betty.factory import Factory
-
         super().__init__(*args, **kwargs)
-        self.factory: Final[Factory] = Factory(self)
-        """
-        The object factory.
-        """
         self._plugin_discovery = plugins
 
     @service

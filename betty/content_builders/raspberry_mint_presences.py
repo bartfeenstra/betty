@@ -11,10 +11,11 @@ from betty.attrs.owner import OwnerAttr
 from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.data import Data
+from betty.data.factory import DataManufacturable
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.entities.event import Event
-from betty.factory import DataManufacturable, Manufacturable
+from betty.factory import Arg1Manufacturable
 from betty.localizables.gettext import _
 from betty.machine_name import MachineName
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
@@ -87,7 +88,9 @@ class PresencesData(Data, HasProps):
     label=_("Presences"),
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class Presences(Template, DataManufacturable[PresencesData], Manufacturable):
+class Presences(
+    Template, DataManufacturable[Project, PresencesData], Arg1Manufacturable[Project]
+):
     """
     People's presences at an event.
 

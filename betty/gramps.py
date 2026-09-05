@@ -73,6 +73,7 @@ from betty.event_types.retirement import Retirement
 from betty.event_types.unknown import UnknownEventType
 from betty.event_types.will import Will
 from betty.exception import HumanFacingException
+from betty.factory import new
 from betty.gender import GenderDefinition, GenderManufacturer
 from betty.genders.man import Man
 from betty.genders.non_binary import NonBinary
@@ -873,8 +874,9 @@ class GrampsLoader:
             gender = await self._gender_mapping[gramps_gender](self._project)
         else:
             try:
-                gender = await self._project.factory.new(
-                    (await self._project.plugins[GenderDefinition][gender_id]).cls
+                gender = await new(
+                    (await self._project.plugins[GenderDefinition][gender_id]).cls,
+                    self._project,
                 )
             except PluginNotFound:
                 await self._project.upstream.user.message(

@@ -6,7 +6,7 @@ from betty import load
 from betty.app import App
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.console.project import add_project_argument
-from betty.factory import Manufacturable
+from betty.factory import Arg1Manufacturable
 from betty.job import Context
 from betty.localizables.gettext import _
 from betty.project import generate
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 @final
 @CommandDefinition("generate", label=_("Generate a static site"), aliases=["g"])
-class Generate(Manufacturable, Command):
+class Generate(Arg1Manufacturable[App], Command):
     """
     .. plugin:: command:generate.
     """

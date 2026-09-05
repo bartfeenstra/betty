@@ -10,7 +10,7 @@ from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.entities.person import Person
-from betty.factory import Manufacturable
+from betty.factory import Arg1Manufacturable
 from betty.localizables.gettext import _
 from betty.project import Project
 from betty.service_providers._theme import person_descendant_families
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     label=_("Families"),
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class Families(Template, Manufacturable):
+class Families(Template, Arg1Manufacturable[Project]):
     """
     A person's families.
 

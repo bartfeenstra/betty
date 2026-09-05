@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, Self, final, override
 
 from jinja2 import pass_context
 
-from betty.factory import Manufacturable
+from betty.factory import Arg1Manufacturable
 from betty.jinja import context_document
 from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
 from betty.media_type import MediaType
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 @final
 @JinjaFilterDefinition("url", auto=True)
-class Url(JinjaFilter, Manufacturable):
+class Url(JinjaFilter, Arg1Manufacturable):
     """
     Generate a URL for a resource.
 

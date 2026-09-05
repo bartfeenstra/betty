@@ -24,6 +24,7 @@ from betty.content_builder import (
     ContentBuilderManufacturer,
 )
 from betty.data import Data
+from betty.data.factory import DataManufacturable
 from betty.datas.aggregate.collection.mapping import MappingDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
@@ -35,7 +36,7 @@ from betty.datas.str import StrDefinition
 from betty.dirs import webpack_entry_point_directory
 from betty.entity import EntityDefinition
 from betty.exception import HumanFacingException, reraise_with_indicator
-from betty.factory import DataManufacturable
+from betty.factory import new
 from betty.indicator.operator import Attr, Key
 from betty.jobs._generate_raspberry_mint_search_index import (
     _GenerateRaspberryMintSearchIndex,
@@ -196,7 +197,9 @@ class RaspberryMintData(Data, HasProps):
     },
 )
 class RaspberryMint(
-    EntryPointProvider[Project], DataManufacturable[RaspberryMintData], Generator
+    EntryPointProvider[Project],
+    DataManufacturable[Project, RaspberryMintData],
+    Generator,
 ):
     """
     .. plugin:: service-provider:raspberry-mint.
@@ -329,7 +332,7 @@ class RaspberryMint(
                     await gather(*[
                         gather(
                             *map(
-                                self.services.factory.new,
+                                lambda manufacturer: new(manufacturer, self.services),
                                 map(ContentBuilderManufacturer.resolve, region_content),
                             )
                         )

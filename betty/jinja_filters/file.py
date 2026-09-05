@@ -9,11 +9,12 @@ from urllib.parse import quote
 
 from jinja2 import pass_context
 
-from betty.factory import Manufacturable
+from betty.factory import Arg1Manufacturable
 from betty.jinja import context_document
 from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
 from betty.os import link_or_copy
 from betty.project import Project
+from betty.service_level import ServiceLevel
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -25,7 +26,7 @@ if TYPE_CHECKING:
 
 @final
 @JinjaFilterDefinition("file", auto=True)
-class File(JinjaFilter, Manufacturable):
+class File(JinjaFilter, Arg1Manufacturable[ServiceLevel]):
     """
     Preprocess a file for use in a page.
 

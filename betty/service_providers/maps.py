@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.asset_directories.maps import maps
 from betty.dirs import webpack_entry_point_directory
-from betty.factory import Manufacturable
+from betty.factory import Arg1Manufacturable
 from betty.jobs._generate_maps_place_previews import _GenerateMapsPlacePreviews
 from betty.localizables.gettext import _
 from betty.project import Project
@@ -32,7 +32,7 @@ if TYPE_CHECKING:
         Project.service_providers.require(Webpack),
     },
 )
-class Maps(Generator, EntryPointProvider[Project], Manufacturable):
+class Maps(Generator, EntryPointProvider[Project], Arg1Manufacturable[Project]):
     """
     .. plugin:: service-provider:maps.
     """

@@ -17,10 +17,10 @@ from sphinx.util.parsing import nested_parse_to_nodes
 
 from betty.app import App
 from betty.data import Data
+from betty.data.factory import DataManufacturable
 from betty.datas.aggregate.record import RecordDefinition
 from betty.datas.optional import OptionalDefinition
 from betty.definition.human_facing import HumanFacingDefinition
-from betty.factory import DataManufacturable
 from betty.functools import Result
 from betty.importlib import import_any
 from betty.localizer import default_localizer

@@ -12,7 +12,7 @@ from betty.content_builders.template import Template, TemplateBuild
 from betty.entities.event import Event
 from betty.entities.person import Person
 from betty.entities.place import Place
-from betty.factory import Manufacturable
+from betty.factory import Arg1Manufacturable
 from betty.jinja_filters.webpack_entry_point_js import WebpackEntryPointJs
 from betty.localizables.gettext import _
 from betty.project import Project
@@ -32,7 +32,7 @@ if TYPE_CHECKING:
         Project.jinja_filters.require(WebpackEntryPointJs),
     },
 )
-class Map(Template, Manufacturable):
+class Map(Template, Arg1Manufacturable[Project]):
     """
     An interactive map.
 

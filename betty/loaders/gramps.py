@@ -14,6 +14,7 @@ from betty.collection.mapping import MutableResolvedMapping
 from betty.collections import _empty_frozen_mapping
 from betty.collections.mapping.adapter import MutableResolvedMappingAdapter
 from betty.data import Data
+from betty.data.factory import DataManufacturable
 from betty.datas.aggregate.collection.mapping import MappingDefinition
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
 from betty.datas.aggregate.record import FieldDefinition
@@ -21,7 +22,7 @@ from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.str import StrDefinition
 from betty.event_type import EventType, EventTypeDefinition, EventTypeManufacturer
 from betty.exception import HumanFacingException
-from betty.factory import DataManufacturable, Manufacturable
+from betty.factory import Arg1Manufacturable
 from betty.gramps import (
     DEFAULT_EVENT_TYPE_MAPPING,
     DEFAULT_PLACE_TYPE_MAPPING,
@@ -275,7 +276,9 @@ class GrampsData(Data, HasProps):
     label="Gramps",
     description=_("Load Gramps family trees."),
 )
-class Gramps(DataManufacturable[GrampsData], Manufacturable, Loader):
+class Gramps(
+    DataManufacturable[Project, GrampsData], Arg1Manufacturable[Project], Loader
+):
     """
     .. plugin:: loader:gramps.
 

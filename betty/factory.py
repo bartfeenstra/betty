@@ -4,121 +4,92 @@ Object factories.
 
 from __future__ import annotations
 
-import inspect
 from abc import ABCMeta, abstractmethod
-from collections.abc import Callable, Coroutine
-from inspect import Parameter
-from typing import Any, Self, final
+from typing import Self, overload
 
-from betty.asyncio import resolve_await
-from betty.data import Data
-from betty.importlib import fully_qualified_name
-from betty.service_level import ServiceLevel
-from betty.typing import Intersection
-
-
-class FactoryError(RuntimeError):
-    """
-    Raised when a factory could not create an object.
-    """
-
-
-class UnsupportedManufacturer(FactoryError):
-    """
-    Raised when a manufacturer cannot be used to create a new object.
-    """
-
-
-class ManufacturerError(FactoryError):
-    """
-    Raised when a manufacturer raised an error while creating a new object.
-    """
+from betty.call import Arg1Callback, Arg2Callback, Callback, call
 
 
 class Manufacturable(metaclass=ABCMeta):
     """
-    Allow this type to be instantiated using a :py:class:`betty.service_level.ServiceLevel`.
+    Allow this type to be initialized asynchronously.
     """
 
     @classmethod
     @abstractmethod
-    async def new(cls, services: ServiceLevel, /) -> Self:
+    async def new(cls) -> Self:
         """
-        Create a new instance using the given service level.
+        Create a new instance.
         """
 
 
-type Manufacturer[T] = (
-    type[Intersection[T, Manufacturable]]
-    | Callable[[], Coroutine[Any, Any, T] | T]
-    | Callable[[ServiceLevel], Coroutine[Any, Any, T] | T]
+class Arg1Manufacturable[Arg1T](metaclass=ABCMeta):
+    """
+    Allow this type to be initialized using an argument.
+    """
+
+    @classmethod
+    @abstractmethod
+    async def new(cls, arg1: Arg1T, /) -> Self:
+        """
+        Create a new instance.
+        """
+
+
+class Arg2Manufacturable[Arg1T, Arg2T](metaclass=ABCMeta):
+    """
+    Allow this type to be initialized using two arguments.
+    """
+
+    @classmethod
+    @abstractmethod
+    async def new(cls, arg1: Arg1T, arg2: Arg2T, /) -> Self:
+        """
+        Create a new instance.
+        """
+
+
+type Manufacturer[T] = type[Manufacturable] | Callback[T]
+
+
+type Arg1Manufacturer[T, Arg1T] = (
+    type[Arg1Manufacturable[Arg1T]] | Arg1Callback[T, Arg1T]
 )
 
 
-class DataManufacturable[DataT: Data](metaclass=ABCMeta):
+type Arg2Manufacturer[T, Arg1T, Arg2T] = (
+    type[Arg2Manufacturable[Arg1T, Arg2T]] | Arg2Callback[T, Arg1T, Arg2T]
+)
+
+
+@overload
+async def new[T](manufacturer: Manufacturer[T], /) -> T:
+    pass
+
+
+@overload
+async def new[T, Arg1T](manufacturer: Arg1Manufacturer[T, Arg1T], arg1: Arg1T, /) -> T:
+    pass
+
+
+@overload
+async def new[T, Arg1T, Arg2T](
+    manufacturer: Arg2Manufacturer[T, Arg1T, Arg2T], arg1: Arg1T, arg2: Arg2T, /
+) -> T:
+    pass
+
+
+async def new(manufacturer, *args):
     """
-    A class that can be initialized using defined data.
+    Create a new object from a manufacturer.
     """
-
-    @classmethod
-    @abstractmethod
-    async def new(cls, services: ServiceLevel, data: DataT, /) -> Self:
-        """
-        Create a new instance using the given service level and defined data.
-        """
-
-    @classmethod
-    @abstractmethod
-    def new_data_cls(cls) -> type[DataT]:
-        """
-        The object's defined data class.
-        """
-
-
-@final
-class Factory:
-    """
-    The object factory.
-    """
-
-    def __init__(self, services: ServiceLevel, /):
-        self._services = services
-
-    async def new[T](self, manufacturer: Manufacturer[T], /) -> T:
-        """
-        Create a new instance.
-
-        :raises FactoryError: raised when ``manufacturer`` could not be called.
-        """
-        if isinstance(manufacturer, type) and issubclass(manufacturer, Manufacturable):
-            return await manufacturer.new(self._services)  # ty:ignore[invalid-return-type]
-        args = self._args(manufacturer)
-        if args is None:
-            raise UnsupportedManufacturer(
-                f'{manufacturer} must not have any required arguments, except optionally a first argument typed on {fully_qualified_name(ServiceLevel)} and/or named "services".'
-            )
-        try:
-            return await resolve_await(manufacturer(*args))
-        except Exception as error:
-            raise ManufacturerError(
-                f"{repr(manufacturer)} raised an unexpected error when creating a new object."
-            ) from error
-
-    def _args(self, manufacturer: Manufacturer) -> tuple | None:
-        parameters = tuple(inspect.signature(manufacturer).parameters.values())
-        if not parameters:
-            return ()
-        if (
-            parameters[0].annotation is ServiceLevel or parameters[0].name == "services"
-        ) and self._optional(*parameters[1:]):
-            return (self._services,)
-        if self._optional(*parameters):
-            return ()
-        return None
-
-    def _optional(self, *parameters: Parameter) -> bool:
-        return all(
-            parameter.default is not Parameter.empty
-            or parameter.kind in (Parameter.VAR_POSITIONAL, Parameter.VAR_KEYWORD)
-            for parameter in parameters
-        )
+    if isinstance(manufacturer, type):
+        for manufacturable_cls in (
+            Arg2Manufacturable,
+            Arg1Manufacturable,
+            Manufacturable,
+        ):
+            if issubclass(manufacturer, manufacturable_cls):
+                manufacturer = manufacturer.new
+                break
+    return await call(manufacturer, *args)

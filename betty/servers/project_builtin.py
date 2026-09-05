@@ -7,7 +7,7 @@ from __future__ import annotations
 from asyncio import to_thread
 from typing import Self, final, override
 
-from betty.factory import Manufacturable
+from betty.factory import Arg1Manufacturable
 from betty.localizables.gettext import _
 from betty.plugin.cls import Plugin
 from betty.project import Project
@@ -26,7 +26,9 @@ from betty.servers.builtin import BuiltinServer
     after=lambda _: True,
     requires=[Project.require],
 )
-class ProjectBuiltinServer(Server, Manufacturable, Plugin[ServerDefinition]):
+class ProjectBuiltinServer(
+    Server, Arg1Manufacturable[Project], Plugin[ServerDefinition]
+):
     """
     .. plugin:: server:builtin.
     """

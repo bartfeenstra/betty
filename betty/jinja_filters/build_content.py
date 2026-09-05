@@ -4,13 +4,12 @@ The ``build_content`` Jinja filter.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, final, override
+from typing import TYPE_CHECKING, final
 
 from jinja2 import pass_context
 from markupsafe import Markup
 
 from betty.content_builder import ContentBuilder, build
-from betty.factory import Factory, Manufacturable
 from betty.jinja import context_document
 from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
 
@@ -19,25 +18,15 @@ if TYPE_CHECKING:
 
     from jinja2.runtime import Context
 
-    from betty.service_level import ServiceLevel
-
 
 @final
 @JinjaFilterDefinition("build-content", auto=True)
-class BuildContent(JinjaFilter, Manufacturable):
+class BuildContent(JinjaFilter):
     """
     Build content from content configuration.
 
     .. plugin:: jinja-filter:build-content
     """
-
-    def __init__(self, *, factory: Factory):
-        self._factory = factory
-
-    @override
-    @classmethod
-    async def new(cls, services: ServiceLevel, /) -> Self:
-        return cls(factory=services.factory)
 
     @pass_context
     async def __call__(  # noqa: D102
