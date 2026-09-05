@@ -1,4 +1,4 @@
-from collections.abc import Callable, Iterable, Iterator, Sequence
+from collections.abc import Awaitable, Callable, Iterable, Iterator, Sequence
 from inspect import Parameter
 from textwrap import indent
 from typing import Any, Final, Never, final, override
@@ -317,19 +317,10 @@ def _create_new_callback_functions(
 async def test_call__should_return(
     expected: _Value, callback: Any, new_args: tuple[Any, ...]
 ) -> None:
-    callback_message = (
-        f"\nnew() *args: {new_args!r}\nSource code:\n{callback._betty_test_source}"
+    actual = await call(callback, *new_args)
+    assert actual == expected, (
+        f"{callback!r} returned {actual} but {expected!r} was expected.\nnew() *args: {new_args!r}\nSource code:\n{callback._betty_test_source}"
     )
-    try:
-        value = await call(callback, *new_args)
-    except CallError as error:
-        raise AssertionError(
-            f"{callback!r} raised an unexpected error: {error.__cause__}{callback_message}"
-        ) from error
-    else:
-        assert value == expected, (
-            f"{callback!r} returned {value} but {expected!r} was expected.{callback_message}"
-        )
 
 
 def _unsupported_because_incompatible_arg_type(arg1: None) -> _Value:
@@ -362,12 +353,28 @@ async def test_call__should_raise(
     )
 
 
-async def test_call__should_pass_through_callback_exception() -> None:
-    class _CallbackException(Exception):
+async def test_call__should_pass_through_third_party_exception() -> None:
+    class _ThirdPartyException(Exception):
         pass
 
     def _callback() -> Never:
-        raise _CallbackException
+        raise _ThirdPartyException
 
-    with pytest.raises(_CallbackException):
+    with pytest.raises(_ThirdPartyException):
         await call(_callback)
+
+
+async def test_call__should_not_await_non_coroutine_awaitable() -> None:
+    value = _Value()
+
+    async def _new_value() -> _Value:
+        return value
+
+    return_value = _new_value()
+
+    def _callback() -> Awaitable[_Value]:
+        return return_value
+
+    actual = await call(_callback)
+    assert actual is return_value
+    assert await actual is value

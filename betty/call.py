@@ -5,12 +5,11 @@ The call API.
 from __future__ import annotations
 
 from collections.abc import Callable, Coroutine, Iterable, Sequence
-from inspect import Parameter, signature
+from inspect import Parameter, iscoroutinefunction, signature
 from typing import Any, Final, final, overload
 
 from typeguard import CollectionCheckStrategy, TypeCheckError, check_type
 
-from betty.asyncio import resolve_await
 from betty.string import join_or
 
 max_arg_count: Final[int] = 2
@@ -234,7 +233,10 @@ async def call(callback, *args):
     matched_callback, matched_callback_args = _match_callbacks(
         tuple(_expand_callbacks(callback)), *args
     )
-    return await resolve_await(matched_callback(*matched_callback_args))
+    return_value = matched_callback(*matched_callback_args)
+    if iscoroutinefunction(matched_callback):
+        return await return_value
+    return return_value
 
 
 def _expand_callbacks(callback: AnyCallback, /) -> Iterable[AnyCallback]:
