@@ -5,197 +5,9 @@ Object factories.
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from collections.abc import Callable, Coroutine, Iterable, Mapping, Sequence
-from inspect import Parameter, signature
-from typing import Any, Final, Self, final, overload
+from typing import Self, overload
 
-from typeguard import CollectionCheckStrategy, TypeCheckError, check_type
-
-from betty.asyncio import resolve_await
-from betty.string import join_or
-
-# @todo Do we need this at all? Or here? Move it with the tests?
-max_arg_count: Final[int] = 2
-
-
-def _format_args_for_error_message(*args: Any) -> str:
-    return f"{', '.join(map(repr, args))}"
-
-
-class FactoryError(Exception):
-    """
-    Raised for errors occurring in the factory API.
-    """
-
-
-class ManufacturerError(FactoryError):
-    """
-    Raised if something went wrong with a specific manufacturer.
-    """
-
-    def __init__(self, manufacturer: Any, message: str, /):
-        super().__init__(message)
-        self.manufacturer: Final[Any] = manufacturer
-
-
-class _ManufacturerParameterError(ManufacturerError):
-    def __init__(self, *args: Any, parameter: Parameter, **kwargs: Any):
-        super().__init__(*args, **kwargs)
-        self.parameter: Final[Parameter] = parameter
-
-
-class InvalidManufacturer(ManufacturerError, TypeError):
-    """
-    Raised if a value would never be a valid manufacturer under any circumstances.
-    """
-
-    def __init__(self, manufacturer: Any, reason: str, /):
-        super().__init__(
-            manufacturer,
-            f"{manufacturer!r} is not a valid manufacturer, because {reason}.",
-        )
-
-
-@final
-class ManufacturerNotCallable(InvalidManufacturer):
-    """
-    Raised when a manufacturer is not callable.
-    """
-
-    def __init__(self, manufacturer: Any, /):
-        super().__init__(manufacturer, "it is not callable")
-
-
-@final
-class RequiredManufacturerKwarg(_ManufacturerParameterError, InvalidManufacturer):
-    """
-    Raised when a manufacturer has a required kwarg.
-    """
-
-    def __init__(self, manufacturer: Any, parameter: Parameter, /):
-        super().__init__(
-            manufacturer,
-            f"it has a required kwarg `{parameter.name}`, and required kwargs are not allowed",
-            parameter=parameter,
-        )
-
-
-class UnsupportedManufacturer(ManufacturerError, ValueError):
-    """
-    Raised when a manufacturer is not supported for the given args.
-    """
-
-    def __init__(
-        self, manufacturer: Arg2Manufacturer, args: tuple[Any, ...], reason: str, /
-    ):
-        super().__init__(
-            manufacturer,
-            f"{manufacturer!r} cannot be called with args {_format_args_for_error_message(args)}, because {reason}.",
-        )
-        self.args_: Final[tuple[Any, ...]] = args
-
-
-class UnsupportedManufacturerArg(_ManufacturerParameterError, UnsupportedManufacturer):
-    """
-    Raised when a manufacturer arg is not supported.
-    """
-
-    def __init__(
-        self,
-        manufacturer: Arg2Manufacturer,
-        args: tuple[Any, ...],
-        reason: str,
-        parameter: Parameter,
-        /,
-    ):
-        super().__init__(manufacturer, args, reason, parameter=parameter)
-
-
-@final
-class RequiredManufacturerArg(UnsupportedManufacturerArg):
-    """
-    Raised when a manufacturer has a required arg, and there are not enough new args to be able to map one to it.
-    """
-
-    def __init__(
-        self,
-        manufacturer: Arg2Manufacturer,
-        args: tuple[Any, ...],
-        parameter: Parameter,
-        /,
-    ):
-        super().__init__(
-            manufacturer,
-            args,
-            f"it has a required arg `{parameter.name}`, and not enough new args to be able to map one to it",
-            parameter,
-        )
-
-
-@final
-class UntypedManufacturerArg(UnsupportedManufacturerArg):
-    """
-    Raised when a manufacturer has an arg without a type hint.
-    """
-
-    def __init__(
-        self,
-        manufacturer: Arg2Manufacturer,
-        args: tuple[Any, ...],
-        parameter: Parameter,
-        /,
-    ):
-        super().__init__(
-            manufacturer,
-            args,
-            f"it has an arg `{parameter.name}` without a type hint",
-            parameter,
-        )
-
-
-@final
-class UnevaluatedManufacturerArgType(UnsupportedManufacturerArg):
-    """
-    Raised when a manufacturer has an arg whose type is unevaluated.
-
-    Type hints may be unevaluated for a number of reasons, such as when any of the types they use are imported only
-    conditionally in an ``if TYPE_CHECKING:`` block.
-    """
-
-    def __init__(
-        self,
-        manufacturer: Arg2Manufacturer,
-        args: tuple[Any, ...],
-        parameter: Parameter,
-        /,
-    ):
-        super().__init__(
-            manufacturer,
-            args,
-            f'it has an arg `{parameter.name}` whose type hint "{parameter.annotation}" is unevaluated',
-            parameter,
-        )
-
-
-@final
-class IncompatibleManufacturerArg(UnsupportedManufacturerArg):
-    """
-    Raised when a manufacturer arg has a type that is incompatible with the given new arg.
-    """
-
-    def __init__(
-        self,
-        manufacturer: Arg2Manufacturer,
-        args: tuple[Any, ...],
-        parameter: Parameter,
-        /,
-    ):
-        super().__init__(
-            manufacturer,
-            args,
-            f"it has an arg `{parameter.name}` that is incompatible with the given value",
-            parameter,
-        )
+from betty.call import Arg1Callback, Arg2Callback, Callback, call
 
 
 class Manufacturable(metaclass=ABCMeta):
@@ -237,39 +49,17 @@ class Arg2Manufacturable[Arg1T, Arg2T](metaclass=ABCMeta):
         """
 
 
-type _ManufacturerReturn[T] = Coroutine[Any, Any, T] | T
-
-
-type Manufacturer[T] = type[Manufacturable] | Callable[[], _ManufacturerReturn[T]]
+type Manufacturer[T] = type[Manufacturable] | Callback[T]
 
 
 type Arg1Manufacturer[T, Arg1T] = (
-    type[Arg1Manufacturable[Arg1T]]
-    | Callable[[Arg1T], _ManufacturerReturn[T]]
-    | Manufacturer[T]
+    type[Arg1Manufacturable[Arg1T]] | Arg1Callback[T, Arg1T]
 )
 
 
 type Arg2Manufacturer[T, Arg1T, Arg2T] = (
-    type[Arg2Manufacturable[Arg1T, Arg2T]]
-    | Callable[[Arg1T, Arg2T], _ManufacturerReturn[T]]
-    | Arg1Manufacturer[T, Arg1T]
+    type[Arg2Manufacturable[Arg1T, Arg2T]] | Arg2Callback[T, Arg1T, Arg2T]
 )
-
-
-# @todo Do we need this still?
-_manufacturables = (Arg2Manufacturable, Arg1Manufacturable, Manufacturable)
-# @todo These can be moved to the tests, I think
-_Arg0Manufacturables = ((Manufacturable, 0),)
-_Arg1Manufacturables = ((Arg1Manufacturable, 1), *_Arg0Manufacturables)
-_Arg2Manufacturables = ((Arg2Manufacturable, 2), *_Arg1Manufacturables)
-_new_arg_counts_to_manufacturables: Final[
-    Mapping[int, tuple[tuple[type, int], ...]]
-] = {
-    0: _Arg0Manufacturables,
-    1: _Arg1Manufacturables,
-    2: _Arg2Manufacturables,
-}
 
 
 @overload
@@ -284,137 +74,22 @@ async def new[T, Arg1T](manufacturer: Arg1Manufacturer[T, Arg1T], arg1: Arg1T, /
 
 @overload
 async def new[T, Arg1T, Arg2T](
-    manufacturer: Arg2Manufacturer[T, Arg1T, Arg2T],
-    arg1: Arg1T,
-    arg2: Arg2T,
-    /,
+    manufacturer: Arg2Manufacturer[T, Arg1T, Arg2T], arg1: Arg1T, arg2: Arg2T, /
 ) -> T:
     pass
 
 
-async def new(manufacturer, *new_args):
+async def new(manufacturer, *args):
     """
     Create a new object from a manufacturer.
-
-    :param new_args: Any arguments to pass on to the manufacturer, if it accepts them.
-
-    :raises FactoryError:
-    :raises InvalidManufacturer:
-    :raises SupportedManufacturer:
     """
-    matched_manufacturer, matched_manufacturer_args = _match_manufacturers(
-        tuple(_expand_manufacturers(manufacturer)), *new_args
-    )
-    return await resolve_await(matched_manufacturer(*matched_manufacturer_args))
-
-
-def _expand_manufacturers(
-    manufacturer: Arg2Manufacturer, /
-) -> Iterable[Arg2Manufacturer]:
     if isinstance(manufacturer, type):
-        for manufacturable_cls in _manufacturables:
-            if issubclass(manufacturer, manufacturable_cls):
-                yield manufacturer.new
-                break
-    yield manufacturer
-
-
-def _match_manufacturers(
-    manufacturers: Sequence[Arg2Manufacturer], *new_args: Any
-) -> tuple[Arg2Manufacturer, tuple[Any, ...]]:
-    errors = []
-    for manufacturer in manufacturers:
-        try:
-            return manufacturer, _match_manufacturer(manufacturer, *new_args)
-        except* ManufacturerError as error:
-            errors.extend(error.exceptions)
-    raise ExceptionGroup(
-        f"Could not match {join_or(*map(repr, manufacturers))} to the given new args.",
-        errors,
-    )
-
-
-def _validate_manufacturer(manufacturer: Arg2Manufacturer, /) -> tuple[Parameter, ...]:
-    try:
-        try:
-            parameters = tuple(signature(manufacturer).parameters.values())
-        except TypeError:
-            raise ManufacturerNotCallable(manufacturer) from None
-
-        for parameter in parameters:
-            if (
-                parameter.kind is Parameter.KEYWORD_ONLY
-                and parameter.default is Parameter.empty
-            ):
-                raise RequiredManufacturerKwarg(manufacturer, parameter)
-    except InvalidManufacturer as error:
-        raise ExceptionGroup("Invalid manufacturer", [error]) from None
-    return parameters
-
-
-def _match_manufacturer(
-    manufacturer: Arg2Manufacturer, *new_args: Any
-) -> tuple[Any, ...]:
-    new_arg_count = len(new_args)
-    parameters = _validate_manufacturer(manufacturer)
-    errors = []
-    for match_arg_count in reversed(range(new_arg_count + 1)):
-        try:
-            return _match_manufacturer_args(
-                manufacturer,
-                new_args[-match_arg_count:] if match_arg_count else (),
-                parameters,
-            )
-        except* UnsupportedManufacturer as error:
-            errors.extend(error.exceptions)
-    raise ExceptionGroup(
-        f"Could not match {manufacturer} to the given new args.", errors
-    )
-
-
-def _match_manufacturer_args(
-    manufacturer: Arg2Manufacturer,
-    args: tuple[Any, ...],
-    parameters: tuple[Parameter, ...],
-    /,
-) -> tuple[Any, ...]:
-    arg_count = len(args)
-    matched_args = []
-    for parameter_number, parameter in enumerate(parameters):
-        if parameter.kind in (
-            Parameter.POSITIONAL_ONLY,
-            Parameter.POSITIONAL_OR_KEYWORD,
+        for manufacturable_cls in (
+            Arg2Manufacturable,
+            Arg1Manufacturable,
+            Manufacturable,
         ):
-            if parameter_number >= arg_count:
-                if parameter.default is Parameter.empty:
-                    raise RequiredManufacturerArg(manufacturer, args, parameter)
+            if issubclass(manufacturer, manufacturable_cls):
+                manufacturer = manufacturer.new
                 break
-            _assert_type(manufacturer, args, parameter, args[parameter_number])
-            matched_args.append(args[parameter_number])
-        elif parameter.kind is Parameter.VAR_POSITIONAL:
-            _assert_type(manufacturer, args, parameter, args[parameter_number:])
-            matched_args.extend(args[parameter_number:])
-            break
-    return tuple(matched_args[:arg_count])
-
-
-def _assert_type(
-    manufacturer: Arg2Manufacturer,
-    args: tuple[Any, ...],
-    parameter: Parameter,
-    value: Any,
-) -> None:
-    if parameter.annotation is Parameter.empty:
-        if manufacturer.__code__.co_name == "<lambda>":  # ty:ignore[unresolved-attribute]
-            return
-        raise UntypedManufacturerArg(manufacturer, args, parameter)
-    if isinstance(parameter.annotation, str):
-        raise UnevaluatedManufacturerArgType(manufacturer, args, parameter)
-    try:
-        check_type(
-            value,
-            parameter.annotation,
-            collection_check_strategy=CollectionCheckStrategy.ALL_ITEMS,
-        )
-    except TypeCheckError:
-        raise IncompatibleManufacturerArg(manufacturer, args, parameter) from None
+    return await call(manufacturer, *args)

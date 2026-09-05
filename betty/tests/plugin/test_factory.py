@@ -6,8 +6,8 @@ from betty.data.factory import DataManufacturable
 from betty.exception import HumanFacingException
 from betty.nothing import Nothing
 from betty.plugin.factory import (
-    PluginFactoryError,
     PluginManufacturer,
+    PluginManufacturerError,
     PluginManufacturerPorter,
 )
 from betty.service_level import ServiceLevel
@@ -153,7 +153,7 @@ class TestPluginManufacturer:
         assert sut.plugin_data == configuration
 
     async def test___call____without_data_manufacturable_with_data(self) -> None:
-        with pytest.raises(PluginFactoryError):
+        with pytest.raises(PluginManufacturerError):
             await DummyPluginManufacturer(DummyPluginOne, DummyData())(self._SERVICES)
 
     async def test___call____with_required_data_manufacturable_and_data(self) -> None:

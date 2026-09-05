@@ -1,28 +1,31 @@
 from abc import ABCMeta, abstractmethod
-from collections.abc import Callable, Iterable, Iterator, Sequence
-from inspect import Parameter
+from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 from textwrap import indent
-from typing import Any, Final, Never, Self, final, override
+from typing import Any, Final, Self, final, override
 
 import pytest
 
+from betty.call import CallbackError, max_arg_count
 from betty.factory import (
+    Arg1Manufacturable,
+    Arg2Manufacturable,
     Arg2Manufacturer,
-    FactoryError,
-    IncompatibleManufacturerArg,
-    InvalidManufacturer,
-    ManufacturerError,
-    ManufacturerNotCallable,
-    RequiredManufacturerArg,
-    RequiredManufacturerKwarg,
-    UnsupportedManufacturer,
-    UnsupportedManufacturerArg,
-    _new_arg_counts_to_manufacturables,
-    max_arg_count,
+    Manufacturable,
     new,
 )
 from betty.importlib import fully_qualified_name
 from betty.string import snake_case_to_upper_camel_case
+
+_Arg0Manufacturables = ((Manufacturable, 0),)
+_Arg1Manufacturables = ((Arg1Manufacturable, 1), *_Arg0Manufacturables)
+_Arg2Manufacturables = ((Arg2Manufacturable, 2), *_Arg1Manufacturables)
+_new_arg_counts_to_manufacturables: Final[
+    Mapping[int, tuple[tuple[type, int], ...]]
+] = {
+    0: _Arg0Manufacturables,
+    1: _Arg1Manufacturables,
+    2: _Arg2Manufacturables,
+}
 
 
 class _Arg1:
@@ -40,71 +43,6 @@ _arg2 = _Arg2()
 
 
 _args = (_arg1, _arg2)
-
-
-class TestManufacturerError:
-    def test(self) -> None:
-        manufacturer = object()
-        message = "Oops!"
-        sut = ManufacturerError(manufacturer, message)
-        assert sut.manufacturer is manufacturer
-        assert str(sut) == message
-
-
-class TestInvalidManufacturer:
-    def test(self) -> None:
-        reason = "Oops!"
-        sut = InvalidManufacturer(object, reason)
-        assert reason in str(sut)
-
-
-class TestManufacturerNotCallable:
-    def test(self) -> None:
-        sut = ManufacturerNotCallable(object)
-        assert str(sut)
-
-
-class TestRequiredManufacturerKwarg:
-    def test(self) -> None:
-        kwarg = "my_first_kwarg"
-        parameter = Parameter(kwarg, Parameter.KEYWORD_ONLY)
-        sut = RequiredManufacturerKwarg(object, parameter)
-        assert sut.parameter is parameter
-        assert kwarg in str(sut)
-
-
-class TestUnsupportedManufacturer:
-    def test(self) -> None:
-        reason = "Oops!"
-        sut = UnsupportedManufacturer(object, _args, reason)
-        assert sut.manufacturer is object
-        assert sut.args_ == _args
-        assert reason in str(sut)
-
-
-class TestUnsupportedManufacturerArg:
-    def test(self) -> None:
-        reason = "Oops!"
-        arg = "my_first_arg"
-        parameter = Parameter(arg, Parameter.POSITIONAL_OR_KEYWORD)
-        sut = UnsupportedManufacturerArg(object, _args, reason, parameter)
-        assert sut.parameter is parameter
-
-
-class TestRequiredManufacturerArg:
-    def test(self) -> None:
-        sut = RequiredManufacturerArg(
-            object, _args, Parameter("my_first_arg", Parameter.POSITIONAL_OR_KEYWORD)
-        )
-        assert "required" in str(sut)
-
-
-class TestIncompatibleManufacturerArg:
-    def test(self) -> None:
-        sut = IncompatibleManufacturerArg(
-            object, _args, Parameter("my_first_arg", Parameter.POSITIONAL_OR_KEYWORD)
-        )
-        assert "incompatible" in str(sut)
 
 
 class _Value:
@@ -375,7 +313,7 @@ def _create_new_manufacturer_functions_and_manufacturable_class(
     ("expected", "manufacturer", "new_args"),
     list(_parameterize_test_new__should_return()),
 )
-async def test_new__should_return(
+async def test_new(
     expected: _Value, manufacturer: Any, new_args: tuple[Any, ...]
 ) -> None:
     manufacturer_message = (
@@ -383,7 +321,7 @@ async def test_new__should_return(
     )
     try:
         value = await new(manufacturer, *new_args)
-    except FactoryError as error:
+    except CallbackError as error:
         raise AssertionError(
             f"{manufacturer!r} raised an unexpected error: {error.__cause__}{manufacturer_message}"
         ) from error
@@ -391,44 +329,3 @@ async def test_new__should_return(
         assert value == expected, (
             f"{manufacturer!r} returned {value} but {expected!r} was expected.{manufacturer_message}"
         )
-
-
-def _unsupported_because_incompatible_arg_type(arg1: None) -> _Value:
-    raise NotImplementedError
-
-
-@pytest.mark.parametrize(
-    ("expected", "manufacturer", "args"),
-    [
-        (ManufacturerNotCallable, "manufacturer", ()),
-        (ManufacturerNotCallable, 1234567890, ()),
-        (ManufacturerNotCallable, object(), ()),
-        (RequiredManufacturerKwarg, lambda *, kwarg: None, ()),
-        (RequiredManufacturerArg, lambda arg1: None, ()),
-        (RequiredManufacturerArg, lambda arg1, arg2: None, (_Arg1(),)),
-        (
-            IncompatibleManufacturerArg,
-            _unsupported_because_incompatible_arg_type,
-            (_Arg1(),),
-        ),
-    ],
-)
-async def test_new__should_raise(
-    expected: type[FactoryError], manufacturer: Any, args: tuple[Any, ...]
-) -> None:
-    with pytest.raises(ExceptionGroup) as exc_info:
-        await new(manufacturer, *args)
-    assert any(
-        isinstance(exception, expected) for exception in exc_info.value.exceptions
-    )
-
-
-async def test_new__should_pass_through_manufacturer_exception() -> None:
-    class _ManufacturerException(Exception):
-        pass
-
-    def _manufacturer() -> Never:
-        raise _ManufacturerException
-
-    with pytest.raises(_ManufacturerException):
-        await new(_manufacturer)
