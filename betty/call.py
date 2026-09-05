@@ -238,10 +238,10 @@ async def call(callback, *new_args):
     :raises InvalidCallback:
     :raises SupportedCallback:
     """
-    # @todo 1) Write a version of this function that takes multiple candidate callbacks that may have been partly
-    # @todo    expanded by the caller (e.g. the factory API adding .new() for Manufacturables)
-    # @todo 2) Expand all callbacks ourselves (e.g. replace by overloads)
-    # @todo 3) Validate each
+    # @todo 1) Expand all callbacks (e.g. replace by overloads)
+    # @todo 2) Can/should we evaluate forward references?
+    # @todo 3) For each arg count, counting down, go over each callback in order and attempt to match
+    # @todo 4) Return the first match or error if no match found
     # @todo
     matched_callback, matched_callback_args = _match_callbacks(
         tuple(_expand_callbacks(callback)), *new_args
