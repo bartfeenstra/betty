@@ -25,7 +25,7 @@ class Manufacturable(metaclass=ABCMeta):
 
 class Arg1Manufacturable[Arg1T](metaclass=ABCMeta):
     """
-    Allow this type to be initialized using a argument.
+    Allow this type to be initialized using an argument.
     """
 
     @classmethod
