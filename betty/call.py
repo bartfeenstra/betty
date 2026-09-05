@@ -114,11 +114,7 @@ class RequiredCallbackArg(UnsupportedCallbackArg):
     """
 
     def __init__(
-        self,
-        callback: AnyCallback,
-        args: tuple[Any, ...],
-        parameter: Parameter,
-        /,
+        self, callback: AnyCallback, args: tuple[Any, ...], parameter: Parameter, /
     ):
         super().__init__(
             callback,
@@ -135,11 +131,7 @@ class UntypedCallbackArg(UnsupportedCallbackArg):
     """
 
     def __init__(
-        self,
-        callback: AnyCallback,
-        args: tuple[Any, ...],
-        parameter: Parameter,
-        /,
+        self, callback: AnyCallback, args: tuple[Any, ...], parameter: Parameter, /
     ):
         super().__init__(
             callback,
@@ -159,11 +151,7 @@ class UnevaluatedCallbackArgType(UnsupportedCallbackArg):
     """
 
     def __init__(
-        self,
-        callback: AnyCallback,
-        args: tuple[Any, ...],
-        parameter: Parameter,
-        /,
+        self, callback: AnyCallback, args: tuple[Any, ...], parameter: Parameter, /
     ):
         super().__init__(
             callback,
@@ -228,11 +216,11 @@ async def call[ReturnT, Arg1T, Arg2T](
     pass
 
 
-async def call(callback, *new_args):
+async def call(callback, *args):
     """
     Call a callback and return its return value.
 
-    :param new_args: Any arguments to pass on to the callback, if it accepts them.
+    :param args: Any arguments to pass on to the callback, if it accepts them.
 
     :raises CallError:
     :raises InvalidCallback:
@@ -244,7 +232,7 @@ async def call(callback, *new_args):
     # @todo 4) Return the first match or error if no match found
     # @todo
     matched_callback, matched_callback_args = _match_callbacks(
-        tuple(_expand_callbacks(callback)), *new_args
+        tuple(_expand_callbacks(callback)), *args
     )
     return await resolve_await(matched_callback(*matched_callback_args))
 
@@ -255,12 +243,12 @@ def _expand_callbacks(callback: AnyCallback, /) -> Iterable[AnyCallback]:
 
 
 def _match_callbacks(
-    callbacks: Sequence[AnyCallback], *new_args: Any
+    callbacks: Sequence[AnyCallback], *args: Any
 ) -> tuple[AnyCallback, tuple[Any, ...]]:
     errors = []
     for callback in callbacks:
         try:
-            return callback, _match_callback(callback, *new_args)
+            return callback, _match_callback(callback, *args)
         except* CallbackError as error:
             errors.extend(error.exceptions)
     raise ExceptionGroup(
@@ -287,15 +275,14 @@ def _validate_callback(callback: AnyCallback, /) -> tuple[Parameter, ...]:
     return parameters
 
 
-def _match_callback(callback: AnyCallback, *new_args: Any) -> tuple[Any, ...]:
-    new_arg_count = len(new_args)
+def _match_callback(callback: AnyCallback, *args: Any) -> tuple[Any, ...]:
     parameters = _validate_callback(callback)
     errors = []
-    for match_arg_count in reversed(range(new_arg_count + 1)):
+    for match_arg_count in reversed(range(len(args) + 1)):
         try:
             return _match_callback_args(
                 callback,
-                new_args[-match_arg_count:] if match_arg_count else (),
+                args[-match_arg_count:] if match_arg_count else (),
                 parameters,
             )
         except* UnsupportedCallback as error:
@@ -304,10 +291,7 @@ def _match_callback(callback: AnyCallback, *new_args: Any) -> tuple[Any, ...]:
 
 
 def _match_callback_args(
-    callback: AnyCallback,
-    args: tuple[Any, ...],
-    parameters: tuple[Parameter, ...],
-    /,
+    callback: AnyCallback, args: tuple[Any, ...], parameters: tuple[Parameter, ...], /
 ) -> tuple[Any, ...]:
     arg_count = len(args)
     matched_args = []
@@ -330,10 +314,7 @@ def _match_callback_args(
 
 
 def _assert_type(
-    callback: AnyCallback,
-    args: tuple[Any, ...],
-    parameter: Parameter,
-    value: Any,
+    callback: AnyCallback, args: tuple[Any, ...], parameter: Parameter, value: Any
 ) -> None:
     if parameter.annotation is Parameter.empty:
         if callback.__code__.co_name == "<lambda>":  # ty:ignore[unresolved-attribute]
